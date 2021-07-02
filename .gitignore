@@ -15,6 +15,7 @@
 # misc
 .firebaserc
 database.rules.json
+src/firebase.js
 firebase.json
 firestore.rules
 npm-debug.log*

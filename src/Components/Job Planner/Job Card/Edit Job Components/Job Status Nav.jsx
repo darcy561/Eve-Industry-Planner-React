@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { jobTypes } from "../..";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 
+// This renders the edit job nav bar based on the jobtype and selects the active option based on the current jobtype.
 function JobStatusSelect(status) {
   const [activeJob, updateActiveJob] = useContext(ActiveJobContext);
 

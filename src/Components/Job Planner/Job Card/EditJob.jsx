@@ -8,6 +8,7 @@ import {
 import JobStatusSelect from "./Edit Job Components/Job Status Nav";
 import { JobSettingsButtons } from "./Edit Job Components/Job Settings Buttons";
 
+//This is the function to render the contents of the edit job popup window
 export function EditJob() {
   const [jobStatus, updateJobStatus] = useContext(JobStatusContext);
   const [jobArray, updateJobArray] = useContext(JobArrayContext);
@@ -45,6 +46,7 @@ export function EditJob() {
               <h2>{activeJob.name}</h2>
             </div>
             <div className="jobNav">
+              {/* this calls the build of the nav bar  */}
               {jobStatus.map((status) => {
                 return <JobStatusSelect status={status} />;
               })}
@@ -55,6 +57,7 @@ export function EditJob() {
 
             </div>
             {activeJob.jobStatus}
+            {/* this calls the build of the buttons along the left hand side of the popup */}
             <JobSettingsButtons />
           </div>
         </div>

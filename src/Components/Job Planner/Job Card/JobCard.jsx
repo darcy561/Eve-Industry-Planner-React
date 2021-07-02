@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { JobArrayContext, ActiveJobContext,JobSettingsTriggerContext } from "../../../Context/JobContext";
 import { jobTypes } from "..";
 
+//job addings the material efficiency and time efficiency rows onto the job card if the jobype is manufacturing
 function AddManufacturingData(job) {
   if (job.job.jobType !== jobTypes.manufacturing) {
     return (<></>);
@@ -22,6 +23,7 @@ function AddManufacturingData(job) {
   };
 };
 
+//Adds the coloured bar at the base of a job card and switches based on the jobtype
 function SwitchJobTypeStyle(job) {
   if (job.job.jobType === jobTypes.manufacturing) {
     return (
@@ -46,6 +48,7 @@ function SwitchJobTypeStyle(job) {
   };
 };
 
+// builds a single job card for each job in the job array, This is displayed on the job planner page. Called from jobplanner.jsx
 function JobCard(props) {
   const [jobArray, updateJobArray] = useContext(JobArrayContext);
   const [activeJob, updateActiveJob] = useContext(ActiveJobContext);
@@ -56,6 +59,7 @@ function JobCard(props) {
   function EditJobProcess(job) {
     updateActiveJob(job);
     ToggleJobSettingsTrigger(!JobSettingsTrigger);
+    // This function sets up the correct job to be changed and displays the popup window.
   };
 
   return jobList.map((job) => {

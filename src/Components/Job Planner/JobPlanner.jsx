@@ -96,9 +96,11 @@ function JobPlanner() {
     <>
       <SearchPlanner />
       <section className="block-section">
+        {/* Rendes the job edit popup window */}
           <EditJob JobSettingsTrigger={true} />
         <div id="jobWrapper" className="jobsWrapper">
-          <JobStatusRows />
+        {/* Builds each status section on the job planner main page */}
+          <JobStatusRows /> 
         </div>
       </section>
     </>

@@ -13,10 +13,7 @@ function StepButtons() {
       <div
         className="settingsButton"
         onClick={() => {
-          updateActiveJob({
-            ...activeJob,
-            [activeJob.jobStatus]: activeJob.jobStatus++,
-          });
+          updateActiveJob({...activeJob,[activeJob.jobStatus]: activeJob.jobStatus++,});
           console.log(activeJob);
         }}
       >
@@ -26,18 +23,13 @@ function StepButtons() {
   }
 
   if (
-    activeJob.jobStatus > jobStatus[0].id &&
-    activeJob.jobStatus < jobStatus.length - 1
-  ) {
+    activeJob.jobStatus > jobStatus[0].id && activeJob.jobStatus < jobStatus.length - 1 ) {
     return (
       <>
         <div
           className="settingsButton"
           onClick={() => {
-            updateActiveJob({
-              ...activeJob,
-              [activeJob.jobStatus]: activeJob.jobStatus--,
-            });
+            updateActiveJob({...activeJob,[activeJob.jobStatus]: activeJob.jobStatus--,});
             console.log(activeJob);
           }}
         >
@@ -46,10 +38,7 @@ function StepButtons() {
         <div
           className="settingsButton"
           onClick={() => {
-            updateActiveJob({
-              ...activeJob,
-              [activeJob.jobStatus]: activeJob.jobStatus++,
-            });
+            updateActiveJob({...activeJob,[activeJob.jobStatus]: activeJob.jobStatus++,});
             console.log(activeJob);
           }}
         >
@@ -64,10 +53,7 @@ function StepButtons() {
       <div
         className="settingsButton"
         onClick={() => {
-          updateActiveJob({
-            ...activeJob,
-            [activeJob.jobStatus]: activeJob.jobStatus--,
-          });
+          updateActiveJob({...activeJob,[activeJob.jobStatus]: activeJob.jobStatus--, });
           console.log(activeJob);
         }}
       >
@@ -76,10 +62,11 @@ function StepButtons() {
     );
   }
 }
-
+//renders the buttons
 export function JobSettingsButtons() {
   return (
     <div className="settingsButtonWrapper">
+      {/* calls the function above to render the jobStatus step forward/backwards buttons */}
       <StepButtons />
     </div>
   );

@@ -1,0 +1,423 @@
+html{
+    --manufacturing-color: rgba(164,219,45,0.5);
+    --reaction-color: rgba(219,45,164,0.5);
+    --pi-color: rgba(100,45,219,0.5);
+}
+
+body { 
+    background-image: radial-gradient(#4e4a4a,#000000);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    color: #E0E0E0;
+    padding: 0px;
+    border: none;    
+}
+
+h1 {
+    color: #E0E0E0;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 5rem;
+    font-weight: 400;
+}
+
+h2{
+    color:#DBA02D;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: 2px
+
+}
+
+h3{
+    color: #E0E0E0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 2px
+}
+
+.pageWrapper{
+    width: 100%;
+    margin-left:auto;
+    margin-right:auto;
+}
+.headerContainer{
+    margin: 12vh 2vw ;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.header{
+    display: flex;
+}
+
+.navbar{
+    display: flex;  
+    align-content: center;
+    margin-right: 4vw;    
+}
+
+.navlinks{
+    display: flex;
+    list-style: none;
+}
+
+.navlinks li {
+    color: #E0E0E0;
+    margin-left: 2rem;
+    padding: 1rem 2rem;
+    text-decoration: none;
+}
+.navlinks li:hover, li:active{
+    color:#000000;
+    background-color:#DBA02D;
+    width: auto;
+    text-decoration: solid;
+}
+.navlinks li a:link, a:visited{
+        text-decoration: none;
+}
+
+.searchBoxWrapper{
+    width: 100%;
+    position: relative;
+}
+.searchBar{
+    color: black;
+    width: 20%;
+    border: none;
+    border-bottom: #E0E0E0 1px solid;
+    /* background-color: rgba(224,224,224,1); */
+    border-radius: 8px;
+}
+.searchBar:focus{
+    outline-width: 0;
+}
+.searchResults{
+    position:absolute;
+    width: 20%;
+    max-height: 100px;
+    overflow-y:auto;
+    background-color: #4e4a4a;
+    z-index: 2;
+}
+
+.resultItem{
+    position: relative;
+    cursor: pointer;
+}
+
+.resultItem:hover{
+    background-color: #DBA02D;
+    color: black;
+}
+
+.resultItem.ul{
+    list-style-type: none;
+}
+
+.resultItem.li{
+    text-decoration: none;
+}
+
+.block-section{
+    display: flex;
+    margin-left:6vw;
+    margin-right:6vw;
+    padding:1vw;
+}
+
+.jobsWrapper{
+    height: 100%;
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
+}
+.statusWrapper {
+    width: 100%;
+    height:100%;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    margin-bottom: 2.5%;
+}
+
+.statusName{
+    width: 100%;
+    height: 5rem;
+    margin-bottom: 0.5%;
+}
+
+.jobGrid{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 25% 25% 25% 25%;
+}
+
+.jobOverlay{
+    display: hidden;
+    position: absolute;
+    height: auto;
+    width: auto;
+    top: 0;
+    left: 0;
+    right:0;
+    bottom: 0;
+    opacity: 0;
+    border-radius: 10px;
+    transition: .3s ease;
+    background-color: white;
+}
+
+.jobItem{
+    border: white solid 1px;
+    padding: 5px;
+    border-radius: 10px;
+    width:auto;
+    margin: 10px 5px;
+    position: relative;
+}
+
+.jobItem:hover .jobOverlay{
+    opacity: 0.25;
+}
+
+.jobImage{
+    display: flex;
+    align-items: center;
+    margin-right: 4%;
+    margin-left: 5%;
+}
+
+.jobName{
+    display: flex;
+    align-content: center;
+    justify-content: center;    
+}
+
+.jobBodyWrapper{
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 5px;
+    margin-bottom: 8%;
+
+}
+.jobBodyTextWrapper{
+    display:flex;
+    flex-direction: column;
+    width: 100%;
+    margin-right: 5%;
+}
+
+.jobBodyTextRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 2px;
+    width: 100%;
+}
+
+.jobBodyTextRow div:nth-child(2) {
+    justify-content: center;
+}
+
+.jobTypeBarM{
+    position: absolute;
+    bottom: 5px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    background-color: var(--manufacturing-color);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    z-index: -1;
+    width: 97.5%;
+}
+.jobTypeBarR{
+    position: absolute;
+    bottom: 5px;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    background-color: var(--reaction-color);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    z-index: -1;
+    width: 97.5%;
+}
+.jobTypeBarP{
+    background-color: var(--pi-color);
+}
+
+.jobTypeBarText{
+    color:#E0E0E0;
+}
+
+.jobSettings{
+    position: fixed;
+    top: 10%;
+    bottom: 10%;
+    left: 20%;
+    right: 20%;
+    height: auto;
+    width: auto;
+    background-color:#4e4a4a;
+    z-index: 1;
+    border-radius: 10px;
+    border: white solid 2px;
+    flex-direction: column;  
+}
+
+.jobSettingsHeader{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.jobSettingsHeaderButtons{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.deleteJob{
+    display: flex;
+    background-color: red;
+    height: 20px;
+    width: 20px;
+    border-radius: 5px;
+    margin-left: 1%;
+    margin-top: 1%;
+}
+
+.deleteJob:hover{
+    background-color: white;
+}
+
+.closeJob{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #DBA02D;
+    height: 20px;
+    width: 20px;
+    border-radius: 5px;
+    text-align: center;
+    margin-right: 1%;
+    margin-top: 1%;
+}
+
+.closeJob:hover{
+    color:black;
+    background-color: white;
+}
+
+.settingsName{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.jobNav{
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 3%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.jobNavButtonM{
+    display: flex;
+    width: 15%;
+    height: 3rem;
+    margin: 0 5px;
+    padding: auto 0px;
+    background-color: var(--manufacturing-color);
+    justify-content: center;
+    align-items: center;
+}
+
+.jobNavButtonR{
+    display: flex;
+    width: 15%;
+    height: 3rem;
+    margin: 0 5px;
+    background-color:var(--reaction-color);
+    justify-content: center;
+    align-items: center;
+}
+
+.jobNavButtonP{
+    display: flex;
+    width: 15%;
+    height: 3rem;
+    margin: 0 5px;
+    background-color:var(--pi-color);
+    justify-content: center;
+    align-items: center;
+}
+
+.jobNavButtonP:hover, .jobNavButtonR:hover,.jobNavButtonM:hover{
+    background-color: white;
+    color:black;
+    display: flex;
+} 
+
+.jobNavButtonActive{
+    background-color: white;
+    color:black;
+    display: flex;
+    width: 15%;
+    height: 3rem;
+    margin: 0 5px;
+    padding: auto 0px;
+    justify-content: center;
+    align-items: center;
+}
+
+.settingsWrapper{
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 3%;
+    padding-right: 3%;
+    padding-bottom: 1%;
+}
+
+.settingsOptionsWrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 40%;
+}
+
+.settingsButtonWrapper{
+    display: flex;
+    flex-direction: column;
+}
+
+.settingsButton{
+    display: flex;
+    width: auto;
+    height: auto;
+    background-color: #DBA02D;
+    padding:1rem 2rem;
+    margin: 5px 0px;
+    justify-content: center;
+    align-items: center;
+}
+
+.settingsButton:hover{
+    background-color: white;
+    color: black;
+}

@@ -30,17 +30,13 @@ export function EditJob() {
                     (job) => job.jobID !== activeJob.jobID
                   );
                   updateJobArray(newArray);
-                  ToggleJobSettingsTrigger(prev =>!prev);
+                  ToggleJobSettingsTrigger(!JobSettingsTrigger);
                 }}
               ></div>
               <div
                 className="closeJob"
                 onClick={() => {
-                  const index = jobArray.findIndex(x => activeJob.jobID === x.jobID)
-                  const newArray = [...jobArray];
-                  newArray[index] = activeJob;
-                  updateJobArray(newArray);
-                  ToggleJobSettingsTrigger(prev =>!prev);
+                  ToggleJobSettingsTrigger(!JobSettingsTrigger);
                 }}
               >
                 X

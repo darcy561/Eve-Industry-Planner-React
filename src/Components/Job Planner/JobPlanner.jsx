@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { SearchPlanner } from "../Search";
 import { JobCard } from "./Job Card";
-import { JobStatusContext} from "../../Context/JobContext";
+import { JobStatusContext, JobSettingsTriggerContext } from "../../Context/JobContext";
 import { EditJob } from "./Job Card/EditJob";
 
 let blueprintVariables = {
@@ -69,7 +69,7 @@ let jobTypes = {
 };
 
 function JobStatusRows() {
-  const [jobStatus] = useContext(JobStatusContext);
+  const [jobStatus, setJobStatus] = useContext(JobStatusContext);
   
 
   return jobStatus.map((s) => {
@@ -89,7 +89,9 @@ function JobStatusRows() {
 };
 
 function JobPlanner() {
-  
+
+  const [JobSettingsTrigger, ToggleJobSettingsTrigger] = useContext(JobSettingsTriggerContext);
+
   return (
     <>
       <SearchPlanner />

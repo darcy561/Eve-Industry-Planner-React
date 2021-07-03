@@ -13,11 +13,10 @@ function StepButtons() {
       <div
         className="settingsButton"
         onClick={() => {
-          updateActiveJob({...activeJob,[activeJob.jobStatus]: activeJob.jobStatus++,});
-          console.log(activeJob);
+          updateActiveJob(prevState=>({...prevState, jobStatus: prevState.jobStatus + 1 }));
         }}
       >
-        Next Step{" "}
+        Next Step
       </div>
     );
   }
@@ -29,8 +28,7 @@ function StepButtons() {
         <div
           className="settingsButton"
           onClick={() => {
-            updateActiveJob({...activeJob,[activeJob.jobStatus]: activeJob.jobStatus--,});
-            console.log(activeJob);
+            updateActiveJob(prevState=>({...prevState, jobStatus: prevState.jobStatus -1 }));
           }}
         >
           Previous Step
@@ -38,8 +36,7 @@ function StepButtons() {
         <div
           className="settingsButton"
           onClick={() => {
-            updateActiveJob({...activeJob,[activeJob.jobStatus]: activeJob.jobStatus++,});
-            console.log(activeJob);
+            updateActiveJob(prevState=>({...prevState, jobStatus: prevState.jobStatus + 1 }));
           }}
         >
           Next Step
@@ -53,11 +50,10 @@ function StepButtons() {
       <div
         className="settingsButton"
         onClick={() => {
-          updateActiveJob({...activeJob,[activeJob.jobStatus]: activeJob.jobStatus--, });
-          console.log(activeJob);
+          updateActiveJob(prevState=>({...prevState, jobStatus: prevState.jobStatus -1 }));
         }}
       >
-        Previous Step{" "}
+        Previous Step
       </div>
     );
   }

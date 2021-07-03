@@ -56,7 +56,6 @@ export function EditJob() {
             <div className="settingsOptionWrapper">
 
             </div>
-            {activeJob.jobStatus}
             {/* this calls the build of the buttons along the left hand side of the popup */}
             <JobSettingsButtons />
           </div>

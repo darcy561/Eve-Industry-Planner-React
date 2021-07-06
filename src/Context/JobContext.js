@@ -4,11 +4,11 @@ export const JobStatusContext = createContext();
 
 export const JobStatus = (props) => {
   const [jobStatus, setJobStatus] = useState([
-    { id: 0, name: "Planning" },
-    { id: 1, name: "Purchasing" },
-    { id: 2, name: "Building" },
-    { id: 3, name: "Complete" },
-    { id: 4, name: "For Sale" }
+    { id: 1, name: "Planning" },
+    { id: 2, name: "Purchasing" },
+    { id: 3, name: "Building" },
+    { id: 4, name: "Complete" },
+    { id: 5, name: "For Sale" }
   ]);
 
   return (
@@ -53,5 +53,17 @@ export const JobSettingsTrigger = (props) => {
     <JobSettingsTriggerContext.Provider value={[JobSettingsTrigger, ToggleJobSettingsTrigger]}>
       {props.children}
     </JobSettingsTriggerContext.Provider>
+  );
+};
+
+export const SelectedPageContext = createContext();
+
+export const SelectedPage = (props) => {
+  const [SelectedPage, ChangeSelectedPage] = useState(null);
+
+  return (
+    <SelectedPageContext.Provider value={[SelectedPage, ChangeSelectedPage]}>
+      {props.children}
+    </SelectedPageContext.Provider>
   );
 };

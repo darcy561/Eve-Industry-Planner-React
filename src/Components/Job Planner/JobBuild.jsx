@@ -22,7 +22,7 @@ class Job {
 
     this.name = itemJson.name;
     this.jobID = Date.now();
-    this.jobStatus = 0;
+    this.jobStatus = 1;
     this.volume = itemJson.volume;
     this.itemID = itemJson.itemID;
     this.iconID = itemJson.itemID + "_64";
@@ -31,9 +31,10 @@ class Job {
     this.jobCount = 1;
     this.bpME = 0;
     this.bpTE = 0;
-    this.structureType = { value: 1, display: "None" };
+    this.structureType = 1
+    this.structureTypeDisplay =""
     this.rigType = 0;
-    this.systemMultiplyer = 0;
+    this.systemType = 0;
 
     this.job = {
       products: {

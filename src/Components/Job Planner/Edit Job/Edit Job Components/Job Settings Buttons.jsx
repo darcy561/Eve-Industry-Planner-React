@@ -2,18 +2,20 @@ import react, { useContext } from "react";
 import {
   ActiveJobContext,
   JobStatusContext,
+  SelectedPageContext
 } from "../../../../Context/JobContext";
 
 function StepButtons() {
   const [activeJob, updateActiveJob] = useContext(ActiveJobContext);
   const [jobStatus, updateJobStatus] = useContext(JobStatusContext);
+  const [SelectedPage, ChangeSelectedPage] = useContext(SelectedPageContext);
 
   if (activeJob.jobStatus === jobStatus[0].id) {
     return (
       <div
         className="settingsButton"
         onClick={() => {
-          updateActiveJob(prevState=>({...prevState, jobStatus: prevState.jobStatus + 1 }));
+          updateActiveJob(prevState => ({ ...prevState, jobStatus: prevState.jobStatus + 1 }));
         }}
       >
         Next Step
@@ -22,13 +24,13 @@ function StepButtons() {
   }
 
   if (
-    activeJob.jobStatus > jobStatus[0].id && activeJob.jobStatus < jobStatus.length - 1 ) {
+    activeJob.jobStatus > jobStatus[0].id && activeJob.jobStatus < jobStatus.length ) {
     return (
       <>
         <div
           className="settingsButton"
           onClick={() => {
-            updateActiveJob(prevState=>({...prevState, jobStatus: prevState.jobStatus -1 }));
+            updateActiveJob(prevState => ({ ...prevState, jobStatus: prevState.jobStatus - 1 }));
           }}
         >
           Previous Step
@@ -36,7 +38,7 @@ function StepButtons() {
         <div
           className="settingsButton"
           onClick={() => {
-            updateActiveJob(prevState=>({...prevState, jobStatus: prevState.jobStatus + 1 }));
+            updateActiveJob(prevState => ({ ...prevState, jobStatus: prevState.jobStatus + 1 }));
           }}
         >
           Next Step
@@ -45,12 +47,12 @@ function StepButtons() {
     );
   }
 
-  if (activeJob.jobStatus === jobStatus.length - 1) {
+  if (activeJob.jobStatus === jobStatus.length) {
     return (
       <div
         className="settingsButton"
         onClick={() => {
-          updateActiveJob(prevState=>({...prevState, jobStatus: prevState.jobStatus -1 }));
+          updateActiveJob(prevState => ({ ...prevState, jobStatus: prevState.jobStatus - 1 }));
         }}
       >
         Previous Step
@@ -59,11 +61,13 @@ function StepButtons() {
   }
 }
 //renders the buttons
-export function JobSettingsButtons() {
+function JobSettingsButtons() {
   return (
     <div className="settingsButtonWrapper">
       {/* calls the function above to render the jobStatus step forward/backwards buttons */}
       <StepButtons />
     </div>
   );
-}
+};
+
+export {JobSettingsButtons};

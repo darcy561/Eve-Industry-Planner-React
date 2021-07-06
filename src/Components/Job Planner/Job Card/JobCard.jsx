@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { JobArrayContext, ActiveJobContext,JobSettingsTriggerContext } from "../../../Context/JobContext";
+import { JobArrayContext, ActiveJobContext, JobSettingsTriggerContext, SelectedPageContext } from "../../../Context/JobContext";
 import { jobTypes } from "..";
 
 //job addings the material efficiency and time efficiency rows onto the job card if the jobype is manufacturing
@@ -53,12 +53,14 @@ function JobCard(props) {
   const [jobArray, updateJobArray] = useContext(JobArrayContext);
   const [activeJob, updateActiveJob] = useContext(ActiveJobContext);
   const [JobSettingsTrigger, ToggleJobSettingsTrigger] = useContext(JobSettingsTriggerContext);
+  const [SelectedPage, ChangeSelectedPage] = useContext(SelectedPageContext);
 
   const jobList = jobArray.filter((job) => job.jobStatus === props.id);
 
   function EditJobProcess(job) {
+    ChangeSelectedPage(job.jobStatus);
     updateActiveJob(job);
-    ToggleJobSettingsTrigger(!JobSettingsTrigger);
+    ToggleJobSettingsTrigger(prev =>!prev);
     // This function sets up the correct job to be changed and displays the popup window.
   };
 

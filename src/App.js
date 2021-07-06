@@ -8,6 +8,7 @@ import {
   JobArray,
   ActiveJob,
   JobSettingsTrigger,
+  SelectedPage,
 } from "./Context/JobContext";
 
 function App() {
@@ -17,17 +18,19 @@ function App() {
         <Header />
         <Switch>
           <Route path="/home" component={Home} />
-          <JobSettingsTrigger>
-            <ActiveJob>
-              <JobArray>
-                <JobStatus>
-                  <Route path="/jobplanner" component={JobPlanner} />
+          <SelectedPage>
+            <JobSettingsTrigger>
+              <ActiveJob>
+                <JobArray>
+                  <JobStatus>
+                    <Route path="/jobplanner" component={JobPlanner} />
 
-                  <Route path="/itemtree" component={ItemTree} />
-                </JobStatus>
-              </JobArray>
-            </ActiveJob>
-          </JobSettingsTrigger>
+                    <Route path="/itemtree" component={ItemTree} />
+                  </JobStatus>
+                </JobArray>
+              </ActiveJob>
+            </JobSettingsTrigger>
+          </SelectedPage>
         </Switch>
       </Router>
     </>

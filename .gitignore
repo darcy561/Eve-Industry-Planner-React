@@ -4,6 +4,8 @@
 /node_modules
 /.pnp
 .pnp.js
+.github
+.vscode
 
 # testing
 /coverage
@@ -12,11 +14,10 @@
 /build
 
 # misc
-.firebaserc
 database.rules.json
 src/firebase.js
-firebase.json
 firestore.rules
+firebase-debug.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

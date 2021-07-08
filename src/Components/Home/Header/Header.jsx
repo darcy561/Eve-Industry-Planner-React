@@ -1,5 +1,5 @@
 import React from 'react';
-import{Link} from 'react-router-dom';
+import{NavLink} from 'react-router-dom';
 
 const Header = () => {
 
@@ -7,24 +7,24 @@ const Header = () => {
         <>
             <section className="headerContainer">
                 <header className="header">
-                    <Link to="/home">
-                    <h1>Eve Industry Planner</h1>
-                    </Link>
+                    <NavLink to="/home" className="headerLink" >
+                        <h1>Eve Industry Planner</h1>
+                    </NavLink>
                 </header>
-                <nav className="navbar">
+                <nav className="navbar"  >
                     <div className="navlinks">
-                        <Link to="/jobplanner">
-                        <li>Job Planner</li>
-                        </Link>
-                        <Link to="/itemtree">
-                        <li>Item Tree</li>
-                        </Link>
+                        <NavLink to="/jobplanner" className="navlinkOption" activeClassName="navlinkOptionActive">
+                            Job Planner
+                        </NavLink>
+                        <NavLink to="/itemtree" className="navlinkOption" activeClassName="navlinkOptionActive">
+                            Item Tree
+                        </NavLink>
                     </div>
                 </nav>
             </section>
         </>
     );
-}
+};
 
 
 export { Header }

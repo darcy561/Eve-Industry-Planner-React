@@ -27,13 +27,13 @@ class Job {
     this.itemID = itemJson.itemID;
     this.iconID = itemJson.itemID + "_64";
     this.maxProductionLimit = itemJson.maxProductionLimit;
-    this.runCount = 1;
-    this.jobCount = 1;
-    this.bpME = 0;
-    this.bpTE = 0;
+    this.runCount = 0;
+    this.jobCount = 0;
+    this.bpME = null;
+    this.bpTE = null;
     this.structureType = 1
     this.structureTypeDisplay =""
-    this.rigType = 0;
+    this.rigType = null;
     this.systemType = 0;
 
     this.job = {
@@ -61,52 +61,56 @@ async function createJob(itemID) {
     );
     const itemJson = await response.json();
     const outputObject = new Job(itemJson);
+    try {
+      if (outputObject.jobType === jobTypes.manufacturing) {
+        outputObject.planner.materials = JSON.parse(
+          JSON.stringify(outputObject.manufacturing.materials)
+        );
+        outputObject.planner.skills = JSON.parse(
+          JSON.stringify(outputObject.manufacturing.skills)
+        );
+        outputObject.planner.time = JSON.parse(
+          JSON.stringify(outputObject.manufacturing.time)
+        );
+        outputObject.job.materials = JSON.parse(
+          JSON.stringify(outputObject.manufacturing.materials)
+        );
+        outputObject.job.skills = JSON.parse(
+          JSON.stringify(outputObject.manufacturing.skills)
+        );
+        outputObject.job.time = JSON.parse(
+          JSON.stringify(outputObject.manufacturing.time)
+        );
+      } else if (outputObject.jobType === jobTypes.reaction) {
+        outputObject.planner.materials = JSON.parse(
+          JSON.stringify(outputObject.reaction.materials)
+        );
+        outputObject.planner.skills = JSON.parse(
+          JSON.stringify(outputObject.reaction.skills)
+        );
+        outputObject.planner.time = JSON.parse(
+          JSON.stringify(outputObject.reaction.time)
+        );
+        outputObject.job.materials = JSON.parse(
+          JSON.stringify(outputObject.reaction.materials)
+        );
+        outputObject.job.skills = JSON.parse(
+          JSON.stringify(outputObject.reaction.skills)
+        );
+        outputObject.job.time = JSON.parse(
+          JSON.stringify(outputObject.reaction.time)
+        );
+      };
 
-    if (outputObject.jobType === jobTypes.manufacturing) {
-      outputObject.planner.materials = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.materials)
-      );
-      outputObject.planner.skills = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.skills)
-      );
-      outputObject.planner.time = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.time)
-      );
-      outputObject.job.materials = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.materials)
-      );
-      outputObject.job.skills = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.skills)
-      );
-      outputObject.job.time = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.time)
-      );
-    } else if (outputObject.jobType === jobTypes.reaction) {
-      outputObject.planner.materials = JSON.parse(
-        JSON.stringify(outputObject.reaction.materials)
-      );
-      outputObject.planner.skills = JSON.parse(
-        JSON.stringify(outputObject.reaction.skills)
-      );
-      outputObject.planner.time = JSON.parse(
-        JSON.stringify(outputObject.reaction.time)
-      );
-      outputObject.job.materials = JSON.parse(
-        JSON.stringify(outputObject.reaction.materials)
-      );
-      outputObject.job.skills = JSON.parse(
-        JSON.stringify(outputObject.reaction.skills)
-      );
-      outputObject.job.time = JSON.parse(
-        JSON.stringify(outputObject.reaction.time)
-      );
+      return outputObject;
+
+    } catch (err) {
+      alert("Error Building Job Object");
+      console.log(err);
     };
 
-    return outputObject;
-
   } catch (err) {
-    alert("Could not find recipe data");
-    console.log(err);
+    alert("No blueprint attached to this item");
   };
 };
 export { createJob };

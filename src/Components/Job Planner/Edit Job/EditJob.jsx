@@ -42,6 +42,16 @@ export function EditJob() {
   if (JobSettingsTrigger) {
     return (
       <>
+        <div className="jobSettingsOverlay" onClick={() => {
+                  const index = jobArray.findIndex(
+                    (x) => activeJob.jobID === x.jobID
+                  );
+                  const newArray = [...jobArray];
+                  newArray[index] = activeJob;
+                  updateJobArray(newArray);
+                  ToggleJobSettingsTrigger((prev) => !prev);
+                  ChangeSelectedPage(activeJob.jobStatus);
+                }}></div>
         <div id="jobSettings" className="jobSettings">
           <div id="jobSettingsHeader" className="jobSettingsHeader">
             <div className="jobSettingsHeaderButtons">
@@ -79,20 +89,16 @@ export function EditJob() {
             <div className="jobNav">
               {/* this calls the build of the nav bar  */}
               {jobStatus.map((status) => {
-                return activeJob.jobStatus === status.id ? (
-                    <div key={status.id} className="jobNavButtonActive" onClick={()=>{ChangeSelectedPage(status.id)}}>
-                    {status.name}
-                  </div>
-                ) : activeJob.jobType === jobTypes.manufacturing ? (
-                    <div key={status.id} className="jobNavButtonM" onClick={() => { ChangeSelectedPage(status.id) }}>
+                return activeJob.jobType === jobTypes.manufacturing ? (
+                    <div key={status.id} className={`jobNavButtonM ${activeJob.jobStatus === status.id ? `jobNavButtonCurrentStage`: ``} ${status.id === SelectedPage ?`jobNavButtonActive`: ``}`} onClick={() => { ChangeSelectedPage(status.id) }}>
                     {status.name}
                   </div>
                 ) : activeJob.jobType === jobTypes.reaction ? (
-                      <div key={status.id} className="jobNavButtonR" onClick={() => { ChangeSelectedPage(status.id) }}>
+                      <div key={status.id} className={`jobNavButtonR ${activeJob.jobStatus === status.id ? `jobNavButtonCurrentStage`: ``} ${status.id === SelectedPage ?`jobNavButtonActive`: ``}`} onClick={() => { ChangeSelectedPage(status.id) }}>
                     {status.name}
                   </div>
                 ) : activeJob.jobType === jobTypes.pi ? (
-                        <div key={status.id} className="jobNavButtonP" onClick={() => { ChangeSelectedPage(status.id) }}>
+                        <div key={status.id} className={`jobNavButtonP ${activeJob.jobStatus === status.id ? `jobNavButtonCurrentStage`: ``} ${status.id === SelectedPage ?`jobNavButtonActive`: ``}`} onClick={() => { ChangeSelectedPage(status.id) }}>
                     {status.name}
                   </div>
                 ) : (

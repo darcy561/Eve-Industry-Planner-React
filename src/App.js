@@ -10,6 +10,8 @@ import {
   JobSettingsTrigger,
   SelectedPage,
 } from "./Context/JobContext";
+import { AuthToken } from "./Components/Auth/Auth-Login";
+import { IsLoggedIn, Users } from "./Context/AuthContext";
 
 function App() {
   return (
@@ -17,20 +19,28 @@ function App() {
       <Router>
         <Header />
         <Switch>
-          <Route path="/home" component={Home} />
-          <SelectedPage>
-            <JobSettingsTrigger>
-              <ActiveJob>
-                <JobArray>
-                  <JobStatus>
-                    <Route path="/jobplanner" component={JobPlanner} />
-
-                    <Route path="/itemtree" component={ItemTree} />
-                  </JobStatus>
-                </JobArray>
-              </ActiveJob>
-            </JobSettingsTrigger>
-          </SelectedPage>
+          <IsLoggedIn>
+          <Users>
+              <SelectedPage>
+                <JobSettingsTrigger>
+                  <ActiveJob>
+                    <JobArray>
+                      <JobStatus>
+                        <Route path="/home" exact component={Home} />
+                        <Route
+                          path="/jobplanner"
+                          exact
+                          component={JobPlanner}
+                        />
+                        <Route path="/auth/" exact component={AuthToken} />
+                        <Route path="/itemtree" exact component={ItemTree} />
+                      </JobStatus>
+                    </JobArray>
+                  </ActiveJob>
+                </JobSettingsTrigger>
+              </SelectedPage>
+              </Users>
+            </IsLoggedIn>
         </Switch>
       </Router>
     </>

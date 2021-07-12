@@ -25,7 +25,6 @@ class Job {
     this.jobStatus = 1;
     this.volume = itemJson.volume;
     this.itemID = itemJson.itemID;
-    this.iconID = itemJson.itemID + "_64";
     this.maxProductionLimit = itemJson.maxProductionLimit;
     this.runCount = 0;
     this.jobCount = 0;

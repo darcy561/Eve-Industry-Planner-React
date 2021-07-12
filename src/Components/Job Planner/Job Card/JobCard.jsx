@@ -76,7 +76,10 @@ function JobCard(props) {
           </div>
           <div className="jobBodyWrapper">
             <div className="jobImage">
-              <img src={`../../../images/items/${job.iconID}.png`} alt="" />
+              <picture>
+                <source media="(max-width:750px)" srcSet={`https://image.eveonline.com/Type/${job.itemID}_32.png`} alt="" />
+                <img src={`https://image.eveonline.com/Type/${job.itemID}_64.png`} alt="" />
+              </picture>
             </div>
             <div className="jobBodyTextWrapper">
               <div className="jobBodyTextRow">

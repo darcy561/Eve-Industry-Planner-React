@@ -13,6 +13,10 @@ import { EditPage2 } from "./Edit Job Components/Job Page 2";
 import { EditPage3 } from "./Edit Job Components/Job Page 3";
 import { EditPage4 } from "./Edit Job Components/Job Page 4";
 import { EditPage5 } from "./Edit Job Components/Job Page 5";
+import { MdDelete } from "react-icons/md";
+import { MdClose } from "react-icons/md";
+
+
 
 
 //This is the function to render the contents of the edit job popup window
@@ -65,7 +69,7 @@ export function EditJob() {
                   updateJobArray(newArray);
                   ToggleJobSettingsTrigger((prev) => !prev);
                 }}
-              ></div>
+              ><MdDelete/></div>
               {/* close Job Button */}
               <div
                 className="closeJob"
@@ -80,7 +84,7 @@ export function EditJob() {
                   ChangeSelectedPage(activeJob.jobStatus);
                 }}
               >
-                X
+                <MdClose/>
               </div>
             </div>
             <div className="settingsName">

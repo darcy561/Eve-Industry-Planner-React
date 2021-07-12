@@ -1,7 +1,8 @@
 import React from 'react';
 import{NavLink} from 'react-router-dom';
+import { login } from '../../Auth/Auth-Login';
 
-const Header = () => {
+function Header(){
 
     return (
         <>
@@ -19,6 +20,9 @@ const Header = () => {
                         <NavLink to="/itemtree" className="navlinkOption" activeClassName="navlinkOptionActive">
                             Item Tree
                         </NavLink>
+                        {/* <li className="navlinkOption" activeClassName="navlinkOptionActive" onClick={() => {
+                            login()
+                        }}>Login</li> */}
                     </div>
                 </nav>
             </section>

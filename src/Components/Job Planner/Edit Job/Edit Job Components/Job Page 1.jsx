@@ -4,6 +4,7 @@ import { ActiveJobContext, JobArrayContext } from '../../../../Context/JobContex
 import { blueprintVariables } from '../..';
 import { jobTypes } from '../..';
 import { createJob } from '../../JobBuild';
+import { MdAdd } from "react-icons/md";
 
 const customStyles = {
   option: (provided, state) => ({
@@ -314,7 +315,7 @@ export function EditPage1() {
                 createJobFromEdit(material.typeID, material.quantity)
               }}>
                 <div>
-                  <div >+</div>
+                  <div ><MdAdd/></div>
                   <div>{material.name}</div>
                 </div>
                 <div>{Number(material.quantity).toLocaleString()}</div>

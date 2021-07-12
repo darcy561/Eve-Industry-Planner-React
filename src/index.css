@@ -7,7 +7,9 @@ html{
     --MainBgColor: #4E4A4A;
 }
 
-body { 
+body {
+    display: flex;
+    flex: 1;
     background-image: radial-gradient(#4e4a4a,#000000);
     background-repeat: no-repeat;
     background-size: 100% 100%;
@@ -17,12 +19,13 @@ body {
     padding: 0px;
     border: none; 
     margin: 0;   
+    width: 100%;
 }
 
 h1 {
     color: #E0E0E0;
     font-family: 'Orbitron', sans-serif;
-    font-size: 5rem;
+    font-size: 4rem;
     font-weight: 400;
 }
 
@@ -43,28 +46,54 @@ h3{
     margin-block-start: 0.25em;
     margin-block-end: 0.25em;
 }
+@media only screen and (max-width:600px) {
+    body{
+    font-size: 0.5rem;
+    }
+    h1{
+        font-size: 2rem;
+    }
+    h2{
+        font-size: 1rem;
+    }
+    h3{
+        font-size: 0.5rem;
+    }
+    /* .pageWrapper{
 
+    }
+    .headerContainer{
+
+    } */
+    .header{
+        margin-right:10%;
+    }
+}
 .pageWrapper{
     width: 100%;
     margin-left:auto;
     margin-right:auto;
 }
 .headerContainer{
-    margin: 8vh 2vw ;
+    margin-top: 5%;
+    margin-bottom: 2%;
     display: flex;
+    flex:1;
     flex-direction: row;
-    justify-content: space-between;
     align-items: baseline;
+    width: 100%;
 }
 
 .header{
     display: flex;
+    max-width: 60%;
+    margin-right: 35%;
 }
 
 .navbar{
-    display: flex;  
+    display: flex;
     align-content: center;
-    margin-right: 4vw;    
+    margin-right: 1%;    
 }
 
 .navlinks{
@@ -74,8 +103,8 @@ h3{
 
 .navlinkOption {
     color: #E0E0E0;
-    margin-left: 1rem;
-    padding: 1rem 2rem;
+    margin-left: 1%;
+    padding: 5% 10%;
     text-decoration: none;
 }
 .navlinkOption:hover{
@@ -87,8 +116,8 @@ h3{
 .navlinkOptionActive, .navlinkOptionActive:hover{
     color: black;
     background-color:#DBA02D;
-    margin-left: 1rem;
-    padding: 1rem 2rem;
+    margin-left: 1%;
+    padding: 5% 10%;
     font-weight: bold;
 }
 
@@ -158,12 +187,11 @@ h3{
     display: flex;
     flex-wrap: nowrap;
     flex-direction: column;
-    margin-bottom: 2.5%;
 }
 
 .statusName{
     width: 100%;
-    height: 5rem;
+    height: 10%;
     margin-bottom: 0.5%;
 }
 
@@ -171,7 +199,26 @@ h3{
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-columns: 25% 25% 25% 25%;
+    grid-column-gap:15px;
+    grid-row-gap:15px
+}
+
+@media (max-width: 749px){
+    .jobGrid{
+        grid-template-columns: 50% 50%;
+        grid-column-gap:10px;
+        grid-row-gap:10px
+    }
+}
+@media (min-width: 750px){
+    .jobGrid{
+        grid-template-columns: 33% 33% 33%;
+    }
+}
+@media (min-width: 1200px){
+    .jobGrid{
+        grid-template-columns: 25% 25% 25% 25%;
+    }
 }
 
 .jobOverlay{
@@ -195,7 +242,6 @@ h3{
     padding: 5px;
     border-radius: 10px;
     width:auto;
-    margin: 10px 5px;
     position: relative;
 }
 
@@ -325,6 +371,9 @@ h3{
 .deleteJob{
     display: flex;
     background-color: red;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
     height: 20px;
     width: 20px;
     border-radius: 5px;
@@ -333,6 +382,7 @@ h3{
 }
 
 .deleteJob:hover{
+    color: black;
     background-color: white;
 }
 
@@ -532,9 +582,13 @@ h3{
 .settingsTextBox{
     font-family: 'Montserrat', sans-serif;
     background-color: var(--MainBgColor);
-    border: none;
+    border-bottom: 1px solid var(--MainTextColor);
+    border-top:none;
+    border-left:none;
+    border-right:none;
     color: var(--MainTextColor);
     width: 3rem;
+    text-align: centre;
     -moz-appearance: textfield;
 }
 
@@ -546,7 +600,7 @@ input[type=number]::-webkit-outer-spin-button{
 
 .settingsTextBox:focus{
     outline: none;
-    border-bottom: 1px solid var(--MainTextColor);
+    
 }
 
 .jobInputBox{

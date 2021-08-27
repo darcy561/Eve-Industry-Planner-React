@@ -69,7 +69,7 @@ export function Header() {
             </Typography>
           </Hidden>
 
-          {DataExchange ? <CircularProgress color="secondary" /> : <></>}
+          {DataExchange ? <CircularProgress color="secondary" /> : null}
 
           <Search />
 

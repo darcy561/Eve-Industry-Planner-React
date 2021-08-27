@@ -1,12 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-var serviceAccount = require("./fbPermissions.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL:
-    "https://eve-industry-planner-dev-default-rtdb.europe-west1.firebasedatabase.app",
-});
+admin.initializeApp();
 
 const express = require("express");
 const app = express();
@@ -16,6 +11,16 @@ const db = admin.firestore();
 db.settings({ ignoreUndefinedProperties: true });
 
 //Routes
+
+// app.post("/auth/user", async (req, res) => {
+//   const CharacterHash = req.body.CharacterHash;
+//   const CharacterID = req.body.CharacterID;
+//   const token = admin.auth().createCustomToken(CharacterHash)
+// });
+
+
+
+
 //Post Single Item
 app.post("/api/create", (req, res) => {
   (async () => {

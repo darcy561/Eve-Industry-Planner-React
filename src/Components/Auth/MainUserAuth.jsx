@@ -6,14 +6,14 @@ import { useHistory } from 'react-router';
 
 const appClientID = "d1f943a341524afd9242a49e9e7b46da";
 const appSecretKey = "8w9t3ElwUSL9PcQN4J8qL4tjH2vPLq8OYpuImKYM";
-const urlCallback = "http://localhost:3000/auth/";
+const urlCallback = encodeURIComponent(`https://${window.location.hostname}/auth`);
 const scopes = "publicData"
 const baseURl = "https://login.eveonline.com/v2/oauth/authorize/?response_type=code";
 
 
 export function login() {
     const state = window.location.pathname;
-    window.location.href = `${baseURl}&redirect_uri=${encodeURIComponent(urlCallback)}&client_id=${appClientID}&scope=${scopes}&state=${state}`;
+    window.location.href = `${baseURl}&redirect_uri=${urlCallback}&client_id=${appClientID}&scope=${scopes}&state=${state}`;
 };
 
 export function AuthMainUser() { 

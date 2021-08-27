@@ -2,7 +2,7 @@ import React,{useContext} from 'react';
 import { Avatar, Box, Hidden, Typography, Divider, List, ListItem, ListItemText, SwipeableDrawer } from '@material-ui/core';
 import { useHistory } from "react-router-dom";
 import { makeStyles } from '@material-ui/styles';
-import { MainUserContext } from '../../../../Context/AuthContext';
+import { IsLoggedInContext, MainUserContext } from '../../../../Context/AuthContext';
 
 const useStyles = makeStyles((theme) => ({
     list: {
@@ -15,7 +15,8 @@ const useStyles = makeStyles((theme) => ({
 
 
 export function SideMenu(props) {
-    const { mainUser } = useContext(MainUserContext);
+  const { mainUser } = useContext(MainUserContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
     const open = props.open;
     const setOpen = props.setOpen;
     const history = useHistory();
@@ -37,13 +38,14 @@ export function SideMenu(props) {
             <Typography align="center" variant="h5">
               Eve Industry Planner
             </Typography>
+            {isLoggedIn ?
             <Box align="center" maxWidth="xs">
               <Avatar
                 alt=""
                 src={`https://images.evetech.net/characters/${mainUser.CharacterID}/portrait`}
               />
               <Typography variant="body1">{mainUser.CharacterName}</Typography>
-            </Box>
+            </Box>: null}
           </Hidden>
         </Box>
 

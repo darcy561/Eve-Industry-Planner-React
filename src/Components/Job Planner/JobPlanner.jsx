@@ -1,10 +1,15 @@
-import React, { useContext, useState } from "react";
-import { SearchPlanner } from "../Search";
-import { JobCard } from "./Job Card";
-import { JobStatusContext, JobSettingsTriggerContext } from "../../Context/JobContext";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  JobSettingsTriggerContext,
+} from "../../Context/JobContext";
+import { IsLoggedInContext, MainUserContext, UsersContext } from "../../Context/AuthContext";
 import { EditJob } from "./Edit Job/EditJob";
+import { PlannerAccordion } from "./Planner Components/accordion";
+import { CircularProgress } from '@material-ui/core';
+import { RefreshTokens } from "../Auth/RefreshToken";
 
-let blueprintVariables = {
+
+export let blueprintVariables = {
   me: [
     { value: 0, label: 0 },
     { value: 1, label: 1 },
@@ -61,50 +66,50 @@ let blueprintVariables = {
   ],
 };
 
-let jobTypes = {
+export let jobTypes = {
   baseMaterial: 0,
   manufacturing: 1,
   reaction: 2,
   pi: 3,
 };
 
-function JobStatusRows() {
-  const [jobStatus, setJobStatus] = useContext(JobStatusContext);
-  
-
-  return jobStatus.map((s) => {
-    return (
-      <>
-        <div key={s.id} className="statusWrapper">
-          <div className="statusName">
-            <h2>{s.name}</h2>
-          </div>
-          <div className="jobGrid">
-            <JobCard key={s.id} id={s.id} />
-          </div>
-        </div>
-      </>
-    );
-  });
-};
-
-function JobPlanner() {
-
-  const [JobSettingsTrigger, ToggleJobSettingsTrigger] = useContext(JobSettingsTriggerContext);
-
-  return (
-    <>
-      <SearchPlanner />
-      <section className="block-section">
-        {/* Rendes the job edit popup window */}
-          <EditJob JobSettingsTrigger={true} />
-        <div id="jobWrapper" className="jobsWrapper">
-        {/* Builds each status section on the job planner main page */}
-          <JobStatusRows /> 
-        </div>
-      </section>
-    </>
+export function JobPlanner(){
+  const { JobSettingsTrigger, ToggleJobSettingsTrigger } = useContext(
+    JobSettingsTriggerContext
   );
-};
+  const { users, updateUsers } = useContext(UsersContext);
+  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { mainUser, updateMainUser } = useContext(MainUserContext);
+  const [pageload, updatePageload] = useState(true)
 
-export { JobPlanner, JobStatusRows, blueprintVariables, jobTypes };
+  useEffect(() => {
+    const rToken = localStorage.getItem("Auth")
+    if (rToken != null) {
+      const refreshedUser = RefreshTokens(rToken);
+      refreshedUser.then((userData) => {
+        userData.ParentUser = true;
+        const newArray = [];
+        newArray.push(userData);
+        updateUsers(newArray);
+        updateIsLoggedIn(true);
+        updateMainUser(userData);
+        updatePageload(false);
+      });
+    } else {
+      updateIsLoggedIn(false);
+      updatePageload(false);
+    };
+  }, []);
+
+  if (pageload) {
+    return(
+      pageload && <CircularProgress color="primary" />
+    )
+  } else {
+    if (JobSettingsTrigger) {
+      return <EditJob />
+    } else {
+      return <PlannerAccordion />
+    }
+  }
+};

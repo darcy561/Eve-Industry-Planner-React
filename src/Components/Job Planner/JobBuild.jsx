@@ -22,7 +22,7 @@ class Job {
 
     this.name = itemJson.name;
     this.jobID = Date.now();
-    this.jobStatus = 1;
+    this.jobStatus = 0;
     this.volume = itemJson.volume;
     this.itemID = itemJson.itemID;
     this.maxProductionLimit = itemJson.maxProductionLimit;

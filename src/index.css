@@ -4,126 +4,13 @@ html{
     --pi-color: rgba(100,45,219,0.5);
     --MainHighlight: rgba(219,160,45);
     --MainTextColor: #E0E0E0;
-    --MainBgColor: #4E4A4A;
+    --MainBgColor: rgb(61, 58, 58);
 }
 
 body {
-    display: flex;
-    flex: 1;
-    background-image: radial-gradient(#4e4a4a,#000000);
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1rem;
-    color: #E0E0E0;
+    background-color: #423f3f;
     padding: 0px;
-    border: none; 
     margin: 0;   
-    width: 100%;
-}
-
-h1 {
-    color: #E0E0E0;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 4rem;
-    font-weight: 400;
-}
-
-h2{
-    color: var(--MainHighlight);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2rem;
-    font-weight: 400;
-    letter-spacing: 2px
-}
-
-h3{
-    color: #E0E0E0;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1rem;
-    font-weight: bold;
-    letter-spacing: 2px;
-    margin-block-start: 0.25em;
-    margin-block-end: 0.25em;
-}
-@media only screen and (max-width:600px) {
-    body{
-    font-size: 0.5rem;
-    }
-    h1{
-        font-size: 2rem;
-    }
-    h2{
-        font-size: 1rem;
-    }
-    h3{
-        font-size: 0.5rem;
-    }
-    /* .pageWrapper{
-
-    }
-    .headerContainer{
-
-    } */
-    .header{
-        margin-right:10%;
-    }
-}
-.pageWrapper{
-    width: 100%;
-    margin-left:auto;
-    margin-right:auto;
-}
-.headerContainer{
-    margin-top: 5%;
-    margin-bottom: 2%;
-    display: flex;
-    flex:1;
-    flex-direction: row;
-    align-items: baseline;
-    width: 100%;
-}
-
-.header{
-    display: flex;
-    max-width: 60%;
-    margin-right: 35%;
-}
-
-.navbar{
-    display: flex;
-    align-content: center;
-    margin-right: 1%;    
-}
-
-.navlinks{
-    display: flex;
-    list-style: none;
-}
-
-.navlinkOption {
-    color: #E0E0E0;
-    margin-left: 1%;
-    padding: 5% 10%;
-    text-decoration: none;
-}
-.navlinkOption:hover{
-    color:#000000;
-    background-color:white;
-    font-weight: bold;;
-}
-
-.navlinkOptionActive, .navlinkOptionActive:hover{
-    color: black;
-    background-color:#DBA02D;
-    margin-left: 1%;
-    padding: 5% 10%;
-    font-weight: bold;
-}
-
-
-.headerLink{
-    text-decoration: none;
 }
 
 .searchBoxWrapper{
@@ -224,8 +111,8 @@ h3{
 .jobOverlay{
     display: hidden;
     position: absolute;
-    height: auto;
-    width: auto;
+    height: 100%;
+    width: 100%;
     top: 0;
     left: 0;
     right:0;
@@ -238,11 +125,9 @@ h3{
 }
 
 .jobItem{
-    border: white solid 1px;
     padding: 5px;
-    border-radius: 10px;
-    width:auto;
     position: relative;
+    min-height: 145px;
 }
 
 .jobItem:hover .jobOverlay{
@@ -263,11 +148,8 @@ h3{
 }
 
 .jobBodyWrapper{
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 5px;
     margin-bottom: 8%;
-
+    height: 100%;
 }
 .jobBodyTextWrapper{
     display:flex;
@@ -289,39 +171,37 @@ h3{
 }
 
 .jobTypeBarM{
-    position: absolute;
-    bottom: 5px;
+    position:relative;
     display: flex;
     align-content: center;
     justify-content: center;
     background-color: var(--manufacturing-color);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    z-index: -1;
-    width: 97.5%;
+    z-index: 0;
+    width: 100%;
 }
 .jobTypeBarR{
-    position: absolute;
-    bottom: 5px;
+    position: relative;
     display: flex;
     align-content: center;
     justify-content: center;
     background-color: var(--reaction-color);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    z-index: -1;
-    width: 97.5%;
+    z-index: 0;
+    width: 100%
 }
-.jobTypeBarP{    position: absolute;
-    bottom: 5px;
+.jobTypeBarP{
+    position: absolute;
     display: flex;
     align-content: center;
     justify-content: center;
     background-color: var(--pi-color);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    z-index: -1;
-    width: 97.5%;    
+    z-index: 0;
+    width: 100%;    
 }
 
 .jobTypeBarText{

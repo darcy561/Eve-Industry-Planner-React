@@ -1,101 +1,103 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { MainUserContext, UsersContext } from '../../Context/AuthContext';
-import { IsLoggedInContext } from '../../Context/AuthContext';
-import { CircularProgress } from '@material-ui/core';
-import { useHistory } from 'react-router';
+import React, { useContext, useState, useEffect } from "react";
+import { MainUserContext, UsersContext } from "../../Context/AuthContext";
+import { IsLoggedInContext } from "../../Context/AuthContext";
+import { CircularProgress } from "@material-ui/core";
+import { useHistory } from "react-router";
+import jwt from "jsonwebtoken";
+import { firebaseAuth } from "./firebaseAuth";
 
-const appClientID = "d1f943a341524afd9242a49e9e7b46da";
-const appSecretKey = "8w9t3ElwUSL9PcQN4J8qL4tjH2vPLq8OYpuImKYM";
-const urlCallback = encodeURIComponent(`https://${window.location.hostname}/auth`);
-const scopes = "publicData"
-const baseURl = "https://login.eveonline.com/v2/oauth/authorize/?response_type=code";
 
+const appClientID = "9adbd31df9324e6ead444f1ecfdf670d";
+const appSecretKey = "1aaX3CsHUmJGr3p0nabmd2EsK4QlsOu8Fj2aGozF";
+const urlCallback = encodeURIComponent(
+  `${window.location.protocol}//${window.location.hostname}:3000/auth`
+);
+const scopes = "publicData";
+const baseURl =
+  "https://login.eveonline.com/v2/oauth/authorize/?response_type=code";
 
 export function login() {
-    const state = window.location.pathname;
-    window.location.href = `${baseURl}&redirect_uri=${urlCallback}&client_id=${appClientID}&scope=${scopes}&state=${state}`;
-};
+  const state = window.location.pathname;
+  window.location.href = `${baseURl}&redirect_uri=${urlCallback}&client_id=${appClientID}&scope=${scopes}&state=${state}`;
+}
 
-export function AuthMainUser() { 
-    const { users, updateUsers } = useContext(UsersContext);
-    const { updateMainUser } = useContext(MainUserContext);
-    const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
-    const [Loading, setLoading] = useState(true);
-    const history = useHistory();
+export function AuthMainUser() {
+  const { users, updateUsers } = useContext(UsersContext);
+  const { updateMainUser } = useContext(MainUserContext);
+  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const [Loading, setLoading] = useState(true);
+  const history = useHistory();
 
-    useEffect(() => {
-      const authCode = window.location.search.match(/code=(\w*)/)[1];
-      const returnState = window.location.search.match(/state=(\w*)/)[1];
-
-      const userObject = fetchTokens(authCode);
-      userObject.then((userData) => {
-        userData.newUser.ParentUser = true;
-        updateIsLoggedIn(true);
-        const newArray = [...users];
-        newArray.push(userData.newUser);
-        updateUsers(newArray);
-        updateMainUser(userData.newUser);
-        setLoading(false);
-        console.log(returnState);
-        history.push(returnState);
-      });
-    }, []);
-        
-    return(
-        Loading && <CircularProgress color="primary"/>
+  useEffect(async () => {
+    const authCode = window.location.search.match(/code=(\S*)&/)[1];
+    const returnState = decodeURIComponent(
+      window.location.search.match(/state=(\S*)/)[1]
     );
-};
 
-async function fetchTokens(authCode) {
-    let failCount = 0;
-  
-    const encodedCredentials = btoa(`${appClientID}:${appSecretKey}`);
-    while (failCount < 6) {
-        try {
-            const tokenPromise = await fetch(
-                "https://login.eveonline.com/v2/oauth/token",
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Basic ${encodedCredentials}`,
-                        "Content-Type": "application / x-www-form-urlencoded",
-                        Host: "login.eveonline.com",
-                    },
-                    body: `grant_type=authorization_code&code=${authCode}`,
-                });
-    
-            const tokenJSON = await tokenPromise.json();
+    const userObject = await EveSSOTokens(authCode);
 
-            const charPromise = await fetch(
-                "https://login.eveonline.com/oauth/verify",
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${tokenJSON.access_token}`,
-                        Host: "login.eveonline.com"
-                    },
-                });
-    
-            const charJSON = await charPromise.json();
-        
-            const newUser = new User(charJSON, tokenJSON)
-    
-            localStorage.setItem("Auth", tokenJSON.refresh_token);
-            return { newUser };
-        } catch (err) {
-            failCount++;
-        };
-    };
-};
+    userObject.fbToken = await firebaseAuth(userObject);
+
+    userObject.ParentUser = true;
+    updateIsLoggedIn(true);
+    const newArray = [...users];
+    newArray.push(userObject);
+    updateUsers(newArray);
+    updateMainUser(userObject);
+    setLoading(false);
+    history.push(returnState);
+      
+  }, []);
+
+  return Loading && <CircularProgress color="primary" />;
+}
+
+async function EveSSOTokens(authCode) {
+  const encodedCredentials = btoa(`${appClientID}:${appSecretKey}`);
+  try {
+    const eveTokenPromise = await fetch(
+      "https://login.eveonline.com/v2/oauth/token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${encodedCredentials}`,
+          "Content-Type": "application / x-www-form-urlencoded",
+          Host: "login.eveonline.com",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: `grant_type=authorization_code&code=${authCode}`,
+      }
+    );
+
+    const tokenJSON = await eveTokenPromise.json();
+
+    const decodedToken = jwt.decode(tokenJSON.access_token);
+    if (
+      decodedToken.iss != "login.eveonline.com" &&
+      decodedToken.iss != "https://login.eveonline.com"
+    ) {
+      throw console.error("Invalid Token");
+    }
+
+    const newUser = new User(decodedToken, tokenJSON);
+
+    localStorage.setItem("Auth", tokenJSON.refresh_token);
+    return newUser;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 class User {
-    constructor(charJSON, tokenJSON) {
-        this.CharacterID = charJSON.CharacterID;
-        this.CharacterHash = charJSON.CharacterOwnerHash;
-        this.CharacterName = charJSON.CharacterName;
-        this.aToken = tokenJSON.access_token;
-        this.ParentUser = null;
-        this.Skills = {};
-        this.Jobs = {};
-    };
-};
+  constructor(decodedToken, tokenJSON) {
+    this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
+    this.CharacterHash = decodedToken.owner;
+    this.CharacterName = decodedToken.name;
+    this.aToken = tokenJSON.access_token;
+    this.aTokenEXP = Number(decodedToken.exp);
+    this.fbToken = null;
+    this.ParentUser = null;
+    this.Skills = {};
+    this.Jobs = {};
+  }
+}

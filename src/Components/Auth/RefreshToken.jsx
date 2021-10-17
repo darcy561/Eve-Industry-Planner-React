@@ -1,54 +1,52 @@
-import { MainUserContext, UsersContext } from '../../Context/AuthContext';
+import firebase from "../../firebase";
+import jwt from "jsonwebtoken";
 
-const appClientID = "d1f943a341524afd9242a49e9e7b46da";
-const appSecretKey = "8w9t3ElwUSL9PcQN4J8qL4tjH2vPLq8OYpuImKYM";
+const appClientID = "9adbd31df9324e6ead444f1ecfdf670d";
+const appSecretKey = "1aaX3CsHUmJGr3p0nabmd2EsK4QlsOu8Fj2aGozF";
 
 export async function RefreshTokens(rToken) {
     const encodedCredentials = btoa(`${appClientID}:${appSecretKey}`);
-    let failCount = 0;
 
-    while (failCount < 6) {
         try {
             const newTokenPromise = await fetch(
                 "https://login.eveonline.com/v2/oauth/token",
                 {
                     method: "POST",
                     headers: {
-                        Authorization: `Basic ${encodedCredentials}`,
+                        "Authorization": `Basic ${encodedCredentials}`,
                         "Content-Type": "application / x-www-form-urlencoded",
-                        Host: "login.eveonline.com",
+                        "Host": "login.eveonline.com",
                     },
                     body: `grant_type=refresh_token&refresh_token=${rToken}`,
                 }
             );
             const newTokenJSON = await newTokenPromise.json();
 
-            const charPromise = await fetch(
-                "https://login.eveonline.com/oauth/verify",
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${newTokenJSON.access_token}`,
-                        Host: "login.eveonline.com"
-                    },
-                });
+            const decodedToken = jwt.decode(newTokenJSON.access_token);
+            if (
+              decodedToken.iss != "login.eveonline.com" && decodedToken.iss != "https://login.eveonline.com"
+            ) {
+              throw console.error("Invalid Token");
+              }
+              
+            const newUser = new User(decodedToken, newTokenJSON);
+  
+            localStorage.setItem("Auth", newTokenJSON.refresh_token);
 
-            const charJSON = await charPromise.json();
-
-            const newUser = new User(charJSON, newTokenJSON)
             return newUser
         } catch (err) {
-            failCount++;
-        }
-    };            
+            console.log(err);
+        }         
 };
 
 class User {
-    constructor(charJSON, tokenJSON) {
-        this.CharacterID = charJSON.CharacterID;
-        this.CharacterHash = charJSON.CharacterOwnerHash;
-        this.CharacterName = charJSON.CharacterName;
+    constructor(decodedToken, tokenJSON) {
+        this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
+        this.CharacterHash = decodedToken.owner;
+        this.CharacterName = decodedToken.name;
         this.aToken = tokenJSON.access_token;
+        this.aTokenEXP = Number(decodedToken.exp);
+        this.fbToken = null;
         this.ParentUser = null;
         this.Skills = {};
         this.Jobs = {};

@@ -6,23 +6,41 @@ admin.initializeApp();
 const express = require("express");
 const app = express();
 const cors = require("cors");
-app.use(cors({ origin: true }));
 const db = admin.firestore();
 db.settings({ ignoreUndefinedProperties: true });
 
+app.use(cors(
+  {
+  origin: ["http://localhost:3000", "https://eve-industry-planner-dev.firebaseapp.com"],
+  methods: "GET,PUT,POST",
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  }
+));
+app.use(express.json());
+
 //Routes
 
-// app.post("/auth/user", async (req, res) => {
-//   const CharacterHash = req.body.CharacterHash;
-//   const CharacterID = req.body.CharacterID;
-//   const token = admin.auth().createCustomToken(CharacterHash)
-// });
-
-
-
+//Generates JWT AuthToken
+app.post("/auth/gentoken", async (req, res) => {
+  if (req.body.CharacterHash != null) {
+    try {
+      const authToken = await admin
+        .auth()
+        .createCustomToken(req.body.CharacterHash);
+      return res.status(200).send({
+        access_token: authToken,
+      });
+    } catch (error) {
+      return res.status(500).send(error);
+    };
+  } else {
+    return res.status(400);
+  };
+});
 
 //Post Single Item
-app.post("/api/create", (req, res) => {
+app.post("/api/create",  (req, res) => {
   (async () => {
     try {
       await db

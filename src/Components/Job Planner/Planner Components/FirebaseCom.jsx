@@ -17,4 +17,16 @@ export async function UploadJobPlanner() {
         JSON: JSON.stringify(jobArray)
     });
     updateDataExchange(false);
+};
+
+export async function DownloadJobPlanner() {
+    const { jobArray } = useContext(JobArrayContext);
+    const { DataExchange, updateDataExchange } = useContext(DataExchangeContext);
+    const { mainUser } = useContext(MainUserContext);
+
+    const fbCol = firebase.firestore().collection("JobPlanner");
+
+    updateDataExchange(true);
+    fbCol.doc(`${mainUser.CharacterHash}`).get({})
+    
 }

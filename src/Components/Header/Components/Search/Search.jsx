@@ -4,24 +4,27 @@ import { createJob } from "../../../Job Planner/JobBuild";
 import { JobArrayContext } from "../../../../Context/JobContext";
 import { Autocomplete } from "@material-ui/lab";
 import { Box, TextField } from "@material-ui/core";
-import { DataExchangeContext, MainUserContext } from "../../../../Context/AuthContext";
-// import firebase from '../../../../firebase';
+import { IsLoggedInContext, DataExchangeContext, MainUserContext } from "../../../../Context/AuthContext";
+import firebase from '../../../../firebase';
+import { UploadJobPlanner } from "../../../Job Planner/Planner Components/FirebaseCom"
 
 export function Search() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { mainUser } = useContext(MainUserContext);
+  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
 
-  // const fbCol = firebase.firestore().collection("JobPlanner");
+  const fbCol = firebase.firestore().collection("JobPlanner");
 
   async function createJobProcess(itemID) {
     updateDataExchange(true);
     const outputObject = await createJob(itemID);
     updateJobArray((prevArray) => [...prevArray, outputObject]);
-
-    // fbCol.doc(`${mainUser.CharacterHash}`).set({
-    //   JSON: JSON.stringify(jobArray)
-    // });
+    if (isLoggedIn) {
+      fbCol.doc(`${mainUser.CharacterHash}`).set({
+        JSON: JSON.stringify(jobArray)
+      });
+    }
 
     updateDataExchange(false);
   }

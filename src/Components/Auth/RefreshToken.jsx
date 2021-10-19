@@ -1,4 +1,3 @@
-import firebase from "../../firebase";
 import jwt from "jsonwebtoken";
 
 const appClientID = "9adbd31df9324e6ead444f1ecfdf670d";

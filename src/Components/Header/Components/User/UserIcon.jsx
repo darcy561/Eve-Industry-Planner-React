@@ -3,6 +3,7 @@ import React, {useContext, useState} from 'react';
 import { IsLoggedInContext, MainUserContext, UsersContext } from '../../../../Context/AuthContext';
 import { ActiveJobContext, JobArrayContext } from '../../../../Context/JobContext';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import firebase from "../../../../firebase";
 
 
 export function UserIcon() {
@@ -20,7 +21,8 @@ export function UserIcon() {
         updateJobArray([]);
         updateActiveJob({});
         sessionStorage.clear();
-        localStorage.clear();
+      localStorage.clear();
+      firebase.auth().signOut()
     };
     
     const openMenu = (event) => {

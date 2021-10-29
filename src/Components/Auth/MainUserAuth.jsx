@@ -1,9 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
-import { MainUserContext, UsersContext } from "../../Context/AuthContext";
-import { IsLoggedInContext } from "../../Context/AuthContext";
+import { MainUserContext, UsersContext, IsLoggedInContext } from "../../Context/AuthContext";
+import { JobArrayContext } from "../../Context/JobContext";
 import { CircularProgress } from "@material-ui/core";
 import { useHistory } from "react-router";
 import jwt from "jsonwebtoken";
+import firebase from "../../firebase";
 import { firebaseAuth } from "./firebaseAuth";
 
 
@@ -12,18 +13,19 @@ const appSecretKey = "1aaX3CsHUmJGr3p0nabmd2EsK4QlsOu8Fj2aGozF";
 const urlCallback = encodeURIComponent(
   `${window.location.protocol}//${window.location.hostname}:3000/auth`
 );
-const scopes = "publicData";
+const scopes = ["publicData"];
 const baseURl =
   "https://login.eveonline.com/v2/oauth/authorize/?response_type=code";
 
 export function login() {
   const state = window.location.pathname;
-  window.location.href = `${baseURl}&redirect_uri=${urlCallback}&client_id=${appClientID}&scope=${scopes}&state=${state}`;
+  window.location.href = `${baseURl}&redirect_uri=${urlCallback}&client_id=${appClientID}&scope=${scopes.toString()}&state=${state}`;
 }
 
 export function AuthMainUser() {
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const { updateMainUser } = useContext(MainUserContext);
+  const { mainUser, updateMainUser } = useContext(MainUserContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const [Loading, setLoading] = useState(true);
   const history = useHistory();
@@ -35,14 +37,15 @@ export function AuthMainUser() {
     );
 
     const userObject = await EveSSOTokens(authCode);
-
     userObject.fbToken = await firebaseAuth(userObject);
-
     userObject.ParentUser = true;
+    firebase.firestore().collection("JobPlanner").doc(`${userObject.CharacterHash}`).set({
+      "uid": userObject.CharacterHash
+    });
     updateIsLoggedIn(true);
-    const newArray = [...users];
-    newArray.push(userObject);
-    updateUsers(newArray);
+    const newUsersArray = [...users];
+    newUsersArray.push(userObject);
+    updateUsers(newUsersArray);
     updateMainUser(userObject);
     setLoading(false);
     history.push(returnState);
@@ -99,5 +102,5 @@ class User {
     this.ParentUser = null;
     this.Skills = {};
     this.Jobs = {};
-  }
-}
+  };
+};

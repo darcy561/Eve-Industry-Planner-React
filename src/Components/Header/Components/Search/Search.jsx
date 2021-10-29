@@ -14,15 +14,15 @@ export function Search() {
   const { mainUser } = useContext(MainUserContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
 
-  const fbCol = firebase.firestore().collection("JobPlanner");
+  const fbCol = firebase.firestore().collection("JobPlanner").doc(mainUser.CharacterHash).collection("Jobs")
 
   async function createJobProcess(itemID) {
     updateDataExchange(true);
     const outputObject = await createJob(itemID);
     updateJobArray((prevArray) => [...prevArray, outputObject]);
     if (isLoggedIn) {
-      fbCol.doc(`${mainUser.CharacterHash}`).set({
-        JSON: JSON.stringify(jobArray)
+      fbCol.doc(outputObject.jobID.toString()).set({
+        JSON: JSON.stringify(outputObject)
       });
     }
 

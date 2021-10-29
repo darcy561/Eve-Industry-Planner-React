@@ -76,7 +76,7 @@ export function JobCard(props) {
     // This function sets up the correct job to be changed and displays the popup window.
   };
 
-//Adds the coloured bar at the base of a job card and switches based on the jobtype
+  //Adds the coloured bar at the base of a job card and switches based on the jobtype
   function SwitchJobTypeStyle(job) {
     if (job.job.jobType === jobTypes.manufacturing) {
       return (
@@ -104,7 +104,7 @@ export function JobCard(props) {
           </Box>
         </Grid>
       );
-    }
+    };
   };
 
   return jobList.map((job) => {
@@ -119,7 +119,6 @@ export function JobCard(props) {
               <Grid className={classes.Grid} container item xs={12}>
               <Hidden xsDown>
                 <Grid className={classes.Grid} item sm={3}>
-
                   <Box>
                     <picture className={classes.Image}>
                       <source
@@ -134,7 +133,7 @@ export function JobCard(props) {
                         className={classes.Image}
                       />
                     </picture>
-                    </Box>
+                  </Box>
                 </Grid>
                 </Hidden>
                 <Grid className={classes.Grid} container item xs={12} sm={9}>

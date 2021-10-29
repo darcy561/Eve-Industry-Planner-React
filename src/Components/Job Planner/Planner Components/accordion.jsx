@@ -1,5 +1,6 @@
-import React, { useContext } from 'react';
-import { JobStatusContext } from '../../../Context/JobContext';
+import React, { useContext, useEffect } from 'react';
+import { JobStatusContext, JobArrayContext } from '../../../Context/JobContext';
+import { IsLoggedInContext, MainUserContext, UsersContext } from "../../../Context/AuthContext";
 import { makeStyles } from '@material-ui/styles';
 import {
     Accordion,
@@ -11,7 +12,9 @@ import {
     Typography,
 } from "@material-ui/core";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-  import { JobCard } from '../Job Card';
+import { JobCard } from '../Job Card';
+import firebase from "../../../firebase";
+
 
 const useStyles = makeStyles((theme) => ({
     Accordion: {
@@ -22,8 +25,26 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 export function PlannerAccordion() {
-    const { jobStatus, setJobStatus } = useContext(JobStatusContext);
-    const classes = useStyles();
+  const { jobStatus, setJobStatus } = useContext(JobStatusContext);
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { mainUser, updateMainUser } = useContext(MainUserContext);
+  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const classes = useStyles();
+
+  useEffect(() => {    
+    if (isLoggedIn) {
+      let newJobArray = [];
+      firebase.firestore().collection("JobPlanner").doc(mainUser.CharacterHash).collection("Jobs")
+        .onSnapshot((snapshot) => {
+          snapshot.forEach((doc) => {
+            newJobArray.push( JSON.parse(doc.data().JSON))
+          })
+        });
+      console.log(newJobArray);
+      updateJobArray(newJobArray);
+    };    
+  }, []);
+  
     return (
       <Container maxWidth={false} disableGutters={true}>
         {/* Builds each status accordion on the job planner main page */}
@@ -56,4 +77,4 @@ export function PlannerAccordion() {
         })}
       </Container>
     );
-  }
+};

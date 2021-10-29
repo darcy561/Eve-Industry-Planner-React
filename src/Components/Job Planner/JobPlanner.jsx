@@ -81,7 +81,7 @@ export function JobPlanner(){
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
-  const [pageload, updatePageload] = useState(true)
+  const [pageload, updatePageload] = useState(true);
 
   useEffect(async() => {
     const rToken = localStorage.getItem("Auth")
@@ -102,7 +102,7 @@ export function JobPlanner(){
       };
     } else {
       updatePageload(false);
-    }
+    };
   }, []);
 
   if (pageload) {
@@ -115,5 +115,5 @@ export function JobPlanner(){
     } else {
       return <PlannerAccordion />
     }
-  }
+  };
 };

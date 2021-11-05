@@ -81,7 +81,7 @@ export function JobPlanner(){
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
   const [exampleJobs] = useState([3041, 671, 35834, 16656, 30309]);
-  const [exampleJobsLoaded, UpdateExampleJobsLoaded] = useState(false);
+  const [exampleJobsLoaded, UpdateExampleJobsLoaded] = useState(true);
   const [pageload, updatePageload] = useState(true);
 
   useEffect(async () => {
@@ -101,17 +101,17 @@ export function JobPlanner(){
         updateMainUser(refreshedUser);
         updatePageload(false);
       } else {
-        if (exampleJobsLoaded === false) {
-          const newJobArray = [];
-            exampleJobs.forEach((item) => {
-            const itemData = createJob(item);
-            newJobArray.push(itemData);
-          });
-          Promise.all(newJobArray)
-          console.log(newJobArray);
-          updateJobArray((prevArray) => [...prevArray, newJobArray]);
+        // if (exampleJobsLoaded === false) {
+        //   const newJobArray = [];
+        //     exampleJobs.forEach((item) => {
+        //     const itemData = createJob(item);
+        //     newJobArray.push(itemData);
+        //   });
+        //   Promise.all(newJobArray)
+        //   console.log(newJobArray);
+        //   updateJobArray((prevArray) => [...prevArray, newJobArray]);
           UpdateExampleJobsLoaded(true);
-        }
+        // }
         updateIsLoggedIn(false);
         updatePageload(false);
       }

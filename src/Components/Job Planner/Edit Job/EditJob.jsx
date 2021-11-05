@@ -243,12 +243,12 @@ export function EditJob() {
           <Grid item xs={0} sm={4}></Grid>
           <Grid item xs={8} sm={3}><Typography variant="body2">Total Items Per Job</Typography></Grid>
           <Grid item xs={3} sm={5}>
-              <Typography variant="body2">{activeJob.job.products.quantityPerJob}</Typography>
+              <Typography variant="body2">{activeJob.job.products.quantityPerJob.toLocaleString()}</Typography>
           </Grid>
           <Grid item xs={0} sm={4}></Grid>
           <Grid item xs={8} sm={3}><Typography variant="body2">Total Items Being Produced</Typography></Grid>
           <Grid item xs={3} sm={5}>
-              <Typography variant="body2">{activeJob.job.products.totalQuantity}</Typography>
+              <Typography variant="body2">{activeJob.job.products.totalQuantity.toLocaleString()}</Typography>
           </Grid>
         </Grid>
         <Stepper activeStep={activeJob.jobStatus} orientation="vertical" style={{background:"none"}}>

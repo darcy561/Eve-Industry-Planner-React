@@ -12,6 +12,7 @@ import {
   Container,
   Grid,
   FormHelperText,
+  IconButton,
   TextField,
   Typography,
   Button,
@@ -319,11 +320,14 @@ export function EditPage1() {
         {activeJob.job.materials.map((material) => {
           return (
             <>
-            <Grid item xs={2}>
+              <Grid item xs={2}>
+                <IconButton
+                color="primary">
               <MdAdd />
+              </IconButton>
             </Grid>
             <Grid item xs={6}><Typography variant="body2">{material.name}</Typography></Grid>
-            <Grid item xs={4}><Typography variant="body2">{material.quantity}</Typography></Grid>
+            <Grid item xs={4}><Typography variant="body2">{material.quantity.toLocaleString()}</Typography></Grid>
             </>
           );
         })}

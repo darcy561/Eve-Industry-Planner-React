@@ -39,7 +39,7 @@ class Job {
         totalQuantity: 0,
         quantityPerJob: 0,
       },
-      materials: 0,
+      materials: null,
     };
     
     this.planner = {
@@ -70,9 +70,15 @@ export async function createJob(itemID) {
         outputObject.planner.time = JSON.parse(
           JSON.stringify(outputObject.manufacturing.time)
         );
+
         outputObject.job.materials = JSON.parse(
           JSON.stringify(outputObject.manufacturing.materials)
         );
+        outputObject.job.materials.forEach((material) => {
+          material.purchasing = [];
+          material.quantityPurchased = 0;
+          material.purchasedCost = 0;
+        });
         outputObject.job.skills = JSON.parse(
           JSON.stringify(outputObject.manufacturing.skills)
         );
@@ -89,9 +95,15 @@ export async function createJob(itemID) {
         outputObject.planner.time = JSON.parse(
           JSON.stringify(outputObject.reaction.time)
         );
+
         outputObject.job.materials = JSON.parse(
           JSON.stringify(outputObject.reaction.materials)
         );
+        outputObject.job.materials.forEach((material) => {
+          material.purchasing = [];
+          material.quantityPurchased = 0;
+          material.purchasedCost = 0;
+        });
         outputObject.job.skills = JSON.parse(
           JSON.stringify(outputObject.reaction.skills)
         );

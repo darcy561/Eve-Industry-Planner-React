@@ -15,14 +15,14 @@ export function UserIcon() {
     const { updateJobArray } = useContext(JobArrayContext);
 
 
-  function logout() {
+    function logout() {
         updateIsLoggedIn(false);
         updateUsers([]);
         updateJobArray([]);
         updateActiveJob({});
         sessionStorage.clear();
-        localStorage.clear();
-        firebase.auth().signOut();
+      localStorage.clear();
+      firebase.auth().signOut()
     };
     
     const openMenu = (event) => {

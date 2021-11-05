@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  JobSettingsTriggerContext,
+import {  JobArrayContext, JobSettingsTriggerContext
 } from "../../Context/JobContext";
 import { IsLoggedInContext, MainUserContext, UsersContext } from "../../Context/AuthContext";
 import { EditJob } from "./Edit Job/EditJob";
 import { PlannerAccordion } from "./Planner Components/accordion";
-import { CircularProgress } from '@material-ui/core';
+import { IconButton, CircularProgress, Container} from '@material-ui/core';
 import { RefreshTokens } from "../Auth/RefreshToken";
 import { firebaseAuth } from "../Auth/firebaseAuth";
-
+import { createJob } from "./JobBuild";
+import { firebase } from "../../firebase";
 
 export let blueprintVariables = {
   me: [
@@ -75,35 +75,59 @@ export let jobTypes = {
 };
 
 export function JobPlanner(){
-  const { JobSettingsTrigger, ToggleJobSettingsTrigger } = useContext(
-    JobSettingsTriggerContext
-  );
+  const { JobSettingsTrigger, ToggleJobSettingsTrigger } = useContext(JobSettingsTriggerContext);
+  const { updateJobArray } = useContext(JobArrayContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
-  const [pageload, updatePageload] = useState(true)
+  const [exampleJobs] = useState([3041, 671, 35834, 16656, 30309]);
+  const [exampleJobsLoaded, UpdateExampleJobsLoaded] = useState(false);
+  const [pageload, updatePageload] = useState(true);
 
-  useEffect(async() => {
-    const rToken = localStorage.getItem("Auth")
-    if (mainUser.aTokenEXP <= Math.floor(Date.now() / 1000) || mainUser.aTokenEXP == null ) {
-      if (rToken != null ) {
+  useEffect(async () => {
+    const rToken = localStorage.getItem("Auth");
+    if (
+      mainUser.aTokenEXP <= Math.floor(Date.now() / 1000) ||
+      mainUser.aTokenEXP == null
+    ) {
+      if (rToken != null) {
         const refreshedUser = await RefreshTokens(rToken);
         refreshedUser.fbToken = await firebaseAuth(refreshedUser);
         refreshedUser.ParentUser = true;
-        const newArray = [];
-        newArray.push(refreshedUser);
-        updateUsers(newArray);
+        const newUsersArray = [];
+        newUsersArray.push(refreshedUser);
+        updateUsers(newUsersArray);
         updateIsLoggedIn(true);
         updateMainUser(refreshedUser);
         updatePageload(false);
       } else {
+        if (exampleJobsLoaded === false) {
+          const newJobArray = [];
+            exampleJobs.forEach((item) => {
+            const itemData = createJob(item);
+            newJobArray.push(itemData);
+          });
+          Promise.all(newJobArray)
+          console.log(newJobArray);
+          updateJobArray((prevArray) => [...prevArray, newJobArray]);
+          UpdateExampleJobsLoaded(true);
+        }
         updateIsLoggedIn(false);
         updatePageload(false);
-      };
+      }
     } else {
       updatePageload(false);
     }
   }, []);
+
+  // useEffect(() => {
+  //   if (IsLoggedIn) {
+  //     firebase.firestore().collection("JobPlanner").document(mainUser.CharacterHash).collection("Jobs")
+  //       .getdocumentsnapshot(
+    
+  //     )
+  //   };
+  // },[])
 
   if (pageload) {
     return(
@@ -111,9 +135,11 @@ export function JobPlanner(){
     )
   } else {
     if (JobSettingsTrigger) {
-      return <EditJob />
+      return <EditJob Lazy />
     } else {
-      return <PlannerAccordion />
-    }
-  }
+      return (
+          <PlannerAccordion />
+      )
+    };
+  };
 };

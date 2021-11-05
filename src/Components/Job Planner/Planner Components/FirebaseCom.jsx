@@ -29,4 +29,4 @@ export async function DownloadJobPlanner() {
     updateDataExchange(true);
     fbCol.doc(`${mainUser.CharacterHash}`).get({})
     
-}
+};

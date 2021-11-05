@@ -3,7 +3,6 @@ import {
   JobArrayContext,
   ActiveJobContext,
   JobSettingsTriggerContext,
-  SelectedPageContext,
 } from "../../../Context/JobContext";
 import { jobTypes } from "..";
 import { Box, Card, Grid, Hidden, Typography } from "@material-ui/core";
@@ -61,13 +60,8 @@ const useStyles = makeStyles((theme) => ({
 
 // builds a single job card for each job in the job array, This is displayed on the job planner page. Called from jobplanner.jsx
 export function JobCard(props) {
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { JobSettingsTrigger, ToggleJobSettingsTrigger } = useContext(
-    JobSettingsTriggerContext
-  );
-  const jobList = jobArray.filter((job) => job.jobStatus === props.id);
-
+  const { updateActiveJob } = useContext(ActiveJobContext);
+  const { ToggleJobSettingsTrigger } = useContext(JobSettingsTriggerContext);
   const classes = useStyles();
 
   function EditJobProcess(job) {
@@ -104,17 +98,15 @@ export function JobCard(props) {
           </Box>
         </Grid>
       );
-    }
+    };
   };
-
-  return jobList.map((job) => {
-    return (
+  return (
       <>
-        <Grid key={job.jobID} className={classes.Grid}item xs={6} md={4} lg={2}>
-          <Card  className={classes.Card} onClick={() => EditJobProcess(job)}>
+        <Grid key={props.job.jobID} className={classes.Grid}item xs={6} md={4} lg={2}>
+          <Card  className={classes.Card} onClick={() => EditJobProcess(props.job)}>
             <Grid className={classes.Grid} container item xs={12} >
               <Grid className={classes.Header} item xs={12}>
-                <Typography variant="h6" align="center">{job.name}</Typography>
+                <Typography variant="h6" align="center">{props.job.name}</Typography>
               </Grid>
               <Grid className={classes.Grid} container item xs={12}>
               <Hidden xsDown>
@@ -124,12 +116,12 @@ export function JobCard(props) {
                     <picture className={classes.Image}>
                       <source
                         media="(max-width:700px)"
-                        srcSet={`https://image.eveonline.com/Type/${job.itemID}_32.png`}
+                        srcSet={`https://image.eveonline.com/Type/${props.job.itemID}_32.png`}
                         alt=""
                         className={classes.Image}
                       />
                       <img
-                        src={`https://image.eveonline.com/Type/${job.itemID}_64.png`}
+                        src={`https://image.eveonline.com/Type/${props.job.itemID}_64.png`}
                         alt=""
                         className={classes.Image}
                       />
@@ -143,7 +135,7 @@ export function JobCard(props) {
                       <Typography variant="body2">Run Count</Typography>
                     </Grid>
                     <Grid className={classes.Grid} item xs={1}>
-                      <Typography variant="body2">{job.runCount}</Typography>
+                      <Typography variant="body2">{props.job.runCount}</Typography>
                     </Grid>
                   </Grid>
                   <Grid className={classes.Grid} container item xs={12}>
@@ -151,18 +143,17 @@ export function JobCard(props) {
                       <Typography variant="body2">Job Count</Typography>
                     </Grid>
                     <Grid className={classes.Grid} item xs={1}>
-                      <Typography variant="body2">{job.jobCount}</Typography>
+                      <Typography variant="body2">{props.job.jobCount}</Typography>
                     </Grid>
                   </Grid>
                 </Grid>
               </Grid>
               <Grid className={classes.Grid} container item xs={12}>
-                {<SwitchJobTypeStyle job={job} />}
+                {<SwitchJobTypeStyle job={props.job} />}
               </Grid>
             </Grid>
           </Card>
         </Grid>
       </>
     );
-  });
 };

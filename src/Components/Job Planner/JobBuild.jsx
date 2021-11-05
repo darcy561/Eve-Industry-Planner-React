@@ -1,4 +1,3 @@
-import React from "react";
 import { jobTypes } from ".";
 
 class Job {
@@ -53,7 +52,7 @@ class Job {
   };
 };
 
-async function createJob(itemID) {
+export async function createJob(itemID) {
   try {
     const response = await fetch(
       `https://us-central1-eve-industry-planner-dev.cloudfunctions.net/app/api/item/${itemID}`
@@ -112,4 +111,3 @@ async function createJob(itemID) {
     alert("No blueprint attached to this item");
   };
 };
-export { createJob };

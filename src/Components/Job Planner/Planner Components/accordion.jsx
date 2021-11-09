@@ -1,5 +1,6 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
+import { IsLoggedInContext, MainUserContext } from "../../../Context/AuthContext";
 import { makeStyles } from "@material-ui/styles";
 import {
   Accordion,
@@ -22,8 +23,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function PlannerAccordion() {
-  const { jobStatus } = useContext(JobStatusContext);
+  const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { jobArray } = useContext(JobArrayContext);
+  const { mainUser } = useContext(MainUserContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
+  const [notExpanded, updateNotExpanded] = useState([])
   const classes = useStyles();
 
   return (
@@ -35,13 +39,23 @@ export function PlannerAccordion() {
             <Grid key={status.id} container item xs={12}>
               <Accordion
                 className={classes.Accordion}
-                defaultExpanded={true}
+
+                defaultExpanded ={true}
                 square={true}
                 spacing={1}
+                id={status.id}
               >
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon style={{ color: "#E0E0E0" }} />}
                   aria-label="Expand"
+                  // expanded={toString(status.expanded)}
+                  // onClick={() => { 
+                  //   const index = jobStatus.findIndex(prev => prev.id === status.id)
+                  //   let newStatusArray = jobStatus;
+                  //   newStatusArray[index].expanded = !newStatusArray[index].expanded
+                  //   console.log(newStatusArray);
+                  //   setJobStatus(newStatusArray);
+                  // }}
                 >
                   <Typography variant="h4">{status.name}</Typography>
                 </AccordionSummary>
@@ -52,7 +66,7 @@ export function PlannerAccordion() {
                         return <JobCard job={job} />;
                       } else {
                         return null;
-                      }
+                      };
                     })}
                   </Grid>
                 </AccordionDetails>

@@ -38,7 +38,6 @@ export function AuthMainUser() {
 
     userObject.fbToken = await firebaseAuth(userObject);
 
-    userObject.ParentUser = true;
     updateIsLoggedIn(true);
     const newArray = [...users];
     newArray.push(userObject);
@@ -79,7 +78,7 @@ async function EveSSOTokens(authCode) {
       throw console.error("Invalid Token");
     }
 
-    const newUser = new User(decodedToken, tokenJSON);
+    const newUser = new MainUser(decodedToken, tokenJSON);
 
     localStorage.setItem("Auth", tokenJSON.refresh_token);
     return newUser;
@@ -88,7 +87,7 @@ async function EveSSOTokens(authCode) {
   }
 }
 
-class User {
+class MainUser {
   constructor(decodedToken, tokenJSON) {
     this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
     this.CharacterHash = decodedToken.owner;
@@ -96,8 +95,9 @@ class User {
     this.aToken = tokenJSON.access_token;
     this.aTokenEXP = Number(decodedToken.exp);
     this.fbToken = null;
-    this.ParentUser = null;
+    this.ParentUser = true;
     this.Skills = {};
     this.Jobs = {};
-  }
-}
+    this.Settings = { accordion: [] };
+  };
+};

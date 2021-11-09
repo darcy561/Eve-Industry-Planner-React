@@ -107,10 +107,10 @@ export function EditPage1() {
           <TextField
             defaultValue={activeJob.runCount}
             variant="outlined"
-            helperText="Runs"
+            helperText="Blueprint Runs"
             type="number"
             onBlur={(e) => {
-              updateActiveJob((prevState) => ({
+              updateActiveJob((prevState) => ({                
                 ...prevState,
                 runCount: Number(e.target.value),
               }));
@@ -122,7 +122,7 @@ export function EditPage1() {
           <TextField
             defaultValue={activeJob.jobCount}
             variant="outlined"
-            helperText="Jobs"
+            helperText="Job Slots"
             type="number"
             onBlur={(e) => {
               updateActiveJob((prevState) => ({
@@ -320,22 +320,25 @@ export function EditPage1() {
         {activeJob.job.materials.map((material) => {
           return (
             <>
-              <Grid item xs={2}>
+              <Grid item xs={2} sm={1}>
                 <IconButton
-                color="primary">
+                  color="primary"
+                  size="small"
+                  onClick={()=> createJobFromEdit(material.typeID, material.quantity)}
+                >
               <MdAdd />
               </IconButton>
             </Grid>
-            <Grid item xs={6}><Typography variant="body2">{material.name}</Typography></Grid>
-            <Grid item xs={4}><Typography variant="body2">{material.quantity.toLocaleString()}</Typography></Grid>
+            <Grid item xs={6} sm={7}><Typography variant="body2">{material.name}</Typography></Grid>
+            <Grid item xs={4} sm={4}><Typography variant="body2">{material.quantity.toLocaleString()}</Typography></Grid>
             </>
           );
         })}
         </Grid>
-        <Grid item xs={6} sm={2}><Button variant="contained" color="primary" onClick={() => {
+        <Grid item xs={6} sm={2}><Button variant="contained" color="primary"  onClick={() => {
           const updatedTotals = CalculateTotals(activeJob);
           updateActiveJob(prevObj => ({ ...prevObj, job: { ...prevObj.job, materials: updatedTotals } }))
-        }}>Refresh</Button>
+        }}>Calculate Totals</Button>
         </Grid>
       </Grid>
     </Container>

@@ -25,19 +25,23 @@ class Job {
     this.volume = itemJson.volume;
     this.itemID = itemJson.itemID;
     this.maxProductionLimit = itemJson.maxProductionLimit;
-    this.runCount = 0;
-    this.jobCount = 0;
-    this.bpME = null;
-    this.bpTE = null;
+    this.runCount = 1;
+    this.jobCount = 1;
+    this.bpME = 0;
+    this.bpTE = 0;
     this.structureType = 1
     this.structureTypeDisplay =""
-    this.rigType = null;
+    this.rigType = 0;
     this.systemType = 0;
 
     this.job = {
       products: {
         totalQuantity: 0,
         quantityPerJob: 0,
+        totalPurchaseCost: 0,
+        totalComplete: 0,
+        extrasCosts: [],
+        extrasTotal: 0,
       },
       materials: null,
     };
@@ -78,6 +82,7 @@ export async function createJob(itemID) {
           material.purchasing = [];
           material.quantityPurchased = 0;
           material.purchasedCost = 0;
+          material.purchaseComplete = false;
         });
         outputObject.job.skills = JSON.parse(
           JSON.stringify(outputObject.manufacturing.skills)
@@ -103,6 +108,7 @@ export async function createJob(itemID) {
           material.purchasing = [];
           material.quantityPurchased = 0;
           material.purchasedCost = 0;
+          material.purchaseComplete = false;
         });
         outputObject.job.skills = JSON.parse(
           JSON.stringify(outputObject.reaction.skills)

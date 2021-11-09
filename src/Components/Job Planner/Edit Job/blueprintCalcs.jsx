@@ -26,22 +26,22 @@ export function reactionMaterialCalc(
     const x = Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
   //console.log(x);
   return x;
-};
+};  
 
 export function CalculateTotals(item) {
     switch (item.jobType) {
       case 1:
-        const newManArray = JSON.parse(JSON.stringify(item.manufacturing.materials));
+        const newManArray = item.job.materials;
         for (let job = 0; job < newManArray.length; job++) {
                 let x = manufacturingMaterialCalc(item.manufacturing.materials[job].quantity, item.runCount, item.jobCount, item.bpME, item.structureType, item.rigType, item.systemType);
                 newManArray[job].quantity = x;
             };            
             item.job.products.totalQuantity = (item.manufacturing.products[0].quantity * item.runCount) * item.jobCount;
-            item.job.products.quantityPerJob = item.manufacturing.products[0].quantity * item.runCount;
+        item.job.products.quantityPerJob = item.manufacturing.products[0].quantity * item.runCount;
         return newManArray;
 
       case 2:
-        const newReacArray = JSON.parse(JSON.stringify(item.reaction.materials));
+        const newReacArray = item.job.materials;
         for (let job = 0; job < newReacArray.length; job++) {
           let x = reactionMaterialCalc(item.reaction.materials[job].quantity, item.runCount, item.jobCount, item.rigType, item.systemType);
           newReacArray[job].quantity = x;

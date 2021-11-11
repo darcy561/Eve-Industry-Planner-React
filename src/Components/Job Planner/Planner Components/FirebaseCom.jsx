@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
-import { DataExchangeContext, MainUserContext } from '../../../Context/AuthContext';
+import { MainUserContext } from '../../../Context/AuthContext';
+import { DataExchangeContext } from "../../../Context/LayoutContext";
 import { JobArrayContext } from '../../../Context/JobContext';
 import firebase from '../../../firebase';
 

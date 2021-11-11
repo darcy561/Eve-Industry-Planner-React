@@ -5,6 +5,7 @@ import {
   ActiveJobContext,
   JobSettingsTriggerContext,
 } from "../../../Context/JobContext";
+import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { EditPage1 } from "./Edit Job Components/Job Page 1";
 import { EditPage2 } from "./Edit Job Components/Job Page 2";
 import { EditPage3 } from "./Edit Job Components/Job Page 3";
@@ -29,6 +30,7 @@ export function EditJob() {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { JobSettingsTrigger, ToggleJobSettingsTrigger } = useContext(JobSettingsTriggerContext);
   const [activeStep, changeStep] = useState(1);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   function StepContentSelector() {
     switch (activeJob.jobStatus) {
@@ -68,12 +70,18 @@ export function EditJob() {
     const newArray = [...jobArray];
     newArray[index] = activeJob;
     updateJobArray(newArray);
+    setSnackbarData((prev) => ({
+      ...prev, open: true, message: `${activeJob.name} Updated`, severity: "info", autoHideDuration: 1000,
+    }));
     ToggleJobSettingsTrigger((prev) => !prev);
   }
 
   function deleteJob() {
     const newArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);
     updateJobArray(newArray);
+    setSnackbarData((prev) => ({
+      ...prev, open: true, message: `${activeJob.name} Deleted`, severity: "error", autoHideDuration: 3000,
+    }));
     ToggleJobSettingsTrigger((prev) => !prev);
   }
 

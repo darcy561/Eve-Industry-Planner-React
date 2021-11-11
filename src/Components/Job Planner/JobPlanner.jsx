@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {  JobArrayContext, JobSettingsTriggerContext
+import {  ActiveJobContext, JobArrayContext, JobSettingsTriggerContext
 } from "../../Context/JobContext";
 import { IsLoggedInContext, MainUserContext, UsersContext } from "../../Context/AuthContext";
 import { EditJob } from "./Edit Job/EditJob";
@@ -84,6 +84,7 @@ export function JobPlanner(){
   const [exampleJobsLoaded, UpdateExampleJobsLoaded] = useState(true);
   const [pageload, updatePageload] = useState(true);
 
+
   useEffect(async () => {
     const rToken = localStorage.getItem("Auth");
     if (
@@ -135,7 +136,9 @@ export function JobPlanner(){
     )
   } else {
     if (JobSettingsTrigger) {
-      return <EditJob Lazy />
+      return (
+          <EditJob />
+      )
     } else {
       return (
           <PlannerAccordion />

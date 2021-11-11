@@ -57,6 +57,7 @@ class Job {
 };
 
 export async function createJob(itemID) {
+  
   try {
     const response = await fetch(
       `https://us-central1-eve-industry-planner-dev.cloudfunctions.net/app/api/item/${itemID}`
@@ -126,6 +127,7 @@ export async function createJob(itemID) {
     };
 
   } catch (err) {
+    console.log(err.message)
     alert("No blueprint attached to this item");
   };
 };

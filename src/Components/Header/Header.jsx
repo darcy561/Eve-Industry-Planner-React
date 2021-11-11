@@ -15,7 +15,8 @@ import { makeStyles } from "@material-ui/styles";
 import { Search } from "../Header/Components/Search/Search";
 import { UserIcon } from "./Components/User/UserIcon";
 import { CircularProgress } from "@material-ui/core";
-import { DataExchangeContext, IsLoggedInContext } from "../../Context/AuthContext";
+import { IsLoggedInContext } from "../../Context/AuthContext";
+import { DataExchangeContext } from "../../Context/LayoutContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {

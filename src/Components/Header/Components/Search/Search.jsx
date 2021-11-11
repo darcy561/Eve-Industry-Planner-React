@@ -4,7 +4,8 @@ import { createJob } from "../../../Job Planner/JobBuild";
 import { JobArrayContext } from "../../../../Context/JobContext";
 import { Autocomplete } from "@material-ui/lab";
 import { Box, TextField } from "@material-ui/core";
-import { IsLoggedInContext, DataExchangeContext, MainUserContext } from "../../../../Context/AuthContext";
+import { IsLoggedInContext, MainUserContext } from "../../../../Context/AuthContext";
+import { DataExchangeContext, SnackBarDataContext } from "../../../../Context/LayoutContext";
 import firebase from '../../../../firebase';
 import { UploadJobPlanner } from "../../../Job Planner/Planner Components/FirebaseCom"
 
@@ -13,6 +14,7 @@ export function Search() {
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { mainUser } = useContext(MainUserContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   const fbJobs = firebase.firestore().collection("JobPlanner").doc(mainUser.CharacterHash).collection("Jobs");
 
@@ -34,6 +36,9 @@ export function Search() {
           JSON: JSON.stringify(outputObject),
         });
       };
+      setSnackbarData((prev) => ({
+        ...prev, open: true, message: `${outputObject.name} Added`, severity: "success", autoHideDuration: 3000,
+      }));
       updateDataExchange(false);
     };  
   };

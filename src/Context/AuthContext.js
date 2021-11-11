@@ -35,15 +35,3 @@ export const MainUser = (props) => {
         </MainUserContext.Provider>
     );
 };
-
-export const DataExchangeContext = createContext();
-
-export const DataExchange = (props) => {
-    const [DataExchange, updateDataExchange] = useState(false);
-
-    return (
-        <DataExchangeContext.Provider value={{ DataExchange, updateDataExchange }}>
-            {props.children}
-        </DataExchangeContext.Provider>
-    );
-};

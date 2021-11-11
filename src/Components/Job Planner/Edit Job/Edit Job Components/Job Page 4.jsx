@@ -8,12 +8,15 @@ import {
   Typography,
 } from "@material-ui/core";
 import { ActiveJobContext } from "../../../../Context/JobContext";
+import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { MdAdd } from "react-icons/md";
 import { BiMinus } from "react-icons/bi";
 
 export function EditPage4() {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const [extras, updateExtras] = useState({ text: "", value: 0 });
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+  
 
   function handleAdd() {
     const newExtrasArray = activeJob.job.products.extrasCosts;
@@ -37,6 +40,9 @@ export function EditPage4() {
         },
       },
     }));
+    setSnackbarData((prev) => ({
+      ...prev, open: true, message: `Added`, severity: "success", autoHideDuration: 1000,
+    }));
   }
 
   function handleRemove(extraID) {
@@ -59,6 +65,9 @@ export function EditPage4() {
           extrasTotal: newTotal,
         },
       },
+    }));
+    setSnackbarData((prev) => ({
+      ...prev, open: true, message: `Deleted`, severity: "error", autoHideDuration: 1000,
     }));
   }
 

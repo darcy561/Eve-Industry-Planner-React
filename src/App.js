@@ -12,9 +12,11 @@ import {
   SelectedPage,
 } from "./Context/JobContext";
 import { AuthMainUser, AuthToken } from "./Components/Auth/MainUserAuth";
-import { DataExchange, IsLoggedIn, MainUser, Users } from "./Context/AuthContext";
+import { IsLoggedIn, MainUser, Users } from "./Context/AuthContext";
 import { ThemeProvider } from "@material-ui/styles";
 import { createTheme } from "@material-ui/core";
+import { SnackBarNotification } from './Components/snackbar';
+import { DataExchange, SnackbarData } from './Context/LayoutContext';
 
 const theme = createTheme({
   root: {
@@ -55,6 +57,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <Router>
           <Switch>
+            <SnackbarData>
             <IsLoggedIn>
               <MainUser>
               <Users>
@@ -62,7 +65,8 @@ function App() {
                   <JobSettingsTrigger>
                     <ActiveJob>
                       <JobArray>
-                        <JobStatus>
+                          <JobStatus>
+                          <SnackBarNotification/>
                           <Header />
                           <Route path="/" exact component={Home} />
                           <Route
@@ -71,7 +75,7 @@ function App() {
                             component={JobPlanner}
                           />
                           <Route path="/auth/" exact component={AuthMainUser} />
-                          <Route path="/itemtree" exact component={ItemTree} />
+                                <Route path="/itemtree" exact component={ItemTree} />
                         </JobStatus>
                       </JobArray>
                     </ActiveJob>
@@ -80,6 +84,7 @@ function App() {
                 </Users>
                 </MainUser>
             </IsLoggedIn>
+            </SnackbarData>
           </Switch>
         </Router>
       </ThemeProvider>

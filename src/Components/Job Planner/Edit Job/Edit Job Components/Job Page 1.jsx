@@ -4,6 +4,7 @@ import {
   ActiveJobContext,
   JobArrayContext,
 } from "../../../../Context/JobContext";
+import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { blueprintVariables } from "../..";
 import { jobTypes } from "../..";
 import { createJob } from "../../JobBuild";
@@ -16,6 +17,7 @@ import {
   TextField,
   Typography,
   Button,
+  Tooltip,
 } from "@material-ui/core";
 import { CalculateTotals } from "../blueprintCalcs";
 
@@ -68,6 +70,7 @@ import { CalculateTotals } from "../blueprintCalcs";
 export function EditPage1() {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { updateJobArray } = useContext(JobArrayContext);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   async function createJobFromEdit(itemID, itemQty) {
     try {
@@ -96,6 +99,9 @@ export function EditPage1() {
           break;
       }
       updateJobArray((prevArray) => [...prevArray, newJob]);
+      setSnackbarData((prev) => ({
+        ...prev, open: true, message: `${newJob.name} Added`, severity: "success", autoHideDuration: 3000,
+      }));
     } catch (err) {}
   }
 
@@ -320,7 +326,9 @@ export function EditPage1() {
         {activeJob.job.materials.map((material) => {
           return (
             <>
+              
               <Grid item xs={2} sm={1}>
+              <Tooltip title="Click to add as a job" placement="left">
                 <IconButton
                   color="primary"
                   size="small"
@@ -328,6 +336,7 @@ export function EditPage1() {
                 >
               <MdAdd />
               </IconButton>
+              </Tooltip>              
             </Grid>
             <Grid item xs={6} sm={7}><Typography variant="body2">{material.name}</Typography></Grid>
             <Grid item xs={4} sm={4}><Typography variant="body2">{material.quantity.toLocaleString()}</Typography></Grid>

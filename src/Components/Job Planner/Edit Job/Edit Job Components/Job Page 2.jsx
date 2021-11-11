@@ -1,12 +1,14 @@
 import { Container, Divider,  Grid, IconButton, TextField, Typography } from '@material-ui/core';
 import React, { useContext, useState } from 'react';
 import { ActiveJobContext } from "../../../../Context/JobContext";
+import { SnackBarDataContext } from '../../../../Context/LayoutContext';
 import { MdAdd } from "react-icons/md";
 import { BiMinus } from "react-icons/bi";
 
 export function EditPage2() {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const [inputs, setInputs] = useState({ itemCost: 0, itemCount: 0 });
+  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   function handleAdd(material) {
     const materialIndex = activeJob.job.materials.findIndex(x => x.typeID === material.typeID);
@@ -35,6 +37,9 @@ export function EditPage2() {
            products: { ...prevObj.job.products, totalPurchaseCost: newTotal, totalComplete: newComplete}
       }
     }));
+    setSnackbarData((prev) => ({
+      ...prev, open: true, message: `Added`, severity: "success", autoHideDuration: 1000,
+    }));
     setInputs({ itemCost: 0, itemCount: 0 });    
   };
 
@@ -61,6 +66,9 @@ export function EditPage2() {
         { ...prevObj.job, materials: newArray,
            products: { ...prevObj.job.products, totalPurchaseCost: newTotal, totalComplete: newComplete }
       }
+    }));
+    setSnackbarData((prev) => ({
+      ...prev, open: true, message: `Deleted`, severity: "error", autoHideDuration: 1000,
     }));
   };
 

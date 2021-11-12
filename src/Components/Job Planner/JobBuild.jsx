@@ -122,12 +122,10 @@ export async function createJob(itemID) {
       return outputObject;
 
     } catch (err) {
-      alert("Error Building Job Object");
-      console.log(err);
+      return "objectError"
     };
 
   } catch (err) {
-    console.log(err.message)
-    alert("No blueprint attached to this item");
+    return err.name;
   };
 };

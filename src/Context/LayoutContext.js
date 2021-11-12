@@ -32,3 +32,21 @@ export const DataExchange = (props) => {
         </DataExchangeContext.Provider>
     );
 };
+
+export const DialogDataContext = createContext();
+
+export const DialogData = (props) => {
+    const [dialogData, updateDialogData] = useState({
+        buttontext:"",
+        id: "",
+        open: false,
+        title: "",
+        body: ""
+    });
+
+    return (
+        <DialogDataContext.Provider value={{ dialogData, updateDialogData }}>
+            {props.children}
+        </DialogDataContext.Provider>
+    );
+};

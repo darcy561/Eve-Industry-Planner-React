@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { Header } from "./Components/Header";
 import { Home } from "./Components/Home";
@@ -15,8 +15,13 @@ import { AuthMainUser, AuthToken } from "./Components/Auth/MainUserAuth";
 import { IsLoggedIn, MainUser, Users } from "./Context/AuthContext";
 import { ThemeProvider } from "@material-ui/styles";
 import { createTheme } from "@material-ui/core";
-import { SnackBarNotification } from './Components/snackbar';
-import { DataExchange, SnackbarData } from './Context/LayoutContext';
+import { SnackBarNotification } from "./Components/snackbar";
+import { DialogBox } from "./Components/dialog";
+import {
+  DataExchange,
+  DialogData,
+  SnackbarData,
+} from "./Context/LayoutContext";
 
 const theme = createTheme({
   root: {
@@ -58,32 +63,43 @@ function App() {
         <Router>
           <Switch>
             <SnackbarData>
-            <IsLoggedIn>
-              <MainUser>
-              <Users>
-                <DataExchange>
-                  <JobSettingsTrigger>
-                    <ActiveJob>
-                      <JobArray>
-                          <JobStatus>
-                          <SnackBarNotification/>
-                          <Header />
-                          <Route path="/" exact component={Home} />
-                          <Route
-                            path="/jobplanner"
-                            exact
-                            component={JobPlanner}
-                          />
-                          <Route path="/auth/" exact component={AuthMainUser} />
-                                <Route path="/itemtree" exact component={ItemTree} />
-                        </JobStatus>
-                      </JobArray>
-                    </ActiveJob>
-                  </JobSettingsTrigger>
-                  </DataExchange>
-                </Users>
-                </MainUser>
-            </IsLoggedIn>
+              <DialogData>
+                <IsLoggedIn>
+                  <MainUser>
+                    <Users>
+                      <DataExchange>
+                        <JobSettingsTrigger>
+                          <ActiveJob>
+                            <JobArray>
+                              <JobStatus>
+                                <SnackBarNotification />
+                                <DialogBox />
+                                <Header />
+                                <Route path="/" exact component={Home} />
+                                <Route
+                                  path="/jobplanner"
+                                  exact
+                                  component={JobPlanner}
+                                />
+                                <Route
+                                  path="/auth/"
+                                  exact
+                                  component={AuthMainUser}
+                                />
+                                <Route
+                                  path="/itemtree"
+                                  exact
+                                  component={ItemTree}
+                                />
+                              </JobStatus>
+                            </JobArray>
+                          </ActiveJob>
+                        </JobSettingsTrigger>
+                      </DataExchange>
+                    </Users>
+                  </MainUser>
+                </IsLoggedIn>
+              </DialogData>
             </SnackbarData>
           </Switch>
         </Router>

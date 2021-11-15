@@ -1,5 +1,17 @@
 import React, { createContext, useState } from 'react';
 
+export const DataExchangeContext = createContext();
+
+export const DataExchange = (props) => {
+    const [DataExchange, updateDataExchange] = useState(false);
+
+    return (
+        <DataExchangeContext.Provider value={{ DataExchange, updateDataExchange }}>
+            {props.children}
+        </DataExchangeContext.Provider>
+    );
+};
+
 export const SnackBarDataContext = createContext();
 
 export const SnackbarData = (props) => {
@@ -18,18 +30,6 @@ export const SnackbarData = (props) => {
         <SnackBarDataContext.Provider value={{ snackbarData, setSnackbarData }}>
             {props.children}
         </SnackBarDataContext.Provider>
-    );
-};
-
-export const DataExchangeContext = createContext();
-
-export const DataExchange = (props) => {
-    const [DataExchange, updateDataExchange] = useState(false);
-
-    return (
-        <DataExchangeContext.Provider value={{ DataExchange, updateDataExchange }}>
-            {props.children}
-        </DataExchangeContext.Provider>
     );
 };
 

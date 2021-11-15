@@ -72,7 +72,7 @@ export function EditPage4() {
   }
 
   return (
-    <Container>
+    <Container maxWidth={false} disableGutters={true}>
       <Grid container direction="row" xs={12}>
         <Grid xs={12} sm={6}>
           <Grid xs={12}>
@@ -81,16 +81,16 @@ export function EditPage4() {
             {activeJob.job.products.extrasCosts.map((item) => {
               return (
                 <Grid key={item.id} container direction="row">
-                  <Grid xs={5} sm={5}>
+                  <Grid xs={5}>
                     <Typography variant="body2">{item.extraText}</Typography>
                   </Grid>
-                  <Grid xs={1} sm={1} />
-                  <Grid xs={5} sm={4}>
+                  <Grid xs={1}/>
+                  <Grid xs={5}>
                     <Typography variant="body2">
                       {item.extraValue.toLocaleString()} ISK
                     </Typography>
                   </Grid>
-                  <Grid xs={1} sm={1}>
+                  <Grid xs={1}>
                     <IconButton
                       color="primary"
                       size="small"
@@ -108,7 +108,8 @@ export function EditPage4() {
         </Grid>
         <Grid container direction="row" xs={12} sm={6}>
           <Grid container direction="row" xs={12}>
-            <Grid xs={5} sm={5}>
+            <Grid md={1}/>
+            <Grid xs={5} md={3}>
               <TextField
                 defaultValue={extras.text}
                 variant="outlined"
@@ -122,8 +123,8 @@ export function EditPage4() {
                 }}
               />
             </Grid>
-            <Grid xs={1} sm={1} />
-            <Grid xs={5} sm={5}>
+            <Grid xs={1} />
+            <Grid xs={5} md={3}>
               <TextField
                 defaultValue={extras.value}
                 variant="outlined"
@@ -137,7 +138,7 @@ export function EditPage4() {
                 }}
               />
             </Grid>
-            <Grid xs={1} sm={1} md={1}>
+            <Grid xs={1}>
               <IconButton color="primary" onClick={() => handleAdd()}>
                 <MdAdd />
               </IconButton>

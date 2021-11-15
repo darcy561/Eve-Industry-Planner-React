@@ -77,7 +77,7 @@ export function Header() {
           {isLoggedIn ? (
             <UserIcon />
           ):
-            <Box align="right">
+            <Box>
               <picture>
                 <source
                   media="(max-width:900px)"

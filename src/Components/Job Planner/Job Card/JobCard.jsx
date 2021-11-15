@@ -101,7 +101,6 @@ export function JobCard(props) {
     };
   };
   return (
-      <>
         <Grid key={props.job.jobID} className={classes.Grid}item xs={6} md={4} lg={2}>
           <Card  className={classes.Card} onClick={() => EditJobProcess(props.job)}>
             <Grid className={classes.Grid} container item xs={12} >
@@ -131,18 +130,18 @@ export function JobCard(props) {
                 </Hidden>
                 <Grid className={classes.Grid} container item xs={12} sm={9}>
                   <Grid className={classes.Grid} container item xs={12}>
-                    <Grid className={classes.Grid} item xs={11}>
+                    <Grid className={classes.Grid} item xs={10}>
                       <Typography variant="body2">Run Count</Typography>
                     </Grid>
-                    <Grid className={classes.Grid} item xs={1}>
+                    <Grid className={classes.Grid} item xs={2}>
                       <Typography variant="body2">{props.job.runCount}</Typography>
                     </Grid>
                   </Grid>
                   <Grid className={classes.Grid} container item xs={12}>
-                    <Grid className={classes.Grid} item xs={11}>
+                    <Grid className={classes.Grid} item xs={10}>
                       <Typography variant="body2">Job Count</Typography>
                     </Grid>
-                    <Grid className={classes.Grid} item xs={1}>
+                    <Grid className={classes.Grid} item xs={2}>
                       <Typography variant="body2">{props.job.jobCount}</Typography>
                     </Grid>
                   </Grid>
@@ -154,6 +153,5 @@ export function JobCard(props) {
             </Grid>
           </Card>
         </Grid>
-      </>
     );
 };

@@ -1,4 +1,3 @@
-import { Typography } from "@material-ui/core";
 import React, { useContext, useEffect, useState } from "react";
 import {
   IsLoggedInContext,
@@ -8,6 +7,8 @@ import {
 import { RefreshTokens } from "../Auth/RefreshToken";
 import { CircularProgress } from "@material-ui/core";
 import { firebaseAuth } from "../Auth/firebaseAuth";
+import { LoggedInHome } from "./Components/LoggedIn";
+import { LoggedOutHome } from "./Components/LoggedOut";
 
 export function Home() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -41,17 +42,10 @@ export function Home() {
   if (pageload) {
     return pageload && <CircularProgress color="primary" />;
   } else {
-    return (
-      <>
-        <section className="block-section">
-          <div id="jobWrapper" className="jobsWrapper"></div>
-          <a>Home</a>
-          {users.map((user) => {
-            return<> <Typography variant="h5">{user.CharacterName}</Typography>
-            <Typography variant="h5">{JSON.stringify(isLoggedIn)}</Typography></>;
-          })}
-        </section>
-      </>
-    );
-  }
-}
+    if (isLoggedIn) {
+      return <LoggedInHome/>
+    } else {
+      return <LoggedOutHome/>
+    };
+  };
+};

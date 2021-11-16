@@ -1,4 +1,3 @@
-import { Typography } from "@material-ui/core";
 import React, { useContext, useEffect, useState } from "react";
 import {
   IsLoggedInContext,
@@ -8,7 +7,12 @@ import {
 import { RefreshTokens } from "../Auth/RefreshToken";
 import { CircularProgress } from "@material-ui/core";
 import { firebaseAuth } from "../Auth/firebaseAuth";
+<<<<<<< HEAD
 import { useEveApi } from "../Hooks/useEveApi";
+=======
+import { LoggedInHome } from "./Components/LoggedIn";
+import { LoggedOutHome } from "./Components/LoggedOut";
+>>>>>>> f4168e53cc8808e99188d2f75570c571d592d68f
 
 export function Home() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -54,17 +58,10 @@ export function Home() {
         <Typography variant="body2">{loadingText}</Typography>
       </>)
   } else {
-    return (
-      <>
-        <section className="block-section">
-          <div id="jobWrapper" className="jobsWrapper"></div>
-          <a>Home</a>
-          {users.map((user) => {
-            return<> <Typography variant="h5">{user.CharacterName}</Typography>
-            <Typography variant="h5">{JSON.stringify(isLoggedIn)}</Typography></>;
-          })}
-        </section>
-      </>
-    );
-  }
-}
+    if (isLoggedIn) {
+      return <LoggedInHome/>
+    } else {
+      return <LoggedOutHome/>
+    };
+  };
+};

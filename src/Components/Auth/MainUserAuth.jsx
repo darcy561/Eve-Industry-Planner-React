@@ -1,10 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
 import { MainUserContext, UsersContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress,Typography } from "@material-ui/core";
 import { useHistory } from "react-router";
 import jwt from "jsonwebtoken";
 import { firebaseAuth } from "./firebaseAuth";
+import { useEveApi } from "../Hooks/useEveApi";
+
 
 
 const appClientID = "9adbd31df9324e6ead444f1ecfdf670d";
@@ -12,7 +14,7 @@ const appSecretKey = "1aaX3CsHUmJGr3p0nabmd2EsK4QlsOu8Fj2aGozF";
 const urlCallback = encodeURIComponent(
   `${window.location.protocol}//${window.location.hostname}:3000/auth`
 );
-const scopes = "publicData";
+const scopes = "publicData esi-skills.read_skills.v1 esi-industry.read_character_jobs.v1 esi-markets.read_character_orders.v1";
 const baseURl =
   "https://login.eveonline.com/v2/oauth/authorize/?response_type=code";
 
@@ -25,7 +27,9 @@ export function AuthMainUser() {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateMainUser } = useContext(MainUserContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
   const [Loading, setLoading] = useState(true);
+  const [loadingText, setLoadingText] =useState("")
   const history = useHistory();
 
   useEffect(async () => {
@@ -33,10 +37,18 @@ export function AuthMainUser() {
     const returnState = decodeURIComponent(
       window.location.search.match(/state=(\S*)/)[1]
     );
-
+    setLoadingText("Logging Into Eve SSO");
     const userObject = await EveSSOTokens(authCode);
-
+    
     userObject.fbToken = await firebaseAuth(userObject);
+
+    setLoadingText("Loading API Data");
+    userObject.Skills = await CharacterSkills(userObject);
+    userObject.Jobs = await IndustryJobs(userObject);
+    userObject.Orders = await MarketOrders(userObject);
+    
+    setLoadingText("Building Character Object");
+    console.log(userObject);
 
     updateIsLoggedIn(true);
     const newArray = [...users];
@@ -48,8 +60,11 @@ export function AuthMainUser() {
       
   }, []);
 
-  return Loading && <CircularProgress color="primary" />;
-}
+  return (<>
+    {Loading && <CircularProgress color="primary" />}
+    <Typography variant="body2">{loadingText}</Typography>
+  </>);
+};
 
 async function EveSSOTokens(authCode) {
   const encodedCredentials = btoa(`${appClientID}:${appSecretKey}`);
@@ -73,10 +88,10 @@ async function EveSSOTokens(authCode) {
     const decodedToken = jwt.decode(tokenJSON.access_token);
     if (
       decodedToken.iss != "login.eveonline.com" &&
-      decodedToken.iss != "https://login.eveonline.com"
+      decodedToken.iss !="https://login.eveonline.com"
     ) {
       throw console.error("Invalid Token");
-    }
+    };
 
     const newUser = new MainUser(decodedToken, tokenJSON);
 
@@ -84,8 +99,8 @@ async function EveSSOTokens(authCode) {
     return newUser;
   } catch (err) {
     console.log(err);
-  }
-}
+  };
+};
 
 class MainUser {
   constructor(decodedToken, tokenJSON) {
@@ -96,8 +111,9 @@ class MainUser {
     this.aTokenEXP = Number(decodedToken.exp);
     this.fbToken = null;
     this.ParentUser = true;
-    this.Skills = {};
-    this.Jobs = {};
+    this.Skills = [];
+    this.Jobs = [];
+    this.Orders = [];
     this.Settings = { accordion: [] };
   };
 };

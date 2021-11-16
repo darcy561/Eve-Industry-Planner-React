@@ -4,9 +4,10 @@ import {  ActiveJobContext, JobArrayContext, JobSettingsTriggerContext
 import { IsLoggedInContext, MainUserContext, UsersContext } from "../../Context/AuthContext";
 import { EditJob } from "./Edit Job/EditJob";
 import { PlannerAccordion } from "./Planner Components/accordion";
-import { IconButton, CircularProgress, Container} from '@material-ui/core';
+import { IconButton, CircularProgress, Container, Typography} from '@material-ui/core';
 import { RefreshTokens } from "../Auth/RefreshToken";
 import { firebaseAuth } from "../Auth/firebaseAuth";
+import { useEveApi } from "../Hooks/useEveApi";
 import { createJob } from "./JobBuild";
 import { firebase } from "../../firebase";
 
@@ -80,9 +81,12 @@ export function JobPlanner(){
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
+  const { CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
   const [exampleJobs] = useState([3041, 671, 35834, 16656, 30309]);
   const [exampleJobsLoaded, UpdateExampleJobsLoaded] = useState(true);
   const [pageload, updatePageload] = useState(true);
+  const [loadingText, setLoadingText] =useState("")
+
 
 
   useEffect(async () => {
@@ -92,9 +96,15 @@ export function JobPlanner(){
       mainUser.aTokenEXP == null
     ) {
       if (rToken != null) {
+        setLoadingText("Logging Into Eve SSO");
         const refreshedUser = await RefreshTokens(rToken);
         refreshedUser.fbToken = await firebaseAuth(refreshedUser);
+        setLoadingText("Loading API Data");
+        refreshedUser.Skills = await CharacterSkills(refreshedUser);
+        refreshedUser.Jobs = await IndustryJobs(refreshedUser);
+        refreshedUser.Orders = await MarketOrders(refreshedUser);
         refreshedUser.ParentUser = true;
+        setLoadingText("Building Character Object");
         const newUsersArray = [];
         newUsersArray.push(refreshedUser);
         updateUsers(newUsersArray);
@@ -131,8 +141,11 @@ export function JobPlanner(){
   // },[])
 
   if (pageload) {
-    return(
-      pageload && <CircularProgress color="primary" />
+    return (
+    <>
+      { pageload && <CircularProgress color="primary" />}
+        <Typography variant="body2">{loadingText}</Typography>
+      </>
     )
   } else {
     if (JobSettingsTrigger) {

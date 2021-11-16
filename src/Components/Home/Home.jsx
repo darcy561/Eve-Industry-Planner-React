@@ -8,20 +8,30 @@ import {
 import { RefreshTokens } from "../Auth/RefreshToken";
 import { CircularProgress } from "@material-ui/core";
 import { firebaseAuth } from "../Auth/firebaseAuth";
+import { useEveApi } from "../Hooks/useEveApi";
 
 export function Home() {
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
+  const { CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
   const [pageload, updatePageload] = useState(true);
+  const [loadingText, setLoadingText] =useState("")
 
   useEffect(async() => {
     const rToken = localStorage.getItem("Auth");
     if (mainUser.aTokenEXP <= Math.floor(Date.now() / 1000) || mainUser.aTokenEXP == null) {
       if (rToken != null) {
+        setLoadingText("Logging Into Eve SSO");
         const refreshedUser = await RefreshTokens(rToken);
         refreshedUser.fbToken = await firebaseAuth(refreshedUser);
+        setLoadingText("Loading API Data");
+        refreshedUser.Skills = await CharacterSkills(refreshedUser);
+        refreshedUser.Jobs = await IndustryJobs(refreshedUser);
+        refreshedUser.Orders = await MarketOrders(refreshedUser);
         refreshedUser.ParentUser = true;
+        setLoadingText("Building Character Object");
+        console.log(refreshedUser);
         const newArray = [];
         newArray.push(refreshedUser);
         updateUsers(newArray);
@@ -39,7 +49,10 @@ export function Home() {
   }, []);
 
   if (pageload) {
-    return pageload && <CircularProgress color="primary" />;
+    return (<>
+      { pageload && <CircularProgress color="primary" />}
+        <Typography variant="body2">{loadingText}</Typography>
+      </>)
   } else {
     return (
       <>

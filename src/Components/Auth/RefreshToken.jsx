@@ -5,7 +5,6 @@ const appSecretKey = "1aaX3CsHUmJGr3p0nabmd2EsK4QlsOu8Fj2aGozF";
 
 export async function RefreshTokens(rToken) {
     const encodedCredentials = btoa(`${appClientID}:${appSecretKey}`);
-
         try {
             const newTokenPromise = await fetch(
                 "https://login.eveonline.com/v2/oauth/token",
@@ -28,17 +27,16 @@ export async function RefreshTokens(rToken) {
               throw console.error("Invalid Token");
               }
               
-            const newUser = new User(decodedToken, newTokenJSON);
+            const newUser = new MainUser(decodedToken, newTokenJSON);
   
             localStorage.setItem("Auth", newTokenJSON.refresh_token);
-
-            return newUser
+            console.log(newUser);
         } catch (err) {
             console.log(err);
         }         
 };
 
-class User {
+class MainUser {
     constructor(decodedToken, tokenJSON) {
         this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
         this.CharacterHash = decodedToken.owner;
@@ -46,8 +44,10 @@ class User {
         this.aToken = tokenJSON.access_token;
         this.aTokenEXP = Number(decodedToken.exp);
         this.fbToken = null;
-        this.ParentUser = null;
-        this.Skills = {};
-        this.Jobs = {};
+        this.ParentUser = true;
+        this.Skills = [];
+        this.Jobs = [];
+        this.Orders = [];
+        this.Settings = { accordion: [] };
     };
 };

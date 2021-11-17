@@ -54,7 +54,6 @@ export function PlannerAccordion() {
             <Accordion
               className={classes.Accordion}
               expanded={status.expanded === true}
-              // defaultExpanded={true}
               square={true}
               spacing={1}
               id={status.id}

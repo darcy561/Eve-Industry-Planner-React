@@ -30,7 +30,8 @@ export async function RefreshTokens(rToken) {
             const newUser = new MainUser(decodedToken, newTokenJSON);
   
             localStorage.setItem("Auth", newTokenJSON.refresh_token);
-            console.log(newUser);
+            
+            return newUser
         } catch (err) {
             console.log(err);
         }         

@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
+import { IsLoggedInContext } from "../../../Context/AuthContext";
 import { makeStyles } from "@material-ui/styles";
 import {
   Accordion,
@@ -7,58 +8,85 @@ import {
   AccordionSummary,
   Container,
   Divider,
+  FormControlLabel,
   Grid,
   Typography,
+  IconButton,
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import SettingsIcon from "@material-ui/icons/Settings";
 import { JobCard } from "../Job Card";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
-    flexGrow: 1,
+    width: "100%",
     background: "none",
     marginBottom: "16px",
   },
+  Expand: {
+    
+  },
+  Settings: {
+
+  }
 }));
 
+
+
 export function PlannerAccordion() {
-  const { jobStatus } = useContext(JobStatusContext);
+  const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { jobArray } = useContext(JobArrayContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const classes = useStyles();
 
+  function handleExpand(statusID) {
+    const index = jobStatus.findIndex(x => x.id === statusID);
+    let newStatusArray = [...jobStatus];
+    newStatusArray[index].expanded = !newStatusArray[index].expanded;
+    setJobStatus(newStatusArray);
+  };
+
   return (
-    <Container maxWidth={false} disableGutters={true}>
+    <Container maxWidth="xl" disableGutters={true}>
       {/* Builds each status accordion on the job planner main page */}
       {jobStatus.map((status) => {
         return (
-            <Grid key={status.id} container item xs={12}>
-              <Accordion
-                className={classes.Accordion}
-                defaultExpanded = {true}
-                square={true}
-                spacing={1}
-                id={status.id}
+            <Accordion
+              className={classes.Accordion}
+              expanded={status.expanded === true}
+              // defaultExpanded={true}
+              square={true}
+              spacing={1}
+              id={status.id}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon color="secondary" className={classes.Expand} />}
+                IconButtonProps={{ onClick: () => handleExpand(status.id) }}
+                aria-label="Expand Icon"
               >
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon style={{ color: "#E0E0E0" }} />}
-                  aria-label="Expand"
-                >
-                  <Typography variant="h4">{status.name}</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container direction="row" item xs={12} spacing={1}>
-                    {jobArray.map((job) => {
-                      if (job.jobStatus == status.id) {
-                        return <JobCard key={job.JobID} job={job} />;
-                      } else {
-                        return null;
-                      };
-                    })}
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-              <Divider />
-            </Grid>
+                <Typography variant="h4" className={classes.Title}>{status.name}</Typography>
+                {!isLoggedIn && (
+                  <FormControlLabel
+                    aria-label="Acknowledge"
+                    onClick={() => console.log("abc")}
+                    control={
+                      <IconButton className={classes.Settings}>
+                        <SettingsIcon color="secondary" fontSize="small"   />
+                      </IconButton>
+                    }
+                  />
+                )}
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container direction="row" item xs={12} spacing={1}>
+                  {jobArray.map((job) => {
+                    if (job.jobStatus == status.id) {
+                      return <JobCard key={job.JobID} job={job} />;
+                    }
+                  })}
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
         );
       })}
     </Container>

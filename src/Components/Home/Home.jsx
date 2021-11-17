@@ -5,14 +5,12 @@ import {
   UsersContext,
 } from "../../Context/AuthContext";
 import { RefreshTokens } from "../Auth/RefreshToken";
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress, Typography } from "@material-ui/core";
 import { firebaseAuth } from "../Auth/firebaseAuth";
-<<<<<<< HEAD
 import { useEveApi } from "../Hooks/useEveApi";
-=======
 import { LoggedInHome } from "./Components/LoggedIn";
 import { LoggedOutHome } from "./Components/LoggedOut";
->>>>>>> f4168e53cc8808e99188d2f75570c571d592d68f
+
 
 export function Home() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -23,11 +21,10 @@ export function Home() {
   const [loadingText, setLoadingText] =useState("")
 
   useEffect(async() => {
-    const rToken = localStorage.getItem("Auth");
     if (mainUser.aTokenEXP <= Math.floor(Date.now() / 1000) || mainUser.aTokenEXP == null) {
-      if (rToken != null) {
+      if (localStorage.getItem("Auth") != null) {
         setLoadingText("Logging Into Eve SSO");
-        const refreshedUser = await RefreshTokens(rToken);
+        const refreshedUser = await RefreshTokens(localStorage.getItem("Auth"));
         refreshedUser.fbToken = await firebaseAuth(refreshedUser);
         setLoadingText("Loading API Data");
         refreshedUser.Skills = await CharacterSkills(refreshedUser);

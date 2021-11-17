@@ -112,17 +112,6 @@ export function JobPlanner(){
         updateMainUser(refreshedUser);
         updatePageload(false);
       } else {
-        // if (exampleJobsLoaded === false) {
-        //   const newJobArray = [];
-        //     exampleJobs.forEach((item) => {
-        //     const itemData = createJob(item);
-        //     newJobArray.push(itemData);
-        //   });
-        //   Promise.all(newJobArray)
-        //   console.log(newJobArray);
-        //   updateJobArray((prevArray) => [...prevArray, newJobArray]);
-          UpdateExampleJobsLoaded(true);
-        // }
         updateIsLoggedIn(false);
         updatePageload(false);
       }

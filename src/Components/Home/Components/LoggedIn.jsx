@@ -6,8 +6,6 @@ import { JobArrayContext } from "../../../Context/JobContext";
 export function LoggedInHome() {
     const { users } = useContext(UsersContext);
     const {jobArray} = useContext(JobArrayContext)    
-    return (
-      <>
         {users.map((user) => {
           return (
             <>
@@ -16,6 +14,4 @@ export function LoggedInHome() {
             </>
           );
         })}
-      </>
-    );    
 };

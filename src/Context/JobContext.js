@@ -4,11 +4,11 @@ export const JobStatusContext = createContext();
 
 export const JobStatus = (props) => {
   const [jobStatus, setJobStatus] = useState([
-    { id: 0, name: "Planning", expanded: true },
-    { id: 1, name: "Purchasing", expanded: true },
-    { id: 2, name: "Building", expanded: true },
-    { id: 3, name: "Complete", expanded: true},
-    { id: 4, name: "For Sale", expanded: true }
+    { id: 0, name: "Planning", sortOrder: 0,  expanded: true, openAPIJobs: false, completeAPIJobs: false },
+    { id: 1, name: "Purchasing", sortOrder: 1, expanded: true, openAPIJobs: false, completeAPIJobs: false },
+    { id: 2, name: "Building", sortOrder: 2, expanded: true, openAPIJobs: true, completeAPIJobs: false },
+    { id: 3, name: "Complete", sortOrder: 3, expanded: true, openAPIJobs: false, completeAPIJobs: true},
+    { id: 4, name: "For Sale", sortOrder: 4, expanded: true, openAPIJobs: false, completeAPIJobs: false}
   ]);
 
   return (

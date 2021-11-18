@@ -50,3 +50,15 @@ export const DialogData = (props) => {
         </DialogDataContext.Provider>
     );
 };
+
+export const StatusSettingsTriggerContext = createContext();
+
+export const StatusSettingsTrigger = (props) => {
+    const [ statusSettingsTrigger, updateStatusSettingsTrigger ] = useState({id:0, display:false});
+
+    return (
+        <StatusSettingsTriggerContext.Provider value={{ statusSettingsTrigger, updateStatusSettingsTrigger }}>
+            {props.children}
+        </StatusSettingsTriggerContext.Provider>
+    );
+};

@@ -1,6 +1,7 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
+import { StatusSettingsTriggerContext } from "../../../Context/LayoutContext";
 import { makeStyles } from "@material-ui/styles";
 import {
   Accordion,
@@ -16,6 +17,7 @@ import {
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { JobCard } from "../Job Card";
+import { StatusSettings } from "./StatusSettings";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -37,6 +39,7 @@ export function PlannerAccordion() {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { jobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { statusSettingsTrigger, updateStatusSettingsTrigger }  = useContext(StatusSettingsTriggerContext);
   const classes = useStyles();
 
   function handleExpand(statusID) {
@@ -64,10 +67,10 @@ export function PlannerAccordion() {
                 aria-label="Expand Icon"
               >
                 <Typography variant="h4" className={classes.Title}>{status.name}</Typography>
-                {!isLoggedIn && (
+                {isLoggedIn && (
                   <FormControlLabel
                     aria-label="Acknowledge"
-                    onClick={() => console.log("abc")}
+                  onClick={() => updateStatusSettingsTrigger({id:status.id, display:true})}
                     control={
                       <IconButton className={classes.Settings}>
                         <SettingsIcon color="secondary" fontSize="small"   />
@@ -75,7 +78,7 @@ export function PlannerAccordion() {
                     }
                   />
                 )}
-              </AccordionSummary>
+              </AccordionSummary> 
               <AccordionDetails>
                 <Grid container direction="row" item xs={12} spacing={1}>
                   {jobArray.map((job) => {
@@ -88,6 +91,7 @@ export function PlannerAccordion() {
             </Accordion>
         );
       })}
+      <StatusSettings />
     </Container>
   );
 };

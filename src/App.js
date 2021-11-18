@@ -21,6 +21,7 @@ import {
   DataExchange,
   DialogData,
   SnackbarData,
+  StatusSettingsTrigger
 } from "./Context/LayoutContext";
 
 const theme = createTheme({
@@ -72,6 +73,7 @@ function App() {
                           <ActiveJob>
                             <JobArray>
                               <JobStatus>
+                                <StatusSettingsTrigger>
                                 <SnackBarNotification />
                                 <DialogBox />
                                 <Header />
@@ -91,6 +93,7 @@ function App() {
                                   exact
                                   component={ItemTree}
                                 />
+                                </StatusSettingsTrigger>
                               </JobStatus>
                             </JobArray>
                           </ActiveJob>

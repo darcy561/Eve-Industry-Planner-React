@@ -9,12 +9,14 @@ import {
 } from "@material-ui/core";
 import { JobStatusContext } from "../../../Context/JobContext";
 import { StatusSettingsTriggerContext } from "../../../Context/LayoutContext";
+import { useFirebase } from "../../../Hooks/useFirebase";
 
 export function StatusSettings() {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { statusSettingsTrigger, updateStatusSettingsTrigger } = useContext(
     StatusSettingsTriggerContext
   );
+  const { uploadJobStatus } = useFirebase();
 
   const status = jobStatus.find((stat) => stat.id === statusSettingsTrigger.id);
 
@@ -36,6 +38,7 @@ export function StatusSettings() {
             const index = jobStatus.findIndex((i) => i.id === status.id);
             const newStatusArray = jobStatus;
             newStatusArray[index] = status;
+            uploadJobStatus(newStatusArray);
             setJobStatus(newStatusArray);
             updateStatusSettingsTrigger({ id: 0, display: false });
           }}

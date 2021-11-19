@@ -5,7 +5,10 @@ import { CircularProgress,Typography } from "@material-ui/core";
 import { useHistory } from "react-router";
 import jwt from "jsonwebtoken";
 import { firebaseAuth } from "./firebaseAuth";
-import { useEveApi } from "../Hooks/useEveApi";
+import { useEveApi } from "../../Hooks/useEveApi";
+import { useFirebase } from "../../Hooks/useFirebase";
+import { JobArrayContext, JobStatusContext } from "../../Context/JobContext";
+
 
 
 
@@ -24,12 +27,15 @@ export function login() {
 }
 
 export function AuthMainUser() {
+  const { setJobStatus } = useContext(JobStatusContext);
+  const { updateJobArray } = useContext(JobArrayContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { updateMainUser } = useContext(MainUserContext);
-  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
   const [Loading, setLoading] = useState(true);
-  const [loadingText, setLoadingText] =useState("")
+  const [loadingText, setLoadingText] = useState("")
+  const { determineUserState, downloadCharacterData, downloadCharacterJobs } = useFirebase();
   const history = useHistory();
 
   useEffect(async () => {
@@ -41,14 +47,20 @@ export function AuthMainUser() {
     const userObject = await EveSSOTokens(authCode);
     
     userObject.fbToken = await firebaseAuth(userObject);
+    
+    determineUserState(userObject);
 
     setLoadingText("Loading API Data");
     userObject.Skills = await CharacterSkills(userObject);
     userObject.Jobs = await IndustryJobs(userObject);
-    userObject.Orders = await MarketOrders(userObject);
-    
-    setLoadingText("Building Character Object");
-    console.log(userObject);
+    userObject.Orders = await MarketOrders(userObject);    
+    setLoadingText("Downloading Character Data");
+
+    const charSettings = await downloadCharacterData(userObject);
+    const charJobs = await downloadCharacterJobs(userObject);
+
+    setJobStatus(charSettings.jobStatusArray);
+    updateJobArray(charJobs);
 
     updateIsLoggedIn(true);
     const newArray = [...users];

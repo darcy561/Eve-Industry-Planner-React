@@ -2,10 +2,12 @@ import React, { useContext } from "react";
 import itemList from "./object_recipe_names.json";
 import { Autocomplete } from "@material-ui/lab";
 import { Container, TextField } from "@material-ui/core";
-import { useCreateJobProcess } from "../../../Hooks/useCreateJob";
+import { useCreateJobProcess } from "../../../../Hooks/useCreateJob";
+import { IsLoggedInContext } from "../../../../Context/AuthContext";
 
 export function Search() {
-  const [newJobProcess] = useCreateJobProcess();
+  const { newJobProcess } = useCreateJobProcess();
+  const { isLoggedIn } = useContext(IsLoggedInContext);
 
   return (
     <Container style={{ width: "15%", marginRight: "2%"}}>
@@ -19,10 +21,12 @@ export function Search() {
         options={itemList}
         getOptionLabel={(option) => option.name}
         onChange={(event, value) => {
-          if (value !== null) {
-            newJobProcess(value.itemID);
-          };
+          if (value != null) {
+            newJobProcess(value.itemID, null);
+            console.log(isLoggedIn)
+          }
         }}
+
         renderInput={(params) => (
           <TextField
             {...params}

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
 import { StatusSettingsTriggerContext } from "../../../Context/LayoutContext";
@@ -18,6 +18,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { JobCard } from "../Job Card";
 import { StatusSettings } from "./StatusSettings";
+import { useFirebase } from "../../../Hooks/useFirebase";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -39,13 +40,15 @@ export function PlannerAccordion() {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { jobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { statusSettingsTrigger, updateStatusSettingsTrigger }  = useContext(StatusSettingsTriggerContext);
+  const { updateStatusSettingsTrigger } = useContext(StatusSettingsTriggerContext);
+  const { uploadJobStatus } = useFirebase();
   const classes = useStyles();
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex(x => x.id === statusID);
     let newStatusArray = [...jobStatus];
     newStatusArray[index].expanded = !newStatusArray[index].expanded;
+    isLoggedIn && uploadJobStatus(newStatusArray);
     setJobStatus(newStatusArray);
   };
 

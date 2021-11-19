@@ -7,16 +7,20 @@ import {
 import { RefreshTokens } from "../Auth/RefreshToken";
 import { CircularProgress, Typography } from "@material-ui/core";
 import { firebaseAuth } from "../Auth/firebaseAuth";
-import { useEveApi } from "../Hooks/useEveApi";
+import { useEveApi } from "../../Hooks/useEveApi";
 import { LoggedInHome } from "./Components/LoggedIn";
 import { LoggedOutHome } from "./Components/LoggedOut";
-
+import { JobArrayContext, JobStatusContext } from "../../Context/JobContext";
+import { useFirebase } from "../../Hooks/useFirebase";
 
 export function Home() {
+  const { setJobStatus } = useContext(JobStatusContext);
+  const { updateJobArray } = useContext(JobArrayContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
   const { CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
+  const { downloadCharacterData, downloadCharacterJobs } = useFirebase();
   const [pageload, updatePageload] = useState(true);
   const [loadingText, setLoadingText] =useState("")
 
@@ -32,7 +36,11 @@ export function Home() {
         refreshedUser.Orders = await MarketOrders(refreshedUser);
         refreshedUser.ParentUser = true;
         setLoadingText("Building Character Object");
-        console.log(refreshedUser);
+        const charSettings = await downloadCharacterData(refreshedUser);
+        const charJobs = await downloadCharacterJobs(refreshedUser);
+
+        setJobStatus(charSettings.jobStatusArray);
+        updateJobArray(charJobs);
         const newArray = [];
         newArray.push(refreshedUser);
         updateUsers(newArray);

@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import Select from "react-select";
 import { ActiveJobContext } from "../../../../Context/JobContext";
-import { useCreateJobProcess } from "../../../Hooks/useCreateJob";
+import { useCreateJobProcess } from "../../../../Hooks/useCreateJob";
 import { blueprintVariables } from "../..";
 import { jobTypes } from "../..";
 import { MdAdd } from "react-icons/md";
@@ -15,7 +15,7 @@ import {
   Button,
   Tooltip,
 } from "@material-ui/core";
-import { CalculateTotals } from "../../../Hooks/useBlueprintCalc";
+import { CalculateTotals } from "../../../../Hooks/useBlueprintCalc";
 
 // const customStyles = {
 //   container: (provided, state) => ({
@@ -65,7 +65,7 @@ import { CalculateTotals } from "../../../Hooks/useBlueprintCalc";
 
 export function EditPage1() {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const [newJobProcess] = useCreateJobProcess();
+  const { newJobProcess } = useCreateJobProcess();
 
   return (
     <Container maxWidth={false} disableGutters={true}>

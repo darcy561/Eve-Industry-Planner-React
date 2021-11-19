@@ -3,11 +3,12 @@ import {
   SnackBarDataContext,
   DialogDataContext,
   DataExchangeContext,
-} from "../../Context/LayoutContext";
-import { JobArrayContext } from "../../Context/JobContext";
-import { IsLoggedInContext } from "../../Context/AuthContext";
-import { createJob } from "../Job Planner/JobBuild";
+} from "../Context/LayoutContext";
+import { JobArrayContext } from "../Context/JobContext";
+import { IsLoggedInContext } from "../Context/AuthContext";
+import { createJob } from "../Components/Job Planner/JobBuild";
 import { CalculateTotals } from "./useBlueprintCalc";
+import { useFirebase } from "./useFirebase";
 
 export function useCreateJobProcess() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -15,9 +16,15 @@ export function useCreateJobProcess() {
   const { updateDialogData } = useContext(DialogDataContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { addNewJob } = useFirebase();
+
+  console.log(isLoggedIn);
 
   const newJobProcess = useCallback(async (itemID, itemQty) => {
-    if (isLoggedIn == false && jobArray.length >= 8) {
+
+    console.log(isLoggedIn);
+
+    if (isLoggedIn === false && jobArray.length >= 8) {
       updateDialogData((prev) => ({
         ...prev,
         buttonText: "Close",
@@ -98,7 +105,12 @@ export function useCreateJobProcess() {
         
         const calculatedValue = CalculateTotals(newJob);
         newJob.job.materials = calculatedValue;
+        console.log(isLoggedIn);
+        
+        isLoggedIn && addNewJob(newJob);
+        
         updateJobArray((prevArray) => [...prevArray, newJob]);
+        
         updateDataExchange(false);
         setSnackbarData((prev) => ({
           ...prev,
@@ -110,5 +122,5 @@ export function useCreateJobProcess() {
       };
     };
   }, []);
-  return [newJobProcess];
+  return { newJobProcess };
 };

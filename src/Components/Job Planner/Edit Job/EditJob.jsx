@@ -23,6 +23,8 @@ import {
   Typography,
 } from "@material-ui/core";
 import { jobTypes } from "../JobPlanner";
+import { useFirebase } from "../../../Hooks/useFirebase";
+import { IsLoggedInContext } from "../../../Context/AuthContext";
 
 export function EditJob() {
   const { jobStatus, updateJobStatus } = useContext(JobStatusContext);
@@ -31,6 +33,8 @@ export function EditJob() {
   const { JobSettingsTrigger, ToggleJobSettingsTrigger } = useContext(JobSettingsTriggerContext);
   const [activeStep, changeStep] = useState(1);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { removeJob, uploadJob } = useFirebase();
 
   function StepContentSelector() {
     switch (activeJob.jobStatus) {
@@ -69,16 +73,19 @@ export function EditJob() {
     const index = jobArray.findIndex((x) => activeJob.jobID === x.jobID);
     const newArray = [...jobArray];
     newArray[index] = activeJob;
+    // isLoggedIn && uploadJob(activeJob);
     updateJobArray(newArray);
     setSnackbarData((prev) => ({
       ...prev, open: true, message: `${activeJob.name} Updated`, severity: "info", autoHideDuration: 1000,
     }));
     ToggleJobSettingsTrigger((prev) => !prev);
+    
   }
 
   function deleteJob() {
     const newArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);
     updateJobArray(newArray);
+    isLoggedIn && removeJob(activeJob);
     setSnackbarData((prev) => ({
       ...prev, open: true, message: `${activeJob.name} Deleted`, severity: "error", autoHideDuration: 3000,
     }));

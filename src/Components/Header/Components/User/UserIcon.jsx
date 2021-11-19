@@ -1,7 +1,7 @@
 import { Avatar, Box, Hidden, Icon, Menu, MenuItem, Typography } from '@material-ui/core';
 import React, {useContext, useState} from 'react';
 import { IsLoggedInContext, MainUserContext, UsersContext } from '../../../../Context/AuthContext';
-import { ActiveJobContext, JobArrayContext } from '../../../../Context/JobContext';
+import { ActiveJobContext, JobArrayContext, JobStatusContext } from '../../../../Context/JobContext';
 import { SnackBarDataContext } from '../../../../Context/LayoutContext';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import firebase from "../../../../firebase";
@@ -14,6 +14,7 @@ export function UserIcon() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateActiveJob } = useContext(ActiveJobContext);
   const { updateJobArray } = useContext(JobArrayContext);
+  const { setJobStatus } = useContext(JobStatusContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
   function logout() {
@@ -21,6 +22,13 @@ export function UserIcon() {
     updateUsers([]);
     updateMainUser({});
     updateJobArray([]);
+    setJobStatus([
+      { id: 0, name: "Planning", sortOrder: 0, expanded: true, openAPIJobs: false, completeAPIJobs: false },
+      { id: 1, name: "Purchasing", sortOrder: 1, expanded: true, openAPIJobs: false, completeAPIJobs: false },
+      { id: 2, name: "Building", sortOrder: 2, expanded: true, openAPIJobs: true, completeAPIJobs: false },
+      { id: 3, name: "Complete", sortOrder: 3, expanded: true, openAPIJobs: false, completeAPIJobs: true },
+      { id: 4, name: "For Sale", sortOrder: 4, expanded: true, openAPIJobs: false, completeAPIJobs: false }
+    ]);
     updateActiveJob({});
     sessionStorage.clear();
     localStorage.clear();

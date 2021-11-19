@@ -1,15 +1,21 @@
 import React, { useContext, useEffect, useState } from "react";
-import {  ActiveJobContext, JobArrayContext, JobSettingsTriggerContext
+import {
+  JobArrayContext,
+  JobStatusContext,
+  JobSettingsTriggerContext,
 } from "../../Context/JobContext";
-import { IsLoggedInContext, MainUserContext, UsersContext } from "../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  MainUserContext,
+  UsersContext,
+} from "../../Context/AuthContext";
 import { EditJob } from "./Edit Job/EditJob";
 import { PlannerAccordion } from "./Planner Components/accordion";
-import { IconButton, CircularProgress, Container, Typography} from '@material-ui/core';
+import { CircularProgress, Typography } from "@material-ui/core";
 import { RefreshTokens } from "../Auth/RefreshToken";
 import { firebaseAuth } from "../Auth/firebaseAuth";
-import { useEveApi } from "../Hooks/useEveApi";
-import { createJob } from "./JobBuild";
-import { firebase } from "../../firebase";
+import { useEveApi } from "../../Hooks/useEveApi";
+import { useFirebase } from "../../Hooks/useFirebase";
 
 export let blueprintVariables = {
   me: [
@@ -75,19 +81,17 @@ export let jobTypes = {
   pi: 3,
 };
 
-export function JobPlanner(){
-  const { JobSettingsTrigger, ToggleJobSettingsTrigger } = useContext(JobSettingsTriggerContext);
+export function JobPlanner() {
+  const { JobSettingsTrigger } = useContext(JobSettingsTriggerContext);
   const { updateJobArray } = useContext(JobArrayContext);
-  const { users, updateUsers } = useContext(UsersContext);
-  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { setJobStatus } = useContext(JobStatusContext);
+  const { updateUsers } = useContext(UsersContext);
+  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
   const { CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
-  const [exampleJobs] = useState([3041, 671, 35834, 16656, 30309]);
-  const [exampleJobsLoaded, UpdateExampleJobsLoaded] = useState(true);
+  const { downloadCharacterData, downloadCharacterJobs } = useFirebase();
   const [pageload, updatePageload] = useState(true);
-  const [loadingText, setLoadingText] =useState("")
-
-
+  const [loadingText, setLoadingText] = useState("");
 
   useEffect(async () => {
     const rToken = localStorage.getItem("Auth");
@@ -105,6 +109,11 @@ export function JobPlanner(){
         refreshedUser.Orders = await MarketOrders(refreshedUser);
         refreshedUser.ParentUser = true;
         setLoadingText("Building Character Object");
+        const charSettings = await downloadCharacterData(refreshedUser);
+        const charJobs = await downloadCharacterJobs(refreshedUser);
+
+        setJobStatus(charSettings.jobStatusArray);
+        updateJobArray(charJobs);
         const newUsersArray = [];
         newUsersArray.push(refreshedUser);
         updateUsers(newUsersArray);
@@ -120,31 +129,18 @@ export function JobPlanner(){
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (IsLoggedIn) {
-  //     firebase.firestore().collection("JobPlanner").document(mainUser.CharacterHash).collection("Jobs")
-  //       .getdocumentsnapshot(
-    
-  //     )
-  //   };
-  // },[])
-
   if (pageload) {
     return (
-    <>
-      { pageload && <CircularProgress color="primary" />}
+      <>
+        {pageload && <CircularProgress color="primary" />}
         <Typography variant="body2">{loadingText}</Typography>
       </>
-    )
+    );
   } else {
     if (JobSettingsTrigger) {
-      return (
-          <EditJob />
-      )
+      return <EditJob />;
     } else {
-      return (
-          <PlannerAccordion />
-      )
-    };
-  };
-};
+      return <PlannerAccordion />;
+    }
+  }
+}

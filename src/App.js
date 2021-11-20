@@ -9,9 +9,8 @@ import {
   JobArray,
   ActiveJob,
   JobSettingsTrigger,
-  SelectedPage,
 } from "./Context/JobContext";
-import { AuthMainUser, AuthToken } from "./Components/Auth/MainUserAuth";
+import { AuthMainUser } from "./Components/Auth/MainUserAuth";
 import { IsLoggedIn, MainUser, Users } from "./Context/AuthContext";
 import { ThemeProvider } from "@material-ui/styles";
 import { createTheme } from "@material-ui/core";

@@ -1,4 +1,3 @@
-import { CopyrightTwoTone } from "@material-ui/icons";
 import React, { useCallback, useContext } from "react";
 import { MainUserContext } from "../Context/AuthContext";
 import { DataExchangeContext } from "../Context/LayoutContext";

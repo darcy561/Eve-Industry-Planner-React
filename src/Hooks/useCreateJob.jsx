@@ -18,8 +18,6 @@ export function useCreateJobProcess() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { addNewJob } = useFirebase();
 
-  console.log(isLoggedIn);
-
   const newJobProcess = useCallback(async (itemID, itemQty) => {
 
     console.log(isLoggedIn);

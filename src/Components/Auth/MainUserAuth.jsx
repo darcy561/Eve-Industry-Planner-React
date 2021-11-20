@@ -9,14 +9,9 @@ import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { JobArrayContext, JobStatusContext } from "../../Context/JobContext";
 
-
-
-
-const appClientID = "9adbd31df9324e6ead444f1ecfdf670d";
-const appSecretKey = "1aaX3CsHUmJGr3p0nabmd2EsK4QlsOu8Fj2aGozF";
-const urlCallback = encodeURIComponent(
-  `${window.location.protocol}//${window.location.hostname}:3000/auth`
-);
+const appClientID = process.env.REACT_APP_eveClientID;
+const appSecretKey = process.env.REACT_APP_eveSecretKey;
+const urlCallback = encodeURIComponent(process.env.REACT_APP_eveCallbackURL);
 const scopes = "publicData esi-skills.read_skills.v1 esi-industry.read_character_jobs.v1 esi-markets.read_character_orders.v1";
 const baseURl =
   "https://login.eveonline.com/v2/oauth/authorize/?response_type=code";

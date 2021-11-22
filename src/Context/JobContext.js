@@ -41,3 +41,15 @@ export const ActiveJob = (props) => {
     </ActiveJobContext.Provider>
   );
 };
+
+export const ApiJobsContext = createContext();
+
+export const ApiJobs = (props) => {
+  const [apiJobs, updateApiJobs] = useState([]);
+
+  return (
+    <ApiJobsContext.Provider value={{apiJobs, updateApiJobs}}>
+      {props.children}
+    </ApiJobsContext.Provider>
+  );
+};

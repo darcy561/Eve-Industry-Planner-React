@@ -4,7 +4,7 @@ import { Header } from "./Components/Header";
 import { Home } from "./Components/Home";
 import { JobPlanner } from "./Components/Job Planner";
 import { ItemTree } from "./Components/item Tree";
-import { JobStatus, JobArray, ActiveJob } from "./Context/JobContext";
+import { JobStatus, JobArray, ActiveJob, ApiJobs } from "./Context/JobContext";
 import { AuthMainUser } from "./Components/Auth/MainUserAuth";
 import { IsLoggedIn, MainUser, Users } from "./Context/AuthContext";
 import { ThemeProvider } from "@material-ui/styles";
@@ -62,20 +62,22 @@ export default function App() {
                   <ActiveJob>
                     <JobArray>
                       <JobStatus>
-                        <SnackBarNotification />
-                        <DialogBox />
-                        <BrowserRouter>
-                          <Header />
-                          <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route
-                              path="/jobplanner"
-                              element={<JobPlanner />}
-                            />
-                            <Route path="/auth/" element={<AuthMainUser />} />
-                            <Route path="/itemtree" element={<ItemTree />} />
-                          </Routes>
-                        </BrowserRouter>
+                        <ApiJobs>
+                          <SnackBarNotification />
+                          <DialogBox />
+                          <BrowserRouter>
+                            <Header />
+                            <Routes>
+                              <Route path="/" element={<Home />} />
+                              <Route
+                                path="/jobplanner"
+                                element={<JobPlanner />}
+                              />
+                              <Route path="/auth/" element={<AuthMainUser />} />
+                              <Route path="/itemtree" element={<ItemTree />} />
+                            </Routes>
+                          </BrowserRouter>
+                        </ApiJobs>
                       </JobStatus>
                     </JobArray>
                   </ActiveJob>

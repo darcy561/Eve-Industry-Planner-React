@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { login } from "./MainUserAuth";
 
 export async function RefreshTokens(rToken) {
         try {
@@ -29,7 +30,7 @@ export async function RefreshTokens(rToken) {
             
             return newUser
         } catch (err) {
-            console.log(err);
+            login();
         }         
 };
 

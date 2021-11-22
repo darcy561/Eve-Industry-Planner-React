@@ -1,9 +1,10 @@
 import React, { useContext, useState } from "react";
-import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import {
-  IsLoggedInContext,
-  UsersContext,
-} from "../../../Context/AuthContext";
+  ApiJobsContext,
+  JobArrayContext,
+  JobStatusContext,
+} from "../../../Context/JobContext";
+import { IsLoggedInContext } from "../../../Context/AuthContext";
 import { makeStyles } from "@material-ui/styles";
 import {
   Accordion,
@@ -36,8 +37,8 @@ const useStyles = makeStyles((theme) => ({
 export function PlannerAccordion({ updateJobSettingsTrigger }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { jobArray } = useContext(JobArrayContext);
+  const { apiJobs } = useContext(ApiJobsContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users } = useContext(UsersContext);
   const [statusSettingsTrigger, updateStatusSettingsTrigger] = useState(false);
   const [statusData, updateStatusData] = useState({
     id: 0,
@@ -57,24 +58,6 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
     isLoggedIn && uploadJobStatus(newStatusArray);
     setJobStatus(newStatusArray);
   }
-
-  const openAPIJobs = [];
-  users.forEach((u) => {
-    u.apiJobs.map((j) => {
-      if (j.status === "active") {
-        openAPIJobs.push(j)
-      }
-    })
-  });
-
-  const completeAPIJobs = [];
-  users.forEach((u) => {
-    u.apiJobs.map((j) => {
-      if (j.status === "ready" || j.status === "delivered") {
-        completeAPIJobs.push(j)
-      }
-    })
-  });
 
   return (
     <Container maxWidth="xl" disableGutters={true}>
@@ -100,33 +83,42 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
               </Typography>
               {isLoggedIn && (
                 <Tooltip title="Change status settings">
-                <FormControlLabel
-                  aria-label="Acknowledge"
-                  onClick={() => {
-                    updateStatusData(status);
-                    updateStatusSettingsTrigger(true);
-                  }}
-                  control={
-                    <IconButton className={classes.Settings}>
-                      <SettingsIcon color="secondary" fontSize="small" />
-                    </IconButton>
-                  }
-                />
+                  <FormControlLabel
+                    aria-label="Acknowledge"
+                    onClick={() => {
+                      updateStatusData(status);
+                      updateStatusSettingsTrigger(true);
+                    }}
+                    control={
+                      <IconButton className={classes.Settings}>
+                        <SettingsIcon color="secondary" fontSize="small" />
+                      </IconButton>
+                    }
+                  />
                 </Tooltip>
               )}
             </AccordionSummary>
             <AccordionDetails>
               <Grid container direction="row" item xs={12} spacing={1}>
+                {
+                  (status.openAPIJobs,
+                  isLoggedIn &&
+                    apiJobs.map((j) => {
+                      if (j.status === "active") {
+                        return <ApiJobCard job={j} />;
+                      }
+                    }))
+                }
 
-                {status.openAPIJobs &&
-                  openAPIJobs.map((j) => {
-                    return <ApiJobCard job={j} />;
-                  })}
-                
-                {status.completeAPIJobs &&
-                  completeAPIJobs.map((j) => {
-                    return <ApiJobCard job={j} />;
-                  })}
+                {
+                  (status.completeAPIJobs,
+                  isLoggedIn &&
+                    apiJobs.map((j) => {
+                      if (j.status === "ready" || j.status === "delivered") {
+                        return <ApiJobCard job={j} />;
+                      }
+                    }))
+                }
 
                 {jobArray.map((job) => {
                   if (job.jobStatus == status.id) {
@@ -138,7 +130,6 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
                     );
                   }
                 })}
-
               </Grid>
             </AccordionDetails>
           </Accordion>

@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { firebaseAuth } from "./firebaseAuth";
 import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
-import { JobArrayContext, JobStatusContext } from "../../Context/JobContext";
+import { ApiJobsContext, JobArrayContext, JobStatusContext } from "../../Context/JobContext";
 
 export function login() {
   const state = window.location.pathname;
@@ -17,6 +17,7 @@ export function login() {
 export function AuthMainUser() {
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
+  const { updateApiJobs } = useContext(ApiJobsContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { updateMainUser } = useContext(MainUserContext);
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -50,6 +51,7 @@ export function AuthMainUser() {
 
     setJobStatus(userSettings.jobStatusArray);
     updateJobArray(userJobs);
+    updateApiJobs(userObject.apiJobs);
 
     updateIsLoggedIn(true);
     const newArray = [...users];

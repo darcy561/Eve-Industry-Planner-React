@@ -63,7 +63,7 @@ import { CalculateTotals } from "../../../../Hooks/useBlueprintCalc";
 //   }),
 // };
 
-export function EditPage1() {
+export function EditPage1({setJobModified}) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { newJobProcess } = useCreateJobProcess();
 
@@ -82,6 +82,7 @@ export function EditPage1() {
                   ...prevState,
                   runCount: Number(e.target.value),
                 }));
+                setJobModified(true);
               }}
             />
           </Grid>
@@ -97,6 +98,7 @@ export function EditPage1() {
                   ...prevState,
                   jobCount: Number(e.target.value),
                 }));
+                setJobModified(true);
               }}
             />
           </Grid>
@@ -115,6 +117,7 @@ export function EditPage1() {
                       ...prevState,
                       bpME: Number(e.value),
                     }));
+                    setJobModified(true);
                   }}
                   options={blueprintVariables.me}
                 />
@@ -135,6 +138,7 @@ export function EditPage1() {
                       ...prevState,
                       bpTE: Number(e.value),
                     }));
+                    setJobModified(true);
                   }}
                 />
                 <FormHelperText style={{ color: "#fff" }}>
@@ -159,6 +163,7 @@ export function EditPage1() {
                       ...prevState,
                       structureTypeDisplay: e.value,
                     }));
+                    setJobModified(true);
                   }}
                 />
                 <FormHelperText style={{ color: "#fff" }}>
@@ -180,6 +185,7 @@ export function EditPage1() {
                       ...prevState,
                       structureTypeDisplay: e.value,
                     }));
+                    setJobModified(true);
                   }}
                 />
                 <FormHelperText style={{ color: "#fff" }}>
@@ -205,6 +211,7 @@ export function EditPage1() {
                       ...prevState,
                       rigType: Number(e.value),
                     }));
+                    setJobModified(true);
                   }}
                 />
                 <FormHelperText style={{ color: "#fff" }}>
@@ -226,6 +233,7 @@ export function EditPage1() {
                       ...prevState,
                       rigType: Number(e.value),
                     }));
+                    setJobModified(true);
                   }}
                 />
                 <FormHelperText style={{ color: "#fff" }}>
@@ -250,6 +258,7 @@ export function EditPage1() {
                     ...prevState,
                     systemType: Number(e.value),
                   }));
+                  setJobModified(true);
                 }}
               />
               <FormHelperText style={{ color: "#fff" }}>
@@ -269,6 +278,7 @@ export function EditPage1() {
                     ...prevState,
                     systemType: Number(e.value),
                   }));
+                  setJobModified(true);
                 }}
               />
               <FormHelperText style={{ color: "#fff" }}>
@@ -322,6 +332,7 @@ export function EditPage1() {
               ...prevObj,
               job: { ...prevObj.job, materials: updatedTotals },
             }));
+            setJobModified(true);
           }}
         >
           Recalculate Totals

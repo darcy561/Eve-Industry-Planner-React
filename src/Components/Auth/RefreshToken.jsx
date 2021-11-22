@@ -1,17 +1,13 @@
 import jwt from "jsonwebtoken";
 
-const appClientID = "9adbd31df9324e6ead444f1ecfdf670d";
-const appSecretKey = "1aaX3CsHUmJGr3p0nabmd2EsK4QlsOu8Fj2aGozF";
-
 export async function RefreshTokens(rToken) {
-    const encodedCredentials = btoa(`${appClientID}:${appSecretKey}`);
         try {
             const newTokenPromise = await fetch(
                 "https://login.eveonline.com/v2/oauth/token",
                 {
                     method: "POST",
                     headers: {
-                        "Authorization": `Basic ${encodedCredentials}`,
+                        "Authorization": `Basic ${btoa(`${process.env.REACT_APP_eveClientID}:${process.env.REACT_APP_eveSecretKey}`)}`,
                         "Content-Type": "application / x-www-form-urlencoded",
                         "Host": "login.eveonline.com",
                     },
@@ -39,6 +35,7 @@ export async function RefreshTokens(rToken) {
 
 class MainUser {
     constructor(decodedToken, tokenJSON) {
+        this.accountID = null;
         this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
         this.CharacterHash = decodedToken.owner;
         this.CharacterName = decodedToken.name;
@@ -46,9 +43,9 @@ class MainUser {
         this.aTokenEXP = Number(decodedToken.exp);
         this.fbToken = null;
         this.ParentUser = true;
-        this.Skills = [];
-        this.Jobs = [];
-        this.Orders = [];
-        this.Settings = { accordion: [] };
+        this.apiSkills = null;
+        this.apiJobs = null;
+        this.apiOrders = null;
+        this.Settings = null;
     };
 };

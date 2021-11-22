@@ -31,12 +31,13 @@ export function Home() {
         const refreshedUser = await RefreshTokens(localStorage.getItem("Auth"));
         refreshedUser.fbToken = await firebaseAuth(refreshedUser);
         setLoadingText("Loading API Data");
-        refreshedUser.Skills = await CharacterSkills(refreshedUser);
-        refreshedUser.Jobs = await IndustryJobs(refreshedUser);
-        refreshedUser.Orders = await MarketOrders(refreshedUser);
+        refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
+        refreshedUser.apiJobs = await IndustryJobs(refreshedUser);
+        refreshedUser.apiOrders = await MarketOrders(refreshedUser);
         refreshedUser.ParentUser = true;
         setLoadingText("Building Character Object");
         const charSettings = await downloadCharacterData(refreshedUser);
+        refreshedUser.accountID = charSettings.accountID;
         const charJobs = await downloadCharacterJobs(refreshedUser);
 
         setJobStatus(charSettings.jobStatusArray);

@@ -119,6 +119,6 @@ export function useCreateJobProcess() {
         }));
       };
     };
-  }, []);
+  });
   return { newJobProcess };
 };

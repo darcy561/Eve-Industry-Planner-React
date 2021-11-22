@@ -1,11 +1,14 @@
 import React, { useContext } from "react";
-import {
-  JobArrayContext,
-  ActiveJobContext,
-  JobSettingsTriggerContext,
-} from "../../../Context/JobContext";
+import { ActiveJobContext } from "../../../Context/JobContext";
 import { jobTypes } from "..";
-import { Box, Card, Grid, Hidden, Typography } from "@material-ui/core";
+import {
+  Box,
+  Card,
+  Grid,
+  Hidden,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -18,25 +21,25 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
     "&:hover $focusHighlight": {
       opacity: 1,
-      color:"blue"
-    }
-  },  
+      color: "blue",
+    },
+  },
   Image: {
     width: "80%",
     margin: "auto",
     display: "block",
   },
   Grid: {
-    background: "none"
+    background: "none",
   },
   Box: {
-      position: "absolute",
-      height: "100%",
-      width: "100%",
+    position: "absolute",
+    height: "100%",
+    width: "100%",
   },
   Header: {
-   marginBottom:"10px" 
- },
+    marginBottom: "10px",
+  },
   JobTypeMan: {
     backgroundColor: "rgba(164,219,45,0.5)",
     marginTop: "10px",
@@ -59,38 +62,41 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // builds a single job card for each job in the job array, This is displayed on the job planner page. Called from jobplanner.jsx
-export function JobCard(props) {
+export function JobCard({ job, updateJobSettingsTrigger }) {
   const { updateActiveJob } = useContext(ActiveJobContext);
-  const { ToggleJobSettingsTrigger } = useContext(JobSettingsTriggerContext);
   const classes = useStyles();
 
   function EditJobProcess(job) {
     updateActiveJob(job);
-    ToggleJobSettingsTrigger((prev) => !prev);
+    updateJobSettingsTrigger((prev) => !prev);
     // This function sets up the correct job to be changed and displays the popup window.
-  };
+  }
 
-//Adds the coloured bar at the base of a job card and switches based on the jobtype
-  function SwitchJobTypeStyle(job) {
-    if (job.job.jobType === jobTypes.manufacturing) {
+  //Adds the coloured bar at the base of a job card and switches based on the jobtype
+  function SwitchJobTypeStyle({ job }) {
+    if (job.jobType === jobTypes.manufacturing) {
       return (
         <Grid item xs={12} className={classes.JobTypeMan}>
           <Box className={classes.Grid}>
-            <Typography align="center" variant="body2">Manufacturing</Typography>
+            <Typography align="center" variant="body2">
+              Manufacturing
+            </Typography>
           </Box>
         </Grid>
       );
-    };
-    if (job.job.jobType === jobTypes.reaction) {
+    }
+    if (job.jobType === jobTypes.reaction) {
       return (
         <Grid item xs={12} className={classes.JobTypeReact}>
           <Box className={classes.Grid}>
-            <Typography align="center" variant="body2">Reaction</Typography>
+            <Typography align="center" variant="body2">
+              Reaction
+            </Typography>
           </Box>
         </Grid>
       );
-    };
-    if (job.job.jobType === jobTypes.pi) {
+    }
+    if (job.jobType === jobTypes.pi) {
       return (
         <Grid item xs={12} className={classes.JobTypePI}>
           <Box className={classes.Grid}>
@@ -98,60 +104,63 @@ export function JobCard(props) {
           </Box>
         </Grid>
       );
-    };
-  };
+    }
+  }
   return (
-        <Grid key={props.job.jobID} className={classes.Grid}item xs={6} md={4} lg={2}>
-          <Card  className={classes.Card} onClick={() => EditJobProcess(props.job)}>
-            <Grid className={classes.Grid} container item xs={12} >
-              <Grid className={classes.Header} item xs={12}>
-                <Typography variant="h6" align="center">{props.job.name}</Typography>
-              </Grid>
-              <Grid className={classes.Grid} container item xs={12}>
+    <Tooltip title="Click to open">
+      <Grid key={job.jobID} className={classes.Grid} item xs={6} md={4} lg={2}>
+        <Card className={classes.Card} onClick={() => EditJobProcess(job)}>
+          <Grid className={classes.Grid} container item xs={12}>
+            <Grid className={classes.Header} item xs={12}>
+              <Typography variant="h6" align="center">
+                {job.name}
+              </Typography>
+            </Grid>
+            <Grid className={classes.Grid} container item xs={12}>
               <Hidden xsDown>
                 <Grid className={classes.Grid} item sm={3}>
-
                   <Box>
                     <picture className={classes.Image}>
                       <source
                         media="(max-width:700px)"
-                        srcSet={`https://image.eveonline.com/Type/${props.job.itemID}_32.png`}
+                        srcSet={`https://image.eveonline.com/Type/${job.itemID}_32.png`}
                         alt=""
                         className={classes.Image}
                       />
                       <img
-                        src={`https://image.eveonline.com/Type/${props.job.itemID}_64.png`}
+                        src={`https://image.eveonline.com/Type/${job.itemID}_64.png`}
                         alt=""
                         className={classes.Image}
                       />
                     </picture>
-                    </Box>
+                  </Box>
                 </Grid>
-                </Hidden>
-                <Grid className={classes.Grid} container item xs={12} sm={9}>
-                  <Grid className={classes.Grid} container item xs={12}>
-                    <Grid className={classes.Grid} item xs={10}>
-                      <Typography variant="body2">Run Count</Typography>
-                    </Grid>
-                    <Grid className={classes.Grid} item xs={2}>
-                      <Typography variant="body2">{props.job.runCount}</Typography>
-                    </Grid>
+              </Hidden>
+              <Grid className={classes.Grid} container item xs={12} sm={9}>
+                <Grid className={classes.Grid} container item xs={12}>
+                  <Grid className={classes.Grid} item xs={10}>
+                    <Typography variant="body2">Run Count</Typography>
                   </Grid>
-                  <Grid className={classes.Grid} container item xs={12}>
-                    <Grid className={classes.Grid} item xs={10}>
-                      <Typography variant="body2">Job Count</Typography>
-                    </Grid>
-                    <Grid className={classes.Grid} item xs={2}>
-                      <Typography variant="body2">{props.job.jobCount}</Typography>
-                    </Grid>
+                  <Grid className={classes.Grid} item xs={2}>
+                    <Typography variant="body2">{job.runCount}</Typography>
                   </Grid>
                 </Grid>
-              </Grid>
-              <Grid className={classes.Grid} container item xs={12}>
-                {<SwitchJobTypeStyle job={props.job} />}
+                <Grid className={classes.Grid} container item xs={12}>
+                  <Grid className={classes.Grid} item xs={10}>
+                    <Typography variant="body2">Job Count</Typography>
+                  </Grid>
+                  <Grid className={classes.Grid} item xs={2}>
+                    <Typography variant="body2">{job.jobCount}</Typography>
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
-          </Card>
-        </Grid>
-    );
-};
+            <Grid className={classes.Grid} container item xs={12}>
+              <SwitchJobTypeStyle job={job} />
+            </Grid>
+          </Grid>
+        </Card>
+      </Grid>
+    </Tooltip>
+  );
+}

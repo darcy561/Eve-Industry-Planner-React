@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   JobArrayContext,
   JobStatusContext,
-  JobSettingsTriggerContext,
 } from "../../Context/JobContext";
 import {
   IsLoggedInContext,
@@ -82,7 +81,7 @@ export let jobTypes = {
 };
 
 export function JobPlanner() {
-  const { JobSettingsTrigger } = useContext(JobSettingsTriggerContext);
+  const [ jobSettingsTrigger, updateJobSettingsTrigger  ] = useState(false);
   const { updateJobArray } = useContext(JobArrayContext);
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateUsers } = useContext(UsersContext);
@@ -104,12 +103,13 @@ export function JobPlanner() {
         const refreshedUser = await RefreshTokens(rToken);
         refreshedUser.fbToken = await firebaseAuth(refreshedUser);
         setLoadingText("Loading API Data");
-        refreshedUser.Skills = await CharacterSkills(refreshedUser);
-        refreshedUser.Jobs = await IndustryJobs(refreshedUser);
-        refreshedUser.Orders = await MarketOrders(refreshedUser);
+        refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
+        refreshedUser.apiJobs = await IndustryJobs(refreshedUser);
+        refreshedUser.apiOrders = await MarketOrders(refreshedUser);
         refreshedUser.ParentUser = true;
         setLoadingText("Building Character Object");
         const charSettings = await downloadCharacterData(refreshedUser);
+        refreshedUser.accountID = charSettings.accountID;
         const charJobs = await downloadCharacterJobs(refreshedUser);
 
         setJobStatus(charSettings.jobStatusArray);
@@ -137,10 +137,10 @@ export function JobPlanner() {
       </>
     );
   } else {
-    if (JobSettingsTrigger) {
-      return <EditJob />;
+    if (jobSettingsTrigger) {
+      return <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />;
     } else {
-      return <PlannerAccordion />;
+      return <PlannerAccordion updateJobSettingsTrigger={updateJobSettingsTrigger}  />;
     }
   }
 }

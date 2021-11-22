@@ -1,12 +1,12 @@
 import React, { useCallback, useContext } from "react";
-import { MainUserContext } from "../Context/AuthContext";
+import { IsLoggedInContext, MainUserContext } from "../Context/AuthContext";
 import { DataExchangeContext } from "../Context/LayoutContext";
 import firebase from "../firebase";
 import { jobTypes } from "../Components/Job Planner";
 
 export function useFirebase() {
+    const { isLoggedIn } = useContext(IsLoggedInContext);
     const { mainUser } = useContext(MainUserContext);
-    const { updateDataExchange } = useContext(DataExchangeContext);
 
     const determineUserState = useCallback(async (user) => {
         console.log(user);
@@ -19,11 +19,11 @@ export function useFirebase() {
                     { id: 3, name: "Complete", sortOrder: 3, expanded: true, openAPIJobs: false, completeAPIJobs: true },
                     { id: 4, name: "For Sale", sortOrder: 4, expanded: true, openAPIJobs: false, completeAPIJobs: false }
                 ],
-                accountID: `CHAR${Date.now()}`
+                accountID: user.accountID
             });
         };
     
-    }, []);
+    }, [isLoggedIn, mainUser]);
 
     const addNewJob = useCallback(async (job) => {        
         if (job.jobType === jobTypes.manufacturing) {
@@ -68,7 +68,7 @@ export function useFirebase() {
                 planner: JSON.stringify(job.planner),
             });
         };
-    }, []);
+    }, [isLoggedIn, mainUser]);
 
     const uploadJob = useCallback(async (job) => {      
         if (job.jobType === jobTypes.manufacturing) {
@@ -113,19 +113,17 @@ export function useFirebase() {
                 planner: JSON.stringify(job.planner),
             });
         };
-    }, []);
+    }, [isLoggedIn, mainUser]);
 
     const uploadJobStatus = useCallback(async (newArray) => {
-        updateDataExchange(true);
         firebase.firestore().collection("JobPlanner").doc(mainUser.CharacterHash).update({
             jobStatusArray: newArray
         });
-        updateDataExchange(false);
-    },[]);
+    },[isLoggedIn, mainUser]);
 
     const removeJob = useCallback(async (job) => {
         firebase.firestore().collection("JobPlanner").doc(mainUser.CharacterHash).collection("Jobs").doc(job.jobID.toString()).delete()
-    })
+    },[isLoggedIn, mainUser])
 
     const downloadCharacterData = useCallback(async (user) => {
         const CharDoc = await firebase.firestore().collection("JobPlanner").doc(user.CharacterHash).get();
@@ -134,7 +132,7 @@ export function useFirebase() {
         } else {
             console.log("No Document Found")
         };      
-    },[]);
+    },[isLoggedIn, mainUser]);
     
     const downloadCharacterJobs = useCallback(async (user) => {
         const CharDoc = await firebase.firestore().collection("JobPlanner").doc(user.CharacterHash).collection("Jobs").get();
@@ -191,8 +189,7 @@ export function useFirebase() {
         } else {
             return newJobArray;
         };
-    },[]);
-
+    },[isLoggedIn, mainUser]);
 
     return{determineUserState, addNewJob, uploadJob, uploadJobStatus, removeJob, downloadCharacterData, downloadCharacterJobs}
 };

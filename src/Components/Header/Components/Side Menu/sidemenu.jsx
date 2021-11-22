@@ -1,6 +1,6 @@
 import React,{useContext} from 'react';
 import { Avatar, Box, Hidden, Typography, Divider, List, ListItem, ListItemText, SwipeableDrawer } from '@material-ui/core';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { makeStyles } from '@material-ui/styles';
 import { IsLoggedInContext, MainUserContext } from '../../../../Context/AuthContext';
 
@@ -19,7 +19,7 @@ export function SideMenu(props) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
     const open = props.open;
     const setOpen = props.setOpen;
-    const history = useHistory();
+    const navigate = useNavigate();
     const classes = useStyles();
     return (
       <SwipeableDrawer
@@ -55,7 +55,7 @@ export function SideMenu(props) {
             <ListItem
               button
               onClick={() => {
-                history.push("/");
+                navigate("/");
                 setOpen(false);
               }}
             >
@@ -65,7 +65,7 @@ export function SideMenu(props) {
             <ListItem
               button
               onClick={() => {
-                history.push("/jobplanner");
+                navigate("/jobplanner");
                 setOpen(false);
               }}
             >
@@ -76,7 +76,7 @@ export function SideMenu(props) {
               button
               disabled
               onClick={() => {
-                useHistory.push("/itemtree");
+                navigate("/itemtree");
                 setOpen(false);
               }}
             >

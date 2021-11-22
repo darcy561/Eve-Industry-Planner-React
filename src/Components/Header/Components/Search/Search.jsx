@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import itemList from "./object_recipe_names.json";
+import itemList from "../../../../RawData/searchIndex.json";
 import { Autocomplete } from "@material-ui/lab";
 import { Container, TextField } from "@material-ui/core";
 import { useCreateJobProcess } from "../../../../Hooks/useCreateJob";

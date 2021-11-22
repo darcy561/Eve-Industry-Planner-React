@@ -12,7 +12,7 @@ import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { MdAdd } from "react-icons/md";
 import { BiMinus } from "react-icons/bi";
 
-export function EditPage2() {
+export function EditPage2({setJobModified}) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const [inputs, setInputs] = useState({ itemCost: 0, itemCount: 0 });
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -63,6 +63,7 @@ export function EditPage2() {
       autoHideDuration: 1000,
     }));
     setInputs({ itemCost: 0, itemCount: 0 });
+    setJobModified(true);
   }
 
   function handleRemove(material, record) {
@@ -111,6 +112,7 @@ export function EditPage2() {
       severity: "error",
       autoHideDuration: 1000,
     }));
+    setJobModified(true);
   }
 
   return (

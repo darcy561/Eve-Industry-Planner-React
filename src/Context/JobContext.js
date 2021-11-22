@@ -30,7 +30,6 @@ export const JobArray = (props) => {
   );
 };
 
-
 export const ActiveJobContext = createContext();
 
 export const ActiveJob = (props) => {
@@ -40,18 +39,5 @@ export const ActiveJob = (props) => {
     <ActiveJobContext.Provider value={{ activeJob, updateActiveJob }}>
       {props.children}
     </ActiveJobContext.Provider>
-  );
-};
-
-
-export const JobSettingsTriggerContext = createContext();
-
-export const JobSettingsTrigger = (props) => {
-  const [JobSettingsTrigger, ToggleJobSettingsTrigger] = useState(false);
-
-  return (
-    <JobSettingsTriggerContext.Provider value={{ JobSettingsTrigger, ToggleJobSettingsTrigger }}>
-      {props.children}
-    </JobSettingsTriggerContext.Provider>
   );
 };

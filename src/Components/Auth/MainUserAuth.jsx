@@ -2,24 +2,17 @@ import React, { useContext, useState, useEffect } from "react";
 import { MainUserContext, UsersContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { CircularProgress,Typography } from "@material-ui/core";
-import { useHistory } from "react-router";
+import { useNavigate } from "react-router";
 import jwt from "jsonwebtoken";
 import { firebaseAuth } from "./firebaseAuth";
 import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { JobArrayContext, JobStatusContext } from "../../Context/JobContext";
 
-const appClientID = process.env.REACT_APP_eveClientID;
-const appSecretKey = process.env.REACT_APP_eveSecretKey;
-const urlCallback = encodeURIComponent(process.env.REACT_APP_eveCallbackURL);
-const scopes = "publicData esi-skills.read_skills.v1 esi-industry.read_character_jobs.v1 esi-markets.read_character_orders.v1";
-const baseURl =
-  "https://login.eveonline.com/v2/oauth/authorize/?response_type=code";
-
 export function login() {
   const state = window.location.pathname;
-  window.location.href = `${baseURl}&redirect_uri=${urlCallback}&client_id=${appClientID}&scope=${scopes}&state=${state}`;
-}
+  window.location.href = `https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=${encodeURIComponent(process.env.REACT_APP_eveCallbackURL)}&client_id=${process.env.REACT_APP_eveClientID}&scope=${process.env.REACT_APP_eveScope}&state=${state}`;
+};
 
 export function AuthMainUser() {
   const { setJobStatus } = useContext(JobStatusContext);
@@ -31,7 +24,7 @@ export function AuthMainUser() {
   const [Loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState("")
   const { determineUserState, downloadCharacterData, downloadCharacterJobs } = useFirebase();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(async () => {
     const authCode = window.location.search.match(/code=(\S*)&/)[1];
@@ -46,16 +39,17 @@ export function AuthMainUser() {
     determineUserState(userObject);
 
     setLoadingText("Loading API Data");
-    userObject.Skills = await CharacterSkills(userObject);
-    userObject.Jobs = await IndustryJobs(userObject);
-    userObject.Orders = await MarketOrders(userObject);    
+    userObject.apiSkills = await CharacterSkills(userObject);
+    userObject.apiJobs = await IndustryJobs(userObject);
+    userObject.apiOrders = await MarketOrders(userObject);    
     setLoadingText("Downloading Character Data");
 
-    const charSettings = await downloadCharacterData(userObject);
-    const charJobs = await downloadCharacterJobs(userObject);
+    const userSettings = await downloadCharacterData(userObject);
+    userObject.accountID = userSettings.accountID;
+    const userJobs = await downloadCharacterJobs(userObject);
 
-    setJobStatus(charSettings.jobStatusArray);
-    updateJobArray(charJobs);
+    setJobStatus(userSettings.jobStatusArray);
+    updateJobArray(userJobs);
 
     updateIsLoggedIn(true);
     const newArray = [...users];
@@ -63,7 +57,7 @@ export function AuthMainUser() {
     updateUsers(newArray);
     updateMainUser(userObject);
     setLoading(false);
-    history.push(returnState);
+    navigate(returnState);
       
   }, []);
 
@@ -74,14 +68,13 @@ export function AuthMainUser() {
 };
 
 async function EveSSOTokens(authCode) {
-  const encodedCredentials = btoa(`${appClientID}:${appSecretKey}`);
   try {
     const eveTokenPromise = await fetch(
       "https://login.eveonline.com/v2/oauth/token",
       {
         method: "POST",
         headers: {
-          Authorization: `Basic ${encodedCredentials}`,
+          Authorization: `Basic ${btoa(`${process.env.REACT_APP_eveClientID}:${process.env.REACT_APP_eveSecretKey}`)}`,
           "Content-Type": "application / x-www-form-urlencoded",
           Host: "login.eveonline.com",
           "Access-Control-Allow-Origin": "*",
@@ -111,6 +104,7 @@ async function EveSSOTokens(authCode) {
 
 class MainUser {
   constructor(decodedToken, tokenJSON) {
+    this.accountID = null;
     this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
     this.CharacterHash = decodedToken.owner;
     this.CharacterName = decodedToken.name;
@@ -118,9 +112,9 @@ class MainUser {
     this.aTokenEXP = Number(decodedToken.exp);
     this.fbToken = null;
     this.ParentUser = true;
-    this.Skills = [];
-    this.Jobs = [];
-    this.Orders = [];
-    this.Settings = { accordion: [] };
+    this.apiSkills = null;
+    this.apiJobs = null;
+    this.apiOrders = null;
+    this.Settings = null;
   };
 };

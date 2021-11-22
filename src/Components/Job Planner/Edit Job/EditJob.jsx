@@ -2,8 +2,7 @@ import React, { useContext, useState } from "react";
 import {
   JobArrayContext,
   JobStatusContext,
-  ActiveJobContext,
-  JobSettingsTriggerContext,
+  ActiveJobContext
 } from "../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { EditPage1 } from "./Edit Job Components/Job Page 1";
@@ -26,30 +25,30 @@ import { jobTypes } from "../JobPlanner";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
 
-export function EditJob() {
-  const { jobStatus, updateJobStatus } = useContext(JobStatusContext);
+export function EditJob({updateJobSettingsTrigger}) {
+  const { jobStatus } = useContext(JobStatusContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { JobSettingsTrigger, ToggleJobSettingsTrigger } = useContext(JobSettingsTriggerContext);
   const [activeStep, changeStep] = useState(1);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { removeJob, uploadJob } = useFirebase();
+  const [ jobModified, setJobModified ] = useState(false);
 
   function StepContentSelector() {
     switch (activeJob.jobStatus) {
       case 0:
-        return <EditPage1 />;
+        return <EditPage1 setJobModified={setJobModified} />;
       case 1:
-        return <EditPage2 />;
+        return <EditPage2 setJobModified={setJobModified} />;
       case 2:
-        return <EditPage3 />;
+        return <EditPage3 setJobModified={setJobModified} />;
       case 3:
-        return <EditPage4 />;
+        return <EditPage4 setJobModified={setJobModified} />;
       case 4:
-        return <EditPage5 />;
+        return <EditPage5 setJobModified={setJobModified} />;
       default:
-        return <EditPage1 />;
+        return <EditPage1 setJobModified={setJobModified} />;
     }
   }
 
@@ -59,6 +58,7 @@ export function EditJob() {
       jobStatus: prevState.jobStatus - 1,
     }));
     changeStep((prevActiveStep) => prevActiveStep - 1);
+    setJobModified(true);
   }
 
   function stepForward() {
@@ -67,18 +67,21 @@ export function EditJob() {
       jobStatus: prevState.jobStatus + 1,
     }));
     changeStep((prevActiveStep) => prevActiveStep + 1);
+    setJobModified(true);
   }
 
   function closeJob() {
     const index = jobArray.findIndex((x) => activeJob.jobID === x.jobID);
     const newArray = [...jobArray];
     newArray[index] = activeJob;
-    // isLoggedIn && uploadJob(activeJob);
+    if (isLoggedIn && jobModified) {
+      uploadJob(activeJob);
+    };
     updateJobArray(newArray);
     setSnackbarData((prev) => ({
       ...prev, open: true, message: `${activeJob.name} Updated`, severity: "info", autoHideDuration: 1000,
     }));
-    ToggleJobSettingsTrigger((prev) => !prev);
+    updateJobSettingsTrigger((prev) => !prev);
     
   }
 
@@ -89,7 +92,7 @@ export function EditJob() {
     setSnackbarData((prev) => ({
       ...prev, open: true, message: `${activeJob.name} Deleted`, severity: "error", autoHideDuration: 3000,
     }));
-    ToggleJobSettingsTrigger((prev) => !prev);
+    updateJobSettingsTrigger((prev) => !prev);
   }
 
   return (

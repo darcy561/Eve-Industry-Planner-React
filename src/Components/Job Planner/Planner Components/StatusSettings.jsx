@@ -4,43 +4,73 @@ import {
   Dialog,
   DialogActions,
   DialogTitle,
+  Switch,
   TextField,
   Typography,
 } from "@material-ui/core";
 import { JobStatusContext } from "../../../Context/JobContext";
-import { StatusSettingsTriggerContext } from "../../../Context/LayoutContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
 
-export function StatusSettings() {
+export function StatusSettings({
+  statusData,
+  updateStatusData,
+  statusSettingsTrigger,
+  updateStatusSettingsTrigger,
+}) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
-  const { statusSettingsTrigger, updateStatusSettingsTrigger } = useContext(
-    StatusSettingsTriggerContext
-  );
   const { uploadJobStatus } = useFirebase();
 
-  const status = jobStatus.find((stat) => stat.id === statusSettingsTrigger.id);
 
   return (
-    <Dialog open={statusSettingsTrigger.display}>
-      <DialogTitle>{status.name} Settings</DialogTitle>
+    <Dialog open={statusSettingsTrigger}>
+      <DialogTitle>{statusData.name} Settings</DialogTitle>
       <Typography variant="body1">Name:</Typography>
       <TextField
         autoFocus={true}
-        defaultValue={status.name}
+        defaultValue={statusData.name}
         onChange={(e) => {
-          status.name = e.target.value;
+          updateStatusData((prev) => ({
+            ...prev, name: e.target.value
+          }));
         }}
         variant="outlined"
-      ></TextField>
+      />
+      <Typography variant="body1">Display Open API Jobs:</Typography>
+      <Switch
+        checked={statusData.openAPIJobs}
+        color="primary"
+        onChange={(e) => {
+          updateStatusData((prev) => ({
+            ...prev, openAPIJobs: e.target.checked
+          }));
+        }}
+      />
+      <Typography variant="body1">Display Complete API Jobs:</Typography>
+      <Switch
+        checked={statusData.completeAPIJobs}
+        color="primary"
+        onChange={(e) => {
+          updateStatusData((prev) => ({
+            ...prev, completeAPIJobs: e.target.checked
+          }));
+        }}
+      />
       <DialogActions>
         <Button
           onClick={() => {
-            const index = jobStatus.findIndex((i) => i.id === status.id);
+            updateStatusSettingsTrigger(false);
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={() => {
+            const index = jobStatus.findIndex((i) => i.id === statusData.id);
             const newStatusArray = jobStatus;
-            newStatusArray[index] = status;
+            newStatusArray[index] = statusData;
             uploadJobStatus(newStatusArray);
             setJobStatus(newStatusArray);
-            updateStatusSettingsTrigger({ id: 0, display: false });
+            updateStatusSettingsTrigger(false);
           }}
         >
           Save

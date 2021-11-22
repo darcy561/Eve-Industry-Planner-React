@@ -1,15 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Header } from "./Components/Header";
 import { Home } from "./Components/Home";
 import { JobPlanner } from "./Components/Job Planner";
 import { ItemTree } from "./Components/item Tree";
-import {
-  JobStatus,
-  JobArray,
-  ActiveJob,
-  JobSettingsTrigger,
-} from "./Context/JobContext";
+import { JobStatus, JobArray, ActiveJob } from "./Context/JobContext";
 import { AuthMainUser } from "./Components/Auth/MainUserAuth";
 import { IsLoggedIn, MainUser, Users } from "./Context/AuthContext";
 import { ThemeProvider } from "@material-ui/styles";
@@ -20,7 +15,6 @@ import {
   DataExchange,
   DialogData,
   SnackbarData,
-  StatusSettingsTrigger
 } from "./Context/LayoutContext";
 
 const theme = createTheme({
@@ -56,58 +50,41 @@ const theme = createTheme({
   },
 });
 
-function App() {
+export default function App() {
   return (
-    <>
-      <ThemeProvider theme={theme}>
-        <Router>
-          <Switch>
-            <SnackbarData>
-              <DialogData>
-                <IsLoggedIn>
-                  <MainUser>
-                    <Users>
-                      <DataExchange>
-                        <JobSettingsTrigger>
-                          <ActiveJob>
-                            <JobArray>
-                              <JobStatus>
-                                <StatusSettingsTrigger>
-                                <SnackBarNotification />
-                                <DialogBox />
-                                <Header />
-                                <Route path="/" exact component={Home} />
-                                <Route
-                                  path="/jobplanner"
-                                  exact
-                                  component={JobPlanner}
-                                />
-                                <Route
-                                  path="/auth/"
-                                  exact
-                                  component={AuthMainUser}
-                                />
-                                <Route
-                                  path="/itemtree"
-                                  exact
-                                  component={ItemTree}
-                                />
-                                </StatusSettingsTrigger>
-                              </JobStatus>
-                            </JobArray>
-                          </ActiveJob>
-                        </JobSettingsTrigger>
-                      </DataExchange>
-                    </Users>
-                  </MainUser>
-                </IsLoggedIn>
-              </DialogData>
-            </SnackbarData>
-          </Switch>
-        </Router>
-      </ThemeProvider>
-    </>
+    <ThemeProvider theme={theme}>
+      <SnackbarData>
+        <DialogData>
+          <IsLoggedIn>
+            <MainUser>
+              <Users>
+                <DataExchange>
+                  <ActiveJob>
+                    <JobArray>
+                      <JobStatus>
+                        <SnackBarNotification />
+                        <DialogBox />
+                        <BrowserRouter>
+                          <Header />
+                          <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route
+                              path="/jobplanner"
+                              element={<JobPlanner />}
+                            />
+                            <Route path="/auth/" element={<AuthMainUser />} />
+                            <Route path="/itemtree" element={<ItemTree />} />
+                          </Routes>
+                        </BrowserRouter>
+                      </JobStatus>
+                    </JobArray>
+                  </ActiveJob>
+                </DataExchange>
+              </Users>
+            </MainUser>
+          </IsLoggedIn>
+        </DialogData>
+      </SnackbarData>
+    </ThemeProvider>
   );
 }
-
-export default App;

@@ -12,7 +12,7 @@ import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { MdAdd } from "react-icons/md";
 import { BiMinus } from "react-icons/bi";
 
-export function EditPage4() {
+export function EditPage4({setJobModified}) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const [extras, updateExtras] = useState({ text: "", value: 0 });
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -43,7 +43,8 @@ export function EditPage4() {
     setSnackbarData((prev) => ({
       ...prev, open: true, message: `Added`, severity: "success", autoHideDuration: 1000,
     }));
-  }
+    setJobModified(true);
+  };
 
   function handleRemove(extraID) {
     const extraIndex = activeJob.job.products.extrasCosts.findIndex(
@@ -69,7 +70,8 @@ export function EditPage4() {
     setSnackbarData((prev) => ({
       ...prev, open: true, message: `Deleted`, severity: "error", autoHideDuration: 1000,
     }));
-  }
+    setJobModified(true);
+  };
 
   return (
     <Container maxWidth={false} disableGutters={true}>

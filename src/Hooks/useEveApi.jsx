@@ -1,4 +1,5 @@
 import React, { useCallback } from "react"
+import indyTestData from "../RawData/industryAPI.json"
 
 export function useEveApi() {
     
@@ -21,7 +22,7 @@ export function useEveApi() {
 
             const indyJSON = await indyPromise.json();
 
-            return (indyJSON);            
+            return (indyTestData);            
         }
         catch (err) {
             console.log(err);

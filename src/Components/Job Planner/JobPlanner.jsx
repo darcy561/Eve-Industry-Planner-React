@@ -7,6 +7,7 @@ import { EditJob } from "./Edit Job/EditJob";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { CircularProgress, Typography } from "@material-ui/core";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
+import { LoadingTextContext } from "../../Context/LayoutContext";
 
 export let blueprintVariables = {
   me: [
@@ -78,7 +79,7 @@ export function JobPlanner() {
   const { mainUser } = useContext(MainUserContext);
   const { refreshMainUser } = useRefreshUser();
   const [pageload, updatePageload] = useState(true);
-  const [loadingText, setLoadingText] = useState("");
+  const { loadingText, setLoadingText } = useContext(LoadingTextContext);
 
   useEffect(async () => {
     if (
@@ -86,7 +87,7 @@ export function JobPlanner() {
       mainUser.aTokenEXP == null
     ) {
       if (localStorage.getItem("Auth") != null) {
-        refreshMainUser(localStorage.getItem("Auth"), setLoadingText);
+        refreshMainUser(localStorage.getItem("Auth"));
         updatePageload(false);
       } else {
         updateIsLoggedIn(false);

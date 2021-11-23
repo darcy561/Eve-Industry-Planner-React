@@ -50,3 +50,15 @@ export const DialogData = (props) => {
         </DialogDataContext.Provider>
     );
 };
+
+export const LoadingTextContext = createContext();
+
+export const LoadingText = (props) => {
+    const [loadingText, updateLoadingText] = useState("");
+
+    return (
+        <LoadingTextContext.Provider value={{ loadingText, updateLoadingText }}>
+            {props.children}
+        </LoadingTextContext.Provider>
+    );
+};

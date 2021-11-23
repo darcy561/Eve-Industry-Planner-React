@@ -1,4 +1,4 @@
-import {initializeApp} from "firebase/app";
+import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
 
@@ -13,6 +13,6 @@ const firebaseConfig = {
     appId: process.env.REACT_APP_fbAppID
 };
   
-const firebase = initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
 export default firebase;

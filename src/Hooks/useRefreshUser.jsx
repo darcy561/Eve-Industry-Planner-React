@@ -9,6 +9,7 @@ import {
   MainUserContext,
   UsersContext,
 } from "../Context/AuthContext";
+import { LoadingTextContext } from "../Context/LayoutContext";
 
 export function useRefreshUser() {
   const { CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
@@ -19,18 +20,20 @@ export function useRefreshUser() {
   const { updateUsers } = useContext(UsersContext);
   const { updateMainUser } = useContext(MainUserContext);
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { updateLoadingText } = useContext(LoadingTextContext);
 
   const refreshMainUser = useCallback(
-    async ({ refreshToken, setLoadingText }) => {
-      setLoadingText("Logging Into Eve SSO");
+    async ({ refreshToken }) => {
+      updateLoadingText("Logging Into Eve SSO");
       const refreshedUser = await RefreshTokens(refreshToken);
+      console.log(refreshedUser);
       refreshedUser.fbToken = await firebaseAuth(refreshedUser);
-      setLoadingText("Loading API Data");
+      updateLoadingText("Loading API Data");
       refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
       refreshedUser.apiJobs = await IndustryJobs(refreshedUser);
       refreshedUser.apiOrders = await MarketOrders(refreshedUser);
       refreshedUser.ParentUser = true;
-      setLoadingText("Building Character Object");
+      updateLoadingText("Building Character Object");
       const charSettings = await downloadCharacterData(refreshedUser);
       refreshedUser.accountID = charSettings.accountID;
       const charJobs = await downloadCharacterJobs(refreshedUser);

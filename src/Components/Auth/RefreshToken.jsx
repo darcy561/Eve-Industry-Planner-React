@@ -2,14 +2,17 @@ import jwt from "jsonwebtoken";
 import { login } from "./MainUserAuth";
 
 export async function RefreshTokens(rToken) {
+    const buffer = Buffer.from(`${process.env.REACT_APP_eveClientID}:${ process.env.REACT_APP_eveSecretKey }`, "utf-8")
+    const encodedCredentials = buffer.toString("base64")
+    console.log(encodedCredentials);
         try {
             const newTokenPromise = await fetch(
                 "https://login.eveonline.com/v2/oauth/token",
                 {
                     method: "POST",
                     headers: {
-                        "Authorization": `Basic ${btoa(`${process.env.REACT_APP_eveClientID}:${process.env.REACT_APP_eveSecretKey}`)}`,
-                        "Content-Type": "application / x-www-form-urlencoded",
+                        "Authorization": `Basic ${encodedCredentials}`,
+                        "Content-Type": "application/x-www-form-urlencoded",
                         "Host": "login.eveonline.com",
                     },
                     body: `grant_type=refresh_token&refresh_token=${rToken}`,
@@ -30,7 +33,7 @@ export async function RefreshTokens(rToken) {
             
             return newUser
         } catch (err) {
-            login();
+            // login();
         }         
 };
 

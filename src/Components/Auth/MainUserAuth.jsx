@@ -8,6 +8,8 @@ import { firebaseAuth } from "./firebaseAuth";
 import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { ApiJobsContext, JobArrayContext, JobStatusContext } from "../../Context/JobContext";
+import { trace } from "@firebase/performance";
+import { performance } from "../../firebase"
 
 export function login() {
   const state = window.location.pathname;
@@ -28,6 +30,8 @@ export function AuthMainUser() {
   const navigate = useNavigate();
 
   useEffect(async () => {
+    const t = trace(performance, "MainUserLoginProcessFull");
+    t.start();
     const authCode = window.location.search.match(/code=(\S*)&/)[1];
     const returnState = decodeURIComponent(
       window.location.search.match(/state=(\S*)/)[1]
@@ -59,6 +63,7 @@ export function AuthMainUser() {
     updateUsers(newArray);
     updateMainUser(userObject);
     setLoading(false);
+    t.stop();
     navigate(returnState);
       
   }, []);

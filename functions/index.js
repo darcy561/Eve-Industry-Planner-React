@@ -1,5 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const helmet = require("helmet");
 
 admin.initializeApp();
 
@@ -18,6 +19,8 @@ app.use(cors(
   }
 ));
 app.use(express.json());
+app.use(helmet());
+app.disable("x-powered-by")
 
 //Routes
 
@@ -73,18 +76,24 @@ app.post("/api/create",  (req, res) => {
 
 //Read Full Single Item
 app.get("/api/item/:itemID", (req, res) => {
-  (async () => {
-    try {
-      const document = db.collection("items").doc(req.params.itemID);
-      let product = await document.get();
-      let response = product.data();
+  if (context.app == undefined) {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+        'The function must be called from an App Check verified app.'
+    )
+  }
+    (async () => {
+      try {
+        const document = db.collection("items").doc(req.params.itemID);
+        let product = await document.get();
+        let response = product.data();
 
-      return res.status(200).send(response);
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send(error);
-    }
-  })();
+        return res.status(200).send(response);
+      } catch (error) {
+        console.log(error);
+        return res.status(500).send(error);
+      }
+    })();
 });
 
 //Read All ItemNames & ID

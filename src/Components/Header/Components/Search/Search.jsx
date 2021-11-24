@@ -23,7 +23,6 @@ export function Search() {
         onChange={(event, value) => {
           if (value != null) {
             newJobProcess(value.itemID, null);
-            console.log(isLoggedIn)
           }
         }}
 

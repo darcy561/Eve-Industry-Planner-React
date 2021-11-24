@@ -31,6 +31,7 @@ export function AuthMainUser() {
 
   useEffect(async () => {
     const t = trace(performance, "MainUserLoginProcessFull");
+    const s = trace(performance, "UserJobsTotal")
     t.start();
     const authCode = window.location.search.match(/code=(\S*)&/)[1];
     const returnState = decodeURIComponent(
@@ -52,6 +53,7 @@ export function AuthMainUser() {
     const userSettings = await downloadCharacterData(userObject);
     userObject.accountID = userSettings.accountID;
     const userJobs = await downloadCharacterJobs(userObject);
+    s.putMetric("TotalJobs", userJobs.length);
 
     setJobStatus(userSettings.jobStatusArray);
     updateJobArray(userJobs);

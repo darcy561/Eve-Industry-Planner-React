@@ -9,7 +9,7 @@ export function Home() {
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser } = useContext(MainUserContext);
   const { refreshMainUser } = useRefreshUser();
-  const [pageload, updatePageload] = useState(true);
+  const [pageLoad, updatePageLoad] = useState(true);
   const [loadingText, setLoadingText] = useState("");
 
   useEffect(async () => {
@@ -18,24 +18,24 @@ export function Home() {
       mainUser.aTokenEXP == null
     ) {
       if (localStorage.getItem("Auth") != null) {
-        refreshMainUser(localStorage.getItem("Auth"), setLoadingText);
-        updatePageload(false);
+        refreshMainUser(localStorage.getItem("Auth"));
+        updatePageLoad(false);
       } else {
         updateIsLoggedIn(false);
-        updatePageload(false);
+        updatePageLoad(false);
       }
     } else {
-      updatePageload(false);
+      updatePageLoad(false);
     }
   }, []);
 
-  if (pageload) {
+  if (pageLoad) {
     return (
       <>
         <CircularProgress color="primary" />
         <Typography variant="body2">{loadingText}</Typography>
       </>
-    );
+    )
   } else {
     if (isLoggedIn) {
       return <LoggedInHome />;

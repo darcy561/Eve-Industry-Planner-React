@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
-import "firebase/compat/auth";
-import "firebase/compat/firestore";
+import { getAuth } from "firebase/auth";
+import {getFirestore} from "firebase/firestore"
 import {
   initializeAppCheck,
   ReCaptchaEnterpriseProvider,
@@ -17,16 +17,20 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_fbAppID,
 };
 
-const firebase = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
-export const appCheck = initializeAppCheck(firebase, {
+export const auth = getAuth(app);
+
+export const firestore = getFirestore(app)
+
+export const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(
     "6LfmUFcdAAAAAM-ArobT4itRSAhqMGTRWDjxGFCU"
   ),
   isTokenAutoRefreshEnabled: true,
 });
 
-export const performance = getPerformance(firebase);
+export const performance = getPerformance(app);
 
 
-export default firebase;
+export default app;

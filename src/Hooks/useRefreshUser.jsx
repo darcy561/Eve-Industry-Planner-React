@@ -10,6 +10,8 @@ import {
   UsersContext,
 } from "../Context/AuthContext";
 import { LoadingTextContext } from "../Context/LayoutContext";
+import { trace } from "firebase/performance";
+import { performance } from "../firebase";
 
 export function useRefreshUser() {
   const { CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
@@ -22,17 +24,21 @@ export function useRefreshUser() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
 
+
   const refreshMainUser = useCallback(
-    async ({ refreshToken }) => {
+    async (refreshToken) => {
+      const t = trace(performance, "MainUserRefreshProcessFull");
+      t.start();
       updateLoadingText("Logging Into Eve SSO");
       const refreshedUser = await RefreshTokens(refreshToken);
-      console.log(refreshedUser);
       refreshedUser.fbToken = await firebaseAuth(refreshedUser);
+
       updateLoadingText("Loading API Data");
       refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
       refreshedUser.apiJobs = await IndustryJobs(refreshedUser);
       refreshedUser.apiOrders = await MarketOrders(refreshedUser);
       refreshedUser.ParentUser = true;
+      
       updateLoadingText("Building Character Object");
       const charSettings = await downloadCharacterData(refreshedUser);
       refreshedUser.accountID = charSettings.accountID;
@@ -46,6 +52,7 @@ export function useRefreshUser() {
       updateUsers(newUsersArray);
       updateIsLoggedIn(true);
       updateMainUser(refreshedUser);
+      t.stop();
     }
   );
   return { refreshMainUser };

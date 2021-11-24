@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from "react";
 import { IsLoggedInContext, MainUserContext } from "../Context/AuthContext";
-import { DataExchangeContext } from "../Context/LayoutContext";
-import firebase from "../firebase";
+import { firestore } from "../firebase"
+import {collection, doc, deleteDoc, getDoc, getDocs, setDoc, updateDoc} from "firebase/firestore"
 import { jobTypes } from "../Components/Job Planner";
 
 export function useFirebase() {
@@ -9,9 +9,8 @@ export function useFirebase() {
     const { mainUser } = useContext(MainUserContext);
 
     const determineUserState = useCallback(async (user) => {
-        console.log(user);
-        if (user.fbToken.additionalUserInfo.isNewUser) {
-            firebase.firestore().collection("JobPlanner").doc(user.CharacterHash).set({
+        if (user.fbToken._tokenResponse.isNewUser) {
+            setDoc(doc(firestore, `JobPlanner`, user.CharacterHash),{
                 jobStatusArray: [
                     { id: 0, name: "Planning", sortOrder: 0, expanded: true, openAPIJobs: false, completeAPIJobs: false },
                     { id: 1, name: "Purchasing", sortOrder: 1, expanded: true, openAPIJobs: false, completeAPIJobs: false },
@@ -27,7 +26,7 @@ export function useFirebase() {
 
     const addNewJob = useCallback(async (job) => {        
         if (job.jobType === jobTypes.manufacturing) {
-            firebase.firestore().collection("JobPlanner").doc(mainUser.CharacterHash).collection("Jobs").doc(job.jobID.toString()).set({
+            setDoc(doc(firestore, `JobPlanner/${mainUser.CharacterHash}/Jobs`, job.jobID.toString()),{
                 jobType: job.jobType,
                 name: job.name,
                 jobID: job.jobID,
@@ -48,7 +47,7 @@ export function useFirebase() {
             });
         };
         if (job.jobType === jobTypes.reaction) {
-            firebase.firestore().collection("JobPlanner").doc(`${mainUser.CharacterHash}`).collection("Jobs").doc(job.jobID.toString()).set({
+            setDoc(doc(firestore, `JobPlanner/${mainUser.CharacterHash}/Jobs`, job.jobID.toString()),{
                 jobType: job.jobType,
                 name: job.name,
                 jobID: job.jobID,
@@ -72,7 +71,7 @@ export function useFirebase() {
 
     const uploadJob = useCallback(async (job) => {      
         if (job.jobType === jobTypes.manufacturing) {
-            firebase.firestore().collection("JobPlanner").doc(mainUser.CharacterHash).collection("Jobs").doc(job.jobID.toString()).update({
+            updateDoc(doc(firestore, `JobPlanner/${mainUser.CharacterHash}/Jobs`, job.jobID.toString()),{
                 jobType: job.jobType,
                 name: job.name,
                 jobID: job.jobID,
@@ -93,7 +92,7 @@ export function useFirebase() {
             });
         };
         if (job.jobType === jobTypes.reaction) {
-            firebase.firestore().collection("JobPlanner").doc(`${mainUser.CharacterHash}`).collection("Jobs").doc(job.jobID.toString()).update({
+            updateDoc(doc(firestore, `JobPlanner/${mainUser.CharacterHash}/Jobs`, job.jobID.toString()),{
                 jobType: job.jobType,
                 name: job.name,
                 jobID: job.jobID,
@@ -116,29 +115,29 @@ export function useFirebase() {
     }, [isLoggedIn, mainUser]);
 
     const uploadJobStatus = useCallback(async (newArray) => {
-        firebase.firestore().collection("JobPlanner").doc(mainUser.CharacterHash).update({
+        updateDoc(doc(firestore, "JobPlanner", mainUser.CharacterHash), {
             jobStatusArray: newArray
         });
     },[isLoggedIn, mainUser]);
 
     const removeJob = useCallback(async (job) => {
-        firebase.firestore().collection("JobPlanner").doc(mainUser.CharacterHash).collection("Jobs").doc(job.jobID.toString()).delete()
+        deleteDoc(doc(firestore, `JobPlanner/${mainUser.CharacterHash}/Jobs`, job.jobID.toString()))
     },[isLoggedIn, mainUser])
 
     const downloadCharacterData = useCallback(async (user) => {
-        const CharDoc = await firebase.firestore().collection("JobPlanner").doc(user.CharacterHash).get();
-        if (CharDoc.exists) {
-            return CharDoc.data();
+        const CharSnap = await getDoc(doc(firestore, "JobPlanner", user.CharacterHash));
+        if (CharSnap.exists) {
+            return CharSnap.data();
         } else {
             console.log("No Document Found")
         };      
     },[isLoggedIn, mainUser]);
     
     const downloadCharacterJobs = useCallback(async (user) => {
-        const CharDoc = await firebase.firestore().collection("JobPlanner").doc(user.CharacterHash).collection("Jobs").get();
+        const CharDocs = await getDocs(collection(firestore, `JobPlanner/${user.CharacterHash}/Jobs`))
         const newJobArray = [];
-        if (!CharDoc.empty) {
-            CharDoc.docs.forEach((doc) => {
+        if (!CharDocs.empty) {
+            CharDocs.docs.forEach((doc) => {
                 if (doc.data().jobType === jobTypes.manufacturing) {
                     const newJob = {
                         jobType: doc.data().jobType,

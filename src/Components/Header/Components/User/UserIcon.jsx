@@ -1,21 +1,23 @@
 import { Avatar, Box, Hidden, Icon, Menu, MenuItem, Typography } from '@material-ui/core';
 import React, {useContext, useState} from 'react';
 import { IsLoggedInContext, MainUserContext, UsersContext } from '../../../../Context/AuthContext';
-import { ActiveJobContext, JobArrayContext, JobStatusContext } from '../../../../Context/JobContext';
+import { ActiveJobContext, ApiJobsContext, JobArrayContext, JobStatusContext } from '../../../../Context/JobContext';
 import { SnackBarDataContext } from '../../../../Context/LayoutContext';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import firebase from "../../../../firebase";
+import { auth } from '../../../../firebase';
+import { signOut } from 'firebase/auth';
 
 
 export function UserIcon() {
   const { users, updateUsers } = useContext(UsersContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
   const [anchor, setAnchor] = useState(null);
-  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateActiveJob } = useContext(ActiveJobContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { setJobStatus } = useContext(JobStatusContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { updateApiJobs } = useContext(ApiJobsContext);
 
   function logout() {
     updateIsLoggedIn(false);
@@ -30,9 +32,10 @@ export function UserIcon() {
       { id: 4, name: "For Sale", sortOrder: 4, expanded: true, openAPIJobs: false, completeAPIJobs: false }
     ]);
     updateActiveJob({});
+    updateApiJobs([]);
     sessionStorage.clear();
     localStorage.clear();
-    firebase.auth().signOut();
+    signOut(auth);
     setSnackbarData((prev) => ({
       ...prev,
       open: true,
@@ -49,7 +52,7 @@ export function UserIcon() {
     setAnchor(null);
   };
 
-  if (mainUser != null) {
+  if (isLoggedIn) {
     return (
       <>
         <Hidden smDown>

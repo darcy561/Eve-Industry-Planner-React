@@ -64,7 +64,8 @@
       "REACT_APP_fbProjectID",
       "REACT_APP_fbStorageBucket",
       "REACT_APP_fbMessagingSenderID",
-      "REACT_APP_fbAppID"
+      "REACT_APP_fbAppID",
+      "REACT_APP_appCheckDebugKey"
     ]
   }
 }

@@ -18,7 +18,7 @@
     />
     <title>Eve Industry Planner</title>
     <script id="react-dotenv" src="./env.js"></script>
-    <script>self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;</script>
+    <script>self.FIREBASE_APPCHECK_DEBUG_TOKEN = process.env.REACT_APP_appCheckDebugKey;</script>
   </head>
   <body>
     <div id="pageWrapper" class="pageWrapper"></div>

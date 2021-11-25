@@ -1,4 +1,6 @@
 import { jobTypes } from ".";
+import { appCheck } from "../../firebase";
+import { getToken } from "firebase/app-check";
 
 class Job {
   constructor(itemJson) {
@@ -59,8 +61,14 @@ class Job {
 export async function createJob(itemID) {
   
   try {
+    const appCheckToken = await getToken(appCheck, true);
+    console.log(appCheckToken);
     const response = await fetch(
-      `https://us-central1-eve-industry-planner-dev.cloudfunctions.net/app/api/item/${itemID}`
+      `http://localhost:5001/eve-industry-planner-dev/us-central1/app/api/item/${itemID}`, {
+        Headers: {
+          "X-Firebase-AppCheck": appCheckToken.token,
+        }
+      }
     );
     const itemJson = await response.json();
     const outputObject = new Job(itemJson);

@@ -20,7 +20,27 @@ app.use(cors(
 ));
 app.use(express.json());
 app.use(helmet());
-app.disable("x-powered-by")
+app.disable("X-Powered-By");
+
+const appCheckVerification = async (req, res, next) => {
+  const appCheckClaims = await verifyAppCheckToken(req.header("X-Firebase-AppCheck"));
+  if (!appCheckClaims) {
+    res.status(401);
+    return next("Unauthorised");
+  }
+  next();
+};
+
+const verifyAppCheckToken = async (token) => {
+    if (!token) {
+        return null;
+    }
+    try {
+        return admin.appCheck().verifyToken(token);
+    } catch (err) {
+        return null;
+    };
+};
 
 //Routes
 
@@ -75,13 +95,13 @@ app.post("/api/create",  (req, res) => {
 });
 
 //Read Full Single Item
-app.get("/api/item/:itemID", (req, res) => {
-  if (context.app == undefined) {
-    throw new functions.https.HttpsError(
-      'failed-precondition',
-        'The function must be called from an App Check verified app.'
-    )
-  }
+app.get("/api/item/:itemID", [appCheckVerification], (req, res) => {
+  // if (context.app == undefined) {
+  //   throw new functions.https.HttpsError(
+  //     'failed-precondition',
+  //       'The function must be called from an App Check verified app.'
+  //   )
+  // }
     (async () => {
       try {
         const document = db.collection("items").doc(req.params.itemID);

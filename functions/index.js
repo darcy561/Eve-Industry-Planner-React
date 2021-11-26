@@ -1,6 +1,8 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const helmet = require("helmet");
+const appCheckVerification =
+  require("./Middleware/appCheck").appCheckVerification;
+const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
 
 admin.initializeApp();
 
@@ -10,169 +12,59 @@ const cors = require("cors");
 const db = admin.firestore();
 db.settings({ ignoreUndefinedProperties: true });
 
-app.use(cors(
-  {
-  origin: ["http://localhost:3000", "https://eve-industry-planner-dev.firebaseapp.com"],
-  methods: "GET,PUT,POST",
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-  }
-));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://eve-industry-planner-dev.firebaseapp.com",
+    ],
+    methods: "GET,PUT,POST",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  })
+);
 app.use(express.json());
-app.use(helmet());
-app.disable("X-Powered-By");
-
-const appCheckVerification = async (req, res, next) => {
-  const appCheckClaims = await verifyAppCheckToken(req.header("X-Firebase-AppCheck"));
-  if (!appCheckClaims) {
-    res.status(401);
-    return next("Unauthorised");
-  }
-  next();
-};
-
-const verifyAppCheckToken = async (token) => {
-    if (!token) {
-        return null;
-    }
-    try {
-        return admin.appCheck().verifyToken(token);
-    } catch (err) {
-        return null;
-    };
-};
 
 //Routes
 
 //Generates JWT AuthToken
-app.post("/auth/gentoken", async (req, res) => {
-  if (req.body.CharacterHash != null) {
-    try {
-      const authToken = await admin
-        .auth()
-        .createCustomToken(req.body.CharacterHash);
-      return res.status(200).send({
-        access_token: authToken,
-      });
-    } catch (error) {
-      return res.status(500).send(error);
-    };
-  } else {
-    return res.status(400);
-  };
-});
-
-//Post Single Item
-app.post("/api/create",  (req, res) => {
-  (async () => {
-    try {
-      await db
-        .collection("items")
-        .doc("/" + req.body.itemID + "/")
-        .create({
-          basePrice: req.body.basePrice,
-          graphicID: req.body.graphicID,
-          groupID: req.body.groupID,
-          iconID: req.body.iconID,
-          marketGroupID: req.body.marketGroupID,
-          metaGroupID: req.body.metaGroupID,
-          name: req.body.name,
-          portionSize: req.body.portionSize,
-          published: req.body.published,
-          volume: req.body.volume,
-          activities: req.body.activities,
-          blueprintTypeID: req.body.blueprintTypeID,
-          maxProductionLimit: req.body.maxProductionLimit,
-          itemID: req.body.itemID,
-        });
-
-      return res.status(200).send("Successfully Added");
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send(error);
-    }
-  })();
-});
-
-//Read Full Single Item
-app.get("/api/item/:itemID", [appCheckVerification], (req, res) => {
-  // if (context.app == undefined) {
-  //   throw new functions.https.HttpsError(
-  //     'failed-precondition',
-  //       'The function must be called from an App Check verified app.'
-  //   )
-  // }
-    (async () => {
+app.post(
+  "/auth/gentoken",
+  appCheckVerification,
+  verifyEveToken,
+  async (req, res) => {
+    if (req.body.CharacterHash != null) {
       try {
-        const document = db.collection("items").doc(req.params.itemID);
-        let product = await document.get();
-        let response = product.data();
-
-        return res.status(200).send(response);
+        const authToken = await admin
+          .auth()
+          .createCustomToken(req.body.CharacterHash);
+        return res.status(200).send({
+          access_token: authToken,
+        });
       } catch (error) {
-        console.log(error);
         return res.status(500).send(error);
       }
-    })();
-});
+    } else {
+      return res.status(400);
+    }
+  }
+);
 
-//Read All ItemNames & ID
-app.get("/api/items", (req, res) => {
+//Read Full Single Item
+app.get("/api/item/:itemID", appCheckVerification, (req, res) => {
   (async () => {
     try {
-      let query = db.collection("items");
-      let response = [];
+      const document = db.collection("items").doc(req.params.itemID);
+      let product = await document.get();
+      let response = product.data();
 
-      await query.get().then((documentSnapshot) => {
-        let docs = documentSnapshot.docs; //query results
-
-        for (let doc of docs) {
-          const selectedItem = {
-            itemID: doc.data().itemID,
-            name: doc.data().name,
-          };
-          response.push(selectedItem);
-        }
-        return response;
-      });
       return res.status(200).send(response);
     } catch (error) {
       console.log(error);
       return res.status(500).send(error);
     }
   })();
-});
-
-//Update Existing Item
-app.put("/api/update/:itemID", (req, res) => {
-  (async () => {
-    try {
-      const document = db.collection("items").doc(req.params.itemID);
-
-      await document.update({
-        basePrice: req.body.basePrice,
-        graphicID: req.body.graphicID,
-        groupID: req.body.groupID,
-        iconID: req.body.iconID,
-        marketGroupID: req.body.marketGroupID,
-        metaGroupID: req.body.metaGroupID,
-        name: req.body.name,
-        portionSize: req.body.portionSize,
-        published: req.body.published,
-        volume: req.body.volume,
-        activities: req.body.activities,
-        blueprintTypeID: req.body.blueprintTypeID,
-        maxProductionLimit: req.body.maxProductionLimit,
-        itemID: req.body.itemID,
-      });
-
-      return res.status(200).send("Successfully Updated");
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send(error);
-    }
-  })();
-});
+})
 
 //Export the api to Firebase Cloud Functions
 exports.app = functions.https.onRequest(app);

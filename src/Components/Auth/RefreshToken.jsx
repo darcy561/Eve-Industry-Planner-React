@@ -22,11 +22,6 @@ export async function RefreshTokens(rToken) {
             const newTokenJSON = await newTokenPromise.json();
 
             const decodedToken = jwt.decode(newTokenJSON.access_token);
-            if (
-              decodedToken.iss != "login.eveonline.com" && decodedToken.iss != "https://login.eveonline.com"
-            ) {
-              throw console.error("Invalid Token");
-              }
               
             const newUser = new MainUser(decodedToken, newTokenJSON);
   

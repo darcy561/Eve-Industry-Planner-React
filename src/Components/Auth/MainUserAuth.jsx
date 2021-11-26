@@ -95,12 +95,6 @@ async function EveSSOTokens(authCode) {
     const tokenJSON = await eveTokenPromise.json();
 
     const decodedToken = jwt.decode(tokenJSON.access_token);
-    if (
-      decodedToken.iss != "login.eveonline.com" &&
-      decodedToken.iss !="https://login.eveonline.com"
-    ) {
-      throw console.error("Invalid Token");
-    };
 
     const newUser = new MainUser(decodedToken, tokenJSON);
 

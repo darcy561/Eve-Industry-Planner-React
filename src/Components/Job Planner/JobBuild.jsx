@@ -62,10 +62,9 @@ export async function createJob(itemID) {
   
   try {
     const appCheckToken = await getToken(appCheck, true);
-    console.log(appCheckToken);
     const response = await fetch(
-      `http://localhost:5001/eve-industry-planner-dev/us-central1/app/api/item/${itemID}`, {
-        Headers: {
+      `https://us-central1-eve-industry-planner-dev.cloudfunctions.net/app/api/item/${itemID}`, {
+        headers: {
           "X-Firebase-AppCheck": appCheckToken.token,
         }
       }

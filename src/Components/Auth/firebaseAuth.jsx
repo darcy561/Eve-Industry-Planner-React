@@ -1,7 +1,9 @@
-import { auth } from "../../firebase"
+import { auth, appCheck } from "../../firebase"
 import { signInWithCustomToken } from "firebase/auth";
+import { getToken } from "firebase/app-check";
 
 export async function firebaseAuth(charObj) {
+  const appCheckToken = await getToken(appCheck, true);
   try {
     const fbtokenPromise = await fetch(
       "https://us-central1-eve-industry-planner-dev.cloudfunctions.net/app/auth/gentoken",
@@ -9,6 +11,8 @@ export async function firebaseAuth(charObj) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Firebase-AppCheck": appCheckToken.token,
+          "Access-Token": charObj.aToken
         },
         body: JSON.stringify({ CharacterHash: charObj.CharacterHash }),
       }

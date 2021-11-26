@@ -1,16 +1,16 @@
 const admin = require("firebase-admin");
 
-const appCheckVerification = async (req, res, next) => {
+async function appCheckVerification(req, res, next) {
   const appCheckClaims = await verifyAppCheckToken(req.header("X-Firebase-AppCheck"));
   if (!appCheckClaims) {
     res.status(401);
     return next("Unauthorised");
   }
   next();
-};
+}
 
 const verifyAppCheckToken = async (token) => {
-    if (!appCheckToken) {
+    if (!token) {
         return null;
     }
     try {
@@ -19,3 +19,7 @@ const verifyAppCheckToken = async (token) => {
         return null;
     };
 };
+
+module.exports = {
+  appCheckVerification : appCheckVerification
+}

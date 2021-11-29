@@ -73,3 +73,7 @@ export function CalculateTotals(item) {
       return newReacArray;
   };
 };
+
+// export const calcProductionTime = useCallback((job) => {
+//   const outputTime = baseProdTime*timeModifier*skillsModifier*runs
+// })

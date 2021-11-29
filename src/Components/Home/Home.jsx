@@ -4,13 +4,14 @@ import { CircularProgress, Typography } from "@material-ui/core";
 import { LoggedInHome } from "./Components/LoggedIn";
 import { LoggedOutHome } from "./Components/LoggedOut";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
+import { LoadingTextContext, PageLoad, PageLoadContext } from "../../Context/LayoutContext";
 
 export function Home() {
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser } = useContext(MainUserContext);
   const { refreshMainUser } = useRefreshUser();
-  const [pageLoad, updatePageLoad] = useState(true);
-  const [loadingText, setLoadingText] = useState("");
+  const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
+  const { loadingText } = useContext(LoadingTextContext);
 
   useEffect(async () => {
     if (
@@ -19,7 +20,6 @@ export function Home() {
     ) {
       if (localStorage.getItem("Auth") != null) {
         refreshMainUser(localStorage.getItem("Auth"));
-        updatePageLoad(false);
       } else {
         updateIsLoggedIn(false);
         updatePageLoad(false);

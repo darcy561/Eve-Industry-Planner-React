@@ -23,7 +23,7 @@ export function StatusSettings({
 
   return (
     <Dialog open={statusSettingsTrigger}>
-      <DialogTitle>{statusData.name} Settings</DialogTitle>
+      <DialogTitle>Settings</DialogTitle>
       <Typography variant="body1">Name:</Typography>
       <TextField
         autoFocus={true}

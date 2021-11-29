@@ -10,6 +10,9 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import { useFirebase } from "../../../Hooks/useFirebase";
+import { LoadingTextContext, PageLoadContext } from "../../../Context/LayoutContext";
+import { MainUserContext } from "../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   Card: {
@@ -64,10 +67,23 @@ const useStyles = makeStyles((theme) => ({
 // builds a single job card for each job in the job array, This is displayed on the job planner page. Called from jobplanner.jsx
 export function JobCard({ job, updateJobSettingsTrigger }) {
   const { updateActiveJob } = useContext(ActiveJobContext);
+  const { downloadCharacterJobs } = useFirebase();
+  const { updatePageLoad } = useContext(PageLoadContext);
+  const { mainUser } = useContext(MainUserContext);
+  const { updateLoadingText } = useContext(LoadingTextContext);
   const classes = useStyles();
 
-  function EditJobProcess(job) {
+  async function EditJobProcess(job) {
+    updateLoadingText("Downloading Job Data")
+    updatePageLoad(true)
+    console.log(job);
+    if (job.isSnapshot) {
+      const jobEdit = await downloadCharacterJobs(job);
+      job = jobEdit;
+      job.isSnapshot = false;
+    }
     updateActiveJob(job);
+    updatePageLoad(false);
     updateJobSettingsTrigger((prev) => !prev);
     // This function sets up the correct job to be changed and displays the popup window.
   }

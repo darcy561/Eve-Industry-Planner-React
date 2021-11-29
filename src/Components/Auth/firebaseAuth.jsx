@@ -6,7 +6,7 @@ export async function firebaseAuth(charObj) {
   const appCheckToken = await getToken(appCheck, true);
   try {
     const fbtokenPromise = await fetch(
-      "https://us-central1-eve-industry-planner-dev.cloudfunctions.net/app/auth/gentoken",
+      "https://us-central1-eve-industry-planner-dev.cloudfunctions.net/api/auth/gentoken",
       {
         method: "POST",
         headers: {

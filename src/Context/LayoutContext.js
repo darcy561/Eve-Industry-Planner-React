@@ -51,6 +51,18 @@ export const DialogData = (props) => {
     );
 };
 
+export const PageLoadContext = createContext();
+
+export const PageLoad = (props) => {
+    const [pageLoad, updatePageLoad] = useState(true);
+
+    return (
+        <PageLoadContext.Provider value={{ pageLoad, updatePageLoad }}>
+            {props.children}
+        </PageLoadContext.Provider>
+    );
+};
+
 export const LoadingTextContext = createContext();
 
 export const LoadingText = (props) => {

@@ -24,34 +24,30 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(appCheckVerification);
 
 //Routes
 
 //Generates JWT AuthToken
-app.post(
-  "/auth/gentoken",
-  appCheckVerification,
-  verifyEveToken,
-  async (req, res) => {
-    if (req.body.CharacterHash != null) {
-      try {
-        const authToken = await admin
-          .auth()
-          .createCustomToken(req.body.CharacterHash);
-        return res.status(200).send({
-          access_token: authToken,
-        });
-      } catch (error) {
-        return res.status(500).send(error);
-      }
-    } else {
-      return res.status(400);
+app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
+  if (req.body.CharacterHash != null) {
+    try {
+      const authToken = await admin
+        .auth()
+        .createCustomToken(req.body.CharacterHash);
+      return res.status(200).send({
+        access_token: authToken,
+      });
+    } catch (error) {
+      return res.status(500).send(error);
     }
+  } else {
+    return res.status(400);
   }
-);
+});
 
 //Read Full Single Item
-app.get("/api/item/:itemID", appCheckVerification, (req, res) => {
+app.get("/item/:itemID", (req, res) => {
   (async () => {
     try {
       const document = db.collection("items").doc(req.params.itemID);
@@ -64,7 +60,9 @@ app.get("/api/item/:itemID", appCheckVerification, (req, res) => {
       return res.status(500).send(error);
     }
   })();
-})
+});
 
 //Export the api to Firebase Cloud Functions
-exports.app = functions.https.onRequest(app);
+exports.api = functions.https.onRequest(app);
+exports.user = require("./Triggered Functions/Users");
+exports.firestore = require("./Triggered Functions/Firestore");

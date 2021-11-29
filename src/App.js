@@ -15,6 +15,7 @@ import {
   DataExchange,
   DialogData,
   SnackbarData,
+  PageLoad,
   LoadingText,
 } from "./Context/LayoutContext";
 
@@ -56,44 +57,46 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <SnackbarData>
         <DialogData>
-          <LoadingText>
-            <IsLoggedIn>
-              <MainUser>
-                <Users>
-                  <DataExchange>
-                    <ActiveJob>
-                      <JobArray>
-                        <JobStatus>
-                          <ApiJobs>
-                            <SnackBarNotification />
-                            <DialogBox />
-                            <BrowserRouter>
-                              <Header />
-                              <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route
-                                  path="/jobplanner"
-                                  element={<JobPlanner />}
-                                />
-                                <Route
-                                  path="/auth/"
-                                  element={<AuthMainUser />}
-                                />
-                                <Route
-                                  path="/itemtree"
-                                  element={<ItemTree />}
-                                />
-                              </Routes>
-                            </BrowserRouter>
-                          </ApiJobs>
-                        </JobStatus>
-                      </JobArray>
-                    </ActiveJob>
-                  </DataExchange>
-                </Users>
-              </MainUser>
-            </IsLoggedIn>
-          </LoadingText>
+          <PageLoad>
+            <LoadingText>
+              <IsLoggedIn>
+                <MainUser>
+                  <Users>
+                    <DataExchange>
+                      <ActiveJob>
+                        <JobArray>
+                          <JobStatus>
+                            <ApiJobs>
+                              <SnackBarNotification />
+                              <DialogBox />
+                              <BrowserRouter>
+                                <Header />
+                                <Routes>
+                                  <Route path="/" element={<Home />} />
+                                  <Route
+                                    path="/jobplanner"
+                                    element={<JobPlanner />}
+                                  />
+                                  <Route
+                                    path="/auth/"
+                                    element={<AuthMainUser />}
+                                  />
+                                  <Route
+                                    path="/itemtree"
+                                    element={<ItemTree />}
+                                  />
+                                </Routes>
+                              </BrowserRouter>
+                            </ApiJobs>
+                          </JobStatus>
+                        </JobArray>
+                      </ActiveJob>
+                    </DataExchange>
+                  </Users>
+                </MainUser>
+              </IsLoggedIn>
+            </LoadingText>
+          </PageLoad>
         </DialogData>
       </SnackbarData>
     </ThemeProvider>

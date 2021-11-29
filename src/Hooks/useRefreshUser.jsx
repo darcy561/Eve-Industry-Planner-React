@@ -9,13 +9,13 @@ import {
   MainUserContext,
   UsersContext,
 } from "../Context/AuthContext";
-import { LoadingTextContext } from "../Context/LayoutContext";
+import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
 import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 
 export function useRefreshUser() {
-  const { CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
-  const { downloadCharacterData, downloadCharacterJobs } = useFirebase();
+  const { BlueprintLibrary, CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
+  const { determineUserState, downloadCharacterJobs } = useFirebase();
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
@@ -23,6 +23,7 @@ export function useRefreshUser() {
   const { updateMainUser } = useContext(MainUserContext);
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
+  const { updatePageLoad } = useContext(PageLoadContext);
 
 
   const refreshMainUser = useCallback(
@@ -34,18 +35,18 @@ export function useRefreshUser() {
       refreshedUser.fbToken = await firebaseAuth(refreshedUser);
 
       updateLoadingText("Loading API Data");
-      refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
-      refreshedUser.apiJobs = await IndustryJobs(refreshedUser);
-      refreshedUser.apiOrders = await MarketOrders(refreshedUser);
-      refreshedUser.ParentUser = true;
+      refreshedUser.apiSkills = await CharacterSkills(refreshedUser)
+      refreshedUser.apiJobs = await IndustryJobs(refreshedUser)
+      refreshedUser.apiOrders = await MarketOrders(refreshedUser)
+      refreshedUser.apiBlueprints = await BlueprintLibrary(refreshedUser)
       
       updateLoadingText("Building Character Object");
-      const charSettings = await downloadCharacterData(refreshedUser);
+      const charSettings = await determineUserState(refreshedUser);
       refreshedUser.accountID = charSettings.accountID;
-      const charJobs = await downloadCharacterJobs(refreshedUser);
+      console.log(refreshedUser);
 
       setJobStatus(charSettings.jobStatusArray);
-      updateJobArray(charJobs);
+      updateJobArray(charSettings.jobArraySnapshot);
       updateApiJobs(refreshedUser.apiJobs);
       const newUsersArray = [];
       newUsersArray.push(refreshedUser);
@@ -53,6 +54,7 @@ export function useRefreshUser() {
       updateIsLoggedIn(true);
       updateMainUser(refreshedUser);
       t.stop();
+      updatePageLoad(false);
     }
   );
   return { refreshMainUser };

@@ -10,6 +10,7 @@ import { useFirebase } from "../../Hooks/useFirebase";
 import { ApiJobsContext, JobArrayContext, JobStatusContext } from "../../Context/JobContext";
 import { trace } from "@firebase/performance";
 import { performance } from "../../firebase"
+import { PageLoadContext, LoadingTextContext } from "../../Context/LayoutContext";
 
 export function login() {
   const state = window.location.pathname;
@@ -23,40 +24,36 @@ export function AuthMainUser() {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateMainUser } = useContext(MainUserContext);
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
-  const [Loading, setLoading] = useState(true);
-  const [loadingText, setLoadingText] = useState("")
-  const { determineUserState, downloadCharacterData, downloadCharacterJobs } = useFirebase();
+  const { BlueprintLibrary, CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
+  const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
+  const { loadingText, updateLoadingText } = useContext(LoadingTextContext);
+  const { determineUserState } = useFirebase();
   const navigate = useNavigate();
 
   useEffect(async () => {
     const t = trace(performance, "MainUserLoginProcessFull");
-    const s = trace(performance, "UserJobsTotal")
     t.start();
     const authCode = window.location.search.match(/code=(\S*)&/)[1];
     const returnState = decodeURIComponent(
       window.location.search.match(/state=(\S*)/)[1]
     );
-    setLoadingText("Logging Into Eve SSO");
-    const userObject = await EveSSOTokens(authCode);
+    updateLoadingText("Logging Into Eve SSO");
+    const userObject = await EveSSOTokens(authCode);    
+    userObject.fbToken = await firebaseAuth(userObject);    
     
-    userObject.fbToken = await firebaseAuth(userObject);
-    
-    determineUserState(userObject);
-
-    setLoadingText("Loading API Data");
+    updateLoadingText("Loading API Data");
     userObject.apiSkills = await CharacterSkills(userObject);
     userObject.apiJobs = await IndustryJobs(userObject);
-    userObject.apiOrders = await MarketOrders(userObject);    
-    setLoadingText("Downloading Character Data");
+    userObject.apiOrders = await MarketOrders(userObject);
+    userObject.apiBlueprints = await BlueprintLibrary(userObject);
+    updateLoadingText("Downloading Character Data");
 
-    const userSettings = await downloadCharacterData(userObject);
+    const userSettings = await determineUserState(userObject);
     userObject.accountID = userSettings.accountID;
-    const userJobs = await downloadCharacterJobs(userObject);
-    s.putMetric("TotalJobs", userJobs.length);
-
+    console.log(userObject);
+    
     setJobStatus(userSettings.jobStatusArray);
-    updateJobArray(userJobs);
+    updateJobArray(userSettings.jobArraySnapshot);
     updateApiJobs(userObject.apiJobs);
 
     updateIsLoggedIn(true);
@@ -64,14 +61,14 @@ export function AuthMainUser() {
     newArray.push(userObject);
     updateUsers(newArray);
     updateMainUser(userObject);
-    setLoading(false);
+    updatePageLoad(false);
     t.stop();
     navigate(returnState);
       
   }, []);
 
   return (<>
-    {Loading && <CircularProgress color="primary" />}
+    {pageLoad && <CircularProgress color="primary" />}
     <Typography variant="body2">{loadingText}</Typography>
   </>);
 };
@@ -118,6 +115,7 @@ class MainUser {
     this.apiSkills = null;
     this.apiJobs = null;
     this.apiOrders = null;
+    this.apiBlueprints = null;
     this.Settings = null;
   };
 };

@@ -6,6 +6,7 @@ import { SnackBarDataContext } from '../../../../Context/LayoutContext';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import { auth } from '../../../../firebase';
 import { signOut } from 'firebase/auth';
+import { useNavigate } from "react-router";
 
 
 export function UserIcon() {
@@ -18,6 +19,7 @@ export function UserIcon() {
   const { setJobStatus } = useContext(JobStatusContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
+  const navigate = useNavigate();
 
   function logout() {
     updateIsLoggedIn(false);
@@ -36,6 +38,7 @@ export function UserIcon() {
     sessionStorage.clear();
     localStorage.clear();
     signOut(auth);
+    navigate("/");
     setSnackbarData((prev) => ({
       ...prev,
       open: true,

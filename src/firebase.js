@@ -1,11 +1,12 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import {getFirestore} from "firebase/firestore"
+import { getFirestore } from "firebase/firestore";
 import {
   initializeAppCheck,
   ReCaptchaEnterpriseProvider,
 } from "firebase/app-check";
 import { getPerformance } from "firebase/performance";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_fbApiKey,
@@ -21,8 +22,8 @@ const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 
-export const firestore = getFirestore(app)
-
+export const firestore = getFirestore(app);
+export const functions = getFunctions(app);
 export const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(
     "6LfmUFcdAAAAAM-ArobT4itRSAhqMGTRWDjxGFCU"
@@ -31,6 +32,5 @@ export const appCheck = initializeAppCheck(app, {
 });
 
 export const performance = getPerformance(app);
-
 
 export default app;

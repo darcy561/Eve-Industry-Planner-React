@@ -12,7 +12,8 @@ export function useEveApi() {
             return (skillsJSON.skills);
         }
         catch (err) {
-            console.log(err)        
+            console.log(err)
+            return []
         };        
     }, []);
 
@@ -26,6 +27,7 @@ export function useEveApi() {
         }
         catch (err) {
             console.log(err);
+            return []
         };
     }, []);
 
@@ -39,9 +41,24 @@ export function useEveApi() {
         }
         catch (err) {
             console.log(err)
+            return []
         }
     }, []);
 
+    const BlueprintLibrary = useCallback(async (userObj) => {
+        try {
+            const blueprintPromise = await fetch(`https://esi.evetech.net/latest/characters/${userObj.CharacterID}/blueprints/?datasource=tranquility&token=${userObj.aToken}`)
 
-    return { CharacterSkills, IndustryJobs, MarketOrders}
+            const blueprintJSON = await blueprintPromise.json();
+            
+            return (blueprintJSON)
+            
+        } catch (err) {
+            console.log(err)
+            return [];            
+        }
+    })
+
+
+    return { BlueprintLibrary, CharacterSkills, IndustryJobs, MarketOrders}
 };

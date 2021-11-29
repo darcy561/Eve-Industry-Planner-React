@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  IsLoggedInContext,
-  MainUserContext,
-} from "../../Context/AuthContext";
+import { IsLoggedInContext, MainUserContext } from "../../Context/AuthContext";
 import { EditJob } from "./Edit Job/EditJob";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { CircularProgress, Typography } from "@material-ui/core";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
-import { LoadingTextContext } from "../../Context/LayoutContext";
+import {
+  LoadingTextContext,
+  PageLoadContext,
+} from "../../Context/LayoutContext";
 
 export let blueprintVariables = {
   me: [
@@ -74,12 +74,12 @@ export let jobTypes = {
 };
 
 export function JobPlanner() {
-  const [ jobSettingsTrigger, updateJobSettingsTrigger  ] = useState(false);
+  const [jobSettingsTrigger, updateJobSettingsTrigger] = useState(false);
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser } = useContext(MainUserContext);
   const { refreshMainUser } = useRefreshUser();
-  const [pageload, updatePageload] = useState(true);
-  const { loadingText, setLoadingText } = useContext(LoadingTextContext);
+  const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
+  const { loadingText } = useContext(LoadingTextContext);
 
   useEffect(async () => {
     if (
@@ -88,17 +88,16 @@ export function JobPlanner() {
     ) {
       if (localStorage.getItem("Auth") != null) {
         refreshMainUser(localStorage.getItem("Auth"));
-        updatePageload(false);
       } else {
         updateIsLoggedIn(false);
-        updatePageload(false);
+        updatePageLoad(false);
       }
     } else {
-      updatePageload(false);
+      updatePageLoad(false);
     }
   }, []);
 
-  if (pageload) {
+  if (pageLoad) {
     return (
       <>
         <CircularProgress color="primary" />
@@ -109,7 +108,9 @@ export function JobPlanner() {
     if (jobSettingsTrigger) {
       return <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />;
     } else {
-      return <PlannerAccordion updateJobSettingsTrigger={updateJobSettingsTrigger}  />;
+      return (
+        <PlannerAccordion updateJobSettingsTrigger={updateJobSettingsTrigger} />
+      );
     }
   }
 }

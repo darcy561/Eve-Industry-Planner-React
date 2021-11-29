@@ -15,7 +15,7 @@ import { performance } from "../firebase";
 
 export function useRefreshUser() {
   const { BlueprintLibrary, CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
-  const { determineUserState, downloadCharacterJobs } = useFirebase();
+  const { determineUserState } = useFirebase();
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { updateApiJobs } = useContext(ApiJobsContext);

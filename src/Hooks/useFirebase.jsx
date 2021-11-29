@@ -256,7 +256,6 @@ export function useFirebase() {
       const newArray = [...jobArray];
       newArray[index] = newJob;
       updateJobArray(newArray);
-      console.log(jobArray);
       return newJob;
     },
     [isLoggedIn, mainUser]

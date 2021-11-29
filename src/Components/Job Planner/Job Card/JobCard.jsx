@@ -76,7 +76,6 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
   async function EditJobProcess(job) {
     updateLoadingText("Downloading Job Data")
     updatePageLoad(true)
-    console.log(job);
     if (job.isSnapshot) {
       const jobEdit = await downloadCharacterJobs(job);
       job = jobEdit;

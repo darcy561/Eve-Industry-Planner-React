@@ -75,5 +75,10 @@ export function CalculateTotals(item) {
 };
 
 // export const calcProductionTime = useCallback((job) => {
+
+//   const skillsModifier = () => {
+    
+//   }
+
 //   const outputTime = baseProdTime*timeModifier*skillsModifier*runs
 // })

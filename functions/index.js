@@ -1,14 +1,15 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const express = require("express");
+const cors = require("cors");
 const appCheckVerification =
   require("./Middleware/appCheck").appCheckVerification;
 const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
 
 admin.initializeApp();
 
-const express = require("express");
+
 const app = express();
-const cors = require("cors");
 const db = admin.firestore();
 db.settings({ ignoreUndefinedProperties: true });
 

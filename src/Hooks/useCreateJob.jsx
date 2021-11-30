@@ -5,7 +5,7 @@ import {
   DataExchangeContext,
 } from "../Context/LayoutContext";
 import { JobArrayContext } from "../Context/JobContext";
-import { IsLoggedInContext } from "../Context/AuthContext";
+import { IsLoggedInContext, MainUserContext } from "../Context/AuthContext";
 import { createJob } from "../Components/Job Planner/JobBuild";
 import { CalculateTotals } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
@@ -18,6 +18,7 @@ export function useCreateJobProcess() {
   const { updateDialogData } = useContext(DialogDataContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { mainUser } = useContext(MainUserContext);
   const { addNewJob } = useFirebase();
 
   const newJobProcess = useCallback(async (itemID, itemQty) => {
@@ -120,11 +121,13 @@ export function useCreateJobProcess() {
 
         const calculatedValue = CalculateTotals(newJob);
         newJob.job.materials = calculatedValue;
-
-        isLoggedIn && addNewJob(newJob);
+        
+        if (isLoggedIn) {
+          isLoggedIn && addNewJob(newJob);
+          newJob.job.buildChar = mainUser.CharacterHash;
+        }
 
         updateJobArray((prevArray) => [...prevArray, newJob]);
-
         updateDataExchange(false);
         setSnackbarData((prev) => ({
           ...prev,

@@ -154,7 +154,7 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
               <Grid className={classes.Grid} container item xs={12} sm={9}>
                 <Grid className={classes.Grid} container item xs={12}>
                   <Grid className={classes.Grid} item xs={10}>
-                    <Typography variant="body2">Run Count</Typography>
+                    <Typography variant="body2">Runs</Typography>
                   </Grid>
                   <Grid className={classes.Grid} item xs={2}>
                     <Typography variant="body2">{job.runCount}</Typography>
@@ -162,7 +162,7 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
                 </Grid>
                 <Grid className={classes.Grid} container item xs={12}>
                   <Grid className={classes.Grid} item xs={10}>
-                    <Typography variant="body2">Job Count</Typography>
+                    <Typography variant="body2">Job Slots</Typography>
                   </Grid>
                   <Grid className={classes.Grid} item xs={2}>
                     <Typography variant="body2">{job.jobCount}</Typography>

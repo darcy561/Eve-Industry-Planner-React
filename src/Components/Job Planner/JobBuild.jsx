@@ -46,6 +46,7 @@ class Job {
         extrasTotal: 0,
       },
       materials: null,
+      buildChar: null,
     };
     
     this.planner = {

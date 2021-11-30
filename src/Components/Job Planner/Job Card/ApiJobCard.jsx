@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Card, Grid, Hidden, Typography } from "@material-ui/core";
+import { Avatar, Badge, Box, Card, Grid, Hidden, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -37,67 +37,85 @@ const useStyles = makeStyles((theme) => ({
     borderBottomRightRadius: "5px",
   },
   focusHighlight: {},
+  CharAvatar: {
+    height: "125%",
+    width: "125%",
+  }
 }));
 
 export function ApiJobCard({ job }) {
   const classes = useStyles();
     return (
-    <Grid key={job.job_id} className={classes.Grid} item xs={6} md={4} lg={2}>
-      <Card
-        className={classes.Card}
-      >
-        <Grid className={classes.Grid} container item xs={12}>
-          <Grid className={classes.Header} item xs={12}>
-            <Typography variant="h6" align="center">
-              job.name
-            </Typography>
-          </Grid>
+      <Grid key={job.job_id} className={classes.Grid} item xs={6} md={4} lg={2}>
+        <Card className={classes.Card}>
           <Grid className={classes.Grid} container item xs={12}>
-            <Hidden xsDown>
-              <Grid className={classes.Grid} item sm={3}>
-                <Box>
-                  <picture className={classes.Image}>
-                    <source
-                      media="(max-width:700px)"
-                      srcSet={`https://image.eveonline.com/Type/${job.blueprint_type_id}_32.png`}
-                      alt=""
-                      className={classes.Image}
-                    />
-                    <img
-                      src={`https://image.eveonline.com/Type/${job.blueprint_type_id}_64.png`}
-                      alt=""
-                      className={classes.Image}
-                    />
-                  </picture>
-                </Box>
-              </Grid>
-            </Hidden>
-            <Grid className={classes.Grid} container item xs={12} sm={9}>
-              <Grid className={classes.Grid} container item xs={12}>
+            <Grid className={classes.Header} item xs={12}>
+              <Typography variant="h6" align="center">
+                job.name
+              </Typography>
+            </Grid>
+            <Grid className={classes.Grid} container item xs={12}>
+              <Hidden xsDown>
+                <Grid className={classes.Grid} item sm={3}>
+                  <Box>
+                    <Badge
+                      overlap="circular"
+                      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                      badgeContent={
+                        <Avatar
+                          className={classes.CharAvatar}
+                          src={`https://images.evetech.net/characters/${job.installer_id}/portrait`}
+                          variant="circular"
+                        />
+                      }
+                    >
+                      <picture className={classes.Image}>
+                        <source
+                          media="(max-width:700px)"
+                          srcSet={`https://image.eveonline.com/Type/${job.blueprint_type_id}_32.png`}
+                          alt=""
+                          className={classes.Image}
+                        />
+                        <img
+                          src={`https://image.eveonline.com/Type/${job.blueprint_type_id}_64.png`}
+                          alt=""
+                          className={classes.Image}
+                        />
+                      </picture>
+                    </Badge>
+                  </Box>
+                </Grid>
+              </Hidden>
+              <Grid className={classes.Grid} container item xs={12} sm={9}>
+                <Grid className={classes.Grid} container item xs={12}>
+                  <Grid className={classes.Grid} item xs={10}>
+                    <Typography variant="body2">Runs</Typography>
+                  </Grid>
+                  <Grid className={classes.Grid} item xs={2}>
+                    <Typography variant="body2">{job.runs}</Typography>
+                  </Grid>
+                </Grid>
+                <Grid className={classes.Grid} container item xs={12}>
                 <Grid className={classes.Grid} item xs={10}>
-                  <Typography variant="body2">Run Count</Typography>
-                </Grid>
-                <Grid className={classes.Grid} item xs={2}>
-                  <Typography variant="body2">{job.runs}</Typography>
+                    <Typography variant="body2">End Date</Typography>
+                  </Grid>
+                  <Grid className={classes.Grid} item xs={2}>
+                    <Typography variant="body2">{job.end_date}</Typography>
+                  </Grid>
                 </Grid>
               </Grid>
-              <Grid className={classes.Grid} container item xs={12}>
-
+            </Grid>
+            <Grid className={classes.Grid} container item xs={12}>
+              <Grid item xs={12} className={classes.JobTypeBg}>
+                <Box className={classes.Grid}>
+                  <Typography align="center" variant="body2">
+                    API Job
+                  </Typography>
+                </Box>
               </Grid>
             </Grid>
           </Grid>
-          <Grid className={classes.Grid} container item xs={12}>
-          <Grid item xs={12} className={classes.JobTypeBg}>
-          <Box className={classes.Grid}>
-            <Typography align="center" variant="body2">
-              API Job
-            </Typography>
-          </Box>
-        </Grid>
-          </Grid>
-        </Grid>
-      </Card>
+        </Card>
       </Grid>
-
-  );
+    );
 }

@@ -7,9 +7,10 @@ exports.updateJobArraySnapshot = functions.firestore
     const documentNew = change.after.exists ? change.after.data() : null;
     const documentOld = change.before.exists ? change.before.data() : null;
     
+    functions.logger.log("Account UID "+ context.params.UID);
     functions.logger.log("Old Document Data " + documentOld);
     functions.logger.log("New Document Data " + documentNew);
-    functions.logger.log("Account UID "+ context.params.UID);
+    
 
     if (documentNew == null) {
       admin
@@ -19,6 +20,7 @@ exports.updateJobArraySnapshot = functions.firestore
           [`jobArraySnapshot.${documentOld.jobID}`]:
             admin.firestore.FieldValue.delete(),
         });
+        functions.logger.log("Item Deleted");
       return null;
     }
 
@@ -36,8 +38,10 @@ exports.updateJobArraySnapshot = functions.firestore
             jobType: documentNew.jobType,
             itemID: documentNew.itemID,
             isSnapshot: true,
+            apiJobs: documentNew.apiJobs
           },
         });
+        functions.logger.log("Item Added");
       return null;
     }
 
@@ -58,9 +62,11 @@ exports.updateJobArraySnapshot = functions.firestore
             jobStatus: documentNew.jobStatus,
             jobType: documentNew.jobType,
             itemID: documentNew.itemID,
-            isSnapshot: true
+            isSnapshot: true,
+            apiJobs: documentNew.apiJobs
           },
         });
+        functions.logger.log("Item Modified");
       return null;
     }
   });

@@ -35,6 +35,7 @@ class Job {
     this.structureTypeDisplay =""
     this.rigType = 0;
     this.systemType = 0;
+    this.apiJobs = [];
 
     this.job = {
       products: {
@@ -71,6 +72,7 @@ export async function createJob(itemID) {
       }
     );
     const itemJson = await response.json();
+    console.log(itemJson);
     const outputObject = new Job(itemJson);
     try {
       if (outputObject.jobType === jobTypes.manufacturing) {

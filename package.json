@@ -17,6 +17,7 @@
     "firebase-tools": "^9.23.0",
     "glob-parent": "^6.0.2",
     "jsonwebtoken": "^8.5.1",
+    "node-firestore-import-export": "^1.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",

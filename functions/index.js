@@ -11,7 +11,6 @@ admin.initializeApp();
 
 const app = express();
 const db = admin.firestore();
-db.settings({ ignoreUndefinedProperties: true });
 
 app.use(
   cors({
@@ -40,7 +39,8 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
         access_token: authToken,
       });
     } catch (error) {
-      return res.status(500).send(error);
+      functions.logger.log(error);
+      return res.status(500).send("Error generating auth token, contact admin for assistance");
     }
   } else {
     return res.status(400);
@@ -51,14 +51,14 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
 app.get("/item/:itemID", (req, res) => {
   (async () => {
     try {
-      const document = db.collection("items").doc(req.params.itemID);
+      const document = db.collection("Items").doc(req.params.itemID);
       let product = await document.get();
       let response = product.data();
 
       return res.status(200).send(response);
     } catch (error) {
-      console.log(error);
-      return res.status(500).send(error);
+      functions.logger.log(error);
+      return res.status(500).send("Error retrieving item data, please try again.");
     }
   })();
 });

@@ -46,13 +46,13 @@ const useStyles = makeStyles((theme) => ({
 export function ApiJobCard({ job }) {
   const classes = useStyles();
     return (
-      <Grid key={job.job_id} className={classes.Grid} item xs={6} md={4} lg={2}>
+      <Grid key={job.job_id} className={classes.Grid} item xs={6} md={4} lg={3} xl={2}>
         <Card className={classes.Card}>
           <Grid className={classes.Grid} container item xs={12}>
             <Grid className={classes.Header} item xs={12}>
               <Typography variant="h6" align="center">
                 job.name
-              </Typography>
+              </Typography> 
             </Grid>
             <Grid className={classes.Grid} container item xs={12}>
               <Hidden xsDown>

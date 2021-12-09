@@ -1,5 +1,5 @@
- [
- {
+[
+  {
     "name": "Carbonized Lead S",
     "itemID": 178
   },
@@ -1644,14 +1644,6 @@
     "itemID": 2817
   },
   {
-    "name": "Utu",
-    "itemID": 2834
-  },
-  {
-    "name": "Adrestia",
-    "itemID": 2836
-  },
-  {
     "name": "1200mm Artillery Cannon II",
     "itemID": 2865
   },
@@ -1694,10 +1686,6 @@
   {
     "name": "Dual 425mm AutoCannon II",
     "itemID": 2945
-  },
-  {
-    "name": "Shadow",
-    "itemID": 2948
   },
   {
     "name": "Dual 650mm Repeating Cannon II",
@@ -1824,10 +1812,6 @@
     "itemID": 3186
   },
   {
-    "name": "Harvester Mining Drone",
-    "itemID": 3218
-  },
-  {
     "name": "Warp Disruptor I",
     "itemID": 3242
   },
@@ -1868,18 +1852,6 @@
     "itemID": 3512
   },
   {
-    "name": "Revenant",
-    "itemID": 3514
-  },
-  {
-    "name": "Malice",
-    "itemID": 3516
-  },
-  {
-    "name": "Vangel",
-    "itemID": 3518
-  },
-  {
     "name": "Heavy Pulse Laser II",
     "itemID": 3520
   },
@@ -1892,36 +1864,12 @@
     "itemID": 3530
   },
   {
-    "name": "CONCORD Capital Armor Repairer",
-    "itemID": 3534
-  },
-  {
-    "name": "CONCORD Capital Remote Armor Repairer",
-    "itemID": 3536
-  },
-  {
     "name": "Large Armor Repairer I",
     "itemID": 3538
   },
   {
     "name": "Large Armor Repairer II",
     "itemID": 3540
-  },
-  {
-    "name": "CONCORD Capital Shield Booster",
-    "itemID": 3542
-  },
-  {
-    "name": "CONCORD Capital Remote Shield Booster",
-    "itemID": 3544
-  },
-  {
-    "name": "CONCORD Ion Siege Blaster",
-    "itemID": 3546
-  },
-  {
-    "name": "CONCORD Dual 1000mm Railgun",
-    "itemID": 3550
   },
   {
     "name": "Cap Booster 75",
@@ -1932,22 +1880,6 @@
     "itemID": 3554
   },
   {
-    "name": "CONCORD Dual Giga Pulse Laser",
-    "itemID": 3559
-  },
-  {
-    "name": "CONCORD Dual Giga Beam Laser",
-    "itemID": 3561
-  },
-  {
-    "name": "CONCORD XL Cruise Missile Launcher",
-    "itemID": 3563
-  },
-  {
-    "name": "CONCORD XL Torpedo Launcher",
-    "itemID": 3565
-  },
-  {
     "name": "Small Capacitor Booster I",
     "itemID": 3566
   },
@@ -1956,28 +1888,12 @@
     "itemID": 3568
   },
   {
-    "name": "CONCORD Quad 3500mm Siege Artillery",
-    "itemID": 3571
-  },
-  {
-    "name": "CONCORD Hexa 2500mm Repeating Cannon",
-    "itemID": 3573
-  },
-  {
-    "name": "CONCORD Capital Remote Capacitor Transmitter",
-    "itemID": 3575
-  },
-  {
     "name": "Heavy Capacitor Booster I",
     "itemID": 3576
   },
   {
     "name": "Heavy Capacitor Booster II",
     "itemID": 3578
-  },
-  {
-    "name": "Purloined Sansha Data Analyzer",
-    "itemID": 3581
   },
   {
     "name": "Small Remote Shield Booster I",
@@ -2232,16 +2148,8 @@
     "itemID": 4312
   },
   {
-    "name": "Miasmos Quafe Ultra Edition",
-    "itemID": 4363
-  },
-  {
     "name": "Large Micro Jump Drive",
     "itemID": 4383
-  },
-  {
-    "name": "Miasmos Quafe Ultramarine Edition",
-    "itemID": 4388
   },
   {
     "name": "Large Ancillary Shield Booster",
@@ -2344,10 +2252,6 @@
     "itemID": 10998
   },
   {
-    "name": "Guardian-Vexor",
-    "itemID": 11011
-  },
-  {
     "name": "Helios",
     "itemID": 11172
   },
@@ -2408,20 +2312,12 @@
     "itemID": 11202
   },
   {
-    "name": "'Basic' EM Energized Membrane",
-    "itemID": 11215
-  },
-  {
     "name": "EM Energized Membrane I",
     "itemID": 11217
   },
   {
     "name": "EM Energized Membrane II",
     "itemID": 11219
-  },
-  {
-    "name": "'Basic' Explosive Energized Membrane",
-    "itemID": 11225
   },
   {
     "name": "Explosive Energized Membrane I",
@@ -2432,20 +2328,12 @@
     "itemID": 11229
   },
   {
-    "name": "'Basic' Layered Energized Membrane",
-    "itemID": 11235
-  },
-  {
     "name": "Layered Energized Membrane I",
     "itemID": 11237
   },
   {
     "name": "Layered Energized Membrane II",
     "itemID": 11239
-  },
-  {
-    "name": "'Basic' Kinetic Energized Membrane",
-    "itemID": 11245
   },
   {
     "name": "Kinetic Energized Membrane I",
@@ -2456,20 +2344,12 @@
     "itemID": 11249
   },
   {
-    "name": "'Basic' Thermal Energized Membrane",
-    "itemID": 11255
-  },
-  {
     "name": "Thermal Energized Membrane I",
     "itemID": 11257
   },
   {
     "name": "Thermal Energized Membrane II",
     "itemID": 11259
-  },
-  {
-    "name": "'Basic' Multispectrum Energized Membrane",
-    "itemID": 11265
   },
   {
     "name": "Multispectrum Energized Membrane I",
@@ -2854,14 +2734,6 @@
   {
     "name": "R.Db - Lai Dai",
     "itemID": 11746
-  },
-  {
-    "name": "Apocalypse Imperial Issue",
-    "itemID": 11936
-  },
-  {
-    "name": "Armageddon Imperial Issue",
-    "itemID": 11938
   },
   {
     "name": "Falcon",
@@ -3312,10 +3184,6 @@
     "itemID": 13119
   },
   {
-    "name": "Megathron Federate Issue",
-    "itemID": 13202
-  },
-  {
     "name": "Cruise Missile Launcher I",
     "itemID": 13320
   },
@@ -3338,438 +3206,6 @@
   {
     "name": "Valkyrie I",
     "itemID": 15510
-  },
-  {
-    "name": "Caldari Navy Co-Processor",
-    "itemID": 15675
-  },
-  {
-    "name": "Federation Navy Co-Processor",
-    "itemID": 15677
-  },
-  {
-    "name": "Caldari Navy Ballistic Control System",
-    "itemID": 15681
-  },
-  {
-    "name": "Republic Fleet Ballistic Control System",
-    "itemID": 15683
-  },
-  {
-    "name": "Imperial Navy Thermal Coating",
-    "itemID": 15685
-  },
-  {
-    "name": "Imperial Navy EM Coating",
-    "itemID": 15687
-  },
-  {
-    "name": "Imperial Navy Explosive Coating",
-    "itemID": 15689
-  },
-  {
-    "name": "Imperial Navy Kinetic Coating",
-    "itemID": 15691
-  },
-  {
-    "name": "Imperial Navy Multispectrum Coating",
-    "itemID": 15693
-  },
-  {
-    "name": "Republic Fleet Thermal Coating",
-    "itemID": 15695
-  },
-  {
-    "name": "Republic Fleet EM Coating",
-    "itemID": 15697
-  },
-  {
-    "name": "Republic Fleet Explosive Coating",
-    "itemID": 15699
-  },
-  {
-    "name": "Republic Fleet Kinetic Coating",
-    "itemID": 15701
-  },
-  {
-    "name": "Republic Fleet Multispectrum Coating",
-    "itemID": 15703
-  },
-  {
-    "name": "Imperial Navy Thermal Armor Hardener",
-    "itemID": 15705
-  },
-  {
-    "name": "Imperial Navy Kinetic Armor Hardener",
-    "itemID": 15707
-  },
-  {
-    "name": "Imperial Navy Explosive Armor Hardener",
-    "itemID": 15709
-  },
-  {
-    "name": "Imperial Navy EM Armor Hardener",
-    "itemID": 15711
-  },
-  {
-    "name": "Republic Fleet Thermal Armor Hardener",
-    "itemID": 15713
-  },
-  {
-    "name": "Republic Fleet Kinetic Armor Hardener",
-    "itemID": 15715
-  },
-  {
-    "name": "Republic Fleet Explosive Armor Hardener",
-    "itemID": 15717
-  },
-  {
-    "name": "Republic Fleet EM Armor Hardener",
-    "itemID": 15719
-  },
-  {
-    "name": "Imperial Navy Thermal Energized Membrane",
-    "itemID": 15721
-  },
-  {
-    "name": "Imperial Navy EM Energized Membrane",
-    "itemID": 15723
-  },
-  {
-    "name": "Imperial Navy Explosive Energized Membrane",
-    "itemID": 15725
-  },
-  {
-    "name": "Imperial Navy Kinetic Energized Membrane",
-    "itemID": 15727
-  },
-  {
-    "name": "Imperial Navy Multispectrum Energized Membrane",
-    "itemID": 15729
-  },
-  {
-    "name": "Federation Navy Thermal Energized Membrane",
-    "itemID": 15731
-  },
-  {
-    "name": "Federation Navy EM Energized Membrane",
-    "itemID": 15733
-  },
-  {
-    "name": "Federation Navy Explosive Energized Membrane",
-    "itemID": 15735
-  },
-  {
-    "name": "Federation Navy Kinetic Energized Membrane",
-    "itemID": 15737
-  },
-  {
-    "name": "Federation Navy Multispectrum Energized Membrane",
-    "itemID": 15739
-  },
-  {
-    "name": "Republic Fleet 5MN Microwarpdrive",
-    "itemID": 15747
-  },
-  {
-    "name": "Republic Fleet 1MN Afterburner",
-    "itemID": 15749
-  },
-  {
-    "name": "Republic Fleet 50MN Microwarpdrive",
-    "itemID": 15751
-  },
-  {
-    "name": "Republic Fleet 10MN Afterburner",
-    "itemID": 15753
-  },
-  {
-    "name": "Republic Fleet 500MN Microwarpdrive",
-    "itemID": 15755
-  },
-  {
-    "name": "Republic Fleet 100MN Afterburner",
-    "itemID": 15757
-  },
-  {
-    "name": "Federation Navy 5MN Microwarpdrive",
-    "itemID": 15759
-  },
-  {
-    "name": "Federation Navy 1MN Afterburner",
-    "itemID": 15761
-  },
-  {
-    "name": "Federation Navy 50MN Microwarpdrive",
-    "itemID": 15764
-  },
-  {
-    "name": "Federation Navy 10MN Afterburner",
-    "itemID": 15766
-  },
-  {
-    "name": "Federation Navy 500MN Microwarpdrive",
-    "itemID": 15768
-  },
-  {
-    "name": "Federation Navy 100MN Afterburner",
-    "itemID": 15770
-  },
-  {
-    "name": "Ammatar Navy Small Capacitor Booster",
-    "itemID": 15772
-  },
-  {
-    "name": "Ammatar Navy Medium Capacitor Booster",
-    "itemID": 15776
-  },
-  {
-    "name": "Ammatar Navy Heavy Capacitor Booster",
-    "itemID": 15778
-  },
-  {
-    "name": "Imperial Navy Small Capacitor Booster",
-    "itemID": 15780
-  },
-  {
-    "name": "Imperial Navy Medium Capacitor Booster",
-    "itemID": 15784
-  },
-  {
-    "name": "Imperial Navy Heavy Capacitor Booster",
-    "itemID": 15786
-  },
-  {
-    "name": "Ammatar Navy Cap Recharger",
-    "itemID": 15788
-  },
-  {
-    "name": "Caldari Navy Cloaking Device",
-    "itemID": 15790
-  },
-  {
-    "name": "Federation Navy Tracking Computer",
-    "itemID": 15792
-  },
-  {
-    "name": "Ammatar Navy Small Energy Neutralizer",
-    "itemID": 15794
-  },
-  {
-    "name": "Ammatar Navy Medium Energy Neutralizer",
-    "itemID": 15796
-  },
-  {
-    "name": "Ammatar Navy Heavy Energy Neutralizer",
-    "itemID": 15798
-  },
-  {
-    "name": "Imperial Navy Small Energy Neutralizer",
-    "itemID": 15800
-  },
-  {
-    "name": "Imperial Navy Medium Energy Neutralizer",
-    "itemID": 15802
-  },
-  {
-    "name": "Imperial Navy Heavy Energy Neutralizer",
-    "itemID": 15804
-  },
-  {
-    "name": "Republic Fleet Gyrostabilizer",
-    "itemID": 15806
-  },
-  {
-    "name": "Ammatar Navy Heat Sink",
-    "itemID": 15808
-  },
-  {
-    "name": "Imperial Navy Heat Sink",
-    "itemID": 15810
-  },
-  {
-    "name": "Caldari Navy 350mm Railgun",
-    "itemID": 15818
-  },
-  {
-    "name": "Caldari Navy 200mm Railgun",
-    "itemID": 15821
-  },
-  {
-    "name": "Federation Navy 350mm Railgun",
-    "itemID": 15838
-  },
-  {
-    "name": "Federation Navy 200mm Railgun",
-    "itemID": 15841
-  },
-  {
-    "name": "Ammatar Navy Small Energy Nosferatu",
-    "itemID": 15875
-  },
-  {
-    "name": "Ammatar Navy Medium Energy Nosferatu",
-    "itemID": 15877
-  },
-  {
-    "name": "Ammatar Navy Heavy Energy Nosferatu",
-    "itemID": 15879
-  },
-  {
-    "name": "Imperial Navy Small Energy Nosferatu",
-    "itemID": 15881
-  },
-  {
-    "name": "Imperial Navy Medium Energy Nosferatu",
-    "itemID": 15883
-  },
-  {
-    "name": "Imperial Navy Heavy Energy Nosferatu",
-    "itemID": 15885
-  },
-  {
-    "name": "Caldari Navy Warp Scrambler",
-    "itemID": 15887
-  },
-  {
-    "name": "Caldari Navy Warp Disruptor",
-    "itemID": 15889
-  },
-  {
-    "name": "Republic Fleet Warp Disruptor",
-    "itemID": 15891
-  },
-  {
-    "name": "Republic Fleet Warp Scrambler",
-    "itemID": 15893
-  },
-  {
-    "name": "Federation Navy Magnetic Field Stabilizer",
-    "itemID": 15895
-  },
-  {
-    "name": "Caldari Navy Shield Boost Amplifier",
-    "itemID": 15905
-  },
-  {
-    "name": "Republic Fleet Shield Boost Amplifier",
-    "itemID": 15907
-  },
-  {
-    "name": "Caldari Navy EM Shield Amplifier",
-    "itemID": 15909
-  },
-  {
-    "name": "Caldari Navy Kinetic Shield Amplifier",
-    "itemID": 15911
-  },
-  {
-    "name": "Caldari Navy Thermal Shield Amplifier",
-    "itemID": 15913
-  },
-  {
-    "name": "Caldari Navy Explosive Shield Amplifier",
-    "itemID": 15915
-  },
-  {
-    "name": "Republic Fleet EM Shield Amplifier",
-    "itemID": 15917
-  },
-  {
-    "name": "Republic Fleet Kinetic Shield Amplifier",
-    "itemID": 15919
-  },
-  {
-    "name": "Republic Fleet Thermal Shield Amplifier",
-    "itemID": 15921
-  },
-  {
-    "name": "Republic Fleet Explosive Shield Amplifier",
-    "itemID": 15923
-  },
-  {
-    "name": "Caldari Navy Small Graviton Smartbomb",
-    "itemID": 15925
-  },
-  {
-    "name": "Caldari Navy Micro Graviton Smartbomb",
-    "itemID": 15927
-  },
-  {
-    "name": "Caldari Navy Medium Graviton Smartbomb",
-    "itemID": 15929
-  },
-  {
-    "name": "Caldari Navy Large Graviton Smartbomb",
-    "itemID": 15931
-  },
-  {
-    "name": "Republic Fleet Small Proton Smartbomb",
-    "itemID": 15935
-  },
-  {
-    "name": "Republic Fleet Medium Proton Smartbomb",
-    "itemID": 15937
-  },
-  {
-    "name": "Republic Fleet Large Proton Smartbomb",
-    "itemID": 15939
-  },
-  {
-    "name": "Ammatar Navy Small EMP Smartbomb",
-    "itemID": 15941
-  },
-  {
-    "name": "Ammatar Navy Medium EMP Smartbomb",
-    "itemID": 15945
-  },
-  {
-    "name": "Ammatar Navy Large EMP Smartbomb",
-    "itemID": 15947
-  },
-  {
-    "name": "Federation Navy Small Plasma Smartbomb",
-    "itemID": 15949
-  },
-  {
-    "name": "Federation Navy Medium Plasma Smartbomb",
-    "itemID": 15953
-  },
-  {
-    "name": "Federation Navy Large Plasma Smartbomb",
-    "itemID": 15955
-  },
-  {
-    "name": "Imperial Navy Small EMP Smartbomb",
-    "itemID": 15957
-  },
-  {
-    "name": "Imperial Navy Micro EMP Smartbomb",
-    "itemID": 15959
-  },
-  {
-    "name": "Imperial Navy Medium EMP Smartbomb",
-    "itemID": 15961
-  },
-  {
-    "name": "Imperial Navy Large EMP Smartbomb",
-    "itemID": 15963
-  },
-  {
-    "name": "Republic Fleet Tracking Enhancer",
-    "itemID": 15965
-  },
-  {
-    "name": "Federation Navy Remote Tracking Computer",
-    "itemID": 15967
-  },
-  {
-    "name": "Caldari Navy Cruise Missile Launcher",
-    "itemID": 16062
-  },
-  {
-    "name": "Caldari Navy Rocket Launcher",
-    "itemID": 16065
   },
   {
     "name": "Caldari Control Tower",
@@ -4088,132 +3524,8 @@
     "itemID": 17482
   },
   {
-    "name": "Republic Fleet Cruise Missile Launcher",
-    "itemID": 17485
-  },
-  {
-    "name": "Republic Fleet Rocket Launcher",
-    "itemID": 17488
-  },
-  {
-    "name": "Caldari Navy Stasis Webifier",
-    "itemID": 17500
-  },
-  {
-    "name": "Ammatar Navy EM Armor Hardener",
-    "itemID": 17502
-  },
-  {
-    "name": "Ammatar Navy Explosive Armor Hardener",
-    "itemID": 17504
-  },
-  {
-    "name": "Ammatar Navy Kinetic Armor Hardener",
-    "itemID": 17506
-  },
-  {
-    "name": "Ammatar Navy Thermal Armor Hardener",
-    "itemID": 17508
-  },
-  {
-    "name": "Ammatar Navy Capacitor Power Relay",
-    "itemID": 17510
-  },
-  {
-    "name": "Ammatar Navy Kinetic Coating",
-    "itemID": 17512
-  },
-  {
-    "name": "Ammatar Navy Multispectrum Coating",
-    "itemID": 17514
-  },
-  {
-    "name": "Ammatar Navy Explosive Coating",
-    "itemID": 17516
-  },
-  {
-    "name": "Ammatar Navy EM Coating",
-    "itemID": 17518
-  },
-  {
-    "name": "Federation Navy Sensor Booster",
-    "itemID": 17520
-  },
-  {
-    "name": "Ammatar Navy Reactor Control Unit",
-    "itemID": 17522
-  },
-  {
-    "name": "Ammatar Navy Power Diagnostic System",
-    "itemID": 17524
-  },
-  {
-    "name": "Imperial Navy Cap Recharger",
-    "itemID": 17526
-  },
-  {
-    "name": "Imperial Navy Capacitor Power Relay",
-    "itemID": 17528
-  },
-  {
-    "name": "Ammatar Navy Multispectrum Energized Membrane",
-    "itemID": 17536
-  },
-  {
-    "name": "Ammatar Navy Kinetic Energized Membrane",
-    "itemID": 17538
-  },
-  {
-    "name": "Ammatar Navy Explosive Energized Membrane",
-    "itemID": 17540
-  },
-  {
-    "name": "Ammatar Navy EM Energized Membrane",
-    "itemID": 17542
-  },
-  {
-    "name": "Ammatar Navy Thermal Energized Membrane",
-    "itemID": 17544
-  },
-  {
-    "name": "Federation Navy Multispectrum Coating",
-    "itemID": 17549
-  },
-  {
-    "name": "Federation Navy Kinetic Coating",
-    "itemID": 17551
-  },
-  {
-    "name": "Federation Navy Explosive Coating",
-    "itemID": 17553
-  },
-  {
-    "name": "Federation Navy EM Coating",
-    "itemID": 17555
-  },
-  {
-    "name": "Federation Navy Thermal Coating",
-    "itemID": 17557
-  },
-  {
-    "name": "Federation Navy Stasis Webifier",
-    "itemID": 17559
-  },
-  {
-    "name": "Caldari Navy Hookbill",
-    "itemID": 17619
-  },
-  {
     "name": "Corporate Hangar Array",
     "itemID": 17621
-  },
-  {
-    "name": "Caracal Navy Issue",
-    "itemID": 17634
-  },
-  {
-    "name": "Raven Navy Issue",
-    "itemID": 17636
   },
   {
     "name": "Antimatter Charge XL",
@@ -4312,58 +3624,6 @@
     "itemID": 17694
   },
   {
-    "name": "Imperial Navy Slicer",
-    "itemID": 17703
-  },
-  {
-    "name": "Omen Navy Issue",
-    "itemID": 17709
-  },
-  {
-    "name": "Stabber Fleet Issue",
-    "itemID": 17713
-  },
-  {
-    "name": "Gila",
-    "itemID": 17715
-  },
-  {
-    "name": "Phantasm",
-    "itemID": 17718
-  },
-  {
-    "name": "Cynabal",
-    "itemID": 17720
-  },
-  {
-    "name": "Vigilant",
-    "itemID": 17722
-  },
-  {
-    "name": "Apocalypse Navy Issue",
-    "itemID": 17726
-  },
-  {
-    "name": "Megathron Navy Issue",
-    "itemID": 17728
-  },
-  {
-    "name": "Tempest Fleet Issue",
-    "itemID": 17732
-  },
-  {
-    "name": "Nightmare",
-    "itemID": 17736
-  },
-  {
-    "name": "Machariel",
-    "itemID": 17738
-  },
-  {
-    "name": "Vindicator",
-    "itemID": 17740
-  },
-  {
     "name": "Fluxed Condensates",
     "itemID": 17769
   },
@@ -4384,34 +3644,6 @@
     "itemID": 17773
   },
   {
-    "name": "Republic Fleet Firetail",
-    "itemID": 17812
-  },
-  {
-    "name": "Federation Navy EM Armor Hardener",
-    "itemID": 17832
-  },
-  {
-    "name": "Federation Navy Explosive Armor Hardener",
-    "itemID": 17834
-  },
-  {
-    "name": "Federation Navy Kinetic Armor Hardener",
-    "itemID": 17836
-  },
-  {
-    "name": "Federation Navy Thermal Armor Hardener",
-    "itemID": 17838
-  },
-  {
-    "name": "Federation Navy Comet",
-    "itemID": 17841
-  },
-  {
-    "name": "Vexor Navy Issue",
-    "itemID": 17843
-  },
-  {
     "name": "Mjolnir XL Torpedo",
     "itemID": 17857
   },
@@ -4430,38 +3662,6 @@
   {
     "name": "Modulated Strip Miner II",
     "itemID": 17912
-  },
-  {
-    "name": "Rattlesnake",
-    "itemID": 17918
-  },
-  {
-    "name": "Bhaalgorn",
-    "itemID": 17920
-  },
-  {
-    "name": "Ashimmu",
-    "itemID": 17922
-  },
-  {
-    "name": "Succubus",
-    "itemID": 17924
-  },
-  {
-    "name": "Cruor",
-    "itemID": 17926
-  },
-  {
-    "name": "Daredevil",
-    "itemID": 17928
-  },
-  {
-    "name": "Worm",
-    "itemID": 17930
-  },
-  {
-    "name": "Dramiel",
-    "itemID": 17932
   },
   {
     "name": "Core Probe Launcher I",
@@ -4672,14 +3872,6 @@
     "itemID": 19814
   },
   {
-    "name": "Arch Angel Carbonized Lead M",
-    "itemID": 19994
-  },
-  {
-    "name": "Arch Angel Titanium Sabot M",
-    "itemID": 20002
-  },
-  {
     "name": "Amarr Control Tower Medium",
     "itemID": 20059
   },
@@ -4800,166 +3992,6 @@
     "itemID": 20539
   },
   {
-    "name": "Small 'Siesta' Capacitor Booster",
-    "itemID": 20555
-  },
-  {
-    "name": "Medium 'Gattotte' Capacitor Booster",
-    "itemID": 20557
-  },
-  {
-    "name": "Heavy 'Brave' Capacitor Booster",
-    "itemID": 20559
-  },
-  {
-    "name": "Prototype 'Poncho' Cloaking Device I",
-    "itemID": 20561
-  },
-  {
-    "name": "'Smokescreen' Covert Ops Cloaking Device II",
-    "itemID": 20563
-  },
-  {
-    "name": "Improved 'Guise' Cloaking Device II",
-    "itemID": 20565
-  },
-  {
-    "name": "'Dyad' Co-Processor I",
-    "itemID": 20567
-  },
-  {
-    "name": "'Deuce' Co-Processor I",
-    "itemID": 20569
-  },
-  {
-    "name": "'Marshall' Magnetometric ECM",
-    "itemID": 20573
-  },
-  {
-    "name": "'Gambler' Ladar ECM",
-    "itemID": 20575
-  },
-  {
-    "name": "'Plunderer' Gravimetric ECM",
-    "itemID": 20577
-  },
-  {
-    "name": "'Heist' Radar ECM",
-    "itemID": 20579
-  },
-  {
-    "name": "'Ghost' Burst Jammer",
-    "itemID": 20581
-  },
-  {
-    "name": "150mm 'Musket' Railgun",
-    "itemID": 20587
-  },
-  {
-    "name": "250mm 'Flintlock' Railgun",
-    "itemID": 20589
-  },
-  {
-    "name": "425mm 'Popper' Railgun",
-    "itemID": 20591
-  },
-  {
-    "name": "'Balefire' Rocket Launcher",
-    "itemID": 20593
-  },
-  {
-    "name": "'Gallows' Light Missile Launcher",
-    "itemID": 20595
-  },
-  {
-    "name": "'Pickaxe' Rapid Light Missile Launcher",
-    "itemID": 20597
-  },
-  {
-    "name": "'Undertaker' Heavy Missile Launcher",
-    "itemID": 20599
-  },
-  {
-    "name": "'Noose' Cruise Missile Launcher",
-    "itemID": 20601
-  },
-  {
-    "name": "'Barrage' Torpedo Launcher",
-    "itemID": 20603
-  },
-  {
-    "name": "'Whiskey' Explosive Shield Amplifier",
-    "itemID": 20605
-  },
-  {
-    "name": "'High Noon' Thermal Shield Amplifier",
-    "itemID": 20607
-  },
-  {
-    "name": "'Cactus' Modified Kinetic Shield Amplifier",
-    "itemID": 20609
-  },
-  {
-    "name": "'Prospector' EM Shield Amplifier",
-    "itemID": 20611
-  },
-  {
-    "name": "'Glycerine' Shield Boost Amplifier",
-    "itemID": 20613
-  },
-  {
-    "name": "Small 'Settler' Shield Booster",
-    "itemID": 20617
-  },
-  {
-    "name": "Medium 'Lone Ranger' Shield Booster",
-    "itemID": 20619
-  },
-  {
-    "name": "Large 'Outlaw' Shield Booster",
-    "itemID": 20621
-  },
-  {
-    "name": "X-Large 'Locomotive' Shield Booster",
-    "itemID": 20623
-  },
-  {
-    "name": "Small 'Wolf' Shield Extender",
-    "itemID": 20625
-  },
-  {
-    "name": "Small 'Trapper' Shield Extender",
-    "itemID": 20627
-  },
-  {
-    "name": "Medium 'Canyon' Shield Extender",
-    "itemID": 20629
-  },
-  {
-    "name": "Large 'Sheriff' Shield Extender",
-    "itemID": 20631
-  },
-  {
-    "name": "'Nugget' Kinetic Shield Hardener",
-    "itemID": 20633
-  },
-  {
-    "name": "'Desert Heat' Thermal Shield Hardener",
-    "itemID": 20635
-  },
-  {
-    "name": "'Posse' Multispectrum Shield Hardener",
-    "itemID": 20637
-  },
-  {
-    "name": "'Poacher' EM Shield Hardener",
-    "itemID": 20639
-  },
-  {
-    "name": "'Snake Eyes' Explosive Shield Hardener",
-    "itemID": 20641
-  },
-  {
     "name": "Capital Armor Repairer I",
     "itemID": 20701
   },
@@ -5030,142 +4062,6 @@
   {
     "name": "Cynosural Field Generator I",
     "itemID": 21096
-  },
-  {
-    "name": "Guristas Antimatter Charge S",
-    "itemID": 21334
-  },
-  {
-    "name": "1MN Analog Booster Afterburner",
-    "itemID": 21470
-  },
-  {
-    "name": "10MN Analog Booster Afterburner",
-    "itemID": 21472
-  },
-  {
-    "name": "100MN Analog Booster Afterburner",
-    "itemID": 21474
-  },
-  {
-    "name": "5MN Digital Booster Microwarpdrive",
-    "itemID": 21476
-  },
-  {
-    "name": "50MN Digital Booster Microwarpdrive",
-    "itemID": 21478
-  },
-  {
-    "name": "500MN Digital Booster Microwarpdrive",
-    "itemID": 21480
-  },
-  {
-    "name": "'Full Duplex' Ballistic Control System",
-    "itemID": 21484
-  },
-  {
-    "name": "'Kindred' Gyrostabilizer",
-    "itemID": 21486
-  },
-  {
-    "name": "Synthetic Hull Conversion Overdrive Injector",
-    "itemID": 21491
-  },
-  {
-    "name": "Limited Expanded 'Archiver' Cargo",
-    "itemID": 21493
-  },
-  {
-    "name": "Synthetic Hull Conversion Reinforced Bulkheads",
-    "itemID": 21496
-  },
-  {
-    "name": "Synthetic Hull Conversion Inertia Stabilizers",
-    "itemID": 21498
-  },
-  {
-    "name": "Synthetic Hull Conversion Nanofiber Structure",
-    "itemID": 21500
-  },
-  {
-    "name": "Small 'Integrative' Hull Repair Unit",
-    "itemID": 21504
-  },
-  {
-    "name": "Medium 'Integrative' Hull Repair Unit",
-    "itemID": 21506
-  },
-  {
-    "name": "Large 'Integrative' Hull Repair Unit",
-    "itemID": 21508
-  },
-  {
-    "name": "'Interruptive' Warp Disruptor",
-    "itemID": 21510
-  },
-  {
-    "name": "'Delineative' Warp Scrambler",
-    "itemID": 21512
-  },
-  {
-    "name": "'Firewall' Signal Amplifier",
-    "itemID": 21527
-  },
-  {
-    "name": "Small Degenerative Concussion Bomb I",
-    "itemID": 21534
-  },
-  {
-    "name": "Medium Degenerative Concussion Bomb I",
-    "itemID": 21536
-  },
-  {
-    "name": "Large Degenerative Concussion Bomb I",
-    "itemID": 21538
-  },
-  {
-    "name": "'Inception' Target Painter",
-    "itemID": 21540
-  },
-  {
-    "name": "N-1 Neon Type Rocket Bay",
-    "itemID": 21542
-  },
-  {
-    "name": "200mm Light 'Jolt' Autocannon I",
-    "itemID": 21545
-  },
-  {
-    "name": "250mm Light 'Jolt' Artillery I",
-    "itemID": 21547
-  },
-  {
-    "name": "280mm 'Jolt' Artillery I",
-    "itemID": 21549
-  },
-  {
-    "name": "425mm Medium 'Jolt' Autocannon I",
-    "itemID": 21551
-  },
-  {
-    "name": "650mm Medium 'Jolt' Artillery I",
-    "itemID": 21553
-  },
-  {
-    "name": "720mm 'Jolt' Artillery I",
-    "itemID": 21555
-  },
-  {
-    "name": "800mm Heavy 'Jolt' Repeating Cannon I",
-    "itemID": 21557
-  },
-  {
-    "name": "1200mm Heavy 'Jolt' Artillery I",
-    "itemID": 21559
-  },
-  {
-    "name": "1400mm 'Jolt' Artillery I",
-    "itemID": 21561
   },
   {
     "name": "Vespa II",
@@ -5372,124 +4268,12 @@
     "itemID": 22852
   },
   {
-    "name": "'Aura' Warp Core Stabilizer I",
-    "itemID": 22875
-  },
-  {
-    "name": "'Natura' Warp Core Stabilizer I",
-    "itemID": 22877
-  },
-  {
-    "name": "'Pilfer' Multispectrum Energized Membrane",
-    "itemID": 22879
-  },
-  {
-    "name": "'Moonshine' Thermal Energized Membrane",
-    "itemID": 22881
-  },
-  {
-    "name": "'Mafia' Kinetic Energized Membrane",
-    "itemID": 22883
-  },
-  {
-    "name": "'Harmony' Small Armor Repairer I",
-    "itemID": 22887
-  },
-  {
-    "name": "'Meditation' Medium Armor Repairer I",
-    "itemID": 22889
-  },
-  {
-    "name": "'Protest' Large Armor Repairer I",
-    "itemID": 22891
-  },
-  {
-    "name": "'Shady' Sensor Booster",
-    "itemID": 22895
-  },
-  {
-    "name": "'Corporate' Light Electron Blaster I",
-    "itemID": 22899
-  },
-  {
-    "name": "'Dealer' Light Ion Blaster I",
-    "itemID": 22901
-  },
-  {
-    "name": "'Racket' Light Neutron Blaster I",
-    "itemID": 22903
-  },
-  {
-    "name": "'Slither' Heavy Electron Blaster I",
-    "itemID": 22905
-  },
-  {
-    "name": "'Hooligan' Heavy Ion Blaster I",
-    "itemID": 22907
-  },
-  {
-    "name": "'Hustler' Heavy Neutron Blaster I",
-    "itemID": 22909
-  },
-  {
-    "name": "'Swindler' Electron Blaster Cannon I",
-    "itemID": 22911
-  },
-  {
-    "name": "'Felon' Ion Blaster Cannon I",
-    "itemID": 22913
-  },
-  {
-    "name": "'Underhand' Neutron Blaster Cannon I",
-    "itemID": 22915
-  },
-  {
-    "name": "'Monopoly' Magnetic Field Stabilizer",
-    "itemID": 22919
-  },
-  {
     "name": "'Habitat' Miner I",
     "itemID": 22921
   },
   {
     "name": "'Wild' Miner I",
     "itemID": 22923
-  },
-  {
-    "name": "'Bootleg' Remote Sensor Booster",
-    "itemID": 22925
-  },
-  {
-    "name": "'Marketeer' Tracking Computer",
-    "itemID": 22929
-  },
-  {
-    "name": "'Distributor' Guidance Disruptor",
-    "itemID": 22931
-  },
-  {
-    "name": "'Investor' Tracking Disruptor I",
-    "itemID": 22933
-  },
-  {
-    "name": "'Enterprise' Remote Tracking Computer",
-    "itemID": 22937
-  },
-  {
-    "name": "'Executive' Remote Sensor Dampener",
-    "itemID": 22945
-  },
-  {
-    "name": "'Beatnik' Small Remote Armor Repairer",
-    "itemID": 22947
-  },
-  {
-    "name": "'Love' Medium Remote Armor Repairer",
-    "itemID": 22949
-  },
-  {
-    "name": "'Cartel' Power Diagnostic System I",
-    "itemID": 22953
   },
   {
     "name": "Templar I",
@@ -5506,18 +4290,6 @@
   {
     "name": "Einherji I",
     "itemID": 23061
-  },
-  {
-    "name": "Imperial Navy Multifrequency S",
-    "itemID": 23071
-  },
-  {
-    "name": "'Peace' Large Remote Armor Repairer",
-    "itemID": 23416
-  },
-  {
-    "name": "'Radical' Damage Control",
-    "itemID": 23418
   },
   {
     "name": "Wasp EC-900",
@@ -5648,172 +4420,8 @@
     "itemID": 23773
   },
   {
-    "name": "'Abatis' 100mm Steel Plates",
-    "itemID": 23783
-  },
-  {
-    "name": "'Bailey' 1600mm Steel Plates",
-    "itemID": 23785
-  },
-  {
-    "name": "'Chainmail' 200mm Steel Plates",
-    "itemID": 23787
-  },
-  {
-    "name": "'Bastion' 400mm Steel Plates",
-    "itemID": 23789
-  },
-  {
-    "name": "'Citadella' 100mm Steel Plates",
-    "itemID": 23791
-  },
-  {
-    "name": "'Barbican' 800mm Steel Plates",
-    "itemID": 23793
-  },
-  {
-    "name": "'Gorget' Small Armor Repairer I",
-    "itemID": 23795
-  },
-  {
-    "name": "'Greaves' Medium Armor Repairer I",
-    "itemID": 23797
-  },
-  {
-    "name": "'Hauberk' Large Armor Repairer I",
-    "itemID": 23799
-  },
-  {
-    "name": "'Crucible' Small Cap Battery",
-    "itemID": 23801
-  },
-  {
-    "name": "'Censer' Medium Cap Battery",
-    "itemID": 23803
-  },
-  {
-    "name": "'Thurifer' Large Cap Battery",
-    "itemID": 23805
-  },
-  {
-    "name": "'Saddle' Small Capacitor Booster I",
-    "itemID": 23807
-  },
-  {
-    "name": "'Harness' Medium Capacitor Booster I",
-    "itemID": 23809
-  },
-  {
-    "name": "'Plough' Heavy Capacitor Booster I",
-    "itemID": 23811
-  },
-  {
-    "name": "'Palisade' Cap Recharger I",
-    "itemID": 23813
-  },
-  {
-    "name": "Small 'Caltrop' Energy Neutralizer",
-    "itemID": 23815
-  },
-  {
-    "name": "Medium 'Ditch' Energy Neutralizer",
-    "itemID": 23817
-  },
-  {
-    "name": "Heavy 'Moat' Energy Neutralizer",
-    "itemID": 23819
-  },
-  {
-    "name": "Small 'Upir' Energy Nosferatu",
-    "itemID": 23821
-  },
-  {
-    "name": "Medium 'Strigoi' Energy Nosferatu",
-    "itemID": 23824
-  },
-  {
-    "name": "Heavy 'Vrykolakas' Energy Nosferatu",
-    "itemID": 23829
-  },
-  {
-    "name": "'Mace' Dual Light Beam Laser I",
-    "itemID": 23834
-  },
-  {
-    "name": "'Longbow' Small Focused Pulse Laser I",
-    "itemID": 23836
-  },
-  {
-    "name": "'Gauntlet' Small Focused Beam Laser I",
-    "itemID": 23838
-  },
-  {
-    "name": "'Crossbow' Focused Medium Beam Laser I",
-    "itemID": 23840
-  },
-  {
-    "name": "'Joust' Heavy Pulse Laser I",
-    "itemID": 23842
-  },
-  {
-    "name": "'Arquebus' Heavy Beam Laser I",
-    "itemID": 23844
-  },
-  {
-    "name": "'Halberd' Mega Pulse Laser I",
-    "itemID": 23846
-  },
-  {
-    "name": "'Catapult' Mega Beam Laser I",
-    "itemID": 23848
-  },
-  {
-    "name": "'Ballista' Tachyon Beam Laser I",
-    "itemID": 23850
-  },
-  {
-    "name": "'Squire' Small Remote Capacitor Transmitter",
-    "itemID": 23852
-  },
-  {
-    "name": "'Knight' Medium Remote Capacitor Transmitter",
-    "itemID": 23854
-  },
-  {
-    "name": "'Chivalry' Large Remote Capacitor Transmitter",
-    "itemID": 23856
-  },
-  {
-    "name": "'Pike' Small EMP Smartbomb I",
-    "itemID": 23864
-  },
-  {
-    "name": "'Lance' Medium EMP Smartbomb I",
-    "itemID": 23866
-  },
-  {
-    "name": "'Warhammer' Large EMP Smartbomb I",
-    "itemID": 23868
-  },
-  {
     "name": "Methros Enhanced Decoding Device",
     "itemID": 23883
-  },
-  {
-    "name": "'Page' Capacitor Flux Coil I",
-    "itemID": 23894
-  },
-  {
-    "name": "'Motte' Capacitor Power Relay I",
-    "itemID": 23896
-  },
-  {
-    "name": "'Portcullis' Reactor Control Unit I",
-    "itemID": 23898
-  },
-  {
-    "name": "'Trebuchet' Heat Sink I",
-    "itemID": 23902
   },
   {
     "name": "Thanatos",
@@ -6952,10 +5560,6 @@
     "itemID": 26603
   },
   {
-    "name": "Tempest Tribal Issue",
-    "itemID": 26842
-  },
-  {
     "name": "Mobile Large Warp Disruptor II",
     "itemID": 26888
   },
@@ -7004,326 +5608,6 @@
     "itemID": 27068
   },
   {
-    "name": "Blood Control Tower",
-    "itemID": 27530
-  },
-  {
-    "name": "Dark Blood Control Tower",
-    "itemID": 27532
-  },
-  {
-    "name": "Guristas Control Tower",
-    "itemID": 27533
-  },
-  {
-    "name": "Dread Guristas Control Tower",
-    "itemID": 27535
-  },
-  {
-    "name": "Serpentis Control Tower",
-    "itemID": 27536
-  },
-  {
-    "name": "Shadow Control Tower",
-    "itemID": 27538
-  },
-  {
-    "name": "Angel Control Tower",
-    "itemID": 27539
-  },
-  {
-    "name": "Domination Control Tower",
-    "itemID": 27540
-  },
-  {
-    "name": "Serpentis Large Blaster Battery",
-    "itemID": 27542
-  },
-  {
-    "name": "Shadow Large Blaster Battery",
-    "itemID": 27544
-  },
-  {
-    "name": "Serpentis Large Railgun Battery",
-    "itemID": 27545
-  },
-  {
-    "name": "Shadow Large Railgun Battery",
-    "itemID": 27547
-  },
-  {
-    "name": "Blood Large Pulse Laser Battery",
-    "itemID": 27548
-  },
-  {
-    "name": "Dark Blood Large Pulse Laser Battery",
-    "itemID": 27550
-  },
-  {
-    "name": "Blood Large Beam Laser Battery",
-    "itemID": 27551
-  },
-  {
-    "name": "Dark Blood Large Beam Laser Battery",
-    "itemID": 27553
-  },
-  {
-    "name": "Angel Large AutoCannon Battery",
-    "itemID": 27554
-  },
-  {
-    "name": "Domination Large AutoCannon Battery",
-    "itemID": 27556
-  },
-  {
-    "name": "Angel Large Artillery Battery",
-    "itemID": 27557
-  },
-  {
-    "name": "Domination Large Artillery Battery",
-    "itemID": 27559
-  },
-  {
-    "name": "Guristas XL Torpedo Battery",
-    "itemID": 27560
-  },
-  {
-    "name": "Dread Guristas XL Torpedo Battery",
-    "itemID": 27562
-  },
-  {
-    "name": "Serpentis Warp Disruption Battery",
-    "itemID": 27563
-  },
-  {
-    "name": "Shadow Warp Disruption Battery",
-    "itemID": 27565
-  },
-  {
-    "name": "Serpentis Warp Scrambling Battery",
-    "itemID": 27567
-  },
-  {
-    "name": "Shadow Warp Scrambling Battery",
-    "itemID": 27569
-  },
-  {
-    "name": "Angel Stasis Webification Battery",
-    "itemID": 27570
-  },
-  {
-    "name": "Domination Stasis Webification Battery",
-    "itemID": 27573
-  },
-  {
-    "name": "Guristas Ion Field Projection Battery",
-    "itemID": 27574
-  },
-  {
-    "name": "Dread Guristas Ion Field Projection Battery",
-    "itemID": 27576
-  },
-  {
-    "name": "Guristas Phase Inversion Battery",
-    "itemID": 27577
-  },
-  {
-    "name": "Dread Guristas Phase Inversion Battery",
-    "itemID": 27579
-  },
-  {
-    "name": "Guristas Spatial Destabilization Battery",
-    "itemID": 27580
-  },
-  {
-    "name": "Dread Guristas Spatial Destabilization Battery",
-    "itemID": 27582
-  },
-  {
-    "name": "Guristas White Noise Generation Battery",
-    "itemID": 27583
-  },
-  {
-    "name": "Dread Guristas White Noise Generation Battery",
-    "itemID": 27585
-  },
-  {
-    "name": "Blood Control Tower Medium",
-    "itemID": 27589
-  },
-  {
-    "name": "Dark Blood Control Tower Medium",
-    "itemID": 27591
-  },
-  {
-    "name": "Blood Control Tower Small",
-    "itemID": 27592
-  },
-  {
-    "name": "Dark Blood Control Tower Small",
-    "itemID": 27594
-  },
-  {
-    "name": "Guristas Control Tower Medium",
-    "itemID": 27595
-  },
-  {
-    "name": "Dread Guristas Control Tower Medium",
-    "itemID": 27597
-  },
-  {
-    "name": "Guristas Control Tower Small",
-    "itemID": 27598
-  },
-  {
-    "name": "Dread Guristas Control Tower Small",
-    "itemID": 27600
-  },
-  {
-    "name": "Serpentis Control Tower Medium",
-    "itemID": 27601
-  },
-  {
-    "name": "Shadow Control Tower Medium",
-    "itemID": 27603
-  },
-  {
-    "name": "Serpentis Control Tower Small",
-    "itemID": 27604
-  },
-  {
-    "name": "Shadow Control Tower Small",
-    "itemID": 27606
-  },
-  {
-    "name": "Angel Control Tower Medium",
-    "itemID": 27607
-  },
-  {
-    "name": "Domination Control Tower Medium",
-    "itemID": 27609
-  },
-  {
-    "name": "Angel Control Tower Small",
-    "itemID": 27610
-  },
-  {
-    "name": "Domination Control Tower Small",
-    "itemID": 27612
-  },
-  {
-    "name": "Serpentis Medium Blaster Battery",
-    "itemID": 27613
-  },
-  {
-    "name": "Shadow Medium Blaster Battery",
-    "itemID": 27615
-  },
-  {
-    "name": "Serpentis Medium Railgun Battery",
-    "itemID": 27616
-  },
-  {
-    "name": "Shadow Medium Railgun Battery",
-    "itemID": 27618
-  },
-  {
-    "name": "Serpentis Small Blaster Battery",
-    "itemID": 27619
-  },
-  {
-    "name": "Shadow Small Blaster Battery",
-    "itemID": 27621
-  },
-  {
-    "name": "Serpentis Small Railgun Battery",
-    "itemID": 27622
-  },
-  {
-    "name": "Shadow Small Railgun Battery",
-    "itemID": 27624
-  },
-  {
-    "name": "Blood Medium Beam Laser Battery",
-    "itemID": 27625
-  },
-  {
-    "name": "Dark Blood Medium Beam Laser Battery",
-    "itemID": 27627
-  },
-  {
-    "name": "Blood Medium Pulse Laser Battery",
-    "itemID": 27628
-  },
-  {
-    "name": "Dark Blood Medium Pulse Laser Battery",
-    "itemID": 27630
-  },
-  {
-    "name": "Blood Small Beam Laser Battery",
-    "itemID": 27631
-  },
-  {
-    "name": "Dark Blood Small Beam Laser Battery",
-    "itemID": 27633
-  },
-  {
-    "name": "Blood Small Pulse Laser Battery",
-    "itemID": 27634
-  },
-  {
-    "name": "Dark Blood Small Pulse Laser Battery",
-    "itemID": 27636
-  },
-  {
-    "name": "Guristas Cruise Missile Battery",
-    "itemID": 27638
-  },
-  {
-    "name": "Dread Guristas Cruise Missile Battery",
-    "itemID": 27640
-  },
-  {
-    "name": "Guristas Torpedo Battery",
-    "itemID": 27641
-  },
-  {
-    "name": "Dread Guristas Torpedo Battery",
-    "itemID": 27643
-  },
-  {
-    "name": "Angel Medium Artillery Battery",
-    "itemID": 27644
-  },
-  {
-    "name": "Domination Medium Artillery Battery",
-    "itemID": 27646
-  },
-  {
-    "name": "Angel Medium AutoCannon Battery",
-    "itemID": 27647
-  },
-  {
-    "name": "Domination Medium AutoCannon Battery",
-    "itemID": 27649
-  },
-  {
-    "name": "Angel Small Artillery Battery",
-    "itemID": 27650
-  },
-  {
-    "name": "Domination Small Artillery Battery",
-    "itemID": 27652
-  },
-  {
-    "name": "Angel Small AutoCannon Battery",
-    "itemID": 27653
-  },
-  {
-    "name": "Domination Small AutoCannon Battery",
-    "itemID": 27655
-  },
-  {
     "name": "Energy Neutralizing Battery",
     "itemID": 27672
   },
@@ -7338,102 +5622,6 @@
   {
     "name": "ECM Jammer Burst Projector",
     "itemID": 27678
-  },
-  {
-    "name": "Sansha Large Beam Laser Battery",
-    "itemID": 27766
-  },
-  {
-    "name": "Sansha Large Pulse Laser Battery",
-    "itemID": 27767
-  },
-  {
-    "name": "Sansha Medium Beam Laser Battery",
-    "itemID": 27768
-  },
-  {
-    "name": "Sansha Medium Pulse Laser Battery",
-    "itemID": 27769
-  },
-  {
-    "name": "Sansha Small Beam Laser Battery",
-    "itemID": 27770
-  },
-  {
-    "name": "Sansha Small Pulse Laser Battery",
-    "itemID": 27771
-  },
-  {
-    "name": "True Sansha Large Beam Laser Battery",
-    "itemID": 27772
-  },
-  {
-    "name": "True Sansha Large Pulse Laser Battery",
-    "itemID": 27773
-  },
-  {
-    "name": "True Sansha Medium Beam Laser Battery",
-    "itemID": 27774
-  },
-  {
-    "name": "True Sansha Medium Pulse Laser Battery",
-    "itemID": 27775
-  },
-  {
-    "name": "True Sansha Small Beam Laser Battery",
-    "itemID": 27776
-  },
-  {
-    "name": "True Sansha Small Pulse Laser Battery",
-    "itemID": 27777
-  },
-  {
-    "name": "Serpentis Sensor Dampening Battery",
-    "itemID": 27778
-  },
-  {
-    "name": "Shadow Sensor Dampening Battery",
-    "itemID": 27779
-  },
-  {
-    "name": "Sansha Control Tower",
-    "itemID": 27780
-  },
-  {
-    "name": "Sansha Control Tower Medium",
-    "itemID": 27782
-  },
-  {
-    "name": "Sansha Control Tower Small",
-    "itemID": 27784
-  },
-  {
-    "name": "True Sansha Control Tower",
-    "itemID": 27786
-  },
-  {
-    "name": "True Sansha Control Tower Medium",
-    "itemID": 27788
-  },
-  {
-    "name": "True Sansha Control Tower Small",
-    "itemID": 27790
-  },
-  {
-    "name": "Sansha Energy Neutralizing Battery",
-    "itemID": 27855
-  },
-  {
-    "name": "True Sansha Energy Neutralizing Battery",
-    "itemID": 27856
-  },
-  {
-    "name": "Blood Energy Neutralizing Battery",
-    "itemID": 27857
-  },
-  {
-    "name": "Dark Blood Energy Neutralizing Battery",
-    "itemID": 27858
   },
   {
     "name": "Large Remote Hull Repairer I",
@@ -7524,260 +5712,8 @@
     "itemID": 28215
   },
   {
-    "name": "'Integrated' Acolyte",
-    "itemID": 28262
-  },
-  {
-    "name": "'Augmented' Acolyte",
-    "itemID": 28264
-  },
-  {
-    "name": "'Integrated' Berserker",
-    "itemID": 28266
-  },
-  {
-    "name": "'Augmented' Berserker",
-    "itemID": 28268
-  },
-  {
-    "name": "'Integrated' Hammerhead",
-    "itemID": 28270
-  },
-  {
-    "name": "'Augmented' Hammerhead",
-    "itemID": 28272
-  },
-  {
-    "name": "'Integrated' Hobgoblin",
-    "itemID": 28274
-  },
-  {
-    "name": "'Augmented' Hobgoblin",
-    "itemID": 28276
-  },
-  {
-    "name": "'Integrated' Hornet",
-    "itemID": 28278
-  },
-  {
-    "name": "'Augmented' Hornet",
-    "itemID": 28280
-  },
-  {
-    "name": "'Integrated' Infiltrator",
-    "itemID": 28282
-  },
-  {
-    "name": "'Augmented' Infiltrator",
-    "itemID": 28284
-  },
-  {
-    "name": "'Integrated' Ogre",
-    "itemID": 28286
-  },
-  {
-    "name": "'Augmented' Ogre",
-    "itemID": 28288
-  },
-  {
-    "name": "'Integrated' Praetor",
-    "itemID": 28290
-  },
-  {
-    "name": "'Augmented' Praetor",
-    "itemID": 28292
-  },
-  {
-    "name": "'Integrated' Valkyrie",
-    "itemID": 28294
-  },
-  {
-    "name": "'Augmented' Valkyrie",
-    "itemID": 28296
-  },
-  {
-    "name": "'Integrated' Vespa",
-    "itemID": 28298
-  },
-  {
-    "name": "'Augmented' Vespa",
-    "itemID": 28300
-  },
-  {
-    "name": "'Integrated' Warrior",
-    "itemID": 28302
-  },
-  {
-    "name": "'Augmented' Warrior",
-    "itemID": 28304
-  },
-  {
-    "name": "'Integrated' Wasp",
-    "itemID": 28306
-  },
-  {
-    "name": "'Augmented' Wasp",
-    "itemID": 28308
-  },
-  {
-    "name": "Republic Fleet Carbonized Lead L",
-    "itemID": 28324
-  },
-  {
-    "name": "Republic Fleet Carbonized Lead M",
-    "itemID": 28326
-  },
-  {
-    "name": "Republic Fleet Carbonized Lead S",
-    "itemID": 28328
-  },
-  {
-    "name": "Republic Fleet Carbonized Lead XL",
-    "itemID": 28330
-  },
-  {
-    "name": "Republic Fleet Depleted Uranium L",
-    "itemID": 28332
-  },
-  {
-    "name": "Republic Fleet Depleted Uranium M",
-    "itemID": 28334
-  },
-  {
-    "name": "Republic Fleet Depleted Uranium S",
-    "itemID": 28336
-  },
-  {
-    "name": "Republic Fleet Depleted Uranium XL",
-    "itemID": 28338
-  },
-  {
     "name": "Rorqual",
     "itemID": 28352
-  },
-  {
-    "name": "Republic Fleet Heavy Assault Missile Launcher",
-    "itemID": 28375
-  },
-  {
-    "name": "Caldari Navy Heavy Assault Missile Launcher",
-    "itemID": 28377
-  },
-  {
-    "name": "Domination Heavy Assault Missile Launcher",
-    "itemID": 28379
-  },
-  {
-    "name": "Dread Guristas Heavy Assault Missile Launcher",
-    "itemID": 28381
-  },
-  {
-    "name": "True Sansha Heavy Assault Missile Launcher",
-    "itemID": 28383
-  },
-  {
-    "name": "Khanid Navy Rocket Launcher",
-    "itemID": 28511
-  },
-  {
-    "name": "Khanid Navy Stasis Webifier",
-    "itemID": 28514
-  },
-  {
-    "name": "Khanid Navy Warp Disruptor",
-    "itemID": 28516
-  },
-  {
-    "name": "Khanid Navy Warp Scrambler",
-    "itemID": 28518
-  },
-  {
-    "name": "Khanid Navy Multispectrum Coating",
-    "itemID": 28520
-  },
-  {
-    "name": "Khanid Navy EM Armor Hardener",
-    "itemID": 28522
-  },
-  {
-    "name": "Khanid Navy Explosive Armor Hardener",
-    "itemID": 28524
-  },
-  {
-    "name": "Khanid Navy Kinetic Armor Hardener",
-    "itemID": 28526
-  },
-  {
-    "name": "Khanid Navy Thermal Armor Hardener",
-    "itemID": 28528
-  },
-  {
-    "name": "Khanid Navy Cap Recharger",
-    "itemID": 28530
-  },
-  {
-    "name": "Khanid Navy Capacitor Power Relay",
-    "itemID": 28532
-  },
-  {
-    "name": "Khanid Navy Multispectrum Energized Membrane",
-    "itemID": 28534
-  },
-  {
-    "name": "Khanid Navy Kinetic Energized Membrane",
-    "itemID": 28536
-  },
-  {
-    "name": "Khanid Navy Explosive Energized Membrane",
-    "itemID": 28538
-  },
-  {
-    "name": "Khanid Navy EM Energized Membrane",
-    "itemID": 28540
-  },
-  {
-    "name": "Khanid Navy Thermal Energized Membrane",
-    "itemID": 28542
-  },
-  {
-    "name": "Khanid Navy Large EMP Smartbomb",
-    "itemID": 28545
-  },
-  {
-    "name": "Khanid Navy Kinetic Coating",
-    "itemID": 28547
-  },
-  {
-    "name": "Khanid Navy Medium EMP Smartbomb",
-    "itemID": 28550
-  },
-  {
-    "name": "Khanid Navy Explosive Coating",
-    "itemID": 28552
-  },
-  {
-    "name": "Khanid Navy EM Coating",
-    "itemID": 28554
-  },
-  {
-    "name": "Khanid Navy Small EMP Smartbomb",
-    "itemID": 28557
-  },
-  {
-    "name": "Khanid Navy Thermal Coating",
-    "itemID": 28559
-  },
-  {
-    "name": "Khanid Navy Co-Processor",
-    "itemID": 28561
-  },
-  {
-    "name": "Khanid Navy Ballistic Control System",
-    "itemID": 28563
-  },
-  {
-    "name": "Khanid Navy Heavy Assault Missile Launcher",
-    "itemID": 28565
   },
   {
     "name": "Mining Laser Upgrade II",
@@ -7858,106 +5794,6 @@
   {
     "name": "Golem",
     "itemID": 28710
-  },
-  {
-    "name": "Legion Magnetometric ECM",
-    "itemID": 28729
-  },
-  {
-    "name": "Legion Multispectral ECM",
-    "itemID": 28731
-  },
-  {
-    "name": "Legion Ladar ECM",
-    "itemID": 28733
-  },
-  {
-    "name": "Legion Gravimetric ECM",
-    "itemID": 28735
-  },
-  {
-    "name": "Legion Radar ECM",
-    "itemID": 28737
-  },
-  {
-    "name": "Thukker Micro Auxiliary Power Core",
-    "itemID": 28740
-  },
-  {
-    "name": "Thukker Small Shield Extender",
-    "itemID": 28742
-  },
-  {
-    "name": "Thukker Large Shield Extender",
-    "itemID": 28744
-  },
-  {
-    "name": "Thukker Medium Shield Extender",
-    "itemID": 28746
-  },
-  {
-    "name": "ORE Deep Core Mining Laser",
-    "itemID": 28748
-  },
-  {
-    "name": "ORE Miner",
-    "itemID": 28750
-  },
-  {
-    "name": "ORE Ice Harvester",
-    "itemID": 28752
-  },
-  {
-    "name": "ORE Strip Miner",
-    "itemID": 28754
-  },
-  {
-    "name": "Sisters Expanded Probe Launcher",
-    "itemID": 28756
-  },
-  {
-    "name": "Sisters Core Probe Launcher",
-    "itemID": 28758
-  },
-  {
-    "name": "Syndicate Mobile Large Warp Disruptor",
-    "itemID": 28770
-  },
-  {
-    "name": "Syndicate Mobile Medium Warp Disruptor",
-    "itemID": 28772
-  },
-  {
-    "name": "Syndicate Mobile Small Warp Disruptor",
-    "itemID": 28774
-  },
-  {
-    "name": "Syndicate Reactor Control Unit",
-    "itemID": 28776
-  },
-  {
-    "name": "Syndicate 100mm Steel Plates",
-    "itemID": 28778
-  },
-  {
-    "name": "Syndicate 1600mm Steel Plates",
-    "itemID": 28780
-  },
-  {
-    "name": "Syndicate 200mm Steel Plates",
-    "itemID": 28782
-  },
-  {
-    "name": "Syndicate 400mm Steel Plates",
-    "itemID": 28784
-  },
-  {
-    "name": "Syndicate 800mm Steel Plates",
-    "itemID": 28786
-  },
-  {
-    "name": "Syndicate Gas Cloud Harvester",
-    "itemID": 28788
   },
   {
     "name": "Rhea",
@@ -8164,22 +6000,6 @@
     "itemID": 29248
   },
   {
-    "name": "Scythe Fleet Issue",
-    "itemID": 29336
-  },
-  {
-    "name": "Augoror Navy Issue",
-    "itemID": 29337
-  },
-  {
-    "name": "Osprey Navy Issue",
-    "itemID": 29340
-  },
-  {
-    "name": "Exequror Navy Issue",
-    "itemID": 29344
-  },
-  {
     "name": "Large Ship Assembly Array",
     "itemID": 29613
   },
@@ -8206,22 +6026,6 @@
   {
     "name": "Unrefined Hyperflurite",
     "itemID": 29664
-  },
-  {
-    "name": "Tengu",
-    "itemID": 29984
-  },
-  {
-    "name": "Legion",
-    "itemID": 29986
-  },
-  {
-    "name": "Proteus",
-    "itemID": 29988
-  },
-  {
-    "name": "Loki",
-    "itemID": 29990
   },
   {
     "name": "Optimized Nano-Engines",
@@ -10000,158 +7804,6 @@
     "itemID": 31826
   },
   {
-    "name": "Imperial Navy Acolyte",
-    "itemID": 31864
-  },
-  {
-    "name": "Imperial Navy Infiltrator",
-    "itemID": 31866
-  },
-  {
-    "name": "Imperial Navy Curator",
-    "itemID": 31868
-  },
-  {
-    "name": "Imperial Navy Praetor",
-    "itemID": 31870
-  },
-  {
-    "name": "Caldari Navy Hornet",
-    "itemID": 31872
-  },
-  {
-    "name": "Caldari Navy Vespa",
-    "itemID": 31874
-  },
-  {
-    "name": "Caldari Navy Wasp",
-    "itemID": 31876
-  },
-  {
-    "name": "Caldari Navy Warden",
-    "itemID": 31878
-  },
-  {
-    "name": "Federation Navy Hobgoblin",
-    "itemID": 31880
-  },
-  {
-    "name": "Federation Navy Hammerhead",
-    "itemID": 31882
-  },
-  {
-    "name": "Federation Navy Ogre",
-    "itemID": 31884
-  },
-  {
-    "name": "Federation Navy Garde",
-    "itemID": 31886
-  },
-  {
-    "name": "Republic Fleet Warrior",
-    "itemID": 31888
-  },
-  {
-    "name": "Republic Fleet Valkyrie",
-    "itemID": 31890
-  },
-  {
-    "name": "Republic Fleet Berserker",
-    "itemID": 31892
-  },
-  {
-    "name": "Republic Fleet Bouncer",
-    "itemID": 31894
-  },
-  {
-    "name": "Imperial Navy 100mm Steel Plates",
-    "itemID": 31896
-  },
-  {
-    "name": "Federation Navy 100mm Steel Plates",
-    "itemID": 31898
-  },
-  {
-    "name": "Imperial Navy 1600mm Steel Plates",
-    "itemID": 31900
-  },
-  {
-    "name": "Federation Navy 1600mm Steel Plates",
-    "itemID": 31902
-  },
-  {
-    "name": "Imperial Navy 200mm Steel Plates",
-    "itemID": 31904
-  },
-  {
-    "name": "Federation Navy 200mm Steel Plates",
-    "itemID": 31906
-  },
-  {
-    "name": "Imperial Navy 400mm Steel Plates",
-    "itemID": 31908
-  },
-  {
-    "name": "Federation Navy 400mm Steel Plates",
-    "itemID": 31910
-  },
-  {
-    "name": "Imperial Navy 800mm Steel Plates",
-    "itemID": 31916
-  },
-  {
-    "name": "Federation Navy 800mm Steel Plates",
-    "itemID": 31918
-  },
-  {
-    "name": "Caldari Navy Small Shield Extender",
-    "itemID": 31922
-  },
-  {
-    "name": "Republic Fleet Small Shield Extender",
-    "itemID": 31924
-  },
-  {
-    "name": "Caldari Navy Medium Shield Extender",
-    "itemID": 31926
-  },
-  {
-    "name": "Republic Fleet Medium Shield Extender",
-    "itemID": 31928
-  },
-  {
-    "name": "Caldari Navy Large Shield Extender",
-    "itemID": 31930
-  },
-  {
-    "name": "Republic Fleet Large Shield Extender",
-    "itemID": 31932
-  },
-  {
-    "name": "Federation Navy Omnidirectional Tracking Link",
-    "itemID": 31942
-  },
-  {
-    "name": "Republic Fleet Target Painter",
-    "itemID": 31944
-  },
-  {
-    "name": "Imperial Navy Large Remote Capacitor Transmitter",
-    "itemID": 31946
-  },
-  {
-    "name": "Imperial Navy Medium Remote Capacitor Transmitter",
-    "itemID": 31948
-  },
-  {
-    "name": "Imperial Navy Small Remote Capacitor Transmitter",
-    "itemID": 31950
-  },
-  {
-    "name": "Caldari Navy Power Diagnostic System",
-    "itemID": 31952
-  },
-  {
     "name": "Small Drone Control Range Augmentor I",
     "itemID": 32025
   },
@@ -10280,32 +7932,8 @@
     "itemID": 32095
   },
   {
-    "name": "Freki",
-    "itemID": 32207
-  },
-  {
-    "name": "Mimir",
-    "itemID": 32209
-  },
-  {
     "name": "Territorial Claim Unit",
     "itemID": 32226
-  },
-  {
-    "name": "Armageddon Navy Issue",
-    "itemID": 32305
-  },
-  {
-    "name": "Dominix Navy Issue",
-    "itemID": 32307
-  },
-  {
-    "name": "Scorpion Navy Issue",
-    "itemID": 32309
-  },
-  {
-    "name": "Typhoon Fleet Issue",
-    "itemID": 32311
   },
   {
     "name": "Cyclops I",
@@ -10322,10 +7950,6 @@
   {
     "name": "Mantis I",
     "itemID": 32344
-  },
-  {
-    "name": "Domination Target Painter",
-    "itemID": 32414
   },
   {
     "name": "Advanced Logistics Network",
@@ -10374,22 +7998,6 @@
   {
     "name": "Salvage Drone I",
     "itemID": 32787
-  },
-  {
-    "name": "Cambion",
-    "itemID": 32788
-  },
-  {
-    "name": "Etana",
-    "itemID": 32790
-  },
-  {
-    "name": "Ammatar Navy Thermal Coating",
-    "itemID": 32809
-  },
-  {
-    "name": "Miasmos Amastris Edition",
-    "itemID": 32811
   },
   {
     "name": "Medium Mercoxit Mining Crystal Optimization I",
@@ -10476,6 +8084,10 @@
     "itemID": 33011
   },
   {
+    "name": "Deactivated Station Key Pass",
+    "itemID": 33017
+  },
+  {
     "name": "Small Ancillary Armor Repairer",
     "itemID": 33076
   },
@@ -10490,22 +8102,6 @@
   {
     "name": "Personal Hangar Array",
     "itemID": 33149
-  },
-  {
-    "name": "Brutix Navy Issue",
-    "itemID": 33151
-  },
-  {
-    "name": "Drake Navy Issue",
-    "itemID": 33153
-  },
-  {
-    "name": "Harbinger Navy Issue",
-    "itemID": 33155
-  },
-  {
-    "name": "Hurricane Fleet Issue",
-    "itemID": 33157
   },
   {
     "name": "Scan Acquisition Array I",
@@ -10652,20 +8248,8 @@
     "itemID": 33362
   },
   {
-    "name": "Moracha",
-    "itemID": 33395
-  },
-  {
-    "name": "Chremoas",
-    "itemID": 33397
-  },
-  {
     "name": "Bastion Module I",
     "itemID": 33400
-  },
-  {
-    "name": "Caldari Navy Rapid Heavy Missile Launcher",
-    "itemID": 33446
   },
   {
     "name": "Rapid Heavy Missile Launcher I",
@@ -10674,22 +8258,6 @@
   {
     "name": "Rapid Heavy Missile Launcher II",
     "itemID": 33450
-  },
-  {
-    "name": "Republic Fleet Rapid Heavy Missile Launcher",
-    "itemID": 33459
-  },
-  {
-    "name": "Astero",
-    "itemID": 33468
-  },
-  {
-    "name": "Stratios",
-    "itemID": 33470
-  },
-  {
-    "name": "Nestor",
-    "itemID": 33472
   },
   {
     "name": "Mobile Depot",
@@ -10714,10 +8282,6 @@
   {
     "name": "'Yurt' Mobile Depot",
     "itemID": 33522
-  },
-  {
-    "name": "Stratios Emergency Responder",
-    "itemID": 33553
   },
   {
     "name": "Small Mobile 'Hybrid' Siphon Unit",
@@ -10764,10 +8328,6 @@
     "itemID": 33675
   },
   {
-    "name": "Gecko",
-    "itemID": 33681
-  },
-  {
     "name": "Prospect",
     "itemID": 33697
   },
@@ -10800,28 +8360,12 @@
     "itemID": 33712
   },
   {
-    "name": "Garmur",
-    "itemID": 33816
-  },
-  {
-    "name": "Orthrus",
-    "itemID": 33818
-  },
-  {
-    "name": "Barghest",
-    "itemID": 33820
-  },
-  {
     "name": "Omnidirectional Tracking Enhancer I",
     "itemID": 33822
   },
   {
     "name": "Omnidirectional Tracking Enhancer II",
     "itemID": 33824
-  },
-  {
-    "name": "Thukker Component Assembly Array",
-    "itemID": 33867
   },
   {
     "name": "Small Transverse Bulkhead I",
@@ -10948,24 +8492,12 @@
     "itemID": 34308
   },
   {
-    "name": "Confessor",
-    "itemID": 34317
-  },
-  {
     "name": "Bowhead",
     "itemID": 34328
   },
   {
     "name": "Self-Assembling Nanolattice",
     "itemID": 34396
-  },
-  {
-    "name": "Svipul",
-    "itemID": 34562
-  },
-  {
-    "name": "Victorieux Luxury Yacht",
-    "itemID": 34590
   },
   {
     "name": "Entosis Link I",
@@ -10976,28 +8508,12 @@
     "itemID": 34595
   },
   {
-    "name": "Jackdaw",
-    "itemID": 34828
-  },
-  {
-    "name": "Hecate",
-    "itemID": 35683
-  },
-  {
     "name": "Missile Guidance Enhancer I",
     "itemID": 35770
   },
   {
     "name": "Missile Guidance Enhancer II",
     "itemID": 35771
-  },
-  {
-    "name": "Imp",
-    "itemID": 35779
-  },
-  {
-    "name": "Fiend",
-    "itemID": 35781
   },
   {
     "name": "Missile Guidance Computer I",
@@ -11056,114 +8572,6 @@
     "itemID": 35841
   },
   {
-    "name": "Standup Supercapital Shipyard I",
-    "itemID": 35877
-  },
-  {
-    "name": "Standup Manufacturing Plant I",
-    "itemID": 35878
-  },
-  {
-    "name": "Standup Capital Shipyard I",
-    "itemID": 35881
-  },
-  {
-    "name": "Standup Invention Lab I",
-    "itemID": 35886
-  },
-  {
-    "name": "Standup Research Lab I",
-    "itemID": 35891
-  },
-  {
-    "name": "Standup Market Hub I",
-    "itemID": 35892
-  },
-  {
-    "name": "Standup Cloning Center I",
-    "itemID": 35894
-  },
-  {
-    "name": "Standup Reprocessing Facility I",
-    "itemID": 35899
-  },
-  {
-    "name": "Structure Compression Plant",
-    "itemID": 35900
-  },
-  {
-    "name": "Standup Anticapital Missile Launcher I",
-    "itemID": 35921
-  },
-  {
-    "name": "Standup Multirole Missile Launcher I",
-    "itemID": 35922
-  },
-  {
-    "name": "Standup Guided Bomb Launcher I",
-    "itemID": 35923
-  },
-  {
-    "name": "Standup XL Energy Neutralizer I",
-    "itemID": 35924
-  },
-  {
-    "name": "Standup Heavy Energy Neutralizer I",
-    "itemID": 35925
-  },
-  {
-    "name": "Standup Point Defense Battery I",
-    "itemID": 35926
-  },
-  {
-    "name": "Standup Arcing Vorton Projector I",
-    "itemID": 35928
-  },
-  {
-    "name": "Standup Variable Spectrum ECM I",
-    "itemID": 35940
-  },
-  {
-    "name": "Standup Remote Sensor Dampener I",
-    "itemID": 35941
-  },
-  {
-    "name": "Standup Stasis Webifier I",
-    "itemID": 35943
-  },
-  {
-    "name": "Standup Energy Neutralization Burst Projector",
-    "itemID": 35944
-  },
-  {
-    "name": "Standup Weapon Disruptor I",
-    "itemID": 35945
-  },
-  {
-    "name": "Standup Target Painter I",
-    "itemID": 35947
-  },
-  {
-    "name": "Standup Focused Warp Disruptor I",
-    "itemID": 35949
-  },
-  {
-    "name": "Standup Ballistic Control System I",
-    "itemID": 35959
-  },
-  {
-    "name": "Standup Missile Guidance Enhancer I",
-    "itemID": 35962
-  },
-  {
-    "name": "Standup Co-Processor Array I",
-    "itemID": 35963
-  },
-  {
-    "name": "Standup Reactor Control Unit I",
-    "itemID": 35965
-  },
-  {
     "name": "Coalesced Element",
     "itemID": 36902
   },
@@ -11184,286 +8592,6 @@
     "itemID": 37135
   },
   {
-    "name": "Standup M-Set Basic Medium Ship Manufacturing Material Efficiency I",
-    "itemID": 37146
-  },
-  {
-    "name": "Standup M-Set Basic Medium Ship Manufacturing Material Efficiency II",
-    "itemID": 37147
-  },
-  {
-    "name": "Standup M-Set Drone and Fighter Manufacturing Time Efficiency I",
-    "itemID": 37148
-  },
-  {
-    "name": "Standup M-Set Drone and Fighter Manufacturing Time Efficiency II",
-    "itemID": 37149
-  },
-  {
-    "name": "Standup M-Set Ammunition Manufacturing Time Efficiency I",
-    "itemID": 37150
-  },
-  {
-    "name": "Standup M-Set Ammunition Manufacturing Time Efficiency II",
-    "itemID": 37151
-  },
-  {
-    "name": "Standup M-Set Basic Large Ship Manufacturing Material Efficiency II",
-    "itemID": 37152
-  },
-  {
-    "name": "Standup M-Set Basic Medium Ship Manufacturing Time Efficiency II",
-    "itemID": 37153
-  },
-  {
-    "name": "Standup M-Set Basic Small Ship Manufacturing Material Efficiency I",
-    "itemID": 37154
-  },
-  {
-    "name": "Standup M-Set Basic Small Ship Manufacturing Material Efficiency II",
-    "itemID": 37155
-  },
-  {
-    "name": "Standup M-Set Drone and Fighter Manufacturing Material Efficiency I",
-    "itemID": 37156
-  },
-  {
-    "name": "Standup M-Set Drone and Fighter Manufacturing Material Efficiency II",
-    "itemID": 37157
-  },
-  {
-    "name": "Standup M-Set Ammunition Manufacturing Material Efficiency I",
-    "itemID": 37158
-  },
-  {
-    "name": "Standup M-Set Ammunition Manufacturing Material Efficiency II",
-    "itemID": 37159
-  },
-  {
-    "name": "Standup M-Set Equipment Manufacturing Time Efficiency I",
-    "itemID": 37160
-  },
-  {
-    "name": "Standup M-Set Equipment Manufacturing Time Efficiency II",
-    "itemID": 37161
-  },
-  {
-    "name": "Standup M-Set Basic Small Ship Manufacturing Time Efficiency I",
-    "itemID": 37162
-  },
-  {
-    "name": "Standup M-Set Basic Small Ship Manufacturing Time Efficiency II",
-    "itemID": 37163
-  },
-  {
-    "name": "Standup L-Set Ammunition Manufacturing Efficiency I",
-    "itemID": 37164
-  },
-  {
-    "name": "Standup L-Set Ammunition Manufacturing Efficiency II",
-    "itemID": 37165
-  },
-  {
-    "name": "Standup L-Set Basic Large Ship Manufacturing Efficiency I",
-    "itemID": 37166
-  },
-  {
-    "name": "Standup L-Set Basic Large Ship Manufacturing Efficiency II",
-    "itemID": 37167
-  },
-  {
-    "name": "Standup L-Set Advanced Large Ship Manufacturing Efficiency I",
-    "itemID": 37168
-  },
-  {
-    "name": "Standup L-Set Advanced Large Ship Manufacturing Efficiency II",
-    "itemID": 37169
-  },
-  {
-    "name": "Standup L-Set Equipment Manufacturing Efficiency I",
-    "itemID": 37170
-  },
-  {
-    "name": "Standup L-Set Equipment Manufacturing Efficiency II",
-    "itemID": 37171
-  },
-  {
-    "name": "Standup L-Set Capital Ship Manufacturing Efficiency II",
-    "itemID": 37172
-  },
-  {
-    "name": "Standup L-Set Capital Ship Manufacturing Efficiency I",
-    "itemID": 37173
-  },
-  {
-    "name": "Standup L-Set Advanced Component Manufacturing Efficiency I",
-    "itemID": 37174
-  },
-  {
-    "name": "Standup L-Set Advanced Component Manufacturing Efficiency II",
-    "itemID": 37175
-  },
-  {
-    "name": "Standup XL-Set Equipment and Consumable Manufacturing Efficiency I",
-    "itemID": 37178
-  },
-  {
-    "name": "Standup XL-Set Equipment and Consumable Manufacturing Efficiency II",
-    "itemID": 37179
-  },
-  {
-    "name": "Standup XL-Set Ship Manufacturing Efficiency I",
-    "itemID": 37180
-  },
-  {
-    "name": "Standup XL-Set Ship Manufacturing Efficiency II",
-    "itemID": 37181
-  },
-  {
-    "name": "Standup XL-Set Laboratory Optimization II",
-    "itemID": 37182
-  },
-  {
-    "name": "Standup XL-Set Laboratory Optimization I",
-    "itemID": 37183
-  },
-  {
-    "name": "Standup M-Set Missile Precision I",
-    "itemID": 37216
-  },
-  {
-    "name": "Standup M-Set Missile Precision II",
-    "itemID": 37217
-  },
-  {
-    "name": "Standup M-Set Energy Neutralizer Projection I",
-    "itemID": 37218
-  },
-  {
-    "name": "Standup M-Set Energy Neutralizer Projection II",
-    "itemID": 37219
-  },
-  {
-    "name": "Standup M-Set Missile Projection I",
-    "itemID": 37220
-  },
-  {
-    "name": "Standup M-Set Missile Projection II",
-    "itemID": 37221
-  },
-  {
-    "name": "Standup M-Set Energy Neutralizer Economy I",
-    "itemID": 37222
-  },
-  {
-    "name": "Standup M-Set Energy Neutralizer Economy II",
-    "itemID": 37223
-  },
-  {
-    "name": "Standup M-Set Electronic Warfare Projection I",
-    "itemID": 37228
-  },
-  {
-    "name": "Standup M-Set Electronic Warfare Projection II",
-    "itemID": 37229
-  },
-  {
-    "name": "Standup M-Set Electronic Warfare Economy I",
-    "itemID": 37230
-  },
-  {
-    "name": "Standup M-Set Electronic Warfare Economy II",
-    "itemID": 37231
-  },
-  {
-    "name": "Standup M-Set Structure Target Multiplexing I",
-    "itemID": 37232
-  },
-  {
-    "name": "Standup M-Set Structure Target Multiplexing II",
-    "itemID": 37233
-  },
-  {
-    "name": "Standup M-Set Enhanced Targeting System I",
-    "itemID": 37234
-  },
-  {
-    "name": "Standup M-Set Enhanced Targeting System II",
-    "itemID": 37235
-  },
-  {
-    "name": "Standup L-Set Missile Flight Processor I",
-    "itemID": 37248
-  },
-  {
-    "name": "Standup L-Set Missile Flight Processor II",
-    "itemID": 37249
-  },
-  {
-    "name": "Standup L-Set Energy Neutralizer Feedback Control I",
-    "itemID": 37250
-  },
-  {
-    "name": "Standup L-Set Energy Neutralizer Feedback Control II",
-    "itemID": 37251
-  },
-  {
-    "name": "Standup L-Set EW Command System I",
-    "itemID": 37254
-  },
-  {
-    "name": "Standup L-Set EW Command System II",
-    "itemID": 37255
-  },
-  {
-    "name": "Standup L-Set Bomb Aimer I",
-    "itemID": 37256
-  },
-  {
-    "name": "Standup L-Set Bomb Aimer II",
-    "itemID": 37257
-  },
-  {
-    "name": "Standup L-Set Point Defense Battery Control I",
-    "itemID": 37258
-  },
-  {
-    "name": "Standup L-Set Point Defense Battery Control II",
-    "itemID": 37259
-  },
-  {
-    "name": "Standup L-Set Target Acquisition Array I",
-    "itemID": 37260
-  },
-  {
-    "name": "Standup L-Set Target Acquisition Array II",
-    "itemID": 37261
-  },
-  {
-    "name": "Standup XL-Set Missile Fire Control Computer I",
-    "itemID": 37268
-  },
-  {
-    "name": "Standup XL-Set Missile Fire Control Computer II",
-    "itemID": 37269
-  },
-  {
-    "name": "Standup XL-Set EW and Emissions Co-ordinator I",
-    "itemID": 37272
-  },
-  {
-    "name": "Standup XL-Set EW and Emissions Co-ordinator II",
-    "itemID": 37273
-  },
-  {
-    "name": "Standup XL-Set Extinction Level Weapons Suite I",
-    "itemID": 37274
-  },
-  {
-    "name": "Standup XL-Set Extinction Level Weapons Suite II",
-    "itemID": 37275
-  },
-  {
     "name": "Rapid Torpedo Launcher I",
     "itemID": 37288
   },
@@ -11482,10 +8610,6 @@
   {
     "name": "Rapid Torpedo Launcher II",
     "itemID": 37292
-  },
-  {
-    "name": "Dread Guristas Rapid Torpedo Launcher",
-    "itemID": 37293
   },
   {
     "name": "XL Torpedo Launcher II",
@@ -11552,22 +8676,6 @@
     "itemID": 37451
   },
   {
-    "name": "Crucifier Navy Issue",
-    "itemID": 37453
-  },
-  {
-    "name": "Vigil Fleet Issue",
-    "itemID": 37454
-  },
-  {
-    "name": "Griffin Navy Issue",
-    "itemID": 37455
-  },
-  {
-    "name": "Maulus Navy Issue",
-    "itemID": 37456
-  },
-  {
     "name": "Deacon",
     "itemID": 37457
   },
@@ -11604,10 +8712,6 @@
     "itemID": 37483
   },
   {
-    "name": "Standup Signal Amplifier I",
-    "itemID": 37532
-  },
-  {
     "name": "Tenebrex Cyno Jammer",
     "itemID": 37534
   },
@@ -11640,50 +8744,6 @@
     "itemID": 37607
   },
   {
-    "name": "Standup Gravimetric ECM Script",
-    "itemID": 37821
-  },
-  {
-    "name": "Standup Ladar ECM Script",
-    "itemID": 37822
-  },
-  {
-    "name": "Standup Magnetometric ECM Script",
-    "itemID": 37823
-  },
-  {
-    "name": "Standup Radar ECM Script",
-    "itemID": 37824
-  },
-  {
-    "name": "Standup Super-heavy Torpedo",
-    "itemID": 37843
-  },
-  {
-    "name": "Standup XL Cruise Missile",
-    "itemID": 37844
-  },
-  {
-    "name": "Standup Cruise Missile",
-    "itemID": 37846
-  },
-  {
-    "name": "Standup Heavy Missile",
-    "itemID": 37847
-  },
-  {
-    "name": "Standup Light Missile",
-    "itemID": 37848
-  },
-  {
-    "name": "Standup Heavy Guided Bomb",
-    "itemID": 37849
-  },
-  {
-    "name": "Standup Light Guided Bomb",
-    "itemID": 37850
-  },
-  {
     "name": "Noir. Modified Entosis Link",
     "itemID": 40307
   },
@@ -11706,10 +8766,6 @@
   {
     "name": "Missile Precision Disruption Script",
     "itemID": 40335
-  },
-  {
-    "name": "Upwell Palatine Keepstar",
-    "itemID": 40340
   },
   {
     "name": "Scarab I",
@@ -11908,14 +8964,6 @@
     "itemID": 40662
   },
   {
-    "name": "True Sansha Capital Energy Neutralizer",
-    "itemID": 40663
-  },
-  {
-    "name": "Dark Blood Capital Energy Neutralizer",
-    "itemID": 40664
-  },
-  {
     "name": "Capital Energy Nosferatu I",
     "itemID": 40665
   },
@@ -11930,14 +8978,6 @@
   {
     "name": "Capital Energy Nosferatu II",
     "itemID": 40668
-  },
-  {
-    "name": "True Sansha Capital Energy Nosferatu",
-    "itemID": 40669
-  },
-  {
-    "name": "Dark Blood Capital Energy Nosferatu",
-    "itemID": 40670
   },
   {
     "name": "Warp Disruption Burst Projector",
@@ -11972,10 +9012,6 @@
     "itemID": 40717
   },
   {
-    "name": "Sisters Capital Emergency Hull Energizer",
-    "itemID": 40718
-  },
-  {
     "name": "Heavy Warp Disruptor I",
     "itemID": 40730
   },
@@ -11994,14 +9030,6 @@
   {
     "name": "Heavy Warp Disruptor II",
     "itemID": 40734
-  },
-  {
-    "name": "Shadow Serpentis Heavy Warp Disruptor",
-    "itemID": 40736
-  },
-  {
-    "name": "Domination Heavy Warp Disruptor",
-    "itemID": 40737
   },
   {
     "name": "Heavy Warp Scrambler I",
@@ -12024,18 +9052,6 @@
     "itemID": 40758
   },
   {
-    "name": "Shadow Serpentis Heavy Warp Scrambler",
-    "itemID": 40762
-  },
-  {
-    "name": "Domination Heavy Warp Scrambler",
-    "itemID": 40764
-  },
-  {
-    "name": "'Excavator' Mining Drone",
-    "itemID": 41030
-  },
-  {
     "name": "Heavy Stasis Grappler I",
     "itemID": 41040
   },
@@ -12056,14 +9072,6 @@
     "itemID": 41065
   },
   {
-    "name": "Dark Blood Quad Mega Pulse Laser",
-    "itemID": 41066
-  },
-  {
-    "name": "True Sansha Quad Mega Pulse Laser",
-    "itemID": 41067
-  },
-  {
     "name": "Modal Enduring Triple Neutron Blaster Cannon",
     "itemID": 41076
   },
@@ -12076,10 +9084,6 @@
     "itemID": 41078
   },
   {
-    "name": "Shadow Serpentis Triple Neutron Blaster Cannon",
-    "itemID": 41079
-  },
-  {
     "name": "Ample Gallium Quad 800mm Repeating Cannon",
     "itemID": 41080
   },
@@ -12090,10 +9094,6 @@
   {
     "name": "Prototype Precise Quad 800mm Repeating Cannon",
     "itemID": 41082
-  },
-  {
-    "name": "Domination Quad 800mm Repeating Cannon",
-    "itemID": 41083
   },
   {
     "name": "Modulated Compact Dual Giga Pulse Laser",
@@ -12112,14 +9112,6 @@
     "itemID": 41102
   },
   {
-    "name": "Dark Blood Dual Giga Pulse Laser",
-    "itemID": 41103
-  },
-  {
-    "name": "True Sansha Dual Giga Pulse Laser",
-    "itemID": 41104
-  },
-  {
     "name": "Modulated Compact Dual Giga Beam Laser",
     "itemID": 41114
   },
@@ -12134,14 +9126,6 @@
   {
     "name": "Afocal Precise Dual Giga Beam Laser",
     "itemID": 41117
-  },
-  {
-    "name": "Dark Blood Dual Giga Beam Laser",
-    "itemID": 41118
-  },
-  {
-    "name": "True Sansha Dual Giga Beam Laser",
-    "itemID": 41119
   },
   {
     "name": "Regulated Compact Ion Siege Blaster",
@@ -12160,10 +9144,6 @@
     "itemID": 41129
   },
   {
-    "name": "Shadow Serpentis Ion Siege Blaster",
-    "itemID": 41130
-  },
-  {
     "name": "Carbide Compact Dual 1000mm Railgun",
     "itemID": 41138
   },
@@ -12180,10 +9160,6 @@
     "itemID": 41141
   },
   {
-    "name": "Shadow Serpentis Dual 1000mm Railgun",
-    "itemID": 41142
-  },
-  {
     "name": "Carbine Compact Hexa 2500mm Repeating Cannon",
     "itemID": 41150
   },
@@ -12198,10 +9174,6 @@
   {
     "name": "Prototype Precise Hexa 2500mm Repeating Cannon",
     "itemID": 41153
-  },
-  {
-    "name": "Domination Hexa 2500mm Repeating Cannon",
-    "itemID": 41154
   },
   {
     "name": "ECCM Script",
@@ -12224,14 +9196,6 @@
     "itemID": 41159
   },
   {
-    "name": "Domination Quad 3500mm Siege Artillery",
-    "itemID": 41160
-  },
-  {
-    "name": "Dread Guristas XL Cruise Missile Launcher",
-    "itemID": 41174
-  },
-  {
     "name": "Arbalest Compact XL Cruise Missile Launcher",
     "itemID": 41175
   },
@@ -12246,10 +9210,6 @@
   {
     "name": "TE-2100 Ample XL Torpedo Launcher",
     "itemID": 41181
-  },
-  {
-    "name": "Dread Guristas XL Torpedo Launcher",
-    "itemID": 41182
   },
   {
     "name": "Arbalest Compact Rapid Torpedo Launcher",
@@ -12276,14 +9236,6 @@
     "itemID": 41239
   },
   {
-    "name": "Domination 10000MN Afterburner",
-    "itemID": 41240
-  },
-  {
-    "name": "Shadow Serpentis 10000MN Afterburner",
-    "itemID": 41241
-  },
-  {
     "name": "50000MN Microwarpdrive I",
     "itemID": 41249
   },
@@ -12302,14 +9254,6 @@
   {
     "name": "50000MN Microwarpdrive II",
     "itemID": 41253
-  },
-  {
-    "name": "Domination 50000MN Microwarpdrive",
-    "itemID": 41254
-  },
-  {
-    "name": "Shadow Serpentis 50000MN Microwarpdrive",
-    "itemID": 41255
   },
   {
     "name": "Scourge Javelin XL Torpedo",
@@ -12436,10 +9380,6 @@
     "itemID": 41415
   },
   {
-    "name": "Sentient Fighter Support Unit",
-    "itemID": 41417
-  },
-  {
     "name": "'Iron Pike' Kinetic Lance",
     "itemID": 41439
   },
@@ -12464,34 +9404,6 @@
     "itemID": 41444
   },
   {
-    "name": "CONCORD 25000mm Steel Plates",
-    "itemID": 41456
-  },
-  {
-    "name": "Dark Blood 25000mm Steel Plates",
-    "itemID": 41457
-  },
-  {
-    "name": "Shadow Serpentis 25000mm Steel Plates",
-    "itemID": 41458
-  },
-  {
-    "name": "CONCORD Capital Shield Extender",
-    "itemID": 41459
-  },
-  {
-    "name": "True Sansha Capital Shield Extender",
-    "itemID": 41460
-  },
-  {
-    "name": "Dread Guristas Capital Shield Extender",
-    "itemID": 41461
-  },
-  {
-    "name": "Domination Capital Shield Extender",
-    "itemID": 41462
-  },
-  {
     "name": "Capital I-ax Enduring Remote Armor Repairer",
     "itemID": 41463
   },
@@ -12508,14 +9420,6 @@
     "itemID": 41466
   },
   {
-    "name": "Dark Blood Capital Remote Armor Repairer",
-    "itemID": 41467
-  },
-  {
-    "name": "Shadow Serpentis Capital Remote Armor Repairer",
-    "itemID": 41468
-  },
-  {
     "name": "Capital Asymmetric Enduring Remote Shield Booster",
     "itemID": 41469
   },
@@ -12526,18 +9430,6 @@
   {
     "name": "Capital S95a Scoped Remote Shield Booster",
     "itemID": 41471
-  },
-  {
-    "name": "True Sansha Capital Remote Shield Booster",
-    "itemID": 41472
-  },
-  {
-    "name": "Dread Guristas Capital Remote Shield Booster",
-    "itemID": 41473
-  },
-  {
-    "name": "Domination Capital Remote Shield Booster",
-    "itemID": 41474
   },
   {
     "name": "Capital Remote Hull Repairer II",
@@ -12588,14 +9480,6 @@
     "itemID": 41486
   },
   {
-    "name": "Domination Capital Cap Battery",
-    "itemID": 41487
-  },
-  {
-    "name": "Dark Blood Capital Cap Battery",
-    "itemID": 41488
-  },
-  {
     "name": "Cap Booster 3200",
     "itemID": 41489
   },
@@ -12612,14 +9496,6 @@
     "itemID": 41493
   },
   {
-    "name": "Dark Blood Capital Capacitor Booster",
-    "itemID": 41494
-  },
-  {
-    "name": "True Sansha Capital Capacitor Booster",
-    "itemID": 41495
-  },
-  {
     "name": "Capital I-a Enduring Armor Repairer",
     "itemID": 41498
   },
@@ -12630,14 +9506,6 @@
   {
     "name": "Capital Armor Repairer II",
     "itemID": 41500
-  },
-  {
-    "name": "Dark Blood Capital Armor Repairer",
-    "itemID": 41501
-  },
-  {
-    "name": "Shadow Serpentis Capital Armor Repairer",
-    "itemID": 41502
   },
   {
     "name": "Capital Ancillary Armor Repairer",
@@ -12658,18 +9526,6 @@
   {
     "name": "Capital Shield Booster II",
     "itemID": 41507
-  },
-  {
-    "name": "True Sansha Capital Shield Booster",
-    "itemID": 41508
-  },
-  {
-    "name": "Dread Guristas Capital Shield Booster",
-    "itemID": 41509
-  },
-  {
-    "name": "Domination Capital Shield Booster",
-    "itemID": 41510
   },
   {
     "name": "Capital Hull Repairer I",
@@ -12732,36 +9588,8 @@
     "itemID": 41525
   },
   {
-    "name": "Dark Blood Capital Flex Armor Hardener",
-    "itemID": 41526
-  },
-  {
-    "name": "Shadow Serpentis Capital Flex Armor Hardener",
-    "itemID": 41527
-  },
-  {
     "name": "Capital Flex Shield Hardener II",
     "itemID": 41528
-  },
-  {
-    "name": "True Sansha Capital Flex Shield Hardener",
-    "itemID": 41529
-  },
-  {
-    "name": "Dread Guristas Capital Flex Shield Hardener",
-    "itemID": 41530
-  },
-  {
-    "name": "Domination Capital Flex Shield Hardener",
-    "itemID": 41531
-  },
-  {
-    "name": "Ligature Integrated Analyzer",
-    "itemID": 41533
-  },
-  {
-    "name": "Zeugma Integrated Analyzer",
-    "itemID": 41534
   },
   {
     "name": "Capital Radiative Scoped Remote Capacitor Transmitter",
@@ -12772,40 +9600,8 @@
     "itemID": 41566
   },
   {
-    "name": "Vehement",
-    "itemID": 42124
-  },
-  {
-    "name": "Vendetta",
-    "itemID": 42125
-  },
-  {
-    "name": "Vanquisher",
-    "itemID": 42126
-  },
-  {
-    "name": "Molok",
-    "itemID": 42241
-  },
-  {
-    "name": "Dagon",
-    "itemID": 42242
-  },
-  {
-    "name": "Chemosh",
-    "itemID": 42243
-  },
-  {
     "name": "Porpoise",
     "itemID": 42244
-  },
-  {
-    "name": "Rabisu",
-    "itemID": 42245
-  },
-  {
-    "name": "Caedes",
-    "itemID": 42246
   },
   {
     "name": "Pulse Activated Nexus Invulnerability Core",
@@ -12936,268 +9732,12 @@
     "itemID": 43664
   },
   {
-    "name": "'Excavator' Ice Harvesting Drone",
-    "itemID": 43681
-  },
-  {
-    "name": "'Augmented' Mining Drone",
-    "itemID": 43694
-  },
-  {
     "name": "Ice Harvesting Drone I",
     "itemID": 43699
   },
   {
     "name": "Ice Harvesting Drone II",
     "itemID": 43700
-  },
-  {
-    "name": "'Augmented' Ice Harvesting Drone",
-    "itemID": 43701
-  },
-  {
-    "name": "Standup XL-Set Structure and Component Manufacturing Efficiency I",
-    "itemID": 43704
-  },
-  {
-    "name": "Standup XL-Set Structure and Component Manufacturing Efficiency II",
-    "itemID": 43705
-  },
-  {
-    "name": "Standup L-Set Advanced Small Ship Manufacturing Efficiency I",
-    "itemID": 43707
-  },
-  {
-    "name": "Standup L-Set Advanced Small Ship Manufacturing Efficiency II",
-    "itemID": 43708
-  },
-  {
-    "name": "Standup L-Set Advanced Medium Ship Manufacturing Efficiency I",
-    "itemID": 43709
-  },
-  {
-    "name": "Standup L-Set Advanced Medium Ship Manufacturing Efficiency II",
-    "itemID": 43711
-  },
-  {
-    "name": "Standup L-Set Drone and Fighter Manufacturing Efficiency I",
-    "itemID": 43712
-  },
-  {
-    "name": "Standup L-Set Drone and Fighter Manufacturing Efficiency II",
-    "itemID": 43713
-  },
-  {
-    "name": "Standup L-Set Basic Small Ship Manufacturing Efficiency I",
-    "itemID": 43714
-  },
-  {
-    "name": "Standup L-Set Basic Small Ship Manufacturing Efficiency II",
-    "itemID": 43715
-  },
-  {
-    "name": "Standup L-Set Basic Medium Ship Manufacturing Efficiency I",
-    "itemID": 43716
-  },
-  {
-    "name": "Standup L-Set Basic Medium Ship Manufacturing Efficiency II",
-    "itemID": 43717
-  },
-  {
-    "name": "Standup L-Set Basic Capital Component Manufacturing Efficiency I",
-    "itemID": 43718
-  },
-  {
-    "name": "Standup L-Set Basic Capital Component Manufacturing Efficiency II",
-    "itemID": 43719
-  },
-  {
-    "name": "Standup L-Set Structure Manufacturing Efficiency I",
-    "itemID": 43720
-  },
-  {
-    "name": "Standup L-Set Structure Manufacturing Efficiency II",
-    "itemID": 43721
-  },
-  {
-    "name": "Standup L-Set Invention Optimization I",
-    "itemID": 43722
-  },
-  {
-    "name": "Standup L-Set Invention Optimization II",
-    "itemID": 43723
-  },
-  {
-    "name": "Standup L-Set ME Research Optimization I",
-    "itemID": 43724
-  },
-  {
-    "name": "Standup L-Set ME Research Optimization II",
-    "itemID": 43725
-  },
-  {
-    "name": "Standup L-Set TE Research Optimization I",
-    "itemID": 43726
-  },
-  {
-    "name": "Standup L-Set TE Research Optimization II",
-    "itemID": 43727
-  },
-  {
-    "name": "Standup M-Set Basic Large Ship Manufacturing Material Efficiency I",
-    "itemID": 43732
-  },
-  {
-    "name": "Standup M-Set Basic Large Ship Manufacturing Time Efficiency I",
-    "itemID": 43733
-  },
-  {
-    "name": "Standup M-Set Basic Large Ship Manufacturing Time Efficiency II",
-    "itemID": 43734
-  },
-  {
-    "name": "Standup M-Set Advanced Small Ship Manufacturing Material Efficiency II",
-    "itemID": 43854
-  },
-  {
-    "name": "Standup M-Set Advanced Small Ship Manufacturing Material Efficiency I",
-    "itemID": 43855
-  },
-  {
-    "name": "Standup M-Set Advanced Small Ship Manufacturing Time Efficiency I",
-    "itemID": 43856
-  },
-  {
-    "name": "Standup M-Set Advanced Small Ship Manufacturing Time Efficiency II",
-    "itemID": 43857
-  },
-  {
-    "name": "Standup M-Set Advanced Medium Ship Manufacturing Material Efficiency I",
-    "itemID": 43858
-  },
-  {
-    "name": "Standup M-Set Advanced Medium Ship Manufacturing Material Efficiency II",
-    "itemID": 43859
-  },
-  {
-    "name": "Standup M-Set Advanced Medium Ship Manufacturing Time Efficiency I",
-    "itemID": 43860
-  },
-  {
-    "name": "Standup M-Set Advanced Medium Ship Manufacturing Time Efficiency II",
-    "itemID": 43861
-  },
-  {
-    "name": "Standup M-Set Advanced Large Ship Manufacturing Material Efficiency I",
-    "itemID": 43862
-  },
-  {
-    "name": "Standup M-Set Advanced Large Ship Manufacturing Material Efficiency II",
-    "itemID": 43863
-  },
-  {
-    "name": "Standup M-Set Advanced Large Ship Manufacturing Time Efficiency II",
-    "itemID": 43864
-  },
-  {
-    "name": "Standup M-Set Advanced Large Ship Manufacturing Time Efficiency I",
-    "itemID": 43865
-  },
-  {
-    "name": "Standup M-Set Advanced Component Manufacturing Material Efficiency II",
-    "itemID": 43866
-  },
-  {
-    "name": "Standup M-Set Advanced Component Manufacturing Material Efficiency I",
-    "itemID": 43867
-  },
-  {
-    "name": "Standup M-Set Advanced Component Manufacturing Time Efficiency II",
-    "itemID": 43868
-  },
-  {
-    "name": "Standup M-Set Advanced Component Manufacturing Time Efficiency I",
-    "itemID": 43869
-  },
-  {
-    "name": "Standup M-Set Basic Capital Component Manufacturing Material Efficiency I",
-    "itemID": 43870
-  },
-  {
-    "name": "Standup M-Set Basic Capital Component Manufacturing Material Efficiency II",
-    "itemID": 43871
-  },
-  {
-    "name": "Standup M-Set Basic Capital Component Manufacturing Time Efficiency I",
-    "itemID": 43872
-  },
-  {
-    "name": "Standup M-Set Basic Capital Component Manufacturing Time Efficiency II",
-    "itemID": 43873
-  },
-  {
-    "name": "Standup M-Set Structure Manufacturing Material Efficiency II",
-    "itemID": 43874
-  },
-  {
-    "name": "Standup M-Set Structure Manufacturing Material Efficiency I",
-    "itemID": 43875
-  },
-  {
-    "name": "Standup M-Set Structure Manufacturing Time Efficiency I",
-    "itemID": 43876
-  },
-  {
-    "name": "Standup M-Set Structure Manufacturing Time Efficiency II",
-    "itemID": 43877
-  },
-  {
-    "name": "Standup M-Set Invention Cost Optimization II",
-    "itemID": 43878
-  },
-  {
-    "name": "Standup M-Set Invention Cost Optimization I",
-    "itemID": 43879
-  },
-  {
-    "name": "Standup M-Set Invention Accelerator I",
-    "itemID": 43880
-  },
-  {
-    "name": "Standup M-Set Invention Accelerator II",
-    "itemID": 43881
-  },
-  {
-    "name": "Standup M-Set ME Research Accelerator II",
-    "itemID": 43882
-  },
-  {
-    "name": "Standup M-Set ME Research Accelerator I",
-    "itemID": 43883
-  },
-  {
-    "name": "Standup M-Set ME Research Cost Optimization II",
-    "itemID": 43884
-  },
-  {
-    "name": "Standup M-Set ME Research Cost Optimization I",
-    "itemID": 43885
-  },
-  {
-    "name": "Standup M-Set TE Research Cost Optimization II",
-    "itemID": 43886
-  },
-  {
-    "name": "Standup M-Set TE Research Cost Optimization I",
-    "itemID": 43887
-  },
-  {
-    "name": "Standup M-Set TE Research Accelerator II",
-    "itemID": 43888
-  },
-  {
-    "name": "Standup M-Set TE Research Accelerator I",
-    "itemID": 43889
   },
   {
     "name": "Small Command Processor I",
@@ -13216,36 +9756,8 @@
     "itemID": 43900
   },
   {
-    "name": "Standup M-Set Basic Medium Ship Manufacturing Time Efficiency I",
-    "itemID": 43919
-  },
-  {
-    "name": "Standup M-Set Equipment Manufacturing Material Efficiency I",
-    "itemID": 43920
-  },
-  {
-    "name": "Standup M-Set Equipment Manufacturing Material Efficiency II",
-    "itemID": 43921
-  },
-  {
     "name": "Defender Launcher I",
     "itemID": 44102
-  },
-  {
-    "name": "Tahron's Custom Heat Sink",
-    "itemID": 44111
-  },
-  {
-    "name": "Vadari's Custom Gyrostabilizer",
-    "itemID": 44112
-  },
-  {
-    "name": "Kaatara's Custom Magnetic Field Stabilizer",
-    "itemID": 44113
-  },
-  {
-    "name": "Torelle's Custom Magnetic Field Stabilizer",
-    "itemID": 44114
   },
   {
     "name": "Pacifier",
@@ -13260,264 +9772,12 @@
     "itemID": 44996
   },
   {
-    "name": "Standup Moon Drill I",
-    "itemID": 45009
-  },
-  {
     "name": "Focused Warp Scrambling Script",
     "itemID": 45010
   },
   {
-    "name": "Virtuoso",
-    "itemID": 45530
-  },
-  {
-    "name": "Victor",
-    "itemID": 45531
-  },
-  {
     "name": "Monitor",
     "itemID": 45534
-  },
-  {
-    "name": "Standup Composite Reactor I",
-    "itemID": 45537
-  },
-  {
-    "name": "Standup Hybrid Reactor I",
-    "itemID": 45538
-  },
-  {
-    "name": "Standup Biochemical Reactor I",
-    "itemID": 45539
-  },
-  {
-    "name": "Standup M-Set Thukker Basic Capital Component Manufacturing Material Efficiency",
-    "itemID": 45544
-  },
-  {
-    "name": "Standup L-Set Thukker Basic Capital Component Manufacturing Efficiency",
-    "itemID": 45546
-  },
-  {
-    "name": "Standup XL-Set Thukker Structure and Component Manufacturing Efficiency",
-    "itemID": 45548
-  },
-  {
-    "name": "Standup Hyasyoda Research Lab",
-    "itemID": 45550
-  },
-  {
-    "name": "Legion Defensive - Covert Reconfiguration",
-    "itemID": 45586
-  },
-  {
-    "name": "Legion Defensive - Augmented Plating",
-    "itemID": 45587
-  },
-  {
-    "name": "Legion Defensive - Nanobot Injector",
-    "itemID": 45588
-  },
-  {
-    "name": "Tengu Defensive - Covert Reconfiguration",
-    "itemID": 45589
-  },
-  {
-    "name": "Tengu Defensive - Supplemental Screening",
-    "itemID": 45590
-  },
-  {
-    "name": "Tengu Defensive - Amplification Node",
-    "itemID": 45591
-  },
-  {
-    "name": "Proteus Defensive - Covert Reconfiguration",
-    "itemID": 45592
-  },
-  {
-    "name": "Proteus Defensive - Augmented Plating",
-    "itemID": 45593
-  },
-  {
-    "name": "Proteus Defensive - Nanobot Injector",
-    "itemID": 45594
-  },
-  {
-    "name": "Loki Defensive - Covert Reconfiguration",
-    "itemID": 45595
-  },
-  {
-    "name": "Loki Defensive - Augmented Durability",
-    "itemID": 45596
-  },
-  {
-    "name": "Loki Defensive - Adaptive Defense Node",
-    "itemID": 45597
-  },
-  {
-    "name": "Legion Offensive - Liquid Crystal Magnifiers",
-    "itemID": 45598
-  },
-  {
-    "name": "Legion Offensive - Assault Optimization",
-    "itemID": 45599
-  },
-  {
-    "name": "Legion Offensive - Support Processor",
-    "itemID": 45600
-  },
-  {
-    "name": "Tengu Offensive - Accelerated Ejection Bay",
-    "itemID": 45601
-  },
-  {
-    "name": "Tengu Offensive - Magnetic Infusion Basin",
-    "itemID": 45602
-  },
-  {
-    "name": "Tengu Offensive - Support Processor",
-    "itemID": 45603
-  },
-  {
-    "name": "Proteus Offensive - Hybrid Encoding Platform",
-    "itemID": 45604
-  },
-  {
-    "name": "Proteus Offensive - Drone Synthesis Projector",
-    "itemID": 45605
-  },
-  {
-    "name": "Proteus Offensive - Support Processor",
-    "itemID": 45606
-  },
-  {
-    "name": "Loki Offensive - Projectile Scoping Array",
-    "itemID": 45607
-  },
-  {
-    "name": "Loki Offensive - Launcher Efficiency Configuration",
-    "itemID": 45608
-  },
-  {
-    "name": "Loki Offensive - Support Processor",
-    "itemID": 45609
-  },
-  {
-    "name": "Legion Propulsion - Interdiction Nullifier",
-    "itemID": 45610
-  },
-  {
-    "name": "Legion Propulsion - Intercalated Nanofibers",
-    "itemID": 45611
-  },
-  {
-    "name": "Legion Propulsion - Wake Limiter",
-    "itemID": 45612
-  },
-  {
-    "name": "Tengu Propulsion - Interdiction Nullifier",
-    "itemID": 45613
-  },
-  {
-    "name": "Tengu Propulsion - Chassis Optimization",
-    "itemID": 45614
-  },
-  {
-    "name": "Tengu Propulsion - Fuel Catalyst",
-    "itemID": 45615
-  },
-  {
-    "name": "Proteus Propulsion - Interdiction Nullifier",
-    "itemID": 45616
-  },
-  {
-    "name": "Proteus Propulsion - Hyperspatial Optimization",
-    "itemID": 45617
-  },
-  {
-    "name": "Proteus Propulsion - Localized Injectors",
-    "itemID": 45618
-  },
-  {
-    "name": "Loki Propulsion - Interdiction Nullifier",
-    "itemID": 45619
-  },
-  {
-    "name": "Loki Propulsion - Intercalated Nanofibers",
-    "itemID": 45620
-  },
-  {
-    "name": "Loki Propulsion - Wake Limiter",
-    "itemID": 45621
-  },
-  {
-    "name": "Legion Core - Dissolution Sequencer",
-    "itemID": 45622
-  },
-  {
-    "name": "Legion Core - Augmented Antimatter Reactor",
-    "itemID": 45623
-  },
-  {
-    "name": "Legion Core - Energy Parasitic Complex",
-    "itemID": 45624
-  },
-  {
-    "name": "Tengu Core - Electronic Efficiency Gate",
-    "itemID": 45625
-  },
-  {
-    "name": "Tengu Core - Augmented Graviton Reactor",
-    "itemID": 45626
-  },
-  {
-    "name": "Tengu Core - Obfuscation Manifold",
-    "itemID": 45627
-  },
-  {
-    "name": "Proteus Core - Electronic Efficiency Gate",
-    "itemID": 45628
-  },
-  {
-    "name": "Proteus Core - Augmented Fusion Reactor",
-    "itemID": 45629
-  },
-  {
-    "name": "Proteus Core - Friction Extension Processor",
-    "itemID": 45630
-  },
-  {
-    "name": "Loki Core - Dissolution Sequencer",
-    "itemID": 45631
-  },
-  {
-    "name": "Loki Core - Augmented Nuclear Reactor",
-    "itemID": 45632
-  },
-  {
-    "name": "Loki Core - Immobility Drivers",
-    "itemID": 45633
-  },
-  {
-    "name": "Standup M-Set Thukker Advanced Component Manufacturing Material Efficiency",
-    "itemID": 45640
-  },
-  {
-    "name": "Standup L-Set Thukker Advanced Component Manufacturing Efficiency",
-    "itemID": 45641
-  },
-  {
-    "name": "Loggerhead",
-    "itemID": 45645
-  },
-  {
-    "name": "Caiman",
-    "itemID": 45647
-  },
-  {
-    "name": "Komodo",
-    "itemID": 45649
   },
   {
     "name": "Superconducting Magnetometric Amplifier",
@@ -13534,30 +9794,6 @@
   {
     "name": "Superconducting Ladar Amplifier",
     "itemID": 45655
-  },
-  {
-    "name": "Standup M-Set Moon Drilling Efficiency I",
-    "itemID": 46323
-  },
-  {
-    "name": "Standup M-Set Moon Drilling Efficiency II",
-    "itemID": 46324
-  },
-  {
-    "name": "Standup M-Set Moon Drilling Stability I",
-    "itemID": 46325
-  },
-  {
-    "name": "Standup M-Set Moon Drilling Stability II",
-    "itemID": 46326
-  },
-  {
-    "name": "Standup L-Set Moon Drilling Proficiency I",
-    "itemID": 46327
-  },
-  {
-    "name": "Standup L-Set Moon Drilling Proficiency II",
-    "itemID": 46328
   },
   {
     "name": "Ubiquitous Moon Ore Mining Crystal I",
@@ -13600,298 +9836,6 @@
     "itemID": 46372
   },
   {
-    "name": "Standup M-Set Composite Reactor Time Efficiency I",
-    "itemID": 46484
-  },
-  {
-    "name": "Standup M-Set Composite Reactor Time Efficiency II",
-    "itemID": 46485
-  },
-  {
-    "name": "Standup M-Set Composite Reactor Material Efficiency I",
-    "itemID": 46486
-  },
-  {
-    "name": "Standup M-Set Composite Reactor Material Efficiency II",
-    "itemID": 46487
-  },
-  {
-    "name": "Standup M-Set Hybrid Reactor Time Efficiency I",
-    "itemID": 46488
-  },
-  {
-    "name": "Standup M-Set Hybrid Reactor Time Efficiency II",
-    "itemID": 46489
-  },
-  {
-    "name": "Standup M-Set Hybrid Reactor Material Efficiency I",
-    "itemID": 46490
-  },
-  {
-    "name": "Standup M-Set Hybrid Reactor Material Efficiency II",
-    "itemID": 46491
-  },
-  {
-    "name": "Standup M-Set Biochemical Reactor Time Efficiency I",
-    "itemID": 46492
-  },
-  {
-    "name": "Standup M-Set Biochemical Reactor Time Efficiency II",
-    "itemID": 46493
-  },
-  {
-    "name": "Standup M-Set Biochemical Reactor Material Efficiency I",
-    "itemID": 46494
-  },
-  {
-    "name": "Standup M-Set Biochemical Reactor Material Efficiency II",
-    "itemID": 46495
-  },
-  {
-    "name": "Standup L-Set Reactor Efficiency I",
-    "itemID": 46496
-  },
-  {
-    "name": "Standup L-Set Reactor Efficiency II",
-    "itemID": 46497
-  },
-  {
-    "name": "Dark Blood Standup Heavy Energy Neutralizer",
-    "itemID": 46575
-  },
-  {
-    "name": "Dread Guristas Standup Variable Spectrum ECM",
-    "itemID": 46577
-  },
-  {
-    "name": "Standup M-Set Asteroid Ore Grading Processor I",
-    "itemID": 46633
-  },
-  {
-    "name": "Standup M-Set Asteroid Ore Grading Processor II",
-    "itemID": 46634
-  },
-  {
-    "name": "Standup M-Set Ice Grading Processor I",
-    "itemID": 46635
-  },
-  {
-    "name": "Standup M-Set Ice Grading Processor II",
-    "itemID": 46636
-  },
-  {
-    "name": "Standup M-Set Moon Ore Grading Processor I",
-    "itemID": 46637
-  },
-  {
-    "name": "Standup M-Set Moon Ore Grading Processor II",
-    "itemID": 46638
-  },
-  {
-    "name": "Standup L-Set Reprocessing Monitor I",
-    "itemID": 46639
-  },
-  {
-    "name": "Standup L-Set Reprocessing Monitor II",
-    "itemID": 46640
-  },
-  {
-    "name": "Standup XL-Set Reprocessing Monitor I",
-    "itemID": 46641
-  },
-  {
-    "name": "Standup XL-Set Reprocessing Monitor II",
-    "itemID": 46642
-  },
-  {
-    "name": "Standup Templar I",
-    "itemID": 47035
-  },
-  {
-    "name": "Standup Gram I",
-    "itemID": 47036
-  },
-  {
-    "name": "Standup Siren I",
-    "itemID": 47037
-  },
-  {
-    "name": "Standup Mantis I",
-    "itemID": 47038
-  },
-  {
-    "name": "Standup Gungnir I",
-    "itemID": 47039
-  },
-  {
-    "name": "Standup ECM Jammer Burst Projector",
-    "itemID": 47069
-  },
-  {
-    "name": "Standup Sensor Dampening Burst Projector",
-    "itemID": 47070
-  },
-  {
-    "name": "Standup Stasis Webification Burst Projector",
-    "itemID": 47071
-  },
-  {
-    "name": "Standup Target Illumination Burst Projector",
-    "itemID": 47072
-  },
-  {
-    "name": "Standup Warp Disruption Burst Projector",
-    "itemID": 47073
-  },
-  {
-    "name": "Standup Weapon Disruption Burst Projector",
-    "itemID": 47074
-  },
-  {
-    "name": "Standup Malleus I",
-    "itemID": 47116
-  },
-  {
-    "name": "Standup Cyclops I",
-    "itemID": 47117
-  },
-  {
-    "name": "Standup Tyrfing I",
-    "itemID": 47118
-  },
-  {
-    "name": "Standup Malleus II",
-    "itemID": 47119
-  },
-  {
-    "name": "Standup Mantis II",
-    "itemID": 47120
-  },
-  {
-    "name": "Standup Cyclops II",
-    "itemID": 47121
-  },
-  {
-    "name": "Standup Tyrfing II",
-    "itemID": 47122
-  },
-  {
-    "name": "Standup Shadow",
-    "itemID": 47123
-  },
-  {
-    "name": "Standup Ametat I",
-    "itemID": 47124
-  },
-  {
-    "name": "Standup Termite I",
-    "itemID": 47125
-  },
-  {
-    "name": "Standup Antaeus I",
-    "itemID": 47126
-  },
-  {
-    "name": "Standup Ametat II",
-    "itemID": 47127
-  },
-  {
-    "name": "Standup Termite II",
-    "itemID": 47128
-  },
-  {
-    "name": "Standup Antaeus II",
-    "itemID": 47129
-  },
-  {
-    "name": "Standup Gungnir II",
-    "itemID": 47130
-  },
-  {
-    "name": "Standup Cenobite I",
-    "itemID": 47131
-  },
-  {
-    "name": "Standup Scarab I",
-    "itemID": 47132
-  },
-  {
-    "name": "Standup Dromi I",
-    "itemID": 47133
-  },
-  {
-    "name": "Standup Cenobite II",
-    "itemID": 47134
-  },
-  {
-    "name": "Standup Scarab II",
-    "itemID": 47135
-  },
-  {
-    "name": "Standup Siren II",
-    "itemID": 47136
-  },
-  {
-    "name": "Standup Dromi II",
-    "itemID": 47137
-  },
-  {
-    "name": "Standup Dragonfly I",
-    "itemID": 47138
-  },
-  {
-    "name": "Standup Firbolg I",
-    "itemID": 47139
-  },
-  {
-    "name": "Standup Einherji I",
-    "itemID": 47140
-  },
-  {
-    "name": "Standup Templar II",
-    "itemID": 47141
-  },
-  {
-    "name": "Standup Dragonfly II",
-    "itemID": 47142
-  },
-  {
-    "name": "Standup Firbolg II",
-    "itemID": 47143
-  },
-  {
-    "name": "Standup Einherji II",
-    "itemID": 47144
-  },
-  {
-    "name": "Standup Equite I",
-    "itemID": 47145
-  },
-  {
-    "name": "Standup Locust I",
-    "itemID": 47146
-  },
-  {
-    "name": "Standup Satyr I",
-    "itemID": 47147
-  },
-  {
-    "name": "Standup Equite II",
-    "itemID": 47148
-  },
-  {
-    "name": "Standup Locust II",
-    "itemID": 47149
-  },
-  {
-    "name": "Standup Satyr II",
-    "itemID": 47150
-  },
-  {
-    "name": "Standup Gram II",
-    "itemID": 47151
-  },
-  {
     "name": "Assault Damage Control I",
     "itemID": 47254
   },
@@ -13922,102 +9866,6 @@
   {
     "name": "Supratidal Entropic Disintegrator I",
     "itemID": 47274
-  },
-  {
-    "name": "Standup Multirole Missile Launcher II",
-    "itemID": 47298
-  },
-  {
-    "name": "Standup Anticapital Missile Launcher II",
-    "itemID": 47323
-  },
-  {
-    "name": "Standup Guided Bomb Launcher II",
-    "itemID": 47325
-  },
-  {
-    "name": "Standup Point Defense Battery II",
-    "itemID": 47327
-  },
-  {
-    "name": "Standup XL Energy Neutralizer II",
-    "itemID": 47330
-  },
-  {
-    "name": "Standup Heavy Energy Neutralizer II",
-    "itemID": 47332
-  },
-  {
-    "name": "Standup Focused Warp Disruptor II",
-    "itemID": 47334
-  },
-  {
-    "name": "Standup Focused Warp Scrambling Script",
-    "itemID": 47336
-  },
-  {
-    "name": "Standup Variable Spectrum ECM II",
-    "itemID": 47338
-  },
-  {
-    "name": "Standup Missile Guidance Enhancer II",
-    "itemID": 47340
-  },
-  {
-    "name": "Standup Ballistic Control System II",
-    "itemID": 47342
-  },
-  {
-    "name": "Standup Co-Processor Array II",
-    "itemID": 47344
-  },
-  {
-    "name": "Standup Reactor Control Unit II",
-    "itemID": 47347
-  },
-  {
-    "name": "Standup Signal Amplifier II",
-    "itemID": 47348
-  },
-  {
-    "name": "Standup Stasis Webifier II",
-    "itemID": 47351
-  },
-  {
-    "name": "Standup Cap Battery I",
-    "itemID": 47352
-  },
-  {
-    "name": "Standup Cap Battery II",
-    "itemID": 47353
-  },
-  {
-    "name": "Standup Capacitor Power Relay I",
-    "itemID": 47356
-  },
-  {
-    "name": "Standup Capacitor Power Relay II",
-    "itemID": 47358
-  },
-  {
-    "name": "Standup Layered Armor Plating I",
-    "itemID": 47360
-  },
-  {
-    "name": "Standup Layered Armor Plating II",
-    "itemID": 47362
-  },
-  {
-    "name": "Standup Weapon Disruptor II",
-    "itemID": 47364
-  },
-  {
-    "name": "Standup Target Painter II",
-    "itemID": 47366
-  },
-  {
-    "name": "Standup Remote Sensor Dampener II",
-    "itemID": 47368
   },
   {
     "name": "Praxis",
@@ -14056,10 +9904,6 @@
     "itemID": 47914
   },
   {
-    "name": "Veles Light Entropic Disintegrator",
-    "itemID": 47915
-  },
-  {
     "name": "Heavy Compact Entropic Disintegrator",
     "itemID": 47916
   },
@@ -14072,10 +9916,6 @@
     "itemID": 47918
   },
   {
-    "name": "Veles Heavy Entropic Disintegrator",
-    "itemID": 47919
-  },
-  {
     "name": "Supratidal Compact Entropic Disintegrator",
     "itemID": 47920
   },
@@ -14086,10 +9926,6 @@
   {
     "name": "Supratidal Entropic Disintegrator II",
     "itemID": 47922
-  },
-  {
-    "name": "Veles Supratidal Entropic Disintegrator",
-    "itemID": 47923
   },
   {
     "name": "Baryon Exotic Plasma S",
@@ -14148,14 +9984,6 @@
     "itemID": 48636
   },
   {
-    "name": "'Subverted' JVN-UC49",
-    "itemID": 48744
-  },
-  {
-    "name": "November Module",
-    "itemID": 48944
-  },
-  {
     "name": "Zero-Point Mass Entangler",
     "itemID": 49099
   },
@@ -14196,40 +10024,8 @@
     "itemID": 49773
   },
   {
-    "name": "Perun Heavy Mutadaptive Remote Armor Repairer",
-    "itemID": 49774
-  },
-  {
-    "name": "ML-EKP 'Polybolos' Ballistic Control System",
-    "itemID": 49790
-  },
-  {
-    "name": "Frostline 'Clavicula' Integrated Analyzer",
-    "itemID": 49791
-  },
-  {
     "name": "Frostline 'Omnivore' Harvester Upgrade",
     "itemID": 49792
-  },
-  {
-    "name": "Zorya's Light Entropic Disintegrator",
-    "itemID": 52236
-  },
-  {
-    "name": "Zorya's Heavy Entropic Disintegrator",
-    "itemID": 52238
-  },
-  {
-    "name": "Zorya's Supratidal Entropic Disintegrator",
-    "itemID": 52240
-  },
-  {
-    "name": "Zorya's Entropic Radiation Sink",
-    "itemID": 52242
-  },
-  {
-    "name": "Veles Entropic Radiation Sink",
-    "itemID": 52244
   },
   {
     "name": "Nergal",
@@ -14308,10 +10104,6 @@
     "itemID": 54742
   },
   {
-    "name": "Small Consortium Vorton Projector",
-    "itemID": 54743
-  },
-  {
     "name": "Medium Vorton Projector I",
     "itemID": 54745
   },
@@ -14328,10 +10120,6 @@
     "itemID": 54748
   },
   {
-    "name": "Medium Consortium Vorton Projector",
-    "itemID": 54749
-  },
-  {
     "name": "Large Vorton Projector I",
     "itemID": 54750
   },
@@ -14346,10 +10134,6 @@
   {
     "name": "Large Vorton Projector II",
     "itemID": 54753
-  },
-  {
-    "name": "Large Consortium Vorton Projector",
-    "itemID": 54754
   },
   {
     "name": "GalvaSurge Condenser Pack S",
@@ -14440,18 +10224,6 @@
     "itemID": 55760
   },
   {
-    "name": "'Dunk' Salvage Drone",
-    "itemID": 55761
-  },
-  {
-    "name": "'Pickpocket' EM Energized Membrane",
-    "itemID": 55860
-  },
-  {
-    "name": "'Bribe' Explosive Energized Membrane",
-    "itemID": 55862
-  },
-  {
     "name": "Mobile Sanguine Harvester",
     "itemID": 56701
   },
@@ -14488,23 +10260,23 @@
     "itemID": 57457
   },
   {
-    "name": "Meta-Operant Neurolink Booster",
+    "name": "Meta-Operant Neurolink Enhancer",
     "itemID": 57458
   },
   {
-    "name": "Hypnagogic Neurolink Booster",
+    "name": "Hypnagogic Neurolink Enhancer",
     "itemID": 57459
   },
   {
-    "name": "Axosomatic Neurolink Booster",
+    "name": "Axosomatic Neurolink Enhancer",
     "itemID": 57460
   },
   {
-    "name": "Cogni-Emotive Neurolink Booster",
+    "name": "Cogni-Emotive Neurolink Enhancer",
     "itemID": 57461
   },
   {
-    "name": "Sense-Heuristic Neurolink Booster",
+    "name": "Sense-Heuristic Neurolink Enhancer",
     "itemID": 57462
   },
   {
@@ -14588,7 +10360,7 @@
     "itemID": 57482
   },
   {
-    "name": "Neurolink Booster Reservoir",
+    "name": "Neurolink Enhancer Reservoir",
     "itemID": 57483
   },
   {
@@ -14615,4 +10387,4 @@
     "name": "Enhanced Neurolink Protection Cell",
     "itemID": 57489
   }
- ]
+]

@@ -23,6 +23,6 @@ data.forEach((item) => {
     blueprintTypeID: item.blueprintTypeID,
     maxProductionLimit: item.maxProductionLimit,
     itemID: item.itemID,
-    jobType: item.itemID,
+    jobType: item.jobType,
   });
 });

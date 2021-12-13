@@ -4,11 +4,12 @@ import { ActiveJobContext } from "../../../../Context/JobContext";
 import { useCreateJobProcess } from "../../../../Hooks/useCreateJob";
 import { blueprintVariables } from "../..";
 import { jobTypes } from "../..";
-import { MdAdd } from "react-icons/md";
+import { MdOutlineAddCircle, MdRemoveCircle } from "react-icons/md";
 import {
   Container,
   Grid,
   FormHelperText,
+  Icon,
   IconButton,
   TextField,
   Typography,
@@ -16,56 +17,71 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import { CalculateTotals } from "../../../../Hooks/useBlueprintCalc";
+import { makeStyles } from "@material-ui/styles";
 
-// const customStyles = {
-//   container: (provided, state) => ({
-//     ...provided,
-//     // width: `50%`,
-//   }),
-//   control: (provided, state) => ({
-//     ...provided,
-//     width: `50%`,
-//     backgroundColor: `#4e4a4a`,
-//     boxShadow: state.isSelected ? `none` : ``,
-//     border: `none`,
-//     "&:hover": {
-//       borderColor: `rgba(219,160,45)`,
-//     },
-//   }),
-//   placeholder: (provided, state) => ({
-//     ...provided,
-//     color: `#E0E0E0`,
-//     fontWeight: `normal`,
-//   }),
-//   menu: (provided, state) => ({
-//     ...provided,
-//     width: `50%`,
-//     backgroundColor: `#4e4a4a`,
-//   }),
-//   option: (provided, state) => ({
-//     ...provided,
-//     color: state.isFocused ? `rgba(219,160,45)` : ``,
-//     backgroundColor: state.isFocused ? `rgba(224,224,224,0.25)` : ``,
-//     fontWeight: state.isFocused ? `bold` : ``,
-//   }),
-//   singleValue: () => ({
-//     color: `#E0E0E0`,
-//   }),
-//   indicatorSeparator: () => ({
-//     display: `none`,
-//   }),
-//   dropdownIndicator: (provided, state) => ({
-//     ...provided,
-//     color: state.isFocused ? `rgba(219,160,45)` : ``,
-//     "&:hover": {
-//       color: `rgba(219,160,45)`,
-//     },
-//   }),
-// };
 
-export function EditPage1({setJobModified}) {
+const useStyles = makeStyles((theme) => ({
+}))
+
+
+export function EditPage1({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { newJobProcess } = useCreateJobProcess();
+  const classes = useStyles();
+
+  function AddBuildIcon({ material }) {
+    if (material.jobType === 1) {
+      return (
+        <Tooltip title="Click to add as a manufacturing job" placement="left-start">
+          <IconButton
+            classname={classes.manIcon}
+            style={{color: "rgba(164,219,45,0.5)"}}
+            size="small"
+            onClick={() => newJobProcess(material.typeID, material.quantity)}
+          >
+            <MdOutlineAddCircle />
+          </IconButton>
+        </Tooltip>
+      );
+    }
+    else if (material.jobType === 2) {
+      return (
+        <Tooltip title="Click to add as a reaction job" placement="left-start">
+          <IconButton
+            style={{color: "rgba(219,45,164,0.5)"}}
+            size="small"
+            onClick={() => newJobProcess(material.typeID, material.quantity)}
+          >
+            <MdOutlineAddCircle />
+          </IconButton>
+        </Tooltip>
+      );
+    }
+    else if (material.jobType === 3) {
+      return (
+        <Tooltip title="Planetary Interaction" placement="left-start">
+          <Icon
+            style={{color: "rgba(63,25,137,0.5)"}}
+            fontSize="small"
+          >
+            <MdRemoveCircle/>
+          </Icon>
+        </Tooltip>
+      );
+    }
+    else if(material.jobType === 0) {
+      return (
+        <Tooltip title="Base Material" placement="left-start">
+          <Icon
+            fontSize="small"
+            color="primary"
+          >
+            <MdRemoveCircle/>
+          </Icon>
+        </Tooltip>
+      )
+    }
+  }
 
   return (
     <Container maxWidth={false} disableGutters={true}>
@@ -297,17 +313,7 @@ export function EditPage1({setJobModified}) {
             return (
               <Grid item container xs={12}>
                 <Grid key={material.typeID} item xs={1} sm={1}>
-                  <Tooltip title="Click to add as a job" placement="left-start">
-                    <IconButton
-                      color="primary"
-                      size="small"
-                      onClick={() =>
-                        newJobProcess(material.typeID, material.quantity)
-                      }
-                    >
-                      <MdAdd />
-                    </IconButton>
-                  </Tooltip>
+                  <AddBuildIcon material={material} />
                 </Grid>
                 <Grid item xs={8} sm={6}>
                   <Typography variant="body2">{material.name}</Typography>
@@ -340,4 +346,4 @@ export function EditPage1({setJobModified}) {
       </Grid>
     </Container>
   );
-};
+}

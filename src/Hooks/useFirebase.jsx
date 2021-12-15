@@ -13,12 +13,13 @@ import {
 import { jobTypes } from "../Components/Job Planner";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
-import { JobArrayContext } from "../Context/JobContext";
+import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
 
 export function useFirebase() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser } = useContext(MainUserContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { jobStatus } = useContext(JobStatusContext);
 
   const determineUserState = useCallback(async (user) => {
     if (user.fbToken._tokenResponse.isNewUser) {
@@ -32,6 +33,7 @@ export function useFirebase() {
           accountID: charData.data.accountID,
           jobStatusArray: charData.data.jobStatusArray,
           jobArraySnapshot: [],
+          linkedJobs: charData.data.linkedJobs,
         };
       } catch (err) {
         console.log(err);
@@ -180,10 +182,11 @@ export function useFirebase() {
     [isLoggedIn, mainUser]
   );
 
-  const uploadJobStatus = useCallback(
-    async (newArray) => {
-      updateDoc(doc(firestore, "JobPlanner", mainUser.CharacterHash), {
-        jobStatusArray: newArray,
+  const updateMainUserDoc = useCallback(
+    async () => {
+      updateDoc(doc(firestore, "Users", mainUser.CharacterHash), {
+        jobStatusArray: jobStatus,
+        linkedJobs: mainUser.linkedJobs,
       });
     },
     [isLoggedIn, mainUser]
@@ -271,7 +274,7 @@ export function useFirebase() {
     determineUserState,
     addNewJob,
     uploadJob,
-    uploadJobStatus,
+    updateMainUserDoc,
     removeJob,
     downloadCharacterJobs,
   };

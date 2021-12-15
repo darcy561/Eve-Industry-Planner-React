@@ -18,7 +18,7 @@ export function StatusSettings({
   updateStatusSettingsTrigger,
 }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
-  const { uploadJobStatus } = useFirebase();
+  const { updateMainUserDoc } = useFirebase();
 
 
   return (
@@ -68,9 +68,10 @@ export function StatusSettings({
             const index = jobStatus.findIndex((i) => i.id === statusData.id);
             const newStatusArray = jobStatus;
             newStatusArray[index] = statusData;
-            uploadJobStatus(newStatusArray);
             setJobStatus(newStatusArray);
+            updateMainUserDoc();
             updateStatusSettingsTrigger(false);
+
           }}
         >
           Save

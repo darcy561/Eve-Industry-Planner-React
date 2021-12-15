@@ -41,10 +41,14 @@ class Job {
       products: {
         totalQuantity: 0,
         quantityPerJob: 0,
-        totalPurchaseCost: 0,
         totalComplete: 0,
+      },
+      costs: {
+        totalPurchaseCost: 0,
+
         extrasCosts: [],
         extrasTotal: 0,
+        installCosts: 0
       },
       materials: null,
       buildChar: null,

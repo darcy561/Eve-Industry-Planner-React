@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Badge, Box, Card, Grid, Hidden, Typography } from "@material-ui/core";
+import { Avatar, Badge, Box, Card, Grid, Hidden, Tooltip, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -45,13 +45,14 @@ const useStyles = makeStyles((theme) => ({
 
 export function ApiJobCard({ job }) {
   const classes = useStyles();
-    return (
+  return (
+      <Tooltip title= "Api Job, manually link this job to an existing job card." >
       <Grid key={job.job_id} className={classes.Grid} item xs={6} md={4} lg={3} xl={2}>
         <Card className={classes.Card}>
           <Grid className={classes.Grid} container item xs={12}>
             <Grid className={classes.Header} item xs={12}>
               <Typography variant="h6" align="center">
-                job.name
+                {job.product_name}
               </Typography> 
             </Grid>
             <Grid className={classes.Grid} container item xs={12}>
@@ -96,11 +97,11 @@ export function ApiJobCard({ job }) {
                   </Grid>
                 </Grid>
                 <Grid className={classes.Grid} container item xs={12}>
-                <Grid className={classes.Grid} item xs={10}>
-                    <Typography variant="body2">End Date</Typography>
+                <Grid className={classes.Grid} item xs={4}>
+                    <Typography variant="body2">End</Typography>
                   </Grid>
-                  <Grid className={classes.Grid} item xs={2}>
-                    <Typography variant="body2">{job.end_date}</Typography>
+                  <Grid className={classes.Grid} item xs={8}>
+                    <Typography variant="body2">{`${new Date(job.end_date).toLocaleDateString()} ${new Date(job.end_date).toLocaleTimeString()}`}</Typography>
                   </Grid>
                 </Grid>
               </Grid>
@@ -117,5 +118,6 @@ export function ApiJobCard({ job }) {
           </Grid>
         </Card>
       </Grid>
+      </Tooltip>
     );
 }

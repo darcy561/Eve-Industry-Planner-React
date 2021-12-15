@@ -49,6 +49,7 @@ class MainUser {
         this.fbToken = null;
         this.ParentUser = true;
         this.apiSkills = null;
+        this.linkedJobs = [];
         this.apiJobs = null;
         this.apiOrders = null;
         this.Settings = null;

@@ -37,6 +37,7 @@ export let blueprintVariables = {
     { value: 10, label: 20 },
   ],
   manStructure: [
+    { value: "Station", label: "Station"},
     { value: "Medium", label: "Medium" },
     { value: "Large", label: "Large" },
     { value: "X-Large", label: "X-Large" },

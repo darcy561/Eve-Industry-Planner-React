@@ -50,8 +50,11 @@ export function EditPage2({setJobModified}) {
         materials: newArray,
         products: {
           ...prevObj.job.products,
+          totalComplete: newComplete
+        },
+        costs: {
+          ...prevObj.job.costs,
           totalPurchaseCost: newTotal,
-          totalComplete: newComplete,
         },
       },
     }));
@@ -100,8 +103,11 @@ export function EditPage2({setJobModified}) {
         materials: newArray,
         products: {
           ...prevObj.job.products,
+          totalComplete: newComplete
+        },
+        costs: {
+          ...prevObj.job.costs,
           totalPurchaseCost: newTotal,
-          totalComplete: newComplete,
         },
       },
     }));
@@ -218,7 +224,7 @@ export function EditPage2({setJobModified}) {
         <Grid xs={6}>
           <Typography variant="body2">
             Total material cost:{" "}
-            {activeJob.job.products.totalPurchaseCost.toLocaleString()} ISK
+            {activeJob.job.costs.totalPurchaseCost.toLocaleString()} ISK
           </Typography>
         </Grid>
       </Grid>

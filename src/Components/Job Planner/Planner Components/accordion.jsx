@@ -100,21 +100,6 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
             </AccordionSummary>
             <AccordionDetails>
               <Grid container direction="row" item xs={12} spacing={1}>
-                
-                {status.openAPIJobs &&
-                  apiJobs.map((j) => {
-                    if (j.status === "active") {
-                      return <ApiJobCard job={j} />;
-                    }
-                  })}
-
-                {status.completeAPIJobs &&
-                  apiJobs.map((j) => {
-                    if (j.status === "ready" || j.status === "delivered") {
-                      return <ApiJobCard job={j} />;
-                    }
-                  })}
-
                 {jobArray.map((job) => {
                   if (job.jobStatus == status.id) {
                     return (
@@ -126,6 +111,21 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
                   }
                 })}
 
+                {status.openAPIJobs &&
+                  apiJobs.map((j) => {
+                    if (!j.linked) {
+                      if (j.status === "active" && j.linked === false) {
+                        return <ApiJobCard job={j} />;
+                      }
+                    }
+                  })}
+
+                {status.completeAPIJobs &&
+                  apiJobs.map((j) => {
+                    if (!j.linked && j.status === "delivered") {
+                      return <ApiJobCard job={j} />;
+                    }
+                  })}
               </Grid>
             </AccordionDetails>
           </Accordion>

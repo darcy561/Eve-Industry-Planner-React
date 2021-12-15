@@ -5,8 +5,8 @@ const admin = require("firebase-admin");
 exports.createUserData = functions.https.onCall((data, context) => {
     if (context.app == undefined) {
         throw new functions.https.HttpsError(
-            'failed-precondition',
-            'The function must be called from an App Check verified app.')
+            'Unable to verify',
+            'The function must be called from a verified app.')
     }
     const setupData = {
         uid: context.auth.uid,
@@ -19,7 +19,8 @@ exports.createUserData = functions.https.onCall((data, context) => {
             { id: 4, name: "For Sale", sortOrder: 4, expanded: true, openAPIJobs: false, completeAPIJobs: false }
         ],
         deleted: null,
-        jobArraySnapshot:{}
+        jobArraySnapshot: {},
+        linkedJobs: [],
     }
     admin.firestore().collection("Users").doc(context.auth.uid).set(setupData);
     return setupData

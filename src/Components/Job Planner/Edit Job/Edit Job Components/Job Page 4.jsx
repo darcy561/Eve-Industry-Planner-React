@@ -5,6 +5,7 @@ import {
   Grid,
   IconButton,
   TextField,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import { ActiveJobContext } from "../../../../Context/JobContext";
@@ -19,7 +20,7 @@ export function EditPage4({setJobModified}) {
   
 
   function handleAdd() {
-    const newExtrasArray = activeJob.job.products.extrasCosts;
+    const newExtrasArray = activeJob.job.costs.extrasCosts;
     let newTotal = 0;
     newExtrasArray.push({
       id: Date.now(),
@@ -33,8 +34,8 @@ export function EditPage4({setJobModified}) {
       ...prevObj,
       job: {
         ...prevObj.job,
-        products: {
-          ...prevObj.job.products,
+        costs: {
+          ...prevObj.job.costs,
           extrasCosts: newExtrasArray,
           extrasTotal: newTotal,
         },
@@ -47,10 +48,10 @@ export function EditPage4({setJobModified}) {
   };
 
   function handleRemove(extraID) {
-    const extraIndex = activeJob.job.products.extrasCosts.findIndex(
+    const extraIndex = activeJob.job.costs.extrasCosts.findIndex(
       (x) => x.id === extraID
     );
-    const newExtrasArray = activeJob.job.products.extrasCosts;
+    const newExtrasArray = activeJob.job.costs.extrasCosts;
     let newTotal = 0;
     newExtrasArray.splice(extraIndex, 1);
     newExtrasArray.forEach((extra) => {
@@ -60,8 +61,8 @@ export function EditPage4({setJobModified}) {
       ...prevObj,
       job: {
         ...prevObj.job,
-        products: {
-          ...prevObj.job.products,
+        costs: {
+          ...prevObj.job.costs,
           extrasCosts: newExtrasArray,
           extrasTotal: newTotal,
         },
@@ -80,7 +81,7 @@ export function EditPage4({setJobModified}) {
           <Grid xs={12}>
             <Typography variant="body2">Extras List</Typography>
             <Divider />
-            {activeJob.job.products.extrasCosts.map((item) => {
+            {activeJob.job.costs.extrasCosts.map((item) => {
               return (
                 <Grid key={item.id} container direction="row">
                   <Grid xs={5}>
@@ -158,8 +159,9 @@ export function EditPage4({setJobModified}) {
                 <Typography variant="body2">
                   Total cost per item:{" "}
                   {Math.ceil(
-                    (activeJob.job.products.extrasTotal +
-                      activeJob.job.products.totalPurchaseCost) /
+                    (activeJob.job.costs.extrasTotal +
+                      activeJob.job.costs.installCosts +
+                      activeJob.job.costs.totalPurchaseCost) /
                       activeJob.job.products.totalQuantity
                   ).toLocaleString()}{" "}
                   ISK
@@ -170,27 +172,32 @@ export function EditPage4({setJobModified}) {
               <Grid xs={12}>
                 <Typography variant="body2">
                   Total Material Cost:{" "}
-                  {activeJob.job.products.totalPurchaseCost.toLocaleString()}{" "}
+                  {activeJob.job.costs.totalPurchaseCost.toLocaleString()}{" "}
                   ISK
                 </Typography>
               </Grid>
               <Grid xs={12}>
+                <Tooltip title="Calculated from linked jobs only, add any unlinked jobs manually as an extra.">
                 <Typography variant="body2">
-                  Total Job Install Costs: (TBC)
+                    Total Install Costs: {" "}
+                    {activeJob.job.costs.installCosts.toLocaleString()}{" "}
+                    ISK
                 </Typography>
+                </Tooltip>
               </Grid>
               <Grid xs={12}>
                 <Typography variant="body2">
                   Total Extras:{" "}
-                  {activeJob.job.products.extrasTotal.toLocaleString()} ISK
+                  {activeJob.job.costs.extrasTotal.toLocaleString()} ISK
                 </Typography>
               </Grid>
               <Grid xs={12} sm>
                 <Typography variant="body2">
                   Total Build Cost:{" "}
                   {(
-                    activeJob.job.products.totalPurchaseCost +
-                    activeJob.job.products.extrasTotal
+                    activeJob.job.costs.totalPurchaseCost +
+                    activeJob.job.costs.installCosts +
+                    activeJob.job.costs.extrasTotal 
                   ).toLocaleString()}{" "}
                   ISK
                 </Typography>

@@ -34,15 +34,17 @@ export function useRefreshUser() {
       const refreshedUser = await RefreshTokens(refreshToken);
       refreshedUser.fbToken = await firebaseAuth(refreshedUser);
 
+      updateLoadingText("Building Character Object");
+      const charSettings = await determineUserState(refreshedUser);
+      refreshedUser.accountID = charSettings.accountID;
+      refreshedUser.linkedJobs = charSettings.linkedJobs;
+
       updateLoadingText("Loading API Data");
       refreshedUser.apiSkills = await CharacterSkills(refreshedUser)
       refreshedUser.apiJobs = await IndustryJobs(refreshedUser)
       refreshedUser.apiOrders = await MarketOrders(refreshedUser)
       refreshedUser.apiBlueprints = await BlueprintLibrary(refreshedUser)
-      
-      updateLoadingText("Building Character Object");
-      const charSettings = await determineUserState(refreshedUser);
-      refreshedUser.accountID = charSettings.accountID;
+
       console.log(refreshedUser);
 
       setJobStatus(charSettings.jobStatusArray);

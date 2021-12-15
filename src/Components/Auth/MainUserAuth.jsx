@@ -39,17 +39,19 @@ export function AuthMainUser() {
     );
     updateLoadingText("Logging Into Eve SSO");
     const userObject = await EveSSOTokens(authCode);    
-    userObject.fbToken = await firebaseAuth(userObject);    
+    userObject.fbToken = await firebaseAuth(userObject);
+    
+    updateLoadingText("Downloading Character Data");
+    const userSettings = await determineUserState(userObject);
+    userObject.accountID = userSettings.accountID;
+    userObject.linkedJobs = userSettings.linkedJobs;
     
     updateLoadingText("Loading API Data");
     userObject.apiSkills = await CharacterSkills(userObject);
     userObject.apiJobs = await IndustryJobs(userObject);
     userObject.apiOrders = await MarketOrders(userObject);
     userObject.apiBlueprints = await BlueprintLibrary(userObject);
-    updateLoadingText("Downloading Character Data");
 
-    const userSettings = await determineUserState(userObject);
-    userObject.accountID = userSettings.accountID;
     console.log(userObject);
     
     setJobStatus(userSettings.jobStatusArray);
@@ -114,6 +116,7 @@ class MainUser {
     this.ParentUser = true;
     this.apiSkills = null;
     this.apiJobs = null;
+    this.linkedJobs = [];
     this.apiOrders = null;
     this.apiBlueprints = null;
     this.Settings = null;

@@ -34,7 +34,7 @@ export function EditPage1({ setJobModified }) {
       return (
         <Tooltip title="Click to add as a manufacturing job" placement="left-start">
           <IconButton
-            classname={classes.manIcon}
+            className={classes.manIcon}
             style={{color: "rgba(164,219,45,0.5)"}}
             size="small"
             onClick={() => newJobProcess(material.typeID, material.quantity)}
@@ -175,10 +175,19 @@ export function EditPage1({ setJobModified }) {
                   )}
                   options={blueprintVariables.manStructure}
                   onChange={(e) => {
-                    updateActiveJob((prevState) => ({
-                      ...prevState,
-                      structureTypeDisplay: e.value,
-                    }));
+                    if (e.value === "Station") {
+                      updateActiveJob((prevState) => ({
+                        ...prevState,
+                        structureTypeDisplay: e.value,
+                        structureType: 0,
+                      }));
+                    } else {
+                      updateActiveJob((prevState) => ({
+                        ...prevState,
+                        structureTypeDisplay: e.value,
+                        structureType: 1,
+                      }));
+                    }
                     setJobModified(true);
                   }}
                 />

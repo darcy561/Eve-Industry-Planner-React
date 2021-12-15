@@ -2,7 +2,8 @@ import React, { useContext, useState } from "react";
 import {
   JobArrayContext,
   JobStatusContext,
-  ActiveJobContext
+  ActiveJobContext,
+  ApiJobsContext
 } from "../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { EditPage1 } from "./Edit Job Components/Job Page 1";
@@ -23,16 +24,18 @@ import {
 } from "@material-ui/core";
 import { jobTypes } from "../JobPlanner";
 import { useFirebase } from "../../../Hooks/useFirebase";
-import { IsLoggedInContext } from "../../../Context/AuthContext";
+import { IsLoggedInContext, MainUserContext } from "../../../Context/AuthContext";
 
 export function EditJob({updateJobSettingsTrigger}) {
   const { jobStatus } = useContext(JobStatusContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { apiJobs, updateApiJobs} = useContext(ApiJobsContext);
   const [activeStep, changeStep] = useState(1);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { removeJob, uploadJob } = useFirebase();
+  const { mainUser, updateMainUser } = useContext(MainUserContext);
+  const { removeJob, uploadJob, updateMainUserDoc } = useFirebase();
   const [ jobModified, setJobModified ] = useState(false);
 
   function StepContentSelector() {
@@ -76,6 +79,7 @@ export function EditJob({updateJobSettingsTrigger}) {
     newArray[index] = activeJob;
     if (isLoggedIn && jobModified) {
       uploadJob(activeJob);
+      updateMainUserDoc();
     };
     updateJobArray(newArray);
     setSnackbarData((prev) => ({
@@ -86,9 +90,28 @@ export function EditJob({updateJobSettingsTrigger}) {
   }
 
   function deleteJob() {
-    const newArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);
-    updateJobArray(newArray);
-    isLoggedIn && removeJob(activeJob);
+    
+    if (isLoggedIn) {
+      removeJob(activeJob)
+      const newMainUserArray = mainUser.linkedJobs
+      const newApiJobsArary =  apiJobs
+      activeJob.apiJobs.forEach((job) => {
+        const x = mainUser.linkedJobs.findIndex((i) => i === job)
+        const y = apiJobs.findIndex((u) => u.job_id === job)
+        newMainUserArray.splice(x, 1);
+        newApiJobsArary[y].linked = false;
+      })
+      updateMainUser((prevObj) => ({
+        ...prevObj,
+        linkedJobs: newMainUserArray
+      }));
+      updateApiJobs(newApiJobsArary);
+      updateMainUserDoc();
+    }
+
+    const newJobArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);
+    updateJobArray(newJobArray);
+    
     setSnackbarData((prev) => ({
       ...prev, open: true, message: `${activeJob.name} Deleted`, severity: "error", autoHideDuration: 3000,
     }));

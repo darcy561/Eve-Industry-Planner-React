@@ -45,10 +45,16 @@ class Job {
       },
       costs: {
         totalPurchaseCost: 0,
-
         extrasCosts: [],
         extrasTotal: 0,
         installCosts: 0
+      },
+      sale: {
+        totalSold: 0,
+        totalSale: 0,
+        markUp: 0,
+        transactions: [],
+        brokersFee:[],
       },
       materials: null,
       buildChar: null,
@@ -76,7 +82,6 @@ export async function createJob(itemID) {
       }
     );
     const itemJson = await response.json();
-    console.log(itemJson);
     const outputObject = new Job(itemJson);
     try {
       if (outputObject.jobType === jobTypes.manufacturing) {

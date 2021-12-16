@@ -144,17 +144,17 @@ export function EditPage2({setJobModified}) {
                     {material.purchasing.map((record) => {
                       return (
                         <Grid container direction="row">
-                          <Grid xs={2} sm={2} md={1}>
+                          <Grid item xs={2} sm={2} md={1}>
                             <Typography variant="body2">
                               {record.itemCount.toLocaleString()}
                             </Typography>
                           </Grid>
-                          <Grid xs={2} sm={2} md={1}>
+                          <Grid item xs={2} sm={2} md={1}>
                             <Typography variant="body2">
                               {record.itemCost.toLocaleString()} ISK
                             </Typography>
                           </Grid>
-                          <Grid xs={2} sm={2} md={1}>
+                          <Grid item xs={2} sm={2} md={1}>
                             <IconButton
                               color="primary"
                               size="small"
@@ -172,7 +172,7 @@ export function EditPage2({setJobModified}) {
                       Add material cost and quantity purchased
                     </Typography>
                   </Grid>
-                  <Grid xs={4} sm={2} md={1}>
+                  <Grid item xs={4} sm={2} md={1}>
                     <TextField
                       defaultValue={inputs.itemCount}
                       variant="outlined"
@@ -186,8 +186,8 @@ export function EditPage2({setJobModified}) {
                       }}
                     />
                   </Grid>
-                  <Grid xs={1} sm={2} md={1}></Grid>
-                  <Grid xs={4} sm={2} md={2}>
+                  <Grid item xs={1} sm={2} md={1}></Grid>
+                  <Grid item xs={4} sm={2} md={2}>
                     <TextField
                       defaultValue={inputs.itemCost}
                       variant="outlined"
@@ -201,7 +201,7 @@ export function EditPage2({setJobModified}) {
                       }}
                     />
                   </Grid>
-                  <Grid xs={1} sm={2} md={1}>
+                  <Grid item xs={1} sm={2} md={1}>
                     <IconButton
                       color="primary"
                       onClick={() => handleAdd(material)}

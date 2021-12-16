@@ -25,27 +25,38 @@ export function EditPage3({ setJobModified }) {
     (job) =>
       activeJob.itemID == job.product_type_id &&
       !activeJob.apiJobs.includes(job.job_id) &&
-      job.linked === false
+      job.linked === false &&
+      job.activity_id === 1
   );
- 
+
+  let linkedJobsRuns = 0;
+  linkedJobs.forEach((job) => {
+    linkedJobsRuns += job.runs;
+  });
+
   return (
     <Container maxWidth="xl" disableGutters={true}>
       <Grid container direction="row">
         <Grid item xs={6}>
-        <Grid item xs={12}>
-          <Typography variant="body2">Available Jobs</Typography>
+          <Grid item xs={12}>
+            <Typography variant="body2">Available Jobs</Typography>
           </Grid>
-          <Divider/>
-          <AvailableJobs jobMatches={jobMatches} setJobModified={setJobModified} />
-          <Divider/>
+          <Divider />
+          <AvailableJobs
+            jobMatches={jobMatches}
+            setJobModified={setJobModified}
+          />
+          <Divider />
         </Grid>
         <Grid item xs={6}>
-        <Grid item xs={12}>
-            <Typography variant="body2">Linked Jobs {activeJob.apiJobs.length}/{activeJob.jobCount}</Typography>
+          <Grid item xs={12}>
+            <Typography variant="body2">
+              Linked Jobs {activeJob.apiJobs.length}/{activeJob.jobCount}
+            </Typography>
           </Grid>
-          <Divider/>
+          <Divider />
           <LinkedJobs linkedJobs={linkedJobs} setJobModified={setJobModified} />
-          <Divider/>
+          <Divider />
         </Grid>
       </Grid>
     </Container>

@@ -31,7 +31,6 @@ export function EditJob({updateJobSettingsTrigger}) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { apiJobs, updateApiJobs} = useContext(ApiJobsContext);
-  const [activeStep, changeStep] = useState(1);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
@@ -60,7 +59,6 @@ export function EditJob({updateJobSettingsTrigger}) {
       ...prevState,
       jobStatus: prevState.jobStatus - 1,
     }));
-    changeStep((prevActiveStep) => prevActiveStep - 1);
     setJobModified(true);
   }
 
@@ -69,7 +67,6 @@ export function EditJob({updateJobSettingsTrigger}) {
       ...prevState,
       jobStatus: prevState.jobStatus + 1,
     }));
-    changeStep((prevActiveStep) => prevActiveStep + 1);
     setJobModified(true);
   }
 
@@ -204,7 +201,7 @@ export function EditJob({updateJobSettingsTrigger}) {
                     Back
                   </Button>
                   <Button
-                    disabled={activeStep === jobStatus.length}
+                    disabled={activeJob.jobStatus === jobStatus.length-1}
                     variant="contained"
                     color="primary"
                     onClick={stepForward}

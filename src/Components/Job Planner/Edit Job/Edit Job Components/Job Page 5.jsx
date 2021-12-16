@@ -26,7 +26,7 @@ export function EditPage5({ setJobModified }) {
   );
   let transactionFeeTotal = 0;
   activeJob.job.sale.transactions.forEach(
-    (item) => (transactionFeeTotal += item.sold)
+    (item) => (transactionFeeTotal += item.fee)
   );
 
   return (

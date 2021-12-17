@@ -101,13 +101,15 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
             <AccordionDetails>
               <Grid container direction="row" item xs={12} spacing={1}>
                 {jobArray.map((job) => {
-                  if (job.jobStatus == status.id) {
+                  if (job.jobStatus === status.id) {
                     return (
                       <JobCard
                         job={job}
                         updateJobSettingsTrigger={updateJobSettingsTrigger}
                       />
                     );
+                  } else {
+                    return null
                   }
                 })}
 

@@ -2,12 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { IsLoggedInContext, MainUserContext } from "../../Context/AuthContext";
 import { EditJob } from "./Edit Job/EditJob";
 import { PlannerAccordion } from "./Planner Components/accordion";
-import { CircularProgress, Typography } from "@material-ui/core";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import {
-  LoadingTextContext,
   PageLoadContext,
 } from "../../Context/LayoutContext";
+import { LoadingPage } from "../loadingPage";
 
 export let blueprintVariables = {
   me: [
@@ -80,7 +79,6 @@ export function JobPlanner() {
   const { mainUser } = useContext(MainUserContext);
   const { refreshMainUser } = useRefreshUser();
   const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
-  const { loadingText } = useContext(LoadingTextContext);
 
   useEffect(async () => {
     if (
@@ -100,10 +98,7 @@ export function JobPlanner() {
 
   if (pageLoad) {
     return (
-      <>
-        <CircularProgress color="primary" />
-        <Typography variant="body2">{loadingText}</Typography>
-      </>
+      <LoadingPage/>
     );
   } else {
     if (jobSettingsTrigger) {

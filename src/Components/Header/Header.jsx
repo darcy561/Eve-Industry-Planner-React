@@ -7,7 +7,6 @@ import {
   Toolbar,
   IconButton,
   Hidden,
-  Container,
 } from "@material-ui/core";
 import { SideMenu } from "./Components/Side Menu/sidemenu";
 import MenuIcon from "@material-ui/icons/Menu";

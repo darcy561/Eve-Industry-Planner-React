@@ -44,6 +44,11 @@ export function EditPage2({setJobModified}) {
     ) {
       newArray[materialIndex].purchaseComplete = true;
     }
+
+    newArray.forEach((material) => {
+      newTotal += material.purchasedCost;
+    });
+    
     updateActiveJob((prevObj) => ({
       ...prevObj,
       job: {
@@ -92,6 +97,7 @@ export function EditPage2({setJobModified}) {
     newArray.forEach((material) => {
       newTotal += material.purchasedCost;
     });
+    console.log(newTotal);
     updateActiveJob((prevObj) => ({
       ...prevObj,
       job: {

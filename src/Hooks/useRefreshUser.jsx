@@ -1,9 +1,13 @@
-import React, { useCallback, useContext } from "react";
+import { useCallback, useContext } from "react";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { useEveApi } from "./useEveApi";
 import { useFirebase } from "./useFirebase";
-import { ApiJobsContext, JobArrayContext, JobStatusContext } from "../Context/JobContext";
+import {
+  ApiJobsContext,
+  JobArrayContext,
+  JobStatusContext,
+} from "../Context/JobContext";
 import {
   IsLoggedInContext,
   MainUserContext,
@@ -14,7 +18,8 @@ import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 
 export function useRefreshUser() {
-  const { BlueprintLibrary, CharacterSkills, IndustryJobs, MarketOrders } = useEveApi();
+  const { BlueprintLibrary, CharacterSkills, IndustryJobs, MarketOrders, WalletTransactions, WalletJournal } =
+    useEveApi();
   const { determineUserState } = useFirebase();
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
@@ -25,39 +30,68 @@ export function useRefreshUser() {
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
 
+  const refreshMainUser = useCallback(async (refreshToken) => {
+    const t = trace(performance, "MainUserRefreshProcessFull");
+    t.start();
 
-  const refreshMainUser = useCallback(
-    async (refreshToken) => {
-      const t = trace(performance, "MainUserRefreshProcessFull");
-      t.start();
-      updateLoadingText("Logging Into Eve SSO");
-      const refreshedUser = await RefreshTokens(refreshToken);
-      refreshedUser.fbToken = await firebaseAuth(refreshedUser);
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      eveSSO: true,
+    }));
 
-      updateLoadingText("Building Character Object");
-      const charSettings = await determineUserState(refreshedUser);
-      refreshedUser.accountID = charSettings.accountID;
-      refreshedUser.linkedJobs = charSettings.linkedJobs;
+    const refreshedUser = await RefreshTokens(refreshToken);
+    const fbToken = await firebaseAuth(refreshedUser);
 
-      updateLoadingText("Loading API Data");
-      refreshedUser.apiSkills = await CharacterSkills(refreshedUser)
-      refreshedUser.apiJobs = await IndustryJobs(refreshedUser)
-      refreshedUser.apiOrders = await MarketOrders(refreshedUser)
-      refreshedUser.apiBlueprints = await BlueprintLibrary(refreshedUser)
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      eveSSOComp: true,
+      charData: true,
+    }));
 
-      console.log(refreshedUser);
+    const charSettings = await determineUserState(refreshedUser, fbToken);
+    refreshedUser.accountID = charSettings.accountID;
+    refreshedUser.linkedJobs = charSettings.linkedJobs;
 
-      setJobStatus(charSettings.jobStatusArray);
-      updateJobArray(charSettings.jobArraySnapshot);
-      updateApiJobs(refreshedUser.apiJobs);
-      const newUsersArray = [];
-      newUsersArray.push(refreshedUser);
-      updateUsers(newUsersArray);
-      updateIsLoggedIn(true);
-      updateMainUser(refreshedUser);
-      t.stop();
-      updatePageLoad(false);
-    }
-  );
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      charDataComp: true,
+      apiData: true,
+    }));
+
+    refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
+    refreshedUser.apiJobs = await IndustryJobs(refreshedUser);
+    refreshedUser.apiOrders = await MarketOrders(refreshedUser);
+    refreshedUser.apiBlueprints = await BlueprintLibrary(refreshedUser);
+    refreshedUser.apiTransactions = await WalletTransactions(refreshedUser);
+    refreshedUser.apiJournal = await WalletJournal(refreshedUser);
+
+
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      apiDataComp: true,
+    }));
+
+    console.log(refreshedUser);
+
+    setJobStatus(charSettings.jobStatusArray);
+    updateJobArray(charSettings.jobArraySnapshot);
+    updateApiJobs(refreshedUser.apiJobs);
+    const newUsersArray = [];
+    newUsersArray.push(refreshedUser);
+    updateUsers(newUsersArray);
+    updateIsLoggedIn(true);
+    updateMainUser(refreshedUser);
+    t.stop();
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      eveSSO: false,
+      eveSSOComp: false,
+      charData: false,
+      charDataComp: false,
+      apiData: false,
+      apiDataComp: false,
+    }));
+    updatePageLoad(false);
+  });
   return { refreshMainUser };
 }

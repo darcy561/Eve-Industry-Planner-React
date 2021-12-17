@@ -7,32 +7,25 @@ import {
   Container,
   Divider,
   Grid,
-  IconButton,
-  Tooltip,
   Typography,
 } from "@material-ui/core";
 import { LinkedJobs } from "./Page 3 Components/Linked Jobs";
 import { AvailableJobs } from "./Page 3 Components/Available Jobs";
 
 export function EditPage3({ setJobModified }) {
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
+  const { activeJob } = useContext(ActiveJobContext);
+  const { apiJobs } = useContext(ApiJobsContext);
 
   const linkedJobs = apiJobs.filter((job) =>
     activeJob.apiJobs.includes(job.job_id)
   );
   const jobMatches = apiJobs.filter(
     (job) =>
-      activeJob.itemID == job.product_type_id &&
+      activeJob.itemID === job.product_type_id &&
       !activeJob.apiJobs.includes(job.job_id) &&
       job.linked === false &&
       job.activity_id === 1
   );
-
-  let linkedJobsRuns = 0;
-  linkedJobs.forEach((job) => {
-    linkedJobsRuns += job.runs;
-  });
 
   return (
     <Container maxWidth="xl" disableGutters={true}>

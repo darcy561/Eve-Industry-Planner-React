@@ -11,7 +11,7 @@ export function LinkedJobs({linkedJobs, setJobModified}) {
     const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
     const { setSnackbarData } = useContext(SnackBarDataContext);
 
-    if (linkedJobs != 0) {
+    if (linkedJobs !== 0) {
         return (
             <>
                 {linkedJobs.map((job) => {
@@ -39,7 +39,7 @@ export function LinkedJobs({linkedJobs, setJobModified}) {
 
                                             const newActiveJobArray = activeJob.apiJobs;
                                             const aJ = newActiveJobArray.findIndex(
-                                                (x) => x == job.job_id
+                                                (x) => x === job.job_id
                                             );
                                             newActiveJobArray.splice(aJ, 1);
                                             updateActiveJob((prevObj) => ({
@@ -55,7 +55,7 @@ export function LinkedJobs({linkedJobs, setJobModified}) {
                                             }));
 
                                             const newUserArray = mainUser.linkedJobs;
-                                            const uA = newUserArray.findIndex((y) => y == job.job_id);
+                                            const uA = newUserArray.findIndex((y) => y === job.job_id);
                                             newUserArray.splice(uA, 1);
                                             updateMainUser((prevObj) => ({
                                                 ...prevObj,

@@ -1,4 +1,4 @@
-import { Avatar, Box, Hidden, Icon, Menu, MenuItem, Typography } from '@material-ui/core';
+import { Avatar, Box, Hidden, Menu, MenuItem, Typography } from '@material-ui/core';
 import React, {useContext, useState} from 'react';
 import { IsLoggedInContext, MainUserContext, UsersContext } from '../../../../Context/AuthContext';
 import { ActiveJobContext, ApiJobsContext, JobArrayContext, JobStatusContext } from '../../../../Context/JobContext';
@@ -10,7 +10,7 @@ import { useNavigate } from "react-router";
 
 
 export function UserIcon() {
-  const { users, updateUsers } = useContext(UsersContext);
+  const { updateUsers } = useContext(UsersContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
   const [anchor, setAnchor] = useState(null);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);

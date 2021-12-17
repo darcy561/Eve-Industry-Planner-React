@@ -46,7 +46,6 @@ class MainUser {
         this.CharacterName = decodedToken.name;
         this.aToken = tokenJSON.access_token;
         this.aTokenEXP = Number(decodedToken.exp);
-        this.fbToken = null;
         this.ParentUser = true;
         this.apiSkills = null;
         this.apiJobs = null;

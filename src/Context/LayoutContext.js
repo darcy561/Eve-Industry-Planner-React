@@ -66,7 +66,16 @@ export const PageLoad = (props) => {
 export const LoadingTextContext = createContext();
 
 export const LoadingText = (props) => {
-    const [loadingText, updateLoadingText] = useState("");
+    const [loadingText, updateLoadingText] = useState({
+        "eveSSO": false,
+        "eveSSOComp": false,
+        "charData": false,
+        "charDataComp":false,
+        "apiData": false,
+        "apiDataComp": false,
+        "jobData": false,
+        "jobDataComp": false
+    });
 
     return (
         <LoadingTextContext.Provider value={{ loadingText, updateLoadingText }}>

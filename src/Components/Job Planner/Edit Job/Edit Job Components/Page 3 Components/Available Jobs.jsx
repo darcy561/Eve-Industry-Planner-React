@@ -20,7 +20,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
-  if (jobMatches.length != 0 && activeJob.apiJobs.length < activeJob.jobCount) {
+  if (jobMatches.length !== 0 && activeJob.apiJobs.length < activeJob.jobCount) {
     return (
       <>
         {jobMatches.map((job) => {

@@ -1,0 +1,74 @@
+[
+    {
+      "client_id": 2117592518,
+      "date": "2021-12-16T22:14:04Z",
+      "is_buy": true,
+      "is_personal": true,
+      "journal_ref_id": 19969332750,
+      "location_id": 60008494,
+      "quantity": 72,
+      "transaction_id": 5753836585,
+      "type_id": 36,
+      "unit_price": 72.97
+    },
+    {
+      "client_id": 634413017,
+      "date": "2021-12-16T22:14:04Z",
+      "is_buy": true,
+      "is_personal": true,
+      "journal_ref_id": 19969332746,
+      "location_id": 60008494,
+      "quantity": 188,
+      "transaction_id": 5753836584,
+      "type_id": 35,
+      "unit_price": 14.49
+    },
+    {
+      "client_id": 90835431,
+      "date": "2021-12-16T22:14:04Z",
+      "is_buy": true,
+      "is_personal": true,
+      "journal_ref_id": 19969332743,
+      "location_id": 60008494,
+      "quantity": 632,
+      "transaction_id": 5753836583,
+      "type_id": 34,
+      "unit_price": 4.99
+    },
+    {
+      "client_id": 2117592518,
+      "date": "2021-12-13T23:56:52Z",
+      "is_buy": true,
+      "is_personal": true,
+      "journal_ref_id": 19960425279,
+      "location_id": 60008494,
+      "quantity": 300,
+      "transaction_id": 5751960455,
+      "type_id": 36,
+      "unit_price": 68.98
+    },
+    {
+      "client_id": 93872860,
+      "date": "2021-12-13T23:56:52Z",
+      "is_buy": true,
+      "is_personal": true,
+      "journal_ref_id": 19960425275,
+      "location_id": 60008494,
+      "quantity": 800,
+      "transaction_id": 5751960454,
+      "type_id": 35,
+      "unit_price": 14.12
+    },
+    {
+      "client_id": 971968862,
+      "date": "2021-12-13T23:56:52Z",
+      "is_buy": true,
+      "is_personal": true,
+      "journal_ref_id": 19960425271,
+      "location_id": 60008494,
+      "quantity": 2700,
+      "transaction_id": 5751960453,
+      "type_id": 34,
+      "unit_price": 3.79
+    }
+  ]

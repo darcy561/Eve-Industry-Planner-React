@@ -1,5 +1,4 @@
-import React, { useCallback } from "react"
-import indyTestData from "../RawData/industryAPI.json";
+import { useCallback } from "react"
 import skillsReference from "../RawData/bpSkills.json";
 import searchData from "../RawData/searchIndex.json";
 
@@ -21,7 +20,7 @@ export function useEveApi() {
             activeLevel: null,
           };
 
-          if (x != undefined) {
+          if (x !== undefined) {
             y.activeLevel = x.active_skill_level;
           } else {
             y.activeLevel = 0;
@@ -34,7 +33,7 @@ export function useEveApi() {
         console.log(err);
         return [];
       }
-    }, []);
+    });
 
     const IndustryJobs = useCallback(async (userObj) => {
         try {
@@ -44,8 +43,8 @@ export function useEveApi() {
           // const indyJSON = indyTestData;
           
           indyJSON.forEach((job) => {
-            const nameMatch = searchData.find((item) => item.itemID == job.product_type_id);
-            if (nameMatch != undefined) {
+            const nameMatch = searchData.find((item) => item.itemID === job.product_type_id);
+            if (nameMatch !== undefined) {
               job.product_name = nameMatch.name ;  
             } else {
               job.product_name = null
@@ -64,7 +63,7 @@ export function useEveApi() {
             console.log(err);
             return []
         };
-    }, []);
+    });
 
     const MarketOrders = useCallback(async (userObj) => {
         try {
@@ -78,22 +77,50 @@ export function useEveApi() {
             console.log(err)
             return []
         }
-    }, []);
+    });
 
-    const BlueprintLibrary = useCallback(async (userObj) => {
-        try {
-            const blueprintPromise = await fetch(`https://esi.evetech.net/latest/characters/${userObj.CharacterID}/blueprints/?datasource=tranquility&token=${userObj.aToken}`)
+  const BlueprintLibrary = useCallback(async (userObj) => {
+    try {
+      const blueprintPromise = await fetch(`https://esi.evetech.net/latest/characters/${userObj.CharacterID}/blueprints/?datasource=tranquility&token=${userObj.aToken}`)
 
-            const blueprintJSON = await blueprintPromise.json();
+      const blueprintJSON = await blueprintPromise.json();
             
-            return (blueprintJSON)
+      return (blueprintJSON)
             
-        } catch (err) {
-            console.log(err)
-            return [];            
-        }
-    })
+    } catch (err) {
+      console.log(err)
+      return [];
+    }
+  });
 
+  const WalletTransactions = useCallback(async (userObj) => {
+    try {
+      const transactionsPromise = await fetch(`https://esi.evetech.net/latest/characters/${userObj.CharacterID}/wallet/transactions/?datasource=tranquility&token=${userObj.aToken}`)
 
-    return { BlueprintLibrary, CharacterSkills, IndustryJobs, MarketOrders}
+      const transactionsJSON = await transactionsPromise.json();
+      
+      return(transactionsJSON)
+
+    } catch (err) {
+      console.log(err)
+      return [];
+    }
+  });
+
+  const WalletJournal = useCallback(async (userObj) => {
+    try {
+
+      const journalPromise = await fetch(`https://esi.evetech.net/latest/characters/${userObj.CharacterID}/wallet/journal/?datasource=tranquility&page=1&token=${userObj.aToken}`)
+
+      const journalJSON = await journalPromise.json();
+
+      return(journalJSON)
+
+    } catch (err) {
+      console.log(err)
+      return [];
+    }
+  });
+
+    return { BlueprintLibrary, CharacterSkills, IndustryJobs, MarketOrders, WalletTransactions, WalletJournal }
 };

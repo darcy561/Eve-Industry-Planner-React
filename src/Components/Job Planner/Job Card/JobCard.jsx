@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { ActiveJobContext } from "../../../Context/JobContext";
 import { jobTypes } from "..";
 import {
@@ -12,7 +12,6 @@ import {
 import { makeStyles } from "@material-ui/styles";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { LoadingTextContext, PageLoadContext } from "../../../Context/LayoutContext";
-import { MainUserContext } from "../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   Card: {
@@ -69,12 +68,14 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
   const { updateActiveJob } = useContext(ActiveJobContext);
   const { downloadCharacterJobs } = useFirebase();
   const { updatePageLoad } = useContext(PageLoadContext);
-  const { mainUser } = useContext(MainUserContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const classes = useStyles();
 
   async function EditJobProcess(job) {
-    updateLoadingText("Downloading Job Data")
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobData: true
+    }));
     updatePageLoad(true)
     if (job.isSnapshot) {
       const jobEdit = await downloadCharacterJobs(job);
@@ -83,7 +84,16 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
     }
     updateActiveJob(job);
     updatePageLoad(false);
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobDataComp: true
+    }));
     updateJobSettingsTrigger((prev) => !prev);
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobData: false,
+      jobDataComp: false
+    }));
     // This function sets up the correct job to be changed and displays the popup window.
   }
 

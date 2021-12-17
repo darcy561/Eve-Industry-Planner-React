@@ -1,13 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 import itemList from "../../../../RawData/searchIndex.json";
 import { Autocomplete } from "@material-ui/lab";
 import { Container, TextField } from "@material-ui/core";
 import { useCreateJobProcess } from "../../../../Hooks/useCreateJob";
-import { IsLoggedInContext } from "../../../../Context/AuthContext";
 
 export function Search() {
   const { newJobProcess } = useCreateJobProcess();
-  const { isLoggedIn } = useContext(IsLoggedInContext);
 
   return (
     <Container style={{ width: "15%", marginRight: "2%"}}>

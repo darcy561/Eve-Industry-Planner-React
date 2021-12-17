@@ -1,12 +1,10 @@
-import React, { useCallback, useContext } from "react";
+import { useCallback, useContext } from "react";
 import { IsLoggedInContext, MainUserContext } from "../Context/AuthContext";
 import { firestore, functions, performance } from "../firebase";
 import {
-  collection,
   doc,
   deleteDoc,
   getDoc,
-  getDocs,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
@@ -21,8 +19,8 @@ export function useFirebase() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
 
-  const determineUserState = useCallback(async (user) => {
-    if (user.fbToken._tokenResponse.isNewUser) {
+  const determineUserState = useCallback(async (user, fbToken) => {
+    if (fbToken._tokenResponse.isNewUser) {
       const t = trace(performance, "NewUserCloudBuild");
       t.start();
       try {
@@ -39,7 +37,7 @@ export function useFirebase() {
         console.log(err);
       }
     }
-    if (!user.fbToken._tokenResponse.isNewUser) {
+    if (!fbToken._tokenResponse.isNewUser) {
       const CharSnap = await getDoc(
         doc(firestore, "Users", user.accountID)
       );

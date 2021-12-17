@@ -41,7 +41,7 @@ export function useFirebase() {
     }
     if (!user.fbToken._tokenResponse.isNewUser) {
       const CharSnap = await getDoc(
-        doc(firestore, "Users", user.CharacterHash)
+        doc(firestore, "Users", user.accountID)
       );
       const charData = CharSnap.data();
       const newJobArray = [];
@@ -60,7 +60,7 @@ export function useFirebase() {
         setDoc(
           doc(
             firestore,
-            `Users/${mainUser.CharacterHash}/Jobs`,
+            `Users/${mainUser.accountID}/Jobs`,
             job.jobID.toString()
           ),
           {
@@ -89,7 +89,7 @@ export function useFirebase() {
         setDoc(
           doc(
             firestore,
-            `Users/${mainUser.CharacterHash}/Jobs`,
+            `Users/${mainUser.accountID}/Jobs`,
             job.jobID.toString()
           ),
           {
@@ -124,7 +124,7 @@ export function useFirebase() {
         updateDoc(
           doc(
             firestore,
-            `Users/${mainUser.CharacterHash}/Jobs`,
+            `Users/${mainUser.accountID}/Jobs`,
             job.jobID.toString()
           ),
           {
@@ -153,7 +153,7 @@ export function useFirebase() {
         updateDoc(
           doc(
             firestore,
-            `Users/${mainUser.CharacterHash}/Jobs`,
+            `Users/${mainUser.accountID}/Jobs`,
             job.jobID.toString()
           ),
           {
@@ -184,7 +184,7 @@ export function useFirebase() {
 
   const updateMainUserDoc = useCallback(
     async () => {
-      updateDoc(doc(firestore, "Users", mainUser.CharacterHash), {
+      updateDoc(doc(firestore, "Users", mainUser.accountID), {
         jobStatusArray: jobStatus,
         linkedJobs: mainUser.linkedJobs,
       });
@@ -197,7 +197,7 @@ export function useFirebase() {
       deleteDoc(
         doc(
           firestore,
-          `Users/${mainUser.CharacterHash}/Jobs`,
+          `Users/${mainUser.accountID}/Jobs`,
           job.jobID.toString()
         )
       );
@@ -210,7 +210,7 @@ export function useFirebase() {
       const document = await getDoc(
         doc(
           firestore,
-          `Users/${mainUser.CharacterHash}/Jobs`,
+          `Users/${mainUser.accountID}/Jobs`,
           job.jobID.toString()
         )
       );

@@ -12,6 +12,7 @@ export function Search() {
   return (
     <Container style={{ width: "15%", marginRight: "2%"}}>
       <Autocomplete
+
         fullWidth
         freeSolo
         id="Recipe Search"

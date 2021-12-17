@@ -35,7 +35,7 @@ export function EditJob({updateJobSettingsTrigger}) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
   const { removeJob, uploadJob, updateMainUserDoc } = useFirebase();
-  const [ jobModified, setJobModified ] = useState(false);
+  const [jobModified, setJobModified] = useState(false);
 
   function StepContentSelector() {
     switch (activeJob.jobStatus) {
@@ -117,7 +117,7 @@ export function EditJob({updateJobSettingsTrigger}) {
 
   return (
     <>
-      <Container maxWidth={false} disableGutters={true}>
+      <Container maxWidth="xl" disableGutters={true}>
         <Grid container direction="row">
           <Grid item xs={12}></Grid>
           <Grid item xs={12}>
@@ -164,7 +164,7 @@ export function EditJob({updateJobSettingsTrigger}) {
               Delete
             </Button>
           </Grid>
-          <Grid item xs={0} sm={4}></Grid>
+          <Grid item sm={4}></Grid>
           <Grid item xs={8} sm={3}><Typography variant="body2">Items Produced Per Blueprint Run</Typography></Grid>
           <Grid item xs={3} sm={5}>
             {activeJob.jobType === jobTypes.manufacturing ?
@@ -174,12 +174,12 @@ export function EditJob({updateJobSettingsTrigger}) {
               <Typography variant="body2">{Number(activeJob.reaction.products[0].quantity).toLocaleString()}</Typography>
               : <></>}
           </Grid>
-          <Grid item xs={0} sm={4}></Grid>
+          <Grid item sm={4}></Grid>
           <Grid item xs={8} sm={3}><Typography variant="body2">Total Items Per Job Slot</Typography></Grid>
           <Grid item xs={3} sm={5}>
               <Typography variant="body2">{activeJob.job.products.quantityPerJob.toLocaleString()}</Typography>
           </Grid>
-          <Grid item xs={0} sm={4}></Grid>
+          <Grid item sm={4}></Grid>
           <Grid item xs={8} sm={3}><Typography variant="body2">Total Items Being Produced</Typography></Grid>
           <Grid item xs={3} sm={5}>
               <Typography variant="body2">{activeJob.job.products.totalQuantity.toLocaleString()}</Typography>
@@ -198,16 +198,18 @@ export function EditJob({updateJobSettingsTrigger}) {
                     color="primary"
                     onClick={stepBack}
                   >
-                    Back
+                    Previous Step
                   </Button>
-                  <Button
-                    disabled={activeJob.jobStatus === jobStatus.length-1}
-                    variant="contained"
-                    color="primary"
-                    onClick={stepForward}
-                  >
-                    Next
-                  </Button>
+                  {activeJob.job.products.recalculate === false ?(
+                    <Button
+                      disabled={activeJob.jobStatus === jobStatus.length - 1}
+                      variant="contained"
+                      color="primary"
+                      onClick={stepForward}
+                    >
+                      Next Step
+                    </Button>
+                  ): null }
                 </StepContent>
               </Step>
             );

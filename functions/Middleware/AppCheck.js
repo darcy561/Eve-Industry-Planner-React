@@ -1,8 +1,11 @@
 const admin = require("firebase-admin");
+const functions = require("firebase-functions");
 
 async function appCheckVerification(req, res, next) {
   const appCheckClaims = await verifyAppCheckToken(req.header("X-Firebase-AppCheck"));
   if (!appCheckClaims) {
+    functions.logger.warn("Unauthorised App Check Token")
+    functions.logger.warn(JSON.stringify(req.header("X-Firebase-AppCheck")))
     res.status(401);
     return next("Unauthorised");
   }
@@ -16,6 +19,8 @@ const verifyAppCheckToken = async (token) => {
     try {
         return admin.appCheck().verifyToken(token);
     } catch (err) {
+      functions.logger.error("Error Verifying AppCheck Token")
+      functions.logger.error(err)
         return null;
     };
 };

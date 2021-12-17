@@ -48,14 +48,14 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
     openAPIJobs: false,
     completeAPIJobs: false,
   });
-  const { uploadJobStatus } = useFirebase();
+  const { updateMainUserDoc } = useFirebase();
   const classes = useStyles();
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);
     let newStatusArray = [...jobStatus];
     newStatusArray[index].expanded = !newStatusArray[index].expanded;
-    isLoggedIn && uploadJobStatus(newStatusArray);
+    isLoggedIn && updateMainUserDoc(newStatusArray);
     setJobStatus(newStatusArray);
   }
 

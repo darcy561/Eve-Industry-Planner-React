@@ -18,9 +18,9 @@ export function SnackBarNotification() {
       const slideTransition = (props) => {
         return <Slide {...props} direction={snackbarData.direction}/>;
       };
-
+  if (snackbarData.open) {
     return (
-        <Snackbar
+      <Snackbar
         anchorOrigin={snackbarData.anchorOrigin}
         autoHideDuration={snackbarData.autoHideDuration}
         key={snackbarData.key}
@@ -33,8 +33,11 @@ export function SnackBarNotification() {
           severity={snackbarData.severity} sx={{ width: "100%" }}
           variant={snackbarData.variant}
         >
-         {snackbarData.message}
+          {snackbarData.message}
         </Alert>
       </Snackbar>
     )
+  } else {
+    return null
+  }
 }

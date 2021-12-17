@@ -41,7 +41,7 @@ class Job {
       products: {
         totalQuantity: 0,
         quantityPerJob: 0,
-        totalComplete: 0,
+        recalculate: false
       },
       costs: {
         totalPurchaseCost: 0,

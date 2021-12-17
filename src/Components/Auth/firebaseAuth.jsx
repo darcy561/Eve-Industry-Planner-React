@@ -1,4 +1,4 @@
-import { auth, appCheck } from "../../firebase"
+import { auth, appCheck } from "../../firebase";
 import { signInWithCustomToken } from "firebase/auth";
 import { getToken } from "firebase/app-check";
 
@@ -12,9 +12,12 @@ export async function firebaseAuth(charObj) {
         headers: {
           "Content-Type": "application/json",
           "X-Firebase-AppCheck": appCheckToken.token,
-          "Access-Token": charObj.aToken
+          "Access-Token": charObj.aToken,
         },
-        body: JSON.stringify({ CharacterHash: charObj.CharacterHash }),
+        body: JSON.stringify({
+          UID: charObj.accountID,
+          CharacterHash: charObj.CharacterHash,
+        }),
       }
     );
 

@@ -84,7 +84,7 @@ export function EditPage1({ setJobModified }) {
   }
 
   return (
-    <Container maxWidth={false} disableGutters={true}>
+    <Container maxWidth="xl" disableGutters={true}>
       <Grid container item xs={12} direction="row">
         <Grid container item xs={12} sm={4} direction="row">
           <Grid item xs={12} sm={4}>
@@ -97,6 +97,13 @@ export function EditPage1({ setJobModified }) {
                 updateActiveJob((prevState) => ({
                   ...prevState,
                   runCount: Number(e.target.value),
+                  job: {
+                    ...prevState.job,
+                    products: {
+                      ...prevState.job.products,
+                      recalculate: true
+                    }
+                  }
                 }));
                 setJobModified(true);
               }}
@@ -113,6 +120,13 @@ export function EditPage1({ setJobModified }) {
                 updateActiveJob((prevState) => ({
                   ...prevState,
                   jobCount: Number(e.target.value),
+                  job: {
+                    ...prevState.job,
+                    products: {
+                      ...prevState.job.products,
+                      recalculate: true
+                    }
+                  }
                 }));
                 setJobModified(true);
               }}
@@ -132,6 +146,13 @@ export function EditPage1({ setJobModified }) {
                     updateActiveJob((prevState) => ({
                       ...prevState,
                       bpME: Number(e.value),
+                      job: {
+                        ...prevState.job,
+                        products: {
+                          ...prevState.job.products,
+                          recalculate: true
+                        }
+                      }
                     }));
                     setJobModified(true);
                   }}
@@ -141,8 +162,8 @@ export function EditPage1({ setJobModified }) {
                   Material Efficiecy
                 </FormHelperText>
               </Grid>
-              <Grid sm={1} />
-              <Grid xs={12} sm={4}>
+              <Grid item sm={1} />
+              <Grid item xs={12} sm={4}>
                 <Select
                   variant="outlined"
                   value={blueprintVariables.te.find(
@@ -153,6 +174,13 @@ export function EditPage1({ setJobModified }) {
                     updateActiveJob((prevState) => ({
                       ...prevState,
                       bpTE: Number(e.value),
+                      job: {
+                        ...prevState.job,
+                        products: {
+                          ...prevState.job.products,
+                          recalculate: true
+                        }
+                      }
                     }));
                     setJobModified(true);
                   }}
@@ -180,12 +208,26 @@ export function EditPage1({ setJobModified }) {
                         ...prevState,
                         structureTypeDisplay: e.value,
                         structureType: 0,
+                        job: {
+                          ...prevState.job,
+                          products: {
+                            ...prevState.job.products,
+                            recalculate: true
+                          }
+                        }
                       }));
                     } else {
                       updateActiveJob((prevState) => ({
                         ...prevState,
                         structureTypeDisplay: e.value,
                         structureType: 1,
+                        job: {
+                          ...prevState.job,
+                          products: {
+                            ...prevState.job.products,
+                            recalculate: true
+                          }
+                        }
                       }));
                     }
                     setJobModified(true);
@@ -209,6 +251,13 @@ export function EditPage1({ setJobModified }) {
                     updateActiveJob((prevState) => ({
                       ...prevState,
                       structureTypeDisplay: e.value,
+                      job: {
+                        ...prevState.job,
+                        products: {
+                          ...prevState.job.products,
+                          recalculate: true
+                        }
+                      }
                     }));
                     setJobModified(true);
                   }}
@@ -220,7 +269,7 @@ export function EditPage1({ setJobModified }) {
             </>
           ) : null}
 
-          <Grid sm={1} />
+          <Grid item sm={1} />
 
           {activeJob.jobType === jobTypes.manufacturing ? (
             <>
@@ -235,6 +284,13 @@ export function EditPage1({ setJobModified }) {
                     updateActiveJob((prevState) => ({
                       ...prevState,
                       rigType: Number(e.value),
+                      job: {
+                        ...prevState.job,
+                        products: {
+                          ...prevState.job.products,
+                          recalculate: true
+                        }
+                      }
                     }));
                     setJobModified(true);
                   }}
@@ -257,6 +313,13 @@ export function EditPage1({ setJobModified }) {
                     updateActiveJob((prevState) => ({
                       ...prevState,
                       rigType: Number(e.value),
+                      job: {
+                        ...prevState.job,
+                        products: {
+                          ...prevState.job.products,
+                          recalculate: true
+                        }
+                      }
                     }));
                     setJobModified(true);
                   }}
@@ -268,7 +331,7 @@ export function EditPage1({ setJobModified }) {
             </>
           ) : null}
 
-          <Grid sm={1} />
+          <Grid item sm={1} />
 
           {activeJob.jobType === jobTypes.manufacturing ? (
             <Grid item xs={12} sm={3}>
@@ -282,6 +345,13 @@ export function EditPage1({ setJobModified }) {
                   updateActiveJob((prevState) => ({
                     ...prevState,
                     systemType: Number(e.value),
+                    job: {
+                      ...prevState.job,
+                      products: {
+                        ...prevState.job.products,
+                        recalculate: true
+                      }
+                    }
                   }));
                   setJobModified(true);
                 }}
@@ -302,6 +372,13 @@ export function EditPage1({ setJobModified }) {
                   updateActiveJob((prevState) => ({
                     ...prevState,
                     systemType: Number(e.value),
+                    job: {
+                      ...prevState.job,
+                      products: {
+                        ...prevState.job.products,
+                        recalculate: true
+                      }
+                    }
                   }));
                   setJobModified(true);
                 }}
@@ -338,6 +415,7 @@ export function EditPage1({ setJobModified }) {
         </Grid>
       </Grid>
       <Grid item xs={12}>
+        {activeJob.job.products.recalculate === true ?(
         <Button
           variant="contained"
           color="primary"
@@ -345,13 +423,21 @@ export function EditPage1({ setJobModified }) {
             const updatedTotals = CalculateTotals(activeJob);
             updateActiveJob((prevObj) => ({
               ...prevObj,
-              job: { ...prevObj.job, materials: updatedTotals },
+              job: {
+                ...prevObj.job,
+                materials: updatedTotals,
+                products: {
+                  ...prevObj.job.products,
+                  recalculate: false
+                }
+              },
             }));
             setJobModified(true);
           }}
         >
-          Recalculate Totals
-        </Button>
+          Click to recalculate before continuing
+      </Button>
+        ): null}
       </Grid>
     </Container>
   );

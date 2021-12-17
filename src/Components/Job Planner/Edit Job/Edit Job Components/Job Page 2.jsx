@@ -17,32 +17,33 @@ export function EditPage2({setJobModified}) {
   const [inputs, setInputs] = useState({ itemCost: 0, itemCount: 0 });
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
+  let totalComplete = 0;
+
+  activeJob.job.materials.forEach((material) => {
+    if (material.quantityPurchased >= material.quantity) {
+      totalComplete++;
+    }
+  });
+
   function handleAdd(material) {
     const materialIndex = activeJob.job.materials.findIndex(
       (x) => x.typeID === material.typeID
     );
     const newArray = activeJob.job.materials;
     let newTotal = 0;
-    let newComplete = 0;
     newArray[materialIndex].purchasing.push({
       id: Date.now(),
       itemCount: inputs.itemCount,
       itemCost: inputs.itemCost,
     });
     newArray[materialIndex].quantityPurchased += inputs.itemCount;
-    newArray[materialIndex].purchasedCost += inputs.itemCost;
+    newArray[materialIndex].purchasedCost += (inputs.itemCount * inputs.itemCost);
     if (
       newArray[materialIndex].quantityPurchased >=
       newArray[materialIndex].quantity
     ) {
       newArray[materialIndex].purchaseComplete = true;
     }
-    newArray.forEach((material) => {
-      newTotal += material.purchasedCost;
-      if (material.purchaseComplete == true) {
-        newComplete++;
-      }
-    });
     updateActiveJob((prevObj) => ({
       ...prevObj,
       job: {
@@ -50,7 +51,6 @@ export function EditPage2({setJobModified}) {
         materials: newArray,
         products: {
           ...prevObj.job.products,
-          totalComplete: newComplete
         },
         costs: {
           ...prevObj.job.costs,
@@ -78,11 +78,10 @@ export function EditPage2({setJobModified}) {
     );
     const newArray = activeJob.job.materials;
     let newTotal = 0;
-    let newComplete = 0;
     newArray[materialIndex].quantityPurchased -=
       newArray[materialIndex].purchasing[purchasingIndex].itemCount;
     newArray[materialIndex].purchasedCost -=
-      newArray[materialIndex].purchasing[purchasingIndex].itemCost;
+      (newArray[materialIndex].purchasing[purchasingIndex].itemCount * newArray[materialIndex].purchasing[purchasingIndex].itemCost);
     if (
       newArray[materialIndex].quantityPurchased <
       newArray[materialIndex].quantity
@@ -93,9 +92,6 @@ export function EditPage2({setJobModified}) {
     newArray.forEach((material) => {
       newTotal += material.purchasedCost;
     });
-    if (material.purchaseComplete == true) {
-      newComplete++;
-    }
     updateActiveJob((prevObj) => ({
       ...prevObj,
       job: {
@@ -103,7 +99,6 @@ export function EditPage2({setJobModified}) {
         materials: newArray,
         products: {
           ...prevObj.job.products,
-          totalComplete: newComplete
         },
         costs: {
           ...prevObj.job.costs,
@@ -122,17 +117,17 @@ export function EditPage2({setJobModified}) {
   }
 
   return (
-    <Container maxWidth={false} disableGutters={true}>
+    <Container maxWidth="xl" disableGutters={true}>
       <Grid container direction="row">
         <Grid item xs={12}>
           {activeJob.job.materials.map((material) => {
             return (
               <>
                 <Grid container direction="row">
-                  <Grid xs={9} sm={10}>
+                  <Grid item xs={9} sm={10}>
                     <Typography variant="h5">{material.name}</Typography>
                   </Grid>
-                  <Grid xs={3} sm={2}>
+                  <Grid item xs={3} sm={2}>
                     <Typography variant="h5">
                       {material.quantityPurchased.toLocaleString()}/
                       {material.quantity.toLocaleString()}
@@ -169,12 +164,12 @@ export function EditPage2({setJobModified}) {
                   </Grid>
                   <Grid xs={12}>
                     <Typography variant="body2">
-                      Add material cost and quantity purchased
+                      Add quantity of materials purchased and the price per item.
                     </Typography>
                   </Grid>
                   <Grid item xs={4} sm={2} md={1}>
                     <TextField
-                      defaultValue={inputs.itemCount}
+                      defaultValue= "0"
                       variant="outlined"
                       helperText="Number of Items"
                       type="number"
@@ -189,9 +184,9 @@ export function EditPage2({setJobModified}) {
                   <Grid item xs={1} sm={2} md={1}></Grid>
                   <Grid item xs={4} sm={2} md={2}>
                     <TextField
-                      defaultValue={inputs.itemCost}
+                      defaultValue="0"
                       variant="outlined"
-                      helperText="Total Cost"
+                      helperText="Price per Item"
                       type="number"
                       onBlur={(e) => {
                         setInputs((prevState) => ({
@@ -217,7 +212,7 @@ export function EditPage2({setJobModified}) {
         </Grid>
         <Grid xs={6}>
           <Typography variant="body2">
-            {activeJob.job.products.totalComplete}/
+            {totalComplete}/
             {activeJob.job.materials.length} items fully purchased.{" "}
           </Typography>
         </Grid>

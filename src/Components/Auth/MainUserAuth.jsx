@@ -106,7 +106,7 @@ async function EveSSOTokens(authCode) {
 
 class MainUser {
   constructor(decodedToken, tokenJSON) {
-    this.accountID = null;
+    this.accountID = decodedToken.owner.replace(/[^a-zA-z0-9 ]/g,"");
     this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
     this.CharacterHash = decodedToken.owner;
     this.CharacterName = decodedToken.name;

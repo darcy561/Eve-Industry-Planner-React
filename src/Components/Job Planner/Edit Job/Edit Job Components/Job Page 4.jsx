@@ -75,7 +75,7 @@ export function EditPage4({setJobModified}) {
   };
 
   return (
-    <Container maxWidth={false} disableGutters={true}>
+    <Container maxWidth="xl" disableGutters={true}>
       <Grid container direction="row" xs={12}>
         <Grid item xs={12} sm={6}>
           <Grid item xs={12}>

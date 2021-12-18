@@ -8,8 +8,8 @@ import {
   Hidden,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
+} from "@mui/material";
+import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { LoadingTextContext, PageLoadContext } from "../../../Context/LayoutContext";
 
@@ -142,7 +142,7 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
               </Typography>
             </Grid>
             <Grid className={classes.Grid} container item xs={12}>
-              <Hidden xsDown>
+              <Hidden smDown>
                 <Grid className={classes.Grid} item sm={3}>
                   <Box>
                     <picture className={classes.Image}>

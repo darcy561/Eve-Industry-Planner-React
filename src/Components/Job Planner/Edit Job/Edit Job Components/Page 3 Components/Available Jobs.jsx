@@ -11,7 +11,7 @@ import {
   IconButton,
   Tooltip,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { MdOutlineAddLink } from "react-icons/md";
 
 export function AvailableJobs({ jobMatches, setJobModified }) {
@@ -20,7 +20,10 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
-  if (jobMatches.length !== 0 && activeJob.apiJobs.length < activeJob.jobCount) {
+  if (
+    jobMatches.length !== 0 &&
+    activeJob.apiJobs.length < activeJob.jobCount
+  ) {
     return (
       <>
         {jobMatches.map((job) => {
@@ -96,21 +99,20 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     );
   } else if (activeJob.apiJobs.length >= activeJob.jobCount) {
     return (
-
-            <Grid item container direction="row" xs={6}>
-            <Typography variant="body2">
-              You have linked the maximum number of API jobs, if you need to link
-              more increase the number of job slots used.
-            </Typography>
-          </Grid>
-    )
-  } else{
+      <Grid item container direction="row" xs={6}>
+        <Typography variant="body2">
+          You have linked the maximum number of API jobs, if you need to link
+          more increase the number of job slots used.
+        </Typography>
+      </Grid>
+    );
+  } else {
     return (
       <Grid item container direction="row" xs={6}>
         <Typography variant="body2">
           No matching API jobs are currently found.
         </Typography>
       </Grid>
-    )
+    );
   }
 }

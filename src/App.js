@@ -1,4 +1,5 @@
 import React from "react";
+import { adaptV4Theme } from '@mui/material/styles';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Header } from "./Components/Header";
 import { Home } from "./Components/Home";
@@ -7,8 +8,8 @@ import { ItemTree } from "./Components/item Tree";
 import { JobStatus, JobArray, ActiveJob, ApiJobs } from "./Context/JobContext";
 import { AuthMainUser } from "./Components/Auth/MainUserAuth";
 import { IsLoggedIn, MainUser, Users } from "./Context/AuthContext";
-import { ThemeProvider } from "@material-ui/styles";
-import { createTheme } from "@material-ui/core";
+import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+import { createTheme } from "@mui/material";
 import { SnackBarNotification } from "./Components/snackbar";
 import { DialogBox } from "./Components/dialog";
 import {
@@ -19,7 +20,7 @@ import {
   LoadingText,
 } from "./Context/LayoutContext";
 
-const theme = createTheme({
+const theme = createTheme(adaptV4Theme({
   root: {
     background: "none",
   },
@@ -50,55 +51,57 @@ const theme = createTheme({
       fontSize: "1rem",
     },
   },
-});
+}));
 
 export default function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <SnackbarData>
-        <DialogData>
-          <PageLoad>
-            <LoadingText>
-              <IsLoggedIn>
-                <MainUser>
-                  <Users>
-                    <DataExchange>
-                      <ActiveJob>
-                        <JobArray>
-                          <JobStatus>
-                            <ApiJobs>
-                              <SnackBarNotification />
-                              <DialogBox />
-                              <BrowserRouter>
-                                <Header />
-                                <Routes>
-                                  <Route path="/" element={<Home />} />
-                                  <Route
-                                    path="/jobplanner"
-                                    element={<JobPlanner />}
-                                  />
-                                  <Route
-                                    path="/auth/"
-                                    element={<AuthMainUser />}
-                                  />
-                                  <Route
-                                    path="/itemtree"
-                                    element={<ItemTree />}
-                                  />
-                                </Routes>
-                              </BrowserRouter>
-                            </ApiJobs>
-                          </JobStatus>
-                        </JobArray>
-                      </ActiveJob>
-                    </DataExchange>
-                  </Users>
-                </MainUser>
-              </IsLoggedIn>
-            </LoadingText>
-          </PageLoad>
-        </DialogData>
-      </SnackbarData>
-    </ThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <SnackbarData>
+          <DialogData>
+            <PageLoad>
+              <LoadingText>
+                <IsLoggedIn>
+                  <MainUser>
+                    <Users>
+                      <DataExchange>
+                        <ActiveJob>
+                          <JobArray>
+                            <JobStatus>
+                              <ApiJobs>
+                                <SnackBarNotification />
+                                <DialogBox />
+                                <BrowserRouter>
+                                  <Header />
+                                  <Routes>
+                                    <Route path="/" element={<Home />} />
+                                    <Route
+                                      path="/jobplanner"
+                                      element={<JobPlanner />}
+                                    />
+                                    <Route
+                                      path="/auth/"
+                                      element={<AuthMainUser />}
+                                    />
+                                    <Route
+                                      path="/itemtree"
+                                      element={<ItemTree />}
+                                    />
+                                  </Routes>
+                                </BrowserRouter>
+                              </ApiJobs>
+                            </JobStatus>
+                          </JobArray>
+                        </ActiveJob>
+                      </DataExchange>
+                    </Users>
+                  </MainUser>
+                </IsLoggedIn>
+              </LoadingText>
+            </PageLoad>
+          </DialogData>
+        </SnackbarData>
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 }

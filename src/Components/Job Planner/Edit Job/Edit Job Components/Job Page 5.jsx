@@ -6,7 +6,7 @@ import {
   IconButton,
   TextField,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { MdAdd } from "react-icons/md";
 import { BiMinus } from "react-icons/bi";
@@ -166,7 +166,7 @@ export function EditPage5({ setJobModified }) {
                     }));
                     setJobModified(true);
                   }}
-                >
+                  size="large">
                   <MdAdd />
                 </IconButton>
               </Grid>
@@ -253,7 +253,7 @@ export function EditPage5({ setJobModified }) {
                     }));
                     setJobModified(true);
                   }}
-                >
+                  size="large">
                   <MdAdd />
                 </IconButton>
               </Grid>

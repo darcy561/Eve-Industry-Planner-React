@@ -5,7 +5,7 @@ import {
   JobStatusContext,
 } from "../../../Context/JobContext";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 import {
   Accordion,
   AccordionDetails,
@@ -16,9 +16,9 @@ import {
   Typography,
   IconButton,
   Tooltip,
-} from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import SettingsIcon from "@material-ui/icons/Settings";
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { JobCard } from "../Job Card/JobCard";
 import { StatusSettings } from "./StatusSettings";
 import { useFirebase } from "../../../Hooks/useFirebase";
@@ -90,7 +90,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
                       updateStatusSettingsTrigger(true);
                     }}
                     control={
-                      <IconButton className={classes.Settings}>
+                      <IconButton className={classes.Settings} size="large">
                         <SettingsIcon color="secondary" fontSize="small" />
                       </IconButton>
                     }

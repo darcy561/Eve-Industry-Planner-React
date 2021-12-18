@@ -8,7 +8,7 @@ import {
   Divider,
   Grid,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { LinkedJobs } from "./Page 3 Components/Linked Jobs";
 import { AvailableJobs } from "./Page 3 Components/Available Jobs";
 

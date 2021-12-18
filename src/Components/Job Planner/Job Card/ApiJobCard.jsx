@@ -1,6 +1,6 @@
 import React from "react";
-import { Avatar, Badge, Box, Card, Grid, Hidden, Tooltip, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
+import { Avatar, Badge, Box, Card, Grid, Hidden, Tooltip, Typography } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
   Card: {
@@ -57,7 +57,7 @@ export function ApiJobCard({ job }) {
                 </Typography>
               </Grid>
               <Grid className={classes.Grid} container item xs={12}>
-                <Hidden xsDown>
+                <Hidden smDown>
                   <Grid className={classes.Grid} item sm={3}>
                     <Box>
                       <Badge

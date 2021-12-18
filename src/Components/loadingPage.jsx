@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { CircularProgress, Grid, Icon, Typography } from "@material-ui/core";
+import { CircularProgress, Grid, Icon, Typography } from "@mui/material";
 import { LoadingTextContext } from "../Context/LayoutContext";
 import { MdDone } from "react-icons/md";
 
@@ -8,7 +8,7 @@ export function LoadingPage() {
   return (
     <Grid
       container
-      justify="center"
+      justifyContent="center"
       alignItems="center"
       direction="column"
       style={{ minHeight: "100vh", maxWidth:"100vw" }}

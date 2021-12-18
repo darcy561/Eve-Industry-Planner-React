@@ -5,7 +5,7 @@ import {
   IconButton,
   TextField,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import React, { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
@@ -127,93 +127,88 @@ export function EditPage2({setJobModified}) {
       <Grid container direction="row">
         <Grid item xs={12}>
           {activeJob.job.materials.map((material) => {
-            return (
-              <>
-                <Grid container direction="row">
-                  <Grid item xs={9} sm={10}>
-                    <Typography variant="h5">{material.name}</Typography>
-                  </Grid>
-                  <Grid item xs={3} sm={2}>
-                    <Typography variant="h5">
-                      {material.quantityPurchased.toLocaleString()}/
-                      {material.quantity.toLocaleString()}
-                    </Typography>
-                    <Typography variant="h5"></Typography>
-                  </Grid>
-                  <Divider />
-                  <Grid container direction="column">
-                    {material.purchasing.map((record) => {
-                      return (
-                        <Grid container direction="row">
-                          <Grid item xs={2} sm={2} md={1}>
-                            <Typography variant="body2">
-                              {record.itemCount.toLocaleString()}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={2} sm={2} md={1}>
-                            <Typography variant="body2">
-                              {record.itemCost.toLocaleString()} ISK
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={2} sm={2} md={1}>
-                            <IconButton
-                              color="primary"
-                              size="small"
-                              onClick={() => handleRemove(material, record)}
-                            >
-                              <BiMinus />
-                            </IconButton>
-                          </Grid>
-                        </Grid>
-                      );
-                    })}
-                  </Grid>
-                  <Grid xs={12}>
-                    <Typography variant="body2">
-                      Add quantity of materials purchased and the price per item.
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={4} sm={2} md={1}>
-                    <TextField
-                      defaultValue= "0"
-                      variant="outlined"
-                      helperText="Number of Items"
-                      type="number"
-                      onBlur={(e) => {
-                        setInputs((prevState) => ({
-                          ...prevState,
-                          itemCount: Number(e.target.value),
-                        }));
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={1} sm={2} md={1}></Grid>
-                  <Grid item xs={4} sm={2} md={2}>
-                    <TextField
-                      defaultValue="0"
-                      variant="outlined"
-                      helperText="Price per Item"
-                      type="number"
-                      onBlur={(e) => {
-                        setInputs((prevState) => ({
-                          ...prevState,
-                          itemCost: Number(e.target.value),
-                        }));
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={1} sm={2} md={1}>
-                    <IconButton
-                      color="primary"
-                      onClick={() => handleAdd(material)}
-                    >
-                      <MdAdd />
-                    </IconButton>
-                  </Grid>
+            return <>
+              <Grid container direction="row">
+                <Grid item xs={9} sm={10}>
+                  <Typography variant="h5">{material.name}</Typography>
+                </Grid>
+                <Grid item xs={3} sm={2}>
+                  <Typography variant="h5">
+                    {material.quantityPurchased.toLocaleString()}/
+                    {material.quantity.toLocaleString()}
+                  </Typography>
+                  <Typography variant="h5"></Typography>
                 </Grid>
                 <Divider />
-              </>
-            );
+                <Grid container direction="column">
+                  {material.purchasing.map((record) => {
+                    return (
+                      <Grid container direction="row">
+                        <Grid item xs={2} sm={2} md={1}>
+                          <Typography variant="body2">
+                            {record.itemCount.toLocaleString()}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={2} sm={2} md={1}>
+                          <Typography variant="body2">
+                            {record.itemCost.toLocaleString()} ISK
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={2} sm={2} md={1}>
+                          <IconButton
+                            color="primary"
+                            size="small"
+                            onClick={() => handleRemove(material, record)}
+                          >
+                            <BiMinus />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+                <Grid xs={12}>
+                  <Typography variant="body2">
+                    Add quantity of materials purchased and the price per item.
+                  </Typography>
+                </Grid>
+                <Grid item xs={4} sm={2} md={1}>
+                  <TextField
+                    defaultValue= "0"
+                    variant="outlined"
+                    helperText="Number of Items"
+                    type="number"
+                    onBlur={(e) => {
+                      setInputs((prevState) => ({
+                        ...prevState,
+                        itemCount: Number(e.target.value),
+                      }));
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={1} sm={2} md={1}></Grid>
+                <Grid item xs={4} sm={2} md={2}>
+                  <TextField
+                    defaultValue="0"
+                    variant="outlined"
+                    helperText="Price per Item"
+                    type="number"
+                    onBlur={(e) => {
+                      setInputs((prevState) => ({
+                        ...prevState,
+                        itemCost: Number(e.target.value),
+                      }));
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={1} sm={2} md={1}>
+                  <IconButton color="primary" onClick={() => handleAdd(material)} size="large">
+                    <MdAdd />
+                  </IconButton>
+                </Grid>
+              </Grid>
+              <Divider />
+            </>;
           })}
         </Grid>
         <Grid xs={6}>

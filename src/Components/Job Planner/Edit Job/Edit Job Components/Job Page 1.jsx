@@ -15,9 +15,9 @@ import {
   Typography,
   Button,
   Tooltip,
-} from "@material-ui/core";
+} from "@mui/material";
 import { CalculateTotals } from "../../../../Hooks/useBlueprintCalc";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 
 
 const useStyles = makeStyles((theme) => ({

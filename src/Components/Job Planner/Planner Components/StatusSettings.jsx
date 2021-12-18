@@ -7,7 +7,7 @@ import {
   Switch,
   TextField,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { JobStatusContext } from "../../../Context/JobContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
 

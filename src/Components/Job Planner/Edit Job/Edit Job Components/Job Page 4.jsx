@@ -7,7 +7,7 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { MdAdd } from "react-icons/md";
@@ -142,7 +142,7 @@ export function EditPage4({setJobModified}) {
               />
             </Grid>
             <Grid item xs={1}>
-              <IconButton color="primary" onClick={() => handleAdd()}>
+              <IconButton color="primary" onClick={() => handleAdd()} size="large">
                 <MdAdd />
               </IconButton>
             </Grid>

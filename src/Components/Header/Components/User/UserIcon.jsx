@@ -1,13 +1,21 @@
-import { Avatar, Box, Hidden, Menu, MenuItem, Typography } from '@material-ui/core';
-import React, {useContext, useState} from 'react';
-import { IsLoggedInContext, MainUserContext, UsersContext } from '../../../../Context/AuthContext';
-import { ActiveJobContext, ApiJobsContext, JobArrayContext, JobStatusContext } from '../../../../Context/JobContext';
-import { SnackBarDataContext } from '../../../../Context/LayoutContext';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
-import { auth } from '../../../../firebase';
-import { signOut } from 'firebase/auth';
+import { Avatar, Box, Hidden, Menu, MenuItem, Typography } from "@mui/material";
+import React, { useContext, useState } from "react";
+import {
+  IsLoggedInContext,
+  MainUserContext,
+  UsersContext,
+} from "../../../../Context/AuthContext";
+import {
+  ActiveJobContext,
+  ApiJobsContext,
+  JobArrayContext,
+  JobStatusContext,
+} from "../../../../Context/JobContext";
+import { SnackBarDataContext } from "../../../../Context/LayoutContext";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { auth } from "../../../../firebase";
+import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router";
-
 
 export function UserIcon() {
   const { updateUsers } = useContext(UsersContext);
@@ -27,11 +35,46 @@ export function UserIcon() {
     updateMainUser({});
     updateJobArray([]);
     setJobStatus([
-      { id: 0, name: "Planning", sortOrder: 0, expanded: true, openAPIJobs: false, completeAPIJobs: false },
-      { id: 1, name: "Purchasing", sortOrder: 1, expanded: true, openAPIJobs: false, completeAPIJobs: false },
-      { id: 2, name: "Building", sortOrder: 2, expanded: true, openAPIJobs: true, completeAPIJobs: false },
-      { id: 3, name: "Complete", sortOrder: 3, expanded: true, openAPIJobs: false, completeAPIJobs: true },
-      { id: 4, name: "For Sale", sortOrder: 4, expanded: true, openAPIJobs: false, completeAPIJobs: false }
+      {
+        id: 0,
+        name: "Planning",
+        sortOrder: 0,
+        expanded: true,
+        openAPIJobs: false,
+        completeAPIJobs: false,
+      },
+      {
+        id: 1,
+        name: "Purchasing",
+        sortOrder: 1,
+        expanded: true,
+        openAPIJobs: false,
+        completeAPIJobs: false,
+      },
+      {
+        id: 2,
+        name: "Building",
+        sortOrder: 2,
+        expanded: true,
+        openAPIJobs: true,
+        completeAPIJobs: false,
+      },
+      {
+        id: 3,
+        name: "Complete",
+        sortOrder: 3,
+        expanded: true,
+        openAPIJobs: false,
+        completeAPIJobs: true,
+      },
+      {
+        id: 4,
+        name: "For Sale",
+        sortOrder: 4,
+        expanded: true,
+        openAPIJobs: false,
+        completeAPIJobs: false,
+      },
     ]);
     updateActiveJob({});
     updateApiJobs([]);
@@ -46,7 +89,7 @@ export function UserIcon() {
       severity: "info",
       autoHideDuration: 3000,
     }));
-  };
+  }
 
   const openMenu = (event) => {
     setAnchor(event.currentTarget);
@@ -58,23 +101,21 @@ export function UserIcon() {
   if (isLoggedIn) {
     return (
       <>
-        <Hidden smDown>
-          <Box align="center" maxWidth="xs" onClick={openMenu}>
+          <Box sx={{display:{xs:"none", md:"block"}}} align="center" maxWidth="xs" onClick={openMenu}>
             <Avatar
               alt=""
               src={`https://images.evetech.net/characters/${mainUser.CharacterID}/portrait`}
             />
             <Typography variant="body1">{mainUser.CharacterName}</Typography>
           </Box>
-        </Hidden>
 
-        <Hidden mdUp>
+
           <AccountCircleIcon
+            sx={{display:{sm:"block", md:"none"}}}
             color="secondary"
             fontSize="large"
             onClick={openMenu}
           />
-        </Hidden>
         <Menu
           id="userMenu"
           anchorEl={anchor}
@@ -91,4 +132,4 @@ export function UserIcon() {
   } else {
     return null;
   }
-};
+}

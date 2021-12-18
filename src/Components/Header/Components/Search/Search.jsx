@@ -1,7 +1,7 @@
 import React from "react";
 import itemList from "../../../../RawData/searchIndex.json";
-import { Autocomplete } from "@material-ui/lab";
-import { Container, TextField } from "@material-ui/core";
+import { Autocomplete } from "@mui/lab";
+import { Container, TextField } from "@mui/material";
 import { useCreateJobProcess } from "../../../../Hooks/useCreateJob";
 
 export function Search() {

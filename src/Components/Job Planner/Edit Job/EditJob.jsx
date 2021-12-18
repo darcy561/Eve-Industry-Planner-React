@@ -21,7 +21,7 @@ import {
   StepLabel,
   StepContent,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import { jobTypes } from "../JobPlanner";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { IsLoggedInContext, MainUserContext } from "../../../Context/AuthContext";

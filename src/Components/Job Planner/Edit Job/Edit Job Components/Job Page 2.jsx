@@ -167,7 +167,7 @@ export function EditPage2({setJobModified}) {
                     );
                   })}
                 </Grid>
-                <Grid xs={12}>
+                <Grid item xs={12}>
                   <Typography variant="body2">
                     Add quantity of materials purchased and the price per item.
                   </Typography>

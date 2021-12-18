@@ -67,6 +67,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
           <Accordion
             className={classes.Accordion}
             expanded={status.expanded === true}
+            onChange={()=> handleExpand(status.id)}
             square={true}
             spacing={1}
             id={status.id}
@@ -75,7 +76,6 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
               expandIcon={
                 <ExpandMoreIcon color="secondary" className={classes.Expand} />
               }
-              IconButtonProps={{ onClick: () => handleExpand(status.id) }}
               aria-label="Expand Icon"
             >
               <Typography variant="h4" className={classes.Title}>
@@ -84,7 +84,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
               {isLoggedIn && (
                 <Tooltip title="Change status settings">
                   <FormControlLabel
-                    aria-label="Acknowledge"
+                    label=""
                     onClick={() => {
                       updateStatusData(status);
                       updateStatusSettingsTrigger(true);

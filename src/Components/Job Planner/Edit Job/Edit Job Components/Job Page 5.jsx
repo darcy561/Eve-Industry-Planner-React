@@ -31,7 +31,7 @@ export function EditPage5({ setJobModified }) {
 
   return (
     <Container maxWidth="xl" disableGutters={true}>
-      <Grid container xs={12}>
+      <Grid container item xs={12}>
         <Grid container item xs={12} md={6}>
           <Grid item xs={12}>
             <Typography variant="body2">

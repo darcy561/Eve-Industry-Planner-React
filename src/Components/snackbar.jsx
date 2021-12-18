@@ -1,6 +1,5 @@
 import React,{ useContext} from "react";
-import { Snackbar, Slide } from '@mui/material';
-import { Alert } from "@mui/lab";
+import { Alert, Snackbar, Slide } from '@mui/material';
 import { SnackBarDataContext } from "../Context/LayoutContext";
 
 export function SnackBarNotification() {

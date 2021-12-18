@@ -1,4 +1,4 @@
-import { Avatar, Box, Hidden, Menu, MenuItem, Typography } from "@mui/material";
+import { Avatar, Box, Menu, MenuItem, Typography } from "@mui/material";
 import React, { useContext, useState } from "react";
 import {
   IsLoggedInContext,

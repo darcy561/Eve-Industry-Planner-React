@@ -50,7 +50,7 @@ export function RawResourceList() {
     } else if (material.jobType === 3) {
       return (
         <Tooltip title="Planetary Interaction" placement="left-start">
-          <IconButton sx={{ color: "pi.main" }} fontSize="small">
+          <IconButton sx={{ color: "pi.main" }} size="small">
             <MdRemoveCircle />
           </IconButton>
         </Tooltip>
@@ -95,8 +95,8 @@ export function RawResourceList() {
                 <Grid item style={{ width: "80%" }}>
                   <Typography variant="body1">{material.name}</Typography>
                 </Grid>
-                <Grid item style={{ width: "10%" }}>
-                  <Typography variant="body1" align="right">
+                <Grid item style={{ width: "10%" }} align="left">
+                  <Typography variant="body1" >
                     {material.quantity.toLocaleString()}
                   </Typography>
                 </Grid>

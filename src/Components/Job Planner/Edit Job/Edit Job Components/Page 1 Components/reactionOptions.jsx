@@ -10,10 +10,11 @@ import {
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { blueprintVariables } from "../../..";
-import { CalculateTotals } from "../../../../../Hooks/useBlueprintCalc";
+import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 
 export function ReactionOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { CalculateResources } = useBlueprintCalc();
 
   return (
     <Paper
@@ -34,17 +35,10 @@ export function ReactionOptions({ setJobModified }) {
               helperText="Blueprint Runs"
               type="number"
               onBlur={(e) => {
-                updateActiveJob((prevState) => ({
-                  ...prevState,
-                  runCount: Number(e.target.value),
-                  job: {
-                    ...prevState.job,
-                    products: {
-                      ...prevState.job.products,
-                      recalculate: true,
-                    },
-                  },
-                }));
+                const oldJob = JSON.parse(JSON.stringify(activeJob))
+                oldJob.runCount = Number(e.target.value)
+                const newJob = CalculateResources(oldJob);
+                updateActiveJob(newJob);
                 setJobModified(true);
               }}
             />
@@ -56,18 +50,11 @@ export function ReactionOptions({ setJobModified }) {
               variant="standard"
               helperText="Job Slots"
               type="number"
-              onBlur={(e) => {
-                updateActiveJob((prevState) => ({
-                  ...prevState,
-                  jobCount: Number(e.target.value),
-                  job: {
-                    ...prevState.job,
-                    products: {
-                      ...prevState.job.products,
-                      recalculate: true,
-                    },
-                  },
-                }));
+              onChange={(e) => {
+                const oldJob = JSON.parse(JSON.stringify(activeJob))
+                oldJob.jobCount = Number(e.target.value)
+                const newJob = CalculateResources(oldJob);
+                updateActiveJob(newJob);
                 setJobModified(true);
               }}
             />
@@ -82,17 +69,10 @@ export function ReactionOptions({ setJobModified }) {
                 disableClearable={true}
                 options={blueprintVariables.reactionStructure}
                 onChange={(e, v) => {
-                  updateActiveJob((prevState) => ({
-                    ...prevState,
-                    structureTypeDisplay: v.value,
-                    job: {
-                      ...prevState.job,
-                      products: {
-                        ...prevState.job.products,
-                        recalculate: true,
-                      },
-                    },
-                  }));
+                  const oldJob = JSON.parse(JSON.stringify(activeJob))
+                  oldJob.structureTypeDisplay = v.value
+                  const newJob = CalculateResources(oldJob);
+                  updateActiveJob(newJob);
                   setJobModified(true);
                 }}
                 renderInput={(params) => (
@@ -112,17 +92,10 @@ export function ReactionOptions({ setJobModified }) {
                 disableClearable={true}
                 options={blueprintVariables.reactionRigs}
                 onChange={(e, v) => {
-                  updateActiveJob((prevState) => ({
-                    ...prevState,
-                    rigType: Number(v.value),
-                    job: {
-                      ...prevState.job,
-                      products: {
-                        ...prevState.job.products,
-                        recalculate: true,
-                      },
-                    },
-                  }));
+                  const oldJob = JSON.parse(JSON.stringify(activeJob))
+                  oldJob.rigType = Number(v.value)
+                  const newJob = CalculateResources(oldJob);
+                  updateActiveJob(newJob);
                   setJobModified(true);
                 }}
                 renderInput={(params) => (
@@ -142,17 +115,10 @@ export function ReactionOptions({ setJobModified }) {
                 )}
                 options={blueprintVariables.reactionSystem}
                 onChange={(e, v) => {
-                  updateActiveJob((prevState) => ({
-                    ...prevState,
-                    systemType: Number(v.value),
-                    job: {
-                      ...prevState.job,
-                      products: {
-                        ...prevState.job.products,
-                        recalculate: true,
-                      },
-                    },
-                  }));
+                  const oldJob = JSON.parse(JSON.stringify(activeJob))
+                  oldJob.systemType = Number(v.value)
+                  const newJob = CalculateResources(oldJob);
+                  updateActiveJob(newJob);
                   setJobModified(true);
                 }}
                 renderInput={(params) => (
@@ -161,31 +127,6 @@ export function ReactionOptions({ setJobModified }) {
               />
               <FormHelperText>System Type</FormHelperText>
             </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            {activeJob.job.products.recalculate && (
-              <Button
-                size="small"
-                color="primary"
-                onClick={() => {
-                  const updatedTotals = CalculateTotals(activeJob);
-                  updateActiveJob((prevObj) => ({
-                    ...prevObj,
-                    job: {
-                      ...prevObj.job,
-                      materials: updatedTotals,
-                      products: {
-                        ...prevObj.job.products,
-                        recalculate: false,
-                      },
-                    },
-                  }));
-                  setJobModified(true);
-                }}
-              >
-                Click to recalculate before continuing
-              </Button>
-            )}
           </Grid>
         </Grid>
       </Grid>

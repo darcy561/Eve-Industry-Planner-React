@@ -7,7 +7,7 @@ import {
 import { JobArrayContext } from "../Context/JobContext";
 import { IsLoggedInContext, MainUserContext } from "../Context/AuthContext";
 import { createJob } from "../Components/Job Planner/JobBuild";
-import { CalculateTotals } from "./useBlueprintCalc";
+import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { trace } from "@firebase/performance";
 import { performance } from "../firebase";
@@ -20,6 +20,7 @@ export function useCreateJobProcess() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser } = useContext(MainUserContext);
   const { addNewJob } = useFirebase();
+  const { CalculateResources } = useBlueprintCalc();
 
   const newJobProcess = useCallback(async (itemID, itemQty) => {
     const t = trace(performance, "CreateJobProcessFull");
@@ -119,20 +120,19 @@ export function useCreateJobProcess() {
           }
         }
 
-        const calculatedValue = CalculateTotals(newJob);
-        newJob.job.materials = calculatedValue;
+        const calculatedJob = CalculateResources(newJob)
         
         if (isLoggedIn) {
-          isLoggedIn && addNewJob(newJob);
-          newJob.job.buildChar = mainUser.CharacterHash;
+          isLoggedIn && addNewJob(calculatedJob);
+          calculatedJob.job.buildChar = mainUser.CharacterHash;
         }
-        console.log(newJob);
-        updateJobArray((prevArray) => [...prevArray, newJob]);
+        console.log(calculatedJob);
+        updateJobArray((prevArray) => [...prevArray, calculatedJob]);
         updateDataExchange(false);
         setSnackbarData((prev) => ({
           ...prev,
           open: true,
-          message: `${newJob.name} Added`,
+          message: `${calculatedJob.name} Added`,
           severity: "success",
           autoHideDuration: 3000,
         }));

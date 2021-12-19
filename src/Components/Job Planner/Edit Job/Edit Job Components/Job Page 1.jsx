@@ -97,7 +97,7 @@ export function EditPage1({ setJobModified }) {
           flex: {
             xs: "1 1 100%",
             sm: "1 1 40%",
-            lg: "1 1 20%",
+            lg: "1 1 25%",
           },
         }}
       >
@@ -108,7 +108,7 @@ export function EditPage1({ setJobModified }) {
           flex: {
             xs: "1 1 100%",
             sm: "1 1 60%",
-            lg: "1 1 80%",
+            lg: "1 1 75%",
           },
         }}
       >

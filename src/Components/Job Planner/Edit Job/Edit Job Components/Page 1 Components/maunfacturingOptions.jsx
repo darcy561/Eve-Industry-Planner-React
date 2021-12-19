@@ -10,10 +10,11 @@ import {
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { blueprintVariables } from "../../..";
-import { CalculateTotals } from "../../../../../Hooks/useBlueprintCalc";
+import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 
 export function ManufacturingOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { CalculateResources } = useBlueprintCalc();
 
   return (
     <Paper
@@ -34,17 +35,10 @@ export function ManufacturingOptions({ setJobModified }) {
               helperText="Blueprint Runs"
               type="number"
               onBlur={(e) => {
-                updateActiveJob((prevState) => ({
-                  ...prevState,
-                  runCount: Number(e.target.value),
-                  job: {
-                    ...prevState.job,
-                    products: {
-                      ...prevState.job.products,
-                      recalculate: true,
-                    },
-                  },
-                }));
+                const oldJob = JSON.parse(JSON.stringify(activeJob))
+                oldJob.runCount = Number(e.target.value)
+                const newJob = CalculateResources(oldJob);
+                updateActiveJob(newJob);
                 setJobModified(true);
               }}
             />
@@ -57,17 +51,10 @@ export function ManufacturingOptions({ setJobModified }) {
               helperText="Job Slots"
               type="number"
               onBlur={(e) => {
-                updateActiveJob((prevState) => ({
-                  ...prevState,
-                  jobCount: Number(e.target.value),
-                  job: {
-                    ...prevState.job,
-                    products: {
-                      ...prevState.job.products,
-                      recalculate: true,
-                    },
-                  },
-                }));
+                  const oldJob = JSON.parse(JSON.stringify(activeJob))
+                  oldJob.jobCount = Number(e.target.value)
+                  const newJob = CalculateResources(oldJob);
+                  updateActiveJob(newJob);
                 setJobModified(true);
               }}
             />
@@ -81,17 +68,10 @@ export function ManufacturingOptions({ setJobModified }) {
                   (x) => x.value === activeJob.bpME
                 )}
                 onChange={(e, v) => {
-                  updateActiveJob((prevState) => ({
-                    ...prevState,
-                    bpME: Number(v.value),
-                    job: {
-                      ...prevState.job,
-                      products: {
-                        ...prevState.job.products,
-                        recalculate: true,
-                      },
-                    },
-                  }));
+                  const oldJob = JSON.parse(JSON.stringify(activeJob))
+                  oldJob.bpME = Number(v.value)
+                  const newJob = CalculateResources(oldJob);
+                  updateActiveJob(newJob);
                   setJobModified(true);
                 }}
                 options={blueprintVariables.me}
@@ -112,17 +92,10 @@ export function ManufacturingOptions({ setJobModified }) {
                 )}
                 options={blueprintVariables.te}
                 onChange={(e, v) => {
-                  updateActiveJob((prevState) => ({
-                    ...prevState,
-                    bpTE: Number(v.value),
-                    job: {
-                      ...prevState.job,
-                      products: {
-                        ...prevState.job.products,
-                        recalculate: true,
-                      },
-                    },
-                  }));
+                  const oldJob = JSON.parse(JSON.stringify(activeJob))
+                  oldJob.bpTE = Number(v.value)
+                  const newJob = CalculateResources(oldJob);
+                  updateActiveJob(newJob);
                   setJobModified(true);
                 }}
                 renderInput={(params) => (
@@ -141,33 +114,19 @@ export function ManufacturingOptions({ setJobModified }) {
                 )}
                 disableClearable={true}
                 options={blueprintVariables.manStructure}
-                onChange={(event, value) => {
-                  if (value.value === "Station") {
-                    updateActiveJob((prevState) => ({
-                      ...prevState,
-                      structureTypeDisplay: value.value,
-                      structureType: 0,
-                      job: {
-                        ...prevState.job,
-                        products: {
-                          ...prevState.job.products,
-                          recalculate: true,
-                        },
-                      },
-                    }));
+                onChange={(e, v) => {
+                  if (v.value === "Station") {
+                    const oldJob = JSON.parse(JSON.stringify(activeJob))
+                    oldJob.structureTypeDisplay = v.value
+                    oldJob.structureType = 0
+                    const newJob = CalculateResources(oldJob);
+                    updateActiveJob(newJob);
                   } else {
-                    updateActiveJob((prevState) => ({
-                      ...prevState,
-                      structureTypeDisplay: value.value,
-                      structureType: 1,
-                      job: {
-                        ...prevState.job,
-                        products: {
-                          ...prevState.job.products,
-                          recalculate: true,
-                        },
-                      },
-                    }));
+                    const oldJob = JSON.parse(JSON.stringify(activeJob))
+                    oldJob.structureTypeDisplay = v.value
+                    oldJob.structureType = 1
+                    const newJob = CalculateResources(oldJob);
+                    updateActiveJob(newJob);
                   }
                   setJobModified(true);
                 }}
@@ -187,18 +146,11 @@ export function ManufacturingOptions({ setJobModified }) {
                 )}
                 disableClearable={true}
                 options={blueprintVariables.manRigs}
-                onChange={(event, value) => {
-                  updateActiveJob((prevState) => ({
-                    ...prevState,
-                    rigType: Number(value.value),
-                    job: {
-                      ...prevState.job,
-                      products: {
-                        ...prevState.job.products,
-                        recalculate: true,
-                      },
-                    },
-                  }));
+                onChange={(e, v) => {
+                  const oldJob = JSON.parse(JSON.stringify(activeJob))
+                  oldJob.rigType = Number(v.value)
+                  const newJob = CalculateResources(oldJob);
+                  updateActiveJob(newJob);
                   setJobModified(true);
                 }}
                 renderInput={(params) => (
@@ -218,17 +170,10 @@ export function ManufacturingOptions({ setJobModified }) {
                 )}
                 options={blueprintVariables.manSystem}
                 onChange={(e, v) => {
-                  updateActiveJob((prevState) => ({
-                    ...prevState,
-                    systemType: Number(v.value),
-                    job: {
-                      ...prevState.job,
-                      products: {
-                        ...prevState.job.products,
-                        recalculate: true,
-                      },
-                    },
-                  }));
+                  const oldJob = JSON.parse(JSON.stringify(activeJob))
+                  oldJob.systemType = Number(v.value)
+                  const newJob = CalculateResources(oldJob);
+                  updateActiveJob(newJob);
                   setJobModified(true);
                 }}
                 renderInput={(params) => (
@@ -237,31 +182,6 @@ export function ManufacturingOptions({ setJobModified }) {
               />
               <FormHelperText>System Type</FormHelperText>
             </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            {activeJob.job.products.recalculate &&
-              <Button
-                size="small"
-                
-                color="primary"
-                onClick={() => {
-                  const updatedTotals = CalculateTotals(activeJob);
-                  updateActiveJob((prevObj) => ({
-                    ...prevObj,
-                    job: {
-                      ...prevObj.job,
-                      materials: updatedTotals,
-                      products: {
-                        ...prevObj.job.products,
-                        recalculate: false,
-                      },
-                    },
-                  }));
-                  setJobModified(true);
-                }}
-              >
-                Click to recalculate before continuing
-              </Button>}
           </Grid>
         </Grid>
       </Grid>

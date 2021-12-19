@@ -1,6 +1,5 @@
 import {
   Autocomplete,
-  Button,
   Grid,
   FormControl,
   FormHelperText,
@@ -50,7 +49,7 @@ export function ReactionOptions({ setJobModified }) {
               variant="standard"
               helperText="Job Slots"
               type="number"
-              onChange={(e) => {
+              onBlur={(e) => {
                 const oldJob = JSON.parse(JSON.stringify(activeJob))
                 oldJob.jobCount = Number(e.target.value)
                 const newJob = CalculateResources(oldJob);

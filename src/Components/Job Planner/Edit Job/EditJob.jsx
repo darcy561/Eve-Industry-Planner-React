@@ -24,7 +24,6 @@ import {
   StepContent,
   Typography,
 } from "@mui/material";
-import { jobTypes } from "../JobPlanner";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { IsLoggedInContext, MainUserContext } from "../../../Context/AuthContext";
 
@@ -173,51 +172,6 @@ export function EditJob({updateJobSettingsTrigger}) {
               </Button>
             </Grid>
             <Grid item sm={4}></Grid>
-            <Grid item xs={8} sm={3}>
-              <Typography variant="body2">
-                Items Produced Per Blueprint Run
-              </Typography>
-            </Grid>
-            <Grid item xs={3} sm={5}>
-              {activeJob.jobType === jobTypes.manufacturing ? (
-                <Typography variant="body2">
-                  {Number(
-                    activeJob.manufacturing.products[0].quantity
-                  ).toLocaleString()}
-                </Typography>
-              ) : (
-                <></>
-              )}
-              {activeJob.jobType === jobTypes.reaction ? (
-                <Typography variant="body2">
-                  {Number(
-                    activeJob.reaction.products[0].quantity
-                  ).toLocaleString()}
-                </Typography>
-              ) : (
-                <></>
-              )}
-            </Grid>
-            <Grid item sm={4}></Grid>
-            <Grid item xs={8} sm={3}>
-              <Typography variant="body2">Total Items Per Job Slot</Typography>
-            </Grid>
-            <Grid item xs={3} sm={5}>
-              <Typography variant="body2">
-                {activeJob.job.products.quantityPerJob.toLocaleString()}
-              </Typography>
-            </Grid>
-            <Grid item sm={4}></Grid>
-            <Grid item xs={8} sm={3}>
-              <Typography variant="body2">
-                Total Items Being Produced
-              </Typography>
-            </Grid>
-            <Grid item xs={3} sm={5}>
-              <Typography variant="body2">
-                {activeJob.job.products.totalQuantity.toLocaleString()}
-              </Typography>
-            </Grid>
           </Grid>
           <Stepper activeStep={activeJob.jobStatus} orientation="vertical">
             {jobStatus.map((status) => {

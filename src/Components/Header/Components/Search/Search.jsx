@@ -10,7 +10,7 @@ export function Search() {
   return (
     <Container style={{ width: "15%", marginRight: "2%"}}>
       <Autocomplete
-
+        disableClearable={true}
         fullWidth
         freeSolo
         id="Recipe Search"
@@ -28,6 +28,8 @@ export function Search() {
         renderInput={(params) => (
           <TextField
             {...params}
+            disableClearable={true}
+            label="Search"
             margin="normal"
             variant="outlined"
             style={{ background: "white", borderRadius: "5px" }}

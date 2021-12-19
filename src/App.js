@@ -1,5 +1,4 @@
 import React from "react";
-import { adaptV4Theme } from '@mui/material/styles';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Header } from "./Components/Header";
 import { Home } from "./Components/Home";
@@ -8,8 +7,7 @@ import { ItemTree } from "./Components/item Tree";
 import { JobStatus, JobArray, ActiveJob, ApiJobs } from "./Context/JobContext";
 import { AuthMainUser } from "./Components/Auth/MainUserAuth";
 import { IsLoggedIn, MainUser, Users } from "./Context/AuthContext";
-import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
-import { createTheme } from "@mui/material";
+import { ThemeProvider, createTheme, responsiveFontSizes } from "@mui/material/styles";
 import { SnackBarNotification } from "./Components/snackbar";
 import { DialogBox } from "./Components/dialog";
 import {
@@ -19,43 +17,39 @@ import {
   PageLoad,
   LoadingText,
 } from "./Context/LayoutContext";
+import { blue, blueGrey, deepPurple, grey, lightGreen} from "@mui/material/colors";
 
-const theme = createTheme(adaptV4Theme({
-  root: {
-    background: "none",
-  },
-  palette: {
-    primary: {
-      main: "rgba(196, 143, 36)",
+let theme = createTheme({
+    palette: {
+      type: 'light',
+      primary: {
+        main: blue[600],
+      },
+      secondary: {
+        main: grey[600],
     },
-    secondary: {
-      main: "#E0E0E0",
+    manufacturing: {
+        main: lightGreen[200],
     },
+    reaction: {
+      main: deepPurple[100],
+    },
+    pi: {
+      main: blue[100],
+    },
+    baseMat: {
+      main: blueGrey[100]
+    }
   },
   typography: {
-    fontFamily: ["Montserrat", "Orbitron"].join(","),
-    h4: {
-      fontFamily: "Orbitron",
-      color: "rgba(196, 143, 36);",
-    },
-    h6: {
-      color: "#E0E0E0",
-      fontSize: "0.9vw",
-    },
-    body1: {
-      color: "#423f3f",
-      fontSize: "1rem",
-    },
-    body2: {
-      color: "#E0E0E0",
-      fontSize: "1rem",
-    },
+    fontFamily: 'Montserrat',
   },
-}));
+  }
+);
+theme = responsiveFontSizes(theme);
 
 export default function App() {
   return (
-    <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <SnackbarData>
           <DialogData>
@@ -102,6 +96,5 @@ export default function App() {
           </DialogData>
         </SnackbarData>
       </ThemeProvider>
-    </StyledEngineProvider>
   );
 }

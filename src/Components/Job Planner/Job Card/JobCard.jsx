@@ -43,19 +43,19 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "10px",
   },
   JobTypeMan: {
-    backgroundColor: "rgba(164,219,45,0.5)",
+    backgroundColor: theme.palette.manufacturing.main,
     marginTop: "10px",
     borderBottomLeftRadius: "5px",
     borderBottomRightRadius: "5px",
   },
   JobTypeReact: {
-    backgroundColor: "rgba(219,45,164,0.5)",
+    backgroundColor: theme.palette.reaction.main,
     marginTop: "10px",
     borderBottomLeftRadius: "5px",
     borderBottomRightRadius: "5px",
   },
   JobTypePI: {
-    backgroundColor: "rgba(100,45,219,0.5)",
+    backgroundColor: theme.palette.pi.main,
     marginTop: "10px",
     borderBottomLeftRadius: "5px",
     borderBottomRightRadius: "5px",
@@ -137,7 +137,7 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
         <Card className={classes.Card} onClick={() => EditJobProcess(job)}>
           <Grid className={classes.Grid} container item xs={12}>
             <Grid className={classes.Header} item xs={12}>
-              <Typography variant="h6" align="center">
+              <Typography variant="h6" color="secondary" align="center">
                 {job.name}
               </Typography>
             </Grid>

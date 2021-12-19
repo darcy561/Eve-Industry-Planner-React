@@ -13,6 +13,7 @@ import {
   Container,
   FormControlLabel,
   Grid,
+  Paper,
   Typography,
   IconButton,
   Tooltip,
@@ -27,8 +28,7 @@ import { ApiJobCard } from "../Job Card/ApiJobCard";
 const useStyles = makeStyles((theme) => ({
   Accordion: {
     width: "100%",
-    background: "none",
-    marginBottom: "16px",
+    border: "none",
   },
   Expand: {},
   Settings: {},
@@ -60,21 +60,30 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
   }
 
   return (
-    <Container maxWidth="xl" disableGutters={true}>
+    <Paper
+    elevation={3}
+    style={{
+      padding: "10px",
+      marginTop: "10px",
+      marginBottom: "20px",
+      minHeight:"90vh"
+      }}
+    square={true}
+  >
+    <Container maxWidth="false"  disableGutters={true}>
       {/* Builds each status accordion on the job planner main page */}
       {jobStatus.map((status) => {
         return (
           <Accordion
             className={classes.Accordion}
             expanded={status.expanded === true}
-            onChange={()=> handleExpand(status.id)}
             square={true}
             spacing={1}
             id={status.id}
           >
             <AccordionSummary
               expandIcon={
-                <ExpandMoreIcon color="secondary" className={classes.Expand} />
+                <ExpandMoreIcon color="secondary" className={classes.Expand} onClick={()=> handleExpand(status.id)} />
               }
               aria-label="Expand Icon"
             >
@@ -139,6 +148,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
         statusSettingsTrigger={statusSettingsTrigger}
         updateStatusSettingsTrigger={updateStatusSettingsTrigger}
       />
-    </Container>
+      </Container>
+      </Paper>
   );
 }

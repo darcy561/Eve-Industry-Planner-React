@@ -26,7 +26,7 @@ export function LoadingPage() {
             </Grid>
             {loadingText.eveSSOComp && (
               <Grid item>
-                <Icon fontSize="small" style={{ color: "green" }}>
+                <Icon fontSize="small" sx={{ color: "success.main" }}>
                   <MdDone />
                 </Icon>
               </Grid>
@@ -41,7 +41,7 @@ export function LoadingPage() {
             </Grid>
             {loadingText.charDataComp && (
               <Grid item>
-                <Icon fontSize="small" style={{ color: "green" }}>
+                <Icon fontSize="small" sx={{ color: "success.main" }}>
                   <MdDone />
                 </Icon>
               </Grid>
@@ -56,7 +56,7 @@ export function LoadingPage() {
             </Grid>
             {loadingText.charDataComp && (
               <Grid item>
-                <Icon fontSize="small" style={{ color: "green" }}>
+                <Icon fontSize="small" sx={{ color: "success.main" }}>
                   <MdDone />
                 </Icon>
               </Grid>

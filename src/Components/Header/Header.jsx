@@ -22,7 +22,6 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   menuButton: {
-    color: "inherit",
     marginRight: "5px",
   },
   title: {
@@ -46,6 +45,7 @@ export function Header() {
     <AppBar position="static">
       <Toolbar>
         <IconButton
+
           edge="start"
           className={classes.menuButton}
           color="inherit"

@@ -32,9 +32,9 @@ class Job {
     this.bpME = 0;
     this.bpTE = 0;
     this.structureType = 1
-    this.structureTypeDisplay =""
+    this.structureTypeDisplay ="Station"
     this.rigType = 0;
-    this.systemType = 0;
+    this.systemType = 1;
     this.apiJobs = [];
 
     this.job = {

@@ -15,7 +15,9 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   Grid,
+  Paper,
   Stepper,
   Step,
   StepLabel,
@@ -117,105 +119,140 @@ export function EditJob({updateJobSettingsTrigger}) {
 
   return (
     <>
-      <Container maxWidth="xl" disableGutters={true}>
-        <Grid container direction="row">
-          <Grid item xs={12}></Grid>
-          <Grid item xs={12}>
-            <Typography variant="h4" align="center">
-              {activeJob.name}
-            </Typography>
+      <Paper
+        elevation={3}
+        style={{
+          padding: "10px",
+          marginBottom: "20px",
+        }}
+        square={true}
+      >
+        <Container maxWidth="false" disableGutters={true}>
+          <Grid container direction="row">
+            <Grid marginTop="10px" item xs={12}>
+              <Typography variant="h3" color="primary" align="left">
+                {activeJob.name}
+              </Typography>
+            </Grid>
+            <Grid item xs={1} sm={1}></Grid>
+            <Grid item xs={1} sm={2}>
+              <Box>
+                <picture>
+                  <source
+                    media="(max-width:700px)"
+                    srcSet={`https://image.eveonline.com/Type/${activeJob.itemID}_32.png`}
+                    alt=""
+                  />
+                  <img
+                    src={`https://image.eveonline.com/Type/${activeJob.itemID}_64.png`}
+                    alt=""
+                  />
+                </picture>
+              </Box>
+            </Grid>
+            <Grid item xs={7} sm={8}></Grid>
+            <Grid item xs={2} sm={1}>
+              <Button
+                style={{ width: "90%" }}
+                variant="contained"
+                color="secondary"
+                onClick={closeJob}
+              >
+                Close
+              </Button>
+            </Grid>
+            <Grid item xs={9} sm={11}></Grid>
+            <Grid item xs={2} sm={1}>
+              <Button
+                style={{ width: "90%" }}
+                variant="contained"
+                color="error"
+                onClick={deleteJob}
+              >
+                Delete
+              </Button>
+            </Grid>
+            <Grid item sm={4}></Grid>
+            <Grid item xs={8} sm={3}>
+              <Typography variant="body2">
+                Items Produced Per Blueprint Run
+              </Typography>
+            </Grid>
+            <Grid item xs={3} sm={5}>
+              {activeJob.jobType === jobTypes.manufacturing ? (
+                <Typography variant="body2">
+                  {Number(
+                    activeJob.manufacturing.products[0].quantity
+                  ).toLocaleString()}
+                </Typography>
+              ) : (
+                <></>
+              )}
+              {activeJob.jobType === jobTypes.reaction ? (
+                <Typography variant="body2">
+                  {Number(
+                    activeJob.reaction.products[0].quantity
+                  ).toLocaleString()}
+                </Typography>
+              ) : (
+                <></>
+              )}
+            </Grid>
+            <Grid item sm={4}></Grid>
+            <Grid item xs={8} sm={3}>
+              <Typography variant="body2">Total Items Per Job Slot</Typography>
+            </Grid>
+            <Grid item xs={3} sm={5}>
+              <Typography variant="body2">
+                {activeJob.job.products.quantityPerJob.toLocaleString()}
+              </Typography>
+            </Grid>
+            <Grid item sm={4}></Grid>
+            <Grid item xs={8} sm={3}>
+              <Typography variant="body2">
+                Total Items Being Produced
+              </Typography>
+            </Grid>
+            <Grid item xs={3} sm={5}>
+              <Typography variant="body2">
+                {activeJob.job.products.totalQuantity.toLocaleString()}
+              </Typography>
+            </Grid>
           </Grid>
-          <Grid item xs={1} sm={1}></Grid>
-          <Grid item xs={1} sm={2}>
-            <Box>
-              <picture>
-                <source
-                  media="(max-width:700px)"
-                  srcSet={`https://image.eveonline.com/Type/${activeJob.itemID}_32.png`}
-                  alt=""
-                />
-                <img
-                  src={`https://image.eveonline.com/Type/${activeJob.itemID}_64.png`}
-                  alt=""
-                />
-              </picture>
-            </Box>
-          </Grid>
-          <Grid item xs={7} sm={8}></Grid>
-          <Grid item xs={2} sm={1}>
-            <Button
-              style={{ width: "90%" }}
-              variant="contained"
-              color="primary"
-              onClick={closeJob}
-            >
-              Close
-            </Button>
-          </Grid>
-          <Grid item xs={9} sm={11}>
-          </Grid>
-          <Grid item xs={2} sm={1}>
-            <Button
-              style={{ width: "90%" }}
-              variant="contained"
-              color="primary"
-              onClick={deleteJob}
-            >
-              Delete
-            </Button>
-          </Grid>
-          <Grid item sm={4}></Grid>
-          <Grid item xs={8} sm={3}><Typography variant="body2">Items Produced Per Blueprint Run</Typography></Grid>
-          <Grid item xs={3} sm={5}>
-            {activeJob.jobType === jobTypes.manufacturing ?
-              <Typography variant="body2">{Number(activeJob.manufacturing.products[0].quantity).toLocaleString()}</Typography>
-              : <></>}
-            {activeJob.jobType === jobTypes.reaction ?
-              <Typography variant="body2">{Number(activeJob.reaction.products[0].quantity).toLocaleString()}</Typography>
-              : <></>}
-          </Grid>
-          <Grid item sm={4}></Grid>
-          <Grid item xs={8} sm={3}><Typography variant="body2">Total Items Per Job Slot</Typography></Grid>
-          <Grid item xs={3} sm={5}>
-              <Typography variant="body2">{activeJob.job.products.quantityPerJob.toLocaleString()}</Typography>
-          </Grid>
-          <Grid item sm={4}></Grid>
-          <Grid item xs={8} sm={3}><Typography variant="body2">Total Items Being Produced</Typography></Grid>
-          <Grid item xs={3} sm={5}>
-              <Typography variant="body2">{activeJob.job.products.totalQuantity.toLocaleString()}</Typography>
-          </Grid>
-        </Grid>
-        <Stepper activeStep={activeJob.jobStatus} orientation="vertical" style={{background:"none"}}>
-          {jobStatus.map((status) => {
-            return (
-              <Step key={status.id} >
-                <StepLabel>{status.name}</StepLabel>
-                <StepContent>
-                  <StepContentSelector />
-                  <Button
-                    disabled={activeJob.jobStatus === 0}
-                    variant="contained"
-                    color="primary"
-                    onClick={stepBack}
-                  >
-                    Previous Step
-                  </Button>
-                  {activeJob.job.products.recalculate === false ?(
+          <Stepper activeStep={activeJob.jobStatus} orientation="vertical">
+            {jobStatus.map((status) => {
+              return (
+                <Step key={status.id}>
+                  <StepLabel>{status.name}</StepLabel>
+                  <StepContent>
+                    <Divider />
+                    <StepContentSelector />
                     <Button
-                      disabled={activeJob.jobStatus === jobStatus.length - 1}
+                      disabled={activeJob.jobStatus === 0}
                       variant="contained"
                       color="primary"
-                      onClick={stepForward}
+                      onClick={stepBack}
                     >
-                      Next Step
+                      Previous Step
                     </Button>
-                  ): null }
-                </StepContent>
-              </Step>
-            );
-          })}
-        </Stepper>
-      </Container>
+                    {activeJob.job.products.recalculate === false ? (
+                      <Button
+                        disabled={activeJob.jobStatus === jobStatus.length - 1}
+                        variant="contained"
+                        color="primary"
+                        onClick={stepForward}
+                      >
+                        Next Step
+                      </Button>
+                    ) : null}
+                    <Divider />
+                  </StepContent>
+                </Step>
+              );
+            })}
+          </Stepper>
+        </Container>
+      </Paper>
     </>
   );
 };

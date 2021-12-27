@@ -35,7 +35,7 @@ export function AuthMainUser() {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateMainUser } = useContext(MainUserContext);
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { BlueprintLibrary, CharacterSkills, IndustryJobs, MarketOrders, WalletTransactions, WalletJournal } =
+  const { BlueprintLibrary, CharacterSkills, HistoricMarketOrders, IndustryJobs, MarketOrders, WalletTransactions, WalletJournal } =
     useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
@@ -76,6 +76,7 @@ export function AuthMainUser() {
     userObject.apiSkills = await CharacterSkills(userObject);
     userObject.apiJobs = await IndustryJobs(userObject);
     userObject.apiOrders = await MarketOrders(userObject);
+    userObject.apiHistOrders = await HistoricMarketOrders(userObject);
     userObject.apiBlueprints = await BlueprintLibrary(userObject);
     userObject.apiTransactions = await WalletTransactions(userObject);
     userObject.apiJournal = await WalletJournal(userObject);
@@ -159,6 +160,7 @@ class MainUser {
     this.apiJobs = null;
     this.linkedJobs = [];
     this.apiOrders = null;
+    this.apiHistOrders = null;
     this.apiBlueprints = null;
     this.Settings = null;
   }

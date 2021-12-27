@@ -9,10 +9,12 @@ import {
   Avatar,
   Grid,
   IconButton,
+  Paper,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { MdOutlineAddLink } from "react-icons/md";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export function AvailableJobs({ jobMatches, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -25,14 +27,50 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     activeJob.apiJobs.length < activeJob.jobCount
   ) {
     return (
-      <>
+      <Paper
+        sx={{
+          padding: "10px",
+          paddingTop: "10px",
+          minHeight: "25vh",
+        }}
+        elevation={3}
+        square={true}
+      >
+        <Grid container direction="row" sx={{ marginBottom: "10px" }}>
+          <Grid item xs={12} md={11}>
+            <Typography variant="h5" color="primary" align="center">
+              Available Jobs
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            md={1}
+            sx={{ display: { xs: "none", md: "block" } }}
+            align="right"
+          >
+            <IconButton>
+              <MoreVertIcon size="small" color="Secondary" />
+            </IconButton>
+          </Grid>
+        </Grid>
         {jobMatches.map((job) => {
           return (
-            <Grid item container direction="row" xs={6}>
+            <Grid
+              key={job.job_id}
+              item
+              container
+              direction="row"
+              xs={12}
+              sx={{ marginBottom: "10px" }}
+            >
               <Grid item xs={2}>
                 <Avatar
                   src={`https://images.evetech.net/characters/${job.installer_id}/portrait`}
                   variant="circular"
+                  sx={{
+                    height: "32px",
+                    width: "32px",
+                  }}
                 />
               </Grid>
               <Grid item xs={5}>
@@ -55,11 +93,11 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                       updateActiveJob((prevObj) => ({
                         ...prevObj,
                         apiJobs: newActiveJobArray,
-                        job: {
-                          ...prevObj.job,
+                        build: {
+                          ...prevObj.build,
                           costs: {
-                            ...prevObj.job.costs,
-                            installCosts: (activeJob.job.costs.installCosts +=
+                            ...prevObj.build.costs,
+                            installCosts: (activeJob.build.costs.installCosts +=
                               job.cost),
                           },
                         },
@@ -95,24 +133,78 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
             </Grid>
           );
         })}
-      </>
+      </Paper>
     );
   } else if (activeJob.apiJobs.length >= activeJob.jobCount) {
     return (
-      <Grid item container direction="row" xs={6}>
-        <Typography variant="body2">
-          You have linked the maximum number of API jobs, if you need to link
-          more increase the number of job slots used.
-        </Typography>
-      </Grid>
+      <Paper
+        sx={{
+          padding: "10px",
+          paddingTop: "10px",
+          minHeight: "25vh",
+        }}
+        elevation={3}
+        square={true}
+      >
+        <Grid container direction="row" sx={{ marginBottom: "10px" }}>
+          <Grid item xs={12} md={11}>
+            <Typography variant="h5" color="primary" align="center">
+              Available Jobs
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            md={1}
+            sx={{ display: { xs: "none", md: "block" } }}
+            align="right"
+          >
+            <IconButton>
+              <MoreVertIcon size="small" color="Secondary" />
+            </IconButton>
+          </Grid>
+        </Grid>
+        <Grid item xs={12} align="center">
+          <Typography variant="body1">
+            You have linked the maximum number of API jobs, if you need to link
+            more increase the number of job slots used.
+          </Typography>
+        </Grid>
+      </Paper>
     );
   } else {
     return (
-      <Grid item container direction="row" xs={6}>
-        <Typography variant="body2">
-          No matching API jobs are currently found.
-        </Typography>
-      </Grid>
+      <Paper
+        sx={{
+          padding: "10px",
+          paddingTop: "10px",
+          minHeight: "25vh",
+        }}
+        elevation={3}
+        square={true}
+      >
+        <Grid container direction="row" sx={{ marginBottom: "10px" }}>
+          <Grid item xs={12} md={11}>
+            <Typography variant="h5" color="primary" align="center">
+              Available Jobs
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            md={1}
+            sx={{ display: { xs: "none", md: "block" } }}
+            align="right"
+          >
+            <IconButton>
+              <MoreVertIcon size="small" color="Secondary" />
+            </IconButton>
+          </Grid>
+        </Grid>
+        <Grid item xs={12} align="center">
+          <Typography variant="body1" >
+            No matching API jobs are currently found.
+          </Typography>
+        </Grid>
+      </Paper>
     );
   }
 }

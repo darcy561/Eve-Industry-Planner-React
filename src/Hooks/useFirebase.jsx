@@ -1,14 +1,7 @@
 import { useCallback, useContext } from "react";
 import { IsLoggedInContext, MainUserContext } from "../Context/AuthContext";
 import { firestore, functions, performance } from "../firebase";
-import {
-  doc,
-  deleteDoc,
-  getDoc,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { jobTypes } from "../Components/Job Planner";
+import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
@@ -38,9 +31,7 @@ export function useFirebase() {
       }
     }
     if (!fbToken._tokenResponse.isNewUser) {
-      const CharSnap = await getDoc(
-        doc(firestore, "Users", user.accountID)
-      );
+      const CharSnap = await getDoc(doc(firestore, "Users", user.accountID));
       const charData = CharSnap.data();
       const newJobArray = [];
       for (let i in charData.jobArraySnapshot) {
@@ -54,150 +45,83 @@ export function useFirebase() {
 
   const addNewJob = useCallback(
     async (job) => {
-      if (job.jobType === jobTypes.manufacturing) {
-        setDoc(
-          doc(
-            firestore,
-            `Users/${mainUser.accountID}/Jobs`,
-            job.jobID.toString()
-          ),
-          {
-            jobType: job.jobType,
-            name: job.name,
-            jobID: job.jobID,
-            jobStatus: job.jobStatus,
-            itemID: job.itemID,
-            maxProductionLimit: job.maxProductionLimit,
-            runCount: job.runCount,
-            jobCount: job.jobCount,
-            bpME: job.bpME,
-            bpTE: job.bpTE,
-            structureType: job.structureType,
-            structureTypeDisplay: job.structureTypeDisplay,
-            rigType: job.rigType,
-            systemType: job.systemType,
-            apiJobs: job.apiJobs,
-            manufacturing: JSON.stringify(job.manufacturing),
-            job: JSON.stringify(job.job),
-            planner: JSON.stringify(job.planner),
-          }
-        );
-      }
-      if (job.jobType === jobTypes.reaction) {
-        setDoc(
-          doc(
-            firestore,
-            `Users/${mainUser.accountID}/Jobs`,
-            job.jobID.toString()
-          ),
-          {
-            jobType: job.jobType,
-            name: job.name,
-            jobID: job.jobID,
-            jobStatus: job.jobStatus,
-            itemID: job.itemID,
-            maxProductionLimit: job.maxProductionLimit,
-            runCount: job.runCount,
-            jobCount: job.jobCount,
-            bpME: job.bpME,
-            bpTE: job.bpTE,
-            structureType: job.structureType,
-            structureTypeDisplay: job.structureTypeDisplay,
-            rigType: job.rigType,
-            systemType: job.systemType,
-            apiJobs: job.apiJobs,
-            reaction: JSON.stringify(job.reaction),
-            job: JSON.stringify(job.job),
-            planner: JSON.stringify(job.planner),
-          }
-        );
-      }
+      setDoc(
+        doc(
+          firestore,
+          `Users/${mainUser.accountID}/Jobs`,
+          job.jobID.toString()
+        ),
+        {
+          jobType: job.jobType,
+          name: job.name,
+          jobID: job.jobID,
+          jobStatus: job.jobStatus,
+          volume: job.volume,
+          itemID: job.itemID,
+          maxProductionLimit: job.maxProductionLimit,
+          runCount: job.runCount,
+          jobCount: job.jobCount,
+          bpME: job.bpME,
+          bpTE: job.bpTE,
+          structureType: job.structureType,
+          structureTypeDisplay: job.structureTypeDisplay,
+          rigType: job.rigType,
+          systemType: job.systemType,
+          apiJobs: job.apiJobs,
+          skills: JSON.stringify(job.skills),
+          rawData: JSON.stringify(job.rawData),
+          build: JSON.stringify(job.build),
+        }
+      );
     },
     [isLoggedIn, mainUser]
   );
 
   const uploadJob = useCallback(
     async (job) => {
-      if (job.jobType === jobTypes.manufacturing) {
-        updateDoc(
-          doc(
-            firestore,
-            `Users/${mainUser.accountID}/Jobs`,
-            job.jobID.toString()
-          ),
-          {
-            jobType: job.jobType,
-            name: job.name,
-            jobID: job.jobID,
-            jobStatus: job.jobStatus,
-            itemID: job.itemID,
-            maxProductionLimit: job.maxProductionLimit,
-            runCount: job.runCount,
-            jobCount: job.jobCount,
-            bpME: job.bpME,
-            bpTE: job.bpTE,
-            structureType: job.structureType,
-            structureTypeDisplay: job.structureTypeDisplay,
-            rigType: job.rigType,
-            systemType: job.systemType,
-            apiJobs: job.apiJobs,
-            manufacturing: JSON.stringify(job.manufacturing),
-            job: JSON.stringify(job.job),
-            planner: JSON.stringify(job.planner),
-          }
-        );
-      }
-      if (job.jobType === jobTypes.reaction) {
-        updateDoc(
-          doc(
-            firestore,
-            `Users/${mainUser.accountID}/Jobs`,
-            job.jobID.toString()
-          ),
-          {
-            jobType: job.jobType,
-            name: job.name,
-            jobID: job.jobID,
-            jobStatus: job.jobStatus,
-            itemID: job.itemID,
-            maxProductionLimit: job.maxProductionLimit,
-            runCount: job.runCount,
-            jobCount: job.jobCount,
-            bpME: job.bpME,
-            bpTE: job.bpTE,
-            structureType: job.structureType,
-            structureTypeDisplay: job.structureTypeDisplay,
-            rigType: job.rigType,
-            systemType: job.systemType,
-            apiJobs: job.apiJobs,
-            reaction: JSON.stringify(job.reaction),
-            job: JSON.stringify(job.job),
-            planner: JSON.stringify(job.planner),
-          }
-        );
-      }
-    },
-    [isLoggedIn, mainUser]
-  );
-
-  const updateMainUserDoc = useCallback(
-    async () => {
-      updateDoc(doc(firestore, "Users", mainUser.accountID), {
-        jobStatusArray: jobStatus,
-        linkedJobs: mainUser.linkedJobs,
-      });
-    },
-    [isLoggedIn, mainUser]
-  );
-
-  const removeJob = useCallback(
-    async (job) => {
-      deleteDoc(
+      updateDoc(
         doc(
           firestore,
           `Users/${mainUser.accountID}/Jobs`,
           job.jobID.toString()
-        )
+        ),
+        {
+          jobType: job.jobType,
+          name: job.name,
+          jobID: job.jobID,
+          jobStatus: job.jobStatus,
+          volume: job.volume,
+          itemID: job.itemID,
+          maxProductionLimit: job.maxProductionLimit,
+          runCount: job.runCount,
+          jobCount: job.jobCount,
+          bpME: job.bpME,
+          bpTE: job.bpTE,
+          structureType: job.structureType,
+          structureTypeDisplay: job.structureTypeDisplay,
+          rigType: job.rigType,
+          systemType: job.systemType,
+          apiJobs: job.apiJobs,
+          skills: JSON.stringify(job.skills),
+          rawData: JSON.stringify(job.rawData),
+          build: JSON.stringify(job.build),
+        }
+      );
+    },
+    [isLoggedIn, mainUser]
+  );
+
+  const updateMainUserDoc = useCallback(async () => {
+    updateDoc(doc(firestore, "Users", mainUser.accountID), {
+      jobStatusArray: jobStatus,
+      linkedJobs: mainUser.linkedJobs,
+    });
+  }, [isLoggedIn, mainUser]);
+
+  const removeJob = useCallback(
+    async (job) => {
+      deleteDoc(
+        doc(firestore, `Users/${mainUser.accountID}/Jobs`, job.jobID.toString())
       );
     },
     [isLoggedIn, mainUser]
@@ -206,59 +130,31 @@ export function useFirebase() {
   const downloadCharacterJobs = useCallback(
     async (job) => {
       const document = await getDoc(
-        doc(
-          firestore,
-          `Users/${mainUser.accountID}/Jobs`,
-          job.jobID.toString()
-        )
+        doc(firestore, `Users/${mainUser.accountID}/Jobs`, job.jobID.toString())
       );
-      let newJob = null;
-      if (document.data().jobType === jobTypes.manufacturing) {
-        newJob = {
-          isSnapshot: false,
-          jobType: document.data().jobType,
-          name: document.data().name,
-          jobID: document.data().jobID,
-          jobStatus: document.data().jobStatus,
-          itemID: document.data().itemID,
-          maxProductionLimit: document.data().maxProductionLimit,
-          runCount: document.data().runCount,
-          jobCount: document.data().jobCount,
-          bpME: document.data().bpME,
-          bpTE: document.data().bpTE,
-          structureType: document.data().structureType,
-          structureTypeDisplay: document.data().structureTypeDisplay,
-          rigType: document.data().rigType,
-          systemType: document.data().systemType,
-          apiJobs: document.data().apiJobs,
-          manufacturing: JSON.parse(document.data().manufacturing),
-          job: JSON.parse(document.data().job),
-          planner: JSON.parse(document.data().planner),
-        };
-      }
-      if (document.data().jobType === jobTypes.reaction) {
-        newJob = {
-          isSnapshot: false,
-          jobType: document.data().jobType,
-          name: document.data().name,
-          jobID: document.data().jobID,
-          jobStatus: document.data().jobStatus,
-          itemID: document.data().itemID,
-          maxProductionLimit: document.data().maxProductionLimit,
-          runCount: document.data().runCount,
-          jobCount: document.data().jobCount,
-          bpME: document.data().bpME,
-          bpTE: document.data().bpTE,
-          structureType: document.data().structureType,
-          structureTypeDisplay: document.data().structureTypeDisplay,
-          rigType: document.data().rigType,
-          systemType: document.data().systemType,
-          apiJobs: document.data().apiJobs,
-          reaction: JSON.parse(document.data().reaction),
-          job: JSON.parse(document.data().job),
-          planner: JSON.parse(document.data().planner),
-        };
-      }
+      let newJob = {
+        isSnapshot: false,
+        jobType: document.data().jobType,
+        name: document.data().name,
+        jobID: document.data().jobID,
+        jobStatus: document.data().jobStatus,
+        volume: document.data().volume,
+        itemID: document.data().itemID,
+        maxProductionLimit: document.data().maxProductionLimit,
+        runCount: document.data().runCount,
+        jobCount: document.data().jobCount,
+        bpME: document.data().bpME,
+        bpTE: document.data().bpTE,
+        structureType: document.data().structureType,
+        structureTypeDisplay: document.data().structureTypeDisplay,
+        rigType: document.data().rigType,
+        systemType: document.data().systemType,
+        apiJobs: document.data().apiJobs,
+        skills: JSON.parse(document.data().skills),
+        rawData: JSON.parse(document.data().rawData),
+        build: JSON.parse(document.data().build),
+      };
+
       const index = jobArray.findIndex((x) => job.jobID === x.jobID);
       const newArray = [...jobArray];
       newArray[index] = newJob;

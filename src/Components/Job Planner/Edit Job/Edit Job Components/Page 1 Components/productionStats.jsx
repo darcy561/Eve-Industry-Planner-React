@@ -16,36 +16,27 @@ export function ProductionStats() {
     >
       <Grid container direction="column" sx={{}}>
         <Grid container direction="row" item>
-          <Grid container item xs={12}>
+          <Grid container item xs={12} sx={{ marginBottom: "5px" }}>
             <Grid item xs={10}>
               <Typography variant="body2">
                 Items Produced Per Blueprint Run
               </Typography>
             </Grid>
             <Grid item xs={2}>
-              {activeJob.jobType === jobTypes.manufacturing && (
                 <Typography variant="body2" align="right">
                   {Number(
-                    activeJob.manufacturing.products[0].quantity
+                    activeJob.rawData.products[0].quantity
                   ).toLocaleString()}
                 </Typography>
-              )}
-              {activeJob.jobType === jobTypes.reaction && (
-                <Typography variant="body2" align="right">
-                  {Number(
-                    activeJob.reaction.products[0].quantity
-                  ).toLocaleString()}
-                </Typography>
-              )}
             </Grid>
           </Grid>
-          <Grid container item xs={12}>
+          <Grid container item xs={12} sx={{ marginBottom: "5px" }}>
             <Grid item xs={10}>
               <Typography variant="body2">Total Items Per Job Slot</Typography>
             </Grid>
             <Grid item xs={2}>
               <Typography variant="body2" align="right">
-                {activeJob.job.products.quantityPerJob.toLocaleString()}
+                {activeJob.build.products.quantityPerJob.toLocaleString()}
               </Typography>
             </Grid>
           </Grid>
@@ -58,7 +49,7 @@ export function ProductionStats() {
 
             <Grid item xs={2}>
               <Typography variant="body2" align="right">
-                {activeJob.job.products.totalQuantity.toLocaleString()}
+                {activeJob.build.products.totalQuantity.toLocaleString()}
               </Typography>
             </Grid>
           </Grid>

@@ -3,7 +3,7 @@ import {
   JobArrayContext,
   JobStatusContext,
   ActiveJobContext,
-  ApiJobsContext
+  ApiJobsContext,
 } from "../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { EditPage1 } from "./Edit Job Components/Job Page 1";
@@ -17,21 +17,28 @@ import {
   Container,
   Divider,
   Grid,
+  IconButton,
   Paper,
   Stepper,
   Step,
   StepLabel,
   StepContent,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useFirebase } from "../../../Hooks/useFirebase";
-import { IsLoggedInContext, MainUserContext } from "../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  MainUserContext,
+} from "../../../Context/AuthContext";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 
-export function EditJob({updateJobSettingsTrigger}) {
+export default function EditJob({ updateJobSettingsTrigger }) {
   const { jobStatus } = useContext(JobStatusContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { apiJobs, updateApiJobs} = useContext(ApiJobsContext);
+  const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { mainUser, updateMainUser } = useContext(MainUserContext);
@@ -58,7 +65,7 @@ export function EditJob({updateJobSettingsTrigger}) {
   function stepBack() {
     updateActiveJob((prevState) => ({
       ...prevState,
-      jobStatus: prevState.jobStatus - 1,
+      jobStatus: prevState.jobStatus -1,
     }));
     setJobModified(true);
   }
@@ -66,7 +73,7 @@ export function EditJob({updateJobSettingsTrigger}) {
   function stepForward() {
     updateActiveJob((prevState) => ({
       ...prevState,
-      jobStatus: prevState.jobStatus + 1,
+      jobStatus: prevState.jobStatus +1,
     }));
     setJobModified(true);
   }
@@ -78,30 +85,32 @@ export function EditJob({updateJobSettingsTrigger}) {
     if (isLoggedIn && jobModified) {
       uploadJob(activeJob);
       updateMainUserDoc();
-    };
+    }
     updateJobArray(newArray);
     setSnackbarData((prev) => ({
-      ...prev, open: true, message: `${activeJob.name} Updated`, severity: "info", autoHideDuration: 1000,
+      ...prev,
+      open: true,
+      message: `${activeJob.name} Updated`,
+      severity: "info",
+      autoHideDuration: 1000,
     }));
     updateJobSettingsTrigger((prev) => !prev);
-    
   }
 
   function deleteJob() {
-    
     if (isLoggedIn) {
-      removeJob(activeJob)
-      const newMainUserArray = mainUser.linkedJobs
-      const newApiJobsArary =  apiJobs
+      removeJob(activeJob);
+      const newMainUserArray = mainUser.linkedJobs;
+      const newApiJobsArary = apiJobs;
       activeJob.apiJobs.forEach((job) => {
-        const x = mainUser.linkedJobs.findIndex((i) => i === job)
-        const y = apiJobs.findIndex((u) => u.job_id === job)
+        const x = mainUser.linkedJobs.findIndex((i) => i === job);
+        const y = apiJobs.findIndex((u) => u.job_id === job);
         newMainUserArray.splice(x, 1);
         newApiJobsArary[y].linked = false;
-      })
+      });
       updateMainUser((prevObj) => ({
         ...prevObj,
-        linkedJobs: newMainUserArray
+        linkedJobs: newMainUserArray,
       }));
       updateApiJobs(newApiJobsArary);
       updateMainUserDoc();
@@ -109,9 +118,13 @@ export function EditJob({updateJobSettingsTrigger}) {
 
     const newJobArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);
     updateJobArray(newJobArray);
-    
+
     setSnackbarData((prev) => ({
-      ...prev, open: true, message: `${activeJob.name} Deleted`, severity: "error", autoHideDuration: 3000,
+      ...prev,
+      open: true,
+      message: `${activeJob.name} Deleted`,
+      severity: "error",
+      autoHideDuration: 3000,
     }));
     updateJobSettingsTrigger((prev) => !prev);
   }
@@ -152,10 +165,10 @@ export function EditJob({updateJobSettingsTrigger}) {
             <Grid item xs={7} sm={8}></Grid>
             <Grid item xs={2} sm={1}>
               <Button
-                style={{ width: "90%" }}
                 variant="contained"
                 color="secondary"
                 onClick={closeJob}
+                size="small"
               >
                 Close
               </Button>
@@ -163,10 +176,10 @@ export function EditJob({updateJobSettingsTrigger}) {
             <Grid item xs={9} sm={11}></Grid>
             <Grid item xs={2} sm={1}>
               <Button
-                style={{ width: "90%" }}
                 variant="contained"
                 color="error"
                 onClick={deleteJob}
+                size="small"
               >
                 Delete
               </Button>
@@ -180,25 +193,57 @@ export function EditJob({updateJobSettingsTrigger}) {
                   <StepLabel>{status.name}</StepLabel>
                   <StepContent>
                     <Divider />
-                    <StepContentSelector />
-                    <Button
-                      disabled={activeJob.jobStatus === 0}
-                      variant="contained"
-                      color="primary"
-                      onClick={stepBack}
-                    >
-                      Previous Step
-                    </Button>
-                    {activeJob.job.products.recalculate === false ? (
-                      <Button
-                        disabled={activeJob.jobStatus === jobStatus.length - 1}
-                        variant="contained"
-                        color="primary"
-                        onClick={stepForward}
+                    {activeJob.jobStatus !== 0 && (
+                      <Grid
+                        container
+                        sx={{
+                          marginTop: "10px",
+                          marginBottom: "20px",
+                        }}
                       >
-                        Next Step
-                      </Button>
-                    ) : null}
+                        <Grid item xs={12} align="center">
+                          <Tooltip
+                            title="Move to previous step"
+                            arrow
+                            placement="right"
+                          >
+                            <IconButton
+                              color="primary"
+                              onClick={stepBack}
+                              size="large"
+                            >
+                              <ArrowUpwardIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </Grid>
+                      </Grid>
+                    )}
+                    <StepContentSelector />
+                    {activeJob.jobStatus !== jobStatus.length - 1 && (
+                      <Grid
+                        container
+                        sx={{
+                          marginTop: "20px",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        <Grid item xs={12} align="center">
+                          <Tooltip
+                            title="Move to next step"
+                            arrow
+                            placement="right"
+                          >
+                            <IconButton
+                              color="primary"
+                              onClick={stepForward}
+                              size="large"
+                            >
+                              <ArrowDownwardIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </Grid>
+                      </Grid>
+                    )}
                     <Divider />
                   </StepContent>
                 </Step>
@@ -209,4 +254,4 @@ export function EditJob({updateJobSettingsTrigger}) {
       </Paper>
     </>
   );
-};
+}

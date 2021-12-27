@@ -16,6 +16,7 @@
     "css-what": "^5.1.0",
     "dotenv": "^10.0.0",
     "firebase": "^9.6.1",
+    "firebase-admin": "^10.0.1",
     "firebase-tools": "^9.6.1",
     "glob-parent": "^6.0.2",
     "jsonwebtoken": "^8.5.1",
@@ -27,6 +28,9 @@
     "react-select": "^4.3.1",
     "react-select-search": "^3.0.9",
     "web-vitals": "^1.1.2"
+  },
+  "devDependencies": {
+    "react-error-overlay": "6.0.9"
   },
   "scripts": {
     "start": "react-scripts start",

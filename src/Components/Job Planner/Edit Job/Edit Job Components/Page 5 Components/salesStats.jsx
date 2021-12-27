@@ -1,0 +1,150 @@
+import { Grid, Paper, Typography } from "@mui/material";
+import React, { useContext } from "react";
+import { ActiveJobContext } from "../../../../../Context/JobContext";
+
+export function SalesStats() {
+  const { activeJob } = useContext(ActiveJobContext);
+
+  let brokersFeesTotal = 0;
+  activeJob.build.sale.brokersFee.forEach(
+    (item) => (brokersFeesTotal += item.amount)
+  );
+  let transactionFeeTotal = 0;
+  activeJob.build.sale.transactions.forEach(
+    (item) => (transactionFeeTotal += item.fee)
+  );
+
+  return (
+    <Paper
+      sx={{
+        padding: "20px",
+      }}
+      elevation={3}
+      square={true}
+    >
+      <Grid container direction="row">
+        <Grid container item xs={12}  sx={{marginBottom: "10px"}}>
+          <Grid item xs={8}>
+            <Typography variant="body1">Total Build Cost:</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant="body1" align="right">
+              {(
+                activeJob.build.costs.totalPurchaseCost +
+                activeJob.build.costs.installCosts +
+                activeJob.build.costs.extrasTotal
+              ).toLocaleString()}{" "}
+              ISK
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} sx={{marginBottom: "10px"}}>
+          <Grid item xs={8}>
+            <Typography variant="body1">Brokers Fee Total:</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant="body1" align="right">
+              {brokersFeesTotal.toLocaleString()} ISK
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} sx={{marginBottom: "10px"}}>
+          <Grid item xs={8}>
+            <Typography variant="body1">Transaction Fee Total:</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant="body1" align="right">
+              {transactionFeeTotal.toLocaleString()} ISK
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} sx={{marginBottom: "10px"}}>
+          <Grid item xs={8}>
+            <Typography variant="body1">Total Build Cost:</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant="body1" align="right">
+              {(
+                activeJob.build.costs.totalPurchaseCost +
+                activeJob.build.costs.installCosts +
+                activeJob.build.costs.extrasTotal +
+                brokersFeesTotal +
+                transactionFeeTotal
+              ).toLocaleString()}{" "}
+              ISK
+            </Typography>
+          </Grid>
+              </Grid>
+              <Grid container item xs={12} sx={{marginBottom: "20px"}}>
+          <Grid item xs={8}>
+            <Typography variant="body1">Total Cost Per Item:</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant="body1" align="right">
+            {(
+                Math.round(
+                  ((activeJob.build.costs.totalPurchaseCost +
+                    activeJob.build.costs.installCosts +
+                    activeJob.build.costs.extrasTotal +
+                    brokersFeesTotal +
+                    transactionFeeTotal) /
+                    activeJob.build.products.totalQuantity +
+                    Number.EPSILON) *
+                    100
+                ) / 100
+              ).toLocaleString()}{" "}
+              ISK
+            </Typography>
+          </Grid>
+              </Grid>
+              <Grid container item xs={12} sx={{marginBottom: "10px"}}>
+          <Grid item xs={8}>
+            <Typography variant="body1">Total Of Sales:</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant="body1" align="right">
+            {activeJob.build.sale.totalSale.toLocaleString()}{" "}
+              ISK
+            </Typography>
+          </Grid>
+              </Grid>
+              <Grid container item xs={12} sx={{marginBottom: "10px"}}>
+          <Grid item xs={8}>
+            <Typography variant="body1">Average Sale Price Per Item:</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant="body1" align="right">
+            {(
+                Math.round(
+                  (activeJob.build.sale.totalSale /
+                    activeJob.build.products.totalQuantity +
+                    Number.EPSILON) *
+                    100
+                ) / 100
+              ).toLocaleString()}{" "}
+              ISK
+            </Typography>
+          </Grid>
+              </Grid>
+              <Grid container item xs={12}>
+          <Grid item xs={8}>
+            <Typography variant="body1">Profit/Loss:</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant="body1" align="right">
+            {(
+                activeJob.build.sale.totalSale -
+                (activeJob.build.costs.totalPurchaseCost +
+                  activeJob.build.costs.installCosts +
+                  activeJob.build.costs.extrasTotal +
+                  brokersFeesTotal +
+                  transactionFeeTotal)
+              ).toLocaleString()}{" "}
+              ISK
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+}

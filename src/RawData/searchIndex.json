@@ -700,10 +700,6 @@
     "itemID": 590
   },
   {
-    "name": "Tormentor",
-    "itemID": 591
-  },
-  {
     "name": "Navitas",
     "itemID": 592
   },
@@ -856,20 +852,12 @@
     "itemID": 650
   },
   {
-    "name": "Hoarder",
-    "itemID": 651
-  },
-  {
     "name": "Mammoth",
     "itemID": 652
   },
   {
     "name": "Wreathe",
     "itemID": 653
-  },
-  {
-    "name": "Kryos",
-    "itemID": 654
   },
   {
     "name": "Epithal",
@@ -880,12 +868,12 @@
     "itemID": 656
   },
   {
-    "name": "Iteron Mark V",
-    "itemID": 657
-  },
-  {
     "name": "Erebus",
     "itemID": 671
+  },
+  {
+    "name": "Caldari Shuttle",
+    "itemID": 672
   },
   {
     "name": "Auto Targeting System I",
@@ -918,10 +906,6 @@
   {
     "name": "Wasp I",
     "itemID": 1201
-  },
-  {
-    "name": "Civilian Mining Drone",
-    "itemID": 1202
   },
   {
     "name": "Overdrive Injector System II",
@@ -1208,20 +1192,8 @@
     "itemID": 1999
   },
   {
-    "name": "Cynosural Suppression",
-    "itemID": 2001
-  },
-  {
     "name": "Omen",
     "itemID": 2006
-  },
-  {
-    "name": "Cynosural Navigation",
-    "itemID": 2008
-  },
-  {
-    "name": "Supercapital Construction Facilities",
-    "itemID": 2009
   },
   {
     "name": "Medium Cap Battery I",
@@ -1236,72 +1208,12 @@
     "itemID": 2024
   },
   {
-    "name": "Pirate Detection Array 1",
-    "itemID": 2026
-  },
-  {
-    "name": "Pirate Detection Array 2",
-    "itemID": 2027
-  },
-  {
-    "name": "Pirate Detection Array 3",
-    "itemID": 2028
-  },
-  {
-    "name": "Pirate Detection Array 4",
-    "itemID": 2029
-  },
-  {
-    "name": "Pirate Detection Array 5",
-    "itemID": 2030
-  },
-  {
-    "name": "Entrapment Array 1",
-    "itemID": 2031
-  },
-  {
     "name": "Cap Recharger II",
     "itemID": 2032
   },
   {
-    "name": "Entrapment Array 2",
-    "itemID": 2034
-  },
-  {
-    "name": "Entrapment Array 3",
-    "itemID": 2035
-  },
-  {
-    "name": "Entrapment Array 4",
-    "itemID": 2036
-  },
-  {
-    "name": "Entrapment Array 5",
-    "itemID": 2037
-  },
-  {
     "name": "Cargo Scanner II",
     "itemID": 2038
-  },
-  {
-    "name": "Ore Prospecting Array 1",
-    "itemID": 2040
-  },
-  {
-    "name": "Ore Prospecting Array 2",
-    "itemID": 2041
-  },
-  {
-    "name": "Ore Prospecting Array 3",
-    "itemID": 2042
-  },
-  {
-    "name": "Ore Prospecting Array 4",
-    "itemID": 2043
-  },
-  {
-    "name": "Ore Prospecting Array 5",
-    "itemID": 2044
   },
   {
     "name": "Damage Control I",
@@ -1310,46 +1222,6 @@
   {
     "name": "Damage Control II",
     "itemID": 2048
-  },
-  {
-    "name": "Survey Networks 1",
-    "itemID": 2053
-  },
-  {
-    "name": "Survey Networks 2",
-    "itemID": 2054
-  },
-  {
-    "name": "Survey Networks 3",
-    "itemID": 2055
-  },
-  {
-    "name": "Survey Networks 4",
-    "itemID": 2056
-  },
-  {
-    "name": "Survey Networks 5",
-    "itemID": 2057
-  },
-  {
-    "name": "Quantum Flux Generator 1",
-    "itemID": 2058
-  },
-  {
-    "name": "Quantum Flux Generator 2",
-    "itemID": 2059
-  },
-  {
-    "name": "Quantum Flux Generator 3",
-    "itemID": 2060
-  },
-  {
-    "name": "Quantum Flux Generator 4",
-    "itemID": 2061
-  },
-  {
-    "name": "Quantum Flux Generator 5",
-    "itemID": 2062
   },
   {
     "name": "Remote Tracking Computer I",
@@ -1824,18 +1696,6 @@
     "itemID": 3285
   },
   {
-    "name": "Large Secure Container",
-    "itemID": 3465
-  },
-  {
-    "name": "Medium Secure Container",
-    "itemID": 3466
-  },
-  {
-    "name": "Small Secure Container",
-    "itemID": 3467
-  },
-  {
     "name": "Small Cap Battery II",
     "itemID": 3488
   },
@@ -1948,10 +1808,6 @@
     "itemID": 3665
   },
   {
-    "name": "Gnosis",
-    "itemID": 3756
-  },
-  {
     "name": "Leviathan",
     "itemID": 3764
   },
@@ -2016,10 +1872,6 @@
     "itemID": 3955
   },
   {
-    "name": "Customs Office Gantry",
-    "itemID": 3962
-  },
-  {
     "name": "Large Proton Smartbomb I",
     "itemID": 3977
   },
@@ -2056,20 +1908,8 @@
     "itemID": 3995
   },
   {
-    "name": "Nitrogen Fuel Block",
-    "itemID": 4051
-  },
-  {
     "name": "Dual Heavy Pulse Laser II",
     "itemID": 4147
-  },
-  {
-    "name": "Hydrogen Fuel Block",
-    "itemID": 4246
-  },
-  {
-    "name": "Helium Fuel Block",
-    "itemID": 4247
   },
   {
     "name": "Warp Disruption Field Generator II",
@@ -2128,34 +1968,6 @@
     "itemID": 4299
   },
   {
-    "name": "Oracle",
-    "itemID": 4302
-  },
-  {
-    "name": "Naga",
-    "itemID": 4306
-  },
-  {
-    "name": "Talos",
-    "itemID": 4308
-  },
-  {
-    "name": "Tornado",
-    "itemID": 4310
-  },
-  {
-    "name": "Oxygen Fuel Block",
-    "itemID": 4312
-  },
-  {
-    "name": "Large Micro Jump Drive",
-    "itemID": 4383
-  },
-  {
-    "name": "Large Ancillary Shield Booster",
-    "itemID": 4391
-  },
-  {
     "name": "Drone Damage Amplifier I",
     "itemID": 4393
   },
@@ -2184,16 +1996,8 @@
     "itemID": 4405
   },
   {
-    "name": "Signature Radius Suppressor I",
-    "itemID": 4409
-  },
-  {
     "name": "Magnetic Field Stabilizer I",
     "itemID": 9944
-  },
-  {
-    "name": "Civilian Shield Booster",
-    "itemID": 10039
   },
   {
     "name": "Magnetic Field Stabilizer II",
@@ -2460,94 +2264,6 @@
     "itemID": 11400
   },
   {
-    "name": "R.Db - Viziam",
-    "itemID": 11457
-  },
-  {
-    "name": "R.Db - Khanid Innovation",
-    "itemID": 11458
-  },
-  {
-    "name": "R.Db - Carthum Conglomerate",
-    "itemID": 11459
-  },
-  {
-    "name": "R.Db - Thukker Mix",
-    "itemID": 11460
-  },
-  {
-    "name": "R.Db - Boundless Creations",
-    "itemID": 11461
-  },
-  {
-    "name": "R.Db - Core Complexion",
-    "itemID": 11462
-  },
-  {
-    "name": "R.Db - Ishukone",
-    "itemID": 11463
-  },
-  {
-    "name": "R.Db - Kaalakiota",
-    "itemID": 11464
-  },
-  {
-    "name": "R.Db - Roden Shipyards",
-    "itemID": 11465
-  },
-  {
-    "name": "R.Db - CreoDron",
-    "itemID": 11466
-  },
-  {
-    "name": "R.Db - Duvolle Labs",
-    "itemID": 11467
-  },
-  {
-    "name": "R.A.M.- Armor/Hull Tech",
-    "itemID": 11475
-  },
-  {
-    "name": "R.A.M.- Ammunition Tech",
-    "itemID": 11476
-  },
-  {
-    "name": "R.A.M.- Starship Tech",
-    "itemID": 11478
-  },
-  {
-    "name": "R.A.M.- Robotics",
-    "itemID": 11481
-  },
-  {
-    "name": "R.A.M.- Energy Tech",
-    "itemID": 11482
-  },
-  {
-    "name": "R.A.M.- Electronics",
-    "itemID": 11483
-  },
-  {
-    "name": "R.A.M.- Shield Tech",
-    "itemID": 11484
-  },
-  {
-    "name": "R.A.M.- Cybernetics",
-    "itemID": 11485
-  },
-  {
-    "name": "R.A.M.- Weapon Tech",
-    "itemID": 11486
-  },
-  {
-    "name": "Huge Secure Container",
-    "itemID": 11488
-  },
-  {
-    "name": "Giant Secure Container",
-    "itemID": 11489
-  },
-  {
     "name": "Plasma Thruster",
     "itemID": 11530
   },
@@ -2730,10 +2446,6 @@
   {
     "name": "Plasma Pulse Generator",
     "itemID": 11695
-  },
-  {
-    "name": "R.Db - Lai Dai",
-    "itemID": 11746
   },
   {
     "name": "Falcon",
@@ -2926,18 +2638,6 @@
   {
     "name": "Gallente Control Tower",
     "itemID": 12236
-  },
-  {
-    "name": "Ship Maintenance Array",
-    "itemID": 12237
-  },
-  {
-    "name": "Reprocessing Array",
-    "itemID": 12238
-  },
-  {
-    "name": "Compression Array",
-    "itemID": 12239
   },
   {
     "name": "Medium Energy Nosferatu I",
@@ -3188,16 +2888,8 @@
     "itemID": 13320
   },
   {
-    "name": "Equipment Assembly Array",
-    "itemID": 13780
-  },
-  {
     "name": "Nova Javelin Heavy Assault Missile",
     "itemID": 13856
-  },
-  {
-    "name": "Silo",
-    "itemID": 14343
   },
   {
     "name": "Vespa I",
@@ -3214,14 +2906,6 @@
   {
     "name": "Minmatar Control Tower",
     "itemID": 16214
-  },
-  {
-    "name": "Rapid Equipment Assembly Array",
-    "itemID": 16220
-  },
-  {
-    "name": "Moon Harvesting Array",
-    "itemID": 16221
   },
   {
     "name": "Ferox",
@@ -3440,48 +3124,8 @@
     "itemID": 17182
   },
   {
-    "name": "Ballistic Deflection Array",
-    "itemID": 17184
-  },
-  {
-    "name": "Explosion Dampening Array",
-    "itemID": 17185
-  },
-  {
-    "name": "Heat Dissipation Array",
-    "itemID": 17186
-  },
-  {
-    "name": "Photon Scattering Array",
-    "itemID": 17187
-  },
-  {
     "name": "Fermionic Condensates",
     "itemID": 17317
-  },
-  {
-    "name": "Small Audit Log Secure Container",
-    "itemID": 17363
-  },
-  {
-    "name": "Medium Audit Log Secure Container",
-    "itemID": 17364
-  },
-  {
-    "name": "Large Audit Log Secure Container",
-    "itemID": 17365
-  },
-  {
-    "name": "Station Container",
-    "itemID": 17366
-  },
-  {
-    "name": "Station Vault Container",
-    "itemID": 17367
-  },
-  {
-    "name": "Station Warehouse Container",
-    "itemID": 17368
   },
   {
     "name": "Large Blaster Battery",
@@ -3522,10 +3166,6 @@
   {
     "name": "Strip Miner I",
     "itemID": 17482
-  },
-  {
-    "name": "Corporate Hangar Array",
-    "itemID": 17621
   },
   {
     "name": "Antimatter Charge XL",
@@ -3676,10 +3316,6 @@
     "itemID": 17960
   },
   {
-    "name": "Coupling Array",
-    "itemID": 17982
-  },
-  {
     "name": "Arkonor Mining Crystal I",
     "itemID": 18036
   },
@@ -3828,16 +3464,8 @@
     "itemID": 18639
   },
   {
-    "name": "Intensive Reprocessing Array",
-    "itemID": 19470
-  },
-  {
     "name": "Revelation",
     "itemID": 19720
-  },
-  {
-    "name": "Naglfar",
-    "itemID": 19722
   },
   {
     "name": "Moros",
@@ -4000,80 +3628,12 @@
     "itemID": 20703
   },
   {
-    "name": "Capital Propulsion Engine",
-    "itemID": 21009
-  },
-  {
-    "name": "Capital Turret Hardpoint",
-    "itemID": 21011
-  },
-  {
-    "name": "Capital Sensor Cluster",
-    "itemID": 21013
-  },
-  {
-    "name": "Capital Armor Plates",
-    "itemID": 21017
-  },
-  {
-    "name": "Capital Capacitor Battery",
-    "itemID": 21019
-  },
-  {
-    "name": "Capital Power Generator",
-    "itemID": 21021
-  },
-  {
-    "name": "Capital Shield Emitter",
-    "itemID": 21023
-  },
-  {
-    "name": "Capital Jump Drive",
-    "itemID": 21025
-  },
-  {
-    "name": "Capital Cargo Bay",
-    "itemID": 21027
-  },
-  {
-    "name": "Capital Drone Bay",
-    "itemID": 21029
-  },
-  {
-    "name": "Capital Computer System",
-    "itemID": 21035
-  },
-  {
-    "name": "Capital Construction Parts",
-    "itemID": 21037
-  },
-  {
-    "name": "Capital Siege Array",
-    "itemID": 21039
-  },
-  {
-    "name": "Capital Launcher Hardpoint",
-    "itemID": 21041
-  },
-  {
-    "name": "Crude Sculpture",
-    "itemID": 21054
-  },
-  {
-    "name": "Cynosural Field Generator I",
-    "itemID": 21096
-  },
-  {
     "name": "Vespa II",
     "itemID": 21638
   },
   {
     "name": "Valkyrie II",
     "itemID": 21640
-  },
-  {
-    "name": "Civilian Armor Repairer",
-    "itemID": 21853
   },
   {
     "name": "Civilian Expanded Cargohold",
@@ -4086,54 +3646,6 @@
   {
     "name": "Nova Heavy Assault Missile",
     "itemID": 21867
-  },
-  {
-    "name": "Structure Construction Parts",
-    "itemID": 21947
-  },
-  {
-    "name": "Structure Hangar Array",
-    "itemID": 21949
-  },
-  {
-    "name": "Structure Storage Bay",
-    "itemID": 21951
-  },
-  {
-    "name": "Structure Laboratory",
-    "itemID": 21953
-  },
-  {
-    "name": "Structure Factory",
-    "itemID": 21955
-  },
-  {
-    "name": "Structure Repair Facility",
-    "itemID": 21957
-  },
-  {
-    "name": "Structure Reprocessing Plant",
-    "itemID": 21959
-  },
-  {
-    "name": "Structure Docking Bay",
-    "itemID": 21961
-  },
-  {
-    "name": "Structure Market Network",
-    "itemID": 21963
-  },
-  {
-    "name": "Structure Medical Center",
-    "itemID": 21965
-  },
-  {
-    "name": "Structure Office Center",
-    "itemID": 21967
-  },
-  {
-    "name": "Structure Mission Network",
-    "itemID": 21969
   },
   {
     "name": "Data Analyzer I",
@@ -4244,10 +3756,6 @@
     "itemID": 22557
   },
   {
-    "name": "Praetor EV-900",
-    "itemID": 22572
-  },
-  {
     "name": "Ice Harvester Upgrade I",
     "itemID": 22576
   },
@@ -4258,22 +3766,6 @@
   {
     "name": "Warp Disrupt Probe",
     "itemID": 22778
-  },
-  {
-    "name": "Interdiction Sphere Launcher I",
-    "itemID": 22782
-  },
-  {
-    "name": "Hel",
-    "itemID": 22852
-  },
-  {
-    "name": "'Habitat' Miner I",
-    "itemID": 22921
-  },
-  {
-    "name": "'Wild' Miner I",
-    "itemID": 22923
   },
   {
     "name": "Templar I",
@@ -4292,22 +3784,6 @@
     "itemID": 23061
   },
   {
-    "name": "Wasp EC-900",
-    "itemID": 23473
-  },
-  {
-    "name": "Ogre SD-900",
-    "itemID": 23506
-  },
-  {
-    "name": "Praetor TD-900",
-    "itemID": 23510
-  },
-  {
-    "name": "Berserker TP-900",
-    "itemID": 23512
-  },
-  {
     "name": "Heavy Armor Maintenance Bot I",
     "itemID": 23523
   },
@@ -4324,10 +3800,6 @@
     "itemID": 23533
   },
   {
-    "name": "Berserker SW-900",
-    "itemID": 23536
-  },
-  {
     "name": "Warden I",
     "itemID": 23559
   },
@@ -4340,40 +3812,12 @@
     "itemID": 23563
   },
   {
-    "name": "Acolyte EV-300",
-    "itemID": 23659
-  },
-  {
-    "name": "'Gjallarhorn' Explosive Doomsday",
-    "itemID": 23674
-  },
-  {
-    "name": "Infiltrator EV-600",
-    "itemID": 23702
-  },
-  {
-    "name": "Vespa EC-600",
-    "itemID": 23705
-  },
-  {
-    "name": "Hornet EC-300",
-    "itemID": 23707
-  },
-  {
     "name": "Medium Armor Maintenance Bot I",
     "itemID": 23709
   },
   {
     "name": "Light Armor Maintenance Bot I",
     "itemID": 23711
-  },
-  {
-    "name": "Hammerhead SD-600",
-    "itemID": 23713
-  },
-  {
-    "name": "Hobgoblin SD-300",
-    "itemID": 23715
   },
   {
     "name": "Medium Shield Maintenance Bot I",
@@ -4384,68 +3828,8 @@
     "itemID": 23719
   },
   {
-    "name": "Valkyrie TP-600",
-    "itemID": 23721
-  },
-  {
-    "name": "Warrior TP-300",
-    "itemID": 23723
-  },
-  {
-    "name": "Infiltrator TD-600",
-    "itemID": 23725
-  },
-  {
-    "name": "Acolyte TD-300",
-    "itemID": 23727
-  },
-  {
-    "name": "Valkyrie SW-600",
-    "itemID": 23729
-  },
-  {
-    "name": "Warrior SW-300",
-    "itemID": 23731
-  },
-  {
-    "name": "Clone Vat Bay I",
-    "itemID": 23735
-  },
-  {
-    "name": "Archon",
-    "itemID": 23757
-  },
-  {
-    "name": "Ragnarok",
-    "itemID": 23773
-  },
-  {
-    "name": "Methros Enhanced Decoding Device",
-    "itemID": 23883
-  },
-  {
-    "name": "Thanatos",
-    "itemID": 23911
-  },
-  {
     "name": "Nyx",
     "itemID": 23913
-  },
-  {
-    "name": "Chimera",
-    "itemID": 23915
-  },
-  {
-    "name": "Wyvern",
-    "itemID": 23917
-  },
-  {
-    "name": "Aeon",
-    "itemID": 23919
-  },
-  {
-    "name": "Jump Portal Generator I",
-    "itemID": 23953
   },
   {
     "name": "Fighter Support Unit I",
@@ -4480,10 +3864,6 @@
     "itemID": 24443
   },
   {
-    "name": "Giant Freight Container",
-    "itemID": 24445
-  },
-  {
     "name": "Scourge Rage Rocket",
     "itemID": 24471
   },
@@ -4506,10 +3886,6 @@
   {
     "name": "Inferno Javelin Rocket",
     "itemID": 24479
-  },
-  {
-    "name": "Nidhoggur",
-    "itemID": 24483
   },
   {
     "name": "Inferno Rage Heavy Assault Missile",
@@ -4632,104 +4008,12 @@
     "itemID": 24541
   },
   {
-    "name": "Capital Jump Bridge Array",
-    "itemID": 24545
-  },
-  {
-    "name": "Capital Clone Vat Bay",
-    "itemID": 24547
-  },
-  {
-    "name": "'Judgment' Electromagnetic Doomsday",
-    "itemID": 24550
-  },
-  {
-    "name": "'Oblivion' Kinetic Doomsday",
-    "itemID": 24552
-  },
-  {
-    "name": "'Aurora Ominae' Thermal Doomsday",
-    "itemID": 24554
-  },
-  {
-    "name": "Capital Doomsday Weapon Mount",
-    "itemID": 24556
-  },
-  {
-    "name": "Capital Ship Maintenance Bay",
-    "itemID": 24558
-  },
-  {
-    "name": "Capital Corporate Hangar Bay",
-    "itemID": 24560
-  },
-  {
     "name": "Capital Remote Armor Repairer I",
     "itemID": 24569
   },
   {
-    "name": "Small Ship Assembly Array",
-    "itemID": 24574
-  },
-  {
-    "name": "Supercapital Ship Assembly Array",
-    "itemID": 24575
-  },
-  {
     "name": "Capital Tractor Beam I",
     "itemID": 24644
-  },
-  {
-    "name": "X-Large Ship Maintenance Array",
-    "itemID": 24646
-  },
-  {
-    "name": "Advanced Small Ship Assembly Array",
-    "itemID": 24653
-  },
-  {
-    "name": "Medium Ship Assembly Array",
-    "itemID": 24654
-  },
-  {
-    "name": "Advanced Medium Ship Assembly Array",
-    "itemID": 24655
-  },
-  {
-    "name": "Capital Ship Assembly Array",
-    "itemID": 24656
-  },
-  {
-    "name": "Advanced Large Ship Assembly Array",
-    "itemID": 24657
-  },
-  {
-    "name": "Ammunition Assembly Array",
-    "itemID": 24658
-  },
-  {
-    "name": "Drone Assembly Array",
-    "itemID": 24659
-  },
-  {
-    "name": "Component Assembly Array",
-    "itemID": 24660
-  },
-  {
-    "name": "Rokh",
-    "itemID": 24688
-  },
-  {
-    "name": "Hyperion",
-    "itemID": 24690
-  },
-  {
-    "name": "Abaddon",
-    "itemID": 24692
-  },
-  {
-    "name": "Maelstrom",
-    "itemID": 24694
   },
   {
     "name": "Harbinger",
@@ -4748,120 +4032,8 @@
     "itemID": 24702
   },
   {
-    "name": "Pure Standard Blue Pill Booster",
-    "itemID": 25237
-  },
-  {
-    "name": "Pure Improved Blue Pill Booster",
-    "itemID": 25241
-  },
-  {
-    "name": "Pure Standard Crash Booster",
-    "itemID": 25242
-  },
-  {
-    "name": "Pure Standard Frentix Booster",
-    "itemID": 25252
-  },
-  {
     "name": "Gas Cloud Harvester I",
     "itemID": 25266
-  },
-  {
-    "name": "Biochemical Silo",
-    "itemID": 25270
-  },
-  {
-    "name": "Catalyst Silo",
-    "itemID": 25271
-  },
-  {
-    "name": "Hazardous Chemical Silo",
-    "itemID": 25280
-  },
-  {
-    "name": "Pure Strong Blue Pill Booster",
-    "itemID": 25283
-  },
-  {
-    "name": "Drug Lab",
-    "itemID": 25305
-  },
-  {
-    "name": "Pure Standard Drop Booster",
-    "itemID": 25330
-  },
-  {
-    "name": "Pure Standard Exile Booster",
-    "itemID": 25331
-  },
-  {
-    "name": "Pure Standard Mindflood Booster",
-    "itemID": 25332
-  },
-  {
-    "name": "Pure Standard X-Instinct Booster",
-    "itemID": 25333
-  },
-  {
-    "name": "Pure Standard Sooth Sayer Booster",
-    "itemID": 25334
-  },
-  {
-    "name": "Pure Improved Crash Booster",
-    "itemID": 25335
-  },
-  {
-    "name": "Pure Improved Drop Booster",
-    "itemID": 25336
-  },
-  {
-    "name": "Pure Improved Exile Booster",
-    "itemID": 25337
-  },
-  {
-    "name": "Pure Improved Mindflood Booster",
-    "itemID": 25338
-  },
-  {
-    "name": "Pure Improved Frentix Booster",
-    "itemID": 25339
-  },
-  {
-    "name": "Pure Improved X-Instinct Booster",
-    "itemID": 25340
-  },
-  {
-    "name": "Pure Improved Sooth Sayer Booster",
-    "itemID": 25341
-  },
-  {
-    "name": "Pure Strong Crash Booster",
-    "itemID": 25342
-  },
-  {
-    "name": "Pure Strong Drop Booster",
-    "itemID": 25343
-  },
-  {
-    "name": "Pure Strong Exile Booster",
-    "itemID": 25344
-  },
-  {
-    "name": "Pure Strong Mindflood Booster",
-    "itemID": 25345
-  },
-  {
-    "name": "Pure Strong Frentix Booster",
-    "itemID": 25346
-  },
-  {
-    "name": "Pure Strong X-Instinct Booster",
-    "itemID": 25347
-  },
-  {
-    "name": "Pure Strong Sooth Sayer Booster",
-    "itemID": 25348
   },
   {
     "name": "'Crop' Gas Cloud Harvester",
@@ -4870,22 +4042,6 @@
   {
     "name": "'Plow' Gas Cloud Harvester",
     "itemID": 25542
-  },
-  {
-    "name": "Cryptic Data Interface",
-    "itemID": 25553
-  },
-  {
-    "name": "Occult Data Interface",
-    "itemID": 25554
-  },
-  {
-    "name": "Esoteric Data Interface",
-    "itemID": 25555
-  },
-  {
-    "name": "Incognito Data Interface",
-    "itemID": 25556
   },
   {
     "name": "Signal Distortion Amplifier I",
@@ -4906,26 +4062,6 @@
   {
     "name": "Gas Cloud Harvester II",
     "itemID": 25812
-  },
-  {
-    "name": "General Storage",
-    "itemID": 25821
-  },
-  {
-    "name": "Occult Ship Data Interface",
-    "itemID": 25851
-  },
-  {
-    "name": "Esoteric Ship Data Interface",
-    "itemID": 25853
-  },
-  {
-    "name": "Incognito Ship Data Interface",
-    "itemID": 25855
-  },
-  {
-    "name": "Cryptic Ship Data Interface",
-    "itemID": 25857
   },
   {
     "name": "Salvager I",
@@ -5544,22 +4680,6 @@
     "itemID": 26452
   },
   {
-    "name": "Cryptic Tuner Data Interface",
-    "itemID": 26597
-  },
-  {
-    "name": "Esoteric Tuner Data Interface",
-    "itemID": 26599
-  },
-  {
-    "name": "Incognito Tuner Data Interface",
-    "itemID": 26601
-  },
-  {
-    "name": "Occult Tuner Data Interface",
-    "itemID": 26603
-  },
-  {
     "name": "Mobile Large Warp Disruptor II",
     "itemID": 26888
   },
@@ -5592,10 +4712,6 @@
     "itemID": 26931
   },
   {
-    "name": "Clay Pigeon",
-    "itemID": 27038
-  },
-  {
     "name": "Capital Auxiliary Nano Pump I",
     "itemID": 27064
   },
@@ -5612,44 +4728,12 @@
     "itemID": 27672
   },
   {
-    "name": "Cynosural Generator Array",
-    "itemID": 27673
-  },
-  {
-    "name": "Cynosural System Jammer",
-    "itemID": 27674
-  },
-  {
-    "name": "ECM Jammer Burst Projector",
-    "itemID": 27678
-  },
-  {
     "name": "Large Remote Hull Repairer I",
     "itemID": 27904
   },
   {
-    "name": "Concussion Bomb",
-    "itemID": 27912
-  },
-  {
     "name": "Bomb Launcher I",
     "itemID": 27914
-  },
-  {
-    "name": "Scorch Bomb",
-    "itemID": 27916
-  },
-  {
-    "name": "Shrapnel Bomb",
-    "itemID": 27918
-  },
-  {
-    "name": "Electron Bomb",
-    "itemID": 27920
-  },
-  {
-    "name": "Lockbreaker Bomb",
-    "itemID": 27922
   },
   {
     "name": "Void Bomb",
@@ -5712,10 +4796,6 @@
     "itemID": 28215
   },
   {
-    "name": "Rorqual",
-    "itemID": 28352
-  },
-  {
     "name": "Mining Laser Upgrade II",
     "itemID": 28576
   },
@@ -5726,18 +4806,6 @@
   {
     "name": "Industrial Core I",
     "itemID": 28583
-  },
-  {
-    "name": "Orca",
-    "itemID": 28606
-  },
-  {
-    "name": "Covert Cynosural Field Generator I",
-    "itemID": 28646
-  },
-  {
-    "name": "Covert Jump Portal Generator I",
-    "itemID": 28652
   },
   {
     "name": "Warp Disruption Field Generator I",
@@ -5754,42 +4822,6 @@
   {
     "name": "Vargur",
     "itemID": 28665
-  },
-  {
-    "name": "Nanite Repair Paste",
-    "itemID": 28668
-  },
-  {
-    "name": "Pure Synth Blue Pill Booster",
-    "itemID": 28686
-  },
-  {
-    "name": "Pure Synth Crash Booster",
-    "itemID": 28687
-  },
-  {
-    "name": "Pure Synth Drop Booster",
-    "itemID": 28688
-  },
-  {
-    "name": "Pure Synth Exile Booster",
-    "itemID": 28689
-  },
-  {
-    "name": "Pure Synth Frentix Booster",
-    "itemID": 28690
-  },
-  {
-    "name": "Pure Synth Mindflood Booster",
-    "itemID": 28691
-  },
-  {
-    "name": "Pure Synth Sooth Sayer Booster",
-    "itemID": 28692
-  },
-  {
-    "name": "Pure Synth X-Instinct Booster",
-    "itemID": 28693
   },
   {
     "name": "Golem",
@@ -5812,196 +4844,8 @@
     "itemID": 28850
   },
   {
-    "name": "Optimal Range Script",
-    "itemID": 28999
-  },
-  {
-    "name": "Tracking Speed Script",
-    "itemID": 29001
-  },
-  {
-    "name": "Focused Warp Disruption Script",
-    "itemID": 29003
-  },
-  {
-    "name": "Optimal Range Disruption Script",
-    "itemID": 29005
-  },
-  {
-    "name": "Tracking Speed Disruption Script",
-    "itemID": 29007
-  },
-  {
-    "name": "Targeting Range Script",
-    "itemID": 29009
-  },
-  {
-    "name": "Scan Resolution Script",
-    "itemID": 29011
-  },
-  {
-    "name": "Scan Resolution Dampening Script",
-    "itemID": 29013
-  },
-  {
-    "name": "Targeting Range Dampening Script",
-    "itemID": 29015
-  },
-  {
-    "name": "Capital Antimatter Reactor Unit",
-    "itemID": 29039
-  },
-  {
-    "name": "Capital Crystalline Carbonide Armor Plate",
-    "itemID": 29041
-  },
-  {
-    "name": "Capital Deflection Shield Emitter",
-    "itemID": 29043
-  },
-  {
-    "name": "Capital Electrolytic Capacitor Unit",
-    "itemID": 29045
-  },
-  {
-    "name": "Capital EM Pulse Generator",
-    "itemID": 29047
-  },
-  {
-    "name": "Capital Fernite Carbide Composite Armor Plate",
-    "itemID": 29049
-  },
-  {
-    "name": "Capital Fusion Reactor Unit",
-    "itemID": 29051
-  },
-  {
-    "name": "Capital Fusion Thruster",
-    "itemID": 29053
-  },
-  {
-    "name": "Capital Gravimetric Sensor Cluster",
-    "itemID": 29055
-  },
-  {
-    "name": "Capital Graviton Pulse Generator",
-    "itemID": 29057
-  },
-  {
-    "name": "Capital Graviton Reactor Unit",
-    "itemID": 29059
-  },
-  {
-    "name": "Capital Ion Thruster",
-    "itemID": 29061
-  },
-  {
-    "name": "Capital Laser Focusing Crystals",
-    "itemID": 29063
-  },
-  {
-    "name": "Capital Ladar Sensor Cluster",
-    "itemID": 29065
-  },
-  {
-    "name": "Capital Linear Shield Emitter",
-    "itemID": 29067
-  },
-  {
-    "name": "Capital Magnetometric Sensor Cluster",
-    "itemID": 29069
-  },
-  {
-    "name": "Capital Magpulse Thruster",
-    "itemID": 29071
-  },
-  {
-    "name": "Capital Nanoelectrical Microprocessor",
-    "itemID": 29073
-  },
-  {
-    "name": "Capital Nanomechanical Microprocessor",
-    "itemID": 29075
-  },
-  {
-    "name": "Capital Nuclear Pulse Generator",
-    "itemID": 29077
-  },
-  {
-    "name": "Capital Nuclear Reactor Unit",
-    "itemID": 29079
-  },
-  {
-    "name": "Capital Oscillator Capacitor Unit",
-    "itemID": 29081
-  },
-  {
-    "name": "Capital Particle Accelerator Unit",
-    "itemID": 29083
-  },
-  {
-    "name": "Capital Photon Microprocessor",
-    "itemID": 29085
-  },
-  {
-    "name": "Capital Plasma Pulse Generator",
-    "itemID": 29087
-  },
-  {
-    "name": "Capital Plasma Thruster",
-    "itemID": 29089
-  },
-  {
-    "name": "Capital Pulse Shield Emitter",
-    "itemID": 29091
-  },
-  {
-    "name": "Capital Quantum Microprocessor",
-    "itemID": 29093
-  },
-  {
-    "name": "Capital Radar Sensor Cluster",
-    "itemID": 29095
-  },
-  {
-    "name": "Capital Scalar Capacitor Unit",
-    "itemID": 29097
-  },
-  {
-    "name": "Capital Superconductor Rails",
-    "itemID": 29099
-  },
-  {
-    "name": "Capital Sustained Shield Emitter",
-    "itemID": 29101
-  },
-  {
-    "name": "Capital Tesseract Capacitor Unit",
-    "itemID": 29103
-  },
-  {
-    "name": "Capital Thermonuclear Trigger Unit",
-    "itemID": 29105
-  },
-  {
-    "name": "Capital Titanium Diborite Armor Plate",
-    "itemID": 29107
-  },
-  {
-    "name": "Capital Tungsten Carbide Armor Plate",
-    "itemID": 29109
-  },
-  {
-    "name": "Basic Robotics",
-    "itemID": 29226
-  },
-  {
     "name": "Magnate",
     "itemID": 29248
-  },
-  {
-    "name": "Large Ship Assembly Array",
-    "itemID": 29613
   },
   {
     "name": "Unrefined Fluxed Condensates",
@@ -6026,6 +4870,22 @@
   {
     "name": "Unrefined Hyperflurite",
     "itemID": 29664
+  },
+  {
+    "name": "Tengu",
+    "itemID": 29984
+  },
+  {
+    "name": "Legion",
+    "itemID": 29986
+  },
+  {
+    "name": "Proteus",
+    "itemID": 29988
+  },
+  {
+    "name": "Loki",
+    "itemID": 29990
   },
   {
     "name": "Optimized Nano-Engines",
@@ -6092,34 +4952,6 @@
     "itemID": 30311
   },
   {
-    "name": "Civilian Stasis Webifier",
-    "itemID": 30328
-  },
-  {
-    "name": "Civilian Thermal Shield Hardener",
-    "itemID": 30342
-  },
-  {
-    "name": "R.Db.- Hybrid Technology",
-    "itemID": 30386
-  },
-  {
-    "name": "Subsystem Assembly Array",
-    "itemID": 30389
-  },
-  {
-    "name": "Civilian EM Shield Hardener",
-    "itemID": 30420
-  },
-  {
-    "name": "Civilian Explosive Shield Hardener",
-    "itemID": 30422
-  },
-  {
-    "name": "Civilian Kinetic Shield Hardener",
-    "itemID": 30424
-  },
-  {
     "name": "Metallofullerene Plating",
     "itemID": 30464
   },
@@ -6144,10 +4976,6 @@
     "itemID": 30478
   },
   {
-    "name": "Hybrid Polymer Silo",
-    "itemID": 30655
-  },
-  {
     "name": "Relic Analyzer II",
     "itemID": 30832
   },
@@ -6158,10 +4986,6 @@
   {
     "name": "Salvager II",
     "itemID": 30836
-  },
-  {
-    "name": "Civilian Damage Control",
-    "itemID": 30839
   },
   {
     "name": "Small Trimark Armor Pump I",
@@ -7932,10 +6756,6 @@
     "itemID": 32095
   },
   {
-    "name": "Territorial Claim Unit",
-    "itemID": 32226
-  },
-  {
     "name": "Cyclops I",
     "itemID": 32325
   },
@@ -7950,10 +6770,6 @@
   {
     "name": "Mantis I",
     "itemID": 32344
-  },
-  {
-    "name": "Advanced Logistics Network",
-    "itemID": 32422
   },
   {
     "name": "Scourge XL Cruise Missile",
@@ -7974,38 +6790,6 @@
   {
     "name": "XL Cruise Missile Launcher I",
     "itemID": 32444
-  },
-  {
-    "name": "Infrastructure Hub",
-    "itemID": 32458
-  },
-  {
-    "name": "Medium Ancillary Shield Booster",
-    "itemID": 32772
-  },
-  {
-    "name": "Small Ancillary Shield Booster",
-    "itemID": 32774
-  },
-  {
-    "name": "X-Large Ancillary Shield Booster",
-    "itemID": 32780
-  },
-  {
-    "name": "Defender Missile I",
-    "itemID": 32782
-  },
-  {
-    "name": "Salvage Drone I",
-    "itemID": 32787
-  },
-  {
-    "name": "Medium Mercoxit Mining Crystal Optimization I",
-    "itemID": 32817
-  },
-  {
-    "name": "Medium Ice Harvester Accelerator I",
-    "itemID": 32819
   },
   {
     "name": "Unrefined Vanadium Hafnite",
@@ -8062,46 +6846,6 @@
   {
     "name": "Venture",
     "itemID": 32880
-  },
-  {
-    "name": "Enormous Freight Container",
-    "itemID": 33003
-  },
-  {
-    "name": "Huge Freight Container",
-    "itemID": 33005
-  },
-  {
-    "name": "Large Freight Container",
-    "itemID": 33007
-  },
-  {
-    "name": "Medium Freight Container",
-    "itemID": 33009
-  },
-  {
-    "name": "Small Freight Container",
-    "itemID": 33011
-  },
-  {
-    "name": "Deactivated Station Key Pass",
-    "itemID": 33017
-  },
-  {
-    "name": "Small Ancillary Armor Repairer",
-    "itemID": 33076
-  },
-  {
-    "name": "Medium Ancillary Armor Repairer",
-    "itemID": 33101
-  },
-  {
-    "name": "Large Ancillary Armor Repairer",
-    "itemID": 33103
-  },
-  {
-    "name": "Personal Hangar Array",
-    "itemID": 33149
   },
   {
     "name": "Scan Acquisition Array I",
@@ -8248,10 +6992,6 @@
     "itemID": 33362
   },
   {
-    "name": "Bastion Module I",
-    "itemID": 33400
-  },
-  {
     "name": "Rapid Heavy Missile Launcher I",
     "itemID": 33448
   },
@@ -8266,10 +7006,6 @@
   {
     "name": "Mobile Tractor Unit",
     "itemID": 33475
-  },
-  {
-    "name": "Mobile Cynosural Inhibitor",
-    "itemID": 33476
   },
   {
     "name": "Small Mobile Siphon Unit",
@@ -8290,30 +7026,6 @@
   {
     "name": "Small Mobile 'Rote' Siphon Unit",
     "itemID": 33583
-  },
-  {
-    "name": "Defunct Amarr Encounter Surveillance System",
-    "itemID": 33585
-  },
-  {
-    "name": "Mobile Scan Inhibitor",
-    "itemID": 33589
-  },
-  {
-    "name": "Mobile Micro Jump Unit",
-    "itemID": 33591
-  },
-  {
-    "name": "Defunct Caldari Encounter Surveillance System",
-    "itemID": 33595
-  },
-  {
-    "name": "Defunct Gallente Encounter Surveillance System",
-    "itemID": 33608
-  },
-  {
-    "name": "Defunct Minmatar Encounter Surveillance System",
-    "itemID": 33610
   },
   {
     "name": "Heavy Hull Maintenance Bot I",
@@ -8400,10 +7112,6 @@
     "itemID": 33904
   },
   {
-    "name": "Medium Micro Jump Drive",
-    "itemID": 33915
-  },
-  {
     "name": "Limited Hyperspatial Accelerator",
     "itemID": 33981
   },
@@ -8426,14 +7134,6 @@
   {
     "name": "Prototype Jump Drive Economizer",
     "itemID": 34126
-  },
-  {
-    "name": "Small Higgs Anchor I",
-    "itemID": 34266
-  },
-  {
-    "name": "Medium Higgs Anchor I",
-    "itemID": 34268
   },
   {
     "name": "Polarized Small Focused Pulse Laser",
@@ -8484,20 +7184,16 @@
     "itemID": 34294
   },
   {
-    "name": "Large Higgs Anchor I",
-    "itemID": 34306
-  },
-  {
-    "name": "Capital Higgs Anchor I",
-    "itemID": 34308
-  },
-  {
-    "name": "Bowhead",
-    "itemID": 34328
+    "name": "Confessor",
+    "itemID": 34317
   },
   {
     "name": "Self-Assembling Nanolattice",
     "itemID": 34396
+  },
+  {
+    "name": "Svipul",
+    "itemID": 34562
   },
   {
     "name": "Entosis Link I",
@@ -8506,6 +7202,14 @@
   {
     "name": "Entosis Link II",
     "itemID": 34595
+  },
+  {
+    "name": "Jackdaw",
+    "itemID": 34828
+  },
+  {
+    "name": "Hecate",
+    "itemID": 35683
   },
   {
     "name": "Missile Guidance Enhancer I",
@@ -8522,14 +7226,6 @@
   {
     "name": "Missile Guidance Computer II",
     "itemID": 35790
-  },
-  {
-    "name": "Missile Range Script",
-    "itemID": 35794
-  },
-  {
-    "name": "Missile Precision Script",
-    "itemID": 35795
   },
   {
     "name": "Raitaru",
@@ -8562,30 +7258,6 @@
   {
     "name": "Tatara",
     "itemID": 35836
-  },
-  {
-    "name": "Pharolux Cyno Beacon",
-    "itemID": 35840
-  },
-  {
-    "name": "Ansiblex Jump Gate",
-    "itemID": 35841
-  },
-  {
-    "name": "Coalesced Element",
-    "itemID": 36902
-  },
-  {
-    "name": "Structure Electromagnetic Sensor",
-    "itemID": 36956
-  },
-  {
-    "name": "Structure Acceleration Coils",
-    "itemID": 36957
-  },
-  {
-    "name": "Structure Advertisement Nexus",
-    "itemID": 36958
   },
   {
     "name": "Endurance",
@@ -8692,10 +7364,6 @@
     "itemID": 37460
   },
   {
-    "name": "Micro Jump Field Generator",
-    "itemID": 37479
-  },
-  {
     "name": "Bifrost",
     "itemID": 37480
   },
@@ -8710,10 +7378,6 @@
   {
     "name": "Magus",
     "itemID": 37483
-  },
-  {
-    "name": "Tenebrex Cyno Jammer",
-    "itemID": 37534
   },
   {
     "name": "Guidance Disruptor I",
@@ -8736,14 +7400,6 @@
     "itemID": 37605
   },
   {
-    "name": "Lif",
-    "itemID": 37606
-  },
-  {
-    "name": "Ninazu",
-    "itemID": 37607
-  },
-  {
     "name": "Noir. Modified Entosis Link",
     "itemID": 40307
   },
@@ -8760,12 +7416,8 @@
     "itemID": 40310
   },
   {
-    "name": "Missile Range Disruption Script",
-    "itemID": 40334
-  },
-  {
-    "name": "Missile Precision Disruption Script",
-    "itemID": 40335
+    "name": "Upwell Palatine Keepstar",
+    "itemID": 40340
   },
   {
     "name": "Scarab I",
@@ -8924,30 +7576,6 @@
     "itemID": 40571
   },
   {
-    "name": "'Holy Destiny' Electromagnetic Lance",
-    "itemID": 40631
-  },
-  {
-    "name": "'Divine Harvest' Electromagnetic Reaper",
-    "itemID": 40632
-  },
-  {
-    "name": "Bosonic Field Generator",
-    "itemID": 40633
-  },
-  {
-    "name": "Gravitational Transportation Field Oscillator",
-    "itemID": 40634
-  },
-  {
-    "name": "Stasis Webification Burst Projector",
-    "itemID": 40635
-  },
-  {
-    "name": "Energy Neutralization Burst Projector",
-    "itemID": 40636
-  },
-  {
     "name": "Capital Energy Neutralizer I",
     "itemID": 40659
   },
@@ -8978,22 +7606,6 @@
   {
     "name": "Capital Energy Nosferatu II",
     "itemID": 40668
-  },
-  {
-    "name": "Warp Disruption Burst Projector",
-    "itemID": 40696
-  },
-  {
-    "name": "Sensor Dampening Burst Projector",
-    "itemID": 40697
-  },
-  {
-    "name": "Target Illumination Burst Projector",
-    "itemID": 40698
-  },
-  {
-    "name": "Weapon Disruption Burst Projector",
-    "itemID": 40699
   },
   {
     "name": "Capital Emergency Hull Energizer I",
@@ -9174,10 +7786,6 @@
   {
     "name": "Prototype Precise Hexa 2500mm Repeating Cannon",
     "itemID": 41153
-  },
-  {
-    "name": "ECCM Script",
-    "itemID": 41155
   },
   {
     "name": "Carbide Compact Quad 3500mm Siege Artillery",
@@ -9368,40 +7976,12 @@
     "itemID": 41336
   },
   {
-    "name": "Networked Sensor Array",
-    "itemID": 41411
-  },
-  {
     "name": "Hermes Compact Fighter Support Unit",
     "itemID": 41414
   },
   {
     "name": "Fighter Support Unit II",
     "itemID": 41415
-  },
-  {
-    "name": "'Iron Pike' Kinetic Lance",
-    "itemID": 41439
-  },
-  {
-    "name": "'Phalarica' Thermal Lance",
-    "itemID": 41440
-  },
-  {
-    "name": "'Geiravor' Explosive Lance",
-    "itemID": 41441
-  },
-  {
-    "name": "'Cold Wind' Kinetic Reaper",
-    "itemID": 41442
-  },
-  {
-    "name": "'Guillotine' Thermal Reaper",
-    "itemID": 41443
-  },
-  {
-    "name": "'Jormungandr' Explosive Reaper",
-    "itemID": 41444
   },
   {
     "name": "Capital I-ax Enduring Remote Armor Repairer",
@@ -9434,38 +8014,6 @@
   {
     "name": "Capital Remote Hull Repairer II",
     "itemID": 41475
-  },
-  {
-    "name": "Small Ancillary Remote Armor Repairer",
-    "itemID": 41476
-  },
-  {
-    "name": "Medium Ancillary Remote Armor Repairer",
-    "itemID": 41477
-  },
-  {
-    "name": "Large Ancillary Remote Armor Repairer",
-    "itemID": 41478
-  },
-  {
-    "name": "Capital Ancillary Remote Armor Repairer",
-    "itemID": 41479
-  },
-  {
-    "name": "Small Ancillary Remote Shield Booster",
-    "itemID": 41480
-  },
-  {
-    "name": "Medium Ancillary Remote Shield Booster",
-    "itemID": 41481
-  },
-  {
-    "name": "Large Ancillary Remote Shield Booster",
-    "itemID": 41482
-  },
-  {
-    "name": "Capital Ancillary Remote Shield Booster",
-    "itemID": 41483
   },
   {
     "name": "Capital Cap Battery I",
@@ -9508,14 +8056,6 @@
     "itemID": 41500
   },
   {
-    "name": "Capital Ancillary Armor Repairer",
-    "itemID": 41503
-  },
-  {
-    "name": "Capital Ancillary Shield Booster",
-    "itemID": 41504
-  },
-  {
     "name": "Capital C-5L Compact Shield Booster",
     "itemID": 41505
   },
@@ -9552,38 +8092,6 @@
     "itemID": 41516
   },
   {
-    "name": "Armor EM Resistance Script",
-    "itemID": 41517
-  },
-  {
-    "name": "Armor Thermal Resistance Script",
-    "itemID": 41518
-  },
-  {
-    "name": "Armor Kinetic Resistance Script",
-    "itemID": 41519
-  },
-  {
-    "name": "Armor Explosive Resistance Script",
-    "itemID": 41520
-  },
-  {
-    "name": "Shield EM Resistance Script",
-    "itemID": 41521
-  },
-  {
-    "name": "Shield Thermal Resistance Script",
-    "itemID": 41522
-  },
-  {
-    "name": "Shield Kinetic Resistance Script",
-    "itemID": 41523
-  },
-  {
-    "name": "Shield Explosive Resistance Script",
-    "itemID": 41524
-  },
-  {
     "name": "Capital Flex Armor Hardener II",
     "itemID": 41525
   },
@@ -9598,14 +8106,6 @@
   {
     "name": "Capital Inductive Compact Remote Capacitor Transmitter",
     "itemID": 41566
-  },
-  {
-    "name": "Porpoise",
-    "itemID": 42244
-  },
-  {
-    "name": "Pulse Activated Nexus Invulnerability Core",
-    "itemID": 42522
   },
   {
     "name": "Armor Command Burst I",
@@ -9626,70 +8126,6 @@
   {
     "name": "Skirmish Command Burst I",
     "itemID": 42530
-  },
-  {
-    "name": "Sunesis",
-    "itemID": 42685
-  },
-  {
-    "name": "Active Shielding Charge",
-    "itemID": 42694
-  },
-  {
-    "name": "Shield Harmonizing Charge",
-    "itemID": 42695
-  },
-  {
-    "name": "Shield Extension Charge",
-    "itemID": 42696
-  },
-  {
-    "name": "Mining Laser Field Enhancement Charge",
-    "itemID": 42829
-  },
-  {
-    "name": "Mining Laser Optimization Charge",
-    "itemID": 42830
-  },
-  {
-    "name": "Mining Equipment Preservation Charge",
-    "itemID": 42831
-  },
-  {
-    "name": "Armor Energizing Charge",
-    "itemID": 42832
-  },
-  {
-    "name": "Rapid Repair Charge",
-    "itemID": 42833
-  },
-  {
-    "name": "Armor Reinforcement Charge",
-    "itemID": 42834
-  },
-  {
-    "name": "Sensor Optimization Charge",
-    "itemID": 42835
-  },
-  {
-    "name": "Electronic Superiority Charge",
-    "itemID": 42836
-  },
-  {
-    "name": "Electronic Hardening Charge",
-    "itemID": 42837
-  },
-  {
-    "name": "Evasive Maneuvers Charge",
-    "itemID": 42838
-  },
-  {
-    "name": "Interdiction Maneuvers Charge",
-    "itemID": 42839
-  },
-  {
-    "name": "Rapid Deployment Charge",
-    "itemID": 42840
   },
   {
     "name": "Industrial Core II",
@@ -9716,48 +8152,12 @@
     "itemID": 43556
   },
   {
-    "name": "Amarr Phenomena Generator",
-    "itemID": 43658
-  },
-  {
-    "name": "Caldari Phenomena Generator",
-    "itemID": 43660
-  },
-  {
-    "name": "Gallente Phenomena Generator",
-    "itemID": 43662
-  },
-  {
-    "name": "Minmatar Phenomena Generator",
-    "itemID": 43664
-  },
-  {
     "name": "Ice Harvesting Drone I",
     "itemID": 43699
   },
   {
     "name": "Ice Harvesting Drone II",
     "itemID": 43700
-  },
-  {
-    "name": "Small Command Processor I",
-    "itemID": 43894
-  },
-  {
-    "name": "Medium Command Processor I",
-    "itemID": 43896
-  },
-  {
-    "name": "Large Command Processor I",
-    "itemID": 43898
-  },
-  {
-    "name": "Capital Command Processor I",
-    "itemID": 43900
-  },
-  {
-    "name": "Defender Launcher I",
-    "itemID": 44102
   },
   {
     "name": "Pacifier",
@@ -9772,12 +8172,200 @@
     "itemID": 44996
   },
   {
-    "name": "Focused Warp Scrambling Script",
-    "itemID": 45010
-  },
-  {
     "name": "Monitor",
     "itemID": 45534
+  },
+  {
+    "name": "Legion Defensive - Covert Reconfiguration",
+    "itemID": 45586
+  },
+  {
+    "name": "Legion Defensive - Augmented Plating",
+    "itemID": 45587
+  },
+  {
+    "name": "Legion Defensive - Nanobot Injector",
+    "itemID": 45588
+  },
+  {
+    "name": "Tengu Defensive - Covert Reconfiguration",
+    "itemID": 45589
+  },
+  {
+    "name": "Tengu Defensive - Supplemental Screening",
+    "itemID": 45590
+  },
+  {
+    "name": "Tengu Defensive - Amplification Node",
+    "itemID": 45591
+  },
+  {
+    "name": "Proteus Defensive - Covert Reconfiguration",
+    "itemID": 45592
+  },
+  {
+    "name": "Proteus Defensive - Augmented Plating",
+    "itemID": 45593
+  },
+  {
+    "name": "Proteus Defensive - Nanobot Injector",
+    "itemID": 45594
+  },
+  {
+    "name": "Loki Defensive - Covert Reconfiguration",
+    "itemID": 45595
+  },
+  {
+    "name": "Loki Defensive - Augmented Durability",
+    "itemID": 45596
+  },
+  {
+    "name": "Loki Defensive - Adaptive Defense Node",
+    "itemID": 45597
+  },
+  {
+    "name": "Legion Offensive - Liquid Crystal Magnifiers",
+    "itemID": 45598
+  },
+  {
+    "name": "Legion Offensive - Assault Optimization",
+    "itemID": 45599
+  },
+  {
+    "name": "Legion Offensive - Support Processor",
+    "itemID": 45600
+  },
+  {
+    "name": "Tengu Offensive - Accelerated Ejection Bay",
+    "itemID": 45601
+  },
+  {
+    "name": "Tengu Offensive - Magnetic Infusion Basin",
+    "itemID": 45602
+  },
+  {
+    "name": "Tengu Offensive - Support Processor",
+    "itemID": 45603
+  },
+  {
+    "name": "Proteus Offensive - Hybrid Encoding Platform",
+    "itemID": 45604
+  },
+  {
+    "name": "Proteus Offensive - Drone Synthesis Projector",
+    "itemID": 45605
+  },
+  {
+    "name": "Proteus Offensive - Support Processor",
+    "itemID": 45606
+  },
+  {
+    "name": "Loki Offensive - Projectile Scoping Array",
+    "itemID": 45607
+  },
+  {
+    "name": "Loki Offensive - Launcher Efficiency Configuration",
+    "itemID": 45608
+  },
+  {
+    "name": "Loki Offensive - Support Processor",
+    "itemID": 45609
+  },
+  {
+    "name": "Legion Propulsion - Interdiction Nullifier",
+    "itemID": 45610
+  },
+  {
+    "name": "Legion Propulsion - Intercalated Nanofibers",
+    "itemID": 45611
+  },
+  {
+    "name": "Legion Propulsion - Wake Limiter",
+    "itemID": 45612
+  },
+  {
+    "name": "Tengu Propulsion - Interdiction Nullifier",
+    "itemID": 45613
+  },
+  {
+    "name": "Tengu Propulsion - Chassis Optimization",
+    "itemID": 45614
+  },
+  {
+    "name": "Tengu Propulsion - Fuel Catalyst",
+    "itemID": 45615
+  },
+  {
+    "name": "Proteus Propulsion - Interdiction Nullifier",
+    "itemID": 45616
+  },
+  {
+    "name": "Proteus Propulsion - Hyperspatial Optimization",
+    "itemID": 45617
+  },
+  {
+    "name": "Proteus Propulsion - Localized Injectors",
+    "itemID": 45618
+  },
+  {
+    "name": "Loki Propulsion - Interdiction Nullifier",
+    "itemID": 45619
+  },
+  {
+    "name": "Loki Propulsion - Intercalated Nanofibers",
+    "itemID": 45620
+  },
+  {
+    "name": "Loki Propulsion - Wake Limiter",
+    "itemID": 45621
+  },
+  {
+    "name": "Legion Core - Dissolution Sequencer",
+    "itemID": 45622
+  },
+  {
+    "name": "Legion Core - Augmented Antimatter Reactor",
+    "itemID": 45623
+  },
+  {
+    "name": "Legion Core - Energy Parasitic Complex",
+    "itemID": 45624
+  },
+  {
+    "name": "Tengu Core - Electronic Efficiency Gate",
+    "itemID": 45625
+  },
+  {
+    "name": "Tengu Core - Augmented Graviton Reactor",
+    "itemID": 45626
+  },
+  {
+    "name": "Tengu Core - Obfuscation Manifold",
+    "itemID": 45627
+  },
+  {
+    "name": "Proteus Core - Electronic Efficiency Gate",
+    "itemID": 45628
+  },
+  {
+    "name": "Proteus Core - Augmented Fusion Reactor",
+    "itemID": 45629
+  },
+  {
+    "name": "Proteus Core - Friction Extension Processor",
+    "itemID": 45630
+  },
+  {
+    "name": "Loki Core - Dissolution Sequencer",
+    "itemID": 45631
+  },
+  {
+    "name": "Loki Core - Augmented Nuclear Reactor",
+    "itemID": 45632
+  },
+  {
+    "name": "Loki Core - Immobility Drivers",
+    "itemID": 45633
   },
   {
     "name": "Superconducting Magnetometric Amplifier",
@@ -9852,10 +8440,6 @@
     "itemID": 47270
   },
   {
-    "name": "Leshak",
-    "itemID": 47271
-  },
-  {
     "name": "Light Entropic Disintegrator I",
     "itemID": 47272
   },
@@ -9866,10 +8450,6 @@
   {
     "name": "Supratidal Entropic Disintegrator I",
     "itemID": 47274
-  },
-  {
-    "name": "Praxis",
-    "itemID": 47466
   },
   {
     "name": "Tetryon Exotic Plasma S",
@@ -9928,10 +8508,6 @@
     "itemID": 47922
   },
   {
-    "name": "Baryon Exotic Plasma S",
-    "itemID": 47924
-  },
-  {
     "name": "Meson Exotic Plasma S",
     "itemID": 47925
   },
@@ -9944,10 +8520,6 @@
     "itemID": 47927
   },
   {
-    "name": "Baryon Exotic Plasma M",
-    "itemID": 47928
-  },
-  {
     "name": "Meson Exotic Plasma M",
     "itemID": 47929
   },
@@ -9958,10 +8530,6 @@
   {
     "name": "Mystic M",
     "itemID": 47931
-  },
-  {
-    "name": "Baryon Exotic Plasma L",
-    "itemID": 47932
   },
   {
     "name": "Meson Exotic Plasma L",
@@ -9984,16 +8552,8 @@
     "itemID": 48636
   },
   {
-    "name": "Zero-Point Mass Entangler",
-    "itemID": 49099
-  },
-  {
     "name": "Kikimora",
     "itemID": 49710
-  },
-  {
-    "name": "Drekavac",
-    "itemID": 49711
   },
   {
     "name": "Rodiva",
@@ -10002,10 +8562,6 @@
   {
     "name": "Zarmazd",
     "itemID": 49713
-  },
-  {
-    "name": "Structure EXERT Conduit Coupler",
-    "itemID": 49720
   },
   {
     "name": "Heavy Mutadaptive Remote Armor Repairer I",
@@ -10024,10 +8580,6 @@
     "itemID": 49773
   },
   {
-    "name": "Frostline 'Omnivore' Harvester Upgrade",
-    "itemID": 49792
-  },
-  {
     "name": "Nergal",
     "itemID": 52250
   },
@@ -10040,40 +8592,20 @@
     "itemID": 52254
   },
   {
-    "name": "Industrial Cynosural Field Generator",
-    "itemID": 52694
+    "name": "Signal-25 'Needlejack' Filament",
+    "itemID": 53983
   },
   {
-    "name": "Zirnitra",
-    "itemID": 52907
+    "name": "Noise-15 'Needlejack' Filament",
+    "itemID": 53985
   },
   {
-    "name": "Ultratidal Entropic Disintegrator I",
-    "itemID": 52915
+    "name": "Signal-15 'Needlejack' Filament",
+    "itemID": 53986
   },
   {
-    "name": "Baryon Exotic Plasma XL",
-    "itemID": 52916
-  },
-  {
-    "name": "Capital Ultratidal Entropic Mounting",
-    "itemID": 53035
-  },
-  {
-    "name": "Capital Radiation Conversion Unit",
-    "itemID": 53036
-  },
-  {
-    "name": "Capital Absorption Thruster Array",
-    "itemID": 53037
-  },
-  {
-    "name": "Tetryon Exotic Plasma XL",
-    "itemID": 53301
-  },
-  {
-    "name": "Meson Exotic Plasma XL",
-    "itemID": 53302
+    "name": "Noise-25 'Needlejack' Filament",
+    "itemID": 53987
   },
   {
     "name": "Skybreaker",
@@ -10082,10 +8614,6 @@
   {
     "name": "Stormbringer",
     "itemID": 54732
-  },
-  {
-    "name": "Thunderchild",
-    "itemID": 54733
   },
   {
     "name": "Small Vorton Projector I",
@@ -10236,10 +8764,6 @@
     "itemID": 56748
   },
   {
-    "name": "Mobile Cynosural Beacon",
-    "itemID": 57319
-  },
-  {
     "name": "Carbon Fiber",
     "itemID": 57453
   },
@@ -10260,54 +8784,6 @@
     "itemID": 57457
   },
   {
-    "name": "Meta-Operant Neurolink Enhancer",
-    "itemID": 57458
-  },
-  {
-    "name": "Hypnagogic Neurolink Enhancer",
-    "itemID": 57459
-  },
-  {
-    "name": "Axosomatic Neurolink Enhancer",
-    "itemID": 57460
-  },
-  {
-    "name": "Cogni-Emotive Neurolink Enhancer",
-    "itemID": 57461
-  },
-  {
-    "name": "Sense-Heuristic Neurolink Enhancer",
-    "itemID": 57462
-  },
-  {
-    "name": "Isotropic Neofullerene Alpha-3",
-    "itemID": 57463
-  },
-  {
-    "name": "Isotropic Neofullerene Beta-6",
-    "itemID": 57464
-  },
-  {
-    "name": "Isotropic Neofullerene Gamma-9",
-    "itemID": 57465
-  },
-  {
-    "name": "Ultradian-Cycling Neurolink Stabilizer",
-    "itemID": 57466
-  },
-  {
-    "name": "Reaction-Orienting Neurolink Stabilizer",
-    "itemID": 57467
-  },
-  {
-    "name": "Stress-Responding Neurolink Stabilizer",
-    "itemID": 57468
-  },
-  {
-    "name": "Goal-Orienting Neurolink Stabilizer",
-    "itemID": 57469
-  },
-  {
     "name": "U-C Trigger Neurolink Conduit",
     "itemID": 57470
   },
@@ -10322,22 +8798,6 @@
   {
     "name": "G-O Trigger Neurolink Conduit",
     "itemID": 57473
-  },
-  {
-    "name": "Radar-FTL Interlink Communicator",
-    "itemID": 57474
-  },
-  {
-    "name": "Gravimetric-FTL Interlink Communicator",
-    "itemID": 57475
-  },
-  {
-    "name": "Magnetometric-FTL Interlink Communicator",
-    "itemID": 57476
-  },
-  {
-    "name": "Ladar-FTL Interlink Communicator",
-    "itemID": 57477
   },
   {
     "name": "Auto-Integrity Preservation Seal",
@@ -10374,17 +8834,5 @@
   {
     "name": "Life Support Backup Unit",
     "itemID": 57486
-  },
-  {
-    "name": "Capital Core Temperature Regulator",
-    "itemID": 57487
-  },
-  {
-    "name": "Neurolink Protection Cell",
-    "itemID": 57488
-  },
-  {
-    "name": "Enhanced Neurolink Protection Cell",
-    "itemID": 57489
   }
 ]

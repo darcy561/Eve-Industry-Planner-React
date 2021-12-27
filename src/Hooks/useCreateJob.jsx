@@ -94,37 +94,23 @@ export function useCreateJobProcess() {
       } else {
         t.putAttribute("CompleteJobCreation", "Basic Item");
         if (itemQty != null) {
-          switch (newJob.jobType) {
-            case 1:
               newJob.jobCount = Math.ceil(
                 itemQty /
                   (newJob.maxProductionLimit *
-                    newJob.manufacturing.products[0].quantity)
+                    newJob.rawData.products[0].quantity)
               );
               newJob.runCount = Math.ceil(
                 itemQty /
-                  newJob.manufacturing.products[0].quantity /
+                  newJob.rawData.products[0].quantity /
                   newJob.jobCount
               );
-              break;
-            case 2:
-              newJob.jobCount = Math.ceil(
-                itemQty /
-                  (newJob.maxProductionLimit *
-                    newJob.reaction.products[0].quantity)
-              );
-              newJob.runCount = Math.ceil(
-                itemQty / newJob.reaction.products[0].quantity / newJob.jobCount
-              );
-              break;
-          }
         }
 
         const calculatedJob = CalculateResources(newJob)
         
         if (isLoggedIn) {
           isLoggedIn && addNewJob(calculatedJob);
-          calculatedJob.job.buildChar = mainUser.CharacterHash;
+          calculatedJob.build.buildChar = mainUser.CharacterHash;
         }
         console.log(calculatedJob);
         updateJobArray((prevArray) => [...prevArray, calculatedJob]);

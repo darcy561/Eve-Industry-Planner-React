@@ -1,4 +1,4 @@
-const data = require("./object_recipes.json");
+const data = require("./firebaseUpload.json");
 
 var admin = require("firebase-admin");
 
@@ -9,7 +9,11 @@ admin.initializeApp({
   databaseURL: "https://eve-industry-planner-dev-default-rtdb.europe-west1.firebasedatabase.app"
 });
 
+admin.firestore().settings({
+  ignoreUndefinedProperties: true,
+})
 
+console.log(`Uploading ${data.length} items`)
 
 data.forEach((item) => {
   admin.firestore().doc(`Items/${item.itemID}`).set({
@@ -19,10 +23,12 @@ data.forEach((item) => {
     portionSize: item.portionSize,
     published: item.published,
     volume: item.volume,
-    activities: item.activities,
+    activities: item.activities || null,
     blueprintTypeID: item.blueprintTypeID,
     maxProductionLimit: item.maxProductionLimit,
     itemID: item.itemID,
     jobType: item.jobType,
   });
 });
+
+console.log("Complete")

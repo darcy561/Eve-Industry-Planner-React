@@ -79,7 +79,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   <TextField {...params} variant="standard" />
                 )}
               />
-              <FormHelperText>Material Efficiecy</FormHelperText>
+              <FormHelperText variant="standard">Material Efficiecy</FormHelperText>
             </FormControl>
           </Grid>
           <Grid item xs={6}>
@@ -102,7 +102,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   <TextField {...params} variant="standard" />
                 )}
               />
-              <FormHelperText>Time Efficiecy</FormHelperText>
+              <FormHelperText variant="standard">Time Efficiecy</FormHelperText>
             </FormControl>
           </Grid>
           <Grid item xs={6}>
@@ -134,7 +134,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   <TextField {...params} variant="standard" />
                 )}
               />
-              <FormHelperText>Structure Type</FormHelperText>
+              <FormHelperText variant="standard">Structure Type</FormHelperText>
             </FormControl>
           </Grid>
           <Grid item xs={6}>
@@ -157,7 +157,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   <TextField {...params} variant="standard" />
                 )}
               />
-              <FormHelperText>Rig Type</FormHelperText>
+              <FormHelperText variant="standard">Rig Type</FormHelperText>
             </FormControl>
           </Grid>
           <Grid item xs={6}>
@@ -180,7 +180,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   <TextField {...params} variant="standard" />
                 )}
               />
-              <FormHelperText>System Type</FormHelperText>
+              <FormHelperText variant="standard">System Type</FormHelperText>
             </FormControl>
           </Grid>
         </Grid>

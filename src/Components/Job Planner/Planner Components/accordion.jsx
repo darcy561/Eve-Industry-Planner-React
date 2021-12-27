@@ -10,6 +10,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Container,
   FormControlLabel,
   Grid,
@@ -61,94 +62,123 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
 
   return (
     <Paper
-    elevation={3}
-    style={{
-      padding: "10px",
-      marginTop: "10px",
-      marginBottom: "20px",
-      minHeight:"90vh"
+      elevation={3}
+      style={{
+        padding: "10px",
+        marginTop: "10px",
+        marginBottom: "20px",
+        minHeight: "90vh",
       }}
-    square={true}
-  >
-    <Container maxWidth="false"  disableGutters={true}>
-      {/* Builds each status accordion on the job planner main page */}
-      {jobStatus.map((status) => {
-        return (
-          <Accordion
-            className={classes.Accordion}
-            expanded={status.expanded === true}
-            square={true}
-            spacing={1}
-            id={status.id}
-          >
-            <AccordionSummary
-              expandIcon={
-                <ExpandMoreIcon color="secondary" className={classes.Expand} onClick={()=> handleExpand(status.id)} />
-              }
-              aria-label="Expand Icon"
+      square={true}
+    >
+      <Container maxWidth="false" disableGutters={true}>
+        {/* Builds each status accordion on the job planner main page */}
+        {jobStatus.map((status) => {
+          return (
+            <Accordion
+              className={classes.Accordion}
+              expanded={status.expanded === true}
+              square={true}
+              spacing={1}
+              id={status.id}
+              key={status.id}
             >
-              <Typography variant="h4" className={classes.Title}>
-                {status.name}
-              </Typography>
-              {isLoggedIn && (
-                <Tooltip title="Change status settings">
-                  <FormControlLabel
-                    label=""
-                    onClick={() => {
-                      updateStatusData(status);
-                      updateStatusSettingsTrigger(true);
-                    }}
-                    control={
-                      <IconButton className={classes.Settings} size="large">
-                        <SettingsIcon color="secondary" fontSize="small" />
-                      </IconButton>
-                    }
+              <AccordionSummary
+                expandIcon={
+                  <ExpandMoreIcon
+                    color="secondary"
+                    className={classes.Expand}
+                    onClick={() => handleExpand(status.id)}
                   />
-                </Tooltip>
-              )}
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid container direction="row" item xs={12} spacing={1}>
-                {jobArray.map((job) => {
-                  if (job.jobStatus === status.id) {
-                    return (
-                      <JobCard
-                        job={job}
-                        updateJobSettingsTrigger={updateJobSettingsTrigger}
-                      />
-                    );
-                  } else {
-                    return null
-                  }
-                })}
+                }
+                aria-label="Expand Icon"
+              >
+                <Box
+                  sx={{
+                    width:"100%",
+                    display: "flex",
+                    flexDirection: "row",
+                }}>
+                  <Box sx={{
+                    display: "flex",
+                    flex: "1 1 95%",                   
+                  }}>
+                    <Typography variant="h4" color="primary">
+                      {status.name}
+                    </Typography>
+                  </Box>
+                  {isLoggedIn && (
+                    <Box sx={{
+                      display: "flex",
+                      flex: "1 1 5%",
+                    }}>
+                      <Tooltip title="Change status settings">
+                        <FormControlLabel
+                          label=""
+                          onClick={() => {
+                            updateStatusData(status);
+                            updateStatusSettingsTrigger(true);
+                          }}
+                          control={
+                            <IconButton
+                              className={classes.Settings}
+                              size="large"
+                            >
+                              <SettingsIcon
+                                color="secondary"
+                                fontSize="small"
+                              />
+                            </IconButton>
+                          }
+                        />
+                      </Tooltip>
+                    </Box>
+                  )}
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container direction="row" item xs={12} spacing={1}>
+                  {jobArray.map((job) => {
+                    if (job.jobStatus === status.id) {
+                      return (
+                        <JobCard
+                          key={job.jobID}
+                          job={job}
+                          updateJobSettingsTrigger={updateJobSettingsTrigger}
+                        />
+                      );
+                    } else {
+                      return null;
+                    }
+                  })}
 
-                {status.openAPIJobs &&
-                  apiJobs.map((j) => {
-                    if (!j.linked) {
-                      if (j.status === "active" && j.linked === false) {
-                        return <ApiJobCard job={j} />;
+                  {status.openAPIJobs &&
+                    apiJobs.map((j) => {
+                      if (!j.linked) {
+                        if (j.status === "active" && j.linked === false) {
+                          return <ApiJobCard key={j.job_id} job={j} />;
+                        }
                       }
-                    }
-                  })}
+                    })}
 
-                {status.completeAPIJobs &&
-                  apiJobs.map((j) => {
-                    if (!j.linked && j.status === "delivered") {
-                      return <ApiJobCard job={j} />;
-                    }
-                  })}
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
-        );
-      })}
-      <StatusSettings
-        statusData={statusData}
-        updateStatusData={updateStatusData}
-        statusSettingsTrigger={statusSettingsTrigger}
-        updateStatusSettingsTrigger={updateStatusSettingsTrigger}
-      />
+                  {status.completeAPIJobs &&
+                    apiJobs.map((j) => {
+                      if (!j.linked && j.status === "delivered") {
+                        return <ApiJobCard key={j.job_id} job={j} />;
+                      }
+                    })}
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+          );
+        })}
+        <StatusSettings
+          statusData={statusData}
+          updateStatusData={updateStatusData}
+          statusSettingsTrigger={statusSettingsTrigger}
+          updateStatusSettingsTrigger={updateStatusSettingsTrigger}
+        />
       </Container>
-      </Paper>
+    </Paper>
   );
 }

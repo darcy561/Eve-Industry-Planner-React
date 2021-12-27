@@ -1,12 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { lazy, useContext, useEffect, useState, Suspense } from "react";
 import { IsLoggedInContext, MainUserContext } from "../../Context/AuthContext";
-import { EditJob } from "./Edit Job/EditJob";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import {
   PageLoadContext,
 } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
+
+const EditJob = lazy(() => import("./Edit Job/EditJob"));
+
+
 
 export let blueprintVariables = {
   me: [
@@ -102,7 +105,11 @@ export function JobPlanner() {
     );
   } else {
     if (jobSettingsTrigger) {
-      return <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />;
+      return(
+      <Suspense fallback={<LoadingPage/>}>
+        <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />;
+        </Suspense>
+      )
     } else {
       return (
         <PlannerAccordion updateJobSettingsTrigger={updateJobSettingsTrigger} />

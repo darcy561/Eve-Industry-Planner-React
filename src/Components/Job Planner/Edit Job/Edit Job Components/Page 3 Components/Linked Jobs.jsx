@@ -5,8 +5,16 @@ import {
   ApiJobsContext,
 } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
-import { Avatar, Grid, IconButton, Tooltip, Typography } from "@mui/material";
+import {
+  Avatar,
+  Grid,
+  IconButton,
+  Paper,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { MdOutlineLinkOff } from "react-icons/md";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export function LinkedJobs({ linkedJobs, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -16,14 +24,43 @@ export function LinkedJobs({ linkedJobs, setJobModified }) {
 
   if (linkedJobs !== 0) {
     return (
-      <>
+      <Paper
+        sx={{
+          padding: "10px",
+          paddingTop: "10px",
+          minHeight: "25vh"
+        }}
+        elevation={3}
+        square={true}
+      >
+        <Grid container direction="row" sx={{marginBottom: "10px"}}>
+          <Grid item xs={12} md={11}>
+            <Typography variant="h5" color="primary" align="center">
+              Linked Jobs {activeJob.apiJobs.length}/{activeJob.jobCount}
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            md={1}
+            sx={{ display: { xs: "none", md: "block" } }}
+            align="right"
+          >
+            <IconButton>
+              <MoreVertIcon size="small" color="Secondary" />
+            </IconButton>
+          </Grid>
+        </Grid>
         {linkedJobs.map((job) => {
           return (
-            <Grid item container direction="row" xs={6}>
+            <Grid key={job.job_id} item container direction="row" xs={12} sx={{ marginBottom: "10px" }}>
               <Grid item xs={2}>
                 <Avatar
                   src={`https://images.evetech.net/characters/${job.installer_id}/portrait`}
                   variant="circular"
+                  sx={{
+                    height: "32px",
+                    width: "32px"
+                  }}
                 />
               </Grid>
               <Grid item xs={5}>
@@ -48,11 +85,11 @@ export function LinkedJobs({ linkedJobs, setJobModified }) {
                       updateActiveJob((prevObj) => ({
                         ...prevObj,
                         apiJobs: newActiveJobArray,
-                        job: {
-                          ...prevObj.job,
+                        build: {
+                          ...prevObj.build,
                           costs: {
-                            ...prevObj.job.costs,
-                            installCosts: (activeJob.job.costs.installCosts -=
+                            ...prevObj.build.costs,
+                            installCosts: (activeJob.build.costs.installCosts -=
                               job.cost),
                           },
                         },
@@ -91,7 +128,7 @@ export function LinkedJobs({ linkedJobs, setJobModified }) {
             </Grid>
           );
         })}
-      </>
+      </Paper>
     );
   } else {
     return (

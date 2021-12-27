@@ -21,921 +21,506 @@ export const JobStatus = (props) => {
 export const JobArrayContext = createContext();
 
 export const JobArray = (props) => {
-    const [jobArray, updateJobArray] = useState([
-      {
-        jobType: 1,
-        manufacturing: {
-          products: [
-            {
-              typeID: 31488,
-              quantity: 1,
-            },
-          ],
-          materials: [
-            {
-              quantity: 120,
-              jobType: 0,
-              name: "Micro Circuit",
-              typeID: 25618,
-            },
-            {
-              jobType: 0,
-              typeID: 25611,
-              name: "Current Pump",
-              quantity: 90,
-            },
-            {
-              name: "Interface Circuit",
-              jobType: 0,
-              quantity: 135,
-              typeID: 25620,
-            },
-            {
-              jobType: 1,
-              name: "R.A.M.- Weapon Tech",
-              typeID: 11486,
-              quantity: 1,
-            },
-          ],
-          time: 60000,
-          skills: [
-            {
-              typeID: 3380,
-              level: 5,
-            },
-            {
-              level: 1,
-              typeID: 11433,
-            },
-            {
-              level: 1,
-              typeID: 11447,
-            },
-            {
-              level: 4,
-              typeID: 26258,
-            },
-          ],
-        },
-        name: "Capital Energy Locus Coordinator II",
-        jobID: 1639859110205,
-        jobStatus: 0,
-        volume: 40,
-        itemID: 31488,
-        maxProductionLimit: 1,
-        runCount: 1,
-        jobCount: 1,
-        bpME: 0,
-        bpTE: 0,
-        structureType: 1,
-        structureTypeDisplay: "",
-        rigType: 0,
-        systemType: 0,
-        apiJobs: [],
-        job: {
-          products: {
-            totalQuantity: 1,
-            quantityPerJob: 1,
-            recalculate: false,
+  const [jobArray, updateJobArray] = useState([
+    {
+      "jobType": 1,
+      "name": "Genetic Mutation Inhibiter",
+      "jobID": 1640315399969,
+      "jobStatus": 0,
+      "volume": 1,
+      "itemID": 57485,
+      "maxProductionLimit": 40,
+      "runCount": 1,
+      "jobCount": 1,
+      "bpME": 0,
+      "bpTE": 0,
+      "rigType": 0,
+      "systemType": 1,
+      "apiJobs": [],
+      "build": {
+          "products": {
+              "totalQuantity": 20,
+              "quantityPerJob": 20,
+              "recalculate": false
           },
-          costs: {
-            totalPurchaseCost: 0,
-            extrasCosts: [],
-            extrasTotal: 0,
-            installCosts: 0,
+          "costs": {
+              "totalPurchaseCost": 0,
+              "extrasCosts": [],
+              "extrasTotal": 0,
+              "installCosts": 0
           },
-          sale: {
-            totalSold: 0,
-            totalSale: 0,
-            markUp: 0,
-            transactions: [],
-            brokersFee: [],
+          "sale": {
+              "totalSold": 0,
+              "totalSale": 0,
+              "markUp": 0,
+              "transactions": [],
+              "brokersFee": []
           },
-          materials: [
-            {
-              quantity: 119,
-              jobType: 0,
-              name: "Micro Circuit",
-              typeID: 25618,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 0,
-              typeID: 25611,
-              name: "Current Pump",
-              quantity: 90,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              name: "Interface Circuit",
-              jobType: 0,
-              quantity: 134,
-              typeID: 25620,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 1,
-              name: "R.A.M.- Weapon Tech",
-              typeID: 11486,
-              quantity: 1,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
+          "materials": [
+              {
+                  "name": "Test Cultures",
+                  "volume": 1.5,
+                  "quantity": 100,
+                  "typeID": 2319,
+                  "jobType": 3,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "quantity": 100,
+                  "name": "Isotropic Neofullerene Gamma-9",
+                  "jobType": 2,
+                  "typeID": 57465,
+                  "volume": 8,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              }
           ],
-          buildChar: null,
-          skills: [
-            {
-              typeID: 3380,
-              level: 5,
-            },
-            {
-              level: 1,
-              typeID: 11433,
-            },
-            {
-              level: 1,
-              typeID: 11447,
-            },
-            {
-              level: 4,
-              typeID: 26258,
-            },
-          ],
-          time: 60000,
-        },
-        planner: {
-          products: {
-            totalQuantity: 0,
-            quantityPerJob: 0,
-          },
-          materials: [
-            {
-              quantity: 120,
-              jobType: 0,
-              name: "Micro Circuit",
-              typeID: 25618,
-            },
-            {
-              jobType: 0,
-              typeID: 25611,
-              name: "Current Pump",
-              quantity: 90,
-            },
-            {
-              name: "Interface Circuit",
-              jobType: 0,
-              quantity: 135,
-              typeID: 25620,
-            },
-            {
-              jobType: 1,
-              name: "R.A.M.- Weapon Tech",
-              typeID: 11486,
-              quantity: 1,
-            },
-          ],
-          skills: [
-            {
-              typeID: 3380,
-              level: 5,
-            },
-            {
-              level: 1,
-              typeID: 11433,
-            },
-            {
-              level: 1,
-              typeID: 11447,
-            },
-            {
-              level: 4,
-              typeID: 26258,
-            },
-          ],
-          time: 60000,
-        },
+          "buildChar": null,
+          "time": 16000
       },
-      {
-        jobType: 2,
-        reaction: {
-          products: [
-            {
-              typeID: 30304,
-              quantity: 250,
-            },
+      "rawData": {
+          "materials": [
+              {
+                  "name": "Test Cultures",
+                  "volume": 1.5,
+                  "quantity": 100,
+                  "typeID": 2319,
+                  "jobType": 3
+              },
+              {
+                  "quantity": 100,
+                  "name": "Isotropic Neofullerene Gamma-9",
+                  "jobType": 2,
+                  "typeID": 57465,
+                  "volume": 8
+              }
           ],
-          time: 10800,
-          skills: [
-            {
-              typeID: 45746,
-              level: 3,
-            },
+          "products": [
+              {
+                  "quantity": 20,
+                  "typeID": 57485
+              }
           ],
-          materials: [
-            {
-              quantity: 5,
-              jobType: 1,
-              typeID: 4246,
-              name: "Hydrogen Fuel Block",
-            },
-            {
-              typeID: 30371,
-              quantity: 100,
-              jobType: 0,
-              name: "Fullerite-C60",
-            },
-            {
-              typeID: 30370,
-              jobType: 0,
-              name: "Fullerite-C50",
-              quantity: 300,
-            },
-            {
-              name: "Pyerite",
-              jobType: 0,
-              typeID: 35,
-              quantity: 800,
-            },
-          ],
-        },
-        name: "PPD Fullerene Fibers",
-        jobID: 1639867587500,
-        jobStatus: 0,
-        volume: 0.5,
-        itemID: 30304,
-        maxProductionLimit: 1000,
-        runCount: 1,
-        jobCount: 1,
-        bpME: 0,
-        bpTE: 0,
-        structureType: 1,
-        structureTypeDisplay: "",
-        rigType: 0,
-        systemType: 0,
-        apiJobs: [],
-        job: {
-          products: {
-            totalQuantity: 250,
-            quantityPerJob: 250,
-            recalculate: false,
-          },
-          costs: {
-            totalPurchaseCost: 0,
-            extrasCosts: [],
-            extrasTotal: 0,
-            installCosts: 0,
-          },
-          sale: {
-            totalSold: 0,
-            totalSale: 0,
-            markUp: 0,
-            transactions: [],
-            brokersFee: [],
-          },
-          materials: [
-            {
-              quantity: 5,
-              jobType: 1,
-              typeID: 4246,
-              name: "Hydrogen Fuel Block",
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              typeID: 30371,
-              quantity: 100,
-              jobType: 0,
-              name: "Fullerite-C60",
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              typeID: 30370,
-              jobType: 0,
-              name: "Fullerite-C50",
-              quantity: 300,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              name: "Pyerite",
-              jobType: 0,
-              typeID: 35,
-              quantity: 800,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-          ],
-          buildChar: null,
-          skills: [
-            {
-              typeID: 45746,
-              level: 3,
-            },
-          ],
-          time: 10800,
-        },
-        planner: {
-          products: {
-            totalQuantity: 0,
-            quantityPerJob: 0,
-          },
-          materials: [
-            {
-              quantity: 5,
-              jobType: 1,
-              typeID: 4246,
-              name: "Hydrogen Fuel Block",
-            },
-            {
-              typeID: 30371,
-              quantity: 100,
-              jobType: 0,
-              name: "Fullerite-C60",
-            },
-            {
-              typeID: 30370,
-              jobType: 0,
-              name: "Fullerite-C50",
-              quantity: 300,
-            },
-            {
-              name: "Pyerite",
-              jobType: 0,
-              typeID: 35,
-              quantity: 800,
-            },
-          ],
-          skills: [
-            {
-              typeID: 45746,
-              level: 3,
-            },
-          ],
-          time: 10800,
-        },
+          "time": 16000
       },
-      {
-        jobType: 1,
-        manufacturing: {
-          skills: [
-            {
-              typeID: 22242,
-              level: 5,
-            },
-          ],
-          materials: [
-            {
-              quantity: 100,
-              jobType: 1,
-              typeID: 21009,
-              name: "Capital Propulsion Engine",
-            },
-            {
-              jobType: 1,
-              quantity: 400,
-              typeID: 21011,
-              name: "Capital Turret Hardpoint",
-            },
-            {
-              name: "Capital Sensor Cluster",
-              typeID: 21013,
-              jobType: 1,
-              quantity: 200,
-            },
-            {
-              name: "Capital Armor Plates",
-              jobType: 1,
-              quantity: 300,
-              typeID: 21017,
-            },
-            {
-              jobType: 1,
-              typeID: 21019,
-              quantity: 400,
-              name: "Capital Capacitor Battery",
-            },
-            {
-              name: "Capital Power Generator",
-              jobType: 1,
-              quantity: 300,
-              typeID: 21021,
-            },
-            {
-              jobType: 1,
-              typeID: 21023,
-              quantity: 150,
-              name: "Capital Shield Emitter",
-            },
-            {
-              typeID: 21025,
-              quantity: 400,
-              jobType: 1,
-              name: "Capital Jump Drive",
-            },
-            {
-              jobType: 1,
-              name: "Capital Computer System",
-              typeID: 21035,
-              quantity: 100,
-            },
-            {
-              jobType: 1,
-              typeID: 21037,
-              name: "Capital Construction Parts",
-              quantity: 200,
-            },
-            {
-              name: "Capital Jump Bridge Array",
-              jobType: 1,
-              quantity: 556,
-              typeID: 24545,
-            },
-            {
-              quantity: 556,
-              typeID: 24547,
-              jobType: 1,
-              name: "Capital Clone Vat Bay",
-            },
-            {
-              name: "Capital Doomsday Weapon Mount",
-              jobType: 1,
-              typeID: 24556,
-              quantity: 556,
-            },
-            {
-              jobType: 1,
-              typeID: 24558,
-              name: "Capital Ship Maintenance Bay",
-              quantity: 556,
-            },
-            {
-              jobType: 1,
-              name: "Capital Corporate Hangar Bay",
-              quantity: 556,
-              typeID: 24560,
-            },
-            {
-              quantity: 500,
-              jobType: 1,
-              name: "S-R Trigger Neurolink Conduit",
-              typeID: 57472,
-            },
-            {
-              typeID: 57476,
-              jobType: 1,
-              name: "Magnetometric-FTL Interlink Communicator",
-              quantity: 500,
-            },
-            {
-              quantity: 5000,
-              jobType: 1,
-              typeID: 57478,
-              name: "Auto-Integrity Preservation Seal",
-            },
-            {
-              jobType: 1,
-              quantity: 2500,
-              typeID: 57486,
-              name: "Life Support Backup Unit",
-            },
-            {
-              typeID: 57487,
-              name: "Capital Core Temperature Regulator",
-              jobType: 1,
-              quantity: 40,
-            },
-            {
-              jobType: 1,
-              typeID: 57489,
-              name: "Enhanced Neurolink Protection Cell",
-              quantity: 1,
-            },
-          ],
-          products: [
-            {
-              typeID: 671,
-              quantity: 1,
-            },
-          ],
-          time: 9000000,
-        },
-        name: "Erebus",
-        jobID: 1639868954580,
-        jobStatus: 0,
-        volume: 145500000,
-        itemID: 671,
-        maxProductionLimit: 1,
-        runCount: 1,
-        jobCount: 1,
-        bpME: 0,
-        bpTE: 0,
-        structureType: 1,
-        structureTypeDisplay: "",
-        rigType: 0,
-        systemType: 0,
-        apiJobs: [],
-        job: {
-          products: {
-            totalQuantity: 1,
-            quantityPerJob: 1,
-            recalculate: false,
+      "structureType": 0,
+      "structureTypeDisplay": "Station",
+      "skills": [
+          {
+              "typeID": 3380,
+              "level": 5
           },
-          costs: {
-            totalPurchaseCost: 0,
-            extrasCosts: [],
-            extrasTotal: 0,
-            installCosts: 0,
+          {
+              "typeID": 25538,
+              "level": 5
+          }
+      ]
+  },
+    {
+      "jobType": 1,
+      "name": "Broadsword",
+      "jobID": 1640315466269,
+      "jobStatus": 0,
+      "volume": 96000,
+      "itemID": 12013,
+      "maxProductionLimit": 1,
+      "runCount": 1,
+      "jobCount": 1,
+      "bpME": 0,
+      "bpTE": 0,
+      "rigType": 0,
+      "systemType": 1,
+      "apiJobs": [],
+      "build": {
+          "products": {
+              "totalQuantity": 1,
+              "quantityPerJob": 1,
+              "recalculate": false
           },
-          sale: {
-            totalSold: 0,
-            totalSale: 0,
-            markUp: 0,
-            transactions: [],
-            brokersFee: [],
+          "costs": {
+              "totalPurchaseCost": 0,
+              "extrasCosts": [],
+              "extrasTotal": 0,
+              "installCosts": 0
           },
-          materials: [
-            {
-              quantity: 99,
-              jobType: 1,
-              typeID: 21009,
-              name: "Capital Propulsion Engine",
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 1,
-              quantity: 396,
-              typeID: 21011,
-              name: "Capital Turret Hardpoint",
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              name: "Capital Sensor Cluster",
-              typeID: 21013,
-              jobType: 1,
-              quantity: 198,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              name: "Capital Armor Plates",
-              jobType: 1,
-              quantity: 297,
-              typeID: 21017,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 1,
-              typeID: 21019,
-              quantity: 396,
-              name: "Capital Capacitor Battery",
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              name: "Capital Power Generator",
-              jobType: 1,
-              quantity: 297,
-              typeID: 21021,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 1,
-              typeID: 21023,
-              quantity: 149,
-              name: "Capital Shield Emitter",
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              typeID: 21025,
-              quantity: 396,
-              jobType: 1,
-              name: "Capital Jump Drive",
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 1,
-              name: "Capital Computer System",
-              typeID: 21035,
-              quantity: 99,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 1,
-              typeID: 21037,
-              name: "Capital Construction Parts",
-              quantity: 198,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              name: "Capital Jump Bridge Array",
-              jobType: 1,
-              quantity: 551,
-              typeID: 24545,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              quantity: 551,
-              typeID: 24547,
-              jobType: 1,
-              name: "Capital Clone Vat Bay",
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              name: "Capital Doomsday Weapon Mount",
-              jobType: 1,
-              typeID: 24556,
-              quantity: 551,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 1,
-              typeID: 24558,
-              name: "Capital Ship Maintenance Bay",
-              quantity: 551,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 1,
-              name: "Capital Corporate Hangar Bay",
-              quantity: 551,
-              typeID: 24560,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              quantity: 495,
-              jobType: 1,
-              name: "S-R Trigger Neurolink Conduit",
-              typeID: 57472,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              typeID: 57476,
-              jobType: 1,
-              name: "Magnetometric-FTL Interlink Communicator",
-              quantity: 495,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              quantity: 4950,
-              jobType: 1,
-              typeID: 57478,
-              name: "Auto-Integrity Preservation Seal",
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 1,
-              quantity: 2475,
-              typeID: 57486,
-              name: "Life Support Backup Unit",
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              typeID: 57487,
-              name: "Capital Core Temperature Regulator",
-              jobType: 1,
-              quantity: 40,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-            {
-              jobType: 1,
-              typeID: 57489,
-              name: "Enhanced Neurolink Protection Cell",
-              quantity: 1,
-              purchasing: [],
-              quantityPurchased: 0,
-              purchasedCost: 0,
-              purchaseComplete: false,
-            },
-          ],
-          buildChar: null,
-          skills: [
-            {
-              typeID: 22242,
-              level: 5,
-            },
-          ],
-          time: 9000000,
-        },
-        planner: {
-          products: {
-            totalQuantity: 0,
-            quantityPerJob: 0,
+          "sale": {
+              "totalSold": 0,
+              "totalSale": 0,
+              "markUp": 0,
+              "transactions": [],
+              "brokersFee": []
           },
-          materials: [
-            {
-              quantity: 100,
-              jobType: 1,
-              typeID: 21009,
-              name: "Capital Propulsion Engine",
-            },
-            {
-              jobType: 1,
-              quantity: 400,
-              typeID: 21011,
-              name: "Capital Turret Hardpoint",
-            },
-            {
-              name: "Capital Sensor Cluster",
-              typeID: 21013,
-              jobType: 1,
-              quantity: 200,
-            },
-            {
-              name: "Capital Armor Plates",
-              jobType: 1,
-              quantity: 300,
-              typeID: 21017,
-            },
-            {
-              jobType: 1,
-              typeID: 21019,
-              quantity: 400,
-              name: "Capital Capacitor Battery",
-            },
-            {
-              name: "Capital Power Generator",
-              jobType: 1,
-              quantity: 300,
-              typeID: 21021,
-            },
-            {
-              jobType: 1,
-              typeID: 21023,
-              quantity: 150,
-              name: "Capital Shield Emitter",
-            },
-            {
-              typeID: 21025,
-              quantity: 400,
-              jobType: 1,
-              name: "Capital Jump Drive",
-            },
-            {
-              jobType: 1,
-              name: "Capital Computer System",
-              typeID: 21035,
-              quantity: 100,
-            },
-            {
-              jobType: 1,
-              typeID: 21037,
-              name: "Capital Construction Parts",
-              quantity: 200,
-            },
-            {
-              name: "Capital Jump Bridge Array",
-              jobType: 1,
-              quantity: 556,
-              typeID: 24545,
-            },
-            {
-              quantity: 556,
-              typeID: 24547,
-              jobType: 1,
-              name: "Capital Clone Vat Bay",
-            },
-            {
-              name: "Capital Doomsday Weapon Mount",
-              jobType: 1,
-              typeID: 24556,
-              quantity: 556,
-            },
-            {
-              jobType: 1,
-              typeID: 24558,
-              name: "Capital Ship Maintenance Bay",
-              quantity: 556,
-            },
-            {
-              jobType: 1,
-              name: "Capital Corporate Hangar Bay",
-              quantity: 556,
-              typeID: 24560,
-            },
-            {
-              quantity: 500,
-              jobType: 1,
-              name: "S-R Trigger Neurolink Conduit",
-              typeID: 57472,
-            },
-            {
-              typeID: 57476,
-              jobType: 1,
-              name: "Magnetometric-FTL Interlink Communicator",
-              quantity: 500,
-            },
-            {
-              quantity: 5000,
-              jobType: 1,
-              typeID: 57478,
-              name: "Auto-Integrity Preservation Seal",
-            },
-            {
-              jobType: 1,
-              quantity: 2500,
-              typeID: 57486,
-              name: "Life Support Backup Unit",
-            },
-            {
-              typeID: 57487,
-              name: "Capital Core Temperature Regulator",
-              jobType: 1,
-              quantity: 40,
-            },
-            {
-              jobType: 1,
-              typeID: 57489,
-              name: "Enhanced Neurolink Protection Cell",
-              quantity: 1,
-            },
+          "materials": [
+              {
+                  "typeID": 11530,
+                  "jobType": 1,
+                  "name": "Plasma Thruster",
+                  "volume": 1,
+                  "quantity": 105,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "quantity": 150,
+                  "name": "Morphite",
+                  "volume": 0.01,
+                  "typeID": 11399,
+                  "jobType": 0,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "jobType": 1,
+                  "quantity": 6750,
+                  "name": "Fernite Carbide Composite Armor Plate",
+                  "volume": 1,
+                  "typeID": 11542,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "typeID": 11536,
+                  "jobType": 1,
+                  "volume": 1,
+                  "quantity": 180,
+                  "name": "Ladar Sensor Cluster",
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "quantity": 2970,
+                  "jobType": 1,
+                  "name": "Nanomechanical Microprocessor",
+                  "volume": 1,
+                  "typeID": 11538,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "volume": 1,
+                  "jobType": 1,
+                  "name": "Deflection Shield Emitter",
+                  "quantity": 413,
+                  "typeID": 11555,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "jobType": 3,
+                  "volume": 1.5,
+                  "name": "Construction Blocks",
+                  "quantity": 188,
+                  "typeID": 3828,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "quantity": 1,
+                  "name": "Rupture",
+                  "typeID": 629,
+                  "jobType": 1,
+                  "volume": 96000,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "jobType": 1,
+                  "name": "R.A.M.- Starship Tech",
+                  "quantity": 21,
+                  "volume": 0.04,
+                  "typeID": 11478,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "quantity": 53,
+                  "name": "Nuclear Reactor Unit",
+                  "volume": 1,
+                  "jobType": 1,
+                  "typeID": 11548,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "volume": 1,
+                  "jobType": 1,
+                  "name": "Electrolytic Capacitor Unit",
+                  "quantity": 660,
+                  "typeID": 11551,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              }
           ],
-          skills: [
-            {
-              typeID: 22242,
-              level: 5,
-            },
-          ],
-          time: 9000000,
-        },
+          "buildChar": null,
+          "time": 240000
       },
+      "rawData": {
+          "materials": [
+              {
+                  "typeID": 11530,
+                  "jobType": 1,
+                  "name": "Plasma Thruster",
+                  "volume": 1,
+                  "quantity": 105
+              },
+              {
+                  "quantity": 150,
+                  "name": "Morphite",
+                  "volume": 0.01,
+                  "typeID": 11399,
+                  "jobType": 0
+              },
+              {
+                  "jobType": 1,
+                  "quantity": 6750,
+                  "name": "Fernite Carbide Composite Armor Plate",
+                  "volume": 1,
+                  "typeID": 11542
+              },
+              {
+                  "typeID": 11536,
+                  "jobType": 1,
+                  "volume": 1,
+                  "quantity": 180,
+                  "name": "Ladar Sensor Cluster"
+              },
+              {
+                  "quantity": 2970,
+                  "jobType": 1,
+                  "name": "Nanomechanical Microprocessor",
+                  "volume": 1,
+                  "typeID": 11538
+              },
+              {
+                  "volume": 1,
+                  "jobType": 1,
+                  "name": "Deflection Shield Emitter",
+                  "quantity": 413,
+                  "typeID": 11555
+              },
+              {
+                  "jobType": 3,
+                  "volume": 1.5,
+                  "name": "Construction Blocks",
+                  "quantity": 188,
+                  "typeID": 3828
+              },
+              {
+                  "quantity": 1,
+                  "name": "Rupture",
+                  "typeID": 629,
+                  "jobType": 1,
+                  "volume": 96000
+              },
+              {
+                  "jobType": 1,
+                  "name": "R.A.M.- Starship Tech",
+                  "quantity": 21,
+                  "volume": 0.04,
+                  "typeID": 11478
+              },
+              {
+                  "quantity": 53,
+                  "name": "Nuclear Reactor Unit",
+                  "volume": 1,
+                  "jobType": 1,
+                  "typeID": 11548
+              },
+              {
+                  "volume": 1,
+                  "jobType": 1,
+                  "name": "Electrolytic Capacitor Unit",
+                  "quantity": 660,
+                  "typeID": 11551
+              }
+          ],
+          "products": [
+              {
+                  "typeID": 12013,
+                  "quantity": 1
+              }
+          ],
+          "time": 240000
+      },
+      "structureType": 0,
+      "structureTypeDisplay": "Station",
+      "skills": [
+          {
+              "typeID": 3380,
+              "level": 5
+          },
+          {
+              "level": 1,
+              "typeID": 3397
+          },
+          {
+              "typeID": 11445,
+              "level": 1
+          },
+          {
+              "level": 1,
+              "typeID": 11446
+          }
+      ]
+    },
+    {
+      "jobType": 2,
+      "name": "Scandium Metallofullerene",
+      "jobID": 1640315507914,
+      "jobStatus": 0,
+      "volume": 0.65,
+      "itemID": 30308,
+      "maxProductionLimit": 1000,
+      "runCount": 1,
+      "jobCount": 1,
+      "bpME": 0,
+      "bpTE": 0,
+      "rigType": 0,
+      "systemType": 1,
+      "apiJobs": [],
+      "build": {
+          "products": {
+              "totalQuantity": 160,
+              "quantityPerJob": 160,
+              "recalculate": false
+          },
+          "costs": {
+              "totalPurchaseCost": 0,
+              "extrasCosts": [],
+              "extrasTotal": 0,
+              "installCosts": 0
+          },
+          "sale": {
+              "totalSold": 0,
+              "totalSale": 0,
+              "markUp": 0,
+              "transactions": [],
+              "brokersFee": []
+          },
+          "materials": [
+              {
+                  "quantity": 5,
+                  "volume": 5,
+                  "typeID": 4247,
+                  "name": "Helium Fuel Block",
+                  "jobType": 1,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "jobType": 0,
+                  "volume": 0.01,
+                  "name": "Zydrine",
+                  "typeID": 39,
+                  "quantity": 25,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "name": "Fullerite-C72",
+                  "volume": 2,
+                  "jobType": 0,
+                  "typeID": 30373,
+                  "quantity": 100,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              },
+              {
+                  "quantity": 100,
+                  "typeID": 30375,
+                  "jobType": 0,
+                  "name": "Fullerite-C28",
+                  "volume": 2,
+                  "purchasing": [],
+                  "quantityPurchased": 0,
+                  "purchasedCost": 0,
+                  "purchaseComplete": false
+              }
+          ],
+          "buildChar": null,
+          "time": 10800
+      },
+      "rawData": {
+          "materials": [
+              {
+                  "quantity": 5,
+                  "volume": 5,
+                  "typeID": 4247,
+                  "name": "Helium Fuel Block",
+                  "jobType": 1
+              },
+              {
+                  "jobType": 0,
+                  "volume": 0.01,
+                  "name": "Zydrine",
+                  "typeID": 39,
+                  "quantity": 25
+              },
+              {
+                  "name": "Fullerite-C72",
+                  "volume": 2,
+                  "jobType": 0,
+                  "typeID": 30373,
+                  "quantity": 100
+              },
+              {
+                  "quantity": 100,
+                  "typeID": 30375,
+                  "jobType": 0,
+                  "name": "Fullerite-C28",
+                  "volume": 2
+              }
+          ],
+          "products": [
+              {
+                  "quantity": 160,
+                  "typeID": 30308
+              }
+          ],
+          "time": 10800
+      },
+      "structureType": 1,
+      "structureTypeDisplay": "Medium",
+      "skills": [
+          {
+              "typeID": 45746,
+              "level": 3
+          }
+      ]
+  }
     ]);
 
   return (

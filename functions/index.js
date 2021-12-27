@@ -59,7 +59,9 @@ app.get("/item/:itemID", (req, res) => {
       let product = await document.get();
       let response = product.data();
       functions.logger.log(`${req.params.itemID} Sent`)
-      return res.status(200).send(response);
+      res.status(200)
+      res.set('Cache-Control', 'public, max-age=600, s-maxage=3600')
+      return send(response);
     } catch (error) {
       functions.logger.error("Error retrieving item data")
       functions.logger.error(`Trying to retrieve ${req.params.itemID}`)

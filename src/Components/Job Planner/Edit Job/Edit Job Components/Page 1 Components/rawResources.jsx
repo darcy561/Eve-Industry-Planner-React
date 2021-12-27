@@ -1,4 +1,5 @@
 import {
+  Box,
   Container,
   Grid,
   Icon,
@@ -11,17 +12,20 @@ import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { useCreateJobProcess } from "../../../../../Hooks/useCreateJob";
 import { MdOutlineAddCircle, MdRemoveCircle } from "react-icons/md";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { jobTypes } from "../../..";
 
 export function RawResourceList() {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { newJobProcess } = useCreateJobProcess();
 
   function AddBuildIcon({ material }) {
-    if (material.jobType === 1) {
+    if (material.jobType === jobTypes.manufacturing) {
       return (
         <Tooltip
           title="Manufacturing Job, click to create as a new job."
           placement="left-start"
+          arrow
         >
           <IconButton
             sx={{ color: "manufacturing.main" }}
@@ -32,11 +36,12 @@ export function RawResourceList() {
           </IconButton>
         </Tooltip>
       );
-    } else if (material.jobType === 2) {
+    } else if (material.jobType === jobTypes.reaction) {
       return (
         <Tooltip
           title="Reaction Job, click to create as a new job"
           placement="left-start"
+          arrow
         >
           <IconButton
             sx={{ color: "reaction.main" }}
@@ -47,18 +52,18 @@ export function RawResourceList() {
           </IconButton>
         </Tooltip>
       );
-    } else if (material.jobType === 3) {
+    } else if (material.jobType === jobTypes.pi) {
       return (
-        <Tooltip title="Planetary Interaction" placement="left-start">
-          <IconButton sx={{ color: "pi.main" }} size="small">
+        <Tooltip title="Planetary Interaction" placement="left-start" arrow>
+          <IconButton sx={{ color: "pi.main" }} size="small" disableRipple>
             <MdRemoveCircle />
           </IconButton>
         </Tooltip>
       );
-    } else if (material.jobType === 0) {
+    } else if (material.jobType === jobTypes.baseMaterial) {
       return (
         <Tooltip title="Base Material" placement="left-start">
-          <IconButton size="small" sx={{ color: "baseMat.main" }}>
+          <IconButton size="small" sx={{ color: "baseMat.main" }} disableRipple>
             <MdRemoveCircle />
           </IconButton>
         </Tooltip>
@@ -69,41 +74,61 @@ export function RawResourceList() {
   return (
     <Paper
       sx={{
-        padding: "20px",
+        paddingBottom: "10px",
+        paddingTop: "10px",
         margin: "10px",
       }}
       elevation={3}
       square={true}
     >
-      <Container disableGutters={false}>
-        <Typography variant="h4" color="primary" align="center" gutterBottom={true}>
-          Raw Resources
-        </Typography>
-        <Grid container direction="column">
-          {activeJob.job.materials.map((material) => {
-            return (
-              <Grid
-                key={material.typeID}
-                item
-                container
-                direction="row"
-                style={{ width: "100%" }}
+      <Container disableGutters={true}>
+        <Box sx={{marginBottom:"10px"}}>
+          <Grid
+            container
+            direction="row"
+          >
+            <Grid item xs={12} md={11}>
+              <Typography
+                variant="h5"
+                color="primary"
+                align="center"
               >
-                <Grid item style={{ width: "10%" }}>
-                  <AddBuildIcon material={material} />
+                Raw Resources
+              </Typography>
+            </Grid>
+            <Grid
+              item
+              md={1}
+              sx={{ display: { xs: "none", md: "block" } }}
+              align="right"
+            >
+              <IconButton>
+                <MoreVertIcon size="small" color="Secondary" />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </Box>
+        <Box sx={{ marginLeft:{ xs:"5px", md:"15px" }, marginRight:{xs:"10px", md:"20px"}}}>
+          <Grid container item direction="column">
+            {activeJob.build.materials.map((material) => {
+              return (
+                <Grid key={material.typeID} item container direction="row">
+                  <Grid item xs={2} sm={1}>
+                    <AddBuildIcon material={material} />
+                  </Grid>
+                  <Grid item xs={7} sm={7}>
+                    <Typography variant="body1">{material.name}</Typography>
+                  </Grid>
+                  <Grid item xs={3} sm={4} align="right">
+                    <Typography variant="body1">
+                      {material.quantity.toLocaleString()}
+                    </Typography>
+                  </Grid>
                 </Grid>
-                <Grid item style={{ width: "80%" }}>
-                  <Typography variant="body1">{material.name}</Typography>
-                </Grid>
-                <Grid item style={{ width: "10%" }} align="left">
-                  <Typography variant="body1" >
-                    {material.quantity.toLocaleString()}
-                  </Typography>
-                </Grid>
-              </Grid>
-            );
-          })}
-        </Grid>
+              );
+            })}
+          </Grid>
+        </Box>
       </Container>
     </Paper>
   );

@@ -51,6 +51,7 @@ class MainUser {
         this.apiJobs = null;
         this.linkedJobs = [];
         this.apiOrders = null;
+        this.apiHistOrders = null;
         this.apiBlueprints = null;
         this.Settings = null;
     };

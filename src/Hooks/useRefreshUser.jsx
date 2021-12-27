@@ -18,7 +18,7 @@ import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 
 export function useRefreshUser() {
-  const { BlueprintLibrary, CharacterSkills, IndustryJobs, MarketOrders, WalletTransactions, WalletJournal } =
+  const { BlueprintLibrary, CharacterSkills, HistoricMarketOrders, IndustryJobs, MarketOrders, WalletTransactions, WalletJournal } =
     useEveApi();
   const { determineUserState } = useFirebase();
   const { setJobStatus } = useContext(JobStatusContext);
@@ -61,6 +61,7 @@ export function useRefreshUser() {
     refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
     refreshedUser.apiJobs = await IndustryJobs(refreshedUser);
     refreshedUser.apiOrders = await MarketOrders(refreshedUser);
+    refreshedUser.apiHistOrders = await HistoricMarketOrders(refreshedUser);
     refreshedUser.apiBlueprints = await BlueprintLibrary(refreshedUser);
     refreshedUser.apiTransactions = await WalletTransactions(refreshedUser);
     refreshedUser.apiJournal = await WalletJournal(refreshedUser);

@@ -3,12 +3,7 @@ import {
   ActiveJobContext,
   ApiJobsContext,
 } from "../../../../Context/JobContext";
-import {
-  Container,
-  Divider,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { Grid } from "@mui/material";
 import { LinkedJobs } from "./Page 3 Components/Linked Jobs";
 import { AvailableJobs } from "./Page 3 Components/Available Jobs";
 
@@ -28,30 +23,16 @@ export function EditPage3({ setJobModified }) {
   );
 
   return (
-    <Container maxWidth="xl" disableGutters={true}>
-      <Grid container direction="row">
-        <Grid item xs={6}>
-          <Grid item xs={12}>
-            <Typography variant="body2">Available Jobs</Typography>
-          </Grid>
-          <Divider />
-          <AvailableJobs
-            jobMatches={jobMatches}
-            setJobModified={setJobModified}
-          />
-          <Divider />
-        </Grid>
-        <Grid item xs={6}>
-          <Grid item xs={12}>
-            <Typography variant="body2">
-              Linked Jobs {activeJob.apiJobs.length}/{activeJob.jobCount}
-            </Typography>
-          </Grid>
-          <Divider />
-          <LinkedJobs linkedJobs={linkedJobs} setJobModified={setJobModified} />
-          <Divider />
-        </Grid>
+    <Grid container direction="row" spacing={2}>
+      <Grid item xs={12} md={6}>
+        <AvailableJobs
+          jobMatches={jobMatches}
+          setJobModified={setJobModified}
+        />
       </Grid>
-    </Container>
+      <Grid item xs={12} md={6}>
+        <LinkedJobs linkedJobs={linkedJobs} setJobModified={setJobModified} />
+      </Grid>
+    </Grid>
   );
 }

@@ -8,7 +8,6 @@ const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
 
 admin.initializeApp();
 
-
 const app = express();
 const db = admin.firestore();
 
@@ -32,21 +31,21 @@ app.use(appCheckVerification);
 app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
   if (req.body.UID != null) {
     try {
-      const authToken = await admin
-        .auth()
-        .createCustomToken(req.body.UID);
+      const authToken = await admin.auth().createCustomToken(req.body.UID);
       return res.status(200).send({
         access_token: authToken,
       });
     } catch (error) {
       functions.logger.error("Error generating firebase auth token");
       functions.logger.error(error);
-      return res.status(500).send("Error generating auth token, contact admin for assistance");
+      return res
+        .status(500)
+        .send("Error generating auth token, contact admin for assistance");
     }
   } else {
-    functions.logger.warn("UID missing from request")
-    functions.logger.info("Header " + JSON.stringify(req.header))
-    functions.logger.info("Body " + JSON.stringify(req.body))
+    functions.logger.warn("UID missing from request");
+    functions.logger.info("Header " + JSON.stringify(req.header));
+    functions.logger.info("Body " + JSON.stringify(req.body));
     return res.status(400);
   }
 });
@@ -58,15 +57,18 @@ app.get("/item/:itemID", (req, res) => {
       const document = db.collection("Items").doc(req.params.itemID);
       let product = await document.get();
       let response = product.data();
-      functions.logger.log(`${req.params.itemID} Sent`)
-      res.status(200)
-      res.set('Cache-Control', 'public, max-age=600, s-maxage=3600')
-      return send(response);
+      functions.logger.log(`${req.params.itemID} Sent`);
+      return res
+        .status(200)
+        .set("Cache-Control", "public, max-age=600, s-maxage=3600")
+        .send(response);
     } catch (error) {
-      functions.logger.error("Error retrieving item data")
-      functions.logger.error(`Trying to retrieve ${req.params.itemID}`)
+      functions.logger.error("Error retrieving item data");
+      functions.logger.error(`Trying to retrieve ${req.params.itemID}`);
       functions.logger.error(error);
-      return res.status(500).send("Error retrieving item data, please try again.");
+      return res
+        .status(500)
+        .send("Error retrieving item data, please try again.");
     }
   })();
 });

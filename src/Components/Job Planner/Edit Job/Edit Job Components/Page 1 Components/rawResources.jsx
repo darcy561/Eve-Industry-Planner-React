@@ -2,7 +2,6 @@ import {
   Box,
   Container,
   Grid,
-  Icon,
   IconButton,
   Paper,
   Tooltip,
@@ -16,7 +15,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { jobTypes } from "../../..";
 
 export function RawResourceList() {
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { activeJob } = useContext(ActiveJobContext);
   const { newJobProcess } = useCreateJobProcess();
 
   function AddBuildIcon({ material }) {

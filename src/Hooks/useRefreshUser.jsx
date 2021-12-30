@@ -51,6 +51,7 @@ export function useRefreshUser() {
     const charSettings = await determineUserState(refreshedUser, fbToken);
     refreshedUser.accountID = charSettings.accountID;
     refreshedUser.linkedJobs = charSettings.linkedJobs;
+    refreshedUser.linkedTrans = charSettings.linkedTrans;
 
     updateLoadingText((prevObj) => ({
       ...prevObj,

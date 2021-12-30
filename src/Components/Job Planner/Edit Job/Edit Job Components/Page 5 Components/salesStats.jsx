@@ -10,9 +10,15 @@ export function SalesStats() {
     (item) => (brokersFeesTotal += item.amount)
   );
   let transactionFeeTotal = 0;
+  let totalSale = 0;
   activeJob.build.sale.transactions.forEach(
-    (item) => (transactionFeeTotal += item.fee)
+    (item) => {
+      transactionFeeTotal += item.tax
+      totalSale += item.amount
+    }
   );
+
+
 
   return (
     <Paper
@@ -60,7 +66,7 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{marginBottom: "10px"}}>
           <Grid item xs={8}>
-            <Typography variant="body1">Total Build Cost:</Typography>
+            <Typography variant="body1">Total Job Cost:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
@@ -103,7 +109,7 @@ export function SalesStats() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
-            {activeJob.build.sale.totalSale.toLocaleString()}{" "}
+            {totalSale.toLocaleString()}{" "}
               ISK
             </Typography>
           </Grid>
@@ -116,7 +122,7 @@ export function SalesStats() {
             <Typography variant="body1" align="right">
             {(
                 Math.round(
-                  (activeJob.build.sale.totalSale /
+                  (totalSale /
                     activeJob.build.products.totalQuantity +
                     Number.EPSILON) *
                     100
@@ -133,7 +139,7 @@ export function SalesStats() {
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
             {(
-                activeJob.build.sale.totalSale -
+                totalSale -
                 (activeJob.build.costs.totalPurchaseCost +
                   activeJob.build.costs.installCosts +
                   activeJob.build.costs.extrasTotal +

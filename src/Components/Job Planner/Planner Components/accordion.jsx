@@ -157,7 +157,11 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
                       if (!j.linked) {
                         if (j.status === "active" && j.linked === false) {
                           return <ApiJobCard key={j.job_id} job={j} />;
+                        } else {
+                          return null
                         }
+                      } else {
+                        return null
                       }
                     })}
 
@@ -165,6 +169,8 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
                     apiJobs.map((j) => {
                       if (!j.linked && j.status === "delivered") {
                         return <ApiJobCard key={j.job_id} job={j} />;
+                      } else {
+                        return null
                       }
                     })}
                 </Grid>

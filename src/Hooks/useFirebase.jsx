@@ -25,6 +25,7 @@ export function useFirebase() {
           jobStatusArray: charData.data.jobStatusArray,
           jobArraySnapshot: [],
           linkedJobs: charData.data.linkedJobs,
+          linkedTrans: charData.data.linkedTrans
         };
       } catch (err) {
         console.log(err);
@@ -115,6 +116,7 @@ export function useFirebase() {
     updateDoc(doc(firestore, "Users", mainUser.accountID), {
       jobStatusArray: jobStatus,
       linkedJobs: mainUser.linkedJobs,
+      linkedTrans: mainUser.linkedTrans,
     });
   }, [isLoggedIn, mainUser]);
 

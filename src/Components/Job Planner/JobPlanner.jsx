@@ -107,7 +107,7 @@ export function JobPlanner() {
     if (jobSettingsTrigger) {
       return(
       <Suspense fallback={<LoadingPage/>}>
-        <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />;
+        <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
         </Suspense>
       )
     } else {

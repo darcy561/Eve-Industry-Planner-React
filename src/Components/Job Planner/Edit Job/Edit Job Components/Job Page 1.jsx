@@ -1,13 +1,6 @@
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../Context/JobContext";
-import { useCreateJobProcess } from "../../../../Hooks/useCreateJob";
-import { MdOutlineAddCircle, MdRemoveCircle } from "react-icons/md";
-import {
-  Box,
-  Icon,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import { Box } from "@mui/material";
 import { ManufacturingOptions } from "./Page 1 Components/maunfacturingOptions";
 import { ReactionOptions } from "./Page 1 Components/reactionOptions";
 import { RawResourceList } from "./Page 1 Components/rawResources";
@@ -15,7 +8,6 @@ import { ProductionStats } from "./Page 1 Components/productionStats";
 
 export function EditPage1({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
-  const { newJobProcess } = useCreateJobProcess();
 
   function OptionSwitch() {
     switch (activeJob.jobType) {

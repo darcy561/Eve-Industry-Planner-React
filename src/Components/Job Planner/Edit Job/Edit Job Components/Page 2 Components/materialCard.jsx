@@ -1,20 +1,9 @@
 import React, { useContext } from "react";
 import { Box, Container, Grid, Paper, Typography } from "@mui/material";
-
-import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { AddMaterialCost } from "./addMaterialCost";
 import { MaterialCost } from "./materialCost";
 
 export function MaterialCard({ material, setJobModified }) {
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-
-  let totalComplete = 0;
-
-  activeJob.build.materials.forEach((material) => {
-    if (material.quantityPurchased >= material.quantity) {
-      totalComplete++;
-    }
-  });
 
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>

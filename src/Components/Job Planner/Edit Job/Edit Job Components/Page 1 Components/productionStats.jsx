@@ -1,7 +1,6 @@
-import react, { useContext } from "react";
+import { useContext } from "react";
 import { Grid, Paper, Typography } from "@mui/material";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
-import { jobTypes } from "../../..";
 
 export function ProductionStats() {
   const { activeJob } = useContext(ActiveJobContext);

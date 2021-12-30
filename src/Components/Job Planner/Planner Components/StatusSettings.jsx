@@ -22,20 +22,20 @@ export function StatusSettings({
 
 
   return (
-    <Dialog open={statusSettingsTrigger}>
-      <DialogTitle>Settings</DialogTitle>
-      <Typography variant="body1">Name:</Typography>
+    <Dialog open={statusSettingsTrigger} PaperProps={{sx:{padding: "15px"}}}>
+      <DialogTitle align="center">Settings</DialogTitle>
+      <Typography variant="body2">Name:</Typography>
       <TextField
-        autoFocus={true}
+        variant="standard"
+        size="small"
         defaultValue={statusData.name}
         onChange={(e) => {
           updateStatusData((prev) => ({
             ...prev, name: e.target.value
           }));
         }}
-        variant="outlined"
       />
-      <Typography variant="body1">Display Open API Jobs:</Typography>
+      <Typography variant="body2">Display Open API Jobs:</Typography>
       <Switch
         checked={statusData.openAPIJobs}
         color="primary"
@@ -45,7 +45,7 @@ export function StatusSettings({
           }));
         }}
       />
-      <Typography variant="body1">Display Complete API Jobs:</Typography>
+      <Typography variant="body2">Display Complete API Jobs:</Typography>
       <Switch
         checked={statusData.completeAPIJobs}
         color="primary"

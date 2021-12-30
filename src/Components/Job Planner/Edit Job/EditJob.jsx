@@ -247,11 +247,11 @@ export default function EditJob({ updateJobSettingsTrigger }) {
                     <Divider />
                   </StepContent>
                 </Step>
-              );
+              )
             })}
           </Stepper>
         </Container>
       </Paper>
     </>
-  );
+  )
 }

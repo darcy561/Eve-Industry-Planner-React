@@ -46,23 +46,54 @@ export function useEveApi() {
       const indyJSON = await indyPromise.json();
       // const indyJSON = indyTestData;
 
-      indyJSON.forEach((job) => {
-        const nameMatch = searchData.find(
-          (item) => item.itemID === job.product_type_id
-        );
-        if (nameMatch !== undefined) {
-          job.product_name = nameMatch.name;
-        } else {
-          job.product_name = null;
-        }
-        if (userObj.linkedJobs.includes(job.job_id)) {
-          job.linked = true;
-        } else {
-          job.linked = false;
-        }
-      });
+    indyJSON.forEach((job) => {
+      const nameMatch = searchData.find(
+        (item) => item.itemID === job.product_type_id
+      );
 
-      return indyJSON;
+      if (nameMatch !== undefined) {
+        job.product_name = nameMatch.name;
+      } else {
+        job.product_name = null;
+      }
+      if (userObj.linkedJobs.includes(job.job_id)) {
+        job.linked = true;
+      } else {
+        job.linked = false;
+      }
+    });
+      
+    let filtered = indyJSON.filter((job) => 
+      job.completed_date == undefined || new Date() - Date.parse(job.completed_date) < 1209600000
+      );
+      
+    let idRequest = [];
+      
+    filtered.forEach((item) => {
+      if (
+        !eveIDs.includes(item.blueprint_location_id) &&
+        !idRequest.includes(item.blueprint_location_id)
+      ) {
+        idRequest.push(item.blueprint_location_id);
+      }
+      if (
+        !eveIDs.includes(item.station_id) &&
+        !idRequest.includes(item.station_id)
+      ) {
+        idRequest.push(item.station_id);
+      }
+      if (
+        !eveIDs.includes(item.facility_id) &&
+        !idRequest.includes(item.facility_id)
+      ) {
+        idRequest.push(item.facility_id);
+      }
+    });
+      if (idRequest.length !== 0) {
+        IDtoName(idRequest);
+      }
+
+      return filtered;
     } catch (err) {
       console.log(err);
       return [];
@@ -93,7 +124,9 @@ export function useEveApi() {
           idRequest.push(item.region_id);
         }
       });
-      IDtoName(idRequest);
+      if (idRequest.length !== 0) {
+        IDtoName(idRequest);
+      }
 
       return marketJSON;
     } catch (err) {
@@ -111,22 +144,24 @@ export function useEveApi() {
         const histPromise = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/orders/history/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
         );
+        const histJSON = await histPromise.json();
+        histJSON.forEach((item) => {
+          returnArray.push(item);
+        });
 
-        if (histPromise.status == 200) {
-          const histJSON = await histPromise.json();
-          histJSON.forEach((item) => {
-            returnArray.push(item);
-          });
-          pageCount++;
-        } else {
+        if (histJSON.length < 50) {
           pageCount = 11;
+        } else {
+          pageCount++;
         }
       } catch (err) {
         return [];
       }
     }
+    let filtered = returnArray.filter((item) =>
+      !item.is_buy_order)
 
-    returnArray.forEach((item) => {
+    filtered.forEach((item) => {
       if (
         !eveIDs.includes(item.location_id) &&
         !idRequest.includes(item.location_id)
@@ -141,10 +176,10 @@ export function useEveApi() {
       }
     });
 
-    if (idRequest.length != 0) {
+    if (idRequest.length !== 0) {
       IDtoName(idRequest);
     }
-    return returnArray;
+    return filtered;
   });
 
   const BlueprintLibrary = useCallback(async (userObj) => {
@@ -186,14 +221,15 @@ export function useEveApi() {
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/wallet/journal/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
         );
 
-        if (journalPromise.status == 200) {
-          const journalJSON = await journalPromise.json();
-          journalJSON.forEach((item) => {
-            returnArray.push(item);
-          });
-          pageCount++;
-        } else {
+        const journalJSON = await journalPromise.json();
+        journalJSON.forEach((item) => {
+          returnArray.push(item);
+        });
+
+        if (journalJSON.length < 50) {
           pageCount = 11;
+        } else {
+          pageCount++;
         }
       } catch (err) {
         console.log(err);
@@ -201,7 +237,7 @@ export function useEveApi() {
       }
     }
 
-    return returnArray
+    return returnArray;
   });
 
   const IDtoName = useCallback(async (idArray) => {

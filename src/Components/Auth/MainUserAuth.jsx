@@ -66,6 +66,7 @@ export function AuthMainUser() {
     const userSettings = await determineUserState(userObject, fbToken);
     userObject.accountID = userSettings.accountID;
     userObject.linkedJobs = userSettings.linkedJobs;
+    userObject.linkedTrans = userSettings.linkedTrans;
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -159,6 +160,7 @@ class MainUser {
     this.apiSkills = null;
     this.apiJobs = null;
     this.linkedJobs = [];
+    this.linkedTrans = [];
     this.apiOrders = null;
     this.apiHistOrders = null;
     this.apiBlueprints = null;

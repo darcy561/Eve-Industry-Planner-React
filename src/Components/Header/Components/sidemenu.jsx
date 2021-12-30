@@ -15,7 +15,7 @@ import { makeStyles } from "@mui/styles";
 import {
   IsLoggedInContext,
   MainUserContext,
-} from "../../../../Context/AuthContext";
+} from "../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -46,7 +46,7 @@ export function SideMenu(props) {
       }}
     >
       <Box className={classes.Box}>
-        <Hidden mdUp>
+        {/* <Hidden mdUp>
           <Typography align="center" variant="h5">
             Eve Industry Planner
           </Typography>
@@ -59,7 +59,7 @@ export function SideMenu(props) {
               <Typography variant="body1">{mainUser.CharacterName}</Typography>
             </Box>
           ) : null}
-        </Hidden>
+        </Hidden> */}
       </Box>
 
       <div className={classes.list}>
@@ -83,17 +83,6 @@ export function SideMenu(props) {
             }}
           >
             <ListItemText primary={"Job Planner"} />
-          </ListItem>
-          <Divider />
-          <ListItem
-            button
-            disabled
-            onClick={() => {
-              navigate("/itemtree");
-              setOpen(false);
-            }}
-          >
-            <ListItemText primary={"Item Tree"} />
           </ListItem>
           <Divider />
         </List>

@@ -133,7 +133,7 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
   }
   return (
     <Tooltip title="Click to open">
-      <Grid key={job.jobID} className={classes.Grid} item xs={6} md={4} lg={3} xl={2}>
+      <Grid key={job.jobID} className={classes.Grid} item xs={12} sm={6} md={4} lg={3}>
         <Card className={classes.Card} onClick={() => EditJobProcess(job)}>
           <Grid className={classes.Grid} container item xs={12}>
             <Grid className={classes.Header} item xs={12}>

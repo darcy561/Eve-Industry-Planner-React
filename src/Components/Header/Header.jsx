@@ -1,101 +1,89 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { login } from "../Auth/MainUserAuth";
-import {
-  Box,
-  CircularProgress,
-  Typography,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Hidden,
-} from "@mui/material";
-import { SideMenu } from "./Components/Side Menu/sidemenu";
+import { Box, Typography, AppBar, Toolbar, IconButton } from "@mui/material";
+import { SideMenu } from "./Components/sidemenu";
 import MenuIcon from "@mui/icons-material/Menu";
-import { makeStyles } from "@mui/styles";
-import { Search } from "../Header/Components/Search/Search";
-import { UserIcon } from "./Components/User/UserIcon";
+import { UserIcon } from "./Components/UserIcon";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { DataExchangeContext } from "../../Context/LayoutContext";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: "5px",
-  },
-  title: {
-    flexGrow: 1,
-  },
-  list: {
-    width: 250,
-  },
-  Box: {
-    height: "5%",
-  },
-}));
-
 export function Header() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { DataExchange } = useContext(DataExchangeContext);
-  const classes = useStyles();
+
   const [open, setOpen] = useState(false);
 
-  return <>
-    <AppBar position="static">
-      <Toolbar>
-        <IconButton
-
-          edge="start"
-          className={classes.menuButton}
-          color="inherit"
-          aria-label="menu"
-          onClick={() => {
-            setOpen(true);
+  return (
+    <>
+      <AppBar position="static">
+        <Toolbar
+          sx={{
+            paddingLeft: { xs: "8px", sm: "16px" },
+            paddingRight: { xs: "4px", sm: "8px" },
           }}
-          size="large">
-          <MenuIcon />
-        </IconButton>
+        >
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
 
-        <SideMenu open={open} setOpen={setOpen} />
-        
-        <Hidden mdDown>
-          <Typography variant="h5">
+          <SideMenu open={open} setOpen={setOpen} />
+
+          <Typography
+            align="center"
+            variant="h5"
+            sx={{ flexGrow: "1", display: { xs: "none", sm: "flex" } }}
+          >
             Eve Industry Planner
           </Typography>
-          <Typography variant="h6" className={classes.title}>
-          - Alpha
-          </Typography>
-        </Hidden>
+          {isLoggedIn ? (
+            <Typography
+              align="center"
+              variant="h6"
+              sx={{ flexGrow: "1", display: { xs: "flex", sm: "none" } }}
+            >
+              Eve Industry Planner
+            </Typography>
+          ) : (
+            <Typography
+              align="center"
+              variant="subtitle2"
+              sx={{ flexGrow: "1", display: { xs: "flex", sm: "none" } }}
+            >
+              Eve Industry Planner
+            </Typography>
+          )}
 
-        {DataExchange && <CircularProgress color="secondary" />}
-
-        <Search />
-
-        {isLoggedIn ? (
-          <UserIcon />
-        ):
-          <Box>
-            <picture>
-              <source
-                media="(max-width:900px)"
-                srcSet="../images/eve-sso-login-black-small.png"
-                alt=""
-                onClick={() => {
-                  login();
-                }}
-              />
-              <img
-                src="../images/eve-sso-login-black-large.png"
-                alt=""
-                onClick={() => {
-                  login();
-                }}
-              />
-            </picture>
-        </Box>
-        }
-      </Toolbar>
-    </AppBar>
-  </>;
-};
+          {isLoggedIn ? (
+            <UserIcon />
+          ) : (
+            <Box>
+              <picture>
+                <source
+                  media="(max-width:1025px)"
+                  srcSet="../images/eve-sso-login-black-small.png"
+                  alt=""
+                  onClick={() => {
+                    login();
+                  }}
+                />
+                <img
+                  src="../images/eve-sso-login-black-large.png"
+                  alt=""
+                  onClick={() => {
+                    login();
+                  }}
+                />
+              </picture>
+            </Box>
+          )}
+        </Toolbar>
+      </AppBar>
+    </>
+  );
+}

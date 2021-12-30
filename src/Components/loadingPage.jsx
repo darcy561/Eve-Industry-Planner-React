@@ -14,7 +14,7 @@ export function LoadingPage() {
       style={{ minHeight: "100vh", maxWidth:"100vw" }}
       spacing={8}
     >
-      <Grid item>
+      <Grid item align="center">
         <CircularProgress color="primary" />
       </Grid>
       <Grid>

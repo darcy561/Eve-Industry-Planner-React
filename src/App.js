@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Header } from "./Components/Header";
 import { Home } from "./Components/Home";
 import { JobPlanner } from "./Components/Job Planner";
@@ -29,6 +29,8 @@ import {
   grey,
   lightGreen,
 } from "@mui/material/colors";
+import { AccountsPage } from "./Components/Accounts/Accounts";
+import { SettingsPage } from "./Components/Settings/Settings";
 
 let theme = createTheme({
   palette: {
@@ -57,6 +59,11 @@ let theme = createTheme({
   },
 });
 theme = responsiveFontSizes(theme);
+
+// function PrivateRoute({ children }) {
+  
+//   return isLoggedIn ? children : <Navigate to="/login" />;
+// }
 
 export default function App() {
   return (
@@ -91,6 +98,14 @@ export default function App() {
                                     <Route
                                       path="/itemtree"
                                       element={<ItemTree />}
+                                    />
+                                    <Route
+                                      path="/accounts"
+                                      element={<AccountsPage />}
+                                    />
+                                    <Route
+                                      path="/settings"
+                                      element={<SettingsPage />}
                                     />
                                   </Routes>
                                 </BrowserRouter>

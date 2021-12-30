@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext, useState } from "react";
-import { UsersContext } from "../../../../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LinkOffIcon from "@mui/icons-material/LinkOff";
@@ -19,6 +19,7 @@ import LinkOffIcon from "@mui/icons-material/LinkOff";
 export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateShowAvailableOrders }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuClick = (event) => {
@@ -31,79 +32,81 @@ export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateSh
 
   let linkedMarketOrders = [];
   let replacementBrokersFees = [];
+  
+  if (isLoggedIn) {
+    activeJob.build.sale.marketOrders.forEach((order) => {
+      const user = users.find((u) => u.CharacterID === order.user_id);
 
-  activeJob.build.sale.marketOrders.forEach((order) => {
-    const user = users.find((u) => u.CharacterID === order.user_id);
+      const newOrderData = user.apiOrders.find(
+        (newOrder) => newOrder.order_id === order.order_id
+      );
 
-    const newOrderData = user.apiOrders.find(
-      (newOrder) => newOrder.order_id === order.order_id
-    );
-
-    const completedOrderData = user.apiHistOrders.find(
-      (histOrder) => histOrder.order_id === order.order_id
-    );
+      const completedOrderData = user.apiHistOrders.find(
+        (histOrder) => histOrder.order_id === order.order_id
+      );
 
 
 
-    if (newOrderData !== undefined && !order.complete) {
-      if (
-        order.duration !== newOrderData.duration ||
-        order.price !== newOrderData.price ||
-        order.range !== newOrderData.range ||
-        order.volume_remain !== newOrderData.volume_remain ||
-        order.issued !== newOrderData.issued
-      ) {
-        order.duration = newOrderData.duration;
-        order.price = newOrderData.price;
-        order.range = newOrderData.range;
-        order.volume_remain = newOrderData.volume_remain;
-        order.issued = newOrderData.issued;
-        order.timeStamps.push(newOrderData.issued);
+      if (newOrderData !== undefined && !order.complete) {
+        if (
+          order.duration !== newOrderData.duration ||
+          order.price !== newOrderData.price ||
+          order.range !== newOrderData.range ||
+          order.volume_remain !== newOrderData.volume_remain ||
+          order.issued !== newOrderData.issued
+        ) {
+          order.duration = newOrderData.duration;
+          order.price = newOrderData.price;
+          order.range = newOrderData.range;
+          order.volume_remain = newOrderData.volume_remain;
+          order.issued = newOrderData.issued;
+          order.timeStamps.push(newOrderData.issued);
 
-        user.apiJournal.forEach((entry) => {
-          if (
-            entry.ref_type === "brokers_fee" &&
-            Date.parse(newOrderData.issued) === Date.parse(entry.date)
-          ) {
-            entry.amount = Math.abs(entry.amount);
-            entry.order_id = order.order_id;
-            delete entry.balance;
-            activeJob.build.sale.brokersFee.push(entry);
-          }
+          user.apiJournal.forEach((entry) => {
+            if (
+              entry.ref_type === "brokers_fee" &&
+              Date.parse(newOrderData.issued) === Date.parse(entry.date)
+            ) {
+              entry.amount = Math.abs(entry.amount);
+              entry.order_id = order.order_id;
+              delete entry.balance;
+              activeJob.build.sale.brokersFee.push(entry);
+            }
+          });
+        }
+      }
+      if (newOrderData == undefined && !order.complete) {
+        order.duration = completedOrderData.duration;
+        order.price = completedOrderData.price;
+        order.range = completedOrderData.range;
+        order.volume_remain = completedOrderData.volume_remain;
+        order.issued = completedOrderData.issued;
+        order.complete = true;
+      }
+
+      linkedMarketOrders.push(order);
+    });
+
+    activeJob.build.sale.marketOrders.forEach((order) => {
+      const user = users.find((u) => u.CharacterID === order.user_id);
+
+      if (order.timeStamps.length !== activeJob.build.sale.brokersFee.length) {
+        order.timeStamps.forEach((stamp) => {
+          user.apiJournal.forEach((entry) => {
+            if (
+              entry.ref_type === "brokers_fee" &&
+              Date.parse(stamp) === Date.parse(entry.date)
+            ) {
+              entry.amount = Math.abs(entry.amount);
+              entry.order_id = order.order_id;
+              delete entry.balance;
+              replacementBrokersFees.push(entry);
+            }
+          });
         });
       }
-    }
-    if (newOrderData == undefined && !order.complete) {
-      order.duration = completedOrderData.duration;
-      order.price = completedOrderData.price;
-      order.range = completedOrderData.range;
-      order.volume_remain = completedOrderData.volume_remain;
-      order.issued = completedOrderData.issued;
-      order.complete = true;
-    }
-
-    linkedMarketOrders.push(order);
-  });
-
-  activeJob.build.sale.marketOrders.forEach((order) => {
-    const user = users.find((u) => u.CharacterID === order.user_id);
-
-    if (order.timeStamps.length !== activeJob.build.sale.brokersFee.length) {
-      order.timeStamps.forEach((stamp) => {
-        user.apiJournal.forEach((entry) => {
-          if (
-            entry.ref_type === "brokers_fee" &&
-            Date.parse(stamp) === Date.parse(entry.date)
-          ) {
-            entry.amount = Math.abs(entry.amount);
-            entry.order_id = order.order_id;
-            delete entry.balance;
-            replacementBrokersFees.push(entry);
-          }
-        });
-      });
-    }
-  });
+    });
+  }
 
   if (replacementBrokersFees.length !== 0) {
     activeJob.build.sale.brokersFee = replacementBrokersFees

@@ -1,15 +1,13 @@
-import React, { lazy, useContext, useEffect, useState, Suspense } from "react";
+import { lazy, useContext, useEffect, useState, Suspense } from "react";
 import { IsLoggedInContext, MainUserContext } from "../../Context/AuthContext";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
-import {
-  PageLoadContext,
-} from "../../Context/LayoutContext";
+import { PageLoadContext } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
+import { SearchBar } from "./Planner Components/searchbar";
+import { Grid } from "@mui/material";
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
-
-
 
 export let blueprintVariables = {
   me: [
@@ -39,7 +37,7 @@ export let blueprintVariables = {
     { value: 10, label: "20" },
   ],
   manStructure: [
-    { value: "Station", label: "Station"},
+    { value: "Station", label: "Station" },
     { value: "Medium", label: "Medium" },
     { value: "Large", label: "Large" },
     { value: "X-Large", label: "X-Large" },
@@ -100,19 +98,29 @@ export function JobPlanner() {
   }, []);
 
   if (pageLoad) {
-    return (
-      <LoadingPage/>
-    );
+    return <LoadingPage />;
   } else {
     if (jobSettingsTrigger) {
-      return(
-      <Suspense fallback={<LoadingPage/>}>
-        <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
+      return (
+        <Suspense fallback={<LoadingPage />}>
+          <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
         </Suspense>
-      )
+      );
     } else {
       return (
-        <PlannerAccordion updateJobSettingsTrigger={updateJobSettingsTrigger} />
+        <Grid container sx={{ marginTop: "10px" }}>
+          <Grid item container direction="column" spacing={2}>
+            <Grid item align="center">
+              <SearchBar />
+            </Grid>
+
+            <Grid item>
+              <PlannerAccordion
+                updateJobSettingsTrigger={updateJobSettingsTrigger}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
       );
     }
   }

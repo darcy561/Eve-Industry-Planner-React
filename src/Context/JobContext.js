@@ -54,7 +54,8 @@ export const JobArray = (props) => {
               "totalSale": 0,
               "markUp": 0,
               "transactions": [],
-              "brokersFee": []
+              "brokersFee": [],
+              "marketOrders": []
           },
           "materials": [
               {
@@ -153,7 +154,8 @@ export const JobArray = (props) => {
               "totalSale": 0,
               "markUp": 0,
               "transactions": [],
-              "brokersFee": []
+              "brokersFee": [],
+              "marketOrders": []
           },
           "materials": [
               {
@@ -422,7 +424,8 @@ export const JobArray = (props) => {
               "totalSale": 0,
               "markUp": 0,
               "transactions": [],
-              "brokersFee": []
+              "brokersFee": [],
+              "marketOrders": []
           },
           "materials": [
               {

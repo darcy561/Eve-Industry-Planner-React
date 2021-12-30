@@ -1,19 +1,19 @@
-import { Avatar, Box, Menu, MenuItem, Typography } from "@mui/material";
-import React, { useContext, useState } from "react";
+import { Avatar, Box, Grid, Menu, MenuItem, Typography } from "@mui/material";
+import { useContext, useState } from "react";
 import {
   IsLoggedInContext,
   MainUserContext,
   UsersContext,
-} from "../../../../Context/AuthContext";
+} from "../../../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
   JobArrayContext,
   JobStatusContext,
-} from "../../../../Context/JobContext";
-import { SnackBarDataContext } from "../../../../Context/LayoutContext";
+} from "../../../Context/JobContext";
+import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { auth } from "../../../../firebase";
+import { auth } from "../../../firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router";
 
@@ -101,35 +101,48 @@ export function UserIcon() {
   if (isLoggedIn) {
     return (
       <>
-          <Box sx={{display:{xs:"none", md:"block"}}} align="center" maxWidth="xs" onClick={openMenu}>
-            <Avatar
-              alt=""
-              src={`https://images.evetech.net/characters/${mainUser.CharacterID}/portrait`}
-            />
-            <Typography variant="body1">{mainUser.CharacterName}</Typography>
-          </Box>
+        <Box>
+          <Grid container direction="column">
+            <Grid item align="center">
+              <Avatar
+                alt=""
+                src={`https://images.evetech.net/characters/${mainUser.CharacterID}/portrait`}
+                onClick={openMenu}
+                sx={{
+                  height: { xs: "36px", sm:"48px" },
+                  width: { xs: "36px", sm:"48px" },
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Box>
 
-
-          <AccountCircleIcon
-            sx={{display:{sm:"block", md:"none"}}}
-            color="secondary"
-            fontSize="large"
-            onClick={openMenu}
-          />
         <Menu
           id="userMenu"
           anchorEl={anchor}
           keepMounted
           open={Boolean(anchor)}
           onClose={closeMenu}
+          onClick={closeMenu}
         >
-          <MenuItem disabled>Accounts</MenuItem>
-          <MenuItem disabled>Settings</MenuItem>
+          <MenuItem
+            disabled
+            onClick={() => {
+              navigate("/accounts");
+            }}
+          >
+            Accounts
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              navigate("/settings");
+            }}
+          >
+            Settings
+          </MenuItem>
           <MenuItem onClick={logout}>Log Out</MenuItem>
         </Menu>
       </>
     );
-  } else {
-    return null;
   }
 }

@@ -73,15 +73,14 @@ export function RawResourceList() {
   return (
     <Paper
       sx={{
-        paddingBottom: "10px",
-        paddingTop: "10px",
-        margin: "10px",
+        paddingBottom: "20px",
+        paddingTop: "20px",
       }}
       elevation={3}
       square={true}
     >
       <Container disableGutters={true}>
-        <Box sx={{marginBottom:"10px"}}>
+        <Box sx={{marginBottom:"20px"}}>
           <Grid
             container
             direction="row"

@@ -1,8 +1,12 @@
 import { useContext, useState } from "react";
-import { Grid } from "@mui/material";
+import { Container, Grid } from "@mui/material";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
-import { IsLoggedInContext, MainUserContext, UsersContext } from "../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  MainUserContext,
+  UsersContext,
+} from "../../../../Context/AuthContext";
 import { SalesStats } from "./Page 5 Components/salesStats";
 import { AvailableMarketOrders } from "./Page 5 Components/availableMarketOrders";
 import { LinkedMarketOrders } from "./Page 5 Components/linkedMarketOrders";
@@ -16,7 +20,7 @@ export function EditPage5({ setJobModified }) {
   const { users } = useContext(UsersContext);
   const { mainUser } = useContext(MainUserContext);
   const { eveIDs } = useContext(EveIDsContext);
-  const {isLoggedIn} = useContext(IsLoggedInContext)
+  const { isLoggedIn } = useContext(IsLoggedInContext);
 
   let itemOrderMatch = [];
 
@@ -77,42 +81,43 @@ export function EditPage5({ setJobModified }) {
   }
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} md={6}>
-        {activeJob.build.sale.marketOrders.length == 0 ||
-        showAvailableOrders ? (
+    <Container disableGutters maxWidth="false">
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={6}>
+          {activeJob.build.sale.marketOrders.length == 0 ||
+          showAvailableOrders ? (
             <AvailableMarketOrders
-            setJobModified={setJobModified}
-            itemOrderMatch={itemOrderMatch}
-            updateShowAvailableOrders={updateShowAvailableOrders}
-          />
-        ) : (
-          
-          <LinkedMarketOrders
-          setJobModified={setJobModified}
-          updateActiveOrder={updateActiveOrder}
-          updateShowAvailableOrders={updateShowAvailableOrders}
-        />
-        )}
-      </Grid>
+              setJobModified={setJobModified}
+              itemOrderMatch={itemOrderMatch}
+              updateShowAvailableOrders={updateShowAvailableOrders}
+            />
+          ) : (
+            <LinkedMarketOrders
+              setJobModified={setJobModified}
+              updateActiveOrder={updateActiveOrder}
+              updateShowAvailableOrders={updateShowAvailableOrders}
+            />
+          )}
+        </Grid>
 
-      <Grid item xs={12} md={6}>
-        <SalesStats />
-      </Grid>
-      <Grid item xs={12}>
-      <LinkedTransactions
-            setJobModified={setJobModified}
-            activeOrder={activeOrder}
-          />
-      </Grid>
-      <Grid item xs={12}>
+        <Grid item xs={12} md={6}>
+          <SalesStats />
+        </Grid>
+        <Grid item xs={12}>
           <AvailableTransactionData
             setJobModified={setJobModified}
             itemOrderMatch={itemOrderMatch}
             activeOrder={activeOrder}
             transactionData={transactionData}
           />
+        </Grid>
+        <Grid item xs={12}>
+          <LinkedTransactions
+            setJobModified={setJobModified}
+            activeOrder={activeOrder}
+          />
+        </Grid>
       </Grid>
-    </Grid>
+    </Container>
   );
 }

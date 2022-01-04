@@ -29,28 +29,17 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     return (
       <Paper
         sx={{
-          padding: "10px",
-          paddingTop: "10px",
+          padding: "20px",
           minHeight: "25vh",
         }}
         elevation={3}
         square={true}
       >
         <Grid container direction="row" sx={{ marginBottom: "10px" }}>
-          <Grid item xs={12} md={11}>
+          <Grid item xs={12}>
             <Typography variant="h5" color="primary" align="center">
               Available Jobs
             </Typography>
-          </Grid>
-          <Grid
-            item
-            md={1}
-            sx={{ display: { xs: "none", md: "block" } }}
-            align="right"
-          >
-            <IconButton>
-              <MoreVertIcon size="small" color="Secondary" />
-            </IconButton>
           </Grid>
         </Grid>
         {jobMatches.map((job) => {
@@ -139,33 +128,22 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     return (
       <Paper
         sx={{
-          padding: "10px",
-          paddingTop: "10px",
+          padding: "20px",
           minHeight: "25vh",
         }}
         elevation={3}
         square={true}
       >
         <Grid container direction="row" sx={{ marginBottom: "10px" }}>
-          <Grid item xs={12} md={11}>
+          <Grid item xs={12}>
             <Typography variant="h5" color="primary" align="center">
               Available Jobs
             </Typography>
           </Grid>
-          <Grid
-            item
-            md={1}
-            sx={{ display: { xs: "none", md: "block" } }}
-            align="right"
-          >
-            <IconButton>
-              <MoreVertIcon size="small" color="Secondary" />
-            </IconButton>
-          </Grid>
         </Grid>
         <Grid item xs={12} align="center">
           <Typography variant="body1">
-            You have linked the maximum number of API jobs, if you need to link
+            You have linked the maximum number of jobs from the API, if you need to link
             more increase the number of job slots used.
           </Typography>
         </Grid>
@@ -175,34 +153,25 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     return (
       <Paper
         sx={{
-          padding: "10px",
-          paddingTop: "10px",
+          padding: "20px",
           minHeight: "25vh",
         }}
         elevation={3}
         square={true}
       >
-        <Grid container direction="row" sx={{ marginBottom: "10px" }}>
-          <Grid item xs={12} md={11}>
-            <Typography variant="h5" color="primary" align="center">
-              Available Jobs
+        <Grid container >
+          <Grid container direction="row" item sx={{ marginBottom: "20px" }}>
+            <Grid item xs={12}>
+              <Typography variant="h5" color="primary" align="center">
+                Available Jobs
+              </Typography>
+            </Grid>
+          </Grid>
+          <Grid item xs={12} >
+            <Typography variant="body1" align="center">
+              There are no matching industry jobs from the API that match this job.
             </Typography>
           </Grid>
-          <Grid
-            item
-            md={1}
-            sx={{ display: { xs: "none", md: "block" } }}
-            align="right"
-          >
-            <IconButton>
-              <MoreVertIcon size="small" color="Secondary" />
-            </IconButton>
-          </Grid>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Typography variant="body1" >
-            No matching API jobs are currently found.
-          </Typography>
         </Grid>
       </Paper>
     );

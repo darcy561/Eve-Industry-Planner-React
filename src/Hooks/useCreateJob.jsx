@@ -112,7 +112,7 @@ export function useCreateJobProcess() {
           isLoggedIn && addNewJob(calculatedJob);
           calculatedJob.build.buildChar = mainUser.CharacterHash;
         }
-        console.log(calculatedJob);
+
         updateJobArray((prevArray) => [...prevArray, calculatedJob]);
         updateDataExchange(false);
         setSnackbarData((prev) => ({

@@ -20,7 +20,6 @@ export function ManufacturingOptions({ setJobModified }) {
       elevation={3}
       sx={{
         padding: "20px",
-        margin: "10px",
       }}
       square={true}
     >

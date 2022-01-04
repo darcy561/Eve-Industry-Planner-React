@@ -24,7 +24,8 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
             </Typography>
           </Grid>
         </Grid>
-        {activeJob.build.sale.transactions.map((tData) => {
+        {activeJob.build.sale.transactions.length !== 0 ? (
+          activeJob.build.sale.transactions.map((tData) => {
           return (
             <Grid
               key={tData.transaction_id}
@@ -102,7 +103,13 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
               </Grid>
             </Grid>
           );
-        })}
+          })) : (
+            <Grid item xs={12} align="center">
+            <Typography variant="body1">
+              There are currently no transactions linked to this market order.
+            </Typography>
+          </Grid>
+        )}
       </Grid>
     </Paper>
   );

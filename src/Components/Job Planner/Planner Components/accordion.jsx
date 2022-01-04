@@ -49,7 +49,11 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
   }
 
   return (
-    <Paper elevation={3} square={true}>
+    <Paper
+      elevation={3}
+      sx={{ marginRight: { md: "10px" }, marginLeft: { md: "10px" } }}
+      square={true}
+    >
       {jobStatus.map((status) => {
         return (
           <Accordion

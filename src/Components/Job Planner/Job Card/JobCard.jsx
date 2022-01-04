@@ -1,17 +1,13 @@
 import { useContext } from "react";
 import { ActiveJobContext } from "../../../Context/JobContext";
 import { jobTypes } from "..";
-import {
-  Box,
-  Card,
-  Grid,
-  Hidden,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, Card, Grid, Hidden, Tooltip, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../Hooks/useFirebase";
-import { LoadingTextContext, PageLoadContext } from "../../../Context/LayoutContext";
+import {
+  LoadingTextContext,
+  PageLoadContext,
+} from "../../../Context/LayoutContext";
 
 const useStyles = makeStyles((theme) => ({
   Card: {
@@ -21,23 +17,10 @@ const useStyles = makeStyles((theme) => ({
     padding: "5px",
     postion: "relative",
     cursor: "pointer",
-    "&:hover $focusHighlight": {
-      opacity: 1,
-      color: "blue",
-    },
   },
   Image: {
-    width: "80%",
     margin: "auto",
     display: "block",
-  },
-  Grid: {
-    background: "none",
-  },
-  Box: {
-    position: "absolute",
-    height: "100%",
-    width: "100%",
   },
   Header: {
     marginBottom: "10px",
@@ -60,7 +43,6 @@ const useStyles = makeStyles((theme) => ({
     borderBottomLeftRadius: "5px",
     borderBottomRightRadius: "5px",
   },
-  focusHighlight: {},
 }));
 
 // builds a single job card for each job in the job array, This is displayed on the job planner page. Called from jobplanner.jsx
@@ -74,9 +56,9 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
   async function EditJobProcess(job) {
     updateLoadingText((prevObj) => ({
       ...prevObj,
-      jobData: true
+      jobData: true,
     }));
-    updatePageLoad(true)
+    updatePageLoad(true);
     if (job.isSnapshot) {
       const jobEdit = await downloadCharacterJobs(job);
       job = jobEdit;
@@ -86,13 +68,13 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
     updatePageLoad(false);
     updateLoadingText((prevObj) => ({
       ...prevObj,
-      jobDataComp: true
+      jobDataComp: true,
     }));
     updateJobSettingsTrigger((prev) => !prev);
     updateLoadingText((prevObj) => ({
       ...prevObj,
       jobData: false,
-      jobDataComp: false
+      jobDataComp: false,
     }));
     // This function sets up the correct job to be changed and displays the popup window.
   }
@@ -102,48 +84,42 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
     if (job.jobType === jobTypes.manufacturing) {
       return (
         <Grid item xs={12} className={classes.JobTypeMan}>
-          <Box className={classes.Grid}>
-            <Typography align="center" variant="body2">
-              Manufacturing
-            </Typography>
-          </Box>
+          <Typography align="center" variant="body1">
+            Manufacturing
+          </Typography>
         </Grid>
       );
     }
     if (job.jobType === jobTypes.reaction) {
       return (
         <Grid item xs={12} className={classes.JobTypeReact}>
-          <Box className={classes.Grid}>
-            <Typography align="center" variant="body2">
-              Reaction
-            </Typography>
-          </Box>
+          <Typography align="center" variant="body1">
+            Reaction
+          </Typography>
         </Grid>
       );
     }
     if (job.jobType === jobTypes.pi) {
       return (
         <Grid item xs={12} className={classes.JobTypePI}>
-          <Box className={classes.Grid}>
-            <Typography variant="body2">Planetary Interaction</Typography>
-          </Box>
+          <Typography variant="body1">Planetary Interaction</Typography>
         </Grid>
       );
     }
   }
   return (
     <Tooltip title="Click to open">
-      <Grid key={job.jobID} className={classes.Grid} item xs={12} sm={6} md={4} lg={3}>
+      <Grid key={job.jobID} item xs={12} sm={6} md={4} lg={3}>
         <Card className={classes.Card} onClick={() => EditJobProcess(job)}>
-          <Grid className={classes.Grid} container item xs={12}>
+          <Grid container item xs={12}>
             <Grid className={classes.Header} item xs={12}>
               <Typography variant="h6" color="secondary" align="center">
                 {job.name}
               </Typography>
             </Grid>
-            <Grid className={classes.Grid} container item xs={12}>
+            <Grid container item xs={12}>
               <Hidden smDown>
-                <Grid className={classes.Grid} item sm={3}>
+                <Grid item sm={3}>
                   <Box>
                     <picture className={classes.Image}>
                       <source
@@ -161,26 +137,30 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
                   </Box>
                 </Grid>
               </Hidden>
-              <Grid className={classes.Grid} container item xs={12} sm={9}>
-                <Grid className={classes.Grid} container item xs={12}>
-                  <Grid className={classes.Grid} item xs={10}>
-                    <Typography variant="body2">Runs</Typography>
+              <Grid container item xs={12} sm={9}>
+                <Grid container item xs={12}>
+                  <Grid item xs={10}>
+                    <Typography variant="body1">Runs</Typography>
                   </Grid>
-                  <Grid className={classes.Grid} item xs={2}>
-                    <Typography variant="body2">{job.runCount}</Typography>
+                  <Grid item xs={2}>
+                    <Typography variant="body1">
+                      {job.runCount.toLocaleString()}
+                    </Typography>
                   </Grid>
                 </Grid>
-                <Grid className={classes.Grid} container item xs={12}>
-                  <Grid className={classes.Grid} item xs={10}>
-                    <Typography variant="body2">Job Slots</Typography>
+                <Grid container item xs={12}>
+                  <Grid item xs={10}>
+                    <Typography variant="body1">Job Slots</Typography>
                   </Grid>
-                  <Grid className={classes.Grid} item xs={2}>
-                    <Typography variant="body2">{job.jobCount}</Typography>
+                  <Grid item xs={2}>
+                    <Typography variant="body1">
+                      {job.jobCount.toLocaleString()}
+                    </Typography>
                   </Grid>
                 </Grid>
               </Grid>
             </Grid>
-            <Grid className={classes.Grid} container item xs={12}>
+            <Grid container item xs={12}>
               <SwitchJobTypeStyle job={job} />
             </Grid>
           </Grid>

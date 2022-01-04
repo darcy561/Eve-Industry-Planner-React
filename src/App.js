@@ -1,4 +1,4 @@
-import React from "react";
+import { useMemo, useState } from "react";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Header } from "./Components/Header";
 import { Home } from "./Components/Home";
@@ -29,45 +29,91 @@ import {
   grey,
   lightGreen,
 } from "@mui/material/colors";
+import CssBaseline from "@mui/material/CssBaseline"
 import { AccountsPage } from "./Components/Accounts/Accounts";
 import { SettingsPage } from "./Components/Settings/Settings";
 
-let theme = createTheme({
-  palette: {
-    type: "light",
-    primary: {
-      main: blue[600],
-    },
-    secondary: {
-      main: grey[600],
-    },
-    manufacturing: {
-      main: lightGreen[200],
-    },
-    reaction: {
-      main: deepPurple[100],
-    },
-    pi: {
-      main: blue[100],
-    },
-    baseMat: {
-      main: blueGrey[100],
-    },
-  },
-  typography: {
-    fontFamily: "Montserrat",
-  },
-});
-theme = responsiveFontSizes(theme);
-
-// function PrivateRoute({ children }) {
-  
-//   return isLoggedIn ? children : <Navigate to="/login" />;
-// }
 
 export default function App() {
+  const [mode, setMode] = useState(localStorage.getItem("theme"));
+
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
+      },
+    }),
+    []
+  );
+
+  const getDesignTokens = (mode) => ({
+    palette: {
+      typography: {
+        fontFamily: "Montserrat",
+      },
+      ...(mode === "light"
+        ? {
+            type: "light",
+            primary: {
+              main: blue[600],
+            },
+            secondary: {
+              main: grey[600],
+            },
+            manufacturing: {
+              main: lightGreen[200],
+            },
+            reaction: {
+              main: deepPurple[100],
+            },
+            pi: {
+              main: blue[100],
+            },
+            baseMat: {
+              main: blueGrey[100],
+            },
+          }
+        : {
+            type: "dark",
+            primary: {
+              main: blue[600],
+            },
+            secondary: {
+              main: grey[200],
+            },
+            manufacturing: {
+              main: lightGreen[300],
+            },
+            reaction: {
+              main: deepPurple[300],
+            },
+            pi: {
+              main: blue[100],
+            },
+            baseMat: {
+              main: blueGrey[100],
+            },
+            background: {
+              default: grey[900],
+              paper: grey[800],
+            },
+            text: {
+              primary: grey[200],
+              secondary: grey[800],
+              disabled: grey[200],
+              hint: grey[200]
+          },
+          divider: grey[700],
+          }),
+    },
+  });
+
+  let theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
+  theme = responsiveFontSizes(theme);
+
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <SnackbarData>
         <DialogData>
           <PageLoad>
@@ -84,7 +130,7 @@ export default function App() {
                                 <SnackBarNotification />
                                 <DialogBox />
                                 <BrowserRouter>
-                                  <Header />
+                                  <Header mode={mode} colorMode={colorMode} />
                                   <Routes>
                                     <Route path="/" element={<Home />} />
                                     <Route

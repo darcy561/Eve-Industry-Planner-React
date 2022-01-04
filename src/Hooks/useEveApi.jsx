@@ -64,7 +64,7 @@ export function useEveApi() {
     });
       
     let filtered = indyJSON.filter((job) => 
-      job.completed_date == undefined || new Date() - Date.parse(job.completed_date) < 1209600000
+      job.completed_date === undefined || new Date() - Date.parse(job.completed_date) < 1209600000
       );
       
     let idRequest = [];
@@ -149,7 +149,7 @@ export function useEveApi() {
           returnArray.push(item);
         });
 
-        if (histJSON.length < 50) {
+        if (histJSON.length < 2501) {
           pageCount = 11;
         } else {
           pageCount++;
@@ -226,7 +226,7 @@ export function useEveApi() {
           returnArray.push(item);
         });
 
-        if (journalJSON.length < 50) {
+        if (journalJSON.length < 2501) {
           pageCount = 11;
         } else {
           pageCount++;

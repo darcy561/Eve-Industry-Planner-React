@@ -9,7 +9,6 @@ export function ProductionStats() {
       elevation={3}
       sx={{
         padding: "20px",
-        margin: "10px",
       }}
       square={true}
     >

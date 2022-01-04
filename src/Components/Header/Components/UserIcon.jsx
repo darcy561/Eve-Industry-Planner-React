@@ -1,4 +1,4 @@
-import { Avatar, Box, Grid, Menu, MenuItem, Typography } from "@mui/material";
+import { Avatar, Box, Grid, Menu, MenuItem, Tooltip, Typography } from "@mui/material";
 import { useContext, useState } from "react";
 import {
   IsLoggedInContext,
@@ -98,21 +98,23 @@ export function UserIcon() {
     setAnchor(null);
   };
 
-  if (isLoggedIn) {
     return (
       <>
         <Box>
           <Grid container direction="column">
             <Grid item align="center">
+              <Tooltip title="Account" arrow>
               <Avatar
-                alt=""
+                alt="Account Logo"
                 src={`https://images.evetech.net/characters/${mainUser.CharacterID}/portrait`}
                 onClick={openMenu}
                 sx={{
                   height: { xs: "36px", sm:"48px" },
-                  width: { xs: "36px", sm:"48px" },
+                  width: { xs: "36px", sm: "48px" },
+                  marginRight: { sm: "20px"}
                 }}
-              />
+                />
+                </Tooltip>
             </Grid>
           </Grid>
         </Box>
@@ -134,6 +136,7 @@ export function UserIcon() {
             Accounts
           </MenuItem>
           <MenuItem
+            disabled
             onClick={() => {
               navigate("/settings");
             }}
@@ -144,5 +147,4 @@ export function UserIcon() {
         </Menu>
       </>
     );
-  }
 }

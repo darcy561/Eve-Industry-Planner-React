@@ -32,7 +32,7 @@ export function MaterialCost({ material, setJobModified }) {
     newArray.forEach((material) => {
       newTotal += material.purchasedCost;
     });
-    console.log(newTotal);
+
     updateActiveJob((prevObj) => ({
       ...prevObj,
       build: {

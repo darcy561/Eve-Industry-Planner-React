@@ -103,23 +103,24 @@ export function JobPlanner() {
     if (jobSettingsTrigger) {
       return (
         <Suspense fallback={<LoadingPage />}>
-          <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
+          <Grid container sx={{ marginTop: "10px" }}>
+            <Grid item>
+              <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
+            </Grid>
+          </Grid>
         </Suspense>
       );
     } else {
       return (
-        <Grid container sx={{ marginTop: "10px" }}>
-          <Grid item container direction="column" spacing={2}>
-            <Grid item align="center">
+        <Grid container direction="column" sx={{ marginTop: "5px" }} spacing={2}>
+            <Grid item>
               <SearchBar />
             </Grid>
-
             <Grid item>
               <PlannerAccordion
                 updateJobSettingsTrigger={updateJobSettingsTrigger}
               />
             </Grid>
-          </Grid>
         </Grid>
       );
     }

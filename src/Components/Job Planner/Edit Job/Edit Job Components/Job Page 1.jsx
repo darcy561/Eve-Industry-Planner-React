@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../Context/JobContext";
-import { Box } from "@mui/material";
+import { Container, Grid } from "@mui/material";
 import { ManufacturingOptions } from "./Page 1 Components/maunfacturingOptions";
 import { ReactionOptions } from "./Page 1 Components/reactionOptions";
 import { RawResourceList } from "./Page 1 Components/rawResources";
@@ -23,36 +23,24 @@ export function EditPage1({ setJobModified }) {
   }
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "row",
-        flexWrap: "wrap",
-      }}
+    <Container
+      disableGutters
+      maxWidth="false"
+      sx={{ width: "100%", marginTop: "20px" }}
     >
-      <Box
-        sx={{
-          flex: {
-            xs: "1 1 100%",
-            sm: "1 1 40%",
-            lg: "1 1 25%",
-          },
-        }}
-      >
-        <ProductionStats />
-        <OptionSwitch />
-      </Box>
-      <Box
-        sx={{
-          flex: {
-            xs: "1 1 100%",
-            sm: "1 1 60%",
-            lg: "1 1 75%",
-          },
-        }}
-      >
-        <RawResourceList />
-      </Box>
-    </Box>
+      <Grid container spacing={2}>
+        <Grid container direction="row" item xs={12} md={3} spacing={2}>
+          <Grid item xs={12}>
+            <ProductionStats />
+          </Grid>
+          <Grid item xs={12}>
+            <OptionSwitch />
+          </Grid>
+        </Grid>
+        <Grid item xs={12} md={9}>
+          <RawResourceList />
+        </Grid>
+      </Grid>
+    </Container>
   );
 }

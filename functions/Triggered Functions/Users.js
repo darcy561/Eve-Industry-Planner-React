@@ -24,6 +24,7 @@ exports.createUserData = functions.https.onCall((data, context) => {
             jobArraySnapshot: {},
             linkedJobs: [],
             linkedTrans: [],
+            linkedOrders: [],
         }
         admin.firestore().collection("Users").doc(context.auth.uid).set(setupData);
         functions.logger.log(`Account ${context.auth.uid} document created successfully`)

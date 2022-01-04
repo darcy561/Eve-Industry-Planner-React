@@ -67,6 +67,7 @@ export function AuthMainUser() {
     userObject.accountID = userSettings.accountID;
     userObject.linkedJobs = userSettings.linkedJobs;
     userObject.linkedTrans = userSettings.linkedTrans;
+    userObject.linkedOrders = userSettings.linkedOrders;
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -160,6 +161,7 @@ class MainUser {
     this.apiSkills = null;
     this.apiJobs = null;
     this.linkedJobs = [];
+    this.linkedOrders = [];
     this.linkedTrans = [];
     this.apiOrders = null;
     this.apiHistOrders = null;

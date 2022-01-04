@@ -43,6 +43,23 @@ export function EditPage5({ setJobModified }) {
           itemOrderMatch.push(order);
         }
       });
+      user.apiHistOrders.forEach((order) => {
+        if (
+          order.type_id === activeJob.itemID &&
+          !activeJob.build.sale.marketOrders.includes(order.order_id)
+        ) {
+          eveIDs.find((item) => {
+            if (item.id === order.location_id) {
+              order.user_id = user.CharacterID;
+              order.location_name = item.name;
+            }
+            if (item.id === order.region_id) {
+              order.region_name = item.name;
+            }
+          });
+          itemOrderMatch.push(order);
+        }
+      });
     });
   }
   let transactionData = [];
@@ -56,7 +73,6 @@ export function EditPage5({ setJobModified }) {
           order.location_id === trans.location_id &&
           order.type_id === trans.type_id &&
           !trans.is_buy &&
-          Date.parse(trans.date) > Date.parse(order.timeStamps[0]) &&
           !mainUser.linkedTrans.includes(trans.transaction_id)
       );
 

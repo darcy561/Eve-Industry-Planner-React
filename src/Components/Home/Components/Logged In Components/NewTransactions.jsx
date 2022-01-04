@@ -2,15 +2,21 @@ import { Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
 import { MainUserContext, UsersContext } from "../../../../Context/AuthContext";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
-import { JobArrayContext } from "../../../../Context/JobContext";
+import {
+  JobArrayContext,
+  JobStatusContext,
+} from "../../../../Context/JobContext";
 
 export function NewTransactions() {
   const { mainUser } = useContext(MainUserContext);
   const { users } = useContext(UsersContext);
   const { jobArray } = useContext(JobArrayContext);
   const { eveIDs } = useContext(EveIDsContext);
+  const { jobStatus } = useContext(JobStatusContext);
 
-  const filteredJobs = jobArray.filter((job) => job.jobStatus === 4);
+  const filteredJobs = jobArray.filter(
+    (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
+  );
 
   let itemOrderMatch = [];
   let transactionData = [];
@@ -20,7 +26,27 @@ export function NewTransactions() {
       user.apiOrders.forEach((order) => {
         if (
           order.type_id === job.itemID &&
-          !job.build.sale.marketOrders.includes(order.order_id)
+          mainUser.linkedOrders.includes(order.order_id) &&
+          !itemOrderMatch.find((item) => item.order_id === order.order_id)
+        ) {
+          eveIDs.find((item) => {
+            if (item.id === order.location_id) {
+              order.user_id = user.CharacterID;
+              order.location_name = item.name;
+            }
+            if (item.id === order.region_id) {
+              order.region_name = item.name;
+            }
+          });
+          itemOrderMatch.push(order);
+        }
+      });
+      
+      user.apiHistOrders.forEach((order) => {
+        if (
+          order.type_id === job.itemID &&
+          mainUser.linkedOrders.includes(order.order_id) &&
+          !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
           eveIDs.find((item) => {
             if (item.id === order.location_id) {
@@ -36,38 +62,40 @@ export function NewTransactions() {
       });
     });
 
-    //   job.forEach((order) => {
-    //     const user = users.find((u) => u.CharacterID === order.user_id);
+    itemOrderMatch.forEach((order) => {
+      const user = users.find((u) => u.CharacterID === order.user_id);
 
-    //     const itemTrans = user.apiTransactions.filter(
-    //       (trans) =>
-    //         order.location_id === trans.location_id &&
-    //         order.type_id === trans.type_id &&
-    //         !trans.is_buy &&
-    //         Date.parse(trans.date) > Date.parse(order.timeStamps[0]) &&
-    //         !mainUser.linkedTrans.includes(trans.transaction_id)
-    //     );
+      const itemTrans = user.apiTransactions.filter(
+        (trans) =>
+          order.location_id === trans.location_id &&
+          order.type_id === trans.type_id &&
+          !mainUser.linkedTrans.includes(trans.transaction_id) &&
+          !transactionData.find(
+            (item) => item.transaction_id === trans.transaction_id
+          )
+      );
 
-    //     itemTrans.forEach((trans) => {
-    //       const transJournal = user.apiJournal.find(
-    //         (entry) => trans.transaction_id === entry.context_id
-    //       );
+      itemTrans.forEach((trans) => {
+        const transJournal = user.apiJournal.find(
+          (entry) => trans.transaction_id === entry.context_id
+        );
 
-    //       const transTax = user.apiJournal.find(
-    //         (entry) =>
-    //           entry.ref_type === "transaction_tax" &&
-    //           Date.parse(entry.date) === Date.parse(trans.date)
-    //       );
-    //       trans.description = transJournal.description;
-    //       trans.amount = transJournal.amount;
-    //       trans.tax = Math.abs(transTax.amount);
-    //       trans.order_id = null;
+        const transTax = user.apiJournal.find(
+          (entry) =>
+            entry.ref_type === "transaction_tax" &&
+            Date.parse(entry.date) === Date.parse(trans.date)
+        );
+        trans.description = transJournal.description;
+        trans.amount = transJournal.amount;
+        trans.tax = Math.abs(transTax.amount);
 
-    //       transactionData.push(trans);
-    //     });
-    //   });
+        transactionData.push(trans);
+      });
+    });
   });
-  console.log(filteredJobs);
+
+  console.log(transactionData);
+
   return (
     <Paper
       elevation={3}

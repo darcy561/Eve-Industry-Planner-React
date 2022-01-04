@@ -50,6 +50,7 @@ class MainUser {
         this.apiSkills = null;
         this.apiJobs = null;
         this.linkedJobs = [];
+        this.linkedOrders = [];
         this.linkedTrans = [];
         this.apiOrders = null;
         this.apiHistOrders = null;

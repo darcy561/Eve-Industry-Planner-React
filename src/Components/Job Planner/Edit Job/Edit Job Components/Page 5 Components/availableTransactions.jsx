@@ -101,6 +101,7 @@ export function AvailableTransactionData({
                       }
                       newTransactionArray.push(tData);
                       mainUser.linkedTrans.push(tData.transaction_id);
+
                       updateActiveJob((prev) => ({
                         ...prev,
                         build: {

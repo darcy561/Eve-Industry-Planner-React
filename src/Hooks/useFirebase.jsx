@@ -25,6 +25,7 @@ export function useFirebase() {
           jobStatusArray: charData.data.jobStatusArray,
           jobArraySnapshot: [],
           linkedJobs: charData.data.linkedJobs,
+          linkedOrders: charData.data.linkedOrders,
           linkedTrans: charData.data.linkedTrans
         };
       } catch (err) {
@@ -117,6 +118,7 @@ export function useFirebase() {
       jobStatusArray: jobStatus,
       linkedJobs: mainUser.linkedJobs,
       linkedTrans: mainUser.linkedTrans,
+      linkedOrders: mainUser.linkedOrders
     });
   }, [isLoggedIn, mainUser]);
 

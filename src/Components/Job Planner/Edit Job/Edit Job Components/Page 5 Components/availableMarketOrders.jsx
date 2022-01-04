@@ -10,12 +10,13 @@ import {
 } from "@mui/material";
 import { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
-import { UsersContext } from "../../../../../Context/AuthContext";
+import { MainUserContext, UsersContext } from "../../../../../Context/AuthContext";
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export function AvailableMarketOrders({ setJobModified, itemOrderMatch, updateShowAvailableOrders }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { mainUser } = useContext(MainUserContext);
   const { users } = useContext(UsersContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -185,6 +186,8 @@ export function AvailableMarketOrders({ setJobModified, itemOrderMatch, updateSh
                           let newMarketOrderArray =
                             activeJob.build.sale.marketOrders;
                           newMarketOrderArray.push(order);
+                          mainUser.linkedOrders.push(order.order_id);
+
                           updateActiveJob((prev) => ({
                             ...prev,
                             build: {

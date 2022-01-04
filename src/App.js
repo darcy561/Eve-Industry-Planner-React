@@ -29,10 +29,10 @@ import {
   grey,
   lightGreen,
 } from "@mui/material/colors";
-import CssBaseline from "@mui/material/CssBaseline"
+import CssBaseline from "@mui/material/CssBaseline";
 import { AccountsPage } from "./Components/Accounts/Accounts";
 import { SettingsPage } from "./Components/Settings/Settings";
-
+import { Footer } from "./Components/Footer/Footer";
 
 export default function App() {
   const [mode, setMode] = useState(localStorage.getItem("theme"));
@@ -101,9 +101,9 @@ export default function App() {
               primary: grey[200],
               secondary: grey[800],
               disabled: grey[200],
-              hint: grey[200]
-          },
-          divider: grey[700],
+              hint: grey[200],
+            },
+            divider: grey[700],
           }),
     },
   });
@@ -154,6 +154,7 @@ export default function App() {
                                       element={<SettingsPage />}
                                     />
                                   </Routes>
+                                  <Footer />
                                 </BrowserRouter>
                               </EveIDs>
                             </ApiJobs>

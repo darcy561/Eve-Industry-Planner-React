@@ -19,7 +19,7 @@ export function LoggedInHome() {
       <Grid item xs={12} md={6} lg={4}>
         <AccountData />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} md={6} lg={8}>
         <NewTransactions/>
       </Grid>
     </Grid>

@@ -83,7 +83,7 @@ export function AccountData() {
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "5px" }}>
           <Grid item xs={8}>
-            <Typography variant="body2">Market Orders</Typography>
+            <Typography variant="body2">Open Market Orders</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">

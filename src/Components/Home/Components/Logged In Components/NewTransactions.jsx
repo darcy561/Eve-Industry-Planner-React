@@ -41,7 +41,7 @@ export function NewTransactions() {
           itemOrderMatch.push(order);
         }
       });
-      
+
       user.apiHistOrders.forEach((order) => {
         if (
           order.type_id === job.itemID &&
@@ -57,6 +57,7 @@ export function NewTransactions() {
               order.region_name = item.name;
             }
           });
+          order.item_name = job.name;
           itemOrderMatch.push(order);
         }
       });
@@ -88,37 +89,109 @@ export function NewTransactions() {
         trans.description = transJournal.description;
         trans.amount = transJournal.amount;
         trans.tax = Math.abs(transTax.amount);
+        trans.item_name = order.item_name;
 
         transactionData.push(trans);
       });
     });
   });
+  transactionData.sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  });
 
-  console.log(transactionData);
-
-  return (
-    <Paper
-      elevation={3}
-      sx={{
-        padding: "20px",
-        marginLeft: {
-          xs: "5px",
-          md: "10px",
-        },
-        marginRight: {
-          xs: "5px",
-          md: "10px",
-        },
-      }}
-      square={true}
-    >
-      <Grid container>
-        <Grid item xs={12}>
-          <Typography variant="h5" color="primary" align="center">
-            New Job Transactions
-          </Typography>
+  if (transactionData.length != 0) {
+    return (
+      <Paper
+        elevation={3}
+        sx={{
+          padding: "20px",
+          marginLeft: {
+            xs: "5px",
+            md: "10px",
+          },
+          marginRight: {
+            xs: "5px",
+            md: "10px",
+          },
+        }}
+        square={true}
+      >
+        <Grid container>
+          <Grid item xs={12} sx={{ marginBottom: "20px" }}>
+            <Typography variant="h5" color="primary" align="center">
+              New Job Transactions
+            </Typography>
+          </Grid>
+          <Grid container item xs={12}>
+            {transactionData.map((trans) => {
+              return (
+                <Grid
+                  key={trans.transaction_id}
+                  container
+                  item
+                  sx={{ marginBottom: "5px" }}
+                >
+                  <Grid item xs={3}>
+                    <Typography variant="body1">
+                      {new Date(trans.date).toLocaleString()}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Typography variant="body1" align="center">
+                      {trans.item_name}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Typography variant="body2" align="right">
+                      {trans.quantity} @ {trans.unit_price.toLocaleString()} ISK
+                    </Typography>
+                  </Grid>
+                </Grid>
+              );
+            })}
+          </Grid>
         </Grid>
-      </Grid>
-    </Paper>
-  );
+      </Paper>
+    );
+  } else {
+    return (
+      <Paper
+        elevation={3}
+        sx={{
+          padding: "20px",
+          marginLeft: {
+            xs: "5px",
+            md: "10px",
+          },
+          marginRight: {
+            xs: "5px",
+            md: "10px",
+          },
+        }}
+        square={true}
+      >
+        <Grid container>
+          <Grid item xs={12} sx={{ marginBottom: "20px" }}>
+            <Typography variant="h5" color="primary" align="center">
+              New Job Transactions
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Typography
+              variant="body1"
+              align="center"
+              sx={{ marginBottom: "10px" }}
+            >
+              There are currently no new transactions for your linked market
+              orders within the API data.
+            </Typography>
+            <Typography variant="body2" align="center">
+              Transaction data from the Eve Online API updates every 60
+              minuites, either refresh the current data or check back later.
+            </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+    );
+  }
 }

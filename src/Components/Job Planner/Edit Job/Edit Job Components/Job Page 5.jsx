@@ -4,7 +4,6 @@ import { ActiveJobContext } from "../../../../Context/JobContext";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import {
   IsLoggedInContext,
-  MainUserContext,
   UsersContext,
 } from "../../../../Context/AuthContext";
 import { SalesStats } from "./Page 5 Components/salesStats";
@@ -18,11 +17,12 @@ export function EditPage5({ setJobModified }) {
   const [showAvailableOrders, updateShowAvailableOrders] = useState(false);
   const [activeOrder, updateActiveOrder] = useState(null);
   const { users } = useContext(UsersContext);
-  const { mainUser } = useContext(MainUserContext);
   const { eveIDs } = useContext(EveIDsContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
 
   let itemOrderMatch = [];
+
+  const parentUser = users.find((i) => i.ParentUser === true);
 
   if (isLoggedIn) {
     users.forEach((user) => {
@@ -73,7 +73,7 @@ export function EditPage5({ setJobModified }) {
           order.location_id === trans.location_id &&
           order.type_id === trans.type_id &&
           !trans.is_buy &&
-          !mainUser.linkedTrans.includes(trans.transaction_id)
+          !parentUser.linkedTrans.includes(trans.transaction_id)
       );
 
       itemTrans.forEach((trans) => {

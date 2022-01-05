@@ -6,7 +6,6 @@ import {
 } from "@mui/material";
 import { useContext, useState } from "react";
 import {
-  MainUserContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
@@ -14,14 +13,11 @@ import AddIcon from "@mui/icons-material/Add";
 
 export function AvailableTransactionData({
   setJobModified,
-  itemOrderMatch,
   activeOrder,
-  updateShowAvailableTrans,
   transactionData
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { users } = useContext(UsersContext);
-  const { mainUser } = useContext(MainUserContext);
+  const { users} = useContext(UsersContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuClick = (event) => {
@@ -100,7 +96,8 @@ export function AvailableTransactionData({
                           activeJob.build.sale.marketOrders[0].order_id;
                       }
                       newTransactionArray.push(tData);
-                      mainUser.linkedTrans.push(tData.transaction_id);
+                      let parentUserIndex = users.find((i)=> i.ParentUser === true)
+                      users[parentUserIndex].linkedTrans.push(tData.transaction_id);
 
                       updateActiveJob((prev) => ({
                         ...prev,

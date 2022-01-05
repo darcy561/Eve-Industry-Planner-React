@@ -2,7 +2,6 @@ import { Avatar, Box, Grid, Menu, MenuItem, Tooltip, Typography } from "@mui/mat
 import { useContext, useState } from "react";
 import {
   IsLoggedInContext,
-  MainUserContext,
   UsersContext,
 } from "../../../Context/AuthContext";
 import {
@@ -12,14 +11,12 @@ import {
   JobStatusContext,
 } from "../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { auth } from "../../../firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router";
 
 export function UserIcon() {
   const { updateUsers } = useContext(UsersContext);
-  const { mainUser, updateMainUser } = useContext(MainUserContext);
   const [anchor, setAnchor] = useState(null);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateActiveJob } = useContext(ActiveJobContext);
@@ -32,7 +29,6 @@ export function UserIcon() {
   function logout() {
     updateIsLoggedIn(false);
     updateUsers([]);
-    updateMainUser({});
     updateJobArray([]);
     setJobStatus([
       {
@@ -98,6 +94,8 @@ export function UserIcon() {
     setAnchor(null);
   };
 
+  const parentUser = users.find((i)=> i.ParentUser === true)
+
     return (
       <>
         <Box>
@@ -106,7 +104,7 @@ export function UserIcon() {
               <Tooltip title="Account" arrow>
               <Avatar
                 alt="Account Logo"
-                src={`https://images.evetech.net/characters/${mainUser.CharacterID}/portrait`}
+                src={`https://images.evetech.net/characters/${parentUser.CharacterID}/portrait`}
                 onClick={openMenu}
                 sx={{
                   height: { xs: "36px", sm:"48px" },

@@ -1,6 +1,6 @@
 import { Avatar, Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
-import { MainUserContext, UsersContext } from "../../../../Context/AuthContext";
+import { UsersContext } from "../../../../Context/AuthContext";
 import {
   JobArrayContext,
   JobStatusContext,
@@ -8,9 +8,11 @@ import {
 
 export function AccountData() {
   const { users } = useContext(UsersContext);
-  const { mainUser } = useContext(MainUserContext);
   const { jobArray } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
+
+  const parentUser = users.find((i)=> i.ParentUser)
+
   return (
     <Paper
       elevation={3}
@@ -31,8 +33,8 @@ export function AccountData() {
         <Grid container item xs={12}>
           <Grid item xs={6}>
             <Avatar
-              alt={`${mainUser.CharacterName} portrait card`}
-              src={`https://images.evetech.net/characters/${mainUser.CharacterID}/portrait`}
+              alt={`${parentUser.CharacterName} portrait card`}
+              src={`https://images.evetech.net/characters/${parentUser.CharacterID}/portrait`}
               sx={{
                 height: {
                   xs: "60px",
@@ -87,7 +89,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {mainUser.apiOrders.length.toLocaleString()}
+              {parentUser.apiOrders.length.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
@@ -95,7 +97,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {mainUser.apiHistOrders.length.toLocaleString()}
+              {parentUser.apiHistOrders.length.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
@@ -103,7 +105,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {mainUser.apiJobs.length.toLocaleString()}
+              {parentUser.apiJobs.length.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
@@ -111,7 +113,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {mainUser.apiBlueprints.length.toLocaleString()}
+              {parentUser.apiBlueprints.length.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
@@ -119,7 +121,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {mainUser.apiTransactions.length.toLocaleString()}
+              {parentUser.apiTransactions.length.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
@@ -127,7 +129,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {mainUser.apiJournal.length.toLocaleString()}
+              {parentUser.apiJournal.length.toLocaleString()}
             </Typography>
           </Grid>
         </Grid>

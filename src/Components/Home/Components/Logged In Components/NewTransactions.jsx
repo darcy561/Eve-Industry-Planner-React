@@ -1,6 +1,6 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
-import { MainUserContext, UsersContext } from "../../../../Context/AuthContext";
+import { UsersContext } from "../../../../Context/AuthContext";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import {
   JobArrayContext,
@@ -8,7 +8,6 @@ import {
 } from "../../../../Context/JobContext";
 
 export function NewTransactions() {
-  const { mainUser } = useContext(MainUserContext);
   const { users } = useContext(UsersContext);
   const { jobArray } = useContext(JobArrayContext);
   const { eveIDs } = useContext(EveIDsContext);
@@ -18,6 +17,8 @@ export function NewTransactions() {
     (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
   );
 
+  const parentUser = users.find((i)=> i.ParentUser === true)
+
   let itemOrderMatch = [];
   let transactionData = [];
 
@@ -26,7 +27,7 @@ export function NewTransactions() {
       user.apiOrders.forEach((order) => {
         if (
           order.type_id === job.itemID &&
-          mainUser.linkedOrders.includes(order.order_id) &&
+          parentUser.linkedOrders.includes(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
           eveIDs.find((item) => {
@@ -45,7 +46,7 @@ export function NewTransactions() {
       user.apiHistOrders.forEach((order) => {
         if (
           order.type_id === job.itemID &&
-          mainUser.linkedOrders.includes(order.order_id) &&
+          parentUser.linkedOrders.includes(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
           eveIDs.find((item) => {
@@ -70,7 +71,7 @@ export function NewTransactions() {
         (trans) =>
           order.location_id === trans.location_id &&
           order.type_id === trans.type_id &&
-          !mainUser.linkedTrans.includes(trans.transaction_id) &&
+          !parentUser.linkedTrans.includes(trans.transaction_id) &&
           !transactionData.find(
             (item) => item.transaction_id === trans.transaction_id
           )

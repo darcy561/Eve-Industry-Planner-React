@@ -11,15 +11,14 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext, useState } from "react";
-import { IsLoggedInContext, MainUserContext, UsersContext } from "../../../../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LinkOffIcon from "@mui/icons-material/LinkOff";
 
 export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateShowAvailableOrders }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { mainUser, updateMainUser } = useContext(MainUserContext);
-  const { users } = useContext(UsersContext);
+  const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -273,18 +272,20 @@ export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateSh
                           );
                           newBrokerArray.splice(index, 1);
                         });
-                        const uIndex = mainUser.linkedTrans.findIndex(
+
+                        const parentUserIndex = users.findIndex((i)=> i.ParentUser === true)
+                        
+                        const uIndex = users[parentUserIndex].linkedTrans.findIndex(
                           (trans) => trans === order.order_id
                         );
 
-                        let newLinkedOrdersArray = mainUser.linkedOrders;
+                        let newUsersArray = users
 
-                        newLinkedOrdersArray.splice(uIndex, 1);
+                        newUsersArray[parentUserIndex].linkedOrders.splice(uIndex, 1);
     
-                        updateMainUser((prev) => ({
-                          ...prev,
-                          linkedOrders: newLinkedOrdersArray,
-                        }));
+                        updateUsers(newUsersArray)
+
+
 
                         updateActiveJob((prev) => ({
                           ...prev,

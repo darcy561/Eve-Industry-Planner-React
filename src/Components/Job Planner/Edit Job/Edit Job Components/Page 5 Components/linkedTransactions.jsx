@@ -2,11 +2,11 @@ import { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { Grid, IconButton, Paper, Typography } from "@mui/material";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { MainUserContext } from "../../../../../Context/AuthContext";
+import { UsersContext } from "../../../../../Context/AuthContext";
 
 export function LinkedTransactions({ setJobModified, activeOrder }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { mainUser, updateMainUser } = useContext(MainUserContext);
+  const { users, updateUsers } = useContext(UsersContext);
 
   return (
     <Paper
@@ -72,17 +72,18 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                     let newTransArray = activeJob.build.sale.transactions;
                     newTransArray.splice(tIndex, 1);
 
-                    const uIndex = mainUser.linkedTrans.findIndex(
+                    const parentUserIndex = users.find(
+                      (i) => i.ParentUser === true
+                    );
+
+                    const uIndex = users[parentUserIndex].linkedTrans.findIndex(
                       (trans) => trans === tData.transaction_id
                     );
-                    let newLinkedTransArray = mainUser.linkedTrans;
+                    let newUsersArray = users
 
-                    newLinkedTransArray.splice(uIndex, 1);
+                    newUsersArray[parentUserIndex].splice(uIndex, 1);
 
-                    updateMainUser((prev) => ({
-                      ...prev,
-                      linkedTrans: newLinkedTransArray,
-                    }));
+                    updateUsers(newUsersArray)
 
                     updateActiveJob((prev) => ({
                       ...prev,

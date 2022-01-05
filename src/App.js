@@ -119,7 +119,6 @@ export default function App() {
           <PageLoad>
             <LoadingText>
               <IsLoggedIn>
-                <MainUser>
                   <Users>
                     <DataExchange>
                       <ActiveJob>
@@ -163,7 +162,6 @@ export default function App() {
                       </ActiveJob>
                     </DataExchange>
                   </Users>
-                </MainUser>
               </IsLoggedIn>
             </LoadingText>
           </PageLoad>

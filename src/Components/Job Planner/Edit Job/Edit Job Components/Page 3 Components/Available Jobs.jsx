@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { MainUserContext } from "../../../../../Context/AuthContext";
+import { UsersContext } from "../../../../../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
@@ -14,11 +14,10 @@ import {
   Typography,
 } from "@mui/material";
 import { MdOutlineAddLink } from "react-icons/md";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export function AvailableJobs({ jobMatches, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { mainUser, updateMainUser } = useContext(MainUserContext);
+  const { users, updateUsers } = useContext(UsersContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
@@ -77,6 +76,10 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     onClick={() => {
                       setJobModified(true);
 
+                      const ParentUserIndex = users.findIndex((u) => u.ParentUser === true);
+
+                      let newUsersArray = users
+
                       const newActiveJobArray = activeJob.apiJobs;
                       newActiveJobArray.push(job.job_id);
                       updateActiveJob((prevObj) => ({
@@ -92,12 +95,8 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                         },
                       }));
 
-                      const newUserArray = mainUser.linkedJobs;
-                      newUserArray.push(job.job_id);
-                      updateMainUser((prevObj) => ({
-                        ...prevObj,
-                        linkedJobs: newUserArray,
-                      }));
+                      newUsersArray[ParentUserIndex].linkedJobs.push(job.job_id);
+                      updateUsers(newUsersArray);
 
                       const newApiArray = apiJobs;
                       const aA = newApiArray.findIndex(

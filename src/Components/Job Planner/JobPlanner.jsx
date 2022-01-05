@@ -1,5 +1,5 @@
 import { lazy, useContext, useEffect, useState, Suspense } from "react";
-import { IsLoggedInContext, MainUserContext } from "../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import { PageLoadContext } from "../../Context/LayoutContext";
@@ -76,25 +76,27 @@ export let jobTypes = {
 
 export function JobPlanner() {
   const [jobSettingsTrigger, updateJobSettingsTrigger] = useState(false);
-  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { mainUser } = useContext(MainUserContext);
-  const { refreshMainUser } = useRefreshUser();
+  const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { users, updateUsers } = useContext(UsersContext);
+  const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
   const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
 
   useEffect(async () => {
-    if (
-      mainUser.aTokenEXP <= Math.floor(Date.now() / 1000) ||
-      mainUser.aTokenEXP == null
-    ) {
-      if (localStorage.getItem("Auth") != null) {
-        refreshMainUser(localStorage.getItem("Auth"));
-      } else {
-        updateIsLoggedIn(false);
-        updatePageLoad(false);
+    let parentUser = users.find((u) => u.ParentUser === true) 
+
+    if (isLoggedIn) {
+      if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
+        let newUsersArray = users
+        const index = newUsersArray.findIndex((i) => i.ParentUser === true);
+        let newParentUser = await RefreshUserAToken(parentUser);
+        newUsersArray[index] = newParentUser
+        updateUsers(newUsersArray)
       }
-    } else {
       updatePageLoad(false);
+    } else {
+      reloadMainUser(localStorage.getItem("Auth"));
     }
+
   }, []);
 
   if (pageLoad) {
@@ -112,15 +114,20 @@ export function JobPlanner() {
       );
     } else {
       return (
-        <Grid container direction="column" sx={{ marginTop: "5px" }} spacing={2}>
-            <Grid item>
-              <SearchBar />
-            </Grid>
-            <Grid item>
-              <PlannerAccordion
-                updateJobSettingsTrigger={updateJobSettingsTrigger}
-              />
-            </Grid>
+        <Grid
+          container
+          direction="column"
+          sx={{ marginTop: "5px" }}
+          spacing={2}
+        >
+          <Grid item>
+            <SearchBar />
+          </Grid>
+          <Grid item>
+            <PlannerAccordion
+              updateJobSettingsTrigger={updateJobSettingsTrigger}
+            />
+          </Grid>
         </Grid>
       );
     }

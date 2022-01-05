@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { IsLoggedInContext, MainUserContext } from "../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import { LoggedInHome } from "./Components/LoggedIn";
 import { LoggedOutHome } from "./Components/LoggedOut";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
@@ -7,25 +7,27 @@ import { PageLoadContext } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 
 export function Home() {
-  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { mainUser } = useContext(MainUserContext);
-  const { refreshMainUser } = useRefreshUser();
+  const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { users, updateUsers } = useContext(UsersContext);
+  const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
   const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
 
   useEffect(async () => {
-    if (
-      mainUser.aTokenEXP <= Math.floor(Date.now() / 1000) ||
-      mainUser.aTokenEXP == null
-    ) {
-      if (localStorage.getItem("Auth") != null) {
-        refreshMainUser(localStorage.getItem("Auth"));
-      } else {
-        updateIsLoggedIn(false);
-        updatePageLoad(false);
+    let parentUser = users.find((u) => u.ParentUser === true) 
+
+    if (isLoggedIn) {
+      if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
+        let newUsersArray = users
+        const index = newUsersArray.findIndex((i) => i.ParentUser === true);
+        let newParentUser = await RefreshUserAToken(parentUser);
+        newUsersArray[index] = newParentUser
+        updateUsers(newUsersArray)
       }
-    } else {
       updatePageLoad(false);
+    } else {
+      reloadMainUser(localStorage.getItem("Auth"));
     }
+
   }, []);
 
   if (pageLoad) {

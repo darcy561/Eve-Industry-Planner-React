@@ -19,9 +19,6 @@ const useStyles = makeStyles((theme) => ({
     margin: "auto",
     display: "block",
   },
-  Grid: {
-    background: "none",
-  },
   Box: {
     position: "absolute",
     height: "100%",
@@ -48,17 +45,17 @@ export function ApiJobCard({ job }) {
   if (job.activity_id === 1) {
     return (
       <Tooltip title="Api Job, manually link this job to an existing job card." >
-        <Grid key={job.job_id} className={classes.Grid} item xs={6} md={4} lg={3} xl={2}>
+        <Grid key={job.job_id} item xs={16} sm={6} md={4} lg={3}>
           <Card className={classes.Card}>
-            <Grid className={classes.Grid} container item xs={12}>
+            <Grid container item xs={12}>
               <Grid className={classes.Header} item xs={12}>
                 <Typography variant="h6" align="center">
                   {job.product_name}
                 </Typography>
               </Grid>
-              <Grid className={classes.Grid} container item xs={12}>
+              <Grid container item xs={12}>
                 <Hidden smDown>
-                  <Grid className={classes.Grid} item sm={3}>
+                  <Grid item sm={3}>
                     <Box>
                       <Badge
                         overlap="circular"
@@ -88,28 +85,28 @@ export function ApiJobCard({ job }) {
                     </Box>
                   </Grid>
                 </Hidden>
-                <Grid className={classes.Grid} container item xs={12} sm={9}>
-                  <Grid className={classes.Grid} container item xs={12}>
-                    <Grid className={classes.Grid} item xs={10}>
-                      <Typography variant="body2">Runs</Typography>
+                <Grid container item xs={12} sm={9}>
+                  <Grid container item xs={12}>
+                    <Grid item xs={10}>
+                      <Typography variant="body1">Runs:</Typography>
                     </Grid>
-                    <Grid className={classes.Grid} item xs={2}>
+                    <Grid item xs={2}>
                       <Typography variant="body2">{job.runs}</Typography>
                     </Grid>
                   </Grid>
-                  <Grid className={classes.Grid} container item xs={12}>
-                    <Grid className={classes.Grid} item xs={4}>
-                      <Typography variant="body2">End</Typography>
+                  <Grid container item xs={12}>
+                    <Grid item xs={4}>
+                      <Typography variant="body1">Completed:</Typography>
                     </Grid>
-                    <Grid className={classes.Grid} item xs={8}>
-                      <Typography variant="body2">{`${new Date(job.end_date).toLocaleDateString()} ${new Date(job.end_date).toLocaleTimeString()}`}</Typography>
+                    <Grid item xs={8}>
+                      <Typography variant="body2" align="right">{new Date(job.end_date).toLocaleString()}</Typography>
                     </Grid>
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid className={classes.Grid} container item xs={12}>
+              <Grid container item xs={12}>
                 <Grid item xs={12} className={classes.JobTypeBg}>
-                  <Box className={classes.Grid}>
+                  <Box>
                     <Typography align="center" variant="body2">
                       API Job
                     </Typography>

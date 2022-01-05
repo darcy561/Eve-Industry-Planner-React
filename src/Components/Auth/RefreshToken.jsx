@@ -23,7 +23,7 @@ export async function RefreshTokens(rToken) {
 
             const decodedToken = jwt.decode(newTokenJSON.access_token);
               
-            const newUser = new MainUser(decodedToken, newTokenJSON);
+            const newUser = new User(decodedToken, newTokenJSON);
   
             localStorage.setItem("Auth", newTokenJSON.refresh_token);
             t.incrementMetric("RefreshSuccess", 1);
@@ -38,7 +38,7 @@ export async function RefreshTokens(rToken) {
         }         
 };
 
-class MainUser {
+class User {
     constructor(decodedToken, tokenJSON) {
         this.accountID = decodedToken.owner.replace(/[^a-zA-z0-9 ]/g,"");
         this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
@@ -46,12 +46,9 @@ class MainUser {
         this.CharacterName = decodedToken.name;
         this.aToken = tokenJSON.access_token;
         this.aTokenEXP = Number(decodedToken.exp);
-        this.ParentUser = true;
+        this.ParentUser = false;
         this.apiSkills = null;
         this.apiJobs = null;
-        this.linkedJobs = [];
-        this.linkedOrders = [];
-        this.linkedTrans = [];
         this.apiOrders = null;
         this.apiHistOrders = null;
         this.apiBlueprints = null;

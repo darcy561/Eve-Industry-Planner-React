@@ -22,7 +22,7 @@ export function useCreateJobProcess() {
   const { addNewJob } = useFirebase();
   const { CalculateResources } = useBlueprintCalc();
 
-  const newJobProcess = useCallback(async (itemID, itemQty) => {
+  const newJobProcess = async (itemID, itemQty) => {
     const t = trace(performance, "CreateJobProcessFull");
     t.start();
 
@@ -128,6 +128,6 @@ export function useCreateJobProcess() {
       t.incrementMetric("Complete", 1);
       t.stop();
     }
-  });
+  };
   return { newJobProcess };
 }

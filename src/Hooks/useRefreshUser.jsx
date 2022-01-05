@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useContext } from "react";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { useEveApi } from "./useEveApi";
@@ -14,12 +14,20 @@ import {
   UsersContext,
 } from "../Context/AuthContext";
 import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
+import jwt from "jsonwebtoken";
 import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 
 export function useRefreshUser() {
-  const { BlueprintLibrary, CharacterSkills, HistoricMarketOrders, IndustryJobs, MarketOrders, WalletTransactions, WalletJournal } =
-    useEveApi();
+  const {
+    BlueprintLibrary,
+    CharacterSkills,
+    HistoricMarketOrders,
+    IndustryJobs,
+    MarketOrders,
+    WalletTransactions,
+    WalletJournal,
+  } = useEveApi();
   const { determineUserState } = useFirebase();
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
@@ -30,7 +38,7 @@ export function useRefreshUser() {
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
 
-  const refreshMainUser = useCallback(async (refreshToken) => {
+  const reloadMainUser = async (refreshToken) => {
     const t = trace(performance, "MainUserRefreshProcessFull");
     t.start();
 
@@ -49,6 +57,7 @@ export function useRefreshUser() {
     }));
 
     const charSettings = await determineUserState(refreshedUser, fbToken);
+    refreshedUser.ParentUser = true;
     refreshedUser.accountID = charSettings.accountID;
     refreshedUser.linkedJobs = charSettings.linkedJobs;
     refreshedUser.linkedTrans = charSettings.linkedTrans;
@@ -67,7 +76,6 @@ export function useRefreshUser() {
     refreshedUser.apiBlueprints = await BlueprintLibrary(refreshedUser);
     refreshedUser.apiTransactions = await WalletTransactions(refreshedUser);
     refreshedUser.apiJournal = await WalletJournal(refreshedUser);
-
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -95,6 +103,43 @@ export function useRefreshUser() {
       apiDataComp: false,
     }));
     updatePageLoad(false);
-  });
-  return { refreshMainUser };
+  };
+
+  const RefreshUserAToken = async (user) => {
+
+    try {
+      const newTokenPromise = await fetch(
+        "https://login.eveonline.com/v2/oauth/token",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${btoa(
+              `${process.env.REACT_APP_eveClientID}:${process.env.REACT_APP_eveSecretKey}`
+            )}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+            Host: "login.eveonline.com",
+          },
+          body: `grant_type=refresh_token&refresh_token=${localStorage.getItem("Auth")}`,
+        }
+      );
+      const newTokenJSON = await newTokenPromise.json();
+
+      const decodedToken = jwt.decode(newTokenJSON.access_token);
+
+      user.aToken = newTokenJSON.access_token;
+      user.aTokenEXP = Number(decodedToken.exp);
+
+      if (user.ParentUser) {
+        localStorage.setItem("Auth", newTokenJSON.refresh_token);
+      } else {
+        localStorage.setItem(user.CharacterHash, newTokenJSON.refresh_token);
+      }
+
+      return user
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  return { RefreshUserAToken, reloadMainUser };
 }

@@ -19,10 +19,10 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { JobCard } from "../Job Card/JobCard";
+import { JobCard } from "../Job Cards/JobCard";
 import { StatusSettings } from "./StatusSettings";
 import { useFirebase } from "../../../Hooks/useFirebase";
-import { ApiJobCard } from "../Job Card/ApiJobCard";
+import { ApiJobCard } from "../Job Cards/ApiJobCard";
 
 export function PlannerAccordion({ updateJobSettingsTrigger }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);

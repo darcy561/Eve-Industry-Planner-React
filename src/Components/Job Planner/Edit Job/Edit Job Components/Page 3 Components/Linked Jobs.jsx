@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { MainUserContext } from "../../../../../Context/AuthContext";
+import { UsersContext } from "../../../../../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
@@ -17,7 +17,7 @@ import { MdOutlineLinkOff } from "react-icons/md";
 
 export function LinkedJobs({ linkedJobs, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { mainUser, updateMainUser } = useContext(MainUserContext);
+  const { users, updateUsers } = useContext(UsersContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
@@ -70,6 +70,11 @@ export function LinkedJobs({ linkedJobs, setJobModified }) {
                     color="primary"
                     size="small"
                     onClick={() => {
+
+                      const ParentUserIndex = users.findIndex((u) => u.ParentUser === true);
+
+                      let newUsersArray = users
+
                       setJobModified(true);
 
                       const newActiveJobArray = activeJob.apiJobs;
@@ -90,15 +95,13 @@ export function LinkedJobs({ linkedJobs, setJobModified }) {
                         },
                       }));
 
-                      const newUserArray = mainUser.linkedJobs;
-                      const uA = newUserArray.findIndex(
+                      
+                      const uA = newUsersArray[ParentUserIndex].linkedJobs.findIndex(
                         (y) => y === job.job_id
                       );
-                      newUserArray.splice(uA, 1);
-                      updateMainUser((prevObj) => ({
-                        ...prevObj,
-                        linkedJobs: newUserArray,
-                      }));
+                      newUsersArray[ParentUserIndex].linkedJobs.splice(uA, 1);
+
+                      updateUsers(newUsersArray)
 
                       const newApiArray = apiJobs;
                       const aA = newApiArray.findIndex(

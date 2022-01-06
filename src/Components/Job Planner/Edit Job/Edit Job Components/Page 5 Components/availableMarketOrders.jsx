@@ -13,11 +13,17 @@ import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 
-export function AvailableMarketOrders({ setJobModified, itemOrderMatch, updateShowAvailableOrders }) {
+export function AvailableMarketOrders({
+  setJobModified,
+  itemOrderMatch,
+  updateShowAvailableOrders,
+}) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const [anchorEl, setAnchorEl] = useState(null);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -26,7 +32,7 @@ export function AvailableMarketOrders({ setJobModified, itemOrderMatch, updateSh
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-  
+
   return (
     <Paper
       sx={{
@@ -90,7 +96,9 @@ export function AvailableMarketOrders({ setJobModified, itemOrderMatch, updateSh
                 </Grid>
                 <Grid container item>
                   <Grid item xs={4}>
-                    <Typography variant="body1">{order.price.toLocaleString()} ISK</Typography>
+                    <Typography variant="body1">
+                      {order.price.toLocaleString()} ISK
+                    </Typography>
                   </Grid>
                   <Grid item xs={8}>
                     <Typography variant="body1">
@@ -164,11 +172,12 @@ export function AvailableMarketOrders({ setJobModified, itemOrderMatch, updateSh
                         color="primary"
                         size="small"
                         onClick={() => {
-                          const ParentUserIndex = users.findIndex((i)=> i.ParentUser === true)
+                          const ParentUserIndex = users.findIndex(
+                            (i) => i.ParentUser === true
+                          );
                           const char = users.find(
                             (user) => user.CharacterID === order.user_id
                           );
-                          console.log(char);
                           let newBrokersArray = [];
                           char.apiJournal.forEach((entry) => {
                             if (
@@ -186,7 +195,9 @@ export function AvailableMarketOrders({ setJobModified, itemOrderMatch, updateSh
                           let newMarketOrderArray =
                             activeJob.build.sale.marketOrders;
                           newMarketOrderArray.push(order);
-                          users[ParentUserIndex].linkedOrders.push(order.order_id);
+                          users[ParentUserIndex].linkedOrders.push(
+                            order.order_id
+                          );
 
                           updateActiveJob((prev) => ({
                             ...prev,
@@ -198,6 +209,14 @@ export function AvailableMarketOrders({ setJobModified, itemOrderMatch, updateSh
                                 brokersFee: newBrokersArray,
                               },
                             },
+                          }));
+
+                          setSnackbarData((prev) => ({
+                            ...prev,
+                            open: true,
+                            message: "Linked",
+                            severity: "success",
+                            autoHideDuration: 1000,
                           }));
                           setJobModified(true);
                         }}

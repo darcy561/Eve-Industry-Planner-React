@@ -6,7 +6,7 @@ import { JobPlanner } from "./Components/Job Planner";
 import { ItemTree } from "./Components/item Tree";
 import { JobStatus, JobArray, ActiveJob, ApiJobs } from "./Context/JobContext";
 import { AuthMainUser } from "./Components/Auth/MainUserAuth";
-import { IsLoggedIn, MainUser, Users } from "./Context/AuthContext";
+import { IsLoggedIn, Users } from "./Context/AuthContext";
 import { EveIDs } from "./Context/EveDataContext";
 import {
   ThemeProvider,

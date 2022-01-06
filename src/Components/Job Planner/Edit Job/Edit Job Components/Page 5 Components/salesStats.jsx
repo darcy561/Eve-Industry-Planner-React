@@ -11,14 +11,10 @@ export function SalesStats() {
   );
   let transactionFeeTotal = 0;
   let totalSale = 0;
-  activeJob.build.sale.transactions.forEach(
-    (item) => {
-      transactionFeeTotal += item.tax
-      totalSale += item.amount
-    }
-  );
-
-
+  activeJob.build.sale.transactions.forEach((item) => {
+    transactionFeeTotal += item.tax;
+    totalSale += item.amount;
+  });
 
   return (
     <Paper
@@ -29,7 +25,7 @@ export function SalesStats() {
       square={true}
     >
       <Grid container direction="row">
-        <Grid container item xs={12}  sx={{marginBottom: "10px"}}>
+        <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
             <Typography variant="body1">Total Build Cost:</Typography>
           </Grid>
@@ -44,7 +40,7 @@ export function SalesStats() {
             </Typography>
           </Grid>
         </Grid>
-        <Grid container item xs={12} sx={{marginBottom: "10px"}}>
+        <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
             <Typography variant="body1">Brokers Fee Total:</Typography>
           </Grid>
@@ -54,7 +50,7 @@ export function SalesStats() {
             </Typography>
           </Grid>
         </Grid>
-        <Grid container item xs={12} sx={{marginBottom: "10px"}}>
+        <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
             <Typography variant="body1">Transaction Fee Total:</Typography>
           </Grid>
@@ -64,7 +60,7 @@ export function SalesStats() {
             </Typography>
           </Grid>
         </Grid>
-        <Grid container item xs={12} sx={{marginBottom: "10px"}}>
+        <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
             <Typography variant="body1">Total Job Cost:</Typography>
           </Grid>
@@ -80,14 +76,14 @@ export function SalesStats() {
               ISK
             </Typography>
           </Grid>
-              </Grid>
-              <Grid container item xs={12} sx={{marginBottom: "20px"}}>
+        </Grid>
+        <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
           <Grid item xs={8}>
             <Typography variant="body1">Total Cost Per Item:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
-            {(
+              {(
                 Math.round(
                   ((activeJob.build.costs.totalPurchaseCost +
                     activeJob.build.costs.installCosts +
@@ -102,28 +98,28 @@ export function SalesStats() {
               ISK
             </Typography>
           </Grid>
-              </Grid>
-              <Grid container item xs={12} sx={{marginBottom: "10px"}}>
+        </Grid>
+        <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
             <Typography variant="body1">Total Of Sales:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
-            {totalSale.toLocaleString()}{" "}
-              ISK
+              {totalSale.toLocaleString()} ISK
             </Typography>
           </Grid>
-              </Grid>
-              <Grid container item xs={12} sx={{marginBottom: "10px"}}>
+        </Grid>
+        <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
-            <Typography variant="body1">Average Sale Price Per Item:</Typography>
+            <Typography variant="body1">
+              Average Sale Price Per Item:
+            </Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
-            {(
+              {(
                 Math.round(
-                  (totalSale /
-                    activeJob.build.products.totalQuantity +
+                  (totalSale / activeJob.build.products.totalQuantity +
                     Number.EPSILON) *
                     100
                 ) / 100
@@ -131,14 +127,14 @@ export function SalesStats() {
               ISK
             </Typography>
           </Grid>
-              </Grid>
-              <Grid container item xs={12}>
+        </Grid>
+        <Grid container item xs={12}>
           <Grid item xs={8}>
             <Typography variant="body1">Profit/Loss:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
-            {(
+              {(
                 totalSale -
                 (activeJob.build.costs.totalPurchaseCost +
                   activeJob.build.costs.installCosts +

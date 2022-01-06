@@ -11,15 +11,24 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext, useState } from "react";
-import { IsLoggedInContext, UsersContext } from "../../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LinkOffIcon from "@mui/icons-material/LinkOff";
+import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 
-export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateShowAvailableOrders }) {
+export function LinkedMarketOrders({
+  setJobModified,
+  updateActiveOrder,
+  updateShowAvailableOrders,
+}) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuClick = (event) => {
@@ -32,7 +41,7 @@ export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateSh
 
   let linkedMarketOrders = [];
   let replacementBrokersFees = [];
-  
+
   if (isLoggedIn) {
     activeJob.build.sale.marketOrders.forEach((order) => {
       const user = users.find((u) => u.CharacterID === order.user_id);
@@ -44,8 +53,6 @@ export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateSh
       const completedOrderData = user.apiHistOrders.find(
         (histOrder) => histOrder.order_id === order.order_id
       );
-
-
 
       if (newOrderData !== undefined && !order.complete) {
         if (
@@ -108,7 +115,7 @@ export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateSh
   }
 
   if (replacementBrokersFees.length !== 0) {
-    activeJob.build.sale.brokersFee = replacementBrokersFees
+    activeJob.build.sale.brokersFee = replacementBrokersFees;
   }
 
   return (
@@ -173,7 +180,9 @@ export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateSh
               </Grid>
               <Grid container item>
                 <Grid item xs={4}>
-                  <Typography variant="body1">{order.price.toLocaleString()} ISK</Typography>
+                  <Typography variant="body1">
+                    {order.price.toLocaleString()} ISK
+                  </Typography>
                 </Grid>
                 <Grid item xs={8}>
                   <Typography variant="body1">
@@ -272,19 +281,30 @@ export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateSh
                           newBrokerArray.splice(index, 1);
                         });
 
-                        const parentUserIndex = users.findIndex((i)=> i.ParentUser === true)
-                        
-                        const uIndex = users[parentUserIndex].linkedTrans.findIndex(
+                        const parentUserIndex = users.findIndex(
+                          (i) => i.ParentUser === true
+                        );
+
+                        const uIndex = users[
+                          parentUserIndex
+                        ].linkedTrans.findIndex(
                           (trans) => trans === order.order_id
                         );
 
-                        let newUsersArray = users
+                        let newUsersArray = users;
 
-                        newUsersArray[parentUserIndex].linkedOrders.splice(uIndex, 1);
-    
-                        updateUsers(newUsersArray)
+                        newUsersArray[parentUserIndex].linkedOrders.splice(
+                          uIndex,
+                          1
+                        );
 
+                        activeJob.build.sale.transactions.forEach((trans) => {
+                          let newLinkedTrans = users[parentUserIndex].linkedTrans
+                          const tIndex = newUsersArray[parentUserIndex].linkedTrans.findIndex((i) => i === trans.order_id);
+                          newLinkedTrans.splice(tIndex, 1)
+                        })
 
+                        updateUsers(newUsersArray);
 
                         updateActiveJob((prev) => ({
                           ...prev,
@@ -294,9 +314,19 @@ export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateSh
                               ...prev.build.sale,
                               marketOrders: newOrderArray,
                               brokersFee: newBrokerArray,
+                              transactions: []
                             },
                           },
                         }));
+
+                        setSnackbarData((prev) => ({
+                          ...prev,
+                          open: true,
+                          message: "Unlinked",
+                          severity: "error",
+                          autoHideDuration: 1000,
+                        }));
+
                         setJobModified(true);
                       }}
                     >
@@ -304,21 +334,19 @@ export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateSh
                     </IconButton>
                   </Tooltip>
                 </Grid>
-                {
-                  (order.volume_remain === 0 && (
-                    <Box
-                      sx={{
-                        backgroundColor: "manufacturing.main",
-                        borderRadius: "5px",
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        padding: "8px",
-                      }}
-                    >
-                      <Typography variant="body1">Sold Out</Typography>
-                    </Box>
-                  ))
-                }
+                {order.volume_remain === 0 && (
+                  <Box
+                    sx={{
+                      backgroundColor: "manufacturing.main",
+                      borderRadius: "5px",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                      padding: "8px",
+                    }}
+                  >
+                    <Typography variant="body1">Sold Out</Typography>
+                  </Box>
+                )}
               </Grid>
             </Grid>
           );

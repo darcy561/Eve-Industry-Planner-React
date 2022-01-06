@@ -1,24 +1,19 @@
-import {
-  Grid,
-  IconButton,
-  Paper,
-  Typography,
-} from "@mui/material";
+import { Grid, IconButton, Paper, Typography } from "@mui/material";
 import { useContext, useState } from "react";
-import {
-  UsersContext,
-} from "../../../../../Context/AuthContext";
+import { UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
+import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 
 export function AvailableTransactionData({
   setJobModified,
   activeOrder,
-  transactionData
+  transactionData,
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { users} = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
   const [anchorEl, setAnchorEl] = useState(null);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -27,7 +22,6 @@ export function AvailableTransactionData({
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-
 
   return (
     <Paper
@@ -44,7 +38,6 @@ export function AvailableTransactionData({
               New Transactions
             </Typography>
           </Grid>
-
         </Grid>
         {transactionData.length !== 0 ? (
           transactionData.map((tData) => {
@@ -96,8 +89,12 @@ export function AvailableTransactionData({
                           activeJob.build.sale.marketOrders[0].order_id;
                       }
                       newTransactionArray.push(tData);
-                      let parentUserIndex = users.findIndex((i)=> i.ParentUser === true)
-                      users[parentUserIndex].linkedTrans.push(tData.transaction_id);
+                      let parentUserIndex = users.findIndex(
+                        (i) => i.ParentUser === true
+                      );
+                      users[parentUserIndex].linkedTrans.push(
+                        tData.transaction_id
+                      );
 
                       updateActiveJob((prev) => ({
                         ...prev,
@@ -108,6 +105,14 @@ export function AvailableTransactionData({
                             transactions: newTransactionArray,
                           },
                         },
+                      }));
+
+                      setSnackbarData((prev) => ({
+                        ...prev,
+                        open: true,
+                        message: "Linked",
+                        severity: "success",
+                        autoHideDuration: 1000,
                       }));
                       setJobModified(true);
                     }}

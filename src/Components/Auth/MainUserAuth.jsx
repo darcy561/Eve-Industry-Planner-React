@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { MainUserContext, UsersContext } from "../../Context/AuthContext";
+import { UsersContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
 import jwt from "jsonwebtoken";
@@ -33,8 +33,7 @@ export function AuthMainUser() {
   const { updateJobArray } = useContext(JobArrayContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const { updateMainUser } = useContext(MainUserContext);
-  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { BlueprintLibrary, CharacterSkills, HistoricMarketOrders, IndustryJobs, MarketOrders, WalletTransactions, WalletJournal } =
     useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
@@ -43,76 +42,75 @@ export function AuthMainUser() {
   const navigate = useNavigate();
 
   useEffect(async () => {
-    const t = trace(performance, "MainUserLoginProcessFull");
-    t.start();
-    const authCode = window.location.search.match(/code=(\S*)&/)[1];
-    const returnState = decodeURIComponent(
-      window.location.search.match(/state=(\S*)/)[1]
-    );
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      eveSSO: true
-    }));
+    if (!isLoggedIn) {
+      const t = trace(performance, "MainUserLoginProcessFull");
+      t.start();
+      const authCode = window.location.search.match(/code=(\S*)&/)[1];
+      const returnState = decodeURIComponent(
+        window.location.search.match(/state=(\S*)/)[1]
+      );
+      updateLoadingText((prevObj) => ({
+        ...prevObj,
+        eveSSO: true
+      }));
 
-    const userObject = await EveSSOTokens(authCode);
-    const fbToken = await firebaseAuth(userObject);
+      const userObject = await EveSSOTokens(authCode);
+      const fbToken = await firebaseAuth(userObject);
 
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      eveSSOComp: true,
-      charData: true 
-    }));
+      updateLoadingText((prevObj) => ({
+        ...prevObj,
+        eveSSOComp: true,
+        charData: true
+      }));
 
-    const userSettings = await determineUserState(userObject, fbToken);
-    userObject.accountID = userSettings.accountID;
-    userObject.linkedJobs = userSettings.linkedJobs;
-    userObject.linkedTrans = userSettings.linkedTrans;
-    userObject.linkedOrders = userSettings.linkedOrders;
+      const userSettings = await determineUserState(userObject, fbToken);
+      userObject.accountID = userSettings.accountID;
+      userObject.linkedJobs = userSettings.linkedJobs;
+      userObject.linkedTrans = userSettings.linkedTrans;
+      userObject.linkedOrders = userSettings.linkedOrders;
 
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      charDataComp: true,
-      apiData: true
-    }));
+      updateLoadingText((prevObj) => ({
+        ...prevObj,
+        charDataComp: true,
+        apiData: true
+      }));
 
-    userObject.apiSkills = await CharacterSkills(userObject);
-    userObject.apiJobs = await IndustryJobs(userObject);
-    userObject.apiOrders = await MarketOrders(userObject);
-    userObject.apiHistOrders = await HistoricMarketOrders(userObject);
-    userObject.apiBlueprints = await BlueprintLibrary(userObject);
-    userObject.apiTransactions = await WalletTransactions(userObject);
-    userObject.apiJournal = await WalletJournal(userObject);
+      userObject.apiSkills = await CharacterSkills(userObject);
+      userObject.apiJobs = await IndustryJobs(userObject);
+      userObject.apiOrders = await MarketOrders(userObject);
+      userObject.apiHistOrders = await HistoricMarketOrders(userObject);
+      userObject.apiBlueprints = await BlueprintLibrary(userObject);
+      userObject.apiTransactions = await WalletTransactions(userObject);
+      userObject.apiJournal = await WalletJournal(userObject);
 
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      apiDataComp: true  
-    }));
+      updateLoadingText((prevObj) => ({
+        ...prevObj,
+        apiDataComp: true
+      }));
 
-    console.log(userObject);
+      console.log(userObject);
 
-    setJobStatus(userSettings.jobStatusArray);
-    updateJobArray(userSettings.jobArraySnapshot);
-    updateApiJobs(userObject.apiJobs);
+      setJobStatus(userSettings.jobStatusArray);
+      updateJobArray(userSettings.jobArraySnapshot);
+      updateApiJobs(userObject.apiJobs);
+      updateUsers([userObject]);
 
-    updateIsLoggedIn(true);
-    const newArray = [...users];
-    newArray.push(userObject);
-    updateUsers(newArray);
-    updateMainUser(userObject);
-    updatePageLoad(false);
-    t.stop();
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      eveSSO: false,
-      eveSSOComp: false,
-      charData: false,
-      charDataComp: false,
-      apiData: false,
-      apiDataComp: false
-    }));
-    navigate(returnState);
+      updateIsLoggedIn(true);
+      updatePageLoad(false);
+      t.stop();
+      updateLoadingText((prevObj) => ({
+        ...prevObj,
+        eveSSO: false,
+        eveSSOComp: false,
+        charData: false,
+        charDataComp: false,
+        apiData: false,
+        apiDataComp: false
+      }));
+      navigate(returnState);
+    }
   }, []);
-
+  
   return (
       <LoadingPage/>
   )

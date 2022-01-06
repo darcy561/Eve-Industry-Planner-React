@@ -33,13 +33,15 @@ export function EditPage5({ setJobModified }) {
         ) {
           eveIDs.find((item) => {
             if (item.id === order.location_id) {
-              order.user_id = user.CharacterID;
+
               order.location_name = item.name;
             }
             if (item.id === order.region_id) {
               order.region_name = item.name;
             }
           });
+          order.timeStamps = [];
+          order.user_id = user.CharacterID;
           itemOrderMatch.push(order);
         }
       });
@@ -48,15 +50,18 @@ export function EditPage5({ setJobModified }) {
           order.type_id === activeJob.itemID &&
           !activeJob.build.sale.marketOrders.includes(order.order_id)
         ) {
+
           eveIDs.find((item) => {
             if (item.id === order.location_id) {
-              order.user_id = user.CharacterID;
-              order.location_name = item.name;
+
+              order.location_name = item.name
             }
             if (item.id === order.region_id) {
-              order.region_name = item.name;
+              order.region_name = item.name
             }
           });
+          order.timeStamps = [];
+          order.user_id = user.CharacterID;
           itemOrderMatch.push(order);
         }
       });

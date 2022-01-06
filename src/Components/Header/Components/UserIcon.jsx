@@ -16,7 +16,7 @@ import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router";
 
 export function UserIcon() {
-  const { updateUsers } = useContext(UsersContext);
+  const { users, updateUsers } = useContext(UsersContext);
   const [anchor, setAnchor] = useState(null);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateActiveJob } = useContext(ActiveJobContext);
@@ -78,6 +78,7 @@ export function UserIcon() {
     localStorage.clear();
     signOut(auth);
     navigate("/");
+    updateIsLoggedIn(false);
     setSnackbarData((prev) => ({
       ...prev,
       open: true,
@@ -94,7 +95,7 @@ export function UserIcon() {
     setAnchor(null);
   };
 
-  const parentUser = users.find((i)=> i.ParentUser === true)
+  const parentUser = users.find((i) => i.ParentUser === true)
 
     return (
       <>

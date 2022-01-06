@@ -89,7 +89,6 @@ export function LinkedMarketOrders({ setJobModified, updateActiveOrder, updateSh
 
     activeJob.build.sale.marketOrders.forEach((order) => {
       const user = users.find((u) => u.CharacterID === order.user_id);
-
       if (order.timeStamps.length !== activeJob.build.sale.brokersFee.length) {
         order.timeStamps.forEach((stamp) => {
           user.apiJournal.forEach((entry) => {

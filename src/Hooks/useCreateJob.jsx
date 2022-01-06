@@ -1,11 +1,12 @@
-import { useCallback, useContext } from "react";
+import { useContext } from "react";
 import {
   SnackBarDataContext,
   DialogDataContext,
   DataExchangeContext,
 } from "../Context/LayoutContext";
+import {UsersContext} from "../Context/AuthContext"
 import { JobArrayContext } from "../Context/JobContext";
-import { IsLoggedInContext, MainUserContext } from "../Context/AuthContext";
+import { IsLoggedInContext } from "../Context/AuthContext";
 import { createJob } from "../Components/Job Planner/JobBuild";
 import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
@@ -18,9 +19,11 @@ export function useCreateJobProcess() {
   const { updateDialogData } = useContext(DialogDataContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { mainUser } = useContext(MainUserContext);
+  const {users} = useContext(UsersContext)
   const { addNewJob } = useFirebase();
   const { CalculateResources } = useBlueprintCalc();
+
+  const parentUser = users.find((i)=> i.ParentUser === true)
 
   const newJobProcess = async (itemID, itemQty) => {
     const t = trace(performance, "CreateJobProcessFull");
@@ -110,7 +113,7 @@ export function useCreateJobProcess() {
         
         if (isLoggedIn) {
           isLoggedIn && addNewJob(calculatedJob);
-          calculatedJob.build.buildChar = mainUser.CharacterHash;
+          calculatedJob.build.buildChar = parentUser.CharacterHash;
         }
 
         updateJobArray((prevArray) => [...prevArray, calculatedJob]);

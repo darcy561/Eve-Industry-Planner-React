@@ -11,9 +11,6 @@ export function EditPage3({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { apiJobs } = useContext(ApiJobsContext);
 
-  const linkedJobs = apiJobs.filter((job) =>
-    activeJob.apiJobs.includes(job.job_id)
-  );
   const jobMatches = apiJobs.filter(
     (job) =>
       activeJob.itemID === job.product_type_id &&
@@ -32,7 +29,7 @@ export function EditPage3({ setJobModified }) {
           />
         </Grid>
         <Grid item xs={12} md={6}>
-          <LinkedJobs linkedJobs={linkedJobs} setJobModified={setJobModified} />
+          <LinkedJobs setJobModified={setJobModified} />
         </Grid>
       </Grid>
     </Container>

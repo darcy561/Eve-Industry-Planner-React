@@ -31,6 +31,7 @@ class Job {
         totalPurchaseCost: 0,
         extrasCosts: [],
         extrasTotal: 0,
+        linkedJobs: [],
         installCosts: 0
       },
       sale: {

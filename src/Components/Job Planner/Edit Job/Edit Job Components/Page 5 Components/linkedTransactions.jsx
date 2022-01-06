@@ -72,16 +72,17 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                     let newTransArray = activeJob.build.sale.transactions;
                     newTransArray.splice(tIndex, 1);
 
-                    const parentUserIndex = users.find(
+                    const parentUserIndex = users.findIndex(
                       (i) => i.ParentUser === true
                     );
 
                     const uIndex = users[parentUserIndex].linkedTrans.findIndex(
                       (trans) => trans === tData.transaction_id
                     );
+
                     let newUsersArray = users
 
-                    newUsersArray[parentUserIndex].splice(uIndex, 1);
+                    newUsersArray[parentUserIndex].linkedTrans.splice(uIndex, 1);
 
                     updateUsers(newUsersArray)
 

@@ -168,7 +168,7 @@ export function AvailableMarketOrders({ setJobModified, itemOrderMatch, updateSh
                           const char = users.find(
                             (user) => user.CharacterID === order.user_id
                           );
-                          order.timeStamps = [order.issued];
+                          console.log(char);
                           let newBrokersArray = [];
                           char.apiJournal.forEach((entry) => {
                             if (

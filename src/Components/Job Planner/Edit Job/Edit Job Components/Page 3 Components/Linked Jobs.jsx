@@ -15,13 +15,13 @@ import {
 } from "@mui/material";
 import { MdOutlineLinkOff } from "react-icons/md";
 
-export function LinkedJobs({ linkedJobs, setJobModified }) {
+export function LinkedJobs({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
-  if (linkedJobs != 0) {
+  if (activeJob.build.costs.linkedJobs != 0) {
     return (
       <Paper
         sx={{
@@ -38,7 +38,7 @@ export function LinkedJobs({ linkedJobs, setJobModified }) {
             </Typography>
           </Grid>
         </Grid>
-        {linkedJobs.map((job) => {
+        {activeJob.build.costs.linkedJobs.map((job) => {
           return (
             <Grid
               key={job.job_id}
@@ -70,10 +70,11 @@ export function LinkedJobs({ linkedJobs, setJobModified }) {
                     color="primary"
                     size="small"
                     onClick={() => {
+                      const ParentUserIndex = users.findIndex(
+                        (u) => u.ParentUser === true
+                      );
 
-                      const ParentUserIndex = users.findIndex((u) => u.ParentUser === true);
-
-                      let newUsersArray = users
+                      let newUsersArray = users;
 
                       setJobModified(true);
 
@@ -82,6 +83,14 @@ export function LinkedJobs({ linkedJobs, setJobModified }) {
                         (x) => x === job.job_id
                       );
                       newActiveJobArray.splice(aJ, 1);
+                      const linkedJobsArrayIndex =
+                        activeJob.build.costs.linkedJobs.findIndex(
+                          (i) => i.job_id === job.job_id
+                        );
+                      let newLinkedJobsArray = activeJob.build.costs.linkedJobs;
+
+                      newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
+
                       updateActiveJob((prevObj) => ({
                         ...prevObj,
                         apiJobs: newActiveJobArray,
@@ -89,19 +98,19 @@ export function LinkedJobs({ linkedJobs, setJobModified }) {
                           ...prevObj.build,
                           costs: {
                             ...prevObj.build.costs,
+                            linkedJobs: newLinkedJobsArray,
                             installCosts: (activeJob.build.costs.installCosts -=
                               job.cost),
                           },
                         },
                       }));
 
-                      
-                      const uA = newUsersArray[ParentUserIndex].linkedJobs.findIndex(
-                        (y) => y === job.job_id
-                      );
+                      const uA = newUsersArray[
+                        ParentUserIndex
+                      ].linkedJobs.findIndex((y) => y === job.job_id);
                       newUsersArray[ParentUserIndex].linkedJobs.splice(uA, 1);
 
-                      updateUsers(newUsersArray)
+                      updateUsers(newUsersArray);
 
                       const newApiArray = apiJobs;
                       const aA = newApiArray.findIndex(
@@ -140,13 +149,14 @@ export function LinkedJobs({ linkedJobs, setJobModified }) {
       >
         <Grid container>
           <Grid item sx={{ marginBottom: "20px" }} xs={12}>
-              <Typography variant="h5" color="primary" align="center">
-                Linked Jobs
-              </Typography>
+            <Typography variant="h5" color="primary" align="center">
+              Linked Jobs
+            </Typography>
           </Grid>
           <Grid item xs={12}>
             <Typography variant="body1" align="center">
-              You currently have no industry jobs from the API linked to the this job.
+              You currently have no industry jobs from the API linked to the
+              this job.
             </Typography>
           </Grid>
         </Grid>

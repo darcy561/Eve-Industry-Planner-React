@@ -76,12 +76,19 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     onClick={() => {
                       setJobModified(true);
 
-                      const ParentUserIndex = users.findIndex((u) => u.ParentUser === true);
+                      const ParentUserIndex = users.findIndex(
+                        (u) => u.ParentUser === true
+                      );
 
-                      let newUsersArray = users
+                      let newUsersArray = users;
 
                       const newActiveJobArray = activeJob.apiJobs;
                       newActiveJobArray.push(job.job_id);
+
+                      let newLinkedJobsArray = activeJob.build.costs.linkedJobs;
+
+                      newLinkedJobsArray.push(job);
+
                       updateActiveJob((prevObj) => ({
                         ...prevObj,
                         apiJobs: newActiveJobArray,
@@ -89,13 +96,16 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                           ...prevObj.build,
                           costs: {
                             ...prevObj.build.costs,
+                            linkedJobs: newLinkedJobsArray,
                             installCosts: (activeJob.build.costs.installCosts +=
                               job.cost),
                           },
                         },
                       }));
 
-                      newUsersArray[ParentUserIndex].linkedJobs.push(job.job_id);
+                      newUsersArray[ParentUserIndex].linkedJobs.push(
+                        job.job_id
+                      );
                       updateUsers(newUsersArray);
 
                       const newApiArray = apiJobs;
@@ -142,8 +152,8 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
         </Grid>
         <Grid item xs={12} align="center">
           <Typography variant="body1">
-            You have linked the maximum number of jobs from the API, if you need to link
-            more increase the number of job slots used.
+            You have linked the maximum number of jobs from the API, if you need
+            to link more increase the number of job slots used.
           </Typography>
         </Grid>
       </Paper>
@@ -158,7 +168,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
         elevation={3}
         square={true}
       >
-        <Grid container >
+        <Grid container>
           <Grid container direction="row" item sx={{ marginBottom: "20px" }}>
             <Grid item xs={12}>
               <Typography variant="h5" color="primary" align="center">
@@ -166,9 +176,10 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
               </Typography>
             </Grid>
           </Grid>
-          <Grid item xs={12} >
+          <Grid item xs={12}>
             <Typography variant="body1" align="center">
-              There are no matching industry jobs from the API that match this job.
+              There are no matching industry jobs from the API that match this
+              job.
             </Typography>
           </Grid>
         </Grid>

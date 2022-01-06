@@ -28,7 +28,7 @@ import {
 import { useFirebase } from "../../../Hooks/useFirebase";
 import {
   IsLoggedInContext,
-  MainUserContext,
+  UsersContext
 } from "../../../Context/AuthContext";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -42,7 +42,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { mainUser, updateMainUser } = useContext(MainUserContext);
+  const {users, updateUsers} = useContext(UsersContext)
   const { removeJob, uploadJob, updateMainUserDoc } = useFirebase();
   const [jobModified, setJobModified] = useState(false);
 
@@ -101,18 +101,17 @@ export default function EditJob({ updateJobSettingsTrigger }) {
   function deleteJob() {
     if (isLoggedIn) {
       removeJob(activeJob);
-      const newMainUserArray = mainUser.linkedJobs;
+      const parentUserIndex = users.findIndex((i)=> i.ParentUser === true)
+      const newUserArray = users
       const newApiJobsArary = apiJobs;
+
       activeJob.apiJobs.forEach((job) => {
-        const x = mainUser.linkedJobs.findIndex((i) => i === job);
+        const x = newUserArray[parentUserIndex].linkedJobs.findIndex((i) => i === job);
         const y = apiJobs.findIndex((u) => u.job_id === job);
-        newMainUserArray.splice(x, 1);
+        newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
         newApiJobsArary[y].linked = false;
       });
-      updateMainUser((prevObj) => ({
-        ...prevObj,
-        linkedJobs: newMainUserArray,
-      }));
+      updateUsers(newUserArray)
       updateApiJobs(newApiJobsArary);
       updateMainUserDoc();
     }

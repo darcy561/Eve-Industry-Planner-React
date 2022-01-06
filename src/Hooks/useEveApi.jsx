@@ -4,7 +4,7 @@ import searchData from "../RawData/searchIndex.json";
 import { EveIDsContext } from "../Context/EveDataContext";
 
 export function useEveApi() {
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { eveIDs } = useContext(EveIDsContext);
 
   const CharacterSkills = async (userObj) => {
     try {
@@ -14,23 +14,25 @@ export function useEveApi() {
       const skillsJSON = await skillsPromise.json();
 
       const newSkillArray = [];
-      skillsReference.forEach((ref) => {
-        const x = skillsJSON.skills.find((s) => ref.id === s.skill_id);
-        const y = {
-          id: ref.id,
-          name: ref.name,
-          activeLevel: null,
-        };
+      if (skillsPromise.status === 200) {
+        skillsReference.forEach((ref) => {
+          const x = skillsJSON.skills.find((s) => ref.id === s.skill_id);
+          const y = {
+            id: ref.id,
+            name: ref.name,
+            activeLevel: null,
+          };
 
-        if (x !== undefined) {
-          y.activeLevel = x.active_skill_level;
-        } else {
-          y.activeLevel = 0;
-        }
-        newSkillArray.push(y);
-      });
+          if (x !== undefined) {
+            y.activeLevel = x.active_skill_level;
+          } else {
+            y.activeLevel = 0;
+          }
+          newSkillArray.push(y);
+        });
 
-      return newSkillArray;
+        return newSkillArray;
+      }
     } catch (err) {
       console.log(err);
       return [];
@@ -44,56 +46,59 @@ export function useEveApi() {
       );
 
       const indyJSON = await indyPromise.json();
-      // const indyJSON = indyTestData;
 
-    indyJSON.forEach((job) => {
-      const nameMatch = searchData.find(
-        (item) => item.itemID === job.product_type_id
-      );
+      if (indyPromise.status === 200) {
+        indyJSON.forEach((job) => {
+          const nameMatch = searchData.find(
+            (item) => item.itemID === job.product_type_id
+          );
 
-      if (nameMatch !== undefined) {
-        job.product_name = nameMatch.name;
-      } else {
-        job.product_name = null;
-      }
-      if (userObj.linkedJobs.includes(job.job_id)) {
-        job.linked = true;
-      } else {
-        job.linked = false;
-      }
-    });
-      
-    let filtered = indyJSON.filter((job) => 
-      job.completed_date === undefined || new Date() - Date.parse(job.completed_date) < 1209600000
-      );
-      
-    let idRequest = [];
-      
-    filtered.forEach((item) => {
-      if (
-        !eveIDs.includes(item.blueprint_location_id) &&
-        !idRequest.includes(item.blueprint_location_id)
-      ) {
-        idRequest.push(item.blueprint_location_id);
-      }
-      if (
-        !eveIDs.includes(item.station_id) &&
-        !idRequest.includes(item.station_id)
-      ) {
-        idRequest.push(item.station_id);
-      }
-      if (
-        !eveIDs.includes(item.facility_id) &&
-        !idRequest.includes(item.facility_id)
-      ) {
-        idRequest.push(item.facility_id);
-      }
-    });
-      if (idRequest.length !== 0) {
-        IDtoName(idRequest);
-      }
+          if (nameMatch !== undefined) {
+            job.product_name = nameMatch.name;
+          } else {
+            job.product_name = null;
+          }
+          if (userObj.linkedJobs.includes(job.job_id)) {
+            job.linked = true;
+          } else {
+            job.linked = false;
+          }
+        });
 
-      return filtered;
+        let filtered = indyJSON.filter(
+          (job) =>
+            job.completed_date === undefined ||
+            new Date() - Date.parse(job.completed_date) < 1209600000
+        );
+
+        let idRequest = [];
+
+        filtered.forEach((item) => {
+          if (
+            !eveIDs.includes(item.blueprint_location_id) &&
+            !idRequest.includes(item.blueprint_location_id)
+          ) {
+            idRequest.push(item.blueprint_location_id);
+          }
+          if (
+            !eveIDs.includes(item.station_id) &&
+            !idRequest.includes(item.station_id)
+          ) {
+            idRequest.push(item.station_id);
+          }
+          if (
+            !eveIDs.includes(item.facility_id) &&
+            !idRequest.includes(item.facility_id)
+          ) {
+            idRequest.push(item.facility_id);
+          }
+        });
+        if (idRequest.length !== 0) {
+          IDtoName(idRequest);
+        }
+
+        return filtered;
+      }
     } catch (err) {
       console.log(err);
       return [];
@@ -109,26 +114,27 @@ export function useEveApi() {
       const marketJSON = await marketPromise.json();
 
       let idRequest = [];
+      if (marketPromise.status === 200) {
+        marketJSON.forEach((item) => {
+          if (
+            !eveIDs.includes(item.location_id) &&
+            !idRequest.includes(item.location_id)
+          ) {
+            idRequest.push(item.location_id);
+          }
+          if (
+            !eveIDs.includes(item.region_id) &&
+            !idRequest.includes(item.region_id)
+          ) {
+            idRequest.push(item.region_id);
+          }
+        });
+        if (idRequest.length !== 0) {
+          IDtoName(idRequest);
+        }
 
-      marketJSON.forEach((item) => {
-        if (
-          !eveIDs.includes(item.location_id) &&
-          !idRequest.includes(item.location_id)
-        ) {
-          idRequest.push(item.location_id);
-        }
-        if (
-          !eveIDs.includes(item.region_id) &&
-          !idRequest.includes(item.region_id)
-        ) {
-          idRequest.push(item.region_id);
-        }
-      });
-      if (idRequest.length !== 0) {
-        IDtoName(idRequest);
+        return marketJSON;
       }
-
-      return marketJSON;
     } catch (err) {
       console.log(err);
       return [];
@@ -145,21 +151,22 @@ export function useEveApi() {
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/orders/history/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
         );
         const histJSON = await histPromise.json();
-        histJSON.forEach((item) => {
-          returnArray.push(item);
-        });
+        if (histPromise.status === 200) {
+          histJSON.forEach((item) => {
+            returnArray.push(item);
+          });
 
-        if (histJSON.length < 2501) {
-          pageCount = 11;
-        } else {
-          pageCount++;
+          if (histJSON.length < 2501) {
+            pageCount = 11;
+          } else {
+            pageCount++;
+          }
         }
       } catch (err) {
         return [];
       }
     }
-    let filtered = returnArray.filter((item) =>
-      !item.is_buy_order)
+    let filtered = returnArray.filter((item) => !item.is_buy_order);
 
     filtered.forEach((item) => {
       if (
@@ -189,8 +196,9 @@ export function useEveApi() {
       );
 
       const blueprintJSON = await blueprintPromise.json();
-
-      return blueprintJSON;
+      if (blueprintPromise.status === 200) {
+        return blueprintJSON;
+      }
     } catch (err) {
       console.log(err);
       return [];
@@ -204,8 +212,9 @@ export function useEveApi() {
       );
 
       const transactionsJSON = await transactionsPromise.json();
-
-      return transactionsJSON;
+      if (transactionsPromise.status === 200) {
+        return transactionsJSON;
+      }
     } catch (err) {
       console.log(err);
       return [];
@@ -222,14 +231,16 @@ export function useEveApi() {
         );
 
         const journalJSON = await journalPromise.json();
-        journalJSON.forEach((item) => {
-          returnArray.push(item);
-        });
-
-        if (journalJSON.length < 2501) {
-          pageCount = 11;
-        } else {
-          pageCount++;
+        if (journalPromise.status === 200) {
+          journalJSON.forEach((item) => {
+            returnArray.push(item);
+          });
+        
+          if (journalJSON.length < 2501) {
+            pageCount = 11;
+          } else {
+            pageCount++;
+          }
         }
       } catch (err) {
         console.log(err);
@@ -252,11 +263,14 @@ export function useEveApi() {
 
       const idJSON = await idPromise.json();
 
-      const newArray = eveIDs;
-      idJSON.forEach((item) => {
-        newArray.push(item);
-      });
-      updateEveIDs(newArray);
+      if (idPromise.status === 200) {
+        const newArray = eveIDs;
+        idJSON.forEach((item) => {
+          newArray.push(item);
+        });
+        eveIDs.push(newArray)
+      }
+
     } catch (err) {
       console.log(err);
     }

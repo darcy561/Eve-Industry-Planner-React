@@ -96,7 +96,7 @@ export function AvailableTransactionData({
                           activeJob.build.sale.marketOrders[0].order_id;
                       }
                       newTransactionArray.push(tData);
-                      let parentUserIndex = users.find((i)=> i.ParentUser === true)
+                      let parentUserIndex = users.findIndex((i)=> i.ParentUser === true)
                       users[parentUserIndex].linkedTrans.push(tData.transaction_id);
 
                       updateActiveJob((prev) => ({

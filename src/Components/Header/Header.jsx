@@ -10,61 +10,17 @@ import {
 } from "@mui/material";
 import { SideMenu } from "./Components/sidemenu";
 import MenuIcon from "@mui/icons-material/Menu";
-import { UserIcon } from "./Components/UserIcon";
 import {
   IsLoggedInContext,
-  MainUserContext,
-  UsersContext,
 } from "../../Context/AuthContext";
-import AutorenewIcon from "@mui/icons-material/Autorenew";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
-import { useRefreshUser } from "../../Hooks/useRefreshUser";
-import { useEveApi } from "../../Hooks/useEveApi";
+import { UserIcon } from "./Components/UserIcon";
+import { RefreshApiIcon } from "./Components/refreshIcon";
 
 export function Header({ mode, colorMode }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, updateUsers } = useContext(UsersContext);
-  const { mainUser, updateMainUser } = useContext(MainUserContext);
-  const { RefreshUserAToken } = useRefreshUser();
-  const {
-    CharacterSkills,
-    IndustryJobs,
-    MarketOrders,
-    HistoricMarketOrders,
-    BlueprintLibrary,
-    WalletTransactions,
-    WalletJournal,
-  } = useEveApi();
-
   const [open, setOpen] = useState(false);
-
-  const refreshAPIData = async () => {
-    let newUsers = users
-    
-    for (let user of newUsers) {
-      console.log(user.aTokenEXP);
-      console.log(Math.floor(Date.now() / 1000))
-      if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
-        user = await RefreshUserAToken(user);
-      }
-        console.log(user);
-        user.apiSkills = await CharacterSkills(user);
-        user.apiJobs = await IndustryJobs(user);
-        user.apiOrders = await MarketOrders(user);
-        user.apiHistOrders = await HistoricMarketOrders(user);
-        user.apiBlueprints = await BlueprintLibrary(user);
-        user.apiTransactions = await WalletTransactions(user);
-        user.apiJournal = await WalletJournal(user);
-      }
-    
-    let newMainUser = newUsers.find((item) => item.ParentUser === true);
-
-    updateMainUser(newMainUser);
-    updateUsers(newUsers)
-
-    };
-
 
   return (
     <>
@@ -139,18 +95,9 @@ export function Header({ mode, colorMode }) {
 
           {isLoggedIn ? (
             <>
-              <Tooltip title="Refresh API Data" arrow>
-                <IconButton
-                  color="inherit"
-                  onClick={refreshAPIData}
-                  sx={{ marginRight: "5px" }}
-                >
-                  <AutorenewIcon />
-                </IconButton>
-              </Tooltip>
-
+            <RefreshApiIcon />
               <UserIcon />
-            </>
+              </>
           ) : (
             <Box sx={{ marginLeft: "5px" }}>
               <picture>

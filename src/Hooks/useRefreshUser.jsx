@@ -10,7 +10,6 @@ import {
 } from "../Context/JobContext";
 import {
   IsLoggedInContext,
-  MainUserContext,
   UsersContext,
 } from "../Context/AuthContext";
 import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
@@ -33,7 +32,6 @@ export function useRefreshUser() {
   const { updateJobArray } = useContext(JobArrayContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { updateUsers } = useContext(UsersContext);
-  const { updateMainUser } = useContext(MainUserContext);
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
@@ -91,7 +89,6 @@ export function useRefreshUser() {
     newUsersArray.push(refreshedUser);
     updateUsers(newUsersArray);
     updateIsLoggedIn(true);
-    updateMainUser(refreshedUser);
     t.stop();
     updateLoadingText((prevObj) => ({
       ...prevObj,

@@ -1,5 +1,8 @@
 import { useCallback, useContext } from "react";
-import { IsLoggedInContext, MainUserContext } from "../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../Context/AuthContext";
 import { firestore, functions, performance } from "../firebase";
 import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
@@ -8,11 +11,18 @@ import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
 
 export function useFirebase() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { mainUser } = useContext(MainUserContext);
+  const { users } = useContext(UsersContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
 
-  const determineUserState = useCallback(async (user, fbToken) => {
+  const parentUser = users.find((i) => i.ParentUser === true);
+
+
+  const checkFBToken = async () => {
+    
+  }
+
+  const determineUserState = async (user, fbToken) => {
     if (fbToken._tokenResponse.isNewUser) {
       const t = trace(performance, "NewUserCloudBuild");
       t.start();
@@ -26,7 +36,7 @@ export function useFirebase() {
           jobArraySnapshot: [],
           linkedJobs: charData.data.linkedJobs,
           linkedOrders: charData.data.linkedOrders,
-          linkedTrans: charData.data.linkedTrans
+          linkedTrans: charData.data.linkedTrans,
         };
       } catch (err) {
         console.log(err);
@@ -43,14 +53,14 @@ export function useFirebase() {
 
       return charData;
     }
-  });
+  };
 
   const addNewJob = useCallback(
     async (job) => {
       setDoc(
         doc(
           firestore,
-          `Users/${mainUser.accountID}/Jobs`,
+          `Users/${parentUser.accountID}/Jobs`,
           job.jobID.toString()
         ),
         {
@@ -76,7 +86,7 @@ export function useFirebase() {
         }
       );
     },
-    [isLoggedIn, mainUser]
+    [isLoggedIn, users]
   );
 
   const uploadJob = useCallback(
@@ -84,7 +94,7 @@ export function useFirebase() {
       updateDoc(
         doc(
           firestore,
-          `Users/${mainUser.accountID}/Jobs`,
+          `Users/${parentUser.accountID}/Jobs`,
           job.jobID.toString()
         ),
         {
@@ -110,31 +120,40 @@ export function useFirebase() {
         }
       );
     },
-    [isLoggedIn, mainUser]
+    [isLoggedIn, users]
   );
 
   const updateMainUserDoc = useCallback(async () => {
-    updateDoc(doc(firestore, "Users", mainUser.accountID), {
+    updateDoc(doc(firestore, "Users", parentUser.accountID), {
       jobStatusArray: jobStatus,
-      linkedJobs: mainUser.linkedJobs,
-      linkedTrans: mainUser.linkedTrans,
-      linkedOrders: mainUser.linkedOrders
+      linkedJobs: parentUser.linkedJobs,
+      linkedTrans: parentUser.linkedTrans,
+      linkedOrders: parentUser.linkedOrders,
     });
-  }, [isLoggedIn, mainUser]);
+  }, [isLoggedIn, users]);
 
   const removeJob = useCallback(
     async (job) => {
+      const parentUser = users.find((i) => i.ParentUser === true);
       deleteDoc(
-        doc(firestore, `Users/${mainUser.accountID}/Jobs`, job.jobID.toString())
+        doc(
+          firestore,
+          `Users/${parentUser.accountID}/Jobs`,
+          job.jobID.toString()
+        )
       );
     },
-    [isLoggedIn, mainUser]
+    [isLoggedIn, users]
   );
 
   const downloadCharacterJobs = useCallback(
     async (job) => {
       const document = await getDoc(
-        doc(firestore, `Users/${mainUser.accountID}/Jobs`, job.jobID.toString())
+        doc(
+          firestore,
+          `Users/${parentUser.accountID}/Jobs`,
+          job.jobID.toString()
+        )
       );
       let newJob = {
         isSnapshot: false,
@@ -165,7 +184,7 @@ export function useFirebase() {
       updateJobArray(newArray);
       return newJob;
     },
-    [isLoggedIn, mainUser]
+    [isLoggedIn, users]
   );
 
   return {

@@ -25,7 +25,12 @@ export function Home() {
       }
       updatePageLoad(false);
     } else {
-      reloadMainUser(localStorage.getItem("Auth"));
+      if (localStorage.getItem("Auth") == null) {
+        updatePageLoad(false);
+      } else {
+        reloadMainUser(localStorage.getItem("Auth"));
+      }
+      
     }
 
   }, []);

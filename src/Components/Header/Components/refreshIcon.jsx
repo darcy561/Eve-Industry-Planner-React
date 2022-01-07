@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
+import { ApiJobsContext } from "../../../Context/JobContext";
 import { useEveApi } from "../../../Hooks/useEveApi";
 import { useRefreshUser } from "../../../Hooks/useRefreshUser";
 import {
@@ -12,6 +13,7 @@ import TimerIcon from "@mui/icons-material/Timer";
 
 export function RefreshApiIcon() {
   const { users, updateUsers } = useContext(UsersContext);
+  const { updateApiJobs } = useContext(ApiJobsContext);
   const {
     CharacterSkills,
     IndustryJobs,
@@ -22,11 +24,13 @@ export function RefreshApiIcon() {
     WalletJournal,
   } = useEveApi();
   const { RefreshUserAToken } = useRefreshUser();
-  const [refresh, updateRefresh] = useState(1);
+  const [refreshState, updateRefreshState] = useState(1);
+  const [refreshTrigger, updateRefreshTrigger] = useState();
 
   const refreshAPIData = async () => {
     let newUsers = users;
-    updateRefresh(2);
+    let newAPIArray = []
+    updateRefreshState(2);
     for (let user of newUsers) {
       if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
         user = await RefreshUserAToken(user);
@@ -38,16 +42,19 @@ export function RefreshApiIcon() {
       user.apiBlueprints = await BlueprintLibrary(user);
       user.apiTransactions = await WalletTransactions(user);
       user.apiJournal = await WalletJournal(user);
+
+      user.apiJobs.forEach((i)=> newAPIArray.push(i))
     }
 
     updateUsers(newUsers);
-    updateRefresh(3);
+    updateApiJobs(newAPIArray);
+    updateRefreshState(3);
     setTimeout(() => {
-      updateRefresh(1);
+      updateRefreshState(1);
     }, 900000);
   };
 
-  if (refresh === 1) {
+  if (refreshState === 1) {
     return (
       <Tooltip title="Refresh API Data" arrow>
         <IconButton
@@ -60,7 +67,7 @@ export function RefreshApiIcon() {
       </Tooltip>
     );
   }
-  if (refresh === 2) {
+  if (refreshState === 2) {
     return (
       <Tooltip title="Refreshing API Data" arrow>
         <IconButton disableRipple color="inherit" sx={{ marginRight: "5px" }}>
@@ -70,7 +77,7 @@ export function RefreshApiIcon() {
     );
   }
 
-  if (refresh === 3) {
+  if (refreshState === 3) {
     return (
       <Tooltip title="Next refresh available in 15 mins" arrow>
         <IconButton disableRipple color="inherit" sx={{ marginRight: "5px" }}>

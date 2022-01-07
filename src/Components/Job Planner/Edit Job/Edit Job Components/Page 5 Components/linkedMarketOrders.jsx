@@ -42,7 +42,7 @@ export function LinkedMarketOrders({
   let linkedMarketOrders = [];
   let replacementBrokersFees = [];
 
-  if (isLoggedIn) {
+
     activeJob.build.sale.marketOrders.forEach((order) => {
       const user = users.find((u) => u.CharacterID === order.user_id);
 
@@ -112,7 +112,7 @@ export function LinkedMarketOrders({
         });
       }
     });
-  }
+  
 
   if (replacementBrokersFees.length !== 0) {
     activeJob.build.sale.brokersFee = replacementBrokersFees;

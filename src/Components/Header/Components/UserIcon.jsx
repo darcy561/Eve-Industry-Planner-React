@@ -14,6 +14,7 @@ import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { auth } from "../../../firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router";
+import {apiJobsDefault, jobArrayDefault, jobStatusDefault, usersDefault } from "../../../Context/defaultValues";
 
 export function UserIcon() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -28,57 +29,15 @@ export function UserIcon() {
 
   function logout() {
     updateIsLoggedIn(false);
-    updateUsers([]);
-    updateJobArray([]);
-    setJobStatus([
-      {
-        id: 0,
-        name: "Planning",
-        sortOrder: 0,
-        expanded: true,
-        openAPIJobs: false,
-        completeAPIJobs: false,
-      },
-      {
-        id: 1,
-        name: "Purchasing",
-        sortOrder: 1,
-        expanded: true,
-        openAPIJobs: false,
-        completeAPIJobs: false,
-      },
-      {
-        id: 2,
-        name: "Building",
-        sortOrder: 2,
-        expanded: true,
-        openAPIJobs: true,
-        completeAPIJobs: false,
-      },
-      {
-        id: 3,
-        name: "Complete",
-        sortOrder: 3,
-        expanded: true,
-        openAPIJobs: false,
-        completeAPIJobs: true,
-      },
-      {
-        id: 4,
-        name: "For Sale",
-        sortOrder: 4,
-        expanded: true,
-        openAPIJobs: false,
-        completeAPIJobs: false,
-      },
-    ]);
+    updateUsers(usersDefault);
+    updateJobArray(jobArrayDefault);
+    setJobStatus(jobStatusDefault);
     updateActiveJob({});
-    updateApiJobs([]);
+    updateApiJobs(apiJobsDefault);
     sessionStorage.clear();
     localStorage.clear();
     signOut(auth);
     navigate("/");
-    updateIsLoggedIn(false);
     setSnackbarData((prev) => ({
       ...prev,
       open: true,

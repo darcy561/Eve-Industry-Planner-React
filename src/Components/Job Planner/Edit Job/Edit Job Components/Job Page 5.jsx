@@ -133,10 +133,11 @@ export function EditPage5({ setJobModified }) {
           />
         </Grid>
         <Grid item xs={12}>
-          <LinkedTransactions
-            setJobModified={setJobModified}
-            activeOrder={activeOrder}
-          />
+
+            <LinkedTransactions
+              setJobModified={setJobModified}
+              activeOrder={activeOrder}
+            /> 
         </Grid>
       </Grid>
     </Container>

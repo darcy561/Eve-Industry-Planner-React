@@ -1,9 +1,10 @@
 import React, { createContext, useState } from 'react';
+import { usersDefault } from "./defaultValues";
 
 export const UsersContext = createContext();
 
 export const Users = (props) => {
-    const [users, updateUsers] = useState([]);
+    const [users, updateUsers] = useState(usersDefault);
 
     return (
         <UsersContext.Provider value={{ users, updateUsers }}>

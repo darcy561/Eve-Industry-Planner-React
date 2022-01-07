@@ -26,10 +26,11 @@ export const firestore = getFirestore(app);
 export const functions = getFunctions(app);
 export const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(
-    "6LfmUFcdAAAAAM-ArobT4itRSAhqMGTRWDjxGFCU"
+    process.env.REACT_APP_ReCaptchaKey
   ),
   isTokenAutoRefreshEnabled: true,
 });
+// REACT_APP_ReCaptchaKey=6LfmUFcdAAAAAM-ArobT4itRSAhqMGTRWDjxGFCU
 
 export const performance = getPerformance(app);
 

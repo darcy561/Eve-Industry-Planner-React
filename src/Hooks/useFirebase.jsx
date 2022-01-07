@@ -80,9 +80,9 @@ export function useFirebase() {
           rigType: job.rigType,
           systemType: job.systemType,
           apiJobs: job.apiJobs,
-          skills: JSON.stringify(job.skills),
-          rawData: JSON.stringify(job.rawData),
-          build: JSON.stringify(job.build),
+          skills: job.skills,
+          rawData: job.rawData,
+          build: job.build,
         }
       );
     },
@@ -114,9 +114,9 @@ export function useFirebase() {
           rigType: job.rigType,
           systemType: job.systemType,
           apiJobs: job.apiJobs,
-          skills: JSON.stringify(job.skills),
-          rawData: JSON.stringify(job.rawData),
-          build: JSON.stringify(job.build),
+          skills: job.skills,
+          rawData: job.rawData,
+          build: job.build,
         }
       );
     },
@@ -173,9 +173,9 @@ export function useFirebase() {
         rigType: document.data().rigType,
         systemType: document.data().systemType,
         apiJobs: document.data().apiJobs,
-        skills: JSON.parse(document.data().skills),
-        rawData: JSON.parse(document.data().rawData),
-        build: JSON.parse(document.data().build),
+        skills: document.data().skills,
+        rawData: document.data().rawData,
+        build: document.data().build,
       };
 
       const index = jobArray.findIndex((x) => job.jobID === x.jobID);

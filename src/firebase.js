@@ -30,7 +30,6 @@ export const appCheck = initializeAppCheck(app, {
   ),
   isTokenAutoRefreshEnabled: true,
 });
-// REACT_APP_ReCaptchaKey=6LfmUFcdAAAAAM-ArobT4itRSAhqMGTRWDjxGFCU
 
 export const performance = getPerformance(app);
 

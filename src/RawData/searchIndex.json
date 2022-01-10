@@ -1908,8 +1908,20 @@
     "itemID": 3995
   },
   {
+    "name": "Nitrogen Fuel Block",
+    "itemID": 4051
+  },
+  {
     "name": "Dual Heavy Pulse Laser II",
     "itemID": 4147
+  },
+  {
+    "name": "Hydrogen Fuel Block",
+    "itemID": 4246
+  },
+  {
+    "name": "Helium Fuel Block",
+    "itemID": 4247
   },
   {
     "name": "Warp Disruption Field Generator II",
@@ -1966,6 +1978,10 @@
   {
     "name": "Small Remote Hull Repairer II",
     "itemID": 4299
+  },
+  {
+    "name": "Oxygen Fuel Block",
+    "itemID": 4312
   },
   {
     "name": "Drone Damage Amplifier I",

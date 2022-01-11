@@ -1,7 +1,8 @@
-import { Grid, Link, Paper, Typography } from "@mui/material";
+import { Container, Grid, Link, Paper, Typography } from "@mui/material";
 
 export function Footer() {
   return (
+    <Container disableGutters maxWidth="false">
     <Paper
       elevation={3}
       sx={{
@@ -16,7 +17,7 @@ export function Footer() {
       <Grid container>
         <Grid item xs={12}>
           <Typography
-            display="block"
+              display="block"
             variant="caption"
             align="center"
             sx={{ marginBottom: "5px" }}
@@ -41,6 +42,7 @@ export function Footer() {
           </Typography>
         </Grid>
       </Grid>
-    </Paper>
+      </Paper>
+      </Container>
   );
 }

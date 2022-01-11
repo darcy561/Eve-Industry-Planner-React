@@ -1,5 +1,13 @@
 import React from "react";
-import { Box, Divider, Grid, Icon, Paper, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  Divider,
+  Grid,
+  Icon,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { useMediaQuery, useTheme } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -9,14 +17,46 @@ export function LoggedOutHome() {
   const mobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
-    <Grid
-      container
-      sx={{
-        marginTop: "5px",
-      }}
-      spacing={2}
-    >
+    <Grid container spacing={2}>
       <Grid item xs={12}>
+        <Grid
+          container
+          item
+          xs={12}
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            position: "relative",
+            minHeight: { sm: "10%", md: "15%", lg: "25%" },
+          }}
+        >
+          <Container disableGutters maxWidth="false">
+            <Typography
+              variant="h3"
+              color="primary"
+              align="center"
+              sx={{ zIndex: "1", position: "relative" }}
+            >
+              <b>
+                <i>Making the spreadsheet, so you dont have to!</i>
+              </b>
+            </Typography>
+            <Box
+              sx={{
+                position: "absolute",
+                top: "0",
+                left: "0",
+                backgroundImage: `url("/images/loggedOutHome/purchasingStepImage.png")`,
+                backgroundRepeat: "no-repeat",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                height: "100%",
+                width: "100%",
+                opacity: "0.3",
+              }}
+            />
+          </Container>
+        </Grid>
         <Paper
           elevation={3}
           sx={{
@@ -34,14 +74,6 @@ export function LoggedOutHome() {
         >
           <Grid item xs={12}>
             <Typography
-              variant="body2"
-              align="center"
-              color="primary"
-              sx={{ fontStyle: "italic", marginBottom: "10px" }}
-            >
-              Making the spreadsheet, so you dont have to!
-            </Typography>
-            <Typography
               variant="h6"
               align="center"
               color="secondary"
@@ -50,7 +82,7 @@ export function LoggedOutHome() {
               Alpha Release
             </Typography>
           </Grid>
-          <Grid container item xs={12} sx={{ marginTop: "30px" }}>
+          <Grid container item xs={8} sx={{ marginTop: "30px" }}>
             <Typography paragraph variant="body1" align="left">
               Welcome to Eve Industry Planner a new way to plan and manage your
               industry jobs quickly so that you can spend more time in game
@@ -69,16 +101,20 @@ export function LoggedOutHome() {
               infront of your PC, on the bus or just sat at work wondering if
               your items have sold. Using the data provided by the Eve ESI you
               can keep up to date with your sell orders.
-            </Typography>
-            <Typography paragraph variant="body1" align="left">
+              {<br />}       {<br />}
               Eve Industry Planner takes the whole process and breaks it down
               into 5 simple steps:
             </Typography>
           </Grid>
           <Grid container item xs={12}>
             <Grid container item xs={12}>
-              <Grid item xs={3} sm={0} sx={{display:{xs:"block", sm:"none"}}}/>
-              <Grid item xs={6} sm={12} >
+              <Grid
+                item
+                xs={3}
+                sm={0}
+                sx={{ display: { xs: "block", sm: "none" } }}
+              />
+              <Grid item xs={6} sm={12}>
                 <Paper
                   elevation={1}
                   square={true}
@@ -111,7 +147,7 @@ export function LoggedOutHome() {
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={1} align="center">
-                    {mobile ? (
+                      {mobile ? (
                         <Icon color="secondary">
                           <ArrowDownwardIcon />
                         </Icon>
@@ -127,7 +163,7 @@ export function LoggedOutHome() {
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={1} align="center">
-                    {mobile ? (
+                      {mobile ? (
                         <Icon color="secondary">
                           <ArrowDownwardIcon />
                         </Icon>
@@ -143,7 +179,7 @@ export function LoggedOutHome() {
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={1} align="center">
-                    {mobile ? (
+                      {mobile ? (
                         <Icon color="secondary">
                           <ArrowDownwardIcon />
                         </Icon>
@@ -161,7 +197,12 @@ export function LoggedOutHome() {
                   </Grid>
                 </Paper>
               </Grid>
-              <Grid item xs={3} sm={0} sx={{display:{xs:"block", sm:"none"}}}></Grid>
+              <Grid
+                item
+                xs={3}
+                sm={0}
+                sx={{ display: { xs: "block", sm: "none" } }}
+              ></Grid>
             </Grid>
             <Grid container item xs={12}>
               <Grid item xs={12} sm={3}>
@@ -241,7 +282,6 @@ export function LoggedOutHome() {
           </Grid>
         </Paper>
       </Grid>
-
     </Grid>
   );
 }

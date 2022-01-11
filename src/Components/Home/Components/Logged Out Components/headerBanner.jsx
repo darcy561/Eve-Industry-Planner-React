@@ -12,8 +12,8 @@ export function HeaderBanner() {
       alignItems="center"
       sx={{
         position: "relative",
-        paddingTop: "70px",
-        paddingBottom: "70px",
+        paddingTop: "10%",
+        paddingBottom: "10%",
       }}
     >
       <Typography

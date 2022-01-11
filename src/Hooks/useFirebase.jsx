@@ -64,6 +64,8 @@ export function useFirebase() {
           job.jobID.toString()
         ),
         {
+          deleted: false,
+          archived: false,
           jobType: job.jobType,
           name: job.name,
           jobID: job.jobID,
@@ -146,6 +148,17 @@ export function useFirebase() {
     [isLoggedIn, users]
   );
 
+  const archivedJob = async (job) => {
+    updateDoc(
+      doc(
+        firestore,
+        `Users/${parentUser.accountID}/Jobs`,
+        job.jobID.toString()
+      ),
+      { archived: true }
+    );
+  };
+
   const downloadCharacterJobs = useCallback(
     async (job) => {
       const document = await getDoc(
@@ -188,6 +201,7 @@ export function useFirebase() {
   );
 
   return {
+    archivedJob,
     determineUserState,
     addNewJob,
     uploadJob,

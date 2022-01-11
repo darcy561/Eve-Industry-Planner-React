@@ -13,6 +13,7 @@ import { EditPage4 } from "./Edit Job Components/Job Page 4";
 import { EditPage5 } from "./Edit Job Components/Job Page 5";
 import {
   Box,
+  Button,
   Container,
   Divider,
   Grid,
@@ -26,14 +27,12 @@ import {
   Typography,
 } from "@mui/material";
 import { useFirebase } from "../../../Hooks/useFirebase";
-import {
-  IsLoggedInContext,
-  UsersContext
-} from "../../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../../Context/AuthContext";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
+import { ArchiveJobButton } from "./Edit Job Components/Page 5 Components/archiveJobButton";
 
 export default function EditJob({ updateJobSettingsTrigger }) {
   const { jobStatus } = useContext(JobStatusContext);
@@ -42,7 +41,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const {users, updateUsers} = useContext(UsersContext)
+  const { users, updateUsers } = useContext(UsersContext);
   const { removeJob, uploadJob, updateMainUserDoc } = useFirebase();
   const [jobModified, setJobModified] = useState(false);
 
@@ -101,17 +100,19 @@ export default function EditJob({ updateJobSettingsTrigger }) {
   function deleteJob() {
     if (isLoggedIn) {
       removeJob(activeJob);
-      const parentUserIndex = users.findIndex((i)=> i.ParentUser === true)
-      const newUserArray = users
+      const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
+      const newUserArray = users;
       const newApiJobsArary = apiJobs;
 
       activeJob.apiJobs.forEach((job) => {
-        const x = newUserArray[parentUserIndex].linkedJobs.findIndex((i) => i === job);
+        const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
+          (i) => i === job
+        );
         const y = apiJobs.findIndex((u) => u.job_id === job);
         newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
         newApiJobsArary[y].linked = false;
       });
-      updateUsers(newUserArray)
+      updateUsers(newUserArray);
       updateApiJobs(newApiJobsArary);
       updateMainUserDoc();
     }
@@ -135,7 +136,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
       disableGutters
       maxWidth="false"
       sx={{
-				width:"100%"
+        width: "100%",
       }}
     >
       <Paper
@@ -149,19 +150,25 @@ export default function EditJob({ updateJobSettingsTrigger }) {
         <Grid container direction="row">
           <Grid item xs={8} md={10} lg={11} />
           <Grid item xs={4} md={2} lg={1} align="right">
-            <IconButton
-              variant="contained"
-              color="error"
-              onClick={deleteJob}
-              size="medium"
-              sx={{ marginRight: "5px" }}
+            <Tooltip arrow title="Deletes the job from your job planner.">
+              <IconButton
+                variant="contained"
+                color="error"
+                onClick={deleteJob}
+                size="medium"
+                sx={{ marginRight: "5px" }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip
+              arrow
+              title="Saves all changes and returns to the job planner page."
             >
-              <DeleteIcon />
-            </IconButton>
-
-            <IconButton color="primary" onClick={closeJob} size="medium">
-              <CloseIcon />
-            </IconButton>
+              <IconButton color="primary" onClick={closeJob} size="medium">
+                <CloseIcon />
+              </IconButton>
+            </Tooltip>
           </Grid>
           <Grid item xs={12}>
             <Typography variant="h3" color="primary" align="left">
@@ -252,6 +259,10 @@ export default function EditJob({ updateJobSettingsTrigger }) {
                           </Grid>
                         </Grid>
                       )}
+                      {activeJob.jobStatus === jobStatus.length - 1 &&
+                      isLoggedIn ? (
+                        <ArchiveJobButton />
+                      ) : null}
                       <Divider />
                     </StepContent>
                   </Step>

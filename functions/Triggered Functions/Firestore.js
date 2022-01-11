@@ -28,6 +28,25 @@ exports.updateJobArraySnapshot = functions.firestore
       }
     }
 
+    if (documentNew.archived == true) {
+      try {
+        admin
+          .firestore()
+          .doc(`Users/${context.params.UID}`)
+          .update({
+            [`jobArraySnapshot.${documentOld.jobID}`]:
+              admin.firestore.FieldValue.delete(),
+          });
+        functions.logger.log("Item archived from snapshot");
+        functions.logger.log(JSON.stringify(documentOld));
+        return null;
+      } catch (err) {
+        functions.logger.error("Error archiving item from snapshot")
+        functions.logger.error(JSON.stringify(documentOld));
+        functions.logger.error(err);
+      }
+    }
+
     if (documentOld == null) {
       try {
         admin
@@ -89,4 +108,37 @@ exports.updateJobArraySnapshot = functions.firestore
         functions.logger.error(err)
       }
     }
-  });
+
+  if (
+    documentNew.archived === false ||
+    documentOld.archived === true
+  ) {
+    try {
+      admin
+        .firestore()
+        .doc(`Users/${context.params.UID}`)
+        .update({
+          [`jobArraySnapshot.${documentNew.jobID}`]: {
+            jobID: documentNew.jobID,
+            name: documentNew.name,
+            runCount: documentNew.runCount,
+            jobCount: documentNew.jobCount,
+            jobStatus: documentNew.jobStatus,
+            jobType: documentNew.jobType,
+            itemID: documentNew.itemID,
+            isSnapshot: true,
+            apiJobs: documentNew.apiJobs
+          },
+        });
+      functions.logger.log("Item removed from archive");
+      functions.logger.log("New Document Data " + JSON.stringify(documentNew));
+      functions.logger.log("Old Document Data " + JSON.stringify(documentOld));
+      return null;
+    } catch (err) {
+      functions.logging.error("Error removeing from archive")
+      functions.logger.error("New Document Data " + JSON.stringify(documentNew));
+      functions.logger.error("Old Document Data " + JSON.stringify(documentOld));
+      functions.logger.error(err)
+    }
+  }
+});

@@ -6,22 +6,30 @@ import {
   ApiJobsContext,
   JobArrayContext,
 } from "../../../../../Context/JobContext";
+import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 
-export function ArchiveJobButton() {
+export function ArchiveJobButton({ updateJobSettingsTrigger }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const { users, updateUsers } = useContext(UsersContext);
-  const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { archivedJob } = useFirebase();
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { archivedJob, uploadJob } = useFirebase();
 
   const archiveJob = () => {
+    uploadJob(activeJob);
+    const newJobArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);
+    updateJobArray(newJobArray);
+
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `${activeJob.name} Archived`,
+      severity: "success",
+      autoHideDuration: 3000,
+    }));
+
     archivedJob(activeJob);
-    const parentUserIndex = users.findIndex(
-      (i) => i.ParentUser === true
-    );
-    let newUsersArray = users;
-    
+    updateJobSettingsTrigger((prev) => !prev);
   };
 
   return (

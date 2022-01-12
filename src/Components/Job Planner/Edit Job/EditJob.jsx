@@ -111,6 +111,20 @@ export default function EditJob({ updateJobSettingsTrigger }) {
       newApiJobsArary[y].linked = false;
     });
 
+    activeJob.build.sale.transactions.forEach((trans) => {
+      const tIndex = newUserArray[parentUserIndex].linkedTrans.findIndex(
+        (i) => i === trans.order_id
+      );
+      newUserArray[parentUserIndex].linkedTrans.splice(tIndex, 1);
+    });
+
+    activeJob.build.sale.marketOrders.forEach((order) => {
+      const oIndex = newUserArray[parentUserIndex].linkedOrders.findIndex(
+        (i) => i === order.order_id
+      );
+      newUserArray[parentUserIndex].linkedOrders.splice(oIndex, 1);
+    });
+
     updateUsers(newUserArray);
     updateApiJobs(newApiJobsArary);
 
@@ -263,7 +277,9 @@ export default function EditJob({ updateJobSettingsTrigger }) {
                       )}
                       {activeJob.jobStatus === jobStatus.length - 1 &&
                       isLoggedIn ? (
-                        <ArchiveJobButton />
+                        <ArchiveJobButton
+                          updateJobSettingsTrigger={updateJobSettingsTrigger}
+                        />
                       ) : null}
                       <Divider />
                     </StepContent>

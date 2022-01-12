@@ -6,6 +6,7 @@ import {
 import { Container, Grid } from "@mui/material";
 import { LinkedJobs } from "./Page 3 Components/Linked Jobs";
 import { AvailableJobs } from "./Page 3 Components/Available Jobs";
+import { TutorialStep3 } from "./Page 3 Components/tutorialStep3";
 
 export function EditPage3({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -22,6 +23,9 @@ export function EditPage3({ setJobModified }) {
   return (
     <Container disableGutters maxWidth="false">
       <Grid container direction="row" spacing={2}>
+        <Grid item xs={12}>
+          <TutorialStep3 />
+        </Grid>
         <Grid item xs={12} md={6}>
           <AvailableJobs
             jobMatches={jobMatches}

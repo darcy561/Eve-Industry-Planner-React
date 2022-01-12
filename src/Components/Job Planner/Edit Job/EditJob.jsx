@@ -98,22 +98,24 @@ export default function EditJob({ updateJobSettingsTrigger }) {
   }
 
   function deleteJob() {
+    const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
+    const newUserArray = users;
+    const newApiJobsArary = apiJobs;
+
+    activeJob.apiJobs.forEach((job) => {
+      const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
+        (i) => i === job
+      );
+      const y = apiJobs.findIndex((u) => u.job_id === job);
+      newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
+      newApiJobsArary[y].linked = false;
+    });
+
+    updateUsers(newUserArray);
+    updateApiJobs(newApiJobsArary);
+
     if (isLoggedIn) {
       removeJob(activeJob);
-      const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
-      const newUserArray = users;
-      const newApiJobsArary = apiJobs;
-
-      activeJob.apiJobs.forEach((job) => {
-        const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
-          (i) => i === job
-        );
-        const y = apiJobs.findIndex((u) => u.job_id === job);
-        newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
-        newApiJobsArary[y].linked = false;
-      });
-      updateUsers(newUserArray);
-      updateApiJobs(newApiJobsArary);
       updateMainUserDoc();
     }
 

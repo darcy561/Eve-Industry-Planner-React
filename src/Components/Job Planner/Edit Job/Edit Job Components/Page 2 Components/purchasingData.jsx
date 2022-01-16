@@ -1,9 +1,19 @@
-import { FormControlLabel, Grid, Paper, Switch, Typography } from "@mui/material";
+import {
+  FormControlLabel,
+  Grid,
+  Paper,
+  Switch,
+  Typography,
+} from "@mui/material";
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
+import { UsersContext } from "../../../../../Context/AuthContext";
 
-export function PurchasingData({ hideItems, updateHideItems }) {
+export function PurchasingData({}) {
   const { activeJob } = useContext(ActiveJobContext);
+  const { users, updateUsers } = useContext(UsersContext);
+
+  const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
 
   let totalComplete = 0;
 
@@ -34,10 +44,26 @@ export function PurchasingData({ hideItems, updateHideItems }) {
               Total Material Cost:{" "}
               {activeJob.build.costs.totalPurchaseCost.toLocaleString()} ISK
             </Typography>
-                  </Grid>
-                  <Grid item xs={6} md={4}>
-                  <FormControlLabel control={<Switch onChange={()=>updateHideItems(!hideItems)} />} label="Hide Completed Purchases" />
-                  </Grid>
+          </Grid>
+          <Grid item xs={6} md={4}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={users[parentUserIndex].settings.editJob.hideCompleteMaterials}
+                  onChange={() => {
+                    let newUsers = JSON.parse(JSON.stringify(users));
+                    newUsers[
+                      parentUserIndex
+                    ].settings.editJob.hideCompleteMaterials =
+                      !newUsers[parentUserIndex].settings.editJob
+                        .hideCompleteMaterials;
+                    updateUsers(newUsers);
+                  }}
+                />
+              }
+              label="Hide Completed Purchases"
+            />
+          </Grid>
         </Grid>
       </Paper>
     </Grid>

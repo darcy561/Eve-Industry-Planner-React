@@ -6,6 +6,7 @@ import { PageLoadContext } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { SearchBar } from "./Planner Components/searchbar";
 import { Grid } from "@mui/material";
+import { TutorialPlanner } from "./Planner Components/tutorialPlanner";
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
 
@@ -81,8 +82,9 @@ export function JobPlanner() {
   const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
   const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
 
+  let parentUser = users.find((u) => u.ParentUser === true) 
+
   useEffect(async () => {
-    let parentUser = users.find((u) => u.ParentUser === true) 
 
     if (isLoggedIn) {
       if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
@@ -120,14 +122,18 @@ export function JobPlanner() {
       return (
         <Grid
           container
-          direction="column"
           sx={{ marginTop: "5px" }}
           spacing={2}
         >
-          <Grid item>
+          {!parentUser.settings.layout.hideTutorials && (
+            <Grid item xs={12}>
+              <TutorialPlanner />
+            </Grid>
+          )}
+          <Grid item xs={12}>
             <SearchBar />
           </Grid>
-          <Grid item>
+          <Grid item xs={12}>
             <PlannerAccordion
               updateJobSettingsTrigger={updateJobSettingsTrigger}
             />

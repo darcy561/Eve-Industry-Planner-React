@@ -1550,7 +1550,14 @@ export let usersDefault = [
         volume_total: 8,
       },
     ],
-    Settings: null,
+    settings: {
+      layout: {
+        hideTutorials: false,
+      },
+      editJob: {
+        hideCompleteMaterials: false,
+      },
+    },
     apiTransactions: [
       {
         client_id: 93627139,

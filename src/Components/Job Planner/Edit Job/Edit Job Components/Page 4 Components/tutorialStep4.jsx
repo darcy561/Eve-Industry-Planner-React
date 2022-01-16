@@ -6,7 +6,7 @@ import {
   UsersContext,
 } from "../../../../../Context/AuthContext";
 
-export function TutorialStep1() {
+export function TutorialStep4() {
   const { activeJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
@@ -27,24 +27,23 @@ export function TutorialStep1() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            This is your first step along the way in building your{" "}
-            {activeJob.name}, here you will find everything you need to
-            calculate the resources that you need to complete your job.{<br />}
-            {<br />}
-            If you are wanting to also build any of the subcomponents used then
-            simply use the <b>+</b> icon next to the resource name to create a
-            new job that is already setup to build the correct amount for you.
-            The color of the icon indicates the type of job of industry job
-            required to make the item.
+            So you have now finished building your {activeJob.name}, here is
+            where we complete the build cost calculations to work out the final
+            cost before we move onto selling our item. You will see the total
+            material cost as was entered back on the 2nd stage and then the
+            total installation costs from industry jobs that you linked back in
+            the previous step.
+            {<br />} Finally you can manually add any extra costs to the job
+            that may not be included automatically. Maybe you paid a friend to
+            haul some items that you needed or you are adding costs for an older
+            job that does not appear within the ESI data anymore.
           </Typography>
         </Grid>
         {isLoggedIn && (
           <Grid container item xs={12}>
             <Grid item xs={10} />
             <Grid item xs={2} align="right">
-              <Typography variant="caption" sx={{ display: "inline-block" }}>
-                Hide Help Options
-              </Typography>
+              <Typography variant="caption">Hide Help Options</Typography>
               <Checkbox
                 size="small"
                 onClick={() => {

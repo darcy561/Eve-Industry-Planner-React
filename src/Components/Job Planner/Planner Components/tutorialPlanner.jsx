@@ -1,52 +1,45 @@
 import { useContext } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
-import {
-  IsLoggedInContext,
-  UsersContext,
-} from "../../../../../Context/AuthContext";
-
-export function TutorialStep2() {
+import { IsLoggedInContext, UsersContext } from "../../../Context/AuthContext";
+export function TutorialPlanner() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
+
   return (
     <Paper
       elevation={3}
       sx={{
         padding: "20px",
+        marginRight: { md: "10px" },
+        marginLeft: { md: "10px" },
       }}
       square={true}
     >
       <Grid container>
         <Grid item xs={12} align="left">
-          <Typography variant="body1" color="primary">
-            <b>Help:</b>
-          </Typography>
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            Now that you know what you are building it is time to acquire the
-            necceary parts.{<br />} {<br />}
-            For each item item you can choose the "All Remaining" option from
-            the quantity dropdown or you can manually add them number of items
-            into the field, then add the amount you paid for an each item. Click
-            the <b>+</b> to save this entry.
+            Welcome to Eve Industry Planner.
             {<br />}
             {<br />}
-            As you add these the total cost will be calcuated for each item and
-            will be added to the total cost of all of the items.
+            The planner is broken down into 5 stages allowing you to record and
+            manage multiple jobs easily. To start simple use the search box and
+            start adding the jobs you would like to build. To open a job simply
+            click the card and it will open up with more information.
             {<br />}
             {<br />}
-            You can use the "Hide Completed Purchases" toggle if you only want
-            to see the items that you have left to purchase.
+            The job planner will show your own jobs but also display your
+            current active and previous industry jobs that have been imported
+            from the Eve ESI. Jobs from the ESI have different cards to easily
+            distinguish between the two.
           </Typography>
         </Grid>
         {isLoggedIn && (
           <Grid container item xs={12}>
             <Grid item xs={10} />
             <Grid item xs={2} align="right">
-              <Typography variant="caption" sx={{ display: "inline-block" }}>
-                Hide Help Options
-              </Typography>
+              <Typography variant="caption">Hide Help Options</Typography>
               <Checkbox
                 size="small"
                 onClick={() => {
@@ -55,9 +48,7 @@ export function TutorialStep2() {
                     (i) => i.ParentUser === true
                   );
 
-                  newUsers[
-                    parentUserIndex
-                  ].settings.layout.hideTutorials = true;
+                  newUsers[parentUserIndex].settings.layout.hideTutorials = true;
 
                   updateUsers(newUsers);
                 }}

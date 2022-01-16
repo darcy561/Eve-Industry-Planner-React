@@ -1,11 +1,15 @@
 import { useContext } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
-import { IsLoggedInContext } from "../../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 
 export function TutorialStep3() {
   const { activeJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { users, updateUsers } = useContext(UsersContext);
 
   return (
     <Paper
@@ -31,7 +35,8 @@ export function TutorialStep3() {
             (and the jobs from the last 10 days, just encase you were a little
             slow setting this up) industry jobs found on the Eve ESI that match
             the the item you are building. Simply attach the relavent job or
-            jobs using the link icon.
+            jobs using the link icon, doing so will remove he job card from the
+            planner page.
             {<br />}
             {<br />}
             You are only able to attach the same number of industry jobs as you
@@ -47,13 +52,29 @@ export function TutorialStep3() {
             </Typography>
           )}
         </Grid>
-        <Grid container item xs={12}>
-          <Grid item xs={10} />
-          <Grid item xs={2} align="right">
-            <Typography variant="caption">Hide Help Options</Typography>
-            <Checkbox size="small" />
+        {isLoggedIn && (
+          <Grid container item xs={12}>
+            <Grid item xs={10} />
+            <Grid item xs={2} align="right">
+              <Typography variant="caption">Hide Help Options</Typography>
+              <Checkbox
+                size="small"
+                onClick={() => {
+                  let newUsers = JSON.parse(JSON.stringify(users));
+                  let parentUserIndex = users.findIndex(
+                    (i) => i.ParentUser === true
+                  );
+
+                  newUsers[
+                    parentUserIndex
+                  ].settings.layout.hideTutorials = true;
+
+                  updateUsers(newUsers);
+                }}
+              />
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </Grid>
     </Paper>
   );

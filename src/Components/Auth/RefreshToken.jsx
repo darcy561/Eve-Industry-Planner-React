@@ -52,6 +52,6 @@ class User {
         this.apiOrders = null;
         this.apiHistOrders = null;
         this.apiBlueprints = null;
-        this.Settings = null;
+        this.settings = null;
     };
 };

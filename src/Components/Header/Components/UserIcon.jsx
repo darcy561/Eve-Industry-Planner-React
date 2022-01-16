@@ -85,7 +85,7 @@ export function UserIcon() {
           onClose={closeMenu}
           onClick={closeMenu}
         >
-          <MenuItem
+          {/* <MenuItem
             disabled
             onClick={() => {
               navigate("/accounts");
@@ -100,7 +100,7 @@ export function UserIcon() {
             }}
           >
             Settings
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem onClick={logout}>Log Out</MenuItem>
         </Menu>
       </>

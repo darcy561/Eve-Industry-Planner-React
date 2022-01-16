@@ -37,6 +37,7 @@ export function useFirebase() {
           linkedJobs: charData.data.linkedJobs,
           linkedOrders: charData.data.linkedOrders,
           linkedTrans: charData.data.linkedTrans,
+          settings: charData.data.settings,
         };
       } catch (err) {
         console.log(err);
@@ -131,6 +132,7 @@ export function useFirebase() {
       linkedJobs: parentUser.linkedJobs,
       linkedTrans: parentUser.linkedTrans,
       linkedOrders: parentUser.linkedOrders,
+      settings: parentUser.settings,
     });
   }, [isLoggedIn, users]);
 

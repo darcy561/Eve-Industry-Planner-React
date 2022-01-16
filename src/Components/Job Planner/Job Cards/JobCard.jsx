@@ -118,42 +118,32 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
               </Typography>
             </Grid>
             <Grid container item xs={12}>
-              <Hidden smDown>
                 <Grid item sm={3}>
-                  <Box>
-                    <picture className={classes.Image}>
-                      <source
-                        media="(max-width:700px)"
-                        srcSet={`https://image.eveonline.com/Type/${job.itemID}_32.png`}
-                        alt=""
-                        className={classes.Image}
-                      />
+                   <picture className={classes.Image}>
                       <img
                         src={`https://image.eveonline.com/Type/${job.itemID}_64.png`}
                         alt=""
                         className={classes.Image}
                       />
                     </picture>
-                  </Box>
                 </Grid>
-              </Hidden>
-              <Grid container item xs={12} sm={9}>
+              <Grid container item xs={9}>
                 <Grid container item xs={12}>
                   <Grid item xs={10}>
-                    <Typography variant="body1">Runs</Typography>
+                    <Typography variant="body1" sx={{ paddingLeft:{xs:"20px", sm:"0px"}}}>Runs</Typography>
                   </Grid>
                   <Grid item xs={2}>
-                    <Typography variant="body1">
+                    <Typography variant="body1"align="right" sx={{ paddingRight:{sm:"20px"}}}>
                       {job.runCount.toLocaleString()}
                     </Typography>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
                   <Grid item xs={10}>
-                    <Typography variant="body1">Job Slots</Typography>
+                    <Typography variant="body1" sx={{ paddingLeft:{xs:"20px", sm:"0px"}}}>Job Slots</Typography>
                   </Grid>
                   <Grid item xs={2}>
-                    <Typography variant="body1">
+                    <Typography variant="body1" align="right" sx={{ paddingRight:{sm:"20px"}}}>
                       {job.jobCount.toLocaleString()}
                     </Typography>
                   </Grid>

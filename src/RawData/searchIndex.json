@@ -908,6 +908,10 @@
     "itemID": 1201
   },
   {
+    "name": "Civilian Mining Drone",
+    "itemID": 1202
+  },
+  {
     "name": "Overdrive Injector System II",
     "itemID": 1236
   },
@@ -3332,136 +3336,16 @@
     "itemID": 17960
   },
   {
-    "name": "Arkonor Mining Crystal I",
-    "itemID": 18036
-  },
-  {
-    "name": "Bistot Mining Crystal I",
-    "itemID": 18038
-  },
-  {
-    "name": "Crokite Mining Crystal I",
-    "itemID": 18040
-  },
-  {
-    "name": "Dark Ochre Mining Crystal I",
-    "itemID": 18042
-  },
-  {
-    "name": "Gneiss Mining Crystal I",
-    "itemID": 18044
-  },
-  {
-    "name": "Hedbergite Mining Crystal I",
-    "itemID": 18046
-  },
-  {
-    "name": "Hemorphite Mining Crystal I",
-    "itemID": 18048
-  },
-  {
-    "name": "Jaspet Mining Crystal I",
-    "itemID": 18050
-  },
-  {
-    "name": "Kernite Mining Crystal I",
-    "itemID": 18052
-  },
-  {
-    "name": "Mercoxit Mining Crystal I",
+    "name": "Mercoxit Asteroid Mining Crystal Type A I",
     "itemID": 18054
-  },
-  {
-    "name": "Omber Mining Crystal I",
-    "itemID": 18056
-  },
-  {
-    "name": "Plagioclase Mining Crystal I",
-    "itemID": 18058
-  },
-  {
-    "name": "Pyroxeres Mining Crystal I",
-    "itemID": 18060
-  },
-  {
-    "name": "Scordite Mining Crystal I",
-    "itemID": 18062
-  },
-  {
-    "name": "Spodumain Mining Crystal I",
-    "itemID": 18064
-  },
-  {
-    "name": "Veldspar Mining Crystal I",
-    "itemID": 18066
   },
   {
     "name": "Modulated Deep Core Miner II",
     "itemID": 18068
   },
   {
-    "name": "Arkonor Mining Crystal II",
-    "itemID": 18590
-  },
-  {
-    "name": "Bistot Mining Crystal II",
-    "itemID": 18592
-  },
-  {
-    "name": "Crokite Mining Crystal II",
-    "itemID": 18594
-  },
-  {
-    "name": "Dark Ochre Mining Crystal II",
-    "itemID": 18596
-  },
-  {
-    "name": "Gneiss Mining Crystal II",
-    "itemID": 18598
-  },
-  {
-    "name": "Hedbergite Mining Crystal II",
-    "itemID": 18600
-  },
-  {
-    "name": "Hemorphite Mining Crystal II",
-    "itemID": 18602
-  },
-  {
-    "name": "Jaspet Mining Crystal II",
-    "itemID": 18604
-  },
-  {
-    "name": "Kernite Mining Crystal II",
-    "itemID": 18606
-  },
-  {
-    "name": "Mercoxit Mining Crystal II",
+    "name": "Mercoxit Asteroid Mining Crystal Type A II",
     "itemID": 18608
-  },
-  {
-    "name": "Omber Mining Crystal II",
-    "itemID": 18610
-  },
-  {
-    "name": "Plagioclase Mining Crystal II",
-    "itemID": 18612
-  },
-  {
-    "name": "Pyroxeres Mining Crystal II",
-    "itemID": 18614
-  },
-  {
-    "name": "Scordite Mining Crystal II",
-    "itemID": 18616
-  },
-  {
-    "name": "Veldspar Mining Crystal II",
-    "itemID": 18618
-  },
-  {
-    "name": "Spodumain Mining Crystal II",
-    "itemID": 18624
   },
   {
     "name": "Quest Survey Probe I",
@@ -4048,15 +3932,15 @@
     "itemID": 24702
   },
   {
-    "name": "Gas Cloud Harvester I",
+    "name": "Gas Cloud Scoop I",
     "itemID": 25266
   },
   {
-    "name": "'Crop' Gas Cloud Harvester",
+    "name": "'Crop' Gas Cloud Scoop ",
     "itemID": 25540
   },
   {
-    "name": "'Plow' Gas Cloud Harvester",
+    "name": "'Plow' Gas Cloud Scoop ",
     "itemID": 25542
   },
   {
@@ -4076,7 +3960,7 @@
     "itemID": 25736
   },
   {
-    "name": "Gas Cloud Harvester II",
+    "name": "Gas Cloud Scoop II",
     "itemID": 25812
   },
   {
@@ -4820,7 +4704,7 @@
     "itemID": 28578
   },
   {
-    "name": "Industrial Core I",
+    "name": "Capital Industrial Core I",
     "itemID": 28583
   },
   {
@@ -8144,7 +8028,7 @@
     "itemID": 42530
   },
   {
-    "name": "Industrial Core II",
+    "name": "Capital Industrial Core II",
     "itemID": 42890
   },
   {
@@ -8400,43 +8284,43 @@
     "itemID": 45655
   },
   {
-    "name": "Ubiquitous Moon Ore Mining Crystal I",
+    "name": "Ubiquitous Moon Mining Crystal Type A I",
     "itemID": 46355
   },
   {
-    "name": "Ubiquitous Moon Ore Mining Crystal II",
+    "name": "Ubiquitous Moon Mining Crystal Type A II",
     "itemID": 46356
   },
   {
-    "name": "Common Moon Ore Mining Crystal I",
+    "name": "Common Moon Mining Crystal Type A I",
     "itemID": 46365
   },
   {
-    "name": "Common Moon Ore Mining Crystal II",
+    "name": "Common Moon Mining Crystal Type A II",
     "itemID": 46366
   },
   {
-    "name": "Uncommon Moon Ore Mining Crystal I",
+    "name": "Uncommon Moon Mining Crystal Type A I",
     "itemID": 46367
   },
   {
-    "name": "Uncommon Moon Ore Mining Crystal II",
+    "name": "Uncommon Moon Mining Crystal Type A II",
     "itemID": 46368
   },
   {
-    "name": "Rare Moon Ore Mining Crystal I",
+    "name": "Rare Moon Mining Crystal Type A I",
     "itemID": 46369
   },
   {
-    "name": "Rare Moon Ore Mining Crystal II",
+    "name": "Rare Moon Mining Crystal Type A II",
     "itemID": 46370
   },
   {
-    "name": "Exceptional Moon Ore Mining Crystal I",
+    "name": "Exceptional Moon Mining Crystal Type A I",
     "itemID": 46371
   },
   {
-    "name": "Exceptional Moon Ore Mining Crystal II",
+    "name": "Exceptional Moon Mining Crystal Type A II",
     "itemID": 46372
   },
   {
@@ -8850,5 +8734,253 @@
   {
     "name": "Life Support Backup Unit",
     "itemID": 57486
+  },
+  {
+    "name": "Interdiction Nullifier I",
+    "itemID": 58919
+  },
+  {
+    "name": "Large Industrial Core I",
+    "itemID": 58945
+  },
+  {
+    "name": "Large Industrial Core II",
+    "itemID": 58950
+  },
+  {
+    "name": "Compact Interdiction Nullifier",
+    "itemID": 58966
+  },
+  {
+    "name": "Restrained Interdiction Nullifier",
+    "itemID": 58971
+  },
+  {
+    "name": "Interdiction Nullifier II",
+    "itemID": 58972
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type A I",
+    "itemID": 60276
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type B I",
+    "itemID": 60279
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type C I",
+    "itemID": 60280
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type A II",
+    "itemID": 60281
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type B II",
+    "itemID": 60283
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type C II",
+    "itemID": 60284
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type A I",
+    "itemID": 60285
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type B I",
+    "itemID": 60286
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type C I",
+    "itemID": 60287
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type A II",
+    "itemID": 60288
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type B II",
+    "itemID": 60289
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type C II",
+    "itemID": 60290
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type A I",
+    "itemID": 60291
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type B I",
+    "itemID": 60292
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type C I",
+    "itemID": 60293
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type A II",
+    "itemID": 60294
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type B II",
+    "itemID": 60295
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type C II",
+    "itemID": 60296
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type A I",
+    "itemID": 60297
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type B I",
+    "itemID": 60298
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type C I",
+    "itemID": 60299
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type A II",
+    "itemID": 60300
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type B II",
+    "itemID": 60301
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type C II",
+    "itemID": 60302
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type A I",
+    "itemID": 60303
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type B I",
+    "itemID": 60304
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type C I",
+    "itemID": 60305
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type A II",
+    "itemID": 60306
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type B II",
+    "itemID": 60307
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type C II",
+    "itemID": 60308
+  },
+  {
+    "name": "Mercoxit Asteroid Mining Crystal Type B I",
+    "itemID": 60309
+  },
+  {
+    "name": "Mercoxit Asteroid Mining Crystal Type C I",
+    "itemID": 60310
+  },
+  {
+    "name": "Mercoxit Asteroid Mining Crystal Type B II",
+    "itemID": 60311
+  },
+  {
+    "name": "Mercoxit Asteroid Mining Crystal Type C II",
+    "itemID": 60312
+  },
+  {
+    "name": "Gas Cloud Harvester I",
+    "itemID": 60313
+  },
+  {
+    "name": "Gas Cloud Harvester II",
+    "itemID": 60314
+  },
+  {
+    "name": "Ubiquitous Moon Mining Crystal Type B I",
+    "itemID": 61197
+  },
+  {
+    "name": "Ubiquitous Moon Mining Crystal Type C I",
+    "itemID": 61198
+  },
+  {
+    "name": "Ubiquitous Moon Mining Crystal Type B II",
+    "itemID": 61199
+  },
+  {
+    "name": "Ubiquitous Moon Mining Crystal Type C II",
+    "itemID": 61200
+  },
+  {
+    "name": "Common Moon Mining Crystal Type B I",
+    "itemID": 61201
+  },
+  {
+    "name": "Common Moon Mining Crystal Type C I",
+    "itemID": 61202
+  },
+  {
+    "name": "Common Moon Mining Crystal Type B II",
+    "itemID": 61203
+  },
+  {
+    "name": "Common Moon Mining Crystal Type C II",
+    "itemID": 61204
+  },
+  {
+    "name": "Uncommon Moon Mining Crystal Type B I",
+    "itemID": 61205
+  },
+  {
+    "name": "Uncommon Moon Mining Crystal Type C I",
+    "itemID": 61206
+  },
+  {
+    "name": "Uncommon Moon Mining Crystal Type B II",
+    "itemID": 61207
+  },
+  {
+    "name": "Uncommon Moon Mining Crystal Type C II",
+    "itemID": 61208
+  },
+  {
+    "name": "Rare Moon Mining Crystal Type B I",
+    "itemID": 61209
+  },
+  {
+    "name": "Rare Moon Mining Crystal Type C I",
+    "itemID": 61210
+  },
+  {
+    "name": "Rare Moon Mining Crystal Type B II",
+    "itemID": 61211
+  },
+  {
+    "name": "Rare Moon Mining Crystal Type C II",
+    "itemID": 61212
+  },
+  {
+    "name": "Exceptional Moon Mining Crystal Type B I",
+    "itemID": 61213
+  },
+  {
+    "name": "Exceptional Moon Mining Crystal Type C I",
+    "itemID": 61214
+  },
+  {
+    "name": "Exceptional Moon Mining Crystal Type B II",
+    "itemID": 61215
+  },
+  {
+    "name": "Exceptional Moon Mining Crystal Type C II",
+    "itemID": 61216
   }
 ]

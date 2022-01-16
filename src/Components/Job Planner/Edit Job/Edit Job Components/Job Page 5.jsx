@@ -11,6 +11,7 @@ import { AvailableMarketOrders } from "./Page 5 Components/availableMarketOrders
 import { LinkedMarketOrders } from "./Page 5 Components/linkedMarketOrders";
 import { AvailableTransactionData } from "./Page 5 Components/availableTransactions";
 import { LinkedTransactions } from "./Page 5 Components/linkedTransactions";
+import { TutorialStep5 } from "./Page 5 Components/tutorialStep5";
 
 export function EditPage5({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -104,6 +105,11 @@ export function EditPage5({ setJobModified }) {
   return (
     <Container disableGutters maxWidth="false">
       <Grid container spacing={2}>
+        {!parentUser.settings.layout.hideTutorials && (
+          <Grid item xs={12}>
+            <TutorialStep5 />
+          </Grid>
+        )}
         <Grid item xs={12} md={6}>
           {activeJob.build.sale.marketOrders.length == 0 ||
           showAvailableOrders ? (

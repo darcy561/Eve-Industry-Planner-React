@@ -69,6 +69,7 @@ export function useEveApi() {
           (job) =>
             job.completed_date === undefined ||
             new Date() - Date.parse(job.completed_date) < 1209600000
+          // 10 days
         );
 
         let idRequest = [];

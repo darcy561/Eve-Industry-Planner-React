@@ -68,6 +68,7 @@ export function AuthMainUser() {
       userObject.linkedJobs = userSettings.linkedJobs;
       userObject.linkedTrans = userSettings.linkedTrans;
       userObject.linkedOrders = userSettings.linkedOrders;
+      userObject.settings = userSettings.settings;
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
@@ -164,6 +165,6 @@ class MainUser {
     this.apiOrders = null;
     this.apiHistOrders = null;
     this.apiBlueprints = null;
-    this.Settings = null;
+    this.settings = null;
   }
 }

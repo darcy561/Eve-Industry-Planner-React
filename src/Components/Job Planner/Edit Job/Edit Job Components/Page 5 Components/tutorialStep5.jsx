@@ -1,13 +1,11 @@
 import { useContext } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
-import { ActiveJobContext } from "../../../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 
-export function TutorialStep1() {
-  const { activeJob } = useContext(ActiveJobContext);
+export function TutorialStep5() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
 
@@ -27,24 +25,31 @@ export function TutorialStep1() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            This is your first step along the way in building your{" "}
-            {activeJob.name}, here you will find everything you need to
-            calculate the resources that you need to complete your job.{<br />}
+            Sale time! Setup your market order in your market of choice. Once
+            this has been done and the information appears on the ESI the
+            available orders window will display all of the available market
+            orders for your item type. By linking this order to your job your
+            new transactions window will display all of the transactions that
+            have taken place since the order was created that match the item
+            type. Attaching a transaction to the job will add the costs and
+            taxes associated with it to the job.
             {<br />}
-            If you are wanting to also build any of the subcomponents used then
-            simply use the <b>+</b> icon next to the resource name to create a
-            new job that is already setup to build the correct amount for you.
-            The color of the icon indicates the type of job of industry job
-            required to make the item.
+            {<br />}
+            As the items are sold the total sales and average item price is
+            populated from the transactions that you have linked. This uses the
+            earlier build costs, along with the brokers fees and taxes to
+            calculate your overall profit/loss for this job.
+            {<br />}
+            {<br />} Once you have sold everything you can either delete the job
+            and remove all the data or you can choose to archive the job saving
+            all of the data for you to pull back at a later date.
           </Typography>
         </Grid>
         {isLoggedIn && (
           <Grid container item xs={12}>
             <Grid item xs={10} />
             <Grid item xs={2} align="right">
-              <Typography variant="caption" sx={{ display: "inline-block" }}>
-                Hide Help Options
-              </Typography>
+              <Typography variant="caption">Hide Help Options</Typography>
               <Checkbox
                 size="small"
                 onClick={() => {

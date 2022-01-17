@@ -3,9 +3,8 @@ import {
   Avatar,
   Badge,
   Box,
-  Card,
   Grid,
-  Hidden,
+  Paper,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -41,7 +40,7 @@ export function IndustryESICardComplete({ job }) {
   return (
     <Tooltip title="Api Job, manually link this job to an existing job card.">
       <Grid key={job.job_id} item xs={16} sm={6} md={4} lg={3}>
-        <Card className={classes.Card}>
+        <Paper className={classes.Card} elevation={3}>
           <Grid container item xs={12}>
             <Grid className={classes.Header} item xs={12}>
               <Typography variant="h6" align="center">
@@ -108,7 +107,7 @@ export function IndustryESICardComplete({ job }) {
               </Grid>
             </Grid>
           </Grid>
-        </Card>
+        </Paper>
       </Grid>
     </Tooltip>
   );

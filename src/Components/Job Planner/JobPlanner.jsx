@@ -81,18 +81,18 @@ export function JobPlanner() {
   const { users, updateUsers } = useContext(UsersContext);
   const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
   const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
+  const [multiSelect, updateMultiSelect] = useState([1]);
 
-  let parentUser = users.find((u) => u.ParentUser === true) 
+  let parentUser = users.find((u) => u.ParentUser === true);
 
   useEffect(async () => {
-
     if (isLoggedIn) {
       if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
-        let newUsersArray = users
+        let newUsersArray = users;
         const index = newUsersArray.findIndex((i) => i.ParentUser === true);
         let newParentUser = await RefreshUserAToken(parentUser);
-        newUsersArray[index] = newParentUser
-        updateUsers(newUsersArray)
+        newUsersArray[index] = newParentUser;
+        updateUsers(newUsersArray);
       }
       updatePageLoad(false);
     } else {
@@ -102,7 +102,6 @@ export function JobPlanner() {
         reloadMainUser(localStorage.getItem("Auth"));
       }
     }
-
   }, []);
 
   if (pageLoad) {
@@ -120,22 +119,23 @@ export function JobPlanner() {
       );
     } else {
       return (
-        <Grid
-          container
-          sx={{ marginTop: "5px" }}
-          spacing={2}
-        >
+        <Grid container sx={{ marginTop: "5px" }} spacing={2}>
           {!parentUser.settings.layout.hideTutorials && (
             <Grid item xs={12}>
               <TutorialPlanner />
             </Grid>
           )}
           <Grid item xs={12}>
-            <SearchBar />
+            <SearchBar
+              multiSelect={multiSelect}
+              updateMultiSelect={updateMultiSelect}
+            />
           </Grid>
           <Grid item xs={12}>
             <PlannerAccordion
               updateJobSettingsTrigger={updateJobSettingsTrigger}
+              multiSelect={multiSelect}
+              updateMultiSelect={updateMultiSelect}
             />
           </Grid>
         </Grid>

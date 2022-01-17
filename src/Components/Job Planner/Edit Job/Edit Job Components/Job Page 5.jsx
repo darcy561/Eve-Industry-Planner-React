@@ -110,7 +110,7 @@ export function EditPage5({ setJobModified }) {
             <TutorialStep5 />
           </Grid>
         )}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={8}>
           {activeJob.build.sale.marketOrders.length == 0 ||
           showAvailableOrders ? (
             <AvailableMarketOrders
@@ -127,7 +127,7 @@ export function EditPage5({ setJobModified }) {
           )}
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <SalesStats />
         </Grid>
         <Grid item xs={12}>

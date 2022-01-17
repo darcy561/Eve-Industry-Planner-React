@@ -1,6 +1,8 @@
 import { useContext } from "react";
 import {
   Autocomplete,
+  Button,
+  ButtonGroup,
   CircularProgress,
   Grid,
   Paper,
@@ -10,14 +12,15 @@ import itemList from "../../../RawData/searchIndex.json";
 import { useCreateJobProcess } from "../../../Hooks/useCreateJob";
 import { DataExchangeContext } from "../../../Context/LayoutContext";
 
-export function SearchBar() {
+export function SearchBar({multiSelect, updateMultiSelect}) {
   const { DataExchange } = useContext(DataExchangeContext);
   const { newJobProcess } = useCreateJobProcess();
   return (
     <Paper
       sx={{
         padding: "20px",
-        marginRight: { md: "10px" }, marginLeft: { md: "10px" },
+        marginRight: { md: "10px" },
+        marginLeft: { md: "10px" },
       }}
       elevation={3}
       square={true}
@@ -54,9 +57,20 @@ export function SearchBar() {
             )}
           />
         </Grid>
-        {DataExchange &&
-          <Grid item xs={1} sx={{ paddingLeft: { xs:"5px", sm:"0px"}}}>
+        {DataExchange && (
+          <Grid item xs={1} sx={{ paddingLeft: { xs: "5px", sm: "0px" } }}>
             <CircularProgress size="24px" edge="false" />
+          </Grid>
+        )}
+        {multiSelect.length > 0 &&
+          <Grid item xs={12} sx={{ marginTop: "20px" }} align="right">
+            <ButtonGroup size="small" variant="outlined">
+              <Button>Build Materials</Button>
+              <Button>Merge Jobs</Button>
+              <Button>Move Forward</Button>
+              <Button>Move Backward</Button>
+              <Button color="error">Delete</Button>
+            </ButtonGroup>
           </Grid>
         }
       </Grid>

@@ -1,17 +1,17 @@
 import { useContext } from "react";
 import { ActiveJobContext } from "../../../Context/JobContext";
 import { jobTypes } from "..";
-import { Box, Card, Grid, Hidden, Tooltip, Typography } from "@mui/material";
+import { Checkbox, Grid, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import {
   LoadingTextContext,
   PageLoadContext,
 } from "../../../Context/LayoutContext";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const useStyles = makeStyles((theme) => ({
   Card: {
-    borderRadius: "10px",
     background: "none",
     border: "1px solid #E0E0E0;",
     padding: "5px",
@@ -28,25 +28,24 @@ const useStyles = makeStyles((theme) => ({
   JobTypeMan: {
     backgroundColor: theme.palette.manufacturing.main,
     marginTop: "10px",
-    borderBottomLeftRadius: "5px",
-    borderBottomRightRadius: "5px",
   },
   JobTypeReact: {
     backgroundColor: theme.palette.reaction.main,
     marginTop: "10px",
-    borderBottomLeftRadius: "5px",
-    borderBottomRightRadius: "5px",
   },
   JobTypePI: {
     backgroundColor: theme.palette.pi.main,
     marginTop: "10px",
-    borderBottomLeftRadius: "5px",
-    borderBottomRightRadius: "5px",
   },
 }));
 
 // builds a single job card for each job in the job array, This is displayed on the job planner page. Called from jobplanner.jsx
-export function JobCard({ job, updateJobSettingsTrigger }) {
+export function JobCard({
+  job,
+  updateJobSettingsTrigger,
+  multiSelect,
+  updateMultiSelect,
+}) {
   const { updateActiveJob } = useContext(ActiveJobContext);
   const { downloadCharacterJobs } = useFirebase();
   const { updatePageLoad } = useContext(PageLoadContext);
@@ -85,7 +84,7 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
       return (
         <Grid item xs={12} className={classes.JobTypeMan}>
           <Typography align="center" variant="body1">
-            Manufacturing
+            Manufacturing Job
           </Typography>
         </Grid>
       );
@@ -94,7 +93,7 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
       return (
         <Grid item xs={12} className={classes.JobTypeReact}>
           <Typography align="center" variant="body1">
-            Reaction
+            Reaction Job
           </Typography>
         </Grid>
       );
@@ -110,40 +109,74 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
   return (
     <Tooltip title="Click to open">
       <Grid key={job.jobID} item xs={12} sm={6} md={4} lg={3}>
-        <Card className={classes.Card} onClick={() => EditJobProcess(job)}>
+        <Paper
+          className={classes.Card}
+          onClick={() => EditJobProcess(job)}
+          elevation={3}
+          square={true}
+        >
           <Grid container item xs={12}>
+            <Grid container item xs={12}>
+              <Grid item xs={1}>
+                <IconButton size="small">
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
+              <Grid item xs={10} />
+              <Grid item xs={1}>
+                <Checkbox sx={{ marginRight: "20px" }}></Checkbox>
+              </Grid>
+            </Grid>
             <Grid className={classes.Header} item xs={12}>
               <Typography variant="h6" color="secondary" align="center">
                 {job.name}
               </Typography>
             </Grid>
             <Grid container item xs={12}>
-                <Grid item sm={3}>
-                   <picture className={classes.Image}>
-                      <img
-                        src={`https://image.eveonline.com/Type/${job.itemID}_64.png`}
-                        alt=""
-                        className={classes.Image}
-                      />
-                    </picture>
-                </Grid>
+              <Grid item sm={3}>
+                <picture className={classes.Image}>
+                  <img
+                    src={`https://image.eveonline.com/Type/${job.itemID}_64.png`}
+                    alt=""
+                    className={classes.Image}
+                  />
+                </picture>
+              </Grid>
               <Grid container item xs={9}>
                 <Grid container item xs={12}>
-                  <Grid item xs={10}>
-                    <Typography variant="body1" sx={{ paddingLeft:{xs:"20px", sm:"0px"}}}>Runs</Typography>
+                  <Grid item xs={8}>
+                    <Typography
+                      variant="body1"
+                      sx={{ paddingLeft: { xs: "20px", sm: "0px" } }}
+                    >
+                      Runs
+                    </Typography>
                   </Grid>
-                  <Grid item xs={2}>
-                    <Typography variant="body1"align="right" sx={{ paddingRight:{sm:"20px"}}}>
+                  <Grid item xs={4}>
+                    <Typography
+                      variant="body1"
+                      align="right"
+                      sx={{ paddingRight: { sm: "20px" } }}
+                    >
                       {job.runCount.toLocaleString()}
                     </Typography>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
                   <Grid item xs={10}>
-                    <Typography variant="body1" sx={{ paddingLeft:{xs:"20px", sm:"0px"}}}>Job Slots</Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ paddingLeft: { xs: "20px", sm: "0px" } }}
+                    >
+                      Job Slots
+                    </Typography>
                   </Grid>
                   <Grid item xs={2}>
-                    <Typography variant="body1" align="right" sx={{ paddingRight:{sm:"20px"}}}>
+                    <Typography
+                      variant="body1"
+                      align="right"
+                      sx={{ paddingRight: { sm: "20px" } }}
+                    >
                       {job.jobCount.toLocaleString()}
                     </Typography>
                   </Grid>
@@ -154,7 +187,7 @@ export function JobCard({ job, updateJobSettingsTrigger }) {
               <SwitchJobTypeStyle job={job} />
             </Grid>
           </Grid>
-        </Card>
+        </Paper>
       </Grid>
     </Tooltip>
   );

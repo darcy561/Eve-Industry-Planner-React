@@ -21,6 +21,29 @@ export function LinkedJobs({ setJobModified }) {
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
+            function timeRemainingcalc(job) {
+            let now = new Date().getTime();
+            let timeLeft = Date.parse(job.end_date) - now;
+
+            let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            let hour = Math.floor(
+              (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+            );
+            let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+
+            if (day < 0) {
+              day = 0;
+            }
+            if (hour < 0) {
+              hour = 0;
+            }
+            if (min < 0) {
+              min = 0;
+            }
+
+            return { days: day, hours: hour, mins: min };
+          }
+
   if (activeJob.build.costs.linkedJobs != 0) {
     return (
       <Paper
@@ -39,6 +62,8 @@ export function LinkedJobs({ setJobModified }) {
           </Grid>
         </Grid>
         {activeJob.build.costs.linkedJobs.map((job) => {
+
+          const timeRemaining = timeRemainingcalc(job);
           return (
             <Grid
               key={job.job_id}
@@ -62,7 +87,18 @@ export function LinkedJobs({ setJobModified }) {
                 <Typography variant="body1">{`${job.runs} Runs`}</Typography>
               </Grid>
               <Grid item xs={4}>
-                <Typography variant="body1">{job.status}</Typography>
+              {timeRemaining.days === 0 &&
+                    timeRemaining.hours === 0 &&
+                    timeRemaining.mins === 0 ? (
+                      <Typography variant="body2">
+                        Ready to Deliver
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2">
+                        {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
+                        {timeRemaining.mins}M
+                      </Typography>
+                    )}
               </Grid>
               <Grid item xs={1}>
                 <Tooltip title="Click to unlink from job">

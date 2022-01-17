@@ -66,7 +66,9 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
               </Grid>
 
               <Grid item xs={4}>
-                <Typography variant="body2">{job.status}</Typography>
+                <Typography variant="body2">
+                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                </Typography>
               </Grid>
               <Grid item xs={1}>
                 <Tooltip title="Click to link to job">

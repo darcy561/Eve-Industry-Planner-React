@@ -24,7 +24,7 @@ import { StatusSettings } from "./StatusSettings";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { ApiJobCard } from "../Job Cards/ApiJobCard";
 
-export function PlannerAccordion({ updateJobSettingsTrigger }) {
+export function PlannerAccordion({ updateJobSettingsTrigger, multiSelect, updateMultiSelect }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { jobArray } = useContext(JobArrayContext);
   const { apiJobs } = useContext(ApiJobsContext);
@@ -116,7 +116,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              <Grid container direction="row" item xs={12} spacing={1}>
+              <Grid container direction="row" item xs={12} spacing={2}>
                 {jobArray.map((job) => {
                   if (job.jobStatus === status.id) {
                     return (
@@ -124,6 +124,8 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
                         key={job.jobID}
                         job={job}
                         updateJobSettingsTrigger={updateJobSettingsTrigger}
+                        multiSelect={multiSelect}
+                        updateMultiSelect={updateMultiSelect}
                       />
                     );
                   } else {

@@ -46,7 +46,8 @@ export default function App() {
     []
   );
 
-  const getDesignTokens = (mode) => ({
+  const getDesignTokens = (mode) => (
+    {
     palette: {
       typography: {
         fontFamily: "Montserrat",
@@ -103,7 +104,7 @@ export default function App() {
               disabled: grey[200],
               hint: grey[200],
             },
-            divider: grey[700],
+          divider: grey[700],
           }),
     },
   });

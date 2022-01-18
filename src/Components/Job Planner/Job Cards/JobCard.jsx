@@ -25,7 +25,11 @@ const useStyles = makeStyles((theme) => ({
   Header: {
     marginBottom: "10px",
   },
+  Checkbox: {
+    color: theme.palette.type === "dark" ? (theme.palette.primary.main) : (theme.palette.secondary.main)
+  }
 }));
+
 
 export function JobCard({
   job,
@@ -73,6 +77,7 @@ export function JobCard({
             <Grid container item xs={12}>
             <Grid item xs={1}>
               <Checkbox
+                className={classes.Checkbox}
                 checked={multiSelect.some((i) => i.jobID === job.jobID )}
                   onChange={(event) => {
                     if (event.target.checked) {

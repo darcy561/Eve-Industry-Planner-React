@@ -15,6 +15,7 @@ import { DataExchangeContext } from "../../../Context/LayoutContext";
 export function SearchBar({ multiSelect, updateMultiSelect }) {
   const { DataExchange } = useContext(DataExchangeContext);
   const { deleteMultipleJobsProcess, massBuildMaterials, moveMultipleJobsBackward, moveMultipleJobsForward, newJobProcess } = useJobManagement();
+
   return (
     <Paper
       sx={{
@@ -70,15 +71,6 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
             }}>
               Build Materials
             </Button>
-            {multiSelect.length > 1 && (
-              <Button
-                variant="outlined"
-                size="small"
-                sx={{ marginRight: "5px" }}
-              >
-                Merge Jobs
-              </Button>
-            )}
 
             <Button variant="outlined" size="small" sx={{ marginRight: "5px" }} onClick={()=>{moveMultipleJobsBackward(multiSelect)}}>
               Move Backward

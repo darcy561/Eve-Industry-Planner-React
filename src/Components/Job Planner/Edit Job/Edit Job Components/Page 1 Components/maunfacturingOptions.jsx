@@ -10,10 +10,26 @@ import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { blueprintVariables } from "../../..";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  TextField: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main
+    },
+  },
+  Autocomplete: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main
+    },
+  }
+}));
+
 
 export function ManufacturingOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { CalculateResources } = useBlueprintCalc();
+  const classes = useStyles();
 
   return (
     <Paper
@@ -30,6 +46,7 @@ export function ManufacturingOptions({ setJobModified }) {
               defaultValue={activeJob.runCount}
               size="small"
               variant="standard"
+              className={classes.TextField}
               helperText="Blueprint Runs"
               type="number"
               onBlur={(e) => {
@@ -46,6 +63,7 @@ export function ManufacturingOptions({ setJobModified }) {
               defaultValue={activeJob.jobCount}
               size="small"
               variant="standard"
+              className={classes.TextField}
               helperText="Job Slots"
               type="number"
               onBlur={(e) => {
@@ -58,9 +76,10 @@ export function ManufacturingOptions({ setJobModified }) {
             />
           </Grid>
           <Grid item xs={6}>
-            <FormControl fullWidth={true}>
+            <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 disableClearable={true}
+
                 size="small"
                 defaultValue={blueprintVariables.me.find(
                   (x) => x.value === activeJob.bpME
@@ -74,14 +93,14 @@ export function ManufacturingOptions({ setJobModified }) {
                 }}
                 options={blueprintVariables.me}
                 renderInput={(params) => (
-                  <TextField {...params} variant="standard" />
+                  <TextField {...params}  variant="standard" />
                 )}
               />
-              <FormHelperText variant="standard">Material Efficiecy</FormHelperText>
+              <FormHelperText  variant="standard">Material Efficiecy</FormHelperText>
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <FormControl fullWidth={true}>
+            <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 disableClearable={true}
                 size="small"
@@ -104,7 +123,7 @@ export function ManufacturingOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <FormControl fullWidth={true}>
+            <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 size="small"
                 defaultValue={blueprintVariables.manStructure.find(
@@ -136,7 +155,7 @@ export function ManufacturingOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <FormControl fullWidth={true}>
+            <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 size="small"
                 defaultValue={blueprintVariables.manRigs.find(
@@ -159,7 +178,7 @@ export function ManufacturingOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <FormControl fullWidth={true}>
+            <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 disableClearable={true}
                 size="small"

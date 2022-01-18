@@ -5,11 +5,19 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  Checkbox: {
+    color: theme.palette.type === "dark" ? (theme.palette.primary.main) : (theme.palette.secondary.main)
+  }
+}))
 
 export function TutorialStep1() {
   const { activeJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
+  const classes = useStyles();
 
   return (
     <Paper
@@ -46,6 +54,7 @@ export function TutorialStep1() {
                 Hide Help Options
               </Typography>
               <Checkbox
+                className={classes.Checkbox}
                 size="small"
                 onClick={() => {
                   let newUsers = JSON.parse(JSON.stringify(users));

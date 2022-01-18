@@ -143,7 +143,6 @@ export function useJobManagement() {
   const massBuildMaterials = async (inputJobs) => {
     let finalBuildCount = [];
     for (let inputJob of inputJobs) {
-      console.log(inputJob);
       if (inputJob.isSnapshot) {
         inputJob = await downloadCharacterJobs(inputJob);
         inputJob.isSnapshot = false;
@@ -170,6 +169,7 @@ export function useJobManagement() {
     for (let item of finalBuildCount) {
       if (jobArray.length < 8) {
         await newJobProcess(item.typeID, item.quantity);
+        setTimeout(1000)
       }
     }
   };
@@ -181,7 +181,6 @@ export function useJobManagement() {
       inputJob = await downloadCharacterJobs(inputJob);
       inputJob.isSnapshot = false;
     }
-    console.log(inputJob);
     inputJob.apiJobs.forEach((job) => {
       const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
         (i) => i === job

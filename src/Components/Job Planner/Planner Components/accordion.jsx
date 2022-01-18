@@ -24,6 +24,7 @@ import { StatusSettings } from "./StatusSettings";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { ApiJobCard } from "../Job Cards/ApiJobCard";
 
+
 export function PlannerAccordion({ updateJobSettingsTrigger, multiSelect, updateMultiSelect }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { jobArray } = useContext(JobArrayContext);
@@ -39,6 +40,8 @@ export function PlannerAccordion({ updateJobSettingsTrigger, multiSelect, update
     completeAPIJobs: false,
   });
   const { updateMainUserDoc } = useFirebase();
+
+
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);

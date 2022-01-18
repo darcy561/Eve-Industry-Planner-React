@@ -34,7 +34,15 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 import { ArchiveJobButton } from "./Edit Job Components/Page 5 Components/archiveJobButton";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
+import { makeStyles } from "@mui/styles";
 
+const useStyles = makeStyles((theme) => ({
+  Stepper: {
+      "& MuiStepIcon-text": {
+        fill: "#000"
+      }
+  }
+}))
 
 
 export default function EditJob({ updateJobSettingsTrigger }) {
@@ -46,6 +54,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
   const { uploadJob, updateMainUserDoc } = useFirebase();
   const { deleteJobProcess } = useJobManagement();
   const [jobModified, setJobModified] = useState(false);
+  const classes = useStyles();
 
   function StepContentSelector() {
     switch (activeJob.jobStatus) {
@@ -171,10 +180,10 @@ export default function EditJob({ updateJobSettingsTrigger }) {
           <Grid item xs={4} />
 
           <Grid item xs={12}>
-            <Stepper activeStep={activeJob.jobStatus} orientation="vertical">
+            <Stepper  activeStep={activeJob.jobStatus} orientation="vertical">
               {jobStatus.map((status) => {
                 return (
-                  <Step key={status.id}>
+                  <Step className={classes.Stepper} key={status.id}>
                     <StepLabel>{status.name}</StepLabel>
                     <StepContent>
                       <Divider />

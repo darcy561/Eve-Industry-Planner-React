@@ -168,7 +168,9 @@ export function useJobManagement() {
       });
     }
     for (let item of finalBuildCount) {
-      newJobProcess(item.typeID, item.quantity);
+      if (jobArray.length < 8) {
+        await newJobProcess(item.typeID, item.quantity);
+      }
     }
   };
 

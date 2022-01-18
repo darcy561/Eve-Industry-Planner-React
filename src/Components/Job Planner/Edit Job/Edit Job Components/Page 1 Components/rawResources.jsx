@@ -9,14 +9,14 @@ import {
 } from "@mui/material";
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
-import { useCreateJobProcess } from "../../../../../Hooks/useCreateJob";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import { MdOutlineAddCircle, MdRemoveCircle } from "react-icons/md";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { jobTypes } from "../../..";
 
 export function RawResourceList() {
   const { activeJob } = useContext(ActiveJobContext);
-  const { newJobProcess } = useCreateJobProcess();
+  const { newJobProcess } = useJobManagement();
 
   function AddBuildIcon({ material }) {
     if (material.jobType === jobTypes.manufacturing) {

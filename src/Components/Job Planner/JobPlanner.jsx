@@ -81,7 +81,7 @@ export function JobPlanner() {
   const { users, updateUsers } = useContext(UsersContext);
   const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
   const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
-  const [multiSelect, updateMultiSelect] = useState([1]);
+  const [multiSelect, updateMultiSelect] = useState([]);
 
   let parentUser = users.find((u) => u.ParentUser === true);
 

@@ -1,7 +1,13 @@
 import { useContext } from "react";
 import { ActiveJobContext } from "../../../Context/JobContext";
-import { jobTypes } from "..";
-import { Checkbox, Grid, IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  Grid,
+  IconButton,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import {
@@ -9,15 +15,9 @@ import {
   PageLoadContext,
 } from "../../../Context/LayoutContext";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useJobManagement } from "../../../Hooks/useJobManagement";
 
 const useStyles = makeStyles((theme) => ({
-  Card: {
-    background: "none",
-    border: "1px solid #E0E0E0;",
-    padding: "5px",
-    postion: "relative",
-    cursor: "pointer",
-  },
   Image: {
     margin: "auto",
     display: "block",
@@ -25,21 +25,8 @@ const useStyles = makeStyles((theme) => ({
   Header: {
     marginBottom: "10px",
   },
-  JobTypeMan: {
-    backgroundColor: theme.palette.manufacturing.main,
-    marginTop: "10px",
-  },
-  JobTypeReact: {
-    backgroundColor: theme.palette.reaction.main,
-    marginTop: "10px",
-  },
-  JobTypePI: {
-    backgroundColor: theme.palette.pi.main,
-    marginTop: "10px",
-  },
 }));
 
-// builds a single job card for each job in the job array, This is displayed on the job planner page. Called from jobplanner.jsx
 export function JobCard({
   job,
   updateJobSettingsTrigger,
@@ -50,6 +37,7 @@ export function JobCard({
   const { downloadCharacterJobs } = useFirebase();
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
+  const { deleteJobProcess } = useJobManagement();
   const classes = useStyles();
 
   async function EditJobProcess(job) {
@@ -78,53 +66,35 @@ export function JobCard({
     // This function sets up the correct job to be changed and displays the popup window.
   }
 
-  //Adds the coloured bar at the base of a job card and switches based on the jobtype
-  function SwitchJobTypeStyle({ job }) {
-    if (job.jobType === jobTypes.manufacturing) {
-      return (
-        <Grid item xs={12} className={classes.JobTypeMan}>
-          <Typography align="center" variant="body1">
-            Manufacturing Job
-          </Typography>
-        </Grid>
-      );
-    }
-    if (job.jobType === jobTypes.reaction) {
-      return (
-        <Grid item xs={12} className={classes.JobTypeReact}>
-          <Typography align="center" variant="body1">
-            Reaction Job
-          </Typography>
-        </Grid>
-      );
-    }
-    if (job.jobType === jobTypes.pi) {
-      return (
-        <Grid item xs={12} className={classes.JobTypePI}>
-          <Typography variant="body1">Planetary Interaction</Typography>
-        </Grid>
-      );
-    }
-  }
   return (
-    <Tooltip title="Click to open">
       <Grid key={job.jobID} item xs={12} sm={6} md={4} lg={3}>
-        <Paper
-          className={classes.Card}
-          onClick={() => EditJobProcess(job)}
-          elevation={3}
-          square={true}
-        >
+        <Paper className={classes.Card} elevation={3} square={true} sx={{padding:"10px"}}>
           <Grid container item xs={12}>
             <Grid container item xs={12}>
-              <Grid item xs={1}>
-                <IconButton size="small">
-                  <DeleteIcon />
-                </IconButton>
+            <Grid item xs={1}>
+              <Checkbox
+                checked={multiSelect.some((i) => i.jobID === job.jobID )}
+                  onChange={(event) => {
+                    if (event.target.checked) {
+                      if (multiSelect.filter((i) => i.jobID === job.jobID)) {
+                        updateMultiSelect([...multiSelect, job]);
+                      }
+                    } else {
+                      if (multiSelect.filter((i) => i.jobID !== job.jobID)) {
+                        let newArray = multiSelect.filter(
+                          (i) => i.jobID !== job.jobID
+                        );
+                        updateMultiSelect(newArray);
+                      }
+                    }
+                  }}
+                ></Checkbox>
               </Grid>
               <Grid item xs={10} />
               <Grid item xs={1}>
-                <Checkbox sx={{ marginRight: "20px" }}></Checkbox>
+                <IconButton size="small" onClick={()=> deleteJobProcess(job)}>
+                  <DeleteIcon />
+                </IconButton>
               </Grid>
             </Grid>
             <Grid className={classes.Header} item xs={12}>
@@ -183,12 +153,18 @@ export function JobCard({
                 </Grid>
               </Grid>
             </Grid>
-            <Grid container item xs={12}>
-              <SwitchJobTypeStyle job={job} />
+            <Grid item xs={12} align="right" sx={{ marginTop: "20px" }}>
+              <Button
+                size="small"
+                variant="outlined"
+                color="primary"
+                onClick={() => EditJobProcess(job)}
+              >
+                Open
+              </Button>
             </Grid>
           </Grid>
         </Paper>
       </Grid>
-    </Tooltip>
   );
 }

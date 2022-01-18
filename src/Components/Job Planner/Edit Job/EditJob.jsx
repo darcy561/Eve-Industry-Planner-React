@@ -33,16 +33,18 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 import { ArchiveJobButton } from "./Edit Job Components/Page 5 Components/archiveJobButton";
+import { useJobManagement } from "../../../Hooks/useJobManagement";
+
+
 
 export default function EditJob({ updateJobSettingsTrigger }) {
   const { jobStatus } = useContext(JobStatusContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, updateUsers } = useContext(UsersContext);
-  const { removeJob, uploadJob, updateMainUserDoc } = useFirebase();
+  const { uploadJob, updateMainUserDoc } = useFirebase();
+  const { deleteJobProcess } = useJobManagement();
   const [jobModified, setJobModified] = useState(false);
 
   function StepContentSelector() {
@@ -97,55 +99,6 @@ export default function EditJob({ updateJobSettingsTrigger }) {
     updateJobSettingsTrigger((prev) => !prev);
   }
 
-  function deleteJob() {
-    const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
-    const newUserArray = users;
-    const newApiJobsArary = apiJobs;
-
-    activeJob.apiJobs.forEach((job) => {
-      const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
-        (i) => i === job
-      );
-      const y = apiJobs.findIndex((u) => u.job_id === job);
-      newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
-      newApiJobsArary[y].linked = false;
-    });
-
-    activeJob.build.sale.transactions.forEach((trans) => {
-      const tIndex = newUserArray[parentUserIndex].linkedTrans.findIndex(
-        (i) => i === trans.order_id
-      );
-      newUserArray[parentUserIndex].linkedTrans.splice(tIndex, 1);
-    });
-
-    activeJob.build.sale.marketOrders.forEach((order) => {
-      const oIndex = newUserArray[parentUserIndex].linkedOrders.findIndex(
-        (i) => i === order.order_id
-      );
-      newUserArray[parentUserIndex].linkedOrders.splice(oIndex, 1);
-    });
-
-    updateUsers(newUserArray);
-    updateApiJobs(newApiJobsArary);
-
-    if (isLoggedIn) {
-      removeJob(activeJob);
-      updateMainUserDoc();
-    }
-
-    const newJobArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);
-    updateJobArray(newJobArray);
-
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${activeJob.name} Deleted`,
-      severity: "error",
-      autoHideDuration: 3000,
-    }));
-    updateJobSettingsTrigger((prev) => !prev);
-  }
-
   console.log(activeJob);
   return (
     <Container
@@ -170,7 +123,10 @@ export default function EditJob({ updateJobSettingsTrigger }) {
               <IconButton
                 variant="contained"
                 color="error"
-                onClick={deleteJob}
+                onClick={() => {
+                  deleteJobProcess(activeJob);
+                  updateJobSettingsTrigger((prev) => !prev);
+                 }}
                 size="medium"
                 sx={{ marginRight: "5px" }}
               >

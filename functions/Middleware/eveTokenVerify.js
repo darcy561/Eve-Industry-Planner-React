@@ -12,21 +12,21 @@ const verifyEveToken = async (req, res, next) => {
   const getSigningKey = key.getPublicKey();
 
   if (!req.header("Access-Token")) {
-    functions.logger.warn("Missing Access Token")
-    functions.logger.warn(JSON.stringify(req.header("Access-Token")))
+    functions.logger.warn("Missing Access Token");
+    functions.logger.warn(JSON.stringify(req.header("Access-Token")));
     res.status(401);
     return next("Unauthorised");
   } else {
     jwt.verify(req.header("Access-Token"), getSigningKey, (err, decoded) => {
-      const testID = decoded.owner.replace(/[^a-zA-z0-9 ]/g,"")
+      const testID = decoded.owner.replace(/[^a-zA-z0-9 ]/g, "");
       if (
         decoded.iss != "login.eveonline.com" &&
         decoded.iss != "https://login.eveonline.com" &&
         decoded.owner != req.body.CharacterHash &&
         testID != req.body.UID
       ) {
-        functions.logger.warn("Invalid Eve Token")
-        functions.logger.warn(JSON.stringify(decoded))
+        functions.logger.warn("Invalid Eve Token");
+        functions.logger.warn(JSON.stringify(decoded));
         res.status(401);
         return next("Invalid Eve Token");
       } else {

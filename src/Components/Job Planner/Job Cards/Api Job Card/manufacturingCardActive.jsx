@@ -39,7 +39,6 @@ export function IndustryESICardActive({ job }) {
   const timeRemaining = timeRemainingcalc();
 
   const jobLocation = eveIDs.find((i) => i.id === job.facility_id);
-  console.log(job);
 
   return (
     <Tooltip title="Job imported from Eve ESI">

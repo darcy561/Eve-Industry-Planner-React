@@ -1,6 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const express = require("express");
+const helmet = require("helmet");
 const cors = require("cors");
 const appCheckVerification =
   require("./Middleware/appCheck").appCheckVerification;
@@ -23,6 +24,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(helmet());
 app.use(appCheckVerification);
 
 //Routes

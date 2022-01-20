@@ -268,8 +268,8 @@ export function LinkedMarketOrders({
                           activeJob.build.sale.brokersFee.filter(
                             (item) => item.order_id === order.order_id
                           );
-                        let newOrderArray = activeJob.build.sale.marketOrders;
-                        let newBrokerArray = activeJob.build.sale.brokersFee;
+                        let newOrderArray = [...activeJob.build.sale.marketOrders];
+                        let newBrokerArray = [...activeJob.build.sale.brokersFee];
                         newOrderArray.splice(orderIndex, 1);
 
                         brokerFees.forEach((fee) => {
@@ -282,14 +282,13 @@ export function LinkedMarketOrders({
                         const parentUserIndex = users.findIndex(
                           (i) => i.ParentUser === true
                         );
+                        let newUsersArray = [...users];
 
-                        const uIndex = users[
+                        const uIndex = newUsersArray[
                           parentUserIndex
                         ].linkedTrans.findIndex(
                           (trans) => trans === order.order_id
                         );
-
-                        let newUsersArray = users;
 
                         newUsersArray[parentUserIndex].linkedOrders.splice(
                           uIndex,
@@ -297,10 +296,10 @@ export function LinkedMarketOrders({
                         );
 
                         activeJob.build.sale.transactions.forEach((trans) => {
-                          let newLinkedTrans = users[parentUserIndex].linkedTrans
-                          const tIndex = newUsersArray[parentUserIndex].linkedTrans.findIndex((i) => i === trans.order_id);
-                          newLinkedTrans.splice(tIndex, 1)
-                        })
+                          const tIndex = users[parentUserIndex].linkedTrans.findIndex((i) => i === trans.order_id);
+
+                          newUsersArray[parentUserIndex].linkedTrans.splice(tIndex, 1)                          
+                        })  
 
                         updateUsers(newUsersArray);
 

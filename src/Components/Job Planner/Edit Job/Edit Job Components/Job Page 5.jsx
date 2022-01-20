@@ -25,7 +25,6 @@ export function EditPage5({ setJobModified }) {
 
   const parentUser = users.find((i) => i.ParentUser === true);
 
-  if (isLoggedIn) {
     users.forEach((user) => {
       user.apiOrders.forEach((order) => {
         if (
@@ -67,10 +66,8 @@ export function EditPage5({ setJobModified }) {
         }
       });
     });
-  }
   let transactionData = [];
 
-  if (isLoggedIn) {
     activeJob.build.sale.marketOrders.forEach((order) => {
       const user = users.find((u) => u.CharacterID === order.user_id);
 
@@ -100,7 +97,7 @@ export function EditPage5({ setJobModified }) {
         transactionData.push(trans);
       });
     });
-  }
+  
 
   return (
     <Container disableGutters maxWidth="false">

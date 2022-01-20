@@ -25,7 +25,6 @@ export function RefreshApiIcon() {
   } = useEveApi();
   const { RefreshUserAToken } = useRefreshUser();
   const [refreshState, updateRefreshState] = useState(1);
-  const [refreshTrigger, updateRefreshTrigger] = useState();
 
   const refreshAPIData = async () => {
     let newUsers = users;

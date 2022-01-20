@@ -2,7 +2,6 @@ import { useContext } from "react";
 import {
   Autocomplete,
   Button,
-  ButtonGroup,
   CircularProgress,
   Grid,
   Paper,
@@ -14,7 +13,13 @@ import { DataExchangeContext } from "../../../Context/LayoutContext";
 
 export function SearchBar({ multiSelect, updateMultiSelect }) {
   const { DataExchange } = useContext(DataExchangeContext);
-  const { deleteMultipleJobsProcess, massBuildMaterials, moveMultipleJobsBackward, moveMultipleJobsForward, newJobProcess } = useJobManagement();
+  const {
+    deleteMultipleJobsProcess,
+    massBuildMaterials,
+    moveMultipleJobsBackward,
+    moveMultipleJobsForward,
+    newJobProcess,
+  } = useJobManagement();
 
   return (
     <Paper
@@ -65,29 +70,58 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
         )}
         {multiSelect.length > 0 && (
           <Grid item xs={12} sx={{ marginTop: "20px" }} align="center">
-            <Button variant="outlined" size="small" sx={{ marginRight: "5px" }} onClick={() => {
-              massBuildMaterials(multiSelect)
-              updateMultiSelect([])
-            }}>
-              Build Materials
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{ marginRight: "5px" }}
+              onClick={() => {
+                massBuildMaterials(multiSelect);
+                updateMultiSelect([]);
+              }}
+            >
+              Add Material Jobs
             </Button>
 
-            <Button variant="outlined" size="small" sx={{ marginRight: "5px" }} onClick={()=>{moveMultipleJobsBackward(multiSelect)}}>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{ marginRight: "5px" }}
+              onClick={() => {
+                moveMultipleJobsBackward(multiSelect);
+              }}
+            >
               Move Backward
             </Button>
-            <Button variant="outlined" size="small" sx={{ marginRight: "5px" }} onClick={()=>{moveMultipleJobsForward(multiSelect)}}>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{ marginRight: "5px" }}
+              onClick={() => {
+                moveMultipleJobsForward(multiSelect);
+              }}
+            >
               Move Forward
             </Button>
-            <Button variant="outlined" size="small" sx={{marginRight:"30px"}} onClick={()=>{updateMultiSelect([])}}>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{ marginRight: "30px" }}
+              onClick={() => {
+                updateMultiSelect([]);
+              }}
+            >
               Clear Selection
             </Button>
-            
-            <Button variant="outlined" size="small" color="error" onClick={() => {
 
-              deleteMultipleJobsProcess(multiSelect);
-              updateMultiSelect([])
-
-            }}>
+            <Button
+              variant="outlined"
+              size="small"
+              color="error"
+              onClick={() => {
+                deleteMultipleJobsProcess(multiSelect);
+                updateMultiSelect([]);
+              }}
+            >
               Delete
             </Button>
           </Grid>

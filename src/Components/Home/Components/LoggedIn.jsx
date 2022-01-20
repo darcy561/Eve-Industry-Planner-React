@@ -1,13 +1,9 @@
-import React, { useContext } from "react";
-import { Grid, Typography } from "@mui/material";
-import { UsersContext } from "../../../Context/AuthContext";
-import { JobArrayContext } from "../../../Context/JobContext";
+import { Grid } from "@mui/material";
 import { AccountData } from "./Logged In Components/AccountData";
 import { NewTransactions } from "./Logged In Components/NewTransactions";
 
 export function LoggedInHome() {
-  const { users } = useContext(UsersContext);
-  const { jobArray } = useContext(JobArrayContext);
+
   return (
     <Grid
       container

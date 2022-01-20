@@ -100,7 +100,7 @@ export function NewTransactions() {
     return new Date(b.date) - new Date(a.date);
   });
 
-  if (transactionData.length != 0) {
+  if (transactionData.length !== 0) {
     return (
       <Paper
         elevation={3}

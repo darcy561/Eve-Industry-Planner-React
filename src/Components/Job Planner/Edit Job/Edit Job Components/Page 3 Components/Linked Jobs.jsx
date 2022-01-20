@@ -44,7 +44,7 @@ export function LinkedJobs({ setJobModified }) {
             return { days: day, hours: hour, mins: min };
           }
 
-  if (activeJob.build.costs.linkedJobs != 0) {
+  if (activeJob.build.costs.linkedJobs !== 0) {
     return (
       <Paper
         sx={{

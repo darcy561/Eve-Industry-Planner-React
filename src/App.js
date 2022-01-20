@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Header } from "./Components/Header";
 import { Home } from "./Components/Home";
 import { JobPlanner } from "./Components/Job Planner";

@@ -1,4 +1,4 @@
-import { Avatar, Box, Grid, Menu, MenuItem, Tooltip, Typography } from "@mui/material";
+import { Avatar, Box, Grid, Menu, MenuItem, Tooltip } from "@mui/material";
 import { useContext, useState } from "react";
 import {
   IsLoggedInContext,
@@ -19,7 +19,7 @@ import {apiJobsDefault, jobArrayDefault, jobStatusDefault, usersDefault } from "
 export function UserIcon() {
   const { users, updateUsers } = useContext(UsersContext);
   const [anchor, setAnchor] = useState(null);
-  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateActiveJob } = useContext(ActiveJobContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { setJobStatus } = useContext(JobStatusContext);

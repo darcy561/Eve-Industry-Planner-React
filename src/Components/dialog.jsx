@@ -22,7 +22,6 @@ export function DialogBox() {
   return (
     <>
       <Dialog
-        aria-aria-labelledby={dialogData.id}
         open={dialogData.open}
         onClose={handleClose}
       >

@@ -9,7 +9,7 @@ import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../Context/AuthContext";
 
-export function PurchasingData({}) {
+export function PurchasingData() {
   const { activeJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
 

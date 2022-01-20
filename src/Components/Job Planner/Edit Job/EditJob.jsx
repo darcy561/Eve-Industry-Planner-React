@@ -3,7 +3,6 @@ import {
   JobArrayContext,
   JobStatusContext,
   ActiveJobContext,
-  ApiJobsContext,
 } from "../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { EditPage1 } from "./Edit Job Components/Job Page 1";
@@ -13,7 +12,6 @@ import { EditPage4 } from "./Edit Job Components/Job Page 4";
 import { EditPage5 } from "./Edit Job Components/Job Page 5";
 import {
   Box,
-  Button,
   Container,
   Divider,
   Grid,
@@ -27,7 +25,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useFirebase } from "../../../Hooks/useFirebase";
-import { IsLoggedInContext, UsersContext } from "../../../Context/AuthContext";
+import { IsLoggedInContext } from "../../../Context/AuthContext";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import DeleteIcon from "@mui/icons-material/Delete";

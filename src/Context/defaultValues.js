@@ -3709,3 +3709,14 @@ export let usersDefault = [
 ];
 
 export let apiOrdersDefault = [];
+
+export let eveIDsDefault = [{
+  "category": "station",
+  "id": 60008494,
+  "name": "Amarr VIII (Oris) - Emperor Family Academy"
+},{
+  "category": "region",
+  "id": 10000043,
+  "name": "Domain"
+  },
+];  

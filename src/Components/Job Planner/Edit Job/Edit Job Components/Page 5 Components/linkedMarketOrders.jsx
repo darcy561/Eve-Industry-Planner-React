@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import { useContext, useState } from "react";
 import {
-  IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
@@ -27,7 +26,6 @@ export function LinkedMarketOrders({
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -82,7 +80,7 @@ export function LinkedMarketOrders({
           });
         }
       }
-      if (newOrderData == undefined && !order.complete) {
+      if (newOrderData === undefined && !order.complete) {
         order.duration = completedOrderData.duration;
         order.price = completedOrderData.price;
         order.range = completedOrderData.range;

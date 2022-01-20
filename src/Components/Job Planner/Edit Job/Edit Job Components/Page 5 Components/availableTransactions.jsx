@@ -1,5 +1,5 @@
 import { Grid, IconButton, Paper, Typography } from "@mui/material";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
@@ -12,16 +12,7 @@ export function AvailableTransactionData({
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
-  const [anchorEl, setAnchorEl] = useState(null);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <Paper

@@ -111,7 +111,7 @@ export function EditPage5({ setJobModified }) {
           </Grid>
         )}
         <Grid item xs={12} md={8}>
-          {activeJob.build.sale.marketOrders.length == 0 ||
+          {activeJob.build.sale.marketOrders.length === 0 ||
           showAvailableOrders ? (
             <AvailableMarketOrders
               setJobModified={setJobModified}

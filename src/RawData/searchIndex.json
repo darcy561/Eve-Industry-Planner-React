@@ -1,0 +1,8986 @@
+[
+  {
+    "name": "Carbonized Lead S",
+    "itemID": 178
+  },
+  {
+    "name": "Nuclear S",
+    "itemID": 179
+  },
+  {
+    "name": "Proton S",
+    "itemID": 180
+  },
+  {
+    "name": "Depleted Uranium S",
+    "itemID": 181
+  },
+  {
+    "name": "Titanium Sabot S",
+    "itemID": 182
+  },
+  {
+    "name": "Fusion S",
+    "itemID": 183
+  },
+  {
+    "name": "Phased Plasma S",
+    "itemID": 184
+  },
+  {
+    "name": "EMP S",
+    "itemID": 185
+  },
+  {
+    "name": "Carbonized Lead M",
+    "itemID": 186
+  },
+  {
+    "name": "Nuclear M",
+    "itemID": 187
+  },
+  {
+    "name": "Proton M",
+    "itemID": 188
+  },
+  {
+    "name": "Depleted Uranium M",
+    "itemID": 189
+  },
+  {
+    "name": "Titanium Sabot M",
+    "itemID": 190
+  },
+  {
+    "name": "Fusion M",
+    "itemID": 191
+  },
+  {
+    "name": "Phased Plasma M",
+    "itemID": 192
+  },
+  {
+    "name": "EMP M",
+    "itemID": 193
+  },
+  {
+    "name": "Carbonized Lead L",
+    "itemID": 194
+  },
+  {
+    "name": "Nuclear L",
+    "itemID": 195
+  },
+  {
+    "name": "Proton L",
+    "itemID": 196
+  },
+  {
+    "name": "Depleted Uranium L",
+    "itemID": 197
+  },
+  {
+    "name": "Titanium Sabot L",
+    "itemID": 198
+  },
+  {
+    "name": "Fusion L",
+    "itemID": 199
+  },
+  {
+    "name": "Phased Plasma L",
+    "itemID": 200
+  },
+  {
+    "name": "EMP L",
+    "itemID": 201
+  },
+  {
+    "name": "Mjolnir Cruise Missile",
+    "itemID": 202
+  },
+  {
+    "name": "Scourge Cruise Missile",
+    "itemID": 203
+  },
+  {
+    "name": "Inferno Cruise Missile",
+    "itemID": 204
+  },
+  {
+    "name": "Nova Cruise Missile",
+    "itemID": 205
+  },
+  {
+    "name": "Nova Heavy Missile",
+    "itemID": 206
+  },
+  {
+    "name": "Mjolnir Heavy Missile",
+    "itemID": 207
+  },
+  {
+    "name": "Inferno Heavy Missile",
+    "itemID": 208
+  },
+  {
+    "name": "Scourge Heavy Missile",
+    "itemID": 209
+  },
+  {
+    "name": "Scourge Light Missile",
+    "itemID": 210
+  },
+  {
+    "name": "Inferno Light Missile",
+    "itemID": 211
+  },
+  {
+    "name": "Mjolnir Light Missile",
+    "itemID": 212
+  },
+  {
+    "name": "Nova Light Missile",
+    "itemID": 213
+  },
+  {
+    "name": "Iron Charge S",
+    "itemID": 215
+  },
+  {
+    "name": "Tungsten Charge S",
+    "itemID": 216
+  },
+  {
+    "name": "Iridium Charge S",
+    "itemID": 217
+  },
+  {
+    "name": "Lead Charge S",
+    "itemID": 218
+  },
+  {
+    "name": "Thorium Charge S",
+    "itemID": 219
+  },
+  {
+    "name": "Uranium Charge S",
+    "itemID": 220
+  },
+  {
+    "name": "Plutonium Charge S",
+    "itemID": 221
+  },
+  {
+    "name": "Antimatter Charge S",
+    "itemID": 222
+  },
+  {
+    "name": "Iron Charge M",
+    "itemID": 223
+  },
+  {
+    "name": "Tungsten Charge M",
+    "itemID": 224
+  },
+  {
+    "name": "Iridium Charge M",
+    "itemID": 225
+  },
+  {
+    "name": "Lead Charge M",
+    "itemID": 226
+  },
+  {
+    "name": "Thorium Charge M",
+    "itemID": 227
+  },
+  {
+    "name": "Uranium Charge M",
+    "itemID": 228
+  },
+  {
+    "name": "Plutonium Charge M",
+    "itemID": 229
+  },
+  {
+    "name": "Antimatter Charge M",
+    "itemID": 230
+  },
+  {
+    "name": "Iron Charge L",
+    "itemID": 231
+  },
+  {
+    "name": "Tungsten Charge L",
+    "itemID": 232
+  },
+  {
+    "name": "Iridium Charge L",
+    "itemID": 233
+  },
+  {
+    "name": "Lead Charge L",
+    "itemID": 234
+  },
+  {
+    "name": "Thorium Charge L",
+    "itemID": 235
+  },
+  {
+    "name": "Uranium Charge L",
+    "itemID": 236
+  },
+  {
+    "name": "Plutonium Charge L",
+    "itemID": 237
+  },
+  {
+    "name": "Antimatter Charge L",
+    "itemID": 238
+  },
+  {
+    "name": "Radio S",
+    "itemID": 239
+  },
+  {
+    "name": "Microwave S",
+    "itemID": 240
+  },
+  {
+    "name": "Infrared S",
+    "itemID": 241
+  },
+  {
+    "name": "Standard S",
+    "itemID": 242
+  },
+  {
+    "name": "Ultraviolet S",
+    "itemID": 243
+  },
+  {
+    "name": "Xray S",
+    "itemID": 244
+  },
+  {
+    "name": "Gamma S",
+    "itemID": 245
+  },
+  {
+    "name": "Multifrequency S",
+    "itemID": 246
+  },
+  {
+    "name": "Radio M",
+    "itemID": 247
+  },
+  {
+    "name": "Microwave M",
+    "itemID": 248
+  },
+  {
+    "name": "Infrared M",
+    "itemID": 249
+  },
+  {
+    "name": "Standard M",
+    "itemID": 250
+  },
+  {
+    "name": "Ultraviolet M",
+    "itemID": 251
+  },
+  {
+    "name": "Xray M",
+    "itemID": 252
+  },
+  {
+    "name": "Gamma M",
+    "itemID": 253
+  },
+  {
+    "name": "Multifrequency M",
+    "itemID": 254
+  },
+  {
+    "name": "Radio L",
+    "itemID": 255
+  },
+  {
+    "name": "Microwave L",
+    "itemID": 256
+  },
+  {
+    "name": "Infrared L",
+    "itemID": 257
+  },
+  {
+    "name": "Standard L",
+    "itemID": 258
+  },
+  {
+    "name": "Ultraviolet L",
+    "itemID": 259
+  },
+  {
+    "name": "Xray L",
+    "itemID": 260
+  },
+  {
+    "name": "Gamma L",
+    "itemID": 261
+  },
+  {
+    "name": "Multifrequency L",
+    "itemID": 262
+  },
+  {
+    "name": "Cap Booster 25",
+    "itemID": 263
+  },
+  {
+    "name": "Cap Booster 50",
+    "itemID": 264
+  },
+  {
+    "name": "Scourge Rocket",
+    "itemID": 266
+  },
+  {
+    "name": "Scourge Torpedo",
+    "itemID": 267
+  },
+  {
+    "name": "Mjolnir Auto-Targeting Light Missile I",
+    "itemID": 269
+  },
+  {
+    "name": "Small Shield Extender I",
+    "itemID": 377
+  },
+  {
+    "name": "Small Shield Extender II",
+    "itemID": 380
+  },
+  {
+    "name": "Shield Recharger I",
+    "itemID": 393
+  },
+  {
+    "name": "Shield Recharger II",
+    "itemID": 394
+  },
+  {
+    "name": "Small Shield Booster I",
+    "itemID": 399
+  },
+  {
+    "name": "Small Shield Booster II",
+    "itemID": 400
+  },
+  {
+    "name": "5MN Microwarpdrive I",
+    "itemID": 434
+  },
+  {
+    "name": "1MN Afterburner II",
+    "itemID": 438
+  },
+  {
+    "name": "1MN Afterburner I",
+    "itemID": 439
+  },
+  {
+    "name": "5MN Microwarpdrive II",
+    "itemID": 440
+  },
+  {
+    "name": "Cargo Scanner I",
+    "itemID": 442
+  },
+  {
+    "name": "Ship Scanner I",
+    "itemID": 443
+  },
+  {
+    "name": "Survey Scanner I",
+    "itemID": 444
+  },
+  {
+    "name": "Warp Scrambler I",
+    "itemID": 447
+  },
+  {
+    "name": "Warp Scrambler II",
+    "itemID": 448
+  },
+  {
+    "name": "Gatling Pulse Laser I",
+    "itemID": 450
+  },
+  {
+    "name": "Dual Light Pulse Laser I",
+    "itemID": 451
+  },
+  {
+    "name": "Dual Light Beam Laser I",
+    "itemID": 452
+  },
+  {
+    "name": "Small Focused Pulse Laser I",
+    "itemID": 453
+  },
+  {
+    "name": "Small Focused Beam Laser I",
+    "itemID": 454
+  },
+  {
+    "name": "Quad Light Beam Laser I",
+    "itemID": 455
+  },
+  {
+    "name": "Focused Medium Pulse Laser I",
+    "itemID": 456
+  },
+  {
+    "name": "Focused Medium Beam Laser I",
+    "itemID": 457
+  },
+  {
+    "name": "Heavy Pulse Laser I",
+    "itemID": 458
+  },
+  {
+    "name": "Heavy Beam Laser I",
+    "itemID": 459
+  },
+  {
+    "name": "Dual Heavy Pulse Laser I",
+    "itemID": 460
+  },
+  {
+    "name": "Dual Heavy Beam Laser I",
+    "itemID": 461
+  },
+  {
+    "name": "Mega Pulse Laser I",
+    "itemID": 462
+  },
+  {
+    "name": "Mega Beam Laser I",
+    "itemID": 463
+  },
+  {
+    "name": "Tachyon Beam Laser I",
+    "itemID": 464
+  },
+  {
+    "name": "Miner II",
+    "itemID": 482
+  },
+  {
+    "name": "Miner I",
+    "itemID": 483
+  },
+  {
+    "name": "125mm Gatling AutoCannon I",
+    "itemID": 484
+  },
+  {
+    "name": "150mm Light AutoCannon I",
+    "itemID": 485
+  },
+  {
+    "name": "200mm AutoCannon I",
+    "itemID": 486
+  },
+  {
+    "name": "250mm Light Artillery Cannon I",
+    "itemID": 487
+  },
+  {
+    "name": "280mm Howitzer Artillery I",
+    "itemID": 488
+  },
+  {
+    "name": "Dual 180mm AutoCannon I",
+    "itemID": 489
+  },
+  {
+    "name": "220mm Vulcan AutoCannon I",
+    "itemID": 490
+  },
+  {
+    "name": "425mm AutoCannon I",
+    "itemID": 491
+  },
+  {
+    "name": "650mm Artillery Cannon I",
+    "itemID": 492
+  },
+  {
+    "name": "720mm Howitzer Artillery I",
+    "itemID": 493
+  },
+  {
+    "name": "Dual 425mm AutoCannon I",
+    "itemID": 494
+  },
+  {
+    "name": "Dual 650mm Repeating Cannon I",
+    "itemID": 495
+  },
+  {
+    "name": "800mm Repeating Cannon I",
+    "itemID": 496
+  },
+  {
+    "name": "1200mm Artillery Cannon I",
+    "itemID": 497
+  },
+  {
+    "name": "1400mm Howitzer Artillery I",
+    "itemID": 498
+  },
+  {
+    "name": "Light Missile Launcher I",
+    "itemID": 499
+  },
+  {
+    "name": "Heavy Missile Launcher I",
+    "itemID": 501
+  },
+  {
+    "name": "Torpedo Launcher I",
+    "itemID": 503
+  },
+  {
+    "name": "Gyrostabilizer II",
+    "itemID": 519
+  },
+  {
+    "name": "Gyrostabilizer I",
+    "itemID": 520
+  },
+  {
+    "name": "Small Armor Repairer I",
+    "itemID": 523
+  },
+  {
+    "name": "Small Hull Repairer I",
+    "itemID": 524
+  },
+  {
+    "name": "Stasis Webifier I",
+    "itemID": 526
+  },
+  {
+    "name": "Stasis Webifier II",
+    "itemID": 527
+  },
+  {
+    "name": "Small Remote Capacitor Transmitter I",
+    "itemID": 529
+  },
+  {
+    "name": "Small Energy Nosferatu I",
+    "itemID": 530
+  },
+  {
+    "name": "Small Energy Neutralizer I",
+    "itemID": 533
+  },
+  {
+    "name": "75mm Gatling Rail I",
+    "itemID": 561
+  },
+  {
+    "name": "Light Electron Blaster I",
+    "itemID": 562
+  },
+  {
+    "name": "Light Ion Blaster I",
+    "itemID": 563
+  },
+  {
+    "name": "Light Neutron Blaster I",
+    "itemID": 564
+  },
+  {
+    "name": "150mm Railgun I",
+    "itemID": 565
+  },
+  {
+    "name": "Heavy Electron Blaster I",
+    "itemID": 566
+  },
+  {
+    "name": "Dual 150mm Railgun I",
+    "itemID": 567
+  },
+  {
+    "name": "Heavy Neutron Blaster I",
+    "itemID": 568
+  },
+  {
+    "name": "Heavy Ion Blaster I",
+    "itemID": 569
+  },
+  {
+    "name": "250mm Railgun I",
+    "itemID": 570
+  },
+  {
+    "name": "Electron Blaster Cannon I",
+    "itemID": 571
+  },
+  {
+    "name": "Dual 250mm Railgun I",
+    "itemID": 572
+  },
+  {
+    "name": "Neutron Blaster Cannon I",
+    "itemID": 573
+  },
+  {
+    "name": "425mm Railgun I",
+    "itemID": 574
+  },
+  {
+    "name": "Ion Blaster Cannon I",
+    "itemID": 575
+  },
+  {
+    "name": "Medium Capacitor Booster I",
+    "itemID": 577
+  },
+  {
+    "name": "Multispectrum Shield Hardener I",
+    "itemID": 578
+  },
+  {
+    "name": "Burst Jammer I",
+    "itemID": 580
+  },
+  {
+    "name": "Passive Targeter I",
+    "itemID": 581
+  },
+  {
+    "name": "Bantam",
+    "itemID": 582
+  },
+  {
+    "name": "Condor",
+    "itemID": 583
+  },
+  {
+    "name": "Griffin",
+    "itemID": 584
+  },
+  {
+    "name": "Slasher",
+    "itemID": 585
+  },
+  {
+    "name": "Probe",
+    "itemID": 586
+  },
+  {
+    "name": "Rifter",
+    "itemID": 587
+  },
+  {
+    "name": "Executioner",
+    "itemID": 589
+  },
+  {
+    "name": "Inquisitor",
+    "itemID": 590
+  },
+  {
+    "name": "Navitas",
+    "itemID": 592
+  },
+  {
+    "name": "Tristan",
+    "itemID": 593
+  },
+  {
+    "name": "Incursus",
+    "itemID": 594
+  },
+  {
+    "name": "Punisher",
+    "itemID": 597
+  },
+  {
+    "name": "Breacher",
+    "itemID": 598
+  },
+  {
+    "name": "Burst",
+    "itemID": 599
+  },
+  {
+    "name": "Kestrel",
+    "itemID": 602
+  },
+  {
+    "name": "Merlin",
+    "itemID": 603
+  },
+  {
+    "name": "Heron",
+    "itemID": 605
+  },
+  {
+    "name": "Imicus",
+    "itemID": 607
+  },
+  {
+    "name": "Atron",
+    "itemID": 608
+  },
+  {
+    "name": "Maulus",
+    "itemID": 609
+  },
+  {
+    "name": "Osprey",
+    "itemID": 620
+  },
+  {
+    "name": "Caracal",
+    "itemID": 621
+  },
+  {
+    "name": "Stabber",
+    "itemID": 622
+  },
+  {
+    "name": "Moa",
+    "itemID": 623
+  },
+  {
+    "name": "Maller",
+    "itemID": 624
+  },
+  {
+    "name": "Augoror",
+    "itemID": 625
+  },
+  {
+    "name": "Vexor",
+    "itemID": 626
+  },
+  {
+    "name": "Thorax",
+    "itemID": 627
+  },
+  {
+    "name": "Arbitrator",
+    "itemID": 628
+  },
+  {
+    "name": "Rupture",
+    "itemID": 629
+  },
+  {
+    "name": "Bellicose",
+    "itemID": 630
+  },
+  {
+    "name": "Scythe",
+    "itemID": 631
+  },
+  {
+    "name": "Blackbird",
+    "itemID": 632
+  },
+  {
+    "name": "Celestis",
+    "itemID": 633
+  },
+  {
+    "name": "Exequror",
+    "itemID": 634
+  },
+  {
+    "name": "Raven",
+    "itemID": 638
+  },
+  {
+    "name": "Tempest",
+    "itemID": 639
+  },
+  {
+    "name": "Scorpion",
+    "itemID": 640
+  },
+  {
+    "name": "Megathron",
+    "itemID": 641
+  },
+  {
+    "name": "Apocalypse",
+    "itemID": 642
+  },
+  {
+    "name": "Armageddon",
+    "itemID": 643
+  },
+  {
+    "name": "Typhoon",
+    "itemID": 644
+  },
+  {
+    "name": "Dominix",
+    "itemID": 645
+  },
+  {
+    "name": "Badger",
+    "itemID": 648
+  },
+  {
+    "name": "Tayra",
+    "itemID": 649
+  },
+  {
+    "name": "Nereus",
+    "itemID": 650
+  },
+  {
+    "name": "Mammoth",
+    "itemID": 652
+  },
+  {
+    "name": "Wreathe",
+    "itemID": 653
+  },
+  {
+    "name": "Epithal",
+    "itemID": 655
+  },
+  {
+    "name": "Miasmos",
+    "itemID": 656
+  },
+  {
+    "name": "Erebus",
+    "itemID": 671
+  },
+  {
+    "name": "Caldari Shuttle",
+    "itemID": 672
+  },
+  {
+    "name": "Auto Targeting System I",
+    "itemID": 1182
+  },
+  {
+    "name": "Small Armor Repairer II",
+    "itemID": 1183
+  },
+  {
+    "name": "Small Cap Battery I",
+    "itemID": 1185
+  },
+  {
+    "name": "Small Remote Capacitor Transmitter II",
+    "itemID": 1190
+  },
+  {
+    "name": "Cap Recharger I",
+    "itemID": 1195
+  },
+  {
+    "name": "EM Coating I",
+    "itemID": 1197
+  },
+  {
+    "name": "EM Coating II",
+    "itemID": 1198
+  },
+  {
+    "name": "Wasp I",
+    "itemID": 1201
+  },
+  {
+    "name": "Civilian Mining Drone",
+    "itemID": 1202
+  },
+  {
+    "name": "Overdrive Injector System II",
+    "itemID": 1236
+  },
+  {
+    "name": "Overdrive Injector System I",
+    "itemID": 1244
+  },
+  {
+    "name": "Capacitor Flux Coil I",
+    "itemID": 1246
+  },
+  {
+    "name": "Capacitor Flux Coil II",
+    "itemID": 1248
+  },
+  {
+    "name": "Shield Flux Coil I",
+    "itemID": 1254
+  },
+  {
+    "name": "Shield Flux Coil II",
+    "itemID": 1256
+  },
+  {
+    "name": "Explosive Coating I",
+    "itemID": 1264
+  },
+  {
+    "name": "Explosive Coating II",
+    "itemID": 1266
+  },
+  {
+    "name": "Layered Coating I",
+    "itemID": 1274
+  },
+  {
+    "name": "Layered Coating II",
+    "itemID": 1276
+  },
+  {
+    "name": "Kinetic Coating I",
+    "itemID": 1284
+  },
+  {
+    "name": "Kinetic Coating II",
+    "itemID": 1286
+  },
+  {
+    "name": "Thermal Coating I",
+    "itemID": 1294
+  },
+  {
+    "name": "Thermal Coating II",
+    "itemID": 1296
+  },
+  {
+    "name": "Multispectrum Coating I",
+    "itemID": 1304
+  },
+  {
+    "name": "Multispectrum Coating II",
+    "itemID": 1306
+  },
+  {
+    "name": "Expanded Cargohold I",
+    "itemID": 1317
+  },
+  {
+    "name": "Expanded Cargohold II",
+    "itemID": 1319
+  },
+  {
+    "name": "Reinforced Bulkheads I",
+    "itemID": 1333
+  },
+  {
+    "name": "Reinforced Bulkheads II",
+    "itemID": 1335
+  },
+  {
+    "name": "Reactor Control Unit I",
+    "itemID": 1353
+  },
+  {
+    "name": "Reactor Control Unit II",
+    "itemID": 1355
+  },
+  {
+    "name": "Inertial Stabilizers I",
+    "itemID": 1403
+  },
+  {
+    "name": "Inertial Stabilizers II",
+    "itemID": 1405
+  },
+  {
+    "name": "Shield Power Relay II",
+    "itemID": 1422
+  },
+  {
+    "name": "Auto Targeting System II",
+    "itemID": 1436
+  },
+  {
+    "name": "Capacitor Power Relay I",
+    "itemID": 1445
+  },
+  {
+    "name": "Capacitor Power Relay II",
+    "itemID": 1447
+  },
+  {
+    "name": "Power Diagnostic System I",
+    "itemID": 1539
+  },
+  {
+    "name": "Power Diagnostic System II",
+    "itemID": 1541
+  },
+  {
+    "name": "Small Proton Smartbomb I",
+    "itemID": 1547
+  },
+  {
+    "name": "Small Proton Smartbomb II",
+    "itemID": 1549
+  },
+  {
+    "name": "Small Graviton Smartbomb I",
+    "itemID": 1551
+  },
+  {
+    "name": "Small Graviton Smartbomb II",
+    "itemID": 1553
+  },
+  {
+    "name": "Small Plasma Smartbomb I",
+    "itemID": 1557
+  },
+  {
+    "name": "Small Plasma Smartbomb II",
+    "itemID": 1559
+  },
+  {
+    "name": "Small EMP Smartbomb I",
+    "itemID": 1563
+  },
+  {
+    "name": "Small EMP Smartbomb II",
+    "itemID": 1565
+  },
+  {
+    "name": "EM Shield Amplifier I",
+    "itemID": 1808
+  },
+  {
+    "name": "Scourge Auto-Targeting Light Missile I",
+    "itemID": 1810
+  },
+  {
+    "name": "Nova Auto-Targeting Light Missile I",
+    "itemID": 1814
+  },
+  {
+    "name": "Inferno Auto-Targeting Light Missile I",
+    "itemID": 1816
+  },
+  {
+    "name": "Scourge Auto-Targeting Heavy Missile I",
+    "itemID": 1818
+  },
+  {
+    "name": "Mjolnir Auto-Targeting Heavy Missile I",
+    "itemID": 1820
+  },
+  {
+    "name": "Nova Auto-Targeting Heavy Missile I",
+    "itemID": 1822
+  },
+  {
+    "name": "Inferno Auto-Targeting Heavy Missile I",
+    "itemID": 1824
+  },
+  {
+    "name": "Scourge Auto-Targeting Cruise Missile I",
+    "itemID": 1826
+  },
+  {
+    "name": "Mjolnir Auto-Targeting Cruise Missile I",
+    "itemID": 1828
+  },
+  {
+    "name": "Nova Auto-Targeting Cruise Missile I",
+    "itemID": 1830
+  },
+  {
+    "name": "Inferno Auto-Targeting Cruise Missile I",
+    "itemID": 1832
+  },
+  {
+    "name": "Ship Scanner II",
+    "itemID": 1855
+  },
+  {
+    "name": "Rapid Light Missile Launcher I",
+    "itemID": 1875
+  },
+  {
+    "name": "Rapid Light Missile Launcher II",
+    "itemID": 1877
+  },
+  {
+    "name": "Bestower",
+    "itemID": 1944
+  },
+  {
+    "name": "Magnetometric ECM I",
+    "itemID": 1948
+  },
+  {
+    "name": "Sensor Booster II",
+    "itemID": 1952
+  },
+  {
+    "name": "Gravimetric ECM I",
+    "itemID": 1955
+  },
+  {
+    "name": "Radar ECM I",
+    "itemID": 1956
+  },
+  {
+    "name": "Multispectral ECM I",
+    "itemID": 1957
+  },
+  {
+    "name": "Ladar ECM I",
+    "itemID": 1958
+  },
+  {
+    "name": "Remote Sensor Booster I",
+    "itemID": 1963
+  },
+  {
+    "name": "Remote Sensor Booster II",
+    "itemID": 1964
+  },
+  {
+    "name": "Remote Sensor Dampener I",
+    "itemID": 1968
+  },
+  {
+    "name": "Remote Sensor Dampener II",
+    "itemID": 1969
+  },
+  {
+    "name": "Sensor Booster I",
+    "itemID": 1973
+  },
+  {
+    "name": "Tracking Computer I",
+    "itemID": 1977
+  },
+  {
+    "name": "Tracking Computer II",
+    "itemID": 1978
+  },
+  {
+    "name": "Signal Amplifier I",
+    "itemID": 1986
+  },
+  {
+    "name": "Signal Amplifier II",
+    "itemID": 1987
+  },
+  {
+    "name": "Tracking Enhancer I",
+    "itemID": 1998
+  },
+  {
+    "name": "Tracking Enhancer II",
+    "itemID": 1999
+  },
+  {
+    "name": "Omen",
+    "itemID": 2006
+  },
+  {
+    "name": "Medium Cap Battery I",
+    "itemID": 2018
+  },
+  {
+    "name": "Large Cap Battery I",
+    "itemID": 2020
+  },
+  {
+    "name": "Medium Capacitor Booster II",
+    "itemID": 2024
+  },
+  {
+    "name": "Cap Recharger II",
+    "itemID": 2032
+  },
+  {
+    "name": "Cargo Scanner II",
+    "itemID": 2038
+  },
+  {
+    "name": "Damage Control I",
+    "itemID": 2046
+  },
+  {
+    "name": "Damage Control II",
+    "itemID": 2048
+  },
+  {
+    "name": "Remote Tracking Computer I",
+    "itemID": 2103
+  },
+  {
+    "name": "Remote Tracking Computer II",
+    "itemID": 2104
+  },
+  {
+    "name": "Tracking Disruptor I",
+    "itemID": 2108
+  },
+  {
+    "name": "Tracking Disruptor II",
+    "itemID": 2109
+  },
+  {
+    "name": "Burst Jammer II",
+    "itemID": 2117
+  },
+  {
+    "name": "Crucifier",
+    "itemID": 2161
+  },
+  {
+    "name": "Infiltrator I",
+    "itemID": 2173
+  },
+  {
+    "name": "Infiltrator II",
+    "itemID": 2175
+  },
+  {
+    "name": "Hammerhead I",
+    "itemID": 2183
+  },
+  {
+    "name": "Hammerhead II",
+    "itemID": 2185
+  },
+  {
+    "name": "Praetor I",
+    "itemID": 2193
+  },
+  {
+    "name": "Praetor II",
+    "itemID": 2195
+  },
+  {
+    "name": "Acolyte I",
+    "itemID": 2203
+  },
+  {
+    "name": "Acolyte II",
+    "itemID": 2205
+  },
+  {
+    "name": "Multispectrum Shield Hardener II",
+    "itemID": 2281
+  },
+  {
+    "name": "Explosive Shield Hardener I",
+    "itemID": 2289
+  },
+  {
+    "name": "Kinetic Shield Hardener I",
+    "itemID": 2291
+  },
+  {
+    "name": "EM Shield Hardener I",
+    "itemID": 2293
+  },
+  {
+    "name": "Thermal Shield Hardener I",
+    "itemID": 2295
+  },
+  {
+    "name": "Explosive Shield Hardener II",
+    "itemID": 2297
+  },
+  {
+    "name": "Kinetic Shield Hardener II",
+    "itemID": 2299
+  },
+  {
+    "name": "EM Shield Hardener II",
+    "itemID": 2301
+  },
+  {
+    "name": "Thermal Shield Hardener II",
+    "itemID": 2303
+  },
+  {
+    "name": "Shield Power Relay I",
+    "itemID": 2331
+  },
+  {
+    "name": "Survey Scanner II",
+    "itemID": 2333
+  },
+  {
+    "name": "Passive Targeter II",
+    "itemID": 2341
+  },
+  {
+    "name": "Small Hull Repairer II",
+    "itemID": 2355
+  },
+  {
+    "name": "Heat Sink I",
+    "itemID": 2363
+  },
+  {
+    "name": "Heat Sink II",
+    "itemID": 2364
+  },
+  {
+    "name": "Light Missile Launcher II",
+    "itemID": 2404
+  },
+  {
+    "name": "Heavy Missile Launcher II",
+    "itemID": 2410
+  },
+  {
+    "name": "Torpedo Launcher II",
+    "itemID": 2420
+  },
+  {
+    "name": "Wasp II",
+    "itemID": 2436
+  },
+  {
+    "name": "Ogre I",
+    "itemID": 2444
+  },
+  {
+    "name": "Ogre II",
+    "itemID": 2446
+  },
+  {
+    "name": "Hobgoblin I",
+    "itemID": 2454
+  },
+  {
+    "name": "Hobgoblin II",
+    "itemID": 2456
+  },
+  {
+    "name": "Hornet I",
+    "itemID": 2464
+  },
+  {
+    "name": "Hornet II",
+    "itemID": 2466
+  },
+  {
+    "name": "Berserker I",
+    "itemID": 2476
+  },
+  {
+    "name": "Berserker II",
+    "itemID": 2478
+  },
+  {
+    "name": "Warrior I",
+    "itemID": 2486
+  },
+  {
+    "name": "Warrior II",
+    "itemID": 2488
+  },
+  {
+    "name": "Mjolnir Torpedo",
+    "itemID": 2506
+  },
+  {
+    "name": "Nova Torpedo",
+    "itemID": 2508
+  },
+  {
+    "name": "Inferno Torpedo",
+    "itemID": 2510
+  },
+  {
+    "name": "Mjolnir Rocket",
+    "itemID": 2512
+  },
+  {
+    "name": "Inferno Rocket",
+    "itemID": 2514
+  },
+  {
+    "name": "Nova Rocket",
+    "itemID": 2516
+  },
+  {
+    "name": "Explosive Shield Amplifier I",
+    "itemID": 2529
+  },
+  {
+    "name": "Explosive Shield Amplifier II",
+    "itemID": 2531
+  },
+  {
+    "name": "Thermal Shield Amplifier I",
+    "itemID": 2537
+  },
+  {
+    "name": "Thermal Shield Amplifier II",
+    "itemID": 2539
+  },
+  {
+    "name": "Kinetic Shield Amplifier I",
+    "itemID": 2545
+  },
+  {
+    "name": "Kinetic Shield Amplifier II",
+    "itemID": 2547
+  },
+  {
+    "name": "EM Shield Amplifier II",
+    "itemID": 2553
+  },
+  {
+    "name": "Ladar ECM II",
+    "itemID": 2559
+  },
+  {
+    "name": "Magnetometric ECM II",
+    "itemID": 2563
+  },
+  {
+    "name": "Multispectral ECM II",
+    "itemID": 2567
+  },
+  {
+    "name": "Gravimetric ECM II",
+    "itemID": 2571
+  },
+  {
+    "name": "Radar ECM II",
+    "itemID": 2575
+  },
+  {
+    "name": "Nanofiber Internal Structure I",
+    "itemID": 2603
+  },
+  {
+    "name": "Nanofiber Internal Structure II",
+    "itemID": 2605
+  },
+  {
+    "name": "Mjolnir Fury Light Missile",
+    "itemID": 2613
+  },
+  {
+    "name": "Inferno Fury Cruise Missile",
+    "itemID": 2621
+  },
+  {
+    "name": "Scourge Fury Heavy Missile",
+    "itemID": 2629
+  },
+  {
+    "name": "Inferno Precision Cruise Missile",
+    "itemID": 2637
+  },
+  {
+    "name": "Inferno Precision Light Missile",
+    "itemID": 2647
+  },
+  {
+    "name": "Nova Precision Heavy Missile",
+    "itemID": 2655
+  },
+  {
+    "name": "Scourge Rage Heavy Assault Missile",
+    "itemID": 2679
+  },
+  {
+    "name": "Nova Javelin Torpedo",
+    "itemID": 2801
+  },
+  {
+    "name": "Inferno Rage Torpedo",
+    "itemID": 2811
+  },
+  {
+    "name": "Mjolnir Rage Rocket",
+    "itemID": 2817
+  },
+  {
+    "name": "1200mm Artillery Cannon II",
+    "itemID": 2865
+  },
+  {
+    "name": "125mm Gatling AutoCannon II",
+    "itemID": 2873
+  },
+  {
+    "name": "150mm Light AutoCannon II",
+    "itemID": 2881
+  },
+  {
+    "name": "200mm AutoCannon II",
+    "itemID": 2889
+  },
+  {
+    "name": "220mm Vulcan AutoCannon II",
+    "itemID": 2897
+  },
+  {
+    "name": "250mm Light Artillery Cannon II",
+    "itemID": 2905
+  },
+  {
+    "name": "425mm AutoCannon II",
+    "itemID": 2913
+  },
+  {
+    "name": "650mm Artillery Cannon II",
+    "itemID": 2921
+  },
+  {
+    "name": "800mm Repeating Cannon II",
+    "itemID": 2929
+  },
+  {
+    "name": "Dual 180mm AutoCannon II",
+    "itemID": 2937
+  },
+  {
+    "name": "Dual 425mm AutoCannon II",
+    "itemID": 2945
+  },
+  {
+    "name": "Dual 650mm Repeating Cannon II",
+    "itemID": 2953
+  },
+  {
+    "name": "1400mm Howitzer Artillery II",
+    "itemID": 2961
+  },
+  {
+    "name": "720mm Howitzer Artillery II",
+    "itemID": 2969
+  },
+  {
+    "name": "280mm Howitzer Artillery II",
+    "itemID": 2977
+  },
+  {
+    "name": "Dual Heavy Beam Laser II",
+    "itemID": 2985
+  },
+  {
+    "name": "Dual Light Beam Laser II",
+    "itemID": 2993
+  },
+  {
+    "name": "Noctis",
+    "itemID": 2998
+  },
+  {
+    "name": "Dual Light Pulse Laser II",
+    "itemID": 3001
+  },
+  {
+    "name": "Focused Medium Beam Laser II",
+    "itemID": 3009
+  },
+  {
+    "name": "Gatling Pulse Laser II",
+    "itemID": 3017
+  },
+  {
+    "name": "Heavy Beam Laser II",
+    "itemID": 3025
+  },
+  {
+    "name": "Small Focused Beam Laser II",
+    "itemID": 3033
+  },
+  {
+    "name": "Small Focused Pulse Laser II",
+    "itemID": 3041
+  },
+  {
+    "name": "Mega Beam Laser II",
+    "itemID": 3049
+  },
+  {
+    "name": "Mega Pulse Laser II",
+    "itemID": 3057
+  },
+  {
+    "name": "Tachyon Beam Laser II",
+    "itemID": 3065
+  },
+  {
+    "name": "150mm Railgun II",
+    "itemID": 3074
+  },
+  {
+    "name": "250mm Railgun II",
+    "itemID": 3082
+  },
+  {
+    "name": "425mm Railgun II",
+    "itemID": 3090
+  },
+  {
+    "name": "75mm Gatling Rail II",
+    "itemID": 3098
+  },
+  {
+    "name": "Dual 150mm Railgun II",
+    "itemID": 3106
+  },
+  {
+    "name": "Dual 250mm Railgun II",
+    "itemID": 3114
+  },
+  {
+    "name": "Electron Blaster Cannon II",
+    "itemID": 3122
+  },
+  {
+    "name": "Heavy Electron Blaster II",
+    "itemID": 3130
+  },
+  {
+    "name": "Heavy Ion Blaster II",
+    "itemID": 3138
+  },
+  {
+    "name": "Heavy Neutron Blaster II",
+    "itemID": 3146
+  },
+  {
+    "name": "Ion Blaster Cannon II",
+    "itemID": 3154
+  },
+  {
+    "name": "Light Electron Blaster II",
+    "itemID": 3162
+  },
+  {
+    "name": "Light Ion Blaster II",
+    "itemID": 3170
+  },
+  {
+    "name": "Light Neutron Blaster II",
+    "itemID": 3178
+  },
+  {
+    "name": "Neutron Blaster Cannon II",
+    "itemID": 3186
+  },
+  {
+    "name": "Warp Disruptor I",
+    "itemID": 3242
+  },
+  {
+    "name": "Warp Disruptor II",
+    "itemID": 3244
+  },
+  {
+    "name": "Quad Light Beam Laser II",
+    "itemID": 3285
+  },
+  {
+    "name": "Small Cap Battery II",
+    "itemID": 3488
+  },
+  {
+    "name": "Medium Cap Battery II",
+    "itemID": 3496
+  },
+  {
+    "name": "Large Cap Battery II",
+    "itemID": 3504
+  },
+  {
+    "name": "Focused Medium Pulse Laser II",
+    "itemID": 3512
+  },
+  {
+    "name": "Heavy Pulse Laser II",
+    "itemID": 3520
+  },
+  {
+    "name": "Medium Armor Repairer I",
+    "itemID": 3528
+  },
+  {
+    "name": "Medium Armor Repairer II",
+    "itemID": 3530
+  },
+  {
+    "name": "Large Armor Repairer I",
+    "itemID": 3538
+  },
+  {
+    "name": "Large Armor Repairer II",
+    "itemID": 3540
+  },
+  {
+    "name": "Cap Booster 75",
+    "itemID": 3552
+  },
+  {
+    "name": "Cap Booster 100",
+    "itemID": 3554
+  },
+  {
+    "name": "Small Capacitor Booster I",
+    "itemID": 3566
+  },
+  {
+    "name": "Small Capacitor Booster II",
+    "itemID": 3568
+  },
+  {
+    "name": "Heavy Capacitor Booster I",
+    "itemID": 3576
+  },
+  {
+    "name": "Heavy Capacitor Booster II",
+    "itemID": 3578
+  },
+  {
+    "name": "Small Remote Shield Booster I",
+    "itemID": 3586
+  },
+  {
+    "name": "Small Remote Shield Booster II",
+    "itemID": 3588
+  },
+  {
+    "name": "Medium Remote Shield Booster I",
+    "itemID": 3596
+  },
+  {
+    "name": "Medium Remote Shield Booster II",
+    "itemID": 3598
+  },
+  {
+    "name": "Large Remote Shield Booster I",
+    "itemID": 3606
+  },
+  {
+    "name": "Large Remote Shield Booster II",
+    "itemID": 3608
+  },
+  {
+    "name": "Capital Remote Shield Booster I",
+    "itemID": 3616
+  },
+  {
+    "name": "Capital Remote Shield Booster II",
+    "itemID": 3618
+  },
+  {
+    "name": "Civilian Miner",
+    "itemID": 3651
+  },
+  {
+    "name": "Medium Hull Repairer I",
+    "itemID": 3653
+  },
+  {
+    "name": "Medium Hull Repairer II",
+    "itemID": 3655
+  },
+  {
+    "name": "Large Hull Repairer I",
+    "itemID": 3663
+  },
+  {
+    "name": "Large Hull Repairer II",
+    "itemID": 3665
+  },
+  {
+    "name": "Leviathan",
+    "itemID": 3764
+  },
+  {
+    "name": "Vigil",
+    "itemID": 3766
+  },
+  {
+    "name": "Medium Shield Extender I",
+    "itemID": 3829
+  },
+  {
+    "name": "Medium Shield Extender II",
+    "itemID": 3831
+  },
+  {
+    "name": "Large Shield Extender I",
+    "itemID": 3839
+  },
+  {
+    "name": "Large Shield Extender II",
+    "itemID": 3841
+  },
+  {
+    "name": "Co-Processor I",
+    "itemID": 3887
+  },
+  {
+    "name": "Co-Processor II",
+    "itemID": 3888
+  },
+  {
+    "name": "Medium Proton Smartbomb I",
+    "itemID": 3937
+  },
+  {
+    "name": "Medium Proton Smartbomb II",
+    "itemID": 3939
+  },
+  {
+    "name": "Medium Graviton Smartbomb I",
+    "itemID": 3941
+  },
+  {
+    "name": "Medium Graviton Smartbomb II",
+    "itemID": 3943
+  },
+  {
+    "name": "Medium Plasma Smartbomb I",
+    "itemID": 3947
+  },
+  {
+    "name": "Medium Plasma Smartbomb II",
+    "itemID": 3949
+  },
+  {
+    "name": "Medium EMP Smartbomb I",
+    "itemID": 3953
+  },
+  {
+    "name": "Medium EMP Smartbomb II",
+    "itemID": 3955
+  },
+  {
+    "name": "Large Proton Smartbomb I",
+    "itemID": 3977
+  },
+  {
+    "name": "Large Proton Smartbomb II",
+    "itemID": 3979
+  },
+  {
+    "name": "Large Graviton Smartbomb I",
+    "itemID": 3981
+  },
+  {
+    "name": "Large Graviton Smartbomb II",
+    "itemID": 3983
+  },
+  {
+    "name": "Large Remote Hull Repairer II",
+    "itemID": 3986
+  },
+  {
+    "name": "Large Plasma Smartbomb I",
+    "itemID": 3987
+  },
+  {
+    "name": "Large Plasma Smartbomb II",
+    "itemID": 3989
+  },
+  {
+    "name": "Large EMP Smartbomb I",
+    "itemID": 3993
+  },
+  {
+    "name": "Large EMP Smartbomb II",
+    "itemID": 3995
+  },
+  {
+    "name": "Nitrogen Fuel Block",
+    "itemID": 4051
+  },
+  {
+    "name": "Dual Heavy Pulse Laser II",
+    "itemID": 4147
+  },
+  {
+    "name": "Hydrogen Fuel Block",
+    "itemID": 4246
+  },
+  {
+    "name": "Helium Fuel Block",
+    "itemID": 4247
+  },
+  {
+    "name": "Warp Disruption Field Generator II",
+    "itemID": 4248
+  },
+  {
+    "name": "Small Tractor Beam II",
+    "itemID": 4250
+  },
+  {
+    "name": "Capital Tractor Beam II",
+    "itemID": 4252
+  },
+  {
+    "name": "Micro Auxiliary Power Core II",
+    "itemID": 4254
+  },
+  {
+    "name": "Bomb Launcher II",
+    "itemID": 4256
+  },
+  {
+    "name": "Core Probe Launcher II",
+    "itemID": 4258
+  },
+  {
+    "name": "Expanded Probe Launcher II",
+    "itemID": 4260
+  },
+  {
+    "name": "Mining Foreman Link - Harvester Capacitor Efficiency II",
+    "itemID": 4274
+  },
+  {
+    "name": "Mining Foreman Link - Laser Optimization II",
+    "itemID": 4276
+  },
+  {
+    "name": "Mining Foreman Link - Mining Laser Field Enhancement II",
+    "itemID": 4278
+  },
+  {
+    "name": "Siege Module II",
+    "itemID": 4292
+  },
+  {
+    "name": "Triage Module II",
+    "itemID": 4294
+  },
+  {
+    "name": "Medium Remote Hull Repairer II",
+    "itemID": 4296
+  },
+  {
+    "name": "Small Remote Hull Repairer II",
+    "itemID": 4299
+  },
+  {
+    "name": "Oxygen Fuel Block",
+    "itemID": 4312
+  },
+  {
+    "name": "Drone Damage Amplifier I",
+    "itemID": 4393
+  },
+  {
+    "name": "Medium Processor Overclocking Unit I",
+    "itemID": 4395
+  },
+  {
+    "name": "Large Processor Overclocking Unit I",
+    "itemID": 4397
+  },
+  {
+    "name": "Medium Processor Overclocking Unit II",
+    "itemID": 4399
+  },
+  {
+    "name": "Large Processor Overclocking Unit II",
+    "itemID": 4401
+  },
+  {
+    "name": "Reactive Armor Hardener",
+    "itemID": 4403
+  },
+  {
+    "name": "Drone Damage Amplifier II",
+    "itemID": 4405
+  },
+  {
+    "name": "Magnetic Field Stabilizer I",
+    "itemID": 9944
+  },
+  {
+    "name": "Magnetic Field Stabilizer II",
+    "itemID": 10190
+  },
+  {
+    "name": "Mining Drone I",
+    "itemID": 10246
+  },
+  {
+    "name": "Mining Drone II",
+    "itemID": 10250
+  },
+  {
+    "name": "Rocket Launcher I",
+    "itemID": 10629
+  },
+  {
+    "name": "Rocket Launcher II",
+    "itemID": 10631
+  },
+  {
+    "name": "125mm Railgun I",
+    "itemID": 10678
+  },
+  {
+    "name": "125mm Railgun II",
+    "itemID": 10680
+  },
+  {
+    "name": "Medium Shield Booster I",
+    "itemID": 10836
+  },
+  {
+    "name": "Large Shield Booster I",
+    "itemID": 10838
+  },
+  {
+    "name": "X-Large Shield Booster I",
+    "itemID": 10840
+  },
+  {
+    "name": "X-Large Shield Booster II",
+    "itemID": 10842
+  },
+  {
+    "name": "Medium Shield Booster II",
+    "itemID": 10850
+  },
+  {
+    "name": "Large Shield Booster II",
+    "itemID": 10858
+  },
+  {
+    "name": "Warp Core Stabilizer I",
+    "itemID": 10998
+  },
+  {
+    "name": "Helios",
+    "itemID": 11172
+  },
+  {
+    "name": "Keres",
+    "itemID": 11174
+  },
+  {
+    "name": "Crow",
+    "itemID": 11176
+  },
+  {
+    "name": "Raptor",
+    "itemID": 11178
+  },
+  {
+    "name": "Cheetah",
+    "itemID": 11182
+  },
+  {
+    "name": "Crusader",
+    "itemID": 11184
+  },
+  {
+    "name": "Malediction",
+    "itemID": 11186
+  },
+  {
+    "name": "Anathema",
+    "itemID": 11188
+  },
+  {
+    "name": "Sentinel",
+    "itemID": 11190
+  },
+  {
+    "name": "Buzzard",
+    "itemID": 11192
+  },
+  {
+    "name": "Kitsune",
+    "itemID": 11194
+  },
+  {
+    "name": "Claw",
+    "itemID": 11196
+  },
+  {
+    "name": "Stiletto",
+    "itemID": 11198
+  },
+  {
+    "name": "Taranis",
+    "itemID": 11200
+  },
+  {
+    "name": "Ares",
+    "itemID": 11202
+  },
+  {
+    "name": "EM Energized Membrane I",
+    "itemID": 11217
+  },
+  {
+    "name": "EM Energized Membrane II",
+    "itemID": 11219
+  },
+  {
+    "name": "Explosive Energized Membrane I",
+    "itemID": 11227
+  },
+  {
+    "name": "Explosive Energized Membrane II",
+    "itemID": 11229
+  },
+  {
+    "name": "Layered Energized Membrane I",
+    "itemID": 11237
+  },
+  {
+    "name": "Layered Energized Membrane II",
+    "itemID": 11239
+  },
+  {
+    "name": "Kinetic Energized Membrane I",
+    "itemID": 11247
+  },
+  {
+    "name": "Kinetic Energized Membrane II",
+    "itemID": 11249
+  },
+  {
+    "name": "Thermal Energized Membrane I",
+    "itemID": 11257
+  },
+  {
+    "name": "Thermal Energized Membrane II",
+    "itemID": 11259
+  },
+  {
+    "name": "Multispectrum Energized Membrane I",
+    "itemID": 11267
+  },
+  {
+    "name": "Multispectrum Energized Membrane II",
+    "itemID": 11269
+  },
+  {
+    "name": "Thermal Armor Hardener I",
+    "itemID": 11277
+  },
+  {
+    "name": "1600mm Steel Plates I",
+    "itemID": 11279
+  },
+  {
+    "name": "Cap Booster 150",
+    "itemID": 11283
+  },
+  {
+    "name": "Cap Booster 200",
+    "itemID": 11285
+  },
+  {
+    "name": "Cap Booster 400",
+    "itemID": 11287
+  },
+  {
+    "name": "Cap Booster 800",
+    "itemID": 11289
+  },
+  {
+    "name": "100mm Steel Plates I",
+    "itemID": 11293
+  },
+  {
+    "name": "200mm Steel Plates I",
+    "itemID": 11295
+  },
+  {
+    "name": "400mm Steel Plates I",
+    "itemID": 11297
+  },
+  {
+    "name": "800mm Steel Plates I",
+    "itemID": 11299
+  },
+  {
+    "name": "EM Armor Hardener I",
+    "itemID": 11301
+  },
+  {
+    "name": "Explosive Armor Hardener I",
+    "itemID": 11303
+  },
+  {
+    "name": "Kinetic Armor Hardener I",
+    "itemID": 11305
+  },
+  {
+    "name": "Small Remote Armor Repairer I",
+    "itemID": 11355
+  },
+  {
+    "name": "Medium Remote Armor Repairer I",
+    "itemID": 11357
+  },
+  {
+    "name": "Large Remote Armor Repairer I",
+    "itemID": 11359
+  },
+  {
+    "name": "Vengeance",
+    "itemID": 11365
+  },
+  {
+    "name": "Prototype Cloaking Device I",
+    "itemID": 11370
+  },
+  {
+    "name": "Wolf",
+    "itemID": 11371
+  },
+  {
+    "name": "Nemesis",
+    "itemID": 11377
+  },
+  {
+    "name": "Hawk",
+    "itemID": 11379
+  },
+  {
+    "name": "Harpy",
+    "itemID": 11381
+  },
+  {
+    "name": "Hyena",
+    "itemID": 11387
+  },
+  {
+    "name": "Retribution",
+    "itemID": 11393
+  },
+  {
+    "name": "Jaguar",
+    "itemID": 11400
+  },
+  {
+    "name": "Plasma Thruster",
+    "itemID": 11530
+  },
+  {
+    "name": "Ion Thruster",
+    "itemID": 11531
+  },
+  {
+    "name": "Fusion Thruster",
+    "itemID": 11532
+  },
+  {
+    "name": "Magpulse Thruster",
+    "itemID": 11533
+  },
+  {
+    "name": "Gravimetric Sensor Cluster",
+    "itemID": 11534
+  },
+  {
+    "name": "Magnetometric Sensor Cluster",
+    "itemID": 11535
+  },
+  {
+    "name": "Ladar Sensor Cluster",
+    "itemID": 11536
+  },
+  {
+    "name": "Radar Sensor Cluster",
+    "itemID": 11537
+  },
+  {
+    "name": "Nanomechanical Microprocessor",
+    "itemID": 11538
+  },
+  {
+    "name": "Nanoelectrical Microprocessor",
+    "itemID": 11539
+  },
+  {
+    "name": "Quantum Microprocessor",
+    "itemID": 11540
+  },
+  {
+    "name": "Photon Microprocessor",
+    "itemID": 11541
+  },
+  {
+    "name": "Fernite Carbide Composite Armor Plate",
+    "itemID": 11542
+  },
+  {
+    "name": "Tungsten Carbide Armor Plate",
+    "itemID": 11543
+  },
+  {
+    "name": "Titanium Diborite Armor Plate",
+    "itemID": 11544
+  },
+  {
+    "name": "Crystalline Carbonide Armor Plate",
+    "itemID": 11545
+  },
+  {
+    "name": "Fusion Reactor Unit",
+    "itemID": 11547
+  },
+  {
+    "name": "Nuclear Reactor Unit",
+    "itemID": 11548
+  },
+  {
+    "name": "Antimatter Reactor Unit",
+    "itemID": 11549
+  },
+  {
+    "name": "Graviton Reactor Unit",
+    "itemID": 11550
+  },
+  {
+    "name": "Electrolytic Capacitor Unit",
+    "itemID": 11551
+  },
+  {
+    "name": "Scalar Capacitor Unit",
+    "itemID": 11552
+  },
+  {
+    "name": "Oscillator Capacitor Unit",
+    "itemID": 11553
+  },
+  {
+    "name": "Tesseract Capacitor Unit",
+    "itemID": 11554
+  },
+  {
+    "name": "Deflection Shield Emitter",
+    "itemID": 11555
+  },
+  {
+    "name": "Pulse Shield Emitter",
+    "itemID": 11556
+  },
+  {
+    "name": "Linear Shield Emitter",
+    "itemID": 11557
+  },
+  {
+    "name": "Sustained Shield Emitter",
+    "itemID": 11558
+  },
+  {
+    "name": "Shield Boost Amplifier I",
+    "itemID": 11561
+  },
+  {
+    "name": "Micro Auxiliary Power Core I",
+    "itemID": 11563
+  },
+  {
+    "name": "Avatar",
+    "itemID": 11567
+  },
+  {
+    "name": "Improved Cloaking Device II",
+    "itemID": 11577
+  },
+  {
+    "name": "Covert Ops Cloaking Device II",
+    "itemID": 11578
+  },
+  {
+    "name": "Warp Core Stabilizer II",
+    "itemID": 11640
+  },
+  {
+    "name": "EM Armor Hardener II",
+    "itemID": 11642
+  },
+  {
+    "name": "Kinetic Armor Hardener II",
+    "itemID": 11644
+  },
+  {
+    "name": "Explosive Armor Hardener II",
+    "itemID": 11646
+  },
+  {
+    "name": "Thermal Armor Hardener II",
+    "itemID": 11648
+  },
+  {
+    "name": "Particle Accelerator Unit",
+    "itemID": 11688
+  },
+  {
+    "name": "Laser Focusing Crystals",
+    "itemID": 11689
+  },
+  {
+    "name": "Superconductor Rails",
+    "itemID": 11690
+  },
+  {
+    "name": "Thermonuclear Trigger Unit",
+    "itemID": 11691
+  },
+  {
+    "name": "Nuclear Pulse Generator",
+    "itemID": 11692
+  },
+  {
+    "name": "Graviton Pulse Generator",
+    "itemID": 11693
+  },
+  {
+    "name": "EM Pulse Generator",
+    "itemID": 11694
+  },
+  {
+    "name": "Plasma Pulse Generator",
+    "itemID": 11695
+  },
+  {
+    "name": "Falcon",
+    "itemID": 11957
+  },
+  {
+    "name": "Rook",
+    "itemID": 11959
+  },
+  {
+    "name": "Huginn",
+    "itemID": 11961
+  },
+  {
+    "name": "Rapier",
+    "itemID": 11963
+  },
+  {
+    "name": "Pilgrim",
+    "itemID": 11965
+  },
+  {
+    "name": "Arazu",
+    "itemID": 11969
+  },
+  {
+    "name": "Lachesis",
+    "itemID": 11971
+  },
+  {
+    "name": "Scimitar",
+    "itemID": 11978
+  },
+  {
+    "name": "Basilisk",
+    "itemID": 11985
+  },
+  {
+    "name": "Guardian",
+    "itemID": 11987
+  },
+  {
+    "name": "Oneiros",
+    "itemID": 11989
+  },
+  {
+    "name": "Cerberus",
+    "itemID": 11993
+  },
+  {
+    "name": "Onyx",
+    "itemID": 11995
+  },
+  {
+    "name": "Vagabond",
+    "itemID": 11999
+  },
+  {
+    "name": "Zealot",
+    "itemID": 12003
+  },
+  {
+    "name": "Ishtar",
+    "itemID": 12005
+  },
+  {
+    "name": "Eagle",
+    "itemID": 12011
+  },
+  {
+    "name": "Broadsword",
+    "itemID": 12013
+  },
+  {
+    "name": "Muninn",
+    "itemID": 12015
+  },
+  {
+    "name": "Devoter",
+    "itemID": 12017
+  },
+  {
+    "name": "Sacrilege",
+    "itemID": 12019
+  },
+  {
+    "name": "Phobos",
+    "itemID": 12021
+  },
+  {
+    "name": "Deimos",
+    "itemID": 12023
+  },
+  {
+    "name": "Manticore",
+    "itemID": 12032
+  },
+  {
+    "name": "Hound",
+    "itemID": 12034
+  },
+  {
+    "name": "Purifier",
+    "itemID": 12038
+  },
+  {
+    "name": "Ishkur",
+    "itemID": 12042
+  },
+  {
+    "name": "Enyo",
+    "itemID": 12044
+  },
+  {
+    "name": "50MN Microwarpdrive I",
+    "itemID": 12052
+  },
+  {
+    "name": "500MN Microwarpdrive I",
+    "itemID": 12054
+  },
+  {
+    "name": "10MN Afterburner I",
+    "itemID": 12056
+  },
+  {
+    "name": "10MN Afterburner II",
+    "itemID": 12058
+  },
+  {
+    "name": "100MN Afterburner I",
+    "itemID": 12066
+  },
+  {
+    "name": "100MN Afterburner II",
+    "itemID": 12068
+  },
+  {
+    "name": "50MN Microwarpdrive II",
+    "itemID": 12076
+  },
+  {
+    "name": "500MN Microwarpdrive II",
+    "itemID": 12084
+  },
+  {
+    "name": "Large Remote Capacitor Transmitter II",
+    "itemID": 12102
+  },
+  {
+    "name": "Deep Core Mining Laser I",
+    "itemID": 12108
+  },
+  {
+    "name": "Mobile Small Warp Disruptor I",
+    "itemID": 12198
+  },
+  {
+    "name": "Mobile Medium Warp Disruptor I",
+    "itemID": 12199
+  },
+  {
+    "name": "Mobile Large Warp Disruptor I",
+    "itemID": 12200
+  },
+  {
+    "name": "Medium Remote Capacitor Transmitter I",
+    "itemID": 12217
+  },
+  {
+    "name": "Capital Remote Capacitor Transmitter I",
+    "itemID": 12219
+  },
+  {
+    "name": "Medium Remote Capacitor Transmitter II",
+    "itemID": 12221
+  },
+  {
+    "name": "Capital Remote Capacitor Transmitter II",
+    "itemID": 12223
+  },
+  {
+    "name": "Large Remote Capacitor Transmitter I",
+    "itemID": 12225
+  },
+  {
+    "name": "Amarr Control Tower",
+    "itemID": 12235
+  },
+  {
+    "name": "Gallente Control Tower",
+    "itemID": 12236
+  },
+  {
+    "name": "Medium Energy Nosferatu I",
+    "itemID": 12257
+  },
+  {
+    "name": "Medium Energy Nosferatu II",
+    "itemID": 12259
+  },
+  {
+    "name": "Heavy Energy Nosferatu I",
+    "itemID": 12261
+  },
+  {
+    "name": "Heavy Energy Nosferatu II",
+    "itemID": 12263
+  },
+  {
+    "name": "Medium Energy Neutralizer I",
+    "itemID": 12265
+  },
+  {
+    "name": "Medium Energy Neutralizer II",
+    "itemID": 12267
+  },
+  {
+    "name": "Heavy Energy Neutralizer I",
+    "itemID": 12269
+  },
+  {
+    "name": "Heavy Energy Neutralizer II",
+    "itemID": 12271
+  },
+  {
+    "name": "Ballistic Control System I",
+    "itemID": 12274
+  },
+  {
+    "name": "200mm Railgun I",
+    "itemID": 12344
+  },
+  {
+    "name": "200mm Railgun II",
+    "itemID": 12346
+  },
+  {
+    "name": "350mm Railgun I",
+    "itemID": 12354
+  },
+  {
+    "name": "350mm Railgun II",
+    "itemID": 12356
+  },
+  {
+    "name": "Gleam S",
+    "itemID": 12557
+  },
+  {
+    "name": "Aurora S",
+    "itemID": 12559
+  },
+  {
+    "name": "Scorch S",
+    "itemID": 12563
+  },
+  {
+    "name": "Conflagration S",
+    "itemID": 12565
+  },
+  {
+    "name": "Hail S",
+    "itemID": 12608
+  },
+  {
+    "name": "Void S",
+    "itemID": 12612
+  },
+  {
+    "name": "Null S",
+    "itemID": 12614
+  },
+  {
+    "name": "Spike S",
+    "itemID": 12618
+  },
+  {
+    "name": "Javelin S",
+    "itemID": 12620
+  },
+  {
+    "name": "Barrage S",
+    "itemID": 12625
+  },
+  {
+    "name": "Quake S",
+    "itemID": 12631
+  },
+  {
+    "name": "Tremor S",
+    "itemID": 12633
+  },
+  {
+    "name": "Target Painter I",
+    "itemID": 12709
+  },
+  {
+    "name": "Crane",
+    "itemID": 12729
+  },
+  {
+    "name": "Bustard",
+    "itemID": 12731
+  },
+  {
+    "name": "Prorator",
+    "itemID": 12733
+  },
+  {
+    "name": "Prowler",
+    "itemID": 12735
+  },
+  {
+    "name": "Viator",
+    "itemID": 12743
+  },
+  {
+    "name": "Occator",
+    "itemID": 12745
+  },
+  {
+    "name": "Mastodon",
+    "itemID": 12747
+  },
+  {
+    "name": "Impel",
+    "itemID": 12753
+  },
+  {
+    "name": "Quake L",
+    "itemID": 12761
+  },
+  {
+    "name": "Tremor L",
+    "itemID": 12765
+  },
+  {
+    "name": "Quake M",
+    "itemID": 12767
+  },
+  {
+    "name": "Tremor M",
+    "itemID": 12771
+  },
+  {
+    "name": "Barrage M",
+    "itemID": 12773
+  },
+  {
+    "name": "Barrage L",
+    "itemID": 12775
+  },
+  {
+    "name": "Hail M",
+    "itemID": 12777
+  },
+  {
+    "name": "Hail L",
+    "itemID": 12779
+  },
+  {
+    "name": "Null M",
+    "itemID": 12785
+  },
+  {
+    "name": "Null L",
+    "itemID": 12787
+  },
+  {
+    "name": "Void M",
+    "itemID": 12789
+  },
+  {
+    "name": "Void L",
+    "itemID": 12791
+  },
+  {
+    "name": "Javelin M",
+    "itemID": 12801
+  },
+  {
+    "name": "Javelin L",
+    "itemID": 12803
+  },
+  {
+    "name": "Spike M",
+    "itemID": 12805
+  },
+  {
+    "name": "Spike L",
+    "itemID": 12807
+  },
+  {
+    "name": "Conflagration M",
+    "itemID": 12814
+  },
+  {
+    "name": "Conflagration L",
+    "itemID": 12816
+  },
+  {
+    "name": "Scorch M",
+    "itemID": 12818
+  },
+  {
+    "name": "Scorch L",
+    "itemID": 12820
+  },
+  {
+    "name": "Aurora M",
+    "itemID": 12822
+  },
+  {
+    "name": "Aurora L",
+    "itemID": 12824
+  },
+  {
+    "name": "Gleam M",
+    "itemID": 12826
+  },
+  {
+    "name": "Gleam L",
+    "itemID": 12828
+  },
+  {
+    "name": "Small Energy Nosferatu II",
+    "itemID": 13001
+  },
+  {
+    "name": "Small Energy Neutralizer II",
+    "itemID": 13003
+  },
+  {
+    "name": "Mjolnir Javelin Rocket",
+    "itemID": 13119
+  },
+  {
+    "name": "Cruise Missile Launcher I",
+    "itemID": 13320
+  },
+  {
+    "name": "Nova Javelin Heavy Assault Missile",
+    "itemID": 13856
+  },
+  {
+    "name": "Vespa I",
+    "itemID": 15508
+  },
+  {
+    "name": "Valkyrie I",
+    "itemID": 15510
+  },
+  {
+    "name": "Caldari Control Tower",
+    "itemID": 16213
+  },
+  {
+    "name": "Minmatar Control Tower",
+    "itemID": 16214
+  },
+  {
+    "name": "Ferox",
+    "itemID": 16227
+  },
+  {
+    "name": "Brutix",
+    "itemID": 16229
+  },
+  {
+    "name": "Cyclone",
+    "itemID": 16231
+  },
+  {
+    "name": "Prophecy",
+    "itemID": 16233
+  },
+  {
+    "name": "Coercer",
+    "itemID": 16236
+  },
+  {
+    "name": "Cormorant",
+    "itemID": 16238
+  },
+  {
+    "name": "Catalyst",
+    "itemID": 16240
+  },
+  {
+    "name": "Thrasher",
+    "itemID": 16242
+  },
+  {
+    "name": "Ice Harvester I",
+    "itemID": 16278
+  },
+  {
+    "name": "Small Artillery Battery",
+    "itemID": 16631
+  },
+  {
+    "name": "Titanium Chromide",
+    "itemID": 16654
+  },
+  {
+    "name": "Crystallite Alloy",
+    "itemID": 16655
+  },
+  {
+    "name": "Fernite Alloy",
+    "itemID": 16656
+  },
+  {
+    "name": "Rolled Tungsten Alloy",
+    "itemID": 16657
+  },
+  {
+    "name": "Silicon Diborite",
+    "itemID": 16658
+  },
+  {
+    "name": "Carbon Polymers",
+    "itemID": 16659
+  },
+  {
+    "name": "Ceramic Powder",
+    "itemID": 16660
+  },
+  {
+    "name": "Sulfuric Acid",
+    "itemID": 16661
+  },
+  {
+    "name": "Platinum Technite",
+    "itemID": 16662
+  },
+  {
+    "name": "Caesarium Cadmide",
+    "itemID": 16663
+  },
+  {
+    "name": "Solerium",
+    "itemID": 16664
+  },
+  {
+    "name": "Hexite",
+    "itemID": 16665
+  },
+  {
+    "name": "Hyperflurite",
+    "itemID": 16666
+  },
+  {
+    "name": "Neo Mercurite",
+    "itemID": 16667
+  },
+  {
+    "name": "Dysporite",
+    "itemID": 16668
+  },
+  {
+    "name": "Ferrofluid",
+    "itemID": 16669
+  },
+  {
+    "name": "Crystalline Carbonide",
+    "itemID": 16670
+  },
+  {
+    "name": "Titanium Carbide",
+    "itemID": 16671
+  },
+  {
+    "name": "Tungsten Carbide",
+    "itemID": 16672
+  },
+  {
+    "name": "Fernite Carbide",
+    "itemID": 16673
+  },
+  {
+    "name": "Sylramic Fibers",
+    "itemID": 16678
+  },
+  {
+    "name": "Fullerides",
+    "itemID": 16679
+  },
+  {
+    "name": "Phenolic Composites",
+    "itemID": 16680
+  },
+  {
+    "name": "Nanotransistors",
+    "itemID": 16681
+  },
+  {
+    "name": "Hypersynaptic Fibers",
+    "itemID": 16682
+  },
+  {
+    "name": "Ferrogel",
+    "itemID": 16683
+  },
+  {
+    "name": "Medium Artillery Battery",
+    "itemID": 16688
+  },
+  {
+    "name": "Large Artillery Battery",
+    "itemID": 16689
+  },
+  {
+    "name": "Small Railgun Battery",
+    "itemID": 16690
+  },
+  {
+    "name": "Medium Railgun Battery",
+    "itemID": 16691
+  },
+  {
+    "name": "Large Railgun Battery",
+    "itemID": 16692
+  },
+  {
+    "name": "Large Beam Laser Battery",
+    "itemID": 16694
+  },
+  {
+    "name": "Cruise Missile Battery",
+    "itemID": 16696
+  },
+  {
+    "name": "Torpedo Battery",
+    "itemID": 16697
+  },
+  {
+    "name": "Small Beam Laser Battery",
+    "itemID": 17167
+  },
+  {
+    "name": "Medium Beam Laser Battery",
+    "itemID": 17168
+  },
+  {
+    "name": "Ion Field Projection Battery",
+    "itemID": 17174
+  },
+  {
+    "name": "Phase Inversion Battery",
+    "itemID": 17175
+  },
+  {
+    "name": "Spatial Destabilization Battery",
+    "itemID": 17176
+  },
+  {
+    "name": "White Noise Generation Battery",
+    "itemID": 17177
+  },
+  {
+    "name": "Stasis Webification Battery",
+    "itemID": 17178
+  },
+  {
+    "name": "Sensor Dampening Battery",
+    "itemID": 17180
+  },
+  {
+    "name": "Warp Disruption Battery",
+    "itemID": 17181
+  },
+  {
+    "name": "Warp Scrambling Battery",
+    "itemID": 17182
+  },
+  {
+    "name": "Fermionic Condensates",
+    "itemID": 17317
+  },
+  {
+    "name": "Large Blaster Battery",
+    "itemID": 17402
+  },
+  {
+    "name": "Medium Blaster Battery",
+    "itemID": 17403
+  },
+  {
+    "name": "Small Blaster Battery",
+    "itemID": 17404
+  },
+  {
+    "name": "Large Pulse Laser Battery",
+    "itemID": 17406
+  },
+  {
+    "name": "Medium Pulse Laser Battery",
+    "itemID": 17407
+  },
+  {
+    "name": "Small Pulse Laser Battery",
+    "itemID": 17408
+  },
+  {
+    "name": "Covetor",
+    "itemID": 17476
+  },
+  {
+    "name": "Retriever",
+    "itemID": 17478
+  },
+  {
+    "name": "Procurer",
+    "itemID": 17480
+  },
+  {
+    "name": "Strip Miner I",
+    "itemID": 17482
+  },
+  {
+    "name": "Antimatter Charge XL",
+    "itemID": 17648
+  },
+  {
+    "name": "Iridium Charge XL",
+    "itemID": 17650
+  },
+  {
+    "name": "Iron Charge XL",
+    "itemID": 17652
+  },
+  {
+    "name": "Lead Charge XL",
+    "itemID": 17654
+  },
+  {
+    "name": "Plutonium Charge XL",
+    "itemID": 17656
+  },
+  {
+    "name": "Thorium Charge XL",
+    "itemID": 17658
+  },
+  {
+    "name": "Tungsten Charge XL",
+    "itemID": 17660
+  },
+  {
+    "name": "Uranium Charge XL",
+    "itemID": 17662
+  },
+  {
+    "name": "Carbonized Lead XL",
+    "itemID": 17664
+  },
+  {
+    "name": "Depleted Uranium XL",
+    "itemID": 17666
+  },
+  {
+    "name": "EMP XL",
+    "itemID": 17668
+  },
+  {
+    "name": "Fusion XL",
+    "itemID": 17670
+  },
+  {
+    "name": "Nuclear XL",
+    "itemID": 17672
+  },
+  {
+    "name": "Phased Plasma XL",
+    "itemID": 17674
+  },
+  {
+    "name": "Proton XL",
+    "itemID": 17676
+  },
+  {
+    "name": "Titanium Sabot XL",
+    "itemID": 17678
+  },
+  {
+    "name": "Gamma XL",
+    "itemID": 17680
+  },
+  {
+    "name": "Infrared XL",
+    "itemID": 17682
+  },
+  {
+    "name": "Microwave XL",
+    "itemID": 17684
+  },
+  {
+    "name": "Multifrequency XL",
+    "itemID": 17686
+  },
+  {
+    "name": "Radio XL",
+    "itemID": 17688
+  },
+  {
+    "name": "Standard XL",
+    "itemID": 17690
+  },
+  {
+    "name": "Ultraviolet XL",
+    "itemID": 17692
+  },
+  {
+    "name": "Xray XL",
+    "itemID": 17694
+  },
+  {
+    "name": "Fluxed Condensates",
+    "itemID": 17769
+  },
+  {
+    "name": "Large AutoCannon Battery",
+    "itemID": 17770
+  },
+  {
+    "name": "Medium AutoCannon Battery",
+    "itemID": 17771
+  },
+  {
+    "name": "Small AutoCannon Battery",
+    "itemID": 17772
+  },
+  {
+    "name": "XL Torpedo Battery",
+    "itemID": 17773
+  },
+  {
+    "name": "Mjolnir XL Torpedo",
+    "itemID": 17857
+  },
+  {
+    "name": "Scourge XL Torpedo",
+    "itemID": 17859
+  },
+  {
+    "name": "Inferno XL Torpedo",
+    "itemID": 17861
+  },
+  {
+    "name": "Nova XL Torpedo",
+    "itemID": 17863
+  },
+  {
+    "name": "Modulated Strip Miner II",
+    "itemID": 17912
+  },
+  {
+    "name": "Core Probe Launcher I",
+    "itemID": 17938
+  },
+  {
+    "name": "Vanadium Hafnite",
+    "itemID": 17959
+  },
+  {
+    "name": "Prometium",
+    "itemID": 17960
+  },
+  {
+    "name": "Mercoxit Asteroid Mining Crystal Type A I",
+    "itemID": 18054
+  },
+  {
+    "name": "Modulated Deep Core Miner II",
+    "itemID": 18068
+  },
+  {
+    "name": "Mercoxit Asteroid Mining Crystal Type A II",
+    "itemID": 18608
+  },
+  {
+    "name": "Quest Survey Probe I",
+    "itemID": 18626
+  },
+  {
+    "name": "Discovery Survey Probe I",
+    "itemID": 18635
+  },
+  {
+    "name": "Gaze Survey Probe I",
+    "itemID": 18637
+  },
+  {
+    "name": "Expanded Probe Launcher I",
+    "itemID": 18639
+  },
+  {
+    "name": "Revelation",
+    "itemID": 19720
+  },
+  {
+    "name": "Moros",
+    "itemID": 19724
+  },
+  {
+    "name": "Phoenix",
+    "itemID": 19726
+  },
+  {
+    "name": "Cruise Missile Launcher II",
+    "itemID": 19739
+  },
+  {
+    "name": "Sigil",
+    "itemID": 19744
+  },
+  {
+    "name": "Target Painter II",
+    "itemID": 19806
+  },
+  {
+    "name": "Peripheral Compact Target Painter",
+    "itemID": 19810
+  },
+  {
+    "name": "Parallel Enduring Target Painter",
+    "itemID": 19812
+  },
+  {
+    "name": "Phased Scoped Target Painter",
+    "itemID": 19814
+  },
+  {
+    "name": "Amarr Control Tower Medium",
+    "itemID": 20059
+  },
+  {
+    "name": "Amarr Control Tower Small",
+    "itemID": 20060
+  },
+  {
+    "name": "Caldari Control Tower Medium",
+    "itemID": 20061
+  },
+  {
+    "name": "Caldari Control Tower Small",
+    "itemID": 20062
+  },
+  {
+    "name": "Gallente Control Tower Medium",
+    "itemID": 20063
+  },
+  {
+    "name": "Gallente Control Tower Small",
+    "itemID": 20064
+  },
+  {
+    "name": "Minmatar Control Tower Medium",
+    "itemID": 20065
+  },
+  {
+    "name": "Minmatar Control Tower Small",
+    "itemID": 20066
+  },
+  {
+    "name": "Curse",
+    "itemID": 20125
+  },
+  {
+    "name": "Heavy Assault Missile Launcher I",
+    "itemID": 20138
+  },
+  {
+    "name": "Providence",
+    "itemID": 20183
+  },
+  {
+    "name": "Charon",
+    "itemID": 20185
+  },
+  {
+    "name": "Obelisk",
+    "itemID": 20187
+  },
+  {
+    "name": "Fenrir",
+    "itemID": 20189
+  },
+  {
+    "name": "Siege Module I",
+    "itemID": 20280
+  },
+  {
+    "name": "Mjolnir Heavy Assault Missile",
+    "itemID": 20306
+  },
+  {
+    "name": "Scourge Heavy Assault Missile",
+    "itemID": 20307
+  },
+  {
+    "name": "Inferno Heavy Assault Missile",
+    "itemID": 20308
+  },
+  {
+    "name": "100mm Steel Plates II",
+    "itemID": 20345
+  },
+  {
+    "name": "200mm Steel Plates II",
+    "itemID": 20347
+  },
+  {
+    "name": "400mm Steel Plates II",
+    "itemID": 20349
+  },
+  {
+    "name": "800mm Steel Plates II",
+    "itemID": 20351
+  },
+  {
+    "name": "1600mm Steel Plates II",
+    "itemID": 20353
+  },
+  {
+    "name": "Dual Giga Pulse Laser I",
+    "itemID": 20444
+  },
+  {
+    "name": "Dual Giga Beam Laser I",
+    "itemID": 20446
+  },
+  {
+    "name": "Dual 1000mm Railgun I",
+    "itemID": 20448
+  },
+  {
+    "name": "Ion Siege Blaster I",
+    "itemID": 20450
+  },
+  {
+    "name": "Hexa 2500mm Repeating Cannon I",
+    "itemID": 20452
+  },
+  {
+    "name": "Quad 3500mm Siege Artillery I",
+    "itemID": 20454
+  },
+  {
+    "name": "XL Torpedo Launcher I",
+    "itemID": 20539
+  },
+  {
+    "name": "Capital Armor Repairer I",
+    "itemID": 20701
+  },
+  {
+    "name": "Capital Shield Booster I",
+    "itemID": 20703
+  },
+  {
+    "name": "Vespa II",
+    "itemID": 21638
+  },
+  {
+    "name": "Valkyrie II",
+    "itemID": 21640
+  },
+  {
+    "name": "Civilian Expanded Cargohold",
+    "itemID": 21855
+  },
+  {
+    "name": "1MN Civilian Afterburner",
+    "itemID": 21857
+  },
+  {
+    "name": "Nova Heavy Assault Missile",
+    "itemID": 21867
+  },
+  {
+    "name": "Data Analyzer I",
+    "itemID": 22175
+  },
+  {
+    "name": "Relic Analyzer I",
+    "itemID": 22177
+  },
+  {
+    "name": "Ice Harvester II",
+    "itemID": 22229
+  },
+  {
+    "name": "Ballistic Control System II",
+    "itemID": 22291
+  },
+  {
+    "name": "Redeemer",
+    "itemID": 22428
+  },
+  {
+    "name": "Sin",
+    "itemID": 22430
+  },
+  {
+    "name": "Widow",
+    "itemID": 22436
+  },
+  {
+    "name": "Panther",
+    "itemID": 22440
+  },
+  {
+    "name": "Eos",
+    "itemID": 22442
+  },
+  {
+    "name": "Sleipnir",
+    "itemID": 22444
+  },
+  {
+    "name": "Vulture",
+    "itemID": 22446
+  },
+  {
+    "name": "Absolution",
+    "itemID": 22448
+  },
+  {
+    "name": "Heretic",
+    "itemID": 22452
+  },
+  {
+    "name": "Sabre",
+    "itemID": 22456
+  },
+  {
+    "name": "Eris",
+    "itemID": 22460
+  },
+  {
+    "name": "Flycatcher",
+    "itemID": 22464
+  },
+  {
+    "name": "Astarte",
+    "itemID": 22466
+  },
+  {
+    "name": "Claymore",
+    "itemID": 22468
+  },
+  {
+    "name": "Nighthawk",
+    "itemID": 22470
+  },
+  {
+    "name": "Damnation",
+    "itemID": 22474
+  },
+  {
+    "name": "Mining Laser Upgrade I",
+    "itemID": 22542
+  },
+  {
+    "name": "Hulk",
+    "itemID": 22544
+  },
+  {
+    "name": "Skiff",
+    "itemID": 22546
+  },
+  {
+    "name": "Mackinaw",
+    "itemID": 22548
+  },
+  {
+    "name": "Mining Foreman Link - Harvester Capacitor Efficiency I",
+    "itemID": 22553
+  },
+  {
+    "name": "Mining Foreman Link - Mining Laser Field Enhancement I",
+    "itemID": 22555
+  },
+  {
+    "name": "Mining Foreman Link - Laser Optimization I",
+    "itemID": 22557
+  },
+  {
+    "name": "Ice Harvester Upgrade I",
+    "itemID": 22576
+  },
+  {
+    "name": "Heavy Shield Maintenance Bot I",
+    "itemID": 22765
+  },
+  {
+    "name": "Warp Disrupt Probe",
+    "itemID": 22778
+  },
+  {
+    "name": "Templar I",
+    "itemID": 23055
+  },
+  {
+    "name": "Dragonfly I",
+    "itemID": 23057
+  },
+  {
+    "name": "Firbolg I",
+    "itemID": 23059
+  },
+  {
+    "name": "Einherji I",
+    "itemID": 23061
+  },
+  {
+    "name": "Heavy Armor Maintenance Bot I",
+    "itemID": 23523
+  },
+  {
+    "name": "Curator I",
+    "itemID": 23525
+  },
+  {
+    "name": "Drone Link Augmentor I",
+    "itemID": 23527
+  },
+  {
+    "name": "Omnidirectional Tracking Link I",
+    "itemID": 23533
+  },
+  {
+    "name": "Warden I",
+    "itemID": 23559
+  },
+  {
+    "name": "Garde I",
+    "itemID": 23561
+  },
+  {
+    "name": "Bouncer I",
+    "itemID": 23563
+  },
+  {
+    "name": "Medium Armor Maintenance Bot I",
+    "itemID": 23709
+  },
+  {
+    "name": "Light Armor Maintenance Bot I",
+    "itemID": 23711
+  },
+  {
+    "name": "Medium Shield Maintenance Bot I",
+    "itemID": 23717
+  },
+  {
+    "name": "Light Shield Maintenance Bot I",
+    "itemID": 23719
+  },
+  {
+    "name": "Nyx",
+    "itemID": 23913
+  },
+  {
+    "name": "Fighter Support Unit I",
+    "itemID": 24283
+  },
+  {
+    "name": "Modulated Deep Core Strip Miner II",
+    "itemID": 24305
+  },
+  {
+    "name": "Small Tractor Beam I",
+    "itemID": 24348
+  },
+  {
+    "name": "Drone Navigation Computer I",
+    "itemID": 24395
+  },
+  {
+    "name": "Drone Navigation Computer II",
+    "itemID": 24417
+  },
+  {
+    "name": "Drone Link Augmentor II",
+    "itemID": 24427
+  },
+  {
+    "name": "Omnidirectional Tracking Link II",
+    "itemID": 24438
+  },
+  {
+    "name": "Shield Boost Amplifier II",
+    "itemID": 24443
+  },
+  {
+    "name": "Scourge Rage Rocket",
+    "itemID": 24471
+  },
+  {
+    "name": "Nova Rage Rocket",
+    "itemID": 24473
+  },
+  {
+    "name": "Inferno Rage Rocket",
+    "itemID": 24475
+  },
+  {
+    "name": "Scourge Javelin Rocket",
+    "itemID": 24477
+  },
+  {
+    "name": "Nova Javelin Rocket",
+    "itemID": 24478
+  },
+  {
+    "name": "Inferno Javelin Rocket",
+    "itemID": 24479
+  },
+  {
+    "name": "Inferno Rage Heavy Assault Missile",
+    "itemID": 24486
+  },
+  {
+    "name": "Nova Rage Heavy Assault Missile",
+    "itemID": 24488
+  },
+  {
+    "name": "Mjolnir Rage Heavy Assault Missile",
+    "itemID": 24490
+  },
+  {
+    "name": "Scourge Javelin Heavy Assault Missile",
+    "itemID": 24492
+  },
+  {
+    "name": "Mjolnir Javelin Heavy Assault Missile",
+    "itemID": 24493
+  },
+  {
+    "name": "Inferno Javelin Heavy Assault Missile",
+    "itemID": 24494
+  },
+  {
+    "name": "Scourge Fury Light Missile",
+    "itemID": 24495
+  },
+  {
+    "name": "Nova Fury Light Missile",
+    "itemID": 24497
+  },
+  {
+    "name": "Inferno Fury Light Missile",
+    "itemID": 24499
+  },
+  {
+    "name": "Scourge Precision Light Missile",
+    "itemID": 24501
+  },
+  {
+    "name": "Nova Precision Light Missile",
+    "itemID": 24503
+  },
+  {
+    "name": "Mjolnir Precision Light Missile",
+    "itemID": 24505
+  },
+  {
+    "name": "Nova Fury Heavy Missile",
+    "itemID": 24507
+  },
+  {
+    "name": "Mjolnir Fury Heavy Missile",
+    "itemID": 24509
+  },
+  {
+    "name": "Inferno Fury Heavy Missile",
+    "itemID": 24511
+  },
+  {
+    "name": "Scourge Precision Heavy Missile",
+    "itemID": 24513
+  },
+  {
+    "name": "Inferno Precision Heavy Missile",
+    "itemID": 24515
+  },
+  {
+    "name": "Mjolnir Precision Heavy Missile",
+    "itemID": 24517
+  },
+  {
+    "name": "Nova Rage Torpedo",
+    "itemID": 24519
+  },
+  {
+    "name": "Scourge Rage Torpedo",
+    "itemID": 24521
+  },
+  {
+    "name": "Mjolnir Rage Torpedo",
+    "itemID": 24523
+  },
+  {
+    "name": "Inferno Javelin Torpedo",
+    "itemID": 24525
+  },
+  {
+    "name": "Mjolnir Javelin Torpedo",
+    "itemID": 24527
+  },
+  {
+    "name": "Scourge Javelin Torpedo",
+    "itemID": 24529
+  },
+  {
+    "name": "Nova Fury Cruise Missile",
+    "itemID": 24531
+  },
+  {
+    "name": "Scourge Fury Cruise Missile",
+    "itemID": 24533
+  },
+  {
+    "name": "Mjolnir Fury Cruise Missile",
+    "itemID": 24535
+  },
+  {
+    "name": "Nova Precision Cruise Missile",
+    "itemID": 24537
+  },
+  {
+    "name": "Mjolnir Precision Cruise Missile",
+    "itemID": 24539
+  },
+  {
+    "name": "Scourge Precision Cruise Missile",
+    "itemID": 24541
+  },
+  {
+    "name": "Capital Remote Armor Repairer I",
+    "itemID": 24569
+  },
+  {
+    "name": "Capital Tractor Beam I",
+    "itemID": 24644
+  },
+  {
+    "name": "Harbinger",
+    "itemID": 24696
+  },
+  {
+    "name": "Drake",
+    "itemID": 24698
+  },
+  {
+    "name": "Myrmidon",
+    "itemID": 24700
+  },
+  {
+    "name": "Hurricane",
+    "itemID": 24702
+  },
+  {
+    "name": "Gas Cloud Scoop I",
+    "itemID": 25266
+  },
+  {
+    "name": "'Crop' Gas Cloud Scoop ",
+    "itemID": 25540
+  },
+  {
+    "name": "'Plow' Gas Cloud Scoop ",
+    "itemID": 25542
+  },
+  {
+    "name": "Signal Distortion Amplifier I",
+    "itemID": 25561
+  },
+  {
+    "name": "Signal Distortion Amplifier II",
+    "itemID": 25563
+  },
+  {
+    "name": "Heavy Assault Missile Launcher II",
+    "itemID": 25715
+  },
+  {
+    "name": "Large EM Armor Reinforcer I",
+    "itemID": 25736
+  },
+  {
+    "name": "Gas Cloud Scoop II",
+    "itemID": 25812
+  },
+  {
+    "name": "Salvager I",
+    "itemID": 25861
+  },
+  {
+    "name": "Large Explosive Armor Reinforcer I",
+    "itemID": 25888
+  },
+  {
+    "name": "Large Kinetic Armor Reinforcer I",
+    "itemID": 25890
+  },
+  {
+    "name": "Large Thermal Armor Reinforcer I",
+    "itemID": 25892
+  },
+  {
+    "name": "Large Trimark Armor Pump I",
+    "itemID": 25894
+  },
+  {
+    "name": "Large Auxiliary Nano Pump I",
+    "itemID": 25896
+  },
+  {
+    "name": "Large Nanobot Accelerator I",
+    "itemID": 25898
+  },
+  {
+    "name": "Large Remote Repair Augmentor I",
+    "itemID": 25900
+  },
+  {
+    "name": "Large Salvage Tackle I",
+    "itemID": 25902
+  },
+  {
+    "name": "Large Core Defense Capacitor Safeguard I",
+    "itemID": 25906
+  },
+  {
+    "name": "Large Drone Control Range Augmentor I",
+    "itemID": 25908
+  },
+  {
+    "name": "Large Drone Repair Augmentor I",
+    "itemID": 25910
+  },
+  {
+    "name": "Large Drone Scope Chip I",
+    "itemID": 25912
+  },
+  {
+    "name": "Large Drone Speed Augmentor I",
+    "itemID": 25914
+  },
+  {
+    "name": "Large Drone Durability Enhancer I",
+    "itemID": 25916
+  },
+  {
+    "name": "Large Drone Mining Augmentor I",
+    "itemID": 25918
+  },
+  {
+    "name": "Large Sentry Damage Augmentor I",
+    "itemID": 25920
+  },
+  {
+    "name": "Large Stasis Drone Augmentor I",
+    "itemID": 25924
+  },
+  {
+    "name": "Large Signal Disruption Amplifier I",
+    "itemID": 25928
+  },
+  {
+    "name": "Large Emission Scope Sharpener I",
+    "itemID": 25930
+  },
+  {
+    "name": "Large Memetic Algorithm Bank I",
+    "itemID": 25932
+  },
+  {
+    "name": "Large Liquid Cooled Electronics I",
+    "itemID": 25934
+  },
+  {
+    "name": "Large Gravity Capacitor Upgrade I",
+    "itemID": 25936
+  },
+  {
+    "name": "Large Capacitor Control Circuit I",
+    "itemID": 25948
+  },
+  {
+    "name": "Large Egress Port Maximizer I",
+    "itemID": 25950
+  },
+  {
+    "name": "Large Powergrid Subroutine Maximizer I",
+    "itemID": 25952
+  },
+  {
+    "name": "Large Semiconductor Memory Cell I",
+    "itemID": 25954
+  },
+  {
+    "name": "Large Ancillary Current Router I",
+    "itemID": 25956
+  },
+  {
+    "name": "Large Energy Discharge Elutriation I",
+    "itemID": 25968
+  },
+  {
+    "name": "Large Energy Ambit Extension I",
+    "itemID": 25970
+  },
+  {
+    "name": "Large Energy Locus Coordinator I",
+    "itemID": 25972
+  },
+  {
+    "name": "Large Energy Metastasis Adjuster I",
+    "itemID": 25974
+  },
+  {
+    "name": "Large Algid Energy Administrations Unit I",
+    "itemID": 25976
+  },
+  {
+    "name": "Large Energy Burst Aerator I",
+    "itemID": 25978
+  },
+  {
+    "name": "Large Energy Collision Accelerator I",
+    "itemID": 25980
+  },
+  {
+    "name": "Large Hybrid Discharge Elutriation I",
+    "itemID": 25996
+  },
+  {
+    "name": "Large Hybrid Ambit Extension I",
+    "itemID": 25998
+  },
+  {
+    "name": "Large Hybrid Locus Coordinator I",
+    "itemID": 26000
+  },
+  {
+    "name": "Large Hybrid Metastasis Adjuster I",
+    "itemID": 26002
+  },
+  {
+    "name": "Large Algid Hybrid Administrations Unit I",
+    "itemID": 26004
+  },
+  {
+    "name": "Large Hybrid Burst Aerator I",
+    "itemID": 26006
+  },
+  {
+    "name": "Large Hybrid Collision Accelerator I",
+    "itemID": 26008
+  },
+  {
+    "name": "Large Hydraulic Bay Thrusters I",
+    "itemID": 26016
+  },
+  {
+    "name": "Large Warhead Rigor Catalyst I",
+    "itemID": 26020
+  },
+  {
+    "name": "Large Rocket Fuel Cache Partition I",
+    "itemID": 26022
+  },
+  {
+    "name": "Large Bay Loading Accelerator I",
+    "itemID": 26026
+  },
+  {
+    "name": "Large Warhead Flare Catalyst I",
+    "itemID": 26028
+  },
+  {
+    "name": "Large Warhead Calefaction Catalyst I",
+    "itemID": 26030
+  },
+  {
+    "name": "Large Projectile Ambit Extension I",
+    "itemID": 26038
+  },
+  {
+    "name": "Large Projectile Locus Coordinator I",
+    "itemID": 26040
+  },
+  {
+    "name": "Large Projectile Metastasis Adjuster I",
+    "itemID": 26042
+  },
+  {
+    "name": "Large Projectile Burst Aerator I",
+    "itemID": 26046
+  },
+  {
+    "name": "Large Projectile Collision Accelerator I",
+    "itemID": 26048
+  },
+  {
+    "name": "Large Dynamic Fuel Valve I",
+    "itemID": 26056
+  },
+  {
+    "name": "Large Low Friction Nozzle Joints I",
+    "itemID": 26058
+  },
+  {
+    "name": "Large Auxiliary Thrusters I",
+    "itemID": 26060
+  },
+  {
+    "name": "Large Engine Thermal Shielding I",
+    "itemID": 26062
+  },
+  {
+    "name": "Large Warp Core Optimizer I",
+    "itemID": 26066
+  },
+  {
+    "name": "Large Hyperspatial Velocity Optimizer I",
+    "itemID": 26068
+  },
+  {
+    "name": "Large Polycarbon Engine Housing I",
+    "itemID": 26070
+  },
+  {
+    "name": "Large Cargohold Optimization I",
+    "itemID": 26072
+  },
+  {
+    "name": "Large EM Shield Reinforcer I",
+    "itemID": 26076
+  },
+  {
+    "name": "Large Explosive Shield Reinforcer I",
+    "itemID": 26078
+  },
+  {
+    "name": "Large Kinetic Shield Reinforcer I",
+    "itemID": 26080
+  },
+  {
+    "name": "Large Thermal Shield Reinforcer I",
+    "itemID": 26082
+  },
+  {
+    "name": "Large Core Defense Field Purger I",
+    "itemID": 26084
+  },
+  {
+    "name": "Large Core Defense Operational Solidifier I",
+    "itemID": 26086
+  },
+  {
+    "name": "Large Core Defense Field Extender I",
+    "itemID": 26088
+  },
+  {
+    "name": "Large Core Defense Charge Economizer I",
+    "itemID": 26090
+  },
+  {
+    "name": "Large Targeting Systems Stabilizer I",
+    "itemID": 26096
+  },
+  {
+    "name": "Large Targeting System Subcontroller I",
+    "itemID": 26100
+  },
+  {
+    "name": "Large Ionic Field Projector I",
+    "itemID": 26102
+  },
+  {
+    "name": "Large Signal Focusing Kit I",
+    "itemID": 26104
+  },
+  {
+    "name": "Large Particle Dispersion Augmentor I",
+    "itemID": 26106
+  },
+  {
+    "name": "Large Particle Dispersion Projector I",
+    "itemID": 26108
+  },
+  {
+    "name": "Large Inverted Signal Field Projector I",
+    "itemID": 26110
+  },
+  {
+    "name": "Large Tracking Diagnostic Subroutines I",
+    "itemID": 26112
+  },
+  {
+    "name": "Large EM Armor Reinforcer II",
+    "itemID": 26286
+  },
+  {
+    "name": "Large Explosive Armor Reinforcer II",
+    "itemID": 26288
+  },
+  {
+    "name": "Large Kinetic Armor Reinforcer II",
+    "itemID": 26290
+  },
+  {
+    "name": "Large Thermal Armor Reinforcer II",
+    "itemID": 26292
+  },
+  {
+    "name": "Large Auxiliary Nano Pump II",
+    "itemID": 26294
+  },
+  {
+    "name": "Large Nanobot Accelerator II",
+    "itemID": 26296
+  },
+  {
+    "name": "Large Remote Repair Augmentor II",
+    "itemID": 26298
+  },
+  {
+    "name": "Large Salvage Tackle II",
+    "itemID": 26300
+  },
+  {
+    "name": "Large Trimark Armor Pump II",
+    "itemID": 26302
+  },
+  {
+    "name": "Large Cargohold Optimization II",
+    "itemID": 26304
+  },
+  {
+    "name": "Large Dynamic Fuel Valve II",
+    "itemID": 26306
+  },
+  {
+    "name": "Large Engine Thermal Shielding II",
+    "itemID": 26308
+  },
+  {
+    "name": "Large Low Friction Nozzle Joints II",
+    "itemID": 26310
+  },
+  {
+    "name": "Large Polycarbon Engine Housing II",
+    "itemID": 26312
+  },
+  {
+    "name": "Large Auxiliary Thrusters II",
+    "itemID": 26318
+  },
+  {
+    "name": "Large Warp Core Optimizer II",
+    "itemID": 26320
+  },
+  {
+    "name": "Large Hyperspatial Velocity Optimizer II",
+    "itemID": 26322
+  },
+  {
+    "name": "Large Drone Control Range Augmentor II",
+    "itemID": 26324
+  },
+  {
+    "name": "Large Drone Durability Enhancer II",
+    "itemID": 26326
+  },
+  {
+    "name": "Large Drone Mining Augmentor II",
+    "itemID": 26328
+  },
+  {
+    "name": "Large Drone Repair Augmentor II",
+    "itemID": 26330
+  },
+  {
+    "name": "Large Drone Scope Chip II",
+    "itemID": 26332
+  },
+  {
+    "name": "Large Drone Speed Augmentor II",
+    "itemID": 26334
+  },
+  {
+    "name": "Large Sentry Damage Augmentor II",
+    "itemID": 26338
+  },
+  {
+    "name": "Large Stasis Drone Augmentor II",
+    "itemID": 26340
+  },
+  {
+    "name": "Large Emission Scope Sharpener II",
+    "itemID": 26342
+  },
+  {
+    "name": "Large Signal Disruption Amplifier II",
+    "itemID": 26344
+  },
+  {
+    "name": "Large Memetic Algorithm Bank II",
+    "itemID": 26346
+  },
+  {
+    "name": "Large Liquid Cooled Electronics II",
+    "itemID": 26348
+  },
+  {
+    "name": "Large Gravity Capacitor Upgrade II",
+    "itemID": 26350
+  },
+  {
+    "name": "Large Particle Dispersion Augmentor II",
+    "itemID": 26352
+  },
+  {
+    "name": "Large Inverted Signal Field Projector II",
+    "itemID": 26354
+  },
+  {
+    "name": "Large Tracking Diagnostic Subroutines II",
+    "itemID": 26356
+  },
+  {
+    "name": "Large Ionic Field Projector II",
+    "itemID": 26358
+  },
+  {
+    "name": "Large Particle Dispersion Projector II",
+    "itemID": 26360
+  },
+  {
+    "name": "Large Signal Focusing Kit II",
+    "itemID": 26362
+  },
+  {
+    "name": "Large Targeting System Subcontroller II",
+    "itemID": 26364
+  },
+  {
+    "name": "Large Targeting Systems Stabilizer II",
+    "itemID": 26366
+  },
+  {
+    "name": "Large Egress Port Maximizer II",
+    "itemID": 26368
+  },
+  {
+    "name": "Large Ancillary Current Router II",
+    "itemID": 26370
+  },
+  {
+    "name": "Large Powergrid Subroutine Maximizer II",
+    "itemID": 26372
+  },
+  {
+    "name": "Large Capacitor Control Circuit II",
+    "itemID": 26374
+  },
+  {
+    "name": "Large Semiconductor Memory Cell II",
+    "itemID": 26376
+  },
+  {
+    "name": "Large Energy Discharge Elutriation II",
+    "itemID": 26378
+  },
+  {
+    "name": "Large Energy Burst Aerator II",
+    "itemID": 26380
+  },
+  {
+    "name": "Large Energy Collision Accelerator II",
+    "itemID": 26382
+  },
+  {
+    "name": "Large Algid Energy Administrations Unit II",
+    "itemID": 26384
+  },
+  {
+    "name": "Large Energy Ambit Extension II",
+    "itemID": 26386
+  },
+  {
+    "name": "Large Energy Locus Coordinator II",
+    "itemID": 26388
+  },
+  {
+    "name": "Large Energy Metastasis Adjuster II",
+    "itemID": 26390
+  },
+  {
+    "name": "Large Hybrid Discharge Elutriation II",
+    "itemID": 26392
+  },
+  {
+    "name": "Large Hybrid Burst Aerator II",
+    "itemID": 26394
+  },
+  {
+    "name": "Large Hybrid Collision Accelerator II",
+    "itemID": 26396
+  },
+  {
+    "name": "Large Algid Hybrid Administrations Unit II",
+    "itemID": 26398
+  },
+  {
+    "name": "Large Hybrid Ambit Extension II",
+    "itemID": 26400
+  },
+  {
+    "name": "Large Hybrid Locus Coordinator II",
+    "itemID": 26402
+  },
+  {
+    "name": "Large Hybrid Metastasis Adjuster II",
+    "itemID": 26404
+  },
+  {
+    "name": "Large Bay Loading Accelerator II",
+    "itemID": 26406
+  },
+  {
+    "name": "Large Warhead Flare Catalyst II",
+    "itemID": 26412
+  },
+  {
+    "name": "Large Warhead Rigor Catalyst II",
+    "itemID": 26414
+  },
+  {
+    "name": "Large Hydraulic Bay Thrusters II",
+    "itemID": 26416
+  },
+  {
+    "name": "Large Rocket Fuel Cache Partition II",
+    "itemID": 26418
+  },
+  {
+    "name": "Large Warhead Calefaction Catalyst II",
+    "itemID": 26420
+  },
+  {
+    "name": "Large Projectile Collision Accelerator II",
+    "itemID": 26424
+  },
+  {
+    "name": "Large Projectile Ambit Extension II",
+    "itemID": 26428
+  },
+  {
+    "name": "Large Projectile Burst Aerator II",
+    "itemID": 26430
+  },
+  {
+    "name": "Large Projectile Locus Coordinator II",
+    "itemID": 26432
+  },
+  {
+    "name": "Large Projectile Metastasis Adjuster II",
+    "itemID": 26434
+  },
+  {
+    "name": "Large EM Shield Reinforcer II",
+    "itemID": 26436
+  },
+  {
+    "name": "Large Explosive Shield Reinforcer II",
+    "itemID": 26438
+  },
+  {
+    "name": "Large Kinetic Shield Reinforcer II",
+    "itemID": 26440
+  },
+  {
+    "name": "Large Thermal Shield Reinforcer II",
+    "itemID": 26442
+  },
+  {
+    "name": "Large Core Defense Capacitor Safeguard II",
+    "itemID": 26444
+  },
+  {
+    "name": "Large Core Defense Charge Economizer II",
+    "itemID": 26446
+  },
+  {
+    "name": "Large Core Defense Field Extender II",
+    "itemID": 26448
+  },
+  {
+    "name": "Large Core Defense Field Purger II",
+    "itemID": 26450
+  },
+  {
+    "name": "Large Core Defense Operational Solidifier II",
+    "itemID": 26452
+  },
+  {
+    "name": "Mobile Large Warp Disruptor II",
+    "itemID": 26888
+  },
+  {
+    "name": "Mobile Medium Warp Disruptor II",
+    "itemID": 26890
+  },
+  {
+    "name": "Mobile Small Warp Disruptor II",
+    "itemID": 26892
+  },
+  {
+    "name": "Small Remote Armor Repairer II",
+    "itemID": 26912
+  },
+  {
+    "name": "Medium Remote Armor Repairer II",
+    "itemID": 26913
+  },
+  {
+    "name": "Large Remote Armor Repairer II",
+    "itemID": 26914
+  },
+  {
+    "name": "Small Processor Overclocking Unit I",
+    "itemID": 26929
+  },
+  {
+    "name": "Small Processor Overclocking Unit II",
+    "itemID": 26931
+  },
+  {
+    "name": "Capital Auxiliary Nano Pump I",
+    "itemID": 27064
+  },
+  {
+    "name": "Capital Nanobot Accelerator II",
+    "itemID": 27066
+  },
+  {
+    "name": "Small Remote Repair Augmentor I",
+    "itemID": 27068
+  },
+  {
+    "name": "Energy Neutralizing Battery",
+    "itemID": 27672
+  },
+  {
+    "name": "Large Remote Hull Repairer I",
+    "itemID": 27904
+  },
+  {
+    "name": "Bomb Launcher I",
+    "itemID": 27914
+  },
+  {
+    "name": "Void Bomb",
+    "itemID": 27924
+  },
+  {
+    "name": "Medium Remote Hull Repairer I",
+    "itemID": 27930
+  },
+  {
+    "name": "Small Remote Hull Repairer I",
+    "itemID": 27932
+  },
+  {
+    "name": "Capital Remote Hull Repairer I",
+    "itemID": 27934
+  },
+  {
+    "name": "Triage Module I",
+    "itemID": 27951
+  },
+  {
+    "name": "Heavy Armor Maintenance Bot II",
+    "itemID": 28197
+  },
+  {
+    "name": "Heavy Shield Maintenance Bot II",
+    "itemID": 28199
+  },
+  {
+    "name": "Light Armor Maintenance Bot II",
+    "itemID": 28201
+  },
+  {
+    "name": "Light Shield Maintenance Bot II",
+    "itemID": 28203
+  },
+  {
+    "name": "Medium Armor Maintenance Bot II",
+    "itemID": 28205
+  },
+  {
+    "name": "Medium Shield Maintenance Bot II",
+    "itemID": 28207
+  },
+  {
+    "name": "Warden II",
+    "itemID": 28209
+  },
+  {
+    "name": "Garde II",
+    "itemID": 28211
+  },
+  {
+    "name": "Curator II",
+    "itemID": 28213
+  },
+  {
+    "name": "Bouncer II",
+    "itemID": 28215
+  },
+  {
+    "name": "Mining Laser Upgrade II",
+    "itemID": 28576
+  },
+  {
+    "name": "Ice Harvester Upgrade II",
+    "itemID": 28578
+  },
+  {
+    "name": "Capital Industrial Core I",
+    "itemID": 28583
+  },
+  {
+    "name": "Warp Disruption Field Generator I",
+    "itemID": 28654
+  },
+  {
+    "name": "Paladin",
+    "itemID": 28659
+  },
+  {
+    "name": "Kronos",
+    "itemID": 28661
+  },
+  {
+    "name": "Vargur",
+    "itemID": 28665
+  },
+  {
+    "name": "Golem",
+    "itemID": 28710
+  },
+  {
+    "name": "Rhea",
+    "itemID": 28844
+  },
+  {
+    "name": "Nomad",
+    "itemID": 28846
+  },
+  {
+    "name": "Anshar",
+    "itemID": 28848
+  },
+  {
+    "name": "Ark",
+    "itemID": 28850
+  },
+  {
+    "name": "Magnate",
+    "itemID": 29248
+  },
+  {
+    "name": "Unrefined Fluxed Condensates",
+    "itemID": 29659
+  },
+  {
+    "name": "Unrefined Dysporite",
+    "itemID": 29660
+  },
+  {
+    "name": "Unrefined Neo Mercurite",
+    "itemID": 29661
+  },
+  {
+    "name": "Unrefined Prometium",
+    "itemID": 29662
+  },
+  {
+    "name": "Unrefined Ferrofluid",
+    "itemID": 29663
+  },
+  {
+    "name": "Unrefined Hyperflurite",
+    "itemID": 29664
+  },
+  {
+    "name": "Tengu",
+    "itemID": 29984
+  },
+  {
+    "name": "Legion",
+    "itemID": 29986
+  },
+  {
+    "name": "Proteus",
+    "itemID": 29988
+  },
+  {
+    "name": "Loki",
+    "itemID": 29990
+  },
+  {
+    "name": "Optimized Nano-Engines",
+    "itemID": 29992
+  },
+  {
+    "name": "Warfare Computation Core",
+    "itemID": 29994
+  },
+  {
+    "name": "Emergent Neurovisual Interface",
+    "itemID": 29996
+  },
+  {
+    "name": "Fullerene Intercalated Sheets",
+    "itemID": 30002
+  },
+  {
+    "name": "Reinforced Metallofullerene Alloys",
+    "itemID": 30008
+  },
+  {
+    "name": "Core Scanner Probe I",
+    "itemID": 30013
+  },
+  {
+    "name": "Combat Scanner Probe I",
+    "itemID": 30028
+  },
+  {
+    "name": "Fulleroferrocene",
+    "itemID": 30303
+  },
+  {
+    "name": "PPD Fullerene Fibers",
+    "itemID": 30304
+  },
+  {
+    "name": "Fullerene Intercalated Graphite",
+    "itemID": 30305
+  },
+  {
+    "name": "Methanofullerene",
+    "itemID": 30306
+  },
+  {
+    "name": "Lanthanum Metallofullerene",
+    "itemID": 30307
+  },
+  {
+    "name": "Scandium Metallofullerene",
+    "itemID": 30308
+  },
+  {
+    "name": "Graphene Nanoribbons",
+    "itemID": 30309
+  },
+  {
+    "name": "Carbon-86 Epoxy Resin",
+    "itemID": 30310
+  },
+  {
+    "name": "C3-FTM Acid",
+    "itemID": 30311
+  },
+  {
+    "name": "Metallofullerene Plating",
+    "itemID": 30464
+  },
+  {
+    "name": "Electromechanical Interface Nexus",
+    "itemID": 30466
+  },
+  {
+    "name": "Neurovisual Output Analyzer",
+    "itemID": 30470
+  },
+  {
+    "name": "Nanowire Composites",
+    "itemID": 30474
+  },
+  {
+    "name": "Fulleroferrocene Power Conduits",
+    "itemID": 30476
+  },
+  {
+    "name": "Reconfigured Subspace Calibrator",
+    "itemID": 30478
+  },
+  {
+    "name": "Relic Analyzer II",
+    "itemID": 30832
+  },
+  {
+    "name": "Data Analyzer II",
+    "itemID": 30834
+  },
+  {
+    "name": "Salvager II",
+    "itemID": 30836
+  },
+  {
+    "name": "Small Trimark Armor Pump I",
+    "itemID": 30987
+  },
+  {
+    "name": "Capital Trimark Armor Pump I",
+    "itemID": 30993
+  },
+  {
+    "name": "Small EM Armor Reinforcer I",
+    "itemID": 30997
+  },
+  {
+    "name": "Medium EM Armor Reinforcer I",
+    "itemID": 30999
+  },
+  {
+    "name": "Capital EM Armor Reinforcer I",
+    "itemID": 31001
+  },
+  {
+    "name": "Small EM Armor Reinforcer II",
+    "itemID": 31003
+  },
+  {
+    "name": "Medium EM Armor Reinforcer II",
+    "itemID": 31005
+  },
+  {
+    "name": "Capital EM Armor Reinforcer II",
+    "itemID": 31007
+  },
+  {
+    "name": "Small Explosive Armor Reinforcer I",
+    "itemID": 31009
+  },
+  {
+    "name": "Medium Explosive Armor Reinforcer I",
+    "itemID": 31011
+  },
+  {
+    "name": "Capital Explosive Armor Reinforcer I",
+    "itemID": 31013
+  },
+  {
+    "name": "Small Explosive Armor Reinforcer II",
+    "itemID": 31015
+  },
+  {
+    "name": "Medium Explosive Armor Reinforcer II",
+    "itemID": 31017
+  },
+  {
+    "name": "Capital Explosive Armor Reinforcer II",
+    "itemID": 31019
+  },
+  {
+    "name": "Small Kinetic Armor Reinforcer I",
+    "itemID": 31021
+  },
+  {
+    "name": "Medium Kinetic Armor Reinforcer I",
+    "itemID": 31023
+  },
+  {
+    "name": "Capital Kinetic Armor Reinforcer I",
+    "itemID": 31025
+  },
+  {
+    "name": "Small Kinetic Armor Reinforcer II",
+    "itemID": 31027
+  },
+  {
+    "name": "Medium Kinetic Armor Reinforcer II",
+    "itemID": 31029
+  },
+  {
+    "name": "Capital Kinetic Armor Reinforcer II",
+    "itemID": 31031
+  },
+  {
+    "name": "Small Thermal Armor Reinforcer I",
+    "itemID": 31033
+  },
+  {
+    "name": "Medium Thermal Armor Reinforcer I",
+    "itemID": 31035
+  },
+  {
+    "name": "Capital Thermal Armor Reinforcer I",
+    "itemID": 31037
+  },
+  {
+    "name": "Small Thermal Armor Reinforcer II",
+    "itemID": 31039
+  },
+  {
+    "name": "Medium Thermal Armor Reinforcer II",
+    "itemID": 31041
+  },
+  {
+    "name": "Capital Thermal Armor Reinforcer II",
+    "itemID": 31043
+  },
+  {
+    "name": "Small Auxiliary Nano Pump I",
+    "itemID": 31045
+  },
+  {
+    "name": "Medium Auxiliary Nano Pump I",
+    "itemID": 31047
+  },
+  {
+    "name": "Capital Auxiliary Nano Pump II",
+    "itemID": 31049
+  },
+  {
+    "name": "Small Auxiliary Nano Pump II",
+    "itemID": 31051
+  },
+  {
+    "name": "Medium Auxiliary Nano Pump II",
+    "itemID": 31053
+  },
+  {
+    "name": "Medium Trimark Armor Pump I",
+    "itemID": 31055
+  },
+  {
+    "name": "Small Trimark Armor Pump II",
+    "itemID": 31057
+  },
+  {
+    "name": "Medium Trimark Armor Pump II",
+    "itemID": 31059
+  },
+  {
+    "name": "Capital Trimark Armor Pump II",
+    "itemID": 31061
+  },
+  {
+    "name": "Small Nanobot Accelerator I",
+    "itemID": 31063
+  },
+  {
+    "name": "Medium Nanobot Accelerator I",
+    "itemID": 31065
+  },
+  {
+    "name": "Capital Nanobot Accelerator I",
+    "itemID": 31067
+  },
+  {
+    "name": "Small Nanobot Accelerator II",
+    "itemID": 31069
+  },
+  {
+    "name": "Medium Nanobot Accelerator II",
+    "itemID": 31071
+  },
+  {
+    "name": "Medium Remote Repair Augmentor I",
+    "itemID": 31073
+  },
+  {
+    "name": "Capital Remote Repair Augmentor I",
+    "itemID": 31075
+  },
+  {
+    "name": "Small Remote Repair Augmentor II",
+    "itemID": 31077
+  },
+  {
+    "name": "Medium Remote Repair Augmentor II",
+    "itemID": 31079
+  },
+  {
+    "name": "Capital Remote Repair Augmentor II",
+    "itemID": 31081
+  },
+  {
+    "name": "Small Salvage Tackle I",
+    "itemID": 31083
+  },
+  {
+    "name": "Medium Salvage Tackle I",
+    "itemID": 31085
+  },
+  {
+    "name": "Capital Salvage Tackle I",
+    "itemID": 31087
+  },
+  {
+    "name": "Small Salvage Tackle II",
+    "itemID": 31089
+  },
+  {
+    "name": "Medium Salvage Tackle II",
+    "itemID": 31091
+  },
+  {
+    "name": "Capital Salvage Tackle II",
+    "itemID": 31093
+  },
+  {
+    "name": "Small Auxiliary Thrusters I",
+    "itemID": 31105
+  },
+  {
+    "name": "Medium Auxiliary Thrusters I",
+    "itemID": 31107
+  },
+  {
+    "name": "Capital Auxiliary Thrusters I",
+    "itemID": 31109
+  },
+  {
+    "name": "Small Auxiliary Thrusters II",
+    "itemID": 31111
+  },
+  {
+    "name": "Medium Auxiliary Thrusters II",
+    "itemID": 31113
+  },
+  {
+    "name": "Capital Auxiliary Thrusters II",
+    "itemID": 31115
+  },
+  {
+    "name": "Small Cargohold Optimization I",
+    "itemID": 31117
+  },
+  {
+    "name": "Medium Cargohold Optimization I",
+    "itemID": 31119
+  },
+  {
+    "name": "Capital Cargohold Optimization I",
+    "itemID": 31121
+  },
+  {
+    "name": "Small Cargohold Optimization II",
+    "itemID": 31123
+  },
+  {
+    "name": "Medium Cargohold Optimization II",
+    "itemID": 31125
+  },
+  {
+    "name": "Capital Cargohold Optimization II",
+    "itemID": 31127
+  },
+  {
+    "name": "Small Dynamic Fuel Valve I",
+    "itemID": 31129
+  },
+  {
+    "name": "Medium Dynamic Fuel Valve I",
+    "itemID": 31131
+  },
+  {
+    "name": "Capital Dynamic Fuel Valve I",
+    "itemID": 31133
+  },
+  {
+    "name": "Small Dynamic Fuel Valve II",
+    "itemID": 31135
+  },
+  {
+    "name": "Medium Dynamic Fuel Valve II",
+    "itemID": 31137
+  },
+  {
+    "name": "Capital Dynamic Fuel Valve II",
+    "itemID": 31139
+  },
+  {
+    "name": "Small Engine Thermal Shielding I",
+    "itemID": 31141
+  },
+  {
+    "name": "Medium Engine Thermal Shielding I",
+    "itemID": 31143
+  },
+  {
+    "name": "Capital Engine Thermal Shielding I",
+    "itemID": 31145
+  },
+  {
+    "name": "Small Engine Thermal Shielding II",
+    "itemID": 31147
+  },
+  {
+    "name": "Medium Engine Thermal Shielding II",
+    "itemID": 31149
+  },
+  {
+    "name": "Capital Engine Thermal Shielding II",
+    "itemID": 31151
+  },
+  {
+    "name": "Small Low Friction Nozzle Joints I",
+    "itemID": 31153
+  },
+  {
+    "name": "Medium Low Friction Nozzle Joints I",
+    "itemID": 31155
+  },
+  {
+    "name": "Capital Low Friction Nozzle Joints I",
+    "itemID": 31157
+  },
+  {
+    "name": "Small Hyperspatial Velocity Optimizer I",
+    "itemID": 31159
+  },
+  {
+    "name": "Medium Hyperspatial Velocity Optimizer I",
+    "itemID": 31161
+  },
+  {
+    "name": "Capital Hyperspatial Velocity Optimizer I",
+    "itemID": 31163
+  },
+  {
+    "name": "Small Hyperspatial Velocity Optimizer II",
+    "itemID": 31165
+  },
+  {
+    "name": "Medium Hyperspatial Velocity Optimizer II",
+    "itemID": 31167
+  },
+  {
+    "name": "Capital Hyperspatial Velocity Optimizer II",
+    "itemID": 31169
+  },
+  {
+    "name": "Small Low Friction Nozzle Joints II",
+    "itemID": 31171
+  },
+  {
+    "name": "Medium Low Friction Nozzle Joints II",
+    "itemID": 31173
+  },
+  {
+    "name": "Capital Low Friction Nozzle Joints II",
+    "itemID": 31175
+  },
+  {
+    "name": "Small Polycarbon Engine Housing I",
+    "itemID": 31177
+  },
+  {
+    "name": "Medium Polycarbon Engine Housing I",
+    "itemID": 31179
+  },
+  {
+    "name": "Capital Polycarbon Engine Housing I",
+    "itemID": 31181
+  },
+  {
+    "name": "Small Polycarbon Engine Housing II",
+    "itemID": 31183
+  },
+  {
+    "name": "Medium Polycarbon Engine Housing II",
+    "itemID": 31185
+  },
+  {
+    "name": "Capital Polycarbon Engine Housing II",
+    "itemID": 31187
+  },
+  {
+    "name": "Small Warp Core Optimizer I",
+    "itemID": 31189
+  },
+  {
+    "name": "Medium Warp Core Optimizer I",
+    "itemID": 31191
+  },
+  {
+    "name": "Capital Warp Core Optimizer I",
+    "itemID": 31193
+  },
+  {
+    "name": "Small Warp Core Optimizer II",
+    "itemID": 31195
+  },
+  {
+    "name": "Medium Warp Core Optimizer II",
+    "itemID": 31197
+  },
+  {
+    "name": "Capital Warp Core Optimizer II",
+    "itemID": 31199
+  },
+  {
+    "name": "Small Emission Scope Sharpener I",
+    "itemID": 31201
+  },
+  {
+    "name": "Medium Emission Scope Sharpener I",
+    "itemID": 31203
+  },
+  {
+    "name": "Capital Emission Scope Sharpener I",
+    "itemID": 31205
+  },
+  {
+    "name": "Small Emission Scope Sharpener II",
+    "itemID": 31207
+  },
+  {
+    "name": "Medium Emission Scope Sharpener II",
+    "itemID": 31209
+  },
+  {
+    "name": "Capital Emission Scope Sharpener II",
+    "itemID": 31211
+  },
+  {
+    "name": "Small Gravity Capacitor Upgrade I",
+    "itemID": 31213
+  },
+  {
+    "name": "Medium Gravity Capacitor Upgrade I",
+    "itemID": 31215
+  },
+  {
+    "name": "Capital Gravity Capacitor Upgrade I",
+    "itemID": 31217
+  },
+  {
+    "name": "Small Gravity Capacitor Upgrade II",
+    "itemID": 31220
+  },
+  {
+    "name": "Medium Gravity Capacitor Upgrade II",
+    "itemID": 31222
+  },
+  {
+    "name": "Capital Gravity Capacitor Upgrade II",
+    "itemID": 31224
+  },
+  {
+    "name": "Small Liquid Cooled Electronics I",
+    "itemID": 31226
+  },
+  {
+    "name": "Medium Liquid Cooled Electronics I",
+    "itemID": 31228
+  },
+  {
+    "name": "Capital Liquid Cooled Electronics I",
+    "itemID": 31230
+  },
+  {
+    "name": "Small Liquid Cooled Electronics II",
+    "itemID": 31232
+  },
+  {
+    "name": "Medium Liquid Cooled Electronics II",
+    "itemID": 31234
+  },
+  {
+    "name": "Capital Liquid Cooled Electronics II",
+    "itemID": 31236
+  },
+  {
+    "name": "Small Memetic Algorithm Bank I",
+    "itemID": 31238
+  },
+  {
+    "name": "Medium Memetic Algorithm Bank I",
+    "itemID": 31240
+  },
+  {
+    "name": "Capital Memetic Algorithm Bank I",
+    "itemID": 31242
+  },
+  {
+    "name": "Small Memetic Algorithm Bank II",
+    "itemID": 31244
+  },
+  {
+    "name": "Medium Memetic Algorithm Bank II",
+    "itemID": 31246
+  },
+  {
+    "name": "Capital Memetic Algorithm Bank II",
+    "itemID": 31248
+  },
+  {
+    "name": "Small Signal Disruption Amplifier I",
+    "itemID": 31250
+  },
+  {
+    "name": "Medium Signal Disruption Amplifier I",
+    "itemID": 31252
+  },
+  {
+    "name": "Capital Signal Disruption Amplifier I",
+    "itemID": 31254
+  },
+  {
+    "name": "Small Signal Disruption Amplifier II",
+    "itemID": 31256
+  },
+  {
+    "name": "Medium Signal Disruption Amplifier II",
+    "itemID": 31258
+  },
+  {
+    "name": "Capital Signal Disruption Amplifier II",
+    "itemID": 31260
+  },
+  {
+    "name": "Small Inverted Signal Field Projector I",
+    "itemID": 31262
+  },
+  {
+    "name": "Medium Inverted Signal Field Projector I",
+    "itemID": 31264
+  },
+  {
+    "name": "Capital Inverted Signal Field Projector I",
+    "itemID": 31266
+  },
+  {
+    "name": "Small Inverted Signal Field Projector II",
+    "itemID": 31268
+  },
+  {
+    "name": "Medium Inverted Signal Field Projector II",
+    "itemID": 31270
+  },
+  {
+    "name": "Capital Inverted Signal Field Projector II",
+    "itemID": 31272
+  },
+  {
+    "name": "Small Ionic Field Projector I",
+    "itemID": 31274
+  },
+  {
+    "name": "Medium Ionic Field Projector I",
+    "itemID": 31276
+  },
+  {
+    "name": "Capital Ionic Field Projector I",
+    "itemID": 31278
+  },
+  {
+    "name": "Small Ionic Field Projector II",
+    "itemID": 31280
+  },
+  {
+    "name": "Medium Ionic Field Projector II",
+    "itemID": 31282
+  },
+  {
+    "name": "Capital Ionic Field Projector II",
+    "itemID": 31284
+  },
+  {
+    "name": "Small Particle Dispersion Augmentor I",
+    "itemID": 31286
+  },
+  {
+    "name": "Medium Particle Dispersion Augmentor I",
+    "itemID": 31288
+  },
+  {
+    "name": "Capital Particle Dispersion Augmentor I",
+    "itemID": 31290
+  },
+  {
+    "name": "Small Particle Dispersion Augmentor II",
+    "itemID": 31292
+  },
+  {
+    "name": "Medium Particle Dispersion Augmentor II",
+    "itemID": 31294
+  },
+  {
+    "name": "Capital Particle Dispersion Augmentor II",
+    "itemID": 31296
+  },
+  {
+    "name": "Small Particle Dispersion Projector I",
+    "itemID": 31298
+  },
+  {
+    "name": "Medium Particle Dispersion Projector I",
+    "itemID": 31300
+  },
+  {
+    "name": "Capital Particle Dispersion Projector I",
+    "itemID": 31302
+  },
+  {
+    "name": "Small Particle Dispersion Projector II",
+    "itemID": 31304
+  },
+  {
+    "name": "Medium Particle Dispersion Projector II",
+    "itemID": 31306
+  },
+  {
+    "name": "Capital Particle Dispersion Projector II",
+    "itemID": 31308
+  },
+  {
+    "name": "Small Signal Focusing Kit I",
+    "itemID": 31310
+  },
+  {
+    "name": "Medium Signal Focusing Kit I",
+    "itemID": 31312
+  },
+  {
+    "name": "Capital Signal Focusing Kit I",
+    "itemID": 31314
+  },
+  {
+    "name": "Small Signal Focusing Kit II",
+    "itemID": 31316
+  },
+  {
+    "name": "Medium Signal Focusing Kit II",
+    "itemID": 31318
+  },
+  {
+    "name": "Capital Signal Focusing Kit II",
+    "itemID": 31320
+  },
+  {
+    "name": "Small Targeting System Subcontroller I",
+    "itemID": 31322
+  },
+  {
+    "name": "Medium Targeting System Subcontroller I",
+    "itemID": 31324
+  },
+  {
+    "name": "Capital Targeting System Subcontroller I",
+    "itemID": 31326
+  },
+  {
+    "name": "Small Targeting System Subcontroller II",
+    "itemID": 31328
+  },
+  {
+    "name": "Medium Targeting System Subcontroller II",
+    "itemID": 31330
+  },
+  {
+    "name": "Capital Targeting System Subcontroller II",
+    "itemID": 31332
+  },
+  {
+    "name": "Small Targeting Systems Stabilizer I",
+    "itemID": 31334
+  },
+  {
+    "name": "Medium Targeting Systems Stabilizer I",
+    "itemID": 31336
+  },
+  {
+    "name": "Capital Targeting Systems Stabilizer I",
+    "itemID": 31338
+  },
+  {
+    "name": "Small Targeting Systems Stabilizer II",
+    "itemID": 31340
+  },
+  {
+    "name": "Medium Targeting Systems Stabilizer II",
+    "itemID": 31342
+  },
+  {
+    "name": "Capital Targeting Systems Stabilizer II",
+    "itemID": 31344
+  },
+  {
+    "name": "Small Tracking Diagnostic Subroutines I",
+    "itemID": 31346
+  },
+  {
+    "name": "Medium Tracking Diagnostic Subroutines I",
+    "itemID": 31348
+  },
+  {
+    "name": "Capital Tracking Diagnostic Subroutines I",
+    "itemID": 31350
+  },
+  {
+    "name": "Small Tracking Diagnostic Subroutines II",
+    "itemID": 31352
+  },
+  {
+    "name": "Medium Tracking Diagnostic Subroutines II",
+    "itemID": 31354
+  },
+  {
+    "name": "Capital Tracking Diagnostic Subroutines II",
+    "itemID": 31356
+  },
+  {
+    "name": "Small Ancillary Current Router I",
+    "itemID": 31358
+  },
+  {
+    "name": "Medium Ancillary Current Router I",
+    "itemID": 31360
+  },
+  {
+    "name": "Capital Ancillary Current Router I",
+    "itemID": 31362
+  },
+  {
+    "name": "Small Ancillary Current Router II",
+    "itemID": 31364
+  },
+  {
+    "name": "Medium Ancillary Current Router II",
+    "itemID": 31366
+  },
+  {
+    "name": "Capital Ancillary Current Router II",
+    "itemID": 31368
+  },
+  {
+    "name": "Small Capacitor Control Circuit I",
+    "itemID": 31370
+  },
+  {
+    "name": "Medium Capacitor Control Circuit I",
+    "itemID": 31372
+  },
+  {
+    "name": "Capital Capacitor Control Circuit I",
+    "itemID": 31374
+  },
+  {
+    "name": "Small Capacitor Control Circuit II",
+    "itemID": 31376
+  },
+  {
+    "name": "Medium Capacitor Control Circuit II",
+    "itemID": 31378
+  },
+  {
+    "name": "Capital Capacitor Control Circuit II",
+    "itemID": 31380
+  },
+  {
+    "name": "Small Egress Port Maximizer I",
+    "itemID": 31382
+  },
+  {
+    "name": "Medium Egress Port Maximizer I",
+    "itemID": 31384
+  },
+  {
+    "name": "Capital Egress Port Maximizer I",
+    "itemID": 31386
+  },
+  {
+    "name": "Small Egress Port Maximizer II",
+    "itemID": 31388
+  },
+  {
+    "name": "Medium Egress Port Maximizer II",
+    "itemID": 31390
+  },
+  {
+    "name": "Capital Egress Port Maximizer II",
+    "itemID": 31392
+  },
+  {
+    "name": "Small Powergrid Subroutine Maximizer I",
+    "itemID": 31394
+  },
+  {
+    "name": "Medium Powergrid Subroutine Maximizer I",
+    "itemID": 31396
+  },
+  {
+    "name": "Capital Powergrid Subroutine Maximizer I",
+    "itemID": 31398
+  },
+  {
+    "name": "Small Powergrid Subroutine Maximizer II",
+    "itemID": 31400
+  },
+  {
+    "name": "Medium Powergrid Subroutine Maximizer II",
+    "itemID": 31402
+  },
+  {
+    "name": "Capital Powergrid Subroutine Maximizer II",
+    "itemID": 31404
+  },
+  {
+    "name": "Small Semiconductor Memory Cell I",
+    "itemID": 31406
+  },
+  {
+    "name": "Medium Semiconductor Memory Cell I",
+    "itemID": 31408
+  },
+  {
+    "name": "Capital Semiconductor Memory Cell I",
+    "itemID": 31410
+  },
+  {
+    "name": "Small Semiconductor Memory Cell II",
+    "itemID": 31412
+  },
+  {
+    "name": "Medium Semiconductor Memory Cell II",
+    "itemID": 31414
+  },
+  {
+    "name": "Capital Semiconductor Memory Cell II",
+    "itemID": 31416
+  },
+  {
+    "name": "Small Algid Energy Administrations Unit I",
+    "itemID": 31418
+  },
+  {
+    "name": "Medium Algid Energy Administrations Unit I",
+    "itemID": 31420
+  },
+  {
+    "name": "Capital Algid Energy Administrations Unit I",
+    "itemID": 31422
+  },
+  {
+    "name": "Small Algid Energy Administrations Unit II",
+    "itemID": 31424
+  },
+  {
+    "name": "Medium Algid Energy Administrations Unit II",
+    "itemID": 31426
+  },
+  {
+    "name": "Capital Algid Energy Administrations Unit II",
+    "itemID": 31428
+  },
+  {
+    "name": "Small Energy Ambit Extension I",
+    "itemID": 31430
+  },
+  {
+    "name": "Medium Energy Ambit Extension I",
+    "itemID": 31432
+  },
+  {
+    "name": "Capital Energy Ambit Extension I",
+    "itemID": 31434
+  },
+  {
+    "name": "Small Energy Ambit Extension II",
+    "itemID": 31436
+  },
+  {
+    "name": "Medium Energy Ambit Extension II",
+    "itemID": 31438
+  },
+  {
+    "name": "Capital Energy Ambit Extension II",
+    "itemID": 31440
+  },
+  {
+    "name": "Small Energy Burst Aerator I",
+    "itemID": 31442
+  },
+  {
+    "name": "Medium Energy Burst Aerator I",
+    "itemID": 31444
+  },
+  {
+    "name": "Capital Energy Burst Aerator I",
+    "itemID": 31446
+  },
+  {
+    "name": "Small Energy Burst Aerator II",
+    "itemID": 31448
+  },
+  {
+    "name": "Medium Energy Burst Aerator II",
+    "itemID": 31450
+  },
+  {
+    "name": "Capital Energy Burst Aerator II",
+    "itemID": 31452
+  },
+  {
+    "name": "Small Energy Collision Accelerator I",
+    "itemID": 31454
+  },
+  {
+    "name": "Medium Energy Collision Accelerator I",
+    "itemID": 31456
+  },
+  {
+    "name": "Capital Energy Collision Accelerator I",
+    "itemID": 31458
+  },
+  {
+    "name": "Small Energy Collision Accelerator II",
+    "itemID": 31460
+  },
+  {
+    "name": "Medium Energy Collision Accelerator II",
+    "itemID": 31462
+  },
+  {
+    "name": "Capital Energy Collision Accelerator II",
+    "itemID": 31464
+  },
+  {
+    "name": "Small Energy Discharge Elutriation I",
+    "itemID": 31466
+  },
+  {
+    "name": "Medium Energy Discharge Elutriation I",
+    "itemID": 31468
+  },
+  {
+    "name": "Capital Energy Discharge Elutriation I",
+    "itemID": 31470
+  },
+  {
+    "name": "Small Energy Discharge Elutriation II",
+    "itemID": 31472
+  },
+  {
+    "name": "Medium Energy Discharge Elutriation II",
+    "itemID": 31474
+  },
+  {
+    "name": "Capital Energy Discharge Elutriation II",
+    "itemID": 31476
+  },
+  {
+    "name": "Small Energy Locus Coordinator I",
+    "itemID": 31478
+  },
+  {
+    "name": "Medium Energy Locus Coordinator I",
+    "itemID": 31480
+  },
+  {
+    "name": "Capital Energy Locus Coordinator I",
+    "itemID": 31482
+  },
+  {
+    "name": "Small Energy Locus Coordinator II",
+    "itemID": 31484
+  },
+  {
+    "name": "Medium Energy Locus Coordinator II",
+    "itemID": 31486
+  },
+  {
+    "name": "Capital Energy Locus Coordinator II",
+    "itemID": 31488
+  },
+  {
+    "name": "Small Energy Metastasis Adjuster I",
+    "itemID": 31490
+  },
+  {
+    "name": "Medium Energy Metastasis Adjuster I",
+    "itemID": 31492
+  },
+  {
+    "name": "Capital Energy Metastasis Adjuster I",
+    "itemID": 31494
+  },
+  {
+    "name": "Small Energy Metastasis Adjuster II",
+    "itemID": 31496
+  },
+  {
+    "name": "Medium Energy Metastasis Adjuster II",
+    "itemID": 31498
+  },
+  {
+    "name": "Capital Energy Metastasis Adjuster II",
+    "itemID": 31500
+  },
+  {
+    "name": "Small Algid Hybrid Administrations Unit I",
+    "itemID": 31502
+  },
+  {
+    "name": "Medium Algid Hybrid Administrations Unit I",
+    "itemID": 31504
+  },
+  {
+    "name": "Capital Algid Hybrid Administrations Unit I",
+    "itemID": 31506
+  },
+  {
+    "name": "Small Algid Hybrid Administrations Unit II",
+    "itemID": 31508
+  },
+  {
+    "name": "Medium Algid Hybrid Administrations Unit II",
+    "itemID": 31510
+  },
+  {
+    "name": "Capital Algid Hybrid Administrations Unit II",
+    "itemID": 31512
+  },
+  {
+    "name": "Small Hybrid Ambit Extension I",
+    "itemID": 31514
+  },
+  {
+    "name": "Medium Hybrid Ambit Extension I",
+    "itemID": 31516
+  },
+  {
+    "name": "Capital Hybrid Ambit Extension I",
+    "itemID": 31518
+  },
+  {
+    "name": "Small Hybrid Ambit Extension II",
+    "itemID": 31520
+  },
+  {
+    "name": "Medium Hybrid Ambit Extension II",
+    "itemID": 31522
+  },
+  {
+    "name": "Capital Hybrid Ambit Extension II",
+    "itemID": 31524
+  },
+  {
+    "name": "Small Hybrid Burst Aerator I",
+    "itemID": 31526
+  },
+  {
+    "name": "Medium Hybrid Burst Aerator I",
+    "itemID": 31528
+  },
+  {
+    "name": "Capital Hybrid Burst Aerator I",
+    "itemID": 31530
+  },
+  {
+    "name": "Small Hybrid Burst Aerator II",
+    "itemID": 31532
+  },
+  {
+    "name": "Medium Hybrid Burst Aerator II",
+    "itemID": 31534
+  },
+  {
+    "name": "Capital Hybrid Burst Aerator II",
+    "itemID": 31536
+  },
+  {
+    "name": "Small Hybrid Collision Accelerator I",
+    "itemID": 31538
+  },
+  {
+    "name": "Medium Hybrid Collision Accelerator I",
+    "itemID": 31540
+  },
+  {
+    "name": "Capital Hybrid Collision Accelerator I",
+    "itemID": 31542
+  },
+  {
+    "name": "Small Hybrid Collision Accelerator II",
+    "itemID": 31544
+  },
+  {
+    "name": "Medium Hybrid Collision Accelerator II",
+    "itemID": 31546
+  },
+  {
+    "name": "Capital Hybrid Collision Accelerator II",
+    "itemID": 31548
+  },
+  {
+    "name": "Small Hybrid Discharge Elutriation I",
+    "itemID": 31550
+  },
+  {
+    "name": "Medium Hybrid Discharge Elutriation I",
+    "itemID": 31552
+  },
+  {
+    "name": "Capital Hybrid Discharge Elutriation I",
+    "itemID": 31554
+  },
+  {
+    "name": "Small Hybrid Discharge Elutriation II",
+    "itemID": 31556
+  },
+  {
+    "name": "Medium Hybrid Discharge Elutriation II",
+    "itemID": 31558
+  },
+  {
+    "name": "Capital Hybrid Discharge Elutriation II",
+    "itemID": 31560
+  },
+  {
+    "name": "Small Hybrid Locus Coordinator I",
+    "itemID": 31562
+  },
+  {
+    "name": "Medium Hybrid Locus Coordinator I",
+    "itemID": 31564
+  },
+  {
+    "name": "Capital Hybrid Locus Coordinator I",
+    "itemID": 31566
+  },
+  {
+    "name": "Small Hybrid Locus Coordinator II",
+    "itemID": 31568
+  },
+  {
+    "name": "Medium Hybrid Locus Coordinator II",
+    "itemID": 31570
+  },
+  {
+    "name": "Capital Hybrid Locus Coordinator II",
+    "itemID": 31572
+  },
+  {
+    "name": "Small Hybrid Metastasis Adjuster I",
+    "itemID": 31574
+  },
+  {
+    "name": "Medium Hybrid Metastasis Adjuster I",
+    "itemID": 31576
+  },
+  {
+    "name": "Capital Hybrid Metastasis Adjuster I",
+    "itemID": 31578
+  },
+  {
+    "name": "Small Hybrid Metastasis Adjuster II",
+    "itemID": 31580
+  },
+  {
+    "name": "Medium Hybrid Metastasis Adjuster II",
+    "itemID": 31582
+  },
+  {
+    "name": "Capital Hybrid Metastasis Adjuster II",
+    "itemID": 31584
+  },
+  {
+    "name": "Small Bay Loading Accelerator I",
+    "itemID": 31586
+  },
+  {
+    "name": "Medium Bay Loading Accelerator I",
+    "itemID": 31588
+  },
+  {
+    "name": "Capital Bay Loading Accelerator I",
+    "itemID": 31590
+  },
+  {
+    "name": "Small Bay Loading Accelerator II",
+    "itemID": 31592
+  },
+  {
+    "name": "Medium Bay Loading Accelerator II",
+    "itemID": 31594
+  },
+  {
+    "name": "Capital Bay Loading Accelerator II",
+    "itemID": 31596
+  },
+  {
+    "name": "Small Hydraulic Bay Thrusters I",
+    "itemID": 31598
+  },
+  {
+    "name": "Medium Hydraulic Bay Thrusters I",
+    "itemID": 31600
+  },
+  {
+    "name": "Capital Hydraulic Bay Thrusters I",
+    "itemID": 31602
+  },
+  {
+    "name": "Small Hydraulic Bay Thrusters II",
+    "itemID": 31604
+  },
+  {
+    "name": "Medium Hydraulic Bay Thrusters II",
+    "itemID": 31606
+  },
+  {
+    "name": "Small Rocket Fuel Cache Partition I",
+    "itemID": 31608
+  },
+  {
+    "name": "Medium Rocket Fuel Cache Partition I",
+    "itemID": 31610
+  },
+  {
+    "name": "Capital Rocket Fuel Cache Partition I",
+    "itemID": 31612
+  },
+  {
+    "name": "Small Rocket Fuel Cache Partition II",
+    "itemID": 31614
+  },
+  {
+    "name": "Medium Rocket Fuel Cache Partition II",
+    "itemID": 31616
+  },
+  {
+    "name": "Capital Rocket Fuel Cache Partition II",
+    "itemID": 31618
+  },
+  {
+    "name": "Small Warhead Calefaction Catalyst I",
+    "itemID": 31620
+  },
+  {
+    "name": "Medium Warhead Calefaction Catalyst I",
+    "itemID": 31622
+  },
+  {
+    "name": "Capital Warhead Calefaction Catalyst I",
+    "itemID": 31624
+  },
+  {
+    "name": "Small Warhead Calefaction Catalyst II",
+    "itemID": 31626
+  },
+  {
+    "name": "Medium Warhead Calefaction Catalyst II",
+    "itemID": 31628
+  },
+  {
+    "name": "Capital Warhead Calefaction Catalyst II",
+    "itemID": 31630
+  },
+  {
+    "name": "Small Warhead Flare Catalyst I",
+    "itemID": 31632
+  },
+  {
+    "name": "Medium Warhead Flare Catalyst I",
+    "itemID": 31634
+  },
+  {
+    "name": "Capital Warhead Flare Catalyst I",
+    "itemID": 31636
+  },
+  {
+    "name": "Small Warhead Flare Catalyst II",
+    "itemID": 31638
+  },
+  {
+    "name": "Medium Warhead Flare Catalyst II",
+    "itemID": 31640
+  },
+  {
+    "name": "Capital Warhead Flare Catalyst II",
+    "itemID": 31642
+  },
+  {
+    "name": "Small Warhead Rigor Catalyst I",
+    "itemID": 31644
+  },
+  {
+    "name": "Medium Warhead Rigor Catalyst I",
+    "itemID": 31646
+  },
+  {
+    "name": "Capital Warhead Rigor Catalyst I",
+    "itemID": 31648
+  },
+  {
+    "name": "Small Warhead Rigor Catalyst II",
+    "itemID": 31650
+  },
+  {
+    "name": "Medium Warhead Rigor Catalyst II",
+    "itemID": 31652
+  },
+  {
+    "name": "Capital Warhead Rigor Catalyst II",
+    "itemID": 31654
+  },
+  {
+    "name": "Small Projectile Ambit Extension I",
+    "itemID": 31656
+  },
+  {
+    "name": "Medium Projectile Ambit Extension I",
+    "itemID": 31658
+  },
+  {
+    "name": "Capital Projectile Ambit Extension I",
+    "itemID": 31660
+  },
+  {
+    "name": "Small Projectile Ambit Extension II",
+    "itemID": 31662
+  },
+  {
+    "name": "Medium Projectile Ambit Extension II",
+    "itemID": 31664
+  },
+  {
+    "name": "Capital Projectile Ambit Extension II",
+    "itemID": 31666
+  },
+  {
+    "name": "Small Projectile Burst Aerator I",
+    "itemID": 31668
+  },
+  {
+    "name": "Medium Projectile Burst Aerator I",
+    "itemID": 31670
+  },
+  {
+    "name": "Capital Projectile Burst Aerator I",
+    "itemID": 31672
+  },
+  {
+    "name": "Small Projectile Burst Aerator II",
+    "itemID": 31674
+  },
+  {
+    "name": "Medium Projectile Burst Aerator II",
+    "itemID": 31676
+  },
+  {
+    "name": "Capital Projectile Burst Aerator II",
+    "itemID": 31678
+  },
+  {
+    "name": "Small Projectile Collision Accelerator I",
+    "itemID": 31680
+  },
+  {
+    "name": "Medium Projectile Collision Accelerator I",
+    "itemID": 31682
+  },
+  {
+    "name": "Capital Projectile Collision Accelerator I",
+    "itemID": 31684
+  },
+  {
+    "name": "Small Projectile Collision Accelerator II",
+    "itemID": 31686
+  },
+  {
+    "name": "Medium Projectile Collision Accelerator II",
+    "itemID": 31688
+  },
+  {
+    "name": "Capital Projectile Collision Accelerator II",
+    "itemID": 31690
+  },
+  {
+    "name": "Small Projectile Locus Coordinator I",
+    "itemID": 31692
+  },
+  {
+    "name": "Medium Projectile Locus Coordinator I",
+    "itemID": 31694
+  },
+  {
+    "name": "Capital Projectile Locus Coordinator I",
+    "itemID": 31696
+  },
+  {
+    "name": "Small Projectile Locus Coordinator II",
+    "itemID": 31698
+  },
+  {
+    "name": "Medium Projectile Locus Coordinator II",
+    "itemID": 31700
+  },
+  {
+    "name": "Capital Projectile Locus Coordinator II",
+    "itemID": 31702
+  },
+  {
+    "name": "Small Projectile Metastasis Adjuster I",
+    "itemID": 31704
+  },
+  {
+    "name": "Medium Projectile Metastasis Adjuster I",
+    "itemID": 31706
+  },
+  {
+    "name": "Capital Projectile Metastasis Adjuster I",
+    "itemID": 31708
+  },
+  {
+    "name": "Small Projectile Metastasis Adjuster II",
+    "itemID": 31710
+  },
+  {
+    "name": "Medium Projectile Metastasis Adjuster II",
+    "itemID": 31712
+  },
+  {
+    "name": "Capital Projectile Metastasis Adjuster II",
+    "itemID": 31714
+  },
+  {
+    "name": "Small EM Shield Reinforcer I",
+    "itemID": 31716
+  },
+  {
+    "name": "Medium EM Shield Reinforcer I",
+    "itemID": 31718
+  },
+  {
+    "name": "Capital EM Shield Reinforcer I",
+    "itemID": 31720
+  },
+  {
+    "name": "Small EM Shield Reinforcer II",
+    "itemID": 31722
+  },
+  {
+    "name": "Medium EM Shield Reinforcer II",
+    "itemID": 31724
+  },
+  {
+    "name": "Capital EM Shield Reinforcer II",
+    "itemID": 31726
+  },
+  {
+    "name": "Small Explosive Shield Reinforcer I",
+    "itemID": 31728
+  },
+  {
+    "name": "Medium Explosive Shield Reinforcer I",
+    "itemID": 31730
+  },
+  {
+    "name": "Capital Explosive Shield Reinforcer I",
+    "itemID": 31732
+  },
+  {
+    "name": "Small Explosive Shield Reinforcer II",
+    "itemID": 31734
+  },
+  {
+    "name": "Medium Explosive Shield Reinforcer II",
+    "itemID": 31736
+  },
+  {
+    "name": "Capital Explosive Shield Reinforcer II",
+    "itemID": 31738
+  },
+  {
+    "name": "Small Kinetic Shield Reinforcer I",
+    "itemID": 31740
+  },
+  {
+    "name": "Medium Kinetic Shield Reinforcer I",
+    "itemID": 31742
+  },
+  {
+    "name": "Capital Kinetic Shield Reinforcer I",
+    "itemID": 31744
+  },
+  {
+    "name": "Small Kinetic Shield Reinforcer II",
+    "itemID": 31746
+  },
+  {
+    "name": "Medium Kinetic Shield Reinforcer II",
+    "itemID": 31748
+  },
+  {
+    "name": "Capital Kinetic Shield Reinforcer II",
+    "itemID": 31750
+  },
+  {
+    "name": "Small Thermal Shield Reinforcer I",
+    "itemID": 31752
+  },
+  {
+    "name": "Medium Thermal Shield Reinforcer I",
+    "itemID": 31754
+  },
+  {
+    "name": "Capital Thermal Shield Reinforcer I",
+    "itemID": 31756
+  },
+  {
+    "name": "Small Thermal Shield Reinforcer II",
+    "itemID": 31758
+  },
+  {
+    "name": "Medium Thermal Shield Reinforcer II",
+    "itemID": 31760
+  },
+  {
+    "name": "Capital Thermal Shield Reinforcer II",
+    "itemID": 31762
+  },
+  {
+    "name": "Small Core Defense Capacitor Safeguard I",
+    "itemID": 31764
+  },
+  {
+    "name": "Medium Core Defense Capacitor Safeguard I",
+    "itemID": 31766
+  },
+  {
+    "name": "Capital Core Defense Capacitor Safeguard I",
+    "itemID": 31768
+  },
+  {
+    "name": "Small Core Defense Capacitor Safeguard II",
+    "itemID": 31770
+  },
+  {
+    "name": "Medium Core Defense Capacitor Safeguard II",
+    "itemID": 31772
+  },
+  {
+    "name": "Capital Core Defense Capacitor Safeguard II",
+    "itemID": 31774
+  },
+  {
+    "name": "Small Core Defense Charge Economizer I",
+    "itemID": 31776
+  },
+  {
+    "name": "Medium Core Defense Charge Economizer I",
+    "itemID": 31778
+  },
+  {
+    "name": "Capital Core Defense Charge Economizer I",
+    "itemID": 31780
+  },
+  {
+    "name": "Small Core Defense Charge Economizer II",
+    "itemID": 31782
+  },
+  {
+    "name": "Medium Core Defense Charge Economizer II",
+    "itemID": 31784
+  },
+  {
+    "name": "Capital Core Defense Charge Economizer II",
+    "itemID": 31786
+  },
+  {
+    "name": "Small Core Defense Field Extender I",
+    "itemID": 31788
+  },
+  {
+    "name": "Medium Core Defense Field Extender I",
+    "itemID": 31790
+  },
+  {
+    "name": "Capital Core Defense Field Extender I",
+    "itemID": 31792
+  },
+  {
+    "name": "Small Core Defense Field Extender II",
+    "itemID": 31794
+  },
+  {
+    "name": "Medium Core Defense Field Extender II",
+    "itemID": 31796
+  },
+  {
+    "name": "Capital Core Defense Field Extender II",
+    "itemID": 31798
+  },
+  {
+    "name": "Small Core Defense Field Purger I",
+    "itemID": 31800
+  },
+  {
+    "name": "Medium Core Defense Field Purger I",
+    "itemID": 31802
+  },
+  {
+    "name": "Capital Core Defense Field Purger I",
+    "itemID": 31804
+  },
+  {
+    "name": "Small Core Defense Field Purger II",
+    "itemID": 31810
+  },
+  {
+    "name": "Medium Core Defense Field Purger II",
+    "itemID": 31812
+  },
+  {
+    "name": "Capital Core Defense Field Purger II",
+    "itemID": 31814
+  },
+  {
+    "name": "Small Core Defense Operational Solidifier I",
+    "itemID": 31816
+  },
+  {
+    "name": "Medium Core Defense Operational Solidifier I",
+    "itemID": 31818
+  },
+  {
+    "name": "Capital Core Defense Operational Solidifier I",
+    "itemID": 31820
+  },
+  {
+    "name": "Small Core Defense Operational Solidifier II",
+    "itemID": 31822
+  },
+  {
+    "name": "Medium Core Defense Operational Solidifier II",
+    "itemID": 31824
+  },
+  {
+    "name": "Capital Core Defense Operational Solidifier II",
+    "itemID": 31826
+  },
+  {
+    "name": "Small Drone Control Range Augmentor I",
+    "itemID": 32025
+  },
+  {
+    "name": "Medium Drone Control Range Augmentor I",
+    "itemID": 32027
+  },
+  {
+    "name": "Small Drone Control Range Augmentor II",
+    "itemID": 32029
+  },
+  {
+    "name": "Medium Drone Control Range Augmentor II",
+    "itemID": 32031
+  },
+  {
+    "name": "Small Drone Durability Enhancer I",
+    "itemID": 32033
+  },
+  {
+    "name": "Medium Drone Durability Enhancer I",
+    "itemID": 32035
+  },
+  {
+    "name": "Small Drone Durability Enhancer II",
+    "itemID": 32037
+  },
+  {
+    "name": "Medium Drone Durability Enhancer II",
+    "itemID": 32039
+  },
+  {
+    "name": "Small Drone Mining Augmentor I",
+    "itemID": 32041
+  },
+  {
+    "name": "Medium Drone Mining Augmentor I",
+    "itemID": 32043
+  },
+  {
+    "name": "Small Drone Mining Augmentor II",
+    "itemID": 32045
+  },
+  {
+    "name": "Medium Drone Mining Augmentor II",
+    "itemID": 32047
+  },
+  {
+    "name": "Small Drone Repair Augmentor I",
+    "itemID": 32049
+  },
+  {
+    "name": "Medium Drone Repair Augmentor I",
+    "itemID": 32051
+  },
+  {
+    "name": "Small Drone Repair Augmentor II",
+    "itemID": 32053
+  },
+  {
+    "name": "Medium Drone Repair Augmentor II",
+    "itemID": 32055
+  },
+  {
+    "name": "Small Drone Speed Augmentor I",
+    "itemID": 32057
+  },
+  {
+    "name": "Medium Drone Speed Augmentor I",
+    "itemID": 32059
+  },
+  {
+    "name": "Small Drone Speed Augmentor II",
+    "itemID": 32061
+  },
+  {
+    "name": "Medium Drone Speed Augmentor II",
+    "itemID": 32063
+  },
+  {
+    "name": "Small Drone Scope Chip I",
+    "itemID": 32069
+  },
+  {
+    "name": "Medium Drone Scope Chip I",
+    "itemID": 32071
+  },
+  {
+    "name": "Small Drone Scope Chip II",
+    "itemID": 32073
+  },
+  {
+    "name": "Medium Drone Scope Chip II",
+    "itemID": 32075
+  },
+  {
+    "name": "Small Sentry Damage Augmentor I",
+    "itemID": 32081
+  },
+  {
+    "name": "Medium Sentry Damage Augmentor I",
+    "itemID": 32083
+  },
+  {
+    "name": "Small Sentry Damage Augmentor II",
+    "itemID": 32085
+  },
+  {
+    "name": "Medium Sentry Damage Augmentor II",
+    "itemID": 32087
+  },
+  {
+    "name": "Small Stasis Drone Augmentor I",
+    "itemID": 32089
+  },
+  {
+    "name": "Medium Stasis Drone Augmentor I",
+    "itemID": 32091
+  },
+  {
+    "name": "Small Stasis Drone Augmentor II",
+    "itemID": 32093
+  },
+  {
+    "name": "Medium Stasis Drone Augmentor II",
+    "itemID": 32095
+  },
+  {
+    "name": "Cyclops I",
+    "itemID": 32325
+  },
+  {
+    "name": "Malleus I",
+    "itemID": 32340
+  },
+  {
+    "name": "Tyrfing I",
+    "itemID": 32342
+  },
+  {
+    "name": "Mantis I",
+    "itemID": 32344
+  },
+  {
+    "name": "Scourge XL Cruise Missile",
+    "itemID": 32436
+  },
+  {
+    "name": "Nova XL Cruise Missile",
+    "itemID": 32438
+  },
+  {
+    "name": "Inferno XL Cruise Missile",
+    "itemID": 32440
+  },
+  {
+    "name": "Mjolnir XL Cruise Missile",
+    "itemID": 32442
+  },
+  {
+    "name": "XL Cruise Missile Launcher I",
+    "itemID": 32444
+  },
+  {
+    "name": "Unrefined Vanadium Hafnite",
+    "itemID": 32821
+  },
+  {
+    "name": "Unrefined Platinum Technite",
+    "itemID": 32822
+  },
+  {
+    "name": "Unrefined Solerium",
+    "itemID": 32823
+  },
+  {
+    "name": "Unrefined Caesarium Cadmide",
+    "itemID": 32824
+  },
+  {
+    "name": "Unrefined Hexite",
+    "itemID": 32825
+  },
+  {
+    "name": "Unrefined Rolled Tungsten Alloy",
+    "itemID": 32826
+  },
+  {
+    "name": "Unrefined Titanium Chromide",
+    "itemID": 32827
+  },
+  {
+    "name": "Unrefined Fernite Alloy",
+    "itemID": 32828
+  },
+  {
+    "name": "Unrefined Crystallite Alloy",
+    "itemID": 32829
+  },
+  {
+    "name": "Algos",
+    "itemID": 32872
+  },
+  {
+    "name": "Dragoon",
+    "itemID": 32874
+  },
+  {
+    "name": "Corax",
+    "itemID": 32876
+  },
+  {
+    "name": "Talwar",
+    "itemID": 32878
+  },
+  {
+    "name": "Venture",
+    "itemID": 32880
+  },
+  {
+    "name": "Scan Acquisition Array I",
+    "itemID": 33176
+  },
+  {
+    "name": "Scan Pinpointing Array I",
+    "itemID": 33178
+  },
+  {
+    "name": "Scan Rangefinding Array I",
+    "itemID": 33180
+  },
+  {
+    "name": "Spatial Attunement Unit",
+    "itemID": 33195
+  },
+  {
+    "name": "Scan Acquisition Array II",
+    "itemID": 33197
+  },
+  {
+    "name": "Scan Pinpointing Array II",
+    "itemID": 33199
+  },
+  {
+    "name": "Scan Rangefinding Array II",
+    "itemID": 33201
+  },
+  {
+    "name": "Survey Probe Launcher I",
+    "itemID": 33270
+  },
+  {
+    "name": "Survey Probe Launcher II",
+    "itemID": 33272
+  },
+  {
+    "name": "Capital Drone Control Range Augmentor I",
+    "itemID": 33277
+  },
+  {
+    "name": "Capital Drone Control Range Augmentor II",
+    "itemID": 33279
+  },
+  {
+    "name": "Capital Drone Durability Enhancer I",
+    "itemID": 33281
+  },
+  {
+    "name": "Capital Drone Durability Enhancer II",
+    "itemID": 33283
+  },
+  {
+    "name": "Capital Drone Mining Augmentor I",
+    "itemID": 33285
+  },
+  {
+    "name": "Capital Drone Mining Augmentor II",
+    "itemID": 33287
+  },
+  {
+    "name": "Capital Drone Repair Augmentor I",
+    "itemID": 33289
+  },
+  {
+    "name": "Capital Drone Repair Augmentor II",
+    "itemID": 33291
+  },
+  {
+    "name": "Capital Drone Scope Chip I",
+    "itemID": 33293
+  },
+  {
+    "name": "Capital Drone Scope Chip II",
+    "itemID": 33295
+  },
+  {
+    "name": "Capital Drone Speed Augmentor I",
+    "itemID": 33297
+  },
+  {
+    "name": "Capital Drone Speed Augmentor II",
+    "itemID": 33298
+  },
+  {
+    "name": "Capital Hydraulic Bay Thrusters II",
+    "itemID": 33301
+  },
+  {
+    "name": "Capital Processor Overclocking Unit I",
+    "itemID": 33303
+  },
+  {
+    "name": "Capital Processor Overclocking Unit II",
+    "itemID": 33305
+  },
+  {
+    "name": "Capital Sentry Damage Augmentor I",
+    "itemID": 33307
+  },
+  {
+    "name": "Capital Sentry Damage Augmentor II",
+    "itemID": 33309
+  },
+  {
+    "name": "Capital Stasis Drone Augmentor I",
+    "itemID": 33311
+  },
+  {
+    "name": "Capital Stasis Drone Augmentor II",
+    "itemID": 33313
+  },
+  {
+    "name": "Thulium Hafnite",
+    "itemID": 33336
+  },
+  {
+    "name": "Promethium Mercurite",
+    "itemID": 33337
+  },
+  {
+    "name": "Unrefined Promethium Mercurite",
+    "itemID": 33338
+  },
+  {
+    "name": "Unrefined Thulium Hafnite",
+    "itemID": 33339
+  },
+  {
+    "name": "Photonic Metamaterials",
+    "itemID": 33359
+  },
+  {
+    "name": "Terahertz Metamaterials",
+    "itemID": 33360
+  },
+  {
+    "name": "Plasmonic Metamaterials",
+    "itemID": 33361
+  },
+  {
+    "name": "Nonlinear Metamaterials",
+    "itemID": 33362
+  },
+  {
+    "name": "Rapid Heavy Missile Launcher I",
+    "itemID": 33448
+  },
+  {
+    "name": "Rapid Heavy Missile Launcher II",
+    "itemID": 33450
+  },
+  {
+    "name": "Mobile Depot",
+    "itemID": 33474
+  },
+  {
+    "name": "Mobile Tractor Unit",
+    "itemID": 33475
+  },
+  {
+    "name": "Small Mobile Siphon Unit",
+    "itemID": 33477
+  },
+  {
+    "name": "'Wetu' Mobile Depot",
+    "itemID": 33520
+  },
+  {
+    "name": "'Yurt' Mobile Depot",
+    "itemID": 33522
+  },
+  {
+    "name": "Small Mobile 'Hybrid' Siphon Unit",
+    "itemID": 33581
+  },
+  {
+    "name": "Small Mobile 'Rote' Siphon Unit",
+    "itemID": 33583
+  },
+  {
+    "name": "Heavy Hull Maintenance Bot I",
+    "itemID": 33671
+  },
+  {
+    "name": "Whiptail",
+    "itemID": 33673
+  },
+  {
+    "name": "Chameleon",
+    "itemID": 33675
+  },
+  {
+    "name": "Prospect",
+    "itemID": 33697
+  },
+  {
+    "name": "'Packrat' Mobile Tractor Unit",
+    "itemID": 33700
+  },
+  {
+    "name": "'Magpie' Mobile Tractor Unit",
+    "itemID": 33702
+  },
+  {
+    "name": "Medium Hull Maintenance Bot I",
+    "itemID": 33704
+  },
+  {
+    "name": "Light Hull Maintenance Bot I",
+    "itemID": 33706
+  },
+  {
+    "name": "Heavy Hull Maintenance Bot II",
+    "itemID": 33708
+  },
+  {
+    "name": "Medium Hull Maintenance Bot II",
+    "itemID": 33710
+  },
+  {
+    "name": "Light Hull Maintenance Bot II",
+    "itemID": 33712
+  },
+  {
+    "name": "Omnidirectional Tracking Enhancer I",
+    "itemID": 33822
+  },
+  {
+    "name": "Omnidirectional Tracking Enhancer II",
+    "itemID": 33824
+  },
+  {
+    "name": "Small Transverse Bulkhead I",
+    "itemID": 33890
+  },
+  {
+    "name": "Small Transverse Bulkhead II",
+    "itemID": 33892
+  },
+  {
+    "name": "Medium Transverse Bulkhead I",
+    "itemID": 33894
+  },
+  {
+    "name": "Medium Transverse Bulkhead II",
+    "itemID": 33896
+  },
+  {
+    "name": "Large Transverse Bulkhead I",
+    "itemID": 33898
+  },
+  {
+    "name": "Large Transverse Bulkhead II",
+    "itemID": 33900
+  },
+  {
+    "name": "Capital Transverse Bulkhead I",
+    "itemID": 33902
+  },
+  {
+    "name": "Capital Transverse Bulkhead II",
+    "itemID": 33904
+  },
+  {
+    "name": "Limited Hyperspatial Accelerator",
+    "itemID": 33981
+  },
+  {
+    "name": "Experimental Hyperspatial Accelerator",
+    "itemID": 33983
+  },
+  {
+    "name": "Prototype Hyperspatial Accelerator",
+    "itemID": 33985
+  },
+  {
+    "name": "Limited Jump Drive Economizer",
+    "itemID": 34122
+  },
+  {
+    "name": "Experimental Jump Drive Economizer",
+    "itemID": 34124
+  },
+  {
+    "name": "Prototype Jump Drive Economizer",
+    "itemID": 34126
+  },
+  {
+    "name": "Polarized Small Focused Pulse Laser",
+    "itemID": 34272
+  },
+  {
+    "name": "Polarized Heavy Pulse Laser",
+    "itemID": 34274
+  },
+  {
+    "name": "Polarized Mega Pulse Laser",
+    "itemID": 34276
+  },
+  {
+    "name": "Polarized Light Neutron Blaster",
+    "itemID": 34278
+  },
+  {
+    "name": "Polarized Heavy Neutron Blaster",
+    "itemID": 34280
+  },
+  {
+    "name": "Polarized Neutron Blaster Cannon",
+    "itemID": 34282
+  },
+  {
+    "name": "Polarized 200mm AutoCannon",
+    "itemID": 34284
+  },
+  {
+    "name": "Polarized 425mm AutoCannon",
+    "itemID": 34286
+  },
+  {
+    "name": "Polarized 800mm Repeating Cannon",
+    "itemID": 34288
+  },
+  {
+    "name": "Polarized Rocket Launcher",
+    "itemID": 34290
+  },
+  {
+    "name": "Polarized Heavy Assault Missile Launcher",
+    "itemID": 34292
+  },
+  {
+    "name": "Polarized Torpedo Launcher",
+    "itemID": 34294
+  },
+  {
+    "name": "Confessor",
+    "itemID": 34317
+  },
+  {
+    "name": "Self-Assembling Nanolattice",
+    "itemID": 34396
+  },
+  {
+    "name": "Svipul",
+    "itemID": 34562
+  },
+  {
+    "name": "Entosis Link I",
+    "itemID": 34593
+  },
+  {
+    "name": "Entosis Link II",
+    "itemID": 34595
+  },
+  {
+    "name": "Jackdaw",
+    "itemID": 34828
+  },
+  {
+    "name": "Hecate",
+    "itemID": 35683
+  },
+  {
+    "name": "Missile Guidance Enhancer I",
+    "itemID": 35770
+  },
+  {
+    "name": "Missile Guidance Enhancer II",
+    "itemID": 35771
+  },
+  {
+    "name": "Missile Guidance Computer I",
+    "itemID": 35788
+  },
+  {
+    "name": "Missile Guidance Computer II",
+    "itemID": 35790
+  },
+  {
+    "name": "Raitaru",
+    "itemID": 35825
+  },
+  {
+    "name": "Azbel",
+    "itemID": 35826
+  },
+  {
+    "name": "Sotiyo",
+    "itemID": 35827
+  },
+  {
+    "name": "Astrahus",
+    "itemID": 35832
+  },
+  {
+    "name": "Fortizar",
+    "itemID": 35833
+  },
+  {
+    "name": "Keepstar",
+    "itemID": 35834
+  },
+  {
+    "name": "Athanor",
+    "itemID": 35835
+  },
+  {
+    "name": "Tatara",
+    "itemID": 35836
+  },
+  {
+    "name": "Endurance",
+    "itemID": 37135
+  },
+  {
+    "name": "Rapid Torpedo Launcher I",
+    "itemID": 37288
+  },
+  {
+    "name": "Quad 800mm Repeating Cannon I",
+    "itemID": 37289
+  },
+  {
+    "name": "Quad Mega Pulse Laser I",
+    "itemID": 37290
+  },
+  {
+    "name": "Triple Neutron Blaster Cannon I",
+    "itemID": 37291
+  },
+  {
+    "name": "Rapid Torpedo Launcher II",
+    "itemID": 37292
+  },
+  {
+    "name": "XL Torpedo Launcher II",
+    "itemID": 37294
+  },
+  {
+    "name": "XL Cruise Missile Launcher II",
+    "itemID": 37295
+  },
+  {
+    "name": "Quad Mega Pulse Laser II",
+    "itemID": 37296
+  },
+  {
+    "name": "Modulated Compact Quad Mega Pulse Laser",
+    "itemID": 37297
+  },
+  {
+    "name": "Dual Giga Pulse Laser II",
+    "itemID": 37298
+  },
+  {
+    "name": "Dual Giga Beam Laser II",
+    "itemID": 37299
+  },
+  {
+    "name": "Triple Neutron Blaster Cannon II",
+    "itemID": 37300
+  },
+  {
+    "name": "Regulated Compact Triple Neutron Blaster Cannon",
+    "itemID": 37301
+  },
+  {
+    "name": "Ion Siege Blaster II",
+    "itemID": 37302
+  },
+  {
+    "name": "Dual 1000mm Railgun II",
+    "itemID": 37303
+  },
+  {
+    "name": "Quad 800mm Repeating Cannon II",
+    "itemID": 37304
+  },
+  {
+    "name": "Compact Carbine Quad 800mm Repeating Cannon",
+    "itemID": 37305
+  },
+  {
+    "name": "Hexa 2500mm Repeating Cannon II",
+    "itemID": 37306
+  },
+  {
+    "name": "Quad 3500mm Siege Artillery II",
+    "itemID": 37307
+  },
+  {
+    "name": "Ice Mining Laser I",
+    "itemID": 37450
+  },
+  {
+    "name": "Ice Mining Laser II",
+    "itemID": 37451
+  },
+  {
+    "name": "Deacon",
+    "itemID": 37457
+  },
+  {
+    "name": "Kirin",
+    "itemID": 37458
+  },
+  {
+    "name": "Thalia",
+    "itemID": 37459
+  },
+  {
+    "name": "Scalpel",
+    "itemID": 37460
+  },
+  {
+    "name": "Bifrost",
+    "itemID": 37480
+  },
+  {
+    "name": "Pontifex",
+    "itemID": 37481
+  },
+  {
+    "name": "Stork",
+    "itemID": 37482
+  },
+  {
+    "name": "Magus",
+    "itemID": 37483
+  },
+  {
+    "name": "Guidance Disruptor I",
+    "itemID": 37543
+  },
+  {
+    "name": "Guidance Disruptor II",
+    "itemID": 37546
+  },
+  {
+    "name": "Cenobite I",
+    "itemID": 37599
+  },
+  {
+    "name": "Apostle",
+    "itemID": 37604
+  },
+  {
+    "name": "Minokawa",
+    "itemID": 37605
+  },
+  {
+    "name": "Noir. Modified Entosis Link",
+    "itemID": 40307
+  },
+  {
+    "name": "Spectre Fleet's Modified Entosis Link",
+    "itemID": 40308
+  },
+  {
+    "name": "Affirmative. Modified Entosis Link",
+    "itemID": 40309
+  },
+  {
+    "name": "Pandemic SPHERE Modified Entosis Link",
+    "itemID": 40310
+  },
+  {
+    "name": "Upwell Palatine Keepstar",
+    "itemID": 40340
+  },
+  {
+    "name": "Scarab I",
+    "itemID": 40345
+  },
+  {
+    "name": "Siren I",
+    "itemID": 40346
+  },
+  {
+    "name": "Dromi I",
+    "itemID": 40347
+  },
+  {
+    "name": "25000mm Steel Plates I",
+    "itemID": 40348
+  },
+  {
+    "name": "25000mm Crystalline Carbonide Restrained Plates",
+    "itemID": 40349
+  },
+  {
+    "name": "25000mm Rolled Tungsten Compact Plates",
+    "itemID": 40350
+  },
+  {
+    "name": "25000mm Steel Plates II",
+    "itemID": 40351
+  },
+  {
+    "name": "Capital Shield Extender I",
+    "itemID": 40354
+  },
+  {
+    "name": "Capital Azeotropic Restrained Shield Extender",
+    "itemID": 40355
+  },
+  {
+    "name": "Capital F-S9 Regolith Compact Shield Extender",
+    "itemID": 40356
+  },
+  {
+    "name": "Capital Shield Extender II",
+    "itemID": 40357
+  },
+  {
+    "name": "Equite I",
+    "itemID": 40358
+  },
+  {
+    "name": "Locust I",
+    "itemID": 40359
+  },
+  {
+    "name": "Satyr I",
+    "itemID": 40360
+  },
+  {
+    "name": "Gram I",
+    "itemID": 40361
+  },
+  {
+    "name": "Ametat I",
+    "itemID": 40362
+  },
+  {
+    "name": "Termite I",
+    "itemID": 40363
+  },
+  {
+    "name": "Antaeus I",
+    "itemID": 40364
+  },
+  {
+    "name": "Gungnir I",
+    "itemID": 40365
+  },
+  {
+    "name": "Equite II",
+    "itemID": 40552
+  },
+  {
+    "name": "Gram II",
+    "itemID": 40553
+  },
+  {
+    "name": "Locust II",
+    "itemID": 40554
+  },
+  {
+    "name": "Satyr II",
+    "itemID": 40555
+  },
+  {
+    "name": "Templar II",
+    "itemID": 40556
+  },
+  {
+    "name": "Dragonfly II",
+    "itemID": 40557
+  },
+  {
+    "name": "Firbolg II",
+    "itemID": 40558
+  },
+  {
+    "name": "Einherji II",
+    "itemID": 40559
+  },
+  {
+    "name": "Ametat II",
+    "itemID": 40560
+  },
+  {
+    "name": "Malleus II",
+    "itemID": 40561
+  },
+  {
+    "name": "Antaeus II",
+    "itemID": 40562
+  },
+  {
+    "name": "Cyclops II",
+    "itemID": 40563
+  },
+  {
+    "name": "Gungnir II",
+    "itemID": 40564
+  },
+  {
+    "name": "Tyrfing II",
+    "itemID": 40565
+  },
+  {
+    "name": "Termite II",
+    "itemID": 40566
+  },
+  {
+    "name": "Mantis II",
+    "itemID": 40567
+  },
+  {
+    "name": "Cenobite II",
+    "itemID": 40568
+  },
+  {
+    "name": "Scarab II",
+    "itemID": 40569
+  },
+  {
+    "name": "Siren II",
+    "itemID": 40570
+  },
+  {
+    "name": "Dromi II",
+    "itemID": 40571
+  },
+  {
+    "name": "Capital Energy Neutralizer I",
+    "itemID": 40659
+  },
+  {
+    "name": "Capital Gremlin Compact Energy Neutralizer",
+    "itemID": 40660
+  },
+  {
+    "name": "Capital Infectious Scoped Energy Neutralizer",
+    "itemID": 40661
+  },
+  {
+    "name": "Capital Energy Neutralizer II",
+    "itemID": 40662
+  },
+  {
+    "name": "Capital Energy Nosferatu I",
+    "itemID": 40665
+  },
+  {
+    "name": "Capital Ghoul Compact Energy Nosferatu",
+    "itemID": 40666
+  },
+  {
+    "name": "Capital Knave Scoped Energy Nosferatu",
+    "itemID": 40667
+  },
+  {
+    "name": "Capital Energy Nosferatu II",
+    "itemID": 40668
+  },
+  {
+    "name": "Capital Emergency Hull Energizer I",
+    "itemID": 40714
+  },
+  {
+    "name": "Capital Implacable Compact Emergency Hull Energizer",
+    "itemID": 40715
+  },
+  {
+    "name": "Capital Indefatigable Enduring Emergency Hull Energizer",
+    "itemID": 40716
+  },
+  {
+    "name": "Capital Emergency Hull Energizer II",
+    "itemID": 40717
+  },
+  {
+    "name": "Heavy Warp Disruptor I",
+    "itemID": 40730
+  },
+  {
+    "name": "Heavy Fleeting Compact Warp Disruptor",
+    "itemID": 40731
+  },
+  {
+    "name": "Heavy J5 Enduring Warp Disruptor",
+    "itemID": 40732
+  },
+  {
+    "name": "Heavy Faint Scoped Warp Disruptor",
+    "itemID": 40733
+  },
+  {
+    "name": "Heavy Warp Disruptor II",
+    "itemID": 40734
+  },
+  {
+    "name": "Heavy Warp Scrambler I",
+    "itemID": 40750
+  },
+  {
+    "name": "Heavy Initiated Compact Warp Scrambler",
+    "itemID": 40752
+  },
+  {
+    "name": "Heavy J5b Enduring Warp Scrambler",
+    "itemID": 40754
+  },
+  {
+    "name": "Heavy Faint Epsilon Scoped Warp Scrambler",
+    "itemID": 40756
+  },
+  {
+    "name": "Heavy Warp Scrambler II",
+    "itemID": 40758
+  },
+  {
+    "name": "Heavy Stasis Grappler I",
+    "itemID": 41040
+  },
+  {
+    "name": "Heavy Stasis Grappler II",
+    "itemID": 41057
+  },
+  {
+    "name": "Modal Enduring Quad Mega Pulse Laser",
+    "itemID": 41063
+  },
+  {
+    "name": "Anode Scoped Quad Mega Pulse Laser",
+    "itemID": 41064
+  },
+  {
+    "name": "Afocal Precise Quad Mega Pulse Laser",
+    "itemID": 41065
+  },
+  {
+    "name": "Modal Enduring Triple Neutron Blaster Cannon",
+    "itemID": 41076
+  },
+  {
+    "name": "Anode Scoped Triple Neutron Blaster Cannon",
+    "itemID": 41077
+  },
+  {
+    "name": "Limited Precise Triple Neutron Blaster Cannon",
+    "itemID": 41078
+  },
+  {
+    "name": "Ample Gallium Quad 800mm Repeating Cannon",
+    "itemID": 41080
+  },
+  {
+    "name": "Scout Scoped Quad 800mm Repeating Cannon",
+    "itemID": 41081
+  },
+  {
+    "name": "Prototype Precise Quad 800mm Repeating Cannon",
+    "itemID": 41082
+  },
+  {
+    "name": "Modulated Compact Dual Giga Pulse Laser",
+    "itemID": 41099
+  },
+  {
+    "name": "Modal Enduring Dual Giga Pulse Laser",
+    "itemID": 41100
+  },
+  {
+    "name": "Anode Scoped Dual Giga Pulse Laser",
+    "itemID": 41101
+  },
+  {
+    "name": "Afocal Precise Dual Giga Pulse Laser",
+    "itemID": 41102
+  },
+  {
+    "name": "Modulated Compact Dual Giga Beam Laser",
+    "itemID": 41114
+  },
+  {
+    "name": "Modal Enduring Dual Giga Beam Laser",
+    "itemID": 41115
+  },
+  {
+    "name": "Anode Scoped Dual Giga Beam Laser",
+    "itemID": 41116
+  },
+  {
+    "name": "Afocal Precise Dual Giga Beam Laser",
+    "itemID": 41117
+  },
+  {
+    "name": "Regulated Compact Ion Siege Blaster",
+    "itemID": 41126
+  },
+  {
+    "name": "Modal Enduring Ion Siege Blaster",
+    "itemID": 41127
+  },
+  {
+    "name": "Anode Scoped Ion Siege Blaster",
+    "itemID": 41128
+  },
+  {
+    "name": "Limited Precise Ion Siege Blaster",
+    "itemID": 41129
+  },
+  {
+    "name": "Carbide Compact Dual 1000mm Railgun",
+    "itemID": 41138
+  },
+  {
+    "name": "Compressed Enduring Dual 1000mm Railgun",
+    "itemID": 41139
+  },
+  {
+    "name": "Scout Scoped Dual 1000mm Railgun",
+    "itemID": 41140
+  },
+  {
+    "name": "Prototype Precise Dual 1000mm Railgun",
+    "itemID": 41141
+  },
+  {
+    "name": "Carbine Compact Hexa 2500mm Repeating Cannon",
+    "itemID": 41150
+  },
+  {
+    "name": "Gallium Ample Hexa 2500mm Repeating Cannon",
+    "itemID": 41151
+  },
+  {
+    "name": "Scout Scoped Hexa 2500mm Repeating Cannon",
+    "itemID": 41152
+  },
+  {
+    "name": "Prototype Precise Hexa 2500mm Repeating Cannon",
+    "itemID": 41153
+  },
+  {
+    "name": "Carbide Compact Quad 3500mm Siege Artillery",
+    "itemID": 41156
+  },
+  {
+    "name": "Gallium Ample Quad 3500mm Siege Artillery",
+    "itemID": 41157
+  },
+  {
+    "name": "Scout Scoped Quad 3500mm Siege Artillery",
+    "itemID": 41158
+  },
+  {
+    "name": "Prototype Precise Quad 3500mm Siege Artillery",
+    "itemID": 41159
+  },
+  {
+    "name": "Arbalest Compact XL Cruise Missile Launcher",
+    "itemID": 41175
+  },
+  {
+    "name": "TE-2100 Ample XL Cruise Missile Launcher",
+    "itemID": 41176
+  },
+  {
+    "name": "Arbalest Compact XL Torpedo Launcher",
+    "itemID": 41180
+  },
+  {
+    "name": "TE-2100 Ample XL Torpedo Launcher",
+    "itemID": 41181
+  },
+  {
+    "name": "Arbalest Compact Rapid Torpedo Launcher",
+    "itemID": 41223
+  },
+  {
+    "name": "TE-2100 Ample Rapid Torpedo Launcher",
+    "itemID": 41224
+  },
+  {
+    "name": "10000MN Afterburner I",
+    "itemID": 41236
+  },
+  {
+    "name": "10000MN Y-S8 Compact Afterburner",
+    "itemID": 41237
+  },
+  {
+    "name": "10000MN Monopropellant Enduring Afterburner",
+    "itemID": 41238
+  },
+  {
+    "name": "10000MN Afterburner II",
+    "itemID": 41239
+  },
+  {
+    "name": "50000MN Microwarpdrive I",
+    "itemID": 41249
+  },
+  {
+    "name": "50000MN Y-T8 Compact Microwarpdrive",
+    "itemID": 41250
+  },
+  {
+    "name": "50000MN Quad LiF Restrained Microwarpdrive",
+    "itemID": 41251
+  },
+  {
+    "name": "50000MN Cold-Gas Enduring Microwarpdrive",
+    "itemID": 41252
+  },
+  {
+    "name": "50000MN Microwarpdrive II",
+    "itemID": 41253
+  },
+  {
+    "name": "Scourge Javelin XL Torpedo",
+    "itemID": 41270
+  },
+  {
+    "name": "Scourge Rage XL Torpedo",
+    "itemID": 41271
+  },
+  {
+    "name": "Nova Javelin XL Torpedo",
+    "itemID": 41272
+  },
+  {
+    "name": "Nova Rage XL Torpedo",
+    "itemID": 41273
+  },
+  {
+    "name": "Mjolnir Javelin XL Torpedo",
+    "itemID": 41274
+  },
+  {
+    "name": "Mjolnir Rage XL Torpedo",
+    "itemID": 41275
+  },
+  {
+    "name": "Inferno Javelin XL Torpedo",
+    "itemID": 41276
+  },
+  {
+    "name": "Inferno Rage XL Torpedo",
+    "itemID": 41277
+  },
+  {
+    "name": "Inferno Precision XL Cruise Missile",
+    "itemID": 41286
+  },
+  {
+    "name": "Inferno Fury XL Cruise Missile",
+    "itemID": 41287
+  },
+  {
+    "name": "Scourge Precision XL Cruise Missile",
+    "itemID": 41290
+  },
+  {
+    "name": "Scourge Fury XL Cruise Missile",
+    "itemID": 41291
+  },
+  {
+    "name": "Nova Fury XL Cruise Missile",
+    "itemID": 41294
+  },
+  {
+    "name": "Nova Precision XL Cruise Missile",
+    "itemID": 41295
+  },
+  {
+    "name": "Mjolnir Precision XL Cruise Missile",
+    "itemID": 41298
+  },
+  {
+    "name": "Mjolnir Fury XL Cruise Missile",
+    "itemID": 41299
+  },
+  {
+    "name": "Hail XL",
+    "itemID": 41314
+  },
+  {
+    "name": "Barrage XL",
+    "itemID": 41316
+  },
+  {
+    "name": "Tremor XL",
+    "itemID": 41318
+  },
+  {
+    "name": "Quake XL",
+    "itemID": 41320
+  },
+  {
+    "name": "Void XL",
+    "itemID": 41322
+  },
+  {
+    "name": "Null XL",
+    "itemID": 41324
+  },
+  {
+    "name": "Javelin XL",
+    "itemID": 41326
+  },
+  {
+    "name": "Spike XL",
+    "itemID": 41328
+  },
+  {
+    "name": "Scorch XL",
+    "itemID": 41330
+  },
+  {
+    "name": "Conflagration XL",
+    "itemID": 41332
+  },
+  {
+    "name": "Gleam XL",
+    "itemID": 41334
+  },
+  {
+    "name": "Aurora XL",
+    "itemID": 41336
+  },
+  {
+    "name": "Hermes Compact Fighter Support Unit",
+    "itemID": 41414
+  },
+  {
+    "name": "Fighter Support Unit II",
+    "itemID": 41415
+  },
+  {
+    "name": "Capital I-ax Enduring Remote Armor Repairer",
+    "itemID": 41463
+  },
+  {
+    "name": "Capital Coaxial Compact Remote Armor Repairer",
+    "itemID": 41464
+  },
+  {
+    "name": "Capital Solace Scoped Remote Armor Repairer",
+    "itemID": 41465
+  },
+  {
+    "name": "Capital Remote Armor Repairer II",
+    "itemID": 41466
+  },
+  {
+    "name": "Capital Asymmetric Enduring Remote Shield Booster",
+    "itemID": 41469
+  },
+  {
+    "name": "Capital Murky Compact Remote Shield Booster",
+    "itemID": 41470
+  },
+  {
+    "name": "Capital S95a Scoped Remote Shield Booster",
+    "itemID": 41471
+  },
+  {
+    "name": "Capital Remote Hull Repairer II",
+    "itemID": 41475
+  },
+  {
+    "name": "Capital Cap Battery I",
+    "itemID": 41484
+  },
+  {
+    "name": "Capital Compact Pb-Acid Cap Battery",
+    "itemID": 41485
+  },
+  {
+    "name": "Capital Cap Battery II",
+    "itemID": 41486
+  },
+  {
+    "name": "Cap Booster 3200",
+    "itemID": 41489
+  },
+  {
+    "name": "Capital Capacitor Booster I",
+    "itemID": 41491
+  },
+  {
+    "name": "Capital F-RX Compact Capacitor Booster",
+    "itemID": 41492
+  },
+  {
+    "name": "Capital Capacitor Booster II",
+    "itemID": 41493
+  },
+  {
+    "name": "Capital I-a Enduring Armor Repairer",
+    "itemID": 41498
+  },
+  {
+    "name": "Capital ACM Compact Armor Repairer",
+    "itemID": 41499
+  },
+  {
+    "name": "Capital Armor Repairer II",
+    "itemID": 41500
+  },
+  {
+    "name": "Capital C-5L Compact Shield Booster",
+    "itemID": 41505
+  },
+  {
+    "name": "Capital Clarity Ward Enduring Shield Booster",
+    "itemID": 41506
+  },
+  {
+    "name": "Capital Shield Booster II",
+    "itemID": 41507
+  },
+  {
+    "name": "Capital Hull Repairer I",
+    "itemID": 41511
+  },
+  {
+    "name": "Capital I-b Enduring Hull Repairer",
+    "itemID": 41512
+  },
+  {
+    "name": "Capital IEF Compact Hull Repairer",
+    "itemID": 41513
+  },
+  {
+    "name": "Capital Hull Repairer II",
+    "itemID": 41514
+  },
+  {
+    "name": "Capital Flex Armor Hardener I",
+    "itemID": 41515
+  },
+  {
+    "name": "Capital Flex Shield Hardener I",
+    "itemID": 41516
+  },
+  {
+    "name": "Capital Flex Armor Hardener II",
+    "itemID": 41525
+  },
+  {
+    "name": "Capital Flex Shield Hardener II",
+    "itemID": 41528
+  },
+  {
+    "name": "Capital Radiative Scoped Remote Capacitor Transmitter",
+    "itemID": 41565
+  },
+  {
+    "name": "Capital Inductive Compact Remote Capacitor Transmitter",
+    "itemID": 41566
+  },
+  {
+    "name": "Armor Command Burst I",
+    "itemID": 42526
+  },
+  {
+    "name": "Information Command Burst I",
+    "itemID": 42527
+  },
+  {
+    "name": "Mining Foreman Burst I",
+    "itemID": 42528
+  },
+  {
+    "name": "Shield Command Burst I",
+    "itemID": 42529
+  },
+  {
+    "name": "Skirmish Command Burst I",
+    "itemID": 42530
+  },
+  {
+    "name": "Capital Industrial Core II",
+    "itemID": 42890
+  },
+  {
+    "name": "Mining Foreman Burst II",
+    "itemID": 43551
+  },
+  {
+    "name": "Armor Command Burst II",
+    "itemID": 43552
+  },
+  {
+    "name": "Information Command Burst II",
+    "itemID": 43554
+  },
+  {
+    "name": "Shield Command Burst II",
+    "itemID": 43555
+  },
+  {
+    "name": "Skirmish Command Burst II",
+    "itemID": 43556
+  },
+  {
+    "name": "Ice Harvesting Drone I",
+    "itemID": 43699
+  },
+  {
+    "name": "Ice Harvesting Drone II",
+    "itemID": 43700
+  },
+  {
+    "name": "Pacifier",
+    "itemID": 44993
+  },
+  {
+    "name": "Enforcer",
+    "itemID": 44995
+  },
+  {
+    "name": "Marshal",
+    "itemID": 44996
+  },
+  {
+    "name": "Monitor",
+    "itemID": 45534
+  },
+  {
+    "name": "Legion Defensive - Covert Reconfiguration",
+    "itemID": 45586
+  },
+  {
+    "name": "Legion Defensive - Augmented Plating",
+    "itemID": 45587
+  },
+  {
+    "name": "Legion Defensive - Nanobot Injector",
+    "itemID": 45588
+  },
+  {
+    "name": "Tengu Defensive - Covert Reconfiguration",
+    "itemID": 45589
+  },
+  {
+    "name": "Tengu Defensive - Supplemental Screening",
+    "itemID": 45590
+  },
+  {
+    "name": "Tengu Defensive - Amplification Node",
+    "itemID": 45591
+  },
+  {
+    "name": "Proteus Defensive - Covert Reconfiguration",
+    "itemID": 45592
+  },
+  {
+    "name": "Proteus Defensive - Augmented Plating",
+    "itemID": 45593
+  },
+  {
+    "name": "Proteus Defensive - Nanobot Injector",
+    "itemID": 45594
+  },
+  {
+    "name": "Loki Defensive - Covert Reconfiguration",
+    "itemID": 45595
+  },
+  {
+    "name": "Loki Defensive - Augmented Durability",
+    "itemID": 45596
+  },
+  {
+    "name": "Loki Defensive - Adaptive Defense Node",
+    "itemID": 45597
+  },
+  {
+    "name": "Legion Offensive - Liquid Crystal Magnifiers",
+    "itemID": 45598
+  },
+  {
+    "name": "Legion Offensive - Assault Optimization",
+    "itemID": 45599
+  },
+  {
+    "name": "Legion Offensive - Support Processor",
+    "itemID": 45600
+  },
+  {
+    "name": "Tengu Offensive - Accelerated Ejection Bay",
+    "itemID": 45601
+  },
+  {
+    "name": "Tengu Offensive - Magnetic Infusion Basin",
+    "itemID": 45602
+  },
+  {
+    "name": "Tengu Offensive - Support Processor",
+    "itemID": 45603
+  },
+  {
+    "name": "Proteus Offensive - Hybrid Encoding Platform",
+    "itemID": 45604
+  },
+  {
+    "name": "Proteus Offensive - Drone Synthesis Projector",
+    "itemID": 45605
+  },
+  {
+    "name": "Proteus Offensive - Support Processor",
+    "itemID": 45606
+  },
+  {
+    "name": "Loki Offensive - Projectile Scoping Array",
+    "itemID": 45607
+  },
+  {
+    "name": "Loki Offensive - Launcher Efficiency Configuration",
+    "itemID": 45608
+  },
+  {
+    "name": "Loki Offensive - Support Processor",
+    "itemID": 45609
+  },
+  {
+    "name": "Legion Propulsion - Interdiction Nullifier",
+    "itemID": 45610
+  },
+  {
+    "name": "Legion Propulsion - Intercalated Nanofibers",
+    "itemID": 45611
+  },
+  {
+    "name": "Legion Propulsion - Wake Limiter",
+    "itemID": 45612
+  },
+  {
+    "name": "Tengu Propulsion - Interdiction Nullifier",
+    "itemID": 45613
+  },
+  {
+    "name": "Tengu Propulsion - Chassis Optimization",
+    "itemID": 45614
+  },
+  {
+    "name": "Tengu Propulsion - Fuel Catalyst",
+    "itemID": 45615
+  },
+  {
+    "name": "Proteus Propulsion - Interdiction Nullifier",
+    "itemID": 45616
+  },
+  {
+    "name": "Proteus Propulsion - Hyperspatial Optimization",
+    "itemID": 45617
+  },
+  {
+    "name": "Proteus Propulsion - Localized Injectors",
+    "itemID": 45618
+  },
+  {
+    "name": "Loki Propulsion - Interdiction Nullifier",
+    "itemID": 45619
+  },
+  {
+    "name": "Loki Propulsion - Intercalated Nanofibers",
+    "itemID": 45620
+  },
+  {
+    "name": "Loki Propulsion - Wake Limiter",
+    "itemID": 45621
+  },
+  {
+    "name": "Legion Core - Dissolution Sequencer",
+    "itemID": 45622
+  },
+  {
+    "name": "Legion Core - Augmented Antimatter Reactor",
+    "itemID": 45623
+  },
+  {
+    "name": "Legion Core - Energy Parasitic Complex",
+    "itemID": 45624
+  },
+  {
+    "name": "Tengu Core - Electronic Efficiency Gate",
+    "itemID": 45625
+  },
+  {
+    "name": "Tengu Core - Augmented Graviton Reactor",
+    "itemID": 45626
+  },
+  {
+    "name": "Tengu Core - Obfuscation Manifold",
+    "itemID": 45627
+  },
+  {
+    "name": "Proteus Core - Electronic Efficiency Gate",
+    "itemID": 45628
+  },
+  {
+    "name": "Proteus Core - Augmented Fusion Reactor",
+    "itemID": 45629
+  },
+  {
+    "name": "Proteus Core - Friction Extension Processor",
+    "itemID": 45630
+  },
+  {
+    "name": "Loki Core - Dissolution Sequencer",
+    "itemID": 45631
+  },
+  {
+    "name": "Loki Core - Augmented Nuclear Reactor",
+    "itemID": 45632
+  },
+  {
+    "name": "Loki Core - Immobility Drivers",
+    "itemID": 45633
+  },
+  {
+    "name": "Superconducting Magnetometric Amplifier",
+    "itemID": 45652
+  },
+  {
+    "name": "Superconducting Gravimetric Amplifier",
+    "itemID": 45653
+  },
+  {
+    "name": "Superconducting Radar Amplifier",
+    "itemID": 45654
+  },
+  {
+    "name": "Superconducting Ladar Amplifier",
+    "itemID": 45655
+  },
+  {
+    "name": "Ubiquitous Moon Mining Crystal Type A I",
+    "itemID": 46355
+  },
+  {
+    "name": "Ubiquitous Moon Mining Crystal Type A II",
+    "itemID": 46356
+  },
+  {
+    "name": "Common Moon Mining Crystal Type A I",
+    "itemID": 46365
+  },
+  {
+    "name": "Common Moon Mining Crystal Type A II",
+    "itemID": 46366
+  },
+  {
+    "name": "Uncommon Moon Mining Crystal Type A I",
+    "itemID": 46367
+  },
+  {
+    "name": "Uncommon Moon Mining Crystal Type A II",
+    "itemID": 46368
+  },
+  {
+    "name": "Rare Moon Mining Crystal Type A I",
+    "itemID": 46369
+  },
+  {
+    "name": "Rare Moon Mining Crystal Type A II",
+    "itemID": 46370
+  },
+  {
+    "name": "Exceptional Moon Mining Crystal Type A I",
+    "itemID": 46371
+  },
+  {
+    "name": "Exceptional Moon Mining Crystal Type A II",
+    "itemID": 46372
+  },
+  {
+    "name": "Assault Damage Control I",
+    "itemID": 47254
+  },
+  {
+    "name": "Assault Damage Control II",
+    "itemID": 47257
+  },
+  {
+    "name": "Damavik",
+    "itemID": 47269
+  },
+  {
+    "name": "Vedmak",
+    "itemID": 47270
+  },
+  {
+    "name": "Light Entropic Disintegrator I",
+    "itemID": 47272
+  },
+  {
+    "name": "Heavy Entropic Disintegrator I",
+    "itemID": 47273
+  },
+  {
+    "name": "Supratidal Entropic Disintegrator I",
+    "itemID": 47274
+  },
+  {
+    "name": "Tetryon Exotic Plasma S",
+    "itemID": 47885
+  },
+  {
+    "name": "Tetryon Exotic Plasma M",
+    "itemID": 47886
+  },
+  {
+    "name": "Tetryon Exotic Plasma L",
+    "itemID": 47887
+  },
+  {
+    "name": "Entropic Radiation Sink I",
+    "itemID": 47908
+  },
+  {
+    "name": "Entropic Radiation Sink II",
+    "itemID": 47911
+  },
+  {
+    "name": "Light Compact Entropic Disintegrator",
+    "itemID": 47912
+  },
+  {
+    "name": "Light Scoped Entropic Disintegrator",
+    "itemID": 47913
+  },
+  {
+    "name": "Light Entropic Disintegrator II",
+    "itemID": 47914
+  },
+  {
+    "name": "Heavy Compact Entropic Disintegrator",
+    "itemID": 47916
+  },
+  {
+    "name": "Heavy Scoped Entropic Disintegrator",
+    "itemID": 47917
+  },
+  {
+    "name": "Heavy Entropic Disintegrator II",
+    "itemID": 47918
+  },
+  {
+    "name": "Supratidal Compact Entropic Disintegrator",
+    "itemID": 47920
+  },
+  {
+    "name": "Supratidal Scoped Entropic Disintegrator",
+    "itemID": 47921
+  },
+  {
+    "name": "Supratidal Entropic Disintegrator II",
+    "itemID": 47922
+  },
+  {
+    "name": "Meson Exotic Plasma S",
+    "itemID": 47925
+  },
+  {
+    "name": "Occult S",
+    "itemID": 47926
+  },
+  {
+    "name": "Mystic S",
+    "itemID": 47927
+  },
+  {
+    "name": "Meson Exotic Plasma M",
+    "itemID": 47929
+  },
+  {
+    "name": "Occult M",
+    "itemID": 47930
+  },
+  {
+    "name": "Mystic M",
+    "itemID": 47931
+  },
+  {
+    "name": "Meson Exotic Plasma L",
+    "itemID": 47933
+  },
+  {
+    "name": "Occult L",
+    "itemID": 47934
+  },
+  {
+    "name": "Mystic L",
+    "itemID": 47935
+  },
+  {
+    "name": "Tiamat",
+    "itemID": 48635
+  },
+  {
+    "name": "Hydra",
+    "itemID": 48636
+  },
+  {
+    "name": "Kikimora",
+    "itemID": 49710
+  },
+  {
+    "name": "Rodiva",
+    "itemID": 49712
+  },
+  {
+    "name": "Zarmazd",
+    "itemID": 49713
+  },
+  {
+    "name": "Heavy Mutadaptive Remote Armor Repairer I",
+    "itemID": 49770
+  },
+  {
+    "name": "Heavy Mutadaptive Scoped Remote Armor Repairer",
+    "itemID": 49771
+  },
+  {
+    "name": "Heavy Mutadaptive Compact Remote Armor Repairer",
+    "itemID": 49772
+  },
+  {
+    "name": "Heavy Mutadaptive Remote Armor Repairer II",
+    "itemID": 49773
+  },
+  {
+    "name": "Nergal",
+    "itemID": 52250
+  },
+  {
+    "name": "Ikitursa",
+    "itemID": 52252
+  },
+  {
+    "name": "Draugur",
+    "itemID": 52254
+  },
+  {
+    "name": "Signal-25 'Needlejack' Filament",
+    "itemID": 53983
+  },
+  {
+    "name": "Noise-15 'Needlejack' Filament",
+    "itemID": 53985
+  },
+  {
+    "name": "Signal-15 'Needlejack' Filament",
+    "itemID": 53986
+  },
+  {
+    "name": "Noise-25 'Needlejack' Filament",
+    "itemID": 53987
+  },
+  {
+    "name": "Skybreaker",
+    "itemID": 54731
+  },
+  {
+    "name": "Stormbringer",
+    "itemID": 54732
+  },
+  {
+    "name": "Small Vorton Projector I",
+    "itemID": 54739
+  },
+  {
+    "name": "Small Compact Vorton Projector",
+    "itemID": 54740
+  },
+  {
+    "name": "Small Scoped Vorton Projector",
+    "itemID": 54741
+  },
+  {
+    "name": "Small Vorton Projector II",
+    "itemID": 54742
+  },
+  {
+    "name": "Medium Vorton Projector I",
+    "itemID": 54745
+  },
+  {
+    "name": "Medium Compact Vorton Projector",
+    "itemID": 54746
+  },
+  {
+    "name": "Medium Scoped Vorton Projector",
+    "itemID": 54747
+  },
+  {
+    "name": "Medium Vorton Projector II",
+    "itemID": 54748
+  },
+  {
+    "name": "Large Vorton Projector I",
+    "itemID": 54750
+  },
+  {
+    "name": "Large Compact Vorton Projector",
+    "itemID": 54751
+  },
+  {
+    "name": "Large Scoped Vorton Projector",
+    "itemID": 54752
+  },
+  {
+    "name": "Large Vorton Projector II",
+    "itemID": 54753
+  },
+  {
+    "name": "GalvaSurge Condenser Pack S",
+    "itemID": 54769
+  },
+  {
+    "name": "MesmerFlux Condenser Pack S",
+    "itemID": 54770
+  },
+  {
+    "name": "BlastShot Condenser Pack S",
+    "itemID": 54771
+  },
+  {
+    "name": "SlamBolt Condenser Pack S",
+    "itemID": 54772
+  },
+  {
+    "name": "GalvaSurge Condenser Pack M",
+    "itemID": 54773
+  },
+  {
+    "name": "MesmerFlux Condenser Pack M",
+    "itemID": 54774
+  },
+  {
+    "name": "BlastShot Condenser Pack M",
+    "itemID": 54775
+  },
+  {
+    "name": "SlamBolt Condenser Pack M",
+    "itemID": 54776
+  },
+  {
+    "name": "GalvaSurge Condenser Pack L",
+    "itemID": 54777
+  },
+  {
+    "name": "MesmerFlux Condenser Pack L",
+    "itemID": 54778
+  },
+  {
+    "name": "BlastShot Condenser Pack L",
+    "itemID": 54779
+  },
+  {
+    "name": "SlamBolt Condenser Pack L",
+    "itemID": 54780
+  },
+  {
+    "name": "StrikeSnipe Ultra S",
+    "itemID": 54781
+  },
+  {
+    "name": "StrikeSnipe Ultra L",
+    "itemID": 54782
+  },
+  {
+    "name": "ElectroPunch Ultra L",
+    "itemID": 54783
+  },
+  {
+    "name": "ElectroPunch Ultra S",
+    "itemID": 54784
+  },
+  {
+    "name": "StrikeSnipe Ultra M",
+    "itemID": 54785
+  },
+  {
+    "name": "ElectroPunch Ultra M",
+    "itemID": 54786
+  },
+  {
+    "name": "Vorton Tuning System I",
+    "itemID": 54973
+  },
+  {
+    "name": "Compact Vorton Tuning System I",
+    "itemID": 54974
+  },
+  {
+    "name": "Vorton Tuning System II",
+    "itemID": 54975
+  },
+  {
+    "name": "Salvage Drone II",
+    "itemID": 55760
+  },
+  {
+    "name": "Mobile Sanguine Harvester",
+    "itemID": 56701
+  },
+  {
+    "name": "Tactical Capsuleer Recloner",
+    "itemID": 56735
+  },
+  {
+    "name": "Stasis Webification Probe",
+    "itemID": 56748
+  },
+  {
+    "name": "Carbon Fiber",
+    "itemID": 57453
+  },
+  {
+    "name": "Oxy-Organic Solvents",
+    "itemID": 57454
+  },
+  {
+    "name": "Thermosetting Polymer",
+    "itemID": 57455
+  },
+  {
+    "name": "Pressurized Oxidizers",
+    "itemID": 57456
+  },
+  {
+    "name": "Reinforced Carbon Fiber",
+    "itemID": 57457
+  },
+  {
+    "name": "U-C Trigger Neurolink Conduit",
+    "itemID": 57470
+  },
+  {
+    "name": "R-O Trigger Neurolink Conduit",
+    "itemID": 57471
+  },
+  {
+    "name": "S-R Trigger Neurolink Conduit",
+    "itemID": 57472
+  },
+  {
+    "name": "G-O Trigger Neurolink Conduit",
+    "itemID": 57473
+  },
+  {
+    "name": "Auto-Integrity Preservation Seal",
+    "itemID": 57478
+  },
+  {
+    "name": "Core Temperature Regulator",
+    "itemID": 57479
+  },
+  {
+    "name": "Programmable Purification Membrane",
+    "itemID": 57480
+  },
+  {
+    "name": "Genetic Lock Preserver",
+    "itemID": 57481
+  },
+  {
+    "name": "Genetic Safeguard Filter",
+    "itemID": 57482
+  },
+  {
+    "name": "Neurolink Enhancer Reservoir",
+    "itemID": 57483
+  },
+  {
+    "name": "Genetic Structure Repairer",
+    "itemID": 57484
+  },
+  {
+    "name": "Genetic Mutation Inhibiter",
+    "itemID": 57485
+  },
+  {
+    "name": "Life Support Backup Unit",
+    "itemID": 57486
+  },
+  {
+    "name": "Interdiction Nullifier I",
+    "itemID": 58919
+  },
+  {
+    "name": "Large Industrial Core I",
+    "itemID": 58945
+  },
+  {
+    "name": "Large Industrial Core II",
+    "itemID": 58950
+  },
+  {
+    "name": "Compact Interdiction Nullifier",
+    "itemID": 58966
+  },
+  {
+    "name": "Restrained Interdiction Nullifier",
+    "itemID": 58971
+  },
+  {
+    "name": "Interdiction Nullifier II",
+    "itemID": 58972
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type A I",
+    "itemID": 60276
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type B I",
+    "itemID": 60279
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type C I",
+    "itemID": 60280
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type A II",
+    "itemID": 60281
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type B II",
+    "itemID": 60283
+  },
+  {
+    "name": "Simple Asteroid Mining Crystal Type C II",
+    "itemID": 60284
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type A I",
+    "itemID": 60285
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type B I",
+    "itemID": 60286
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type C I",
+    "itemID": 60287
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type A II",
+    "itemID": 60288
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type B II",
+    "itemID": 60289
+  },
+  {
+    "name": "Coherent Asteroid Mining Crystal Type C II",
+    "itemID": 60290
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type A I",
+    "itemID": 60291
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type B I",
+    "itemID": 60292
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type C I",
+    "itemID": 60293
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type A II",
+    "itemID": 60294
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type B II",
+    "itemID": 60295
+  },
+  {
+    "name": "Variegated Asteroid Mining Crystal Type C II",
+    "itemID": 60296
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type A I",
+    "itemID": 60297
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type B I",
+    "itemID": 60298
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type C I",
+    "itemID": 60299
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type A II",
+    "itemID": 60300
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type B II",
+    "itemID": 60301
+  },
+  {
+    "name": "Complex Asteroid Mining Crystal Type C II",
+    "itemID": 60302
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type A I",
+    "itemID": 60303
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type B I",
+    "itemID": 60304
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type C I",
+    "itemID": 60305
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type A II",
+    "itemID": 60306
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type B II",
+    "itemID": 60307
+  },
+  {
+    "name": "Abyssal Asteroid Mining Crystal Type C II",
+    "itemID": 60308
+  },
+  {
+    "name": "Mercoxit Asteroid Mining Crystal Type B I",
+    "itemID": 60309
+  },
+  {
+    "name": "Mercoxit Asteroid Mining Crystal Type C I",
+    "itemID": 60310
+  },
+  {
+    "name": "Mercoxit Asteroid Mining Crystal Type B II",
+    "itemID": 60311
+  },
+  {
+    "name": "Mercoxit Asteroid Mining Crystal Type C II",
+    "itemID": 60312
+  },
+  {
+    "name": "Gas Cloud Harvester I",
+    "itemID": 60313
+  },
+  {
+    "name": "Gas Cloud Harvester II",
+    "itemID": 60314
+  },
+  {
+    "name": "Ubiquitous Moon Mining Crystal Type B I",
+    "itemID": 61197
+  },
+  {
+    "name": "Ubiquitous Moon Mining Crystal Type C I",
+    "itemID": 61198
+  },
+  {
+    "name": "Ubiquitous Moon Mining Crystal Type B II",
+    "itemID": 61199
+  },
+  {
+    "name": "Ubiquitous Moon Mining Crystal Type C II",
+    "itemID": 61200
+  },
+  {
+    "name": "Common Moon Mining Crystal Type B I",
+    "itemID": 61201
+  },
+  {
+    "name": "Common Moon Mining Crystal Type C I",
+    "itemID": 61202
+  },
+  {
+    "name": "Common Moon Mining Crystal Type B II",
+    "itemID": 61203
+  },
+  {
+    "name": "Common Moon Mining Crystal Type C II",
+    "itemID": 61204
+  },
+  {
+    "name": "Uncommon Moon Mining Crystal Type B I",
+    "itemID": 61205
+  },
+  {
+    "name": "Uncommon Moon Mining Crystal Type C I",
+    "itemID": 61206
+  },
+  {
+    "name": "Uncommon Moon Mining Crystal Type B II",
+    "itemID": 61207
+  },
+  {
+    "name": "Uncommon Moon Mining Crystal Type C II",
+    "itemID": 61208
+  },
+  {
+    "name": "Rare Moon Mining Crystal Type B I",
+    "itemID": 61209
+  },
+  {
+    "name": "Rare Moon Mining Crystal Type C I",
+    "itemID": 61210
+  },
+  {
+    "name": "Rare Moon Mining Crystal Type B II",
+    "itemID": 61211
+  },
+  {
+    "name": "Rare Moon Mining Crystal Type C II",
+    "itemID": 61212
+  },
+  {
+    "name": "Exceptional Moon Mining Crystal Type B I",
+    "itemID": 61213
+  },
+  {
+    "name": "Exceptional Moon Mining Crystal Type C I",
+    "itemID": 61214
+  },
+  {
+    "name": "Exceptional Moon Mining Crystal Type B II",
+    "itemID": 61215
+  },
+  {
+    "name": "Exceptional Moon Mining Crystal Type C II",
+    "itemID": 61216
+  }
+]

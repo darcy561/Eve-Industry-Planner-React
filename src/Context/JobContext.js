@@ -1,18 +1,13 @@
 import React, { useState, createContext } from "react";
+import { apiJobsDefault, jobArrayDefault, jobStatusDefault } from "./defaultValues";
 
 export const JobStatusContext = createContext();
 
 export const JobStatus = (props) => {
-  const [jobStatus, setJobStatus] = useState([
-    { id: 0, name: "Planning" },
-    { id: 1, name: "Purchasing" },
-    { id: 2, name: "Building" },
-    { id: 3, name: "Complete" },
-    { id: 4, name: "For Sale" }
-  ]);
+  const [jobStatus, setJobStatus] = useState(jobStatusDefault);
 
   return (
-    <JobStatusContext.Provider value={[jobStatus, setJobStatus]}>
+    <JobStatusContext.Provider value={{ jobStatus, setJobStatus }}>
       {props.children}
     </JobStatusContext.Provider>
   );
@@ -21,37 +16,35 @@ export const JobStatus = (props) => {
 export const JobArrayContext = createContext();
 
 export const JobArray = (props) => {
-  const [jobArray, updateJobArray] = useState([]);
+  const [jobArray, updateJobArray] = useState(jobArrayDefault);
 
   return (
-    <JobArrayContext.Provider value={[jobArray, updateJobArray]}>
+    <JobArrayContext.Provider value={{ jobArray, updateJobArray }}>
       {props.children}
     </JobArrayContext.Provider>
   );
 };
 
-
 export const ActiveJobContext = createContext();
 
 export const ActiveJob = (props) => {
   const [activeJob, updateActiveJob] = useState({});
-  
+
   return (
-    <ActiveJobContext.Provider value={[activeJob, updateActiveJob]}>
+    <ActiveJobContext.Provider value={{ activeJob, updateActiveJob }}>
       {props.children}
     </ActiveJobContext.Provider>
   );
 };
 
+export const ApiJobsContext = createContext();
 
-export const JobSettingsTriggerContext = createContext();
-
-export const JobSettingsTrigger = (props) => {
-  const [JobSettingsTrigger, ToggleJobSettingsTrigger] = useState(false);
+export const ApiJobs = (props) => {
+  const [apiJobs, updateApiJobs] = useState(apiJobsDefault);
 
   return (
-    <JobSettingsTriggerContext.Provider value={[JobSettingsTrigger, ToggleJobSettingsTrigger]}>
+    <ApiJobsContext.Provider value={{ apiJobs, updateApiJobs }}>
       {props.children}
-    </JobSettingsTriggerContext.Provider>
+    </ApiJobsContext.Provider>
   );
 };

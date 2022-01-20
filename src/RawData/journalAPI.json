@@ -1,0 +1,91 @@
+[
+    {
+      "amount": -5253.84,
+      "balance": 5856226686.6101,
+      "context_id": 5753836585,
+      "context_id_type": "market_transaction_id",
+      "date": "2021-12-16T22:14:04Z",
+      "description": "Market escrow release",
+      "first_party_id": 94800326,
+      "id": 19969332750,
+      "reason": "",
+      "ref_type": "market_escrow",
+      "second_party_id": 94800326
+    },
+    {
+      "amount": -2724.12,
+      "balance": 5856231940.4501,
+      "context_id": 5753836584,
+      "context_id_type": "market_transaction_id",
+      "date": "2021-12-16T22:14:04Z",
+      "description": "Market escrow release",
+      "first_party_id": 94800326,
+      "id": 19969332746,
+      "reason": "",
+      "ref_type": "market_escrow",
+      "second_party_id": 94800326
+    },
+    {
+      "amount": -3153.68,
+      "balance": 5856234664.5701,
+      "context_id": 5753836583,
+      "context_id_type": "market_transaction_id",
+      "date": "2021-12-16T22:14:04Z",
+      "description": "Market escrow release",
+      "first_party_id": 94800326,
+      "id": 19969332743,
+      "reason": "",
+      "ref_type": "market_escrow",
+      "second_party_id": 94800326
+    },
+    {
+      "amount": -1770,
+      "balance": 5856237818.2501,
+      "date": "2021-12-16T18:33:00Z",
+      "description": "Market order commission to broker authorized by: Reginal Shardani",
+      "first_party_id": 94800326,
+      "id": 19968718942,
+      "reason": "",
+      "ref_type": "brokers_fee",
+      "second_party_id": 1000086
+    },
+    {
+      "amount": -20694,
+      "balance": 5856239588.2501,
+      "context_id": 5751960455,
+      "context_id_type": "market_transaction_id",
+      "date": "2021-12-13T23:56:52Z",
+      "description": "Market escrow release",
+      "first_party_id": 94800326,
+      "id": 19960425279,
+      "reason": "",
+      "ref_type": "market_escrow",
+      "second_party_id": 94800326
+    },
+    {
+      "amount": -11296,
+      "balance": 5856260282.2501,
+      "context_id": 5751960454,
+      "context_id_type": "market_transaction_id",
+      "date": "2021-12-13T23:56:52Z",
+      "description": "Market escrow release",
+      "first_party_id": 94800326,
+      "id": 19960425275,
+      "reason": "",
+      "ref_type": "market_escrow",
+      "second_party_id": 94800326
+    },
+    {
+      "amount": -10233,
+      "balance": 5856271578.2501,
+      "context_id": 5751960453,
+      "context_id_type": "market_transaction_id",
+      "date": "2021-12-13T23:56:52Z",
+      "description": "Market escrow release",
+      "first_party_id": 94800326,
+      "id": 19960425271,
+      "reason": "",
+      "ref_type": "market_escrow",
+      "second_party_id": 94800326
+    }
+  ]

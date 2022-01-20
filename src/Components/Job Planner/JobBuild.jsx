@@ -1,111 +1,106 @@
-import React from "react";
 import { jobTypes } from ".";
+import { appCheck } from "../../firebase";
+import { getToken } from "firebase/app-check";
 
 class Job {
   constructor(itemJson) {
-    this.jobType = jobTypes.baseMaterial;
-
-    if (itemJson.activities.hasOwnProperty("manufacturing") === true) {
-      this.jobType = jobTypes.manufacturing;
-      this.manufacturing = itemJson.activities.manufacturing;
-    };
-
-    if (itemJson.activities.hasOwnProperty("reaction") === true) {
-      this.jobType = jobTypes.reaction;
-      this.reaction = itemJson.activities.reaction;
-    };
-
-    if (itemJson.activities.hasOwnProperty("pi") === true) {
-      this.pi = itemJson.activities.pi;
-      this.jobType = jobTypes.pi;
-    };
-
+    this.jobType = itemJson.jobType;
     this.name = itemJson.name;
     this.jobID = Date.now();
     this.jobStatus = 0;
     this.volume = itemJson.volume;
     this.itemID = itemJson.itemID;
-    this.iconID = itemJson.itemID + "_64";
     this.maxProductionLimit = itemJson.maxProductionLimit;
     this.runCount = 1;
     this.jobCount = 1;
     this.bpME = 0;
     this.bpTE = 0;
-    this.structureType = { value: 1, display: "None" };
     this.rigType = 0;
-    this.systemMultiplyer = 0;
+    this.systemType = 1;
+    this.apiJobs = [];
+    this.apiOrders = [];
+    this.apiTransactions = [];
 
-    this.job = {
+    this.build = {
       products: {
         totalQuantity: 0,
         quantityPerJob: 0,
       },
-      materials: 0,
+      costs: {
+        totalPurchaseCost: 0,
+        extrasCosts: [],
+        extrasTotal: 0,
+        linkedJobs: [],
+        installCosts: 0
+      },
+      sale: {
+        totalSold: 0,
+        totalSale: 0,
+        markUp: 0,
+        marketOrders: [],
+        transactions: [],
+        brokersFee:[],
+      },
+      materials: null,
+      buildChar: null,
     };
-    
-    this.planner = {
-      products: {
-        totalQuantity: 0,
-        quantityPerJob: 0,
-      },
-      materials: [],
+    this.rawData = {};
+      
+    if (itemJson.jobType === jobTypes.manufacturing) {
+      this.rawData.materials = itemJson.activities.manufacturing.materials;
+      this.rawData.products = itemJson.activities.manufacturing.products;
+      this.rawData.time = itemJson.activities.manufacturing.time
+      this.structureType = 0
+      this.structureTypeDisplay = "Station"
+      this.skills = itemJson.activities.manufacturing.skills
+      this.build.materials = JSON.parse(JSON.stringify(itemJson.activities.manufacturing.materials))
+      this.build.time = JSON.parse(JSON.stringify(itemJson.activities.manufacturing.time))
+    };
+
+    if (itemJson.jobType === jobTypes.reaction) {
+      this.rawData.materials = itemJson.activities.reaction.materials;
+      this.rawData.products = itemJson.activities.reaction.products
+      this.rawData.time = itemJson.activities.reaction.time
+      this.structureType = 1
+      this.structureTypeDisplay = "Medium"
+      this.skills = itemJson.activities.reaction.skills
+      this.build.materials = JSON.parse(JSON.stringify(itemJson.activities.reaction.materials))
+      this.build.time = JSON.parse(JSON.stringify(itemJson.activities.reaction.time))
+    };
+
+    if (itemJson.jobType === jobTypes.pi) {
+      this.rawData = itemJson.activities.pi;
     };
   };
 };
 
-async function createJob(itemID) {
+export async function createJob(itemID) {
+  
   try {
+    const appCheckToken = await getToken(appCheck, true);
     const response = await fetch(
-      `https://us-central1-eve-industry-planner-dev.cloudfunctions.net/app/api/item/${itemID}`
+      `https://us-central1-eve-industry-planner-dev.cloudfunctions.net/api/item/${itemID}`, {
+        headers: {
+          "X-Firebase-AppCheck": appCheckToken.token,
+        }
+      }
     );
     const itemJson = await response.json();
     const outputObject = new Job(itemJson);
+    try {
+        outputObject.build.materials.forEach((material) => {
+          material.purchasing = [];
+          material.quantityPurchased = 0;
+          material.purchasedCost = 0; 
+          material.purchaseComplete = false;
+        });
+      return outputObject;
 
-    if (outputObject.jobType === jobTypes.manufacturing) {
-      outputObject.planner.materials = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.materials)
-      );
-      outputObject.planner.skills = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.skills)
-      );
-      outputObject.planner.time = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.time)
-      );
-      outputObject.job.materials = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.materials)
-      );
-      outputObject.job.skills = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.skills)
-      );
-      outputObject.job.time = JSON.parse(
-        JSON.stringify(outputObject.manufacturing.time)
-      );
-    } else if (outputObject.jobType === jobTypes.reaction) {
-      outputObject.planner.materials = JSON.parse(
-        JSON.stringify(outputObject.reaction.materials)
-      );
-      outputObject.planner.skills = JSON.parse(
-        JSON.stringify(outputObject.reaction.skills)
-      );
-      outputObject.planner.time = JSON.parse(
-        JSON.stringify(outputObject.reaction.time)
-      );
-      outputObject.job.materials = JSON.parse(
-        JSON.stringify(outputObject.reaction.materials)
-      );
-      outputObject.job.skills = JSON.parse(
-        JSON.stringify(outputObject.reaction.skills)
-      );
-      outputObject.job.time = JSON.parse(
-        JSON.stringify(outputObject.reaction.time)
-      );
+    } catch (err) {
+      return "objectError"
     };
 
-    return outputObject;
-
   } catch (err) {
-    alert("Could not find recipe data");
-    console.log(err);
+    return err.name;
   };
 };
-export { createJob };

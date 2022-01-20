@@ -1,148 +1,81 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-var serviceAccount = require("./fbPermissions.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://eve-industry-planner-dev-default-rtdb.europe-west1.firebasedatabase.app"
-});
-
 const express = require("express");
-const app = express();
+const helmet = require("helmet");
 const cors = require("cors");
-app.use( cors( {origin:true}));
-const db = admin.firestore();
-db.settings({ignoreUndefinedProperties: true});
+const appCheckVerification =
+  require("./Middleware/appCheck").appCheckVerification;
+const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
 
+admin.initializeApp();
+
+const app = express();
+const db = admin.firestore();
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://eve-industry-planner-dev.firebaseapp.com",
+    ],
+    methods: "GET,PUT,POST",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  })
+);
+app.use(express.json());
+app.use(helmet());
+app.use(appCheckVerification);
 
 //Routes
-//Post Single Item
-app.post('/api/create', (req, res)=>{
-    (async ()=>{
-        try
-        {
-            await db.collection('items').doc('/' + req.body.itemID +'/')
-            .create({
-                basePrice: req.body.basePrice,
-                graphicID: req.body.graphicID,
-                groupID: req.body.groupID,
-                iconID: req.body.iconID,
-                marketGroupID: req.body.marketGroupID,
-                metaGroupID: req.body.metaGroupID,
-                name: req.body.name,
-                portionSize: req.body.portionSize,
-                published: req.body.published,
-                volume: req.body.volume,
-                activities: req.body.activities,
-                blueprintTypeID: req.body.blueprintTypeID,
-                maxProductionLimit: req.body.maxProductionLimit,
-                itemID: req.body.itemID,
-            })
 
-            return res.status(200).send('Successfully Added');
-
-        }
-        catch(error)
-        {   
-            console.log(error);
-            return res.status(500).send(error);
-        }
-
-    })();
+//Generates JWT AuthToken
+app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
+  if (req.body.UID != null) {
+    try {
+      const authToken = await admin.auth().createCustomToken(req.body.UID);
+      return res.status(200).send({
+        access_token: authToken,
+      });
+    } catch (error) {
+      functions.logger.error("Error generating firebase auth token");
+      functions.logger.error(error);
+      return res
+        .status(500)
+        .send("Error generating auth token, contact admin for assistance");
+    }
+  } else {
+    functions.logger.warn("UID missing from request");
+    functions.logger.info("Header " + JSON.stringify(req.header));
+    functions.logger.info("Body " + JSON.stringify(req.body));
+    return res.status(400);
+  }
 });
 
 //Read Full Single Item
-app.get('/api/item/:itemID', (req, res)=>{
-    (async ()=>{
-        try
-        {
-            const document = db.collection('items').doc(req.params.itemID);
-            let product = await document.get();
-            let response = product.data();
-
-            return res.status(200).send(response);
-
-        }
-        catch(error)
-        {   
-            console.log(error);
-            return res.status(500).send(error);
-        }
-
-    })();
+app.get("/item/:itemID", (req, res) => {
+  (async () => {
+    try {
+      const document = db.collection("Items").doc(req.params.itemID);
+      let product = await document.get();
+      let response = product.data();
+      functions.logger.log(`${req.params.itemID} Sent`);
+      return res
+        .status(200)
+        .set("Cache-Control", "public, max-age=600, s-maxage=3600")
+        .send(response);
+    } catch (error) {
+      functions.logger.error("Error retrieving item data");
+      functions.logger.error(`Trying to retrieve ${req.params.itemID}`);
+      functions.logger.error(error);
+      return res
+        .status(500)
+        .send("Error retrieving item data, please try again.");
+    }
+  })();
 });
-
-//Read All ItemNames & ID
-app.get('/api/items', (req, res) =>{
-    (async ()=>{
-        try
-        {
-            let query = db.collection('items');
-            let response = [];
-
-            await query.get().then(documentSnapshot =>{
-                let docs = documentSnapshot.docs; //query results
-                
-
-                for (let doc of docs){
-                    const selectedItem ={
-                        itemID: doc.data().itemID,
-                        name: doc.data().name
-                    };
-                    response.push(selectedItem);
-                };
-                return response;
-            });
-            return res.status(200).send(response);
-
-        }
-        catch(error)
-        {   
-            console.log(error);
-            return res.status(500).send(error);
-        }
-
-    })();
-});
-
-
-//Update Existing Item
-app.put('/api/update/:itemID', (req, res)=>{
-    (async ()=>{
-        try
-        {
-           const document = db.collection('items').doc(req.params.itemID);
-
-           await document.update({
-            basePrice: req.body.basePrice,
-            graphicID: req.body.graphicID,
-            groupID: req.body.groupID,
-            iconID: req.body.iconID,
-            marketGroupID: req.body.marketGroupID,
-            metaGroupID: req.body.metaGroupID,
-            name: req.body.name,
-            portionSize: req.body.portionSize,
-            published: req.body.published,
-            volume: req.body.volume,
-            activities: req.body.activities,
-            blueprintTypeID: req.body.blueprintTypeID,
-            maxProductionLimit: req.body.maxProductionLimit,
-            itemID: req.body.itemID,
-           });
-
-           return res.status(200).send('Successfully Updated');
-        }
-        catch(error)
-        {   
-            console.log(error);
-            return res.status(500).send(error);
-        }
-
-    })();
-});
-
-
-
 
 //Export the api to Firebase Cloud Functions
-exports.app = functions.https.onRequest(app);
+exports.api = functions.https.onRequest(app);
+exports.user = require("./Triggered Functions/Users");
+exports.firestore = require("./Triggered Functions/Firestore");

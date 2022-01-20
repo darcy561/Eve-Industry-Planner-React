@@ -1,110 +1,145 @@
-import React, { useContext, useState } from "react";
-import { SearchPlanner } from "../Search";
-import { JobCard } from "./Job Card";
-import { JobStatusContext, JobSettingsTriggerContext } from "../../Context/JobContext";
-import { EditJob } from "./Job Card/EditJob";
+import { lazy, useContext, useEffect, useState, Suspense } from "react";
+import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
+import { PlannerAccordion } from "./Planner Components/accordion";
+import { useRefreshUser } from "../../Hooks/useRefreshUser";
+import { PageLoadContext } from "../../Context/LayoutContext";
+import { LoadingPage } from "../loadingPage";
+import { SearchBar } from "./Planner Components/searchbar";
+import { Grid } from "@mui/material";
+import { TutorialPlanner } from "./Planner Components/tutorialPlanner";
 
-let blueprintVariables = {
+const EditJob = lazy(() => import("./Edit Job/EditJob"));
+
+export let blueprintVariables = {
   me: [
-    { value: 0, display: 0 },
-    { value: 1, display: 1 },
-    { value: 2, display: 2 },
-    { value: 3, display: 3 },
-    { value: 4, display: 4 },
-    { value: 5, display: 5 },
-    { value: 6, display: 6 },
-    { value: 7, display: 7 },
-    { value: 8, display: 8 },
-    { value: 9, display: 9 },
-    { value: 10, display: 10 },
+    { value: 0, label: "0" },
+    { value: 1, label: "1" },
+    { value: 2, label: "2" },
+    { value: 3, label: "3" },
+    { value: 4, label: "4" },
+    { value: 5, label: "5" },
+    { value: 6, label: "6" },
+    { value: 7, label: "7" },
+    { value: 8, label: "8" },
+    { value: 9, label: "9" },
+    { value: 10, label: "10" },
   ],
   te: [
-    { value: 0, display: 0 },
-    { value: 1, display: 1 },
-    { value: 2, display: 2 },
-    { value: 3, display: 3 },
-    { value: 4, display: 4 },
-    { value: 5, display: 5 },
-    { value: 6, display: 6 },
-    { value: 7, display: 7 },
-    { value: 8, display: 8 },
-    { value: 9, display: 9 },
-    { value: 10, display: 10 },
+    { value: 0, label: "0" },
+    { value: 1, label: "2" },
+    { value: 2, label: "4" },
+    { value: 3, label: "6" },
+    { value: 4, label: "8" },
+    { value: 5, label: "10" },
+    { value: 6, label: "12" },
+    { value: 7, label: "14" },
+    { value: 8, label: "16" },
+    { value: 9, label: "18" },
+    { value: 10, label: "20" },
   ],
   manStructure: [
-    { value: 1, display: "Medium" },
-    { value: 1, display: "Large" },
-    { value: 1, display: "X-Large" },
+    { value: "Station", label: "Station" },
+    { value: "Medium", label: "Medium" },
+    { value: "Large", label: "Large" },
+    { value: "X-Large", label: "X-Large" },
   ],
   manRigs: [
-    { value: 0, display: "None" },
-    { value: 2.0, display: "Tech 1" },
-    { value: 2.4, display: "Tech 2" },
+    { value: 0, label: "None" },
+    { value: 2.0, label: "Tech 1" },
+    { value: 2.4, label: "Tech 2" },
   ],
   manSystem: [
-    { value: 1, display: "High Sec" },
-    { value: 1.9, display: "Low Sec" },
-    { value: 2.1, display: "Null Sec / WH" },
+    { value: 1, label: "High Sec" },
+    { value: 1.9, label: "Low Sec" },
+    { value: 2.1, label: "Null Sec / WH" },
   ],
   reactionSystem: [
-    { value: 1, display: "Low Sec" },
-    { value: 1.1, display: "Null Sec / WH" },
+    { value: 1, label: "Low Sec" },
+    { value: 1.1, label: "Null Sec / WH" },
   ],
   reactionStructure: [
-    { value: "Medium", display: "Medium" },
-    { value: "Large", display: "Large" },
+    { value: "Medium", label: "Medium" },
+    { value: "Large", label: "Large" },
   ],
   reactionRigs: [
-    { value: 0, display: "None" },
-    { value: 2.0, display: "Tech 1" },
-    { value: 2.4, display: "Tech 2" },
+    { value: 0, label: "None" },
+    { value: 2.0, label: "Tech 1" },
+    { value: 2.4, label: "Tech 2" },
   ],
 };
 
-let jobTypes = {
+export let jobTypes = {
   baseMaterial: 0,
   manufacturing: 1,
   reaction: 2,
   pi: 3,
 };
 
-function JobStatusRows() {
-  const [jobStatus, setJobStatus] = useContext(JobStatusContext);
-  
+export function JobPlanner() {
+  const [jobSettingsTrigger, updateJobSettingsTrigger] = useState(false);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { users, updateUsers } = useContext(UsersContext);
+  const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
+  const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
+  const [multiSelect, updateMultiSelect] = useState([]);
 
-  return jobStatus.map((s) => {
-    return (
-      <>
-        <div key={s.id} className="statusWrapper">
-          <div className="statusName">
-            <h2>{s.name}</h2>
-          </div>
-          <div className="jobGrid">
-            <JobCard key={s.id} id={s.id} />
-          </div>
-        </div>
-      </>
-    );
-  });
-};
+  let parentUser = users.find((u) => u.ParentUser === true);
 
-function JobPlanner() {
+  useEffect(async () => {
+    if (isLoggedIn) {
+      if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
+        let newUsersArray = users;
+        const index = newUsersArray.findIndex((i) => i.ParentUser === true);
+        let newParentUser = await RefreshUserAToken(parentUser);
+        newUsersArray[index] = newParentUser;
+        updateUsers(newUsersArray);
+      }
+      updatePageLoad(false);
+    } else {
+      if (localStorage.getItem("Auth") == null) {
+        updatePageLoad(false);
+      } else {
+        reloadMainUser(localStorage.getItem("Auth"));
+      }
+    }
+  }, []);
 
-  const [JobSettingsTrigger, ToggleJobSettingsTrigger] = useContext(JobSettingsTriggerContext);
-
-  return (
-    <>
-      <SearchPlanner />
-      <section className="block-section">
-        {/* Rendes the job edit popup window */}
-          <EditJob JobSettingsTrigger={true} />
-        <div id="jobWrapper" className="jobsWrapper">
-        {/* Builds each status section on the job planner main page */}
-          <JobStatusRows /> 
-        </div>
-      </section>
-    </>
-  );
-};
-
-export { JobPlanner, JobStatusRows, blueprintVariables, jobTypes };
+  if (pageLoad) {
+    return <LoadingPage />;
+  } else {
+    if (jobSettingsTrigger) {
+      return (
+        <Suspense fallback={<LoadingPage />}>
+          <Grid container sx={{ marginTop: "10px" }}>
+            <Grid item>
+              <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
+            </Grid>
+          </Grid>
+        </Suspense>
+      );
+    } else {
+      return (
+        <Grid container sx={{ marginTop: "5px" }} spacing={2}>
+          {!parentUser.settings.layout.hideTutorials && (
+            <Grid item xs={12}>
+              <TutorialPlanner />
+            </Grid>
+          )}
+          <Grid item xs={12}>
+            <SearchBar
+              multiSelect={multiSelect}
+              updateMultiSelect={updateMultiSelect}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <PlannerAccordion
+              updateJobSettingsTrigger={updateJobSettingsTrigger}
+              multiSelect={multiSelect}
+              updateMultiSelect={updateMultiSelect}
+            />
+          </Grid>
+        </Grid>
+      );
+    }
+  }
+}

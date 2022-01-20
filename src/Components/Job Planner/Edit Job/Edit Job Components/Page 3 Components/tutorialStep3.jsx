@@ -9,9 +9,12 @@ import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
-    color: theme.palette.type === "dark" ? (theme.palette.primary.main) : (theme.palette.secondary.main)
-  }
-}))
+    color:
+      theme.palette.type === "dark"
+        ? theme.palette.primary.main
+        : theme.palette.secondary.main,
+  },
+}));
 
 export function TutorialStep3() {
   const { activeJob } = useContext(ActiveJobContext);
@@ -35,28 +38,27 @@ export function TutorialStep3() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            Now that you have acquired all of your items and hauled them back to
-            where ever it is you have decided to build your {activeJob.name}.
+            Now that you have acquired the items needed and hauled them back to
+            wherever it is you have decided to build your {activeJob.name}.
             Start your job running within the Eve Online client. {<br />}
             {<br />}
-            Within the available jobs window you will see all of your current
-            (and the jobs from the last 10 days, just encase you were a little
-            slow setting this up) industry jobs found on the Eve ESI that match
-            the the item you are building. Simply attach the relavent job or
-            jobs using the link icon, doing so will remove he job card from the
-            planner page.
+            Within the available jobs window, you will see all of the current
+            (and jobs from the last 10 days, just encase you were a little slow
+            setting this up) industry jobs found on the Eve ESI that match the
+            item you are building. Simply attach the relevant job/jobs using the
+            link icon.
             {<br />}
             {<br />}
-            You are only able to attach the same number of industry jobs as you
+            You are only able to attach the same number of ESI jobs as you
             selected job slots back at the first step.
           </Typography>
           {isLoggedIn && (
             <Typography variant="body2">
               {<br />}
-              If you do not see any jobs available within this window refresh
-              the ESI data using the refreh icon at the top of the page, if this
-              doesnt work then have some patience they may not be on the ESI as
-              of yet.
+              If you do not see any jobs available within this window, refresh
+              the ESI data using the refresh icon at the top of the page, if
+              this doesn’t work then have some patience they may not be on the
+              ESI as of yet.
             </Typography>
           )}
         </Grid>

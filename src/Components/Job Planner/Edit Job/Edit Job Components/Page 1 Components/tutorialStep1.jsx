@@ -42,7 +42,7 @@ export function TutorialStep1() {
             If you are wanting to also build any of the subcomponents used then
             simply use the <b>+</b> icon next to the resource name to create a
             new job that is already setup to build the correct amount for you.
-            The color of the icon indicates the type of job of industry job
+            The colour of the icon indicates the type of job of industry job
             required to make the item.
           </Typography>
         </Grid>

@@ -34,8 +34,7 @@ export function TutorialPlanner() {
             {<br />}
             The planner is broken down into 5 stages allowing you to record and
             manage multiple jobs easily. To start simple use the search box and
-            start adding the jobs you would like to build. To open a job simply
-            click the card and it will open up with more information.
+            start adding the jobs you would like to build.
             {<br />}
             {<br />}
             The job planner will show your own jobs but also display your

@@ -34,16 +34,16 @@ export function TutorialStep2() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            Now that you know what you are building it is time to acquire the
-            necceary parts.{<br />} {<br />}
-            For each item item you can choose the "All Remaining" option from
+          Now that you know what you are building it is time to acquire the
+            necessary parts.{<br />} {<br />}
+            For each item you can choose the "All Remaining" option from
             the quantity dropdown or you can manually add them number of items
-            into the field, then add the amount you paid for an each item. Click
+            into the field, then add the amount you paid for each item. Click
             the <b>+</b> to save this entry.
             {<br />}
             {<br />}
-            As you add these the total cost will be calcuated for each item and
-            will be added to the total cost of all of the items.
+            As you add entries the total cost for the material will be calculated and
+            will be added to the total material cost for the job.
             {<br />}
             {<br />}
             You can use the "Hide Completed Purchases" toggle if you only want

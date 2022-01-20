@@ -8,9 +8,12 @@ import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
-    color: theme.palette.type === "dark" ? (theme.palette.primary.main) : (theme.palette.secondary.main)
-  }
-}))
+    color:
+      theme.palette.type === "dark"
+        ? theme.palette.primary.main
+        : theme.palette.secondary.main,
+  },
+}));
 
 export function TutorialStep5() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -33,14 +36,14 @@ export function TutorialStep5() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            Sale time! Setup your market order in your market of choice. Once
-            this has been done and the information appears on the ESI the
-            available orders window will display all of the available market
-            orders for your item type. By linking this order to your job your
-            new transactions window will display all of the transactions that
-            have taken place since the order was created that match the item
-            type. Attaching a transaction to the job will add the costs and
-            taxes associated with it to the job.
+            Sale time! Setup your market order/orders in the market of choice.
+            Once this has been done and the information appears on the ESI the
+            available orders window will display each of the orders for your
+            item type. By linking this order to your job Eve Industry Planner
+            will find the transactions and associated taxes within the ESI data
+            that match the item type and display these in the new transactions
+            window. Attaching a transaction to the job will then add the costs
+            and taxes associated.
             {<br />}
             {<br />}
             As the items are sold the total sales and average item price is

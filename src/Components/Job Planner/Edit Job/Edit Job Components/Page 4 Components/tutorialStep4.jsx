@@ -9,9 +9,12 @@ import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
-    color: theme.palette.type === "dark" ? (theme.palette.primary.main) : (theme.palette.secondary.main)
-  }
-}))
+    color:
+      theme.palette.type === "dark"
+        ? theme.palette.primary.main
+        : theme.palette.secondary.main,
+  },
+}));
 
 export function TutorialStep4() {
   const { activeJob } = useContext(ActiveJobContext);
@@ -35,16 +38,17 @@ export function TutorialStep4() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            So you have now finished building your {activeJob.name}, here is
+            So, you have now finished building your {activeJob.name}. This is
             where we complete the build cost calculations to work out the final
-            cost before we move onto selling our item. You will see the total
-            material cost as was entered back on the 2nd stage and then the
-            total installation costs from industry jobs that you linked back in
-            the previous step.
-            {<br />} Finally you can manually add any extra costs to the job
-            that may not be included automatically. Maybe you paid a friend to
-            haul some items that you needed or you are adding costs for an older
-            job that does not appear within the ESI data anymore.
+            cost before we move onto selling our item.
+            {<br />}
+            You will see the total material cost as was calculated previously,
+            the total installation costs for the industry jobs that you linked
+            and the extras.
+            {<br />} The extra costs allows you to add or subtract an amount
+            from these build costs. Maybe you paid a friend to haul some items
+            that you needed, or you are adding the installation costs for an
+            older job that does not appear within the ESI data provided.
           </Typography>
         </Grid>
         {isLoggedIn && (

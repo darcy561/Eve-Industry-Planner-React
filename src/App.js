@@ -21,6 +21,7 @@ import {
   SnackbarData,
   PageLoad,
   LoadingText,
+  ShoppingList  
 } from "./Context/LayoutContext";
 import {
   blue,
@@ -126,7 +127,8 @@ export default function App() {
                         <JobArray>
                           <JobStatus>
                             <ApiJobs>
-                              <EveIDs>
+                            <EveIDs>
+                              <ShoppingList>
                                 <SnackBarNotification />
                                 <DialogBox />
                                 <BrowserRouter>
@@ -156,6 +158,7 @@ export default function App() {
                                   </Routes>
                                   <Footer />
                                 </BrowserRouter>
+                                </ShoppingList>
                               </EveIDs>
                             </ApiJobs>
                           </JobStatus>

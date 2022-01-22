@@ -18,6 +18,7 @@ import {
   LoadingTextContext,
 } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function login() {
   const state = window.location.pathname;
@@ -40,6 +41,7 @@ export function AuthMainUser() {
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { determineUserState } = useFirebase();
   const navigate = useNavigate();
+  const analytics = getAnalytics();
 
   useEffect(async () => {
     if (!isLoggedIn) {
@@ -89,8 +91,6 @@ export function AuthMainUser() {
         apiDataComp: true
       }));
 
-      console.log(userObject);
-
       setJobStatus(userSettings.jobStatusArray);
       updateJobArray(userSettings.jobArraySnapshot);
       updateApiJobs(userObject.apiJobs);
@@ -98,6 +98,9 @@ export function AuthMainUser() {
 
       updateIsLoggedIn(true);
       updatePageLoad(false);
+      logEvent(analytics, "userSignIn", {
+        UID: userObject.accountID
+      })
       t.stop();
       updateLoadingText((prevObj) => ({
         ...prevObj,

@@ -31,7 +31,8 @@ export function Footer() {
             sx={{ marginBottom: "10px" }}
           >
             Produced and maintained by Oswold Saraki
-          </Typography>
+            </Typography>
+
           <Typography display="block" variant="caption" align="center">
             <Link href="https://discord.gg/KGSa8gh37z" underline="hover">
               Discord
@@ -39,6 +40,14 @@ export function Footer() {
             <Link href="https://github.com/darcy561/Eve-Industry-Planner-React" underline="hover">
               Github
             </Link>
+            </Typography>
+            <Typography
+            display="block"
+            variant="caption"
+            align="center"
+            sx={{ marginBottom: "10px" }}
+          >
+            v{process.env.REACT_APP_Version}
           </Typography>
         </Grid>
       </Grid>

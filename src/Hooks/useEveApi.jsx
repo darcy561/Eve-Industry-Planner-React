@@ -4,7 +4,7 @@ import searchData from "../RawData/searchIndex.json";
 import { EveIDsContext } from "../Context/EveDataContext";
 
 export function useEveApi() {
-  const { eveIDs } = useContext(EveIDsContext);
+  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
 
   const CharacterSkills = async (userObj) => {
     try {
@@ -74,6 +74,27 @@ export function useEveApi() {
 
         let idRequest = [];
 
+        // for (let item in filtered) {
+        //   if (
+        //     !eveIDs.includes(item.blueprint_location_id) &&
+        //     !idRequest.includes(item.blueprint_location_id)
+        //   ) {
+        //     idRequest.push(item.blueprint_location_id);
+        //   }
+        //   if (
+        //     !eveIDs.includes(item.station_id) &&
+        //     !idRequest.includes(item.station_id)
+        //   ) {
+        //     idRequest.push(item.station_id);
+        //   }
+        //   if (
+        //     !eveIDs.includes(item.facility_id) &&
+        //     !idRequest.includes(item.facility_id)
+        //   ) {
+        //     idRequest.push(item.facility_id);
+        //   }
+        //   }
+
         filtered.forEach((item) => {
           if (
             !eveIDs.includes(item.blueprint_location_id) &&
@@ -95,7 +116,7 @@ export function useEveApi() {
           }
         });
         if (idRequest.length !== 0) {
-          IDtoName(idRequest);
+          await IDtoName(idRequest);
         }
 
         return filtered;
@@ -131,7 +152,7 @@ export function useEveApi() {
           }
         });
         if (idRequest.length !== 0) {
-          IDtoName(idRequest);
+          await IDtoName(idRequest);
         }
 
         return marketJSON;
@@ -185,7 +206,7 @@ export function useEveApi() {
     });
 
     if (idRequest.length !== 0) {
-      IDtoName(idRequest);
+      await IDtoName(idRequest);
     }
     return filtered;
   };
@@ -265,11 +286,11 @@ export function useEveApi() {
       const idJSON = await idPromise.json();
 
       if (idPromise.status === 200) {
-        const newArray = eveIDs;
+        const newArray = [...eveIDs];
         idJSON.forEach((item) => {
           newArray.push(item);
         });
-        eveIDs.push(newArray)
+        updateEveIDs(newArray)
       }
 
     } catch (err) {

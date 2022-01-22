@@ -17,6 +17,7 @@ import { useFirebase } from "./useFirebase";
 import { jobTypes } from "../Components/Job Planner";
 import { trace } from "@firebase/performance";
 import { performance } from "../firebase";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function useJobManagement() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -37,6 +38,7 @@ export function useJobManagement() {
     uploadSnapshotData,
   } = useFirebase();
 
+  const analytics = getAnalytics();
   const parentUser = users.find((i) => i.ParentUser === true);
   const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
 
@@ -123,6 +125,13 @@ export function useJobManagement() {
           calculatedJob.build.buildChar = parentUser.CharacterHash;
         }
 
+        logEvent(analytics, "New Job", {
+          loggedIn: isLoggedIn,
+          UID: parentUser.accountID,
+          name: calculatedJob.name,
+          itemID: calculatedJob.itemID,
+        });
+
         updateJobArray((prevArray) => [...prevArray, calculatedJob]);
         updateDataExchange(false);
         setSnackbarData((prev) => ({
@@ -167,10 +176,8 @@ export function useJobManagement() {
       });
     }
     for (let item of finalBuildCount) {
-      if (jobArray.length < 8) {
-        await newJobProcess(item.typeID, item.quantity);
-        setTimeout(1000)
-      }
+      await newJobProcess(item.typeID, item.quantity);
+      setTimeout(1000);
     }
   };
 
@@ -320,6 +327,41 @@ export function useJobManagement() {
     updateJobArray(newJobArray);
   };
 
+  const buildShoppingList = async (inputJobs) => {
+    let finalShoppingList = [];
+    for (let inputJob of inputJobs) {
+      if (inputJob.isSnapshot) {
+        inputJob = await downloadCharacterJobs(inputJob);
+        inputJob.isSnapshot = false;
+      }
+      inputJob.build.materials.forEach((material) => {
+        if (!finalShoppingList.find((i) => i.typeID === material.typeID)) {
+          finalShoppingList.push({
+            name: material.name,
+            typeID: material.typeID,
+            quantity: material.quantity,
+            volume: material.volume,
+          });
+        } else {
+          const index = finalShoppingList.findIndex(
+            (i) => i.typeID === material.typeID
+          );
+          finalShoppingList[index].quantity += material.quantity;
+        }
+      });
+    }
+    finalShoppingList.sort((a, b) => {
+      if (a.name < b.name) {
+        return -1;
+      }
+      if (a.name < b.name) {
+        return 1;
+      }
+      return 0;
+    });
+    return finalShoppingList;
+  };
+
   return {
     deleteJobProcess,
     deleteMultipleJobsProcess,
@@ -327,5 +369,6 @@ export function useJobManagement() {
     moveMultipleJobsForward,
     moveMultipleJobsBackward,
     newJobProcess,
+    buildShoppingList,
   };
 }

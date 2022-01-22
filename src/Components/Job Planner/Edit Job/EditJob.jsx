@@ -36,12 +36,11 @@ import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
   Stepper: {
-      "& MuiStepIcon-text": {
-        fill: "#000"
-      }
-  }
-}))
-
+    "& MuiStepIcon-text": {
+      fill: "#000",
+    },
+  },
+}));
 
 export default function EditJob({ updateJobSettingsTrigger }) {
   const { jobStatus } = useContext(JobStatusContext);
@@ -106,7 +105,6 @@ export default function EditJob({ updateJobSettingsTrigger }) {
     updateJobSettingsTrigger((prev) => !prev);
   }
 
-  console.log(activeJob);
   return (
     <Container
       disableGutters
@@ -133,7 +131,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
                 onClick={() => {
                   deleteJobProcess(activeJob);
                   updateJobSettingsTrigger((prev) => !prev);
-                 }}
+                }}
                 size="medium"
                 sx={{ marginRight: "5px" }}
               >
@@ -178,7 +176,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
           <Grid item xs={4} />
 
           <Grid item xs={12}>
-            <Stepper  activeStep={activeJob.jobStatus} orientation="vertical">
+            <Stepper activeStep={activeJob.jobStatus} orientation="vertical">
               {jobStatus.map((status) => {
                 return (
                   <Step className={classes.Stepper} key={status.id}>
@@ -238,6 +236,13 @@ export default function EditJob({ updateJobSettingsTrigger }) {
                           </Grid>
                         </Grid>
                       )}
+                      {activeJob.jobStatus === jobStatus.length - 2 &&
+                      isLoggedIn ? (
+                        <ArchiveJobButton
+                          updateJobSettingsTrigger={updateJobSettingsTrigger}
+                        />
+                      ) : null}
+                      <Divider />
                       {activeJob.jobStatus === jobStatus.length - 1 &&
                       isLoggedIn ? (
                         <ArchiveJobButton

@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  Container,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { Container, Grid, Typography } from "@mui/material";
 import { HeaderBanner } from "./Logged Out Components/headerBanner";
 import { IconBanner } from "./Logged Out Components/IconBanner";
 
@@ -40,13 +36,13 @@ export function LoggedOutHome() {
               is important and extremely useful. Being able to know exactly how
               much something cost you to build is vital when it comes to selling
               your items for the right price in the right location, get it wrong
-              and you could loose alot of ISK!
+              and you could lose a lot of ISK!
               {<br />}
               {<br />}
-              For the newer plays or the more expierenced players who are
+              For the newer plays or the more experienced players who are
               wanting to get involved with the industry life style then Eve
               Industry Planner is here to help you manage this, weather you are
-              infront of your PC, on the bus or just sat at work wondering if
+              In front of your PC, on the bus or just sat at work wondering if
               your items have sold. Using the data provided by the Eve ESI you
               can keep up to date with your sell orders.
             </Typography>

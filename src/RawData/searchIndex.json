@@ -2284,6 +2284,86 @@
     "itemID": 11400
   },
   {
+    "name": "R.Db - Viziam",
+    "itemID": 11457
+  },
+  {
+    "name": "R.Db - Khanid Innovation",
+    "itemID": 11458
+  },
+  {
+    "name": "R.Db - Carthum Conglomerate",
+    "itemID": 11459
+  },
+  {
+    "name": "R.Db - Thukker Mix",
+    "itemID": 11460
+  },
+  {
+    "name": "R.Db - Boundless Creations",
+    "itemID": 11461
+  },
+  {
+    "name": "R.Db - Core Complexion",
+    "itemID": 11462
+  },
+  {
+    "name": "R.Db - Ishukone",
+    "itemID": 11463
+  },
+  {
+    "name": "R.Db - Kaalakiota",
+    "itemID": 11464
+  },
+  {
+    "name": "R.Db - Roden Shipyards",
+    "itemID": 11465
+  },
+  {
+    "name": "R.Db - CreoDron",
+    "itemID": 11466
+  },
+  {
+    "name": "R.Db - Duvolle Labs",
+    "itemID": 11467
+  },
+  {
+    "name": "R.A.M.- Armor/Hull Tech",
+    "itemID": 11475
+  },
+  {
+    "name": "R.A.M.- Ammunition Tech",
+    "itemID": 11476
+  },
+  {
+    "name": "R.A.M.- Starship Tech",
+    "itemID": 11478
+  },
+  {
+    "name": "R.A.M.- Robotics",
+    "itemID": 11481
+  },
+  {
+    "name": "R.A.M.- Energy Tech",
+    "itemID": 11482
+  },
+  {
+    "name": "R.A.M.- Electronics",
+    "itemID": 11483
+  },
+  {
+    "name": "R.A.M.- Shield Tech",
+    "itemID": 11484
+  },
+  {
+    "name": "R.A.M.- Cybernetics",
+    "itemID": 11485
+  },
+  {
+    "name": "R.A.M.- Weapon Tech",
+    "itemID": 11486
+  },
+  {
     "name": "Plasma Thruster",
     "itemID": 11530
   },
@@ -2466,6 +2546,10 @@
   {
     "name": "Plasma Pulse Generator",
     "itemID": 11695
+  },
+  {
+    "name": "R.Db - Lai Dai",
+    "itemID": 11746
   },
   {
     "name": "Falcon",
@@ -3528,6 +3612,66 @@
     "itemID": 20703
   },
   {
+    "name": "Capital Propulsion Engine",
+    "itemID": 21009
+  },
+  {
+    "name": "Capital Turret Hardpoint",
+    "itemID": 21011
+  },
+  {
+    "name": "Capital Sensor Cluster",
+    "itemID": 21013
+  },
+  {
+    "name": "Capital Armor Plates",
+    "itemID": 21017
+  },
+  {
+    "name": "Capital Capacitor Battery",
+    "itemID": 21019
+  },
+  {
+    "name": "Capital Power Generator",
+    "itemID": 21021
+  },
+  {
+    "name": "Capital Shield Emitter",
+    "itemID": 21023
+  },
+  {
+    "name": "Capital Jump Drive",
+    "itemID": 21025
+  },
+  {
+    "name": "Capital Cargo Bay",
+    "itemID": 21027
+  },
+  {
+    "name": "Capital Drone Bay",
+    "itemID": 21029
+  },
+  {
+    "name": "Capital Computer System",
+    "itemID": 21035
+  },
+  {
+    "name": "Capital Construction Parts",
+    "itemID": 21037
+  },
+  {
+    "name": "Capital Siege Array",
+    "itemID": 21039
+  },
+  {
+    "name": "Capital Launcher Hardpoint",
+    "itemID": 21041
+  },
+  {
+    "name": "Cynosural Field Generator I",
+    "itemID": 21096
+  },
+  {
     "name": "Vespa II",
     "itemID": 21638
   },
@@ -3906,6 +4050,26 @@
   {
     "name": "Scourge Precision Cruise Missile",
     "itemID": 24541
+  },
+  {
+    "name": "Capital Jump Bridge Array",
+    "itemID": 24545
+  },
+  {
+    "name": "Capital Clone Vat Bay",
+    "itemID": 24547
+  },
+  {
+    "name": "Capital Doomsday Weapon Mount",
+    "itemID": 24556
+  },
+  {
+    "name": "Capital Ship Maintenance Bay",
+    "itemID": 24558
+  },
+  {
+    "name": "Capital Corporate Hangar Bay",
+    "itemID": 24560
   },
   {
     "name": "Capital Remote Armor Repairer I",
@@ -4708,6 +4872,10 @@
     "itemID": 28583
   },
   {
+    "name": "Covert Cynosural Field Generator I",
+    "itemID": 28646
+  },
+  {
     "name": "Warp Disruption Field Generator I",
     "itemID": 28654
   },
@@ -4742,6 +4910,150 @@
   {
     "name": "Ark",
     "itemID": 28850
+  },
+  {
+    "name": "Capital Antimatter Reactor Unit",
+    "itemID": 29039
+  },
+  {
+    "name": "Capital Crystalline Carbonide Armor Plate",
+    "itemID": 29041
+  },
+  {
+    "name": "Capital Deflection Shield Emitter",
+    "itemID": 29043
+  },
+  {
+    "name": "Capital Electrolytic Capacitor Unit",
+    "itemID": 29045
+  },
+  {
+    "name": "Capital EM Pulse Generator",
+    "itemID": 29047
+  },
+  {
+    "name": "Capital Fernite Carbide Composite Armor Plate",
+    "itemID": 29049
+  },
+  {
+    "name": "Capital Fusion Reactor Unit",
+    "itemID": 29051
+  },
+  {
+    "name": "Capital Fusion Thruster",
+    "itemID": 29053
+  },
+  {
+    "name": "Capital Gravimetric Sensor Cluster",
+    "itemID": 29055
+  },
+  {
+    "name": "Capital Graviton Pulse Generator",
+    "itemID": 29057
+  },
+  {
+    "name": "Capital Graviton Reactor Unit",
+    "itemID": 29059
+  },
+  {
+    "name": "Capital Ion Thruster",
+    "itemID": 29061
+  },
+  {
+    "name": "Capital Laser Focusing Crystals",
+    "itemID": 29063
+  },
+  {
+    "name": "Capital Ladar Sensor Cluster",
+    "itemID": 29065
+  },
+  {
+    "name": "Capital Linear Shield Emitter",
+    "itemID": 29067
+  },
+  {
+    "name": "Capital Magnetometric Sensor Cluster",
+    "itemID": 29069
+  },
+  {
+    "name": "Capital Magpulse Thruster",
+    "itemID": 29071
+  },
+  {
+    "name": "Capital Nanoelectrical Microprocessor",
+    "itemID": 29073
+  },
+  {
+    "name": "Capital Nanomechanical Microprocessor",
+    "itemID": 29075
+  },
+  {
+    "name": "Capital Nuclear Pulse Generator",
+    "itemID": 29077
+  },
+  {
+    "name": "Capital Nuclear Reactor Unit",
+    "itemID": 29079
+  },
+  {
+    "name": "Capital Oscillator Capacitor Unit",
+    "itemID": 29081
+  },
+  {
+    "name": "Capital Particle Accelerator Unit",
+    "itemID": 29083
+  },
+  {
+    "name": "Capital Photon Microprocessor",
+    "itemID": 29085
+  },
+  {
+    "name": "Capital Plasma Pulse Generator",
+    "itemID": 29087
+  },
+  {
+    "name": "Capital Plasma Thruster",
+    "itemID": 29089
+  },
+  {
+    "name": "Capital Pulse Shield Emitter",
+    "itemID": 29091
+  },
+  {
+    "name": "Capital Quantum Microprocessor",
+    "itemID": 29093
+  },
+  {
+    "name": "Capital Radar Sensor Cluster",
+    "itemID": 29095
+  },
+  {
+    "name": "Capital Scalar Capacitor Unit",
+    "itemID": 29097
+  },
+  {
+    "name": "Capital Superconductor Rails",
+    "itemID": 29099
+  },
+  {
+    "name": "Capital Sustained Shield Emitter",
+    "itemID": 29101
+  },
+  {
+    "name": "Capital Tesseract Capacitor Unit",
+    "itemID": 29103
+  },
+  {
+    "name": "Capital Thermonuclear Trigger Unit",
+    "itemID": 29105
+  },
+  {
+    "name": "Capital Titanium Diborite Armor Plate",
+    "itemID": 29107
+  },
+  {
+    "name": "Capital Tungsten Carbide Armor Plate",
+    "itemID": 29109
   },
   {
     "name": "Magnate",
@@ -6908,6 +7220,10 @@
     "itemID": 33475
   },
   {
+    "name": "Mobile Cynosural Inhibitor",
+    "itemID": 33476
+  },
+  {
     "name": "Small Mobile Siphon Unit",
     "itemID": 33477
   },
@@ -7160,8 +7476,156 @@
     "itemID": 35836
   },
   {
+    "name": "Pharolux Cyno Beacon",
+    "itemID": 35840
+  },
+  {
     "name": "Endurance",
     "itemID": 37135
+  },
+  {
+    "name": "Standup M-Set Basic Medium Ship Manufacturing Material Efficiency II",
+    "itemID": 37147
+  },
+  {
+    "name": "Standup M-Set Drone and Fighter Manufacturing Time Efficiency II",
+    "itemID": 37149
+  },
+  {
+    "name": "Standup M-Set Ammunition Manufacturing Time Efficiency II",
+    "itemID": 37151
+  },
+  {
+    "name": "Standup M-Set Basic Large Ship Manufacturing Material Efficiency II",
+    "itemID": 37152
+  },
+  {
+    "name": "Standup M-Set Basic Medium Ship Manufacturing Time Efficiency II",
+    "itemID": 37153
+  },
+  {
+    "name": "Standup M-Set Basic Small Ship Manufacturing Material Efficiency II",
+    "itemID": 37155
+  },
+  {
+    "name": "Standup M-Set Drone and Fighter Manufacturing Material Efficiency II",
+    "itemID": 37157
+  },
+  {
+    "name": "Standup M-Set Ammunition Manufacturing Material Efficiency II",
+    "itemID": 37159
+  },
+  {
+    "name": "Standup M-Set Equipment Manufacturing Time Efficiency II",
+    "itemID": 37161
+  },
+  {
+    "name": "Standup M-Set Basic Small Ship Manufacturing Time Efficiency II",
+    "itemID": 37163
+  },
+  {
+    "name": "Standup L-Set Ammunition Manufacturing Efficiency II",
+    "itemID": 37165
+  },
+  {
+    "name": "Standup L-Set Basic Large Ship Manufacturing Efficiency II",
+    "itemID": 37167
+  },
+  {
+    "name": "Standup L-Set Advanced Large Ship Manufacturing Efficiency II",
+    "itemID": 37169
+  },
+  {
+    "name": "Standup L-Set Equipment Manufacturing Efficiency II",
+    "itemID": 37171
+  },
+  {
+    "name": "Standup L-Set Capital Ship Manufacturing Efficiency II",
+    "itemID": 37172
+  },
+  {
+    "name": "Standup L-Set Advanced Component Manufacturing Efficiency II",
+    "itemID": 37175
+  },
+  {
+    "name": "Standup XL-Set Equipment and Consumable Manufacturing Efficiency II",
+    "itemID": 37179
+  },
+  {
+    "name": "Standup XL-Set Ship Manufacturing Efficiency II",
+    "itemID": 37181
+  },
+  {
+    "name": "Standup XL-Set Laboratory Optimization II",
+    "itemID": 37182
+  },
+  {
+    "name": "Standup M-Set Missile Precision II",
+    "itemID": 37217
+  },
+  {
+    "name": "Standup M-Set Energy Neutralizer Projection II",
+    "itemID": 37219
+  },
+  {
+    "name": "Standup M-Set Missile Projection II",
+    "itemID": 37221
+  },
+  {
+    "name": "Standup M-Set Energy Neutralizer Economy II",
+    "itemID": 37223
+  },
+  {
+    "name": "Standup M-Set Electronic Warfare Projection II",
+    "itemID": 37229
+  },
+  {
+    "name": "Standup M-Set Electronic Warfare Economy II",
+    "itemID": 37231
+  },
+  {
+    "name": "Standup M-Set Structure Target Multiplexing II",
+    "itemID": 37233
+  },
+  {
+    "name": "Standup M-Set Enhanced Targeting System II",
+    "itemID": 37235
+  },
+  {
+    "name": "Standup L-Set Missile Flight Processor II",
+    "itemID": 37249
+  },
+  {
+    "name": "Standup L-Set Energy Neutralizer Feedback Control II",
+    "itemID": 37251
+  },
+  {
+    "name": "Standup L-Set EW Command System II",
+    "itemID": 37255
+  },
+  {
+    "name": "Standup L-Set Bomb Aimer II",
+    "itemID": 37257
+  },
+  {
+    "name": "Standup L-Set Point Defense Battery Control II",
+    "itemID": 37259
+  },
+  {
+    "name": "Standup L-Set Target Acquisition Array II",
+    "itemID": 37261
+  },
+  {
+    "name": "Standup XL-Set Missile Fire Control Computer II",
+    "itemID": 37269
+  },
+  {
+    "name": "Standup XL-Set EW and Emissions Co-ordinator II",
+    "itemID": 37273
+  },
+  {
+    "name": "Standup XL-Set Extinction Level Weapons Suite II",
+    "itemID": 37275
   },
   {
     "name": "Rapid Torpedo Launcher I",
@@ -7278,6 +7742,10 @@
   {
     "name": "Magus",
     "itemID": 37483
+  },
+  {
+    "name": "Tenebrex Cyno Jammer",
+    "itemID": 37534
   },
   {
     "name": "Guidance Disruptor I",
@@ -8060,6 +8528,142 @@
     "itemID": 43700
   },
   {
+    "name": "Standup XL-Set Structure and Component Manufacturing Efficiency II",
+    "itemID": 43705
+  },
+  {
+    "name": "Standup L-Set Advanced Small Ship Manufacturing Efficiency II",
+    "itemID": 43708
+  },
+  {
+    "name": "Standup L-Set Advanced Medium Ship Manufacturing Efficiency II",
+    "itemID": 43711
+  },
+  {
+    "name": "Standup L-Set Drone and Fighter Manufacturing Efficiency II",
+    "itemID": 43713
+  },
+  {
+    "name": "Standup L-Set Basic Small Ship Manufacturing Efficiency II",
+    "itemID": 43715
+  },
+  {
+    "name": "Standup L-Set Basic Medium Ship Manufacturing Efficiency II",
+    "itemID": 43717
+  },
+  {
+    "name": "Standup L-Set Basic Capital Component Manufacturing Efficiency II",
+    "itemID": 43719
+  },
+  {
+    "name": "Standup L-Set Structure Manufacturing Efficiency II",
+    "itemID": 43721
+  },
+  {
+    "name": "Standup L-Set Invention Optimization II",
+    "itemID": 43723
+  },
+  {
+    "name": "Standup L-Set ME Research Optimization II",
+    "itemID": 43725
+  },
+  {
+    "name": "Standup L-Set TE Research Optimization II",
+    "itemID": 43727
+  },
+  {
+    "name": "Standup L-Set Blueprint Copy Optimization II",
+    "itemID": 43730
+  },
+  {
+    "name": "Standup M-Set Basic Large Ship Manufacturing Time Efficiency II",
+    "itemID": 43734
+  },
+  {
+    "name": "Standup M-Set Advanced Small Ship Manufacturing Material Efficiency II",
+    "itemID": 43854
+  },
+  {
+    "name": "Standup M-Set Advanced Small Ship Manufacturing Time Efficiency II",
+    "itemID": 43857
+  },
+  {
+    "name": "Standup M-Set Advanced Medium Ship Manufacturing Material Efficiency II",
+    "itemID": 43859
+  },
+  {
+    "name": "Standup M-Set Advanced Medium Ship Manufacturing Time Efficiency II",
+    "itemID": 43861
+  },
+  {
+    "name": "Standup M-Set Advanced Large Ship Manufacturing Material Efficiency II",
+    "itemID": 43863
+  },
+  {
+    "name": "Standup M-Set Advanced Large Ship Manufacturing Time Efficiency II",
+    "itemID": 43864
+  },
+  {
+    "name": "Standup M-Set Advanced Component Manufacturing Material Efficiency II",
+    "itemID": 43866
+  },
+  {
+    "name": "Standup M-Set Advanced Component Manufacturing Time Efficiency II",
+    "itemID": 43868
+  },
+  {
+    "name": "Standup M-Set Basic Capital Component Manufacturing Material Efficiency II",
+    "itemID": 43871
+  },
+  {
+    "name": "Standup M-Set Basic Capital Component Manufacturing Time Efficiency II",
+    "itemID": 43873
+  },
+  {
+    "name": "Standup M-Set Structure Manufacturing Material Efficiency II",
+    "itemID": 43874
+  },
+  {
+    "name": "Standup M-Set Structure Manufacturing Time Efficiency II",
+    "itemID": 43877
+  },
+  {
+    "name": "Standup M-Set Invention Cost Optimization II",
+    "itemID": 43878
+  },
+  {
+    "name": "Standup M-Set Invention Accelerator II",
+    "itemID": 43881
+  },
+  {
+    "name": "Standup M-Set ME Research Accelerator II",
+    "itemID": 43882
+  },
+  {
+    "name": "Standup M-Set ME Research Cost Optimization II",
+    "itemID": 43884
+  },
+  {
+    "name": "Standup M-Set TE Research Cost Optimization II",
+    "itemID": 43886
+  },
+  {
+    "name": "Standup M-Set TE Research Accelerator II",
+    "itemID": 43888
+  },
+  {
+    "name": "Standup M-Set Blueprint Copy Cost Optimization II",
+    "itemID": 43890
+  },
+  {
+    "name": "Standup M-Set Blueprint Copy Accelerator II",
+    "itemID": 43892
+  },
+  {
+    "name": "Standup M-Set Equipment Manufacturing Material Efficiency II",
+    "itemID": 43921
+  },
+  {
     "name": "Pacifier",
     "itemID": 44993
   },
@@ -8284,6 +8888,18 @@
     "itemID": 45655
   },
   {
+    "name": "Standup M-Set Moon Drilling Efficiency II",
+    "itemID": 46324
+  },
+  {
+    "name": "Standup M-Set Moon Drilling Stability II",
+    "itemID": 46326
+  },
+  {
+    "name": "Standup L-Set Moon Drilling Proficiency II",
+    "itemID": 46328
+  },
+  {
     "name": "Ubiquitous Moon Mining Crystal Type A I",
     "itemID": 46355
   },
@@ -8324,6 +8940,134 @@
     "itemID": 46372
   },
   {
+    "name": "Standup M-Set Composite Reactor Time Efficiency II",
+    "itemID": 46485
+  },
+  {
+    "name": "Standup M-Set Composite Reactor Material Efficiency II",
+    "itemID": 46487
+  },
+  {
+    "name": "Standup M-Set Hybrid Reactor Time Efficiency II",
+    "itemID": 46489
+  },
+  {
+    "name": "Standup M-Set Hybrid Reactor Material Efficiency II",
+    "itemID": 46491
+  },
+  {
+    "name": "Standup M-Set Biochemical Reactor Time Efficiency II",
+    "itemID": 46493
+  },
+  {
+    "name": "Standup M-Set Biochemical Reactor Material Efficiency II",
+    "itemID": 46495
+  },
+  {
+    "name": "Standup L-Set Reactor Efficiency II",
+    "itemID": 46497
+  },
+  {
+    "name": "Standup M-Set Asteroid Ore Grading Processor II",
+    "itemID": 46634
+  },
+  {
+    "name": "Standup M-Set Ice Grading Processor II",
+    "itemID": 46636
+  },
+  {
+    "name": "Standup M-Set Moon Ore Grading Processor II",
+    "itemID": 46638
+  },
+  {
+    "name": "Standup L-Set Reprocessing Monitor II",
+    "itemID": 46640
+  },
+  {
+    "name": "Standup XL-Set Reprocessing Monitor II",
+    "itemID": 46642
+  },
+  {
+    "name": "Standup Malleus II",
+    "itemID": 47119
+  },
+  {
+    "name": "Standup Mantis II",
+    "itemID": 47120
+  },
+  {
+    "name": "Standup Cyclops II",
+    "itemID": 47121
+  },
+  {
+    "name": "Standup Tyrfing II",
+    "itemID": 47122
+  },
+  {
+    "name": "Standup Ametat II",
+    "itemID": 47127
+  },
+  {
+    "name": "Standup Termite II",
+    "itemID": 47128
+  },
+  {
+    "name": "Standup Antaeus II",
+    "itemID": 47129
+  },
+  {
+    "name": "Standup Gungnir II",
+    "itemID": 47130
+  },
+  {
+    "name": "Standup Cenobite II",
+    "itemID": 47134
+  },
+  {
+    "name": "Standup Scarab II",
+    "itemID": 47135
+  },
+  {
+    "name": "Standup Siren II",
+    "itemID": 47136
+  },
+  {
+    "name": "Standup Dromi II",
+    "itemID": 47137
+  },
+  {
+    "name": "Standup Templar II",
+    "itemID": 47141
+  },
+  {
+    "name": "Standup Dragonfly II",
+    "itemID": 47142
+  },
+  {
+    "name": "Standup Firbolg II",
+    "itemID": 47143
+  },
+  {
+    "name": "Standup Einherji II",
+    "itemID": 47144
+  },
+  {
+    "name": "Standup Equite II",
+    "itemID": 47148
+  },
+  {
+    "name": "Standup Locust II",
+    "itemID": 47149
+  },
+  {
+    "name": "Standup Satyr II",
+    "itemID": 47150
+  },
+  {
+    "name": "Standup Gram II",
+    "itemID": 47151
+  },
+  {
     "name": "Assault Damage Control I",
     "itemID": 47254
   },
@@ -8350,6 +9094,86 @@
   {
     "name": "Supratidal Entropic Disintegrator I",
     "itemID": 47274
+  },
+  {
+    "name": "Standup Multirole Missile Launcher II",
+    "itemID": 47298
+  },
+  {
+    "name": "Standup Anticapital Missile Launcher II",
+    "itemID": 47323
+  },
+  {
+    "name": "Standup Guided Bomb Launcher II",
+    "itemID": 47325
+  },
+  {
+    "name": "Standup Point Defense Battery II",
+    "itemID": 47327
+  },
+  {
+    "name": "Standup XL Energy Neutralizer II",
+    "itemID": 47330
+  },
+  {
+    "name": "Standup Heavy Energy Neutralizer II",
+    "itemID": 47332
+  },
+  {
+    "name": "Standup Focused Warp Disruptor II",
+    "itemID": 47334
+  },
+  {
+    "name": "Standup Variable Spectrum ECM II",
+    "itemID": 47338
+  },
+  {
+    "name": "Standup Missile Guidance Enhancer II",
+    "itemID": 47340
+  },
+  {
+    "name": "Standup Ballistic Control System II",
+    "itemID": 47342
+  },
+  {
+    "name": "Standup Co-Processor Array II",
+    "itemID": 47344
+  },
+  {
+    "name": "Standup Reactor Control Unit II",
+    "itemID": 47347
+  },
+  {
+    "name": "Standup Signal Amplifier II",
+    "itemID": 47348
+  },
+  {
+    "name": "Standup Stasis Webifier II",
+    "itemID": 47351
+  },
+  {
+    "name": "Standup Cap Battery II",
+    "itemID": 47353
+  },
+  {
+    "name": "Standup Capacitor Power Relay II",
+    "itemID": 47358
+  },
+  {
+    "name": "Standup Layered Armor Plating II",
+    "itemID": 47362
+  },
+  {
+    "name": "Standup Weapon Disruptor II",
+    "itemID": 47364
+  },
+  {
+    "name": "Standup Target Painter II",
+    "itemID": 47366
+  },
+  {
+    "name": "Standup Remote Sensor Dampener II",
+    "itemID": 47368
   },
   {
     "name": "Tetryon Exotic Plasma S",
@@ -8490,6 +9314,22 @@
   {
     "name": "Draugur",
     "itemID": 52254
+  },
+  {
+    "name": "Industrial Cynosural Field Generator",
+    "itemID": 52694
+  },
+  {
+    "name": "Capital Ultratidal Entropic Mounting",
+    "itemID": 53035
+  },
+  {
+    "name": "Capital Radiation Conversion Unit",
+    "itemID": 53036
+  },
+  {
+    "name": "Capital Absorption Thruster Array",
+    "itemID": 53037
   },
   {
     "name": "Signal-25 'Needlejack' Filament",
@@ -8700,6 +9540,22 @@
     "itemID": 57473
   },
   {
+    "name": "Radar-FTL Interlink Communicator",
+    "itemID": 57474
+  },
+  {
+    "name": "Gravimetric-FTL Interlink Communicator",
+    "itemID": 57475
+  },
+  {
+    "name": "Magnetometric-FTL Interlink Communicator",
+    "itemID": 57476
+  },
+  {
+    "name": "Ladar-FTL Interlink Communicator",
+    "itemID": 57477
+  },
+  {
     "name": "Auto-Integrity Preservation Seal",
     "itemID": 57478
   },
@@ -8734,6 +9590,18 @@
   {
     "name": "Life Support Backup Unit",
     "itemID": 57486
+  },
+  {
+    "name": "Capital Core Temperature Regulator",
+    "itemID": 57487
+  },
+  {
+    "name": "Neurolink Protection Cell",
+    "itemID": 57488
+  },
+  {
+    "name": "Enhanced Neurolink Protection Cell",
+    "itemID": 57489
   },
   {
     "name": "Interdiction Nullifier I",

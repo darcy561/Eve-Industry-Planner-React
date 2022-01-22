@@ -1,4 +1,3 @@
-import React, { useContext } from "react";
 import {
   Avatar,
   Badge,
@@ -8,10 +7,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { EveIDsContext } from "../../../../Context/EveDataContext";
 
 export function IndustryESICardActive({ job }) {
-  const { eveIDs } = useContext(EveIDsContext);
 
   function timeRemainingcalc() {
     let now = new Date().getTime();
@@ -38,7 +35,6 @@ export function IndustryESICardActive({ job }) {
 
   const timeRemaining = timeRemainingcalc();
 
-  const jobLocation = eveIDs.find((i) => i.id === job.facility_id);
 
   return (
     <Tooltip title="Job imported from Eve ESI">
@@ -105,16 +101,6 @@ export function IndustryESICardActive({ job }) {
                         {timeRemaining.mins}M
                       </Typography>
                     )}
-                  </Grid>
-                  <Grid container item xs={12} sx={{ marginTop: "10px" }}>
-                    <Grid item xs={4}>
-                      <Typography variant="body1">Location:</Typography>
-                    </Grid>
-                    <Grid item xs={8} sx={{ paddingRight: "20px" }}>
-                      <Typography variant="body2" align="right">
-                        {jobLocation.name}
-                      </Typography>
-                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>

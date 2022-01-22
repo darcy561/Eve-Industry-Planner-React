@@ -43,6 +43,12 @@ export function useFirebase() {
       for (let i in charData.jobArraySnapshot) {
         newJobArray.push(charData.jobArraySnapshot[i]);
       }
+
+      newJobArray.sort((a, b) => {
+        if (a.name < b.name) { return -1 }
+        if (a.name < b.name) { return 1 }
+        return 0
+      })
       charData.jobArraySnapshot = newJobArray;
 
       return charData;

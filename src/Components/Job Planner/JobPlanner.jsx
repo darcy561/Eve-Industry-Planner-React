@@ -7,6 +7,7 @@ import { LoadingPage } from "../loadingPage";
 import { SearchBar } from "./Planner Components/searchbar";
 import { Grid } from "@mui/material";
 import { TutorialPlanner } from "./Planner Components/tutorialPlanner";
+import { ShoppingListDialog } from "./ShoppingList";
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
 
@@ -119,7 +120,9 @@ export function JobPlanner() {
       );
     } else {
       return (
+        
         <Grid container sx={{ marginTop: "5px" }} spacing={2}>
+          <ShoppingListDialog/>
           {!parentUser.settings.layout.hideTutorials && (
             <Grid item xs={12}>
               <TutorialPlanner />

@@ -4,7 +4,7 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 const appCheckVerification =
-  require("./Middleware/appCheck").appCheckVerification;
+  require("./Middleware/AppCheck").appCheckVerification;
 const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
 
 admin.initializeApp();
@@ -24,7 +24,7 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(helmet());
+// app.use(helmet());
 app.use(appCheckVerification);
 
 //Routes

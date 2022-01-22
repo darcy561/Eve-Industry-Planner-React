@@ -27,7 +27,7 @@ export function HeaderBanner() {
         }}
       >
         <b>
-          <i>Making the spreadsheet, so you dont have to!</i>
+          <i>Making the spreadsheet so you dont have to!</i>
         </b>
       </Typography>
       <Grid

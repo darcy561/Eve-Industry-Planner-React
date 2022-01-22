@@ -20,7 +20,6 @@ export function DialogBox() {
   };
 
   return (
-    <>
       <Dialog
         open={dialogData.open}
         onClose={handleClose}
@@ -37,6 +36,5 @@ export function DialogBox() {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
   );
 }

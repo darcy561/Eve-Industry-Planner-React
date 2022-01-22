@@ -7,6 +7,7 @@ import {
 } from "firebase/app-check";
 import { getPerformance } from "firebase/performance";
 import { getFunctions } from "firebase/functions";
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_fbApiKey,
@@ -16,6 +17,7 @@ const firebaseConfig = {
   storageBucket: process.env.REACT_APP_fbStorageBucket,
   messagingSenderId: process.env.REACT_APP_fbMessagingSenderID,
   appId: process.env.REACT_APP_fbAppID,
+  measurementId: process.env.REACT_APP_measurmentID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -32,5 +34,6 @@ export const appCheck = initializeAppCheck(app, {
 });
 
 export const performance = getPerformance(app);
+export const analytics = getAnalytics(app);
 
 export default app;

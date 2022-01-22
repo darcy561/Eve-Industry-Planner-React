@@ -16,6 +16,7 @@ import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
 import jwt from "jsonwebtoken";
 import { trace } from "firebase/performance";
 import { performance } from "../firebase";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function useRefreshUser() {
   const {
@@ -37,6 +38,7 @@ export function useRefreshUser() {
   const { updatePageLoad } = useContext(PageLoadContext);
 
   const reloadMainUser = async (refreshToken) => {
+    const analytics = getAnalytics();
     const t = trace(performance, "MainUserRefreshProcessFull");
     t.start();
 
@@ -81,8 +83,6 @@ export function useRefreshUser() {
       apiDataComp: true,
     }));
 
-    console.log(refreshedUser);
-
     setJobStatus(charSettings.jobStatusArray);
     updateJobArray(charSettings.jobArraySnapshot);
     updateApiJobs(refreshedUser.apiJobs);
@@ -90,6 +90,9 @@ export function useRefreshUser() {
     newUsersArray.push(refreshedUser);
     updateUsers(newUsersArray);
     updateIsLoggedIn(true);
+    logEvent(analytics, "userSignIn", {
+      UID: refreshedUser.accountID
+    })
     t.stop();
     updateLoadingText((prevObj) => ({
       ...prevObj,

@@ -17,7 +17,7 @@ export function NewTransactions() {
     (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
   );
 
-  const parentUser = users.find((i)=> i.ParentUser === true)
+  const parentUser = users.find((i) => i.ParentUser === true);
 
   let itemOrderMatch = [];
   let transactionData = [];
@@ -30,15 +30,24 @@ export function NewTransactions() {
           parentUser.linkedOrders.includes(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
-          eveIDs.find((item) => {
-            if (item.id === order.location_id) {
-              order.user_id = user.CharacterID;
-              order.location_name = item.name;
-            }
-            if (item.id === order.region_id) {
-              order.region_name = item.name;
-            }
-          });
+          order.user_id = user.CharacterID;
+
+          const locationName = eveIDs.find(
+            (item) => item.id === order.location_id
+          );
+          if (!locationName) {
+            order.location_name = null;
+          } else {
+            order.location_name = locationName.name;
+          }
+
+          const regionName = eveIDs.find((item) => item.id === order.region_id);
+          if (!regionName) {
+            order.region_name = null;
+          } else {
+            order.region_name = regionName.name;
+          }
+
           itemOrderMatch.push(order);
         }
       });
@@ -49,16 +58,26 @@ export function NewTransactions() {
           parentUser.linkedOrders.includes(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
-          eveIDs.find((item) => {
-            if (item.id === order.location_id) {
-              order.user_id = user.CharacterID;
-              order.location_name = item.name;
-            }
-            if (item.id === order.region_id) {
-              order.region_name = item.name;
-            }
-          });
-          order.item_name = job.name;
+          order.user_id = user.CharacterID;
+
+          const locationNameHist = eveIDs.find(
+            (item) => item.id === order.location_id
+          );
+          if (!locationNameHist) {
+            order.location_name = null;
+          } else {
+            order.location_name = locationNameHist.name;
+          }
+
+          const regionNameHist = eveIDs.find(
+            (item) => item.id === order.region_id
+          );
+          if (!regionNameHist) {
+            order.region_name = null;
+          } else {
+            order.region_name = regionNameHist.name;
+          }
+
           itemOrderMatch.push(order);
         }
       });

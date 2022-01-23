@@ -3,10 +3,7 @@ import { UsersContext } from "../../../Context/AuthContext";
 import { ApiJobsContext } from "../../../Context/JobContext";
 import { useEveApi } from "../../../Hooks/useEveApi";
 import { useRefreshUser } from "../../../Hooks/useRefreshUser";
-import {
-  Tooltip,
-  IconButton,
-} from "@mui/material";
+import { Tooltip, IconButton } from "@mui/material";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import TimerIcon from "@mui/icons-material/Timer";
@@ -27,22 +24,42 @@ export function RefreshApiIcon() {
   const [refreshState, updateRefreshState] = useState(1);
 
   const refreshAPIData = async () => {
-    let newUsers = users;
-    let newAPIArray = []
+    let newUsers = [...users];
+    let newAPIArray = [];
     updateRefreshState(2);
     for (let user of newUsers) {
       if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
         user = await RefreshUserAToken(user);
       }
-      user.apiSkills = await CharacterSkills(user);
-      user.apiJobs = await IndustryJobs(user);
-      user.apiOrders = await MarketOrders(user);
-      user.apiHistOrders = await HistoricMarketOrders(user);
-      user.apiBlueprints = await BlueprintLibrary(user);
-      user.apiTransactions = await WalletTransactions(user);
-      user.apiJournal = await WalletJournal(user);
-
-      user.apiJobs.forEach((i)=> newAPIArray.push(i))
+      const NewApiSkills = await CharacterSkills(user);
+      if (NewApiSkills.length > 0) {
+        user.apiSkills = NewApiSkills;
+      }
+      const NewApiJobs = await IndustryJobs(user);
+      if (NewApiJobs.length > 0) {
+        user.apiJobs = NewApiJobs;
+        user.apiJobs.forEach((i) => newAPIArray.push(i));
+      }
+      const NewApiOrders = await MarketOrders(user);
+      if (NewApiOrders.length > 0) {
+        user.apiOrders = NewApiOrders;
+      }
+      const NewApiHistOrders = await HistoricMarketOrders(user);
+      if (NewApiHistOrders.length > 0) {
+        user.apiHistOrders = NewApiHistOrders;
+      }
+      const NewApiBlueprints = await BlueprintLibrary(user);
+      if (NewApiBlueprints.length > 0) {
+        user.apiBlueprints = NewApiBlueprints;
+      }
+      const NewApiTransactions = await WalletTransactions(user);
+      if (NewApiTransactions.length > 0) {
+        user.apiTransactions = NewApiTransactions;
+      }
+      const NewApiJournal = await WalletJournal(user);
+      if (NewApiJournal.length > 0) {
+        user.apiJournal = NewApiJournal;
+      }
     }
 
     updateUsers(newUsers);

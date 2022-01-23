@@ -3,7 +3,6 @@ import { Container, Grid } from "@mui/material";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import {
-  IsLoggedInContext,
   UsersContext,
 } from "../../../../Context/AuthContext";
 import { SalesStats } from "./Page 5 Components/salesStats";
@@ -19,8 +18,6 @@ export function EditPage5({ setJobModified }) {
   const [activeOrder, updateActiveOrder] = useState(null);
   const { users } = useContext(UsersContext);
   const { eveIDs } = useContext(EveIDsContext);
-  const { isLoggedIn } = useContext(IsLoggedInContext);
-
   let itemOrderMatch = [];
 
   const parentUser = users.find((i) => i.ParentUser === true);

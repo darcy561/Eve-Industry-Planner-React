@@ -49,68 +49,56 @@ export function useEveApi() {
 
       if (indyPromise.status === 200) {
         indyJSON.forEach((job) => {
-          const nameMatch = searchData.find(
-            (item) => item.itemID === job.product_type_id
-          );
-
-          if (nameMatch !== undefined) {
-            job.product_name = nameMatch.name;
-          } else {
-            job.product_name = null;
-          }
-          if (userObj.linkedJobs.includes(job.job_id)) {
-            job.linked = true;
-          } else {
-            job.linked = false;
+          if (job.activity_id === 1) {
+            const nameMatch = searchData.find(
+              (item) => item.itemID === job.product_type_id
+            );
+            if (nameMatch !== undefined) {
+              job.product_name = nameMatch.name;
+            } else {
+              job.product_name = null;
+            }
+            if (userObj.linkedJobs.includes(job.job_id)) {
+              job.linked = true;
+            } else {
+              job.linked = false;
+            }
           }
         });
 
-        let filtered = indyJSON.filter(
+        let filterOld = indyJSON.filter(
           (job) =>
             job.completed_date === undefined ||
             new Date() - Date.parse(job.completed_date) < 1209600000
           // 10 days
         );
 
+        let filtered = filterOld.filter((job) =>
+          job.activity_id === 1
+        );
+
         let idRequest = [];
 
-        // for (let item in filtered) {
-        //   if (
-        //     !eveIDs.includes(item.blueprint_location_id) &&
-        //     !idRequest.includes(item.blueprint_location_id)
-        //   ) {
-        //     idRequest.push(item.blueprint_location_id);
-        //   }
-        //   if (
-        //     !eveIDs.includes(item.station_id) &&
-        //     !idRequest.includes(item.station_id)
-        //   ) {
-        //     idRequest.push(item.station_id);
-        //   }
-        //   if (
-        //     !eveIDs.includes(item.facility_id) &&
-        //     !idRequest.includes(item.facility_id)
-        //   ) {
-        //     idRequest.push(item.facility_id);
-        //   }
-        //   }
-
         filtered.forEach((item) => {
+
           if (
             !eveIDs.includes(item.blueprint_location_id) &&
-            !idRequest.includes(item.blueprint_location_id)
+            !idRequest.includes(item.blueprint_location_id) &&
+            item.blueprint_location_id.toString().length < 10
           ) {
             idRequest.push(item.blueprint_location_id);
           }
           if (
             !eveIDs.includes(item.station_id) &&
-            !idRequest.includes(item.station_id)
+            !idRequest.includes(item.station_id) &&
+            item.station_id.toString().length < 10
           ) {
             idRequest.push(item.station_id);
           }
           if (
             !eveIDs.includes(item.facility_id) &&
-            !idRequest.includes(item.facility_id)
+            !idRequest.includes(item.facility_id) &&
+            item.facility_id.toString().length < 10
           ) {
             idRequest.push(item.facility_id);
           }
@@ -140,13 +128,15 @@ export function useEveApi() {
         marketJSON.forEach((item) => {
           if (
             !eveIDs.includes(item.location_id) &&
-            !idRequest.includes(item.location_id)
+            !idRequest.includes(item.location_id) &&
+            item.location_id.toString().length < 10
           ) {
             idRequest.push(item.location_id);
           }
           if (
             !eveIDs.includes(item.region_id) &&
-            !idRequest.includes(item.region_id)
+            !idRequest.includes(item.region_id) &&
+            item.region_id.toString().length < 10
           ) {
             idRequest.push(item.region_id);
           }
@@ -155,7 +145,11 @@ export function useEveApi() {
           await IDtoName(idRequest);
         }
 
-        return marketJSON;
+        let filtered = marketJSON.filter((item) => 
+          !item.is_buy_order
+        )
+
+        return filtered;
       }
     } catch (err) {
       console.log(err);
@@ -193,13 +187,15 @@ export function useEveApi() {
     filtered.forEach((item) => {
       if (
         !eveIDs.includes(item.location_id) &&
-        !idRequest.includes(item.location_id)
+        !idRequest.includes(item.location_id) &&
+        item.location_id.toString().length < 10
       ) {
         idRequest.push(item.location_id);
       }
       if (
         !eveIDs.includes(item.region_id) &&
-        !idRequest.includes(item.region_id)
+        !idRequest.includes(item.region_id) &&
+        item.region_id.toString().length < 10
       ) {
         idRequest.push(item.region_id);
       }

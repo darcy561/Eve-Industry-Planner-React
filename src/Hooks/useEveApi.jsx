@@ -79,6 +79,27 @@ export function useEveApi() {
 
         let idRequest = [];
 
+        // for (let item in filtered) {
+        //   if (
+        //     !eveIDs.includes(item.blueprint_location_id) &&
+        //     !idRequest.includes(item.blueprint_location_id)
+        //   ) {
+        //     idRequest.push(item.blueprint_location_id);
+        //   }
+        //   if (
+        //     !eveIDs.includes(item.station_id) &&
+        //     !idRequest.includes(item.station_id)
+        //   ) {
+        //     idRequest.push(item.station_id);
+        //   }
+        //   if (
+        //     !eveIDs.includes(item.facility_id) &&
+        //     !idRequest.includes(item.facility_id)
+        //   ) {
+        //     idRequest.push(item.facility_id);
+        //   }
+        //   }
+
         filtered.forEach((item) => {
 
           if (
@@ -157,7 +178,6 @@ export function useEveApi() {
           );
           item.item_name = nameMatch.name
         });
-
         return filtered;
       }
     } catch (err) {

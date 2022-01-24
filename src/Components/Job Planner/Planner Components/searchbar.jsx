@@ -13,6 +13,7 @@ import {
   DataExchangeContext,
   ShoppingListContext,
 } from "../../../Context/LayoutContext";
+
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -139,7 +140,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
                   moveMultipleJobsBackward(multiSelect);
-
+                  updateMultiSelect([]);
                 }}
               >
                 Move Backward
@@ -150,7 +151,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
                   moveMultipleJobsForward(multiSelect);
-
+                  updateMultiSelect([]);
                 }}
               >
                 Move Forward

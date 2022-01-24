@@ -146,6 +146,7 @@ export function useEveApi() {
 
       let idRequest = [];
       if (marketPromise.status === 200) {
+        
         marketJSON.forEach((item) => {
           if (
             !eveIDs.includes(item.location_id) &&
@@ -161,6 +162,7 @@ export function useEveApi() {
           ) {
             idRequest.push(item.region_id);
           }
+          item.CharacterHash = userObj.CharacterHash
         });
         if (idRequest.length !== 0) {
           await IDtoName(idRequest);
@@ -170,6 +172,12 @@ export function useEveApi() {
           !item.is_buy_order
         )
 
+        filtered.forEach((item) => {
+          const nameMatch = searchData.find(
+            (i) => i.itemID === item.type_id
+          );
+          item.item_name = nameMatch.name
+        });
         return filtered;
       }
     } catch (err) {
@@ -220,6 +228,16 @@ export function useEveApi() {
       ) {
         idRequest.push(item.region_id);
       }
+
+      const nameMatch = searchData.find(
+        (i) => i.itemID === item.type_id
+      );
+      if (nameMatch !== undefined) {
+        item.item_name = nameMatch.name
+      } else {
+        item.item_name = null
+      }
+      item.CharacterHash = userObj.CharacterHash
     });
 
     if (idRequest.length !== 0) {

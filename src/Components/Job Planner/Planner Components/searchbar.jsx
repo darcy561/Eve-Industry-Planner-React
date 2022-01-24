@@ -14,6 +14,16 @@ import {
   ShoppingListContext,
 } from "../../../Context/LayoutContext";
 
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  Autocomplete: {
+    "& .MuiInputBase-input.MuiAutocomplete-input": {
+      color: theme.palette.type === "dark" ? "black": (theme.palette.secondary.main)
+    }
+  }
+}))
+
 export function SearchBar({ multiSelect, updateMultiSelect }) {
   const { DataExchange } = useContext(DataExchangeContext);
   const { updateShoppingListData } = useContext(ShoppingListContext);
@@ -25,6 +35,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
     newJobProcess,
     buildShoppingList,
   } = useJobManagement();
+  const classes = useStyles();
 
   return (
     <Paper
@@ -44,7 +55,6 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
             freeSolo
             id="Recipe Search"
             clearOnBlur={true}
-            clearOnEscape={true}
             blurOnSelect={true}
             variant="standard"
             size="small"
@@ -60,9 +70,10 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 {...params}
                 size="small"
                 label="Item Search"
+                className={classes.Autocomplete}
                 margin="none"
                 variant="standard"
-                style={{ background: "white", borderRadius: "5px" }}
+                style={{ background: "white", borderRadius: "5px",  }}
                 InputProps={{ ...params.InputProps, type: "search" }}
               />
             )}

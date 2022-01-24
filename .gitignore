@@ -24,3 +24,4 @@ ui-debug.log
 pubsub-debug.log
 firestore-debug.log
 database-debug.log
+.firebaserc

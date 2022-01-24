@@ -15,6 +15,40 @@ import AddLinkIcon from "@mui/icons-material/AddLink";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 
+class BrokerFee {
+  constructor(entry, order, char) {
+    this.order_id = order.order_id
+    this.id = entry.id
+    this.complete = false
+    this.date = entry.date
+    this.amount = Math.abs(entry.amount)
+    this.CharacterHash = char.CharacterHash
+  }
+}
+
+class MarketOrder {
+  constructor(order) {
+    this.duration = order.duration
+    this.is_corporation = order.is_corporation
+    this.issued = order.issued
+    this.location_id = order.location_id
+    this.location_name =order.location_name || null
+    this.order_id = order.order_id
+    this.item_price = order.price
+    this.range = order.range 
+    this.region_id = order.region_id
+    this.region_name = order.region_name || null
+    this.type_id = order.type_id
+    this.item_name = order.item_name || null
+    this.volume_remain = order.volume_remain
+    this.volume_total = order.volume_total
+    this.timeStamps = []
+    this.CharacterHash = order.CharacterHash
+    this.complete = order.complete || false
+  }
+
+}
+
 export function AvailableMarketOrders({
   setJobModified,
   itemOrderMatch,
@@ -80,12 +114,13 @@ export function AvailableMarketOrders({
         </Grid>
         {itemOrderMatch.length !== 0 ? (
           itemOrderMatch.map((order) => {
+            const charData = users.find((i) => i.CharacterHash === order.CharacterHash)
             return (
               <Grid key={order.order_id} container>
                 <Grid container item sx={{ marginBottom: "10px" }}>
                   <Grid item xs={4}>
                     <Avatar
-                      src={`https://images.evetech.net/characters/${order.user_id}/portrait`}
+                      src={`https://images.evetech.net/characters/${charData.CharacterID}/portrait`}
                       variant="circular"
                       sx={{
                         height: "32px",
@@ -152,7 +187,7 @@ export function AvailableMarketOrders({
                     <Typography variant="body2">Range:</Typography>
                   </Grid>
                   <Grid item xs={6} md={3}>
-                    <Typography variant="body2">{order.range}</Typography>
+                    <Typography variant="body2">{order.range.charAt(0).toUpperCase()+ order.range.slice(1)}</Typography>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
@@ -176,7 +211,7 @@ export function AvailableMarketOrders({
                             (i) => i.ParentUser === true
                           );
                           const char = users.find(
-                            (user) => user.CharacterID === order.user_id
+                            (user) => user.CharacterHash === order.CharacterHash
                           );
                           let newBrokersArray = [];
                           char.apiJournal.forEach((entry) => {
@@ -185,16 +220,13 @@ export function AvailableMarketOrders({
                               Date.parse(order.issued) ===
                                 Date.parse(entry.date)
                             ) {
-                              entry.amount = Math.abs(entry.amount);
-                              entry.order_id = order.order_id;
-                              entry.complete = false;
-                              delete entry.balance;
-                              newBrokersArray.push(entry);
+
+                              newBrokersArray.push(Object.assign({},new BrokerFee(entry,order,char)));
                             }
                           });
                           let newMarketOrderArray =
                             activeJob.build.sale.marketOrders;
-                          newMarketOrderArray.push(order);
+                          newMarketOrderArray.push(Object.assign({},new MarketOrder(order)));
                           users[ParentUserIndex].linkedOrders.push(
                             order.order_id
                           );

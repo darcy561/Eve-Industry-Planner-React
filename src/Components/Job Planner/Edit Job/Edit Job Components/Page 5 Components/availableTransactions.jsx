@@ -14,6 +14,28 @@ export function AvailableTransactionData({
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
+  let parentUser= users.find(
+    (i) => i.ParentUser === true
+  );
+
+  class Transaction {
+    constructor(trans, user) {
+      this.item_name = trans.name;
+      this.order_id = trans.order_id;
+      this.journal_ref_id = trans.journal_ref_id;
+      this.unit_price = trans.unit_price;
+      this.amount = trans.amount;
+      this.tax = trans.tax;
+      this.transaction_id = trans.transaction_id;
+      this.quantity = trans.quantity;
+      this.date = trans.date;
+      this.location_id = trans.location_id;
+      this.is_corp = !trans.is_personal;
+      this.type_id = trans.type_id;
+      this.description = trans.description.replace("Market: ", "")
+    }
+  }
+
   return (
     <Paper
       sx={{
@@ -44,7 +66,7 @@ export function AvailableTransactionData({
                   </Typography>
                 </Grid>
                 <Grid item xs={6} md={3} align="center">
-                  <Typography variant="body2">{tData.description}</Typography>
+                  <Typography variant="body2">{tData.description.replace("Market: ", "")}</Typography>
                 </Grid>
                 <Grid item xs={2} md={1} align="right">
                   <Typography variant="body1">
@@ -71,15 +93,20 @@ export function AvailableTransactionData({
                     size="small"
                     color="primary"
                     onClick={() => {
-                      let newTransactionArray =
-                        activeJob.build.sale.transactions;
+                      let newTransactionArray = [
+                        ...activeJob.build.sale.transactions,
+                      ];
                       if (activeJob.build.sale.marketOrders > 1) {
                         tData.order_id = activeOrder;
                       } else {
                         tData.order_id =
                           activeJob.build.sale.marketOrders[0].order_id;
                       }
-                      newTransactionArray.push(tData);
+
+                      newTransactionArray.push(
+                        Object.assign({}, new Transaction(tData, parentUser))
+                      );
+
                       let parentUserIndex = users.findIndex(
                         (i) => i.ParentUser === true
                       );

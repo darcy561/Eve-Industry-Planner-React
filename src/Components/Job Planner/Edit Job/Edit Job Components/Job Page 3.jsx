@@ -20,8 +20,7 @@ export function EditPage3({ setJobModified }) {
     (job) =>
       activeJob.itemID === job.product_type_id &&
       !activeJob.apiJobs.includes(job.job_id) &&
-      job.linked === false &&
-      job.activity_id === 1
+      job.linked === false
   );
 
   return (

@@ -21,6 +21,49 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
+  class ESIJob {
+    constructor(originalJob, owner) {
+      this.status = originalJob.status;
+      this.CharacterHash = owner.CharacterHash;
+      this.runs = originalJob.runs;
+      this.job_id = originalJob.job_id;
+      this.completed_date = originalJob.completed_date || null;
+      this.station_id = originalJob.station_id;
+      this.start_date = originalJob.start_date;
+      this.end_date = originalJob.end_date;
+      this.cost = originalJob.cost;
+      this.linked = originalJob.linked;
+      this.product_name = originalJob.product_name;
+      this.blueprint_type_id = originalJob.blueprint_type_id;
+      this.product_type_id = originalJob.product_type_id;
+      this.activity_id = originalJob.activity_id;
+      this.duration = originalJob.duration;
+    }
+  }
+
+  function timeRemainingcalc(job) {
+    let now = new Date().getTime();
+    let timeLeft = Date.parse(job.end_date) - now;
+
+    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    let hour = Math.floor(
+      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (day < 0) {
+      day = 0;
+    }
+    if (hour < 0) {
+      hour = 0;
+    }
+    if (min < 0) {
+      min = 0;
+    }
+
+    return { days: day, hours: hour, mins: min };
+  }
+
   if (
     jobMatches.length !== 0 &&
     activeJob.apiJobs.length < activeJob.jobCount
@@ -42,6 +85,9 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
           </Grid>
         </Grid>
         {jobMatches.map((job) => {
+          const jobOwner = users.find((i) => i.CharacterID === job.installer_id);
+
+          const timeRemaining = timeRemainingcalc(job);
           return (
             <Grid
               key={job.job_id}
@@ -53,7 +99,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
             >
               <Grid item xs={2}>
                 <Avatar
-                  src={`https://images.evetech.net/characters/${job.installer_id}/portrait`}
+                  src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
                   variant="circular"
                   sx={{
                     height: "32px",
@@ -66,9 +112,20 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
               </Grid>
 
               <Grid item xs={4}>
-                <Typography variant="body2">
-                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                </Typography>
+                {job.status === "active" ? (
+                  timeRemaining.days === 0 &&
+                  timeRemaining.hours === 0 &&
+                  timeRemaining.mins === 0 ? (
+                    <Typography variant="body2">Ready to Deliver</Typography>
+                  ) : (
+                    <Typography variant="body2">
+                      {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
+                      {timeRemaining.mins}M
+                    </Typography>
+                  )
+                ) : (
+                  <Typography variant="body2">Delivered</Typography>
+                )}
               </Grid>
               <Grid item xs={1}>
                 <Tooltip title="Click to link to job">
@@ -82,14 +139,18 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                         (u) => u.ParentUser === true
                       );
 
-                      let newUsersArray = users;
+                      let newUsersArray = [...users];
 
-                      const newActiveJobArray = activeJob.apiJobs;
+                      const newActiveJobArray = [...activeJob.apiJobs];
                       newActiveJobArray.push(job.job_id);
 
-                      let newLinkedJobsArray = activeJob.build.costs.linkedJobs;
+                      let newLinkedJobsArray = [
+                        ...activeJob.build.costs.linkedJobs,
+                      ];
 
-                      newLinkedJobsArray.push(job);
+                      newLinkedJobsArray.push(
+                        Object.assign({}, new ESIJob(job, jobOwner))
+                      );
 
                       updateActiveJob((prevObj) => ({
                         ...prevObj,

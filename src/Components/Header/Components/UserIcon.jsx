@@ -11,10 +11,11 @@ import {
   JobStatusContext,
 } from "../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
+import { EveIDsContext } from "../../../Context/EveDataContext";
 import { auth } from "../../../firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router";
-import {apiJobsDefault, jobArrayDefault, jobStatusDefault, usersDefault } from "../../../Context/defaultValues";
+import {apiJobsDefault, jobArrayDefault, jobStatusDefault, usersDefault, eveIDsDefault } from "../../../Context/defaultValues";
 
 export function UserIcon() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -25,17 +26,18 @@ export function UserIcon() {
   const { setJobStatus } = useContext(JobStatusContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
+  const {updateEveIDs} =useContext(EveIDsContext)
   const navigate = useNavigate();
 
   function logout() {
     updateIsLoggedIn(false);
     updateUsers(usersDefault);
     updateJobArray(jobArrayDefault);
+    updateEveIDs(eveIDsDefault);
     setJobStatus(jobStatusDefault);
     updateActiveJob({});
     updateApiJobs(apiJobsDefault);
-    sessionStorage.clear();
-    localStorage.clear();
+    localStorage.removeItem("Auth");
     signOut(auth);
     navigate("/");
     setSnackbarData((prev) => ({

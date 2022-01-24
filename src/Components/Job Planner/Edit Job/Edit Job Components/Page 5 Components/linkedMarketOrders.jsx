@@ -19,6 +19,17 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LinkOffIcon from "@mui/icons-material/LinkOff";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 
+class BrokerFee {
+  constructor(entry, order, char) {
+    this.order_id = order.order_id
+    this.id = entry.id
+    this.complete = false
+    this.date = entry.date
+    this.amount = Math.abs(entry.amount)
+    this.CharacterHash = char.CharacterHash
+  }
+}
+
 export function LinkedMarketOrders({
   setJobModified,
   updateActiveOrder,
@@ -42,7 +53,7 @@ export function LinkedMarketOrders({
 
 
     activeJob.build.sale.marketOrders.forEach((order) => {
-      const user = users.find((u) => u.CharacterID === order.user_id);
+      const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
       const newOrderData = user.apiOrders.find(
         (newOrder) => newOrder.order_id === order.order_id
@@ -55,13 +66,16 @@ export function LinkedMarketOrders({
       if (newOrderData !== undefined && !order.complete) {
         if (
           order.duration !== newOrderData.duration ||
-          order.price !== newOrderData.price ||
+          order.item_price !== newOrderData.price ||
           order.range !== newOrderData.range ||
           order.volume_remain !== newOrderData.volume_remain ||
           order.issued !== newOrderData.issued
         ) {
           order.duration = newOrderData.duration;
-          order.price = newOrderData.price;
+          order.item_name = newOrderData.item_name || null
+          order.region_name = newOrderData.region_name || null
+          order.location_name = newOrderData.location_name || null
+          order.item_price = newOrderData.price;
           order.range = newOrderData.range;
           order.volume_remain = newOrderData.volume_remain;
           order.issued = newOrderData.issued;
@@ -82,7 +96,10 @@ export function LinkedMarketOrders({
       }
       if (newOrderData === undefined && !order.complete) {
         order.duration = completedOrderData.duration;
-        order.price = completedOrderData.price;
+        order.item_price = completedOrderData.price;
+        order.item_name = completedOrderData.item_name || null
+        order.region_name = completedOrderData.region_name || null
+        order.location_name = completedOrderData.location_name || null
         order.range = completedOrderData.range;
         order.volume_remain = completedOrderData.volume_remain;
         order.issued = completedOrderData.issued;
@@ -93,7 +110,7 @@ export function LinkedMarketOrders({
     });
 
     activeJob.build.sale.marketOrders.forEach((order) => {
-      const user = users.find((u) => u.CharacterID === order.user_id);
+      const user = users.find((u) => u.CharacterHash === order.CharacterHash);
       if (order.timeStamps.length !== activeJob.build.sale.brokersFee.length) {
         order.timeStamps.forEach((stamp) => {
           user.apiJournal.forEach((entry) => {
@@ -101,10 +118,7 @@ export function LinkedMarketOrders({
               entry.ref_type === "brokers_fee" &&
               Date.parse(stamp) === Date.parse(entry.date)
             ) {
-              entry.amount = Math.abs(entry.amount);
-              entry.order_id = order.order_id;
-              delete entry.balance;
-              replacementBrokersFees.push(entry);
+              replacementBrokersFees.push(Object.assign({},new BrokerFee(entry,order,user)));
             }
           });
         });
@@ -162,12 +176,13 @@ export function LinkedMarketOrders({
           </Grid>
         </Grid>
         {linkedMarketOrders.map((order) => {
+                      const charData = users.find((i) => i.CharacterHash === order.CharacterHash)
           return (
             <Grid key={order.order_id} container>
               <Grid container item sx={{ marginBottom: "10px" }}>
                 <Grid item xs={4}>
                   <Avatar
-                    src={`https://images.evetech.net/characters/${order.user_id}/portrait`}
+                    src={`https://images.evetech.net/characters/${charData.CharacterID}/portrait`}
                     variant="circular"
                     sx={{
                       height: "32px",
@@ -179,7 +194,7 @@ export function LinkedMarketOrders({
               <Grid container item>
                 <Grid item xs={4}>
                   <Typography variant="body1">
-                    {order.price.toLocaleString()} ISK
+                    {order.item_price.toLocaleString()} ISK
                   </Typography>
                 </Grid>
                 <Grid item xs={8}>

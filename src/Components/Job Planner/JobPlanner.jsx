@@ -85,7 +85,6 @@ export function JobPlanner() {
   const [multiSelect, updateMultiSelect] = useState([]);
 
   let parentUser = users.find((u) => u.ParentUser === true);
-
   useEffect(async () => {
     if (isLoggedIn) {
       if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {

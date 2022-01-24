@@ -141,6 +141,7 @@ export function useFirebase() {
 
   const updateMainUserDoc = async () => {
     updateDoc(doc(firestore, "Users", parentUser.accountID), {
+      parentUserHash: parentUser.CharacterHash,
       jobStatusArray: jobStatus,
       linkedJobs: parentUser.linkedJobs,
       linkedTrans: parentUser.linkedTrans,

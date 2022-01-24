@@ -71,7 +71,8 @@
       "REACT_APP_appCheckDebugKey",
       "REACT_APP_ReCaptchaKey",
       "REACT_APP_measurmentID",
-      "REACT_APP_Version"
+      "REACT_APP_Version",
+      "REACT_APP_APIURL"
     ]
   }
 }

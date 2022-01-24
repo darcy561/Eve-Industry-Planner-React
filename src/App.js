@@ -41,7 +41,7 @@ export default function App() {
   const colorMode = useMemo(
     () => ({
       toggleColorMode: () => {
-        setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
+        setMode((prevMode) => (prevMode === "light" || prevMode === null ? "dark" : "light"));
       },
     }),
     []
@@ -53,7 +53,7 @@ export default function App() {
       typography: {
         fontFamily: "Montserrat",
       },
-      ...(mode === "light"
+      ...(mode === "light" || mode === null
         ? {
             type: "light",
             primary: {

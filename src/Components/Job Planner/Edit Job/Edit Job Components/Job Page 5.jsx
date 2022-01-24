@@ -37,8 +37,7 @@ export function EditPage5({ setJobModified }) {
               order.region_name = item.name;
             }
           });
-          order.timeStamps = [];
-          order.user_id = user.CharacterID;
+
           itemOrderMatch.push(order);
         }
       });
@@ -57,8 +56,7 @@ export function EditPage5({ setJobModified }) {
               order.region_name = item.name
             }
           });
-          order.timeStamps = [];
-          order.user_id = user.CharacterID;
+          order.CharacterHash = user.CharacterHash;
           itemOrderMatch.push(order);
         }
       });
@@ -66,7 +64,7 @@ export function EditPage5({ setJobModified }) {
   let transactionData = [];
 
     activeJob.build.sale.marketOrders.forEach((order) => {
-      const user = users.find((u) => u.CharacterID === order.user_id);
+      const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
       const itemTrans = user.apiTransactions.filter(
         (trans) =>

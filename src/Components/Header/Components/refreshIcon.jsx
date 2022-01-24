@@ -68,6 +68,7 @@ export function RefreshApiIcon() {
     setTimeout(() => {
       updateRefreshState(1);
     }, 900000);
+    //15 mins
   };
 
   if (refreshState === 1) {

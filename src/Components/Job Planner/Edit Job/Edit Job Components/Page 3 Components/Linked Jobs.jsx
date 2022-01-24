@@ -21,28 +21,37 @@ export function LinkedJobs({ setJobModified }) {
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
-            function timeRemainingcalc(job) {
-            let now = new Date().getTime();
-            let timeLeft = Date.parse(job.end_date) - now;
+  function timeRemainingcalc(job) {
+    let now = new Date().getTime();
+    let timeLeft = Date.parse(job.end_date) - now;
 
-            let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-            let hour = Math.floor(
-              (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-            );
-            let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    let hour = Math.floor(
+      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
-            if (day < 0) {
-              day = 0;
-            }
-            if (hour < 0) {
-              hour = 0;
-            }
-            if (min < 0) {
-              min = 0;
-            }
+    if (day < 0) {
+      day = 0;
+    }
+    if (hour < 0) {
+      hour = 0;
+    }
+    if (min < 0) {
+      min = 0;
+    }
 
-            return { days: day, hours: hour, mins: min };
-          }
+    return { days: day, hours: hour, mins: min };
+  }
+
+  activeJob.build.costs.linkedJobs.forEach((job) => {
+    if (job.status === "active") {
+      const latestData = apiJobs.find((i) => i.job_id === job.job_id);
+      job.status = latestData.status;
+      job.completed_date = latestData.completed_date || null;
+      job.end_date = latestData.end_date;
+    }
+  });
 
   if (activeJob.build.costs.linkedJobs !== 0) {
     return (
@@ -62,7 +71,9 @@ export function LinkedJobs({ setJobModified }) {
           </Grid>
         </Grid>
         {activeJob.build.costs.linkedJobs.map((job) => {
-
+          const jobOwner = users.find(
+            (i) => i.CharacterHash === job.CharacterHash
+          );
           const timeRemaining = timeRemainingcalc(job);
           return (
             <Grid
@@ -75,7 +86,7 @@ export function LinkedJobs({ setJobModified }) {
             >
               <Grid item xs={2}>
                 <Avatar
-                  src={`https://images.evetech.net/characters/${job.installer_id}/portrait`}
+                  src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
                   variant="circular"
                   sx={{
                     height: "32px",
@@ -87,18 +98,20 @@ export function LinkedJobs({ setJobModified }) {
                 <Typography variant="body1">{`${job.runs} Runs`}</Typography>
               </Grid>
               <Grid item xs={4}>
-              {timeRemaining.days === 0 &&
-                    timeRemaining.hours === 0 &&
-                    timeRemaining.mins === 0 ? (
-                      <Typography variant="body2">
-                        Ready to Deliver
-                      </Typography>
-                    ) : (
-                      <Typography variant="body2">
-                        {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                        {timeRemaining.mins}M
-                      </Typography>
-                    )}
+                {job.status === "active" ? (
+                  timeRemaining.days === 0 &&
+                  timeRemaining.hours === 0 &&
+                  timeRemaining.mins === 0 ? (
+                    <Typography variant="body2">Ready to Deliver</Typography>
+                  ) : (
+                    <Typography variant="body2">
+                      {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
+                      {timeRemaining.mins}M
+                    </Typography>
+                  )
+                ) : (
+                  <Typography variant="body2">Delivered</Typography>
+                )}
               </Grid>
               <Grid item xs={1}>
                 <Tooltip title="Click to unlink from job">

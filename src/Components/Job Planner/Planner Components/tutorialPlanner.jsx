@@ -42,6 +42,11 @@ export function TutorialPlanner() {
             from the Eve ESI. Jobs from the ESI have different cards to easily
             distinguish between the two.
           </Typography>
+          {!isLoggedIn &&
+            <Typography variant="body2">
+              {<br />}
+              Why not try out the demo below to see more for yourself?
+          </Typography> }
         </Grid>
         {isLoggedIn && (
           <Grid container item xs={12}>

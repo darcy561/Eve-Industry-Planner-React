@@ -36,24 +36,27 @@ export function TutorialStep5() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            Sale time! Setup your market order/orders in the market of choice.
+            Setup your market order/orders in game as you normally would do.
             Once this has been done and the information appears on the ESI the
-            available orders window will display each of the orders for your
-            item type. By linking this order to your job Eve Industry Planner
-            will find the transactions and associated taxes within the ESI data
-            that match the item type and display these in the new transactions
-            window. Attaching a transaction to the job will then add the costs
-            and taxes associated.
+            Available Orders window will display each of the orders for your
+            item type. By linking orders to your job Eve Industry Planner will
+            find the brokers fee associated with them. Once attached it will
+            display any transactions and associated taxes from the ESI data that
+            occured after after the order was issued that match the item type.
+            These are displayed in the New Transactions window. Attaching a
+            transaction to the job will then add the cost and taxes associated.
             {<br />}
             {<br />}
             As the items are sold the total sales and average item price is
-            populated from the transactions that you have linked. This uses the
-            earlier build costs, along with the brokers fees and taxes to
+            populated from the transaction data that has been linked. This uses
+            the earlier build costs, along with the brokers fees and taxes to
             calculate your overall profit/loss for this job.
             {<br />}
-            {<br />} Once you have sold everything you can either delete the job
-            and remove all the data or you can choose to archive the job saving
-            all of the data for you to pull back at a later date.
+            {<br />}
+            Once you have sold everything you can either delete the job and
+            remove all the data or you can choose to archive the job saving all
+            of the data for you to pull back at a later date (yet to be
+            implemented).
           </Typography>
         </Grid>
         {isLoggedIn && (

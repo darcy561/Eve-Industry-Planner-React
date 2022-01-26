@@ -73,59 +73,33 @@ export function useEveApi() {
           // 10 days
         );
 
-        let filtered = filterOld.filter((job) =>
-          job.activity_id === 1
-        );
+        let filtered = filterOld.filter((job) => job.activity_id === 1);
 
         let idRequest = [];
 
-        // for (let item in filtered) {
-        //   if (
-        //     !eveIDs.includes(item.blueprint_location_id) &&
-        //     !idRequest.includes(item.blueprint_location_id)
-        //   ) {
-        //     idRequest.push(item.blueprint_location_id);
-        //   }
-        //   if (
-        //     !eveIDs.includes(item.station_id) &&
-        //     !idRequest.includes(item.station_id)
-        //   ) {
-        //     idRequest.push(item.station_id);
-        //   }
-        //   if (
-        //     !eveIDs.includes(item.facility_id) &&
-        //     !idRequest.includes(item.facility_id)
-        //   ) {
-        //     idRequest.push(item.facility_id);
-        //   }
-        //   }
-
         filtered.forEach((item) => {
-
-          if (
-            !eveIDs.includes(item.blueprint_location_id) &&
-            !idRequest.includes(item.blueprint_location_id) &&
-            item.blueprint_location_id.toString().length < 10
-          ) {
-            idRequest.push(item.blueprint_location_id);
-          }
           if (
             !eveIDs.includes(item.station_id) &&
-            !idRequest.includes(item.station_id) &&
-            item.station_id.toString().length < 10
+            !idRequest.includes(item.station_id)
           ) {
             idRequest.push(item.station_id);
           }
           if (
             !eveIDs.includes(item.facility_id) &&
-            !idRequest.includes(item.facility_id) &&
-            item.facility_id.toString().length < 10
+            !idRequest.includes(item.facility_id)
           ) {
             idRequest.push(item.facility_id);
           }
         });
         if (idRequest.length !== 0) {
-          await IDtoName(idRequest);
+          const idNames = await IDtoName(idRequest, userObj);
+
+          filtered.forEach((job) => {
+            const facilityItem = idNames.find((i) => i.id === job.facility_id);
+            const stationItem = idNames.find((i) => i.id === job.station_id);
+            job.facility_name = facilityItem.name;
+            job.station_name = stationItem.name;
+          });
         }
 
         return filtered;
@@ -146,37 +120,30 @@ export function useEveApi() {
 
       let idRequest = [];
       if (marketPromise.status === 200) {
-        
         marketJSON.forEach((item) => {
           if (
             !eveIDs.includes(item.location_id) &&
-            !idRequest.includes(item.location_id) &&
-            item.location_id.toString().length < 10
+            !idRequest.includes(item.location_id)
           ) {
             idRequest.push(item.location_id);
           }
           if (
             !eveIDs.includes(item.region_id) &&
-            !idRequest.includes(item.region_id) &&
-            item.region_id.toString().length < 10
+            !idRequest.includes(item.region_id)
           ) {
             idRequest.push(item.region_id);
           }
-          item.CharacterHash = userObj.CharacterHash
+          item.CharacterHash = userObj.CharacterHash;
         });
         if (idRequest.length !== 0) {
-          await IDtoName(idRequest);
+          await IDtoName(idRequest, userObj);
         }
 
-        let filtered = marketJSON.filter((item) => 
-          !item.is_buy_order
-        )
+        let filtered = marketJSON.filter((item) => !item.is_buy_order);
 
         filtered.forEach((item) => {
-          const nameMatch = searchData.find(
-            (i) => i.itemID === item.type_id
-          );
-          item.item_name = nameMatch.name
+          const nameMatch = searchData.find((i) => i.itemID === item.type_id);
+          item.item_name = nameMatch.name;
         });
         return filtered;
       }
@@ -216,32 +183,28 @@ export function useEveApi() {
     filtered.forEach((item) => {
       if (
         !eveIDs.includes(item.location_id) &&
-        !idRequest.includes(item.location_id) &&
-        item.location_id.toString().length < 10
+        !idRequest.includes(item.location_id)
       ) {
         idRequest.push(item.location_id);
       }
       if (
         !eveIDs.includes(item.region_id) &&
-        !idRequest.includes(item.region_id) &&
-        item.region_id.toString().length < 10
+        !idRequest.includes(item.region_id)
       ) {
         idRequest.push(item.region_id);
       }
 
-      const nameMatch = searchData.find(
-        (i) => i.itemID === item.type_id
-      );
+      const nameMatch = searchData.find((i) => i.itemID === item.type_id);
       if (nameMatch !== undefined) {
-        item.item_name = nameMatch.name
+        item.item_name = nameMatch.name;
       } else {
-        item.item_name = null
+        item.item_name = null;
       }
-      item.CharacterHash = userObj.CharacterHash
+      item.CharacterHash = userObj.CharacterHash;
     });
 
     if (idRequest.length !== 0) {
-      await IDtoName(idRequest);
+      await IDtoName(idRequest, userObj);
     }
     return filtered;
   };
@@ -292,7 +255,7 @@ export function useEveApi() {
           journalJSON.forEach((item) => {
             returnArray.push(item);
           });
-        
+
           if (journalJSON.length < 2501) {
             pageCount = 11;
           } else {
@@ -308,31 +271,53 @@ export function useEveApi() {
     return returnArray;
   };
 
-  const IDtoName = async (idArray) => {
-    try {
-      const idPromise = await fetch(
-        `https://esi.evetech.net/latest/universe/names/?datasource=tranquility`,
-        {
-          method: "POST",
-          body: JSON.stringify(idArray),
+  const IDtoName = async (idArray, userObj) => {
+    let citadelIDs = idArray.filter((i) => i.toString().length > 10);
+
+    let standardIDs = idArray.filter((i) => i.toString().length < 10);
+    const newArray = [];
+    if (standardIDs.length > 0) {
+      try {
+        const idPromise = await fetch(
+          `https://esi.evetech.net/latest/universe/names/?datasource=tranquility`,
+          {
+            method: "POST",
+            body: JSON.stringify(standardIDs),
+          }
+        );
+
+        const idJSON = await idPromise.json();
+
+        if (idPromise.status === 200) {
+          idJSON.forEach((item) => {
+            newArray.push(item);
+          });
         }
-      );
-
-      const idJSON = await idPromise.json();
-
-      if (idPromise.status === 200) {
-        const newArray = [...eveIDs];
-        idJSON.forEach((item) => {
-          newArray.push(item);
-        });
-        updateEveIDs(newArray)
+      } catch (err) {
+        console.log(err);
       }
-
-    } catch (err) {
-      console.log(err);
     }
-  };
+    if (citadelIDs.length > 0) {
+      for (let id of citadelIDs) {
+        try {
+          const idPromise = await fetch(
+            `https://esi.evetech.net/latest/universe/structures/${id}/?datasource=tranquility&token=${userObj.aToken}`
+          );
 
+          const idJSON = await idPromise.json();
+
+          if (idPromise.status === 200) {
+            idJSON.id = id;
+            newArray.push(idJSON);
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    }
+    updateEveIDs((prev) => prev.concat(newArray));
+    return newArray;
+  };
   return {
     BlueprintLibrary,
     CharacterSkills,

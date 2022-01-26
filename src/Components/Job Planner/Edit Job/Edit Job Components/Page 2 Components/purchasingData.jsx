@@ -44,6 +44,10 @@ export function PurchasingData() {
               Total Material Cost:{" "}
               {activeJob.build.costs.totalPurchaseCost.toLocaleString()} ISK
             </Typography>
+            <Typography>
+              Current Cost Per Item: {" "}
+              {(activeJob.build.costs.totalPurchaseCost/activeJob.build.products.totalQuantity).toLocaleString()} ISK
+            </Typography>
           </Grid>
           <Grid item xs={6} md={4}>
             <FormControlLabel

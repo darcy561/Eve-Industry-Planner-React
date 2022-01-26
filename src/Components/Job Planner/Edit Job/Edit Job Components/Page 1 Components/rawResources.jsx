@@ -100,9 +100,11 @@ export function RawResourceList() {
               sx={{ display: { xs: "none", md: "block" } }}
               align="right"
             >
+              <Tooltip title="Placeholder, not currently implemented" arrow>
               <IconButton>
                 <MoreVertIcon size="small" color="Secondary" />
-              </IconButton>
+                </IconButton>
+              </Tooltip>
             </Grid>
           </Grid>
         </Box>

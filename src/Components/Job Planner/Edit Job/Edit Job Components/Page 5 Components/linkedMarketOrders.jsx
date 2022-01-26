@@ -78,7 +78,6 @@ export function LinkedMarketOrders({
           order.item_price = newOrderData.price;
           order.range = newOrderData.range;
           order.volume_remain = newOrderData.volume_remain;
-          order.issued = newOrderData.issued;
           order.timeStamps.push(newOrderData.issued);
 
           user.apiJournal.forEach((entry) => {

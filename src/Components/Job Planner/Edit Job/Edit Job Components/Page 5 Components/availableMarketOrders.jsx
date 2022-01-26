@@ -15,7 +15,7 @@ import AddLinkIcon from "@mui/icons-material/AddLink";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 
-class BrokerFee {
+class ESIBrokerFee {
   constructor(entry, order, char) {
     this.order_id = order.order_id
     this.id = entry.id
@@ -26,7 +26,7 @@ class BrokerFee {
   }
 }
 
-class MarketOrder {
+class ESIMarketOrder {
   constructor(order) {
     this.duration = order.duration
     this.is_corporation = order.is_corporation
@@ -42,7 +42,7 @@ class MarketOrder {
     this.item_name = order.item_name || null
     this.volume_remain = order.volume_remain
     this.volume_total = order.volume_total
-    this.timeStamps = []
+    this.timeStamps = [order.issued]
     this.CharacterHash = order.CharacterHash
     this.complete = order.complete || false
   }
@@ -221,12 +221,12 @@ export function AvailableMarketOrders({
                                 Date.parse(entry.date)
                             ) {
 
-                              newBrokersArray.push(Object.assign({},new BrokerFee(entry,order,char)));
+                              newBrokersArray.push(Object.assign({},new ESIBrokerFee(entry,order,char)));
                             }
                           });
                           let newMarketOrderArray =
                             activeJob.build.sale.marketOrders;
-                          newMarketOrderArray.push(Object.assign({},new MarketOrder(order)));
+                          newMarketOrderArray.push(Object.assign({},new ESIMarketOrder(order)));
                           users[ParentUserIndex].linkedOrders.push(
                             order.order_id
                           );

@@ -38,15 +38,14 @@ export function TutorialStep3() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            Now that you have acquired the items needed and hauled them back to
-            wherever it is you have decided to build your {activeJob.name}.
-            Start your job running within the Eve Online client. {<br />}
+            Now that you have acquired the items needed and hauled them back, it
+            is time to build your {activeJob.name}. Start your job running
+            within the Eve Online client. {<br />}
             {<br />}
-            Within the available jobs window, you will see all of the current
-            (and jobs from the last 10 days, just encase you were a little slow
-            setting this up) industry jobs found on the Eve ESI that match the
-            item you are building. Simply attach the relevant job/jobs using the
-            link icon.
+            Within the Available Jobs panel, you will see all of the current
+            (and jobs from the last 10 days) industry jobs from the Eve ESI that
+            match the item you are building. Simply attach the relevant job/jobs
+            using the link icon.
             {<br />}
             {<br />}
             You are only able to attach the same number of ESI jobs as you
@@ -57,7 +56,7 @@ export function TutorialStep3() {
               {<br />}
               If you do not see any jobs available within this window, refresh
               the ESI data using the refresh icon at the top of the page, if
-              this doesn’t work then have some patience they may not be on the
+              this doesn't work then have some patience they may not be on the
               ESI as of yet.
             </Typography>
           )}

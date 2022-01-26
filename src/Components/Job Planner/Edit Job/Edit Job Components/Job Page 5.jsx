@@ -84,7 +84,8 @@ export function EditPage5({ setJobModified }) {
             entry.ref_type === "transaction_tax" &&
             Date.parse(entry.date) === Date.parse(trans.date)
         );
-        trans.description = transJournal.description;
+        let descriptionTrim = transJournal.description.replace("Market: ", "").split(" bought")
+        trans.description = descriptionTrim[0];
         trans.amount = transJournal.amount;
         trans.tax = Math.abs(transTax.amount);
         trans.order_id = null;

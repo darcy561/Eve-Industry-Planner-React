@@ -5,6 +5,7 @@ import {
   FormHelperText,
   Paper,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
@@ -100,6 +101,7 @@ export function ManufacturingOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
+            <Tooltip title="Calculations are not currently implemented, added for refernce" arrow>
             <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 disableClearable={true}
@@ -120,7 +122,8 @@ export function ManufacturingOptions({ setJobModified }) {
                 )}
               />
               <FormHelperText variant="standard">Time Efficiecy</FormHelperText>
-            </FormControl>
+              </FormControl>
+              </Tooltip>
           </Grid>
           <Grid item xs={6}>
             <FormControl className={classes.TextField} fullWidth={true}>

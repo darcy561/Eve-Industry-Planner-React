@@ -44,8 +44,10 @@ export function TutorialStep4() {
             {<br />}
             You will see the total material cost as was calculated previously,
             the total installation costs for the industry jobs that you linked
-            and the extras.
-            {<br />} The extra costs allows you to add or subtract an amount
+            and any extra costs.
+            {<br />}
+            {<br />}
+            The extra costs allows you to add or subtract amounts
             from these build costs. Maybe you paid a friend to haul some items
             that you needed, or you are adding the installation costs for an
             older job that does not appear within the ESI data provided.

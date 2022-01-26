@@ -4,6 +4,7 @@ import { getToken } from "firebase/app-check";
 
 class Job {
   constructor(itemJson) {
+    this.buildVer = process.env.REACT_APP_Version
     this.jobType = itemJson.jobType;
     this.name = itemJson.name;
     this.jobID = Date.now();

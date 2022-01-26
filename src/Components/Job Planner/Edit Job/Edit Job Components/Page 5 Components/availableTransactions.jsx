@@ -20,7 +20,6 @@ export function AvailableTransactionData({
 
   class Transaction {
     constructor(trans, user) {
-      this.item_name = trans.name;
       this.order_id = trans.order_id;
       this.journal_ref_id = trans.journal_ref_id;
       this.unit_price = trans.unit_price;
@@ -32,7 +31,7 @@ export function AvailableTransactionData({
       this.location_id = trans.location_id;
       this.is_corp = !trans.is_personal;
       this.type_id = trans.type_id;
-      this.description = trans.description.replace("Market: ", "")
+      this.description = trans.description
     }
   }
 
@@ -54,6 +53,7 @@ export function AvailableTransactionData({
         </Grid>
         {transactionData.length !== 0 ? (
           transactionData.map((tData) => {
+
             return (
               <Grid
                 key={tData.transaction_id}
@@ -66,7 +66,7 @@ export function AvailableTransactionData({
                   </Typography>
                 </Grid>
                 <Grid item xs={6} md={3} align="center">
-                  <Typography variant="body2">{tData.description.replace("Market: ", "")}</Typography>
+                  <Typography variant="body2">{tData.description}</Typography>
                 </Grid>
                 <Grid item xs={2} md={1} align="right">
                   <Typography variant="body1">

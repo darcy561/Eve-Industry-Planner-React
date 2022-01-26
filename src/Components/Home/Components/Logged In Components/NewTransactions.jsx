@@ -93,14 +93,14 @@ export function NewTransactions() {
           !parentUser.linkedTrans.includes(trans.transaction_id) &&
           !transactionData.find(
             (item) => item.transaction_id === trans.transaction_id
-          )
+          ) &&
+          trans.amount >= 0
       );
 
       itemTrans.forEach((trans) => {
         const transJournal = user.apiJournal.find(
           (entry) => trans.transaction_id === entry.context_id
         );
-
         const transTax = user.apiJournal.find(
           (entry) =>
             entry.ref_type === "transaction_tax" &&
@@ -163,7 +163,7 @@ export function NewTransactions() {
                   </Grid>
                   <Grid item xs={4}>
                     <Typography variant="body2" align="right">
-                      {trans.quantity} @ {trans.unit_price.toLocaleString()} ISK
+                      {trans.quantity} @ {trans.unit_price.toLocaleString()} ISK Each
                     </Typography>
                   </Grid>
                 </Grid>

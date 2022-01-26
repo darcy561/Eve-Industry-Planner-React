@@ -12,6 +12,7 @@ import itemList from "../../../RawData/searchIndex.json";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import {
   DataExchangeContext,
+  DialogDataContext,
   ShoppingListContext,
 } from "../../../Context/LayoutContext";
 
@@ -29,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
 export function SearchBar({ multiSelect, updateMultiSelect }) {
   const { DataExchange } = useContext(DataExchangeContext);
   const { updateShoppingListData } = useContext(ShoppingListContext);
+  const { updateDialogData } = useContext(DialogDataContext);
   const {
     deleteMultipleJobsProcess,
     massBuildMaterials,
@@ -86,92 +88,136 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
           {DataExchange && <CircularProgress size="24px" edge="false" />}
         </Grid>
 
-        {multiSelect.length > 0 && (
+        <Grid
+          container
+          item
+          xs={12}
+          xl={9}
+          sx={{ marginTop: "20px" }}
+          align="center"
+        >
           <Grid
-            container
             item
             xs={12}
-            xl={9}
-            sx={{ marginTop: "20px" }}
+            md="auto"
             align="center"
+            sx={{ marginBottom: { xs: "10px", md: "0px" } }}
           >
-            <Grid
-              item
-              xs={12}
-              md="auto"
-              align="center"
-              sx={{ marginBottom: { xs: "10px", md: "0px" } }}
+            <Tooltip
+              title="Displays a shopping list of the remaining materials to build all of the selected jobs"
+              arrow
             >
-              <Tooltip
-                title="Displays a shopping list of materials to build all of the selected jobs, this does not currently take into account any items you may have already marked as purchased."
-                arrow
-              >
-                <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{ marginRight: "10px" }}
-                  onClick={async () => {
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ marginRight: "10px" }}
+                onClick={async () => {
+                  if (multiSelect.length > 0) {
                     let shoppingList = await buildShoppingList(multiSelect);
                     updateShoppingListData((prev) => ({
                       open: true,
                       list: shoppingList,
                     }));
-                  }}
-                >
-                  Shopping List
-                </Button>
-              </Tooltip>
-              <Tooltip
-                title="Sets up new jobs to build the combined ingrediant total of each selected job."
-                arrow
+                  } else {
+                    updateDialogData((prev) => ({
+                      ...prev,
+                      buttonText: "Close",
+                      id: "Empty-Multi-Select",
+                      open: true,
+                      title: "Oops",
+                      body: "You will need to select atleast 1 job using the checkbox's on the card",
+                    }));
+                  }
+                }}
               >
-                <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{ marginRight: "10px" }}
-                  onClick={() => {
+                Shopping List
+              </Button>
+            </Tooltip>
+            <Tooltip
+              title="Sets up new jobs to build the combined ingrediant totals of each selected job."
+              arrow
+            >
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ marginRight: "10px" }}
+                onClick={() => {
+                  if (multiSelect.length > 0) {
                     massBuildMaterials(multiSelect);
                     updateMultiSelect([]);
-                  }}
-                >
-                  Add Ingrediant Jobs
-                </Button>
-              </Tooltip>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md="auto"
-              align="center"
-              sx={{ marginBottom: { xs: "10px", md: "0px" } }}
-            >
-              <Tooltip title="Moves the selected jobs 1 step backwards." arrow>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{ marginRight: "10px" }}
-                  onClick={() => {
+                  } else {
+                    updateDialogData((prev) => ({
+                      ...prev,
+                      buttonText: "Close",
+                      id: "Empty-Multi-Select",
+                      open: true,
+                      title: "Oops",
+                      body: "You will need to select atleast 1 job using the checkbox's on the card",
+                    }));
+                  }
+                }}
+              >
+                Add Ingrediant Jobs
+              </Button>
+            </Tooltip>
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            md="auto"
+            align="center"
+            sx={{ marginBottom: { xs: "10px", md: "0px" } }}
+          >
+            <Tooltip title="Moves the selected jobs 1 step backwards." arrow>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ marginRight: "10px" }}
+                onClick={() => {
+                  if (multiSelect.length > 0) {
                     moveMultipleJobsBackward(multiSelect);
                     updateMultiSelect([]);
-                  }}
-                >
-                  Move Backward
-                </Button>
-              </Tooltip>
-              <Tooltip title="Moves the selected jobs 1 step forwards." arrow>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{ marginRight: "10px" }}
-                  onClick={() => {
+                  } else {
+                    updateDialogData((prev) => ({
+                      ...prev,
+                      buttonText: "Close",
+                      id: "Empty-Multi-Select",
+                      open: true,
+                      title: "Oops",
+                      body: "You will need to select atleast 1 job using the checkbox's on the card",
+                    }));
+                  }
+                }}
+              >
+                Move Backward
+              </Button>
+            </Tooltip>
+            <Tooltip title="Moves the selected jobs 1 step forwards." arrow>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ marginRight: "10px" }}
+                onClick={() => {
+                  if (multiSelect.length > 0) {
                     moveMultipleJobsForward(multiSelect);
                     updateMultiSelect([]);
-                  }}
-                >
-                  Move Forward
-                </Button>
-              </Tooltip>
-            </Grid>
+                  } else {
+                    updateDialogData((prev) => ({
+                      ...prev,
+                      buttonText: "Close",
+                      id: "Empty-Multi-Select",
+                      open: true,
+                      title: "Oops",
+                      body: "You will need to select atleast 1 job using the checkbox's on the card",
+                    }));
+                  }
+                }}
+              >
+                Move Forward
+              </Button>
+            </Tooltip>
+          </Grid>
+          {multiSelect.length > 0 && (
             <Grid
               item
               xs={12}
@@ -192,23 +238,34 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 </Button>
               </Tooltip>
             </Grid>
-            <Grid item xs={12} md="auto" align="center">
-              <Tooltip title="Deletes the selected jobs from the planner." arrow>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  color="error"
-                  onClick={() => {
+          )}
+          <Grid item xs={12} md="auto" align="center">
+            <Tooltip title="Deletes the selected jobs from the planner." arrow>
+              <Button
+                variant="outlined"
+                size="small"
+                color="error"
+                onClick={() => {
+                  if (multiSelect.length > 0) {
                     deleteMultipleJobsProcess(multiSelect);
                     updateMultiSelect([]);
-                  }}
-                >
-                  Delete
-                </Button>
-              </Tooltip>
-            </Grid>
+                  } else {
+                    updateDialogData((prev) => ({
+                      ...prev,
+                      buttonText: "Close",
+                      id: "Empty-Multi-Select",
+                      open: true,
+                      title: "Oops",
+                      body: "You will need to select atleast 1 job using the checkbox's on the card",
+                    }));
+                  }
+                }}
+              >
+                Delete
+              </Button>
+            </Tooltip>
           </Grid>
-        )}
+        </Grid>
       </Grid>
     </Paper>
   );

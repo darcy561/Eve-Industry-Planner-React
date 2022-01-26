@@ -26,7 +26,8 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
       UID: parentUser.accountID,
       jobID: activeJob.jobID,
       name: activeJob.name,
-      itemID: activeJob.itemID
+      itemID: activeJob.itemID,
+      stage: activeJob.status
     })
 
     const newJobArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);

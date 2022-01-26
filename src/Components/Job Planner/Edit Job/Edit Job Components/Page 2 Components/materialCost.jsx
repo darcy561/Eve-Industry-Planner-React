@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
-import { Grid, IconButton, Typography } from "@mui/material";
+import { Grid, IconButton, Tooltip, Typography } from "@mui/material";
 import RemoveIcon from "@mui/icons-material/Remove";
 
 export function MaterialCost({ material, setJobModified }) {
@@ -28,7 +28,9 @@ export function MaterialCost({ material, setJobModified }) {
     ) {
       newArray[materialIndex].purchaseComplete = false;
     }
-    newArray[materialIndex].purchasing.splice(purchasingIndex, 1);
+    if (purchasingIndex !== -1 && materialIndex !== -1) {
+      newArray[materialIndex].purchasing.splice(purchasingIndex, 1);
+    }
     newArray.forEach((material) => {
       newTotal += material.purchasedCost;
     });
@@ -71,13 +73,15 @@ export function MaterialCost({ material, setJobModified }) {
               </Typography>
             </Grid>
             <Grid item xs={1}>
+              <Tooltip title="Removes the item cost row from the material" arrow>
               <IconButton
                 color="primary"
                 size="small"
                 onClick={() => handleRemove(material, record)}
               >
                 <RemoveIcon />
-              </IconButton>
+                </IconButton>
+                </Tooltip>
             </Grid>
           </Grid>
         );

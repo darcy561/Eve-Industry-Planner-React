@@ -111,6 +111,7 @@ export function JobPlanner() {
       return (
         <Suspense fallback={<LoadingPage />}>
           <Grid container sx={{ marginTop: "10px" }}>
+            <ShoppingListDialog />
             <Grid item>
               <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
             </Grid>
@@ -119,9 +120,8 @@ export function JobPlanner() {
       );
     } else {
       return (
-        
         <Grid container sx={{ marginTop: "5px" }} spacing={2}>
-          <ShoppingListDialog/>
+          <ShoppingListDialog />
           {!parentUser.settings.layout.hideTutorials && (
             <Grid item xs={12}>
               <TutorialPlanner />

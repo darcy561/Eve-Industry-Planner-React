@@ -1,17 +1,23 @@
 import {
+  Button,
   FormControlLabel,
   Grid,
   Paper,
   Switch,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../Context/AuthContext";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import { ShoppingListContext } from "../../../../../Context/LayoutContext";
 
 export function PurchasingData() {
   const { activeJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
+  const { updateShoppingListData } = useContext(ShoppingListContext);
+  const { buildShoppingList } = useJobManagement();
 
   const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
 
@@ -45,28 +51,60 @@ export function PurchasingData() {
               {activeJob.build.costs.totalPurchaseCost.toLocaleString()} ISK
             </Typography>
             <Typography>
-              Current Cost Per Item: {" "}
-              {(activeJob.build.costs.totalPurchaseCost/activeJob.build.products.totalQuantity).toLocaleString()} ISK
+              Current Cost Per Item:{" "}
+              {(
+                activeJob.build.costs.totalPurchaseCost /
+                activeJob.build.products.totalQuantity
+              ).toLocaleString()}{" "}
+              ISK
             </Typography>
           </Grid>
-          <Grid item xs={6} md={4}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={users[parentUserIndex].settings.editJob.hideCompleteMaterials}
-                  onChange={() => {
-                    let newUsers = JSON.parse(JSON.stringify(users));
-                    newUsers[
-                      parentUserIndex
-                    ].settings.editJob.hideCompleteMaterials =
-                      !newUsers[parentUserIndex].settings.editJob
-                        .hideCompleteMaterials;
-                    updateUsers(newUsers);
+          <Grid container item xs={6} md={4} align="center">
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={
+                      users[parentUserIndex].settings.editJob
+                        .hideCompleteMaterials
+                    }
+                    onChange={() => {
+                      let newUsers = JSON.parse(JSON.stringify(users));
+                      newUsers[
+                        parentUserIndex
+                      ].settings.editJob.hideCompleteMaterials =
+                        !newUsers[parentUserIndex].settings.editJob
+                          .hideCompleteMaterials;
+                      updateUsers(newUsers);
+                    }}
+                  />
+                }
+                label="Hide Completed Purchases"
+              />
+            </Grid>
+            {totalComplete < activeJob.build.materials.length &&(
+            <Grid item xs={12} sx={{ marginTop: "10px" }}>
+              <Tooltip
+                title="Displays a shopping list of the remaining materials needed."
+                arrow
+              >
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={async () => {
+                    let shoppingList = await buildShoppingList([activeJob]);
+
+                    updateShoppingListData((prev) => ({
+                      open: true,
+                      list: shoppingList,
+                    }));
                   }}
-                />
-              }
-              label="Hide Completed Purchases"
-            />
+                >
+                  Shopping List
+                </Button>
+              </Tooltip>
+              </Grid>
+              )}
           </Grid>
         </Grid>
       </Paper>

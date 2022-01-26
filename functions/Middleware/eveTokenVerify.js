@@ -30,6 +30,7 @@ const verifyEveToken = async (req, res, next) => {
         res.status(401);
         return next("Invalid Eve Token");
       } else {
+        functions.logger.log(`${req.body.UID} Eve Token Validated`)
         next();
       }
     });

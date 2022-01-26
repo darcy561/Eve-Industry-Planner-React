@@ -39,7 +39,7 @@ export function TutorialStep1() {
             {activeJob.name}, here you will find everything you need to
             calculate the resources that you need to complete your job.{<br />}
             {<br />}
-            If you are wanting to also build any of the subcomponents used then
+            If you are wanting to also build any of the individual subcomponents used then
             simply use the <b>+</b> icon next to the resource name to create a
             new job that is already setup to build the correct amount for you.
             The colour of the icon indicates the type of job of industry job

@@ -76,7 +76,7 @@ export function useEveApi() {
         let filtered = filterOld.filter((job) => job.activity_id === 1);
 
         let idRequest = [];
-        console.log(userObj);
+
         filtered.forEach((item) => {
           if (
             !eveIDs.includes(item.station_id) &&

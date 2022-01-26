@@ -167,6 +167,7 @@ export function NewTransactions() {
                     <Typography variant="body2" align="right">
                       {trans.quantity} @ {trans.unit_price.toLocaleString()} ISK
                       Each
+
                     </Typography>
                   </Grid>
                 </Grid>

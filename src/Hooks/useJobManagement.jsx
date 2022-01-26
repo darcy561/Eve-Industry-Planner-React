@@ -53,7 +53,10 @@ export function useJobManagement() {
         id: "Max-Jobs-Exceeded",
         open: true,
         title: "Job Count Exceeded",
-        body: `You have exceeded the maximum number of jobs you can create as an unregistered user. Sign into your Eve Account to create more. Jobs that have been created without registering will be lost upon leaving/refreshing the page.`,
+        body:
+          "You have exceeded the maximum number of jobs you can create as an unregistered user." +
+          "\r\n" +
+          "Sign into your Eve Account to create more.Jobs that have been created without registering will be lost upon leaving / refreshing the page.",
       }));
       t.putAttribute("JobArraySizeFull", "Not Logged In");
       t.incrementMetric("Max Jobs Reached - Not Logged In", 1);
@@ -182,6 +185,13 @@ export function useJobManagement() {
   };
 
   const deleteJobProcess = async (inputJob) => {
+    logEvent(analytics, "DeleteJob", {
+      UID: parentUser.aaccountID,
+      jobID: inputJob.jobID,
+      name: inputJob.name,
+      itemID: inputJob.itemID,
+      stage: inputJob.stage,
+    });
     const newUserArray = [...users];
     const newApiJobsArary = [...apiJobs];
     if (inputJob.isSnapshot) {
@@ -335,18 +345,21 @@ export function useJobManagement() {
         inputJob.isSnapshot = false;
       }
       inputJob.build.materials.forEach((material) => {
-        if (!finalShoppingList.find((i) => i.typeID === material.typeID)) {
-          finalShoppingList.push({
-            name: material.name,
-            typeID: material.typeID,
-            quantity: material.quantity,
-            volume: material.volume,
-          });
-        } else {
-          const index = finalShoppingList.findIndex(
-            (i) => i.typeID === material.typeID
-          );
-          finalShoppingList[index].quantity += material.quantity;
+        if (material.quantityPurchased < material.quantity) {
+          if (!finalShoppingList.find((i) => i.typeID === material.typeID)) {
+            finalShoppingList.push({
+              name: material.name,
+              typeID: material.typeID,
+              quantity: material.quantity - material.quantityPurchased,
+              volume: material.volume,
+            });
+          } else {
+            const index = finalShoppingList.findIndex(
+              (i) => i.typeID === material.typeID
+            );
+            finalShoppingList[index].quantity +=
+              material.quantity - material.quantityPurchased;
+          }
         }
       });
     }

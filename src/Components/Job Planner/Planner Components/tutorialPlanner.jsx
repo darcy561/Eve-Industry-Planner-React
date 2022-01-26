@@ -31,7 +31,7 @@ export function TutorialPlanner() {
         <Grid item xs={12} align="left"></Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            Welcome to the job planner!
+            Welcome to the Job Planner!
             {<br />}
             {<br />}
             The planner is broken down into 5 stages, with each of your jobs

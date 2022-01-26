@@ -11,7 +11,7 @@ export function AvailableTransactionData({
   transactionData,
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { users } = useContext(UsersContext);
+  const { users, updateUsers } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
   let parentUser= users.find(
@@ -106,14 +106,20 @@ export function AvailableTransactionData({
                       newTransactionArray.push(
                         Object.assign({}, new Transaction(tData, parentUser))
                       );
+                      newTransactionArray.sort((a, b) => {
+                        return new Date(b.date) - new Date(a.date);
+                      });
 
                       let parentUserIndex = users.findIndex(
                         (i) => i.ParentUser === true
                       );
-                      users[parentUserIndex].linkedTrans.push(
+
+                      let newUsers = [...users]
+                      newUsers[parentUserIndex].linkedTrans.push(
                         tData.transaction_id
                       );
-
+                      updateUsers(newUsers);
+                      
                       updateActiveJob((prev) => ({
                         ...prev,
                         build: {
@@ -132,6 +138,7 @@ export function AvailableTransactionData({
                         severity: "success",
                         autoHideDuration: 1000,
                       }));
+
                       setJobModified(true);
                     }}
                   >

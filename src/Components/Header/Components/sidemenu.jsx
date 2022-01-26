@@ -8,6 +8,8 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
+import { useContext } from "react";
+import { IsLoggedInContext } from "../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -19,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function SideMenu(props) {
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const open = props.open;
   const setOpen = props.setOpen;
   const navigate = useNavigate();
@@ -35,11 +38,9 @@ export function SideMenu(props) {
         setOpen(true);
       }}
     >
-      <Box className={classes.Box}>
+      <Box className={classes.Box}></Box>
 
-      </Box>
-
-      <div className={classes.list}>
+      <Box className={classes.list}>
         <Divider />
         <List>
           <ListItem
@@ -49,7 +50,12 @@ export function SideMenu(props) {
               setOpen(false);
             }}
           >
-            <ListItemText primary={"Home"} />
+            {isLoggedIn ? (
+              
+              <ListItemText primary={"Dashboard"} />
+            ) : (
+              <ListItemText primary={"Home"} />
+            )}
           </ListItem>
           <Divider />
           <ListItem
@@ -63,7 +69,7 @@ export function SideMenu(props) {
           </ListItem>
           <Divider />
         </List>
-      </div>
+      </Box>
     </SwipeableDrawer>
   );
 }

@@ -30,7 +30,7 @@ export function NewTransactions() {
           parentUser.linkedOrders.includes(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
-          order.user_id = user.CharacterID;
+          order.CharacterHash = user.CharacterHash;
 
           const locationName = eveIDs.find(
             (item) => item.id === order.location_id
@@ -58,7 +58,7 @@ export function NewTransactions() {
           parentUser.linkedOrders.includes(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
-          order.user_id = user.CharacterID;
+          order.CharacterHash = user.CharacterHash;
 
           const locationNameHist = eveIDs.find(
             (item) => item.id === order.location_id
@@ -84,7 +84,7 @@ export function NewTransactions() {
     });
 
     itemOrderMatch.forEach((order) => {
-      const user = users.find((u) => u.CharacterID === order.user_id);
+      const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
       const itemTrans = user.apiTransactions.filter(
         (trans) =>
@@ -94,7 +94,8 @@ export function NewTransactions() {
           !transactionData.find(
             (item) => item.transaction_id === trans.transaction_id
           ) &&
-          trans.amount >= 0
+          trans.unit_price >= 0 &&
+          !trans.is_buy
       );
 
       itemTrans.forEach((trans) => {
@@ -106,8 +107,9 @@ export function NewTransactions() {
             entry.ref_type === "transaction_tax" &&
             Date.parse(entry.date) === Date.parse(trans.date)
         );
+
         trans.description = transJournal.description;
-        trans.amount = transJournal.amount;
+        trans.amount = transJournal.unit_price;
         trans.tax = Math.abs(transTax.amount);
         trans.item_name = order.item_name;
 
@@ -163,7 +165,8 @@ export function NewTransactions() {
                   </Grid>
                   <Grid item xs={4}>
                     <Typography variant="body2" align="right">
-                      {trans.quantity} @ {trans.unit_price.toLocaleString()} ISK Each
+                      {trans.quantity} @ {trans.unit_price.toLocaleString()} ISK
+                      Each
                     </Typography>
                   </Grid>
                 </Grid>
@@ -203,11 +206,10 @@ export function NewTransactions() {
               sx={{ marginBottom: "10px" }}
             >
               There are currently no new transactions for your linked market
-              orders within the API data.
+              orders within the ESI data.
             </Typography>
             <Typography variant="body2" align="center">
-              Transaction data from the Eve Online API updates every 60
-              minuites, either refresh the current data or check back later.
+              Transaction data from the Eve ESI updates peridodically, either refresh the current data or check back later.
             </Typography>
           </Grid>
         </Grid>

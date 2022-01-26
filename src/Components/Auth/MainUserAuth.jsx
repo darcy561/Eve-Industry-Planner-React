@@ -21,7 +21,8 @@ import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function login() {
-  const state = window.location.pathname;
+  // const state = window.location.pathname;
+  const state = "/"
   window.location.href = `https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=${encodeURIComponent(
     process.env.REACT_APP_eveCallbackURL
   )}&client_id=${process.env.REACT_APP_eveClientID}&scope=${

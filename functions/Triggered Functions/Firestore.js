@@ -28,7 +28,7 @@ exports.updateJobArraySnapshot = functions.firestore
       }
     }
 
-    if (documentNew.archived == true) {
+    else if (documentNew.archived == true) {
       try {
         admin
           .firestore()
@@ -47,7 +47,7 @@ exports.updateJobArraySnapshot = functions.firestore
       }
     }
 
-    if (documentOld == null) {
+    else if (documentOld == null) {
       try {
         admin
           .firestore()
@@ -75,7 +75,7 @@ exports.updateJobArraySnapshot = functions.firestore
       }
     }
 
-    if (
+    else if (
       documentNew.runCount != documentOld.runCount ||
       documentNew.jobCount != documentOld.jobCount ||
       documentNew.jobStatus != documentOld.jobStatus
@@ -109,8 +109,8 @@ exports.updateJobArraySnapshot = functions.firestore
       }
     }
 
-  if (
-    documentNew.archived === false ||
+  else if (
+    documentNew.archived === false &&
     documentOld.archived === true
   ) {
     try {
@@ -140,5 +140,6 @@ exports.updateJobArraySnapshot = functions.firestore
       functions.logger.error("Old Document Data " + JSON.stringify(documentOld));
       functions.logger.error(err)
     }
-  }
+    }
+    return null
 });

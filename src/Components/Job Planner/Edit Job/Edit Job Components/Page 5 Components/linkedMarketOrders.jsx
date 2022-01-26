@@ -284,13 +284,17 @@ export function LinkedMarketOrders({
                           );
                         let newOrderArray = [...activeJob.build.sale.marketOrders];
                         let newBrokerArray = [...activeJob.build.sale.brokersFee];
-                        newOrderArray.splice(orderIndex, 1);
+                        if (orderIndex !== -1) {
+                          newOrderArray.splice(orderIndex, 1);
+                        }
 
                         brokerFees.forEach((fee) => {
                           const index = newBrokerArray.findIndex(
                             (item) => item.id === fee.id
                           );
-                          newBrokerArray.splice(index, 1);
+                          if (index !== -1) {
+                            newBrokerArray.splice(index, 1);
+                          }
                         });
 
                         const parentUserIndex = users.findIndex(
@@ -303,16 +307,18 @@ export function LinkedMarketOrders({
                         ].linkedTrans.findIndex(
                           (trans) => trans === order.order_id
                         );
-
-                        newUsersArray[parentUserIndex].linkedOrders.splice(
-                          uIndex,
-                          1
-                        );
+                        if (uIndex !== -1) {
+                          newUsersArray[parentUserIndex].linkedOrders.splice(
+                            uIndex,
+                            1
+                          );
+                        }
 
                         activeJob.build.sale.transactions.forEach((trans) => {
                           const tIndex = users[parentUserIndex].linkedTrans.findIndex((i) => i === trans.order_id);
-
-                          newUsersArray[parentUserIndex].linkedTrans.splice(tIndex, 1)                          
+                          if (tIndex !== -1) {
+                            newUsersArray[parentUserIndex].linkedTrans.splice(tIndex, 1)
+                          }
                         })  
 
                         updateUsers(newUsersArray);

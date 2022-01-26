@@ -67,6 +67,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                     size="small"
                     color="primary"
                     onClick={() => {
+                      
                       const tIndex =
                         activeJob.build.sale.transactions.findIndex(
                           (trans) =>
@@ -74,8 +75,9 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                         );
 
                       let newTransArray = [...activeJob.build.sale.transactions];
-                      newTransArray.splice(tIndex, 1);
-
+                      if (tIndex !== -1) {
+                        newTransArray.splice(tIndex, 1);
+                      }
                       const parentUserIndex = users.findIndex(
                         (i) => i.ParentUser === true
                       );
@@ -85,13 +87,14 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                       ].linkedTrans.findIndex(
                         (trans) => trans === tData.transaction_id
                       );
-
+                      console.log(uIndex);
                       let newUsersArray = [...users];
-
-                      newUsersArray[parentUserIndex].linkedTrans.splice(
-                        uIndex,
-                        1
-                      );
+                      if (uIndex !== -1) {
+                        newUsersArray[parentUserIndex].linkedTrans.splice(
+                          uIndex,
+                          1
+                        );
+                      };
 
                       updateUsers(newUsersArray);
 

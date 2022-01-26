@@ -123,7 +123,7 @@ export function LinkedJobs({ setJobModified }) {
                         (u) => u.ParentUser === true
                       );
 
-                      let newUsersArray = users;
+                      let newUsersArray = [...users];
 
                       setJobModified(true);
 
@@ -131,14 +131,17 @@ export function LinkedJobs({ setJobModified }) {
                       const aJ = newActiveJobArray.findIndex(
                         (x) => x === job.job_id
                       );
-                      newActiveJobArray.splice(aJ, 1);
+                      if (aJ !== -1) {
+                        newActiveJobArray.splice(aJ, 1);
+                      }
                       const linkedJobsArrayIndex =
                         activeJob.build.costs.linkedJobs.findIndex(
                           (i) => i.job_id === job.job_id
                         );
                       let newLinkedJobsArray = activeJob.build.costs.linkedJobs;
-
-                      newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
+                      if (linkedJobsArrayIndex !== -1) {
+                        newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
+                      }
 
                       updateActiveJob((prevObj) => ({
                         ...prevObj,

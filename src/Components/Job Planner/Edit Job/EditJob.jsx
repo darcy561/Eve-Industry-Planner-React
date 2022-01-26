@@ -122,8 +122,8 @@ export default function EditJob({ updateJobSettingsTrigger }) {
         square={true}
       >
         <Grid container direction="row">
-          <Grid item xs={8} md={10} lg={11} />
-          <Grid item xs={4} md={2} lg={1} align="right">
+          <Grid item xs={7} md={10} lg={11} />
+          <Grid item xs={5} md={2} lg={1} align="right">
             <Tooltip arrow title="Deletes the job from your job planner.">
               <IconButton
                 variant="contained"
@@ -133,7 +133,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
                   updateJobSettingsTrigger((prev) => !prev);
                 }}
                 size="medium"
-                sx={{ marginRight: "5px" }}
+                sx={{ marginRight: { xs: "20px", sm: "40px" } }}
               >
                 <DeleteIcon />
               </IconButton>
@@ -142,7 +142,12 @@ export default function EditJob({ updateJobSettingsTrigger }) {
               arrow
               title="Saves all changes and returns to the job planner page."
             >
-              <IconButton color="primary" onClick={closeJob} size="medium">
+              <IconButton
+                color="primary"
+                onClick={closeJob}
+                size="medium"
+                sx={{ marginRight: { sm: "20px" } }}
+              >
                 <CloseIcon />
               </IconButton>
             </Tooltip>

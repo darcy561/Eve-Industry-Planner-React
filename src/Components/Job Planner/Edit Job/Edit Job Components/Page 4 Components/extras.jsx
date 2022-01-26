@@ -48,7 +48,9 @@ export function ExtrasList({ setJobModified }) {
     );
     const newExtrasArray = activeJob.build.costs.extrasCosts;
     let newTotal = 0;
-    newExtrasArray.splice(extraIndex, 1);
+    if (extraIndex !== -1) {
+      newExtrasArray.splice(extraIndex, 1);
+    }
     newExtrasArray.forEach((extra) => {
       newTotal += extra.extraValue;
     });

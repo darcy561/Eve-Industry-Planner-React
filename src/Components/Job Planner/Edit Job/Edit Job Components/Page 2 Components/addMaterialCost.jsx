@@ -12,53 +12,57 @@ export function AddMaterialCost({ material, setJobModified }) {
     const { setSnackbarData } = useContext(SnackBarDataContext);
     
 
-    function handleAdd(material) {
-        const materialIndex = activeJob.build.materials.findIndex(
-          (x) => x.typeID === material.typeID
-        );
-        const newArray = activeJob.build.materials;
-        let newTotal = 0;
-        newArray[materialIndex].purchasing.push({
-          id: Date.now(),
-          itemCount: inputs.itemCount,
-          itemCost: inputs.itemCost,
-        });
-        newArray[materialIndex].quantityPurchased += inputs.itemCount;
-        newArray[materialIndex].purchasedCost += inputs.itemCount * inputs.itemCost;
-        if (
-          newArray[materialIndex].quantityPurchased >=
-          newArray[materialIndex].quantity
-        ) {
-          newArray[materialIndex].purchaseComplete = true;
-        }
+  function handleAdd(material) {
+    if (inputs.itemCount > 0) {
+      const materialIndex = activeJob.build.materials.findIndex(
+        (x) => x.typeID === material.typeID
+      );
+      const newArray = activeJob.build.materials;
+      let newTotal = 0;
+      newArray[materialIndex].purchasing.push({
+        id: Date.now(),
+        itemCount: inputs.itemCount,
+        itemCost: inputs.itemCost,
+      });
+      newArray[materialIndex].quantityPurchased += inputs.itemCount;
+      newArray[materialIndex].purchasedCost += inputs.itemCount * inputs.itemCost;
+      if (
+        newArray[materialIndex].quantityPurchased >=
+        newArray[materialIndex].quantity
+      ) {
+        newArray[materialIndex].purchaseComplete = true;
+      }
     
-        newArray.forEach((material) => {
-          newTotal += material.purchasedCost;
-        });
+      newArray.forEach((material) => {
+        newTotal += material.purchasedCost;
+      });
     
-        updateActiveJob((prevObj) => ({
-          ...prevObj,
-          build: {
-            ...prevObj.build,
-            materials: newArray,
-            products: {
-              ...prevObj.build.products,
-            },
-            costs: {
-              ...prevObj.build.costs,
-              totalPurchaseCost: newTotal,
-            },
+      updateActiveJob((prevObj) => ({
+        ...prevObj,
+        build: {
+          ...prevObj.build,
+          materials: newArray,
+          products: {
+            ...prevObj.build.products,
           },
-        }));
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: `Added`,
-          severity: "success",
-          autoHideDuration: 1000,
-        }));
-        setInputs({ itemCost: 0, itemCount: 0 });
-        setJobModified(true);
+          costs: {
+            ...prevObj.build.costs,
+            totalPurchaseCost: newTotal,
+          },
+        },
+      }));
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `Added`,
+        severity: "success",
+        autoHideDuration: 1000,
+      }));
+      setInputs({ itemCost: 0, itemCount: 0 });
+      setJobModified(true);
+    } else {
+      
+    }
     }
     
 
@@ -86,10 +90,12 @@ export function AddMaterialCost({ material, setJobModified }) {
                           ),
                         }));
                       } else {
-                        setInputs((prevState) => ({
-                          ...prevState,
-                          itemCount: Number(v),
-                        }));
+                        if (/^\d+$/.test(v)) {
+                          setInputs((prevState) => ({
+                            ...prevState,
+                            itemCount: Number(v),
+                          }));
+                        }
                       }
                     }}
                     renderInput={(params) => (

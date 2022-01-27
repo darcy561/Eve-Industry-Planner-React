@@ -34,35 +34,31 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                 container
                 sx={{ marginBottom: "10px" }}
               >
-                <Grid item xs={4} md={1} align="center">
-                  <Typography variant="body1">
+                <Grid item xs={4} md={1} align="center" sx={{marginBottom:{xs:"10px", sm:"0px"}}}>
+                  <Typography variant="body2">
                     {new Date(tData.date).toLocaleString()}
                   </Typography>
                 </Grid>
-                <Grid item xs={6} md={3} align="center">
+                <Grid item xs={6} md={2} align="center">
                   <Typography variant="body2">{tData.description}</Typography>
                 </Grid>
-                <Grid item xs={2} md={1} align="right">
-                  <Typography variant="body1">
-                    {tData.quantity.toLocaleString()} Items
-                  </Typography>
-                </Grid>
-                <Grid item xs={4} md={2} align="right">
-                  <Typography variant="body1">
+                <Grid item xs={12} md={2} align="center" sx={{marginBottom:{xs:"10px", sm:"0px"}}}>
+                  <Typography variant="body2">
+                  {tData.quantity.toLocaleString()}{""}@{" "}
                     {tData.unit_price.toLocaleString()} ISK Each
                   </Typography>
                 </Grid>
-                <Grid item xs={4} md={2} align="right">
-                  <Typography variant="body1">
+                <Grid item xs={6} md={2} align="center">
+                  <Typography variant="body2">
                     {tData.amount.toLocaleString()} ISK
                   </Typography>
                 </Grid>
-                <Grid item xs={4} md={2} align="right">
-                  <Typography variant="body1">
+                <Grid item xs={6} md={2} align="center">
+                  <Typography variant="body2">
                     -{tData.tax.toLocaleString()} ISK
                   </Typography>
                 </Grid>
-                <Grid item md={1} align="center">
+                <Grid item xs={12} md={1} align="center">
                   <IconButton
                     size="small"
                     color="primary"
@@ -87,7 +83,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                       ].linkedTrans.findIndex(
                         (trans) => trans === tData.transaction_id
                       );
-                      console.log(uIndex);
+
                       let newUsersArray = [...users];
                       if (uIndex !== -1) {
                         newUsersArray[parentUserIndex].linkedTrans.splice(

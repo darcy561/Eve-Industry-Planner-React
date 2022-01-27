@@ -37,7 +37,7 @@ export function IndustryESICardActive({ job }) {
 
 
   return (
-    <Tooltip title="Job imported from Eve ESI">
+    <Tooltip title="Job imported from the Eve ESI">
       <Grid key={job.job_id} item xs={16} sm={6} md={4} lg={3}>
         <Paper elevation={3} square={true} sx={{ padding: "10px" }}>
           <Grid container item xs={12}>

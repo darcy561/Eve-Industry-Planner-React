@@ -11,9 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext, useState } from "react";
-import {
-  UsersContext,
-} from "../../../../../Context/AuthContext";
+import { UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import LinkOffIcon from "@mui/icons-material/LinkOff";
@@ -21,12 +19,12 @@ import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 
 class BrokerFee {
   constructor(entry, order, char) {
-    this.order_id = order.order_id
-    this.id = entry.id
-    this.complete = false
-    this.date = entry.date
-    this.amount = Math.abs(entry.amount)
-    this.CharacterHash = char.CharacterHash
+    this.order_id = order.order_id;
+    this.id = entry.id;
+    this.complete = false;
+    this.date = entry.date;
+    this.amount = Math.abs(entry.amount);
+    this.CharacterHash = char.CharacterHash;
   }
 }
 
@@ -51,79 +49,79 @@ export function LinkedMarketOrders({
   let linkedMarketOrders = [];
   let replacementBrokersFees = [];
 
+  activeJob.build.sale.marketOrders.forEach((order) => {
+    const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
-    activeJob.build.sale.marketOrders.forEach((order) => {
-      const user = users.find((u) => u.CharacterHash === order.CharacterHash);
+    const newOrderData = user.apiOrders.find(
+      (newOrder) => newOrder.order_id === order.order_id
+    );
 
-      const newOrderData = user.apiOrders.find(
-        (newOrder) => newOrder.order_id === order.order_id
-      );
+    const completedOrderData = user.apiHistOrders.find(
+      (histOrder) => histOrder.order_id === order.order_id
+    );
 
-      const completedOrderData = user.apiHistOrders.find(
-        (histOrder) => histOrder.order_id === order.order_id
-      );
+    if (newOrderData !== undefined && !order.complete) {
+      if (
+        order.duration !== newOrderData.duration ||
+        order.item_price !== newOrderData.price ||
+        order.range !== newOrderData.range ||
+        order.volume_remain !== newOrderData.volume_remain ||
+        order.issued !== newOrderData.issued
+      ) {
+        order.duration = newOrderData.duration;
+        order.item_name = newOrderData.item_name || null;
+        order.region_name = newOrderData.region_name || null;
+        order.location_name = newOrderData.location_name || null;
+        order.item_price = newOrderData.price;
+        order.range = newOrderData.range;
+        order.volume_remain = newOrderData.volume_remain;
+        order.timeStamps.push(newOrderData.issued);
 
-      if (newOrderData !== undefined && !order.complete) {
-        if (
-          order.duration !== newOrderData.duration ||
-          order.item_price !== newOrderData.price ||
-          order.range !== newOrderData.range ||
-          order.volume_remain !== newOrderData.volume_remain ||
-          order.issued !== newOrderData.issued
-        ) {
-          order.duration = newOrderData.duration;
-          order.item_name = newOrderData.item_name || null
-          order.region_name = newOrderData.region_name || null
-          order.location_name = newOrderData.location_name || null
-          order.item_price = newOrderData.price;
-          order.range = newOrderData.range;
-          order.volume_remain = newOrderData.volume_remain;
-          order.timeStamps.push(newOrderData.issued);
-
-          user.apiJournal.forEach((entry) => {
-            if (
-              entry.ref_type === "brokers_fee" &&
-              Date.parse(newOrderData.issued) === Date.parse(entry.date)
-            ) {
-              entry.amount = Math.abs(entry.amount);
-              entry.order_id = order.order_id;
-              delete entry.balance;
-              activeJob.build.sale.brokersFee.push(entry);
-            }
-          });
-        }
-      }
-      if (newOrderData === undefined && !order.complete) {
-        order.duration = completedOrderData.duration;
-        order.item_price = completedOrderData.price;
-        order.item_name = completedOrderData.item_name || null
-        order.region_name = completedOrderData.region_name || null
-        order.location_name = completedOrderData.location_name || null
-        order.range = completedOrderData.range;
-        order.volume_remain = completedOrderData.volume_remain;
-        order.issued = completedOrderData.issued;
-        order.complete = true;
-      }
-
-      linkedMarketOrders.push(order);
-    });
-
-    activeJob.build.sale.marketOrders.forEach((order) => {
-      const user = users.find((u) => u.CharacterHash === order.CharacterHash);
-      if (order.timeStamps.length !== activeJob.build.sale.brokersFee.length) {
-        order.timeStamps.forEach((stamp) => {
-          user.apiJournal.forEach((entry) => {
-            if (
-              entry.ref_type === "brokers_fee" &&
-              Date.parse(stamp) === Date.parse(entry.date)
-            ) {
-              replacementBrokersFees.push(Object.assign({},new BrokerFee(entry,order,user)));
-            }
-          });
+        user.apiJournal.forEach((entry) => {
+          if (
+            entry.ref_type === "brokers_fee" &&
+            Date.parse(newOrderData.issued) === Date.parse(entry.date)
+          ) {
+            entry.amount = Math.abs(entry.amount);
+            entry.order_id = order.order_id;
+            delete entry.balance;
+            activeJob.build.sale.brokersFee.push(entry);
+          }
         });
       }
-    });
-  
+    }
+    if (newOrderData === undefined && !order.complete) {
+      order.duration = completedOrderData.duration;
+      order.item_price = completedOrderData.price;
+      order.item_name = completedOrderData.item_name || null;
+      order.region_name = completedOrderData.region_name || null;
+      order.location_name = completedOrderData.location_name || null;
+      order.range = completedOrderData.range;
+      order.volume_remain = completedOrderData.volume_remain;
+      order.issued = completedOrderData.issued;
+      order.complete = true;
+    }
+
+    linkedMarketOrders.push(order);
+  });
+
+  activeJob.build.sale.marketOrders.forEach((order) => {
+    const user = users.find((u) => u.CharacterHash === order.CharacterHash);
+    if (order.timeStamps.length !== activeJob.build.sale.brokersFee.length) {
+      order.timeStamps.forEach((stamp) => {
+        user.apiJournal.forEach((entry) => {
+          if (
+            entry.ref_type === "brokers_fee" &&
+            Date.parse(stamp) === Date.parse(entry.date)
+          ) {
+            replacementBrokersFees.push(
+              Object.assign({}, new BrokerFee(entry, order, user))
+            );
+          }
+        });
+      });
+    }
+  });
 
   if (replacementBrokersFees.length !== 0) {
     activeJob.build.sale.brokersFee = replacementBrokersFees;
@@ -175,7 +173,9 @@ export function LinkedMarketOrders({
           </Grid>
         </Grid>
         {linkedMarketOrders.map((order) => {
-                      const charData = users.find((i) => i.CharacterHash === order.CharacterHash)
+          const charData = users.find(
+            (i) => i.CharacterHash === order.CharacterHash
+          );
           return (
             <Grid key={order.order_id} container>
               <Grid container item sx={{ marginBottom: "10px" }}>
@@ -193,12 +193,12 @@ export function LinkedMarketOrders({
               <Grid container item>
                 <Grid item xs={4}>
                   <Typography variant="body1">
-                    {order.item_price.toLocaleString()} ISK
+                    {order.item_price.toLocaleString()} ISK Each
                   </Typography>
                 </Grid>
                 <Grid item xs={8}>
                   <Typography variant="body1">
-                    {order.volume_remain} / {order.volume_total} Items
+                    {order.volume_remain} / {order.volume_total} Items Remaining
                   </Typography>
                 </Grid>
               </Grid>
@@ -244,7 +244,9 @@ export function LinkedMarketOrders({
                   <Typography variant="body2">Range:</Typography>
                 </Grid>
                 <Grid item xs={6} md={3}>
-                  <Typography variant="body2">{order.range.charAt(0).toUpperCase()+ order.range.slice(1)}</Typography>
+                  <Typography variant="body2">
+                    {order.range.charAt(0).toUpperCase() + order.range.slice(1)}
+                  </Typography>
                 </Grid>
               </Grid>
               <Grid container item xs={12}>
@@ -282,8 +284,12 @@ export function LinkedMarketOrders({
                           activeJob.build.sale.brokersFee.filter(
                             (item) => item.order_id === order.order_id
                           );
-                        let newOrderArray = [...activeJob.build.sale.marketOrders];
-                        let newBrokerArray = [...activeJob.build.sale.brokersFee];
+                        let newOrderArray = [
+                          ...activeJob.build.sale.marketOrders,
+                        ];
+                        let newBrokerArray = [
+                          ...activeJob.build.sale.brokersFee,
+                        ];
                         if (orderIndex !== -1) {
                           newOrderArray.splice(orderIndex, 1);
                         }
@@ -304,7 +310,7 @@ export function LinkedMarketOrders({
 
                         const uIndex = newUsersArray[
                           parentUserIndex
-                        ].linkedTrans.findIndex(
+                        ].linkedOrders.findIndex(
                           (trans) => trans === order.order_id
                         );
                         if (uIndex !== -1) {
@@ -315,11 +321,17 @@ export function LinkedMarketOrders({
                         }
 
                         activeJob.build.sale.transactions.forEach((trans) => {
-                          const tIndex = users[parentUserIndex].linkedTrans.findIndex((i) => i === trans.order_id);
+                          const tIndex = newUsersArray[
+                            parentUserIndex
+                          ].linkedTrans.findIndex((i) => i === trans.transaction_id);
+
                           if (tIndex !== -1) {
-                            newUsersArray[parentUserIndex].linkedTrans.splice(tIndex, 1)
+                            newUsersArray[parentUserIndex].linkedTrans.splice(
+                              tIndex,
+                              1
+                            );
                           }
-                        })  
+                        });
 
                         updateUsers(newUsersArray);
 
@@ -331,7 +343,7 @@ export function LinkedMarketOrders({
                               ...prev.build.sale,
                               marketOrders: newOrderArray,
                               brokersFee: newBrokerArray,
-                              transactions: []
+                              transactions: [],
                             },
                           },
                         }));

@@ -125,9 +125,10 @@ export function ExtrasList({ setJobModified }) {
               helperText="Reminder Text"
               type="text"
               onBlur={(e) => {
+                let input = e.target.value.replace(/[^a-zA-Z0-9 ]/g, "")
                 updateExtras((prevState) => ({
                   ...prevState,
-                  text: e.target.value,
+                  text: input,
                 }));
               }}
             />

@@ -55,7 +55,7 @@ export function AvailableMarketOrders({
   updateShowAvailableOrders,
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { users } = useContext(UsersContext);
+  const { users, updateUsers } = useContext(UsersContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
@@ -226,11 +226,13 @@ export function AvailableMarketOrders({
                           });
                           let newMarketOrderArray =
                             activeJob.build.sale.marketOrders;
-                          newMarketOrderArray.push(Object.assign({},new ESIMarketOrder(order)));
-                          users[ParentUserIndex].linkedOrders.push(
+                          newMarketOrderArray.push(Object.assign({}, new ESIMarketOrder(order)));
+                          
+                          let newUsers = [...users]
+                          newUsers[ParentUserIndex].linkedOrders.push(
                             order.order_id
                           );
-
+                            updateUsers(newUsers)
                           updateActiveJob((prev) => ({
                             ...prev,
                             build: {

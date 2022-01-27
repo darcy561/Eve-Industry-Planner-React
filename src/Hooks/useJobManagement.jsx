@@ -98,17 +98,6 @@ export function useJobManagement() {
         updateDataExchange(false);
         t.putAttribute("FailedJobCreation", "Error Building Job");
         t.incrementMetric("Error building Job", 1);
-      } else if (newJob.jobType === 3) {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "Unable to add Planetary Interation materials at this time",
-          severity: "error",
-          autoHideDuration: 3000,
-        }));
-        updateDataExchange(false);
-        t.putAttribute("FailedJobCreation", "Added PI Job");
-        t.incrementMetric("Unable to Add PI Job", 1);
       } else {
         t.putAttribute("CompleteJobCreation", "Basic Item");
         if (itemQty != null) {
@@ -124,8 +113,8 @@ export function useJobManagement() {
         const calculatedJob = CalculateResources(newJob);
 
         if (isLoggedIn) {
-          isLoggedIn && addNewJob(calculatedJob);
           calculatedJob.build.buildChar = parentUser.CharacterHash;
+          addNewJob(calculatedJob);
         }
 
         logEvent(analytics, "New Job", {

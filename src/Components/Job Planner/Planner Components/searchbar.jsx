@@ -125,7 +125,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                       id: "Empty-Multi-Select",
                       open: true,
                       title: "Oops",
-                      body: "You will need to select atleast 1 job using the checkbox's on the card",
+                      body: "You will need to select at least 1 job using the checkbox's on the job cards",
                     }));
                   }
                 }}
@@ -134,7 +134,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
               </Button>
             </Tooltip>
             <Tooltip
-              title="Sets up new jobs to build the combined ingrediant totals of each selected job."
+              title="Sets up new jobs to build the combined ingrediant totals of each selected job cards."
               arrow
             >
               <Button
@@ -152,7 +152,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                       id: "Empty-Multi-Select",
                       open: true,
                       title: "Oops",
-                      body: "You will need to select atleast 1 job using the checkbox's on the card",
+                      body: "You will need to select at least 1 job using the checkbox's on the job cards",
                     }));
                   }
                 }}
@@ -184,7 +184,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                       id: "Empty-Multi-Select",
                       open: true,
                       title: "Oops",
-                      body: "You will need to select atleast 1 job using the checkbox's on the card",
+                      body: "You will need to select at least 1 job using the checkbox's on the job cards",
                     }));
                   }
                 }}
@@ -208,7 +208,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                       id: "Empty-Multi-Select",
                       open: true,
                       title: "Oops",
-                      body: "You will need to select atleast 1 job using the checkbox's on the card",
+                      body: "You will need to select at least 1 job using the checkbox's on the job cards",
                     }));
                   }
                 }}
@@ -256,7 +256,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                       id: "Empty-Multi-Select",
                       open: true,
                       title: "Oops",
-                      body: "You will need to select atleast 1 job using the checkbox's on the card",
+                      body: "You will need to select atleast 1 job using the checkbox's on the job cards",
                     }));
                   }
                 }}

@@ -32,7 +32,7 @@ export function useEveApi() {
         });
 
         return newSkillArray;
-      }
+      } else return []
     } catch (err) {
       console.log(err);
       return [];
@@ -49,6 +49,7 @@ export function useEveApi() {
 
       if (indyPromise.status === 200) {
         indyJSON.forEach((job) => {
+          
           if (job.activity_id === 1) {
             const nameMatch = searchData.find(
               (item) => item.itemID === job.product_type_id
@@ -73,19 +74,14 @@ export function useEveApi() {
           // 10 days
         );
 
-        let filtered = filterOld.filter((job) => job.activity_id === 1);
+        let filtered = filterOld.filter((job) => job.activity_id === 1 || job.activity_id === 4 || job.activity_id === 3 );
 
         let idRequest = [];
 
         filtered.forEach((item) => {
+          
           if (
-            !eveIDs.includes(item.station_id) &&
-            !idRequest.includes(item.station_id)
-          ) {
-            idRequest.push(item.station_id);
-          }
-          if (
-            !eveIDs.includes(item.facility_id) &&
+            !eveIDs.some((i)=>i.facility_id === item.facility_id) &&
             !idRequest.includes(item.facility_id)
           ) {
             idRequest.push(item.facility_id);
@@ -96,17 +92,15 @@ export function useEveApi() {
 
           filtered.forEach((job) => {
             const facilityItem = idNames.find((i) => i.id === job.facility_id);
-            const stationItem = idNames.find((i) => i.id === job.station_id);
             job.facility_name = facilityItem.name;
-            job.station_name = stationItem.name;
           });
         }
-
+        
         return filtered;
-      }
+        
+      } else return []
     } catch (err) {
       console.log(err);
-      return [];
     }
   };
 
@@ -122,19 +116,21 @@ export function useEveApi() {
       if (marketPromise.status === 200) {
         marketJSON.forEach((item) => {
           if (
-            !eveIDs.includes(item.location_id) &&
+            !eveIDs.some((i)=>i.location_id === item.location_id) &&
             !idRequest.includes(item.location_id)
           ) {
+            
             idRequest.push(item.location_id);
           }
           if (
-            !eveIDs.includes(item.region_id) &&
+            !eveIDs.some((i)=>i.region_id === item.region_id) &&
             !idRequest.includes(item.region_id)
           ) {
             idRequest.push(item.region_id);
           }
           item.CharacterHash = userObj.CharacterHash;
         });
+
         if (idRequest.length !== 0) {
           await IDtoName(idRequest, userObj);
         }
@@ -182,13 +178,13 @@ export function useEveApi() {
 
     filtered.forEach((item) => {
       if (
-        !eveIDs.includes(item.location_id) &&
+        !eveIDs.some((i)=>i.location_id === item.location_id) &&
         !idRequest.includes(item.location_id)
       ) {
         idRequest.push(item.location_id);
       }
       if (
-        !eveIDs.includes(item.region_id) &&
+        !eveIDs.some((i)=>i.region_id === item.region_id) &&
         !idRequest.includes(item.region_id)
       ) {
         idRequest.push(item.region_id);
@@ -218,7 +214,7 @@ export function useEveApi() {
       const blueprintJSON = await blueprintPromise.json();
       if (blueprintPromise.status === 200) {
         return blueprintJSON;
-      }
+      } else return []
     } catch (err) {
       console.log(err);
       return [];
@@ -233,8 +229,9 @@ export function useEveApi() {
 
       const transactionsJSON = await transactionsPromise.json();
       if (transactionsPromise.status === 200) {
-        return transactionsJSON;
-      }
+        const filtered = transactionsJSON.filter((i)=> i.is_buy === false)
+        return filtered;
+      } else return []
     } catch (err) {
       console.log(err);
       return [];

@@ -27,7 +27,7 @@ export function SalesStats() {
       <Grid container direction="row">
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
-            <Typography variant="body1">Total Build Cost:</Typography>
+            <Typography variant="body2">Total Build Cost:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
@@ -42,7 +42,7 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
-            <Typography variant="body1">Brokers Fee Total:</Typography>
+            <Typography variant="body2">Brokers Fee Total:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
@@ -52,7 +52,7 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
-            <Typography variant="body1">Transaction Fee Total:</Typography>
+            <Typography variant="body2">Transaction Fee Total:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
@@ -62,7 +62,7 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
-            <Typography variant="body1">Total Job Cost:</Typography>
+            <Typography variant="body2">Total Job Cost:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
@@ -79,7 +79,7 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
           <Grid item xs={8}>
-            <Typography variant="body1">Total Cost Per Item:</Typography>
+            <Typography variant="body2">Total Cost Per Item:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
@@ -101,7 +101,7 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
-            <Typography variant="body1">Total Of Sales:</Typography>
+            <Typography variant="body2">Total Of Sales:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">
@@ -111,7 +111,7 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={8}>
-            <Typography variant="body1">
+            <Typography variant="body2">
               Average Sale Price Per Item:
             </Typography>
           </Grid>
@@ -130,7 +130,7 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12}>
           <Grid item xs={8}>
-            <Typography variant="body1">Profit/Loss:</Typography>
+            <Typography variant="body2">Profit/Loss:</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body1" align="right">

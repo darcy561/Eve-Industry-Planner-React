@@ -136,27 +136,33 @@ export function PlannerAccordion({ updateJobSettingsTrigger, multiSelect, update
                   }
                 })}
 
-                {status.openAPIJobs &&
+                {status.openAPIJobs && (
                   apiJobs.map((j) => {
-                    if (!j.linked) {
+                    if (!j.linked || j.linked === undefined) {
                       if (j.status === "active" && j.linked === false) {
+                        //ESI Manufacturing Jobs
                         return <ApiJobCard key={j.job_id} job={j} />;
-                      } else {
-                        return null;
                       }
+                      if (j.linked === undefined) {
+                        // ESI Research Jobs
+                        return <ApiJobCard key={j.job_id} job={j} />;
+                      }
+                      else return null
                     } else {
                       return null;
                     }
-                  })}
+                  })
+                )}
 
-                {status.completeAPIJobs &&
+                {status.completeAPIJobs && (
                   apiJobs.map((j) => {
                     if (!j.linked && j.status === "delivered") {
                       return <ApiJobCard key={j.job_id} job={j} />;
                     } else {
                       return null;
                     }
-                  })}
+                  })
+                )}
               </Grid>
             </AccordionDetails>
           </Accordion>

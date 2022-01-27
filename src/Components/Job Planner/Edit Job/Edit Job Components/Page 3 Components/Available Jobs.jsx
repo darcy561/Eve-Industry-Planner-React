@@ -29,7 +29,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
       this.job_id = originalJob.job_id;
       this.completed_date = originalJob.completed_date || null;
       this.station_id = originalJob.station_id;
-      this.station_name = originalJob.station_name;
+      this.station_name = originalJob.facility_name;
       this.start_date = originalJob.start_date;
       this.end_date = originalJob.end_date;
       this.cost = originalJob.cost;

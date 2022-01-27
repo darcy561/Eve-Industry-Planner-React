@@ -2,9 +2,7 @@ import { useContext, useState } from "react";
 import { Container, Grid } from "@mui/material";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
-import {
-  UsersContext,
-} from "../../../../Context/AuthContext";
+import { UsersContext } from "../../../../Context/AuthContext";
 import { SalesStats } from "./Page 5 Components/salesStats";
 import { AvailableMarketOrders } from "./Page 5 Components/availableMarketOrders";
 import { LinkedMarketOrders } from "./Page 5 Components/linkedMarketOrders";
@@ -21,79 +19,88 @@ export function EditPage5({ setJobModified }) {
   let itemOrderMatch = [];
 
   const parentUser = users.find((i) => i.ParentUser === true);
+  class Transaction {
+    constructor(trans, desc, journal, tax) {
+      this.order_id = null;
+      this.journal_ref_id = trans.journal_ref_id;
+      this.unit_price = trans.unit_price;
+      this.amount = journal.amount;
+      this.tax = Math.abs(tax.amount);
+      this.transaction_id = trans.transaction_id;
+      this.quantity = trans.quantity;
+      this.date = trans.date;
+      this.location_id = trans.location_id;
+      this.is_corp = !trans.is_personal;
+      this.type_id = trans.type_id;
+      this.description = desc
+    }
+  }
+  users.forEach((user) => {
+    user.apiOrders.forEach((order) => {
+      if (
+        order.type_id === activeJob.itemID &&
+        !activeJob.build.sale.marketOrders.includes(order.order_id)
+      ) {
+        eveIDs.find((item) => {
+          if (item.id === order.location_id) {
+            order.location_name = item.name;
+          }
+          if (item.id === order.region_id) {
+            order.region_name = item.name;
+          }
+        });
 
-    users.forEach((user) => {
-      user.apiOrders.forEach((order) => {
-        if (
-          order.type_id === activeJob.itemID &&
-          !activeJob.build.sale.marketOrders.includes(order.order_id)
-        ) {
-          eveIDs.find((item) => {
-            if (item.id === order.location_id) {
-
-              order.location_name = item.name;
-            }
-            if (item.id === order.region_id) {
-              order.region_name = item.name;
-            }
-          });
-
-          itemOrderMatch.push(order);
-        }
-      });
-      user.apiHistOrders.forEach((order) => {
-        if (
-          order.type_id === activeJob.itemID &&
-          !activeJob.build.sale.marketOrders.includes(order.order_id)
-        ) {
-
-          eveIDs.find((item) => {
-            if (item.id === order.location_id) {
-
-              order.location_name = item.name
-            }
-            if (item.id === order.region_id) {
-              order.region_name = item.name
-            }
-          });
-          order.CharacterHash = user.CharacterHash;
-          itemOrderMatch.push(order);
-        }
-      });
+        itemOrderMatch.push(order);
+      }
     });
+    user.apiHistOrders.forEach((order) => {
+      if (
+        order.type_id === activeJob.itemID &&
+        !activeJob.build.sale.marketOrders.includes(order.order_id)
+      ) {
+        eveIDs.find((item) => {
+          if (item.id === order.location_id) {
+            order.location_name = item.name;
+          }
+          if (item.id === order.region_id) {
+            order.region_name = item.name;
+          }
+        });
+        order.CharacterHash = user.CharacterHash;
+        itemOrderMatch.push(order);
+      }
+    });
+  });
   let transactionData = [];
 
-    activeJob.build.sale.marketOrders.forEach((order) => {
-      const user = users.find((u) => u.CharacterHash === order.CharacterHash);
+  activeJob.build.sale.marketOrders.forEach((order) => {
+    const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
-      const itemTrans = user.apiTransactions.filter(
-        (trans) =>
-          order.location_id === trans.location_id &&
-          order.type_id === trans.type_id &&
-          !trans.is_buy &&
-          !parentUser.linkedTrans.includes(trans.transaction_id)
+    const itemTrans = user.apiTransactions.filter(
+      (trans) =>
+        order.location_id === trans.location_id &&
+        order.type_id === trans.type_id &&
+        !trans.is_buy &&
+        !parentUser.linkedTrans.includes(trans.transaction_id)
+    );
+
+    itemTrans.forEach((trans) => {
+      const transJournal = user.apiJournal.find(
+        (entry) => trans.transaction_id === entry.context_id
       );
 
-      itemTrans.forEach((trans) => {
-        const transJournal = user.apiJournal.find(
-          (entry) => trans.transaction_id === entry.context_id
-        );
+      const transTax = user.apiJournal.find(
+        (entry) =>
+          entry.ref_type === "transaction_tax" &&
+          Date.parse(entry.date) === Date.parse(trans.date)
+      );
+      let descriptionTrim = transJournal.description.replace("Market: ", "").split(" bought")
 
-        const transTax = user.apiJournal.find(
-          (entry) =>
-            entry.ref_type === "transaction_tax" &&
-            Date.parse(entry.date) === Date.parse(trans.date)
-        );
-        let descriptionTrim = transJournal.description.replace("Market: ", "").split(" bought")
-        trans.description = descriptionTrim[0];
-        trans.amount = transJournal.amount;
-        trans.tax = Math.abs(transTax.amount);
-        trans.order_id = null;
-
-        transactionData.push(trans);
-      });
+      transactionData.push(
+        Object.assign({}, new Transaction(trans, descriptionTrim[0], transJournal, transTax))
+      );
     });
-  
+  });
 
   return (
     <Container disableGutters maxWidth="false">
@@ -132,11 +139,10 @@ export function EditPage5({ setJobModified }) {
           />
         </Grid>
         <Grid item xs={12}>
-
-            <LinkedTransactions
-              setJobModified={setJobModified}
-              activeOrder={activeOrder}
-            /> 
+          <LinkedTransactions
+            setJobModified={setJobModified}
+            activeOrder={activeOrder}
+          />
         </Grid>
       </Grid>
     </Container>

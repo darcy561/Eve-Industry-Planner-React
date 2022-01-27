@@ -82,7 +82,6 @@ export function NewTransactions() {
         }
       });
     });
-
     itemOrderMatch.forEach((order) => {
       const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
@@ -94,8 +93,7 @@ export function NewTransactions() {
           !transactionData.find(
             (item) => item.transaction_id === trans.transaction_id
           ) &&
-          trans.unit_price >= 0 &&
-          !trans.is_buy
+          trans.unit_price >= 0
       );
 
       itemTrans.forEach((trans) => {

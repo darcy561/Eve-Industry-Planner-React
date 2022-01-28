@@ -33,7 +33,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
       this.start_date = originalJob.start_date;
       this.end_date = originalJob.end_date;
       this.cost = originalJob.cost;
-      this.linked = originalJob.linked;
+      this.linked = true
       this.product_name = originalJob.product_name;
       this.blueprint_type_id = originalJob.blueprint_type_id;
       this.product_type_id = originalJob.product_type_id;

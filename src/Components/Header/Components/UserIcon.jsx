@@ -12,10 +12,11 @@ import {
 } from "../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { EveIDsContext } from "../../../Context/EveDataContext";
-import { auth } from "../../../firebase";
+import { analytics, auth } from "../../../firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router";
-import {apiJobsDefault, jobArrayDefault, jobStatusDefault, usersDefault, eveIDsDefault } from "../../../Context/defaultValues";
+import { apiJobsDefault, jobArrayDefault, jobStatusDefault, usersDefault, eveIDsDefault } from "../../../Context/defaultValues";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function UserIcon() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -28,8 +29,14 @@ export function UserIcon() {
   const { updateApiJobs } = useContext(ApiJobsContext);
   const {updateEveIDs} =useContext(EveIDsContext)
   const navigate = useNavigate();
+  const analytics = getAnalytics();
+
+  const parentUser = users.find((i) => i.ParentUser === true)
 
   function logout() {
+    logEvent(analytics, "userLogOut", {
+      UID: parentUser.accountID
+    })
     updateIsLoggedIn(false);
     updateUsers(usersDefault);
     updateJobArray(jobArrayDefault);
@@ -56,7 +63,7 @@ export function UserIcon() {
     setAnchor(null);
   };
 
-  const parentUser = users.find((i) => i.ParentUser === true)
+  
 
     return (
       <>

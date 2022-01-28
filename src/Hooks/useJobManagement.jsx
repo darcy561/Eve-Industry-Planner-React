@@ -180,6 +180,7 @@ export function useJobManagement() {
       name: inputJob.name,
       itemID: inputJob.itemID,
       stage: inputJob.stage,
+      loggedIn: isLoggedIn
     });
     const newUserArray = [...users];
     const newApiJobsArary = [...apiJobs];

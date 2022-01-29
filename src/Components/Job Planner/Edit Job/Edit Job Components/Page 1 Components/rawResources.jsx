@@ -80,17 +80,10 @@ export function RawResourceList() {
       square={true}
     >
       <Container disableGutters={true}>
-        <Box sx={{marginBottom:"20px"}}>
-          <Grid
-            container
-            direction="row"
-          >
+        <Box sx={{ marginBottom: "20px" }}>
+          <Grid container direction="row">
             <Grid item xs={12} md={11}>
-              <Typography
-                variant="h5"
-                color="primary"
-                align="center"
-              >
+              <Typography variant="h6" color="primary" align="center">
                 Raw Resources
               </Typography>
             </Grid>
@@ -101,14 +94,19 @@ export function RawResourceList() {
               align="right"
             >
               <Tooltip title="Placeholder, not currently implemented" arrow>
-              <IconButton>
-                <MoreVertIcon size="small" color="Secondary" />
+                <IconButton>
+                  <MoreVertIcon size="small" color="Secondary" />
                 </IconButton>
               </Tooltip>
             </Grid>
           </Grid>
         </Box>
-        <Box sx={{ marginLeft:{ xs:"5px", md:"15px" }, marginRight:{xs:"10px", md:"20px"}}}>
+        <Box
+          sx={{
+            marginLeft: { xs: "5px", md: "15px" },
+            marginRight: { xs: "10px", md: "20px" },
+          }}
+        >
           <Grid container item direction="column">
             {activeJob.build.materials.map((material) => {
               return (

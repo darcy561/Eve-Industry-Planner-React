@@ -7,6 +7,7 @@ import { ReactionOptions } from "./Page 1 Components/reactionOptions";
 import { RawResourceList } from "./Page 1 Components/rawResources";
 import { ProductionStats } from "./Page 1 Components/productionStats";
 import { TutorialStep1 } from "./Page 1 Components/tutorialStep1";
+import { SkillCheck } from "./Page 1 Components/skillCheck";
 
 export function EditPage1({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -47,8 +48,13 @@ export function EditPage1({ setJobModified }) {
             <OptionSwitch />
           </Grid>
         </Grid>
-        <Grid item xs={12} md={9}>
-          <RawResourceList />
+        <Grid container direction="row" item xs={12} md={9} spacing={2}>
+          <Grid item xs={12}>
+            <SkillCheck />
+          </Grid>
+          <Grid item xs={12}>
+            <RawResourceList />
+          </Grid>
         </Grid>
       </Grid>
     </Container>

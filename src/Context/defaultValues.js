@@ -78,7 +78,7 @@ export let jobArrayDefault = [
           purchaseComplete: true,
         },
       ],
-      buildChar: null,
+      buildChar: "ABC123",
       time: 300,
     },
     rawData: {
@@ -205,7 +205,7 @@ export let jobArrayDefault = [
           purchaseComplete: false,
         },
       ],
-      buildChar: null,
+      buildChar: "ABC123",
       time: 10800,
     },
     rawData: {
@@ -339,7 +339,7 @@ export let jobArrayDefault = [
           purchaseComplete: false,
         },
       ],
-      buildChar: null,
+      buildChar: "ABC123",
       time: 10800,
     },
     rawData: {
@@ -499,7 +499,7 @@ export let jobArrayDefault = [
             location_id: 60008494,
             is_corp: false,
             type_id: 10246,
-            description: "Abi Sweet bought stuff from Reginal Shardani",
+            description: "Abi Sweet",
           },
           {
             order_id: 6161413749,
@@ -513,7 +513,7 @@ export let jobArrayDefault = [
             location_id: 60008494,
             is_corp: false,
             type_id: 10246,
-            description: "IceQwen bought stuff from Reginal Shardani",
+            description: "IceQwen bought",
           },
           {
             order_id: 6161413749,
@@ -527,7 +527,7 @@ export let jobArrayDefault = [
             location_id: 60008494,
             is_corp: false,
             type_id: 10246,
-            description: "Igor Alexeevich bought stuff from Reginal Shardani",
+            description: "Igor Alexeevich",
           },
           {
             order_id: 6161413749,
@@ -541,7 +541,7 @@ export let jobArrayDefault = [
             location_id: 60008494,
             is_corp: false,
             type_id: 10246,
-            description: "Markus Dux bought stuff from Reginal Shardani",
+            description: "Markus Dux",
           },
         ],
         totalSold: 0,
@@ -648,7 +648,7 @@ export let jobArrayDefault = [
         extrasCosts: [],
         extrasTotal: 0,
       },
-      buildChar: "8XGnAtq8QEEQ76LfinJaI8MA6T4=",
+      buildChar: "ABC123",
       time: 300,
     },
   },
@@ -759,7 +759,7 @@ export let jobArrayDefault = [
             location_id: 60008494,
             is_corp: false,
             type_id: 499,
-            description: "ArianGG bought stuff from Reginal Shardani",
+            description: "ArianGG",
           },
           {
             order_id: 6161414065,
@@ -773,8 +773,7 @@ export let jobArrayDefault = [
             location_id: 60008494,
             is_corp: false,
             type_id: 499,
-            description:
-              "Shelby Skye Singularity bought stuff from Reginal Shardani",
+            description: "Shelby Skye",
           },
           {
             order_id: 6161414065,
@@ -788,7 +787,7 @@ export let jobArrayDefault = [
             location_id: 60008494,
             is_corp: false,
             type_id: 499,
-            description: "Oryza Prodigy bought stuff from Reginal Shardani",
+            description: "Oryza Prodigy",
           },
         ],
         totalSold: 0,
@@ -850,7 +849,7 @@ export let jobArrayDefault = [
           },
         ],
       },
-      buildChar: null,
+      buildChar: "ABC123",
     },
   },
   {
@@ -969,7 +968,7 @@ export let jobArrayDefault = [
           purchaseComplete: false,
         },
       ],
-      buildChar: null,
+      buildChar: "ABC123",
       time: 600,
     },
     rawData: {
@@ -1178,7 +1177,10 @@ export let usersDefault = [
     apiJobs: [],
     linkedJobs: [477723892, 477724009],
     linkedOrders: [6161413749, 6161414065],
-    linkedTrans: [5763852213, 5763860401, 5763883247, 5763890268, 5762870250, 5762760174, 5764179431],
+    linkedTrans: [
+      5763852213, 5763860401, 5763883247, 5763890268, 5762870250, 5762760174,
+      5764179431,
+    ],
     apiOrders: [],
     apiHistOrders: [
       {
@@ -1578,6 +1580,313 @@ export let usersDefault = [
         reason: "",
         ref_type: "transaction_tax",
         second_party_id: 1000132,
+      },
+    ],
+    apiSkills: [
+      {
+        id: 3395,
+        name: "Advanced Small Ship Construction",
+        activeLevel: 5,
+      },
+      {
+        id: 24625,
+        name: "Advanced Mass Production",
+        activeLevel: 5,
+      },
+      {
+        id: 3397,
+        name: "Advanced Medium Ship Construction",
+        activeLevel: 5,
+      },
+      {
+        id: 24624,
+        name: "Advanced Laboratory Operation",
+        activeLevel: 5,
+      },
+      {
+        id: 3398,
+        name: "Advanced Large Ship Construction",
+        activeLevel: 5,
+      },
+      {
+        id: 3396,
+        name: "Advanced Industrial Ship Construction",
+        activeLevel: 5,
+      },
+      {
+        id: 3388,
+        name: "Advanced Industry",
+        activeLevel: 5,
+      },
+      {
+        id: 23087,
+        name: "Amarr Encryption Methods",
+        activeLevel: 3,
+      },
+      {
+        id: 11444,
+        name: "Amarr Starship Engineering",
+        activeLevel: 5,
+      },
+      {
+        id: 26253,
+        name: "Armor Rigging",
+        activeLevel: 5,
+      },
+      {
+        id: 26254,
+        name: "Astronautics Rigging",
+        activeLevel: 5,
+      },
+      {
+        id: 11454,
+        name: "Caldari Starship Engineering",
+        activeLevel: 5,
+      },
+      {
+        id: 21790,
+        name: "Caldari Encryption Methods",
+        activeLevel: 5,
+      },
+      {
+        id: 22242,
+        name: "Capital Ship Consruction",
+        activeLevel: 5,
+      },
+      {
+        id: 30325,
+        name: "Core Subsystem Technology",
+        activeLevel: 5,
+      },
+      {
+        id: 30324,
+        name: "Defensive Subsystem Technology",
+        activeLevel: 5,
+      },
+      {
+        id: 26255,
+        name: "Drones Rigging",
+        activeLevel: 5,
+      },
+      {
+        id: 26224,
+        name: "Drug Manufacturing",
+        activeLevel: 5,
+      },
+      {
+        id: 11448,
+        name: "Electromagnetic Physics",
+        activeLevel: 5,
+      },
+      {
+        id: 11453,
+        name: "Electronic Engineering",
+        activeLevel: 5,
+      },
+      {
+        id: 26256,
+        name: "Electronic Superiority Rigging",
+        activeLevel: 5,
+      },
+      {
+        id: 26258,
+        name: "Energy Weapon Rigging",
+        activeLevel: 5,
+      },
+      {
+        id: 23121,
+        name: "Gallente Encryption Methods",
+        activeLevel: 5,
+      },
+      {
+        id: 11450,
+        name: "Gallente Starship Engineering",
+        activeLevel: 5,
+      },
+      {
+        id: 11446,
+        name: "Graviton Physics",
+        activeLevel: 5,
+      },
+      {
+        id: 11433,
+        name: "High Energy Physics",
+        activeLevel: 5,
+      },
+      {
+        id: 26259,
+        name: "Hybrid Weapon Rigging",
+        activeLevel: 5,
+      },
+      {
+        id: 11443,
+        name: "Hydromagnetic Physics",
+        activeLevel: 5,
+      },
+      {
+        id: 3380,
+        name: "Industry",
+        activeLevel: 5,
+      },
+      {
+        id: 26252,
+        name: "Jury Rigging",
+        activeLevel: 5,
+      },
+      {
+        id: 3406,
+        name: "Laboratory Operation",
+        activeLevel: 5,
+      },
+      {
+        id: 11447,
+        name: "Laser Physics",
+        activeLevel: 5,
+      },
+      {
+        id: 26260,
+        name: "Launcher Rigging",
+        activeLevel: 5,
+      },
+      {
+        id: 3387,
+        name: "Mass Production",
+        activeLevel: 5,
+      },
+      {
+        id: 45748,
+        name: "Mass Reactions",
+        activeLevel: 5,
+      },
+      {
+        id: 11452,
+        name: "Mechanical Engineering",
+        activeLevel: 5,
+      },
+      {
+        id: 3409,
+        name: "Metallurgy",
+        activeLevel: 5,
+      },
+      {
+        id: 21791,
+        name: "Minmatar Encryption Methods",
+        activeLevel: 5,
+      },
+      {
+        id: 11445,
+        name: "Minmatar Starship Engineering",
+        activeLevel: 5,
+      },
+      {
+        id: 11529,
+        name: "Molecular Engineering",
+        activeLevel: 5,
+      },
+      {
+        id: 11442,
+        name: "Nanite Engineering",
+        activeLevel: 5,
+      },
+      {
+        id: 11451,
+        name: "Nuclear Physics",
+        activeLevel: 5,
+      },
+      {
+        id: 30327,
+        name: "Offensive Subsystem Technology",
+        activeLevel: 5,
+      },
+      {
+        id: 3400,
+        name: "Outpost Construction",
+        activeLevel: 5,
+      },
+      {
+        id: 26257,
+        name: "Projectile Weapon Rigging",
+        activeLevel: 5,
+      },
+      {
+        id: 307888,
+        name: "Propulsion Subsystem Technology",
+        activeLevel: 5,
+      },
+      {
+        id: 11441,
+        name: "Plasma Physics",
+        activeLevel: 5,
+      },
+      {
+        id: 11455,
+        name: "Quantum Physics",
+        activeLevel: 5,
+      },
+      {
+        id: 45746,
+        name: "Reactions",
+        activeLevel: 5,
+      },
+      {
+        id: 3403,
+        name: "Research",
+        activeLevel: 5,
+      },
+      {
+        id: 11449,
+        name: "Rocket Science",
+        activeLevel: 5,
+      },
+      {
+        id: 3402,
+        name: "Science",
+        activeLevel: 5,
+      },
+      {
+        id: 26261,
+        name: "Shield Rigging",
+        activeLevel: 5,
+      },
+      {
+        id: 3408,
+        name: "Sleeper Encryption Methods",
+        activeLevel: 5,
+      },
+      {
+        id: 21789,
+        name: "Sleeper Technology",
+        activeLevel: 5,
+      },
+      {
+        id: 20433,
+        name: "Talocan Technology",
+        activeLevel: 5,
+      },
+      {
+        id: 23123,
+        name: "Takmahl Technology",
+        activeLevel: 5,
+      },
+      {
+        id: 52308,
+        name: "Triglavian Encryption Methods",
+        activeLevel: 5,
+      },
+      {
+        id: 52307,
+        name: "Triglavian Quantum Engineering",
+        activeLevel: 5,
+      },
+      {
+        id: 55025,
+        name: "Upwell Encryption Methods",
+        activeLevel: 5,
+      },
+      {
+        id: 23124,
+        name: "Yan Jung Technology",
+        activeLevel: 5,
       },
     ],
   },

@@ -15,6 +15,7 @@ import {
   DialogDataContext,
   ShoppingListContext,
 } from "../../../Context/LayoutContext";
+import { JobArrayContext } from "../../../Context/JobContext";
 
 import { makeStyles } from "@mui/styles";
 
@@ -28,12 +29,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function SearchBar({ multiSelect, updateMultiSelect }) {
+  const { jobArray } = useContext(JobArrayContext);
   const { DataExchange } = useContext(DataExchangeContext);
   const { updateShoppingListData } = useContext(ShoppingListContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const {
     deleteMultipleJobsProcess,
     massBuildMaterials,
+    mergeJobs,
     moveMultipleJobsBackward,
     moveMultipleJobsForward,
     newJobProcess,
@@ -225,11 +228,55 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
               align="center"
               sx={{ marginBottom: { xs: "20px", md: "0px" } }}
             >
+              <Tooltip title="Merges the selected jobs into one." arrow>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  sx={{ marginRight: "10px" }}
+                  disabled={
+                    !multiSelect.every(
+                      (i) => i.itemID === multiSelect[0].itemID
+                    )
+                  }
+                  onClick={() => {
+                    mergeJobs(multiSelect)
+                    updateMultiSelect([]);
+                  }}
+                >
+                  Merge Jobs
+                </Button>
+              </Tooltip>
+            </Grid>
+          )}
+          <Grid
+            item
+            xs={12}
+            md="auto"
+            align="center"
+            sx={{ marginBottom: { xs: "10px", md: "0px" } }}
+          >
+            <Tooltip title="Selects all jobs on the job planner." arrow>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ marginRight: "10px" }}
+                onClick={() => {
+                  let newMultiArray = [];
+                  jobArray.forEach((job) => {
+                    newMultiArray.push(job);
+                  });
+                  updateMultiSelect(newMultiArray);
+                }}
+              >
+                Select All
+              </Button>
+            </Tooltip>
+            {multiSelect.length > 0 && (
               <Tooltip title="Clears the selected jobs." arrow>
                 <Button
                   variant="outlined"
                   size="small"
-                  sx={{ marginRight: "30px" }}
+                  sx={{ marginRight: "10px" }}
                   onClick={() => {
                     updateMultiSelect([]);
                   }}
@@ -237,8 +284,9 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                   Clear Selection
                 </Button>
               </Tooltip>
-            </Grid>
-          )}
+            )}
+          </Grid>
+
           <Grid item xs={12} md="auto" align="center">
             <Tooltip title="Deletes the selected jobs from the planner." arrow>
               <Button

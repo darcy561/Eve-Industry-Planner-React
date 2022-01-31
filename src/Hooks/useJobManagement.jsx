@@ -60,14 +60,14 @@ export function useJobManagement() {
       }));
       t.putAttribute("JobArraySizeFull", "Not Logged In");
       t.incrementMetric("Max Jobs Reached - Not Logged In", 1);
-    } else if (isLoggedIn && jobArray.length >= 100) {
+    } else if (isLoggedIn && jobArray.length >= 300) {
       updateDialogData((prev) => ({
         ...prev,
         buttonText: "Close",
         id: "Max-Jobs-Exceeded",
         open: true,
         title: "Job Count Exceeded",
-        body: "You currently cannot create more than 100 individual job cards. Remove existing job cards to add more.",
+        body: "You currently cannot create more than 300 individual job cards. Remove existing job cards to add more.",
       }));
       t.putAttribute("JobArraySizeFull", "Logged In");
       t.incrementMetric("Max Jobs Reached - Logged In", 1);
@@ -180,7 +180,7 @@ export function useJobManagement() {
       name: inputJob.name,
       itemID: inputJob.itemID,
       stage: inputJob.stage,
-      loggedIn: isLoggedIn
+      loggedIn: isLoggedIn,
     });
     const newUserArray = [...users];
     const newApiJobsArary = [...apiJobs];
@@ -365,10 +365,24 @@ export function useJobManagement() {
     return finalShoppingList;
   };
 
+  const mergeJobs = async (inputJobs) => {
+    let totalItems = 0;
+    for (let inputJob of inputJobs) {
+      if (inputJob.isSnapshot) {
+        inputJob = await downloadCharacterJobs(inputJob);
+        inputJob.isSnapshot = false;
+      }
+      totalItems += inputJob.build.products.totalQuantity;
+    }
+    await deleteMultipleJobsProcess(inputJobs);
+    await newJobProcess(inputJobs[0].itemID, totalItems);
+  };
+
   return {
     deleteJobProcess,
     deleteMultipleJobsProcess,
     massBuildMaterials,
+    mergeJobs,
     moveMultipleJobsForward,
     moveMultipleJobsBackward,
     newJobProcess,

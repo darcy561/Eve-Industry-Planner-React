@@ -35,7 +35,14 @@ export function SkillCheck() {
             );
 
             return (
-              <Grid key={jSkill.typeID} container item xs={6} md={3} sx={{marginBottom:{xs:"10px", md:"0px"}}}>
+              <Grid
+                key={jSkill.typeID}
+                container
+                item
+                xs={6}
+                md={3}
+                sx={{ marginBottom: { xs: "10px", md: "0px" } }}
+              >
                 <Grid
                   item
                   xs={12}

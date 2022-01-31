@@ -21,11 +21,11 @@ export function ProductionStats() {
               </Typography>
             </Grid>
             <Grid item xs={2}>
-                <Typography variant="body2" align="right">
-                  {Number(
-                    activeJob.rawData.products[0].quantity
-                  ).toLocaleString()}
-                </Typography>
+              <Typography variant="body2" align="right">
+                {Number(
+                  activeJob.rawData.products[0].quantity
+                ).toLocaleString()}
+              </Typography>
             </Grid>
           </Grid>
           <Grid container item xs={12} sx={{ marginBottom: "5px" }}>

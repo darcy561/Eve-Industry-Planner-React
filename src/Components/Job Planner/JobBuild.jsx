@@ -4,7 +4,7 @@ import { getToken } from "firebase/app-check";
 
 class Job {
   constructor(itemJson) {
-    this.buildVer = process.env.REACT_APP_Version
+    this.buildVer = process.env.REACT_APP_Version;
     this.jobType = itemJson.jobType;
     this.name = itemJson.name;
     this.jobID = Date.now();
@@ -32,7 +32,7 @@ class Job {
         extrasCosts: [],
         extrasTotal: 0,
         linkedJobs: [],
-        installCosts: 0
+        installCosts: 0,
       },
       sale: {
         totalSold: 0,
@@ -40,68 +40,83 @@ class Job {
         markUp: 0,
         marketOrders: [],
         transactions: [],
-        brokersFee:[],
+        brokersFee: [],
       },
       materials: null,
       buildChar: null,
     };
     this.rawData = {};
-      
+
     if (itemJson.jobType === jobTypes.manufacturing) {
       this.rawData.materials = itemJson.activities.manufacturing.materials;
       this.rawData.products = itemJson.activities.manufacturing.products;
-      this.rawData.time = itemJson.activities.manufacturing.time
-      this.structureType = 0
-      this.structureTypeDisplay = "Station"
-      this.skills = itemJson.activities.manufacturing.skills
-      this.build.materials = JSON.parse(JSON.stringify(itemJson.activities.manufacturing.materials))
-      this.build.time = JSON.parse(JSON.stringify(itemJson.activities.manufacturing.time))
-    };
+      this.rawData.time = itemJson.activities.manufacturing.time;
+      this.structureType = 0;
+      this.structureTypeDisplay = "Station";
+      this.skills = itemJson.activities.manufacturing.skills;
+      this.build.materials = JSON.parse(
+        JSON.stringify(itemJson.activities.manufacturing.materials)
+      );
+      this.build.time = JSON.parse(
+        JSON.stringify(itemJson.activities.manufacturing.time)
+      );
+    }
 
     if (itemJson.jobType === jobTypes.reaction) {
       this.rawData.materials = itemJson.activities.reaction.materials;
-      this.rawData.products = itemJson.activities.reaction.products
-      this.rawData.time = itemJson.activities.reaction.time
-      this.structureType = 1
-      this.structureTypeDisplay = "Medium"
-      this.skills = itemJson.activities.reaction.skills
-      this.build.materials = JSON.parse(JSON.stringify(itemJson.activities.reaction.materials))
-      this.build.time = JSON.parse(JSON.stringify(itemJson.activities.reaction.time))
-    };
+      this.rawData.products = itemJson.activities.reaction.products;
+      this.rawData.time = itemJson.activities.reaction.time;
+      this.structureType = 1;
+      this.structureTypeDisplay = "Medium";
+      this.skills = itemJson.activities.reaction.skills;
+      this.build.materials = JSON.parse(
+        JSON.stringify(itemJson.activities.reaction.materials)
+      );
+      this.build.time = JSON.parse(
+        JSON.stringify(itemJson.activities.reaction.time)
+      );
+    }
 
     if (itemJson.jobType === jobTypes.pi) {
       this.rawData = itemJson.activities.pi;
-    };
-  };
-};
+    }
+  }
+}
 
 export async function createJob(itemID) {
-  
   try {
     const appCheckToken = await getToken(appCheck, true);
     const response = await fetch(
-      `${process.env.REACT_APP_APIURL}/item/${itemID}`, {
+      `${process.env.REACT_APP_APIURL}/item/${itemID}`,
+      {
         headers: {
           "X-Firebase-AppCheck": appCheckToken.token,
-        }
+        },
       }
     );
     const itemJson = await response.json();
     const outputObject = new Job(itemJson);
     try {
-        outputObject.build.materials.forEach((material) => {
-          material.purchasing = [];
-          material.quantityPurchased = 0;
-          material.purchasedCost = 0; 
-          material.purchaseComplete = false;
-        });
+      outputObject.build.materials.forEach((material) => {
+        material.purchasing = [];
+        material.quantityPurchased = 0;
+        material.purchasedCost = 0;
+        material.purchaseComplete = false;
+      });
+      outputObject.build.materials.sort((a, b) => {
+        if (a.name < b.name) {
+          return -1;
+        }
+        if (a.name > b.name) {
+          return 1;
+        }
+        return 0;
+      });
       return outputObject;
-
     } catch (err) {
-      return "objectError"
-    };
-
+      return "objectError";
+    }
   } catch (err) {
     return err.name;
-  };
-};
+  }
+}

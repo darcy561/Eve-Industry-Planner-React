@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ShoppingListContext } from "../../Context/LayoutContext";
+import { ShoppingListContext, SnackBarDataContext } from "../../Context/LayoutContext";
 import {
   Button,
   Dialog,
@@ -9,11 +9,20 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 export function ShoppingListDialog() {
   const { shoppingListData, updateShoppingListData } =
     useContext(ShoppingListContext);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+  
+  let copyText = ""
 
+  if (shoppingListData.open) {
+    shoppingListData.list.forEach((i) => {
+      copyText = copyText.concat(`${i.name} ${i.quantity}\n`)
+    })
+  }
   const handleClose = () => {
     updateShoppingListData((prev) => ({
       open: false,
@@ -53,6 +62,17 @@ export function ShoppingListDialog() {
         </Grid>
       </DialogContent>
       <DialogActions>
+        <CopyToClipboard text={copyText} onCopy={() => {
+          setSnackbarData((prev) => ({
+            ...prev,
+            open: true,
+            message: `Shopping List Copied`,
+            severity: "success",
+            autoHideDuration: 1000,
+          }));
+        }} >
+          <Button>Copy to Clipboard</Button>
+        </CopyToClipboard>
         <Button onClick={handleClose} autoFocus>
           Close
         </Button>

@@ -3,20 +3,39 @@ import {
   Container,
   Grid,
   IconButton,
+  Menu,
+  MenuItem,
   Paper,
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { useContext } from "react";
+import { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import { MdOutlineAddCircle, MdRemoveCircle } from "react-icons/md";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { jobTypes } from "../../..";
+import CopyToClipboard from "react-copy-to-clipboard";
+import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 
 export function RawResourceList() {
   const { activeJob } = useContext(ActiveJobContext);
+  const [anchorEl, setAnchorEl] = useState(null);
   const { newJobProcess } = useJobManagement();
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+  let copyText = "";
+
+  activeJob.build.materials.forEach((i) => {
+    copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
+  });
 
   function AddBuildIcon({ material }) {
     if (material.jobType === jobTypes.manufacturing) {
@@ -93,11 +112,41 @@ export function RawResourceList() {
               sx={{ display: { xs: "none", md: "block" } }}
               align="right"
             >
-              <Tooltip title="Placeholder, not currently implemented" arrow>
-                <IconButton>
-                  <MoreVertIcon size="small" color="Secondary" />
-                </IconButton>
-              </Tooltip>
+              <IconButton
+                id="rawResources_menu_button"
+                onClick={handleMenuClick}
+                aria-controls={
+                  Boolean(anchorEl) ? "rawResources_menu" : undefined
+                }
+                aria-haspopup="true"
+                aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+              >
+                <MoreVertIcon size="small" color="Secondary" />
+              </IconButton>
+              <Menu
+                id="rawResources_menu"
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                MenuListProps={{
+                  "aria-labelledby": "rawResources_menu_button",
+                }}
+              >
+                <CopyToClipboard
+                  text={copyText}
+                  onCopy={() => {
+                    setSnackbarData((prev) => ({
+                      ...prev,
+                      open: true,
+                      message: `Resource List Copied`,
+                      severity: "success",
+                      autoHideDuration: 1000,
+                    }));
+                  }}
+                >
+                  <MenuItem>Copy Resources List</MenuItem>
+                </CopyToClipboard>
+              </Menu>
             </Grid>
           </Grid>
         </Box>

@@ -220,7 +220,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
               </Button>
             </Tooltip>
           </Grid>
-          {multiSelect.length > 0 && (
+
             <Grid
               item
               xs={12}
@@ -238,16 +238,27 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                       (i) => i.itemID === multiSelect[0].itemID
                     )
                   }
-                  onClick={() => {
+                onClick={() => {
+                  if (multiSelect > 1) {
                     mergeJobs(multiSelect)
                     updateMultiSelect([]);
-                  }}
+                  } else {
+                    updateDialogData((prev) => ({
+                      ...prev,
+                      buttonText: "Close",
+                      id: "Empty-Multi-Select",
+                      open: true,
+                      title: "Oops",
+                      body: "You will need to select at least 2 jobs using the checkbox's on the job cards",
+                    }));
+                  }
+                }}
                 >
                   Merge Jobs
                 </Button>
               </Tooltip>
             </Grid>
-          )}
+
           <Grid
             item
             xs={12}

@@ -27,8 +27,8 @@ export function DialogBox() {
       >
         <DialogTitle id={dialogData.id}>{dialogData.title}</DialogTitle>
         <DialogContent>
-          <DialogContentText id={dialogData.id}>
-            <Typography variant="body1"color="secondary">{dialogData.body}</Typography>
+          <DialogContentText id={dialogData.id} color="secondary">
+            {dialogData.body}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

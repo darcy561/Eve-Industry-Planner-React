@@ -20,6 +20,7 @@
     "glob-parent": "^6.0.2",
     "jsonwebtoken": "^8.5.1",
     "react": "^17.0.2",
+    "react-copy-to-clipboard": "^5.0.4",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
     "react-router-dom": "^6.0.2",
@@ -73,7 +74,6 @@
       "REACT_APP_measurmentID",
       "REACT_APP_Version",
       "REACT_APP_APIURL"
-
     ]
   }
 }

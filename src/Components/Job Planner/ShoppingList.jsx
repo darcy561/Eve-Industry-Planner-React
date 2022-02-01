@@ -1,5 +1,8 @@
 import { useContext } from "react";
-import { ShoppingListContext, SnackBarDataContext } from "../../Context/LayoutContext";
+import {
+  ShoppingListContext,
+  SnackBarDataContext,
+} from "../../Context/LayoutContext";
 import {
   Button,
   Dialog,
@@ -15,13 +18,15 @@ export function ShoppingListDialog() {
   const { shoppingListData, updateShoppingListData } =
     useContext(ShoppingListContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  
-  let copyText = ""
+
+  let copyText = "";
+  let volumeTotal = 0
 
   if (shoppingListData.open) {
     shoppingListData.list.forEach((i) => {
-      copyText = copyText.concat(`${i.name} ${i.quantity}\n`)
-    })
+      copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
+      volumeTotal += (i.volume*i.quantity)
+    });
   }
   const handleClose = () => {
     updateShoppingListData((prev) => ({
@@ -60,17 +65,28 @@ export function ShoppingListDialog() {
             );
           })}
         </Grid>
+        <Grid container sx={{marginTop: "20px"}}>
+          <Grid item xs={4}>
+            <Typography variant="body1">Total Volume</Typography>
+          </Grid>
+          <Grid item xs={8} align="right">
+            <Typography vatiant="body1">{volumeTotal.toLocaleString()} m3</Typography>
+          </Grid>
+        </Grid>
       </DialogContent>
       <DialogActions>
-        <CopyToClipboard text={copyText} onCopy={() => {
-          setSnackbarData((prev) => ({
-            ...prev,
-            open: true,
-            message: `Shopping List Copied`,
-            severity: "success",
-            autoHideDuration: 1000,
-          }));
-        }} >
+        <CopyToClipboard
+          text={copyText}
+          onCopy={() => {
+            setSnackbarData((prev) => ({
+              ...prev,
+              open: true,
+              message: `Shopping List Copied`,
+              severity: "success",
+              autoHideDuration: 1000,
+            }));
+          }}
+        >
           <Button>Copy to Clipboard</Button>
         </CopyToClipboard>
         <Button onClick={handleClose} autoFocus>

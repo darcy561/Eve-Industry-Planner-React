@@ -10,43 +10,43 @@ import {
 } from "@mui/material";
 import { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
-import { UsersContext } from "../../../../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../../../../Context/AuthContext";
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 class ESIBrokerFee {
   constructor(entry, order, char) {
-    this.order_id = order.order_id
-    this.id = entry.id
-    this.complete = false
-    this.date = entry.date
-    this.amount = Math.abs(entry.amount)
-    this.CharacterHash = char.CharacterHash
+    this.order_id = order.order_id;
+    this.id = entry.id;
+    this.complete = false;
+    this.date = entry.date;
+    this.amount = Math.abs(entry.amount);
+    this.CharacterHash = char.CharacterHash;
   }
 }
 
 class ESIMarketOrder {
   constructor(order) {
-    this.duration = order.duration
-    this.is_corporation = order.is_corporation
-    this.issued = order.issued
-    this.location_id = order.location_id
-    this.location_name =order.location_name || null
-    this.order_id = order.order_id
-    this.item_price = order.price
-    this.range = order.range 
-    this.region_id = order.region_id
-    this.region_name = order.region_name || null
-    this.type_id = order.type_id
-    this.item_name = order.item_name || null
-    this.volume_remain = order.volume_remain
-    this.volume_total = order.volume_total
-    this.timeStamps = [order.issued]
-    this.CharacterHash = order.CharacterHash
-    this.complete = order.complete || false
+    this.duration = order.duration;
+    this.is_corporation = order.is_corporation;
+    this.issued = order.issued;
+    this.location_id = order.location_id;
+    this.location_name = order.location_name || null;
+    this.order_id = order.order_id;
+    this.item_price = order.price;
+    this.range = order.range;
+    this.region_id = order.region_id;
+    this.region_name = order.region_name || null;
+    this.type_id = order.type_id;
+    this.item_name = order.item_name || null;
+    this.volume_remain = order.volume_remain;
+    this.volume_total = order.volume_total;
+    this.timeStamps = [order.issued];
+    this.CharacterHash = order.CharacterHash;
+    this.complete = order.complete || false;
   }
-
 }
 
 export function AvailableMarketOrders({
@@ -58,6 +58,8 @@ export function AvailableMarketOrders({
   const { users, updateUsers } = useContext(UsersContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
+  const analytics = getAnalytics();
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -114,7 +116,9 @@ export function AvailableMarketOrders({
         </Grid>
         {itemOrderMatch.length !== 0 ? (
           itemOrderMatch.map((order) => {
-            const charData = users.find((i) => i.CharacterHash === order.CharacterHash)
+            const charData = users.find(
+              (i) => i.CharacterHash === order.CharacterHash
+            );
             return (
               <Grid key={order.order_id} container>
                 <Grid container item sx={{ marginBottom: "10px" }}>
@@ -187,7 +191,16 @@ export function AvailableMarketOrders({
                     <Typography variant="body2">Range:</Typography>
                   </Grid>
                   <Grid item xs={6} md={3}>
-                    <Typography variant="body2">{order.range.charAt(0).toUpperCase()+ order.range.slice(1)}</Typography>
+                    {order.range === "region" ? (
+                      <Typography variant="body2">
+                        {order.range.charAt(0).toUpperCase() +
+                          order.range.slice(1)}
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2">
+                        {order.range} Jumps
+                      </Typography>
+                    )}
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
@@ -220,19 +233,25 @@ export function AvailableMarketOrders({
                               Date.parse(order.issued) ===
                                 Date.parse(entry.date)
                             ) {
-
-                              newBrokersArray.push(Object.assign({},new ESIBrokerFee(entry,order,char)));
+                              newBrokersArray.push(
+                                Object.assign(
+                                  {},
+                                  new ESIBrokerFee(entry, order, char)
+                                )
+                              );
                             }
                           });
                           let newMarketOrderArray =
                             activeJob.build.sale.marketOrders;
-                          newMarketOrderArray.push(Object.assign({}, new ESIMarketOrder(order)));
-                          
-                          let newUsers = [...users]
+                          newMarketOrderArray.push(
+                            Object.assign({}, new ESIMarketOrder(order))
+                          );
+
+                          let newUsers = [...users];
                           newUsers[ParentUserIndex].linkedOrders.push(
                             order.order_id
                           );
-                            updateUsers(newUsers)
+                          updateUsers(newUsers);
                           updateActiveJob((prev) => ({
                             ...prev,
                             build: {
@@ -253,6 +272,10 @@ export function AvailableMarketOrders({
                             autoHideDuration: 1000,
                           }));
                           setJobModified(true);
+                          logEvent(analytics, "linkedMarketOrder", {
+                            UID: users[ParentUserIndex].accountID,
+                            isLoggedIn: isLoggedIn
+                          });
                         }}
                       >
                         <AddLinkIcon />

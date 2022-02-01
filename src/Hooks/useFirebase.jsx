@@ -2,18 +2,25 @@ import { useContext } from "react";
 import {
   UsersContext,
 } from "../Context/AuthContext";
-import { firestore, functions, performance } from "../firebase";
+import { firestore, functions, performance, auth } from "../firebase";
 import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import { currentUser, getIdToken } from "firebase/auth";
 
 export function useFirebase() {
   const { users } = useContext(UsersContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
+  const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
+
+  const determineFBState = async () => {
+    
+  }
 
   const determineUserState = async (user, fbToken) => {
     if (fbToken._tokenResponse.isNewUser) {
@@ -22,6 +29,9 @@ export function useFirebase() {
       try {
         const buildData = httpsCallable(functions, "user-createUserData");
         const charData = await buildData();
+        logEvent(analytics, "newUserCreation", {
+          UID: charData.data.accountID
+        })
         t.stop();
         return {
           accountID: charData.data.accountID,
@@ -56,6 +66,7 @@ export function useFirebase() {
   };
 
   const addNewJob = async (job) => {
+
       setDoc(
         doc(
           firestore,

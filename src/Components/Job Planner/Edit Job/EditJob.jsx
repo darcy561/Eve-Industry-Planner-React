@@ -104,7 +104,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
     }));
     updateJobSettingsTrigger((prev) => !prev);
   }
-
+  
   return (
     <Container
       disableGutters

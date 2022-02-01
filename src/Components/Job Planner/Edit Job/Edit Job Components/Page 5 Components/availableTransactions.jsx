@@ -1,9 +1,10 @@
 import { Grid, IconButton, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
-import { UsersContext } from "../../../../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function AvailableTransactionData({
   setJobModified,
@@ -13,6 +14,8 @@ export function AvailableTransactionData({
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
+  const analytics = getAnalytics();
 
   return (
     <Paper
@@ -116,6 +119,11 @@ export function AvailableTransactionData({
                       }));
 
                       setJobModified(true);
+                      
+                      logEvent(analytics, "linkedTransaction", {
+                        UID: users[parentUserIndex].accountID,
+                        isLoggedIn: isLoggedIn
+                      });
                     }}
                   >
                     <AddIcon />

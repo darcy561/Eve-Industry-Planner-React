@@ -20,6 +20,8 @@ class Job {
     this.rigType = 0;
     this.systemType = 1;
     this.apiJobs = [];
+    this.apiOrders = [];
+    this.apiTransactions = [];
 
     this.build = {
       products: {

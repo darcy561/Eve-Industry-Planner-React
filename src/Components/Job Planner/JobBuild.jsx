@@ -5,7 +5,7 @@ import { getToken } from "firebase/app-check";
 class Job {
   constructor(itemJson) {
     this.buildVer = process.env.REACT_APP_Version;
-    this.metaLevel = itemJson.MetaGroup || 1
+    this.metaLevel = itemJson.metaGroup || 1
     this.jobType = itemJson.jobType;
     this.name = itemJson.name;
     this.jobID = Date.now();
@@ -20,8 +20,6 @@ class Job {
     this.rigType = 0;
     this.systemType = 1;
     this.apiJobs = [];
-    this.apiOrders = [];
-    this.apiTransactions = [];
 
     this.build = {
       products: {
@@ -113,6 +111,7 @@ export async function createJob(itemID) {
         }
         return 0;
       });
+
       return outputObject;
     } catch (err) {
       return "objectError";

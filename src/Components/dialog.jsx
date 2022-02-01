@@ -5,7 +5,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Typography,
 } from "@mui/material";
 import React, { useContext } from "react";
 import { DialogDataContext } from "../Context/LayoutContext";

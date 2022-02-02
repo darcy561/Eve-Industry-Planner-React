@@ -7,6 +7,7 @@ import { Tooltip, IconButton } from "@mui/material";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import TimerIcon from "@mui/icons-material/Timer";
+import { useFirebase } from "../../../Hooks/useFirebase";
 
 export function RefreshApiIcon() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -21,6 +22,7 @@ export function RefreshApiIcon() {
     WalletJournal,
   } = useEveApi();
   const { RefreshUserAToken } = useRefreshUser();
+  const { determineFBState } = useFirebase();
   const [refreshState, updateRefreshState] = useState(1);
 
   const refreshAPIData = async () => {
@@ -65,6 +67,7 @@ export function RefreshApiIcon() {
     updateUsers(newUsers);
     updateApiJobs(newAPIArray);
     updateRefreshState(3);
+    determineFBState()
     setTimeout(() => {
       updateRefreshState(1);
     }, 900000);

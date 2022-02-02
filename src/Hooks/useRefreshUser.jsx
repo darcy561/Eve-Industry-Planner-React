@@ -48,7 +48,7 @@ export function useRefreshUser() {
     }));
 
     const refreshedUser = await RefreshTokens(refreshToken);
-    const fbToken = await firebaseAuth(refreshedUser);
+    refreshedUser.fbToken = await firebaseAuth(refreshedUser);
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -56,7 +56,7 @@ export function useRefreshUser() {
       charData: true,
     }));
 
-    const charSettings = await determineUserState(refreshedUser, fbToken);
+    const charSettings = await determineUserState(refreshedUser);
     refreshedUser.ParentUser = true;
     refreshedUser.accountID = charSettings.accountID;
     refreshedUser.linkedJobs = charSettings.linkedJobs;
@@ -64,6 +64,8 @@ export function useRefreshUser() {
     refreshedUser.linkedOrders = charSettings.linkedOrders;
     refreshedUser.settings = charSettings.settings;
 
+    console.log(refreshedUser);
+    
     updateLoadingText((prevObj) => ({
       ...prevObj,
       charDataComp: true,

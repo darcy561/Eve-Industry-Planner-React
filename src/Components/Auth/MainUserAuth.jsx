@@ -58,7 +58,7 @@ export function AuthMainUser() {
       }));
 
       const userObject = await EveSSOTokens(authCode);
-      const fbToken = await firebaseAuth(userObject);
+      userObject.fbToken = await firebaseAuth(userObject);
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
@@ -66,7 +66,7 @@ export function AuthMainUser() {
         charData: true
       }));
 
-      const userSettings = await determineUserState(userObject, fbToken);
+      const userSettings = await determineUserState(userObject);
       userObject.accountID = userSettings.accountID;
       userObject.linkedJobs = userSettings.linkedJobs;
       userObject.linkedTrans = userSettings.linkedTrans;
@@ -86,7 +86,7 @@ export function AuthMainUser() {
       userObject.apiBlueprints = await BlueprintLibrary(userObject);
       userObject.apiTransactions = await WalletTransactions(userObject);
       userObject.apiJournal = await WalletJournal(userObject);
-
+      console.log(userObject);
       updateLoadingText((prevObj) => ({
         ...prevObj,
         apiDataComp: true

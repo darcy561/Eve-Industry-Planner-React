@@ -101,15 +101,14 @@ export function UserIcon() {
             }}
           >
             Accounts
-          </MenuItem>
+          </MenuItem>*/}
           <MenuItem
-            disabled
             onClick={() => {
               navigate("/settings");
             }}
           >
             Settings
-          </MenuItem> */}
+          </MenuItem> 
           <MenuItem onClick={logout}>Log Out</MenuItem>
         </Menu>
       </>

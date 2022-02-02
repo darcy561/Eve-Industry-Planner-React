@@ -7,8 +7,8 @@ import { LayoutSettings } from "./SettingsModules/layoutSettings";
 
 export function SettingsPage() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-    const { users, updateUsers } = useContext(UsersContext);
-    const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
+  const { users } = useContext(UsersContext);
+  const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
   if (isLoggedIn) {
     return (
       <Container disableGutters maxWidth="false">
@@ -39,7 +39,7 @@ export function SettingsPage() {
     );
   } else {
     return (
-      <Container disableGutters>
+      <Container disableGutters maxWidth="false">
         <Paper
           elevation={3}
           sx={{

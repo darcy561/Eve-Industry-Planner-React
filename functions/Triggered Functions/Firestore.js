@@ -62,7 +62,8 @@ exports.updateJobArraySnapshot = functions.firestore
               jobType: documentNew.jobType,
               itemID: documentNew.itemID,
               isSnapshot: true,
-              apiJobs: documentNew.apiJobs
+              apiJobs: documentNew.apiJobs,
+              buildVer: documentNew.buildVer
             },
           });
         functions.logger.log("New item added to snapshot");
@@ -78,7 +79,8 @@ exports.updateJobArraySnapshot = functions.firestore
     else if (
       documentNew.runCount != documentOld.runCount ||
       documentNew.jobCount != documentOld.jobCount ||
-      documentNew.jobStatus != documentOld.jobStatus
+      documentNew.jobStatus != documentOld.jobStatus ||
+      documentNew.buildVer != documentOld.buildVer 
     ) {
       try {
         admin
@@ -94,7 +96,8 @@ exports.updateJobArraySnapshot = functions.firestore
               jobType: documentNew.jobType,
               itemID: documentNew.itemID,
               isSnapshot: true,
-              apiJobs: documentNew.apiJobs
+              apiJobs: documentNew.apiJobs,
+              buildVer: documentNew.buildVer
             },
           });
         functions.logger.log("Item snapshot modified");
@@ -127,7 +130,8 @@ exports.updateJobArraySnapshot = functions.firestore
             jobType: documentNew.jobType,
             itemID: documentNew.itemID,
             isSnapshot: true,
-            apiJobs: documentNew.apiJobs
+            apiJobs: documentNew.apiJobs,
+            buildVer: documentNew.buildVer
           },
         });
       functions.logger.log("Item removed from archive");

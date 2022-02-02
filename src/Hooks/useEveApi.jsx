@@ -1,10 +1,11 @@
 import { useContext } from "react";
 import skillsReference from "../RawData/bpSkills.json";
 import searchData from "../RawData/searchIndex.json";
-import { EveIDsContext } from "../Context/EveDataContext";
+import { EveESIStatusContext, EveIDsContext } from "../Context/EveDataContext";
 
 export function useEveApi() {
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { eveESIStatus, updateEveESIStatus } = useContext(EveESIStatusContext);
 
   const CharacterSkills = async (userObj) => {
     try {
@@ -315,6 +316,52 @@ export function useEveApi() {
     updateEveIDs((prev) => prev.concat(newArray));
     return newArray;
   };
+  
+  const serverStatus = async () => {
+    try {
+      const statusPromise = await fetch("https://esi.evetech.net/latest/status/?datasource=tranquility")
+
+      const statusJSON = await statusPromise.json();
+      if (statusPromise.status === 200 || statusPromise.status === 304) {
+        let newAttempt = [...eveESIStatus.serverStatus.attempts]
+        if (newAttempt.length <= 5) {
+          newAttempt.push(1)
+        } else {
+          newAttempt.shift()
+          newAttempt.push(1)
+        }
+        updateEveESIStatus((prev) => ({
+          ...prev,
+          serverStatus: {
+            online: true,
+            playerCount: statusJSON.players,
+            attempts: newAttempt
+          }
+        }))
+        return true
+      } else {
+        let newAttempt = [...eveESIStatus.serverStatus.attempts]
+        if (newAttempt.length <= 5) {
+          newAttempt.push(0)
+        } else {
+          newAttempt.shift()
+          newAttempt.push(0)
+        }
+        updateEveESIStatus((prev) => ({
+          ...prev,
+          serverStatus: {
+            online: false,
+            playerCount: 0,
+            attempts: newAttempt
+          }
+        }))
+      }
+    }
+    catch (err) {
+      console.log(err)
+      
+    }
+  }
   return {
     BlueprintLibrary,
     CharacterSkills,
@@ -322,6 +369,7 @@ export function useEveApi() {
     IDtoName,
     IndustryJobs,
     MarketOrders,
+    serverStatus,
     WalletTransactions,
     WalletJournal,
   };

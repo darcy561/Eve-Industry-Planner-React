@@ -49,9 +49,11 @@ export function EditPage1({ setJobModified }) {
           </Grid>
         </Grid>
         <Grid container direction="row" item xs={12} md={9} spacing={2}>
-          <Grid item xs={12}>
-            <SkillCheck />
-          </Grid>
+          {activeJob.buildVer === "0.2.0" && (
+            <Grid item xs={12}>
+              <SkillCheck />
+            </Grid>
+          )}
           <Grid item xs={12}>
             <RawResourceList />
           </Grid>

@@ -1,12 +1,13 @@
 import { useContext } from "react";
 import { UsersContext } from "../Context/AuthContext";
-import { firestore, functions, performance } from "../firebase";
+import { firestore, functions, performance, auth } from "../firebase";
 import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { firebaseAuth } from "../Components/Auth/firebaseAuth";
+// import { firebaseAuth } from "../Components/Auth/firebaseAuth";
+// import { getAuth, getIdToken } from "firebase/auth";
 
 export function useFirebase() {
   const { users } = useContext(UsersContext);
@@ -18,14 +19,14 @@ export function useFirebase() {
 
   const determineFBState = async () => {
     //1 hour timeout
-    if (
-      parentUser.fbToken === undefined ||
-      parentUser.fbToken.user === undefined ||
-      Date.parse(parentUser.fbToken.user.stsTokenManager.expirationTime) <=
-        Date.now()
-    ) {
-      parentUser.fbToken = await firebaseAuth(parentUser);
-    }
+    // if (
+    //   parentUser.fbToken === undefined ||
+    //   parentUser.fbToken.user === undefined ||
+    //   Date.parse(parentUser.fbToken.user.stsTokenManager.expirationTime) <=
+    //     Date.now()
+    // ) {
+
+    // }
   };
 
   const determineUserState = async (user) => {
@@ -106,6 +107,7 @@ export function useFirebase() {
         skills: job.skills,
         rawData: job.rawData,
         build: job.build,
+        buildVer: job.buildVer
       }
     );
   };
@@ -138,6 +140,7 @@ export function useFirebase() {
         skills: job.skills,
         rawData: job.rawData,
         build: job.build,
+        buildVer: job.buildVer
       }
     );
   };
@@ -159,6 +162,7 @@ export function useFirebase() {
         runCount: job.runCount,
         jobCount: job.jobCount,
         apiJobs: job.apiJobs,
+        buildVer: job.buildVer
       }
     );
   };
@@ -177,7 +181,7 @@ export function useFirebase() {
 
   const removeJob = async (job) => {
     await determineFBState();
-    const parentUser = users.find((i) => i.ParentUser === true);
+
     deleteDoc(
       doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
     );
@@ -222,6 +226,7 @@ export function useFirebase() {
       skills: document.data().skills,
       rawData: document.data().rawData,
       build: document.data().build,
+      buildVer: document.data().build
     };
 
     const index = jobArray.findIndex((x) => job.jobID === x.jobID);

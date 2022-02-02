@@ -79,13 +79,20 @@ export function AuthMainUser() {
         apiData: true
       }));
 
-      userObject.apiSkills = await CharacterSkills(userObject);
-      userObject.apiJobs = await IndustryJobs(userObject);
-      userObject.apiOrders = await MarketOrders(userObject);
-      userObject.apiHistOrders = await HistoricMarketOrders(userObject);
-      userObject.apiBlueprints = await BlueprintLibrary(userObject);
-      userObject.apiTransactions = await WalletTransactions(userObject);
-      userObject.apiJournal = await WalletJournal(userObject);
+      // userObject.apiSkills = await CharacterSkills(userObject);
+      // userObject.apiJobs = await IndustryJobs(userObject);
+      // userObject.apiOrders = await MarketOrders(userObject);
+      // userObject.apiHistOrders = await HistoricMarketOrders(userObject);
+      // userObject.apiBlueprints = await BlueprintLibrary(userObject);
+      // userObject.apiTransactions = await WalletTransactions(userObject);
+      // userObject.apiJournal = await WalletJournal(userObject);
+      userObject.apiSkills = []
+      userObject.apiJobs = []
+      userObject.apiOrders = []
+      userObject.apiHistOrders = []
+      userObject.apiBlueprints = []
+      userObject.apiTransactions = []
+      userObject.apiJournal = []
       console.log(userObject);
       updateLoadingText((prevObj) => ({
         ...prevObj,

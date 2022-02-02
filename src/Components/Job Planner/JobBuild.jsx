@@ -4,7 +4,7 @@ import { getToken } from "firebase/app-check";
 
 class Job {
   constructor(itemJson) {
-    this.buildVer = process.env.REACT_APP_Version;
+    this.buildVer = process.env.REACT_APP_Version
     this.metaLevel = itemJson.metaGroup || 1
     this.jobType = itemJson.jobType;
     this.name = itemJson.name;

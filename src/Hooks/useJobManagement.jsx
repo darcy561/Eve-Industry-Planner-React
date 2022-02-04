@@ -111,9 +111,9 @@ export function useJobManagement() {
         }
 
         const calculatedJob = CalculateResources(newJob);
-
+        calculatedJob.build.buildChar = parentUser.CharacterHash;
+        
         if (isLoggedIn) {
-          calculatedJob.build.buildChar = parentUser.CharacterHash;
           addNewJob(calculatedJob);
         }
 

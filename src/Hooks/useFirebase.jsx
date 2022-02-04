@@ -1,13 +1,11 @@
 import { useContext } from "react";
 import { UsersContext } from "../Context/AuthContext";
-import { firestore, functions, performance, auth } from "../firebase";
+import { firestore, functions, performance } from "../firebase";
 import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
-// import { firebaseAuth } from "../Components/Auth/firebaseAuth";
-// import { getAuth, getIdToken } from "firebase/auth";
 
 export function useFirebase() {
   const { users } = useContext(UsersContext);
@@ -16,18 +14,6 @@ export function useFirebase() {
   const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
-
-  const determineFBState = async () => {
-    //1 hour timeout
-    // if (
-    //   parentUser.fbToken === undefined ||
-    //   parentUser.fbToken.user === undefined ||
-    //   Date.parse(parentUser.fbToken.user.stsTokenManager.expirationTime) <=
-    //     Date.now()
-    // ) {
-
-    // }
-  };
 
   const determineUserState = async (user) => {
     if (user.fbToken._tokenResponse.isNewUser) {
@@ -77,7 +63,6 @@ export function useFirebase() {
   };
 
   const addNewJob = async (job) => {
-    parentUser.fbToken = await determineFBState();
 
     setDoc(
       doc(
@@ -107,13 +92,15 @@ export function useFirebase() {
         skills: job.skills,
         rawData: job.rawData,
         build: job.build,
-        buildVer: job.buildVer
+        buildVer: job.buildVer,
+        metaLevel: job.metaLevel,
+        parentJob: job.parentJob
       }
     );
   };
 
   const uploadJob = async (job) => {
-    await determineFBState();
+
     updateDoc(
       doc(
         firestore,
@@ -140,13 +127,14 @@ export function useFirebase() {
         skills: job.skills,
         rawData: job.rawData,
         build: job.build,
-        buildVer: job.buildVer
+        buildVer: job.buildVer,
+        metaLevel: job.metaLevel,
+        parentJob: job.parentJob
       }
     );
   };
 
   const uploadSnapshotData = async (job) => {
-    await determineFBState();
     updateDoc(
       doc(
         firestore,
@@ -168,7 +156,7 @@ export function useFirebase() {
   };
 
   const updateMainUserDoc = async () => {
-    await determineFBState();
+
     updateDoc(doc(firestore, "Users", parentUser.accountID), {
       parentUserHash: parentUser.CharacterHash,
       jobStatusArray: jobStatus,
@@ -180,7 +168,7 @@ export function useFirebase() {
   };
 
   const removeJob = async (job) => {
-    await determineFBState();
+
 
     deleteDoc(
       doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
@@ -188,7 +176,6 @@ export function useFirebase() {
   };
 
   const archivedJob = async (job) => {
-    await determineFBState();
     updateDoc(
       doc(
         firestore,
@@ -200,7 +187,7 @@ export function useFirebase() {
   };
 
   const downloadCharacterJobs = async (job) => {
-    await determineFBState();
+
 
     const document = await getDoc(
       doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
@@ -226,7 +213,9 @@ export function useFirebase() {
       skills: document.data().skills,
       rawData: document.data().rawData,
       build: document.data().build,
-      buildVer: document.data().build
+      buildVer: document.data().buildVer,
+      metaLevel: document.data().metaLevel,
+      parentJob: document.data().parentJob
     };
 
     const index = jobArray.findIndex((x) => job.jobID === x.jobID);
@@ -239,7 +228,6 @@ export function useFirebase() {
   return {
     archivedJob,
     determineUserState,
-    determineFBState,
     addNewJob,
     uploadJob,
     uploadSnapshotData,

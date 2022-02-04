@@ -4925,6 +4925,11 @@
     "blueprintID": 22558
   },
   {
+    "name": "Praetor EV-900",
+    "itemID": 22572,
+    "blueprintID": 22573
+  },
+  {
     "name": "Ice Harvester Upgrade I",
     "itemID": 22576,
     "blueprintID": 22577
@@ -4965,6 +4970,26 @@
     "blueprintID": 23062
   },
   {
+    "name": "Wasp EC-900",
+    "itemID": 23473,
+    "blueprintID": 23474
+  },
+  {
+    "name": "Ogre SD-900",
+    "itemID": 23506,
+    "blueprintID": 23507
+  },
+  {
+    "name": "Praetor TD-900",
+    "itemID": 23510,
+    "blueprintID": 23511
+  },
+  {
+    "name": "Berserker TP-900",
+    "itemID": 23512,
+    "blueprintID": 23513
+  },
+  {
     "name": "Heavy Armor Maintenance Bot I",
     "itemID": 23523,
     "blueprintID": 23524
@@ -4985,6 +5010,11 @@
     "blueprintID": 23534
   },
   {
+    "name": "Berserker SW-900",
+    "itemID": 23536,
+    "blueprintID": 23537
+  },
+  {
     "name": "Warden I",
     "itemID": 23559,
     "blueprintID": 23560
@@ -5000,6 +5030,26 @@
     "blueprintID": 23564
   },
   {
+    "name": "Acolyte EV-300",
+    "itemID": 23659,
+    "blueprintID": 23660
+  },
+  {
+    "name": "Infiltrator EV-600",
+    "itemID": 23702,
+    "blueprintID": 23703
+  },
+  {
+    "name": "Vespa EC-600",
+    "itemID": 23705,
+    "blueprintID": 23706
+  },
+  {
+    "name": "Hornet EC-300",
+    "itemID": 23707,
+    "blueprintID": 23708
+  },
+  {
     "name": "Medium Armor Maintenance Bot I",
     "itemID": 23709,
     "blueprintID": 23710
@@ -5010,6 +5060,16 @@
     "blueprintID": 23712
   },
   {
+    "name": "Hammerhead SD-600",
+    "itemID": 23713,
+    "blueprintID": 23714
+  },
+  {
+    "name": "Hobgoblin SD-300",
+    "itemID": 23715,
+    "blueprintID": 23716
+  },
+  {
     "name": "Medium Shield Maintenance Bot I",
     "itemID": 23717,
     "blueprintID": 23718
@@ -5018,6 +5078,36 @@
     "name": "Light Shield Maintenance Bot I",
     "itemID": 23719,
     "blueprintID": 23720
+  },
+  {
+    "name": "Valkyrie TP-600",
+    "itemID": 23721,
+    "blueprintID": 23722
+  },
+  {
+    "name": "Warrior TP-300",
+    "itemID": 23723,
+    "blueprintID": 23724
+  },
+  {
+    "name": "Infiltrator TD-600",
+    "itemID": 23725,
+    "blueprintID": 23726
+  },
+  {
+    "name": "Acolyte TD-300",
+    "itemID": 23727,
+    "blueprintID": 23728
+  },
+  {
+    "name": "Valkyrie SW-600",
+    "itemID": 23729,
+    "blueprintID": 23730
+  },
+  {
+    "name": "Warrior SW-300",
+    "itemID": 23731,
+    "blueprintID": 23732
   },
   {
     "name": "Ragnarok",
@@ -6365,6 +6455,11 @@
     "blueprintID": 28666
   },
   {
+    "name": "Nanite Repair Paste",
+    "itemID": 28668,
+    "blueprintID": 2739
+  },
+  {
     "name": "Golem",
     "itemID": 28710,
     "blueprintID": 28711
@@ -6388,6 +6483,41 @@
     "name": "Ark",
     "itemID": 28850,
     "blueprintID": 28851
+  },
+  {
+    "name": "Optimal Range Script",
+    "itemID": 28999,
+    "blueprintID": 29000
+  },
+  {
+    "name": "Tracking Speed Script",
+    "itemID": 29001,
+    "blueprintID": 29002
+  },
+  {
+    "name": "Focused Warp Disruption Script",
+    "itemID": 29003,
+    "blueprintID": 29004
+  },
+  {
+    "name": "Optimal Range Disruption Script",
+    "itemID": 29005,
+    "blueprintID": 29006
+  },
+  {
+    "name": "Tracking Speed Disruption Script",
+    "itemID": 29007,
+    "blueprintID": 29008
+  },
+  {
+    "name": "Targeting Range Script",
+    "itemID": 29009,
+    "blueprintID": 29010
+  },
+  {
+    "name": "Scan Resolution Script",
+    "itemID": 29011,
+    "blueprintID": 29012
   },
   {
     "name": "Capital Antimatter Reactor Unit",
@@ -9045,6 +9175,11 @@
     "blueprintID": 32445
   },
   {
+    "name": "Salvage Drone I",
+    "itemID": 32787,
+    "blueprintID": 32982
+  },
+  {
     "name": "Unrefined Vanadium Hafnite",
     "itemID": 32821,
     "blueprintID": 46187
@@ -9665,6 +9800,16 @@
     "blueprintID": 35792
   },
   {
+    "name": "Missile Range Script",
+    "itemID": 35794,
+    "blueprintID": 35796
+  },
+  {
+    "name": "Missile Precision Script",
+    "itemID": 35795,
+    "blueprintID": 35797
+  },
+  {
     "name": "Raitaru",
     "itemID": 35825,
     "blueprintID": 36971
@@ -10100,6 +10245,36 @@
     "blueprintID": 41584
   },
   {
+    "name": "Standup Gravimetric ECM Script",
+    "itemID": 37821,
+    "blueprintID": 37833
+  },
+  {
+    "name": "Standup Ladar ECM Script",
+    "itemID": 37822,
+    "blueprintID": 37834
+  },
+  {
+    "name": "Standup Magnetometric ECM Script",
+    "itemID": 37823,
+    "blueprintID": 37835
+  },
+  {
+    "name": "Standup Radar ECM Script",
+    "itemID": 37824,
+    "blueprintID": 37836
+  },
+  {
+    "name": "Standup Heavy Guided Bomb",
+    "itemID": 37849,
+    "blueprintID": 37858
+  },
+  {
+    "name": "Standup Light Guided Bomb",
+    "itemID": 37850,
+    "blueprintID": 37859
+  },
+  {
     "name": "Noir. Modified Entosis Link",
     "itemID": 40307,
     "blueprintID": 40311
@@ -10118,6 +10293,16 @@
     "name": "Pandemic SPHERE Modified Entosis Link",
     "itemID": 40310,
     "blueprintID": 40314
+  },
+  {
+    "name": "Missile Range Disruption Script",
+    "itemID": 40334,
+    "blueprintID": 40336
+  },
+  {
+    "name": "Missile Precision Disruption Script",
+    "itemID": 40335,
+    "blueprintID": 40337
   },
   {
     "name": "Upwell Palatine Keepstar",
@@ -10585,6 +10770,11 @@
     "blueprintID": 41165
   },
   {
+    "name": "ECCM Script",
+    "itemID": 41155,
+    "blueprintID": 41230
+  },
+  {
     "name": "Carbide Compact Quad 3500mm Siege Artillery",
     "itemID": 41156,
     "blueprintID": 41168
@@ -10965,6 +11155,46 @@
     "blueprintID": 41662
   },
   {
+    "name": "Armor EM Resistance Script",
+    "itemID": 41517,
+    "blueprintID": 41590
+  },
+  {
+    "name": "Armor Thermal Resistance Script",
+    "itemID": 41518,
+    "blueprintID": 41591
+  },
+  {
+    "name": "Armor Kinetic Resistance Script",
+    "itemID": 41519,
+    "blueprintID": 41592
+  },
+  {
+    "name": "Armor Explosive Resistance Script",
+    "itemID": 41520,
+    "blueprintID": 41593
+  },
+  {
+    "name": "Shield EM Resistance Script",
+    "itemID": 41521,
+    "blueprintID": 41594
+  },
+  {
+    "name": "Shield Thermal Resistance Script",
+    "itemID": 41522,
+    "blueprintID": 41595
+  },
+  {
+    "name": "Shield Kinetic Resistance Script",
+    "itemID": 41523,
+    "blueprintID": 41596
+  },
+  {
+    "name": "Shield Explosive Resistance Script",
+    "itemID": 41524,
+    "blueprintID": 41597
+  },
+  {
     "name": "Capital Flex Armor Hardener II",
     "itemID": 41525,
     "blueprintID": 41658
@@ -11043,6 +11273,21 @@
     "name": "Skirmish Command Burst I",
     "itemID": 42530,
     "blueprintID": 43546
+  },
+  {
+    "name": "Sensor Optimization Charge",
+    "itemID": 42835,
+    "blueprintID": 42879
+  },
+  {
+    "name": "Electronic Superiority Charge",
+    "itemID": 42836,
+    "blueprintID": 42878
+  },
+  {
+    "name": "Electronic Hardening Charge",
+    "itemID": 42837,
+    "blueprintID": 42877
   },
   {
     "name": "Capital Industrial Core II",
@@ -11268,6 +11513,11 @@
     "name": "Marshal",
     "itemID": 44996,
     "blueprintID": 45528
+  },
+  {
+    "name": "Focused Warp Scrambling Script",
+    "itemID": 45010,
+    "blueprintID": 45011
   },
   {
     "name": "Monitor",
@@ -11990,6 +12240,11 @@
     "blueprintID": 47974
   },
   {
+    "name": "Baryon Exotic Plasma S",
+    "itemID": 47924,
+    "blueprintID": 48098
+  },
+  {
     "name": "Meson Exotic Plasma S",
     "itemID": 47925,
     "blueprintID": 48099
@@ -12005,6 +12260,11 @@
     "blueprintID": 48101
   },
   {
+    "name": "Baryon Exotic Plasma M",
+    "itemID": 47928,
+    "blueprintID": 48103
+  },
+  {
     "name": "Meson Exotic Plasma M",
     "itemID": 47929,
     "blueprintID": 48104
@@ -12018,6 +12278,11 @@
     "name": "Mystic M",
     "itemID": 47931,
     "blueprintID": 48106
+  },
+  {
+    "name": "Baryon Exotic Plasma L",
+    "itemID": 47932,
+    "blueprintID": 48108
   },
   {
     "name": "Meson Exotic Plasma L",
@@ -12110,6 +12375,11 @@
     "blueprintID": 53029
   },
   {
+    "name": "Baryon Exotic Plasma XL",
+    "itemID": 52916,
+    "blueprintID": 53031
+  },
+  {
     "name": "Capital Ultratidal Entropic Mounting",
     "itemID": 53035,
     "blueprintID": 53032
@@ -12123,6 +12393,16 @@
     "name": "Capital Absorption Thruster Array",
     "itemID": 53037,
     "blueprintID": 53034
+  },
+  {
+    "name": "Tetryon Exotic Plasma XL",
+    "itemID": 53301,
+    "blueprintID": 53303
+  },
+  {
+    "name": "Meson Exotic Plasma XL",
+    "itemID": 53302,
+    "blueprintID": 53304
   },
   {
     "name": "Signal-25 'Needlejack' Filament",
@@ -12328,6 +12608,11 @@
     "name": "Salvage Drone II",
     "itemID": 55760,
     "blueprintID": 55762
+  },
+  {
+    "name": "'Dunk' Salvage Drone",
+    "itemID": 55761,
+    "blueprintID": 55763
   },
   {
     "name": "Mobile Sanguine Harvester",

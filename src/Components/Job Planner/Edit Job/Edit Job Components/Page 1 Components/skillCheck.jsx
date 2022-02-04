@@ -4,6 +4,7 @@ import { UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { Masonry } from "@mui/lab";
 
 export function SkillCheck() {
   const { activeJob } = useContext(ActiveJobContext);
@@ -16,6 +17,7 @@ export function SkillCheck() {
     <Paper
       elevation={3}
       sx={{
+        minWidth: "100%",
         padding: "20px",
       }}
       square={true}
@@ -46,37 +48,38 @@ export function SkillCheck() {
                 <Grid
                   item
                   xs={12}
-                  sx={{ minHeight: { xs: "4rem", sm: "2rem" } }}
+                  sx={{ minHeight: { xs: "3rem", sm: "2rem" } }}
                 >
                   <Typography variant="body2" align="center">
                     {charSkill.name}
                   </Typography>
                 </Grid>
-                {charSkill.activeLevel >= jSkill.level ? (
-                  <Grid item xs={12} align="center">
-                    <Grid item xs={12} sx={{ minHeight: "2rem" }}>
+
+                <Grid
+                  item
+                  xs={12}
+                  align="center"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Masonry columns={1}>
+                    {charSkill.activeLevel >= jSkill.level ? (
                       <Icon fontSize="large" color="success">
                         <CheckCircleIcon />
                       </Icon>
-                    </Grid>
-                  </Grid>
-                ) : (
-                  <Grid item xs={12} align="center">
-                    <Grid item xs={12} sx={{ minHeight: "2rem" }}>
+                    ) : (
                       <Icon fontSize="large" color="error">
                         <CancelIcon />
                       </Icon>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body2">
-                        Required Level: {jSkill.level}
-                      </Typography>
-                      <Typography variant="body2">
-                        Current Level: {charSkill.activeLevel}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                )}
+                    )}
+                    <Typography variant="body2">
+                      Required Level: {jSkill.level}
+                    </Typography>
+                    <Typography variant="body2">
+                      Current Level: {charSkill.activeLevel}
+                    </Typography>
+                  </Masonry>
+                </Grid>
               </Grid>
             );
           })}

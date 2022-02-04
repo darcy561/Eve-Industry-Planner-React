@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { Grid, IconButton, Tooltip, Typography } from "@mui/material";
-import RemoveIcon from "@mui/icons-material/Remove";
+import ClearIcon from '@mui/icons-material/Clear';
 
 export function MaterialCost({ material, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -60,28 +60,42 @@ export function MaterialCost({ material, setJobModified }) {
   }
 
   return (
-      <Grid container direction="row" sx={{
-        minHeight:"8vh"
-    }}>
+    <Grid
+      container
+      direction="row"
+      sx={{
+        minHeight: "8vh",
+      }}
+    >
       {material.purchasing.map((record) => {
         return (
-          <Grid key={record.id} container direction="row" item>
-            <Grid item xs={11} align="center">
+          <Grid
+            key={record.id}
+            container
+            direction="row"
+            item
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Grid item xs="auto" align="center">
               <Typography variant="body2">
                 {record.itemCount.toLocaleString()} @{" "}
                 {record.itemCost.toLocaleString()} ISK Each
               </Typography>
             </Grid>
-            <Grid item xs={1}>
-              <Tooltip title="Removes the item cost row from the material" arrow>
-              <IconButton
-                color="primary"
-                size="small"
-                onClick={() => handleRemove(material, record)}
+            <Grid item xs="auto" align="left">
+              <Tooltip
+                title="Removes the item cost row from the material"
+                arrow
               >
-                <RemoveIcon />
+                <IconButton
+                  color="error"
+                  size="small"
+                  onClick={() => handleRemove(material, record)}
+                >
+                  <ClearIcon />
                 </IconButton>
-                </Tooltip>
+              </Tooltip>
             </Grid>
           </Grid>
         );

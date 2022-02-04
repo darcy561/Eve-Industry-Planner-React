@@ -8,6 +8,7 @@ import { RawResourceList } from "./Page 1 Components/rawResources";
 import { ProductionStats } from "./Page 1 Components/productionStats";
 import { TutorialStep1 } from "./Page 1 Components/tutorialStep1";
 import { SkillCheck } from "./Page 1 Components/skillCheck";
+import { Masonry } from "@mui/lab";
 
 export function EditPage1({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -34,29 +35,23 @@ export function EditPage1({ setJobModified }) {
       maxWidth="false"
       sx={{ width: "100%", marginTop: "20px" }}
     >
-      <Grid container spacing={2}>
+      <Grid container direction="row" spacing={2}>
         {!parentUser.settings.layout.hideTutorials && (
           <Grid item xs={12}>
             <TutorialStep1 />
           </Grid>
         )}
-        <Grid container direction="row" item xs={12} md={3} spacing={2}>
-          <Grid item xs={12}>
+        <Grid item xs={12} md={3}>
+          <Masonry columns={1} spacing={2}>
             <ProductionStats />
-          </Grid>
-          <Grid item xs={12}>
             <OptionSwitch />
-          </Grid>
+          </Masonry>
         </Grid>
-        <Grid container direction="row" item xs={12} md={9} spacing={2}>
-          {activeJob.buildVer === "0.2.0" && (
-            <Grid item xs={12}>
-              <SkillCheck />
-            </Grid>
-          )}
-          <Grid item xs={12}>
+        <Grid item xs={12} md={9}>
+          <Masonry columns={1} spacing={2}>
+            <SkillCheck />
             <RawResourceList />
-          </Grid>
+          </Masonry>
         </Grid>
       </Grid>
     </Container>

@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { Grid, IconButton, Paper, Typography } from "@mui/material";
-import RemoveIcon from "@mui/icons-material/Remove";
+import ClearIcon from '@mui/icons-material/Clear';
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 
@@ -61,7 +61,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                 <Grid item xs={12} md={1} align="center">
                   <IconButton
                     size="small"
-                    color="primary"
+                    color="error"
                     onClick={() => {
                       
                       const tIndex =
@@ -116,7 +116,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                       setJobModified(true);
                     }}
                   >
-                    <RemoveIcon />
+                    <ClearIcon />
                   </IconButton>
                 </Grid>
               </Grid>

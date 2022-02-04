@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import {
   Autocomplete,
+  Box,
   Button,
   CircularProgress,
   Grid,
@@ -228,7 +229,8 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
               align="center"
               sx={{ marginBottom: { xs: "20px", md: "0px" } }}
             >
-              <Tooltip title="Merges the selected jobs into one." arrow>
+            <Tooltip title="Merges the selected jobs into one." arrow>
+              <Box>
                 <Button
                   variant="outlined"
                   size="small"
@@ -238,8 +240,8 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                       (i) => i.itemID === multiSelect[0].itemID
                     )
                   }
-                onClick={() => {
-                  if (multiSelect > 1) {
+                  onClick={() => {
+                  if (multiSelect.length > 1) {
                     mergeJobs(multiSelect)
                     updateMultiSelect([]);
                   } else {
@@ -249,13 +251,14 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                       id: "Empty-Multi-Select",
                       open: true,
                       title: "Oops",
-                      body: "You will need to select at least 2 jobs using the checkbox's on the job cards",
+                      body: "You will need to select at least 2 matching jobs using the checkbox's on the job cards",
                     }));
                   }
                 }}
                 >
                   Merge Jobs
                 </Button>
+                </Box>
               </Tooltip>
             </Grid>
 
@@ -282,11 +285,13 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 Select All
               </Button>
             </Tooltip>
-            {multiSelect.length > 0 && (
-              <Tooltip title="Clears the selected jobs." arrow>
+
+            <Tooltip title="Clears the selected jobs." arrow>
+              <Box sx={{display:"inline"}}>
                 <Button
                   variant="outlined"
-                  size="small"
+                size="small"
+                disabled={!multiSelect.length>0}
                   sx={{ marginRight: "10px" }}
                   onClick={() => {
                     updateMultiSelect([]);
@@ -294,8 +299,9 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 >
                   Clear Selection
                 </Button>
+                </Box>
               </Tooltip>
-            )}
+
           </Grid>
 
           <Grid item xs={12} md="auto" align="center">

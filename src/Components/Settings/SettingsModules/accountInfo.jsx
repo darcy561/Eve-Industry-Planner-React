@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
 
 export function AccountInfo() {
-  const { users, updateUsers } = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
   const parentUser = users.find((i) => i.ParentUser === true);
 
   return (
@@ -26,16 +26,6 @@ export function AccountInfo() {
           </Grid>
           <Grid item xs={9} align="right">
             <Typography variant="body2">{parentUser.accountID}</Typography>
-          </Grid>
-          <Grid item xs={3} sx={{ marginBottom: "10px" }}>
-            <Typography variant="body2">Account Created:</Typography>
-          </Grid>
-          <Grid item xs={9} align="right">
-            <Typography variant="body2">
-              {new Date(
-                Number(parentUser.fbToken.user.reloadUserInfo.createdAt)
-              ).toLocaleString()}
-            </Typography>
           </Grid>
         </Grid>
       </Grid>

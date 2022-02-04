@@ -280,7 +280,7 @@ export function LinkedMarketOrders({
                   )}
                   <Tooltip title="Unlink order from job" arrow>
                     <IconButton
-                      color="primary"
+                      color="error"
                       size="small"
                       onClick={() => {
                         const orderIndex =

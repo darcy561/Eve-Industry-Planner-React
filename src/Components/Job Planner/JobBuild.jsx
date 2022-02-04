@@ -5,7 +5,7 @@ import { getToken } from "firebase/app-check";
 class Job {
   constructor(itemJson) {
     this.buildVer = process.env.REACT_APP_Version
-    this.metaLevel = itemJson.metaGroup || 1
+    this.metaLevel = itemJson.metaGroup || null
     this.jobType = itemJson.jobType;
     this.name = itemJson.name;
     this.jobID = Date.now();
@@ -22,6 +22,7 @@ class Job {
     this.apiJobs = [];
     this.apiOrders = [];
     this.apiTransactions = [];
+    this.parentJob = null;
 
     this.build = {
       products: {
@@ -34,6 +35,7 @@ class Job {
         extrasTotal: 0,
         linkedJobs: [],
         installCosts: 0,
+        inventionCosts: 0,
       },
       sale: {
         totalSold: 0,
@@ -103,6 +105,7 @@ export async function createJob(itemID) {
         material.quantityPurchased = 0;
         material.purchasedCost = 0;
         material.purchaseComplete = false;
+        material.childJob = [];
       });
       outputObject.build.materials.sort((a, b) => {
         if (a.name < b.name) {

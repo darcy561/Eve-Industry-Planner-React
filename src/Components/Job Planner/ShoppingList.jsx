@@ -52,8 +52,14 @@ export function ShoppingListDialog() {
         <Grid container>
           {shoppingListData.list.map((item) => {
             return (
-              <Grid key={item.typeID} container item xs={12}>
-                <Grid item xs={8}>
+              <Grid key={item.typeID} container item xs={12} justifyContent="center" alignItems="center">
+                <Grid item sm={1} sx={{display:{xs:"none", sm:"block"}, paddingRight:"5px"}} align="center">
+                <img
+                  src={`https://image.eveonline.com/Type/${item.typeID}_32.png`}
+                  alt=""
+                />
+                  </Grid>
+                <Grid item xs={8} sm={7} >
                   <Typography variant="body1">{item.name}</Typography>
                 </Grid>
                 <Grid item xs={4}>

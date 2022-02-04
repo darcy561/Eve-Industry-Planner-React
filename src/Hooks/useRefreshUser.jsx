@@ -8,10 +8,7 @@ import {
   JobArrayContext,
   JobStatusContext,
 } from "../Context/JobContext";
-import {
-  IsLoggedInContext,
-  UsersContext,
-} from "../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
 import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
 import jwt from "jsonwebtoken";
 import { trace } from "firebase/performance";
@@ -25,6 +22,7 @@ export function useRefreshUser() {
     HistoricMarketOrders,
     IndustryJobs,
     MarketOrders,
+    serverStatus,
     WalletTransactions,
     WalletJournal,
   } = useEveApi();
@@ -64,21 +62,29 @@ export function useRefreshUser() {
     refreshedUser.linkedOrders = charSettings.linkedOrders;
     refreshedUser.settings = charSettings.settings;
 
-    console.log(refreshedUser);
-    
     updateLoadingText((prevObj) => ({
       ...prevObj,
       charDataComp: true,
       apiData: true,
     }));
-
-    refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
-    refreshedUser.apiJobs = await IndustryJobs(refreshedUser);
-    refreshedUser.apiOrders = await MarketOrders(refreshedUser);
-    refreshedUser.apiHistOrders = await HistoricMarketOrders(refreshedUser);
-    refreshedUser.apiBlueprints = await BlueprintLibrary(refreshedUser);
-    refreshedUser.apiTransactions = await WalletTransactions(refreshedUser);
-    refreshedUser.apiJournal = await WalletJournal(refreshedUser);
+    const sStatus = await serverStatus();
+    if (sStatus) {
+      refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
+      refreshedUser.apiJobs = await IndustryJobs(refreshedUser);
+      refreshedUser.apiOrders = await MarketOrders(refreshedUser);
+      refreshedUser.apiHistOrders = await HistoricMarketOrders(refreshedUser);
+      refreshedUser.apiBlueprints = await BlueprintLibrary(refreshedUser);
+      refreshedUser.apiTransactions = await WalletTransactions(refreshedUser);
+      refreshedUser.apiJournal = await WalletJournal(refreshedUser);
+    } else {
+      refreshedUser.apiSkills = [];
+      refreshedUser.apiJobs = [];
+      refreshedUser.apiOrders = [];
+      refreshedUser.apiHistOrders = [];
+      refreshedUser.apiBlueprints = [];
+      refreshedUser.apiTransactions = [];
+      refreshedUser.apiJournal = [];
+    }
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -93,8 +99,8 @@ export function useRefreshUser() {
     updateUsers(newUsersArray);
     updateIsLoggedIn(true);
     logEvent(analytics, "userSignIn", {
-      UID: refreshedUser.accountID
-    })
+      UID: refreshedUser.accountID,
+    });
     t.stop();
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -109,7 +115,6 @@ export function useRefreshUser() {
   };
 
   const RefreshUserAToken = async (user) => {
-
     try {
       const newTokenPromise = await fetch(
         "https://login.eveonline.com/v2/oauth/token",
@@ -122,7 +127,9 @@ export function useRefreshUser() {
             "Content-Type": "application/x-www-form-urlencoded",
             Host: "login.eveonline.com",
           },
-          body: `grant_type=refresh_token&refresh_token=${localStorage.getItem("Auth")}`,
+          body: `grant_type=refresh_token&refresh_token=${localStorage.getItem(
+            "Auth"
+          )}`,
         }
       );
       const newTokenJSON = await newTokenPromise.json();
@@ -138,7 +145,7 @@ export function useRefreshUser() {
         localStorage.setItem(user.CharacterHash, newTokenJSON.refresh_token);
       }
 
-      return user
+      return user;
     } catch (err) {
       console.log(err);
     }

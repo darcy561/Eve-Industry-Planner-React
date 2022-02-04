@@ -32,9 +32,11 @@ export function RawResourceList() {
     setAnchorEl(null);
   };
   let copyText = "";
+  let volumeTotal = 0
 
   activeJob.build.materials.forEach((i) => {
     copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
+    volumeTotal += (i.volume*i.quantity)
   });
 
   function AddBuildIcon({ material }) {
@@ -92,6 +94,7 @@ export function RawResourceList() {
   return (
     <Paper
       sx={{
+        minWidth:"100%",
         paddingBottom: "20px",
         paddingTop: "20px",
       }}
@@ -175,7 +178,16 @@ export function RawResourceList() {
               );
             })}
           </Grid>
+
         </Box>
+        <Grid container sx={{ marginTop:"20px"}}>
+            <Grid item xs={6} sm={8} md={9}>
+              <Typography varinat="body2" align="right">Total Volume</Typography>
+            </Grid>
+            <Grid item xs={6} sm={4} md={3}>
+            <Typography variant="body2" align="center">{volumeTotal.toLocaleString()} m3</Typography>
+            </Grid>
+          </Grid>
       </Container>
     </Paper>
   );

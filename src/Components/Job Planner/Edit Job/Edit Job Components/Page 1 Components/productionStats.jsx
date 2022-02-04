@@ -8,6 +8,7 @@ export function ProductionStats() {
     <Paper
       elevation={3}
       sx={{
+        minWidth:"100%",
         padding: "20px",
       }}
       square={true}

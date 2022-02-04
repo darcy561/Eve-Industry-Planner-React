@@ -1,5 +1,6 @@
 export let jobArrayDefault = [
   {
+    buildVer: "0.2.0",
     jobType: 1,
     name: "Nova Light Missile",
     jobID: 1642030534709,
@@ -123,6 +124,7 @@ export let jobArrayDefault = [
     ],
   },
   {
+    buildVer: "0.2.0",
     jobType: 2,
     name: "Scandium Metallofullerene",
     jobID: 1642710994021,

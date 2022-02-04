@@ -133,7 +133,14 @@ export function SalesStats() {
             <Typography variant="body2">Profit/Loss:</Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography variant="body1" align="right">
+            <Typography variant="body1" align="right"color={(
+                totalSale -
+                (activeJob.build.costs.totalPurchaseCost +
+                  activeJob.build.costs.installCosts +
+                  activeJob.build.costs.extrasTotal +
+                  brokersFeesTotal +
+                  transactionFeeTotal)
+              ) < 0 ? "error": "primary"}>
               {(
                 totalSale -
                 (activeJob.build.costs.totalPurchaseCost +

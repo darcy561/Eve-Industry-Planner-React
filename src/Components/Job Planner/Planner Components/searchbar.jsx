@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import {
   Autocomplete,
+  Box,
   Button,
   CircularProgress,
   Grid,
@@ -15,6 +16,7 @@ import {
   DialogDataContext,
   ShoppingListContext,
 } from "../../../Context/LayoutContext";
+import { JobArrayContext } from "../../../Context/JobContext";
 
 import { makeStyles } from "@mui/styles";
 
@@ -28,12 +30,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function SearchBar({ multiSelect, updateMultiSelect }) {
+  const { jobArray } = useContext(JobArrayContext);
   const { DataExchange } = useContext(DataExchangeContext);
   const { updateShoppingListData } = useContext(ShoppingListContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const {
     deleteMultipleJobsProcess,
     massBuildMaterials,
+    mergeJobs,
     moveMultipleJobsBackward,
     moveMultipleJobsForward,
     newJobProcess,
@@ -217,7 +221,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
               </Button>
             </Tooltip>
           </Grid>
-          {multiSelect.length > 0 && (
+
             <Grid
               item
               xs={12}
@@ -225,20 +229,81 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
               align="center"
               sx={{ marginBottom: { xs: "20px", md: "0px" } }}
             >
-              <Tooltip title="Clears the selected jobs." arrow>
+            <Tooltip title="Merges the selected jobs into one." arrow>
+              <Box>
                 <Button
                   variant="outlined"
                   size="small"
-                  sx={{ marginRight: "30px" }}
+                  sx={{ marginRight: "10px" }}
+                  disabled={
+                    !multiSelect.every(
+                      (i) => i.itemID === multiSelect[0].itemID
+                    )
+                  }
+                  onClick={() => {
+                  if (multiSelect.length > 1) {
+                    mergeJobs(multiSelect)
+                    updateMultiSelect([]);
+                  } else {
+                    updateDialogData((prev) => ({
+                      ...prev,
+                      buttonText: "Close",
+                      id: "Empty-Multi-Select",
+                      open: true,
+                      title: "Oops",
+                      body: "You will need to select at least 2 matching jobs using the checkbox's on the job cards",
+                    }));
+                  }
+                }}
+                >
+                  Merge Jobs
+                </Button>
+                </Box>
+              </Tooltip>
+            </Grid>
+
+          <Grid
+            item
+            xs={12}
+            md="auto"
+            align="center"
+            sx={{ marginBottom: { xs: "10px", md: "0px" } }}
+          >
+            <Tooltip title="Selects all jobs on the job planner." arrow>
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ marginRight: "10px" }}
+                onClick={() => {
+                  let newMultiArray = [];
+                  jobArray.forEach((job) => {
+                    newMultiArray.push(job);
+                  });
+                  updateMultiSelect(newMultiArray);
+                }}
+              >
+                Select All
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="Clears the selected jobs." arrow>
+              <Box sx={{display:"inline"}}>
+                <Button
+                  variant="outlined"
+                size="small"
+                disabled={!multiSelect.length>0}
+                  sx={{ marginRight: "10px" }}
                   onClick={() => {
                     updateMultiSelect([]);
                   }}
                 >
                   Clear Selection
                 </Button>
+                </Box>
               </Tooltip>
-            </Grid>
-          )}
+
+          </Grid>
+
           <Grid item xs={12} md="auto" align="center">
             <Tooltip title="Deletes the selected jobs from the planner." arrow>
               <Button

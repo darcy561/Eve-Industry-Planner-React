@@ -1,31 +1,26 @@
 import {
   Box,
   Divider,
+  Grid,
   List,
   ListItem,
   ListItemText,
   SwipeableDrawer,
+  Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { makeStyles } from "@mui/styles";
 import { useContext } from "react";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
+import { EveESIStatusContext } from "../../../Context/EveDataContext";
 
-const useStyles = makeStyles((theme) => ({
-  list: {
-    width: 250,
-  },
-  Box: {
-    minHeight: "10%",
-  },
-}));
 
 export function SideMenu(props) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { eveESIStatus } = useContext(EveESIStatusContext);
   const open = props.open;
   const setOpen = props.setOpen;
   const navigate = useNavigate();
-  const classes = useStyles();
+
   return (
     <SwipeableDrawer
       anchor="left"
@@ -38,9 +33,25 @@ export function SideMenu(props) {
         setOpen(true);
       }}
     >
-      <Box className={classes.Box}></Box>
+      <Box sx={{minHeight:"4rem"}}>
+        {isLoggedIn && (
+          <>
+            <Grid container sx={{padding:{xs:"8px 0px", sm: "10px 0px"}}} >
+              <Grid item xs={12} align="center" >
+                <Typography variant="body1">
+                  Tranquility:{" "}
+                  {eveESIStatus.serverStatus.online ? "Online" : "Offline"}
+                </Typography>
+                <Typography variant="body1">
+                  Player Count: {eveESIStatus.serverStatus.playerCount.toLocaleString()}
+                </Typography>
+              </Grid>
+            </Grid>
+          </>
+        )}
+      </Box>
 
-      <Box className={classes.list}>
+      <Box sx={{width:"250px"}}>
         <Divider />
         <List>
           <ListItem
@@ -51,7 +62,6 @@ export function SideMenu(props) {
             }}
           >
             {isLoggedIn ? (
-              
               <ListItemText primary={"Dashboard"} />
             ) : (
               <ListItemText primary={"Home"} />

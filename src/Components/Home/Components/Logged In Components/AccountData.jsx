@@ -93,7 +93,7 @@ export function AccountData() {
             </Typography>
           </Grid>
           <Grid item xs={8}>
-            <Typography variant="body2">Histortic Market Orders</Typography>
+            <Typography variant="body2">Historic Market Orders</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">

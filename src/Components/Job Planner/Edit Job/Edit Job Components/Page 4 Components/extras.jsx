@@ -2,7 +2,7 @@ import { Grid, IconButton, Paper, TextField, Typography } from "@mui/material";
 import React, { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
-import { BiMinus } from "react-icons/bi";
+import ClearIcon from '@mui/icons-material/Clear';
 import { MdAdd } from "react-icons/md";
 
 export function ExtrasList({ setJobModified }) {
@@ -105,11 +105,11 @@ export function ExtrasList({ setJobModified }) {
               </Grid>
               <Grid item xs={2}>
                 <IconButton
-                  color="primary"
+                  color="error"
                   size="small"
                   onClick={() => handleRemove(item.id)}
                 >
-                  <BiMinus />
+                  <ClearIcon />
                 </IconButton>
               </Grid>
             </Grid>

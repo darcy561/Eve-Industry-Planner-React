@@ -26,7 +26,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-
 export function ManufacturingOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { CalculateResources } = useBlueprintCalc();
@@ -36,6 +35,7 @@ export function ManufacturingOptions({ setJobModified }) {
     <Paper
       elevation={3}
       sx={{
+        minWidth:"100%",
         padding: "20px",
       }}
       square={true}
@@ -101,7 +101,7 @@ export function ManufacturingOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <Tooltip title="Calculations are not currently implemented, added for refernce" arrow>
+            <Tooltip title="Calculations are not currently implemented, added for reference." arrow>
             <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 disableClearable={true}

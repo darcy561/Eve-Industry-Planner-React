@@ -19,6 +19,7 @@ export function RefreshApiIcon() {
     BlueprintLibrary,
     WalletTransactions,
     WalletJournal,
+    serverStatus,
   } = useEveApi();
   const { RefreshUserAToken } = useRefreshUser();
   const [refreshState, updateRefreshState] = useState(1);
@@ -27,38 +28,41 @@ export function RefreshApiIcon() {
     let newUsers = [...users];
     let newAPIArray = [];
     updateRefreshState(2);
-    for (let user of newUsers) {
-      if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
-        user = await RefreshUserAToken(user);
-      }
-      const NewApiSkills = await CharacterSkills(user);
-      if (NewApiSkills.length > 0) {
-        user.apiSkills = NewApiSkills;
-      }
-      const NewApiJobs = await IndustryJobs(user);
-      if (NewApiJobs.length > 0) {
-        user.apiJobs = NewApiJobs;
-        user.apiJobs.forEach((i) => newAPIArray.push(i));
-      }
-      const NewApiOrders = await MarketOrders(user);
-      if (NewApiOrders.length > 0) {
-        user.apiOrders = NewApiOrders;
-      }
-      const NewApiHistOrders = await HistoricMarketOrders(user);
-      if (NewApiHistOrders.length > 0) {
-        user.apiHistOrders = NewApiHistOrders;
-      }
-      const NewApiBlueprints = await BlueprintLibrary(user);
-      if (NewApiBlueprints.length > 0) {
-        user.apiBlueprints = NewApiBlueprints;
-      }
-      const NewApiTransactions = await WalletTransactions(user);
-      if (NewApiTransactions.length > 0) {
-        user.apiTransactions = NewApiTransactions;
-      }
-      const NewApiJournal = await WalletJournal(user);
-      if (NewApiJournal.length > 0) {
-        user.apiJournal = NewApiJournal;
+    const sStatus = await serverStatus();
+    if (sStatus) {
+      for (let user of newUsers) {
+        if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
+          user = await RefreshUserAToken(user);
+        }
+        const NewApiSkills = await CharacterSkills(user);
+        if (NewApiSkills.length > 0) {
+          user.apiSkills = NewApiSkills;
+        }
+        const NewApiJobs = await IndustryJobs(user);
+        if (NewApiJobs.length > 0) {
+          user.apiJobs = NewApiJobs;
+          user.apiJobs.forEach((i) => newAPIArray.push(i));
+        }
+        const NewApiOrders = await MarketOrders(user);
+        if (NewApiOrders.length > 0) {
+          user.apiOrders = NewApiOrders;
+        }
+        const NewApiHistOrders = await HistoricMarketOrders(user);
+        if (NewApiHistOrders.length > 0) {
+          user.apiHistOrders = NewApiHistOrders;
+        }
+        const NewApiBlueprints = await BlueprintLibrary(user);
+        if (NewApiBlueprints.length > 0) {
+          user.apiBlueprints = NewApiBlueprints;
+        }
+        const NewApiTransactions = await WalletTransactions(user);
+        if (NewApiTransactions.length > 0) {
+          user.apiTransactions = NewApiTransactions;
+        }
+        const NewApiJournal = await WalletJournal(user);
+        if (NewApiJournal.length > 0) {
+          user.apiJournal = NewApiJournal;
+        }
       }
     }
 

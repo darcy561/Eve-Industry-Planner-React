@@ -12,3 +12,45 @@ export const EveIDs = (props) => {
         </EveIDsContext.Provider>
     );
 };
+
+export const EveESIStatusContext = createContext();
+
+export const EveESIStatus = (props) => {
+    const [eveESIStatus, updateEveESIStatus] = useState({
+        serverStatus: {
+            online: false,
+            playerCount: 0,
+            attempts:[]
+        },
+        charSkills: {
+            attempts: []
+        },
+        indyJobs: {
+            attempts:[]
+        },
+        marketOrders: {
+            attempts:[]
+        },
+        histMarketOrders: {
+            attempts:[]
+        },
+        blueprintLib: {
+            attempts:[]
+        },
+        walletTrans: {
+            attempts:[]
+        },
+        walletJourn: {
+            attempts:[]
+        },
+        idToName: {
+            attempts:[]
+        }
+    });
+
+    return (
+        <EveESIStatusContext.Provider value={{ eveESIStatus, updateEveESIStatus }}>
+            {props.children}
+        </EveESIStatusContext.Provider>
+    );
+};

@@ -67,7 +67,11 @@ export default function JobCard({
               ></Checkbox>
             </Grid>
             <Grid item xs={10} />
-            <Grid item xs={1}>
+            <Grid
+              item
+              xs={1}
+              sx={{ paddingRight: { xs: "0px", sm: "10px", md: "0px" } }}
+            >
               <IconButton size="small" onClick={() => deleteJobProcess(job)}>
                 <DeleteIcon />
               </IconButton>
@@ -141,7 +145,7 @@ export default function JobCard({
               color="primary"
               onClick={() => EditJobProcess(job)}
             >
-              Open
+              Edit
             </Button>
           </Grid>
           <Grid

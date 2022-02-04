@@ -7,7 +7,7 @@ import { ItemTree } from "./Components/item Tree";
 import { JobStatus, JobArray, ActiveJob, ApiJobs } from "./Context/JobContext";
 import { AuthMainUser } from "./Components/Auth/MainUserAuth";
 import { IsLoggedIn, Users } from "./Context/AuthContext";
-import { EveIDs } from "./Context/EveDataContext";
+import { EveESIStatus, EveIDs } from "./Context/EveDataContext";
 import {
   ThemeProvider,
   createTheme,
@@ -21,7 +21,7 @@ import {
   SnackbarData,
   PageLoad,
   LoadingText,
-  ShoppingList  
+  ShoppingList,
 } from "./Context/LayoutContext";
 import {
   blue,
@@ -41,14 +41,15 @@ export default function App() {
   const colorMode = useMemo(
     () => ({
       toggleColorMode: () => {
-        setMode((prevMode) => (prevMode === "light" || prevMode === null ? "dark" : "light"));
+        setMode((prevMode) =>
+          prevMode === "light" || prevMode === null ? "dark" : "light"
+        );
       },
     }),
     []
   );
 
-  const getDesignTokens = (mode) => (
-    {
+  const getDesignTokens = (mode) => ({
     palette: {
       typography: {
         fontFamily: "Montserrat",
@@ -105,7 +106,7 @@ export default function App() {
               disabled: grey[200],
               hint: grey[200],
             },
-          divider: grey[700],
+            divider: grey[700],
           }),
     },
   });
@@ -121,51 +122,53 @@ export default function App() {
           <PageLoad>
             <LoadingText>
               <IsLoggedIn>
-                  <Users>
-                    <DataExchange>
-                      <ActiveJob>
-                        <JobArray>
-                          <JobStatus>
-                            <ApiJobs>
+                <Users>
+                  <DataExchange>
+                    <ActiveJob>
+                      <JobArray>
+                        <JobStatus>
+                          <ApiJobs>
                             <EveIDs>
-                              <ShoppingList>
-                                <SnackBarNotification />
-                                <DialogBox />
-                                <BrowserRouter>
-                                  <Header mode={mode} colorMode={colorMode} />
-                                  <Routes>
-                                    <Route path="/" element={<Home />} />
-                                    <Route
-                                      path="/jobplanner"
-                                      element={<JobPlanner />}
-                                    />
-                                    <Route
-                                      path="/auth/"
-                                      element={<AuthMainUser />}
-                                    />
-                                    <Route
-                                      path="/itemtree"
-                                      element={<ItemTree />}
-                                    />
-                                    <Route
-                                      path="/accounts"
-                                      element={<AccountsPage />}
-                                    />
-                                    <Route
-                                      path="/settings"
-                                      element={<SettingsPage />}
-                                    />
-                                  </Routes>
-                                  <Footer />
-                                </BrowserRouter>
+                              <EveESIStatus>
+                                <ShoppingList>
+                                  <SnackBarNotification />
+                                  <DialogBox />
+                                  <BrowserRouter>
+                                    <Header mode={mode} colorMode={colorMode} />
+                                    <Routes>
+                                      <Route path="/" element={<Home />} />
+                                      <Route
+                                        path="/jobplanner"
+                                        element={<JobPlanner />}
+                                      />
+                                      <Route
+                                        path="/auth/"
+                                        element={<AuthMainUser />}
+                                      />
+                                      <Route
+                                        path="/itemtree"
+                                        element={<ItemTree />}
+                                      />
+                                      <Route
+                                        path="/accounts"
+                                        element={<AccountsPage />}
+                                      />
+                                      <Route
+                                        path="/settings"
+                                        element={<SettingsPage />}
+                                      />
+                                    </Routes>
+                                    <Footer />
+                                  </BrowserRouter>
                                 </ShoppingList>
-                              </EveIDs>
-                            </ApiJobs>
-                          </JobStatus>
-                        </JobArray>
-                      </ActiveJob>
-                    </DataExchange>
-                  </Users>
+                              </EveESIStatus>
+                            </EveIDs>
+                          </ApiJobs>
+                        </JobStatus>
+                      </JobArray>
+                    </ActiveJob>
+                  </DataExchange>
+                </Users>
               </IsLoggedIn>
             </LoadingText>
           </PageLoad>

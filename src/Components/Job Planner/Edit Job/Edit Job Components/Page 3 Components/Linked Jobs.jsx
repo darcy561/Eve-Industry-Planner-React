@@ -116,7 +116,7 @@ export function LinkedJobs({ setJobModified }) {
               <Grid item xs={1}>
                 <Tooltip title="Click to unlink from job">
                   <IconButton
-                    color="primary"
+                    color="error"
                     size="small"
                     onClick={() => {
                       const ParentUserIndex = users.findIndex(

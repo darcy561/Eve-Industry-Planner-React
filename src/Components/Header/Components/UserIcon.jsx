@@ -12,7 +12,7 @@ import {
 } from "../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { EveIDsContext } from "../../../Context/EveDataContext";
-import { analytics, auth } from "../../../firebase";
+import { auth } from "../../../firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router";
 import { apiJobsDefault, jobArrayDefault, jobStatusDefault, usersDefault, eveIDsDefault } from "../../../Context/defaultValues";
@@ -101,15 +101,14 @@ export function UserIcon() {
             }}
           >
             Accounts
-          </MenuItem>
+          </MenuItem>*/}
           <MenuItem
-            disabled
             onClick={() => {
               navigate("/settings");
             }}
           >
             Settings
-          </MenuItem> */}
+          </MenuItem> 
           <MenuItem onClick={logout}>Log Out</MenuItem>
         </Menu>
       </>

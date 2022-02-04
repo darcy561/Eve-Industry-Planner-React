@@ -1,10 +1,11 @@
 import { useContext } from "react";
 import skillsReference from "../RawData/bpSkills.json";
 import searchData from "../RawData/searchIndex.json";
-import { EveIDsContext } from "../Context/EveDataContext";
+import { EveESIStatusContext, EveIDsContext } from "../Context/EveDataContext";
 
 export function useEveApi() {
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { eveESIStatus, updateEveESIStatus } = useContext(EveESIStatusContext);
 
   const CharacterSkills = async (userObj) => {
     try {
@@ -32,7 +33,7 @@ export function useEveApi() {
         });
 
         return newSkillArray;
-      } else return []
+      } else return [];
     } catch (err) {
       console.log(err);
       return [];
@@ -49,7 +50,6 @@ export function useEveApi() {
 
       if (indyPromise.status === 200) {
         indyJSON.forEach((job) => {
-          
           if (job.activity_id === 1) {
             const nameMatch = searchData.find(
               (item) => item.itemID === job.product_type_id
@@ -74,14 +74,18 @@ export function useEveApi() {
           // 10 days
         );
 
-        let filtered = filterOld.filter((job) => job.activity_id === 1 || job.activity_id === 4 || job.activity_id === 3 );
+        let filtered = filterOld.filter(
+          (job) =>
+            job.activity_id === 1 ||
+            job.activity_id === 4 ||
+            job.activity_id === 3
+        );
 
         let idRequest = [];
 
         filtered.forEach((item) => {
-          
           if (
-            !eveIDs.some((i)=>i.facility_id === item.facility_id) &&
+            !eveIDs.some((i) => i.facility_id === item.facility_id) &&
             !idRequest.includes(item.facility_id)
           ) {
             idRequest.push(item.facility_id);
@@ -95,10 +99,9 @@ export function useEveApi() {
             job.facility_name = facilityItem.name;
           });
         }
-        
+
         return filtered;
-        
-      } else return []
+      } else return [];
     } catch (err) {
       console.log(err);
     }
@@ -116,14 +119,13 @@ export function useEveApi() {
       if (marketPromise.status === 200) {
         marketJSON.forEach((item) => {
           if (
-            !eveIDs.some((i)=>i.location_id === item.location_id) &&
+            !eveIDs.some((i) => i.location_id === item.location_id) &&
             !idRequest.includes(item.location_id)
           ) {
-            
             idRequest.push(item.location_id);
           }
           if (
-            !eveIDs.some((i)=>i.region_id === item.region_id) &&
+            !eveIDs.some((i) => i.region_id === item.region_id) &&
             !idRequest.includes(item.region_id)
           ) {
             idRequest.push(item.region_id);
@@ -178,13 +180,13 @@ export function useEveApi() {
 
     filtered.forEach((item) => {
       if (
-        !eveIDs.some((i)=>i.location_id === item.location_id) &&
+        !eveIDs.some((i) => i.location_id === item.location_id) &&
         !idRequest.includes(item.location_id)
       ) {
         idRequest.push(item.location_id);
       }
       if (
-        !eveIDs.some((i)=>i.region_id === item.region_id) &&
+        !eveIDs.some((i) => i.region_id === item.region_id) &&
         !idRequest.includes(item.region_id)
       ) {
         idRequest.push(item.region_id);
@@ -206,19 +208,31 @@ export function useEveApi() {
   };
 
   const BlueprintLibrary = async (userObj) => {
-    try {
-      const blueprintPromise = await fetch(
-        `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/blueprints/?datasource=tranquility&token=${userObj.aToken}`
-      );
+    const returnArray = [];
+    let pageCount = 1;
+    while (pageCount < 11) {
+      try {
+        const blueprintPromise = await fetch(
+          `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/blueprints/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
+        );
 
-      const blueprintJSON = await blueprintPromise.json();
-      if (blueprintPromise.status === 200) {
-        return blueprintJSON;
-      } else return []
-    } catch (err) {
-      console.log(err);
-      return [];
+        const blueprintJSON = await blueprintPromise.json();
+        if (blueprintPromise.status === 200) {
+          blueprintJSON.forEach((item) => {
+            returnArray.push(item);
+          });
+          if (blueprintJSON.length < 1000) {
+            pageCount = 11;
+          } else {
+            pageCount++;
+          }
+        }
+      } catch (err) {
+        console.log(err);
+        return [];
+      }
     }
+    return returnArray;
   };
 
   const WalletTransactions = async (userObj) => {
@@ -229,9 +243,9 @@ export function useEveApi() {
 
       const transactionsJSON = await transactionsPromise.json();
       if (transactionsPromise.status === 200) {
-        const filtered = transactionsJSON.filter((i)=> i.is_buy === false)
+        const filtered = transactionsJSON.filter((i) => i.is_buy === false);
         return filtered;
-      } else return []
+      } else return [];
     } catch (err) {
       console.log(err);
       return [];
@@ -315,6 +329,52 @@ export function useEveApi() {
     updateEveIDs((prev) => prev.concat(newArray));
     return newArray;
   };
+
+  const serverStatus = async () => {
+    try {
+      const statusPromise = await fetch(
+        "https://esi.evetech.net/latest/status/?datasource=tranquility"
+      );
+
+      const statusJSON = await statusPromise.json();
+      if (statusPromise.status === 200 || statusPromise.status === 304) {
+        let newAttempt = [...eveESIStatus.serverStatus.attempts];
+        if (newAttempt.length <= 5) {
+          newAttempt.push(1);
+        } else {
+          newAttempt.shift();
+          newAttempt.push(1);
+        }
+        updateEveESIStatus((prev) => ({
+          ...prev,
+          serverStatus: {
+            online: true,
+            playerCount: statusJSON.players,
+            attempts: newAttempt,
+          },
+        }));
+        return true;
+      } else {
+        let newAttempt = [...eveESIStatus.serverStatus.attempts];
+        if (newAttempt.length <= 5) {
+          newAttempt.push(0);
+        } else {
+          newAttempt.shift();
+          newAttempt.push(0);
+        }
+        updateEveESIStatus((prev) => ({
+          ...prev,
+          serverStatus: {
+            online: false,
+            playerCount: 0,
+            attempts: newAttempt,
+          },
+        }));
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return {
     BlueprintLibrary,
     CharacterSkills,
@@ -322,6 +382,7 @@ export function useEveApi() {
     IDtoName,
     IndustryJobs,
     MarketOrders,
+    serverStatus,
     WalletTransactions,
     WalletJournal,
   };

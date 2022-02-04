@@ -22,7 +22,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function login() {
   // const state = window.location.pathname;
-  const state = "/"
+  const state = "/";
   window.location.href = `https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=${encodeURIComponent(
     process.env.REACT_APP_eveCallbackURL
   )}&client_id=${process.env.REACT_APP_eveClientID}&scope=${
@@ -36,8 +36,16 @@ export function AuthMainUser() {
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { BlueprintLibrary, CharacterSkills, HistoricMarketOrders, IndustryJobs, MarketOrders, WalletTransactions, WalletJournal } =
-    useEveApi();
+  const {
+    BlueprintLibrary,
+    CharacterSkills,
+    HistoricMarketOrders,
+    IndustryJobs,
+    MarketOrders,
+    serverStatus,
+    WalletTransactions,
+    WalletJournal,
+  } = useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { determineUserState } = useFirebase();
@@ -54,19 +62,19 @@ export function AuthMainUser() {
       );
       updateLoadingText((prevObj) => ({
         ...prevObj,
-        eveSSO: true
+        eveSSO: true,
       }));
 
       const userObject = await EveSSOTokens(authCode);
-      const fbToken = await firebaseAuth(userObject);
+      userObject.fbToken = await firebaseAuth(userObject);
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
         eveSSOComp: true,
-        charData: true
+        charData: true,
       }));
 
-      const userSettings = await determineUserState(userObject, fbToken);
+      const userSettings = await determineUserState(userObject);
       userObject.accountID = userSettings.accountID;
       userObject.linkedJobs = userSettings.linkedJobs;
       userObject.linkedTrans = userSettings.linkedTrans;
@@ -76,20 +84,30 @@ export function AuthMainUser() {
       updateLoadingText((prevObj) => ({
         ...prevObj,
         charDataComp: true,
-        apiData: true
+        apiData: true,
       }));
-
-      userObject.apiSkills = await CharacterSkills(userObject);
-      userObject.apiJobs = await IndustryJobs(userObject);
-      userObject.apiOrders = await MarketOrders(userObject);
-      userObject.apiHistOrders = await HistoricMarketOrders(userObject);
-      userObject.apiBlueprints = await BlueprintLibrary(userObject);
-      userObject.apiTransactions = await WalletTransactions(userObject);
-      userObject.apiJournal = await WalletJournal(userObject);
+      const sStatus = await serverStatus();
+      if (sStatus) {
+        userObject.apiSkills = await CharacterSkills(userObject);
+        userObject.apiJobs = await IndustryJobs(userObject);
+        userObject.apiOrders = await MarketOrders(userObject);
+        userObject.apiHistOrders = await HistoricMarketOrders(userObject);
+        userObject.apiBlueprints = await BlueprintLibrary(userObject);
+        userObject.apiTransactions = await WalletTransactions(userObject);
+        userObject.apiJournal = await WalletJournal(userObject);
+      } else {
+        userObject.apiSkills = [];
+        userObject.apiJobs = [];
+        userObject.apiOrders = [];
+        userObject.apiHistOrders = [];
+        userObject.apiBlueprints = [];
+        userObject.apiTransactions = [];
+        userObject.apiJournal = [];
+      }
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
-        apiDataComp: true
+        apiDataComp: true,
       }));
 
       setJobStatus(userSettings.jobStatusArray);
@@ -100,8 +118,8 @@ export function AuthMainUser() {
       updateIsLoggedIn(true);
       updatePageLoad(false);
       logEvent(analytics, "userSignIn", {
-        UID: userObject.accountID
-      })
+        UID: userObject.accountID,
+      });
       t.stop();
       updateLoadingText((prevObj) => ({
         ...prevObj,
@@ -110,15 +128,13 @@ export function AuthMainUser() {
         charData: false,
         charDataComp: false,
         apiData: false,
-        apiDataComp: false
+        apiDataComp: false,
       }));
       navigate(returnState);
     }
   }, []);
-  
-  return (
-      <LoadingPage/>
-  )
+
+  return <LoadingPage />;
 }
 
 async function EveSSOTokens(authCode) {

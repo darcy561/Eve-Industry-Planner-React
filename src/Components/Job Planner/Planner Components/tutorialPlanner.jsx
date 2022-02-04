@@ -34,25 +34,31 @@ export function TutorialPlanner() {
             Welcome to the Job Planner!
             {<br />}
             {<br />}
-            The planner is broken down into 5 stages, with each of your jobs
-            having its own card. To start simple use the search box and start
-            adding the jobs you would like to build.
+            The Job Planner is broken down into 5 stages, with each of your
+            build projects having its own job card. As you work through the
+            process of building an item it will progress through each of the
+            stages and move down the planner. To start simply use the item
+            search box and start adding the items you would like to build.
             {<br />}
             {<br />}
-            As well as your own jobs the planner will also display your current
-            active and previous industry jobs (within 10 days) that have been
-            imported from the Eve ESI. Jobs from the ESI will appear differntly
-            and are displayed on your planner until they are linked to a job.
+            As well as your own jobs the planner can also display your current
+            active and previous industry jobs (within 10 days following delivery) that have been
+            imported from the Eve ESI. Jobs from the ESI have a differnt style
+            of job card and are displayed on your planner until they are linked
+            to an Eve Industry Planner job card or hidden.
             {<br />}
             {<br />}
-            Use the checkbox in the corner of the job cards to select multiple,
-            and access the options to manipulate jobs quickly.
+            Using the checkbox in the corner of the job cards you can select 
+            single or multiple cards to quickly manipulate these from the
+            options, hover over each of the buttons for more information as to
+            their purpose.
           </Typography>
           {!isLoggedIn && (
             <Typography variant="body2">
               {<br />}
-              Why not try out the demo below to see more for yourself or simply
-              log in with your Eve account to get started.
+              Have a browse through the demo jobs below to see more information
+              about how Eve Industry Planner can help you or if you feel ready
+              simply log in with your Eve account to get started with your jobs.
             </Typography>
           )}
         </Grid>

@@ -244,9 +244,16 @@ export function LinkedMarketOrders({
                   <Typography variant="body2">Range:</Typography>
                 </Grid>
                 <Grid item xs={6} md={3}>
-                  <Typography variant="body2">
-                    {order.range.charAt(0).toUpperCase() + order.range.slice(1)}
-                  </Typography>
+                {order.range === "region" ? (
+                      <Typography variant="body2">
+                        {order.range.charAt(0).toUpperCase() +
+                          order.range.slice(1)}
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2">
+                        {order.range} Jumps
+                      </Typography>
+                    )}
                 </Grid>
               </Grid>
               <Grid container item xs={12}>
@@ -273,7 +280,7 @@ export function LinkedMarketOrders({
                   )}
                   <Tooltip title="Unlink order from job" arrow>
                     <IconButton
-                      color="primary"
+                      color="error"
                       size="small"
                       onClick={() => {
                         const orderIndex =

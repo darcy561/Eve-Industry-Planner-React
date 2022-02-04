@@ -875,6 +875,11 @@
     "blueprintID": 937
   },
   {
+    "name": "Tormentor",
+    "itemID": 591,
+    "blueprintID": 938
+  },
+  {
     "name": "Navitas",
     "itemID": 592,
     "blueprintID": 939
@@ -2145,6 +2150,11 @@
     "blueprintID": 3513
   },
   {
+    "name": "Revenant",
+    "itemID": 3514,
+    "blueprintID": 3515
+  },
+  {
     "name": "Heavy Pulse Laser II",
     "itemID": 3520,
     "blueprintID": 3521
@@ -2263,6 +2273,11 @@
     "name": "Large Hull Repairer II",
     "itemID": 3665,
     "blueprintID": 3666
+  },
+  {
+    "name": "Gnosis",
+    "itemID": 3756,
+    "blueprintID": 33327
   },
   {
     "name": "Leviathan",
@@ -2593,6 +2608,11 @@
     "name": "Warp Core Stabilizer I",
     "itemID": 10998,
     "blueprintID": 11613
+  },
+  {
+    "name": "Guardian-Vexor",
+    "itemID": 11011,
+    "blueprintID": 11012
   },
   {
     "name": "Helios",
@@ -3190,6 +3210,16 @@
     "blueprintID": 11886
   },
   {
+    "name": "Apocalypse Imperial Issue",
+    "itemID": 11936,
+    "blueprintID": 11937
+  },
+  {
+    "name": "Armageddon Imperial Issue",
+    "itemID": 11938,
+    "blueprintID": 11939
+  },
+  {
     "name": "Falcon",
     "itemID": 11957,
     "blueprintID": 11958
@@ -3735,6 +3765,11 @@
     "blueprintID": 24544
   },
   {
+    "name": "Megathron Federate Issue",
+    "itemID": 13202,
+    "blueprintID": 13203
+  },
+  {
     "name": "Cruise Missile Launcher I",
     "itemID": 13320,
     "blueprintID": 13321
@@ -4090,6 +4125,21 @@
     "blueprintID": 17483
   },
   {
+    "name": "Caldari Navy Hookbill",
+    "itemID": 17619,
+    "blueprintID": 17620
+  },
+  {
+    "name": "Caracal Navy Issue",
+    "itemID": 17634,
+    "blueprintID": 17635
+  },
+  {
+    "name": "Raven Navy Issue",
+    "itemID": 17636,
+    "blueprintID": 17637
+  },
+  {
     "name": "Antimatter Charge XL",
     "itemID": 17648,
     "blueprintID": 17649
@@ -4210,6 +4260,71 @@
     "blueprintID": 17695
   },
   {
+    "name": "Imperial Navy Slicer",
+    "itemID": 17703,
+    "blueprintID": 17704
+  },
+  {
+    "name": "Omen Navy Issue",
+    "itemID": 17709,
+    "blueprintID": 17710
+  },
+  {
+    "name": "Stabber Fleet Issue",
+    "itemID": 17713,
+    "blueprintID": 17714
+  },
+  {
+    "name": "Gila",
+    "itemID": 17715,
+    "blueprintID": 17716
+  },
+  {
+    "name": "Phantasm",
+    "itemID": 17718,
+    "blueprintID": 17719
+  },
+  {
+    "name": "Cynabal",
+    "itemID": 17720,
+    "blueprintID": 17721
+  },
+  {
+    "name": "Vigilant",
+    "itemID": 17722,
+    "blueprintID": 17723
+  },
+  {
+    "name": "Apocalypse Navy Issue",
+    "itemID": 17726,
+    "blueprintID": 17727
+  },
+  {
+    "name": "Megathron Navy Issue",
+    "itemID": 17728,
+    "blueprintID": 17729
+  },
+  {
+    "name": "Tempest Fleet Issue",
+    "itemID": 17732,
+    "blueprintID": 17733
+  },
+  {
+    "name": "Nightmare",
+    "itemID": 17736,
+    "blueprintID": 17737
+  },
+  {
+    "name": "Machariel",
+    "itemID": 17738,
+    "blueprintID": 17739
+  },
+  {
+    "name": "Vindicator",
+    "itemID": 17740,
+    "blueprintID": 17741
+  },
+  {
     "name": "Fluxed Condensates",
     "itemID": 17769,
     "blueprintID": 46173
@@ -4235,6 +4350,21 @@
     "blueprintID": 2822
   },
   {
+    "name": "Republic Fleet Firetail",
+    "itemID": 17812,
+    "blueprintID": 17813
+  },
+  {
+    "name": "Federation Navy Comet",
+    "itemID": 17841,
+    "blueprintID": 17842
+  },
+  {
+    "name": "Vexor Navy Issue",
+    "itemID": 17843,
+    "blueprintID": 17844
+  },
+  {
     "name": "Mjolnir XL Torpedo",
     "itemID": 17857,
     "blueprintID": 17858
@@ -4258,6 +4388,46 @@
     "name": "Modulated Strip Miner II",
     "itemID": 17912,
     "blueprintID": 17913
+  },
+  {
+    "name": "Rattlesnake",
+    "itemID": 17918,
+    "blueprintID": 17919
+  },
+  {
+    "name": "Bhaalgorn",
+    "itemID": 17920,
+    "blueprintID": 17921
+  },
+  {
+    "name": "Ashimmu",
+    "itemID": 17922,
+    "blueprintID": 17923
+  },
+  {
+    "name": "Succubus",
+    "itemID": 17924,
+    "blueprintID": 17925
+  },
+  {
+    "name": "Cruor",
+    "itemID": 17926,
+    "blueprintID": 17927
+  },
+  {
+    "name": "Daredevil",
+    "itemID": 17928,
+    "blueprintID": 17929
+  },
+  {
+    "name": "Worm",
+    "itemID": 17930,
+    "blueprintID": 17931
+  },
+  {
+    "name": "Dramiel",
+    "itemID": 17932,
+    "blueprintID": 17933
   },
   {
     "name": "Core Probe Launcher I",
@@ -4313,6 +4483,11 @@
     "name": "Revelation",
     "itemID": 19720,
     "blueprintID": 19721
+  },
+  {
+    "name": "Naglfar",
+    "itemID": 19722,
+    "blueprintID": 19723
   },
   {
     "name": "Moros",
@@ -4750,6 +4925,11 @@
     "blueprintID": 22558
   },
   {
+    "name": "Praetor EV-900",
+    "itemID": 22572,
+    "blueprintID": 22573
+  },
+  {
     "name": "Ice Harvester Upgrade I",
     "itemID": 22576,
     "blueprintID": 22577
@@ -4763,6 +4943,11 @@
     "name": "Warp Disrupt Probe",
     "itemID": 22778,
     "blueprintID": 22779
+  },
+  {
+    "name": "Hel",
+    "itemID": 22852,
+    "blueprintID": 22853
   },
   {
     "name": "Templar I",
@@ -4785,6 +4970,26 @@
     "blueprintID": 23062
   },
   {
+    "name": "Wasp EC-900",
+    "itemID": 23473,
+    "blueprintID": 23474
+  },
+  {
+    "name": "Ogre SD-900",
+    "itemID": 23506,
+    "blueprintID": 23507
+  },
+  {
+    "name": "Praetor TD-900",
+    "itemID": 23510,
+    "blueprintID": 23511
+  },
+  {
+    "name": "Berserker TP-900",
+    "itemID": 23512,
+    "blueprintID": 23513
+  },
+  {
     "name": "Heavy Armor Maintenance Bot I",
     "itemID": 23523,
     "blueprintID": 23524
@@ -4805,6 +5010,11 @@
     "blueprintID": 23534
   },
   {
+    "name": "Berserker SW-900",
+    "itemID": 23536,
+    "blueprintID": 23537
+  },
+  {
     "name": "Warden I",
     "itemID": 23559,
     "blueprintID": 23560
@@ -4820,6 +5030,26 @@
     "blueprintID": 23564
   },
   {
+    "name": "Acolyte EV-300",
+    "itemID": 23659,
+    "blueprintID": 23660
+  },
+  {
+    "name": "Infiltrator EV-600",
+    "itemID": 23702,
+    "blueprintID": 23703
+  },
+  {
+    "name": "Vespa EC-600",
+    "itemID": 23705,
+    "blueprintID": 23706
+  },
+  {
+    "name": "Hornet EC-300",
+    "itemID": 23707,
+    "blueprintID": 23708
+  },
+  {
     "name": "Medium Armor Maintenance Bot I",
     "itemID": 23709,
     "blueprintID": 23710
@@ -4828,6 +5058,16 @@
     "name": "Light Armor Maintenance Bot I",
     "itemID": 23711,
     "blueprintID": 23712
+  },
+  {
+    "name": "Hammerhead SD-600",
+    "itemID": 23713,
+    "blueprintID": 23714
+  },
+  {
+    "name": "Hobgoblin SD-300",
+    "itemID": 23715,
+    "blueprintID": 23716
   },
   {
     "name": "Medium Shield Maintenance Bot I",
@@ -4840,9 +5080,54 @@
     "blueprintID": 23720
   },
   {
+    "name": "Valkyrie TP-600",
+    "itemID": 23721,
+    "blueprintID": 23722
+  },
+  {
+    "name": "Warrior TP-300",
+    "itemID": 23723,
+    "blueprintID": 23724
+  },
+  {
+    "name": "Infiltrator TD-600",
+    "itemID": 23725,
+    "blueprintID": 23726
+  },
+  {
+    "name": "Acolyte TD-300",
+    "itemID": 23727,
+    "blueprintID": 23728
+  },
+  {
+    "name": "Valkyrie SW-600",
+    "itemID": 23729,
+    "blueprintID": 23730
+  },
+  {
+    "name": "Warrior SW-300",
+    "itemID": 23731,
+    "blueprintID": 23732
+  },
+  {
+    "name": "Ragnarok",
+    "itemID": 23773,
+    "blueprintID": 23774
+  },
+  {
     "name": "Nyx",
     "itemID": 23913,
     "blueprintID": 23914
+  },
+  {
+    "name": "Wyvern",
+    "itemID": 23917,
+    "blueprintID": 23918
+  },
+  {
+    "name": "Aeon",
+    "itemID": 23919,
+    "blueprintID": 23920
   },
   {
     "name": "Fighter Support Unit I",
@@ -5098,6 +5383,26 @@
     "name": "Capital Tractor Beam I",
     "itemID": 24644,
     "blueprintID": 24645
+  },
+  {
+    "name": "Rokh",
+    "itemID": 24688,
+    "blueprintID": 24689
+  },
+  {
+    "name": "Hyperion",
+    "itemID": 24690,
+    "blueprintID": 24691
+  },
+  {
+    "name": "Abaddon",
+    "itemID": 24692,
+    "blueprintID": 24693
+  },
+  {
+    "name": "Maelstrom",
+    "itemID": 24694,
+    "blueprintID": 24695
   },
   {
     "name": "Harbinger",
@@ -5930,6 +6235,11 @@
     "blueprintID": 26453
   },
   {
+    "name": "Tempest Tribal Issue",
+    "itemID": 26842,
+    "blueprintID": 26843
+  },
+  {
     "name": "Mobile Large Warp Disruptor II",
     "itemID": 26888,
     "blueprintID": 26889
@@ -5995,9 +6305,29 @@
     "blueprintID": 27905
   },
   {
+    "name": "Concussion Bomb",
+    "itemID": 27912,
+    "blueprintID": 27913
+  },
+  {
     "name": "Bomb Launcher I",
     "itemID": 27914,
     "blueprintID": 27915
+  },
+  {
+    "name": "Scorch Bomb",
+    "itemID": 27916,
+    "blueprintID": 27917
+  },
+  {
+    "name": "Shrapnel Bomb",
+    "itemID": 27918,
+    "blueprintID": 27919
+  },
+  {
+    "name": "Electron Bomb",
+    "itemID": 27920,
+    "blueprintID": 27921
   },
   {
     "name": "Void Bomb",
@@ -6075,6 +6405,11 @@
     "blueprintID": 28216
   },
   {
+    "name": "Rorqual",
+    "itemID": 28352,
+    "blueprintID": 28353
+  },
+  {
     "name": "Mining Laser Upgrade II",
     "itemID": 28576,
     "blueprintID": 28577
@@ -6088,6 +6423,11 @@
     "name": "Capital Industrial Core I",
     "itemID": 28583,
     "blueprintID": 28584
+  },
+  {
+    "name": "Orca",
+    "itemID": 28606,
+    "blueprintID": 28607
   },
   {
     "name": "Covert Cynosural Field Generator I",
@@ -6115,6 +6455,11 @@
     "blueprintID": 28666
   },
   {
+    "name": "Nanite Repair Paste",
+    "itemID": 28668,
+    "blueprintID": 2739
+  },
+  {
     "name": "Golem",
     "itemID": 28710,
     "blueprintID": 28711
@@ -6138,6 +6483,41 @@
     "name": "Ark",
     "itemID": 28850,
     "blueprintID": 28851
+  },
+  {
+    "name": "Optimal Range Script",
+    "itemID": 28999,
+    "blueprintID": 29000
+  },
+  {
+    "name": "Tracking Speed Script",
+    "itemID": 29001,
+    "blueprintID": 29002
+  },
+  {
+    "name": "Focused Warp Disruption Script",
+    "itemID": 29003,
+    "blueprintID": 29004
+  },
+  {
+    "name": "Optimal Range Disruption Script",
+    "itemID": 29005,
+    "blueprintID": 29006
+  },
+  {
+    "name": "Tracking Speed Disruption Script",
+    "itemID": 29007,
+    "blueprintID": 29008
+  },
+  {
+    "name": "Targeting Range Script",
+    "itemID": 29009,
+    "blueprintID": 29010
+  },
+  {
+    "name": "Scan Resolution Script",
+    "itemID": 29011,
+    "blueprintID": 29012
   },
   {
     "name": "Capital Antimatter Reactor Unit",
@@ -6323,6 +6703,26 @@
     "name": "Magnate",
     "itemID": 29248,
     "blueprintID": 29249
+  },
+  {
+    "name": "Scythe Fleet Issue",
+    "itemID": 29336,
+    "blueprintID": 29339
+  },
+  {
+    "name": "Augoror Navy Issue",
+    "itemID": 29337,
+    "blueprintID": 29338
+  },
+  {
+    "name": "Osprey Navy Issue",
+    "itemID": 29340,
+    "blueprintID": 29341
+  },
+  {
+    "name": "Exequror Navy Issue",
+    "itemID": 29344,
+    "blueprintID": 29345
   },
   {
     "name": "Unrefined Fluxed Condensates",
@@ -8710,6 +9110,26 @@
     "blueprintID": 32096
   },
   {
+    "name": "Armageddon Navy Issue",
+    "itemID": 32305,
+    "blueprintID": 32306
+  },
+  {
+    "name": "Dominix Navy Issue",
+    "itemID": 32307,
+    "blueprintID": 32308
+  },
+  {
+    "name": "Scorpion Navy Issue",
+    "itemID": 32309,
+    "blueprintID": 32310
+  },
+  {
+    "name": "Typhoon Fleet Issue",
+    "itemID": 32311,
+    "blueprintID": 32312
+  },
+  {
     "name": "Cyclops I",
     "itemID": 32325,
     "blueprintID": 32326
@@ -8753,6 +9173,11 @@
     "name": "XL Cruise Missile Launcher I",
     "itemID": 32444,
     "blueprintID": 32445
+  },
+  {
+    "name": "Salvage Drone I",
+    "itemID": 32787,
+    "blueprintID": 32982
   },
   {
     "name": "Unrefined Vanadium Hafnite",
@@ -8823,6 +9248,26 @@
     "name": "Venture",
     "itemID": 32880,
     "blueprintID": 32881
+  },
+  {
+    "name": "Brutix Navy Issue",
+    "itemID": 33151,
+    "blueprintID": 33152
+  },
+  {
+    "name": "Drake Navy Issue",
+    "itemID": 33153,
+    "blueprintID": 33154
+  },
+  {
+    "name": "Harbinger Navy Issue",
+    "itemID": 33155,
+    "blueprintID": 33156
+  },
+  {
+    "name": "Hurricane Fleet Issue",
+    "itemID": 33157,
+    "blueprintID": 33158
   },
   {
     "name": "Scan Acquisition Array I",
@@ -9005,6 +9450,11 @@
     "blueprintID": 46218
   },
   {
+    "name": "Bastion Module I",
+    "itemID": 33400,
+    "blueprintID": 33401
+  },
+  {
     "name": "Rapid Heavy Missile Launcher I",
     "itemID": 33448,
     "blueprintID": 33449
@@ -9013,6 +9463,21 @@
     "name": "Rapid Heavy Missile Launcher II",
     "itemID": 33450,
     "blueprintID": 33451
+  },
+  {
+    "name": "Astero",
+    "itemID": 33468,
+    "blueprintID": 33469
+  },
+  {
+    "name": "Stratios",
+    "itemID": 33470,
+    "blueprintID": 33471
+  },
+  {
+    "name": "Nestor",
+    "itemID": 33472,
+    "blueprintID": 33473
   },
   {
     "name": "Mobile Depot",
@@ -9043,6 +9508,11 @@
     "name": "'Yurt' Mobile Depot",
     "itemID": 33522,
     "blueprintID": 33523
+  },
+  {
+    "name": "Stratios Emergency Responder",
+    "itemID": 33553,
+    "blueprintID": 33554
   },
   {
     "name": "Small Mobile 'Hybrid' Siphon Unit",
@@ -9108,6 +9578,21 @@
     "name": "Light Hull Maintenance Bot II",
     "itemID": 33712,
     "blueprintID": 33713
+  },
+  {
+    "name": "Garmur",
+    "itemID": 33816,
+    "blueprintID": 33817
+  },
+  {
+    "name": "Orthrus",
+    "itemID": 33818,
+    "blueprintID": 33819
+  },
+  {
+    "name": "Barghest",
+    "itemID": 33820,
+    "blueprintID": 33821
   },
   {
     "name": "Omnidirectional Tracking Enhancer I",
@@ -9255,6 +9740,11 @@
     "blueprintID": 34318
   },
   {
+    "name": "Bowhead",
+    "itemID": 34328,
+    "blueprintID": 34329
+  },
+  {
     "name": "Self-Assembling Nanolattice",
     "itemID": 34396,
     "blueprintID": 34397
@@ -9263,6 +9753,11 @@
     "name": "Svipul",
     "itemID": 34562,
     "blueprintID": 34563
+  },
+  {
+    "name": "Victorieux Luxury Yacht",
+    "itemID": 34590,
+    "blueprintID": 34591
   },
   {
     "name": "Entosis Link I",
@@ -9303,6 +9798,16 @@
     "name": "Missile Guidance Computer II",
     "itemID": 35790,
     "blueprintID": 35792
+  },
+  {
+    "name": "Missile Range Script",
+    "itemID": 35794,
+    "blueprintID": 35796
+  },
+  {
+    "name": "Missile Precision Script",
+    "itemID": 35795,
+    "blueprintID": 35797
   },
   {
     "name": "Raitaru",
@@ -9640,6 +10145,26 @@
     "blueprintID": 38661
   },
   {
+    "name": "Crucifier Navy Issue",
+    "itemID": 37453,
+    "blueprintID": 40318
+  },
+  {
+    "name": "Vigil Fleet Issue",
+    "itemID": 37454,
+    "blueprintID": 40317
+  },
+  {
+    "name": "Griffin Navy Issue",
+    "itemID": 37455,
+    "blueprintID": 40316
+  },
+  {
+    "name": "Maulus Navy Issue",
+    "itemID": 37456,
+    "blueprintID": 40315
+  },
+  {
     "name": "Deacon",
     "itemID": 37457,
     "blueprintID": 39580
@@ -9710,6 +10235,46 @@
     "blueprintID": 41583
   },
   {
+    "name": "Lif",
+    "itemID": 37606,
+    "blueprintID": 41585
+  },
+  {
+    "name": "Ninazu",
+    "itemID": 37607,
+    "blueprintID": 41584
+  },
+  {
+    "name": "Standup Gravimetric ECM Script",
+    "itemID": 37821,
+    "blueprintID": 37833
+  },
+  {
+    "name": "Standup Ladar ECM Script",
+    "itemID": 37822,
+    "blueprintID": 37834
+  },
+  {
+    "name": "Standup Magnetometric ECM Script",
+    "itemID": 37823,
+    "blueprintID": 37835
+  },
+  {
+    "name": "Standup Radar ECM Script",
+    "itemID": 37824,
+    "blueprintID": 37836
+  },
+  {
+    "name": "Standup Heavy Guided Bomb",
+    "itemID": 37849,
+    "blueprintID": 37858
+  },
+  {
+    "name": "Standup Light Guided Bomb",
+    "itemID": 37850,
+    "blueprintID": 37859
+  },
+  {
     "name": "Noir. Modified Entosis Link",
     "itemID": 40307,
     "blueprintID": 40311
@@ -9728,6 +10293,16 @@
     "name": "Pandemic SPHERE Modified Entosis Link",
     "itemID": 40310,
     "blueprintID": 40314
+  },
+  {
+    "name": "Missile Range Disruption Script",
+    "itemID": 40334,
+    "blueprintID": 40336
+  },
+  {
+    "name": "Missile Precision Disruption Script",
+    "itemID": 40335,
+    "blueprintID": 40337
   },
   {
     "name": "Upwell Palatine Keepstar",
@@ -10195,6 +10770,11 @@
     "blueprintID": 41165
   },
   {
+    "name": "ECCM Script",
+    "itemID": 41155,
+    "blueprintID": 41230
+  },
+  {
     "name": "Carbide Compact Quad 3500mm Siege Artillery",
     "itemID": 41156,
     "blueprintID": 41168
@@ -10575,6 +11155,46 @@
     "blueprintID": 41662
   },
   {
+    "name": "Armor EM Resistance Script",
+    "itemID": 41517,
+    "blueprintID": 41590
+  },
+  {
+    "name": "Armor Thermal Resistance Script",
+    "itemID": 41518,
+    "blueprintID": 41591
+  },
+  {
+    "name": "Armor Kinetic Resistance Script",
+    "itemID": 41519,
+    "blueprintID": 41592
+  },
+  {
+    "name": "Armor Explosive Resistance Script",
+    "itemID": 41520,
+    "blueprintID": 41593
+  },
+  {
+    "name": "Shield EM Resistance Script",
+    "itemID": 41521,
+    "blueprintID": 41594
+  },
+  {
+    "name": "Shield Thermal Resistance Script",
+    "itemID": 41522,
+    "blueprintID": 41595
+  },
+  {
+    "name": "Shield Kinetic Resistance Script",
+    "itemID": 41523,
+    "blueprintID": 41596
+  },
+  {
+    "name": "Shield Explosive Resistance Script",
+    "itemID": 41524,
+    "blueprintID": 41597
+  },
+  {
     "name": "Capital Flex Armor Hardener II",
     "itemID": 41525,
     "blueprintID": 41658
@@ -10593,6 +11213,41 @@
     "name": "Capital Inductive Compact Remote Capacitor Transmitter",
     "itemID": 41566,
     "blueprintID": 41698
+  },
+  {
+    "name": "Vehement",
+    "itemID": 42124,
+    "blueprintID": 42136
+  },
+  {
+    "name": "Vendetta",
+    "itemID": 42125,
+    "blueprintID": 42137
+  },
+  {
+    "name": "Vanquisher",
+    "itemID": 42126,
+    "blueprintID": 42138
+  },
+  {
+    "name": "Molok",
+    "itemID": 42241,
+    "blueprintID": 45045
+  },
+  {
+    "name": "Dagon",
+    "itemID": 42242,
+    "blueprintID": 45043
+  },
+  {
+    "name": "Chemosh",
+    "itemID": 42243,
+    "blueprintID": 45044
+  },
+  {
+    "name": "Porpoise",
+    "itemID": 42244,
+    "blueprintID": 43910
   },
   {
     "name": "Armor Command Burst I",
@@ -10618,6 +11273,21 @@
     "name": "Skirmish Command Burst I",
     "itemID": 42530,
     "blueprintID": 43546
+  },
+  {
+    "name": "Sensor Optimization Charge",
+    "itemID": 42835,
+    "blueprintID": 42879
+  },
+  {
+    "name": "Electronic Superiority Charge",
+    "itemID": 42836,
+    "blueprintID": 42878
+  },
+  {
+    "name": "Electronic Hardening Charge",
+    "itemID": 42837,
+    "blueprintID": 42877
   },
   {
     "name": "Capital Industrial Core II",
@@ -10843,6 +11513,11 @@
     "name": "Marshal",
     "itemID": 44996,
     "blueprintID": 45528
+  },
+  {
+    "name": "Focused Warp Scrambling Script",
+    "itemID": 45010,
+    "blueprintID": 45011
   },
   {
     "name": "Monitor",
@@ -11088,6 +11763,21 @@
     "name": "Loki Core - Immobility Drivers",
     "itemID": 45633,
     "blueprintID": 45728
+  },
+  {
+    "name": "Loggerhead",
+    "itemID": 45645,
+    "blueprintID": 45644
+  },
+  {
+    "name": "Caiman",
+    "itemID": 45647,
+    "blueprintID": 45646
+  },
+  {
+    "name": "Komodo",
+    "itemID": 45649,
+    "blueprintID": 45648
   },
   {
     "name": "Superconducting Magnetometric Amplifier",
@@ -11355,6 +12045,11 @@
     "blueprintID": 47967
   },
   {
+    "name": "Leshak",
+    "itemID": 47271,
+    "blueprintID": 47968
+  },
+  {
     "name": "Light Entropic Disintegrator I",
     "itemID": 47272,
     "blueprintID": 47969
@@ -11470,6 +12165,11 @@
     "blueprintID": 47369
   },
   {
+    "name": "Praxis",
+    "itemID": 47466,
+    "blueprintID": 47716
+  },
+  {
     "name": "Tetryon Exotic Plasma S",
     "itemID": 47885,
     "blueprintID": 48097
@@ -11540,6 +12240,11 @@
     "blueprintID": 47974
   },
   {
+    "name": "Baryon Exotic Plasma S",
+    "itemID": 47924,
+    "blueprintID": 48098
+  },
+  {
     "name": "Meson Exotic Plasma S",
     "itemID": 47925,
     "blueprintID": 48099
@@ -11555,6 +12260,11 @@
     "blueprintID": 48101
   },
   {
+    "name": "Baryon Exotic Plasma M",
+    "itemID": 47928,
+    "blueprintID": 48103
+  },
+  {
     "name": "Meson Exotic Plasma M",
     "itemID": 47929,
     "blueprintID": 48104
@@ -11568,6 +12278,11 @@
     "name": "Mystic M",
     "itemID": 47931,
     "blueprintID": 48106
+  },
+  {
+    "name": "Baryon Exotic Plasma L",
+    "itemID": 47932,
+    "blueprintID": 48108
   },
   {
     "name": "Meson Exotic Plasma L",
@@ -11598,6 +12313,11 @@
     "name": "Kikimora",
     "itemID": 49710,
     "blueprintID": 49714
+  },
+  {
+    "name": "Drekavac",
+    "itemID": 49711,
+    "blueprintID": 49715
   },
   {
     "name": "Rodiva",
@@ -11650,6 +12370,16 @@
     "blueprintID": 52695
   },
   {
+    "name": "Zirnitra",
+    "itemID": 52907,
+    "blueprintID": 53029
+  },
+  {
+    "name": "Baryon Exotic Plasma XL",
+    "itemID": 52916,
+    "blueprintID": 53031
+  },
+  {
     "name": "Capital Ultratidal Entropic Mounting",
     "itemID": 53035,
     "blueprintID": 53032
@@ -11663,6 +12393,16 @@
     "name": "Capital Absorption Thruster Array",
     "itemID": 53037,
     "blueprintID": 53034
+  },
+  {
+    "name": "Tetryon Exotic Plasma XL",
+    "itemID": 53301,
+    "blueprintID": 53303
+  },
+  {
+    "name": "Meson Exotic Plasma XL",
+    "itemID": 53302,
+    "blueprintID": 53304
   },
   {
     "name": "Signal-25 'Needlejack' Filament",
@@ -11693,6 +12433,11 @@
     "name": "Stormbringer",
     "itemID": 54732,
     "blueprintID": 54843
+  },
+  {
+    "name": "Thunderchild",
+    "itemID": 54733,
+    "blueprintID": 54844
   },
   {
     "name": "Small Vorton Projector I",
@@ -11863,6 +12608,11 @@
     "name": "Salvage Drone II",
     "itemID": 55760,
     "blueprintID": 55762
+  },
+  {
+    "name": "'Dunk' Salvage Drone",
+    "itemID": 55761,
+    "blueprintID": 55763
   },
   {
     "name": "Mobile Sanguine Harvester",

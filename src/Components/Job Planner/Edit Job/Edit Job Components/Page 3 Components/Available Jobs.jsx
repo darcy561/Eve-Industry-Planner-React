@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { UsersContext } from "../../../../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../../../../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
@@ -14,12 +14,15 @@ import {
   Typography,
 } from "@mui/material";
 import { MdOutlineAddLink } from "react-icons/md";
+import {getAnalytics, logEvent} from "firebase/analytics"
 
 export function AvailableJobs({ jobMatches, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
+  const analytics = getAnalytics();
 
   class ESIJob {
     constructor(originalJob, owner) {
@@ -186,6 +189,10 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                         severity: "success",
                         autoHideDuration: 1000,
                       }));
+                      logEvent(analytics, "linkESIJob", {
+                        UID: users[ParentUserIndex].accountID,
+                        isLoggedIn: isLoggedIn
+                      })
                     }}
                   >
                     <MdOutlineAddLink />

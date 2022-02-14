@@ -73,29 +73,25 @@ export function AvailableMarketOrders({
     <Paper
       sx={{
         padding: "20px",
+        position:"relative",
       }}
       elevation={3}
       square={true}
     >
       <Grid container direction="row">
         <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
-          <Grid item xs={12} md={11}>
+          <Grid item xs={12}>
             <Typography variant="h5" color="primary" align="center">
               Available Orders
             </Typography>
           </Grid>
-          <Grid
-            item
-            md={1}
-            sx={{ display: { xs: "none", md: "block" } }}
-            align="right"
-          >
             <IconButton
               id="marketOrder_menu_button"
               onClick={handleMenuClick}
               aria-controls={Boolean(anchorEl) ? "marketOrder_menu" : undefined}
               aria-haspopup="true"
-              aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+            aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+            sx={{position:"absolute", top:"10px", right:"10px"}}
             >
               <MoreVertIcon size="small" color="Secondary" />
             </IconButton>
@@ -112,7 +108,6 @@ export function AvailableMarketOrders({
                 View Linked Market Orders
               </MenuItem>
             </Menu>
-          </Grid>
         </Grid>
         {itemOrderMatch.length !== 0 ? (
           itemOrderMatch.map((order) => {

@@ -50,7 +50,7 @@ export function useEveApi() {
 
       if (indyPromise.status === 200) {
         indyJSON.forEach((job) => {
-          if (job.activity_id === 1) {
+          if (job.activity_id === 1 || job.activity_id === 9) {
             const nameMatch = searchData.find(
               (item) => item.itemID === job.product_type_id
             );
@@ -78,7 +78,8 @@ export function useEveApi() {
           (job) =>
             job.activity_id === 1 ||
             job.activity_id === 4 ||
-            job.activity_id === 3
+            job.activity_id === 3 ||
+            job.activity_id === 9
         );
 
         let idRequest = [];

@@ -42,13 +42,14 @@ export function TutorialPlanner() {
             {<br />}
             {<br />}
             As well as your own jobs the planner can also display your current
-            active and previous industry jobs (within 10 days following delivery) that have been
-            imported from the Eve ESI. Jobs from the ESI have a differnt style
-            of job card and are displayed on your planner until they are linked
-            to an Eve Industry Planner job card or hidden.
+            active and previous industry jobs (within 10 days following
+            delivery) that have been imported from the Eve ESI. Jobs from the
+            ESI have a different style of job card and are displayed on your
+            planner until they are linked to an Eve Industry Planner job card or
+            hidden.
             {<br />}
             {<br />}
-            Using the checkbox in the corner of the job cards you can select 
+            Using the checkbox in the corner of the job cards you can select
             single or multiple cards to quickly manipulate these from the
             options, hover over each of the buttons for more information as to
             their purpose.
@@ -57,8 +58,9 @@ export function TutorialPlanner() {
             <Typography variant="body2">
               {<br />}
               Have a browse through the demo jobs below to see more information
-              about how Eve Industry Planner can help you or if you feel ready
-              simply log in with your Eve account to get started with your jobs.
+              about how Eve Industry Planner works, any changes made here are
+              not saved. If you feel ready simply log in with your Eve account
+              to get started building your own jobs.
             </Typography>
           )}
         </Grid>

@@ -43,14 +43,14 @@ export function SkillCheck() {
                 item
                 xs={6}
                 md={3}
-                sx={{ marginBottom: { xs: "10px", md: "0px" } }}
+                sx={{ marginBottom: { xs: "10px", md: "10px" } }}
               >
                 <Grid
                   item
                   xs={12}
                   sx={{ minHeight: { xs: "3rem", sm: "2rem" } }}
                 >
-                  <Typography variant="body2" align="center">
+                  <Typography variant="body1" align="center">
                     {charSkill.name}
                   </Typography>
                 </Grid>
@@ -64,20 +64,22 @@ export function SkillCheck() {
                 >
                   <Masonry columns={1}>
                     {charSkill.activeLevel >= jSkill.level ? (
-                      <Icon fontSize="large" color="success">
+                      <Icon fontSize="large" color="success" >
                         <CheckCircleIcon />
                       </Icon>
                     ) : (
-                      <Icon fontSize="large" color="error">
-                        <CancelIcon />
-                      </Icon>
+                      <Grid item>
+                        <Icon fontSize="large" color="error">
+                          <CancelIcon />
+                        </Icon>
+                        <Typography variant="body2">
+                          Required Level: {jSkill.level}
+                        </Typography>
+                        <Typography variant="body2">
+                          Current Level: {charSkill.activeLevel}
+                        </Typography>
+                      </Grid>
                     )}
-                    <Typography variant="body2">
-                      Required Level: {jSkill.level}
-                    </Typography>
-                    <Typography variant="body2">
-                      Current Level: {charSkill.activeLevel}
-                    </Typography>
                   </Masonry>
                 </Grid>
               </Grid>

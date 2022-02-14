@@ -41,7 +41,7 @@ export function TutorialStep1() {
         <Grid item xs={12}>
           <Typography variant="body2">
             This is your first step along the way to building your{" "}
-            {activeJob.name}. Does {parentUser.CharacterName} have all of the
+            {activeJob.name}. Does {parentUser.CharacterName} have all the
             required skills make this?
             {<br />}
             {<br />}

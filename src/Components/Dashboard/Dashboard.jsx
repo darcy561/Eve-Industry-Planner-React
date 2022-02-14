@@ -1,8 +1,9 @@
 import { Grid } from "@mui/material";
-import { AccountData } from "./Logged In Components/AccountData";
-import { NewTransactions } from "./Logged In Components/NewTransactions";
+import { AccountData } from "./Components/AccountData";
+import { NewTransactions } from "./Components/NewTransactions";
+import {TutorialDashboard} from "./Components/dashboardTutorial"
 
-export function LoggedInHome() {
+export function Dashboard() {
 
   return (
     <Grid
@@ -12,6 +13,9 @@ export function LoggedInHome() {
       }}
       spacing={2}
     >
+      <Grid item xs={12}>
+        <TutorialDashboard/>
+      </Grid>
       <Grid item xs={12} md={6} lg={4}>
         <AccountData />
       </Grid>

@@ -84,7 +84,3 @@ exports.createUserData = functions.https.onCall((data, context) => {
     );
   }
 });
-
-exports.markUserDeletion = functions.https.onCall((data, context) => {
-  console.log(`deleted`);
-});

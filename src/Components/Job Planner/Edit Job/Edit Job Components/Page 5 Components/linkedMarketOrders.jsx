@@ -131,29 +131,25 @@ export function LinkedMarketOrders({
     <Paper
       sx={{
         padding: "20px",
+        postion:"relative",
       }}
       elevation={3}
       square={true}
     >
       <Grid container direction="row">
         <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
-          <Grid item xs={12} md={11}>
+          <Grid item xs={12}>
             <Typography variant="h5" color="primary" align="center">
               Linked Orders
             </Typography>
           </Grid>
-          <Grid
-            item
-            md={1}
-            sx={{ display: { xs: "none", md: "block" } }}
-            align="right"
-          >
             <IconButton
               id="transaction_menu_button"
               onClick={handleMenuClick}
               aria-controls={Boolean(anchorEl) ? "transaction_menu" : undefined}
               aria-haspopup="true"
-              aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+            aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+            sx={{ position: "absolute", top: "10px", right:"10px"}}
             >
               <MoreVertIcon size="small" color="Secondary" />
             </IconButton>
@@ -170,7 +166,6 @@ export function LinkedMarketOrders({
                 View Other Market Orders
               </MenuItem>
             </Menu>
-          </Grid>
         </Grid>
         {linkedMarketOrders.map((order) => {
           const charData = users.find(

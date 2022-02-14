@@ -1,11 +1,11 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
-import { EveIDsContext } from "../../../../Context/EveDataContext";
+import { UsersContext } from "../../../Context/AuthContext";
+import { EveIDsContext } from "../../../Context/EveDataContext";
 import {
   JobArrayContext,
   JobStatusContext,
-} from "../../../../Context/JobContext";
+} from "../../../Context/JobContext";
 
 export function NewTransactions() {
   const { users } = useContext(UsersContext);

@@ -8,7 +8,33 @@ import {
   Typography,
 } from "@mui/material";
 
-export function IndustryESICardComplete({ job }) {
+export function ReactionESICardActive({ job }) {
+
+  function timeRemainingcalc() {
+    let now = new Date().getTime();
+    let timeLeft = Date.parse(job.end_date) - now;
+
+    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    let hour = Math.floor(
+      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (day < 0) {
+      day = 0;
+    }
+    if (hour < 0) {
+      hour = 0;
+    }
+    if (min < 0) {
+      min = 0;
+    }
+
+    return { days: day, hours: hour, mins: min };
+  }
+
+  const timeRemaining = timeRemainingcalc();
+
 
   return (
     <Tooltip title="Job imported from the Eve ESI">
@@ -60,12 +86,21 @@ export function IndustryESICardComplete({ job }) {
                 </Grid>
                 <Grid container item xs={12} sx={{ marginTop: "10px" }}>
                   <Grid item xs={4}>
-                    <Typography variant="body1">Status:</Typography>
+                    <Typography variant="body1">Remaining:</Typography>
                   </Grid>
                   <Grid item xs={8} sx={{ paddingRight: "20px" }}>
-                    <Typography variant="body2" align="right">
-                      Delivered
-                    </Typography>
+                    {timeRemaining.days === 0 &&
+                    timeRemaining.hours === 0 &&
+                    timeRemaining.mins === 0 ? (
+                      <Typography variant="body2" align="right">
+                        Ready to Deliver
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2" align="right">
+                        {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
+                        {timeRemaining.mins}M
+                      </Typography>
+                    )}
                   </Grid>
                 </Grid>
               </Grid>
@@ -81,7 +116,7 @@ export function IndustryESICardComplete({ job }) {
             >
               <Box sx={{ height: "100%" }}>
                 <Typography align="center" variant="body2">
-                  <b>ESI Manufacturing Job</b>
+                  <b>ESI Reaction Job</b>
                 </Typography>
               </Box>
             </Grid>

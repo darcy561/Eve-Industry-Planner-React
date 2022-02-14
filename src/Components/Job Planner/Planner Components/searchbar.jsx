@@ -161,7 +161,7 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                   }
                 }}
               >
-                Add Ingrediant Jobs
+                Add Ingredient Jobs
               </Button>
             </Tooltip>
           </Grid>
@@ -180,7 +180,6 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 onClick={() => {
                   if (multiSelect.length > 0) {
                     moveMultipleJobsBackward(multiSelect);
-                    updateMultiSelect([]);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -204,7 +203,6 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 onClick={() => {
                   if (multiSelect.length > 0) {
                     moveMultipleJobsForward(multiSelect);
-                    updateMultiSelect([]);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,

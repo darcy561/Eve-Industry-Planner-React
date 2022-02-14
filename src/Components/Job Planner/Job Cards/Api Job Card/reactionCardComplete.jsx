@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 
-export function IndustryESICardComplete({ job }) {
+export function ReactionESICardComplete({ job }) {
 
   return (
     <Tooltip title="Job imported from the Eve ESI">
@@ -81,7 +81,7 @@ export function IndustryESICardComplete({ job }) {
             >
               <Box sx={{ height: "100%" }}>
                 <Typography align="center" variant="body2">
-                  <b>ESI Manufacturing Job</b>
+                  <b>ESI Reaction Job</b>
                 </Typography>
               </Box>
             </Grid>

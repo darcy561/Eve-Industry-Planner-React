@@ -37,18 +37,19 @@ export function TutorialStep2() {
           <Typography variant="body2">
             Now that you know what you are building, it is time to acquire the
             necessary parts.{<br />} {<br />}
-            For each item you can choose the "All Remaining" option from the
-            quantity dropdown or you can manually add them number of items into
-            the field, then add the amount you paid for each item. Click the{" "}
-            <b>+</b> to add this entry.
+            For each item enter the cost into the dropdown menu, you can either
+            choose the "All Remaining" option to or you can manually type the
+            number of items, followed by the cost of the individual item. Click
+            the <b>+</b> to add this entry. You can add as many entries as
+            needed, each entry row can be removed using the <b>X</b>.{<br />}
+            {<br />}
+            As you add entries the total cost for the material is calculated.
+            This is then added to the total material cost for the job which is
+            used to calculate an individual item cost.
             {<br />}
             {<br />}
-            As you add entries the total cost for the material will be
-            calculated and will be added to the total material cost for the job.
-            {<br />}
-            {<br />}
-            You can use the "Hide Completed Purchases" toggle switch, if you only want
-            to see the items that you have not completely purchased.
+            You can use the "Hide Completed Purchases" toggle switch if you only
+            want to see the items that you have not completely purchased.
           </Typography>
         </Grid>
         {isLoggedIn && (

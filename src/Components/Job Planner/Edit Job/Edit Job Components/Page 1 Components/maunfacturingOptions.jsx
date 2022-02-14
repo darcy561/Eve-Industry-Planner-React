@@ -101,7 +101,7 @@ export function ManufacturingOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <Tooltip title="Calculations are not currently implemented, added for reference." arrow>
+            <Tooltip title="Calculations are not currently implemented, added for reference." arrow placement="top">
             <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 disableClearable={true}

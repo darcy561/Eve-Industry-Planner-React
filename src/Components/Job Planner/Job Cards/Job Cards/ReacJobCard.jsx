@@ -29,11 +29,11 @@ const useStyles = makeStyles((theme) => ({
 
 export default function JobCard({
   job,
-  EditJobProcess,
   multiSelect,
   updateMultiSelect,
+  updateJobSettingsTrigger
 }) {
-  const { deleteJobProcess } = useJobManagement();
+  const { deleteJobProcess, openEditJob } = useJobManagement();
   const classes = useStyles();
 
   return (
@@ -143,7 +143,10 @@ export default function JobCard({
               size="small"
               variant="outlined"
               color="primary"
-              onClick={() => EditJobProcess(job)}
+              onClick={() => {
+                openEditJob(job)
+                updateJobSettingsTrigger((prev) => !prev)
+              }}
             >
               Edit
             </Button>

@@ -22,7 +22,7 @@ class Job {
     this.apiJobs = [];
     this.apiOrders = [];
     this.apiTransactions = [];
-    this.parentJob = null;
+    this.parentJob = [];
 
     this.build = {
       products: {

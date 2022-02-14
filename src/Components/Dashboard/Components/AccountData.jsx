@@ -1,10 +1,10 @@
 import { Avatar, Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
+import { UsersContext } from "../../../Context/AuthContext";
 import {
   JobArrayContext,
   JobStatusContext,
-} from "../../../../Context/JobContext";
+} from "../../../Context/JobContext";
 
 export function AccountData() {
   const { users } = useContext(UsersContext);

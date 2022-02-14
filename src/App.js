@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Header } from "./Components/Header";
-import { Home } from "./Components/Home";
+import { Home } from "./Components/Landing Page";
 import { JobPlanner } from "./Components/Job Planner";
 import { ItemTree } from "./Components/item Tree";
 import { JobStatus, JobArray, ActiveJob, ApiJobs } from "./Context/JobContext";
@@ -34,6 +34,8 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { AccountsPage } from "./Components/Accounts/Accounts";
 import { SettingsPage } from "./Components/Settings/Settings";
 import { Footer } from "./Components/Footer/Footer";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
 
 export default function App() {
   const [mode, setMode] = useState(localStorage.getItem("theme"));
@@ -131,6 +133,7 @@ export default function App() {
                             <EveIDs>
                               <EveESIStatus>
                                 <ShoppingList>
+                                  <LocalizationProvider dateAdapter={AdapterDateFns}>
                                   <SnackBarNotification />
                                   <DialogBox />
                                   <BrowserRouter>
@@ -159,7 +162,8 @@ export default function App() {
                                       />
                                     </Routes>
                                     <Footer />
-                                  </BrowserRouter>
+                                    </BrowserRouter>
+                                    </LocalizationProvider>
                                 </ShoppingList>
                               </EveESIStatus>
                             </EveIDs>

@@ -116,7 +116,7 @@ export function IndustryESICardActive({ job }) {
             >
               <Box sx={{ height: "100%" }}>
                 <Typography align="center" variant="body2">
-                  <b>ESI Industry Job</b>
+                  <b>ESI Manufacturing Job</b>
                 </Typography>
               </Box>
             </Grid>

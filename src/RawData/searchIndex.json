@@ -12655,6 +12655,66 @@
     "blueprintID": 57493
   },
   {
+    "name": "Meta-Operant Neurolink Enhancer",
+    "itemID": 57458,
+    "blueprintID": 57495
+  },
+  {
+    "name": "Hypnagogic Neurolink Enhancer",
+    "itemID": 57459,
+    "blueprintID": 57496
+  },
+  {
+    "name": "Axosomatic Neurolink Enhancer",
+    "itemID": 57460,
+    "blueprintID": 57497
+  },
+  {
+    "name": "Cogni-Emotive Neurolink Enhancer",
+    "itemID": 57461,
+    "blueprintID": 57498
+  },
+  {
+    "name": "Sense-Heuristic Neurolink Enhancer",
+    "itemID": 57462,
+    "blueprintID": 57499
+  },
+  {
+    "name": "Isotropic Neofullerene Alpha-3",
+    "itemID": 57463,
+    "blueprintID": 57500
+  },
+  {
+    "name": "Isotropic Neofullerene Beta-6",
+    "itemID": 57464,
+    "blueprintID": 57501
+  },
+  {
+    "name": "Isotropic Neofullerene Gamma-9",
+    "itemID": 57465,
+    "blueprintID": 57502
+  },
+  {
+    "name": "Ultradian-Cycling Neurolink Stabilizer",
+    "itemID": 57466,
+    "blueprintID": 57503
+  },
+  {
+    "name": "Reaction-Orienting Neurolink Stabilizer",
+    "itemID": 57467,
+    "blueprintID": 57504
+  },
+  {
+    "name": "Stress-Responding Neurolink Stabilizer",
+    "itemID": 57468,
+    "blueprintID": 57505
+  },
+  {
+    "name": "Goal-Orienting Neurolink Stabilizer",
+    "itemID": 57469,
+    "blueprintID": 57506
+  },
+  {
     "name": "U-C Trigger Neurolink Conduit",
     "itemID": 57470,
     "blueprintID": 57507

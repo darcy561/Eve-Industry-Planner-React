@@ -1,10 +1,8 @@
 import React, { useContext, useState } from "react";
 import {
-  JobArrayContext,
   JobStatusContext,
   ActiveJobContext,
 } from "../../../Context/JobContext";
-import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { EditPage1 } from "./Edit Job Components/Job Page 1";
 import { EditPage2 } from "./Edit Job Components/Job Page 2";
 import { EditPage3 } from "./Edit Job Components/Job Page 3";
@@ -33,6 +31,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { ArchiveJobButton } from "./Edit Job Components/Page 5 Components/archiveJobButton";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { makeStyles } from "@mui/styles";
+import { LinkedJobBadge } from "./Linked Job Badge";
 
 const useStyles = makeStyles((theme) => ({
   Stepper: {
@@ -44,12 +43,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EditJob({ updateJobSettingsTrigger }) {
   const { jobStatus } = useContext(JobStatusContext);
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { uploadJob, updateMainUserDoc } = useFirebase();
-  const { deleteJobProcess } = useJobManagement();
+  const { closeEditJob, deleteJobProcess } = useJobManagement();
   const [jobModified, setJobModified] = useState(false);
   const classes = useStyles();
 
@@ -84,25 +81,6 @@ export default function EditJob({ updateJobSettingsTrigger }) {
       jobStatus: prevState.jobStatus + 1,
     }));
     setJobModified(true);
-  }
-
-  function closeJob() {
-    const index = jobArray.findIndex((x) => activeJob.jobID === x.jobID);
-    const newArray = [...jobArray];
-    newArray[index] = activeJob;
-    if (isLoggedIn && jobModified) {
-      uploadJob(activeJob);
-      updateMainUserDoc();
-    }
-    updateJobArray(newArray);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${activeJob.name} Updated`,
-      severity: "info",
-      autoHideDuration: 1000,
-    }));
-    updateJobSettingsTrigger((prev) => !prev);
   }
   
   return (
@@ -144,7 +122,14 @@ export default function EditJob({ updateJobSettingsTrigger }) {
             >
               <IconButton
                 color="primary"
-                onClick={closeJob}
+                onClick={() => { 
+                  if (isLoggedIn && jobModified) {
+                    uploadJob(activeJob);
+                    updateMainUserDoc();
+                  }
+                  closeEditJob(activeJob)
+                  updateJobSettingsTrigger((prev) => !prev);
+                }}
                 size="medium"
                 sx={{ marginRight: { sm: "10px" } }}
               >
@@ -157,10 +142,12 @@ export default function EditJob({ updateJobSettingsTrigger }) {
               {activeJob.name}
             </Typography>
           </Grid>
-          <Grid item xs={4} />
+
+          <Grid item xs={2} />
           <Grid
             item
-            xs={4}
+            xs={2}
+            sm={5}
             align="center"
             sx={{ marginTop: { xs: "20px", md: "30px" } }}
           >
@@ -178,7 +165,9 @@ export default function EditJob({ updateJobSettingsTrigger }) {
               </picture>
             </Box>
           </Grid>
-          <Grid item xs={4} />
+          <Grid item xs={12} sm={5}>
+            <LinkedJobBadge jobModified={jobModified} setJobModified={setJobModified} />
+          </Grid>
 
           <Grid item xs={12}>
             <Stepper activeStep={activeJob.jobStatus} orientation="vertical">

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import {
   ShoppingListContext,
   SnackBarDataContext,
@@ -18,14 +18,24 @@ export function ShoppingListDialog() {
   const { shoppingListData, updateShoppingListData } =
     useContext(ShoppingListContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const [childJobDisplay, updateChildJobDisplay] = useState(true);
 
   let copyText = "";
   let volumeTotal = 0;
-
+  let displayData = []
   if (shoppingListData.open) {
     shoppingListData.list.forEach((i) => {
-      copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
-      volumeTotal += i.volume * i.quantity;
+      if (childJobDisplay) {
+        copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
+        volumeTotal += i.volume * i.quantity;
+        displayData = shoppingListData.list
+      } else {
+        if (!i.hasChild) {
+          copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
+          volumeTotal += i.volume * i.quantity;
+          displayData = shoppingListData.list.filter((i)=> !i.hasChild)
+        }
+      }
     });
   }
   const handleClose = () => {
@@ -51,7 +61,7 @@ export function ShoppingListDialog() {
       </DialogTitle>
       <DialogContent>
         <Grid container>
-          {shoppingListData.list.map((item) => {
+          {displayData.map((item) => {
             return (
               <Grid
                 key={item.typeID}

@@ -508,6 +508,7 @@ export function useJobManagement() {
               typeID: material.typeID,
               quantity: material.quantity - material.quantityPurchased,
               volume: material.volume,
+              hasChild: material.childJob.length > 0 ? true : false
             });
           } else {
             const index = finalShoppingList.findIndex(
@@ -564,7 +565,6 @@ export function useJobManagement() {
       });
       replaceSnapshot(inputJob);
     }
-    console.log(parentJobs);
     await deleteMultipleJobsProcess(inputJobs);
     let newJob = await newJobProcess(
       inputJobs[0].itemID,

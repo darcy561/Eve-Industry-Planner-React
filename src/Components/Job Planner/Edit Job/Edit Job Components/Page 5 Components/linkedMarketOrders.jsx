@@ -62,11 +62,8 @@ export function LinkedMarketOrders({
 
     if (newOrderData !== undefined && !order.complete) {
       if (
-        order.duration !== newOrderData.duration ||
-        order.item_price !== newOrderData.price ||
-        order.range !== newOrderData.range ||
         order.volume_remain !== newOrderData.volume_remain ||
-        order.issued !== newOrderData.issued
+        Date.parse(order.issued) !== Date.parse(newOrderData.issued)
       ) {
         order.duration = newOrderData.duration;
         order.item_name = newOrderData.item_name || null;
@@ -75,19 +72,21 @@ export function LinkedMarketOrders({
         order.item_price = newOrderData.price;
         order.range = newOrderData.range;
         order.volume_remain = newOrderData.volume_remain;
-        order.timeStamps.push(newOrderData.issued);
+        if (Date.parse(order.issued) !== Date.parse(newOrderData.issued)) {
+          order.timeStamps.push(newOrderData.issued);
 
-        user.apiJournal.forEach((entry) => {
-          if (
-            entry.ref_type === "brokers_fee" &&
-            Date.parse(newOrderData.issued) === Date.parse(entry.date)
-          ) {
-            entry.amount = Math.abs(entry.amount);
-            entry.order_id = order.order_id;
-            delete entry.balance;
-            activeJob.build.sale.brokersFee.push(entry);
-          }
-        });
+          user.apiJournal.forEach((entry) => {
+            if (
+              entry.ref_type === "brokers_fee" &&
+              Date.parse(newOrderData.issued) === Date.parse(entry.date)
+            ) {
+              entry.amount = Math.abs(entry.amount);
+              entry.order_id = order.order_id;
+              delete entry.balance;
+              activeJob.build.sale.brokersFee.push(entry);
+            }
+          });
+        }
       }
     }
     if (newOrderData === undefined && !order.complete) {
@@ -107,7 +106,7 @@ export function LinkedMarketOrders({
 
   activeJob.build.sale.marketOrders.forEach((order) => {
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
-    if (order.timeStamps.length !== activeJob.build.sale.brokersFee.length) {
+    if (order.timeStamps.length > activeJob.build.sale.brokersFee.length) {
       order.timeStamps.forEach((stamp) => {
         user.apiJournal.forEach((entry) => {
           if (

@@ -32,6 +32,7 @@ import { ArchiveJobButton } from "./Edit Job Components/Page 5 Components/archiv
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { makeStyles } from "@mui/styles";
 import { LinkedJobBadge } from "./Linked Job Badge";
+import { PassBuildCostButton } from "./Edit Job Components/Page 4 Components/passBuildCost";
 
 const useStyles = makeStyles((theme) => ({
   Stepper: {
@@ -122,10 +123,10 @@ export default function EditJob({ updateJobSettingsTrigger }) {
             >
               <IconButton
                 color="primary"
-                onClick={() => { 
+                onClick={ async () => { 
                   if (isLoggedIn && jobModified) {
-                    uploadJob(activeJob);
-                    updateMainUserDoc();
+                    await uploadJob(activeJob);
+                    await updateMainUserDoc();
                   }
                   closeEditJob(activeJob)
                   updateJobSettingsTrigger((prev) => !prev);
@@ -231,7 +232,12 @@ export default function EditJob({ updateJobSettingsTrigger }) {
                         </Grid>
                       )}
                       {activeJob.jobStatus === jobStatus.length - 2 &&
-                      isLoggedIn ? (
+                        <PassBuildCostButton 
+                          updateJobSettingsTrigger={updateJobSettingsTrigger}
+                        />
+              }
+                      {activeJob.jobStatus === jobStatus.length - 2 &&
+                        isLoggedIn ? (
                         <ArchiveJobButton
                           updateJobSettingsTrigger={updateJobSettingsTrigger}
                         />

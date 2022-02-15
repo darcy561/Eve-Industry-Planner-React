@@ -157,6 +157,10 @@ export function useJobManagement() {
     if (inputJob.isSnapshot) {
       inputJob = await downloadCharacterJobs(inputJob);
       inputJob.isSnapshot = false;
+      const index = jobArray.findIndex((x) => inputJob.jobID === x.jobID);
+      const newArray = [...jobArray];
+      newArray[index] = inputJob;
+      updateJobArray(newArray);
     }
     updateActiveJob(inputJob);
     updatePageLoad(false);
@@ -185,6 +189,11 @@ export function useJobManagement() {
     }));
   };
 
+  const replaceSnapshot = async (inputJob) => {
+    const index = jobArray.findIndex((x) => inputJob.jobID === x.jobID);
+    jobArray[index] = inputJob;
+  };
+
   const massBuildMaterials = async (inputJobs) => {
     let finalBuildCount = [];
     let parentIDs = [];
@@ -193,6 +202,7 @@ export function useJobManagement() {
       if (inputJob.isSnapshot) {
         inputJob = await downloadCharacterJobs(inputJob);
         inputJob.isSnapshot = false;
+        replaceSnapshot(inputJob);
       }
       parentIDs.push(inputJob);
       inputJob.build.materials.forEach((material) => {
@@ -221,19 +231,19 @@ export function useJobManagement() {
     }
 
     for (let inputJob of inputJobs) {
-      if (!inputJob.isSnapshot) {
-        inputJob.build.materials.forEach((material) => {
-          if (
-            material.jobType === jobTypes.manufacturing ||
-            material.jobType === jobTypes.reaction
-          ) {
-            let match = childJobs.find((i) => i.itemID === material.typeID);
-            if (match !== undefined) {
-              material.childJob.push(match.jobID);
-            }
+      let updatedJob = jobArray.find((i) => i.jobID === inputJob.jobID);
+      for (let material of updatedJob.build.materials) {
+        if (
+          material.jobType === jobTypes.manufacturing ||
+          material.jobType === jobTypes.reaction
+        ) {
+          let match = childJobs.find((i) => i.itemID === material.typeID);
+          if (match !== undefined) {
+            material.childJob.push(match.jobID);
           }
-        });
+        }
       }
+      await uploadJob(updatedJob);
     }
   };
 
@@ -251,6 +261,7 @@ export function useJobManagement() {
     if (inputJob.isSnapshot) {
       inputJob = await downloadCharacterJobs(inputJob);
       inputJob.isSnapshot = false;
+      replaceSnapshot(inputJob);
     }
     inputJob.apiJobs.forEach((job) => {
       const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
@@ -276,6 +287,7 @@ export function useJobManagement() {
             );
             if (ParentIDIndex !== -1) {
               child.parentJob.splice(ParentIDIndex, 1);
+              await replaceSnapshot(child);
               await uploadJob(child);
             }
           }
@@ -299,7 +311,8 @@ export function useJobManagement() {
               }
             }
           }
-          await uploadJob(parentJob);
+          await replaceSnapshot(parentJob)
+          await uploadJob(parentJob)
         }
       }
     }
@@ -347,6 +360,7 @@ export function useJobManagement() {
       if (inputJob.isSnapshot) {
         inputJob = await downloadCharacterJobs(inputJob);
         inputJob.isSnapshot = false;
+        replaceSnapshot(inputJob);
       }
       inputJob.apiJobs.forEach((job) => {
         const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
@@ -389,6 +403,7 @@ export function useJobManagement() {
               if (ParentIDIndex !== -1) {
                 child.parentJob.splice(ParentIDIndex, 1);
                 await uploadJob(child);
+                await replaceSnapshot(child);
               }
             }
           }
@@ -411,6 +426,7 @@ export function useJobManagement() {
                 }
               }
             }
+            await replaceSnapshot(parentJob);
             await uploadJob(parentJob);
           }
         }
@@ -525,7 +541,7 @@ export function useJobManagement() {
         inputJob.isSnapshot = false;
       }
       totalItems += inputJob.build.products.totalQuantity;
-      for(let parentJobID of inputJob.parentJob){
+      for (let parentJobID of inputJob.parentJob) {
         if (!parentJobs.includes(parentJobID)) {
           let parentMatch = jobArray.find((i) => i.jobID === parentJobID);
           if (parentMatch.isSnapshot) {
@@ -535,7 +551,7 @@ export function useJobManagement() {
 
           parentJobs.push(parentMatch);
         }
-      };
+      }
       inputJob.build.materials.forEach((mat) => {
         let match = childJobs.find((i) => i.typeID === mat.typeID);
         if (match === undefined) {
@@ -546,8 +562,9 @@ export function useJobManagement() {
           });
         }
       });
+      replaceSnapshot(inputJob);
     }
-    console.log(parentJobs)
+    console.log(parentJobs);
     await deleteMultipleJobsProcess(inputJobs);
     let newJob = await newJobProcess(
       inputJobs[0].itemID,
@@ -555,29 +572,32 @@ export function useJobManagement() {
       parentJobs
     );
     for (let job of parentJobs) {
-      console.log(job);
-        let mat = job.build.materials.find((i) => i.typeID === newJob.itemID);
-        console.log(mat)
-        mat.childJob.push(newJob.jobID);
+      let mat = job.build.materials.find((i) => i.typeID === newJob.itemID);
 
-    };
+      mat.childJob.push(newJob.jobID);
+    }
     for (let mat of newJob.build.materials) {
-      if (mat.jobType === jobTypes.manufacturing ||
-        mat.jobType === jobTypes.reaction) {
-        console.log(mat)
+      if (
+        mat.jobType === jobTypes.manufacturing ||
+        mat.jobType === jobTypes.reaction
+      ) {
         let match = childJobs.find((i) => i.typeID === mat.typeID);
-        console.log(match)
         if (match !== undefined) {
-          match.childJob.forEach((childJobID) => {
+          for (let childJobID of match.childJob) {
+            let jobArrayMatch = jobArray.find((i) => i.jobID === childJobID);
             if (!mat.childJob.includes(childJobID)) {
               mat.childJob.push(childJobID);
             }
-            
-          });
-
+            if (!jobArrayMatch.parentJob.includes(newJob.jobID)) {
+              jobArrayMatch.parentJob.push(newJob.jobID);
+              await uploadJob(jobArrayMatch);
+              await replaceSnapshot(jobArrayMatch);
+            }
+          }
         }
       }
-    };
+    }
+    await uploadJob(newJob);
   };
 
   return {

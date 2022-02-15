@@ -230,10 +230,6 @@ export function useFirebase() {
       parentJob: document.data().parentJob,
     };
 
-    const index = jobArray.findIndex((x) => job.jobID === x.jobID);
-    const newArray = [...jobArray];
-    newArray[index] = newJob;
-    updateJobArray(newArray);
     return newJob;
   };
 

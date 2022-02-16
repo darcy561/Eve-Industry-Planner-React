@@ -268,7 +268,7 @@ export function useEveApi() {
             returnArray.push(item);
           });
 
-          if (journalJSON.length < 2500) {
+          if (journalJSON.length < 1000) {
             pageCount = 11;
           } else {
             pageCount++;

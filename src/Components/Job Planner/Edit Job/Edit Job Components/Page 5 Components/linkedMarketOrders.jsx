@@ -2,6 +2,7 @@ import {
   Avatar,
   Box,
   Button,
+  Divider,
   Grid,
   IconButton,
   Menu,
@@ -130,7 +131,7 @@ export function LinkedMarketOrders({
     <Paper
       sx={{
         padding: "20px",
-        postion:"relative",
+        position:"relative",
       }}
       elevation={3}
       square={true}
@@ -143,9 +144,9 @@ export function LinkedMarketOrders({
             </Typography>
           </Grid>
             <IconButton
-              id="transaction_menu_button"
+              id="linkedOrders_menu_button"
               onClick={handleMenuClick}
-              aria-controls={Boolean(anchorEl) ? "transaction_menu" : undefined}
+              aria-controls={Boolean(anchorEl) ? "linkedOrders_menu" : undefined}
               aria-haspopup="true"
             aria-expanded={Boolean(anchorEl) ? "true" : undefined}
             sx={{ position: "absolute", top: "10px", right:"10px"}}
@@ -153,12 +154,12 @@ export function LinkedMarketOrders({
               <MoreVertIcon size="small" color="Secondary" />
             </IconButton>
             <Menu
-              id="transaction_menu"
+              id="linkedOrders_menu"
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
               MenuListProps={{
-                "aria-labelledby": "transaction_menu_button",
+                "aria-labelledby": "linkedOrders_menu_button",
               }}
             >
               <MenuItem onClick={() => updateShowAvailableOrders(true)}>
@@ -171,7 +172,7 @@ export function LinkedMarketOrders({
             (i) => i.CharacterHash === order.CharacterHash
           );
           return (
-            <Grid key={order.order_id} container>
+            <Grid key={order.order_id} container sx={{marginBottom:"20px"}}>
               <Grid container item sx={{ marginBottom: "10px" }}>
                 <Grid item xs={4}>
                   <Avatar
@@ -224,7 +225,7 @@ export function LinkedMarketOrders({
                 <Grid
                   item
                   xs={6}
-                  md={3}
+                  md={2}
                   sx={{
                     marginBottom: {
                       xs: "10px",
@@ -234,32 +235,17 @@ export function LinkedMarketOrders({
                 >
                   <Typography variant="body2">{order.duration} Days</Typography>
                 </Grid>
-                <Grid item xs={6} md={3}>
-                  <Typography variant="body2">Range:</Typography>
-                </Grid>
-                <Grid item xs={6} md={3}>
-                {order.range === "region" ? (
-                      <Typography variant="body2">
-                        {order.range.charAt(0).toUpperCase() +
-                          order.range.slice(1)}
-                      </Typography>
-                    ) : (
-                      <Typography variant="body2">
-                        {order.range} Jumps
-                      </Typography>
-                    )}
-                </Grid>
-              </Grid>
-              <Grid container item xs={12}>
-                <Grid item xs={3}>
+
+
+                <Grid item xs={2}>
                   <Typography variant="body2">Last Updated:</Typography>
                 </Grid>
-                <Grid item xs={9}>
+                <Grid item xs={5}>
                   <Typography variant="body2">
                     {new Date(order.issued).toLocaleString()}
                   </Typography>
                 </Grid>
-              </Grid>
+                </Grid>
               <Grid container item xs={12}>
                 <Grid item xs={12} align="right">
                   {activeJob.build.sale.marketOrders.length > 1 && (
@@ -364,17 +350,18 @@ export function LinkedMarketOrders({
                     </IconButton>
                   </Tooltip>
                 </Grid>
-                {order.volume_remain === 0 && (
+                {order.volume_remain === 0 ||order.complete && (
                   <Box
                     sx={{
-                      backgroundColor: "manufacturing.main",
+                      backgroundColor: order.volume_remain > 0 ? "secondary.main" : "manufacturing.main",
+                      color: order.volume_remain > 0 ? "white" : "",
                       borderRadius: "5px",
                       marginLeft: "auto",
                       marginRight: "auto",
                       padding: "8px",
                     }}
                   >
-                    <Typography variant="body1">Sold Out</Typography>
+                    <Typography variant="body1">{order.volume_remain > 0 ? "Order Canceled" : "Sold Out"}</Typography>
                   </Box>
                 )}
               </Grid>

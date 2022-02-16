@@ -9,7 +9,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
+  FormGroup,
   Grid,
+  Switch,
   Typography,
 } from "@mui/material";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -18,22 +21,22 @@ export function ShoppingListDialog() {
   const { shoppingListData, updateShoppingListData } =
     useContext(ShoppingListContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const [childJobDisplay, updateChildJobDisplay] = useState(true);
+  const [childJobDisplay, updateChildJobDisplay] = useState(false);
 
   let copyText = "";
   let volumeTotal = 0;
-  let displayData = []
+  let displayData = [];
   if (shoppingListData.open) {
     shoppingListData.list.forEach((i) => {
       if (childJobDisplay) {
         copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
         volumeTotal += i.volume * i.quantity;
-        displayData = shoppingListData.list
+        displayData = shoppingListData.list;
       } else {
         if (!i.hasChild) {
           copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
           volumeTotal += i.volume * i.quantity;
-          displayData = shoppingListData.list.filter((i)=> !i.hasChild)
+          displayData = shoppingListData.list.filter((i) => !i.hasChild);
         }
       }
     });
@@ -109,6 +112,20 @@ export function ShoppingListDialog() {
         </Grid>
       </DialogContent>
       <DialogActions sx={{ padding: "20px" }}>
+        <FormGroup sx={{marginRight:"20px"}}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={childJobDisplay}
+                onChange={() => {
+                  updateChildJobDisplay((prev) => !prev);
+                }}
+              />
+            }
+            label="Include intermediary items"
+            labelPlacement="start"
+          />
+        </FormGroup>
         <CopyToClipboard
           text={copyText}
           onCopy={() => {

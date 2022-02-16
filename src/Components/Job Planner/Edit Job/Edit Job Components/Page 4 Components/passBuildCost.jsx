@@ -7,7 +7,10 @@ import {
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { IsLoggedInContext, UsersContext } from "../../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 
 export function PassBuildCostButton() {
   const { activeJob } = useContext(ActiveJobContext);
@@ -21,8 +24,16 @@ export function PassBuildCostButton() {
   const parentUser = users.find((i) => i.ParentUser === true);
 
   const passCost = async () => {
-
-    let itemsAdded = 0
+    let itemsAdded = 0;
+    let itemCost =
+      Math.round(
+        ((activeJob.build.costs.extrasTotal +
+          activeJob.build.costs.installCosts +
+          activeJob.build.costs.totalPurchaseCost) /
+          activeJob.build.products.totalQuantity +
+          Number.EPSILON) *
+          100
+      ) / 100;
 
     for (let job of activeJob.parentJob) {
       let parentJob = jobArray.find((i) => i.jobID === job);
@@ -34,52 +45,36 @@ export function PassBuildCostButton() {
       parentJob.build.materials.forEach((material) => {
         if (!material.purchasing.some((i) => i.childID === activeJob.jobID)) {
           if (material.childJob.includes(activeJob.jobID)) {
-            itemsAdded ++
+            itemsAdded++;
             material.purchasing.push({
               id: Date.now(),
               childID: activeJob.jobID,
               childJobImport: true,
               itemCount: Number(material.quantity - material.quantityPurchased),
-              itemCost:
-                Math.round(
-                  ((activeJob.build.costs.extrasTotal +
-                    activeJob.build.costs.installCosts +
-                    activeJob.build.costs.totalPurchaseCost) /
-                    activeJob.build.products.totalQuantity +
-                    Number.EPSILON) *
-                  100
-                ) / 100,
-            })
-            material.quantityPurchased = material.quantity
-            material.purchasedCost += material.quantity * Math.round(
-              ((activeJob.build.costs.extrasTotal +
-                activeJob.build.costs.installCosts +
-                activeJob.build.costs.totalPurchaseCost) /
-                activeJob.build.products.totalQuantity +
-                Number.EPSILON) *
-              100
-            ) / 100;
+              itemCost: itemCost,
+            });
+            material.quantityPurchased = material.quantity;
+            material.purchasedCost += material.quantity * itemCost;
             material.purchaseComplete = true;
-            newTotal += material.purchasedCost
+            newTotal += material.purchasedCost;
           }
         }
-        
       });
-      parentJob.build.costs.totalPurchaseCost += newTotal
-      await uploadJob(parentJob)
+      parentJob.build.costs.totalPurchaseCost += newTotal;
+      await uploadJob(parentJob);
     }
     if (itemsAdded > 0) {
       setSnackbarData((prev) => ({
         ...prev,
         open: true,
-        message: `Costs Imported to ${itemsAdded} job/jobs`,
+        message: `Cost imported to ${itemsAdded} job/jobs`,
         severity: "success",
         autoHideDuration: 3000,
       }));
       logEvent(analytics, "Import Costs", {
         UID: parentUser.accountID,
-        isLoggedIn: isLoggedIn
-      })
+        isLoggedIn: isLoggedIn,
+      });
     } else {
       setSnackbarData((prev) => ({
         ...prev,
@@ -89,7 +84,6 @@ export function PassBuildCostButton() {
         autoHideDuration: 3000,
       }));
     }
-
   };
 
   return (

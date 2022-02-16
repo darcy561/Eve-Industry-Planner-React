@@ -83,7 +83,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
     }));
     setJobModified(true);
   }
-  
+
   return (
     <Container
       disableGutters
@@ -123,12 +123,12 @@ export default function EditJob({ updateJobSettingsTrigger }) {
             >
               <IconButton
                 color="primary"
-                onClick={ async () => { 
+                onClick={async () => {
                   if (isLoggedIn && jobModified) {
                     await uploadJob(activeJob);
                     await updateMainUserDoc();
                   }
-                  closeEditJob(activeJob)
+                  closeEditJob(activeJob);
                   updateJobSettingsTrigger((prev) => !prev);
                 }}
                 size="medium"
@@ -143,7 +143,6 @@ export default function EditJob({ updateJobSettingsTrigger }) {
               {activeJob.name}
             </Typography>
           </Grid>
-
           <Grid item xs={2} />
           <Grid
             item
@@ -166,10 +165,13 @@ export default function EditJob({ updateJobSettingsTrigger }) {
               </picture>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={5}>
-            <LinkedJobBadge jobModified={jobModified} setJobModified={setJobModified} />
-          </Grid>
 
+          <Grid item xs={12} sm={5}>
+              <LinkedJobBadge
+                jobModified={jobModified}
+                setJobModified={setJobModified}
+              />
+            </Grid>
           <Grid item xs={12}>
             <Stepper activeStep={activeJob.jobStatus} orientation="vertical">
               {jobStatus.map((status) => {
@@ -232,23 +234,24 @@ export default function EditJob({ updateJobSettingsTrigger }) {
                         </Grid>
                       )}
                       {activeJob.jobStatus === jobStatus.length - 2 &&
-                        <PassBuildCostButton 
-                          updateJobSettingsTrigger={updateJobSettingsTrigger}
-                        />
-              }
+                        activeJob.parentJob.length > 0 && (
+                          <PassBuildCostButton
+                            updateJobSettingsTrigger={updateJobSettingsTrigger}
+                          />
+                        )}
                       {activeJob.jobStatus === jobStatus.length - 2 &&
-                        isLoggedIn ? (
-                        <ArchiveJobButton
-                          updateJobSettingsTrigger={updateJobSettingsTrigger}
-                        />
-                      ) : null}
+                        isLoggedIn && (
+                          <ArchiveJobButton
+                            updateJobSettingsTrigger={updateJobSettingsTrigger}
+                          />
+                        )}
                       <Divider />
                       {activeJob.jobStatus === jobStatus.length - 1 &&
-                      isLoggedIn ? (
-                        <ArchiveJobButton
-                          updateJobSettingsTrigger={updateJobSettingsTrigger}
-                        />
-                      ) : null}
+                        isLoggedIn && (
+                          <ArchiveJobButton
+                            updateJobSettingsTrigger={updateJobSettingsTrigger}
+                          />
+                        )}
                       <Divider />
                     </StepContent>
                   </Step>

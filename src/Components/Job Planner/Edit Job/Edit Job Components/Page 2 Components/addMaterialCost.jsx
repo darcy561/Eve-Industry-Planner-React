@@ -21,6 +21,8 @@ export function AddMaterialCost({ material, setJobModified }) {
       let newTotal = 0;
       newArray[materialIndex].purchasing.push({
         id: Date.now(),
+        childID: null,
+        childJobImport: false,
         itemCount: inputs.itemCount,
         itemCost: inputs.itemCost,
       });

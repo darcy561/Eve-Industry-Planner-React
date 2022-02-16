@@ -39,7 +39,7 @@ export function EditPage5({ setJobModified }) {
     user.apiOrders.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
-        !activeJob.build.sale.marketOrders.includes(order.order_id)
+        !activeJob.build.sale.marketOrders.some((i)=> i.order_id === order.order_id)
       ) {
         eveIDs.find((item) => {
           if (item.id === order.location_id) {
@@ -56,7 +56,7 @@ export function EditPage5({ setJobModified }) {
     user.apiHistOrders.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
-        !activeJob.build.sale.marketOrders.includes(order.order_id)
+        !activeJob.build.sale.marketOrders.some((i)=> i.order_id === order.order_id)
       ) {
         eveIDs.find((item) => {
           if (item.id === order.location_id) {

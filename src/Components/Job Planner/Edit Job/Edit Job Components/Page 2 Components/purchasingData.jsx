@@ -80,6 +80,7 @@ export function PurchasingData() {
                   />
                 }
                 label="Hide Completed Purchases"
+                labelPlacement="start"
               />
             </Grid>
             {totalComplete < activeJob.build.materials.length &&(

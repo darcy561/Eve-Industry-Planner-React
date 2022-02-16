@@ -435,6 +435,7 @@ export function useJobManagement() {
       newJobArray.splice(jobIndex, 1);
       if (isLoggedIn) {
         await removeJob(inputJob);
+        setTimeout(1000)  
       }
     }
 

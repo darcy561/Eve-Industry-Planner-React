@@ -434,13 +434,12 @@ export function useJobManagement() {
 
       newJobArray.splice(jobIndex, 1);
       if (isLoggedIn) {
-        await removeJob(inputJob);
-        setTimeout(1000)  
+        removeJob(inputJob);
       }
     }
 
     if (isLoggedIn) {
-      await updateMainUserDoc();
+      updateMainUserDoc(newUserArray);
     }
 
     updateUsers(newUserArray);

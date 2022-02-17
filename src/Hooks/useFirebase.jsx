@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { UsersContext } from "../Context/AuthContext";
 import { firestore, functions, performance } from "../firebase";
-import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, deleteDoc, getDoc, runTransaction, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
@@ -166,16 +166,34 @@ export function useFirebase() {
     );
   };
 
-  const updateMainUserDoc = async () => {
+  const updateMainUserDoc = async (newUserArray) => {
     await fbAuthState();
-    updateDoc(doc(firestore, "Users", parentUser.accountID), {
-      parentUserHash: parentUser.CharacterHash,
-      jobStatusArray: jobStatus,
-      linkedJobs: parentUser.linkedJobs,
-      linkedTrans: parentUser.linkedTrans,
-      linkedOrders: parentUser.linkedOrders,
-      settings: parentUser.settings,
-    });
+    // updateDoc(doc(firestore, "Users", parentUser.accountID), {
+    //   parentUserHash: parentUser.CharacterHash,
+    //   jobStatusArray: jobStatus,
+    //   linkedJobs: parentUser.linkedJobs,
+    //   linkedTrans: parentUser.linkedTrans,
+    //   linkedOrders: parentUser.linkedOrders,
+    //   settings: parentUser.settings,
+    // });
+    const updatedParentUser = newUserArray.find((i) => i.ParentUser === true)
+    try {
+      await runTransaction(firestore, async (t) => {
+        const docRef = doc(firestore, `Users/${updatedParentUser.accountID}`)
+        const userDoc = await t.get(docRef)
+        t.update(userDoc.ref, {
+          parentUserHash: updatedParentUser.CharacterHash,
+          jobStatusArray: jobStatus,
+          linkedJobs: updatedParentUser.linkedJobs,
+          linkedTrans: updatedParentUser.linkedTrans,
+          linkedOrders: updatedParentUser.linkedOrders,
+          settings: updatedParentUser.settings,
+        })
+      })
+      console.log("Trans Submit")
+    } catch (err) {
+     console.log(err) 
+    }
   };
 
   const removeJob = async (job) => {

@@ -31,6 +31,7 @@ export function RawResourceList() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+  
   let copyText = "";
   let volumeTotal = 0;
 

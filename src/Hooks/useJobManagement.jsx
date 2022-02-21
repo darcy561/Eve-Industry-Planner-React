@@ -96,6 +96,26 @@ export function useJobManagement() {
         }));
         updateDataExchange(false);
       } else {
+        if (isLoggedIn) {
+          if (newJob.jobType === jobTypes.manufacturing) {
+            const structureData = parentUser.settings.structures.manufacturing.find((i) => i.default === true)
+            if (structureData !== undefined) {
+              newJob.rigType = structureData.rigType
+              newJob.systemType = structureData.systemType
+              newJob.structureType = structureData.structureValue
+              newJob.structureTypeDisplay = structureData.structureName
+            }
+          }
+          if (newJob.jobType == jobTypes.reaction) {
+            const structureData = parentUser.settings.structures.reaction.find((i) => i.default === true)
+            if (structureData !== undefined) {
+              newJob.rigType = structureData.rigType
+              newJob.systemType = structureData.systemType
+              newJob.structureType = structureData.structureValue
+              newJob.structureTypeDisplay = structureData.structureName
+            }
+          }
+        }
         if (itemQty != null) {
           newJob.jobCount = Math.ceil(
             itemQty /
@@ -336,7 +356,6 @@ export function useJobManagement() {
 
     if (isLoggedIn) {
       await removeJob(inputJob);
-      await updateMainUserDoc();
     }
 
     const newJobArray = jobArray.filter((job) => job.jobID !== inputJob.jobID);
@@ -434,12 +453,9 @@ export function useJobManagement() {
 
       newJobArray.splice(jobIndex, 1);
       if (isLoggedIn) {
-        removeJob(inputJob);
+        await removeJob(inputJob);
+        setTimeout(2000)
       }
-    }
-
-    if (isLoggedIn) {
-      updateMainUserDoc(newUserArray);
     }
 
     updateUsers(newUserArray);

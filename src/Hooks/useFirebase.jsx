@@ -1,13 +1,21 @@
 import { useContext } from "react";
 import { UsersContext } from "../Context/AuthContext";
 import { firestore, functions, performance } from "../firebase";
-import { doc, deleteDoc, getDoc, runTransaction, setDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  deleteDoc,
+  getDoc,
+  runTransaction,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
+import { Jwt } from "jsonwebtoken";
 
 export function useFirebase() {
   const { users } = useContext(UsersContext);
@@ -168,31 +176,21 @@ export function useFirebase() {
 
   const updateMainUserDoc = async (newUserArray) => {
     await fbAuthState();
-    // updateDoc(doc(firestore, "Users", parentUser.accountID), {
-    //   parentUserHash: parentUser.CharacterHash,
-    //   jobStatusArray: jobStatus,
-    //   linkedJobs: parentUser.linkedJobs,
-    //   linkedTrans: parentUser.linkedTrans,
-    //   linkedOrders: parentUser.linkedOrders,
-    //   settings: parentUser.settings,
-    // });
-    const updatedParentUser = newUserArray.find((i) => i.ParentUser === true)
     try {
       await runTransaction(firestore, async (t) => {
-        const docRef = doc(firestore, `Users/${updatedParentUser.accountID}`)
-        const userDoc = await t.get(docRef)
+        const docRef = doc(firestore, `Users/${parentUser.accountID}`);
+        const userDoc = await t.get(docRef);
         t.update(userDoc.ref, {
-          parentUserHash: updatedParentUser.CharacterHash,
+          parentUserHash: parentUser.CharacterHash,
           jobStatusArray: jobStatus,
-          linkedJobs: updatedParentUser.linkedJobs,
-          linkedTrans: updatedParentUser.linkedTrans,
-          linkedOrders: updatedParentUser.linkedOrders,
-          settings: updatedParentUser.settings,
-        })
-      })
-      console.log("Trans Submit")
+          linkedJobs: parentUser.linkedJobs,
+          linkedTrans: parentUser.linkedTrans,
+          linkedOrders: parentUser.linkedOrders,
+          settings: parentUser.settings,
+        });
+      });
     } catch (err) {
-     console.log(err) 
+      console.log(err);
     }
   };
 
@@ -251,10 +249,23 @@ export function useFirebase() {
     return newJob;
   };
 
+  const getItemPrice = async (typeID) => {
+
+    try {
+      const itemPricePromise = await fetch(`https://us-central1-eve-industry-planner-pricedata.cloudfunctions.net/costs/item/${typeID}`)
+      const itemPriceJSON = await itemPricePromise.json()
+      console.log(itemPriceJSON);
+    } catch (err) {
+      
+    }
+    
+  }
+
   return {
+    addNewJob,
     archivedJob,
     determineUserState,
-    addNewJob,
+    getItemPrice,
     uploadJob,
     uploadSnapshotData,
     updateMainUserDoc,

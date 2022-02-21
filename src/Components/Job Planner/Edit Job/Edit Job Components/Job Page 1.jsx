@@ -9,6 +9,7 @@ import { ProductionStats } from "./Page 1 Components/productionStats";
 import { TutorialStep1 } from "./Page 1 Components/tutorialStep1";
 import { SkillCheck } from "./Page 1 Components/skillCheck";
 import { Masonry } from "@mui/lab";
+import { ItemCostPanel } from "./Page 1 Components/itemCosts";
 
 export function EditPage1({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -51,6 +52,7 @@ export function EditPage1({ setJobModified }) {
           <Masonry columns={1} spacing={2}>
             <SkillCheck />
             <RawResourceList />
+            <ItemCostPanel/>
           </Masonry>
         </Grid>
       </Grid>

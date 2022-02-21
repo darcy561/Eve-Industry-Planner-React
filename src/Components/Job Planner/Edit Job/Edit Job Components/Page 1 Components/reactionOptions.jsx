@@ -6,20 +6,27 @@ import {
   Paper,
   TextField,
 } from "@mui/material";
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 import { blueprintVariables } from "../../..";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 
 export function ReactionOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { users } = useContext(UsersContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { CalculateResources } = useBlueprintCalc();
 
+  const parentUser = users.find((i) => i.ParentUser === true);
   return (
     <Paper
       elevation={3}
       sx={{
-        minWidth:"100%",
+        minWidth: "100%",
         padding: "20px",
       }}
       square={true}
@@ -34,8 +41,8 @@ export function ReactionOptions({ setJobModified }) {
               helperText="Blueprint Runs"
               type="number"
               onBlur={(e) => {
-                const oldJob = JSON.parse(JSON.stringify(activeJob))
-                oldJob.runCount = Number(e.target.value)
+                const oldJob = JSON.parse(JSON.stringify(activeJob));
+                oldJob.runCount = Number(e.target.value);
                 const newJob = CalculateResources(oldJob);
                 updateActiveJob(newJob);
                 setJobModified(true);
@@ -50,8 +57,8 @@ export function ReactionOptions({ setJobModified }) {
               helperText="Job Slots"
               type="number"
               onBlur={(e) => {
-                const oldJob = JSON.parse(JSON.stringify(activeJob))
-                oldJob.jobCount = Number(e.target.value)
+                const oldJob = JSON.parse(JSON.stringify(activeJob));
+                oldJob.jobCount = Number(e.target.value);
                 const newJob = CalculateResources(oldJob);
                 updateActiveJob(newJob);
                 setJobModified(true);
@@ -68,8 +75,8 @@ export function ReactionOptions({ setJobModified }) {
                 disableClearable={true}
                 options={blueprintVariables.reactionStructure}
                 onChange={(e, v) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob))
-                  oldJob.structureTypeDisplay = v.value
+                  const oldJob = JSON.parse(JSON.stringify(activeJob));
+                  oldJob.structureTypeDisplay = v.value;
                   const newJob = CalculateResources(oldJob);
                   updateActiveJob(newJob);
                   setJobModified(true);
@@ -91,8 +98,8 @@ export function ReactionOptions({ setJobModified }) {
                 disableClearable={true}
                 options={blueprintVariables.reactionRigs}
                 onChange={(e, v) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob))
-                  oldJob.rigType = Number(v.value)
+                  const oldJob = JSON.parse(JSON.stringify(activeJob));
+                  oldJob.rigType = Number(v.value);
                   const newJob = CalculateResources(oldJob);
                   updateActiveJob(newJob);
                   setJobModified(true);
@@ -114,8 +121,8 @@ export function ReactionOptions({ setJobModified }) {
                 )}
                 options={blueprintVariables.reactionSystem}
                 onChange={(e, v) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob))
-                  oldJob.systemType = Number(v.value)
+                  const oldJob = JSON.parse(JSON.stringify(activeJob));
+                  oldJob.systemType = Number(v.value);
                   const newJob = CalculateResources(oldJob);
                   updateActiveJob(newJob);
                   setJobModified(true);
@@ -127,6 +134,34 @@ export function ReactionOptions({ setJobModified }) {
               <FormHelperText variant="standard">System Type</FormHelperText>
             </FormControl>
           </Grid>
+          {isLoggedIn && (
+            <Grid item xs={12}>
+              <FormControl fullWidth={true}>
+                <Autocomplete
+                  disableClearable={true}
+                  size="small"
+                  options={parentUser.settings.structures.reaction}
+                  getOptionLabel={(option) => option.name}
+                  renderInput={(params) => (
+                    <TextField {...params} variant="standard" />
+                  )}
+                  onChange={(e, v) => {
+                    const oldJob = JSON.parse(JSON.stringify(activeJob));
+                    oldJob.rigType = v.rigType
+                    oldJob.systemType = v.systemType
+                    oldJob.structureType = v.structureValue
+                    oldJob.structureTypeDisplay = v.structureName
+                    const newJob = CalculateResources(oldJob);
+                    updateActiveJob(newJob);
+                    setJobModified(true);
+                  }}
+                />
+                <FormHelperText variant="standard">
+                  Apply Saved Structure
+                </FormHelperText>
+              </FormControl>
+            </Grid>
+          )}
         </Grid>
       </Grid>
     </Paper>

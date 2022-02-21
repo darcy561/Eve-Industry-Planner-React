@@ -18,6 +18,7 @@ export let jobArrayDefault = [
     apiJobs: [],
     apiOrders: [],
     apiTransactions: [],
+    parentJob: [],
     build: {
       products: {
         totalQuantity: 5000,
@@ -45,6 +46,7 @@ export let jobArrayDefault = [
           jobType: 0,
           typeID: 34,
           volume: 0.01,
+          childJob:[],
           purchasing: [
             {
               id: 1642986913280,
@@ -62,6 +64,7 @@ export let jobArrayDefault = [
           quantity: 800,
           typeID: 35,
           name: "Pyerite",
+          childJob:[],
           purchasing: [{ id: 1642986918001, itemCost: 13, itemCount: 800 }],
           quantityPurchased: 800,
           purchasedCost: 10400,
@@ -73,6 +76,7 @@ export let jobArrayDefault = [
           typeID: 36,
           volume: 0.01,
           quantity: 300,
+          childJob:[],
           purchasing: [{ id: 1642986931990, itemCost: 67, itemCount: 300 }],
           quantityPurchased: 300,
           purchasedCost: 20100,
@@ -128,7 +132,7 @@ export let jobArrayDefault = [
     jobType: 2,
     name: "Scandium Metallofullerene",
     jobID: 1642710994021,
-    jobStatus: 0,
+    jobStatus: 1,
     volume: 0.65,
     itemID: 30308,
     maxProductionLimit: 1000,
@@ -141,6 +145,7 @@ export let jobArrayDefault = [
     apiJobs: [],
     apiOrders: [],
     apiTransactions: [],
+    parentJob: [1642710724535],
     build: {
       products: {
         totalQuantity: 1920,
@@ -168,6 +173,7 @@ export let jobArrayDefault = [
           typeID: 4247,
           name: "Helium Fuel Block",
           volume: 5,
+          childJob:[],
           purchasing: [],
           quantityPurchased: 0,
           purchasedCost: 0,
@@ -179,6 +185,7 @@ export let jobArrayDefault = [
           quantity: 300,
           volume: 0.01,
           name: "Zydrine",
+          childJob:[],
           purchasing: [],
           quantityPurchased: 0,
           purchasedCost: 0,
@@ -190,6 +197,7 @@ export let jobArrayDefault = [
           name: "Fullerite-C72",
           quantity: 1200,
           jobType: 0,
+          childJob:[],
           purchasing: [],
           quantityPurchased: 0,
           purchasedCost: 0,
@@ -201,6 +209,7 @@ export let jobArrayDefault = [
           quantity: 1200,
           jobType: 0,
           volume: 2,
+          childJob:[],
           purchasing: [],
           quantityPurchased: 0,
           purchasedCost: 0,
@@ -262,7 +271,7 @@ export let jobArrayDefault = [
     jobType: 2,
     name: "Graphene Nanoribbons",
     jobID: 1642711045845,
-    jobStatus: 0,
+    jobStatus: 1,
     volume: 1.5,
     itemID: 30309,
     maxProductionLimit: 1000,
@@ -275,6 +284,7 @@ export let jobArrayDefault = [
     apiJobs: [],
     apiOrders: [],
     apiTransactions: [],
+    parentJob:[1642710724535],
     build: {
       products: {
         totalQuantity: 600,
@@ -302,6 +312,7 @@ export let jobArrayDefault = [
           typeID: 4051,
           jobType: 1,
           volume: 5,
+          childJob:[],
           purchasing: [],
           quantityPurchased: 0,
           purchasedCost: 0,
@@ -313,6 +324,7 @@ export let jobArrayDefault = [
           typeID: 30375,
           quantity: 500,
           jobType: 0,
+          childJob:[],
           purchasing: [],
           quantityPurchased: 0,
           purchasedCost: 0,
@@ -324,6 +336,7 @@ export let jobArrayDefault = [
           typeID: 30376,
           name: "Fullerite-C32",
           jobType: 0,
+          childJob:[],
           purchasing: [],
           quantityPurchased: 0,
           purchasedCost: 0,
@@ -335,6 +348,7 @@ export let jobArrayDefault = [
           quantity: 2000,
           name: "Nocxium",
           jobType: 0,
+          childJob:[],
           purchasing: [],
           quantityPurchased: 0,
           purchasedCost: 0,
@@ -410,6 +424,7 @@ export let jobArrayDefault = [
     rigType: 0,
     systemType: 1,
     apiJobs: [477723892],
+    parentJob: [],
     skills: [
       {
         level: 1,
@@ -556,6 +571,7 @@ export let jobArrayDefault = [
           typeID: 40,
           quantityPurchased: 100,
           purchaseComplete: true,
+          childJob:[],
           purchasing: [
             {
               itemCount: 100,
@@ -572,6 +588,7 @@ export let jobArrayDefault = [
           name: "Tritanium",
           quantity: 3850,
           jobType: 0,
+          childJob:[],
           purchasing: [
             {
               id: 1640798745396,
@@ -589,6 +606,7 @@ export let jobArrayDefault = [
           jobType: 0,
           typeID: 37,
           name: "Isogen",
+          childJob:[],
           purchasing: [
             {
               itemCost: 136,
@@ -610,6 +628,7 @@ export let jobArrayDefault = [
               itemCount: 650,
             },
           ],
+          childJob:[],
           purchasedCost: 870350,
           typeID: 38,
           name: "Nocxium",
@@ -672,6 +691,7 @@ export let jobArrayDefault = [
     rigType: 0,
     systemType: 1,
     apiJobs: [477724009],
+    parentJob:[],
     skills: [
       {
         typeID: 3380,
@@ -718,6 +738,7 @@ export let jobArrayDefault = [
           quantityPurchased: 9420,
           quantity: 9420,
           volume: 0.01,
+          childJob:[],
           purchasing: [
             {
               id: 1640798892235,
@@ -735,6 +756,7 @@ export let jobArrayDefault = [
           name: "Pyerite",
           purchaseComplete: true,
           typeID: 35,
+          childJob:[],
           purchasing: [
             {
               itemCount: 14320,
@@ -871,6 +893,7 @@ export let jobArrayDefault = [
     apiJobs: [],
     apiOrders: [],
     apiTransactions: [],
+    parentJob:[],
     build: {
       products: {
         totalQuantity: 100,
@@ -899,6 +922,7 @@ export let jobArrayDefault = [
           name: "Fullerene Intercalated Graphite",
           volume: 0.8,
           purchasing: [],
+          childJob:[],
           quantityPurchased: 0,
           purchasedCost: 0,
           purchaseComplete: false,
@@ -910,6 +934,7 @@ export let jobArrayDefault = [
           name: "Powdered C-540 Graphite",
           quantity: 172,
           purchasing: [],
+          childJob:[],
           quantityPurchased: 0,
           purchasedCost: 0,
           purchaseComplete: false,
@@ -921,6 +946,7 @@ export let jobArrayDefault = [
           quantity: 1878,
           volume: 0.65,
           purchasing: [],
+          childJob:[1642710994021],
           quantityPurchased: 0,
           purchasedCost: 0,
           purchaseComplete: false,
@@ -932,6 +958,7 @@ export let jobArrayDefault = [
           volume: 0.01,
           jobType: 0,
           purchasing: [],
+          childJob:[],
           quantityPurchased: 0,
           purchasedCost: 0,
           purchaseComplete: false,
@@ -943,6 +970,7 @@ export let jobArrayDefault = [
           quantity: 342,
           volume: 0.01,
           purchasing: [],
+          childJob:[],
           quantityPurchased: 0,
           purchasedCost: 0,
           purchaseComplete: false,
@@ -954,6 +982,7 @@ export let jobArrayDefault = [
           quantity: 854,
           typeID: 30254,
           purchasing: [],
+          childJob:[],
           quantityPurchased: 0,
           purchasedCost: 0,
           purchaseComplete: false,
@@ -965,6 +994,7 @@ export let jobArrayDefault = [
           jobType: 2,
           quantity: 598,
           purchasing: [],
+          childJob:[1642711045845],
           quantityPurchased: 0,
           purchasedCost: 0,
           purchaseComplete: false,

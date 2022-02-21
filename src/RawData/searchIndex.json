@@ -5110,14 +5110,29 @@
     "blueprintID": 23732
   },
   {
+    "name": "Archon",
+    "itemID": 23757,
+    "blueprintID": 23758
+  },
+  {
     "name": "Ragnarok",
     "itemID": 23773,
     "blueprintID": 23774
   },
   {
+    "name": "Thanatos",
+    "itemID": 23911,
+    "blueprintID": 23912
+  },
+  {
     "name": "Nyx",
     "itemID": 23913,
     "blueprintID": 23914
+  },
+  {
+    "name": "Chimera",
+    "itemID": 23915,
+    "blueprintID": 23916
   },
   {
     "name": "Wyvern",
@@ -5198,6 +5213,11 @@
     "name": "Inferno Javelin Rocket",
     "itemID": 24479,
     "blueprintID": 24543
+  },
+  {
+    "name": "Nidhoggur",
+    "itemID": 24483,
+    "blueprintID": 24484
   },
   {
     "name": "Inferno Rage Heavy Assault Missile",

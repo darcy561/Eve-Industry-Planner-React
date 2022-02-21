@@ -9,6 +9,10 @@ import {
 } from "@mui/material";
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 import { blueprintVariables } from "../../..";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 import { makeStyles } from "@mui/styles";
@@ -28,8 +32,12 @@ const useStyles = makeStyles((theme) => ({
 
 export function ManufacturingOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { users } = useContext(UsersContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { CalculateResources } = useBlueprintCalc();
   const classes = useStyles();
+
+  const parentUser = users.find((i) => i.ParentUser === true);
 
   return (
     <Paper
@@ -203,6 +211,34 @@ export function ManufacturingOptions({ setJobModified }) {
               <FormHelperText variant="standard">System Type</FormHelperText>
             </FormControl>
           </Grid>
+          {isLoggedIn && (
+            <Grid item xs={12}>
+              <FormControl fullWidth={true}>
+                <Autocomplete
+                  disableClearable={true}
+                  size="small"
+                  options={parentUser.settings.structures.manufacturing}
+                  getOptionLabel={(option) => option.name}
+                  renderInput={(params) => (
+                    <TextField {...params} variant="standard" />
+                  )}
+                  onChange={(e, v) => {
+                    const oldJob = JSON.parse(JSON.stringify(activeJob));
+                    oldJob.rigType = v.rigType
+                    oldJob.systemType = v.systemType
+                    oldJob.structureType = v.structureValue
+                    oldJob.structureTypeDisplay = v.structureName
+                    const newJob = CalculateResources(oldJob);
+                    updateActiveJob(newJob);
+                    setJobModified(true);
+                  }}
+                />
+                <FormHelperText variant="standard">
+                  Apply Saved Structure
+                </FormHelperText>
+              </FormControl>
+            </Grid>
+          )}
         </Grid>
       </Grid>
     </Paper>

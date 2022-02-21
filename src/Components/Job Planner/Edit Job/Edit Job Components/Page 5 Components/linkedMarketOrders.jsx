@@ -91,6 +91,7 @@ export function LinkedMarketOrders({
       }
     }
     if (newOrderData === undefined && !order.complete) {
+      console.log("here");
       order.duration = completedOrderData.duration;
       order.item_price = completedOrderData.price;
       order.item_name = completedOrderData.item_name || null;
@@ -131,7 +132,7 @@ export function LinkedMarketOrders({
     <Paper
       sx={{
         padding: "20px",
-        position:"relative",
+        position: "relative",
       }}
       elevation={3}
       square={true}
@@ -143,36 +144,36 @@ export function LinkedMarketOrders({
               Linked Orders
             </Typography>
           </Grid>
-            <IconButton
-              id="linkedOrders_menu_button"
-              onClick={handleMenuClick}
-              aria-controls={Boolean(anchorEl) ? "linkedOrders_menu" : undefined}
-              aria-haspopup="true"
+          <IconButton
+            id="linkedOrders_menu_button"
+            onClick={handleMenuClick}
+            aria-controls={Boolean(anchorEl) ? "linkedOrders_menu" : undefined}
+            aria-haspopup="true"
             aria-expanded={Boolean(anchorEl) ? "true" : undefined}
-            sx={{ position: "absolute", top: "10px", right:"10px"}}
-            >
-              <MoreVertIcon size="small" color="Secondary" />
-            </IconButton>
-            <Menu
-              id="linkedOrders_menu"
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              MenuListProps={{
-                "aria-labelledby": "linkedOrders_menu_button",
-              }}
-            >
-              <MenuItem onClick={() => updateShowAvailableOrders(true)}>
-                View Other Market Orders
-              </MenuItem>
-            </Menu>
+            sx={{ position: "absolute", top: "10px", right: "10px" }}
+          >
+            <MoreVertIcon size="small" color="Secondary" />
+          </IconButton>
+          <Menu
+            id="linkedOrders_menu"
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            MenuListProps={{
+              "aria-labelledby": "linkedOrders_menu_button",
+            }}
+          >
+            <MenuItem onClick={() => updateShowAvailableOrders(true)}>
+              View Other Market Orders
+            </MenuItem>
+          </Menu>
         </Grid>
         {linkedMarketOrders.map((order) => {
           const charData = users.find(
             (i) => i.CharacterHash === order.CharacterHash
           );
           return (
-            <Grid key={order.order_id} container sx={{marginBottom:"20px"}}>
+            <Grid key={order.order_id} container sx={{ marginBottom: "20px" }}>
               <Grid container item sx={{ marginBottom: "10px" }}>
                 <Grid item xs={4}>
                   <Avatar
@@ -193,7 +194,7 @@ export function LinkedMarketOrders({
                 </Grid>
                 <Grid item xs={8}>
                   <Typography variant="body1">
-                    {order.volume_remain} / {order.volume_total} Items Remaining
+                    {order.volume_remain.toLocaleString()} / {order.volume_total.toLocaleString()} Items Remaining
                   </Typography>
                 </Grid>
               </Grid>
@@ -236,7 +237,6 @@ export function LinkedMarketOrders({
                   <Typography variant="body2">{order.duration} Days</Typography>
                 </Grid>
 
-
                 <Grid item xs={2}>
                   <Typography variant="body2">Last Updated:</Typography>
                 </Grid>
@@ -245,7 +245,7 @@ export function LinkedMarketOrders({
                     {new Date(order.issued).toLocaleString()}
                   </Typography>
                 </Grid>
-                </Grid>
+              </Grid>
               <Grid container item xs={12}>
                 <Grid item xs={12} align="right">
                   {activeJob.build.sale.marketOrders.length > 1 && (
@@ -310,7 +310,9 @@ export function LinkedMarketOrders({
                         activeJob.build.sale.transactions.forEach((trans) => {
                           const tIndex = newUsersArray[
                             parentUserIndex
-                          ].linkedTrans.findIndex((i) => i === trans.transaction_id);
+                          ].linkedTrans.findIndex(
+                            (i) => i === trans.transaction_id
+                          );
 
                           if (tIndex !== -1) {
                             newUsersArray[parentUserIndex].linkedTrans.splice(
@@ -350,20 +352,34 @@ export function LinkedMarketOrders({
                     </IconButton>
                   </Tooltip>
                 </Grid>
-                {order.volume_remain === 0 ||order.complete && (
-                  <Box
-                    sx={{
-                      backgroundColor: order.volume_remain > 0 ? "secondary.main" : "manufacturing.main",
-                      color: order.volume_remain > 0 ? "white" : "",
-                      borderRadius: "5px",
-                      marginLeft: "auto",
-                      marginRight: "auto",
-                      padding: "8px",
-                    }}
-                  >
-                    <Typography variant="body1">{order.volume_remain > 0 ? "Order Canceled" : "Sold Out"}</Typography>
-                  </Box>
-                )}
+                <>
+                  {order.volume_remain === 0 ||
+                    (order.complete && (
+                      <Box
+                        sx={{
+                          backgroundColor: "secondary.main",
+                          color: "white",
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                          padding: "8px",
+                        }}
+                      >
+                        <Typography variant="body1">Order Canceled</Typography>
+                      </Box>
+                    ))}
+                  {order.volume_remain === 0 && order.complete && (
+                    <Box
+                      sx={{
+                        backgroundColor: "manufacturing.main",
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                        padding: "8px",
+                      }}
+                    >
+                      <Typography variant="body1">Sold Out</Typography>
+                    </Box>
+                  )}
+                </>
               </Grid>
             </Grid>
           );

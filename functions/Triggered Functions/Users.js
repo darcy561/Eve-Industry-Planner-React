@@ -67,6 +67,10 @@ exports.createUserData = functions.https.onCall((data, context) => {
         editJob: {
           hideCompleteMaterials: false,
         },
+        structures: {
+          manufacturing: [],
+          reaction:[],
+        }
       },
     };
     admin.firestore().collection("Users").doc(context.auth.uid).set(setupData);

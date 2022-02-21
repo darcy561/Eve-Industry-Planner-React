@@ -23,7 +23,7 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const [dialogTrigger, updateDialogTrigger] = useState(false);
   const { downloadCharacterJobs, updateMainUserDoc, uploadJob } = useFirebase()
-  const { closeEditJob } = useJobManagement();
+  const { closeEditJob, openEditJob } = useJobManagement();
 
 
   let parentJobs = [];
@@ -86,7 +86,7 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
                           updateMainUserDoc();
                         }
                         closeEditJob(activeJob)
-                        updateActiveJob(job);
+                        openEditJob(job);
                       }}
                       variant="outlined"
                       sx={{

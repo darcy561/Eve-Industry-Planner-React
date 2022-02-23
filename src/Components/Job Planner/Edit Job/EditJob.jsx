@@ -146,7 +146,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
           <Grid item xs={2} />
           <Grid
             item
-            xs={2}
+            xs={12}
             sm={5}
             align="center"
             sx={{ marginTop: { xs: "20px", md: "30px" } }}
@@ -166,7 +166,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
             </Box>
           </Grid>
 
-          <Grid item xs={12} sm={5}>
+          <Grid item xs={12} sm={5} sx={{marginTop:{xs:"10px", sm:"0px"}}}>
               <LinkedJobBadge
                 jobModified={jobModified}
                 setJobModified={setJobModified}

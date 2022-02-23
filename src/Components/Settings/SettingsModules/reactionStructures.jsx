@@ -1,5 +1,6 @@
 import {
   Autocomplete,
+  Box,
   Button,
   Card,
   CardActions,
@@ -42,8 +43,8 @@ export function ReactionStrutures({ parentUserIndex }) {
   const [tempDetails, updateTempDetails] = useState({
     name: "No Name Provided",
     systemType: 1,
-    structureName: "Station",
-    structureValue: 0,
+    structureName: "Medium",
+    structureValue: 1,
     rigType: 0,
   });
   const classes = useStyles();
@@ -66,8 +67,7 @@ export function ReactionStrutures({ parentUserIndex }) {
             sx={{ paddingRight: { xs: "0px", lg: "5px" } }}
           >
             <Masonry columns={1} spacing={1}>
-              <Card
-                raised={true}
+              <Box
                 sx={{
                   padding: "20px",
                   marginBottom: { xs: "20px", lg: "0px" },
@@ -191,7 +191,7 @@ export function ReactionStrutures({ parentUserIndex }) {
                     </Tooltip>
                   </Grid>
                 </Grid>
-              </Card>
+              </Box>
             </Masonry>
           </Grid>
 

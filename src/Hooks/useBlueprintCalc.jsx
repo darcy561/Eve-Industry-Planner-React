@@ -7,11 +7,13 @@ function manufacturingMaterialCalc(
   rigType,
   systemType
 ) {
-  const meModifier =
+  let meModifier =
     (1 - bpME / 100) *
     (1 - structureType / 100) *
     (1 - (rigType / 100) * systemType);
-
+  if (baseQty === 1) {
+    meModifier = 1;
+  }
   const x = Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
   // console.log(itemRuns)
   // console.log(baseQty)
@@ -37,12 +39,13 @@ function reactionMaterialCalc(
 
 export function useBlueprintCalc() {
   const CalculateResources = (job) => {
-    
     switch (job.jobType) {
       case 1:
         const newManArray = [...job.build.materials];
         for (let material of newManArray) {
-          const rawIndex = job.rawData.materials.findIndex((i) => i.typeID === material.typeID)
+          const rawIndex = job.rawData.materials.findIndex(
+            (i) => i.typeID === material.typeID
+          );
           material.quantity = manufacturingMaterialCalc(
             job.rawData.materials[rawIndex].quantity,
             job.runCount,
@@ -65,7 +68,9 @@ export function useBlueprintCalc() {
       case 2:
         const newReacArray = [...job.build.materials];
         for (let material of newReacArray) {
-          const rawIndex = job.rawData.materials.findIndex((i) => i.typeID === material.typeID)
+          const rawIndex = job.rawData.materials.findIndex(
+            (i) => i.typeID === material.typeID
+          );
           material.quantity = reactionMaterialCalc(
             job.rawData.materials[rawIndex].quantity,
             job.runCount,
@@ -83,5 +88,5 @@ export function useBlueprintCalc() {
         return job;
     }
   };
-  return {CalculateResources}
+  return { CalculateResources };
 }

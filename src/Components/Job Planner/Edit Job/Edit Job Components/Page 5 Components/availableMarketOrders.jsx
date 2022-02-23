@@ -131,7 +131,10 @@ export function AvailableMarketOrders({
                 <Grid container item>
                   <Grid item xs={4}>
                     <Typography variant="body1">
-                      {order.price.toLocaleString()} ISK
+                      {order.price.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })} ISK
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>

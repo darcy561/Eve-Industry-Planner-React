@@ -61,6 +61,7 @@ export function useRefreshUser() {
     refreshedUser.linkedTrans = charSettings.linkedTrans;
     refreshedUser.linkedOrders = charSettings.linkedOrders;
     refreshedUser.settings = charSettings.settings;
+    refreshedUser.snapshotData = charSettings.jobArraySnapshot;
 
     updateLoadingText((prevObj) => ({
       ...prevObj,

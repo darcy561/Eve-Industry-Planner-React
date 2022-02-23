@@ -21,6 +21,7 @@ import { trace } from "@firebase/performance";
 import { performance } from "../firebase";
 import { jobTypes } from "../Components/Job Planner";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { EvePricesContext } from "../Context/EveDataContext";
 
 export function useJobManagement() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -34,10 +35,13 @@ export function useJobManagement() {
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
+  const { evePrices, updateEvePrices } = useContext(EvePricesContext);
+
   const { addNewJob } = useFirebase();
   const { CalculateResources } = useBlueprintCalc();
   const {
     downloadCharacterJobs,
+    getItemPrices,
     removeJob,
     updateMainUserDoc,
     uploadJob,
@@ -98,21 +102,26 @@ export function useJobManagement() {
       } else {
         if (isLoggedIn) {
           if (newJob.jobType === jobTypes.manufacturing) {
-            const structureData = parentUser.settings.structures.manufacturing.find((i) => i.default === true)
+            const structureData =
+              parentUser.settings.structures.manufacturing.find(
+                (i) => i.default === true
+              );
             if (structureData !== undefined) {
-              newJob.rigType = structureData.rigType
-              newJob.systemType = structureData.systemType
-              newJob.structureType = structureData.structureValue
-              newJob.structureTypeDisplay = structureData.structureName
+              newJob.rigType = structureData.rigType;
+              newJob.systemType = structureData.systemType;
+              newJob.structureType = structureData.structureValue;
+              newJob.structureTypeDisplay = structureData.structureName;
             }
           }
           if (newJob.jobType == jobTypes.reaction) {
-            const structureData = parentUser.settings.structures.reaction.find((i) => i.default === true)
+            const structureData = parentUser.settings.structures.reaction.find(
+              (i) => i.default === true
+            );
             if (structureData !== undefined) {
-              newJob.rigType = structureData.rigType
-              newJob.systemType = structureData.systemType
-              newJob.structureType = structureData.structureValue
-              newJob.structureTypeDisplay = structureData.structureName
+              newJob.rigType = structureData.rigType;
+              newJob.systemType = structureData.systemType;
+              newJob.structureType = structureData.structureValue;
+              newJob.structureTypeDisplay = structureData.structureName;
             }
           }
         }
@@ -182,16 +191,26 @@ export function useJobManagement() {
       newArray[index] = inputJob;
       updateJobArray(newArray);
     }
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobData: true,
+      jobDataComp: true,
+      priceData: true,
+    }));
+    let jobPrices = await getItemPrices(inputJob);
+    updateEvePrices(evePrices.concat(jobPrices));
     updateActiveJob(inputJob);
     updatePageLoad(false);
     updateLoadingText((prevObj) => ({
       ...prevObj,
-      jobDataComp: true,
+      priceDataComp: true,
     }));
     updateLoadingText((prevObj) => ({
       ...prevObj,
       jobData: false,
       jobDataComp: false,
+      priceData: false,
+      priceDataComp: false,
     }));
   };
 
@@ -331,8 +350,8 @@ export function useJobManagement() {
               }
             }
           }
-          await replaceSnapshot(parentJob)
-          await uploadJob(parentJob)
+          await replaceSnapshot(parentJob);
+          await uploadJob(parentJob);
         }
       }
     }
@@ -454,7 +473,7 @@ export function useJobManagement() {
       newJobArray.splice(jobIndex, 1);
       if (isLoggedIn) {
         await removeJob(inputJob);
-        setTimeout(2000)
+        setTimeout(2000);
       }
     }
 
@@ -524,7 +543,7 @@ export function useJobManagement() {
               typeID: material.typeID,
               quantity: material.quantity - material.quantityPurchased,
               volume: material.volume,
-              hasChild: material.childJob.length > 0 ? true : false
+              hasChild: material.childJob.length > 0 ? true : false,
             });
           } else {
             const index = finalShoppingList.findIndex(

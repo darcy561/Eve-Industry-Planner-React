@@ -44,7 +44,7 @@ export function RawResourceList() {
     if (material.jobType === jobTypes.manufacturing) {
       return (
         <Tooltip
-          title="Manufacturing Job, click to create as a new job."
+          title="Manufacturing Job, click to create a new child job."
           placement="left-start"
           arrow
         >
@@ -76,7 +76,7 @@ export function RawResourceList() {
     } else if (material.jobType === jobTypes.reaction) {
       return (
         <Tooltip
-          title="Reaction Job, click to create as a new job"
+          title="Reaction Job, click to create a new child job"
           placement="left-start"
           arrow
         >

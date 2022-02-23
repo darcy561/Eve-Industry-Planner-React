@@ -89,7 +89,9 @@ export const LoadingText = (props) => {
         "apiData": false,
         "apiDataComp": false,
         "jobData": false,
-        "jobDataComp": false
+        "jobDataComp": false,
+        "priceData": false,
+        "priceDataComp": false
     });
 
     return (

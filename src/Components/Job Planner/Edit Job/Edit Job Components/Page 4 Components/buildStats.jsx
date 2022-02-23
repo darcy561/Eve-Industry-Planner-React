@@ -16,68 +16,82 @@ export function BuildStats({ setJobModified }) {
       <Grid container direction="row">
 
         <Grid container item xs={12}>
-          <Grid item xs={8}>
-            <Typography variant="body1">Total Material Cost:</Typography>
+          <Grid item xs={12} sm={8}>
+            <Typography variant="body2">Total Material Cost:</Typography>
           </Grid>
-          <Grid item xs={4}>
-            <Typography variant="body1" align="right">
-              {activeJob.build.costs.totalPurchaseCost.toLocaleString()} ISK
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" align="right">
+              {activeJob.build.costs.totalPurchaseCost.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
             </Typography>
           </Grid>
         </Grid>
         <Grid container item xs={12}>
-          <Grid item xs={8}>
+          <Grid item xs={12} sm={8}>
             <Tooltip title="Calculated from linked jobs only, add any unlinked jobs manually as an extra.">
-              <Typography variant="body1">Total Install Costs:</Typography>
+              <Typography variant="body2">Total Install Costs:</Typography>
             </Tooltip>
           </Grid>
-          <Grid item xs={4}>
-            <Typography variant="body1" align="right">
-              {activeJob.build.costs.installCosts.toLocaleString()} ISK
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" align="right">
+              {activeJob.build.costs.installCosts.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
             </Typography>
           </Grid>
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
-          <Grid item xs={8}>
-            <Typography variant="body1">Total Extras:</Typography>
+          <Grid item xs={12} sm={8}>
+            <Typography variant="body2">Total Extras:</Typography>
           </Grid>
-          <Grid item xs={4}>
-            <Typography variant="body1" align="right">
-              {activeJob.build.costs.extrasTotal.toLocaleString()} ISK
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" align="right">
+              {activeJob.build.costs.extrasTotal.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
             </Typography>
           </Grid>
         </Grid>
-        <Grid container item xs={12}>
-          <Grid item xs={8}>
-            <Typography variant="body1">Total Build Cost:</Typography>
+        <Grid container item xs={12} sx={{marginTop:"10px"}}>
+          <Grid item xs={12} sm={8}>
+            <Typography variant="body2">Total Build Cost:</Typography>
           </Grid>
-          <Grid item xs={4}>
-            <Typography variant="body1" align="right">
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" align="right">
               {(
                 activeJob.build.costs.totalPurchaseCost +
                 activeJob.build.costs.installCosts +
                 activeJob.build.costs.extrasTotal
-              ).toLocaleString()}{" "}
-              ISK
+              ).toLocaleString(undefined,{
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
             </Typography>
           </Grid>
         </Grid>
         <Grid container item xs={12}>
-          <Grid item xs={8}>
-            <Typography variant="body1">Total Items Built:</Typography>
+          <Grid item xs={12} sm={8}>
+            <Typography variant="body2">Total Items Built:</Typography>
           </Grid>
-          <Grid item xs={4}>
-            <Typography variant="body1" align="right">
-              {activeJob.build.products.totalQuantity.toLocaleString()}
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" align="right">
+              {activeJob.build.products.totalQuantity.toLocaleString(undefined,{
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                })}
             </Typography>
           </Grid>
         </Grid>
         <Grid container item xs={12} sx={{marginBottom: "20px"}}>
-          <Grid item xs={8}>
-            <Typography variant="body1">Cost per item:</Typography>
+          <Grid item xs={12} sm={8}>
+            <Typography variant="body2">Cost per item:</Typography>
           </Grid>
-          <Grid item xs={4}>
-            <Typography variant="body1" align="right">
+          <Grid item xs={12} sm={4}>
+            <Typography variant="body2" align="right">
               {(
                 Math.round(
                   ((activeJob.build.costs.extrasTotal +
@@ -87,8 +101,10 @@ export function BuildStats({ setJobModified }) {
                     Number.EPSILON) *
                     100
                 ) / 100
-              ).toLocaleString()}{" "}
-              ISK
+              ).toLocaleString(undefined,{
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
             </Typography>
           </Grid>
         </Grid>

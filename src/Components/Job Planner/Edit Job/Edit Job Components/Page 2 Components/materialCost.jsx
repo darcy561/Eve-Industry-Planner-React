@@ -80,7 +80,13 @@ export function MaterialCost({ material, setJobModified }) {
           >
             <Chip
               key={record.id}
-              label={`${record.itemCount.toLocaleString()} @ ${record.itemCost.toLocaleString()} ISK Each`}
+              label={`${record.itemCount.toLocaleString(undefined,{
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              })} @ ${record.itemCost.toLocaleString(undefined,{
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })} ISK Each`}
               variant="outlined"
               deleteIcon={<ClearIcon />}
               sx={{

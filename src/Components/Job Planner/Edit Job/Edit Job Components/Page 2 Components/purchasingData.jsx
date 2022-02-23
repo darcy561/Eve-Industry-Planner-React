@@ -48,15 +48,20 @@ export function PurchasingData() {
           <Grid item xs={12} sm={6} md={4}>
             <Typography variant="body1">
               Total Material Cost:{" "}
-              {activeJob.build.costs.totalPurchaseCost.toLocaleString()} ISK
+              {activeJob.build.costs.totalPurchaseCost.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
             </Typography>
             <Typography>
               Current Cost Per Item:{" "}
               {(
                 activeJob.build.costs.totalPurchaseCost /
                 activeJob.build.products.totalQuantity
-              ).toLocaleString()}{" "}
-              ISK
+              ).toLocaleString(undefined,{
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
             </Typography>
           </Grid>
           <Grid container item xs={6} md={4} align="center">

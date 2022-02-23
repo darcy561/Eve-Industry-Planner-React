@@ -53,18 +53,30 @@ export function AvailableTransactionData({
                 </Grid>
                 <Grid item xs={12} md={2} align="center" sx={{marginBottom:{xs:"10px", sm:"0px"}}}>
                   <Typography variant="body2">
-                    {tData.quantity.toLocaleString()}{""}@{" "}
-                    {tData.unit_price.toLocaleString()} ISK Each
+                    {tData.quantity.toLocaleString(undefined,{
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                })}{""}@{" "}
+                    {tData.unit_price.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })} ISK Each
                   </Typography>
                 </Grid>
                 <Grid item xs={6} md={2} align="center">
                   <Typography variant="body2">
-                    {tData.amount.toLocaleString()} ISK
+                    {tData.amount.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })} ISK
                   </Typography>
                 </Grid>
                 <Grid item xs={6} md={2} align="center">
                   <Typography variant="body2">
-                    -{tData.tax.toLocaleString()} ISK
+                    -{tData.tax.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })} ISK
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={1} align="center">

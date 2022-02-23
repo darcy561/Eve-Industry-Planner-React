@@ -43,7 +43,7 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
         sx={{ marginBottom: { xs: "10px", sm: "0px" }, position: "relative" }}
       >
         <Grid container>
-          <Grid item xs={12} align="center">
+          <Grid item xs={12} align="center" sx={{marginBottom:{xs:"10px", sm:"0px"}}}>
             <Typography variant="h6" color="primary">
               Parent Jobs
             </Typography>

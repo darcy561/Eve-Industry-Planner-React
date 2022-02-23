@@ -80,6 +80,7 @@ export function AuthMainUser() {
       userObject.linkedTrans = userSettings.linkedTrans;
       userObject.linkedOrders = userSettings.linkedOrders;
       userObject.settings = userSettings.settings;
+      userObject.snapshotData = userSettings.jobArraySnapshot;
 
       updateLoadingText((prevObj) => ({
         ...prevObj,

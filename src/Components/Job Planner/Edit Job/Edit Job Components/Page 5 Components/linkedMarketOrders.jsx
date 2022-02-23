@@ -189,12 +189,21 @@ export function LinkedMarketOrders({
               <Grid container item>
                 <Grid item xs={4}>
                   <Typography variant="body1">
-                    {order.item_price.toLocaleString()} ISK Each
+                    {order.item_price.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })} ISK Each
                   </Typography>
                 </Grid>
                 <Grid item xs={8}>
                   <Typography variant="body1">
-                    {order.volume_remain.toLocaleString()} / {order.volume_total.toLocaleString()} Items Remaining
+                    {order.volume_remain.toLocaleString(undefined,{
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                })} / {order.volume_total.toLocaleString(undefined,{
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                })} Items Remaining
                   </Typography>
                 </Grid>
               </Grid>

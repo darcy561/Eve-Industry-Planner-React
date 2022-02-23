@@ -80,13 +80,19 @@ export function MaterialCard({ material, setJobModified }) {
           <Grid container>
             <Grid item xs={12} sx={{ marginBottom: "10px" }}>
               <Typography variant="body2">
-                Items Purchased: {material.quantityPurchased.toLocaleString()} /{" "}
+                Items Purchased: {material.quantityPurchased.toLocaleString(undefined,{
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                })} /{" "}
                 {material.quantity.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={12} sx={{ marginBottom: "10px" }}>
               <Typography variant="body2">
-                Total Cost: {material.purchasedCost.toLocaleString()} ISK
+                Total Cost: {material.purchasedCost.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })} ISK
               </Typography>
             </Grid>
             <MaterialCost material={material} setJobModified={setJobModified} />

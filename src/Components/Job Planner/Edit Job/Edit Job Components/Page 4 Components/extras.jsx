@@ -100,7 +100,10 @@ export function ExtrasList({ setJobModified }) {
               </Grid>
               <Grid item xs={5}>
                 <Typography variant="body2">
-                  {item.extraValue.toLocaleString()} ISK
+                  {item.extraValue.toLocaleString(undefined,{
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
                 </Typography>
               </Grid>
               <Grid item xs={2}>

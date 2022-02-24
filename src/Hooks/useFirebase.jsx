@@ -17,7 +17,6 @@ import { getAuth } from "firebase/auth";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { EvePricesContext } from "../Context/EveDataContext";
 
-
 export function useFirebase() {
   const { users } = useContext(UsersContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -154,28 +153,6 @@ export function useFirebase() {
     );
   };
 
-  const uploadSnapshotData = async (job) => {
-    await fbAuthState();
-    updateDoc(
-      doc(
-        firestore,
-        `Users/${parentUser.accountID}/Jobs`,
-        job.jobID.toString()
-      ),
-      {
-        jobID: job.jobID,
-        jobStatus: job.jobStatus,
-        name: job.name,
-        itemID: job.itemID,
-        jobType: job.jobType,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        apiJobs: job.apiJobs,
-        buildVer: job.buildVer,
-      }
-    );
-  };
-
   const updateMainUserDoc = async (newUserArray) => {
     await fbAuthState();
     try {
@@ -183,7 +160,7 @@ export function useFirebase() {
         const docRef = doc(firestore, `Users/${parentUser.accountID}`);
         const userDoc = await t.get(docRef);
         t.update(userDoc.ref, {
-          jobArraySnapshot:parentUser.snapshotData,
+          jobArraySnapshot: parentUser.snapshotData,
           parentUserHash: parentUser.CharacterHash,
           jobStatusArray: jobStatus,
           linkedJobs: parentUser.linkedJobs,
@@ -253,20 +230,22 @@ export function useFirebase() {
   };
 
   const getItemPrices = async (inputJob) => {
+    const t = trace(performance, "GetItemPrices");
+    t.start();
     let promiseArray = [];
     let returnArray = [];
     const getPrice = (typeID) => {
       try {
-        const itemPricePromise = fetch(`https://us-central1-eve-industry-planner-pricedata.cloudfunctions.net/costs/item/${typeID}`)
-        return itemPricePromise
-      } catch (err) {
-      
-      }
-    }
+        const itemPricePromise = fetch(
+          `https://us-central1-eve-industry-planner-pricedata.cloudfunctions.net/costs/item/${typeID}`
+        );
+        return itemPricePromise;
+      } catch (err) {}
+    };
 
     if (!evePrices.some((i) => i.typeID === inputJob.itemID)) {
       let mainPriceJSON = getPrice(inputJob.itemID);
-      promiseArray.push(mainPriceJSON)
+      promiseArray.push(mainPriceJSON);
     }
     for (let material of inputJob.build.materials) {
       if (!evePrices.some((i) => i.typeID === material.typeID)) {
@@ -274,14 +253,15 @@ export function useFirebase() {
         promiseArray.push(priceJSON);
       }
     }
-    let returnedPromises = await Promise.all(promiseArray)
+    let returnedPromises = await Promise.all(promiseArray);
 
     for (let promise of returnedPromises) {
-      let json = await promise.json()
-      returnArray.push(json)
+      let json = await promise.json();
+      returnArray.push(json);
     }
-    return returnArray
-  }
+    t.stop();
+    return returnArray;
+  };
 
   return {
     addNewJob,
@@ -289,7 +269,6 @@ export function useFirebase() {
     determineUserState,
     getItemPrices,
     uploadJob,
-    uploadSnapshotData,
     updateMainUserDoc,
     removeJob,
     downloadCharacterJobs,

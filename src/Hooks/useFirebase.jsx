@@ -151,12 +151,13 @@ export function useFirebase() {
     );
   };
 
-  const updateMainUserDoc = async (newUserArray) => {
+  const updateMainUserDoc = async () => {
     await fbAuthState();
     try {
       await runTransaction(firestore, async (t) => {
         const docRef = doc(firestore, `Users/${parentUser.accountID}`);
         const userDoc = await t.get(docRef);
+
         t.update(userDoc.ref, {
           jobArraySnapshot: parentUser.snapshotData,
           parentUserHash: parentUser.CharacterHash,

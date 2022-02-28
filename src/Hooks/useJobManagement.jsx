@@ -123,6 +123,18 @@ export function useJobManagement() {
         updateDataExchange(false);
       } else {
         if (isLoggedIn) {
+          newJob.build.buildChar = parentUser.CharacterHash;
+          
+          if (newJob.jobType === jobTypes.manufacturing) {
+            let blueprintOptions = []
+            users.forEach((user) => {
+              console.log(user)
+              let temp = user.apiBlueprints.filter((i) => i.type_id === newJob.blueprintTypeID && i.runs === -1)
+              console.log(temp)
+              blueprintOptions.concat(temp)
+            })
+            console.log(blueprintOptions)
+          }
           if (newJob.jobType === jobTypes.manufacturing) {
             const structureData =
               parentUser.settings.structures.manufacturing.find(
@@ -158,7 +170,6 @@ export function useJobManagement() {
         }
 
         const calculatedJob = CalculateResources(newJob);
-        calculatedJob.build.buildChar = parentUser.CharacterHash;
         if (parentJobs !== undefined) {
           let itemParents = [];
           parentJobs.forEach((job) => {
@@ -184,7 +195,7 @@ export function useJobManagement() {
           itemID: calculatedJob.itemID,
         });
         let newJobArray = [...jobArray];
-        newJobArray.push(calculatedJob)
+        newJobArray.push(calculatedJob);
         updateJobArray(newJobArray);
         updateDataExchange(false);
         setSnackbarData((prev) => ({
@@ -261,13 +272,16 @@ export function useJobManagement() {
   };
 
   const deleteJobSnapshot = async (inputJob) => {
-    parentUser.snapshotData = parentUser.snapshotData.filter((i) => i.jobID !== inputJob.jobID);
+    parentUser.snapshotData = parentUser.snapshotData.filter(
+      (i) => i.jobID !== inputJob.jobID
+    );
   };
 
   const updateJobSnapshot = async (inputJob) => {
     let totalComplete = 0;
     let materialIDs = [];
     let childJobs = [];
+    console.log(inputJob);
     const index = parentUser.snapshotData.findIndex(
       (i) => i.jobID === inputJob.jobID
     );
@@ -279,13 +293,13 @@ export function useJobManagement() {
         totalComplete++;
       }
     });
-    
+
     const replacementSnap = Object.assign(
       {},
       new newSnapshot(inputJob, childJobs, totalComplete, materialIDs)
     );
-
-    parentUser.snapshotData[index] = replacementSnap 
+    console.log(replacementSnap)
+    parentUser.snapshotData[index] = replacementSnap;
   };
 
   const newJobSnapshot = async (inputJob) => {
@@ -357,10 +371,10 @@ export function useJobManagement() {
           }
         }
       }
-      await updateJobSnapshot(updatedJob)
+      await updateJobSnapshot(updatedJob);
       await uploadJob(updatedJob);
     }
-    await updateMainUserDoc()
+    await updateMainUserDoc();
   };
 
   const deleteJobProcess = async (inputJob) => {
@@ -404,7 +418,7 @@ export function useJobManagement() {
             if (ParentIDIndex !== -1) {
               child.parentJob.splice(ParentIDIndex, 1);
               await replaceSnapshot(child);
-              await updateJobSnapshot(child)
+              await updateJobSnapshot(child);
               await uploadJob(child);
             }
           }
@@ -573,40 +587,58 @@ export function useJobManagement() {
   };
 
   const moveMultipleJobsForward = async (inputJobs) => {
-    const newJobArray = [...jobArray];
-
+    let newJobArray = [...jobArray];
     for (let inputJob of inputJobs) {
       if (inputJob.jobStatus < jobStatus.length - 1) {
-        const jaIndex = newJobArray.findIndex((i) => i.jobID === inputJob.jobID);
+        if (inputJob.isSnapshot) {
+          inputJob = await downloadCharacterJobs(inputJob);
+          inputJob.isSnapshot = false;
+          replaceSnapshot(inputJob);
+        }
+        const jaIndex = newJobArray.findIndex(
+          (i) => i.jobID === inputJob.jobID
+        );
         newJobArray[jaIndex].jobStatus++;
+        const snapIndex = parentUser.snapshotData.findIndex(
+          (i) => i.jobID === inputJob.jobID
+        );
+        parentUser.snapshotData[snapIndex].jobStatus++;
         if (isLoggedIn) {
-          if (!inputJob.isSnapshot) {
-            await updateJobSnapshot(inputJob)
-            await uploadJob(inputJob);
-          } 
+          await updateJobSnapshot(inputJob);
+          await uploadJob(inputJob);
         }
       }
     }
-    await updateMainUserDoc()
+    if (isLoggedIn) {
+      await updateMainUserDoc();
+    }
+
     updateJobArray(newJobArray);
   };
 
   const moveMultipleJobsBackward = async (inputJobs) => {
-    const newJobArray = [...jobArray];
-
+    let newJobArray = [...jobArray];
     for (let inputJob of inputJobs) {
       if (inputJob.jobStatus > 0) {
-        const index = newJobArray.findIndex((i) => i.jobID === inputJob.jobID);
-        newJobArray[index].jobStatus--;
+        if (inputJob.isSnapshot) {
+          inputJob = await downloadCharacterJobs(inputJob);
+          inputJob.isSnapshot = false;
+          replaceSnapshot(inputJob);
+        }
+        const jaIndex = newJobArray.findIndex(
+          (i) => i.jobID === inputJob.jobID
+        );
+        newJobArray[jaIndex].jobStatus--;
+
         if (isLoggedIn) {
-          if (!inputJob.isSnapshot) {
-            await updateJobSnapshot(inputJob)
-            await uploadJob(inputJob);
-          }
+          await updateJobSnapshot(inputJob);
+          await uploadJob(inputJob);
         }
       }
     }
-    await updateMainUserDoc()
+    if (isLoggedIn) {
+      await updateMainUserDoc();
+    }
     updateJobArray(newJobArray);
   };
 
@@ -708,13 +740,13 @@ export function useJobManagement() {
             if (!jobArrayMatch.parentJob.includes(newJob.jobID)) {
               jobArrayMatch.parentJob.push(newJob.jobID);
               await uploadJob(jobArrayMatch);
-              await updateJobSnapshot(jobArrayMatch)
+              await updateJobSnapshot(jobArrayMatch);
             }
           }
         }
       }
     }
-    await updateMainUserDoc()
+    await updateMainUserDoc();
     await uploadJob(newJob);
   };
 

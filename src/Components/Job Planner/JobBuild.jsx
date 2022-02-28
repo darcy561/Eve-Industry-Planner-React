@@ -23,6 +23,7 @@ class Job {
     this.apiOrders = [];
     this.apiTransactions = [];
     this.parentJob = [];
+    this.blueprintTypeID = itemJson.blueprintTypeID || null
 
     this.build = {
       products: {

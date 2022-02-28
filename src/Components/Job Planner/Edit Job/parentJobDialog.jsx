@@ -83,16 +83,19 @@ export function ParentJobDialog({
                     align="center"
                   >
                     <img
-                      src={`https://image.eveonline.com/Type/${job.itemID}_32.png`}
+                      src={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
                       alt=""
                     />
                   </Grid>
-                  <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
+                  <Grid item xs={6} align="center" sx={{ paddingLeft: "10px" }}>
                     <Typography variant="body1">{job.name}</Typography>
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid item xs={4}align="center">
                     <Typography variant="body2">
                       ME {job.bpME} TE {job.bpTE}
+                    </Typography>
+                    <Typography variant="body2">
+                      Runs {job.runCount} Jobs {job.jobCount}
                     </Typography>
                   </Grid>
                   <Grid item xs={1}>

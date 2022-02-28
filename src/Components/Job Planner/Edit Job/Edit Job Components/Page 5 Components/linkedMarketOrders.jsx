@@ -91,7 +91,6 @@ export function LinkedMarketOrders({
       }
     }
     if (newOrderData === undefined && !order.complete) {
-      console.log("here");
       order.duration = completedOrderData.duration;
       order.item_price = completedOrderData.price;
       order.item_name = completedOrderData.item_name || null;

@@ -29,6 +29,10 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main,
     },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
   },
   Autocomplete: {
     "& .MuiFormHelperText-root": {
@@ -46,6 +50,7 @@ export function ManuStrutures({ parentUserIndex }) {
     structureName: "Station",
     structureValue: 0,
     rigType: 0,
+    tax: 0,
   });
   const classes = useStyles();
   const analytics = getAnalytics();
@@ -165,6 +170,29 @@ export function ManuStrutures({ parentUserIndex }) {
                       </FormHelperText>
                     </FormControl>
                   </Grid>
+                  <Grid item xs={6} sx={{ paddingRight: "5px" }}>
+                    <FormControl className={classes.TextField} fullWidth={true}>
+                      <Tooltip
+                        title="Calculation not yet implemented"
+                        arrow
+                        placement="right"
+                      >
+                        <TextField
+                          size="small"
+                          variant="standard"
+                          className={classes.TextField}
+                          helperText="Installation Tax %"
+                          type="number"
+                          onBlur={(e) => {
+                            updateTempManDetails((prev) => ({
+                              ...prev,
+                              tax: e.target.value / 100,
+                            }));
+                          }}
+                        />
+                      </Tooltip>
+                    </FormControl>
+                  </Grid>
                   <Grid item xs={12} align="center">
                     <Tooltip title="Add new structure" arrow postion="bottom">
                       <IconButton
@@ -186,12 +214,13 @@ export function ManuStrutures({ parentUserIndex }) {
                                 .manufacturing.length === 0
                                 ? true
                                 : false,
+                            tax: tempManDetails.tax,
                           });
                           updateMainUserDoc(newUsersArray);
                           updateUsers(newUsersArray);
                           logEvent(analytics, "Add Manufacturing Structure", {
-                            UID: newUsersArray[parentUserIndex].accountID
-                          })
+                            UID: newUsersArray[parentUserIndex].accountID,
+                          });
                         }}
                       >
                         <AddIcon />
@@ -318,9 +347,14 @@ export function ManuStrutures({ parentUserIndex }) {
                                       ? true
                                       : false,
                                 }));
-                                logEvent(analytics, "Remove Manufacturing Structure", {
-                                  UID: newUsersArray[parentUserIndex].accountID
-                                })
+                                logEvent(
+                                  analytics,
+                                  "Remove Manufacturing Structure",
+                                  {
+                                    UID: newUsersArray[parentUserIndex]
+                                      .accountID,
+                                  }
+                                );
                               }}
                             >
                               Remove

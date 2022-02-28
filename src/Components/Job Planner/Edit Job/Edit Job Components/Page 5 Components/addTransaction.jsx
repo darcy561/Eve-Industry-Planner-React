@@ -11,6 +11,20 @@ import {
 } from "@mui/material";
 import { DateTimePicker } from "@mui/lab";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  TextField: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+  },
+  Autocomplete: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+  },
+}));
 
 export function AddTransactionDialog({
   newTransactionTrigger,
@@ -32,6 +46,7 @@ export function AddTransactionDialog({
     tax: 0,
     description: null,
   });
+  const classes = useStyles();
 
   const handleClose = () => {
     updateNewTransactionTrigger(false);
@@ -49,8 +64,9 @@ export function AddTransactionDialog({
           <Grid container item xs={12} sx={{ paddingTop: "10px" }}>
             <Grid item xs={6}>
               <DateTimePicker
+                className={classes.TextField}
+                variant="outlined"
                 renderInput={(props) => <TextField {...props} />}
-                label="Date"
                 value={Date.now()}
                 onChange={(v) => {
                   setTransactionData((prev) => ({
@@ -62,8 +78,9 @@ export function AddTransactionDialog({
             </Grid>
             <Grid item xs={6}>
               <TextField
-                variant="outlined"
-                label="Description"
+                className={classes.TextField}
+                variant="standard"
+                helperText="Description"
                 onBlur={(v) => {
                   setTransactionData((prev) => ({
                     ...prev,
@@ -76,8 +93,9 @@ export function AddTransactionDialog({
           <Grid container item xs={12} sx={{ paddingTop: "20px" }}>
             <Grid item xs={6}>
               <TextField
-                variant="outlined"
-                label="Item Cost"
+                className={classes.TextField}
+                variant="standard"
+                helperText="Item Cost"
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">ISK</InputAdornment>
@@ -96,8 +114,9 @@ export function AddTransactionDialog({
             </Grid>
             <Grid item xs={6}>
               <TextField
-                variant="outlined"
-                label="Quantity"
+                className={classes.TextField}
+                variant="standard"
+                helperText="Quantity"
                 type="number"
                 onBlur={(v) => {
                   if (v.target.value >= 0) {
@@ -122,8 +141,9 @@ export function AddTransactionDialog({
           <Grid container item xs={12} sx={{ paddingTop: "20px" }}>
             <Grid item xs={6}>
               <TextField
-                variant="outlined"
-                label="Tax Or Fees Paid"
+                className={classes.TextField}
+                variant="standard"
+                helperText="Tax Or Fees Paid"
                 type="number"
                 InputProps={{
                   endAdornment: (

@@ -130,7 +130,7 @@ export function ChildJobDialog({
           ) : (
             <Grid item xs={12}>
               <Typography variant="body1" align="center">
-                None
+                None Available
               </Typography>
             </Grid>
           )}
@@ -233,7 +233,7 @@ export function ChildJobDialog({
           ) : (
             <Grid item xs={12}>
               <Typography variant="body1" align="center">
-                None
+                None Linked
               </Typography>
             </Grid>
           )}

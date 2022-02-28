@@ -29,6 +29,10 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main,
     },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
   },
   Autocomplete: {
     "& .MuiFormHelperText-root": {
@@ -46,6 +50,7 @@ export function ReactionStrutures({ parentUserIndex }) {
     structureName: "Medium",
     structureValue: 1,
     rigType: 0,
+    tax: 0,
   });
   const classes = useStyles();
   const analytics = getAnalytics();
@@ -157,6 +162,32 @@ export function ReactionStrutures({ parentUserIndex }) {
                       </FormHelperText>
                     </FormControl>
                   </Grid>
+                  <Grid item xs={6} sx={{ paddingRight: "5px" }}>
+                    <Tooltip
+                      title="Calculation not yet implemented"
+                      arrow
+                      placement="right"
+                    >
+                      <FormControl
+                        className={classes.TextField}
+                        fullWidth={true}
+                      >
+                        <TextField
+                          size="small"
+                          variant="standard"
+                          className={classes.TextField}
+                          helperText="Installation Tax %"
+                          type="number"
+                          onBlur={(e) => {
+                            updateTempDetails((prev) => ({
+                              ...prev,
+                              tax: e.target.value / 100,
+                            }));
+                          }}
+                        />
+                      </FormControl>
+                    </Tooltip>
+                  </Grid>
                   <Grid item xs={12} align="center">
                     <Tooltip title="Add new structure" arrow postion="bottom">
                       <IconButton
@@ -178,12 +209,17 @@ export function ReactionStrutures({ parentUserIndex }) {
                                 .reaction.length === 0
                                 ? true
                                 : false,
+                            tax: tempDetails.tax,
                           });
+                          console.log(
+                            newUsersArray[parentUserIndex].settings.structures
+                              .reaction
+                          );
                           updateMainUserDoc(newUsersArray);
                           updateUsers(newUsersArray);
                           logEvent(analytics, "Add Reaction Structure", {
-                            UID: newUsersArray[parentUserIndex].accountID
-                          })
+                            UID: newUsersArray[parentUserIndex].accountID,
+                          });
                         }}
                       >
                         <AddIcon />
@@ -300,9 +336,14 @@ export function ReactionStrutures({ parentUserIndex }) {
                                 }
                                 updateUsers(newUsersArray);
                                 updateMainUserDoc(newUsersArray);
-                                logEvent(analytics, "Remove Reaction Structure", {
-                                  UID: newUsersArray[parentUserIndex].accountID
-                                })
+                                logEvent(
+                                  analytics,
+                                  "Remove Reaction Structure",
+                                  {
+                                    UID: newUsersArray[parentUserIndex]
+                                      .accountID,
+                                  }
+                                );
                               }}
                             >
                               Remove

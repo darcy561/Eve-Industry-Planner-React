@@ -36,6 +36,7 @@ export function SkillCheck() {
               (i) => i.id === jSkill.typeID
             );
 
+
             return (
               <Grid
                 key={jSkill.typeID}

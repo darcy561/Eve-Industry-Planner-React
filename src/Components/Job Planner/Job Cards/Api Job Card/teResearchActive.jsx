@@ -69,7 +69,7 @@ export function TeResearchESICardActive({ job }) {
                   }
                 >
                   <img
-                    src={`https://image.eveonline.com/Type/${job.blueprint_type_id}_64.png`}
+                    src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
                     alt=""
                     style={{ margin: "auto", display: "block" }}
                   />

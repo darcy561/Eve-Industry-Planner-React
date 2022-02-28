@@ -4,11 +4,27 @@ import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import ClearIcon from '@mui/icons-material/Clear';
 import { MdAdd } from "react-icons/md";
+import { makeStyles } from "@mui/styles";
+
+
+const useStyles = makeStyles((theme) => ({
+  TextField: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+  },
+  Autocomplete: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+  },
+}));
 
 export function ExtrasList({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const [extras, updateExtras] = useState({ text: "", value: 0 });
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const classes = useStyles();
 
   function handleAdd() {
     const newExtrasArray = activeJob.build.costs.extrasCosts;
@@ -122,6 +138,7 @@ export function ExtrasList({ setJobModified }) {
         <Grid container direction="row" item xs={12} spacing={3}>
           <Grid item xs={5}>
             <TextField
+              className={classes.TextField}
               defaultValue={extras.text}
               variant="standard"
               size="small"
@@ -138,6 +155,7 @@ export function ExtrasList({ setJobModified }) {
           </Grid>
           <Grid item xs={5}>
             <TextField
+              className={classes.TextField}
               defaultValue={extras.value}
               variant="standard"
               size="small"

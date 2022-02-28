@@ -81,6 +81,6 @@ app.get("/item/:itemID", (req, res) => {
 //Export the api to Firebase Cloud Functions
 exports.api = functions.https.onRequest(app);
 exports.user = require("./Triggered Functions/Users");
-exports.JobSnapUpdate = require("./Triggered Functions/JobCollection/update");
-exports.JobSnapDelete = require("./Triggered Functions/JobCollection/delete");
-exports.JobSnapNew = require("./Triggered Functions/JobCollection/new");
+// exports.JobSnapUpdate = require("./Triggered Functions/JobCollection/update");
+// exports.JobSnapDelete = require("./Triggered Functions/JobCollection/delete");
+// exports.JobSnapNew = require("./Triggered Functions/JobCollection/new");

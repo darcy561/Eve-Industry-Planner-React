@@ -155,11 +155,11 @@ export default function EditJob({ updateJobSettingsTrigger }) {
               <picture>
                 <source
                   media="(max-width:700px)"
-                  srcSet={`https://image.eveonline.com/Type/${activeJob.itemID}_32.png`}
+                  srcSet={`https://images.evetech.net/types/${activeJob.itemID}/icon?size=32`}
                   alt=""
                 />
                 <img
-                  src={`https://image.eveonline.com/Type/${activeJob.itemID}_64.png`}
+                  src={`https://images.evetech.net/types/${activeJob.itemID}/icon?size=64`}
                   alt=""
                 />
               </picture>

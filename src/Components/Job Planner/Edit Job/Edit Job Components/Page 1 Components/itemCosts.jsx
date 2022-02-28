@@ -1,7 +1,9 @@
 import {
   Autocomplete,
   Grid,
+  MenuItem,
   Paper,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -19,7 +21,10 @@ export function ItemCostPanel() {
     { id: "dodixie", name: "Dodixie" },
     { id: "jita", name: "Jita" },
   ];
+  const [marketOption, updateMarketOption] = useState(marketOptions[2]);
+
   let activeJobPrices = evePrices.find((i) => i.typeID === activeJob.itemID);
+
   let totalJobBuy = 0;
   let totalJobSell = 0;
 
@@ -40,24 +45,32 @@ export function ItemCostPanel() {
             Estimated Market Costs
           </Typography>
         </Grid>
-        <Autocomplete
-          disableClearable={true}
-          value={marketOptions.find((x) => x.id === marketSelect)}
-          size="small"
-          options={marketOptions}
-          onChange={(e, v) => {
-            updateMarketSelect(v.id);
+        <Select
+          value={marketOption}
+          renderValue={(entry) => {
+            return entry.name;
           }}
-          getOptionLabel={(option) => option.name}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          renderInput={(params) => <TextField {...params} variant="standard" />}
+          variant="standard"
+          size="small"
+          onChange={(e) => {
+            updateMarketSelect(e.target.value.id);
+            updateMarketOption(e.target.value);
+          }}
           sx={{
             width: "90px",
             position: "absolute",
             top: { xs: "50px", sm: "20px" },
             right: { xs: "35%", sm: "30px" },
           }}
-        />
+        >
+          {marketOptions.map((option) => {
+            return (
+              <MenuItem key={option.id} value={option}>
+                {option.name}
+              </MenuItem>
+            );
+          })}
+        </Select>
         <Grid container item xs={12}>
           <Grid item xs={12} md={4}>
             <Typography>{activeJob.name}</Typography>
@@ -105,71 +118,68 @@ export function ItemCostPanel() {
             totalJobSell +=
               materialPrice[marketSelect].sell * material.quantity;
             return (
-                <Grid
-                  key={material.typeID}
-                  container
-                  item
-                  xs={12}
-                  sx={{ padding: "15px 0px" }}
-                >
-                  <Grid item xs={12} md={4} align="left">
-                    <Typography> {material.name}</Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={6}
-                    md={4}
-                    align="right"
-                    sx={{ marginTop: { xs: "10px", md: "0px" } }}
-                  >
-                    <Typography variant="body2">
-                      Unit Sell Price:{" "}
-                      {materialPrice[marketSelect].sell.toLocaleString(
-                        undefined,
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
-                      )}{" "}
-                    </Typography>
-                    <Typography variant="body2">
-                      Unit Buy Price:{" "}
-                      {materialPrice[marketSelect].buy.toLocaleString(
-                        undefined,
-                        {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }
-                      )}
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={6}
-                    md={4}
-                    align="right"
-                    sx={{ marginTop: { xs: "10px", md: "0px" } }}
-                  >
-                    <Typography variant="body2">
-                      Total Sell Price:{" "}
-                      {(
-                        materialPrice[marketSelect].sell * material.quantity
-                      ).toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </Typography>
-                    <Typography variant="body2">
-                      Total Buy Price:{" "}
-                      {(
-                        materialPrice[marketSelect].buy * material.quantity
-                      ).toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </Typography>
-                  </Grid>
+              <Grid
+                key={material.typeID}
+                container
+                item
+                xs={12}
+                sx={{ padding: "15px 0px" }}
+              >
+                <Grid item xs={12} md={4} align="left">
+                  <Typography> {material.name}</Typography>
                 </Grid>
+                <Grid
+                  item
+                  xs={6}
+                  md={4}
+                  align="right"
+                  sx={{ marginTop: { xs: "10px", md: "0px" } }}
+                >
+                  <Typography variant="body2">
+                    Unit Sell Price:{" "}
+                    {materialPrice[marketSelect].sell.toLocaleString(
+                      undefined,
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}{" "}
+                  </Typography>
+                  <Typography variant="body2">
+                    Unit Buy Price:{" "}
+                    {materialPrice[marketSelect].buy.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={6}
+                  md={4}
+                  align="right"
+                  sx={{ marginTop: { xs: "10px", md: "0px" } }}
+                >
+                  <Typography variant="body2">
+                    Total Sell Price:{" "}
+                    {(
+                      materialPrice[marketSelect].sell * material.quantity
+                    ).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Typography>
+                  <Typography variant="body2">
+                    Total Buy Price:{" "}
+                    {(
+                      materialPrice[marketSelect].buy * material.quantity
+                    ).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Typography>
+                </Grid>
+              </Grid>
             );
           })}
           <Grid item xs={12} align="right" sx={{ marginTop: "20px" }}>

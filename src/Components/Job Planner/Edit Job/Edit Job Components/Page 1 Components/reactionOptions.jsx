@@ -3,8 +3,10 @@ import {
   Grid,
   FormControl,
   FormHelperText,
+  MenuItem,
   Paper,
   TextField,
+  Select,
 } from "@mui/material";
 import { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
@@ -14,12 +16,31 @@ import {
 } from "../../../../../Context/AuthContext";
 import { blueprintVariables } from "../../..";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  TextField: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
+  },
+  Autocomplete: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+  },
+}));
 
 export function ReactionOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { CalculateResources } = useBlueprintCalc();
+  const classes = useStyles();
 
   const parentUser = users.find((i) => i.ParentUser === true);
   return (
@@ -36,6 +57,7 @@ export function ReactionOptions({ setJobModified }) {
           <Grid item xs={6}>
             <TextField
               defaultValue={activeJob.runCount}
+              className={classes.TextField}
               size="small"
               variant="standard"
               helperText="Blueprint Runs"
@@ -52,6 +74,7 @@ export function ReactionOptions({ setJobModified }) {
           <Grid item xs={6}>
             <TextField
               defaultValue={activeJob.jobCount}
+              className={classes.TextField}
               size="small"
               variant="standard"
               helperText="Job Slots"
@@ -66,7 +89,7 @@ export function ReactionOptions({ setJobModified }) {
             />
           </Grid>
           <Grid item xs={6}>
-            <FormControl fullWidth={true}>
+            <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 size="small"
                 defaultValue={blueprintVariables.reactionStructure.find(
@@ -89,7 +112,7 @@ export function ReactionOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <FormControl fullWidth={true}>
+            <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 size="small"
                 defaultValue={blueprintVariables.reactionRigs.find(
@@ -112,7 +135,7 @@ export function ReactionOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <FormControl fullWidth={true}>
+            <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 disableClearable={true}
                 size="small"
@@ -136,26 +159,37 @@ export function ReactionOptions({ setJobModified }) {
           </Grid>
           {isLoggedIn && (
             <Grid item xs={12}>
-              <FormControl fullWidth={true}>
-                <Autocomplete
-                  disableClearable={true}
+              <FormControl className={classes.TextField} fullWidth={true}>
+                <Select
+                  variant="standard"
                   size="small"
-                  options={parentUser.settings.structures.reaction}
-                  getOptionLabel={(option) => option.name}
-                  renderInput={(params) => (
-                    <TextField {...params} variant="standard" />
-                  )}
+                  renderValue={(selected) =>
+                    selected.map((item) => item.name).join(", ")
+                  }
+                  value=""
                   onChange={(e, v) => {
+                    const structure =
+                      parentUser.settings.structures.manufacturing.find(
+                        (i) => i.id === e.target.value
+                      );
                     const oldJob = JSON.parse(JSON.stringify(activeJob));
-                    oldJob.rigType = v.rigType
-                    oldJob.systemType = v.systemType
-                    oldJob.structureType = v.structureValue
-                    oldJob.structureTypeDisplay = v.structureName
+                    oldJob.rigType = structure.rigType;
+                    oldJob.systemType = structure.systemType;
+                    oldJob.structureType = structure.structureValue;
+                    oldJob.structureTypeDisplay = structure.structureName;
                     const newJob = CalculateResources(oldJob);
                     updateActiveJob(newJob);
                     setJobModified(true);
                   }}
-                />
+                >
+                  {parentUser.settings.structures.manufacturing.map((entry) => {
+                    return (
+                      <MenuItem key={entry.id} value={entry.id}>
+                        {entry.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
                 <FormHelperText variant="standard">
                   Apply Saved Structure
                 </FormHelperText>

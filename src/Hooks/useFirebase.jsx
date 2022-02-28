@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
-import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
+import { JobStatusContext } from "../Context/JobContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
@@ -19,8 +19,7 @@ import { EvePricesContext } from "../Context/EveDataContext";
 
 export function useFirebase() {
   const { users } = useContext(UsersContext);
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const { evePrices, updateEvePrices } = useContext(EvePricesContext);
+  const { evePrices } = useContext(EvePricesContext);
   const { jobStatus } = useContext(JobStatusContext);
   const analytics = getAnalytics();
 
@@ -30,8 +29,7 @@ export function useFirebase() {
     const auth = getAuth();
     if (auth.currentUser == null) {
       let newfbuser = await firebaseAuth(parentUser);
-      console.log(newfbuser);
-    }
+      console.log(newfbuser)    }
   };
 
   const determineUserState = async (user) => {

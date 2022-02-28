@@ -84,7 +84,7 @@ export function ShoppingListDialog() {
                   align="center"
                 >
                   <img
-                    src={`https://image.eveonline.com/Type/${item.typeID}_32.png`}
+                    src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
                     alt=""
                   />
                 </Grid>

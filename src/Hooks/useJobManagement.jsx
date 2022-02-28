@@ -183,8 +183,9 @@ export function useJobManagement() {
           name: calculatedJob.name,
           itemID: calculatedJob.itemID,
         });
-
-        updateJobArray((prevArray) => [...prevArray, calculatedJob]);
+        let newJobArray = [...jobArray];
+        newJobArray.push(calculatedJob)
+        updateJobArray(newJobArray);
         updateDataExchange(false);
         setSnackbarData((prev) => ({
           ...prev,
@@ -270,8 +271,7 @@ export function useJobManagement() {
     const index = parentUser.snapshotData.findIndex(
       (i) => i.jobID === inputJob.jobID
     );
-    console.log(index);
-    console.log(inputJob);
+
     inputJob.build.materials.forEach((material) => {
       materialIDs.push(material.typeID);
       childJobs.push(...material.childJob);
@@ -357,8 +357,10 @@ export function useJobManagement() {
           }
         }
       }
+      await updateJobSnapshot(updatedJob)
       await uploadJob(updatedJob);
     }
+    await updateMainUserDoc()
   };
 
   const deleteJobProcess = async (inputJob) => {
@@ -402,6 +404,7 @@ export function useJobManagement() {
             if (ParentIDIndex !== -1) {
               child.parentJob.splice(ParentIDIndex, 1);
               await replaceSnapshot(child);
+              await updateJobSnapshot(child)
               await uploadJob(child);
             }
           }
@@ -426,6 +429,7 @@ export function useJobManagement() {
             }
           }
           await replaceSnapshot(parentJob);
+          await updateJobSnapshot(parentJob);
           await uploadJob(parentJob);
         }
       }

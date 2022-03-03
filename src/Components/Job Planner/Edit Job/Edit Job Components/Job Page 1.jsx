@@ -10,6 +10,7 @@ import { TutorialStep1 } from "./Page 1 Components/tutorialStep1";
 import { SkillCheck } from "./Page 1 Components/skillCheck";
 import { Masonry } from "@mui/lab";
 import { ItemCostPanel } from "./Page 1 Components/itemCosts";
+import { MatchingBlueprints } from "./Page 1 Components/blueprintPanel";
 
 export function EditPage1({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -46,6 +47,7 @@ export function EditPage1({ setJobModified }) {
           <Masonry columns={1} spacing={2}>
             <ProductionStats />
             <OptionSwitch />
+            <MatchingBlueprints/>
           </Masonry>
         </Grid>
         <Grid item xs={12} md={9}>

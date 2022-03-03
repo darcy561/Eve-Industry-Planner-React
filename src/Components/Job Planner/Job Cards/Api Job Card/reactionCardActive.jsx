@@ -37,14 +37,7 @@ export function ReactionESICardActive({ job }) {
   }
 
   const timeRemaining = timeRemainingcalc();
-
-  const buildChar = users.find((i)=> i.CharacterID === job.installer_id)
-  const blueprintData = buildChar.apiBlueprints.find((i) => i.item_id === job.blueprint_id)
-  let blueprintType = "bp"
-  
-  if (blueprintData.quantity === -2) {
-    blueprintType = "bpc"
-  }
+ 
 
   return (
     <Tooltip title="Job imported from the Eve ESI">
@@ -77,7 +70,7 @@ export function ReactionESICardActive({ job }) {
                   }
                 >
                   <img
-                    src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                    src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
                     alt=""
                     style={{ margin: "auto", display: "block" }}
                   />

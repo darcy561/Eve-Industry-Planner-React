@@ -13,15 +13,6 @@ import { UsersContext } from "../../../../Context/AuthContext";
 export function ReactionESICardComplete({ job }) {
   const { users } = useContext(UsersContext)
   
-  const buildChar = users.find((i)=> i.CharacterID === job.installer_id)
-  const blueprintData = buildChar.apiBlueprints.find((i) => i.item_id === job.blueprint_id)
-  let blueprintType = "bp"
-
-  if (blueprintData === undefined || blueprintData.quantity === -2) {
-    blueprintType = "bpc"
-  }
-
-
   return (
     <Tooltip title="Job imported from the Eve ESI">
       <Grid key={job.job_id} item xs={16} sm={6} md={4} lg={3}>
@@ -53,7 +44,7 @@ export function ReactionESICardComplete({ job }) {
                   }
                 >
                   <img
-                    src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                    src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
                     alt=""
                     style={{ margin: "auto", display: "block" }}
                   />

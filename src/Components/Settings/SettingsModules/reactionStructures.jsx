@@ -211,10 +211,6 @@ export function ReactionStrutures({ parentUserIndex }) {
                                 : false,
                             tax: tempDetails.tax,
                           });
-                          console.log(
-                            newUsersArray[parentUserIndex].settings.structures
-                              .reaction
-                          );
                           updateMainUserDoc(newUsersArray);
                           updateUsers(newUsersArray);
                           logEvent(analytics, "Add Reaction Structure", {

@@ -151,6 +151,29 @@ export function useFirebase() {
     );
   };
 
+  const uploadJobAsSnapshot = async (job) => {
+    await fbAuthState();
+    updateDoc(
+      doc(
+        firestore,
+        `Users/${parentUser.accountID}/Jobs`,
+        job.jobID.toString()
+      ),
+      {
+        jobType: job.jobType,
+        name: job.name,
+        jobID: job.jobID,
+        jobStatus: job.jobStatus,
+        itemID: job.itemID,
+        runCount: job.runCount,
+        jobCount: job.jobCount,
+        apiJobs: job.apiJobs,
+        buildVer: job.buildVer,
+        metaLevel: job.metaLevel,
+      }
+    );
+  };
+
   const updateMainUserDoc = async () => {
     await fbAuthState();
     try {
@@ -268,8 +291,10 @@ export function useFirebase() {
     determineUserState,
     getItemPrices,
     uploadJob,
+    uploadJobAsSnapshot,
     updateMainUserDoc,
     removeJob,
     downloadCharacterJobs,
+
   };
 }

@@ -64,13 +64,24 @@ export function PassBuildCostButton() {
       await uploadJob(parentJob);
     }
     if (itemsAdded > 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `Cost imported to ${itemsAdded} job/jobs`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
+      if (itemsAdded === 1) {
+        setSnackbarData((prev) => ({
+          ...prev,
+          open: true,
+          message: `Cost imported to parent job`,
+          severity: "success",
+          autoHideDuration: 3000,
+        }));
+      }
+      if (itemsAdded > 1) {
+        setSnackbarData((prev) => ({
+          ...prev,
+          open: true,
+          message: `Cost imported to ${itemsAdded} jobs`,
+          severity: "success",
+          autoHideDuration: 3000,
+        }));
+      }
       logEvent(analytics, "Import Costs", {
         UID: parentUser.accountID,
         isLoggedIn: isLoggedIn,

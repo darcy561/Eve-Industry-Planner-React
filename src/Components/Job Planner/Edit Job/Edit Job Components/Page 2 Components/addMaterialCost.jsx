@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { memo, useContext, useState } from "react";
 import {
   Autocomplete,
   Grid,
@@ -18,9 +18,9 @@ const useStyles = makeStyles((theme) => ({
       color: theme.palette.secondary.main,
     },
     "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-    {
-      display: "none",
-    },
+      {
+        display: "none",
+      },
   },
   Autocomplete: {
     "& .MuiFormHelperText-root": {
@@ -29,13 +29,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function AddMaterialCost({ material, setJobModified }) {
+function AddMaterialCost({ material, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const [inputs, setInputs] = useState({ itemCost: 0, itemCount: 0 });
+  const [inputs, setInputs] = useState({
+    itemCost: 0,
+    itemCount: Number(material.quantity - material.quantityPurchased),
+  });
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const classes = useStyles();
 
-  function handleAdd(material) {
+  const handleSubmit = (event) => {
+    event.preventDefault();
     if (inputs.itemCount > 0) {
       const materialIndex = activeJob.build.materials.findIndex(
         (x) => x.typeID === material.typeID
@@ -88,72 +92,51 @@ export function AddMaterialCost({ material, setJobModified }) {
       setJobModified(true);
     } else {
     }
-  }
+  };
 
   return (
-    <Grid container spacing={1}>
-      <Grid item xs={6}>
-        <FormControl className={classes.TextField} fullWidth={true}>
-          <Autocomplete
-            autoSelect
-            freeSolo
+    <form onSubmit={handleSubmit}>
+      <Grid container spacing={1}>
+        <Grid item xs={6}>
+          <TextField
+            className={classes.TextField}
             size="small"
             variant="standard"
-            options={[
-              {
-                value: material.quantity - material.quantityPurchased,
-                label: "All Remaining",
-              },
-            ]}
-            onChange={(e, v) => {
-              if (v === "All Remaining") {
-                setInputs((prevState) => ({
-                  ...prevState,
-                  itemCount: Number(
-                    material.quantity - material.quantityPurchased
-                  ),
-                }));
-              } else {
-                if (/^\d+$/.test(v)) {
-                  setInputs((prevState) => ({
-                    ...prevState,
-                    itemCount: Number(v),
-                  }));
-                }
-              }
+            type="number"
+            helperText="Item Quantity"
+            defaultValue={inputs.itemCount}
+            onChange={(e) => {
+              setInputs((prevState) => ({
+                ...prevState,
+                itemCount: Number(e.target.value),
+              }));
             }}
-            renderInput={(params) => (
-              <TextField {...params} variant="standard" />
-            )}
           />
-          <FormHelperText variant="standard">Quantity</FormHelperText>
-        </FormControl>
+        </Grid>
+        <Grid item xs={4}>
+          <TextField
+            className={classes.TextField}
+            size="small"
+            variant="standard"
+            type="number"
+            helperText="Item Price"
+            defaultValue="0"
+            onChange={(e) => {
+              setInputs((prevState) => ({
+                ...prevState,
+                itemCost: Number(e.target.value),
+              }));
+            }}
+          />
+        </Grid>
+        <Grid item xs={1} align="center">
+          <IconButton size="small" color="primary" type="submit">
+            <AddIcon />
+          </IconButton>
+        </Grid>
       </Grid>
-      <Grid item xs={4}>
-        <TextField
-          className={classes.TextField}
-          size="small"
-          variant="standard"
-          type="number"
-          helperText="Item Price"
-          defaultValue="0"
-          onBlur={(e) => {
-            setInputs((prevState) => ({
-              ...prevState,
-              itemCost: Number(e.target.value),
-            }));
-          }}
-        />
-      </Grid>
-      <Grid item xs={1} align="center">
-        <IconButton
-          size="small"
-          color="primary"
-          onClick={() => handleAdd(material)}
-        >
-          <AddIcon />
-        </IconButton>
-      </Grid>
-    </Grid>
+    </form>
   );
 }
+
+export default memo(AddMaterialCost);

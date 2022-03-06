@@ -29,7 +29,8 @@ export function useFirebase() {
     const auth = getAuth();
     if (auth.currentUser == null) {
       let newfbuser = await firebaseAuth(parentUser);
-      console.log(newfbuser)    }
+      console.log(newfbuser);
+    }
   };
 
   const determineUserState = async (user) => {
@@ -112,6 +113,7 @@ export function useFirebase() {
         buildVer: job.buildVer,
         metaLevel: job.metaLevel,
         parentJob: job.parentJob,
+        blueprintTypeID: job.blueprintTypeID,
       }
     );
   };
@@ -147,6 +149,7 @@ export function useFirebase() {
         buildVer: job.buildVer,
         metaLevel: job.metaLevel,
         parentJob: job.parentJob,
+        blueprintTypeID: job.blueprintTypeID,
       }
     );
   };
@@ -212,7 +215,32 @@ export function useFirebase() {
         `Users/${parentUser.accountID}/Jobs`,
         job.jobID.toString()
       ),
-      { archived: true }
+      {
+        archived: true,
+        jobType: job.jobType,
+        name: job.name,
+        jobID: job.jobID,
+        jobStatus: job.jobStatus,
+        volume: job.volume,
+        itemID: job.itemID,
+        maxProductionLimit: job.maxProductionLimit,
+        runCount: job.runCount,
+        jobCount: job.jobCount,
+        bpME: job.bpME,
+        bpTE: job.bpTE,
+        structureType: job.structureType,
+        structureTypeDisplay: job.structureTypeDisplay,
+        rigType: job.rigType,
+        systemType: job.systemType,
+        apiJobs: job.apiJobs,
+        skills: job.skills,
+        rawData: job.rawData,
+        build: job.build,
+        buildVer: job.buildVer,
+        metaLevel: job.metaLevel,
+        parentJob: job.parentJob,
+        blueprintTypeID: job.blueprintTypeID,
+      }
     );
   };
 
@@ -246,6 +274,7 @@ export function useFirebase() {
       buildVer: document.data().buildVer,
       metaLevel: document.data().metaLevel,
       parentJob: document.data().parentJob,
+      blueprintTypeID: document.data().blueprintTypeID,
     };
 
     return newJob;
@@ -295,6 +324,5 @@ export function useFirebase() {
     updateMainUserDoc,
     removeJob,
     downloadCharacterJobs,
-
   };
 }

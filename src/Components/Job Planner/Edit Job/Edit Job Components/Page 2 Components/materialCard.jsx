@@ -8,17 +8,22 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { AddMaterialCost } from "./addMaterialCost";
+import AddMaterialCost from "./addMaterialCost";
 import { MaterialCost } from "./materialCost";
 import { jobTypes } from "../../../JobPlanner";
 import { ChildJobDialog } from "./childJobsDialog";
 
 export function MaterialCard({ material, setJobModified }) {
-  const [childDialogTrigger, updateChildDialogTrigger] =useState(false)
+  const [childDialogTrigger, updateChildDialogTrigger] = useState(false);
 
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
-      <ChildJobDialog material={material} childDialogTrigger={childDialogTrigger} updateChildDialogTrigger={updateChildDialogTrigger} setJobModified={setJobModified} />
+      <ChildJobDialog
+        material={material}
+        childDialogTrigger={childDialogTrigger}
+        updateChildDialogTrigger={updateChildDialogTrigger}
+        setJobModified={setJobModified}
+      />
       <Paper
         sx={{
           padding: "20px",
@@ -31,36 +36,42 @@ export function MaterialCard({ material, setJobModified }) {
       >
         <Container disableGutters={true}>
           <Grid container direction="row" sx={{ marginBottom: "15px" }}>
-            {material.jobType === jobTypes.manufacturing || material.jobType === jobTypes.reaction ?(
-            <Tooltip title="Number of child jobs linked, click to add or remove." arrow placement="top">
-            <Avatar
-              variant="circle"
-              sx={{
-                bgcolor:
-                  material.childJob.length > 0 ? "success.main" : "error.main",
-                height: "30px",
-                width: "30px",
-                position: "absolute",
-                top: "5px",
-                left: "5px",
-                cursor: "pointer",
-                boxShadow : 4
-              }}
-              onClick={()=>{updateChildDialogTrigger(true)}}
-            >
-              {material.childJob.length}
-              </Avatar>
+            {material.jobType === jobTypes.manufacturing ||
+            material.jobType === jobTypes.reaction ? (
+              <Tooltip
+                title="Number of child jobs linked, click to add or remove."
+                arrow
+                placement="top"
+              >
+                <Avatar
+                  variant="circle"
+                  sx={{
+                    bgcolor: "primary.main",
+                    height: "30px",
+                    width: "30px",
+                    position: "absolute",
+                    top: "5px",
+                    left: "5px",
+                    cursor: "pointer",
+                    boxShadow: 4,
+                  }}
+                  onClick={() => {
+                    updateChildDialogTrigger(true);
+                  }}
+                >
+                  {material.childJob.length}
+                </Avatar>
               </Tooltip>
-            ): null}
+            ) : null}
             <Grid item xs={12} align="center">
               <picture>
                 <source
                   media="(max-width:700px)"
-                  srcSet={`https://image.eveonline.com/Type/${material.typeID}_32.png`}
+                  srcSet={`https://images.evetech.net/types/${material.typeID}/icon?size=32`}
                   alt=""
                 />
                 <img
-                  src={`https://image.eveonline.com/Type/${material.typeID}_64.png`}
+                  src={`https://images.evetech.net/types/${material.typeID}/icon?size=64`}
                   alt=""
                 />
               </picture>
@@ -80,19 +91,22 @@ export function MaterialCard({ material, setJobModified }) {
           <Grid container>
             <Grid item xs={12} sx={{ marginBottom: "10px" }}>
               <Typography variant="body2">
-                Items Purchased: {material.quantityPurchased.toLocaleString(undefined,{
+                Items Purchased:{" "}
+                {material.quantityPurchased.toLocaleString(undefined, {
                   minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                })} /{" "}
-                {material.quantity.toLocaleString()}
+                  maximumFractionDigits: 0,
+                })}{" "}
+                / {material.quantity.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={12} sx={{ marginBottom: "10px" }}>
               <Typography variant="body2">
-                Total Cost: {material.purchasedCost.toLocaleString(undefined,{
+                Total Cost:{" "}
+                {material.purchasedCost.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })} ISK
+                  maximumFractionDigits: 2,
+                })}{" "}
+                ISK
               </Typography>
             </Grid>
             <MaterialCost material={material} setJobModified={setJobModified} />
@@ -108,6 +122,7 @@ export function MaterialCard({ material, setJobModified }) {
                   borderRadius: "5px",
                   marginLeft: "auto",
                   marginRight: "auto",
+                  marginTop: "13px",
                   padding: "8px",
                 }}
               >

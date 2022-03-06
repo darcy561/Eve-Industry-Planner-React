@@ -8,7 +8,7 @@ export function MaterialCost({ material, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
-  function handleRemove(material, record) {
+  function handleRemove(record) {
     const materialIndex = activeJob.build.materials.findIndex(
       (x) => x.typeID === material.typeID
     );
@@ -64,7 +64,8 @@ export function MaterialCost({ material, setJobModified }) {
       container
       direction="row"
       sx={{
-        minHeight: "8vh",
+        height: "8vh",
+        overflowY:"auto"
       }}
     >
       {material.purchasing.map((record) => {
@@ -93,10 +94,10 @@ export function MaterialCost({ material, setJobModified }) {
                 "& .MuiChip-deleteIcon": {
                   color: "error.main",
                 },
-                boxShadow: 0,
+                boxShadow: 2,
               }}
-              onDelete={() => handleRemove(material, record)}
-              color={record.childJobImport ? "success" : "secondary"}
+              onDelete={() => handleRemove(record)}
+              color={record.childJobImport ? "primary" : "secondary"}
             />
           </Grid>
         );

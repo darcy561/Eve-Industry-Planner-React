@@ -6,6 +6,7 @@ const cors = require("cors");
 const appCheckVerification =
   require("./Middleware/AppCheck").appCheckVerification;
 const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
+const ESIMarketQuery = require("./Item Prices/priceData").ESIMarketQuery;
 
 admin.initializeApp();
 
@@ -27,7 +28,7 @@ app.use(
 );
 app.use(express.json());
 app.use(helmet());
-app.use(appCheckVerification);
+// app.use(appCheckVerification);
 
 //Routes
 
@@ -77,10 +78,44 @@ app.get("/item/:itemID", (req, res) => {
     }
   })();
 });
+app.post("/costs", async (req, res) => {
+  if (req.body.typeIDs != null) {
+      try {
+        let returnArray = [];
+        for (let typeID of req.body.typeIDs) {
+          const itemRef = db.collection("Pricing").doc(typeID.toString());
+          const itemDoc = await itemRef.get();
+          if (itemDoc.exists) {
+            if (
+              Date.parse(itemDoc.data().lastUpdated.toDate()) + 14400000 <=
+              Date.now()
+            ) {
+              const returnData = await ESIMarketQuery(typeID);
+              returnArray.push(returnData);
+            } else {
+              returnArray.push(itemDoc.data());
+            }
+          } else {
+            const returnData = await ESIMarketQuery(typeID);
+            returnArray.push(returnData);
+          }
+        }
+        return res
+          .status(200)
+          .setHeader("Content-Type", "application/json")
+          .set("Cache-Control", "public, max-age=1800, s-maxage=3600")
+          .send(returnArray);
+      } catch (err) {
+        functions.logger.error(err);
+        return res
+          .status(500)
+          .send("Error retrieving item data, please try again.");
+      }
+    } else {
+      return res.status(500).send("Item Data Missing From Request");
+    }
+  });
 
 //Export the api to Firebase Cloud Functions
 exports.api = functions.https.onRequest(app);
 exports.user = require("./Triggered Functions/Users");
-// exports.JobSnapUpdate = require("./Triggered Functions/JobCollection/update");
-// exports.JobSnapDelete = require("./Triggered Functions/JobCollection/delete");
-// exports.JobSnapNew = require("./Triggered Functions/JobCollection/new");

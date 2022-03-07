@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { UsersContext } from "../Context/AuthContext";
-import { firestore, functions, performance } from "../firebase";
+import { appCheck, firestore, functions, performance } from "../firebase";
 import {
   doc,
   deleteDoc,
@@ -14,6 +14,7 @@ import { trace } from "firebase/performance";
 import { JobStatusContext } from "../Context/JobContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
+import { getToken } from "firebase/app-check";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { EvePricesContext } from "../Context/EveDataContext";
 
@@ -283,35 +284,36 @@ export function useFirebase() {
   const getItemPrices = async (inputJob) => {
     const t = trace(performance, "GetItemPrices");
     t.start();
-    let promiseArray = [];
-    let returnArray = [];
-    const getPrice = (typeID) => {
+    let requestArray = [];
+    const getItemPrices = async (request) => {
       try {
+        const appCheckToken = await getToken(appCheck, true);
         const itemPricePromise = fetch(
-          `https://us-central1-eve-industry-planner-pricedata.cloudfunctions.net/costs/item/${typeID}`
+          `http://localhost:5001/eve-industry-planner-dev/us-central1/api/costs`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Firebase-AppCheck": appCheckToken.token,
+            },
+            body: JSON.stringify({ typeIDs: request }),
+          }
         );
-        return itemPricePromise;
+        return (await itemPricePromise).json();
       } catch (err) {}
     };
 
     if (!evePrices.some((i) => i.typeID === inputJob.itemID)) {
-      let mainPriceJSON = getPrice(inputJob.itemID);
-      promiseArray.push(mainPriceJSON);
+      requestArray.push(inputJob.itemID);
     }
     for (let material of inputJob.build.materials) {
       if (!evePrices.some((i) => i.typeID === material.typeID)) {
-        let priceJSON = getPrice(material.typeID);
-        promiseArray.push(priceJSON);
+        requestArray.push(material.typeID);
       }
     }
-    let returnedPromises = await Promise.all(promiseArray);
-
-    for (let promise of returnedPromises) {
-      let json = await promise.json();
-      returnArray.push(json);
-    }
+    let returnedData = await getItemPrices(requestArray);
     t.stop();
-    return returnArray;
+    return returnedData;
   };
 
   return {

@@ -3,6 +3,7 @@ const admin = require("firebase-admin");
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
+const { object } = require("firebase-functions/v1/storage");
 const appCheckVerification =
   require("./Middleware/AppCheck").appCheckVerification;
 const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
@@ -28,7 +29,9 @@ app.use(
 );
 app.use(express.json());
 app.use(helmet());
-// app.use(appCheckVerification);
+app.use(appCheckVerification);
+
+
 
 //Routes
 
@@ -80,41 +83,77 @@ app.get("/item/:itemID", (req, res) => {
 });
 app.post("/costs", async (req, res) => {
   if (req.body.typeIDs != null) {
-      try {
-        let returnArray = [];
-        for (let typeID of req.body.typeIDs) {
+    try {
+      let returnArray = [];
+      let promiseArray = [];
+      let addedCacheItems = 0;
+      let addedCacheItemsDoc = 0;
+      let returnedFromCache = 0;
+      for (let typeID of req.body.typeIDs) {
+        if (!functionCache.some((i) => i.typeID === typeID)) {
           const itemRef = db.collection("Pricing").doc(typeID.toString());
           const itemDoc = await itemRef.get();
           if (itemDoc.exists) {
-            if (
-              Date.parse(itemDoc.data().lastUpdated.toDate()) + 14400000 <=
-              Date.now()
-            ) {
-              const returnData = await ESIMarketQuery(typeID);
-              returnArray.push(returnData);
+            if (itemDoc.data().lastUpdated + 14400000 <= Date.now()) {
+              const returnData = ESIMarketQuery(typeID);
+              promiseArray.push(returnData);
             } else {
               returnArray.push(itemDoc.data());
+              functionCache.push(itemDoc.data());
+              addedCacheItems++
+              addedCacheItemsDoc++
             }
           } else {
-            const returnData = await ESIMarketQuery(typeID);
-            returnArray.push(returnData);
+            const returnData = ESIMarketQuery(typeID);
+            promiseArray.push(returnData);
+          }
+        } else {
+          let cachedData = functionCache.find((i) => i.typeID === typeID);
+          if (cachedData + 14400000 <= Date.now()) {
+            const returnData = ESIMarketQuery(typeID);
+            promiseArray.push(returnData);
+            addedCacheItemsDoc++
+            functions.logger.info("Price Data In Cache Out Of Date");
+          } else {
+            returnArray.push(cachedData);
+            returnedFromCache++
           }
         }
-        return res
-          .status(200)
-          .setHeader("Content-Type", "application/json")
-          .set("Cache-Control", "public, max-age=1800, s-maxage=3600")
-          .send(returnArray);
-      } catch (err) {
-        functions.logger.error(err);
-        return res
-          .status(500)
-          .send("Error retrieving item data, please try again.");
       }
-    } else {
-      return res.status(500).send("Item Data Missing From Request");
+
+      if (promiseArray.length > 0) {
+        let returnedPromise = await Promise.all(promiseArray);
+
+        for (let promise of returnedPromise) {
+          returnArray.push(promise);
+          if (!functionCache.some((i) => i.typeID === promise.typeID)) {
+            addedCacheItems++;
+            functionCache.push(promise);
+          }
+        }
+        functionCache.map(
+          (cObj) =>
+            returnedPromise.find((nObj) => nObj.typeID === cObj.typeID) || cObj
+        );
+      }
+      functions.logger.info(`${addedCacheItemsDoc} Items From Docs`);
+      functions.logger.info(`${returnedFromCache} Items From Cache`);
+      functions.logger.info(`${addedCacheItems} Items Added To Cache`);
+      functions.logger.info(`${functionCache.length} Items In Cache`);
+      return res
+        .status(200)
+        .setHeader("Content-Type", "application/json")
+        .send(returnArray);
+    } catch (err) {
+      functions.logger.error(err);
+      return res
+        .status(500)
+        .send("Error retrieving item data, please try again.");
     }
-  });
+  } else {
+    return res.status(500).send("Item Data Missing From Request");
+  }
+});
 
 //Export the api to Firebase Cloud Functions
 exports.api = functions.https.onRequest(app);

@@ -1,6 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
+const { NorthWest } = require("@mui/icons-material");
 
 async function ESIMarketQuery(typeID){
   const locations = [
@@ -8,7 +9,7 @@ async function ESIMarketQuery(typeID){
     { name: "amarr", regionID: "10000043", stationID: "60008494" },
     { name: "dodixie", regionID: "10000032", stationID: "60011866" },
   ]
-  let dbObject = { typeID: Number(typeID), lastUpdated: admin.firestore.FieldValue.serverTimestamp() };
+  let dbObject = { typeID: Number(typeID), lastUpdated: Date.now() };
   for (let location of locations) {
     let pageCount = 1;
     let buyOrders = [];

@@ -13983,5 +13983,75 @@
     "name": "Exceptional Moon Mining Crystal Type C II",
     "itemID": 61216,
     "blueprintID": 61236
+  },
+  {
+    "name": "Medium Industrial Core I",
+    "itemID": 62590,
+    "blueprintID": 62592
+  },
+  {
+    "name": "Medium Industrial Core II ",
+    "itemID": 62591,
+    "blueprintID": 62593
+  },
+  {
+    "name": "Medium Asteroid Ore Compressor I",
+    "itemID": 62622,
+    "blueprintID": 62652
+  },
+  {
+    "name": "Medium Gas Compressor I",
+    "itemID": 62624,
+    "blueprintID": 62673
+  },
+  {
+    "name": "Large Asteroid Ore Compressor I",
+    "itemID": 62625,
+    "blueprintID": 62669
+  },
+  {
+    "name": "Large Gas Compressor I",
+    "itemID": 62626,
+    "blueprintID": 62674
+  },
+  {
+    "name": "Large Ice Compressor I",
+    "itemID": 62628,
+    "blueprintID": 62671
+  },
+  {
+    "name": "Large Mercoxit Compressor I",
+    "itemID": 62630,
+    "blueprintID": 62676
+  },
+  {
+    "name": "Large Moon Ore Compressor I",
+    "itemID": 62631,
+    "blueprintID": 62678
+  },
+  {
+    "name": "Capital Asteroid Ore Compressor I",
+    "itemID": 62632,
+    "blueprintID": 62670
+  },
+  {
+    "name": "Capital Ice Compressor I",
+    "itemID": 62633,
+    "blueprintID": 62672
+  },
+  {
+    "name": "Capital Gas Compressor I",
+    "itemID": 62634,
+    "blueprintID": 62675
+  },
+  {
+    "name": "Capital Mercoxit Compressor I",
+    "itemID": 62635,
+    "blueprintID": 62677
+  },
+  {
+    "name": "Capital Moon Ore Compressor I",
+    "itemID": 62636,
+    "blueprintID": 62679
   }
 ]

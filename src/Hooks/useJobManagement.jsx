@@ -272,7 +272,9 @@ export function useJobManagement() {
       priceData: true,
     }));
     let jobPrices = await getItemPrices(inputJob);
-    updateEvePrices(evePrices.concat(jobPrices));
+    if (jobPrices.length > 0) {
+      updateEvePrices(evePrices.concat(jobPrices));  
+    }    
     updateActiveJob(inputJob);
     updatePageLoad(false);
     updateLoadingText((prevObj) => ({

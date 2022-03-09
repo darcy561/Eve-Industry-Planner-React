@@ -289,7 +289,8 @@ export function useFirebase() {
       try {
         const appCheckToken = await getToken(appCheck, true);
         const itemPricePromise = fetch(
-          `http://localhost:5001/eve-industry-planner-dev/us-central1/api/costs`,
+          `${process.env.REACT_APP_APIURL}/costs`,
+          // `http://localhost:5001/eve-industry-planner-dev/us-central1/api/costs`,
           {
             method: "POST",
             headers: {
@@ -311,9 +312,14 @@ export function useFirebase() {
         requestArray.push(material.typeID);
       }
     }
-    let returnedData = await getItemPrices(requestArray);
-    t.stop();
-    return returnedData;
+    if (requestArray.length > 0) {
+      let returnedData = await getItemPrices(requestArray);
+      t.stop();
+      return returnedData;
+    } else {
+      t.stop();
+      return [];
+    }
   };
 
   return {

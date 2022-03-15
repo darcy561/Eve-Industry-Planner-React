@@ -138,7 +138,7 @@ export function ShoppingListDialog() {
             }));
           }}
         >
-          <Button variant="contained" sx={{ marginRight: "20px" }}>
+          <Button variant="contained" sx={{ marginRight: "20px", display:{xs:"none", sm:"block"} }}>
             Copy to Clipboard
           </Button>
         </CopyToClipboard>

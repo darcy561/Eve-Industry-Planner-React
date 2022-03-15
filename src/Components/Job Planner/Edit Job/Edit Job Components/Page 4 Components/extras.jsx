@@ -26,7 +26,8 @@ export function ExtrasList({ setJobModified }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const classes = useStyles();
 
-  function handleAdd() {
+  function handleAdd(event) {
+    event.preventDefault();
     const newExtrasArray = activeJob.build.costs.extrasCosts;
     let newTotal = 0;
     newExtrasArray.push({
@@ -135,12 +136,14 @@ export function ExtrasList({ setJobModified }) {
           );
         })}
         </Grid>
+        <form onSubmit={handleAdd}>
         <Grid container direction="row" item xs={12} spacing={3}>
           <Grid item xs={5}>
             <TextField
               className={classes.TextField}
               defaultValue={extras.text}
-              variant="standard"
+                variant="standard"
+                required={true}
               size="small"
               helperText="Reminder Text"
               type="text"
@@ -157,7 +160,8 @@ export function ExtrasList({ setJobModified }) {
             <TextField
               className={classes.TextField}
               defaultValue={extras.value}
-              variant="standard"
+                variant="standard"
+                required={true}
               size="small"
               helperText="Cost"
               type="number"
@@ -166,19 +170,23 @@ export function ExtrasList({ setJobModified }) {
                   ...prevState,
                   value: Number(e.target.value),
                 }));
-              }}
+                }}
+                inputProps={{
+                  step:"0.01"
+                }}
             />
           </Grid>
           <Grid item xs={2}>
             <IconButton
               color="primary"
-              onClick={() => handleAdd()}
+              type="submit"
               size="large"
             >
               <MdAdd />
             </IconButton>
           </Grid>
-        </Grid>
+          </Grid>
+          </form>
       </Grid>
     </Paper>
   );

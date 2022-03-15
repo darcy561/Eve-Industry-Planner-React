@@ -73,7 +73,7 @@ export function ItemCostPanel() {
         </Select>
         <Grid container item xs={12}>
           <Grid item xs={12} md={4}>
-            <Typography>{activeJob.name}</Typography>
+            <Typography variant="body2">{activeJob.name}</Typography>
           </Grid>
           <Grid
             item
@@ -109,7 +109,7 @@ export function ItemCostPanel() {
             </Typography>
           </Grid>
         </Grid>
-        <Grid container item xs={12} sx={{ marginTop: "20px" }}>
+        <Grid container item xs={12} sx={{ marginTop: {xs:"10px", sm:"5px"} }}>
           {activeJob.build.materials.map((material) => {
             let materialPrice = evePrices.find(
               (i) => i.typeID === material.typeID
@@ -123,7 +123,7 @@ export function ItemCostPanel() {
                 container
                 item
                 xs={12}
-                sx={{ padding: "15px 0px" }}
+                sx={{ padding:{xs:"7px 0px", sm:"10px 0px"}}}
               >
                 <Grid item xs={12} md={4} align="left">
                   <Typography> {material.name}</Typography>
@@ -184,8 +184,8 @@ export function ItemCostPanel() {
           })}
           <Grid container item xs={12} sx={{ marginTop: "20px" }}>
             <Grid item xs={12} sm={6} align="center">
-              <Typography variant="body1">
-                Total Sell Price Per Item:{" "}
+              <Typography variant="body2">
+                Total Material Sell Price Per Item:{" "}
                 {(
                   totalJobSell / activeJob.build.products.totalQuantity
                 ).toLocaleString(undefined, {
@@ -193,8 +193,8 @@ export function ItemCostPanel() {
                   maximumFractionDigits: 2,
                 })}
               </Typography>
-              <Typography variant="body1">
-                Total Buy Price Per Item:{" "}
+              <Typography variant="body2">
+                Total Material Buy Price Per Item:{" "}
                 {(
                   totalJobBuy / activeJob.build.products.totalQuantity
                 ).toLocaleString(undefined, {
@@ -204,14 +204,14 @@ export function ItemCostPanel() {
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6} align="center" sx={{marginTop:{xs:"10px", sm:"0px"}}}>
-              <Typography variant="body1">
+              <Typography variant="body2">
                 Total Material Sell Price:{" "}
                 {totalJobSell.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </Typography>
-              <Typography variant="body1">
+              <Typography variant="body2">
                 Total Material Buy Price:{" "}
                 {totalJobBuy.toLocaleString(undefined, {
                   minimumFractionDigits: 2,

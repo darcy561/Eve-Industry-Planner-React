@@ -59,7 +59,6 @@ export function LinkedMarketOrders({
     const completedOrderData = user.apiHistOrders.find(
       (histOrder) => histOrder.order_id === order.order_id
     );
-
     if (newOrderData !== undefined && !order.complete) {
       if (
         order.volume_remain !== newOrderData.volume_remain ||
@@ -89,7 +88,11 @@ export function LinkedMarketOrders({
         }
       }
     }
-    if (newOrderData === undefined && !order.complete) {
+    if (
+      newOrderData === undefined &&
+      !order.complete &&
+      completedOrderData !== undefined
+    ) {
       order.duration = completedOrderData.duration;
       order.item_price = completedOrderData.price;
       order.item_name = completedOrderData.item_name || null;
@@ -202,7 +205,7 @@ export function LinkedMarketOrders({
                   </Grid>
                 </Grid>
                 <Grid container item>
-                  <Grid item xs={4}>
+                  <Grid item xs={12}sm={5}>
                     <Typography variant="body1">
                       {order.item_price.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
@@ -211,7 +214,7 @@ export function LinkedMarketOrders({
                       ISK Each
                     </Typography>
                   </Grid>
-                  <Grid item xs={8}>
+                  <Grid item xs={12} sm={7}>
                     <Typography variant="body1">
                       {order.volume_remain.toLocaleString(undefined, {
                         minimumFractionDigits: 0,
@@ -269,10 +272,10 @@ export function LinkedMarketOrders({
                     </Typography>
                   </Grid>
 
-                  <Grid item xs={2}>
+                  <Grid item xs={5} sm={2}>
                     <Typography variant="body2">Last Updated:</Typography>
                   </Grid>
-                  <Grid item xs={5}>
+                  <Grid item xs={7} sm={5}>
                     <Typography variant="body2">
                       {new Date(order.issued).toLocaleString()}
                     </Typography>

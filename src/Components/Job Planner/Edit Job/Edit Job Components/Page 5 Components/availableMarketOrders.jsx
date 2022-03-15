@@ -145,7 +145,7 @@ export function AvailableMarketOrders({
                     </Grid>
                   </Grid>
                   <Grid container item>
-                    <Grid item xs={4}>
+                    <Grid item xs={12} sm={5}>
                       <Typography variant="body1">
                         {order.price.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
@@ -154,7 +154,7 @@ export function AvailableMarketOrders({
                         ISK
                       </Typography>
                     </Grid>
-                    <Grid item xs={8}>
+                    <Grid item xs={12} sm={7}>
                       <Typography variant="body1">
                         {order.volume_remain} / {order.volume_total} Items
                       </Typography>
@@ -204,27 +204,12 @@ export function AvailableMarketOrders({
                         {order.duration} Days
                       </Typography>
                     </Grid>
-                    <Grid item xs={6} md={3}>
-                      <Typography variant="body2">Range:</Typography>
-                    </Grid>
-                    <Grid item xs={6} md={3}>
-                      {order.range === "region" ? (
-                        <Typography variant="body2">
-                          {order.range.charAt(0).toUpperCase() +
-                            order.range.slice(1)}
-                        </Typography>
-                      ) : (
-                        <Typography variant="body2">
-                          {order.range} Jumps
-                        </Typography>
-                      )}
-                    </Grid>
                   </Grid>
                   <Grid container item xs={12}>
-                    <Grid item xs={3}>
+                    <Grid item xs={5}>
                       <Typography variant="body2">Last Updated:</Typography>
                     </Grid>
-                    <Grid item xs={9}>
+                    <Grid item xs={7}>
                       <Typography variant="body2">
                         {new Date(order.issued).toLocaleString()}
                       </Typography>

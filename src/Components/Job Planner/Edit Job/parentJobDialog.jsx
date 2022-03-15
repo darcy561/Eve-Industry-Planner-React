@@ -13,12 +13,14 @@ import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
+import { IsLoggedInContext } from "../../../Context/AuthContext";
 
 export function ParentJobDialog({
   dialogTrigger,
   updateDialogTrigger,
   setJobModified,
 }) {
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
   const { downloadCharacterJobs, uploadJob } = useFirebase();
@@ -125,7 +127,9 @@ export function ParentJobDialog({
                           severity: "success",
                           autoHideDuration: 1000,
                         }));
-                        uploadJob(job);
+                        if (isLoggedIn) {
+                          uploadJob(job);
+                        }
                       }}
                     >
                       <AddIcon />

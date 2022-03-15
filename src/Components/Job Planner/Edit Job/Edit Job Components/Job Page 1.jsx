@@ -62,9 +62,9 @@ export function EditPage1({ setJobModified }) {
         </Grid>
         <Grid item xs={12} md={9}>
           <Masonry columns={1} spacing={2}>
-            <SkillCheck />
             <RawResourceList />
             <ItemCostPanel />
+            <SkillCheck />
           </Masonry>
         </Grid>
       </Grid>

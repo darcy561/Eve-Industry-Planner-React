@@ -182,21 +182,43 @@ export function ItemCostPanel() {
               </Grid>
             );
           })}
-          <Grid item xs={12} align="right" sx={{ marginTop: "20px" }}>
-            <Typography variant="body1">
-              Total Material Sell Price:{" "}
-              {totalJobSell.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </Typography>
-            <Typography variant="body1">
-              Total Material Buy Price:{" "}
-              {totalJobBuy.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </Typography>
+          <Grid container item xs={12} sx={{ marginTop: "20px" }}>
+            <Grid item xs={12} sm={6} align="center">
+              <Typography variant="body1">
+                Total Sell Price Per Item:{" "}
+                {(
+                  totalJobSell / activeJob.build.products.totalQuantity
+                ).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Typography>
+              <Typography variant="body1">
+                Total Buy Price Per Item:{" "}
+                {(
+                  totalJobBuy / activeJob.build.products.totalQuantity
+                ).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} align="center" sx={{marginTop:{xs:"10px", sm:"0px"}}}>
+              <Typography variant="body1">
+                Total Material Sell Price:{" "}
+                {totalJobSell.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Typography>
+              <Typography variant="body1">
+                Total Material Buy Price:{" "}
+                {totalJobBuy.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </Typography>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>

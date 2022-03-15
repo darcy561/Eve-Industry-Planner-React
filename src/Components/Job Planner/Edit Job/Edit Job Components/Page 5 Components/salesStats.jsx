@@ -11,9 +11,11 @@ export function SalesStats() {
   );
   let transactionFeeTotal = 0;
   let totalSale = 0;
+  let averageQuantity = 0;
   activeJob.build.sale.transactions.forEach((item) => {
     transactionFeeTotal += item.tax;
     totalSale += item.amount;
+    averageQuantity += item.quantity;
   });
 
   return (
@@ -132,16 +134,16 @@ export function SalesStats() {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="body2" align="right">
-              {(
-                Math.round(
-                  (totalSale / activeJob.build.products.totalQuantity +
-                    Number.EPSILON) *
-                    100
-                ) / 100
-              ).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {averageQuantity > 0
+                ? (
+                    Math.round(
+                      (totalSale / averageQuantity + Number.EPSILON) * 100
+                    ) / 100
+                  ).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : 0}
             </Typography>
           </Grid>
         </Grid>

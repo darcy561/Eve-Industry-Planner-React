@@ -45,7 +45,7 @@ export function useJobManagement() {
     removeJob,
     updateMainUserDoc,
     uploadJob,
-    uploadJobAsSnapshot
+    uploadJobAsSnapshot,
   } = useFirebase();
 
   class newSnapshot {
@@ -69,7 +69,7 @@ export function useJobManagement() {
       this.parentJob = inputJob.parentJob;
       this.childJobs = childJobs;
       this.materialIDs = materialIDs;
-      this.metalLevel = inputJob.metaLevel;
+      this.metaLevel = inputJob.metaLevel;
     }
   }
   class updateSnapshot {
@@ -93,7 +93,7 @@ export function useJobManagement() {
       this.parentJob = inputJob.parentJob;
       this.childJobs = inputJob.childJobs;
       this.materialIDs = inputJob.materialIDs;
-      this.metalLevel = inputJob.metaLevel;
+      this.metaLevel = inputJob.metaLevel;
     }
   }
 
@@ -149,9 +149,8 @@ export function useJobManagement() {
         }));
         updateDataExchange(false);
       } else {
+        newJob.build.buildChar = parentUser.CharacterHash;
         if (isLoggedIn) {
-          newJob.build.buildChar = parentUser.CharacterHash;
-
           if (newJob.jobType === jobTypes.manufacturing) {
           }
 
@@ -273,8 +272,8 @@ export function useJobManagement() {
     }));
     let jobPrices = await getItemPrices(inputJob);
     if (jobPrices.length > 0) {
-      updateEvePrices(evePrices.concat(jobPrices));  
-    }    
+      updateEvePrices(evePrices.concat(jobPrices));
+    }
     updateActiveJob(inputJob);
     updatePageLoad(false);
     updateLoadingText((prevObj) => ({
@@ -296,7 +295,9 @@ export function useJobManagement() {
     newArray[index] = inputJob;
     await updateJobSnapshot(inputJob);
     updateJobArray(newArray);
-    await updateMainUserDoc();
+    if (isLoggedIn) {
+      await updateMainUserDoc();
+    }
     setSnackbarData((prev) => ({
       ...prev,
       open: true,
@@ -414,9 +415,13 @@ export function useJobManagement() {
         }
       }
       await updateJobSnapshot(updatedJob);
-      await uploadJob(updatedJob);
+      if (isLoggedIn) {
+        await uploadJob(updatedJob);
+      }
     }
-    await updateMainUserDoc();
+    if (isLoggedIn) {
+      await updateMainUserDoc();
+    }
   };
 
   const deleteJobProcess = async (inputJob) => {
@@ -461,7 +466,9 @@ export function useJobManagement() {
               child.parentJob.splice(ParentIDIndex, 1);
               await replaceSnapshot(child);
               await updateJobSnapshot(child);
-              await uploadJob(child);
+              if (isLoggedIn) {
+                await uploadJob(child);
+              }
             }
           }
         }
@@ -486,7 +493,9 @@ export function useJobManagement() {
           }
           await replaceSnapshot(parentJob);
           await updateJobSnapshot(parentJob);
-          await uploadJob(parentJob);
+          if (isLoggedIn) {
+            await uploadJob(parentJob);
+          }
         }
       }
     }
@@ -577,7 +586,9 @@ export function useJobManagement() {
               );
               if (ParentIDIndex !== -1) {
                 child.parentJob.splice(ParentIDIndex, 1);
-                await uploadJob(child);
+                if (isLoggedIn) {
+                  await uploadJob(child);
+                }
                 await replaceSnapshot(child);
               }
             }
@@ -602,7 +613,9 @@ export function useJobManagement() {
               }
             }
             await replaceSnapshot(parentJob);
-            await uploadJob(parentJob);
+            if (isLoggedIn) {
+              await uploadJob(parentJob);
+            }
           }
         }
       }
@@ -614,7 +627,9 @@ export function useJobManagement() {
         setTimeout(2000);
       }
     }
-    updateMainUserDoc();
+    if (isLoggedIn) {
+      updateMainUserDoc();
+    }
     updateUsers(newUserArray);
     updateApiJobs(newApiJobsArary);
     updateJobArray(newJobArray);
@@ -778,15 +793,19 @@ export function useJobManagement() {
             }
             if (!jobArrayMatch.parentJob.includes(newJob.jobID)) {
               jobArrayMatch.parentJob.push(newJob.jobID);
-              await uploadJob(jobArrayMatch);
+              if (isLoggedIn) {
+                await uploadJob(jobArrayMatch);
+              }
               await updateJobSnapshot(jobArrayMatch);
             }
           }
         }
       }
     }
-    await updateMainUserDoc();
-    await uploadJob(newJob);
+    if (isLoggedIn) {
+      await updateMainUserDoc();
+      await uploadJob(newJob);
+    }
   };
 
   return {

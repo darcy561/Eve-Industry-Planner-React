@@ -3,7 +3,6 @@ const admin = require("firebase-admin");
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
-const { object } = require("firebase-functions/v1/storage");
 const appCheckVerification =
   require("./Middleware/AppCheck").appCheckVerification;
 const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
@@ -30,8 +29,6 @@ app.use(
 app.use(express.json());
 app.use(helmet());
 app.use(appCheckVerification);
-
-
 
 //Routes
 
@@ -81,69 +78,29 @@ app.get("/item/:itemID", (req, res) => {
     }
   })();
 });
-app.post("/costs", async (req, res) => {
-  if (req.body.typeIDs != null) {
+app.get("/costs/:itemID", async (req, res) => {
+  if (req.params.itemID != null) {
     try {
       let returnArray = [];
       let promiseArray = [];
-      let addedCacheItems = 0;
-      let addedCacheItemsDoc = 0;
-      let returnedFromCache = 0;
-      for (let typeID of req.body.typeIDs) {
-        if (!functionCache.some((i) => i.typeID === typeID)) {
-          const itemRef = db.collection("Pricing").doc(typeID.toString());
-          const itemDoc = await itemRef.get();
-          if (itemDoc.exists) {
-            if (itemDoc.data().lastUpdated + 14400000 <= Date.now()) {
-              const returnData = ESIMarketQuery(typeID);
-              promiseArray.push(returnData);
-            } else {
-              returnArray.push(itemDoc.data());
-              functionCache.push(itemDoc.data());
-              addedCacheItems++
-              addedCacheItemsDoc++
-            }
-          } else {
-            const returnData = ESIMarketQuery(typeID);
-            promiseArray.push(returnData);
-          }
+      let returnData = null;
+      const itemRef = db.collection("Pricing").doc(req.params.itemID);
+      const itemDoc = await itemRef.get();
+      if (itemDoc.exists) {
+        if (itemDoc.data().lastUpdated + 14400000 <= Date.now()) {
+          returnData = await ESIMarketQuery(req.params.itemID);
         } else {
-          let cachedData = functionCache.find((i) => i.typeID === typeID);
-          if (cachedData + 14400000 <= Date.now()) {
-            const returnData = ESIMarketQuery(typeID);
-            promiseArray.push(returnData);
-            addedCacheItemsDoc++
-            functions.logger.info("Price Data In Cache Out Of Date");
-          } else {
-            returnArray.push(cachedData);
-            returnedFromCache++
-          }
+          returnData = itemDoc.data();
         }
+      } else {
+        returnData = await ESIMarketQuery(req.params.itemID);
       }
 
-      if (promiseArray.length > 0) {
-        let returnedPromise = await Promise.all(promiseArray);
-
-        for (let promise of returnedPromise) {
-          returnArray.push(promise);
-          if (!functionCache.some((i) => i.typeID === promise.typeID)) {
-            addedCacheItems++;
-            functionCache.push(promise);
-          }
-        }
-        functionCache.map(
-          (cObj) =>
-            returnedPromise.find((nObj) => nObj.typeID === cObj.typeID) || cObj
-        );
-      }
-      functions.logger.info(`${addedCacheItemsDoc} Items From Docs`);
-      functions.logger.info(`${returnedFromCache} Items From Cache`);
-      functions.logger.info(`${addedCacheItems} Items Added To Cache`);
-      functions.logger.info(`${functionCache.length} Items In Cache`);
       return res
         .status(200)
         .setHeader("Content-Type", "application/json")
-        .send(returnArray);
+        .set("Cache-Control", "public, max-age=3600, s-maxage=7200")
+        .send(returnData);
     } catch (err) {
       functions.logger.error(err);
       return res

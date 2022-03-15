@@ -124,7 +124,9 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
                           autoHideDuration: 1000,
                         }));
                         setJobModified(true);
-                        uploadJob(job);
+                        if(isLoggedIn){
+                          uploadJob(job);
+                        }
                       }}
                     />
                   </Grid>

@@ -100,11 +100,13 @@ function AddMaterialCost({ material, setJobModified }) {
         <Grid item xs={6}>
           <TextField
             className={classes.TextField}
+            required={true}
             size="small"
             variant="standard"
             type="number"
             helperText="Item Quantity"
             defaultValue={inputs.itemCount}
+            inputProbs={{step:"1"}}
             onChange={(e) => {
               setInputs((prevState) => ({
                 ...prevState,
@@ -116,12 +118,16 @@ function AddMaterialCost({ material, setJobModified }) {
         <Grid item xs={4}>
           <TextField
             className={classes.TextField}
+            required={true}
             size="small"
             variant="standard"
             type="number"
             helperText="Item Price"
             defaultValue="0"
-            onChange={(e) => {
+            inputProps={{
+              step:"0.01"
+            }}
+            onChange={(e) => {  
               setInputs((prevState) => ({
                 ...prevState,
                 itemCost: Number(e.target.value),

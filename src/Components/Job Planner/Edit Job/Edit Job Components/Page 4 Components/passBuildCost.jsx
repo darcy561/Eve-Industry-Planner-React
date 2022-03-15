@@ -61,7 +61,9 @@ export function PassBuildCostButton() {
         }
       });
       parentJob.build.costs.totalPurchaseCost += newTotal;
-      await uploadJob(parentJob);
+      if (isLoggedIn) {
+        await uploadJob(parentJob);
+      }
     }
     if (itemsAdded > 0) {
       if (itemsAdded === 1) {

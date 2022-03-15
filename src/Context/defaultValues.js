@@ -1213,6 +1213,172 @@ export let usersDefault = [
       5763852213, 5763860401, 5763883247, 5763890268, 5762870250, 5762760174,
       5764179431,
     ],
+    snapshotData: [
+      {
+        "jobID": 1642710724535,
+        "name": "Reinforced Metallofullerene Alloys",
+        "runCount": 50,
+        "jobCount": 2,
+        "jobStatus": 0,
+        "jobType": 1,
+        "itemID": 30008,
+        "isSnapshot": true,
+        "apiJobs": [],
+        "itemQuantity": 100,
+        "totalMaterials": 7,
+        "totalComplete": 0,
+        "linkedJobsCoun": 0,
+        "linkedOrdersCount": 0,
+        "linkedTransCount": 0,
+        "parentJob": [],
+        "childJobs": [
+            1642710994021,
+            1642711045845
+        ],
+        "materialIDs": [
+            30305,
+            30019,
+            30308,
+            30021,
+            30022,
+            30254,
+            30309
+        ]
+      },
+      {
+        "jobID": 1642710994021,
+        "name": "Scandium Metallofullerene",
+        "runCount": 12,
+        "jobCount": 1,
+        "jobStatus": 1,
+        "jobType": 2,
+        "itemID": 30308,
+        "isSnapshot": true,
+        "apiJobs": [],
+        "itemQuantity": 1920,
+        "totalMaterials": 4,
+        "totalComplete": 0,
+        "linkedJobsCoun": 0,
+        "linkedOrdersCount": 0,
+        "linkedTransCount": 0,
+        "buildVer": "0.2.0",
+        "parentJob": [
+            1642710724535
+        ],
+        "childJobs": [],
+        "materialIDs": [
+            4247,
+            39,
+            30373,
+            30375
+        ]
+      },
+      {
+        "jobID": 1642711045845,
+        "name": "Graphene Nanoribbons",
+        "runCount": 5,
+        "jobCount": 1,
+        "jobStatus": 1,
+        "jobType": 2,
+        "itemID": 30309,
+        "isSnapshot": true,
+        "apiJobs": [],
+        "itemQuantity": 600,
+        "totalMaterials": 4,
+        "totalComplete": 0,
+        "linkedJobsCoun": 0,
+        "linkedOrdersCount": 0,
+        "linkedTransCount": 0,
+        "parentJob": [
+            1642710724535
+        ],
+        "childJobs": [],
+        "materialIDs": [
+            4051,
+            30375,
+            30376,
+            38
+        ]
+      },
+      {
+        "jobID": 1642030534709,
+        "name": "Nova Light Missile",
+        "runCount": 50,
+        "jobCount": 1,
+        "jobStatus": 2,
+        "jobType": 1,
+        "itemID": 213,
+        "isSnapshot": true,
+        "apiJobs": [],
+        "itemQuantity": 5000,
+        "totalMaterials": 3,
+        "totalComplete": 3,
+        "linkedJobsCoun": 0,
+        "linkedOrdersCount": 0,
+        "linkedTransCount": 0,
+        "buildVer": "0.2.0",
+        "parentJob": [],
+        "childJobs": [],
+        "materialIDs": [
+            34,
+            35,
+            36
+        ]
+      },
+      {
+        "jobID": 1640798624845,
+        "name": "Mining Drone I",
+        "runCount": 50,
+        "jobCount": 1,
+        "jobStatus": 4,
+        "jobType": 1,
+        "itemID": 10246,
+        "isSnapshot": true,
+        "apiJobs": [
+            477723892
+        ],
+        "itemQuantity": 50,
+        "totalMaterials": 4,
+        "totalComplete": 4,
+        "linkedJobsCoun": 1,
+        "linkedOrdersCount": 1,
+        "linkedTransCount": 4,
+        "parentJob": [],
+        "childJobs": [],
+        "materialIDs": [
+            40,
+            34,
+            37,
+            38
+        ]
+      },
+      {
+        "jobID": 1640798839177,
+        "name": "Light Missile Launcher I",
+        "runCount": 20,
+        "jobCount": 1,
+        "jobStatus": 4,
+        "jobType": 1,
+        "itemID": 499,
+        "isSnapshot": true,
+        "apiJobs": [
+            477724009
+        ],
+        "itemQuantity": 20,
+        "totalMaterials": 2,
+        "totalComplete": 2,
+        "linkedJobsCoun": 1,
+        "linkedOrdersCount": 1,
+        "linkedTransCount": 3,
+        "parentJob": [],
+        "childJobs": [],
+        "materialIDs": [
+            34,
+            35
+        ]
+    }
+    ],
+    apiBlueprints: [],
     apiOrders: [],
     apiHistOrders: [
       {
@@ -1841,7 +2007,7 @@ export let usersDefault = [
         activeLevel: 5,
       },
       {
-        id: 307888,
+        id: 30788,
         name: "Propulsion Subsystem Technology",
         activeLevel: 5,
       },

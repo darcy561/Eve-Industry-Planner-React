@@ -2,7 +2,6 @@ import {
   Avatar,
   Box,
   Button,
-  Divider,
   Grid,
   IconButton,
   Menu,
@@ -167,231 +166,259 @@ export function LinkedMarketOrders({
             </MenuItem>
           </Menu>
         </Grid>
-        {linkedMarketOrders.map((order) => {
-          const charData = users.find(
-            (i) => i.CharacterHash === order.CharacterHash
-          );
-          return (
-            <Grid key={order.order_id} container sx={{ marginBottom: "20px" }}>
-              <Grid container item sx={{ marginBottom: "10px" }}>
-                <Grid item xs={4}>
-                  <Avatar
-                    src={`https://images.evetech.net/characters/${charData.CharacterID}/portrait`}
-                    variant="circular"
+        <Grid
+          container
+          sx={{
+            overflowY: "auto",
+            maxHeight: {
+              xs: "350px",
+              sm: "260px",
+              md: "240px",
+              lg: "240px",
+              xl: "480px",
+            },
+          }}
+        >
+          {linkedMarketOrders.map((order) => {
+            const charData = users.find(
+              (i) => i.CharacterHash === order.CharacterHash
+            );
+            return (
+              <Grid
+                key={order.order_id}
+                container
+                sx={{ marginBottom: "20px" }}
+              >
+                <Grid container item sx={{ marginBottom: "10px" }}>
+                  <Grid item xs={4}>
+                    <Avatar
+                      src={`https://images.evetech.net/characters/${charData.CharacterID}/portrait`}
+                      variant="circular"
+                      sx={{
+                        height: "32px",
+                        width: "32px",
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container item>
+                  <Grid item xs={4}>
+                    <Typography variant="body1">
+                      {order.item_price.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      ISK Each
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={8}>
+                    <Typography variant="body1">
+                      {order.volume_remain.toLocaleString(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}{" "}
+                      /{" "}
+                      {order.volume_total.toLocaleString(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}{" "}
+                      Items Remaining
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Grid container item sx={{ marginBottom: "10px" }}>
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
                     sx={{
-                      height: "32px",
-                      width: "32px",
+                      marginBottom: {
+                        xs: "10px",
+                        md: "0px",
+                      },
                     }}
-                  />
+                  >
+                    <Typography variant="body2">Location:</Typography>
+                  </Grid>
+                  <Grid item xs={8} md={5}>
+                    <Typography variant="body2">
+                      {order.location_name}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Typography variant="body2">{order.region_name}</Typography>
+                  </Grid>
                 </Grid>
-              </Grid>
-              <Grid container item>
-                <Grid item xs={4}>
-                  <Typography variant="body1">
-                    {order.item_price.toLocaleString(undefined,{
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })} ISK Each
-                  </Typography>
-                </Grid>
-                <Grid item xs={8}>
-                  <Typography variant="body1">
-                    {order.volume_remain.toLocaleString(undefined,{
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                })} / {order.volume_total.toLocaleString(undefined,{
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                })} Items Remaining
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Grid container item sx={{ marginBottom: "10px" }}>
-                <Grid
-                  item
-                  xs={12}
-                  md={3}
-                  sx={{
-                    marginBottom: {
-                      xs: "10px",
-                      md: "0px",
-                    },
-                  }}
-                >
-                  <Typography variant="body2">Location:</Typography>
-                </Grid>
-                <Grid item xs={8} md={5}>
-                  <Typography variant="body2">{order.location_name}</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography variant="body2">{order.region_name}</Typography>
-                </Grid>
-              </Grid>
-              <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
-                <Grid item xs={6} md={3}>
-                  <Typography variant="body2">Duration:</Typography>
-                </Grid>
-                <Grid
-                  item
-                  xs={6}
-                  md={2}
-                  sx={{
-                    marginBottom: {
-                      xs: "10px",
-                      md: "0px",
-                    },
-                  }}
-                >
-                  <Typography variant="body2">{order.duration} Days</Typography>
-                </Grid>
+                <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
+                  <Grid item xs={6} md={3}>
+                    <Typography variant="body2">Duration:</Typography>
+                  </Grid>
+                  <Grid
+                    item
+                    xs={6}
+                    md={2}
+                    sx={{
+                      marginBottom: {
+                        xs: "10px",
+                        md: "0px",
+                      },
+                    }}
+                  >
+                    <Typography variant="body2">
+                      {order.duration} Days
+                    </Typography>
+                  </Grid>
 
-                <Grid item xs={2}>
-                  <Typography variant="body2">Last Updated:</Typography>
+                  <Grid item xs={2}>
+                    <Typography variant="body2">Last Updated:</Typography>
+                  </Grid>
+                  <Grid item xs={5}>
+                    <Typography variant="body2">
+                      {new Date(order.issued).toLocaleString()}
+                    </Typography>
+                  </Grid>
                 </Grid>
-                <Grid item xs={5}>
-                  <Typography variant="body2">
-                    {new Date(order.issued).toLocaleString()}
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Grid container item xs={12}>
-                <Grid item xs={12} align="right">
-                  {activeJob.build.sale.marketOrders.length > 1 && (
-                    <Button
-                      variant="text"
-                      size="small"
-                      onClick={() => updateActiveOrder(order.order_id)}
-                      sx={{ marginRight: "10px" }}
-                    >
-                      View Transactions
-                    </Button>
-                  )}
-                  <Tooltip title="Unlink order from job" arrow>
-                    <IconButton
-                      color="error"
-                      size="small"
-                      onClick={() => {
-                        const orderIndex =
-                          activeJob.build.sale.marketOrders.findIndex(
-                            (item) => order.order_id === item.order_id
-                          );
-                        const brokerFees =
-                          activeJob.build.sale.brokersFee.filter(
-                            (item) => item.order_id === order.order_id
-                          );
-                        let newOrderArray = [
-                          ...activeJob.build.sale.marketOrders,
-                        ];
-                        let newBrokerArray = [
-                          ...activeJob.build.sale.brokersFee,
-                        ];
-                        if (orderIndex !== -1) {
-                          newOrderArray.splice(orderIndex, 1);
-                        }
-
-                        brokerFees.forEach((fee) => {
-                          const index = newBrokerArray.findIndex(
-                            (item) => item.id === fee.id
-                          );
-                          if (index !== -1) {
-                            newBrokerArray.splice(index, 1);
+                <Grid container item xs={12}>
+                  <Grid item xs={12} align="right">
+                    {activeJob.build.sale.marketOrders.length > 1 && (
+                      <Button
+                        variant="text"
+                        size="small"
+                        onClick={() => updateActiveOrder(order.order_id)}
+                        sx={{ marginRight: "10px" }}
+                      >
+                        View Transactions
+                      </Button>
+                    )}
+                    <Tooltip title="Unlink order from job" arrow>
+                      <IconButton
+                        color="error"
+                        size="small"
+                        onClick={() => {
+                          const orderIndex =
+                            activeJob.build.sale.marketOrders.findIndex(
+                              (item) => order.order_id === item.order_id
+                            );
+                          const brokerFees =
+                            activeJob.build.sale.brokersFee.filter(
+                              (item) => item.order_id === order.order_id
+                            );
+                          let newOrderArray = [
+                            ...activeJob.build.sale.marketOrders,
+                          ];
+                          let newBrokerArray = [
+                            ...activeJob.build.sale.brokersFee,
+                          ];
+                          if (orderIndex !== -1) {
+                            newOrderArray.splice(orderIndex, 1);
                           }
-                        });
 
-                        const parentUserIndex = users.findIndex(
-                          (i) => i.ParentUser === true
-                        );
-                        let newUsersArray = [...users];
+                          brokerFees.forEach((fee) => {
+                            const index = newBrokerArray.findIndex(
+                              (item) => item.id === fee.id
+                            );
+                            if (index !== -1) {
+                              newBrokerArray.splice(index, 1);
+                            }
+                          });
 
-                        const uIndex = newUsersArray[
-                          parentUserIndex
-                        ].linkedOrders.findIndex(
-                          (trans) => trans === order.order_id
-                        );
-                        if (uIndex !== -1) {
-                          newUsersArray[parentUserIndex].linkedOrders.splice(
-                            uIndex,
-                            1
+                          const parentUserIndex = users.findIndex(
+                            (i) => i.ParentUser === true
                           );
-                        }
+                          let newUsersArray = [...users];
 
-                        activeJob.build.sale.transactions.forEach((trans) => {
-                          const tIndex = newUsersArray[
+                          const uIndex = newUsersArray[
                             parentUserIndex
-                          ].linkedTrans.findIndex(
-                            (i) => i === trans.transaction_id
+                          ].linkedOrders.findIndex(
+                            (trans) => trans === order.order_id
                           );
-
-                          if (tIndex !== -1) {
-                            newUsersArray[parentUserIndex].linkedTrans.splice(
-                              tIndex,
+                          if (uIndex !== -1) {
+                            newUsersArray[parentUserIndex].linkedOrders.splice(
+                              uIndex,
                               1
                             );
                           }
-                        });
 
-                        updateUsers(newUsersArray);
+                          activeJob.build.sale.transactions.forEach((trans) => {
+                            const tIndex = newUsersArray[
+                              parentUserIndex
+                            ].linkedTrans.findIndex(
+                              (i) => i === trans.transaction_id
+                            );
 
-                        updateActiveJob((prev) => ({
-                          ...prev,
-                          build: {
-                            ...prev.build,
-                            sale: {
-                              ...prev.build.sale,
-                              marketOrders: newOrderArray,
-                              brokersFee: newBrokerArray,
-                              transactions: [],
+                            if (tIndex !== -1) {
+                              newUsersArray[parentUserIndex].linkedTrans.splice(
+                                tIndex,
+                                1
+                              );
+                            }
+                          });
+
+                          updateUsers(newUsersArray);
+
+                          updateActiveJob((prev) => ({
+                            ...prev,
+                            build: {
+                              ...prev.build,
+                              sale: {
+                                ...prev.build.sale,
+                                marketOrders: newOrderArray,
+                                brokersFee: newBrokerArray,
+                                transactions: [],
+                              },
                             },
-                          },
-                        }));
+                          }));
 
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Unlinked",
-                          severity: "error",
-                          autoHideDuration: 1000,
-                        }));
+                          setSnackbarData((prev) => ({
+                            ...prev,
+                            open: true,
+                            message: "Unlinked",
+                            severity: "error",
+                            autoHideDuration: 1000,
+                          }));
 
-                        setJobModified(true);
-                      }}
-                    >
-                      <LinkOffIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-                <>
-                  {order.volume_remain === 0 ||
-                    (order.complete && (
+                          setJobModified(true);
+                        }}
+                      >
+                        <LinkOffIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                  <>
+                    {order.volume_remain === 0 ||
+                      (order.complete && (
+                        <Box
+                          sx={{
+                            backgroundColor: "secondary.main",
+                            color: "white",
+                            marginLeft: "auto",
+                            marginRight: "auto",
+                            padding: "8px",
+                          }}
+                        >
+                          <Typography variant="body1">
+                            Order Canceled
+                          </Typography>
+                        </Box>
+                      ))}
+                    {order.volume_remain === 0 && order.complete && (
                       <Box
                         sx={{
-                          backgroundColor: "secondary.main",
-                          color: "white",
+                          backgroundColor: "manufacturing.main",
                           marginLeft: "auto",
                           marginRight: "auto",
                           padding: "8px",
                         }}
                       >
-                        <Typography variant="body1">Order Canceled</Typography>
+                        <Typography variant="body1">Sold Out</Typography>
                       </Box>
-                    ))}
-                  {order.volume_remain === 0 && order.complete && (
-                    <Box
-                      sx={{
-                        backgroundColor: "manufacturing.main",
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        padding: "8px",
-                      }}
-                    >
-                      <Typography variant="body1">Sold Out</Typography>
-                    </Box>
-                  )}
-                </>
+                    )}
+                  </>
+                </Grid>
               </Grid>
-            </Grid>
-          );
-        })}
+            );
+          })}
+        </Grid>
       </Grid>
     </Paper>
   );

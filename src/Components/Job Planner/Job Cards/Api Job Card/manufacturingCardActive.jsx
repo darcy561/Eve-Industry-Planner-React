@@ -41,8 +41,10 @@ export function IndustryESICardActive({ job }) {
   const buildChar = users.find((i)=> i.CharacterID === job.installer_id)
   const blueprintData = buildChar.apiBlueprints.find((i) => i.item_id === job.blueprint_id)
   let blueprintType = "bp"
-  if (blueprintData.quantity === -2) {
-    blueprintType = "bpc"
+  if (blueprintData !== undefined) {
+    if (blueprintData.quantity === -2) {
+      blueprintType = "bpc"
+    }
   }
 
   return (

@@ -17,6 +17,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import ClearIcon from "@mui/icons-material/Clear";
+import { IsLoggedInContext } from "../../../../../Context/AuthContext";
 
 export function ChildJobDialog({
   material,
@@ -24,6 +25,7 @@ export function ChildJobDialog({
   updateChildDialogTrigger,
   setJobModified,
 }) {
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
   const { downloadCharacterJobs, uploadJob } = useFirebase();
@@ -118,7 +120,9 @@ export function ChildJobDialog({
                           severity: "success",
                           autoHideDuration: 1000,
                         }));
-                        uploadJob(job);
+                        if (isLoggedIn) {
+                          uploadJob(job);
+                        }
                       }}
                     >
                       <AddIcon />
@@ -220,7 +224,9 @@ export function ChildJobDialog({
                             severity: "success",
                             autoHideDuration: 1000,
                           }));
-                          uploadJob(jobMatch);
+                          if (isLoggedIn) {
+                            uploadJob(jobMatch);
+                          }
                         }}
                       >
                         <ClearIcon />

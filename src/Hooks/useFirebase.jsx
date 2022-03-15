@@ -285,19 +285,18 @@ export function useFirebase() {
     const t = trace(performance, "GetItemPrices");
     t.start();
     let requestArray = [];
-    const getItemPrices = async (request) => {
+    let promiseArray = [];
+    let returnData = [];
+
+    const getItemPrices = async (item) => {
       try {
         const appCheckToken = await getToken(appCheck, true);
         const itemPricePromise = fetch(
-          `${process.env.REACT_APP_APIURL}/costs`,
-          // `http://localhost:5001/eve-industry-planner-dev/us-central1/api/costs`,
+          `${process.env.REACT_APP_APIURL}/costs/${item}`,
           {
-            method: "POST",
             headers: {
-              "Content-Type": "application/json",
               "X-Firebase-AppCheck": appCheckToken.token,
             },
-            body: JSON.stringify({ typeIDs: request }),
           }
         );
         return (await itemPricePromise).json();
@@ -313,9 +312,18 @@ export function useFirebase() {
       }
     }
     if (requestArray.length > 0) {
-      let returnedData = await getItemPrices(requestArray);
+      for (let item of requestArray) {
+        let promise = getItemPrices(item);
+        promiseArray.push(promise);
+      }
+      let returnedPromise = await Promise.all(promiseArray);
+      
+      for (let data of returnedPromise) {
+        returnData.push(data);
+      }
+
       t.stop();
-      return returnedData;
+      return returnData;
     } else {
       t.stop();
       return [];

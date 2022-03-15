@@ -1,7 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
-const { NorthWest } = require("@mui/icons-material");
 
 async function ESIMarketQuery(typeID){
   const locations = [

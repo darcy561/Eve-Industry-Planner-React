@@ -1,16 +1,13 @@
 import {
-  Autocomplete,
   Grid,
   MenuItem,
   Paper,
   Select,
-  TextField,
   Typography,
 } from "@mui/material";
 import { useContext, useState } from "react";
 import { EvePricesContext } from "../../../../../Context/EveDataContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
-import { useFirebase } from "../../../../../Hooks/useFirebase";
 
 export function ItemCostPanel() {
   const { activeJob } = useContext(ActiveJobContext);
@@ -109,7 +106,7 @@ export function ItemCostPanel() {
             </Typography>
           </Grid>
         </Grid>
-        <Grid container item xs={12} sx={{ marginTop: {xs:"10px", sm:"5px"} }}>
+        <Grid container item xs={12} sx={{ marginTop: {xs:"10px", sm:"20px"} }}>
           {activeJob.build.materials.map((material) => {
             let materialPrice = evePrices.find(
               (i) => i.typeID === material.typeID
@@ -126,7 +123,7 @@ export function ItemCostPanel() {
                 sx={{ padding:{xs:"7px 0px", sm:"10px 0px"}}}
               >
                 <Grid item xs={12} md={4} align="left">
-                  <Typography> {material.name}</Typography>
+                  <Typography variant="body2"> {material.name}</Typography>
                 </Grid>
                 <Grid
                   item

@@ -4,8 +4,11 @@ import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import { AccountInfo } from "./SettingsModules/accountInfo";
 import { EditJobSettings } from "./SettingsModules/editJobSettings";
 import { LayoutSettings } from "./SettingsModules/layoutSettings";
+<<<<<<< HEAD
+=======
 import { ManuStrutures } from "./SettingsModules/manufacturingStructures";
 import { ReactionStrutures } from "./SettingsModules/reactionStructures";
+>>>>>>> development
 
 export function SettingsPage() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -35,12 +38,15 @@ export function SettingsPage() {
             <Grid item xs={12} md={4}>
               <EditJobSettings parentUserIndex={parentUserIndex} />
             </Grid>
+<<<<<<< HEAD
+=======
             <Grid item xs={12} md={6}>
               <ManuStrutures parentUserIndex={parentUserIndex}/>
             </Grid>
             <Grid item xs={12} md={6}>
               <ReactionStrutures parentUserIndex={parentUserIndex}/>
             </Grid>
+>>>>>>> development
           </Grid>
         </Paper>
       </Container>

@@ -31,13 +31,14 @@ export function RawResourceList() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-  
+
   let copyText = "";
   let volumeTotal = 0;
 
   activeJob.build.materials.forEach((i) => {
     copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
     volumeTotal += i.volume * i.quantity;
+
   });
 
   function AddBuildIcon({ material }) {
@@ -192,6 +193,7 @@ export function RawResourceList() {
               );
             })}
           </Grid>
+
         </Box>
         <Grid container sx={{ marginTop: "20px" }}>
           <Grid item xs={6} sm={8} md={9}>

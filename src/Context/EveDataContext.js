@@ -53,6 +53,9 @@ export const EveESIStatus = (props) => {
             {props.children}
         </EveESIStatusContext.Provider>
     );
+<<<<<<< HEAD
+};
+=======
 };
 
 export const EvePricesContext = createContext();
@@ -66,3 +69,4 @@ export const EvePrices = (props) => {
     </EvePricesContext.Provider>
   );
 };
+>>>>>>> development

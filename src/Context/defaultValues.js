@@ -1213,6 +1213,8 @@ export let usersDefault = [
       5763852213, 5763860401, 5763883247, 5763890268, 5762870250, 5762760174,
       5764179431,
     ],
+<<<<<<< HEAD
+=======
     snapshotData: [
       {
         "jobID": 1642710724535,
@@ -1379,6 +1381,7 @@ export let usersDefault = [
     }
     ],
     apiBlueprints: [],
+>>>>>>> development
     apiOrders: [],
     apiHistOrders: [
       {
@@ -2007,7 +2010,11 @@ export let usersDefault = [
         activeLevel: 5,
       },
       {
+<<<<<<< HEAD
+        id: 307888,
+=======
         id: 30788,
+>>>>>>> development
         name: "Propulsion Subsystem Technology",
         activeLevel: 5,
       },

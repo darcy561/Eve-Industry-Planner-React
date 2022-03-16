@@ -1,5 +1,9 @@
 import { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
+<<<<<<< HEAD
+import { Grid, IconButton, Paper, Typography } from "@mui/material";
+import ClearIcon from '@mui/icons-material/Clear';
+=======
 import {
   Grid,
   IconButton,
@@ -9,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
+>>>>>>> development
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -30,6 +35,66 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
   };
 
   return (
+<<<<<<< HEAD
+    <Paper
+      sx={{
+        padding: "20px",
+      }}
+      elevation={3}
+      square={true}
+    >
+      <Grid container direction="row">
+        <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
+          <Grid item xs={12} md={11}>
+            <Typography variant="h5" color="primary" align="center">
+              Linked Transactions
+            </Typography>
+          </Grid>
+        </Grid>
+        {activeJob.build.sale.transactions.length !== 0 ? (
+          activeJob.build.sale.transactions.map((tData) => {
+            return (
+              <Grid
+                key={tData.transaction_id}
+                container
+                sx={{ marginBottom: "10px" }}
+              >
+                <Grid item xs={4} md={1} align="center" sx={{marginBottom:{xs:"10px", sm:"0px"}}}>
+                  <Typography variant="body2">
+                    {new Date(tData.date).toLocaleString()}
+                  </Typography>
+                </Grid>
+                <Grid item xs={6} md={2} align="center">
+                  <Typography variant="body2">{tData.description}</Typography>
+                </Grid>
+                <Grid item xs={12} md={2} align="center" sx={{marginBottom:{xs:"10px", sm:"0px"}}}>
+                  <Typography variant="body2">
+                  {tData.quantity.toLocaleString()}{""}@{" "}
+                    {tData.unit_price.toLocaleString()} ISK Each
+                  </Typography>
+                </Grid>
+                <Grid item xs={6} md={2} align="center">
+                  <Typography variant="body2">
+                    {tData.amount.toLocaleString()} ISK
+                  </Typography>
+                </Grid>
+                <Grid item xs={6} md={2} align="center">
+                  <Typography variant="body2">
+                    -{tData.tax.toLocaleString()} ISK
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={1} align="center">
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => {
+                      
+                      const tIndex =
+                        activeJob.build.sale.transactions.findIndex(
+                          (trans) =>
+                            trans.transaction_id === tData.transaction_id
+                        );
+=======
     <>
       <Paper
         sx={{
@@ -46,6 +111,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                 Linked Transactions
               </Typography>
             </Grid>
+>>>>>>> development
 
               <IconButton
                 id="linkedTransactions_menu_button"
@@ -190,12 +256,20 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                           autoHideDuration: 1000,
                         }));
 
+<<<<<<< HEAD
+                      setJobModified(true);
+                    }}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+=======
                         setJobModified(true);
                       }}
                     >
                       <ClearIcon />
                     </IconButton>
                   </Grid>
+>>>>>>> development
                 </Grid>
               );
             })

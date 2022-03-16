@@ -22,8 +22,8 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const [dialogTrigger, updateDialogTrigger] = useState(false);
-  const { downloadCharacterJobs, uploadJob } = useFirebase()
-  const { closeEditJob, openEditJob, updateJobSnapshot } = useJobManagement();
+  const { downloadCharacterJobs, updateMainUserDoc, uploadJob } = useFirebase()
+  const { closeEditJob, openEditJob } = useJobManagement();
 
 
   let parentJobs = [];
@@ -83,6 +83,7 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
                       onClick={() => {
                         if (isLoggedIn && jobModified) {
                           uploadJob(activeJob);
+                          updateMainUserDoc();
                         }
                         closeEditJob(activeJob)
                         openEditJob(job);
@@ -109,7 +110,7 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
                         if (parentIndex !== -1) {
                           newParentJobs.splice(parentIndex, 1)  
                         }
-                        updateJobSnapshot(job);
+
                         updateActiveJob((prev) => ({
                           ...prev,
                             parentJob: newParentJobs

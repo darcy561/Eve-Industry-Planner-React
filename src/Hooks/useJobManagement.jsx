@@ -36,9 +36,10 @@ export function useJobManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
+
+  const { addNewJob } = useFirebase();
   const { CalculateResources } = useBlueprintCalc();
   const {
-    addNewJob,
     downloadCharacterJobs,
     getItemPrices,
     removeJob,
@@ -61,7 +62,7 @@ export function useJobManagement() {
       this.itemQuantity = inputJob.build.products.totalQuantity;
       this.totalMaterials = inputJob.build.materials.length;
       this.totalComplete = totalComplete;
-      this.linkedJobsCount = inputJob.build.costs.linkedJobs.length;
+      this.linkedJobsCoun = inputJob.build.costs.linkedJobs.length;
       this.linkedOrdersCount = inputJob.build.sale.marketOrders.length;
       this.linkedTransCount = inputJob.build.sale.transactions.length;
       this.buildVer = inputJob.buildVer;

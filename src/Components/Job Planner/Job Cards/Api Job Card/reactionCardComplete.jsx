@@ -7,8 +7,11 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { useContext } from "react";
+import { UsersContext } from "../../../../Context/AuthContext";
 
 export function ReactionESICardComplete({ job }) {
+  const { users } = useContext(UsersContext)
   
   return (
     <Tooltip title="Job imported from the Eve ESI">

@@ -15,7 +15,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users } = useContext(UsersContext);
-  const { archivedJob, updateMainUserDoc } = useFirebase();
+  const { archivedJob, uploadJob, updateMainUserDoc } = useFirebase();
   const { deleteJobSnapshot } = useJobManagement();
   const analytics = getAnalytics();
 
@@ -56,7 +56,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
         marginBottom: "20px",
       }}
     >
-      <Grid item xs={12} align="center">
+      <Grid item xs={12} align="right">
         <Tooltip
           arrow
           title="Removes the job from your planner but stores the data for later use in reporting and cost calculations. If you do not wish to store this job data then simply delete the job."
@@ -64,7 +64,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
           <Button
             color="primary"
             variant="contained"
-            size="small"
+            size="large"
             onClick={archiveJob}
           >
             Archive Job

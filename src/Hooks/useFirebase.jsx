@@ -5,6 +5,7 @@ import {
   doc,
   deleteDoc,
   getDoc,
+  runTransaction,
   setDoc,
   updateDoc,
 } from "firebase/firestore";
@@ -179,22 +180,24 @@ export function useFirebase() {
 
   const updateMainUserDoc = async () => {
     await fbAuthState();
+    try {
+      await runTransaction(firestore, async (t) => {
+        const docRef = doc(firestore, `Users/${parentUser.accountID}`);
+        const userDoc = await t.get(docRef);
 
-    updateDoc(
-      doc(
-        firestore,
-        "Users", parentUser.accountID
-      ),
-      {
-        jobArraySnapshot: parentUser.snapshotData,
-        parentUserHash: parentUser.CharacterHash,
-        jobStatusArray: jobStatus,
-        linkedJobs: parentUser.linkedJobs,
-        linkedTrans: parentUser.linkedTrans,
-        linkedOrders: parentUser.linkedOrders,
-        settings: parentUser.settings,
-      }
-    )
+        t.update(userDoc.ref, {
+          jobArraySnapshot: parentUser.snapshotData,
+          parentUserHash: parentUser.CharacterHash,
+          jobStatusArray: jobStatus,
+          linkedJobs: parentUser.linkedJobs,
+          linkedTrans: parentUser.linkedTrans,
+          linkedOrders: parentUser.linkedOrders,
+          settings: parentUser.settings,
+        });
+      });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const removeJob = async (job) => {

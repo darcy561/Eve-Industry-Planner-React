@@ -22,6 +22,8 @@ export function TutorialStep1() {
   const { users, updateUsers } = useContext(UsersContext);
   const classes = useStyles();
 
+  const parentUser = users.find((i) => i.ParentUser === true);
+
   return (
     <Paper
       elevation={3}
@@ -39,7 +41,8 @@ export function TutorialStep1() {
         <Grid item xs={12}>
           <Typography variant="body2">
             This is your first step along the way to building your{" "}
-            {activeJob.name}.
+            {activeJob.name}. Does {parentUser.CharacterName} have all the
+            required skills make this?
             {<br />}
             {<br />}
             Use the available options to set up the build and calculate the
@@ -48,10 +51,8 @@ export function TutorialStep1() {
             If you are wanting to also build any of the individual subcomponents
             used then simply use the <b>+</b> icon next to the resource name to
             create a new job that is already setup to build the correct amount
-            for you, this will automatically create a parent - child relationship
-            between the jobs allowing information to be passed between. The colour of
-            the icon indicates the type of job of industry job required to make
-            the item.
+            for you. The colour of the icon indicates the type of job of
+            industry job required to make the item.
           </Typography>
         </Grid>
         {isLoggedIn && (

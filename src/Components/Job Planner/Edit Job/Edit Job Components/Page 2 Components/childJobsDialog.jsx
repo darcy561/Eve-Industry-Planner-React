@@ -18,7 +18,6 @@ import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import ClearIcon from "@mui/icons-material/Clear";
 import { IsLoggedInContext } from "../../../../../Context/AuthContext";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function ChildJobDialog({
   material,
@@ -31,7 +30,6 @@ export function ChildJobDialog({
   const { jobArray } = useContext(JobArrayContext);
   const { downloadCharacterJobs, uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshot } = useJobManagement();
 
   const handleClose = () => {
     updateChildDialogTrigger(false);
@@ -106,8 +104,6 @@ export function ChildJobDialog({
                         newMaterialArray[index].childJob.push(job.jobID);
 
                         job.parentJob.push(activeJob.jobID);
-
-                        updateJobSnapshot(job);
 
                         updateActiveJob((prev) => ({
                           ...prev,
@@ -213,8 +209,6 @@ export function ChildJobDialog({
                             jobMatch.parentJob.splice(parentIndex, 1);
                           }
 
-                          updateJobSnapshot(jobMatch);
-
                           updateActiveJob((prev) => ({
                             ...prev,
                             build: {
@@ -231,7 +225,6 @@ export function ChildJobDialog({
                             autoHideDuration: 1000,
                           }));
                           if (isLoggedIn) {
-                            updateJobSnapshot()
                             uploadJob(jobMatch);
                           }
                         }}

@@ -107,7 +107,7 @@ export function PassBuildCostButton() {
         marginBottom: "20px",
       }}
     >
-      <Grid item xs={12} align="center">
+      <Grid item xs={12} align="right">
         <Tooltip arrow title="Sends the item build cost to all parent jobs.">
           <Button
             color="primary"

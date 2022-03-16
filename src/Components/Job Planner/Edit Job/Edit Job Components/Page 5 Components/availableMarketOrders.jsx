@@ -10,7 +10,14 @@ import {
 } from "@mui/material";
 import { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
+<<<<<<< HEAD
 import { IsLoggedInContext, UsersContext } from "../../../../../Context/AuthContext";
+=======
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
+>>>>>>> development
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
@@ -73,47 +80,43 @@ export function AvailableMarketOrders({
     <Paper
       sx={{
         padding: "20px",
+        position: "relative",
       }}
       elevation={3}
       square={true}
     >
       <Grid container direction="row">
         <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
-          <Grid item xs={12} md={11}>
+          <Grid item xs={12}>
             <Typography variant="h5" color="primary" align="center">
               Available Orders
             </Typography>
           </Grid>
-          <Grid
-            item
-            md={1}
-            sx={{ display: { xs: "none", md: "block" } }}
-            align="right"
+          <IconButton
+            id="marketOrder_menu_button"
+            onClick={handleMenuClick}
+            aria-controls={Boolean(anchorEl) ? "marketOrder_menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+            sx={{ position: "absolute", top: "10px", right: "10px" }}
           >
-            <IconButton
-              id="marketOrder_menu_button"
-              onClick={handleMenuClick}
-              aria-controls={Boolean(anchorEl) ? "marketOrder_menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={Boolean(anchorEl) ? "true" : undefined}
-            >
-              <MoreVertIcon size="small" color="Secondary" />
-            </IconButton>
-            <Menu
-              id="transaction_menu"
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              MenuListProps={{
-                "aria-labelledby": "marketOrder_menu_button",
-              }}
-            >
-              <MenuItem onClick={() => updateShowAvailableOrders(false)}>
-                View Linked Market Orders
-              </MenuItem>
-            </Menu>
-          </Grid>
+            <MoreVertIcon size="small" color="Secondary" />
+          </IconButton>
+          <Menu
+            id="transaction_menu"
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            MenuListProps={{
+              "aria-labelledby": "marketOrder_menu_button",
+            }}
+          >
+            <MenuItem onClick={() => updateShowAvailableOrders(false)}>
+              View Linked Market Orders
+            </MenuItem>
+          </Menu>
         </Grid>
+<<<<<<< HEAD
         {itemOrderMatch.length !== 0 ? (
           itemOrderMatch.map((order) => {
             const charData = users.find(
@@ -186,10 +189,57 @@ export function AvailableMarketOrders({
                     <Typography variant="body2">
                       {order.duration} Days
                     </Typography>
+=======
+        <Grid
+          container
+          sx={{
+            overflowY: "auto",
+            maxHeight: {
+              xs: "350px",
+              sm: "260px",
+              md: "240px",
+              lg: "240px",
+              xl: "480px",
+            },
+          }}
+        >
+          {itemOrderMatch.length !== 0 ? (
+            itemOrderMatch.map((order) => {
+              const charData = users.find(
+                (i) => i.CharacterHash === order.CharacterHash
+              );
+              return (
+                <Grid key={order.order_id} container>
+                  <Grid container item sx={{ marginBottom: "10px" }}>
+                    <Grid item xs={4}>
+                      <Avatar
+                        src={`https://images.evetech.net/characters/${charData.CharacterID}/portrait`}
+                        variant="circular"
+                        sx={{
+                          height: "32px",
+                          width: "32px",
+                        }}
+                      />
+                    </Grid>
+>>>>>>> development
                   </Grid>
-                  <Grid item xs={6} md={3}>
-                    <Typography variant="body2">Range:</Typography>
+                  <Grid container item>
+                    <Grid item xs={12} sm={5}>
+                      <Typography variant="body1">
+                        {order.price.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        ISK
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={7}>
+                      <Typography variant="body1">
+                        {order.volume_remain} / {order.volume_total} Items
+                      </Typography>
+                    </Grid>
                   </Grid>
+<<<<<<< HEAD
                   <Grid item xs={6} md={3}>
                     {order.range === "region" ? (
                       <Typography variant="body2">
@@ -201,17 +251,64 @@ export function AvailableMarketOrders({
                         {order.range} Jumps
                       </Typography>
                     )}
+=======
+                  <Grid container item sx={{ marginBottom: "10px" }}>
+                    <Grid
+                      item
+                      xs={12}
+                      md={3}
+                      sx={{
+                        marginBottom: {
+                          xs: "10px",
+                          md: "0px",
+                        },
+                      }}
+                    >
+                      <Typography variant="body2">Location:</Typography>
+                    </Grid>
+                    <Grid item xs={8} md={5}>
+                      <Typography variant="body2">
+                        {order.location_name}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography variant="body2">
+                        {order.region_name}
+                      </Typography>
+                    </Grid>
+>>>>>>> development
                   </Grid>
-                </Grid>
-                <Grid container item xs={12}>
-                  <Grid item xs={3}>
-                    <Typography variant="body2">Last Updated:</Typography>
+                  <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
+                    <Grid item xs={6} md={3}>
+                      <Typography variant="body2">Duration:</Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={6}
+                      md={3}
+                      sx={{
+                        marginBottom: {
+                          xs: "10px",
+                          md: "0px",
+                        },
+                      }}
+                    >
+                      <Typography variant="body2">
+                        {order.duration} Days
+                      </Typography>
+                    </Grid>
                   </Grid>
-                  <Grid item xs={9}>
-                    <Typography variant="body2">
-                      {new Date(order.issued).toLocaleString()}
-                    </Typography>
+                  <Grid container item xs={12}>
+                    <Grid item xs={5}>
+                      <Typography variant="body2">Last Updated:</Typography>
+                    </Grid>
+                    <Grid item xs={7}>
+                      <Typography variant="body2">
+                        {new Date(order.issued).toLocaleString()}
+                      </Typography>
+                    </Grid>
                   </Grid>
+<<<<<<< HEAD
                 </Grid>
                 <Grid container item xs={12}>
                   <Grid item xs={12} align="right">
@@ -260,10 +357,61 @@ export function AvailableMarketOrders({
                                 ...prev.build.sale,
                                 marketOrders: newMarketOrderArray,
                                 brokersFee: newBrokersArray,
-                              },
-                            },
-                          }));
+=======
+                  <Grid container item xs={12}>
+                    <Grid item xs={12} align="right">
+                      <Tooltip title="Link order to job" arrow>
+                        <IconButton
+                          color="primary"
+                          size="small"
+                          onClick={() => {
+                            const ParentUserIndex = users.findIndex(
+                              (i) => i.ParentUser === true
+                            );
+                            const char = users.find(
+                              (user) =>
+                                user.CharacterHash === order.CharacterHash
+                            );
+                            let newBrokersArray = [];
+                            char.apiJournal.forEach((entry) => {
+                              if (
+                                entry.ref_type === "brokers_fee" &&
+                                Date.parse(order.issued) ===
+                                  Date.parse(entry.date)
+                              ) {
+                                newBrokersArray.push(
+                                  Object.assign(
+                                    {},
+                                    new ESIBrokerFee(entry, order, char)
+                                  )
+                                );
+                              }
+                            });
+                            let newMarketOrderArray =
+                              activeJob.build.sale.marketOrders;
+                            newMarketOrderArray.push(
+                              Object.assign({}, new ESIMarketOrder(order))
+                            );
 
+                            let newUsers = [...users];
+                            newUsers[ParentUserIndex].linkedOrders.push(
+                              order.order_id
+                            );
+                            updateUsers(newUsers);
+                            updateActiveJob((prev) => ({
+                              ...prev,
+                              build: {
+                                ...prev.build,
+                                sale: {
+                                  ...prev.build.sale,
+                                  marketOrders: newMarketOrderArray,
+                                  brokersFee: newBrokersArray,
+                                },
+>>>>>>> development
+                              },
+                            }));
+
+<<<<<<< HEAD
                           setSnackbarData((prev) => ({
                             ...prev,
                             open: true,
@@ -281,18 +429,39 @@ export function AvailableMarketOrders({
                         <AddLinkIcon />
                       </IconButton>
                     </Tooltip>
+=======
+                            setSnackbarData((prev) => ({
+                              ...prev,
+                              open: true,
+                              message: "Linked",
+                              severity: "success",
+                              autoHideDuration: 1000,
+                            }));
+                            setJobModified(true);
+                            logEvent(analytics, "linkedMarketOrder", {
+                              UID: users[ParentUserIndex].accountID,
+                              isLoggedIn: isLoggedIn,
+                            });
+                          }}
+                        >
+                          <AddLinkIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Grid>
+>>>>>>> development
                   </Grid>
                 </Grid>
-              </Grid>
-            );
-          })
-        ) : (
-          <Grid item xs={12} align="center">
-            <Typography variant="body1">
-              There are no orders appearing on the API matching this item type.
-            </Typography>
-          </Grid>
-        )}
+              );
+            })
+          ) : (
+            <Grid item xs={12} align="center">
+              <Typography variant="body1">
+                There are no orders appearing on the API matching this item
+                type.
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
       </Grid>
     </Paper>
   );

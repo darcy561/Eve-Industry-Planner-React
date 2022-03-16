@@ -7,8 +7,11 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { useContext } from "react";
+import { UsersContext } from "../../../../Context/AuthContext";
 
 export function IndustryESICardActive({ job }) {
+  const { users } = useContext(UsersContext);
 
   function timeRemainingcalc() {
     let now = new Date().getTime();
@@ -35,6 +38,14 @@ export function IndustryESICardActive({ job }) {
 
   const timeRemaining = timeRemainingcalc();
 
+  const buildChar = users.find((i)=> i.CharacterID === job.installer_id)
+  const blueprintData = buildChar.apiBlueprints.find((i) => i.item_id === job.blueprint_id)
+  let blueprintType = "bp"
+  if (blueprintData !== undefined) {
+    if (blueprintData.quantity === -2) {
+      blueprintType = "bpc"
+    }
+  }
 
   return (
     <Tooltip title="Job imported from the Eve ESI">
@@ -67,7 +78,7 @@ export function IndustryESICardActive({ job }) {
                   }
                 >
                   <img
-                    src={`https://image.eveonline.com/Type/${job.blueprint_type_id}_64.png`}
+                    src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
                     alt=""
                     style={{ margin: "auto", display: "block" }}
                   />
@@ -116,7 +127,7 @@ export function IndustryESICardActive({ job }) {
             >
               <Box sx={{ height: "100%" }}>
                 <Typography align="center" variant="body2">
-                  <b>ESI Industry Job</b>
+                  <b>ESI Manufacturing Job</b>
                 </Typography>
               </Box>
             </Grid>

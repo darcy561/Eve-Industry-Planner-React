@@ -1,10 +1,8 @@
 import React, { useContext, useState } from "react";
 import {
-  JobArrayContext,
   JobStatusContext,
   ActiveJobContext,
 } from "../../../Context/JobContext";
-import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { EditPage1 } from "./Edit Job Components/Job Page 1";
 import { EditPage2 } from "./Edit Job Components/Job Page 2";
 import { EditPage3 } from "./Edit Job Components/Job Page 3";
@@ -33,6 +31,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { ArchiveJobButton } from "./Edit Job Components/Page 5 Components/archiveJobButton";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { makeStyles } from "@mui/styles";
+import { LinkedJobBadge } from "./Linked Job Badge";
+import { PassBuildCostButton } from "./Edit Job Components/Page 4 Components/passBuildCost";
 
 const useStyles = makeStyles((theme) => ({
   Stepper: {
@@ -44,12 +44,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function EditJob({ updateJobSettingsTrigger }) {
   const { jobStatus } = useContext(JobStatusContext);
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { uploadJob, updateMainUserDoc } = useFirebase();
-  const { deleteJobProcess } = useJobManagement();
+  const { closeEditJob, deleteJobProcess } = useJobManagement();
   const [jobModified, setJobModified] = useState(false);
   const classes = useStyles();
 
@@ -86,6 +84,7 @@ export default function EditJob({ updateJobSettingsTrigger }) {
     setJobModified(true);
   }
 
+<<<<<<< HEAD
   function closeJob() {
     const index = jobArray.findIndex((x) => activeJob.jobID === x.jobID);
     const newArray = [...jobArray];
@@ -105,6 +104,8 @@ export default function EditJob({ updateJobSettingsTrigger }) {
     updateJobSettingsTrigger((prev) => !prev);
   }
   
+=======
+>>>>>>> development
   return (
     <Container
       disableGutters
@@ -144,7 +145,14 @@ export default function EditJob({ updateJobSettingsTrigger }) {
             >
               <IconButton
                 color="primary"
-                onClick={closeJob}
+                onClick={async () => {
+                  if (isLoggedIn && jobModified) {
+                    await uploadJob(activeJob);
+                    await updateMainUserDoc();
+                  }
+                  closeEditJob(activeJob);
+                  updateJobSettingsTrigger((prev) => !prev);
+                }}
                 size="medium"
                 sx={{ marginRight: { sm: "10px" } }}
               >
@@ -157,10 +165,11 @@ export default function EditJob({ updateJobSettingsTrigger }) {
               {activeJob.name}
             </Typography>
           </Grid>
-          <Grid item xs={4} />
+          <Grid item xs={2} />
           <Grid
             item
-            xs={4}
+            xs={12}
+            sm={5}
             align="center"
             sx={{ marginTop: { xs: "20px", md: "30px" } }}
           >
@@ -168,18 +177,28 @@ export default function EditJob({ updateJobSettingsTrigger }) {
               <picture>
                 <source
                   media="(max-width:700px)"
-                  srcSet={`https://image.eveonline.com/Type/${activeJob.itemID}_32.png`}
+                  srcSet={`https://images.evetech.net/types/${activeJob.itemID}/icon?size=32`}
                   alt=""
                 />
                 <img
-                  src={`https://image.eveonline.com/Type/${activeJob.itemID}_64.png`}
+                  src={`https://images.evetech.net/types/${activeJob.itemID}/icon?size=64`}
                   alt=""
                 />
               </picture>
             </Box>
           </Grid>
-          <Grid item xs={4} />
 
+          <Grid
+            item
+            xs={12}
+            sm={5}
+            sx={{ marginTop: { xs: "10px", sm: "0px" } }}
+          >
+            <LinkedJobBadge
+              jobModified={jobModified}
+              setJobModified={setJobModified}
+            />
+          </Grid>
           <Grid item xs={12}>
             <Stepper activeStep={activeJob.jobStatus} orientation="vertical">
               {jobStatus.map((status) => {
@@ -241,19 +260,40 @@ export default function EditJob({ updateJobSettingsTrigger }) {
                           </Grid>
                         </Grid>
                       )}
-                      {activeJob.jobStatus === jobStatus.length - 2 &&
-                      isLoggedIn ? (
-                        <ArchiveJobButton
-                          updateJobSettingsTrigger={updateJobSettingsTrigger}
-                        />
-                      ) : null}
-                      <Divider />
-                      {activeJob.jobStatus === jobStatus.length - 1 &&
-                      isLoggedIn ? (
-                        <ArchiveJobButton
-                          updateJobSettingsTrigger={updateJobSettingsTrigger}
-                        />
-                      ) : null}
+                      <Grid container>
+                        <Grid item sm={8} lg={8} xl={8} />
+                        {activeJob.jobStatus === jobStatus.length - 2 &&
+                          activeJob.parentJob.length > 0 && (
+                            <Grid item container xs={7} sm={2} lg={2} xl={2}>
+                              <PassBuildCostButton
+                                updateJobSettingsTrigger={
+                                  updateJobSettingsTrigger
+                                }
+                              />
+                            </Grid>
+                          )}
+                        {activeJob.jobStatus === jobStatus.length - 2 &&
+                          isLoggedIn && (
+                            <Grid item container xs={5} sm={2} lg={2} xl={2}>
+                              <ArchiveJobButton
+                                updateJobSettingsTrigger={
+                                  updateJobSettingsTrigger
+                                }
+                              />
+                            </Grid>
+                          )}
+                        <Divider />
+                        {activeJob.jobStatus === jobStatus.length - 1 &&
+                          isLoggedIn && (
+                            <Grid item container xs={12} sm={4} lg={4}>
+                              <ArchiveJobButton
+                                updateJobSettingsTrigger={
+                                  updateJobSettingsTrigger
+                                }
+                              />
+                            </Grid>
+                          )}
+                      </Grid>
                       <Divider />
                     </StepContent>
                   </Step>

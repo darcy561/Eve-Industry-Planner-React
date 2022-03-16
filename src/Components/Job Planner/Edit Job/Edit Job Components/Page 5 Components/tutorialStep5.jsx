@@ -36,27 +36,32 @@ export function TutorialStep5() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            Setup your market order/orders in game as you normally would do.
-            Once this has been done and the information appears on the ESI the
-            Available Orders window will display each of the orders for your
-            item type. By linking orders to your job Eve Industry Planner will
-            find the brokers fee associated with them. Once attached it will
-            display any transactions and associated taxes from the ESI data that
-            occured after after the order was issued that match the item type.
-            These are displayed in the New Transactions window. Attaching a
-            transaction to the job will then add the cost and taxes associated.
+            Ok, setup your market order/orders in the game as you normally would
+            do. Once this has been done and the information appears on the ESI
+            the Available Orders panel will display each of the orders for your
+            item type. By linking orders to your job, Eve Industry Planner will
+            find the brokers fee associated with them and include these in total
+            cost of the job.
             {<br />}
             {<br />}
-            As the items are sold the total sales and average item price is
-            populated from the transaction data that has been linked. This uses
-            the earlier build costs, along with the brokers fees and taxes to
-            calculate your overall profit/loss for this job.
+            Once a market order has been attached, the New Transactions panel
+            will display any transaction from your journal that occurred at the
+            same location that has not been linked to another job. By linking a
+            transaction Eve Industry Planner finds the associated tax and adds
+            this to the cost of the job.
+            {<br />}
+            {<br />}
+            As the items are sold in the game and the relevant transactions are
+            linked, the total sales figure and average item price is calculated.
+            This uses the earlier build costs, along with the brokers fees and
+            taxes figures to calculate your overall profit/loss for this job.
             {<br />}
             {<br />}
             Once you have sold everything you can either delete the job and
             remove all the data or you can choose to archive the job saving all
-            of the data for you to pull back at a later date (yet to be
-            implemented).
+            of the data for you to pull back at a later date in the same way as
+            mentioned in the previous step. (Yet to be implemented, data is
+            currently being stored to start building this data).
           </Typography>
         </Grid>
         {isLoggedIn && (

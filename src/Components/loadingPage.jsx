@@ -69,7 +69,21 @@ export function LoadingPage() {
             <Grid item>
               <Typography variant="body2">Downloading Job Data</Typography>
             </Grid>
-            {loadingText.charDataComp && (
+            {loadingText.jobDataComp && (
+              <Grid item>
+                <Icon fontSize="small" style={{ color: "green" }}>
+                  <MdDone />
+                </Icon>
+              </Grid>
+            )}
+          </Grid>
+        )}
+                {loadingText.priceData && (
+          <Grid container direction="row">
+            <Grid item>
+              <Typography variant="body2">Downloading Price Data</Typography>
+            </Grid>
+            {loadingText.priceDataComp && (
               <Grid item>
                 <Icon fontSize="small" style={{ color: "green" }}>
                   <MdDone />

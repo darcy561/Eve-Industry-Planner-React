@@ -8,19 +8,20 @@ import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { UsersContext } from "../../../../../Context/AuthContext";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function ArchiveJobButton({ updateJobSettingsTrigger }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users } = useContext(UsersContext);
-  const { archivedJob, uploadJob } = useFirebase();
+  const { archivedJob, updateMainUserDoc } = useFirebase();
+  const { deleteJobSnapshot } = useJobManagement();
   const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
 
-  const archiveJob = () => {
-    uploadJob(activeJob);
+  const archiveJob = async () => {
 
     logEvent(analytics, "Archive Job", {
       UID: parentUser.accountID,
@@ -41,8 +42,9 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
       severity: "success",
       autoHideDuration: 3000,
     }));
-
-    archivedJob(activeJob);
+    await deleteJobSnapshot(activeJob)
+    await updateMainUserDoc()
+    await archivedJob(activeJob);
     updateJobSettingsTrigger((prev) => !prev);
   };
 
@@ -54,7 +56,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
         marginBottom: "20px",
       }}
     >
-      <Grid item xs={12} align="right">
+      <Grid item xs={12} align="center">
         <Tooltip
           arrow
           title="Removes the job from your planner but stores the data for later use in reporting and cost calculations. If you do not wish to store this job data then simply delete the job."
@@ -62,7 +64,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
           <Button
             color="primary"
             variant="contained"
-            size="large"
+            size="small"
             onClick={archiveJob}
           >
             Archive Job

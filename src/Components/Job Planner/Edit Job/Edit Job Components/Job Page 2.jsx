@@ -19,29 +19,45 @@ export function EditPage2({ setJobModified }) {
             <TutorialStep2 />
           </Grid>
         )}
-        <PurchasingData/>
-        {activeJob.build.materials.map((material) => {
-          if (!parentUser.settings.editJob.hideCompleteMaterials) {
-            return (
-              <MaterialCard
-                key={material.typeID}
-                material={material}
-                setJobModified={setJobModified}
-              />
-            );
-          } else if (
-            parentUser.settings.editJob.hideCompleteMaterials &&
-            material.quantityPurchased < material.quantity
-          ) {
-            return (
-              <MaterialCard
-                key={material.typeID}
-                material={material}
-                setJobModified={setJobModified}
-              />
-            );
-          }
-        })}
+        <PurchasingData />
+        <Grid
+          container
+          item
+          spacing={2}
+          sx={{
+            overflowY: { xs: "scroll", sm: "visible" },
+            "&:: -ms-overflow-style": { display:"none" },
+            "&:: scrollbar-width": { display:"none"},
+            "&::-webkit-scrollbar": { display: "none" },
+            paddingRight: { xs: "1px", sm: "0px" },
+            marginTop: { xs: "20px", sm: "0px" },
+            marginBotton: { xs: "60px", sm: "0px" },
+            maxHeight: { xs: "600px", sm: "none" },
+          }}
+        >
+          {activeJob.build.materials.map((material) => {
+            if (!parentUser.settings.editJob.hideCompleteMaterials) {
+              return (
+                <MaterialCard
+                  key={material.typeID}
+                  material={material}
+                  setJobModified={setJobModified}
+                />
+              );
+            } else if (
+              parentUser.settings.editJob.hideCompleteMaterials &&
+              material.quantityPurchased < material.quantity
+            ) {
+              return (
+                <MaterialCard
+                  key={material.typeID}
+                  material={material}
+                  setJobModified={setJobModified}
+                />
+              );
+            }
+          })}
+        </Grid>
       </Grid>
     </Container>
   );

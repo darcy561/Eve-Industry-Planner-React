@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Grid, Typography } from "@mui/material";
-import { HeaderBanner } from "./Logged Out Components/headerBanner";
-import { IconBanner } from "./Logged Out Components/IconBanner";
+import { HeaderBanner } from "./Components/headerBanner";
+import { IconBanner } from "./Components/IconBanner";
 
 export function LoggedOutHome() {
   return (

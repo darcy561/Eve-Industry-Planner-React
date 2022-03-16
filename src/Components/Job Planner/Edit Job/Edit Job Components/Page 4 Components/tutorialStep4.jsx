@@ -38,19 +38,32 @@ export function TutorialStep4() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            So, you have now finished building your {activeJob.name}. This is
+            So, you have now finished building your {activeJob.name}. This stage
             where we complete the build cost calculations to work out the final
-            cost before we move onto selling our item.
+            cost before we move onto selling our item or passing this into
+            another job.
             {<br />}
             You will see the total material cost as was calculated previously,
             the total installation costs for the industry jobs that you linked
-            and any extra costs.
+            and any extra costs that may have been added.
             {<br />}
             {<br />}
-            The extra costs allows you to add or subtract amounts
-            from these build costs. Maybe you paid a friend to haul some items
-            that you needed, or you are adding the installation costs for an
-            older job that does not appear within the ESI data provided.
+            The extra costs allows you to add or subtract amounts from the build
+            costs. Maybe you paid a friend to haul some items that you needed, or
+            you are adding the installation costs for an older job that does not
+            appear within the ESI data provided.
+            {<br />}
+            {<br />}
+            For users who have logged in there is an Archive Job button, this
+            will remove the job from your planner but not the database. This
+            will then be used to generate a build cost history for each item
+            allowing you to see how much you have previously built these items
+            for when comparing these to current market costs. (Yet to be
+            implemented, data is currently being stored to start building this
+            data).
+            {<br />}
+            {<br />}
+            Currently T2/T3 blueprint invention costs can be added here.
           </Typography>
         </Grid>
         {isLoggedIn && (

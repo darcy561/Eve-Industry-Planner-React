@@ -6,6 +6,7 @@ const cors = require("cors");
 const appCheckVerification =
   require("./Middleware/AppCheck").appCheckVerification;
 const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
+const ESIMarketQuery = require("./Item Prices/priceData").ESIMarketQuery;
 
 admin.initializeApp();
 
@@ -77,8 +78,40 @@ app.get("/item/:itemID", (req, res) => {
     }
   })();
 });
+app.get("/costs/:itemID", async (req, res) => {
+  if (req.params.itemID != null) {
+    try {
+      let returnArray = [];
+      let promiseArray = [];
+      let returnData = null;
+      const itemRef = db.collection("Pricing").doc(req.params.itemID);
+      const itemDoc = await itemRef.get();
+      if (itemDoc.exists) {
+        if (itemDoc.data().lastUpdated + 14400000 <= Date.now()) {
+          returnData = await ESIMarketQuery(req.params.itemID);
+        } else {
+          returnData = itemDoc.data();
+        }
+      } else {
+        returnData = await ESIMarketQuery(req.params.itemID);
+      }
+
+      return res
+        .status(200)
+        .setHeader("Content-Type", "application/json")
+        .set("Cache-Control", "public, max-age=3600, s-maxage=7200")
+        .send(returnData);
+    } catch (err) {
+      functions.logger.error(err);
+      return res
+        .status(500)
+        .send("Error retrieving item data, please try again.");
+    }
+  } else {
+    return res.status(500).send("Item Data Missing From Request");
+  }
+});
 
 //Export the api to Firebase Cloud Functions
 exports.api = functions.https.onRequest(app);
 exports.user = require("./Triggered Functions/Users");
-exports.firestore = require("./Triggered Functions/Firestore");

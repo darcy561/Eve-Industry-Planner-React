@@ -37,18 +37,23 @@ export function TutorialStep2() {
           <Typography variant="body2">
             Now that you know what you are building, it is time to acquire the
             necessary parts.{<br />} {<br />}
-            For each item you can choose the "All Remaining" option from the
-            quantity dropdown or you can manually add them number of items into
-            the field, then add the amount you paid for each item. Click the{" "}
-            <b>+</b> to add this entry.
+            On each material card there is a small form allowing you to enter
+            the quantity, this value defaults to the remaining needed, and the
+            price that you paid for the item. Clicking the <b>+</b> will add
+            this to the job. You can add as many entries as needed, each entry
+            can be removed using the <b>X</b>.{<br />}
+            For manufacturing or reaction jobs there is an icon displayed in the top left corner
+            indicating the number of child jobs that are attached, clicking this
+            will allow you to manually add or remove child jobs.
             {<br />}
             {<br />}
-            As you add entries the total cost for the material will be
-            calculated and will be added to the total material cost for the job.
+            As you add entries the total cost for the material is calculated.
+            This is then added to the total material cost for the job which is
+            used to calculate an individual item cost.
             {<br />}
             {<br />}
-            You can use the "Hide Completed Purchases" toggle switch, if you only want
-            to see the items that you have not completely purchased.
+            You can use the "Hide Completed Purchases" toggle switch if you only
+            want to see the items that you have not completely purchased.
           </Typography>
         </Grid>
         {isLoggedIn && (

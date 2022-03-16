@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
-import { LoggedInHome } from "./Components/LoggedIn";
-import { LoggedOutHome } from "./Components/LoggedOut";
+import { Dashboard } from "../Dashboard/Dashboard";
+import { LoggedOutHome } from "./LoggedOut";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import { PageLoadContext } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
@@ -41,7 +41,7 @@ export function Home() {
     )
   } else {
     if (isLoggedIn) {
-      return <LoggedInHome />;
+      return <Dashboard />;
     } else {
       return <LoggedOutHome />;
     }

@@ -1,20 +1,50 @@
 import { useContext } from "react";
 import { UsersContext } from "../Context/AuthContext";
+<<<<<<< HEAD
 import { firestore, functions, performance } from "../firebase";
 import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
+=======
+import { appCheck, firestore, functions, performance } from "../firebase";
+import {
+  doc,
+  deleteDoc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { httpsCallable } from "@firebase/functions";
+import { trace } from "firebase/performance";
+import { JobStatusContext } from "../Context/JobContext";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import { getAuth } from "firebase/auth";
+import { getToken } from "firebase/app-check";
+import { firebaseAuth } from "../Components/Auth/firebaseAuth";
+import { EvePricesContext } from "../Context/EveDataContext";
+>>>>>>> development
 
 export function useFirebase() {
   const { users } = useContext(UsersContext);
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { evePrices } = useContext(EvePricesContext);
   const { jobStatus } = useContext(JobStatusContext);
   const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
 
+<<<<<<< HEAD
+=======
+  const fbAuthState = async () => {
+    const auth = getAuth();
+    if (auth.currentUser == null) {
+      let newfbuser = await firebaseAuth(parentUser);
+      console.log(newfbuser);
+    }
+  };
+
+>>>>>>> development
   const determineUserState = async (user) => {
     if (user.fbToken._tokenResponse.isNewUser) {
       const t = trace(performance, "NewUserCloudBuild");
@@ -63,7 +93,11 @@ export function useFirebase() {
   };
 
   const addNewJob = async (job) => {
+<<<<<<< HEAD
 
+=======
+    await fbAuthState();
+>>>>>>> development
     setDoc(
       doc(
         firestore,
@@ -94,12 +128,18 @@ export function useFirebase() {
         build: job.build,
         buildVer: job.buildVer,
         metaLevel: job.metaLevel,
+<<<<<<< HEAD
         parentJob: job.parentJob
+=======
+        parentJob: job.parentJob,
+        blueprintTypeID: job.blueprintTypeID,
+>>>>>>> development
       }
     );
   };
 
   const uploadJob = async (job) => {
+<<<<<<< HEAD
 
     updateDoc(
       doc(
@@ -135,6 +175,9 @@ export function useFirebase() {
   };
 
   const uploadSnapshotData = async (job) => {
+=======
+    await fbAuthState();
+>>>>>>> development
     updateDoc(
       doc(
         firestore,
@@ -142,20 +185,62 @@ export function useFirebase() {
         job.jobID.toString()
       ),
       {
+        jobType: job.jobType,
+        name: job.name,
         jobID: job.jobID,
         jobStatus: job.jobStatus,
-        name: job.name,
+        volume: job.volume,
         itemID: job.itemID,
+        maxProductionLimit: job.maxProductionLimit,
+        runCount: job.runCount,
+        jobCount: job.jobCount,
+        bpME: job.bpME,
+        bpTE: job.bpTE,
+        structureType: job.structureType,
+        structureTypeDisplay: job.structureTypeDisplay,
+        rigType: job.rigType,
+        systemType: job.systemType,
+        apiJobs: job.apiJobs,
+        skills: job.skills,
+        rawData: job.rawData,
+        build: job.build,
+        buildVer: job.buildVer,
+        metaLevel: job.metaLevel,
+        parentJob: job.parentJob,
+        blueprintTypeID: job.blueprintTypeID,
+      }
+    );
+  };
+
+  const uploadJobAsSnapshot = async (job) => {
+    await fbAuthState();
+    updateDoc(
+      doc(
+        firestore,
+        `Users/${parentUser.accountID}/Jobs`,
+        job.jobID.toString()
+      ),
+      {
         jobType: job.jobType,
+        name: job.name,
+        jobID: job.jobID,
+        jobStatus: job.jobStatus,
+        itemID: job.itemID,
         runCount: job.runCount,
         jobCount: job.jobCount,
         apiJobs: job.apiJobs,
+<<<<<<< HEAD
         buildVer: job.buildVer
+=======
+        buildVer: job.buildVer,
+        metaLevel: job.metaLevel,
+>>>>>>> development
       }
     );
   };
 
   const updateMainUserDoc = async () => {
+<<<<<<< HEAD
 
     updateDoc(doc(firestore, "Users", parentUser.accountID), {
       parentUserHash: parentUser.CharacterHash,
@@ -169,6 +254,29 @@ export function useFirebase() {
 
   const removeJob = async (job) => {
 
+=======
+    await fbAuthState();
+
+    updateDoc(
+      doc(
+        firestore,
+        "Users", parentUser.accountID
+      ),
+      {
+        jobArraySnapshot: parentUser.snapshotData,
+        parentUserHash: parentUser.CharacterHash,
+        jobStatusArray: jobStatus,
+        linkedJobs: parentUser.linkedJobs,
+        linkedTrans: parentUser.linkedTrans,
+        linkedOrders: parentUser.linkedOrders,
+        settings: parentUser.settings,
+      }
+    )
+  };
+
+  const removeJob = async (job) => {
+    await fbAuthState();
+>>>>>>> development
 
     deleteDoc(
       doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
@@ -176,18 +284,48 @@ export function useFirebase() {
   };
 
   const archivedJob = async (job) => {
+    await fbAuthState();
     updateDoc(
       doc(
         firestore,
         `Users/${parentUser.accountID}/Jobs`,
         job.jobID.toString()
       ),
-      { archived: true }
+      {
+        archived: true,
+        jobType: job.jobType,
+        name: job.name,
+        jobID: job.jobID,
+        jobStatus: job.jobStatus,
+        volume: job.volume,
+        itemID: job.itemID,
+        maxProductionLimit: job.maxProductionLimit,
+        runCount: job.runCount,
+        jobCount: job.jobCount,
+        bpME: job.bpME,
+        bpTE: job.bpTE,
+        structureType: job.structureType,
+        structureTypeDisplay: job.structureTypeDisplay,
+        rigType: job.rigType,
+        systemType: job.systemType,
+        apiJobs: job.apiJobs,
+        skills: job.skills,
+        rawData: job.rawData,
+        build: job.build,
+        buildVer: job.buildVer,
+        metaLevel: job.metaLevel,
+        parentJob: job.parentJob,
+        blueprintTypeID: job.blueprintTypeID,
+      }
     );
   };
 
   const downloadCharacterJobs = async (job) => {
+<<<<<<< HEAD
 
+=======
+    await fbAuthState();
+>>>>>>> development
 
     const document = await getDoc(
       doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
@@ -215,6 +353,7 @@ export function useFirebase() {
       build: document.data().build,
       buildVer: document.data().buildVer,
       metaLevel: document.data().metaLevel,
+<<<<<<< HEAD
       parentJob: document.data().parentJob
     };
 
@@ -224,13 +363,71 @@ export function useFirebase() {
     updateJobArray(newArray);
     return newJob;
   };
+=======
+      parentJob: document.data().parentJob,
+      blueprintTypeID: document.data().blueprintTypeID,
+    };
+
+    return newJob;
+  };
+
+  const getItemPrices = async (inputJob) => {
+    const t = trace(performance, "GetItemPrices");
+    t.start();
+    let requestArray = [];
+    let promiseArray = [];
+    let returnData = [];
+
+    const getItemPrices = async (item) => {
+      try {
+        const appCheckToken = await getToken(appCheck, true);
+        const itemPricePromise = fetch(
+          `${process.env.REACT_APP_APIURL}/costs/${item}`,
+          {
+            headers: {
+              "X-Firebase-AppCheck": appCheckToken.token,
+            },
+          }
+        );
+        return (await itemPricePromise).json();
+      } catch (err) {}
+    };
+
+    if (!evePrices.some((i) => i.typeID === inputJob.itemID)) {
+      requestArray.push(inputJob.itemID);
+    }
+    for (let material of inputJob.build.materials) {
+      if (!evePrices.some((i) => i.typeID === material.typeID)) {
+        requestArray.push(material.typeID);
+      }
+    }
+    if (requestArray.length > 0) {
+      for (let item of requestArray) {
+        let promise = getItemPrices(item);
+        promiseArray.push(promise);
+      }
+      let returnedPromise = await Promise.all(promiseArray);
+      
+      for (let data of returnedPromise) {
+        returnData.push(data);
+      }
+
+      t.stop();
+      return returnData;
+    } else {
+      t.stop();
+      return [];
+    }
+  };
+>>>>>>> development
 
   return {
+    addNewJob,
     archivedJob,
     determineUserState,
-    addNewJob,
+    getItemPrices,
     uploadJob,
-    uploadSnapshotData,
+    uploadJobAsSnapshot,
     updateMainUserDoc,
     removeJob,
     downloadCharacterJobs,

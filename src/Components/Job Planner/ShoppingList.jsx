@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { useContext } from "react";
+=======
+import { useContext, useState } from "react";
+>>>>>>> development
 import {
   ShoppingListContext,
   SnackBarDataContext,
@@ -9,7 +13,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
+  FormGroup,
   Grid,
+  Switch,
   Typography,
 } from "@mui/material";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -18,6 +25,7 @@ export function ShoppingListDialog() {
   const { shoppingListData, updateShoppingListData } =
     useContext(ShoppingListContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+<<<<<<< HEAD
 
   let copyText = "";
   let volumeTotal = 0
@@ -26,6 +34,26 @@ export function ShoppingListDialog() {
     shoppingListData.list.forEach((i) => {
       copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
       volumeTotal += (i.volume*i.quantity)
+=======
+  const [childJobDisplay, updateChildJobDisplay] = useState(false);
+
+  let copyText = "";
+  let volumeTotal = 0;
+  let displayData = [];
+  if (shoppingListData.open) {
+    shoppingListData.list.forEach((i) => {
+      if (childJobDisplay) {
+        copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
+        volumeTotal += i.volume * i.quantity;
+        displayData = shoppingListData.list;
+      } else {
+        if (!i.hasChild) {
+          copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
+          volumeTotal += i.volume * i.quantity;
+          displayData = shoppingListData.list.filter((i) => !i.hasChild);
+        }
+      }
+>>>>>>> development
     });
   }
   const handleClose = () => {
@@ -45,13 +73,15 @@ export function ShoppingListDialog() {
         id="ShoppingListDialog"
         align="center"
         sx={{ marginBottom: "10px" }}
+        color="primary"
       >
         Shopping List
       </DialogTitle>
       <DialogContent>
         <Grid container>
-          {shoppingListData.list.map((item) => {
+          {displayData.map((item) => {
             return (
+<<<<<<< HEAD
               <Grid key={item.typeID} container item xs={12} justifyContent="center" alignItems="center">
                 <Grid item sm={1} sx={{display:{xs:"none", sm:"block"}, paddingRight:"5px"}} align="center">
                 <img
@@ -60,6 +90,31 @@ export function ShoppingListDialog() {
                 />
                   </Grid>
                 <Grid item xs={8} sm={7} >
+=======
+              <Grid
+                key={item.typeID}
+                container
+                item
+                xs={12}
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Grid
+                  item
+                  sm={1}
+                  sx={{
+                    display: { xs: "none", sm: "block" },
+                    paddingRight: "5px",
+                  }}
+                  align="center"
+                >
+                  <img
+                    src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
+                    alt=""
+                  />
+                </Grid>
+                <Grid item xs={8} sm={7}>
+>>>>>>> development
                   <Typography variant="body1">{item.name}</Typography>
                 </Grid>
                 <Grid item xs={4}>
@@ -71,16 +126,44 @@ export function ShoppingListDialog() {
             );
           })}
         </Grid>
+<<<<<<< HEAD
         <Grid container sx={{marginTop: "20px"}}>
+=======
+        <Grid container sx={{ marginTop: "20px" }}>
+>>>>>>> development
           <Grid item xs={4}>
             <Typography variant="body1">Total Volume</Typography>
           </Grid>
           <Grid item xs={8} align="right">
+<<<<<<< HEAD
             <Typography vatiant="body1">{volumeTotal.toLocaleString()} m3</Typography>
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
+=======
+            <Typography vatiant="body1">
+              {volumeTotal.toLocaleString()} m3
+            </Typography>
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions sx={{ padding: "20px" }}>
+        <FormGroup sx={{marginRight:"20px"}}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={childJobDisplay}
+                onChange={() => {
+                  updateChildJobDisplay((prev) => !prev);
+                }}
+              />
+            }
+            label="Include intermediary items"
+            labelPlacement="start"
+          />
+        </FormGroup>
+>>>>>>> development
         <CopyToClipboard
           text={copyText}
           onCopy={() => {
@@ -93,7 +176,13 @@ export function ShoppingListDialog() {
             }));
           }}
         >
+<<<<<<< HEAD
           <Button>Copy to Clipboard</Button>
+=======
+          <Button variant="contained" sx={{ marginRight: "20px", display:{xs:"none", sm:"block"} }}>
+            Copy to Clipboard
+          </Button>
+>>>>>>> development
         </CopyToClipboard>
         <Button onClick={handleClose} autoFocus>
           Close

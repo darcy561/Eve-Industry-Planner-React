@@ -21,7 +21,11 @@ import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 export function RawResourceList() {
   const { activeJob } = useContext(ActiveJobContext);
   const [anchorEl, setAnchorEl] = useState(null);
+<<<<<<< HEAD
   const { newJobProcess } = useJobManagement();
+=======
+  const { newJobProcess, updateJobSnapshot } = useJobManagement();
+>>>>>>> development
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
   const handleMenuClick = (event) => {
@@ -31,26 +35,45 @@ export function RawResourceList() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+<<<<<<< HEAD
   let copyText = "";
   let volumeTotal = 0
 
   activeJob.build.materials.forEach((i) => {
     copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
     volumeTotal += (i.volume*i.quantity)
+=======
+  
+  let copyText = "";
+  let volumeTotal = 0;
+
+  activeJob.build.materials.forEach((i) => {
+    copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
+    volumeTotal += i.volume * i.quantity;
+>>>>>>> development
   });
 
   function AddBuildIcon({ material }) {
     if (material.jobType === jobTypes.manufacturing) {
       return (
         <Tooltip
-          title="Manufacturing Job, click to create as a new job."
+          title="Manufacturing Job, click to create a new child job."
           placement="left-start"
           arrow
         >
           <IconButton
             sx={{ color: "manufacturing.main" }}
             size="small"
-            onClick={() => newJobProcess(material.typeID, material.quantity)}
+            onClick={async () => {
+              let newJob = await newJobProcess(
+                material.typeID,
+                material.quantity,
+                [activeJob]
+              );
+              const index = activeJob.build.materials.findIndex((i) => i.typeID === newJob.itemID);
+              activeJob.build.materials[index].childJob.push(newJob.jobID);
+              updateJobSnapshot(activeJob)
+            }}
           >
             <MdOutlineAddCircle />
           </IconButton>
@@ -59,14 +82,23 @@ export function RawResourceList() {
     } else if (material.jobType === jobTypes.reaction) {
       return (
         <Tooltip
-          title="Reaction Job, click to create as a new job"
+          title="Reaction Job, click to create a new child job"
           placement="left-start"
           arrow
         >
           <IconButton
             sx={{ color: "reaction.main" }}
             size="small"
-            onClick={() => newJobProcess(material.typeID, material.quantity)}
+            onClick={async () => {
+              let newJob = await newJobProcess(
+                material.typeID,
+                material.quantity,
+                [activeJob]
+              );
+              const index = activeJob.build.materials.findIndex((i) => i.typeID === newJob.itemID);
+              activeJob.build.materials[index].childJob.push(newJob.jobID);
+              updateJobSnapshot(activeJob)
+            }}
           >
             <MdOutlineAddCircle />
           </IconButton>
@@ -94,9 +126,14 @@ export function RawResourceList() {
   return (
     <Paper
       sx={{
+<<<<<<< HEAD
         minWidth:"100%",
+=======
+        minWidth: "100%",
+>>>>>>> development
         paddingBottom: "20px",
         paddingTop: "20px",
+        position: "relative",
       }}
       elevation={3}
       square={true}
@@ -104,17 +141,26 @@ export function RawResourceList() {
       <Container disableGutters={true}>
         <Box sx={{ marginBottom: "20px" }}>
           <Grid container direction="row">
+<<<<<<< HEAD
             <Grid item xs={12} md={11}>
+=======
+            <Grid item xs={12}>
+>>>>>>> development
               <Typography variant="h6" color="primary" align="center">
                 Raw Resources
               </Typography>
             </Grid>
-            <Grid
-              item
-              md={1}
-              sx={{ display: { xs: "none", md: "block" } }}
-              align="right"
+            <IconButton
+              id="rawResources_menu_button"
+              onClick={handleMenuClick}
+              aria-controls={
+                Boolean(anchorEl) ? "rawResources_menu" : undefined
+              }
+              aria-haspopup="true"
+              aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+              sx={{ position: "absolute", top: "10px", right: "10px" }}
             >
+<<<<<<< HEAD
               <IconButton
                 id="rawResources_menu_button"
                 onClick={handleMenuClick}
@@ -151,6 +197,34 @@ export function RawResourceList() {
                 </CopyToClipboard>
               </Menu>
             </Grid>
+=======
+              <MoreVertIcon size="small" color="Secondary" />
+            </IconButton>
+            <Menu
+              id="rawResources_menu"
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              MenuListProps={{
+                "aria-labelledby": "rawResources_menu_button",
+              }}
+            >
+              <CopyToClipboard
+                text={copyText}
+                onCopy={() => {
+                  setSnackbarData((prev) => ({
+                    ...prev,
+                    open: true,
+                    message: `Resource List Copied`,
+                    severity: "success",
+                    autoHideDuration: 1000,
+                  }));
+                }}
+              >
+                <MenuItem>Copy Resources List</MenuItem>
+              </CopyToClipboard>
+            </Menu>
+>>>>>>> development
           </Grid>
         </Box>
         <Box
@@ -180,6 +254,7 @@ export function RawResourceList() {
           </Grid>
 
         </Box>
+<<<<<<< HEAD
         <Grid container sx={{ marginTop:"20px"}}>
             <Grid item xs={6} sm={8} md={9}>
               <Typography varinat="body2" align="right">Total Volume</Typography>
@@ -188,6 +263,20 @@ export function RawResourceList() {
             <Typography variant="body2" align="center">{volumeTotal.toLocaleString()} m3</Typography>
             </Grid>
           </Grid>
+=======
+        <Grid container sx={{ marginTop: "20px" }}>
+          <Grid item xs={6} sm={8} md={9}>
+            <Typography varinat="body2" align="right">
+              Total Volume
+            </Typography>
+          </Grid>
+          <Grid item xs={6} sm={4} md={3}>
+            <Typography variant="body2" align="center">
+              {volumeTotal.toLocaleString()} m3
+            </Typography>
+          </Grid>
+        </Grid>
+>>>>>>> development
       </Container>
     </Paper>
   );

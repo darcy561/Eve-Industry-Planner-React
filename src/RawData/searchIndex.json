@@ -4790,6 +4790,66 @@
     "blueprintID": 21868
   },
   {
+    "name": "Structure Construction Parts",
+    "itemID": 21947,
+    "blueprintID": 21948
+  },
+  {
+    "name": "Structure Hangar Array",
+    "itemID": 21949,
+    "blueprintID": 21950
+  },
+  {
+    "name": "Structure Storage Bay",
+    "itemID": 21951,
+    "blueprintID": 21952
+  },
+  {
+    "name": "Structure Laboratory",
+    "itemID": 21953,
+    "blueprintID": 21954
+  },
+  {
+    "name": "Structure Factory",
+    "itemID": 21955,
+    "blueprintID": 21956
+  },
+  {
+    "name": "Structure Repair Facility",
+    "itemID": 21957,
+    "blueprintID": 21958
+  },
+  {
+    "name": "Structure Reprocessing Plant",
+    "itemID": 21959,
+    "blueprintID": 21960
+  },
+  {
+    "name": "Structure Docking Bay",
+    "itemID": 21961,
+    "blueprintID": 21962
+  },
+  {
+    "name": "Structure Market Network",
+    "itemID": 21963,
+    "blueprintID": 21964
+  },
+  {
+    "name": "Structure Medical Center",
+    "itemID": 21965,
+    "blueprintID": 21966
+  },
+  {
+    "name": "Structure Office Center",
+    "itemID": 21967,
+    "blueprintID": 21968
+  },
+  {
+    "name": "Structure Mission Network",
+    "itemID": 21969,
+    "blueprintID": 21970
+  },
+  {
     "name": "Data Analyzer I",
     "itemID": 22175,
     "blueprintID": 22176
@@ -5110,16 +5170,40 @@
     "blueprintID": 23732
   },
   {
+<<<<<<< HEAD
+=======
+    "name": "Archon",
+    "itemID": 23757,
+    "blueprintID": 23758
+  },
+  {
+>>>>>>> development
     "name": "Ragnarok",
     "itemID": 23773,
     "blueprintID": 23774
   },
   {
+<<<<<<< HEAD
+=======
+    "name": "Thanatos",
+    "itemID": 23911,
+    "blueprintID": 23912
+  },
+  {
+>>>>>>> development
     "name": "Nyx",
     "itemID": 23913,
     "blueprintID": 23914
   },
   {
+<<<<<<< HEAD
+=======
+    "name": "Chimera",
+    "itemID": 23915,
+    "blueprintID": 23916
+  },
+  {
+>>>>>>> development
     "name": "Wyvern",
     "itemID": 23917,
     "blueprintID": 23918
@@ -5198,6 +5282,11 @@
     "name": "Inferno Javelin Rocket",
     "itemID": 24479,
     "blueprintID": 24543
+  },
+  {
+    "name": "Nidhoggur",
+    "itemID": 24483,
+    "blueprintID": 24484
   },
   {
     "name": "Inferno Rage Heavy Assault Missile",
@@ -9855,9 +9944,164 @@
     "blueprintID": 36960
   },
   {
+    "name": "Standup Supercapital Shipyard I",
+    "itemID": 35877,
+    "blueprintID": 43929
+  },
+  {
+    "name": "Standup Manufacturing Plant I",
+    "itemID": 35878,
+    "blueprintID": 43927
+  },
+  {
+    "name": "Standup Capital Shipyard I",
+    "itemID": 35881,
+    "blueprintID": 43925
+  },
+  {
+    "name": "Standup Invention Lab I",
+    "itemID": 35886,
+    "blueprintID": 43926
+  },
+  {
+    "name": "Standup Research Lab I",
+    "itemID": 35891,
+    "blueprintID": 43928
+  },
+  {
+    "name": "Standup Market Hub I",
+    "itemID": 35892,
+    "blueprintID": 37022
+  },
+  {
+    "name": "Standup Cloning Center I",
+    "itemID": 35894,
+    "blueprintID": 37023
+  },
+  {
+    "name": "Standup Reprocessing Facility I",
+    "itemID": 35899,
+    "blueprintID": 37032
+  },
+  {
+    "name": "Structure Compression Plant",
+    "itemID": 35900,
+    "blueprintID": 37033
+  },
+  {
+    "name": "Standup Anticapital Missile Launcher I",
+    "itemID": 35921,
+    "blueprintID": 37047
+  },
+  {
+    "name": "Standup Multirole Missile Launcher I",
+    "itemID": 35922,
+    "blueprintID": 37048
+  },
+  {
+    "name": "Standup Guided Bomb Launcher I",
+    "itemID": 35923,
+    "blueprintID": 37008
+  },
+  {
+    "name": "Standup XL Energy Neutralizer I",
+    "itemID": 35924,
+    "blueprintID": 37043
+  },
+  {
+    "name": "Standup Heavy Energy Neutralizer I",
+    "itemID": 35925,
+    "blueprintID": 37044
+  },
+  {
+    "name": "Standup Point Defense Battery I",
+    "itemID": 35926,
+    "blueprintID": 37029
+  },
+  {
+    "name": "Standup Arcing Vorton Projector I",
+    "itemID": 35928,
+    "blueprintID": 37030
+  },
+  {
+    "name": "Standup Variable Spectrum ECM I",
+    "itemID": 35940,
+    "blueprintID": 37041
+  },
+  {
+    "name": "Standup Remote Sensor Dampener I",
+    "itemID": 35941,
+    "blueprintID": 37066
+  },
+  {
+    "name": "Standup Stasis Webifier I",
+    "itemID": 35943,
+    "blueprintID": 37080
+  },
+  {
+    "name": "Standup Energy Neutralization Burst Projector",
+    "itemID": 35944,
+    "blueprintID": 47114
+  },
+  {
+    "name": "Standup Weapon Disruptor I",
+    "itemID": 35945,
+    "blueprintID": 37083
+  },
+  {
+    "name": "Standup Target Painter I",
+    "itemID": 35947,
+    "blueprintID": 37081
+  },
+  {
+    "name": "Standup Focused Warp Disruptor I",
+    "itemID": 35949,
+    "blueprintID": 37087
+  },
+  {
+    "name": "Standup Ballistic Control System I",
+    "itemID": 35959,
+    "blueprintID": 37020
+  },
+  {
+    "name": "Standup Missile Guidance Enhancer I",
+    "itemID": 35962,
+    "blueprintID": 37045
+  },
+  {
+    "name": "Standup Co-Processor Array I",
+    "itemID": 35963,
+    "blueprintID": 37028
+  },
+  {
+    "name": "Standup Reactor Control Unit I",
+    "itemID": 35965,
+    "blueprintID": 37060
+  },
+  {
+    "name": "Structure Electromagnetic Sensor",
+    "itemID": 36956,
+    "blueprintID": 36953
+  },
+  {
+    "name": "Structure Acceleration Coils",
+    "itemID": 36957,
+    "blueprintID": 36954
+  },
+  {
+    "name": "Structure Advertisement Nexus",
+    "itemID": 36958,
+    "blueprintID": 36955
+  },
+  {
     "name": "Endurance",
     "itemID": 37135,
     "blueprintID": 39583
+  },
+  {
+    "name": "Standup M-Set Basic Medium Ship Manufacturing Material Efficiency I",
+    "itemID": 37146,
+    "blueprintID": 44018
   },
   {
     "name": "Standup M-Set Basic Medium Ship Manufacturing Material Efficiency II",
@@ -9865,9 +10109,19 @@
     "blueprintID": 44019
   },
   {
+    "name": "Standup M-Set Drone and Fighter Manufacturing Time Efficiency I",
+    "itemID": 37148,
+    "blueprintID": 44012
+  },
+  {
     "name": "Standup M-Set Drone and Fighter Manufacturing Time Efficiency II",
     "itemID": 37149,
     "blueprintID": 44013
+  },
+  {
+    "name": "Standup M-Set Ammunition Manufacturing Time Efficiency I",
+    "itemID": 37150,
+    "blueprintID": 44008
   },
   {
     "name": "Standup M-Set Ammunition Manufacturing Time Efficiency II",
@@ -9885,9 +10139,19 @@
     "blueprintID": 44021
   },
   {
+    "name": "Standup M-Set Basic Small Ship Manufacturing Material Efficiency I",
+    "itemID": 37154,
+    "blueprintID": 44014
+  },
+  {
     "name": "Standup M-Set Basic Small Ship Manufacturing Material Efficiency II",
     "itemID": 37155,
     "blueprintID": 44015
+  },
+  {
+    "name": "Standup M-Set Drone and Fighter Manufacturing Material Efficiency I",
+    "itemID": 37156,
+    "blueprintID": 44010
   },
   {
     "name": "Standup M-Set Drone and Fighter Manufacturing Material Efficiency II",
@@ -9895,9 +10159,19 @@
     "blueprintID": 44011
   },
   {
+    "name": "Standup M-Set Ammunition Manufacturing Material Efficiency I",
+    "itemID": 37158,
+    "blueprintID": 44006
+  },
+  {
     "name": "Standup M-Set Ammunition Manufacturing Material Efficiency II",
     "itemID": 37159,
     "blueprintID": 44007
+  },
+  {
+    "name": "Standup M-Set Equipment Manufacturing Time Efficiency I",
+    "itemID": 37160,
+    "blueprintID": 44004
   },
   {
     "name": "Standup M-Set Equipment Manufacturing Time Efficiency II",
@@ -9905,9 +10179,19 @@
     "blueprintID": 44005
   },
   {
+    "name": "Standup M-Set Basic Small Ship Manufacturing Time Efficiency I",
+    "itemID": 37162,
+    "blueprintID": 44016
+  },
+  {
     "name": "Standup M-Set Basic Small Ship Manufacturing Time Efficiency II",
     "itemID": 37163,
     "blueprintID": 44017
+  },
+  {
+    "name": "Standup L-Set Ammunition Manufacturing Efficiency I",
+    "itemID": 37164,
+    "blueprintID": 37309
   },
   {
     "name": "Standup L-Set Ammunition Manufacturing Efficiency II",
@@ -9915,14 +10199,29 @@
     "blueprintID": 37329
   },
   {
+    "name": "Standup L-Set Basic Large Ship Manufacturing Efficiency I",
+    "itemID": 37166,
+    "blueprintID": 37330
+  },
+  {
     "name": "Standup L-Set Basic Large Ship Manufacturing Efficiency II",
     "itemID": 37167,
     "blueprintID": 37331
   },
   {
+    "name": "Standup L-Set Advanced Large Ship Manufacturing Efficiency I",
+    "itemID": 37168,
+    "blueprintID": 37332
+  },
+  {
     "name": "Standup L-Set Advanced Large Ship Manufacturing Efficiency II",
     "itemID": 37169,
     "blueprintID": 37333
+  },
+  {
+    "name": "Standup L-Set Equipment Manufacturing Efficiency I",
+    "itemID": 37170,
+    "blueprintID": 37334
   },
   {
     "name": "Standup L-Set Equipment Manufacturing Efficiency II",
@@ -9935,14 +10234,34 @@
     "blueprintID": 44087
   },
   {
+    "name": "Standup L-Set Capital Ship Manufacturing Efficiency I",
+    "itemID": 37173,
+    "blueprintID": 44086
+  },
+  {
+    "name": "Standup L-Set Advanced Component Manufacturing Efficiency I",
+    "itemID": 37174,
+    "blueprintID": 37338
+  },
+  {
     "name": "Standup L-Set Advanced Component Manufacturing Efficiency II",
     "itemID": 37175,
     "blueprintID": 37339
   },
   {
+    "name": "Standup XL-Set Equipment and Consumable Manufacturing Efficiency I",
+    "itemID": 37178,
+    "blueprintID": 37310
+  },
+  {
     "name": "Standup XL-Set Equipment and Consumable Manufacturing Efficiency II",
     "itemID": 37179,
     "blueprintID": 37342
+  },
+  {
+    "name": "Standup XL-Set Ship Manufacturing Efficiency I",
+    "itemID": 37180,
+    "blueprintID": 37343
   },
   {
     "name": "Standup XL-Set Ship Manufacturing Efficiency II",
@@ -9955,9 +10274,24 @@
     "blueprintID": 37345
   },
   {
+    "name": "Standup XL-Set Laboratory Optimization I",
+    "itemID": 37183,
+    "blueprintID": 37346
+  },
+  {
+    "name": "Standup M-Set Missile Precision I",
+    "itemID": 37216,
+    "blueprintID": 37378
+  },
+  {
     "name": "Standup M-Set Missile Precision II",
     "itemID": 37217,
     "blueprintID": 37379
+  },
+  {
+    "name": "Standup M-Set Energy Neutralizer Projection I",
+    "itemID": 37218,
+    "blueprintID": 37382
   },
   {
     "name": "Standup M-Set Energy Neutralizer Projection II",
@@ -9965,9 +10299,19 @@
     "blueprintID": 37383
   },
   {
+    "name": "Standup M-Set Missile Projection I",
+    "itemID": 37220,
+    "blueprintID": 37380
+  },
+  {
     "name": "Standup M-Set Missile Projection II",
     "itemID": 37221,
     "blueprintID": 37381
+  },
+  {
+    "name": "Standup M-Set Energy Neutralizer Economy I",
+    "itemID": 37222,
+    "blueprintID": 37384
   },
   {
     "name": "Standup M-Set Energy Neutralizer Economy II",
@@ -9975,9 +10319,19 @@
     "blueprintID": 37385
   },
   {
+    "name": "Standup M-Set Electronic Warfare Projection I",
+    "itemID": 37228,
+    "blueprintID": 37390
+  },
+  {
     "name": "Standup M-Set Electronic Warfare Projection II",
     "itemID": 37229,
     "blueprintID": 37391
+  },
+  {
+    "name": "Standup M-Set Electronic Warfare Economy I",
+    "itemID": 37230,
+    "blueprintID": 37392
   },
   {
     "name": "Standup M-Set Electronic Warfare Economy II",
@@ -9985,9 +10339,19 @@
     "blueprintID": 37393
   },
   {
+    "name": "Standup M-Set Structure Target Multiplexing I",
+    "itemID": 37232,
+    "blueprintID": 37394
+  },
+  {
     "name": "Standup M-Set Structure Target Multiplexing II",
     "itemID": 37233,
     "blueprintID": 37395
+  },
+  {
+    "name": "Standup M-Set Enhanced Targeting System I",
+    "itemID": 37234,
+    "blueprintID": 37396
   },
   {
     "name": "Standup M-Set Enhanced Targeting System II",
@@ -9995,9 +10359,19 @@
     "blueprintID": 37397
   },
   {
+    "name": "Standup L-Set Missile Flight Processor I",
+    "itemID": 37248,
+    "blueprintID": 37410
+  },
+  {
     "name": "Standup L-Set Missile Flight Processor II",
     "itemID": 37249,
     "blueprintID": 37411
+  },
+  {
+    "name": "Standup L-Set Energy Neutralizer Feedback Control I",
+    "itemID": 37250,
+    "blueprintID": 37413
   },
   {
     "name": "Standup L-Set Energy Neutralizer Feedback Control II",
@@ -10005,9 +10379,19 @@
     "blueprintID": 37414
   },
   {
+    "name": "Standup L-Set EW Command System I",
+    "itemID": 37254,
+    "blueprintID": 37417
+  },
+  {
     "name": "Standup L-Set EW Command System II",
     "itemID": 37255,
     "blueprintID": 37418
+  },
+  {
+    "name": "Standup L-Set Bomb Aimer I",
+    "itemID": 37256,
+    "blueprintID": 37419
   },
   {
     "name": "Standup L-Set Bomb Aimer II",
@@ -10015,9 +10399,19 @@
     "blueprintID": 37420
   },
   {
+    "name": "Standup L-Set Point Defense Battery Control I",
+    "itemID": 37258,
+    "blueprintID": 37421
+  },
+  {
     "name": "Standup L-Set Point Defense Battery Control II",
     "itemID": 37259,
     "blueprintID": 37422
+  },
+  {
+    "name": "Standup L-Set Target Acquisition Array I",
+    "itemID": 37260,
+    "blueprintID": 37423
   },
   {
     "name": "Standup L-Set Target Acquisition Array II",
@@ -10025,14 +10419,29 @@
     "blueprintID": 37424
   },
   {
+    "name": "Standup XL-Set Missile Fire Control Computer I",
+    "itemID": 37268,
+    "blueprintID": 37431
+  },
+  {
     "name": "Standup XL-Set Missile Fire Control Computer II",
     "itemID": 37269,
     "blueprintID": 37432
   },
   {
+    "name": "Standup XL-Set EW and Emissions Co-ordinator I",
+    "itemID": 37272,
+    "blueprintID": 37435
+  },
+  {
     "name": "Standup XL-Set EW and Emissions Co-ordinator II",
     "itemID": 37273,
     "blueprintID": 37436
+  },
+  {
+    "name": "Standup XL-Set Extinction Level Weapons Suite I",
+    "itemID": 37274,
+    "blueprintID": 37437
   },
   {
     "name": "Standup XL-Set Extinction Level Weapons Suite II",
@@ -10205,6 +10614,11 @@
     "blueprintID": 37619
   },
   {
+    "name": "Standup Signal Amplifier I",
+    "itemID": 37532,
+    "blueprintID": 37541
+  },
+  {
     "name": "Tenebrex Cyno Jammer",
     "itemID": 37534,
     "blueprintID": 37538
@@ -10265,6 +10679,34 @@
     "blueprintID": 37836
   },
   {
+<<<<<<< HEAD
+=======
+    "name": "Standup Super-heavy Torpedo",
+    "itemID": 37843,
+    "blueprintID": 37852
+  },
+  {
+    "name": "Standup XL Cruise Missile",
+    "itemID": 37844,
+    "blueprintID": 37853
+  },
+  {
+    "name": "Standup Cruise Missile",
+    "itemID": 37846,
+    "blueprintID": 37855
+  },
+  {
+    "name": "Standup Heavy Missile",
+    "itemID": 37847,
+    "blueprintID": 37856
+  },
+  {
+    "name": "Standup Light Missile",
+    "itemID": 37848,
+    "blueprintID": 37857
+  },
+  {
+>>>>>>> development
     "name": "Standup Heavy Guided Bomb",
     "itemID": 37849,
     "blueprintID": 37858
@@ -11330,9 +11772,19 @@
     "blueprintID": 43912
   },
   {
+    "name": "Standup XL-Set Structure and Component Manufacturing Efficiency I",
+    "itemID": 43704,
+    "blueprintID": 37376
+  },
+  {
     "name": "Standup XL-Set Structure and Component Manufacturing Efficiency II",
     "itemID": 43705,
     "blueprintID": 37377
+  },
+  {
+    "name": "Standup L-Set Advanced Small Ship Manufacturing Efficiency I",
+    "itemID": 43707,
+    "blueprintID": 44076
   },
   {
     "name": "Standup L-Set Advanced Small Ship Manufacturing Efficiency II",
@@ -11340,9 +11792,19 @@
     "blueprintID": 44077
   },
   {
+    "name": "Standup L-Set Advanced Medium Ship Manufacturing Efficiency I",
+    "itemID": 43709,
+    "blueprintID": 44074
+  },
+  {
     "name": "Standup L-Set Advanced Medium Ship Manufacturing Efficiency II",
     "itemID": 43711,
     "blueprintID": 44075
+  },
+  {
+    "name": "Standup L-Set Drone and Fighter Manufacturing Efficiency I",
+    "itemID": 43712,
+    "blueprintID": 44088
   },
   {
     "name": "Standup L-Set Drone and Fighter Manufacturing Efficiency II",
@@ -11350,9 +11812,19 @@
     "blueprintID": 44089
   },
   {
+    "name": "Standup L-Set Basic Small Ship Manufacturing Efficiency I",
+    "itemID": 43714,
+    "blueprintID": 44082
+  },
+  {
     "name": "Standup L-Set Basic Small Ship Manufacturing Efficiency II",
     "itemID": 43715,
     "blueprintID": 44083
+  },
+  {
+    "name": "Standup L-Set Basic Medium Ship Manufacturing Efficiency I",
+    "itemID": 43716,
+    "blueprintID": 44080
   },
   {
     "name": "Standup L-Set Basic Medium Ship Manufacturing Efficiency II",
@@ -11360,9 +11832,19 @@
     "blueprintID": 44081
   },
   {
+    "name": "Standup L-Set Basic Capital Component Manufacturing Efficiency I",
+    "itemID": 43718,
+    "blueprintID": 44078
+  },
+  {
     "name": "Standup L-Set Basic Capital Component Manufacturing Efficiency II",
     "itemID": 43719,
     "blueprintID": 44079
+  },
+  {
+    "name": "Standup L-Set Structure Manufacturing Efficiency I",
+    "itemID": 43720,
+    "blueprintID": 44094
   },
   {
     "name": "Standup L-Set Structure Manufacturing Efficiency II",
@@ -11370,9 +11852,19 @@
     "blueprintID": 44095
   },
   {
+    "name": "Standup L-Set Invention Optimization I",
+    "itemID": 43722,
+    "blueprintID": 44090
+  },
+  {
     "name": "Standup L-Set Invention Optimization II",
     "itemID": 43723,
     "blueprintID": 44091
+  },
+  {
+    "name": "Standup L-Set ME Research Optimization I",
+    "itemID": 43724,
+    "blueprintID": 44092
   },
   {
     "name": "Standup L-Set ME Research Optimization II",
@@ -11380,14 +11872,34 @@
     "blueprintID": 44093
   },
   {
+    "name": "Standup L-Set TE Research Optimization I",
+    "itemID": 43726,
+    "blueprintID": 44096
+  },
+  {
     "name": "Standup L-Set TE Research Optimization II",
     "itemID": 43727,
     "blueprintID": 44097
   },
   {
+    "name": "Standup L-Set Blueprint Copy Optimization I",
+    "itemID": 43729,
+    "blueprintID": 44084
+  },
+  {
     "name": "Standup L-Set Blueprint Copy Optimization II",
     "itemID": 43730,
     "blueprintID": 44085
+  },
+  {
+    "name": "Standup M-Set Basic Large Ship Manufacturing Material Efficiency I",
+    "itemID": 43732,
+    "blueprintID": 44022
+  },
+  {
+    "name": "Standup M-Set Basic Large Ship Manufacturing Time Efficiency I",
+    "itemID": 43733,
+    "blueprintID": 44024
   },
   {
     "name": "Standup M-Set Basic Large Ship Manufacturing Time Efficiency II",
@@ -11400,9 +11912,24 @@
     "blueprintID": 44027
   },
   {
+    "name": "Standup M-Set Advanced Small Ship Manufacturing Material Efficiency I",
+    "itemID": 43855,
+    "blueprintID": 44026
+  },
+  {
+    "name": "Standup M-Set Advanced Small Ship Manufacturing Time Efficiency I",
+    "itemID": 43856,
+    "blueprintID": 44028
+  },
+  {
     "name": "Standup M-Set Advanced Small Ship Manufacturing Time Efficiency II",
     "itemID": 43857,
     "blueprintID": 44029
+  },
+  {
+    "name": "Standup M-Set Advanced Medium Ship Manufacturing Material Efficiency I",
+    "itemID": 43858,
+    "blueprintID": 44030
   },
   {
     "name": "Standup M-Set Advanced Medium Ship Manufacturing Material Efficiency II",
@@ -11410,9 +11937,19 @@
     "blueprintID": 44031
   },
   {
+    "name": "Standup M-Set Advanced Medium Ship Manufacturing Time Efficiency I",
+    "itemID": 43860,
+    "blueprintID": 44032
+  },
+  {
     "name": "Standup M-Set Advanced Medium Ship Manufacturing Time Efficiency II",
     "itemID": 43861,
     "blueprintID": 44033
+  },
+  {
+    "name": "Standup M-Set Advanced Large Ship Manufacturing Material Efficiency I",
+    "itemID": 43862,
+    "blueprintID": 44034
   },
   {
     "name": "Standup M-Set Advanced Large Ship Manufacturing Material Efficiency II",
@@ -11425,9 +11962,19 @@
     "blueprintID": 44037
   },
   {
+    "name": "Standup M-Set Advanced Large Ship Manufacturing Time Efficiency I",
+    "itemID": 43865,
+    "blueprintID": 44036
+  },
+  {
     "name": "Standup M-Set Advanced Component Manufacturing Material Efficiency II",
     "itemID": 43866,
     "blueprintID": 44039
+  },
+  {
+    "name": "Standup M-Set Advanced Component Manufacturing Material Efficiency I",
+    "itemID": 43867,
+    "blueprintID": 44038
   },
   {
     "name": "Standup M-Set Advanced Component Manufacturing Time Efficiency II",
@@ -11435,9 +11982,24 @@
     "blueprintID": 44041
   },
   {
+    "name": "Standup M-Set Advanced Component Manufacturing Time Efficiency I",
+    "itemID": 43869,
+    "blueprintID": 44040
+  },
+  {
+    "name": "Standup M-Set Basic Capital Component Manufacturing Material Efficiency I",
+    "itemID": 43870,
+    "blueprintID": 44042
+  },
+  {
     "name": "Standup M-Set Basic Capital Component Manufacturing Material Efficiency II",
     "itemID": 43871,
     "blueprintID": 44043
+  },
+  {
+    "name": "Standup M-Set Basic Capital Component Manufacturing Time Efficiency I",
+    "itemID": 43872,
+    "blueprintID": 44044
   },
   {
     "name": "Standup M-Set Basic Capital Component Manufacturing Time Efficiency II",
@@ -11450,6 +12012,16 @@
     "blueprintID": 44047
   },
   {
+    "name": "Standup M-Set Structure Manufacturing Material Efficiency I",
+    "itemID": 43875,
+    "blueprintID": 44046
+  },
+  {
+    "name": "Standup M-Set Structure Manufacturing Time Efficiency I",
+    "itemID": 43876,
+    "blueprintID": 44048
+  },
+  {
     "name": "Standup M-Set Structure Manufacturing Time Efficiency II",
     "itemID": 43877,
     "blueprintID": 44049
@@ -11458,6 +12030,16 @@
     "name": "Standup M-Set Invention Cost Optimization II",
     "itemID": 43878,
     "blueprintID": 44051
+  },
+  {
+    "name": "Standup M-Set Invention Cost Optimization I",
+    "itemID": 43879,
+    "blueprintID": 44050
+  },
+  {
+    "name": "Standup M-Set Invention Accelerator I",
+    "itemID": 43880,
+    "blueprintID": 44052
   },
   {
     "name": "Standup M-Set Invention Accelerator II",
@@ -11470,9 +12052,19 @@
     "blueprintID": 44057
   },
   {
+    "name": "Standup M-Set ME Research Accelerator I",
+    "itemID": 43883,
+    "blueprintID": 44056
+  },
+  {
     "name": "Standup M-Set ME Research Cost Optimization II",
     "itemID": 43884,
     "blueprintID": 44055
+  },
+  {
+    "name": "Standup M-Set ME Research Cost Optimization I",
+    "itemID": 43885,
+    "blueprintID": 44054
   },
   {
     "name": "Standup M-Set TE Research Cost Optimization II",
@@ -11480,9 +12072,19 @@
     "blueprintID": 44059
   },
   {
+    "name": "Standup M-Set TE Research Cost Optimization I",
+    "itemID": 43887,
+    "blueprintID": 44058
+  },
+  {
     "name": "Standup M-Set TE Research Accelerator II",
     "itemID": 43888,
     "blueprintID": 44061
+  },
+  {
+    "name": "Standup M-Set TE Research Accelerator I",
+    "itemID": 43889,
+    "blueprintID": 44060
   },
   {
     "name": "Standup M-Set Blueprint Copy Cost Optimization II",
@@ -11490,9 +12092,29 @@
     "blueprintID": 44063
   },
   {
+    "name": "Standup M-Set Blueprint Copy Cost Optimization I",
+    "itemID": 43891,
+    "blueprintID": 44062
+  },
+  {
     "name": "Standup M-Set Blueprint Copy Accelerator II",
     "itemID": 43892,
     "blueprintID": 44065
+  },
+  {
+    "name": "Standup M-Set Blueprint Copy Accelerator I",
+    "itemID": 43893,
+    "blueprintID": 44064
+  },
+  {
+    "name": "Standup M-Set Basic Medium Ship Manufacturing Time Efficiency I",
+    "itemID": 43919,
+    "blueprintID": 44020
+  },
+  {
+    "name": "Standup M-Set Equipment Manufacturing Material Efficiency I",
+    "itemID": 43920,
+    "blueprintID": 44002
   },
   {
     "name": "Standup M-Set Equipment Manufacturing Material Efficiency II",
@@ -11515,6 +12137,14 @@
     "blueprintID": 45528
   },
   {
+<<<<<<< HEAD
+=======
+    "name": "Standup Moon Drill I",
+    "itemID": 45009,
+    "blueprintID": 37034
+  },
+  {
+>>>>>>> development
     "name": "Focused Warp Scrambling Script",
     "itemID": 45010,
     "blueprintID": 45011
@@ -11523,6 +12153,21 @@
     "name": "Monitor",
     "itemID": 45534,
     "blueprintID": 45535
+  },
+  {
+    "name": "Standup Composite Reactor I",
+    "itemID": 45537,
+    "blueprintID": 45540
+  },
+  {
+    "name": "Standup Hybrid Reactor I",
+    "itemID": 45538,
+    "blueprintID": 45541
+  },
+  {
+    "name": "Standup Biochemical Reactor I",
+    "itemID": 45539,
+    "blueprintID": 45542
   },
   {
     "name": "Legion Defensive - Covert Reconfiguration",
@@ -11800,14 +12445,29 @@
     "blueprintID": 45659
   },
   {
+    "name": "Standup M-Set Moon Drilling Efficiency I",
+    "itemID": 46323,
+    "blueprintID": 46505
+  },
+  {
     "name": "Standup M-Set Moon Drilling Efficiency II",
     "itemID": 46324,
     "blueprintID": 46504
   },
   {
+    "name": "Standup M-Set Moon Drilling Stability I",
+    "itemID": 46325,
+    "blueprintID": 46503
+  },
+  {
     "name": "Standup M-Set Moon Drilling Stability II",
     "itemID": 46326,
     "blueprintID": 46502
+  },
+  {
+    "name": "Standup L-Set Moon Drilling Proficiency I",
+    "itemID": 46327,
+    "blueprintID": 46501
   },
   {
     "name": "Standup L-Set Moon Drilling Proficiency II",
@@ -11865,9 +12525,19 @@
     "blueprintID": 46362
   },
   {
+    "name": "Standup M-Set Composite Reactor Time Efficiency I",
+    "itemID": 46484,
+    "blueprintID": 46506
+  },
+  {
     "name": "Standup M-Set Composite Reactor Time Efficiency II",
     "itemID": 46485,
     "blueprintID": 46507
+  },
+  {
+    "name": "Standup M-Set Composite Reactor Material Efficiency I",
+    "itemID": 46486,
+    "blueprintID": 46508
   },
   {
     "name": "Standup M-Set Composite Reactor Material Efficiency II",
@@ -11875,9 +12545,19 @@
     "blueprintID": 46509
   },
   {
+    "name": "Standup M-Set Hybrid Reactor Time Efficiency I",
+    "itemID": 46488,
+    "blueprintID": 46510
+  },
+  {
     "name": "Standup M-Set Hybrid Reactor Time Efficiency II",
     "itemID": 46489,
     "blueprintID": 46511
+  },
+  {
+    "name": "Standup M-Set Hybrid Reactor Material Efficiency I",
+    "itemID": 46490,
+    "blueprintID": 46512
   },
   {
     "name": "Standup M-Set Hybrid Reactor Material Efficiency II",
@@ -11885,9 +12565,19 @@
     "blueprintID": 46513
   },
   {
+    "name": "Standup M-Set Biochemical Reactor Time Efficiency I",
+    "itemID": 46492,
+    "blueprintID": 46514
+  },
+  {
     "name": "Standup M-Set Biochemical Reactor Time Efficiency II",
     "itemID": 46493,
     "blueprintID": 46515
+  },
+  {
+    "name": "Standup M-Set Biochemical Reactor Material Efficiency I",
+    "itemID": 46494,
+    "blueprintID": 46516
   },
   {
     "name": "Standup M-Set Biochemical Reactor Material Efficiency II",
@@ -11895,9 +12585,19 @@
     "blueprintID": 46517
   },
   {
+    "name": "Standup L-Set Reactor Efficiency I",
+    "itemID": 46496,
+    "blueprintID": 46518
+  },
+  {
     "name": "Standup L-Set Reactor Efficiency II",
     "itemID": 46497,
     "blueprintID": 46519
+  },
+  {
+    "name": "Standup M-Set Asteroid Ore Grading Processor I",
+    "itemID": 46633,
+    "blueprintID": 46643
   },
   {
     "name": "Standup M-Set Asteroid Ore Grading Processor II",
@@ -11905,9 +12605,19 @@
     "blueprintID": 46644
   },
   {
+    "name": "Standup M-Set Ice Grading Processor I",
+    "itemID": 46635,
+    "blueprintID": 46645
+  },
+  {
     "name": "Standup M-Set Ice Grading Processor II",
     "itemID": 46636,
     "blueprintID": 46646
+  },
+  {
+    "name": "Standup M-Set Moon Ore Grading Processor I",
+    "itemID": 46637,
+    "blueprintID": 46647
   },
   {
     "name": "Standup M-Set Moon Ore Grading Processor II",
@@ -11915,14 +12625,94 @@
     "blueprintID": 46648
   },
   {
+    "name": "Standup L-Set Reprocessing Monitor I",
+    "itemID": 46639,
+    "blueprintID": 46649
+  },
+  {
     "name": "Standup L-Set Reprocessing Monitor II",
     "itemID": 46640,
     "blueprintID": 46650
   },
   {
+    "name": "Standup XL-Set Reprocessing Monitor I",
+    "itemID": 46641,
+    "blueprintID": 46651
+  },
+  {
     "name": "Standup XL-Set Reprocessing Monitor II",
     "itemID": 46642,
     "blueprintID": 46652
+  },
+  {
+    "name": "Standup Templar I",
+    "itemID": 47035,
+    "blueprintID": 47208
+  },
+  {
+    "name": "Standup Gram I",
+    "itemID": 47036,
+    "blueprintID": 47222
+  },
+  {
+    "name": "Standup Siren I",
+    "itemID": 47037,
+    "blueprintID": 47228
+  },
+  {
+    "name": "Standup Mantis I",
+    "itemID": 47038,
+    "blueprintID": 47236
+  },
+  {
+    "name": "Standup Gungnir I",
+    "itemID": 47039,
+    "blueprintID": 47247
+  },
+  {
+    "name": "Standup ECM Jammer Burst Projector",
+    "itemID": 47069,
+    "blueprintID": 47110
+  },
+  {
+    "name": "Standup Sensor Dampening Burst Projector",
+    "itemID": 47070,
+    "blueprintID": 47111
+  },
+  {
+    "name": "Standup Stasis Webification Burst Projector",
+    "itemID": 47071,
+    "blueprintID": 47112
+  },
+  {
+    "name": "Standup Target Illumination Burst Projector",
+    "itemID": 47072,
+    "blueprintID": 47107
+  },
+  {
+    "name": "Standup Warp Disruption Burst Projector",
+    "itemID": 47073,
+    "blueprintID": 47113
+  },
+  {
+    "name": "Standup Weapon Disruption Burst Projector",
+    "itemID": 47074,
+    "blueprintID": 47109
+  },
+  {
+    "name": "Standup Malleus I",
+    "itemID": 47116,
+    "blueprintID": 47234
+  },
+  {
+    "name": "Standup Cyclops I",
+    "itemID": 47117,
+    "blueprintID": 47233
+  },
+  {
+    "name": "Standup Tyrfing I",
+    "itemID": 47118,
+    "blueprintID": 47235
   },
   {
     "name": "Standup Malleus II",
@@ -11945,6 +12735,21 @@
     "blueprintID": 47240
   },
   {
+    "name": "Standup Ametat I",
+    "itemID": 47124,
+    "blueprintID": 47241
+  },
+  {
+    "name": "Standup Termite I",
+    "itemID": 47125,
+    "blueprintID": 47243
+  },
+  {
+    "name": "Standup Antaeus I",
+    "itemID": 47126,
+    "blueprintID": 47245
+  },
+  {
     "name": "Standup Ametat II",
     "itemID": 47127,
     "blueprintID": 47242
@@ -11963,6 +12768,21 @@
     "name": "Standup Gungnir II",
     "itemID": 47130,
     "blueprintID": 47248
+  },
+  {
+    "name": "Standup Cenobite I",
+    "itemID": 47131,
+    "blueprintID": 47224
+  },
+  {
+    "name": "Standup Scarab I",
+    "itemID": 47132,
+    "blueprintID": 47226
+  },
+  {
+    "name": "Standup Dromi I",
+    "itemID": 47133,
+    "blueprintID": 47230
   },
   {
     "name": "Standup Cenobite II",
@@ -11985,6 +12805,21 @@
     "blueprintID": 47231
   },
   {
+    "name": "Standup Dragonfly I",
+    "itemID": 47138,
+    "blueprintID": 47209
+  },
+  {
+    "name": "Standup Firbolg I",
+    "itemID": 47139,
+    "blueprintID": 47210
+  },
+  {
+    "name": "Standup Einherji I",
+    "itemID": 47140,
+    "blueprintID": 47211
+  },
+  {
     "name": "Standup Templar II",
     "itemID": 47141,
     "blueprintID": 47212
@@ -12003,6 +12838,21 @@
     "name": "Standup Einherji II",
     "itemID": 47144,
     "blueprintID": 47221
+  },
+  {
+    "name": "Standup Equite I",
+    "itemID": 47145,
+    "blueprintID": 47213
+  },
+  {
+    "name": "Standup Locust I",
+    "itemID": 47146,
+    "blueprintID": 47216
+  },
+  {
+    "name": "Standup Satyr I",
+    "itemID": 47147,
+    "blueprintID": 47219
   },
   {
     "name": "Standup Equite II",
@@ -12100,6 +12950,11 @@
     "blueprintID": 47335
   },
   {
+    "name": "Standup Focused Warp Scrambling Script",
+    "itemID": 47336,
+    "blueprintID": 47337
+  },
+  {
     "name": "Standup Variable Spectrum ECM II",
     "itemID": 47338,
     "blueprintID": 47339
@@ -12135,14 +12990,29 @@
     "blueprintID": 47350
   },
   {
+    "name": "Standup Cap Battery I",
+    "itemID": 47352,
+    "blueprintID": 47354
+  },
+  {
     "name": "Standup Cap Battery II",
     "itemID": 47353,
     "blueprintID": 47355
   },
   {
+    "name": "Standup Capacitor Power Relay I",
+    "itemID": 47356,
+    "blueprintID": 47357
+  },
+  {
     "name": "Standup Capacitor Power Relay II",
     "itemID": 47358,
     "blueprintID": 47359
+  },
+  {
+    "name": "Standup Layered Armor Plating I",
+    "itemID": 47360,
+    "blueprintID": 47361
   },
   {
     "name": "Standup Layered Armor Plating II",
@@ -12328,6 +13198,11 @@
     "name": "Zarmazd",
     "itemID": 49713,
     "blueprintID": 49717
+  },
+  {
+    "name": "Structure EXERT Conduit Coupler",
+    "itemID": 49720,
+    "blueprintID": 49721
   },
   {
     "name": "Heavy Mutadaptive Remote Armor Repairer I",
@@ -12653,6 +13528,66 @@
     "name": "Reinforced Carbon Fiber",
     "itemID": 57457,
     "blueprintID": 57493
+  },
+  {
+    "name": "Meta-Operant Neurolink Enhancer",
+    "itemID": 57458,
+    "blueprintID": 57495
+  },
+  {
+    "name": "Hypnagogic Neurolink Enhancer",
+    "itemID": 57459,
+    "blueprintID": 57496
+  },
+  {
+    "name": "Axosomatic Neurolink Enhancer",
+    "itemID": 57460,
+    "blueprintID": 57497
+  },
+  {
+    "name": "Cogni-Emotive Neurolink Enhancer",
+    "itemID": 57461,
+    "blueprintID": 57498
+  },
+  {
+    "name": "Sense-Heuristic Neurolink Enhancer",
+    "itemID": 57462,
+    "blueprintID": 57499
+  },
+  {
+    "name": "Isotropic Neofullerene Alpha-3",
+    "itemID": 57463,
+    "blueprintID": 57500
+  },
+  {
+    "name": "Isotropic Neofullerene Beta-6",
+    "itemID": 57464,
+    "blueprintID": 57501
+  },
+  {
+    "name": "Isotropic Neofullerene Gamma-9",
+    "itemID": 57465,
+    "blueprintID": 57502
+  },
+  {
+    "name": "Ultradian-Cycling Neurolink Stabilizer",
+    "itemID": 57466,
+    "blueprintID": 57503
+  },
+  {
+    "name": "Reaction-Orienting Neurolink Stabilizer",
+    "itemID": 57467,
+    "blueprintID": 57504
+  },
+  {
+    "name": "Stress-Responding Neurolink Stabilizer",
+    "itemID": 57468,
+    "blueprintID": 57505
+  },
+  {
+    "name": "Goal-Orienting Neurolink Stabilizer",
+    "itemID": 57469,
+    "blueprintID": 57506
   },
   {
     "name": "U-C Trigger Neurolink Conduit",
@@ -13063,5 +13998,75 @@
     "name": "Exceptional Moon Mining Crystal Type C II",
     "itemID": 61216,
     "blueprintID": 61236
+  },
+  {
+    "name": "Medium Industrial Core I",
+    "itemID": 62590,
+    "blueprintID": 62592
+  },
+  {
+    "name": "Medium Industrial Core II ",
+    "itemID": 62591,
+    "blueprintID": 62593
+  },
+  {
+    "name": "Medium Asteroid Ore Compressor I",
+    "itemID": 62622,
+    "blueprintID": 62652
+  },
+  {
+    "name": "Medium Gas Compressor I",
+    "itemID": 62624,
+    "blueprintID": 62673
+  },
+  {
+    "name": "Large Asteroid Ore Compressor I",
+    "itemID": 62625,
+    "blueprintID": 62669
+  },
+  {
+    "name": "Large Gas Compressor I",
+    "itemID": 62626,
+    "blueprintID": 62674
+  },
+  {
+    "name": "Large Ice Compressor I",
+    "itemID": 62628,
+    "blueprintID": 62671
+  },
+  {
+    "name": "Large Mercoxit Compressor I",
+    "itemID": 62630,
+    "blueprintID": 62676
+  },
+  {
+    "name": "Large Moon Ore Compressor I",
+    "itemID": 62631,
+    "blueprintID": 62678
+  },
+  {
+    "name": "Capital Asteroid Ore Compressor I",
+    "itemID": 62632,
+    "blueprintID": 62670
+  },
+  {
+    "name": "Capital Ice Compressor I",
+    "itemID": 62633,
+    "blueprintID": 62672
+  },
+  {
+    "name": "Capital Gas Compressor I",
+    "itemID": 62634,
+    "blueprintID": 62675
+  },
+  {
+    "name": "Capital Mercoxit Compressor I",
+    "itemID": 62635,
+    "blueprintID": 62677
+  },
+  {
+    "name": "Capital Moon Ore Compressor I",
+    "itemID": 62636,
+    "blueprintID": 62679
   }
 ]

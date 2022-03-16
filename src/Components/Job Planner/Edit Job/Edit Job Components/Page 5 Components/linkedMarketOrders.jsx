@@ -59,14 +59,10 @@ export function LinkedMarketOrders({
     const completedOrderData = user.apiHistOrders.find(
       (histOrder) => histOrder.order_id === order.order_id
     );
-
     if (newOrderData !== undefined && !order.complete) {
       if (
-        order.duration !== newOrderData.duration ||
-        order.item_price !== newOrderData.price ||
-        order.range !== newOrderData.range ||
         order.volume_remain !== newOrderData.volume_remain ||
-        order.issued !== newOrderData.issued
+        Date.parse(order.issued) !== Date.parse(newOrderData.issued)
       ) {
         order.duration = newOrderData.duration;
         order.item_name = newOrderData.item_name || null;
@@ -75,22 +71,28 @@ export function LinkedMarketOrders({
         order.item_price = newOrderData.price;
         order.range = newOrderData.range;
         order.volume_remain = newOrderData.volume_remain;
-        order.timeStamps.push(newOrderData.issued);
+        if (Date.parse(order.issued) !== Date.parse(newOrderData.issued)) {
+          order.timeStamps.push(newOrderData.issued);
 
-        user.apiJournal.forEach((entry) => {
-          if (
-            entry.ref_type === "brokers_fee" &&
-            Date.parse(newOrderData.issued) === Date.parse(entry.date)
-          ) {
-            entry.amount = Math.abs(entry.amount);
-            entry.order_id = order.order_id;
-            delete entry.balance;
-            activeJob.build.sale.brokersFee.push(entry);
-          }
-        });
+          user.apiJournal.forEach((entry) => {
+            if (
+              entry.ref_type === "brokers_fee" &&
+              Date.parse(newOrderData.issued) === Date.parse(entry.date)
+            ) {
+              entry.amount = Math.abs(entry.amount);
+              entry.order_id = order.order_id;
+              delete entry.balance;
+              activeJob.build.sale.brokersFee.push(entry);
+            }
+          });
+        }
       }
     }
-    if (newOrderData === undefined && !order.complete) {
+    if (
+      newOrderData === undefined &&
+      !order.complete &&
+      completedOrderData !== undefined
+    ) {
       order.duration = completedOrderData.duration;
       order.item_price = completedOrderData.price;
       order.item_name = completedOrderData.item_name || null;
@@ -107,7 +109,7 @@ export function LinkedMarketOrders({
 
   activeJob.build.sale.marketOrders.forEach((order) => {
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
-    if (order.timeStamps.length !== activeJob.build.sale.brokersFee.length) {
+    if (order.timeStamps.length > activeJob.build.sale.brokersFee.length) {
       order.timeStamps.forEach((stamp) => {
         user.apiJournal.forEach((entry) => {
           if (
@@ -131,47 +133,43 @@ export function LinkedMarketOrders({
     <Paper
       sx={{
         padding: "20px",
+        position: "relative",
       }}
       elevation={3}
       square={true}
     >
       <Grid container direction="row">
         <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
-          <Grid item xs={12} md={11}>
+          <Grid item xs={12}>
             <Typography variant="h5" color="primary" align="center">
               Linked Orders
             </Typography>
           </Grid>
-          <Grid
-            item
-            md={1}
-            sx={{ display: { xs: "none", md: "block" } }}
-            align="right"
+          <IconButton
+            id="linkedOrders_menu_button"
+            onClick={handleMenuClick}
+            aria-controls={Boolean(anchorEl) ? "linkedOrders_menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+            sx={{ position: "absolute", top: "10px", right: "10px" }}
           >
-            <IconButton
-              id="transaction_menu_button"
-              onClick={handleMenuClick}
-              aria-controls={Boolean(anchorEl) ? "transaction_menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={Boolean(anchorEl) ? "true" : undefined}
-            >
-              <MoreVertIcon size="small" color="Secondary" />
-            </IconButton>
-            <Menu
-              id="transaction_menu"
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              MenuListProps={{
-                "aria-labelledby": "transaction_menu_button",
-              }}
-            >
-              <MenuItem onClick={() => updateShowAvailableOrders(true)}>
-                View Other Market Orders
-              </MenuItem>
-            </Menu>
-          </Grid>
+            <MoreVertIcon size="small" color="Secondary" />
+          </IconButton>
+          <Menu
+            id="linkedOrders_menu"
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            MenuListProps={{
+              "aria-labelledby": "linkedOrders_menu_button",
+            }}
+          >
+            <MenuItem onClick={() => updateShowAvailableOrders(true)}>
+              View Other Market Orders
+            </MenuItem>
+          </Menu>
         </Grid>
+<<<<<<< HEAD
         {linkedMarketOrders.map((order) => {
           const charData = users.find(
             (i) => i.CharacterHash === order.CharacterHash
@@ -254,17 +252,92 @@ export function LinkedMarketOrders({
                         {order.range} Jumps
                       </Typography>
                     )}
+=======
+        <Grid
+          container
+          sx={{
+            overflowY: "auto",
+            maxHeight: {
+              xs: "350px",
+              sm: "260px",
+              md: "240px",
+              lg: "240px",
+              xl: "480px",
+            },
+          }}
+        >
+          {linkedMarketOrders.map((order) => {
+            const charData = users.find(
+              (i) => i.CharacterHash === order.CharacterHash
+            );
+            return (
+              <Grid
+                key={order.order_id}
+                container
+                sx={{ marginBottom: "20px" }}
+              >
+                <Grid container item sx={{ marginBottom: "10px" }}>
+                  <Grid item xs={4}>
+                    <Avatar
+                      src={`https://images.evetech.net/characters/${charData.CharacterID}/portrait`}
+                      variant="circular"
+                      sx={{
+                        height: "32px",
+                        width: "32px",
+                      }}
+                    />
+                  </Grid>
+>>>>>>> development
                 </Grid>
-              </Grid>
-              <Grid container item xs={12}>
-                <Grid item xs={3}>
-                  <Typography variant="body2">Last Updated:</Typography>
+                <Grid container item>
+                  <Grid item xs={12}sm={5}>
+                    <Typography variant="body1">
+                      {order.item_price.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      ISK Each
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={7}>
+                    <Typography variant="body1">
+                      {order.volume_remain.toLocaleString(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}{" "}
+                      /{" "}
+                      {order.volume_total.toLocaleString(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}{" "}
+                      Items Remaining
+                    </Typography>
+                  </Grid>
                 </Grid>
-                <Grid item xs={9}>
-                  <Typography variant="body2">
-                    {new Date(order.issued).toLocaleString()}
-                  </Typography>
+                <Grid container item sx={{ marginBottom: "10px" }}>
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    sx={{
+                      marginBottom: {
+                        xs: "10px",
+                        md: "0px",
+                      },
+                    }}
+                  >
+                    <Typography variant="body2">Location:</Typography>
+                  </Grid>
+                  <Grid item xs={8} md={5}>
+                    <Typography variant="body2">
+                      {order.location_name}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Typography variant="body2">{order.region_name}</Typography>
+                  </Grid>
                 </Grid>
+<<<<<<< HEAD
               </Grid>
               <Grid container item xs={12}>
                 <Grid item xs={12} align="right">
@@ -300,93 +373,178 @@ export function LinkedMarketOrders({
                         if (orderIndex !== -1) {
                           newOrderArray.splice(orderIndex, 1);
                         }
+=======
+                <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
+                  <Grid item xs={6} md={3}>
+                    <Typography variant="body2">Duration:</Typography>
+                  </Grid>
+                  <Grid
+                    item
+                    xs={6}
+                    md={2}
+                    sx={{
+                      marginBottom: {
+                        xs: "10px",
+                        md: "0px",
+                      },
+                    }}
+                  >
+                    <Typography variant="body2">
+                      {order.duration} Days
+                    </Typography>
+                  </Grid>
+>>>>>>> development
 
-                        brokerFees.forEach((fee) => {
-                          const index = newBrokerArray.findIndex(
-                            (item) => item.id === fee.id
-                          );
-                          if (index !== -1) {
-                            newBrokerArray.splice(index, 1);
+                  <Grid item xs={5} sm={2}>
+                    <Typography variant="body2">Last Updated:</Typography>
+                  </Grid>
+                  <Grid item xs={7} sm={5}>
+                    <Typography variant="body2">
+                      {new Date(order.issued).toLocaleString()}
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Grid container item xs={12}>
+                  <Grid item xs={12} align="right">
+                    {activeJob.build.sale.marketOrders.length > 1 && (
+                      <Button
+                        variant="text"
+                        size="small"
+                        onClick={() => updateActiveOrder(order.order_id)}
+                        sx={{ marginRight: "10px" }}
+                      >
+                        View Transactions
+                      </Button>
+                    )}
+                    <Tooltip title="Unlink order from job" arrow>
+                      <IconButton
+                        color="error"
+                        size="small"
+                        onClick={() => {
+                          const orderIndex =
+                            activeJob.build.sale.marketOrders.findIndex(
+                              (item) => order.order_id === item.order_id
+                            );
+                          const brokerFees =
+                            activeJob.build.sale.brokersFee.filter(
+                              (item) => item.order_id === order.order_id
+                            );
+                          let newOrderArray = [
+                            ...activeJob.build.sale.marketOrders,
+                          ];
+                          let newBrokerArray = [
+                            ...activeJob.build.sale.brokersFee,
+                          ];
+                          if (orderIndex !== -1) {
+                            newOrderArray.splice(orderIndex, 1);
                           }
-                        });
 
-                        const parentUserIndex = users.findIndex(
-                          (i) => i.ParentUser === true
-                        );
-                        let newUsersArray = [...users];
+                          brokerFees.forEach((fee) => {
+                            const index = newBrokerArray.findIndex(
+                              (item) => item.id === fee.id
+                            );
+                            if (index !== -1) {
+                              newBrokerArray.splice(index, 1);
+                            }
+                          });
 
-                        const uIndex = newUsersArray[
-                          parentUserIndex
-                        ].linkedOrders.findIndex(
-                          (trans) => trans === order.order_id
-                        );
-                        if (uIndex !== -1) {
-                          newUsersArray[parentUserIndex].linkedOrders.splice(
-                            uIndex,
-                            1
+                          const parentUserIndex = users.findIndex(
+                            (i) => i.ParentUser === true
                           );
-                        }
+                          let newUsersArray = [...users];
 
-                        activeJob.build.sale.transactions.forEach((trans) => {
-                          const tIndex = newUsersArray[
+                          const uIndex = newUsersArray[
                             parentUserIndex
-                          ].linkedTrans.findIndex((i) => i === trans.transaction_id);
-
-                          if (tIndex !== -1) {
-                            newUsersArray[parentUserIndex].linkedTrans.splice(
-                              tIndex,
+                          ].linkedOrders.findIndex(
+                            (trans) => trans === order.order_id
+                          );
+                          if (uIndex !== -1) {
+                            newUsersArray[parentUserIndex].linkedOrders.splice(
+                              uIndex,
                               1
                             );
                           }
-                        });
 
-                        updateUsers(newUsersArray);
+                          activeJob.build.sale.transactions.forEach((trans) => {
+                            const tIndex = newUsersArray[
+                              parentUserIndex
+                            ].linkedTrans.findIndex(
+                              (i) => i === trans.transaction_id
+                            );
 
-                        updateActiveJob((prev) => ({
-                          ...prev,
-                          build: {
-                            ...prev.build,
-                            sale: {
-                              ...prev.build.sale,
-                              marketOrders: newOrderArray,
-                              brokersFee: newBrokerArray,
-                              transactions: [],
+                            if (tIndex !== -1) {
+                              newUsersArray[parentUserIndex].linkedTrans.splice(
+                                tIndex,
+                                1
+                              );
+                            }
+                          });
+
+                          updateUsers(newUsersArray);
+
+                          updateActiveJob((prev) => ({
+                            ...prev,
+                            build: {
+                              ...prev.build,
+                              sale: {
+                                ...prev.build.sale,
+                                marketOrders: newOrderArray,
+                                brokersFee: newBrokerArray,
+                                transactions: [],
+                              },
                             },
-                          },
-                        }));
+                          }));
 
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Unlinked",
-                          severity: "error",
-                          autoHideDuration: 1000,
-                        }));
+                          setSnackbarData((prev) => ({
+                            ...prev,
+                            open: true,
+                            message: "Unlinked",
+                            severity: "error",
+                            autoHideDuration: 1000,
+                          }));
 
-                        setJobModified(true);
-                      }}
-                    >
-                      <LinkOffIcon />
-                    </IconButton>
-                  </Tooltip>
+                          setJobModified(true);
+                        }}
+                      >
+                        <LinkOffIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                  <>
+                    {order.volume_remain === 0 ||
+                      (order.complete && (
+                        <Box
+                          sx={{
+                            backgroundColor: "secondary.main",
+                            color: "white",
+                            marginLeft: "auto",
+                            marginRight: "auto",
+                            padding: "8px",
+                          }}
+                        >
+                          <Typography variant="body1">
+                            Order Canceled
+                          </Typography>
+                        </Box>
+                      ))}
+                    {order.volume_remain === 0 && order.complete && (
+                      <Box
+                        sx={{
+                          backgroundColor: "manufacturing.main",
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                          padding: "8px",
+                        }}
+                      >
+                        <Typography variant="body1">Sold Out</Typography>
+                      </Box>
+                    )}
+                  </>
                 </Grid>
-                {order.volume_remain === 0 && (
-                  <Box
-                    sx={{
-                      backgroundColor: "manufacturing.main",
-                      borderRadius: "5px",
-                      marginLeft: "auto",
-                      marginRight: "auto",
-                      padding: "8px",
-                    }}
-                  >
-                    <Typography variant="body1">Sold Out</Typography>
-                  </Box>
-                )}
               </Grid>
-            </Grid>
-          );
-        })}
+            );
+          })}
+        </Grid>
       </Grid>
     </Paper>
   );

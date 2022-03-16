@@ -39,7 +39,8 @@ export function EditPage5({ setJobModified }) {
     user.apiOrders.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
-        !activeJob.build.sale.marketOrders.includes(order.order_id)
+        !activeJob.build.sale.marketOrders.some((i) => i.order_id === order.order_id) &&
+        !itemOrderMatch.some((i)=> i.order_id === order.order_id)
       ) {
         eveIDs.find((item) => {
           if (item.id === order.location_id) {
@@ -56,7 +57,8 @@ export function EditPage5({ setJobModified }) {
     user.apiHistOrders.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
-        !activeJob.build.sale.marketOrders.includes(order.order_id)
+        !activeJob.build.sale.marketOrders.some((i) => i.order_id === order.order_id) &&
+        !itemOrderMatch.some((i)=> i.order_id === order.order_id)
       ) {
         eveIDs.find((item) => {
           if (item.id === order.location_id) {
@@ -81,24 +83,26 @@ export function EditPage5({ setJobModified }) {
         order.location_id === trans.location_id &&
         order.type_id === trans.type_id &&
         !trans.is_buy &&
-        !parentUser.linkedTrans.includes(trans.transaction_id)
+        !parentUser.linkedTrans.includes(trans.transaction_id) &&
+        !transactionData.some((i)=> i.transaction_id === trans.transaction_id)
     );
 
     itemTrans.forEach((trans) => {
       const transJournal = user.apiJournal.find(
         (entry) => trans.transaction_id === entry.context_id
       );
+      if (transJournal !== undefined) {
+        const transTax = user.apiJournal.find(
+          (entry) =>
+            entry.ref_type === "transaction_tax" &&
+            Date.parse(entry.date) === Date.parse(trans.date)
+        );
+        let descriptionTrim = transJournal.description.replace("Market: ", "").split(" bought")
 
-      const transTax = user.apiJournal.find(
-        (entry) =>
-          entry.ref_type === "transaction_tax" &&
-          Date.parse(entry.date) === Date.parse(trans.date)
-      );
-      let descriptionTrim = transJournal.description.replace("Market: ", "").split(" bought")
-
-      transactionData.push(
-        Object.assign({}, new Transaction(trans, descriptionTrim[0], transJournal, transTax))
-      );
+        transactionData.push(
+          Object.assign({}, new Transaction(trans, descriptionTrim[0], transJournal, transTax))
+        );
+      }
     });
   });
 

@@ -38,14 +38,17 @@ export function TutorialStep3() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2">
-            Now that you have acquired the items needed and hauled them back, it
-            is time to build your {activeJob.name}. Start your job running
-            within the Eve Online client. {<br />}
+            Now that you have acquired the items and hauled them back to your
+            chosen system, it is time to build your {activeJob.name}. Start your
+            job running within the Eve Online client. {<br />}
             {<br />}
-            Within the Available Jobs panel, you will see all of the current
+            Within the Available Jobs panel, you will see all the current
             (and jobs from the last 10 days) industry jobs from the Eve ESI that
-            match the item you are building. Simply attach the relevant job/jobs
-            using the link icon.
+            match the item you are building. Simply link the relevant job/jobs
+            using the link icon. This is so that the installation costs for each
+            job can be imported and added to your total build costs. Once the
+            ESI job has been attached it will no longer appear on your Job
+            Planner, unless it is unlinked.
             {<br />}
             {<br />}
             You are only able to attach the same number of ESI jobs as you
@@ -56,8 +59,8 @@ export function TutorialStep3() {
               {<br />}
               If you do not see any jobs available within this window, refresh
               the ESI data using the refresh icon at the top of the page, if
-              this doesn't work then have some patience they may not be on the
-              ESI as of yet.
+              this doesn't work then have some patience, they may not be on the
+              ESI yet.
             </Typography>
           )}
         </Grid>

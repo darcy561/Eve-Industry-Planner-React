@@ -1,14 +1,19 @@
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
+<<<<<<< HEAD
 import { Grid, IconButton, Tooltip, Typography } from "@mui/material";
 import ClearIcon from '@mui/icons-material/Clear';
+=======
+import { Chip, Grid } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
+>>>>>>> development
 
 export function MaterialCost({ material, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
-  function handleRemove(material, record) {
+  function handleRemove(record) {
     const materialIndex = activeJob.build.materials.findIndex(
       (x) => x.typeID === material.typeID
     );
@@ -64,7 +69,12 @@ export function MaterialCost({ material, setJobModified }) {
       container
       direction="row"
       sx={{
+<<<<<<< HEAD
         minHeight: "8vh",
+=======
+        height: "8vh",
+        overflowY:"auto"
+>>>>>>> development
       }}
     >
       {material.purchasing.map((record) => {
@@ -76,6 +86,7 @@ export function MaterialCost({ material, setJobModified }) {
             item
             justifyContent="center"
             alignItems="center"
+<<<<<<< HEAD
           >
             <Grid item xs="auto" align="center">
               <Typography variant="body2">
@@ -97,6 +108,30 @@ export function MaterialCost({ material, setJobModified }) {
                 </IconButton>
               </Tooltip>
             </Grid>
+=======
+            sx={{ marginBottom: "5px" }}
+          >
+            <Chip
+              key={record.id}
+              label={`${record.itemCount.toLocaleString(undefined,{
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              })} @ ${record.itemCost.toLocaleString(undefined,{
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })} ISK Each`}
+              variant="outlined"
+              deleteIcon={<ClearIcon />}
+              sx={{
+                "& .MuiChip-deleteIcon": {
+                  color: "error.main",
+                },
+                boxShadow: 2,
+              }}
+              onDelete={() => handleRemove(record)}
+              color={record.childJobImport ? "primary" : "secondary"}
+            />
+>>>>>>> development
           </Grid>
         );
       })}

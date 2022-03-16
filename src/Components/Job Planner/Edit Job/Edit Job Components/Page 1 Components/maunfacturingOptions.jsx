@@ -3,12 +3,18 @@ import {
   Grid,
   FormControl,
   FormHelperText,
+  MenuItem,
   Paper,
   TextField,
   Tooltip,
+  Select,
 } from "@mui/material";
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 import { blueprintVariables } from "../../..";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 import { makeStyles } from "@mui/styles";
@@ -16,26 +22,38 @@ import { makeStyles } from "@mui/styles";
 const useStyles = makeStyles((theme) => ({
   TextField: {
     "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main
+      color: theme.palette.secondary.main,
     },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
   },
   Autocomplete: {
     "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main
+      color: theme.palette.secondary.main,
     },
-  }
+  },
 }));
 
 export function ManufacturingOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { users } = useContext(UsersContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { CalculateResources } = useBlueprintCalc();
   const classes = useStyles();
+
+  const parentUser = users.find((i) => i.ParentUser === true);
 
   return (
     <Paper
       elevation={3}
       sx={{
+<<<<<<< HEAD
         minWidth:"100%",
+=======
+        minWidth: "100%",
+>>>>>>> development
         padding: "20px",
       }}
       square={true}
@@ -51,8 +69,8 @@ export function ManufacturingOptions({ setJobModified }) {
               helperText="Blueprint Runs"
               type="number"
               onBlur={(e) => {
-                const oldJob = JSON.parse(JSON.stringify(activeJob))
-                oldJob.runCount = Number(e.target.value)
+                const oldJob = JSON.parse(JSON.stringify(activeJob));
+                oldJob.runCount = Number(e.target.value);
                 const newJob = CalculateResources(oldJob);
                 updateActiveJob(newJob);
                 setJobModified(true);
@@ -68,10 +86,10 @@ export function ManufacturingOptions({ setJobModified }) {
               helperText="Job Slots"
               type="number"
               onBlur={(e) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob))
-                  oldJob.jobCount = Number(e.target.value)
-                  const newJob = CalculateResources(oldJob);
-                  updateActiveJob(newJob);
+                const oldJob = JSON.parse(JSON.stringify(activeJob));
+                oldJob.jobCount = Number(e.target.value);
+                const newJob = CalculateResources(oldJob);
+                updateActiveJob(newJob);
                 setJobModified(true);
               }}
             />
@@ -80,27 +98,29 @@ export function ManufacturingOptions({ setJobModified }) {
             <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
                 disableClearable={true}
-
                 size="small"
                 defaultValue={blueprintVariables.me.find(
                   (x) => x.value === activeJob.bpME
                 )}
                 onChange={(e, v) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob))
-                  oldJob.bpME = Number(v.value)
+                  const oldJob = JSON.parse(JSON.stringify(activeJob));
+                  oldJob.bpME = Number(v.value);
                   const newJob = CalculateResources(oldJob);
                   updateActiveJob(newJob);
                   setJobModified(true);
                 }}
                 options={blueprintVariables.me}
                 renderInput={(params) => (
-                  <TextField {...params}  variant="standard" />
+                  <TextField {...params} variant="standard" />
                 )}
               />
-              <FormHelperText  variant="standard">Material Efficiecy</FormHelperText>
+              <FormHelperText variant="standard">
+                Material Efficiecy
+              </FormHelperText>
             </FormControl>
           </Grid>
           <Grid item xs={6}>
+<<<<<<< HEAD
             <Tooltip title="Calculations are not currently implemented, added for reference." arrow>
             <FormControl className={classes.TextField} fullWidth={true}>
               <Autocomplete
@@ -122,8 +142,37 @@ export function ManufacturingOptions({ setJobModified }) {
                 )}
               />
               <FormHelperText variant="standard">Time Efficiecy</FormHelperText>
+=======
+            <Tooltip
+              title="Calculations are not currently implemented, added for reference."
+              arrow
+              placement="top"
+            >
+              <FormControl className={classes.TextField} fullWidth={true}>
+                <Autocomplete
+                  disableClearable={true}
+                  size="small"
+                  defaultValue={blueprintVariables.te.find(
+                    (x) => x.value === activeJob.bpTE
+                  )}
+                  options={blueprintVariables.te}
+                  onChange={(e, v) => {
+                    const oldJob = JSON.parse(JSON.stringify(activeJob));
+                    oldJob.bpTE = Number(v.value);
+                    const newJob = CalculateResources(oldJob);
+                    updateActiveJob(newJob);
+                    setJobModified(true);
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} variant="standard" />
+                  )}
+                />
+                <FormHelperText variant="standard">
+                  Time Efficiecy
+                </FormHelperText>
+>>>>>>> development
               </FormControl>
-              </Tooltip>
+            </Tooltip>
           </Grid>
           <Grid item xs={6}>
             <FormControl className={classes.TextField} fullWidth={true}>
@@ -136,15 +185,15 @@ export function ManufacturingOptions({ setJobModified }) {
                 options={blueprintVariables.manStructure}
                 onChange={(e, v) => {
                   if (v.value === "Station") {
-                    const oldJob = JSON.parse(JSON.stringify(activeJob))
-                    oldJob.structureTypeDisplay = v.value
-                    oldJob.structureType = 0
+                    const oldJob = JSON.parse(JSON.stringify(activeJob));
+                    oldJob.structureTypeDisplay = v.value;
+                    oldJob.structureType = 0;
                     const newJob = CalculateResources(oldJob);
                     updateActiveJob(newJob);
                   } else {
-                    const oldJob = JSON.parse(JSON.stringify(activeJob))
-                    oldJob.structureTypeDisplay = v.value
-                    oldJob.structureType = 1
+                    const oldJob = JSON.parse(JSON.stringify(activeJob));
+                    oldJob.structureTypeDisplay = v.value;
+                    oldJob.structureType = 1;
                     const newJob = CalculateResources(oldJob);
                     updateActiveJob(newJob);
                   }
@@ -167,8 +216,8 @@ export function ManufacturingOptions({ setJobModified }) {
                 disableClearable={true}
                 options={blueprintVariables.manRigs}
                 onChange={(e, v) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob))
-                  oldJob.rigType = Number(v.value)
+                  const oldJob = JSON.parse(JSON.stringify(activeJob));
+                  oldJob.rigType = Number(v.value);
                   const newJob = CalculateResources(oldJob);
                   updateActiveJob(newJob);
                   setJobModified(true);
@@ -190,8 +239,8 @@ export function ManufacturingOptions({ setJobModified }) {
                 )}
                 options={blueprintVariables.manSystem}
                 onChange={(e, v) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob))
-                  oldJob.systemType = Number(v.value)
+                  const oldJob = JSON.parse(JSON.stringify(activeJob));
+                  oldJob.systemType = Number(v.value);
                   const newJob = CalculateResources(oldJob);
                   updateActiveJob(newJob);
                   setJobModified(true);
@@ -203,6 +252,45 @@ export function ManufacturingOptions({ setJobModified }) {
               <FormHelperText variant="standard">System Type</FormHelperText>
             </FormControl>
           </Grid>
+          {isLoggedIn && (
+            <Grid item xs={12}>
+              <FormControl className={classes.TextField} fullWidth={true}>
+                <Select
+                  variant="standard"
+                  size="small"
+                  renderValue={(selected) =>
+                    selected.map((item) => item.name).join(", ")
+                  }
+                  value=""
+                  onChange={(e) => {
+                    const structure =
+                      parentUser.settings.structures.manufacturing.find(
+                        (i) => i.id === e.target.value
+                      );
+                    const oldJob = JSON.parse(JSON.stringify(activeJob));
+                    oldJob.rigType = structure.rigType;
+                    oldJob.systemType = structure.systemType;
+                    oldJob.structureType = structure.structureValue;
+                    oldJob.structureTypeDisplay = structure.structureName;
+                    const newJob = CalculateResources(oldJob);
+                    updateActiveJob(newJob);
+                    setJobModified(true);
+                  }}
+                >
+                  {parentUser.settings.structures.manufacturing.map((entry) => {
+                    return (
+                      <MenuItem key={entry.id} value={entry.id}>
+                        {entry.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+                <FormHelperText variant="standard">
+                  Apply Saved Structure
+                </FormHelperText>
+              </FormControl>
+            </Grid>
+          )}
         </Grid>
       </Grid>
     </Paper>

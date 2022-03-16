@@ -32,8 +32,9 @@ export default function JobCard({
   EditJobProcess,
   multiSelect,
   updateMultiSelect,
+  updateJobSettingsTrigger,
 }) {
-  const { deleteJobProcess } = useJobManagement();
+  const { deleteJobProcess, openEditJob } = useJobManagement();
   const classes = useStyles();
 
   return (
@@ -91,7 +92,7 @@ export default function JobCard({
             <Grid item sm={3}>
               <picture className={classes.Image}>
                 <img
-                  src={`https://image.eveonline.com/Type/${job.itemID}_64.png`}
+                  src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
                   alt=""
                   className={classes.Image}
                 />
@@ -143,7 +144,10 @@ export default function JobCard({
               size="small"
               variant="outlined"
               color="primary"
-              onClick={() => EditJobProcess(job)}
+              onClick={() => {
+                openEditJob(job)
+                updateJobSettingsTrigger((prev) => !prev)
+              }}
             >
               Edit
             </Button>

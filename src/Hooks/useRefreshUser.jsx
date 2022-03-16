@@ -61,6 +61,7 @@ export function useRefreshUser() {
     refreshedUser.linkedTrans = charSettings.linkedTrans;
     refreshedUser.linkedOrders = charSettings.linkedOrders;
     refreshedUser.settings = charSettings.settings;
+    refreshedUser.snapshotData = JSON.parse(JSON.stringify(charSettings.jobArraySnapshot));
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -68,6 +69,10 @@ export function useRefreshUser() {
       apiData: true,
     }));
     const sStatus = await serverStatus();
+<<<<<<< HEAD
+=======
+    
+>>>>>>> development
     if (sStatus) {
       refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
       refreshedUser.apiJobs = await IndustryJobs(refreshedUser);

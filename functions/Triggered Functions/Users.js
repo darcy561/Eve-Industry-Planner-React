@@ -67,6 +67,10 @@ exports.createUserData = functions.https.onCall((data, context) => {
         editJob: {
           hideCompleteMaterials: false,
         },
+        structures: {
+          manufacturing: [],
+          reaction:[],
+        }
       },
     };
     admin.firestore().collection("Users").doc(context.auth.uid).set(setupData);
@@ -83,8 +87,4 @@ exports.createUserData = functions.https.onCall((data, context) => {
       "Unable to setup account, please try again"
     );
   }
-});
-
-exports.markUserDeletion = functions.https.onCall((data, context) => {
-  console.log(`deleted`);
 });

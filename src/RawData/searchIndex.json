@@ -5170,31 +5170,40 @@
     "blueprintID": 23732
   },
   {
+<<<<<<< HEAD
+=======
     "name": "Archon",
     "itemID": 23757,
     "blueprintID": 23758
   },
   {
+>>>>>>> development
     "name": "Ragnarok",
     "itemID": 23773,
     "blueprintID": 23774
   },
   {
+<<<<<<< HEAD
+=======
     "name": "Thanatos",
     "itemID": 23911,
     "blueprintID": 23912
   },
   {
+>>>>>>> development
     "name": "Nyx",
     "itemID": 23913,
     "blueprintID": 23914
   },
   {
+<<<<<<< HEAD
+=======
     "name": "Chimera",
     "itemID": 23915,
     "blueprintID": 23916
   },
   {
+>>>>>>> development
     "name": "Wyvern",
     "itemID": 23917,
     "blueprintID": 23918
@@ -10670,6 +10679,8 @@
     "blueprintID": 37836
   },
   {
+<<<<<<< HEAD
+=======
     "name": "Standup Super-heavy Torpedo",
     "itemID": 37843,
     "blueprintID": 37852
@@ -10695,6 +10706,7 @@
     "blueprintID": 37857
   },
   {
+>>>>>>> development
     "name": "Standup Heavy Guided Bomb",
     "itemID": 37849,
     "blueprintID": 37858
@@ -12125,11 +12137,14 @@
     "blueprintID": 45528
   },
   {
+<<<<<<< HEAD
+=======
     "name": "Standup Moon Drill I",
     "itemID": 45009,
     "blueprintID": 37034
   },
   {
+>>>>>>> development
     "name": "Focused Warp Scrambling Script",
     "itemID": 45010,
     "blueprintID": 45011

@@ -69,7 +69,10 @@ export function useRefreshUser() {
       apiData: true,
     }));
     const sStatus = await serverStatus();
+<<<<<<< HEAD
+=======
     
+>>>>>>> development
     if (sStatus) {
       refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
       refreshedUser.apiJobs = await IndustryJobs(refreshedUser);

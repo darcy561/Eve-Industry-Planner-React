@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+import { useContext } from "react";
+=======
 import { useContext, useState } from "react";
+>>>>>>> development
 import {
   ShoppingListContext,
   SnackBarDataContext,
@@ -21,6 +25,16 @@ export function ShoppingListDialog() {
   const { shoppingListData, updateShoppingListData } =
     useContext(ShoppingListContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+<<<<<<< HEAD
+
+  let copyText = "";
+  let volumeTotal = 0
+
+  if (shoppingListData.open) {
+    shoppingListData.list.forEach((i) => {
+      copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
+      volumeTotal += (i.volume*i.quantity)
+=======
   const [childJobDisplay, updateChildJobDisplay] = useState(false);
 
   let copyText = "";
@@ -39,6 +53,7 @@ export function ShoppingListDialog() {
           displayData = shoppingListData.list.filter((i) => !i.hasChild);
         }
       }
+>>>>>>> development
     });
   }
   const handleClose = () => {
@@ -66,6 +81,16 @@ export function ShoppingListDialog() {
         <Grid container>
           {displayData.map((item) => {
             return (
+<<<<<<< HEAD
+              <Grid key={item.typeID} container item xs={12} justifyContent="center" alignItems="center">
+                <Grid item sm={1} sx={{display:{xs:"none", sm:"block"}, paddingRight:"5px"}} align="center">
+                <img
+                  src={`https://image.eveonline.com/Type/${item.typeID}_32.png`}
+                  alt=""
+                />
+                  </Grid>
+                <Grid item xs={8} sm={7} >
+=======
               <Grid
                 key={item.typeID}
                 container
@@ -89,6 +114,7 @@ export function ShoppingListDialog() {
                   />
                 </Grid>
                 <Grid item xs={8} sm={7}>
+>>>>>>> development
                   <Typography variant="body1">{item.name}</Typography>
                 </Grid>
                 <Grid item xs={4}>
@@ -100,11 +126,22 @@ export function ShoppingListDialog() {
             );
           })}
         </Grid>
+<<<<<<< HEAD
+        <Grid container sx={{marginTop: "20px"}}>
+=======
         <Grid container sx={{ marginTop: "20px" }}>
+>>>>>>> development
           <Grid item xs={4}>
             <Typography variant="body1">Total Volume</Typography>
           </Grid>
           <Grid item xs={8} align="right">
+<<<<<<< HEAD
+            <Typography vatiant="body1">{volumeTotal.toLocaleString()} m3</Typography>
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+=======
             <Typography vatiant="body1">
               {volumeTotal.toLocaleString()} m3
             </Typography>
@@ -126,6 +163,7 @@ export function ShoppingListDialog() {
             labelPlacement="start"
           />
         </FormGroup>
+>>>>>>> development
         <CopyToClipboard
           text={copyText}
           onCopy={() => {
@@ -138,9 +176,13 @@ export function ShoppingListDialog() {
             }));
           }}
         >
+<<<<<<< HEAD
+          <Button>Copy to Clipboard</Button>
+=======
           <Button variant="contained" sx={{ marginRight: "20px", display:{xs:"none", sm:"block"} }}>
             Copy to Clipboard
           </Button>
+>>>>>>> development
         </CopyToClipboard>
         <Button onClick={handleClose} autoFocus>
           Close

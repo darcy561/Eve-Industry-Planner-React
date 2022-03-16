@@ -169,6 +169,90 @@ export function LinkedMarketOrders({
             </MenuItem>
           </Menu>
         </Grid>
+<<<<<<< HEAD
+        {linkedMarketOrders.map((order) => {
+          const charData = users.find(
+            (i) => i.CharacterHash === order.CharacterHash
+          );
+          return (
+            <Grid key={order.order_id} container>
+              <Grid container item sx={{ marginBottom: "10px" }}>
+                <Grid item xs={4}>
+                  <Avatar
+                    src={`https://images.evetech.net/characters/${charData.CharacterID}/portrait`}
+                    variant="circular"
+                    sx={{
+                      height: "32px",
+                      width: "32px",
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              <Grid container item>
+                <Grid item xs={4}>
+                  <Typography variant="body1">
+                    {order.item_price.toLocaleString()} ISK Each
+                  </Typography>
+                </Grid>
+                <Grid item xs={8}>
+                  <Typography variant="body1">
+                    {order.volume_remain} / {order.volume_total} Items Remaining
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid container item sx={{ marginBottom: "10px" }}>
+                <Grid
+                  item
+                  xs={12}
+                  md={3}
+                  sx={{
+                    marginBottom: {
+                      xs: "10px",
+                      md: "0px",
+                    },
+                  }}
+                >
+                  <Typography variant="body2">Location:</Typography>
+                </Grid>
+                <Grid item xs={8} md={5}>
+                  <Typography variant="body2">{order.location_name}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body2">{order.region_name}</Typography>
+                </Grid>
+              </Grid>
+              <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
+                <Grid item xs={6} md={3}>
+                  <Typography variant="body2">Duration:</Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={6}
+                  md={3}
+                  sx={{
+                    marginBottom: {
+                      xs: "10px",
+                      md: "0px",
+                    },
+                  }}
+                >
+                  <Typography variant="body2">{order.duration} Days</Typography>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <Typography variant="body2">Range:</Typography>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                {order.range === "region" ? (
+                      <Typography variant="body2">
+                        {order.range.charAt(0).toUpperCase() +
+                          order.range.slice(1)}
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2">
+                        {order.range} Jumps
+                      </Typography>
+                    )}
+=======
         <Grid
           container
           sx={{
@@ -203,6 +287,7 @@ export function LinkedMarketOrders({
                       }}
                     />
                   </Grid>
+>>>>>>> development
                 </Grid>
                 <Grid container item>
                   <Grid item xs={12}sm={5}>
@@ -252,6 +337,43 @@ export function LinkedMarketOrders({
                     <Typography variant="body2">{order.region_name}</Typography>
                   </Grid>
                 </Grid>
+<<<<<<< HEAD
+              </Grid>
+              <Grid container item xs={12}>
+                <Grid item xs={12} align="right">
+                  {activeJob.build.sale.marketOrders.length > 1 && (
+                    <Button
+                      variant="text"
+                      size="small"
+                      onClick={() => updateActiveOrder(order.order_id)}
+                      sx={{ marginRight: "10px" }}
+                    >
+                      View Transactions
+                    </Button>
+                  )}
+                  <Tooltip title="Unlink order from job" arrow>
+                    <IconButton
+                      color="error"
+                      size="small"
+                      onClick={() => {
+                        const orderIndex =
+                          activeJob.build.sale.marketOrders.findIndex(
+                            (item) => order.order_id === item.order_id
+                          );
+                        const brokerFees =
+                          activeJob.build.sale.brokersFee.filter(
+                            (item) => item.order_id === order.order_id
+                          );
+                        let newOrderArray = [
+                          ...activeJob.build.sale.marketOrders,
+                        ];
+                        let newBrokerArray = [
+                          ...activeJob.build.sale.brokersFee,
+                        ];
+                        if (orderIndex !== -1) {
+                          newOrderArray.splice(orderIndex, 1);
+                        }
+=======
                 <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
                   <Grid item xs={6} md={3}>
                     <Typography variant="body2">Duration:</Typography>
@@ -271,6 +393,7 @@ export function LinkedMarketOrders({
                       {order.duration} Days
                     </Typography>
                   </Grid>
+>>>>>>> development
 
                   <Grid item xs={5} sm={2}>
                     <Typography variant="body2">Last Updated:</Typography>

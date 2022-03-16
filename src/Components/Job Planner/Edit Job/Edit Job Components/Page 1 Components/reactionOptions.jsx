@@ -47,7 +47,11 @@ export function ReactionOptions({ setJobModified }) {
     <Paper
       elevation={3}
       sx={{
+<<<<<<< HEAD
+        minWidth:"100%",
+=======
         minWidth: "100%",
+>>>>>>> development
         padding: "20px",
       }}
       square={true}

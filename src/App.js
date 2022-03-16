@@ -7,11 +7,7 @@ import { ItemTree } from "./Components/item Tree";
 import { JobStatus, JobArray, ActiveJob, ApiJobs } from "./Context/JobContext";
 import { AuthMainUser } from "./Components/Auth/MainUserAuth";
 import { IsLoggedIn, Users } from "./Context/AuthContext";
-<<<<<<< HEAD
-import { EveESIStatus, EveIDs } from "./Context/EveDataContext";
-=======
 import { EveESIStatus, EveIDs, EvePrices } from "./Context/EveDataContext";
->>>>>>> development
 import {
   ThemeProvider,
   createTheme,
@@ -136,39 +132,6 @@ export default function App() {
                           <ApiJobs>
                             <EveIDs>
                               <EveESIStatus>
-<<<<<<< HEAD
-                                <ShoppingList>
-                                  <SnackBarNotification />
-                                  <DialogBox />
-                                  <BrowserRouter>
-                                    <Header mode={mode} colorMode={colorMode} />
-                                    <Routes>
-                                      <Route path="/" element={<Home />} />
-                                      <Route
-                                        path="/jobplanner"
-                                        element={<JobPlanner />}
-                                      />
-                                      <Route
-                                        path="/auth/"
-                                        element={<AuthMainUser />}
-                                      />
-                                      <Route
-                                        path="/itemtree"
-                                        element={<ItemTree />}
-                                      />
-                                      <Route
-                                        path="/accounts"
-                                        element={<AccountsPage />}
-                                      />
-                                      <Route
-                                        path="/settings"
-                                        element={<SettingsPage />}
-                                      />
-                                    </Routes>
-                                    <Footer />
-                                  </BrowserRouter>
-                                </ShoppingList>
-=======
                                 <EvePrices>
                                   <ShoppingList>
                                     <LocalizationProvider
@@ -209,7 +172,6 @@ export default function App() {
                                     </LocalizationProvider>
                                   </ShoppingList>
                                 </EvePrices>
->>>>>>> development
                               </EveESIStatus>
                             </EveIDs>
                           </ApiJobs>

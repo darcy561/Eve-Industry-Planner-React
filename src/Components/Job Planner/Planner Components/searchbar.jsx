@@ -220,15 +220,6 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
             </Tooltip>
           </Grid>
 
-<<<<<<< HEAD
-            <Grid
-              item
-              xs={12}
-              md="auto"
-              align="center"
-              sx={{ marginBottom: { xs: "20px", md: "0px" } }}
-            >
-=======
           <Grid
             item
             xs={12}
@@ -236,7 +227,6 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
             align="center"
             sx={{ marginBottom: { xs: "20px", md: "0px" } }}
           >
->>>>>>> development
             <Tooltip title="Merges the selected jobs into one." arrow>
               <Box>
                 <Button
@@ -249,28 +239,6 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                     )
                   }
                   onClick={() => {
-<<<<<<< HEAD
-                  if (multiSelect.length > 1) {
-                    mergeJobs(multiSelect)
-                    updateMultiSelect([]);
-                  } else {
-                    updateDialogData((prev) => ({
-                      ...prev,
-                      buttonText: "Close",
-                      id: "Empty-Multi-Select",
-                      open: true,
-                      title: "Oops",
-                      body: "You will need to select at least 2 matching jobs using the checkbox's on the job cards",
-                    }));
-                  }
-                }}
-                >
-                  Merge Jobs
-                </Button>
-                </Box>
-              </Tooltip>
-            </Grid>
-=======
                     if (multiSelect.length > 1) {
                       mergeJobs(multiSelect);
                       updateMultiSelect([]);
@@ -291,7 +259,6 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
               </Box>
             </Tooltip>
           </Grid>
->>>>>>> development
 
           <Grid
             item
@@ -318,19 +285,11 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
             </Tooltip>
 
             <Tooltip title="Clears the selected jobs." arrow>
-<<<<<<< HEAD
-              <Box sx={{display:"inline"}}>
-                <Button
-                  variant="outlined"
-                size="small"
-                disabled={!multiSelect.length>0}
-=======
               <Box sx={{ display: "inline" }}>
                 <Button
                   variant="outlined"
                   size="small"
                   disabled={!multiSelect.length > 0}
->>>>>>> development
                   sx={{ marginRight: "10px" }}
                   onClick={() => {
                     updateMultiSelect([]);
@@ -338,14 +297,8 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 >
                   Clear Selection
                 </Button>
-<<<<<<< HEAD
-                </Box>
-              </Tooltip>
-
-=======
               </Box>
             </Tooltip>
->>>>>>> development
           </Grid>
 
           <Grid item xs={12} md="auto" align="center">

@@ -1,13 +1,5 @@
 import { useContext } from "react";
 import { UsersContext } from "../Context/AuthContext";
-<<<<<<< HEAD
-import { firestore, functions, performance } from "../firebase";
-import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { httpsCallable } from "@firebase/functions";
-import { trace } from "firebase/performance";
-import { JobArrayContext, JobStatusContext } from "../Context/JobContext";
-import { getAnalytics, logEvent } from "firebase/analytics";
-=======
 import { appCheck, firestore, functions, performance } from "../firebase";
 import {
   doc,
@@ -25,7 +17,6 @@ import { getAuth } from "firebase/auth";
 import { getToken } from "firebase/app-check";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { EvePricesContext } from "../Context/EveDataContext";
->>>>>>> development
 
 export function useFirebase() {
   const { users } = useContext(UsersContext);
@@ -35,8 +26,6 @@ export function useFirebase() {
 
   const parentUser = users.find((i) => i.ParentUser === true);
 
-<<<<<<< HEAD
-=======
   const fbAuthState = async () => {
     const auth = getAuth();
     if (auth.currentUser == null) {
@@ -45,7 +34,6 @@ export function useFirebase() {
     }
   };
 
->>>>>>> development
   const determineUserState = async (user) => {
     if (user.fbToken._tokenResponse.isNewUser) {
       const t = trace(performance, "NewUserCloudBuild");
@@ -94,11 +82,7 @@ export function useFirebase() {
   };
 
   const addNewJob = async (job) => {
-<<<<<<< HEAD
-
-=======
     await fbAuthState();
->>>>>>> development
     setDoc(
       doc(
         firestore,
@@ -129,56 +113,14 @@ export function useFirebase() {
         build: job.build,
         buildVer: job.buildVer,
         metaLevel: job.metaLevel,
-<<<<<<< HEAD
-        parentJob: job.parentJob
-=======
         parentJob: job.parentJob,
         blueprintTypeID: job.blueprintTypeID,
->>>>>>> development
       }
     );
   };
 
   const uploadJob = async (job) => {
-<<<<<<< HEAD
-
-    updateDoc(
-      doc(
-        firestore,
-        `Users/${parentUser.accountID}/Jobs`,
-        job.jobID.toString()
-      ),
-      {
-        jobType: job.jobType,
-        name: job.name,
-        jobID: job.jobID,
-        jobStatus: job.jobStatus,
-        volume: job.volume,
-        itemID: job.itemID,
-        maxProductionLimit: job.maxProductionLimit,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        bpME: job.bpME,
-        bpTE: job.bpTE,
-        structureType: job.structureType,
-        structureTypeDisplay: job.structureTypeDisplay,
-        rigType: job.rigType,
-        systemType: job.systemType,
-        apiJobs: job.apiJobs,
-        skills: job.skills,
-        rawData: job.rawData,
-        build: job.build,
-        buildVer: job.buildVer,
-        metaLevel: job.metaLevel,
-        parentJob: job.parentJob
-      }
-    );
-  };
-
-  const uploadSnapshotData = async (job) => {
-=======
     await fbAuthState();
->>>>>>> development
     updateDoc(
       doc(
         firestore,
@@ -230,32 +172,13 @@ export function useFirebase() {
         runCount: job.runCount,
         jobCount: job.jobCount,
         apiJobs: job.apiJobs,
-<<<<<<< HEAD
-        buildVer: job.buildVer
-=======
         buildVer: job.buildVer,
         metaLevel: job.metaLevel,
->>>>>>> development
       }
     );
   };
 
   const updateMainUserDoc = async () => {
-<<<<<<< HEAD
-
-    updateDoc(doc(firestore, "Users", parentUser.accountID), {
-      parentUserHash: parentUser.CharacterHash,
-      jobStatusArray: jobStatus,
-      linkedJobs: parentUser.linkedJobs,
-      linkedTrans: parentUser.linkedTrans,
-      linkedOrders: parentUser.linkedOrders,
-      settings: parentUser.settings,
-    });
-  };
-
-  const removeJob = async (job) => {
-
-=======
     await fbAuthState();
     try {
       await runTransaction(firestore, async (t) => {
@@ -279,7 +202,6 @@ export function useFirebase() {
 
   const removeJob = async (job) => {
     await fbAuthState();
->>>>>>> development
 
     deleteDoc(
       doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
@@ -324,11 +246,7 @@ export function useFirebase() {
   };
 
   const downloadCharacterJobs = async (job) => {
-<<<<<<< HEAD
-
-=======
     await fbAuthState();
->>>>>>> development
 
     const document = await getDoc(
       doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
@@ -356,17 +274,6 @@ export function useFirebase() {
       build: document.data().build,
       buildVer: document.data().buildVer,
       metaLevel: document.data().metaLevel,
-<<<<<<< HEAD
-      parentJob: document.data().parentJob
-    };
-
-    const index = jobArray.findIndex((x) => job.jobID === x.jobID);
-    const newArray = [...jobArray];
-    newArray[index] = newJob;
-    updateJobArray(newArray);
-    return newJob;
-  };
-=======
       parentJob: document.data().parentJob,
       blueprintTypeID: document.data().blueprintTypeID,
     };
@@ -422,7 +329,6 @@ export function useFirebase() {
       return [];
     }
   };
->>>>>>> development
 
   return {
     addNewJob,

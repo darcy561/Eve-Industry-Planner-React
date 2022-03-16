@@ -1,13 +1,8 @@
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
-<<<<<<< HEAD
-import { Grid, IconButton, Tooltip, Typography } from "@mui/material";
-import ClearIcon from '@mui/icons-material/Clear';
-=======
 import { Chip, Grid } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
->>>>>>> development
 
 export function MaterialCost({ material, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -69,12 +64,8 @@ export function MaterialCost({ material, setJobModified }) {
       container
       direction="row"
       sx={{
-<<<<<<< HEAD
-        minHeight: "8vh",
-=======
         height: "8vh",
         overflowY:"auto"
->>>>>>> development
       }}
     >
       {material.purchasing.map((record) => {
@@ -86,29 +77,6 @@ export function MaterialCost({ material, setJobModified }) {
             item
             justifyContent="center"
             alignItems="center"
-<<<<<<< HEAD
-          >
-            <Grid item xs="auto" align="center">
-              <Typography variant="body2">
-                {record.itemCount.toLocaleString()} @{" "}
-                {record.itemCost.toLocaleString()} ISK Each
-              </Typography>
-            </Grid>
-            <Grid item xs="auto" align="left">
-              <Tooltip
-                title="Removes the item cost row from the material"
-                arrow
-              >
-                <IconButton
-                  color="error"
-                  size="small"
-                  onClick={() => handleRemove(material, record)}
-                >
-                  <ClearIcon />
-                </IconButton>
-              </Tooltip>
-            </Grid>
-=======
             sx={{ marginBottom: "5px" }}
           >
             <Chip
@@ -131,7 +99,6 @@ export function MaterialCost({ material, setJobModified }) {
               onDelete={() => handleRemove(record)}
               color={record.childJobImport ? "primary" : "secondary"}
             />
->>>>>>> development
           </Grid>
         );
       })}

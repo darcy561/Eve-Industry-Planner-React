@@ -84,28 +84,6 @@ export default function EditJob({ updateJobSettingsTrigger }) {
     setJobModified(true);
   }
 
-<<<<<<< HEAD
-  function closeJob() {
-    const index = jobArray.findIndex((x) => activeJob.jobID === x.jobID);
-    const newArray = [...jobArray];
-    newArray[index] = activeJob;
-    if (isLoggedIn && jobModified) {
-      uploadJob(activeJob);
-      updateMainUserDoc();
-    }
-    updateJobArray(newArray);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${activeJob.name} Updated`,
-      severity: "info",
-      autoHideDuration: 1000,
-    }));
-    updateJobSettingsTrigger((prev) => !prev);
-  }
-  
-=======
->>>>>>> development
   return (
     <Container
       disableGutters

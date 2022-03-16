@@ -16,7 +16,7 @@ const db = admin.firestore();
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
+      // "http://localhost:3000",
       "https://eve-industry-planner-dev.firebaseapp.com",
       "https://www.eveindustryplanner.com",
       "https://eveindustryplanner.com",

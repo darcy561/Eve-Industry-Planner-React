@@ -117,11 +117,6 @@ export function useJobManagement() {
           "\r\n" +
           "Sign into your Eve Account to create more.Jobs that have been created without registering will be lost upon leaving / refreshing the page.",
       }));
-<<<<<<< HEAD
-      t.putAttribute("JobArraySizeFull", "Not Logged In");
-      t.incrementMetric("Max Jobs Reached - Not Logged In", 1);
-=======
->>>>>>> development
     } else if (isLoggedIn && jobArray.length >= 300) {
       updateDialogData((prev) => ({
         ...prev,
@@ -213,12 +208,6 @@ export function useJobManagement() {
         }
 
         const calculatedJob = CalculateResources(newJob);
-<<<<<<< HEAD
-        calculatedJob.build.buildChar = parentUser.CharacterHash;
-        
-        if (isLoggedIn) {
-          addNewJob(calculatedJob);
-=======
         if (parentJobs !== undefined) {
           let itemParents = [];
           parentJobs.forEach((job) => {
@@ -235,7 +224,6 @@ export function useJobManagement() {
           await newJobSnapshot(calculatedJob);
           await updateMainUserDoc();
           await addNewJob(calculatedJob);
->>>>>>> development
         }
 
         logEvent(analytics, "New Job", {
@@ -749,22 +737,14 @@ export function useJobManagement() {
 
   const mergeJobs = async (inputJobs) => {
     let totalItems = 0;
-<<<<<<< HEAD
-=======
     let parentJobs = [];
     let childJobs = [];
->>>>>>> development
     for (let inputJob of inputJobs) {
       if (inputJob.isSnapshot) {
         inputJob = await downloadCharacterJobs(inputJob);
         inputJob.isSnapshot = false;
       }
       totalItems += inputJob.build.products.totalQuantity;
-<<<<<<< HEAD
-    }
-    await deleteMultipleJobsProcess(inputJobs);
-    await newJobProcess(inputJobs[0].itemID, totalItems);
-=======
       for (let parentJobID of inputJob.parentJob) {
         if (!parentJobs.includes(parentJobID)) {
           let parentMatch = jobArray.find((i) => i.jobID === parentJobID);
@@ -826,7 +806,6 @@ export function useJobManagement() {
       await updateMainUserDoc();
       await uploadJob(newJob);
     }
->>>>>>> development
   };
 
   return {

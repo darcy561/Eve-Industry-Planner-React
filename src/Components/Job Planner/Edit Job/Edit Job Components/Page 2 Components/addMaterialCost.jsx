@@ -1,9 +1,6 @@
 import React, { memo, useContext, useState } from "react";
 import {
-  Autocomplete,
   Grid,
-  FormControl,
-  FormHelperText,
   IconButton,
   TextField,
 } from "@mui/material";
@@ -106,7 +103,7 @@ function AddMaterialCost({ material, setJobModified }) {
             type="number"
             helperText="Item Quantity"
             defaultValue={inputs.itemCount}
-            inputProbs={{step:"1"}}
+            inputProps={{step:"1"}}
             onChange={(e) => {
               setInputs((prevState) => ({
                 ...prevState,

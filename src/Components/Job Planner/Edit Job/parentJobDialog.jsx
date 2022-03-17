@@ -14,6 +14,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
+import { useJobManagement } from "../../../Hooks/useJobManagement";
 
 export function ParentJobDialog({
   dialogTrigger,
@@ -25,6 +26,7 @@ export function ParentJobDialog({
   const { jobArray } = useContext(JobArrayContext);
   const { downloadCharacterJobs, uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const{updateJobSnapshot } = useJobManagement()
 
   const handleClose = () => {
     updateDialogTrigger(false);
@@ -115,6 +117,7 @@ export function ParentJobDialog({
                         material.childJob.push(activeJob.jobID);
                         let newParentJobArray = [...activeJob.parentJob];
                         newParentJobArray.push(job.jobID);
+                        updateJobSnapshot(job)
                         updateActiveJob((prev) => ({
                           ...prev,
                           parentJob: newParentJobArray,

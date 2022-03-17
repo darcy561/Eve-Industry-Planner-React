@@ -22,8 +22,6 @@ export function TutorialStep1() {
   const { users, updateUsers } = useContext(UsersContext);
   const classes = useStyles();
 
-  const parentUser = users.find((i) => i.ParentUser === true);
-
   return (
     <Paper
       elevation={3}

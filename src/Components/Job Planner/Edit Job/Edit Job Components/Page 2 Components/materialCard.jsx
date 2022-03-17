@@ -57,6 +57,7 @@ export function MaterialCard({ material, setJobModified }) {
                   }}
                   onClick={() => {
                     updateChildDialogTrigger(true);
+                    setJobModified(true);
                   }}
                 >
                   {material.childJob.length}

@@ -19,7 +19,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 
 export function RawResourceList() {
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { activeJob } = useContext(ActiveJobContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const { newJobProcess, updateJobSnapshot } = useJobManagement();
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -58,16 +58,9 @@ export function RawResourceList() {
                 material.quantity,
                 [activeJob]
               );
-              let newMaterials = [...activeJob.build.materials];
-              let index = newMaterials.find((i) => i.typeID === newJob.itemID);
-              index.childJob.push(newJob.jobID);
-              updateActiveJob((prev) => ({
-                ...prev,
-                build: {
-                  ...prev.build,
-                  materials: newMaterials,
-                },
-              }));
+              const index = activeJob.build.materials.findIndex((i) => i.typeID === newJob.itemID);
+              activeJob.build.materials[index].childJob.push(newJob.jobID);
+              updateJobSnapshot(activeJob)
             }}
           >
             <MdOutlineAddCircle />
@@ -90,16 +83,9 @@ export function RawResourceList() {
                 material.quantity,
                 [activeJob]
               );
-              let newMaterials = [...activeJob.build.materials];
-              let index = newMaterials.find((i) => i.typeID === newJob.itemID);
-              index.childJob.push(newJob.jobID);
-              updateActiveJob((prev) => ({
-                ...prev,
-                build: {
-                  ...prev.build,
-                  materials: newMaterials,
-                },
-              }));
+              const index = activeJob.build.materials.findIndex((i) => i.typeID === newJob.itemID);
+              activeJob.build.materials[index].childJob.push(newJob.jobID);
+              updateJobSnapshot(activeJob)
             }}
           >
             <MdOutlineAddCircle />

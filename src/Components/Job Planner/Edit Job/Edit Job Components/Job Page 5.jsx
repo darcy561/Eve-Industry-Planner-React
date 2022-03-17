@@ -84,7 +84,7 @@ export function EditPage5({ setJobModified }) {
         order.type_id === trans.type_id &&
         !trans.is_buy &&
         !parentUser.linkedTrans.includes(trans.transaction_id) &&
-        !transactionData.some((i)=> i.transaction_id == trans.transaction_id)
+        !transactionData.some((i)=> i.transaction_id === trans.transaction_id)
     );
 
     itemTrans.forEach((trans) => {

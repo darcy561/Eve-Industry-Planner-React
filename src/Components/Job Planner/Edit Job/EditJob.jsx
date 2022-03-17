@@ -166,12 +166,17 @@ export default function EditJob({ updateJobSettingsTrigger }) {
             </Box>
           </Grid>
 
-          <Grid item xs={12} sm={5} sx={{marginTop:{xs:"10px", sm:"0px"}}}>
-              <LinkedJobBadge
-                jobModified={jobModified}
-                setJobModified={setJobModified}
-              />
-            </Grid>
+          <Grid
+            item
+            xs={12}
+            sm={5}
+            sx={{ marginTop: { xs: "10px", sm: "0px" } }}
+          >
+            <LinkedJobBadge
+              jobModified={jobModified}
+              setJobModified={setJobModified}
+            />
+          </Grid>
           <Grid item xs={12}>
             <Stepper activeStep={activeJob.jobStatus} orientation="vertical">
               {jobStatus.map((status) => {
@@ -233,25 +238,40 @@ export default function EditJob({ updateJobSettingsTrigger }) {
                           </Grid>
                         </Grid>
                       )}
-                      {activeJob.jobStatus === jobStatus.length - 2 &&
-                        activeJob.parentJob.length > 0 && (
-                          <PassBuildCostButton
-                            updateJobSettingsTrigger={updateJobSettingsTrigger}
-                          />
-                        )}
-                      {activeJob.jobStatus === jobStatus.length - 2 &&
-                        isLoggedIn && (
-                          <ArchiveJobButton
-                            updateJobSettingsTrigger={updateJobSettingsTrigger}
-                          />
-                        )}
-                      <Divider />
-                      {activeJob.jobStatus === jobStatus.length - 1 &&
-                        isLoggedIn && (
-                          <ArchiveJobButton
-                            updateJobSettingsTrigger={updateJobSettingsTrigger}
-                          />
-                        )}
+                      <Grid container>
+                        <Grid item sm={8} lg={8} xl={8} />
+                        {activeJob.jobStatus === jobStatus.length - 2 &&
+                          activeJob.parentJob.length > 0 && (
+                            <Grid item container xs={7} sm={2} lg={2} xl={2}>
+                              <PassBuildCostButton
+                                updateJobSettingsTrigger={
+                                  updateJobSettingsTrigger
+                                }
+                              />
+                            </Grid>
+                          )}
+                        {activeJob.jobStatus === jobStatus.length - 2 &&
+                          isLoggedIn && (
+                            <Grid item container xs={5} sm={2} lg={2} xl={2}>
+                              <ArchiveJobButton
+                                updateJobSettingsTrigger={
+                                  updateJobSettingsTrigger
+                                }
+                              />
+                            </Grid>
+                          )}
+                        <Divider />
+                        {activeJob.jobStatus === jobStatus.length - 1 &&
+                          isLoggedIn && (
+                            <Grid item container xs={12} sm={4} lg={4}>
+                              <ArchiveJobButton
+                                updateJobSettingsTrigger={
+                                  updateJobSettingsTrigger
+                                }
+                              />
+                            </Grid>
+                          )}
+                      </Grid>
                       <Divider />
                     </StepContent>
                   </Step>

@@ -49,11 +49,7 @@ export function ManufacturingOptions({ setJobModified }) {
     <Paper
       elevation={3}
       sx={{
-<<<<<<< HEAD
-        minWidth:"100%",
-=======
         minWidth: "100%",
->>>>>>> development
         padding: "20px",
       }}
       square={true}
@@ -120,29 +116,6 @@ export function ManufacturingOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-<<<<<<< HEAD
-            <Tooltip title="Calculations are not currently implemented, added for reference." arrow>
-            <FormControl className={classes.TextField} fullWidth={true}>
-              <Autocomplete
-                disableClearable={true}
-                size="small"
-                defaultValue={blueprintVariables.te.find(
-                  (x) => x.value === activeJob.bpTE
-                )}
-                options={blueprintVariables.te}
-                onChange={(e, v) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob))
-                  oldJob.bpTE = Number(v.value)
-                  const newJob = CalculateResources(oldJob);
-                  updateActiveJob(newJob);
-                  setJobModified(true);
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} variant="standard" />
-                )}
-              />
-              <FormHelperText variant="standard">Time Efficiecy</FormHelperText>
-=======
             <Tooltip
               title="Calculations are not currently implemented, added for reference."
               arrow
@@ -170,7 +143,6 @@ export function ManufacturingOptions({ setJobModified }) {
                 <FormHelperText variant="standard">
                   Time Efficiecy
                 </FormHelperText>
->>>>>>> development
               </FormControl>
             </Tooltip>
           </Grid>

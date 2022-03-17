@@ -1,18 +1,11 @@
 {
   "name": "eve-industry-planner-react",
-<<<<<<< HEAD
-  "version": "0.2.0",
-  "private": true,
-  "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.16.7",
-=======
   "version": "0.3.0",
   "private": true,
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.16.7",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
->>>>>>> development
     "@mui/icons-material": "^5.2.4",
     "@mui/lab": "^5.0.0-alpha.60",
     "@mui/material": "^5.2.7",

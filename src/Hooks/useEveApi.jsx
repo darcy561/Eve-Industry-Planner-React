@@ -50,11 +50,7 @@ export function useEveApi() {
 
       if (indyPromise.status === 200) {
         indyJSON.forEach((job) => {
-<<<<<<< HEAD
-          if (job.activity_id === 1) {
-=======
           if (job.activity_id === 1 || job.activity_id === 9) {
->>>>>>> development
             const nameMatch = searchData.find(
               (item) => item.itemID === job.product_type_id
             );
@@ -82,12 +78,8 @@ export function useEveApi() {
           (job) =>
             job.activity_id === 1 ||
             job.activity_id === 4 ||
-<<<<<<< HEAD
-            job.activity_id === 3
-=======
             job.activity_id === 3 ||
             job.activity_id === 9
->>>>>>> development
         );
 
         let idRequest = [];
@@ -384,10 +376,7 @@ export function useEveApi() {
       console.log(err);
     }
   };
-<<<<<<< HEAD
-=======
   
->>>>>>> development
   return {
     BlueprintLibrary,
     CharacterSkills,

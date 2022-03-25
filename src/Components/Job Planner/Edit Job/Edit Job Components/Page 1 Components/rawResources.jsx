@@ -6,22 +6,18 @@ import {
   Menu,
   MenuItem,
   Paper,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
-import { MdOutlineAddCircle, MdRemoveCircle } from "react-icons/md";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { jobTypes } from "../../..";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
+import { MaterialRow } from "./materialRow";
 
 export function RawResourceList() {
   const { activeJob } = useContext(ActiveJobContext);
   const [anchorEl, setAnchorEl] = useState(null);
-  const { newJobProcess, updateJobSnapshot } = useJobManagement();
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
   const handleMenuClick = (event) => {
@@ -38,78 +34,7 @@ export function RawResourceList() {
   activeJob.build.materials.forEach((i) => {
     copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
     volumeTotal += i.volume * i.quantity;
-
   });
-
-  function AddBuildIcon({ material }) {
-    if (material.jobType === jobTypes.manufacturing) {
-      return (
-        <Tooltip
-          title="Manufacturing Job, click to create a new child job."
-          placement="left-start"
-          arrow
-        >
-          <IconButton
-            sx={{ color: "manufacturing.main" }}
-            size="small"
-            onClick={async () => {
-              let newJob = await newJobProcess(
-                material.typeID,
-                material.quantity,
-                [activeJob]
-              );
-              const index = activeJob.build.materials.findIndex((i) => i.typeID === newJob.itemID);
-              activeJob.build.materials[index].childJob.push(newJob.jobID);
-              updateJobSnapshot(activeJob)
-            }}
-          >
-            <MdOutlineAddCircle />
-          </IconButton>
-        </Tooltip>
-      );
-    } else if (material.jobType === jobTypes.reaction) {
-      return (
-        <Tooltip
-          title="Reaction Job, click to create a new child job"
-          placement="left-start"
-          arrow
-        >
-          <IconButton
-            sx={{ color: "reaction.main" }}
-            size="small"
-            onClick={async () => {
-              let newJob = await newJobProcess(
-                material.typeID,
-                material.quantity,
-                [activeJob]
-              );
-              const index = activeJob.build.materials.findIndex((i) => i.typeID === newJob.itemID);
-              activeJob.build.materials[index].childJob.push(newJob.jobID);
-              updateJobSnapshot(activeJob)
-            }}
-          >
-            <MdOutlineAddCircle />
-          </IconButton>
-        </Tooltip>
-      );
-    } else if (material.jobType === jobTypes.pi) {
-      return (
-        <Tooltip title="Planetary Interaction" placement="left-start" arrow>
-          <IconButton sx={{ color: "pi.main" }} size="small" disableRipple>
-            <MdRemoveCircle />
-          </IconButton>
-        </Tooltip>
-      );
-    } else if (material.jobType === jobTypes.baseMaterial) {
-      return (
-        <Tooltip title="Base Material" placement="left-start">
-          <IconButton size="small" sx={{ color: "baseMat.main" }} disableRipple>
-            <MdRemoveCircle />
-          </IconButton>
-        </Tooltip>
-      );
-    }
-  }
 
   return (
     <Paper
@@ -176,24 +101,9 @@ export function RawResourceList() {
         >
           <Grid container item direction="column">
             {activeJob.build.materials.map((material) => {
-              return (
-                <Grid key={material.typeID} item container direction="row">
-                  <Grid item xs={2} sm={1}>
-                    <AddBuildIcon material={material} />
-                  </Grid>
-                  <Grid item xs={7} sm={7}>
-                    <Typography variant="body1">{material.name}</Typography>
-                  </Grid>
-                  <Grid item xs={3} sm={4} align="right">
-                    <Typography variant="body1">
-                      {material.quantity.toLocaleString()}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              );
+              return <MaterialRow key={material.typeID} material={material} />;
             })}
           </Grid>
-
         </Box>
         <Grid container sx={{ marginTop: "20px" }}>
           <Grid item xs={6} sm={8} md={9}>

@@ -91,7 +91,7 @@ export function IndustryESICardComplete({ job }) {
               }}
             >
               <Box sx={{ height: "100%" }}>
-                <Typography align="center" variant="body2">
+                <Typography align="center" variant="body2" color="black">
                   <b>ESI Manufacturing Job</b>
                 </Typography>
               </Box>

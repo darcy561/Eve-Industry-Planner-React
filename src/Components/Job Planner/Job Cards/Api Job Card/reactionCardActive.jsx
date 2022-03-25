@@ -115,7 +115,7 @@ export function ReactionESICardActive({ job }) {
               }}
             >
               <Box sx={{ height: "100%" }}>
-                <Typography align="center" variant="body2">
+                <Typography align="center" variant="body2" color="black">
                   <b>ESI Reaction Job</b>
                 </Typography>
               </Box>

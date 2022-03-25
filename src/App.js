@@ -1,13 +1,4 @@
 import { useMemo, useState } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Header } from "./Components/Header";
-import { Home } from "./Components/Landing Page";
-import { JobPlanner } from "./Components/Job Planner";
-import { ItemTree } from "./Components/item Tree";
-import { JobStatus, JobArray, ActiveJob, ApiJobs } from "./Context/JobContext";
-import { AuthMainUser } from "./Components/Auth/MainUserAuth";
-import { IsLoggedIn, Users } from "./Context/AuthContext";
-import { EveESIStatus, EveIDs, EvePrices } from "./Context/EveDataContext";
 import {
   ThemeProvider,
   createTheme,
@@ -16,14 +7,6 @@ import {
 import { SnackBarNotification } from "./Components/snackbar";
 import { DialogBox } from "./Components/dialog";
 import {
-  DataExchange,
-  DialogData,
-  SnackbarData,
-  PageLoad,
-  LoadingText,
-  ShoppingList,
-} from "./Context/LayoutContext";
-import {
   blue,
   blueGrey,
   deepPurple,
@@ -31,15 +14,10 @@ import {
   lightGreen,
 } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
-import { AccountsPage } from "./Components/Accounts/Accounts";
-import { SettingsPage } from "./Components/Settings/Settings";
-import { Footer } from "./Components/Footer/Footer";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import { NavRoutes } from "./Routes";
 
 export default function App() {
   const [mode, setMode] = useState(localStorage.getItem("theme"));
-
   const colorMode = useMemo(
     () => ({
       toggleColorMode: () => {
@@ -119,72 +97,9 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <SnackbarData>
-        <DialogData>
-          <PageLoad>
-            <LoadingText>
-              <IsLoggedIn>
-                <Users>
-                  <DataExchange>
-                    <ActiveJob>
-                      <JobArray>
-                        <JobStatus>
-                          <ApiJobs>
-                            <EveIDs>
-                              <EveESIStatus>
-                                <EvePrices>
-                                  <ShoppingList>
-                                    <LocalizationProvider
-                                      dateAdapter={AdapterDateFns}
-                                    >
-                                      <SnackBarNotification />
-                                      <DialogBox />
-                                      <BrowserRouter>
-                                        <Header
-                                          mode={mode}
-                                          colorMode={colorMode}
-                                        />
-                                        <Routes>
-                                          <Route path="/" element={<Home />} />
-                                          <Route
-                                            path="/jobplanner"
-                                            element={<JobPlanner />}
-                                          />
-                                          <Route
-                                            path="/auth/"
-                                            element={<AuthMainUser />}
-                                          />
-                                          <Route
-                                            path="/itemtree"
-                                            element={<ItemTree />}
-                                          />
-                                          <Route
-                                            path="/accounts"
-                                            element={<AccountsPage />}
-                                          />
-                                          <Route
-                                            path="/settings"
-                                            element={<SettingsPage />}
-                                          />
-                                        </Routes>
-                                        <Footer />
-                                      </BrowserRouter>
-                                    </LocalizationProvider>
-                                  </ShoppingList>
-                                </EvePrices>
-                              </EveESIStatus>
-                            </EveIDs>
-                          </ApiJobs>
-                        </JobStatus>
-                      </JobArray>
-                    </ActiveJob>
-                  </DataExchange>
-                </Users>
-              </IsLoggedIn>
-            </LoadingText>
-          </PageLoad>
-        </DialogData>
-      </SnackbarData>
+      <SnackBarNotification />
+      <DialogBox />
+      <NavRoutes mode={mode} colorMode={colorMode} />
     </ThemeProvider>
   );
 }

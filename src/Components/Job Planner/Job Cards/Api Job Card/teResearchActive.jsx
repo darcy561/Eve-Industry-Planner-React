@@ -117,7 +117,7 @@ export function TeResearchESICardActive({ job }) {
               }}
             >
               <Box sx={{ height: "100%" }}>
-                <Typography align="center" variant="body2">
+                <Typography align="center" variant="body2" color="black">
                   <b>ESI Research Job</b>
                 </Typography>
               </Box>

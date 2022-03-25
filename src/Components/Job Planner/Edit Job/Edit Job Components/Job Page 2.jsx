@@ -2,6 +2,7 @@ import { Container, Grid } from "@mui/material";
 import React, { useContext } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../Context/JobContext";
+import { InventionCostsCard } from "./Page 2 Components/InventionCosts";
 import { MaterialCard } from "./Page 2 Components/materialCard";
 import { PurchasingData } from "./Page 2 Components/purchasingData";
 import { TutorialStep2 } from "./Page 2 Components/tutorialStep2";
@@ -10,6 +11,11 @@ export function EditPage2({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const parentUser = users.find((i) => i.ParentUser === true);
+
+  //metaLevel
+  const requiresInventionCosts = [2, 14, 53];
+  //TypeID
+  const ignoreInventionCosts = [];
 
   return (
     <Container disableGutters maxWidth="false">
@@ -57,6 +63,9 @@ export function EditPage2({ setJobModified }) {
               );
             }
           })}
+          {requiresInventionCosts.includes(activeJob.metaLevel) && !ignoreInventionCosts.includes(activeJob.itemID) ?
+              <InventionCostsCard setJobModified={setJobModified}/>: null
+          }
         </Grid>
       </Grid>
     </Container>

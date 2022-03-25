@@ -66,6 +66,18 @@ export const ShoppingList = (props) => {
     )
 }
 
+export const MultiSelectJobPlannerContext = createContext();
+
+export const MultiSelectJobPlanner = (props) => {
+    const [multiSelectJobPlanner, updateMultiSelectJobPlanner] = useState([]);
+
+    return (
+        <MultiSelectJobPlannerContext.Provider value={{ multiSelectJobPlanner, updateMultiSelectJobPlanner }}>
+            {props.children}
+        </MultiSelectJobPlannerContext.Provider>
+    )
+}
+
 export const PageLoadContext = createContext();
 
 export const PageLoad = (props) => {
@@ -98,5 +110,17 @@ export const LoadingText = (props) => {
         <LoadingTextContext.Provider value={{ loadingText, updateLoadingText }}>
             {props.children}
         </LoadingTextContext.Provider>
+    );
+};
+
+export const RefreshStateContext = createContext();
+
+export const RefreshState = (props) => {
+    const [refreshState, updateRefreshState] = useState(1);
+
+    return (
+        <RefreshStateContext.Provider value={{ refreshState, updateRefreshState }}>
+            {props.children}
+        </RefreshStateContext.Provider>
     );
 };

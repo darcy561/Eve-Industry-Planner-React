@@ -82,7 +82,6 @@ export function JobPlanner() {
   const { users, updateUsers } = useContext(UsersContext);
   const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
   const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
-  const [multiSelect, updateMultiSelect] = useState([]);
 
   let parentUser = users.find((u) => u.ParentUser === true);
   useEffect(async () => {
@@ -128,16 +127,11 @@ export function JobPlanner() {
             </Grid>
           )}
           <Grid item xs={12}>
-            <SearchBar
-              multiSelect={multiSelect}
-              updateMultiSelect={updateMultiSelect}
-            />
+            <SearchBar/>
           </Grid>
           <Grid item xs={12}>
             <PlannerAccordion
               updateJobSettingsTrigger={updateJobSettingsTrigger}
-              multiSelect={multiSelect}
-              updateMultiSelect={updateMultiSelect}
             />
           </Grid>
         </Grid>

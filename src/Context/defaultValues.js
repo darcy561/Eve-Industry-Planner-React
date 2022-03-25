@@ -1204,7 +1204,7 @@ export let usersDefault = [
   {
     CharacterID: 94800326,
     CharacterHash: "ABC123",
-    CharacterName: "Reginal Shardani",
+    CharacterName: "Example Character",
     ParentUser: true,
     apiJobs: [],
     linkedJobs: [477723892, 477724009],
@@ -1423,6 +1423,8 @@ export let usersDefault = [
         hideTutorials: false,
       },
       editJob: {
+        defaultMarket: "jita",
+        defaultOrders: "sell",
         hideCompleteMaterials: false,
       },
     },
@@ -2118,4 +2120,15 @@ export let eveIDsDefault = [
     id: 10000043,
     name: "Domain",
   },
+];
+
+export let marketOptions = [
+  { id: "amarr", name: "Amarr" },
+  { id: "dodixie", name: "Dodixie" },
+  { id: "jita", name: "Jita" },
+];
+
+export let listingType = [
+  { id: "buy", name: "Buy Orders" },
+  { id: "sell", name: "Sell Orders" },
 ];

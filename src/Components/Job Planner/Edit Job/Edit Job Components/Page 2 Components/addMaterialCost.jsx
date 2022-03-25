@@ -8,6 +8,8 @@ import AddIcon from "@mui/icons-material/Add";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { makeStyles } from "@mui/styles";
+import { EvePricesContext } from "../../../../../Context/EveDataContext";
+import { UsersContext } from "../../../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -19,17 +21,18 @@ const useStyles = makeStyles((theme) => ({
         display: "none",
       },
   },
-  Autocomplete: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
 }));
 
 function AddMaterialCost({ material, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const {users} = useContext(UsersContext)
+  const { evePrices } = useContext(EvePricesContext);
+  const parentUser = users.find((i)=>i.ParentUser)
+  const materialPrice = evePrices.find(
+    (i) => i.typeID === material.typeID
+  );
   const [inputs, setInputs] = useState({
-    itemCost: 0,
+    itemCost: materialPrice[parentUser.settings.editJob.defaultMarket][parentUser.settings.editJob.defaultOrders],
     itemCount: Number(material.quantity - material.quantityPurchased),
   });
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -120,7 +123,7 @@ function AddMaterialCost({ material, setJobModified }) {
             variant="standard"
             type="number"
             helperText="Item Price"
-            defaultValue="0"
+            defaultValue={materialPrice[parentUser.settings.editJob.defaultMarket][parentUser.settings.editJob.defaultOrders].toFixed(2)}
             inputProps={{
               step:"0.01"
             }}

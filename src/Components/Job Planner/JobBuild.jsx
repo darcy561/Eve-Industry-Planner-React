@@ -37,6 +37,7 @@ class Job {
         linkedJobs: [],
         installCosts: 0,
         inventionCosts: 0,
+        inventionEntries: []
       },
       sale: {
         totalSold: 0,

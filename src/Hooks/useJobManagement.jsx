@@ -5,6 +5,7 @@ import {
   DataExchangeContext,
   PageLoadContext,
   LoadingTextContext,
+  MultiSelectJobPlannerContext,
 } from "../Context/LayoutContext";
 import { UsersContext } from "../Context/AuthContext";
 import {
@@ -36,6 +37,9 @@ export function useJobManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
+  const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
+    MultiSelectJobPlannerContext
+  );
   const { CalculateResources } = useBlueprintCalc();
   const {
     addNewJob,
@@ -69,6 +73,7 @@ export function useJobManagement() {
       this.childJobs = childJobs;
       this.materialIDs = materialIDs;
       this.metaLevel = inputJob.metaLevel;
+      this.projectID = inputJob.projectID || null;
     }
   }
   class updateSnapshot {
@@ -93,18 +98,19 @@ export function useJobManagement() {
       this.childJobs = inputJob.childJobs;
       this.materialIDs = inputJob.materialIDs;
       this.metaLevel = inputJob.metaLevel;
+      this.projectID = inputJob.projectID || null;
     }
   }
 
   const analytics = getAnalytics();
-  const parentUser = users.find((i) => i.ParentUser === true);
-  const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
+  const parentUser = users.find((i) => i.ParentUser);
+  const parentUserIndex = users.findIndex((i) => i.ParentUser);
 
   const newJobProcess = async (itemID, itemQty, parentJobs) => {
     const t = trace(performance, "CreateJobProcessFull");
     t.start();
 
-    if (isLoggedIn === false && jobArray.length >= 10) {
+    if (!isLoggedIn && jobArray.length >= 10) {
       updateDialogData((prev) => ({
         ...prev,
         buttonText: "Close",
@@ -150,9 +156,6 @@ export function useJobManagement() {
       } else {
         newJob.build.buildChar = parentUser.CharacterHash;
         if (isLoggedIn) {
-          if (newJob.jobType === jobTypes.manufacturing) {
-          }
-
           if (newJob.jobType === jobTypes.manufacturing) {
             let blueprintOptions = [];
             users.forEach((user) => {
@@ -218,9 +221,9 @@ export function useJobManagement() {
           });
           calculatedJob.parentJob = itemParents;
         }
+        await newJobSnapshot(calculatedJob);
 
         if (isLoggedIn) {
-          await newJobSnapshot(calculatedJob);
           await updateMainUserDoc();
           await addNewJob(calculatedJob);
         }
@@ -321,26 +324,27 @@ export function useJobManagement() {
     let totalComplete = 0;
     let materialIDs = [];
     let childJobs = [];
-    const index = parentUser.snapshotData.findIndex(
-      (i) => i.jobID === inputJob.jobID
-    );
-    if (!inputJob.isSnapshot) {
-      inputJob.build.materials.forEach((material) => {
-        materialIDs.push(material.typeID);
-        childJobs.push(...material.childJob);
-        if (material.quantityPurchased >= material.quantity) {
-          totalComplete++;
-        }
-      });
-
-      const replacementSnap = Object.assign(
-        {},
-        new newSnapshot(inputJob, childJobs, totalComplete, materialIDs)
+    if (inputJob !== undefined) {
+      const index = parentUser.snapshotData.findIndex(
+        (i) => i.jobID === inputJob.jobID
       );
-      parentUser.snapshotData[index] = replacementSnap;
-    } else {
-      const replacementSnap = Object.assign({}, new updateSnapshot(inputJob));
-      parentUser.snapshotData[index] = replacementSnap;
+      if (!inputJob.isSnapshot) {
+        inputJob.build.materials.forEach((material) => {
+          materialIDs.push(material.typeID);
+          childJobs.push(...material.childJob);
+          if (material.quantityPurchased >= material.quantity) {
+            totalComplete++;
+          }
+        });
+        const replacementSnap = Object.assign(
+          {},
+          new newSnapshot(inputJob, childJobs, totalComplete, materialIDs)
+        );
+        parentUser.snapshotData[index] = replacementSnap;
+      } else {
+        const replacementSnap = Object.assign({}, new updateSnapshot(inputJob));
+        parentUser.snapshotData[index] = replacementSnap;
+      }
     }
   };
 
@@ -389,7 +393,9 @@ export function useJobManagement() {
             const index = finalBuildCount.findIndex(
               (i) => i.typeID === material.typeID
             );
-            finalBuildCount[index].quantity += material.quantity;
+            if (index !== -1) {
+              finalBuildCount[index].quantity += material.quantity;
+            }
           }
         }
       });
@@ -425,27 +431,32 @@ export function useJobManagement() {
 
   const deleteJobProcess = async (inputJob) => {
     logEvent(analytics, "DeleteJob", {
-      UID: parentUser.aaccountID,
+      UID: parentUser.accountID,
       jobID: inputJob.jobID,
       name: inputJob.name,
       itemID: inputJob.itemID,
       stage: inputJob.stage,
       loggedIn: isLoggedIn,
     });
-    const newUserArray = [...users];
-    const newApiJobsArary = [...apiJobs];
+    let newUserArray = [...users];
+    let newApiJobsArary = [...apiJobs];
+
     if (inputJob.isSnapshot) {
       inputJob = await downloadCharacterJobs(inputJob);
       inputJob.isSnapshot = false;
       replaceSnapshot(inputJob);
     }
+
+    //Removes apiJob references from users
     inputJob.apiJobs.forEach((job) => {
       const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
         (i) => i === job
       );
       const y = apiJobs.findIndex((u) => u.job_id === job);
-      newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
-      newApiJobsArary[y].linked = false;
+      if (x !== -1 && y !== -1) {
+        newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
+        newApiJobsArary[y].linked = false;
+      }
     });
 
     //Removes inputJob IDs from child jobs
@@ -503,21 +514,31 @@ export function useJobManagement() {
       const tIndex = newUserArray[parentUserIndex].linkedTrans.findIndex(
         (i) => i === trans.order_id
       );
-      newUserArray[parentUserIndex].linkedTrans.splice(tIndex, 1);
+      if (tIndex !== -1) {
+        newUserArray[parentUserIndex].linkedTrans.splice(tIndex, 1);
+      }
     });
 
     inputJob.build.sale.marketOrders.forEach((order) => {
       const oIndex = newUserArray[parentUserIndex].linkedOrders.findIndex(
         (i) => i === order.order_id
       );
-      newUserArray[parentUserIndex].linkedOrders.splice(oIndex, 1);
+      if (oIndex !== -1) {
+        newUserArray[parentUserIndex].linkedOrders.splice(oIndex, 1);
+      }
     });
+
+    let newMutliSelct = multiSelectJobPlanner.filter(
+      (i) => i.jobID !== inputJob.jobID
+    );
+
+    deleteJobSnapshot(inputJob);
 
     updateUsers(newUserArray);
     updateApiJobs(newApiJobsArary);
+    updateMultiSelectJobPlanner(newMutliSelct);
 
     if (isLoggedIn) {
-      await deleteJobSnapshot(inputJob);
       await updateMainUserDoc();
       await removeJob(inputJob);
     }
@@ -550,22 +571,28 @@ export function useJobManagement() {
           (i) => i === job
         );
         const y = apiJobs.findIndex((u) => u.job_id === job);
-        newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
-        newApiJobsArary[y].linked = false;
+        if (x !== -1 && y !== -1) {
+          newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
+          newApiJobsArary[y].linked = false;
+        }
       });
 
       inputJob.build.sale.transactions.forEach((trans) => {
         const tIndex = newUserArray[parentUserIndex].linkedTrans.findIndex(
           (i) => i === trans.order_id
         );
-        newUserArray[parentUserIndex].linkedTrans.splice(tIndex, 1);
+        if (tIndex !== -1) {
+          newUserArray[parentUserIndex].linkedTrans.splice(tIndex, 1);
+        }
       });
 
       inputJob.build.sale.marketOrders.forEach((order) => {
         const oIndex = newUserArray[parentUserIndex].linkedOrders.findIndex(
           (i) => i === order.order_id
         );
-        newUserArray[parentUserIndex].linkedOrders.splice(oIndex, 1);
+        if (oIndex !== -1) {
+          newUserArray[parentUserIndex].linkedOrders.splice(oIndex, 1);
+        }
       });
 
       const jobIndex = newJobArray.findIndex((j) => j.jobID === inputJob.jobID);
@@ -618,12 +645,12 @@ export function useJobManagement() {
           }
         }
       }
-
-      newJobArray.splice(jobIndex, 1);
+      if (jobIndex !== -1) {
+        newJobArray.splice(jobIndex, 1);
+      }
+      await deleteJobSnapshot(inputJob);
       if (isLoggedIn) {
-        await deleteJobSnapshot(inputJob);
         await removeJob(inputJob);
-        setTimeout(2000);
       }
     }
     if (isLoggedIn) {
@@ -716,8 +743,10 @@ export function useJobManagement() {
             const index = finalShoppingList.findIndex(
               (i) => i.typeID === material.typeID
             );
-            finalShoppingList[index].quantity +=
-              material.quantity - material.quantityPurchased;
+            if (index !== -1) {
+              finalShoppingList[index].quantity +=
+                material.quantity - material.quantityPurchased;
+            }
           }
         }
       });
@@ -821,5 +850,6 @@ export function useJobManagement() {
     openEditJob,
     buildShoppingList,
     updateJobSnapshot,
+    replaceSnapshot,
   };
 }

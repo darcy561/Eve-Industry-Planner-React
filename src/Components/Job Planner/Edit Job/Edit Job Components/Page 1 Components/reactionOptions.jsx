@@ -8,7 +8,7 @@ import {
   TextField,
   Select,
 } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import {
   IsLoggedInContext,
@@ -39,6 +39,12 @@ export function ReactionOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const [buildCharName, updateBuildCharName] = useState(activeJob.build.buildChar)
+  const [structValue, updateStructValue] = useState(
+    activeJob.structureTypeDisplay
+  );
+  const [rigsValue, updateRigsValue] = useState(activeJob.rigType)
+  const [systemValue, updateSystemValue] = useState(activeJob.systemType)
   const { CalculateResources } = useBlueprintCalc();
   const classes = useStyles();
 
@@ -54,6 +60,37 @@ export function ReactionOptions({ setJobModified }) {
     >
       <Grid container direction="column">
         <Grid item container direction="row" spacing={2}>
+        <Grid item xs={12} xl={8}>
+          <FormControl className={classes.TextField} fullWidth={true}>
+            <Select
+              variant="standard"
+              size="small"
+              value={buildCharName}
+              onChange={(e) => {
+                setJobModified(true)
+                updateBuildCharName(e.target.value)
+                updateActiveJob((prev) => ({
+                  ...prev,
+                  build: {
+                    ...prev.build,
+                    buildChar: e.target.value
+                  }
+                }))  
+              }}
+            >
+              {users.map((user) => {
+                return (
+                  <MenuItem key={user.CharacterName} value={user.CharacterHash}>
+                  {user.CharacterName}
+                </MenuItem>
+                )
+              })}
+              </Select>
+              <FormHelperText variant="standard">
+                  Use Character
+                </FormHelperText>
+              </FormControl>
+          </Grid>
           <Grid item xs={6}>
             <TextField
               defaultValue={activeJob.runCount}
@@ -90,70 +127,79 @@ export function ReactionOptions({ setJobModified }) {
           </Grid>
           <Grid item xs={6}>
             <FormControl className={classes.TextField} fullWidth={true}>
-              <Autocomplete
-                size="small"
-                defaultValue={blueprintVariables.reactionStructure.find(
-                  (x) => x.value === activeJob.structureTypeDisplay
-                )}
-                disableClearable={true}
-                options={blueprintVariables.reactionStructure}
-                onChange={(e, v) => {
+              <Select
+              variant="standard"
+              size="small"
+              value={structValue}
+              onChange={(e) => {
                   const oldJob = JSON.parse(JSON.stringify(activeJob));
-                  oldJob.structureTypeDisplay = v.value;
+                  oldJob.structureTypeDisplay = e.target.value;
+                  oldJob.structureType = 1;
                   const newJob = CalculateResources(oldJob);
+                  updateStructValue(e.target.value);
                   updateActiveJob(newJob);
-                  setJobModified(true);
-                }}
-                renderInput={(params) => (
-                  <TextField {...params} variant="standard" />
-                )}
-              />
+              }}
+            >
+              {blueprintVariables.reactionStructure.map((entry) => {
+                return (
+                  <MenuItem key={entry.label} value={entry.value}>
+                    {entry.label}
+                  </MenuItem>
+                );
+              })}
+            </Select>
               <FormHelperText variant="standard">Structure Type</FormHelperText>
             </FormControl>
           </Grid>
           <Grid item xs={6}>
             <FormControl className={classes.TextField} fullWidth={true}>
-              <Autocomplete
+            <Select
+                variant="standard"
                 size="small"
-                defaultValue={blueprintVariables.reactionRigs.find(
-                  (x) => x.value === activeJob.rigType
-                )}
-                disableClearable={true}
-                options={blueprintVariables.reactionRigs}
-                onChange={(e, v) => {
+                value={rigsValue}
+                onChange={(e) => {
                   const oldJob = JSON.parse(JSON.stringify(activeJob));
-                  oldJob.rigType = Number(v.value);
+                  oldJob.rigType = e.target.value;
                   const newJob = CalculateResources(oldJob);
                   updateActiveJob(newJob);
+                  updateRigsValue(e.target.value);
                   setJobModified(true);
                 }}
-                renderInput={(params) => (
-                  <TextField {...params} variant="standard" />
-                )}
-              />
+              >
+                {blueprintVariables.reactionRigs.map((entry) => {
+                  return (
+                    <MenuItem key={entry.label} value={entry.value}>
+                      {entry.label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
               <FormHelperText variant="standard">Rig Type</FormHelperText>
             </FormControl>
           </Grid>
           <Grid item xs={6}>
             <FormControl className={classes.TextField} fullWidth={true}>
-              <Autocomplete
-                disableClearable={true}
+            <Select
+                variant="standard"
                 size="small"
-                defaultValue={blueprintVariables.reactionSystem.find(
-                  (x) => x.value === activeJob.systemType
-                )}
-                options={blueprintVariables.reactionSystem}
-                onChange={(e, v) => {
+                value={systemValue}
+                onChange={(e) => {
                   const oldJob = JSON.parse(JSON.stringify(activeJob));
-                  oldJob.systemType = Number(v.value);
+                  oldJob.systemType = e.target.value;
                   const newJob = CalculateResources(oldJob);
                   updateActiveJob(newJob);
+                  updateSystemValue(e.target.value);
                   setJobModified(true);
                 }}
-                renderInput={(params) => (
-                  <TextField {...params} variant="standard" />
-                )}
-              />
+              >
+                {blueprintVariables.reactionSystem.map((entry) => {
+                  return (
+                    <MenuItem key={entry.label} value={entry.value}>
+                      {entry.label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
               <FormHelperText variant="standard">System Type</FormHelperText>
             </FormControl>
           </Grid>
@@ -182,7 +228,7 @@ export function ReactionOptions({ setJobModified }) {
                     setJobModified(true);
                   }}
                 >
-                  {parentUser.settings.structures.manufacturing.map((entry) => {
+                  {parentUser.settings.structures.reaction.map((entry) => {
                     return (
                       <MenuItem key={entry.id} value={entry.id}>
                         {entry.name}

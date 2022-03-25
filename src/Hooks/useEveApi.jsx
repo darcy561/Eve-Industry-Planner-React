@@ -2,10 +2,14 @@ import { useContext } from "react";
 import skillsReference from "../RawData/bpSkills.json";
 import searchData from "../RawData/searchIndex.json";
 import { EveESIStatusContext, EveIDsContext } from "../Context/EveDataContext";
+import { UsersContext } from "../Context/AuthContext";
 
 export function useEveApi() {
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { eveESIStatus, updateEveESIStatus } = useContext(EveESIStatusContext);
+  const { users } = useContext(UsersContext);
+
+  const parentUser = users.find((i) => i.ParentUser);
 
   const CharacterSkills = async (userObj) => {
     try {
@@ -40,7 +44,7 @@ export function useEveApi() {
     }
   };
 
-  const IndustryJobs = async (userObj) => {
+  const IndustryJobs = async (userObj, parentInfo) => {
     try {
       const indyPromise = await fetch(
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/industry/jobs/?datasource=tranquility&include_completed=true&token=${userObj.aToken}`
@@ -50,19 +54,38 @@ export function useEveApi() {
 
       if (indyPromise.status === 200) {
         indyJSON.forEach((job) => {
+          const nameMatch = searchData.find(
+            (item) => item.itemID === job.product_type_id
+          );
+          const rNameMatch = searchData.find(
+            (item) => item.blueprintID === job.blueprint_type_id
+          );
+
+          if (job.activity_id === 3 || job.activity_id === 4) {
+            if (rNameMatch !== undefined) {
+              job.product_name = rNameMatch.name;
+            } else {
+              job.product_name = null;
+            }
+          }
           if (job.activity_id === 1 || job.activity_id === 9) {
-            const nameMatch = searchData.find(
-              (item) => item.itemID === job.product_type_id
-            );
             if (nameMatch !== undefined) {
               job.product_name = nameMatch.name;
             } else {
               job.product_name = null;
             }
-            if (userObj.linkedJobs.includes(job.job_id)) {
-              job.linked = true;
+            if (userObj.ParentUser) {
+              if (userObj.linkedJobs.includes(job.job_id)) {
+                job.linked = true;
+              } else {
+                job.linked = false;
+              }
             } else {
-              job.linked = false;
+              if (parentInfo.linkedJobs.includes(job.job_id)) {
+                job.linked = true;
+              } else {
+                job.linked = false;
+              }
             }
           }
         });
@@ -105,6 +128,7 @@ export function useEveApi() {
       } else return [];
     } catch (err) {
       console.log(err);
+      return [];
     }
   };
 
@@ -376,7 +400,7 @@ export function useEveApi() {
       console.log(err);
     }
   };
-  
+
   return {
     BlueprintLibrary,
     CharacterSkills,

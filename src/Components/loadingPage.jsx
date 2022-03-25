@@ -11,7 +11,7 @@ export function LoadingPage() {
       justifyContent="center"
       alignItems="center"
       direction="column"
-      style={{ minHeight: "100vh", maxWidth:"100vw" }}
+      sx={{ minHeight: "100vh", maxWidth:"100vw" }}
       spacing={8}
     >
       <Grid item align="center">

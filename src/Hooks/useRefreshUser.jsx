@@ -45,7 +45,7 @@ export function useRefreshUser() {
       eveSSO: true,
     }));
 
-    const refreshedUser = await RefreshTokens(refreshToken);
+    const refreshedUser = await RefreshTokens(refreshToken, true);
     refreshedUser.fbToken = await firebaseAuth(refreshedUser);
 
     updateLoadingText((prevObj) => ({
@@ -61,7 +61,10 @@ export function useRefreshUser() {
     refreshedUser.linkedTrans = charSettings.linkedTrans;
     refreshedUser.linkedOrders = charSettings.linkedOrders;
     refreshedUser.settings = charSettings.settings;
-    refreshedUser.snapshotData = JSON.parse(JSON.stringify(charSettings.jobArraySnapshot));
+    refreshedUser.snapshotData = JSON.parse(
+      JSON.stringify(charSettings.jobArraySnapshot)
+    );
+    refreshedUser.accountRefreshTokens = charSettings.refreshTokens;
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -69,15 +72,33 @@ export function useRefreshUser() {
       apiData: true,
     }));
     const sStatus = await serverStatus();
-    
+
     if (sStatus) {
-      refreshedUser.apiSkills = await CharacterSkills(refreshedUser);
-      refreshedUser.apiJobs = await IndustryJobs(refreshedUser);
-      refreshedUser.apiOrders = await MarketOrders(refreshedUser);
-      refreshedUser.apiHistOrders = await HistoricMarketOrders(refreshedUser);
-      refreshedUser.apiBlueprints = await BlueprintLibrary(refreshedUser);
-      refreshedUser.apiTransactions = await WalletTransactions(refreshedUser);
-      refreshedUser.apiJournal = await WalletJournal(refreshedUser);
+      const [
+        skills,
+        indJobs,
+        orders,
+        histOrders,
+        blueprints,
+        transactions,
+        journal,
+      ] = await Promise.all([
+        CharacterSkills(refreshedUser),
+        IndustryJobs(refreshedUser),
+        MarketOrders(refreshedUser),
+        HistoricMarketOrders(refreshedUser),
+        BlueprintLibrary(refreshedUser),
+        WalletTransactions(refreshedUser),
+        WalletJournal(refreshedUser),
+      ]);
+
+      refreshedUser.apiSkills = skills;
+      refreshedUser.apiJobs = indJobs;
+      refreshedUser.apiOrders = orders;
+      refreshedUser.apiHistOrders = histOrders;
+      refreshedUser.apiBlueprints = blueprints;
+      refreshedUser.apiTransactions = transactions;
+      refreshedUser.apiJournal = journal;
     } else {
       refreshedUser.apiSkills = [];
       refreshedUser.apiJobs = [];
@@ -96,9 +117,69 @@ export function useRefreshUser() {
     setJobStatus(charSettings.jobStatusArray);
     updateJobArray(charSettings.jobArraySnapshot);
     updateApiJobs(refreshedUser.apiJobs);
-    const newUsersArray = [];
-    newUsersArray.push(refreshedUser);
-    updateUsers(newUsersArray);
+    updateUsers([refreshedUser]);
+
+    let secondaryUsers = [];
+    let secondaryApiJobs = [];
+    for (let token of charSettings.refreshTokens) {
+      let newUser = await RefreshTokens(token.rToken, false);
+      if (sStatus && newUser !== undefined) {
+        const [
+          skills,
+          indJobs,
+          orders,
+          histOrders,
+          blueprints,
+          transactions,
+          journal,
+        ] = await Promise.all([
+          CharacterSkills(newUser),
+          IndustryJobs(newUser, refreshedUser),
+          MarketOrders(newUser),
+          HistoricMarketOrders(newUser),
+          BlueprintLibrary(newUser),
+          WalletTransactions(newUser),
+          WalletJournal(newUser),
+        ]);
+
+        newUser.apiSkills = skills;
+        newUser.apiJobs = indJobs;
+        newUser.apiOrders = orders;
+        newUser.apiHistOrders = histOrders;
+        newUser.apiBlueprints = blueprints;
+        newUser.apiTransactions = transactions;
+        newUser.apiJournal = journal;
+      } else if (!sStatus) {
+        newUser.apiSkills = [];
+        newUser.apiJobs = [];
+        newUser.apiOrders = [];
+        newUser.apiHistOrders = [];
+        newUser.apiBlueprints = [];
+        newUser.apiTransactions = [];
+        newUser.apiJournal = [];
+      }
+      if (newUser !== undefined) {
+        secondaryUsers.push(newUser);
+        newUser.apiJobs.forEach((i) => {
+          secondaryApiJobs.push(i);
+        });
+      }
+    }
+    if (secondaryUsers.length > 0) {
+      let newApiJobs = refreshedUser.apiJobs.concat(secondaryApiJobs);
+      newApiJobs.sort((a, b) => {
+        if (a.product_name < b.product_name) {
+          return -1;
+        }
+        if (a.product_name > b.product_name) {
+          return 1;
+        }
+        return 0;
+      });
+      updateUsers((prev) => prev.concat(secondaryUsers));
+      updateApiJobs(newApiJobs);
+    }
+
     updateIsLoggedIn(true);
     logEvent(analytics, "userSignIn", {
       UID: refreshedUser.accountID,
@@ -129,9 +210,9 @@ export function useRefreshUser() {
             "Content-Type": "application/x-www-form-urlencoded",
             Host: "login.eveonline.com",
           },
-          body: `grant_type=refresh_token&refresh_token=${localStorage.getItem(
-            "Auth"
-          )}`,
+          body: `grant_type=refresh_token&refresh_token=${
+            user.ParentUser ? localStorage.getItem("Auth") : user.rToken
+          }`,
         }
       );
       const newTokenJSON = await newTokenPromise.json();
@@ -143,8 +224,6 @@ export function useRefreshUser() {
 
       if (user.ParentUser) {
         localStorage.setItem("Auth", newTokenJSON.refresh_token);
-      } else {
-        localStorage.setItem(user.CharacterHash, newTokenJSON.refresh_token);
       }
 
       return user;

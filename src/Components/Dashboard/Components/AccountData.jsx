@@ -1,4 +1,4 @@
-import { Avatar, Grid, Paper, Typography } from "@mui/material";
+import { Avatar, AvatarGroup, Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
 import {
@@ -11,7 +11,23 @@ export function AccountData() {
   const { jobArray } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
 
-  const parentUser = users.find((i)=> i.ParentUser)
+  const parentUser = users.find((i) => i.ParentUser)
+  
+  let openMOrders = 0
+  let histMOrders = 0
+  let indJobs = 0
+  let cBlueprints = 0
+  let mTrans = 0
+  let jEntries = 0
+
+  users.forEach((i) => {
+    openMOrders += i.apiOrders.length
+    histMOrders += i.apiHistOrders.length
+    indJobs += i.apiJobs.length
+    cBlueprints += i.apiBlueprints.length
+    mTrans += i.apiTransactions.length
+    jEntries += i.apiJournal.length
+  })
 
   return (
     <Paper
@@ -31,21 +47,30 @@ export function AccountData() {
     >
       <Grid container direction="row">
         <Grid container item xs={12}>
-          <Grid item xs={6}>
-            <Avatar
-              alt={`${parentUser.CharacterName} portrait card`}
-              src={`https://images.evetech.net/characters/${parentUser.CharacterID}/portrait`}
+          <Grid item xs={6} >
+            <AvatarGroup max={3} spacing="small" >
+              {users.map((user) => {
+                return (
+                  <Avatar
+                    key={user.CharacterHash}
+              alt={`${user.CharacterName} portrait card`}
+              src={`https://images.evetech.net/characters/${user.CharacterID}/portrait`}
               sx={{
-                height: {
-                  xs: "60px",
-                  md: "72px",
-                },
-                width: {
-                  xs: "60px",
-                  md: "72px",
-                },
+                // height: {
+                //   xs: "60px",
+                //   md: "72px",
+                // },
+                // width: {
+                //   xs: "60px",
+                //   md: "72px",
+                // },
+                border: "none"
               }}
-            />
+              />
+                )
+              })}
+            
+            </AvatarGroup>
           </Grid>
           <Grid item xs={6}>
             <Typography variant="body1">Total Characters: {users.length}</Typography>
@@ -89,7 +114,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {parentUser.apiOrders.length.toLocaleString()}
+              {openMOrders.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
@@ -97,7 +122,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {parentUser.apiHistOrders.length.toLocaleString()}
+              {histMOrders.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
@@ -105,7 +130,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {parentUser.apiJobs.length.toLocaleString()}
+              {indJobs.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
@@ -113,7 +138,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {parentUser.apiBlueprints.length.toLocaleString()}
+              {cBlueprints.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
@@ -121,7 +146,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {parentUser.apiTransactions.length.toLocaleString()}
+              {mTrans.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
@@ -129,7 +154,7 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography variant="body2" align="right">
-              {parentUser.apiJournal.length.toLocaleString()}
+              {jEntries.toLocaleString()}
             </Typography>
           </Grid>
         </Grid>

@@ -34,28 +34,39 @@ export function PassBuildCostButton() {
           Number.EPSILON) *
           100
       ) / 100;
+    let availableForImport = activeJob.build.products.totalQuantity;
 
     for (let job of activeJob.parentJob) {
       let parentJob = jobArray.find((i) => i.jobID === job);
       let newTotal = 0;
+      let quantityImported = 0;
       if (parentJob.isSnapshot) {
         parentJob = await downloadCharacterJobs(parentJob);
         parentJob.isSnapshot = false;
       }
+
       parentJob.build.materials.forEach((material) => {
         if (!material.purchasing.some((i) => i.childID === activeJob.jobID)) {
           if (material.childJob.includes(activeJob.jobID)) {
+            if (availableForImport >= material.quantity) {
+              quantityImported = material.quantity;
+            } else {
+              quantityImported = availableForImport;
+            }
             itemsAdded++;
+            availableForImport -= material.quantity;
             material.purchasing.push({
               id: Date.now(),
               childID: activeJob.jobID,
               childJobImport: true,
-              itemCount: Number(material.quantity - material.quantityPurchased),
+              itemCount: Number(quantityImported),
               itemCost: itemCost,
             });
-            material.quantityPurchased = material.quantity;
-            material.purchasedCost += material.quantity * itemCost;
-            material.purchaseComplete = true;
+            material.quantityPurchased = quantityImported;
+            material.purchasedCost += quantityImported * itemCost;
+            if (quantityImported >= material.quantity) {
+              material.purchaseComplete = true;
+            }
             newTotal += material.purchasedCost;
           }
         }
@@ -70,7 +81,7 @@ export function PassBuildCostButton() {
         setSnackbarData((prev) => ({
           ...prev,
           open: true,
-          message: `Cost imported to parent job`,
+          message: `Cost Imported To Parent Job`,
           severity: "success",
           autoHideDuration: 3000,
         }));
@@ -79,7 +90,7 @@ export function PassBuildCostButton() {
         setSnackbarData((prev) => ({
           ...prev,
           open: true,
-          message: `Cost imported to ${itemsAdded} jobs`,
+          message: `Cost Imported To ${itemsAdded} Jobs`,
           severity: "success",
           autoHideDuration: 3000,
         }));

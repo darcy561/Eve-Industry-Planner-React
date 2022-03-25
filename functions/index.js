@@ -78,16 +78,14 @@ app.get("/item/:itemID", (req, res) => {
     }
   })();
 });
+
 app.get("/costs/:itemID", async (req, res) => {
   if (req.params.itemID != null) {
     try {
-      let returnArray = [];
-      let promiseArray = [];
       let returnData = null;
-      const itemRef = db.collection("Pricing").doc(req.params.itemID);
-      const itemDoc = await itemRef.get();
+      const itemDoc = await db.collection("Pricing").doc(req.params.itemID).get();
       if (itemDoc.exists) {
-        if (itemDoc.data().lastUpdated + 14400000 <= Date.now()) {
+        if (itemDoc.data().lastUpdated + 21600000 <= Date.now()) {
           returnData = await ESIMarketQuery(req.params.itemID);
         } else {
           returnData = itemDoc.data();
@@ -99,7 +97,7 @@ app.get("/costs/:itemID", async (req, res) => {
       return res
         .status(200)
         .setHeader("Content-Type", "application/json")
-        .set("Cache-Control", "public, max-age=3600, s-maxage=7200")
+        .set("Cache-Control", "public, max-age=10800, s-maxage=14400")
         .send(returnData);
     } catch (err) {
       functions.logger.error(err);

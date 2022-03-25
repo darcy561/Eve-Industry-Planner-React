@@ -9,7 +9,10 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { jobTypes } from "../../JobPlanner";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import { useContext } from "react";
+import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
 
 const useStyles = makeStyles((theme) => ({
   Image: {
@@ -25,14 +28,18 @@ const useStyles = makeStyles((theme) => ({
         ? theme.palette.primary.main
         : theme.palette.secondary.main,
   },
+  DeleteIcon: {
+    color: theme.palette.type === "dark"
+    ? theme.palette.primary.main
+    : theme.palette.secondary.main,
+  }
 }));
 
-export default function JobCard({
+export default function Step3JobCard({
   job,
-  multiSelect,
-  updateMultiSelect,
-  updateJobSettingsTrigger
+  updateJobSettingsTrigger,
 }) {
+  const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(MultiSelectJobPlannerContext);
   const { deleteJobProcess, openEditJob } = useJobManagement();
   const classes = useStyles();
 
@@ -47,20 +54,20 @@ export default function JobCard({
         <Grid container item xs={12}>
           <Grid container item xs={12}>
             <Grid item xs={1}>
-              <Checkbox
+            <Checkbox
                 className={classes.Checkbox}
-                checked={multiSelect.some((i) => i.jobID === job.jobID)}
+                checked={multiSelectJobPlanner.some((i) => i.jobID === job.jobID)}
                 onChange={(event) => {
                   if (event.target.checked) {
-                    if (multiSelect.filter((i) => i.jobID === job.jobID)) {
-                      updateMultiSelect([...multiSelect, job]);
+                    if (multiSelectJobPlanner.filter((i) => i.jobID === job.jobID)) {
+                      updateMultiSelectJobPlanner([...multiSelectJobPlanner, job]);
                     }
                   } else {
-                    if (multiSelect.filter((i) => i.jobID !== job.jobID)) {
-                      let newArray = multiSelect.filter(
+                    if (multiSelectJobPlanner.filter((i) => i.jobID !== job.jobID)) {
+                      let newArray = multiSelectJobPlanner.filter(
                         (i) => i.jobID !== job.jobID
                       );
-                      updateMultiSelect(newArray);
+                      updateMultiSelectJobPlanner(newArray);
                     }
                   }
                 }}
@@ -72,7 +79,7 @@ export default function JobCard({
               xs={1}
               sx={{ paddingRight: { xs: "0px", sm: "10px", md: "0px" } }}
             >
-              <IconButton size="small" onClick={() => deleteJobProcess(job)}>
+              <IconButton size="small" className={classes.DeleteIcon} onClick={() => deleteJobProcess(job)}>
                 <DeleteIcon />
               </IconButton>
             </Grid>
@@ -99,31 +106,12 @@ export default function JobCard({
             </Grid>
             <Grid container item xs={9}>
               <Grid container item xs={12}>
-                <Grid item xs={8}>
-                  <Typography
-                    variant="body1"
-                    sx={{ paddingLeft: { xs: "20px", sm: "0px" } }}
-                  >
-                    Runs
-                  </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography
-                    variant="body1"
-                    align="right"
-                    sx={{ paddingRight: { sm: "20px" } }}
-                  >
-                    {job.runCount.toLocaleString()}
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Grid container item xs={12}>
                 <Grid item xs={10}>
                   <Typography
                     variant="body1"
                     sx={{ paddingLeft: { xs: "20px", sm: "0px" } }}
                   >
-                    Job Slots
+                    ESI Jobs Linked
                   </Typography>
                 </Grid>
                 <Grid item xs={2}>
@@ -132,7 +120,7 @@ export default function JobCard({
                     align="right"
                     sx={{ paddingRight: { sm: "20px" } }}
                   >
-                    {job.jobCount.toLocaleString()}
+                    {job.isSnapshot ? job.linkedJobsCount.toLocaleString() : job.build.costs.linkedJobs.length.toLocaleString()}
                   </Typography>
                 </Grid>
               </Grid>
@@ -154,11 +142,11 @@ export default function JobCard({
           <Grid
             item
             xs={12}
-            sx={{ backgroundColor: "reaction.main", marginTop: "10px" }}
+            sx={{ backgroundColor: job.jobType === jobTypes.manufacturing ? "manufacturing.main" : "reaction.main", marginTop: "10px" }}
           >
             <Box>
-              <Typography align="center" variant="body2">
-                <b>Reaction Job</b>
+              <Typography align="center" variant="body2" color="black">
+                {job.jobType === jobTypes.manufacturing ? <b>Manufacturing Job</b> : <b>Reaction Job</b>}
               </Typography>
             </Box>
           </Grid>

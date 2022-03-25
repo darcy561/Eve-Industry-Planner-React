@@ -52,6 +52,7 @@ export function useFirebase() {
           linkedOrders: charData.data.linkedOrders,
           linkedTrans: charData.data.linkedTrans,
           settings: charData.data.settings,
+          refreshTokens : charData.data.refreshTokens
         };
       } catch (err) {
         console.log(err);
@@ -193,6 +194,7 @@ export function useFirebase() {
         linkedTrans: parentUser.linkedTrans,
         linkedOrders: parentUser.linkedOrders,
         settings: parentUser.settings,
+        refreshTokens: parentUser.accountRefreshTokens
       }
     )
   };

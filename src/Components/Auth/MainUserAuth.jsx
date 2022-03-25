@@ -19,6 +19,8 @@ import {
 } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { RefreshTokens } from "./RefreshToken";
+import { secondsToHours } from "date-fns";
 
 export function login() {
   // const state = window.location.pathname;
@@ -33,7 +35,7 @@ export function login() {
 export function AuthMainUser() {
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
-  const { updateApiJobs } = useContext(ApiJobsContext);
+  const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const {
@@ -53,7 +55,7 @@ export function AuthMainUser() {
   const analytics = getAnalytics();
 
   useEffect(async () => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn && !localStorage.getItem("AddAccount")) {
       const t = trace(performance, "MainUserLoginProcessFull");
       t.start();
       const authCode = window.location.search.match(/code=(\S*)&/)[1];
@@ -65,7 +67,7 @@ export function AuthMainUser() {
         eveSSO: true,
       }));
 
-      const userObject = await EveSSOTokens(authCode);
+      const userObject = await EveSSOTokens(authCode, true);
       userObject.fbToken = await firebaseAuth(userObject);
 
       updateLoadingText((prevObj) => ({
@@ -80,22 +82,49 @@ export function AuthMainUser() {
       userObject.linkedTrans = userSettings.linkedTrans;
       userObject.linkedOrders = userSettings.linkedOrders;
       userObject.settings = userSettings.settings;
-      userObject.snapshotData = JSON.parse(JSON.stringify(userSettings.jobArraySnapshot));
+      userObject.snapshotData = JSON.parse(
+        JSON.stringify(userSettings.jobArraySnapshot)
+      );
+      userObject.accountRefreshTokens = userSettings.refreshTokens;
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
         charDataComp: true,
         apiData: true,
       }));
+      let apiJobsArray = [];
+      
       const sStatus = await serverStatus();
       if (sStatus) {
-        userObject.apiSkills = await CharacterSkills(userObject);
-        userObject.apiJobs = await IndustryJobs(userObject);
-        userObject.apiOrders = await MarketOrders(userObject);
-        userObject.apiHistOrders = await HistoricMarketOrders(userObject);
-        userObject.apiBlueprints = await BlueprintLibrary(userObject);
-        userObject.apiTransactions = await WalletTransactions(userObject);
-        userObject.apiJournal = await WalletJournal(userObject);
+        const [
+          skills,
+          indJobs,
+          orders,
+          histOrders,
+          blueprints,
+          transactions,
+          journal,
+        ] = await Promise.all([
+          CharacterSkills(userObject),
+          IndustryJobs(userObject),
+          MarketOrders(userObject),
+          HistoricMarketOrders(userObject),
+          BlueprintLibrary(userObject),
+          WalletTransactions(userObject),
+          WalletJournal(userObject),
+        ]);
+
+        userObject.apiSkills = skills;
+        userObject.apiJobs = indJobs;
+        console.log(userObject.apiJobs)
+        userObject.apiJobs.forEach((i) => {
+          apiJobsArray.push(i)
+        })
+        userObject.apiOrders = orders;
+        userObject.apiHistOrders = histOrders;
+        userObject.apiBlueprints = blueprints;
+        userObject.apiTransactions = transactions;
+        userObject.apiJournal = journal;
       } else {
         userObject.apiSkills = [];
         userObject.apiJobs = [];
@@ -113,9 +142,68 @@ export function AuthMainUser() {
 
       setJobStatus(userSettings.jobStatusArray);
       updateJobArray(userSettings.jobArraySnapshot);
-      updateApiJobs(userObject.apiJobs);
       updateUsers([userObject]);
+      let secondaryUsers = [];
 
+      for (let token of userSettings.refreshTokens) {
+        let newUser = await RefreshTokens(token.rToken, false)
+        if (sStatus && newUser !== undefined) {
+          const [
+            skills,
+            indJobs,
+            orders,
+            histOrders,
+            blueprints,
+            transactions,
+            journal,
+          ] = await Promise.all([
+            CharacterSkills(newUser),
+            IndustryJobs(newUser, userObject),
+            MarketOrders(newUser),
+            HistoricMarketOrders(newUser),
+            BlueprintLibrary(newUser),
+            WalletTransactions(newUser),
+            WalletJournal(newUser),
+          ]);
+  
+          newUser.apiSkills = skills;
+          newUser.apiJobs = indJobs;
+          newUser.apiJobs.forEach((i) => {
+            apiJobsArray.push(i)
+          })
+          newUser.apiOrders = orders;
+          newUser.apiHistOrders = histOrders;
+          newUser.apiBlueprints = blueprints;
+          newUser.apiTransactions = transactions;
+          newUser.apiJournal = journal;
+        } else if(!sStatus){
+          newUser.apiSkills = [];
+          newUser.apiJobs = [];
+          newUser.apiOrders = [];
+          newUser.apiHistOrders = [];
+          newUser.apiBlueprints = [];
+          newUser.apiTransactions = [];
+          newUser.apiJournal = [];
+        }
+        if (newUser !== undefined) {
+          secondaryUsers.push(newUser);
+        }
+      }
+      if (secondaryUsers.length > 0) {
+        updateUsers((prev) => prev.concat(secondaryUsers));
+      }
+
+      apiJobsArray.sort((a, b) => {
+        if (a.product_name < b.product_name) {
+          return -1;
+        }
+        if (a.product_name > b.product_name) {
+          return 1;
+        }
+        return 0;
+      });
+      console.log(apiJobsArray);
+      updateApiJobs(apiJobsArray);
       updateIsLoggedIn(true);
       updatePageLoad(false);
       logEvent(analytics, "userSignIn", {
@@ -133,12 +221,19 @@ export function AuthMainUser() {
       }));
       navigate(returnState);
     }
+    if (localStorage.getItem("AddAccount")) {
+      const authCode = window.location.search.match(/code=(\S*)&/)[1];
+      const userObject = await EveSSOTokens(authCode, false);
+      localStorage.setItem("AdditionalUser", JSON.stringify(userObject));
+      localStorage.setItem("AddAccountComplete", true);
+      window.close();
+    }
   }, []);
 
   return <LoadingPage />;
 }
 
-async function EveSSOTokens(authCode) {
+async function EveSSOTokens(authCode, accountType) {
   try {
     const eveTokenPromise = await fetch(
       "https://login.eveonline.com/v2/oauth/token",
@@ -160,14 +255,22 @@ async function EveSSOTokens(authCode) {
 
     const decodedToken = jwt.decode(tokenJSON.access_token);
 
-    const newUser = new MainUser(decodedToken, tokenJSON);
-
-    localStorage.setItem("Auth", tokenJSON.refresh_token);
-    return newUser;
+    if (accountType) {
+      const newUser = new MainUser(decodedToken, tokenJSON);
+      newUser.ParentUser = accountType;
+      localStorage.setItem("Auth", tokenJSON.refresh_token);
+      return newUser;
+    } else {
+      const newUser = new SecondaryUser(decodedToken, tokenJSON);
+      newUser.ParentUser = accountType;
+      return newUser;
+    }
   } catch (err) {
     console.log(err);
   }
 }
+
+
 
 class MainUser {
   constructor(decodedToken, tokenJSON) {
@@ -177,7 +280,7 @@ class MainUser {
     this.CharacterName = decodedToken.name;
     this.aToken = tokenJSON.access_token;
     this.aTokenEXP = Number(decodedToken.exp);
-    this.ParentUser = true;
+    this.ParentUser = null;
     this.apiSkills = null;
     this.apiJobs = null;
     this.linkedJobs = [];
@@ -187,5 +290,24 @@ class MainUser {
     this.apiHistOrders = null;
     this.apiBlueprints = null;
     this.settings = null;
+    this.accountRefreshTokens = [];
+    this.refreshState = 1;
+  }
+}
+class SecondaryUser {
+  constructor(decodedToken, tokenJSON) {
+    this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
+    this.CharacterHash = decodedToken.owner;
+    this.CharacterName = decodedToken.name;
+    this.aToken = tokenJSON.access_token;
+    this.aTokenEXP = Number(decodedToken.exp);
+    this.rToken = tokenJSON.refresh_token;
+    this.ParentUser = null;
+    this.apiSkills = null;
+    this.apiJobs = null;
+    this.apiOrders = null;
+    this.apiHistOrders = null;
+    this.apiBlueprints = null;
+    this.refreshState = 1;
   }
 }

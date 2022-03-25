@@ -212,7 +212,6 @@ export function ChildJobDialog({
                           if (parentIndex !== -1) {
                             jobMatch.parentJob.splice(parentIndex, 1);
                           }
-
                           updateJobSnapshot(jobMatch);
 
                           updateActiveJob((prev) => ({

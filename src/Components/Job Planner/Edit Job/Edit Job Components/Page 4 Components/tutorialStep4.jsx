@@ -61,9 +61,6 @@ export function TutorialStep4() {
             for when comparing these to current market costs. (Yet to be
             implemented, data is currently being stored to start building this
             data).
-            {<br />}
-            {<br />}
-            Currently T2/T3 blueprint invention costs can be added here.
           </Typography>
         </Grid>
         {isLoggedIn && (

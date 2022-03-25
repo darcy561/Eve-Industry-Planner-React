@@ -31,7 +31,7 @@ export function UserIcon() {
   const navigate = useNavigate();
   const analytics = getAnalytics();
 
-  const parentUser = users.find((i) => i.ParentUser === true)
+  const parentUser = users.find((i) => i.ParentUser)
 
   function logout() {
     logEvent(analytics, "userLogOut", {
@@ -94,14 +94,13 @@ export function UserIcon() {
           onClose={closeMenu}
           onClick={closeMenu}
         >
-          {/* <MenuItem
-            disabled
+          <MenuItem
             onClick={() => {
               navigate("/accounts");
             }}
           >
             Accounts
-          </MenuItem>*/}
+          </MenuItem>
           <MenuItem
             onClick={() => {
               navigate("/settings");

@@ -14,6 +14,7 @@ import { useJobManagement } from "../../../Hooks/useJobManagement";
 import {
   DataExchangeContext,
   DialogDataContext,
+  MultiSelectJobPlannerContext,
   ShoppingListContext,
 } from "../../../Context/LayoutContext";
 import { JobArrayContext } from "../../../Context/JobContext";
@@ -29,11 +30,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function SearchBar({ multiSelect, updateMultiSelect }) {
+export function SearchBar() {
   const { jobArray } = useContext(JobArrayContext);
   const { DataExchange } = useContext(DataExchangeContext);
   const { updateShoppingListData } = useContext(ShoppingListContext);
   const { updateDialogData } = useContext(DialogDataContext);
+  const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(MultiSelectJobPlannerContext);
   const {
     deleteMultipleJobsProcess,
     massBuildMaterials,
@@ -116,8 +118,8 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 size="small"
                 sx={{ marginRight: "10px" }}
                 onClick={async () => {
-                  if (multiSelect.length > 0) {
-                    let shoppingList = await buildShoppingList(multiSelect);
+                  if (multiSelectJobPlanner.length > 0) {
+                    let shoppingList = await buildShoppingList(multiSelectJobPlanner);
                     updateShoppingListData((prev) => ({
                       open: true,
                       list: shoppingList,
@@ -146,9 +148,9 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 size="small"
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
-                  if (multiSelect.length > 0) {
-                    massBuildMaterials(multiSelect);
-                    updateMultiSelect([]);
+                  if (multiSelectJobPlanner.length > 0) {
+                    massBuildMaterials(multiSelectJobPlanner);
+                    updateMultiSelectJobPlanner([]);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -178,8 +180,8 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 size="small"
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
-                  if (multiSelect.length > 0) {
-                    moveMultipleJobsBackward(multiSelect);
+                  if (multiSelectJobPlanner.length > 0) {
+                    moveMultipleJobsBackward(multiSelectJobPlanner);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -201,8 +203,8 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 size="small"
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
-                  if (multiSelect.length > 0) {
-                    moveMultipleJobsForward(multiSelect);
+                  if (multiSelectJobPlanner.length > 0) {
+                    moveMultipleJobsForward(multiSelectJobPlanner);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -234,14 +236,14 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                   size="small"
                   sx={{ marginRight: "10px" }}
                   disabled={
-                    !multiSelect.every(
-                      (i) => i.itemID === multiSelect[0].itemID
+                    !multiSelectJobPlanner.every(
+                      (i) => i.itemID === multiSelectJobPlanner[0].itemID
                     )
                   }
                   onClick={() => {
-                    if (multiSelect.length > 1) {
-                      mergeJobs(multiSelect);
-                      updateMultiSelect([]);
+                    if (multiSelectJobPlanner.length > 1) {
+                      mergeJobs(multiSelectJobPlanner);
+                      updateMultiSelectJobPlanner([]);
                     } else {
                       updateDialogData((prev) => ({
                         ...prev,
@@ -273,11 +275,11 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 size="small"
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
-                  let newMultiArray = [];
+                  let newMultiArray = [...multiSelectJobPlanner];
                   jobArray.forEach((job) => {
                     newMultiArray.push(job);
                   });
-                  updateMultiSelect(newMultiArray);
+                  updateMultiSelectJobPlanner(newMultiArray);
                 }}
               >
                 Select All
@@ -289,10 +291,10 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 <Button
                   variant="outlined"
                   size="small"
-                  disabled={!multiSelect.length > 0}
+                  disabled={!multiSelectJobPlanner.length > 0}
                   sx={{ marginRight: "10px" }}
                   onClick={() => {
-                    updateMultiSelect([]);
+                    updateMultiSelectJobPlanner([]);  
                   }}
                 >
                   Clear Selection
@@ -308,9 +310,9 @@ export function SearchBar({ multiSelect, updateMultiSelect }) {
                 size="small"
                 color="error"
                 onClick={() => {
-                  if (multiSelect.length > 0) {
-                    deleteMultipleJobsProcess(multiSelect);
-                    updateMultiSelect([]);
+                  if (multiSelectJobPlanner.length > 0) {
+                    deleteMultipleJobsProcess(multiSelectJobPlanner);
+                    updateMultiSelectJobPlanner([]);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,

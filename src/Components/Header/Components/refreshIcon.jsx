@@ -7,6 +7,7 @@ import { Tooltip, IconButton } from "@mui/material";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import TimerIcon from "@mui/icons-material/Timer";
+import { RefreshStateContext } from "../../../Context/LayoutContext";
 
 export function RefreshApiIcon() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -22,7 +23,9 @@ export function RefreshApiIcon() {
     serverStatus,
   } = useEveApi();
   const { RefreshUserAToken } = useRefreshUser();
-  const [refreshState, updateRefreshState] = useState(1);
+  const { refreshState, updateRefreshState } = useContext(RefreshStateContext);
+
+  const parentUser = users.find((i) => i.ParentUser);
 
   const refreshAPIData = async () => {
     let newUsers = [...users];
@@ -34,37 +37,58 @@ export function RefreshApiIcon() {
         if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
           user = await RefreshUserAToken(user);
         }
-        const NewApiSkills = await CharacterSkills(user);
-        if (NewApiSkills.length > 0) {
-          user.apiSkills = NewApiSkills;
+
+        const [
+          skills,
+          indJobs,
+          orders,
+          histOrders,
+          blueprints,
+          transactions,
+          journal,
+        ] = await Promise.all([
+          CharacterSkills(user),
+          IndustryJobs(user, parentUser),
+          MarketOrders(user),
+          HistoricMarketOrders(user),
+          BlueprintLibrary(user),
+          WalletTransactions(user),
+          WalletJournal(user),
+        ]);
+        if (skills.length > 0) {
+          user.apiSkills = skills;
         }
-        const NewApiJobs = await IndustryJobs(user);
-        if (NewApiJobs.length > 0) {
-          user.apiJobs = NewApiJobs;
+        if (indJobs.length > 0) {
+          user.apiJobs = indJobs;
           user.apiJobs.forEach((i) => newAPIArray.push(i));
         }
-        const NewApiOrders = await MarketOrders(user);
-        if (NewApiOrders.length > 0) {
-          user.apiOrders = NewApiOrders;
+        if (orders.length > 0) {
+          user.apiOrders = orders;
         }
-        const NewApiHistOrders = await HistoricMarketOrders(user);
-        if (NewApiHistOrders.length > 0) {
-          user.apiHistOrders = NewApiHistOrders;
+        if (histOrders.length > 0) {
+          user.apiHistOrders = histOrders;
         }
-        const NewApiBlueprints = await BlueprintLibrary(user);
-        if (NewApiBlueprints.length > 0) {
-          user.apiBlueprints = NewApiBlueprints;
+        if (blueprints.length > 0) {
+          user.apiBlueprints = blueprints;
         }
-        const NewApiTransactions = await WalletTransactions(user);
-        if (NewApiTransactions.length > 0) {
-          user.apiTransactions = NewApiTransactions;
+        if (transactions.length > 0) {
+          user.apiTransactions = transactions;
         }
-        const NewApiJournal = await WalletJournal(user);
-        if (NewApiJournal.length > 0) {
-          user.apiJournal = NewApiJournal;
+        if (journal.length > 0) {
+          user.apiJournal = journal;
         }
       }
     }
+
+    newAPIArray.sort((a, b) => {
+      if (a.product_name < b.product_name) {
+        return -1;
+      }
+      if (a.product_name > b.product_name) {
+        return 1;
+      }
+      return 0;
+    });
 
     updateUsers(newUsers);
     updateApiJobs(newAPIArray);

@@ -65,6 +65,8 @@ exports.createUserData = functions.https.onCall((data, context) => {
           hideTutorials: false,
         },
         editJob: {
+          defaultMarket: "jita",
+          defaultOrders: "sell",
           hideCompleteMaterials: false,
         },
         structures: {
@@ -72,6 +74,7 @@ exports.createUserData = functions.https.onCall((data, context) => {
           reaction:[],
         }
       },
+      refreshTokens: []
     };
     admin.firestore().collection("Users").doc(context.auth.uid).set(setupData);
     functions.logger.log(

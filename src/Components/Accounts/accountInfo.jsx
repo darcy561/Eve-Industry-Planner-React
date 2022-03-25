@@ -1,6 +1,6 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
-import { UsersContext } from "../../../Context/AuthContext";
+import { UsersContext } from "../../Context/AuthContext";
 
 export function AccountInfo() {
   const { users } = useContext(UsersContext);
@@ -11,7 +11,7 @@ export function AccountInfo() {
       <Grid container>
         <Grid item xs={12} align="center" sx={{ marginBottom: "20px" }}>
           <Typography variant="h6" color="primary">
-            Account Information
+            Main  Account
           </Typography>
         </Grid>
         <Grid container item xs={12}>

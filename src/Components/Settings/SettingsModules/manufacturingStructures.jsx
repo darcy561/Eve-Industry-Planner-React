@@ -232,26 +232,38 @@ export function ManuStrutures({ parentUserIndex }) {
             </Masonry>
           </Grid>
 
-          <Grid container item xs={12} lg={6} sx={{ paddingLeft: "5px" }}>
-            <Masonry columns={1} spacing={2}>
-              {users[parentUserIndex].settings.structures.manufacturing.map(
-                (entry) => {
-                  const systemText = blueprintVariables.manSystem.find(
-                    (x) => x.value === entry.systemType
-                  );
-                  const structureText = blueprintVariables.manStructure.find(
-                    (x) => x.value === entry.structureName
-                  );
-                  const rigText = blueprintVariables.manRigs.find(
-                    (x) => x.value === entry.rigType
-                  );
-                  return (
+          <Grid
+            container
+            item
+            xs={12}
+            lg={6}
+            spacing={1}
+            sx={{
+              paddingLeft: "5px",
+              paddingRight: "5px",
+              paddingBottom:"5px",
+              overflowY: "auto",
+              height: { xs: "200px", lg:"380px" },
+            }}
+          >
+            {users[parentUserIndex].settings.structures.manufacturing.map(
+              (entry) => {
+                const systemText = blueprintVariables.manSystem.find(
+                  (x) => x.value === entry.systemType
+                );
+                const structureText = blueprintVariables.manStructure.find(
+                  (x) => x.value === entry.structureName
+                );
+                const rigText = blueprintVariables.manRigs.find(
+                  (x) => x.value === entry.rigType
+                );
+                return (
+                  <Grid item xs={12}>
                     <Card
                       key={entry.id}
                       raised={true}
                       sx={{
                         width: "100%",
-                        marginBottom: { xs: "20px", lg: "20px" },
                       }}
                     >
                       <CardContent>
@@ -363,10 +375,10 @@ export function ManuStrutures({ parentUserIndex }) {
                         </Grid>
                       </CardActions>
                     </Card>
-                  );
-                }
-              )}
-            </Masonry>
+                  </Grid>
+                );
+              }
+            )}
           </Grid>
         </Grid>
       </Grid>

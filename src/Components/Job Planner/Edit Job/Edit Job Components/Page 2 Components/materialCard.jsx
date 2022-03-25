@@ -7,14 +7,37 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import AddMaterialCost from "./addMaterialCost";
 import { MaterialCost } from "./materialCost";
 import { jobTypes } from "../../../JobPlanner";
 import { ChildJobDialog } from "./childJobsDialog";
+import { JobArrayContext } from "../../../../../Context/JobContext";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  childJobText: {
+    color: "white",
+  },
+}));
 
 export function MaterialCard({ material, setJobModified }) {
   const [childDialogTrigger, updateChildDialogTrigger] = useState(false);
+  const { jobArray } = useContext(JobArrayContext);
+  const classes = useStyles();
+  let childJobs = [];
+  let childJobProductionTotal = 0;
+
+  if (material.childJob.length > 0) {
+    childJobs = jobArray.filter((i) => material.childJob.includes(i.jobID));
+    childJobs.forEach((i) => {
+      if (i.isSnapshot) {
+        childJobProductionTotal += i.itemQuantity;
+      } else {
+        childJobProductionTotal += i.build.products.totalQuantity;
+      }
+    });
+  }
 
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
@@ -45,6 +68,7 @@ export function MaterialCard({ material, setJobModified }) {
               >
                 <Avatar
                   variant="circle"
+                  className={classes.childJobText}
                   sx={{
                     bgcolor: "primary.main",
                     height: "30px",
@@ -90,16 +114,29 @@ export function MaterialCard({ material, setJobModified }) {
             </Grid>
           </Grid>
           <Grid container>
-            <Grid item xs={12} sx={{ marginBottom: "10px" }}>
-              <Typography variant="body2">
-                Items Purchased:{" "}
-                {material.quantityPurchased.toLocaleString(undefined, {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                })}{" "}
-                / {material.quantity.toLocaleString()}
-              </Typography>
-            </Grid>
+            {childJobProductionTotal < material.quantity && (
+              <Grid item xs={12}>
+                <Typography variant="body2">
+                  Remaining To Purchase:{" "}
+                  {(
+                    material.quantity - material.quantityPurchased
+                  ).toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
+                </Typography>
+              </Grid>
+            )}
+            {material.childJob.length > 0 && (
+              <Grid item xs={12}>
+                <Typography variant="body2">
+                  {material.childJob.length > 1
+                    ? "Child Jobs Production Total:"
+                    : "Child Job Production Total:"}{" "}
+                  {childJobProductionTotal}
+                </Typography>
+              </Grid>
+            )}
             <Grid item xs={12} sx={{ marginBottom: "10px" }}>
               <Typography variant="body2">
                 Total Cost:{" "}
@@ -111,12 +148,14 @@ export function MaterialCard({ material, setJobModified }) {
               </Typography>
             </Grid>
             <MaterialCost material={material} setJobModified={setJobModified} />
-            {material.quantityPurchased < material.quantity ? (
-              <AddMaterialCost
-                material={material}
-                setJobModified={setJobModified}
-              />
-            ) : (
+            {material.quantityPurchased < material.quantity &&
+              childJobProductionTotal < material.quantity && (
+                <AddMaterialCost
+                  material={material}
+                  setJobModified={setJobModified}
+                />
+              )}
+            {material.quantityPurchased === material.quantity && (
               <Box
                 sx={{
                   backgroundColor: "manufacturing.main",
@@ -130,6 +169,22 @@ export function MaterialCard({ material, setJobModified }) {
                 <Typography variant="body1">Complete</Typography>
               </Box>
             )}
+            {material.quantityPurchased < material.quantity &&
+              childJobProductionTotal >= material.quantity && (
+                <Box
+                  sx={{
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    marginTop: "5px",
+                    padding: "8px",
+                  }}
+                >
+                  <Typography variant="h6" align="center" color="primary">
+                    {" "}
+                    Awaiting Cost Import
+                  </Typography>
+                </Box>
+              )}
           </Grid>
         </Container>
       </Paper>

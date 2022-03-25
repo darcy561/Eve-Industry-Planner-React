@@ -1,11 +1,9 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import { AppWrapper } from './AppWrapper';
 
 ReactDOM.render(
   <>
-    <App />
+    <AppWrapper />
   </>,
   document.getElementById('pageWrapper')
 );

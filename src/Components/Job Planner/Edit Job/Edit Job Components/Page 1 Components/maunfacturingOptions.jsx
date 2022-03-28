@@ -40,8 +40,15 @@ export function ManufacturingOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const [buildCharName, updateBuildCharName] = useState(
-    activeJob.build.buildChar
+  const parentUser = users.find((i) => i.ParentUser);
+  const [buildCharName, updateBuildCharName] = useState(() => {
+    let charEntry = users.find((i) => i.CharacterHash === activeJob.build.buildChar)
+    if (charEntry === undefined) {
+      return parentUser.CharacterHash
+    } else {
+      return activeJob.build.buildChar
+    }
+  }
   );
   const [meValue, updateMEValue] = useState(activeJob.bpME);
   const [teValue, updateTEValue] = useState(activeJob.bpTE);
@@ -52,9 +59,6 @@ export function ManufacturingOptions({ setJobModified }) {
   const [systemValue, updateSystemValue] = useState(activeJob.systemType);
   const { CalculateResources } = useBlueprintCalc();
   const classes = useStyles();
-
-  const parentUser = users.find((i) => i.ParentUser === true);
-  // const buildCharName = users.find((i)=> i.CharacterHash === activeJob.build.buildChar)
 
   return (
     <Paper

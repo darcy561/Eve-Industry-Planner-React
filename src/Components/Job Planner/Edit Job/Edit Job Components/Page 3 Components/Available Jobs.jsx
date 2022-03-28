@@ -77,7 +77,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     activeJob.apiJobs.length < activeJob.jobCount
   ) {
     return (
-      <Grid container direction="row">
+      <Grid container direction="row" sx={{ marginBottom: "10px" }}>
         {jobMatches.map((job) => {
           const jobOwner = users.find(
             (i) => i.CharacterID === job.installer_id
@@ -249,9 +249,9 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
           );
         })}
         {jobMatches.length > 1 && (
-          <Grid container sx={{marginTop:{xs:"20px", sm:"0px"}}}>
-            <Grid item sm={10} />
-            <Grid item align="center" xs={12} sm={2}>
+          <Grid container sx={{marginTop:{xs:"20px", sm:"20px"}}}>
+            <Grid item sm={9} />
+            <Grid item align="center" xs={12} sm={3}>
               <Button
                 variant="contained"
                 size="small"
@@ -267,7 +267,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     ...activeJob.build.costs.linkedJobs,
                   ];
                   let newInstallCosts = 0;
-                  const newApiArray = apiJobs;
+                  const newApiArray = [...apiJobs]
                   for (let job of jobMatches) {
                     const jobOwner = users.find(
                       (i) => i.CharacterID === job.installer_id

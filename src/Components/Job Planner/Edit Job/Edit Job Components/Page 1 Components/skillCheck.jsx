@@ -9,9 +9,14 @@ import { Masonry } from "@mui/lab";
 export function SkillCheck() {
   const { activeJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
-  const buildChar = users.find(
+  const parentUser = users.find((i) => i.ParentUser);
+  let buildChar = users.find(
     (i) => i.CharacterHash === activeJob.build.buildChar
   );
+
+  if (buildChar == undefined) {
+  buildChar = parentUser
+}
 
   return (
     <Paper

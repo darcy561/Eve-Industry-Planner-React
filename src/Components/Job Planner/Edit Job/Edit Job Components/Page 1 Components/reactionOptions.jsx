@@ -39,16 +39,25 @@ export function ReactionOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const [buildCharName, updateBuildCharName] = useState(activeJob.build.buildChar)
+  const parentUser = users.find((i) => i.ParentUser);
+  const [buildCharName, updateBuildCharName] = useState(() => {
+    let charEntry = users.find(
+      (i) => i.CharacterHash === activeJob.build.buildChar
+    );
+    if (charEntry === undefined) {
+      return parentUser.CharacterHash;
+    } else {
+      return activeJob.build.buildChar;
+    }
+  });
   const [structValue, updateStructValue] = useState(
     activeJob.structureTypeDisplay
   );
-  const [rigsValue, updateRigsValue] = useState(activeJob.rigType)
-  const [systemValue, updateSystemValue] = useState(activeJob.systemType)
+  const [rigsValue, updateRigsValue] = useState(activeJob.rigType);
+  const [systemValue, updateSystemValue] = useState(activeJob.systemType);
   const { CalculateResources } = useBlueprintCalc();
   const classes = useStyles();
 
-  const parentUser = users.find((i) => i.ParentUser === true);
   return (
     <Paper
       elevation={3}
@@ -60,36 +69,37 @@ export function ReactionOptions({ setJobModified }) {
     >
       <Grid container direction="column">
         <Grid item container direction="row" spacing={2}>
-        <Grid item xs={12} xl={8}>
-          <FormControl className={classes.TextField} fullWidth={true}>
-            <Select
-              variant="standard"
-              size="small"
-              value={buildCharName}
-              onChange={(e) => {
-                setJobModified(true)
-                updateBuildCharName(e.target.value)
-                updateActiveJob((prev) => ({
-                  ...prev,
-                  build: {
-                    ...prev.build,
-                    buildChar: e.target.value
-                  }
-                }))  
-              }}
-            >
-              {users.map((user) => {
-                return (
-                  <MenuItem key={user.CharacterName} value={user.CharacterHash}>
-                  {user.CharacterName}
-                </MenuItem>
-                )
-              })}
+          <Grid item xs={12} xl={8}>
+            <FormControl className={classes.TextField} fullWidth={true}>
+              <Select
+                variant="standard"
+                size="small"
+                value={buildCharName}
+                onChange={(e) => {
+                  setJobModified(true);
+                  updateBuildCharName(e.target.value);
+                  updateActiveJob((prev) => ({
+                    ...prev,
+                    build: {
+                      ...prev.build,
+                      buildChar: e.target.value,
+                    },
+                  }));
+                }}
+              >
+                {users.map((user) => {
+                  return (
+                    <MenuItem
+                      key={user.CharacterName}
+                      value={user.CharacterHash}
+                    >
+                      {user.CharacterName}
+                    </MenuItem>
+                  );
+                })}
               </Select>
-              <FormHelperText variant="standard">
-                  Use Character
-                </FormHelperText>
-              </FormControl>
+              <FormHelperText variant="standard">Use Character</FormHelperText>
+            </FormControl>
           </Grid>
           <Grid item xs={6}>
             <TextField
@@ -128,32 +138,32 @@ export function ReactionOptions({ setJobModified }) {
           <Grid item xs={6}>
             <FormControl className={classes.TextField} fullWidth={true}>
               <Select
-              variant="standard"
-              size="small"
-              value={structValue}
-              onChange={(e) => {
+                variant="standard"
+                size="small"
+                value={structValue}
+                onChange={(e) => {
                   const oldJob = JSON.parse(JSON.stringify(activeJob));
                   oldJob.structureTypeDisplay = e.target.value;
                   oldJob.structureType = 1;
                   const newJob = CalculateResources(oldJob);
                   updateStructValue(e.target.value);
                   updateActiveJob(newJob);
-              }}
-            >
-              {blueprintVariables.reactionStructure.map((entry) => {
-                return (
-                  <MenuItem key={entry.label} value={entry.value}>
-                    {entry.label}
-                  </MenuItem>
-                );
-              })}
-            </Select>
+                }}
+              >
+                {blueprintVariables.reactionStructure.map((entry) => {
+                  return (
+                    <MenuItem key={entry.label} value={entry.value}>
+                      {entry.label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
               <FormHelperText variant="standard">Structure Type</FormHelperText>
             </FormControl>
           </Grid>
           <Grid item xs={6}>
             <FormControl className={classes.TextField} fullWidth={true}>
-            <Select
+              <Select
                 variant="standard"
                 size="small"
                 value={rigsValue}
@@ -179,7 +189,7 @@ export function ReactionOptions({ setJobModified }) {
           </Grid>
           <Grid item xs={6}>
             <FormControl className={classes.TextField} fullWidth={true}>
-            <Select
+              <Select
                 variant="standard"
                 size="small"
                 value={systemValue}

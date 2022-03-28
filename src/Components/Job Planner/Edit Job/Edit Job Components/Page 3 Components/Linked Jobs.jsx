@@ -1,5 +1,8 @@
 import React, { useContext } from "react";
-import { UsersContext } from "../../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
@@ -7,18 +10,23 @@ import {
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import {
   Avatar,
+  Badge,
+  Button,
   Grid,
   IconButton,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { MdOutlineLinkOff } from "react-icons/md";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function LinkedJobs({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
+  const analytics = getAnalytics();
 
   function timeRemainingcalc(job) {
     let now = new Date().getTime();
@@ -59,6 +67,19 @@ export function LinkedJobs({ setJobModified }) {
           const jobOwner = users.find(
             (i) => i.CharacterHash === job.CharacterHash
           );
+
+          const jobBP = jobOwner.apiBlueprints.find(
+            (i) => i.item_id === job.blueprint_id
+          );
+
+          let blueprintType = "bpc";
+          if (jobBP !== undefined) {
+            blueprintType = "bp";
+            if (jobBP.quantity === -2) {
+              blueprintType = "bpc";
+            }
+          }
+
           const timeRemaining = timeRemainingcalc(job);
           return (
             <Grid
@@ -66,43 +87,87 @@ export function LinkedJobs({ setJobModified }) {
               item
               container
               direction="row"
-              xs={12}
-              sx={{ marginBottom: "10px" }}
+              xs={6}
+              sm={4}
+              md={3}
+              lg={2}
+              sx={{ marginBottom: "5px", marginTop: "5px" }}
             >
-              <Grid item xs={2}>
-                <Avatar
-                  src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
-                  variant="circular"
-                  sx={{
-                    height: "32px",
-                    width: "32px",
+              <Grid
+                container
+                item
+                justifyContent="center"
+                alignItems="center"
+                xs={12}
+              >
+                <Badge
+                  overlap="circular"
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
                   }}
-                />
+                  badgeContent={
+                    <Avatar
+                      src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
+                      variant="circular"
+                      sx={{
+                        height: { xs: "18px", sm: "26px", md: "36px" },
+                        width: { xs: "18px", sm: "26px", md: "36px" },
+                      }}
+                    />
+                  }
+                >
+                  <picture>
+                    <source
+                      media="(max-width:700px)"
+                      srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
+                    />
+                    <img
+                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                      alt=""
+                    />
+                  </picture>
+                </Badge>
               </Grid>
-              <Grid item xs={5}>
-                <Typography variant="body1">{`${job.runs} Runs`}</Typography>
+              <Grid item xs={12}>
+                <Typography
+                  variant="body2"
+                  align="center"
+                >{`${job.runs} Runs`}</Typography>
               </Grid>
-              <Grid item xs={4}>
-                {job.status === "active" ? (
+              <Grid item xs={12}>
+                <Typography variant="body2" align="center">
+                  {job.station_name}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body2" align="center">
+                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12}>
+                {job.status !== "delivered" ? (
+                  job.status === "active" &&
                   timeRemaining.days === 0 &&
                   timeRemaining.hours === 0 &&
                   timeRemaining.mins === 0 ? (
-                    <Typography variant="body2">Ready to Deliver</Typography>
+                    <Typography variant="body2" align="center">
+                      Ready to Deliver
+                    </Typography>
                   ) : (
-                    <Typography variant="body2">
+                    <Typography variant="body2" align="center">
                       {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                       {timeRemaining.mins}M
                     </Typography>
                   )
-                ) : (
-                  <Typography variant="body2">Delivered</Typography>
-                )}
+                ) : null}
               </Grid>
-              <Grid item xs={1}>
+              <Grid item xs={12} align="center">
                 <Tooltip title="Click to unlink from job">
                   <IconButton
                     color="error"
-                    size="small"
+                    size="standard"
                     onClick={() => {
                       const ParentUserIndex = users.findIndex(
                         (u) => u.ParentUser === true
@@ -163,6 +228,10 @@ export function LinkedJobs({ setJobModified }) {
                         severity: "success",
                         autoHideDuration: 1000,
                       }));
+                      logEvent(analytics, "unlinkESIJob", {
+                        UID: users[ParentUserIndex].accountID,
+                        isLoggedIn: isLoggedIn,
+                      });
                     }}
                   >
                     <MdOutlineLinkOff />
@@ -172,6 +241,87 @@ export function LinkedJobs({ setJobModified }) {
             </Grid>
           );
         })}
+        {activeJob.apiJobs.length > 1 && (
+          <Grid container sx={{ marginTop: { xs: "20px", sm: "20px" } }}>
+            <Grid item sm={9} />
+            <Grid item align="center" xs={12} sm={3}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  setJobModified(true);
+                  const ParentUserIndex = users.findIndex(
+                    (u) => u.ParentUser === true
+                  );
+                  let newUsersArray = [...users];
+                  const newActiveJobArray = [...activeJob.apiJobs];
+                  let newLinkedJobsArray = [
+                    ...activeJob.build.costs.linkedJobs,
+                  ];
+                  const newApiArray = [...apiJobs];
+                  let newInstallCosts = 0;
+
+                  for (let job of activeJob.apiJobs) {
+                    const aJ = newActiveJobArray.findIndex((x) => x === job);
+
+                    if (aJ !== -1) {
+                      newActiveJobArray.splice(aJ, 1);
+                    }
+                    const linkedJobsArrayIndex = newLinkedJobsArray.findIndex(
+                      (i) => i.job_id === job
+                    );
+
+                    if (linkedJobsArrayIndex !== -1) {
+                      newInstallCosts +=
+                        newLinkedJobsArray[linkedJobsArrayIndex].cost;
+                      newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
+                    }
+
+                    const uA = newUsersArray[
+                      ParentUserIndex
+                    ].linkedJobs.findIndex((y) => y === job);
+                    if (uA !== -1) {
+                      newUsersArray[ParentUserIndex].linkedJobs.splice(uA, 1);
+                    }
+                    const aA = newApiArray.findIndex((z) => z.job_id === job);
+                    if (aA !== -1) {
+                      newApiArray[aA].linked = false;
+                    }
+                  }
+
+                  updateUsers(newUsersArray);
+                  updateApiJobs(newApiArray);
+                  updateActiveJob((prevObj) => ({
+                    ...prevObj,
+                    apiJobs: newActiveJobArray,
+                    build: {
+                      ...prevObj.build,
+                      costs: {
+                        ...prevObj.build.costs,
+                        linkedJobs: newLinkedJobsArray,
+                        installCosts: (prevObj.build.costs.installCosts -=
+                          newInstallCosts),
+                      },
+                    },
+                  }));
+                  setSnackbarData((prev) => ({
+                    ...prev,
+                    open: true,
+                    message: `${activeJob.apiJobs.length} Jobs Unlinked`,
+                    severity: "success",
+                    autoHideDuration: 1000,
+                  }));
+                  logEvent(analytics, "unlinkESIJobBulk", {
+                    UID: users[ParentUserIndex].accountID,
+                    isLoggedIn: isLoggedIn,
+                  });
+                }}
+              >
+                Unlink All
+              </Button>
+            </Grid>
+          </Grid>
+        )}
       </Grid>
     );
   } else {

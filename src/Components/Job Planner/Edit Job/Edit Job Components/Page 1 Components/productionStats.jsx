@@ -8,7 +8,7 @@ export function ProductionStats() {
     <Paper
       elevation={3}
       sx={{
-        minWidth:"100%",
+        minWidth: "100%",
         padding: "20px",
       }}
       square={true}
@@ -17,12 +17,15 @@ export function ProductionStats() {
         <Grid container direction="row" item>
           <Grid container item xs={12} sx={{ marginBottom: "5px" }}>
             <Grid item xs={10}>
-              <Typography variant="body2">
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                 Items Produced Per Blueprint Run
               </Typography>
             </Grid>
             <Grid item xs={2}>
-              <Typography variant="body2" align="right">
+              <Typography
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+                align="right"
+              >
                 {Number(
                   activeJob.rawData.products[0].quantity
                 ).toLocaleString()}
@@ -31,23 +34,31 @@ export function ProductionStats() {
           </Grid>
           <Grid container item xs={12} sx={{ marginBottom: "5px" }}>
             <Grid item xs={10}>
-              <Typography variant="body2">Total Items Per Job Slot</Typography>
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                Total Items Per Job Slot
+              </Typography>
             </Grid>
             <Grid item xs={2}>
-              <Typography variant="body2" align="right">
+              <Typography
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+                align="right"
+              >
                 {activeJob.build.products.quantityPerJob.toLocaleString()}
               </Typography>
             </Grid>
           </Grid>
           <Grid container item xs={12}>
             <Grid item xs={10}>
-              <Typography variant="body2">
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                 Total Items Being Produced
               </Typography>
             </Grid>
 
             <Grid item xs={2}>
-              <Typography variant="body2" align="right">
+              <Typography
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+                align="right"
+              >
                 {activeJob.build.products.totalQuantity.toLocaleString()}
               </Typography>
             </Grid>

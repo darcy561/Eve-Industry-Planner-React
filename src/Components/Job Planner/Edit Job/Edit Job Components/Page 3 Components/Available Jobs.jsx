@@ -1,5 +1,8 @@
 import React, { useContext } from "react";
-import { IsLoggedInContext, UsersContext } from "../../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
@@ -14,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { MdOutlineAddLink } from "react-icons/md";
-import {getAnalytics, logEvent} from "firebase/analytics"
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function AvailableJobs({ jobMatches, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -36,7 +39,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
       this.start_date = originalJob.start_date;
       this.end_date = originalJob.end_date;
       this.cost = originalJob.cost;
-      this.linked = true
+      this.linked = true;
       this.product_name = originalJob.product_name;
       this.blueprint_type_id = originalJob.blueprint_type_id;
       this.product_type_id = originalJob.product_type_id;
@@ -73,23 +76,11 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     activeJob.apiJobs.length < activeJob.jobCount
   ) {
     return (
-      <Paper
-        sx={{
-          padding: "20px",
-          minHeight: "25vh",
-        }}
-        elevation={3}
-        square={true}
-      >
-        <Grid container direction="row" sx={{ marginBottom: "10px" }}>
-          <Grid item xs={12}>
-            <Typography variant="h5" color="primary" align="center">
-              Available Jobs
-            </Typography>
-          </Grid>
-        </Grid>
+      <Grid container direction="row" sx={{ marginBottom: "10px" }}>
         {jobMatches.map((job) => {
-          const jobOwner = users.find((i) => i.CharacterID === job.installer_id);
+          const jobOwner = users.find(
+            (i) => i.CharacterID === job.installer_id
+          );
 
           const timeRemaining = timeRemainingcalc(job);
           return (
@@ -191,8 +182,8 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                       }));
                       logEvent(analytics, "linkESIJob", {
                         UID: users[ParentUserIndex].accountID,
-                        isLoggedIn: isLoggedIn
-                      })
+                        isLoggedIn: isLoggedIn,
+                      });
                     }}
                   >
                     <MdOutlineAddLink />
@@ -202,59 +193,24 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
             </Grid>
           );
         })}
-      </Paper>
+      </Grid>
     );
-  } else if (activeJob.apiJobs.length >= activeJob.jobCount) {
+  } else if (activeJob.build.costs.linkedJobs.length >= activeJob.jobCount) {
     return (
-      <Paper
-        sx={{
-          padding: "20px",
-          minHeight: "25vh",
-        }}
-        elevation={3}
-        square={true}
-      >
-        <Grid container direction="row" sx={{ marginBottom: "10px" }}>
-          <Grid item xs={12}>
-            <Typography variant="h5" color="primary" align="center">
-              Available Jobs
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid item xs={12} align="center">
-          <Typography variant="body1">
-            You have linked the maximum number of jobs from the API, if you need
-            to link more increase the number of job slots used.
-          </Typography>
-        </Grid>
-      </Paper>
+      <Grid item xs={12} align="center">
+        <Typography variant="body1">
+          You have linked the maximum number of jobs from the API, if you need
+          to link more increase the number of job slots used.
+        </Typography>
+      </Grid>
     );
   } else {
     return (
-      <Paper
-        sx={{
-          padding: "20px",
-          minHeight: "25vh",
-        }}
-        elevation={3}
-        square={true}
-      >
-        <Grid container>
-          <Grid container direction="row" item sx={{ marginBottom: "20px" }}>
-            <Grid item xs={12}>
-              <Typography variant="h5" color="primary" align="center">
-                Available Jobs
-              </Typography>
-            </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="body1" align="center">
-              There are no matching industry jobs from the API that match this
-              job.
-            </Typography>
-          </Grid>
-        </Grid>
-      </Paper>
+      <Grid item xs={12}>
+        <Typography variant="body1" align="center">
+          There are no matching industry jobs from the API that match this job.
+        </Typography>
+      </Grid>
     );
   }
 }

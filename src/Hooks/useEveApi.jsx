@@ -93,7 +93,7 @@ export function useEveApi() {
         let filterOld = indyJSON.filter(
           (job) =>
             job.completed_date === undefined ||
-            new Date() - Date.parse(job.completed_date) < 1209600000
+            new Date() - Date.parse(job.completed_date) <= 1209600000
           // 10 days
         );
 

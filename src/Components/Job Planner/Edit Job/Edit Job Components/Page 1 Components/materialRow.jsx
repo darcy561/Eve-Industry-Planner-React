@@ -86,10 +86,10 @@ export function MaterialRow({ material }) {
         )}
       </Grid>
       <Grid item xs={7} sm={7}>
-        <Typography variant="body1">{material.name}</Typography>
+        <Typography sx={{ typography:{xs:"body2", sm:"body1"}}}>{material.name}</Typography>
       </Grid>
       <Grid item xs={3} sm={4} align="right">
-        <Typography variant="body1">
+        <Typography sx={{ typography:{xs:"body2", sm:"body1"}}}>
           {material.quantity.toLocaleString()}
         </Typography>
       </Grid>

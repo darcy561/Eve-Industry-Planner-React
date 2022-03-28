@@ -88,13 +88,15 @@ export default function EditJob({ updateJobSettingsTrigger }) {
     <Container
       disableGutters
       maxWidth="false"
-      sx={{
-        width: "100%",
-      }}
+      // sx={{
+      //   width: "auto",
+      // }}
     >
       <Paper
         elevation={3}
         sx={{
+          display: "flex",
+          flex: "1",
           padding: "20px",
           marginBottom: "20px",
         }}

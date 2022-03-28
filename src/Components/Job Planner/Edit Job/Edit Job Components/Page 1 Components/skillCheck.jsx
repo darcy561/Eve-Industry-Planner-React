@@ -50,7 +50,7 @@ export function SkillCheck() {
                   xs={12}
                   sx={{ minHeight: { xs: "3rem", sm: "2rem" } }}
                 >
-                  <Typography variant="body1" align="center">
+                  <Typography align="center" sx={{typography:{xs: "body2", sm:"body1"}}}>
                     {charSkill.name}
                   </Typography>
                 </Grid>

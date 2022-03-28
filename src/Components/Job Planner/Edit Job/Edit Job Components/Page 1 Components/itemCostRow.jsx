@@ -28,7 +28,7 @@ export function ItemCostRow({
         />
       </Grid>
       <Grid item xs={12} md={4} align="left">
-        <Typography variant="body1"> {material.name}</Typography>
+        <Typography sx={{ typography:{xs:"body2", sm:"body1"}}}> {material.name}</Typography>
       </Grid>
       <Grid
         item

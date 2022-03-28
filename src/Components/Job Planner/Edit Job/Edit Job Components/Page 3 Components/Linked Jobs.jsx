@@ -53,23 +53,9 @@ export function LinkedJobs({ setJobModified }) {
     }
   });
 
-  if (activeJob.build.costs.linkedJobs !== 0) {
+  if (activeJob.apiJobs.length !== 0) {
     return (
-      <Paper
-        sx={{
-          padding: "20px",
-          minHeight: "25vh",
-        }}
-        elevation={3}
-        square={true}
-      >
-        <Grid container direction="row" sx={{ marginBottom: "10px" }}>
-          <Grid item xs={12}>
-            <Typography variant="h5" color="primary" align="center">
-              Linked Jobs {activeJob.apiJobs.length}/{activeJob.jobCount}
-            </Typography>
-          </Grid>
-        </Grid>
+      <Grid container direction="row" sx={{ marginBottom: "10px" }}>
         {activeJob.build.costs.linkedJobs.map((job) => {
           const jobOwner = users.find(
             (i) => i.CharacterHash === job.CharacterHash
@@ -187,32 +173,16 @@ export function LinkedJobs({ setJobModified }) {
             </Grid>
           );
         })}
-      </Paper>
+      </Grid>
     );
   } else {
     return (
-      <Paper
-        sx={{
-          padding: "20px",
-          minHeight: "25vh",
-        }}
-        elevation={3}
-        square={true}
-      >
-        <Grid container>
-          <Grid item sx={{ marginBottom: "20px" }} xs={12}>
-            <Typography variant="h5" color="primary" align="center">
-              Linked Jobs
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="body1" align="center">
-              You currently have no industry jobs from the API linked to the
-              this job.
-            </Typography>
-          </Grid>
-        </Grid>
-      </Paper>
+      <Grid item xs={12}>
+        <Typography variant="body1" align="center">
+          You currently have no industry jobs from the API linked to the this
+          job.
+        </Typography>
+      </Grid>
     );
   }
 }

@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { JobCard } from "../Job Cards/JobCard";
+import {JobCardFrame} from "../Job Cards/JobCard";
 import { StatusSettings } from "./StatusSettings";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { ApiJobCard } from "../Job Cards/ApiJobCard";
@@ -123,7 +123,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger}) {
                 {jobArray.map((job) => {
                   if (job.jobStatus === status.id) {
                     return (
-                      <JobCard
+                      <JobCardFrame
                         key={job.jobID}
                         job={job}
                         updateJobSettingsTrigger={updateJobSettingsTrigger}

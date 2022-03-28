@@ -8,9 +8,16 @@ import {
   Typography,
 } from "@mui/material";
 import itemRef from "../../../../RawData/searchIndex.json";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  TextFields: {
+    typography: { xs: "body2", md: "body1" },
+  },
+}));
 
 export function TeResearchESICardActive({ job }) {
-
+  const classes = useStyles();
   function timeRemainingcalc() {
     let now = new Date().getTime();
     let timeLeft = Date.parse(job.end_date) - now;
@@ -36,7 +43,7 @@ export function TeResearchESICardActive({ job }) {
 
   const timeRemaining = timeRemainingcalc();
 
-  const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id)
+  const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id);
 
   return (
     <Tooltip title="Job imported from the Eve ESI">
@@ -45,15 +52,32 @@ export function TeResearchESICardActive({ job }) {
           <Grid container item xs={12}>
             <Grid item xs={12}>
               <Typography
-                variant="h6"
                 align="center"
-                sx={{ minHeight: "4rem", marginBottom: "5px" }}
+                sx={{
+                  minHeight: { xs: "2rem", sm: "3rem", md: "3rem", lg: "4rem" },
+                  typography: { xs: "body1", lg: "h6" },
+                }}
               >
                 {itemName.name}
               </Typography>
             </Grid>
-            <Grid container item xs={12}>
-              <Grid item xs={3} align="center">
+            <Grid
+              container
+              item
+              xs={12}
+              sx={{
+                marginLeft: { xs: "10px", md: "0px" },
+                marginRight: { xs: "20px", md: "30px" },
+              }}
+            >
+              <Grid
+                container
+                item
+                xs={2}
+                sm={3}
+                justifyContent="center"
+                alignItems="center"
+              >
                 <Badge
                   overlap="circular"
                   anchorOrigin={{ vertical: "top", horizontal: "right" }}
@@ -62,43 +86,58 @@ export function TeResearchESICardActive({ job }) {
                       src={`https://images.evetech.net/characters/${job.installer_id}/portrait`}
                       variant="circular"
                       sx={{
-                        height: "32px",
-                        width: "32px",
+                        height: { xs: "16px", sm: "32px" },
+                        width: { xs: "16px", sm: "32px" },
                       }}
                     />
                   }
                 >
-                  <img
-                    src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
-                    alt=""
-                    style={{ margin: "auto", display: "block" }}
-                  />
+                  <picture>
+                    <source
+                      media="(max-width:700px)"
+                      srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=32`}
+                    />
+                    <img
+                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
+                      alt=""
+                    />
+                  </picture>
                 </Badge>
               </Grid>
-              <Grid container item xs={9}>
+              <Grid
+                container
+                item
+                xs={10}
+                sm={9}
+                sx={{ paddingLeft: { xs: "0px", sm: "5px" } }}
+              >
                 <Grid container item xs={12}>
                   <Grid item xs={8}>
-                    <Typography variant="body1">Time Efficiency:</Typography>
+                    <Typography className={classes.TextFields}>
+                      Time Efficiency:
+                    </Typography>
                   </Grid>
-                  <Grid item xs={4} sx={{ paddingRight: "20px" }}>
-                    <Typography variant="body2" align="right">
-                      {job.runs*2}
+                  <Grid item xs={4} >
+                    <Typography className={classes.TextFields} align="right">
+                      {job.runs}
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid container item xs={12} sx={{ marginTop: "10px" }}>
+                <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography variant="body1">Remaining:</Typography>
+                    <Typography className={classes.TextFields}>
+                      Remaining:
+                    </Typography>
                   </Grid>
-                  <Grid item xs={8} sx={{ paddingRight: "20px" }}>
+                  <Grid item xs={8}>
                     {timeRemaining.days === 0 &&
                     timeRemaining.hours === 0 &&
                     timeRemaining.mins === 0 ? (
-                      <Typography variant="body2" align="right">
+                      <Typography className={classes.TextFields} align="right">
                         Ready to Deliver
                       </Typography>
                     ) : (
-                      <Typography variant="body2" align="right">
+                      <Typography className={classes.TextFields} align="right">
                         {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                         {timeRemaining.mins}M
                       </Typography>
@@ -111,16 +150,13 @@ export function TeResearchESICardActive({ job }) {
               item
               xs={12}
               sx={{
-                height: "100%",
                 backgroundColor: "rgba(204,204,204,0.5)",
-                marginTop: "20px",
+                marginTop: "10px",
               }}
             >
-              <Box sx={{ height: "100%" }}>
-                <Typography align="center" variant="body2" color="black">
-                  <b>ESI Research Job</b>
-                </Typography>
-              </Box>
+              <Typography align="center" variant="body2" color="black">
+                <b>ESI Time Efficiency Research Job</b>
+              </Typography>
             </Grid>
           </Grid>
         </Paper>

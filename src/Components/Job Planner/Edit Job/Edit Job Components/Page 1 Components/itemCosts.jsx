@@ -88,22 +88,25 @@ export function ItemCostPanel() {
           })}
         </Select>
         <Grid container item xs={12}>
+          <Grid item md={1} />
           <Grid item xs={12} md={4}>
-            <Typography variant="body2">{activeJob.name}</Typography>
+            <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+              {activeJob.name}
+            </Typography>
           </Grid>
           <Grid
             item
             xs={6}
-            md={4}
+            md={3}
             align="center"
             sx={{ marginTop: { xs: "10px", md: "0px" } }}
           >
+            <Typography variant="body2">Unit Sell Price:</Typography>
             <Typography variant="body2">
-              Unit Sell Price:{" "}
               {activeJobPrices[marketSelect].sell.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
-              })}{" "}
+              })}
             </Typography>
           </Grid>
           <Grid
@@ -113,15 +116,15 @@ export function ItemCostPanel() {
             align="center"
             sx={{ marginTop: { xs: "10px", md: "0px" } }}
           >
+            <Typography variant="body2">Total Sell Price:</Typography>
             <Typography variant="body2">
-              Total Sell Price:{" "}
               {(
                 activeJobPrices[marketSelect].sell *
                 activeJob.build.products.totalQuantity
               ).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
-              })}{" "}
+              })}
             </Typography>
           </Grid>
           <Grid
@@ -129,7 +132,7 @@ export function ItemCostPanel() {
             item
             xs={12}
             sx={{
-              marginTop: { xs: "10px", sm: "30px" },
+              marginTop: { xs: "30px", sm: "30px" },
               marginBottom: { xs: "10px" },
             }}
           >

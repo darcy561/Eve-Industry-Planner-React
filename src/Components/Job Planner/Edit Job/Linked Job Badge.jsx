@@ -28,7 +28,10 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
 
   let parentJobs = [];
   activeJob.parentJob.forEach((job) => {
-    parentJobs.push(jobArray.find((i) => i.jobID === job));
+    let parent = jobArray.find((i) => i.jobID === job)
+    if (parent !== undefined) {
+      parentJobs.push(parent);
+    }    
   });
 
   return (

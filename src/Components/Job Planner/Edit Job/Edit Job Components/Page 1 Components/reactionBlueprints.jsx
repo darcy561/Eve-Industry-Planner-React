@@ -67,11 +67,17 @@ export function ReactionBlueprints() {
             {blueprintOptions.map((charBP) => {
               if (charBP.blueprints.length > 0) {
                 return (
-                  <Grid key={charBP.owner} container item xs={6}>
+                  <Grid key={charBP.owner} container item xs={6} sm={6} md={12}>
                     <Grid
+                      container
+                      justifyContent="center"
+                      alignItems = "center"
                       item
                       xs={4}
-                      xl={5}
+                      sm={4}
+                      md={5}
+                      lg={3}
+                      xl={3}
                       align="center"
                     >
                       <Badge
@@ -100,7 +106,7 @@ export function ReactionBlueprints() {
                         </picture>
                       </Badge>
                     </Grid>
-                    <Grid container item xs={8} xl={7}>
+                    <Grid container item xs={8} sm={8} md={7} lg={9} xl={9}>
                       <Grid item xs={12}>
                         <Typography variant="caption">
                           Total: {charBP.blueprints.length}

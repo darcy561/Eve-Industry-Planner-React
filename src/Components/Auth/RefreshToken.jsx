@@ -16,7 +16,7 @@ export async function RefreshTokens(rToken, accountType) {
                         "Content-Type": "application/x-www-form-urlencoded",
                         "Host": "login.eveonline.com",
                     },
-                    body: `grant_type=refresh_token&refresh_token=${rToken}`,
+                    body: `grant_type=refresh_token&refresh_token=${rToken}&scope=${process.env.REACT_APP_eveScope}`,
                 }
             );
             const newTokenJSON = await newTokenPromise.json();

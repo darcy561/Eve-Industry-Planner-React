@@ -17,8 +17,8 @@ import { MaterialRow } from "./materialRow";
 
 export function RawResourceList() {
   const { activeJob } = useContext(ActiveJobContext);
-  const [anchorEl, setAnchorEl] = useState(null);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -65,7 +65,7 @@ export function RawResourceList() {
               aria-expanded={Boolean(anchorEl) ? "true" : undefined}
               sx={{ position: "absolute", top: "10px", right: "10px" }}
             >
-              <MoreVertIcon size="small" color="Secondary" />
+              <MoreVertIcon size="small" color="primary" />
             </IconButton>
             <Menu
               id="rawResources_menu"

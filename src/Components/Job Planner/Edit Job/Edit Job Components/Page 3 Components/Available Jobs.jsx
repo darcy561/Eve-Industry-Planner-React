@@ -10,9 +10,10 @@ import {
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import {
   Avatar,
+  Badge,
+  Button,
   Grid,
   IconButton,
-  Paper,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -76,11 +77,22 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     activeJob.apiJobs.length < activeJob.jobCount
   ) {
     return (
-      <Grid container direction="row" sx={{ marginBottom: "10px" }}>
+      <Grid container direction="row">
         {jobMatches.map((job) => {
           const jobOwner = users.find(
             (i) => i.CharacterID === job.installer_id
           );
+          const jobBP = jobOwner.apiBlueprints.find(
+            (i) => i.item_id === job.blueprint_id
+          );
+
+          let blueprintType = "bpc";
+          if (jobBP !== undefined) {
+            blueprintType = "bp";
+            if (jobBP.quantity === -2) {
+              blueprintType = "bpc";
+            }
+          }
 
           const timeRemaining = timeRemainingcalc(job);
           return (
@@ -89,44 +101,87 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
               item
               container
               direction="row"
-              xs={12}
-              sx={{ marginBottom: "10px" }}
+              xs={6}
+              sm={4}
+              md={3}
+              lg={2}
+              sx={{ marginBottom: "5px", marginTop: "5px" }}
             >
-              <Grid item xs={2}>
-                <Avatar
-                  src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
-                  variant="circular"
-                  sx={{
-                    height: "32px",
-                    width: "32px",
+              <Grid
+                container
+                item
+                justifyContent="center"
+                alignItems="center"
+                xs={12}
+              >
+                <Badge
+                  overlap="circular"
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
                   }}
-                />
+                  badgeContent={
+                    <Avatar
+                      src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
+                      variant="circular"
+                      sx={{
+                        height: { xs: "18px", sm: "26px", md: "36px" },
+                        width: { xs: "18px", sm: "26px", md: "36px" },
+                      }}
+                    />
+                  }
+                >
+                  <picture>
+                    <source
+                      media="(max-width:700px)"
+                      srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
+                    />
+                    <img
+                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                      alt=""
+                    />
+                  </picture>
+                </Badge>
               </Grid>
-              <Grid item xs={5}>
-                <Typography variant="body2">{`${job.runs} Runs`}</Typography>
+              <Grid item xs={12}>
+                <Typography
+                  variant="body2"
+                  align="center"
+                >{`${job.runs} Runs`}</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body2" align="center">
+                  {job.facility_name}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body2" align="center">
+                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                </Typography>
               </Grid>
 
-              <Grid item xs={4}>
-                {job.status === "active" ? (
+              <Grid item xs={12}>
+                {job.status !== "delivered" ? (
+                  job.status === "active" &&
                   timeRemaining.days === 0 &&
                   timeRemaining.hours === 0 &&
                   timeRemaining.mins === 0 ? (
-                    <Typography variant="body2">Ready to Deliver</Typography>
+                    <Typography variant="body2" align="center">
+                      Ready to Deliver
+                    </Typography>
                   ) : (
-                    <Typography variant="body2">
+                    <Typography variant="body2" align="center">
                       {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                       {timeRemaining.mins}M
                     </Typography>
                   )
-                ) : (
-                  <Typography variant="body2">Delivered</Typography>
-                )}
+                ) : null}
               </Grid>
-              <Grid item xs={1}>
+              <Grid item xs={12} align="center">
                 <Tooltip title="Click to link to job">
                   <IconButton
                     color="primary"
-                    size="small"
+                    size="standard"
                     onClick={() => {
                       setJobModified(true);
 
@@ -193,11 +248,85 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
             </Grid>
           );
         })}
+        {jobMatches.length > 1 && (
+          <Grid container sx={{marginTop:{xs:"20px", sm:"0px"}}}>
+            <Grid item sm={10} />
+            <Grid item align="center" xs={12} sm={2}>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  setJobModified(true);
+
+                  const ParentUserIndex = users.findIndex(
+                    (u) => u.ParentUser === true
+                  );
+                  let newUsersArray = [...users];
+                  const newActiveJobArray = [...activeJob.apiJobs];
+                  let newLinkedJobsArray = [
+                    ...activeJob.build.costs.linkedJobs,
+                  ];
+                  let newInstallCosts = 0;
+                  const newApiArray = apiJobs;
+                  for (let job of jobMatches) {
+                    const jobOwner = users.find(
+                      (i) => i.CharacterID === job.installer_id
+                    );
+                    newActiveJobArray.push(job.job_id);
+                    newLinkedJobsArray.push(
+                      Object.assign({}, new ESIJob(job, jobOwner))
+                    );
+                    newInstallCosts += job.cost;
+                    newUsersArray[ParentUserIndex].linkedJobs.push(job.job_id);
+                    const aA = newApiArray.findIndex(
+                      (z) => z.job_id === job.job_id
+                    );
+                    newApiArray[aA].linked = true;
+                  }
+                  updateUsers(newUsersArray);
+                  updateApiJobs(newApiArray);
+                  updateActiveJob((prevObj) => ({
+                    ...prevObj,
+                    apiJobs: newActiveJobArray,
+                    build: {
+                      ...prevObj.build,
+                      costs: {
+                        ...prevObj.build.costs,
+                        linkedJobs: newLinkedJobsArray,
+                        installCosts: newInstallCosts,
+                      },
+                    },
+                  }));
+                  setSnackbarData((prev) => ({
+                    ...prev,
+                    open: true,
+                    message: `${jobMatches.length} Jobs Linked`,
+                    severity: "success",
+                    autoHideDuration: 1000,
+                  }));
+                  logEvent(analytics, "linkESIJobBulk", {
+                    UID: users[ParentUserIndex].accountID,
+                    isLoggedIn: isLoggedIn,
+                  });
+                }}
+              >
+                Link All
+              </Button>
+            </Grid>
+          </Grid>
+        )}
       </Grid>
     );
   } else if (activeJob.build.costs.linkedJobs.length >= activeJob.jobCount) {
     return (
-      <Grid item xs={12} align="center">
+      <Grid
+        item
+        xs={12}
+        align="center"
+        sx={{
+          marginTop: { xs: "20px", sm: "30px" },
+        }}
+      >
         <Typography variant="body1">
           You have linked the maximum number of jobs from the API, if you need
           to link more increase the number of job slots used.
@@ -206,7 +335,14 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     );
   } else {
     return (
-      <Grid item xs={12}>
+      <Grid
+        item
+        xs={12}
+        align="center"
+        sx={{
+          marginTop: { xs: "20px", sm: "30px" },
+        }}
+      >
         <Typography variant="body1" align="center">
           There are no matching industry jobs from the API that match this job.
         </Typography>

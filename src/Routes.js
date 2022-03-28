@@ -15,22 +15,25 @@ import { Footer } from "./Components/Footer/Footer";
 import { AuthMainUser } from "./Components/Auth/MainUserAuth";
 import { useContext } from "react";
 import { IsLoggedInContext } from "./Context/AuthContext";
+import { Container } from "@mui/material";
 
 export function NavRoutes({ mode, colorMode }) {
   return (
     <BrowserRouter>
-      <Header mode={mode} colorMode={colorMode} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/jobplanner" element={<JobPlanner />} />
-        <Route path="/auth/" element={<AuthMainUser />} />
-        <Route path="/itemtree" element={<ItemTree />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/accounts" element={<AccountsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Route>
-      </Routes>
-      <Footer />
+      <Container disableGutters maxWidth="false" sx={{marigin:"0px", padding:"0px"}}>
+        <Header mode={mode} colorMode={colorMode} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/jobplanner" element={<JobPlanner />} />
+          <Route path="/auth/" element={<AuthMainUser />} />
+          <Route path="/itemtree" element={<ItemTree />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/accounts" element={<AccountsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Route>
+        </Routes>
+        <Footer />
+      </Container>
     </BrowserRouter>
   );
 }

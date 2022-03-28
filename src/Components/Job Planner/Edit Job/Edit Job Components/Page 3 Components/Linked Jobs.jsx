@@ -9,7 +9,6 @@ import {
   Avatar,
   Grid,
   IconButton,
-  Paper,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -177,8 +176,15 @@ export function LinkedJobs({ setJobModified }) {
     );
   } else {
     return (
-      <Grid item xs={12}>
-        <Typography variant="body1" align="center">
+      <Grid
+        item
+        xs={12}
+        align="center"
+        sx={{
+          marginTop: { xs: "20px", sm: "30px" },
+        }}
+      >
+        <Typography variant="body1">
           You currently have no industry jobs from the API linked to the this
           job.
         </Typography>

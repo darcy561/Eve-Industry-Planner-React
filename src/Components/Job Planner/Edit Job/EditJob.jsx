@@ -85,20 +85,13 @@ export default function EditJob({ updateJobSettingsTrigger }) {
   }
 
   return (
-    <Container
-      disableGutters
-      maxWidth="false"
-      // sx={{
-      //   width: "auto",
-      // }}
-    >
       <Paper
         elevation={3}
         sx={{
-          display: "flex",
-          flex: "1",
-          padding: "20px",
+          padding: "10px",
+          marginTop: "20px",
           marginBottom: "20px",
+          width:"100%"
         }}
         square={true}
       >
@@ -283,6 +276,5 @@ export default function EditJob({ updateJobSettingsTrigger }) {
           </Grid>
         </Grid>
       </Paper>
-    </Container>
   );
 }

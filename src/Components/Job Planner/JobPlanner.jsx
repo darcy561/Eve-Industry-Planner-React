@@ -109,12 +109,8 @@ export function JobPlanner() {
     if (jobSettingsTrigger) {
       return (
         <Suspense fallback={<LoadingPage />}>
-          <Grid container sx={{ marginTop: "10px" }}>
-            <ShoppingListDialog />
-            <Grid item>
-              <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
-            </Grid>
-          </Grid>
+          <ShoppingListDialog />
+          <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
         </Suspense>
       );
     } else {
@@ -127,7 +123,7 @@ export function JobPlanner() {
             </Grid>
           )}
           <Grid item xs={12}>
-            <SearchBar/>
+            <SearchBar />
           </Grid>
           <Grid item xs={12}>
             <PlannerAccordion

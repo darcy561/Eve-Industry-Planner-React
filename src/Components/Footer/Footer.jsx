@@ -8,8 +8,7 @@ export function Footer() {
       sx={{
         padding: "20px",
         marginTop: "20px",
-        marginLeft: { md: "10px" },
-        marginRight: { md: "10px" },
+
         marginBottom: "20px",
       }}
       square={true}

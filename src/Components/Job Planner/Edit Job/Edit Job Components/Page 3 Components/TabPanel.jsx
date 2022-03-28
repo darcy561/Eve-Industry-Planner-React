@@ -8,15 +8,10 @@ import { LinkedJobs } from "./Linked Jobs";
 export function Step3TabMenu({ jobMatches, setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
   const [currentTab, updateTab] = useState(() => {
-    if (
-      jobMatches.length > 0 &&
-      activeJob.build.costs.linkedJobs.length === 0
-    ) {
+    if (activeJob.apiJobs.length < activeJob.jobCount) {
       return "0";
-    } else if (activeJob.build.costs.linkedJobs.length > 0) {
-      return "1";
     } else {
-      return "0";
+      return "1";
     }
   });
 
@@ -28,12 +23,13 @@ export function Step3TabMenu({ jobMatches, setJobModified }) {
     <Paper
       sx={{
         padding: "10px",
-        height: "100%",
+        width: "100%",
+        minHeight: "35vh",
       }}
       elevation={3}
       square={true}
     >
-      <TabContext value={currentTab} sx={{ minWidth: "100%" }}>
+      <TabContext value={currentTab}>
         <TabList
           value={currentTab}
           onChange={handleChange}

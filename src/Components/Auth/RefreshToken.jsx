@@ -45,7 +45,9 @@ export async function RefreshTokens(rToken, accountType) {
                 localStorage.removeItem("Auth")
                 login()
             } else {
-                console.log(err);
+              console.log(err);
+                return "RefreshFail"
+                
             }
 
         }         

@@ -25,7 +25,7 @@ export function AccountsPage() {
                         <AccountInfo parentUserIndex={parentUserIndex}/>
                     </Grid>
                     <Grid item xs={12}>
-                        <AdditionalAccounts/>
+                        <AdditionalAccounts parentUserIndex={parentUserIndex}/>
                     </Grid>
                 </Grid>
             </Paper>

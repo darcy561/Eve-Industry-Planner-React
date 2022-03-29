@@ -1,4 +1,12 @@
-import { Button, Grid, Paper, Typography } from "@mui/material";
+import {
+  Button,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Paper,
+  Switch,
+  Typography,
+} from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import { ApiJobsContext } from "../../Context/JobContext";
@@ -7,7 +15,7 @@ import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { AccountEntry } from "./AccountEntry";
 
-export function AdditionalAccounts() {
+export function AdditionalAccounts({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -22,7 +30,6 @@ export function AdditionalAccounts() {
   } = useEveApi();
   const { updateMainUserDoc } = useFirebase();
   let newUser = null;
-  const parentUser = users.find((i) => i.ParentUser);
 
   const handleAdd = async () => {
     localStorage.setItem("AddAccount", true);
@@ -49,7 +56,7 @@ export function AdditionalAccounts() {
     // 3 mins
   };
 
-  const importNewAccount = async (event) => {
+  const importNewAccount = async () => {
     if (
       localStorage.getItem("AddAccountComplete") &&
       localStorage.getItem("AdditionalUser") !== null &&
@@ -66,30 +73,58 @@ export function AdditionalAccounts() {
         journal,
       ] = await Promise.all([
         CharacterSkills(newUser),
-        IndustryJobs(newUser, parentUser),
+        IndustryJobs(newUser, users[parentUserIndex]),
         MarketOrders(newUser),
         HistoricMarketOrders(newUser),
         BlueprintLibrary(newUser),
         WalletTransactions(newUser),
         WalletJournal(newUser),
       ]);
-      newUser.apiSkills = skills
-      newUser.apiJobs = indJobs
-      newUser.apiOrders = orders
-      newUser.apiHistOrders = histOrders
-      newUser.apiBlueprints = blueprints
-      newUser.apiTransactions = transactions
-      newUser.apiJournal = journal
+      newUser.apiSkills = skills;
+      newUser.apiJobs = indJobs;
+      newUser.apiOrders = orders;
+      newUser.apiHistOrders = histOrders;
+      newUser.apiBlueprints = blueprints;
+      newUser.apiTransactions = transactions;
+      newUser.apiJournal = journal;
       localStorage.removeItem("AddAccount");
       localStorage.removeItem("AddAccountComplete");
       localStorage.removeItem("AdditionalUser");
-      parentUser.accountRefreshTokens.push({
-        CharacterHash: newUser.CharacterHash,
-        rToken: newUser.rToken,
-      });
+      if (users[parentUserIndex].settings.account.cloudAccounts) {
+        users[parentUserIndex].accountRefreshTokens.push({
+          CharacterHash: newUser.CharacterHash,
+          rToken: newUser.rToken,
+        });
+      } else {
+        let accountArray = JSON.parse(
+          localStorage.getItem("AdditionalAccounts")
+        );
+        if (accountArray === null) {
+          accountArray = [];
+          accountArray.push({
+            CharacterHash: newUser.CharacterHash,
+            rToken: newUser.rToken,
+          });
+          localStorage.setItem(
+            "AdditionalAccounts",
+            JSON.stringify(accountArray)
+          );
+        } else {
+          accountArray.push({
+            CharacterHash: newUser.CharacterHash,
+            rToken: newUser.rToken,
+          });
+          localStorage.setItem(
+            "AdditionalAccounts",
+            JSON.stringify(accountArray)
+          );
+        }
+      }
       updateUsers((prev) => [...prev, newUser]);
       updateApiJobs((prev) => prev.concat(newUser.apiJobs));
-      updateMainUserDoc();
+      if (users[parentUserIndex].settings.account.cloudAccounts) {
+        updateMainUserDoc();
+      }
       setSnackbarData((prev) => ({
         ...prev,
         open: true,
@@ -109,7 +144,44 @@ export function AdditionalAccounts() {
             Additional Accounts
           </Typography>
         </Grid>
-        <Grid item xs={12} align="right">
+        <Grid item xs={6} align="center">
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={
+                    users[parentUserIndex].settings.account.cloudAccounts
+                  }
+                  color="primary"
+                  onChange={(e) => {
+                    let newUsersArray = [...users];
+                    newUsersArray[
+                      parentUserIndex
+                    ].settings.account.cloudAccounts = e.target.checked;
+                    if (e.target.checked) {
+                      newUsersArray[parentUserIndex].accountRefreshTokens =
+                        JSON.parse(localStorage.getItem("AdditionalAccounts"));
+                      localStorage.removeItem("AdditionalAccounts");
+                    } else {
+                      localStorage.setItem(
+                        "AdditionalAccounts",
+                        JSON.stringify(
+                          newUsersArray[parentUserIndex].accountRefreshTokens
+                        )
+                      );
+                      newUsersArray[parentUserIndex].accountRefreshTokens = [];
+                    }
+                    updateUsers(newUsersArray);
+                    updateMainUserDoc();
+                  }}
+                />
+              }
+              label="Store Accounts In Cloud"
+              labelPlacement="start"
+            />
+          </FormGroup>
+        </Grid>
+        <Grid item xs={6} align="center">
           <Button variant="contained" size="small" onClick={handleAdd}>
             Add Account
           </Button>

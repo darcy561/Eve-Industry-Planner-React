@@ -36,7 +36,7 @@ export function AuthMainUser() {
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { updateUsers } = useContext(UsersContext);
+  const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const {
     BlueprintLibrary,
@@ -93,7 +93,7 @@ export function AuthMainUser() {
         apiData: true,
       }));
       let apiJobsArray = [];
-      
+
       const sStatus = await serverStatus();
       if (sStatus) {
         const [
@@ -116,10 +116,9 @@ export function AuthMainUser() {
 
         userObject.apiSkills = skills;
         userObject.apiJobs = indJobs;
-        console.log(userObject.apiJobs)
         userObject.apiJobs.forEach((i) => {
-          apiJobsArray.push(i)
-        })
+          apiJobsArray.push(i);
+        });
         userObject.apiOrders = orders;
         userObject.apiHistOrders = histOrders;
         userObject.apiBlueprints = blueprints;
@@ -144,53 +143,123 @@ export function AuthMainUser() {
       updateJobArray(userSettings.jobArraySnapshot);
       updateUsers([userObject]);
       let secondaryUsers = [];
+      let failedRefresh = []
+      if (userSettings.settings.account.cloudAccounts) {
+        for (let token of userSettings.refreshTokens) {
+          console.log(token);
+          let newUser = await RefreshTokens(token.rToken, false);
+          console.log(newUser)
+          if (newUser === "RefreshFail") {
+            failedRefresh.push(token.CharacterHash)
+          }
+          if (sStatus && newUser !== undefined) {
+            const [
+              skills,
+              indJobs,
+              orders,
+              histOrders,
+              blueprints,
+              transactions,
+              journal,
+            ] = await Promise.all([
+              CharacterSkills(newUser),
+              IndustryJobs(newUser, userObject),
+              MarketOrders(newUser),
+              HistoricMarketOrders(newUser),
+              BlueprintLibrary(newUser),
+              WalletTransactions(newUser),
+              WalletJournal(newUser),
+            ]);
 
-      for (let token of userSettings.refreshTokens) {
-        let newUser = await RefreshTokens(token.rToken, false)
-        if (sStatus && newUser !== undefined) {
-          const [
-            skills,
-            indJobs,
-            orders,
-            histOrders,
-            blueprints,
-            transactions,
-            journal,
-          ] = await Promise.all([
-            CharacterSkills(newUser),
-            IndustryJobs(newUser, userObject),
-            MarketOrders(newUser),
-            HistoricMarketOrders(newUser),
-            BlueprintLibrary(newUser),
-            WalletTransactions(newUser),
-            WalletJournal(newUser),
-          ]);
-  
-          newUser.apiSkills = skills;
-          newUser.apiJobs = indJobs;
-          newUser.apiJobs.forEach((i) => {
-            apiJobsArray.push(i)
-          })
-          newUser.apiOrders = orders;
-          newUser.apiHistOrders = histOrders;
-          newUser.apiBlueprints = blueprints;
-          newUser.apiTransactions = transactions;
-          newUser.apiJournal = journal;
-        } else if(!sStatus){
-          newUser.apiSkills = [];
-          newUser.apiJobs = [];
-          newUser.apiOrders = [];
-          newUser.apiHistOrders = [];
-          newUser.apiBlueprints = [];
-          newUser.apiTransactions = [];
-          newUser.apiJournal = [];
+            newUser.apiSkills = skills;
+            newUser.apiJobs = indJobs;
+            newUser.apiJobs.forEach((i) => {
+              apiJobsArray.push(i);
+            });
+            newUser.apiOrders = orders;
+            newUser.apiHistOrders = histOrders;
+            newUser.apiBlueprints = blueprints;
+            newUser.apiTransactions = transactions;
+            newUser.apiJournal = journal;
+          } else if (!sStatus) {
+            newUser.apiSkills = [];
+            newUser.apiJobs = [];
+            newUser.apiOrders = [];
+            newUser.apiHistOrders = [];
+            newUser.apiBlueprints = [];
+            newUser.apiTransactions = [];
+            newUser.apiJournal = [];
+          }
+          if (newUser !== undefined) {
+            secondaryUsers.push(newUser);
+          }
         }
-        if (newUser !== undefined) {
-          secondaryUsers.push(newUser);
+      } else {
+        let rTokens = JSON.parse(localStorage.getItem("AdditionalAccounts"));
+        if (rTokens !== null) {
+          for (let token of rTokens) {
+            let newUser = await RefreshTokens(token.rToken, false);
+            console.log(newUser);
+            if (newUser === "RefreshFail") {
+              failedRefresh.push(token)
+            }
+            if (sStatus && newUser !== "RefreshFail") {
+              const [
+                skills,
+                indJobs,
+                orders,
+                histOrders,
+                blueprints,
+                transactions,
+                journal,
+              ] = await Promise.all([
+                CharacterSkills(newUser),
+                IndustryJobs(newUser, userObject),
+                MarketOrders(newUser),
+                HistoricMarketOrders(newUser),
+                BlueprintLibrary(newUser),
+                WalletTransactions(newUser),
+                WalletJournal(newUser),
+              ]);
+
+              newUser.apiSkills = skills;
+              newUser.apiJobs = indJobs;
+              newUser.apiJobs.forEach((i) => {
+                apiJobsArray.push(i);
+              });
+              newUser.apiOrders = orders;
+              newUser.apiHistOrders = histOrders;
+              newUser.apiBlueprints = blueprints;
+              newUser.apiTransactions = transactions;
+              newUser.apiJournal = journal;
+            } else if (!sStatus) {
+              newUser.apiSkills = [];
+              newUser.apiJobs = [];
+              newUser.apiOrders = [];
+              newUser.apiHistOrders = [];
+              newUser.apiBlueprints = [];
+              newUser.apiTransactions = [];
+              newUser.apiJournal = [];
+            }
+            if (newUser !== undefined) {
+              secondaryUsers.push(newUser);
+            }
+          }
         }
       }
-      if (secondaryUsers.length > 0) {
-        updateUsers((prev) => prev.concat(secondaryUsers));
+      console.log(failedRefresh)
+      if (secondaryUsers.length > 0 || failedRefresh.length > 0) {
+        let newUsersArray = [...users]
+        newUsersArray = newUsersArray.concat(secondaryUsers);
+        if (userObject.settings.account.cloudAccounts) {
+          newUsersArray[0].accountRefreshTokens = newUsersArray[0].accountRefreshTokens.filter((i) => !failedRefresh.includes(i.CharacterHash))  
+        } else {
+          let oldLS = JSON.parse(localStorage.getItem("AdditionalAccounts"))
+          let newLS = oldLS.filter((i) => !failedRefresh.includes(i.CharacterHash))
+          localStorage.setItem("AdditionalStorage", JSON.stringify(newLS))
+        }
+        
+        updateUsers(newUsersArray)
       }
 
       apiJobsArray.sort((a, b) => {
@@ -202,7 +271,6 @@ export function AuthMainUser() {
         }
         return 0;
       });
-      console.log(apiJobsArray);
       updateApiJobs(apiJobsArray);
       updateIsLoggedIn(true);
       updatePageLoad(false);
@@ -269,8 +337,6 @@ async function EveSSOTokens(authCode, accountType) {
     console.log(err);
   }
 }
-
-
 
 class MainUser {
   constructor(decodedToken, tokenJSON) {

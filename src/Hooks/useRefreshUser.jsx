@@ -121,48 +121,102 @@ export function useRefreshUser() {
 
     let secondaryUsers = [];
     let secondaryApiJobs = [];
-    for (let token of charSettings.refreshTokens) {
-      let newUser = await RefreshTokens(token.rToken, false);
-      if (sStatus && newUser !== undefined) {
-        const [
-          skills,
-          indJobs,
-          orders,
-          histOrders,
-          blueprints,
-          transactions,
-          journal,
-        ] = await Promise.all([
-          CharacterSkills(newUser),
-          IndustryJobs(newUser, refreshedUser),
-          MarketOrders(newUser),
-          HistoricMarketOrders(newUser),
-          BlueprintLibrary(newUser),
-          WalletTransactions(newUser),
-          WalletJournal(newUser),
-        ]);
+    let failedRefresh = []
+    if (refreshedUser.settings.account.cloudAccounts) {
+      for (let token of charSettings.refreshTokens) {
+        let newUser = await RefreshTokens(token.rToken, false);
+        if (sStatus && newUser !== undefined) {
+          const [
+            skills,
+            indJobs,
+            orders,
+            histOrders,
+            blueprints,
+            transactions,
+            journal,
+          ] = await Promise.all([
+            CharacterSkills(newUser),
+            IndustryJobs(newUser, refreshedUser),
+            MarketOrders(newUser),
+            HistoricMarketOrders(newUser),
+            BlueprintLibrary(newUser),
+            WalletTransactions(newUser),
+            WalletJournal(newUser),
+          ]);
 
-        newUser.apiSkills = skills;
-        newUser.apiJobs = indJobs;
-        newUser.apiOrders = orders;
-        newUser.apiHistOrders = histOrders;
-        newUser.apiBlueprints = blueprints;
-        newUser.apiTransactions = transactions;
-        newUser.apiJournal = journal;
-      } else if (!sStatus) {
-        newUser.apiSkills = [];
-        newUser.apiJobs = [];
-        newUser.apiOrders = [];
-        newUser.apiHistOrders = [];
-        newUser.apiBlueprints = [];
-        newUser.apiTransactions = [];
-        newUser.apiJournal = [];
+          newUser.apiSkills = skills;
+          newUser.apiJobs = indJobs;
+          newUser.apiOrders = orders;
+          newUser.apiHistOrders = histOrders;
+          newUser.apiBlueprints = blueprints;
+          newUser.apiTransactions = transactions;
+          newUser.apiJournal = journal;
+        } else if (!sStatus) {
+          newUser.apiSkills = [];
+          newUser.apiJobs = [];
+          newUser.apiOrders = [];
+          newUser.apiHistOrders = [];
+          newUser.apiBlueprints = [];
+          newUser.apiTransactions = [];
+          newUser.apiJournal = [];
+        }
+        if (newUser !== undefined) {
+          secondaryUsers.push(newUser);
+          newUser.apiJobs.forEach((i) => {
+            secondaryApiJobs.push(i);
+          });
+        }
       }
-      if (newUser !== undefined) {
-        secondaryUsers.push(newUser);
-        newUser.apiJobs.forEach((i) => {
-          secondaryApiJobs.push(i);
-        });
+    } else {
+      let rTokens = JSON.parse(localStorage.getItem("AdditionalAccounts"));
+      if (rTokens !== null) {
+        for (let token of rTokens) {
+          let newUser = await RefreshTokens(token.rToken, false);
+          if (newUser === "RefreshFail") {
+            failedRefresh.push(token)
+          }
+          if (sStatus && newUser !== "RefreshFail") {
+            const [
+              skills,
+              indJobs,
+              orders,
+              histOrders,
+              blueprints,
+              transactions,
+              journal,
+            ] = await Promise.all([
+              CharacterSkills(newUser),
+              IndustryJobs(newUser, refreshedUser),
+              MarketOrders(newUser),
+              HistoricMarketOrders(newUser),
+              BlueprintLibrary(newUser),
+              WalletTransactions(newUser),
+              WalletJournal(newUser),
+            ]);
+
+            newUser.apiSkills = skills;
+            newUser.apiJobs = indJobs;
+            newUser.apiOrders = orders;
+            newUser.apiHistOrders = histOrders;
+            newUser.apiBlueprints = blueprints;
+            newUser.apiTransactions = transactions;
+            newUser.apiJournal = journal;
+          } else if (!sStatus) {
+            newUser.apiSkills = [];
+            newUser.apiJobs = [];
+            newUser.apiOrders = [];
+            newUser.apiHistOrders = [];
+            newUser.apiBlueprints = [];
+            newUser.apiTransactions = [];
+            newUser.apiJournal = [];
+          }
+          if (newUser !== undefined) {
+            secondaryUsers.push(newUser);
+            newUser.apiJobs.forEach((i) => {
+              secondaryApiJobs.push(i);
+            });
+          }
+        }
       }
     }
     if (secondaryUsers.length > 0) {

@@ -61,6 +61,9 @@ exports.createUserData = functions.https.onCall((data, context) => {
       linkedTrans: [],
       linkedOrders: [],
       settings: {
+        account: {
+          cloudAccounts: false,
+        },
         layout: {
           hideTutorials: false,
         },

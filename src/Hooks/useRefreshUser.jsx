@@ -30,7 +30,7 @@ export function useRefreshUser() {
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
-  const { updateUsers } = useContext(UsersContext);
+  const { users, updateUsers } = useContext(UsersContext);
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
@@ -117,15 +117,17 @@ export function useRefreshUser() {
     setJobStatus(charSettings.jobStatusArray);
     updateJobArray(charSettings.jobArraySnapshot);
     updateApiJobs(refreshedUser.apiJobs);
-    updateUsers([refreshedUser]);
 
     let secondaryUsers = [];
     let secondaryApiJobs = [];
-    let failedRefresh = []
+    let failedRefresh = [];
     if (refreshedUser.settings.account.cloudAccounts) {
       for (let token of charSettings.refreshTokens) {
         let newUser = await RefreshTokens(token.rToken, false);
-        if (sStatus && newUser !== undefined) {
+        if (newUser === "RefreshFail") {
+          failedRefresh.push(token.CharacterHash);
+        }
+        if (sStatus && newUser !== "RefreshFail") {
           const [
             skills,
             indJobs,
@@ -160,7 +162,7 @@ export function useRefreshUser() {
           newUser.apiTransactions = [];
           newUser.apiJournal = [];
         }
-        if (newUser !== undefined) {
+        if (newUser !== "RefreshFail") {
           secondaryUsers.push(newUser);
           newUser.apiJobs.forEach((i) => {
             secondaryApiJobs.push(i);
@@ -173,7 +175,7 @@ export function useRefreshUser() {
         for (let token of rTokens) {
           let newUser = await RefreshTokens(token.rToken, false);
           if (newUser === "RefreshFail") {
-            failedRefresh.push(token)
+            failedRefresh.push(token.CharacterHash);
           }
           if (sStatus && newUser !== "RefreshFail") {
             const [
@@ -210,13 +212,28 @@ export function useRefreshUser() {
             newUser.apiTransactions = [];
             newUser.apiJournal = [];
           }
-          if (newUser !== undefined) {
+          if (newUser !== "RefreshFail") {
             secondaryUsers.push(newUser);
             newUser.apiJobs.forEach((i) => {
               secondaryApiJobs.push(i);
             });
           }
         }
+      }
+    }
+    if (failedRefresh.length > 0) {
+      if (refreshedUser.settings.account.cloudAccounts) {
+        refreshedUser.accountRefreshTokens =
+          refreshedUser.accountRefreshTokens.filter(
+            (i) => !failedRefresh.includes(i.CharacterHash)
+          );
+      } else {
+        let oldLS = JSON.parse(localStorage.getItem("AdditionalAccounts"));
+        let newLS = oldLS.filter(
+          (i) => !failedRefresh.includes(i.CharacterHash)
+        );
+        console.log(newLS);
+        localStorage.setItem("AdditionalAccounts", JSON.stringify(newLS));
       }
     }
     if (secondaryUsers.length > 0) {
@@ -230,10 +247,9 @@ export function useRefreshUser() {
         }
         return 0;
       });
-      updateUsers((prev) => prev.concat(secondaryUsers));
       updateApiJobs(newApiJobs);
     }
-
+    updateUsers([refreshedUser].concat(secondaryUsers));
     updateIsLoggedIn(true);
     logEvent(analytics, "userSignIn", {
       UID: refreshedUser.accountID,

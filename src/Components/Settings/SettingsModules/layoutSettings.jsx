@@ -21,7 +21,7 @@ export function LayoutSettings({ parentUserIndex }) {
           </Typography>
         </Grid>
         <Grid container item xs={12}>
-          <Grid item xs={4} >
+          <Grid item xs={6} sm={4} >
             <FormGroup>
               <FormControlLabel
                 control={

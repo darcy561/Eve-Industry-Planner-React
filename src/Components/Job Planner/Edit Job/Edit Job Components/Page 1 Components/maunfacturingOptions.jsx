@@ -42,14 +42,15 @@ export function ManufacturingOptions({ setJobModified }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const parentUser = users.find((i) => i.ParentUser);
   const [buildCharName, updateBuildCharName] = useState(() => {
-    let charEntry = users.find((i) => i.CharacterHash === activeJob.build.buildChar)
+    let charEntry = users.find(
+      (i) => i.CharacterHash === activeJob.build.buildChar
+    );
     if (charEntry === undefined) {
-      return parentUser.CharacterHash
+      return parentUser.CharacterHash;
     } else {
-      return activeJob.build.buildChar
+      return activeJob.build.buildChar;
     }
-  }
-  );
+  });
   const [meValue, updateMEValue] = useState(activeJob.bpME);
   const [teValue, updateTEValue] = useState(activeJob.bpTE);
   const [structValue, updateStructValue] = useState(
@@ -206,21 +207,12 @@ export function ManufacturingOptions({ setJobModified }) {
                 size="small"
                 value={structValue}
                 onChange={(e) => {
-                  if (e.target.value === "Station") {
-                    const oldJob = JSON.parse(JSON.stringify(activeJob));
-                    oldJob.structureTypeDisplay = e.target.value;
-                    oldJob.structureType = 0;
-                    const newJob = CalculateResources(oldJob);
-                    updateStructValue(e.target.value);
-                    updateActiveJob(newJob);
-                  } else {
-                    const oldJob = JSON.parse(JSON.stringify(activeJob));
-                    oldJob.structureTypeDisplay = e.target.value;
-                    oldJob.structureType = 1;
-                    const newJob = CalculateResources(oldJob);
-                    updateStructValue(e.target.value);
-                    updateActiveJob(newJob);
-                  }
+                  const oldJob = JSON.parse(JSON.stringify(activeJob));
+                  oldJob.structureTypeDisplay = e.target.value;
+                  oldJob.structureType = e.target.value === "Station" ? 0 : 1;
+                  const newJob = CalculateResources(oldJob);
+                  updateStructValue(e.target.value);
+                  updateActiveJob(newJob);
                 }}
               >
                 {blueprintVariables.manStructure.map((entry) => {

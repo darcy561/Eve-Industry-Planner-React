@@ -62,12 +62,22 @@ app.get("/item/:itemID", (req, res) => {
     try {
       const document = db.collection("Items").doc(req.params.itemID);
       let product = await document.get();
-      let response = product.data();
-      functions.logger.log(`${req.params.itemID} Sent`);
-      return res
-        .status(200)
-        .set("Cache-Control", "public, max-age=600, s-maxage=3600")
-        .send(response);
+      if (product.exists) {
+        let response = product.data();
+        functions.logger.log(`${req.params.itemID} Sent`);
+        return res
+          .status(200)
+          .set("Cache-Control", "public, max-age=600, s-maxage=3600")
+          .send(response);
+      } else {
+        functions.logger.error("Item Not Found in Database");
+        functions.logger.error(`Trying to retrieve ${req.params.itemID}`);
+        functions.logger.error(error);
+        return res
+          .status(500)
+          .send("Item Not Found in Database. Contact admin for assistance.");
+      }
+
     } catch (error) {
       functions.logger.error("Error retrieving item data");
       functions.logger.error(`Trying to retrieve ${req.params.itemID}`);
@@ -85,7 +95,7 @@ app.get("/costs/:itemID", async (req, res) => {
       let returnData = null;
       const itemDoc = await db.collection("Pricing").doc(req.params.itemID).get();
       if (itemDoc.exists) {
-        if (itemDoc.data().lastUpdated + 21600000 <= Date.now()) {
+        if (itemDoc.data().lastUpdated + 21_600_000 <= Date.now()) {
           returnData = await ESIMarketQuery(req.params.itemID);
         } else {
           returnData = itemDoc.data();
@@ -113,3 +123,4 @@ app.get("/costs/:itemID", async (req, res) => {
 //Export the api to Firebase Cloud Functions
 exports.api = functions.https.onRequest(app);
 exports.user = require("./Triggered Functions/Users");
+exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");

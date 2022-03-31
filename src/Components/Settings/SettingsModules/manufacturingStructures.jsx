@@ -1,5 +1,4 @@
 import {
-  Autocomplete,
   Box,
   Button,
   Card,
@@ -9,7 +8,9 @@ import {
   FormHelperText,
   Grid,
   IconButton,
+  MenuItem,
   Paper,
+  Select,
   TextField,
   Tooltip,
   Typography,
@@ -23,6 +24,7 @@ import { UsersContext } from "../../../Context/AuthContext";
 import { Masonry } from "@mui/lab";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { SnackBarDataContext } from "../../../Context/LayoutContext";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -44,16 +46,52 @@ const useStyles = makeStyles((theme) => ({
 export function ManuStrutures({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateMainUserDoc } = useFirebase();
-  const [tempManDetails, updateTempManDetails] = useState({
-    name: "No Name Provided",
-    systemType: 1,
-    structureName: "Station",
-    structureValue: 0,
-    rigType: 0,
-    tax: 0,
-  });
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+
+  const [textValue, updateTextValue] = useState("");
+  const [systemValue, updateSystemValue] = useState(
+    blueprintVariables.manSystem[0].value
+  );
+  const [structValue, updateStructValue] = useState(
+    blueprintVariables.manStructure[0].value
+  );
+  const [rigsValue, updateRigsValue] = useState(
+    blueprintVariables.manRigs[0].value
+  );
+  const [taxValue, updateTaxValue] = useState("");
   const classes = useStyles();
   const analytics = getAnalytics();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    let newUsersArray = [...users];
+    newUsersArray[parentUserIndex].settings.structures.manufacturing.push({
+      id: Date.now(),
+      name: textValue,
+      systemType: systemValue,
+      structureName: structValue,
+      structureValue: structValue === "Station" ? 0 : 1,
+      rigType: rigsValue,
+      default:
+        newUsersArray[parentUserIndex].settings.structures.manufacturing
+          .length === 0
+          ? true
+          : false,
+      tax: taxValue,
+    });
+    updateMainUserDoc(newUsersArray);
+    updateUsers(newUsersArray);
+    logEvent(analytics, "Add Manufacturing Structure", {
+      UID: newUsersArray[parentUserIndex].accountID,
+    });
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `${textValue} Added`,
+      severity: "success",
+      autoHideDuration: 1000,
+    }));
+  };
 
   return (
     <Paper elevation={3} sx={{ padding: "20px" }} square={true}>
@@ -78,156 +116,136 @@ export function ManuStrutures({ parentUserIndex }) {
                   marginBottom: { xs: "20px", lg: "0px" },
                 }}
               >
-                <Grid container item xs={12}>
-                  <Grid item xs={6} sx={{ paddingRight: "5px" }}>
-                    <TextField
-                      size="small"
-                      variant="standard"
-                      className={classes.TextField}
-                      helperText="Name"
-                      type="text"
-                      onBlur={(e) => {
-                        let input = e.target.value.replace(
-                          /[^a-zA-Z0-9 ]/g,
-                          ""
-                        );
-                        updateTempManDetails((prev) => ({
-                          ...prev,
-                          name: input,
-                        }));
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
-                    <FormControl className={classes.TextField} fullWidth={true}>
-                      <Autocomplete
-                        disableClearable={true}
+                <form onSubmit={handleSubmit}>
+                  <Grid container item xs={12}>
+                    <Grid item xs={6} sx={{ paddingRight: "5px" }}>
+                      <TextField
+                        required={true}
                         size="small"
-                        options={blueprintVariables.manSystem}
-                        onChange={(e, v) => {
-                          updateTempManDetails((prev) => ({
-                            ...prev,
-                            systemType: v.value,
-                          }));
+                        variant="standard"
+                        className={classes.TextField}
+                        helperText="Name"
+                        type="text"
+                        onBlur={(e) => {
+                          let input = e.target.value.replace(
+                            /[^a-zA-Z0-9 ]/g,
+                            ""
+                          );
+                          updateTextValue(input);
                         }}
-                        renderInput={(params) => (
-                          <TextField {...params} variant="standard" />
-                        )}
                       />
-                      <FormHelperText variant="standard">
-                        System Type
-                      </FormHelperText>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6} sx={{ paddingRight: "5px" }}>
-                    <FormControl className={classes.TextField} fullWidth={true}>
-                      <Autocomplete
-                        size="small"
-                        disableClearable={true}
-                        options={blueprintVariables.manStructure}
-                        onChange={(e, v) => {
-                          if (v.value === "Station") {
-                            updateTempManDetails((prev) => ({
-                              ...prev,
-                              structureName: v.value,
-                              structureValue: 0,
-                            }));
-                          } else {
-                            updateTempManDetails((prev) => ({
-                              ...prev,
-                              structureName: v.value,
-                              structureValue: 1,
-                            }));
-                          }
-                        }}
-                        renderInput={(params) => (
-                          <TextField {...params} variant="standard" />
-                        )}
-                      />
-                      <FormHelperText variant="standard">
-                        Structure Type
-                      </FormHelperText>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
-                    <FormControl className={classes.TextField} fullWidth={true}>
-                      <Autocomplete
-                        size="small"
-                        disableClearable={true}
-                        options={blueprintVariables.manRigs}
-                        onChange={(e, v) => {
-                          updateTempManDetails((prev) => ({
-                            ...prev,
-                            rigType: v.value,
-                          }));
-                        }}
-                        renderInput={(params) => (
-                          <TextField {...params} variant="standard" />
-                        )}
-                      />
-                      <FormHelperText variant="standard">
-                        Rig Type
-                      </FormHelperText>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6} sx={{ paddingRight: "5px" }}>
-                    <FormControl className={classes.TextField} fullWidth={true}>
-                      <Tooltip
-                        title="Calculation not yet implemented"
-                        arrow
-                        placement="right"
+                    </Grid>
+                    <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
+                      <FormControl
+                        className={classes.TextField}
+                        fullWidth={true}
                       >
-                        <TextField
-                          size="small"
+                        <Select
                           variant="standard"
-                          className={classes.TextField}
-                          helperText="Installation Tax %"
-                          type="number"
-                          onBlur={(e) => {
-                            updateTempManDetails((prev) => ({
-                              ...prev,
-                              tax: e.target.value / 100,
-                            }));
+                          size="small"
+                          value={systemValue}
+                          onChange={(e) => {
+                            updateSystemValue(e.target.value);
                           }}
-                        />
-                      </Tooltip>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} align="center">
-                    <Tooltip title="Add new structure" arrow postion="bottom">
-                      <IconButton
-                        size="small"
-                        color="primary"
-                        onClick={() => {
-                          let newUsersArray = [...users];
-                          newUsersArray[
-                            parentUserIndex
-                          ].settings.structures.manufacturing.push({
-                            id: Date.now(),
-                            name: tempManDetails.name,
-                            systemType: tempManDetails.systemType,
-                            structureName: tempManDetails.structureName,
-                            structureValue: tempManDetails.structureValue,
-                            rigType: tempManDetails.rigType,
-                            default:
-                              newUsersArray[parentUserIndex].settings.structures
-                                .manufacturing.length === 0
-                                ? true
-                                : false,
-                            tax: tempManDetails.tax,
-                          });
-                          updateMainUserDoc(newUsersArray);
-                          updateUsers(newUsersArray);
-                          logEvent(analytics, "Add Manufacturing Structure", {
-                            UID: newUsersArray[parentUserIndex].accountID,
-                          });
-                        }}
+                        >
+                          {blueprintVariables.manSystem.map((entry) => {
+                            return (
+                              <MenuItem key={entry.label} value={entry.value}>
+                                {entry.label}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                        <FormHelperText variant="standard">
+                          System Type
+                        </FormHelperText>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={6} sx={{ paddingRight: "5px" }}>
+                      <FormControl
+                        className={classes.TextField}
+                        fullWidth={true}
                       >
-                        <AddIcon />
-                      </IconButton>
-                    </Tooltip>
+                        <Select
+                          variant="standard"
+                          size="small"
+                          value={structValue}
+                          onChange={(e) => {
+                            updateStructValue(e.target.value);
+                          }}
+                        >
+                          {blueprintVariables.manStructure.map((entry) => {
+                            return (
+                              <MenuItem key={entry.label} value={entry.value}>
+                                {entry.label}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                        <FormHelperText variant="standard">
+                          Structure Type
+                        </FormHelperText>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
+                      <FormControl
+                        className={classes.TextField}
+                        fullWidth={true}
+                      >
+                        <Select
+                          variant="standard"
+                          size="small"
+                          value={rigsValue}
+                          onChange={(e) => {
+                            updateRigsValue(e.target.value);
+                          }}
+                        >
+                          {blueprintVariables.manRigs.map((entry) => {
+                            return (
+                              <MenuItem key={entry.label} value={entry.value}>
+                                {entry.label}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                        <FormHelperText variant="standard">
+                          Rig Type
+                        </FormHelperText>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={6} sx={{ paddingRight: "5px" }}>
+                      <FormControl
+                        className={classes.TextField}
+                        fullWidth={true}
+                      >
+                        <Tooltip
+                          title="Calculation not yet implemented"
+                          arrow
+                          placement="right"
+                        >
+                          <TextField
+                            required={true}
+                            size="small"
+                            variant="standard"
+                            className={classes.TextField}
+                            helperText="Installation Tax %"
+                            type="number"
+                            onBlur={(e) => {
+                              updateTaxValue(e.target.value / 100);
+                            }}
+                          />
+                        </Tooltip>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} align="center">
+                      <Tooltip title="Add new structure" arrow postion="bottom">
+                        <IconButton size="small" color="primary" type="submit">
+                          <AddIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Grid>
                   </Grid>
-                </Grid>
+                </form>
               </Box>
             </Masonry>
           </Grid>
@@ -241,9 +259,9 @@ export function ManuStrutures({ parentUserIndex }) {
             sx={{
               paddingLeft: "5px",
               paddingRight: "5px",
-              paddingBottom:"5px",
+              paddingBottom: "5px",
               overflowY: "auto",
-              height: { xs: "200px", lg:"380px" },
+              height: { xs: "200px", lg: "380px" },
             }}
           >
             {users[parentUserIndex].settings.structures.manufacturing.map(
@@ -258,9 +276,8 @@ export function ManuStrutures({ parentUserIndex }) {
                   (x) => x.value === entry.rigType
                 );
                 return (
-                  <Grid item xs={12}>
+                  <Grid key={entry.id} item xs={12}>
                     <Card
-                      key={entry.id}
                       raised={true}
                       sx={{
                         width: "100%",
@@ -350,15 +367,6 @@ export function ManuStrutures({ parentUserIndex }) {
                                 }
                                 updateUsers(newUsersArray);
                                 updateMainUserDoc(newUsersArray);
-                                updateTempManDetails((prev) => ({
-                                  ...prev,
-                                  id: Date.now(),
-                                  default:
-                                    newUsersArray[parentUserIndex].settings
-                                      .structures.manufacturing.length === 0
-                                      ? true
-                                      : false,
-                                }));
                                 logEvent(
                                   analytics,
                                   "Remove Manufacturing Structure",

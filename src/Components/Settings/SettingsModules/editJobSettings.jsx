@@ -51,7 +51,7 @@ export function EditJobSettings({ parentUserIndex }) {
           </Typography>
         </Grid>
         <Grid container item xs={12}>
-          <Grid item xs={4}>
+          <Grid item xs={6}sm={4}>
             <FormControl className={classes.Select} fullWidth={true}>
               <Select
                 value={marketSelect}
@@ -82,7 +82,7 @@ export function EditJobSettings({ parentUserIndex }) {
               </FormHelperText>
             </FormControl>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6} sm={4}>
             <FormControl className={classes.Select} fullWidth={true}>
               <Select
                 value={listingSelect}
@@ -113,7 +113,7 @@ export function EditJobSettings({ parentUserIndex }) {
               </FormHelperText>
             </FormControl>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={10} sm={4}>
             <FormGroup>
               <FormControlLabel
                 control={

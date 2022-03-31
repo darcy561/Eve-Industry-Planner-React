@@ -1,5 +1,4 @@
 import {
-  Autocomplete,
   Box,
   Button,
   Card,
@@ -9,7 +8,9 @@ import {
   FormHelperText,
   Grid,
   IconButton,
+  MenuItem,
   Paper,
+  Select,
   TextField,
   Tooltip,
   Typography,
@@ -23,6 +24,7 @@ import { UsersContext } from "../../../Context/AuthContext";
 import { Masonry } from "@mui/lab";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { SnackBarDataContext } from "../../../Context/LayoutContext";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -44,16 +46,50 @@ const useStyles = makeStyles((theme) => ({
 export function ReactionStrutures({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateMainUserDoc } = useFirebase();
-  const [tempDetails, updateTempDetails] = useState({
-    name: "No Name Provided",
-    systemType: 1,
-    structureName: "Medium",
-    structureValue: 1,
-    rigType: 0,
-    tax: 0,
-  });
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const [textValue, updateTextValue] = useState("");
+  const [systemValue, updateSystemValue] = useState(
+    blueprintVariables.reactionSystem[0].value
+  );
+  const [structValue, updateStructValue] = useState(
+    blueprintVariables.reactionStructure[0].value
+  );
+  const [rigsValue, updateRigsValue] = useState(
+    blueprintVariables.reactionRigs[0].value
+  );
+  const [taxValue, updateTaxValue] = useState("");
   const classes = useStyles();
   const analytics = getAnalytics();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    let newUsersArray = [...users];
+    newUsersArray[parentUserIndex].settings.structures.reaction.push({
+      id: Date.now(),
+      name: textValue,
+      systemType: systemValue,
+      structureName: structValue,
+      structureValue: 1,
+      rigType: rigsValue,
+      default:
+        newUsersArray[parentUserIndex].settings.structures.reaction.length === 0
+          ? true
+          : false,
+      tax: taxValue,
+    });
+    updateMainUserDoc(newUsersArray);
+    updateUsers(newUsersArray);
+    logEvent(analytics, "Add Reaction Structure", {
+      UID: newUsersArray[parentUserIndex].accountID,
+    });
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `${textValue} Added`,
+      severity: "success",
+      autoHideDuration: 1000,
+    }));
+  };
 
   return (
     <Paper elevation={3} sx={{ padding: "20px" }} square={true}>
@@ -78,151 +114,136 @@ export function ReactionStrutures({ parentUserIndex }) {
                   marginBottom: { xs: "20px", lg: "0px" },
                 }}
               >
-                <Grid container item xs={12}>
-                  <Grid item xs={6} sx={{ paddingRight: "5px" }}>
-                    <TextField
-                      size="small"
-                      variant="standard"
-                      className={classes.TextField}
-                      helperText="Name"
-                      type="text"
-                      onBlur={(e) => {
-                        let input = e.target.value.replace(
-                          /[^a-zA-Z0-9 ]/g,
-                          ""
-                        );
-                        updateTempDetails((prev) => ({
-                          ...prev,
-                          name: input,
-                        }));
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
-                    <FormControl className={classes.TextField} fullWidth={true}>
-                      <Autocomplete
-                        disableClearable={true}
+                <form onSubmit={handleSubmit}>
+                  <Grid container item xs={12}>
+                    <Grid item xs={6} sx={{ paddingRight: "5px" }}>
+                      <TextField
+                        required={true}
                         size="small"
-                        options={blueprintVariables.reactionSystem}
-                        onChange={(e, v) => {
-                          updateTempDetails((prev) => ({
-                            ...prev,
-                            systemType: v.value,
-                          }));
+                        variant="standard"
+                        className={classes.TextField}
+                        helperText="Name"
+                        type="text"
+                        onBlur={(e) => {
+                          let input = e.target.value.replace(
+                            /[^a-zA-Z0-9 ]/g,
+                            ""
+                          );
+                          updateTextValue(input);
                         }}
-                        renderInput={(params) => (
-                          <TextField {...params} variant="standard" />
-                        )}
                       />
-                      <FormHelperText variant="standard">
-                        System Type
-                      </FormHelperText>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6} sx={{ paddingRight: "5px" }}>
-                    <FormControl className={classes.TextField} fullWidth={true}>
-                      <Autocomplete
-                        size="small"
-                        disableClearable={true}
-                        options={blueprintVariables.reactionStructure}
-                        onChange={(e, v) => {
-                          updateTempDetails((prev) => ({
-                            ...prev,
-                            structureName: v.value,
-                            structureValue: 1,
-                          }));
-                        }}
-                        renderInput={(params) => (
-                          <TextField {...params} variant="standard" />
-                        )}
-                      />
-                      <FormHelperText variant="standard">
-                        Structure Type
-                      </FormHelperText>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
-                    <FormControl className={classes.TextField} fullWidth={true}>
-                      <Autocomplete
-                        size="small"
-                        disableClearable={true}
-                        options={blueprintVariables.reactionRigs}
-                        onChange={(e, v) => {
-                          updateTempDetails((prev) => ({
-                            ...prev,
-                            rigType: v.value,
-                          }));
-                        }}
-                        renderInput={(params) => (
-                          <TextField {...params} variant="standard" />
-                        )}
-                      />
-                      <FormHelperText variant="standard">
-                        Rig Type
-                      </FormHelperText>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={6} sx={{ paddingRight: "5px" }}>
-                    <Tooltip
-                      title="Calculation not yet implemented"
-                      arrow
-                      placement="right"
-                    >
+                    </Grid>
+                    <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
                       <FormControl
                         className={classes.TextField}
                         fullWidth={true}
                       >
-                        <TextField
-                          size="small"
+                        <Select
                           variant="standard"
-                          className={classes.TextField}
-                          helperText="Installation Tax %"
-                          type="number"
-                          onBlur={(e) => {
-                            updateTempDetails((prev) => ({
-                              ...prev,
-                              tax: e.target.value / 100,
-                            }));
+                          size="small"
+                          value={systemValue}
+                          onChange={(e) => {
+                            updateSystemValue(e.target.value);
                           }}
-                        />
+                        >
+                          {blueprintVariables.reactionSystem.map((entry) => {
+                            return (
+                              <MenuItem key={entry.label} value={entry.value}>
+                                {entry.label}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                        <FormHelperText variant="standard">
+                          System Type
+                        </FormHelperText>
                       </FormControl>
-                    </Tooltip>
-                  </Grid>
-                  <Grid item xs={12} align="center">
-                    <Tooltip title="Add new structure" arrow postion="bottom">
-                      <IconButton
-                        size="small"
-                        color="primary"
-                        onClick={() => {
-                          let newUsersArray = [...users];
-                          newUsersArray[
-                            parentUserIndex
-                          ].settings.structures.reaction.push({
-                            id: Date.now(),
-                            name: tempDetails.name,
-                            systemType: tempDetails.systemType,
-                            structureName: tempDetails.structureName,
-                            structureValue: tempDetails.structureValue,
-                            rigType: tempDetails.rigType,
-                            default:
-                              newUsersArray[parentUserIndex].settings.structures
-                                .reaction.length === 0
-                                ? true
-                                : false,
-                            tax: tempDetails.tax,
-                          });
-                          updateMainUserDoc(newUsersArray);
-                          updateUsers(newUsersArray);
-                          logEvent(analytics, "Add Reaction Structure", {
-                            UID: newUsersArray[parentUserIndex].accountID,
-                          });
-                        }}
+                    </Grid>
+                    <Grid item xs={6} sx={{ paddingRight: "5px" }}>
+                      <FormControl
+                        className={classes.TextField}
+                        fullWidth={true}
                       >
-                        <AddIcon />
-                      </IconButton>
-                    </Tooltip>
+                        <Select
+                          variant="standard"
+                          size="small"
+                          value={structValue}
+                          onChange={(e) => {
+                            updateStructValue(e.target.value);
+                          }}
+                        >
+                          {blueprintVariables.reactionStructure.map((entry) => {
+                            return (
+                              <MenuItem key={entry.label} value={entry.value}>
+                                {entry.label}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                        <FormHelperText variant="standard">
+                          Structure Type
+                        </FormHelperText>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
+                      <FormControl
+                        className={classes.TextField}
+                        fullWidth={true}
+                      >
+                        <Select
+                          variant="standard"
+                          size="small"
+                          value={rigsValue}
+                          onChange={(e) => {
+                            updateRigsValue(e.target.value);
+                          }}
+                        >
+                          {blueprintVariables.reactionRigs.map((entry) => {
+                            return (
+                              <MenuItem key={entry.label} value={entry.value}>
+                                {entry.label}
+                              </MenuItem>
+                            );
+                          })}
+                        </Select>
+                        <FormHelperText variant="standard">
+                          Rig Type
+                        </FormHelperText>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={6} sx={{ paddingRight: "5px" }}>
+                      <FormControl
+                        className={classes.TextField}
+                        fullWidth={true}
+                      >
+                        <Tooltip
+                          title="Calculation not yet implemented"
+                          arrow
+                          placement="right"
+                        >
+                          <TextField
+                            required={true}
+                            size="small"
+                            variant="standard"
+                            className={classes.TextField}
+                            helperText="Installation Tax %"
+                            type="number"
+                            onBlur={(e) => {
+                              updateTaxValue(e.target.value / 100);
+                            }}
+                          />
+                        </Tooltip>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} align="center">
+                      <Tooltip title="Add new structure" arrow postion="bottom">
+                        <IconButton size="small" color="primary" type="submit">
+                          <AddIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Grid>
                   </Grid>
-                </Grid>
+                </form>
               </Box>
             </Masonry>
           </Grid>
@@ -252,9 +273,8 @@ export function ReactionStrutures({ parentUserIndex }) {
                   (x) => x.value === entry.rigType
                 );
                 return (
-                  <Grid item xs={12}>
+                  <Grid key={entry.id} item xs={12}>
                     <Card
-                      key={entry.id}
                       raised={true}
                       sx={{
                         width: "100%",

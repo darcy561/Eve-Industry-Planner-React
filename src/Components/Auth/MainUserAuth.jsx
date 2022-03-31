@@ -152,7 +152,7 @@ export function AuthMainUser() {
           if (newUser === "RefreshFail") {
             failedRefresh.push(token.CharacterHash)
           }
-          if (sStatus && newUser !== undefined) {
+          if (sStatus && newUser !== "RefreshFail") {
             const [
               skills,
               indJobs,
@@ -201,7 +201,7 @@ export function AuthMainUser() {
             let newUser = await RefreshTokens(token.rToken, false);
             console.log(newUser);
             if (newUser === "RefreshFail") {
-              failedRefresh.push(token)
+              failedRefresh.push(token.CharacterHash)
             }
             if (sStatus && newUser !== "RefreshFail") {
               const [
@@ -241,7 +241,7 @@ export function AuthMainUser() {
               newUser.apiTransactions = [];
               newUser.apiJournal = [];
             }
-            if (newUser !== undefined) {
+            if (newUser !== "RefreshFail") {
               secondaryUsers.push(newUser);
             }
           }
@@ -256,7 +256,7 @@ export function AuthMainUser() {
         } else {
           let oldLS = JSON.parse(localStorage.getItem("AdditionalAccounts"))
           let newLS = oldLS.filter((i) => !failedRefresh.includes(i.CharacterHash))
-          localStorage.setItem("AdditionalStorage", JSON.stringify(newLS))
+          localStorage.setItem("AdditionalAccounts", JSON.stringify(newLS))
         }
         
         updateUsers(newUsersArray)

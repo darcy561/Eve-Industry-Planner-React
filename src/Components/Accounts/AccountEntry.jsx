@@ -4,7 +4,10 @@ import AutorenewIcon from "@mui/icons-material/Autorenew";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import TimerIcon from "@mui/icons-material/Timer";
 import { useContext, useState } from "react";
-import { RefreshStateContext,SnackBarDataContext } from "../../Context/LayoutContext";
+import {
+  RefreshStateContext,
+  SnackBarDataContext,
+} from "../../Context/LayoutContext";
 import { useEveApi } from "../../Hooks/useEveApi";
 import { UsersContext } from "../../Context/AuthContext";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
@@ -23,10 +26,7 @@ export function AccountEntry({ user }) {
     WalletJournal,
     serverStatus,
   } = useEveApi();
-  const {
-    downloadCharacterJobs,
-    updateMainUserDoc
-  } = useFirebase();
+  const { downloadCharacterJobs, updateMainUserDoc } = useFirebase();
   const { replaceSnapshot } = useJobManagement();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
@@ -50,78 +50,79 @@ export function AccountEntry({ user }) {
       if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
         user = await RefreshUserAToken(user);
       }
-      const [
-        skills,
-        indJobs,
-        orders,
-        histOrders,
-        blueprints,
-        transactions,
-        journal,
-      ] = await Promise.all([
-        CharacterSkills(user),
-        IndustryJobs(user, parentUser),
-        MarketOrders(user),
-        HistoricMarketOrders(user),
-        BlueprintLibrary(user),
-        WalletTransactions(user),
-        WalletJournal(user),
-      ]);
-      if (skills.length > 0) {
-        user.apiSkills = skills;
-      }
-      if (indJobs.length > 0) {
-        user.apiJobs = indJobs;
-        newAPIArray = apiJobs.filter(
-          (i) => i.installer_id !== user.CharacterID
+      if (user !== "RefreshFail") {
+        const [
+          skills,
+          indJobs,
+          orders,
+          histOrders,
+          blueprints,
+          transactions,
+          journal,
+        ] = await Promise.all([
+          CharacterSkills(user),
+          IndustryJobs(user, parentUser),
+          MarketOrders(user),
+          HistoricMarketOrders(user),
+          BlueprintLibrary(user),
+          WalletTransactions(user),
+          WalletJournal(user),
+        ]);
+        if (skills.length > 0) {
+          user.apiSkills = skills;
+        }
+        if (indJobs.length > 0) {
+          user.apiJobs = indJobs;
+          newAPIArray = apiJobs.filter(
+            (i) => i.installer_id !== user.CharacterID
+          );
+          user.apiJobs.forEach((i) => newAPIArray.push(i));
+          newAPIArray.sort((a, b) => {
+            if (a.product_name < b.product_name) {
+              return -1;
+            }
+            if (a.product_name > b.product_name) {
+              return 1;
+            }
+            return 0;
+          });
+        }
+        if (orders.length > 0) {
+          user.apiOrders = orders;
+        }
+        if (histOrders.length > 0) {
+          user.apiHistOrders = histOrders;
+        }
+        if (blueprints.length > 0) {
+          user.apiBlueprints = blueprints;
+        }
+        if (transactions.length > 0) {
+          user.apiTransactions = transactions;
+        }
+        if (journal.length > 0) {
+          user.apiJournal = journal;
+        }
+        user.refreshState = 3;
+        const index = newUsers.findIndex(
+          (i) => i.CharacterHash === user.CharacterHash
         );
-        user.apiJobs.forEach((i) => newAPIArray.push(i));
-        newAPIArray.sort((a, b) => {
-          if (a.product_name < b.product_name) {
-            return -1;
-          }
-          if (a.product_name > b.product_name) {
-            return 1;
-          }
-          return 0;
-        });
-      }
-      if (orders.length > 0) {
-        user.apiOrders = orders;
-      }
-      if (histOrders.length > 0) {
-        user.apiHistOrders = histOrders;
-      }
-      if (blueprints.length > 0) {
-        user.apiBlueprints = blueprints;
-      }
-      if (transactions.length > 0) {
-        user.apiTransactions = transactions;
-      }
-      if (journal.length > 0) {
-        user.apiJournal = journal;
-      }
-      user.refreshState = 3;
-      const index = newUsers.findIndex(
-        (i) => i.CharacterHash === user.CharacterHash
-      );
-      if (index !== -1) {
-        newUsers[index] = user;
-      }
-      updateUsers(newUsers);
-      updateApiJobs(newAPIArray);
-      updateUserRefreshState(3);
+        if (index !== -1) {
+          newUsers[index] = user;
+        }
+        updateUsers(newUsers);
+        updateApiJobs(newAPIArray);
+        updateUserRefreshState(3);
 
-      setTimeout(() => {
-        user.refreshState = 1;
-      }, 900000);
-      //15 mins
+        setTimeout(() => {
+          user.refreshState = 1;
+        }, 900000);
+        //15 mins
+      }
     }
   }
 
   async function removeUser(user) {
-
-    let newJobArray = [...jobArray]
+    let newJobArray = [...jobArray];
     for (let job of newJobArray) {
       if (job.isSnapshot) {
         job = await downloadCharacterJobs(job);
@@ -138,15 +139,27 @@ export function AccountEntry({ user }) {
     let newUsers = [...users];
     for (let nUser of newUsers) {
       if (nUser.ParentUser) {
-        nUser.accountRefreshTokens = nUser.accountRefreshTokens.filter((i) => i.CharacterHash !== user.CharacterHash)
+        if (nUser.settings.account.cloudAccounts) {
+          nUser.accountRefreshTokens = nUser.accountRefreshTokens.filter(
+            (i) => i.CharacterHash !== user.CharacterHash
+          );
+        } else {
+          let oldLS = JSON.parse(localStorage.getItem("AdditionalAccounts"));
+          let newLS = oldLS.filter(
+            (i) => i.CharacterHash !== user.CharacterHash
+          );
+          localStorage.setItem("AdditionalAccounts", JSON.stringify(newLS));
+        }
       }
     }
-    
-      newUsers = newUsers.filter((i)=> i.CharacterHash !== user.CharacterHash)
-      updateUsers(newUsers);
+
+    newUsers = newUsers.filter((i) => i.CharacterHash !== user.CharacterHash);
+    updateUsers(newUsers);
     updateApiJobs(newApiArray);
     updateJobArray(newJobArray);
-    updateMainUserDoc()
+    if (parentUser.settings.account.cloudAccounts) {
+      updateMainUserDoc();
+    }
     setSnackbarData((prev) => ({
       ...prev,
       open: true,
@@ -170,13 +183,13 @@ export function AccountEntry({ user }) {
           justifyContent="center"
           alignItems="center"
         >
-          <Grid item xs={1}>
+          <Grid item xs={2} sm={1}>
             <Avatar
               alt={`${user.CharacterName} portrait`}
               src={`https://images.evetech.net/characters/${user.CharacterID}/portrait`}
             />
           </Grid>
-          <Grid item xs={9}>
+          <Grid item xs={8} sm={9}>
             <Typography variant="body1">{user.CharacterName}</Typography>
           </Grid>
           <Grid item xs={1} align="center">

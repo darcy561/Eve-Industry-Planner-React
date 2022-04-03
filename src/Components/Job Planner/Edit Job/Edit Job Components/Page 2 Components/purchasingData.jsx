@@ -2,24 +2,43 @@ import {
   Button,
   FormControlLabel,
   Grid,
+  MenuItem,
   Paper,
+  Select,
   Switch,
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { useContext } from "react";
+import { useContext, useMemo, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
-import { UsersContext } from "../../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import { ShoppingListContext } from "../../../../../Context/LayoutContext";
+import {
+  listingType,
+  marketOptions,
+} from "../../../../../Context/defaultValues";
 
-export function PurchasingData() {
+export function PurchasingData({
+  orderDisplay,
+  changeOrderDisplay,
+  marketDisplay,
+  changeMarketDisplay,
+}) {
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { updateShoppingListData } = useContext(ShoppingListContext);
   const { buildShoppingList } = useJobManagement();
+  const [orderSelect, updateOrderSelect] = useState(orderDisplay);
+  const [marketSelect, updateMarketSelect] = useState(marketDisplay);
 
-  const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
+  const parentUserIndex = useMemo(() => {
+    return users.findIndex((i) => i.ParentUser);
+  }, [users, isLoggedIn]);
 
   let totalComplete = 0;
 
@@ -38,34 +57,41 @@ export function PurchasingData() {
         elevation={3}
         square={true}
       >
-        <Grid container direction="row">
-          <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="body1">
-              Total Complete Items: {totalComplete} /{" "}
-              {activeJob.build.materials.length}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Typography variant="body1">
-              Total Material Cost:{" "}
-              {activeJob.build.costs.totalPurchaseCost.toLocaleString(undefined,{
+        <Grid container direction="row" align="center">
+          <Grid container item xs={12}>
+            <Grid item xs={12} sm={6} md={4}>
+              <Typography variant="body1">
+                Total Complete Items: {totalComplete} /{" "}
+                {activeJob.build.materials.length}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <Typography variant="body1">
+                Total Material Cost:{" "}
+                {activeJob.build.costs.totalPurchaseCost.toLocaleString(
+                  undefined,
+                  {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }
+                )}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <Typography>
+                Current Cost Per Item:{" "}
+                {(
+                  activeJob.build.costs.totalPurchaseCost /
+                  activeJob.build.products.totalQuantity
+                ).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
+                  maximumFractionDigits: 2,
                 })}
-            </Typography>
-            <Typography>
-              Current Cost Per Item:{" "}
-              {(
-                activeJob.build.costs.totalPurchaseCost /
-                activeJob.build.products.totalQuantity
-              ).toLocaleString(undefined,{
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })}
-            </Typography>
+              </Typography>
+            </Grid>
           </Grid>
-          <Grid container item xs={6} md={4} align="center">
-            <Grid item xs={12}>
+          <Grid container item xs={12} sx={{ marginTop: "20px" }}>
+            <Grid item xs={12} md={4}>
               <FormControlLabel
                 control={
                   <Switch
@@ -88,29 +114,77 @@ export function PurchasingData() {
                 labelPlacement="start"
               />
             </Grid>
-            {totalComplete < activeJob.build.materials.length &&(
-            <Grid item xs={12} sx={{ marginTop: "10px" }}>
-              <Tooltip
-                title="Displays a shopping list of the remaining materials needed."
-                arrow
-              >
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={async () => {
-                    let shoppingList = await buildShoppingList([activeJob]);
+            {totalComplete < activeJob.build.materials.length && (
+              <Grid item xs={12} md={4}>
+                <Tooltip
+                  title="Displays a shopping list of the remaining materials needed."
+                  arrow
+                >
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={async () => {
+                      let shoppingList = await buildShoppingList([activeJob]);
 
-                    updateShoppingListData((prev) => ({
-                      open: true,
-                      list: shoppingList,
-                    }));
+                      updateShoppingListData((prev) => ({
+                        open: true,
+                        list: shoppingList,
+                      }));
+                    }}
+                  >
+                    Shopping List
+                  </Button>
+                </Tooltip>
+              </Grid>
+            )}
+            <Grid container item xs={12} md={4}>
+              <Grid item xs={6}>
+                <Select
+                  value={marketSelect}
+                  variant="standard"
+                  size="small"
+                  onChange={(e) => {
+                    changeMarketDisplay(e.target.value);
+                    updateMarketSelect(e.target.value);
+                  }}
+                  sx={{
+                    width: "90px",
+                    marginRight: "5px",
                   }}
                 >
-                  Shopping List
-                </Button>
-              </Tooltip>
+                  {marketOptions.map((option) => {
+                    return (
+                      <MenuItem key={option.name} value={option.id}>
+                        {option.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
               </Grid>
-              )}
+              <Grid item xs={6}>
+                <Select
+                  value={orderSelect}
+                  variant="standard"
+                  size="small"
+                  onChange={(e) => {
+                    changeOrderDisplay(e.target.value);
+                    updateOrderSelect(e.target.value);
+                  }}
+                  sx={{
+                    width: "120px",
+                    marginLeft: "5px",
+                  }}
+                >
+                  {listingType.map((option) => {
+                    return (
+                      <MenuItem key={option.name} value={option.id}>
+                        {option.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </Paper>

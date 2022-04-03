@@ -1,9 +1,5 @@
-import React, { memo, useContext, useState } from "react";
-import {
-  Grid,
-  IconButton,
-  TextField,
-} from "@mui/material";
+import React, { memo, useContext, useEffect, useState } from "react";
+import { Grid, IconButton, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
@@ -23,20 +19,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function AddMaterialCost({ material, setJobModified }) {
+export function AddMaterialCost({
+  material,
+  setJobModified,
+  marketDisplay,
+  orderDisplay,
+}) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const {users} = useContext(UsersContext)
+  const { users } = useContext(UsersContext);
   const { evePrices } = useContext(EvePricesContext);
-  const parentUser = users.find((i)=>i.ParentUser)
-  const materialPrice = evePrices.find(
-    (i) => i.typeID === material.typeID
-  );
+  const materialPrice = evePrices.find((i) => i.typeID === material.typeID);
   const [inputs, setInputs] = useState({
-    itemCost: materialPrice[parentUser.settings.editJob.defaultMarket][parentUser.settings.editJob.defaultOrders],
+    itemCost: materialPrice[marketDisplay][orderDisplay].toFixed(2),
     itemCount: Number(material.quantity - material.quantityPurchased),
   });
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const classes = useStyles();
+
+  useEffect(() => {
+    setInputs((prev) => ({
+      ...prev,
+      itemCost: materialPrice[marketDisplay][orderDisplay].toFixed(2),
+    }));
+  }, [marketDisplay, orderDisplay]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -106,7 +111,7 @@ function AddMaterialCost({ material, setJobModified }) {
             type="number"
             helperText="Item Quantity"
             defaultValue={inputs.itemCount}
-            inputProps={{step:"1"}}
+            inputProps={{ step: "1" }}
             onChange={(e) => {
               setInputs((prevState) => ({
                 ...prevState,
@@ -123,14 +128,14 @@ function AddMaterialCost({ material, setJobModified }) {
             variant="standard"
             type="number"
             helperText="Item Price"
-            defaultValue={materialPrice[parentUser.settings.editJob.defaultMarket][parentUser.settings.editJob.defaultOrders].toFixed(2)}
+            value={materialPrice[marketDisplay][orderDisplay].toFixed(2)}
             inputProps={{
-              step:"0.01"
+              step: "0.01",
             }}
-            onChange={(e) => {  
+            onChange={(e) => {
               setInputs((prevState) => ({
                 ...prevState,
-                itemCost: Number(e.target.value),
+                itemCost: e.target.value,
               }));
             }}
           />
@@ -144,5 +149,3 @@ function AddMaterialCost({ material, setJobModified }) {
     </form>
   );
 }
-
-export default memo(AddMaterialCost);

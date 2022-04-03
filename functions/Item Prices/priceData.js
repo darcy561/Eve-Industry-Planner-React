@@ -4,9 +4,9 @@ const axios = require("axios");
 
 async function ESIMarketQuery(typeID){
   const locations = [
-    { name: "jita", regionID: "10000002", stationID: "60003760" },
-    { name: "amarr", regionID: "10000043", stationID: "60008494" },
-    { name: "dodixie", regionID: "10000032", stationID: "60011866" },
+    { name: "jita", regionID: 10000002, stationID: 60003760 },
+    { name: "amarr", regionID: 10000043, stationID: 60008494 },
+    { name: "dodixie", regionID: 10000032, stationID: 60011866 },
   ]
   let dbObject = { typeID: Number(typeID), lastUpdated: Date.now() };
   for (let location of locations) {
@@ -19,12 +19,13 @@ async function ESIMarketQuery(typeID){
           `https://esi.evetech.net/latest/markets/${location.regionID}/orders/?datasource=tranquility&order_type=all&page=${pageCount}&type_id=${typeID}`
         );
         if (response.status === 200) {
-          response.data.filter((i) => i.location_id === location.stationID);
           response.data.forEach((order) => {
-            if (order.is_buy_order) {
-              buyOrders.push(order);
-            } else {
-              sellOrders.push(order);
+            if (order.location_id === location.stationID) {
+              if (order.is_buy_order) {
+                buyOrders.push(order);
+              } else {
+                sellOrders.push(order);
+              }
             }
           });
           if (response.data.length < 1000) {

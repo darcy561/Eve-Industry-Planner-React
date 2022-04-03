@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext, useState } from "react";
-import AddMaterialCost from "./addMaterialCost";
+import {AddMaterialCost} from "./addMaterialCost";
 import { MaterialCost } from "./materialCost";
 import { jobTypes } from "../../../JobPlanner";
 import { ChildJobDialog } from "./childJobsDialog";
@@ -21,7 +21,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function MaterialCard({ material, setJobModified }) {
+export function MaterialCard({
+  material,
+  setJobModified,
+  orderDisplay,
+  marketDisplay,
+}) {
   const [childDialogTrigger, updateChildDialogTrigger] = useState(false);
   const { jobArray } = useContext(JobArrayContext);
   const classes = useStyles();
@@ -38,7 +43,6 @@ export function MaterialCard({ material, setJobModified }) {
       }
     });
   }
-
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
       <ChildJobDialog
@@ -153,6 +157,8 @@ export function MaterialCard({ material, setJobModified }) {
                 <AddMaterialCost
                   material={material}
                   setJobModified={setJobModified}
+                  marketDisplay={marketDisplay}
+                  orderDisplay={orderDisplay}
                 />
               )}
             {material.quantityPurchased === material.quantity && (

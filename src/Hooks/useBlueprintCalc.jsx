@@ -30,7 +30,10 @@ function reactionMaterialCalc(
   rigType,
   systemMultiplyer
 ) {
-  const meModifier = 1 - (rigType / 100) * systemMultiplyer;
+  let meModifier = 1 - (rigType / 100) * systemMultiplyer;
+  if (baseQty === 1) {
+    meModifier = 1;
+  }
   //console.log(meModifier);
   const x = Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
   //console.log(x);

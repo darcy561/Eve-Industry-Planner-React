@@ -1,6 +1,6 @@
 import { Container, Grid } from "@mui/material";
-import React, { useContext } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { IsLoggedIn, IsLoggedInContext, UsersContext } from "../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { InventionCostsCard } from "./Page 2 Components/InventionCosts";
 import { MaterialCard } from "./Page 2 Components/materialCard";
@@ -9,8 +9,11 @@ import { TutorialStep2 } from "./Page 2 Components/tutorialStep2";
 
 export function EditPage2({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
+  const { IsLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
-  const parentUser = users.find((i) => i.ParentUser === true);
+  const parentUser = useMemo(() => { return users.find((i) => i.ParentUser) }, [users, IsLoggedIn]);
+  const [orderDisplay, changeOrderDisplay] = useState(parentUser.settings.editJob.defaultOrders);
+  const [marketDisplay, changeMarketDisplay] = useState(parentUser.settings.editJob.defaultMarket)
 
   //metaLevel
   const requiresInventionCosts = [2, 14, 53];
@@ -25,7 +28,12 @@ export function EditPage2({ setJobModified }) {
             <TutorialStep2 />
           </Grid>
         )}
-        <PurchasingData />
+        <PurchasingData
+          orderDisplay={orderDisplay}
+          changeOrderDisplay={changeOrderDisplay}
+          marketDisplay={marketDisplay}
+          changeMarketDisplay={changeMarketDisplay}
+        />
         <Grid
           container
           item
@@ -48,6 +56,8 @@ export function EditPage2({ setJobModified }) {
                   key={material.typeID}
                   material={material}
                   setJobModified={setJobModified}
+                  orderDisplay={orderDisplay}
+                  marketDisplay={marketDisplay}
                 />
               );
             } else if (
@@ -59,6 +69,8 @@ export function EditPage2({ setJobModified }) {
                   key={material.typeID}
                   material={material}
                   setJobModified={setJobModified}
+                  orderDisplay={orderDisplay}
+                  marketDisplay={marketDisplay}
                 />
               );
             }

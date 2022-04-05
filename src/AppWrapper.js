@@ -9,7 +9,8 @@ import {
   LoadingText,
   ShoppingList,
   MultiSelectJobPlanner,
-  RefreshState
+  RefreshState,
+  PriceEntryList,
 } from "./Context/LayoutContext";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
@@ -34,11 +35,13 @@ export function AppWrapper() {
                                 <EvePrices>
                                   <MultiSelectJobPlanner>
                                     <ShoppingList>
-                                      <LocalizationProvider
-                                        dateAdapter={AdapterDateFns}
-                                      >
-                                        <App />
-                                      </LocalizationProvider>
+                                      <PriceEntryList>
+                                        <LocalizationProvider
+                                          dateAdapter={AdapterDateFns}
+                                        >
+                                          <App />
+                                        </LocalizationProvider>
+                                      </PriceEntryList>
                                     </ShoppingList>
                                   </MultiSelectJobPlanner>
                                 </EvePrices>

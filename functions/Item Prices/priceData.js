@@ -2,12 +2,12 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
 
-async function ESIMarketQuery(typeID){
+async function ESIMarketQuery(typeID, outdatedDoc) {
   const locations = [
     { name: "jita", regionID: 10000002, stationID: 60003760 },
     { name: "amarr", regionID: 10000043, stationID: 60008494 },
     { name: "dodixie", regionID: 10000032, stationID: 60011866 },
-  ]
+  ];
   let dbObject = { typeID: Number(typeID), lastUpdated: Date.now() };
   for (let location of locations) {
     let pageCount = 1;
@@ -35,7 +35,8 @@ async function ESIMarketQuery(typeID){
           }
         }
       } catch (err) {
-        console.log(err);
+        pageCount = 51;
+        return "fail";
       }
     }
     if (buyOrders.length > 0) {
@@ -50,8 +51,12 @@ async function ESIMarketQuery(typeID){
     }
     Object.assign(dbObject, {
       [location.name]: {
-        buy: buyOrders.length ? buyOrders[0].price : 0,
-        sell: sellOrders.length ? sellOrders[0].price : 0,
+        buy: buyOrders.length
+          ? buyOrders[0].price
+          : outdatedDoc[location.name].buy,
+        sell: sellOrders.length
+          ? sellOrders[0].price
+          : outdatedDoc[location.name].sell,
       },
     });
   }

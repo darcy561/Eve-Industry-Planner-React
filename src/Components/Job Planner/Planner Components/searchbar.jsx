@@ -44,6 +44,7 @@ export function SearchBar() {
     moveMultipleJobsForward,
     newJobProcess,
     buildShoppingList,
+    buildItemPriceEntry
   } = useJobManagement();
   const classes = useStyles();
 
@@ -137,6 +138,36 @@ export function SearchBar() {
                 }}
               >
                 Shopping List
+              </Button>
+            </Tooltip>
+            <Tooltip
+              title="Displays a shopping list of the remaining materials to build all of the selected jobs"
+              arrow
+            >
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ marginRight: "10px" }}
+                onClick={async () => {
+                  if (multiSelectJobPlanner.length > 0) {
+                    let shoppingList = await buildItemPriceEntry(multiSelectJobPlanner);
+                    // updateShoppingListData((prev) => ({
+                    //   open: true,
+                    //   list: shoppingList,
+                    // }));
+                  } else {
+                    updateDialogData((prev) => ({
+                      ...prev,
+                      buttonText: "Close",
+                      id: "Empty-Multi-Select",
+                      open: true,
+                      title: "Oops",
+                      body: "You will need to select at least 1 job using the checkbox's on the job cards",
+                    }));
+                  }
+                }}
+              >
+                Price Entry List
               </Button>
             </Tooltip>
             <Tooltip

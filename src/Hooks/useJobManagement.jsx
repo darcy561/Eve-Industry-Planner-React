@@ -763,6 +763,33 @@ export function useJobManagement() {
     return finalShoppingList;
   };
 
+  const buildItemPriceEntry = async (inputJobs) => {
+    let finalPriceEntry = {};
+    for (let inputJob of inputJobs) {
+      if (inputJob.isSnapshot) {
+        inputJob = await downloadCharacterJobs(inputJob);
+        inputJob.isSnapshot = false;
+      }
+      inputJob.build.materials.forEach((material) => {
+        if (material.quantityPurchased < material.quantity) {
+          if (!finalPriceEntry.hasOwnProperty(material.typeID)) {
+            Object.assign(finalPriceEntry, {
+              [material.typeID]: {
+                name: material.name,
+                typeID: material.typeID,
+                quantity: material.quantity,
+                itemPrice: 0,
+              },
+            });
+          } else {
+            finalPriceEntry[material.typeID].quantity += material.quantity;
+          }
+        }
+      });
+    }
+    return finalPriceEntry
+  };
+
   const mergeJobs = async (inputJobs) => {
     let totalItems = 0;
     let parentJobs = [];
@@ -837,6 +864,8 @@ export function useJobManagement() {
   };
 
   return {
+    buildItemPriceEntry,
+    buildShoppingList,
     closeEditJob,
     deleteJobProcess,
     deleteJobSnapshot,
@@ -848,8 +877,7 @@ export function useJobManagement() {
     newJobProcess,
     newJobSnapshot,
     openEditJob,
-    buildShoppingList,
-    updateJobSnapshot,
     replaceSnapshot,
+    updateJobSnapshot,
   };
 }

@@ -12,7 +12,7 @@ exports.scheduledFunction = functions.pubsub
       .collection("Pricing")
       .where("lastUpdated", "<", refreshPoint)
       .orderBy("lastUpdated", "asc")
-      .limit(20)
+      .limit(50)
       .get();
     let refreshData = [];
     itemsToRefresh.forEach((item) => {
@@ -28,14 +28,21 @@ exports.scheduledFunction = functions.pubsub
     if (server.status === 200) {
       for (let item of refreshData) {
         if (item.lastUpdated < Date.now() - 14400000) {
-          await ESIMarketQuery(item.typeID);
+          let response = await ESIMarketQuery(item.typeID, item);
+          if (response === "fail") {
+            failedRefreshCount++;
+            failedIDs.push(item.typeID, server.status);
+          }
           successRefreshCount++;
           refreshedIDs.push(item.typeID);
         }
       }
     } else {
+      refreshData.forEach((i) => {
+        failedIDs.push(i.typeID, server.status);
+      });
       failedRefreshCount++;
-      failedIDs.push(item.typeID, server.status);
+      functions.logger.error(`Eve Servers Offline`);
     }
     functions.logger.info(
       `Number of TypeID's Refreshed ${successRefreshCount}`

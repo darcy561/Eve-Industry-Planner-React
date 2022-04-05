@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import { createContext, useState } from 'react';
 
 export const DataExchangeContext = createContext();
 
@@ -63,6 +63,21 @@ export const ShoppingList = (props) => {
         <ShoppingListContext.Provider value={{ shoppingListData, updateShoppingListData }}>
             {props.children}
         </ShoppingListContext.Provider>
+    )
+}
+
+export const PriceEntryListContext = createContext();
+
+export const PriceEntryList = (props) => {
+    const [priceEntryListData, updatePriceEntryList] = useState({
+        open: false,
+        list: {},
+    });
+
+    return (
+        <PriceEntryListContext.Provider value={{ priceEntryListData, updatePriceEntryList }}>
+            {props.children}
+        </PriceEntryListContext.Provider>
     )
 }
 

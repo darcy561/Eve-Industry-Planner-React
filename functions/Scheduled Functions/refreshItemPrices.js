@@ -12,7 +12,7 @@ exports.scheduledFunction = functions.pubsub
       .collection("Pricing")
       .where("lastUpdated", "<", refreshPoint)
       .orderBy("lastUpdated", "asc")
-      .limit(50)
+      .limit(300)
       .get();
     let refreshData = [];
     itemsToRefresh.forEach((item) => {

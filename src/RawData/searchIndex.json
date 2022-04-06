@@ -14053,5 +14053,15 @@
     "name": "Capital Moon Ore Compressor I",
     "itemID": 62636,
     "blueprintID": 62679
+  },
+  {
+    "name": "Industrial Jump Portal Generator I",
+    "itemID": 63140,
+    "blueprintID": 63164
+  },
+  {
+    "name": "Standup Flak Round I",
+    "itemID": 63195,
+    "blueprintID": 63196
   }
 ]

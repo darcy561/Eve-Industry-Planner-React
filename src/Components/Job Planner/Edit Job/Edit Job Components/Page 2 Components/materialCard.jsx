@@ -7,8 +7,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useContext, useState } from "react";
-import {AddMaterialCost} from "./addMaterialCost";
+import React, { memo, useContext, useState } from "react";
+import AddMaterialCost from "./addMaterialCost";
 import { MaterialCost } from "./materialCost";
 import { jobTypes } from "../../../JobPlanner";
 import { ChildJobDialog } from "./childJobsDialog";
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function MaterialCard({
+function MaterialCard({
   material,
   setJobModified,
   orderDisplay,
@@ -197,3 +197,5 @@ export function MaterialCard({
     </Grid>
   );
 }
+
+export default MaterialCard

@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function AddMaterialCost({
+function AddMaterialCost({
   material,
   setJobModified,
   marketDisplay,
@@ -128,7 +128,7 @@ export function AddMaterialCost({
             variant="standard"
             type="number"
             helperText="Item Price"
-            value={materialPrice[marketDisplay][orderDisplay].toFixed(2)}
+            value={inputs.itemCost}
             inputProps={{
               step: "0.01",
             }}
@@ -149,3 +149,4 @@ export function AddMaterialCost({
     </form>
   );
 }
+ export default AddMaterialCost

@@ -1,9 +1,13 @@
 import { Container, Grid } from "@mui/material";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { IsLoggedIn, IsLoggedInContext, UsersContext } from "../../../../Context/AuthContext";
+import {
+  IsLoggedIn,
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { InventionCostsCard } from "./Page 2 Components/InventionCosts";
-import { MaterialCard } from "./Page 2 Components/materialCard";
+import MaterialCard from "./Page 2 Components/materialCard";
 import { PurchasingData } from "./Page 2 Components/purchasingData";
 import { TutorialStep2 } from "./Page 2 Components/tutorialStep2";
 
@@ -11,9 +15,23 @@ export function EditPage2({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { IsLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
-  const parentUser = useMemo(() => { return users.find((i) => i.ParentUser) }, [users, IsLoggedIn]);
-  const [orderDisplay, changeOrderDisplay] = useState(parentUser.settings.editJob.defaultOrders);
-  const [marketDisplay, changeMarketDisplay] = useState(parentUser.settings.editJob.defaultMarket)
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users, IsLoggedIn]);
+
+  const [orderDisplay, changeOrderDisplay] = useState(
+    activeJob.layout.localOrderDisplay === undefined ||
+      activeJob.layout.localOrderDisplay === null
+      ? parentUser.settings.editJob.defaultOrders
+      : activeJob.layout.localOrderDisplay
+  );
+
+  const [marketDisplay, changeMarketDisplay] = useState(
+    activeJob.layout.localMarketDisplay === undefined ||
+      activeJob.layout.localMarketDisplay === null
+      ? parentUser.settings.editJob.defaultMarket
+      : activeJob.layout.localMarketDisplay
+  );
 
   //metaLevel
   const requiresInventionCosts = [2, 14, 53];
@@ -40,8 +58,8 @@ export function EditPage2({ setJobModified }) {
           spacing={2}
           sx={{
             overflowY: { xs: "scroll", sm: "visible" },
-            "&:: -ms-overflow-style": { display:"none" },
-            "&:: scrollbar-width": { display:"none"},
+            "&:: -ms-overflow-style": { display: "none" },
+            "&:: scrollbar-width": { display: "none" },
             "&::-webkit-scrollbar": { display: "none" },
             paddingRight: { xs: "1px", sm: "0px" },
             marginTop: { xs: "20px", sm: "0px" },
@@ -75,9 +93,10 @@ export function EditPage2({ setJobModified }) {
               );
             }
           })}
-          {requiresInventionCosts.includes(activeJob.metaLevel) && !ignoreInventionCosts.includes(activeJob.itemID) ?
-              <InventionCostsCard setJobModified={setJobModified}/>: null
-          }
+          {requiresInventionCosts.includes(activeJob.metaLevel) &&
+          !ignoreInventionCosts.includes(activeJob.itemID) ? (
+            <InventionCostsCard setJobModified={setJobModified} />
+          ) : null}
         </Grid>
       </Grid>
     </Container>

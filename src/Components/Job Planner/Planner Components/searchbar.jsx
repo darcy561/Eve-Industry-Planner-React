@@ -151,6 +151,7 @@ export function SearchBar() {
                 onClick={async () => {
                   if (multiSelectJobPlanner.length > 0) {
                     let shoppingList = await buildItemPriceEntry(multiSelectJobPlanner);
+                    console.log(shoppingList)
                     // updateShoppingListData((prev) => ({
                     //   open: true,
                     //   list: shoppingList,

@@ -4,8 +4,8 @@ import { getToken } from "firebase/app-check";
 
 class Job {
   constructor(itemJson) {
-    this.buildVer = process.env.REACT_APP_Version
-    this.metaLevel = itemJson.metaGroup || null
+    this.buildVer = process.env.REACT_APP_Version;
+    this.metaLevel = itemJson.metaGroup || null;
     this.jobType = itemJson.jobType;
     this.name = itemJson.name;
     this.jobID = Date.now();
@@ -23,7 +23,7 @@ class Job {
     this.apiOrders = [];
     this.apiTransactions = [];
     this.parentJob = [];
-    this.blueprintTypeID = itemJson.blueprintTypeID || null
+    this.blueprintTypeID = itemJson.blueprintTypeID || null;
 
     this.build = {
       products: {
@@ -37,7 +37,8 @@ class Job {
         linkedJobs: [],
         installCosts: 0,
         inventionCosts: 0,
-        inventionEntries: []
+        inventionEntries: [],
+
       },
       sale: {
         totalSold: 0,
@@ -51,6 +52,10 @@ class Job {
       buildChar: null,
     };
     this.rawData = {};
+    this.layout = {
+      localMarketDisplay: null,
+      localOrderDisplay: null,
+    }
 
     if (itemJson.jobType === jobTypes.manufacturing) {
       this.rawData.materials = itemJson.activities.manufacturing.materials;

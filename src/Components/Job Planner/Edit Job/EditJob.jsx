@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { memo, useContext, useState } from "react";
 import {
   JobStatusContext,
   ActiveJobContext,
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function EditJob({ updateJobSettingsTrigger }) {
+function EditJob({ updateJobSettingsTrigger }) {
   const { jobStatus } = useContext(JobStatusContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -278,3 +278,5 @@ export default function EditJob({ updateJobSettingsTrigger }) {
       </Paper>
   );
 }
+
+export default EditJob

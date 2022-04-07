@@ -29,7 +29,7 @@ export function PurchasingData({
   changeMarketDisplay,
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { activeJob } = useContext(ActiveJobContext);
+  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { updateShoppingListData } = useContext(ShoppingListContext);
   const { buildShoppingList } = useJobManagement();
@@ -146,6 +146,13 @@ export function PurchasingData({
                   onChange={(e) => {
                     changeMarketDisplay(e.target.value);
                     updateMarketSelect(e.target.value);
+                    updateActiveJob((prev) => ({
+                      ...prev,
+                      layout: {
+                        ...prev.layout,
+                        localMarketDisplay: e.target.value,
+                      },
+                    }));
                   }}
                   sx={{
                     width: "90px",
@@ -169,6 +176,13 @@ export function PurchasingData({
                   onChange={(e) => {
                     changeOrderDisplay(e.target.value);
                     updateOrderSelect(e.target.value);
+                    updateActiveJob((prev) => ({
+                      ...prev,
+                      layout: {
+                        ...prev.layout,
+                        localOrderDisplay: e.target.value,
+                      },
+                    }));
                   }}
                   sx={{
                     width: "120px",

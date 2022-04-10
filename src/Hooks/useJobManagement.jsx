@@ -272,7 +272,11 @@ export function useJobManagement() {
       jobDataComp: true,
       priceData: true,
     }));
-    let jobPrices = await getItemPrices(inputJob);
+    let itemIDs = [inputJob.itemID];
+    inputJob.build.materials.forEach((mat) => {
+      itemIDs.push(mat.typeID)
+    })
+    let jobPrices = await getItemPrices(itemIDs);
     if (jobPrices.length > 0) {
       updateEvePrices(evePrices.concat(jobPrices));
     }
@@ -764,30 +768,46 @@ export function useJobManagement() {
   };
 
   const buildItemPriceEntry = async (inputJobs) => {
-    let finalPriceEntry = {};
+    let finalPriceEntry = [];
     for (let inputJob of inputJobs) {
       if (inputJob.isSnapshot) {
         inputJob = await downloadCharacterJobs(inputJob);
         inputJob.isSnapshot = false;
       }
       inputJob.build.materials.forEach((material) => {
-        if (material.quantityPurchased < material.quantity) {
-          if (!finalPriceEntry.hasOwnProperty(material.typeID)) {
-            Object.assign(finalPriceEntry, {
-              [material.typeID]: {
-                name: material.name,
-                typeID: material.typeID,
-                quantity: material.quantity,
-                itemPrice: 0,
-              },
+        if (
+          material.quantityPurchased < material.quantity &&
+          material.childJob.length === 0
+        ) {
+          if (!finalPriceEntry.some((i) => i.typeID === material.typeID)) {
+            finalPriceEntry.push({
+              name: material.name,
+              typeID: material.typeID,
+              quantity: material.quantity,
+              itemPrice: 0,
+              confirmed: false,
+              jobRef:[inputJob.jobID]
             });
           } else {
-            finalPriceEntry[material.typeID].quantity += material.quantity;
+            let index = finalPriceEntry.findIndex(
+              (i) => i.typeID === material.typeID
+            );
+            finalPriceEntry[index].quantity += material.quantity;
+            finalPriceEntry[index].jobRef.push(inputJob.jobID);
           }
         }
       });
     }
-    return finalPriceEntry
+    finalPriceEntry.sort((a, b) => {
+      if (a.name < b.name) {
+        return -1;
+      }
+      if (a.name < b.name) {
+        return 1;
+      }
+      return 0;
+    });
+    return finalPriceEntry;
   };
 
   const mergeJobs = async (inputJobs) => {

@@ -1,13 +1,7 @@
 import { useContext } from "react";
 import { UsersContext } from "../Context/AuthContext";
 import { appCheck, firestore, functions, performance } from "../firebase";
-import {
-  doc,
-  deleteDoc,
-  getDoc,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import { JobStatusContext } from "../Context/JobContext";
@@ -27,7 +21,8 @@ export function useFirebase() {
 
   const fbAuthState = async () => {
     const auth = getAuth();
-    if (auth.currentUser == null) {
+    console.log(auth);
+    if (auth.currentUser.stsTokenManager.expirationTime <= Date.now()) {
       let newfbuser = await firebaseAuth(parentUser);
       console.log(newfbuser);
     }
@@ -52,7 +47,7 @@ export function useFirebase() {
           linkedOrders: charData.data.linkedOrders,
           linkedTrans: charData.data.linkedTrans,
           settings: charData.data.settings,
-          refreshTokens : charData.data.refreshTokens
+          refreshTokens: charData.data.refreshTokens,
         };
       } catch (err) {
         console.log(err);
@@ -115,6 +110,7 @@ export function useFirebase() {
         metaLevel: job.metaLevel,
         parentJob: job.parentJob,
         blueprintTypeID: job.blueprintTypeID,
+        layout: job.layout,
       }
     );
   };
@@ -151,6 +147,7 @@ export function useFirebase() {
         metaLevel: job.metaLevel,
         parentJob: job.parentJob,
         blueprintTypeID: job.blueprintTypeID,
+        layout: job.layout,
       }
     );
   };
@@ -181,22 +178,16 @@ export function useFirebase() {
   const updateMainUserDoc = async () => {
     await fbAuthState();
 
-    updateDoc(
-      doc(
-        firestore,
-        "Users", parentUser.accountID
-      ),
-      {
-        jobArraySnapshot: parentUser.snapshotData,
-        parentUserHash: parentUser.CharacterHash,
-        jobStatusArray: jobStatus,
-        linkedJobs: parentUser.linkedJobs,
-        linkedTrans: parentUser.linkedTrans,
-        linkedOrders: parentUser.linkedOrders,
-        settings: parentUser.settings,
-        refreshTokens: parentUser.accountRefreshTokens
-      }
-    )
+    updateDoc(doc(firestore, "Users", parentUser.accountID), {
+      jobArraySnapshot: parentUser.snapshotData,
+      parentUserHash: parentUser.CharacterHash,
+      jobStatusArray: jobStatus,
+      linkedJobs: parentUser.linkedJobs,
+      linkedTrans: parentUser.linkedTrans,
+      linkedOrders: parentUser.linkedOrders,
+      settings: parentUser.settings,
+      refreshTokens: parentUser.accountRefreshTokens,
+    });
   };
 
   const removeJob = async (job) => {
@@ -240,6 +231,7 @@ export function useFirebase() {
         metaLevel: job.metaLevel,
         parentJob: job.parentJob,
         blueprintTypeID: job.blueprintTypeID,
+        layout: job.layout,
       }
     );
   };
@@ -275,14 +267,16 @@ export function useFirebase() {
       metaLevel: document.data().metaLevel,
       parentJob: document.data().parentJob,
       blueprintTypeID: document.data().blueprintTypeID,
+      layout: document.data().layout,
     };
 
     return newJob;
   };
 
-  const getItemPrices = async (inputJob) => {
+  const getItemPrices = async (idArray) => {
     const t = trace(performance, "GetItemPrices");
     t.start();
+    await fbAuthState();
     let requestArray = [];
     let promiseArray = [];
     let returnData = [];
@@ -301,22 +295,21 @@ export function useFirebase() {
         return (await itemPricePromise).json();
       } catch (err) {}
     };
-
-    if (!evePrices.some((i) => i.typeID === inputJob.itemID)) {
-      requestArray.push(inputJob.itemID);
-    }
-    for (let material of inputJob.build.materials) {
-      if (!evePrices.some((i) => i.typeID === material.typeID)) {
-        requestArray.push(material.typeID);
+    if (idArray !== undefined && idArray.length > 0) {
+      for (let id of idArray) {
+        if (!evePrices.some((i) => i.typeID === id)) {
+          requestArray.push(id);
+        }
       }
     }
+
     if (requestArray.length > 0) {
       for (let item of requestArray) {
         let promise = getItemPrices(item);
         promiseArray.push(promise);
       }
       let returnedPromise = await Promise.all(promiseArray);
-      
+
       for (let data of returnedPromise) {
         returnData.push(data);
       }

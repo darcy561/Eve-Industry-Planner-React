@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import {
   ShoppingListContext,
   SnackBarDataContext,
-} from "../../Context/LayoutContext";
+} from "../../../../Context/LayoutContext";
 import {
   Button,
   Dialog,

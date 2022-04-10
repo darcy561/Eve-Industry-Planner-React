@@ -37,7 +37,7 @@ export function ItemCostPanel() {
           item
           xs={12}
           align="center"
-          sx={{ marginBottom: { xs: "50px", sm: "20px" } }}
+          sx={{ marginBottom: { xs: "50px", sm: "20px", lg: "40px" } }}
         >
           <Typography variant="h6" color="primary">
             Estimated Market Costs
@@ -88,7 +88,20 @@ export function ItemCostPanel() {
           })}
         </Select>
         <Grid container item xs={12}>
-          <Grid item md={1} />
+          <Grid
+            item
+            md={1}
+            sx={{
+              display: { xs: "none", md: "block" },
+              paddingRight: "5px",
+            }}
+            align="center"
+          >
+            <img
+              src={`https://images.evetech.net/types/${activeJob.itemID}/icon?size=32`}
+              alt=""
+            />
+          </Grid>
           <Grid item xs={12} md={4}>
             <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
               {activeJob.name}

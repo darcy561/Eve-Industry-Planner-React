@@ -249,10 +249,11 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
           );
         })}
         {jobMatches.length > 1 && (
-          <Grid container sx={{marginTop:{xs:"20px", sm:"20px"}}}>
+          <Grid container sx={{ marginTop: { xs: "20px", sm: "20px" } }}>
             <Grid item sm={9} />
             <Grid item align="center" xs={12} sm={3}>
               <Button
+                disabled={jobMatches.length > activeJob.jobCount ? true : false}
                 variant="contained"
                 size="small"
                 onClick={() => {
@@ -267,7 +268,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     ...activeJob.build.costs.linkedJobs,
                   ];
                   let newInstallCosts = 0;
-                  const newApiArray = [...apiJobs]
+                  const newApiArray = [...apiJobs];
                   for (let job of jobMatches) {
                     const jobOwner = users.find(
                       (i) => i.CharacterID === job.installer_id

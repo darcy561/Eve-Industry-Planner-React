@@ -56,7 +56,7 @@ export const ShoppingListContext = createContext();
 export const ShoppingList = (props) => {
     const [shoppingListData, updateShoppingListData] = useState({
         open: false,
-        list: []
+        list: [],
     });
 
     return (
@@ -69,13 +69,15 @@ export const ShoppingList = (props) => {
 export const PriceEntryListContext = createContext();
 
 export const PriceEntryList = (props) => {
-    const [priceEntryListData, updatePriceEntryList] = useState({
+    const [priceEntryListData, updatePriceEntryListData] = useState({
         open: false,
-        list: {},
+        list: [],
+        displayMarket: null,
+        displayOrder: null
     });
 
     return (
-        <PriceEntryListContext.Provider value={{ priceEntryListData, updatePriceEntryList }}>
+        <PriceEntryListContext.Provider value={{ priceEntryListData, updatePriceEntryListData }}>
             {props.children}
         </PriceEntryListContext.Provider>
     )

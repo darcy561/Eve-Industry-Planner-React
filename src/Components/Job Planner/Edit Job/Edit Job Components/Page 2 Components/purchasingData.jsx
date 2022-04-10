@@ -113,9 +113,9 @@ export function PurchasingData({
                 label="Hide Completed Purchases"
                 labelPlacement="start"
               />
-            </Grid>
-            {totalComplete < activeJob.build.materials.length && (
-              <Grid item xs={12} md={4}>
+            </Grid>{" "}
+            <Grid item xs={12} md={4}>
+              {totalComplete < activeJob.build.materials.length && (
                 <Tooltip
                   title="Displays a shopping list of the remaining materials needed."
                   arrow
@@ -135,8 +135,8 @@ export function PurchasingData({
                     Shopping List
                   </Button>
                 </Tooltip>
-              </Grid>
-            )}
+              )}
+            </Grid>
             <Grid container item xs={12} md={4}>
               <Grid item xs={6}>
                 <Select

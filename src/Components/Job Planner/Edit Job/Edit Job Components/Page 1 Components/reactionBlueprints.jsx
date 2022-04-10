@@ -17,6 +17,7 @@ export function ReactionBlueprints() {
   );
   users.forEach((user) => {
     let inUseCount = 0;
+    let totalBP = 0;
     let temp = user.apiBlueprints.filter(
       (i) => i.type_id === activeJob.blueprintTypeID
     );
@@ -29,10 +30,16 @@ export function ReactionBlueprints() {
       ) {
         inUseCount++;
       }
+      if (i.quantity > 0) {
+        totalBP += i.quantity;
+      } else {
+        totalBP++;
+      }
     });
     blueprintOptions.push({
       owner: user.CharacterID,
       blueprints: temp,
+      totalBP: totalBP,
       inUse: inUseCount,
     });
   });
@@ -58,12 +65,7 @@ export function ReactionBlueprints() {
           </Typography>
         </Grid>
         {blueprintOptions.length > 0 ? (
-          <Grid
-            container
-            item
-            alignItems="center"
-            xs={12}
-          >
+          <Grid container item alignItems="center" xs={12}>
             {blueprintOptions.map((charBP) => {
               if (charBP.blueprints.length > 0) {
                 return (
@@ -71,7 +73,7 @@ export function ReactionBlueprints() {
                     <Grid
                       container
                       justifyContent="center"
-                      alignItems = "center"
+                      alignItems="center"
                       item
                       xs={4}
                       sm={4}
@@ -109,7 +111,7 @@ export function ReactionBlueprints() {
                     <Grid container item xs={8} sm={8} md={7} lg={9} xl={9}>
                       <Grid item xs={12}>
                         <Typography variant="caption">
-                          Total: {charBP.blueprints.length}
+                          Total: {charBP.totalBP}
                         </Typography>
                       </Grid>
                       <Grid item xs={12}>

@@ -9,11 +9,11 @@ import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
   inUse: {
-    backgroundColor: theme.palette.type === "dark" ? "#ffd180" : "#ffe0b2",
+    backgroundColor: "#ffc107",
     color: "black",
   },
   expiring: {
-    backgroundColor: theme.palette.type === "dark" ? "#ef5350" : "#ff8a80",
+    backgroundColor: "#d32f2f",
     color: "black",
   },
 }));

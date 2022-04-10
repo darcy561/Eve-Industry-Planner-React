@@ -18,10 +18,9 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiFormHelperText-root": {
       color: theme.palette.secondary.main,
     },
-  },
-  Autocomplete: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+    {
+      display: "none",
     },
   },
 }));

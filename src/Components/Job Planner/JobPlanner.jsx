@@ -7,7 +7,8 @@ import { LoadingPage } from "../loadingPage";
 import { SearchBar } from "./Planner Components/searchbar";
 import { Grid } from "@mui/material";
 import { TutorialPlanner } from "./Planner Components/tutorialPlanner";
-import { ShoppingListDialog } from "./ShoppingList";
+import { ShoppingListDialog } from "./Dialogues/ShoppingList/ShoppingList";
+import { PriceEntryDialog } from "./Dialogues/PriceEntry/PriceEntryList";
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
 
@@ -117,6 +118,8 @@ export function JobPlanner() {
       return (
         <Grid container sx={{ marginTop: "5px" }} spacing={2}>
           <ShoppingListDialog />
+
+          <PriceEntryDialog/>
           {!parentUser.settings.layout.hideTutorials && (
             <Grid item xs={12}>
               <TutorialPlanner />

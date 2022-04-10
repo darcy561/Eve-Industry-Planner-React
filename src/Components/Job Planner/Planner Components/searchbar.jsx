@@ -15,6 +15,7 @@ import {
   DataExchangeContext,
   DialogDataContext,
   MultiSelectJobPlannerContext,
+  PriceEntryListContext,
   ShoppingListContext,
 } from "../../../Context/LayoutContext";
 import { JobArrayContext } from "../../../Context/JobContext";
@@ -34,8 +35,11 @@ export function SearchBar() {
   const { jobArray } = useContext(JobArrayContext);
   const { DataExchange } = useContext(DataExchangeContext);
   const { updateShoppingListData } = useContext(ShoppingListContext);
+  const { updatePriceEntryListData } = useContext(PriceEntryListContext);
   const { updateDialogData } = useContext(DialogDataContext);
-  const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(MultiSelectJobPlannerContext);
+  const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
+    MultiSelectJobPlannerContext
+  );
   const {
     deleteMultipleJobsProcess,
     massBuildMaterials,
@@ -44,7 +48,7 @@ export function SearchBar() {
     moveMultipleJobsForward,
     newJobProcess,
     buildShoppingList,
-    buildItemPriceEntry
+    buildItemPriceEntry,
   } = useJobManagement();
   const classes = useStyles();
 
@@ -120,7 +124,9 @@ export function SearchBar() {
                 sx={{ marginRight: "10px" }}
                 onClick={async () => {
                   if (multiSelectJobPlanner.length > 0) {
-                    let shoppingList = await buildShoppingList(multiSelectJobPlanner);
+                    let shoppingList = await buildShoppingList(
+                      multiSelectJobPlanner
+                    );
                     updateShoppingListData((prev) => ({
                       open: true,
                       list: shoppingList,
@@ -150,12 +156,15 @@ export function SearchBar() {
                 sx={{ marginRight: "10px" }}
                 onClick={async () => {
                   if (multiSelectJobPlanner.length > 0) {
-                    let shoppingList = await buildItemPriceEntry(multiSelectJobPlanner);
-                    console.log(shoppingList)
-                    // updateShoppingListData((prev) => ({
-                    //   open: true,
-                    //   list: shoppingList,
-                    // }));
+                    let itemList = await buildItemPriceEntry(
+                      multiSelectJobPlanner
+                    );
+
+                    updatePriceEntryListData((prev) => ({
+                      ...prev,
+                      open: true,
+                      list: itemList,
+                    }));
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -168,7 +177,7 @@ export function SearchBar() {
                   }
                 }}
               >
-                Price Entry List
+                Add Item Costs
               </Button>
             </Tooltip>
             <Tooltip
@@ -326,7 +335,7 @@ export function SearchBar() {
                   disabled={!multiSelectJobPlanner.length > 0}
                   sx={{ marginRight: "10px" }}
                   onClick={() => {
-                    updateMultiSelectJobPlanner([]);  
+                    updateMultiSelectJobPlanner([]);
                   }}
                 >
                   Clear Selection

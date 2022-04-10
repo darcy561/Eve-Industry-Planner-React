@@ -88,11 +88,7 @@ app.get("/costs/:itemID", async (req, res) => {
         .doc(req.params.itemID)
         .get();
       if (itemDoc.exists) {
-        if (itemDoc.data().lastUpdated + 14400000 <= Date.now()) {
-          returnData = await ESIMarketQuery(req.params.itemID);
-        } else {
-          returnData = itemDoc.data();
-        }
+        returnData = itemDoc.data();
       } else {
         returnData = await ESIMarketQuery(req.params.itemID);
       }

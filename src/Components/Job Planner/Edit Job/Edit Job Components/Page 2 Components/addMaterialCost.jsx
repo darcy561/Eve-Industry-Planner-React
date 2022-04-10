@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useState } from "react";
-import { Grid, IconButton, TextField } from "@mui/material";
+import { Grid, IconButton, TextField, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
@@ -39,7 +39,7 @@ function AddMaterialCost({
   useEffect(() => {
     setInputs((prev) => ({
       ...prev,
-      itemCost: materialPrice[marketDisplay][orderDisplay].toFixed(2),
+      itemCost: Number(materialPrice[marketDisplay][orderDisplay]).toFixed(2),
     }));
   }, [marketDisplay, orderDisplay]);
 
@@ -56,7 +56,7 @@ function AddMaterialCost({
         childID: null,
         childJobImport: false,
         itemCount: inputs.itemCount,
-        itemCost: inputs.itemCost,
+        itemCost: Number(inputs.itemCost),
       });
       newArray[materialIndex].quantityPurchased += inputs.itemCount;
       newArray[materialIndex].purchasedCost +=
@@ -121,24 +121,33 @@ function AddMaterialCost({
           />
         </Grid>
         <Grid item xs={4}>
-          <TextField
-            className={classes.TextField}
-            required={true}
-            size="small"
-            variant="standard"
-            type="number"
-            helperText="Item Price"
-            value={inputs.itemCost}
-            inputProps={{
-              step: "0.01",
-            }}
-            onChange={(e) => {
-              setInputs((prevState) => ({
-                ...prevState,
-                itemCost: e.target.value,
-              }));
-            }}
-          />
+          <Tooltip
+            title={Number(inputs.itemCost).toLocaleString(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 2,
+            })}
+            arrow
+            placement="top"
+          >
+            <TextField
+              className={classes.TextField}
+              required={true}
+              size="small"
+              variant="standard"
+              type="number"
+              helperText="Item Price"
+              value={inputs.itemCost}
+              inputProps={{
+                step: "0.01",
+              }}
+              onChange={(e) => {
+                setInputs((prevState) => ({
+                  ...prevState,
+                  itemCost: Number(e.target.value),
+                }));
+              }}
+            />
+          </Tooltip>
         </Grid>
         <Grid item xs={1} align="center">
           <IconButton size="small" color="primary" type="submit">
@@ -149,4 +158,4 @@ function AddMaterialCost({
     </form>
   );
 }
- export default AddMaterialCost
+export default AddMaterialCost;

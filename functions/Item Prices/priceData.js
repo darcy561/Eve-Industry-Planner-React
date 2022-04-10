@@ -51,12 +51,8 @@ async function ESIMarketQuery(typeID, outdatedDoc) {
     }
     Object.assign(dbObject, {
       [location.name]: {
-        buy: buyOrders.length
-          ? buyOrders[0].price
-          : outdatedDoc[location.name].buy,
-        sell: sellOrders.length
-          ? sellOrders[0].price
-          : outdatedDoc[location.name].sell,
+        buy: buyOrders.length ? buyOrders[0].price : 0,
+        sell: sellOrders.length ? sellOrders[0].price : 0,
       },
     });
   }

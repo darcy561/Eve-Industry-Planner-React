@@ -6,9 +6,11 @@ import { AvailableJobs } from "./Available Jobs";
 import { LinkedJobs } from "./Linked Jobs";
 
 export function Step3TabMenu({ jobMatches, setJobModified }) {
-  const { activeJob } = useContext(ActiveJobContext);
+  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const [currentTab, updateTab] = useState(() => {
-    if (activeJob.apiJobs.length < activeJob.jobCount) {
+    if (activeJob.layout.esiJobTab !== null) {
+      return activeJob.layout.esiJobTab;
+    } else if (activeJob.apiJobs.length < activeJob.jobCount) {
       return "0";
     } else {
       return "1";
@@ -17,6 +19,13 @@ export function Step3TabMenu({ jobMatches, setJobModified }) {
 
   const handleChange = (event, newValue) => {
     updateTab(newValue);
+    updateActiveJob((prev) => ({
+      ...prev,
+      layout: {
+        ...prev.layout,
+        esiJobTab: newValue,
+      },
+    }));
   };
 
   return (
@@ -47,8 +56,8 @@ export function Step3TabMenu({ jobMatches, setJobModified }) {
           <Tab
             label={
               activeJob.build.costs.linkedJobs.length === 1
-                ? `${activeJob.build.costs.linkedJobs.length} Linked ESI Job`
-                : `${activeJob.build.costs.linkedJobs.length} Linked ESI Jobs`
+                ? `${activeJob.build.costs.linkedJobs.length}/${activeJob.jobCount} Linked ESI Job`
+                : `${activeJob.build.costs.linkedJobs.length}/${activeJob.jobCount} Linked ESI Jobs`
             }
             value="1"
           />

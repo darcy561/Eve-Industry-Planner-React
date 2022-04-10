@@ -55,6 +55,7 @@ class Job {
     this.layout = {
       localMarketDisplay: null,
       localOrderDisplay: null,
+      esiJobTab: null
     }
 
     if (itemJson.jobType === jobTypes.manufacturing) {

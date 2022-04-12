@@ -20,7 +20,7 @@ import {
 import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { RefreshTokens } from "./RefreshToken";
-import { secondsToHours } from "date-fns";
+import { EvePricesContext } from "../../Context/EveDataContext";
 
 export function login() {
   // const state = window.location.pathname;
@@ -38,6 +38,7 @@ export function AuthMainUser() {
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { updateEvePrices } = useContext(EvePricesContext);
   const {
     BlueprintLibrary,
     CharacterSkills,
@@ -50,7 +51,7 @@ export function AuthMainUser() {
   } = useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
-  const { determineUserState } = useFirebase();
+  const { determineUserState, getItemPrices } = useFirebase();
   const navigate = useNavigate();
   const analytics = getAnalytics();
 
@@ -66,7 +67,7 @@ export function AuthMainUser() {
         ...prevObj,
         eveSSO: true,
       }));
-
+      let userArray = [];
       const userObject = await EveSSOTokens(authCode, true);
       userObject.fbToken = await firebaseAuth(userObject);
 
@@ -86,6 +87,14 @@ export function AuthMainUser() {
         JSON.stringify(userSettings.jobArraySnapshot)
       );
       userObject.accountRefreshTokens = userSettings.refreshTokens;
+      let priceIDRequest = [];
+      let promiseArray = [];
+      userSettings.jobArraySnapshot.forEach((snap) => {
+        priceIDRequest = priceIDRequest.concat(snap.materialIDs);
+        priceIDRequest.push(snap.itemID);
+      });
+      let itemPrices = getItemPrices(priceIDRequest);
+      promiseArray.push(itemPrices);
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
@@ -116,9 +125,7 @@ export function AuthMainUser() {
 
         userObject.apiSkills = skills;
         userObject.apiJobs = indJobs;
-        userObject.apiJobs.forEach((i) => {
-          apiJobsArray.push(i);
-        });
+        apiJobsArray = apiJobsArray.concat(indJobs);
         userObject.apiOrders = orders;
         userObject.apiHistOrders = histOrders;
         userObject.apiBlueprints = blueprints;
@@ -133,24 +140,18 @@ export function AuthMainUser() {
         userObject.apiTransactions = [];
         userObject.apiJournal = [];
       }
-
+      userArray.push(userObject);
       updateLoadingText((prevObj) => ({
         ...prevObj,
         apiDataComp: true,
       }));
 
-      setJobStatus(userSettings.jobStatusArray);
-      updateJobArray(userSettings.jobArraySnapshot);
-      updateUsers([userObject]);
-      let secondaryUsers = [];
-      let failedRefresh = []
+      let failedRefresh = [];
       if (userSettings.settings.account.cloudAccounts) {
         for (let token of userSettings.refreshTokens) {
-          console.log(token);
           let newUser = await RefreshTokens(token.rToken, false);
-          console.log(newUser)
           if (newUser === "RefreshFail") {
-            failedRefresh.push(token.CharacterHash)
+            failedRefresh.push(token.CharacterHash);
           }
           if (sStatus && newUser !== "RefreshFail") {
             const [
@@ -191,7 +192,7 @@ export function AuthMainUser() {
             newUser.apiJournal = [];
           }
           if (newUser !== undefined) {
-            secondaryUsers.push(newUser);
+            userArray.push(newUser);
           }
         }
       } else {
@@ -201,7 +202,7 @@ export function AuthMainUser() {
             let newUser = await RefreshTokens(token.rToken, false);
             console.log(newUser);
             if (newUser === "RefreshFail") {
-              failedRefresh.push(token.CharacterHash)
+              failedRefresh.push(token.CharacterHash);
             }
             if (sStatus && newUser !== "RefreshFail") {
               const [
@@ -242,24 +243,24 @@ export function AuthMainUser() {
               newUser.apiJournal = [];
             }
             if (newUser !== "RefreshFail") {
-              secondaryUsers.push(newUser);
+              userArray.push(newUser);
             }
           }
         }
       }
-      console.log(failedRefresh)
-      if (secondaryUsers.length > 0 || failedRefresh.length > 0) {
-        let newUsersArray = [...users]
-        newUsersArray = newUsersArray.concat(secondaryUsers);
+      if (failedRefresh.length > 0) {
         if (userObject.settings.account.cloudAccounts) {
-          newUsersArray[0].accountRefreshTokens = newUsersArray[0].accountRefreshTokens.filter((i) => !failedRefresh.includes(i.CharacterHash))  
+          userArray[0].accountRefreshTokens =
+            userArray[0].accountRefreshTokens.filter(
+              (i) => !failedRefresh.includes(i.CharacterHash)
+            );
         } else {
-          let oldLS = JSON.parse(localStorage.getItem("AdditionalAccounts"))
-          let newLS = oldLS.filter((i) => !failedRefresh.includes(i.CharacterHash))
-          localStorage.setItem("AdditionalAccounts", JSON.stringify(newLS))
+          let oldLS = JSON.parse(localStorage.getItem("AdditionalAccounts"));
+          let newLS = oldLS.filter(
+            (i) => !failedRefresh.includes(i.CharacterHash)
+          );
+          localStorage.setItem("AdditionalAccounts", JSON.stringify(newLS));
         }
-        
-        updateUsers(newUsersArray)
       }
 
       apiJobsArray.sort((a, b) => {
@@ -271,6 +272,11 @@ export function AuthMainUser() {
         }
         return 0;
       });
+      let returnPromiseArray = await Promise.all(promiseArray);
+      updateEvePrices(returnPromiseArray[0]);
+      setJobStatus(userSettings.jobStatusArray);
+      updateJobArray(userSettings.jobArraySnapshot);
+      updateUsers(userArray);
       updateApiJobs(apiJobsArray);
       updateIsLoggedIn(true);
       updatePageLoad(false);

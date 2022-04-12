@@ -109,6 +109,35 @@ app.get("/costs/:itemID", async (req, res) => {
   }
 });
 
+app.post("/costs/bulk", async (req, res) => {
+  if (req.body.idArray != null) {
+    try {
+      let returnData = [];
+      for (let id of req.body.idArray) {
+        const itemDoc = await db.collection("Pricing").doc(id.toString()).get();
+        if (itemDoc.exists) {
+          returnData.push(itemDoc.data());
+        } else {
+          let data = await ESIMarketQuery(id.toString());
+          returnData.push(data);
+        }
+      }
+      return res
+        .status(200)
+        .setHeader("Content-Type", "application/json")
+        .set("Cache-Control", "public, max-age=3600, s-maxage=7200")
+        .send(returnData);
+    } catch (err) {
+      functions.logger.error(err);
+      return res
+        .status(500)
+        .send("Error retrieving item data, please try again.");
+    }
+  } else {
+    return res.status(500).send("Item Data Missing From Request");
+  }
+});
+
 //Export the api to Firebase Cloud Functions
 exports.api = functions.https.onRequest(app);
 exports.user = require("./Triggered Functions/Users");

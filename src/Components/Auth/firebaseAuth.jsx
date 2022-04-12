@@ -1,5 +1,9 @@
 import { auth, appCheck } from "../../firebase";
-import { browserSessionPersistence, setPersistence, signInWithCustomToken } from "firebase/auth";
+import {
+  browserSessionPersistence,
+  setPersistence,
+  signInWithCustomToken,
+} from "firebase/auth";
 import { getToken } from "firebase/app-check";
 
 export async function firebaseAuth(charObj) {
@@ -22,7 +26,7 @@ export async function firebaseAuth(charObj) {
     );
 
     const fbTokenJSON = await fbtokenPromise.json();
-    await setPersistence(auth, browserSessionPersistence )
+    await setPersistence(auth, browserSessionPersistence);
     const fbUser = await signInWithCustomToken(auth, fbTokenJSON.access_token);
     return fbUser;
   } catch (error) {

@@ -77,33 +77,34 @@ export function EditPage5({ setJobModified }) {
 
   activeJob.build.sale.marketOrders.forEach((order) => {
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
-
-    const itemTrans = user.apiTransactions.filter(
-      (trans) =>
-        order.location_id === trans.location_id &&
-        order.type_id === trans.type_id &&
-        !trans.is_buy &&
-        !parentUser.linkedTrans.includes(trans.transaction_id) &&
-        !transactionData.some((i)=> i.transaction_id === trans.transaction_id)
-    );
-
-    itemTrans.forEach((trans) => {
-      const transJournal = user.apiJournal.find(
-        (entry) => trans.transaction_id === entry.context_id
+    if (user !== undefined) {
+      const itemTrans = user.apiTransactions.filter(
+        (trans) =>
+          order.location_id === trans.location_id &&
+          order.type_id === trans.type_id &&
+          !trans.is_buy &&
+          !parentUser.linkedTrans.includes(trans.transaction_id) &&
+          !transactionData.some((i) => i.transaction_id === trans.transaction_id)
       );
-      if (transJournal !== undefined) {
-        const transTax = user.apiJournal.find(
-          (entry) =>
-            entry.ref_type === "transaction_tax" &&
-            Date.parse(entry.date) === Date.parse(trans.date)
-        );
-        let descriptionTrim = transJournal.description.replace("Market: ", "").split(" bought")
 
-        transactionData.push(
-          Object.assign({}, new Transaction(trans, descriptionTrim[0], transJournal, transTax))
+      itemTrans.forEach((trans) => {
+        const transJournal = user.apiJournal.find(
+          (entry) => trans.transaction_id === entry.context_id
         );
-      }
-    });
+        if (transJournal !== undefined) {
+          const transTax = user.apiJournal.find(
+            (entry) =>
+              entry.ref_type === "transaction_tax" &&
+              Date.parse(entry.date) === Date.parse(trans.date)
+          );
+          let descriptionTrim = transJournal.description.replace("Market: ", "").split(" bought")
+
+          transactionData.push(
+            Object.assign({}, new Transaction(trans, descriptionTrim[0], transJournal, transTax))
+          );
+        }
+      });
+    }
   });
 
   return (

@@ -4,10 +4,11 @@ import {
   FormGroup,
   Grid,
   Paper,
+  Skeleton,
   Switch,
   Typography,
 } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import { ApiJobsContext } from "../../Context/JobContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
@@ -29,9 +30,11 @@ export function AdditionalAccounts({ parentUserIndex }) {
     WalletJournal,
   } = useEveApi();
   const { updateMainUserDoc } = useFirebase();
+  const [skeletonVisible, toggleSkeleton] = useState(false);
   let newUser = null;
 
   const handleAdd = async () => {
+    toggleSkeleton(true);
     localStorage.setItem("AddAccount", true);
     localStorage.setItem("AddAccountComplete", false);
     window.open(
@@ -51,6 +54,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
         window.removeEventListener("storage", importNewAccount);
         localStorage.removeItem("AddAccount");
         localStorage.removeItem("AddAccountComplete");
+        toggleSkeleton(false);
       }
     }, 180000);
     // 3 mins
@@ -133,6 +137,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
         autoHideDuration: 3000,
       }));
       window.removeEventListener("storage", importNewAccount);
+      toggleSkeleton(false);
     }
   };
 
@@ -182,7 +187,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
           </FormGroup>
         </Grid>
         <Grid item xs={6} align="center">
-          <Button variant="contained" size="small" onClick={handleAdd}>
+          <Button variant="contained" size="small" disabled={skeletonVisible} onClick={handleAdd}>
             Add Account
           </Button>
         </Grid>
@@ -192,6 +197,39 @@ export function AdditionalAccounts({ parentUserIndex }) {
               return <AccountEntry key={user.CharacterHash} user={user} />;
             } else return null;
           })}
+          {skeletonVisible && (
+            <Grid
+              container
+              item
+              xs={12}
+              align="center"
+              alignItems="center"
+              sx={{ marginTop: "10px", marginLeft: "10px" }}
+            >
+              <Grid item xs={2} sm={1} align="left">
+                <Skeleton variant="circular" width={40} height={40} />
+              </Grid>
+              <Grid item xs={8} sm={9}>
+                <Skeleton variant="text" />
+              </Grid>
+              <Grid item xs={1}>
+                <Skeleton
+                  variant="circular"
+                  width={30}
+                  height={30}
+                  align="center"
+                />
+              </Grid>
+              <Grid item xs={1}>
+                <Skeleton
+                  variant="circular"
+                  width={30}
+                  height={30}
+                  align="center"
+                />
+              </Grid>
+            </Grid>
+          )}
         </Grid>
       </Grid>
     </Paper>

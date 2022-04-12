@@ -54,9 +54,11 @@ export function LinkedJobs({ setJobModified }) {
   activeJob.build.costs.linkedJobs.forEach((job) => {
     if (job.status === "active") {
       const latestData = apiJobs.find((i) => i.job_id === job.job_id);
-      job.status = latestData.status;
-      job.completed_date = latestData.completed_date || null;
-      job.end_date = latestData.end_date;
+      if (latestData !== undefined) {
+        job.status = latestData.status;
+        job.completed_date = latestData.completed_date || null;
+        job.end_date = latestData.end_date;
+      }
     }
   });
 
@@ -64,22 +66,23 @@ export function LinkedJobs({ setJobModified }) {
     return (
       <Grid container direction="row" sx={{ marginBottom: "10px" }}>
         {activeJob.build.costs.linkedJobs.map((job) => {
+          let blueprintType = "bpc";
+
           const jobOwner = users.find(
             (i) => i.CharacterHash === job.CharacterHash
           );
+          if (jobOwner !== undefined) {
+            const jobBP = jobOwner.apiBlueprints.find(
+              (i) => i.item_id === job.blueprint_id
+            );
 
-          const jobBP = jobOwner.apiBlueprints.find(
-            (i) => i.item_id === job.blueprint_id
-          );
-
-          let blueprintType = "bpc";
-          if (jobBP !== undefined) {
-            blueprintType = "bp";
-            if (jobBP.quantity === -2) {
-              blueprintType = "bpc";
+            if (jobBP !== undefined) {
+              blueprintType = "bp";
+              if (jobBP.quantity === -2) {
+                blueprintType = "bpc";
+              }
             }
           }
-
           const timeRemaining = timeRemainingcalc(job);
           return (
             <Grid
@@ -108,7 +111,11 @@ export function LinkedJobs({ setJobModified }) {
                   }}
                   badgeContent={
                     <Avatar
-                      src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
+                      src={
+                        jobOwner !== undefined
+                          ? `https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`
+                          : ""
+                      }
                       variant="circular"
                       sx={{
                         height: { xs: "18px", sm: "26px", md: "36px" },

@@ -14,6 +14,7 @@ import jwt from "jsonwebtoken";
 import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { EvePricesContext } from "../Context/EveDataContext";
 
 export function useRefreshUser() {
   const {
@@ -26,12 +27,13 @@ export function useRefreshUser() {
     WalletTransactions,
     WalletJournal,
   } = useEveApi();
-  const { determineUserState } = useFirebase();
+  const { determineUserState, getItemPrices } = useFirebase();
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { updateEvePrices } = useContext(EvePricesContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
 
@@ -44,7 +46,7 @@ export function useRefreshUser() {
       ...prevObj,
       eveSSO: true,
     }));
-
+    let userArray = [];
     const refreshedUser = await RefreshTokens(refreshToken, true);
     refreshedUser.fbToken = await firebaseAuth(refreshedUser);
 
@@ -65,12 +67,21 @@ export function useRefreshUser() {
       JSON.stringify(charSettings.jobArraySnapshot)
     );
     refreshedUser.accountRefreshTokens = charSettings.refreshTokens;
+    let priceIDRequest = [];
+    let promiseArray = [];
+    charSettings.jobArraySnapshot.forEach((snap) => {
+      priceIDRequest = priceIDRequest.concat(snap.materialIDs);
+      priceIDRequest.push(snap.itemID);
+    });
+    let itemPrices = getItemPrices(priceIDRequest);
+    promiseArray.push(itemPrices);
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
       charDataComp: true,
       apiData: true,
     }));
+    let apiJobsArray = [];
     const sStatus = await serverStatus();
 
     if (sStatus) {
@@ -94,6 +105,7 @@ export function useRefreshUser() {
 
       refreshedUser.apiSkills = skills;
       refreshedUser.apiJobs = indJobs;
+      apiJobsArray = apiJobsArray.concat(indJobs);
       refreshedUser.apiOrders = orders;
       refreshedUser.apiHistOrders = histOrders;
       refreshedUser.apiBlueprints = blueprints;
@@ -108,18 +120,12 @@ export function useRefreshUser() {
       refreshedUser.apiTransactions = [];
       refreshedUser.apiJournal = [];
     }
-
+    userArray.push(refreshedUser);
     updateLoadingText((prevObj) => ({
       ...prevObj,
       apiDataComp: true,
     }));
 
-    setJobStatus(charSettings.jobStatusArray);
-    updateJobArray(charSettings.jobArraySnapshot);
-    updateApiJobs(refreshedUser.apiJobs);
-
-    let secondaryUsers = [];
-    let secondaryApiJobs = [];
     let failedRefresh = [];
     if (refreshedUser.settings.account.cloudAccounts) {
       for (let token of charSettings.refreshTokens) {
@@ -163,10 +169,8 @@ export function useRefreshUser() {
           newUser.apiJournal = [];
         }
         if (newUser !== "RefreshFail") {
-          secondaryUsers.push(newUser);
-          newUser.apiJobs.forEach((i) => {
-            secondaryApiJobs.push(i);
-          });
+          userArray.push(newUser);
+          apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
         }
       }
     } else {
@@ -213,10 +217,8 @@ export function useRefreshUser() {
             newUser.apiJournal = [];
           }
           if (newUser !== "RefreshFail") {
-            secondaryUsers.push(newUser);
-            newUser.apiJobs.forEach((i) => {
-              secondaryApiJobs.push(i);
-            });
+            userArray.push(newUser);
+            apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
           }
         }
       }
@@ -236,20 +238,22 @@ export function useRefreshUser() {
         localStorage.setItem("AdditionalAccounts", JSON.stringify(newLS));
       }
     }
-    if (secondaryUsers.length > 0) {
-      let newApiJobs = refreshedUser.apiJobs.concat(secondaryApiJobs);
-      newApiJobs.sort((a, b) => {
-        if (a.product_name < b.product_name) {
-          return -1;
-        }
-        if (a.product_name > b.product_name) {
-          return 1;
-        }
-        return 0;
-      });
-      updateApiJobs(newApiJobs);
-    }
-    updateUsers([refreshedUser].concat(secondaryUsers));
+
+    apiJobsArray.sort((a, b) => {
+      if (a.product_name < b.product_name) {
+        return -1;
+      }
+      if (a.product_name > b.product_name) {
+        return 1;
+      }
+      return 0;
+    });
+    let returnPromiseArray = await Promise.all(promiseArray);
+    updateEvePrices(returnPromiseArray[0])
+    setJobStatus(charSettings.jobStatusArray);
+    updateJobArray(charSettings.jobArraySnapshot);
+    updateApiJobs(apiJobsArray);
+    updateUsers(userArray);
     updateIsLoggedIn(true);
     logEvent(analytics, "userSignIn", {
       UID: refreshedUser.accountID,

@@ -154,6 +154,15 @@ export function useJobManagement() {
         }));
         updateDataExchange(false);
       } else {
+        let priceIDRequest = [];
+        let promiseArray = [];
+        priceIDRequest.push(newJob.itemID);
+        newJob.build.materials.forEach((mat) => {
+          priceIDRequest.push(mat.typeID);
+        });
+        let itemPrices = getItemPrices(priceIDRequest);
+        promiseArray.push(itemPrices);
+
         newJob.build.buildChar = parentUser.CharacterHash;
         if (isLoggedIn) {
           if (newJob.jobType === jobTypes.manufacturing) {
@@ -234,7 +243,8 @@ export function useJobManagement() {
           name: calculatedJob.name,
           itemID: calculatedJob.itemID,
         });
-
+        let returnPromiseArray = await Promise.all(promiseArray);
+        updateEvePrices((prev) => prev.concat(returnPromiseArray[0]));
         updateJobArray((prev) => [...prev, calculatedJob]);
         updateDataExchange(false);
         setSnackbarData((prev) => ({
@@ -274,8 +284,8 @@ export function useJobManagement() {
     }));
     let itemIDs = [inputJob.itemID];
     inputJob.build.materials.forEach((mat) => {
-      itemIDs.push(mat.typeID)
-    })
+      itemIDs.push(mat.typeID);
+    });
     let jobPrices = await getItemPrices(itemIDs);
     if (jobPrices.length > 0) {
       updateEvePrices(evePrices.concat(jobPrices));
@@ -407,7 +417,7 @@ export function useJobManagement() {
     for (let item of finalBuildCount) {
       let childJob = await newJobProcess(item.typeID, item.quantity, parentIDs);
       childJobs.push(childJob);
-      setTimeout(1000);
+      setTimeout(500);
     }
 
     for (let inputJob of inputJobs) {
@@ -786,7 +796,7 @@ export function useJobManagement() {
               quantity: material.quantity,
               itemPrice: 0,
               confirmed: false,
-              jobRef:[inputJob.jobID]
+              jobRef: [inputJob.jobID],
             });
           } else {
             let index = finalPriceEntry.findIndex(

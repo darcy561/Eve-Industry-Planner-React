@@ -38,9 +38,12 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
     try {
       const authToken = await admin.auth().createCustomToken(req.body.UID);
       functions.logger.log(`${req.body.UID} Auth Token Generated`);
-      return res.status(200).send({
-        access_token: authToken,
-      });
+      return res
+        .status(200)
+        .set("Cache-Control", "public, max-age=600, s-maxage=3600")
+        .send({
+          access_token: authToken,
+        });
     } catch (error) {
       functions.logger.error("Error generating firebase auth token");
       functions.logger.error(error);
@@ -56,18 +59,58 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
   }
 });
 
-//Read Full Single Item
+//Read Full Single Item Sing
 app.get("/item/:itemID", (req, res) => {
   (async () => {
     try {
-      const document = db.collection("Items").doc(req.params.itemID);
+      functions.logger.log(`Sing Data Used`);
+      let document = db.collection("Items").doc(req.params.itemID);
       let product = await document.get();
-      let response = product.data();
-      functions.logger.log(`${req.params.itemID} Sent`);
+      if (product.exists) {
+        let response = product.data();
+        functions.logger.log(`${req.params.itemID} Build Data Sent`);
+        return res
+          .status(200)
+          .set("Cache-Control", "public, max-age=600, s-maxage=3600")
+          .send(response);
+      } else {
+        functions.logger.error("Error retrieving item data");
+        functions.logger.error(`Trying to retrieve ${req.params.itemID}`);
+        functions.logger.error(error);
+        return res
+          .status(500)
+          .send("Error retrieving item data, please try again.");
+      }
+    } catch (error) {
+      functions.logger.error("Error retrieving item data");
+      functions.logger.error(`Trying to retrieve ${req.params.itemID}`);
+      functions.logger.error(error);
       return res
-        .status(200)
-        .set("Cache-Control", "public, max-age=600, s-maxage=3600")
-        .send(response);
+        .status(500)
+        .send("Error retrieving item data, please try again.");
+    }
+  })();
+});
+
+//Read Full Single Item Sisi
+app.get("/item/sisiData/:itemID", (req, res) => {
+  (async () => {
+    try {
+      functions.logger.log(`Sisi Data Used`);
+      let document = db.collection("sisiItems").doc(req.params.itemID);
+      let product = await document.get();
+      if (product.exists) {
+        let response = product.data();
+        functions.logger.log(`${req.params.itemID} Build Data Sent`);
+        return res.status(200).send(response);
+      } else {
+        functions.logger.error("Error retrieving item data");
+        functions.logger.error(`Trying to retrieve ${req.params.itemID}`);
+        functions.logger.error(error);
+        return res
+          .status(500)
+          .send("Error retrieving item data, please try again.");
+      }
     } catch (error) {
       functions.logger.error("Error retrieving item data");
       functions.logger.error(`Trying to retrieve ${req.params.itemID}`);

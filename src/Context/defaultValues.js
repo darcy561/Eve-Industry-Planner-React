@@ -126,6 +126,11 @@ export let jobArrayDefault = [
         typeID: 3380,
       },
     ],
+    layout: {
+      localMarketDisplay: null,
+      localOrderDisplay: null,
+      esiJobTab: null
+    },
   },
   {
     buildVer: "0.2.0",
@@ -266,6 +271,11 @@ export let jobArrayDefault = [
         level: 3,
       },
     ],
+    layout: {
+      localMarketDisplay: null,
+      localOrderDisplay: null,
+      esiJobTab: null
+    },
   },
   {
     jobType: 2,
@@ -405,6 +415,11 @@ export let jobArrayDefault = [
         typeID: 45746,
       },
     ],
+    layout: {
+      localMarketDisplay: null,
+      localOrderDisplay: null,
+      esiJobTab: null
+    },
   },
   {
     isSnapshot: false,
@@ -672,6 +687,11 @@ export let jobArrayDefault = [
       buildChar: "ABC123",
       time: 300,
     },
+    layout: {
+      localMarketDisplay: null,
+      localOrderDisplay: null,
+      esiJobTab: null
+    },
   },
   {
     isSnapshot: false,
@@ -874,6 +894,11 @@ export let jobArrayDefault = [
         ],
       },
       buildChar: "ABC123",
+    },
+    layout: {
+      localMarketDisplay: null,
+      localOrderDisplay: null,
+      esiJobTab: null
     },
   },
   {
@@ -1079,6 +1104,11 @@ export let jobArrayDefault = [
         typeID: 11448,
       },
     ],
+    layout: {
+      localMarketDisplay: null,
+      localOrderDisplay: null,
+      esiJobTab: null
+    },
   },
 ];
 

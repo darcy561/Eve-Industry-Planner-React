@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { UsersContext } from "../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
 import { appCheck, firestore, functions, performance } from "../firebase";
 import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
@@ -15,16 +15,19 @@ export function useFirebase() {
   const { users } = useContext(UsersContext);
   const { evePrices } = useContext(EvePricesContext);
   const { jobStatus } = useContext(JobStatusContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
 
   const fbAuthState = async () => {
-    const auth = getAuth();
-    console.log(auth);
-    if (auth.currentUser.stsTokenManager.expirationTime <= Date.now()) {
-      let newfbuser = await firebaseAuth(parentUser);
-      console.log(newfbuser);
+    if (isLoggedIn) {
+      const auth = getAuth();
+      console.log(auth);
+      if (auth.currentUser.stsTokenManager.expirationTime <= Date.now()) {
+        let newfbuser = await firebaseAuth(parentUser);
+        console.log(newfbuser);
+      }
     }
   };
 

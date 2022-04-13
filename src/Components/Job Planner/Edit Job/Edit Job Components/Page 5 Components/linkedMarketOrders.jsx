@@ -52,58 +52,59 @@ export function LinkedMarketOrders({
   activeJob.build.sale.marketOrders.forEach((order) => {
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
-    const newOrderData = user.apiOrders.find(
-      (newOrder) => newOrder.order_id === order.order_id
-    );
+    if (user !== undefined) {
+      const newOrderData = user.apiOrders.find(
+        (newOrder) => newOrder.order_id === order.order_id
+      );
 
-    const completedOrderData = user.apiHistOrders.find(
-      (histOrder) => histOrder.order_id === order.order_id
-    );
-    if (newOrderData !== undefined && !order.complete) {
-      if (
-        order.volume_remain !== newOrderData.volume_remain ||
-        Date.parse(order.issued) !== Date.parse(newOrderData.issued)
-      ) {
-        order.duration = newOrderData.duration;
-        order.item_name = newOrderData.item_name || null;
-        order.region_name = newOrderData.region_name || null;
-        order.location_name = newOrderData.location_name || null;
-        order.item_price = newOrderData.price;
-        order.range = newOrderData.range;
-        order.volume_remain = newOrderData.volume_remain;
-        if (Date.parse(order.issued) !== Date.parse(newOrderData.issued)) {
-          order.timeStamps.push(newOrderData.issued);
+      const completedOrderData = user.apiHistOrders.find(
+        (histOrder) => histOrder.order_id === order.order_id
+      );
+      if (newOrderData !== undefined && !order.complete) {
+        if (
+          order.volume_remain !== newOrderData.volume_remain ||
+          Date.parse(order.issued) !== Date.parse(newOrderData.issued)
+        ) {
+          order.duration = newOrderData.duration;
+          order.item_name = newOrderData.item_name || null;
+          order.region_name = newOrderData.region_name || null;
+          order.location_name = newOrderData.location_name || null;
+          order.item_price = newOrderData.price;
+          order.range = newOrderData.range;
+          order.volume_remain = newOrderData.volume_remain;
+          if (Date.parse(order.issued) !== Date.parse(newOrderData.issued)) {
+            order.timeStamps.push(newOrderData.issued);
 
-          user.apiJournal.forEach((entry) => {
-            if (
-              entry.ref_type === "brokers_fee" &&
-              Date.parse(newOrderData.issued) === Date.parse(entry.date)
-            ) {
-              entry.amount = Math.abs(entry.amount);
-              entry.order_id = order.order_id;
-              delete entry.balance;
-              activeJob.build.sale.brokersFee.push(entry);
-            }
-          });
+            user.apiJournal.forEach((entry) => {
+              if (
+                entry.ref_type === "brokers_fee" &&
+                Date.parse(newOrderData.issued) === Date.parse(entry.date)
+              ) {
+                entry.amount = Math.abs(entry.amount);
+                entry.order_id = order.order_id;
+                delete entry.balance;
+                activeJob.build.sale.brokersFee.push(entry);
+              }
+            });
+          }
         }
       }
+      if (
+        newOrderData === undefined &&
+        !order.complete &&
+        completedOrderData !== undefined
+      ) {
+        order.duration = completedOrderData.duration;
+        order.item_price = completedOrderData.price;
+        order.item_name = completedOrderData.item_name || null;
+        order.region_name = completedOrderData.region_name || null;
+        order.location_name = completedOrderData.location_name || null;
+        order.range = completedOrderData.range;
+        order.volume_remain = completedOrderData.volume_remain;
+        order.issued = completedOrderData.issued;
+        order.complete = true;
+      }
     }
-    if (
-      newOrderData === undefined &&
-      !order.complete &&
-      completedOrderData !== undefined
-    ) {
-      order.duration = completedOrderData.duration;
-      order.item_price = completedOrderData.price;
-      order.item_name = completedOrderData.item_name || null;
-      order.region_name = completedOrderData.region_name || null;
-      order.location_name = completedOrderData.location_name || null;
-      order.range = completedOrderData.range;
-      order.volume_remain = completedOrderData.volume_remain;
-      order.issued = completedOrderData.issued;
-      order.complete = true;
-    }
-
     linkedMarketOrders.push(order);
   });
 
@@ -195,7 +196,11 @@ export function LinkedMarketOrders({
                 <Grid container item sx={{ marginBottom: "10px" }}>
                   <Grid item xs={4}>
                     <Avatar
-                      src={`https://images.evetech.net/characters/${charData.CharacterID}/portrait`}
+                      src={
+                        charData !== undefined
+                          ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
+                          : ""
+                      }
                       variant="circular"
                       sx={{
                         height: "32px",
@@ -205,7 +210,7 @@ export function LinkedMarketOrders({
                   </Grid>
                 </Grid>
                 <Grid container item>
-                  <Grid item xs={12}sm={5}>
+                  <Grid item xs={12} sm={5}>
                     <Typography variant="body1">
                       {order.item_price.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
@@ -388,7 +393,22 @@ export function LinkedMarketOrders({
                     </Tooltip>
                   </Grid>
                   <>
-                    {order.volume_remain === 0 ||
+                    {charData === undefined && (
+                      <Box
+                        sx={{
+                          backgroundColor: "error.main",
+                          color: "white",
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                          padding: "8px",
+                        }}
+                      >
+                        <Typography variant="body1">
+                          Unable To Update Order Information
+                        </Typography>
+                      </Box>
+                    )}
+                    {charData !== undefined && order.volume_remain === 0 ||
                       (order.complete && (
                         <Box
                           sx={{
@@ -404,7 +424,7 @@ export function LinkedMarketOrders({
                           </Typography>
                         </Box>
                       ))}
-                    {order.volume_remain === 0 && order.complete && (
+                    { charData !== undefined && order.volume_remain === 0 && order.complete && (
                       <Box
                         sx={{
                           backgroundColor: "manufacturing.main",

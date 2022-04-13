@@ -22,7 +22,7 @@ import { trace } from "@firebase/performance";
 import { performance } from "../firebase";
 import { jobTypes } from "../Components/Job Planner";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EvePricesContext } from "../Context/EveDataContext";
+import { EvePricesContext, SisiDataFilesContext } from "../Context/EveDataContext";
 
 export function useJobManagement() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -37,6 +37,7 @@ export function useJobManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
+  const { sisiDataFiles } = useContext(SisiDataFilesContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
@@ -133,7 +134,7 @@ export function useJobManagement() {
       }));
     } else {
       updateDataExchange(true);
-      const newJob = await createJob(itemID);
+      const newJob = await createJob(itemID, sisiDataFiles);
 
       if (newJob === "TypeError") {
         setSnackbarData((prev) => ({

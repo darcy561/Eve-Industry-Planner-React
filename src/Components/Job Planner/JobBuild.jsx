@@ -3,11 +3,15 @@ import { appCheck } from "../../firebase";
 import { getToken } from "firebase/app-check";
 
 class Job {
-  constructor(itemJson) {
+  constructor(itemJson, sisiData) {
     this.buildVer = process.env.REACT_APP_Version;
     this.metaLevel = itemJson.metaGroup || null;
     this.jobType = itemJson.jobType;
-    this.name = itemJson.name;
+    if (sisiData) {
+      this.name = `${itemJson.name} (Singularity)`  
+    } else {
+      this.name = itemJson.name;
+    }
     this.jobID = Date.now();
     this.jobStatus = 0;
     this.volume = itemJson.volume;
@@ -50,6 +54,7 @@ class Job {
       },
       materials: null,
       buildChar: null,
+      sisiData: sisiData,
     };
     this.rawData = {};
     this.layout = {
@@ -94,11 +99,13 @@ class Job {
   }
 }
 
-export async function createJob(itemID) {
+export async function createJob(itemID, sisiData) {
   try {
     const appCheckToken = await getToken(appCheck, true);
     const response = await fetch(
-      `${process.env.REACT_APP_APIURL}/item/${itemID}`,
+      sisiData
+        ? `${process.env.REACT_APP_APIURL}/item/sisiData/${itemID}`
+        : `${process.env.REACT_APP_APIURL}/item/${itemID}`,
       {
         headers: {
           "X-Firebase-AppCheck": appCheckToken.token,
@@ -106,7 +113,7 @@ export async function createJob(itemID) {
       }
     );
     const itemJson = await response.json();
-    const outputObject = new Job(itemJson);
+    const outputObject = new Job(itemJson, sisiData);
     try {
       outputObject.build.materials.forEach((material) => {
         material.purchasing = [];

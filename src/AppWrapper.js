@@ -1,6 +1,11 @@
 import { JobStatus, JobArray, ActiveJob, ApiJobs } from "./Context/JobContext";
 import { IsLoggedIn, Users } from "./Context/AuthContext";
-import { EveESIStatus, EveIDs, EvePrices } from "./Context/EveDataContext";
+import {
+  EveESIStatus,
+  EveIDs,
+  EvePrices,
+  SisiDataFiles,
+} from "./Context/EveDataContext";
 import {
   DataExchange,
   DialogData,
@@ -36,11 +41,13 @@ export function AppWrapper() {
                                   <MultiSelectJobPlanner>
                                     <ShoppingList>
                                       <PriceEntryList>
-                                        <LocalizationProvider
-                                          dateAdapter={AdapterDateFns}
-                                        >
-                                          <App />
-                                        </LocalizationProvider>
+                                        <SisiDataFiles>
+                                          <LocalizationProvider
+                                            dateAdapter={AdapterDateFns}
+                                          >
+                                            <App />
+                                          </LocalizationProvider>
+                                        </SisiDataFiles>
                                       </PriceEntryList>
                                     </ShoppingList>
                                   </MultiSelectJobPlanner>

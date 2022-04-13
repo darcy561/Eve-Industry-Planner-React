@@ -3,7 +3,9 @@ import {
   Autocomplete,
   Box,
   Button,
+  Checkbox,
   CircularProgress,
+  FormControlLabel,
   Grid,
   Paper,
   TextField,
@@ -19,6 +21,7 @@ import {
   ShoppingListContext,
 } from "../../../Context/LayoutContext";
 import { JobArrayContext } from "../../../Context/JobContext";
+import { SisiDataFilesContext } from "../../../Context/EveDataContext";
 
 import { makeStyles } from "@mui/styles";
 
@@ -29,6 +32,12 @@ const useStyles = makeStyles((theme) => ({
         theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
     },
   },
+  Checkbox: {
+    color:
+      theme.palette.type === "dark"
+        ? theme.palette.primary.main
+        : theme.palette.secondary.main,
+  },
 }));
 
 export function SearchBar() {
@@ -37,6 +46,7 @@ export function SearchBar() {
   const { updateShoppingListData } = useContext(ShoppingListContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
   const { updateDialogData } = useContext(DialogDataContext);
+  const {sisiDataFiles, updateSisiDataFiles}= useContext(SisiDataFilesContext)
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
@@ -63,6 +73,7 @@ export function SearchBar() {
       square={true}
     >
       <Grid container direction="row" alignItems="center">
+        <Grid container item xs={12}>
         <Grid item xs={11} sm={5} md={4} xl={2}>
           <Autocomplete
             disableClearable={true}
@@ -97,7 +108,23 @@ export function SearchBar() {
 
         <Grid item xs={1} sx={{ paddingLeft: { xs: "5px", md: "20px" } }}>
           {DataExchange && <CircularProgress size="24px" edge="false" />}
-        </Grid>
+          </Grid>
+          <Grid container item xs={12} sm={6} xl={3} alignItems="center">
+            <FormControlLabel
+              label="Use Recipes From Upcoming Changes On Singularity"
+              control={
+                <Checkbox
+                  className={classes.Checkbox}
+                  size="small"
+                  checked={sisiDataFiles}
+                  onChange={() => {
+                    updateSisiDataFiles((prev) => !prev);
+                  }}
+                />
+              }
+            ></FormControlLabel>
+          </Grid>
+          </Grid>
 
         <Grid
           container

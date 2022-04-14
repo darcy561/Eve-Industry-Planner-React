@@ -11,88 +11,103 @@ export function LoadingPage() {
       justifyContent="center"
       alignItems="center"
       direction="column"
-      sx={{ minHeight: "100vh", maxWidth:"100vw" }}
-      spacing={8}
+      sx={{ minHeight: "100vh", minWidth: "100vw" }}
     >
-      <Grid item align="center">
+      <Grid item xs={12} align="center">
         <CircularProgress color="primary" />
       </Grid>
-      <Grid>
-
+      <Grid container item xs={12}>
         {loadingText.eveSSO && (
-          <Grid container direction="row">
-            <Grid item>
-              <Typography variant="body2">Logging into Eve SSO</Typography>
+          <Grid container item direction="row">
+            <Grid item xs={3} />
+            <Grid item xs={5}>
+              <Typography align="center" variant="body2">
+                Logging into Eve SSO
+              </Typography>
             </Grid>
-            {loadingText.eveSSOComp && (
-              <Grid item>
+
+            <Grid item align="center" xs={1}>
+              {loadingText.eveSSOComp && (
                 <Icon fontSize="small" sx={{ color: "success.main" }}>
                   <MdDone />
                 </Icon>
-              </Grid>
-            )}
+              )}
+            </Grid>
+            <Grid item xs={3} />
           </Grid>
         )}
 
         {loadingText.charData && (
-          <Grid container direction="row">
-            <Grid item>
+          <Grid container item align="center" direction="row">
+            <Grid item xs={3} />
+            <Grid item xs={5}>
               <Typography variant="body2">Building character data</Typography>
             </Grid>
-            {loadingText.charDataComp && (
-              <Grid item>
+
+            <Grid item align="center" xs={1}>
+              {loadingText.charDataComp && (
                 <Icon fontSize="small" sx={{ color: "success.main" }}>
                   <MdDone />
                 </Icon>
-              </Grid>
-            )}
+              )}
+            </Grid>
+
+            <Grid item xs={3} />
           </Grid>
         )}
 
         {loadingText.apiData && (
-          <Grid container direction="row">
-            <Grid item>
+          <Grid container align="center" direction="row">
+            <Grid item xs={3} />
+            <Grid item xs={5}>
               <Typography variant="body2">Downloading API data</Typography>
             </Grid>
-            {loadingText.charDataComp && (
-              <Grid item>
+
+            <Grid item xs={1} align="center">
+              {loadingText.charDataComp && (
                 <Icon fontSize="small" sx={{ color: "success.main" }}>
                   <MdDone />
                 </Icon>
-              </Grid>
-            )}
+              )}
+            </Grid>
+            <Grid item xs={3} />
           </Grid>
         )}
 
         {loadingText.jobData && (
-          <Grid container direction="row">
-            <Grid item>
+          <Grid container align="center" direction="row">
+            <Grid item xs={3} />
+            <Grid item xs={5}>
               <Typography variant="body2">Downloading Job Data</Typography>
             </Grid>
-            {loadingText.jobDataComp && (
-              <Grid item>
+
+            <Grid item xs={1} align="center">
+              {loadingText.jobDataComp && (
                 <Icon fontSize="small" style={{ color: "green" }}>
                   <MdDone />
                 </Icon>
-              </Grid>
-            )}
+              )}
+            </Grid>
+            <Grid item xs={3} />
           </Grid>
         )}
-                {loadingText.priceData && (
-          <Grid container direction="row">
-            <Grid item>
+        {loadingText.priceData && (
+          <Grid container align="center" direction="row">
+            <Grid item xs={3} />
+            <Grid item xs={5}>
               <Typography variant="body2">Downloading Price Data</Typography>
             </Grid>
-            {loadingText.priceDataComp && (
-              <Grid item>
+
+            <Grid item xs={1}>
+              {loadingText.priceDataComp && (
                 <Icon fontSize="small" style={{ color: "green" }}>
                   <MdDone />
                 </Icon>
-              </Grid>
-            )}
+              )}
+            </Grid>
+            <Grid item xs={3} />
           </Grid>
         )}
-
       </Grid>
     </Grid>
   );

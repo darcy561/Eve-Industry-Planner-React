@@ -60,8 +60,8 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
 });
 
 //Read Full Single Item Sing
-app.get("/item/:itemID", (req, res) => {
-  (async () => {
+app.get("/item/:itemID", async (req, res) => {
+  if (req.params.itemID !== undefined) {
     try {
       functions.logger.log(`Sing Data Used`);
       let document = db.collection("Items").doc(req.params.itemID);
@@ -89,12 +89,14 @@ app.get("/item/:itemID", (req, res) => {
         .status(500)
         .send("Error retrieving item data, please try again.");
     }
-  })();
+  } else {
+    return res.status(400).send("Item Data Missing From Request");
+  }
 });
 
 //Read Full Single Item Sisi
-app.get("/item/sisiData/:itemID", (req, res) => {
-  (async () => {
+app.get("/item/sisiData/:itemID", async (req, res) => {
+  if (req.params.itemID !== undefined) {
     try {
       functions.logger.log(`Sisi Data Used`);
       let document = db.collection("sisiItems").doc(req.params.itemID);
@@ -119,11 +121,13 @@ app.get("/item/sisiData/:itemID", (req, res) => {
         .status(500)
         .send("Error retrieving item data, please try again.");
     }
-  })();
+  } else {
+    return res.status(400).send("Item Data Missing From Request");
+  }
 });
 
 app.get("/costs/:itemID", async (req, res) => {
-  if (req.params.itemID != null) {
+  if (req.params.itemID !== undefined) {
     try {
       let returnData = null;
       const itemDoc = await db
@@ -135,7 +139,7 @@ app.get("/costs/:itemID", async (req, res) => {
       } else {
         returnData = await ESIMarketQuery(req.params.itemID);
       }
-
+      functions.logger.log(`${req.params.itemID} Price Data Sent`);
       return res
         .status(200)
         .setHeader("Content-Type", "application/json")
@@ -148,27 +152,42 @@ app.get("/costs/:itemID", async (req, res) => {
         .send("Error retrieving item data, please try again.");
     }
   } else {
-    return res.status(500).send("Item Data Missing From Request");
+    return res.status(400).send("Item Data Missing From Request");
   }
 });
 
-app.post("/costs/bulk", async (req, res) => {
-  if (req.body.idArray != null) {
+app.post("/costs/bulkPrices", async (req, res) => {
+  if (req.body.idArray !== undefined) {
     try {
       let returnData = [];
-      for (let id of req.body.idArray) {
-        const itemDoc = await db.collection("Pricing").doc(id.toString()).get();
-        if (itemDoc.exists) {
-          returnData.push(itemDoc.data());
-        } else {
+      let missingItems = [];
+      for (let x = 0; x < req.body.idArray.length; x += 10) {
+        let chunk = req.body.idArray.slice(x, x + 10);
+        let chunkData = await db
+          .collection("Pricing")
+          .where("typeID", "in", chunk)
+          .get();
+        chunkData.forEach((doc) => {
+          let docData = doc.data();
+          if (chunk.includes(docData.typeID)) {
+            let index = chunk.indexOf(docData.typeID);
+            chunk.splice(index, 1);
+            returnData.push(docData);
+          }
+        });
+        missingItems = missingItems.concat(chunk);
+      }
+
+      if (missingItems.length > 0) {
+        for (let id of missingItems) {
           let data = await ESIMarketQuery(id.toString());
           returnData.push(data);
         }
       }
+      functions.logger.log(`${req.body.idArray} Prices Returned`);
       return res
         .status(200)
         .setHeader("Content-Type", "application/json")
-        .set("Cache-Control", "public, max-age=3600, s-maxage=7200")
         .send(returnData);
     } catch (err) {
       functions.logger.error(err);

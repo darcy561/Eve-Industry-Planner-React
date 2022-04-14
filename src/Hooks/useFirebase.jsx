@@ -287,7 +287,7 @@ export function useFirebase() {
     const getItemPrice = async (item) => {
       try {
         const appCheckToken = await getToken(appCheck, true);
-        const itemPricePromise = fetch(
+        const itemPricePromise = await fetch(
           `${process.env.REACT_APP_APIURL}/costs/${item}`,
           {
             headers: {
@@ -295,7 +295,10 @@ export function useFirebase() {
             },
           }
         );
-        return (await itemPricePromise).json();
+        const itemPriceJson = await itemPricePromise.json();
+        if (itemPricePromise.status === 200) {
+          return itemPriceJson;
+        } else return {};
       } catch (err) {
         console.log(err);
       }
@@ -304,20 +307,23 @@ export function useFirebase() {
     const getItemPriceBulk = async (array) => {
       try {
         const appCheckToken = await getToken(appCheck, true);
-        const itemsPricePromise = fetch(
-          `${process.env.REACT_APP_APIURL}/costs/bulk`,
+        const itemsPricePromise = await fetch(
+          `${process.env.REACT_APP_APIURL}/costs/bulkPrices`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               "X-Firebase-AppCheck": appCheckToken.token,
             },
-            body:JSON.stringify({
+            body: JSON.stringify({
               idArray: array,
             }),
           }
         );
-        return (await itemsPricePromise).json();
+        const itemsPriceJson = await itemsPricePromise.json();
+        if (itemsPricePromise.status === 200) {
+          return itemsPriceJson;
+        } else return [];
       } catch (err) {
         console.log(err);
       }
@@ -330,7 +336,7 @@ export function useFirebase() {
       }
     }
 
-    if (requestArray.length > 0 && requestArray.length <= 5) {
+    if (requestArray.length > 0 && requestArray.length <= 6) {
       for (let item of requestArray) {
         let promise = getItemPrice(item);
         promiseArray.push(promise);
@@ -344,10 +350,9 @@ export function useFirebase() {
       t.stop();
       return returnData;
     } else if (requestArray.length > 6) {
-
       let promise = await getItemPriceBulk(requestArray);
 
-      return promise
+      return promise;
     } else {
       t.stop();
       return [];

@@ -22,7 +22,10 @@ import { trace } from "@firebase/performance";
 import { performance } from "../firebase";
 import { jobTypes } from "../Components/Job Planner";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EvePricesContext, SisiDataFilesContext } from "../Context/EveDataContext";
+import {
+  EvePricesContext,
+  SisiDataFilesContext,
+} from "../Context/EveDataContext";
 
 export function useJobManagement() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -150,6 +153,15 @@ export function useJobManagement() {
           ...prev,
           open: true,
           message: "Error building job object, please try again",
+          severity: "error",
+          autoHideDuration: 2000,
+        }));
+        updateDataExchange(false);
+      } else if (newJob === "Item Data Missing From Request") {
+        setSnackbarData((prev) => ({
+          ...prev,
+          open: true,
+          message: "Item Data Missing From Request",
           severity: "error",
           autoHideDuration: 2000,
         }));

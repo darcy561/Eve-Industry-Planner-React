@@ -42,7 +42,7 @@ export function PriceEntryDialog() {
     PriceEntryListContext
   );
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const [refreshToggle, changeRefreshTogggle] = useState(false);
+  const [importAction, changeImportAction] = useState(false);
   const [displayOrder, changeDisplayOrder] = useState(
     priceEntryListData.displayOrder === undefined ||
       priceEntryListData.displayOrder === null
@@ -68,6 +68,7 @@ export function PriceEntryDialog() {
 
   const handleAdd = async (event) => {
     event.preventDefault();
+    changeImportAction(true);
     let newJobArray = [...jobArray];
     let uploadIDs = [];
     let totalConfirmed = 0;
@@ -116,6 +117,7 @@ export function PriceEntryDialog() {
       updateMainUserDoc();
     }
     updateJobArray(newJobArray);
+    changeImportAction(false);
     updatePriceEntryListData((prev) => ({
       ...prev,
       open: false,
@@ -142,17 +144,17 @@ export function PriceEntryDialog() {
       <DialogTitle id="PriceEntryListDialog" align="center" color="primary">
         Price Entry
       </DialogTitle>
-      {!parentUser.settings.layout.hideTutorials &&
+      {!parentUser.settings.layout.hideTutorials && (
         <Grid item xs={12} align="center">
           <Typography variant="caption">
             Use the dropdown options to select imported costs from your chosen
             market hub or enter your own values for the items.{<br />}
-            Once you are happy with the item cost use the checkbox to confirm the
-            cost. Only items with confirmed costs will be imported, these will
-            satisfy all remaining materials needed.
+            Once you are happy with the item cost use the checkbox to confirm
+            the cost. Only items with confirmed costs will be imported, these
+            will satisfy all remaining materials needed.
           </Typography>
         </Grid>
-      }
+      )}
 
       <DialogActions>
         <Grid container align="center">
@@ -226,59 +228,38 @@ export function PriceEntryDialog() {
             })}
           </Grid>
         </DialogContent>
-        <Grid container sx={{ marginTop: "10px" }}>
-          <Grid item xs={6} align="center">
-            {refreshToggle ? (
-              <CircularProgress />
-            ) : (
-              <Button
-                onClick={async () => {
-                  let idArray = [];
-                  priceEntryListData.list.forEach((i) => {
-                    idArray.push(i.typeID);
-                  });
-                  if (idArray.length > 0) {
-                    changeRefreshTogggle(true);
-                    let jobPrices = await getItemPrices(idArray);
-                    if (jobPrices.length > 0) {
-                      updateEvePrices(evePrices.concat(jobPrices));
-                    }
-                    changeRefreshTogggle(false);
-                  }
-                }}
-              >
-                Import Missing Price Data
-              </Button>
-            )}
-          </Grid>
-          <Grid item xs={6} align="center">
-            <Button
-              onClick={() => {
-                let newList = [...priceEntryListData.list];
-                newList.forEach((item) => {
-                  if (item.itemPrice > 0) {
-                    item.confirmed = true;
-                  }
-                });
-                updatePriceEntryListData((prev) => ({
-                  ...prev,
-                  list: newList,
-                }));
-              }}
-            >
-              Confirm All
-            </Button>
-          </Grid>
+
+        <Grid item xs={12} align="center" sx={{ marginTop: "10px" }}>
+          <Button
+            onClick={() => {
+              let newList = [...priceEntryListData.list];
+              newList.forEach((item) => {
+                if (item.itemPrice > 0) {
+                  item.confirmed = true;
+                }
+              });
+              updatePriceEntryListData((prev) => ({
+                ...prev,
+                list: newList,
+              }));
+            }}
+          >
+            Confirm All
+          </Button>
         </Grid>
 
         <DialogActions sx={{ padding: "20px" }}>
-          <Button
-            variant="contained"
-            sx={{ marginRight: "20px" }}
-            type="submit"
-          >
-            Add Prices
-          </Button>
+          {!importAction ? (
+            <Button
+              variant="contained"
+              sx={{ marginRight: "20px" }}
+              type="submit"
+            >
+              Add Prices
+            </Button>
+          ) : (
+            <CircularProgress size="small" color="primary" />
+          )}
 
           <Button onClick={handleClose}>Close</Button>
         </DialogActions>

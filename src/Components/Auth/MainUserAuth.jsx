@@ -35,8 +35,8 @@ export function login() {
 export function AuthMainUser() {
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
-  const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { users, updateUsers } = useContext(UsersContext);
+  const { updateApiJobs } = useContext(ApiJobsContext);
+  const { updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const {
@@ -153,6 +153,9 @@ export function AuthMainUser() {
           if (newUser === "RefreshFail") {
             failedRefresh.push(token.CharacterHash);
           }
+          if (token.rToken !== newUser.rToken) {
+            token.rToken = newUser.rToken;
+          }
           if (sStatus && newUser !== "RefreshFail") {
             const [
               skills,
@@ -196,13 +199,20 @@ export function AuthMainUser() {
           }
         }
       } else {
-        let rTokens = JSON.parse(localStorage.getItem("AdditionalAccounts"));
+        let rTokens = JSON.parse(localStorage.getItem(`${userObject.CharacterHash} AdditionalAccounts`));
         if (rTokens !== null) {
           for (let token of rTokens) {
             let newUser = await RefreshTokens(token.rToken, false);
             console.log(newUser);
             if (newUser === "RefreshFail") {
               failedRefresh.push(token.CharacterHash);
+            }
+            if (token.rToken !== newUser.rToken) {
+              token.rToken = newUser.rToken;
+              localStorage.setItem(
+                `${userObject.CharacterHash} AdditionalAccounts`,
+                JSON.stringify(rTokens)
+              );
             }
             if (sStatus && newUser !== "RefreshFail") {
               const [
@@ -255,11 +265,11 @@ export function AuthMainUser() {
               (i) => !failedRefresh.includes(i.CharacterHash)
             );
         } else {
-          let oldLS = JSON.parse(localStorage.getItem("AdditionalAccounts"));
+          let oldLS = JSON.parse(localStorage.getItem(`${userObject.CharacterHash} AdditionalAccounts`));
           let newLS = oldLS.filter(
             (i) => !failedRefresh.includes(i.CharacterHash)
           );
-          localStorage.setItem("AdditionalAccounts", JSON.stringify(newLS));
+          localStorage.setItem(`${userObject.CharacterHash} AdditionalAccounts`, JSON.stringify(newLS));
         }
       }
 

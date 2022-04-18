@@ -23,16 +23,14 @@ export function useFirebase() {
   const fbAuthState = async () => {
     if (isLoggedIn) {
       const auth = getAuth();
-      console.log(auth);
       if (auth.currentUser.stsTokenManager.expirationTime <= Date.now()) {
         let newfbuser = await firebaseAuth(parentUser);
-        console.log(newfbuser);
       }
     }
   };
 
   const determineUserState = async (user) => {
-    if (user.fbToken._tokenResponse.isNewUser) {
+    const buildNewUserProcess = async () => {
       const t = trace(performance, "NewUserCloudBuild");
       t.start();
       try {
@@ -55,27 +53,38 @@ export function useFirebase() {
       } catch (err) {
         console.log(err);
       }
+    };
+
+    if (user.fbToken._tokenResponse.isNewUser) {
+      let newUser = await buildNewUserProcess();
+      return newUser;
     }
     if (!user.fbToken._tokenResponse.isNewUser) {
       const CharSnap = await getDoc(doc(firestore, "Users", user.accountID));
-      const charData = CharSnap.data();
-      const newJobArray = [];
-      for (let i in charData.jobArraySnapshot) {
-        newJobArray.push(charData.jobArraySnapshot[i]);
+
+      if (CharSnap.data() !== undefined) {
+        const charData = CharSnap.data();
+        const newJobArray = [];
+        for (let i in charData.jobArraySnapshot) {
+          newJobArray.push(charData.jobArraySnapshot[i]);
+        }
+
+        newJobArray.sort((a, b) => {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name < b.name) {
+            return 1;
+          }
+          return 0;
+        });
+        charData.jobArraySnapshot = newJobArray;
+
+        return charData;
+      } else {
+        let newUser = await buildNewUserProcess();
+        return newUser;
       }
-
-      newJobArray.sort((a, b) => {
-        if (a.name < b.name) {
-          return -1;
-        }
-        if (a.name < b.name) {
-          return 1;
-        }
-        return 0;
-      });
-      charData.jobArraySnapshot = newJobArray;
-
-      return charData;
     }
   };
 

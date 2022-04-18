@@ -105,13 +105,14 @@ export function NewTransactions() {
             entry.ref_type === "transaction_tax" &&
             Date.parse(entry.date) === Date.parse(trans.date)
         );
+        if (transJournal !== undefined && transTax !== undefined) {
+          trans.description = transJournal.description;
+          trans.amount = transJournal.unit_price;
+          trans.tax = Math.abs(transTax.amount);
+          trans.item_name = order.item_name;
 
-        trans.description = transJournal.description;
-        trans.amount = transJournal.unit_price;
-        trans.tax = Math.abs(transTax.amount);
-        trans.item_name = order.item_name;
-
-        transactionData.push(trans);
+          transactionData.push(trans);
+        }
       });
     });
   });

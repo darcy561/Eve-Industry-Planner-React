@@ -7,7 +7,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
 export default function Step2JobCard({ job }) {
   const classes = useStyles();
   let totalComplete = 0;
@@ -20,30 +19,56 @@ export default function Step2JobCard({ job }) {
   }
 
   return (
-    <Grid container item xs={10} sm={9} sx={{ paddingLeft: {xs:"0px", sm:"5px"}}}>
+    <Grid
+      container
+      item
+      xs={10}
+      sm={9}
+      sx={{ paddingLeft: { xs: "0px", sm: "5px" } }}
+    >
       <Grid container item xs={12}>
-        <Grid item xs={10}>
-          <Typography className={classes.TextFields}>Number of Materials</Typography>
-        </Grid>
-        <Grid item xs={2}>
-          <Typography className={classes.TextFields} align="right">
-            {job.isSnapshot
-              ? job.totalMaterials.toLocaleString()
-              : job.build.materials.length.toLocaleString()}
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid container item xs={12}>
-        <Grid item xs={10}>
-          <Typography className={classes.TextFields}>Completed Purchases</Typography>
-        </Grid>
-        <Grid item xs={2}>
-          <Typography className={classes.TextFields} align="right">
-            {job.isSnapshot
-              ? job.totalComplete.toLocaleString()
-              : totalComplete}
-          </Typography>
-        </Grid>
+        {job.isSnapshot ? (
+          job.totalComplete - job.totalMaterials !== 0 ? (
+            <>
+              <Grid item xs={10}>
+                <Typography className={classes.TextFields}>
+                  Awaiting Materials
+                </Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography className={classes.TextFields} align="right">
+                  {job.totalMaterials - job.totalComplete}/{job.totalMaterials}
+                </Typography>
+              </Grid>
+            </>
+          ) : (
+            <Grid item xs={12}>
+              <Typography className={classes.TextFields}>
+                Ready To Build
+              </Typography>
+            </Grid>
+          )
+        ) : totalComplete - job.build.materials.length !== 0 ? (
+          <>
+            <Grid item xs={10}>
+              <Typography className={classes.TextFields}>
+                Awaiting Materials
+              </Typography>
+            </Grid>
+            <Grid item xs={2}>
+              <Typography className={classes.TextFields} align="right">
+                {job.build.materials.length - totalComplete}/
+                {job.build.materials.length}
+              </Typography>
+            </Grid>
+          </>
+        ) : (
+          <Grid item xs={12}>
+            <Typography className={classes.TextFields}>
+              Ready To Build
+            </Typography>
+          </Grid>
+        )}
       </Grid>
     </Grid>
   );

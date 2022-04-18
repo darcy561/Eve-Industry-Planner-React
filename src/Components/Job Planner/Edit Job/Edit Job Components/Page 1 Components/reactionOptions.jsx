@@ -1,5 +1,4 @@
 import {
-  Autocomplete,
   Grid,
   FormControl,
   FormHelperText,
@@ -27,11 +26,6 @@ const useStyles = makeStyles((theme) => ({
       {
         display: "none",
       },
-  },
-  Autocomplete: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
   },
 }));
 
@@ -225,9 +219,10 @@ export function ReactionOptions({ setJobModified }) {
                   value=""
                   onChange={(e, v) => {
                     const structure =
-                      parentUser.settings.structures.manufacturing.find(
+                      parentUser.settings.structures.reaction.find(
                         (i) => i.id === e.target.value
                       );
+
                     const oldJob = JSON.parse(JSON.stringify(activeJob));
                     oldJob.rigType = structure.rigType;
                     oldJob.systemType = structure.systemType;

@@ -46,7 +46,8 @@ export function SearchBar() {
   const { updateShoppingListData } = useContext(ShoppingListContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
   const { updateDialogData } = useContext(DialogDataContext);
-  const {sisiDataFiles, updateSisiDataFiles}= useContext(SisiDataFilesContext)
+  const { sisiDataFiles, updateSisiDataFiles } =
+    useContext(SisiDataFilesContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
@@ -74,40 +75,40 @@ export function SearchBar() {
     >
       <Grid container direction="row" alignItems="center">
         <Grid container item xs={12}>
-        <Grid item xs={11} sm={5} md={4} xl={2}>
-          <Autocomplete
-            disableClearable={true}
-            fullWidth
-            freeSolo
-            id="Recipe Search"
-            clearOnBlur={true}
-            blurOnSelect={true}
-            variant="standard"
-            size="small"
-            options={itemList}
-            getOptionLabel={(option) => option.name}
-            onChange={(event, value) => {
-              if (value != null) {
-                newJobProcess(value.itemID, null);
-              }
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                size="small"
-                label="Item Search"
-                className={classes.Autocomplete}
-                margin="none"
-                variant="standard"
-                style={{ background: "white", borderRadius: "5px" }}
-                InputProps={{ ...params.InputProps, type: "search" }}
-              />
-            )}
-          />
-        </Grid>
+          <Grid item xs={11} sm={5} md={4} xl={2}>
+            <Autocomplete
+              disableClearable={true}
+              fullWidth
+              freeSolo
+              id="Recipe Search"
+              clearOnBlur={true}
+              blurOnSelect={true}
+              variant="standard"
+              size="small"
+              options={itemList}
+              getOptionLabel={(option) => option.name}
+              onChange={(event, value) => {
+                if (value != null) {
+                  newJobProcess(value.itemID, null);
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  size="small"
+                  label="Item Search"
+                  className={classes.Autocomplete}
+                  margin="none"
+                  variant="standard"
+                  style={{ background: "white", borderRadius: "5px" }}
+                  InputProps={{ ...params.InputProps, type: "search" }}
+                />
+              )}
+            />
+          </Grid>
 
-        <Grid item xs={1} sx={{ paddingLeft: { xs: "5px", md: "20px" } }}>
-          {DataExchange && <CircularProgress size="24px" edge="false" />}
+          <Grid item xs={1} sx={{ paddingLeft: { xs: "5px", md: "20px" } }}>
+            {DataExchange && <CircularProgress size="24px" edge="false" />}
           </Grid>
           <Grid container item xs={12} sm={6} xl={3} alignItems="center">
             <FormControlLabel
@@ -124,7 +125,7 @@ export function SearchBar() {
               }
             ></FormControlLabel>
           </Grid>
-          </Grid>
+        </Grid>
 
         <Grid
           container
@@ -142,7 +143,7 @@ export function SearchBar() {
             sx={{ marginBottom: { xs: "10px", md: "0px" } }}
           >
             <Tooltip
-              title="Displays a shopping list of the remaining materials to build all of the selected jobs"
+              title="Displays a shopping list of the remaining materials to build all of the selected jobs."
               arrow
             >
               <Button
@@ -165,7 +166,7 @@ export function SearchBar() {
                       id: "Empty-Multi-Select",
                       open: true,
                       title: "Oops",
-                      body: "You will need to select at least 1 job using the checkbox's on the job cards",
+                      body: "You will need to select at least 1 job using the checkbox's on the job cards.",
                     }));
                   }
                 }}
@@ -173,8 +174,44 @@ export function SearchBar() {
                 Shopping List
               </Button>
             </Tooltip>
+
             <Tooltip
-              title="Displays a shopping list of the remaining materials to build all of the selected jobs"
+              title="Sets up new jobs to build the combined ingrediant totals of each selected job cards."
+              arrow
+            >
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ marginRight: "10px" }}
+                onClick={() => {
+                  if (multiSelectJobPlanner.length > 0) {
+                    massBuildMaterials(multiSelectJobPlanner);
+                    updateMultiSelectJobPlanner([]);
+                  } else {
+                    updateDialogData((prev) => ({
+                      ...prev,
+                      buttonText: "Close",
+                      id: "Empty-Multi-Select",
+                      open: true,
+                      title: "Oops",
+                      body: "You will need to select at least 1 job using the checkbox's on the job cards.",
+                    }));
+                  }
+                }}
+              >
+                Add Ingredient Jobs
+              </Button>
+            </Tooltip>
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            md="auto"
+            align="center"
+            sx={{ marginBottom: { xs: "10px", md: "0px" } }}
+          >
+            <Tooltip
+              title="Displays a list of the remaining materials to purchase for all of the selected jobs."
               arrow
             >
               <Button
@@ -205,33 +242,6 @@ export function SearchBar() {
                 }}
               >
                 Add Item Costs
-              </Button>
-            </Tooltip>
-            <Tooltip
-              title="Sets up new jobs to build the combined ingrediant totals of each selected job cards."
-              arrow
-            >
-              <Button
-                variant="outlined"
-                size="small"
-                sx={{ marginRight: "10px" }}
-                onClick={() => {
-                  if (multiSelectJobPlanner.length > 0) {
-                    massBuildMaterials(multiSelectJobPlanner);
-                    updateMultiSelectJobPlanner([]);
-                  } else {
-                    updateDialogData((prev) => ({
-                      ...prev,
-                      buttonText: "Close",
-                      id: "Empty-Multi-Select",
-                      open: true,
-                      title: "Oops",
-                      body: "You will need to select at least 1 job using the checkbox's on the job cards",
-                    }));
-                  }
-                }}
-              >
-                Add Ingredient Jobs
               </Button>
             </Tooltip>
           </Grid>

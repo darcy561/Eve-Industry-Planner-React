@@ -1,5 +1,5 @@
 import { Checkbox, Grid, TextField, Tooltip, Typography } from "@mui/material";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
 import { PriceEntryListContext } from "../../../../Context/LayoutContext";
 import { makeStyles } from "@mui/styles";
@@ -124,7 +124,7 @@ export function ItemPriceRow({ item, index, displayOrder, displayMarket }) {
         </Tooltip>
       </Grid>
       <Grid item xs={2} sm={1}>
-        <Tooltip title="Tick To Confirm Cost" arrow placement="top">
+        <Tooltip title="Tick To Confirm Cost" arrow placement="right">
           <Checkbox
             className={classes.Checkbox}
             checked={inputChecked}

@@ -66,6 +66,9 @@ exports.createUserData = functions.https.onCall((data, context) => {
         },
         layout: {
           hideTutorials: false,
+          localMarketDisplay: null,
+          localOrderDisplay: null,
+          esiJobTab: null
         },
         editJob: {
           defaultMarket: "jita",

@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { memo, useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import AddMaterialCost from "./addMaterialCost";
 import { MaterialCost } from "./materialCost";
 import { jobTypes } from "../../../JobPlanner";
@@ -137,7 +137,10 @@ function MaterialCard({
                   {material.childJob.length > 1
                     ? "Child Jobs Production Total:"
                     : "Child Job Production Total:"}{" "}
-                  {childJobProductionTotal}
+                  {childJobProductionTotal.toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
                 </Typography>
               </Grid>
             )}
@@ -198,4 +201,4 @@ function MaterialCard({
   );
 }
 
-export default MaterialCard
+export default MaterialCard;

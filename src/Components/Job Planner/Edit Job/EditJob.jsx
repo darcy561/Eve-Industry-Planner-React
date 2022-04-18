@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   JobStatusContext,
   ActiveJobContext,
@@ -10,7 +10,6 @@ import { EditPage4 } from "./Edit Job Components/Job Page 4";
 import { EditPage5 } from "./Edit Job Components/Job Page 5";
 import {
   Box,
-  Container,
   Divider,
   Grid,
   IconButton,

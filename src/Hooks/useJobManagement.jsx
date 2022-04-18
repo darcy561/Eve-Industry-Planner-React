@@ -430,7 +430,6 @@ export function useJobManagement() {
     for (let item of finalBuildCount) {
       let childJob = await newJobProcess(item.typeID, item.quantity, parentIDs);
       childJobs.push(childJob);
-      setTimeout(500);
     }
 
     for (let inputJob of inputJobs) {

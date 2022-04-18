@@ -179,7 +179,7 @@ export function ManufacturingBlueprints() {
                         item
                         xs={12}
                         className={
-                          esiJob && print.runs >= esiJob.runs
+                          esiJob && print.runs <= esiJob.runs
                             ? classes.expiring
                             : esiJob
                             ? classes.inUse

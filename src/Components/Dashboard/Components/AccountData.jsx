@@ -11,7 +11,6 @@ export function AccountData() {
   const { jobArray } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
 
-  const parentUser = users.find((i) => i.ParentUser)
   
   let openMOrders = 0
   let histMOrders = 0
@@ -47,8 +46,8 @@ export function AccountData() {
     >
       <Grid container direction="row">
         <Grid container item xs={12}>
-          <Grid item xs={6} >
-            <AvatarGroup max={3} spacing="small" >
+          <Grid item xs={12} align="center">
+            <AvatarGroup max={5}  >
               {users.map((user) => {
                 return (
                   <Avatar
@@ -56,14 +55,14 @@ export function AccountData() {
               alt={`${user.CharacterName} portrait card`}
               src={`https://images.evetech.net/characters/${user.CharacterID}/portrait`}
               sx={{
-                // height: {
-                //   xs: "60px",
-                //   md: "72px",
-                // },
-                // width: {
-                //   xs: "60px",
-                //   md: "72px",
-                // },
+                height: {
+                  xs: "35px",
+                  md: "45px",
+                },
+                width: {
+                  xs: "35px",
+                  md: "45px",
+                },
                 border: "none"
               }}
               />
@@ -71,9 +70,6 @@ export function AccountData() {
               })}
             
             </AvatarGroup>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="body1">Total Characters: {users.length}</Typography>
           </Grid>
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "20px" }}>

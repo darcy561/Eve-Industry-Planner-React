@@ -75,7 +75,6 @@ export function LinkedJobs({ setJobModified }) {
             const jobBP = jobOwner.apiBlueprints.find(
               (i) => i.item_id === job.blueprint_id
             );
-
             if (jobBP !== undefined) {
               blueprintType = "bp";
               if (jobBP.quantity === -2) {

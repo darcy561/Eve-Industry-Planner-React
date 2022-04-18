@@ -1,5 +1,4 @@
 import {
-  Autocomplete,
   Grid,
   FormControl,
   FormHelperText,
@@ -28,11 +27,6 @@ const useStyles = makeStyles((theme) => ({
       {
         display: "none",
       },
-  },
-  Autocomplete: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
   },
 }));
 

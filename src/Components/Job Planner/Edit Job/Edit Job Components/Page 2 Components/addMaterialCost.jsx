@@ -1,11 +1,10 @@
-import React, { memo, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Grid, IconButton, TextField, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { makeStyles } from "@mui/styles";
 import { EvePricesContext } from "../../../../../Context/EveDataContext";
-import { UsersContext } from "../../../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -26,7 +25,6 @@ function AddMaterialCost({
   orderDisplay,
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { users } = useContext(UsersContext);
   const { evePrices } = useContext(EvePricesContext);
   const materialPrice = evePrices.find((i) => i.typeID === material.typeID);
   const [inputs, setInputs] = useState({

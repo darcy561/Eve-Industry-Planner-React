@@ -28,7 +28,7 @@ class Job {
     this.apiTransactions = [];
     this.parentJob = [];
     this.blueprintTypeID = itemJson.blueprintTypeID || null;
-
+    this.projectID = null
     this.build = {
       products: {
         totalQuantity: 0,

@@ -20,7 +20,7 @@ export default function Step3JobCard({ job }) {
           <Typography className={classes.TextFields} align="right">
             {job.isSnapshot
               ? job.linkedJobsCount.toLocaleString()
-              : job.build.costs.linkedJobs.length.toLocaleString()}
+              : job.build.costs.linkedJobs.length.toLocaleString()}/{job.jobCount}
           </Typography>
         </Grid>
       </Grid>

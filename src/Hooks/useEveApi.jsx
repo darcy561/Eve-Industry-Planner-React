@@ -2,14 +2,10 @@ import { useContext } from "react";
 import skillsReference from "../RawData/bpSkills.json";
 import searchData from "../RawData/searchIndex.json";
 import { EveESIStatusContext, EveIDsContext } from "../Context/EveDataContext";
-import { UsersContext } from "../Context/AuthContext";
 
 export function useEveApi() {
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { eveESIStatus, updateEveESIStatus } = useContext(EveESIStatusContext);
-  const { users } = useContext(UsersContext);
-
-  const parentUser = users.find((i) => i.ParentUser);
 
   const CharacterSkills = async (userObj) => {
     try {

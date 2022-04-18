@@ -1,4 +1,11 @@
-import { lazy, useContext, useEffect, useState, Suspense } from "react";
+import {
+  lazy,
+  useContext,
+  useEffect,
+  useState,
+  Suspense,
+  useMemo,
+} from "react";
 import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
@@ -84,7 +91,10 @@ export function JobPlanner() {
   const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
   const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
 
-  let parentUser = users.find((u) => u.ParentUser === true);
+  let parentUser = useMemo(() => {
+    return users.find((u) => u.ParentUser);
+  }, [isLoggedIn]);
+  
   useEffect(async () => {
     if (isLoggedIn) {
       if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
@@ -119,7 +129,7 @@ export function JobPlanner() {
         <Grid container sx={{ marginTop: "5px" }} spacing={2}>
           <ShoppingListDialog />
 
-          <PriceEntryDialog/>
+          <PriceEntryDialog />
           {!parentUser.settings.layout.hideTutorials && (
             <Grid item xs={12}>
               <TutorialPlanner />

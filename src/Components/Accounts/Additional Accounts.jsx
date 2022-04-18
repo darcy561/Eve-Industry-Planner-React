@@ -15,6 +15,7 @@ import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { AccountEntry } from "./AccountEntry";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function AdditionalAccounts({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
@@ -31,6 +32,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
   } = useEveApi();
   const { updateMainUserDoc } = useFirebase();
   const [skeletonVisible, toggleSkeleton] = useState(false);
+  const analytics = getAnalytics();
   let newUser = null;
 
   const handleAdd = async () => {
@@ -101,7 +103,9 @@ export function AdditionalAccounts({ parentUserIndex }) {
         });
       } else {
         let accountArray = JSON.parse(
-          localStorage.getItem("AdditionalAccounts")
+          localStorage.getItem(
+            `${users[parentUserIndex].CharacterHash} AdditionalAccounts`
+          )
         );
         if (accountArray === null) {
           accountArray = [];
@@ -110,7 +114,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
             rToken: newUser.rToken,
           });
           localStorage.setItem(
-            "AdditionalAccounts",
+            `${users[parentUserIndex].CharacterHash} AdditionalAccounts`,
             JSON.stringify(accountArray)
           );
         } else {
@@ -119,7 +123,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
             rToken: newUser.rToken,
           });
           localStorage.setItem(
-            "AdditionalAccounts",
+            `${users[parentUserIndex].CharacterHash} AdditionalAccounts`,
             JSON.stringify(accountArray)
           );
         }
@@ -129,6 +133,11 @@ export function AdditionalAccounts({ parentUserIndex }) {
       if (users[parentUserIndex].settings.account.cloudAccounts) {
         updateMainUserDoc();
       }
+      logEvent(analytics, "Link Character", {
+        UID: users[parentUserIndex].accountID,
+        newHash: newUser.CharacterHash,
+        cloudAccount: users[parentUserIndex].settings.account.cloudAccounts,
+      });
       setSnackbarData((prev) => ({
         ...prev,
         open: true,
@@ -149,52 +158,99 @@ export function AdditionalAccounts({ parentUserIndex }) {
             Additional Accounts
           </Typography>
         </Grid>
-        <Grid item xs={6} align="center">
-          <FormGroup>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={
-                    users[parentUserIndex].settings.account.cloudAccounts
-                  }
-                  color="primary"
-                  onChange={(e) => {
-                    let newUsersArray = [...users];
-                    newUsersArray[
-                      parentUserIndex
-                    ].settings.account.cloudAccounts = e.target.checked;
-                    if (e.target.checked) {
-                      newUsersArray[parentUserIndex].accountRefreshTokens =
-                        JSON.parse(localStorage.getItem("AdditionalAccounts"));
-                      localStorage.removeItem("AdditionalAccounts");
-                    } else {
-                      localStorage.setItem(
-                        "AdditionalAccounts",
-                        JSON.stringify(
-                          newUsersArray[parentUserIndex].accountRefreshTokens
-                        )
-                      );
-                      newUsersArray[parentUserIndex].accountRefreshTokens = [];
-                    }
-                    updateUsers(newUsersArray);
-                    updateMainUserDoc();
-                  }}
-                />
-              }
-              label="Store Accounts In Cloud"
-              labelPlacement="start"
-            />
-          </FormGroup>
+        <Grid item xs={12} sx={{ marginTop: "10px", marginBottom: "20px" }}>
+          <Typography>
+            Additional accounts can be linked allowing you to import the ESI
+            data in alongside your main accounts data. Additional accounts can
+            be added and removed at any time.{<br />}
+            {<br />}
+            By default the additional accounts that you choose to link are only
+            stored in the browser where they were added. If you wanted to make
+            these accounts available on all other devices then you will need to
+            enable to option to store the accounts in the cloud.
+          </Typography>
         </Grid>
-        <Grid item xs={6} align="center">
-          <Button variant="contained" size="small" disabled={skeletonVisible} onClick={handleAdd}>
-            Add Account
-          </Button>
+        <Grid container item xs={12}>
+          <Grid item xs={0} sm={3} md={7} />
+          <Grid item xs={6} sm={5} md={3}>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={
+                      users[parentUserIndex].settings.account.cloudAccounts
+                    }
+                    color="primary"
+                    onChange={(e) => {
+                      let newUsersArray = [...users];
+                      newUsersArray[
+                        parentUserIndex
+                      ].settings.account.cloudAccounts = e.target.checked;
+                      if (e.target.checked) {
+                        let additionalAccounts = JSON.parse(
+                          localStorage.getItem(
+                            `${users[parentUserIndex].CharacterHash} AdditionalAccounts`
+                          )
+                        );
+                        if (additionalAccounts !== null) {
+                          newUsersArray[parentUserIndex].accountRefreshTokens =
+                            additionalAccounts;
+                        } else {
+                          newUsersArray[parentUserIndex].accountRefreshTokens =
+                            [];
+                        }
+                        localStorage.removeItem(
+                          `${users[parentUserIndex].CharacterHash} AdditionalAccounts`
+                        );
+                      } else {
+                        localStorage.setItem(
+                          `${users[parentUserIndex].CharacterHash} AdditionalAccounts`,
+                          JSON.stringify(
+                            newUsersArray[parentUserIndex].accountRefreshTokens
+                          )
+                        );
+                        newUsersArray[parentUserIndex].accountRefreshTokens =
+                          [];
+                      }
+                      updateUsers(newUsersArray);
+                      updateMainUserDoc();
+                    }}
+                  />
+                }
+                label="Store Accounts In Cloud"
+                labelPlacement="start"
+              />
+            </FormGroup>
+          </Grid>
+          <Grid
+            container
+            item
+            xs={6}
+            sm={4}
+            md={2}
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Button
+              variant="contained"
+              size="small"
+              disabled={skeletonVisible}
+              onClick={handleAdd}
+            >
+              Add Account
+            </Button>
+          </Grid>
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "20px" }}>
           {users.map((user) => {
             if (!user.ParentUser) {
-              return <AccountEntry key={user.CharacterHash} user={user} />;
+              return (
+                <AccountEntry
+                  key={user.CharacterHash}
+                  user={user}
+                  parentUserIndex={parentUserIndex}
+                />
+              );
             } else return null;
           })}
           {skeletonVisible && (

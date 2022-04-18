@@ -1,7 +1,6 @@
 import { Container, Grid } from "@mui/material";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import {
-  IsLoggedIn,
   IsLoggedInContext,
   UsersContext,
 } from "../../../../Context/AuthContext";

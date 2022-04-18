@@ -14,8 +14,9 @@ import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import { ApiJobsContext, JobArrayContext } from "../../Context/JobContext";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { useJobManagement } from "../../Hooks/useJobManagement";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
-export function AccountEntry({ user }) {
+export function AccountEntry({ user, parentUserIndex }) {
   const {
     CharacterSkills,
     IndustryJobs,
@@ -37,6 +38,7 @@ export function AccountEntry({ user }) {
   const [userRefreshState, updateUserRefreshState] = useState(
     user.refreshState
   );
+  const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser);
 
@@ -160,6 +162,11 @@ export function AccountEntry({ user }) {
     if (parentUser.settings.account.cloudAccounts) {
       updateMainUserDoc();
     }
+    logEvent(analytics, "Remove Link Character", {
+      UID: users[parentUserIndex].accountID,
+      RemovedHash: user.CharacterHash,
+      cloudAccount: users[parentUserIndex].settings.account.cloudAccounts,
+    });
     setSnackbarData((prev) => ({
       ...prev,
       open: true,

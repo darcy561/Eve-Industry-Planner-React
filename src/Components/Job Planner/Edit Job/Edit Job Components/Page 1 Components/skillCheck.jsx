@@ -14,7 +14,7 @@ export function SkillCheck() {
     (i) => i.CharacterHash === activeJob.build.buildChar
   );
 
-  if (buildChar == undefined) {
+  if (buildChar === undefined) {
   buildChar = parentUser
 }
 

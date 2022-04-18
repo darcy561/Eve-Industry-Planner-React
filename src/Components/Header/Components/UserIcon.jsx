@@ -1,9 +1,6 @@
 import { Avatar, Box, Grid, Menu, MenuItem, Tooltip } from "@mui/material";
 import { useContext, useState } from "react";
-import {
-  IsLoggedInContext,
-  UsersContext,
-} from "../../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
@@ -15,7 +12,13 @@ import { EveIDsContext } from "../../../Context/EveDataContext";
 import { auth } from "../../../firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router";
-import { apiJobsDefault, jobArrayDefault, jobStatusDefault, usersDefault, eveIDsDefault } from "../../../Context/defaultValues";
+import {
+  apiJobsDefault,
+  jobArrayDefault,
+  jobStatusDefault,
+  usersDefault,
+  eveIDsDefault,
+} from "../../../Context/defaultValues";
 import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function UserIcon() {
@@ -27,16 +30,16 @@ export function UserIcon() {
   const { setJobStatus } = useContext(JobStatusContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
-  const {updateEveIDs} =useContext(EveIDsContext)
+  const { updateEveIDs } = useContext(EveIDsContext);
   const navigate = useNavigate();
   const analytics = getAnalytics();
 
-  const parentUser = users.find((i) => i.ParentUser)
+  const parentUser = users.find((i) => i.ParentUser);
 
   function logout() {
     logEvent(analytics, "userLogOut", {
-      UID: parentUser.accountID
-    })
+      UID: parentUser.accountID,
+    });
     updateIsLoggedIn(false);
     updateUsers(usersDefault);
     updateJobArray(jobArrayDefault);
@@ -63,53 +66,51 @@ export function UserIcon() {
     setAnchor(null);
   };
 
-  
-
-    return (
-      <>
-        <Box>
-          <Grid container direction="column">
-            <Grid item align="center">
-              <Tooltip title="Account" arrow>
+  return (
+    <>
+      <Box>
+        <Grid container direction="column">
+          <Grid item align="center">
+            <Tooltip title="Account" arrow>
               <Avatar
                 alt="Account Logo"
                 src={`https://images.evetech.net/characters/${parentUser.CharacterID}/portrait`}
                 onClick={openMenu}
                 sx={{
-                  height: { xs: "36px", sm:"48px" },
+                  height: { xs: "36px", sm: "48px" },
                   width: { xs: "36px", sm: "48px" },
-                  marginRight: { sm: "20px"}
+                  marginRight: { sm: "20px" },
                 }}
-                />
-                </Tooltip>
-            </Grid>
+              />
+            </Tooltip>
           </Grid>
-        </Box>
+        </Grid>
+      </Box>
 
-        <Menu
-          id="userMenu"
-          anchorEl={anchor}
-          keepMounted
-          open={Boolean(anchor)}
-          onClose={closeMenu}
-          onClick={closeMenu}
+      <Menu
+        id="userMenu"
+        anchorEl={anchor}
+        keepMounted
+        open={Boolean(anchor)}
+        onClose={closeMenu}
+        onClick={closeMenu}
+      >
+        <MenuItem
+          onClick={() => {
+            navigate("/accounts");
+          }}
         >
-          <MenuItem
-            onClick={() => {
-              navigate("/accounts");
-            }}
-          >
-            Accounts
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              navigate("/settings");
-            }}
-          >
-            Settings
-          </MenuItem> 
-          <MenuItem onClick={logout}>Log Out</MenuItem>
-        </Menu>
-      </>
-    );
+          Accounts
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            navigate("/settings");
+          }}
+        >
+          Settings
+        </MenuItem>
+        <MenuItem onClick={logout}>Log Out</MenuItem>
+      </Menu>
+    </>
+  );
 }

@@ -364,7 +364,6 @@ export function useFirebase() {
     let returnedPromise = await Promise.all(promiseArray);
 
     for (let data of returnedPromise) {
-      console.log(data)
       if (Array.isArray(data)) {
         data.forEach((id) => {
           returnData.push(id);
@@ -374,7 +373,6 @@ export function useFirebase() {
       }
     }
     t.stop();
-    console.log(returnData);
     return returnData;
   };
 

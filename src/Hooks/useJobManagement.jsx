@@ -173,7 +173,6 @@ export function useJobManagement() {
         newJob.build.materials.forEach((mat) => {
           priceIDRequest.push(mat.typeID);
         });
-        console.log(priceIDRequest);
         let itemPrices = getItemPrices(priceIDRequest);
         promiseArray.push(itemPrices);
 
@@ -258,7 +257,6 @@ export function useJobManagement() {
           itemID: calculatedJob.itemID,
         });
         let returnPromiseArray = await Promise.all(promiseArray);
-        console.log(returnPromiseArray)
         updateEvePrices((prev) =>  prev.concat(returnPromiseArray[0]) );
         updateJobArray((prev) => [...prev, calculatedJob]);
         updateDataExchange(false);
@@ -303,7 +301,6 @@ export function useJobManagement() {
     });
   
     let jobPrices = await getItemPrices(itemIDs);
-    console.log(jobPrices);
     if (jobPrices.length > 0) {
       updateEvePrices(evePrices.concat(jobPrices));
     }

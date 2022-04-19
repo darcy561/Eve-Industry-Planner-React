@@ -23,15 +23,13 @@ import {
 import { marketOptions, listingType } from "../../../../Context/defaultValues";
 import { ItemPriceRow } from "./itemRow";
 import { useFirebase } from "../../../../Hooks/useFirebase";
-import { EvePricesContext } from "../../../../Context/EveDataContext";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
-  const { downloadCharacterJobs, getItemPrices, updateMainUserDoc, uploadJob } =
+  const { downloadCharacterJobs, updateMainUserDoc, uploadJob } =
     useFirebase();
   const { updateJobSnapshot } = useJobManagement();
   const parentUser = useMemo(() => {

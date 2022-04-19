@@ -38,6 +38,7 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
     try {
       const authToken = await admin.auth().createCustomToken(req.body.UID);
       functions.logger.log(`${req.body.UID} Auth Token Generated`);
+      functions.logger.log(`Log In Successful`);
       return res.status(200).send({
         access_token: authToken,
       });

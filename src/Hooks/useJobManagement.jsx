@@ -257,7 +257,11 @@ export function useJobManagement() {
           itemID: calculatedJob.itemID,
         });
         let returnPromiseArray = await Promise.all(promiseArray);
+<<<<<<< HEAD
         updateEvePrices((prev) => prev.concat(returnPromiseArray[0]));
+=======
+        updateEvePrices((prev) =>  prev.concat(returnPromiseArray[0]) );
+>>>>>>> Development
         updateJobArray((prev) => [...prev, calculatedJob]);
         updateDataExchange(false);
         setSnackbarData((prev) => ({
@@ -299,6 +303,10 @@ export function useJobManagement() {
     inputJob.build.materials.forEach((mat) => {
       itemIDs.push(mat.typeID);
     });
+<<<<<<< HEAD
+=======
+  
+>>>>>>> Development
     let jobPrices = await getItemPrices(itemIDs);
     if (jobPrices.length > 0) {
       updateEvePrices(evePrices.concat(jobPrices));

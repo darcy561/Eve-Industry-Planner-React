@@ -350,22 +350,30 @@ export function useFirebase() {
         let promise = getItemPrice(item);
         promiseArray.push(promise);
       }
-      let returnedPromise = await Promise.all(promiseArray);
-
-      for (let data of returnedPromise) {
-        returnData.push(data);
-      }
-
-      t.stop();
-      return returnData;
     } else if (requestArray.length > 6) {
-      let promise = await getItemPriceBulk(requestArray);
-
-      return promise;
+      for (let x = 0; x < requestArray.length; x += 30) {
+        let chunk = requestArray.slice(x, x + 30);
+        let chunkData = getItemPriceBulk(chunk);
+        promiseArray.push(chunkData);
+      }
     } else {
       t.stop();
       return [];
     }
+
+    let returnedPromise = await Promise.all(promiseArray);
+
+    for (let data of returnedPromise) {
+      if (Array.isArray(data)) {
+        data.forEach((id) => {
+          returnData.push(id);
+        });
+      } else {
+        returnData.push(data);
+      }
+    }
+    t.stop();
+    return returnData;
   };
 
   return {

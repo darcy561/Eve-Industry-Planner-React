@@ -18,20 +18,33 @@ const verifyEveToken = async (req, res, next) => {
     return next("Unauthorised");
   } else {
     jwt.verify(req.header("Access-Token"), getSigningKey, (err, decoded) => {
-      const testID = decoded.owner.replace(/[^a-zA-z0-9 ]/g, "");
-      if (
-        decoded.iss != "login.eveonline.com" &&
-        decoded.iss != "https://login.eveonline.com" &&
-        decoded.owner != req.body.CharacterHash &&
-        testID != req.body.UID
-      ) {
-        functions.logger.warn("Invalid Eve Token");
-        functions.logger.warn(JSON.stringify(decoded));
+      try {
+        const testID = decoded.owner.replace(/[^a-zA-z0-9 ]/g, "");
+        if (testID != undefined) {
+          if (
+            decoded.iss != "login.eveonline.com" &&
+            decoded.iss != "https://login.eveonline.com" &&
+            decoded.owner != req.body.CharacterHash &&
+            testID != req.body.UID
+          ) {
+            functions.logger.warn("Invalid Eve Token");
+            functions.logger.warn(JSON.stringify(decoded));
+            res.status(401);
+            return next("Invalid Eve Token");
+          } else {
+            next();
+          }
+        } else {
+          functions.logger.error("Invalid Eve Token");
+          functions.logger.error(JSON.stringify(decoded));
+          res.status(401);
+          return next("Invalid Eve Token");
+        }
+      } catch {
+        functions.logger.error("Error Validating Eve Token");
+        functions.logger.error(JSON.stringify(decoded));
         res.status(401);
-        return next("Invalid Eve Token");
-      } else {
-        functions.logger.log(`${req.body.UID} Eve Token Validated`)
-        next();
+        return next("Error Validating Eve Token");
       }
     });
   }

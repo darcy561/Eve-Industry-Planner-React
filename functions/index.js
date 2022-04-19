@@ -16,7 +16,7 @@ const db = admin.firestore();
 app.use(
   cors({
     origin: [
-      // "http://localhost:3000",
+      "http://localhost:3000",
       "https://eve-industry-planner-dev.firebaseapp.com",
       "https://www.eveindustryplanner.com",
       "https://eveindustryplanner.com",
@@ -38,12 +38,10 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
     try {
       const authToken = await admin.auth().createCustomToken(req.body.UID);
       functions.logger.log(`${req.body.UID} Auth Token Generated`);
-      return res
-        .status(200)
-        .set("Cache-Control", "public, max-age=600, s-maxage=3600")
-        .send({
-          access_token: authToken,
-        });
+      functions.logger.log(`Log In Successful`);
+      return res.status(200).send({
+        access_token: authToken,
+      });
     } catch (error) {
       functions.logger.error("Error generating firebase auth token");
       functions.logger.error(error);
@@ -53,9 +51,9 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
     }
   } else {
     functions.logger.warn("UID missing from request");
-    functions.logger.info("Header " + JSON.stringify(req.header));
-    functions.logger.info("Body " + JSON.stringify(req.body));
-    return res.status(400);
+    functions.logger.info(`Header ${JSON.stringify(req.header)}`);
+    functions.logger.info(`Body ${JSON.stringify(req.body)}`);
+    return res.status(400).send("mmlformed Request");
   }
 });
 
@@ -184,7 +182,8 @@ app.post("/costs/bulkPrices", async (req, res) => {
           returnData.push(data);
         }
       }
-      functions.logger.log(`${req.body.idArray} Prices Returned`);
+      functions.logger.log(`${req.body.idArray.length} Prices Returned`)
+      functions.logger.log(req.body.idArray);
       return res
         .status(200)
         .setHeader("Content-Type", "application/json")

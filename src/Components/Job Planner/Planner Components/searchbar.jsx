@@ -27,9 +27,10 @@ import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
   Autocomplete: {
-    "& .MuiInputBase-input.MuiAutocomplete-input": {
+    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
       color:
         theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
+      borderColor: theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
     },
   },
   Checkbox: {
@@ -79,7 +80,6 @@ export function SearchBar() {
             <Autocomplete
               disableClearable={true}
               fullWidth
-              freeSolo
               id="Recipe Search"
               clearOnBlur={true}
               blurOnSelect={true}
@@ -88,9 +88,7 @@ export function SearchBar() {
               options={itemList}
               getOptionLabel={(option) => option.name}
               onChange={(event, value) => {
-                if (value != null) {
                   newJobProcess(value.itemID, null);
-                }
               }}
               renderInput={(params) => (
                 <TextField
@@ -100,7 +98,7 @@ export function SearchBar() {
                   className={classes.Autocomplete}
                   margin="none"
                   variant="standard"
-                  style={{ background: "white", borderRadius: "5px" }}
+                  style={{ borderRadius: "5px" }}
                   InputProps={{ ...params.InputProps, type: "search" }}
                 />
               )}

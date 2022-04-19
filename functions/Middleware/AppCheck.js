@@ -11,7 +11,6 @@ async function appCheckVerification(req, res, next) {
     res.status(401);
     return next("Unauthorised");
   }
-  functions.logger.log("App Check Token Authorised")
   next();
 }
 

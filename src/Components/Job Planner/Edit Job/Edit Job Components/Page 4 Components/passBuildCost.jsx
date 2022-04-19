@@ -11,14 +11,16 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function PassBuildCostButton() {
   const { activeJob } = useContext(ActiveJobContext);
-  const { jobArray } = useContext(JobArrayContext);
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users } = useContext(UsersContext);
-  const { downloadCharacterJobs, uploadJob } = useFirebase();
+  const { downloadCharacterJobs, uploadJob, updateMainUserDoc } = useFirebase();
+  const { updateJobSnapshot } = useJobManagement();
   const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
@@ -35,9 +37,9 @@ export function PassBuildCostButton() {
           100
       ) / 100;
     let availableForImport = activeJob.build.products.totalQuantity;
-
+    let newJobArray = [...jobArray];
     for (let job of activeJob.parentJob) {
-      let parentJob = jobArray.find((i) => i.jobID === job);
+      let parentJob = newJobArray.find((i) => i.jobID === job);
       if (parentJob !== undefined) {
         let newTotal = 0;
         let quantityImported = 0;
@@ -76,6 +78,10 @@ export function PassBuildCostButton() {
         if (isLoggedIn) {
           await uploadJob(parentJob);
         }
+        updateJobSnapshot(parentJob);
+        let index = newJobArray.findIndex((i) => i.jobID === parentJob.jobID);
+
+        newJobArray[index] = parentJob;
       }
     }
     if (itemsAdded > 0) {
@@ -97,10 +103,6 @@ export function PassBuildCostButton() {
           autoHideDuration: 3000,
         }));
       }
-      logEvent(analytics, "Import Costs", {
-        UID: parentUser.accountID,
-        isLoggedIn: isLoggedIn,
-      });
     } else {
       setSnackbarData((prev) => ({
         ...prev,
@@ -110,6 +112,12 @@ export function PassBuildCostButton() {
         autoHideDuration: 3000,
       }));
     }
+    logEvent(analytics, "Import Costs", {
+      UID: parentUser.accountID,
+      isLoggedIn: isLoggedIn,
+    });
+    updateJobArray(newJobArray);
+    updateMainUserDoc();
   };
 
   return (

@@ -30,7 +30,8 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
       color:
         theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-      borderColor: theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
+      borderColor:
+        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
     },
   },
   Checkbox: {
@@ -88,7 +89,7 @@ export function SearchBar() {
               options={itemList}
               getOptionLabel={(option) => option.name}
               onChange={(event, value) => {
-                  newJobProcess(value.itemID, null);
+                newJobProcess(value.itemID, null);
               }}
               renderInput={(params) => (
                 <TextField

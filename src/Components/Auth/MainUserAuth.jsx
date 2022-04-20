@@ -87,13 +87,15 @@ export function AuthMainUser() {
         JSON.stringify(userSettings.jobArraySnapshot)
       );
       userObject.accountRefreshTokens = userSettings.refreshTokens;
-      let priceIDRequest = [];
+      let priceIDRequest = new Set();
       let promiseArray = [];
       userSettings.jobArraySnapshot.forEach((snap) => {
-        priceIDRequest = priceIDRequest.concat(snap.materialIDs);
-        priceIDRequest.push(snap.itemID);
+        snap.materialIDs.forEach((id) => {
+          priceIDRequest.add(id);
+        });
+        priceIDRequest.add(snap.itemID);
       });
-      let itemPrices = getItemPrices(priceIDRequest);
+      let itemPrices = getItemPrices([...priceIDRequest]);
       promiseArray.push(itemPrices);
 
       updateLoadingText((prevObj) => ({
@@ -199,7 +201,9 @@ export function AuthMainUser() {
           }
         }
       } else {
-        let rTokens = JSON.parse(localStorage.getItem(`${userObject.CharacterHash} AdditionalAccounts`));
+        let rTokens = JSON.parse(
+          localStorage.getItem(`${userObject.CharacterHash} AdditionalAccounts`)
+        );
         if (rTokens !== null) {
           for (let token of rTokens) {
             let newUser = await RefreshTokens(token.rToken, false);
@@ -265,11 +269,18 @@ export function AuthMainUser() {
               (i) => !failedRefresh.includes(i.CharacterHash)
             );
         } else {
-          let oldLS = JSON.parse(localStorage.getItem(`${userObject.CharacterHash} AdditionalAccounts`));
+          let oldLS = JSON.parse(
+            localStorage.getItem(
+              `${userObject.CharacterHash} AdditionalAccounts`
+            )
+          );
           let newLS = oldLS.filter(
             (i) => !failedRefresh.includes(i.CharacterHash)
           );
-          localStorage.setItem(`${userObject.CharacterHash} AdditionalAccounts`, JSON.stringify(newLS));
+          localStorage.setItem(
+            `${userObject.CharacterHash} AdditionalAccounts`,
+            JSON.stringify(newLS)
+          );
         }
       }
 

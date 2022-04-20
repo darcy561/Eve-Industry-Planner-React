@@ -15,17 +15,13 @@ import {
   JobStatusContext,
 } from "../Context/JobContext";
 import { IsLoggedInContext } from "../Context/AuthContext";
-import { createJob } from "../Components/Job Planner/JobBuild";
-import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { trace } from "@firebase/performance";
 import { performance } from "../firebase";
 import { jobTypes } from "../Components/Job Planner";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import {
-  EvePricesContext,
-  SisiDataFilesContext,
-} from "../Context/EveDataContext";
+import { EvePricesContext } from "../Context/EveDataContext";
+import { useJobBuild } from "./useJobBuild";
 
 export function useJobManagement() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -40,11 +36,9 @@ export function useJobManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
-  const { sisiDataFiles } = useContext(SisiDataFilesContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { CalculateResources } = useBlueprintCalc();
   const {
     addNewJob,
     downloadCharacterJobs,
@@ -54,6 +48,7 @@ export function useJobManagement() {
     uploadJob,
     uploadJobAsSnapshot,
   } = useFirebase();
+  const { buildJob, checkAllowBuild } = useJobBuild();
 
   class newSnapshot {
     constructor(inputJob, childJobs, totalComplete, materialIDs) {
@@ -113,162 +108,45 @@ export function useJobManagement() {
   const newJobProcess = async (itemID, itemQty, parentJobs) => {
     const t = trace(performance, "CreateJobProcessFull");
     t.start();
-
-    if (!isLoggedIn && jobArray.length >= 10) {
-      updateDialogData((prev) => ({
-        ...prev,
-        buttonText: "Close",
-        id: "Max-Jobs-Exceeded",
-        open: true,
-        title: "Job Count Exceeded",
-        body:
-          "You have exceeded the maximum number of jobs you can create as an unregistered user." +
-          "\r\n" +
-          "Sign into your Eve Account to create more.Jobs that have been created without registering will be lost upon leaving / refreshing the page.",
-      }));
-    } else if (isLoggedIn && jobArray.length >= 300) {
-      updateDialogData((prev) => ({
-        ...prev,
-        buttonText: "Close",
-        id: "Max-Jobs-Exceeded",
-        open: true,
-        title: "Job Count Exceeded",
-        body: "You currently cannot create more than 300 individual job cards. Remove existing job cards to add more.",
-      }));
-    } else {
+    if (checkAllowBuild()) {
       updateDataExchange(true);
-      const newJob = await createJob(itemID, sisiDataFiles);
-
-      if (newJob === "TypeError") {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "No blueprint found for this item",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
-        updateDataExchange(false);
-      } else if (newJob === "objectError") {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "Error building job object, please try again",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
-        updateDataExchange(false);
-      } else if (newJob === "Item Data Missing From Request") {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "Item Data Missing From Request",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
-        updateDataExchange(false);
-      } else {
-        let priceIDRequest = [];
+      const newJob = await buildJob(itemID, itemQty, parentJobs);
+      if (newJob !== undefined) {
+        let priceIDRequest = new Set();
         let promiseArray = [];
-        priceIDRequest.push(newJob.itemID);
+        priceIDRequest.add(newJob.itemID);
         newJob.build.materials.forEach((mat) => {
-          priceIDRequest.push(mat.typeID);
+          priceIDRequest.add(mat.typeID);
         });
-        let itemPrices = getItemPrices(priceIDRequest);
+        let itemPrices = getItemPrices([...priceIDRequest]);
         promiseArray.push(itemPrices);
 
-        newJob.build.buildChar = parentUser.CharacterHash;
-        if (isLoggedIn) {
-          if (newJob.jobType === jobTypes.manufacturing) {
-            let blueprintOptions = [];
-            users.forEach((user) => {
-              let temp = user.apiBlueprints.filter(
-                (i) => i.type_id === newJob.blueprintTypeID
-              );
-              temp.forEach((i) => {
-                blueprintOptions.push(i);
-              });
-            });
-            if (blueprintOptions.length > 0) {
-              blueprintOptions.sort(
-                (a, b) =>
-                  b.material_efficiency - a.material_efficiency ||
-                  b.time_efficiency - a.time_efficiency
-              );
-              newJob.bpME = blueprintOptions[0].material_efficiency;
-              newJob.bpTE = blueprintOptions[0].time_efficiency / 2;
-            }
-
-            const structureData =
-              parentUser.settings.structures.manufacturing.find(
-                (i) => i.default === true
-              );
-            if (structureData !== undefined) {
-              newJob.rigType = structureData.rigType;
-              newJob.systemType = structureData.systemType;
-              newJob.structureType = structureData.structureValue;
-              newJob.structureTypeDisplay = structureData.structureName;
-            }
-          }
-          if (newJob.jobType === jobTypes.reaction) {
-            const structureData = parentUser.settings.structures.reaction.find(
-              (i) => i.default === true
-            );
-            if (structureData !== undefined) {
-              newJob.rigType = structureData.rigType;
-              newJob.systemType = structureData.systemType;
-              newJob.structureType = structureData.structureValue;
-              newJob.structureTypeDisplay = structureData.structureName;
-            }
-          }
-        }
-        if (itemQty != null) {
-          newJob.jobCount = Math.ceil(
-            itemQty /
-              (newJob.maxProductionLimit * newJob.rawData.products[0].quantity)
-          );
-          newJob.runCount = Math.ceil(
-            itemQty / newJob.rawData.products[0].quantity / newJob.jobCount
-          );
-        }
-
-        const calculatedJob = CalculateResources(newJob);
-        if (parentJobs !== undefined) {
-          let itemParents = [];
-          parentJobs.forEach((job) => {
-            job.build.materials.forEach((mat) => {
-              if (mat.typeID === calculatedJob.itemID) {
-                itemParents.push(job.jobID);
-              }
-            });
-          });
-          calculatedJob.parentJob = itemParents;
-        }
-        await newJobSnapshot(calculatedJob);
+        await newJobSnapshot(newJob);
 
         if (isLoggedIn) {
           await updateMainUserDoc();
-          await addNewJob(calculatedJob);
+          await addNewJob(newJob);
         }
 
         logEvent(analytics, "New Job", {
           loggedIn: isLoggedIn,
           UID: parentUser.accountID,
-          name: calculatedJob.name,
-          itemID: calculatedJob.itemID,
+          name: newJob.name,
+          itemID: newJob.itemID,
         });
         let returnPromiseArray = await Promise.all(promiseArray);
-        updateEvePrices((prev) =>  prev.concat(returnPromiseArray[0]) );
-        updateJobArray((prev) => [...prev, calculatedJob]);
+        updateEvePrices((prev) => prev.concat(returnPromiseArray[0]));
+        updateJobArray((prev) => [...prev, newJob]);
         updateDataExchange(false);
         setSnackbarData((prev) => ({
           ...prev,
           open: true,
-          message: `${calculatedJob.name} Added`,
+          message: `${newJob.name} Added`,
           severity: "success",
           autoHideDuration: 3000,
         }));
         if (parentJobs !== undefined) {
-          return calculatedJob;
+          return newJob;
         }
       }
       t.stop();
@@ -299,7 +177,7 @@ export function useJobManagement() {
     inputJob.build.materials.forEach((mat) => {
       itemIDs.push(mat.typeID);
     });
-  
+
     let jobPrices = await getItemPrices(itemIDs);
     if (jobPrices.length > 0) {
       updateEvePrices(evePrices.concat(jobPrices));
@@ -400,6 +278,7 @@ export function useJobManagement() {
     let finalBuildCount = [];
     let parentIDs = [];
     let childJobs = [];
+    let materialPriceIDs = new Set()
     for (let inputJob of inputJobs) {
       if (inputJob.isSnapshot) {
         inputJob = await downloadCharacterJobs(inputJob);

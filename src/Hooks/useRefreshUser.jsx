@@ -67,13 +67,15 @@ export function useRefreshUser() {
       JSON.stringify(charSettings.jobArraySnapshot)
     );
     refreshedUser.accountRefreshTokens = charSettings.refreshTokens;
-    let priceIDRequest = [];
+    let priceIDRequest = new Set();
     let promiseArray = [];
     charSettings.jobArraySnapshot.forEach((snap) => {
-      priceIDRequest = priceIDRequest.concat(snap.materialIDs);
-      priceIDRequest.push(snap.itemID);
+      snap.materialIDs.forEach((id) => {
+        priceIDRequest.add(id);
+      });
+      priceIDRequest.add(snap.itemID);
     });
-    let itemPrices = getItemPrices(priceIDRequest);
+    let itemPrices = getItemPrices([...priceIDRequest]);
     promiseArray.push(itemPrices);
 
     updateLoadingText((prevObj) => ({
@@ -177,7 +179,11 @@ export function useRefreshUser() {
         }
       }
     } else {
-      let rTokens = JSON.parse(localStorage.getItem(`${refreshedUser.CharacterHash} AdditionalAccounts`));
+      let rTokens = JSON.parse(
+        localStorage.getItem(
+          `${refreshedUser.CharacterHash} AdditionalAccounts`
+        )
+      );
       if (rTokens !== null) {
         for (let token of rTokens) {
           let newUser = await RefreshTokens(token.rToken, false);
@@ -240,12 +246,19 @@ export function useRefreshUser() {
             (i) => !failedRefresh.includes(i.CharacterHash)
           );
       } else {
-        let oldLS = JSON.parse(localStorage.getItem(`${refreshedUser.CharacterHash} AdditionalAccounts`));
+        let oldLS = JSON.parse(
+          localStorage.getItem(
+            `${refreshedUser.CharacterHash} AdditionalAccounts`
+          )
+        );
         let newLS = oldLS.filter(
           (i) => !failedRefresh.includes(i.CharacterHash)
         );
         console.log(newLS);
-        localStorage.setItem(`${refreshedUser.CharacterHash} AdditionalAccounts`, JSON.stringify(newLS));
+        localStorage.setItem(
+          `${refreshedUser.CharacterHash} AdditionalAccounts`,
+          JSON.stringify(newLS)
+        );
       }
     }
 
@@ -259,7 +272,7 @@ export function useRefreshUser() {
       return 0;
     });
     let returnPromiseArray = await Promise.all(promiseArray);
-    updateEvePrices(returnPromiseArray[0])
+    updateEvePrices(returnPromiseArray[0]);
     setJobStatus(charSettings.jobStatusArray);
     updateJobArray(charSettings.jobArraySnapshot);
     updateApiJobs(apiJobsArray);

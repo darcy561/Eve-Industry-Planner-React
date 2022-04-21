@@ -57,16 +57,15 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
   }
 });
 
-//Read Full Single Item Sing
+//Read Full Single Item Tranquilty
 app.get("/item/:itemID", async (req, res) => {
   if (req.params.itemID !== undefined) {
     try {
-      functions.logger.log(`Sing Data Used`);
       let document = db.collection("Items").doc(req.params.itemID);
       let product = await document.get();
       if (product.exists) {
         let response = product.data();
-        functions.logger.log(`${req.params.itemID} Build Data Sent`);
+        functions.logger.log(`${req.params.itemID} Tranquilty Build Data Sent`);
         return res
           .status(200)
           .set("Cache-Control", "public, max-age=600, s-maxage=3600")
@@ -92,16 +91,15 @@ app.get("/item/:itemID", async (req, res) => {
   }
 });
 
-//Read Full Single Item Sisi
+//Read Full Single Item Singularity
 app.get("/item/sisiData/:itemID", async (req, res) => {
   if (req.params.itemID !== undefined) {
     try {
-      functions.logger.log(`Sisi Data Used`);
       let document = db.collection("sisiItems").doc(req.params.itemID);
       let product = await document.get();
       if (product.exists) {
         let response = product.data();
-        functions.logger.log(`${req.params.itemID} Build Data Sent`);
+        functions.logger.log(`${req.params.itemID} Singularity Build Data Sent`);
         return res.status(200).send(response);
       } else {
         functions.logger.error("Error retrieving item data");

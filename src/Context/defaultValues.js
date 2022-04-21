@@ -2162,3 +2162,10 @@ export let listingType = [
   { id: "buy", name: "Buy Orders" },
   { id: "sell", name: "Sell Orders" },
 ];
+
+export let jobTypes = {
+  baseMaterial: 0,
+  manufacturing: 1,
+  reaction: 2,
+  pi: 3,
+};

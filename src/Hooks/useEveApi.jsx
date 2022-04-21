@@ -162,7 +162,9 @@ export function useEveApi() {
 
         filtered.forEach((item) => {
           const nameMatch = searchData.find((i) => i.itemID === item.type_id);
-          item.item_name = nameMatch.name;
+          if (nameMatch !== undefined) {
+            item.item_name = nameMatch.name;
+          }
         });
         return filtered;
       }

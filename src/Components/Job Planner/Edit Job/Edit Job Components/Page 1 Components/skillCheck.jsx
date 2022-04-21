@@ -2,8 +2,8 @@ import { Container, Grid, Icon, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
+import DoneIcon from "@mui/icons-material/Done";
+import CloseIcon from '@mui/icons-material/Close';
 import { Masonry } from "@mui/lab";
 
 export function SkillCheck() {
@@ -70,12 +70,12 @@ export function SkillCheck() {
                   <Masonry columns={1}>
                     {charSkill.activeLevel >= jSkill.level ? (
                       <Icon fontSize="large" color="success" >
-                        <CheckCircleIcon />
+                        <DoneIcon />
                       </Icon>
                     ) : (
                       <Grid item>
                         <Icon fontSize="large" color="error">
-                          <CancelIcon />
+                          <CloseIcon />
                         </Icon>
                         <Typography variant="body2">
                           Required Level: {jSkill.level}

@@ -10,9 +10,7 @@ import {
 } from "@mui/material";
 import { SideMenu } from "./Components/sidemenu";
 import MenuIcon from "@mui/icons-material/Menu";
-import {
-  IsLoggedInContext,
-} from "../../Context/AuthContext";
+import { IsLoggedInContext } from "../../Context/AuthContext";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { UserIcon } from "./Components/UserIcon";
@@ -95,9 +93,9 @@ export function Header({ mode, colorMode }) {
 
           {isLoggedIn ? (
             <>
-            <RefreshApiIcon />
+              <RefreshApiIcon />
               <UserIcon />
-              </>
+            </>
           ) : (
             <Box sx={{ marginLeft: "5px" }}>
               <picture>

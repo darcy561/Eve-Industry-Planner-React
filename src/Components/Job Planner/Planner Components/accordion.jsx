@@ -10,7 +10,6 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
-  FormControlLabel,
   Grid,
   Paper,
   Typography,
@@ -19,17 +18,34 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
-import {JobCardFrame} from "../Job Cards/JobCard";
+import AddIcon from "@mui/icons-material/Add";
+import { JobCardFrame } from "../Job Cards/JobCard";
 import { StatusSettings } from "./StatusSettings";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { ApiJobCard } from "../Job Cards/ApiJobCard";
+import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
+import { makeStyles } from "@mui/styles";
 
+const useStyles = makeStyles((theme) => ({
+  Accordion: {
+    "& .MuiAccordionSummary-root:hover": {
+      cursor: "default",
+    },
+  },
+  Header: {
+    color:
+      theme.palette.type === "dark" ? "secondary" : theme.palette.primary.main,
+  },
+}));
 
-export function PlannerAccordion({ updateJobSettingsTrigger}) {
+export function PlannerAccordion({ updateJobSettingsTrigger }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { jobArray } = useContext(JobArrayContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
+    MultiSelectJobPlannerContext
+  );
   const [statusSettingsTrigger, updateStatusSettingsTrigger] = useState(false);
   const [statusData, updateStatusData] = useState({
     id: 0,
@@ -40,8 +56,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger}) {
     completeAPIJobs: false,
   });
   const { updateMainUserDoc } = useFirebase();
-
-
+  const classes = useStyles();
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);
@@ -60,19 +75,25 @@ export function PlannerAccordion({ updateJobSettingsTrigger}) {
       {jobStatus.map((status) => {
         return (
           <Accordion
+            className={classes.Accordion}
             expanded={status.expanded === true}
             square={true}
             spacing={1}
             id={status.id}
             key={status.id}
             disableGutters={true}
+            sx={{ cursor: "normal" }}
           >
             <AccordionSummary
               expandIcon={
-                <ExpandMoreIcon
-                  color="secondary"
-                  onClick={() => handleExpand(status.id)}
-                />
+                <Tooltip title="Collapse/Expand Stage" arrow placement="bottom">
+                  <IconButton
+                    color="secondary"
+                    onClick={() => handleExpand(status.id)}
+                  >
+                    <ExpandMoreIcon />
+                  </IconButton>
+                </Tooltip>
               }
               aria-label="Expand Icon"
             >
@@ -87,35 +108,57 @@ export function PlannerAccordion({ updateJobSettingsTrigger}) {
                   sx={{
                     display: "flex",
                     flex: "1 1 95%",
+                    flexDirection: "row",
                   }}
                 >
-                  <Typography variant="h4" color="primary">
+                  <Typography variant="h4" className={classes.Header}>
                     {status.name}
                   </Typography>
                 </Box>
-                {isLoggedIn && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flex: "1 1 5%",
-                    }}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Tooltip
+                    title={`Select all jobs in the ${status.name} stage.`}
+                    arrow
+                    placement="bottom"
                   >
-                    <Tooltip title="Change status settings">
-                      <FormControlLabel
-                        label=""
+                    <IconButton
+                      color="secondary"
+                      onClick={() => {
+                        let newMultiArray = [...multiSelectJobPlanner];
+                        jobArray.forEach((job) => {
+                          if (job.jobStatus === status.id) {
+                            newMultiArray.push(job);
+                          }
+                        });
+                        updateMultiSelectJobPlanner(newMultiArray);
+                      }}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </Tooltip>
+                  {isLoggedIn && (
+                    <Tooltip
+                      title="Change status settings"
+                      arrow
+                      placement="bottom"
+                    >
+                      <IconButton
+                        color="secondary"
                         onClick={() => {
                           updateStatusData(status);
                           updateStatusSettingsTrigger(true);
                         }}
-                        control={
-                          <IconButton size="large">
-                            <SettingsIcon color="secondary" fontSize="small" />
-                          </IconButton>
-                        }
-                      />
+                      >
+                        <SettingsIcon fontSize="small" />
+                      </IconButton>
                     </Tooltip>
-                  </Box>
-                )}
+                  )}
+                </Box>
               </Box>
             </AccordionSummary>
             <AccordionDetails>
@@ -134,7 +177,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger}) {
                   }
                 })}
 
-                {status.openAPIJobs && (
+                {status.openAPIJobs &&
                   apiJobs.map((j) => {
                     if (!j.linked || j.linked === undefined) {
                       if (j.status === "active" && j.linked === false) {
@@ -144,23 +187,20 @@ export function PlannerAccordion({ updateJobSettingsTrigger}) {
                       if (j.linked === undefined) {
                         // ESI Research Jobs
                         return <ApiJobCard key={j.job_id} job={j} />;
-                      }
-                      else return null
+                      } else return null;
                     } else {
                       return null;
                     }
-                  })
-                )}
+                  })}
 
-                {status.completeAPIJobs && (
+                {status.completeAPIJobs &&
                   apiJobs.map((j) => {
                     if (!j.linked && j.status === "delivered") {
                       return <ApiJobCard key={j.job_id} job={j} />;
                     } else {
                       return null;
                     }
-                  })
-                )}
+                  })}
               </Grid>
             </AccordionDetails>
           </Accordion>

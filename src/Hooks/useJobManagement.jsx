@@ -198,22 +198,24 @@ export function useJobManagement() {
     }));
   };
 
-  const closeEditJob = async (inputJob) => {
+  const closeEditJob = async (inputJob, jobModified) => {
     const index = jobArray.findIndex((x) => inputJob.jobID === x.jobID);
     const newArray = [...jobArray];
     newArray[index] = inputJob;
     await updateJobSnapshot(inputJob);
     updateJobArray(newArray);
-    if (isLoggedIn) {
+    if (isLoggedIn && jobModified) {
       await updateMainUserDoc();
     }
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${inputJob.name} Updated`,
-      severity: "info",
-      autoHideDuration: 1000,
-    }));
+    if (jobModified) {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `${inputJob.name} Updated`,
+        severity: "info",
+        autoHideDuration: 1000,
+      }));
+    }
   };
 
   const replaceSnapshot = async (inputJob) => {

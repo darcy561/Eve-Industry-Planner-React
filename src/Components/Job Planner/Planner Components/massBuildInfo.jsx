@@ -25,7 +25,7 @@ export function MassBuildFeedback({}) {
           className={classes.Box}
           sx={{
             position: "fixed",
-            top: { xs: "5%", sm: "20%" },
+            top: { xs: "5%", sm: "10%" },
             right: "0",
             width: { xs: "100%", sm: "55%", md: "45%", lg: "35%", xl: "25%" },
             borderTopLeftRadius: "10px",

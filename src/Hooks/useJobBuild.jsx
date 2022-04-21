@@ -283,7 +283,7 @@ export function useJobBuild() {
   };
 
   const checkAllowBuild = () => {
-    if (!isLoggedIn && jobArray.length > 20) {
+    if (!isLoggedIn && jobArray.length > 50) {
       updateDialogData((prev) => ({
         ...prev,
         buttonText: "Close",

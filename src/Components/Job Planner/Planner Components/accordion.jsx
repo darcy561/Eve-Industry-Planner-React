@@ -10,7 +10,6 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
-  FormControlLabel,
   Grid,
   Paper,
   Typography,

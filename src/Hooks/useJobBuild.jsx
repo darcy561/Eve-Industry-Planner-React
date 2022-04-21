@@ -202,7 +202,7 @@ export function useJobBuild() {
               }
             }
           }
-          if (itemQty != null) {
+          if (itemQty !== null) {
             outputObject.jobCount = Math.ceil(
               itemQty /
                 (outputObject.maxProductionLimit *

@@ -1,11 +1,11 @@
 import { useContext } from "react";
 import {
   SnackBarDataContext,
-  DialogDataContext,
   DataExchangeContext,
   PageLoadContext,
   LoadingTextContext,
   MultiSelectJobPlannerContext,
+  MassBuildDisplayContext,
 } from "../Context/LayoutContext";
 import { UsersContext } from "../Context/AuthContext";
 import {
@@ -31,7 +31,6 @@ export function useJobManagement() {
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { jobStatus } = useContext(JobStatusContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateDialogData } = useContext(DialogDataContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
@@ -39,6 +38,7 @@ export function useJobManagement() {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateMassBuildDisplay } = useContext(MassBuildDisplayContext);
   const {
     addNewJob,
     downloadCharacterJobs,
@@ -49,6 +49,8 @@ export function useJobManagement() {
     uploadJobAsSnapshot,
   } = useFirebase();
   const { buildJob, checkAllowBuild } = useJobBuild();
+  const t = trace(performance, "CreateJobProcessFull");
+  const r = trace(performance, "MassCreateJobProcessFull");
 
   class newSnapshot {
     constructor(inputJob, childJobs, totalComplete, materialIDs) {
@@ -106,7 +108,6 @@ export function useJobManagement() {
   const parentUserIndex = users.findIndex((i) => i.ParentUser);
 
   const newJobProcess = async (itemID, itemQty, parentJobs) => {
-    const t = trace(performance, "CreateJobProcessFull");
     t.start();
     if (checkAllowBuild()) {
       updateDataExchange(true);
@@ -275,10 +276,12 @@ export function useJobManagement() {
   };
 
   const massBuildMaterials = async (inputJobs) => {
+    r.start();
     let finalBuildCount = [];
     let parentIDs = [];
     let childJobs = [];
-    let materialPriceIDs = new Set()
+    let materialPriceIDs = new Set();
+
     for (let inputJob of inputJobs) {
       if (inputJob.isSnapshot) {
         inputJob = await downloadCharacterJobs(inputJob);
@@ -287,6 +290,7 @@ export function useJobManagement() {
       }
       parentIDs.push(inputJob);
       inputJob.build.materials.forEach((material) => {
+        materialPriceIDs.add(material.typeID);
         if (
           material.jobType === jobTypes.manufacturing ||
           material.jobType === jobTypes.reaction
@@ -307,13 +311,39 @@ export function useJobManagement() {
         }
       });
     }
+    let newJobArray = [...jobArray];
+    updateMassBuildDisplay((prev) => ({
+      ...prev,
+      open: true,
+      currentJob: 0,
+      totalJob: finalBuildCount.length,
+    }));
+
     for (let item of finalBuildCount) {
-      let childJob = await newJobProcess(item.typeID, item.quantity, parentIDs);
-      childJobs.push(childJob);
+      if (checkAllowBuild()) {
+        const newJob = await buildJob(item.typeID, item.quantity, parentIDs);
+        if (newJob !== undefined) {
+          materialPriceIDs.add(newJob.itemID);
+          newJob.build.materials.forEach((mat) => {
+            materialPriceIDs.add(mat.typeID);
+          });
+          childJobs.push(newJob);
+          logEvent(analytics, "New Job", {
+            loggedIn: isLoggedIn,
+            UID: parentUser.accountID,
+            name: newJob.name,
+            itemID: newJob.itemID,
+          });
+          updateMassBuildDisplay((prev) => ({
+            ...prev,
+            currentJob: prev.currentJob + 1,
+          }));
+        }
+      }
     }
 
     for (let inputJob of inputJobs) {
-      let updatedJob = jobArray.find((i) => i.jobID === inputJob.jobID);
+      let updatedJob = newJobArray.find((i) => i.jobID === inputJob.jobID);
       for (let material of updatedJob.build.materials) {
         if (
           material.jobType === jobTypes.manufacturing ||
@@ -330,9 +360,48 @@ export function useJobManagement() {
         await uploadJob(updatedJob);
       }
     }
+
+    childJobs.sort((a, b) => {
+      if (a.name < b.name) {
+        return -1;
+      }
+      if (a.name > b.name) {
+        return 1;
+      }
+      return 0;
+    });
+
+    for (let childJob of childJobs) {
+      await newJobSnapshot(childJob);
+
+      if (isLoggedIn) {
+        await addNewJob(childJob);
+      }
+      newJobArray.push(childJob);
+    }
+
     if (isLoggedIn) {
       await updateMainUserDoc();
     }
+    updateMassBuildDisplay((prev) => ({
+      ...prev,
+      totalPrice: [...materialPriceIDs].length,
+    }));
+    let itemPrices = await getItemPrices([...materialPriceIDs]);
+    updateEvePrices((prev) => prev.concat(itemPrices));
+    updateJobArray(newJobArray);
+    updateMassBuildDisplay((prev) => ({
+      ...prev,
+      open: false,
+    }));
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `${childJobs.length} Job/Jobs Added`,
+      severity: "success",
+      autoHideDuration: 3000,
+    }));
+    r.stop();
   };
 
   const deleteJobProcess = async (inputJob) => {

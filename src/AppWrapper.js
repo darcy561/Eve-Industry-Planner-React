@@ -16,6 +16,7 @@ import {
   MultiSelectJobPlanner,
   RefreshState,
   PriceEntryList,
+  MassBuildDisplay,
 } from "./Context/LayoutContext";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
@@ -42,11 +43,13 @@ export function AppWrapper() {
                                     <ShoppingList>
                                       <PriceEntryList>
                                         <SisiDataFiles>
-                                          <LocalizationProvider
-                                            dateAdapter={AdapterDateFns}
-                                          >
-                                            <App />
-                                          </LocalizationProvider>
+                                          <MassBuildDisplay>
+                                            <LocalizationProvider
+                                              dateAdapter={AdapterDateFns}
+                                            >
+                                              <App />
+                                            </LocalizationProvider>
+                                          </MassBuildDisplay>
                                         </SisiDataFiles>
                                       </PriceEntryList>
                                     </ShoppingList>

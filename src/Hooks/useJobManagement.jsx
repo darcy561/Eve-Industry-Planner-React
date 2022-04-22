@@ -139,7 +139,6 @@ export function useJobManagement() {
 
         updateEvePrices((prev) =>  prev.concat(returnPromiseArray[0]) );
         updateJobArray((prev) => [...prev, newJob]);
-
         updateDataExchange(false);
         setSnackbarData((prev) => ({
           ...prev,

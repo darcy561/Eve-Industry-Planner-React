@@ -15,6 +15,7 @@ import {
 } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
 import { NavRoutes } from "./Routes";
+import { FeedbackIcon } from "./Components/Feedback/feedback";
 
 export default function App() {
   const [mode, setMode] = useState(localStorage.getItem("theme"));
@@ -100,6 +101,7 @@ export default function App() {
       <SnackBarNotification />
       <DialogBox />
       <NavRoutes mode={mode} colorMode={colorMode} />
+      <FeedbackIcon/>
     </ThemeProvider>
   );
 }

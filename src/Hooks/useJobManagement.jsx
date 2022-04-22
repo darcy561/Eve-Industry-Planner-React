@@ -138,7 +138,7 @@ export function useJobManagement() {
         let returnPromiseArray = await Promise.all(promiseArray);
 
         updateEvePrices((prev) =>  prev.concat(returnPromiseArray[0]) );
-        updateJobArray((prev) => [...prev, calculatedJob]);
+        updateJobArray((prev) => [...prev, newJob]);
 
         updateDataExchange(false);
         setSnackbarData((prev) => ({

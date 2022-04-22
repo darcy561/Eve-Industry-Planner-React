@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
   Box: {
     backgroundColor: theme.palette.type === "dark" ? grey[800] : "white",
     borderStyle: "solid",
-    borderRightStyle: "none",
+    borderRightStyle: { xs: "solid", sm: "none" },
     borderWidth: "1px",
     borderColor:
       theme.palette.type === "dark" ? grey[900] : theme.palette.secondary.main,
@@ -27,9 +27,9 @@ export function MassBuildFeedback({}) {
             position: "fixed",
             top: { xs: "5%", sm: "10%" },
             right: "0",
-            width: { xs: "100%", sm: "55%", md: "45%", lg: "35%", xl: "25%" },
-            borderTopLeftRadius: "10px",
-            borderBottomLeftRadius: "10px",
+            width: { xs: "100%", sm: "60%", md: "45%", lg: "35%", xl: "25%" },
+            borderTopLeftRadius: { xs: "0px", sm: "10px" },
+            borderBottomLeftRadius: { xs: "0px", sm: "10px" },
             padding: "20px",
             zIndex: "2",
             boxShadow: 5,

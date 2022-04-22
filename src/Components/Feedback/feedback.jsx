@@ -45,9 +45,11 @@ export function FeedbackIcon() {
         <DialogTitle color="primary" align="center">
           Feedback
         </DialogTitle>
-        <DialogContent>
-          As development continues I would love to hear back from you with ideas
-          or thoughts regarding this application.
+        <DialogContent align="center">
+          As development continues, I would love to hear back from you with
+          ideas or thoughts regarding this application.{<br />}
+          {<br />}Are there features you would like to see or are you having
+          trouble doing something in particular?
         </DialogContent>
         <DialogActions>
           <TextField

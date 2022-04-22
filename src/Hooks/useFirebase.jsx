@@ -21,6 +21,7 @@ export function useFirebase() {
   const parentUser = users.find((i) => i.ParentUser === true);
 
   const fbAuthState = async () => {
+    await getToken(appCheck, true);
     if (isLoggedIn) {
       const auth = getAuth();
       if (auth.currentUser.stsTokenManager.expirationTime <= Date.now()) {

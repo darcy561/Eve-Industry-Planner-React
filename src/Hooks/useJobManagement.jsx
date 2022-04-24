@@ -137,7 +137,7 @@ export function useJobManagement() {
         });
         let returnPromiseArray = await Promise.all(promiseArray);
 
-        updateEvePrices((prev) =>  prev.concat(returnPromiseArray[0]) );
+        updateEvePrices((prev) => prev.concat(returnPromiseArray[0]));
         updateJobArray((prev) => [...prev, newJob]);
         updateDataExchange(false);
         setSnackbarData((prev) => ({
@@ -175,12 +175,28 @@ export function useJobManagement() {
       jobDataComp: true,
       priceData: true,
     }));
-    let itemIDs = [inputJob.itemID];
+    let itemIDs = new Set();
+    itemIDs.add(inputJob.itemID);
     inputJob.build.materials.forEach((mat) => {
-      itemIDs.push(mat.typeID);
+      itemIDs.add(mat.typeID);
+      if (mat.childJob.length > 0) {
+        mat.childJob.forEach((cJ) => {
+          let job = jobArray.find((i) => i.jobID === cJ);
+          itemIDs.add(job.itemID);
+          if (job.isSnapshot) {
+            job.materialIDs.forEach((o) => {
+              itemIDs.add(o);
+            });
+          } else {
+            job.build.materials.forEach((i) => {
+              itemIDs.add(i.typeID);
+            });
+          }
+        });
+      }
     });
-    
-    let jobPrices = await getItemPrices(itemIDs);
+
+    let jobPrices = await getItemPrices([...itemIDs]);
     if (jobPrices.length > 0) {
       updateEvePrices(evePrices.concat(jobPrices));
     }

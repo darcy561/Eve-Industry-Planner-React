@@ -122,7 +122,7 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
                           ...prev,
                           open: true,
                           message: `${job.name} Unlinked`,
-                          severity: "success",
+                          severity: "error",
                           autoHideDuration: 1000,
                         }));
                         setJobModified(true);

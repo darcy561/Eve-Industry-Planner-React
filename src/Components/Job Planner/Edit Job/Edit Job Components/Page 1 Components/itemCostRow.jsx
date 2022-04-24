@@ -1,11 +1,16 @@
-import { Grid, Typography } from "@mui/material";
+import { Grid, Icon, Tooltip, Typography } from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { useState } from "react";
+import { ChildJobPopover } from "./childJobPopOver";
 
 export function ItemCostRow({
   material,
   marketSelect,
   listingSelect,
   materialPrice,
+  jobModified,
 }) {
+  const [displayPopover, updateDisplayPopover] = useState(null);
   return (
     <Grid
       container
@@ -27,8 +32,39 @@ export function ItemCostRow({
           alt=""
         />
       </Grid>
-      <Grid item xs={12} md={4} align="left">
-        <Typography sx={{ typography:{xs:"body2", sm:"body1"}}}> {material.name}</Typography>
+      <Grid container item xs={12} md={4} align="left">
+        <Grid item xs={11}>
+          <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+            {material.name}
+          </Typography>
+        </Grid>
+        {material.childJob.length > 0 ? (
+          <Grid item xs={1}>
+            <Tooltip
+              title="Click To View Child Job Material Costs"
+              arrow
+              placement="bottom"
+            >
+              <Icon
+                aria-haspopup="true"
+                color="primary"
+                onClick={(event) => {
+                  updateDisplayPopover(event.currentTarget);
+                }}
+              >
+                <InfoOutlinedIcon fontSize="small" />
+              </Icon>
+            </Tooltip>
+            <ChildJobPopover
+              displayPopover={displayPopover}
+              updateDisplayPopover={updateDisplayPopover}
+              material={material}
+              marketSelect={marketSelect}
+              listingSelect={listingSelect}
+              jobModified={jobModified}
+            />
+          </Grid>
+        ) : null}
       </Grid>
       <Grid
         item

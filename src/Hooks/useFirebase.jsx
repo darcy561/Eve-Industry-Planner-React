@@ -21,7 +21,8 @@ export function useFirebase() {
   const parentUser = users.find((i) => i.ParentUser === true);
 
   const fbAuthState = async () => {
-    await getToken(appCheck, true);
+    let appCheckToken = await getToken(appCheck);
+    console.log(appCheckToken);
     if (isLoggedIn) {
       const auth = getAuth();
       if (auth.currentUser.stsTokenManager.expirationTime <= Date.now()) {
@@ -294,26 +295,6 @@ export function useFirebase() {
     let promiseArray = [];
     let returnData = [];
 
-    const getItemPrice = async (item) => {
-      try {
-        const appCheckToken = await getToken(appCheck, true);
-        const itemPricePromise = await fetch(
-          `${process.env.REACT_APP_APIURL}/costs/${item}`,
-          {
-            headers: {
-              "X-Firebase-AppCheck": appCheckToken.token,
-            },
-          }
-        );
-        const itemPriceJson = await itemPricePromise.json();
-        if (itemPricePromise.status === 200) {
-          return itemPriceJson;
-        } else return {};
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     const getItemPriceBulk = async (array) => {
       try {
         const appCheckToken = await getToken(appCheck, true);
@@ -338,6 +319,7 @@ export function useFirebase() {
         console.log(err);
       }
     };
+
     if (idArray !== undefined && idArray.length > 0) {
       for (let id of idArray) {
         if (!evePrices.some((i) => i.typeID === id)) {
@@ -345,13 +327,7 @@ export function useFirebase() {
         }
       }
     }
-
-    if (requestArray.length > 0 && requestArray.length <= 6) {
-      for (let item of requestArray) {
-        let promise = getItemPrice(item);
-        promiseArray.push(promise);
-      }
-    } else if (requestArray.length > 6) {
+    if (requestArray.length > 0) {
       for (let x = 0; x < requestArray.length; x += 30) {
         let chunk = requestArray.slice(x, x + 30);
         let chunkData = getItemPriceBulk(chunk);

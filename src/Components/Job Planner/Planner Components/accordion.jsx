@@ -82,7 +82,6 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
             id={status.id}
             key={status.id}
             disableGutters={true}
-            sx={{ cursor: "normal" }}
           >
             <AccordionSummary
               expandIcon={

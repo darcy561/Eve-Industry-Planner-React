@@ -122,56 +122,49 @@ app.get("/item/sisiData/:itemID", async (req, res) => {
   }
 });
 
-app.get("/costs/:itemID", async (req, res) => {
-  if (req.params.itemID !== undefined) {
-    try {
-      let returnData = null;
-      const itemDoc = await db
-        .collection("Pricing")
-        .doc(req.params.itemID)
-        .get();
-      if (itemDoc.exists) {
-        returnData = itemDoc.data();
-      } else {
-        returnData = await ESIMarketQuery(req.params.itemID);
-      }
-      functions.logger.log(`${req.params.itemID} Price Data Sent`);
-      return res
-        .status(200)
-        .setHeader("Content-Type", "application/json")
-        .set("Cache-Control", "public, max-age=3600, s-maxage=7200")
-        .send(returnData);
-    } catch (err) {
-      functions.logger.error(err);
-      return res
-        .status(500)
-        .send("Error retrieving item data, please try again.");
-    }
-  } else {
-    return res.status(400).send("Item Data Missing From Request");
-  }
-});
+// app.get("/costs/:itemID", async (req, res) => {
+//   if (req.params.itemID !== undefined) {
+//     try {
+//       let returnData = null;
+//       const itemDoc = await db
+//         .collection("Pricing")
+//         .doc(req.params.itemID)
+//         .get();
+//       if (itemDoc.exists) {
+//         returnData = itemDoc.data();
+//       } else {
+//         returnData = await ESIMarketQuery(req.params.itemID);
+//       }
+//       functions.logger.log(`${req.params.itemID} Price Data Sent`);
+//       return res
+//         .status(200)
+//         .setHeader("Content-Type", "application/json")
+//         .set("Cache-Control", "public, max-age=3600, s-maxage=7200")
+//         .send(returnData);
+//     } catch (err) {
+//       functions.logger.error(err);
+//       return res
+//         .status(500)
+//         .send("Error retrieving item data, please try again.");
+//     }
+//   } else {
+//     return res.status(400).send("Item Data Missing From Request");
+//   }
+// });
 
 app.post("/costs/bulkPrices", async (req, res) => {
   if (req.body.idArray !== undefined) {
     try {
       let returnData = [];
       let missingItems = [];
-      for (let x = 0; x < req.body.idArray.length; x += 10) {
-        let chunk = req.body.idArray.slice(x, x + 10);
-        let chunkData = await db
-          .collection("Pricing")
-          .where("typeID", "in", chunk)
-          .get();
-        chunkData.forEach((doc) => {
-          let docData = doc.data();
-          if (chunk.includes(docData.typeID)) {
-            let index = chunk.indexOf(docData.typeID);
-            chunk.splice(index, 1);
-            returnData.push(docData);
-          }
-        });
-        missingItems = missingItems.concat(chunk);
+      let liveObject = await db.collection("Pricing").doc("Live").get()
+      let liveObjectData = liveObject.data()
+      for (let itemID of req.body.idArray) {
+        if (liveObjectData.hasOwnProperty(itemID.toString())) {
+          returnData.push(liveObjectData[itemID.toString()])
+        } else {
+          missingItems.push(itemID)
+        }
       }
 
       if (missingItems.length > 0) {

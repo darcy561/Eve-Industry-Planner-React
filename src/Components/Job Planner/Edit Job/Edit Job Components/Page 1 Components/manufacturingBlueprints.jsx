@@ -6,6 +6,7 @@ import {
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 
 const useStyles = makeStyles((theme) => ({
   inUse: {
@@ -18,10 +19,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function ManufacturingBlueprints() {
-  const { activeJob } = useContext(ActiveJobContext);
+export function ManufacturingBlueprints({ setJobModified }) {
+  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { users } = useContext(UsersContext);
+  const { CalculateResources } = useBlueprintCalc();
   const classes = useStyles();
 
   let blueprintOptions = [];
@@ -77,203 +79,231 @@ export function ManufacturingBlueprints() {
                 );
                 if (print.quantity === -2) {
                   return (
-                    <Grid
+                    <Tooltip
                       key={print.item_id}
-                      container
-                      item
-                      xs={12}
-                      sm={4}
-                      md={12}
-                      xl={6}
-                      sx={{
-                        marginBottom: "5px",
-                      }}
+                      title="Click To Use Blueprint"
+                      arrow
+                      placement="top"
                     >
                       <Grid
-                        item
-                        xs={3}
-                        sm={4}
-                        xl={5}
-                        align="center"
-                        sx={{ paddingTop: "5px" }}
-                      >
-                        <Badge
-                          overlap="circular"
-                          anchorOrigin={{
-                            vertical: "top",
-                            horizontal: "right",
-                          }}
-                          badgeContent={
-                            <Avatar
-                              src={`https://images.evetech.net/characters/${print.owner_id}/portrait`}
-                              variant="circular"
-                              sx={{
-                                height: "18px",
-                                width: "18px",
-                              }}
-                            />
-                          }
-                        >
-                          <picture>
-                            <source
-                              media="(max-width:700px)"
-                              srcSet={`https://images.evetech.net/types/${print.type_id}/bpc?size=32`}
-                            />
-                            <img
-                              src={`https://images.evetech.net/types/${print.type_id}/bpc?size=64`}
-                              alt=""
-                            />
-                          </picture>
-                        </Badge>
-                      </Grid>
-                      <Grid
+                        onClick={() => {
+                          const oldJob = JSON.parse(JSON.stringify(activeJob));
+                          oldJob.bpME = print.material_efficiency;
+                          oldJob.bpTE = print.time_efficiency / 2;
+                          const newJob = CalculateResources(oldJob);
+                          updateActiveJob(newJob);
+                          setJobModified(true);
+                        }}
                         container
                         item
-                        xs={9}
-                        sm={8}
-                        xl={7}
+                        xs={12}
+                        sm={4}
+                        md={12}
+                        xl={6}
                         sx={{
-                          paddingLeft: {
-                            xs: "0px",
-                            sm: "5px",
-                            md: "5px",
-                            lg: "0px",
-                            xl: "5px",
-                          },
+                          marginBottom: "5px",
                         }}
                       >
-                        <Grid item xs={6}>
-                          <Typography variant="caption">
-                            ME: {print.material_efficiency}
-                          </Typography>
+                        <Grid
+                          item
+                          xs={3}
+                          sm={4}
+                          xl={5}
+                          align="center"
+                          sx={{ paddingTop: "5px" }}
+                        >
+                          <Badge
+                            overlap="circular"
+                            anchorOrigin={{
+                              vertical: "top",
+                              horizontal: "right",
+                            }}
+                            badgeContent={
+                              <Avatar
+                                src={`https://images.evetech.net/characters/${print.owner_id}/portrait`}
+                                variant="circular"
+                                sx={{
+                                  height: "18px",
+                                  width: "18px",
+                                }}
+                              />
+                            }
+                          >
+                            <picture>
+                              <source
+                                media="(max-width:700px)"
+                                srcSet={`https://images.evetech.net/types/${print.type_id}/bpc?size=32`}
+                              />
+                              <img
+                                src={`https://images.evetech.net/types/${print.type_id}/bpc?size=64`}
+                                alt=""
+                              />
+                            </picture>
+                          </Badge>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Typography variant="caption">
-                            TE: {print.time_efficiency}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={12}>
-                          {esiJob ? (
-                            <Tooltip
-                              title="Runs available after current job completes. (Runs before starting current job)"
-                              arrow
-                              placement="top"
-                            >
-                              <Typography variant="caption">
-                                Runs: {print.runs - esiJob.runs} (
-                                {print.runs.toLocaleString(undefined, {
-                                  minimumFractionDigits: 0,
-                                  maximumFractionDigits: 0,
-                                })}
-                                )
-                              </Typography>
-                            </Tooltip>
-                          ) : (
+                        <Grid
+                          container
+                          item
+                          xs={9}
+                          sm={8}
+                          xl={7}
+                          sx={{
+                            paddingLeft: {
+                              xs: "0px",
+                              sm: "5px",
+                              md: "5px",
+                              lg: "0px",
+                              xl: "5px",
+                            },
+                          }}
+                        >
+                          <Grid item xs={6}>
                             <Typography variant="caption">
-                              Runs: {print.runs}
+                              ME: {print.material_efficiency}
                             </Typography>
-                          )}
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Typography variant="caption">
+                              TE: {print.time_efficiency}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12}>
+                            {esiJob ? (
+                              <Tooltip
+                                title="Runs available after current job completes. (Runs before starting current job)"
+                                arrow
+                                placement="top"
+                              >
+                                <Typography variant="caption">
+                                  Runs: {print.runs - esiJob.runs} (
+                                  {print.runs.toLocaleString(undefined, {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  })}
+                                  )
+                                </Typography>
+                              </Tooltip>
+                            ) : (
+                              <Typography variant="caption">
+                                Runs: {print.runs}
+                              </Typography>
+                            )}
+                          </Grid>
                         </Grid>
+                        <Grid
+                          item
+                          xs={12}
+                          className={
+                            esiJob && print.runs <= esiJob.runs
+                              ? classes.expiring
+                              : esiJob
+                              ? classes.inUse
+                              : "none"
+                          }
+                          sx={{ height: "3px" }}
+                        />
                       </Grid>
-                      <Grid
-                        item
-                        xs={12}
-                        className={
-                          esiJob && print.runs <= esiJob.runs
-                            ? classes.expiring
-                            : esiJob
-                            ? classes.inUse
-                            : "none"
-                        }
-                        sx={{ height: "3px" }}
-                      />
-                    </Grid>
+                    </Tooltip>
                   );
                 } else {
                   return (
-                    <Grid
+                    <Tooltip
                       key={print.item_id}
-                      container
-                      item
-                      xs={12}
-                      sm={4}
-                      md={12}
-                      xl={6}
-                      sx={{
-                        marginBottom: "5px",
-                      }}
+                      title="Click To Use Blueprint"
+                      arrow
+                      placement="top"
                     >
                       <Grid
-                        item
-                        xs={3}
-                        sm={4}
-                        xl={5}
-                        align="center"
-                        sx={{ paddingTop: "5px" }}
-                      >
-                        <Badge
-                          overlap="circular"
-                          anchorOrigin={{
-                            vertical: "top",
-                            horizontal: "right",
-                          }}
-                          badgeContent={
-                            <Avatar
-                              src={`https://images.evetech.net/characters/${print.owner_id}/portrait`}
-                              variant="circular"
-                              sx={{
-                                height: "18px",
-                                width: "18px",
-                              }}
-                            />
-                          }
-                        >
-                          <picture>
-                            <source
-                              media="(max-width:700px)"
-                              srcSet={`https://images.evetech.net/types/${print.type_id}/bp?size=32`}
-                            />
-                            <img
-                              src={`https://images.evetech.net/types/${print.type_id}/bp?size=64`}
-                              alt=""
-                            />
-                          </picture>
-                        </Badge>
-                      </Grid>
-                      <Grid
+                        onClick={() => {
+                          const oldJob = JSON.parse(JSON.stringify(activeJob));
+                          oldJob.bpME = print.material_efficiency;
+                          oldJob.bpTE = print.time_efficiency / 2;
+                          const newJob = CalculateResources(oldJob);
+                          updateActiveJob(newJob);
+                          setJobModified(true);
+                        }}
                         container
                         item
-                        xs={9}
-                        sm={8}
-                        xl={7}
+                        xs={12}
+                        sm={4}
+                        md={12}
+                        xl={6}
                         sx={{
-                          paddingLeft: {
-                            xs: "0px",
-                            sm: "5px",
-                            md: "5px",
-                            lg: "0px",
-                            xl: "5px",
-                          },
+                          marginBottom: "5px",
                         }}
                       >
-                        <Grid item xs={6}>
-                          <Typography variant="caption">
-                            ME: {print.material_efficiency}
-                          </Typography>
+                        <Grid
+                          item
+                          xs={3}
+                          sm={4}
+                          xl={5}
+                          align="center"
+                          sx={{ paddingTop: "5px" }}
+                        >
+                          <Badge
+                            overlap="circular"
+                            anchorOrigin={{
+                              vertical: "top",
+                              horizontal: "right",
+                            }}
+                            badgeContent={
+                              <Avatar
+                                src={`https://images.evetech.net/characters/${print.owner_id}/portrait`}
+                                variant="circular"
+                                sx={{
+                                  height: "18px",
+                                  width: "18px",
+                                }}
+                              />
+                            }
+                          >
+                            <picture>
+                              <source
+                                media="(max-width:700px)"
+                                srcSet={`https://images.evetech.net/types/${print.type_id}/bp?size=32`}
+                              />
+                              <img
+                                src={`https://images.evetech.net/types/${print.type_id}/bp?size=64`}
+                                alt=""
+                              />
+                            </picture>
+                          </Badge>
                         </Grid>
-                        <Grid item xs={6}>
-                          <Typography variant="caption">
-                            TE: {print.time_efficiency}
-                          </Typography>
+                        <Grid
+                          container
+                          item
+                          xs={9}
+                          sm={8}
+                          xl={7}
+                          sx={{
+                            paddingLeft: {
+                              xs: "0px",
+                              sm: "5px",
+                              md: "5px",
+                              lg: "0px",
+                              xl: "5px",
+                            },
+                          }}
+                        >
+                          <Grid item xs={6}>
+                            <Typography variant="caption">
+                              ME: {print.material_efficiency}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Typography variant="caption">
+                              TE: {print.time_efficiency}
+                            </Typography>
+                          </Grid>
                         </Grid>
+                        <Grid
+                          item
+                          xs={12}
+                          className={esiJob ? classes.inUse : "none"}
+                          sx={{ height: "3px" }}
+                        />
                       </Grid>
-                      <Grid
-                        item
-                        xs={12}
-                        className={esiJob ? classes.inUse : "none"}
-                        sx={{ height: "3px" }}
-                      />
-                    </Grid>
+                    </Tooltip>
                   );
                 }
               })}

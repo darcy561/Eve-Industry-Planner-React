@@ -9,7 +9,7 @@ import {
   marketOptions,
 } from "../../../../../Context/defaultValues";
 
-export function ItemCostPanel() {
+export function ItemCostPanel({jobModified}) {
   const { activeJob } = useContext(ActiveJobContext);
   const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
@@ -173,6 +173,7 @@ export function ItemCostPanel() {
                 marketSelect={marketSelect}
                 listingSelect={listingSelect}
                 materialPrice={materialPrice}
+                jobModified={jobModified}
               />
             );
           })}

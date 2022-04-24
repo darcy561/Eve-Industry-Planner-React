@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function MassBuildFeedback({}) {
+export function MassBuildFeedback() {
   const { massBuildDisplay } = useContext(MassBuildDisplayContext);
   const classes = useStyles();
   if (massBuildDisplay.open) {

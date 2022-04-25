@@ -1,6 +1,9 @@
-import { Grid, IconButton, Paper, Typography } from "@mui/material";
+import { Button, Grid, IconButton, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
-import { IsLoggedInContext, UsersContext } from "../../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
@@ -43,7 +46,13 @@ export function AvailableTransactionData({
                 container
                 sx={{ marginBottom: "10px" }}
               >
-                <Grid item xs={6} md={1} align="center" sx={{marginBottom:{xs:"10px", sm:"0px"}}}>
+                <Grid
+                  item
+                  xs={6}
+                  md={1}
+                  align="center"
+                  sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
+                >
                   <Typography variant="body2">
                     {new Date(tData.date).toLocaleString()}
                   </Typography>
@@ -51,32 +60,43 @@ export function AvailableTransactionData({
                 <Grid item xs={6} md={2} align="center">
                   <Typography variant="body2">{tData.description}</Typography>
                 </Grid>
-                <Grid item xs={12} md={2} align="center" sx={{marginBottom:{xs:"10px", sm:"0px"}}}>
+                <Grid
+                  item
+                  xs={12}
+                  md={2}
+                  align="center"
+                  sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
+                >
                   <Typography variant="body2">
-                    {tData.quantity.toLocaleString(undefined,{
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                })}{""}@{" "}
-                    {tData.unit_price.toLocaleString(undefined,{
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })} ISK Each
+                    {tData.quantity.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}
+                    {""}@{" "}
+                    {tData.unit_price.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    ISK Each
                   </Typography>
                 </Grid>
                 <Grid item xs={6} md={2} align="center">
                   <Typography variant="body2">
-                    {tData.amount.toLocaleString(undefined,{
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })} ISK
+                    {tData.amount.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    ISK
                   </Typography>
                 </Grid>
                 <Grid item xs={6} md={2} align="center">
                   <Typography variant="body2">
-                    -{tData.tax.toLocaleString(undefined,{
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })} ISK
+                    -
+                    {tData.tax.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    ISK
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={1} align="center">
@@ -94,9 +114,7 @@ export function AvailableTransactionData({
                           activeJob.build.sale.marketOrders[0].order_id;
                       }
 
-                      newTransactionArray.push(
-                        tData
-                      );
+                      newTransactionArray.push(tData);
                       newTransactionArray.sort((a, b) => {
                         return new Date(b.date) - new Date(a.date);
                       });
@@ -131,10 +149,10 @@ export function AvailableTransactionData({
                       }));
 
                       setJobModified(true);
-                      
+
                       logEvent(analytics, "linkedTransaction", {
                         UID: users[parentUserIndex].accountID,
-                        isLoggedIn: isLoggedIn
+                        isLoggedIn: isLoggedIn,
                       });
                     }}
                   >
@@ -150,6 +168,63 @@ export function AvailableTransactionData({
               There are currently no new transactions matching your order to
               display, assign a new order or refresh the API data.
             </Typography>
+          </Grid>
+        )}
+        {transactionData.length > 1 && (
+          <Grid ite xs={12} align="right">
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => {
+                let newTransactionArray = [
+                  ...activeJob.build.sale.transactions,
+                ];
+                let newUsers = [...users];
+                let parentUserIndex = users.findIndex(
+                  (i) => i.ParentUser === true
+                );
+                for (let trans of transactionData) {
+                  if (activeJob.build.sale.marketOrders > 1) {
+                    trans.order_id = activeOrder;
+                  } else {
+                    trans.order_id =
+                      activeJob.build.sale.marketOrders[0].order_id;
+                  }
+                  newTransactionArray.push(trans);
+                  newUsers[parentUserIndex].linkedTrans.push(
+                    trans.transaction_id
+                  );
+                }
+                newTransactionArray.sort((a, b) => {
+                  return new Date(b.date) - new Date(a.date);
+                });
+                updateUsers(newUsers);
+                updateActiveJob((prev) => ({
+                  ...prev,
+                  build: {
+                    ...prev.build,
+                    sale: {
+                      ...prev.build.sale,
+                      transactions: newTransactionArray,
+                    },
+                  },
+                }));
+                setSnackbarData((prev) => ({
+                  ...prev,
+                  open: true,
+                  message: "All Transactions Linked",
+                  severity: "success",
+                  autoHideDuration: 1000,
+                }));
+                setJobModified(true);
+                logEvent(analytics, "massLinkedTransactions", {
+                  UID: users[parentUserIndex].accountID,
+                  isLoggedIn: isLoggedIn,
+                });
+              }}
+            >
+              Link All
+            </Button>
           </Grid>
         )}
       </Grid>

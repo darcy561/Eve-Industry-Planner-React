@@ -34,7 +34,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
       <Paper
         sx={{
           padding: "20px",
-          position:"relative"
+          position: "relative",
         }}
         elevation={3}
         square={true}
@@ -47,36 +47,36 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
               </Typography>
             </Grid>
 
-              <IconButton
-                id="linkedTransactions_menu_button"
-                onClick={handleMenuClick}
-                aria-controls={
-                  Boolean(anchorEl) ? "linkedTransactions_menu" : undefined
-                }
-                aria-haspopup="true"
-                aria-expanded={Boolean(anchorEl) ? "true" : undefined}
-                sx={{position:"absolute", top:"10px", right:"10px"}}
-              >
-                <MoreVertIcon size="small" color="Secondary" />
-              </IconButton>
-              <Menu
-                id="linkedTransactions_menu"
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-                MenuListProps={{
-                  "aria-labelledby": "linkedTransactions_menu_button",
+            <IconButton
+              id="linkedTransactions_menu_button"
+              onClick={handleMenuClick}
+              aria-controls={
+                Boolean(anchorEl) ? "linkedTransactions_menu" : undefined
+              }
+              aria-haspopup="true"
+              aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+              sx={{ position: "absolute", top: "10px", right: "10px" }}
+            >
+              <MoreVertIcon size="small" color="Secondary" />
+            </IconButton>
+            <Menu
+              id="linkedTransactions_menu"
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              MenuListProps={{
+                "aria-labelledby": "linkedTransactions_menu_button",
+              }}
+            >
+              <MenuItem
+                onClick={() => {
+                  updateNewTransactionTrigger(true);
+                  setAnchorEl(null);
                 }}
               >
-                <MenuItem
-                  onClick={() => {
-                    updateNewTransactionTrigger(true);
-                    setAnchorEl(null);
-                  }}
-                >
-                  Add Manual Transaction
-                </MenuItem>
-              </Menu>
+                Add Manual Transaction
+              </MenuItem>
+            </Menu>
           </Grid>
           {activeJob.build.sale.transactions.length !== 0 ? (
             activeJob.build.sale.transactions.map((tData) => {
@@ -108,30 +108,34 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                     sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
                   >
                     <Typography variant="body2">
-                      {tData.quantity.toLocaleString(undefined,{
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                })}
-                      {" "}@ {tData.unit_price.toLocaleString(undefined,{
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })} ISK Each
+                      {tData.quantity.toLocaleString(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}{" "}
+                      @{" "}
+                      {tData.unit_price.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      ISK Each
                     </Typography>
                   </Grid>
                   <Grid item xs={6} md={2} align="center">
                     <Typography variant="body2">
-                      {tData.amount.toLocaleString(undefined,{
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })}
+                      {tData.amount.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </Typography>
                   </Grid>
                   <Grid item xs={6} md={2} align="center">
                     <Typography variant="body2">
-                      -{tData.tax.toLocaleString(undefined,{
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })} Tax Paid
+                      -
+                      {tData.tax.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      Tax Paid
                     </Typography>
                   </Grid>
                   <Grid item xs={12} md={1} align="center">

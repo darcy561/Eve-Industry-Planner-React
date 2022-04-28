@@ -12,6 +12,25 @@ import { UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { MdOutlineLinkOff } from "react-icons/md";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  TextField: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
+  },
+  // StatusBox: {
+  //   color: theme.palette.type === "dark"
+  //   ? "black"
+  //   : theme.palette.secondary.main,
+  // }
+}));
 
 class BrokerFee {
   constructor(entry, order, char) {
@@ -32,6 +51,7 @@ export function LinkedMarketOrders({
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const classes = useStyles();
 
   let linkedMarketOrders = [];
   let replacementBrokersFees = [];
@@ -139,10 +159,16 @@ export function LinkedMarketOrders({
             (i) => i.CharacterHash === order.CharacterHash
           );
           return (
-            <Grid key={order.order_id} container item xs={12} sm={6}>
+            <Grid
+              key={order.order_id}
+              container
+              item
+              xs={12}
+              sm={6}
+              sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
+            >
               <Grid container item>
-                <Tooltip title="Click" arrow>
-                <Grid item xs={12} align="center"  onClick={()=>{console.log(order.order_id)}}>
+                <Grid item xs={12} align="center">
                   <Avatar
                     src={
                       charData !== undefined
@@ -183,9 +209,6 @@ export function LinkedMarketOrders({
                       {order.location_name}
                     </Typography>
                   </Grid>
-                  {/* <Grid item xs={12}>
-                  <Typography variant="body2">{order.region_name}</Typography>
-                </Grid> */}
                   <Grid item xs={12}>
                     <Typography variant="body2">
                       Duration: {order.duration} Days
@@ -197,7 +220,7 @@ export function LinkedMarketOrders({
                         <Box
                           sx={{
                             backgroundColor: "error.main",
-                            color: "white",
+                            color: "black",
                             marginLeft: "auto",
                             marginRight: "auto",
                             padding: "2px",
@@ -211,9 +234,10 @@ export function LinkedMarketOrders({
                       {(charData !== undefined && order.volume_remain === 0) ||
                         (order.complete && (
                           <Box
+                            className={classes.StatusBox}
                             sx={{
                               backgroundColor: "secondary.main",
-                              color: "white",
+                              color: "black",
                               marginLeft: "auto",
                               marginRight: "auto",
                               padding: "2px",
@@ -228,7 +252,9 @@ export function LinkedMarketOrders({
                         order.volume_remain === 0 &&
                         order.complete && (
                           <Box
+                            className={classes.StatusBox}
                             sx={{
+                              color: "black",
                               backgroundColor: "manufacturing.main",
                               marginLeft: "auto",
                               marginRight: "auto",
@@ -242,8 +268,9 @@ export function LinkedMarketOrders({
                         order.volume_remain > 0 &&
                         !order.complete && (
                           <Box
+                            className={classes.StatusBox}
                             sx={{
-                              backgroundColor: "secondary.main",
+                              color: "black",
                               marginLeft: "auto",
                               marginRight: "auto",
                               padding: "2px",
@@ -254,9 +281,19 @@ export function LinkedMarketOrders({
                         )}
                     </>
                   </Grid>
-                  </Grid>
+                </Grid>
+                <Grid item xs={12} align="center">
+                  <Tooltip
+                    title="Filter Transactions By Order"
+                    arrow
+                    placement="bottom"
+                  >
+                    <IconButton color="primary" sx={{ marginRight: "20px" }} onClick={() => {
+                      updateActiveOrder(order.order_id)
+                    }}>
+                      <FilterAltIcon />
+                    </IconButton>
                   </Tooltip>
-                <Grid item xs={12}align="center">
                   <Tooltip
                     title="Unlink Order From Job."
                     arrow

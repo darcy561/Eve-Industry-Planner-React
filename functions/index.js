@@ -190,7 +190,15 @@ app.post("/costs/bulkPrices", async (req, res) => {
   }
 });
 
+app.get("/systemindexes/:systemID", async (req, res) => {
+  if (req.params.systemID !== undefined) {
+    const indexesRaw = await admin.storage().bucket().file("systemIndexes.json").download()
+    const indexesParsed = JSON.parse(indexesRaw);
+  }
+})
+
 //Export the api to Firebase Cloud Functions
 exports.api = functions.https.onRequest(app);
 exports.user = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
+exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");

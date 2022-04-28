@@ -41,8 +41,8 @@ exports.scheduledFunction = functions.pubsub
         refreshData.forEach((i) => {
           failedIDs.push(i.typeID, server.status);
         });
-        failedRefreshCount++;
-        functions.logger.error(`Eve Servers Offline`);
+        failedRefreshCount = failedIDs.length;
+        functions.logger.error(`Eve Servers Offline - Refresh Item Prices`);
       }
       functions.logger.info(
         `Number of TypeID's Refreshed ${successRefreshCount}`

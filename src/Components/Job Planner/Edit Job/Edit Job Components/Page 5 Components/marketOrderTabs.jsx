@@ -9,6 +9,7 @@ export function MarketOrderTabs({
   setJobModified,
   itemOrderMatch,
   updateShowAvailableOrders,
+  activeOrder,
   updateActiveOrder,
 }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -50,6 +51,7 @@ export function MarketOrderTabs({
         <TabPanel value="0">
           <LinkedMarketOrders
             setJobModified={setJobModified}
+            activeOrder={activeOrder}
             updateActiveOrder={updateActiveOrder}
             updateShowAvailableOrders={updateShowAvailableOrders}
           />

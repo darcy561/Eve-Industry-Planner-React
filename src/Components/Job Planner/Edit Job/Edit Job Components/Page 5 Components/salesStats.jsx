@@ -143,7 +143,7 @@ export function SalesStats() {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })
-                : 0}
+                : 0.0}
             </Typography>
           </Grid>
         </Grid>

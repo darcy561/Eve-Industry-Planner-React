@@ -116,7 +116,7 @@ export function ChildJobPopover({
             <Grid container item xs={12} sx={{ marginTop: "10px" }}>
               <Grid item xs={8}>
                 <Typography variant="body2">
-                  Unit Price{" "}
+                  Item{" "}
                   {listingSelect.charAt(0).toUpperCase() +
                     listingSelect.slice(1)}{" "}
                   Price

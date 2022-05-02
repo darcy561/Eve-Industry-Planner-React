@@ -80,132 +80,136 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
           </Grid>
           {activeJob.build.sale.transactions.length !== 0 ? (
             activeJob.build.sale.transactions.map((tData) => {
-              return (
-                <Grid
-                  key={tData.transaction_id}
-                  container
-                  sx={{ marginBottom: "10px" }}
-                >
+              if (!activeOrder.some((t) => t !== tData.location_id)) {
+                return (
                   <Grid
-                    item
-                    xs={4}
-                    md={1}
-                    align="center"
-                    sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
+                    key={tData.transaction_id}
+                    container
+                    sx={{ marginBottom: "10px" }}
                   >
-                    <Typography variant="body2">
-                      {new Date(tData.date).toLocaleString()}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6} md={2} align="center">
-                    <Typography variant="body2">{tData.description}</Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    md={2}
-                    align="center"
-                    sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
-                  >
-                    <Typography variant="body2">
-                      {tData.quantity.toLocaleString(undefined, {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      })}{" "}
-                      @{" "}
-                      {tData.unit_price.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}{" "}
-                      ISK Each
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6} md={2} align="center">
-                    <Typography variant="body2">
-                      {tData.amount.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6} md={2} align="center">
-                    <Typography variant="body2">
-                      -
-                      {tData.tax.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}{" "}
-                      Tax Paid
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={1} align="center">
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => {
-                        const tIndex =
-                          activeJob.build.sale.transactions.findIndex(
-                            (trans) =>
-                              trans.transaction_id === tData.transaction_id
-                          );
-
-                        let newTransArray = [
-                          ...activeJob.build.sale.transactions,
-                        ];
-                        if (tIndex !== -1) {
-                          newTransArray.splice(tIndex, 1);
-                        }
-                        const parentUserIndex = users.findIndex(
-                          (i) => i.ParentUser === true
-                        );
-
-                        const uIndex = users[
-                          parentUserIndex
-                        ].linkedTrans.findIndex(
-                          (trans) => trans === tData.transaction_id
-                        );
-
-                        let newUsersArray = [...users];
-                        if (uIndex !== -1) {
-                          newUsersArray[parentUserIndex].linkedTrans.splice(
-                            uIndex,
-                            1
-                          );
-                        }
-
-                        updateUsers(newUsersArray);
-
-                        updateActiveJob((prev) => ({
-                          ...prev,
-                          build: {
-                            ...prev.build,
-                            sale: {
-                              ...prev.build.sale,
-                              transactions: newTransArray,
-                            },
-                          },
-                        }));
-
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Unlinked",
-                          severity: "error",
-                          autoHideDuration: 1000,
-                        }));
-
-                        setJobModified(true);
-                      }}
+                    <Grid
+                      item
+                      xs={4}
+                      md={1}
+                      align="center"
+                      sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
                     >
-                      <ClearIcon />
-                    </IconButton>
+                      <Typography variant="body2">
+                        {new Date(tData.date).toLocaleString()}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6} md={2} align="center">
+                      <Typography variant="body2">
+                        {tData.description}
+                      </Typography>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      md={2}
+                      align="center"
+                      sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
+                    >
+                      <Typography variant="body2">
+                        {tData.quantity.toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        })}{" "}
+                        @{" "}
+                        {tData.unit_price.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        ISK Each
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6} md={2} align="center">
+                      <Typography variant="body2">
+                        {tData.amount.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6} md={2} align="center">
+                      <Typography variant="body2">
+                        -
+                        {tData.tax.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        Tax Paid
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={1} align="center">
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => {
+                          const tIndex =
+                            activeJob.build.sale.transactions.findIndex(
+                              (trans) =>
+                                trans.transaction_id === tData.transaction_id
+                            );
+
+                          let newTransArray = [
+                            ...activeJob.build.sale.transactions,
+                          ];
+                          if (tIndex !== -1) {
+                            newTransArray.splice(tIndex, 1);
+                          }
+                          const parentUserIndex = users.findIndex(
+                            (i) => i.ParentUser === true
+                          );
+
+                          const uIndex = users[
+                            parentUserIndex
+                          ].linkedTrans.findIndex(
+                            (trans) => trans === tData.transaction_id
+                          );
+
+                          let newUsersArray = [...users];
+                          if (uIndex !== -1) {
+                            newUsersArray[parentUserIndex].linkedTrans.splice(
+                              uIndex,
+                              1
+                            );
+                          }
+
+                          updateUsers(newUsersArray);
+
+                          updateActiveJob((prev) => ({
+                            ...prev,
+                            build: {
+                              ...prev.build,
+                              sale: {
+                                ...prev.build.sale,
+                                transactions: newTransArray,
+                              },
+                            },
+                          }));
+
+                          setSnackbarData((prev) => ({
+                            ...prev,
+                            open: true,
+                            message: "Unlinked",
+                            severity: "error",
+                            autoHideDuration: 1000,
+                          }));
+
+                          setJobModified(true);
+                        }}
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </Grid>
                   </Grid>
-                </Grid>
-              );
+                );
+              } else return null;
             })
           ) : (
             <Grid item xs={12} align="center">
-              <Typography variant="body1">
+              <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
                 There are currently no transactions linked to this market order.
               </Typography>
             </Grid>

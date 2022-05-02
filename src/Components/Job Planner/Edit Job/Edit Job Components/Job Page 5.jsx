@@ -10,11 +10,12 @@ import { AvailableTransactionData } from "./Page 5 Components/availableTransacti
 import { LinkedTransactions } from "./Page 5 Components/linkedTransactions";
 import { TutorialStep5 } from "./Page 5 Components/tutorialStep5";
 import { MarketOrderTabs } from "./Page 5 Components/marketOrderTabs";
+import { MarketCostsPanel } from "./Page 5 Components/marketCostsPanel";
 
 export function EditPage5({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
   const [showAvailableOrders, updateShowAvailableOrders] = useState(false);
-  const [activeOrder, updateActiveOrder] = useState(null);
+  const [activeOrder, updateActiveOrder] = useState([]);
   const { users } = useContext(UsersContext);
   const { eveIDs } = useContext(EveIDsContext);
   let itemOrderMatch = [];
@@ -127,11 +128,15 @@ export function EditPage5({ setJobModified }) {
             <TutorialStep5 />
           </Grid>
         )}
+        <Grid item xs={12}>
+          <MarketCostsPanel/>
+        </Grid>
         <Grid item xs={12} md={8}>
           <MarketOrderTabs
             setJobModified={setJobModified}
             itemOrderMatch={itemOrderMatch}
             updateShowAvailableOrders={updateShowAvailableOrders}
+            activeOrder={activeOrder}
             updateActiveOrder={updateActiveOrder}
           />
         </Grid>

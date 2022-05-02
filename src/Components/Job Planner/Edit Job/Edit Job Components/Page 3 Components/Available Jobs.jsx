@@ -78,177 +78,194 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     activeJob.apiJobs.length < activeJob.jobCount
   ) {
     return (
-      <Grid container direction="row" sx={{ marginBottom: "10px" }}>
-        {jobMatches.map((job) => {
-          const jobOwner = users.find(
-            (i) => i.CharacterID === job.installer_id
-          );
-          const jobBP = jobOwner.apiBlueprints.find(
-            (i) => i.item_id === job.blueprint_id
-          );
+      <>
+        <Grid
+          container
+          direction="row"
+          sx={{
+            marginBottom: "10px",
+            overflowY: "auto",
+            maxHeight: {
+              xs: "350px",
+              sm: "260px",
+              md: "240px",
+              lg: "240px",
+              xl: "480px",
+            },
+          }}
+        >
+          {jobMatches.map((job) => {
+            const jobOwner = users.find(
+              (i) => i.CharacterID === job.installer_id
+            );
+            const jobBP = jobOwner.apiBlueprints.find(
+              (i) => i.item_id === job.blueprint_id
+            );
 
-          let blueprintType = "bpc";
-          if (jobBP !== undefined) {
-            blueprintType = "bp";
-            if (jobBP.quantity === -2) {
-              blueprintType = "bpc";
+            let blueprintType = "bpc";
+            if (jobBP !== undefined) {
+              blueprintType = "bp";
+              if (jobBP.quantity === -2) {
+                blueprintType = "bpc";
+              }
             }
-          }
 
-          const timeRemaining = timeRemainingcalc(job);
-          return (
-            <Grid
-              key={job.job_id}
-              item
-              container
-              direction="row"
-              xs={6}
-              sm={4}
-              md={3}
-              lg={2}
-              sx={{ marginBottom: "5px", marginTop: "5px" }}
-            >
+            const timeRemaining = timeRemainingcalc(job);
+            return (
               <Grid
-                container
+                key={job.job_id}
                 item
-                justifyContent="center"
-                alignItems="center"
-                xs={12}
+                container
+                direction="row"
+                xs={6}
+                sm={4}
+                md={3}
+                lg={2}
+                sx={{ marginBottom: "5px", marginTop: "5px" }}
               >
-                <Badge
-                  overlap="circular"
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  badgeContent={
-                    <Avatar
-                      src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
-                      variant="circular"
-                      sx={{
-                        height: { xs: "18px", sm: "26px", md: "36px" },
-                        width: { xs: "18px", sm: "26px", md: "36px" },
-                      }}
-                    />
-                  }
+                <Grid
+                  container
+                  item
+                  justifyContent="center"
+                  alignItems="center"
+                  xs={12}
                 >
-                  <picture>
-                    <source
-                      media="(max-width:700px)"
-                      srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
-                    />
-                    <img
-                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
-                      alt=""
-                    />
-                  </picture>
-                </Badge>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography
-                  variant="body2"
-                  align="center"
-                >{`${job.runs} Runs`}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body2" align="center">
-                  {job.facility_name}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body2" align="center">
-                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12}>
-                {job.status !== "delivered" ? (
-                  job.status === "active" &&
-                  timeRemaining.days === 0 &&
-                  timeRemaining.hours === 0 &&
-                  timeRemaining.mins === 0 ? (
-                    <Typography variant="body2" align="center">
-                      Ready to Deliver
-                    </Typography>
-                  ) : (
-                    <Typography variant="body2" align="center">
-                      {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                      {timeRemaining.mins}M
-                    </Typography>
-                  )
-                ) : null}
-              </Grid>
-              <Grid item xs={12} align="center">
-                <Tooltip title="Click to link to job">
-                  <IconButton
-                    color="primary"
-                    size="standard"
-                    onClick={() => {
-                      setJobModified(true);
-
-                      const ParentUserIndex = users.findIndex(
-                        (u) => u.ParentUser === true
-                      );
-
-                      let newUsersArray = [...users];
-
-                      const newActiveJobArray = [...activeJob.apiJobs];
-                      newActiveJobArray.push(job.job_id);
-
-                      let newLinkedJobsArray = [
-                        ...activeJob.build.costs.linkedJobs,
-                      ];
-
-                      newLinkedJobsArray.push(
-                        Object.assign({}, new ESIJob(job, jobOwner))
-                      );
-
-                      updateActiveJob((prevObj) => ({
-                        ...prevObj,
-                        apiJobs: newActiveJobArray,
-                        build: {
-                          ...prevObj.build,
-                          costs: {
-                            ...prevObj.build.costs,
-                            linkedJobs: newLinkedJobsArray,
-                            installCosts: (activeJob.build.costs.installCosts +=
-                              job.cost),
-                          },
-                        },
-                      }));
-
-                      newUsersArray[ParentUserIndex].linkedJobs.push(
-                        job.job_id
-                      );
-                      updateUsers(newUsersArray);
-
-                      const newApiArray = apiJobs;
-                      const aA = newApiArray.findIndex(
-                        (z) => z.job_id === job.job_id
-                      );
-                      newApiArray[aA].linked = true;
-                      updateApiJobs(newApiArray);
-
-                      setSnackbarData((prev) => ({
-                        ...prev,
-                        open: true,
-                        message: "Linked",
-                        severity: "success",
-                        autoHideDuration: 1000,
-                      }));
-                      logEvent(analytics, "linkESIJob", {
-                        UID: users[ParentUserIndex].accountID,
-                        isLoggedIn: isLoggedIn,
-                      });
+                  <Badge
+                    overlap="circular"
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
                     }}
+                    badgeContent={
+                      <Avatar
+                        src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
+                        variant="circular"
+                        sx={{
+                          height: { xs: "18px", sm: "26px", md: "36px" },
+                          width: { xs: "18px", sm: "26px", md: "36px" },
+                        }}
+                      />
+                    }
                   >
-                    <MdOutlineAddLink />
-                  </IconButton>
-                </Tooltip>
+                    <picture>
+                      <source
+                        media="(max-width:700px)"
+                        srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
+                      />
+                      <img
+                        src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                        alt=""
+                      />
+                    </picture>
+                  </Badge>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                  >{`${job.runs} Runs`}</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2" align="center">
+                    {job.facility_name}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2" align="center">
+                    {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12}>
+                  {job.status !== "delivered" ? (
+                    job.status === "active" &&
+                    timeRemaining.days === 0 &&
+                    timeRemaining.hours === 0 &&
+                    timeRemaining.mins === 0 ? (
+                      <Typography variant="body2" align="center">
+                        Ready to Deliver
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2" align="center">
+                        {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
+                        {timeRemaining.mins}M
+                      </Typography>
+                    )
+                  ) : null}
+                </Grid>
+                <Grid item xs={12} align="center">
+                  <Tooltip title="Click to link to job">
+                    <IconButton
+                      color="primary"
+                      size="standard"
+                      onClick={() => {
+                        setJobModified(true);
+
+                        const ParentUserIndex = users.findIndex(
+                          (u) => u.ParentUser === true
+                        );
+
+                        let newUsersArray = [...users];
+
+                        const newActiveJobArray = [...activeJob.apiJobs];
+                        newActiveJobArray.push(job.job_id);
+
+                        let newLinkedJobsArray = [
+                          ...activeJob.build.costs.linkedJobs,
+                        ];
+
+                        newLinkedJobsArray.push(
+                          Object.assign({}, new ESIJob(job, jobOwner))
+                        );
+
+                        updateActiveJob((prevObj) => ({
+                          ...prevObj,
+                          apiJobs: newActiveJobArray,
+                          build: {
+                            ...prevObj.build,
+                            costs: {
+                              ...prevObj.build.costs,
+                              linkedJobs: newLinkedJobsArray,
+                              installCosts:
+                                (activeJob.build.costs.installCosts +=
+                                  job.cost),
+                            },
+                          },
+                        }));
+
+                        newUsersArray[ParentUserIndex].linkedJobs.push(
+                          job.job_id
+                        );
+                        updateUsers(newUsersArray);
+
+                        const newApiArray = apiJobs;
+                        const aA = newApiArray.findIndex(
+                          (z) => z.job_id === job.job_id
+                        );
+                        newApiArray[aA].linked = true;
+                        updateApiJobs(newApiArray);
+
+                        setSnackbarData((prev) => ({
+                          ...prev,
+                          open: true,
+                          message: "Linked",
+                          severity: "success",
+                          autoHideDuration: 1000,
+                        }));
+                        logEvent(analytics, "linkESIJob", {
+                          UID: users[ParentUserIndex].accountID,
+                          isLoggedIn: isLoggedIn,
+                        });
+                      }}
+                    >
+                      <MdOutlineAddLink />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
               </Grid>
-            </Grid>
-          );
-        })}
+            );
+          })}
+        </Grid>
         {jobMatches.length > 1 && (
           <Grid container sx={{ marginTop: { xs: "20px", sm: "20px" } }}>
             <Grid item sm={9} />
@@ -317,7 +334,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
             </Grid>
           </Grid>
         )}
-      </Grid>
+      </>
     );
   } else if (activeJob.build.costs.linkedJobs.length >= activeJob.jobCount) {
     return (
@@ -329,7 +346,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
           marginTop: { xs: "20px", sm: "30px" },
         }}
       >
-        <Typography variant="body1">
+        <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
           You have linked the maximum number of jobs from the API, if you need
           to link more increase the number of job slots used.
         </Typography>
@@ -345,7 +362,10 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
           marginTop: { xs: "20px", sm: "30px" },
         }}
       >
-        <Typography variant="body1" align="center">
+        <Typography
+          sx={{ typography: { xs: "body2", md: "body1" } }}
+          align="center"
+        >
           There are no matching industry jobs from the API that match this job.
         </Typography>
       </Grid>

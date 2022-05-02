@@ -1,21 +1,11 @@
-import {
-  Avatar,
-  Grid,
-  IconButton,
-  Menu,
-  MenuItem,
-  Paper,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { useContext, useState } from "react";
+import { Avatar, Grid, IconButton, Tooltip, Typography } from "@mui/material";
+import { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import AddLinkIcon from "@mui/icons-material/AddLink";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 
@@ -59,18 +49,9 @@ export function AvailableMarketOrders({
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const [anchorEl, setAnchorEl] = useState(null);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const analytics = getAnalytics();
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <Grid container direction="row">
@@ -93,91 +74,74 @@ export function AvailableMarketOrders({
               (i) => i.CharacterHash === order.CharacterHash
             );
             return (
-              <Grid key={order.order_id} container>
-                <Grid container item sx={{ marginBottom: "10px" }}>
-                  <Grid item xs={4}>
+              <Grid
+                key={order.order_id}
+                container
+                item
+                xs={12}
+                sm={6}
+                sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
+              >
+                <Grid container item>
+                  <Grid item xs={12} align="center">
                     <Avatar
-                      src={`https://images.evetech.net/characters/${charData.CharacterID}/portrait`}
+                      src={
+                        charData !== undefined
+                          ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
+                          : ""
+                      }
                       variant="circular"
                       sx={{
                         height: "32px",
                         width: "32px",
                       }}
                     />
+                    <Grid item xs={12}>
+                      <Typography variant="body2">
+                        {order.volume_remain.toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        })}
+                        /
+                        {order.volume_total.toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        })}{" "}
+                        Items Remaining
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2">
+                        {order.price.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        ISK Per Item
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2">
+                        {order.location_name}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="body2">
+                        Duration: {order.duration} Days
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sx={{ marginTop: "5px" }}>
+                      <Typography variant="body2">Last Modified:</Typography>
+                      <Typography variant="body2">
+                        {new Date(order.issued).toLocaleString()}
+                      </Typography>
+                    </Grid>
                   </Grid>
-                </Grid>
-                <Grid container item>
-                  <Grid item xs={12} sm={5}>
-                    <Typography variant="body1">
-                      {order.price.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}{" "}
-                      ISK
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} sm={7}>
-                    <Typography variant="body1">
-                      {order.volume_remain} / {order.volume_total} Items
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container item sx={{ marginBottom: "10px" }}>
-                  <Grid
-                    item
-                    xs={12}
-                    md={3}
-                    sx={{
-                      marginBottom: {
-                        xs: "10px",
-                        md: "0px",
-                      },
-                    }}
-                  >
-                    <Typography variant="body2">Location:</Typography>
-                  </Grid>
-                  <Grid item xs={8} md={5}>
-                    <Typography variant="body2">
-                      {order.location_name}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Typography variant="body2">{order.region_name}</Typography>
-                  </Grid>
-                </Grid>
-                <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
-                  <Grid item xs={6} md={3}>
-                    <Typography variant="body2">Duration:</Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={6}
-                    md={3}
-                    sx={{
-                      marginBottom: {
-                        xs: "10px",
-                        md: "0px",
-                      },
-                    }}
-                  >
-                    <Typography variant="body2">
-                      {order.duration} Days
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container item xs={12}>
-                  <Grid item xs={5}>
-                    <Typography variant="body2">Last Updated:</Typography>
-                  </Grid>
-                  <Grid item xs={7}>
-                    <Typography variant="body2">
-                      {new Date(order.issued).toLocaleString()}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container item xs={12}>
-                  <Grid item xs={12} align="right">
-                    <Tooltip title="Link order to job" arrow>
+                  <Grid item xs={12} align="center">
+                    <Tooltip
+                      title="Link Order To Job."
+                      arrow
+                      placemnet="bottom"
+                    >
                       <IconButton
                         color="primary"
                         size="small"
@@ -189,55 +153,57 @@ export function AvailableMarketOrders({
                             (user) => user.CharacterHash === order.CharacterHash
                           );
                           let newBrokersArray = [];
-                          char.apiJournal.forEach((entry) => {
-                            if (
-                              entry.ref_type === "brokers_fee" &&
-                              Date.parse(order.issued) ===
-                                Date.parse(entry.date)
-                            ) {
-                              newBrokersArray.push(
-                                Object.assign(
-                                  {},
-                                  new ESIBrokerFee(entry, order, char)
-                                )
-                              );
-                            }
-                          });
-                          let newMarketOrderArray =
-                            activeJob.build.sale.marketOrders;
-                          newMarketOrderArray.push(
-                            Object.assign({}, new ESIMarketOrder(order))
-                          );
+                          if (char !== undefined) {
+                            char.apiJournal.forEach((entry) => {
+                              if (
+                                entry.ref_type === "brokers_fee" &&
+                                Date.parse(order.issued) ===
+                                  Date.parse(entry.date)
+                              ) {
+                                newBrokersArray.push(
+                                  Object.assign(
+                                    {},
+                                    new ESIBrokerFee(entry, order, char)
+                                  )
+                                );
+                              }
+                            });
+                            let newMarketOrderArray =
+                              activeJob.build.sale.marketOrders;
+                            newMarketOrderArray.push(
+                              Object.assign({}, new ESIMarketOrder(order))
+                            );
 
-                          let newUsers = [...users];
-                          newUsers[ParentUserIndex].linkedOrders.push(
-                            order.order_id
-                          );
-                          updateUsers(newUsers);
-                          updateActiveJob((prev) => ({
-                            ...prev,
-                            build: {
-                              ...prev.build,
-                              sale: {
-                                ...prev.build.sale,
-                                marketOrders: newMarketOrderArray,
-                                brokersFee: newBrokersArray,
+                            let newUsers = [...users];
+                            newUsers[ParentUserIndex].linkedOrders.push(
+                              order.order_id
+                            );
+                            updateUsers(newUsers);
+                            updateActiveJob((prev) => ({
+                              ...prev,
+                              build: {
+                                ...prev.build,
+                                sale: {
+                                  ...prev.build.sale,
+                                  marketOrders: newMarketOrderArray,
+                                  brokersFee: newBrokersArray,
+                                },
                               },
-                            },
-                          }));
+                            }));
 
-                          setSnackbarData((prev) => ({
-                            ...prev,
-                            open: true,
-                            message: "Linked",
-                            severity: "success",
-                            autoHideDuration: 1000,
-                          }));
-                          setJobModified(true);
-                          logEvent(analytics, "linkedMarketOrder", {
-                            UID: users[ParentUserIndex].accountID,
-                            isLoggedIn: isLoggedIn,
-                          });
+                            setSnackbarData((prev) => ({
+                              ...prev,
+                              open: true,
+                              message: "Linked",
+                              severity: "success",
+                              autoHideDuration: 1000,
+                            }));
+                            setJobModified(true);
+                            logEvent(analytics, "linkedMarketOrder", {
+                              UID: users[ParentUserIndex].accountID,
+                              isLoggedIn: isLoggedIn,
+                            });
+                          }
                         }}
                       >
                         <AddLinkIcon />
@@ -250,7 +216,7 @@ export function AvailableMarketOrders({
           })
         ) : (
           <Grid item xs={12} align="center">
-            <Typography variant="body1">
+            <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
               There are no orders appearing on the API matching this item type.
             </Typography>
           </Grid>

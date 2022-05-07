@@ -79,11 +79,11 @@ export function SearchBar() {
         <Grid container item xs={12}>
           <Grid item xs={11} sm={5} md={4} xl={2}>
             <Autocomplete
-              disableClearable={true}
+              disableClearable
               fullWidth
               id="Recipe Search"
-              clearOnBlur={true}
-              blurOnSelect={true}
+              clearOnBlur
+              blurOnSelect
               variant="standard"
               size="small"
               options={itemList}
@@ -106,10 +106,16 @@ export function SearchBar() {
             />
           </Grid>
 
-          <Grid item xs={1} sx={{ paddingLeft: { xs: "5px", md: "20px" } }}>
+          <Grid
+            container
+            item
+            xs={1}
+            alignItems="center"
+            sx={{ paddingLeft: { xs: "5px", md: "20px" } }}
+          >
             {DataExchange && <CircularProgress size="24px" edge="false" />}
           </Grid>
-          <Grid container item xs={12} sm={6} xl={3} alignItems="center">
+          {/* <Grid container item xs={12} sm={6} xl={3} alignItems="center">
             <FormControlLabel
               label="Use Recipes From Upcoming Changes On Singularity"
               control={
@@ -123,7 +129,7 @@ export function SearchBar() {
                 />
               }
             ></FormControlLabel>
-          </Grid>
+          </Grid> */}
         </Grid>
 
         <Grid

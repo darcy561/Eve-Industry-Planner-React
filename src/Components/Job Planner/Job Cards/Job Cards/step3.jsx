@@ -89,7 +89,7 @@ export default function Step3JobCard({ job }) {
               <>
                 <Grid item xs={4}>
                   <Typography className={classes.TextFields}>
-                    End Date:
+                    Ends In:
                   </Typography>
                 </Grid>
                 <Grid item xs={8}>
@@ -113,9 +113,7 @@ export default function Step3JobCard({ job }) {
           ) : (
             <>
               <Grid item xs={4}>
-                <Typography className={classes.TextFields}>
-                  End Date:
-                </Typography>
+                <Typography className={classes.TextFields}>Ends In:</Typography>
               </Grid>
               <Grid item xs={8}>
                 <Typography className={classes.TextFields} align="right">

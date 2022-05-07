@@ -9,10 +9,7 @@ import {
 import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
-import {
-  MassBuildDisplayContext,
-  PageLoadContext,
-} from "../../Context/LayoutContext";
+import { PageLoadContext } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { SearchBar } from "./Planner Components/searchbar";
 import { Grid } from "@mui/material";
@@ -20,7 +17,6 @@ import { TutorialPlanner } from "./Planner Components/tutorialPlanner";
 import { ShoppingListDialog } from "./Dialogues/ShoppingList/ShoppingList";
 import { PriceEntryDialog } from "./Dialogues/PriceEntry/PriceEntryList";
 import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
-
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
 
@@ -98,7 +94,7 @@ export function JobPlanner() {
 
   let parentUser = useMemo(() => {
     return users.find((u) => u.ParentUser);
-  }, [isLoggedIn]);
+  }, [users, isLoggedIn]);
 
   useEffect(async () => {
     if (isLoggedIn) {
@@ -134,7 +130,7 @@ export function JobPlanner() {
       return (
         <Grid container sx={{ marginTop: "5px" }} spacing={2}>
           <ShoppingListDialog />
-          
+
           <MassBuildFeedback />
           <PriceEntryDialog />
           {!parentUser.settings.layout.hideTutorials && (

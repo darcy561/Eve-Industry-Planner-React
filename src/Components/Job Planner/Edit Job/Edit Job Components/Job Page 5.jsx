@@ -9,11 +9,13 @@ import { LinkedMarketOrders } from "./Page 5 Components/linkedMarketOrders";
 import { AvailableTransactionData } from "./Page 5 Components/availableTransactions";
 import { LinkedTransactions } from "./Page 5 Components/linkedTransactions";
 import { TutorialStep5 } from "./Page 5 Components/tutorialStep5";
+import { MarketOrderTabs } from "./Page 5 Components/marketOrderTabs";
+import { MarketCostsPanel } from "./Page 5 Components/marketCostsPanel";
 
 export function EditPage5({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
   const [showAvailableOrders, updateShowAvailableOrders] = useState(false);
-  const [activeOrder, updateActiveOrder] = useState(null);
+  const [activeOrder, updateActiveOrder] = useState([]);
   const { users } = useContext(UsersContext);
   const { eveIDs } = useContext(EveIDsContext);
   let itemOrderMatch = [];
@@ -32,15 +34,17 @@ export function EditPage5({ setJobModified }) {
       this.location_id = trans.location_id;
       this.is_corp = !trans.is_personal;
       this.type_id = trans.type_id;
-      this.description = desc
+      this.description = desc;
     }
   }
   users.forEach((user) => {
     user.apiOrders.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
-        !activeJob.build.sale.marketOrders.some((i) => i.order_id === order.order_id) &&
-        !itemOrderMatch.some((i)=> i.order_id === order.order_id)
+        !activeJob.build.sale.marketOrders.some(
+          (i) => i.order_id === order.order_id
+        ) &&
+        !itemOrderMatch.some((i) => i.order_id === order.order_id)
       ) {
         eveIDs.find((item) => {
           if (item.id === order.location_id) {
@@ -57,8 +61,10 @@ export function EditPage5({ setJobModified }) {
     user.apiHistOrders.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
-        !activeJob.build.sale.marketOrders.some((i) => i.order_id === order.order_id) &&
-        !itemOrderMatch.some((i)=> i.order_id === order.order_id)
+        !activeJob.build.sale.marketOrders.some(
+          (i) => i.order_id === order.order_id
+        ) &&
+        !itemOrderMatch.some((i) => i.order_id === order.order_id)
       ) {
         eveIDs.find((item) => {
           if (item.id === order.location_id) {
@@ -84,7 +90,9 @@ export function EditPage5({ setJobModified }) {
           order.type_id === trans.type_id &&
           !trans.is_buy &&
           !parentUser.linkedTrans.includes(trans.transaction_id) &&
-          !transactionData.some((i) => i.transaction_id === trans.transaction_id)
+          !transactionData.some(
+            (i) => i.transaction_id === trans.transaction_id
+          )
       );
 
       itemTrans.forEach((trans) => {
@@ -97,10 +105,15 @@ export function EditPage5({ setJobModified }) {
               entry.ref_type === "transaction_tax" &&
               Date.parse(entry.date) === Date.parse(trans.date)
           );
-          let descriptionTrim = transJournal.description.replace("Market: ", "").split(" bought")
+          let descriptionTrim = transJournal.description
+            .replace("Market: ", "")
+            .split(" bought");
 
           transactionData.push(
-            Object.assign({}, new Transaction(trans, descriptionTrim[0], transJournal, transTax))
+            Object.assign(
+              {},
+              new Transaction(trans, descriptionTrim[0], transJournal, transTax)
+            )
           );
         }
       });
@@ -115,21 +128,17 @@ export function EditPage5({ setJobModified }) {
             <TutorialStep5 />
           </Grid>
         )}
+        <Grid item xs={12}>
+          <MarketCostsPanel/>
+        </Grid>
         <Grid item xs={12} md={8}>
-          {activeJob.build.sale.marketOrders.length === 0 ||
-          showAvailableOrders ? (
-            <AvailableMarketOrders
-              setJobModified={setJobModified}
-              itemOrderMatch={itemOrderMatch}
-              updateShowAvailableOrders={updateShowAvailableOrders}
-            />
-          ) : (
-            <LinkedMarketOrders
-              setJobModified={setJobModified}
-              updateActiveOrder={updateActiveOrder}
-              updateShowAvailableOrders={updateShowAvailableOrders}
-            />
-          )}
+          <MarketOrderTabs
+            setJobModified={setJobModified}
+            itemOrderMatch={itemOrderMatch}
+            updateShowAvailableOrders={updateShowAvailableOrders}
+            activeOrder={activeOrder}
+            updateActiveOrder={updateActiveOrder}
+          />
         </Grid>
 
         <Grid item xs={12} md={4}>

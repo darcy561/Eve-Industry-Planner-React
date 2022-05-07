@@ -53,7 +53,7 @@ export function useJobManagement() {
   const r = trace(performance, "MassCreateJobProcessFull");
 
   class newSnapshot {
-    constructor(inputJob, childJobs, totalComplete, materialIDs) {
+    constructor(inputJob, childJobs, totalComplete, materialIDs, endDate) {
       this.jobID = inputJob.jobID;
       this.name = inputJob.name;
       this.runCount = inputJob.runCount;
@@ -75,10 +75,11 @@ export function useJobManagement() {
       this.materialIDs = materialIDs;
       this.metaLevel = inputJob.metaLevel;
       this.projectID = inputJob.projectID || null;
+      this.endDateDisplay = endDate;
     }
   }
   class updateSnapshot {
-    constructor(inputJob) {
+    constructor(inputJob, endDate) {
       this.jobID = inputJob.jobID;
       this.name = inputJob.name;
       this.runCount = inputJob.runCount;
@@ -100,6 +101,7 @@ export function useJobManagement() {
       this.materialIDs = inputJob.materialIDs;
       this.metaLevel = inputJob.metaLevel;
       this.projectID = inputJob.projectID || null;
+      this.endDateDisplay = endDate;
     }
   }
 
@@ -137,7 +139,7 @@ export function useJobManagement() {
         });
         let returnPromiseArray = await Promise.all(promiseArray);
 
-        updateEvePrices((prev) =>  prev.concat(returnPromiseArray[0]) );
+        updateEvePrices((prev) => prev.concat(returnPromiseArray[0]));
         updateJobArray((prev) => [...prev, newJob]);
         updateDataExchange(false);
         setSnackbarData((prev) => ({
@@ -175,12 +177,28 @@ export function useJobManagement() {
       jobDataComp: true,
       priceData: true,
     }));
-    let itemIDs = [inputJob.itemID];
+    let itemIDs = new Set();
+    itemIDs.add(inputJob.itemID);
     inputJob.build.materials.forEach((mat) => {
-      itemIDs.push(mat.typeID);
+      itemIDs.add(mat.typeID);
+      if (mat.childJob.length > 0) {
+        mat.childJob.forEach((cJ) => {
+          let job = jobArray.find((i) => i.jobID === cJ);
+          itemIDs.add(job.itemID);
+          if (job.isSnapshot) {
+            job.materialIDs.forEach((o) => {
+              itemIDs.add(o);
+            });
+          } else {
+            job.build.materials.forEach((i) => {
+              itemIDs.add(i.typeID);
+            });
+          }
+        });
+      }
     });
-    
-    let jobPrices = await getItemPrices(itemIDs);
+
+    let jobPrices = await getItemPrices([...itemIDs]);
     if (jobPrices.length > 0) {
       updateEvePrices(evePrices.concat(jobPrices));
     }
@@ -234,6 +252,9 @@ export function useJobManagement() {
     let totalComplete = 0;
     let materialIDs = [];
     let childJobs = [];
+    let tempJobs = [...inputJob.build.costs.linkedJobs];
+    let endDate = null;
+
     if (inputJob !== undefined) {
       const index = parentUser.snapshotData.findIndex(
         (i) => i.jobID === inputJob.jobID
@@ -246,13 +267,34 @@ export function useJobManagement() {
             totalComplete++;
           }
         });
+        if (tempJobs.length > 1) {
+          tempJobs.sort((a, b) => {
+            if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
+              return 1;
+            }
+            if (Date.parse(a.end_date) < Date.parse(b.end_date)) {
+              return -1;
+            }
+            return 0;
+          });
+          endDate = Date.parse(tempJobs[0].end_date);
+        }
         const replacementSnap = Object.assign(
           {},
-          new newSnapshot(inputJob, childJobs, totalComplete, materialIDs)
+          new newSnapshot(
+            inputJob,
+            childJobs,
+            totalComplete,
+            materialIDs,
+            endDate
+          )
         );
         parentUser.snapshotData[index] = replacementSnap;
       } else {
-        const replacementSnap = Object.assign({}, new updateSnapshot(inputJob));
+        const replacementSnap = Object.assign(
+          {},
+          new updateSnapshot(inputJob, endDate)
+        );
         parentUser.snapshotData[index] = replacementSnap;
       }
     }
@@ -262,6 +304,7 @@ export function useJobManagement() {
     let totalComplete = 0;
     let materialIDs = [];
     let childJobs = [];
+    let endDate = null;
 
     inputJob.build.materials.forEach((material) => {
       materialIDs.push(material.typeID);
@@ -270,10 +313,17 @@ export function useJobManagement() {
         totalComplete++;
       }
     });
+
     parentUser.snapshotData.push(
       Object.assign(
         {},
-        new newSnapshot(inputJob, childJobs, totalComplete, materialIDs)
+        new newSnapshot(
+          inputJob,
+          childJobs,
+          totalComplete,
+          materialIDs,
+          endDate
+        )
       )
     );
   };

@@ -53,7 +53,7 @@ function EditJob({ updateJobSettingsTrigger }) {
   function StepContentSelector() {
     switch (activeJob.jobStatus) {
       case 0:
-        return <EditPage1 setJobModified={setJobModified} />;
+        return <EditPage1 jobModified={jobModified} setJobModified={setJobModified} />;
       case 1:
         return <EditPage2 setJobModified={setJobModified} />;
       case 2:

@@ -33,6 +33,9 @@ async function ESIMarketQuery(typeID, outdatedDoc) {
           } else {
             pageCount++;
           }
+        } else {
+          pageCount = 51;
+          return "fail";
         }
       } catch (err) {
         pageCount = 51;
@@ -56,7 +59,11 @@ async function ESIMarketQuery(typeID, outdatedDoc) {
       },
     });
   }
-  await admin.firestore().doc(`Pricing/${typeID}`).set(dbObject);
+  await admin
+    .firestore()
+    .collection("Pricing")
+    .doc("Live")
+    .update({[`${typeID}`]: dbObject });
   return dbObject;
 }
 

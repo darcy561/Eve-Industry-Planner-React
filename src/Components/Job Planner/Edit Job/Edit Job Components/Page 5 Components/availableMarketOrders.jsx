@@ -1,21 +1,11 @@
-import {
-  Avatar,
-  Grid,
-  IconButton,
-  Menu,
-  MenuItem,
-  Paper,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { useContext, useState } from "react";
+import { Avatar, Grid, IconButton, Tooltip, Typography } from "@mui/material";
+import { useContext } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import AddLinkIcon from "@mui/icons-material/AddLink";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 
@@ -59,177 +49,111 @@ export function AvailableMarketOrders({
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const [anchorEl, setAnchorEl] = useState(null);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const analytics = getAnalytics();
 
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
   return (
-    <Paper
-      sx={{
-        padding: "20px",
-        position: "relative",
-      }}
-      elevation={3}
-      square={true}
-    >
-      <Grid container direction="row">
-        <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
-          <Grid item xs={12}>
-            <Typography variant="h5" color="primary" align="center">
-              Available Orders
-            </Typography>
-          </Grid>
-          <IconButton
-            id="marketOrder_menu_button"
-            onClick={handleMenuClick}
-            aria-controls={Boolean(anchorEl) ? "marketOrder_menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={Boolean(anchorEl) ? "true" : undefined}
-            sx={{ position: "absolute", top: "10px", right: "10px" }}
-          >
-            <MoreVertIcon size="small" color="Secondary" />
-          </IconButton>
-          <Menu
-            id="transaction_menu"
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            MenuListProps={{
-              "aria-labelledby": "marketOrder_menu_button",
-            }}
-          >
-            <MenuItem onClick={() => updateShowAvailableOrders(false)}>
-              View Linked Market Orders
-            </MenuItem>
-          </Menu>
-        </Grid>
-        <Grid
-          container
-          sx={{
-            overflowY: "auto",
-            maxHeight: {
-              xs: "350px",
-              sm: "260px",
-              md: "240px",
-              lg: "240px",
-              xl: "480px",
-            },
-          }}
-        >
-          {itemOrderMatch.length !== 0 ? (
-            itemOrderMatch.map((order) => {
-              const charData = users.find(
-                (i) => i.CharacterHash === order.CharacterHash
-              );
-              return (
-                <Grid key={order.order_id} container>
-                  <Grid container item sx={{ marginBottom: "10px" }}>
-                    <Grid item xs={4}>
-                      <Avatar
-                        src={`https://images.evetech.net/characters/${charData.CharacterID}/portrait`}
-                        variant="circular"
-                        sx={{
-                          height: "32px",
-                          width: "32px",
-                        }}
-                      />
+    <Grid container direction="row">
+      <Grid
+        container
+        sx={{
+          overflowY: "auto",
+          maxHeight: {
+            xs: "350px",
+            sm: "260px",
+            md: "240px",
+            lg: "240px",
+            xl: "480px",
+          },
+        }}
+      >
+        {itemOrderMatch.length !== 0 ? (
+          itemOrderMatch.map((order) => {
+            const charData = users.find(
+              (i) => i.CharacterHash === order.CharacterHash
+            );
+            return (
+              <Grid
+                key={order.order_id}
+                container
+                item
+                xs={12}
+                sm={6}
+                sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
+              >
+                <Grid container item>
+                  <Grid item xs={12} align="center">
+                    <Avatar
+                      src={
+                        charData !== undefined
+                          ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
+                          : ""
+                      }
+                      variant="circular"
+                      sx={{
+                        height: "32px",
+                        width: "32px",
+                      }}
+                    />
+                    <Grid item xs={12}>
+                      <Typography variant="body2">
+                        {order.volume_remain.toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        })}
+                        /
+                        {order.volume_total.toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        })}{" "}
+                        Items Remaining
+                      </Typography>
                     </Grid>
-                  </Grid>
-                  <Grid container item>
-                    <Grid item xs={12} sm={5}>
-                      <Typography variant="body1">
+                    <Grid item xs={12}>
+                      <Typography variant="body2">
                         {order.price.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}{" "}
-                        ISK
+                        ISK Per Item
                       </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={7}>
-                      <Typography variant="body1">
-                        {order.volume_remain} / {order.volume_total} Items
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid container item sx={{ marginBottom: "10px" }}>
-                    <Grid
-                      item
-                      xs={12}
-                      md={3}
-                      sx={{
-                        marginBottom: {
-                          xs: "10px",
-                          md: "0px",
-                        },
-                      }}
-                    >
-                      <Typography variant="body2">Location:</Typography>
-                    </Grid>
-                    <Grid item xs={8} md={5}>
+                    <Grid item xs={12}>
                       <Typography variant="body2">
                         {order.location_name}
                       </Typography>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={12}>
                       <Typography variant="body2">
-                        {order.region_name}
+                        Duration: {order.duration} Days
                       </Typography>
                     </Grid>
-                  </Grid>
-                  <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
-                    <Grid item xs={6} md={3}>
-                      <Typography variant="body2">Duration:</Typography>
-                    </Grid>
-                    <Grid
-                      item
-                      xs={6}
-                      md={3}
-                      sx={{
-                        marginBottom: {
-                          xs: "10px",
-                          md: "0px",
-                        },
-                      }}
-                    >
-                      <Typography variant="body2">
-                        {order.duration} Days
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid container item xs={12}>
-                    <Grid item xs={5}>
-                      <Typography variant="body2">Last Updated:</Typography>
-                    </Grid>
-                    <Grid item xs={7}>
+                    <Grid item xs={12} sx={{ marginTop: "5px" }}>
+                      <Typography variant="body2">Last Modified:</Typography>
                       <Typography variant="body2">
                         {new Date(order.issued).toLocaleString()}
                       </Typography>
                     </Grid>
                   </Grid>
-                  <Grid container item xs={12}>
-                    <Grid item xs={12} align="right">
-                      <Tooltip title="Link order to job" arrow>
-                        <IconButton
-                          color="primary"
-                          size="small"
-                          onClick={() => {
-                            const ParentUserIndex = users.findIndex(
-                              (i) => i.ParentUser === true
-                            );
-                            const char = users.find(
-                              (user) =>
-                                user.CharacterHash === order.CharacterHash
-                            );
-                            let newBrokersArray = [];
+                  <Grid item xs={12} align="center">
+                    <Tooltip
+                      title="Link Order To Job."
+                      arrow
+                      placemnet="bottom"
+                    >
+                      <IconButton
+                        color="primary"
+                        size="small"
+                        onClick={() => {
+                          const ParentUserIndex = users.findIndex(
+                            (i) => i.ParentUser === true
+                          );
+                          const char = users.find(
+                            (user) => user.CharacterHash === order.CharacterHash
+                          );
+                          let newBrokersArray = [];
+                          if (char !== undefined) {
                             char.apiJournal.forEach((entry) => {
                               if (
                                 entry.ref_type === "brokers_fee" &&
@@ -279,26 +203,25 @@ export function AvailableMarketOrders({
                               UID: users[ParentUserIndex].accountID,
                               isLoggedIn: isLoggedIn,
                             });
-                          }}
-                        >
-                          <AddLinkIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Grid>
+                          }
+                        }}
+                      >
+                        <AddLinkIcon />
+                      </IconButton>
+                    </Tooltip>
                   </Grid>
                 </Grid>
-              );
-            })
-          ) : (
-            <Grid item xs={12} align="center">
-              <Typography variant="body1">
-                There are no orders appearing on the API matching this item
-                type.
-              </Typography>
-            </Grid>
-          )}
-        </Grid>
+              </Grid>
+            );
+          })
+        ) : (
+          <Grid item xs={12} align="center">
+            <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+              There are no orders appearing on the API matching this item type.
+            </Typography>
+          </Grid>
+        )}
       </Grid>
-    </Paper>
+    </Grid>
   );
 }

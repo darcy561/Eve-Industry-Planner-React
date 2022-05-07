@@ -116,7 +116,9 @@ export function useEveApi() {
 
           filtered.forEach((job) => {
             const facilityItem = idNames.find((i) => i.id === job.facility_id);
-            job.facility_name = facilityItem.name;
+            if (facilityItem !== undefined) {
+              job.facility_name = facilityItem.name;
+            }
           });
         }
 
@@ -311,41 +313,33 @@ export function useEveApi() {
     let standardIDs = idArray.filter((i) => i.toString().length < 10);
     const newArray = [];
     if (standardIDs.length > 0) {
-      try {
-        const idPromise = await fetch(
-          `https://esi.evetech.net/latest/universe/names/?datasource=tranquility`,
-          {
-            method: "POST",
-            body: JSON.stringify(standardIDs),
-          }
-        );
-
+      const idPromise = await fetch(
+        `https://esi.evetech.net/latest/universe/names/?datasource=tranquility`,
+        {
+          method: "POST",
+          body: JSON.stringify(standardIDs),
+        }
+      );
+      if (idPromise.status === 200) {
         const idJSON = await idPromise.json();
 
-        if (idPromise.status === 200) {
-          idJSON.forEach((item) => {
-            newArray.push(item);
-          });
-        }
-      } catch (err) {
-        console.log(err);
+        idJSON.forEach((item) => {
+          newArray.push(item);
+        });
       }
     }
     if (citadelIDs.length > 0) {
       for (let id of citadelIDs) {
-        try {
-          const idPromise = await fetch(
-            `https://esi.evetech.net/latest/universe/structures/${id}/?datasource=tranquility&token=${userObj.aToken}`
-          );
-
+        const idPromise = await fetch(
+          `https://esi.evetech.net/latest/universe/structures/${id}/?datasource=tranquility&token=${userObj.aToken}`
+        );
+        if (idPromise.status === 200) {
           const idJSON = await idPromise.json();
 
-          if (idPromise.status === 200) {
-            idJSON.id = id;
-            newArray.push(idJSON);
-          }
-        } catch (err) {
-          console.log(err);
+          idJSON.id = id;
+          newArray.push(idJSON);
+        } else {
+          break;
         }
       }
     }

@@ -33,7 +33,7 @@ export function MaterialRow({ material }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
-  const { addNewJob, getItemPrices, updateMainUserDoc } = useFirebase();
+  const { addNewJob, getItemPrices, updateMainUserDoc, uploadJob } = useFirebase();
   const { checkAllowBuild, buildJob } = useJobBuild();
   const { newJobSnapshot, updateJobSnapshot } = useJobManagement();
   const [addJob, updateAddJob] = useState(false);
@@ -89,6 +89,7 @@ export function MaterialRow({ material }) {
         }
         material.childJob.push(newJob.jobID);
         updateJobSnapshot(activeJob);
+        await uploadJob(activeJob)
       }
       updateAddJob(false);
       t.stop();

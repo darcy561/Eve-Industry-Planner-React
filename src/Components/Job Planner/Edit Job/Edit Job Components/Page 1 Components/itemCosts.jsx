@@ -9,7 +9,7 @@ import {
   marketOptions,
 } from "../../../../../Context/defaultValues";
 
-export function ItemCostPanel() {
+export function ItemCostPanel({jobModified}) {
   const { activeJob } = useContext(ActiveJobContext);
   const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
@@ -114,7 +114,7 @@ export function ItemCostPanel() {
             align="center"
             sx={{ marginTop: { xs: "10px", md: "0px" } }}
           >
-            <Typography variant="body2">Unit Sell Price:</Typography>
+            <Typography variant="body2">Item Sell Price:</Typography>
             <Typography variant="body2">
               {activeJobPrices[marketSelect].sell.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
@@ -151,7 +151,7 @@ export function ItemCostPanel() {
           >
             <Grid item md={5} sx={{ marginTop: { xs: "10px", sm: "20px" } }} />
             <Grid item xs={6} md={3} align="center">
-              <Typography variant="body1">Unit Price</Typography>
+              <Typography variant="body1">Item Price</Typography>
             </Grid>
             <Grid item xs={6} md={4} align="center">
               <Typography variant="body1">Total Price</Typography>
@@ -173,6 +173,7 @@ export function ItemCostPanel() {
                 marketSelect={marketSelect}
                 listingSelect={listingSelect}
                 materialPrice={materialPrice}
+                jobModified={jobModified}
               />
             );
           })}

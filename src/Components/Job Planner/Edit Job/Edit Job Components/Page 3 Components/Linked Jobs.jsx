@@ -64,189 +64,217 @@ export function LinkedJobs({ setJobModified }) {
 
   if (activeJob.apiJobs.length !== 0) {
     return (
-      <Grid container direction="row" sx={{ marginBottom: "10px" }}>
-        {activeJob.build.costs.linkedJobs.map((job) => {
-          let blueprintType = "bpc";
-
-          const jobOwner = users.find(
-            (i) => i.CharacterHash === job.CharacterHash
-          );
-          if (jobOwner !== undefined) {
-            const jobBP = jobOwner.apiBlueprints.find(
-              (i) => i.item_id === job.blueprint_id
+      <>
+        <Grid
+          container
+          direction="row"
+          sx={{
+            marginBottom: "10px",
+            overflowY: "auto",
+            maxHeight: {
+              xs: "350px",
+              sm: "260px",
+              md: "240px",
+              lg: "240px",
+              xl: "480px",
+            },
+          }}
+        >
+          {activeJob.build.costs.linkedJobs.map((job) => {
+            let blueprintType = "bpc";
+            const jobOwner = users.find(
+              (i) => i.CharacterHash === job.CharacterHash
             );
-            if (jobBP !== undefined) {
-              blueprintType = "bp";
-              if (jobBP.quantity === -2) {
-                blueprintType = "bpc";
+            if (jobOwner !== undefined) {
+              const jobBP = jobOwner.apiBlueprints.find(
+                (i) => i.item_id === job.blueprint_id
+              );
+              if (jobBP !== undefined) {
+                blueprintType = "bp";
+                if (jobBP.quantity === -2) {
+                  blueprintType = "bpc";
+                }
               }
             }
-          }
-          const timeRemaining = timeRemainingcalc(job);
-          return (
-            <Grid
-              key={job.job_id}
-              item
-              container
-              direction="row"
-              xs={6}
-              sm={4}
-              md={3}
-              lg={2}
-              sx={{ marginBottom: "5px", marginTop: "5px" }}
-            >
+            const timeRemaining = timeRemainingcalc(job);
+            return (
               <Grid
-                container
+                key={job.job_id}
                 item
-                justifyContent="center"
-                alignItems="center"
-                xs={12}
+                container
+                direction="row"
+                xs={6}
+                sm={4}
+                md={3}
+                lg={2}
+                sx={{ marginBottom: "5px", marginTop: "5px" }}
               >
-                <Badge
-                  overlap="circular"
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  badgeContent={
-                    <Avatar
-                      src={
-                        jobOwner !== undefined
-                          ? `https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`
-                          : ""
-                      }
-                      variant="circular"
-                      sx={{
-                        height: { xs: "18px", sm: "26px", md: "36px" },
-                        width: { xs: "18px", sm: "26px", md: "36px" },
-                      }}
-                    />
-                  }
+                <Grid
+                  container
+                  item
+                  justifyContent="center"
+                  alignItems="center"
+                  xs={12}
                 >
-                  <picture>
-                    <source
-                      media="(max-width:700px)"
-                      srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
-                    />
-                    <img
-                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
-                      alt=""
-                    />
-                  </picture>
-                </Badge>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography
-                  variant="body2"
-                  align="center"
-                >{`${job.runs} Runs`}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body2" align="center">
-                  {job.station_name}
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body2" align="center">
-                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                </Typography>
-              </Grid>
-
-              <Grid item xs={12}>
-                {job.status !== "delivered" ? (
-                  job.status === "active" &&
-                  timeRemaining.days === 0 &&
-                  timeRemaining.hours === 0 &&
-                  timeRemaining.mins === 0 ? (
-                    <Typography variant="body2" align="center">
-                      Ready to Deliver
-                    </Typography>
-                  ) : (
-                    <Typography variant="body2" align="center">
-                      {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                      {timeRemaining.mins}M
-                    </Typography>
-                  )
-                ) : null}
-              </Grid>
-              <Grid item xs={12} align="center">
-                <Tooltip title="Click to unlink from job">
-                  <IconButton
-                    color="error"
-                    size="standard"
-                    onClick={() => {
-                      const ParentUserIndex = users.findIndex(
-                        (u) => u.ParentUser === true
-                      );
-
-                      let newUsersArray = [...users];
-
-                      setJobModified(true);
-
-                      const newActiveJobArray = activeJob.apiJobs;
-                      const aJ = newActiveJobArray.findIndex(
-                        (x) => x === job.job_id
-                      );
-                      if (aJ !== -1) {
-                        newActiveJobArray.splice(aJ, 1);
-                      }
-                      const linkedJobsArrayIndex =
-                        activeJob.build.costs.linkedJobs.findIndex(
-                          (i) => i.job_id === job.job_id
-                        );
-                      let newLinkedJobsArray = activeJob.build.costs.linkedJobs;
-                      if (linkedJobsArrayIndex !== -1) {
-                        newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
-                      }
-
-                      updateActiveJob((prevObj) => ({
-                        ...prevObj,
-                        apiJobs: newActiveJobArray,
-                        build: {
-                          ...prevObj.build,
-                          costs: {
-                            ...prevObj.build.costs,
-                            linkedJobs: newLinkedJobsArray,
-                            installCosts: (activeJob.build.costs.installCosts -=
-                              job.cost),
-                          },
-                        },
-                      }));
-
-                      const uA = newUsersArray[
-                        ParentUserIndex
-                      ].linkedJobs.findIndex((y) => y === job.job_id);
-                      newUsersArray[ParentUserIndex].linkedJobs.splice(uA, 1);
-
-                      updateUsers(newUsersArray);
-
-                      const newApiArray = apiJobs;
-                      const aA = newApiArray.findIndex(
-                        (z) => z.job_id === job.job_id
-                      );
-                      newApiArray[aA].linked = false;
-                      updateApiJobs(newApiArray);
-
-                      setSnackbarData((prev) => ({
-                        ...prev,
-                        open: true,
-                        message: "Unlinked",
-                        severity: "success",
-                        autoHideDuration: 1000,
-                      }));
-                      logEvent(analytics, "unlinkESIJob", {
-                        UID: users[ParentUserIndex].accountID,
-                        isLoggedIn: isLoggedIn,
-                      });
+                  <Badge
+                    overlap="circular"
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
                     }}
+                    badgeContent={
+                      <Avatar
+                        src={
+                          jobOwner !== undefined
+                            ? `https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`
+                            : ""
+                        }
+                        variant="circular"
+                        sx={{
+                          height: { xs: "18px", sm: "26px", md: "36px" },
+                          width: { xs: "18px", sm: "26px", md: "36px" },
+                        }}
+                      />
+                    }
                   >
-                    <MdOutlineLinkOff />
-                  </IconButton>
-                </Tooltip>
+                    <picture>
+                      <source
+                        media="(max-width:700px)"
+                        srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
+                      />
+                      <img
+                        src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                        alt=""
+                      />
+                    </picture>
+                  </Badge>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                  >{`${job.runs} Runs`}</Typography>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography variant="body2" align="center">
+                    {job.station_name}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2" align="center">
+                    Install Costs:{" "}
+                    {job.cost.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography variant="body2" align="center">
+                    {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12}>
+                  {job.status !== "delivered" ? (
+                    job.status === "active" &&
+                    timeRemaining.days === 0 &&
+                    timeRemaining.hours === 0 &&
+                    timeRemaining.mins === 0 ? (
+                      <Typography variant="body2" align="center">
+                        Ready to Deliver
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2" align="center">
+                        {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
+                        {timeRemaining.mins}M
+                      </Typography>
+                    )
+                  ) : null}
+                </Grid>
+                <Grid item xs={12} align="center">
+                  <Tooltip title="Click to unlink from job">
+                    <IconButton
+                      color="error"
+                      size="standard"
+                      onClick={() => {
+                        const ParentUserIndex = users.findIndex(
+                          (u) => u.ParentUser === true
+                        );
+
+                        let newUsersArray = [...users];
+
+                        setJobModified(true);
+
+                        const newActiveJobArray = activeJob.apiJobs;
+                        const aJ = newActiveJobArray.findIndex(
+                          (x) => x === job.job_id
+                        );
+                        if (aJ !== -1) {
+                          newActiveJobArray.splice(aJ, 1);
+                        }
+                        const linkedJobsArrayIndex =
+                          activeJob.build.costs.linkedJobs.findIndex(
+                            (i) => i.job_id === job.job_id
+                          );
+                        let newLinkedJobsArray =
+                          activeJob.build.costs.linkedJobs;
+                        if (linkedJobsArrayIndex !== -1) {
+                          newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
+                        }
+
+                        updateActiveJob((prevObj) => ({
+                          ...prevObj,
+                          apiJobs: newActiveJobArray,
+                          build: {
+                            ...prevObj.build,
+                            costs: {
+                              ...prevObj.build.costs,
+                              linkedJobs: newLinkedJobsArray,
+                              installCosts:
+                                (activeJob.build.costs.installCosts -=
+                                  job.cost),
+                            },
+                          },
+                        }));
+
+                        const uA = newUsersArray[
+                          ParentUserIndex
+                        ].linkedJobs.findIndex((y) => y === job.job_id);
+                        newUsersArray[ParentUserIndex].linkedJobs.splice(uA, 1);
+
+                        updateUsers(newUsersArray);
+
+                        const newApiArray = apiJobs;
+                        const aA = newApiArray.findIndex(
+                          (z) => z.job_id === job.job_id
+                        );
+                        newApiArray[aA].linked = false;
+                        updateApiJobs(newApiArray);
+
+                        setSnackbarData((prev) => ({
+                          ...prev,
+                          open: true,
+                          message: "Unlinked",
+                          severity: "success",
+                          autoHideDuration: 1000,
+                        }));
+                        logEvent(analytics, "unlinkESIJob", {
+                          UID: users[ParentUserIndex].accountID,
+                          isLoggedIn: isLoggedIn,
+                        });
+                      }}
+                    >
+                      <MdOutlineLinkOff />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
               </Grid>
-            </Grid>
-          );
-        })}
+            );
+          })}
+        </Grid>
         {activeJob.apiJobs.length > 1 && (
           <Grid container sx={{ marginTop: { xs: "20px", sm: "20px" } }}>
             <Grid item sm={9} />
@@ -254,6 +282,7 @@ export function LinkedJobs({ setJobModified }) {
               <Button
                 variant="contained"
                 size="small"
+                color="error"
                 onClick={() => {
                   setJobModified(true);
                   const ParentUserIndex = users.findIndex(
@@ -328,7 +357,7 @@ export function LinkedJobs({ setJobModified }) {
             </Grid>
           </Grid>
         )}
-      </Grid>
+      </>
     );
   } else {
     return (
@@ -340,8 +369,8 @@ export function LinkedJobs({ setJobModified }) {
           marginTop: { xs: "20px", sm: "30px" },
         }}
       >
-        <Typography variant="body1">
-          You currently have no industry jobs from the API linked to the this
+        <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+          You currently have no industry jobs from the ESI linked to the this
           job.
         </Typography>
       </Grid>

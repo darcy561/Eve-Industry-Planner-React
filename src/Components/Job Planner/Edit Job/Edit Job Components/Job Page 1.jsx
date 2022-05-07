@@ -13,7 +13,7 @@ import { ItemCostPanel } from "./Page 1 Components/itemCosts";
 import { ManufacturingBlueprints } from "./Page 1 Components/manufacturingBlueprints";
 import { ReactionBlueprints } from "./Page 1 Components/reactionBlueprints";
 
-export function EditPage1({ setJobModified }) {
+export function EditPage1({ jobModified, setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
 
@@ -25,7 +25,7 @@ export function EditPage1({ setJobModified }) {
         return (
           <>
             <ManufacturingOptions setJobModified={setJobModified} />
-            <ManufacturingBlueprints />
+            <ManufacturingBlueprints setJobModified={setJobModified} />
           </>
         );
       case 2:
@@ -63,7 +63,7 @@ export function EditPage1({ setJobModified }) {
         <Grid item xs={12} md={9}>
           <Masonry columns={1} spacing={2}>
             <RawResourceList />
-            <ItemCostPanel />
+            <ItemCostPanel jobModified={jobModified} />
             <SkillCheck />
           </Masonry>
         </Grid>

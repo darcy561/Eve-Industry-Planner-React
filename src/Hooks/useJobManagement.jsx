@@ -184,15 +184,17 @@ export function useJobManagement() {
       if (mat.childJob.length > 0) {
         mat.childJob.forEach((cJ) => {
           let job = jobArray.find((i) => i.jobID === cJ);
-          itemIDs.add(job.itemID);
-          if (job.isSnapshot) {
-            job.materialIDs.forEach((o) => {
-              itemIDs.add(o);
-            });
-          } else {
-            job.build.materials.forEach((i) => {
-              itemIDs.add(i.typeID);
-            });
+          if (job !== undefined) {
+            itemIDs.add(job.itemID);
+            if (job.isSnapshot) {
+              job.materialIDs.forEach((o) => {
+                itemIDs.add(o);
+              });
+            } else {
+              job.build.materials.forEach((i) => {
+                itemIDs.add(i.typeID);
+              });
+            }
           }
         });
       }

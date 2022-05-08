@@ -50,6 +50,22 @@ export function ProductionStats() {
           <Grid container item xs={12}>
             <Grid item xs={10}>
               <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                Time Per Job Slot
+              </Typography>
+            </Grid>
+
+            <Grid item xs={2}>
+              <Typography
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+                align="right"
+              >
+                {activeJob.build.time.toLocaleString()}
+              </Typography>
+            </Grid>
+          </Grid>
+          <Grid container item xs={12}>
+            <Grid item xs={10}>
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                 Total Items Being Produced
               </Typography>
             </Grid>
@@ -63,6 +79,7 @@ export function ProductionStats() {
               </Typography>
             </Grid>
           </Grid>
+
         </Grid>
       </Grid>
     </Paper>

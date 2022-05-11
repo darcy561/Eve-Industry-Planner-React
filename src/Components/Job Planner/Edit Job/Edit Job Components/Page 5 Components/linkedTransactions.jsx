@@ -94,7 +94,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
             }}
           >
             {activeJob.build.sale.transactions.length !== 0 ? (
-              activeJob.build.sale.transactions.map((tData) => {
+              activeJob.build.sale.transactions.map((tData, index) => {
                 if (!activeOrder.some((t) => t !== tData.location_id)) {
                   return (
                     <Grid
@@ -161,35 +161,20 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                           size="small"
                           color="error"
                           onClick={() => {
-                            const tIndex =
-                              activeJob.build.sale.transactions.findIndex(
-                                (trans) =>
-                                  trans.transaction_id === tData.transaction_id
-                              );
-
                             let newTransArray = [
                               ...activeJob.build.sale.transactions,
                             ];
-                            if (tIndex !== -1) {
-                              newTransArray.splice(tIndex, 1);
-                            }
+                            let newUsersArray = [...users];
                             const parentUserIndex = users.findIndex(
                               (i) => i.ParentUser === true
                             );
 
-                            const uIndex = users[
+                            newTransArray.splice(index, 1);
+                            newUsersArray[parentUserIndex].linkedTrans = users[
                               parentUserIndex
-                            ].linkedTrans.findIndex(
-                              (trans) => trans === tData.transaction_id
+                            ].linkedTrans.filter(
+                              (trans) => trans !== tData.transaction_id
                             );
-
-                            let newUsersArray = [...users];
-                            if (uIndex !== -1) {
-                              newUsersArray[parentUserIndex].linkedTrans.splice(
-                                uIndex,
-                                1
-                              );
-                            }
 
                             updateUsers(newUsersArray);
 

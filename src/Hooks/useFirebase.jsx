@@ -287,6 +287,31 @@ export function useFirebase() {
     return newJob;
   };
 
+  const getItemPriceBulk = async (array) => {
+    try {
+      const appCheckToken = await getToken(appCheck, true);
+      const itemsPricePromise = await fetch(
+        `${process.env.REACT_APP_APIURL}/costs/bulkPrices`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Firebase-AppCheck": appCheckToken.token,
+          },
+          body: JSON.stringify({
+            idArray: array,
+          }),
+        }
+      );
+      const itemsPriceJson = await itemsPricePromise.json();
+      if (itemsPricePromise.status === 200) {
+        return itemsPriceJson;
+      } else return [];
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const getItemPrices = async (idArray) => {
     const t = trace(performance, "GetItemPrices");
     t.start();
@@ -294,31 +319,6 @@ export function useFirebase() {
     let requestArray = [];
     let promiseArray = [];
     let returnData = [];
-
-    const getItemPriceBulk = async (array) => {
-      try {
-        const appCheckToken = await getToken(appCheck, true);
-        const itemsPricePromise = await fetch(
-          `${process.env.REACT_APP_APIURL}/costs/bulkPrices`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Firebase-AppCheck": appCheckToken.token,
-            },
-            body: JSON.stringify({
-              idArray: array,
-            }),
-          }
-        );
-        const itemsPriceJson = await itemsPricePromise.json();
-        if (itemsPricePromise.status === 200) {
-          return itemsPriceJson;
-        } else return [];
-      } catch (err) {
-        console.log(err);
-      }
-    };
 
     if (idArray !== undefined && idArray.length > 0) {
       for (let id of idArray) {
@@ -353,6 +353,45 @@ export function useFirebase() {
     return returnData;
   };
 
+  const refreshItemPrices = async () => {
+    const t = trace(performance, "refreshItemPrices");
+    t.start();
+    await fbAuthState();
+    let promiseArray = [];
+    let oldEvePrices = [...evePrices];
+    let priceUpdates = new Set();
+
+    oldEvePrices.forEach((item) => {
+      if (item.lastUpdated <= Date.now() - 14400000) {
+        priceUpdates.add(item.typeID);
+      }
+    });
+    let newEvePrices = oldEvePrices.filter((i) => !priceUpdates.has(i.typeID));
+    let requestArray = [...priceUpdates];
+    if (requestArray.length > 0) {
+      for (let x = 0; x < requestArray.length; x += 30) {
+        let chunk = requestArray.slice(x, x + 30);
+        let chunkData = getItemPriceBulk(chunk);
+        promiseArray.push(chunkData);
+      }
+    } else {
+      t.stop();
+      return newEvePrices;
+    }
+    let returnPromiseArray = await Promise.all(promiseArray);
+
+    for (let data of returnPromiseArray) {
+      if (Array.isArray(data)) {
+        data.forEach((id) => {
+          newEvePrices.push(id);
+        });
+      } else {
+        newEvePrices.push(data);
+      }
+    }
+    return newEvePrices;
+  };
+
   return {
     addNewJob,
     archivedJob,
@@ -361,6 +400,7 @@ export function useFirebase() {
     uploadJob,
     uploadJobAsSnapshot,
     updateMainUserDoc,
+    refreshItemPrices,
     removeJob,
     downloadCharacterJobs,
   };

@@ -14,17 +14,19 @@ export function BuildStats({ setJobModified }) {
       square={true}
     >
       <Grid container direction="row">
-
         <Grid container item xs={12}>
           <Grid item xs={12} sm={8}>
             <Typography variant="body2">Total Material Cost:</Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="body2" align="right">
-              {activeJob.build.costs.totalPurchaseCost.toLocaleString(undefined,{
+              {activeJob.build.costs.totalPurchaseCost.toLocaleString(
+                undefined,
+                {
                   minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })}
+                  maximumFractionDigits: 2,
+                }
+              )}
             </Typography>
           </Grid>
         </Grid>
@@ -36,10 +38,10 @@ export function BuildStats({ setJobModified }) {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="body2" align="right">
-              {activeJob.build.costs.installCosts.toLocaleString(undefined,{
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })}
+              {activeJob.build.costs.installCosts.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </Typography>
           </Grid>
         </Grid>
@@ -49,14 +51,14 @@ export function BuildStats({ setJobModified }) {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="body2" align="right">
-              {activeJob.build.costs.extrasTotal.toLocaleString(undefined,{
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })}
+              {activeJob.build.costs.extrasTotal.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </Typography>
           </Grid>
         </Grid>
-        <Grid container item xs={12} sx={{marginTop:"10px"}}>
+        <Grid container item xs={12} sx={{ marginTop: "10px" }}>
           <Grid item xs={12} sm={8}>
             <Typography variant="body2">Total Build Cost:</Typography>
           </Grid>
@@ -66,9 +68,9 @@ export function BuildStats({ setJobModified }) {
                 activeJob.build.costs.totalPurchaseCost +
                 activeJob.build.costs.installCosts +
                 activeJob.build.costs.extrasTotal
-              ).toLocaleString(undefined,{
+              ).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 2
+                maximumFractionDigits: 2,
               })}
             </Typography>
           </Grid>
@@ -79,14 +81,17 @@ export function BuildStats({ setJobModified }) {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="body2" align="right">
-              {activeJob.build.products.totalQuantity.toLocaleString(undefined,{
+              {activeJob.build.products.totalQuantity.toLocaleString(
+                undefined,
+                {
                   minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                })}
+                  maximumFractionDigits: 0,
+                }
+              )}
             </Typography>
           </Grid>
         </Grid>
-        <Grid container item xs={12} sx={{marginBottom: "20px"}}>
+        <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
           <Grid item xs={12} sm={8}>
             <Typography variant="body2">Cost per item:</Typography>
           </Grid>
@@ -101,9 +106,9 @@ export function BuildStats({ setJobModified }) {
                     Number.EPSILON) *
                     100
                 ) / 100
-              ).toLocaleString(undefined,{
+              ).toLocaleString(undefined, {
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 2
+                maximumFractionDigits: 2,
               })}
             </Typography>
           </Grid>

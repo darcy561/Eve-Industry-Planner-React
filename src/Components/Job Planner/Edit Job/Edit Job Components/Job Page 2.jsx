@@ -66,10 +66,11 @@ export function EditPage2({ setJobModified }) {
             maxHeight: { xs: "600px", sm: "none" },
           }}
         >
-          {activeJob.build.materials.map((material) => {
+          {activeJob.build.materials.map((material, materialIndex) => {
             if (!parentUser.settings.editJob.hideCompleteMaterials) {
               return (
                 <MaterialCard
+                  materialIndex={materialIndex}
                   key={material.typeID}
                   material={material}
                   setJobModified={setJobModified}

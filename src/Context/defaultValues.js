@@ -84,7 +84,7 @@ export let jobArrayDefault = [
         },
       ],
       buildChar: "ABC123",
-      time: 300,
+      time: 10200,
     },
     rawData: {
       materials: [
@@ -222,7 +222,7 @@ export let jobArrayDefault = [
         },
       ],
       buildChar: "ABC123",
-      time: 10800,
+      time: 103680,
     },
     rawData: {
       materials: [
@@ -366,7 +366,7 @@ export let jobArrayDefault = [
         },
       ],
       buildChar: "ABC123",
-      time: 10800,
+      time: 43200,
     },
     rawData: {
       materials: [
@@ -685,7 +685,7 @@ export let jobArrayDefault = [
         extrasTotal: 0,
       },
       buildChar: "ABC123",
-      time: 300,
+      time: 10200,
     },
     layout: {
       localMarketDisplay: null,
@@ -749,7 +749,7 @@ export let jobArrayDefault = [
         totalQuantity: 20,
         recalculate: false,
       },
-      time: 900,
+      time: 12240,
       materials: [
         {
           purchaseComplete: true,
@@ -1026,7 +1026,7 @@ export let jobArrayDefault = [
         },
       ],
       buildChar: "ABC123",
-      time: 600,
+      time: 11750,
     },
     rawData: {
       materials: [

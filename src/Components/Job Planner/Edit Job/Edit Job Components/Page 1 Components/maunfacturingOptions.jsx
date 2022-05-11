@@ -75,8 +75,8 @@ export function ManufacturingOptions({ setJobModified }) {
                 onChange={(e) => {
                   setJobModified(true);
                   let oldJob = JSON.parse(JSON.stringify(activeJob));
-                  oldJob.build.buildChar = e.target.value
-                  let newJob = CalcualateTime(oldJob)
+                  oldJob.build.buildChar = e.target.value;
+                  let newJob = CalcualateTime(oldJob);
                   updateBuildCharName(e.target.value);
                   updateActiveJob(newJob);
                 }}
@@ -107,7 +107,7 @@ export function ManufacturingOptions({ setJobModified }) {
                 const oldJob = JSON.parse(JSON.stringify(activeJob));
                 oldJob.runCount = Number(e.target.value);
                 let newJob = CalculateResources(oldJob);
-                newJob = CalcualateTime(newJob)
+                newJob = CalcualateTime(newJob);
                 updateActiveJob(newJob);
                 setJobModified(true);
               }}
@@ -159,39 +159,31 @@ export function ManufacturingOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <Tooltip
-              title="Calculations are not currently implemented, added for reference."
-              arrow
-              placement="top"
-            >
-              <FormControl className={classes.TextField} fullWidth={true}>
-                <Select
-                  variant="standard"
-                  size="small"
-                  value={teValue}
-                  onChange={(e) => {
-                    const oldJob = JSON.parse(JSON.stringify(activeJob));
-                    oldJob.bpTE = e.target.value;
-                    let newJob = CalculateResources(oldJob);
-                    newJob = CalcualateTime(newJob)
-                    updateActiveJob(newJob);
-                    updateTEValue(e.target.value);
-                    setJobModified(true);
-                  }}
-                >
-                  {blueprintVariables.te.map((entry) => {
-                    return (
-                      <MenuItem key={entry.label} value={entry.value}>
-                        {entry.label}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-                <FormHelperText variant="standard">
-                  Time Efficiecy
-                </FormHelperText>
-              </FormControl>
-            </Tooltip>
+            <FormControl className={classes.TextField} fullWidth={true}>
+              <Select
+                variant="standard"
+                size="small"
+                value={teValue}
+                onChange={(e) => {
+                  const oldJob = JSON.parse(JSON.stringify(activeJob));
+                  oldJob.bpTE = e.target.value;
+                  let newJob = CalculateResources(oldJob);
+                  newJob = CalcualateTime(newJob);
+                  updateActiveJob(newJob);
+                  updateTEValue(e.target.value);
+                  setJobModified(true);
+                }}
+              >
+                {blueprintVariables.te.map((entry) => {
+                  return (
+                    <MenuItem key={entry.label} value={entry.value}>
+                      {entry.label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+              <FormHelperText variant="standard">Time Efficiecy</FormHelperText>
+            </FormControl>
           </Grid>
           <Grid item xs={6}>
             <FormControl className={classes.TextField} fullWidth={true}>
@@ -204,7 +196,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   oldJob.structureTypeDisplay = e.target.value;
                   oldJob.structureType = e.target.value === "Station" ? 0 : 1;
                   let newJob = CalculateResources(oldJob);
-                  newJob = CalcualateTime(newJob)
+                  newJob = CalcualateTime(newJob);
                   updateStructValue(e.target.value);
                   updateActiveJob(newJob);
                 }}
@@ -230,7 +222,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   const oldJob = JSON.parse(JSON.stringify(activeJob));
                   oldJob.rigType = e.target.value;
                   let newJob = CalculateResources(oldJob);
-                  newJob = CalcualateTime(newJob)
+                  newJob = CalcualateTime(newJob);
                   updateActiveJob(newJob);
                   updateRigsValue(e.target.value);
                   setJobModified(true);
@@ -257,7 +249,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   const oldJob = JSON.parse(JSON.stringify(activeJob));
                   oldJob.systemType = e.target.value;
                   let newJob = CalculateResources(oldJob);
-                  newJob = CalcualateTime(newJob)
+                  newJob = CalcualateTime(newJob);
                   updateActiveJob(newJob);
                   updateSystemValue(e.target.value);
                   setJobModified(true);
@@ -295,7 +287,7 @@ export function ManufacturingOptions({ setJobModified }) {
                     oldJob.structureType = structure.structureValue;
                     oldJob.structureTypeDisplay = structure.structureName;
                     let newJob = CalculateResources(oldJob);
-                    newJob = CalcualateTime(newJob)
+                    newJob = CalcualateTime(newJob);
                     updateActiveJob(newJob);
                     setJobModified(true);
                   }}

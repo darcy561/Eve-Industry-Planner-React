@@ -51,10 +51,10 @@ exports.scheduledFunction = functions.pubsub
         `TypeID's Refreshed ${JSON.stringify(refreshedIDs)}`
       );
       if (failedRefreshCount > 0) {
-        functions.logger.warn(
+        functions.logger.error(
           `Number of TypeID's Failed ${failedRefreshCount}`
         );
-        functions.logger.warn(`TypeID's Failed ${JSON.stringify(failedIDs)}`);
+        functions.logger.error(`TypeID's Failed ${JSON.stringify(failedIDs)}`);
       }
 
       return null;

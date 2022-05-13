@@ -1,5 +1,9 @@
 import React, { useState, createContext } from "react";
-import { apiJobsDefault, jobArrayDefault, jobStatusDefault } from "./defaultValues";
+import {
+  apiJobsDefault,
+  jobArrayDefault,
+  jobStatusDefault,
+} from "./defaultValues";
 
 export const JobStatusContext = createContext();
 
@@ -46,5 +50,17 @@ export const ApiJobs = (props) => {
     <ApiJobsContext.Provider value={{ apiJobs, updateApiJobs }}>
       {props.children}
     </ApiJobsContext.Provider>
+  );
+};
+
+export const ArchivedJobsContext = createContext();
+
+export const ArchivedJobs = (props) => {
+  const [archivedJobs, updateArchivedJobs] = useState([]);
+
+  return (
+    <ArchivedJobsContext.Provider value={{ archivedJobs, updateArchivedJobs }}>
+      {props.children}
+    </ArchivedJobsContext.Provider>
   );
 };

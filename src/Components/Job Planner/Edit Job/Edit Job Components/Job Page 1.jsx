@@ -12,6 +12,7 @@ import { Masonry } from "@mui/lab";
 import { ItemCostPanel } from "./Page 1 Components/itemCosts";
 import { ManufacturingBlueprints } from "./Page 1 Components/manufacturingBlueprints";
 import { ReactionBlueprints } from "./Page 1 Components/reactionBlueprints";
+import { ArchiveJobs } from "./Page 1 Components/archiveJobs";
 
 export function EditPage1({ jobModified, setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -64,6 +65,7 @@ export function EditPage1({ jobModified, setJobModified }) {
           <Masonry columns={1} spacing={2}>
             <RawResourceList />
             <ItemCostPanel jobModified={jobModified} />
+            <ArchiveJobs/>
             <SkillCheck />
           </Masonry>
         </Grid>

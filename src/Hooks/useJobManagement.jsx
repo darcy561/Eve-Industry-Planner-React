@@ -11,6 +11,7 @@ import { UsersContext } from "../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
+  ArchivedJobsContext,
   JobArrayContext,
   JobStatusContext,
 } from "../Context/JobContext";
@@ -38,10 +39,12 @@ export function useJobManagement() {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const { updateMassBuildDisplay } = useContext(MassBuildDisplayContext);
   const {
     addNewJob,
     downloadCharacterJobs,
+    getArchivedJobData,
     getItemPrices,
     removeJob,
     updateMainUserDoc,
@@ -199,11 +202,12 @@ export function useJobManagement() {
         });
       }
     });
-
+    let newArchivedJobsArray = await getArchivedJobData(inputJob.itemID)
     let jobPrices = await getItemPrices([...itemIDs]);
     if (jobPrices.length > 0) {
       updateEvePrices(evePrices.concat(jobPrices));
     }
+    updateArchivedJobs(newArchivedJobsArray)
     updateActiveJob(inputJob);
     updatePageLoad(false);
     updateLoadingText((prevObj) => ({

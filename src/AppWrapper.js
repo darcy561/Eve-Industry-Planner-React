@@ -1,4 +1,10 @@
-import { JobStatus, JobArray, ActiveJob, ApiJobs } from "./Context/JobContext";
+import {
+  JobStatus,
+  JobArray,
+  ActiveJob,
+  ApiJobs,
+  ArchivedJobs,
+} from "./Context/JobContext";
 import { IsLoggedIn, Users } from "./Context/AuthContext";
 import {
   EveESIStatus,
@@ -44,11 +50,13 @@ export function AppWrapper() {
                                       <PriceEntryList>
                                         <SisiDataFiles>
                                           <MassBuildDisplay>
-                                            <LocalizationProvider
-                                              dateAdapter={AdapterDateFns}
-                                            >
-                                              <App />
-                                            </LocalizationProvider>
+                                            <ArchivedJobs>
+                                              <LocalizationProvider
+                                                dateAdapter={AdapterDateFns}
+                                              >
+                                                <App />
+                                              </LocalizationProvider>
+                                            </ArchivedJobs>
                                           </MassBuildDisplay>
                                         </SisiDataFiles>
                                       </PriceEntryList>

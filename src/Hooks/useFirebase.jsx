@@ -4,7 +4,7 @@ import { appCheck, firestore, functions, performance } from "../firebase";
 import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
-import { JobStatusContext } from "../Context/JobContext";
+import { ArchivedJobsContext, JobStatusContext } from "../Context/JobContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getToken } from "firebase/app-check";
@@ -16,6 +16,7 @@ export function useFirebase() {
   const { evePrices } = useContext(EvePricesContext);
   const { jobStatus } = useContext(JobStatusContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { archivedJobs } = useContext(ArchivedJobsContext);
   const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
@@ -212,16 +213,17 @@ export function useFirebase() {
     );
   };
 
-  const archivedJob = async (job) => {
+  const archiveJob = async (job) => {
     await fbAuthState();
-    updateDoc(
+    setDoc(
       doc(
         firestore,
-        `Users/${parentUser.accountID}/Jobs`,
+        `Users/${parentUser.accountID}/ArchivedJobs`,
         job.jobID.toString()
       ),
       {
         archived: true,
+        archiveProcessed: false,
         jobType: job.jobType,
         name: job.name,
         jobID: job.jobID,
@@ -392,10 +394,59 @@ export function useFirebase() {
     return newEvePrices;
   };
 
+  const getArchivedJobData = async (typeID) => {
+    let newArchivedJobsArray = [...archivedJobs];
+
+    if (!newArchivedJobsArray.some((i) => i.typeID == typeID)) {
+      const document = await getDoc(
+        doc(
+          firestore,
+          `Users/${parentUser.accountID}/BuildStats`,
+          typeID.toString()
+        )
+      );
+      console.log(document)
+      if (document.exists()) {
+        let docData = document.data();
+        docData.lastUpdated = Date.now();
+
+        if (newArchivedJobsArray.length > 10) {
+          newArchivedJobsArray.shift();
+          newArchivedJobsArray.push(docData);
+        } else {
+          newArchivedJobsArray.push(docData);
+        }
+      }
+      return newArchivedJobsArray;
+    } else {
+      let index = newArchivedJobsArray.findIndex((i) => i.typeID === typeID);
+      if (index !== -1) {
+        if (newArchivedJobsArray[index].lastUpdated + 10800 <= Date.now()) {
+          const document = await getDoc(
+            doc(
+              firestore,
+              `Users/${parentUser.accountID}/BuildStats`,
+              typeID.toString()
+            )
+          );
+          if (document.exists()) {
+            let docData = document.data();
+            docData.lastUpdated = Date.now();
+            newArchivedJobsArray[index] = docData;
+            return newArchivedJobsArray;
+          }
+        } else {
+          return newArchivedJobsArray;
+        }
+      }
+    }
+  };
+
   return {
     addNewJob,
-    archivedJob,
+    archiveJob,
     determineUserState,
+    getArchivedJobData,
     getItemPrices,
     uploadJob,
     uploadJobAsSnapshot,

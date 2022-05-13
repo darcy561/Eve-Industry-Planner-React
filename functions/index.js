@@ -202,3 +202,4 @@ exports.api = functions.https.onRequest(app);
 exports.user = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
+exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");

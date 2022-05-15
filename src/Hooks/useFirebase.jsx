@@ -23,7 +23,6 @@ export function useFirebase() {
 
   const fbAuthState = async () => {
     let appCheckToken = await getToken(appCheck);
-    console.log(appCheckToken);
     if (isLoggedIn) {
       const auth = getAuth();
       if (auth.currentUser.stsTokenManager.expirationTime <= Date.now()) {
@@ -405,7 +404,7 @@ export function useFirebase() {
           typeID.toString()
         )
       );
-      console.log(document)
+
       if (document.exists()) {
         let docData = document.data();
         docData.lastUpdated = Date.now();
@@ -421,7 +420,7 @@ export function useFirebase() {
     } else {
       let index = newArchivedJobsArray.findIndex((i) => i.typeID === typeID);
       if (index !== -1) {
-        if (newArchivedJobsArray[index].lastUpdated + 10800 <= Date.now()) {
+        if (newArchivedJobsArray[index].lastUpdated + 10800000 <= Date.now()) {
           const document = await getDoc(
             doc(
               firestore,

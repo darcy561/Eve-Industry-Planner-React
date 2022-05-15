@@ -202,12 +202,15 @@ export function useJobManagement() {
         });
       }
     });
-    let newArchivedJobsArray = await getArchivedJobData(inputJob.itemID)
+    if (isLoggedIn) {
+      let newArchivedJobsArray = await getArchivedJobData(inputJob.itemID);
+      updateArchivedJobs(newArchivedJobsArray);
+    }
+
     let jobPrices = await getItemPrices([...itemIDs]);
     if (jobPrices.length > 0) {
       updateEvePrices(evePrices.concat(jobPrices));
     }
-    updateArchivedJobs(newArchivedJobsArray)
     updateActiveJob(inputJob);
     updatePageLoad(false);
     updateLoadingText((prevObj) => ({

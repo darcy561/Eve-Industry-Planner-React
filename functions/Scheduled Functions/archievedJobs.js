@@ -35,18 +35,24 @@ exports.scheduledfunction = functions.pubsub
         let archiveObject = {
           typeID: job.itemID,
           jobID: job.jobID,
-          processData: Date.now(),
+          jobType: job.jobType,
+          processDate: Date.now(),
           bpME: job.bpME,
           bpTE: job.bpTE,
           runs: job.runCount,
           jobs: job.jobCount,
-          childJob: job.parentJob.length > 0 ? true : false,
+          childJob:
+            job.parentJob !== undefined
+              ? job.parentJob.length > 0
+                ? true
+                : false
+              : false,
           totalProduced: job.build.products.totalQuantity,
           totalMaterialCost: job.build.costs.totalPurchaseCost,
           materialCostPerItem:
             job.build.costs.totalPurchaseCost /
             job.build.products.totalQuantity,
-          totalInventionCost: job.build.costs.inventionCosts,
+          totalInventionCost: job.build.costs.inventionCosts || 0,
           totalInstallCost: job.build.costs.installCosts,
           totalExtras: job.build.costs.extrasTotal,
           totalBuildCosts:
@@ -81,7 +87,7 @@ exports.scheduledfunction = functions.pubsub
               100
             : 0,
           profitLoss:
-            job.parentJob.length == 0
+            totalSale > 0
               ? totalSale -
                 (job.build.costs.totalPurchaseCost +
                   job.build.costs.installCosts +
@@ -92,6 +98,7 @@ exports.scheduledfunction = functions.pubsub
         };
 
         let dbObject = {
+          jobType: archiveObject.jobType,
           typeID: archiveObject.typeID,
           totalJobs: admin.firestore.FieldValue.increment(1),
           itemBuildCount: admin.firestore.FieldValue.increment(
@@ -144,5 +151,6 @@ exports.scheduledfunction = functions.pubsub
           .update({ archiveProcessed: true });
       }
     }
+    functions.logger.info(`${snapshotArray.length} Archived Jobs Processed`);
     return null;
   });

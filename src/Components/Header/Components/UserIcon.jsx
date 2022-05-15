@@ -4,6 +4,7 @@ import { IsLoggedInContext, UsersContext } from "../../../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
+  ArchivedJobsContext,
   JobArrayContext,
   JobStatusContext,
 } from "../../../Context/JobContext";
@@ -31,6 +32,7 @@ export function UserIcon() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { updateEveIDs } = useContext(EveIDsContext);
+  const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const navigate = useNavigate();
   const analytics = getAnalytics();
 
@@ -46,6 +48,7 @@ export function UserIcon() {
     updateEveIDs(eveIDsDefault);
     setJobStatus(jobStatusDefault);
     updateActiveJob({});
+    updateArchivedJobs([]);
     updateApiJobs(apiJobsDefault);
     localStorage.removeItem("Auth");
     signOut(auth);

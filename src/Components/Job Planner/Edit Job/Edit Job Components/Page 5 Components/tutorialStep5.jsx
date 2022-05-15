@@ -60,8 +60,7 @@ export function TutorialStep5() {
             Once you have sold everything you can either delete the job and
             remove all the data or you can choose to archive the job saving all
             of the data for you to pull back at a later date in the same way as
-            mentioned in the previous step. (Yet to be implemented, data is
-            currently being stored to start building this data).
+            mentioned in the previous step.
           </Typography>
         </Grid>
         {isLoggedIn && (

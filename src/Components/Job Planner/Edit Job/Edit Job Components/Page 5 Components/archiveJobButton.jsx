@@ -15,21 +15,20 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users } = useContext(UsersContext);
-  const { archivedJob, updateMainUserDoc } = useFirebase();
+  const { archiveJob, removeJob, updateMainUserDoc } = useFirebase();
   const { deleteJobSnapshot } = useJobManagement();
   const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
 
-  const archiveJob = async () => {
-
+  const archiveJobProcess = async () => {
     logEvent(analytics, "Archive Job", {
       UID: parentUser.accountID,
       jobID: activeJob.jobID,
       name: activeJob.name,
       itemID: activeJob.itemID,
-      stage: activeJob.status
-    })
+      stage: activeJob.status,
+    });
 
     const newJobArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);
 
@@ -42,9 +41,10 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
       severity: "success",
       autoHideDuration: 3000,
     }));
-    await deleteJobSnapshot(activeJob)
-    await updateMainUserDoc()
-    await archivedJob(activeJob);
+    await deleteJobSnapshot(activeJob);
+    await updateMainUserDoc();
+    await archiveJob(activeJob);
+    await removeJob(activeJob);
     updateJobSettingsTrigger((prev) => !prev);
   };
 
@@ -65,7 +65,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
             color="primary"
             variant="contained"
             size="small"
-            onClick={archiveJob}
+            onClick={archiveJobProcess}
           >
             Archive Job
           </Button>

@@ -40,10 +40,9 @@ export function InventionCostsCard({ setJobModified }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const classes = useStyles();
 
-  function handleRemove(record) {
+  function handleRemove(record, recordIndex) {
     let newArray = [...activeJob.build.costs.inventionEntries];
-    const Index = newArray.findIndex((i) => i.id === record.id);
-    newArray.splice(Index, 1);
+    newArray.splice(recordIndex, 1);
     updateActiveJob((prev) => ({
       ...prev,
       build: {
@@ -167,42 +166,43 @@ export function InventionCostsCard({ setJobModified }) {
               overflowY: "auto",
             }}
           >
-            {activeJob.build.costs.inventionEntries.map((record) => {
-              return (
-                <Grid
-                  key={record.id}
-                  container
-                  direction="row"
-                  item
-                  justifyContent="center"
-                  alignItems="center"
-                  sx={{ marginBottom: "5px" }}
-                >
-                  <Chip
+            {activeJob.build.costs.inventionEntries.map(
+              (record, recordIndex) => {
+                return (
+                  <Grid
                     key={record.id}
-                    label={`${record.itemName} ${record.itemCost.toLocaleString(
-                      undefined,
-                      {
+                    container
+                    direction="row"
+                    item
+                    justifyContent="center"
+                    alignItems="center"
+                    sx={{ marginBottom: "5px" }}
+                  >
+                    <Chip
+                      key={record.id}
+                      label={`${
+                        record.itemName
+                      } ${record.itemCost.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
-                      }
-                    )}`}
-                    variant="outlined"
-                    deleteIcon={<ClearIcon />}
-                    sx={{
-                      "& .MuiChip-deleteIcon": {
-                        color: "error.main",
-                      },
-                      boxShadow: 2,
-                    }}
-                    onDelete={() => {
-                      handleRemove(record);
-                    }}
-                    color="secondary"
-                  />
-                </Grid>
-              );
-            })}
+                      })}`}
+                      variant="outlined"
+                      deleteIcon={<ClearIcon />}
+                      sx={{
+                        "& .MuiChip-deleteIcon": {
+                          color: "error.main",
+                        },
+                        boxShadow: 2,
+                      }}
+                      onDelete={() => {
+                        handleRemove(record, recordIndex);
+                      }}
+                      color="secondary"
+                    />
+                  </Grid>
+                );
+              }
+            )}
           </Grid>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={1}>

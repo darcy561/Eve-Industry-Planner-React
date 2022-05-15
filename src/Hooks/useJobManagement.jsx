@@ -11,6 +11,7 @@ import { UsersContext } from "../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
+  ArchivedJobsContext,
   JobArrayContext,
   JobStatusContext,
 } from "../Context/JobContext";
@@ -38,10 +39,12 @@ export function useJobManagement() {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const { updateMassBuildDisplay } = useContext(MassBuildDisplayContext);
   const {
     addNewJob,
     downloadCharacterJobs,
+    getArchivedJobData,
     getItemPrices,
     removeJob,
     updateMainUserDoc,
@@ -184,19 +187,25 @@ export function useJobManagement() {
       if (mat.childJob.length > 0) {
         mat.childJob.forEach((cJ) => {
           let job = jobArray.find((i) => i.jobID === cJ);
-          itemIDs.add(job.itemID);
-          if (job.isSnapshot) {
-            job.materialIDs.forEach((o) => {
-              itemIDs.add(o);
-            });
-          } else {
-            job.build.materials.forEach((i) => {
-              itemIDs.add(i.typeID);
-            });
+          if (job !== undefined) {
+            itemIDs.add(job.itemID);
+            if (job.isSnapshot) {
+              job.materialIDs.forEach((o) => {
+                itemIDs.add(o);
+              });
+            } else {
+              job.build.materials.forEach((i) => {
+                itemIDs.add(i.typeID);
+              });
+            }
           }
         });
       }
     });
+    if (isLoggedIn) {
+      let newArchivedJobsArray = await getArchivedJobData(inputJob.itemID);
+      updateArchivedJobs(newArchivedJobsArray);
+    }
 
     let jobPrices = await getItemPrices([...itemIDs]);
     if (jobPrices.length > 0) {

@@ -48,10 +48,10 @@ export let blueprintVariables = {
     { value: 10, label: "20" },
   ],
   manStructure: [
-    { value: "Station", label: "Station" },
-    { value: "Medium", label: "Medium" },
-    { value: "Large", label: "Large" },
-    { value: "X-Large", label: "X-Large" },
+    { value: "Station", label: "Station", time: 0 },
+    { value: "Medium", label: "Medium", time: 0.15 },
+    { value: "Large", label: "Large", time:0.20 },
+    { value: "X-Large", label: "X-Large", time:0.30 },
   ],
   manRigs: [
     { value: 0, label: "None" },
@@ -68,8 +68,8 @@ export let blueprintVariables = {
     { value: 1.1, label: "Null Sec / WH" },
   ],
   reactionStructure: [
-    { value: "Medium", label: "Medium" },
-    { value: "Large", label: "Large" },
+    { value: "Medium", label: "Medium", time: 0 },
+    { value: "Large", label: "Large", time: 0.25 },
   ],
   reactionRigs: [
     { value: 0, label: "None" },

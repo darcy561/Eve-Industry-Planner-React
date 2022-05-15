@@ -8,6 +8,8 @@ import AutorenewIcon from "@mui/icons-material/Autorenew";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import TimerIcon from "@mui/icons-material/Timer";
 import { RefreshStateContext } from "../../../Context/LayoutContext";
+import { EvePricesContext } from "../../../Context/EveDataContext";
+import { useFirebase } from "../../../Hooks/useFirebase";
 
 export function RefreshApiIcon() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -22,8 +24,10 @@ export function RefreshApiIcon() {
     WalletJournal,
     serverStatus,
   } = useEveApi();
+  const { refreshItemPrices } = useFirebase();
   const { RefreshUserAToken } = useRefreshUser();
   const { refreshState, updateRefreshState } = useContext(RefreshStateContext);
+  const { updateEvePrices } = useContext(EvePricesContext);
 
   const parentUser = users.find((i) => i.ParentUser);
 
@@ -80,6 +84,8 @@ export function RefreshApiIcon() {
       }
     }
 
+    let newEvePrices = await refreshItemPrices();
+
     newAPIArray.sort((a, b) => {
       if (a.product_name < b.product_name) {
         return -1;
@@ -92,6 +98,7 @@ export function RefreshApiIcon() {
 
     updateUsers(newUsers);
     updateApiJobs(newAPIArray);
+    updateEvePrices(newEvePrices);
     updateRefreshState(3);
     setTimeout(() => {
       updateRefreshState(1);

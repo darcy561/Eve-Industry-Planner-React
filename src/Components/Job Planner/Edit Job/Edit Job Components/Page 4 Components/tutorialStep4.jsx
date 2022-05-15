@@ -58,9 +58,7 @@ export function TutorialStep4() {
             will remove the job from your planner but not the database. This
             will then be used to generate a build cost history for each item
             allowing you to see how much you have previously built these items
-            for when comparing these to current market costs. (Yet to be
-            implemented, data is currently being stored to start building this
-            data).
+            for when comparing these to current market costs.
           </Typography>
         </Grid>
         {isLoggedIn && (

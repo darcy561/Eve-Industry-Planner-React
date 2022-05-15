@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function MaterialCard({
+  materialIndex,
   material,
   setJobModified,
   orderDisplay,
@@ -154,10 +155,11 @@ function MaterialCard({
                 ISK
               </Typography>
             </Grid>
-            <MaterialCost material={material} setJobModified={setJobModified} />
+            <MaterialCost materialIndex={materialIndex} material={material} setJobModified={setJobModified} />
             {material.quantityPurchased < material.quantity &&
               childJobProductionTotal < material.quantity && (
                 <AddMaterialCost
+                  materialIndex={materialIndex}
                   material={material}
                   setJobModified={setJobModified}
                   marketDisplay={marketDisplay}

@@ -80,7 +80,7 @@ export function LinkedJobs({ setJobModified }) {
             },
           }}
         >
-          {activeJob.build.costs.linkedJobs.map((job) => {
+          {activeJob.build.costs.linkedJobs.map((job, linkedJobsArrayIndex) => {
             let blueprintType = "bpc";
             const jobOwner = users.find(
               (i) => i.CharacterHash === job.CharacterHash
@@ -215,15 +215,11 @@ export function LinkedJobs({ setJobModified }) {
                         if (aJ !== -1) {
                           newActiveJobArray.splice(aJ, 1);
                         }
-                        const linkedJobsArrayIndex =
-                          activeJob.build.costs.linkedJobs.findIndex(
-                            (i) => i.job_id === job.job_id
-                          );
+
                         let newLinkedJobsArray =
                           activeJob.build.costs.linkedJobs;
-                        if (linkedJobsArrayIndex !== -1) {
-                          newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
-                        }
+
+                        newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
 
                         updateActiveJob((prevObj) => ({
                           ...prevObj,

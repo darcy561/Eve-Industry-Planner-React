@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function AddMaterialCost({
+  materialIndex,
   material,
   setJobModified,
   marketDisplay,
@@ -44,10 +45,7 @@ function AddMaterialCost({
   const handleSubmit = (event) => {
     event.preventDefault();
     if (inputs.itemCount > 0) {
-      const materialIndex = activeJob.build.materials.findIndex(
-        (x) => x.typeID === material.typeID
-      );
-      const newArray = activeJob.build.materials;
+      let newArray = [...activeJob.build.materials];
       let newTotal = 0;
       newArray[materialIndex].purchasing.push({
         id: Date.now(),

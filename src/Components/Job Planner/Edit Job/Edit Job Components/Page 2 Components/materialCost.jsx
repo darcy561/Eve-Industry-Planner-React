@@ -4,18 +4,12 @@ import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { Chip, Grid } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 
-export function MaterialCost({ material, setJobModified }) {
+export function MaterialCost({ materialIndex, material, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
-  function handleRemove(record) {
-    const materialIndex = activeJob.build.materials.findIndex(
-      (x) => x.typeID === material.typeID
-    );
-    const purchasingIndex = material.purchasing.findIndex(
-      (i) => i.id === record.id
-    );
-    const newArray = activeJob.build.materials;
+  function handleRemove(purchasingIndex) {
+    const newArray = [...activeJob.build.materials];
     let newTotal = 0;
     newArray[materialIndex].quantityPurchased -=
       newArray[materialIndex].purchasing[purchasingIndex].itemCount;
@@ -65,10 +59,10 @@ export function MaterialCost({ material, setJobModified }) {
       direction="row"
       sx={{
         height: "8vh",
-        overflowY:"auto"
+        overflowY: "auto",
       }}
     >
-      {material.purchasing.map((record) => {
+      {material.purchasing.map((record, recordIndex) => {
         return (
           <Grid
             key={record.id}
@@ -81,12 +75,12 @@ export function MaterialCost({ material, setJobModified }) {
           >
             <Chip
               key={record.id}
-              label={`${record.itemCount.toLocaleString(undefined,{
+              label={`${record.itemCount.toLocaleString(undefined, {
                 minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-              })} @ ${record.itemCost.toLocaleString(undefined,{
+                maximumFractionDigits: 0,
+              })} @ ${record.itemCost.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
-                maximumFractionDigits: 2
+                maximumFractionDigits: 2,
               })} ISK Each`}
               variant="outlined"
               deleteIcon={<ClearIcon />}
@@ -96,7 +90,7 @@ export function MaterialCost({ material, setJobModified }) {
                 },
                 boxShadow: 2,
               }}
-              onDelete={() => handleRemove(record)}
+              onDelete={() => handleRemove(recordIndex)}
               color={record.childJobImport ? "primary" : "secondary"}
             />
           </Grid>

@@ -40,6 +40,8 @@ export function SkillCheck() {
             const charSkill = buildChar.apiSkills.find(
               (i) => i.id === jSkill.typeID
             );
+            // console.log(buildChar);
+            // console.log(charSkill);
 
             return (
               <Grid

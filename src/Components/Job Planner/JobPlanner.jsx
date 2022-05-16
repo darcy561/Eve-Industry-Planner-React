@@ -17,6 +17,7 @@ import { TutorialPlanner } from "./Planner Components/tutorialPlanner";
 import { ShoppingListDialog } from "./Dialogues/ShoppingList/ShoppingList";
 import { PriceEntryDialog } from "./Dialogues/PriceEntry/PriceEntryList";
 import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
+import { ESIOffline } from "../offlineNotification";
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
 
@@ -50,8 +51,8 @@ export let blueprintVariables = {
   manStructure: [
     { value: "Station", label: "Station", time: 0 },
     { value: "Medium", label: "Medium", time: 0.15 },
-    { value: "Large", label: "Large", time:0.20 },
-    { value: "X-Large", label: "X-Large", time:0.30 },
+    { value: "Large", label: "Large", time: 0.2 },
+    { value: "X-Large", label: "X-Large", time: 0.3 },
   ],
   manRigs: [
     { value: 0, label: "None" },
@@ -133,6 +134,9 @@ export function JobPlanner() {
 
           <MassBuildFeedback />
           <PriceEntryDialog />
+
+          <ESIOffline />
+
           {!parentUser.settings.layout.hideTutorials && (
             <Grid item xs={12}>
               <TutorialPlanner />

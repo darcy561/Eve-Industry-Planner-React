@@ -42,7 +42,7 @@ exports.scheduledfunction = functions.pubsub
           runs: job.runCount,
           jobs: job.jobCount,
           childJob:
-            job.parentJob !== undefined
+            job.parentJob !== undefined && job.parentJob !== null
               ? job.parentJob.length > 0
                 ? true
                 : false

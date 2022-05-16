@@ -4,6 +4,7 @@ import { NewTransactions } from "./Components/NewTransactions";
 import { TutorialDashboard } from "./Components/dashboardTutorial";
 import { useContext } from "react";
 import { UsersContext } from "../../Context/AuthContext";
+import { ESIOffline } from "../offlineNotification";
 
 export function Dashboard() {
   const { users } = useContext(UsersContext);
@@ -23,6 +24,7 @@ export function Dashboard() {
           <TutorialDashboard />
         </Grid>
       )}
+      <ESIOffline/>
       <Grid item xs={12} md={6} lg={4}>
         <AccountData />
       </Grid>

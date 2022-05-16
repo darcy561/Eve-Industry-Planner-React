@@ -20,7 +20,6 @@ export function useEveApi() {
           const x = skillsJSON.skills.find((s) => ref.id === s.skill_id);
           const y = {
             id: ref.id,
-            name: ref.name,
             activeLevel: null,
           };
 
@@ -251,8 +250,11 @@ export function useEveApi() {
           } else {
             pageCount++;
           }
+        } else {
+          pageCount = 11;
         }
       } catch (err) {
+        pageCount = 11;
         console.log(err);
         return [];
       }
@@ -297,8 +299,11 @@ export function useEveApi() {
           } else {
             pageCount++;
           }
+        } else {
+          pageCount = 11;
         }
       } catch (err) {
+        pageCount = 11;
         console.log(err);
         return [];
       }

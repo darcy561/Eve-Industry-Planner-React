@@ -93,7 +93,7 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
                     }
                   }
                 }}
-              ></Checkbox>
+              />
             </Grid>
             <Grid item xs={9} />
             <Grid item align="center" xs={2}>

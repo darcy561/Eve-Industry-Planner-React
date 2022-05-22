@@ -105,16 +105,18 @@ export function EditPage5({ setJobModified }) {
               entry.ref_type === "transaction_tax" &&
               Date.parse(entry.date) === Date.parse(trans.date)
           );
-          let descriptionTrim = transJournal.description
-            .replace("Market: ", "")
-            .split(" bought");
+          if (transTax !== undefined) {
+            let descriptionTrim = transJournal.description
+              .replace("Market: ", "")
+              .split(" bought");
 
-          transactionData.push(
-            Object.assign(
-              {},
-              new Transaction(trans, descriptionTrim[0], transJournal, transTax)
-            )
-          );
+            transactionData.push(
+              Object.assign(
+                {},
+                new Transaction(trans, descriptionTrim[0], transJournal, transTax)
+              )
+            );
+          }
         }
       });
     }

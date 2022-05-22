@@ -1,5 +1,5 @@
 import { Grid, Icon, Tooltip, Typography } from "@mui/material";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import InfoIcon from '@mui/icons-material/Info';
 import { useState } from "react";
 import { ChildJobPopover } from "./childJobPopOver";
 
@@ -52,7 +52,7 @@ export function ItemCostRow({
                   updateDisplayPopover(event.currentTarget);
                 }}
               >
-                <InfoOutlinedIcon fontSize="small" />
+                <InfoIcon fontSize="small" />
               </Icon>
             </Tooltip>
             <ChildJobPopover

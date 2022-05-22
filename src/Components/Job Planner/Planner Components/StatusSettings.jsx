@@ -35,7 +35,7 @@ export function StatusSettings({
           }));
         }}
       />
-      <Typography variant="body2">Display Open API Jobs:</Typography>
+      <Typography variant="body2">Display Open ESI Jobs:</Typography>
       <Switch
         checked={statusData.openAPIJobs}
         color="primary"
@@ -45,7 +45,7 @@ export function StatusSettings({
           }));
         }}
       />
-      <Typography variant="body2">Display Complete API Jobs:</Typography>
+      <Typography variant="body2">Display Complete ESI Jobs:</Typography>
       <Switch
         checked={statusData.completeAPIJobs}
         color="primary"

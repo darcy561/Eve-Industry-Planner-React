@@ -61,7 +61,7 @@ export function SkillCheck() {
                     align="center"
                     sx={{ typography: { xs: "body2", sm: "body1" } }}
                   >
-                    {skillData.name}
+                    {skillData !== undefined ? skillData.name : "Unknown Skill"}
                   </Typography>
                 </Grid>
 

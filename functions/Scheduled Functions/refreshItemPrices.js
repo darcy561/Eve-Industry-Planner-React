@@ -4,7 +4,7 @@ const ESIMarketQuery = require("../Item Prices/priceData").ESIMarketQuery;
 const axios = require("axios");
 
 exports.scheduledFunction = functions.pubsub
-  .schedule("every 1 hours")
+  .schedule("every 30 minutes")
   .onRun(async (context) => {
     const pricingDoc = await admin.firestore().doc("Pricing/Live").get();
     if (pricingDoc.exists) {
@@ -21,7 +21,7 @@ exports.scheduledFunction = functions.pubsub
         for (let item in pricingDocData) {
           if (
             (pricingDocData[item].lastUpdated < Date.now() - 14400000) &
-            (refreshList.length <= 300)
+            (refreshList.length < 150)
           ) {
             refreshList.push(pricingDocData[item].typeID);
           }

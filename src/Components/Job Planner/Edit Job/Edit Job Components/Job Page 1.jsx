@@ -14,7 +14,10 @@ import { ManufacturingBlueprints } from "./Page 1 Components/manufacturingBluepr
 import { ReactionBlueprints } from "./Page 1 Components/reactionBlueprints";
 import { ArchiveJobs } from "./Page 1 Components/archiveJobs";
 
-export function EditPage1({ jobModified, setJobModified }) {
+export function EditPage1({
+  jobModified,
+  setJobModified,
+}) {
   const { activeJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
 
@@ -64,8 +67,10 @@ export function EditPage1({ jobModified, setJobModified }) {
         <Grid item xs={12} md={9}>
           <Masonry columns={1} spacing={2}>
             <RawResourceList />
-            <ItemCostPanel jobModified={jobModified} />
-            <ArchiveJobs/>
+            <ItemCostPanel
+              jobModified={jobModified}
+            />
+            <ArchiveJobs />
             <SkillCheck />
           </Masonry>
         </Grid>

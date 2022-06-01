@@ -1,5 +1,5 @@
 import { Grid, Icon, Tooltip, Typography } from "@mui/material";
-import InfoIcon from '@mui/icons-material/Info';
+import InfoIcon from "@mui/icons-material/Info";
 import { useState } from "react";
 import { ChildJobPopover } from "./childJobPopOver";
 
@@ -8,9 +8,10 @@ export function ItemCostRow({
   marketSelect,
   listingSelect,
   materialPrice,
-  jobModified,
+  jobModified
 }) {
   const [displayPopover, updateDisplayPopover] = useState(null);
+  const [tempChildJobArray, updateTempChildJobArray] = useState([]);
   return (
     <Grid
       container
@@ -38,33 +39,33 @@ export function ItemCostRow({
             {material.name}
           </Typography>
         </Grid>
-        {material.childJob.length > 0 ? (
-          <Grid item xs={1}>
-            <Tooltip
-              title="Click To View Child Job Material Costs"
-              arrow
-              placement="bottom"
+        <Grid item xs={1}>
+          <Tooltip
+            title="Click To View Child Job Material Costs"
+            arrow
+            placement="bottom"
+          >
+            <Icon
+              aria-haspopup="true"
+              color="primary"
+              onClick={(event) => {
+                updateDisplayPopover(event.currentTarget);
+              }}
             >
-              <Icon
-                aria-haspopup="true"
-                color="primary"
-                onClick={(event) => {
-                  updateDisplayPopover(event.currentTarget);
-                }}
-              >
-                <InfoIcon fontSize="small" />
-              </Icon>
-            </Tooltip>
-            <ChildJobPopover
-              displayPopover={displayPopover}
-              updateDisplayPopover={updateDisplayPopover}
-              material={material}
-              marketSelect={marketSelect}
-              listingSelect={listingSelect}
-              jobModified={jobModified}
-            />
-          </Grid>
-        ) : null}
+              <InfoIcon fontSize="small" />
+            </Icon>
+          </Tooltip>
+          <ChildJobPopover
+            displayPopover={displayPopover}
+            updateDisplayPopover={updateDisplayPopover}
+            material={material}
+            marketSelect={marketSelect}
+            listingSelect={listingSelect}
+            jobModified={jobModified}
+            tempChildJobArray={tempChildJobArray}
+            updateTempChildJobArray={updateTempChildJobArray}
+          />
+        </Grid>
       </Grid>
       <Grid
         item

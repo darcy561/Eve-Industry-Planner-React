@@ -18,6 +18,7 @@ import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import { IsLoggedInContext } from "../../../../../Context/AuthContext";
+import { useJobBuild } from "../../../../../Hooks/useJobBuild";
 
 export function ChildJobPopover({
   displayPopover,
@@ -26,13 +27,17 @@ export function ChildJobPopover({
   marketSelect,
   listingSelect,
   jobModified,
+  tempChildJobArray,
+  updateTempChildJobArray,
 }) {
   const { jobArray } = useContext(JobArrayContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { activeJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { downloadCharacterJobs, uploadJob, getItemPrices } = useFirebase();
+  const { buildJob } = useJobBuild();
   const { replaceSnapshot, closeEditJob, openEditJob } = useJobManagement();
+  const [tempPrices, updateTempPrices] = useState([]);
   const [jobImport, updateJobImport] = useState(false);
   const [jobDisplay, setJobDisplay] = useState(0);
   const [childJobObjects, updateChildJobObjects] = useState([]);
@@ -40,20 +45,43 @@ export function ChildJobPopover({
   useEffect(async () => {
     if (displayPopover !== null) {
       let jobs = [];
-      let priceRequest = new Set();
-      for (let id of material.childJob) {
-        let childJob = jobArray.find((i) => i.jobID === id);
-        if (childJob.isSnapshot) {
-          childJob = await downloadCharacterJobs(childJob);
-          childJob.isSnapshot = false;
-          replaceSnapshot(childJob);
+      if (material.childJob.length > 0) {
+        for (let id of material.childJob) {
+          let childJob = jobArray.find((i) => i.jobID === id);
+          if (childJob.isSnapshot) {
+            childJob = await downloadCharacterJobs(childJob);
+            childJob.isSnapshot = false;
+            replaceSnapshot(childJob);
+          }
+          if (!childJobObjects.some((i) => i.jobID === childJob.jobID)) {
+            jobs.push(childJob);
+          }
         }
-        if (!childJobObjects.some((i) => i.jobID === childJob.jobID)) {
-          jobs.push(childJob);
+      } else {
+        jobs = tempChildJobArray.filter((i) => i.itemID === material.typeID);
+        console.log(tempChildJobArray);
+        if (jobs.length === 0) {
+          let newJob = await buildJob(material.typeID, material.quantity, [
+            activeJob,
+          ]);
+          if (newJob !== undefined) {
+            let priceIDRequest = new Set();
+            let promiseArray = [];
+            priceIDRequest.add(newJob.itemID);
+            newJob.build.materials.forEach((mat) => {
+              priceIDRequest.add(mat.typeID);
+            });
+            let itemPrices = getItemPrices([...priceIDRequest]);
+            promiseArray.push(itemPrices);
+            let returnPromiseArray = await Promise.all(promiseArray);
+            updateTempPrices((prev) => prev.concat(returnPromiseArray[0]));
+            jobs.push(newJob);
+            updateTempChildJobArray((prev) => prev.concat(jobs));
+          }
         }
       }
-
       updateChildJobObjects((prev) => prev.concat(jobs));
+      console.log(jobs);
       updateJobImport(true);
     }
   }, [displayPopover]);
@@ -91,6 +119,9 @@ export function ChildJobPopover({
               let materialPrice = evePrices.find(
                 (i) => i.typeID === mat.typeID
               );
+              if (materialPrice === undefined) {
+                materialPrice = tempPrices.find((i) => i.typeID === mat.typeID);
+              }
               totalPrice +=
                 materialPrice[marketSelect][listingSelect] * mat.quantity;
 

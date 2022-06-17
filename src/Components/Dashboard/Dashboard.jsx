@@ -5,6 +5,7 @@ import { TutorialDashboard } from "./Components/dashboardTutorial";
 import { useContext } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import { ESIOffline } from "../offlineNotification";
+import { ItemWatchPanel } from "./Components/ItemWatch/ItemWatchPanel";
 
 export function Dashboard() {
   const { users } = useContext(UsersContext);
@@ -31,6 +32,9 @@ export function Dashboard() {
       <Grid item xs={12} md={6} lg={8}>
         <NewTransactions />
       </Grid>
+      <Grid item xs={12} md={6} lg={8}>
+        <ItemWatchPanel />
+        </Grid>
     </Grid>
   );
 }

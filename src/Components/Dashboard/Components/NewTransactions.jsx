@@ -2,10 +2,7 @@ import { Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
 import { EveIDsContext } from "../../../Context/EveDataContext";
-import {
-  JobArrayContext,
-  JobStatusContext,
-} from "../../../Context/JobContext";
+import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 
 export function NewTransactions() {
   const { users } = useContext(UsersContext);
@@ -135,7 +132,7 @@ export function NewTransactions() {
             md: "10px",
           },
         }}
-        square={true}
+        square
       >
         <Grid container>
           <Grid item xs={12} sx={{ marginBottom: "20px" }}>
@@ -166,7 +163,6 @@ export function NewTransactions() {
                     <Typography variant="body2" align="right">
                       {trans.quantity} @ {trans.unit_price.toLocaleString()} ISK
                       Each
-
                     </Typography>
                   </Grid>
                 </Grid>
@@ -209,7 +205,8 @@ export function NewTransactions() {
               orders within the ESI data.
             </Typography>
             <Typography variant="body2" align="center">
-              Transaction data from the Eve ESI updates peridodically, either refresh the current data or check back later.
+              Transaction data from the Eve ESI updates peridodically, either
+              refresh the current data or check back later.
             </Typography>
           </Grid>
         </Grid>

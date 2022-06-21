@@ -1,10 +1,9 @@
 import { useContext } from "react";
 import skillsReference from "../RawData/bpSkills.json";
 import searchData from "../RawData/searchIndex.json";
-import { EveESIStatusContext, EveIDsContext } from "../Context/EveDataContext";
+import { EveESIStatusContext } from "../Context/EveDataContext";
 
 export function useEveApi() {
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { eveESIStatus, updateEveESIStatus } = useContext(EveESIStatusContext);
 
   const CharacterSkills = async (userObj) => {
@@ -40,6 +39,7 @@ export function useEveApi() {
   };
 
   const IndustryJobs = async (userObj, parentInfo) => {
+    console.log(userObj.aToken)
     try {
       const indyPromise = await fetch(
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/industry/jobs/?datasource=tranquility&include_completed=true&token=${userObj.aToken}`
@@ -56,19 +56,7 @@ export function useEveApi() {
             (item) => item.blueprintID === job.blueprint_type_id
           );
 
-          if (job.activity_id === 3 || job.activity_id === 4) {
-            if (rNameMatch !== undefined) {
-              job.product_name = rNameMatch.name;
-            } else {
-              job.product_name = null;
-            }
-          }
           if (job.activity_id === 1 || job.activity_id === 9) {
-            if (nameMatch !== undefined) {
-              job.product_name = nameMatch.name;
-            } else {
-              job.product_name = null;
-            }
             if (userObj.ParentUser) {
               if (userObj.linkedJobs.includes(job.job_id)) {
                 job.linked = true;
@@ -97,29 +85,9 @@ export function useEveApi() {
             job.activity_id === 1 ||
             job.activity_id === 4 ||
             job.activity_id === 3 ||
-            job.activity_id === 9
+            job.activity_id === 9 ||
+            job.activity_id === 5
         );
-
-        let idRequest = [];
-
-        filtered.forEach((item) => {
-          if (
-            !eveIDs.some((i) => i.facility_id === item.facility_id) &&
-            !idRequest.includes(item.facility_id)
-          ) {
-            idRequest.push(item.facility_id);
-          }
-        });
-        if (idRequest.length !== 0) {
-          const idNames = await IDtoName(idRequest, userObj);
-
-          filtered.forEach((job) => {
-            const facilityItem = idNames.find((i) => i.id === job.facility_id);
-            if (facilityItem !== undefined) {
-              job.facility_name = facilityItem.name;
-            }
-          });
-        }
 
         return filtered;
       } else return [];
@@ -137,36 +105,13 @@ export function useEveApi() {
 
       const marketJSON = await marketPromise.json();
 
-      let idRequest = [];
       if (marketPromise.status === 200) {
         marketJSON.forEach((item) => {
-          if (
-            !eveIDs.some((i) => i.location_id === item.location_id) &&
-            !idRequest.includes(item.location_id)
-          ) {
-            idRequest.push(item.location_id);
-          }
-          if (
-            !eveIDs.some((i) => i.region_id === item.region_id) &&
-            !idRequest.includes(item.region_id)
-          ) {
-            idRequest.push(item.region_id);
-          }
           item.CharacterHash = userObj.CharacterHash;
         });
 
-        if (idRequest.length !== 0) {
-          await IDtoName(idRequest, userObj);
-        }
-
         let filtered = marketJSON.filter((item) => !item.is_buy_order);
 
-        filtered.forEach((item) => {
-          const nameMatch = searchData.find((i) => i.itemID === item.type_id);
-          if (nameMatch !== undefined) {
-            item.item_name = nameMatch.name;
-          }
-        });
         return filtered;
       }
     } catch (err) {
@@ -177,7 +122,7 @@ export function useEveApi() {
 
   const HistoricMarketOrders = async (userObj) => {
     const returnArray = [];
-    let idRequest = [];
+
     let pageCount = 1;
     while (pageCount < 11) {
       try {
@@ -203,31 +148,9 @@ export function useEveApi() {
     let filtered = returnArray.filter((item) => !item.is_buy_order);
 
     filtered.forEach((item) => {
-      if (
-        !eveIDs.some((i) => i.location_id === item.location_id) &&
-        !idRequest.includes(item.location_id)
-      ) {
-        idRequest.push(item.location_id);
-      }
-      if (
-        !eveIDs.some((i) => i.region_id === item.region_id) &&
-        !idRequest.includes(item.region_id)
-      ) {
-        idRequest.push(item.region_id);
-      }
-
-      const nameMatch = searchData.find((i) => i.itemID === item.type_id);
-      if (nameMatch !== undefined) {
-        item.item_name = nameMatch.name;
-      } else {
-        item.item_name = null;
-      }
       item.CharacterHash = userObj.CharacterHash;
     });
 
-    if (idRequest.length !== 0) {
-      await IDtoName(idRequest, userObj);
-    }
     return filtered;
   };
 
@@ -270,7 +193,10 @@ export function useEveApi() {
 
       const transactionsJSON = await transactionsPromise.json();
       if (transactionsPromise.status === 200) {
-        const filtered = transactionsJSON.filter((i) => i.is_buy === false);
+        const filtered = transactionsJSON.filter(
+          (i) =>
+            i.is_buy === false && new Date() - Date.parse(i.date) <= 1209600000
+        );
         return filtered;
       } else return [];
     } catch (err) {
@@ -290,8 +216,11 @@ export function useEveApi() {
 
         const journalJSON = await journalPromise.json();
         if (journalPromise.status === 200) {
+          let currentDate = new Date();
           journalJSON.forEach((item) => {
-            returnArray.push(item);
+            if (currentDate - Date.parse(item.date) <= 1209600000) {
+              returnArray.push(item);
+            }
           });
 
           if (journalJSON.length < 1000) {
@@ -348,7 +277,6 @@ export function useEveApi() {
         }
       }
     }
-    updateEveIDs((prev) => prev.concat(newArray));
     return newArray;
   };
 
@@ -398,9 +326,42 @@ export function useEveApi() {
     }
   };
 
+  const fullAssetsList = async (userObj) => {
+    let pageCount = 1;
+    let returnArray = [];
+
+    while (pageCount < 11) {
+      try {
+        const assetPromise = await fetch(
+          `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/assets/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
+        );
+        const assetJSON = await assetPromise.json();
+
+        if (assetPromise.status === 200) {
+          assetJSON.forEach((item) => {
+            returnArray.push(item);
+          });
+
+          if (assetJSON.length < 1000) {
+            pageCount = 11;
+          } else {
+            pageCount++;
+          }
+        } else {
+          pageCount = 11;
+        }
+      } catch (err) {
+        pageCount = 11;
+        console.log(err);
+        return [];
+      }
+    }
+  };
+
   return {
     BlueprintLibrary,
     CharacterSkills,
+    fullAssetsList,
     HistoricMarketOrders,
     IDtoName,
     IndustryJobs,

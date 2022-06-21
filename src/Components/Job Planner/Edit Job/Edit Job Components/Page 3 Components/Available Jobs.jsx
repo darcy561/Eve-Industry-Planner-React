@@ -19,9 +19,11 @@ import {
 } from "@mui/material";
 import { MdOutlineAddLink } from "react-icons/md";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { EveIDsContext } from "../../../../../Context/EveDataContext";
 
 export function AvailableJobs({ jobMatches, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { eveIDs } = useContext(EveIDsContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -36,12 +38,10 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
       this.job_id = originalJob.job_id;
       this.completed_date = originalJob.completed_date || null;
       this.station_id = originalJob.station_id;
-      this.station_name = originalJob.facility_name;
       this.start_date = originalJob.start_date;
       this.end_date = originalJob.end_date;
       this.cost = originalJob.cost;
       this.linked = true;
-      this.product_name = originalJob.product_name;
       this.blueprint_type_id = originalJob.blueprint_type_id;
       this.product_type_id = originalJob.product_type_id;
       this.activity_id = originalJob.activity_id;
@@ -101,6 +101,8 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
             const jobBP = jobOwner.apiBlueprints.find(
               (i) => i.item_id === job.blueprint_id
             );
+
+            const facilityData = eveIDs.find((i) => i.id === job.facility_id);
 
             let blueprintType = "bpc";
             if (jobBP !== undefined) {
@@ -167,7 +169,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                 </Grid>
                 <Grid item xs={12}>
                   <Typography variant="body2" align="center">
-                    {job.facility_name}
+                    {facilityData.name}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>

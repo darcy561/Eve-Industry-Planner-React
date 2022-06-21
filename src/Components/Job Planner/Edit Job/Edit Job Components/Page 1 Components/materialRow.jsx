@@ -7,11 +7,10 @@ import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import {
   CircularProgress,
   Grid,
-  IconButton,
+  Icon,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { MdOutlineAddCircle, MdRemoveCircle } from "react-icons/md";
 import { jobTypes } from "../../../../../Context/defaultValues";
 import { useJobBuild } from "../../../../../Hooks/useJobBuild";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
@@ -25,6 +24,7 @@ import { EvePricesContext } from "../../../../../Context/EveDataContext";
 import DoneIcon from "@mui/icons-material/Done";
 import { trace } from "@firebase/performance";
 import { performance } from "../../../../../firebase";
+import LensIcon from "@mui/icons-material/Lens";
 
 export function MaterialRow({ material }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -33,7 +33,8 @@ export function MaterialRow({ material }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
-  const { addNewJob, getItemPrices, updateMainUserDoc, uploadJob } = useFirebase();
+  const { addNewJob, getItemPrices, updateMainUserDoc, uploadJob } =
+    useFirebase();
   const { checkAllowBuild, buildJob } = useJobBuild();
   const { newJobSnapshot, updateJobSnapshot } = useJobManagement();
   const [addJob, updateAddJob] = useState(false);
@@ -89,7 +90,7 @@ export function MaterialRow({ material }) {
         }
         material.childJob.push(newJob.jobID);
         updateJobSnapshot(activeJob);
-        await uploadJob(activeJob)
+        await uploadJob(activeJob);
       }
       updateAddJob(false);
       t.stop();
@@ -106,9 +107,9 @@ export function MaterialRow({ material }) {
             <Tooltip
               title={
                 material.jobType === jobTypes.manufacturing
-                  ? "Manufacturing Job, click to create a new child job."
+                  ? "Manufacturing Job"
                   : material.jobType === jobTypes.reaction
-                  ? "Reaction Job, click to create a new child job"
+                  ? "Reaction Job"
                   : material.jobType === jobTypes.pi
                   ? "Planetary Interaction"
                   : "Base Material"
@@ -116,15 +117,7 @@ export function MaterialRow({ material }) {
               placement="left-start"
               arrow
             >
-              <IconButton
-                onClick={handleAdd}
-                size="small"
-                disableRipple={
-                  material.jobType === jobTypes.manufacturing ||
-                  material.jobType === jobTypes.reaction
-                    ? false
-                    : true
-                }
+              <Icon
                 sx={{
                   color:
                     material.jobType === jobTypes.manufacturing
@@ -136,13 +129,8 @@ export function MaterialRow({ material }) {
                       : "baseMat.main",
                 }}
               >
-                {material.jobType === jobTypes.manufacturing ||
-                material.jobType === jobTypes.reaction ? (
-                  <MdOutlineAddCircle />
-                ) : (
-                  <MdRemoveCircle />
-                )}
-              </IconButton>
+                <LensIcon fontSize="small" />
+              </Icon>
             </Tooltip>
           )
         ) : (
@@ -155,9 +143,8 @@ export function MaterialRow({ material }) {
             placement="left-start"
             arrow
           >
-            <IconButton
+            <Icon
               size="small"
-              disableRipple={true}
               sx={{
                 color:
                   material.jobType === jobTypes.manufacturing
@@ -169,8 +156,8 @@ export function MaterialRow({ material }) {
                     : "baseMat.main",
               }}
             >
-              <DoneIcon fontSize="small" />
-            </IconButton>
+              <DoneIcon size={22} />
+            </Icon>
           </Tooltip>
         )}
       </Grid>

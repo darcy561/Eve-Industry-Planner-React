@@ -4,8 +4,6 @@ import { ActiveJobContext } from "../../../../Context/JobContext";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { SalesStats } from "./Page 5 Components/salesStats";
-import { AvailableMarketOrders } from "./Page 5 Components/availableMarketOrders";
-import { LinkedMarketOrders } from "./Page 5 Components/linkedMarketOrders";
 import { AvailableTransactionData } from "./Page 5 Components/availableTransactions";
 import { LinkedTransactions } from "./Page 5 Components/linkedTransactions";
 import { TutorialStep5 } from "./Page 5 Components/tutorialStep5";
@@ -46,15 +44,6 @@ export function EditPage5({ setJobModified }) {
         ) &&
         !itemOrderMatch.some((i) => i.order_id === order.order_id)
       ) {
-        eveIDs.find((item) => {
-          if (item.id === order.location_id) {
-            order.location_name = item.name;
-          }
-          if (item.id === order.region_id) {
-            order.region_name = item.name;
-          }
-        });
-
         itemOrderMatch.push(order);
       }
     });
@@ -66,14 +55,6 @@ export function EditPage5({ setJobModified }) {
         ) &&
         !itemOrderMatch.some((i) => i.order_id === order.order_id)
       ) {
-        eveIDs.find((item) => {
-          if (item.id === order.location_id) {
-            order.location_name = item.name;
-          }
-          if (item.id === order.region_id) {
-            order.region_name = item.name;
-          }
-        });
         order.CharacterHash = user.CharacterHash;
         itemOrderMatch.push(order);
       }

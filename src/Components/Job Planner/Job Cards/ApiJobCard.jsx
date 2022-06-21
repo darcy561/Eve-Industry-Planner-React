@@ -5,6 +5,7 @@ import { MeResearchESICardActive } from "./Api Job Card/meResearchActive";
 import { TeResearchESICardActive } from "./Api Job Card/teResearchActive";
 import { ReactionESICardComplete } from "./Api Job Card/reactionCardComplete";
 import { ReactionESICardActive } from "./Api Job Card/reactionCardActive";
+import { BpCopyESICardActive } from "./Api Job Card/bpCopyActive";
 
 export function ApiJobCard({ job }) {
   if (job.activity_id === 1) {
@@ -13,6 +14,9 @@ export function ApiJobCard({ job }) {
     }
     if (job.status === "delivered") {
       return <IndustryESICardComplete job={job} />;
+    }
+    if (job.status !== "active" && job.status !== "delivered") {
+      return null;
     }
   }
   if (job.activity_id === 4) {
@@ -23,7 +27,7 @@ export function ApiJobCard({ job }) {
   if (job.activity_id === 3) {
     if (job.status === "active") {
       return <TeResearchESICardActive job={job} />;
-    } else return null
+    } else return null;
   }
   if (job.activity_id === 9) {
     if (job.status === "active") {
@@ -32,6 +36,13 @@ export function ApiJobCard({ job }) {
     if (job.status === "delivered") {
       return <ReactionESICardComplete job={job} />;
     }
+    if (job.status !== "active" && job.status !== "delivered") {
+      return null;
+    }
+  }
+  if (job.activity_id === 5) {
+    if (job.status === "active") {
+      return <BpCopyESICardActive job={job} />;
+    } else return null;
   }
 }
-

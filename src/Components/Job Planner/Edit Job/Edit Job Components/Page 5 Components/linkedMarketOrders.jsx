@@ -14,6 +14,7 @@ import { MdOutlineLinkOff } from "react-icons/md";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { makeStyles } from "@mui/styles";
+import { EveIDsContext } from "../../../../../Context/EveDataContext";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -44,6 +45,7 @@ export function LinkedMarketOrders({
   updateActiveOrder,
   updateShowAvailableOrders,
 }) {
+  const { eveIDs } = useContext(EveIDsContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -69,9 +71,6 @@ export function LinkedMarketOrders({
           Date.parse(order.issued) !== Date.parse(newOrderData.issued)
         ) {
           order.duration = newOrderData.duration;
-          order.item_name = newOrderData.item_name || null;
-          order.region_name = newOrderData.region_name || null;
-          order.location_name = newOrderData.location_name || null;
           order.item_price = newOrderData.price;
           order.range = newOrderData.range;
           order.volume_remain = newOrderData.volume_remain;
@@ -99,9 +98,6 @@ export function LinkedMarketOrders({
       ) {
         order.duration = completedOrderData.duration;
         order.item_price = completedOrderData.price;
-        order.item_name = completedOrderData.item_name || null;
-        order.region_name = completedOrderData.region_name || null;
-        order.location_name = completedOrderData.location_name || null;
         order.range = completedOrderData.range;
         order.volume_remain = completedOrderData.volume_remain;
         order.issued = completedOrderData.issued;
@@ -154,6 +150,8 @@ export function LinkedMarketOrders({
           const charData = users.find(
             (i) => i.CharacterHash === order.CharacterHash
           );
+          const locationData = eveIDs.find((i) => i.id === order.location_id);
+
           return (
             <Grid
               key={order.order_id}
@@ -201,9 +199,7 @@ export function LinkedMarketOrders({
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="body2">
-                      {order.location_name}
-                    </Typography>
+                    <Typography variant="body2">{locationData.name}</Typography>
                   </Grid>
                   <Grid item xs={12}>
                     <Typography variant="body2">

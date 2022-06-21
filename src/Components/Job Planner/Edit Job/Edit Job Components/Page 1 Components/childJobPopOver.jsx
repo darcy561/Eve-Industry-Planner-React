@@ -19,6 +19,8 @@ import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import { IsLoggedInContext } from "../../../../../Context/AuthContext";
 import { useJobBuild } from "../../../../../Hooks/useJobBuild";
+import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
+import { jobTypes } from "../../../../../Context/defaultValues";
 
 export function ChildJobPopover({
   displayPopover,
@@ -27,20 +29,32 @@ export function ChildJobPopover({
   marketSelect,
   listingSelect,
   jobModified,
-  tempChildJobArray,
-  updateTempChildJobArray,
+  currentBuildPrice,
+  updateCurrentBuildPrice,
+  currentPurchasePrice,
 }) {
-  const { jobArray } = useContext(JobArrayContext);
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { activeJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { downloadCharacterJobs, uploadJob, getItemPrices } = useFirebase();
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const {
+    addNewJob,
+    downloadCharacterJobs,
+    updateMainUserDoc,
+    uploadJob,
+    getItemPrices,
+  } = useFirebase();
   const { buildJob } = useJobBuild();
-  const { replaceSnapshot, closeEditJob, openEditJob } = useJobManagement();
+  const { newJobSnapshot, replaceSnapshot, closeEditJob, openEditJob } =
+    useJobManagement();
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImport, updateJobImport] = useState(false);
   const [jobDisplay, setJobDisplay] = useState(0);
   const [childJobObjects, updateChildJobObjects] = useState([]);
+  const [buildLoad, updateBuildLoad] = useState(false);
+  const [recalculateTotal, updateRecalculateTotal] = useState(false);
+  const [fetchError, updateFetchError] = useState(false);
 
   useEffect(async () => {
     if (displayPopover !== null) {
@@ -57,10 +71,9 @@ export function ChildJobPopover({
             jobs.push(childJob);
           }
         }
+        updateChildJobObjects((prev) => prev.concat(jobs));
       } else {
-        jobs = tempChildJobArray.filter((i) => i.itemID === material.typeID);
-        console.log(tempChildJobArray);
-        if (jobs.length === 0) {
+        if (childJobObjects.length === 0) {
           let newJob = await buildJob(material.typeID, material.quantity, [
             activeJob,
           ]);
@@ -76,17 +89,35 @@ export function ChildJobPopover({
             let returnPromiseArray = await Promise.all(promiseArray);
             updateTempPrices((prev) => prev.concat(returnPromiseArray[0]));
             jobs.push(newJob);
-            updateTempChildJobArray((prev) => prev.concat(jobs));
+          } else {
+            updateFetchError(true);
           }
         }
+        if (jobs.length > 0) {
+          updateChildJobObjects(jobs);
+        }
       }
-      updateChildJobObjects((prev) => prev.concat(jobs));
-      console.log(jobs);
+      updateRecalculateTotal(true);
       updateJobImport(true);
     }
   }, [displayPopover]);
 
-  let totalPrice = 0;
+  useEffect(() => {
+    if (recalculateTotal) {
+      let totalPrice = 0;
+      childJobObjects[jobDisplay].build.materials.forEach((mat) => {
+        let materialPrice = evePrices.find((i) => i.typeID === mat.typeID);
+        if (materialPrice === undefined) {
+          materialPrice = tempPrices.find((i) => i.typeID === mat.typeID);
+        }
+        totalPrice += materialPrice[marketSelect][listingSelect] * mat.quantity;
+      });
+      updateCurrentBuildPrice(
+        totalPrice / childJobObjects[jobDisplay].build.products.totalQuantity
+      );
+      updateRecalculateTotal(false);
+    }
+  }, [recalculateTotal]);
 
   return (
     <Popover
@@ -107,14 +138,30 @@ export function ChildJobPopover({
         sx={{ padding: "20px", maxWidth: { xs: "350px", sm: "450px" } }}
       >
         {!jobImport ? (
-          <CircularProgress color="primary" />
+          <Grid container direction="row">
+            <Grid item xs={12} sx={{ marginBottom: "30px" }}>
+              <Typography variant="body2" align="center">
+                {material.name}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sx={{ marginBottom: "20px" }} align="center">
+              <CircularProgress color="primary" />
+            </Grid>
+          </Grid>
         ) : (
           <Grid container direction="row">
             <Grid item xs={12} sx={{ marginBottom: "10px" }}>
               <Typography variant="body2" align="center">
                 {material.name}
               </Typography>
-            </Grid>
+              </Grid>
+              {childJobObjects[jobDisplay].jobType === jobTypes.manufacturing?
+                <Grid item xs={12} sx={{ marginBottom: "10px" }}>
+                  <Typography variant="body2">
+                    ME: {childJobObjects[jobDisplay].bpME}
+                  </Typography>
+                </Grid>
+                : null}
             {childJobObjects[jobDisplay].build.materials.map((mat) => {
               let materialPrice = evePrices.find(
                 (i) => i.typeID === mat.typeID
@@ -122,8 +169,6 @@ export function ChildJobPopover({
               if (materialPrice === undefined) {
                 materialPrice = tempPrices.find((i) => i.typeID === mat.typeID);
               }
-              totalPrice +=
-                materialPrice[marketSelect][listingSelect] * mat.quantity;
 
               return (
                 <Grid key={mat.typeID} container item xs={12}>
@@ -147,42 +192,30 @@ export function ChildJobPopover({
             <Grid container item xs={12} sx={{ marginTop: "10px" }}>
               <Grid item xs={8}>
                 <Typography variant="body2">
-                  Item{" "}
-                  {listingSelect.charAt(0).toUpperCase() +
-                    listingSelect.slice(1)}{" "}
-                  Price
-                </Typography>
-              </Grid>
-              <Grid item xs={4} variant="body2">
-                <Typography variant="body2" align="right">
-                  {(
-                    totalPrice /
-                    childJobObjects[jobDisplay].build.products.totalQuantity
-                  ).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid container item xs={12} sx={{ marginTop: "10px" }}>
-              <Grid item xs={8}>
-                <Typography variant="body2">
-                  Total Material{" "}
+                  Total Material Item{" "}
                   {listingSelect.charAt(0).toUpperCase() +
                     listingSelect.slice(1)}{" "}
                   Price
                 </Typography>
               </Grid>
               <Grid item xs={4} variant="body2" align="right">
-                <Typography variant="body2" align="right">
-                  {totalPrice.toLocaleString(undefined, {
+                <Typography
+                  variant="body2"
+                  align="right"
+                  color={
+                    currentPurchasePrice <= currentBuildPrice
+                      ? "error.main"
+                      : "success.main"
+                  }
+                >
+                  {currentBuildPrice.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
                 </Typography>
               </Grid>
             </Grid>
+
             {childJobObjects.length > 1 && (
               <Grid container item xs={12} sx={{ marginTop: "10px" }}>
                 <Grid item xs={1}>
@@ -216,19 +249,57 @@ export function ChildJobPopover({
                 </Grid>
               </Grid>
             )}
+
             <Grid item xs={12} align="center" sx={{ marginTop: "10px" }}>
-              <Button
-                size="small"
-                onClick={() => {
-                  if (isLoggedIn && jobModified) {
-                    uploadJob(activeJob);
-                  }
-                  closeEditJob(activeJob);
-                  openEditJob(childJobObjects[jobDisplay]);
-                }}
-              >
-                Open Child Job
-              </Button>
+              {material.childJob.length > 0 ? (
+                <Button
+                  size="small"
+                  onClick={() => {
+                    if (isLoggedIn && jobModified) {
+                      uploadJob(activeJob);
+                    }
+                    closeEditJob(activeJob);
+                    openEditJob(childJobObjects[jobDisplay]);
+                  }}
+                >
+                  Open Child Job
+                </Button>
+              ) : !buildLoad ? (
+                <Button
+                  size="small"
+                  onClick={async () => {
+                    updateBuildLoad((prev) => !prev);
+                    await newJobSnapshot(childJobObjects[jobDisplay]);
+
+                    if (isLoggedIn) {
+                      await updateMainUserDoc();
+                      await addNewJob(childJobObjects[jobDisplay]);
+                    }
+                    material.childJob.push(childJobObjects[jobDisplay].jobID);
+                    updateEvePrices((prev) => prev.concat(tempPrices));
+                    updateJobArray((prev) => [
+                      ...prev,
+                      childJobObjects[jobDisplay],
+                    ]);
+                    setSnackbarData((prev) => ({
+                      ...prev,
+                      open: true,
+                      message: `${childJobObjects[jobDisplay].name} Added`,
+                      severity: "success",
+                      autoHideDuration: 3000,
+                    }));
+                    updateBuildLoad((prev) => !prev);
+                  }}
+                >
+                  Create Job
+                </Button>
+              ) : (
+                <CircularProgress
+                  color="primary"
+                  size={30}
+                  sx={{ marginTop: "20px" }}
+                />
+              )}
             </Grid>
           </Grid>
         )}

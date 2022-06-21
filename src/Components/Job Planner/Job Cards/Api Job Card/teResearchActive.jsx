@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import itemRef from "../../../../RawData/searchIndex.json";
 import { makeStyles } from "@mui/styles";
+import searchData from "../../../../RawData/searchIndex.json";
 
 const useStyles = makeStyles((theme) => ({
   TextFields: {
@@ -41,7 +42,7 @@ export function TeResearchESICardActive({ job }) {
   }
 
   const timeRemaining = timeRemainingcalc();
-
+  const product = searchData.find((i) => i.blueprintID === job.blueprint_type_id);
   const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id);
 
   return (
@@ -57,7 +58,7 @@ export function TeResearchESICardActive({ job }) {
                   typography: { xs: "body1", lg: "h6" },
                 }}
               >
-                {itemName.name}
+                {product.name}
               </Typography>
             </Grid>
             <Grid

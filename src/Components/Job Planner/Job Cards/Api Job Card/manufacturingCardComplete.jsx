@@ -9,6 +9,7 @@ import {
 import { useContext } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { makeStyles } from "@mui/styles";
+import searchData from "../../../../RawData/searchIndex.json";
 
 const useStyles = makeStyles((theme) => ({
   TextFields: {
@@ -20,6 +21,8 @@ export function IndustryESICardComplete({ job }) {
   const { users } = useContext(UsersContext);
   const classes = useStyles();
 
+
+  const product = searchData.find((i) => i.blueprintID === job.blueprint_type_id);
   const buildChar = users.find((i) => i.CharacterID === job.installer_id);
   const blueprintData = buildChar.apiBlueprints.find(
     (i) => i.item_id === job.blueprint_id
@@ -43,7 +46,7 @@ export function IndustryESICardComplete({ job }) {
                   typography: { xs: "body1", lg: "h6" },
                 }}
               >
-                {job.product_name}
+                {product.name}
               </Typography>
             </Grid>
             <Grid

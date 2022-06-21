@@ -2,25 +2,48 @@ import {
   Autocomplete,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   Grid,
+  MenuItem,
   Paper,
   Radio,
   RadioGroup,
+  Select,
   TextField,
 } from "@mui/material";
-import { blue } from "@mui/material/colors";
 import { useContext, useState } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { ApiJobsContext } from "../../Context/JobContext";
 import itemList from "../../RawData/searchIndex.json";
+import { makeStyles } from "@mui/styles";
 
-export function LibrarySearch({ updateBlueprintData }) {
+const useStyles = makeStyles((theme) => ({
+  Select: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
+  },
+}));
+
+export function LibrarySearch({
+  updateBlueprintData,
+  pagination,
+  setPagination,
+}) {
   const [displayAll, changeDisplayAll] = useState(true);
   const [displayActive, changeDisplayActive] = useState(false);
+  const [displayManufacturing, changeDisplayManufacturing] = useState(false);
   const [displayReactions, changeDisplayReactions] = useState(false);
+  const [displayBPO, changeDisplayBPO] = useState(false);
+  const [displayBPC, changeDisplayBPC] = useState(false);
   const { apiJobs } = useContext(ApiJobsContext);
   const { users } = useContext(UsersContext);
+  const classes = useStyles();
   return (
     <Paper
       square={true}
@@ -63,8 +86,17 @@ export function LibrarySearch({ updateBlueprintData }) {
               if (displayActive) {
                 changeDisplayActive((prev) => !prev);
               }
+              if (displayManufacturing) {
+                changeDisplayManufacturing((prev) => !prev);
+              }
               if (displayReactions) {
                 changeDisplayReactions((prev) => !prev);
+              }
+              if (displayBPO) {
+                changeDisplayBPO((prev) => !prev);
+              }
+              if (displayBPC) {
+                changeDisplayBPC((prev) => !prev);
               }
             }}
             renderInput={(params) => (
@@ -79,12 +111,28 @@ export function LibrarySearch({ updateBlueprintData }) {
             )}
           />
         </Grid>
-        <Grid item xs={12} sm={7} md={8} xl={10}>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={7}
+          xl={9}
+          align="center"
+          sx={{
+            marginTop: { xs: "10px", sm: "0px" },
+            paddingLeft: { xs: "0px", sm: "40px", md: "40px", lg: "0px" },
+          }}
+        >
           <FormControl>
             <RadioGroup row>
               <FormControlLabel
                 control={
                   <Radio
+                    sx={{
+                      "&, &.MuiButtonBase-root.MuiRadio-root": {
+                        color: "secondary.main",
+                      },
+                    }}
                     checked={displayAll}
                     onChange={() => {
                       let tempArray = [];
@@ -92,8 +140,17 @@ export function LibrarySearch({ updateBlueprintData }) {
                       if (displayActive) {
                         changeDisplayActive((prev) => !prev);
                       }
+                      if (displayManufacturing) {
+                        changeDisplayManufacturing((prev) => !prev);
+                      }
                       if (displayReactions) {
                         changeDisplayReactions((prev) => !prev);
+                      }
+                      if (displayBPO) {
+                        changeDisplayBPO((prev) => !prev);
+                      }
+                      if (displayBPC) {
+                        changeDisplayBPC((prev) => !prev);
                       }
                       for (let user of users) {
                         tempArray = tempArray.concat(user.apiBlueprints);
@@ -105,6 +162,11 @@ export function LibrarySearch({ updateBlueprintData }) {
                       updateBlueprintData({
                         ids: [...idArray],
                         blueprints: tempArray,
+                      });
+                      setPagination({
+                        ...pagination,
+                        from: 0,
+                        to: pagination.pageSize,
                       });
                       changeDisplayAll((prev) => !prev);
                     }}
@@ -122,8 +184,17 @@ export function LibrarySearch({ updateBlueprintData }) {
                       if (displayAll) {
                         changeDisplayAll((prev) => !prev);
                       }
+                      if (displayManufacturing) {
+                        changeDisplayManufacturing((prev) => !prev);
+                      }
                       if (displayReactions) {
                         changeDisplayReactions((prev) => !prev);
+                      }
+                      if (displayBPO) {
+                        changeDisplayBPO((prev) => !prev);
+                      }
+                      if (displayBPC) {
+                        changeDisplayBPC((prev) => !prev);
                       }
                       for (let user of users) {
                         tempArray = tempArray.concat(user.apiBlueprints);
@@ -144,12 +215,68 @@ export function LibrarySearch({ updateBlueprintData }) {
                         ids: [...idArray],
                         blueprints: tempArray,
                       });
-
+                      setPagination({
+                        ...pagination,
+                        from: 0,
+                        to: pagination.pageSize,
+                      });
                       changeDisplayActive((prev) => !prev);
                     }}
                   />
                 }
                 label="Active"
+              />
+              <FormControlLabel
+                control={
+                  <Radio
+                    checked={displayManufacturing}
+                    onChange={() => {
+                      let tempArray = [];
+                      let idArray = new Set();
+                      if (displayAll) {
+                        changeDisplayAll((prev) => !prev);
+                      }
+                      if (displayActive) {
+                        changeDisplayActive((prev) => !prev);
+                      }
+                      if (displayReactions) {
+                        changeDisplayReactions((prev) => !prev);
+                      }
+                      if (displayBPO) {
+                        changeDisplayBPO((prev) => !prev);
+                      }
+                      if (displayBPC) {
+                        changeDisplayBPC((prev) => !prev);
+                      }
+                      for (let user of users) {
+                        tempArray = tempArray.concat(user.apiBlueprints);
+                      }
+
+                      tempArray = tempArray.filter((blueprint) =>
+                        itemList.some(
+                          (item) =>
+                            item.blueprintID === blueprint.type_id &&
+                            item.jobType === jobTypes.manufacturing
+                        )
+                      );
+                      tempArray.forEach((bp) => {
+                        idArray.add(bp.type_id);
+                      });
+
+                      updateBlueprintData({
+                        ids: [...idArray],
+                        blueprints: tempArray,
+                      });
+                      setPagination({
+                        ...pagination,
+                        from: 0,
+                        to: pagination.pageSize,
+                      });
+                      changeDisplayManufacturing((prev) => !prev);
+                    }}
+                  />
+                }
+                label="Manufacturing"
               />
               <FormControlLabel
                 control={
@@ -163,6 +290,15 @@ export function LibrarySearch({ updateBlueprintData }) {
                       }
                       if (displayActive) {
                         changeDisplayActive((prev) => !prev);
+                      }
+                      if (displayManufacturing) {
+                        changeDisplayManufacturing((prev) => !prev);
+                      }
+                      if (displayBPO) {
+                        changeDisplayBPO((prev) => !prev);
+                      }
+                      if (displayBPC) {
+                        changeDisplayBPC((prev) => !prev);
                       }
                       for (let user of users) {
                         tempArray = tempArray.concat(user.apiBlueprints);
@@ -183,13 +319,149 @@ export function LibrarySearch({ updateBlueprintData }) {
                         ids: [...idArray],
                         blueprints: tempArray,
                       });
+                      setPagination({
+                        ...pagination,
+                        from: 0,
+                        to: pagination.pageSize,
+                      });
                       changeDisplayReactions((prev) => !prev);
                     }}
                   />
                 }
                 label="Reactions"
               />
+              <FormControlLabel
+                control={
+                  <Radio
+                    checked={displayBPO}
+                    onChange={() => {
+                      let tempArray = [];
+                      let idArray = new Set();
+                      if (displayAll) {
+                        changeDisplayAll((prev) => !prev);
+                      }
+                      if (displayActive) {
+                        changeDisplayActive((prev) => !prev);
+                      }
+                      if (displayManufacturing) {
+                        changeDisplayManufacturing((prev) => !prev);
+                      }
+                      if (displayReactions) {
+                        changeDisplayReactions((prev) => !prev);
+                      }
+                      if (displayBPC) {
+                        changeDisplayBPC((prev) => !prev);
+                      }
+                      for (let user of users) {
+                        tempArray = tempArray.concat(user.apiBlueprints);
+                      }
+
+                      tempArray = tempArray.filter(
+                        (blueprint) =>
+                          blueprint.runs === -1 &&
+                          itemList.some(
+                            (item) =>
+                              item.blueprintID === blueprint.type_id &&
+                              item.jobType === jobTypes.manufacturing
+                          )
+                      );
+                      tempArray.forEach((bp) => {
+                        idArray.add(bp.type_id);
+                      });
+
+                      updateBlueprintData({
+                        ids: [...idArray],
+                        blueprints: tempArray,
+                      });
+                      setPagination({
+                        ...pagination,
+                        from: 0,
+                        to: pagination.pageSize,
+                      });
+                      changeDisplayBPO((prev) => !prev);
+                    }}
+                  />
+                }
+                label="BP Originals"
+              />
+              <FormControlLabel
+                control={
+                  <Radio
+                    checked={displayBPC}
+                    onChange={() => {
+                      let tempArray = [];
+                      let idArray = new Set();
+                      if (displayAll) {
+                        changeDisplayAll((prev) => !prev);
+                      }
+                      if (displayActive) {
+                        changeDisplayActive((prev) => !prev);
+                      }
+                      if (displayManufacturing) {
+                        changeDisplayManufacturing((prev) => !prev);
+                      }
+                      if (displayReactions) {
+                        changeDisplayReactions((prev) => !prev);
+                      }
+                      if (displayBPO) {
+                        changeDisplayBPO((prev) => !prev);
+                      }
+                      for (let user of users) {
+                        tempArray = tempArray.concat(user.apiBlueprints);
+                      }
+
+                      tempArray = tempArray.filter(
+                        (blueprint) =>
+                          blueprint.quantity === -2 &&
+                          itemList.some(
+                            (item) =>
+                              item.blueprintID === blueprint.type_id &&
+                              item.jobType === jobTypes.manufacturing
+                          )
+                      );
+                      tempArray.forEach((bp) => {
+                        idArray.add(bp.type_id);
+                      });
+
+                      updateBlueprintData({
+                        ids: [...idArray],
+                        blueprints: tempArray,
+                      });
+                      setPagination({
+                        ...pagination,
+                        from: 0,
+                        to: pagination.pageSize,
+                      });
+                      changeDisplayBPC((prev) => !prev);
+                    }}
+                  />
+                }
+                label="BP Copies"
+              />
             </RadioGroup>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={1} align="center">
+          <FormControl className={classes.Select} fullWidth={true}>
+            <Select
+              variant="standard"
+              value={pagination.pageSize}
+              size="small"
+              onChange={(e) => {
+                setPagination({
+                  ...pagination,
+                  to: e.target.value,
+                  pageSize: e.target.value,
+                });
+              }}
+            >
+              <MenuItem value={4}>4</MenuItem>
+              <MenuItem value={8}>8</MenuItem>
+              <MenuItem value={16}>16</MenuItem>
+              <MenuItem value={32}>32</MenuItem>
+              <MenuItem value={64}>64</MenuItem>
+            </Select>
+            <FormHelperText variant="standard">Items Per Page</FormHelperText>
           </FormControl>
         </Grid>
       </Grid>

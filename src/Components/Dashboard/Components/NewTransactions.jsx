@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
 import { EveIDsContext } from "../../../Context/EveDataContext";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
+import itemData from "../../../RawData/searchIndex.json";
 
 export function NewTransactions() {
   const { users } = useContext(UsersContext);
@@ -29,22 +30,6 @@ export function NewTransactions() {
         ) {
           order.CharacterHash = user.CharacterHash;
 
-          const locationName = eveIDs.find(
-            (item) => item.id === order.location_id
-          );
-          if (!locationName) {
-            order.location_name = null;
-          } else {
-            order.location_name = locationName.name;
-          }
-
-          const regionName = eveIDs.find((item) => item.id === order.region_id);
-          if (!regionName) {
-            order.region_name = null;
-          } else {
-            order.region_name = regionName.name;
-          }
-
           itemOrderMatch.push(order);
         }
       });
@@ -56,24 +41,6 @@ export function NewTransactions() {
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
           order.CharacterHash = user.CharacterHash;
-
-          const locationNameHist = eveIDs.find(
-            (item) => item.id === order.location_id
-          );
-          if (!locationNameHist) {
-            order.location_name = null;
-          } else {
-            order.location_name = locationNameHist.name;
-          }
-
-          const regionNameHist = eveIDs.find(
-            (item) => item.id === order.region_id
-          );
-          if (!regionNameHist) {
-            order.region_name = null;
-          } else {
-            order.region_name = regionNameHist.name;
-          }
 
           itemOrderMatch.push(order);
         }
@@ -142,6 +109,7 @@ export function NewTransactions() {
           </Grid>
           <Grid container item xs={12}>
             {transactionData.map((trans) => {
+              let itemName = itemData.find((i) => i.itemID === trans.type_id);
               return (
                 <Grid
                   key={trans.transaction_id}
@@ -156,7 +124,7 @@ export function NewTransactions() {
                   </Grid>
                   <Grid item xs={4}>
                     <Typography variant="body1" align="center">
-                      {trans.item_name}
+                      {itemName.name}
                     </Typography>
                   </Grid>
                   <Grid item xs={4}>

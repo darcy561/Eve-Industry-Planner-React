@@ -19,9 +19,11 @@ import {
 } from "@mui/material";
 import { MdOutlineLinkOff } from "react-icons/md";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { EveIDsContext } from "../../../../../Context/EveDataContext";
 
 export function LinkedJobs({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { eveIDs } = useContext(EveIDsContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -96,6 +98,8 @@ export function LinkedJobs({ setJobModified }) {
                 }
               }
             }
+            const facilityData = eveIDs.find((i) => i.id === job.station_id);
+
             const timeRemaining = timeRemainingcalc(job);
             return (
               <Grid
@@ -158,7 +162,7 @@ export function LinkedJobs({ setJobModified }) {
 
                 <Grid item xs={12}>
                   <Typography variant="body2" align="center">
-                    {job.station_name}
+                    {facilityData.name}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>

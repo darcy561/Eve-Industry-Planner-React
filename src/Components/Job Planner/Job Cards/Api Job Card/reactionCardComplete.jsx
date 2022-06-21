@@ -7,6 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import searchData from "../../../../RawData/searchIndex.json";
 
 const useStyles = makeStyles((theme) => ({
   TextFields: {
@@ -16,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
 
 export function ReactionESICardComplete({ job }) {
   const classes = useStyles();
+
+  const product = searchData.find((i) => i.blueprintID === job.blueprint_type_id);
+  
   return (
     <Tooltip title="Job imported from the Eve ESI">
       <Grid key={job.job_id} item xs={16} sm={6} md={4} lg={3}>
@@ -29,7 +33,7 @@ export function ReactionESICardComplete({ job }) {
                   typography: { xs: "body1", lg: "h6" },
                 }}
               >
-                {job.product_name}
+                {product.name}
               </Typography>
             </Grid>
             <Grid

@@ -276,7 +276,8 @@ export function useJobManagement() {
             totalComplete++;
           }
         });
-        if (tempJobs.length > 1) {
+
+        if (tempJobs.length > 0) {
           tempJobs.sort((a, b) => {
             if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
               return 1;
@@ -288,6 +289,8 @@ export function useJobManagement() {
           });
           endDate = Date.parse(tempJobs[0].end_date);
         }
+
+
         const replacementSnap = Object.assign(
           {},
           new newSnapshot(

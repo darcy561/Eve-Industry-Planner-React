@@ -1,6 +1,7 @@
 import {
   Box,
   Container,
+  Divider,
   Grid,
   IconButton,
   Menu,
@@ -14,10 +15,12 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { MaterialRow } from "./materialRow";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function RawResourceList() {
   const { activeJob } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { massBuildMaterials } = useJobManagement();
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuClick = (event) => {
@@ -79,6 +82,7 @@ export function RawResourceList() {
               <CopyToClipboard
                 text={copyText}
                 onCopy={() => {
+                  handleMenuClose();
                   setSnackbarData((prev) => ({
                     ...prev,
                     open: true,
@@ -90,6 +94,14 @@ export function RawResourceList() {
               >
                 <MenuItem>Copy Resources List</MenuItem>
               </CopyToClipboard>
+              <MenuItem
+                onClick={() => {
+                  handleMenuClose();
+                  massBuildMaterials([activeJob])
+                }}
+              >
+                Create Child Jobs
+              </MenuItem>
             </Menu>
           </Grid>
         </Box>

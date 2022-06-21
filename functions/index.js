@@ -65,7 +65,7 @@ app.get("/item/:itemID", async (req, res) => {
       let product = await document.get();
       if (product.exists) {
         let response = product.data();
-        functions.logger.log(`${req.params.itemID} Tranquilty Build Data Sent`);
+        functions.logger.log(`${req.params.itemID} Tranquilty Build Data Sent To ${req.header("accountID")} `);
         return res
           .status(200)
           .set("Cache-Control", "public, max-age=600, s-maxage=3600")
@@ -99,7 +99,7 @@ app.get("/item/sisiData/:itemID", async (req, res) => {
       let product = await document.get();
       if (product.exists) {
         let response = product.data();
-        functions.logger.log(`${req.params.itemID} Singularity Build Data Sent`);
+        functions.logger.log(`${req.params.itemID} Tranquilty Build Data Sent To ${req.header("accountID")} `);
         return res.status(200).send(response);
       } else {
         functions.logger.error("Error retrieving item data");
@@ -173,7 +173,7 @@ app.post("/costs/bulkPrices", async (req, res) => {
           returnData.push(data);
         }
       }
-      functions.logger.log(`${req.body.idArray.length} Prices Returned`)
+      functions.logger.log(`${req.body.idArray.length} Prices Returned for ${req.header("accountID")}`)
       functions.logger.log(req.body.idArray);
       return res
         .status(200)

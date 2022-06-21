@@ -1232,6 +1232,7 @@ export let apiJobsDefault = [
 
 export let usersDefault = [
   {
+    accountID: "LoggedOutUser",
     CharacterID: 94800326,
     CharacterHash: "ABC123",
     CharacterName: "Example Character",

@@ -8,12 +8,17 @@ import AutorenewIcon from "@mui/icons-material/Autorenew";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import TimerIcon from "@mui/icons-material/Timer";
 import { RefreshStateContext } from "../../../Context/LayoutContext";
-import { EvePricesContext } from "../../../Context/EveDataContext";
+import {
+  EveIDsContext,
+  EvePricesContext,
+} from "../../../Context/EveDataContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function RefreshApiIcon() {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
+  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const {
     CharacterSkills,
     IndustryJobs,
@@ -23,15 +28,20 @@ export function RefreshApiIcon() {
     WalletTransactions,
     WalletJournal,
     serverStatus,
+    IDtoName,
   } = useEveApi();
   const { refreshItemPrices } = useFirebase();
   const { RefreshUserAToken } = useRefreshUser();
   const { refreshState, updateRefreshState } = useContext(RefreshStateContext);
   const { updateEvePrices } = useContext(EvePricesContext);
+  const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser);
 
   const refreshAPIData = async () => {
+    logEvent(analytics, "refreshAPIData", {
+      UID: parentUser.accountID,
+    });
     let newUsers = [...users];
     let newAPIArray = [];
     updateRefreshState(2);
@@ -83,8 +93,86 @@ export function RefreshApiIcon() {
         }
       }
     }
+    let existingLocations = new Set();
+    let locationIDS = new Set();
+    let citadelStore = new Set();
+    let newIDNamePromises = [];
+    let newNameArray = [];
+
+    for (let entry of eveIDs) {
+      existingLocations.add(entry.id);
+    }
+
+    for (let user of newUsers) {
+      let citadelIDs = new Set();
+      user.apiJobs.forEach((job) => {
+        if (job.facility_id.toString().length > 10) {
+          if (
+            !existingLocations.has(job.facility_id) &&
+            !citadelStore.has(job.facility_id)
+          ) {
+            citadelIDs.add(job.facility_id);
+            citadelStore.add(job.facility_id);
+          }
+        } else {
+          if (!existingLocations.has(job.facility_id)) {
+            locationIDS.add(job.facility_id);
+          }
+        }
+      });
+      user.apiOrders.forEach((order) => {
+        if (order.location_id.toString().length > 10) {
+          if (
+            !existingLocations.has(order.location_id) &&
+            !citadelStore.has(order.location_id)
+          ) {
+            citadelIDs.add(order.location_id);
+            citadelStore.add(order.location_id);
+          }
+        } else {
+          if (!existingLocations.has(order.location_id)) {
+            locationIDS.add(order.location_id);
+          }
+        }
+        if (!existingLocations.has(order.region_id)) {
+          locationIDS.add(order.region_id);
+        }
+      });
+      user.apiHistOrders.forEach((order) => {
+        if (order.location_id.toString().length > 10) {
+          if (
+            !existingLocations.has(order.location_id) &&
+            !citadelStore.has(order.location_id)
+          ) {
+            citadelIDs.add(order.location_id);
+            citadelStore.add(order.location_id);
+          }
+        } else {
+          if (!existingLocations.has(order.location_id)) {
+            locationIDS.add(order.location_id);
+          }
+        }
+        if (!existingLocations.has(order.region_id)) {
+          locationIDS.add(order.region_id);
+        }
+      });
+      if ([...citadelIDs].length > 0) {
+        let tempCit = IDtoName([...citadelIDs], user);
+        newIDNamePromises.push(tempCit);
+      }
+    }
+    if ([...locationIDS].length > 0) {
+      let tempLoc = IDtoName([...locationIDS], parentUser);
+      newIDNamePromises.push(tempLoc);
+    }
 
     let newEvePrices = await refreshItemPrices();
+
+    let returnLocations = await Promise.all(newIDNamePromises);
+
+    returnLocations.forEach((group) => {
+      newNameArray = newNameArray.concat(group);
+    });
 
     newAPIArray.sort((a, b) => {
       if (a.product_name < b.product_name) {
@@ -95,7 +183,7 @@ export function RefreshApiIcon() {
       }
       return 0;
     });
-
+    updateEveIDs((prev) => prev.concat(newNameArray));
     updateUsers(newUsers);
     updateApiJobs(newAPIArray);
     updateEvePrices(newEvePrices);

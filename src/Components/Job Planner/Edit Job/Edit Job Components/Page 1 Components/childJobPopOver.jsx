@@ -67,35 +67,32 @@ export function ChildJobPopover({
             childJob.isSnapshot = false;
             replaceSnapshot(childJob);
           }
-          if (!childJobObjects.some((i) => i.jobID === childJob.jobID)) {
+          if (!jobs.some((i) => i.jobID === childJob.jobID)) {
             jobs.push(childJob);
           }
         }
-        updateChildJobObjects((prev) => prev.concat(jobs));
       } else {
-        if (childJobObjects.length === 0) {
-          let newJob = await buildJob(material.typeID, material.quantity, [
-            activeJob,
-          ]);
-          if (newJob !== undefined) {
-            let priceIDRequest = new Set();
-            let promiseArray = [];
-            priceIDRequest.add(newJob.itemID);
-            newJob.build.materials.forEach((mat) => {
-              priceIDRequest.add(mat.typeID);
-            });
-            let itemPrices = getItemPrices([...priceIDRequest]);
-            promiseArray.push(itemPrices);
-            let returnPromiseArray = await Promise.all(promiseArray);
-            updateTempPrices((prev) => prev.concat(returnPromiseArray[0]));
-            jobs.push(newJob);
-          } else {
-            updateFetchError(true);
-          }
+        let newJob = await buildJob(material.typeID, material.quantity, [
+          activeJob,
+        ]);
+        if (newJob !== undefined) {
+          let priceIDRequest = new Set();
+          let promiseArray = [];
+          priceIDRequest.add(newJob.itemID);
+          newJob.build.materials.forEach((mat) => {
+            priceIDRequest.add(mat.typeID);
+          });
+          let itemPrices = getItemPrices([...priceIDRequest]);
+          promiseArray.push(itemPrices);
+          let returnPromiseArray = await Promise.all(promiseArray);
+          updateTempPrices((prev) => prev.concat(returnPromiseArray[0]));
+          jobs.push(newJob);
+        } else {
+          updateFetchError(true);
         }
-        if (jobs.length > 0) {
-          updateChildJobObjects(jobs);
-        }
+      }
+      if (jobs.length > 0) {
+        updateChildJobObjects(jobs);
       }
       updateRecalculateTotal(true);
       updateJobImport(true);
@@ -117,7 +114,7 @@ export function ChildJobPopover({
       );
       updateRecalculateTotal(false);
     }
-  }, [recalculateTotal]);
+  }, [childJobObjects, recalculateTotal]);
 
   return (
     <Popover
@@ -138,30 +135,45 @@ export function ChildJobPopover({
         sx={{ padding: "20px", maxWidth: { xs: "350px", sm: "450px" } }}
       >
         {!jobImport ? (
-          <Grid container direction="row">
-            <Grid item xs={12} sx={{ marginBottom: "30px" }}>
-              <Typography variant="body2" align="center">
-                {material.name}
-              </Typography>
+          !fetchError ? (
+            <Grid container direction="row">
+              <Grid item xs={12} sx={{ marginBottom: "30px" }}>
+                <Typography variant="body2" align="center">
+                  {material.name}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sx={{ marginBottom: "20px" }} align="center">
+                <CircularProgress color="primary" />
+              </Grid>
             </Grid>
-            <Grid item xs={12} sx={{ marginBottom: "20px" }} align="center">
-              <CircularProgress color="primary" />
+          ) : (
+            <Grid container direction="row">
+              <Grid item xs={12} sx={{ marginBottom: "30px" }}>
+                <Typography variant="body2" align="center">
+                  {material.name}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sx={{ marginBottom: "20px" }} align="center">
+                <Typography variant="body2" align="center" color="error">
+                  Error Importing Job Data
+                </Typography>
+              </Grid>
             </Grid>
-          </Grid>
+          )
         ) : (
           <Grid container direction="row">
             <Grid item xs={12} sx={{ marginBottom: "10px" }}>
               <Typography variant="body2" align="center">
                 {material.name}
               </Typography>
+            </Grid>
+            {childJobObjects[jobDisplay].jobType === jobTypes.manufacturing ? (
+              <Grid item xs={12} sx={{ marginBottom: "10px" }}>
+                <Typography variant="body2">
+                  ME: {childJobObjects[jobDisplay].bpME}
+                </Typography>
               </Grid>
-              {childJobObjects[jobDisplay].jobType === jobTypes.manufacturing?
-                <Grid item xs={12} sx={{ marginBottom: "10px" }}>
-                  <Typography variant="body2">
-                    ME: {childJobObjects[jobDisplay].bpME}
-                  </Typography>
-                </Grid>
-                : null}
+            ) : null}
             {childJobObjects[jobDisplay].build.materials.map((mat) => {
               let materialPrice = evePrices.find(
                 (i) => i.typeID === mat.typeID
@@ -192,27 +204,30 @@ export function ChildJobPopover({
             <Grid container item xs={12} sx={{ marginTop: "10px" }}>
               <Grid item xs={8}>
                 <Typography variant="body2">
-                  Total Material Item{" "}
+                  Total Material{" "}
                   {listingSelect.charAt(0).toUpperCase() +
                     listingSelect.slice(1)}{" "}
-                  Price
+                  Price Per Item
                 </Typography>
               </Grid>
+
               <Grid item xs={4} variant="body2" align="right">
-                <Typography
-                  variant="body2"
-                  align="right"
-                  color={
-                    currentPurchasePrice <= currentBuildPrice
-                      ? "error.main"
-                      : "success.main"
-                  }
-                >
-                  {currentBuildPrice.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </Typography>
+                {currentBuildPrice !== null ? (
+                  <Typography
+                    variant="body2"
+                    align="right"
+                    color={
+                      currentPurchasePrice <= currentBuildPrice
+                        ? "error.main"
+                        : "success.main"
+                    }
+                  >
+                    {currentBuildPrice.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Typography>
+                ) : null}
               </Grid>
             </Grid>
 

@@ -298,6 +298,7 @@ export function useFirebase() {
           headers: {
             "Content-Type": "application/json",
             "X-Firebase-AppCheck": appCheckToken.token,
+            "accountID": parentUser.accountID
           },
           body: JSON.stringify({
             idArray: array,

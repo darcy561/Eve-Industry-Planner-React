@@ -133,7 +133,7 @@ export function useJobBuild() {
           {
             headers: {
               "X-Firebase-AppCheck": appCheckToken.token,
-              "accountID": parentUser.accountID
+              accountID: parentUser.accountID,
             },
           }
         );
@@ -204,16 +204,7 @@ export function useJobBuild() {
             }
           }
           if (itemQty !== null) {
-            outputObject.jobCount = Math.ceil(
-              itemQty /
-                (outputObject.maxProductionLimit *
-                  outputObject.rawData.products[0].quantity)
-            );
-            outputObject.runCount = Math.ceil(
-              itemQty /
-                outputObject.rawData.products[0].quantity /
-                outputObject.jobCount
-            );
+            recalculateItemQty(outputObject, itemQty);
           }
 
           let calculatedJob = CalculateResources(outputObject);
@@ -312,5 +303,16 @@ export function useJobBuild() {
       return true;
     }
   };
-  return { buildJob, checkAllowBuild, jobBuildErrors };
+
+  const recalculateItemQty = (job, itemQty) => {
+    job.jobCount = Math.ceil(
+      itemQty / (job.maxProductionLimit * job.rawData.products[0].quantity)
+    );
+    job.runCount = Math.ceil(
+      itemQty / job.rawData.products[0].quantity / job.jobCount
+    );
+    return job;
+  };
+
+  return { buildJob, checkAllowBuild, jobBuildErrors, recalculateItemQty };
 }

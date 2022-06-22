@@ -35,7 +35,7 @@ export function ArchiveBpData({ archiveOpen, updateArchiveOpen, bpData }) {
       sx={{ padding: "20px" }}
     >
       <DialogTitle align="center" color="primary" sx={{ marginBottom: "20px" }}>
-        {bpData.name}
+        {bpData.name} Archived Data
       </DialogTitle>
       {getData && (
         <DialogContent>

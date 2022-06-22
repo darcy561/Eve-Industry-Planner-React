@@ -29,7 +29,6 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   const [failedImport, setFailedImport] = useState(false);
   const [importedJob, setImportedJob] = useState(null);
   const [materialJobs, setMaterialJobs] = useState([]);
-  const [selectedJob, setSelectedJob] = useState(null);
 
   const handleClose = () => {
     setOpenDialog(false);
@@ -97,7 +96,6 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                     );
                     setMaterialJobs(returnJobPromiseArray);
                     setImportedJob(newJob);
-                    setSelectedJob(newJob);
                     console.log(newJob);
                   } else {
                     changeLoadingText("Error Importing Data...");
@@ -134,11 +132,6 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
               )
             ) : (
               <>
-                <Grid item xs={12} align="center" sx={{ marginBottom: "20px" }}>
-                  <Typography variant="body1" color="primary">
-                    Select resource to make changes to the build
-                  </Typography>
-                </Grid>
                 <Grid item xs={12} align="center">
                   <img
                     src={`https://images.evetech.net/types/${importedJob.itemID}/icon?size=64 `}
@@ -149,12 +142,12 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                   <Typography>{importedJob.name}</Typography>
                 </Grid>
 
-                <Grid container item xs={12} sx={{marginBottom:"20px"}}>
+                <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
                   {materialJobs.map((job) => {
                     return <ChildJobEntry job={job} />;
                   })}
                 </Grid>
-                {selectedJob.jobType === jobTypes.manufacturing && (
+                {importedJob.jobType === jobTypes.manufacturing && (
                   <WishListManufacturingOptions
                     importedJob={importedJob}
                     setImportedJob={setImportedJob}
@@ -162,7 +155,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                     setMaterialJobs={setMaterialJobs}
                   />
                 )}
-                {selectedJob.jobType === jobTypes.reaction && (
+                {importedJob.jobType === jobTypes.reaction && (
                   <WishlistReactionOptions
                     importedJob={importedJob}
                     setImportedJob={setImportedJob}

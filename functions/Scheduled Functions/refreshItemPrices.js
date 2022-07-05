@@ -21,20 +21,26 @@ exports.scheduledFunction = functions.pubsub
         for (let item in pricingDocData) {
           if (
             (pricingDocData[item].lastUpdated < Date.now() - 14400000) &
-            (refreshList.length < 150)
+            (refreshList.length <= 150)
           ) {
             refreshList.push(pricingDocData[item].typeID);
           }
         }
         if (refreshList.length > 0) {
           for (let typeID of refreshList) {
-            let response = await ESIMarketQuery(typeID, pricingDocData[typeID]);
+            let response = await ESIMarketQuery(
+              typeID,
+              false,
+              pricingDocData[typeID]
+            );
             if (response === "fail") {
               failedRefreshCount++;
               failedIDs.push(typeID);
+            } else {
+              successRefreshCount++;
+              refreshedIDs.push(typeID);
+              pricingDocData[typeID] = response;
             }
-            successRefreshCount++;
-            refreshedIDs.push(typeID);
           }
         }
       } else {
@@ -42,21 +48,30 @@ exports.scheduledFunction = functions.pubsub
           failedIDs.push(i.typeID, server.status);
         });
         failedRefreshCount = failedIDs.length;
-        functions.logger.error(`Eve Servers Offline - Refresh Item Prices`);
+        functions.logger.error(
+          `Eve Servers Offline - Unable To Refresh Item Prices`
+        );
+      }
+      if (refreshedIDs.length > 0) {
+        await admin
+          .firestore()
+          .collection("Pricing")
+          .doc("Live")
+          .update(pricingDocData);
       }
       functions.logger.info(
-        `Number of TypeID's Refreshed ${successRefreshCount}`
+        `Number of TypeID's Refreshed ${successRefreshCount}. TypeID's Refreshed ${JSON.stringify(
+          refreshedIDs
+        )} `
       );
-      functions.logger.info(
-        `TypeID's Refreshed ${JSON.stringify(refreshedIDs)}`
-      );
+
       if (failedRefreshCount > 0) {
         functions.logger.info(
-          `Number of TypeID's Failed ${failedRefreshCount}`
+          `Number of TypeID's Failed ${failedRefreshCount}. TypeID's Failed ${JSON.stringify(
+            failedIDs
+          )}`
         );
-        functions.logger.info(`TypeID's Failed ${JSON.stringify(failedIDs)}`);
       }
-
-      return null;
     }
+    return null;
   });

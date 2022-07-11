@@ -124,7 +124,7 @@ export function useJobManagement() {
         newJob.build.materials.forEach((mat) => {
           priceIDRequest.add(mat.typeID);
         });
-        let itemPrices = getItemPrices([...priceIDRequest]);
+        let itemPrices = getItemPrices([...priceIDRequest], parentUser );
         promiseArray.push(itemPrices);
 
         await newJobSnapshot(newJob);
@@ -207,7 +207,7 @@ export function useJobManagement() {
       updateArchivedJobs(newArchivedJobsArray);
     }
 
-    let jobPrices = await getItemPrices([...itemIDs]);
+    let jobPrices = await getItemPrices([...itemIDs], parentUser);
     if (jobPrices.length > 0) {
       updateEvePrices(evePrices.concat(jobPrices));
     }
@@ -452,7 +452,7 @@ export function useJobManagement() {
       ...prev,
       totalPrice: [...materialPriceIDs].length,
     }));
-    let itemPrices = await getItemPrices([...materialPriceIDs]);
+    let itemPrices = await getItemPrices([...materialPriceIDs], parentUser);
     updateEvePrices((prev) => prev.concat(itemPrices));
     updateJobArray(newJobArray);
     updateMassBuildDisplay((prev) => ({

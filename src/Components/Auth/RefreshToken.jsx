@@ -69,6 +69,7 @@ class MainUser {
     this.apiOrders = null;
     this.apiHistOrders = null;
     this.apiBlueprints = null;
+    this.watchlist = [];
     this.settings = null;
     this.accountRefreshTokens = [];
     this.refreshState = 1;

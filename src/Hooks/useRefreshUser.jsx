@@ -69,6 +69,7 @@ export function useRefreshUser() {
       JSON.stringify(charSettings.jobArraySnapshot)
     );
     refreshedUser.accountRefreshTokens = charSettings.refreshTokens;
+    refreshedUser.watchlist = charSettings.watchlist;
     let priceIDRequest = new Set();
     let promiseArray = [];
     charSettings.jobArraySnapshot.forEach((snap) => {
@@ -77,7 +78,18 @@ export function useRefreshUser() {
       });
       priceIDRequest.add(snap.itemID);
     });
-    let itemPrices = getItemPrices([...priceIDRequest]);
+
+    charSettings.watchlist.forEach((snap) => {
+      priceIDRequest.add(snap.typeID);
+      snap.materials.forEach((mat) => {
+        priceIDRequest.add(mat.typeID);
+        mat.materials.forEach((cMat) => {
+          priceIDRequest.add(cMat.typeID);
+        });
+      });
+    });
+
+    let itemPrices = getItemPrices([...priceIDRequest], refreshedUser);
     promiseArray.push(itemPrices);
 
     updateLoadingText((prevObj) => ({

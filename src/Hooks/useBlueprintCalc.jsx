@@ -98,7 +98,7 @@ export function useBlueprintCalc() {
     }
   };
 
-  const CalcualateTime = (job, updatedUser) => {
+  const CalculateTime = (job, updatedUser) => {
     let user = updatedUser;
     if (user === undefined) {
       user = users.find((i) => i.CharacterHash === job.build.buildChar);
@@ -179,5 +179,5 @@ export function useBlueprintCalc() {
     return job;
   };
 
-  return { CalculateResources, CalcualateTime };
+  return { CalculateResources, CalculateTime };
 }

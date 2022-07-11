@@ -183,9 +183,9 @@ app.post("/costs/bulkPrices", async (req, res) => {
     functions.logger.log(
       `${req.body.idArray.length} Prices Returned for ${req.header(
         "accountID"
-      )}`
+      )}, [${req.body.idArray}]`
     );
-    functions.logger.log(req.body.idArray);
+
     return res
       .status(200)
       .setHeader("Content-Type", "application/json")

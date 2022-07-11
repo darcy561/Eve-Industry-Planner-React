@@ -23,7 +23,7 @@ export function ManufacturingBlueprints({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { users } = useContext(UsersContext);
-  const { CalculateResources } = useBlueprintCalc();
+  const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const classes = useStyles();
 
   let blueprintOptions = [];
@@ -90,7 +90,8 @@ export function ManufacturingBlueprints({ setJobModified }) {
                           const oldJob = JSON.parse(JSON.stringify(activeJob));
                           oldJob.bpME = print.material_efficiency;
                           oldJob.bpTE = print.time_efficiency / 2;
-                          const newJob = CalculateResources(oldJob);
+                          let newJob = CalculateTime(oldJob);
+                          CalculateResources(newJob);
                           updateActiveJob(newJob);
                           setJobModified(true);
                         }}

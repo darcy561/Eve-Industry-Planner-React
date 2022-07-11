@@ -52,7 +52,7 @@ export function ManufacturingOptions({ setJobModified }) {
   );
   const [rigsValue, updateRigsValue] = useState(activeJob.rigType);
   const [systemValue, updateSystemValue] = useState(activeJob.systemType);
-  const { CalculateResources, CalcualateTime } = useBlueprintCalc();
+  const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const classes = useStyles();
 
   return (
@@ -76,7 +76,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   setJobModified(true);
                   let oldJob = JSON.parse(JSON.stringify(activeJob));
                   oldJob.build.buildChar = e.target.value;
-                  let newJob = CalcualateTime(oldJob);
+                  let newJob = CalculateTime(oldJob);
                   updateBuildCharName(e.target.value);
                   updateActiveJob(newJob);
                 }}
@@ -107,7 +107,7 @@ export function ManufacturingOptions({ setJobModified }) {
                 const oldJob = JSON.parse(JSON.stringify(activeJob));
                 oldJob.runCount = Number(e.target.value);
                 let newJob = CalculateResources(oldJob);
-                newJob = CalcualateTime(newJob);
+                newJob = CalculateTime(newJob);
                 updateActiveJob(newJob);
                 setJobModified(true);
               }}
@@ -168,7 +168,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   const oldJob = JSON.parse(JSON.stringify(activeJob));
                   oldJob.bpTE = e.target.value;
                   let newJob = CalculateResources(oldJob);
-                  newJob = CalcualateTime(newJob);
+                  newJob = CalculateTime(newJob);
                   updateActiveJob(newJob);
                   updateTEValue(e.target.value);
                   setJobModified(true);
@@ -196,7 +196,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   oldJob.structureTypeDisplay = e.target.value;
                   oldJob.structureType = e.target.value === "Station" ? 0 : 1;
                   let newJob = CalculateResources(oldJob);
-                  newJob = CalcualateTime(newJob);
+                  newJob = CalculateTime(newJob);
                   updateStructValue(e.target.value);
                   updateActiveJob(newJob);
                 }}
@@ -222,7 +222,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   const oldJob = JSON.parse(JSON.stringify(activeJob));
                   oldJob.rigType = e.target.value;
                   let newJob = CalculateResources(oldJob);
-                  newJob = CalcualateTime(newJob);
+                  newJob = CalculateTime(newJob);
                   updateActiveJob(newJob);
                   updateRigsValue(e.target.value);
                   setJobModified(true);
@@ -249,7 +249,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   const oldJob = JSON.parse(JSON.stringify(activeJob));
                   oldJob.systemType = e.target.value;
                   let newJob = CalculateResources(oldJob);
-                  newJob = CalcualateTime(newJob);
+                  newJob = CalculateTime(newJob);
                   updateActiveJob(newJob);
                   updateSystemValue(e.target.value);
                   setJobModified(true);
@@ -287,7 +287,7 @@ export function ManufacturingOptions({ setJobModified }) {
                     oldJob.structureType = structure.structureValue;
                     oldJob.structureTypeDisplay = structure.structureName;
                     let newJob = CalculateResources(oldJob);
-                    newJob = CalcualateTime(newJob);
+                    newJob = CalculateTime(newJob);
                     updateActiveJob(newJob);
                     setJobModified(true);
                   }}

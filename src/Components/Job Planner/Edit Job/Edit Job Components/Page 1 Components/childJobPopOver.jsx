@@ -7,7 +7,7 @@ import {
   Popover,
   Typography,
 } from "@mui/material";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { EvePricesContext } from "../../../../../Context/EveDataContext";
 import {
   ActiveJobContext,
@@ -17,7 +17,10 @@ import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
-import { IsLoggedInContext } from "../../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 import { useJobBuild } from "../../../../../Hooks/useJobBuild";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { jobTypes } from "../../../../../Context/defaultValues";
@@ -38,6 +41,7 @@ export function ChildJobPopover({
   const { activeJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { users } = useContext(UsersContext);
   const {
     addNewJob,
     downloadCharacterJobs,
@@ -55,6 +59,11 @@ export function ChildJobPopover({
   const [buildLoad, updateBuildLoad] = useState(false);
   const [recalculateTotal, updateRecalculateTotal] = useState(false);
   const [fetchError, updateFetchError] = useState(false);
+
+  const parentUser = useMemo(
+    () => users.find((i) => i.ParentUser === true),
+    [users]
+  );
 
   useEffect(async () => {
     if (displayPopover !== null) {
@@ -82,7 +91,7 @@ export function ChildJobPopover({
           newJob.build.materials.forEach((mat) => {
             priceIDRequest.add(mat.typeID);
           });
-          let itemPrices = getItemPrices([...priceIDRequest]);
+          let itemPrices = getItemPrices([...priceIDRequest], parentUser);
           promiseArray.push(itemPrices);
           let returnPromiseArray = await Promise.all(promiseArray);
           updateTempPrices((prev) => prev.concat(returnPromiseArray[0]));

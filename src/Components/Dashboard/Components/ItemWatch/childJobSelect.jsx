@@ -1,25 +1,14 @@
 import { Grid, Typography } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  Grid: {
-    // "&:hover": {
-    //   backgroundColor: "lightGrey",
-    // },
-  },
-}));
 
 export function ChildJobEntry({ job }) {
-  const classes = useStyles();
-
   return (
     <Grid
       container
       item
-      xs={3}
+      xs={6}
+      sm={3}
       align="center"
-      className={classes.Grid}
-      sx={{ marginBottom: "10px", paddingLeft:"5px", paddingRight:"5px" }}
+      sx={{ marginBottom: "10px", paddingLeft: "5px", paddingRight: "5px" }}
     >
       <Grid
         item

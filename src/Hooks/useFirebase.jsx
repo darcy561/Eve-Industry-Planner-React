@@ -201,6 +201,7 @@ export function useFirebase() {
       linkedOrders: parentUser.linkedOrders,
       settings: parentUser.settings,
       refreshTokens: parentUser.accountRefreshTokens,
+      watchlist: parentUser.watchlist,
     });
   };
 
@@ -288,7 +289,7 @@ export function useFirebase() {
     return newJob;
   };
 
-  const getItemPriceBulk = async (array) => {
+  const getItemPriceBulk = async (array, userObj) => {
     try {
       const appCheckToken = await getToken(appCheck, true);
       const itemsPricePromise = await fetch(
@@ -298,7 +299,7 @@ export function useFirebase() {
           headers: {
             "Content-Type": "application/json",
             "X-Firebase-AppCheck": appCheckToken.token,
-            "accountID": parentUser.accountID
+            accountID: userObj.accountID,
           },
           body: JSON.stringify({
             idArray: array,
@@ -314,7 +315,7 @@ export function useFirebase() {
     }
   };
 
-  const getItemPrices = async (idArray) => {
+  const getItemPrices = async (idArray, userObj) => {
     const t = trace(performance, "GetItemPrices");
     t.start();
     await fbAuthState();
@@ -332,7 +333,7 @@ export function useFirebase() {
     if (requestArray.length > 0) {
       for (let x = 0; x < requestArray.length; x += 30) {
         let chunk = requestArray.slice(x, x + 30);
-        let chunkData = getItemPriceBulk(chunk);
+        let chunkData = getItemPriceBulk(chunk, userObj);
         promiseArray.push(chunkData);
       }
     } else {
@@ -355,7 +356,7 @@ export function useFirebase() {
     return returnData;
   };
 
-  const refreshItemPrices = async () => {
+  const refreshItemPrices = async (userObj) => {
     const t = trace(performance, "refreshItemPrices");
     t.start();
     await fbAuthState();
@@ -373,7 +374,7 @@ export function useFirebase() {
     if (requestArray.length > 0) {
       for (let x = 0; x < requestArray.length; x += 30) {
         let chunk = requestArray.slice(x, x + 30);
-        let chunkData = getItemPriceBulk(chunk);
+        let chunkData = getItemPriceBulk(chunk, userObj);
         promiseArray.push(chunkData);
       }
     } else {

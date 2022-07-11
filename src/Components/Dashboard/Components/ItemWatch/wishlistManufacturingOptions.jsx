@@ -41,7 +41,7 @@ export function WishListManufacturingOptions({
   );
   const [rigsValue, updateRigsValue] = useState(importedJob.rigType);
   const [systemValue, updateSystemValue] = useState(importedJob.systemType);
-  const { CalculateResources, CalcualateTime } = useBlueprintCalc();
+  const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const { recalculateItemQty } = useJobBuild();
   const classes = useStyles();
 
@@ -60,7 +60,7 @@ export function WishListManufacturingOptions({
               const oldJob = JSON.parse(JSON.stringify(importedJob));
               oldJob.runCount = Number(e.target.value);
               let newJob = CalculateResources(oldJob);
-              newJob = CalcualateTime(newJob);
+              newJob = CalculateTime(newJob);
               let newMaterialJobs = [...materialJobs];
               for (let mat of newJob.build.materials) {
                 if (
@@ -70,6 +70,7 @@ export function WishListManufacturingOptions({
                   let index = newMaterialJobs.findIndex(
                     (i) => i.itemID === mat.typeID
                   );
+
                   if (index !== -1) {
                     newMaterialJobs[index] = recalculateItemQty(
                       newMaterialJobs[index],
@@ -78,7 +79,7 @@ export function WishListManufacturingOptions({
                     newMaterialJobs[index] = CalculateResources(
                       newMaterialJobs[index]
                     );
-                    newMaterialJobs[index] = CalcualateTime(
+                    newMaterialJobs[index] = CalculateTime(
                       newMaterialJobs[index]
                     );
                   }
@@ -118,7 +119,7 @@ export function WishListManufacturingOptions({
                     newMaterialJobs[index] = CalculateResources(
                       newMaterialJobs[index]
                     );
-                    newMaterialJobs[index] = CalcualateTime(
+                    newMaterialJobs[index] = CalculateTime(
                       newMaterialJobs[index]
                     );
                   }
@@ -158,7 +159,7 @@ export function WishListManufacturingOptions({
                       newMaterialJobs[index] = CalculateResources(
                         newMaterialJobs[index]
                       );
-                      newMaterialJobs[index] = CalcualateTime(
+                      newMaterialJobs[index] = CalculateTime(
                         newMaterialJobs[index]
                       );
                     }
@@ -192,7 +193,7 @@ export function WishListManufacturingOptions({
                 const oldJob = JSON.parse(JSON.stringify(importedJob));
                 oldJob.bpTE = e.target.value;
                 let newJob = CalculateResources(oldJob);
-                newJob = CalcualateTime(newJob);
+                newJob = CalculateTime(newJob);
                 let newMaterialJobs = [...materialJobs];
                 for (let mat of newJob.build.materials) {
                   if (
@@ -210,7 +211,7 @@ export function WishListManufacturingOptions({
                       newMaterialJobs[index] = CalculateResources(
                         newMaterialJobs[index]
                       );
-                      newMaterialJobs[index] = CalcualateTime(
+                      newMaterialJobs[index] = CalculateTime(
                         newMaterialJobs[index]
                       );
                     }
@@ -245,7 +246,7 @@ export function WishListManufacturingOptions({
                 oldJob.structureTypeDisplay = e.target.value;
                 oldJob.structureType = e.target.value === "Station" ? 0 : 1;
                 let newJob = CalculateResources(oldJob);
-                newJob = CalcualateTime(newJob);
+                newJob = CalculateTime(newJob);
                 let newMaterialJobs = [...materialJobs];
                 for (let mat of newJob.build.materials) {
                   if (
@@ -263,7 +264,7 @@ export function WishListManufacturingOptions({
                       newMaterialJobs[index] = CalculateResources(
                         newMaterialJobs[index]
                       );
-                      newMaterialJobs[index] = CalcualateTime(
+                      newMaterialJobs[index] = CalculateTime(
                         newMaterialJobs[index]
                       );
                     }
@@ -295,7 +296,7 @@ export function WishListManufacturingOptions({
                 const oldJob = JSON.parse(JSON.stringify(importedJob));
                 oldJob.rigType = e.target.value;
                 let newJob = CalculateResources(oldJob);
-                newJob = CalcualateTime(newJob);
+                newJob = CalculateTime(newJob);
                 let newMaterialJobs = [...materialJobs];
                 for (let mat of newJob.build.materials) {
                   if (
@@ -313,7 +314,7 @@ export function WishListManufacturingOptions({
                       newMaterialJobs[index] = CalculateResources(
                         newMaterialJobs[index]
                       );
-                      newMaterialJobs[index] = CalcualateTime(
+                      newMaterialJobs[index] = CalculateTime(
                         newMaterialJobs[index]
                       );
                     }
@@ -347,7 +348,7 @@ export function WishListManufacturingOptions({
                 const oldJob = JSON.parse(JSON.stringify(importedJob));
                 oldJob.systemType = e.target.value;
                 let newJob = CalculateResources(oldJob);
-                newJob = CalcualateTime(newJob);
+                newJob = CalculateTime(newJob);
                 let newMaterialJobs = [...materialJobs];
                 for (let mat of newJob.build.materials) {
                   if (
@@ -365,7 +366,7 @@ export function WishListManufacturingOptions({
                       newMaterialJobs[index] = CalculateResources(
                         newMaterialJobs[index]
                       );
-                      newMaterialJobs[index] = CalcualateTime(
+                      newMaterialJobs[index] = CalculateTime(
                         newMaterialJobs[index]
                       );
                     }

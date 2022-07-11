@@ -90,6 +90,8 @@ export function AuthMainUser() {
         JSON.stringify(userSettings.jobArraySnapshot)
       );
       userObject.accountRefreshTokens = userSettings.refreshTokens;
+      userObject.watchlist = userSettings.watchlist;
+
       let priceIDRequest = new Set();
       let promiseArray = [];
       userSettings.jobArraySnapshot.forEach((snap) => {
@@ -98,7 +100,16 @@ export function AuthMainUser() {
         });
         priceIDRequest.add(snap.itemID);
       });
-      let itemPrices = getItemPrices([...priceIDRequest]);
+      userSettings.watchlist.forEach((snap) => {
+        priceIDRequest.add(snap.typeID)
+        snap.materials.forEach((mat) => {
+          priceIDRequest.add(mat.typeID)
+          mat.materials.forEach((cMat) => {
+            priceIDRequest.add(cMat.typeID)
+          })
+        })
+      })
+      let itemPrices = getItemPrices([...priceIDRequest], userObject);
       promiseArray.push(itemPrices);
 
       updateLoadingText((prevObj) => ({
@@ -443,6 +454,7 @@ class MainUser {
     this.apiOrders = null;
     this.apiHistOrders = null;
     this.apiBlueprints = null;
+    this.watchlist = [];
     this.settings = null;
     this.accountRefreshTokens = [];
     this.refreshState = 1;

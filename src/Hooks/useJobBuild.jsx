@@ -20,7 +20,7 @@ export function useJobBuild() {
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateDialogData } = useContext(DialogDataContext);
-  const { CalculateResources, CalcualateTime } = useBlueprintCalc();
+  const { CalculateResources, CalculateTime } = useBlueprintCalc();
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -208,7 +208,7 @@ export function useJobBuild() {
           }
 
           let calculatedJob = CalculateResources(outputObject);
-          calculatedJob = CalcualateTime(calculatedJob);
+          calculatedJob = CalculateTime(calculatedJob);
           if (parentJobs !== undefined) {
             let itemParents = [];
             parentJobs.forEach((job) => {

@@ -10,7 +10,7 @@ import {
 import React, { useContext, useState } from "react";
 import AddMaterialCost from "./addMaterialCost";
 import { MaterialCost } from "./materialCost";
-import { jobTypes } from "../../../JobPlanner";
+import { jobTypes } from "../../../../../Context/defaultValues";
 import { ChildJobDialog } from "./childJobsDialog";
 import { JobArrayContext } from "../../../../../Context/JobContext";
 import { makeStyles } from "@mui/styles";

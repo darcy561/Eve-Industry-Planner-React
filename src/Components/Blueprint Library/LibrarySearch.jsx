@@ -71,7 +71,7 @@ export function LibrarySearch({
                 tempArray = tempArray.concat(user.apiBlueprints);
               }
               tempArray = tempArray.filter(
-                (i) => i.type_id == value.blueprintID
+                (i) => i.type_id === value.blueprintID
               );
               tempArray.forEach((bp) => {
                 idArray.add(bp.type_id);

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import {
   SnackBarDataContext,
   DataExchangeContext,
@@ -19,7 +19,7 @@ import { IsLoggedInContext } from "../Context/AuthContext";
 import { useFirebase } from "./useFirebase";
 import { trace } from "@firebase/performance";
 import { performance } from "../firebase";
-import { jobTypes } from "../Components/Job Planner";
+import { jobTypes } from "../Context/defaultValues";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { EvePricesContext } from "../Context/EveDataContext";
 import { useJobBuild } from "./useJobBuild";
@@ -109,8 +109,12 @@ export function useJobManagement() {
   }
 
   const analytics = getAnalytics();
-  const parentUser = users.find((i) => i.ParentUser);
-  const parentUserIndex = users.findIndex((i) => i.ParentUser);
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
+  const parentUserIndex = useMemo(() => {
+    return users.findIndex((i) => i.ParentUser);
+  }, [users]);
 
   const newJobProcess = async (itemID, itemQty, parentJobs) => {
     t.start();
@@ -124,7 +128,7 @@ export function useJobManagement() {
         newJob.build.materials.forEach((mat) => {
           priceIDRequest.add(mat.typeID);
         });
-        let itemPrices = getItemPrices([...priceIDRequest], parentUser );
+        let itemPrices = getItemPrices([...priceIDRequest], parentUser);
         promiseArray.push(itemPrices);
 
         await newJobSnapshot(newJob);
@@ -261,54 +265,54 @@ export function useJobManagement() {
     let totalComplete = 0;
     let materialIDs = [];
     let childJobs = [];
-    let tempJobs = [...inputJob.build.costs.linkedJobs];
     let endDate = null;
 
-    if (inputJob !== undefined) {
-      const index = parentUser.snapshotData.findIndex(
-        (i) => i.jobID === inputJob.jobID
-      );
-      if (!inputJob.isSnapshot) {
-        inputJob.build.materials.forEach((material) => {
-          materialIDs.push(material.typeID);
-          childJobs.push(...material.childJob);
-          if (material.quantityPurchased >= material.quantity) {
-            totalComplete++;
-          }
-        });
-
-        if (tempJobs.length > 0) {
-          tempJobs.sort((a, b) => {
-            if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
-              return 1;
-            }
-            if (Date.parse(a.end_date) < Date.parse(b.end_date)) {
-              return -1;
-            }
-            return 0;
-          });
-          endDate = Date.parse(tempJobs[0].end_date);
+    if (inputJob === undefined) {
+      return null;
+    }
+    const index = parentUser.snapshotData.findIndex(
+      (i) => i.jobID === inputJob.jobID
+    );
+    if (!inputJob.isSnapshot) {
+      let tempJobs = [...inputJob.build.costs.linkedJobs];
+      inputJob.build.materials.forEach((material) => {
+        materialIDs.push(material.typeID);
+        childJobs.push(...material.childJob);
+        if (material.quantityPurchased >= material.quantity) {
+          totalComplete++;
         }
+      });
 
-
-        const replacementSnap = Object.assign(
-          {},
-          new newSnapshot(
-            inputJob,
-            childJobs,
-            totalComplete,
-            materialIDs,
-            endDate
-          )
-        );
-        parentUser.snapshotData[index] = replacementSnap;
-      } else {
-        const replacementSnap = Object.assign(
-          {},
-          new updateSnapshot(inputJob, endDate)
-        );
-        parentUser.snapshotData[index] = replacementSnap;
+      if (tempJobs.length > 0) {
+        tempJobs.sort((a, b) => {
+          if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
+            return 1;
+          }
+          if (Date.parse(a.end_date) < Date.parse(b.end_date)) {
+            return -1;
+          }
+          return 0;
+        });
+        endDate = Date.parse(tempJobs[0].end_date);
       }
+
+      const replacementSnap = Object.assign(
+        {},
+        new newSnapshot(
+          inputJob,
+          childJobs,
+          totalComplete,
+          materialIDs,
+          endDate
+        )
+      );
+      parentUser.snapshotData[index] = replacementSnap;
+    } else {
+      const replacementSnap = Object.assign(
+        {},
+        new updateSnapshot(inputJob, endDate)
+      );
+      parentUser.snapshotData[index] = replacementSnap;
     }
   };
 

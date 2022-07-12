@@ -15,7 +15,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { blueprintVariables } from "../../Job Planner/JobPlanner";
+import { structureOptions } from "../../../Context/defaultValues";
 import AddIcon from "@mui/icons-material/Add";
 import { makeStyles } from "@mui/styles";
 import { useState } from "react";
@@ -49,13 +49,13 @@ export function ReactionStrutures({ parentUserIndex }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const [textValue, updateTextValue] = useState("");
   const [systemValue, updateSystemValue] = useState(
-    blueprintVariables.reactionSystem[0].value
+    structureOptions.reactionSystem[0].value
   );
   const [structValue, updateStructValue] = useState(
-    blueprintVariables.reactionStructure[0].value
+    structureOptions.reactionStructure[0].value
   );
   const [rigsValue, updateRigsValue] = useState(
-    blueprintVariables.reactionRigs[0].value
+    structureOptions.reactionRigs[0].value
   );
   const [taxValue, updateTaxValue] = useState("");
   const classes = useStyles();
@@ -146,7 +146,7 @@ export function ReactionStrutures({ parentUserIndex }) {
                             updateSystemValue(e.target.value);
                           }}
                         >
-                          {blueprintVariables.reactionSystem.map((entry) => {
+                          {structureOptions.reactionSystem.map((entry) => {
                             return (
                               <MenuItem key={entry.label} value={entry.value}>
                                 {entry.label}
@@ -172,7 +172,7 @@ export function ReactionStrutures({ parentUserIndex }) {
                             updateStructValue(e.target.value);
                           }}
                         >
-                          {blueprintVariables.reactionStructure.map((entry) => {
+                          {structureOptions.reactionStructure.map((entry) => {
                             return (
                               <MenuItem key={entry.label} value={entry.value}>
                                 {entry.label}
@@ -198,7 +198,7 @@ export function ReactionStrutures({ parentUserIndex }) {
                             updateRigsValue(e.target.value);
                           }}
                         >
-                          {blueprintVariables.reactionRigs.map((entry) => {
+                          {structureOptions.reactionRigs.map((entry) => {
                             return (
                               <MenuItem key={entry.label} value={entry.value}>
                                 {entry.label}
@@ -263,13 +263,13 @@ export function ReactionStrutures({ parentUserIndex }) {
           >
             {users[parentUserIndex].settings.structures.reaction.map(
               (entry) => {
-                const systemText = blueprintVariables.reactionSystem.find(
+                const systemText = structureOptions.reactionSystem.find(
                   (x) => x.value === entry.systemType
                 );
-                const structureText = blueprintVariables.reactionStructure.find(
+                const structureText = structureOptions.reactionStructure.find(
                   (x) => x.value === entry.structureName
                 );
-                const rigText = blueprintVariables.reactionRigs.find(
+                const rigText = structureOptions.reactionRigs.find(
                   (x) => x.value === entry.rigType
                 );
                 return (

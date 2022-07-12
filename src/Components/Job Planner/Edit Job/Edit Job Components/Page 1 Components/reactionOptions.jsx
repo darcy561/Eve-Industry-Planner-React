@@ -13,7 +13,7 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
-import { blueprintVariables } from "../../..";
+import { structureOptions } from "../../../../../Context/defaultValues";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 import { makeStyles } from "@mui/styles";
 
@@ -144,7 +144,7 @@ export function ReactionOptions({ setJobModified }) {
                   updateActiveJob(newJob);
                 }}
               >
-                {blueprintVariables.reactionStructure.map((entry) => {
+                {structureOptions.reactionStructure.map((entry) => {
                   return (
                     <MenuItem key={entry.label} value={entry.value}>
                       {entry.label}
@@ -171,7 +171,7 @@ export function ReactionOptions({ setJobModified }) {
                   setJobModified(true);
                 }}
               >
-                {blueprintVariables.reactionRigs.map((entry) => {
+                {structureOptions.reactionRigs.map((entry) => {
                   return (
                     <MenuItem key={entry.label} value={entry.value}>
                       {entry.label}
@@ -198,7 +198,7 @@ export function ReactionOptions({ setJobModified }) {
                   setJobModified(true);
                 }}
               >
-                {blueprintVariables.reactionSystem.map((entry) => {
+                {structureOptions.reactionSystem.map((entry) => {
                   return (
                     <MenuItem key={entry.label} value={entry.value}>
                       {entry.label}

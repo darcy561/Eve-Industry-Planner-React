@@ -37,7 +37,7 @@ export function ItemWatchPanel() {
           setOpenDialog={setOpenDialog}
         />
         <Grid container>
-          <Grid item xs={12} sx={{ marginBottom: "20px" }}>
+          <Grid item xs={12} sx={{ marginBottom: "40px" }}>
             <Typography variant="h5" color="primary" align="center">
               Item Watchlist
             </Typography>

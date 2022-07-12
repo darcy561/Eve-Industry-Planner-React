@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import {
   Button,
   Checkbox,
@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { jobTypes } from "../JobPlanner";
+import { jobTypes } from "../../../Context/defaultValues";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import Step1JobCard from "./Job Cards/step1";
@@ -17,6 +17,7 @@ import Step2JobCard from "./Job Cards/step2";
 import Step3JobCard from "./Job Cards/step3";
 import Step4JobCard from "./Job Cards/step4";
 import Step5JobCard from "./Job Cards/step5";
+import { grey } from "@mui/material/colors";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -57,21 +58,32 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
   const { deleteJobProcess, openEditJob } = useJobManagement();
   const classes = useStyles();
 
+  let jobCardChecked = useMemo(() => {
+    return multiSelectJobPlanner.some((i) => i.jobID === job.jobID);
+  }, [multiSelectJobPlanner]);
+
   return (
     <Grid key={job.jobID} item xs={12} sm={6} md={4} lg={3}>
       <Paper
         elevation={3}
         square={true}
-        sx={{ padding: "10px", height: "100%" }}
+        sx={{
+          padding: "10px",
+          height: "100%",
+          backgroundColor: (theme) =>
+            jobCardChecked
+              ? theme.palette.type !== "dark"
+                ? grey[300]
+                : grey[900]
+              : "none",
+        }}
       >
         <Grid container item xs={12}>
           <Grid container item xs={12}>
             <Grid item xs={1}>
               <Checkbox
                 className={classes.Checkbox}
-                checked={multiSelectJobPlanner.some(
-                  (i) => i.jobID === job.jobID
-                )}
+                checked={jobCardChecked}
                 onChange={(event) => {
                   if (event.target.checked) {
                     if (

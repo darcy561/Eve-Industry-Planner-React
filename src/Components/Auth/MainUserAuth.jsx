@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { Users, UsersContext } from "../../Context/AuthContext";
+import { UsersContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
 import jwt from "jsonwebtoken";
@@ -21,7 +21,6 @@ import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { RefreshTokens } from "./RefreshToken";
 import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
-import { usersDefault } from "../../Context/defaultValues";
 
 export function login() {
   // const state = window.location.pathname;
@@ -58,179 +57,120 @@ export function AuthMainUser() {
   const navigate = useNavigate();
   const analytics = getAnalytics();
 
-  useEffect(async () => {
-    if (!isLoggedIn && !localStorage.getItem("AddAccount")) {
-      const t = trace(performance, "MainUserLoginProcessFull");
-      t.start();
-      const authCode = window.location.search.match(/code=(\S*)&/)[1];
-      const returnState = decodeURIComponent(
-        window.location.search.match(/state=(\S*)/)[1]
-      );
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        eveSSO: true,
-      }));
-      let userArray = [];
-      const userObject = await EveSSOTokens(authCode, true);
-      userObject.fbToken = await firebaseAuth(userObject);
-
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        eveSSOComp: true,
-        charData: true,
-      }));
-
-      const userSettings = await determineUserState(userObject);
-      userObject.accountID = userSettings.accountID;
-      userObject.linkedJobs = userSettings.linkedJobs;
-      userObject.linkedTrans = userSettings.linkedTrans;
-      userObject.linkedOrders = userSettings.linkedOrders;
-      userObject.settings = userSettings.settings;
-      userObject.snapshotData = JSON.parse(
-        JSON.stringify(userSettings.jobArraySnapshot)
-      );
-      userObject.accountRefreshTokens = userSettings.refreshTokens;
-      userObject.watchlist = userSettings.watchlist;
-
-      let priceIDRequest = new Set();
-      let promiseArray = [];
-      userSettings.jobArraySnapshot.forEach((snap) => {
-        snap.materialIDs.forEach((id) => {
-          priceIDRequest.add(id);
-        });
-        priceIDRequest.add(snap.itemID);
-      });
-      userSettings.watchlist.forEach((snap) => {
-        priceIDRequest.add(snap.typeID)
-        snap.materials.forEach((mat) => {
-          priceIDRequest.add(mat.typeID)
-          mat.materials.forEach((cMat) => {
-            priceIDRequest.add(cMat.typeID)
-          })
-        })
-      })
-      let itemPrices = getItemPrices([...priceIDRequest], userObject);
-      promiseArray.push(itemPrices);
-
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        charDataComp: true,
-        apiData: true,
-      }));
-      let apiJobsArray = [];
-
-      const sStatus = await serverStatus();
-      if (sStatus) {
-        const [
-          skills,
-          indJobs,
-          orders,
-          histOrders,
-          blueprints,
-          transactions,
-          journal,
-        ] = await Promise.all([
-          CharacterSkills(userObject),
-          IndustryJobs(userObject),
-          MarketOrders(userObject),
-          HistoricMarketOrders(userObject),
-          BlueprintLibrary(userObject),
-          WalletTransactions(userObject),
-          WalletJournal(userObject),
-        ]);
-
-        userObject.apiSkills = skills;
-        userObject.apiJobs = indJobs;
-        apiJobsArray = apiJobsArray.concat(indJobs);
-        userObject.apiOrders = orders;
-        userObject.apiHistOrders = histOrders;
-        userObject.apiBlueprints = blueprints;
-        userObject.apiTransactions = transactions;
-        userObject.apiJournal = journal;
-      } else {
-        userObject.apiSkills = [];
-        userObject.apiJobs = [];
-        userObject.apiOrders = [];
-        userObject.apiHistOrders = [];
-        userObject.apiBlueprints = [];
-        userObject.apiTransactions = [];
-        userObject.apiJournal = [];
-      }
-      userArray.push(userObject);
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        apiDataComp: true,
-      }));
-
-      let failedRefresh = [];
-      if (userSettings.settings.account.cloudAccounts) {
-        for (let token of userSettings.refreshTokens) {
-          let newUser = await RefreshTokens(token.rToken, false);
-          if (newUser === "RefreshFail") {
-            failedRefresh.push(token.CharacterHash);
-          }
-          if (token.rToken !== newUser.rToken) {
-            token.rToken = newUser.rToken;
-          }
-          if (sStatus && newUser !== "RefreshFail") {
-            const [
-              skills,
-              indJobs,
-              orders,
-              histOrders,
-              blueprints,
-              transactions,
-              journal,
-            ] = await Promise.all([
-              CharacterSkills(newUser),
-              IndustryJobs(newUser, userObject),
-              MarketOrders(newUser),
-              HistoricMarketOrders(newUser),
-              BlueprintLibrary(newUser),
-              WalletTransactions(newUser),
-              WalletJournal(newUser),
-            ]);
-
-            newUser.apiSkills = skills;
-            newUser.apiJobs = indJobs;
-            newUser.apiJobs.forEach((i) => {
-              apiJobsArray.push(i);
-            });
-            newUser.apiOrders = orders;
-            newUser.apiHistOrders = histOrders;
-            newUser.apiBlueprints = blueprints;
-            newUser.apiTransactions = transactions;
-            newUser.apiJournal = journal;
-          } else if (!sStatus) {
-            newUser.apiSkills = [];
-            newUser.apiJobs = [];
-            newUser.apiOrders = [];
-            newUser.apiHistOrders = [];
-            newUser.apiBlueprints = [];
-            newUser.apiTransactions = [];
-            newUser.apiJournal = [];
-          }
-          if (newUser !== undefined) {
-            userArray.push(newUser);
-          }
-        }
-      } else {
-        let rTokens = JSON.parse(
-          localStorage.getItem(`${userObject.CharacterHash} AdditionalAccounts`)
+  useEffect(() => {
+    async function mainUserLoggin() {
+      if (!isLoggedIn && !localStorage.getItem("AddAccount")) {
+        const t = trace(performance, "MainUserLoginProcessFull");
+        t.start();
+        const authCode = window.location.search.match(/code=(\S*)&/)[1];
+        const returnState = decodeURIComponent(
+          window.location.search.match(/state=(\S*)/)[1]
         );
-        if (rTokens !== null) {
-          for (let token of rTokens) {
+        updateLoadingText((prevObj) => ({
+          ...prevObj,
+          eveSSO: true,
+        }));
+        let userArray = [];
+        const userObject = await EveSSOTokens(authCode, true);
+        userObject.fbToken = await firebaseAuth(userObject);
+
+        updateLoadingText((prevObj) => ({
+          ...prevObj,
+          eveSSOComp: true,
+          charData: true,
+        }));
+
+        const userSettings = await determineUserState(userObject);
+        userObject.accountID = userSettings.accountID;
+        userObject.linkedJobs = userSettings.linkedJobs;
+        userObject.linkedTrans = userSettings.linkedTrans;
+        userObject.linkedOrders = userSettings.linkedOrders;
+        userObject.settings = userSettings.settings;
+        userObject.snapshotData = JSON.parse(
+          JSON.stringify(userSettings.jobArraySnapshot)
+        );
+        userObject.accountRefreshTokens = userSettings.refreshTokens;
+        userObject.watchlist = userSettings.watchlist;
+
+        let priceIDRequest = new Set();
+        let promiseArray = [];
+        userSettings.jobArraySnapshot.forEach((snap) => {
+          snap.materialIDs.forEach((id) => {
+            priceIDRequest.add(id);
+          });
+          priceIDRequest.add(snap.itemID);
+        });
+        userSettings.watchlist.forEach((snap) => {
+          priceIDRequest.add(snap.typeID);
+          snap.materials.forEach((mat) => {
+            priceIDRequest.add(mat.typeID);
+            mat.materials.forEach((cMat) => {
+              priceIDRequest.add(cMat.typeID);
+            });
+          });
+        });
+        let itemPrices = getItemPrices([...priceIDRequest], userObject);
+        promiseArray.push(itemPrices);
+
+        updateLoadingText((prevObj) => ({
+          ...prevObj,
+          charDataComp: true,
+          apiData: true,
+        }));
+        let apiJobsArray = [];
+
+        const sStatus = await serverStatus();
+        if (sStatus) {
+          const [
+            skills,
+            indJobs,
+            orders,
+            histOrders,
+            blueprints,
+            transactions,
+            journal,
+          ] = await Promise.all([
+            CharacterSkills(userObject),
+            IndustryJobs(userObject),
+            MarketOrders(userObject),
+            HistoricMarketOrders(userObject),
+            BlueprintLibrary(userObject),
+            WalletTransactions(userObject),
+            WalletJournal(userObject),
+          ]);
+
+          userObject.apiSkills = skills;
+          userObject.apiJobs = indJobs;
+          apiJobsArray = apiJobsArray.concat(indJobs);
+          userObject.apiOrders = orders;
+          userObject.apiHistOrders = histOrders;
+          userObject.apiBlueprints = blueprints;
+          userObject.apiTransactions = transactions;
+          userObject.apiJournal = journal;
+        } else {
+          userObject.apiSkills = [];
+          userObject.apiJobs = [];
+          userObject.apiOrders = [];
+          userObject.apiHistOrders = [];
+          userObject.apiBlueprints = [];
+          userObject.apiTransactions = [];
+          userObject.apiJournal = [];
+        }
+        userArray.push(userObject);
+        updateLoadingText((prevObj) => ({
+          ...prevObj,
+          apiDataComp: true,
+        }));
+
+        let failedRefresh = [];
+        if (userSettings.settings.account.cloudAccounts) {
+          for (let token of userSettings.refreshTokens) {
             let newUser = await RefreshTokens(token.rToken, false);
-            console.log(newUser);
             if (newUser === "RefreshFail") {
               failedRefresh.push(token.CharacterHash);
             }
             if (token.rToken !== newUser.rToken) {
               token.rToken = newUser.rToken;
-              localStorage.setItem(
-                `${userObject.CharacterHash} AdditionalAccounts`,
-                JSON.stringify(rTokens)
-              );
             }
             if (sStatus && newUser !== "RefreshFail") {
               const [
@@ -270,131 +210,194 @@ export function AuthMainUser() {
               newUser.apiTransactions = [];
               newUser.apiJournal = [];
             }
-            if (newUser !== "RefreshFail") {
+            if (newUser !== undefined) {
               userArray.push(newUser);
             }
           }
-        }
-      }
-      if (failedRefresh.length > 0) {
-        if (userObject.settings.account.cloudAccounts) {
-          userArray[0].accountRefreshTokens =
-            userArray[0].accountRefreshTokens.filter(
-              (i) => !failedRefresh.includes(i.CharacterHash)
-            );
         } else {
-          let oldLS = JSON.parse(
+          let rTokens = JSON.parse(
             localStorage.getItem(
               `${userObject.CharacterHash} AdditionalAccounts`
             )
           );
-          let newLS = oldLS.filter(
-            (i) => !failedRefresh.includes(i.CharacterHash)
-          );
-          localStorage.setItem(
-            `${userObject.CharacterHash} AdditionalAccounts`,
-            JSON.stringify(newLS)
-          );
-        }
-      }
+          if (rTokens !== null) {
+            for (let token of rTokens) {
+              let newUser = await RefreshTokens(token.rToken, false);
+              console.log(newUser);
+              if (newUser === "RefreshFail") {
+                failedRefresh.push(token.CharacterHash);
+              }
+              if (token.rToken !== newUser.rToken) {
+                token.rToken = newUser.rToken;
+                localStorage.setItem(
+                  `${userObject.CharacterHash} AdditionalAccounts`,
+                  JSON.stringify(rTokens)
+                );
+              }
+              if (sStatus && newUser !== "RefreshFail") {
+                const [
+                  skills,
+                  indJobs,
+                  orders,
+                  histOrders,
+                  blueprints,
+                  transactions,
+                  journal,
+                ] = await Promise.all([
+                  CharacterSkills(newUser),
+                  IndustryJobs(newUser, userObject),
+                  MarketOrders(newUser),
+                  HistoricMarketOrders(newUser),
+                  BlueprintLibrary(newUser),
+                  WalletTransactions(newUser),
+                  WalletJournal(newUser),
+                ]);
 
-      apiJobsArray.sort((a, b) => {
-        if (a.product_name < b.product_name) {
-          return -1;
-        }
-        if (a.product_name > b.product_name) {
-          return 1;
-        }
-        return 0;
-      });
-
-
-      let locationIDS = new Set();
-      let citadelStore = new Set();
-      let newIDNamePromises = [];
-      let newNameArray = [];
-
-      for (let user of userArray) {
-        let citadelIDs = new Set();
-        user.apiJobs.forEach((job) => {
-          if (job.facility_id.toString().length > 10) {
-            if (!citadelStore.has(job.facility_id)) {
-              citadelIDs.add(job.facility_id);
-              citadelStore.add(job.facility_id);
+                newUser.apiSkills = skills;
+                newUser.apiJobs = indJobs;
+                newUser.apiJobs.forEach((i) => {
+                  apiJobsArray.push(i);
+                });
+                newUser.apiOrders = orders;
+                newUser.apiHistOrders = histOrders;
+                newUser.apiBlueprints = blueprints;
+                newUser.apiTransactions = transactions;
+                newUser.apiJournal = journal;
+              } else if (!sStatus) {
+                newUser.apiSkills = [];
+                newUser.apiJobs = [];
+                newUser.apiOrders = [];
+                newUser.apiHistOrders = [];
+                newUser.apiBlueprints = [];
+                newUser.apiTransactions = [];
+                newUser.apiJournal = [];
+              }
+              if (newUser !== "RefreshFail") {
+                userArray.push(newUser);
+              }
             }
-          } else {
-            locationIDS.add(job.facility_id);
           }
-        });
-        user.apiOrders.forEach((order) => {
-          if (order.location_id.toString().length > 10) {
-            if (!citadelStore.has(order.location_id)) {
-              citadelIDs.add(order.location_id);
-              citadelStore.add(order.location_id);
-            }
-          } else {
-            locationIDS.add(order.location_id);
-          }
-          locationIDS.add(order.region_id);
-        });
-        user.apiHistOrders.forEach((order) => {
-          if (order.location_id.toString().length > 10) {
-            if (!citadelStore.has(order.location_id)) {
-              citadelIDs.add(order.location_id);
-              citadelStore.add(order.location_id);
-            }
-          } else {
-            locationIDS.add(order.location_id);
-          }
-          locationIDS.add(order.region_id);
-        });
-        if ([...citadelIDs].length > 0) {
-          let tempCit = IDtoName([...citadelIDs], user)
-          newIDNamePromises.push(tempCit);
         }
+        if (failedRefresh.length > 0) {
+          if (userObject.settings.account.cloudAccounts) {
+            userArray[0].accountRefreshTokens =
+              userArray[0].accountRefreshTokens.filter(
+                (i) => !failedRefresh.includes(i.CharacterHash)
+              );
+          } else {
+            let oldLS = JSON.parse(
+              localStorage.getItem(
+                `${userObject.CharacterHash} AdditionalAccounts`
+              )
+            );
+            let newLS = oldLS.filter(
+              (i) => !failedRefresh.includes(i.CharacterHash)
+            );
+            localStorage.setItem(
+              `${userObject.CharacterHash} AdditionalAccounts`,
+              JSON.stringify(newLS)
+            );
+          }
+        }
+
+        apiJobsArray.sort((a, b) => {
+          if (a.product_name < b.product_name) {
+            return -1;
+          }
+          if (a.product_name > b.product_name) {
+            return 1;
+          }
+          return 0;
+        });
+
+        let locationIDS = new Set();
+        let citadelStore = new Set();
+        let newIDNamePromises = [];
+        let newNameArray = [];
+
+        for (let user of userArray) {
+          let citadelIDs = new Set();
+          user.apiJobs.forEach((job) => {
+            if (job.facility_id.toString().length > 10) {
+              if (!citadelStore.has(job.facility_id)) {
+                citadelIDs.add(job.facility_id);
+                citadelStore.add(job.facility_id);
+              }
+            } else {
+              locationIDS.add(job.facility_id);
+            }
+          });
+          user.apiOrders.forEach((order) => {
+            if (order.location_id.toString().length > 10) {
+              if (!citadelStore.has(order.location_id)) {
+                citadelIDs.add(order.location_id);
+                citadelStore.add(order.location_id);
+              }
+            } else {
+              locationIDS.add(order.location_id);
+            }
+            locationIDS.add(order.region_id);
+          });
+          user.apiHistOrders.forEach((order) => {
+            if (order.location_id.toString().length > 10) {
+              if (!citadelStore.has(order.location_id)) {
+                citadelIDs.add(order.location_id);
+                citadelStore.add(order.location_id);
+              }
+            } else {
+              locationIDS.add(order.location_id);
+            }
+            locationIDS.add(order.region_id);
+          });
+          if ([...citadelIDs].length > 0) {
+            let tempCit = IDtoName([...citadelIDs], user);
+            newIDNamePromises.push(tempCit);
+          }
+        }
+        if ([...locationIDS].length > 0) {
+          let tempLoc = IDtoName([...locationIDS], userObject);
+          newIDNamePromises.push(tempLoc);
+        }
+
+        let returnLocations = await Promise.all(newIDNamePromises);
+
+        returnLocations.forEach((group) => {
+          newNameArray = newNameArray.concat(group);
+        });
+
+        let returnPromiseArray = await Promise.all(promiseArray);
+        updateEveIDs(newNameArray);
+        updateEvePrices(returnPromiseArray[0]);
+        setJobStatus(userSettings.jobStatusArray);
+        updateJobArray(userSettings.jobArraySnapshot);
+        updateUsers(userArray);
+        updateApiJobs(apiJobsArray);
+        updateIsLoggedIn(true);
+        updatePageLoad(false);
+        logEvent(analytics, "userSignIn", {
+          UID: userObject.accountID,
+        });
+        t.stop();
+        updateLoadingText((prevObj) => ({
+          ...prevObj,
+          eveSSO: false,
+          eveSSOComp: false,
+          charData: false,
+          charDataComp: false,
+          apiData: false,
+          apiDataComp: false,
+        }));
+        navigate(returnState);
       }
-      if ([...locationIDS].length > 0) {
-        let tempLoc = IDtoName([...locationIDS], userObject);
-        newIDNamePromises.push(tempLoc);
+      if (localStorage.getItem("AddAccount")) {
+        const authCode = window.location.search.match(/code=(\S*)&/)[1];
+        const userObject = await EveSSOTokens(authCode, false);
+        localStorage.setItem("AdditionalUser", JSON.stringify(userObject));
+        localStorage.setItem("AddAccountComplete", true);
+        window.close();
       }
-
-      let returnLocations = await Promise.all(newIDNamePromises)
-
-      returnLocations.forEach((group) => {
-        newNameArray = newNameArray.concat(group)
-      })
-
-      let returnPromiseArray = await Promise.all(promiseArray);
-      updateEveIDs(newNameArray);
-      updateEvePrices(returnPromiseArray[0]);
-      setJobStatus(userSettings.jobStatusArray);
-      updateJobArray(userSettings.jobArraySnapshot);
-      updateUsers(userArray);
-      updateApiJobs(apiJobsArray);
-      updateIsLoggedIn(true);
-      updatePageLoad(false);
-      logEvent(analytics, "userSignIn", {
-        UID: userObject.accountID,
-      });
-      t.stop();
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        eveSSO: false,
-        eveSSOComp: false,
-        charData: false,
-        charDataComp: false,
-        apiData: false,
-        apiDataComp: false,
-      }));
-      navigate(returnState);
     }
-    if (localStorage.getItem("AddAccount")) {
-      const authCode = window.location.search.match(/code=(\S*)&/)[1];
-      const userObject = await EveSSOTokens(authCode, false);
-      localStorage.setItem("AdditionalUser", JSON.stringify(userObject));
-      localStorage.setItem("AddAccountComplete", true);
-      window.close();
-    }
+    mainUserLoggin();
   }, []);
 
   return <LoadingPage />;

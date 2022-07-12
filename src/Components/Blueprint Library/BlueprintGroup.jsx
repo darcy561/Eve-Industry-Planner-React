@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import {
   CircularProgress,
   Grid,
@@ -28,11 +28,11 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
   const { apiJobs } = useContext(ApiJobsContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { evePrices, updateEvePrices } = useContext(EvePricesContext);
+  const { updateEvePrices } = useContext(EvePricesContext);
   const [archiveOpen, updateArchiveOpen] = useState(false);
   const [loadingBuild, updateLoadingBuild] = useState(false);
   const { buildJob, checkAllowBuild } = useJobBuild();
-  const { newJobSnapshot, updateJobSnapshot } = useJobManagement();
+  const { newJobSnapshot } = useJobManagement();
   const { addNewJob, getItemPrices, updateMainUserDoc, uploadJob } =
     useFirebase();
   const analytics = getAnalytics();

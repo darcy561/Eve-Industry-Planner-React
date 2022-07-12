@@ -14,7 +14,9 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
-import { blueprintVariables } from "../../..";
+
+import { blueprintOptions } from "../../../../../Context/defaultValues";
+import { structureOptions } from "../../../../../Context/defaultValues";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 import { makeStyles } from "@mui/styles";
 
@@ -145,7 +147,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   setJobModified(true);
                 }}
               >
-                {blueprintVariables.me.map((entry) => {
+                {blueprintOptions.me.map((entry) => {
                   return (
                     <MenuItem key={entry.label} value={entry.value}>
                       {entry.label}
@@ -174,7 +176,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   setJobModified(true);
                 }}
               >
-                {blueprintVariables.te.map((entry) => {
+                {blueprintOptions.te.map((entry) => {
                   return (
                     <MenuItem key={entry.label} value={entry.value}>
                       {entry.label}
@@ -201,7 +203,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   updateActiveJob(newJob);
                 }}
               >
-                {blueprintVariables.manStructure.map((entry) => {
+                {structureOptions.manStructure.map((entry) => {
                   return (
                     <MenuItem key={entry.label} value={entry.value}>
                       {entry.label}
@@ -228,7 +230,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   setJobModified(true);
                 }}
               >
-                {blueprintVariables.manRigs.map((entry) => {
+                {structureOptions.manRigs.map((entry) => {
                   return (
                     <MenuItem key={entry.label} value={entry.value}>
                       {entry.label}
@@ -255,7 +257,7 @@ export function ManufacturingOptions({ setJobModified }) {
                   setJobModified(true);
                 }}
               >
-                {blueprintVariables.manSystem.map((entry) => {
+                {structureOptions.manSystem.map((entry) => {
                   return (
                     <MenuItem key={entry.label} value={entry.value}>
                       {entry.label}

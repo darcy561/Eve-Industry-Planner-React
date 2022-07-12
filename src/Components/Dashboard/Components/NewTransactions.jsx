@@ -1,5 +1,5 @@
 import { Grid, Paper, Typography } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
 import { EveIDsContext } from "../../../Context/EveDataContext";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
@@ -15,7 +15,9 @@ export function NewTransactions() {
     (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
   );
 
-  const parentUser = users.find((i) => i.ParentUser === true);
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
 
   let itemOrderMatch = [];
   let transactionData = [];

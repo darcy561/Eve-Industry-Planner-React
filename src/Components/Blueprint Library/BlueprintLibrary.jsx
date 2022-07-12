@@ -48,6 +48,7 @@ export function BlueprintLibrary() {
     );
 
     updateBlueprintResults({ ids: returnIDs, blueprints: returnBps });
+    window.scrollTo(0, 0)
   }, [blueprintData, pagination.from, pagination.to, pagination.pageSize]);
 
   const handlePageChange = (event, page) => {

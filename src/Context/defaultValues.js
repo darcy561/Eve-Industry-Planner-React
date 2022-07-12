@@ -1,4 +1,3 @@
-import { blueprintVariables } from "../Components/Job Planner";
 
 export let jobArrayDefault = [
   {

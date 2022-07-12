@@ -16,14 +16,17 @@ export function ArchiveBpData({ archiveOpen, updateArchiveOpen, bpData }) {
   const [getData, updateGetData] = useState(true);
   const { getArchivedJobData } = useFirebase();
 
-  useEffect(async () => {
-    if (archiveOpen) {
-      let newArchivedJobsArray = await getArchivedJobData(bpData.itemID);
-      let data = newArchivedJobsArray.find((i) => i.typeID === bpData.itemID);
-      updateGetData(false);
-      updateJobData(data);
-      updateArchivedJobs(newArchivedJobsArray);
+  useEffect(() => {
+    async function getArchiveData() {
+      if (archiveOpen) {
+        let newArchivedJobsArray = await getArchivedJobData(bpData.itemID);
+        let data = newArchivedJobsArray.find((i) => i.typeID === bpData.itemID);
+        updateGetData(false);
+        updateJobData(data);
+        updateArchivedJobs(newArchivedJobsArray);
+      }
     }
+    getArchiveData();
   }, [archiveOpen]);
 
   return (

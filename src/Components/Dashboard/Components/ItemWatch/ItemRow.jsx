@@ -49,7 +49,16 @@ export function WatchListRow({ item, parentUser, index }) {
 
   return (
     <Grid container item xs={12}>
-      <Paper square sx={{ width: "100%", padding: "5px", marginBottom: "1px" }}>
+      <Paper
+        square
+        sx={{
+          width: "100%",
+          padding: "5px",
+          marginBottom: "1px",
+
+          padding: " 10px 20px",
+        }}
+      >
         <Grid container item xs={12}>
           <Grid
             item
@@ -64,12 +73,13 @@ export function WatchListRow({ item, parentUser, index }) {
               alt=""
             />
           </Grid>
-          <Grid item xs={10} sm={2} lg={2}>
+          <Grid container item xs={10} sm={2} lg={2} alignItems="center">
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               {item.name}
             </Typography>
           </Grid>
           <Grid
+            container
             item
             xs={12}
             sm={3}
@@ -80,12 +90,12 @@ export function WatchListRow({ item, parentUser, index }) {
                   .sell !== 0
                   ? "none"
                   : "success.main",
+              marginBottom: { xs: "5px", sm: "0px" },
             }}
+            justifyContent="center"
+            alignItems="center"
           >
-            <Typography
-              align="center"
-              sx={{ typography: { xs: "caption", sm: "body2" } }}
-            >
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               {mainItemPrice[
                 parentUser.settings.editJob.defaultMarket
               ].sell.toLocaleString(undefined, {
@@ -94,9 +104,17 @@ export function WatchListRow({ item, parentUser, index }) {
               })}
             </Typography>
           </Grid>
-          <Grid item xs={2} sm={3} lg={3}>
+          <Grid
+            container
+            item
+            xs={12}
+            sm={3}
+            lg={3}
+            justifyContent="center"
+            alignItems="center"
+            sx={{ marginBottom: { xs: "5px", sm: "0px" } }}
+          >
             <Typography
-              align="center"
               sx={{
                 typography: { xs: "caption", sm: "body2" },
                 color:
@@ -114,7 +132,16 @@ export function WatchListRow({ item, parentUser, index }) {
               })}
             </Typography>
           </Grid>
-          <Grid item xs={2} sm={3} lg={3}>
+          <Grid
+            container
+            item
+            xs={12}
+            sm={3}
+            lg={3}
+            justifyContent="center"
+            alignItems="center"
+            sx={{ marginBottom: { xs: "5px", sm: "0px" } }}
+          >
             {!item.childJobPresent && (
               <Typography
                 align="center"
@@ -147,14 +174,14 @@ export function WatchListRow({ item, parentUser, index }) {
               </Typography>
             )}
           </Grid>
-          <Grid item xs={1} align="center">
+          <Grid item xs={12} sm={1} align="center">
             <IconButton
               size="small"
               color="primary"
               onClick={() => {
                 setExpanded((prev) => !prev);
               }}
-              sx={{ marginRight: "5px" }}
+              sx={{ marginRight: { xs: "50px", sm: "5px" } }}
             >
               <InfoIcon fontSize="14" />
             </IconButton>
@@ -178,7 +205,7 @@ export function WatchListRow({ item, parentUser, index }) {
             item
             xs={12}
             spacing={1}
-            sx={{ marginBottom: "20px", marginTop: "10px" }}
+            sx={{ marginBottom: "20px", marginTop: "20px" }}
           >
             {item.materials.map((mat) => {
               let matPrice = evePrices.find((i) => i.typeID === mat.typeID);

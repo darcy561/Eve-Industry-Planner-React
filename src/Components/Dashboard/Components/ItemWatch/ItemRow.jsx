@@ -1,8 +1,10 @@
-import { Grid, IconButton, Paper, Typography } from "@mui/material";
+import { Grid, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import { useContext, useState } from "react";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
 import InfoIcon from "@mui/icons-material/Info";
 import ClearIcon from "@mui/icons-material/Clear";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 
@@ -53,9 +55,7 @@ export function WatchListRow({ item, parentUser, index }) {
         square
         sx={{
           width: "100%",
-          padding: "5px",
           marginBottom: "1px",
-
           padding: " 10px 20px",
         }}
       >
@@ -73,8 +73,16 @@ export function WatchListRow({ item, parentUser, index }) {
               alt=""
             />
           </Grid>
-          <Grid container item xs={10} sm={2} lg={2} alignItems="center">
-            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+          <Grid
+            container
+            item
+            xs={10}
+            sm={2}
+            lg={2}
+            alignItems="center"
+            sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
+          >
+            <Typography sx={{ typography: { xs: "subtitle2", sm: "body2" } }}>
               {item.name}
             </Typography>
           </Grid>
@@ -174,30 +182,46 @@ export function WatchListRow({ item, parentUser, index }) {
               </Typography>
             )}
           </Grid>
-          <Grid item xs={12} sm={1} align="center">
-            <IconButton
-              size="small"
-              color="primary"
-              onClick={() => {
-                setExpanded((prev) => !prev);
-              }}
-              sx={{ marginRight: { xs: "50px", sm: "5px" } }}
+          <Grid
+            item
+            xs={12}
+            sm={1}
+            align="center"
+            sx={{ display: { xs: "none", lg: "flex" } }}
+          >
+            <Tooltip
+              title="Remove Item From Watchlist"
+              arrow
+              placement="bottom"
             >
-              <InfoIcon fontSize="14" />
-            </IconButton>
-            <IconButton
-              size="small"
-              color="error"
-              onClick={async () => {
-                let newUsers = [...users];
-                newUsers[0].watchlist.splice(index, 1);
-                updateUsers(newUsers);
-                await updateMainUserDoc();
-              }}
-            >
-              <ClearIcon />
-            </IconButton>
+              <IconButton
+                color="error"
+                onClick={async () => {
+                  let newUsers = [...users];
+                  newUsers[0].watchlist.splice(index, 1);
+                  updateUsers(newUsers);
+                  await updateMainUserDoc();
+                }}
+              >
+                <ClearIcon />
+              </IconButton>
+            </Tooltip>
           </Grid>
+          {!expanded && (
+            <Grid item xs={12} align="center">
+              <Tooltip title="More Information" arrow placement="bottom">
+                <IconButton
+                  size="small"
+                  color="primary"
+                  onClick={() => {
+                    setExpanded((prev) => !prev);
+                  }}
+                >
+                  <ExpandMoreIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          )}
         </Grid>
         {expanded && (
           <Grid
@@ -205,7 +229,11 @@ export function WatchListRow({ item, parentUser, index }) {
             item
             xs={12}
             spacing={1}
-            sx={{ marginBottom: "20px", marginTop: "20px" }}
+            sx={{
+              marginBottom: "20px",
+              marginTop: "20px",
+              position: "relative",
+            }}
           >
             {item.materials.map((mat) => {
               let matPrice = evePrices.find((i) => i.typeID === mat.typeID);
@@ -325,6 +353,42 @@ export function WatchListRow({ item, parentUser, index }) {
                 </Grid>
               );
             })}
+            <Grid item align="center" xs={12} sx={{ marginTop: "5px" }}>
+              <Tooltip title="Less Information" arrow placement="bottom">
+                <IconButton
+                  color="primary"
+                  onClick={() => {
+                    setExpanded((prev) => !prev);
+                  }}
+                >
+                  <ExpandLessIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip
+                title="Remove Item From Watchlist"
+                arrow
+                placement="bottom"
+              >
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={async () => {
+                    let newUsers = [...users];
+                    newUsers[0].watchlist.splice(index, 1);
+                    updateUsers(newUsers);
+                    await updateMainUserDoc();
+                  }}
+                  sx={{
+                    position: "absolute",
+                    bottom: "10px",
+                    right: "10px",
+                    display: { lg: "none" },
+                  }}
+                >
+                  <ClearIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
           </Grid>
         )}
       </Paper>

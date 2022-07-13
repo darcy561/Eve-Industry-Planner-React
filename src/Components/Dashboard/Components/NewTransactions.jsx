@@ -120,19 +120,26 @@ export function NewTransactions() {
                   sx={{ marginBottom: "5px" }}
                 >
                   <Grid item xs={3}>
-                    <Typography variant="body1">
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
                       {new Date(trans.date).toLocaleString()}
                     </Typography>
                   </Grid>
                   <Grid item xs={4}>
-                    <Typography variant="body1" align="center">
+                    <Typography
+                      align="center"
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
                       {itemName.name}
                     </Typography>
                   </Grid>
                   <Grid item xs={4}>
-                    <Typography variant="body2" align="right">
-                      {trans.quantity} @ {trans.unit_price.toLocaleString()} ISK
-                      Each
+                    <Typography
+                      align="right"
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      {trans.quantity} @ {trans.unit_price.toLocaleString()}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -167,14 +174,19 @@ export function NewTransactions() {
           </Grid>
           <Grid item xs={12}>
             <Typography
-              variant="body1"
               align="center"
-              sx={{ marginBottom: "10px" }}
+              sx={{
+                marginBottom: "10px",
+                typography: { xs: "caption", sm: "body2" },
+              }}
             >
               There are currently no new transactions for your linked market
               orders within the ESI data.
             </Typography>
-            <Typography variant="body2" align="center">
+            <Typography
+              align="center"
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+            >
               Transaction data from the Eve ESI updates peridodically, either
               refresh the current data or check back later.
             </Typography>

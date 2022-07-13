@@ -1,4 +1,4 @@
-import { Grid, IconButton, Paper, Typography } from "@mui/material";
+import { Grid, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { AddWatchItemDialog } from "./addItemDialog";
 import { useContext, useMemo, useState } from "react";
@@ -37,24 +37,34 @@ export function ItemWatchPanel() {
           setOpenDialog={setOpenDialog}
         />
         <Grid container>
-          <Grid item xs={12} sx={{ marginBottom: "40px" }}>
+          <Grid item xs={12} sx={{ marginBottom: { xs: "20px", sm: "40px" } }}>
             <Typography variant="h5" color="primary" align="center">
               Item Watchlist
             </Typography>
           </Grid>
-          <IconButton
-            color="primary"
-            sx={{ position: "absolute", top: "10px", right: "10px" }}
-            onClick={() => {
-              setOpenDialog(true);
-            }}
-          >
-            <AddIcon />
-          </IconButton>
+          <Tooltip title="Add Item To Watchlist" arrow placement="bottom">
+            <IconButton
+              color="primary"
+              sx={{ position: "absolute", top: "10px", right: "10px" }}
+              onClick={() => {
+                setOpenDialog(true);
+              }}
+            >
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
           <Grid container item xs={12}>
-            <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
-              <Grid item xs={5} sm={4} lg={3} />
-              <Grid item xs={2} sm={2} lg={2}>
+            <Grid
+              container
+              item
+              xs={12}
+              sx={{
+                marginBottom: "20px",
+                display: { xs: "none", sm: "flex" },
+              }}
+            >
+              <Grid item sm={4} lg={3} />
+              <Grid item sm={2} lg={2}>
                 <Typography
                   align="center"
                   sx={{ typography: { xs: "caption", sm: "body2" } }}
@@ -62,7 +72,7 @@ export function ItemWatchPanel() {
                   Item Sell Price
                 </Typography>
               </Grid>
-              <Grid item xs={2} sm={3} lg={3}>
+              <Grid item sm={3} lg={3}>
                 <Typography
                   align="center"
                   sx={{ typography: { xs: "caption", sm: "body2" } }}
@@ -75,7 +85,7 @@ export function ItemWatchPanel() {
                   Orders)
                 </Typography>
               </Grid>
-              <Grid item xs={2} sm={3} lg={3}>
+              <Grid item sm={3} lg={3}>
                 <Typography
                   align="center"
                   sx={{ typography: { xs: "caption", sm: "body2" } }}

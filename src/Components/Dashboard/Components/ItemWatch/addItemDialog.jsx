@@ -19,23 +19,26 @@ import { WishListManufacturingOptions } from "./wishlistManufacturingOptions";
 import { WishlistReactionOptions } from "./wishlistReactionOptions";
 import { ChildJobEntry } from "./childJobSelect";
 import { UsersContext } from "../../../../Context/AuthContext";
+import { SnackBarDataContext } from "../../../../Context/LayoutContext";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   const { users } = useContext(UsersContext);
   const { buildJob } = useJobBuild();
   const { getItemPrices, updateMainUserDoc } = useFirebase();
   const { updateEvePrices } = useContext(EvePricesContext);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [loadingState, changeLoadingState] = useState(false);
   const [loadingText, changeLoadingText] = useState(null);
   const [failedImport, setFailedImport] = useState(false);
   const [importedJob, setImportedJob] = useState(null);
   const [materialJobs, setMaterialJobs] = useState([]);
   const [saveReady, updateSaveReady] = useState(false);
+  const analytics = getAnalytics();
 
-  const parentUser = useMemo(
-    () => users.find((i) => i.ParentUser === true),
-    [users]
-  );
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
 
   const handleClose = () => {
     setOpenDialog(false);
@@ -94,6 +97,16 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
     });
 
     await updateMainUserDoc();
+    logEvent(analytics, "New Watchlist Item", {
+      UID: parentUser.accountID,
+    });
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `${importedJob.name} Added`,
+      severity: "success",
+      autoHideDuration: 2000,
+    }));
     handleClose();
   };
 

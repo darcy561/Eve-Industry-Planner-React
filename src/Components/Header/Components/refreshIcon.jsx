@@ -39,7 +39,7 @@ export function RefreshApiIcon() {
   const parentUser = users.find((i) => i.ParentUser);
 
   const refreshAPIData = async () => {
-    logEvent(analytics, "refreshAPIData", {
+    logEvent(analytics, "Refresh API Data", {
       UID: parentUser.accountID,
     });
     let newUsers = [...users];

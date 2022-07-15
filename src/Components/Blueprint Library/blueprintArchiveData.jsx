@@ -6,21 +6,32 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { ArchivedJobsContext } from "../../Context/JobContext";
 import { useFirebase } from "../../Hooks/useFirebase";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import { UsersContext } from "../../Context/AuthContext";
 
 export function ArchiveBpData({ archiveOpen, updateArchiveOpen, bpData }) {
   const { updateArchivedJobs } = useContext(ArchivedJobsContext);
+  const { users } = useContext(UsersContext);
   const [jobData, updateJobData] = useState(undefined);
   const [getData, updateGetData] = useState(true);
   const { getArchivedJobData } = useFirebase();
+  const analytics = getAnalytics();
+
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
 
   useEffect(() => {
     async function getArchiveData() {
       if (archiveOpen) {
         let newArchivedJobsArray = await getArchivedJobData(bpData.itemID);
         let data = newArchivedJobsArray.find((i) => i.typeID === bpData.itemID);
+        logEvent(analytics, "View Archived Job Data", {
+          UID: parentUser.accountID,
+        });
         updateGetData(false);
         updateJobData(data);
         updateArchivedJobs(newArchivedJobsArray);

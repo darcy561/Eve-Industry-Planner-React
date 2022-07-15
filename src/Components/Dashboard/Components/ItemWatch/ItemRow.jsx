@@ -1,18 +1,38 @@
 import { Grid, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import { useContext, useState } from "react";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
-import InfoIcon from "@mui/icons-material/Info";
 import ClearIcon from "@mui/icons-material/Clear";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
+import { SnackBarDataContext } from "../../../../Context/LayoutContext";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function WatchListRow({ item, parentUser, index }) {
   const [expanded, setExpanded] = useState(false);
   const { users, updateUsers } = useContext(UsersContext);
   const { evePrices } = useContext(EvePricesContext);
   const { updateMainUserDoc } = useFirebase();
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const analytics = getAnalytics();
+
+  const handleRemove = async () => {
+    let newUsers = [...users];
+    newUsers[0].watchlist.splice(index, 1);
+    updateUsers(newUsers);
+    await updateMainUserDoc();
+    logEvent(analytics, "Remove Watchlist Item", {
+      UID: parentUser.accountID,
+    });
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `${item.name} Removed`,
+      severity: "error",
+      autoHideDuration: 2000,
+    }));
+  };
 
   let mainItemPrice = evePrices.find((i) => i.typeID === item.typeID);
   let totalPurchase = 0;
@@ -194,15 +214,7 @@ export function WatchListRow({ item, parentUser, index }) {
               arrow
               placement="bottom"
             >
-              <IconButton
-                color="error"
-                onClick={async () => {
-                  let newUsers = [...users];
-                  newUsers[0].watchlist.splice(index, 1);
-                  updateUsers(newUsers);
-                  await updateMainUserDoc();
-                }}
-              >
+              <IconButton color="error" onClick={handleRemove}>
                 <ClearIcon />
               </IconButton>
             </Tooltip>
@@ -372,12 +384,7 @@ export function WatchListRow({ item, parentUser, index }) {
                 <IconButton
                   size="small"
                   color="error"
-                  onClick={async () => {
-                    let newUsers = [...users];
-                    newUsers[0].watchlist.splice(index, 1);
-                    updateUsers(newUsers);
-                    await updateMainUserDoc();
-                  }}
+                  onClick={handleRemove}
                   sx={{
                     position: "absolute",
                     bottom: "10px",

@@ -20,9 +20,11 @@ export function StatusSettings({
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { updateMainUserDoc } = useFirebase();
 
-
   return (
-    <Dialog open={statusSettingsTrigger} PaperProps={{sx:{padding: "15px"}}}>
+    <Dialog
+      open={statusSettingsTrigger}
+      PaperProps={{ sx: { padding: "15px" } }}
+    >
       <DialogTitle align="center">Settings</DialogTitle>
       <Typography variant="body2">Name:</Typography>
       <TextField
@@ -31,27 +33,30 @@ export function StatusSettings({
         defaultValue={statusData.name}
         onChange={(e) => {
           updateStatusData((prev) => ({
-            ...prev, name: e.target.value
+            ...prev,
+            name: e.target.value,
           }));
         }}
       />
-      <Typography variant="body2">Display Open API Jobs:</Typography>
+      <Typography variant="body2">Display Open ESI Jobs:</Typography>
       <Switch
         checked={statusData.openAPIJobs}
         color="primary"
         onChange={(e) => {
           updateStatusData((prev) => ({
-            ...prev, openAPIJobs: e.target.checked
+            ...prev,
+            openAPIJobs: e.target.checked,
           }));
         }}
       />
-      <Typography variant="body2">Display Complete API Jobs:</Typography>
+      <Typography variant="body2">Display Complete ESI Jobs:</Typography>
       <Switch
         checked={statusData.completeAPIJobs}
         color="primary"
         onChange={(e) => {
           updateStatusData((prev) => ({
-            ...prev, completeAPIJobs: e.target.checked
+            ...prev,
+            completeAPIJobs: e.target.checked,
           }));
         }}
       />
@@ -71,7 +76,6 @@ export function StatusSettings({
             setJobStatus(newStatusArray);
             updateMainUserDoc();
             updateStatusSettingsTrigger(false);
-
           }}
         >
           Save

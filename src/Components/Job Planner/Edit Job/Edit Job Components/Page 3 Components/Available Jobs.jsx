@@ -19,9 +19,11 @@ import {
 } from "@mui/material";
 import { MdOutlineAddLink } from "react-icons/md";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { EveIDsContext } from "../../../../../Context/EveDataContext";
 
 export function AvailableJobs({ jobMatches, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { eveIDs } = useContext(EveIDsContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -36,12 +38,10 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
       this.job_id = originalJob.job_id;
       this.completed_date = originalJob.completed_date || null;
       this.station_id = originalJob.station_id;
-      this.station_name = originalJob.facility_name;
       this.start_date = originalJob.start_date;
       this.end_date = originalJob.end_date;
       this.cost = originalJob.cost;
       this.linked = true;
-      this.product_name = originalJob.product_name;
       this.blueprint_type_id = originalJob.blueprint_type_id;
       this.product_type_id = originalJob.product_type_id;
       this.activity_id = originalJob.activity_id;
@@ -102,6 +102,8 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
               (i) => i.item_id === job.blueprint_id
             );
 
+            const facilityData = eveIDs.find((i) => i.id === job.facility_id);
+
             let blueprintType = "bpc";
             if (jobBP !== undefined) {
               blueprintType = "bp";
@@ -161,17 +163,23 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                 </Grid>
                 <Grid item xs={12}>
                   <Typography
-                    variant="body2"
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
                     align="center"
                   >{`${job.runs} Runs`}</Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="body2" align="center">
-                    {job.facility_name}
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    align="center"
+                  >
+                    {facilityData.name}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="body2" align="center">
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    align="center"
+                  >
                     {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                   </Typography>
                 </Grid>
@@ -182,11 +190,17 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     timeRemaining.days === 0 &&
                     timeRemaining.hours === 0 &&
                     timeRemaining.mins === 0 ? (
-                      <Typography variant="body2" align="center">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        align="center"
+                      >
                         Ready to Deliver
                       </Typography>
                     ) : (
-                      <Typography variant="body2" align="center">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        align="center"
+                      >
                         {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                         {timeRemaining.mins}M
                       </Typography>
@@ -346,7 +360,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
           marginTop: { xs: "20px", sm: "30px" },
         }}
       >
-        <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+        <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
           You have linked the maximum number of jobs from the API, if you need
           to link more increase the number of job slots used.
         </Typography>
@@ -363,7 +377,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
         }}
       >
         <Typography
-          sx={{ typography: { xs: "body2", md: "body1" } }}
+          sx={{ typography: { xs: "caption", sm: "body1" } }}
           align="center"
         >
           There are no matching industry jobs from the API that match this job.

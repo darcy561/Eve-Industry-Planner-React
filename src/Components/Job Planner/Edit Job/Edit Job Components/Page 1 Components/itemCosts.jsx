@@ -9,7 +9,7 @@ import {
   marketOptions,
 } from "../../../../../Context/defaultValues";
 
-export function ItemCostPanel({jobModified}) {
+export function ItemCostPanel({ jobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
@@ -114,8 +114,10 @@ export function ItemCostPanel({jobModified}) {
             align="center"
             sx={{ marginTop: { xs: "10px", md: "0px" } }}
           >
-            <Typography variant="body2">Item Sell Price:</Typography>
-            <Typography variant="body2">
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Item Sell Price:
+            </Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               {activeJobPrices[marketSelect].sell.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -129,8 +131,10 @@ export function ItemCostPanel({jobModified}) {
             align="center"
             sx={{ marginTop: { xs: "10px", md: "0px" } }}
           >
-            <Typography variant="body2">Total Sell Price:</Typography>
-            <Typography variant="body2">
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Total Sell Price:
+            </Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               {(
                 activeJobPrices[marketSelect].sell *
                 activeJob.build.products.totalQuantity
@@ -151,10 +155,14 @@ export function ItemCostPanel({jobModified}) {
           >
             <Grid item md={5} sx={{ marginTop: { xs: "10px", sm: "20px" } }} />
             <Grid item xs={6} md={3} align="center">
-              <Typography variant="body1">Item Price</Typography>
+              <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+                Item Price
+              </Typography>
             </Grid>
             <Grid item xs={6} md={4} align="center">
-              <Typography variant="body1">Total Price</Typography>
+              <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+                Total Price
+              </Typography>
             </Grid>
           </Grid>
         </Grid>
@@ -179,10 +187,10 @@ export function ItemCostPanel({jobModified}) {
           })}
           <Grid container item xs={12} sx={{ marginTop: "20px" }}>
             <Grid item xs={12} sm={6} align="center">
-              <Typography variant="body2">
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                 Total Material Sell Price Per Item
               </Typography>
-              <Typography variant="body2">
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                 {(
                   totalJobSell / activeJob.build.products.totalQuantity
                 ).toLocaleString(undefined, {
@@ -190,10 +198,15 @@ export function ItemCostPanel({jobModified}) {
                   maximumFractionDigits: 2,
                 })}
               </Typography>
-              <Typography variant="body2" sx={{ marginTop: "5px" }}>
+              <Typography
+                sx={{
+                  marginTop: "5px",
+                  typography: { xs: "caption", sm: "body2" },
+                }}
+              >
                 Total Material Buy Price Per Item
               </Typography>
-              <Typography variant="body2">
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                 {(
                   totalJobBuy / activeJob.build.products.totalQuantity
                 ).toLocaleString(undefined, {
@@ -209,17 +222,24 @@ export function ItemCostPanel({jobModified}) {
               align="center"
               sx={{ marginTop: { xs: "10px", sm: "0px" } }}
             >
-              <Typography variant="body2">Total Material Sell Price</Typography>
-              <Typography variant="body2">
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                Total Material Sell Price
+              </Typography>
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                 {totalJobSell.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
               </Typography>
-              <Typography variant="body2" sx={{ marginTop: "5px" }}>
+              <Typography
+                sx={{
+                  marginTop: "5px",
+                  typography: { xs: "caption", sm: "body2" },
+                }}
+              >
                 Total Material Buy Price:
               </Typography>
-              <Typography variant="body2">
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                 {totalJobBuy.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,

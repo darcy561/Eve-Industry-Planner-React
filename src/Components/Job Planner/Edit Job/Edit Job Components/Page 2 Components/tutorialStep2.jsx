@@ -29,12 +29,15 @@ export function TutorialStep2() {
     >
       <Grid container>
         <Grid item xs={12} align="left">
-          <Typography variant="body1" color="primary">
+          <Typography
+            color="primary"
+            sx={{ typography: { xs: "body2", sm: "body1" } }}
+          >
             <b>Help:</b>
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="body2">
+          <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
             Now that you know what you are building, it is time to acquire the
             necessary parts.{<br />} {<br />}
             On each material card there is a small form allowing you to enter
@@ -42,9 +45,10 @@ export function TutorialStep2() {
             price that you paid for the item. Clicking the <b>+</b> will add
             this to the job. You can add as many entries as needed, each entry
             can be removed using the <b>X</b>.{<br />}
-            For manufacturing or reaction jobs there is an icon displayed in the top left corner
-            indicating the number of child jobs that are attached, clicking this
-            will allow you to manually add or remove child jobs.
+            For manufacturing or reaction jobs there is an icon displayed in the
+            top left corner indicating the number of child jobs that are
+            attached, clicking this will allow you to manually add or remove
+            child jobs.
             {<br />}
             {<br />}
             As you add entries the total cost for the material is calculated.
@@ -58,8 +62,8 @@ export function TutorialStep2() {
         </Grid>
         {isLoggedIn && (
           <Grid container item xs={12}>
-            <Grid item xs={10} />
-            <Grid item xs={2} align="right">
+            <Grid item xs={6} sm={9} />
+            <Grid item xs={6} sm={3} align="right">
               <Typography variant="caption" sx={{ display: "inline-block" }}>
                 Hide Help Options
               </Typography>

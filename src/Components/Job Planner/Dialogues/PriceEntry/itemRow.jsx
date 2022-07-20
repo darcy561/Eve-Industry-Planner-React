@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function ItemPriceRow({ item, index, displayOrder, displayMarket }) {
+export function ItemPriceRow({ item, index, displayOrder, displayMarket, totalImportedCost, updateTotalImportedCost }) {
   const { priceEntryListData, updatePriceEntryListData } = useContext(
     PriceEntryListContext
   );
@@ -92,7 +92,7 @@ export function ItemPriceRow({ item, index, displayOrder, displayMarket }) {
         />
       </Grid>
       <Grid item xs={12} sm={7}>
-        <Typography variant="body1">{item.name}</Typography>
+        <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>{item.name}</Typography>
       </Grid>
       <Grid item xs={10} sm={3}>
         <Tooltip
@@ -131,6 +131,11 @@ export function ItemPriceRow({ item, index, displayOrder, displayMarket }) {
             size="small"
             onChange={() => {
               let newList = [...priceEntryListData.list];
+              if (newList[index].confirmed) {
+                updateTotalImportedCost((prev)=> prev -= (inputItem * newList[index].quantity))
+              } else {
+                updateTotalImportedCost((prev)=> prev += (inputItem * newList[index].quantity))
+              }
               newList[index].confirmed = !inputChecked;
               newList[index].itemPrice = inputItem;
               updateInputChecked(!inputChecked);

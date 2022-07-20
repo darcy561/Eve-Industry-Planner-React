@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { UsersContext } from "../Context/AuthContext";
 import { jobTypes } from "../Context/defaultValues";
-import { blueprintVariables } from "../Components/Job Planner/JobPlanner";
+import { structureOptions } from "../Context/defaultValues";
 
 export function useBlueprintCalc() {
   const { users } = useContext(UsersContext);
@@ -98,7 +98,7 @@ export function useBlueprintCalc() {
     }
   };
 
-  const CalcualateTime = (job, updatedUser) => {
+  const CalculateTime = (job, updatedUser) => {
     let user = updatedUser;
     if (user === undefined) {
       user = users.find((i) => i.CharacterHash === job.build.buildChar);
@@ -114,7 +114,7 @@ export function useBlueprintCalc() {
       if (job.jobType === jobTypes.manufacturing) {
         const indySkill = user.apiSkills.find((i) => i.id === 3380);
         const advIndySkill = user.apiSkills.find((i) => i.id === 3388);
-        const strucData = blueprintVariables.manStructure.find(
+        const strucData = structureOptions.manStructure.find(
           (i) => i.label === job.structureTypeDisplay
         );
 
@@ -142,7 +142,7 @@ export function useBlueprintCalc() {
       }
       if (job.jobType === jobTypes.reaction) {
         const reactionSkill = user.apiSkills.find((i) => i.id === 45746);
-        const strucData = blueprintVariables.reactionStructure.find(
+        const strucData = structureOptions.reactionStructure.find(
           (i) => i.label === job.structureTypeDisplay
         );
 
@@ -179,5 +179,5 @@ export function useBlueprintCalc() {
     return job;
   };
 
-  return { CalculateResources, CalcualateTime };
+  return { CalculateResources, CalculateTime };
 }

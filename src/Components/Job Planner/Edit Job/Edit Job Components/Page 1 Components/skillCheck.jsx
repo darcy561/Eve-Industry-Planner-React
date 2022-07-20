@@ -3,8 +3,9 @@ import { useContext } from "react";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import DoneIcon from "@mui/icons-material/Done";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import { Masonry } from "@mui/lab";
+import bpSkills from "../../../../../RawData/bpSkills.json";
 
 export function SkillCheck() {
   const { activeJob } = useContext(ActiveJobContext);
@@ -15,8 +16,8 @@ export function SkillCheck() {
   );
 
   if (buildChar === undefined) {
-  buildChar = parentUser
-}
+    buildChar = parentUser;
+  }
 
   return (
     <Paper
@@ -40,8 +41,7 @@ export function SkillCheck() {
             const charSkill = buildChar.apiSkills.find(
               (i) => i.id === jSkill.typeID
             );
-            // console.log(buildChar);
-            // console.log(charSkill);
+            const skillData = bpSkills.find((i) => i.id === jSkill.typeID);
 
             return (
               <Grid
@@ -57,8 +57,11 @@ export function SkillCheck() {
                   xs={12}
                   sx={{ minHeight: { xs: "3rem", sm: "2rem" } }}
                 >
-                  <Typography align="center" sx={{typography:{xs: "body2", sm:"body1"}}}>
-                    {charSkill.name}
+                  <Typography
+                    align="center"
+                    sx={{ typography: { xs: "caption", sm: "body1" } }}
+                  >
+                    {skillData !== undefined ? skillData.name : "Unknown Skill"}
                   </Typography>
                 </Grid>
 
@@ -70,8 +73,9 @@ export function SkillCheck() {
                   justifyContent="center"
                 >
                   <Masonry columns={1}>
-                    {charSkill.activeLevel >= jSkill.level ? (
-                      <Icon fontSize="large" color="success" >
+                    {charSkill !== undefined &&
+                    charSkill.activeLevel >= jSkill.level ? (
+                      <Icon fontSize="large" color="success">
                         <DoneIcon />
                       </Icon>
                     ) : (
@@ -79,12 +83,18 @@ export function SkillCheck() {
                         <Icon fontSize="large" color="error">
                           <CloseIcon />
                         </Icon>
-                        <Typography variant="body2">
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        >
                           Required Level: {jSkill.level}
                         </Typography>
-                        <Typography variant="body2">
-                          Current Level: {charSkill.activeLevel}
-                        </Typography>
+                        {charSkill !== undefined ? (
+                          <Typography
+                            sx={{ typography: { xs: "caption", sm: "body2" } }}
+                          >
+                            Current Level: {charSkill.activeLevel}
+                          </Typography>
+                        ) : null}
                       </Grid>
                     )}
                   </Masonry>

@@ -20,7 +20,7 @@ export function useJobBuild() {
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateDialogData } = useContext(DialogDataContext);
-  const { CalculateResources, CalcualateTime } = useBlueprintCalc();
+  const { CalculateResources, CalculateTime } = useBlueprintCalc();
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -133,6 +133,7 @@ export function useJobBuild() {
           {
             headers: {
               "X-Firebase-AppCheck": appCheckToken.token,
+              accountID: parentUser.accountID,
             },
           }
         );
@@ -203,20 +204,11 @@ export function useJobBuild() {
             }
           }
           if (itemQty !== null) {
-            outputObject.jobCount = Math.ceil(
-              itemQty /
-                (outputObject.maxProductionLimit *
-                  outputObject.rawData.products[0].quantity)
-            );
-            outputObject.runCount = Math.ceil(
-              itemQty /
-                outputObject.rawData.products[0].quantity /
-                outputObject.jobCount
-            );
+            recalculateItemQty(outputObject, itemQty);
           }
 
           let calculatedJob = CalculateResources(outputObject);
-          calculatedJob = CalcualateTime(calculatedJob);
+          calculatedJob = CalculateTime(calculatedJob);
           if (parentJobs !== undefined) {
             let itemParents = [];
             parentJobs.forEach((job) => {
@@ -311,5 +303,16 @@ export function useJobBuild() {
       return true;
     }
   };
-  return { buildJob, checkAllowBuild, jobBuildErrors };
+
+  const recalculateItemQty = (job, itemQty) => {
+    job.jobCount = Math.ceil(
+      itemQty / (job.maxProductionLimit * job.rawData.products[0].quantity)
+    );
+    job.runCount = Math.ceil(
+      itemQty / job.rawData.products[0].quantity / job.jobCount
+    );
+    return job;
+  };
+
+  return { buildJob, checkAllowBuild, jobBuildErrors, recalculateItemQty };
 }

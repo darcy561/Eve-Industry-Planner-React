@@ -8,6 +8,7 @@ import {
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { EveIDsContext } from "../../../../../Context/EveDataContext";
 
 class ESIBrokerFee {
   constructor(entry, order, char) {
@@ -26,14 +27,11 @@ class ESIMarketOrder {
     this.is_corporation = order.is_corporation;
     this.issued = order.issued;
     this.location_id = order.location_id;
-    this.location_name = order.location_name || null;
     this.order_id = order.order_id;
     this.item_price = order.price;
     this.range = order.range;
     this.region_id = order.region_id;
-    this.region_name = order.region_name || null;
     this.type_id = order.type_id;
-    this.item_name = order.item_name || null;
     this.volume_remain = order.volume_remain;
     this.volume_total = order.volume_total;
     this.timeStamps = [order.issued];
@@ -48,6 +46,7 @@ export function AvailableMarketOrders({
   updateShowAvailableOrders,
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { eveIDs } = useContext(EveIDsContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -73,6 +72,8 @@ export function AvailableMarketOrders({
             const charData = users.find(
               (i) => i.CharacterHash === order.CharacterHash
             );
+            const locationData = eveIDs.find((i) => i.id === order.location_id);
+
             return (
               <Grid
                 key={order.order_id}
@@ -111,7 +112,9 @@ export function AvailableMarketOrders({
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
-                      <Typography variant="body2">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
                         {order.price.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
@@ -120,18 +123,28 @@ export function AvailableMarketOrders({
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
-                      <Typography variant="body2">
-                        {order.location_name}
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
+                        {locationData.name}
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
-                      <Typography variant="body2">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
                         Duration: {order.duration} Days
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sx={{ marginTop: "5px" }}>
-                      <Typography variant="body2">Last Modified:</Typography>
-                      <Typography variant="body2">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
+                        Last Modified:
+                      </Typography>
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
                         {new Date(order.issued).toLocaleString()}
                       </Typography>
                     </Grid>

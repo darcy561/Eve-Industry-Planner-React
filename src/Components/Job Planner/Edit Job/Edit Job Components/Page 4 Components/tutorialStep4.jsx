@@ -32,12 +32,15 @@ export function TutorialStep4() {
     >
       <Grid container>
         <Grid item xs={12} align="left">
-          <Typography variant="body1" color="primary">
+          <Typography
+            color="primary"
+            sx={{ typography: { xs: "body2", sm: "body1" } }}
+          >
             <b>Help:</b>
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="body2">
+          <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
             So, you have now finished building your {activeJob.name}. This stage
             where we complete the build cost calculations to work out the final
             cost before we move onto selling our item or passing this into
@@ -49,9 +52,9 @@ export function TutorialStep4() {
             {<br />}
             {<br />}
             The extra costs allows you to add or subtract amounts from the build
-            costs. Maybe you paid a friend to haul some items that you needed, or
-            you are adding the installation costs for an older job that does not
-            appear within the ESI data provided.
+            costs. Maybe you paid a friend to haul some items that you needed,
+            or you are adding the installation costs for an older job that does
+            not appear within the ESI data provided.
             {<br />}
             {<br />}
             For users who have logged in there is an Archive Job button, this
@@ -63,8 +66,8 @@ export function TutorialStep4() {
         </Grid>
         {isLoggedIn && (
           <Grid container item xs={12}>
-            <Grid item xs={10} />
-            <Grid item xs={2} align="right">
+            <Grid item xs={6} sm={9} />
+            <Grid item xs={6} sm={3} align="right">
               <Typography variant="caption">Hide Help Options</Typography>
               <Checkbox
                 className={classes.Checkbox}

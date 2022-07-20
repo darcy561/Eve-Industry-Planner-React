@@ -16,6 +16,7 @@ import { AuthMainUser } from "./Components/Auth/MainUserAuth";
 import { useContext } from "react";
 import { IsLoggedInContext } from "./Context/AuthContext";
 import { Container } from "@mui/material";
+import { BlueprintLibrary } from "./Components/Blueprint Library/BlueprintLibrary";
 
 export function NavRoutes({ mode, colorMode }) {
   return (
@@ -30,6 +31,7 @@ export function NavRoutes({ mode, colorMode }) {
           <Route element={<ProtectedRoute />}>
             <Route path="/accounts" element={<AccountsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/blueprintlibrary" element={<BlueprintLibrary/>}/>
           </Route>
         </Routes>
         <Footer />

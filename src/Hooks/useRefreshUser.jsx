@@ -14,13 +14,14 @@ import jwt from "jsonwebtoken";
 import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EvePricesContext } from "../Context/EveDataContext";
+import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
 
 export function useRefreshUser() {
   const {
     BlueprintLibrary,
     CharacterSkills,
     HistoricMarketOrders,
+    IDtoName,
     IndustryJobs,
     MarketOrders,
     serverStatus,
@@ -28,6 +29,7 @@ export function useRefreshUser() {
     WalletJournal,
   } = useEveApi();
   const { determineUserState, getItemPrices } = useFirebase();
+  const { updateEveIDs } = useContext(EveIDsContext);
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
@@ -67,6 +69,7 @@ export function useRefreshUser() {
       JSON.stringify(charSettings.jobArraySnapshot)
     );
     refreshedUser.accountRefreshTokens = charSettings.refreshTokens;
+    refreshedUser.watchlist = charSettings.watchlist;
     let priceIDRequest = new Set();
     let promiseArray = [];
     charSettings.jobArraySnapshot.forEach((snap) => {
@@ -75,7 +78,18 @@ export function useRefreshUser() {
       });
       priceIDRequest.add(snap.itemID);
     });
-    let itemPrices = getItemPrices([...priceIDRequest]);
+
+    charSettings.watchlist.forEach((snap) => {
+      priceIDRequest.add(snap.typeID);
+      snap.materials.forEach((mat) => {
+        priceIDRequest.add(mat.typeID);
+        mat.materials.forEach((cMat) => {
+          priceIDRequest.add(cMat.typeID);
+        });
+      });
+    });
+
+    let itemPrices = getItemPrices([...priceIDRequest], refreshedUser);
     promiseArray.push(itemPrices);
 
     updateLoadingText((prevObj) => ({
@@ -271,7 +285,64 @@ export function useRefreshUser() {
       }
       return 0;
     });
+
+    let locationIDS = new Set();
+    let citadelStore = new Set();
+    let newIDNamePromises = [];
+    let newNameArray = [];
+
+    for (let user of userArray) {
+      let citadelIDs = new Set();
+      user.apiJobs.forEach((job) => {
+        if (job.facility_id.toString().length > 10) {
+          if (!citadelStore.has(job.facility_id)) {
+            citadelIDs.add(job.facility_id);
+            citadelStore.add(job.facility_id);
+          }
+        } else {
+          locationIDS.add(job.facility_id);
+        }
+      });
+      user.apiOrders.forEach((order) => {
+        if (order.location_id.toString().length > 10) {
+          if (!citadelStore.has(order.location_id)) {
+            citadelIDs.add(order.location_id);
+            citadelStore.add(order.location_id);
+          }
+        } else {
+          locationIDS.add(order.location_id);
+        }
+        locationIDS.add(order.region_id);
+      });
+      user.apiHistOrders.forEach((order) => {
+        if (order.location_id.toString().length > 10) {
+          if (!citadelStore.has(order.location_id)) {
+            citadelIDs.add(order.location_id);
+            citadelStore.add(order.location_id);
+          }
+        } else {
+          locationIDS.add(order.location_id);
+        }
+        locationIDS.add(order.region_id);
+      });
+      if ([...citadelIDs].length > 0) {
+        let tempCit = IDtoName([...citadelIDs], user);
+        newIDNamePromises.push(tempCit);
+      }
+    }
+    if ([...locationIDS].length > 0) {
+      let tempLoc = IDtoName([...locationIDS], refreshedUser);
+      newIDNamePromises.push(tempLoc);
+    }
+
+    let returnLocations = await Promise.all(newIDNamePromises);
+
+    returnLocations.forEach((group) => {
+      newNameArray = newNameArray.concat(group);
+    });
+
     let returnPromiseArray = await Promise.all(promiseArray);
+    updateEveIDs(newNameArray);
     updateEvePrices(returnPromiseArray[0]);
     setJobStatus(charSettings.jobStatusArray);
     updateJobArray(charSettings.jobArraySnapshot);

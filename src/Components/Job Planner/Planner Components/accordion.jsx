@@ -72,7 +72,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
       sx={{ marginRight: { md: "10px" }, marginLeft: { md: "10px" } }}
       square={true}
     >
-      {jobStatus.map((status) => {
+      {jobStatus.map((status, index) => {
         return (
           <Accordion
             className={classes.Accordion}

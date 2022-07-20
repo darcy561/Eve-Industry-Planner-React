@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import { Dashboard } from "../Dashboard/Dashboard";
 import { LoggedOutHome } from "./LoggedOut";
@@ -12,33 +12,33 @@ export function Home() {
   const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
   const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
 
-  useEffect(async () => {
-    let parentUser = users.find((u) => u.ParentUser === true) 
+  let parentUser = useMemo(() => {
+    return users.find((u) => u.ParentUser);
+  }, [users, isLoggedIn]);
 
-    if (isLoggedIn) {
-      if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
-        let newUsersArray = users
-        const index = newUsersArray.findIndex((i) => i.ParentUser === true);
-        let newParentUser = await RefreshUserAToken(parentUser);
-        newUsersArray[index] = newParentUser
-        updateUsers(newUsersArray)
-      }
-      updatePageLoad(false);
-    } else {
-      if (localStorage.getItem("Auth") == null) {
+  useEffect(() => {
+    async function checkLoginState() {
+      if (isLoggedIn) {
+        if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
+          let newUsersArray = [...users];
+          const index = newUsersArray.findIndex((i) => i.ParentUser);
+          newUsersArray[index] = await RefreshUserAToken(parentUser);
+          updateUsers(newUsersArray);
+        }
         updatePageLoad(false);
       } else {
-        reloadMainUser(localStorage.getItem("Auth"));
+        if (localStorage.getItem("Auth") == null) {
+          updatePageLoad(false);
+        } else {
+          reloadMainUser(localStorage.getItem("Auth"));
+        }
       }
-      
     }
-
+    checkLoginState();
   }, []);
 
   if (pageLoad) {
-    return (
-      <LoadingPage/>
-    )
+    return <LoadingPage />;
   } else {
     if (isLoggedIn) {
       return <Dashboard />;

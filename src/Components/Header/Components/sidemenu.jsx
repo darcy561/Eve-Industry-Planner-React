@@ -13,7 +13,6 @@ import { useContext } from "react";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
 import { EveESIStatusContext } from "../../../Context/EveDataContext";
 
-
 export function SideMenu(props) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { eveESIStatus } = useContext(EveESIStatusContext);
@@ -33,17 +32,18 @@ export function SideMenu(props) {
         setOpen(true);
       }}
     >
-      <Box sx={{minHeight:"4rem"}}>
+      <Box sx={{ minHeight: "4rem" }}>
         {isLoggedIn && (
           <>
-            <Grid container sx={{padding:{xs:"8px 0px", sm: "10px 0px"}}} >
-              <Grid item xs={12} align="center" >
+            <Grid container sx={{ padding: { xs: "8px 0px", sm: "10px 0px" } }}>
+              <Grid item xs={12} align="center">
                 <Typography variant="body1">
                   Tranquility:{" "}
                   {eveESIStatus.serverStatus.online ? "Online" : "Offline"}
                 </Typography>
                 <Typography variant="body1">
-                  Player Count: {eveESIStatus.serverStatus.playerCount.toLocaleString()}
+                  Player Count:{" "}
+                  {eveESIStatus.serverStatus.playerCount.toLocaleString()}
                 </Typography>
               </Grid>
             </Grid>
@@ -51,7 +51,7 @@ export function SideMenu(props) {
         )}
       </Box>
 
-      <Box sx={{width:"250px"}}>
+      <Box sx={{ width: "250px" }}>
         <Divider />
         <List>
           <ListItem
@@ -76,6 +76,16 @@ export function SideMenu(props) {
             }}
           >
             <ListItemText primary={"Job Planner"} />
+          </ListItem>
+          <Divider />
+          <ListItem
+            button
+            onClick={() => {
+              navigate("/blueprintlibrary");
+              setOpen(false);
+            }}
+          >
+            <ListItemText primary={"Blueprint Library"} />
           </ListItem>
           <Divider />
         </List>

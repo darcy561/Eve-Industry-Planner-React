@@ -6,16 +6,9 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  TextFields: {
-    typography: { xs: "body2", md: "body1" },
-  },
-}));
+import searchData from "../../../../RawData/searchIndex.json";
 
 export function ReactionESICardActive({ job }) {
-  const classes = useStyles();
 
   function timeRemainingcalc() {
     let now = new Date().getTime();
@@ -41,6 +34,7 @@ export function ReactionESICardActive({ job }) {
   }
 
   const timeRemaining = timeRemainingcalc();
+  const product = searchData.find((i) => i.blueprintID === job.blueprint_type_id);
 
   return (
     <Tooltip title="Job imported from the Eve ESI">
@@ -55,7 +49,7 @@ export function ReactionESICardActive({ job }) {
                   typography: { xs: "body1", lg: "h6" },
                 }}
               >
-                {job.product_name}
+                {product.name}
               </Typography>
             </Grid>
             <Grid
@@ -110,19 +104,19 @@ export function ReactionESICardActive({ job }) {
               >
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography className={classes.TextFields}>
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
                       Runs:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
-                    <Typography className={classes.TextFields} align="right">
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                       {job.runs}
                     </Typography>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography className={classes.TextFields}>
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
                       Remaining:
                     </Typography>
                   </Grid>
@@ -130,11 +124,11 @@ export function ReactionESICardActive({ job }) {
                     {timeRemaining.days === 0 &&
                     timeRemaining.hours === 0 &&
                     timeRemaining.mins === 0 ? (
-                      <Typography className={classes.TextFields} align="right">
+                      <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                         Ready to Deliver
                       </Typography>
                     ) : (
-                      <Typography className={classes.TextFields} align="right">
+                      <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                         {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                         {timeRemaining.mins}M
                       </Typography>

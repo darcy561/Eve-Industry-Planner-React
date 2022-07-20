@@ -4,7 +4,7 @@ const ESIMarketQuery = require("../Item Prices/priceData").ESIMarketQuery;
 const axios = require("axios");
 
 exports.scheduledFunction = functions.pubsub
-  .schedule("every 1 hours")
+  .schedule("every 30 minutes")
   .onRun(async (context) => {
     const pricingDoc = await admin.firestore().doc("Pricing/Live").get();
     if (pricingDoc.exists) {
@@ -21,20 +21,26 @@ exports.scheduledFunction = functions.pubsub
         for (let item in pricingDocData) {
           if (
             (pricingDocData[item].lastUpdated < Date.now() - 14400000) &
-            (refreshList.length <= 300)
+            (refreshList.length <= 150)
           ) {
             refreshList.push(pricingDocData[item].typeID);
           }
         }
         if (refreshList.length > 0) {
           for (let typeID of refreshList) {
-            let response = await ESIMarketQuery(typeID, pricingDocData[typeID]);
+            let response = await ESIMarketQuery(
+              typeID,
+              false,
+              pricingDocData[typeID]
+            );
             if (response === "fail") {
               failedRefreshCount++;
               failedIDs.push(typeID);
+            } else {
+              successRefreshCount++;
+              refreshedIDs.push(typeID);
+              pricingDocData[typeID] = response;
             }
-            successRefreshCount++;
-            refreshedIDs.push(typeID);
           }
         }
       } else {
@@ -42,21 +48,30 @@ exports.scheduledFunction = functions.pubsub
           failedIDs.push(i.typeID, server.status);
         });
         failedRefreshCount = failedIDs.length;
-        functions.logger.error(`Eve Servers Offline - Refresh Item Prices`);
-      }
-      functions.logger.info(
-        `Number of TypeID's Refreshed ${successRefreshCount}`
-      );
-      functions.logger.info(
-        `TypeID's Refreshed ${JSON.stringify(refreshedIDs)}`
-      );
-      if (failedRefreshCount > 0) {
         functions.logger.error(
-          `Number of TypeID's Failed ${failedRefreshCount}`
+          `Eve Servers Offline - Unable To Refresh Item Prices`
         );
-        functions.logger.error(`TypeID's Failed ${JSON.stringify(failedIDs)}`);
       }
+      if (refreshedIDs.length > 0) {
+        await admin
+          .firestore()
+          .collection("Pricing")
+          .doc("Live")
+          .update(pricingDocData);
+      }
+      functions.logger.info(
+        `Number of TypeID's Refreshed ${successRefreshCount}. TypeID's Refreshed ${JSON.stringify(
+          refreshedIDs
+        )} `
+      );
 
-      return null;
+      if (failedRefreshCount > 0) {
+        functions.logger.info(
+          `Number of TypeID's Failed ${failedRefreshCount}. TypeID's Failed ${JSON.stringify(
+            failedIDs
+          )}`
+        );
+      }
     }
+    return null;
   });

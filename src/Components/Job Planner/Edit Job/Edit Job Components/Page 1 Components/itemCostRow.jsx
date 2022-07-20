@@ -1,7 +1,8 @@
 import { Grid, Icon, Tooltip, Typography } from "@mui/material";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { useState } from "react";
+import InfoIcon from "@mui/icons-material/Info";
+import { useEffect, useState } from "react";
 import { ChildJobPopover } from "./childJobPopOver";
+import { jobTypes } from "../../../../../Context/defaultValues";
 
 export function ItemCostRow({
   material,
@@ -11,12 +12,23 @@ export function ItemCostRow({
   jobModified,
 }) {
   const [displayPopover, updateDisplayPopover] = useState(null);
+  const [currentPurchasePrice, updateCurrentPurchasePrice] = useState(
+    materialPrice[marketSelect][listingSelect]
+  );
+  const [currentBuildPrice, updateCurrentBuildPrice] = useState(null);
+
+  useEffect(() => {
+    updateCurrentPurchasePrice(materialPrice[marketSelect][listingSelect]);
+  }, [marketSelect, listingSelect, currentBuildPrice]);
   return (
     <Grid
       container
       item
       xs={12}
-      sx={{ padding: { xs: "7px 0px", sm: "10px 0px" } }}
+      sx={{
+        padding: { xs: "7px 0px", sm: "10px 0px" },
+        backgroundColor: displayPopover !== null ? "lightGrey" : "none",
+      }}
     >
       <Grid
         item
@@ -34,46 +46,63 @@ export function ItemCostRow({
       </Grid>
       <Grid container item xs={12} md={4} align="left">
         <Grid item xs={11}>
-          <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+          <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
             {material.name}
           </Typography>
         </Grid>
-        {material.childJob.length > 0 ? (
-          <Grid item xs={1}>
-            <Tooltip
-              title="Click To View Child Job Material Costs"
-              arrow
-              placement="bottom"
-            >
-              <Icon
-                aria-haspopup="true"
-                color="primary"
-                onClick={(event) => {
-                  updateDisplayPopover(event.currentTarget);
-                }}
+        <Grid item xs={1}>
+          {material.jobType === jobTypes.manufacturing ||
+          material.jobType === jobTypes.reaction ? (
+            <>
+              <Tooltip
+                title="Click To Compare Material Build Cost"
+                arrow
+                placement="bottom"
               >
-                <InfoOutlinedIcon fontSize="small" />
-              </Icon>
-            </Tooltip>
-            <ChildJobPopover
-              displayPopover={displayPopover}
-              updateDisplayPopover={updateDisplayPopover}
-              material={material}
-              marketSelect={marketSelect}
-              listingSelect={listingSelect}
-              jobModified={jobModified}
-            />
-          </Grid>
-        ) : null}
+                <Icon
+                  aria-haspopup="true"
+                  color="primary"
+                  onClick={(event) => {
+                    updateDisplayPopover(event.currentTarget);
+                  }}
+                >
+                  <InfoIcon fontSize="small" />
+                </Icon>
+              </Tooltip>
+              <ChildJobPopover
+                displayPopover={displayPopover}
+                updateDisplayPopover={updateDisplayPopover}
+                material={material}
+                marketSelect={marketSelect}
+                listingSelect={listingSelect}
+                jobModified={jobModified}
+                currentBuildPrice={currentBuildPrice}
+                updateCurrentBuildPrice={updateCurrentBuildPrice}
+                currentPurchasePrice={currentPurchasePrice}
+              />
+            </>
+          ) : null}
+        </Grid>
       </Grid>
       <Grid
         item
         xs={6}
         md={3}
         align="center"
-        sx={{ marginTop: { xs: "10px", md: "0px" } }}
+        sx={{
+          marginTop: { xs: "10px", md: "0px" },
+        }}
       >
-        <Typography variant="body2">
+        <Typography
+          sx={{ typography: { xs: "caption", sm: "body2" } }}
+          color={
+            currentBuildPrice !== null
+              ? currentPurchasePrice >= currentBuildPrice
+                ? "error.main"
+                : "success.main"
+              : null
+          }
+        >
           {materialPrice[marketSelect][listingSelect].toLocaleString(
             undefined,
             {
@@ -90,7 +119,16 @@ export function ItemCostRow({
         align="center"
         sx={{ marginTop: { xs: "10px", md: "0px" } }}
       >
-        <Typography variant="body2">
+        <Typography
+          sx={{ typography: { xs: "caption", sm: "body2" } }}
+          color={
+            currentBuildPrice !== null
+              ? currentPurchasePrice >= currentBuildPrice
+                ? "error.main"
+                : "success.main"
+              : null
+          }
+        >
           {(
             materialPrice[marketSelect][listingSelect] * material.quantity
           ).toLocaleString(undefined, {

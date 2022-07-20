@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
 
-async function ESIMarketQuery(typeID, outdatedDoc) {
+async function ESIMarketQuery(typeID, newItem, outdatedDoc) {
   const locations = [
     { name: "jita", regionID: 10000002, stationID: 60003760 },
     { name: "amarr", regionID: 10000043, stationID: 60008494 },
@@ -59,11 +59,13 @@ async function ESIMarketQuery(typeID, outdatedDoc) {
       },
     });
   }
-  await admin
-    .firestore()
-    .collection("Pricing")
-    .doc("Live")
-    .update({[`${typeID}`]: dbObject });
+  if (!newItem) {
+    await admin
+      .firestore()
+      .collection("Pricing")
+      .doc("Live")
+      .update({ [`${typeID}`]: dbObject });
+  }
   return dbObject;
 }
 

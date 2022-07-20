@@ -1,22 +1,14 @@
 import { Grid, Typography } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  TextFields: {
-    typography: { xs: "body2", md: "body1" },
-  },
-}));
 
 export default function Step5JobCard({ job }) {
-  const classes = useStyles();
   return (
     <Grid container item xs={10} sm={9} sx={{ paddingLeft: {xs:"0px", sm:"5px"}}}>
       <Grid container item xs={12}>
         <Grid item xs={10}>
-          <Typography className={classes.TextFields}>Market Orders</Typography>
+          <Typography sx={{typography:{xs:"body2", md:"body1"}}}>Market Orders</Typography>
         </Grid>
         <Grid item xs={2}>
-          <Typography className={classes.TextFields} align="right">
+          <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
             {job.isSnapshot
               ? job.linkedOrdersCount.toLocaleString()
               : job.build.sale.marketOrders.length.toLocaleString()}
@@ -25,10 +17,10 @@ export default function Step5JobCard({ job }) {
       </Grid>
       <Grid container item xs={12}>
         <Grid item xs={10}>
-          <Typography className={classes.TextFields}>Transactions</Typography>
+          <Typography sx={{typography:{xs:"body2", md:"body1"}}}>Transactions</Typography>
         </Grid>
         <Grid item xs={2}>
-          <Typography className={classes.TextFields} align="right">
+          <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
             {job.isSnapshot
               ? job.linkedTransCount.toLocaleString()
               : job.build.sale.transactions.length.toLocaleString()}

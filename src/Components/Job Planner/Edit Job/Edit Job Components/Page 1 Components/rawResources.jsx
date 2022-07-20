@@ -1,6 +1,7 @@
 import {
   Box,
   Container,
+  Divider,
   Grid,
   IconButton,
   Menu,
@@ -14,10 +15,12 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { MaterialRow } from "./materialRow";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function RawResourceList() {
   const { activeJob } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { massBuildMaterials } = useJobManagement();
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuClick = (event) => {
@@ -79,6 +82,7 @@ export function RawResourceList() {
               <CopyToClipboard
                 text={copyText}
                 onCopy={() => {
+                  handleMenuClose();
                   setSnackbarData((prev) => ({
                     ...prev,
                     open: true,
@@ -90,6 +94,14 @@ export function RawResourceList() {
               >
                 <MenuItem>Copy Resources List</MenuItem>
               </CopyToClipboard>
+              <MenuItem
+                onClick={() => {
+                  handleMenuClose();
+                  massBuildMaterials([activeJob]);
+                }}
+              >
+                Create All Child Jobs
+              </MenuItem>
             </Menu>
           </Grid>
         </Box>
@@ -107,12 +119,18 @@ export function RawResourceList() {
         </Box>
         <Grid container sx={{ marginTop: "20px" }}>
           <Grid item xs={6} sm={8} md={9}>
-            <Typography varinat="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               Total Volume
             </Typography>
           </Grid>
           <Grid item xs={6} sm={4} md={3}>
-            <Typography variant="body2" align="center">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="center"
+            >
               {volumeTotal.toLocaleString()} m3
             </Typography>
           </Grid>

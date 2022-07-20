@@ -220,7 +220,7 @@ export function ArchiveJobs() {
             })
           ) : (
             <Grid item xs={12}>
-              <Typography variant="body2" align="center">
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }} align="center">
                 No Archived Job Data To Display
               </Typography>
             </Grid>

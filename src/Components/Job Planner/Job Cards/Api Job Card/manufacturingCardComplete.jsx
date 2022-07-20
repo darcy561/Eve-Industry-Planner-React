@@ -8,18 +8,12 @@ import {
 } from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  TextFields: {
-    typography: { xs: "body2", md: "body1" },
-  },
-}));
+import searchData from "../../../../RawData/searchIndex.json";
 
 export function IndustryESICardComplete({ job }) {
   const { users } = useContext(UsersContext);
-  const classes = useStyles();
 
+  const product = searchData.find((i) => i.blueprintID === job.blueprint_type_id);
   const buildChar = users.find((i) => i.CharacterID === job.installer_id);
   const blueprintData = buildChar.apiBlueprints.find(
     (i) => i.item_id === job.blueprint_id
@@ -43,7 +37,7 @@ export function IndustryESICardComplete({ job }) {
                   typography: { xs: "body1", lg: "h6" },
                 }}
               >
-                {job.product_name}
+                {product.name}
               </Typography>
             </Grid>
             <Grid
@@ -98,24 +92,24 @@ export function IndustryESICardComplete({ job }) {
               >
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography className={classes.TextFields}>
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
                       Runs:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
-                    <Typography className={classes.TextFields} align="right">
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                       {job.runs}
                     </Typography>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography className={classes.TextFields}>
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
                       Status:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
-                    <Typography className={classes.TextFields} align="right">
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                       Delivered
                     </Typography>
                   </Grid>

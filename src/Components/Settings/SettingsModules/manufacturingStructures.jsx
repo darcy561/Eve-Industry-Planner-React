@@ -15,7 +15,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { blueprintVariables } from "../../Job Planner/JobPlanner";
+import { structureOptions } from "../../../Context/defaultValues";
 import AddIcon from "@mui/icons-material/Add";
 import { makeStyles } from "@mui/styles";
 import { useState } from "react";
@@ -50,13 +50,13 @@ export function ManuStrutures({ parentUserIndex }) {
 
   const [textValue, updateTextValue] = useState("");
   const [systemValue, updateSystemValue] = useState(
-    blueprintVariables.manSystem[0].value
+    structureOptions.manSystem[0].value
   );
   const [structValue, updateStructValue] = useState(
-    blueprintVariables.manStructure[0].value
+    structureOptions.manStructure[0].value
   );
   const [rigsValue, updateRigsValue] = useState(
-    blueprintVariables.manRigs[0].value
+    structureOptions.manRigs[0].value
   );
   const [taxValue, updateTaxValue] = useState("");
   const classes = useStyles();
@@ -148,7 +148,7 @@ export function ManuStrutures({ parentUserIndex }) {
                             updateSystemValue(e.target.value);
                           }}
                         >
-                          {blueprintVariables.manSystem.map((entry) => {
+                          {structureOptions.manSystem.map((entry) => {
                             return (
                               <MenuItem key={entry.label} value={entry.value}>
                                 {entry.label}
@@ -174,7 +174,7 @@ export function ManuStrutures({ parentUserIndex }) {
                             updateStructValue(e.target.value);
                           }}
                         >
-                          {blueprintVariables.manStructure.map((entry) => {
+                          {structureOptions.manStructure.map((entry) => {
                             return (
                               <MenuItem key={entry.label} value={entry.value}>
                                 {entry.label}
@@ -200,7 +200,7 @@ export function ManuStrutures({ parentUserIndex }) {
                             updateRigsValue(e.target.value);
                           }}
                         >
-                          {blueprintVariables.manRigs.map((entry) => {
+                          {structureOptions.manRigs.map((entry) => {
                             return (
                               <MenuItem key={entry.label} value={entry.value}>
                                 {entry.label}
@@ -266,13 +266,13 @@ export function ManuStrutures({ parentUserIndex }) {
           >
             {users[parentUserIndex].settings.structures.manufacturing.map(
               (entry) => {
-                const systemText = blueprintVariables.manSystem.find(
+                const systemText = structureOptions.manSystem.find(
                   (x) => x.value === entry.systemType
                 );
-                const structureText = blueprintVariables.manStructure.find(
+                const structureText = structureOptions.manStructure.find(
                   (x) => x.value === entry.structureName
                 );
-                const rigText = blueprintVariables.manRigs.find(
+                const rigText = structureOptions.manRigs.find(
                   (x) => x.value === entry.rigType
                 );
                 return (

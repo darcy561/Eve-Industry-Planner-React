@@ -35,9 +35,9 @@ export function LoggedOutHome() {
               As many of the longer standing members of the Eve Online community
               will know, having a good spreadsheet to manage your industry jobs
               is important and extremely useful. Being able to know exactly how
-              much something has cost you to build is vital when it comes to selling
-              your items for the right price in the right location, get it wrong
-              and you could lose a lot of ISK!
+              much something has cost you to build is vital when it comes to
+              selling your items for the right price in the right location, get
+              it wrong and you could lose a lot of ISK!
               {<br />}
               {<br />}
               For the newer plays or the more experienced players of the game

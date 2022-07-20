@@ -1,14 +1,6 @@
 import { Grid, Typography } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  TextFields: {
-    typography: { xs: "body2", md: "body1" },
-  },
-}));
 
 export default function Step3JobCard({ job }) {
-  const classes = useStyles();
   let endDate = null;
 
   function timeRemainingcalc(inputTime) {
@@ -63,12 +55,12 @@ export default function Step3JobCard({ job }) {
     >
       <Grid container item xs={12}>
         <Grid item xs={10}>
-          <Typography className={classes.TextFields}>
+          <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
             ESI Jobs Linked
           </Typography>
         </Grid>
         <Grid item xs={2}>
-          <Typography className={classes.TextFields} align="right">
+          <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
             {job.isSnapshot
               ? job.linkedJobsCount.toLocaleString()
               : job.build.costs.linkedJobs.length.toLocaleString()}
@@ -81,19 +73,19 @@ export default function Step3JobCard({ job }) {
             timeRemaining.hours === 0 &&
             timeRemaining.mins === 0 ? (
               <Grid item xs={12}>
-                <Typography className={classes.TextFields} align="left">
+                <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="left">
                   Complete
                 </Typography>
               </Grid>
             ) : (
               <>
                 <Grid item xs={4}>
-                  <Typography className={classes.TextFields}>
+                  <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
                     Ends In:
                   </Typography>
                 </Grid>
                 <Grid item xs={8}>
-                  <Typography className={classes.TextFields} align="right">
+                  <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                     {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                     {timeRemaining.mins}M
                   </Typography>
@@ -106,17 +98,17 @@ export default function Step3JobCard({ job }) {
           timeRemaining.hours === 0 &&
           timeRemaining.mins === 0 ? (
             <Grid item xs={12}>
-              <Typography className={classes.TextFields} align="left">
+              <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="left">
                 Complete
               </Typography>
             </Grid>
           ) : (
             <>
               <Grid item xs={4}>
-                <Typography className={classes.TextFields}>Ends In:</Typography>
+                <Typography sx={{typography:{xs:"body2", md:"body1"}}}>Ends In:</Typography>
               </Grid>
               <Grid item xs={8}>
-                <Typography className={classes.TextFields} align="right">
+                <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                   {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                   {timeRemaining.mins}M
                 </Typography>

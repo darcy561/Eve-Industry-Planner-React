@@ -16,10 +16,15 @@ export function BuildStats({ setJobModified }) {
       <Grid container direction="row">
         <Grid container item xs={12}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Total Material Cost:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Total Material Cost:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {activeJob.build.costs.totalPurchaseCost.toLocaleString(
                 undefined,
                 {
@@ -33,11 +38,16 @@ export function BuildStats({ setJobModified }) {
         <Grid container item xs={12}>
           <Grid item xs={12} sm={8}>
             <Tooltip title="Calculated from linked jobs only, add any unlinked jobs manually as an extra.">
-              <Typography variant="body2">Total Install Costs:</Typography>
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                Total Install Costs:
+              </Typography>
             </Tooltip>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {activeJob.build.costs.installCosts.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -47,10 +57,15 @@ export function BuildStats({ setJobModified }) {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Total Extras:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Total Extras:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {activeJob.build.costs.extrasTotal.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -60,10 +75,15 @@ export function BuildStats({ setJobModified }) {
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "10px" }}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Total Build Cost:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Total Build Cost:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {(
                 activeJob.build.costs.totalPurchaseCost +
                 activeJob.build.costs.installCosts +
@@ -77,10 +97,15 @@ export function BuildStats({ setJobModified }) {
         </Grid>
         <Grid container item xs={12}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Total Items Built:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Total Items Built:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {activeJob.build.products.totalQuantity.toLocaleString(
                 undefined,
                 {
@@ -93,10 +118,15 @@ export function BuildStats({ setJobModified }) {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Cost per item:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Cost per item:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {(
                 Math.round(
                   ((activeJob.build.costs.extrasTotal +

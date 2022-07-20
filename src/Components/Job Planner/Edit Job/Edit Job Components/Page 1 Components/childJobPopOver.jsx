@@ -172,13 +172,16 @@ export function ChildJobPopover({
         ) : (
           <Grid container direction="row">
             <Grid item xs={12} sx={{ marginBottom: "10px" }}>
-              <Typography variant="body2" align="center">
+              <Typography
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+                align="center"
+              >
                 {material.name}
               </Typography>
             </Grid>
             {childJobObjects[jobDisplay].jobType === jobTypes.manufacturing ? (
               <Grid item xs={12} sx={{ marginBottom: "10px" }}>
-                <Typography variant="body2">
+                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   ME: {childJobObjects[jobDisplay].bpME}
                 </Typography>
               </Grid>
@@ -194,10 +197,17 @@ export function ChildJobPopover({
               return (
                 <Grid key={mat.typeID} container item xs={12}>
                   <Grid item xs={8}>
-                    <Typography variant="body2">{mat.name}</Typography>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      {mat.name}
+                    </Typography>
                   </Grid>
                   <Grid item xs={4}>
-                    <Typography variant="body2" align="right">
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      align="right"
+                    >
                       {(
                         materialPrice[marketSelect][listingSelect] *
                         mat.quantity
@@ -211,8 +221,8 @@ export function ChildJobPopover({
               );
             })}
             <Grid container item xs={12} sx={{ marginTop: "10px" }}>
-              <Grid item xs={8}>
-                <Typography variant="body2">
+              <Grid item xs={12} sm={8}>
+                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   Total Material{" "}
                   {listingSelect.charAt(0).toUpperCase() +
                     listingSelect.slice(1)}{" "}
@@ -220,10 +230,10 @@ export function ChildJobPopover({
                 </Typography>
               </Grid>
 
-              <Grid item xs={4} variant="body2" align="right">
+              <Grid item xs={12} sm={4} align="right">
                 {currentBuildPrice !== null ? (
                   <Typography
-                    variant="body2"
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
                     align="right"
                     color={
                       currentPurchasePrice <= currentBuildPrice
@@ -259,7 +269,11 @@ export function ChildJobPopover({
                   justifyContent="center"
                   alignItems="center"
                 >
-                  <Typography variant="body2">Toggle Child Jobs</Typography>
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    Toggle Child Jobs
+                  </Typography>
                 </Grid>
                 <Grid item xs={1}>
                   <IconButton

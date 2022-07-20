@@ -32,15 +32,17 @@ export function TutorialStep1() {
     >
       <Grid container>
         <Grid item xs={12} align="left">
-          <Typography variant="body1" color="primary">
+          <Typography
+            color="primary"
+            sx={{ typography: { xs: "body2", sm: "body1" } }}
+          >
             <b>Help:</b>
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="body2">
+          <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
             This is your first step along the way to building your{" "}
-            {activeJob.name}.
-            {<br />}
+            {activeJob.name}.{<br />}
             {<br />}
             Use the available options to set up the build and calculate the
             resources that are needed to complete your job.{<br />}
@@ -48,16 +50,16 @@ export function TutorialStep1() {
             If you are wanting to also build any of the individual subcomponents
             used then simply use the <b>+</b> icon next to the resource name to
             create a new job that is already setup to build the correct amount
-            for you, this will automatically create a parent - child relationship
-            between the jobs allowing information to be passed between. The colour of
-            the icon indicates the type of job of industry job required to make
-            the item.
+            for you, this will automatically create a parent - child
+            relationship between the jobs allowing information to be passed
+            between. The colour of the icon indicates the type of job of
+            industry job required to make the item.
           </Typography>
         </Grid>
         {isLoggedIn && (
           <Grid container item xs={12}>
-            <Grid item xs={10} />
-            <Grid item xs={2} align="right">
+            <Grid item xs={6} sm={9} />
+            <Grid item xs={6} sm={3} align="right">
               <Typography variant="caption" sx={{ display: "inline-block" }}>
                 Hide Help Options
               </Typography>
@@ -66,9 +68,7 @@ export function TutorialStep1() {
                 size="small"
                 onClick={() => {
                   let newUsers = JSON.parse(JSON.stringify(users));
-                  let parentUserIndex = users.findIndex(
-                    (i) => i.ParentUser === true
-                  );
+                  let parentUserIndex = users.findIndex((i) => i.ParentUser);
 
                   newUsers[
                     parentUserIndex

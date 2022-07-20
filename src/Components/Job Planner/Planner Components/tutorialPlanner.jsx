@@ -30,7 +30,7 @@ export function TutorialPlanner() {
       <Grid container>
         <Grid item xs={12} align="left"></Grid>
         <Grid item xs={12}>
-          <Typography variant="body2">
+          <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
             Welcome to the Job Planner!
             {<br />}
             {<br />}
@@ -55,7 +55,7 @@ export function TutorialPlanner() {
             their purpose.
           </Typography>
           {!isLoggedIn && (
-            <Typography variant="body2">
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               {<br />}
               Have a browse through the demo jobs below to see more information
               about how Eve Industry Planner works, any changes made here are
@@ -66,8 +66,8 @@ export function TutorialPlanner() {
         </Grid>
         {isLoggedIn && (
           <Grid container item xs={12}>
-            <Grid item xs={10} />
-            <Grid item xs={2} align="right">
+            <Grid item xs={6} sm={9} />
+            <Grid item xs={6} sm={3} align="right">
               <Typography variant="caption">Hide Help Options</Typography>
               <Checkbox
                 className={classes.Checkbox}

@@ -73,6 +73,7 @@ export function ShoppingListDialog() {
                 xs={12}
                 justifyContent="center"
                 alignItems="center"
+                sx={{marginBottom:{xs:"1px", sm:"0px"}}}
               >
                 <Grid
                   item
@@ -89,10 +90,10 @@ export function ShoppingListDialog() {
                   />
                 </Grid>
                 <Grid item xs={8} sm={7}>
-                  <Typography variant="body1">{item.name}</Typography>
+                  <Typography sx={{typography:{xs:"caption", sm:"body1"}}}>{item.name}</Typography>
                 </Grid>
                 <Grid item xs={4}>
-                  <Typography variant="body1" align="right">
+                  <Typography sx={{typography:{xs:"caption", sm:"body1"}}} align="right">
                     {item.quantity.toLocaleString()}
                   </Typography>
                 </Grid>
@@ -102,10 +103,10 @@ export function ShoppingListDialog() {
         </Grid>
         <Grid container sx={{ marginTop: "20px" }}>
           <Grid item xs={4}>
-            <Typography variant="body1">Total Volume</Typography>
+            <Typography sx={{typography:{xs:"caption", sm:"body1"}}}>Total Volume</Typography>
           </Grid>
           <Grid item xs={8} align="right">
-            <Typography vatiant="body1">
+            <Typography sx={{typography:{xs:"caption", sm:"body1"}}}>
               {volumeTotal.toLocaleString()} m3
             </Typography>
           </Grid>

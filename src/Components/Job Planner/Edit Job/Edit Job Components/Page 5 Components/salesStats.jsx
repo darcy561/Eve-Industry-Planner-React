@@ -29,10 +29,15 @@ export function SalesStats() {
       <Grid container direction="row">
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Total Build Cost:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Total Build Cost:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {(
                 activeJob.build.costs.totalPurchaseCost +
                 activeJob.build.costs.installCosts +
@@ -46,10 +51,15 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Brokers Fee Total:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Brokers Fee Total:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {brokersFeesTotal.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -59,10 +69,15 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Transaction Fee Total:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Transaction Fee Total:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {transactionFeeTotal.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -72,10 +87,15 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Total Job Cost:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Total Job Cost:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {(
                 activeJob.build.costs.totalPurchaseCost +
                 activeJob.build.costs.installCosts +
@@ -91,10 +111,15 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "20px" }}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Total Cost Per Item:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Total Cost Per Item:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {(
                 Math.round(
                   ((activeJob.build.costs.totalPurchaseCost +
@@ -115,10 +140,15 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Total Of Sales:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Total Of Sales:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {totalSale.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -128,12 +158,15 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               Average Sale Price Per Item:
             </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               {averageQuantity > 0
                 ? (
                     Math.round(
@@ -149,11 +182,13 @@ export function SalesStats() {
         </Grid>
         <Grid container item xs={12}>
           <Grid item xs={12} sm={8}>
-            <Typography variant="body2">Profit/Loss:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Profit/Loss:
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography
-              variant="body2"
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
               align="right"
               color={
                 totalSale -

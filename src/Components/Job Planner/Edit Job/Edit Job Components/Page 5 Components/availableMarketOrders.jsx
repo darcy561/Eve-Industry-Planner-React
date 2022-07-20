@@ -112,7 +112,9 @@ export function AvailableMarketOrders({
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
-                      <Typography variant="body2">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
                         {order.price.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
@@ -121,18 +123,28 @@ export function AvailableMarketOrders({
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
-                      <Typography variant="body2">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
                         {locationData.name}
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
-                      <Typography variant="body2">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
                         Duration: {order.duration} Days
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sx={{ marginTop: "5px" }}>
-                      <Typography variant="body2">Last Modified:</Typography>
-                      <Typography variant="body2">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
+                        Last Modified:
+                      </Typography>
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
                         {new Date(order.issued).toLocaleString()}
                       </Typography>
                     </Grid>

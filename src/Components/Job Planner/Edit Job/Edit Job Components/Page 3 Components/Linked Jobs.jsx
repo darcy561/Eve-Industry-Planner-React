@@ -155,18 +155,18 @@ export function LinkedJobs({ setJobModified }) {
                 </Grid>
                 <Grid item xs={12}>
                   <Typography
-                    variant="body2"
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
                     align="center"
                   >{`${job.runs} Runs`}</Typography>
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Typography variant="body2" align="center">
+                  <Typography sx={{ typography: { xs: "caption", sm: "body2" } }} align="center">
                     {facilityData.name}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="body2" align="center">
+                  <Typography sx={{ typography: { xs: "caption", sm: "body2" } }} align="center">
                     Install Costs:{" "}
                     {job.cost.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -176,7 +176,7 @@ export function LinkedJobs({ setJobModified }) {
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Typography variant="body2" align="center">
+                  <Typography sx={{ typography: { xs: "caption", sm: "body2" } }} align="center">
                     {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                   </Typography>
                 </Grid>
@@ -369,7 +369,7 @@ export function LinkedJobs({ setJobModified }) {
           marginTop: { xs: "20px", sm: "30px" },
         }}
       >
-        <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+        <Typography sx={{ typography: { xs: "caption", md: "body1" } }}>
           You currently have no industry jobs from the ESI linked to the this
           job.
         </Typography>

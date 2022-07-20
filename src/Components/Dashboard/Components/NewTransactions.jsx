@@ -1,14 +1,12 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import { useContext, useMemo } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
-import { EveIDsContext } from "../../../Context/EveDataContext";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import itemData from "../../../RawData/searchIndex.json";
 
 export function NewTransactions() {
   const { users } = useContext(UsersContext);
   const { jobArray } = useContext(JobArrayContext);
-  const { eveIDs } = useContext(EveIDsContext);
   const { jobStatus } = useContext(JobStatusContext);
 
   const filteredJobs = jobArray.filter(

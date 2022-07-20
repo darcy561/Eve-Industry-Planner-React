@@ -39,7 +39,6 @@ export function useEveApi() {
   };
 
   const IndustryJobs = async (userObj, parentInfo) => {
-    console.log(userObj.aToken)
     try {
       const indyPromise = await fetch(
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/industry/jobs/?datasource=tranquility&include_completed=true&token=${userObj.aToken}`

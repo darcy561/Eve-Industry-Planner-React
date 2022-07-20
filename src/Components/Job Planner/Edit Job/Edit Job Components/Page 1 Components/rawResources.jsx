@@ -97,10 +97,10 @@ export function RawResourceList() {
               <MenuItem
                 onClick={() => {
                   handleMenuClose();
-                  massBuildMaterials([activeJob])
+                  massBuildMaterials([activeJob]);
                 }}
               >
-                Create Child Jobs
+                Create All Child Jobs
               </MenuItem>
             </Menu>
           </Grid>
@@ -119,12 +119,18 @@ export function RawResourceList() {
         </Box>
         <Grid container sx={{ marginTop: "20px" }}>
           <Grid item xs={6} sm={8} md={9}>
-            <Typography varinat="body2" align="right">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="right"
+            >
               Total Volume
             </Typography>
           </Grid>
           <Grid item xs={6} sm={4} md={3}>
-            <Typography variant="body2" align="center">
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              align="center"
+            >
               {volumeTotal.toLocaleString()} m3
             </Typography>
           </Grid>

@@ -48,7 +48,7 @@ export function AccountData() {
                 return (
                   <Avatar
                     key={user.CharacterHash}
-                    alt={`${user.CharacterName} portrait card`}
+                    alt={`${user.CharacterName} Portrait Card`}
                     src={`https://images.evetech.net/characters/${user.CharacterID}/portrait`}
                     sx={{
                       height: {
@@ -69,10 +69,12 @@ export function AccountData() {
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "20px" }}>
           <Grid item xs={8}>
-            <Typography variant="subtitle1">Job Status Breakdown</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "subtitle1" } }}>
+              Job Status Breakdown
+            </Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography variant="subtitle1">
+            <Typography sx={{ typography: { xs: "caption", sm: "subtitle1" } }}>
               Total Jobs: {jobArray.length}
             </Typography>
           </Grid>
@@ -83,10 +85,17 @@ export function AccountData() {
             return (
               <Grid key={step.id} container item xs={12}>
                 <Grid item xs={10}>
-                  <Typography variant="body2"> {step.name}</Typography>
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    {step.name}
+                  </Typography>
                 </Grid>
                 <Grid item xs={2}>
-                  <Typography variant="body2" align="right">
+                  <Typography
+                    align="right"
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
                     {jobs.length}
                   </Typography>
                 </Grid>
@@ -96,55 +105,87 @@ export function AccountData() {
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "20px" }}>
           <Grid item xs={6}>
-            <Typography variant="subtitle1"> Imported API Data</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "subtitle1" } }}>
+              Imported API Data
+            </Typography>
           </Grid>
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "5px" }}>
           <Grid item xs={8}>
-            <Typography variant="body2">Open Market Orders</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Open Market Orders
+            </Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              align="right"
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+            >
               {openMOrders.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
-            <Typography variant="body2">Historic Market Orders</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Historic Market Orders
+            </Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              align="right"
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+            >
               {histMOrders.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
-            <Typography variant="body2">Industry Jobs</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Industry Jobs
+            </Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              align="right"
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+            >
               {indJobs.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
-            <Typography variant="body2">Character Blueprints</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Character Blueprints
+            </Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              align="right"
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+            >
               {cBlueprints.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
-            <Typography variant="body2">Market Transactions</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Market Transactions
+            </Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              align="right"
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+            >
               {mTrans.toLocaleString()}
             </Typography>
           </Grid>
           <Grid item xs={8}>
-            <Typography variant="body2">Journal Entries</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Journal Entries
+            </Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography variant="body2" align="right">
+            <Typography
+              align="right"
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+            >
               {jEntries.toLocaleString()}
             </Typography>
           </Grid>

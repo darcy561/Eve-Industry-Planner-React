@@ -59,7 +59,7 @@ export function SkillCheck() {
                 >
                   <Typography
                     align="center"
-                    sx={{ typography: { xs: "body2", sm: "body1" } }}
+                    sx={{ typography: { xs: "caption", sm: "body1" } }}
                   >
                     {skillData !== undefined ? skillData.name : "Unknown Skill"}
                   </Typography>
@@ -83,11 +83,15 @@ export function SkillCheck() {
                         <Icon fontSize="large" color="error">
                           <CloseIcon />
                         </Icon>
-                        <Typography variant="body2">
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        >
                           Required Level: {jSkill.level}
                         </Typography>
                         {charSkill !== undefined ? (
-                          <Typography variant="body2">
+                          <Typography
+                            sx={{ typography: { xs: "caption", sm: "body2" } }}
+                          >
                             Current Level: {charSkill.activeLevel}
                           </Typography>
                         ) : null}

@@ -1,6 +1,9 @@
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../Context/JobContext";
-import { UsersContext } from "../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../Context/AuthContext";
 import { Container, Grid } from "@mui/material";
 import { ManufacturingOptions } from "./Page 1 Components/maunfacturingOptions";
 import { ReactionOptions } from "./Page 1 Components/reactionOptions";
@@ -14,11 +17,9 @@ import { ManufacturingBlueprints } from "./Page 1 Components/manufacturingBluepr
 import { ReactionBlueprints } from "./Page 1 Components/reactionBlueprints";
 import { ArchiveJobs } from "./Page 1 Components/archiveJobs";
 
-export function EditPage1({
-  jobModified,
-  setJobModified,
-}) {
+export function EditPage1({ jobModified, setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
+  const { isloggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
 
   const parentUser = users.find((i) => i.ParentUser === true);
@@ -67,10 +68,8 @@ export function EditPage1({
         <Grid item xs={12} md={9}>
           <Masonry columns={1} spacing={2}>
             <RawResourceList />
-            <ItemCostPanel
-              jobModified={jobModified}
-            />
-            <ArchiveJobs />
+            <ItemCostPanel jobModified={jobModified} />
+            {isloggedIn && <ArchiveJobs />}
             <SkillCheck />
           </Masonry>
         </Grid>

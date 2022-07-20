@@ -114,10 +114,16 @@ export function ExtrasList({ setJobModified }) {
             return (
               <Grid key={item.id} container item>
                 <Grid item xs={5}>
-                  <Typography variant="body2">{item.extraText}</Typography>
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    {item.extraText}
+                  </Typography>
                 </Grid>
                 <Grid item xs={5}>
-                  <Typography variant="body2">
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
                     {item.extraValue.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,

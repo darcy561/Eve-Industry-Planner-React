@@ -1,15 +1,7 @@
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
 import itemRef from "../../../../RawData/searchIndex.json";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  TextFields: {
-    typography: { md: "body2", lg: "body1" },
-  },
-}));
 
 export function BpCopyESICardActive({ job }) {
-  const classes = useStyles();
   function timeRemainingcalc() {
     let now = new Date().getTime();
     let timeLeft = Date.parse(job.end_date) - now;
@@ -106,19 +98,19 @@ export function BpCopyESICardActive({ job }) {
               >
                 <Grid container item xs={12}>
                   <Grid item xs={8}>
-                    <Typography className={classes.TextFields}>
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
                       Copies/Runs Per Copy
                     </Typography>
                   </Grid>
                   <Grid item xs={4}>
-                    <Typography className={classes.TextFields} align="right">
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                       {job.runs}/{job.licensed_runs}
                     </Typography>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography className={classes.TextFields}>
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
                       Remaining:
                     </Typography>
                   </Grid>
@@ -126,11 +118,11 @@ export function BpCopyESICardActive({ job }) {
                     {timeRemaining.days === 0 &&
                     timeRemaining.hours === 0 &&
                     timeRemaining.mins === 0 ? (
-                      <Typography className={classes.TextFields} align="right">
+                      <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                         Ready to Deliver
                       </Typography>
                     ) : (
-                      <Typography className={classes.TextFields} align="right">
+                      <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                         {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                         {timeRemaining.mins}M
                       </Typography>

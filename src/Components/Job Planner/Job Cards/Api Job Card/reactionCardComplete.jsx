@@ -6,17 +6,9 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
 import searchData from "../../../../RawData/searchIndex.json";
 
-const useStyles = makeStyles((theme) => ({
-  TextFields: {
-    typography: { xs: "body2", md: "body1" },
-  },
-}));
-
 export function ReactionESICardComplete({ job }) {
-  const classes = useStyles();
 
   const product = searchData.find((i) => i.blueprintID === job.blueprint_type_id);
   
@@ -88,24 +80,24 @@ export function ReactionESICardComplete({ job }) {
               >
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography className={classes.TextFields}>
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
                       Runs:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
-                    <Typography className={classes.TextFields} align="right">
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                       {job.runs}
                     </Typography>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography className={classes.TextFields}>
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
                       Status:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
-                    <Typography className={classes.TextFields} align="right">
+                    <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
                       Delivered
                     </Typography>
                   </Grid>

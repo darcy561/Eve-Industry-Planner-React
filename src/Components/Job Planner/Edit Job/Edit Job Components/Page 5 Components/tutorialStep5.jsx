@@ -30,12 +30,15 @@ export function TutorialStep5() {
     >
       <Grid container>
         <Grid item xs={12} align="left">
-          <Typography variant="body1" color="primary">
+          <Typography
+            color="primary"
+            sx={{ typography: { xs: "body2", sm: "body1" } }}
+          >
             <b>Help:</b>
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="body2">
+          <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
             Ok, setup your market order/orders in the game as you normally would
             do. Once this has been done and the information appears on the ESI
             the Available Orders panel will display each of the orders for your
@@ -65,8 +68,8 @@ export function TutorialStep5() {
         </Grid>
         {isLoggedIn && (
           <Grid container item xs={12}>
-            <Grid item xs={10} />
-            <Grid item xs={2} align="right">
+            <Grid item xs={6} sm={9} />
+            <Grid item xs={6} sm={3} align="right">
               <Typography variant="caption">Hide Help Options</Typography>
               <Checkbox
                 className={classes.Checkbox}

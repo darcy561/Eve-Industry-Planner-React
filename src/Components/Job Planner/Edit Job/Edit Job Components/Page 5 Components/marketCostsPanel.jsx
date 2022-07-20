@@ -31,14 +31,14 @@ export function MarketCostsPanel() {
             </Typography>
           </Grid>
           <Grid item xs={12} sm={10}>
-            <Typography sx={{ typography: { xs: "body2", lg: "body1" } }}>
+            <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Sell:{" "}
               {itemCosts.amarr.sell.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
             </Typography>
-            <Typography sx={{ typography: { xs: "body2", lg: "body1" } }}>
+            <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Buy:{" "}
               {itemCosts.amarr.buy.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
@@ -62,14 +62,14 @@ export function MarketCostsPanel() {
             </Typography>
           </Grid>
           <Grid item xs={12} sm={10}>
-            <Typography sx={{ typography: { xs: "body2", lg: "body1" } }}>
+            <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Sell:{" "}
               {itemCosts.dodixie.sell.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
             </Typography>
-            <Typography sx={{ typography: { xs: "body2", lg: "body1" } }}>
+            <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Buy:{" "}
               {itemCosts.dodixie.buy.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
@@ -93,14 +93,14 @@ export function MarketCostsPanel() {
             </Typography>
           </Grid>
           <Grid item xs={12} sm={10}>
-            <Typography sx={{ typography: { xs: "body2", lg: "body1" } }}>
+            <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Sell:{" "}
               {itemCosts.jita.sell.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
             </Typography>
-            <Typography sx={{ typography: { xs: "body2", lg: "body1" } }}>
+            <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Buy:{" "}
               {itemCosts.jita.buy.toLocaleString(undefined, {
                 minimumFractionDigits: 2,

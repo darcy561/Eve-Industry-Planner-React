@@ -29,8 +29,7 @@ export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
-  const { downloadCharacterJobs, updateMainUserDoc, uploadJob } =
-    useFirebase();
+  const { downloadCharacterJobs, updateMainUserDoc, uploadJob } = useFirebase();
   const { updateJobSnapshot } = useJobManagement();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -53,8 +52,11 @@ export function PriceEntryDialog() {
       ? parentUser.settings.editJob.defaultMarket
       : priceEntryListData.displayMarket
   );
+  const [totalImportedCost, updateTotalImportedCost] = useState(0);
+  const [totalConfirmed, updateTotalConfirmed] = useState(false);
 
   const handleClose = () => {
+    updateTotalImportedCost(0);
     updatePriceEntryListData((prev) => ({
       ...prev,
       open: false,
@@ -133,6 +135,7 @@ export function PriceEntryDialog() {
       autoHideDuration: 3000,
     }));
   };
+
   return (
     <Dialog
       open={priceEntryListData.open}
@@ -143,7 +146,7 @@ export function PriceEntryDialog() {
         Price Entry
       </DialogTitle>
       {!parentUser.settings.layout.hideTutorials && (
-        <Grid item xs={12} align="center">
+        <Grid item xs={12} align="center" sx={{ marginBottom: "20px" }}>
           <Typography variant="caption">
             Use the dropdown options to select imported costs from your chosen
             market hub or enter your own values for the items.{<br />}
@@ -221,29 +224,66 @@ export function PriceEntryDialog() {
                   index={index}
                   displayOrder={displayOrder}
                   displayMarket={displayMarket}
+                  totalImportedCost={totalImportedCost}
+                  updateTotalImportedCost={updateTotalImportedCost}
                 />
               );
             })}
           </Grid>
         </DialogContent>
-
         <Grid item xs={12} align="center" sx={{ marginTop: "10px" }}>
-          <Button
-            onClick={() => {
-              let newList = [...priceEntryListData.list];
-              newList.forEach((item) => {
-                if (item.itemPrice > 0) {
-                  item.confirmed = true;
-                }
-              });
-              updatePriceEntryListData((prev) => ({
-                ...prev,
-                list: newList,
-              }));
-            }}
-          >
-            Confirm All
-          </Button>
+          <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+            Confirmed Cost Total
+          </Typography>
+          <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+            {totalImportedCost.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} align="center" sx={{ marginTop: "10px" }}>
+          {!totalConfirmed ? (
+            <Button
+              onClick={() => {
+                let newList = [...priceEntryListData.list];
+                let newTotal = totalImportedCost;
+                newList.forEach((item) => {
+                  if (item.itemPrice > 0) {
+                    if (!item.confirmed) {
+                      newTotal += item.itemPrice * item.quantity;
+                    }
+                    item.confirmed = true;
+                  }
+                });
+                updateTotalConfirmed((prev) => !prev);
+                updateTotalImportedCost(newTotal);
+                updatePriceEntryListData((prev) => ({
+                  ...prev,
+                  list: newList,
+                }));
+              }}
+            >
+              Confirm All
+            </Button>
+          ) : (
+            <Button
+              onClick={() => {
+                let newList = [...priceEntryListData.list];
+                newList.forEach((item) => {
+                  item.confirmed = false;
+                });
+                updateTotalConfirmed((prev) => !prev);
+                updateTotalImportedCost(0);
+                updatePriceEntryListData((prev) => ({
+                  ...prev,
+                  list: newList,
+                }));
+              }}
+            >
+              Unconfirm All
+            </Button>
+          )}
         </Grid>
 
         <DialogActions sx={{ padding: "20px" }}>

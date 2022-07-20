@@ -121,7 +121,7 @@ function MaterialCard({
           <Grid container>
             {childJobProductionTotal < material.quantity && (
               <Grid item xs={12}>
-                <Typography variant="body2">
+                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   Remaining To Purchase:{" "}
                   {(
                     material.quantity - material.quantityPurchased
@@ -134,7 +134,7 @@ function MaterialCard({
             )}
             {material.childJob.length > 0 && (
               <Grid item xs={12}>
-                <Typography variant="body2">
+                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   {material.childJob.length > 1
                     ? "Child Jobs Production Total:"
                     : "Child Job Production Total:"}{" "}
@@ -146,7 +146,7 @@ function MaterialCard({
               </Grid>
             )}
             <Grid item xs={12} sx={{ marginBottom: "10px" }}>
-              <Typography variant="body2">
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                 Total Cost:{" "}
                 {material.purchasedCost.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
@@ -155,7 +155,11 @@ function MaterialCard({
                 ISK
               </Typography>
             </Grid>
-            <MaterialCost materialIndex={materialIndex} material={material} setJobModified={setJobModified} />
+            <MaterialCost
+              materialIndex={materialIndex}
+              material={material}
+              setJobModified={setJobModified}
+            />
             {material.quantityPurchased < material.quantity &&
               childJobProductionTotal < material.quantity && (
                 <AddMaterialCost
@@ -190,8 +194,11 @@ function MaterialCard({
                     padding: "8px",
                   }}
                 >
-                  <Typography variant="h6" align="center" color="primary">
-                    {" "}
+                  <Typography
+                    sx={{ typography: { xs: "body1", sm: "h6" } }}
+                    align="center"
+                    color="primary"
+                  >
                     Awaiting Cost Import
                   </Typography>
                 </Box>

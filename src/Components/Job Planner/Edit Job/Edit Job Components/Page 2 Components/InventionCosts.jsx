@@ -146,7 +146,7 @@ export function InventionCostsCard({ setJobModified }) {
           </Grid>
           <Grid container>
             <Grid item xs={12} sx={{ marginTop: "5px", height: "4.5rem" }}>
-              <Typography variant="body2">
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                 Total Cost:{" "}
                 {activeJob.build.costs.inventionCosts.toLocaleString(
                   undefined,

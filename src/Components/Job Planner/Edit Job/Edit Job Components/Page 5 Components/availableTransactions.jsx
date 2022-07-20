@@ -179,7 +179,7 @@ export function AvailableTransactionData({
             })
           ) : (
             <Grid item xs={12} align="center">
-              <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+              <Typography sx={{ typography: { xs: "caption", md: "body1" } }}>
                 There are currently no new transactions matching your order to
                 display, assign a new order or refresh the API data.
               </Typography>

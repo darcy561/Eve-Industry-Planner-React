@@ -46,7 +46,7 @@ export function ItemCostRow({
       </Grid>
       <Grid container item xs={12} md={4} align="left">
         <Grid item xs={11}>
-          <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+          <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
             {material.name}
           </Typography>
         </Grid>
@@ -94,7 +94,7 @@ export function ItemCostRow({
         }}
       >
         <Typography
-          variant="body2"
+          sx={{ typography: { xs: "caption", sm: "body2" } }}
           color={
             currentBuildPrice !== null
               ? currentPurchasePrice >= currentBuildPrice
@@ -120,7 +120,7 @@ export function ItemCostRow({
         sx={{ marginTop: { xs: "10px", md: "0px" } }}
       >
         <Typography
-          variant="body2"
+          sx={{ typography: { xs: "caption", sm: "body2" } }}
           color={
             currentBuildPrice !== null
               ? currentPurchasePrice >= currentBuildPrice

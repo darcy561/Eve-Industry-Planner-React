@@ -163,17 +163,23 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                 </Grid>
                 <Grid item xs={12}>
                   <Typography
-                    variant="body2"
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
                     align="center"
                   >{`${job.runs} Runs`}</Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="body2" align="center">
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    align="center"
+                  >
                     {facilityData.name}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="body2" align="center">
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    align="center"
+                  >
                     {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                   </Typography>
                 </Grid>
@@ -184,11 +190,17 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     timeRemaining.days === 0 &&
                     timeRemaining.hours === 0 &&
                     timeRemaining.mins === 0 ? (
-                      <Typography variant="body2" align="center">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        align="center"
+                      >
                         Ready to Deliver
                       </Typography>
                     ) : (
-                      <Typography variant="body2" align="center">
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        align="center"
+                      >
                         {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                         {timeRemaining.mins}M
                       </Typography>
@@ -348,7 +360,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
           marginTop: { xs: "20px", sm: "30px" },
         }}
       >
-        <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+        <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
           You have linked the maximum number of jobs from the API, if you need
           to link more increase the number of job slots used.
         </Typography>
@@ -365,7 +377,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
         }}
       >
         <Typography
-          sx={{ typography: { xs: "body2", md: "body1" } }}
+          sx={{ typography: { xs: "caption", sm: "body1" } }}
           align="center"
         >
           There are no matching industry jobs from the API that match this job.

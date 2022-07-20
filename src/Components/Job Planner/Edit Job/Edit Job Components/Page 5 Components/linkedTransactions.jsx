@@ -209,7 +209,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
               })
             ) : (
               <Grid item xs={12} align="center">
-                <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+                <Typography sx={{ typography: { xs: "caption", md: "body1" } }}>
                   There are currently no transactions linked to this market
                   order.
                 </Typography>

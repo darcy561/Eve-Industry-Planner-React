@@ -176,7 +176,9 @@ export function LinkedMarketOrders({
                     }}
                   />
                   <Grid item xs={12}>
-                    <Typography variant="body2">
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
                       {order.volume_remain.toLocaleString(undefined, {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0,
@@ -190,7 +192,9 @@ export function LinkedMarketOrders({
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="body2">
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
                       {order.item_price.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -199,10 +203,16 @@ export function LinkedMarketOrders({
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="body2">{locationData.name}</Typography>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      {locationData.name}
+                    </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="body2">
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
                       Duration: {order.duration} Days
                     </Typography>
                   </Grid>
@@ -239,7 +249,9 @@ export function LinkedMarketOrders({
                               padding: "2px",
                             }}
                           >
-                            <Typography variant="body1">
+                            <Typography
+                              sx={{ typography: { xs: "body2", sm: "body1" } }}
+                            >
                               Order Canceled
                             </Typography>
                           </Box>
@@ -257,7 +269,11 @@ export function LinkedMarketOrders({
                               padding: "2px",
                             }}
                           >
-                            <Typography variant="body1">Complete</Typography>
+                            <Typography
+                              sx={{ typography: { xs: "body2", sm: "body1" } }}
+                            >
+                              Complete
+                            </Typography>
                           </Box>
                         )}
                       {charData !== undefined &&
@@ -273,7 +289,11 @@ export function LinkedMarketOrders({
                               padding: "2px",
                             }}
                           >
-                            <Typography variant="body1">Active</Typography>
+                            <Typography
+                              sx={{ typography: { xs: "body2", sm: "body1" } }}
+                            >
+                              Active
+                            </Typography>
                           </Box>
                         )}
                     </>

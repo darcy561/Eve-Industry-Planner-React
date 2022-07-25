@@ -68,7 +68,7 @@ exports.createUserData = functions.https.onCall((data, context) => {
           hideTutorials: false,
           localMarketDisplay: null,
           localOrderDisplay: null,
-          esiJobTab: null
+          esiJobTab: null,
         },
         editJob: {
           defaultMarket: "jita",
@@ -77,11 +77,11 @@ exports.createUserData = functions.https.onCall((data, context) => {
         },
         structures: {
           manufacturing: [],
-          reaction:[],
-        }
+          reaction: [],
+        },
       },
       refreshTokens: [],
-      watchlist: []
+      watchlist: [],
     };
     admin.firestore().collection("Users").doc(context.auth.uid).set(setupData);
     functions.logger.log(

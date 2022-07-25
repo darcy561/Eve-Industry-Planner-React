@@ -48,13 +48,6 @@ export function useEveApi() {
 
       if (indyPromise.status === 200) {
         indyJSON.forEach((job) => {
-          const nameMatch = searchData.find(
-            (item) => item.itemID === job.product_type_id
-          );
-          const rNameMatch = searchData.find(
-            (item) => item.blueprintID === job.blueprint_type_id
-          );
-
           if (job.activity_id === 1 || job.activity_id === 9) {
             if (userObj.ParentUser) {
               if (userObj.linkedJobs.includes(job.job_id)) {

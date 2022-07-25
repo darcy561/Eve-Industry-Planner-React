@@ -172,7 +172,8 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     sx={{ typography: { xs: "caption", sm: "body2" } }}
                     align="center"
                   >
-                    {facilityData.name}
+                    
+                    {facilityData !== undefined ? facilityData.name : "Location Data Missing From ESI"}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>

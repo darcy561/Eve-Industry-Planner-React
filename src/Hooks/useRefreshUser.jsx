@@ -20,6 +20,7 @@ export function useRefreshUser() {
   const {
     BlueprintLibrary,
     CharacterSkills,
+    fullAssetsList,
     HistoricMarketOrders,
     IDtoName,
     IndustryJobs,
@@ -109,6 +110,7 @@ export function useRefreshUser() {
         blueprints,
         transactions,
         journal,
+        assets
       ] = await Promise.all([
         CharacterSkills(refreshedUser),
         IndustryJobs(refreshedUser),
@@ -117,6 +119,7 @@ export function useRefreshUser() {
         BlueprintLibrary(refreshedUser),
         WalletTransactions(refreshedUser),
         WalletJournal(refreshedUser),
+        fullAssetsList(refreshedUser)
       ]);
 
       refreshedUser.apiSkills = skills;
@@ -127,6 +130,7 @@ export function useRefreshUser() {
       refreshedUser.apiBlueprints = blueprints;
       refreshedUser.apiTransactions = transactions;
       refreshedUser.apiJournal = journal;
+      sessionStorage.setItem(`assets_${refreshedUser.CharacterHash}`, JSON.stringify(assets))
     } else {
       refreshedUser.apiSkills = [];
       refreshedUser.apiJobs = [];
@@ -135,6 +139,7 @@ export function useRefreshUser() {
       refreshedUser.apiBlueprints = [];
       refreshedUser.apiTransactions = [];
       refreshedUser.apiJournal = [];
+      sessionStorage.setItem(`assets_${refreshedUser.CharacterHash}`, JSON.stringify([]))
     }
     userArray.push(refreshedUser);
     updateLoadingText((prevObj) => ({
@@ -161,6 +166,7 @@ export function useRefreshUser() {
             blueprints,
             transactions,
             journal,
+            assets
           ] = await Promise.all([
             CharacterSkills(newUser),
             IndustryJobs(newUser, refreshedUser),
@@ -169,6 +175,7 @@ export function useRefreshUser() {
             BlueprintLibrary(newUser),
             WalletTransactions(newUser),
             WalletJournal(newUser),
+            fullAssetsList(newUser)
           ]);
 
           newUser.apiSkills = skills;
@@ -178,6 +185,7 @@ export function useRefreshUser() {
           newUser.apiBlueprints = blueprints;
           newUser.apiTransactions = transactions;
           newUser.apiJournal = journal;
+          sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify(assets))
         } else if (!sStatus) {
           newUser.apiSkills = [];
           newUser.apiJobs = [];
@@ -186,6 +194,7 @@ export function useRefreshUser() {
           newUser.apiBlueprints = [];
           newUser.apiTransactions = [];
           newUser.apiJournal = [];
+          sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify([]))
         }
         if (newUser !== "RefreshFail") {
           userArray.push(newUser);
@@ -220,6 +229,7 @@ export function useRefreshUser() {
               blueprints,
               transactions,
               journal,
+              assets
             ] = await Promise.all([
               CharacterSkills(newUser),
               IndustryJobs(newUser, refreshedUser),
@@ -228,6 +238,7 @@ export function useRefreshUser() {
               BlueprintLibrary(newUser),
               WalletTransactions(newUser),
               WalletJournal(newUser),
+              fullAssetsList(newUser)
             ]);
 
             newUser.apiSkills = skills;
@@ -237,6 +248,7 @@ export function useRefreshUser() {
             newUser.apiBlueprints = blueprints;
             newUser.apiTransactions = transactions;
             newUser.apiJournal = journal;
+            sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify(assets))
           } else if (!sStatus) {
             newUser.apiSkills = [];
             newUser.apiJobs = [];
@@ -245,6 +257,7 @@ export function useRefreshUser() {
             newUser.apiBlueprints = [];
             newUser.apiTransactions = [];
             newUser.apiJournal = [];
+            sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify([]))
           }
           if (newUser !== "RefreshFail") {
             userArray.push(newUser);

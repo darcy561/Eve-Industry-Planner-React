@@ -24,7 +24,7 @@ import {
   PriceEntryList,
   MassBuildDisplay,
 } from "./Context/LayoutContext";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import { LocalizationProvider } from "@mui/x-date-pickers"
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import App from "./App";
 

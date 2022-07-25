@@ -166,7 +166,7 @@ export function RefreshApiIcon() {
       newIDNamePromises.push(tempLoc);
     }
 
-    let newEvePrices = await refreshItemPrices();
+    let newEvePrices = await refreshItemPrices(parentUser);
 
     let returnLocations = await Promise.all(newIDNamePromises);
 

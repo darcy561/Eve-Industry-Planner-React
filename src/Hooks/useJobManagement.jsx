@@ -21,8 +21,9 @@ import { trace } from "@firebase/performance";
 import { performance } from "../firebase";
 import { jobTypes } from "../Context/defaultValues";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EvePricesContext } from "../Context/EveDataContext";
+import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
 import { useJobBuild } from "./useJobBuild";
+import { useEveApi } from "./useEveApi";
 
 export function useJobManagement() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -51,6 +52,8 @@ export function useJobManagement() {
     uploadJob,
     uploadJobAsSnapshot,
   } = useFirebase();
+  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { IDtoName } = useEveApi();
   const { buildJob, checkAllowBuild } = useJobBuild();
   const t = trace(performance, "CreateJobProcessFull");
   const r = trace(performance, "MassCreateJobProcessFull");
@@ -923,6 +926,76 @@ export function useJobManagement() {
     }
   };
 
+  const retrieveAssetLocation = (initialAsset, userAssets) => {
+    let parentAsset = userAssets.find(
+      (i) => i.item_id === initialAsset.location_id
+    );
+    if (
+      parentAsset.location_type === "item" ||
+      parentAsset.location_type === "other"
+    ) {
+      retrieveAssetLocation(parentAsset, userAssets);
+    }
+    if (
+      parentAsset.location_type === "station" ||
+      parentAsset.location_type === "solar_system"
+    ) {
+      return parentAsset;
+    }
+    if (parentAsset === undefined) {
+      return initialAsset;
+    }
+  };
+
+  const findItemAssets = async (requestedItemID) => {
+    let filteredAssetList = [];
+    let newEveIDs = [...eveIDs];
+    let missingStationIDs = new Set();
+    for (let user of users) {
+      let missingCitadelIDs = new Set();
+      let userAssets = JSON.parse(
+        sessionStorage.getItem(`assets_${user.CharacterHash}`)
+      );
+      let filteredUserAssetList = userAssets.filter(
+        (entry) => entry.type_id === requestedItemID
+      );
+      for (let item of filteredUserAssetList) {
+        if (!eveIDs.some((i) => item.type_id === i.type_id)) {
+          if (
+            item.location_type === "station" ||
+            item.location_type === "solar_system"
+          ) {
+            if (item.location_id.toString().length > 10) {
+              missingCitadelIDs.add(item.location_id);
+            } else {
+              missingStationIDs.add(item.location_id);
+            }
+          }
+          if (item.location_type === "item" || item.location_type === "other") {
+            let parentLocation = retrieveAssetLocation(item, userAssets);
+            if (parentLocation.location_id.toString().length > 10) {
+              missingCitadelIDs.add(parentLocation.location_id);
+            } else {
+              missingStationIDs.add(parentLocation.location_id);
+            }
+          }
+        }
+        if ([...missingCitadelIDs].length > 0) {
+          let tempCit = await IDtoName([...missingCitadelIDs], user);
+          newEveIDs = newEveIDs.concat(tempCit);
+        }
+      }
+      filteredAssetList = filteredAssetList.concat(filteredUserAssetList);
+    }
+
+    if ([...missingStationIDs].length > 0) {
+      let tempStation = await IDtoName([...missingStationIDs], users[0]);
+      newEveIDs = newEveIDs.concat(tempStation);
+    }
+
+    return [filteredAssetList, newEveIDs];
+  };
+
   return {
     buildItemPriceEntry,
     buildShoppingList,
@@ -930,6 +1003,7 @@ export function useJobManagement() {
     deleteJobProcess,
     deleteJobSnapshot,
     deleteMultipleJobsProcess,
+    findItemAssets,
     massBuildMaterials,
     mergeJobs,
     moveMultipleJobsForward,
@@ -938,6 +1012,7 @@ export function useJobManagement() {
     newJobSnapshot,
     openEditJob,
     replaceSnapshot,
+    retrieveAssetLocation,
     updateJobSnapshot,
   };
 }

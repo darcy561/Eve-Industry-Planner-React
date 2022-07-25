@@ -25,6 +25,7 @@ exports.scheduledFunction = functions.pubsub
       }
       return null;
     } catch (err) {
+      functions.logger.error("Error Completeing Request");
       functions.logger.error(err);
     }
   });

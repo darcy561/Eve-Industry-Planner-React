@@ -15,6 +15,7 @@ import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
+import searchData from "../RawData/searchIndex.json";
 
 export function useRefreshUser() {
   const {
@@ -290,10 +291,20 @@ export function useRefreshUser() {
     }
 
     apiJobsArray.sort((a, b) => {
-      if (a.product_name < b.product_name) {
+      let aName = searchData.find(
+        (i) =>
+          i.itemID === a.product_type_id ||
+          i.blueprintID === a.blueprint_type_id
+      );
+      let bName = searchData.find(
+        (i) =>
+          i.itemID === b.product_type_id ||
+          i.blueprintID === b.blueprint_type_id
+      );
+      if (aName.name < bName.name) {
         return -1;
       }
-      if (a.product_name > b.product_name) {
+      if (aName.name > bName.name) {
         return 1;
       }
       return 0;

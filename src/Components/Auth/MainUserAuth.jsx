@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
@@ -21,6 +21,7 @@ import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { RefreshTokens } from "./RefreshToken";
 import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
+import searchData from "../../RawData/searchIndex.json";
 
 export function login() {
   // const state = window.location.pathname;
@@ -312,12 +313,21 @@ export function AuthMainUser() {
             );
           }
         }
-
         apiJobsArray.sort((a, b) => {
-          if (a.product_name < b.product_name) {
+          let aName = searchData.find(
+            (i) =>
+              i.itemID === a.product_type_id ||
+              i.blueprintID === a.blueprint_type_id
+          );
+          let bName = searchData.find(
+            (i) =>
+              i.itemID === b.product_type_id ||
+              i.blueprintID === b.blueprint_type_id
+          );
+          if (aName.name < bName.name) {
             return -1;
           }
-          if (a.product_name > b.product_name) {
+          if (aName.name > bName.name) {
             return 1;
           }
           return 0;

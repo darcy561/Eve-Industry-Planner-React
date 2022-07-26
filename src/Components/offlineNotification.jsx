@@ -1,13 +1,13 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
-import { IsLoggedIn, IsLoggedInContext } from "../Context/AuthContext";
+import { IsLoggedInContext } from "../Context/AuthContext";
 import { EveESIStatusContext } from "../Context/EveDataContext";
 
 export function ESIOffline() {
   const { eveESIStatus } = useContext(EveESIStatusContext);
-  const { IsLoggedIn } = useContext(IsLoggedInContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
 
-  if (!eveESIStatus.serverStatus.online && IsLoggedIn) {
+  if (!eveESIStatus.serverStatus.online && isLoggedIn) {
     return (
       <Grid item xs={12}>
         <Paper

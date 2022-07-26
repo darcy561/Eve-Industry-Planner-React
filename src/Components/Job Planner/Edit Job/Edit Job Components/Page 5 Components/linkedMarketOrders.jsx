@@ -206,7 +206,7 @@ export function LinkedMarketOrders({
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >
-                      {locationData.name}
+                      {locationData !== undefined ? locationData.name : "Location Data Unavailable"}
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>

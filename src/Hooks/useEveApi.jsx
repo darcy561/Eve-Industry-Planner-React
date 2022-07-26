@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import skillsReference from "../RawData/bpSkills.json";
-import searchData from "../RawData/searchIndex.json";
 import { EveESIStatusContext } from "../Context/EveDataContext";
 
 export function useEveApi() {
@@ -48,13 +47,6 @@ export function useEveApi() {
 
       if (indyPromise.status === 200) {
         indyJSON.forEach((job) => {
-          const nameMatch = searchData.find(
-            (item) => item.itemID === job.product_type_id
-          );
-          const rNameMatch = searchData.find(
-            (item) => item.blueprintID === job.blueprint_type_id
-          );
-
           if (job.activity_id === 1 || job.activity_id === 9) {
             if (userObj.ParentUser) {
               if (userObj.linkedJobs.includes(job.job_id)) {
@@ -329,7 +321,7 @@ export function useEveApi() {
     let pageCount = 1;
     let returnArray = [];
 
-    while (pageCount < 11) {
+    while (pageCount < 21) {
       try {
         const assetPromise = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/assets/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
@@ -338,23 +330,25 @@ export function useEveApi() {
 
         if (assetPromise.status === 200) {
           assetJSON.forEach((item) => {
+            item.CharacterHash = userObj.CharacterHash;
             returnArray.push(item);
           });
 
           if (assetJSON.length < 1000) {
-            pageCount = 11;
+            pageCount = 21;
           } else {
             pageCount++;
           }
         } else {
-          pageCount = 11;
+          pageCount = 21;
         }
       } catch (err) {
-        pageCount = 11;
+        pageCount = 21;
         console.log(err);
         return [];
       }
     }
+    return returnArray;
   };
 
   return {

@@ -188,31 +188,45 @@ export function ManufacturingOptions({ setJobModified }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <FormControl className={classes.TextField} fullWidth={true}>
-              <Select
-                variant="standard"
-                size="small"
-                value={structValue}
-                onChange={(e) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob));
-                  oldJob.structureTypeDisplay = e.target.value;
-                  oldJob.structureType = e.target.value === "Station" ? 0 : 1;
-                  let newJob = CalculateResources(oldJob);
-                  newJob = CalculateTime(newJob);
-                  updateStructValue(e.target.value);
-                  updateActiveJob(newJob);
-                }}
-              >
-                {structureOptions.manStructure.map((entry) => {
-                  return (
-                    <MenuItem key={entry.label} value={entry.value}>
-                      {entry.label}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-              <FormHelperText variant="standard">Structure Type</FormHelperText>
-            </FormControl>
+            <Tooltip
+              title={
+                <span>
+                  <p>Medium: Astrahus, Raitaru, Athanor</p>
+                  <p>Large: Fortizar, Azbel, Tatara</p>
+                  <p>X-Large: Sotiyo, Keepstar</p>
+                </span>
+              }
+              arrow
+              placement="top"
+            >
+              <FormControl className={classes.TextField} fullWidth={true}>
+                <Select
+                  variant="standard"
+                  size="small"
+                  value={structValue}
+                  onChange={(e) => {
+                    const oldJob = JSON.parse(JSON.stringify(activeJob));
+                    oldJob.structureTypeDisplay = e.target.value;
+                    oldJob.structureType = e.target.value === "Station" ? 0 : 1;
+                    let newJob = CalculateResources(oldJob);
+                    newJob = CalculateTime(newJob);
+                    updateStructValue(e.target.value);
+                    updateActiveJob(newJob);
+                  }}
+                >
+                  {structureOptions.manStructure.map((entry) => {
+                    return (
+                      <MenuItem key={entry.label} value={entry.value}>
+                        {entry.label}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+                <FormHelperText variant="standard">
+                  Structure Type
+                </FormHelperText>
+              </FormControl>
+            </Tooltip>
           </Grid>
           <Grid item xs={6}>
             <FormControl className={classes.TextField} fullWidth={true}>

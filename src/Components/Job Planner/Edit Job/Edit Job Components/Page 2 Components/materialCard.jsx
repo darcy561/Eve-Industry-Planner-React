@@ -7,13 +7,14 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import AddMaterialCost from "./addMaterialCost";
 import { MaterialCost } from "./materialCost";
 import { jobTypes } from "../../../../../Context/defaultValues";
 import { ChildJobDialog } from "./childJobsDialog";
 import { JobArrayContext } from "../../../../../Context/JobContext";
 import { makeStyles } from "@mui/styles";
+import { ItemAssetsDialogue } from "./itemAssetsDialog";
 
 const useStyles = makeStyles((theme) => ({
   childJobText: {
@@ -29,6 +30,8 @@ function MaterialCard({
   marketDisplay,
 }) {
   const [childDialogTrigger, updateChildDialogTrigger] = useState(false);
+  const [itemAssetsDialogTrigger, updateItemAssetsDialogTrigger] =
+    useState(false);
   const { jobArray } = useContext(JobArrayContext);
   const classes = useStyles();
   let childJobs = [];
@@ -51,6 +54,11 @@ function MaterialCard({
         childDialogTrigger={childDialogTrigger}
         updateChildDialogTrigger={updateChildDialogTrigger}
         setJobModified={setJobModified}
+      />
+      <ItemAssetsDialogue
+        material={material}
+        itemAssetsDialogTrigger={itemAssetsDialogTrigger}
+        updateItemAssetsDialogTrigger={updateItemAssetsDialogTrigger}
       />
       <Paper
         sx={{
@@ -93,6 +101,27 @@ function MaterialCard({
                 </Avatar>
               </Tooltip>
             ) : null}
+            <Tooltip title="View Assets" arrow placement="top">
+              <Avatar
+                variant="circle"
+                className={classes.childJobText}
+                sx={{
+                  bgcolor: "primary.main",
+                  height: "30px",
+                  width: "30px",
+                  position: "absolute",
+                  top: "5px",
+                  right: "5px",
+                  cursor: "pointer",
+                  boxShadow: 4,
+                }}
+                onClick={async () => {
+                  updateItemAssetsDialogTrigger(true);
+                }}
+              >
+                A
+              </Avatar>
+            </Tooltip>
             <Grid item xs={12} align="center">
               <picture>
                 <source

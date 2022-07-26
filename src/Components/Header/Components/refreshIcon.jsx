@@ -14,6 +14,7 @@ import {
 } from "../../../Context/EveDataContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import searchData from "../../../RawData/searchIndex.json";
 
 export function RefreshApiIcon() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -29,6 +30,7 @@ export function RefreshApiIcon() {
     WalletJournal,
     serverStatus,
     IDtoName,
+    fullAssetsList,
   } = useEveApi();
   const { refreshItemPrices } = useFirebase();
   const { RefreshUserAToken } = useRefreshUser();
@@ -60,6 +62,7 @@ export function RefreshApiIcon() {
           blueprints,
           transactions,
           journal,
+          assets,
         ] = await Promise.all([
           CharacterSkills(user),
           IndustryJobs(user, parentUser),
@@ -68,6 +71,7 @@ export function RefreshApiIcon() {
           BlueprintLibrary(user),
           WalletTransactions(user),
           WalletJournal(user),
+          fullAssetsList(user),
         ]);
         if (skills.length > 0) {
           user.apiSkills = skills;
@@ -90,6 +94,12 @@ export function RefreshApiIcon() {
         }
         if (journal.length > 0) {
           user.apiJournal = journal;
+        }
+        if (assets.length > 0) {
+          sessionStorage.setItem(
+            `assets_${user.CharacterHash}`,
+            JSON.stringify(assets)
+          );
         }
       }
     }
@@ -166,7 +176,7 @@ export function RefreshApiIcon() {
       newIDNamePromises.push(tempLoc);
     }
 
-    let newEvePrices = await refreshItemPrices();
+    let newEvePrices = await refreshItemPrices(parentUser);
 
     let returnLocations = await Promise.all(newIDNamePromises);
 
@@ -175,10 +185,20 @@ export function RefreshApiIcon() {
     });
 
     newAPIArray.sort((a, b) => {
-      if (a.product_name < b.product_name) {
+      let aName = searchData.find(
+        (i) =>
+          i.itemID === a.product_type_id ||
+          i.blueprintID === a.blueprint_type_id
+      );
+      let bName = searchData.find(
+        (i) =>
+          i.itemID === b.product_type_id ||
+          i.blueprintID === b.blueprint_type_id
+      );
+      if (aName.name < bName.name) {
         return -1;
       }
-      if (a.product_name > b.product_name) {
+      if (aName.name > bName.name) {
         return 1;
       }
       return 0;

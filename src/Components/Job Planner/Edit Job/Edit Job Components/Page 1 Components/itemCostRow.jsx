@@ -31,26 +31,33 @@ export function ItemCostRow({
       }}
     >
       <Grid
+        justifyContent="center"
         item
-        md={1}
+        xs={2}
+        sm={1}
         sx={{
-          display: { xs: "none", md: "block" },
+          display: { xs: "flex", md: "flex" },
           paddingRight: "5px",
         }}
-        align="center"
       >
         <img
           src={`https://images.evetech.net/types/${material.typeID}/icon?size=32`}
           alt=""
         />
       </Grid>
-      <Grid container item xs={12} md={4} align="left">
-        <Grid item xs={11}>
+      <Grid container item xs={10} md={4} align="left">
+        <Grid item xs={11} alignItems="center" sx={{ display: "flex" }}>
           <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
             {material.name}
           </Typography>
         </Grid>
-        <Grid item xs={1}>
+        <Grid
+          item
+          xs={1}
+          alignItems="center"
+          justifyContent="center"
+          sx={{ display: "flex" }}
+        >
           {material.jobType === jobTypes.manufacturing ||
           material.jobType === jobTypes.reaction ? (
             <>
@@ -85,12 +92,15 @@ export function ItemCostRow({
         </Grid>
       </Grid>
       <Grid
+        alignItems="center"
+        justifyContent="center"
         item
         xs={6}
         md={3}
         align="center"
         sx={{
           marginTop: { xs: "10px", md: "0px" },
+          display: "flex",
         }}
       >
         <Typography
@@ -113,11 +123,13 @@ export function ItemCostRow({
         </Typography>
       </Grid>
       <Grid
+        alignItems="center"
+        justifyContent="center"
         item
         xs={6}
         md={4}
         align="center"
-        sx={{ marginTop: { xs: "10px", md: "0px" } }}
+        sx={{ marginTop: { xs: "10px", md: "0px" }, display: "flex" }}
       >
         <Typography
           sx={{ typography: { xs: "caption", sm: "body2" } }}

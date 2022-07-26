@@ -2,6 +2,9 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
 exports.scheduledfunction = functions.pubsub
+  .runWith({
+    timeoutSeconds: 540,
+  })
   .schedule("every 6 hours")
   .onRun(async (context) => {
     let snapshotArray = [];

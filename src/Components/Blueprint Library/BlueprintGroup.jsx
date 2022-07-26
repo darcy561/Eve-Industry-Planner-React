@@ -48,6 +48,7 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
 
   let bpData = blueprintIDs.find((i) => i.blueprintID === bpID);
   let output = blueprintResults.blueprints.filter((bp) => bp.type_id === bpID);
+
   if (bpData !== undefined) {
     return (
       <Grid key={bpID} container item xs={12} sm={6}>
@@ -146,16 +147,29 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
                 bpData={bpData}
               />
             </Grid>
-            {output.map((blueprint) => {
-              return (
-                <BlueprintEntry
-                  key={blueprint.item_id}
-                  blueprint={blueprint}
-                  esiJobs={esiJobs}
-                  bpData={bpData}
-                />
-              );
-            })}
+
+            {output.length > 0 ? (
+              output.map((blueprint) => {
+                return (
+                  <BlueprintEntry
+                    key={blueprint.item_id}
+                    blueprint={blueprint}
+                    esiJobs={esiJobs}
+                    bpData={bpData}
+                  />
+                );
+              })
+            ) : (
+              <Grid item xs={12}>
+                <Typography
+                  align="center"
+                  sx={{ typography: { xs: "caption", sm: "body2" } }}
+                >
+                  {" "}
+                  No Blueprints Owned
+                </Typography>
+              </Grid>
+            )}
           </Grid>
         </Paper>
       </Grid>

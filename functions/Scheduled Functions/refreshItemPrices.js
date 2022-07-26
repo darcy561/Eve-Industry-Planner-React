@@ -4,6 +4,7 @@ const ESIMarketQuery = require("../Item Prices/priceData").ESIMarketQuery;
 const axios = require("axios");
 
 exports.scheduledFunction = functions.pubsub
+  .runWith({ timeoutSeconds: 540 })
   .schedule("every 30 minutes")
   .onRun(async (context) => {
     const pricingDoc = await admin.firestore().doc("Pricing/Live").get();

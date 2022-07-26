@@ -76,6 +76,7 @@ export function LibrarySearch({
               tempArray.forEach((bp) => {
                 idArray.add(bp.type_id);
               });
+              idArray.add(value.blueprintID);
               updateBlueprintData({
                 ids: [...idArray],
                 blueprints: tempArray,

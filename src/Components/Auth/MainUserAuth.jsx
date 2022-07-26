@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
@@ -21,6 +21,7 @@ import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { RefreshTokens } from "./RefreshToken";
 import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
+import searchData from "../../RawData/searchIndex.json";
 
 export function login() {
   // const state = window.location.pathname;
@@ -43,6 +44,7 @@ export function AuthMainUser() {
   const {
     BlueprintLibrary,
     CharacterSkills,
+    fullAssetsList,
     HistoricMarketOrders,
     IndustryJobs,
     IDtoName,
@@ -129,6 +131,7 @@ export function AuthMainUser() {
             blueprints,
             transactions,
             journal,
+            assets,
           ] = await Promise.all([
             CharacterSkills(userObject),
             IndustryJobs(userObject),
@@ -137,6 +140,7 @@ export function AuthMainUser() {
             BlueprintLibrary(userObject),
             WalletTransactions(userObject),
             WalletJournal(userObject),
+            fullAssetsList(userObject),
           ]);
 
           userObject.apiSkills = skills;
@@ -147,6 +151,10 @@ export function AuthMainUser() {
           userObject.apiBlueprints = blueprints;
           userObject.apiTransactions = transactions;
           userObject.apiJournal = journal;
+          sessionStorage.setItem(
+            `assets_${userObject.CharacterHash}`,
+            JSON.stringify(assets)
+          );
         } else {
           userObject.apiSkills = [];
           userObject.apiJobs = [];
@@ -155,6 +163,10 @@ export function AuthMainUser() {
           userObject.apiBlueprints = [];
           userObject.apiTransactions = [];
           userObject.apiJournal = [];
+          sessionStorage.setItem(
+            `assets_${userObject.CharacterHash}`,
+            JSON.stringify([])
+          );
         }
         userArray.push(userObject);
         updateLoadingText((prevObj) => ({
@@ -181,6 +193,7 @@ export function AuthMainUser() {
                 blueprints,
                 transactions,
                 journal,
+                assets,
               ] = await Promise.all([
                 CharacterSkills(newUser),
                 IndustryJobs(newUser, userObject),
@@ -189,6 +202,7 @@ export function AuthMainUser() {
                 BlueprintLibrary(newUser),
                 WalletTransactions(newUser),
                 WalletJournal(newUser),
+                fullAssetsList(newUser),
               ]);
 
               newUser.apiSkills = skills;
@@ -201,6 +215,10 @@ export function AuthMainUser() {
               newUser.apiBlueprints = blueprints;
               newUser.apiTransactions = transactions;
               newUser.apiJournal = journal;
+              sessionStorage.setItem(
+                `assets_${newUser.CharacterHash}`,
+                JSON.stringify(assets)
+              );
             } else if (!sStatus) {
               newUser.apiSkills = [];
               newUser.apiJobs = [];
@@ -209,6 +227,10 @@ export function AuthMainUser() {
               newUser.apiBlueprints = [];
               newUser.apiTransactions = [];
               newUser.apiJournal = [];
+              sessionStorage.setItem(
+                `assets_${newUser.CharacterHash}`,
+                JSON.stringify([])
+              );
             }
             if (newUser !== undefined) {
               userArray.push(newUser);
@@ -243,6 +265,7 @@ export function AuthMainUser() {
                   blueprints,
                   transactions,
                   journal,
+                  assets,
                 ] = await Promise.all([
                   CharacterSkills(newUser),
                   IndustryJobs(newUser, userObject),
@@ -251,6 +274,7 @@ export function AuthMainUser() {
                   BlueprintLibrary(newUser),
                   WalletTransactions(newUser),
                   WalletJournal(newUser),
+                  fullAssetsList(newUser),
                 ]);
 
                 newUser.apiSkills = skills;
@@ -263,6 +287,10 @@ export function AuthMainUser() {
                 newUser.apiBlueprints = blueprints;
                 newUser.apiTransactions = transactions;
                 newUser.apiJournal = journal;
+                sessionStorage.setItem(
+                  `assets_${newUser.CharacterHash}`,
+                  JSON.stringify(assets)
+                );
               } else if (!sStatus) {
                 newUser.apiSkills = [];
                 newUser.apiJobs = [];
@@ -271,6 +299,10 @@ export function AuthMainUser() {
                 newUser.apiBlueprints = [];
                 newUser.apiTransactions = [];
                 newUser.apiJournal = [];
+                sessionStorage.setItem(
+                  `assets_${newUser.CharacterHash}`,
+                  JSON.stringify([])
+                );
               }
               if (newUser !== "RefreshFail") {
                 userArray.push(newUser);
@@ -299,12 +331,21 @@ export function AuthMainUser() {
             );
           }
         }
-
         apiJobsArray.sort((a, b) => {
-          if (a.product_name < b.product_name) {
+          let aName = searchData.find(
+            (i) =>
+              i.itemID === a.product_type_id ||
+              i.blueprintID === a.blueprint_type_id
+          );
+          let bName = searchData.find(
+            (i) =>
+              i.itemID === b.product_type_id ||
+              i.blueprintID === b.blueprint_type_id
+          );
+          if (aName.name < bName.name) {
             return -1;
           }
-          if (a.product_name > b.product_name) {
+          if (aName.name > bName.name) {
             return 1;
           }
           return 0;

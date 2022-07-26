@@ -15,11 +15,13 @@ import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
+import searchData from "../RawData/searchIndex.json";
 
 export function useRefreshUser() {
   const {
     BlueprintLibrary,
     CharacterSkills,
+    fullAssetsList,
     HistoricMarketOrders,
     IDtoName,
     IndustryJobs,
@@ -109,6 +111,7 @@ export function useRefreshUser() {
         blueprints,
         transactions,
         journal,
+        assets
       ] = await Promise.all([
         CharacterSkills(refreshedUser),
         IndustryJobs(refreshedUser),
@@ -117,6 +120,7 @@ export function useRefreshUser() {
         BlueprintLibrary(refreshedUser),
         WalletTransactions(refreshedUser),
         WalletJournal(refreshedUser),
+        fullAssetsList(refreshedUser)
       ]);
 
       refreshedUser.apiSkills = skills;
@@ -127,6 +131,7 @@ export function useRefreshUser() {
       refreshedUser.apiBlueprints = blueprints;
       refreshedUser.apiTransactions = transactions;
       refreshedUser.apiJournal = journal;
+      sessionStorage.setItem(`assets_${refreshedUser.CharacterHash}`, JSON.stringify(assets))
     } else {
       refreshedUser.apiSkills = [];
       refreshedUser.apiJobs = [];
@@ -135,6 +140,7 @@ export function useRefreshUser() {
       refreshedUser.apiBlueprints = [];
       refreshedUser.apiTransactions = [];
       refreshedUser.apiJournal = [];
+      sessionStorage.setItem(`assets_${refreshedUser.CharacterHash}`, JSON.stringify([]))
     }
     userArray.push(refreshedUser);
     updateLoadingText((prevObj) => ({
@@ -161,6 +167,7 @@ export function useRefreshUser() {
             blueprints,
             transactions,
             journal,
+            assets
           ] = await Promise.all([
             CharacterSkills(newUser),
             IndustryJobs(newUser, refreshedUser),
@@ -169,6 +176,7 @@ export function useRefreshUser() {
             BlueprintLibrary(newUser),
             WalletTransactions(newUser),
             WalletJournal(newUser),
+            fullAssetsList(newUser)
           ]);
 
           newUser.apiSkills = skills;
@@ -178,6 +186,7 @@ export function useRefreshUser() {
           newUser.apiBlueprints = blueprints;
           newUser.apiTransactions = transactions;
           newUser.apiJournal = journal;
+          sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify(assets))
         } else if (!sStatus) {
           newUser.apiSkills = [];
           newUser.apiJobs = [];
@@ -186,6 +195,7 @@ export function useRefreshUser() {
           newUser.apiBlueprints = [];
           newUser.apiTransactions = [];
           newUser.apiJournal = [];
+          sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify([]))
         }
         if (newUser !== "RefreshFail") {
           userArray.push(newUser);
@@ -220,6 +230,7 @@ export function useRefreshUser() {
               blueprints,
               transactions,
               journal,
+              assets
             ] = await Promise.all([
               CharacterSkills(newUser),
               IndustryJobs(newUser, refreshedUser),
@@ -228,6 +239,7 @@ export function useRefreshUser() {
               BlueprintLibrary(newUser),
               WalletTransactions(newUser),
               WalletJournal(newUser),
+              fullAssetsList(newUser)
             ]);
 
             newUser.apiSkills = skills;
@@ -237,6 +249,7 @@ export function useRefreshUser() {
             newUser.apiBlueprints = blueprints;
             newUser.apiTransactions = transactions;
             newUser.apiJournal = journal;
+            sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify(assets))
           } else if (!sStatus) {
             newUser.apiSkills = [];
             newUser.apiJobs = [];
@@ -245,6 +258,7 @@ export function useRefreshUser() {
             newUser.apiBlueprints = [];
             newUser.apiTransactions = [];
             newUser.apiJournal = [];
+            sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify([]))
           }
           if (newUser !== "RefreshFail") {
             userArray.push(newUser);
@@ -277,10 +291,20 @@ export function useRefreshUser() {
     }
 
     apiJobsArray.sort((a, b) => {
-      if (a.product_name < b.product_name) {
+      let aName = searchData.find(
+        (i) =>
+          i.itemID === a.product_type_id ||
+          i.blueprintID === a.blueprint_type_id
+      );
+      let bName = searchData.find(
+        (i) =>
+          i.itemID === b.product_type_id ||
+          i.blueprintID === b.blueprint_type_id
+      );
+      if (aName.name < bName.name) {
         return -1;
       }
-      if (a.product_name > b.product_name) {
+      if (aName.name > bName.name) {
         return 1;
       }
       return 0;

@@ -47,13 +47,17 @@ export function TutorialStep1() {
             Use the available options to set up the build and calculate the
             resources that are needed to complete your job.{<br />}
             {<br />}
-            If you are wanting to also build any of the individual subcomponents
-            used then simply use the <b>+</b> icon next to the resource name to
-            create a new job that is already setup to build the correct amount
-            for you, this will automatically create a parent - child
-            relationship between the jobs allowing information to be passed
-            between. The colour of the icon indicates the type of job of
-            industry job required to make the item.
+            With some items you may also want to build the components yourself
+            rather than buying these items. Clicking the i icon next to each of
+            the components in the Item Cost panel will display a pop out showing
+            you the total cost of the materials needed to build the component.
+            The total cost is then highlighted in red or green to indicate if it
+            is cheaper to buy the materials or purchase the finished product. If
+            you are happy with the cost of the item then you simply use the
+            Create Job button to create a new job on your planner that is linked
+            to the current job you have open. This new job will automatically be
+            created to make the total number of items indicated in the Raw
+            Resources panel.
           </Typography>
         </Grid>
         {isLoggedIn && (

@@ -75,7 +75,7 @@ export function ItemAssetsDialogue({
               }
               return (
                 <Grid
-                  key={entry.item_id}
+                  key={entry.location_id}
                   container
                   item
                   xs={12}
@@ -101,6 +101,7 @@ export function ItemAssetsDialogue({
                     }
                     return (
                       <Grid
+                        key={item}
                         container
                         item
                         xs={12}

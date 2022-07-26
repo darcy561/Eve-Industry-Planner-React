@@ -26,6 +26,7 @@ export function AccountEntry({ user, parentUserIndex }) {
     WalletTransactions,
     WalletJournal,
     serverStatus,
+    fullAssetsList
   } = useEveApi();
   const { downloadCharacterJobs, updateMainUserDoc } = useFirebase();
   const { replaceSnapshot } = useJobManagement();
@@ -61,6 +62,7 @@ export function AccountEntry({ user, parentUserIndex }) {
           blueprints,
           transactions,
           journal,
+          assets
         ] = await Promise.all([
           CharacterSkills(user),
           IndustryJobs(user, parentUser),
@@ -69,6 +71,7 @@ export function AccountEntry({ user, parentUserIndex }) {
           BlueprintLibrary(user),
           WalletTransactions(user),
           WalletJournal(user),
+          fullAssetsList(user)
         ]);
         if (skills.length > 0) {
           user.apiSkills = skills;
@@ -103,6 +106,9 @@ export function AccountEntry({ user, parentUserIndex }) {
         }
         if (journal.length > 0) {
           user.apiJournal = journal;
+        }
+        if (assets.length > 0) {
+          sessionStorage.setItem(`assets_${user.CharacterHash}`, JSON.stringify(assets))
         }
         user.refreshState = 3;
         const index = newUsers.findIndex(
@@ -156,6 +162,7 @@ export function AccountEntry({ user, parentUserIndex }) {
     }
 
     newUsers = newUsers.filter((i) => i.CharacterHash !== user.CharacterHash);
+    sessionStorage.removeItem(`assets_${user.CharacterHash}`)
     updateUsers(newUsers);
     updateApiJobs(newApiArray);
     updateJobArray(newJobArray);

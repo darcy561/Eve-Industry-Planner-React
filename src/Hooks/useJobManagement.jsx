@@ -930,6 +930,9 @@ export function useJobManagement() {
     let parentAsset = userAssets.find(
       (i) => i.item_id === initialAsset.location_id
     );
+    if (parentAsset === undefined) {
+      return initialAsset;
+    }
     if (
       parentAsset.location_type === "item" ||
       parentAsset.location_type === "other"
@@ -942,16 +945,13 @@ export function useJobManagement() {
     ) {
       return parentAsset;
     }
-    if (parentAsset === undefined) {
-      return initialAsset;
-    }
   };
 
   const findItemAssets = async (requestedItemID) => {
     let filteredAssetList = [];
     let newEveIDs = [...eveIDs];
     let missingStationIDs = new Set();
-    let itemLocations = []
+    let itemLocations = [];
     for (let user of users) {
       let missingCitadelIDs = new Set();
       let userAssets = JSON.parse(
@@ -971,29 +971,45 @@ export function useJobManagement() {
             } else {
               missingStationIDs.add(item.location_id);
             }
-            if (itemLocations.some((i) => item.location_id === i.location_id)){
-              let index = itemLocations.findIndex((i) => i.location_id === item.location_id)
+            if (itemLocations.some((i) => item.location_id === i.location_id)) {
+              let index = itemLocations.findIndex(
+                (i) => i.location_id === item.location_id
+              );
               if (index !== -1) {
-                itemLocations[index].itemIDs.push(item.item_id)
+                itemLocations[index].itemIDs.push(item.item_id);
               }
             } else {
-              itemLocations.push({location_id: item.location_id, itemIDs:[item.item_id]})
+              itemLocations.push({
+                location_id: item.location_id,
+                itemIDs: [item.item_id],
+              });
             }
           }
           if (item.location_type === "item" || item.location_type === "other") {
             let parentLocation = retrieveAssetLocation(item, userAssets);
-            if (parentLocation.location_id.toString().length > 10) {
-              missingCitadelIDs.add(parentLocation.location_id);
-            } else {
-              missingStationIDs.add(parentLocation.location_id);
-            }
-            if (itemLocations.some((i) => parentLocation.location_id === i.location_id)){
-              let index = itemLocations.findIndex((i) => i.location_id === parentLocation.location_id)
-              if (index !== -1) {
-                itemLocations[index].itemIDs.push(item.item_id)
+            if (parentLocation !== undefined) {
+              if (parentLocation.location_id.toString().length > 10) {
+                missingCitadelIDs.add(parentLocation.location_id);
+              } else {
+                missingStationIDs.add(parentLocation.location_id);
               }
-            } else {
-              itemLocations.push({location_id: parentLocation.location_id, itemIDs:[item.item_id]})
+              if (
+                itemLocations.some(
+                  (i) => parentLocation.location_id === i.location_id
+                )
+              ) {
+                let index = itemLocations.findIndex(
+                  (i) => i.location_id === parentLocation.location_id
+                );
+                if (index !== -1) {
+                  itemLocations[index].itemIDs.push(item.item_id);
+                }
+              } else {
+                itemLocations.push({
+                  location_id: parentLocation.location_id,
+                  itemIDs: [item.item_id],
+                });
+              }
             }
           }
         }

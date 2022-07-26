@@ -15,6 +15,7 @@ import { ChildJobDialog } from "./childJobsDialog";
 import { JobArrayContext } from "../../../../../Context/JobContext";
 import { makeStyles } from "@mui/styles";
 import { ItemAssetsDialogue } from "./itemAssetsDialog";
+import { IsLoggedInContext } from "../../../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   childJobText: {
@@ -33,6 +34,7 @@ function MaterialCard({
   const [itemAssetsDialogTrigger, updateItemAssetsDialogTrigger] =
     useState(false);
   const { jobArray } = useContext(JobArrayContext);
+  const {isLoggedIn} = useContext(IsLoggedInContext);
   const classes = useStyles();
   let childJobs = [];
   let childJobProductionTotal = 0;
@@ -101,27 +103,29 @@ function MaterialCard({
                 </Avatar>
               </Tooltip>
             ) : null}
-            <Tooltip title="View Assets" arrow placement="top">
-              <Avatar
-                variant="circle"
-                className={classes.childJobText}
-                sx={{
-                  bgcolor: "primary.main",
-                  height: "30px",
-                  width: "30px",
-                  position: "absolute",
-                  top: "5px",
-                  right: "5px",
-                  cursor: "pointer",
-                  boxShadow: 4,
-                }}
-                onClick={async () => {
-                  updateItemAssetsDialogTrigger(true);
-                }}
-              >
-                A
-              </Avatar>
-            </Tooltip>
+            {isLoggedIn &&
+              <Tooltip title="View Assets" arrow placement="top">
+                <Avatar
+                  variant="circle"
+                  className={classes.childJobText}
+                  sx={{
+                    bgcolor: "primary.main",
+                    height: "30px",
+                    width: "30px",
+                    position: "absolute",
+                    top: "5px",
+                    right: "5px",
+                    cursor: "pointer",
+                    boxShadow: 4,
+                  }}
+                  onClick={async () => {
+                    updateItemAssetsDialogTrigger(true);
+                  }}
+                >
+                  A
+                </Avatar>
+              </Tooltip>
+            }
             <Grid item xs={12} align="center">
               <picture>
                 <source

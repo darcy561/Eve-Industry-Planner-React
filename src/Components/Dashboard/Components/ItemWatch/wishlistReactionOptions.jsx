@@ -6,7 +6,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { makeStyles } from "@mui/styles";
 import {
   blueprintOptions,
@@ -15,6 +15,7 @@ import {
 import { useBlueprintCalc } from "../../../../Hooks/useBlueprintCalc";
 import { jobTypes } from "../../../../Context/defaultValues";
 import { useJobBuild } from "../../../../Hooks/useJobBuild";
+import { UsersContext } from "../../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -39,9 +40,13 @@ export function WishlistReactionOptions({
   );
   const [rigsValue, updateRigsValue] = useState(importedJob.rigType);
   const [systemValue, updateSystemValue] = useState(importedJob.systemType);
+  const { users } = useContext(UsersContext);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const { recalculateItemQty } = useJobBuild();
   const classes = useStyles();
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  });
 
   return (
     <Grid container item xs={12} spacing={2}>
@@ -280,6 +285,69 @@ export function WishlistReactionOptions({
               })}
             </Select>
             <FormHelperText variant="standard">System Type</FormHelperText>
+          </FormControl>
+        </Grid>
+        <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
+          <FormControl className={classes.TextField} fullWidth={true}>
+            <Select
+              variant="standard"
+              size="small"
+              renderValue={(selected) =>
+                selected.map((item) => item.name).join(", ")
+              }
+              value=""
+              onChange={(e) => {
+                const structure = parentUser.settings.structures.reaction.find(
+                  (i) => i.id === e.target.value
+                );
+                const oldJob = JSON.parse(JSON.stringify(importedJob));
+                oldJob.rigType = structure.rigType;
+                oldJob.systemType = structure.systemType;
+                oldJob.structureType = structure.structureValue;
+                oldJob.structureTypeDisplay = structure.structureName;
+                let newJob = CalculateResources(oldJob);
+                CalculateTime(newJob);
+                let newMaterialJobs = [...materialJobs];
+                for (let mat of newJob.build.materials) {
+                  if (
+                    mat.jobType === jobTypes.manufacturing ||
+                    mat.jobType === jobTypes.reaction
+                  ) {
+                    let index = newMaterialJobs.findIndex(
+                      (i) => i.itemID === mat.typeID
+                    );
+                    if (index !== -1) {
+                      newMaterialJobs[index] = recalculateItemQty(
+                        newMaterialJobs[index],
+                        mat.quantity
+                      );
+                      newMaterialJobs[index] = CalculateResources(
+                        newMaterialJobs[index]
+                      );
+                      newMaterialJobs[index] = CalculateTime(
+                        newMaterialJobs[index]
+                      );
+                    }
+                  }
+                }
+                updateStructValue(structure.structureName);
+                updateRigsValue(structure.rigType);
+                updateSystemValue(structure.systemType);
+                setImportedJob(newJob);
+                setMaterialJobs(newMaterialJobs);
+              }}
+            >
+              {parentUser.settings.structures.reaction.map((entry) => {
+                return (
+                  <MenuItem key={entry.id} value={entry.id}>
+                    {entry.name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+            <FormHelperText variant="standard">
+              Apply Saved Structure
+            </FormHelperText>
           </FormControl>
         </Grid>
       </Grid>

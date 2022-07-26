@@ -173,7 +173,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     align="center"
                   >
                     
-                    {facilityData !== undefined ? facilityData.name : "Location Data Missing From ESI"}
+                    {facilityData !== undefined ? facilityData.name : "Location Data Unavailable"}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>

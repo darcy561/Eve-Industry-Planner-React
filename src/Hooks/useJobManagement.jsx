@@ -52,7 +52,7 @@ export function useJobManagement() {
     uploadJob,
     uploadJobAsSnapshot,
   } = useFirebase();
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { eveIDs } = useContext(EveIDsContext);
   const { IDtoName } = useEveApi();
   const { buildJob, checkAllowBuild } = useJobBuild();
   const t = trace(performance, "CreateJobProcessFull");
@@ -951,6 +951,7 @@ export function useJobManagement() {
     let filteredAssetList = [];
     let newEveIDs = [...eveIDs];
     let missingStationIDs = new Set();
+    let itemLocations = []
     for (let user of users) {
       let missingCitadelIDs = new Set();
       let userAssets = JSON.parse(
@@ -970,6 +971,14 @@ export function useJobManagement() {
             } else {
               missingStationIDs.add(item.location_id);
             }
+            if (itemLocations.some((i) => item.location_id === i.location_id)){
+              let index = itemLocations.findIndex((i) => i.location_id === item.location_id)
+              if (index !== -1) {
+                itemLocations[index].itemIDs.push(item.item_id)
+              }
+            } else {
+              itemLocations.push({location_id: item.location_id, itemIDs:[item.item_id]})
+            }
           }
           if (item.location_type === "item" || item.location_type === "other") {
             let parentLocation = retrieveAssetLocation(item, userAssets);
@@ -977,6 +986,14 @@ export function useJobManagement() {
               missingCitadelIDs.add(parentLocation.location_id);
             } else {
               missingStationIDs.add(parentLocation.location_id);
+            }
+            if (itemLocations.some((i) => parentLocation.location_id === i.location_id)){
+              let index = itemLocations.findIndex((i) => i.location_id === parentLocation.location_id)
+              if (index !== -1) {
+                itemLocations[index].itemIDs.push(item.item_id)
+              }
+            } else {
+              itemLocations.push({location_id: parentLocation.location_id, itemIDs:[item.item_id]})
             }
           }
         }
@@ -992,8 +1009,7 @@ export function useJobManagement() {
       let tempStation = await IDtoName([...missingStationIDs], users[0]);
       newEveIDs = newEveIDs.concat(tempStation);
     }
-
-    return [filteredAssetList, newEveIDs];
+    return [filteredAssetList, newEveIDs, itemLocations];
   };
 
   return {

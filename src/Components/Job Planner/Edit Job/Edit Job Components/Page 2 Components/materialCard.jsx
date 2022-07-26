@@ -14,7 +14,6 @@ import { jobTypes } from "../../../../../Context/defaultValues";
 import { ChildJobDialog } from "./childJobsDialog";
 import { JobArrayContext } from "../../../../../Context/JobContext";
 import { makeStyles } from "@mui/styles";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import { ItemAssetsDialogue } from "./itemAssetsDialog";
 
 const useStyles = makeStyles((theme) => ({
@@ -31,9 +30,9 @@ function MaterialCard({
   marketDisplay,
 }) {
   const [childDialogTrigger, updateChildDialogTrigger] = useState(false);
-  const [itemAssetsDialogTrigger, updateItemAssetsDialogTrigger] = useState(false);
+  const [itemAssetsDialogTrigger, updateItemAssetsDialogTrigger] =
+    useState(false);
   const { jobArray } = useContext(JobArrayContext);
-  const { findItemAssets } = useJobManagement();
   const classes = useStyles();
   let childJobs = [];
   let childJobProductionTotal = 0;
@@ -117,8 +116,7 @@ function MaterialCard({
                   boxShadow: 4,
                 }}
                 onClick={async () => {
-                  updateItemAssetsDialogTrigger(true)
-                  let itemAssets = await findItemAssets(material.typeID)
+                  updateItemAssetsDialogTrigger(true);
                 }}
               >
                 A

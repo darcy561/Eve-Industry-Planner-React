@@ -25,7 +25,7 @@ import {
   MassBuildDisplay,
 } from "./Context/LayoutContext";
 import { LocalizationProvider } from "@mui/x-date-pickers"
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import App from "./App";
 
 export function AppWrapper() {

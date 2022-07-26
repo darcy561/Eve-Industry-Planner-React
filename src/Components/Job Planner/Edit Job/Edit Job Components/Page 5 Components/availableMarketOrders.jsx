@@ -126,7 +126,7 @@ export function AvailableMarketOrders({
                       <Typography
                         sx={{ typography: { xs: "caption", sm: "body2" } }}
                       >
-                        {locationData !== undefined ? locationData.name : "Location Data Missing From ESI"}
+                        {locationData !== undefined ? locationData.name : "Location Data Unavailable"}
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>

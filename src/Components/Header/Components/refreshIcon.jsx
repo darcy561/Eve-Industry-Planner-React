@@ -30,6 +30,7 @@ export function RefreshApiIcon() {
     WalletJournal,
     serverStatus,
     IDtoName,
+    fullAssetsList,
   } = useEveApi();
   const { refreshItemPrices } = useFirebase();
   const { RefreshUserAToken } = useRefreshUser();
@@ -61,6 +62,7 @@ export function RefreshApiIcon() {
           blueprints,
           transactions,
           journal,
+          assets,
         ] = await Promise.all([
           CharacterSkills(user),
           IndustryJobs(user, parentUser),
@@ -69,6 +71,7 @@ export function RefreshApiIcon() {
           BlueprintLibrary(user),
           WalletTransactions(user),
           WalletJournal(user),
+          fullAssetsList(user),
         ]);
         if (skills.length > 0) {
           user.apiSkills = skills;
@@ -91,6 +94,12 @@ export function RefreshApiIcon() {
         }
         if (journal.length > 0) {
           user.apiJournal = journal;
+        }
+        if (assets.length > 0) {
+          sessionStorage.setItem(
+            `assets_${user.CharacterHash}`,
+            JSON.stringify(assets)
+          );
         }
       }
     }

@@ -162,7 +162,7 @@ export function LinkedJobs({ setJobModified }) {
 
                 <Grid item xs={12}>
                   <Typography sx={{ typography: { xs: "caption", sm: "body2" } }} align="center">
-                  {facilityData !== undefined ? facilityData.name : "Location Data Missing From ESI"}
+                  {facilityData !== undefined ? facilityData.name : "Location Data Unavailable"}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>

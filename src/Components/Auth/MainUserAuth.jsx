@@ -131,7 +131,7 @@ export function AuthMainUser() {
             blueprints,
             transactions,
             journal,
-            assets
+            assets,
           ] = await Promise.all([
             CharacterSkills(userObject),
             IndustryJobs(userObject),
@@ -140,7 +140,7 @@ export function AuthMainUser() {
             BlueprintLibrary(userObject),
             WalletTransactions(userObject),
             WalletJournal(userObject),
-            fullAssetsList(userObject)
+            fullAssetsList(userObject),
           ]);
 
           userObject.apiSkills = skills;
@@ -151,7 +151,10 @@ export function AuthMainUser() {
           userObject.apiBlueprints = blueprints;
           userObject.apiTransactions = transactions;
           userObject.apiJournal = journal;
-          sessionStorage.setItem(`assets_${userObject.CharacterHash}`, JSON.stringify(assets))
+          sessionStorage.setItem(
+            `assets_${userObject.CharacterHash}`,
+            JSON.stringify(assets)
+          );
         } else {
           userObject.apiSkills = [];
           userObject.apiJobs = [];
@@ -160,7 +163,10 @@ export function AuthMainUser() {
           userObject.apiBlueprints = [];
           userObject.apiTransactions = [];
           userObject.apiJournal = [];
-          sessionStorage.setItem(`assets_${userObject.CharacterHash}`, JSON.stringify([]))
+          sessionStorage.setItem(
+            `assets_${userObject.CharacterHash}`,
+            JSON.stringify([])
+          );
         }
         userArray.push(userObject);
         updateLoadingText((prevObj) => ({
@@ -187,7 +193,7 @@ export function AuthMainUser() {
                 blueprints,
                 transactions,
                 journal,
-                assets
+                assets,
               ] = await Promise.all([
                 CharacterSkills(newUser),
                 IndustryJobs(newUser, userObject),
@@ -196,7 +202,7 @@ export function AuthMainUser() {
                 BlueprintLibrary(newUser),
                 WalletTransactions(newUser),
                 WalletJournal(newUser),
-                fullAssetsList(newUser)
+                fullAssetsList(newUser),
               ]);
 
               newUser.apiSkills = skills;
@@ -209,7 +215,10 @@ export function AuthMainUser() {
               newUser.apiBlueprints = blueprints;
               newUser.apiTransactions = transactions;
               newUser.apiJournal = journal;
-              sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify(assets))
+              sessionStorage.setItem(
+                `assets_${newUser.CharacterHash}`,
+                JSON.stringify(assets)
+              );
             } else if (!sStatus) {
               newUser.apiSkills = [];
               newUser.apiJobs = [];
@@ -218,7 +227,10 @@ export function AuthMainUser() {
               newUser.apiBlueprints = [];
               newUser.apiTransactions = [];
               newUser.apiJournal = [];
-              sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify([]))
+              sessionStorage.setItem(
+                `assets_${newUser.CharacterHash}`,
+                JSON.stringify([])
+              );
             }
             if (newUser !== undefined) {
               userArray.push(newUser);
@@ -253,7 +265,7 @@ export function AuthMainUser() {
                   blueprints,
                   transactions,
                   journal,
-                  assets
+                  assets,
                 ] = await Promise.all([
                   CharacterSkills(newUser),
                   IndustryJobs(newUser, userObject),
@@ -275,7 +287,10 @@ export function AuthMainUser() {
                 newUser.apiBlueprints = blueprints;
                 newUser.apiTransactions = transactions;
                 newUser.apiJournal = journal;
-                sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify(assets))
+                sessionStorage.setItem(
+                  `assets_${newUser.CharacterHash}`,
+                  JSON.stringify(assets)
+                );
               } else if (!sStatus) {
                 newUser.apiSkills = [];
                 newUser.apiJobs = [];
@@ -284,7 +299,10 @@ export function AuthMainUser() {
                 newUser.apiBlueprints = [];
                 newUser.apiTransactions = [];
                 newUser.apiJournal = [];
-                sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify([]))
+                sessionStorage.setItem(
+                  `assets_${newUser.CharacterHash}`,
+                  JSON.stringify([])
+                );
               }
               if (newUser !== "RefreshFail") {
                 userArray.push(newUser);

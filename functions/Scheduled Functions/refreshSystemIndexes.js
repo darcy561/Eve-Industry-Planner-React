@@ -3,7 +3,7 @@ const admin = require("firebase-admin");
 const axios = require("axios");
 const bucket = admin.storage().bucket();
 
-exports.scheduledFunction = functions.pubsub
+exports.scheduledFunction = functions.region("europe-west1").pubsub
   .schedule("every 1 hours")
   .onRun(async (context) => {
     try {

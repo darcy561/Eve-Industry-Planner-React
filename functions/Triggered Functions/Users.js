@@ -1,7 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
-exports.createUserData = functions.https.onCall((data, context) => {
+exports.createUserData = functions.region("europe-west1").https.onCall((data, context) => {
   if (context.app == undefined) {
     functions.logger.warn("Unverified function Call");
     functions.logger.warn(context);

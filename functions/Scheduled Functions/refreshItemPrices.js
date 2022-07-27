@@ -3,8 +3,7 @@ const admin = require("firebase-admin");
 const ESIMarketQuery = require("../Item Prices/priceData").ESIMarketQuery;
 const axios = require("axios");
 
-exports.scheduledFunction = functions.pubsub
-  .runWith({ timeoutSeconds: 540 })
+exports.scheduledFunction = functions.region("europe-west1").runWith({timeoutSeconds:540}).pubsub
   .schedule("every 30 minutes")
   .onRun(async (context) => {
     const pricingDoc = await admin.firestore().doc("Pricing/Live").get();

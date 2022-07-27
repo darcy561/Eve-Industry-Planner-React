@@ -1,4 +1,5 @@
 const functions = require("firebase-functions");
+const {onRequest} = require("firebase-functions/v2/https")
 const admin = require("firebase-admin");
 const express = require("express");
 const helmet = require("helmet");
@@ -38,9 +39,10 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
     functions.logger.warn("UID missing from request");
     functions.logger.info(`Header ${JSON.stringify(req.header)}`);
     functions.logger.info(`Body ${JSON.stringify(req.body)}`);
-    return res.status(400).send("mmlformed Request");
+    return res.status(400).send("malformed Request");
   }
   try {
+    functions.logger.log(req.body)
     const authToken = await admin.auth().createCustomToken(req.body.UID);
     functions.logger.log(`${req.body.UID} Auth Token Generated`);
     functions.logger.log(`Log In Successful`);
@@ -211,7 +213,7 @@ app.get("/systemindexes/:systemID", async (req, res) => {
 });
 
 //Export the api to Firebase Cloud Functions
-exports.api = functions.https.onRequest(app);
+exports.api = onRequest({region:["europe-west1"]}, app);
 exports.user = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");

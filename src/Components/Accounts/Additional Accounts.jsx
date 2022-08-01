@@ -12,25 +12,17 @@ import { useContext, useState } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import { ApiJobsContext } from "../../Context/JobContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
-import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { AccountEntry } from "./AccountEntry";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { useAccountManagement } from "../../Hooks/useAccountManagement";
 
 export function AdditionalAccounts({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const {
-    CharacterSkills,
-    IndustryJobs,
-    MarketOrders,
-    HistoricMarketOrders,
-    BlueprintLibrary,
-    WalletTransactions,
-    WalletJournal,
-  } = useEveApi();
   const { updateMainUserDoc } = useFirebase();
+  const { characterAPICall } = useAccountManagement();
   const [skeletonVisible, toggleSkeleton] = useState(false);
   const analytics = getAnalytics();
   let newUser = null;
@@ -69,30 +61,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
       newUser === null
     ) {
       newUser = JSON.parse(localStorage.getItem("AdditionalUser"));
-      const [
-        skills,
-        indJobs,
-        orders,
-        histOrders,
-        blueprints,
-        transactions,
-        journal,
-      ] = await Promise.all([
-        CharacterSkills(newUser),
-        IndustryJobs(newUser, users[parentUserIndex]),
-        MarketOrders(newUser),
-        HistoricMarketOrders(newUser),
-        BlueprintLibrary(newUser),
-        WalletTransactions(newUser),
-        WalletJournal(newUser),
-      ]);
-      newUser.apiSkills = skills;
-      newUser.apiJobs = indJobs;
-      newUser.apiOrders = orders;
-      newUser.apiHistOrders = histOrders;
-      newUser.apiBlueprints = blueprints;
-      newUser.apiTransactions = transactions;
-      newUser.apiJournal = journal;
+      newUser = await characterAPICall(true, newUser, users[parentUserIndex]);
       localStorage.removeItem("AddAccount");
       localStorage.removeItem("AddAccountComplete");
       localStorage.removeItem("AdditionalUser");

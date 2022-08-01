@@ -15,23 +15,14 @@ import {
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import searchData from "../../../RawData/searchIndex.json";
+import { useAccountManagement } from "../../../Hooks/useAccountManagement";
 
 export function RefreshApiIcon() {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
-  const {
-    CharacterSkills,
-    IndustryJobs,
-    MarketOrders,
-    HistoricMarketOrders,
-    BlueprintLibrary,
-    WalletTransactions,
-    WalletJournal,
-    serverStatus,
-    IDtoName,
-    fullAssetsList,
-  } = useEveApi();
+  const { serverStatus, IDtoName } = useEveApi();
+  const { characterAPICall } = useAccountManagement();
   const { refreshItemPrices } = useFirebase();
   const { RefreshUserAToken } = useRefreshUser();
   const { refreshState, updateRefreshState } = useContext(RefreshStateContext);
@@ -53,54 +44,8 @@ export function RefreshApiIcon() {
         if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
           user = await RefreshUserAToken(user);
         }
-
-        const [
-          skills,
-          indJobs,
-          orders,
-          histOrders,
-          blueprints,
-          transactions,
-          journal,
-          assets,
-        ] = await Promise.all([
-          CharacterSkills(user),
-          IndustryJobs(user, parentUser),
-          MarketOrders(user),
-          HistoricMarketOrders(user),
-          BlueprintLibrary(user),
-          WalletTransactions(user),
-          WalletJournal(user),
-          fullAssetsList(user),
-        ]);
-        if (skills.length > 0) {
-          user.apiSkills = skills;
-        }
-        if (indJobs.length > 0) {
-          user.apiJobs = indJobs;
-          user.apiJobs.forEach((i) => newAPIArray.push(i));
-        }
-        if (orders.length > 0) {
-          user.apiOrders = orders;
-        }
-        if (histOrders.length > 0) {
-          user.apiHistOrders = histOrders;
-        }
-        if (blueprints.length > 0) {
-          user.apiBlueprints = blueprints;
-        }
-        if (transactions.length > 0) {
-          user.apiTransactions = transactions;
-        }
-        if (journal.length > 0) {
-          user.apiJournal = journal;
-        }
-        if (assets.length > 0) {
-          sessionStorage.setItem(
-            `assets_${user.CharacterHash}`,
-            JSON.stringify(assets)
-          );
-        }
+        user = await characterAPICall(sStatus, user, parentUser);
+        user.apiJobs.forEach((i) => newAPIArray.push(i));
       }
     }
     let existingLocations = new Set();

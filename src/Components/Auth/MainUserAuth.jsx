@@ -22,6 +22,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { RefreshTokens } from "./RefreshToken";
 import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
 import searchData from "../../RawData/searchIndex.json";
+import { useAccountManagement } from "../../Hooks/useAccountManagement";
 
 export function login() {
   // const state = window.location.pathname;
@@ -41,21 +42,11 @@ export function AuthMainUser() {
   const { updateEveIDs } = useContext(EveIDsContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateEvePrices } = useContext(EvePricesContext);
-  const {
-    BlueprintLibrary,
-    CharacterSkills,
-    fullAssetsList,
-    HistoricMarketOrders,
-    IndustryJobs,
-    IDtoName,
-    MarketOrders,
-    serverStatus,
-    WalletTransactions,
-    WalletJournal,
-  } = useEveApi();
+  const { IDtoName, serverStatus } = useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { determineUserState, getItemPrices } = useFirebase();
+  const { characterAPICall, generateItemPriceRequest } = useAccountManagement();
   const navigate = useNavigate();
   const analytics = getAnalytics();
 
@@ -73,7 +64,7 @@ export function AuthMainUser() {
           eveSSO: true,
         }));
         let userArray = [];
-        const userObject = await EveSSOTokens(authCode, true);
+        let userObject = await EveSSOTokens(authCode, true);
         userObject.fbToken = await firebaseAuth(userObject);
 
         updateLoadingText((prevObj) => ({
@@ -94,24 +85,10 @@ export function AuthMainUser() {
         userObject.accountRefreshTokens = userSettings.refreshTokens;
         userObject.watchlist = userSettings.watchlist;
 
-        let priceIDRequest = new Set();
+        let priceIDRequest = generateItemPriceRequest(userSettings);
         let promiseArray = [];
-        userSettings.jobArraySnapshot.forEach((snap) => {
-          snap.materialIDs.forEach((id) => {
-            priceIDRequest.add(id);
-          });
-          priceIDRequest.add(snap.itemID);
-        });
-        userSettings.watchlist.forEach((snap) => {
-          priceIDRequest.add(snap.typeID);
-          snap.materials.forEach((mat) => {
-            priceIDRequest.add(mat.typeID);
-            mat.materials.forEach((cMat) => {
-              priceIDRequest.add(cMat.typeID);
-            });
-          });
-        });
-        let itemPrices = getItemPrices([...priceIDRequest], userObject);
+
+        let itemPrices = getItemPrices(priceIDRequest, userObject);
         promiseArray.push(itemPrices);
 
         updateLoadingText((prevObj) => ({
@@ -122,52 +99,10 @@ export function AuthMainUser() {
         let apiJobsArray = [];
 
         const sStatus = await serverStatus();
-        if (sStatus) {
-          const [
-            skills,
-            indJobs,
-            orders,
-            histOrders,
-            blueprints,
-            transactions,
-            journal,
-            assets,
-          ] = await Promise.all([
-            CharacterSkills(userObject),
-            IndustryJobs(userObject),
-            MarketOrders(userObject),
-            HistoricMarketOrders(userObject),
-            BlueprintLibrary(userObject),
-            WalletTransactions(userObject),
-            WalletJournal(userObject),
-            fullAssetsList(userObject),
-          ]);
 
-          userObject.apiSkills = skills;
-          userObject.apiJobs = indJobs;
-          apiJobsArray = apiJobsArray.concat(indJobs);
-          userObject.apiOrders = orders;
-          userObject.apiHistOrders = histOrders;
-          userObject.apiBlueprints = blueprints;
-          userObject.apiTransactions = transactions;
-          userObject.apiJournal = journal;
-          sessionStorage.setItem(
-            `assets_${userObject.CharacterHash}`,
-            JSON.stringify(assets)
-          );
-        } else {
-          userObject.apiSkills = [];
-          userObject.apiJobs = [];
-          userObject.apiOrders = [];
-          userObject.apiHistOrders = [];
-          userObject.apiBlueprints = [];
-          userObject.apiTransactions = [];
-          userObject.apiJournal = [];
-          sessionStorage.setItem(
-            `assets_${userObject.CharacterHash}`,
-            JSON.stringify([])
-          );
-        }
+        userObject = await characterAPICall(sStatus, userObject, userObject);
+
+        apiJobsArray = apiJobsArray.concat(userObject.apiJobs);
         userArray.push(userObject);
         updateLoadingText((prevObj) => ({
           ...prevObj,
@@ -184,56 +119,14 @@ export function AuthMainUser() {
             if (token.rToken !== newUser.rToken) {
               token.rToken = newUser.rToken;
             }
-            if (sStatus && newUser !== "RefreshFail") {
-              const [
-                skills,
-                indJobs,
-                orders,
-                histOrders,
-                blueprints,
-                transactions,
-                journal,
-                assets,
-              ] = await Promise.all([
-                CharacterSkills(newUser),
-                IndustryJobs(newUser, userObject),
-                MarketOrders(newUser),
-                HistoricMarketOrders(newUser),
-                BlueprintLibrary(newUser),
-                WalletTransactions(newUser),
-                WalletJournal(newUser),
-                fullAssetsList(newUser),
-              ]);
-
-              newUser.apiSkills = skills;
-              newUser.apiJobs = indJobs;
+            if (newUser !== "RefreshFail") {
+              newUser = await characterAPICall(sStatus, newUser, userObject);
               newUser.apiJobs.forEach((i) => {
                 apiJobsArray.push(i);
               });
-              newUser.apiOrders = orders;
-              newUser.apiHistOrders = histOrders;
-              newUser.apiBlueprints = blueprints;
-              newUser.apiTransactions = transactions;
-              newUser.apiJournal = journal;
-              sessionStorage.setItem(
-                `assets_${newUser.CharacterHash}`,
-                JSON.stringify(assets)
-              );
-            } else if (!sStatus) {
-              newUser.apiSkills = [];
-              newUser.apiJobs = [];
-              newUser.apiOrders = [];
-              newUser.apiHistOrders = [];
-              newUser.apiBlueprints = [];
-              newUser.apiTransactions = [];
-              newUser.apiJournal = [];
-              sessionStorage.setItem(
-                `assets_${newUser.CharacterHash}`,
-                JSON.stringify([])
-              );
-            }
-            if (newUser !== undefined) {
-              userArray.push(newUser);
+              if (newUser !== undefined) {
+                userArray.push(newUser);
+              }
             }
           }
         } else {
@@ -256,55 +149,11 @@ export function AuthMainUser() {
                   JSON.stringify(rTokens)
                 );
               }
-              if (sStatus && newUser !== "RefreshFail") {
-                const [
-                  skills,
-                  indJobs,
-                  orders,
-                  histOrders,
-                  blueprints,
-                  transactions,
-                  journal,
-                  assets,
-                ] = await Promise.all([
-                  CharacterSkills(newUser),
-                  IndustryJobs(newUser, userObject),
-                  MarketOrders(newUser),
-                  HistoricMarketOrders(newUser),
-                  BlueprintLibrary(newUser),
-                  WalletTransactions(newUser),
-                  WalletJournal(newUser),
-                  fullAssetsList(newUser),
-                ]);
-
-                newUser.apiSkills = skills;
-                newUser.apiJobs = indJobs;
+              if (newUser !== "RefreshFail") {
+                newUser = await characterAPICall(sStatus, newUser, userObject);
                 newUser.apiJobs.forEach((i) => {
                   apiJobsArray.push(i);
                 });
-                newUser.apiOrders = orders;
-                newUser.apiHistOrders = histOrders;
-                newUser.apiBlueprints = blueprints;
-                newUser.apiTransactions = transactions;
-                newUser.apiJournal = journal;
-                sessionStorage.setItem(
-                  `assets_${newUser.CharacterHash}`,
-                  JSON.stringify(assets)
-                );
-              } else if (!sStatus) {
-                newUser.apiSkills = [];
-                newUser.apiJobs = [];
-                newUser.apiOrders = [];
-                newUser.apiHistOrders = [];
-                newUser.apiBlueprints = [];
-                newUser.apiTransactions = [];
-                newUser.apiJournal = [];
-                sessionStorage.setItem(
-                  `assets_${newUser.CharacterHash}`,
-                  JSON.stringify([])
-                );
-              }
-              if (newUser !== "RefreshFail") {
                 userArray.push(newUser);
               }
             }
@@ -360,7 +209,7 @@ export function AuthMainUser() {
           let citadelIDs = new Set();
           if (user.ParentUser) {
             if (
-              user.settings.editJob.defaultAssetLocation.toSting().length > 10
+              user.settings.editJob.defaultAssetLocation.toString().length > 10
             ) {
               if (
                 !citadelStore.has(user.settings.editJob.defaultAssetLocation)

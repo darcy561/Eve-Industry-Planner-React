@@ -13,7 +13,7 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { EveIDsContext } from "../../../../../Context/EveDataContext";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import { useCharAssets } from "../../../../../Hooks/useCharAssets";
 
 export function ItemAssetsDialogue({
   material,
@@ -22,7 +22,7 @@ export function ItemAssetsDialogue({
 }) {
   const { users } = useContext(UsersContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
-  const { findItemAssets } = useJobManagement();
+  const { findItemAssets } = useCharAssets();
   const [loadAssets, setLoadAssets] = useState(false);
   const [assetList, updateAssetList] = useState([]);
   const [assetLocations, updateAssetLocations] = useState([]);

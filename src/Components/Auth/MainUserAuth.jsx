@@ -358,6 +358,20 @@ export function AuthMainUser() {
 
         for (let user of userArray) {
           let citadelIDs = new Set();
+          if (user.ParentUser) {
+            if (
+              user.settings.editJob.defaultAssetLocation.toSting().length > 10
+            ) {
+              if (
+                !citadelStore.has(user.settings.editJob.defaultAssetLocation)
+              ) {
+                citadelIDs.add(user.settings.editJob.defaultAssetLocation);
+                citadelStore.add(user.settings.editJob.defaultAssetLocation);
+              }
+            } else {
+              locationIDS.add(user.settings.editJob.defaultAssetLocation);
+            }
+          }
           user.apiJobs.forEach((job) => {
             if (job.facility_id.toString().length > 10) {
               if (!citadelStore.has(job.facility_id)) {
@@ -390,6 +404,7 @@ export function AuthMainUser() {
             }
             locationIDS.add(order.region_id);
           });
+
           if ([...citadelIDs].length > 0) {
             let tempCit = IDtoName([...citadelIDs], user);
             newIDNamePromises.push(tempCit);

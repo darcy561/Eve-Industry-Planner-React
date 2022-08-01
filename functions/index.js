@@ -42,10 +42,8 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
     return res.status(400).send("malformed Request");
   }
   try {
-    functions.logger.log(req.body)
     const authToken = await admin.auth().createCustomToken(req.body.UID);
-    functions.logger.log(`${req.body.UID} Auth Token Generated`);
-    functions.logger.log(`Log In Successful`);
+    functions.logger.log(`${req.body.UID} Token Generated, Log In Successful`);
     return res.status(200).send({
       access_token: authToken,
     });
@@ -213,7 +211,7 @@ app.get("/systemindexes/:systemID", async (req, res) => {
 });
 
 //Export the api to Firebase Cloud Functions
-exports.api = onRequest({region:["europe-west1"]}, app);
+exports.api = onRequest({region:["europe-west1"], maxInstances: 40}, app);
 exports.user = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");

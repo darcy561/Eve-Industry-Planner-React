@@ -111,7 +111,7 @@ export function useRefreshUser() {
         blueprints,
         transactions,
         journal,
-        assets
+        assets,
       ] = await Promise.all([
         CharacterSkills(refreshedUser),
         IndustryJobs(refreshedUser),
@@ -120,7 +120,7 @@ export function useRefreshUser() {
         BlueprintLibrary(refreshedUser),
         WalletTransactions(refreshedUser),
         WalletJournal(refreshedUser),
-        fullAssetsList(refreshedUser)
+        fullAssetsList(refreshedUser),
       ]);
 
       refreshedUser.apiSkills = skills;
@@ -131,7 +131,10 @@ export function useRefreshUser() {
       refreshedUser.apiBlueprints = blueprints;
       refreshedUser.apiTransactions = transactions;
       refreshedUser.apiJournal = journal;
-      sessionStorage.setItem(`assets_${refreshedUser.CharacterHash}`, JSON.stringify(assets))
+      sessionStorage.setItem(
+        `assets_${refreshedUser.CharacterHash}`,
+        JSON.stringify(assets)
+      );
     } else {
       refreshedUser.apiSkills = [];
       refreshedUser.apiJobs = [];
@@ -140,7 +143,10 @@ export function useRefreshUser() {
       refreshedUser.apiBlueprints = [];
       refreshedUser.apiTransactions = [];
       refreshedUser.apiJournal = [];
-      sessionStorage.setItem(`assets_${refreshedUser.CharacterHash}`, JSON.stringify([]))
+      sessionStorage.setItem(
+        `assets_${refreshedUser.CharacterHash}`,
+        JSON.stringify([])
+      );
     }
     userArray.push(refreshedUser);
     updateLoadingText((prevObj) => ({
@@ -167,7 +173,7 @@ export function useRefreshUser() {
             blueprints,
             transactions,
             journal,
-            assets
+            assets,
           ] = await Promise.all([
             CharacterSkills(newUser),
             IndustryJobs(newUser, refreshedUser),
@@ -176,7 +182,7 @@ export function useRefreshUser() {
             BlueprintLibrary(newUser),
             WalletTransactions(newUser),
             WalletJournal(newUser),
-            fullAssetsList(newUser)
+            fullAssetsList(newUser),
           ]);
 
           newUser.apiSkills = skills;
@@ -186,7 +192,10 @@ export function useRefreshUser() {
           newUser.apiBlueprints = blueprints;
           newUser.apiTransactions = transactions;
           newUser.apiJournal = journal;
-          sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify(assets))
+          sessionStorage.setItem(
+            `assets_${newUser.CharacterHash}`,
+            JSON.stringify(assets)
+          );
         } else if (!sStatus) {
           newUser.apiSkills = [];
           newUser.apiJobs = [];
@@ -195,7 +204,10 @@ export function useRefreshUser() {
           newUser.apiBlueprints = [];
           newUser.apiTransactions = [];
           newUser.apiJournal = [];
-          sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify([]))
+          sessionStorage.setItem(
+            `assets_${newUser.CharacterHash}`,
+            JSON.stringify([])
+          );
         }
         if (newUser !== "RefreshFail") {
           userArray.push(newUser);
@@ -230,7 +242,7 @@ export function useRefreshUser() {
               blueprints,
               transactions,
               journal,
-              assets
+              assets,
             ] = await Promise.all([
               CharacterSkills(newUser),
               IndustryJobs(newUser, refreshedUser),
@@ -239,7 +251,7 @@ export function useRefreshUser() {
               BlueprintLibrary(newUser),
               WalletTransactions(newUser),
               WalletJournal(newUser),
-              fullAssetsList(newUser)
+              fullAssetsList(newUser),
             ]);
 
             newUser.apiSkills = skills;
@@ -249,7 +261,10 @@ export function useRefreshUser() {
             newUser.apiBlueprints = blueprints;
             newUser.apiTransactions = transactions;
             newUser.apiJournal = journal;
-            sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify(assets))
+            sessionStorage.setItem(
+              `assets_${newUser.CharacterHash}`,
+              JSON.stringify(assets)
+            );
           } else if (!sStatus) {
             newUser.apiSkills = [];
             newUser.apiJobs = [];
@@ -258,7 +273,10 @@ export function useRefreshUser() {
             newUser.apiBlueprints = [];
             newUser.apiTransactions = [];
             newUser.apiJournal = [];
-            sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify([]))
+            sessionStorage.setItem(
+              `assets_${newUser.CharacterHash}`,
+              JSON.stringify([])
+            );
           }
           if (newUser !== "RefreshFail") {
             userArray.push(newUser);
@@ -317,6 +335,16 @@ export function useRefreshUser() {
 
     for (let user of userArray) {
       let citadelIDs = new Set();
+      if (user.ParentUser) {
+        if (user.settings.editJob.defaultAssetLocation.toSting().length > 10) {
+          if (!citadelStore.has(user.settings.editJob.defaultAssetLocation)) {
+            citadelIDs.add(user.settings.editJob.defaultAssetLocation);
+            citadelStore.add(user.settings.editJob.defaultAssetLocation);
+          }
+        } else {
+          locationIDS.add(user.settings.editJob.defaultAssetLocation);
+        }
+      }
       user.apiJobs.forEach((job) => {
         if (job.facility_id.toString().length > 10) {
           if (!citadelStore.has(job.facility_id)) {

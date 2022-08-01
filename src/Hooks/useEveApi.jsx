@@ -247,7 +247,6 @@ export function useEveApi() {
       );
       if (idPromise.status === 200) {
         const idJSON = await idPromise.json();
-
         idJSON.forEach((item) => {
           newArray.push(item);
         });
@@ -263,6 +262,8 @@ export function useEveApi() {
 
           idJSON.id = id;
           newArray.push(idJSON);
+        } else if (idPromise.status === 403) {
+          newArray.push({ id: id, name: "No Access To Location" });
         } else {
           break;
         }

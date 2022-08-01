@@ -25,7 +25,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 export const firestore = getFirestore(app);
-export const functions = getFunctions(app);
+export const functions = getFunctions(app, "europe-west1");
 export const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(
     process.env.REACT_APP_ReCaptchaKey

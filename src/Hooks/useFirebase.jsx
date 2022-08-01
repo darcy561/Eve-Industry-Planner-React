@@ -51,6 +51,7 @@ export function useFirebase() {
           linkedTrans: charData.data.linkedTrans,
           settings: charData.data.settings,
           refreshTokens: charData.data.refreshTokens,
+          watchlist: charData.data.watchlist
         };
       } catch (err) {
         console.log(err);

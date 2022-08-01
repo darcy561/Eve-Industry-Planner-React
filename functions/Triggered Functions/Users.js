@@ -74,6 +74,7 @@ exports.createUserData = functions.region("europe-west1").https.onCall((data, co
           defaultMarket: "jita",
           defaultOrders: "sell",
           hideCompleteMaterials: false,
+          defaultAssetLocation: 60003760
         },
         structures: {
           manufacturing: [],

@@ -126,61 +126,60 @@ export function useCharAssets() {
         (entry) => entry.type_id === requestedItemID
       );
       for (let item of filteredUserAssetList) {
-        if (!eveIDs.some((i) => item.type_id === i.type_id)) {
-          if (
-            item.location_type === "station" ||
-            item.location_type === "solar_system"
-          ) {
-            if (item.location_id.toString().length > 10) {
-              missingCitadelIDs.add(item.location_id);
-            } else {
-              missingStationIDs.add(item.location_id);
+        if (
+          item.location_type === "station" ||
+          item.location_type === "solar_system"
+        ) {
+          if (item.location_id.toString().length > 10) {
+            missingCitadelIDs.add(item.location_id);
+          } else {
+            missingStationIDs.add(item.location_id);
+          }
+          if (itemLocations.some((i) => item.location_id === i.location_id)) {
+            let index = itemLocations.findIndex(
+              (i) => i.location_id === item.location_id
+            );
+            if (index !== -1) {
+              itemLocations[index].itemIDs.push(item.item_id);
             }
-            if (itemLocations.some((i) => item.location_id === i.location_id)) {
+          } else {
+            itemLocations.push({
+              location_id: item.location_id,
+              itemIDs: [item.item_id],
+            });
+          }
+        }
+        if (item.location_type === "item" || item.location_type === "other") {
+          let parentLocation = retrieveAssetLocation(item, userAssets);
+          if (
+            parentLocation !== undefined &&
+            parentLocation.location_type !== "other"
+          ) {
+            if (parentLocation.location_id.toString().length > 10) {
+              missingCitadelIDs.add(parentLocation.location_id);
+            } else {
+              missingStationIDs.add(parentLocation.location_id);
+            }
+            if (
+              itemLocations.some(
+                (i) => parentLocation.location_id === i.location_id
+              )
+            ) {
               let index = itemLocations.findIndex(
-                (i) => i.location_id === item.location_id
+                (i) => i.location_id === parentLocation.location_id
               );
               if (index !== -1) {
                 itemLocations[index].itemIDs.push(item.item_id);
               }
             } else {
               itemLocations.push({
-                location_id: item.location_id,
+                location_id: parentLocation.location_id,
                 itemIDs: [item.item_id],
               });
             }
           }
-          if (item.location_type === "item" || item.location_type === "other") {
-            let parentLocation = retrieveAssetLocation(item, userAssets);
-            if (
-              parentLocation !== undefined &&
-              parentLocation.location_type !== "other"
-            ) {
-              if (parentLocation.location_id.toString().length > 10) {
-                missingCitadelIDs.add(parentLocation.location_id);
-              } else {
-                missingStationIDs.add(parentLocation.location_id);
-              }
-              if (
-                itemLocations.some(
-                  (i) => parentLocation.location_id === i.location_id
-                )
-              ) {
-                let index = itemLocations.findIndex(
-                  (i) => i.location_id === parentLocation.location_id
-                );
-                if (index !== -1) {
-                  itemLocations[index].itemIDs.push(item.item_id);
-                }
-              } else {
-                itemLocations.push({
-                  location_id: parentLocation.location_id,
-                  itemIDs: [item.item_id],
-                });
-              }
-            }
-          }
         }
+
         if ([...missingCitadelIDs].length > 0) {
           let tempCit = await IDtoName([...missingCitadelIDs], user);
           newEveIDs = newEveIDs.concat(tempCit);
@@ -196,5 +195,70 @@ export function useCharAssets() {
     return [filteredAssetList, newEveIDs, itemLocations];
   };
 
-  return { findItemAssets, getAssetLocationList, retrieveAssetLocation };
+  const findLocationAssets = async (requiredLocationID) => {
+    let locationAssets = [];
+    let fullAssetList = [];
+
+    for (let user of users) {
+      let userAssets = JSON.parse(
+        sessionStorage.getItem(`assets_${user.CharacterHash}`)
+      );
+
+      for (let item of userAssets) {
+        if (item.location_id === requiredLocationID) {
+          if (
+            item.location_type === "station" ||
+            item.location_type === "solar_system"
+          ) {
+            if (locationAssets.some((i) => i.type_id === item.type_id)) {
+              let index = locationAssets.findIndex(
+                (i) => i.type_id === item.type_id
+              );
+              if (index !== -1) {
+                locationAssets[index].itemIDs.push(item.item_id);
+              }
+            } else {
+              locationAssets.push({
+                type_id: item.type_id,
+                itemIDs: [item.item_id],
+              });
+            }
+          }
+        }
+
+        if (item.location_type === "item" || item.location_type === "other") {
+          let parentLocation = retrieveAssetLocation(item, userAssets);
+          if (
+            parentLocation !== undefined &&
+            parentLocation.location_type !== "other"
+          ) {
+            if (item.location_id === parentLocation.location_id) {
+              if (locationAssets.some((i) => i.type_id === item.type_id)) {
+                let index = locationAssets.findIndex(
+                  (i) => i.type_id === item.type_id
+                );
+                if (index !== -1) {
+                  locationAssets[index].itemIDs.push(item.item_id);
+                }
+              } else {
+                locationAssets.push({
+                  type_id: item.type_id,
+                  itemIDs: [item.item_id],
+                });
+              }
+            }
+          }
+        }
+      }
+      fullAssetList = fullAssetList.concat(userAssets);
+    }
+    return [fullAssetList, locationAssets];
+  };
+
+  return {
+    findItemAssets,
+    findLocationAssets,
+    getAssetLocationList,
+    retrieveAssetLocation,
+  };
 }

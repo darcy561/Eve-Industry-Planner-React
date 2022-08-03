@@ -10,7 +10,11 @@ import MaterialCard from "./Page 2 Components/materialCard";
 import { PurchasingData } from "./Page 2 Components/purchasingData";
 import { TutorialStep2 } from "./Page 2 Components/tutorialStep2";
 
-export function EditPage2({ setJobModified }) {
+export function EditPage2({
+  setJobModified,
+  updateShoppingListTrigger,
+  updateShoppingListData,
+}) {
   const { activeJob } = useContext(ActiveJobContext);
   const { IsLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
@@ -50,6 +54,8 @@ export function EditPage2({ setJobModified }) {
           changeOrderDisplay={changeOrderDisplay}
           marketDisplay={marketDisplay}
           changeMarketDisplay={changeMarketDisplay}
+          updateShoppingListTrigger={updateShoppingListTrigger}
+          updateShoppingListData={updateShoppingListData}
         />
         <Grid
           container

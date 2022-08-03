@@ -23,6 +23,8 @@ const EditJob = lazy(() => import("./Edit Job/EditJob"));
 
 export function JobPlanner() {
   const [jobSettingsTrigger, updateJobSettingsTrigger] = useState(false);
+  const [shoppingListTrigger, updateShoppingListTrigger] = useState(false);
+  const [shoppingListData, updateShoppingListData] = useState([]);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
@@ -56,15 +58,29 @@ export function JobPlanner() {
     if (jobSettingsTrigger) {
       return (
         <Suspense fallback={<LoadingPage />}>
-          <ShoppingListDialog />
+          <ShoppingListDialog
+            shoppingListTrigger={shoppingListTrigger}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            shoppingListData={shoppingListData}
+            updateShoppingListData={updateShoppingListData}
+          />
           <MassBuildFeedback />
-          <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
+          <EditJob
+            updateJobSettingsTrigger={updateJobSettingsTrigger}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            updateShoppingListData={updateShoppingListData}
+          />
         </Suspense>
       );
     } else {
       return (
         <Grid container sx={{ marginTop: "5px" }} spacing={2}>
-          <ShoppingListDialog />
+          <ShoppingListDialog
+            shoppingListTrigger={shoppingListTrigger}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            shoppingListData={shoppingListData}
+            updateShoppingListData={updateShoppingListData}
+          />
 
           <MassBuildFeedback />
           <PriceEntryDialog />
@@ -77,7 +93,10 @@ export function JobPlanner() {
             </Grid>
           )}
           <Grid item xs={12}>
-            <SearchBar />
+            <SearchBar
+              updateShoppingListTrigger={updateShoppingListTrigger}
+              updateShoppingListData={updateShoppingListData}
+            />
           </Grid>
           <Grid item xs={12}>
             <PlannerAccordion

@@ -1,4 +1,5 @@
 import {
+  CircularProgress,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -46,23 +47,23 @@ export function EditJobSettings({ parentUserIndex }) {
   const [listingSelect, updateListingSelect] = useState(
     users[parentUserIndex].settings.editJob.defaultOrders
   );
+  const [dataLoading, updateDataLoading] = useState(true);
   const [assetLocationSelect, updateAssetLocationSelect] = useState(
     users[parentUserIndex].settings.editJob.defaultAssetLocation
   );
-  const [assetLocationEntries, updateAssetLocationEntries] = useState([
-  ]);
+  const [assetLocationEntries, updateAssetLocationEntries] = useState([]);
 
   const classes = useStyles();
 
   useEffect(() => {
     async function getAsset() {
-      if (!assetLocationEntries.length > 0) {
-        let newAssetList = await getAssetLocationList();
-        updateAssetLocationEntries(newAssetList);
-      }
+      updateDataLoading(true);
+      let newAssetList = await getAssetLocationList();
+      updateAssetLocationEntries(newAssetList);
+      updateDataLoading((prev) => !prev);
     }
     getAsset();
-  }, []);
+  }, [users]);
 
   return (
     <Paper elevation={3} sx={{ padding: "20px" }} square={true}>
@@ -162,42 +163,46 @@ export function EditJobSettings({ parentUserIndex }) {
               />
             </FormGroup>
           </Grid>
-          <Grid item xs={12} sm={6} sx={{ marginTop: "10px" }}>
-            <FormControl className={classes.Select} fullWidth>
-              <Select
-                value={assetLocationSelect}
-                variant="standard"
-                size="small"
-                onChange={(e) => {
-                  let newUsersArray = [...users];
-                  newUsersArray[
-                    parentUserIndex
-                  ].settings.editJob.defaultAssetLocation = e.target.value;
-                  updateAssetLocationSelect(e.target.value);
-                  updateUsers(newUsersArray);
-                  updateMainUserDoc();
-                }}
-              >
-                {assetLocationEntries.map((entry) => {
-                  let locationNameData = eveIDs.find((i) => entry === i.id);
+          <Grid item xs={12} sm={6} align="center" sx={{ marginTop: "10px" }}>
+            {dataLoading ? (
+              <CircularProgress color="primary" size="20px" />
+            ) : (
+              <FormControl className={classes.Select} fullWidth>
+                <Select
+                  value={assetLocationSelect}
+                  variant="standard"
+                  size="small"
+                  onChange={(e) => {
+                    let newUsersArray = [...users];
+                    newUsersArray[
+                      parentUserIndex
+                    ].settings.editJob.defaultAssetLocation = e.target.value;
+                    updateAssetLocationSelect(e.target.value);
+                    updateUsers(newUsersArray);
+                    updateMainUserDoc();
+                  }}
+                >
+                  {assetLocationEntries.map((entry) => {
+                    let locationNameData = eveIDs.find((i) => entry === i.id);
 
-                  if (
-                    locationNameData === undefined ||
-                    locationNameData.name === "No Access To Location"
-                  ) {
-                    return null;
-                  }
-                  return (
-                    <MenuItem key={entry} value={entry}>
-                      {locationNameData.name}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-              <FormHelperText variant="standard">
-                Default Asset Location
-              </FormHelperText>
-            </FormControl>
+                    if (
+                      locationNameData === undefined ||
+                      locationNameData.name === "No Access To Location"
+                    ) {
+                      return null;
+                    }
+                    return (
+                      <MenuItem key={entry} value={entry}>
+                        {locationNameData.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+                <FormHelperText variant="standard">
+                  Default Asset Location
+                </FormHelperText>
+              </FormControl>
+            )}
           </Grid>
         </Grid>
       </Grid>

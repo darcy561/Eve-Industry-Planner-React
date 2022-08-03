@@ -15,8 +15,6 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
-import { ShoppingListContext } from "../../../../../Context/LayoutContext";
 import {
   listingType,
   marketOptions,
@@ -27,12 +25,12 @@ export function PurchasingData({
   changeOrderDisplay,
   marketDisplay,
   changeMarketDisplay,
+  updateShoppingListTrigger,
+  updateShoppingListData
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const { updateShoppingListData } = useContext(ShoppingListContext);
-  const { buildShoppingList } = useJobManagement();
   const [orderSelect, updateOrderSelect] = useState(orderDisplay);
   const [marketSelect, updateMarketSelect] = useState(marketDisplay);
 
@@ -124,12 +122,8 @@ export function PurchasingData({
                     variant="outlined"
                     size="small"
                     onClick={async () => {
-                      let shoppingList = await buildShoppingList([activeJob]);
-
-                      updateShoppingListData((prev) => ({
-                        open: true,
-                        list: shoppingList,
-                      }));
+                      updateShoppingListData([activeJob]);
+                      updateShoppingListTrigger((prev)=> !prev)
                     }}
                   >
                     Shopping List

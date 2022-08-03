@@ -18,13 +18,12 @@ import {
   SnackbarData,
   PageLoad,
   LoadingText,
-  ShoppingList,
   MultiSelectJobPlanner,
   RefreshState,
   PriceEntryList,
   MassBuildDisplay,
 } from "./Context/LayoutContext";
-import { LocalizationProvider } from "@mui/x-date-pickers"
+import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import App from "./App";
 
@@ -46,21 +45,19 @@ export function AppWrapper() {
                               <EveESIStatus>
                                 <EvePrices>
                                   <MultiSelectJobPlanner>
-                                    <ShoppingList>
-                                      <PriceEntryList>
-                                        <SisiDataFiles>
-                                          <MassBuildDisplay>
-                                            <ArchivedJobs>
-                                              <LocalizationProvider
-                                                dateAdapter={AdapterDateFns}
-                                              >
-                                                <App />
-                                              </LocalizationProvider>
-                                            </ArchivedJobs>
-                                          </MassBuildDisplay>
-                                        </SisiDataFiles>
-                                      </PriceEntryList>
-                                    </ShoppingList>
+                                    <PriceEntryList>
+                                      <SisiDataFiles>
+                                        <MassBuildDisplay>
+                                          <ArchivedJobs>
+                                            <LocalizationProvider
+                                              dateAdapter={AdapterDateFns}
+                                            >
+                                              <App />
+                                            </LocalizationProvider>
+                                          </ArchivedJobs>
+                                        </MassBuildDisplay>
+                                      </SisiDataFiles>
+                                    </PriceEntryList>
                                   </MultiSelectJobPlanner>
                                 </EvePrices>
                               </EveESIStatus>

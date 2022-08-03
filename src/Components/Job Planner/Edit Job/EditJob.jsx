@@ -41,7 +41,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function EditJob({ updateJobSettingsTrigger }) {
+function EditJob({
+  updateJobSettingsTrigger,
+  updateShoppingListTrigger,
+  updateShoppingListData,
+}) {
   const { jobStatus } = useContext(JobStatusContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -60,7 +64,13 @@ function EditJob({ updateJobSettingsTrigger }) {
           />
         );
       case 1:
-        return <EditPage2 setJobModified={setJobModified} />;
+        return (
+          <EditPage2
+            setJobModified={setJobModified}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            updateShoppingListData={updateShoppingListData}
+          />
+        );
       case 2:
         return <EditPage3 setJobModified={setJobModified} />;
       case 3:

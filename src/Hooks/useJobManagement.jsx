@@ -772,6 +772,7 @@ export function useJobManagement() {
       if (inputJob.isSnapshot) {
         inputJob = await downloadCharacterJobs(inputJob);
         inputJob.isSnapshot = false;
+        replaceSnapshot(inputJob);
       }
       inputJob.build.materials.forEach((material) => {
         if (material.quantityPurchased < material.quantity) {
@@ -780,6 +781,7 @@ export function useJobManagement() {
               name: material.name,
               typeID: material.typeID,
               quantity: material.quantity - material.quantityPurchased,
+              quantityLessAsset:0,
               volume: material.volume,
               hasChild: material.childJob.length > 0 ? true : false,
             });

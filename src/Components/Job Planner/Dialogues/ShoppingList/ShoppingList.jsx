@@ -17,7 +17,6 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { useCharAssets } from "../../../../Hooks/useCharAssets";
-import { EveIDsContext } from "../../../../Context/EveDataContext";
 
 export function ShoppingListDialog({
   shoppingListTrigger,
@@ -26,7 +25,6 @@ export function ShoppingListDialog({
 }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users } = useContext(UsersContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { buildShoppingList } = useJobManagement();
   const { findLocationAssets } = useCharAssets();
   const [childJobDisplay, updateChildJobDisplay] = useState(false);
@@ -35,7 +33,6 @@ export function ShoppingListDialog({
   const [copyText, updateCopyText] = useState("");
   const [loadingData, updateLoadingData] = useState(true);
   const [removeAssets, updateRemoveAssets] = useState(false);
-  const [newEveIDs, updateNewEveIDs] = useState([]);
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
@@ -43,6 +40,7 @@ export function ShoppingListDialog({
   useEffect(() => {
     async function createShoppingListDisplay() {
       if (shoppingListTrigger) {
+        updateLoadingData(true);
         let newVolumeTotal = 0;
         let newCopyText = "";
         let newDisplayData = [];
@@ -50,20 +48,49 @@ export function ShoppingListDialog({
         let [fullAssetList, locationAssets] = await findLocationAssets(
           parentUser.settings.editJob.defaultAssetLocation
         );
-        shoppingList.forEach((listItem) => {
-          // if (childJobDisplay) {
-          //   newCopyText = newCopyText.concat(`${listItem.name} ${listItem.quantity}\n`);
-          //   newVolumeTotal += listItem.volume * listItem.quantity;
-          //   newDisplayData = shoppingList;
-          // }
-          // if (!childJobDisplay) {
-          //   if (!listItem.hasChild) {
-          //     newCopyText = newCopyText.concat(`${listItem.name} ${listItem.quantity}\n`);
-          //     newVolumeTotal += listItem.volume * listItem.quantity;
-          //     newDisplayData = shoppingList.filter((i) => !i.hasChild);
-          //   }
-          // }
 
+        function calcVolume(listItem, assetQuantity) {
+          if (removeAssets) {
+            return listItem.volume * listItem.quantity - assetQuantity;
+          } else {
+            return listItem.volume * listItem.quantity;
+          }
+        }
+        function buildCopyText(listItem) {
+          if (removeAssets) {
+            return `${listItem.name} ${listItem.quantityLessAsset}\n`;
+          } else {
+            return `${listItem.name} ${listItem.quantity}\n`;
+          }
+        }
+
+        function assetQuantityVis(listItem, assetQuantity) {
+          if (listItem.quantity - assetQuantity > 0) {
+            return true;
+          }
+          return false;
+        }
+
+        function childVis(listItem) {
+          if (!childJobDisplay && !listItem.hasChild) {
+            return true;
+          }
+          return childJobDisplay;
+        }
+
+        function itemVis(listItem, assetQuantity) {
+          let b = assetQuantityVis(listItem, assetQuantity);
+          let c = childVis(listItem);
+          if (removeAssets && b && c) {
+            return true;
+          }
+          if (!removeAssets && c) {
+            return true;
+          }
+          return false;
+        }
+
+        shoppingList.forEach((listItem) => {
           let assetType = locationAssets.find(
             (i) => i.type_id === listItem.typeID
           );
@@ -75,52 +102,36 @@ export function ShoppingListDialog({
                 assetQuantity += asset.quantity;
               }
             });
+          }
 
-            newCopyText = newCopyText.concat(
-              `${listItem.name} ${Math.max(
-                listItem.quantity - assetQuantity,
-                0
-              )}\n`
-            );
+          listItem.isVisible = itemVis(listItem, assetQuantity);
+          listItem.quantityLessAsset = Math.max(
+            listItem.quantity - assetQuantity,
+            0
+          );
 
-            newVolumeTotal +=
-              listItem.volume * Math.max(listItem.quantity - assetQuantity, 0);
-
-            if (childJobDisplay) {
-              newDisplayData = shoppingList;
-              listItem.quantityLessAsset = Math.max(
-                listItem.quantity - assetQuantity,
-                0
-              );
-            } else {
-              if (!listItem.hasChild) {
-                newDisplayData = shoppingList.filter((i) => !i.hasChild);
-              }
-            }
-
-            listItem.quantityLessAsset = Math.max(
-              listItem.quantity - assetQuantity,
-              0
-            );
+          if (listItem.isVisible) {
+            newVolumeTotal += calcVolume(listItem, assetQuantity);
+            newCopyText = newCopyText.concat(buildCopyText(listItem));
+            newDisplayData.push(listItem);
           }
         });
-        console.log(newDisplayData);
         updateDisplayData(newDisplayData);
         updateVolumeTotal(newVolumeTotal);
         updateCopyText(newCopyText);
         updateLoadingData(false);
-        // updateNewEveIDs(tempNewEveIDs)
       }
     }
 
     createShoppingListDisplay();
-  }, [childJobDisplay, removeAssets]);
+  }, [shoppingListTrigger, childJobDisplay, removeAssets]);
 
   const handleClose = () => {
-    updateShoppingListTrigger(true);
+    updateShoppingListTrigger(false);
+    updateChildJobDisplay(false);
+    updateRemoveAssets(false);
     updateDisplayData([]);
     updateLoadingData(true);
-    updateEveIDs(newEveIDs);
   };
 
   return (
@@ -207,64 +218,86 @@ export function ShoppingListDialog({
             </Grid>
           </Grid>
         )}
-        <Grid container>
-          <Grid item xs={6}>
-            <FormGroup sx={{ marginRight: "20px" }}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={removeAssets}
-                    onChange={() => {
-                      updateRemoveAssets((prev) => !prev);
-                    }}
-                  />
-                }
-                label="Use assets in quantity calculation"
-                labelPlacement="start"
-              />
-            </FormGroup>
-          </Grid>
-          <Grid item xs={6}>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={childJobDisplay}
-                    onChange={() => {
-                      updateChildJobDisplay((prev) => !prev);
-                    }}
-                  />
-                }
-                label="Include intermediary items"
-                labelPlacement="start"
-              />
-            </FormGroup>
-          </Grid>
-        </Grid>
       </DialogContent>
       <DialogActions sx={{ padding: "20px" }}>
-        <CopyToClipboard
-          text={copyText}
-          onCopy={() => {
-            setSnackbarData((prev) => ({
-              ...prev,
-              open: true,
-              message: `Shopping List Copied`,
-              severity: "success",
-              autoHideDuration: 1000,
-            }));
-          }}
-        >
-          <Button
-            variant="contained"
-            sx={{ marginRight: "20px", display: { xs: "none", sm: "block" } }}
-          >
-            Copy to Clipboard
-          </Button>
-        </CopyToClipboard>
-        <Button onClick={handleClose} autoFocus>
-          Close
-        </Button>
+        <Grid container>
+          <Grid container item xs={12}>
+            <Grid item xs={6}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={removeAssets}
+                      onChange={() => {
+                        updateRemoveAssets((prev) => !prev);
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      Use character assets in quantity calculation
+                    </Typography>
+                  }
+                  labelPlacement="bottom"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid item xs={6}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={childJobDisplay}
+                      onChange={() => {
+                        updateChildJobDisplay((prev) => !prev);
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      Include intermediary items
+                    </Typography>
+                  }
+                  labelPlacement="bottom"
+                />
+              </FormGroup>
+            </Grid>
+          </Grid>
+          <Grid container item={12} sx={{ marginTop: "20px" }}>
+            <Grid item sm={10} align="right">
+              <CopyToClipboard
+                text={copyText}
+                onCopy={() => {
+                  setSnackbarData((prev) => ({
+                    ...prev,
+                    open: true,
+                    message: `Shopping List Copied`,
+                    severity: "success",
+                    autoHideDuration: 1000,
+                  }));
+                }}
+              >
+                <Button
+                  variant="contained"
+                  sx={{
+                    display: { xs: "none", sm: "block" },
+                  }}
+                >
+                  Copy to Clipboard
+                </Button>
+              </CopyToClipboard>
+            </Grid>
+            <Grid item xs={12} sm={2} align="right">
+              <Button onClick={handleClose} autoFocus>
+                Close
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
       </DialogActions>
     </Dialog>
   );

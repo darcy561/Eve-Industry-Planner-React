@@ -784,6 +784,7 @@ export function useJobManagement() {
               quantityLessAsset:0,
               volume: material.volume,
               hasChild: material.childJob.length > 0 ? true : false,
+              isVisible: false,
             });
           } else {
             const index = finalShoppingList.findIndex(

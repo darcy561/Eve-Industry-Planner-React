@@ -70,7 +70,7 @@ export function useAccountManagement() {
       });
       priceIDRequest.add(snap.itemID);
     });
-    settings.watchlist.forEach((snap) => {
+    settings.watchlist.items.forEach((snap) => {
       priceIDRequest.add(snap.typeID);
       snap.materials.forEach((mat) => {
         priceIDRequest.add(mat.typeID);

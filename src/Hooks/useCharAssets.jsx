@@ -5,7 +5,7 @@ import { useEveApi } from "./useEveApi";
 
 export function useCharAssets() {
   const { users } = useContext(UsersContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { eveIDs } = useContext(EveIDsContext);
   const { IDtoName } = useEveApi();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -107,9 +107,7 @@ export function useCharAssets() {
       return 0;
     });
 
-    updateEveIDs(newEveIDs);
-
-    return itemLocations;
+    return [itemLocations, newEveIDs];
   };
 
   const findItemAssets = async (requestedItemID) => {
@@ -150,10 +148,13 @@ export function useCharAssets() {
           }
         }
         if (item.location_type === "item" || item.location_type === "other") {
+          console.log();
           let parentLocation = retrieveAssetLocation(item, userAssets);
+
           if (
             parentLocation !== undefined &&
-            parentLocation.location_type !== "other"
+            parentLocation.location_type !== "other" &&
+            item.location_flag !== "Cargo"
           ) {
             if (parentLocation.location_id.toString().length > 10) {
               missingCitadelIDs.add(parentLocation.location_id);
@@ -198,7 +199,6 @@ export function useCharAssets() {
   const findLocationAssets = async (requiredLocationID) => {
     let locationAssets = [];
     let fullAssetList = [];
-
     for (let user of users) {
       let userAssets = JSON.parse(
         sessionStorage.getItem(`assets_${user.CharacterHash}`)
@@ -228,11 +228,8 @@ export function useCharAssets() {
 
         if (item.location_type === "item" || item.location_type === "other") {
           let parentLocation = retrieveAssetLocation(item, userAssets);
-          if (
-            parentLocation !== undefined &&
-            parentLocation.location_type !== "other"
-          ) {
-            if (item.location_id === parentLocation.location_id) {
+          if (parentLocation !== undefined && item.location_flag !== "Cargo") {
+            if (parentLocation.item_id === item.location_id) {
               if (locationAssets.some((i) => i.type_id === item.type_id)) {
                 let index = locationAssets.findIndex(
                   (i) => i.type_id === item.type_id

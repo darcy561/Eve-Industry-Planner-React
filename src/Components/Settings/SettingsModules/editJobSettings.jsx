@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function EditJobSettings({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
-  const { eveIDs } = useContext(EveIDsContext);
+  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { getAssetLocationList } = useCharAssets();
   const { updateMainUserDoc } = useFirebase();
   const [marketSelect, updateMarketSelect] = useState(
@@ -58,8 +58,9 @@ export function EditJobSettings({ parentUserIndex }) {
   useEffect(() => {
     async function getAsset() {
       updateDataLoading(true);
-      let newAssetList = await getAssetLocationList();
+      let [newAssetList, newEveIDs] = await getAssetLocationList();
       updateAssetLocationEntries(newAssetList);
+      updateEveIDs(newEveIDs)
       updateDataLoading((prev) => !prev);
     }
     getAsset();

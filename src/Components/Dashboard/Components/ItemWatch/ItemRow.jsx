@@ -1,4 +1,14 @@
-import { Grid, IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import {
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  MenuItem,
+  Paper,
+  Select,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useContext, useState } from "react";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -9,6 +19,20 @@ import { useFirebase } from "../../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  Select: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
+  },
+}));
+
 export function WatchListRow({ item, parentUser, index }) {
   const [expanded, setExpanded] = useState(false);
   const { users, updateUsers } = useContext(UsersContext);
@@ -16,10 +40,11 @@ export function WatchListRow({ item, parentUser, index }) {
   const { updateMainUserDoc } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const analytics = getAnalytics();
+  const classes = useStyles();
 
   const handleRemove = async () => {
     let newUsers = [...users];
-    newUsers[0].watchlist.splice(index, 1);
+    newUsers[0].watchlist.items.splice(index, 1);
     updateUsers(newUsers);
     await updateMainUserDoc();
     logEvent(analytics, "Remove Watchlist Item", {
@@ -365,6 +390,40 @@ export function WatchListRow({ item, parentUser, index }) {
                 </Grid>
               );
             })}
+            <Grid item xs={12} sx={{ marginTop: "10px" }}>
+              <FormControl
+                className={classes.Select}
+                sx={{
+                  width: "140px",
+                }}
+              >
+                <Select
+                  variant="standard"
+                  size="small"
+                  value={item.group}
+                  onChange={(e) => {
+                    let newUsers = [...users];
+                    let pIndex = newUsers.findIndex((o) => o.ParentUser);
+                    newUsers[pIndex].watchlist.items[index].group =
+                      e.target.value;
+                    updateUsers(newUsers);
+                    updateMainUserDoc();
+                  }}
+                >
+                  <MenuItem value={0}>None</MenuItem>
+                  {parentUser.watchlist.groups.map((entry) => {
+                    return (
+                      <MenuItem key={entry.id} value={entry.id}>
+                        {entry.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+                <FormHelperText variant="standard">
+                  Watchlist Group
+                </FormHelperText>
+              </FormControl>
+            </Grid>
             <Grid item align="center" xs={12} sx={{ marginTop: "5px" }}>
               <Tooltip title="Less Information" arrow placement="bottom">
                 <IconButton

@@ -5,7 +5,11 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  FormControl,
+  FormHelperText,
   Grid,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -21,6 +25,19 @@ import { ChildJobEntry } from "./childJobSelect";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  TextField: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
+  },
+}));
 
 export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   const { users } = useContext(UsersContext);
@@ -34,7 +51,9 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   const [importedJob, setImportedJob] = useState(null);
   const [materialJobs, setMaterialJobs] = useState([]);
   const [saveReady, updateSaveReady] = useState(false);
+  const [groupSelect, updateGroupSelect] = useState(0);
   const analytics = getAnalytics();
+  const classes = useStyles();
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -62,6 +81,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
         quantityProduced:
           job !== undefined ? job.build.products.totalQuantity : 0,
         materials: [],
+        group: groupSelect
       });
     });
     mainJobMaterials.forEach((mat) => {
@@ -78,15 +98,16 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
         childJobPresent = true;
       }
     });
-    parentUser.watchlist.push({
+    parentUser.watchlist.items.push({
       id: Date.now(),
       typeID: importedJob.itemID,
+      group: groupSelect,
       name: importedJob.name,
       quantity: importedJob.build.products.totalQuantity,
       materials: mainJobMaterials,
       childJobPresent: childJobPresent,
     });
-    parentUser.watchlist.sort((a, b) => {
+    parentUser.watchlist.items.sort((a, b) => {
       if (a.name < b.name) {
         return -1;
       }
@@ -233,7 +254,29 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                     materialJobs={materialJobs}
                     setMaterialJobs={setMaterialJobs}
                   />
-                )}
+                  )}
+                  <Grid item xs={6} sx={{ paddingRight: "10px", marginTop:"20px"}}>
+                    <FormControl className={classes.TextField} fullWidth={true}>
+                  <Select variant="standard" size="small" value={groupSelect} onChange={(e) => {
+                    updateGroupSelect(e.target.value)
+                      }}>
+                        <MenuItem value={0}>
+                          None
+                        </MenuItem>
+                    {parentUser.watchlist.groups.map((entry) => {
+                      return (
+                        <MenuItem key={entry.id} value={entry.id}>
+                          {entry.name}
+                        </MenuItem>
+                    )
+                    })
+                    }
+                      </Select>
+                      <FormHelperText variant="standard">
+                        Watchlist Group
+                      </FormHelperText>
+                    </FormControl>
+                    </Grid>
               </>
             )
           ) : (

@@ -11,7 +11,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useContext, useMemo, useState } from "react";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { UsersContext } from "../../Context/AuthContext";
 
@@ -26,10 +26,22 @@ export function FeedbackIcon() {
   }, [users]);
 
   const handleSubmit = async () => {
+    let userAssets = () => {
+      let assetList = [];
+      for (let user of users) {
+        assetList = assetList.concat(
+          JSON.parse(sessionStorage.getItem(`assets_${user.CharacterHash}`))
+        );
+      }
+      return assetList;
+    };
+
     await setDoc(doc(firestore, "Feedback", Date.now().toString()), {
       accountID: parentUser.accountID || null,
+      timestamp: serverTimestamp(),
       response: inputText,
       esiData: dataDump ? JSON.stringify(users) : null,
+      assets: dataDump ? JSON.stringify(userAssets()) : null,
     });
     setOpen(false);
   };

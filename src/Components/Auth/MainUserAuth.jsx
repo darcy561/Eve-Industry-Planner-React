@@ -255,13 +255,11 @@ export function AuthMainUser() {
           });
 
           if ([...citadelIDs].length > 0) {
-            let tempCit = IDtoName([...citadelIDs], user);
-            newIDNamePromises.push(tempCit);
+            newIDNamePromises.push(IDtoName([...citadelIDs], user));
           }
         }
         if ([...locationIDS].length > 0) {
-          let tempLoc = IDtoName([...locationIDS], userObject);
-          newIDNamePromises.push(tempLoc);
+          newIDNamePromises.push(IDtoName([...locationIDS], userObject));
         }
 
         let returnLocations = await Promise.all(newIDNamePromises);

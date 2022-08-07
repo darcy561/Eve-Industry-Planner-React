@@ -29,7 +29,10 @@ export function BlueprintLibrary() {
     let tempArray = [];
     let idArray = new Set();
     for (let user of users) {
-      tempArray = tempArray.concat(user.apiBlueprints);
+      user.apiBlueprints.forEach((bp) => {
+        bp.owner = user.CharacterHash;
+        tempArray.push(bp);
+      });
     }
     tempArray.forEach((bp) => {
       idArray.add(bp.type_id);
@@ -48,7 +51,7 @@ export function BlueprintLibrary() {
     );
 
     updateBlueprintResults({ ids: returnIDs, blueprints: returnBps });
-    window.scrollTo(0, 0)
+    window.scrollTo(0, 0);
   }, [blueprintData, pagination.from, pagination.to, pagination.pageSize]);
 
   const handlePageChange = (event, page) => {
@@ -71,7 +74,11 @@ export function BlueprintLibrary() {
         <Grid container item spacing={2}>
           {blueprintResults.ids.map((bpID) => {
             return (
-              <BlueprintGroup key={bpID} bpID={bpID} blueprintResults={blueprintResults} />
+              <BlueprintGroup
+                key={bpID}
+                bpID={bpID}
+                blueprintResults={blueprintResults}
+              />
             );
           })}
           <Grid

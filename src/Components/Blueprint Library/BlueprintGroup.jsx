@@ -91,7 +91,7 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
                           newJob.build.materials.forEach((mat) => {
                             priceIDRequest.add(mat.typeID);
                           });
-                          let itemPrices = getItemPrices([...priceIDRequest]);
+                          let itemPrices = getItemPrices([...priceIDRequest], parentUser);
                           promiseArray.push(itemPrices);
                           await newJobSnapshot(newJob);
                           await updateMainUserDoc();

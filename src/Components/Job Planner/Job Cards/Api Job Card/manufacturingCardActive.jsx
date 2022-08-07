@@ -91,8 +91,8 @@ export function IndustryESICardActive({ job }) {
                       src={`https://images.evetech.net/characters/${job.installer_id}/portrait`}
                       variant="circular"
                       sx={{
-                        height: { xs: "16px", sm: "32px" },
-                        width: { xs: "16px", sm: "32px" },
+                        height: { xs: "16px", sm: "24px", md: "32px" },
+                        width: { xs: "16px", sm:"24px", md: "32px" },
                       }}
                     />
                   }

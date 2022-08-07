@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Grid, Icon, Tooltip, Typography } from "@mui/material";
+import { useContext, useState } from "react";
+import { Avatar, Badge, Grid, Icon, Tooltip, Typography } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { jobTypes } from "../../Context/defaultValues";
 import { makeStyles } from "@mui/styles";
 import { ActiveBPPopout } from "./ActiveBPPout";
+import { UsersContext } from "../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   inUse: {
@@ -18,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const classes = useStyles();
+  const { users } = useContext(UsersContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
 
   let blueprintType = "bp";
@@ -27,6 +29,8 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const esiJob = esiJobs.find(
     (i) => i.blueprint_id === blueprint.item_id && i.status === "active"
   );
+  const bpOwner = users.find((u) => u.CharacterHash);
+
   return (
     <Grid
       key={blueprint.item_id}
@@ -39,12 +43,27 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
       sx={{ marginBottom: "10px" }}
     >
       <Grid item xs={12}>
-        <picture>
-          <img
-            src={`https://images.evetech.net/types/${blueprint.type_id}/${blueprintType}?size=64`}
-            alt=""
-          />
-        </picture>
+        <Badge
+          overlap="circular"
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          badgeContent={
+            <Avatar
+              src={`https://images.evetech.net/characters/${bpOwner.CharacterID}/portrait`}
+              variant="circular"
+              sx={{
+                height: { xs: "24px", md: "24px", lg: "32px" },
+                width: { xs: "24px", md: "24px", lg: "32px" },
+              }}
+            />
+          }
+        >
+          <picture>
+            <img
+              src={`https://images.evetech.net/types/${blueprint.type_id}/${blueprintType}?size=64`}
+              alt=""
+            />
+          </picture>
+        </Badge>
       </Grid>
       <Grid
         className={

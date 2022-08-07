@@ -7,9 +7,13 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   FormControlLabel,
   FormGroup,
+  FormHelperText,
   Grid,
+  MenuItem,
+  Select,
   Switch,
   Typography,
 } from "@mui/material";
@@ -17,6 +21,16 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { useCharAssets } from "../../../../Hooks/useCharAssets";
+import { EveIDsContext } from "../../../../Context/EveDataContext";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  Select: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+  },
+}));
 
 export function ShoppingListDialog({
   shoppingListTrigger,
@@ -24,18 +38,29 @@ export function ShoppingListDialog({
   shoppingListData,
 }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
+  const { getAssetLocationList } = useCharAssets();
   const { buildShoppingList } = useJobManagement();
-  const { findLocationAssets } = useCharAssets();
+  const { findLocationAssets, retrieveAssetLocation } = useCharAssets();
   const [childJobDisplay, updateChildJobDisplay] = useState(false);
   const [displayData, updateDisplayData] = useState([]);
   const [volumeTotal, updateVolumeTotal] = useState(0);
   const [copyText, updateCopyText] = useState("");
   const [loadingData, updateLoadingData] = useState(true);
   const [removeAssets, updateRemoveAssets] = useState(false);
+  const [assetLocations, updateAssetLocations] = useState([]);
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
+  const [selectedLocation, updateSelectedLocation] = useState(
+    parentUser.settings.editJob.defaultAssetLocation
+  );
+  const [selectedCharacter, updateSelectedCharacter] = useState(
+    users.length > 1 ? "all" : parentUser.CharacterHash
+  );
+  const [newEveIDs, updateNewEveIDs] = useState([]);
+  const classes = useStyles();
 
   useEffect(() => {
     async function createShoppingListDisplay() {
@@ -46,7 +71,7 @@ export function ShoppingListDialog({
         let newDisplayData = [];
         let shoppingList = await buildShoppingList(shoppingListData);
         let [fullAssetList, locationAssets] = await findLocationAssets(
-          parentUser.settings.editJob.defaultAssetLocation
+          selectedLocation
         );
 
         function calcVolume(listItem, assetQuantity) {
@@ -90,6 +115,16 @@ export function ShoppingListDialog({
           return false;
         }
 
+        function findCharAssets(item) {
+          if (selectedCharacter !== "all") {
+            return fullAssetList.find(
+              (m) => m.item_id === item && m.CharacterHash === selectedCharacter
+            );
+          }
+
+          return fullAssetList.find((m) => m.item_id === item);
+        }
+
         shoppingList.forEach((listItem) => {
           let assetType = locationAssets.find(
             (i) => i.type_id === listItem.typeID
@@ -97,7 +132,7 @@ export function ShoppingListDialog({
           let assetQuantity = 0;
           if (assetType !== undefined) {
             assetType.itemIDs.forEach((item) => {
-              let asset = fullAssetList.find((m) => m.item_id === item);
+              let asset = findCharAssets(item);
               if (asset !== undefined) {
                 assetQuantity += asset.quantity;
               }
@@ -124,13 +159,29 @@ export function ShoppingListDialog({
     }
 
     createShoppingListDisplay();
-  }, [shoppingListTrigger, childJobDisplay, removeAssets]);
+  }, [
+    shoppingListTrigger,
+    childJobDisplay,
+    removeAssets,
+    selectedLocation,
+    selectedCharacter,
+  ]);
+  useEffect(() => {
+    async function assetLocationFetch() {
+      let [newAssetList, tempIDs] = await getAssetLocationList();
+      updateNewEveIDs(tempIDs);
+      updateAssetLocations(newAssetList);
+    }
+    assetLocationFetch();
+  }, []);
 
   const handleClose = () => {
     updateShoppingListTrigger(false);
     updateChildJobDisplay(false);
     updateRemoveAssets(false);
     updateDisplayData([]);
+    updateSelectedLocation(parentUser.settings.editJob.defaultAssetLocation);
+    updateEveIDs(newEveIDs);
     updateLoadingData(true);
   };
 
@@ -148,69 +199,154 @@ export function ShoppingListDialog({
       >
         Shopping List
       </DialogTitle>
+      {removeAssets && (
+        <DialogActions>
+          <Grid container>
+            <Grid item xs={6}>
+              <FormControl className={classes.Select} fullWidth={true}>
+                <Select
+                  value={selectedLocation}
+                  size="small"
+                  onChange={(e) => {
+                    updateSelectedLocation(e.target.value);
+                  }}
+                >
+                  {assetLocations.map((entry) => {
+                    let locationNameData = newEveIDs.find(
+                      (i) => entry === i.id
+                    );
+
+                    if (
+                      locationNameData === undefined ||
+                      locationNameData.name === "No Access To Location"
+                    ) {
+                      return null;
+                    }
+                    return (
+                      <MenuItem key={entry} value={entry}>
+                        {locationNameData.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+                <FormHelperText variant="standard">
+                  Asset Location
+                </FormHelperText>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl className={classes.Select} fullWidth={true}>
+                <Select
+                  value={selectedCharacter}
+                  size="small"
+                  onChange={(e) => {
+                    updateSelectedCharacter(e.target.value);
+                  }}
+                >
+                  {users.length > 1 && (
+                    <MenuItem key={"all"} value={"all"}>
+                      All
+                    </MenuItem>
+                  )}
+                  {users.map((user) => {
+                    return (
+                      <MenuItem
+                        key={user.CharacterHash}
+                        value={user.CharacterHash}
+                      >
+                        {user.CharacterName}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+                <FormHelperText variant="standard">
+                  Character Selection
+                </FormHelperText>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </DialogActions>
+      )}
       <DialogContent>
         {!loadingData ? (
-          <>
-            <Grid container>
-              {displayData.map((item) => {
-                return (
-                  <Grid
-                    key={item.typeID}
-                    container
-                    item
-                    xs={12}
-                    justifyContent="center"
-                    alignItems="center"
-                    sx={{ marginBottom: { xs: "1px", sm: "0px" } }}
-                  >
+          displayData.length > 0 ? (
+            <>
+              <Grid container>
+                {displayData.map((item) => {
+                  return (
                     <Grid
+                      key={item.typeID}
+                      container
                       item
-                      sm={1}
-                      sx={{
-                        display: { xs: "none", sm: "block" },
-                        paddingRight: "5px",
-                      }}
-                      align="center"
+                      xs={12}
+                      justifyContent="center"
+                      alignItems="center"
+                      sx={{ marginBottom: { xs: "1px", sm: "0px" } }}
                     >
-                      <img
-                        src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
-                        alt=""
-                      />
-                    </Grid>
-                    <Grid item xs={8} sm={7}>
-                      <Typography
-                        sx={{ typography: { xs: "caption", sm: "body1" } }}
+                      <Grid
+                        item
+                        sm={1}
+                        sx={{
+                          display: { xs: "none", sm: "block" },
+                          paddingRight: "5px",
+                        }}
+                        align="center"
                       >
-                        {item.name}
-                      </Typography>
+                        <img
+                          src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
+                          alt=""
+                        />
+                      </Grid>
+                      <Grid item xs={8} sm={7}>
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body1" } }}
+                        >
+                          {item.name}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body1" } }}
+                          align="right"
+                        >
+                          {removeAssets
+                            ? item.quantityLessAsset.toLocaleString()
+                            : item.quantity.toLocaleString()}
+                        </Typography>
+                      </Grid>
                     </Grid>
-                    <Grid item xs={4}>
-                      <Typography
-                        sx={{ typography: { xs: "caption", sm: "body1" } }}
-                        align="right"
-                      >
-                        {removeAssets
-                          ? item.quantityLessAsset.toLocaleString()
-                          : item.quantity.toLocaleString()}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                );
-              })}
-            </Grid>
-            <Grid container sx={{ marginTop: "20px" }}>
-              <Grid item xs={4}>
-                <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
-                  Total Volume
+                  );
+                })}
+              </Grid>
+              <Grid container sx={{ marginTop: "20px" }}>
+                <Grid item xs={4}>
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body1" } }}
+                  >
+                    Total Volume
+                  </Typography>
+                </Grid>
+                <Grid item xs={8} align="right">
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body1" } }}
+                  >
+                    {volumeTotal.toLocaleString()} m3
+                  </Typography>
+                </Grid>
+              </Grid>
+            </>
+          ) : (
+            <Grid conatiner>
+              <Grid item xs={12}>
+                <Typography
+                  align="center"
+                  sx={{ typography: { xs: "caption", sm: "body2" } }}
+                >
+                  No Items Required
                 </Typography>
               </Grid>
-              <Grid item xs={8} align="right">
-                <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
-                  {volumeTotal.toLocaleString()} m3
-                </Typography>
-              </Grid>
             </Grid>
-          </>
+          )
         ) : (
           <Grid container>
             <Grid item xs={12} align="center">
@@ -219,7 +355,7 @@ export function ShoppingListDialog({
           </Grid>
         )}
       </DialogContent>
-      <DialogActions sx={{ padding: "20px" }}>
+      <DialogActions>
         <Grid container>
           <Grid container item xs={12}>
             <Grid item xs={6}>
@@ -237,7 +373,7 @@ export function ShoppingListDialog({
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >
-                      Use character assets in quantity calculation
+                      Use Character Assets
                     </Typography>
                   }
                   labelPlacement="bottom"
@@ -259,7 +395,7 @@ export function ShoppingListDialog({
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >
-                      Include intermediary items
+                      Include Intermediary Items
                     </Typography>
                   }
                   labelPlacement="bottom"
@@ -267,7 +403,7 @@ export function ShoppingListDialog({
               </FormGroup>
             </Grid>
           </Grid>
-          <Grid container item={12} sx={{ marginTop: "20px" }}>
+          <Grid container item xs={12} sx={{ marginTop: "20px" }}>
             <Grid item sm={10} align="right">
               <CopyToClipboard
                 text={copyText}

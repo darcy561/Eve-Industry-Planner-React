@@ -8,10 +8,7 @@ import {
 } from "@mui/material";
 import { useContext, useMemo, useState } from "react";
 import { makeStyles } from "@mui/styles";
-import {
-  blueprintOptions,
-  structureOptions,
-} from "../../../../Context/defaultValues";
+import { structureOptions } from "../../../../Context/defaultValues";
 import { useBlueprintCalc } from "../../../../Hooks/useBlueprintCalc";
 import { jobTypes } from "../../../../Context/defaultValues";
 import { useJobBuild } from "../../../../Hooks/useJobBuild";
@@ -46,7 +43,7 @@ export function WishlistReactionOptions({
   const classes = useStyles();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
-  });
+  },[users]);
 
   return (
     <Grid container item xs={12} spacing={2}>

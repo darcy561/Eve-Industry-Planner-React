@@ -225,13 +225,11 @@ export function useRefreshUser() {
         locationIDS.add(order.region_id);
       });
       if ([...citadelIDs].length > 0) {
-        let tempCit = IDtoName([...citadelIDs], user);
-        newIDNamePromises.push(tempCit);
+        newIDNamePromises.push(IDtoName([...citadelIDs], user));
       }
     }
     if ([...locationIDS].length > 0) {
-      let tempLoc = IDtoName([...locationIDS], refreshedUser);
-      newIDNamePromises.push(tempLoc);
+      newIDNamePromises.push(IDtoName([...locationIDS], refreshedUser));
     }
 
     let returnLocations = await Promise.all(newIDNamePromises);

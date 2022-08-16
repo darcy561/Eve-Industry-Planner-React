@@ -52,9 +52,11 @@ export function MaterialRow({ material }) {
       t.start();
       updateAddJob(true);
       if (checkAllowBuild) {
-        let newJob = await buildJob(material.typeID, material.quantity, [
-          activeJob,
-        ]);
+        let newJob = await buildJob({
+          itemID: material.typeID,
+          itemQty: material.quantity,
+          parentJobs: [activeJob],
+        });
         if (newJob !== undefined) {
           let priceIDRequest = new Set();
           let promiseArray = [];

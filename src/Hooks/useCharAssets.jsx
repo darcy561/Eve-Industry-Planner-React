@@ -224,24 +224,27 @@ export function useCharAssets() {
               });
             }
           }
-        }
 
-        if (item.location_type === "item" || item.location_type === "other") {
-          let parentLocation = retrieveAssetLocation(item, userAssets);
-          if (parentLocation !== undefined && item.location_flag !== "Cargo") {
-            if (parentLocation.item_id === item.location_id) {
-              if (locationAssets.some((i) => i.type_id === item.type_id)) {
-                let index = locationAssets.findIndex(
-                  (i) => i.type_id === item.type_id
-                );
-                if (index !== -1) {
-                  locationAssets[index].itemIDs.push(item.item_id);
+          if (item.location_type === "item" || item.location_type === "other") {
+            let parentLocation = retrieveAssetLocation(item, userAssets);
+            if (
+              parentLocation !== undefined &&
+              item.location_flag !== "Cargo"
+            ) {
+              if (parentLocation.item_id === item.location_id) {
+                if (locationAssets.some((i) => i.type_id === item.type_id)) {
+                  let index = locationAssets.findIndex(
+                    (i) => i.type_id === item.type_id
+                  );
+                  if (index !== -1) {
+                    locationAssets[index].itemIDs.push(item.item_id);
+                  }
+                } else {
+                  locationAssets.push({
+                    type_id: item.type_id,
+                    itemIDs: [item.item_id],
+                  });
                 }
-              } else {
-                locationAssets.push({
-                  type_id: item.type_id,
-                  itemIDs: [item.item_id],
-                });
               }
             }
           }

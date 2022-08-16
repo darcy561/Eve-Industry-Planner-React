@@ -42,11 +42,12 @@ export function AuthMainUser() {
   const { updateEveIDs } = useContext(EveIDsContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateEvePrices } = useContext(EvePricesContext);
-  const { IDtoName, serverStatus } = useEveApi();
+  const { serverStatus } = useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { determineUserState, getItemPrices } = useFirebase();
-  const { characterAPICall, generateItemPriceRequest } = useAccountManagement();
+  const { buildMainUser, characterAPICall, generateItemPriceRequest, getLocationNames } =
+    useAccountManagement();
   const navigate = useNavigate();
   const analytics = getAnalytics();
 
@@ -63,7 +64,6 @@ export function AuthMainUser() {
           ...prevObj,
           eveSSO: true,
         }));
-        let userArray = [];
         let userObject = await EveSSOTokens(authCode, true);
         userObject.fbToken = await firebaseAuth(userObject);
 
@@ -74,36 +74,24 @@ export function AuthMainUser() {
         }));
 
         const userSettings = await determineUserState(userObject);
-        userObject.accountID = userSettings.accountID;
-        userObject.linkedJobs = userSettings.linkedJobs;
-        userObject.linkedTrans = userSettings.linkedTrans;
-        userObject.linkedOrders = userSettings.linkedOrders;
-        userObject.settings = userSettings.settings;
-        userObject.snapshotData = JSON.parse(
-          JSON.stringify(userSettings.jobArraySnapshot)
-        );
-        userObject.accountRefreshTokens = userSettings.refreshTokens;
-        userObject.watchlist = userSettings.watchlist;
+
+        buildMainUser(userObject, userSettings)
 
         let priceIDRequest = generateItemPriceRequest(userSettings);
-        let promiseArray = [];
-
-        let itemPrices = getItemPrices(priceIDRequest, userObject);
-        promiseArray.push(itemPrices);
+        let promiseArray = [getItemPrices(priceIDRequest, userObject)];
 
         updateLoadingText((prevObj) => ({
           ...prevObj,
           charDataComp: true,
           apiData: true,
         }));
-        let apiJobsArray = [];
 
         const sStatus = await serverStatus();
 
         userObject = await characterAPICall(sStatus, userObject, userObject);
 
-        apiJobsArray = apiJobsArray.concat(userObject.apiJobs);
-        userArray.push(userObject);
+        let apiJobsArray = userObject.apiJobs;
+        let userArray = [userObject];
         updateLoadingText((prevObj) => ({
           ...prevObj,
           apiDataComp: true,
@@ -138,7 +126,6 @@ export function AuthMainUser() {
           if (rTokens !== null) {
             for (let token of rTokens) {
               let newUser = await RefreshTokens(token.rToken, false);
-              console.log(newUser);
               if (newUser === "RefreshFail") {
                 failedRefresh.push(token.CharacterHash);
               }
@@ -151,9 +138,7 @@ export function AuthMainUser() {
               }
               if (newUser !== "RefreshFail") {
                 newUser = await characterAPICall(sStatus, newUser, userObject);
-                newUser.apiJobs.forEach((i) => {
-                  apiJobsArray.push(i);
-                });
+                apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
                 userArray.push(newUser);
               }
             }
@@ -200,75 +185,9 @@ export function AuthMainUser() {
           return 0;
         });
 
-        let locationIDS = new Set();
-        let citadelStore = new Set();
-        let newIDNamePromises = [];
-        let newNameArray = [];
-
-        for (let user of userArray) {
-          let citadelIDs = new Set();
-          if (user.ParentUser) {
-            if (
-              user.settings.editJob.defaultAssetLocation.toString().length > 10
-            ) {
-              if (
-                !citadelStore.has(user.settings.editJob.defaultAssetLocation)
-              ) {
-                citadelIDs.add(user.settings.editJob.defaultAssetLocation);
-                citadelStore.add(user.settings.editJob.defaultAssetLocation);
-              }
-            } else {
-              locationIDS.add(user.settings.editJob.defaultAssetLocation);
-            }
-          }
-          user.apiJobs.forEach((job) => {
-            if (job.facility_id.toString().length > 10) {
-              if (!citadelStore.has(job.facility_id)) {
-                citadelIDs.add(job.facility_id);
-                citadelStore.add(job.facility_id);
-              }
-            } else {
-              locationIDS.add(job.facility_id);
-            }
-          });
-          user.apiOrders.forEach((order) => {
-            if (order.location_id.toString().length > 10) {
-              if (!citadelStore.has(order.location_id)) {
-                citadelIDs.add(order.location_id);
-                citadelStore.add(order.location_id);
-              }
-            } else {
-              locationIDS.add(order.location_id);
-            }
-            locationIDS.add(order.region_id);
-          });
-          user.apiHistOrders.forEach((order) => {
-            if (order.location_id.toString().length > 10) {
-              if (!citadelStore.has(order.location_id)) {
-                citadelIDs.add(order.location_id);
-                citadelStore.add(order.location_id);
-              }
-            } else {
-              locationIDS.add(order.location_id);
-            }
-            locationIDS.add(order.region_id);
-          });
-
-          if ([...citadelIDs].length > 0) {
-            newIDNamePromises.push(IDtoName([...citadelIDs], user));
-          }
-        }
-        if ([...locationIDS].length > 0) {
-          newIDNamePromises.push(IDtoName([...locationIDS], userObject));
-        }
-
-        let returnLocations = await Promise.all(newIDNamePromises);
-
-        returnLocations.forEach((group) => {
-          newNameArray = newNameArray.concat(group);
-        });
-
         let returnPromiseArray = await Promise.all(promiseArray);
+        let newNameArray = await getLocationNames(userArray, userObject);
+
         updateEveIDs(newNameArray);
         updateEvePrices(returnPromiseArray[0]);
         setJobStatus(userSettings.jobStatusArray);

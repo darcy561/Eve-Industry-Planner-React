@@ -83,7 +83,7 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
                       t.start();
                       updateLoadingBuild((prev) => !prev);
                       if (checkAllowBuild) {
-                        let newJob = await buildJob(bpData.itemID, null);
+                        let newJob = await buildJob({ itemID: bpData.itemID });
                         if (newJob !== undefined) {
                           let priceIDRequest = new Set();
                           let promiseArray = [];
@@ -91,7 +91,10 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
                           newJob.build.materials.forEach((mat) => {
                             priceIDRequest.add(mat.typeID);
                           });
-                          let itemPrices = getItemPrices([...priceIDRequest], parentUser);
+                          let itemPrices = getItemPrices(
+                            [...priceIDRequest],
+                            parentUser
+                          );
                           promiseArray.push(itemPrices);
                           await newJobSnapshot(newJob);
                           await updateMainUserDoc();

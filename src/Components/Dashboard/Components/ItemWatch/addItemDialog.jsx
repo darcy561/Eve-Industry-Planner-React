@@ -150,7 +150,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                 onChange={async (event, value) => {
                   changeLoadingState(true);
                   changeLoadingText("Importing Item Data...");
-                  let newJob = await buildJob(value.itemID, null);
+                  let newJob = await buildJob({ itemID: value.itemID });
                   if (newJob !== undefined) {
                     let priceIDRequest = new Set();
                     let jobPromiseArray = [];
@@ -162,7 +162,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                         mat.jobType === jobTypes.reaction
                       ) {
                         jobPromiseArray.push(
-                          buildJob(mat.typeID, mat.quantity)
+                          buildJob({ itemID: mat.typeID, itemQty: mat.quantity })
                         );
                       }
                     }

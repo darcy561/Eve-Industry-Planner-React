@@ -122,14 +122,17 @@ export function useJobBuild() {
     }
   }
 
-  const buildJob = async (itemID, itemQty, parentJobs) => {
+  const buildJob = async (buildRequest) => {
     try {
-      if (itemID !== undefined) {
+      if (buildRequest.itemID === undefined) {
+        jobBuildErrors("Item Data Missing From Request");
+        return undefined;
+      }
         const appCheckToken = await getToken(appCheck, true);
         const response = await fetch(
           sisiDataFiles
-            ? `${process.env.REACT_APP_APIURL}/item/sisiData/${itemID}`
-            : `${process.env.REACT_APP_APIURL}/item/${itemID}`,
+            ? `${process.env.REACT_APP_APIURL}/item/sisiData/${buildRequest.itemID}`
+            : `${process.env.REACT_APP_APIURL}/item/${buildRequest.itemID}`,
           {
             headers: {
               "X-Firebase-AppCheck": appCheckToken.token,
@@ -203,15 +206,15 @@ export function useJobBuild() {
               }
             }
           }
-          if (itemQty !== null) {
-            recalculateItemQty(outputObject, itemQty);
+          if (buildRequest.itemQty !== undefined) {
+            recalculateItemQty(outputObject, buildRequest.itemQty);
           }
 
           let calculatedJob = CalculateResources(outputObject);
           calculatedJob = CalculateTime(calculatedJob);
-          if (parentJobs !== undefined) {
+          if (buildRequest.parentJobs !== undefined) {
             let itemParents = [];
-            parentJobs.forEach((job) => {
+            buildRequest.parentJobs.forEach((job) => {
               job.build.materials.forEach((mat) => {
                 if (mat.typeID === calculatedJob.itemID) {
                   itemParents.push(job.jobID);
@@ -225,10 +228,6 @@ export function useJobBuild() {
           jobBuildErrors("objectError");
           return undefined;
         }
-      } else {
-        jobBuildErrors("Item Data Missing From Request");
-        return undefined;
-      }
     } catch (err) {
       jobBuildErrors(err.name);
       return undefined;

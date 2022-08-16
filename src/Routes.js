@@ -17,11 +17,16 @@ import { useContext } from "react";
 import { IsLoggedInContext } from "./Context/AuthContext";
 import { Container } from "@mui/material";
 import { BlueprintLibrary } from "./Components/Blueprint Library/BlueprintLibrary";
+import { AssetLibrary } from "./Components/Assets/assets";
 
 export function NavRoutes({ mode, colorMode }) {
   return (
     <BrowserRouter>
-      <Container disableGutters maxWidth="false" sx={{marigin:"0px", padding:"0px"}}>
+      <Container
+        disableGutters
+        maxWidth="false"
+        sx={{ marigin: "0px", padding: "0px" }}
+      >
         <Header mode={mode} colorMode={colorMode} />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -31,7 +36,8 @@ export function NavRoutes({ mode, colorMode }) {
           <Route element={<ProtectedRoute />}>
             <Route path="/accounts" element={<AccountsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/blueprintlibrary" element={<BlueprintLibrary/>}/>
+            <Route path="/blueprint-library" element={<BlueprintLibrary />} />
+            <Route path="/asset-library" element={<AssetLibrary />} />
           </Route>
         </Routes>
         <Footer />

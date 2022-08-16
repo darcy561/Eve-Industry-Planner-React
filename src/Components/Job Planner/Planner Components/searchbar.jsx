@@ -41,7 +41,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function SearchBar({ updateShoppingListTrigger, updateShoppingListData }) {
+export function SearchBar({
+  updateShoppingListTrigger,
+  updateShoppingListData,
+}) {
   const { jobArray } = useContext(JobArrayContext);
   const { DataExchange } = useContext(DataExchangeContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
@@ -87,7 +90,7 @@ export function SearchBar({ updateShoppingListTrigger, updateShoppingListData })
               options={itemList}
               getOptionLabel={(option) => option.name}
               onChange={(event, value) => {
-                newJobProcess(value.itemID, null);
+                newJobProcess({ itemID: value.itemID });
               }}
               renderInput={(params) => (
                 <TextField
@@ -155,8 +158,8 @@ export function SearchBar({ updateShoppingListTrigger, updateShoppingListData })
                 sx={{ marginRight: "10px" }}
                 onClick={async () => {
                   if (multiSelectJobPlanner.length > 0) {
-                    updateShoppingListTrigger((prev) => !prev)
-                    updateShoppingListData(multiSelectJobPlanner)
+                    updateShoppingListTrigger((prev) => !prev);
+                    updateShoppingListData(multiSelectJobPlanner);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,

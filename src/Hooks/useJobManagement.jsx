@@ -116,11 +116,11 @@ export function useJobManagement() {
     return users.findIndex((i) => i.ParentUser);
   }, [users]);
 
-  const newJobProcess = async (itemID, itemQty, parentJobs) => {
+  const newJobProcess = async (buildRequest) => {
     t.start();
     if (checkAllowBuild()) {
       updateDataExchange(true);
-      const newJob = await buildJob(itemID, itemQty, parentJobs);
+      const newJob = await buildJob(buildRequest);
       if (newJob !== undefined) {
         let priceIDRequest = new Set();
         let promiseArray = [];
@@ -156,7 +156,7 @@ export function useJobManagement() {
           severity: "success",
           autoHideDuration: 3000,
         }));
-        if (parentJobs !== undefined) {
+        if (buildRequest.parentJobs !== undefined) {
           return newJob;
         }
       }
@@ -390,7 +390,11 @@ export function useJobManagement() {
 
     for (let item of finalBuildCount) {
       if (checkAllowBuild()) {
-        const newJob = await buildJob(item.typeID, item.quantity, parentIDs);
+        const newJob = await buildJob({
+          itemID: item.typeID,
+          itemQty: item.quantity,
+          parentJobs: parentIDs,
+        });
         if (newJob !== undefined) {
           materialPriceIDs.add(newJob.itemID);
           newJob.build.materials.forEach((mat) => {
@@ -781,7 +785,7 @@ export function useJobManagement() {
               name: material.name,
               typeID: material.typeID,
               quantity: material.quantity - material.quantityPurchased,
-              quantityLessAsset:0,
+              quantityLessAsset: 0,
               volume: material.volume,
               hasChild: material.childJob.length > 0 ? true : false,
               isVisible: false,
@@ -887,11 +891,11 @@ export function useJobManagement() {
       replaceSnapshot(inputJob);
     }
     await deleteMultipleJobsProcess(inputJobs);
-    let newJob = await newJobProcess(
-      inputJobs[0].itemID,
-      totalItems,
-      parentJobs
-    );
+    let newJob = await newJobProcess({
+      itemID: inputJobs[0].itemID,
+      itemQty: totalItems,
+      parentJobs: parentJobs,
+    });
     for (let job of parentJobs) {
       let mat = job.build.materials.find((i) => i.typeID === newJob.itemID);
 

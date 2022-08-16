@@ -172,8 +172,10 @@ export function ShoppingListDialog({
       updateNewEveIDs(tempIDs);
       updateAssetLocations(newAssetList);
     }
-    assetLocationFetch();
-  }, []);
+    if (shoppingListTrigger) {
+      assetLocationFetch();
+    }
+  }, [shoppingListTrigger]);
 
   const handleClose = () => {
     updateShoppingListTrigger(false);
@@ -336,7 +338,7 @@ export function ShoppingListDialog({
               </Grid>
             </>
           ) : (
-            <Grid conatiner>
+            <Grid container>
               <Grid item xs={12}>
                 <Typography
                   align="center"

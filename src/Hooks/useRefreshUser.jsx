@@ -19,8 +19,13 @@ import searchData from "../RawData/searchIndex.json";
 import { useAccountManagement } from "./useAccountManagement";
 
 export function useRefreshUser() {
-  const { IDtoName, serverStatus } = useEveApi();
-  const { characterAPICall, generateItemPriceRequest } = useAccountManagement();
+  const { serverStatus } = useEveApi();
+  const {
+    buildMainUser,
+    characterAPICall,
+    generateItemPriceRequest,
+    getLocationNames,
+  } = useAccountManagement();
   const { determineUserState, getItemPrices } = useFirebase();
   const { updateEveIDs } = useContext(EveIDsContext);
   const { setJobStatus } = useContext(JobStatusContext);
@@ -41,7 +46,7 @@ export function useRefreshUser() {
       ...prevObj,
       eveSSO: true,
     }));
-    let userArray = [];
+
     let refreshedUser = await RefreshTokens(refreshToken, true);
     refreshedUser.fbToken = await firebaseAuth(refreshedUser);
 
@@ -52,29 +57,18 @@ export function useRefreshUser() {
     }));
 
     const charSettings = await determineUserState(refreshedUser);
-    refreshedUser.ParentUser = true;
-    refreshedUser.accountID = charSettings.accountID;
-    refreshedUser.linkedJobs = charSettings.linkedJobs;
-    refreshedUser.linkedTrans = charSettings.linkedTrans;
-    refreshedUser.linkedOrders = charSettings.linkedOrders;
-    refreshedUser.settings = charSettings.settings;
-    refreshedUser.snapshotData = JSON.parse(
-      JSON.stringify(charSettings.jobArraySnapshot)
-    );
-    refreshedUser.accountRefreshTokens = charSettings.refreshTokens;
-    refreshedUser.watchlist = charSettings.watchlist;
-    let priceIDRequest = generateItemPriceRequest(charSettings);
-    let promiseArray = [];
 
-    let itemPrices = getItemPrices(priceIDRequest, refreshedUser);
-    promiseArray.push(itemPrices);
+    buildMainUser(refreshedUser, charSettings);
+
+    let priceIDRequest = generateItemPriceRequest(charSettings);
+    let promiseArray = [getItemPrices(priceIDRequest, refreshedUser)];
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
       charDataComp: true,
       apiData: true,
     }));
-    let apiJobsArray = [];
+
     const sStatus = await serverStatus();
     refreshedUser = await characterAPICall(
       sStatus,
@@ -82,8 +76,9 @@ export function useRefreshUser() {
       refreshedUser
     );
 
-    apiJobsArray = apiJobsArray.concat(refreshedUser.apiJobs);
-    userArray.push(refreshedUser);
+    let apiJobsArray = refreshedUser.apiJobs;
+    let userArray = [refreshedUser];
+
     updateLoadingText((prevObj) => ({
       ...prevObj,
       apiDataComp: true,
@@ -175,71 +170,10 @@ export function useRefreshUser() {
       return 0;
     });
 
-    let locationIDS = new Set();
-    let citadelStore = new Set();
-    let newIDNamePromises = [];
-    let newNameArray = [];
-
-    for (let user of userArray) {
-      let citadelIDs = new Set();
-      if (user.ParentUser) {
-        if (user.settings.editJob.defaultAssetLocation.toString().length > 10) {
-          if (!citadelStore.has(user.settings.editJob.defaultAssetLocation)) {
-            citadelIDs.add(user.settings.editJob.defaultAssetLocation);
-            citadelStore.add(user.settings.editJob.defaultAssetLocation);
-          }
-        } else {
-          locationIDS.add(user.settings.editJob.defaultAssetLocation);
-        }
-      }
-      user.apiJobs.forEach((job) => {
-        if (job.facility_id.toString().length > 10) {
-          if (!citadelStore.has(job.facility_id)) {
-            citadelIDs.add(job.facility_id);
-            citadelStore.add(job.facility_id);
-          }
-        } else {
-          locationIDS.add(job.facility_id);
-        }
-      });
-      user.apiOrders.forEach((order) => {
-        if (order.location_id.toString().length > 10) {
-          if (!citadelStore.has(order.location_id)) {
-            citadelIDs.add(order.location_id);
-            citadelStore.add(order.location_id);
-          }
-        } else {
-          locationIDS.add(order.location_id);
-        }
-        locationIDS.add(order.region_id);
-      });
-      user.apiHistOrders.forEach((order) => {
-        if (order.location_id.toString().length > 10) {
-          if (!citadelStore.has(order.location_id)) {
-            citadelIDs.add(order.location_id);
-            citadelStore.add(order.location_id);
-          }
-        } else {
-          locationIDS.add(order.location_id);
-        }
-        locationIDS.add(order.region_id);
-      });
-      if ([...citadelIDs].length > 0) {
-        newIDNamePromises.push(IDtoName([...citadelIDs], user));
-      }
-    }
-    if ([...locationIDS].length > 0) {
-      newIDNamePromises.push(IDtoName([...locationIDS], refreshedUser));
-    }
-
-    let returnLocations = await Promise.all(newIDNamePromises);
-
-    returnLocations.forEach((group) => {
-      newNameArray = newNameArray.concat(group);
-    });
-
+    let locationReturns = await getLocationNames(userArray, refreshedUser);
     let returnPromiseArray = await Promise.all(promiseArray);
-    updateEveIDs(newNameArray);
+
+    updateEveIDs(locationReturns);
     updateEvePrices(returnPromiseArray[0]);
     setJobStatus(charSettings.jobStatusArray);
     updateJobArray(charSettings.jobArraySnapshot);

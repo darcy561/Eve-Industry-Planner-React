@@ -18,6 +18,7 @@ import { IsLoggedInContext } from "./Context/AuthContext";
 import { Container } from "@mui/material";
 import { BlueprintLibrary } from "./Components/Blueprint Library/BlueprintLibrary";
 import { AssetLibrary } from "./Components/Assets/assets";
+import { UpcomingChanges } from "./Components/Upcoming Changes/upcomingReleases";
 
 export function NavRoutes({ mode, colorMode }) {
   return (
@@ -33,6 +34,7 @@ export function NavRoutes({ mode, colorMode }) {
           <Route path="/jobplanner" element={<JobPlanner />} />
           <Route path="/auth/" element={<AuthMainUser />} />
           <Route path="/itemtree" element={<ItemTree />} />
+          <Route path="/upcoming-changes" element={<UpcomingChanges />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/accounts" element={<AccountsPage />} />
             <Route path="/settings" element={<SettingsPage />} />

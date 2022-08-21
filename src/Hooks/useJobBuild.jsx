@@ -27,11 +27,11 @@ export function useJobBuild() {
   }, [users]);
 
   class Job {
-    constructor(itemJson) {
+    constructor(itemJson, buildRequest) {
       this.buildVer = process.env.REACT_APP_Version;
       this.metaLevel = itemJson.metaGroup || null;
       this.jobType = itemJson.jobType;
-      if (sisiDataFiles) {
+      if (buildRequest.sisiData) {
         this.name = `${itemJson.name} (Singularity)`;
       } else {
         this.name = itemJson.name;
@@ -77,7 +77,7 @@ export function useJobBuild() {
         },
         materials: null,
         buildChar: null,
-        sisiData: sisiDataFiles,
+        sisiData: buildRequest.sisiData || false,
       };
       this.rawData = {};
       this.layout = {
@@ -130,7 +130,7 @@ export function useJobBuild() {
       }
         const appCheckToken = await getToken(appCheck, true);
         const response = await fetch(
-          sisiDataFiles
+          buildRequest.sisiData
             ? `${process.env.REACT_APP_APIURL}/item/sisiData/${buildRequest.itemID}`
             : `${process.env.REACT_APP_APIURL}/item/${buildRequest.itemID}`,
           {
@@ -141,7 +141,7 @@ export function useJobBuild() {
           }
         );
         const itemJson = await response.json();
-        const outputObject = new Job(itemJson);
+        const outputObject = new Job(itemJson, buildRequest);
         try {
           outputObject.build.materials.forEach((material) => {
             material.purchasing = [];

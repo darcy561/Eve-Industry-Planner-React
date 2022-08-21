@@ -184,7 +184,7 @@ export function WishListManufacturingOptions({
               })}
             </Select>
             <FormHelperText variant="standard">
-              Material Efficiecy
+              Material Efficiency
             </FormHelperText>
           </FormControl>
         </Grid>
@@ -235,7 +235,7 @@ export function WishListManufacturingOptions({
                 );
               })}
             </Select>
-            <FormHelperText variant="standard">Time Efficiecy</FormHelperText>
+            <FormHelperText variant="standard">Time Efficiency</FormHelperText>
           </FormControl>
         </Grid>
       </Grid>

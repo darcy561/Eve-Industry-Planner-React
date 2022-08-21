@@ -99,6 +99,13 @@ export function SideMenu(props) {
             <ListItemText primary={"Job Planner"} />
           </ListItem>
           <Divider />
+          <ListItem button onClick={() => {
+            navigate("/upcoming-changes");
+            setOpen(false)
+          }}>
+            <ListItemText primary={"Upcoming Changes"}/>
+          </ListItem>
+          <Divider/>
         </List>
       </Box>
     </SwipeableDrawer>

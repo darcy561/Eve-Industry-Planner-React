@@ -15,8 +15,10 @@ import {
   UsersContext,
 } from "../../../../../Context/AuthContext";
 
-import { blueprintOptions } from "../../../../../Context/defaultValues";
-import { structureOptions } from "../../../../../Context/defaultValues";
+import {
+  blueprintOptions,
+  structureOptions,
+} from "../../../../../Context/defaultValues";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 import { makeStyles } from "@mui/styles";
 
@@ -156,7 +158,7 @@ export function ManufacturingOptions({ setJobModified }) {
                 })}
               </Select>
               <FormHelperText variant="standard">
-                Material Efficiecy
+                Material Efficiency
               </FormHelperText>
             </FormControl>
           </Grid>
@@ -184,7 +186,9 @@ export function ManufacturingOptions({ setJobModified }) {
                   );
                 })}
               </Select>
-              <FormHelperText variant="standard">Time Efficiecy</FormHelperText>
+              <FormHelperText variant="standard">
+                Time Efficiency
+              </FormHelperText>
             </FormControl>
           </Grid>
           <Grid item xs={6}>

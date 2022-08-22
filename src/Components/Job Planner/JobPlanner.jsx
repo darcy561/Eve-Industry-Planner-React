@@ -32,7 +32,7 @@ export function JobPlanner() {
 
   let parentUser = useMemo(() => {
     return users.find((u) => u.ParentUser);
-  }, [users, isLoggedIn]);
+  }, [users]);
 
   useEffect(async () => {
     if (isLoggedIn) {

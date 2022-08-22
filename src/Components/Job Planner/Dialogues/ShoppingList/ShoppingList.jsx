@@ -38,11 +38,11 @@ export function ShoppingListDialog({
   shoppingListData,
 }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { updateEveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { getAssetLocationList } = useCharAssets();
   const { buildShoppingList } = useJobManagement();
-  const { findLocationAssets, retrieveAssetLocation } = useCharAssets();
+  const { findLocationAssets } = useCharAssets();
   const [childJobDisplay, updateChildJobDisplay] = useState(false);
   const [displayData, updateDisplayData] = useState([]);
   const [volumeTotal, updateVolumeTotal] = useState(0);

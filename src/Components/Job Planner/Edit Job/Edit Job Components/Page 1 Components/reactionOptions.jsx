@@ -133,8 +133,8 @@ export function ReactionOptions({ setJobModified }) {
             <Tooltip
               title={
                 <span>
-                  <p>Medium: Astrahus, Raitaru, Athanor</p>
-                  <p>Large: Fortizar, Azbel, Tatara</p>
+                  <p>Medium: Astrahus, Athanor, Raitaru</p>
+                  <p>Large: Azbel, Fortizar, Tatara</p>
                 </span>
               }
               arrow

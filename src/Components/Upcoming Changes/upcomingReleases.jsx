@@ -5,7 +5,7 @@ import { UpcomingChangesSearch } from "./searchBar";
 import { SisiItem } from "./sisiItem";
 import { TranqItem } from "./tranqItem";
 
-export function UpcomingChanges() {
+export default function UpcomingChanges() {
   const [pageLoad, updatePageLoad] = useState(false);
   const [tranqItem, updateTranqItem] = useState(null);
   const [sisiItem, updateSisiItem] = useState(null);

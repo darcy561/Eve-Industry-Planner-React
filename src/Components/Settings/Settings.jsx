@@ -6,7 +6,7 @@ import { LayoutSettings } from "./SettingsModules/layoutSettings";
 import { ManuStrutures } from "./SettingsModules/manufacturingStructures";
 import { ReactionStrutures } from "./SettingsModules/reactionStructures";
 
-export function SettingsPage() {
+export default function SettingsPage() {
   const { users } = useContext(UsersContext);
   const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
   return (

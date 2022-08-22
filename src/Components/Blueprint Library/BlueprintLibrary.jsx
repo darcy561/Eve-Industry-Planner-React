@@ -5,7 +5,7 @@ import { ESIOffline } from "../offlineNotification";
 import { LibrarySearch } from "./LibrarySearch";
 import { BlueprintGroup } from "./BlueprintGroup";
 
-export function BlueprintLibrary() {
+export default function BlueprintLibrary() {
   const { users } = useContext(UsersContext);
 
   const [pagination, setPagination] = useState({

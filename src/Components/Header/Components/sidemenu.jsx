@@ -68,27 +68,35 @@ export function SideMenu(props) {
             )}
           </ListItem>
           <Divider sx={{ marginBottom: "20px" }} />
+          {isLoggedIn && (
+            <>
+              <Divider />
+              <ListItem
+                button
+                onClick={() => {
+                  navigate("/asset-library");
+                  setOpen(false);
+                }}
+              >
+                <ListItemText primary={"Asset Library"} />
+              </ListItem>
+            </>
+          )}
           <Divider />
-          <ListItem
-            button
-            onClick={() => {
-              navigate("/asset-library");
-              setOpen(false);
-            }}
-          >
-            <ListItemText primary={"Asset Library"} />
-          </ListItem>
-          <Divider />
-          <ListItem
-            button
-            onClick={() => {
-              navigate("/blueprint-library");
-              setOpen(false);
-            }}
-          >
-            <ListItemText primary={"Blueprint Library"} />
-          </ListItem>
-          <Divider />
+          {isLoggedIn && (
+            <>
+              <ListItem
+                button
+                onClick={() => {
+                  navigate("/blueprint-library");
+                  setOpen(false);
+                }}
+              >
+                <ListItemText primary={"Blueprint Library"} />
+              </ListItem>
+              <Divider />
+            </>
+          )}
           <ListItem
             button
             onClick={() => {
@@ -99,13 +107,16 @@ export function SideMenu(props) {
             <ListItemText primary={"Job Planner"} />
           </ListItem>
           <Divider />
-          <ListItem button onClick={() => {
-            navigate("/upcoming-changes");
-            setOpen(false)
-          }}>
-            <ListItemText primary={"Upcoming Changes"}/>
+          <ListItem
+            button
+            onClick={() => {
+              navigate("/upcoming-changes");
+              setOpen(false);
+            }}
+          >
+            <ListItemText primary={"Upcoming Changes"} />
           </ListItem>
-          <Divider/>
+          <Divider />
         </List>
       </Box>
     </SwipeableDrawer>

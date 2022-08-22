@@ -6,7 +6,7 @@ import { useCharAssets } from "../../Hooks/useCharAssets";
 import { AssetType } from "./assetType";
 import { AssetSearch } from "./assetSearch";
 
-export function AssetLibrary() {
+export default function AssetLibrary() {
   const { users } = useContext(UsersContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { findLocationAssets, getAssetLocationList } = useCharAssets();

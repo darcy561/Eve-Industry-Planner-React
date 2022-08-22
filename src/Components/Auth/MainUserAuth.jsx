@@ -34,7 +34,7 @@ export function login() {
   }&state=${state}`;
 }
 
-export function AuthMainUser() {
+export default function AuthMainUser() {
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { updateApiJobs } = useContext(ApiJobsContext);

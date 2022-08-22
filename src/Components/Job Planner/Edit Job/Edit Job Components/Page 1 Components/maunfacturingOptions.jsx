@@ -195,9 +195,9 @@ export function ManufacturingOptions({ setJobModified }) {
             <Tooltip
               title={
                 <span>
-                  <p>Medium: Astrahus, Raitaru, Athanor</p>
-                  <p>Large: Fortizar, Azbel, Tatara</p>
-                  <p>X-Large: Sotiyo, Keepstar</p>
+                  <p>Medium: Astrahus, Athanor, Raitaru</p>
+                  <p>Large: Azbel, Fortizar, Tatara</p>
+                  <p>X-Large: Keepstar, Sotiyo </p>
                 </span>
               }
               arrow

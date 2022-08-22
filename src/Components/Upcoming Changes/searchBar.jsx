@@ -1,7 +1,7 @@
 import { Autocomplete, Grid, Paper, TextField } from "@mui/material";
 import { useContext, useMemo } from "react";
 import { UsersContext } from "../../Context/AuthContext";
-import { EveIDsContext } from "../../Context/EveDataContext";
+import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { useJobBuild } from "../../Hooks/useJobBuild";
 import itemList from "../../RawData/searchIndex.json";
@@ -9,19 +9,25 @@ import itemList from "../../RawData/searchIndex.json";
 export function UpcomingChangesSearch({
   updateTranqItem,
   updateSisiItem,
-  updatePageLoad,
+  updateItemLoad,
 }) {
   const { users } = useContext(UsersContext);
-  const { updateEveIDs } = useContext(EveIDsContext);
+  const { updateEvePrices } = useContext(EvePricesContext);
   const { buildJob } = useJobBuild();
   const { getItemPrices } = useFirebase();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
   return (
-    <Paper sx={{ padding: "20px" }}>
+    <Paper
+      square
+      elevation={3}
+      sx={{
+        padding: "20px",
+      }}
+    >
       <Grid container>
-        <Grid item xs={6}>
+        <Grid item xs={12} sm={4} lg={2}>
           <Autocomplete
             disableClearable
             fullWidth
@@ -33,7 +39,7 @@ export function UpcomingChangesSearch({
             options={itemList}
             getOptionLabel={(option) => option.name}
             onChange={async (event, value) => {
-              updatePageLoad(true);
+              updateItemLoad(true);
               let newTranqJob = await buildJob({ itemID: value.itemID });
               let newSisiJob = await buildJob({
                 itemID: value.itemID,
@@ -51,12 +57,10 @@ export function UpcomingChangesSearch({
                 [...priceIDRequest],
                 parentUser
               );
-              console.log(newTranqJob);
-              console.log(newSisiJob);
-              updateEveIDs(newEvePrices);
+              updateEvePrices(newEvePrices);
               updateTranqItem(newTranqJob);
               updateSisiItem(newSisiJob);
-              updatePageLoad(false);
+              updateItemLoad(false);
             }}
             renderInput={(params) => (
               <TextField

@@ -14,9 +14,11 @@ import { useContext, useMemo, useState } from "react";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { UsersContext } from "../../Context/AuthContext";
+import { SnackBarDataContext } from "../../Context/LayoutContext";
 
 export function FeedbackIcon() {
   const { users } = useContext(UsersContext);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [open, setOpen] = useState(false);
   const [inputText, updateInputText] = useState("");
   const [dataDump, updateDataDump] = useState(false);
@@ -44,6 +46,13 @@ export function FeedbackIcon() {
       assets: dataDump ? JSON.stringify(userAssets()) : null,
     });
     setOpen(false);
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `Feedback Submitted`,
+      severity: "success",
+      autoHideDuration: 3000,
+    }))
   };
 
   return (
@@ -78,7 +87,7 @@ export function FeedbackIcon() {
           <Link href="https://discord.gg/KGSa8gh37z" underline="hover">
             Discord
           </Link>{" "}
-          if you would like further assistance?
+          if you would like further assistance.
         </DialogContent>
         <DialogActions>
           <TextField

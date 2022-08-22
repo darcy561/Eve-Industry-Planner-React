@@ -9,10 +9,7 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import {
-  blueprintOptions,
-  structureOptions,
-} from "../../Context/defaultValues";
+import { structureOptions } from "../../Context/defaultValues";
 
 import { makeStyles } from "@mui/styles";
 import { useBlueprintCalc } from "../../Hooks/useBlueprintCalc";
@@ -29,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function ManufacturingOptionsUpcomingChanges({
+export function ReactionOptionsUpcomingChanges({
   tranqItem,
   updateTranqItem,
   sisiItem,
@@ -39,9 +36,7 @@ export function ManufacturingOptionsUpcomingChanges({
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const [runValue, updateRunValue] = useState(1);
   const [jobValue, updateJobValue] = useState(1);
-  const [meValue, updateMEValue] = useState(0);
-  const [teValue, updateTEValue] = useState(0);
-  const [structValue, updateStructValue] = useState("Station");
+  const [structValue, updateStructValue] = useState("Medium");
   const [rigsValue, updateRigsValue] = useState(0);
   const [systemValue, updateSystemValue] = useState(1);
 
@@ -53,16 +48,12 @@ export function ManufacturingOptionsUpcomingChanges({
         if (tranqItem === null && sisiItem !== null) {
           updateRunValue(sisiItem.runCount);
           updateJobValue(sisiItem.jobCount);
-          updateMEValue(sisiItem.bpME);
-          updateTEValue(sisiItem.bpTE);
           updateStructValue(sisiItem.structureTypeDisplay);
           updateRigsValue(sisiItem.rigType);
           updateSystemValue(sisiItem.systemType);
         } else {
           updateRunValue(tranqItem.runCount);
           updateJobValue(tranqItem.jobCount);
-          updateMEValue(tranqItem.bpME);
-          updateTEValue(tranqItem.bpTE);
           updateStructValue(tranqItem.structureTypeDisplay);
           updateRigsValue(tranqItem.rigType);
           updateSystemValue(tranqItem.systemType);
@@ -81,7 +72,7 @@ export function ManufacturingOptionsUpcomingChanges({
       }}
     >
       <Grid container>
-        <Grid item xs={6} sm={3} md={3} align="center">
+        <Grid item xs={6}>
           <TextField
             fullWidth
             className={classes.TextField}
@@ -103,13 +94,10 @@ export function ManufacturingOptionsUpcomingChanges({
               updateSisiItem(newSisiItem);
               updateRunValue(Number(e.target.value));
             }}
-            sx={{
-              paddingLeft: "5px",
-              paddingRight: "5px",
-            }}
+            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
           />
         </Grid>
-        <Grid item xs={6} sm={3} md={3} align="center">
+        <Grid item xs={6}>
           <TextField
             fullWidth
             defaultValue={jobValue}
@@ -134,88 +122,12 @@ export function ManufacturingOptionsUpcomingChanges({
             sx={{ paddingLeft: "5px", paddingRight: "5px" }}
           />
         </Grid>
-        <Grid item xs={6} sm={3} md={3} align="center">
-          <FormControl
-            className={classes.TextField}
-            fullWidth
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
-          >
-            <Select
-              fullWidth
-              defaultValue={meValue}
-              variant="standard"
-              size="small"
-              value={meValue}
-              onChange={(e) => {
-                let oldTranqItem = JSON.parse(JSON.stringify(tranqItem));
-                let oldSisiItem = JSON.parse(JSON.stringify(sisiItem));
-                oldTranqItem.bpME = Number(e.target.value);
-                oldSisiItem.bpME = Number(e.target.value);
-                let newTranqItem = CalculateResources(oldTranqItem);
-                newTranqItem = CalculateTime(newTranqItem);
-                let newSisiItem = CalculateResources(oldSisiItem);
-                newSisiItem = CalculateTime(newSisiItem);
-                updateTranqItem(newTranqItem);
-                updateSisiItem(newSisiItem);
-                updateMEValue(e.target.value);
-              }}
-            >
-              {blueprintOptions.me.map((entry) => {
-                return (
-                  <MenuItem key={entry.label} value={entry.value}>
-                    {entry.label}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-            <FormHelperText variant="standard">
-              Material Efficiency
-            </FormHelperText>
-          </FormControl>
-        </Grid>
-        <Grid item xs={6} sm={3} md={3} align="center">
-          <FormControl
-            className={classes.TextField}
-            fullWidth
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
-          >
-            <Select
-              defaultValue={teValue}
-              variant="standard"
-              size="small"
-              value={teValue}
-              onChange={(e) => {
-                let oldTranqItem = JSON.parse(JSON.stringify(tranqItem));
-                let oldSisiItem = JSON.parse(JSON.stringify(sisiItem));
-                oldTranqItem.bpTE = Number(e.target.value);
-                oldSisiItem.bpTE = Number(e.target.value);
-                let newTranqItem = CalculateResources(oldTranqItem);
-                newTranqItem = CalculateTime(newTranqItem);
-                let newSisiItem = CalculateResources(oldSisiItem);
-                newSisiItem = CalculateTime(newSisiItem);
-                updateTranqItem(newTranqItem);
-                updateSisiItem(newSisiItem);
-                updateTEValue(e.target.value);
-              }}
-            >
-              {blueprintOptions.te.map((entry) => {
-                return (
-                  <MenuItem key={entry.label} value={entry.value}>
-                    {entry.label}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-            <FormHelperText variant="standard">Time Efficiency</FormHelperText>
-          </FormControl>
-        </Grid>
-        <Grid item xs={6} sm={3} md={4} align="center">
+        <Grid item xs={4}>
           <Tooltip
             title={
               <span>
                 <p>Medium: Astrahus, Athanor, Raitaru</p>
                 <p>Large: Azbel, Fortizar, Tatara</p>
-                <p>X-Large: Keepstar, Sotiyo </p>
               </span>
             }
             arrow
@@ -248,7 +160,7 @@ export function ManufacturingOptionsUpcomingChanges({
                   updateStructValue(e.target.value);
                 }}
               >
-                {structureOptions.manStructure.map((entry) => {
+                {structureOptions.reactionStructure.map((entry) => {
                   return (
                     <MenuItem key={entry.label} value={entry.value}>
                       {entry.label}
@@ -260,7 +172,7 @@ export function ManufacturingOptionsUpcomingChanges({
             </FormControl>
           </Tooltip>
         </Grid>
-        <Grid item xs={6} sm={3} md={4} align="center">
+        <Grid item xs={4}>
           <FormControl
             className={classes.TextField}
             fullWidth
@@ -284,7 +196,7 @@ export function ManufacturingOptionsUpcomingChanges({
                 updateRigsValue(e.target.value);
               }}
             >
-              {structureOptions.manRigs.map((entry) => {
+              {structureOptions.reactionRigs.map((entry) => {
                 return (
                   <MenuItem key={entry.label} value={entry.value}>
                     {entry.label}
@@ -295,7 +207,7 @@ export function ManufacturingOptionsUpcomingChanges({
             <FormHelperText variant="standard">Rig Type</FormHelperText>
           </FormControl>
         </Grid>
-        <Grid item xs={6} sm={3} md={4} align="center">
+        <Grid item xs={4}>
           <FormControl
             className={classes.TextField}
             fullWidth
@@ -319,7 +231,7 @@ export function ManufacturingOptionsUpcomingChanges({
                 updateSystemValue(e.target.value);
               }}
             >
-              {structureOptions.manSystem.map((entry) => {
+              {structureOptions.reactionSystem.map((entry) => {
                 return (
                   <MenuItem key={entry.label} value={entry.value}>
                     {entry.label}

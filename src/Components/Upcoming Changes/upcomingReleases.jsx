@@ -11,17 +11,12 @@ import { UpcomingChangesSearch } from "./searchBar";
 import { SisiItem } from "./sisiItem";
 import { TranqItem } from "./tranqItem";
 
-<<<<<<< HEAD
 export default function UpcomingChanges() {
-  const [pageLoad, updatePageLoad] = useState(false);
-=======
-export function UpcomingChanges() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
   const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
   const [itemLoad, updateItemLoad] = useState(false);
->>>>>>> 95a6a1cfc0f1d4d4b238f15c522d8c895aaf0ddc
   const [tranqItem, updateTranqItem] = useState(null);
   const [sisiItem, updateSisiItem] = useState(null);
 

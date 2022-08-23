@@ -27,7 +27,7 @@ export function UpcomingChangesSearch({
       }}
     >
       <Grid container>
-        <Grid item xs={12} sm={4} lg={2}>
+        <Grid item xs={12} sm={4} lg={3} xl={2}>
           <Autocomplete
             disableClearable
             fullWidth

@@ -68,12 +68,12 @@ export function AvailableTransactionData({
                     align="center"
                     sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
                   >
-                    <Typography variant="body2">
+                    <Typography sx={{typography:{xs:"caption", sm:"body2"}}}>
                       {new Date(tData.date).toLocaleString()}
                     </Typography>
                   </Grid>
                   <Grid item xs={6} md={2} align="center">
-                    <Typography variant="body2">{tData.description}</Typography>
+                    <Typography sx={{typography:{xs:"caption", sm:"body2"}}}>{tData.description}</Typography>
                   </Grid>
                   <Grid
                     item
@@ -82,7 +82,7 @@ export function AvailableTransactionData({
                     align="center"
                     sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
                   >
-                    <Typography variant="body2">
+                    <Typography sx={{typography:{xs:"caption", sm:"body2"}}}>
                       {tData.quantity.toLocaleString(undefined, {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0,
@@ -96,7 +96,7 @@ export function AvailableTransactionData({
                     </Typography>
                   </Grid>
                   <Grid item xs={6} md={2} align="center">
-                    <Typography variant="body2">
+                    <Typography sx={{typography:{xs:"caption", sm:"body2"}}}>
                       {tData.amount.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -105,7 +105,7 @@ export function AvailableTransactionData({
                     </Typography>
                   </Grid>
                   <Grid item xs={6} md={2} align="center">
-                    <Typography variant="body2">
+                    <Typography sx={{typography:{xs:"caption", sm:"body2"}}}>
                       -
                       {tData.tax.toLocaleString(undefined, {
                         minimumFractionDigits: 2,

@@ -1,7 +1,7 @@
 import { Autocomplete, Grid, Paper, TextField } from "@mui/material";
 import { useContext, useMemo } from "react";
 import { UsersContext } from "../../Context/AuthContext";
-import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
+import { EvePricesContext } from "../../Context/EveDataContext";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { useJobBuild } from "../../Hooks/useJobBuild";
 import itemList from "../../RawData/searchIndex.json";
@@ -12,7 +12,7 @@ export function UpcomingChangesSearch({
   updateItemLoad,
 }) {
   const { users } = useContext(UsersContext);
-  const { updateEvePrices } = useContext(EvePricesContext);
+  const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { buildJob } = useJobBuild();
   const { getItemPrices } = useFirebase();
   const parentUser = useMemo(() => {
@@ -53,9 +53,9 @@ export function UpcomingChangesSearch({
               newSisiJob.build.materials.forEach((mat) => {
                 priceIDRequest.add(mat.typeID);
               });
-              let newEvePrices = await getItemPrices(
-                [...priceIDRequest],
-                parentUser
+
+              let newEvePrices = evePrices.concat(
+                await getItemPrices([...priceIDRequest], parentUser)
               );
               updateEvePrices(newEvePrices);
               updateTranqItem(newTranqJob);

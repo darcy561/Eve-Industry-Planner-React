@@ -155,7 +155,7 @@ export function AccountEntry({ user, parentUserIndex }) {
             />
           </Grid>
           <Grid item xs={8} sm={9}>
-            <Typography variant="body1">{user.CharacterName}</Typography>
+            <Typography sx={{typography:{xs:"caption", sm:"body1"}}}>{user.CharacterName}</Typography>
           </Grid>
           <Grid item xs={1} align="center">
             {refreshState === 1 && userRefreshState === 1 ? (

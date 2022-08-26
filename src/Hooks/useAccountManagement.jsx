@@ -166,5 +166,6 @@ export function useAccountManagement() {
     return newNameArray
   }
 
+
   return { buildMainUser, characterAPICall, generateItemPriceRequest, getLocationNames };
 }

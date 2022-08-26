@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { useEveApi } from "./useEveApi";
@@ -31,11 +31,33 @@ export function useRefreshUser() {
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
-  const { updateUsers } = useContext(UsersContext);
-  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { users, updateUsers } = useContext(UsersContext);
+  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
+
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
+
+  const checkUserState = async () => {
+    if (isLoggedIn) {
+      if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
+        let newUsersArray = [...users];
+        const index = newUsersArray.findIndex((i) => i.ParentUser);
+        newUsersArray[index] = await RefreshUserAToken(parentUser);
+        updateUsers(newUsersArray);
+      }
+      updatePageLoad(false);
+    } else {
+      if (localStorage.getItem("Auth") == null) {
+        updatePageLoad(false);
+      } else {
+        reloadMainUser(localStorage.getItem("Auth"));
+      }
+    }
+  };
 
   const reloadMainUser = async (refreshToken) => {
     const analytics = getAnalytics();
@@ -231,5 +253,5 @@ export function useRefreshUser() {
     }
   };
 
-  return { RefreshUserAToken, reloadMainUser };
+  return { checkUserState, RefreshUserAToken, reloadMainUser };
 }

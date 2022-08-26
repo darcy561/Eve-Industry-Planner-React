@@ -1,6 +1,5 @@
 import { Grid } from "@mui/material";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
+import { useContext, useEffect, useState } from "react";
 import { jobTypes } from "../../Context/defaultValues";
 import { PageLoadContext } from "../../Context/LayoutContext";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
@@ -12,34 +11,14 @@ import { SisiItem } from "./sisiItem";
 import { TranqItem } from "./tranqItem";
 
 export default function UpcomingChanges() {
-  const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, updateUsers } = useContext(UsersContext);
-  const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
-  const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
+  const { checkUserState } = useRefreshUser();
+  const { pageLoad } = useContext(PageLoadContext);
   const [itemLoad, updateItemLoad] = useState(false);
   const [tranqItem, updateTranqItem] = useState(null);
   const [sisiItem, updateSisiItem] = useState(null);
 
-  let parentUser = useMemo(() => {
-    return users.find((u) => u.ParentUser);
-  }, [users]);
-
-  useEffect(async () => {
-    if (isLoggedIn) {
-      if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
-        let newUsersArray = [...users];
-        const index = newUsersArray.findIndex((i) => i.ParentUser);
-        newUsersArray[index] = await RefreshUserAToken(parentUser);
-        updateUsers(newUsersArray);
-      }
-      updatePageLoad(false);
-    } else {
-      if (localStorage.getItem("Auth") == null) {
-        updatePageLoad(false);
-      } else {
-        reloadMainUser(localStorage.getItem("Auth"));
-      }
-    }
+  useEffect(() => {
+    checkUserState();
   }, []);
 
   if (pageLoad) {

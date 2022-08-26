@@ -5,7 +5,7 @@ import {
   ApiJobs,
   ArchivedJobs,
 } from "./Context/JobContext";
-import { IsLoggedIn, Users } from "./Context/AuthContext";
+import { FirebaseListeners, IsLoggedIn, Users } from "./Context/AuthContext";
 import {
   EveESIStatus,
   EveIDs,
@@ -29,50 +29,52 @@ import App from "./App";
 
 export function AppWrapper() {
   return (
-    <SnackbarData>
-      <DialogData>
-        <PageLoad>
-          <LoadingText>
-            <RefreshState>
-              <IsLoggedIn>
-                <Users>
-                  <DataExchange>
-                    <ActiveJob>
-                      <JobArray>
-                        <JobStatus>
-                          <ApiJobs>
-                            <EveIDs>
-                              <EveESIStatus>
-                                <EvePrices>
-                                  <MultiSelectJobPlanner>
-                                    <PriceEntryList>
-                                      <SisiDataFiles>
-                                        <MassBuildDisplay>
-                                          <ArchivedJobs>
-                                            <LocalizationProvider
-                                              dateAdapter={AdapterDateFns}
-                                            >
-                                              <App />
-                                            </LocalizationProvider>
-                                          </ArchivedJobs>
-                                        </MassBuildDisplay>
-                                      </SisiDataFiles>
-                                    </PriceEntryList>
-                                  </MultiSelectJobPlanner>
-                                </EvePrices>
-                              </EveESIStatus>
-                            </EveIDs>
-                          </ApiJobs>
-                        </JobStatus>
-                      </JobArray>
-                    </ActiveJob>
-                  </DataExchange>
-                </Users>
-              </IsLoggedIn>
-            </RefreshState>
-          </LoadingText>
-        </PageLoad>
-      </DialogData>
-    </SnackbarData>
+    <FirebaseListeners>
+      <SnackbarData>
+        <DialogData>
+          <PageLoad>
+            <LoadingText>
+              <RefreshState>
+                <IsLoggedIn>
+                  <Users>
+                    <DataExchange>
+                      <ActiveJob>
+                        <JobArray>
+                          <JobStatus>
+                            <ApiJobs>
+                              <EveIDs>
+                                <EveESIStatus>
+                                  <EvePrices>
+                                    <MultiSelectJobPlanner>
+                                      <PriceEntryList>
+                                        <SisiDataFiles>
+                                          <MassBuildDisplay>
+                                            <ArchivedJobs>
+                                              <LocalizationProvider
+                                                dateAdapter={AdapterDateFns}
+                                              >
+                                                <App />
+                                              </LocalizationProvider>
+                                            </ArchivedJobs>
+                                          </MassBuildDisplay>
+                                        </SisiDataFiles>
+                                      </PriceEntryList>
+                                    </MultiSelectJobPlanner>
+                                  </EvePrices>
+                                </EveESIStatus>
+                              </EveIDs>
+                            </ApiJobs>
+                          </JobStatus>
+                        </JobArray>
+                      </ActiveJob>
+                    </DataExchange>
+                  </Users>
+                </IsLoggedIn>
+              </RefreshState>
+            </LoadingText>
+          </PageLoad>
+        </DialogData>
+      </SnackbarData>
+    </FirebaseListeners>
   );
 }

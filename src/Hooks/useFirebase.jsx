@@ -1,7 +1,14 @@
 import { useContext } from "react";
 import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
 import { appCheck, firestore, functions, performance } from "../firebase";
-import { doc, deleteDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  deleteDoc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import { ArchivedJobsContext, JobStatusContext } from "../Context/JobContext";
@@ -51,7 +58,7 @@ export function useFirebase() {
           linkedTrans: charData.data.linkedTrans,
           settings: charData.data.settings,
           refreshTokens: charData.data.refreshTokens,
-          watchlist: charData.data.watchlist
+          watchlist: charData.data.watchlist,
         };
       } catch (err) {
         console.log(err);
@@ -63,27 +70,55 @@ export function useFirebase() {
       return newUser;
     }
     if (!user.fbToken._tokenResponse.isNewUser) {
+      // const unsub = onSnapshot(
+      //   doc(firestore, "Users", user.accountID),
+      //   (doc) => {
+      //     const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
+
+      //     if (doc.data() !== undefined) {
+      //       const charData = doc.data();
+      //       const newJobArray = [];
+      //       for (let i in charData.jobArraySnapshot) {
+      //         newJobArray.push(charData.jobArraySnapshot[i]);
+      //       }
+
+      //       newJobArray.sort((a, b) => {
+      //         if (a.name < b.name) {
+      //           return -1;
+      //         }
+      //         if (a.name < b.name) {
+      //           return 1;
+      //         }
+      //         return 0;
+      //       });
+      //       charData.jobArraySnapshot = newJobArray;
+      //       console.log(source)
+      //       return charData;
+      //     }
+      //   }
+      // );
+
       const CharSnap = await getDoc(doc(firestore, "Users", user.accountID));
 
       if (CharSnap.data() !== undefined) {
-        const charData = CharSnap.data();
-        const newJobArray = [];
-        for (let i in charData.jobArraySnapshot) {
-          newJobArray.push(charData.jobArraySnapshot[i]);
+      const charData = CharSnap.data();
+      const newJobArray = [];
+      for (let i in charData.jobArraySnapshot) {
+        newJobArray.push(charData.jobArraySnapshot[i]);
+      }
+
+      newJobArray.sort((a, b) => {
+        if (a.name < b.name) {
+          return -1;
         }
+        if (a.name < b.name) {
+          return 1;
+        }
+        return 0;
+      });
+      charData.jobArraySnapshot = newJobArray;
 
-        newJobArray.sort((a, b) => {
-          if (a.name < b.name) {
-            return -1;
-          }
-          if (a.name < b.name) {
-            return 1;
-          }
-          return 0;
-        });
-        charData.jobArraySnapshot = newJobArray;
-
-        return charData;
+      return charData;
       } else {
         let newUser = await buildNewUserProcess();
         return newUser;

@@ -16,16 +16,16 @@ export function AccountInfo() {
         </Grid>
         <Grid container item xs={12}>
           <Grid item xs={3} sx={{ marginBottom: "10px" }}>
-            <Typography variant="body2">Character Name:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>Character Name:</Typography>
           </Grid>
           <Grid item xs={9} align="right">
-            <Typography variant="body2">{parentUser.CharacterName}</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>{parentUser.CharacterName}</Typography>
           </Grid>
           <Grid item xs={3} sx={{ marginBottom: "10px" }}>
-            <Typography variant="body2">Account ID:</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>Account ID:</Typography>
           </Grid>
           <Grid item xs={9} align="right">
-            <Typography variant="body2">{parentUser.accountID}</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>{parentUser.accountID}</Typography>
           </Grid>
         </Grid>
       </Grid>

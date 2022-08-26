@@ -60,7 +60,7 @@ export function EditJobSettings({ parentUserIndex }) {
       updateDataLoading(true);
       let [newAssetList, newEveIDs] = await getAssetLocationList();
       updateAssetLocationEntries(newAssetList);
-      updateEveIDs(newEveIDs)
+      updateEveIDs(newEveIDs);
       updateDataLoading((prev) => !prev);
     }
     getAsset();
@@ -75,7 +75,7 @@ export function EditJobSettings({ parentUserIndex }) {
           </Typography>
         </Grid>
         <Grid container item xs={12}>
-          <Grid item xs={6} sm={4}>
+          <Grid item xs={6} sm={4} lg={3}>
             <FormControl className={classes.Select} fullWidth={true}>
               <Select
                 value={marketSelect}
@@ -107,7 +107,7 @@ export function EditJobSettings({ parentUserIndex }) {
               </FormHelperText>
             </FormControl>
           </Grid>
-          <Grid item xs={6} sm={4}>
+          <Grid item xs={6} sm={4} lg={3}>
             <FormControl className={classes.Select} fullWidth={true}>
               <Select
                 value={listingSelect}
@@ -139,7 +139,7 @@ export function EditJobSettings({ parentUserIndex }) {
               </FormHelperText>
             </FormControl>
           </Grid>
-          <Grid item xs={10} sm={4}>
+          <Grid item xs={12} sm={4} lg={6} sx={{marginTop:{xs:"20px", sm:"0px"}}}>
             <FormGroup>
               <FormControlLabel
                 control={
@@ -159,12 +159,18 @@ export function EditJobSettings({ parentUserIndex }) {
                     }}
                   />
                 }
-                label="Hide Complete Materials"
-                labelPlacement="start"
+                label={
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    Hide Complete Materials
+                  </Typography>
+                }
+                labelPlacement="bottom"
               />
             </FormGroup>
           </Grid>
-          <Grid item xs={12} sm={6} align="center" sx={{ marginTop: "10px" }}>
+          <Grid item xs={12} sm={6} align="center" sx={{ marginTop:{xs:"20px", sm:"10px"}}}>
             {dataLoading ? (
               <CircularProgress color="primary" size="20px" />
             ) : (

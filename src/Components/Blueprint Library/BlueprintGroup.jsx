@@ -18,7 +18,7 @@ import { useJobManagement } from "../../Hooks/useJobManagement";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { EvePricesContext } from "../../Context/EveDataContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
-import { UsersContext } from "../../Context/AuthContext";
+import { UserJobSnapshotContext, UsersContext } from "../../Context/AuthContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "@firebase/performance";
 import { performance } from "../../firebase";
@@ -29,6 +29,7 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
   const { updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const [archiveOpen, updateArchiveOpen] = useState(false);
   const [loadingBuild, updateLoadingBuild] = useState(false);
   const { buildJob, checkAllowBuild } = useJobBuild();
@@ -96,9 +97,10 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
                             parentUser
                           );
                           promiseArray.push(itemPrices);
-                          await newJobSnapshot(newJob);
+                          let newUserJobSnapshot =  newJobSnapshot(newJob, [...userJobSnapshot]);
                           await updateMainUserDoc();
                           await addNewJob(newJob);
+                          await updateUserJobSnapshot(newUserJobSnapshot);
 
                           logEvent(analytics, "New Job", {
                             loggedIn: true,
@@ -109,6 +111,7 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
                           let returnPromiseArray = await Promise.all(
                             promiseArray
                           );
+                          updateUserJobSnapshot(newUserJobSnapshot)
                           updateEvePrices((prev) =>
                             prev.concat(returnPromiseArray[0])
                           );

@@ -216,4 +216,4 @@ exports.user = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
-exports.newFeedback = require("./Triggered Functions/Feedback/newFeedback");
+exports.feedback = require("./Triggered Functions/storeFeedback");

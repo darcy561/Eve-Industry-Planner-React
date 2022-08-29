@@ -23,6 +23,7 @@ import { JobArrayContext } from "../../../Context/JobContext";
 import { SisiDataFilesContext } from "../../../Context/EveDataContext";
 
 import { makeStyles } from "@mui/styles";
+import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   Autocomplete: {
@@ -49,6 +50,7 @@ export function SearchBar({
   const { DataExchange } = useContext(DataExchangeContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
   const { updateDialogData } = useContext(DialogDataContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { sisiDataFiles, updateSisiDataFiles } =
     useContext(SisiDataFilesContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -58,10 +60,10 @@ export function SearchBar({
     deleteMultipleJobsProcess,
     massBuildMaterials,
     mergeJobs,
+    mergeJobsNew,
     moveMultipleJobsBackward,
     moveMultipleJobsForward,
     newJobProcess,
-    buildShoppingList,
     buildItemPriceEntry,
   } = useJobManagement();
   const classes = useStyles();
@@ -321,7 +323,7 @@ export function SearchBar({
                   }
                   onClick={() => {
                     if (multiSelectJobPlanner.length > 1) {
-                      mergeJobs(multiSelectJobPlanner);
+                      mergeJobsNew(multiSelectJobPlanner);
                       updateMultiSelectJobPlanner([]);
                     } else {
                       updateDialogData((prev) => ({
@@ -355,8 +357,8 @@ export function SearchBar({
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
                   let newMultiArray = [...multiSelectJobPlanner];
-                  jobArray.forEach((job) => {
-                    newMultiArray.push(job);
+                  userJobSnapshot.forEach((job) => {
+                    newMultiArray.push(job.jobID);
                   });
                   updateMultiSelectJobPlanner(newMultiArray);
                 }}
@@ -390,7 +392,7 @@ export function SearchBar({
                 color="error"
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    deleteMultipleJobsProcess(multiSelectJobPlanner);
+                    deleteMultipleJobsProcess(multiSelectJobPlanner, true);
                     updateMultiSelectJobPlanner([]);
                   } else {
                     updateDialogData((prev) => ({

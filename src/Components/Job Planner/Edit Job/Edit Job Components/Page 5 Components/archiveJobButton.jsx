@@ -7,7 +7,7 @@ import {
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { UsersContext } from "../../../../../Context/AuthContext";
+import { UserJobSnapshot, UserJobSnapshotContext, UsersContext } from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function ArchiveJobButton({ updateJobSettingsTrigger }) {
@@ -15,6 +15,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users } = useContext(UsersContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { archiveJob, removeJob, updateMainUserDoc } = useFirebase();
   const { deleteJobSnapshot } = useJobManagement();
   const analytics = getAnalytics();
@@ -41,10 +42,11 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
       severity: "success",
       autoHideDuration: 3000,
     }));
-    await deleteJobSnapshot(activeJob);
+    let newUserJobSnapshot = deleteJobSnapshot(activeJob, [...userJobSnapshot]);
     await updateMainUserDoc();
     await archiveJob(activeJob);
     await removeJob(activeJob);
+    updateUserJobSnapshot(newUserJobSnapshot);
     updateJobSettingsTrigger((prev) => !prev);
   };
 

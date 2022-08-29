@@ -4,7 +4,7 @@ import {
   JobArrayContext,
   JobStatusContext,
 } from "../../../Context/JobContext";
-import { IsLoggedInContext } from "../../../Context/AuthContext";
+import { IsLoggedInContext, UserJobSnapshotContext } from "../../../Context/AuthContext";
 import {
   Accordion,
   AccordionDetails,
@@ -40,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function PlannerAccordion({ updateJobSettingsTrigger }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobArray } = useContext(JobArrayContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -162,7 +163,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
             </AccordionSummary>
             <AccordionDetails>
               <Grid container direction="row" item xs={12} spacing={2}>
-                {jobArray.map((job) => {
+                {userJobSnapshot.map((job) => {
                   if (job.jobStatus === status.id) {
                     return (
                       <JobCardFrame

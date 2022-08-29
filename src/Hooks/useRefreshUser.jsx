@@ -8,7 +8,7 @@ import {
   JobArrayContext,
   JobStatusContext,
 } from "../Context/JobContext";
-import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
+import { IsLoggedInContext, UserJobSnapshotContext, UsersContext } from "../Context/AuthContext";
 import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
 import jwt from "jsonwebtoken";
 import { trace } from "firebase/performance";
@@ -36,6 +36,7 @@ export function useRefreshUser() {
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -196,9 +197,10 @@ export function useRefreshUser() {
     let returnPromiseArray = await Promise.all(promiseArray);
 
     updateEveIDs(locationReturns);
+    updateUserJobSnapshot(refreshedUser.snapshotData);
     updateEvePrices(returnPromiseArray[0]);
     setJobStatus(charSettings.jobStatusArray);
-    updateJobArray(charSettings.jobArraySnapshot);
+    updateJobArray([]);
     updateApiJobs(apiJobsArray);
     updateUsers(userArray);
     updateIsLoggedIn(true);

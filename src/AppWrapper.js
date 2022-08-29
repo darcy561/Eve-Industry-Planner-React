@@ -5,7 +5,13 @@ import {
   ApiJobs,
   ArchivedJobs,
 } from "./Context/JobContext";
-import { FirebaseListeners, IsLoggedIn, Users } from "./Context/AuthContext";
+import {
+  FirebaseListeners,
+  IsLoggedIn,
+  UserJobSnapshot,
+  Users,
+  UserWatchlist,
+} from "./Context/AuthContext";
 import {
   EveESIStatus,
   EveIDs,
@@ -37,37 +43,41 @@ export function AppWrapper() {
               <RefreshState>
                 <IsLoggedIn>
                   <Users>
-                    <DataExchange>
-                      <ActiveJob>
-                        <JobArray>
-                          <JobStatus>
-                            <ApiJobs>
-                              <EveIDs>
-                                <EveESIStatus>
-                                  <EvePrices>
-                                    <MultiSelectJobPlanner>
-                                      <PriceEntryList>
-                                        <SisiDataFiles>
-                                          <MassBuildDisplay>
-                                            <ArchivedJobs>
-                                              <LocalizationProvider
-                                                dateAdapter={AdapterDateFns}
-                                              >
-                                                <App />
-                                              </LocalizationProvider>
-                                            </ArchivedJobs>
-                                          </MassBuildDisplay>
-                                        </SisiDataFiles>
-                                      </PriceEntryList>
-                                    </MultiSelectJobPlanner>
-                                  </EvePrices>
-                                </EveESIStatus>
-                              </EveIDs>
-                            </ApiJobs>
-                          </JobStatus>
-                        </JobArray>
-                      </ActiveJob>
-                    </DataExchange>
+                    <UserJobSnapshot>
+                      <UserWatchlist>
+                        <DataExchange>
+                          <ActiveJob>
+                            <JobArray>
+                              <JobStatus>
+                                <ApiJobs>
+                                  <EveIDs>
+                                    <EveESIStatus>
+                                      <EvePrices>
+                                        <MultiSelectJobPlanner>
+                                          <PriceEntryList>
+                                            <SisiDataFiles>
+                                              <MassBuildDisplay>
+                                                <ArchivedJobs>
+                                                  <LocalizationProvider
+                                                    dateAdapter={AdapterDateFns}
+                                                  >
+                                                    <App />
+                                                  </LocalizationProvider>
+                                                </ArchivedJobs>
+                                              </MassBuildDisplay>
+                                            </SisiDataFiles>
+                                          </PriceEntryList>
+                                        </MultiSelectJobPlanner>
+                                      </EvePrices>
+                                    </EveESIStatus>
+                                  </EveIDs>
+                                </ApiJobs>
+                              </JobStatus>
+                            </JobArray>
+                          </ActiveJob>
+                        </DataExchange>
+                      </UserWatchlist>
+                    </UserJobSnapshot>
                   </Users>
                 </IsLoggedIn>
               </RefreshState>

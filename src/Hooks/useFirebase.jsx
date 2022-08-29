@@ -1,5 +1,11 @@
 import { useContext } from "react";
-import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
+import {
+  FirebaseListenersContext,
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+  UsersContext,
+  UserWatchlistContext,
+} from "../Context/AuthContext";
 import { appCheck, firestore, functions, performance } from "../firebase";
 import {
   doc,
@@ -20,10 +26,15 @@ import { EvePricesContext } from "../Context/EveDataContext";
 
 export function useFirebase() {
   const { users } = useContext(UsersContext);
-  const { evePrices } = useContext(EvePricesContext);
+  const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { jobStatus } = useContext(JobStatusContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { archivedJobs } = useContext(ArchivedJobsContext);
+  const { updateFirebaseListeners } = useContext(FirebaseListenersContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
+  const { updateUserWatchlist } = useContext(UserWatchlistContext);
   const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
@@ -70,55 +81,27 @@ export function useFirebase() {
       return newUser;
     }
     if (!user.fbToken._tokenResponse.isNewUser) {
-      // const unsub = onSnapshot(
-      //   doc(firestore, "Users", user.accountID),
-      //   (doc) => {
-      //     const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
-
-      //     if (doc.data() !== undefined) {
-      //       const charData = doc.data();
-      //       const newJobArray = [];
-      //       for (let i in charData.jobArraySnapshot) {
-      //         newJobArray.push(charData.jobArraySnapshot[i]);
-      //       }
-
-      //       newJobArray.sort((a, b) => {
-      //         if (a.name < b.name) {
-      //           return -1;
-      //         }
-      //         if (a.name < b.name) {
-      //           return 1;
-      //         }
-      //         return 0;
-      //       });
-      //       charData.jobArraySnapshot = newJobArray;
-      //       console.log(source)
-      //       return charData;
-      //     }
-      //   }
-      // );
-
       const CharSnap = await getDoc(doc(firestore, "Users", user.accountID));
 
       if (CharSnap.data() !== undefined) {
-      const charData = CharSnap.data();
-      const newJobArray = [];
-      for (let i in charData.jobArraySnapshot) {
-        newJobArray.push(charData.jobArraySnapshot[i]);
-      }
-
-      newJobArray.sort((a, b) => {
-        if (a.name < b.name) {
-          return -1;
+        const charData = CharSnap.data();
+        const newJobArray = [];
+        for (let i in charData.jobArraySnapshot) {
+          newJobArray.push(charData.jobArraySnapshot[i]);
         }
-        if (a.name < b.name) {
-          return 1;
-        }
-        return 0;
-      });
-      charData.jobArraySnapshot = newJobArray;
 
-      return charData;
+        newJobArray.sort((a, b) => {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name < b.name) {
+            return 1;
+          }
+          return 0;
+        });
+        charData.jobArraySnapshot = newJobArray;
+
+        return charData;
       } else {
         let newUser = await buildNewUserProcess();
         return newUser;
@@ -229,7 +212,6 @@ export function useFirebase() {
     await fbAuthState();
 
     updateDoc(doc(firestore, "Users", parentUser.accountID), {
-      jobArraySnapshot: parentUser.snapshotData,
       parentUserHash: parentUser.CharacterHash,
       jobStatusArray: jobStatus,
       linkedJobs: parentUser.linkedJobs,
@@ -240,6 +222,14 @@ export function useFirebase() {
       watchlist: parentUser.watchlist,
     });
   };
+  
+  const saveJobSnapshot = async (newUserJobSnapshot) => {
+    await fbAuthState();
+
+    updateDoc(doc(firestore, `Users/${parentUser.accountID}/ProfileInfo`, "JobSnapshot"), {
+      snapshot: newUserJobSnapshot
+    })
+  }
 
   const removeJob = async (job) => {
     await fbAuthState();
@@ -479,6 +469,42 @@ export function useFirebase() {
     }
   };
 
+  const userJobSnapshotListener = async (userObj) => {
+    const unsub = onSnapshot(
+      doc(firestore, `Users/${userObj.accountID}/ProfileInfo`, "JobSnapshot"),
+      (doc) => {
+        const updateSnapshotState = async () => {
+          if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+            let snapshotData = doc.data();
+            let priceIDRequest = new Set();
+            let newUserJobSnapshot = [...userJobSnapshot];
+            snapshotData.snapshot.forEach((snap) => {
+              // snap.materialIDs.forEach((id) => {
+              //   priceIDRequest.add(id);
+              // });
+              // priceIDRequest.add(snap.itemID);
+
+              // if (newUserJobSnapshot.some((i) => i.jobID !== snap.jobID)) {
+              //   newUserJobSnapshot.push(snap);
+              // }
+              newUserJobSnapshot.push(snap);
+            });
+            let newEvePrices = await getItemPrices(
+              [...priceIDRequest],
+              userObj
+            );
+            console.log("new Prices " + newEvePrices)
+            console.log(newUserJobSnapshot)
+            updateEvePrices((prev) => prev.concat(newEvePrices));
+            updateFirebaseListeners((prev) => prev.concat(unsub));
+            updateUserJobSnapshot(newUserJobSnapshot);
+          }
+        };
+        updateSnapshotState();
+      }
+    );
+  };
+
   return {
     addNewJob,
     archiveJob,
@@ -491,5 +517,7 @@ export function useFirebase() {
     refreshItemPrices,
     removeJob,
     downloadCharacterJobs,
+    userJobSnapshotListener,
+    saveJobSnapshot
   };
 }

@@ -17,6 +17,7 @@ import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import {
   IsLoggedInContext,
+  UserJobSnapshotContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
@@ -33,6 +34,7 @@ export function MaterialRow({ material }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { addNewJob, getItemPrices, updateMainUserDoc, uploadJob } =
     useFirebase();
   const { checkAllowBuild, buildJob } = useJobBuild();
@@ -57,6 +59,7 @@ export function MaterialRow({ material }) {
           itemQty: material.quantity,
           parentJobs: [activeJob],
         });
+        let newUserJobSnapshot = [...userJobSnapshot]
         if (newJob !== undefined) {
           let priceIDRequest = new Set();
           let promiseArray = [];
@@ -66,7 +69,7 @@ export function MaterialRow({ material }) {
           });
           let itemPrices = getItemPrices([...priceIDRequest], parentUser);
           promiseArray.push(itemPrices);
-          await newJobSnapshot(newJob);
+           newUserJobSnapshot =  newJobSnapshot(newJob, userJobSnapshot);
 
           if (isLoggedIn) {
             await updateMainUserDoc();
@@ -80,6 +83,7 @@ export function MaterialRow({ material }) {
             itemID: newJob.itemID,
           });
           let returnPromiseArray = await Promise.all(promiseArray);
+
           updateEvePrices((prev) => prev.concat(returnPromiseArray[0]));
           updateJobArray((prev) => [...prev, newJob]);
           setSnackbarData((prev) => ({
@@ -91,7 +95,8 @@ export function MaterialRow({ material }) {
           }));
         }
         material.childJob.push(newJob.jobID);
-        updateJobSnapshot(activeJob);
+        newUserJobSnapshot = updateJobSnapshot(activeJob, newUserJobSnapshot);
+        updateUserJobSnapshot(newUserJobSnapshot);
         await uploadJob(activeJob);
       }
       updateAddJob(false);

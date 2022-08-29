@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { UsersContext } from "../../Context/AuthContext";
+import { UserJobSnapshotContext, UsersContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
 import jwt from "jsonwebtoken";
@@ -44,7 +44,9 @@ export default function AuthMainUser() {
   const { serverStatus } = useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
-  const { determineUserState, getItemPrices } = useFirebase();
+  const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { determineUserState, getItemPrices, userJobSnapshotListener } =
+    useFirebase();
   const {
     buildMainUser,
     characterAPICall,
@@ -81,7 +83,7 @@ export default function AuthMainUser() {
 
       let priceIDRequest = generateItemPriceRequest(userSettings);
       let promiseArray = [getItemPrices(priceIDRequest, userObject)];
-
+      userJobSnapshotListener(userObject);
       updateLoadingText((prevObj) => ({
         ...prevObj,
         charDataComp: true,
@@ -187,11 +189,11 @@ export default function AuthMainUser() {
 
       let returnPromiseArray = await Promise.all(promiseArray);
       let newNameArray = await getLocationNames(userArray, userObject);
-
+      updateUserJobSnapshot(userObject.snapshotData)
       updateEveIDs(newNameArray);
       updateEvePrices(returnPromiseArray[0]);
       setJobStatus(userSettings.jobStatusArray);
-      updateJobArray(userSettings.jobArraySnapshot);
+      updateJobArray([]);
       updateUsers(userArray);
       updateApiJobs(apiJobsArray);
       updateIsLoggedIn(true);

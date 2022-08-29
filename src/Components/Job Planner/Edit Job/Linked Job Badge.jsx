@@ -13,7 +13,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { ParentJobDialog } from "./parentJobDialog";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
-import { IsLoggedInContext } from "../../../Context/AuthContext";
+import { IsLoggedInContext, UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 
 export function LinkedJobBadge({jobModified, setJobModified}) {
@@ -21,6 +21,7 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
   const { jobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const [dialogTrigger, updateDialogTrigger] = useState(false);
   const { downloadCharacterJobs, uploadJob } = useFirebase()
   const { closeEditJob, openEditJob, updateJobSnapshot } = useJobManagement();
@@ -112,7 +113,9 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
                         if (parentIndex !== -1) {
                           newParentJobs.splice(parentIndex, 1)  
                         }
-                        updateJobSnapshot(job);
+                        let newUserJobSnapshot = updateJobSnapshot(job, [...userJobSnapshot]);
+                        
+                        updateUserJobSnapshot(newUserJobSnapshot);
                         updateActiveJob((prev) => ({
                           ...prev,
                             parentJob: newParentJobs

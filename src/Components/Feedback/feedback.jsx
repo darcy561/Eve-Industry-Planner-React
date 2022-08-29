@@ -11,10 +11,10 @@ import {
   TextField,
 } from "@mui/material";
 import { useContext, useMemo, useState } from "react";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
-import { firestore } from "../../firebase";
+import { functions } from "../../firebase";
 import { UsersContext } from "../../Context/AuthContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
+import { httpsCallable } from "firebase/functions";
 
 export function FeedbackIcon() {
   const { users } = useContext(UsersContext);
@@ -38,13 +38,15 @@ export function FeedbackIcon() {
       return assetList;
     };
 
-    await setDoc(doc(firestore, "Feedback", Date.now().toString()), {
+    const call = httpsCallable(functions, "feedback-submitUserFeedback");
+
+    call({
       accountID: parentUser.accountID || null,
-      timestamp: serverTimestamp(),
       response: inputText,
       esiData: dataDump ? JSON.stringify(users) : null,
       assets: dataDump ? JSON.stringify(userAssets()) : null,
     });
+
     setOpen(false);
     setSnackbarData((prev) => ({
       ...prev,
@@ -52,7 +54,7 @@ export function FeedbackIcon() {
       message: `Feedback Submitted`,
       severity: "success",
       autoHideDuration: 3000,
-    }))
+    }));
   };
 
   return (

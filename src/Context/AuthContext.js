@@ -38,3 +38,27 @@ export const FirebaseListeners = (props) => {
     </FirebaseListenersContext.Provider>
   );
 };
+
+export const UserJobSnapshotContext = createContext();
+
+export const UserJobSnapshot = (props) => {
+  const [userJobSnapshot, updateUserJobSnapshot] = useState([]);
+
+  return (
+    <UserJobSnapshotContext.Provider value={{userJobSnapshot, updateUserJobSnapshot}}>
+      {props.children}
+    </UserJobSnapshotContext.Provider>
+  );
+};
+
+export const UserWatchlistContext = createContext();
+
+export const UserWatchlist = (props) => {
+  const [userWatchlist, updateUserWatchlist] = useState([]);
+
+  return (
+    <UserWatchlistContext.Provider value={{userWatchlist, updateUserWatchlist}}>
+      {props.children}
+    </UserWatchlistContext.Provider>
+  );
+};

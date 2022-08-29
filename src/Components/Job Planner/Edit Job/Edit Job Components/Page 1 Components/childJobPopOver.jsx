@@ -19,6 +19,7 @@ import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import {
   IsLoggedInContext,
+  UserJobSnapshotContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import { useJobBuild } from "../../../../../Hooks/useJobBuild";
@@ -41,6 +42,7 @@ export function ChildJobPopover({
   const { activeJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { users } = useContext(UsersContext);
   const {
     addNewJob,
@@ -309,13 +311,14 @@ export function ChildJobPopover({
                   size="small"
                   onClick={async () => {
                     updateBuildLoad((prev) => !prev);
-                    await newJobSnapshot(childJobObjects[jobDisplay]);
+                    let newUserJobSnapshot =  newJobSnapshot(childJobObjects[jobDisplay], [...userJobSnapshot] );
 
                     if (isLoggedIn) {
                       await updateMainUserDoc();
                       await addNewJob(childJobObjects[jobDisplay]);
                     }
                     material.childJob.push(childJobObjects[jobDisplay].jobID);
+                    updateUserJobSnapshot(newUserJobSnapshot);
                     updateEvePrices((prev) => prev.concat(tempPrices));
                     updateJobArray((prev) => [
                       ...prev,

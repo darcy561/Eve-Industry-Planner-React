@@ -1,7 +1,14 @@
 import { Grid, Typography } from "@mui/material";
+import { useContext } from "react";
+import { JobArrayContext } from "../../../../Context/JobContext";
 
 export default function Step4JobCard({ job }) {
-  return (
+  const { jobArray } = useContext(JobArrayContext);
+
+  if (!job.isSnapshot) {
+    job = jobArray.find((i)=> i.jobID === job.jobID)
+  }
+      return (
     <Grid container item xs={10} sm={9} sx={{ paddingLeft: {xs:"0px", sm:"5px"}}}>
       <Grid container item xs={12}>
         <Grid item xs={6}>

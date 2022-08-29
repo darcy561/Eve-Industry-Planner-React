@@ -59,7 +59,7 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
   const classes = useStyles();
 
   let jobCardChecked = useMemo(() => {
-    return multiSelectJobPlanner.some((i) => i.jobID === job.jobID);
+    return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
 
   return (
@@ -86,23 +86,15 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
                 checked={jobCardChecked}
                 onChange={(event) => {
                   if (event.target.checked) {
-                    if (
-                      multiSelectJobPlanner.filter((i) => i.jobID === job.jobID)
-                    ) {
-                      updateMultiSelectJobPlanner([
-                        ...multiSelectJobPlanner,
-                        job,
-                      ]);
+                    if (!multiSelectJobPlanner.includes(job.jobID)) {
+                      updateMultiSelectJobPlanner((prev) =>
+                        prev.concat(job.jobID)
+                      );
                     }
                   } else {
-                    if (
-                      multiSelectJobPlanner.filter((i) => i.jobID !== job.jobID)
-                    ) {
-                      let newArray = multiSelectJobPlanner.filter(
-                        (i) => i.jobID !== job.jobID
-                      );
-                      updateMultiSelectJobPlanner(newArray);
-                    }
+                    updateMultiSelectJobPlanner((prev) =>
+                      prev.filter((i) => i !== job.jobID)
+                    );
                   }
                 }}
               />

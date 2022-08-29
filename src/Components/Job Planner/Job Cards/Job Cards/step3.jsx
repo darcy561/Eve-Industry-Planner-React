@@ -1,7 +1,11 @@
 import { Grid, Typography } from "@mui/material";
+import { useContext } from "react";
+import { JobArrayContext } from "../../../../Context/JobContext";
 
 export default function Step3JobCard({ job }) {
+  const { jobArray } = useContext(JobArrayContext);
   let endDate = null;
+  let inputJob = null;
 
   function timeRemainingcalc(inputTime) {
     let now = Date.now();
@@ -25,18 +29,21 @@ export default function Step3JobCard({ job }) {
     return { days: day, hours: hour, mins: min };
   }
 
-  if (!job.isSnapshot && job.build.costs.linkedJobs.length > 0) {
-    let tempJobs = [...job.build.costs.linkedJobs];
-    tempJobs.sort((a, b) => {
-      if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
-        return 1;
-      }
-      if (Date.parse(a.end_date) < Date.parse(b.end_date)) {
-        return -1;
-      }
-      return 0;
-    });
-    endDate = Date.parse(tempJobs[0].end_date);
+  if (!job.isSnapshot) {
+    inputJob = jobArray.find((i) => i.jobID === job.jobID);
+    if (inputJob.build.costs.linkedJobs.length > 0) {
+      let tempJobs = [...inputJob.build.costs.linkedJobs];
+      tempJobs.sort((a, b) => {
+        if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
+          return 1;
+        }
+        if (Date.parse(a.end_date) < Date.parse(b.end_date)) {
+          return -1;
+        }
+        return 0;
+      });
+      endDate = Date.parse(tempJobs[0].end_date);
+    }
   }
 
   if (job.isSnapshot) {
@@ -55,15 +62,18 @@ export default function Step3JobCard({ job }) {
     >
       <Grid container item xs={12}>
         <Grid item xs={10}>
-          <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
+          <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
             ESI Jobs Linked
           </Typography>
         </Grid>
         <Grid item xs={2}>
-          <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+          <Typography
+            sx={{ typography: { xs: "body2", md: "body1" } }}
+            align="right"
+          >
             {job.isSnapshot
               ? job.linkedJobsCount.toLocaleString()
-              : job.build.costs.linkedJobs.length.toLocaleString()}
+              : inputJob.build.costs.linkedJobs.length.toLocaleString()}
             /{job.jobCount}
           </Typography>
         </Grid>
@@ -73,19 +83,25 @@ export default function Step3JobCard({ job }) {
             timeRemaining.hours === 0 &&
             timeRemaining.mins === 0 ? (
               <Grid item xs={12}>
-                <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="left">
+                <Typography
+                  sx={{ typography: { xs: "body2", md: "body1" } }}
+                  align="left"
+                >
                   Complete
                 </Typography>
               </Grid>
             ) : (
               <>
                 <Grid item xs={4}>
-                  <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
+                  <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
                     Ends In:
                   </Typography>
                 </Grid>
                 <Grid item xs={8}>
-                  <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+                  <Typography
+                    sx={{ typography: { xs: "body2", md: "body1" } }}
+                    align="right"
+                  >
                     {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                     {timeRemaining.mins}M
                   </Typography>
@@ -93,22 +109,30 @@ export default function Step3JobCard({ job }) {
               </>
             )
           ) : null
-        ) : job.build.costs.linkedJobs.length > 0 ? (
+        ) : inputJob.build.costs.linkedJobs.length > 0 ? (
           timeRemaining.days === 0 &&
           timeRemaining.hours === 0 &&
           timeRemaining.mins === 0 ? (
             <Grid item xs={12}>
-              <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="left">
+              <Typography
+                sx={{ typography: { xs: "body2", md: "body1" } }}
+                align="left"
+              >
                 Complete
               </Typography>
             </Grid>
           ) : (
             <>
               <Grid item xs={4}>
-                <Typography sx={{typography:{xs:"body2", md:"body1"}}}>Ends In:</Typography>
+                <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+                  Ends In:
+                </Typography>
               </Grid>
               <Grid item xs={8}>
-                <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+                <Typography
+                  sx={{ typography: { xs: "body2", md: "body1" } }}
+                  align="right"
+                >
                   {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                   {timeRemaining.mins}M
                 </Typography>

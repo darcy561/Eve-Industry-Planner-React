@@ -17,7 +17,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import ClearIcon from "@mui/icons-material/Clear";
-import { IsLoggedInContext } from "../../../../../Context/AuthContext";
+import { IsLoggedInContext, UserJobSnapshotContext } from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function ChildJobDialog({
@@ -29,6 +29,7 @@ export function ChildJobDialog({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { downloadCharacterJobs, uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateJobSnapshot } = useJobManagement();
@@ -107,7 +108,7 @@ export function ChildJobDialog({
 
                         job.parentJob.push(activeJob.jobID);
 
-                        updateJobSnapshot(job);
+                        let newUserJobSnapshot = updateJobSnapshot(job, [...userJobSnapshot]);
 
                         updateActiveJob((prev) => ({
                           ...prev,
@@ -116,6 +117,7 @@ export function ChildJobDialog({
                             materials: newMaterialArray,
                           },
                         }));
+                        updateUserJobSnapshot(newUserJobSnapshot);
                         setJobModified(true);
                         setSnackbarData((prev) => ({
                           ...prev,
@@ -212,8 +214,9 @@ export function ChildJobDialog({
                           if (parentIndex !== -1) {
                             jobMatch.parentJob.splice(parentIndex, 1);
                           }
-                          updateJobSnapshot(jobMatch);
-
+                          let newUserJobSnapshot = updateJobSnapshot(jobMatch, [...userJobSnapshot]);
+                          
+                          updateUserJobSnapshot(newUserJobSnapshot)
                           updateActiveJob((prev) => ({
                             ...prev,
                             build: {
@@ -230,7 +233,6 @@ export function ChildJobDialog({
                             autoHideDuration: 1000,
                           }));
                           if (isLoggedIn) {
-                            updateJobSnapshot()
                             uploadJob(jobMatch);
                           }
                         }}

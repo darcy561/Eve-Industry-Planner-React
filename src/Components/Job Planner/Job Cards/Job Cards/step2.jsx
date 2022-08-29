@@ -1,8 +1,13 @@
 import { Grid, Typography } from "@mui/material";
+import { useContext } from "react";
+import { JobArrayContext } from "../../../../Context/JobContext";
 
 export default function Step2JobCard({ job }) {
+  const { jobArray } = useContext(JobArrayContext);
   let totalComplete = 0;
+  
   if (!job.isSnapshot) {
+    job = jobArray.find((i) => i.jobID === job.jobID);
     job.build.materials.forEach((material) => {
       if (material.quantityPurchased >= material.quantity) {
         totalComplete++;

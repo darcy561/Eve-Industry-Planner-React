@@ -9,6 +9,7 @@ import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import {
   IsLoggedInContext,
+  UserJobSnapshotContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
@@ -19,6 +20,7 @@ export function PassBuildCostButton() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users } = useContext(UsersContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { downloadCharacterJobs, uploadJob, updateMainUserDoc } = useFirebase();
   const { updateJobSnapshot } = useJobManagement();
   const analytics = getAnalytics();
@@ -38,6 +40,7 @@ export function PassBuildCostButton() {
       ) / 100;
     let availableForImport = activeJob.build.products.totalQuantity;
     let newJobArray = [...jobArray];
+    let newUserJobSnapshot = [...userJobSnapshot]
     for (let job of activeJob.parentJob) {
       let parentJob = newJobArray.find((i) => i.jobID === job);
       if (parentJob !== undefined) {
@@ -78,7 +81,7 @@ export function PassBuildCostButton() {
         if (isLoggedIn) {
           await uploadJob(parentJob);
         }
-        updateJobSnapshot(parentJob);
+        newUserJobSnapshot = updateJobSnapshot(parentJob, newUserJobSnapshot);
         let index = newJobArray.findIndex((i) => i.jobID === parentJob.jobID);
 
         newJobArray[index] = parentJob;
@@ -116,6 +119,7 @@ export function PassBuildCostButton() {
       UID: parentUser.accountID,
       isLoggedIn: isLoggedIn,
     });
+    updateUserJobSnapshot(newUserJobSnapshot);
     updateJobArray(newJobArray);
     updateMainUserDoc();
   };

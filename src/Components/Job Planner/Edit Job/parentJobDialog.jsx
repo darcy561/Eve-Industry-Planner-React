@@ -13,7 +13,7 @@ import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
-import { IsLoggedInContext } from "../../../Context/AuthContext";
+import { IsLoggedInContext, UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 
 export function ParentJobDialog({
@@ -24,6 +24,7 @@ export function ParentJobDialog({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { downloadCharacterJobs, uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const{updateJobSnapshot } = useJobManagement()
@@ -117,7 +118,8 @@ export function ParentJobDialog({
                         material.childJob.push(activeJob.jobID);
                         let newParentJobArray = [...activeJob.parentJob];
                         newParentJobArray.push(job.jobID);
-                        updateJobSnapshot(job)
+                        let newUserJobSnapshot = updateJobSnapshot(job, [...userJobSnapshot])
+                        updateUserJobSnapshot(newUserJobSnapshot);
                         updateActiveJob((prev) => ({
                           ...prev,
                           parentJob: newParentJobArray,

@@ -31,7 +31,7 @@ export function PriceEntryDialog() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { downloadCharacterJobs, updateMainUserDoc, uploadJob, saveJobSnapshot } = useFirebase();
+  const { downloadCharacterJobs, updateMainUserDoc, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { updateJobSnapshot } = useJobManagement();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -117,7 +117,7 @@ export function PriceEntryDialog() {
       }
     }
     if (isLoggedIn) {
-      updateMainUserDoc();
+      uploadUserJobSnapshot(newUserJobSnapshot)
     }
     updateUserJobSnapshot(newUserJobSnapshot);
     updateJobArray(newJobArray);

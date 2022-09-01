@@ -34,7 +34,7 @@ export function ParentJobDialog({
   };
 
   let matches = [];
-  for (let job of jobArray) {
+  for (let job of userJobSnapshot) {
     if (job.isSnapshot) {
       if (
         job.materialIDs.includes(activeJob.itemID) &&
@@ -43,9 +43,10 @@ export function ParentJobDialog({
         matches.push(job);
       }
     } else {
+      let fullJob = jobArray.find((i)=> i.jobID === job.jobID)
       if (
-        job.build.materials.some((mat) => mat.typeID === activeJob.itemID) &&
-        !activeJob.parentJob.includes(job.jobID)
+        fullJob.build.materials.some((mat) => mat.typeID === activeJob.itemID) &&
+        !activeJob.parentJob.includes(fullJob.jobID)
       ) {
         matches.push(job);
       }

@@ -161,7 +161,7 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
               variant="outlined"
               color="primary"
               onClick={() => {
-                openEditJob(job);
+                openEditJob(job.jobID);
                 updateJobSettingsTrigger((prev) => !prev);
               }}
               sx={{ height: "25px", width: "100px" }}

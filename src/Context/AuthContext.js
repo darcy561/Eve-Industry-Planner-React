@@ -1,5 +1,5 @@
 import React, { createContext, useState } from "react";
-import { usersDefault } from "./defaultValues";
+import { userJobSnapshotDefault, usersDefault } from "./defaultValues";
 
 export const UsersContext = createContext();
 
@@ -42,7 +42,7 @@ export const FirebaseListeners = (props) => {
 export const UserJobSnapshotContext = createContext();
 
 export const UserJobSnapshot = (props) => {
-  const [userJobSnapshot, updateUserJobSnapshot] = useState([]);
+  const [userJobSnapshot, updateUserJobSnapshot] = useState(userJobSnapshotDefault);
 
   return (
     <UserJobSnapshotContext.Provider value={{userJobSnapshot, updateUserJobSnapshot}}>

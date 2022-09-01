@@ -129,13 +129,13 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
                     <IconButton
                       color="secondary"
                       onClick={() => {
-                        let newMultiArray = [...multiSelectJobPlanner];
-                        jobArray.forEach((job) => {
+                        let newMultiArray = new Set([...multiSelectJobPlanner]);
+                        userJobSnapshot.forEach((job) => {
                           if (job.jobStatus === status.id) {
-                            newMultiArray.push(job);
+                            newMultiArray.add(job.jobID);
                           }
                         });
-                        updateMultiSelectJobPlanner(newMultiArray);
+                        updateMultiSelectJobPlanner([...newMultiArray]);
                       }}
                     >
                       <AddIcon />

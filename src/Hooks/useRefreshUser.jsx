@@ -26,7 +26,7 @@ export function useRefreshUser() {
     generateItemPriceRequest,
     getLocationNames,
   } = useAccountManagement();
-  const { determineUserState, getItemPrices } = useFirebase();
+  const { determineUserState, getItemPrices, userJobSnapshotListener } = useFirebase();
   const { updateEveIDs } = useContext(EveIDsContext);
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
@@ -69,6 +69,7 @@ export function useRefreshUser() {
       ...prevObj,
       eveSSO: true,
     }));
+    updateUserJobSnapshot([])
 
     let refreshedUser = await RefreshTokens(refreshToken, true);
     refreshedUser.fbToken = await firebaseAuth(refreshedUser);
@@ -82,6 +83,7 @@ export function useRefreshUser() {
     const charSettings = await determineUserState(refreshedUser);
 
     buildMainUser(refreshedUser, charSettings);
+    userJobSnapshotListener(refreshedUser);
 
     let priceIDRequest = generateItemPriceRequest(charSettings);
     let promiseArray = [getItemPrices(priceIDRequest, refreshedUser)];
@@ -197,7 +199,6 @@ export function useRefreshUser() {
     let returnPromiseArray = await Promise.all(promiseArray);
 
     updateEveIDs(locationReturns);
-    updateUserJobSnapshot(refreshedUser.snapshotData);
     updateEvePrices(returnPromiseArray[0]);
     setJobStatus(charSettings.jobStatusArray);
     updateJobArray([]);

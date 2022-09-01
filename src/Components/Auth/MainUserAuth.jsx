@@ -68,6 +68,8 @@ export default function AuthMainUser() {
         ...prevObj,
         eveSSO: true,
       }));
+      updateUserJobSnapshot([])
+
       let userObject = await EveSSOTokens(authCode, true);
       userObject.fbToken = await firebaseAuth(userObject);
 
@@ -189,7 +191,7 @@ export default function AuthMainUser() {
 
       let returnPromiseArray = await Promise.all(promiseArray);
       let newNameArray = await getLocationNames(userArray, userObject);
-      updateUserJobSnapshot(userObject.snapshotData)
+      
       updateEveIDs(newNameArray);
       updateEvePrices(returnPromiseArray[0]);
       setJobStatus(userSettings.jobStatusArray);

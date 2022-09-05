@@ -9,14 +9,15 @@ import AddLinkIcon from "@mui/icons-material/AddLink";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { EveIDsContext } from "../../../../../Context/EveDataContext";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 class ESIBrokerFee {
-  constructor(entry, order, char) {
+  constructor(entry, order, char, brokersFee) {
     this.order_id = order.order_id;
     this.id = entry.id;
     this.complete = false;
     this.date = entry.date;
-    this.amount = Math.abs(entry.amount);
+    this.amount = brokersFee;
     this.CharacterHash = char.CharacterHash;
   }
 }
@@ -50,6 +51,7 @@ export function AvailableMarketOrders({
   const { users, updateUsers } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { calcBrokersFee } = useJobManagement();
   const analytics = getAnalytics();
 
   return (
@@ -158,13 +160,15 @@ export function AvailableMarketOrders({
                       <IconButton
                         color="primary"
                         size="small"
-                        onClick={() => {
+                        onClick={async () => {
                           const ParentUserIndex = users.findIndex(
                             (i) => i.ParentUser === true
                           );
                           const char = users.find(
                             (user) => user.CharacterHash === order.CharacterHash
                           );
+
+                          let brokersFee = await calcBrokersFee(char, order)
                           let newBrokersArray = [];
                           if (char !== undefined) {
                             char.apiJournal.forEach((entry) => {
@@ -176,7 +180,7 @@ export function AvailableMarketOrders({
                                 newBrokersArray.push(
                                   Object.assign(
                                     {},
-                                    new ESIBrokerFee(entry, order, char)
+                                    new ESIBrokerFee(entry, order, char, brokersFee)
                                   )
                                 );
                               }

@@ -10,7 +10,8 @@ export function useAccountManagement() {
     WalletJournal,
     WalletTransactions,
     fullAssetsList,
-    IDtoName
+    IDtoName,
+    standingsList
   } = useEveApi();
 
   const buildMainUser = (userObject, userSettings) => {
@@ -39,6 +40,7 @@ export function useAccountManagement() {
         transactions,
         journal,
         assets,
+        standings
       ] = await Promise.all([
         CharacterSkills(userObject),
         IndustryJobs(userObject, parentObject),
@@ -48,6 +50,7 @@ export function useAccountManagement() {
         WalletTransactions(userObject),
         WalletJournal(userObject),
         fullAssetsList(userObject),
+        standingsList(userObject)
       ]);
 
       userObject.apiSkills = skills;
@@ -61,6 +64,7 @@ export function useAccountManagement() {
         `assets_${userObject.CharacterHash}`,
         JSON.stringify(assets)
       );
+      userObject.standings = standings
     } else {
       userObject.apiSkills = [];
       userObject.apiJobs = [];
@@ -73,6 +77,7 @@ export function useAccountManagement() {
         `assets_${userObject.CharacterHash}`,
         JSON.stringify([])
       );
+      userObject.standings = []
     }
 
     return userObject;

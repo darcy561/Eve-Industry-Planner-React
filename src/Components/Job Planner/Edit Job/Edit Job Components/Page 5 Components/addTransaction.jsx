@@ -103,9 +103,9 @@ export function AddTransactionDialog({
                 onBlur={(v) => {
                   setTransactionData((prev) => ({
                     ...prev,
-                    unit_price: Number(v.target.value.replace(/[^0-9 ]/g, "")),
+                    unit_price: Number(v.target.value.replace(/[^0-9. ]/g, "")),
                     amount:
-                      Number(v.target.value.replace(/[^0-9 ]/g, "")) *
+                      Number(v.target.value.replace(/[^0-9. ]/g, "")) *
                       transactionData.quantity,
                   }));
                 }}
@@ -121,9 +121,9 @@ export function AddTransactionDialog({
                   if (v.target.value >= 0) {
                     setTransactionData((prev) => ({
                       ...prev,
-                      quantity: Number(v.target.value.replace(/[^0-9 ]/g, "")),
+                      quantity: Number(v.target.value.replace(/[^0-9. ]/g, "")),
                       amount:
-                        Number(v.target.value.replace(/[^0-9 ]/g, "")) *
+                        Number(v.target.value.replace(/[^0-9. ]/g, "")) *
                         transactionData.unit_price,
                     }));
                   } else {
@@ -153,7 +153,7 @@ export function AddTransactionDialog({
                   if (v.target.value >= 0) {
                     setTransactionData((prev) => ({
                       ...prev,
-                      tax: Number(v.target.value.replace(/[^0-9 ]/g, "")),
+                      tax: Number(v.target.value.replace(/[^0-9. ]/g, "")),
                     }));
                   } else {
                     setTransactionData((prev) => ({

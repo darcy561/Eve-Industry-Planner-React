@@ -9,6 +9,7 @@ import {
   Paper,
   Select,
   Switch,
+  TextField,
   Typography,
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
@@ -139,7 +140,13 @@ export function EditJobSettings({ parentUserIndex }) {
               </FormHelperText>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={4} lg={6} sx={{marginTop:{xs:"20px", sm:"0px"}}}>
+          <Grid
+            item
+            xs={12}
+            sm={4}
+            lg={6}
+            sx={{ marginTop: { xs: "20px", sm: "0px" } }}
+          >
             <FormGroup>
               <FormControlLabel
                 control={
@@ -156,6 +163,7 @@ export function EditJobSettings({ parentUserIndex }) {
                       ].settings.editJob.hideCompleteMaterials =
                         e.target.checked;
                       updateUsers(newUsersArray);
+                      updateMainUserDoc();
                     }}
                   />
                 }
@@ -170,7 +178,13 @@ export function EditJobSettings({ parentUserIndex }) {
               />
             </FormGroup>
           </Grid>
-          <Grid item xs={12} sm={6} align="center" sx={{ marginTop:{xs:"20px", sm:"10px"}}}>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            align="center"
+            sx={{ marginTop: { xs: "20px", sm: "10px" } }}
+          >
             {dataLoading ? (
               <CircularProgress color="primary" size="20px" />
             ) : (
@@ -210,6 +224,33 @@ export function EditJobSettings({ parentUserIndex }) {
                 </FormHelperText>
               </FormControl>
             )}
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            align="center"
+            sx={{ marginTop: { xs: "20px", sm: "10px" } }}
+          >
+            <TextField
+              defaultValue={
+                users[parentUserIndex].settings.editJob.citadelBrokersFee
+              }
+              size="small"
+              variant="standard"
+              className={classes.TextField}
+              helperText="Citadel Brokers Fee Percentage"
+              type="number"
+              onBlur={(e) => {
+                let newUsersArray = [...users];
+                newUsersArray[
+                  parentUserIndex
+                ].settings.editJob.citadelBrokersFee =
+                  Math.round((Number(e.target.value) + Number.EPSILON) * 100) / 100;
+                updateUsers(newUsersArray)
+                updateMainUserDoc();
+              }}
+            />
           </Grid>
         </Grid>
       </Grid>

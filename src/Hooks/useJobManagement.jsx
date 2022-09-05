@@ -23,6 +23,7 @@ import { jobTypes } from "../Context/defaultValues";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { EvePricesContext } from "../Context/EveDataContext";
 import { useJobBuild } from "./useJobBuild";
+import { useEveApi } from "./useEveApi";
 
 export function useJobManagement() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -55,6 +56,7 @@ export function useJobManagement() {
     uploadJobAsSnapshot,
     uploadUserJobSnapshot,
   } = useFirebase();
+  const { stationData } = useEveApi();
   const { buildJob, checkAllowBuild } = useJobBuild();
   const t = trace(performance, "CreateJobProcessFull");
   const r = trace(performance, "MassCreateJobProcessFull");
@@ -1117,6 +1119,23 @@ export function useJobManagement() {
         newJobBuildData[index].totalQuantity +=
           currentJob.build.products.totalQuantity;
         newJobBuildData[index].inputJobs.add(currentJob.jobID);
+
+        currentJob.build.materials.forEach((i) => {
+          console.log("next");
+          console.log(i);
+          console.log(newJobBuildData[index]);
+          if (i.childJob.length > 0) {
+            let nJbDIndex = newJobBuildData[index].childJobs.findIndex(
+              (o) => o.typeID === i.typeID
+            );
+            console.log(nJbDIndex);
+            
+            if (nJbDIndex !== -1) {
+              console.log(newJobBuildData[index].childJobs[nJbDIndex])
+              newJobBuildData[index].childJobs[nJbDIndex].push(i.childJob);
+            }
+          }
+        });
       } else {
         let childJobs = [];
         currentJob.build.materials.forEach((i) => {
@@ -1136,7 +1155,6 @@ export function useJobManagement() {
         });
       }
 
-
       newJobBuildData.forEach((entry) => {
         if (entry.inputJobs.size > 1) {
           entry.inputJobs.forEach((i) => {
@@ -1145,7 +1163,7 @@ export function useJobManagement() {
         }
       });
     }
-
+    console.log(newJobBuildData);
     for (let outputJob of newJobBuildData) {
       if (outputJob.inputJobs.size > 1) {
         let newJob = await buildJob({
@@ -1159,20 +1177,21 @@ export function useJobManagement() {
         }
         newJobArray.push(newJob);
         newUserJobSnapshot = newJobSnapshot(newJob, newUserJobSnapshot);
-
-        outputJob.parentJobs.forEach((pJobID) => {
-          let pJob = newJobArray.find((i) => i.jobID === pJobID);
+        console.log(outputJob);
+        for (let cJob of outputJob.childJobs) {
+          let pJob = newJobArray.find((i) => i.jobID === cJob);
+          console.log(pJob);
           if (pJob !== undefined) {
-            pJob.build.materials.forEach((mat) => {
-              if (mat.typeID === newJob.itemID) {
-                mat.childJob.push(newJob.jobID);
-              }
-            });
+            pJob.parentJob.push(newJob.jobID);
           }
-        });
-
+          newUserJobSnapshot = updateJobSnapshotActiveJob(
+            pJob,
+            newUserJobSnapshot
+          );
+          await uploadJob(pJob);
+        }
         if (isLoggedIn) {
-          addNewJob(newJob);
+          await addNewJob(newJob);
         }
       }
     }
@@ -1188,9 +1207,49 @@ export function useJobManagement() {
     await deleteMultipleJobsProcess([...jobIDsToRemove], false);
   };
 
+  const calcBrokersFee = async (user, marketOrder) => {
+    let brokerFeePercentage = parentUser.settings.editJob.citadelBrokersFee;
+    let factionStanding = { standing: 0 };
+    let corpStanding = { standing: 0 };
+
+    if (marketOrder.location_id.toString().length < 10) {
+      const brokerSkill = user.apiSkills.find((i) => i.id === 3446);
+      const stationInfo = await stationData(marketOrder.location_id);
+      factionStanding = user.standings.find(
+        (i) => i.from_id === stationInfo.race_id
+      );
+      corpStanding = user.standings.find(
+        (i) => i.from_id === stationInfo.owner
+      );
+      if (factionStanding === undefined) {
+        factionStanding = { standing: 0 };
+      }
+      if (corpStanding === undefined) {
+        corpStanding = { standing: 0 };
+      }
+
+      brokerFeePercentage =
+        3 -
+        0.3 * brokerSkill.activeLevel -
+        0.03 * factionStanding.standing -
+        0.02 * corpStanding.standing;
+    }
+
+    let brokersFee =
+      (brokerFeePercentage / 100) *
+      (marketOrder.price * marketOrder.volume_total);
+
+    if (brokersFee < 100) {
+      brokersFee = 100;
+    }
+
+    return brokersFee;
+  };
+
   return {
     buildItemPriceEntry,
     buildShoppingList,
+    calcBrokersFee,
     closeEditJob,
     deleteJobProcess,
     deleteJobSnapshot,

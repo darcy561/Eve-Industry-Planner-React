@@ -352,6 +352,38 @@ export function useEveApi() {
     return returnArray;
   };
 
+  const standingsList = async (userObj) => {
+    try {
+      const standingsPromise = await fetch(
+        `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/standings/?datasource=tranquility&token=${userObj.aToken}`
+      );
+      const standingsJSON = await standingsPromise.json();
+
+      if (standingsPromise.status === 200) {
+        return standingsJSON;
+      }
+    } catch (err) {
+      return [];
+    }
+  };
+
+  const stationData = async (stationID) => {
+    try {
+      const stationDataPromise = await fetch(
+        `https://esi.evetech.net/latest/universe/stations/${stationID}`
+      )
+
+      const stationDataJson = await stationDataPromise.json();
+
+      if (stationDataPromise.status === 200) {
+        return stationDataJson
+      }
+      
+    } catch (err) {
+      return null
+    }
+  }
+
   return {
     BlueprintLibrary,
     CharacterSkills,
@@ -361,6 +393,8 @@ export function useEveApi() {
     IndustryJobs,
     MarketOrders,
     serverStatus,
+    standingsList,
+    stationData,
     WalletTransactions,
     WalletJournal,
   };

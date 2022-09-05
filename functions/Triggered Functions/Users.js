@@ -58,7 +58,6 @@ exports.createUserData = functions
           },
         ],
         deleted: null,
-        jobArraySnapshot: {},
         linkedJobs: [],
         linkedTrans: [],
         linkedOrders: [],
@@ -77,6 +76,7 @@ exports.createUserData = functions
             defaultOrders: "sell",
             hideCompleteMaterials: false,
             defaultAssetLocation: 60003760,
+            citadelBrokersFee: 1
           },
           structures: {
             manufacturing: [],

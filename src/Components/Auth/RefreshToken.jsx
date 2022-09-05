@@ -24,7 +24,6 @@ export async function RefreshTokens(rToken, accountType) {
     const newTokenJSON = await newTokenPromise.json();
 
     const decodedToken = jwt.decode(newTokenJSON.access_token);
-
     if (accountType) {
       const newUser = new MainUser(decodedToken, newTokenJSON);
       newUser.ParentUser = accountType;

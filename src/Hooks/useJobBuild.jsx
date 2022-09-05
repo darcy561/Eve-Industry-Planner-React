@@ -71,7 +71,6 @@ export function useJobBuild() {
         sale: {
           totalSold: 0,
           totalSale: 0,
-          markUp: 0,
           marketOrders: [],
           transactions: [],
           brokersFee: [],
@@ -149,18 +148,14 @@ export function useJobBuild() {
             material.quantityPurchased = 0;
             material.purchasedCost = 0;
             material.purchaseComplete = false;
+            material.childJob = [];
             if (buildRequest.childJobs !== undefined) {
               buildRequest.childJobs.forEach((i) => {
                 if (i.typeID === material.typeID) {
-                  material.childJob = i.childJobs
-                } else {
-                  material.childJob = [];
+                  material.childJob = [...i.childJobs]
                 }
               })
-            } else {
-              material.childJob = [];
             }
-
           });
           outputObject.build.materials.sort((a, b) => {
             if (a.name < b.name) {

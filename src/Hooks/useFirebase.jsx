@@ -514,6 +514,46 @@ export function useFirebase() {
     updateFirebaseListeners((prev) => prev.concat(unsub));
   };
 
+  const userWatchlistListener = async (userObj) => {
+    const unsub = onSnapshot(
+      doc(firestore, `Users/${userObj.accountID}/ProfileInfo`, "Watchlist"),
+      (doc) => {
+        const updateSnapshotState = async () => {
+          if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+            let snapshotData = doc.data();
+            let priceIDRequest = new Set();
+            let newWatchlistGroups = [];
+            let newWatchlistItems = [];
+            snapshotData.groups.forEach((group) => {
+              newWatchlistGroups.push(group);
+            });
+            snapshotData.items.forEach((item) => {
+              priceIDRequest.add(item.typeID);
+              item.materials.forEach((mat) => {
+                priceIDRequest.add(mat.typeID);
+                mat.materials.forEach((cMat) => {
+                  priceIDRequest.add(cMat.typeID);
+                });
+              });
+              newWatchlistItems.push(item);
+            });
+            let newEvePrices = await getItemPrices(
+              [...priceIDRequest],
+              userObj
+            );
+            updateEvePrices((prev) => prev.concat(newEvePrices));
+            updateUserWatchlist({
+              groups: newWatchlistGroups,
+              items: newWatchlistItems,
+            });
+          }
+        };
+        updateSnapshotState();
+      }
+    );
+    updateFirebaseListeners((prev) => prev.concat(unsub));
+  };
+
   return {
     addNewJob,
     archiveJob,
@@ -527,6 +567,7 @@ export function useFirebase() {
     removeJob,
     downloadCharacterJobs,
     userJobSnapshotListener,
+    userWatchlistListener,
     uploadUserJobSnapshot,
   };
 }

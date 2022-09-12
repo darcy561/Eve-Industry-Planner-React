@@ -26,7 +26,7 @@ export function useRefreshUser() {
     generateItemPriceRequest,
     getLocationNames,
   } = useAccountManagement();
-  const { determineUserState, getItemPrices, userJobSnapshotListener } = useFirebase();
+  const { determineUserState, getItemPrices, userJobSnapshotListener, userWatchlistListener } = useFirebase();
   const { updateEveIDs } = useContext(EveIDsContext);
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
@@ -84,6 +84,7 @@ export function useRefreshUser() {
 
     buildMainUser(refreshedUser, charSettings);
     userJobSnapshotListener(refreshedUser);
+    userWatchlistListener(refreshedUser);
 
     let priceIDRequest = generateItemPriceRequest(charSettings);
     let promiseArray = [getItemPrices(priceIDRequest, refreshedUser)];

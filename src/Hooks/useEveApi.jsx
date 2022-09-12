@@ -361,7 +361,7 @@ export function useEveApi() {
 
       if (standingsPromise.status === 200) {
         return standingsJSON;
-      }
+      }else return []
     } catch (err) {
       return [];
     }

@@ -320,10 +320,7 @@ export function ChildJobPopover({
                     material.childJob.push(childJobObjects[jobDisplay].jobID);
                     updateUserJobSnapshot(newUserJobSnapshot);
                     updateEvePrices((prev) => prev.concat(tempPrices));
-                    updateJobArray((prev) => [
-                      ...prev,
-                      childJobObjects[jobDisplay],
-                    ]);
+                    updateJobArray((prev) => prev.concat(childJobObjects[jobDisplay]));
                     setSnackbarData((prev) => ({
                       ...prev,
                       open: true,

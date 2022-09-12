@@ -1,5 +1,8 @@
 import { useContext, useEffect } from "react";
-import { UserJobSnapshotContext, UsersContext } from "../../Context/AuthContext";
+import {
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
 import jwt from "jsonwebtoken";
@@ -45,8 +48,12 @@ export default function AuthMainUser() {
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { determineUserState, getItemPrices, userJobSnapshotListener } =
-    useFirebase();
+  const {
+    determineUserState,
+    getItemPrices,
+    userJobSnapshotListener,
+    userWatchlistListener,
+  } = useFirebase();
   const {
     buildMainUser,
     characterAPICall,
@@ -68,7 +75,7 @@ export default function AuthMainUser() {
         ...prevObj,
         eveSSO: true,
       }));
-      updateUserJobSnapshot([])
+      updateUserJobSnapshot([]);
 
       let userObject = await EveSSOTokens(authCode, true);
       userObject.fbToken = await firebaseAuth(userObject);
@@ -86,6 +93,7 @@ export default function AuthMainUser() {
       let priceIDRequest = generateItemPriceRequest(userSettings);
       let promiseArray = [getItemPrices(priceIDRequest, userObject)];
       userJobSnapshotListener(userObject);
+      userWatchlistListener(userObject);
       updateLoadingText((prevObj) => ({
         ...prevObj,
         charDataComp: true,
@@ -191,7 +199,7 @@ export default function AuthMainUser() {
 
       let returnPromiseArray = await Promise.all(promiseArray);
       let newNameArray = await getLocationNames(userArray, userObject);
-      
+
       updateEveIDs(newNameArray);
       updateEvePrices(returnPromiseArray[0]);
       setJobStatus(userSettings.jobStatusArray);

@@ -57,7 +57,7 @@ export function useJobManagement() {
     uploadUserJobSnapshot,
   } = useFirebase();
   const { stationData } = useEveApi();
-  const { buildJob, checkAllowBuild } = useJobBuild();
+  const { buildJob, checkAllowBuild, recalculateItemQty } = useJobBuild();
   const t = trace(performance, "CreateJobProcessFull");
   const r = trace(performance, "MassCreateJobProcessFull");
 
@@ -1121,18 +1121,21 @@ export function useJobManagement() {
         newJobBuildData[index].inputJobs.add(currentJob.jobID);
 
         currentJob.build.materials.forEach((i) => {
-          console.log("next");
-          console.log(i);
-          console.log(newJobBuildData[index]);
           if (i.childJob.length > 0) {
             let nJbDIndex = newJobBuildData[index].childJobs.findIndex(
               (o) => o.typeID === i.typeID
             );
-            console.log(nJbDIndex);
-            
+
             if (nJbDIndex !== -1) {
-              console.log(newJobBuildData[index].childJobs[nJbDIndex])
-              newJobBuildData[index].childJobs[nJbDIndex].push(i.childJob);
+              console.log(newJobBuildData[index].childJobs[nJbDIndex]);
+              newJobBuildData[index].childJobs[nJbDIndex].childJobs.push(
+                i.childJob
+              );
+            } else {
+              newJobBuildData[index].childJobs.push({
+                typeID: i.typeID,
+                childJobs: new Set(i.childJob),
+              });
             }
           }
         });
@@ -1163,9 +1166,10 @@ export function useJobManagement() {
         }
       });
     }
-    console.log(newJobBuildData);
+
     for (let outputJob of newJobBuildData) {
       if (outputJob.inputJobs.size > 1) {
+        console.log(outputJob);
         let newJob = await buildJob({
           itemID: outputJob.typeID,
           itemQty: outputJob.totalQuantity,
@@ -1177,18 +1181,24 @@ export function useJobManagement() {
         }
         newJobArray.push(newJob);
         newUserJobSnapshot = newJobSnapshot(newJob, newUserJobSnapshot);
-        console.log(outputJob);
+
         for (let cJob of outputJob.childJobs) {
-          let pJob = newJobArray.find((i) => i.jobID === cJob);
-          console.log(pJob);
-          if (pJob !== undefined) {
-            pJob.parentJob.push(newJob.jobID);
+          for (let cJobItem of cJob.childJobs) {
+            let pJob = newJobArray.find((i) => i.jobID === cJobItem);
+            let newQuantity = newJob.build.materials.find(
+              (i) => i.typeID === cJob.typeID
+            );
+
+            if (pJob !== undefined) {
+              pJob.parentJob.push(newJob.jobID);
+              recalculateItemQty(pJob, newQuantity.quantity);
+              newUserJobSnapshot = updateJobSnapshotActiveJob(
+                pJob,
+                newUserJobSnapshot
+              );
+              await uploadJob(pJob);
+            }
           }
-          newUserJobSnapshot = updateJobSnapshotActiveJob(
-            pJob,
-            newUserJobSnapshot
-          );
-          await uploadJob(pJob);
         }
         if (isLoggedIn) {
           await addNewJob(newJob);

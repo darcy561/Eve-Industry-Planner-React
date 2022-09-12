@@ -8,12 +8,15 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
-import { IsLoggedInContext, UserJobSnapshotContext } from "../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+} from "../../../Context/AuthContext";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 
 export function ParentJobDialog({
@@ -24,34 +27,42 @@ export function ParentJobDialog({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
   const { downloadCharacterJobs, uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const{updateJobSnapshot } = useJobManagement()
+  const { updateJobSnapshot } = useJobManagement();
+  const [matches, updateMatches] = useState([]);
 
   const handleClose = () => {
     updateDialogTrigger(false);
   };
 
-  let matches = [];
-  for (let job of userJobSnapshot) {
-    if (job.isSnapshot) {
-      if (
-        job.materialIDs.includes(activeJob.itemID) &&
-        !activeJob.parentJob.includes(job.jobID)
-      ) {
-        matches.push(job);
-      }
-    } else {
-      let fullJob = jobArray.find((i)=> i.jobID === job.jobID)
-      if (
-        fullJob.build.materials.some((mat) => mat.typeID === activeJob.itemID) &&
-        !activeJob.parentJob.includes(fullJob.jobID)
-      ) {
-        matches.push(job);
+  useEffect(() => {
+    let newMatches = [];
+    for (let job of userJobSnapshot) {
+      if (job.isSnapshot) {
+        if (
+          job.materialIDs.includes(activeJob.itemID) &&
+          !activeJob.parentJob.includes(job.jobID)
+        ) {
+          newMatches.push(job);
+        }
+      } else {
+        let fullJob = jobArray.find((i) => i.jobID === job.jobID);
+        if (
+          fullJob.build.materials.some(
+            (mat) => mat.typeID === activeJob.itemID
+          ) &&
+          !activeJob.parentJob.includes(fullJob.jobID)
+        ) {
+          newMatches.push(job);
+        }
       }
     }
-  }
+    updateMatches(newMatches);
+  }, [userJobSnapshot]);
 
   return (
     <Dialog
@@ -96,7 +107,7 @@ export function ParentJobDialog({
                   <Grid item xs={6} align="center" sx={{ paddingLeft: "10px" }}>
                     <Typography variant="body1">{job.name}</Typography>
                   </Grid>
-                  <Grid item xs={4}align="center">
+                  <Grid item xs={4} align="center">
                     <Typography variant="body2">
                       ME {job.bpME} TE {job.bpTE}
                     </Typography>
@@ -119,7 +130,9 @@ export function ParentJobDialog({
                         material.childJob.push(activeJob.jobID);
                         let newParentJobArray = [...activeJob.parentJob];
                         newParentJobArray.push(job.jobID);
-                        let newUserJobSnapshot = updateJobSnapshot(job, [...userJobSnapshot])
+                        let newUserJobSnapshot = updateJobSnapshot(job, [
+                          ...userJobSnapshot,
+                        ]);
                         updateUserJobSnapshot(newUserJobSnapshot);
                         updateActiveJob((prev) => ({
                           ...prev,

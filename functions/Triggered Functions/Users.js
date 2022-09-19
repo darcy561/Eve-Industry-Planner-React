@@ -76,7 +76,7 @@ exports.createUserData = functions
             defaultOrders: "sell",
             hideCompleteMaterials: false,
             defaultAssetLocation: 60003760,
-            citadelBrokersFee: 1
+            citadelBrokersFee: 1,
           },
           structures: {
             manufacturing: [],
@@ -84,16 +84,26 @@ exports.createUserData = functions
           },
         },
         refreshTokens: [],
-        watchlist: {
-          groups: [],
-          items: [],
-        },
       };
+
       admin
         .firestore()
         .collection("Users")
         .doc(context.auth.uid)
         .set(setupData);
+      admin
+        .firestore()
+        .doc(`Users/${context.auth.uid}/ProfileInfo/Watchlist`)
+        .set({
+          groups: [],
+          items: [],
+        });
+      admin
+        .firestore()
+        .doc(`Users/${context.auth.uid}/ProfileInfo/JobSnapshot`)
+        .set({
+          snapshot: [],
+        });
       functions.logger.log(
         `Account ${context.auth.uid} document created successfully`
       );

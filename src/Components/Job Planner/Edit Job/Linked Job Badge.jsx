@@ -89,7 +89,7 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
                           uploadJob(activeJob);
                         }
                         closeEditJob(activeJob)
-                        openEditJob(job);
+                        openEditJob(job.jobID);
                       }}
                       variant="outlined"
                       sx={{

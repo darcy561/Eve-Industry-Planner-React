@@ -28,7 +28,7 @@ export function useJobBuild() {
 
   class Job {
     constructor(itemJson, buildRequest) {
-      this.buildVer = process.env.REACT_APP_Version;
+      this.buildVer = __APP_VERSION__;
       this.metaLevel = itemJson.metaGroup || null;
       this.jobType = itemJson.jobType;
       if (buildRequest.sisiData) {
@@ -48,9 +48,9 @@ export function useJobBuild() {
       this.bpTE = 0;
       this.rigType = 0;
       this.systemType = 1;
-      this.apiJobs = [];
-      this.apiOrders = [];
-      this.apiTransactions = [];
+      this.apiJobs = new Set();
+      this.apiOrders = new Set();
+      this.apiTransactions = new Set();
       this.parentJob = [];
       this.blueprintTypeID = itemJson.blueprintTypeID || null;
       this.projectID = null;
@@ -125,160 +125,160 @@ export function useJobBuild() {
   const buildJob = async (buildRequest) => {
     try {
       if (buildRequest.itemID === undefined) {
-        jobBuildErrors("Item Data Missing From Request");
+        jobBuildErrors(buildRequest, "Item Data Missing From Request");
         return undefined;
       }
-        const appCheckToken = await getToken(appCheck, true);
-        const response = await fetch(
-          buildRequest.sisiData
-            ? `${process.env.REACT_APP_APIURL}/item/sisiData/${buildRequest.itemID}`
-            : `${process.env.REACT_APP_APIURL}/item/${buildRequest.itemID}`,
-          {
-            headers: {
-              "X-Firebase-AppCheck": appCheckToken.token,
-              accountID: parentUser.accountID,
-            },
-          }
-        );
-        const itemJson = await response.json();
-        const outputObject = new Job(itemJson, buildRequest);
-        try {
-          outputObject.build.materials.forEach((material) => {
-            material.purchasing = [];
-            material.quantityPurchased = 0;
-            material.purchasedCost = 0;
-            material.purchaseComplete = false;
-            material.childJob = [];
-            if (buildRequest.childJobs !== undefined) {
-              buildRequest.childJobs.forEach((i) => {
-                if (i.typeID === material.typeID) {
-                  material.childJob = [...i.childJobs]
-                }
-              })
-            }
-          });
-          outputObject.build.materials.sort((a, b) => {
-            if (a.name < b.name) {
-              return -1;
-            }
-            if (a.name > b.name) {
-              return 1;
-            }
-            return 0;
-          });
+      const appCheckToken = await getToken(appCheck, true);
+      const response = await fetch(
+        buildRequest.sisiData
+          ? `${import.meta.env.VITE_APIURL}/item/sisiData/${
+              buildRequest.itemID
+            }`
+          : `${import.meta.env.VITE_APIURL}/item/${buildRequest.itemID}`,
+        {
+          headers: {
+            "X-Firebase-AppCheck": appCheckToken.token,
+            accountID: parentUser.accountID,
+          },
+        }
+      );
+      const itemJson = await response.json();
 
-          outputObject.build.buildChar = parentUser.CharacterHash;
-          if (isLoggedIn) {
-            if (outputObject.jobType === jobTypes.manufacturing) {
-              let blueprintOptions = [];
-              users.forEach((user) => {
-                let temp = user.apiBlueprints.filter(
-                  (i) => i.type_id === outputObject.blueprintTypeID
-                );
-                temp.forEach((i) => {
-                  blueprintOptions.push(i);
-                });
-              });
-              if (blueprintOptions.length > 0) {
-                blueprintOptions.sort(
-                  (a, b) =>
-                    b.material_efficiency - a.material_efficiency ||
-                    b.time_efficiency - a.time_efficiency
-                );
-                outputObject.bpME = blueprintOptions[0].material_efficiency;
-                outputObject.bpTE = blueprintOptions[0].time_efficiency / 2;
+      const outputObject = new Job(itemJson, buildRequest);
+      try {
+        outputObject.build.materials.forEach((material) => {
+          material.purchasing = [];
+          material.quantityPurchased = 0;
+          material.purchasedCost = 0;
+          material.purchaseComplete = false;
+          material.childJob = [];
+          if (buildRequest.childJobs !== undefined) {
+            buildRequest.childJobs.forEach((i) => {
+              if (i.typeID === material.typeID) {
+                material.childJob = [...i.childJobs];
               }
-
-              const structureData =
-                parentUser.settings.structures.manufacturing.find(
-                  (i) => i.default === true
-                );
-              if (structureData !== undefined) {
-                outputObject.rigType = structureData.rigType;
-                outputObject.systemType = structureData.systemType;
-                outputObject.structureType = structureData.structureValue;
-                outputObject.structureTypeDisplay = structureData.structureName;
-              }
-            }
-            if (outputObject.jobType === jobTypes.reaction) {
-              const structureData =
-                parentUser.settings.structures.reaction.find(
-                  (i) => i.default === true
-                );
-              if (structureData !== undefined) {
-                outputObject.rigType = structureData.rigType;
-                outputObject.systemType = structureData.systemType;
-                outputObject.structureType = structureData.structureValue;
-                outputObject.structureTypeDisplay = structureData.structureName;
-              }
-            }
+            });
           }
-          if (buildRequest.itemQty !== undefined) {
-            recalculateItemQty(outputObject, buildRequest.itemQty);
-          }
+        });
 
-          let calculatedJob = CalculateResources(outputObject);
-          calculatedJob = CalculateTime(calculatedJob);
-          if (buildRequest.parentJobs !== undefined) {
-            let itemParents = [];
-            buildRequest.parentJobs.forEach((job) => {
-              job.build.materials.forEach((mat) => {
-                if (mat.typeID === calculatedJob.itemID) {
-                  itemParents.push(job.jobID);
-                }
+        outputObject.build.materials.sort((a, b) => {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+          return 0;
+        });
+
+        outputObject.build.buildChar = parentUser.CharacterHash;
+        if (isLoggedIn) {
+          if (outputObject.jobType === jobTypes.manufacturing) {
+            let blueprintOptions = [];
+            users.forEach((user) => {
+              let temp = user.apiBlueprints.filter(
+                (i) => i.type_id === outputObject.blueprintTypeID
+              );
+              temp.forEach((i) => {
+                blueprintOptions.push(i);
               });
             });
-            calculatedJob.parentJob = itemParents;
+            if (blueprintOptions.length > 0) {
+              blueprintOptions.sort(
+                (a, b) =>
+                  b.material_efficiency - a.material_efficiency ||
+                  b.time_efficiency - a.time_efficiency
+              );
+              outputObject.bpME = blueprintOptions[0].material_efficiency;
+              outputObject.bpTE = blueprintOptions[0].time_efficiency / 2;
+            }
+
+            const structureData =
+              parentUser.settings.structures.manufacturing.find(
+                (i) => i.default === true
+              );
+            if (structureData !== undefined) {
+              outputObject.rigType = structureData.rigType;
+              outputObject.systemType = structureData.systemType;
+              outputObject.structureType = structureData.structureValue;
+              outputObject.structureTypeDisplay = structureData.structureName;
+            }
           }
-          return calculatedJob;
-        } catch (err) {
-          jobBuildErrors("objectError");
-          return undefined;
+          if (outputObject.jobType === jobTypes.reaction) {
+            const structureData = parentUser.settings.structures.reaction.find(
+              (i) => i.default === true
+            );
+            if (structureData !== undefined) {
+              outputObject.rigType = structureData.rigType;
+              outputObject.systemType = structureData.systemType;
+              outputObject.structureType = structureData.structureValue;
+              outputObject.structureTypeDisplay = structureData.structureName;
+            }
+          }
         }
+        if (buildRequest.itemQty !== undefined) {
+          recalculateItemQty(outputObject, buildRequest.itemQty);
+        }
+
+        let calculatedJob = CalculateResources(outputObject);
+        calculatedJob = CalculateTime(calculatedJob);
+        console.log(buildRequest)
+        if (buildRequest.parentJobs !== undefined) {
+          console.log("add")
+          calculatedJob.parentJob = calculatedJob.parentJob.concat(buildRequest.parentJobs)
+        }
+        return calculatedJob;
+      } catch (err) {
+        console.log(err);
+        jobBuildErrors(buildRequest, "objectError");
+        return undefined;
+      }
     } catch (err) {
-      jobBuildErrors(err.name);
+      jobBuildErrors(buildRequest, err.name);
       return undefined;
     }
   };
 
-  const jobBuildErrors = (newJob) => {
-    if (newJob === "TypeError") {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: "No blueprint found for this item",
-        severity: "error",
-        autoHideDuration: 2000,
-      }));
-      updateDataExchange(false);
-    } else if (newJob === "objectError") {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: "Error building job object, please try again",
-        severity: "error",
-        autoHideDuration: 2000,
-      }));
-      updateDataExchange(false);
-    } else if (newJob === "Item Data Missing From Request") {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: "Item Data Missing From Request",
-        severity: "error",
-        autoHideDuration: 2000,
-      }));
-      updateDataExchange(false);
-    } else {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: "Unkown Error Contact Admin",
-        severity: "error",
-        autoHideDuration: 2000,
-      }));
-      updateDataExchange(false);
+  const jobBuildErrors = (buildRequest, newJob) => {
+    if (buildRequest.throwError !== undefined && !buildRequest.throwError ) {
+      return null
     }
+    if (buildRequest.throwError === undefined || buildRequest.throwError) {
+      if (newJob === "TypeError") {
+        setSnackbarData((prev) => ({
+          ...prev,
+          open: true,
+          message: "No blueprint found for this item",
+          severity: "error",
+          autoHideDuration: 2000,
+        }));
+      } else if (newJob === "objectError") {
+        setSnackbarData((prev) => ({
+          ...prev,
+          open: true,
+          message: "Error building job object, please try again",
+          severity: "error",
+          autoHideDuration: 2000,
+        }));
+      } else if (newJob === "Item Data Missing From Request") {
+        setSnackbarData((prev) => ({
+          ...prev,
+          open: true,
+          message: "Item Data Missing From Request",
+          severity: "error",
+          autoHideDuration: 2000,
+        }));
+      } else {
+        setSnackbarData((prev) => ({
+          ...prev,
+          open: true,
+          message: "Unkown Error Contact Admin",
+          severity: "error",
+          autoHideDuration: 2000,
+        }));
+      }
+    }
+    updateDataExchange(false);
   };
 
   const checkAllowBuild = () => {

@@ -190,6 +190,9 @@ export function AvailableMarketOrders({
                             newMarketOrderArray.push(
                               Object.assign({}, new ESIMarketOrder(order))
                             );
+                            let newApiOrders = new Set(activeJob.apiOrders)
+                            newApiOrders.add(order.order_id)
+
 
                             let newUsers = [...users];
                             newUsers[ParentUserIndex].linkedOrders.push(
@@ -198,6 +201,7 @@ export function AvailableMarketOrders({
                             updateUsers(newUsers);
                             updateActiveJob((prev) => ({
                               ...prev,
+                              apiOrders: newApiOrders,
                               build: {
                                 ...prev.build,
                                 sale: {

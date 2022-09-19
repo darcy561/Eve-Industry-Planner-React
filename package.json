@@ -18,25 +18,23 @@
     "date-fns": "^2.28.0",
     "dotenv": "^10.0.0",
     "firebase": "^9.6.11",
-    "firebase-tools": "^9.23.3",
+    "firebase-tools": "^11.9.0",
     "glob-parent": "^6.0.2",
-    "jsonwebtoken": "^8.5.1",
+    "jose": "^4.9.2",
     "react": "^17.0.2",
     "react-copy-to-clipboard": "^5.0.4",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
     "react-router-dom": "^6.0.2",
-    "react-scripts": "^4.0.3",
     "web-vitals": "^1.1.2"
   },
   "devDependencies": {
-    "react-error-overlay": "6.0.9"
+    "@vitejs/plugin-react": "1.1.1",
+    "vite": "^2.9.15"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "vite build",
     "deploy-hosting": "firebase deploy --only hosting",
     "deploy-function": "firebase deploy --only functions"
   },
@@ -44,38 +42,6 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "react-dotenv": {
-    "whitelist": [
-      "REACT_APP_eveClientID",
-      "REACT_APP_eveSecretKey",
-      "REACT_APP_eveCallbackURL",
-      "REACT_APP_eveScope",
-      "REACT_APP_fbApiKey",
-      "REACT_APP_fbAuthDomain",
-      "REACT_APP_fbDatabaseURL",
-      "REACT_APP_fbProjectID",
-      "REACT_APP_fbStorageBucket",
-      "REACT_APP_fbMessagingSenderID",
-      "REACT_APP_fbAppID",
-      "REACT_APP_appCheckDebugKey",
-      "REACT_APP_ReCaptchaKey",
-      "REACT_APP_measurmentID",
-      "REACT_APP_Version",
-      "REACT_APP_APIURL"
     ]
   }
 }

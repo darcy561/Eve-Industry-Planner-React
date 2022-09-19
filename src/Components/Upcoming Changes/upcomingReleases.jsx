@@ -69,7 +69,7 @@ export default function UpcomingChanges() {
             <TranqItem tranqItem={tranqItem} itemLoad={itemLoad} />
           </Grid>
           <Grid item xs={12} md={6}>
-            <SisiItem sisiItem={sisiItem} itemLoad={itemLoad} />
+            <SisiItem sisiItem={sisiItem} itemLoad={itemLoad} tranqItem={tranqItem}  />
           </Grid>
         </Grid>
       </Grid>

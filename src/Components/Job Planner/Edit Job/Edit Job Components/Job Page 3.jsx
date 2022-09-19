@@ -19,10 +19,9 @@ export function EditPage3({ setJobModified }) {
   const jobMatches = apiJobs.filter(
     (job) =>
       activeJob.itemID === job.product_type_id &&
-      !activeJob.apiJobs.includes(job.job_id) &&
+      !activeJob.apiJobs.has(job.job_id) &&
       job.linked === false
   );
-
   return (
     <Container disableGutters maxWidth="false" sx={{ width: "100%" }}>
       <Grid container direction="row" spacing={2}>

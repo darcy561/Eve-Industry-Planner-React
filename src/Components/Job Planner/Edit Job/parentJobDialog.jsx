@@ -32,7 +32,7 @@ export function ParentJobDialog({
   );
   const { downloadCharacterJobs, uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshot } = useJobManagement();
+  const { updateJobSnapshotActiveJob } = useJobManagement();
   const [matches, updateMatches] = useState([]);
 
   const handleClose = () => {
@@ -42,23 +42,11 @@ export function ParentJobDialog({
   useEffect(() => {
     let newMatches = [];
     for (let job of userJobSnapshot) {
-      if (job.isSnapshot) {
-        if (
-          job.materialIDs.includes(activeJob.itemID) &&
-          !activeJob.parentJob.includes(job.jobID)
-        ) {
-          newMatches.push(job);
-        }
-      } else {
-        let fullJob = jobArray.find((i) => i.jobID === job.jobID);
-        if (
-          fullJob.build.materials.some(
-            (mat) => mat.typeID === activeJob.itemID
-          ) &&
-          !activeJob.parentJob.includes(fullJob.jobID)
-        ) {
-          newMatches.push(job);
-        }
+      if (
+        job.materialIDs.includes(activeJob.itemID) &&
+        !activeJob.parentJob.includes(job.jobID)
+      ) {
+        newMatches.push(job);
       }
     }
     updateMatches(newMatches);
@@ -108,9 +96,9 @@ export function ParentJobDialog({
                     <Typography variant="body1">{job.name}</Typography>
                   </Grid>
                   <Grid item xs={4} align="center">
-                    <Typography variant="body2">
+                    {/* <Typography variant="body2">
                       ME {job.bpME} TE {job.bpTE}
-                    </Typography>
+                    </Typography> */}
                     <Typography variant="body2">
                       Runs {job.runCount} Jobs {job.jobCount}
                     </Typography>
@@ -120,19 +108,23 @@ export function ParentJobDialog({
                       size="small"
                       color="primary"
                       onClick={async () => {
+                        let fullJob = null;
                         if (job.isSnapshot) {
-                          job = await downloadCharacterJobs(job);
+                          fullJob = await downloadCharacterJobs(job);
                           job.isSnapshot = false;
+                        } else {
+                          fullJob = jobArray.find((i) => i.jobID === job.jobID);
                         }
-                        let material = job.build.materials.find(
+                        let material = fullJob.build.materials.find(
                           (i) => i.typeID === activeJob.itemID
                         );
                         material.childJob.push(activeJob.jobID);
                         let newParentJobArray = [...activeJob.parentJob];
                         newParentJobArray.push(job.jobID);
-                        let newUserJobSnapshot = updateJobSnapshot(job, [
-                          ...userJobSnapshot,
-                        ]);
+                        let newUserJobSnapshot = updateJobSnapshotActiveJob(
+                          fullJob,
+                          [...userJobSnapshot]
+                        );
                         updateUserJobSnapshot(newUserJobSnapshot);
                         updateActiveJob((prev) => ({
                           ...prev,
@@ -147,8 +139,9 @@ export function ParentJobDialog({
                           autoHideDuration: 1000,
                         }));
                         if (isLoggedIn) {
-                          uploadJob(job);
+                          uploadJob(fullJob);
                         }
+                        handleClose();
                       }}
                     >
                       <AddIcon />

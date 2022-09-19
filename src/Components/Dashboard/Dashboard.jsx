@@ -7,7 +7,7 @@ import { UsersContext } from "../../Context/AuthContext";
 import { ESIOffline } from "../offlineNotification";
 import { ItemWatchPanel } from "./Components/ItemWatch/ItemWatchPanel";
 
-export function Dashboard() {
+function Dashboard() {
   const { users } = useContext(UsersContext);
 
   const parentUser = users.find((i) => i.ParentUser === true);
@@ -38,3 +38,5 @@ export function Dashboard() {
     </Grid>
   );
 }
+
+export default Dashboard

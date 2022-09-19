@@ -64,7 +64,7 @@ export function LinkedJobs({ setJobModified }) {
     }
   });
 
-  if (activeJob.apiJobs.length !== 0) {
+  if (activeJob.apiJobs.size !== 0) {
     return (
       <>
         <Grid
@@ -212,13 +212,9 @@ export function LinkedJobs({ setJobModified }) {
 
                         setJobModified(true);
 
-                        const newActiveJobArray = activeJob.apiJobs;
-                        const aJ = newActiveJobArray.findIndex(
-                          (x) => x === job.job_id
-                        );
-                        if (aJ !== -1) {
-                          newActiveJobArray.splice(aJ, 1);
-                        }
+                        const newActiveJobArray = new Set(activeJob.apiJobs);
+
+                        newActiveJobArray.delete(job.job_id)
 
                         let newLinkedJobsArray =
                           activeJob.build.costs.linkedJobs;
@@ -275,7 +271,7 @@ export function LinkedJobs({ setJobModified }) {
             );
           })}
         </Grid>
-        {activeJob.apiJobs.length > 1 && (
+        {activeJob.apiJobs.size > 1 && (
           <Grid container sx={{ marginTop: { xs: "20px", sm: "20px" } }}>
             <Grid item sm={9} />
             <Grid item align="center" xs={12} sm={3}>
@@ -297,11 +293,9 @@ export function LinkedJobs({ setJobModified }) {
                   let newInstallCosts = 0;
 
                   for (let job of activeJob.apiJobs) {
-                    const aJ = newActiveJobArray.findIndex((x) => x === job);
 
-                    if (aJ !== -1) {
-                      newActiveJobArray.splice(aJ, 1);
-                    }
+                    newActiveJobArray.delete(job)
+
                     const linkedJobsArrayIndex = newLinkedJobsArray.findIndex(
                       (i) => i.job_id === job
                     );
@@ -342,7 +336,7 @@ export function LinkedJobs({ setJobModified }) {
                   setSnackbarData((prev) => ({
                     ...prev,
                     open: true,
-                    message: `${activeJob.apiJobs.length} Jobs Unlinked`,
+                    message: `${activeJob.apiJobs.size} Jobs Unlinked`,
                     severity: "success",
                     autoHideDuration: 1000,
                   }));

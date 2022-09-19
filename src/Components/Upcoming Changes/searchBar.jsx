@@ -10,6 +10,7 @@ export function UpcomingChangesSearch({
   updateTranqItem,
   updateSisiItem,
   updateItemLoad,
+  updateLoadComplete,
 }) {
   const { users } = useContext(UsersContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
@@ -40,26 +41,42 @@ export function UpcomingChangesSearch({
             getOptionLabel={(option) => option.name}
             onChange={async (event, value) => {
               updateItemLoad(true);
-              let newTranqJob = await buildJob({ itemID: value.itemID });
+              let newTranqJob = await buildJob({
+                itemID: value.itemID,
+                throwError: false,
+              });
               let newSisiJob = await buildJob({
                 itemID: value.itemID,
                 sisiData: true,
+                throwError: false,
               });
               let priceIDRequest = new Set();
               priceIDRequest.add(value.itemID);
-              newTranqJob.build.materials.forEach((mat) => {
-                priceIDRequest.add(mat.typeID);
-              });
-              newSisiJob.build.materials.forEach((mat) => {
-                priceIDRequest.add(mat.typeID);
-              });
+              if (newTranqJob !== undefined) {
+                newTranqJob.build.materials.forEach((mat) => {
+                  priceIDRequest.add(mat.typeID);
+                });
+              }
+              if (newSisiJob !== undefined) {
+                newSisiJob.build.materials.forEach((mat) => {
+                  priceIDRequest.add(mat.typeID);
+                });
+              }
 
               let newEvePrices = evePrices.concat(
                 await getItemPrices([...priceIDRequest], parentUser)
               );
               updateEvePrices(newEvePrices);
-              updateTranqItem(newTranqJob);
-              updateSisiItem(newSisiJob);
+              if (newTranqJob === undefined) {
+                updateTranqItem("missing");
+              } else {
+                updateTranqItem(newTranqJob);
+              }
+              if (newSisiJob === undefined) {
+                updateSisiItem("missing");
+              } else {
+                updateSisiItem(newSisiJob);
+              }
               updateItemLoad(false);
             }}
             renderInput={(params) => (

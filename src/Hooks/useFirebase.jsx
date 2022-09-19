@@ -68,19 +68,16 @@ export function useFirebase() {
         return {
           accountID: charData.data.accountID,
           jobStatusArray: charData.data.jobStatusArray,
-          jobArraySnapshot: [],
           linkedJobs: charData.data.linkedJobs,
           linkedOrders: charData.data.linkedOrders,
           linkedTrans: charData.data.linkedTrans,
           settings: charData.data.settings,
           refreshTokens: charData.data.refreshTokens,
-          watchlist: charData.data.watchlist,
         };
       } catch (err) {
         console.log(err);
       }
     };
-
     if (user.fbToken._tokenResponse.isNewUser) {
       let newUser = await buildNewUserProcess();
       return newUser;
@@ -140,7 +137,9 @@ export function useFirebase() {
         structureTypeDisplay: job.structureTypeDisplay,
         rigType: job.rigType,
         systemType: job.systemType,
-        apiJobs: job.apiJobs,
+        apiJobs: [...job.apiJobs],
+        apiOrders: [...job.apiOrders],
+        apiTransactions: [...job.apiTransactions],
         skills: job.skills,
         rawData: job.rawData,
         build: job.build,
@@ -177,7 +176,9 @@ export function useFirebase() {
         structureTypeDisplay: job.structureTypeDisplay,
         rigType: job.rigType,
         systemType: job.systemType,
-        apiJobs: job.apiJobs,
+        apiJobs: [...job.apiJobs],
+        apiOrders: [...job.apiOrders],
+        apiTransactions: [...job.apiTransactions],
         skills: job.skills,
         rawData: job.rawData,
         build: job.build,
@@ -206,7 +207,9 @@ export function useFirebase() {
         itemID: job.itemID,
         runCount: job.runCount,
         jobCount: job.jobCount,
-        apiJobs: job.apiJobs,
+        apiJobs: [...job.apiJobs],
+        apiOrders: [...job.apiOrders],
+        apiTransactions: [...job.apiTransactions],
         buildVer: job.buildVer,
         metaLevel: job.metaLevel,
       }
@@ -230,7 +233,6 @@ export function useFirebase() {
 
   const uploadUserJobSnapshot = async (newUserJobSnapshot) => {
     await fbAuthState();
-    console.log(newUserJobSnapshot);
     updateDoc(
       doc(
         firestore,
@@ -239,6 +241,16 @@ export function useFirebase() {
       ),
       {
         snapshot: newUserJobSnapshot,
+      }
+    );
+  };
+  const uploadUserWatchlist = async (itemGroups, itemWatchlist) => {
+    await fbAuthState();
+    updateDoc(
+      doc(firestore, `Users/${parentUser.accountID}/ProfileInfo`, "Watchlist"),
+      {
+        groups: itemGroups,
+        items: itemWatchlist,
       }
     );
   };
@@ -277,7 +289,9 @@ export function useFirebase() {
         structureTypeDisplay: job.structureTypeDisplay,
         rigType: job.rigType,
         systemType: job.systemType,
-        apiJobs: job.apiJobs,
+        apiJobs: [...job.apiJobs],
+        apiOrders: [...job.apiOrders],
+        apiTransactions: [...job.apiTransactions],
         skills: job.skills,
         rawData: job.rawData,
         build: job.build,
@@ -296,42 +310,49 @@ export function useFirebase() {
       doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
     );
     let downloadDoc = document.data();
-    let newJob = {
-      jobType: downloadDoc.jobType,
-      name: downloadDoc.name,
-      jobID: downloadDoc.jobID,
-      jobStatus: downloadDoc.jobStatus,
-      isSnapshot: false,
-      volume: downloadDoc.volume,
-      itemID: downloadDoc.itemID,
-      maxProductionLimit: downloadDoc.maxProductionLimit,
-      runCount: downloadDoc.runCount,
-      jobCount: downloadDoc.jobCount,
-      bpME: downloadDoc.bpME,
-      bpTE: downloadDoc.bpTE,
-      structureType: downloadDoc.structureType,
-      structureTypeDisplay: downloadDoc.structureTypeDisplay,
-      rigType: downloadDoc.rigType,
-      systemType: downloadDoc.systemType,
-      apiJobs: downloadDoc.apiJobs,
-      skills: downloadDoc.skills,
-      rawData: downloadDoc.rawData,
-      build: downloadDoc.build,
-      buildVer: downloadDoc.buildVer,
-      metaLevel: downloadDoc.metaLevel,
-      parentJob: downloadDoc.parentJob,
-      blueprintTypeID: downloadDoc.blueprintTypeID,
-      layout: downloadDoc.layout,
-    };
+    console.log(downloadDoc);
+    if (downloadDoc !== undefined) {
+      let newJob = {
+        jobType: downloadDoc.jobType,
+        name: downloadDoc.name,
+        jobID: downloadDoc.jobID,
+        jobStatus: downloadDoc.jobStatus,
+        isSnapshot: false,
+        volume: downloadDoc.volume,
+        itemID: downloadDoc.itemID,
+        maxProductionLimit: downloadDoc.maxProductionLimit,
+        runCount: downloadDoc.runCount,
+        jobCount: downloadDoc.jobCount,
+        bpME: downloadDoc.bpME,
+        bpTE: downloadDoc.bpTE,
+        structureType: downloadDoc.structureType,
+        structureTypeDisplay: downloadDoc.structureTypeDisplay,
+        rigType: downloadDoc.rigType,
+        systemType: downloadDoc.systemType,
+        apiJobs: new Set(downloadDoc.apiJobs),
+        apiOrders: new Set(downloadDoc.apiOrders),
+        apiTransactions: new Set(downloadDoc.apiTransactions),
+        skills: downloadDoc.skills,
+        rawData: downloadDoc.rawData,
+        build: downloadDoc.build,
+        buildVer: downloadDoc.buildVer,
+        metaLevel: downloadDoc.metaLevel,
+        parentJob: downloadDoc.parentJob,
+        blueprintTypeID: downloadDoc.blueprintTypeID,
+        layout: downloadDoc.layout,
+      };
 
-    return newJob;
+      return newJob;
+    } else {
+      return undefined;
+    }
   };
 
   const getItemPriceBulk = async (array, userObj) => {
     try {
       const appCheckToken = await getToken(appCheck, true);
       const itemsPricePromise = await fetch(
-        `${process.env.REACT_APP_APIURL}/costs/bulkPrices`,
+        `${import.meta.env.VITE_APIURL}/costs/bulkPrices`,
         {
           method: "POST",
           headers: {
@@ -569,5 +590,6 @@ export function useFirebase() {
     userJobSnapshotListener,
     userWatchlistListener,
     uploadUserJobSnapshot,
+    uploadUserWatchlist,
   };
 }

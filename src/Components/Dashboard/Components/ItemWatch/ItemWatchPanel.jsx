@@ -10,7 +10,7 @@ import AddIcon from "@mui/icons-material/Add";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { AddWatchItemDialog } from "./addItemDialog";
 import { useContext, useMemo, useState } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
+import { UsersContext, UserWatchlistContext } from "../../../../Context/AuthContext";
 import { WatchListRow } from "./ItemRow";
 import { WatchlistGroup } from "./watchlistGroup";
 import { AddGroupDialog } from "./addGroupDialog";
@@ -18,6 +18,7 @@ import { GroupSettingsDialog } from "./groupSettings";
 
 export function ItemWatchPanel() {
   const { users } = useContext(UsersContext);
+  const { userWatchlist, updateUserWatchlist } = useContext(UserWatchlistContext);
   const [openDialog, setOpenDialog] = useState(false);
   const [addNewGroupTrigger, updateAddNewGroupTrigger] = useState(false);
   const [groupSettingsTrigger, updateGroupSettingsTrigger] = useState(false);
@@ -87,7 +88,7 @@ export function ItemWatchPanel() {
             </Tooltip>
           </Box>
           <Grid container item xs={12}>
-            {parentUser.watchlist.length > 0 && (
+            {userWatchlist.items.length > 0 && (
               <Grid
                 container
                 item
@@ -134,7 +135,7 @@ export function ItemWatchPanel() {
                 </Grid>
               </Grid>
             )}
-            {parentUser.watchlist.length === 0 ? (
+            {userWatchlist.items.length === 0 ? (
               <Grid item xs={12} align="center">
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   You have no items on your watchlist.
@@ -142,7 +143,7 @@ export function ItemWatchPanel() {
               </Grid>
             ) : (
               <>
-                {parentUser.watchlist.groups.map((group, index) => {
+                {userWatchlist.groups.map((group, index) => {
                   return (
                     <WatchlistGroup
                       key={group.id}
@@ -156,7 +157,7 @@ export function ItemWatchPanel() {
                   );
                 })}
 
-                {parentUser.watchlist.items.map((item, index) => {
+                {userWatchlist.items.map((item, index) => {
                   if (item.group === undefined || item.group === 0) {
                     return (
                       <WatchListRow

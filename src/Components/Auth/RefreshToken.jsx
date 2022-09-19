@@ -1,6 +1,6 @@
 import { trace } from "@firebase/performance";
 import { performance } from "../../firebase";
-import jwt from "jsonwebtoken";
+import { decodeJwt } from "jose";
 import { login } from "./MainUserAuth";
 
 export async function RefreshTokens(rToken, accountType) {
@@ -13,17 +13,17 @@ export async function RefreshTokens(rToken, accountType) {
         method: "POST",
         headers: {
           Authorization: `Basic ${btoa(
-            `${process.env.REACT_APP_eveClientID}:${process.env.REACT_APP_eveSecretKey}`
+            `${  import.meta.env.VITE_eveClientID}:${  import.meta.env.VITE_eveSecretKey}`
           )}`,
           "Content-Type": "application/x-www-form-urlencoded",
           Host: "login.eveonline.com",
         },
-        body: `grant_type=refresh_token&refresh_token=${rToken}&scope=${process.env.REACT_APP_eveScope}`,
+        body: `grant_type=refresh_token&refresh_token=${rToken}&scope=${  import.meta.env.VITE_eveScope}`,
       }
     );
     const newTokenJSON = await newTokenPromise.json();
 
-    const decodedToken = jwt.decode(newTokenJSON.access_token);
+    const decodedToken = decodeJwt(newTokenJSON.access_token);
     if (accountType) {
       const newUser = new MainUser(decodedToken, newTokenJSON);
       newUser.ParentUser = accountType;

@@ -33,9 +33,9 @@ export function AdditionalAccounts({ parentUserIndex }) {
     localStorage.setItem("AddAccountComplete", false);
     window.open(
       `https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=${encodeURIComponent(
-        process.env.REACT_APP_eveCallbackURL
-      )}&client_id=${process.env.REACT_APP_eveClientID}&scope=${
-        process.env.REACT_APP_eveScope
+          import.meta.env.VITE_eveCallbackURL
+      )}&client_id=${  import.meta.env.VITE_eveClientID}&scope=${
+          import.meta.env.VITE_eveScope
       }&state=/`,
       "_blank"
     );

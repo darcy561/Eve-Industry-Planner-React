@@ -12,7 +12,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { WatchListRow } from "./ItemRow";
 import { useContext, useState } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
+import { UserWatchlistContext } from "../../../../Context/AuthContext";
 import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 
@@ -35,8 +35,9 @@ export function WatchlistGroup({
   updateGroupSettingsTrigger,
   updateGroupSettingsContent,
 }) {
-  const { users, updateUsers } = useContext(UsersContext);
-  const { updateMainUserDoc } = useFirebase();
+  const { userWatchlist, updateUserWatchlist } =
+    useContext(UserWatchlistContext);
+  const { uploadUserWatchlist } = useFirebase();
   const [expandGroup, updateExpandGroup] = useState(group.expanded);
   const classes = useStyles();
 
@@ -56,14 +57,15 @@ export function WatchlistGroup({
               <IconButton
                 color="secondary"
                 onClick={() => {
-                  let newUsers = [...users];
-                  let pIndex = newUsers.findIndex((o) => o.ParentUser);
-
-                  newUsers[pIndex].watchlist.groups[index].expanded =
-                    !newUsers[pIndex].watchlist.groups[index].expanded;
+                  let newUserWatchlistGroups = [...userWatchlist.groups];
+                  newUserWatchlistGroups[index].expanded =
+                    !newUserWatchlistGroups[index].expanded;
                   updateExpandGroup((prev) => !prev);
-                  updateUsers(newUsers);
-                  updateMainUserDoc()
+                  updateUserWatchlist((prev) => ({
+                    ...prev,
+                    groups: newUserWatchlistGroups,
+                  }));
+                  uploadUserWatchlist(userWatchlist.items, newUserWatchlistGroups);
                 }}
               >
                 <ExpandMoreIcon />
@@ -75,16 +77,16 @@ export function WatchlistGroup({
             <Box
               sx={{ display: "flex", flex: "1 1 95%", flexDirection: "row" }}
             >
-              <Typography variant="h6" className={classes.Header}>{group.name}</Typography>
+              <Typography variant="h6" className={classes.Header}>
+                {group.name}
+              </Typography>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "row" }}>
               <Tooltip title="Group Settings" arrow placement="bottom">
                 <IconButton
                   color="secondary"
                   onClick={() => {
-                    updateGroupSettingsContent(
-                      parentUser.watchlist.groups[index]
-                    );
+                    updateGroupSettingsContent(userWatchlist.groups[index]);
                     updateGroupSettingsTrigger((prev) => !prev);
                   }}
                 >
@@ -95,7 +97,7 @@ export function WatchlistGroup({
           </Box>
         </AccordionSummary>
         <AccordionDetails>
-          {parentUser.watchlist.items.map((item, index) => {
+          {userWatchlist.items.map((item, index) => {
             if (item.group === group.id) {
               return (
                 <WatchListRow

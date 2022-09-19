@@ -6,7 +6,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
+import { UserWatchlistContext } from "../../../../Context/AuthContext";
 import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 
@@ -26,8 +26,9 @@ export function GroupSettingsDialog({
   updateGroupSettingsTrigger,
   groupSettingsContent,
 }) {
-  const { users, updateUsers } = useContext(UsersContext);
-  const { updateMainUserDoc } = useFirebase();
+  const { userWatchlist, updateUserWatchlist } =
+    useContext(UserWatchlistContext);
+  const { uploadUserWatchlist } = useFirebase();
   const [setName, updateSetName] = useState(groupSettingsContent.name);
 
   useEffect(() => {
@@ -64,22 +65,26 @@ export function GroupSettingsDialog({
           variant="outlined"
           size="small"
           sx={{ marginRight: "20px" }}
-          onClick={() => {
-            let newUsers = [...users];
-            let pIndex = newUsers.findIndex((o) => o.ParentUser);
-            let index = newUsers[pIndex].watchlist.groups.findIndex(
+          onClick={async () => {
+            let newUserWatchlistGroups = [...userWatchlist.groups];
+            let newUserWatchlistItems = [...userWatchlist.items];
+            let index = newUserWatchlistGroups.findIndex(
               (i) => i.id === groupSettingsContent.id
             );
-            newUsers[pIndex].watchlist.groups.splice(index, 1);
+            newUserWatchlistGroups.splice(index, 1);
 
-            newUsers[pIndex].watchlist.items.forEach((entry) => {
+            newUserWatchlistItems.forEach((entry) => {
               if (entry.group === groupSettingsContent.id) {
-                entry.group = null;
+                entry.group = 0;
               }
-              updateUsers(newUsers);
-              updateMainUserDoc();
-              handleClose();
+
             });
+            updateUserWatchlist({
+              groups: newUserWatchlistGroups,
+              items: newUserWatchlistItems,
+            });
+            await uploadUserWatchlist(newUserWatchlistGroups, newUserWatchlistItems);
+            handleClose();
           }}
         >
           Delete
@@ -90,15 +95,17 @@ export function GroupSettingsDialog({
         <Button
           variant="contained"
           size="small"
-          onClick={() => {
-            let newUsers = [...users];
-            let pIndex = newUsers.findIndex((o) => o.ParentUser);
-            let index = newUsers[pIndex].watchlist.groups.findIndex(
+          onClick={async () => {
+            let newUserWatchlistGroups = [...userWatchlist.groups];
+            let index = newUserWatchlistGroups.findIndex(
               (i) => i.id === groupSettingsContent.id
             );
-            newUsers[pIndex].watchlist.groups[index].name = setName;
-            updateUsers(newUsers);
-            updateMainUserDoc();
+            newUserWatchlistGroups[index].name = setName;
+            updateUserWatchlist((prev) => ({
+              ...prev,
+              groups: newUserWatchlistGroups,
+            }));
+            await uploadUserWatchlist(newUserWatchlistGroups, userWatchlist.items);
             handleClose();
           }}
         >

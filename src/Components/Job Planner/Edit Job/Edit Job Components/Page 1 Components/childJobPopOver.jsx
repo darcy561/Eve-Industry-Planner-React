@@ -50,6 +50,7 @@ export function ChildJobPopover({
     updateMainUserDoc,
     uploadJob,
     getItemPrices,
+    uploadUserJobSnapshot,
   } = useFirebase();
   const { buildJob } = useJobBuild();
   const { newJobSnapshot, replaceSnapshot, closeEditJob, openEditJob } =
@@ -301,7 +302,7 @@ export function ChildJobPopover({
                       uploadJob(activeJob);
                     }
                     closeEditJob(activeJob);
-                    openEditJob(childJobObjects[jobDisplay]);
+                    openEditJob(childJobObjects[jobDisplay].jobID);
                   }}
                 >
                   Open Child Job
@@ -311,16 +312,17 @@ export function ChildJobPopover({
                   size="small"
                   onClick={async () => {
                     updateBuildLoad((prev) => !prev);
-                    let newUserJobSnapshot =  newJobSnapshot(childJobObjects[jobDisplay], [...userJobSnapshot] );
-
+                    let newUserJobSnapshot = newJobSnapshot(childJobObjects[jobDisplay], [...userJobSnapshot]);
+                    let newJobArray = [...jobArray]
+                    newJobArray.push(childJobObjects[jobDisplay])
                     if (isLoggedIn) {
-                      await updateMainUserDoc();
+                      await uploadUserJobSnapshot(newUserJobSnapshot)
                       await addNewJob(childJobObjects[jobDisplay]);
                     }
                     material.childJob.push(childJobObjects[jobDisplay].jobID);
                     updateUserJobSnapshot(newUserJobSnapshot);
                     updateEvePrices((prev) => prev.concat(tempPrices));
-                    updateJobArray((prev) => prev.concat(childJobObjects[jobDisplay]));
+                    updateJobArray(newJobArray);
                     setSnackbarData((prev) => ({
                       ...prev,
                       open: true,

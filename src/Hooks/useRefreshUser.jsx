@@ -8,9 +8,13 @@ import {
   JobArrayContext,
   JobStatusContext,
 } from "../Context/JobContext";
-import { IsLoggedInContext, UserJobSnapshotContext, UsersContext } from "../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../Context/AuthContext";
 import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
-import jwt from "jsonwebtoken";
+import { decodeJwt } from "jose";
 import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
@@ -26,7 +30,12 @@ export function useRefreshUser() {
     generateItemPriceRequest,
     getLocationNames,
   } = useAccountManagement();
-  const { determineUserState, getItemPrices, userJobSnapshotListener, userWatchlistListener } = useFirebase();
+  const {
+    determineUserState,
+    getItemPrices,
+    userJobSnapshotListener,
+    userWatchlistListener,
+  } = useFirebase();
   const { updateEveIDs } = useContext(EveIDsContext);
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
@@ -36,7 +45,9 @@ export function useRefreshUser() {
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -69,7 +80,7 @@ export function useRefreshUser() {
       ...prevObj,
       eveSSO: true,
     }));
-    updateUserJobSnapshot([])
+    updateUserJobSnapshot([]);
 
     let refreshedUser = await RefreshTokens(refreshToken, true);
     refreshedUser.fbToken = await firebaseAuth(refreshedUser);
@@ -83,11 +94,8 @@ export function useRefreshUser() {
     const charSettings = await determineUserState(refreshedUser);
 
     buildMainUser(refreshedUser, charSettings);
-    userJobSnapshotListener(refreshedUser);
-    userWatchlistListener(refreshedUser);
-
-    let priceIDRequest = generateItemPriceRequest(charSettings);
-    let promiseArray = [getItemPrices(priceIDRequest, refreshedUser)];
+    await userJobSnapshotListener(refreshedUser);
+    await userWatchlistListener(refreshedUser);
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -197,10 +205,8 @@ export function useRefreshUser() {
     });
 
     let locationReturns = await getLocationNames(userArray, refreshedUser);
-    let returnPromiseArray = await Promise.all(promiseArray);
 
     updateEveIDs(locationReturns);
-    updateEvePrices(returnPromiseArray[0]);
     setJobStatus(charSettings.jobStatusArray);
     updateJobArray([]);
     updateApiJobs(apiJobsArray);
@@ -230,7 +236,9 @@ export function useRefreshUser() {
           method: "POST",
           headers: {
             Authorization: `Basic ${btoa(
-              `${process.env.REACT_APP_eveClientID}:${process.env.REACT_APP_eveSecretKey}`
+              `${import.meta.env.VITE_eveClientID}:${
+                import.meta.env.VITE_eveSecretKey
+              }`
             )}`,
             "Content-Type": "application/x-www-form-urlencoded",
             Host: "login.eveonline.com",
@@ -242,7 +250,7 @@ export function useRefreshUser() {
       );
       const newTokenJSON = await newTokenPromise.json();
 
-      const decodedToken = jwt.decode(newTokenJSON.access_token);
+      const decodedToken = decodeJwt(newTokenJSON.access_token);
 
       user.aToken = newTokenJSON.access_token;
       user.aTokenEXP = Number(decodedToken.exp);

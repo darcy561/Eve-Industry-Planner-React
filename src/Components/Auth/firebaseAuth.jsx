@@ -11,7 +11,7 @@ export async function firebaseAuth(charObj) {
   try {
 
     const fbtokenPromise = await fetch(
-      `${process.env.REACT_APP_APIURL}/auth/gentoken`,
+      `${  import.meta.env.VITE_APIURL}/auth/gentoken`,
       {
         method: "POST",
         headers: {

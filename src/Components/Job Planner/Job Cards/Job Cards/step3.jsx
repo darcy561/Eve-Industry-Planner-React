@@ -71,45 +71,11 @@ export default function Step3JobCard({ job }) {
             sx={{ typography: { xs: "body2", md: "body1" } }}
             align="right"
           >
-            {job.isSnapshot
-              ? job.linkedJobsCount.toLocaleString()
-              : inputJob.build.costs.linkedJobs.length.toLocaleString()}
-            /{job.jobCount}
+            {job.apiJobs.length.toLocaleString()}/{job.jobCount}
           </Typography>
         </Grid>
-        {job.isSnapshot ? (
-          job.linkedJobsCount > 0 ? (
-            timeRemaining.days === 0 &&
-            timeRemaining.hours === 0 &&
-            timeRemaining.mins === 0 ? (
-              <Grid item xs={12}>
-                <Typography
-                  sx={{ typography: { xs: "body2", md: "body1" } }}
-                  align="left"
-                >
-                  Complete
-                </Typography>
-              </Grid>
-            ) : (
-              <>
-                <Grid item xs={4}>
-                  <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
-                    Ends In:
-                  </Typography>
-                </Grid>
-                <Grid item xs={8}>
-                  <Typography
-                    sx={{ typography: { xs: "body2", md: "body1" } }}
-                    align="right"
-                  >
-                    {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                    {timeRemaining.mins}M
-                  </Typography>
-                </Grid>
-              </>
-            )
-          ) : null
-        ) : inputJob.build.costs.linkedJobs.length > 0 ? (
+
+        {job.apiJobs.length > 0 ? (
           timeRemaining.days === 0 &&
           timeRemaining.hours === 0 &&
           timeRemaining.mins === 0 ? (

@@ -164,6 +164,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                             let newTransArray = [
                               ...activeJob.build.sale.transactions,
                             ];
+                            let newApiTransactions = new Set(activeJob.apiTransactions);
                             let newUsersArray = [...users];
                             const parentUserIndex = users.findIndex(
                               (i) => i.ParentUser === true
@@ -175,11 +176,13 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                             ].linkedTrans.filter(
                               (trans) => trans !== tData.transaction_id
                             );
+                            newApiTransactions.delete(tData.transaction_id)
 
                             updateUsers(newUsersArray);
 
                             updateActiveJob((prev) => ({
                               ...prev,
+                              apiTransactions: newApiTransactions,
                               build: {
                                 ...prev.build,
                                 sale: {

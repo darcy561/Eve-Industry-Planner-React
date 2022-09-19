@@ -5,7 +5,7 @@ import {
 } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
-import jwt from "jsonwebtoken";
+import {decodeJwt} from "jose";
 import { firebaseAuth } from "./firebaseAuth";
 import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
@@ -30,9 +30,9 @@ import { useAccountManagement } from "../../Hooks/useAccountManagement";
 export function login() {
   const state = "/";
   window.location.href = `https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=${encodeURIComponent(
-    process.env.REACT_APP_eveCallbackURL
-  )}&client_id=${process.env.REACT_APP_eveClientID}&scope=${
-    process.env.REACT_APP_eveScope
+      import.meta.env.VITE_eveCallbackURL
+  )}&client_id=${  import.meta.env.VITE_eveClientID}&scope=${
+      import.meta.env.VITE_eveScope
   }&state=${state}`;
 }
 
@@ -50,14 +50,12 @@ export default function AuthMainUser() {
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const {
     determineUserState,
-    getItemPrices,
     userJobSnapshotListener,
     userWatchlistListener,
   } = useFirebase();
   const {
     buildMainUser,
     characterAPICall,
-    generateItemPriceRequest,
     getLocationNames,
   } = useAccountManagement();
   const navigate = useNavigate();
@@ -90,10 +88,8 @@ export default function AuthMainUser() {
 
       buildMainUser(userObject, userSettings);
 
-      let priceIDRequest = generateItemPriceRequest(userSettings);
-      let promiseArray = [getItemPrices(priceIDRequest, userObject)];
-      userJobSnapshotListener(userObject);
-      userWatchlistListener(userObject);
+      await userJobSnapshotListener(userObject);
+      await userWatchlistListener(userObject);
       updateLoadingText((prevObj) => ({
         ...prevObj,
         charDataComp: true,
@@ -197,11 +193,9 @@ export default function AuthMainUser() {
         return 0;
       });
 
-      let returnPromiseArray = await Promise.all(promiseArray);
       let newNameArray = await getLocationNames(userArray, userObject);
 
       updateEveIDs(newNameArray);
-      updateEvePrices(returnPromiseArray[0]);
       setJobStatus(userSettings.jobStatusArray);
       updateJobArray([]);
       updateUsers(userArray);
@@ -248,7 +242,7 @@ async function EveSSOTokens(authCode, accountType) {
         method: "POST",
         headers: {
           Authorization: `Basic ${btoa(
-            `${process.env.REACT_APP_eveClientID}:${process.env.REACT_APP_eveSecretKey}`
+            `${  import.meta.env.VITE_eveClientID}:${  import.meta.env.VITE_eveSecretKey}`
           )}`,
           "Content-Type": "application / x-www-form-urlencoded",
           Host: "login.eveonline.com",
@@ -260,7 +254,7 @@ async function EveSSOTokens(authCode, accountType) {
 
     const tokenJSON = await eveTokenPromise.json();
 
-    const decodedToken = jwt.decode(tokenJSON.access_token);
+    const decodedToken = decodeJwt(tokenJSON.access_token)
 
     if (accountType) {
       const newUser = new MainUser(decodedToken, tokenJSON);

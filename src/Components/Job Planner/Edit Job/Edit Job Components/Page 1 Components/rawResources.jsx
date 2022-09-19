@@ -96,7 +96,7 @@ export function RawResourceList() {
               <MenuItem
                 onClick={() => {
                   handleMenuClose();
-                  massBuildMaterials([activeJob]);
+                  massBuildMaterials([activeJob.jobID]);
                 }}
               >
                 Create All Child Jobs

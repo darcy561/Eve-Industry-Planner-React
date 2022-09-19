@@ -16,7 +16,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { archiveJob, removeJob, updateMainUserDoc } = useFirebase();
+  const { archiveJob, removeJob, uploadUserJobSnapshot  } = useFirebase();
   const { deleteJobSnapshot } = useJobManagement();
   const analytics = getAnalytics();
 
@@ -43,7 +43,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
       autoHideDuration: 3000,
     }));
     let newUserJobSnapshot = deleteJobSnapshot(activeJob, [...userJobSnapshot]);
-    await updateMainUserDoc();
+    await uploadUserJobSnapshot(newUserJobSnapshot);
     await archiveJob(activeJob);
     await removeJob(activeJob);
     updateUserJobSnapshot(newUserJobSnapshot);

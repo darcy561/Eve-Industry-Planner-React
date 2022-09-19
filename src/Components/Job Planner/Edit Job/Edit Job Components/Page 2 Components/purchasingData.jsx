@@ -122,7 +122,7 @@ export function PurchasingData({
                     variant="outlined"
                     size="small"
                     onClick={async () => {
-                      updateShoppingListData([activeJob]);
+                      updateShoppingListData([activeJob.jobID]);
                       updateShoppingListTrigger((prev)=> !prev)
                     }}
                   >

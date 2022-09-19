@@ -39,9 +39,8 @@ export function EditPage5({ setJobModified }) {
     user.apiOrders.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
-        !activeJob.build.sale.marketOrders.some(
-          (i) => i.order_id === order.order_id
-        ) &&
+        !activeJob.apiOrders.has(order.order_id)
+           &&
         !itemOrderMatch.some((i) => i.order_id === order.order_id)
       ) {
         itemOrderMatch.push(order);
@@ -50,9 +49,7 @@ export function EditPage5({ setJobModified }) {
     user.apiHistOrders.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
-        !activeJob.build.sale.marketOrders.some(
-          (i) => i.order_id === order.order_id
-        ) &&
+        !activeJob.apiOrders.has(order.order_id) &&
         !itemOrderMatch.some((i) => i.order_id === order.order_id)
       ) {
         order.CharacterHash = user.CharacterHash;
@@ -70,7 +67,7 @@ export function EditPage5({ setJobModified }) {
           order.location_id === trans.location_id &&
           order.type_id === trans.type_id &&
           !trans.is_buy &&
-          !parentUser.linkedTrans.includes(trans.transaction_id) &&
+          !activeJob.apiTransactions.has(trans.transaction_id) &&
           !transactionData.some(
             (i) => i.transaction_id === trans.transaction_id
           )

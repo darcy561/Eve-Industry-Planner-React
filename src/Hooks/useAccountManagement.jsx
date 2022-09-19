@@ -1,6 +1,50 @@
 import { useEveApi } from "./useEveApi";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+import { useNavigate } from "react-router";
+import { useContext, useMemo } from "react";
+import {
+  FirebaseListenersContext,
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../Context/AuthContext";
+import {
+  ActiveJobContext,
+  ApiJobsContext,
+  ArchivedJobsContext,
+  JobArrayContext,
+  JobStatusContext,
+} from "../Context/JobContext";
+import { EveIDsContext } from "../Context/EveDataContext";
+import { SnackBarDataContext } from "../Context/LayoutContext";
+import {
+  apiJobsDefault,
+  jobArrayDefault,
+  jobStatusDefault,
+  usersDefault,
+  eveIDsDefault,
+  userJobSnapshotDefault,
+} from "../Context/defaultValues";
 
 export function useAccountManagement() {
+  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { users, updateUsers } = useContext(UsersContext);
+  const { updateJobArray } = useContext(JobArrayContext);
+  const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { updateEveIDs } = useContext(EveIDsContext);
+  const { setJobStatus } = useContext(JobStatusContext);
+  const { updateActiveJob } = useContext(ActiveJobContext);
+  const { updateArchivedJobs } = useContext(ArchivedJobsContext);
+  const { updateApiJobs } = useContext(ApiJobsContext);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const {firebaseListeners, updateFirebaseListeners} = useContext(FirebaseListenersContext)
+
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser), [users];
+  });
+
   const {
     CharacterSkills,
     IndustryJobs,
@@ -11,8 +55,10 @@ export function useAccountManagement() {
     WalletTransactions,
     fullAssetsList,
     IDtoName,
-    standingsList
+    standingsList,
   } = useEveApi();
+  const analytics = getAnalytics();
+  const navigate = useNavigate();
 
   const buildMainUser = (userObject, userSettings) => {
     userObject.accountID = userSettings.accountID;
@@ -20,14 +66,10 @@ export function useAccountManagement() {
     userObject.linkedTrans = userSettings.linkedTrans;
     userObject.linkedOrders = userSettings.linkedOrders;
     userObject.settings = userSettings.settings;
-    userObject.snapshotData = JSON.parse(
-      JSON.stringify(userSettings.jobArraySnapshot)
-    );
     userObject.accountRefreshTokens = userSettings.refreshTokens;
-    userObject.watchlist = userSettings.watchlist;
 
-    return userObject
-  }
+    return userObject;
+  };
 
   const characterAPICall = async (sStatus, userObject, parentObject) => {
     if (sStatus) {
@@ -40,7 +82,7 @@ export function useAccountManagement() {
         transactions,
         journal,
         assets,
-        standings
+        standings,
       ] = await Promise.all([
         CharacterSkills(userObject),
         IndustryJobs(userObject, parentObject),
@@ -50,7 +92,7 @@ export function useAccountManagement() {
         WalletTransactions(userObject),
         WalletJournal(userObject),
         fullAssetsList(userObject),
-        standingsList(userObject)
+        standingsList(userObject),
       ]);
 
       userObject.apiSkills = skills;
@@ -64,7 +106,7 @@ export function useAccountManagement() {
         `assets_${userObject.CharacterHash}`,
         JSON.stringify(assets)
       );
-      userObject.standings = standings
+      userObject.standings = standings;
     } else {
       userObject.apiSkills = [];
       userObject.apiJobs = [];
@@ -77,32 +119,12 @@ export function useAccountManagement() {
         `assets_${userObject.CharacterHash}`,
         JSON.stringify([])
       );
-      userObject.standings = []
+      userObject.standings = [];
     }
 
     return userObject;
   };
 
-  const generateItemPriceRequest = (settings) => {
-    let priceIDRequest = new Set();
-    settings.jobArraySnapshot.forEach((snap) => {
-      snap.materialIDs.forEach((id) => {
-        priceIDRequest.add(id);
-      });
-      priceIDRequest.add(snap.itemID);
-    });
-    settings.watchlist.items.forEach((snap) => {
-      priceIDRequest.add(snap.typeID);
-      snap.materials.forEach((mat) => {
-        priceIDRequest.add(mat.typeID);
-        mat.materials.forEach((cMat) => {
-          priceIDRequest.add(cMat.typeID);
-        });
-      });
-    });
-
-    return [...priceIDRequest];
-  };
 
   const getLocationNames = async (users, mainUser) => {
     let locationIDS = new Set();
@@ -168,9 +190,42 @@ export function useAccountManagement() {
       newNameArray = newNameArray.concat(group);
     });
 
-    return newNameArray
-  }
+    return newNameArray;
+  };
 
+  const logUserOut = () => {
+    logEvent(analytics, "userLogOut", {
+      UID: parentUser.accountID,
+    });
+    firebaseListeners.forEach((unsub) => {
+      unsub()
+    })
+    updateFirebaseListeners([])
+    updateIsLoggedIn(false);
+    updateUsers(usersDefault);
+    updateUserJobSnapshot(userJobSnapshotDefault);
+    updateJobArray(jobArrayDefault);
+    updateEveIDs(eveIDsDefault);
+    setJobStatus(jobStatusDefault);
+    updateActiveJob({});
+    updateArchivedJobs([]);
+    updateApiJobs(apiJobsDefault);
+    localStorage.removeItem("Auth");
+    signOut(auth);
+    navigate("/");
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: "Logged Out",
+      severity: "info",
+      autoHideDuration: 3000,
+    }));
+  };
 
-  return { buildMainUser, characterAPICall, generateItemPriceRequest, getLocationNames };
+  return {
+    buildMainUser,
+    characterAPICall,
+    getLocationNames,
+    logUserOut,
+  };
 }

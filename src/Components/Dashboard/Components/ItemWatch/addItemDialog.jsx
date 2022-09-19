@@ -22,7 +22,10 @@ import { jobTypes } from "../../../../Context/defaultValues";
 import { WishListManufacturingOptions } from "./wishlistManufacturingOptions";
 import { WishlistReactionOptions } from "./wishlistReactionOptions";
 import { ChildJobEntry } from "./childJobSelect";
-import { UsersContext } from "../../../../Context/AuthContext";
+import {
+  UsersContext,
+  UserWatchlistContext,
+} from "../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { makeStyles } from "@mui/styles";
@@ -41,8 +44,10 @@ const useStyles = makeStyles((theme) => ({
 
 export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   const { users } = useContext(UsersContext);
+  const { userWatchlist, updateUserWatchlist } =
+    useContext(UserWatchlistContext);
   const { buildJob } = useJobBuild();
-  const { getItemPrices, updateMainUserDoc } = useFirebase();
+  const { getItemPrices, uploadUserWatchlist } = useFirebase();
   const { updateEvePrices } = useContext(EvePricesContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const [loadingState, changeLoadingState] = useState(false);
@@ -68,6 +73,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   };
 
   const handleSave = async () => {
+    let newUserWatchlistItems = [...userWatchlist.items];
     let mainJobMaterials = [];
     let childJobPresent = false;
     importedJob.build.materials.forEach((mat) => {
@@ -81,7 +87,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
         quantityProduced:
           job !== undefined ? job.build.products.totalQuantity : 0,
         materials: [],
-        group: groupSelect
+        group: groupSelect,
       });
     });
     mainJobMaterials.forEach((mat) => {
@@ -98,7 +104,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
         childJobPresent = true;
       }
     });
-    parentUser.watchlist.items.push({
+    newUserWatchlistItems.push({
       id: Date.now(),
       typeID: importedJob.itemID,
       group: groupSelect,
@@ -107,7 +113,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
       materials: mainJobMaterials,
       childJobPresent: childJobPresent,
     });
-    parentUser.watchlist.items.sort((a, b) => {
+    newUserWatchlistItems.sort((a, b) => {
       if (a.name < b.name) {
         return -1;
       }
@@ -117,7 +123,8 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
       return 0;
     });
 
-    await updateMainUserDoc();
+    updateUserWatchlist((prev) => ({ ...prev, items: newUserWatchlistItems }));
+    await uploadUserWatchlist(userWatchlist.groups, newUserWatchlistItems);
     logEvent(analytics, "New Watchlist Item", {
       UID: parentUser.accountID,
     });
@@ -162,7 +169,10 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                         mat.jobType === jobTypes.reaction
                       ) {
                         jobPromiseArray.push(
-                          buildJob({ itemID: mat.typeID, itemQty: mat.quantity })
+                          buildJob({
+                            itemID: mat.typeID,
+                            itemQty: mat.quantity,
+                          })
                         );
                       }
                     }
@@ -254,29 +264,35 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                     materialJobs={materialJobs}
                     setMaterialJobs={setMaterialJobs}
                   />
-                  )}
-                  <Grid item xs={6} sx={{ paddingRight: "10px", marginTop:"20px"}}>
-                    <FormControl className={classes.TextField} fullWidth={true}>
-                  <Select variant="standard" size="small" value={groupSelect} onChange={(e) => {
-                    updateGroupSelect(e.target.value)
-                      }}>
-                        <MenuItem value={0}>
-                          None
-                        </MenuItem>
-                    {parentUser.watchlist.groups.map((entry) => {
-                      return (
-                        <MenuItem key={entry.id} value={entry.id}>
-                          {entry.name}
-                        </MenuItem>
-                    )
-                    })
-                    }
-                      </Select>
-                      <FormHelperText variant="standard">
-                        Watchlist Group
-                      </FormHelperText>
-                    </FormControl>
-                    </Grid>
+                )}
+                <Grid
+                  item
+                  xs={6}
+                  sx={{ paddingRight: "10px", marginTop: "20px" }}
+                >
+                  <FormControl className={classes.TextField} fullWidth={true}>
+                    <Select
+                      variant="standard"
+                      size="small"
+                      value={groupSelect}
+                      onChange={(e) => {
+                        updateGroupSelect(e.target.value);
+                      }}
+                    >
+                      <MenuItem value={0}>None</MenuItem>
+                      {userWatchlist.groups.map((entry) => {
+                        return (
+                          <MenuItem key={entry.id} value={entry.id}>
+                            {entry.name}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                    <FormHelperText variant="standard">
+                      Watchlist Group
+                    </FormHelperText>
+                  </FormControl>
+                </Grid>
               </>
             )
           ) : (

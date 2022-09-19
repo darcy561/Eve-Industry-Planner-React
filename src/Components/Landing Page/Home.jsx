@@ -1,10 +1,11 @@
-import { useContext, useEffect } from "react";
+import { lazy, Suspense, useContext, useEffect } from "react";
 import { IsLoggedInContext } from "../../Context/AuthContext";
-import { Dashboard } from "../Dashboard/Dashboard";
 import { LoggedOutHome } from "./LoggedOut";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import { PageLoadContext } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
+
+const Dashboard = lazy(() => import("../Dashboard/Dashboard"));
 
 export function Home() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -19,7 +20,11 @@ export function Home() {
     return <LoadingPage />;
   } else {
     if (isLoggedIn) {
-      return <Dashboard />;
+      return (
+        <Suspense fallback={<LoadingPage />}>
+          <Dashboard />;
+        </Suspense>
+      );
     } else {
       return <LoggedOutHome />;
     }

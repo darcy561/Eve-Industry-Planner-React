@@ -42,6 +42,7 @@ export function ManufacturingOptionsUpcomingChanges({
   const [meValue, updateMEValue] = useState(0);
   const [teValue, updateTEValue] = useState(0);
   const [structValue, updateStructValue] = useState("Station");
+  const [structType, updateStructType] = useState(0);
   const [rigsValue, updateRigsValue] = useState(0);
   const [systemValue, updateSystemValue] = useState(1);
 
@@ -56,6 +57,7 @@ export function ManufacturingOptionsUpcomingChanges({
           updateMEValue(sisiItem.bpME);
           updateTEValue(sisiItem.bpTE);
           updateStructValue(sisiItem.structureTypeDisplay);
+          updateStructType(sisiItem.structureType);
           updateRigsValue(sisiItem.rigType);
           updateSystemValue(sisiItem.systemType);
         } else {
@@ -64,6 +66,7 @@ export function ManufacturingOptionsUpcomingChanges({
           updateMEValue(tranqItem.bpME);
           updateTEValue(tranqItem.bpTE);
           updateStructValue(tranqItem.structureTypeDisplay);
+          updateStructType(tranqItem.structureType);
           updateRigsValue(tranqItem.rigType);
           updateSystemValue(tranqItem.systemType);
         }
@@ -71,6 +74,98 @@ export function ManufacturingOptionsUpcomingChanges({
     }
     updateDefaultValues();
   }, [itemLoad]);
+
+  useEffect(() => {
+    updateTranqItem((prev) => ({
+      ...prev,
+      runCount: runValue,
+      jobCount: jobValue,
+      bpME: meValue,
+      bpTE: teValue,
+      structureType: structType,
+      structureTypeDisplay: structValue,
+      rigType: rigsValue,
+      systemType: systemValue,
+      build: {
+        ...prev.build,
+        materials: CalculateResources({
+          jobType: prev.jobType,
+          rawMaterials: prev.rawData.materials,
+          outputMaterials: prev.build.materials,
+          runCount: runValue,
+          jobCount: jobValue,
+          bpME: meValue,
+          structureType: structType,
+          rigType: rigsValue,
+          systemType: systemValue,
+        }),
+        products: {
+          ...prev.build.products,
+          totalQuantity:
+            prev.rawData.products[0].quantity * runValue * jobValue,
+          quantityPerJob: prev.rawData.products[0].quantity * jobValue,
+        },
+        time: CalculateTime({
+          jobType: prev.jobType,
+          CharacterHash: prev.build.buildChar,
+          structureTypeDisplay: structValue,
+          runCount: runValue,
+          bpTE: teValue,
+          rawTime: prev.rawData.time,
+          skills: prev.skills,
+        }),
+      },
+    }));
+    updateSisiItem((prev) => ({
+      ...prev,
+      runCount: runValue,
+      jobCount: jobValue,
+      bpME: meValue,
+      bpTE: teValue,
+      structureType: structType,
+      structureTypeDisplay: structValue,
+      rigType: rigsValue,
+      systemType: systemValue,
+      build: {
+        ...prev.build,
+        materials: CalculateResources({
+          jobType: prev.jobType,
+          rawMaterials: prev.rawData.materials,
+          outputMaterials: prev.build.materials,
+          runCount: runValue,
+          jobCount: jobValue,
+          bpME: meValue,
+          structureType: structType,
+          rigType: rigsValue,
+          systemType: systemValue,
+        }),
+        products: {
+          ...prev.build.products,
+          totalQuantity:
+            prev.rawData.products[0].quantity * runValue * jobValue,
+          quantityPerJob: prev.rawData.products[0].quantity * jobValue,
+        },
+        time: CalculateTime({
+          jobType: prev.jobType,
+          CharacterHash: prev.build.buildChar,
+          structureTypeDisplay: structValue,
+          runCount: runValue,
+          bpTE: teValue,
+          rawTime: prev.rawData.time,
+          skills: prev.skills,
+        }),
+      },
+    }));
+  }, [
+    runValue,
+    jobValue,
+    meValue,
+    teValue,
+    structType,
+    structValue,
+    rigsValue,
+    systemValue,
+  ]);
 
   return (
     <Paper
@@ -91,16 +186,6 @@ export function ManufacturingOptionsUpcomingChanges({
             helperText="Blueprint Runs"
             type="number"
             onBlur={(e) => {
-              let oldTranqItem = JSON.parse(JSON.stringify(tranqItem));
-              let oldSisiItem = JSON.parse(JSON.stringify(sisiItem));
-              oldTranqItem.runCount = Number(e.target.value);
-              oldSisiItem.runCount = Number(e.target.value);
-              let newTranqItem = CalculateResources(oldTranqItem);
-              newTranqItem = CalculateTime(newTranqItem);
-              let newSisiItem = CalculateResources(oldSisiItem);
-              newSisiItem = CalculateTime(newSisiItem);
-              updateTranqItem(newTranqItem);
-              updateSisiItem(newSisiItem);
               updateRunValue(Number(e.target.value));
             }}
             sx={{
@@ -119,16 +204,6 @@ export function ManufacturingOptionsUpcomingChanges({
             helperText="Job Slots"
             type="number"
             onBlur={(e) => {
-              let oldTranqItem = JSON.parse(JSON.stringify(tranqItem));
-              let oldSisiItem = JSON.parse(JSON.stringify(sisiItem));
-              oldTranqItem.jobCount = Number(e.target.value);
-              oldSisiItem.jobCount = Number(e.target.value);
-              let newTranqItem = CalculateResources(oldTranqItem);
-              newTranqItem = CalculateTime(newTranqItem);
-              let newSisiItem = CalculateResources(oldSisiItem);
-              newSisiItem = CalculateTime(newSisiItem);
-              updateTranqItem(newTranqItem);
-              updateSisiItem(newSisiItem);
               updateJobValue(Number(e.target.value));
             }}
             sx={{ paddingLeft: "5px", paddingRight: "5px" }}
@@ -147,16 +222,6 @@ export function ManufacturingOptionsUpcomingChanges({
               size="small"
               value={meValue}
               onChange={(e) => {
-                let oldTranqItem = JSON.parse(JSON.stringify(tranqItem));
-                let oldSisiItem = JSON.parse(JSON.stringify(sisiItem));
-                oldTranqItem.bpME = Number(e.target.value);
-                oldSisiItem.bpME = Number(e.target.value);
-                let newTranqItem = CalculateResources(oldTranqItem);
-                newTranqItem = CalculateTime(newTranqItem);
-                let newSisiItem = CalculateResources(oldSisiItem);
-                newSisiItem = CalculateTime(newSisiItem);
-                updateTranqItem(newTranqItem);
-                updateSisiItem(newSisiItem);
                 updateMEValue(e.target.value);
               }}
             >
@@ -185,16 +250,6 @@ export function ManufacturingOptionsUpcomingChanges({
               size="small"
               value={teValue}
               onChange={(e) => {
-                let oldTranqItem = JSON.parse(JSON.stringify(tranqItem));
-                let oldSisiItem = JSON.parse(JSON.stringify(sisiItem));
-                oldTranqItem.bpTE = Number(e.target.value);
-                oldSisiItem.bpTE = Number(e.target.value);
-                let newTranqItem = CalculateResources(oldTranqItem);
-                newTranqItem = CalculateTime(newTranqItem);
-                let newSisiItem = CalculateResources(oldSisiItem);
-                newSisiItem = CalculateTime(newSisiItem);
-                updateTranqItem(newTranqItem);
-                updateSisiItem(newSisiItem);
                 updateTEValue(e.target.value);
               }}
             >
@@ -231,20 +286,7 @@ export function ManufacturingOptionsUpcomingChanges({
                 size="small"
                 value={structValue}
                 onChange={(e) => {
-                  let oldTranqItem = JSON.parse(JSON.stringify(tranqItem));
-                  let oldSisiItem = JSON.parse(JSON.stringify(sisiItem));
-                  oldTranqItem.structureTypeDisplay = e.target.value;
-                  oldTranqItem.structureType =
-                    e.target.value === "Station" ? 0 : 1;
-                  oldSisiItem.structureTypeDisplay = e.target.value;
-                  oldSisiItem.structureType =
-                    e.target.value === "Station" ? 0 : 1;
-                  let newTranqItem = CalculateResources(oldTranqItem);
-                  newTranqItem = CalculateTime(newTranqItem);
-                  let newSisiItem = CalculateResources(oldSisiItem);
-                  newSisiItem = CalculateTime(newSisiItem);
-                  updateTranqItem(newTranqItem);
-                  updateSisiItem(newSisiItem);
+                  updateStructType(e.target.value === "Station" ? 0 : 1);
                   updateStructValue(e.target.value);
                 }}
               >
@@ -271,16 +313,6 @@ export function ManufacturingOptionsUpcomingChanges({
               size="small"
               value={rigsValue}
               onChange={(e) => {
-                let oldTranqItem = JSON.parse(JSON.stringify(tranqItem));
-                let oldSisiItem = JSON.parse(JSON.stringify(sisiItem));
-                oldTranqItem.rigType = Number(e.target.value);
-                oldSisiItem.rigType = Number(e.target.value);
-                let newTranqItem = CalculateResources(oldTranqItem);
-                newTranqItem = CalculateTime(newTranqItem);
-                let newSisiItem = CalculateResources(oldSisiItem);
-                newSisiItem = CalculateTime(newSisiItem);
-                updateTranqItem(newTranqItem);
-                updateSisiItem(newSisiItem);
                 updateRigsValue(e.target.value);
               }}
             >
@@ -306,16 +338,6 @@ export function ManufacturingOptionsUpcomingChanges({
               size="small"
               value={systemValue}
               onChange={(e) => {
-                let oldTranqItem = JSON.parse(JSON.stringify(tranqItem));
-                let oldSisiItem = JSON.parse(JSON.stringify(sisiItem));
-                oldTranqItem.systemType = Number(e.target.value);
-                oldSisiItem.systemType = Number(e.target.value);
-                let newTranqItem = CalculateResources(oldTranqItem);
-                newTranqItem = CalculateTime(newTranqItem);
-                let newSisiItem = CalculateResources(oldSisiItem);
-                newSisiItem = CalculateTime(newSisiItem);
-                updateTranqItem(newTranqItem);
-                updateSisiItem(newSisiItem);
                 updateSystemValue(e.target.value);
               }}
             >

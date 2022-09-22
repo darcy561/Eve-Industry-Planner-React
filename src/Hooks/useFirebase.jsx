@@ -14,10 +14,12 @@ import {
   setDoc,
   updateDoc,
   onSnapshot,
+  serverTimestamp,
 } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import {
+  ActiveJobContext,
   ArchivedJobsContext,
   JobArrayContext,
   JobStatusContext,
@@ -39,7 +41,8 @@ export function useFirebase() {
     UserJobSnapshotContext
   );
   const { updateUserWatchlist } = useContext(UserWatchlistContext);
-  const { jobArray, newJobArray } = useContext(JobArrayContext);
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const{activeJob, updateActiveJob} = useContext(ActiveJobContext)
   const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
@@ -244,6 +247,7 @@ export function useFirebase() {
       }
     );
   };
+
   const uploadUserWatchlist = async (itemGroups, itemWatchlist) => {
     await fbAuthState();
     updateDoc(
@@ -313,6 +317,7 @@ export function useFirebase() {
     console.log(downloadDoc);
     if (downloadDoc !== undefined) {
       let newJob = {
+        hasListener: false,
         jobType: downloadDoc.jobType,
         name: downloadDoc.name,
         jobID: downloadDoc.jobID,
@@ -575,6 +580,59 @@ export function useFirebase() {
     updateFirebaseListeners((prev) => prev.concat(unsub));
   };
 
+  const userJobListener = async (userObj, JobID) => {
+    const unsub = onSnapshot(
+      doc(firestore, `Users/${userObj.accountID}/Jobs`, JobID.toString()),
+      (doc) => {
+        if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+          let downloadDoc = doc.data();
+          let newJobArray = [...jobArray]
+          let newJob = {
+            hasListener: true,
+            jobType: downloadDoc.jobType,
+            name: downloadDoc.name,
+            jobID: downloadDoc.jobID,
+            jobStatus: downloadDoc.jobStatus,
+            isSnapshot: false,
+            volume: downloadDoc.volume,
+            itemID: downloadDoc.itemID,
+            maxProductionLimit: downloadDoc.maxProductionLimit,
+            runCount: downloadDoc.runCount,
+            jobCount: downloadDoc.jobCount,
+            bpME: downloadDoc.bpME,
+            bpTE: downloadDoc.bpTE,
+            structureType: downloadDoc.structureType,
+            structureTypeDisplay: downloadDoc.structureTypeDisplay,
+            rigType: downloadDoc.rigType,
+            systemType: downloadDoc.systemType,
+            apiJobs: new Set(downloadDoc.apiJobs),
+            apiOrders: new Set(downloadDoc.apiOrders),
+            apiTransactions: new Set(downloadDoc.apiTransactions),
+            skills: downloadDoc.skills,
+            rawData: downloadDoc.rawData,
+            build: downloadDoc.build,
+            buildVer: downloadDoc.buildVer,
+            metaLevel: downloadDoc.metaLevel,
+            parentJob: downloadDoc.parentJob,
+            blueprintTypeID: downloadDoc.blueprintTypeID,
+            layout: downloadDoc.layout,
+          };
+          let index = jobArray.findIndex((i) => i.jobID === newJob.jobID);
+          if (index === -1) {
+            newJobArray.push(newJob)
+          } else {
+            newJobArray[index] = newJob
+          }
+          if (activeJob.jobID === newJob.jobID) {
+            updateActiveJob(newJob)
+          }
+          updateJobArray(newJobArray)
+        }
+      }
+    );
+    updateFirebaseListeners((prev) => prev.concat(unsub));
+  };
+
   return {
     addNewJob,
     archiveJob,
@@ -587,6 +645,7 @@ export function useFirebase() {
     refreshItemPrices,
     removeJob,
     downloadCharacterJobs,
+    userJobListener,
     userJobSnapshotListener,
     userWatchlistListener,
     uploadUserJobSnapshot,

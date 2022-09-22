@@ -220,14 +220,40 @@ export function useJobBuild() {
           recalculateItemQty(outputObject, buildRequest.itemQty);
         }
 
-        let calculatedJob = CalculateResources(outputObject);
-        calculatedJob = CalculateTime(calculatedJob);
-        console.log(buildRequest)
+        outputObject.build.materials = CalculateResources({
+          jobType: outputObject.jobType,
+          rawMaterials: outputObject.rawData.materials,
+          outputMaterials: outputObject.build.materials,
+          runCount: outputObject.runCount,
+          jobCount: outputObject.jobCount,
+          bpME: outputObject.bpME,
+          structureType: outputObject.structureType,
+          rigType: outputObject.rigType,
+          systemType: outputObject.systemType,
+        });
+        outputObject.build.time = CalculateTime({
+          jobType: outputObject.jobType,
+          CharacterHash: outputObject.build.buildChar,
+          structureTypeDisplay: outputObject.structureTypeDisplay,
+          runCount: outputObject.runCount,
+          bpTE: outputObject.bpTE,
+          rawTime: outputObject.rawData.time,
+          skills: outputObject.skills,
+        });
+        outputObject.build.products.totalQuantity =
+        outputObject.rawData.products[0].quantity *
+        outputObject.runCount *
+        outputObject.jobCount;
+
+        outputObject.build.products.quantityPerJob =
+        outputObject.rawData.products[0].quantity * outputObject.jobCount;
+
         if (buildRequest.parentJobs !== undefined) {
-          console.log("add")
-          calculatedJob.parentJob = calculatedJob.parentJob.concat(buildRequest.parentJobs)
+          outputObject.parentJob = outputObject.parentJob.concat(
+            buildRequest.parentJobs
+          );
         }
-        return calculatedJob;
+        return outputObject;
       } catch (err) {
         console.log(err);
         jobBuildErrors(buildRequest, "objectError");
@@ -240,8 +266,8 @@ export function useJobBuild() {
   };
 
   const jobBuildErrors = (buildRequest, newJob) => {
-    if (buildRequest.throwError !== undefined && !buildRequest.throwError ) {
-      return null
+    if (buildRequest.throwError !== undefined && !buildRequest.throwError) {
+      return null;
     }
     if (buildRequest.throwError === undefined || buildRequest.throwError) {
       if (newJob === "TypeError") {

@@ -82,6 +82,7 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
           <Grid container item xs={12}>
             <Grid item xs={1}>
               <Checkbox
+                disabled={job.isLocked}
                 className={classes.Checkbox}
                 checked={jobCardChecked}
                 onChange={(event) => {
@@ -102,6 +103,7 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
             <Grid item xs={9} />
             <Grid item align="center" xs={2}>
               <IconButton
+                disabled={job.isLocked}
                 className={classes.DeleteIcon}
                 onClick={() => deleteJobProcess(job)}
               >
@@ -160,13 +162,14 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
             <Button
               variant="outlined"
               color="primary"
+              disabled={job.isLocked}
               onClick={() => {
                 openEditJob(job.jobID);
                 updateJobSettingsTrigger((prev) => !prev);
               }}
               sx={{ height: "25px", width: "100px" }}
             >
-              Edit
+              {job.isLocked ? "Locked" : "Edit"}
             </Button>
           </Grid>
           <Grid

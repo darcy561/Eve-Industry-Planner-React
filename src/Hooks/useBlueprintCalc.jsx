@@ -6,54 +6,39 @@ import { structureOptions } from "../Context/defaultValues";
 export function useBlueprintCalc() {
   const { users } = useContext(UsersContext);
 
-  const CalculateResources = (job) => {
-    switch (job.jobType) {
+  const CalculateResources = (calcData) => {
+    switch (calcData.jobType) {
       case 1:
-        const newManArray = [...job.build.materials];
-        for (let material of newManArray) {
-          const rawIndex = job.rawData.materials.findIndex(
+        for (let material of calcData.outputMaterials) {
+          const rawIndex = calcData.rawMaterials.findIndex(
             (i) => i.typeID === material.typeID
           );
           material.quantity = manufacturingMaterialCalc(
-            job.rawData.materials[rawIndex].quantity,
-            job.runCount,
-            job.jobCount,
-            job.bpME,
-            job.structureType,
-            job.rigType,
-            job.systemType
+            calcData.rawMaterials[rawIndex].quantity,
+            calcData.runCount,
+            calcData.jobCount,
+            calcData.bpME,
+            calcData.structureType,
+            calcData.rigType,
+            calcData.systemType
           );
         }
-
-        job.build.products.totalQuantity =
-          job.rawData.products[0].quantity * job.runCount * job.jobCount;
-        job.build.products.quantityPerJob =
-          job.rawData.products[0].quantity * job.runCount;
-
-        job.build.materials = newManArray;
-        return job;
+        return calcData.outputMaterials;
 
       case 2:
-        const newReacArray = [...job.build.materials];
-        for (let material of newReacArray) {
-          const rawIndex = job.rawData.materials.findIndex(
+        for (let material of calcData.outputMaterials) {
+          const rawIndex = calcData.rawMaterials.findIndex(
             (i) => i.typeID === material.typeID
           );
           material.quantity = reactionMaterialCalc(
-            job.rawData.materials[rawIndex].quantity,
-            job.runCount,
-            job.jobCount,
-            job.rigType,
-            job.systemType
+            calcData.rawMaterials[rawIndex].quantity,
+            calcData.runCount,
+            calcData.jobCount,
+            calcData.rigType,
+            calcData.systemType
           );
         }
-        job.build.products.totalQuantity =
-          job.rawData.products[0].quantity * job.runCount * job.jobCount;
-        job.build.products.quantityPerJob =
-          job.rawData.products[0].quantity * job.runCount;
-
-        job.build.materials = newReacArray;
-        return job;
+        return calcData.outputMaterials;
     }
     function manufacturingMaterialCalc(
       baseQty,
@@ -71,13 +56,12 @@ export function useBlueprintCalc() {
       if (baseQty === 1) {
         meModifier = 1;
       }
-      const x = Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
+      return Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
       // console.log(itemRuns)
       // console.log(baseQty)
       // console.log(meModifier);
       // console.log(itemJobs)
       // console.log(x);
-      return x;
     }
 
     function reactionMaterialCalc(
@@ -92,22 +76,19 @@ export function useBlueprintCalc() {
         meModifier = 1;
       }
       //console.log(meModifier);
-      const x = Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
+      return Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
       //console.log(x);
-      return x;
     }
   };
 
-  const CalculateTime = (job, updatedUser) => {
-    let user = updatedUser;
-    if (user === undefined) {
-      user = users.find((i) => i.CharacterHash === job.build.buildChar);
-    }
-    let timeModifier = timeModifierCalc(job, user);
-    let skillModifier = skillModifierCalc(job.skills, user);
+  const CalculateTime = (calcData) => {
+    let user = users.find((i) => i.CharacterHash === calcData.CharacterHash);
 
-    job.build.time = Math.floor(
-      job.rawData.time * timeModifier * skillModifier * job.runCount
+    let timeModifier = timeModifierCalc(calcData, user);
+    let skillModifier = skillModifierCalc(calcData.skills, user);
+
+    return Math.floor(
+      calcData.rawTime * timeModifier * skillModifier * calcData.runCount
     );
 
     function timeModifierCalc(job, user) {
@@ -175,8 +156,6 @@ export function useBlueprintCalc() {
       });
       return indexer;
     }
-
-    return job;
   };
 
   return { CalculateResources, CalculateTime };

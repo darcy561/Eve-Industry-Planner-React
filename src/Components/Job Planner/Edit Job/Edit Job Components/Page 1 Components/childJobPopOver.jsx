@@ -42,7 +42,9 @@ export function ChildJobPopover({
   const { activeJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
   const { users } = useContext(UsersContext);
   const {
     addNewJob,
@@ -87,8 +89,9 @@ export function ChildJobPopover({
         let newJob = await buildJob({
           itemID: material.typeID,
           itemQty: material.quantity,
-          parentJobs: [activeJob],
+          parentJobs: [activeJob.jobID],
         });
+        console.log(newJob);
         if (newJob !== undefined) {
           let priceIDRequest = new Set();
           let promiseArray = [];
@@ -123,6 +126,9 @@ export function ChildJobPopover({
         }
         totalPrice += materialPrice[marketSelect][listingSelect] * mat.quantity;
       });
+      console.log(
+        totalPrice / childJobObjects[jobDisplay].build.products.totalQuantity
+      );
       updateCurrentBuildPrice(
         totalPrice / childJobObjects[jobDisplay].build.products.totalQuantity
       );
@@ -311,12 +317,16 @@ export function ChildJobPopover({
                 <Button
                   size="small"
                   onClick={async () => {
+                    console.log(childJobObjects[jobDisplay]);
                     updateBuildLoad((prev) => !prev);
-                    let newUserJobSnapshot = newJobSnapshot(childJobObjects[jobDisplay], [...userJobSnapshot]);
-                    let newJobArray = [...jobArray]
-                    newJobArray.push(childJobObjects[jobDisplay])
+                    let newUserJobSnapshot = newJobSnapshot(
+                      childJobObjects[jobDisplay],
+                      [...userJobSnapshot]
+                    );
+                    let newJobArray = [...jobArray];
+                    newJobArray.push(childJobObjects[jobDisplay]);
                     if (isLoggedIn) {
-                      await uploadUserJobSnapshot(newUserJobSnapshot)
+                      await uploadUserJobSnapshot(newUserJobSnapshot);
                       await addNewJob(childJobObjects[jobDisplay]);
                     }
                     material.childJob.push(childJobObjects[jobDisplay].jobID);

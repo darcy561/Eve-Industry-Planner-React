@@ -24,6 +24,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { EvePricesContext } from "../Context/EveDataContext";
 import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
+import { serverTimestamp } from "firebase/firestore";
 
 export function useJobManagement() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -55,6 +56,7 @@ export function useJobManagement() {
     uploadJob,
     uploadJobAsSnapshot,
     uploadUserJobSnapshot,
+    userJobListener,
   } = useFirebase();
   const { stationData } = useEveApi();
   const { buildJob, checkAllowBuild, recalculateItemQty } = useJobBuild();
@@ -63,6 +65,9 @@ export function useJobManagement() {
 
   class newSnapshot {
     constructor(inputJob, childJobs, totalComplete, materialIDs, endDate) {
+      this.isLocked = false;
+      this.lockedTimestamp = null;
+      this.lockedUser = null;
       this.jobID = inputJob.jobID;
       this.name = inputJob.name;
       this.runCount = inputJob.runCount;
@@ -87,7 +92,10 @@ export function useJobManagement() {
     }
   }
   class updateSnapshot {
-    constructor(inputJob, endDate) {
+    constructor(inputJob, endDate, isLocked) {
+      this.isLocked = false;
+      this.lockedTimestamp = null;
+      this.lockedUser = null;
       this.jobID = inputJob.jobID;
       this.name = inputJob.name;
       this.runCount = inputJob.runCount;
@@ -136,10 +144,12 @@ export function useJobManagement() {
         promiseArray.push(itemPrices);
 
         let newUserJobSnapshot = newJobSnapshot(newJob, [...userJobSnapshot]);
-
         if (isLoggedIn) {
           await uploadUserJobSnapshot(newUserJobSnapshot);
           await addNewJob(newJob);
+          userJobListener(parentUser, newJob.jobID);
+        } else {
+          updateJobArray((prev) => [...prev, newJob]);
         }
 
         logEvent(analytics, "New Job", {
@@ -152,7 +162,6 @@ export function useJobManagement() {
 
         updateUserJobSnapshot(newUserJobSnapshot);
         updateEvePrices((prev) => prev.concat(returnPromiseArray[0]));
-        updateJobArray((prev) => [...prev, newJob]);
         updateDataExchange(false);
         setSnackbarData((prev) => ({
           ...prev,
@@ -182,6 +191,11 @@ export function useJobManagement() {
       newUserJobSnapshot,
       newJobArray
     );
+    newUserJobSnapshot = lockUserJob(
+      parentUser.CharacterHash,
+      inputJobID,
+      newUserJobSnapshot
+    );
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -189,6 +203,7 @@ export function useJobManagement() {
       jobDataComp: true,
       priceData: true,
     }));
+
     let itemIDs = new Set();
     itemIDs.add(openJob.itemID);
     openJob.build.materials.forEach((mat) => {
@@ -214,6 +229,7 @@ export function useJobManagement() {
     if (isLoggedIn) {
       let newArchivedJobsArray = await getArchivedJobData(openJob.itemID);
       updateArchivedJobs(newArchivedJobsArray);
+      uploadUserJobSnapshot(newUserJobSnapshot);
     }
 
     let jobPrices = await getItemPrices([...itemIDs], parentUser);
@@ -235,6 +251,7 @@ export function useJobManagement() {
       priceData: false,
       priceDataComp: false,
     }));
+    userJobListener(parentUser, inputJobID);
   };
 
   const closeEditJob = async (inputJob, jobModified) => {
@@ -244,11 +261,16 @@ export function useJobManagement() {
     let newUserJobSnapshot = updateJobSnapshotActiveJob(inputJob, [
       ...userJobSnapshot,
     ]);
+    newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, inputJob.jobID);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
+
+    if (isLoggedIn) {
+      await uploadUserJobSnapshot(newUserJobSnapshot);
+    }
     if (isLoggedIn && jobModified) {
       await updateMainUserDoc();
-      await uploadUserJobSnapshot(newUserJobSnapshot);
+      await uploadJob(inputJob);
     }
     if (jobModified) {
       setSnackbarData((prev) => ({
@@ -352,7 +374,8 @@ export function useJobManagement() {
           childJobs,
           totalComplete,
           materialIDs,
-          endDate
+          endDate,
+          false
         )
       )
     );
@@ -1415,6 +1438,26 @@ export function useJobManagement() {
     return brokersFee;
   };
 
+  const lockUserJob = (CharacterHash, jobID, newUserJobSnapshot) => {
+    let snapshot = newUserJobSnapshot.find((i) => i.jobID === jobID);
+
+    snapshot.isLocked = true;
+    snapshot.lockedTimestamp = Date.now();
+    snapshot.lockedUser = CharacterHash;
+
+    return newUserJobSnapshot;
+  };
+
+  const unlockUserJob = (newUserJobSnapshot, jobID) => {
+    let snapshot = newUserJobSnapshot.find((i) => i.jobID === jobID);
+
+    snapshot.isLocked = false;
+    snapshot.lockedTimestamp = null;
+    snapshot.lockedUser = null;
+
+    return newUserJobSnapshot;
+  };
+
   return {
     buildItemPriceEntry,
     buildShoppingList,
@@ -1423,6 +1466,7 @@ export function useJobManagement() {
     deleteJobProcess,
     deleteJobSnapshot,
     deleteMultipleJobsProcess,
+    lockUserJob,
     massBuildMaterials,
     mergeJobs,
     mergeJobsNew,
@@ -1432,6 +1476,7 @@ export function useJobManagement() {
     newJobSnapshot,
     openEditJob,
     replaceSnapshot,
+    unlockUserJob,
     updateJobSnapshot,
     updateJobSnapshotActiveJob,
   };

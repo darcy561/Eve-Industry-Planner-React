@@ -133,10 +133,6 @@ function EditJob({
             <IconButton
               color="primary"
               onClick={async () => {
-                if (isLoggedIn && jobModified) {
-                  await uploadJob(activeJob);
-                  await updateMainUserDoc();
-                }
                 closeEditJob(activeJob, jobModified);
                 updateJobSettingsTrigger((prev) => !prev);
               }}

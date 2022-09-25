@@ -1,7 +1,8 @@
-import { Avatar, Badge, Grid, Paper } from "@mui/material";
+import { Avatar, Badge, Grid, Paper, Typography } from "@mui/material";
 import React, { useContext } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import fullItemNames from "../../RawData/fullItemList.json";
+import searchData from "../../RawData/searchIndex.json";
 
 export function AssetType({ locationAsset, fullAssetList }) {
   const { users } = useContext(UsersContext);
@@ -23,15 +24,21 @@ export function AssetType({ locationAsset, fullAssetList }) {
             >
               <Grid container>
                 <Grid item xs={12}>
-                  {assetData.name}
+                  <Typography
+                    color="primary"
+                    sx={{ typography: { xs: "h6", sm: "h5" } }}
+                  >
+                    {assetData.name}
+                  </Typography>
                 </Grid>
                 <Grid container item xs={12}>
                   {assetType.itemIDs.map((item) => {
                     const itemData = fullAssetList.find(
                       (i) => i.item_id === item
                     );
-                    const assetOwner = users.find((i)=> i.CharacterHash === itemData.CharacterHash)
-                    console.log(itemData);
+                    const assetOwner = users.find(
+                      (i) => i.CharacterHash === itemData.CharacterHash
+                    );
                     return (
                       <Grid key={item} container item xs={4}>
                         <Grid item xs={12}>
@@ -60,9 +67,11 @@ export function AssetType({ locationAsset, fullAssetList }) {
                               <img
                                 src={`https://images.evetech.net/types/${itemData.type_id}/icon/?size=64`}
                                 alt=""
+                                loading="lazy"
                               />
                             </picture>
                           </Badge>
+                          <Typography>{itemData.quantity}</Typography>
                         </Grid>
                       </Grid>
                     );

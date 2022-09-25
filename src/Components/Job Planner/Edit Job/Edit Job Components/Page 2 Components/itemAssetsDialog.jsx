@@ -69,7 +69,7 @@ export function ItemAssetsDialogue({
       <DialogTitle color="primary" align="center">
         {material.name} Assets
       </DialogTitle>
-      <DialogContent sx={{marginTop:"10px"}}>
+      <DialogContent sx={{ marginTop: "10px" }}>
         {!loadAssets ? (
           <Grid item xs={12} align="center">
             <CircularProgress color="primary" />
@@ -90,7 +90,11 @@ export function ItemAssetsDialogue({
                   container
                   item
                   xs={12}
-                  sx={{ paddingBottom: "20px", marginBottom:"20px", borderBottom: "1px solid" }}
+                  sx={{
+                    paddingBottom: "20px",
+                    marginBottom: "20px",
+                    borderBottom: "1px solid",
+                  }}
                 >
                   <Grid item xs={12} sx={{ marginBottom: "20px" }}>
                     <Typography
@@ -149,7 +153,8 @@ export function ItemAssetsDialogue({
                             {itemData.quantity.toLocaleString()} Units
                             {itemData.location_flag === "Hangar"
                               ? " - Hangar"
-                              : itemData.location_flag === "Unlocked"
+                              : itemData.location_flag === "Unlocked" ||
+                                itemData.location_flag === "AutoFit"
                               ? " - Container"
                               : " - Other"}
                           </Typography>
@@ -237,7 +242,8 @@ export function ItemAssetsDialogue({
                               {itemData.quantity.toLocaleString()} Units
                               {itemData.location_flag === "Hangar"
                                 ? " - Hangar"
-                                : itemData.location_flag === "Unlocked"
+                                : itemData.location_flag === "Unlocked" ||
+                                  itemData.location_flag === "AutoFit"
                                 ? " - Container"
                                 : " - Other"}
                             </Typography>

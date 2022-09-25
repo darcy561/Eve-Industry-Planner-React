@@ -54,7 +54,7 @@ export const UserJobSnapshot = (props) => {
 export const UserWatchlistContext = createContext();
 
 export const UserWatchlist = (props) => {
-  const [userWatchlist, updateUserWatchlist] = useState([]);
+  const [userWatchlist, updateUserWatchlist] = useState({groups:[], items:[]});
 
   return (
     <UserWatchlistContext.Provider value={{userWatchlist, updateUserWatchlist}}>

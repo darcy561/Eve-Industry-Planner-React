@@ -28,8 +28,6 @@ export function BpCopyESICardActive({ job }) {
   const timeRemaining = timeRemainingcalc();
 
   const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id);
-  console.log(itemName)
-
   return (
     <Tooltip title="Job imported from the Eve ESI">
       <Grid key={job.job_id} item xs={16} sm={6} md={4} lg={3}>
@@ -72,7 +70,7 @@ export function BpCopyESICardActive({ job }) {
                       variant="circular"
                       sx={{
                         height: { xs: "16px", sm: "24px", md: "32px" },
-                        width: { xs: "16px", sm:"24px", md: "32px" },
+                        width: { xs: "16px", sm: "24px", md: "32px" },
                       }}
                     />
                   }
@@ -98,19 +96,26 @@ export function BpCopyESICardActive({ job }) {
               >
                 <Grid container item xs={12}>
                   <Grid item xs={8}>
-                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                    >
                       Copies/Runs Per Copy
                     </Typography>
                   </Grid>
                   <Grid item xs={4}>
-                    <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      align="right"
+                    >
                       {job.runs}/{job.licensed_runs}
                     </Typography>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                    >
                       Remaining:
                     </Typography>
                   </Grid>
@@ -118,11 +123,17 @@ export function BpCopyESICardActive({ job }) {
                     {timeRemaining.days === 0 &&
                     timeRemaining.hours === 0 &&
                     timeRemaining.mins === 0 ? (
-                      <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+                      <Typography
+                        sx={{ typography: { xs: "body2", md: "body1" } }}
+                        align="right"
+                      >
                         Ready to Deliver
                       </Typography>
                     ) : (
-                      <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+                      <Typography
+                        sx={{ typography: { xs: "body2", md: "body1" } }}
+                        align="right"
+                      >
                         {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                         {timeRemaining.mins}M
                       </Typography>

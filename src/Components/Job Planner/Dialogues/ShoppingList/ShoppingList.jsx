@@ -70,13 +70,14 @@ export function ShoppingListDialog({
         let newCopyText = "";
         let newDisplayData = [];
         let shoppingList = await buildShoppingList(shoppingListData);
+        // console.log(selectedLocation)
         let [fullAssetList, locationAssets] = await findLocationAssets(
           selectedLocation
         );
 
         function calcVolume(listItem, assetQuantity) {
           if (removeAssets) {
-            return listItem.volume * listItem.quantity - assetQuantity;
+            return listItem.volume * (listItem.quantity - assetQuantity);
           } else {
             return listItem.volume * listItem.quantity;
           }

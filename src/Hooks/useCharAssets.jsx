@@ -2,6 +2,7 @@ import { useContext, useMemo } from "react";
 import { UsersContext } from "../Context/AuthContext";
 import { EveIDsContext } from "../Context/EveDataContext";
 import { useEveApi } from "./useEveApi";
+import searchData from "../RawData/searchIndex.json";
 
 export function useCharAssets() {
   const { users } = useContext(UsersContext);
@@ -15,14 +16,14 @@ export function useCharAssets() {
     let parentAsset = userAssets.find(
       (i) => i.item_id === initialAsset.location_id
     );
-    if (parentAsset === undefined) {
+    if (parentAsset == undefined) {
       return initialAsset;
     }
     if (
       parentAsset.location_type === "item" ||
       parentAsset.location_type === "other"
     ) {
-      retrieveAssetLocation(parentAsset, userAssets);
+      return retrieveAssetLocation(parentAsset, userAssets);
     }
     if (
       parentAsset.location_type === "station" ||
@@ -148,9 +149,7 @@ export function useCharAssets() {
           }
         }
         if (item.location_type === "item" || item.location_type === "other") {
-          console.log();
           let parentLocation = retrieveAssetLocation(item, userAssets);
-
           if (
             parentLocation !== undefined &&
             parentLocation.location_type !== "other" &&
@@ -205,11 +204,60 @@ export function useCharAssets() {
       );
 
       for (let item of userAssets) {
-        if (item.location_id === requiredLocationID) {
+        if (searchData.some((i) => i.blueprintID === item.type_id)) {
+          continue;
+        }
+        if (
+          item.location_type === "station" ||
+          item.location_type === "solar_system"
+        ) {
+          if (item.location_id !== requiredLocationID) {
+            continue;
+          }
+          if (searchData.some((i) => i.blueprintID === item.type_id)) {
+            continue;
+          }
+          if (locationAssets.some((i) => i.type_id === item.type_id)) {
+            let index = locationAssets.findIndex(
+              (i) => i.type_id === item.type_id
+            );
+            if (index !== -1) {
+              locationAssets[index].itemIDs.push(item.item_id);
+            }
+          } else {
+            locationAssets.push({
+              type_id: item.type_id,
+              itemIDs: [item.item_id],
+            });
+          }
+        }
+
+        if (item.location_type === "item" || item.location_type === "other") {
+          let parentLocation = retrieveAssetLocation(item, userAssets);
+          if (parentLocation === undefined && item.location_flag !== "Cargo") {
+            continue;
+          }
+          if (item.location_id !== requiredLocationID) {
+            if (parentLocation.location_id !== requiredLocationID) {
+              continue;
+            }
+          }
+          if (item.type_id === 62678) {
+            console.log(item);
+            console.log(parentLocation);
+          }
           if (
-            item.location_type === "station" ||
-            item.location_type === "solar_system"
+            parentLocation.item_id === item.location_id ||
+            parentLocation.item_id === item.item_id
           ) {
+            if (
+              item.location_flag !== "Hangar" &&
+              item.location_flag !== "Unlocked" &&
+              item.location_flag !== "AutoFit"
+            ) {
+              continue;
+            }
+
             if (locationAssets.some((i) => i.type_id === item.type_id)) {
               let index = locationAssets.findIndex(
                 (i) => i.type_id === item.type_id
@@ -222,30 +270,6 @@ export function useCharAssets() {
                 type_id: item.type_id,
                 itemIDs: [item.item_id],
               });
-            }
-          }
-
-          if (item.location_type === "item" || item.location_type === "other") {
-            let parentLocation = retrieveAssetLocation(item, userAssets);
-            if (
-              parentLocation !== undefined &&
-              item.location_flag !== "Cargo"
-            ) {
-              if (parentLocation.item_id === item.location_id) {
-                if (locationAssets.some((i) => i.type_id === item.type_id)) {
-                  let index = locationAssets.findIndex(
-                    (i) => i.type_id === item.type_id
-                  );
-                  if (index !== -1) {
-                    locationAssets[index].itemIDs.push(item.item_id);
-                  }
-                } else {
-                  locationAssets.push({
-                    type_id: item.type_id,
-                    itemIDs: [item.item_id],
-                  });
-                }
-              }
             }
           }
         }

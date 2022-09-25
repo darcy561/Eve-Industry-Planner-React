@@ -35,6 +35,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
+    "build-dev": "vite build --mode dev",
     "deploy-hosting": "firebase deploy --only hosting",
     "deploy-function": "firebase deploy --only functions"
   },

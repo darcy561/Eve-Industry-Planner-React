@@ -9,6 +9,7 @@ import {
   IsLoggedInContext,
   UserJobSnapshotContext,
   UsersContext,
+  UserWatchlistContext,
 } from "../Context/AuthContext";
 import {
   ActiveJobContext,
@@ -39,6 +40,7 @@ export function useAccountManagement() {
   const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { updateUserWatchlist } = useContext(UserWatchlistContext);
   const {firebaseListeners, updateFirebaseListeners} = useContext(FirebaseListenersContext)
 
   const parentUser = useMemo(() => {
@@ -210,6 +212,7 @@ export function useAccountManagement() {
     updateActiveJob({});
     updateArchivedJobs([]);
     updateApiJobs(apiJobsDefault);
+    updateUserWatchlist({groups:[], items:[]})
     localStorage.removeItem("Auth");
     signOut(auth);
     navigate("/");

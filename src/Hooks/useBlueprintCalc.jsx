@@ -148,7 +148,8 @@ export function useBlueprintCalc() {
           if (
             charSkill.id !== 3380 &&
             charSkill.id !== 3388 &&
-            charSkill.id !== 45746
+            charSkill.id !== 45746 &&
+            charSkill.id !== 22242
           ) {
             indexer = indexer - 0.01 * charSkill.activeLevel;
           }

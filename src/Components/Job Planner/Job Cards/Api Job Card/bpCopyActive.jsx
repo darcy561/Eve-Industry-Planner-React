@@ -1,31 +1,11 @@
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
+import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import itemRef from "../../../../RawData/searchIndex.json";
 
 export function BpCopyESICardActive({ job }) {
-  function timeRemainingcalc() {
-    let now = new Date().getTime();
-    let timeLeft = Date.parse(job.end_date) - now;
+  const { timeRemainingCalc } = useJobManagement();
 
-    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    let hour = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (day < 0) {
-      day = 0;
-    }
-    if (hour < 0) {
-      hour = 0;
-    }
-    if (min < 0) {
-      min = 0;
-    }
-
-    return { days: day, hours: hour, mins: min };
-  }
-
-  const timeRemaining = timeRemainingcalc();
+  const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
 
   const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id);
   return (

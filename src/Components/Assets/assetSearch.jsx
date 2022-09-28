@@ -23,7 +23,9 @@ export function AssetSearch({
   locationList,
   selectedLocation,
   updateSelectedLocation,
-  pageLoad,
+  namesLoad,
+  pagination,
+  setPagination,
 }) {
   const { eveIDs } = useContext(EveIDsContext);
 
@@ -38,37 +40,64 @@ export function AssetSearch({
       }}
     >
       <Grid container>
-        {pageLoad ? (
-          <Grid item xs={6}>
-            <FormControl className={classes.Select} fullWidth>
-              <Select
-                value={selectedLocation}
-                size="small"
-                onChange={(e) => {
-                  updateSelectedLocation(e.target.value);
-                }}
-              >
-                {locationList.map((entry) => {
-                  let locationNameData = eveIDs.find((i) => entry === i.id);
+        {namesLoad ? (
+          <>
+            <Grid item xs={8} sm={6}>
+              <FormControl className={classes.Select} fullWidth>
+                <Select
+                  value={selectedLocation}
+                  size="small"
+                  onChange={(e) => {
+                    updateSelectedLocation(e.target.value);
+                  }}
+                >
+                  {locationList.map((entry) => {
+                    let locationNameData = eveIDs.find((i) => entry === i.id);
 
-                  if (
-                    locationNameData === undefined ||
-                    locationNameData.name === "No Access To Location"
-                  ) {
-                    return null;
-                  }
-                  return (
-                    <MenuItem key={entry} value={entry}>
-                      {locationNameData.name}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-              <FormHelperText variant="standard">
-                Asset Locations
-              </FormHelperText>
-            </FormControl>
-          </Grid>
+                    if (
+                      locationNameData === undefined ||
+                      locationNameData.name === "No Access To Location"
+                    ) {
+                      return null;
+                    }
+                    return (
+                      <MenuItem key={entry} value={entry}>
+                        {locationNameData.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+                <FormHelperText variant="standard">
+                  Asset Locations
+                </FormHelperText>
+              </FormControl>
+            </Grid>
+            <Grid item xs={4} sm={6} align="right">
+              <FormControl className={classes.Select}>
+                <Select
+                  variant="standard"
+                  value={pagination.pageSize}
+                  size="small"
+                  onChange={(e) => {
+                    setPagination((prev) => ({
+                      ...prev,
+                      to: e.target.value,
+                      pageSize: e.target.value,
+                    }));
+                  }}
+                >
+                  <MenuItem value={4}>4</MenuItem>
+                  <MenuItem value={8}>8</MenuItem>
+                  <MenuItem value={16}>16</MenuItem>
+                  <MenuItem value={32}>32</MenuItem>
+                  <MenuItem value={64}>64</MenuItem>
+                </Select>
+                <FormHelperText variant="standard">
+                  Items Per Page
+                </FormHelperText>
+              </FormControl>
+            </Grid>
+          </>
         ) : (
           <Grid item xs={12} align="center">
             <CircularProgress color="primary" />

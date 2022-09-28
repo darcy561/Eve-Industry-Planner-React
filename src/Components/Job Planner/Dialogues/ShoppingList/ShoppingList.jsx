@@ -19,7 +19,10 @@ import {
 } from "@mui/material";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
-import { UsersContext } from "../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UsersContext,
+} from "../../../../Context/AuthContext";
 import { useCharAssets } from "../../../../Hooks/useCharAssets";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import { makeStyles } from "@mui/styles";
@@ -38,6 +41,7 @@ export function ShoppingListDialog({
   shoppingListData,
 }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { getAssetLocationList } = useCharAssets();
@@ -70,7 +74,6 @@ export function ShoppingListDialog({
         let newCopyText = "";
         let newDisplayData = [];
         let shoppingList = await buildShoppingList(shoppingListData);
-        // console.log(selectedLocation)
         let [fullAssetList, locationAssets] = await findLocationAssets(
           selectedLocation
         );
@@ -362,26 +365,28 @@ export function ShoppingListDialog({
         <Grid container>
           <Grid container item xs={12}>
             <Grid item xs={6}>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={removeAssets}
-                      onChange={() => {
-                        updateRemoveAssets((prev) => !prev);
-                      }}
-                    />
-                  }
-                  label={
-                    <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                    >
-                      Use Character Assets
-                    </Typography>
-                  }
-                  labelPlacement="bottom"
-                />
-              </FormGroup>
+              {isLoggedIn && (
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={removeAssets}
+                        onChange={() => {
+                          updateRemoveAssets((prev) => !prev);
+                        }}
+                      />
+                    }
+                    label={
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
+                        Use Character Assets
+                      </Typography>
+                    }
+                    labelPlacement="bottom"
+                  />
+                </FormGroup>
+              )}
             </Grid>
             <Grid item xs={6}>
               <FormGroup>

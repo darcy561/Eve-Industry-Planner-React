@@ -23,7 +23,7 @@ import {
 import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { RefreshTokens } from "./RefreshToken";
-import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
+import { EveIDsContext } from "../../Context/EveDataContext";
 import searchData from "../../RawData/searchIndex.json";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 
@@ -43,7 +43,6 @@ export default function AuthMainUser() {
   const { updateUsers } = useContext(UsersContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { updateEvePrices } = useContext(EvePricesContext);
   const { serverStatus } = useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);

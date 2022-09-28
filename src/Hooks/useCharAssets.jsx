@@ -1,10 +1,11 @@
 import { useContext, useMemo } from "react";
-import { UsersContext } from "../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
 import { EveIDsContext } from "../Context/EveDataContext";
 import { useEveApi } from "./useEveApi";
 import searchData from "../RawData/searchIndex.json";
 
 export function useCharAssets() {
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
   const { eveIDs } = useContext(EveIDsContext);
   const { IDtoName } = useEveApi();
@@ -42,6 +43,10 @@ export function useCharAssets() {
       let userAssets = JSON.parse(
         sessionStorage.getItem(`assets_${user.CharacterHash}`)
       );
+      
+      if (!isLoggedIn) {
+        return [[],[]]
+      }
 
       for (let asset of userAssets) {
         if (
@@ -202,6 +207,10 @@ export function useCharAssets() {
       let userAssets = JSON.parse(
         sessionStorage.getItem(`assets_${user.CharacterHash}`)
       );
+
+      if (!isLoggedIn) {
+        return [[],[]]
+      }
 
       for (let item of userAssets) {
         if (searchData.some((i) => i.blueprintID === item.type_id)) {

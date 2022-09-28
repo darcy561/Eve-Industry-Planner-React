@@ -1,56 +1,10 @@
 import { Grid, Typography } from "@mui/material";
-import { useContext } from "react";
-import { JobArrayContext } from "../../../../Context/JobContext";
+import { useJobManagement } from "../../../../Hooks/useJobManagement";
 
 export default function Step3JobCard({ job }) {
-  const { jobArray } = useContext(JobArrayContext);
-  let endDate = null;
-  let inputJob = null;
+  const { timeRemainingCalc } = useJobManagement();
 
-  function timeRemainingcalc(inputTime) {
-    let now = Date.now();
-    let timeLeft = inputTime - now;
-    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    let hour = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (day < 0) {
-      day = 0;
-    }
-    if (hour < 0) {
-      hour = 0;
-    }
-    if (min < 0) {
-      min = 0;
-    }
-
-    return { days: day, hours: hour, mins: min };
-  }
-
-  if (!job.isSnapshot) {
-    inputJob = jobArray.find((i) => i.jobID === job.jobID);
-    if (inputJob.build.costs.linkedJobs.length > 0) {
-      let tempJobs = [...inputJob.build.costs.linkedJobs];
-      tempJobs.sort((a, b) => {
-        if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
-          return 1;
-        }
-        if (Date.parse(a.end_date) < Date.parse(b.end_date)) {
-          return -1;
-        }
-        return 0;
-      });
-      endDate = Date.parse(tempJobs[0].end_date);
-    }
-  }
-
-  if (job.isSnapshot) {
-    endDate = job.endDateDisplay;
-  }
-
-  const timeRemaining = timeRemainingcalc(endDate);
+  const timeRemaining = timeRemainingCalc(job.endDateDisplay);
 
   return (
     <Grid

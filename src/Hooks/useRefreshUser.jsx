@@ -18,7 +18,7 @@ import { decodeJwt } from "jose";
 import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
+import { EveIDsContext } from "../Context/EveDataContext";
 import searchData from "../RawData/searchIndex.json";
 import { useAccountManagement } from "./useAccountManagement";
 
@@ -42,12 +42,9 @@ export function useRefreshUser() {
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { updateEvePrices } = useContext(EvePricesContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
-    UserJobSnapshotContext
-  );
+  const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);

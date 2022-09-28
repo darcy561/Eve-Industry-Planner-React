@@ -14,7 +14,6 @@ import {
   setDoc,
   updateDoc,
   onSnapshot,
-  serverTimestamp,
 } from "firebase/firestore";
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
@@ -314,7 +313,6 @@ export function useFirebase() {
       doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
     );
     let downloadDoc = document.data();
-    console.log(downloadDoc);
     if (downloadDoc !== undefined) {
       let newJob = {
         hasListener: false,

@@ -91,7 +91,6 @@ export function ChildJobPopover({
           itemQty: material.quantity,
           parentJobs: [activeJob.jobID],
         });
-        console.log(newJob);
         if (newJob !== undefined) {
           let priceIDRequest = new Set();
           let promiseArray = [];
@@ -126,9 +125,6 @@ export function ChildJobPopover({
         }
         totalPrice += materialPrice[marketSelect][listingSelect] * mat.quantity;
       });
-      console.log(
-        totalPrice / childJobObjects[jobDisplay].build.products.totalQuantity
-      );
       updateCurrentBuildPrice(
         totalPrice / childJobObjects[jobDisplay].build.products.totalQuantity
       );
@@ -317,7 +313,6 @@ export function ChildJobPopover({
                 <Button
                   size="small"
                   onClick={async () => {
-                    console.log(childJobObjects[jobDisplay]);
                     updateBuildLoad((prev) => !prev);
                     let newUserJobSnapshot = newJobSnapshot(
                       childJobObjects[jobDisplay],

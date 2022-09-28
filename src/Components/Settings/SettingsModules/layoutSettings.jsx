@@ -39,8 +39,8 @@ export function LayoutSettings({ parentUserIndex }) {
                     }}
                   />
                 }
-                label="Enable Help Tips"
-                labelPlacement="start"
+                label={<Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>Enable Help Cards</Typography>}
+                labelPlacement="bottom"
               />
             </FormGroup>
           </Grid>

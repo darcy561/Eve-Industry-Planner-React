@@ -15,19 +15,13 @@ import { ApiJobsContext, JobArrayContext } from "../../Context/JobContext";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { useJobManagement } from "../../Hooks/useJobManagement";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { useAccountManagement } from "../../Hooks/useAccountManagement";
+import { useMemo } from "react";
 
 export function AccountEntry({ user, parentUserIndex }) {
-  const {
-    CharacterSkills,
-    IndustryJobs,
-    MarketOrders,
-    HistoricMarketOrders,
-    BlueprintLibrary,
-    WalletTransactions,
-    WalletJournal,
-    serverStatus,
-  } = useEveApi();
+  const { serverStatus } = useEveApi();
   const { downloadCharacterJobs, updateMainUserDoc } = useFirebase();
+  const { characterAPICall } = useAccountManagement();
   const { replaceSnapshot } = useJobManagement();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
@@ -40,7 +34,7 @@ export function AccountEntry({ user, parentUserIndex }) {
   );
   const analytics = getAnalytics();
 
-  const parentUser = users.find((i) => i.ParentUser);
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   async function refreshUserAPI(user) {
     let newUsers = [...users];
@@ -53,57 +47,20 @@ export function AccountEntry({ user, parentUserIndex }) {
         user = await RefreshUserAToken(user);
       }
       if (user !== "RefreshFail") {
-        const [
-          skills,
-          indJobs,
-          orders,
-          histOrders,
-          blueprints,
-          transactions,
-          journal,
-        ] = await Promise.all([
-          CharacterSkills(user),
-          IndustryJobs(user, parentUser),
-          MarketOrders(user),
-          HistoricMarketOrders(user),
-          BlueprintLibrary(user),
-          WalletTransactions(user),
-          WalletJournal(user),
-        ]);
-        if (skills.length > 0) {
-          user.apiSkills = skills;
-        }
-        if (indJobs.length > 0) {
-          user.apiJobs = indJobs;
-          newAPIArray = apiJobs.filter(
-            (i) => i.installer_id !== user.CharacterID
-          );
-          user.apiJobs.forEach((i) => newAPIArray.push(i));
-          newAPIArray.sort((a, b) => {
-            if (a.product_name < b.product_name) {
-              return -1;
-            }
-            if (a.product_name > b.product_name) {
-              return 1;
-            }
-            return 0;
-          });
-        }
-        if (orders.length > 0) {
-          user.apiOrders = orders;
-        }
-        if (histOrders.length > 0) {
-          user.apiHistOrders = histOrders;
-        }
-        if (blueprints.length > 0) {
-          user.apiBlueprints = blueprints;
-        }
-        if (transactions.length > 0) {
-          user.apiTransactions = transactions;
-        }
-        if (journal.length > 0) {
-          user.apiJournal = journal;
-        }
+        user = await characterAPICall(sStatus, user, parentUser);
+        newAPIArray = apiJobs.filter(
+          (i) => i.installer_id !== user.CharacterID
+        );
+        user.apiJobs.forEach((i) => newAPIArray.push(i));
+        newAPIArray.sort((a, b) => {
+          if (a.product_name < b.product_name) {
+            return -1;
+          }
+          if (a.product_name > b.product_name) {
+            return 1;
+          }
+          return 0;
+        });
         user.refreshState = 3;
         const index = newUsers.findIndex(
           (i) => i.CharacterHash === user.CharacterHash
@@ -156,6 +113,7 @@ export function AccountEntry({ user, parentUserIndex }) {
     }
 
     newUsers = newUsers.filter((i) => i.CharacterHash !== user.CharacterHash);
+    sessionStorage.removeItem(`assets_${user.CharacterHash}`);
     updateUsers(newUsers);
     updateApiJobs(newApiArray);
     updateJobArray(newJobArray);
@@ -197,7 +155,7 @@ export function AccountEntry({ user, parentUserIndex }) {
             />
           </Grid>
           <Grid item xs={8} sm={9}>
-            <Typography variant="body1">{user.CharacterName}</Typography>
+            <Typography sx={{typography:{xs:"caption", sm:"body1"}}}>{user.CharacterName}</Typography>
           </Grid>
           <Grid item xs={1} align="center">
             {refreshState === 1 && userRefreshState === 1 ? (

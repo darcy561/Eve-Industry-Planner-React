@@ -5,7 +5,11 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  FormControl,
+  FormHelperText,
   Grid,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -18,14 +22,32 @@ import { jobTypes } from "../../../../Context/defaultValues";
 import { WishListManufacturingOptions } from "./wishlistManufacturingOptions";
 import { WishlistReactionOptions } from "./wishlistReactionOptions";
 import { ChildJobEntry } from "./childJobSelect";
-import { UsersContext } from "../../../../Context/AuthContext";
+import {
+  UsersContext,
+  UserWatchlistContext,
+} from "../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  TextField: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
+  },
+}));
 
 export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   const { users } = useContext(UsersContext);
+  const { userWatchlist, updateUserWatchlist } =
+    useContext(UserWatchlistContext);
   const { buildJob } = useJobBuild();
-  const { getItemPrices, updateMainUserDoc } = useFirebase();
+  const { getItemPrices, uploadUserWatchlist } = useFirebase();
   const { updateEvePrices } = useContext(EvePricesContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const [loadingState, changeLoadingState] = useState(false);
@@ -34,7 +56,9 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   const [importedJob, setImportedJob] = useState(null);
   const [materialJobs, setMaterialJobs] = useState([]);
   const [saveReady, updateSaveReady] = useState(false);
+  const [groupSelect, updateGroupSelect] = useState(0);
   const analytics = getAnalytics();
+  const classes = useStyles();
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -49,6 +73,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   };
 
   const handleSave = async () => {
+    let newUserWatchlistItems = [...userWatchlist.items];
     let mainJobMaterials = [];
     let childJobPresent = false;
     importedJob.build.materials.forEach((mat) => {
@@ -62,6 +87,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
         quantityProduced:
           job !== undefined ? job.build.products.totalQuantity : 0,
         materials: [],
+        group: groupSelect,
       });
     });
     mainJobMaterials.forEach((mat) => {
@@ -78,15 +104,16 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
         childJobPresent = true;
       }
     });
-    parentUser.watchlist.push({
+    newUserWatchlistItems.push({
       id: Date.now(),
       typeID: importedJob.itemID,
+      group: groupSelect,
       name: importedJob.name,
       quantity: importedJob.build.products.totalQuantity,
       materials: mainJobMaterials,
       childJobPresent: childJobPresent,
     });
-    parentUser.watchlist.sort((a, b) => {
+    newUserWatchlistItems.sort((a, b) => {
       if (a.name < b.name) {
         return -1;
       }
@@ -96,7 +123,8 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
       return 0;
     });
 
-    await updateMainUserDoc();
+    updateUserWatchlist((prev) => ({ ...prev, items: newUserWatchlistItems }));
+    await uploadUserWatchlist(userWatchlist.groups, newUserWatchlistItems);
     logEvent(analytics, "New Watchlist Item", {
       UID: parentUser.accountID,
     });
@@ -129,7 +157,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                 onChange={async (event, value) => {
                   changeLoadingState(true);
                   changeLoadingText("Importing Item Data...");
-                  let newJob = await buildJob(value.itemID, null);
+                  let newJob = await buildJob({ itemID: value.itemID });
                   if (newJob !== undefined) {
                     let priceIDRequest = new Set();
                     let jobPromiseArray = [];
@@ -141,7 +169,10 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                         mat.jobType === jobTypes.reaction
                       ) {
                         jobPromiseArray.push(
-                          buildJob(mat.typeID, mat.quantity)
+                          buildJob({
+                            itemID: mat.typeID,
+                            itemQty: mat.quantity,
+                          })
                         );
                       }
                     }
@@ -234,6 +265,34 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                     setMaterialJobs={setMaterialJobs}
                   />
                 )}
+                <Grid
+                  item
+                  xs={6}
+                  sx={{ paddingRight: "10px", marginTop: "20px" }}
+                >
+                  <FormControl className={classes.TextField} fullWidth={true}>
+                    <Select
+                      variant="standard"
+                      size="small"
+                      value={groupSelect}
+                      onChange={(e) => {
+                        updateGroupSelect(e.target.value);
+                      }}
+                    >
+                      <MenuItem value={0}>None</MenuItem>
+                      {userWatchlist.groups.map((entry) => {
+                        return (
+                          <MenuItem key={entry.id} value={entry.id}>
+                            {entry.name}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                    <FormHelperText variant="standard">
+                      Watchlist Group
+                    </FormHelperText>
+                  </FormControl>
+                </Grid>
               </>
             )
           ) : (

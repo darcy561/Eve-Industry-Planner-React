@@ -18,12 +18,12 @@ import {
   DialogDataContext,
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
-  ShoppingListContext,
 } from "../../../Context/LayoutContext";
 import { JobArrayContext } from "../../../Context/JobContext";
 import { SisiDataFilesContext } from "../../../Context/EveDataContext";
 
 import { makeStyles } from "@mui/styles";
+import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   Autocomplete: {
@@ -42,12 +42,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function SearchBar() {
+export function SearchBar({
+  updateShoppingListTrigger,
+  updateShoppingListData,
+}) {
   const { jobArray } = useContext(JobArrayContext);
   const { DataExchange } = useContext(DataExchangeContext);
-  const { updateShoppingListData } = useContext(ShoppingListContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
   const { updateDialogData } = useContext(DialogDataContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { sisiDataFiles, updateSisiDataFiles } =
     useContext(SisiDataFilesContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -57,10 +60,10 @@ export function SearchBar() {
     deleteMultipleJobsProcess,
     massBuildMaterials,
     mergeJobs,
+    mergeJobsNew,
     moveMultipleJobsBackward,
     moveMultipleJobsForward,
     newJobProcess,
-    buildShoppingList,
     buildItemPriceEntry,
   } = useJobManagement();
   const classes = useStyles();
@@ -89,7 +92,7 @@ export function SearchBar() {
               options={itemList}
               getOptionLabel={(option) => option.name}
               onChange={(event, value) => {
-                newJobProcess(value.itemID, null);
+                newJobProcess({ itemID: value.itemID });
               }}
               renderInput={(params) => (
                 <TextField
@@ -148,7 +151,7 @@ export function SearchBar() {
             sx={{ marginBottom: { xs: "10px", md: "0px" } }}
           >
             <Tooltip
-              title="Displays a shopping list of the remaining materials to build all of the selected jobs."
+              title="Displays a shopping list of the remaining materials needed to build all of the selected jobs."
               arrow
             >
               <Button
@@ -157,13 +160,8 @@ export function SearchBar() {
                 sx={{ marginRight: "10px" }}
                 onClick={async () => {
                   if (multiSelectJobPlanner.length > 0) {
-                    let shoppingList = await buildShoppingList(
-                      multiSelectJobPlanner
-                    );
-                    updateShoppingListData((prev) => ({
-                      open: true,
-                      list: shoppingList,
-                    }));
+                    updateShoppingListTrigger((prev) => !prev);
+                    updateShoppingListData(multiSelectJobPlanner);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -325,7 +323,7 @@ export function SearchBar() {
                   }
                   onClick={() => {
                     if (multiSelectJobPlanner.length > 1) {
-                      mergeJobs(multiSelectJobPlanner);
+                      mergeJobsNew(multiSelectJobPlanner);
                       updateMultiSelectJobPlanner([]);
                     } else {
                       updateDialogData((prev) => ({
@@ -359,8 +357,8 @@ export function SearchBar() {
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
                   let newMultiArray = [...multiSelectJobPlanner];
-                  jobArray.forEach((job) => {
-                    newMultiArray.push(job);
+                  userJobSnapshot.forEach((job) => {
+                    newMultiArray.push(job.jobID);
                   });
                   updateMultiSelectJobPlanner(newMultiArray);
                 }}
@@ -394,7 +392,7 @@ export function SearchBar() {
                 color="error"
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    deleteMultipleJobsProcess(multiSelectJobPlanner);
+                    deleteMultipleJobsProcess(multiSelectJobPlanner, true);
                     updateMultiSelectJobPlanner([]);
                   } else {
                     updateDialogData((prev) => ({

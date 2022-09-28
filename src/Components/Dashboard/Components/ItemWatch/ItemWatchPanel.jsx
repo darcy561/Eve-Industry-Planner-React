@@ -1,18 +1,32 @@
-import { Grid, IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  Grid,
+  IconButton,
+  Paper,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { AddWatchItemDialog } from "./addItemDialog";
 import { useContext, useMemo, useState } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
+import { UsersContext, UserWatchlistContext } from "../../../../Context/AuthContext";
 import { WatchListRow } from "./ItemRow";
+import { WatchlistGroup } from "./watchlistGroup";
+import { AddGroupDialog } from "./addGroupDialog";
+import { GroupSettingsDialog } from "./groupSettings";
 
 export function ItemWatchPanel() {
   const { users } = useContext(UsersContext);
+  const { userWatchlist, updateUserWatchlist } = useContext(UserWatchlistContext);
   const [openDialog, setOpenDialog] = useState(false);
+  const [addNewGroupTrigger, updateAddNewGroupTrigger] = useState(false);
+  const [groupSettingsTrigger, updateGroupSettingsTrigger] = useState(false);
+  const [groupSettingsContent, updateGroupSettingsContent] = useState({
+    name: "",
+  });
 
-  const parentUser = useMemo(
-    () => users.find((i) => i.ParentUser === true),
-    [users]
-  );
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   return (
     <>
@@ -36,25 +50,45 @@ export function ItemWatchPanel() {
           openDialog={openDialog}
           setOpenDialog={setOpenDialog}
         />
+        <AddGroupDialog
+          addNewGroupTrigger={addNewGroupTrigger}
+          updateAddNewGroupTrigger={updateAddNewGroupTrigger}
+        />
+        <GroupSettingsDialog
+          groupSettingsTrigger={groupSettingsTrigger}
+          updateGroupSettingsTrigger={updateGroupSettingsTrigger}
+          groupSettingsContent={groupSettingsContent}
+        />
         <Grid container>
           <Grid item xs={12} sx={{ marginBottom: { xs: "20px", sm: "40px" } }}>
             <Typography variant="h5" color="primary" align="center">
               Item Watchlist
             </Typography>
           </Grid>
-          <Tooltip title="Add Item To Watchlist" arrow placement="bottom">
-            <IconButton
-              color="primary"
-              sx={{ position: "absolute", top: "10px", right: "10px" }}
-              onClick={() => {
-                setOpenDialog(true);
-              }}
-            >
-              <AddIcon />
-            </IconButton>
-          </Tooltip>
+          <Box sx={{ position: "absolute", top: "10px", right: "10px" }}>
+            <Tooltip title="Add New Watchlist Group" arrow placement="bottom">
+              <IconButton
+                color="primary"
+                onClick={() => {
+                  updateAddNewGroupTrigger((prev) => !prev);
+                }}
+              >
+                <PlaylistAddIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Add Item To Watchlist" arrow placement="bottom">
+              <IconButton
+                color="primary"
+                onClick={() => {
+                  setOpenDialog(true);
+                }}
+              >
+                <AddIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
           <Grid container item xs={12}>
-            {parentUser.watchlist.length > 0 && (
+            {userWatchlist.items.length > 0 && (
               <Grid
                 container
                 item
@@ -101,23 +135,42 @@ export function ItemWatchPanel() {
                 </Grid>
               </Grid>
             )}
-            {parentUser.watchlist.length === 0 ? (
+            {userWatchlist.items.length === 0 ? (
               <Grid item xs={12} align="center">
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   You have no items on your watchlist.
                 </Typography>
               </Grid>
             ) : (
-              parentUser.watchlist.map((item, index) => {
-                return (
-                  <WatchListRow
-                    key={item.id}
-                    item={item}
-                    parentUser={parentUser}
-                    index={index}
-                  />
-                );
-              })
+              <>
+                {userWatchlist.groups.map((group, index) => {
+                  return (
+                    <WatchlistGroup
+                      key={group.id}
+                      group={group}
+                      parentUser={parentUser}
+                      index={index}
+                      updateGroupSettingsTrigger={updateGroupSettingsTrigger}
+                      updateGroupSettingsContent={updateGroupSettingsContent}
+                      groupSettingsContent={groupSettingsContent}
+                    />
+                  );
+                })}
+
+                {userWatchlist.items.map((item, index) => {
+                  if (item.group === undefined || item.group === 0) {
+                    return (
+                      <WatchListRow
+                        key={item.id}
+                        item={item}
+                        parentUser={parentUser}
+                        index={index}
+                      />
+                    );
+                  }
+                  return null;
+                })}
+              </>
             )}
           </Grid>
         </Grid>

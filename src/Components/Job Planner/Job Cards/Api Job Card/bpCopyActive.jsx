@@ -1,35 +1,13 @@
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
+import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import itemRef from "../../../../RawData/searchIndex.json";
 
 export function BpCopyESICardActive({ job }) {
-  function timeRemainingcalc() {
-    let now = new Date().getTime();
-    let timeLeft = Date.parse(job.end_date) - now;
+  const { timeRemainingCalc } = useJobManagement();
 
-    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    let hour = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (day < 0) {
-      day = 0;
-    }
-    if (hour < 0) {
-      hour = 0;
-    }
-    if (min < 0) {
-      min = 0;
-    }
-
-    return { days: day, hours: hour, mins: min };
-  }
-
-  const timeRemaining = timeRemainingcalc();
+  const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
 
   const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id);
-  console.log(itemName)
-
   return (
     <Tooltip title="Job imported from the Eve ESI">
       <Grid key={job.job_id} item xs={16} sm={6} md={4} lg={3}>
@@ -71,8 +49,8 @@ export function BpCopyESICardActive({ job }) {
                       src={`https://images.evetech.net/characters/${job.installer_id}/portrait`}
                       variant="circular"
                       sx={{
-                        height: { xs: "16px", sm: "32px" },
-                        width: { xs: "16px", sm: "32px" },
+                        height: { xs: "16px", sm: "24px", md: "32px" },
+                        width: { xs: "16px", sm: "24px", md: "32px" },
                       }}
                     />
                   }
@@ -98,19 +76,26 @@ export function BpCopyESICardActive({ job }) {
               >
                 <Grid container item xs={12}>
                   <Grid item xs={8}>
-                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                    >
                       Copies/Runs Per Copy
                     </Typography>
                   </Grid>
                   <Grid item xs={4}>
-                    <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      align="right"
+                    >
                       {job.runs}/{job.licensed_runs}
                     </Typography>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                    >
                       Remaining:
                     </Typography>
                   </Grid>
@@ -118,11 +103,17 @@ export function BpCopyESICardActive({ job }) {
                     {timeRemaining.days === 0 &&
                     timeRemaining.hours === 0 &&
                     timeRemaining.mins === 0 ? (
-                      <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+                      <Typography
+                        sx={{ typography: { xs: "body2", md: "body1" } }}
+                        align="right"
+                      >
                         Ready to Deliver
                       </Typography>
                     ) : (
-                      <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+                      <Typography
+                        sx={{ typography: { xs: "body2", md: "body1" } }}
+                        align="right"
+                      >
                         {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
                         {timeRemaining.mins}M
                       </Typography>

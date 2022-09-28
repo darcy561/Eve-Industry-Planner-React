@@ -1,66 +1,17 @@
 import { Avatar, Box, Grid, Menu, MenuItem, Tooltip } from "@mui/material";
 import { useContext, useState } from "react";
-import { IsLoggedInContext, UsersContext } from "../../../Context/AuthContext";
-import {
-  ActiveJobContext,
-  ApiJobsContext,
-  ArchivedJobsContext,
-  JobArrayContext,
-  JobStatusContext,
-} from "../../../Context/JobContext";
-import { SnackBarDataContext } from "../../../Context/LayoutContext";
-import { EveIDsContext } from "../../../Context/EveDataContext";
-import { auth } from "../../../firebase";
-import { signOut } from "firebase/auth";
+import { UsersContext } from "../../../Context/AuthContext";
 import { useNavigate } from "react-router";
-import {
-  apiJobsDefault,
-  jobArrayDefault,
-  jobStatusDefault,
-  usersDefault,
-  eveIDsDefault,
-} from "../../../Context/defaultValues";
-import { getAnalytics, logEvent } from "firebase/analytics";
+import { useAccountManagement } from "../../../Hooks/useAccountManagement";
 
 export function UserIcon() {
-  const { users, updateUsers } = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
   const [anchor, setAnchor] = useState(null);
-  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { updateActiveJob } = useContext(ActiveJobContext);
-  const { updateJobArray } = useContext(JobArrayContext);
-  const { setJobStatus } = useContext(JobStatusContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateApiJobs } = useContext(ApiJobsContext);
-  const { updateEveIDs } = useContext(EveIDsContext);
-  const { updateArchivedJobs } = useContext(ArchivedJobsContext);
+
+  const { logUserOut } = useAccountManagement();
   const navigate = useNavigate();
-  const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser);
-
-  function logout() {
-    logEvent(analytics, "userLogOut", {
-      UID: parentUser.accountID,
-    });
-    updateIsLoggedIn(false);
-    updateUsers(usersDefault);
-    updateJobArray(jobArrayDefault);
-    updateEveIDs(eveIDsDefault);
-    setJobStatus(jobStatusDefault);
-    updateActiveJob({});
-    updateArchivedJobs([]);
-    updateApiJobs(apiJobsDefault);
-    localStorage.removeItem("Auth");
-    signOut(auth);
-    navigate("/");
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: "Logged Out",
-      severity: "info",
-      autoHideDuration: 3000,
-    }));
-  }
 
   const openMenu = (event) => {
     setAnchor(event.currentTarget);
@@ -112,7 +63,7 @@ export function UserIcon() {
         >
           Settings
         </MenuItem>
-        <MenuItem onClick={logout}>Log Out</MenuItem>
+        <MenuItem onClick={logUserOut}>Log Out</MenuItem>
       </Menu>
     </>
   );

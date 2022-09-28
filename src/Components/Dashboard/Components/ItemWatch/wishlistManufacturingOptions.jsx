@@ -6,7 +6,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { makeStyles } from "@mui/styles";
 import {
   blueprintOptions,
@@ -15,6 +15,7 @@ import {
 import { useBlueprintCalc } from "../../../../Hooks/useBlueprintCalc";
 import { jobTypes } from "../../../../Context/defaultValues";
 import { useJobBuild } from "../../../../Hooks/useJobBuild";
+import { UsersContext } from "../../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -34,6 +35,7 @@ export function WishListManufacturingOptions({
   materialJobs,
   setMaterialJobs,
 }) {
+  const { users } = useContext(UsersContext);
   const [meValue, updateMEValue] = useState(importedJob.bpME);
   const [teValue, updateTEValue] = useState(importedJob.bpTE);
   const [structValue, updateStructValue] = useState(
@@ -44,6 +46,51 @@ export function WishListManufacturingOptions({
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const { recalculateItemQty } = useJobBuild();
   const classes = useStyles();
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  });
+
+  useEffect(() => {
+    let newMaterialJobs = [...materialJobs];
+    for (let mat of importedJob.build.materials) {
+      let index = newMaterialJobs.findIndex((i) => i.itemID === mat.typeID);
+      if (index !== -1) {
+        newMaterialJobs[index] = recalculateItemQty(
+          newMaterialJobs[index],
+          mat.quantity
+        );
+        newMaterialJobs[index].build.materials = CalculateResources({
+          jobType: newMaterialJobs[index].jobType,
+          rawMaterials: newMaterialJobs[index].rawData.materials,
+          outputMaterials: newMaterialJobs[index].build.materials,
+          runCount: newMaterialJobs[index].runCount,
+          jobCount: newMaterialJobs[index].jobCount,
+          bpME: newMaterialJobs[index].bpME,
+          structureType: newMaterialJobs[index].structureType,
+          rigType: newMaterialJobs[index].rigType,
+          systemType: newMaterialJobs[index].systemType,
+        });
+        newMaterialJobs[index].build.time = CalculateTime({
+          jobType: newMaterialJobs[index].jobType,
+          CharacterHash: newMaterialJobs[index].build.buildChar,
+          structureTypeDisplay: newMaterialJobs[index].structureTypeDisplay,
+          runCount: newMaterialJobs[index].runCount,
+          bpTE: newMaterialJobs[index].bpTE,
+          rawTime: newMaterialJobs[index].rawData.time,
+          skills: newMaterialJobs[index].skills,
+        });
+        newMaterialJobs[index].build.products.totalQuantity =
+          newMaterialJobs[index].rawData.products[0].quantity *
+          newMaterialJobs[index].runCount *
+          newMaterialJobs[index].jobCount;
+
+        newMaterialJobs[index].build.products.quantityPerJob =
+          newMaterialJobs[index].rawData.products[0].quantity *
+          newMaterialJobs[index].runCount;
+      }
+    }
+    setMaterialJobs(newMaterialJobs);
+  }, [importedJob]);
 
   return (
     <Grid container item xs={12} spacing={2}>
@@ -57,36 +104,43 @@ export function WishListManufacturingOptions({
             helperText="Blueprint Runs"
             type="number"
             onBlur={(e) => {
-              const oldJob = JSON.parse(JSON.stringify(importedJob));
-              oldJob.runCount = Number(e.target.value);
-              let newJob = CalculateResources(oldJob);
-              newJob = CalculateTime(newJob);
-              let newMaterialJobs = [...materialJobs];
-              for (let mat of newJob.build.materials) {
-                if (
-                  mat.jobType === jobTypes.manufacturing ||
-                  mat.jobType === jobTypes.reaction
-                ) {
-                  let index = newMaterialJobs.findIndex(
-                    (i) => i.itemID === mat.typeID
-                  );
-
-                  if (index !== -1) {
-                    newMaterialJobs[index] = recalculateItemQty(
-                      newMaterialJobs[index],
-                      mat.quantity
-                    );
-                    newMaterialJobs[index] = CalculateResources(
-                      newMaterialJobs[index]
-                    );
-                    newMaterialJobs[index] = CalculateTime(
-                      newMaterialJobs[index]
-                    );
-                  }
-                }
-              }
-              setImportedJob(newJob);
-              setMaterialJobs(newMaterialJobs);
+              setImportedJob((prev) => ({
+                ...prev,
+                runCount: Number(e.target.value),
+                build: {
+                  ...prev.build,
+                  materials: CalculateResources({
+                    jobType: prev.jobType,
+                    rawMaterials: prev.rawData.materials,
+                    outputMaterials: prev.build.materials,
+                    runCount: Number(e.target.value),
+                    jobCount: prev.jobCount,
+                    bpME: prev.bpME,
+                    structureType: prev.structureType,
+                    rigType: prev.rigType,
+                    systemType: prev.systemType,
+                  }),
+                  products: {
+                    ...prev.build.products,
+                    totalQuantity:
+                      prev.rawData.products[0].quantity *
+                      Number(e.target.value) *
+                      prev.jobCount,
+                    quantityPerJob:
+                      prev.rawData.products[0].quantity *
+                      Number(e.target.value),
+                  },
+                  time: CalculateTime({
+                    jobType: prev.jobType,
+                    CharacterHash: prev.build.buildChar,
+                    structureTypeDisplay: prev.structureTypeDisplay,
+                    runCount: Number(e.target.value),
+                    bpTE: prev.bpTE,
+                    rawTime: prev.rawData.time,
+                    skills: prev.skills,
+                  }),
+                },
+              }));
             }}
           />
         </Grid>
@@ -99,34 +153,33 @@ export function WishListManufacturingOptions({
             helperText="Job Slots"
             type="number"
             onBlur={(e) => {
-              const oldJob = JSON.parse(JSON.stringify(importedJob));
-              oldJob.jobCount = Number(e.target.value);
-              let newJob = CalculateResources(oldJob);
-              let newMaterialJobs = [...materialJobs];
-              for (let mat of newJob.build.materials) {
-                if (
-                  mat.jobType === jobTypes.manufacturing ||
-                  mat.jobType === jobTypes.reaction
-                ) {
-                  let index = newMaterialJobs.findIndex(
-                    (i) => i.itemID === mat.typeID
-                  );
-                  if (index !== -1) {
-                    newMaterialJobs[index] = recalculateItemQty(
-                      newMaterialJobs[index],
-                      mat.quantity
-                    );
-                    newMaterialJobs[index] = CalculateResources(
-                      newMaterialJobs[index]
-                    );
-                    newMaterialJobs[index] = CalculateTime(
-                      newMaterialJobs[index]
-                    );
-                  }
-                }
-              }
-              setImportedJob(newJob);
-              setMaterialJobs(newMaterialJobs);
+              setImportedJob((prev) => ({
+                ...prev,
+                jobCount: Number(e.target.value),
+                build: {
+                  ...prev.build,
+                  materials: CalculateResources({
+                    jobType: prev.jobType,
+                    rawMaterials: prev.rawData.materials,
+                    outputMaterials: prev.build.materials,
+                    runCount: prev.runCount,
+                    jobCount: Number(e.target.value),
+                    bpME: prev.bpME,
+                    structureType: prev.structureType,
+                    rigType: prev.rigType,
+                    systemType: prev.systemType,
+                  }),
+                  products: {
+                    ...prev.build.products,
+                    totalQuantity:
+                      prev.rawData.products[0].quantity *
+                      prev.runCount *
+                      Number(e.target.value),
+                    quantityPerJob:
+                      prev.rawData.products[0].quantity * prev.runCount,
+                  },
+                },
+              }));
             }}
           />
         </Grid>
@@ -139,35 +192,25 @@ export function WishListManufacturingOptions({
               size="small"
               value={meValue}
               onChange={(e) => {
-                const oldJob = JSON.parse(JSON.stringify(importedJob));
-                oldJob.bpME = e.target.value;
-                const newJob = CalculateResources(oldJob);
-                let newMaterialJobs = [...materialJobs];
-                for (let mat of newJob.build.materials) {
-                  if (
-                    mat.jobType === jobTypes.manufacturing ||
-                    mat.jobType === jobTypes.reaction
-                  ) {
-                    let index = newMaterialJobs.findIndex(
-                      (i) => i.itemID === mat.typeID
-                    );
-                    if (index !== -1) {
-                      newMaterialJobs[index] = recalculateItemQty(
-                        newMaterialJobs[index],
-                        mat.quantity
-                      );
-                      newMaterialJobs[index] = CalculateResources(
-                        newMaterialJobs[index]
-                      );
-                      newMaterialJobs[index] = CalculateTime(
-                        newMaterialJobs[index]
-                      );
-                    }
-                  }
-                }
                 updateMEValue(e.target.value);
-                setImportedJob(newJob);
-                setMaterialJobs(newMaterialJobs);
+                setImportedJob((prev) => ({
+                  ...prev,
+                  bpME: e.target.value,
+                  build: {
+                    ...prev.build,
+                    materials: CalculateResources({
+                      jobType: prev.jobType,
+                      rawMaterials: prev.rawData.materials,
+                      outputMaterials: prev.build.materials,
+                      runCount: prev.runCount,
+                      jobCount: prev.jobCount,
+                      bpME: e.target.value,
+                      structureType: prev.structureType,
+                      rigType: prev.rigType,
+                      systemType: prev.systemType,
+                    }),
+                  },
+                }));
               }}
             >
               {blueprintOptions.me.map((entry) => {
@@ -179,7 +222,7 @@ export function WishListManufacturingOptions({
               })}
             </Select>
             <FormHelperText variant="standard">
-              Material Efficiecy
+              Material Efficiency
             </FormHelperText>
           </FormControl>
         </Grid>
@@ -190,36 +233,23 @@ export function WishListManufacturingOptions({
               size="small"
               value={teValue}
               onChange={(e) => {
-                const oldJob = JSON.parse(JSON.stringify(importedJob));
-                oldJob.bpTE = e.target.value;
-                let newJob = CalculateResources(oldJob);
-                newJob = CalculateTime(newJob);
-                let newMaterialJobs = [...materialJobs];
-                for (let mat of newJob.build.materials) {
-                  if (
-                    mat.jobType === jobTypes.manufacturing ||
-                    mat.jobType === jobTypes.reaction
-                  ) {
-                    let index = newMaterialJobs.findIndex(
-                      (i) => i.itemID === mat.typeID
-                    );
-                    if (index !== -1) {
-                      newMaterialJobs[index] = recalculateItemQty(
-                        newMaterialJobs[index],
-                        mat.quantity
-                      );
-                      newMaterialJobs[index] = CalculateResources(
-                        newMaterialJobs[index]
-                      );
-                      newMaterialJobs[index] = CalculateTime(
-                        newMaterialJobs[index]
-                      );
-                    }
-                  }
-                }
                 updateTEValue(e.target.value);
-                setImportedJob(newJob);
-                setMaterialJobs(newMaterialJobs);
+                setImportedJob((prev) => ({
+                  ...prev,
+                  bpTE: e.target.value,
+                  build: {
+                    ...prev.build,
+                    time: CalculateTime({
+                      jobType: prev.jobType,
+                      CharacterHash: prev.build.buildChar,
+                      structureTypeDisplay: prev.structureTypeDisplay,
+                      runCount: prev.runCount,
+                      bpTE: e.target.value,
+                      rawTime: prev.rawData.time,
+                      skills: prev.skills,
+                    }),
+                  },
+                }));
               }}
             >
               {blueprintOptions.te.map((entry) => {
@@ -230,7 +260,7 @@ export function WishListManufacturingOptions({
                 );
               })}
             </Select>
-            <FormHelperText variant="standard">Time Efficiecy</FormHelperText>
+            <FormHelperText variant="standard">Time Efficiency</FormHelperText>
           </FormControl>
         </Grid>
       </Grid>
@@ -242,37 +272,35 @@ export function WishListManufacturingOptions({
               size="small"
               value={structValue}
               onChange={(e) => {
-                const oldJob = JSON.parse(JSON.stringify(importedJob));
-                oldJob.structureTypeDisplay = e.target.value;
-                oldJob.structureType = e.target.value === "Station" ? 0 : 1;
-                let newJob = CalculateResources(oldJob);
-                newJob = CalculateTime(newJob);
-                let newMaterialJobs = [...materialJobs];
-                for (let mat of newJob.build.materials) {
-                  if (
-                    mat.jobType === jobTypes.manufacturing ||
-                    mat.jobType === jobTypes.reaction
-                  ) {
-                    let index = newMaterialJobs.findIndex(
-                      (i) => i.itemID === mat.typeID
-                    );
-                    if (index !== -1) {
-                      newMaterialJobs[index] = recalculateItemQty(
-                        newMaterialJobs[index],
-                        mat.quantity
-                      );
-                      newMaterialJobs[index] = CalculateResources(
-                        newMaterialJobs[index]
-                      );
-                      newMaterialJobs[index] = CalculateTime(
-                        newMaterialJobs[index]
-                      );
-                    }
-                  }
-                }
                 updateStructValue(e.target.value);
-                setImportedJob(newJob);
-                setMaterialJobs(newMaterialJobs);
+                setImportedJob((prev) => ({
+                  ...prev,
+                  structureTypeDisplay: e.target.value,
+                  structureType: e.target.value === "Station" ? 0 : 1,
+                  build: {
+                    ...prev.build,
+                    materials: CalculateResources({
+                      jobType: prev.jobType,
+                      rawMaterials: prev.rawData.materials,
+                      outputMaterials: prev.build.materials,
+                      runCount: prev.runCount,
+                      jobCount: prev.jobCount,
+                      bpME: prev.bpME,
+                      structureType: e.target.value === "Station" ? 0 : 1,
+                      rigType: prev.rigType,
+                      systemType: prev.systemType,
+                    }),
+                    time: CalculateTime({
+                      jobType: prev.jobType,
+                      CharacterHash: prev.build.buildChar,
+                      structureTypeDisplay: e.target.value,
+                      runCount: prev.runCount,
+                      bpTE: prev.bpTE,
+                      rawTime: prev.rawData.time,
+                      skills: prev.skills,
+                    }),
+                  },
+                }));
               }}
             >
               {structureOptions.manStructure.map((entry) => {
@@ -293,36 +321,34 @@ export function WishListManufacturingOptions({
               size="small"
               value={rigsValue}
               onChange={(e) => {
-                const oldJob = JSON.parse(JSON.stringify(importedJob));
-                oldJob.rigType = e.target.value;
-                let newJob = CalculateResources(oldJob);
-                newJob = CalculateTime(newJob);
-                let newMaterialJobs = [...materialJobs];
-                for (let mat of newJob.build.materials) {
-                  if (
-                    mat.jobType === jobTypes.manufacturing ||
-                    mat.jobType === jobTypes.reaction
-                  ) {
-                    let index = newMaterialJobs.findIndex(
-                      (i) => i.itemID === mat.typeID
-                    );
-                    if (index !== -1) {
-                      newMaterialJobs[index] = recalculateItemQty(
-                        newMaterialJobs[index],
-                        mat.quantity
-                      );
-                      newMaterialJobs[index] = CalculateResources(
-                        newMaterialJobs[index]
-                      );
-                      newMaterialJobs[index] = CalculateTime(
-                        newMaterialJobs[index]
-                      );
-                    }
-                  }
-                }
-                setImportedJob(newJob);
-                setMaterialJobs(newMaterialJobs);
                 updateRigsValue(e.target.value);
+                setImportedJob((prev) => ({
+                  ...prev,
+                  rigType: e.target.value,
+                  build: {
+                    ...prev.build,
+                    materials: CalculateResources({
+                      jobType: prev.jobType,
+                      rawMaterials: prev.rawData.materials,
+                      outputMaterials: prev.build.materials,
+                      runCount: prev.runCount,
+                      jobCount: prev.jobCount,
+                      bpME: prev.bpME,
+                      structureType: prev.structureType,
+                      rigType: e.target.value,
+                      systemType: prev.systemType,
+                    }),
+                    time: CalculateTime({
+                      jobType: prev.jobType,
+                      CharacterHash: prev.build.buildChar,
+                      structureTypeDisplay: prev.structureTypeDisplay,
+                      runCount: prev.runCount,
+                      bpTE: prev.bpTE,
+                      rawTime: prev.rawData.time,
+                      skills: prev.skills,
+                    }),
+                  },
+                }));
               }}
             >
               {structureOptions.manRigs.map((entry) => {
@@ -345,36 +371,25 @@ export function WishListManufacturingOptions({
               size="small"
               value={systemValue}
               onChange={(e) => {
-                const oldJob = JSON.parse(JSON.stringify(importedJob));
-                oldJob.systemType = e.target.value;
-                let newJob = CalculateResources(oldJob);
-                newJob = CalculateTime(newJob);
-                let newMaterialJobs = [...materialJobs];
-                for (let mat of newJob.build.materials) {
-                  if (
-                    mat.jobType === jobTypes.manufacturing ||
-                    mat.jobType === jobTypes.reaction
-                  ) {
-                    let index = newMaterialJobs.findIndex(
-                      (i) => i.itemID === mat.typeID
-                    );
-                    if (index !== -1) {
-                      newMaterialJobs[index] = recalculateItemQty(
-                        newMaterialJobs[index],
-                        mat.quantity
-                      );
-                      newMaterialJobs[index] = CalculateResources(
-                        newMaterialJobs[index]
-                      );
-                      newMaterialJobs[index] = CalculateTime(
-                        newMaterialJobs[index]
-                      );
-                    }
-                  }
-                }
-                setImportedJob(newJob);
-                setMaterialJobs(newMaterialJobs);
                 updateSystemValue(e.target.value);
+                setImportedJob((prev) => ({
+                  ...prev,
+                  systemType: e.target.value,
+                  build: {
+                    ...prev.build,
+                    materials: CalculateResources({
+                      jobType: prev.jobType,
+                      rawMaterials: prev.rawData.materials,
+                      outputMaterials: prev.build.materials,
+                      runCount: prev.runCount,
+                      jobCount: prev.jobCount,
+                      bpME: prev.bpME,
+                      structureType: prev.structureType,
+                      rigType: prev.rigType,
+                      systemType: e.target.value,
+                    }),
+                  },
+                }));
               }}
             >
               {structureOptions.manSystem.map((entry) => {
@@ -386,6 +401,68 @@ export function WishListManufacturingOptions({
               })}
             </Select>
             <FormHelperText variant="standard">System Type</FormHelperText>
+          </FormControl>
+        </Grid>
+        <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
+          <FormControl className={classes.TextField} fullWidth={true}>
+            <Select
+              variant="standard"
+              size="small"
+              renderValue={(selected) =>
+                selected.map((item) => item.name).join(", ")
+              }
+              value=""
+              onChange={(e) => {
+                const structure =
+                  parentUser.settings.structures.manufacturing.find(
+                    (i) => i.id === e.target.value
+                  );
+                updateStructValue(structure.structureName);
+                updateRigsValue(structure.rigType);
+                updateSystemValue(structure.systemType);
+                setImportedJob((prev) => ({
+                  ...prev,
+                  rigType: structure.rigType,
+                  systemType: structure.systemType,
+                  structureTypeDisplay: structure.structureName,
+                  structureType: structure.structureValue,
+                  build: {
+                    ...prev.build,
+                    materials: CalculateResources({
+                      jobType: prev.jobType,
+                      rawMaterials: prev.rawData.materials,
+                      outputMaterials: prev.build.materials,
+                      runCount: prev.runCount,
+                      jobCount: prev.jobCount,
+                      bpME: prev.bpME,
+                      structureType: structure.structureValue,
+                      rigType: structure.rigType,
+                      systemType: structure.systemType,
+                    }),
+                    time: CalculateTime({
+                      jobType: prev.jobType,
+                      CharacterHash: prev.build.buildChar,
+                      structureTypeDisplay: structure.structureName,
+                      runCount: prev.runCount,
+                      bpTE: prev.bpTE,
+                      rawTime: prev.rawData.time,
+                      skills: prev.skills,
+                    }),
+                  },
+                }));
+              }}
+            >
+              {parentUser.settings.structures.manufacturing.map((entry) => {
+                return (
+                  <MenuItem key={entry.id} value={entry.id}>
+                    {entry.name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+            <FormHelperText variant="standard">
+              Apply Saved Structure
+            </FormHelperText>
           </FormControl>
         </Grid>
       </Grid>

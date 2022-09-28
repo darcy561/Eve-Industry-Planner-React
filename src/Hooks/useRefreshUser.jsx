@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { useEveApi } from "./useEveApi";
@@ -8,38 +8,65 @@ import {
   JobArrayContext,
   JobStatusContext,
 } from "../Context/JobContext";
-import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../Context/AuthContext";
 import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
-import jwt from "jsonwebtoken";
+import { decodeJwt } from "jose";
 import { trace } from "firebase/performance";
 import { performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
+import { EveIDsContext } from "../Context/EveDataContext";
 import searchData from "../RawData/searchIndex.json";
+import { useAccountManagement } from "./useAccountManagement";
 
 export function useRefreshUser() {
+  const { serverStatus } = useEveApi();
   const {
-    BlueprintLibrary,
-    CharacterSkills,
-    fullAssetsList,
-    HistoricMarketOrders,
-    IDtoName,
-    IndustryJobs,
-    MarketOrders,
-    serverStatus,
-    WalletTransactions,
-    WalletJournal,
-  } = useEveApi();
-  const { determineUserState, getItemPrices } = useFirebase();
+    buildMainUser,
+    characterAPICall,
+    generateItemPriceRequest,
+    getLocationNames,
+  } = useAccountManagement();
+  const {
+    determineUserState,
+    getItemPrices,
+    userJobSnapshotListener,
+    userWatchlistListener,
+  } = useFirebase();
   const { updateEveIDs } = useContext(EveIDsContext);
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
-  const { updateUsers } = useContext(UsersContext);
-  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { updateEvePrices } = useContext(EvePricesContext);
+  const { users, updateUsers } = useContext(UsersContext);
+  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
+  const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
+
+  const checkUserState = async () => {
+    if (isLoggedIn) {
+      if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
+        let newUsersArray = [...users];
+        const index = newUsersArray.findIndex((i) => i.ParentUser);
+        newUsersArray[index] = await RefreshUserAToken(parentUser);
+        updateUsers(newUsersArray);
+      }
+      updatePageLoad(false);
+    } else {
+      if (localStorage.getItem("Auth") == null) {
+        updatePageLoad(false);
+      } else {
+        reloadMainUser(localStorage.getItem("Auth"));
+      }
+    }
+  };
 
   const reloadMainUser = async (refreshToken) => {
     const analytics = getAnalytics();
@@ -50,8 +77,9 @@ export function useRefreshUser() {
       ...prevObj,
       eveSSO: true,
     }));
-    let userArray = [];
-    const refreshedUser = await RefreshTokens(refreshToken, true);
+    updateUserJobSnapshot([]);
+
+    let refreshedUser = await RefreshTokens(refreshToken, true);
     refreshedUser.fbToken = await firebaseAuth(refreshedUser);
 
     updateLoadingText((prevObj) => ({
@@ -61,88 +89,27 @@ export function useRefreshUser() {
     }));
 
     const charSettings = await determineUserState(refreshedUser);
-    refreshedUser.ParentUser = true;
-    refreshedUser.accountID = charSettings.accountID;
-    refreshedUser.linkedJobs = charSettings.linkedJobs;
-    refreshedUser.linkedTrans = charSettings.linkedTrans;
-    refreshedUser.linkedOrders = charSettings.linkedOrders;
-    refreshedUser.settings = charSettings.settings;
-    refreshedUser.snapshotData = JSON.parse(
-      JSON.stringify(charSettings.jobArraySnapshot)
-    );
-    refreshedUser.accountRefreshTokens = charSettings.refreshTokens;
-    refreshedUser.watchlist = charSettings.watchlist;
-    let priceIDRequest = new Set();
-    let promiseArray = [];
-    charSettings.jobArraySnapshot.forEach((snap) => {
-      snap.materialIDs.forEach((id) => {
-        priceIDRequest.add(id);
-      });
-      priceIDRequest.add(snap.itemID);
-    });
 
-    charSettings.watchlist.forEach((snap) => {
-      priceIDRequest.add(snap.typeID);
-      snap.materials.forEach((mat) => {
-        priceIDRequest.add(mat.typeID);
-        mat.materials.forEach((cMat) => {
-          priceIDRequest.add(cMat.typeID);
-        });
-      });
-    });
-
-    let itemPrices = getItemPrices([...priceIDRequest], refreshedUser);
-    promiseArray.push(itemPrices);
+    buildMainUser(refreshedUser, charSettings);
+    await userJobSnapshotListener(refreshedUser);
+    await userWatchlistListener(refreshedUser);
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
       charDataComp: true,
       apiData: true,
     }));
-    let apiJobsArray = [];
+
     const sStatus = await serverStatus();
+    refreshedUser = await characterAPICall(
+      sStatus,
+      refreshedUser,
+      refreshedUser
+    );
 
-    if (sStatus) {
-      const [
-        skills,
-        indJobs,
-        orders,
-        histOrders,
-        blueprints,
-        transactions,
-        journal,
-        assets
-      ] = await Promise.all([
-        CharacterSkills(refreshedUser),
-        IndustryJobs(refreshedUser),
-        MarketOrders(refreshedUser),
-        HistoricMarketOrders(refreshedUser),
-        BlueprintLibrary(refreshedUser),
-        WalletTransactions(refreshedUser),
-        WalletJournal(refreshedUser),
-        fullAssetsList(refreshedUser)
-      ]);
+    let apiJobsArray = refreshedUser.apiJobs;
+    let userArray = [refreshedUser];
 
-      refreshedUser.apiSkills = skills;
-      refreshedUser.apiJobs = indJobs;
-      apiJobsArray = apiJobsArray.concat(indJobs);
-      refreshedUser.apiOrders = orders;
-      refreshedUser.apiHistOrders = histOrders;
-      refreshedUser.apiBlueprints = blueprints;
-      refreshedUser.apiTransactions = transactions;
-      refreshedUser.apiJournal = journal;
-      sessionStorage.setItem(`assets_${refreshedUser.CharacterHash}`, JSON.stringify(assets))
-    } else {
-      refreshedUser.apiSkills = [];
-      refreshedUser.apiJobs = [];
-      refreshedUser.apiOrders = [];
-      refreshedUser.apiHistOrders = [];
-      refreshedUser.apiBlueprints = [];
-      refreshedUser.apiTransactions = [];
-      refreshedUser.apiJournal = [];
-      sessionStorage.setItem(`assets_${refreshedUser.CharacterHash}`, JSON.stringify([]))
-    }
-    userArray.push(refreshedUser);
     updateLoadingText((prevObj) => ({
       ...prevObj,
       apiDataComp: true,
@@ -158,46 +125,8 @@ export function useRefreshUser() {
         if (token.rToken !== newUser.rToken) {
           token.rToken = newUser.rToken;
         }
-        if (sStatus && newUser !== "RefreshFail") {
-          const [
-            skills,
-            indJobs,
-            orders,
-            histOrders,
-            blueprints,
-            transactions,
-            journal,
-            assets
-          ] = await Promise.all([
-            CharacterSkills(newUser),
-            IndustryJobs(newUser, refreshedUser),
-            MarketOrders(newUser),
-            HistoricMarketOrders(newUser),
-            BlueprintLibrary(newUser),
-            WalletTransactions(newUser),
-            WalletJournal(newUser),
-            fullAssetsList(newUser)
-          ]);
-
-          newUser.apiSkills = skills;
-          newUser.apiJobs = indJobs;
-          newUser.apiOrders = orders;
-          newUser.apiHistOrders = histOrders;
-          newUser.apiBlueprints = blueprints;
-          newUser.apiTransactions = transactions;
-          newUser.apiJournal = journal;
-          sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify(assets))
-        } else if (!sStatus) {
-          newUser.apiSkills = [];
-          newUser.apiJobs = [];
-          newUser.apiOrders = [];
-          newUser.apiHistOrders = [];
-          newUser.apiBlueprints = [];
-          newUser.apiTransactions = [];
-          newUser.apiJournal = [];
-          sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify([]))
-        }
         if (newUser !== "RefreshFail") {
+          newUser = await characterAPICall(sStatus, newUser, refreshedUser);
           userArray.push(newUser);
           apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
         }
@@ -221,46 +150,9 @@ export function useRefreshUser() {
               JSON.stringify(rTokens)
             );
           }
-          if (sStatus && newUser !== "RefreshFail") {
-            const [
-              skills,
-              indJobs,
-              orders,
-              histOrders,
-              blueprints,
-              transactions,
-              journal,
-              assets
-            ] = await Promise.all([
-              CharacterSkills(newUser),
-              IndustryJobs(newUser, refreshedUser),
-              MarketOrders(newUser),
-              HistoricMarketOrders(newUser),
-              BlueprintLibrary(newUser),
-              WalletTransactions(newUser),
-              WalletJournal(newUser),
-              fullAssetsList(newUser)
-            ]);
 
-            newUser.apiSkills = skills;
-            newUser.apiJobs = indJobs;
-            newUser.apiOrders = orders;
-            newUser.apiHistOrders = histOrders;
-            newUser.apiBlueprints = blueprints;
-            newUser.apiTransactions = transactions;
-            newUser.apiJournal = journal;
-            sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify(assets))
-          } else if (!sStatus) {
-            newUser.apiSkills = [];
-            newUser.apiJobs = [];
-            newUser.apiOrders = [];
-            newUser.apiHistOrders = [];
-            newUser.apiBlueprints = [];
-            newUser.apiTransactions = [];
-            newUser.apiJournal = [];
-            sessionStorage.setItem(`assets_${newUser.CharacterHash}`, JSON.stringify([]))
-          }
           if (newUser !== "RefreshFail") {
+            newUser = await characterAPICall(sStatus, newUser, refreshedUser);
             userArray.push(newUser);
             apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
           }
@@ -282,7 +174,6 @@ export function useRefreshUser() {
         let newLS = oldLS.filter(
           (i) => !failedRefresh.includes(i.CharacterHash)
         );
-        console.log(newLS);
         localStorage.setItem(
           `${refreshedUser.CharacterHash} AdditionalAccounts`,
           JSON.stringify(newLS)
@@ -310,66 +201,11 @@ export function useRefreshUser() {
       return 0;
     });
 
-    let locationIDS = new Set();
-    let citadelStore = new Set();
-    let newIDNamePromises = [];
-    let newNameArray = [];
+    let locationReturns = await getLocationNames(userArray, refreshedUser);
 
-    for (let user of userArray) {
-      let citadelIDs = new Set();
-      user.apiJobs.forEach((job) => {
-        if (job.facility_id.toString().length > 10) {
-          if (!citadelStore.has(job.facility_id)) {
-            citadelIDs.add(job.facility_id);
-            citadelStore.add(job.facility_id);
-          }
-        } else {
-          locationIDS.add(job.facility_id);
-        }
-      });
-      user.apiOrders.forEach((order) => {
-        if (order.location_id.toString().length > 10) {
-          if (!citadelStore.has(order.location_id)) {
-            citadelIDs.add(order.location_id);
-            citadelStore.add(order.location_id);
-          }
-        } else {
-          locationIDS.add(order.location_id);
-        }
-        locationIDS.add(order.region_id);
-      });
-      user.apiHistOrders.forEach((order) => {
-        if (order.location_id.toString().length > 10) {
-          if (!citadelStore.has(order.location_id)) {
-            citadelIDs.add(order.location_id);
-            citadelStore.add(order.location_id);
-          }
-        } else {
-          locationIDS.add(order.location_id);
-        }
-        locationIDS.add(order.region_id);
-      });
-      if ([...citadelIDs].length > 0) {
-        let tempCit = IDtoName([...citadelIDs], user);
-        newIDNamePromises.push(tempCit);
-      }
-    }
-    if ([...locationIDS].length > 0) {
-      let tempLoc = IDtoName([...locationIDS], refreshedUser);
-      newIDNamePromises.push(tempLoc);
-    }
-
-    let returnLocations = await Promise.all(newIDNamePromises);
-
-    returnLocations.forEach((group) => {
-      newNameArray = newNameArray.concat(group);
-    });
-
-    let returnPromiseArray = await Promise.all(promiseArray);
-    updateEveIDs(newNameArray);
-    updateEvePrices(returnPromiseArray[0]);
+    updateEveIDs(locationReturns);
     setJobStatus(charSettings.jobStatusArray);
-    updateJobArray(charSettings.jobArraySnapshot);
+    updateJobArray([]);
     updateApiJobs(apiJobsArray);
     updateUsers(userArray);
     updateIsLoggedIn(true);
@@ -397,7 +233,9 @@ export function useRefreshUser() {
           method: "POST",
           headers: {
             Authorization: `Basic ${btoa(
-              `${process.env.REACT_APP_eveClientID}:${process.env.REACT_APP_eveSecretKey}`
+              `${import.meta.env.VITE_eveClientID}:${
+                import.meta.env.VITE_eveSecretKey
+              }`
             )}`,
             "Content-Type": "application/x-www-form-urlencoded",
             Host: "login.eveonline.com",
@@ -409,7 +247,7 @@ export function useRefreshUser() {
       );
       const newTokenJSON = await newTokenPromise.json();
 
-      const decodedToken = jwt.decode(newTokenJSON.access_token);
+      const decodedToken = decodeJwt(newTokenJSON.access_token);
 
       user.aToken = newTokenJSON.access_token;
       user.aTokenEXP = Number(decodedToken.exp);
@@ -424,5 +262,5 @@ export function useRefreshUser() {
     }
   };
 
-  return { RefreshUserAToken, reloadMainUser };
+  return { checkUserState, RefreshUserAToken, reloadMainUser };
 }

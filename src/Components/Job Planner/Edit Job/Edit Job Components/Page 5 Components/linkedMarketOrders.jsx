@@ -347,17 +347,22 @@ export function LinkedMarketOrders({
                         const parentUserIndex = users.findIndex(
                           (i) => i.ParentUser
                         );
+                        let newApiOrders = new Set(activeJob.apiOrders)
+                        let newApiTransactions = new Set(activeJob.apiTransactions)
                         let brokerFees = new Set();
+                        let transactions = new Set();
+                        
 
                         activeJob.build.sale.brokersFee.forEach((item) => {
                           if (item.location_id === order.location_id) {
                             brokerFees.add(item.id);
                           }
                         });
-                        let transactions = new Set();
+
                         activeJob.build.sale.transactions.forEach((trans) => {
                           if (trans.location_id === order.location_id) {
                             transactions.add(trans.transaction_id);
+                            newApiTransactions.delete(trans.transaction_id)
                           }
                         });
                         let newOrderArray = [
@@ -392,11 +397,14 @@ export function LinkedMarketOrders({
                         newTransactionArray = newTransactionArray.filter(
                           (item) => !transactions.has(item.transaction_id)
                         );
+                        newApiOrders.delete(order.order_id)
 
                         updateUsers(newUsersArray);
 
                         updateActiveJob((prev) => ({
                           ...prev,
+                          apiOrders: newApiOrders,
+                          apiTransactions: newApiTransactions,
                           build: {
                             ...prev.build,
                             sale: {

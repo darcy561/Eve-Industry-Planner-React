@@ -87,12 +87,34 @@ export function ManufacturingBlueprints({ setJobModified }) {
                     >
                       <Grid
                         onClick={() => {
-                          const oldJob = JSON.parse(JSON.stringify(activeJob));
-                          oldJob.bpME = print.material_efficiency;
-                          oldJob.bpTE = print.time_efficiency / 2;
-                          let newJob = CalculateTime(oldJob);
-                          CalculateResources(newJob);
-                          updateActiveJob(newJob);
+                          updateActiveJob((prev) => ({
+                            ...prev,
+                            bpME: print.material_efficiency,
+                            bpTE: print.time_efficiency / 2,
+                            build: {
+                              ...prev.build,
+                              materials: CalculateResources({
+                                jobType: prev.jobType,
+                                rawMaterials: prev.rawData.materials,
+                                outputMaterials: prev.build.materials,
+                                runCount: prev.runCount,
+                                jobCount: prev.jobCount,
+                                bpME: print.material_efficiency,
+                                structureType: prev.structureType,
+                                rigType: prev.rigType,
+                                systemType: prev.systemType,
+                              }),
+                              time: CalculateTime({
+                                jobType: prev.jobType,
+                                CharacterHash: prev.build.buildChar,
+                                structureTypeDisplay: prev.structureTypeDisplay,
+                                runCount: prev.runCount,
+                                bpTE: print.time_efficiency / 2,
+                                rawTime: prev.rawData.time,
+                                skills: prev.skills,
+                              }),
+                            },
+                          }));
                           setJobModified(true);
                         }}
                         container
@@ -217,10 +239,34 @@ export function ManufacturingBlueprints({ setJobModified }) {
                       <Grid
                         onClick={() => {
                           const oldJob = JSON.parse(JSON.stringify(activeJob));
-                          oldJob.bpME = print.material_efficiency;
-                          oldJob.bpTE = print.time_efficiency / 2;
-                          const newJob = CalculateResources(oldJob);
-                          updateActiveJob(newJob);
+                          updateActiveJob((prev) => ({
+                            ...prev,
+                            bpME: print.material_efficiency,
+                            bpTE: print.time_efficiency / 2,
+                            build: {
+                              ...prev.build,
+                              materials: CalculateResources({
+                                jobType: prev.jobType,
+                                rawMaterials: prev.rawData.materials,
+                                outputMaterials: prev.build.materials,
+                                runCount: prev.runCount,
+                                jobCount: prev.jobCount,
+                                bpME: print.material_efficiency,
+                                structureType: prev.structureType,
+                                rigType: prev.rigType,
+                                systemType: prev.systemType,
+                              }),
+                              time: CalculateTime({
+                                jobType: prev.jobType,
+                                CharacterHash: prev.build.buildChar,
+                                structureTypeDisplay: prev.structureTypeDisplay,
+                                runCount: prev.runCount,
+                                bpTE: print.time_efficiency / 2,
+                                rawTime: prev.rawData.time,
+                                skills: prev.skills,
+                              }),
+                            },
+                          }));
                           setJobModified(true);
                         }}
                         container

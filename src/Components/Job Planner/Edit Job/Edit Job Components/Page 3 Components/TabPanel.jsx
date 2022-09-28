@@ -10,7 +10,7 @@ export function Step3TabMenu({ jobMatches, setJobModified }) {
   const [currentTab, updateTab] = useState(() => {
     if (activeJob.layout.esiJobTab !== null) {
       return activeJob.layout.esiJobTab;
-    } else if (activeJob.apiJobs.length < activeJob.jobCount) {
+    } else if (activeJob.apiJobs.size < activeJob.jobCount) {
       return "0";
     } else {
       return "1";

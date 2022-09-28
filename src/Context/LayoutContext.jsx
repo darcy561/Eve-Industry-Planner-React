@@ -51,23 +51,6 @@ export const DialogData = (props) => {
   );
 };
 
-export const ShoppingListContext = createContext();
-
-export const ShoppingList = (props) => {
-  const [shoppingListData, updateShoppingListData] = useState({
-    open: false,
-    list: [],
-  });
-
-  return (
-    <ShoppingListContext.Provider
-      value={{ shoppingListData, updateShoppingListData }}
-    >
-      {props.children}
-    </ShoppingListContext.Provider>
-  );
-};
-
 export const PriceEntryListContext = createContext();
 
 export const PriceEntryList = (props) => {

@@ -52,8 +52,8 @@ export function SideMenu(props) {
       </Box>
 
       <Box sx={{ width: "250px" }}>
-        <Divider />
         <List>
+          <Divider />
           <ListItem
             button
             onClick={() => {
@@ -67,7 +67,36 @@ export function SideMenu(props) {
               <ListItemText primary={"Home"} />
             )}
           </ListItem>
+          <Divider sx={{ marginBottom: "20px" }} />
+          {isLoggedIn && (
+            <>
+              <Divider />
+              <ListItem
+                button
+                onClick={() => {
+                  navigate("/asset-library");
+                  setOpen(false);
+                }}
+              >
+                <ListItemText primary={"Asset Library"} />
+              </ListItem>
+            </>
+          )}
           <Divider />
+          {isLoggedIn && (
+            <>
+              <ListItem
+                button
+                onClick={() => {
+                  navigate("/blueprint-library");
+                  setOpen(false);
+                }}
+              >
+                <ListItemText primary={"Blueprint Library"} />
+              </ListItem>
+              <Divider />
+            </>
+          )}
           <ListItem
             button
             onClick={() => {
@@ -81,11 +110,11 @@ export function SideMenu(props) {
           <ListItem
             button
             onClick={() => {
-              navigate("/blueprintlibrary");
+              navigate("/upcoming-changes");
               setOpen(false);
             }}
           >
-            <ListItemText primary={"Blueprint Library"} />
+            <ListItemText primary={"Upcoming Changes"} />
           </ListItem>
           <Divider />
         </List>

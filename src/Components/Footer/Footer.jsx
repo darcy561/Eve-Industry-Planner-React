@@ -48,7 +48,7 @@ export function Footer() {
               align="center"
               sx={{ marginBottom: "10px" }}
             >
-              v{process.env.REACT_APP_Version}
+              v{__APP_VERSION__}
             </Typography>
           </Grid>
         </Grid>

@@ -72,11 +72,23 @@ export function ReactionOptions({ setJobModified }) {
                 value={buildCharName}
                 onChange={(e) => {
                   setJobModified(true);
-                  let oldJob = JSON.parse(JSON.stringify(activeJob));
-                  oldJob.build.buildChar = e.target.value;
-                  let newJob = CalculateTime(oldJob);
                   updateBuildCharName(e.target.value);
-                  updateActiveJob(newJob);
+                  updateActiveJob((prev) => ({
+                    ...prev,
+                    build: {
+                      ...prev.build,
+                      buildChar: e.target.value,
+                      time: CalculateTime({
+                        jobType: prev.jobType,
+                        CharacterHash: e.target.value,
+                        structureTypeDisplay: prev.structureTypeDisplay,
+                        runCount: prev.runCount,
+                        bpTE: prev.bpTE,
+                        rawTime: prev.rawData.time,
+                        skills: prev.skills,
+                      }),
+                    },
+                  }));
                 }}
               >
                 {users.map((user) => {
@@ -102,11 +114,43 @@ export function ReactionOptions({ setJobModified }) {
               helperText="Blueprint Runs"
               type="number"
               onBlur={(e) => {
-                const oldJob = JSON.parse(JSON.stringify(activeJob));
-                oldJob.runCount = Number(e.target.value);
-                let newJob = CalculateResources(oldJob);
-                newJob = CalculateTime(newJob);
-                updateActiveJob(newJob);
+                updateActiveJob((prev) => ({
+                  ...prev,
+                  runCount: Number(e.target.value),
+                  build: {
+                    ...prev.build,
+                    materials: CalculateResources({
+                      jobType: prev.jobType,
+                      rawMaterials: prev.rawData.materials,
+                      outputMaterials: prev.build.materials,
+                      runCount: Number(e.target.value),
+                      jobCount: prev.jobCount,
+                      bpME: prev.bpME,
+                      structureType: prev.structureType,
+                      rigType: prev.rigType,
+                      systemType: prev.systemType,
+                    }),
+                    products: {
+                      ...prev.build.products,
+                      totalQuantity:
+                        prev.rawData.products[0].quantity *
+                        Number(e.target.value) *
+                        prev.jobCount,
+                      quantityPerJob:
+                        prev.rawData.products[0].quantity *
+                        Number(e.target.value),
+                    },
+                    time: CalculateTime({
+                      jobType: prev.jobType,
+                      CharacterHash: prev.build.buildChar,
+                      structureTypeDisplay: prev.structureTypeDisplay,
+                      runCount: Number(e.target.value),
+                      bpTE: prev.bpTE,
+                      rawTime: prev.rawData.time,
+                      skills: prev.skills,
+                    }),
+                  },
+                }));
                 setJobModified(true);
               }}
             />
@@ -120,11 +164,33 @@ export function ReactionOptions({ setJobModified }) {
               helperText="Job Slots"
               type="number"
               onBlur={(e) => {
-                const oldJob = JSON.parse(JSON.stringify(activeJob));
-                oldJob.jobCount = Number(e.target.value);
-                let newJob = CalculateResources(oldJob);
-                newJob = CalculateTime(newJob);
-                updateActiveJob(newJob);
+                updateActiveJob((prev) => ({
+                  ...prev,
+                  jobCount: Number(e.target.value),
+                  build: {
+                    ...prev.build,
+                    materials: CalculateResources({
+                      jobType: prev.jobType,
+                      rawMaterials: prev.rawData.materials,
+                      outputMaterials: prev.build.materials,
+                      runCount: prev.runCount,
+                      jobCount: Number(e.target.value),
+                      bpME: prev.bpME,
+                      structureType: prev.structureType,
+                      rigType: prev.rigType,
+                      systemType: prev.systemType,
+                    }),
+                    products: {
+                      ...prev.build.products,
+                      totalQuantity:
+                        prev.rawData.products[0].quantity *
+                        prev.runCount *
+                        Number(e.target.value),
+                      quantityPerJob:
+                        prev.rawData.products[0].quantity * prev.runCount,
+                    },
+                  },
+                }));
                 setJobModified(true);
               }}
             />
@@ -133,8 +199,8 @@ export function ReactionOptions({ setJobModified }) {
             <Tooltip
               title={
                 <span>
-                  <p>Medium: Astrahus, Raitaru, Athanor</p>
-                  <p>Large: Fortizar, Azbel, Tatara</p>
+                  <p>Medium: Astrahus, Athanor, Raitaru</p>
+                  <p>Large: Azbel, Fortizar, Tatara</p>
                 </span>
               }
               arrow
@@ -146,13 +212,35 @@ export function ReactionOptions({ setJobModified }) {
                   size="small"
                   value={structValue}
                   onChange={(e) => {
-                    const oldJob = JSON.parse(JSON.stringify(activeJob));
-                    oldJob.structureTypeDisplay = e.target.value;
-                    oldJob.structureType = 1;
-                    let newJob = CalculateResources(oldJob);
-                    newJob = CalculateTime(newJob);
                     updateStructValue(e.target.value);
-                    updateActiveJob(newJob);
+                    updateActiveJob((prev) => ({
+                      ...prev,
+                      structureTypeDisplay: e.target.value,
+                      structureType: 1,
+                      build: {
+                        ...prev.build,
+                        materials: CalculateResources({
+                          jobType: prev.jobType,
+                          rawMaterials: prev.rawData.materials,
+                          outputMaterials: prev.build.materials,
+                          runCount: prev.runCount,
+                          jobCount: prev.jobCount,
+                          bpME: prev.bpME,
+                          structureType: 1,
+                          rigType: prev.rigType,
+                          systemType: prev.systemType,
+                        }),
+                        time: CalculateTime({
+                          jobType: prev.jobType,
+                          CharacterHash: prev.build.buildChar,
+                          structureTypeDisplay: e.target.value,
+                          runCount: prev.runCount,
+                          bpTE: prev.bpTE,
+                          rawTime: prev.rawData.time,
+                          skills: prev.skills,
+                        }),
+                      },
+                    }));
                   }}
                 >
                   {structureOptions.reactionStructure.map((entry) => {
@@ -176,12 +264,34 @@ export function ReactionOptions({ setJobModified }) {
                 size="small"
                 value={rigsValue}
                 onChange={(e) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob));
-                  oldJob.rigType = e.target.value;
-                  let newJob = CalculateResources(oldJob);
-                  newJob = CalculateTime(newJob);
-                  updateActiveJob(newJob);
                   updateRigsValue(e.target.value);
+                  updateActiveJob((prev) => ({
+                    ...prev,
+                    rigType: e.target.value,
+                    build: {
+                      ...prev.build,
+                      materials: CalculateResources({
+                        jobType: prev.jobType,
+                        rawMaterials: prev.rawData.materials,
+                        outputMaterials: prev.build.materials,
+                        runCount: prev.runCount,
+                        jobCount: prev.jobCount,
+                        bpME: prev.bpME,
+                        structureType: prev.structureType,
+                        rigType: e.target.value,
+                        systemType: prev.systemType,
+                      }),
+                      time: CalculateTime({
+                        jobType: prev.jobType,
+                        CharacterHash: prev.build.buildChar,
+                        structureTypeDisplay: prev.structureTypeDisplay,
+                        runCount: prev.runCount,
+                        bpTE: prev.bpTE,
+                        rawTime: prev.rawData.time,
+                        skills: prev.skills,
+                      }),
+                    },
+                  }));
                   setJobModified(true);
                 }}
               >
@@ -203,12 +313,25 @@ export function ReactionOptions({ setJobModified }) {
                 size="small"
                 value={systemValue}
                 onChange={(e) => {
-                  const oldJob = JSON.parse(JSON.stringify(activeJob));
-                  oldJob.systemType = e.target.value;
-                  let newJob = CalculateResources(oldJob);
-                  newJob = CalculateTime(newJob);
-                  updateActiveJob(newJob);
                   updateSystemValue(e.target.value);
+                  updateActiveJob((prev) => ({
+                    ...prev,
+                    systemType: e.target.value,
+                    build: {
+                      ...prev.build,
+                      materials: CalculateResources({
+                        jobType: prev.jobType,
+                        rawMaterials: prev.rawData.materials,
+                        outputMaterials: prev.build.materials,
+                        runCount: prev.runCount,
+                        jobCount: prev.jobCount,
+                        bpME: prev.bpME,
+                        structureType: prev.structureType,
+                        rigType: prev.rigType,
+                        systemType: e.target.value,
+                      }),
+                    },
+                  }));
                   setJobModified(true);
                 }}
               >
@@ -238,15 +361,36 @@ export function ReactionOptions({ setJobModified }) {
                       parentUser.settings.structures.reaction.find(
                         (i) => i.id === e.target.value
                       );
-
-                    const oldJob = JSON.parse(JSON.stringify(activeJob));
-                    oldJob.rigType = structure.rigType;
-                    oldJob.systemType = structure.systemType;
-                    oldJob.structureType = structure.structureValue;
-                    oldJob.structureTypeDisplay = structure.structureName;
-                    let newJob = CalculateResources(oldJob);
-                    newJob = CalculateTime(newJob);
-                    updateActiveJob(newJob);
+                    updateActiveJob((prev) => ({
+                      ...prev,
+                      rigType: structure.rigType,
+                      systemType: structure.systemType,
+                      structureTypeDisplay: structure.structureName,
+                      structureType: structure.structureValue,
+                      build: {
+                        ...prev.build,
+                        materials: CalculateResources({
+                          jobType: prev.jobType,
+                          rawMaterials: prev.rawData.materials,
+                          outputMaterials: prev.build.materials,
+                          runCount: prev.runCount,
+                          jobCount: prev.jobCount,
+                          bpME: prev.bpME,
+                          structureType: structure.structureValue,
+                          rigType: structure.rigType,
+                          systemType: structure.systemType,
+                        }),
+                        time: CalculateTime({
+                          jobType: prev.jobType,
+                          CharacterHash: prev.build.buildChar,
+                          structureTypeDisplay: structure.structureName,
+                          runCount: prev.runCount,
+                          bpTE: prev.bpTE,
+                          rawTime: prev.rawData.time,
+                          skills: prev.skills,
+                        }),
+                      },
+                    }));
                     setJobModified(true);
                   }}
                 >

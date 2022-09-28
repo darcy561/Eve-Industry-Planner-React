@@ -4,7 +4,7 @@ import { UsersContext } from "../../Context/AuthContext";
 import { AccountInfo } from "./accountInfo";
 import { AdditionalAccounts } from "./Additional Accounts";
 
-export function AccountsPage() {
+export default function AccountsPage() {
   const { users } = useContext(UsersContext);
   const parentUserIndex = users.findIndex((i) => i.ParentUser);
   return (

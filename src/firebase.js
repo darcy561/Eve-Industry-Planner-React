@@ -10,14 +10,14 @@ import { getFunctions } from "firebase/functions";
 import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_fbApiKey,
-  authDomain: process.env.REACT_APP_fbAuthDomain,
-  databaseURL: process.env.REACT_APP_fbDatabaseURL,
-  projectId: process.env.REACT_APP_fbProjectID,
-  storageBucket: process.env.REACT_APP_fbStorageBucket,
-  messagingSenderId: process.env.REACT_APP_fbMessagingSenderID,
-  appId: process.env.REACT_APP_fbAppID,
-  measurementId: process.env.REACT_APP_measurmentID
+  apiKey:  import.meta.env.VITE_fbApiKey,
+  authDomain:   import.meta.env.VITE_fbAuthDomain,
+  databaseURL:   import.meta.env.VITE_fbDatabaseURL,
+  projectId:   import.meta.env.VITE_fbProjectID,
+  storageBucket:   import.meta.env.VITE_fbStorageBucket,
+  messagingSenderId:   import.meta.env.VITE_fbMessagingSenderID,
+  appId:   import.meta.env.VITE_fbAppID,
+  measurementId:   import.meta.env.VITE_measurmentID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -25,10 +25,10 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 export const firestore = getFirestore(app);
-export const functions = getFunctions(app);
+export const functions = getFunctions(app, "europe-west1");
 export const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(
-    process.env.REACT_APP_ReCaptchaKey
+      import.meta.env.VITE_ReCaptchaKey
   ),
   isTokenAutoRefreshEnabled: true,
 });

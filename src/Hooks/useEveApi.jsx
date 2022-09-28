@@ -247,7 +247,6 @@ export function useEveApi() {
       );
       if (idPromise.status === 200) {
         const idJSON = await idPromise.json();
-
         idJSON.forEach((item) => {
           newArray.push(item);
         });
@@ -263,6 +262,8 @@ export function useEveApi() {
 
           idJSON.id = id;
           newArray.push(idJSON);
+        } else if (idPromise.status === 403) {
+          newArray.push({ id: id, name: "No Access To Location" });
         } else {
           break;
         }
@@ -351,6 +352,38 @@ export function useEveApi() {
     return returnArray;
   };
 
+  const standingsList = async (userObj) => {
+    try {
+      const standingsPromise = await fetch(
+        `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/standings/?datasource=tranquility&token=${userObj.aToken}`
+      );
+      const standingsJSON = await standingsPromise.json();
+
+      if (standingsPromise.status === 200) {
+        return standingsJSON;
+      }else return []
+    } catch (err) {
+      return [];
+    }
+  };
+
+  const stationData = async (stationID) => {
+    try {
+      const stationDataPromise = await fetch(
+        `https://esi.evetech.net/latest/universe/stations/${stationID}`
+      )
+
+      const stationDataJson = await stationDataPromise.json();
+
+      if (stationDataPromise.status === 200) {
+        return stationDataJson
+      }
+      
+    } catch (err) {
+      return null
+    }
+  }
+
   return {
     BlueprintLibrary,
     CharacterSkills,
@@ -360,6 +393,8 @@ export function useEveApi() {
     IndustryJobs,
     MarketOrders,
     serverStatus,
+    standingsList,
+    stationData,
     WalletTransactions,
     WalletJournal,
   };

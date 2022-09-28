@@ -17,7 +17,10 @@ import AddIcon from "@mui/icons-material/Add";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import ClearIcon from "@mui/icons-material/Clear";
-import { IsLoggedInContext } from "../../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+} from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function ChildJobDialog({
@@ -28,10 +31,14 @@ export function ChildJobDialog({
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { jobArray } = useContext(JobArrayContext);
-  const { downloadCharacterJobs, uploadJob } = useFirebase();
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
+  const { downloadCharacterJobs, uploadJob, uploadUserJobSnapshot } =
+    useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshot } = useJobManagement();
+  const { updateJobSnapshot, findJobData } = useJobManagement();
 
   const handleClose = () => {
     updateChildDialogTrigger(false);
@@ -95,19 +102,25 @@ export function ChildJobDialog({
                       size="small"
                       color="primary"
                       onClick={async () => {
-                        if (job.isSnapshot) {
-                          job = await downloadCharacterJobs(job);
-                          job.isSnapshot = false;
-                        }
+                        let newUserJobSnapshot = [...userJobSnapshot];
+                        let newJobArray = [...jobArray];
+                        let [inputJob] = await findJobData(
+                          job.jobID,
+                          newUserJobSnapshot,
+                          newJobArray
+                        );
                         let newMaterialArray = [...activeJob.build.materials];
                         let index = newMaterialArray.findIndex(
                           (i) => i.typeID === material.typeID
                         );
-                        newMaterialArray[index].childJob.push(job.jobID);
+                        newMaterialArray[index].childJob.push(inputJob.jobID);
 
-                        job.parentJob.push(activeJob.jobID);
+                        inputJob.parentJob.push(activeJob.jobID);
 
-                        updateJobSnapshot(job);
+                        newUserJobSnapshot = updateJobSnapshot(
+                          inputJob,
+                          newUserJobSnapshot
+                        );
 
                         updateActiveJob((prev) => ({
                           ...prev,
@@ -116,16 +129,19 @@ export function ChildJobDialog({
                             materials: newMaterialArray,
                           },
                         }));
+                        updateJobArray(newJobArray);
+                        updateUserJobSnapshot(newUserJobSnapshot);
                         setJobModified(true);
                         setSnackbarData((prev) => ({
                           ...prev,
                           open: true,
-                          message: `${job.name} Linked`,
+                          message: `${inputJob.name} Linked`,
                           severity: "success",
                           autoHideDuration: 1000,
                         }));
                         if (isLoggedIn) {
-                          uploadJob(job);
+                          uploadJob(inputJob);
+                          uploadUserJobSnapshot(newUserJobSnapshot);
                         }
                       }}
                     >
@@ -188,17 +204,21 @@ export function ChildJobDialog({
                         size="small"
                         color="error"
                         onClick={async () => {
-                          if (jobMatch.isSnapshot) {
-                            jobMatch = await downloadCharacterJobs(jobMatch);
-                            jobMatch.isSnapshot = false;
-                          }
+                          let newUserJobSnapshot = [...userJobSnapshot];
+                          let newJobArray = [...jobArray];
+                          let [inputJob] = await findJobData(
+                            job,
+                            newUserJobSnapshot,
+                            newJobArray
+                          );
+
                           let newMaterialArray = [...activeJob.build.materials];
                           let matIndex = newMaterialArray.findIndex(
                             (i) => i.typeID === material.typeID
                           );
                           let matChildIndex = newMaterialArray[
                             matIndex
-                          ].childJob.findIndex((i) => i === jobMatch.jobID);
+                          ].childJob.findIndex((i) => i === inputJob.jobID);
                           if (matChildIndex !== -1) {
                             newMaterialArray[matIndex].childJob.splice(
                               matChildIndex,
@@ -206,14 +226,19 @@ export function ChildJobDialog({
                             );
                           }
 
-                          let parentIndex = jobMatch.parentJob.findIndex(
+                          let parentIndex = inputJob.parentJob.findIndex(
                             (i) => i === activeJob.jobID
                           );
                           if (parentIndex !== -1) {
-                            jobMatch.parentJob.splice(parentIndex, 1);
+                            inputJob.parentJob.splice(parentIndex, 1);
                           }
-                          updateJobSnapshot(jobMatch);
+                          newUserJobSnapshot = updateJobSnapshot(
+                            inputJob,
+                            newUserJobSnapshot
+                          );
 
+                          updateUserJobSnapshot(newUserJobSnapshot);
+                          updateJobArray(newJobArray);
                           updateActiveJob((prev) => ({
                             ...prev,
                             build: {
@@ -225,13 +250,13 @@ export function ChildJobDialog({
                           setSnackbarData((prev) => ({
                             ...prev,
                             open: true,
-                            message: `${jobMatch.name} Unlinked`,
+                            message: `${inputJob.name} Unlinked`,
                             severity: "success",
                             autoHideDuration: 1000,
                           }));
                           if (isLoggedIn) {
-                            updateJobSnapshot()
-                            uploadJob(jobMatch);
+                            uploadJob(inputJob);
+                            uploadUserJobSnapshot(newUserJobSnapshot);
                           }
                         }}
                       >

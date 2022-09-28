@@ -6,7 +6,7 @@ import {
   Suspense,
   useMemo,
 } from "react";
-import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
+import { UsersContext } from "../../Context/AuthContext";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import { PageLoadContext } from "../../Context/LayoutContext";
@@ -23,31 +23,18 @@ const EditJob = lazy(() => import("./Edit Job/EditJob"));
 
 export function JobPlanner() {
   const [jobSettingsTrigger, updateJobSettingsTrigger] = useState(false);
-  const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, updateUsers } = useContext(UsersContext);
-  const { RefreshUserAToken, reloadMainUser } = useRefreshUser();
-  const { pageLoad, updatePageLoad } = useContext(PageLoadContext);
+  const [shoppingListTrigger, updateShoppingListTrigger] = useState(false);
+  const [shoppingListData, updateShoppingListData] = useState([]);
+  const { users } = useContext(UsersContext);
+  const { checkUserState } = useRefreshUser();
+  const { pageLoad } = useContext(PageLoadContext);
 
   let parentUser = useMemo(() => {
     return users.find((u) => u.ParentUser);
-  }, [users, isLoggedIn]);
+  }, [users]);
 
-  useEffect(async () => {
-    if (isLoggedIn) {
-      if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
-        let newUsersArray = [...users];
-        const index = newUsersArray.findIndex((i) => i.ParentUser);
-        newUsersArray[index] = await RefreshUserAToken(parentUser);
-        updateUsers(newUsersArray);
-      }
-      updatePageLoad(false);
-    } else {
-      if (localStorage.getItem("Auth") == null) {
-        updatePageLoad(false);
-      } else {
-        reloadMainUser(localStorage.getItem("Auth"));
-      }
-    }
+  useEffect(() => {
+    checkUserState();
   }, []);
 
   if (pageLoad) {
@@ -56,15 +43,29 @@ export function JobPlanner() {
     if (jobSettingsTrigger) {
       return (
         <Suspense fallback={<LoadingPage />}>
-          <ShoppingListDialog />
+          <ShoppingListDialog
+            shoppingListTrigger={shoppingListTrigger}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            shoppingListData={shoppingListData}
+            updateShoppingListData={updateShoppingListData}
+          />
           <MassBuildFeedback />
-          <EditJob updateJobSettingsTrigger={updateJobSettingsTrigger} />
+          <EditJob
+            updateJobSettingsTrigger={updateJobSettingsTrigger}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            updateShoppingListData={updateShoppingListData}
+          />
         </Suspense>
       );
     } else {
       return (
         <Grid container sx={{ marginTop: "5px" }} spacing={2}>
-          <ShoppingListDialog />
+          <ShoppingListDialog
+            shoppingListTrigger={shoppingListTrigger}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            shoppingListData={shoppingListData}
+            updateShoppingListData={updateShoppingListData}
+          />
 
           <MassBuildFeedback />
           <PriceEntryDialog />
@@ -77,7 +78,10 @@ export function JobPlanner() {
             </Grid>
           )}
           <Grid item xs={12}>
-            <SearchBar />
+            <SearchBar
+              updateShoppingListTrigger={updateShoppingListTrigger}
+              updateShoppingListData={updateShoppingListData}
+            />
           </Grid>
           <Grid item xs={12}>
             <PlannerAccordion

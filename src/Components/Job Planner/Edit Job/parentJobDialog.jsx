@@ -8,12 +8,15 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
-import { IsLoggedInContext } from "../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+} from "../../../Context/AuthContext";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 
 export function ParentJobDialog({
@@ -24,32 +27,30 @@ export function ParentJobDialog({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
   const { downloadCharacterJobs, uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const{updateJobSnapshot } = useJobManagement()
+  const { updateJobSnapshotActiveJob } = useJobManagement();
+  const [matches, updateMatches] = useState([]);
 
   const handleClose = () => {
     updateDialogTrigger(false);
   };
 
-  let matches = [];
-  for (let job of jobArray) {
-    if (job.isSnapshot) {
+  useEffect(() => {
+    let newMatches = [];
+    for (let job of userJobSnapshot) {
       if (
         job.materialIDs.includes(activeJob.itemID) &&
         !activeJob.parentJob.includes(job.jobID)
       ) {
-        matches.push(job);
-      }
-    } else {
-      if (
-        job.build.materials.some((mat) => mat.typeID === activeJob.itemID) &&
-        !activeJob.parentJob.includes(job.jobID)
-      ) {
-        matches.push(job);
+        newMatches.push(job);
       }
     }
-  }
+    updateMatches(newMatches);
+  }, [userJobSnapshot]);
 
   return (
     <Dialog
@@ -94,10 +95,10 @@ export function ParentJobDialog({
                   <Grid item xs={6} align="center" sx={{ paddingLeft: "10px" }}>
                     <Typography variant="body1">{job.name}</Typography>
                   </Grid>
-                  <Grid item xs={4}align="center">
-                    <Typography variant="body2">
+                  <Grid item xs={4} align="center">
+                    {/* <Typography variant="body2">
                       ME {job.bpME} TE {job.bpTE}
-                    </Typography>
+                    </Typography> */}
                     <Typography variant="body2">
                       Runs {job.runCount} Jobs {job.jobCount}
                     </Typography>
@@ -107,17 +108,24 @@ export function ParentJobDialog({
                       size="small"
                       color="primary"
                       onClick={async () => {
+                        let fullJob = null;
                         if (job.isSnapshot) {
-                          job = await downloadCharacterJobs(job);
+                          fullJob = await downloadCharacterJobs(job);
                           job.isSnapshot = false;
+                        } else {
+                          fullJob = jobArray.find((i) => i.jobID === job.jobID);
                         }
-                        let material = job.build.materials.find(
+                        let material = fullJob.build.materials.find(
                           (i) => i.typeID === activeJob.itemID
                         );
                         material.childJob.push(activeJob.jobID);
                         let newParentJobArray = [...activeJob.parentJob];
                         newParentJobArray.push(job.jobID);
-                        updateJobSnapshot(job)
+                        let newUserJobSnapshot = updateJobSnapshotActiveJob(
+                          fullJob,
+                          [...userJobSnapshot]
+                        );
+                        updateUserJobSnapshot(newUserJobSnapshot);
                         updateActiveJob((prev) => ({
                           ...prev,
                           parentJob: newParentJobArray,
@@ -131,8 +139,9 @@ export function ParentJobDialog({
                           autoHideDuration: 1000,
                         }));
                         if (isLoggedIn) {
-                          uploadJob(job);
+                          uploadJob(fullJob);
                         }
+                        handleClose();
                       }}
                     >
                       <AddIcon />

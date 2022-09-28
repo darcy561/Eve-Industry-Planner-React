@@ -59,7 +59,7 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
   const classes = useStyles();
 
   let jobCardChecked = useMemo(() => {
-    return multiSelectJobPlanner.some((i) => i.jobID === job.jobID);
+    return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
 
   return (
@@ -82,27 +82,20 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
           <Grid container item xs={12}>
             <Grid item xs={1}>
               <Checkbox
+                disabled={job.isLocked}
                 className={classes.Checkbox}
                 checked={jobCardChecked}
                 onChange={(event) => {
                   if (event.target.checked) {
-                    if (
-                      multiSelectJobPlanner.filter((i) => i.jobID === job.jobID)
-                    ) {
-                      updateMultiSelectJobPlanner([
-                        ...multiSelectJobPlanner,
-                        job,
-                      ]);
+                    if (!multiSelectJobPlanner.includes(job.jobID)) {
+                      updateMultiSelectJobPlanner((prev) =>
+                        prev.concat(job.jobID)
+                      );
                     }
                   } else {
-                    if (
-                      multiSelectJobPlanner.filter((i) => i.jobID !== job.jobID)
-                    ) {
-                      let newArray = multiSelectJobPlanner.filter(
-                        (i) => i.jobID !== job.jobID
-                      );
-                      updateMultiSelectJobPlanner(newArray);
-                    }
+                    updateMultiSelectJobPlanner((prev) =>
+                      prev.filter((i) => i !== job.jobID)
+                    );
                   }
                 }}
               />
@@ -110,6 +103,7 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
             <Grid item xs={9} />
             <Grid item align="center" xs={2}>
               <IconButton
+                disabled={job.isLocked}
                 className={classes.DeleteIcon}
                 onClick={() => deleteJobProcess(job)}
               >
@@ -168,13 +162,14 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
             <Button
               variant="outlined"
               color="primary"
+              disabled={job.isLocked}
               onClick={() => {
-                openEditJob(job);
+                openEditJob(job.jobID);
                 updateJobSettingsTrigger((prev) => !prev);
               }}
               sx={{ height: "25px", width: "100px" }}
             >
-              Edit
+              {job.isLocked ? "Locked" : "Edit"}
             </Button>
           </Grid>
           <Grid

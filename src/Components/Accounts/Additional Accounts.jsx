@@ -12,25 +12,17 @@ import { useContext, useState } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import { ApiJobsContext } from "../../Context/JobContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
-import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { AccountEntry } from "./AccountEntry";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { useAccountManagement } from "../../Hooks/useAccountManagement";
 
 export function AdditionalAccounts({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const {
-    CharacterSkills,
-    IndustryJobs,
-    MarketOrders,
-    HistoricMarketOrders,
-    BlueprintLibrary,
-    WalletTransactions,
-    WalletJournal,
-  } = useEveApi();
   const { updateMainUserDoc } = useFirebase();
+  const { characterAPICall } = useAccountManagement();
   const [skeletonVisible, toggleSkeleton] = useState(false);
   const analytics = getAnalytics();
   let newUser = null;
@@ -41,9 +33,9 @@ export function AdditionalAccounts({ parentUserIndex }) {
     localStorage.setItem("AddAccountComplete", false);
     window.open(
       `https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=${encodeURIComponent(
-        process.env.REACT_APP_eveCallbackURL
-      )}&client_id=${process.env.REACT_APP_eveClientID}&scope=${
-        process.env.REACT_APP_eveScope
+          import.meta.env.VITE_eveCallbackURL
+      )}&client_id=${  import.meta.env.VITE_eveClientID}&scope=${
+          import.meta.env.VITE_eveScope
       }&state=/`,
       "_blank"
     );
@@ -69,82 +61,72 @@ export function AdditionalAccounts({ parentUserIndex }) {
       newUser === null
     ) {
       newUser = JSON.parse(localStorage.getItem("AdditionalUser"));
-      const [
-        skills,
-        indJobs,
-        orders,
-        histOrders,
-        blueprints,
-        transactions,
-        journal,
-      ] = await Promise.all([
-        CharacterSkills(newUser),
-        IndustryJobs(newUser, users[parentUserIndex]),
-        MarketOrders(newUser),
-        HistoricMarketOrders(newUser),
-        BlueprintLibrary(newUser),
-        WalletTransactions(newUser),
-        WalletJournal(newUser),
-      ]);
-      newUser.apiSkills = skills;
-      newUser.apiJobs = indJobs;
-      newUser.apiOrders = orders;
-      newUser.apiHistOrders = histOrders;
-      newUser.apiBlueprints = blueprints;
-      newUser.apiTransactions = transactions;
-      newUser.apiJournal = journal;
-      localStorage.removeItem("AddAccount");
-      localStorage.removeItem("AddAccountComplete");
-      localStorage.removeItem("AdditionalUser");
-      if (users[parentUserIndex].settings.account.cloudAccounts) {
-        users[parentUserIndex].accountRefreshTokens.push({
-          CharacterHash: newUser.CharacterHash,
-          rToken: newUser.rToken,
-        });
+      if (users.some((u) => u.CharacterHash === newUser.CharacterHash)) {
+        localStorage.removeItem("AddAccount");
+        localStorage.removeItem("AddAccountComplete");
+        localStorage.removeItem("AdditionalUser");
+        setSnackbarData((prev) => ({
+          ...prev,
+          open: true,
+          message: `Duplicate Account`,
+          severity: "error",
+          autoHideDuration: 5000,
+        }));
       } else {
-        let accountArray = JSON.parse(
-          localStorage.getItem(
-            `${users[parentUserIndex].CharacterHash} AdditionalAccounts`
-          )
-        );
-        if (accountArray === null) {
-          accountArray = [];
-          accountArray.push({
+        newUser = await characterAPICall(true, newUser, users[parentUserIndex]);
+        localStorage.removeItem("AddAccount");
+        localStorage.removeItem("AddAccountComplete");
+        localStorage.removeItem("AdditionalUser");
+        if (users[parentUserIndex].settings.account.cloudAccounts) {
+          users[parentUserIndex].accountRefreshTokens.push({
             CharacterHash: newUser.CharacterHash,
             rToken: newUser.rToken,
           });
-          localStorage.setItem(
-            `${users[parentUserIndex].CharacterHash} AdditionalAccounts`,
-            JSON.stringify(accountArray)
-          );
         } else {
-          accountArray.push({
-            CharacterHash: newUser.CharacterHash,
-            rToken: newUser.rToken,
-          });
-          localStorage.setItem(
-            `${users[parentUserIndex].CharacterHash} AdditionalAccounts`,
-            JSON.stringify(accountArray)
+          let accountArray = JSON.parse(
+            localStorage.getItem(
+              `${users[parentUserIndex].CharacterHash} AdditionalAccounts`
+            )
           );
+          if (accountArray === null) {
+            accountArray = [];
+            accountArray.push({
+              CharacterHash: newUser.CharacterHash,
+              rToken: newUser.rToken,
+            });
+            localStorage.setItem(
+              `${users[parentUserIndex].CharacterHash} AdditionalAccounts`,
+              JSON.stringify(accountArray)
+            );
+          } else {
+            accountArray.push({
+              CharacterHash: newUser.CharacterHash,
+              rToken: newUser.rToken,
+            });
+            localStorage.setItem(
+              `${users[parentUserIndex].CharacterHash} AdditionalAccounts`,
+              JSON.stringify(accountArray)
+            );
+          }
         }
+        updateUsers((prev) => [...prev, newUser]);
+        updateApiJobs((prev) => prev.concat(newUser.apiJobs));
+        if (users[parentUserIndex].settings.account.cloudAccounts) {
+          updateMainUserDoc();
+        }
+        logEvent(analytics, "Link Character", {
+          UID: users[parentUserIndex].accountID,
+          newHash: newUser.CharacterHash,
+          cloudAccount: users[parentUserIndex].settings.account.cloudAccounts,
+        });
+        setSnackbarData((prev) => ({
+          ...prev,
+          open: true,
+          message: `${newUser.CharacterName} Imported`,
+          severity: "success",
+          autoHideDuration: 3000,
+        }));
       }
-      updateUsers((prev) => [...prev, newUser]);
-      updateApiJobs((prev) => prev.concat(newUser.apiJobs));
-      if (users[parentUserIndex].settings.account.cloudAccounts) {
-        updateMainUserDoc();
-      }
-      logEvent(analytics, "Link Character", {
-        UID: users[parentUserIndex].accountID,
-        newHash: newUser.CharacterHash,
-        cloudAccount: users[parentUserIndex].settings.account.cloudAccounts,
-      });
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${newUser.CharacterName} Imported`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
       window.removeEventListener("storage", importNewAccount);
       toggleSkeleton(false);
     }
@@ -159,7 +141,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
           </Typography>
         </Grid>
         <Grid item xs={12} sx={{ marginTop: "10px", marginBottom: "20px" }}>
-          <Typography>
+          <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
             Additional accounts can be linked allowing you to import the ESI
             data in alongside your main accounts data. Additional accounts can
             be added and removed at any time.{<br />}
@@ -217,7 +199,11 @@ export function AdditionalAccounts({ parentUserIndex }) {
                     }}
                   />
                 }
-                label="Store Accounts In Cloud"
+                label={
+                  <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                    Store Accounts In Cloud
+                  </Typography>
+                }
                 labelPlacement="start"
               />
             </FormGroup>

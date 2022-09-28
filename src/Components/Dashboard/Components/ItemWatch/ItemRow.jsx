@@ -1,27 +1,53 @@
-import { Grid, IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import {
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  MenuItem,
+  Paper,
+  Select,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useContext, useState } from "react";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
 import ClearIcon from "@mui/icons-material/Clear";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import { UsersContext } from "../../../../Context/AuthContext";
+import { UserWatchlistContext } from "../../../../Context/AuthContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  Select: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
+  },
+}));
+
 export function WatchListRow({ item, parentUser, index }) {
   const [expanded, setExpanded] = useState(false);
-  const { users, updateUsers } = useContext(UsersContext);
+  const { userWatchlist, updateUserWatchlist } =
+    useContext(UserWatchlistContext);
   const { evePrices } = useContext(EvePricesContext);
-  const { updateMainUserDoc } = useFirebase();
+  const { uploadUserWatchlist } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const analytics = getAnalytics();
+  const classes = useStyles();
 
   const handleRemove = async () => {
-    let newUsers = [...users];
-    newUsers[0].watchlist.splice(index, 1);
-    updateUsers(newUsers);
-    await updateMainUserDoc();
+    let newUserWatchlistItems = [...userWatchlist.items];
+    newUserWatchlistItems.splice(index, 1);
+    updateUserWatchlist((prev) => ({ ...prev, items: newUserWatchlistItems }));
+    await uploadUserWatchlist(userWatchlist.groups, newUserWatchlistItems);
     logEvent(analytics, "Remove Watchlist Item", {
       UID: parentUser.accountID,
     });
@@ -68,7 +94,6 @@ export function WatchListRow({ item, parentUser, index }) {
   });
 
   totalBuild = totalBuild / item.quantity;
-
   return (
     <Grid container item xs={12}>
       <Paper
@@ -365,6 +390,39 @@ export function WatchListRow({ item, parentUser, index }) {
                 </Grid>
               );
             })}
+            <Grid item xs={12} sx={{ marginTop: "10px" }}>
+              <FormControl
+                className={classes.Select}
+                sx={{
+                  width: "140px",
+                }}
+              >
+                <Select
+                  variant="standard"
+                  size="small"
+                  value={item.group}
+                  onChange={(e) => {
+                    let newUserWatchlistItems = [...userWatchlist.items];
+
+                    newUserWatchlistItems[index].group = e.target.value;
+                    updateUserWatchlist((prev)=>({...prev, items: newUserWatchlistItems}));
+                    uploadUserWatchlist(userWatchlist.groups, newUserWatchlistItems);
+                  }}
+                >
+                  <MenuItem value={0}>None</MenuItem>
+                  {userWatchlist.groups.map((entry) => {
+                    return (
+                      <MenuItem key={entry.id} value={entry.id}>
+                        {entry.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+                <FormHelperText variant="standard">
+                  Watchlist Group
+                </FormHelperText>
+              </FormControl>
+            </Grid>
             <Grid item align="center" xs={12} sx={{ marginTop: "5px" }}>
               <Tooltip title="Less Information" arrow placement="bottom">
                 <IconButton

@@ -13,25 +13,31 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { ParentJobDialog } from "./parentJobDialog";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
-import { IsLoggedInContext } from "../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+} from "../../../Context/AuthContext";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 
-export function LinkedJobBadge({jobModified, setJobModified}) {
+export function LinkedJobBadge({ jobModified, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
   const [dialogTrigger, updateDialogTrigger] = useState(false);
-  const { downloadCharacterJobs, uploadJob } = useFirebase()
-  const { closeEditJob, openEditJob, updateJobSnapshot } = useJobManagement();
-
+  const { uploadUserJobSnapshot, uploadJob } = useFirebase();
+  const { closeEditJob, openEditJob, updateJobSnapshot, findJobData } =
+    useJobManagement();
 
   let parentJobs = [];
   activeJob.parentJob.forEach((job) => {
-    let parent = jobArray.find((i) => i.jobID === job)
+    let parent = jobArray.find((i) => i.jobID === job);
     if (parent !== undefined) {
       parentJobs.push(parent);
-    }    
+    }
   });
 
   return (
@@ -46,7 +52,12 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
         sx={{ marginBottom: { xs: "10px", sm: "0px" }, position: "relative" }}
       >
         <Grid container>
-          <Grid item xs={12} align="center" sx={{marginBottom:{xs:"10px", sm:"0px"}}}>
+          <Grid
+            item
+            xs={12}
+            align="center"
+            sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
+          >
             <Typography variant="h6" color="primary">
               Parent Jobs
             </Typography>
@@ -83,12 +94,9 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
                         />
                       }
                       clickable
-                      onClick={() => {
-                        if (isLoggedIn && jobModified) {
-                          uploadJob(activeJob);
-                        }
-                        closeEditJob(activeJob)
-                        openEditJob(job);
+                      onClick={async () => {
+                        await closeEditJob(activeJob, jobModified);
+                        await openEditJob(job.jobID);
                       }}
                       variant="outlined"
                       sx={{
@@ -97,37 +105,54 @@ export function LinkedJobBadge({jobModified, setJobModified}) {
                         },
                         boxShadow: 3,
                       }}
-                      onDelete={async() => {
-                        if (job.isSnapshot) {
-                          job = await downloadCharacterJobs(job);
-                          job.isSnapshot = false;
-                        }
-                        let newParentMaterials = [...job.build.materials]
-                        const material = newParentMaterials.find((i) => i.typeID === activeJob.itemID)
-                        const index = material.childJob.findIndex((i) => i === activeJob.jobID)
-                        material.childJob.splice(index, 1)
-                        
-                        let newParentJobs = [...activeJob.parentJob]
-                        let parentIndex = newParentJobs.findIndex((i) => i === job.jobID)
+                      onDelete={async () => {
+                        let newJobArray = [...jobArray];
+                        let newUserJobSnapshot = [...userJobSnapshot];
+                        let [selectedJob] = findJobData(
+                          job.jobID,
+                          newUserJobSnapshot,
+                          newJobArray
+                        );
+                        let newParentMaterials = [
+                          ...selectedJob.build.materials,
+                        ];
+                        const material = newParentMaterials.find(
+                          (i) => i.typeID === activeJob.itemID
+                        );
+                        const index = material.childJob.findIndex(
+                          (i) => i === activeJob.jobID
+                        );
+                        material.childJob.splice(index, 1);
+
+                        let newParentJobs = [...activeJob.parentJob];
+                        let parentIndex = newParentJobs.findIndex(
+                          (i) => i === selectedJob.jobID
+                        );
                         if (parentIndex !== -1) {
-                          newParentJobs.splice(parentIndex, 1)  
+                          newParentJobs.splice(parentIndex, 1);
                         }
-                        updateJobSnapshot(job);
+                        newUserJobSnapshot = updateJobSnapshot(
+                          selectedJob,
+                          newUserJobSnapshot
+                        );
+                        updateJobArray(newJobArray);
+                        updateUserJobSnapshot(newUserJobSnapshot);
                         updateActiveJob((prev) => ({
                           ...prev,
-                            parentJob: newParentJobs
-                        }))
-                        
+                          parentJob: newParentJobs,
+                        }));
+
                         setSnackbarData((prev) => ({
                           ...prev,
                           open: true,
-                          message: `${job.name} Unlinked`,
+                          message: `${selectedJob.name} Unlinked`,
                           severity: "error",
                           autoHideDuration: 1000,
                         }));
                         setJobModified(true);
-                        if(isLoggedIn){
-                          uploadJob(job);
+                        if (isLoggedIn) {
+                          uploadJob(selectedJob);
+                          uploadUserJobSnapshot(newUserJobSnapshot);
                         }
                       }}
                     />

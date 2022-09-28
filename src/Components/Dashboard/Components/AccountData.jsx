@@ -1,11 +1,14 @@
 import { Avatar, AvatarGroup, Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
-import { UsersContext } from "../../../Context/AuthContext";
-import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
+import {
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../../../Context/AuthContext";
+import { JobStatusContext } from "../../../Context/JobContext";
 
 export function AccountData() {
   const { users } = useContext(UsersContext);
-  const { jobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobStatus } = useContext(JobStatusContext);
 
   let openMOrders = 0;
@@ -75,13 +78,15 @@ export function AccountData() {
           </Grid>
           <Grid item xs={4}>
             <Typography sx={{ typography: { xs: "caption", sm: "subtitle1" } }}>
-              Total Jobs: {jobArray.length}
+              Total Jobs: {userJobSnapshot.length}
             </Typography>
           </Grid>
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "5px" }}>
           {jobStatus.map((step) => {
-            const jobs = jobArray.filter((job) => job.jobStatus === step.id);
+            const jobs = userJobSnapshot.filter(
+              (job) => job.jobStatus === step.id
+            );
             return (
               <Grid key={step.id} container item xs={12}>
                 <Grid item xs={10}>

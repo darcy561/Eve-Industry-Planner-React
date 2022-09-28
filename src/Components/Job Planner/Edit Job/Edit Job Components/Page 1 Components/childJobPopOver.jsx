@@ -19,6 +19,7 @@ import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import {
   IsLoggedInContext,
+  UserJobSnapshotContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import { useJobBuild } from "../../../../../Hooks/useJobBuild";
@@ -41,6 +42,9 @@ export function ChildJobPopover({
   const { activeJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
   const { users } = useContext(UsersContext);
   const {
     addNewJob,
@@ -48,6 +52,7 @@ export function ChildJobPopover({
     updateMainUserDoc,
     uploadJob,
     getItemPrices,
+    uploadUserJobSnapshot,
   } = useFirebase();
   const { buildJob } = useJobBuild();
   const { newJobSnapshot, replaceSnapshot, closeEditJob, openEditJob } =
@@ -81,9 +86,11 @@ export function ChildJobPopover({
           }
         }
       } else {
-        let newJob = await buildJob(material.typeID, material.quantity, [
-          activeJob,
-        ]);
+        let newJob = await buildJob({
+          itemID: material.typeID,
+          itemQty: material.quantity,
+          parentJobs: [activeJob.jobID],
+        });
         if (newJob !== undefined) {
           let priceIDRequest = new Set();
           let promiseArray = [];
@@ -297,7 +304,7 @@ export function ChildJobPopover({
                       uploadJob(activeJob);
                     }
                     closeEditJob(activeJob);
-                    openEditJob(childJobObjects[jobDisplay]);
+                    openEditJob(childJobObjects[jobDisplay].jobID);
                   }}
                 >
                   Open Child Job
@@ -307,18 +314,20 @@ export function ChildJobPopover({
                   size="small"
                   onClick={async () => {
                     updateBuildLoad((prev) => !prev);
-                    await newJobSnapshot(childJobObjects[jobDisplay]);
-
+                    let newUserJobSnapshot = newJobSnapshot(
+                      childJobObjects[jobDisplay],
+                      [...userJobSnapshot]
+                    );
+                    let newJobArray = [...jobArray];
+                    newJobArray.push(childJobObjects[jobDisplay]);
                     if (isLoggedIn) {
-                      await updateMainUserDoc();
+                      await uploadUserJobSnapshot(newUserJobSnapshot);
                       await addNewJob(childJobObjects[jobDisplay]);
                     }
                     material.childJob.push(childJobObjects[jobDisplay].jobID);
+                    updateUserJobSnapshot(newUserJobSnapshot);
                     updateEvePrices((prev) => prev.concat(tempPrices));
-                    updateJobArray((prev) => [
-                      ...prev,
-                      childJobObjects[jobDisplay],
-                    ]);
+                    updateJobArray(newJobArray);
                     setSnackbarData((prev) => ({
                       ...prev,
                       open: true,

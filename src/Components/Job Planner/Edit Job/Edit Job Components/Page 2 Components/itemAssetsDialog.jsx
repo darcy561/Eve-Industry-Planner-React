@@ -10,10 +10,10 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { EveIDsContext } from "../../../../../Context/EveDataContext";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import { useCharAssets } from "../../../../../Hooks/useCharAssets";
 
 export function ItemAssetsDialogue({
   material,
@@ -22,11 +22,15 @@ export function ItemAssetsDialogue({
 }) {
   const { users } = useContext(UsersContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
-  const { findItemAssets } = useJobManagement();
+  const { findItemAssets } = useCharAssets();
   const [loadAssets, setLoadAssets] = useState(false);
   const [assetList, updateAssetList] = useState([]);
   const [assetLocations, updateAssetLocations] = useState([]);
   const [tempEveIDs, updateTempEveIDs] = useState(eveIDs);
+  const [defaultLocationAssets, updateDefaultLocationAssets] = useState([]);
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
 
   const handleClose = () => {
     updateEveIDs(tempEveIDs);
@@ -39,9 +43,17 @@ export function ItemAssetsDialogue({
         let [itemAssetList, newEveIDs, itemLocations] = await findItemAssets(
           material.typeID
         );
+        let defaultAssets = itemLocations.find(
+          (asset) =>
+            asset.location_id ===
+            parentUser.settings.editJob.defaultAssetLocation
+        );
         updateTempEveIDs(newEveIDs);
         updateAssetList(itemAssetList);
         updateAssetLocations(itemLocations);
+        if (defaultAssets !== undefined) {
+          updateDefaultLocationAssets([defaultAssets]);
+        }
         setLoadAssets(true);
       }
     }
@@ -57,29 +69,32 @@ export function ItemAssetsDialogue({
       <DialogTitle color="primary" align="center">
         {material.name} Assets
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ marginTop: "10px" }}>
         {!loadAssets ? (
-          <Grid container>
-            <Grid item xs={12} align="center">
-              <CircularProgress color="primary" />
-            </Grid>
+          <Grid item xs={12} align="center">
+            <CircularProgress color="primary" />
           </Grid>
         ) : assetList.length > 0 ? (
-          <Grid container>
-            {assetLocations.map((entry) => {
+          <>
+            {defaultLocationAssets.map((asset) => {
               let assetLocationData = tempEveIDs.find(
-                (i) => i.id === entry.location_id
+                (i) => i.id === asset.location_id
               );
               if (assetLocationData === undefined) {
                 return null;
               }
+
               return (
                 <Grid
-                  key={entry.item_id}
+                  key={asset.location_id}
                   container
                   item
                   xs={12}
-                  sx={{ marginBottom: "20px" }}
+                  sx={{
+                    paddingBottom: "20px",
+                    marginBottom: "20px",
+                    borderBottom: "1px solid",
+                  }}
                 >
                   <Grid item xs={12} sx={{ marginBottom: "20px" }}>
                     <Typography
@@ -91,7 +106,7 @@ export function ItemAssetsDialogue({
                         : "Unknown Location"}
                     </Typography>
                   </Grid>
-                  {entry.itemIDs.map((item) => {
+                  {asset.itemIDs.map((item) => {
                     let itemData = assetList.find((i) => item === i.item_id);
                     let assetOwner = users.find(
                       (i) => i.CharacterHash === itemData.CharacterHash
@@ -101,6 +116,7 @@ export function ItemAssetsDialogue({
                     }
                     return (
                       <Grid
+                        key={itemData.item_id}
                         container
                         item
                         xs={12}
@@ -130,12 +146,15 @@ export function ItemAssetsDialogue({
                           sx={{ paddingLeft: "5px", display: "flex" }}
                         >
                           <Typography
-                            sx={{ typography: { xs: "caption", sm: "body2" } }}
+                            sx={{
+                              typography: { xs: "caption", sm: "body2" },
+                            }}
                           >
                             {itemData.quantity.toLocaleString()} Units
                             {itemData.location_flag === "Hangar"
                               ? " - Hangar"
-                              : itemData.location_flag === "Unlocked"
+                              : itemData.location_flag === "Unlocked" ||
+                                itemData.location_flag === "AutoFit"
                               ? " - Container"
                               : " - Other"}
                           </Typography>
@@ -146,7 +165,97 @@ export function ItemAssetsDialogue({
                 </Grid>
               );
             })}
-          </Grid>
+            <Grid container>
+              {assetLocations.map((entry) => {
+                let assetLocationData = tempEveIDs.find(
+                  (i) => i.id === entry.location_id
+                );
+                if (
+                  assetLocationData === undefined ||
+                  entry.location_id ===
+                    parentUser.settings.editJob.defaultAssetLocation
+                ) {
+                  return null;
+                }
+                return (
+                  <Grid
+                    key={entry.location_id}
+                    container
+                    item
+                    xs={12}
+                    sx={{ marginBottom: "20px" }}
+                  >
+                    <Grid item xs={12} sx={{ marginBottom: "20px" }}>
+                      <Typography
+                        align="center"
+                        sx={{ typography: { xs: "body2", sm: "body1" } }}
+                      >
+                        {assetLocationData !== undefined
+                          ? assetLocationData.name
+                          : "Unknown Location"}
+                      </Typography>
+                    </Grid>
+                    {entry.itemIDs.map((item) => {
+                      let itemData = assetList.find((i) => item === i.item_id);
+                      let assetOwner = users.find(
+                        (i) => i.CharacterHash === itemData.CharacterHash
+                      );
+                      if (itemData === undefined) {
+                        return null;
+                      }
+                      return (
+                        <Grid
+                          key={item}
+                          container
+                          item
+                          xs={12}
+                          sm={6}
+                          sx={{ marginBottom: "5px" }}
+                        >
+                          <Grid item xs={2}>
+                            <Tooltip
+                              title={assetOwner.CharacterName}
+                              arrow
+                              placement="bottom"
+                            >
+                              <Avatar
+                                variant="circle"
+                                src={`https://images.evetech.net/characters/${assetOwner.CharacterID}/portrait`}
+                                sx={{
+                                  height: { xs: "30px", md: "40px" },
+                                  width: { xs: "30px", md: "40px" },
+                                }}
+                              />
+                            </Tooltip>
+                          </Grid>
+                          <Grid
+                            item
+                            alignItems="center"
+                            xs={10}
+                            sx={{ paddingLeft: "5px", display: "flex" }}
+                          >
+                            <Typography
+                              sx={{
+                                typography: { xs: "caption", sm: "body2" },
+                              }}
+                            >
+                              {itemData.quantity.toLocaleString()} Units
+                              {itemData.location_flag === "Hangar"
+                                ? " - Hangar"
+                                : itemData.location_flag === "Unlocked" ||
+                                  itemData.location_flag === "AutoFit"
+                                ? " - Container"
+                                : " - Other"}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </>
         ) : (
           <Grid container>
             <Grid item xs={12}>

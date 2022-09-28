@@ -11,12 +11,14 @@ import {
   TextField,
 } from "@mui/material";
 import { useContext, useMemo, useState } from "react";
-import { doc, setDoc } from "firebase/firestore";
-import { firestore } from "../../firebase";
+import { functions } from "../../firebase";
 import { UsersContext } from "../../Context/AuthContext";
+import { SnackBarDataContext } from "../../Context/LayoutContext";
+import { httpsCallable } from "firebase/functions";
 
 export function FeedbackIcon() {
   const { users } = useContext(UsersContext);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [open, setOpen] = useState(false);
   const [inputText, updateInputText] = useState("");
   const [dataDump, updateDataDump] = useState(false);
@@ -26,12 +28,33 @@ export function FeedbackIcon() {
   }, [users]);
 
   const handleSubmit = async () => {
-    await setDoc(doc(firestore, "Feedback", Date.now().toString()), {
+    let userAssets = () => {
+      let assetList = [];
+      for (let user of users) {
+        assetList = assetList.concat(
+          JSON.parse(sessionStorage.getItem(`assets_${user.CharacterHash}`))
+        );
+      }
+      return assetList;
+    };
+
+    const call = httpsCallable(functions, "feedback-submitUserFeedback");
+
+    call({
       accountID: parentUser.accountID || null,
       response: inputText,
       esiData: dataDump ? JSON.stringify(users) : null,
+      assets: dataDump ? JSON.stringify(userAssets()) : null,
     });
+
     setOpen(false);
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `Feedback Submitted`,
+      severity: "success",
+      autoHideDuration: 3000,
+    }));
   };
 
   return (
@@ -66,7 +89,7 @@ export function FeedbackIcon() {
           <Link href="https://discord.gg/KGSa8gh37z" underline="hover">
             Discord
           </Link>{" "}
-          if you would like further assistance?
+          if you would like further assistance.
         </DialogContent>
         <DialogActions>
           <TextField

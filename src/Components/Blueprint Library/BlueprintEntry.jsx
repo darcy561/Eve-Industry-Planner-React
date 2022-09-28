@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Grid, Icon, Tooltip, Typography } from "@mui/material";
+import { useContext, useState } from "react";
+import { Avatar, Badge, Grid, Icon, Tooltip, Typography } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { jobTypes } from "../../Context/defaultValues";
 import { makeStyles } from "@mui/styles";
 import { ActiveBPPopout } from "./ActiveBPPout";
+import { UsersContext } from "../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   inUse: {
@@ -18,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const classes = useStyles();
+  const { users } = useContext(UsersContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
 
   let blueprintType = "bp";
@@ -27,6 +29,8 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const esiJob = esiJobs.find(
     (i) => i.blueprint_id === blueprint.item_id && i.status === "active"
   );
+  const bpOwner = users.find((u) => u.CharacterHash);
+
   return (
     <Grid
       key={blueprint.item_id}
@@ -38,53 +42,74 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
       align="center"
       sx={{ marginBottom: "10px" }}
     >
-      <Grid item xs={12}>
-        <picture>
-          <img
-            src={`https://images.evetech.net/types/${blueprint.type_id}/${blueprintType}?size=64`}
-            alt=""
+      <Tooltip title={bpOwner.CharacterName} arrow placement="top">
+        <Grid item xs={12}>
+          <Grid item xs={12}>
+            <Badge
+              overlap="circular"
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              badgeContent={
+                <Avatar
+                  src={`https://images.evetech.net/characters/${bpOwner.CharacterID}/portrait`}
+                  variant="circular"
+                  sx={{
+                    height: { xs: "24px", md: "24px", lg: "32px" },
+                    width: { xs: "24px", md: "24px", lg: "32px" },
+                  }}
+                />
+              }
+            >
+              <picture>
+                <img
+                  src={`https://images.evetech.net/types/${blueprint.type_id}/${blueprintType}?size=64`}
+                  alt=""
+                />
+              </picture>
+            </Badge>
+          </Grid>
+          <Grid
+            className={
+              blueprintType === "bpc"
+                ? esiJob && blueprint.runs <= esiJob.runs
+                  ? classes.expiring
+                  : esiJob
+                  ? classes.inUse
+                  : "none"
+                : esiJob
+                ? classes.inUse
+                : "none"
+            }
+            item
+            xs={12}
+            sx={{
+              height: "3px",
+              marginLeft: "5px",
+              marginRight: "5px",
+            }}
           />
-        </picture>
-      </Grid>
-      <Grid
-        className={
-          blueprintType === "bpc"
-            ? esiJob && blueprint.runs <= esiJob.runs
-              ? classes.expiring
-              : esiJob
-              ? classes.inUse
-              : "none"
-            : esiJob
-            ? classes.inUse
-            : "none"
-        }
-        item
-        xs={12}
-        sx={{
-          height: "3px",
-          marginLeft: "5px",
-          marginRight: "5px",
-        }}
-      />
-      {bpData.jobType === jobTypes.manufacturing ? (
-        <>
-          <Grid item xs={12}>
-            <Typography variant="caption">
-              M.E: {blueprint.material_efficiency}
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="caption">
-              T.E: {blueprint.time_efficiency}
-            </Typography>
-          </Grid>
-          {blueprint.runs !== -1 ? (
-            <Grid item xs={12}>
-              <Typography variant="caption">Runs: {blueprint.runs}</Typography>
-            </Grid>
+          {bpData.jobType === jobTypes.manufacturing ? (
+            <>
+              <Grid item xs={12}>
+                <Typography variant="caption">
+                  M.E: {blueprint.material_efficiency}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="caption">
+                  T.E: {blueprint.time_efficiency}
+                </Typography>
+              </Grid>
+              {blueprint.runs !== -1 ? (
+                <Grid item xs={12}>
+                  <Typography variant="caption">
+                    Runs: {blueprint.runs}
+                  </Typography>
+                </Grid>
+              ) : null}
+            </>
           ) : null}
-        </>
-      ) : null}
+        </Grid>
+      </Tooltip>
       {esiJob ? (
         <Grid item xs={12}>
           <Tooltip title="Click to View ESI Job Info" arrow placement="bottom">

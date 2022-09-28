@@ -73,10 +73,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
     return { days: day, hours: hour, mins: min };
   }
 
-  if (
-    jobMatches.length !== 0 &&
-    activeJob.apiJobs.length < activeJob.jobCount
-  ) {
+  if (jobMatches.length !== 0 && activeJob.apiJobs.size < activeJob.jobCount) {
     return (
       <>
         <Grid
@@ -172,8 +169,9 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     sx={{ typography: { xs: "caption", sm: "body2" } }}
                     align="center"
                   >
-                    
-                    {facilityData !== undefined ? facilityData.name : "Location Data Unavailable"}
+                    {facilityData !== undefined
+                      ? facilityData.name
+                      : "Location Data Unavailable"}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
@@ -222,8 +220,8 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
 
                         let newUsersArray = [...users];
 
-                        const newActiveJobArray = [...activeJob.apiJobs];
-                        newActiveJobArray.push(job.job_id);
+                        const newActiveJobArray = new Set(activeJob.apiJobs);
+                        newActiveJobArray.add(job.job_id);
 
                         let newLinkedJobsArray = [
                           ...activeJob.build.costs.linkedJobs,
@@ -291,22 +289,21 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                 size="small"
                 onClick={() => {
                   setJobModified(true);
-
                   const ParentUserIndex = users.findIndex(
                     (u) => u.ParentUser === true
                   );
                   let newUsersArray = [...users];
-                  const newActiveJobArray = [...activeJob.apiJobs];
+                  const newApiJobsSet = new Set(activeJob.apiJobs);
                   let newLinkedJobsArray = [
                     ...activeJob.build.costs.linkedJobs,
                   ];
-                  let newInstallCosts = 0;
+                  let newInstallCosts = activeJob.installCosts;
                   const newApiArray = [...apiJobs];
                   for (let job of jobMatches) {
                     const jobOwner = users.find(
                       (i) => i.CharacterID === job.installer_id
                     );
-                    newActiveJobArray.push(job.job_id);
+                    newApiJobsSet.add(job.job_id);
                     newLinkedJobsArray.push(
                       Object.assign({}, new ESIJob(job, jobOwner))
                     );
@@ -321,7 +318,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                   updateApiJobs(newApiArray);
                   updateActiveJob((prevObj) => ({
                     ...prevObj,
-                    apiJobs: newActiveJobArray,
+                    apiJobs: newApiJobsSet,
                     build: {
                       ...prevObj.build,
                       costs: {

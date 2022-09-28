@@ -18,6 +18,7 @@ import {
 import { JobArrayContext } from "../../../../Context/JobContext";
 import {
   IsLoggedInContext,
+  UserJobSnapshotContext,
   UsersContext,
 } from "../../../../Context/AuthContext";
 import { marketOptions, listingType } from "../../../../Context/defaultValues";
@@ -29,7 +30,8 @@ export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
-  const { downloadCharacterJobs, updateMainUserDoc, uploadJob } = useFirebase();
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { downloadCharacterJobs, updateMainUserDoc, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { updateJobSnapshot } = useJobManagement();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -107,15 +109,17 @@ export function PriceEntryDialog() {
         }
       }
     }
+    let newUserJobSnapshot = [...userJobSnapshot]
     for (let job of uploadIDs) {
-      await updateJobSnapshot(job);
+      newUserJobSnapshot =  updateJobSnapshot(job, newUserJobSnapshot);
       if (isLoggedIn) {
         await uploadJob(job);
       }
     }
     if (isLoggedIn) {
-      updateMainUserDoc();
+      uploadUserJobSnapshot(newUserJobSnapshot)
     }
+    updateUserJobSnapshot(newUserJobSnapshot);
     updateJobArray(newJobArray);
     changeImportAction(false);
     updatePriceEntryListData((prev) => ({

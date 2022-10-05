@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import {
   FirebaseListenersContext,
   IsLoggedInContext,
@@ -41,10 +41,12 @@ export function useFirebase() {
   );
   const { updateUserWatchlist } = useContext(UserWatchlistContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const{activeJob, updateActiveJob} = useContext(ActiveJobContext)
+  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const analytics = getAnalytics();
 
-  const parentUser = users.find((i) => i.ParentUser === true);
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser === true);
+  }, [users]);
 
   const fbAuthState = async () => {
     let appCheckToken = await getToken(appCheck);
@@ -229,7 +231,6 @@ export function useFirebase() {
       linkedOrders: parentUser.linkedOrders,
       settings: parentUser.settings,
       refreshTokens: parentUser.accountRefreshTokens,
-      watchlist: parentUser.watchlist,
     });
   };
 
@@ -584,7 +585,7 @@ export function useFirebase() {
       (doc) => {
         if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
           let downloadDoc = doc.data();
-          let newJobArray = [...jobArray]
+          let newJobArray = [...jobArray];
           let newJob = {
             hasListener: true,
             jobType: downloadDoc.jobType,
@@ -617,14 +618,14 @@ export function useFirebase() {
           };
           let index = jobArray.findIndex((i) => i.jobID === newJob.jobID);
           if (index === -1) {
-            newJobArray.push(newJob)
+            newJobArray.push(newJob);
           } else {
-            newJobArray[index] = newJob
+            newJobArray[index] = newJob;
           }
           if (activeJob.jobID === newJob.jobID) {
-            updateActiveJob(newJob)
+            updateActiveJob(newJob);
           }
-          updateJobArray(newJobArray)
+          updateJobArray(newJobArray);
         }
       }
     );

@@ -1,7 +1,9 @@
 import { useContext, useState } from "react";
 import { Container, Grid } from "@mui/material";
-import { ActiveJobContext } from "../../../../Context/JobContext";
-import { EveIDsContext } from "../../../../Context/EveDataContext";
+import {
+  ActiveJobContext,
+  LinkedIDsContext,
+} from "../../../../Context/JobContext";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { SalesStats } from "./Page 5 Components/salesStats";
 import { AvailableTransactionData } from "./Page 5 Components/availableTransactions";
@@ -15,7 +17,7 @@ export function EditPage5({ setJobModified }) {
   const [showAvailableOrders, updateShowAvailableOrders] = useState(false);
   const [activeOrder, updateActiveOrder] = useState([]);
   const { users } = useContext(UsersContext);
-  const { eveIDs } = useContext(EveIDsContext);
+  const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
   let itemOrderMatch = [];
 
   const parentUser = users.find((i) => i.ParentUser === true);
@@ -39,8 +41,9 @@ export function EditPage5({ setJobModified }) {
     user.apiOrders.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
-        !activeJob.apiOrders.has(order.order_id)
-           &&
+        !activeJob.apiOrders.has(order.order_id) &&
+        !linkedOrderIDs.includes(order.order_id) &&
+        !parentUser.linkedOrders.has(order.order_id) &&
         !itemOrderMatch.some((i) => i.order_id === order.order_id)
       ) {
         itemOrderMatch.push(order);
@@ -50,6 +53,8 @@ export function EditPage5({ setJobModified }) {
       if (
         order.type_id === activeJob.itemID &&
         !activeJob.apiOrders.has(order.order_id) &&
+        !linkedOrderIDs.includes(order.order_id) &&
+        !parentUser.linkedOrders.has(order.order_id) &&
         !itemOrderMatch.some((i) => i.order_id === order.order_id)
       ) {
         order.CharacterHash = user.CharacterHash;
@@ -68,6 +73,8 @@ export function EditPage5({ setJobModified }) {
           order.type_id === trans.type_id &&
           !trans.is_buy &&
           !activeJob.apiTransactions.has(trans.transaction_id) &&
+          !linkedTransIDs.includes(trans.transaction_id) &&
+          !parentUser.linkedTrans.has(trans.transaction_id) &&
           !transactionData.some(
             (i) => i.transaction_id === trans.transaction_id
           )
@@ -91,7 +98,12 @@ export function EditPage5({ setJobModified }) {
             transactionData.push(
               Object.assign(
                 {},
-                new Transaction(trans, descriptionTrim[0], transJournal, transTax)
+                new Transaction(
+                  trans,
+                  descriptionTrim[0],
+                  transJournal,
+                  transTax
+                )
               )
             );
           }
@@ -109,7 +121,7 @@ export function EditPage5({ setJobModified }) {
           </Grid>
         )}
         <Grid item xs={12}>
-          <MarketCostsPanel/>
+          <MarketCostsPanel />
         </Grid>
         <Grid item xs={12} md={8}>
           <MarketOrderTabs

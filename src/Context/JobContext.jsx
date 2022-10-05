@@ -64,3 +64,26 @@ export const ArchivedJobs = (props) => {
     </ArchivedJobsContext.Provider>
   );
 };
+
+export const LinkedIDsContext = createContext();
+
+export const LinkedIDs = (props) => {
+  const [linkedOrderIDs, updateLinkedOrderIDs] = useState([]);
+  const [linkedJobIDs, updateLinkedJobIDs] = useState([]);
+  const [linkedTransIDs, updateLinkedTransIDs] = useState([]);
+
+  return (
+    <LinkedIDsContext.Provider
+      value={{
+        linkedJobIDs,
+        updateLinkedJobIDs,
+        linkedOrderIDs,
+        updateLinkedOrderIDs,
+        linkedTransIDs,
+        updateLinkedTransIDs
+      }}
+    >
+      {props.children}
+    </LinkedIDsContext.Provider>
+  );
+};

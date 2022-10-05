@@ -1361,12 +1361,12 @@ export let usersDefault = [
     CharacterName: "Example Character",
     ParentUser: true,
     apiJobs: [],
-    linkedJobs: [477723892, 477724009],
-    linkedOrders: [6161413749, 6161414065],
-    linkedTrans: [
+    linkedJobs: new Set([477723892, 4777240090]),
+    linkedOrders: new Set([6161413749, 6161414065]),
+    linkedTrans: new Set([
       5763852213, 5763860401, 5763883247, 5763890268, 5762870250, 5762760174,
       5764179431,
-    ],
+    ]),
     apiBlueprints: [],
     apiOrders: [],
     apiHistOrders: [

@@ -41,7 +41,9 @@ export function useAccountManagement() {
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateUserWatchlist } = useContext(UserWatchlistContext);
-  const {firebaseListeners, updateFirebaseListeners} = useContext(FirebaseListenersContext)
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
+  );
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser), [users];
@@ -64,16 +66,16 @@ export function useAccountManagement() {
 
   const buildMainUser = (userObject, userSettings) => {
     userObject.accountID = userSettings.accountID;
-    userObject.linkedJobs = userSettings.linkedJobs;
-    userObject.linkedTrans = userSettings.linkedTrans;
-    userObject.linkedOrders = userSettings.linkedOrders;
+    userObject.linkedJobs = new Set(userSettings.linkedJobs);
+    userObject.linkedTrans = new Set(userSettings.linkedTrans);
+    userObject.linkedOrders = new Set(userSettings.linkedOrders);
     userObject.settings = userSettings.settings;
     userObject.accountRefreshTokens = userSettings.refreshTokens;
 
     return userObject;
   };
 
-  const characterAPICall = async (sStatus, userObject, parentObject) => {
+  const characterAPICall = async (sStatus, userObject) => {
     if (sStatus) {
       const [
         skills,
@@ -87,7 +89,7 @@ export function useAccountManagement() {
         standings,
       ] = await Promise.all([
         CharacterSkills(userObject),
-        IndustryJobs(userObject, parentObject),
+        IndustryJobs(userObject),
         MarketOrders(userObject),
         HistoricMarketOrders(userObject),
         BlueprintLibrary(userObject),
@@ -126,7 +128,6 @@ export function useAccountManagement() {
 
     return userObject;
   };
-
 
   const getLocationNames = async (users, mainUser) => {
     let locationIDS = new Set();
@@ -200,9 +201,9 @@ export function useAccountManagement() {
       UID: parentUser.accountID,
     });
     firebaseListeners.forEach((unsub) => {
-      unsub()
-    })
-    updateFirebaseListeners([])
+      unsub();
+    });
+    updateFirebaseListeners([]);
     updateIsLoggedIn(false);
     updateUsers(usersDefault);
     updateUserJobSnapshot(userJobSnapshotDefault);
@@ -212,7 +213,7 @@ export function useAccountManagement() {
     updateActiveJob({});
     updateArchivedJobs([]);
     updateApiJobs(apiJobsDefault);
-    updateUserWatchlist({groups:[], items:[]})
+    updateUserWatchlist({ groups: [], items: [] });
     localStorage.removeItem("Auth");
     signOut(auth);
     navigate("/");
@@ -225,10 +226,66 @@ export function useAccountManagement() {
     }));
   };
 
+  const failedUserRefresh = (failedRefreshSet, userObject) => {
+    if (failedRefreshSet.size > 0) {
+      if (userObject.settings.account.cloudAccounts) {
+        userObject.accountRefreshTokens =
+          userObject.accountRefreshTokens.filter(
+            (i) => !failedRefreshSet.has(i.CharacterHash)
+          );
+      } else {
+        let oldLS = JSON.parse(
+          localStorage.getItem(
+            `${refreshedUser.CharacterHash} AdditionalAccounts`
+          )
+        );
+        let newLS = oldLS.filter((i) => !failedRefreshSet.has(i.CharacterHash));
+        localStorage.setItem(
+          `${refreshedUser.CharacterHash} AdditionalAccounts`,
+          JSON.stringify(newLS)
+        );
+      }
+    }
+  };
+
+  const tidyLinkedData = (userObject, userArray) => {
+    let allJobIDs = new Set();
+    let allOrderIDs = new Set();
+    let allTransIDs = new Set();
+    let newLinkedJobs = [...userObject.linkedJobs];
+    let newLinkedOrders = [...userObject.linkedOrders];
+    let newLinkedTrans = [...userObject.linkedTrans];
+
+    for (let user of userArray) {
+      user.apiJobs.forEach((job) => {
+        allJobIDs.add(job.job_id);
+      });
+      user.apiHistOrders.forEach((order) => {
+        allOrderIDs.add(order.order_id);
+      });
+      user.apiOrders.forEach((order) => {
+        allOrderIDs.add(order.order_id);
+      });
+      user.apiTransactions.forEach((trans) => {
+        allTransIDs.add(trans.transaction_id);
+      });
+    }
+
+    newLinkedJobs = newLinkedJobs.filter((id) => allJobIDs.has(id));
+    newLinkedOrders = newLinkedOrders.filter((id) => allOrderIDs.has(id));
+    newLinkedTrans = newLinkedTrans.filter((id) => allTransIDs.has(id));
+
+    userObject.linkedJobs = new Set(newLinkedJobs);
+    userObject.linkedOrders = new Set(newLinkedOrders);
+    userObject.linkedTrans = new Set(newLinkedTrans);
+  };
+
   return {
     buildMainUser,
     characterAPICall,
+    failedUserRefresh,
     getLocationNames,
     logUserOut,
+    tidyLinkedData,
   };
 }

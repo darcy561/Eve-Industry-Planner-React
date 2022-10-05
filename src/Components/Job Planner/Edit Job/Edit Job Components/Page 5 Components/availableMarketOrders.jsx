@@ -1,6 +1,9 @@
 import { Avatar, Grid, IconButton, Tooltip, Typography } from "@mui/material";
 import { useContext } from "react";
-import { ActiveJobContext } from "../../../../../Context/JobContext";
+import {
+  ActiveJobContext,
+  LinkedIDsContext,
+} from "../../../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UsersContext,
@@ -48,9 +51,10 @@ export function AvailableMarketOrders({
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { eveIDs } = useContext(EveIDsContext);
-  const { users, updateUsers } = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { linkedOrderIDs, updateLinkedOrderIDs } = useContext(LinkedIDsContext);
   const { calcBrokersFee } = useJobManagement();
   const analytics = getAnalytics();
 
@@ -128,7 +132,9 @@ export function AvailableMarketOrders({
                       <Typography
                         sx={{ typography: { xs: "caption", sm: "body2" } }}
                       >
-                        {locationData !== undefined ? locationData.name : "Location Data Unavailable"}
+                        {locationData !== undefined
+                          ? locationData.name
+                          : "Location Data Unavailable"}
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
@@ -162,13 +168,13 @@ export function AvailableMarketOrders({
                         size="small"
                         onClick={async () => {
                           const ParentUserIndex = users.findIndex(
-                            (i) => i.ParentUser === true
+                            (i) => i.ParentUser
                           );
                           const char = users.find(
                             (user) => user.CharacterHash === order.CharacterHash
                           );
 
-                          let brokersFee = await calcBrokersFee(char, order)
+                          let brokersFee = await calcBrokersFee(char, order);
                           let newBrokersArray = [];
                           if (char !== undefined) {
                             char.apiJournal.forEach((entry) => {
@@ -180,7 +186,12 @@ export function AvailableMarketOrders({
                                 newBrokersArray.push(
                                   Object.assign(
                                     {},
-                                    new ESIBrokerFee(entry, order, char, brokersFee)
+                                    new ESIBrokerFee(
+                                      entry,
+                                      order,
+                                      char,
+                                      brokersFee
+                                    )
                                   )
                                 );
                               }
@@ -190,15 +201,12 @@ export function AvailableMarketOrders({
                             newMarketOrderArray.push(
                               Object.assign({}, new ESIMarketOrder(order))
                             );
-                            let newApiOrders = new Set(activeJob.apiOrders)
-                            newApiOrders.add(order.order_id)
+                            let newApiOrders = new Set(activeJob.apiOrders);
+                            newApiOrders.add(order.order_id);
 
-
-                            let newUsers = [...users];
-                            newUsers[ParentUserIndex].linkedOrders.push(
-                              order.order_id
-                            );
-                            updateUsers(newUsers);
+                            let newLinkedOrderIDs = new Set(linkedOrderIDs);
+                            newLinkedOrderIDs.add(order.order_id);
+                            updateLinkedOrderIDs([...newLinkedOrderIDs]);
                             updateActiveJob((prev) => ({
                               ...prev,
                               apiOrders: newApiOrders,

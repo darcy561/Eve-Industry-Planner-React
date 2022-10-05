@@ -62,9 +62,9 @@ class MainUser {
     this.ParentUser = null;
     this.apiSkills = null;
     this.apiJobs = null;
-    this.linkedJobs = [];
-    this.linkedOrders = [];
-    this.linkedTrans = [];
+    this.linkedJobs = new Set();
+    this.linkedOrders = new Set();
+    this.linkedTrans = new Set();
     this.apiOrders = null;
     this.apiHistOrders = null;
     this.apiBlueprints = null;

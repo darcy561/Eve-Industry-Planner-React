@@ -5,7 +5,7 @@ import {
 } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
-import {decodeJwt} from "jose";
+import { decodeJwt } from "jose";
 import { firebaseAuth } from "./firebaseAuth";
 import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
@@ -30,9 +30,9 @@ import { useAccountManagement } from "../../Hooks/useAccountManagement";
 export function login() {
   const state = "/";
   window.location.href = `https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=${encodeURIComponent(
-      import.meta.env.VITE_eveCallbackURL
-  )}&client_id=${  import.meta.env.VITE_eveClientID}&scope=${
-      import.meta.env.VITE_eveScope
+    import.meta.env.VITE_eveCallbackURL
+  )}&client_id=${import.meta.env.VITE_eveClientID}&scope=${
+    import.meta.env.VITE_eveScope
   }&state=${state}`;
 }
 
@@ -47,15 +47,14 @@ export default function AuthMainUser() {
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
-  const {
-    determineUserState,
-    userJobSnapshotListener,
-    userWatchlistListener,
-  } = useFirebase();
+  const { determineUserState, userJobSnapshotListener, userWatchlistListener } =
+    useFirebase();
   const {
     buildMainUser,
     characterAPICall,
+    failedUserRefresh,
     getLocationNames,
+    tidyLinkedData
   } = useAccountManagement();
   const navigate = useNavigate();
   const analytics = getAnalytics();
@@ -87,8 +86,22 @@ export default function AuthMainUser() {
 
       buildMainUser(userObject, userSettings);
 
-      await userJobSnapshotListener(userObject);
-      await userWatchlistListener(userObject);
+      let listenerPromises = [];
+
+      listenerPromises.push(
+        new Promise(async (resolve) => {
+          await userJobSnapshotListener(userObject);
+          resolve();
+        })
+      );
+
+      listenerPromises.push(
+        new Promise(async (resolve) => {
+          await userWatchlistListener(userObject);
+          resolve();
+        })
+      );
+
       updateLoadingText((prevObj) => ({
         ...prevObj,
         charDataComp: true,
@@ -97,7 +110,7 @@ export default function AuthMainUser() {
 
       const sStatus = await serverStatus();
 
-      userObject = await characterAPICall(sStatus, userObject, userObject);
+      userObject = await characterAPICall(sStatus, userObject);
 
       let apiJobsArray = userObject.apiJobs;
       let userArray = [userObject];
@@ -106,18 +119,18 @@ export default function AuthMainUser() {
         apiDataComp: true,
       }));
 
-      let failedRefresh = [];
+      let failedRefresh = new Set();
       if (userSettings.settings.account.cloudAccounts) {
         for (let token of userSettings.refreshTokens) {
           let newUser = await RefreshTokens(token.rToken, false);
           if (newUser === "RefreshFail") {
-            failedRefresh.push(token.CharacterHash);
+            failedRefresh.add(token.CharacterHash);
           }
           if (token.rToken !== newUser.rToken) {
             token.rToken = newUser.rToken;
           }
           if (newUser !== "RefreshFail") {
-            newUser = await characterAPICall(sStatus, newUser, userObject);
+            newUser = await characterAPICall(sStatus, newUser);
             newUser.apiJobs.forEach((i) => {
               apiJobsArray.push(i);
             });
@@ -134,7 +147,7 @@ export default function AuthMainUser() {
           for (let token of rTokens) {
             let newUser = await RefreshTokens(token.rToken, false);
             if (newUser === "RefreshFail") {
-              failedRefresh.push(token.CharacterHash);
+              failedRefresh.add(token.CharacterHash);
             }
             if (token.rToken !== newUser.rToken) {
               token.rToken = newUser.rToken;
@@ -144,34 +157,16 @@ export default function AuthMainUser() {
               );
             }
             if (newUser !== "RefreshFail") {
-              newUser = await characterAPICall(sStatus, newUser, userObject);
+              newUser = await characterAPICall(sStatus, newUser);
               apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
               userArray.push(newUser);
             }
           }
         }
       }
-      if (failedRefresh.length > 0) {
-        if (userObject.settings.account.cloudAccounts) {
-          userArray[0].accountRefreshTokens =
-            userArray[0].accountRefreshTokens.filter(
-              (i) => !failedRefresh.includes(i.CharacterHash)
-            );
-        } else {
-          let oldLS = JSON.parse(
-            localStorage.getItem(
-              `${userObject.CharacterHash} AdditionalAccounts`
-            )
-          );
-          let newLS = oldLS.filter(
-            (i) => !failedRefresh.includes(i.CharacterHash)
-          );
-          localStorage.setItem(
-            `${userObject.CharacterHash} AdditionalAccounts`,
-            JSON.stringify(newLS)
-          );
-        }
-      }
+      
+      failedUserRefresh(failedRefresh, userObject);
+
       apiJobsArray.sort((a, b) => {
         let aName = searchData.find(
           (i) =>
@@ -192,8 +187,10 @@ export default function AuthMainUser() {
         return 0;
       });
 
-      let newNameArray = await getLocationNames(userArray, userObject);
+      tidyLinkedData(userObject, userArray)
 
+      let newNameArray = await getLocationNames(userArray, userObject);
+      await Promise.all(listenerPromises);
       updateEveIDs(newNameArray);
       setJobStatus(userSettings.jobStatusArray);
       updateJobArray([]);
@@ -241,7 +238,9 @@ async function EveSSOTokens(authCode, accountType) {
         method: "POST",
         headers: {
           Authorization: `Basic ${btoa(
-            `${  import.meta.env.VITE_eveClientID}:${  import.meta.env.VITE_eveSecretKey}`
+            `${import.meta.env.VITE_eveClientID}:${
+              import.meta.env.VITE_eveSecretKey
+            }`
           )}`,
           "Content-Type": "application / x-www-form-urlencoded",
           Host: "login.eveonline.com",
@@ -253,7 +252,7 @@ async function EveSSOTokens(authCode, accountType) {
 
     const tokenJSON = await eveTokenPromise.json();
 
-    const decodedToken = decodeJwt(tokenJSON.access_token)
+    const decodedToken = decodeJwt(tokenJSON.access_token);
 
     if (accountType) {
       const newUser = new MainUser(decodedToken, tokenJSON);
@@ -281,9 +280,9 @@ class MainUser {
     this.ParentUser = null;
     this.apiSkills = null;
     this.apiJobs = null;
-    this.linkedJobs = [];
-    this.linkedOrders = [];
-    this.linkedTrans = [];
+    this.linkedJobs = new Set();
+    this.linkedOrders = new Set();
+    this.linkedTrans = new Set();
     this.apiOrders = null;
     this.apiHistOrders = null;
     this.apiBlueprints = null;

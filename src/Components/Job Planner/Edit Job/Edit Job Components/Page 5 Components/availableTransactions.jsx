@@ -4,7 +4,10 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
-import { ActiveJobContext } from "../../../../../Context/JobContext";
+import {
+  ActiveJobContext,
+  LinkedIDsContext,
+} from "../../../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
@@ -15,9 +18,10 @@ export function AvailableTransactionData({
   transactionData,
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { users, updateUsers } = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { linkedTransIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
   const analytics = getAnalytics();
 
   return (
@@ -137,6 +141,8 @@ export function AvailableTransactionData({
                         let newApiTransactions = new Set(
                           activeJob.apiTransactions
                         );
+                        let newLinkedTransIDs = new Set(linkedTransIDs);
+
                         if (activeJob.build.sale.marketOrders > 1) {
                           tData.order_id = activeOrder;
                         } else {
@@ -153,15 +159,11 @@ export function AvailableTransactionData({
                           (i) => i.ParentUser === true
                         );
 
-                        let newUsers = [...users];
-                        newUsers[parentUserIndex].linkedTrans.push(
-                          tData.transaction_id
-                        );
+                        newLinkedTransIDs.add(tData.transaction_id);
 
                         newApiTransactions.add(tData.transaction_id);
 
-                        updateUsers(newUsers);
-
+                        updateLinkedTransIDs([...newLinkedTransIDs]);
                         updateActiveJob((prev) => ({
                           ...prev,
                           apiTransactions: newApiTransactions,
@@ -215,7 +217,7 @@ export function AvailableTransactionData({
                   ...activeJob.build.sale.transactions,
                 ];
                 let newApiTransactions = new Set(activeJob.apiTransactions);
-                let newUsers = [...users];
+                let newLinkedTransIDs = new Set(linkedTransIDs);
                 let parentUserIndex = users.findIndex(
                   (i) => i.ParentUser === true
                 );
@@ -228,14 +230,12 @@ export function AvailableTransactionData({
                   }
                   newTransactionArray.push(trans);
                   newApiTransactions.add(trans.transaction_id);
-                  newUsers[parentUserIndex].linkedTrans.push(
-                    trans.transaction_id
-                  );
+                  newLinkedTransIDs.add(trans.transaction_id);
                 }
                 newTransactionArray.sort((a, b) => {
                   return new Date(b.date) - new Date(a.date);
                 });
-                updateUsers(newUsers);
+                updateLinkedTransIDs([...newLinkedTransIDs]);
                 updateActiveJob((prev) => ({
                   ...prev,
                   apiTransactions: newApiTransactions,

@@ -73,7 +73,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
           autoHideDuration: 5000,
         }));
       } else {
-        newUser = await characterAPICall(true, newUser, users[parentUserIndex]);
+        newUser = await characterAPICall(true, newUser);
         localStorage.removeItem("AddAccount");
         localStorage.removeItem("AddAccountComplete");
         localStorage.removeItem("AdditionalUser");

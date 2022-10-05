@@ -1,13 +1,18 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import { useContext, useMemo } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
-import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
+import {
+  JobArrayContext,
+  JobStatusContext,
+  LinkedIDsContext,
+} from "../../../Context/JobContext";
 import itemData from "../../../RawData/searchIndex.json";
 
 export function NewTransactions() {
   const { users } = useContext(UsersContext);
   const { jobArray } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
+  const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
 
   const filteredJobs = jobArray.filter(
     (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
@@ -25,7 +30,8 @@ export function NewTransactions() {
       user.apiOrders.forEach((order) => {
         if (
           order.type_id === job.itemID &&
-          parentUser.linkedOrders.includes(order.order_id) &&
+          !linkedOrderIDs.includes(order.order_id) &&
+          !parentUser.linkedOrders.has(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
           order.CharacterHash = user.CharacterHash;
@@ -37,7 +43,8 @@ export function NewTransactions() {
       user.apiHistOrders.forEach((order) => {
         if (
           order.type_id === job.itemID &&
-          parentUser.linkedOrders.includes(order.order_id) &&
+          !linkedOrderIDs.includes(order.order_id) &&
+          !parentUser.linkedOrders.has(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
           order.CharacterHash = user.CharacterHash;
@@ -53,7 +60,8 @@ export function NewTransactions() {
         (trans) =>
           order.location_id === trans.location_id &&
           order.type_id === trans.type_id &&
-          !parentUser.linkedTrans.includes(trans.transaction_id) &&
+          !linkedTransIDs.includes(trans.transaction_id) &&
+          !parentUser.linkedTrans.has(trans.transaction_id) &&
           !transactionData.find(
             (item) => item.transaction_id === trans.transaction_id
           ) &&

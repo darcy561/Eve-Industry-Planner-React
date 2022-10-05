@@ -13,6 +13,7 @@ import {
   ApiJobsContext,
   ArchivedJobsContext,
   JobArrayContext,
+  LinkedIDsContext,
 } from "../Context/JobContext";
 import { IsLoggedInContext } from "../Context/AuthContext";
 import { useFirebase } from "./useFirebase";
@@ -26,7 +27,6 @@ import { useEveApi } from "./useEveApi";
 
 export function useJobManagement() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
-
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { updatePageLoad } = useContext(PageLoadContext);
@@ -34,7 +34,7 @@ export function useJobManagement() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, updateUsers } = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
@@ -44,6 +44,14 @@ export function useJobManagement() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
+  const {
+    linkedJobIDs,
+    updateLinkedJobIDs,
+    linkedOrderIDs,
+    updateLinkedOrderIDs,
+    linkedTransIDs,
+    updateLinkedTransIDs,
+  } = useContext(LinkedIDsContext);
   const {
     addNewJob,
     downloadCharacterJobs,
@@ -268,6 +276,7 @@ export function useJobManagement() {
 
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
+    updateActiveJob({});
 
     if (isLoggedIn) {
       await uploadUserJobSnapshot(newUserJobSnapshot);
@@ -573,10 +582,12 @@ export function useJobManagement() {
   };
 
   const deleteJobProcess = async (inputJobSnap) => {
-    let newUserArray = [...users];
     let newApiJobsArary = [...apiJobs];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newJobArray = [...jobArray];
+    let newLinkedJobIDs = new Set(linkedJobIDs);
+    let newLinkedOrderIDs = new Set(linkedOrderIDs);
+    let newLinkedTransIDs = new Set(linkedTransIDs);
 
     let [inputJob] = await findJobData(
       inputJobSnap.jobID,
@@ -595,12 +606,9 @@ export function useJobManagement() {
 
     //Removes apiJob references from users
     inputJob.apiJobs.forEach((job) => {
-      const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
-        (i) => i === job
-      );
+      newLinkedJobIDs.delete(job);
       const y = apiJobs.findIndex((u) => u.job_id === job);
-      if (x !== -1 && y !== -1) {
-        newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
+      if (y !== -1) {
         newApiJobsArary[y].linked = false;
       }
     });
@@ -657,21 +665,11 @@ export function useJobManagement() {
     }
 
     inputJob.build.sale.transactions.forEach((trans) => {
-      const tIndex = newUserArray[parentUserIndex].linkedTrans.findIndex(
-        (i) => i === trans.order_id
-      );
-      if (tIndex !== -1) {
-        newUserArray[parentUserIndex].linkedTrans.splice(tIndex, 1);
-      }
+      newLinkedTransIDs.delete(trans.transaction_id);
     });
 
     inputJob.build.sale.marketOrders.forEach((order) => {
-      const oIndex = newUserArray[parentUserIndex].linkedOrders.findIndex(
-        (i) => i === order.order_id
-      );
-      if (oIndex !== -1) {
-        newUserArray[parentUserIndex].linkedOrders.splice(oIndex, 1);
-      }
+      newLinkedOrderIDs.delete(order.order_id);
     });
 
     let newMutliSelct = multiSelectJobPlanner.filter(
@@ -679,8 +677,9 @@ export function useJobManagement() {
     );
 
     newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
-
-    updateUsers(newUserArray);
+    updateLinkedJobIDs([...newLinkedJobIDs]);
+    updateLinkedOrderIDs([...newLinkedOrderIDs]);
+    updateLinkedTransIDs([...newLinkedTransIDs]);
     updateApiJobs(newApiJobsArary);
     updateMultiSelectJobPlanner(newMutliSelct);
 
@@ -703,10 +702,12 @@ export function useJobManagement() {
   };
 
   const deleteMultipleJobsProcess = async (inputJobIDs, updateState) => {
-    let newUserArray = [...users];
     let newApiJobsArary = [...apiJobs];
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
+    let newLinkedJobIDs = new Set(linkedJobIDs);
+    let newLinkedOrderIDs = new Set(linkedOrderIDs);
+    let newLinkedTransIDs = new Set(linkedTransIDs);
 
     for (let inputJobID of inputJobIDs) {
       let [inputJob, jobSnapshot] = await findJobData(
@@ -721,32 +722,19 @@ export function useJobManagement() {
 
       if (inputJob !== undefined) {
         inputJob.apiJobs.forEach((job) => {
-          const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
-            (i) => i === job
-          );
+          newLinkedJobIDs.delete(job);
           const y = apiJobs.findIndex((u) => u.job_id === job);
-          if (x !== -1 && y !== -1) {
-            newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
+          if (y !== -1) {
             newApiJobsArary[y].linked = false;
           }
         });
 
         inputJob.build.sale.transactions.forEach((trans) => {
-          const tIndex = newUserArray[parentUserIndex].linkedTrans.findIndex(
-            (i) => i === trans.order_id
-          );
-          if (tIndex !== -1) {
-            newUserArray[parentUserIndex].linkedTrans.splice(tIndex, 1);
-          }
+          newLinkedTransIDs.delete(trans.order_id);
         });
 
         inputJob.build.sale.marketOrders.forEach((order) => {
-          const oIndex = newUserArray[parentUserIndex].linkedOrders.findIndex(
-            (i) => i === order.order_id
-          );
-          if (oIndex !== -1) {
-            newUserArray[parentUserIndex].linkedOrders.splice(oIndex, 1);
-          }
+          newLinkedOrderIDs.delete(order.order_id);
         });
 
         const jobIndex = newJobArray.findIndex(
@@ -831,7 +819,9 @@ export function useJobManagement() {
         updateMainUserDoc();
         uploadUserJobSnapshot(newUserJobSnapshot);
       }
-      updateUsers(newUserArray);
+      updateLinkedJobIDs([...newLinkedJobIDs]);
+      updateLinkedOrderIDs([...newLinkedOrderIDs]);
+      updateLinkedTransIDs([...newLinkedTransIDs]);
       updateApiJobs(newApiJobsArary);
       updateUserJobSnapshot(newUserJobSnapshot);
       updateJobArray(newJobArray);
@@ -1111,6 +1101,9 @@ export function useJobManagement() {
     let jobSnapshot = chosenSnapshotArray.find((i) => i.jobID === inputJobID);
 
     let foundJob = chosenJobArray.find((i) => i.jobID === inputJobID);
+    if (activeJob.jobID === inputJobID) {
+      foundJob = activeJob;
+    }
     if (foundJob === undefined && jobSnapshot !== undefined) {
       foundJob = await downloadCharacterJobs(jobSnapshot);
       jobSnapshot.isSnapshot = false;
@@ -1125,7 +1118,9 @@ export function useJobManagement() {
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newApiJobsArary = [...apiJobs];
-    let newUserArray = [...users];
+    let newLinkedJobIDs = new Set(linkedJobIDs);
+    let newLinkedOrderIDs = new Set(linkedOrderIDs);
+    let newLinkedTransIDs = new Set(linkedTransIDs);
 
     for (let inputJobID of inputJobIDs) {
       let [currentJob] = await findJobData(
@@ -1287,32 +1282,19 @@ export function useJobManagement() {
       }
 
       jobToRemove.apiJobs.forEach((jobID) => {
-        const x = newUserArray[parentUserIndex].linkedJobs.findIndex(
-          (i) => i === jobID
-        );
+        newLinkedJobIDs.delete(jobID);
         const y = apiJobs.findIndex((u) => u.job_id === jobID);
-        if (x !== -1 && y !== -1) {
-          newUserArray[parentUserIndex].linkedJobs.splice(x, 1);
+        if (y !== -1) {
           newApiJobsArary[y].linked = false;
         }
       });
 
       jobToRemove.build.sale.transactions.forEach((trans) => {
-        const tIndex = newUserArray[parentUserIndex].linkedTrans.findIndex(
-          (i) => i === trans.order_id
-        );
-        if (tIndex !== -1) {
-          newUserArray[parentUserIndex].linkedTrans.splice(tIndex, 1);
-        }
+        newLinkedTransIDs.delete(trans.order_id);
       });
 
       jobToRemove.build.sale.marketOrders.forEach((order) => {
-        const oIndex = newUserArray[parentUserIndex].linkedOrders.findIndex(
-          (i) => i === order.order_id
-        );
-        if (oIndex !== -1) {
-          newUserArray[parentUserIndex].linkedOrders.splice(oIndex, 1);
-        }
+        newLinkedOrderIDs.delete(order.order_id);
       });
 
       for (let mat of jobToRemove.build.materials) {
@@ -1364,10 +1346,12 @@ export function useJobManagement() {
     if (isLoggedIn) {
       uploadUserJobSnapshot(newUserJobSnapshot);
     }
+    updateLinkedJobIDs([...newLinkedJobIDs]);
+    updateLinkedOrderIDs([...newLinkedOrderIDs]);
+    updateLinkedTransIDs([...newLinkedTransIDs]);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateJobArray(newJobArray);
     updateApiJobs(newApiJobsArary);
-    updateUsers(newUserArray);
 
     if (jobIDsToRemove.size > 0) {
       setSnackbarData((prev) => ({

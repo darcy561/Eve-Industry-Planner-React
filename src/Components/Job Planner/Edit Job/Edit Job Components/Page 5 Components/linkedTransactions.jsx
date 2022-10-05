@@ -1,5 +1,8 @@
 import { useContext, useState } from "react";
-import { ActiveJobContext } from "../../../../../Context/JobContext";
+import {
+  ActiveJobContext,
+  LinkedIDsContext,
+} from "../../../../../Context/JobContext";
 import {
   Grid,
   IconButton,
@@ -9,15 +12,14 @@ import {
   Typography,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
-import { UsersContext } from "../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { AddTransactionDialog } from "./addTransaction";
 
 export function LinkedTransactions({ setJobModified, activeOrder }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { users, updateUsers } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { linkedTransIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
   const [newTransactionTrigger, updateNewTransactionTrigger] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -109,12 +111,16 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                         align="center"
                         sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
                       >
-                        <Typography sx={{typography:{xs:"caption", sm:"body2"}}}>
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        >
                           {new Date(tData.date).toLocaleString()}
                         </Typography>
                       </Grid>
                       <Grid item xs={6} md={2} align="center">
-                        <Typography sx={{typography:{xs:"caption", sm:"body2"}}}>
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        >
                           {tData.description}
                         </Typography>
                       </Grid>
@@ -125,7 +131,9 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                         align="center"
                         sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
                       >
-                        <Typography sx={{typography:{xs:"caption", sm:"body2"}}}>
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        >
                           {tData.quantity.toLocaleString(undefined, {
                             minimumFractionDigits: 0,
                             maximumFractionDigits: 0,
@@ -139,7 +147,9 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                         </Typography>
                       </Grid>
                       <Grid item xs={6} md={2} align="center">
-                        <Typography sx={{typography:{xs:"caption", sm:"body2"}}}>
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        >
                           {tData.amount.toLocaleString(undefined, {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
@@ -147,7 +157,9 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                         </Typography>
                       </Grid>
                       <Grid item xs={6} md={2} align="center">
-                        <Typography sx={{typography:{xs:"caption", sm:"body2"}}}>
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        >
                           -
                           {tData.tax.toLocaleString(undefined, {
                             minimumFractionDigits: 2,
@@ -164,22 +176,16 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                             let newTransArray = [
                               ...activeJob.build.sale.transactions,
                             ];
-                            let newApiTransactions = new Set(activeJob.apiTransactions);
-                            let newUsersArray = [...users];
-                            const parentUserIndex = users.findIndex(
-                              (i) => i.ParentUser === true
+                            let newApiTransactions = new Set(
+                              activeJob.apiTransactions
                             );
+                            let newLinkedTransIDs = new Set(linkedTransIDs);
 
                             newTransArray.splice(index, 1);
-                            newUsersArray[parentUserIndex].linkedTrans = users[
-                              parentUserIndex
-                            ].linkedTrans.filter(
-                              (trans) => trans !== tData.transaction_id
-                            );
-                            newApiTransactions.delete(tData.transaction_id)
+                            newLinkedTransIDs.delete(tData.transaction_id);
+                            newApiTransactions.delete(tData.transaction_id);
 
-                            updateUsers(newUsersArray);
-
+                            updateLinkedTransIDs([...newLinkedTransIDs]);
                             updateActiveJob((prev) => ({
                               ...prev,
                               apiTransactions: newApiTransactions,

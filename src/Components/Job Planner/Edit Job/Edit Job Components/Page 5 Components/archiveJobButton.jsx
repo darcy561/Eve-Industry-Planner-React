@@ -7,24 +7,30 @@ import {
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { UserJobSnapshot, UserJobSnapshotContext, UsersContext } from "../../../../../Context/AuthContext";
+import {
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function ArchiveJobButton({ updateJobSettingsTrigger }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { users } = useContext(UsersContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { archiveJob, removeJob, uploadUserJobSnapshot  } = useFirebase();
+  const { users, updateUsers } = useContext(UsersContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
+  const { archiveJob, removeJob, uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
   const { deleteJobSnapshot } = useJobManagement();
   const analytics = getAnalytics();
 
-  const parentUser = users.find((i) => i.ParentUser === true);
-
   const archiveJobProcess = async () => {
+    const parentUserIndex = users.findIndex((i) => i.ParentUser);
+    let newUserArray = [...users];
+
     logEvent(analytics, "Archive Job", {
-      UID: parentUser.accountID,
+      UID: newUserArray[parentUserIndex].accountID,
       jobID: activeJob.jobID,
       name: activeJob.name,
       itemID: activeJob.itemID,
@@ -32,9 +38,18 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
     });
 
     const newJobArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);
+    activeJob.apiOrders.forEach((id) => {
+      newUserArray[parentUserIndex].linkedOrders.add(id);
+    });
+    activeJob.apiTransactions.forEach((id) => {
+      newUserArray[parentUserIndex].linkedTrans.add(id);
+    });
+    activeJob.apiJobs.forEach((id) => {
+      newUserArray[parentUserIndex].linkedJobs.add(id);
+    });
 
     updateJobArray(newJobArray);
-
+    updateUsers(newUserArray);
     setSnackbarData((prev) => ({
       ...prev,
       open: true,
@@ -47,6 +62,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
     await archiveJob(activeJob);
     await removeJob(activeJob);
     updateUserJobSnapshot(newUserJobSnapshot);
+    updateMainUserDoc();
     updateJobSettingsTrigger((prev) => !prev);
   };
 

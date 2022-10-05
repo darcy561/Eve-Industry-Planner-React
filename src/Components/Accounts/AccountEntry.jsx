@@ -47,7 +47,7 @@ export function AccountEntry({ user, parentUserIndex }) {
         user = await RefreshUserAToken(user);
       }
       if (user !== "RefreshFail") {
-        user = await characterAPICall(sStatus, user, parentUser);
+        user = await characterAPICall(sStatus, user);
         newAPIArray = apiJobs.filter(
           (i) => i.installer_id !== user.CharacterID
         );

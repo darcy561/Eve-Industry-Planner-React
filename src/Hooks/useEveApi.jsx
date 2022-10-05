@@ -37,7 +37,7 @@ export function useEveApi() {
     }
   };
 
-  const IndustryJobs = async (userObj, parentInfo) => {
+  const IndustryJobs = async (userObj) => {
     try {
       const indyPromise = await fetch(
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/industry/jobs/?datasource=tranquility&include_completed=true&token=${userObj.aToken}`
@@ -46,23 +46,6 @@ export function useEveApi() {
       const indyJSON = await indyPromise.json();
 
       if (indyPromise.status === 200) {
-        indyJSON.forEach((job) => {
-          if (job.activity_id === 1 || job.activity_id === 9) {
-            if (userObj.ParentUser) {
-              if (userObj.linkedJobs.includes(job.job_id)) {
-                job.linked = true;
-              } else {
-                job.linked = false;
-              }
-            } else {
-              if (parentInfo.linkedJobs.includes(job.job_id)) {
-                job.linked = true;
-              } else {
-                job.linked = false;
-              }
-            }
-          }
-        });
 
         let filterOld = indyJSON.filter(
           (job) =>

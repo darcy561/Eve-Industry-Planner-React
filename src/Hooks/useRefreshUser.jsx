@@ -27,15 +27,12 @@ export function useRefreshUser() {
   const {
     buildMainUser,
     characterAPICall,
-    generateItemPriceRequest,
+    failedUserRefresh,
     getLocationNames,
+    tidyLinkedData,
   } = useAccountManagement();
-  const {
-    determineUserState,
-    getItemPrices,
-    userJobSnapshotListener,
-    userWatchlistListener,
-  } = useFirebase();
+  const { determineUserState, userJobSnapshotListener, userWatchlistListener } =
+    useFirebase();
   const { updateEveIDs } = useContext(EveIDsContext);
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
@@ -91,8 +88,21 @@ export function useRefreshUser() {
     const charSettings = await determineUserState(refreshedUser);
 
     buildMainUser(refreshedUser, charSettings);
-    await userJobSnapshotListener(refreshedUser);
-    await userWatchlistListener(refreshedUser);
+    let listenerPromises = [];
+
+    listenerPromises.push(
+      new Promise(async (resolve) => {
+        await userJobSnapshotListener(refreshedUser);
+        resolve();
+      })
+    );
+
+    listenerPromises.push(
+      new Promise(async (resolve) => {
+        await userWatchlistListener(refreshedUser);
+        resolve();
+      })
+    );
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -101,11 +111,7 @@ export function useRefreshUser() {
     }));
 
     const sStatus = await serverStatus();
-    refreshedUser = await characterAPICall(
-      sStatus,
-      refreshedUser,
-      refreshedUser
-    );
+    refreshedUser = await characterAPICall(sStatus, refreshedUser);
 
     let apiJobsArray = refreshedUser.apiJobs;
     let userArray = [refreshedUser];
@@ -115,18 +121,18 @@ export function useRefreshUser() {
       apiDataComp: true,
     }));
 
-    let failedRefresh = [];
+    let failedRefresh = new Set();
     if (refreshedUser.settings.account.cloudAccounts) {
       for (let token of charSettings.refreshTokens) {
         let newUser = await RefreshTokens(token.rToken, false);
         if (newUser === "RefreshFail") {
-          failedRefresh.push(token.CharacterHash);
+          failedRefresh.add(token.CharacterHash);
         }
         if (token.rToken !== newUser.rToken) {
           token.rToken = newUser.rToken;
         }
         if (newUser !== "RefreshFail") {
-          newUser = await characterAPICall(sStatus, newUser, refreshedUser);
+          newUser = await characterAPICall(sStatus, newUser);
           userArray.push(newUser);
           apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
         }
@@ -141,7 +147,7 @@ export function useRefreshUser() {
         for (let token of rTokens) {
           let newUser = await RefreshTokens(token.rToken, false);
           if (newUser === "RefreshFail") {
-            failedRefresh.push(token.CharacterHash);
+            failedRefresh.add(token.CharacterHash);
           }
           if (token.rToken !== newUser.rToken) {
             token.rToken = newUser.rToken;
@@ -152,34 +158,14 @@ export function useRefreshUser() {
           }
 
           if (newUser !== "RefreshFail") {
-            newUser = await characterAPICall(sStatus, newUser, refreshedUser);
+            newUser = await characterAPICall(sStatus, newUser);
             userArray.push(newUser);
             apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
           }
         }
       }
     }
-    if (failedRefresh.length > 0) {
-      if (refreshedUser.settings.account.cloudAccounts) {
-        refreshedUser.accountRefreshTokens =
-          refreshedUser.accountRefreshTokens.filter(
-            (i) => !failedRefresh.includes(i.CharacterHash)
-          );
-      } else {
-        let oldLS = JSON.parse(
-          localStorage.getItem(
-            `${refreshedUser.CharacterHash} AdditionalAccounts`
-          )
-        );
-        let newLS = oldLS.filter(
-          (i) => !failedRefresh.includes(i.CharacterHash)
-        );
-        localStorage.setItem(
-          `${refreshedUser.CharacterHash} AdditionalAccounts`,
-          JSON.stringify(newLS)
-        );
-      }
-    }
+    failedUserRefresh(failedRefresh, refreshedUser);
 
     apiJobsArray.sort((a, b) => {
       let aName = searchData.find(
@@ -201,8 +187,10 @@ export function useRefreshUser() {
       return 0;
     });
 
-    let locationReturns = await getLocationNames(userArray, refreshedUser);
+    tidyLinkedData(refreshedUser, userArray);
 
+    let locationReturns = await getLocationNames(userArray, refreshedUser);
+    await Promise.all(listenerPromises);
     updateEveIDs(locationReturns);
     setJobStatus(charSettings.jobStatusArray);
     updateJobArray([]);

@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import {
   ActiveJobContext,
-  ApiJobsContext,
+  LinkedIDsContext,
 } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import {
@@ -24,11 +24,14 @@ import { EveIDsContext } from "../../../../../Context/EveDataContext";
 export function AvailableJobs({ jobMatches, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { eveIDs } = useContext(EveIDsContext);
-  const { users, updateUsers } = useContext(UsersContext);
-  const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
+  const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { linkedJobIDs, updateLinkedJobIDs } = useContext(LinkedIDsContext);
   const analytics = getAnalytics();
+  const ParentUserIndex = useMemo(() => {
+    return users.findIndex((i) => i.ParentUser);
+  }, [users]);
 
   class ESIJob {
     constructor(originalJob, owner) {
@@ -41,7 +44,6 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
       this.start_date = originalJob.start_date;
       this.end_date = originalJob.end_date;
       this.cost = originalJob.cost;
-      this.linked = true;
       this.blueprint_type_id = originalJob.blueprint_type_id;
       this.product_type_id = originalJob.product_type_id;
       this.activity_id = originalJob.activity_id;
@@ -214,12 +216,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                       onClick={() => {
                         setJobModified(true);
 
-                        const ParentUserIndex = users.findIndex(
-                          (u) => u.ParentUser === true
-                        );
-
-                        let newUsersArray = [...users];
-
+                        let newLinkedJobIDs = new Set(linkedJobIDs);
                         const newActiveJobArray = new Set(activeJob.apiJobs);
                         newActiveJobArray.add(job.job_id);
 
@@ -231,6 +228,9 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                           Object.assign({}, new ESIJob(job, jobOwner))
                         );
 
+                        newLinkedJobIDs.add(job.job_id);
+
+                        updateLinkedJobIDs([...newLinkedJobIDs]);
                         updateActiveJob((prevObj) => ({
                           ...prevObj,
                           apiJobs: newActiveJobArray,
@@ -245,19 +245,6 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                             },
                           },
                         }));
-
-                        newUsersArray[ParentUserIndex].linkedJobs.push(
-                          job.job_id
-                        );
-                        updateUsers(newUsersArray);
-
-                        const newApiArray = apiJobs;
-                        const aA = newApiArray.findIndex(
-                          (z) => z.job_id === job.job_id
-                        );
-                        newApiArray[aA].linked = true;
-                        updateApiJobs(newApiArray);
-
                         setSnackbarData((prev) => ({
                           ...prev,
                           open: true,
@@ -289,16 +276,12 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                 size="small"
                 onClick={() => {
                   setJobModified(true);
-                  const ParentUserIndex = users.findIndex(
-                    (u) => u.ParentUser === true
-                  );
-                  let newUsersArray = [...users];
+                  let newLinkedJobIDs = new Set(linkedJobIDs);
                   const newApiJobsSet = new Set(activeJob.apiJobs);
                   let newLinkedJobsArray = [
                     ...activeJob.build.costs.linkedJobs,
                   ];
                   let newInstallCosts = activeJob.installCosts;
-                  const newApiArray = [...apiJobs];
                   for (let job of jobMatches) {
                     const jobOwner = users.find(
                       (i) => i.CharacterID === job.installer_id
@@ -308,14 +291,9 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                       Object.assign({}, new ESIJob(job, jobOwner))
                     );
                     newInstallCosts += job.cost;
-                    newUsersArray[ParentUserIndex].linkedJobs.push(job.job_id);
-                    const aA = newApiArray.findIndex(
-                      (z) => z.job_id === job.job_id
-                    );
-                    newApiArray[aA].linked = true;
+                    newLinkedJobIDs.add(job.job_id);
                   }
-                  updateUsers(newUsersArray);
-                  updateApiJobs(newApiArray);
+                  updateLinkedJobIDs([...newLinkedJobIDs]);
                   updateActiveJob((prevObj) => ({
                     ...prevObj,
                     apiJobs: newApiJobsSet,

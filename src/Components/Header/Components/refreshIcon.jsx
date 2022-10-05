@@ -46,7 +46,7 @@ export function RefreshApiIcon() {
           if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
             user = await RefreshUserAToken(user);
           }
-          user = await characterAPICall(sStatus, user, parentUser);
+          user = await characterAPICall(sStatus, user);
           user.apiJobs.forEach((i) => newAPIArray.push(i));
         }
       }

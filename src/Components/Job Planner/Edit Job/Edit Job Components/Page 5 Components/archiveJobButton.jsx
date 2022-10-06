@@ -13,7 +13,7 @@ import {
 } from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
-export function ArchiveJobButton({ updateJobSettingsTrigger }) {
+export function ArchiveJobButton({ updateEditJobTrigger }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -63,7 +63,7 @@ export function ArchiveJobButton({ updateJobSettingsTrigger }) {
     await removeJob(activeJob);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateMainUserDoc();
-    updateJobSettingsTrigger((prev) => !prev);
+    updateEditJobTrigger((prev) => !prev);
   };
 
   return (

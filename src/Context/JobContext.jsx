@@ -33,9 +33,12 @@ export const ActiveJobContext = createContext();
 
 export const ActiveJob = (props) => {
   const [activeJob, updateActiveJob] = useState({});
+  const [activeGroup, updateActiveGroup] = useState({});
 
   return (
-    <ActiveJobContext.Provider value={{ activeJob, updateActiveJob }}>
+    <ActiveJobContext.Provider
+      value={{ activeJob, updateActiveJob, activeGroup, updateActiveGroup }}
+    >
       {props.children}
     </ActiveJobContext.Provider>
   );
@@ -80,7 +83,7 @@ export const LinkedIDs = (props) => {
         linkedOrderIDs,
         updateLinkedOrderIDs,
         linkedTransIDs,
-        updateLinkedTransIDs
+        updateLinkedTransIDs,
       }}
     >
       {props.children}

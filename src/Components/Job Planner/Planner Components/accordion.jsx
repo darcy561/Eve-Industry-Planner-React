@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function PlannerAccordion({ updateJobSettingsTrigger }) {
+export function PlannerAccordion({ updateEditJobTrigger }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { users } = useContext(UsersContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -179,7 +179,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
                       <JobCardFrame
                         key={job.jobID}
                         job={job}
-                        updateJobSettingsTrigger={updateJobSettingsTrigger}
+                        updateEditJobTrigger={updateEditJobTrigger}
                       />
                     );
                   } else {

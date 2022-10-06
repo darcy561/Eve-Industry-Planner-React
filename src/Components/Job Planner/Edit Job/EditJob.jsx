@@ -21,7 +21,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useFirebase } from "../../../Hooks/useFirebase";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -42,14 +41,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function EditJob({
-  updateJobSettingsTrigger,
+  updateEditJobTrigger,
   updateShoppingListTrigger,
   updateShoppingListData,
 }) {
   const { jobStatus } = useContext(JobStatusContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { uploadJob, updateMainUserDoc } = useFirebase();
   const { closeEditJob, deleteJobProcess } = useJobManagement();
   const [jobModified, setJobModified] = useState(false);
   const classes = useStyles();
@@ -118,7 +116,7 @@ function EditJob({
               color="error"
               onClick={() => {
                 deleteJobProcess(activeJob);
-                updateJobSettingsTrigger((prev) => !prev);
+                updateEditJobTrigger((prev) => !prev);
               }}
               size="medium"
               sx={{ marginRight: { xs: "20px", sm: "40px" } }}
@@ -134,7 +132,7 @@ function EditJob({
               color="primary"
               onClick={async () => {
                 closeEditJob(activeJob, jobModified);
-                updateJobSettingsTrigger((prev) => !prev);
+                updateEditJobTrigger((prev) => !prev);
               }}
               size="medium"
               sx={{ marginRight: { sm: "10px" } }}
@@ -244,9 +242,7 @@ function EditJob({
                         activeJob.parentJob.length > 0 && (
                           <Grid item container xs={7} sm={2} lg={2} xl={2}>
                             <PassBuildCostButton
-                              updateJobSettingsTrigger={
-                                updateJobSettingsTrigger
-                              }
+                              updateEditJobTrigger={updateEditJobTrigger}
                             />
                           </Grid>
                         )}
@@ -254,9 +250,7 @@ function EditJob({
                         isLoggedIn && (
                           <Grid item container xs={5} sm={2} lg={2} xl={2}>
                             <ArchiveJobButton
-                              updateJobSettingsTrigger={
-                                updateJobSettingsTrigger
-                              }
+                              updateEditJobTrigger={updateEditJobTrigger}
                             />
                           </Grid>
                         )}
@@ -265,9 +259,7 @@ function EditJob({
                         isLoggedIn && (
                           <Grid item container xs={12} sm={4} lg={4}>
                             <ArchiveJobButton
-                              updateJobSettingsTrigger={
-                                updateJobSettingsTrigger
-                              }
+                              updateEditJobTrigger={updateEditJobTrigger}
                             />
                           </Grid>
                         )}

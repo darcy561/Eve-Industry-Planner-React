@@ -16,6 +16,7 @@ import { useJobManagement } from "../../../Hooks/useJobManagement";
 import {
   DataExchangeContext,
   DialogDataContext,
+  JobPlannerPageTriggerContext,
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
 } from "../../../Context/LayoutContext";
@@ -46,11 +47,11 @@ export function SearchBar({
   updateShoppingListTrigger,
   updateShoppingListData,
 }) {
-  const { jobArray } = useContext(JobArrayContext);
+  const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
   const { DataExchange } = useContext(DataExchangeContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
   const { updateDialogData } = useContext(DialogDataContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { sisiDataFiles, updateSisiDataFiles } =
     useContext(SisiDataFilesContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -409,6 +410,17 @@ export function SearchBar({
                 Delete
               </Button>
             </Tooltip>
+          </Grid>
+          <Grid item xs={12} md="auto" align="center">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                updateEditGroupTrigger((prev) => !prev);
+              }}
+            >
+              New Group
+            </Button>
           </Grid>
         </Grid>
       </Grid>

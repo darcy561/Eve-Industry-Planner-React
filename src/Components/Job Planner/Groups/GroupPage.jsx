@@ -1,10 +1,14 @@
-import { Grid, IconButton, Paper, Tooltip } from "@mui/material";
+import { Grid, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useContext } from "react";
 import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
+import { ActiveJobContext } from "../../../Context/JobContext";
 
 export default function GroupPage() {
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
+    const { activeGroup, updateActiveGroupp } = useContext(ActiveJobContext);
+    
+    console.log(activeGroup)
   return (
     <Paper
       elevation={3}
@@ -37,7 +41,8 @@ export default function GroupPage() {
           </Tooltip>
         </Grid>
         <Grid item xs={12}>
-          Group Name
+          <Typography>{activeGroup.groupName}</Typography>
+          <Typography>{activeGroup.groupID}</Typography>
         </Grid>
       </Grid>
     </Paper>

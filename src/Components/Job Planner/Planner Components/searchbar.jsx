@@ -20,11 +20,12 @@ import {
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
 } from "../../../Context/LayoutContext";
-import { JobArrayContext } from "../../../Context/JobContext";
+import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { SisiDataFilesContext } from "../../../Context/EveDataContext";
 
 import { makeStyles } from "@mui/styles";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
+import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 
 const useStyles = makeStyles((theme) => ({
   Autocomplete: {
@@ -57,6 +58,7 @@ export function SearchBar({
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateActiveGroup } = useContext(ActiveJobContext);
   const {
     deleteMultipleJobsProcess,
     massBuildMaterials,
@@ -67,6 +69,7 @@ export function SearchBar({
     newJobProcess,
     buildItemPriceEntry,
   } = useJobManagement();
+  const { createNewGroupWithJobs } = useGroupManagement();
   const classes = useStyles();
 
   return (
@@ -415,7 +418,9 @@ export function SearchBar({
             <Button
               variant="outlined"
               size="small"
-              onClick={() => {
+              onClick={async () => {
+                let newGroup = await createNewGroupWithJobs(multiSelectJobPlanner);
+                updateActiveGroup(newGroup)
                 updateEditGroupTrigger((prev) => !prev);
               }}
             >

@@ -22,7 +22,7 @@ export function RefreshApiIcon() {
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { serverStatus, IDtoName } = useEveApi();
-  const { characterAPICall } = useAccountManagement();
+  const { characterAPICall, checkUserClaims } = useAccountManagement();
   const { refreshItemPrices } = useFirebase();
   const { RefreshUserAToken } = useRefreshUser();
   const { refreshState, updateRefreshState } = useContext(RefreshStateContext);
@@ -123,6 +123,7 @@ export function RefreshApiIcon() {
         newIDNamePromises.push(tempLoc);
       }
 
+      checkUserClaims(newUsers);
       let newEvePrices = await refreshItemPrices(parentUser);
 
       let returnLocations = await Promise.all(newIDNamePromises);
@@ -150,6 +151,7 @@ export function RefreshApiIcon() {
         }
         return 0;
       });
+
       updateEveIDs((prev) => prev.concat(newNameArray));
       updateUsers(newUsers);
       updateApiJobs(newAPIArray);

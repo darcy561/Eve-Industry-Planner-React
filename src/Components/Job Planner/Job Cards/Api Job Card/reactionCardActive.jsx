@@ -1,5 +1,6 @@
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
 import searchData from "../../../../RawData/searchIndex.json";
+import { useJobManagement } from "../../../../Hooks/useJobManagement";
 
 export function ReactionESICardActive({ job }) {
   const { timeRemainingCalc } = useJobManagement();

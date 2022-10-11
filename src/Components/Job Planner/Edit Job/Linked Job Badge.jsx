@@ -21,7 +21,7 @@ import { useJobManagement } from "../../../Hooks/useJobManagement";
 
 export function LinkedJobBadge({ jobModified, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { jobArray } = useContext(JobArrayContext);
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -108,7 +108,7 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
                       onDelete={async () => {
                         let newJobArray = [...jobArray];
                         let newUserJobSnapshot = [...userJobSnapshot];
-                        let [selectedJob] = findJobData(
+                        let [selectedJob] = await findJobData(
                           job.jobID,
                           newUserJobSnapshot,
                           newJobArray

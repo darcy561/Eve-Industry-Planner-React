@@ -21,7 +21,7 @@ import { useMemo } from "react";
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
   const { downloadCharacterJobs, updateMainUserDoc } = useFirebase();
-  const { characterAPICall } = useAccountManagement();
+  const { characterAPICall, checkUserClaims } = useAccountManagement();
   const { replaceSnapshot } = useJobManagement();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
@@ -114,6 +114,7 @@ export function AccountEntry({ user, parentUserIndex }) {
 
     newUsers = newUsers.filter((i) => i.CharacterHash !== user.CharacterHash);
     sessionStorage.removeItem(`assets_${user.CharacterHash}`);
+    await checkUserClaims(newUsers);
     updateUsers(newUsers);
     updateApiJobs(newApiArray);
     updateJobArray(newJobArray);
@@ -155,7 +156,9 @@ export function AccountEntry({ user, parentUserIndex }) {
             />
           </Grid>
           <Grid item xs={8} sm={9}>
-            <Typography sx={{typography:{xs:"caption", sm:"body1"}}}>{user.CharacterName}</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
+              {user.CharacterName}
+            </Typography>
           </Grid>
           <Grid item xs={1} align="center">
             {refreshState === 1 && userRefreshState === 1 ? (

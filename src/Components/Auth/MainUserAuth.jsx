@@ -52,9 +52,10 @@ export default function AuthMainUser() {
   const {
     buildMainUser,
     characterAPICall,
+    checkUserClaims,
     failedUserRefresh,
     getLocationNames,
-    tidyLinkedData
+    tidyLinkedData,
   } = useAccountManagement();
   const navigate = useNavigate();
   const analytics = getAnalytics();
@@ -164,7 +165,7 @@ export default function AuthMainUser() {
           }
         }
       }
-      
+
       failedUserRefresh(failedRefresh, userObject);
 
       apiJobsArray.sort((a, b) => {
@@ -187,7 +188,8 @@ export default function AuthMainUser() {
         return 0;
       });
 
-      tidyLinkedData(userObject, userArray)
+      tidyLinkedData(userObject, userArray);
+      await checkUserClaims(userArray);
 
       let newNameArray = await getLocationNames(userArray, userObject);
       await Promise.all(listenerPromises);

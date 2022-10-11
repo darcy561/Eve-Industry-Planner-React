@@ -164,7 +164,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                   <Typography
                     sx={{ typography: { xs: "caption", sm: "body2" } }}
                     align="center"
-                  >{`${job.runs} Runs`}</Typography>
+                  >{`${job.runs.toLocaleString()} Runs`}</Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography

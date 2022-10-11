@@ -43,7 +43,8 @@ export function useFirebase() {
   const { updateUserWatchlist } = useContext(UserWatchlistContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { updateLinkedJobIDs, updateLinkedOrderIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
+  const { updateLinkedJobIDs, updateLinkedOrderIDs, updateLinkedTransIDs } =
+    useContext(LinkedIDsContext);
   const analytics = getAnalytics();
 
   const parentUser = useMemo(() => {
@@ -63,9 +64,9 @@ export function useFirebase() {
   const determineUserState = async (user) => {
     const buildNewUserProcess = async () => {
       const t = trace(performance, "NewUserCloudBuild");
-      t.start();
       try {
-        const buildData = httpsCallable(functions, "user-createUserData");
+        t.start();
+        const buildData = httpsCallable(functions, "buildUser-createUserData");
         const charData = await buildData();
         logEvent(analytics, "newUserCreation", {
           UID: charData.data.accountID,
@@ -517,20 +518,19 @@ export function useFirebase() {
             let snapshotData = doc.data();
             let priceIDRequest = new Set();
             let newUserJobSnapshot = [];
-            let newLinkedOrderIDs = new Set()
-            let newLinkedJobIDs = new Set()
-            let newLinkedTransIDs = new Set()
+            let newLinkedOrderIDs = new Set();
+            let newLinkedJobIDs = new Set();
+            let newLinkedTransIDs = new Set();
             snapshotData.snapshot.forEach((snap) => {
-
               snap.apiJobs.forEach((id) => {
-                newLinkedJobIDs.add(id)
-              })
+                newLinkedJobIDs.add(id);
+              });
               snap.apiOrders.forEach((id) => {
-                newLinkedOrderIDs.add(id)
-              })
+                newLinkedOrderIDs.add(id);
+              });
               snap.apiTransactions.forEach((id) => {
-                newLinkedTransIDs.add(id)
-              })
+                newLinkedTransIDs.add(id);
+              });
               snap.materialIDs.forEach((id) => {
                 priceIDRequest.add(id);
               });
@@ -544,9 +544,9 @@ export function useFirebase() {
               [...priceIDRequest],
               userObj
             );
-            updateLinkedJobIDs([...newLinkedJobIDs])
-            updateLinkedOrderIDs([...newLinkedOrderIDs])
-            updateLinkedTransIDs([...newLinkedTransIDs])
+            updateLinkedJobIDs([...newLinkedJobIDs]);
+            updateLinkedOrderIDs([...newLinkedOrderIDs]);
+            updateLinkedTransIDs([...newLinkedTransIDs]);
             updateEvePrices((prev) => prev.concat(newEvePrices));
             updateUserJobSnapshot(newUserJobSnapshot);
           }
@@ -555,7 +555,7 @@ export function useFirebase() {
       }
     );
     updateFirebaseListeners((prev) => prev.concat(unsub));
-    return
+    return;
   };
 
   const userWatchlistListener = async (userObj) => {
@@ -596,7 +596,7 @@ export function useFirebase() {
       }
     );
     updateFirebaseListeners((prev) => prev.concat(unsub));
-    return
+    return;
   };
 
   const userJobListener = async (userObj, JobID) => {

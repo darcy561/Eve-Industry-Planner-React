@@ -367,8 +367,26 @@ export function useEveApi() {
     }
   }
 
+  const characterData = async (userObj) => {
+    
+    try {
+      const characterPromise = await fetch(
+        `https://esi.evetech.net/legacy/characters/${userObj.CharacterID}/?datasource=tranquility`
+      )
+      const characterData = await characterPromise.json()
+
+      if (characterPromise.status === 200) {
+        return characterData
+      }
+      
+    } catch(err) {
+      return {}
+    }
+  }
+
   return {
     BlueprintLibrary,
+    characterData,
     CharacterSkills,
     fullAssetsList,
     HistoricMarketOrders,

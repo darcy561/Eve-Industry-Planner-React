@@ -22,7 +22,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateMainUserDoc } = useFirebase();
-  const { characterAPICall } = useAccountManagement();
+  const { characterAPICall, checkUserClaims } = useAccountManagement();
   const [skeletonVisible, toggleSkeleton] = useState(false);
   const analytics = getAnalytics();
   let newUser = null;
@@ -33,9 +33,9 @@ export function AdditionalAccounts({ parentUserIndex }) {
     localStorage.setItem("AddAccountComplete", false);
     window.open(
       `https://login.eveonline.com/v2/oauth/authorize/?response_type=code&redirect_uri=${encodeURIComponent(
-          import.meta.env.VITE_eveCallbackURL
-      )}&client_id=${  import.meta.env.VITE_eveClientID}&scope=${
-          import.meta.env.VITE_eveScope
+        import.meta.env.VITE_eveCallbackURL
+      )}&client_id=${import.meta.env.VITE_eveClientID}&scope=${
+        import.meta.env.VITE_eveScope
       }&state=/`,
       "_blank"
     );
@@ -73,19 +73,22 @@ export function AdditionalAccounts({ parentUserIndex }) {
           autoHideDuration: 5000,
         }));
       } else {
+        let newUserArray = [...users];
         newUser = await characterAPICall(true, newUser);
         localStorage.removeItem("AddAccount");
         localStorage.removeItem("AddAccountComplete");
         localStorage.removeItem("AdditionalUser");
-        if (users[parentUserIndex].settings.account.cloudAccounts) {
-          users[parentUserIndex].accountRefreshTokens.push({
+        newUserArray.push(newUser);
+        await checkUserClaims(newUserArray);
+        if (newUserArray[parentUserIndex].settings.account.cloudAccounts) {
+          newUserArray[parentUserIndex].accountRefreshTokens.push({
             CharacterHash: newUser.CharacterHash,
             rToken: newUser.rToken,
           });
         } else {
           let accountArray = JSON.parse(
             localStorage.getItem(
-              `${users[parentUserIndex].CharacterHash} AdditionalAccounts`
+              `${newUserArray[parentUserIndex].CharacterHash} AdditionalAccounts`
             )
           );
           if (accountArray === null) {
@@ -95,7 +98,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
               rToken: newUser.rToken,
             });
             localStorage.setItem(
-              `${users[parentUserIndex].CharacterHash} AdditionalAccounts`,
+              `${newUserArray[parentUserIndex].CharacterHash} AdditionalAccounts`,
               JSON.stringify(accountArray)
             );
           } else {
@@ -104,20 +107,21 @@ export function AdditionalAccounts({ parentUserIndex }) {
               rToken: newUser.rToken,
             });
             localStorage.setItem(
-              `${users[parentUserIndex].CharacterHash} AdditionalAccounts`,
+              `${newUserArray[parentUserIndex].CharacterHash} AdditionalAccounts`,
               JSON.stringify(accountArray)
             );
           }
         }
-        updateUsers((prev) => [...prev, newUser]);
+        updateUsers(newUserArray);
         updateApiJobs((prev) => prev.concat(newUser.apiJobs));
-        if (users[parentUserIndex].settings.account.cloudAccounts) {
+        if (newUserArray[parentUserIndex].settings.account.cloudAccounts) {
           updateMainUserDoc();
         }
         logEvent(analytics, "Link Character", {
-          UID: users[parentUserIndex].accountID,
+          UID: newUserArray[parentUserIndex].accountID,
           newHash: newUser.CharacterHash,
-          cloudAccount: users[parentUserIndex].settings.account.cloudAccounts,
+          cloudAccount:
+            newUserArray[parentUserIndex].settings.account.cloudAccounts,
         });
         setSnackbarData((prev) => ({
           ...prev,
@@ -200,7 +204,9 @@ export function AdditionalAccounts({ parentUserIndex }) {
                   />
                 }
                 label={
-                  <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
                     Store Accounts In Cloud
                   </Typography>
                 }

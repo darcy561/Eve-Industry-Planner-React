@@ -1,7 +1,7 @@
 import { useEveApi } from "./useEveApi";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { getAuth, signOut } from "firebase/auth";
+import { functions } from "../firebase";
 import { useNavigate } from "react-router";
 import { useContext, useMemo } from "react";
 import {
@@ -28,6 +28,7 @@ import {
   eveIDsDefault,
   userJobSnapshotDefault,
 } from "../Context/defaultValues";
+import { httpsCallable } from "firebase/functions";
 
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -44,12 +45,14 @@ export function useAccountManagement() {
   const { firebaseListeners, updateFirebaseListeners } = useContext(
     FirebaseListenersContext
   );
-
+  const checkClaims = httpsCallable(functions, "userClaims-updateCorpIDs");
+  const auth = getAuth();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser), [users];
   });
 
   const {
+    characterData,
     CharacterSkills,
     IndustryJobs,
     MarketOrders,
@@ -87,6 +90,7 @@ export function useAccountManagement() {
         journal,
         assets,
         standings,
+        corporation,
       ] = await Promise.all([
         CharacterSkills(userObject),
         IndustryJobs(userObject),
@@ -97,6 +101,7 @@ export function useAccountManagement() {
         WalletJournal(userObject),
         fullAssetsList(userObject),
         standingsList(userObject),
+        characterData(userObject),
       ]);
 
       userObject.apiSkills = skills;
@@ -111,6 +116,7 @@ export function useAccountManagement() {
         JSON.stringify(assets)
       );
       userObject.standings = standings;
+      userObject.corporation = corporation.corporation_id;
     } else {
       userObject.apiSkills = [];
       userObject.apiJobs = [];
@@ -124,6 +130,7 @@ export function useAccountManagement() {
         JSON.stringify([])
       );
       userObject.standings = [];
+      userObject.corporation = null;
     }
 
     return userObject;
@@ -280,9 +287,37 @@ export function useAccountManagement() {
     userObject.linkedTrans = new Set(newLinkedTrans);
   };
 
+  const checkUserClaims = async (newUserArray) => {
+    let triggerClaimUpdate = false;
+    let token = await auth.currentUser.getIdTokenResult();
+    let dataArray = [];
+    let corpIDs = new Set();
+
+    for (let user of newUserArray) {
+      if (!token.claims.corporations.includes(user.corporation)) {
+        triggerClaimUpdate = true;
+      }
+      dataArray.push({
+        authToken: `${user.aToken}`,
+      });
+      corpIDs.add(user.corporation);
+    }
+    if (corpIDs.size !== token.claims.corporations.length) {
+      triggerClaimUpdate = true;
+    }
+
+    if (triggerClaimUpdate) {
+      await checkClaims(dataArray);
+      await auth.currentUser.getIdToken(true);
+      return;
+    }
+    return;
+  };
+
   return {
     buildMainUser,
     characterAPICall,
+    checkUserClaims,
     failedUserRefresh,
     getLocationNames,
     logUserOut,

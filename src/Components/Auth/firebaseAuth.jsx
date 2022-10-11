@@ -29,6 +29,7 @@ export async function firebaseAuth(charObj) {
 
     await setPersistence(auth, browserSessionPersistence);
     const fbUser = await signInWithCustomToken(auth, fbTokenJSON.access_token);
+
     return fbUser;
   } catch (error) {
     console.log(error);

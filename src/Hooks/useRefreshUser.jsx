@@ -16,7 +16,8 @@ import {
 import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
 import { decodeJwt } from "jose";
 import { trace } from "firebase/performance";
-import { performance } from "../firebase";
+import { performance, functions } from "../firebase";
+import { getAuth } from "firebase/auth";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { EveIDsContext } from "../Context/EveDataContext";
 import searchData from "../RawData/searchIndex.json";
@@ -27,6 +28,7 @@ export function useRefreshUser() {
   const {
     buildMainUser,
     characterAPICall,
+    checkUserClaims,
     failedUserRefresh,
     getLocationNames,
     tidyLinkedData,
@@ -188,6 +190,8 @@ export function useRefreshUser() {
     });
 
     tidyLinkedData(refreshedUser, userArray);
+
+    await checkUserClaims(userArray);
 
     let locationReturns = await getLocationNames(userArray, refreshedUser);
     await Promise.all(listenerPromises);

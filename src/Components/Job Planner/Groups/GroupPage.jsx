@@ -3,6 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useContext } from "react";
 import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
 import { ActiveJobContext } from "../../../Context/JobContext";
+import { OutputJobsPanel } from "./OutputJobs";
 
 export default function GroupPage() {
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
@@ -43,7 +44,11 @@ export default function GroupPage() {
         <Grid item xs={12}>
           <Typography>{activeGroup.groupName}</Typography>
           <Typography>{activeGroup.groupID}</Typography>
-        </Grid>
+              </Grid>
+              
+              <Grid item xs={12}>
+                  <OutputJobsPanel/>
+              </Grid>
       </Grid>
     </Paper>
   );

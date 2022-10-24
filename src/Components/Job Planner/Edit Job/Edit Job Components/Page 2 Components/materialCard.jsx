@@ -15,7 +15,10 @@ import { ChildJobDialog } from "./childJobsDialog";
 import { JobArrayContext } from "../../../../../Context/JobContext";
 import { makeStyles } from "@mui/styles";
 import { ItemAssetsDialogue } from "./itemAssetsDialog";
-import { IsLoggedInContext } from "../../../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+} from "../../../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   childJobText: {
@@ -33,20 +36,20 @@ function MaterialCard({
   const [childDialogTrigger, updateChildDialogTrigger] = useState(false);
   const [itemAssetsDialogTrigger, updateItemAssetsDialogTrigger] =
     useState(false);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobArray } = useContext(JobArrayContext);
-  const {isLoggedIn} = useContext(IsLoggedInContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const classes = useStyles();
   let childJobs = [];
   let childJobProductionTotal = 0;
 
+  console.log(material);
   if (material.childJob.length > 0) {
-    childJobs = jobArray.filter((i) => material.childJob.includes(i.jobID));
+    childJobs = userJobSnapshot.filter((i) =>
+      material.childJob.includes(i.jobID)
+    );
     childJobs.forEach((i) => {
-      if (i.isSnapshot) {
-        childJobProductionTotal += i.itemQuantity;
-      } else {
-        childJobProductionTotal += i.build.products.totalQuantity;
-      }
+      childJobProductionTotal += i.itemQuantity;
     });
   }
   return (
@@ -103,7 +106,7 @@ function MaterialCard({
                 </Avatar>
               </Tooltip>
             ) : null}
-            {isLoggedIn &&
+            {isLoggedIn && (
               <Tooltip title="View Assets" arrow placement="top">
                 <Avatar
                   variant="circle"
@@ -125,7 +128,7 @@ function MaterialCard({
                   A
                 </Avatar>
               </Tooltip>
-            }
+            )}
             <Grid item xs={12} align="center">
               <picture>
                 <source

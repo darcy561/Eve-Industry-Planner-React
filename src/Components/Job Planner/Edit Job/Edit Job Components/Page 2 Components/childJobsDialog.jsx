@@ -38,14 +38,14 @@ export function ChildJobDialog({
   const { downloadCharacterJobs, uploadJob, uploadUserJobSnapshot } =
     useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshot, findJobData } = useJobManagement();
+  const { updateJobSnapshot,updateJobSnapshotActiveJob, findJobData } = useJobManagement();
 
   const handleClose = () => {
     updateChildDialogTrigger(false);
   };
 
   let matches = [];
-  for (let job of jobArray) {
+  for (let job of userJobSnapshot) {
     if (
       job.itemID === material.typeID &&
       !material.childJob.includes(job.jobID)
@@ -117,7 +117,7 @@ export function ChildJobDialog({
 
                         inputJob.parentJob.push(activeJob.jobID);
 
-                        newUserJobSnapshot = updateJobSnapshot(
+                        newUserJobSnapshot = updateJobSnapshotActiveJob(
                           inputJob,
                           newUserJobSnapshot
                         );
@@ -167,105 +167,106 @@ export function ChildJobDialog({
         <Grid container item>
           {material.childJob.length > 0 ? (
             material.childJob.map((job) => {
-              let jobMatch = jobArray.find((i) => i.jobID === job);
-              if (jobMatch !== undefined) {
-                return (
-                  <Grid
-                    container
-                    key={jobMatch.jobID}
-                    item
-                    xs={12}
-                    justifyContent="center"
-                    alignItems="center"
-                  >
-                    <Grid
-                      item
-                      sm={1}
-                      sx={{
-                        display: { xs: "none", sm: "block" },
-                      }}
-                      align="center"
-                    >
-                      <img
-                        src={`https://image.eveonline.com/Type/${jobMatch.itemID}_32.png`}
-                        alt=""
-                      />
-                    </Grid>
-                    <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
-                      <Typography variant="body1">{jobMatch.name}</Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <Typography variant="body2">
-                        Runs: {jobMatch.runCount} Jobs: {jobMatch.jobCount}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={1}>
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={async () => {
-                          let newUserJobSnapshot = [...userJobSnapshot];
-                          let newJobArray = [...jobArray];
-                          let [inputJob] = await findJobData(
-                            job,
-                            newUserJobSnapshot,
-                            newJobArray
-                          );
-
-                          let newMaterialArray = [...activeJob.build.materials];
-                          let matIndex = newMaterialArray.findIndex(
-                            (i) => i.typeID === material.typeID
-                          );
-                          let matChildIndex = newMaterialArray[
-                            matIndex
-                          ].childJob.findIndex((i) => i === inputJob.jobID);
-                          if (matChildIndex !== -1) {
-                            newMaterialArray[matIndex].childJob.splice(
-                              matChildIndex,
-                              1
-                            );
-                          }
-
-                          let parentIndex = inputJob.parentJob.findIndex(
-                            (i) => i === activeJob.jobID
-                          );
-                          if (parentIndex !== -1) {
-                            inputJob.parentJob.splice(parentIndex, 1);
-                          }
-                          newUserJobSnapshot = updateJobSnapshot(
-                            inputJob,
-                            newUserJobSnapshot
-                          );
-
-                          updateUserJobSnapshot(newUserJobSnapshot);
-                          updateJobArray(newJobArray);
-                          updateActiveJob((prev) => ({
-                            ...prev,
-                            build: {
-                              ...prev.build,
-                              materials: newMaterialArray,
-                            },
-                          }));
-                          setJobModified(true);
-                          setSnackbarData((prev) => ({
-                            ...prev,
-                            open: true,
-                            message: `${inputJob.name} Unlinked`,
-                            severity: "success",
-                            autoHideDuration: 1000,
-                          }));
-                          if (isLoggedIn) {
-                            uploadJob(inputJob);
-                            uploadUserJobSnapshot(newUserJobSnapshot);
-                          }
-                        }}
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    </Grid>
-                  </Grid>
-                );
+              let jobMatch = userJobSnapshot.find((i) => i.jobID === job);
+              if (jobMatch === undefined) {
+                return null;
               }
+              return (
+                <Grid
+                  container
+                  key={jobMatch.jobID}
+                  item
+                  xs={12}
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Grid
+                    item
+                    sm={1}
+                    sx={{
+                      display: { xs: "none", sm: "block" },
+                    }}
+                    align="center"
+                  >
+                    <img
+                      src={`https://image.eveonline.com/Type/${jobMatch.itemID}_32.png`}
+                      alt=""
+                    />
+                  </Grid>
+                  <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
+                    <Typography variant="body1">{jobMatch.name}</Typography>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Typography variant="body2">
+                      Runs: {jobMatch.runCount} Jobs: {jobMatch.jobCount}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={1}>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={async () => {
+                        let newUserJobSnapshot = [...userJobSnapshot];
+                        let newJobArray = [...jobArray];
+                        let [inputJob] = await findJobData(
+                          job,
+                          newUserJobSnapshot,
+                          newJobArray
+                        );
+
+                        let newMaterialArray = [...activeJob.build.materials];
+                        let matIndex = newMaterialArray.findIndex(
+                          (i) => i.typeID === material.typeID
+                        );
+                        let matChildIndex = newMaterialArray[
+                          matIndex
+                        ].childJob.findIndex((i) => i === inputJob.jobID);
+                        if (matChildIndex !== -1) {
+                          newMaterialArray[matIndex].childJob.splice(
+                            matChildIndex,
+                            1
+                          );
+                        }
+
+                        let parentIndex = inputJob.parentJob.findIndex(
+                          (i) => i === activeJob.jobID
+                        );
+                        if (parentIndex !== -1) {
+                          inputJob.parentJob.splice(parentIndex, 1);
+                        }
+                        newUserJobSnapshot = updateJobSnapshotActiveJob(
+                          inputJob,
+                          newUserJobSnapshot
+                        );
+
+                        updateUserJobSnapshot(newUserJobSnapshot);
+                        updateJobArray(newJobArray);
+                        updateActiveJob((prev) => ({
+                          ...prev,
+                          build: {
+                            ...prev.build,
+                            materials: newMaterialArray,
+                          },
+                        }));
+                        setJobModified(true);
+                        setSnackbarData((prev) => ({
+                          ...prev,
+                          open: true,
+                          message: `${inputJob.name} Unlinked`,
+                          severity: "success",
+                          autoHideDuration: 1000,
+                        }));
+                        if (isLoggedIn) {
+                          uploadJob(inputJob);
+                          uploadUserJobSnapshot(newUserJobSnapshot);
+                        }
+                      }}
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              );
             })
           ) : (
             <Grid item xs={12}>

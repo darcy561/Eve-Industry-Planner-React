@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Container, Grid } from "@mui/material";
 import {
   ActiveJobContext,
@@ -20,7 +20,10 @@ export function EditPage5({ setJobModified }) {
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
   let itemOrderMatch = [];
 
-  const parentUser = users.find((i) => i.ParentUser === true);
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
+  
   class Transaction {
     constructor(trans, desc, journal, tax) {
       this.order_id = null;

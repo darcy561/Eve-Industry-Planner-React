@@ -71,6 +71,7 @@ export function useJobManagement() {
 
   class newSnapshot {
     constructor(inputJob, childJobs, totalComplete, materialIDs, endDate) {
+      this.jobOwner = inputJob.build.buildChar;
       this.isLocked = false;
       this.lockedTimestamp = null;
       this.lockedUser = null;
@@ -99,6 +100,7 @@ export function useJobManagement() {
   }
   class updateSnapshot {
     constructor(inputJob, endDate) {
+      this.jobOwner = inputJob.jobOwner;
       this.isLocked = false;
       this.lockedTimestamp = null;
       this.lockedUser = null;
@@ -197,11 +199,11 @@ export function useJobManagement() {
       newUserJobSnapshot,
       newJobArray
     );
-    newUserJobSnapshot = lockUserJob(
-      parentUser.CharacterHash,
-      inputJobID,
-      newUserJobSnapshot
-    );
+    // newUserJobSnapshot = lockUserJob(
+    //   parentUser.CharacterHash,
+    //   inputJobID,
+    //   newUserJobSnapshot
+    // );
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -267,7 +269,7 @@ export function useJobManagement() {
     let newUserJobSnapshot = [...userJobSnapshot];
     const index = newJobArray.findIndex((x) => inputJob.jobID === x.jobID);
     newJobArray[index] = inputJob;
-    newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, inputJob.jobID);
+    // newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, inputJob.jobID);
 
     newUserJobSnapshot = updateJobSnapshotActiveJob(
       inputJob,
@@ -293,6 +295,93 @@ export function useJobManagement() {
         severity: "info",
         autoHideDuration: 1000,
       }));
+    }
+  };
+
+  const switchActiveJob = async (existingJob, requestedJobID, jobModified) => {
+    let newJobArray = [...jobArray];
+    let newUserJobSnapshot = [...userJobSnapshot];
+    const index = newJobArray.findIndex((x) => existingJob.jobID === x.jobID);
+    newJobArray[index] = existingJob;
+    // newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, existingJob.jobID);
+    newUserJobSnapshot = updateJobSnapshotActiveJob(
+      existingJob,
+      newUserJobSnapshot
+    );
+    if (isLoggedIn && jobModified) {
+      await uploadJob(existingJob);
+    }
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobData: true,
+    }));
+    updatePageLoad(true);
+    let [openJob] = await findJobData(
+      requestedJobID,
+      newUserJobSnapshot,
+      newJobArray
+    );
+    // newUserJobSnapshot = lockUserJob(
+    //   parentUser.CharacterHash,
+    //   requestedJobID,
+    //   newUserJobSnapshot
+    // );
+
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobData: true,
+      jobDataComp: true,
+      priceData: true,
+    }));
+    let itemIDs = new Set();
+    itemIDs.add(openJob.itemID);
+    openJob.build.materials.forEach((mat) => {
+      itemIDs.add(mat.typeID);
+      if (mat.childJob.length > 0) {
+        mat.childJob.forEach((cJ) => {
+          let job = newJobArray.find((i) => i.jobID === cJ);
+          if (job !== undefined) {
+            itemIDs.add(job.itemID);
+            if (job.isSnapshot) {
+              job.materialIDs.forEach((o) => {
+                itemIDs.add(o);
+              });
+            } else {
+              job.build.materials.forEach((i) => {
+                itemIDs.add(i.typeID);
+              });
+            }
+          }
+        });
+      }
+    });
+    if (isLoggedIn) {
+      let newArchivedJobsArray = await getArchivedJobData(openJob.itemID);
+      updateArchivedJobs(newArchivedJobsArray);
+      uploadUserJobSnapshot(newUserJobSnapshot);
+    }
+
+    let jobPrices = await getItemPrices([...itemIDs], parentUser);
+    if (jobPrices.length > 0) {
+      updateEvePrices((prev) => prev.concat(jobPrices));
+    }
+    updateJobArray(newJobArray);
+    updateUserJobSnapshot(newUserJobSnapshot);
+    updateActiveJob(openJob);
+    updatePageLoad(false);
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      priceDataComp: true,
+    }));
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobData: false,
+      jobDataComp: false,
+      priceData: false,
+      priceDataComp: false,
+    }));
+    if (isLoggedIn) {
+      userJobListener(parentUser, requestedJobID);
     }
   };
 
@@ -439,7 +528,6 @@ export function useJobManagement() {
   const massBuildMaterials = async (inputJobIDs) => {
     r.start();
     let finalBuildCount = [];
-    let parentIDs = [];
     let childJobs = [];
     let materialPriceIDs = new Set();
     let newUserJobSnapshot = [...userJobSnapshot];
@@ -451,7 +539,6 @@ export function useJobManagement() {
         newJobArray
       );
 
-      parentIDs.push(inputJob.jobID);
       inputJob.build.materials.forEach((material) => {
         materialPriceIDs.add(material.typeID);
         if (material.childJob.length === 0) {
@@ -463,6 +550,7 @@ export function useJobManagement() {
               finalBuildCount.push({
                 typeID: material.typeID,
                 quantity: material.quantity,
+                parentIDs: new Set([inputJob.jobID])
               });
             } else {
               const index = finalBuildCount.findIndex(
@@ -470,6 +558,7 @@ export function useJobManagement() {
               );
               if (index !== -1) {
                 finalBuildCount[index].quantity += material.quantity;
+                finalBuildCount[index].parentIDs.add(inputJob.jobID);
               }
             }
           }
@@ -489,7 +578,7 @@ export function useJobManagement() {
         const newJob = await buildJob({
           itemID: item.typeID,
           itemQty: item.quantity,
-          parentJobs: parentIDs,
+          parentJobs: [...item.parentIDs],
         });
         if (newJob !== undefined) {
           materialPriceIDs.add(newJob.itemID);
@@ -1478,5 +1567,6 @@ export function useJobManagement() {
     updateJobSnapshot,
     updateJobSnapshotActiveJob,
     findJobData,
+    switchActiveJob,
   };
 }

@@ -114,8 +114,8 @@ function EditJob({
             <IconButton
               variant="contained"
               color="error"
-              onClick={() => {
-                deleteJobProcess(activeJob);
+              onClick={async () => {
+                await deleteJobProcess(activeJob);
                 updateEditJobTrigger((prev) => !prev);
               }}
               size="medium"

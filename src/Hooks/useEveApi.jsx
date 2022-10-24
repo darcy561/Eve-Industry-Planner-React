@@ -169,8 +169,9 @@ export function useEveApi() {
       if (transactionsPromise.status === 200) {
         const filtered = transactionsJSON.filter(
           (i) =>
-            i.is_buy === false && new Date() - Date.parse(i.date) <= 1209600000
+            i.is_buy === false 
         );
+        // && new Date() - Date.parse(i.date) <= 1209600000
         return filtered;
       } else return [];
     } catch (err) {
@@ -192,9 +193,9 @@ export function useEveApi() {
         if (journalPromise.status === 200) {
           let currentDate = new Date();
           journalJSON.forEach((item) => {
-            if (currentDate - Date.parse(item.date) <= 1209600000) {
+            // if (currentDate - Date.parse(item.date) <= 1209600000) {
               returnArray.push(item);
-            }
+            // }
           });
 
           if (journalJSON.length < 1000) {

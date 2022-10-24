@@ -29,16 +29,10 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
   );
   const [dialogTrigger, updateDialogTrigger] = useState(false);
   const { uploadUserJobSnapshot, uploadJob } = useFirebase();
-  const { closeEditJob, openEditJob, updateJobSnapshot, findJobData } =
+  const { switchActiveJob, updateJobSnapshot, findJobData } =
     useJobManagement();
 
-  let parentJobs = [];
-  activeJob.parentJob.forEach((job) => {
-    let parent = jobArray.find((i) => i.jobID === job);
-    if (parent !== undefined) {
-      parentJobs.push(parent);
-    }
-  });
+  console.log(activeJob);
 
   return (
     <>
@@ -73,30 +67,33 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
             <AddIcon />
           </IconButton>
 
-          {parentJobs.length > 0
-            ? parentJobs.map((job) => {
+          {activeJob.parentJob !== undefined && activeJob.parentJob.length > 0
+            ? activeJob.parentJob.map((jobID) => {
+                let parent = userJobSnapshot.find((i) => i.jobID === jobID);
+                if (parent === undefined) {
+                  return null;
+                }
                 return (
                   <Grid
-                    key={job.jobID}
+                    key={parent.jobID}
                     item
                     xs="auto"
                     align="right"
                     sx={{ padding: "5px 5px" }}
                   >
                     <Chip
-                      key={job.jobID}
-                      label={job.name}
+                      key={parent.jobID}
+                      label={parent.name}
                       size="large"
                       deleteIcon={<ClearIcon />}
                       avatar={
                         <Avatar
-                          src={`https://image.eveonline.com/Type/${job.itemID}_32.png`}
+                          src={`https://image.eveonline.com/Type/${parent.itemID}_32.png`}
                         />
                       }
                       clickable
                       onClick={async () => {
-                        await closeEditJob(activeJob, jobModified);
-                        await openEditJob(job.jobID);
+                        await switchActiveJob(activeJob, parent.jobID);
                       }}
                       variant="outlined"
                       sx={{
@@ -109,7 +106,7 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
                         let newJobArray = [...jobArray];
                         let newUserJobSnapshot = [...userJobSnapshot];
                         let [selectedJob] = await findJobData(
-                          job.jobID,
+                          parent.jobID,
                           newUserJobSnapshot,
                           newJobArray
                         );

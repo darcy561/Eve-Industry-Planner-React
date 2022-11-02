@@ -32,8 +32,6 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
   const { switchActiveJob, updateJobSnapshot, findJobData } =
     useJobManagement();
 
-  console.log(activeJob);
-
   return (
     <>
       <ParentJobDialog

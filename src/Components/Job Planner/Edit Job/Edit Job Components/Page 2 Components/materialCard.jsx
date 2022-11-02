@@ -12,7 +12,6 @@ import AddMaterialCost from "./addMaterialCost";
 import { MaterialCost } from "./materialCost";
 import { jobTypes } from "../../../../../Context/defaultValues";
 import { ChildJobDialog } from "./childJobsDialog";
-import { JobArrayContext } from "../../../../../Context/JobContext";
 import { makeStyles } from "@mui/styles";
 import { ItemAssetsDialogue } from "./itemAssetsDialog";
 import {
@@ -37,13 +36,11 @@ function MaterialCard({
   const [itemAssetsDialogTrigger, updateItemAssetsDialogTrigger] =
     useState(false);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { jobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const classes = useStyles();
   let childJobs = [];
   let childJobProductionTotal = 0;
 
-  console.log(material);
   if (material.childJob.length > 0) {
     childJobs = userJobSnapshot.filter((i) =>
       material.childJob.includes(i.jobID)

@@ -217,8 +217,8 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                         setJobModified(true);
 
                         let newLinkedJobIDs = new Set(linkedJobIDs);
-                        const newActiveJobArray = new Set(activeJob.apiJobs);
-                        newActiveJobArray.add(job.job_id);
+                        const newActiveJobSet = new Set(activeJob.apiJobs);
+                        newActiveJobSet.add(job.job_id);
 
                         let newLinkedJobsArray = [
                           ...activeJob.build.costs.linkedJobs,
@@ -233,7 +233,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                         updateLinkedJobIDs([...newLinkedJobIDs]);
                         updateActiveJob((prevObj) => ({
                           ...prevObj,
-                          apiJobs: newActiveJobArray,
+                          apiJobs: newActiveJobSet,
                           build: {
                             ...prevObj.build,
                             costs: {

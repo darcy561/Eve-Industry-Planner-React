@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import {
   ActiveJobContext,
   ApiJobsContext,
+  LinkedIDsContext,
 } from "../../../../Context/JobContext";
 import { Container, Grid } from "@mui/material";
 import { TutorialStep3 } from "./Page 3 Components/tutorialStep3";
@@ -13,6 +14,7 @@ export function EditPage3({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { users } = useContext(UsersContext);
+  const { linkedJobIDs } = useContext(LinkedIDsContext);
 
   const parentUser = users.find((i) => i.ParentUser === true);
 
@@ -20,7 +22,8 @@ export function EditPage3({ setJobModified }) {
     (job) =>
       activeJob.itemID === job.product_type_id &&
       !activeJob.apiJobs.has(job.job_id) &&
-      job.linked === false
+      !linkedJobIDs.includes(job.job_id) &&
+      !parentUser.linkedJobs.has(job.job_id)
   );
   return (
     <Container disableGutters maxWidth="false" sx={{ width: "100%" }}>

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useContext, useMemo } from "react";
 import {
   IsLoggedInContext,
   UsersContext,
@@ -6,6 +6,7 @@ import {
 import {
   ActiveJobContext,
   ApiJobsContext,
+  LinkedIDsContext,
 } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import {
@@ -24,11 +25,15 @@ import { EveIDsContext } from "../../../../../Context/EveDataContext";
 export function LinkedJobs({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { eveIDs } = useContext(EveIDsContext);
-  const { users, updateUsers } = useContext(UsersContext);
-  const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
+  const { users } = useContext(UsersContext);
+  const { apiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { linkedJobIDs, updateLinkedJobIDs } = useContext(LinkedIDsContext);
   const analytics = getAnalytics();
+  const ParentUserIndex = useMemo(() => {
+    return users.findIndex((i) => i.ParentUser);
+  }, [users]);
 
   function timeRemainingcalc(job) {
     let now = new Date().getTime();
@@ -157,16 +162,24 @@ export function LinkedJobs({ setJobModified }) {
                   <Typography
                     sx={{ typography: { xs: "caption", sm: "body2" } }}
                     align="center"
-                  >{`${job.runs} Runs`}</Typography>
+                  >{`${job.runs.toLocaleString()} Runs`}</Typography>
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Typography sx={{ typography: { xs: "caption", sm: "body2" } }} align="center">
-                  {facilityData !== undefined ? facilityData.name : "Location Data Unavailable"}
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    align="center"
+                  >
+                    {facilityData !== undefined
+                      ? facilityData.name
+                      : "Location Data Unavailable"}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography sx={{ typography: { xs: "caption", sm: "body2" } }} align="center">
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    align="center"
+                  >
                     Install Costs:{" "}
                     {job.cost.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -176,7 +189,10 @@ export function LinkedJobs({ setJobModified }) {
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Typography sx={{ typography: { xs: "caption", sm: "body2" } }} align="center">
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    align="center"
+                  >
                     {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                   </Typography>
                 </Grid>
@@ -204,23 +220,20 @@ export function LinkedJobs({ setJobModified }) {
                       color="error"
                       size="standard"
                       onClick={() => {
-                        const ParentUserIndex = users.findIndex(
-                          (u) => u.ParentUser === true
-                        );
-
-                        let newUsersArray = [...users];
-
-                        setJobModified(true);
-
+                        let newLinkedJobIDs = new Set(linkedJobIDs);
                         const newActiveJobArray = new Set(activeJob.apiJobs);
+                        let newLinkedJobsArray = [
+                          ...activeJob.build.costs.linkedJobs,
+                        ];
 
-                        newActiveJobArray.delete(job.job_id)
-
-                        let newLinkedJobsArray =
-                          activeJob.build.costs.linkedJobs;
+                        newActiveJobArray.delete(job.job_id);
 
                         newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
 
+                        newLinkedJobIDs.delete(job.job_id);
+
+                        setJobModified(true);
+                        updateLinkedJobIDs([...newLinkedJobIDs]);
                         updateActiveJob((prevObj) => ({
                           ...prevObj,
                           apiJobs: newActiveJobArray,
@@ -235,21 +248,6 @@ export function LinkedJobs({ setJobModified }) {
                             },
                           },
                         }));
-
-                        const uA = newUsersArray[
-                          ParentUserIndex
-                        ].linkedJobs.findIndex((y) => y === job.job_id);
-                        newUsersArray[ParentUserIndex].linkedJobs.splice(uA, 1);
-
-                        updateUsers(newUsersArray);
-
-                        const newApiArray = apiJobs;
-                        const aA = newApiArray.findIndex(
-                          (z) => z.job_id === job.job_id
-                        );
-                        newApiArray[aA].linked = false;
-                        updateApiJobs(newApiArray);
-
                         setSnackbarData((prev) => ({
                           ...prev,
                           open: true,
@@ -280,21 +278,15 @@ export function LinkedJobs({ setJobModified }) {
                 size="small"
                 color="error"
                 onClick={() => {
-                  setJobModified(true);
-                  const ParentUserIndex = users.findIndex(
-                    (u) => u.ParentUser === true
-                  );
-                  let newUsersArray = [...users];
-                  const newActiveJobArray = [...activeJob.apiJobs];
+                  let newLinkedJobIDs = new Set(linkedJobIDs);
+                  const newActiveJobArray = new Set(activeJob.apiJobs);
                   let newLinkedJobsArray = [
                     ...activeJob.build.costs.linkedJobs,
                   ];
-                  const newApiArray = [...apiJobs];
                   let newInstallCosts = 0;
 
                   for (let job of activeJob.apiJobs) {
-
-                    newActiveJobArray.delete(job)
+                    newActiveJobArray.delete(job);
 
                     const linkedJobsArrayIndex = newLinkedJobsArray.findIndex(
                       (i) => i.job_id === job
@@ -306,20 +298,11 @@ export function LinkedJobs({ setJobModified }) {
                       newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
                     }
 
-                    const uA = newUsersArray[
-                      ParentUserIndex
-                    ].linkedJobs.findIndex((y) => y === job);
-                    if (uA !== -1) {
-                      newUsersArray[ParentUserIndex].linkedJobs.splice(uA, 1);
-                    }
-                    const aA = newApiArray.findIndex((z) => z.job_id === job);
-                    if (aA !== -1) {
-                      newApiArray[aA].linked = false;
-                    }
+                    newLinkedJobIDs.delete(job);
                   }
 
-                  updateUsers(newUsersArray);
-                  updateApiJobs(newApiArray);
+                  setJobModified(true);
+                  updateLinkedJobIDs([...newLinkedJobIDs]);
                   updateActiveJob((prevObj) => ({
                     ...prevObj,
                     apiJobs: newActiveJobArray,

@@ -26,13 +26,13 @@ export function ParentJobDialog({
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { jobArray } = useContext(JobArrayContext);
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
   const { downloadCharacterJobs, uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshotActiveJob } = useJobManagement();
+  const { updateJobSnapshotActiveJob, findJobData } = useJobManagement();
   const [matches, updateMatches] = useState([]);
 
   const handleClose = () => {
@@ -108,23 +108,24 @@ export function ParentJobDialog({
                       size="small"
                       color="primary"
                       onClick={async () => {
-                        let fullJob = null;
-                        if (job.isSnapshot) {
-                          fullJob = await downloadCharacterJobs(job);
-                          job.isSnapshot = false;
-                        } else {
-                          fullJob = jobArray.find((i) => i.jobID === job.jobID);
-                        }
+                        let newUserJobSnapshot = [...userJobSnapshot];
+                        let newJobArray = [...jobArray];
+                        let [fullJob] = await findJobData(
+                          job.jobID,
+                          newUserJobSnapshot,
+                          newJobArray
+                        );
                         let material = fullJob.build.materials.find(
                           (i) => i.typeID === activeJob.itemID
                         );
                         material.childJob.push(activeJob.jobID);
                         let newParentJobArray = [...activeJob.parentJob];
                         newParentJobArray.push(job.jobID);
-                        let newUserJobSnapshot = updateJobSnapshotActiveJob(
+                        newUserJobSnapshot = updateJobSnapshotActiveJob(
                           fullJob,
                           [...userJobSnapshot]
                         );
+                        updateJobArray(newJobArray);
                         updateUserJobSnapshot(newUserJobSnapshot);
                         updateActiveJob((prev) => ({
                           ...prev,

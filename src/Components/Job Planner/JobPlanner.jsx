@@ -9,7 +9,10 @@ import {
 import { UsersContext } from "../../Context/AuthContext";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
-import { PageLoadContext } from "../../Context/LayoutContext";
+import {
+  JobPlannerPageTriggerContext,
+  PageLoadContext,
+} from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { SearchBar } from "./Planner Components/searchbar";
 import { Grid } from "@mui/material";
@@ -20,9 +23,15 @@ import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
 import { ESIOffline } from "../offlineNotification";
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
+const EditGroup = lazy(() => import("./Groups/GroupPage"));
 
 export function JobPlanner() {
-  const [jobSettingsTrigger, updateJobSettingsTrigger] = useState(false);
+  const {
+    editJobTrigger,
+    editGroupTrigger,
+    updateEditJobTrigger,
+    updateEditGroupTrigger,
+  } = useContext(JobPlannerPageTriggerContext);
   const [shoppingListTrigger, updateShoppingListTrigger] = useState(false);
   const [shoppingListData, updateShoppingListData] = useState([]);
   const { users } = useContext(UsersContext);
@@ -40,7 +49,7 @@ export function JobPlanner() {
   if (pageLoad) {
     return <LoadingPage />;
   } else {
-    if (jobSettingsTrigger) {
+    if (editJobTrigger && !editGroupTrigger) {
       return (
         <Suspense fallback={<LoadingPage />}>
           <ShoppingListDialog
@@ -51,13 +60,21 @@ export function JobPlanner() {
           />
           <MassBuildFeedback />
           <EditJob
-            updateJobSettingsTrigger={updateJobSettingsTrigger}
+            updateEditJobTrigger={updateEditJobTrigger}
             updateShoppingListTrigger={updateShoppingListTrigger}
             updateShoppingListData={updateShoppingListData}
           />
         </Suspense>
       );
-    } else {
+    }
+    if (!editJobTrigger && editGroupTrigger) {
+      return (
+        <Suspense fallback={<LoadingPage />}>
+          <EditGroup updateEditGroupTrigger={updateEditGroupTrigger} />
+        </Suspense>
+      );
+    }
+    if (!editJobTrigger && !editGroupTrigger) {
       return (
         <Grid container sx={{ marginTop: "5px" }} spacing={2}>
           <ShoppingListDialog
@@ -84,9 +101,7 @@ export function JobPlanner() {
             />
           </Grid>
           <Grid item xs={12}>
-            <PlannerAccordion
-              updateJobSettingsTrigger={updateJobSettingsTrigger}
-            />
+            <PlannerAccordion updateEditJobTrigger={updateEditJobTrigger} />
           </Grid>
         </Grid>
       );

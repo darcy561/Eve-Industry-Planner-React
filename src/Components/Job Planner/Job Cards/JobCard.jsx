@@ -51,7 +51,7 @@ function DisplaySwitch({ job }) {
   }
 }
 
-export function JobCardFrame({ job, updateJobSettingsTrigger }) {
+export function JobCardFrame({ job, updateEditJobTrigger }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
@@ -165,7 +165,7 @@ export function JobCardFrame({ job, updateJobSettingsTrigger }) {
               disabled={job.isLocked}
               onClick={() => {
                 openEditJob(job.jobID);
-                updateJobSettingsTrigger((prev) => !prev);
+                updateEditJobTrigger((prev) => !prev);
               }}
               sx={{ height: "25px", width: "100px" }}
             >

@@ -9,7 +9,10 @@ import {
   SnackBarDataContext,
 } from "../../Context/LayoutContext";
 import { useEveApi } from "../../Hooks/useEveApi";
-import { UsersContext } from "../../Context/AuthContext";
+import {
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../../Context/AuthContext";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import { ApiJobsContext, JobArrayContext } from "../../Context/JobContext";
 import { useFirebase } from "../../Hooks/useFirebase";
@@ -20,12 +23,16 @@ import { useMemo } from "react";
 
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
-  const { downloadCharacterJobs, updateMainUserDoc } = useFirebase();
-  const { characterAPICall } = useAccountManagement();
-  const { replaceSnapshot } = useJobManagement();
+  const { uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
+  const { characterAPICall, checkUserClaims } = useAccountManagement();
+  const { findJobData, updateJobSnapshotActiveJob } =
+    useJobManagement();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { refreshState } = useContext(RefreshStateContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -47,7 +54,7 @@ export function AccountEntry({ user, parentUserIndex }) {
         user = await RefreshUserAToken(user);
       }
       if (user !== "RefreshFail") {
-        user = await characterAPICall(sStatus, user, parentUser);
+        user = await characterAPICall(sStatus, user);
         newAPIArray = apiJobs.filter(
           (i) => i.installer_id !== user.CharacterID
         );
@@ -82,20 +89,27 @@ export function AccountEntry({ user, parentUserIndex }) {
 
   async function removeUser(user) {
     let newJobArray = [...jobArray];
-    for (let job of newJobArray) {
-      if (job.isSnapshot) {
-        job = await downloadCharacterJobs(job);
-        job.isSnapshot = false;
-        replaceSnapshot(job);
-      }
-      if (job.build.buildChar === user.CharacterHash) {
+    let newUserJobSnapshot = [...userJobSnapshot];
+    let newUsers = [...users];
+
+    for (let jobSnap of newUserJobSnapshot) {
+      if (jobSnap.jobOwner === user.CharacterHash) {
+        let [job] = await findJobData(
+          jobSnap.jobID,
+          newUserJobSnapshot,
+          newJobArray
+        );
         job.build.buildChar = parentUser.CharacterHash;
+        newUserJobSnapshot = updateJobSnapshotActiveJob(
+          job,
+          newUserJobSnapshot
+        );
       }
     }
     let newApiArray = apiJobs.filter(
       (i) => i.installer_id !== user.CharacterID
     );
-    let newUsers = [...users];
+
     for (let nUser of newUsers) {
       if (nUser.ParentUser) {
         if (nUser.settings.account.cloudAccounts) {
@@ -114,9 +128,12 @@ export function AccountEntry({ user, parentUserIndex }) {
 
     newUsers = newUsers.filter((i) => i.CharacterHash !== user.CharacterHash);
     sessionStorage.removeItem(`assets_${user.CharacterHash}`);
+    await checkUserClaims(newUsers);
     updateUsers(newUsers);
     updateApiJobs(newApiArray);
     updateJobArray(newJobArray);
+    updateUserJobSnapshot(newUserJobSnapshot);
+    uploadUserJobSnapshot(newUserJobSnapshot);
     if (parentUser.settings.account.cloudAccounts) {
       updateMainUserDoc();
     }
@@ -155,7 +172,9 @@ export function AccountEntry({ user, parentUserIndex }) {
             />
           </Grid>
           <Grid item xs={8} sm={9}>
-            <Typography sx={{typography:{xs:"caption", sm:"body1"}}}>{user.CharacterName}</Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
+              {user.CharacterName}
+            </Typography>
           </Grid>
           <Grid item xs={1} align="center">
             {refreshState === 1 && userRefreshState === 1 ? (

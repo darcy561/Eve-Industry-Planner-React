@@ -37,7 +37,7 @@ export function useEveApi() {
     }
   };
 
-  const IndustryJobs = async (userObj, parentInfo) => {
+  const IndustryJobs = async (userObj) => {
     try {
       const indyPromise = await fetch(
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/industry/jobs/?datasource=tranquility&include_completed=true&token=${userObj.aToken}`
@@ -46,24 +46,6 @@ export function useEveApi() {
       const indyJSON = await indyPromise.json();
 
       if (indyPromise.status === 200) {
-        indyJSON.forEach((job) => {
-          if (job.activity_id === 1 || job.activity_id === 9) {
-            if (userObj.ParentUser) {
-              if (userObj.linkedJobs.includes(job.job_id)) {
-                job.linked = true;
-              } else {
-                job.linked = false;
-              }
-            } else {
-              if (parentInfo.linkedJobs.includes(job.job_id)) {
-                job.linked = true;
-              } else {
-                job.linked = false;
-              }
-            }
-          }
-        });
-
         let filterOld = indyJSON.filter(
           (job) =>
             job.completed_date === undefined ||
@@ -361,7 +343,7 @@ export function useEveApi() {
 
       if (standingsPromise.status === 200) {
         return standingsJSON;
-      }else return []
+      } else return [];
     } catch (err) {
       return [];
     }
@@ -371,21 +353,36 @@ export function useEveApi() {
     try {
       const stationDataPromise = await fetch(
         `https://esi.evetech.net/latest/universe/stations/${stationID}`
-      )
+      );
 
       const stationDataJson = await stationDataPromise.json();
 
       if (stationDataPromise.status === 200) {
-        return stationDataJson
+        return stationDataJson;
       }
-      
     } catch (err) {
-      return null
+      return null;
     }
-  }
+  };
+
+  const characterData = async (userObj) => {
+    try {
+      const characterPromise = await fetch(
+        `https://esi.evetech.net/legacy/characters/${userObj.CharacterID}/?datasource=tranquility`
+      );
+      const characterData = await characterPromise.json();
+
+      if (characterPromise.status === 200) {
+        return characterData;
+      }
+    } catch (err) {
+      return {};
+    }
+  };
 
   return {
     BlueprintLibrary,
+    characterData,
     CharacterSkills,
     fullAssetsList,
     HistoricMarketOrders,

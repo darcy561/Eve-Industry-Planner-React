@@ -8,7 +8,10 @@ import {
 } from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../../../../Context/AuthContext";
-import { ActiveJobContext } from "../../../../../Context/JobContext";
+import {
+  ActiveJobContext,
+  LinkedIDsContext,
+} from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { MdOutlineLinkOff } from "react-icons/md";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
@@ -47,8 +50,14 @@ export function LinkedMarketOrders({
 }) {
   const { eveIDs } = useContext(EveIDsContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
-  const { users, updateUsers } = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const {
+    linkedOrderIDs,
+    updateLinkedOrderIDs,
+    linkedTransIDs,
+    updateLinkedTransIDs,
+  } = useContext(LinkedIDsContext);
   const classes = useStyles();
 
   let linkedMarketOrders = [];
@@ -206,7 +215,9 @@ export function LinkedMarketOrders({
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >
-                      {locationData !== undefined ? locationData.name : "Location Data Unavailable"}
+                      {locationData !== undefined
+                        ? locationData.name
+                        : "Location Data Unavailable"}
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
@@ -347,11 +358,23 @@ export function LinkedMarketOrders({
                         const parentUserIndex = users.findIndex(
                           (i) => i.ParentUser
                         );
-                        let newApiOrders = new Set(activeJob.apiOrders)
-                        let newApiTransactions = new Set(activeJob.apiTransactions)
+                        let newOrderArray = [
+                          ...activeJob.build.sale.marketOrders,
+                        ];
+                        let newBrokerArray = [
+                          ...activeJob.build.sale.brokersFee,
+                        ];
+                        let newTransactionArray = [
+                          ...activeJob.build.sale.transactions,
+                        ];
+                        let newApiOrders = new Set(activeJob.apiOrders);
+                        let newApiTransactions = new Set(
+                          activeJob.apiTransactions
+                        );
+                        let newLinkedTransIDs = new Set(linkedTransIDs);
+                        let newLinkedOrderIDs = new Set(linkedOrderIDs);
                         let brokerFees = new Set();
                         let transactions = new Set();
-                        
 
                         activeJob.build.sale.brokersFee.forEach((item) => {
                           if (item.location_id === order.location_id) {
@@ -362,19 +385,10 @@ export function LinkedMarketOrders({
                         activeJob.build.sale.transactions.forEach((trans) => {
                           if (trans.location_id === order.location_id) {
                             transactions.add(trans.transaction_id);
-                            newApiTransactions.delete(trans.transaction_id)
+                            newLinkedTransIDs.delete(trans.transaction_id);
+                            newApiTransactions.delete(trans.transaction_id);
                           }
                         });
-                        let newOrderArray = [
-                          ...activeJob.build.sale.marketOrders,
-                        ];
-                        let newBrokerArray = [
-                          ...activeJob.build.sale.brokersFee,
-                        ];
-                        let newTransactionArray = [
-                          ...activeJob.build.sale.transactions,
-                        ];
-                        let newUsersArray = [...users];
 
                         if (orderIndex !== -1) {
                           newOrderArray.splice(orderIndex, 1);
@@ -384,23 +398,15 @@ export function LinkedMarketOrders({
                           brokerFees.has(item.id)
                         );
 
-                        newUsersArray[parentUserIndex].linkedOrders =
-                          newUsersArray[parentUserIndex].linkedOrders.filter(
-                            (id) => id != order.order_id
-                          );
-
-                        newUsersArray[parentUserIndex].linkedTrans =
-                          newUsersArray[parentUserIndex].linkedTrans.filter(
-                            (i) => !transactions.has(i)
-                          );
+                        newLinkedOrderIDs.delete(order.order_id);
 
                         newTransactionArray = newTransactionArray.filter(
                           (item) => !transactions.has(item.transaction_id)
                         );
-                        newApiOrders.delete(order.order_id)
+                        newApiOrders.delete(order.order_id);
 
-                        updateUsers(newUsersArray);
-
+                        updateLinkedOrderIDs([...newLinkedOrderIDs]);
+                        updateLinkedTransIDs([...newLinkedTransIDs]);
                         updateActiveJob((prev) => ({
                           ...prev,
                           apiOrders: newApiOrders,

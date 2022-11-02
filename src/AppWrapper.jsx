@@ -4,6 +4,7 @@ import {
   ActiveJob,
   ApiJobs,
   ArchivedJobs,
+  LinkedIDs,
 } from "./Context/JobContext";
 import {
   FirebaseListeners,
@@ -28,6 +29,7 @@ import {
   RefreshState,
   PriceEntryList,
   MassBuildDisplay,
+  JobPlannerPageTrigger,
 } from "./Context/LayoutContext";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -43,41 +45,47 @@ export function AppWrapper() {
               <RefreshState>
                 <IsLoggedIn>
                   <Users>
-                    <UserJobSnapshot>
-                      <UserWatchlist>
-                        <DataExchange>
-                          <ActiveJob>
-                            <JobArray>
-                              <JobStatus>
-                                <ApiJobs>
-                                  <EveIDs>
-                                    <EveESIStatus>
-                                      <EvePrices>
-                                        <MultiSelectJobPlanner>
-                                          <PriceEntryList>
-                                            <SisiDataFiles>
-                                              <MassBuildDisplay>
-                                                <ArchivedJobs>
-                                                  <LocalizationProvider
-                                                    dateAdapter={AdapterDateFns}
-                                                  >
-                                                    <App />
-                                                  </LocalizationProvider>
-                                                </ArchivedJobs>
-                                              </MassBuildDisplay>
-                                            </SisiDataFiles>
-                                          </PriceEntryList>
-                                        </MultiSelectJobPlanner>
-                                      </EvePrices>
-                                    </EveESIStatus>
-                                  </EveIDs>
-                                </ApiJobs>
-                              </JobStatus>
-                            </JobArray>
-                          </ActiveJob>
-                        </DataExchange>
-                      </UserWatchlist>
-                    </UserJobSnapshot>
+                    <LinkedIDs>
+                      <UserJobSnapshot>
+                        <UserWatchlist>
+                          <DataExchange>
+                            <JobPlannerPageTrigger>
+                              <ActiveJob>
+                                <JobArray>
+                                  <JobStatus>
+                                    <ApiJobs>
+                                      <EveIDs>
+                                        <EveESIStatus>
+                                          <EvePrices>
+                                            <MultiSelectJobPlanner>
+                                              <PriceEntryList>
+                                                <SisiDataFiles>
+                                                  <MassBuildDisplay>
+                                                    <ArchivedJobs>
+                                                      <LocalizationProvider
+                                                        dateAdapter={
+                                                          AdapterDateFns
+                                                        }
+                                                      >
+                                                        <App />
+                                                      </LocalizationProvider>
+                                                    </ArchivedJobs>
+                                                  </MassBuildDisplay>
+                                                </SisiDataFiles>
+                                              </PriceEntryList>
+                                            </MultiSelectJobPlanner>
+                                          </EvePrices>
+                                        </EveESIStatus>
+                                      </EveIDs>
+                                    </ApiJobs>
+                                  </JobStatus>
+                                </JobArray>
+                              </ActiveJob>
+                            </JobPlannerPageTrigger>
+                          </DataExchange>
+                        </UserWatchlist>
+                      </UserJobSnapshot>
+                    </LinkedIDs>
                   </Users>
                 </IsLoggedIn>
               </RefreshState>

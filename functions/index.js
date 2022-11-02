@@ -212,8 +212,9 @@ app.get("/systemindexes/:systemID", async (req, res) => {
 
 //Export the api to Firebase Cloud Functions
 exports.api = onRequest({region:["europe-west1"], maxInstances: 40}, app);
-exports.user = require("./Triggered Functions/Users");
+exports.buildUser = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
 exports.feedback = require("./Triggered Functions/storeFeedback");
+exports.userClaims = require("./Triggered Functions/addCorpClaim")

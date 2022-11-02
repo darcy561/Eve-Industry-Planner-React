@@ -1,10 +1,14 @@
 import React, { useContext, useState } from "react";
 import {
   ApiJobsContext,
-  JobArrayContext,
   JobStatusContext,
+  LinkedIDsContext,
 } from "../../../Context/JobContext";
-import { IsLoggedInContext, UserJobSnapshotContext } from "../../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../../../Context/AuthContext";
 import {
   Accordion,
   AccordionDetails,
@@ -25,6 +29,7 @@ import { useFirebase } from "../../../Hooks/useFirebase";
 import { ApiJobCard } from "../Job Cards/ApiJobCard";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { makeStyles } from "@mui/styles";
+import { useMemo } from "react";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -38,15 +43,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function PlannerAccordion({ updateJobSettingsTrigger }) {
+export function PlannerAccordion({ updateEditJobTrigger }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
+  const { users } = useContext(UsersContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { jobArray } = useContext(JobArrayContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { linkedJobIDs } = useContext(LinkedIDsContext);
   const [statusSettingsTrigger, updateStatusSettingsTrigger] = useState(false);
   const [statusData, updateStatusData] = useState({
     id: 0,
@@ -58,6 +64,10 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
   });
   const { updateMainUserDoc } = useFirebase();
   const classes = useStyles();
+
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);
@@ -169,7 +179,7 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
                       <JobCardFrame
                         key={job.jobID}
                         job={job}
-                        updateJobSettingsTrigger={updateJobSettingsTrigger}
+                        updateEditJobTrigger={updateEditJobTrigger}
                       />
                     );
                   } else {
@@ -179,15 +189,12 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
 
                 {status.openAPIJobs &&
                   apiJobs.map((j) => {
-                    if (!j.linked || j.linked === undefined) {
-                      if (j.status === "active" && j.linked === false) {
-                        //ESI Manufacturing Jobs
-                        return <ApiJobCard key={j.job_id} job={j} />;
-                      }
-                      if (j.linked === undefined) {
-                        // ESI Research Jobs
-                        return <ApiJobCard key={j.job_id} job={j} />;
-                      } else return null;
+                    if (
+                      !parentUser.linkedJobs.has(j.job_id) &&
+                      !linkedJobIDs.includes(j.job_id) &&
+                      j.status === "active"
+                    ) {
+                      return <ApiJobCard key={j.job_id} job={j} />;
                     } else {
                       return null;
                     }
@@ -195,7 +202,11 @@ export function PlannerAccordion({ updateJobSettingsTrigger }) {
 
                 {status.completeAPIJobs &&
                   apiJobs.map((j) => {
-                    if (!j.linked && j.status === "delivered") {
+                    if (
+                      !parentUser.linkedJobs.has(j.job_id) &&
+                      !linkedJobIDs.includes(j.job_id) &&
+                      j.status === "delivered"
+                    ) {
                       return <ApiJobCard key={j.job_id} job={j} />;
                     } else {
                       return null;

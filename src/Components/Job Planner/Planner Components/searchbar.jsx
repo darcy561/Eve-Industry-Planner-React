@@ -16,14 +16,16 @@ import { useJobManagement } from "../../../Hooks/useJobManagement";
 import {
   DataExchangeContext,
   DialogDataContext,
+  JobPlannerPageTriggerContext,
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
 } from "../../../Context/LayoutContext";
-import { JobArrayContext } from "../../../Context/JobContext";
+import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { SisiDataFilesContext } from "../../../Context/EveDataContext";
 
 import { makeStyles } from "@mui/styles";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
+import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 
 const useStyles = makeStyles((theme) => ({
   Autocomplete: {
@@ -46,16 +48,17 @@ export function SearchBar({
   updateShoppingListTrigger,
   updateShoppingListData,
 }) {
-  const { jobArray } = useContext(JobArrayContext);
+  const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
   const { DataExchange } = useContext(DataExchangeContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
   const { updateDialogData } = useContext(DialogDataContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { sisiDataFiles, updateSisiDataFiles } =
     useContext(SisiDataFilesContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateActiveGroup } = useContext(ActiveJobContext);
   const {
     deleteMultipleJobsProcess,
     massBuildMaterials,
@@ -66,6 +69,7 @@ export function SearchBar({
     newJobProcess,
     buildItemPriceEntry,
   } = useJobManagement();
+  const { createNewGroupWithJobs } = useGroupManagement();
   const classes = useStyles();
 
   return (
@@ -409,6 +413,19 @@ export function SearchBar({
                 Delete
               </Button>
             </Tooltip>
+          </Grid>
+          <Grid item xs={12} md="auto" align="center">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={async () => {
+                let newGroup = await createNewGroupWithJobs(multiSelectJobPlanner);
+                updateActiveGroup(newGroup)
+                updateEditGroupTrigger((prev) => !prev);
+              }}
+            >
+              New Group
+            </Button>
           </Grid>
         </Grid>
       </Grid>

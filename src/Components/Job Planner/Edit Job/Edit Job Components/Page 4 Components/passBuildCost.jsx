@@ -24,7 +24,7 @@ export function PassBuildCostButton() {
     UserJobSnapshotContext
   );
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshot, findJobData } = useJobManagement();
+  const { updateJobSnapshotActiveJob, findJobData } = useJobManagement();
   const analytics = getAnalytics();
 
   const parentUser = users.find((i) => i.ParentUser === true);
@@ -80,7 +80,10 @@ export function PassBuildCostButton() {
       if (isLoggedIn) {
         await uploadJob(parentJob);
       }
-      newUserJobSnapshot = updateJobSnapshot(parentJob, newUserJobSnapshot);
+      newUserJobSnapshot = updateJobSnapshotActiveJob(
+        parentJob,
+        newUserJobSnapshot
+      );
       let index = newJobArray.findIndex((i) => i.jobID === parentJob.jobID);
 
       newJobArray[index] = parentJob;

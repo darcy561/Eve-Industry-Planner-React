@@ -46,7 +46,6 @@ export function useEveApi() {
       const indyJSON = await indyPromise.json();
 
       if (indyPromise.status === 200) {
-
         let filterOld = indyJSON.filter(
           (job) =>
             job.completed_date === undefined ||
@@ -169,9 +168,8 @@ export function useEveApi() {
       if (transactionsPromise.status === 200) {
         const filtered = transactionsJSON.filter(
           (i) =>
-            i.is_buy === false 
+            i.is_buy === false && new Date() - Date.parse(i.date) <= 1209600000
         );
-        // && new Date() - Date.parse(i.date) <= 1209600000
         return filtered;
       } else return [];
     } catch (err) {
@@ -193,9 +191,9 @@ export function useEveApi() {
         if (journalPromise.status === 200) {
           let currentDate = new Date();
           journalJSON.forEach((item) => {
-            // if (currentDate - Date.parse(item.date) <= 1209600000) {
+            if (currentDate - Date.parse(item.date) <= 1209600000) {
               returnArray.push(item);
-            // }
+            }
           });
 
           if (journalJSON.length < 1000) {
@@ -345,7 +343,7 @@ export function useEveApi() {
 
       if (standingsPromise.status === 200) {
         return standingsJSON;
-      }else return []
+      } else return [];
     } catch (err) {
       return [];
     }
@@ -355,35 +353,32 @@ export function useEveApi() {
     try {
       const stationDataPromise = await fetch(
         `https://esi.evetech.net/latest/universe/stations/${stationID}`
-      )
+      );
 
       const stationDataJson = await stationDataPromise.json();
 
       if (stationDataPromise.status === 200) {
-        return stationDataJson
+        return stationDataJson;
       }
-      
     } catch (err) {
-      return null
+      return null;
     }
-  }
+  };
 
   const characterData = async (userObj) => {
-    
     try {
       const characterPromise = await fetch(
         `https://esi.evetech.net/legacy/characters/${userObj.CharacterID}/?datasource=tranquility`
-      )
-      const characterData = await characterPromise.json()
+      );
+      const characterData = await characterPromise.json();
 
       if (characterPromise.status === 200) {
-        return characterData
+        return characterData;
       }
-      
-    } catch(err) {
-      return {}
+    } catch (err) {
+      return {};
     }
-  }
+  };
 
   return {
     BlueprintLibrary,

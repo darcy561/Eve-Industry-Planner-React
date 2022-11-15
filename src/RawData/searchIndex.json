@@ -9396,13 +9396,13 @@
     "jobType": 1
   },
   {
-    "name": "'Crop' Gas Cloud Scoop ",
+    "name": "'Crop' Gas Cloud Scoop",
     "itemID": 25540,
     "blueprintID": 25541,
     "jobType": 1
   },
   {
-    "name": "'Plow' Gas Cloud Scoop ",
+    "name": "'Plow' Gas Cloud Scoop",
     "itemID": 25542,
     "blueprintID": 25543,
     "jobType": 1
@@ -12000,7 +12000,7 @@
     "jobType": 1
   },
   {
-    "name": "Syndicate Gas Cloud Scoop ",
+    "name": "Syndicate Gas Cloud Scoop",
     "itemID": 28788,
     "blueprintID": 28789,
     "jobType": 1
@@ -22638,7 +22638,7 @@
     "jobType": 1
   },
   {
-    "name": "Genetic Mutation Inhibiter",
+    "name": "Genetic Mutation Inhibitor",
     "itemID": 57485,
     "blueprintID": 57522,
     "jobType": 1
@@ -23136,7 +23136,7 @@
     "jobType": 1
   },
   {
-    "name": "Medium Industrial Core II ",
+    "name": "Medium Industrial Core II",
     "itemID": 62591,
     "blueprintID": 62593,
     "jobType": 1
@@ -23229,6 +23229,102 @@
     "name": "Boobook",
     "itemID": 64034,
     "blueprintID": 64035,
+    "jobType": 1
+  },
+  {
+    "name": "Cyclone Fleet Issue",
+    "itemID": 72811,
+    "blueprintID": 72923,
+    "jobType": 1
+  },
+  {
+    "name": "Ferox Navy Issue",
+    "itemID": 72812,
+    "blueprintID": 72926,
+    "jobType": 1
+  },
+  {
+    "name": "Myrmidon Navy Issue",
+    "itemID": 72869,
+    "blueprintID": 72925,
+    "jobType": 1
+  },
+  {
+    "name": "Prophecy Navy Issue",
+    "itemID": 72872,
+    "blueprintID": 72924,
+    "jobType": 1
+  },
+  {
+    "name": "Probe Fleet Issue",
+    "itemID": 72903,
+    "blueprintID": 72917,
+    "jobType": 1
+  },
+  {
+    "name": "Heron Navy Issue",
+    "itemID": 72904,
+    "blueprintID": 72922,
+    "jobType": 1
+  },
+  {
+    "name": "Magnate Navy Issue",
+    "itemID": 72907,
+    "blueprintID": 72920,
+    "jobType": 1
+  },
+  {
+    "name": "Imicus Navy Issue",
+    "itemID": 72913,
+    "blueprintID": 72919,
+    "jobType": 1
+  },
+  {
+    "name": "Naglfar Fleet Issue",
+    "itemID": 73787,
+    "blueprintID": 73999,
+    "jobType": 1
+  },
+  {
+    "name": "Coercer Navy Issue",
+    "itemID": 73789,
+    "blueprintID": 73973,
+    "jobType": 1
+  },
+  {
+    "name": "Revelation Navy Issue",
+    "itemID": 73790,
+    "blueprintID": 74000,
+    "jobType": 1
+  },
+  {
+    "name": "Moros Navy Issue",
+    "itemID": 73792,
+    "blueprintID": 73996,
+    "jobType": 1
+  },
+  {
+    "name": "Phoenix Navy Issue",
+    "itemID": 73793,
+    "blueprintID": 73995,
+    "jobType": 1
+  },
+  {
+    "name": "Thrasher Fleet Issue",
+    "itemID": 73794,
+    "blueprintID": 73979,
+    "jobType": 1
+  },
+  {
+    "name": "Cormorant Navy Issue",
+    "itemID": 73795,
+    "blueprintID": 73978,
+    "jobType": 1
+  },
+  {
+    "name": "Catalyst Navy Issue",
+    "itemID": 73796,
+    "blueprintID": 73972,
     "jobType": 1
   }
 ]

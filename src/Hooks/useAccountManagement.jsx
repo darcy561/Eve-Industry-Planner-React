@@ -294,7 +294,10 @@ export function useAccountManagement() {
     let corpIDs = new Set();
 
     for (let user of newUserArray) {
-      if (!token.claims.corporations.includes(user.corporation)) {
+      if (
+        !token.claims.hasOwnProperty("corporations") ||
+        !token.claims.corporations.includes(user.corporation)
+      ) {
         triggerClaimUpdate = true;
       }
       dataArray.push({
@@ -302,7 +305,10 @@ export function useAccountManagement() {
       });
       corpIDs.add(user.corporation);
     }
-    if (corpIDs.size !== token.claims.corporations.length) {
+    if (
+      !triggerClaimUpdate &&
+      corpIDs.size !== token.claims.corporations.length
+    ) {
       triggerClaimUpdate = true;
     }
 

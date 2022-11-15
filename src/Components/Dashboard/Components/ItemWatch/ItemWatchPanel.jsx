@@ -51,6 +51,7 @@ export function ItemWatchPanel() {
           setOpenDialog={setOpenDialog}
         />
         <AddGroupDialog
+          parentUser={parentUser}
           addNewGroupTrigger={addNewGroupTrigger}
           updateAddNewGroupTrigger={updateAddNewGroupTrigger}
         />

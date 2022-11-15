@@ -434,6 +434,17 @@ export function ShoppingListDialog({
                   Copy to Clipboard
                 </Button>
               </CopyToClipboard>
+              <Button
+                onClick={async () => {
+                  let importedText = await navigator.clipboard.readText();
+                  let matches = importedText.matchAll(/(\D*|\S*?\D*\d*?\D*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)/g)
+                  for (let match of matches) {
+                    console.log(match[1])
+                  }
+                }}
+              >
+                Copy From Clipboard
+              </Button>
             </Grid>
             <Grid item xs={12} sm={2} align="right">
               <Button onClick={handleClose} autoFocus>

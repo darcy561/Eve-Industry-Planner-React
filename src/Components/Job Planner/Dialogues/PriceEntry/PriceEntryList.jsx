@@ -30,8 +30,15 @@ export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { downloadCharacterJobs, updateMainUserDoc, uploadJob, uploadUserJobSnapshot } = useFirebase();
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
+  const {
+    downloadCharacterJobs,
+    updateMainUserDoc,
+    uploadJob,
+    uploadUserJobSnapshot,
+  } = useFirebase();
   const { updateJobSnapshot } = useJobManagement();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -56,6 +63,7 @@ export function PriceEntryDialog() {
   );
   const [totalImportedCost, updateTotalImportedCost] = useState(0);
   const [totalConfirmed, updateTotalConfirmed] = useState(false);
+  const [importFromClipboard, updateImportFromClipboard] = useState(false);
 
   const handleClose = () => {
     updateTotalImportedCost(0);
@@ -109,15 +117,15 @@ export function PriceEntryDialog() {
         }
       }
     }
-    let newUserJobSnapshot = [...userJobSnapshot]
+    let newUserJobSnapshot = [...userJobSnapshot];
     for (let job of uploadIDs) {
-      newUserJobSnapshot =  updateJobSnapshot(job, newUserJobSnapshot);
+      newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
       if (isLoggedIn) {
         await uploadJob(job);
       }
     }
     if (isLoggedIn) {
-      uploadUserJobSnapshot(newUserJobSnapshot)
+      uploadUserJobSnapshot(newUserJobSnapshot);
     }
     updateUserJobSnapshot(newUserJobSnapshot);
     updateJobArray(newJobArray);
@@ -230,6 +238,8 @@ export function PriceEntryDialog() {
                   displayMarket={displayMarket}
                   totalImportedCost={totalImportedCost}
                   updateTotalImportedCost={updateTotalImportedCost}
+                  importFromClipboard={importFromClipboard}
+                  updateImportFromClipboard={updateImportFromClipboard}
                 />
               );
             })}
@@ -292,13 +302,58 @@ export function PriceEntryDialog() {
 
         <DialogActions sx={{ padding: "20px" }}>
           {!importAction ? (
-            <Button
-              variant="contained"
-              sx={{ marginRight: "20px" }}
-              type="submit"
-            >
-              Add Prices
-            </Button>
+            <>
+              <Button
+                onClick={async () => {
+                  let newList = [...priceEntryListData.list];
+                  let newTotal = totalImportedCost;
+                  let importedText = await navigator.clipboard.readText();
+                  let importCount = 0;
+                  let matches = importedText.matchAll(
+                    /(\D*|\S*?\D*\d*?\D*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)(\r?\n|\r)/g
+                  );
+                  for (let importMatch of matches) {
+                    for (let listItem of newList) {
+                      if (
+                        listItem.name === importMatch[1] &&
+                        !listItem.confirmed
+                      ) {
+                        let number = parseFloat(
+                          importMatch[3].replace(/,/g, "")
+                        );
+
+                        newTotal += number * listItem.quantity;
+                        listItem.confirmed = true;
+                        listItem.itemPrice = number;
+                        importCount++;
+                      }
+                    }
+                  }
+                  updateTotalImportedCost(newTotal);
+                  updatePriceEntryListData((prev) => ({
+                    ...prev,
+                    list: newList,
+                  }));
+                  updateImportFromClipboard(true);
+                  setSnackbarData((prev) => ({
+                    ...prev,
+                    open: true,
+                    message: `${importCount} Prices Added`,
+                    severity: "success",
+                    autoHideDuration: 3000,
+                  }));
+                }}
+              >
+                Import From Clipboard
+              </Button>
+              <Button
+                variant="contained"
+                sx={{ marginRight: "20px" }}
+                type="submit"
+              >
+                Add Prices
+              </Button>
+            </>
           ) : (
             <CircularProgress size="small" color="primary" />
           )}

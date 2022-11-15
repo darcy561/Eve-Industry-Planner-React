@@ -49,5 +49,9 @@ exports.submitUserFeedback = functions
         username: "Feedback Webhook",
         embeds: [embed],
       });
-    } catch (err) {}
+      functions.logger.log("Feedback Submitted Successfully");
+    } catch (err) {
+      functions.logger.error("Failed to submit feedback");
+      functions.logger.error(err);
+    }
   });

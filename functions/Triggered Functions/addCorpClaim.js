@@ -27,6 +27,10 @@ exports.updateCorpIDs = functions
               decoded.iss != "login.eveonline.com" &&
               decoded.iss != "https://login.eveonline.com"
             ) {
+              functions.logger.error(
+                `${context.auth.uid} failed to verify Eve Token`
+              );
+              functions.logger.error(JSON.stringify(decoded));
               return false;
             } else {
               return true;
@@ -45,6 +49,7 @@ exports.updateCorpIDs = functions
           }
         }
       }
+      functions.logger.log(`${context.auth.uid} Corporation Claims Updated`);
       await admin.auth().setCustomUserClaims(context.auth.uid, {
         corporations: [...corpIDs],
       });
@@ -52,6 +57,7 @@ exports.updateCorpIDs = functions
     }
 
     if (context.auth === undefined) {
+      functions.logger.error("Unathorised Claims User");
       return { error: "Unauthorised User" };
     }
     await setClaim();

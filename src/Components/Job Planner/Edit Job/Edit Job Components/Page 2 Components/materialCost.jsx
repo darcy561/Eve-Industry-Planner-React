@@ -10,10 +10,39 @@ export function MaterialCost({ materialIndex, material, setJobModified }) {
 
   function handleRemove(purchasingIndex) {
     const newArray = [...activeJob.build.materials];
-    let newTotal = 0;
+    let newTotal = activeJob.build.costs.totalPurchaseCost;
+
+    if (
+      isNaN(newArray[materialIndex].quantityPurchased) ||
+      newArray[materialIndex].quantityPurchased < 0 ||
+      isNaN(newArray[materialIndex].purchasedCost) ||
+      newArray[materialIndex].purchasedCost < 0
+    ) {
+      let newQuantity = 0;
+      let newPurchaseCost = 0;
+      newArray[materialIndex].purchasing.forEach((entry) => {
+        newQuantity += entry.itemCount;
+        newPurchaseCost += entry.itemCount * entry.itemCost;
+      });
+      newArray[materialIndex].quantityPurchased = newQuantity;
+      newArray[materialIndex].purchasedCost = newPurchaseCost;
+    }
+    if (
+      isNaN(activeJob.build.costs.totalPurchaseCost) ||
+      activeJob.build.costs.totalPurchaseCost < 0
+    ) {
+      newTotal = 0;
+      newArray.forEach((i) => {
+        newTotal += i.purchasedCost;
+      });
+    }
+
     newArray[materialIndex].quantityPurchased -=
       newArray[materialIndex].purchasing[purchasingIndex].itemCount;
     newArray[materialIndex].purchasedCost -=
+      newArray[materialIndex].purchasing[purchasingIndex].itemCount *
+      newArray[materialIndex].purchasing[purchasingIndex].itemCost;
+    newTotal -=
       newArray[materialIndex].purchasing[purchasingIndex].itemCount *
       newArray[materialIndex].purchasing[purchasingIndex].itemCost;
     if (
@@ -25,18 +54,27 @@ export function MaterialCost({ materialIndex, material, setJobModified }) {
     if (purchasingIndex !== -1 && materialIndex !== -1) {
       newArray[materialIndex].purchasing.splice(purchasingIndex, 1);
     }
-    newArray.forEach((material) => {
-      newTotal += material.purchasedCost;
-    });
+
+    if (newArray[materialIndex].purchasing.length === 0) {
+      if (
+        newArray[materialIndex].quantityPurchased !== 0 ||
+        newArray[materialIndex].purchasedCost !== 0
+      ) {
+        newArray[materialIndex].quantityPurchased = 0;
+        newArray[materialIndex].purchasedCost = 0;
+
+        newTotal = 0;
+        newArray.forEach((i) => {
+          newTotal += i.purchasedCost;
+        });
+      }
+    }
 
     updateActiveJob((prevObj) => ({
       ...prevObj,
       build: {
         ...prevObj.build,
         materials: newArray,
-        products: {
-          ...prevObj.build.products,
-        },
         costs: {
           ...prevObj.build.costs,
           totalPurchaseCost: newTotal,

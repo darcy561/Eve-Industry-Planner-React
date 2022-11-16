@@ -214,21 +214,28 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                       color="primary"
                       size="standard"
                       onClick={() => {
-                        setJobModified(true);
-
+                        let newInstallCosts =
+                          activeJob.build.costs.installCosts;
                         let newLinkedJobIDs = new Set(linkedJobIDs);
-                        const newActiveJobSet = new Set(activeJob.apiJobs);
-                        newActiveJobSet.add(job.job_id);
-
+                        let newActiveJobSet = new Set(activeJob.apiJobs);
                         let newLinkedJobsArray = [
                           ...activeJob.build.costs.linkedJobs,
                         ];
+
+                        if (isNaN(newInstallCosts) || newInstallCosts < 0) {
+                          newInstallCosts = 0;
+                          newLinkedJobsArray.forEach((linkedJob) => {
+                            newInstallCosts += linkedJob.cost;
+                          });
+                        }
 
                         newLinkedJobsArray.push(
                           Object.assign({}, new ESIJob(job, jobOwner))
                         );
 
+                        newActiveJobSet.add(job.job_id);
                         newLinkedJobIDs.add(job.job_id);
+                        newInstallCosts += job.cost;
 
                         updateLinkedJobIDs([...newLinkedJobIDs]);
                         updateActiveJob((prevObj) => ({
@@ -239,9 +246,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                             costs: {
                               ...prevObj.build.costs,
                               linkedJobs: newLinkedJobsArray,
-                              installCosts:
-                                (activeJob.build.costs.installCosts +=
-                                  job.cost),
+                              installCosts: newInstallCosts,
                             },
                           },
                         }));
@@ -256,6 +261,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                           UID: users[ParentUserIndex].accountID,
                           isLoggedIn: isLoggedIn,
                         });
+                        setJobModified(true);
                       }}
                     >
                       <MdOutlineAddLink />
@@ -275,13 +281,20 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                 variant="contained"
                 size="small"
                 onClick={() => {
-                  setJobModified(true);
                   let newLinkedJobIDs = new Set(linkedJobIDs);
-                  const newApiJobsSet = new Set(activeJob.apiJobs);
+                  let newApiJobsSet = new Set(activeJob.apiJobs);
                   let newLinkedJobsArray = [
                     ...activeJob.build.costs.linkedJobs,
                   ];
-                  let newInstallCosts = activeJob.installCosts;
+                  let newInstallCosts = activeJob.build.costs.installCosts;
+
+                  if (isNaN(newInstallCosts) || newInstallCosts < 0) {
+                    newInstallCosts = 0;
+                    newLinkedJobsArray.forEach((linkedJob) => {
+                      newInstallCosts += linkedJob.cost;
+                    });
+                  }
+
                   for (let job of jobMatches) {
                     const jobOwner = users.find(
                       (i) => i.CharacterID === job.installer_id
@@ -317,6 +330,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     UID: users[ParentUserIndex].accountID,
                     isLoggedIn: isLoggedIn,
                   });
+                  setJobModified(true);
                 }}
               >
                 Link All

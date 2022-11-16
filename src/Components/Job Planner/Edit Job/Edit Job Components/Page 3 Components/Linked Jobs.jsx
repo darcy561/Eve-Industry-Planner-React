@@ -221,15 +221,21 @@ export function LinkedJobs({ setJobModified }) {
                       size="standard"
                       onClick={() => {
                         let newLinkedJobIDs = new Set(linkedJobIDs);
-                        const newActiveJobArray = new Set(activeJob.apiJobs);
+                        let newActiveJobArray = new Set(activeJob.apiJobs);
                         let newLinkedJobsArray = [
                           ...activeJob.build.costs.linkedJobs,
                         ];
-
+                        let newInstallCosts =
+                          activeJob.build.costs.installCosts;
+                        if (isNaN(newInstallCosts) || newInstallCosts < 0) {
+                          newInstallCosts = 0;
+                          newLinkedJobsArray.forEach((linkedJob) => {
+                            newInstallCosts += linkedJob.cost;
+                          });
+                        }
+                        newInstallCosts -= job.cost;
                         newActiveJobArray.delete(job.job_id);
-
                         newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
-
                         newLinkedJobIDs.delete(job.job_id);
 
                         setJobModified(true);
@@ -242,9 +248,7 @@ export function LinkedJobs({ setJobModified }) {
                             costs: {
                               ...prevObj.build.costs,
                               linkedJobs: newLinkedJobsArray,
-                              installCosts:
-                                (activeJob.build.costs.installCosts -=
-                                  job.cost),
+                              installCosts: newInstallCosts,
                             },
                           },
                         }));
@@ -279,25 +283,10 @@ export function LinkedJobs({ setJobModified }) {
                 color="error"
                 onClick={() => {
                   let newLinkedJobIDs = new Set(linkedJobIDs);
-                  const newActiveJobArray = new Set(activeJob.apiJobs);
-                  let newLinkedJobsArray = [
-                    ...activeJob.build.costs.linkedJobs,
-                  ];
-                  let newInstallCosts = 0;
+                  let jobsToRemoveQuantity =
+                    activeJob.build.costs.linkedJobs.length;
 
                   for (let job of activeJob.apiJobs) {
-                    newActiveJobArray.delete(job);
-
-                    const linkedJobsArrayIndex = newLinkedJobsArray.findIndex(
-                      (i) => i.job_id === job
-                    );
-
-                    if (linkedJobsArrayIndex !== -1) {
-                      newInstallCosts +=
-                        newLinkedJobsArray[linkedJobsArrayIndex].cost;
-                      newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
-                    }
-
                     newLinkedJobIDs.delete(job);
                   }
 
@@ -305,21 +294,20 @@ export function LinkedJobs({ setJobModified }) {
                   updateLinkedJobIDs([...newLinkedJobIDs]);
                   updateActiveJob((prevObj) => ({
                     ...prevObj,
-                    apiJobs: newActiveJobArray,
+                    apiJobs: new Set(),
                     build: {
                       ...prevObj.build,
                       costs: {
                         ...prevObj.build.costs,
-                        linkedJobs: newLinkedJobsArray,
-                        installCosts: (prevObj.build.costs.installCosts -=
-                          newInstallCosts),
+                        linkedJobs: [],
+                        installCosts: 0,
                       },
                     },
                   }));
                   setSnackbarData((prev) => ({
                     ...prev,
                     open: true,
-                    message: `${activeJob.apiJobs.size} Jobs Unlinked`,
+                    message: `${jobsToRemoveQuantity} Jobs Unlinked`,
                     severity: "success",
                     autoHideDuration: 1000,
                   }));

@@ -9,6 +9,7 @@ import { makeStyles } from "@mui/styles";
 import { useContext, useState } from "react";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { UserWatchlistContext } from "../../../../Context/AuthContext";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -25,10 +26,13 @@ const useStyles = makeStyles((theme) => ({
 export function AddGroupDialog({
   addNewGroupTrigger,
   updateAddNewGroupTrigger,
+  parentUser,
 }) {
-  const { userWatchlist, updateUserWatchlist } = useContext(UserWatchlistContext);
+  const { userWatchlist, updateUserWatchlist } =
+    useContext(UserWatchlistContext);
   const [setName, updateSetName] = useState("");
   const { uploadUserWatchlist } = useFirebase();
+  const analytics = getAnalytics();
   const classes = useStyles();
   const handleClose = () => {
     updateSetName("");
@@ -57,14 +61,20 @@ export function AddGroupDialog({
           variant="contained"
           size="small"
           onClick={() => {
-            let newUserWatchlistGroups = [...userWatchlist.groups]
+            let newUserWatchlistGroups = [...userWatchlist.groups];
             newUserWatchlistGroups.push({
               id: Date.now(),
               name: setName,
               expanded: true,
             });
-            updateUserWatchlist((prev)=>({...prev, groups: newUserWatchlistGroups}));
+            updateUserWatchlist((prev) => ({
+              ...prev,
+              groups: newUserWatchlistGroups,
+            }));
             uploadUserWatchlist(newUserWatchlistGroups, userWatchlist.items);
+            logEvent(analytics, "New Watchlist Group", {
+              UID: parentUser.accountID,
+            });
             handleClose();
           }}
         >

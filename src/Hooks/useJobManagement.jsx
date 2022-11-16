@@ -550,7 +550,7 @@ export function useJobManagement() {
               finalBuildCount.push({
                 typeID: material.typeID,
                 quantity: material.quantity,
-                parentIDs: new Set([inputJob.jobID])
+                parentIDs: new Set([inputJob.jobID]),
               });
             } else {
               const index = finalBuildCount.findIndex(
@@ -580,23 +580,24 @@ export function useJobManagement() {
           itemQty: item.quantity,
           parentJobs: [...item.parentIDs],
         });
-        if (newJob !== undefined) {
-          materialPriceIDs.add(newJob.itemID);
-          newJob.build.materials.forEach((mat) => {
-            materialPriceIDs.add(mat.typeID);
-          });
-          childJobs.push(newJob);
-          logEvent(analytics, "New Job", {
-            loggedIn: isLoggedIn,
-            UID: parentUser.accountID,
-            name: newJob.name,
-            itemID: newJob.itemID,
-          });
-          updateMassBuildDisplay((prev) => ({
-            ...prev,
-            currentJob: prev.currentJob + 1,
-          }));
+        if (newJob === undefined) {
+          continue;
         }
+        materialPriceIDs.add(newJob.itemID);
+        newJob.build.materials.forEach((mat) => {
+          materialPriceIDs.add(mat.typeID);
+        });
+        childJobs.push(newJob);
+        logEvent(analytics, "New Job", {
+          loggedIn: isLoggedIn,
+          UID: parentUser.accountID,
+          name: newJob.name,
+          itemID: newJob.itemID,
+        });
+        updateMassBuildDisplay((prev) => ({
+          ...prev,
+          currentJob: prev.currentJob + 1,
+        }));
       }
     }
 

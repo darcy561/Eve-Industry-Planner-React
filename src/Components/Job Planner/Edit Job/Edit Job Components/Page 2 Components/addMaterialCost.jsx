@@ -46,7 +46,33 @@ function AddMaterialCost({
     event.preventDefault();
     if (inputs.itemCount > 0) {
       let newArray = [...activeJob.build.materials];
-      let newTotal = 0;
+      let newTotal = activeJob.build.costs.totalPurchaseCost;
+
+      if (
+        isNaN(newArray[materialIndex].quantityPurchased) ||
+        newArray[materialIndex].quantityPurchased < 0 ||
+        isNaN(newArray[materialIndex].purchasedCost) ||
+        newArray[materialIndex].purchasedCost < 0
+      ) {
+        let newQuantity = 0;
+        let newPurchaseCost = 0;
+        newArray[materialIndex].purchasing.forEach((entry) => {
+          newQuantity += entry.itemCount;
+          newPurchaseCost += entry.itemCount * entry.itemCost;
+        });
+        newArray[materialIndex].quantityPurchased = newQuantity;
+        newArray[materialIndex].purchasedCost = newPurchaseCost;
+      }
+      if (
+        isNaN(activeJob.build.costs.totalPurchaseCost) ||
+        activeJob.build.costs.totalPurchaseCost < 0
+      ) {
+        newTotal = 0;
+        newArray.forEach((i) => {
+          newTotal += i.purchasedCost;
+        });
+      }
+
       newArray[materialIndex].purchasing.push({
         id: Date.now(),
         childID: null,
@@ -54,9 +80,11 @@ function AddMaterialCost({
         itemCount: inputs.itemCount,
         itemCost: Number(inputs.itemCost),
       });
+
       newArray[materialIndex].quantityPurchased += inputs.itemCount;
       newArray[materialIndex].purchasedCost +=
         inputs.itemCount * inputs.itemCost;
+      newTotal += inputs.itemCount * inputs.itemCost;
       if (
         newArray[materialIndex].quantityPurchased >=
         newArray[materialIndex].quantity
@@ -64,18 +92,11 @@ function AddMaterialCost({
         newArray[materialIndex].purchaseComplete = true;
       }
 
-      newArray.forEach((material) => {
-        newTotal += material.purchasedCost;
-      });
-
       updateActiveJob((prevObj) => ({
         ...prevObj,
         build: {
           ...prevObj.build,
           materials: newArray,
-          products: {
-            ...prevObj.build.products,
-          },
           costs: {
             ...prevObj.build.costs,
             totalPurchaseCost: newTotal,

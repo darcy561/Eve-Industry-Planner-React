@@ -607,7 +607,6 @@ export function useFirebase() {
           let downloadDoc = doc.data();
           let newJobArray = [...jobArray];
           let newJob = {
-            hasListener: true,
             jobType: downloadDoc.jobType,
             name: downloadDoc.name,
             jobID: downloadDoc.jobID,
@@ -651,6 +650,27 @@ export function useFirebase() {
     );
     updateFirebaseListeners((prev) => prev.concat(unsub));
   };
+
+  const userMaindDocListener = async (user) => {
+    const unsub = onSnapshot(doc("Users", user.accountID),
+      (doc) => {
+      
+        const updateMainDocData = async () => {
+          if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+            let userData = doc.data()
+            userObject.accountID = userSettings.accountID;
+            userObject.linkedJobs = new Set(userSettings.linkedJobs);
+            userObject.linkedTrans = new Set(userSettings.linkedTrans);
+            userObject.linkedOrders = new Set(userSettings.linkedOrders);
+            userObject.settings = userSettings.settings;
+            userObject.accountRefreshTokens = userSettings.refreshTokens;
+          } 
+      }
+      updateMainDocData()
+    })
+    updateFirebaseListeners((prev) => prev.concat(unsub));
+    return
+  }
 
   return {
     addNewJob,

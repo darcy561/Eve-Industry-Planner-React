@@ -21,9 +21,10 @@ export const JobArrayContext = createContext();
 
 export const JobArray = (props) => {
   const [jobArray, updateJobArray] = useState(jobArrayDefault);
+  const [groupArray, updateGroupArray] = useState([])
 
   return (
-    <JobArrayContext.Provider value={{ jobArray, updateJobArray }}>
+    <JobArrayContext.Provider value={{ jobArray, groupArray, updateJobArray, updateGroupArray }}>
       {props.children}
     </JobArrayContext.Provider>
   );

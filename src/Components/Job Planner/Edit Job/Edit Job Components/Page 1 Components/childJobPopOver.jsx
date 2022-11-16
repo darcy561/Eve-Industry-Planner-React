@@ -256,6 +256,36 @@ export function ChildJobPopover({
                 ) : null}
               </Grid>
             </Grid>
+            <Grid container item xs={12} sx={{ marginTop: "10px" }}>
+              <Grid item xs={12} sm={8}>
+                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                  Total Material{" "}
+                  {listingSelect.charAt(0).toUpperCase() +
+                    listingSelect.slice(1)}{" "}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={4} align="right">
+                {currentBuildPrice !== null ? (
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    align="right"
+                    color={
+                      currentPurchasePrice <= currentBuildPrice
+                        ? "error.main"
+                        : "success.main"
+                    }
+                  >
+                    {(
+                      currentBuildPrice *
+                      childJobObjects[jobDisplay].build.products.totalQuantity
+                    ).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Typography>
+                ) : null}
+              </Grid>
+            </Grid>
 
             {childJobObjects.length > 1 && (
               <Grid container item xs={12} sx={{ marginTop: "10px" }}>

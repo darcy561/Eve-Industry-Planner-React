@@ -94,7 +94,7 @@ export function useJobManagement() {
       this.childJobs = childJobs;
       this.materialIDs = materialIDs;
       this.metaLevel = inputJob.metaLevel;
-      this.projectID = inputJob.projectID || null;
+      this.groupID = inputJob.groupID || null;
       this.endDateDisplay = endDate;
     }
   }
@@ -123,7 +123,7 @@ export function useJobManagement() {
       this.childJobs = inputJob.childJobs;
       this.materialIDs = inputJob.materialIDs;
       this.metaLevel = inputJob.metaLevel;
-      this.projectID = inputJob.projectID || null;
+      this.groupID = inputJob.groupID || null;
       this.endDateDisplay = endDate;
     }
   }

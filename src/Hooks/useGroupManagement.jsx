@@ -8,7 +8,8 @@ export function useGroupManagement() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { findJobData } = useJobManagement();
+  const { updateGroupArray } = useContext(JobArrayContext);
+  const { findJobData, updateJobSnapshotActiveJob } = useJobManagement();
   class JobGroupTemplate {
     constructor(groupID, inputIDs, includedTypeIDs) {
       this.groupName = "Unitled Group";
@@ -33,11 +34,27 @@ export function useGroupManagement() {
       if (inputJob === undefined) {
         continue;
       }
+
+      inputJob.groupID = newGroupID;
+      newUserJobSnapshot = updateJobSnapshotActiveJob(
+        inputJob,
+        newUserJobSnapshot
+      );
       jobTypeIDs.add(inputJob.itemID);
     }
 
+    updateJobArray(newJobArray);
+    updateUserJobSnapshot(newUserJobSnapshot);
+    updateGroupArray((prev) =>
+      prev.concat(new JobGroupTemplate(newGroupID, inputJobIDs, jobTypeIDs))
+    );
+
     return new JobGroupTemplate(newGroupID, inputJobIDs, jobTypeIDs);
   };
+
+  const openGroup = async (inputGroupID) => {};
+
+  const closeGroup = async (inputGroupID) => {};
 
   return {
     createNewGroupWithJobs,

@@ -28,14 +28,41 @@ export function FeedbackIcon() {
   }, [users]);
 
   const handleSubmit = async () => {
-    let userAssets = () => {
-      let assetList = [];
+    let userData = () => {
+      let userList = [];
       for (let user of users) {
-        assetList = assetList.concat(
-          JSON.parse(sessionStorage.getItem(`assets_${user.CharacterHash}`))
-        );
+        userList.push({
+          user: user,
+          skills: JSON.parse(
+            sessionStorage.getItem(`esiSkills_${user.CharacterHash}`)
+          ),
+          jobs: JSON.parse(
+            sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+          ),
+          orders: JSON.parse(
+            sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
+          ),
+          histOrders: JSON.parse(
+            sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
+          ),
+          blueprints: JSON.parse(
+            sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
+          ),
+          transactions: JSON.parse(
+            sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
+          ),
+          journal: JSON.parse(
+            sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
+          ),
+          assets: JSON.parse(
+            sessionStorage.getItem(`assets_${user.CharacterHash}`)
+          ),
+          standings: JSON.parse(
+            sessionStorage.getItem(`esiStandings_${user.CharacterHash}`)
+          ),
+        });
       }
-      return assetList;
+      return userList;
     };
 
     const call = httpsCallable(functions, "feedback-submitUserFeedback");
@@ -43,8 +70,7 @@ export function FeedbackIcon() {
     call({
       accountID: parentUser.accountID || null,
       response: inputText,
-      esiData: dataDump ? JSON.stringify(users) : null,
-      assets: dataDump ? JSON.stringify(userAssets()) : null,
+      esiData: dataDump ? JSON.stringify(userData) : null,
     });
 
     setOpen(false);

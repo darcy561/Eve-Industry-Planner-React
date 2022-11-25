@@ -28,9 +28,9 @@ export async function firebaseAuth(charObj) {
     const fbTokenJSON = await fbtokenPromise.json();
 
     await setPersistence(auth, browserSessionPersistence);
-    const fbUser = await signInWithCustomToken(auth, fbTokenJSON.access_token);
+    const fbToken = await signInWithCustomToken(auth, fbTokenJSON.access_token);
 
-    return fbUser;
+    return fbToken;
   } catch (error) {
     console.log(error);
   }

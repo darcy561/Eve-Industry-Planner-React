@@ -4,10 +4,8 @@ import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { useEveApi } from "./useEveApi";
 import { useFirebase } from "./useFirebase";
 import {
-  ApiJobsContext,
   JobArrayContext,
-  JobStatusContext,
-} from "../Context/JobContext";
+  } from "../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
@@ -16,29 +14,22 @@ import {
 import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
 import { decodeJwt } from "jose";
 import { trace } from "firebase/performance";
-import { performance, functions } from "../firebase";
-import { getAuth } from "firebase/auth";
+import { performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EveIDsContext } from "../Context/EveDataContext";
-import searchData from "../RawData/searchIndex.json";
 import { useAccountManagement } from "./useAccountManagement";
 
 export function useRefreshUser() {
   const { serverStatus } = useEveApi();
   const {
-    buildMainUser,
     characterAPICall,
-    checkUserClaims,
-    failedUserRefresh,
-    getLocationNames,
-    tidyLinkedData,
   } = useAccountManagement();
-  const { determineUserState, userJobSnapshotListener, userWatchlistListener } =
-    useFirebase();
-  const { updateEveIDs } = useContext(EveIDsContext);
-  const { setJobStatus } = useContext(JobStatusContext);
+  const {
+    determineUserState,
+    userJobSnapshotListener,
+    userWatchlistListener,
+    userMaindDocListener,
+  } = useFirebase();
   const { updateJobArray } = useContext(JobArrayContext);
-  const { updateApiJobs } = useContext(ApiJobsContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
@@ -79,7 +70,7 @@ export function useRefreshUser() {
     updateUserJobSnapshot([]);
 
     let refreshedUser = await RefreshTokens(refreshToken, true);
-    refreshedUser.fbToken = await firebaseAuth(refreshedUser);
+    let fbToken = await firebaseAuth(refreshedUser);
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -87,24 +78,11 @@ export function useRefreshUser() {
       charData: true,
     }));
 
-    const charSettings = await determineUserState(refreshedUser);
+    await determineUserState(fbToken);
 
-    buildMainUser(refreshedUser, charSettings);
-    let listenerPromises = [];
-
-    listenerPromises.push(
-      new Promise(async (resolve) => {
-        await userJobSnapshotListener(refreshedUser);
-        resolve();
-      })
-    );
-
-    listenerPromises.push(
-      new Promise(async (resolve) => {
-        await userWatchlistListener(refreshedUser);
-        resolve();
-      })
-    );
+    userMaindDocListener(fbToken, refreshedUser);
+    userJobSnapshotListener(refreshedUser);
+    userWatchlistListener(fbToken, refreshedUser);
 
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -115,94 +93,15 @@ export function useRefreshUser() {
     const sStatus = await serverStatus();
     refreshedUser = await characterAPICall(sStatus, refreshedUser);
 
-    let apiJobsArray = refreshedUser.apiJobs;
-    let userArray = [refreshedUser];
-
     updateLoadingText((prevObj) => ({
       ...prevObj,
       apiDataComp: true,
     }));
 
-    let failedRefresh = new Set();
-    if (refreshedUser.settings.account.cloudAccounts) {
-      for (let token of charSettings.refreshTokens) {
-        let newUser = await RefreshTokens(token.rToken, false);
-        if (newUser === "RefreshFail") {
-          failedRefresh.add(token.CharacterHash);
-        }
-        if (token.rToken !== newUser.rToken) {
-          token.rToken = newUser.rToken;
-        }
-        if (newUser !== "RefreshFail") {
-          newUser = await characterAPICall(sStatus, newUser);
-          userArray.push(newUser);
-          apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
-        }
-      }
-    } else {
-      let rTokens = JSON.parse(
-        localStorage.getItem(
-          `${refreshedUser.CharacterHash} AdditionalAccounts`
-        )
-      );
-      if (rTokens !== null) {
-        for (let token of rTokens) {
-          let newUser = await RefreshTokens(token.rToken, false);
-          if (newUser === "RefreshFail") {
-            failedRefresh.add(token.CharacterHash);
-          }
-          if (token.rToken !== newUser.rToken) {
-            token.rToken = newUser.rToken;
-            localStorage.setItem(
-              `${refreshedUser.CharacterHash} AdditionalAccounts`,
-              JSON.stringify(rTokens)
-            );
-          }
-
-          if (newUser !== "RefreshFail") {
-            newUser = await characterAPICall(sStatus, newUser);
-            userArray.push(newUser);
-            apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
-          }
-        }
-      }
-    }
-    failedUserRefresh(failedRefresh, refreshedUser);
-
-    apiJobsArray.sort((a, b) => {
-      let aName = searchData.find(
-        (i) =>
-          i.itemID === a.product_type_id ||
-          i.blueprintID === a.blueprint_type_id
-      );
-      let bName = searchData.find(
-        (i) =>
-          i.itemID === b.product_type_id ||
-          i.blueprintID === b.blueprint_type_id
-      );
-      if (aName.name < bName.name) {
-        return -1;
-      }
-      if (aName.name > bName.name) {
-        return 1;
-      }
-      return 0;
-    });
-
-    tidyLinkedData(refreshedUser, userArray);
-
-    await checkUserClaims(userArray);
-
-    let locationReturns = await getLocationNames(userArray, refreshedUser);
-    await Promise.all(listenerPromises);
-    updateEveIDs(locationReturns);
-    setJobStatus(charSettings.jobStatusArray);
     updateJobArray([]);
-    updateApiJobs(apiJobsArray);
-    updateUsers(userArray);
     updateIsLoggedIn(true);
     logEvent(analytics, "userSignIn", {
-      UID: refreshedUser.accountID,
+      UID: fbToken.user.uid,
     });
     t.stop();
     updateLoadingText((prevObj) => ({

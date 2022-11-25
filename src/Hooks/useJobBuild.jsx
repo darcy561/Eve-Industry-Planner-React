@@ -176,9 +176,9 @@ export function useJobBuild() {
           if (outputObject.jobType === jobTypes.manufacturing) {
             let blueprintOptions = [];
             users.forEach((user) => {
-              let temp = user.apiBlueprints.filter(
-                (i) => i.type_id === outputObject.blueprintTypeID
-              );
+              let temp = JSON.parse(
+                sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
+              ).filter((i) => i.type_id === outputObject.blueprintTypeID);
               temp.forEach((i) => {
                 blueprintOptions.push(i);
               });
@@ -241,12 +241,12 @@ export function useJobBuild() {
           skills: outputObject.skills,
         });
         outputObject.build.products.totalQuantity =
-        outputObject.rawData.products[0].quantity *
-        outputObject.runCount *
-        outputObject.jobCount;
+          outputObject.rawData.products[0].quantity *
+          outputObject.runCount *
+          outputObject.jobCount;
 
         outputObject.build.products.quantityPerJob =
-        outputObject.rawData.products[0].quantity * outputObject.jobCount;
+          outputObject.rawData.products[0].quantity * outputObject.jobCount;
 
         if (buildRequest.parentJobs !== undefined) {
           outputObject.parentJob = outputObject.parentJob.concat(

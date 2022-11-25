@@ -93,7 +93,9 @@ export function LinkedJobs({ setJobModified }) {
               (i) => i.CharacterHash === job.CharacterHash
             );
             if (jobOwner !== undefined) {
-              const jobBP = jobOwner.apiBlueprints.find(
+              const jobBP = JSON.parse(
+                sessionStorage.getItem(`esiBlueprints_${jobOwner.CharacterHash}`)
+              ).find(
                 (i) => i.item_id === job.blueprint_id
               );
               if (jobBP !== undefined) {

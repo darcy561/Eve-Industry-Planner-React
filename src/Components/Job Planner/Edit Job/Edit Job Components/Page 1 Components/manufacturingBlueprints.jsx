@@ -31,7 +31,9 @@ export function ManufacturingBlueprints({ setJobModified }) {
     (i) => i.blueprint_type_id === activeJob.blueprintTypeID
   );
   users.forEach((user) => {
-    let temp = user.apiBlueprints.filter(
+    let temp = JSON.parse(
+      sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
+    ).filter(
       (i) => i.type_id === activeJob.blueprintTypeID
     );
     temp.forEach((i) => {

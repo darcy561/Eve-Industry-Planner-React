@@ -1470,14 +1470,16 @@ export function useJobManagement() {
     let corpStanding = { standing: 0 };
 
     if (marketOrder.location_id.toString().length < 10) {
-      const brokerSkill = user.apiSkills.find((i) => i.id === 3446);
+      const brokerSkill = JSON.parse(
+        sessionStorage.getItem(`esiSkills_${user.CharacterHash}`)
+      ).find((i) => i.id === 3446);
       const stationInfo = await stationData(marketOrder.location_id);
-      factionStanding = user.standings.find(
-        (i) => i.from_id === stationInfo.race_id
-      );
-      corpStanding = user.standings.find(
-        (i) => i.from_id === stationInfo.owner
-      );
+      factionStanding = JSON.parse(
+        sessionStorage.getItem(`esiStandings_${user.CharacterHash}`)
+      ).find((i) => i.from_id === stationInfo.race_id);
+      corpStanding = JSON.parse(
+        sessionStorage.getItem(`esiStandings_${user.CharacterHash}`)
+      ).find((i) => i.from_id === stationInfo.owner);
       if (factionStanding === undefined) {
         factionStanding = { standing: 0 };
       }

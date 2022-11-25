@@ -97,9 +97,9 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
             const jobOwner = users.find(
               (i) => i.CharacterID === job.installer_id
             );
-            const jobBP = jobOwner.apiBlueprints.find(
-              (i) => i.item_id === job.blueprint_id
-            );
+            const jobBP = JSON.parse(
+              sessionStorage.getItem(`esiBlueprints_${jobOwner.CharacterHash}`)
+            ).find((i) => i.item_id === job.blueprint_id);
 
             const facilityData = eveIDs.find((i) => i.id === job.facility_id);
 

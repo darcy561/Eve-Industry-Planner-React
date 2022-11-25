@@ -25,8 +25,7 @@ export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
   const { uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
   const { characterAPICall, checkUserClaims } = useAccountManagement();
-  const { findJobData, updateJobSnapshotActiveJob } =
-    useJobManagement();
+  const { findJobData, updateJobSnapshotActiveJob } = useJobManagement();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -58,7 +57,9 @@ export function AccountEntry({ user, parentUserIndex }) {
         newAPIArray = apiJobs.filter(
           (i) => i.installer_id !== user.CharacterID
         );
-        user.apiJobs.forEach((i) => newAPIArray.push(i));
+        JSON.parse(
+          sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+        ).forEach((i) => newAPIArray.push(i));
         newAPIArray.sort((a, b) => {
           if (a.product_name < b.product_name) {
             return -1;

@@ -25,7 +25,6 @@ exports.submitUserFeedback = functions
       let fileID = uid(16);
       if (data.esiData !== null) {
         bucket.file(`${fileID}.json`).save(JSON.stringify(data.esiData));
-        bucket.file(`${fileID}-Assets.json`).save(JSON.stringify(data.assets));
       }
 
       const embed = new EmbedBuilder()

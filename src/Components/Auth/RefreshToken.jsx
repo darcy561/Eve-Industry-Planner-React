@@ -13,12 +13,16 @@ export async function RefreshTokens(rToken, accountType) {
         method: "POST",
         headers: {
           Authorization: `Basic ${btoa(
-            `${  import.meta.env.VITE_eveClientID}:${  import.meta.env.VITE_eveSecretKey}`
+            `${import.meta.env.VITE_eveClientID}:${
+              import.meta.env.VITE_eveSecretKey
+            }`
           )}`,
           "Content-Type": "application/x-www-form-urlencoded",
           Host: "login.eveonline.com",
         },
-        body: `grant_type=refresh_token&refresh_token=${rToken}&scope=${  import.meta.env.VITE_eveScope}`,
+        body: `grant_type=refresh_token&refresh_token=${rToken}&scope=${
+          import.meta.env.VITE_eveScope
+        }`,
       }
     );
     const newTokenJSON = await newTokenPromise.json();
@@ -60,15 +64,9 @@ class MainUser {
     this.aToken = tokenJSON.access_token;
     this.aTokenEXP = Number(decodedToken.exp);
     this.ParentUser = null;
-    this.apiSkills = null;
-    this.apiJobs = null;
     this.linkedJobs = new Set();
     this.linkedOrders = new Set();
     this.linkedTrans = new Set();
-    this.apiOrders = null;
-    this.apiHistOrders = null;
-    this.apiBlueprints = null;
-    this.watchlist = [];
     this.settings = null;
     this.accountRefreshTokens = [];
     this.refreshState = 1;
@@ -83,11 +81,6 @@ class SecondaryUser {
     this.aTokenEXP = Number(decodedToken.exp);
     this.rToken = tokenJSON.refresh_token;
     this.ParentUser = null;
-    this.apiSkills = null;
-    this.apiJobs = null;
-    this.apiOrders = null;
-    this.apiHistOrders = null;
-    this.apiBlueprints = null;
     this.refreshState = 1;
   }
 }

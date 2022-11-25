@@ -5,9 +5,11 @@ export const UsersContext = createContext();
 
 export const Users = (props) => {
   const [users, updateUsers] = useState(usersDefault);
-
+  const [userDataFetch, updateUserDataFetch] = useState(false);
   return (
-    <UsersContext.Provider value={{ users, updateUsers }}>
+    <UsersContext.Provider
+      value={{ users, userDataFetch, updateUsers, updateUserDataFetch }}
+    >
       {props.children}
     </UsersContext.Provider>
   );
@@ -42,10 +44,21 @@ export const FirebaseListeners = (props) => {
 export const UserJobSnapshotContext = createContext();
 
 export const UserJobSnapshot = (props) => {
-  const [userJobSnapshot, updateUserJobSnapshot] = useState(userJobSnapshotDefault);
+  const [userJobSnapshot, updateUserJobSnapshot] = useState(
+    userJobSnapshotDefault
+  );
+  const [userJobSnapshotDataFetch, updateUserJobSnapshotDataFetch] =
+    useState(false);
 
   return (
-    <UserJobSnapshotContext.Provider value={{userJobSnapshot, updateUserJobSnapshot}}>
+    <UserJobSnapshotContext.Provider
+      value={{
+        userJobSnapshot,
+        userJobSnapshotDataFetch,
+        updateUserJobSnapshot,
+        updateUserJobSnapshotDataFetch,
+      }}
+    >
       {props.children}
     </UserJobSnapshotContext.Provider>
   );
@@ -54,10 +67,22 @@ export const UserJobSnapshot = (props) => {
 export const UserWatchlistContext = createContext();
 
 export const UserWatchlist = (props) => {
-  const [userWatchlist, updateUserWatchlist] = useState({groups:[], items:[]});
+  const [userWatchlist, updateUserWatchlist] = useState({
+    groups: [],
+    items: [],
+  });
+  const [userWatchlistDataFetch, updateUserWatchlistDataFetch] =
+    useState(false);
 
   return (
-    <UserWatchlistContext.Provider value={{userWatchlist, updateUserWatchlist}}>
+    <UserWatchlistContext.Provider
+      value={{
+        userWatchlist,
+        userWatchlistDataFetch,
+        updateUserWatchlistDataFetch,
+        updateUserWatchlist,
+      }}
+    >
       {props.children}
     </UserWatchlistContext.Provider>
   );

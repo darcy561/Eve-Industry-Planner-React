@@ -47,7 +47,9 @@ export function RefreshApiIcon() {
             user = await RefreshUserAToken(user);
           }
           user = await characterAPICall(sStatus, user);
-          user.apiJobs.forEach((i) => newAPIArray.push(i));
+          JSON.parse(
+            sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+          ).forEach((i) => newAPIArray.push(i));
         }
       }
       let existingLocations = new Set();
@@ -62,7 +64,9 @@ export function RefreshApiIcon() {
 
       for (let user of newUsers) {
         let citadelIDs = new Set();
-        user.apiJobs.forEach((job) => {
+        JSON.parse(
+          sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+        ).forEach((job) => {
           if (job.facility_id.toString().length > 10) {
             if (
               !existingLocations.has(job.facility_id) &&
@@ -77,7 +81,9 @@ export function RefreshApiIcon() {
             }
           }
         });
-        user.apiOrders.forEach((order) => {
+        JSON.parse(
+          sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
+        ).forEach((order) => {
           if (order.location_id.toString().length > 10) {
             if (
               !existingLocations.has(order.location_id) &&
@@ -95,7 +101,9 @@ export function RefreshApiIcon() {
             locationIDS.add(order.region_id);
           }
         });
-        user.apiHistOrders.forEach((order) => {
+        JSON.parse(
+          sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
+        ).forEach((order) => {
           if (order.location_id.toString().length > 10) {
             if (
               !existingLocations.has(order.location_id) &&

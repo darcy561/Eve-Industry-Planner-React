@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import {
   ApiJobsContext,
   JobStatusContext,
-  LinkedIDsContext,
 } from "../../../Context/JobContext";
 import {
   IsLoggedInContext,
@@ -14,7 +13,6 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
-  Grid,
   Paper,
   Typography,
   IconButton,
@@ -23,13 +21,11 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AddIcon from "@mui/icons-material/Add";
-import { JobCardFrame } from "../Job Cards/JobCard";
 import { StatusSettings } from "./StatusSettings";
 import { useFirebase } from "../../../Hooks/useFirebase";
-import { ApiJobCard } from "../Job Cards/ApiJobCard";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { makeStyles } from "@mui/styles";
-import { useMemo } from "react";
+import { AccordionContents } from "./accordionContents";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -52,7 +48,7 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { linkedJobIDs } = useContext(LinkedIDsContext);
+
   const [statusSettingsTrigger, updateStatusSettingsTrigger] = useState(false);
   const [statusData, updateStatusData] = useState({
     id: 0,
@@ -64,10 +60,6 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
   });
   const { updateMainUserDoc } = useFirebase();
   const classes = useStyles();
-
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);
@@ -172,47 +164,10 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              <Grid container direction="row" item xs={12} spacing={2}>
-                {userJobSnapshot.map((job) => {
-                  if (job.jobStatus === status.id) {
-                    return (
-                      <JobCardFrame
-                        key={job.jobID}
-                        job={job}
-                        updateEditJobTrigger={updateEditJobTrigger}
-                      />
-                    );
-                  } else {
-                    return null;
-                  }
-                })}
-
-                {status.openAPIJobs &&
-                  apiJobs.map((j) => {
-                    if (
-                      !parentUser.linkedJobs.has(j.job_id) &&
-                      !linkedJobIDs.includes(j.job_id) &&
-                      j.status === "active"
-                    ) {
-                      return <ApiJobCard key={j.job_id} job={j} />;
-                    } else {
-                      return null;
-                    }
-                  })}
-
-                {status.completeAPIJobs &&
-                  apiJobs.map((j) => {
-                    if (
-                      !parentUser.linkedJobs.has(j.job_id) &&
-                      !linkedJobIDs.includes(j.job_id) &&
-                      j.status === "delivered"
-                    ) {
-                      return <ApiJobCard key={j.job_id} job={j} />;
-                    } else {
-                      return null;
-                    }
-                  })}
-              </Grid>
+              <AccordionContents
+                updateEditJobTrigger={updateEditJobTriger}
+                status={status}
+              />
             </AccordionDetails>
           </Accordion>
         );

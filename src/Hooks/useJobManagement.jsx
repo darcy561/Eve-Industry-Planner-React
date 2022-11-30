@@ -685,110 +685,123 @@ export function useJobManagement() {
       newJobArray
     );
 
-    logEvent(analytics, "DeleteJob", {
-      UID: parentUser.accountID,
-      jobID: inputJob.jobID,
-      name: inputJob.name,
-      itemID: inputJob.itemID,
-      stage: inputJob.stage,
-      loggedIn: isLoggedIn,
-    });
+    if (inputJob !== undefined) {
+      logEvent(analytics, "DeleteJob", {
+        UID: parentUser.accountID,
+        jobID: inputJob.jobID,
+        name: inputJob.name,
+        itemID: inputJob.itemID,
+        stage: inputJob.stage,
+        loggedIn: isLoggedIn,
+      });
 
-    //Removes apiJob references from users
-    inputJob.apiJobs.forEach((job) => {
-      newLinkedJobIDs.delete(job);
-      const y = apiJobs.findIndex((u) => u.job_id === job);
-      if (y !== -1) {
-        newApiJobsArary[y].linked = false;
-      }
-    });
+      //Removes apiJob references from users
+      inputJob.apiJobs.forEach((job) => {
+        newLinkedJobIDs.delete(job);
+        const y = apiJobs.findIndex((u) => u.job_id === job);
+        if (y !== -1) {
+          newApiJobsArary[y].linked = false;
+        }
+      });
 
-    //Removes inputJob IDs from child jobs
-    for (let mat of inputJob.build.materials) {
-      if (mat !== null) {
-        for (let job of mat.childJob) {
-          let child = jobArray.find((i) => i.jobID === job);
-          if (child !== undefined) {
-            if (child.isSnapshot) {
-              child = await downloadCharacterJobs(child);
-              child.isSnapshot = false;
+      //Removes inputJob IDs from child jobs
+      for (let mat of inputJob.build.materials) {
+        if (mat !== null) {
+          for (let job of mat.childJob) {
+            let child = jobArray.find((i) => i.jobID === job);
+            if (child !== undefined) {
+              if (child.isSnapshot) {
+                child = await downloadCharacterJobs(child);
+                child.isSnapshot = false;
+              }
+              const ParentIDIndex = child.parentJob.findIndex(
+                (i) => i === inputJob.jobID
+              );
+              if (ParentIDIndex !== -1) {
+                child.parentJob.splice(ParentIDIndex, 1);
+                await replaceSnapshot(child);
+                newUserJobSnapshot = updateJobSnapshot(
+                  child,
+                  newUserJobSnapshot
+                );
+                if (isLoggedIn) {
+                  await uploadJob(child);
+                }
+              }
             }
-            const ParentIDIndex = child.parentJob.findIndex(
-              (i) => i === inputJob.jobID
+          }
+        }
+      }
+      //Removes inputJob IDs from Parent jobs
+      if (inputJob.parentJob !== null) {
+        for (let parentJobID of inputJob.parentJob) {
+          let parentJob = jobArray.find((i) => i.jobID === parentJobID);
+          if (parentJob !== undefined) {
+            if (parentJob.isSnapshot) {
+              parentJob = await downloadCharacterJobs(parentJob);
+              parentJob.isSnapshot = false;
+            }
+            for (let mat of parentJob.build.materials) {
+              if (mat.childJob !== undefined) {
+                let index = mat.childJob.findIndex((i) => i === inputJob.jobID);
+                if (index !== -1) {
+                  mat.childJob.splice(index, 1);
+                }
+              }
+            }
+            await replaceSnapshot(parentJob);
+            newUserJobSnapshot = updateJobSnapshot(
+              parentJob,
+              newUserJobSnapshot
             );
-            if (ParentIDIndex !== -1) {
-              child.parentJob.splice(ParentIDIndex, 1);
-              await replaceSnapshot(child);
-              newUserJobSnapshot = updateJobSnapshot(child, newUserJobSnapshot);
-              if (isLoggedIn) {
-                await uploadJob(child);
-              }
+            if (isLoggedIn) {
+              await uploadJob(parentJob);
             }
           }
         }
       }
-    }
-    //Removes inputJob IDs from Parent jobs
-    if (inputJob.parentJob !== null) {
-      for (let parentJobID of inputJob.parentJob) {
-        let parentJob = jobArray.find((i) => i.jobID === parentJobID);
-        if (parentJob !== undefined) {
-          if (parentJob.isSnapshot) {
-            parentJob = await downloadCharacterJobs(parentJob);
-            parentJob.isSnapshot = false;
-          }
-          for (let mat of parentJob.build.materials) {
-            if (mat.childJob !== undefined) {
-              let index = mat.childJob.findIndex((i) => i === inputJob.jobID);
-              if (index !== -1) {
-                mat.childJob.splice(index, 1);
-              }
-            }
-          }
-          await replaceSnapshot(parentJob);
-          newUserJobSnapshot = updateJobSnapshot(parentJob, newUserJobSnapshot);
-          if (isLoggedIn) {
-            await uploadJob(parentJob);
-          }
-        }
+
+      inputJob.build.sale.transactions.forEach((trans) => {
+        newLinkedTransIDs.delete(trans.transaction_id);
+      });
+
+      inputJob.build.sale.marketOrders.forEach((order) => {
+        newLinkedOrderIDs.delete(order.order_id);
+      });
+
+      let newMutliSelct = multiSelectJobPlanner.filter(
+        (i) => i.jobID !== inputJob.jobID
+      );
+
+      newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
+
+      updateLinkedJobIDs([...newLinkedJobIDs]);
+      updateLinkedOrderIDs([...newLinkedOrderIDs]);
+      updateLinkedTransIDs([...newLinkedTransIDs]);
+      updateApiJobs(newApiJobsArary);
+      updateMultiSelectJobPlanner(newMutliSelct);
+
+      if (isLoggedIn) {
+        updateMainUserDoc();
+        uploadUserJobSnapshot(newUserJobSnapshot);
+        removeJob(inputJob);
       }
-    }
 
-    inputJob.build.sale.transactions.forEach((trans) => {
-      newLinkedTransIDs.delete(trans.transaction_id);
-    });
-
-    inputJob.build.sale.marketOrders.forEach((order) => {
-      newLinkedOrderIDs.delete(order.order_id);
-    });
-
-    let newMutliSelct = multiSelectJobPlanner.filter(
-      (i) => i.jobID !== inputJob.jobID
-    );
-
-    newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
-    updateLinkedJobIDs([...newLinkedJobIDs]);
-    updateLinkedOrderIDs([...newLinkedOrderIDs]);
-    updateLinkedTransIDs([...newLinkedTransIDs]);
-    updateApiJobs(newApiJobsArary);
-    updateMultiSelectJobPlanner(newMutliSelct);
-
-    if (isLoggedIn) {
-      updateMainUserDoc();
-      uploadUserJobSnapshot(newUserJobSnapshot);
-      removeJob(inputJob);
-    }
-
-    newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
-    updateJobArray(newJobArray);
+      newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
+      updateJobArray(newJobArray);
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `${inputJob.name} Deleted`,
+        severity: "error",
+        autoHideDuration: 3000,
+      }));
+    } else {
+      newUserJobSnapshot = newUserJobSnapshot.filter(
+        (i) => i.jobID !== inputJobSnap.jobID
+      );
+    };
     updateUserJobSnapshot(newUserJobSnapshot);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${inputJob.name} Deleted`,
-      severity: "error",
-      autoHideDuration: 3000,
-    }));
   };
 
   const deleteMultipleJobsProcess = async (inputJobIDs, updateState) => {

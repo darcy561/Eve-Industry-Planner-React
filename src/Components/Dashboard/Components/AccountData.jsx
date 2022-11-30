@@ -6,7 +6,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   UserJobSnapshotContext,
   UsersContext,
@@ -15,40 +15,61 @@ import { JobStatusContext } from "../../../Context/JobContext";
 
 export function AccountData() {
   const { users, userDataFetch } = useContext(UsersContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { userJobSnapshot, userJobSnapshotDataFetch } = useContext(
+    UserJobSnapshotContext
+  );
   const { jobStatus } = useContext(JobStatusContext);
-
-  let openMOrders = 0;
-  let histMOrders = 0;
-  let indJobs = 0;
-  let cBlueprints = 0;
-  let mTrans = 0;
-  let jEntries = 0;
+  const [dataCount, updateDataCount] = useState({
+    openMOrders: 0,
+    histMOrders: 0,
+    indJobs: 0,
+    blueprints: 0,
+    mTrans: 0,
+    jEntries: 0,
+  });
 
   useEffect(() => {
-    users.forEach((i) => {
-      openMOrders += JSON.parse(
-        sessionStorage.getItem(`esiOrders_${i.CharacterHash}`)
-      ).length;
-      histMOrders += JSON.parse(
-        sessionStorage.getItem(`esiHistOrders_${i.CharacterHash}`)
-      ).length;
-      indJobs += JSON.parse(
-        sessionStorage.getItem(`esiJobs_${i.CharacterHash}`)
-      ).length;
-      cBlueprints += JSON.parse(
-        sessionStorage.getItem(`esiBlueprints_${i.CharacterHash}`)
-      ).length;
-      mTrans += JSON.parse(
-        sessionStorage.getItem(`esiTransactions_${i.CharacterHash}`)
-      ).length;
-      jEntries += JSON.parse(
-        sessionStorage.getItem(`esiJournal_${i.CharacterHash}`)
-      ).length;
-    });
-  }, [users]);
+    if (!userDataFetch) {
+      let newOpenMOrders = 0;
+      let newHistMOrders = 0;
+      let newIndJobs = 0;
+      let newBlueprints = 0;
+      let newMTrans = 0;
+      let newJEntries = 0;
 
-  if (!userDataFetch) {
+      users.forEach((i) => {
+        newOpenMOrders += JSON.parse(
+          sessionStorage.getItem(`esiOrders_${i.CharacterHash}`)
+        ).length;
+        newHistMOrders += JSON.parse(
+          sessionStorage.getItem(`esiHistOrders_${i.CharacterHash}`)
+        ).length;
+        newIndJobs += JSON.parse(
+          sessionStorage.getItem(`esiJobs_${i.CharacterHash}`)
+        ).length;
+        newBlueprints += JSON.parse(
+          sessionStorage.getItem(`esiBlueprints_${i.CharacterHash}`)
+        ).length;
+        newMTrans += JSON.parse(
+          sessionStorage.getItem(`esiTransactions_${i.CharacterHash}`)
+        ).length;
+        newJEntries += JSON.parse(
+          sessionStorage.getItem(`esiJournal_${i.CharacterHash}`)
+        ).length;
+      });
+
+      updateDataCount({
+        openMOrders: newOpenMOrders,
+        histMOrders: newHistMOrders,
+        indJobs: newIndJobs,
+        blueprints: newBlueprints,
+        mTrans: newMTrans,
+        jEntries: newJEntries,
+      });
+    }
+  }, [users, userDataFetch]);
+
+  if (!userDataFetch && !userJobSnapshotDataFetch) {
     return (
       <Paper
         elevation={3}
@@ -154,7 +175,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {openMOrders.toLocaleString()}
+                {dataCount.openMOrders.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={8}>
@@ -167,7 +188,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {histMOrders.toLocaleString()}
+                {dataCount.histMOrders.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={8}>
@@ -180,7 +201,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {indJobs.toLocaleString()}
+                {dataCount.indJobs.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={8}>
@@ -193,7 +214,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {cBlueprints.toLocaleString()}
+                {dataCount.blueprints.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={8}>
@@ -206,7 +227,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {mTrans.toLocaleString()}
+                {dataCount.mTrans.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={8}>
@@ -219,7 +240,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {jEntries.toLocaleString()}
+                {dataCount.jEntries.toLocaleString()}
               </Typography>
             </Grid>
           </Grid>
@@ -227,31 +248,33 @@ export function AccountData() {
       </Paper>
     );
   } else {
-    <Paper
-      elevation={3}
-      sx={{
-        padding: "20px",
-        marginLeft: {
-          xs: "5px",
-          md: "10px",
-        },
-        marginRight: {
-          xs: "5px",
-          md: "0px",
-        },
-      }}
-      square
-    >
-      <Grid container>
-        <Grid item xs={12} align="center">
-          <CircularProgress color="primary" />
+    return (
+      <Paper
+        elevation={3}
+        sx={{
+          padding: "20px",
+          marginLeft: {
+            xs: "5px",
+            md: "10px",
+          },
+          marginRight: {
+            xs: "5px",
+            md: "0px",
+          },
+        }}
+        square
+      >
+        <Grid container>
+          <Grid item xs={12} align="center">
+            <CircularProgress color="primary" />
+          </Grid>
+          <Grid item xs={12} align="center">
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Updating User Data
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid item xs={12} align="center">
-          <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-            Updating User Data
-          </Typography>
-        </Grid>
-      </Grid>
-    </Paper>;
+      </Paper>
+    );
   }
 }

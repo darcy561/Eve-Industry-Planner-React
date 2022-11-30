@@ -1,8 +1,5 @@
 import React, { useContext, useState } from "react";
-import {
-  ApiJobsContext,
-  JobStatusContext,
-} from "../../../Context/JobContext";
+import { ApiJobsContext, JobStatusContext } from "../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
@@ -165,7 +162,7 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
             </AccordionSummary>
             <AccordionDetails>
               <AccordionContents
-                updateEditJobTrigger={updateEditJobTriger}
+                updateEditJobTrigger={updateEditJobTrigger}
                 status={status}
               />
             </AccordionDetails>

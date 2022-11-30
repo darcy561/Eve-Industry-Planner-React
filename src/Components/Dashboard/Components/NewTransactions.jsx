@@ -1,7 +1,7 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { useContext, useMemo } from "react";
-import { UserJobSnapshot, UsersContext } from "../../../Context/AuthContext";
+import { UserJobSnapshot, UserJobSnapshotContext, UsersContext } from "../../../Context/AuthContext";
 import {
   JobStatusContext,
   LinkedIDsContext,
@@ -10,7 +10,7 @@ import itemData from "../../../RawData/searchIndex.json";
 
 export function NewTransactions() {
   const { users } = useContext(UsersContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshot);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobStatus } = useContext(JobStatusContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
 

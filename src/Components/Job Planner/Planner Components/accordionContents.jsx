@@ -32,46 +32,48 @@ export function AccordionContents({ updateEditJobTrigger, status }) {
       </Grid>
     );
   } else {
-    <Grid container direction="row" item xs={12} spacing={2}>
-      {userJobSnapshot.map((job) => {
-        if (job.jobStatus === status.id) {
-          return (
-            <JobCardFrame
-              key={job.jobID}
-              job={job}
-              updateEditJobTrigger={updateEditJobTrigger}
-            />
-          );
-        } else {
-          return null;
-        }
-      })}
-
-      {status.openAPIJobs &&
-        apiJobs.map((j) => {
-          if (
-            !parentUser.linkedJobs.has(j.job_id) &&
-            !linkedJobIDs.includes(j.job_id) &&
-            j.status === "active"
-          ) {
-            return <ApiJobCard key={j.job_id} job={j} />;
+    return (
+      <Grid container direction="row" item xs={12} spacing={2}>
+        {userJobSnapshot.map((job) => {
+          if (job.jobStatus === status.id) {
+            return (
+              <JobCardFrame
+                key={job.jobID}
+                job={job}
+                updateEditJobTrigger={updateEditJobTrigger}
+              />
+            );
           } else {
             return null;
           }
         })}
 
-      {status.completeAPIJobs &&
-        apiJobs.map((j) => {
-          if (
-            !parentUser.linkedJobs.has(j.job_id) &&
-            !linkedJobIDs.includes(j.job_id) &&
-            j.status === "delivered"
-          ) {
-            return <ApiJobCard key={j.job_id} job={j} />;
-          } else {
-            return null;
-          }
-        })}
-    </Grid>;
+        {status.openAPIJobs &&
+          apiJobs.map((j) => {
+            if (
+              !parentUser.linkedJobs.has(j.job_id) &&
+              !linkedJobIDs.includes(j.job_id) &&
+              j.status === "active"
+            ) {
+              return <ApiJobCard key={j.job_id} job={j} />;
+            } else {
+              return null;
+            }
+          })}
+
+        {status.completeAPIJobs &&
+          apiJobs.map((j) => {
+            if (
+              !parentUser.linkedJobs.has(j.job_id) &&
+              !linkedJobIDs.includes(j.job_id) &&
+              j.status === "delivered"
+            ) {
+              return <ApiJobCard key={j.job_id} job={j} />;
+            } else {
+              return null;
+            }
+          })}
+      </Grid>
+    );
   }
 }

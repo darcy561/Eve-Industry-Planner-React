@@ -165,7 +165,7 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
             </AccordionSummary>
             <AccordionDetails>
               <AccordionContents
-                updateEditJobTrigger={updateEditJobTriger}
+                updateEditJobTrigger={updateEditJobTrigger}
                 status={status}
               />
             </AccordionDetails>

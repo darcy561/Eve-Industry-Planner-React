@@ -227,6 +227,7 @@ export function AccountData() {
       </Paper>
     );
   } else {
+    return(
     <Paper
       elevation={3}
       sx={{
@@ -252,6 +253,7 @@ export function AccountData() {
           </Typography>
         </Grid>
       </Grid>
-    </Paper>;
+      </Paper>
+    )
   }
 }

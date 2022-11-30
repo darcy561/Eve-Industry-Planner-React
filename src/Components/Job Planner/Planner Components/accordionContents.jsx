@@ -20,14 +20,16 @@ export function AccordionContents({ updateEditJobTrigger, status }) {
     return users.find((i) => i.ParentUser);
   }, [users]);
 
-  if (userJobSnapshotDataFetch) {
+  if (!userJobSnapshotDataFetch) {
     return (
-      <Grid container item xs={12}>
+      <Grid container align="center">
         <Grid item xs={12}>
           <CircularProgress color="primary" />
         </Grid>
         <Grid item xs={12}>
-          <Typography sx={{}}>Updating Job Data</Typography>
+          <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
+            Updating Job Data
+          </Typography>
         </Grid>
       </Grid>
     );

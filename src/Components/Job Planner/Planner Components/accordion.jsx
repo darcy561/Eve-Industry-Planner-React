@@ -1,8 +1,5 @@
 import React, { useContext, useState } from "react";
-import {
-  ApiJobsContext,
-  JobStatusContext,
-} from "../../../Context/JobContext";
+import { ApiJobsContext, JobStatusContext } from "../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,

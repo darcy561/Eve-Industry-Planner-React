@@ -800,7 +800,7 @@ export function useJobManagement() {
       newUserJobSnapshot = newUserJobSnapshot.filter(
         (i) => i.jobID !== inputJobSnap.jobID
       );
-    };
+    }
     updateUserJobSnapshot(newUserJobSnapshot);
   };
 
@@ -1250,7 +1250,6 @@ export function useJobManagement() {
             );
 
             if (nJbDIndex !== -1) {
-              console.log(newJobBuildData[index].childJobs[nJbDIndex]);
               i.childJob.forEach((M) => {
                 newJobBuildData[index].childJobs[nJbDIndex].childJobs.add(M);
               });
@@ -1292,14 +1291,12 @@ export function useJobManagement() {
 
     for (let outputJob of newJobBuildData) {
       if (outputJob.inputJobs.size > 1) {
-        console.log(outputJob);
         let newJob = await buildJob({
           itemID: outputJob.typeID,
           itemQty: outputJob.totalQuantity,
           parentJobs: [...outputJob.parentJobs],
           childJobs: [...outputJob.childJobs],
         });
-        console.log(newJob);
         if (newJob === undefined) {
           continue;
         }
@@ -1308,8 +1305,6 @@ export function useJobManagement() {
         // Updates the buildData with the new merged jobIDs
         for (let updatedOutputJob of newJobBuildData) {
           outputJob.inputJobs.forEach((inputJobID) => {
-            console.log(inputJobID);
-            console.log(updatedOutputJob.parentJobs);
             if (updatedOutputJob.parentJobs.has(inputJobID)) {
               updatedOutputJob.parentJobs.delete(inputJobID);
               updatedOutputJob.parentJobs.add(newJob.jobID);
@@ -1568,6 +1563,7 @@ export function useJobManagement() {
     deleteJobProcess,
     deleteJobSnapshot,
     deleteMultipleJobsProcess,
+    findJobData,
     lockUserJob,
     massBuildMaterials,
     mergeJobs,
@@ -1577,12 +1573,11 @@ export function useJobManagement() {
     newJobProcess,
     newJobSnapshot,
     openEditJob,
+    switchActiveJob,
     timeRemainingCalc,
     replaceSnapshot,
     unlockUserJob,
     updateJobSnapshot,
     updateJobSnapshotActiveJob,
-    findJobData,
-    switchActiveJob,
   };
 }

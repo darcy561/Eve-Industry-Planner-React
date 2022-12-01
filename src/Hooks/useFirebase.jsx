@@ -343,7 +343,8 @@ export function useFirebase() {
           headers: {
             "Content-Type": "application/json",
             "X-Firebase-AppCheck": appCheckToken.token,
-            accountID: userObj.accountID,
+            "accountID": userObj.accountID,
+            "appVersion": __APP_VERSION__
           },
           body: JSON.stringify({
             idArray: array,
@@ -656,7 +657,6 @@ export function useFirebase() {
           if (!userData.settings.account.cloudAccounts) {
             newUserArray = await buildLocalAccountData(newUserArray);
             updateLocalRefreshTokens(newUserArray);
-            console.log(newUserArray);
           }
           tidyLinkedData(
             userData.linkedJobs,

@@ -251,10 +251,6 @@ export function useCharAssets() {
               continue;
             }
           }
-          if (item.type_id === 62678) {
-            console.log(item);
-            console.log(parentLocation);
-          }
           if (
             parentLocation.item_id === item.location_id ||
             parentLocation.item_id === item.item_id

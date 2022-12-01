@@ -20,7 +20,7 @@ export function AccordionContents({ updateEditJobTrigger, status }) {
     return users.find((i) => i.ParentUser);
   }, [users]);
 
-  if (!userJobSnapshotDataFetch) {
+  if (userJobSnapshotDataFetch) {
     return (
       <Grid container align="center">
         <Grid item xs={12}>
@@ -28,7 +28,7 @@ export function AccordionContents({ updateEditJobTrigger, status }) {
         </Grid>
         <Grid item xs={12}>
           <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
-            Updating Job Data
+            Building Job Data
           </Typography>
         </Grid>
       </Grid>

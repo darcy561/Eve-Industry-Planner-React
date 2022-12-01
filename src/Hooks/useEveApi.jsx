@@ -170,7 +170,7 @@ export function useEveApi() {
           (i) =>
             i.is_buy === false && new Date() - Date.parse(i.date) <= 1209600000
         );
-        return filtered;
+        return transactionsJSON;
       } else return [];
     } catch (err) {
       console.log(err);
@@ -191,9 +191,9 @@ export function useEveApi() {
         if (journalPromise.status === 200) {
           let currentDate = new Date();
           journalJSON.forEach((item) => {
-            if (currentDate - Date.parse(item.date) <= 1209600000) {
+            // if (currentDate - Date.parse(item.date) <= 1209600000) {
               returnArray.push(item);
-            }
+            // }
           });
 
           if (journalJSON.length < 1000) {

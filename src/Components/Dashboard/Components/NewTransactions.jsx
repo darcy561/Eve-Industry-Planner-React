@@ -1,7 +1,11 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { useContext, useMemo } from "react";
-import { UserJobSnapshot, UserJobSnapshotContext, UsersContext } from "../../../Context/AuthContext";
+import {
+  UserJobSnapshot,
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../../../Context/AuthContext";
 import {
   JobStatusContext,
   LinkedIDsContext,
@@ -21,86 +25,83 @@ export function NewTransactions() {
   let itemOrderMatch = [];
   let transactionData = [];
 
-  useEffect(() => {
-    const filteredJobs = userJobSnapshot.filter(
-      (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
-    );
+  const filteredJobs = userJobSnapshot.filter(
+    (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
+  );
 
-    filteredJobs.forEach((job) => {
-      users.forEach((user) => {
-        JSON.parse(
-          sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
-        ).forEach((order) => {
-          if (
-            order.type_id === job.itemID &&
-            !linkedOrderIDs.includes(order.order_id) &&
-            !parentUser.linkedOrders.has(order.order_id) &&
-            !itemOrderMatch.find((item) => item.order_id === order.order_id)
-          ) {
-            order.CharacterHash = user.CharacterHash;
+  filteredJobs.forEach((job) => {
+    users.forEach((user) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
+      ).forEach((order) => {
+        if (
+          order.type_id === job.itemID &&
+          !linkedOrderIDs.includes(order.order_id) &&
+          !parentUser.linkedOrders.has(order.order_id) &&
+          !itemOrderMatch.find((item) => item.order_id === order.order_id)
+        ) {
+          order.CharacterHash = user.CharacterHash;
 
-            itemOrderMatch.push(order);
-          }
-        });
-
-        JSON.parse(
-          sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
-        ).forEach((order) => {
-          if (
-            order.type_id === job.itemID &&
-            !linkedOrderIDs.includes(order.order_id) &&
-            !parentUser.linkedOrders.has(order.order_id) &&
-            !itemOrderMatch.find((item) => item.order_id === order.order_id)
-          ) {
-            order.CharacterHash = user.CharacterHash;
-
-            itemOrderMatch.push(order);
-          }
-        });
+          itemOrderMatch.push(order);
+        }
       });
-      itemOrderMatch.forEach((order) => {
-        const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
-        const itemTrans = JSON.parse(
-          sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
-        ).filter(
-          (trans) =>
-            order.location_id === trans.location_id &&
-            order.type_id === trans.type_id &&
-            !linkedTransIDs.includes(trans.transaction_id) &&
-            !parentUser.linkedTrans.has(trans.transaction_id) &&
-            !transactionData.find(
-              (item) => item.transaction_id === trans.transaction_id
-            ) &&
-            trans.unit_price >= 0
+      JSON.parse(
+        sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
+      ).forEach((order) => {
+        if (
+          order.type_id === job.itemID &&
+          !linkedOrderIDs.includes(order.order_id) &&
+          !parentUser.linkedOrders.has(order.order_id) &&
+          !itemOrderMatch.find((item) => item.order_id === order.order_id)
+        ) {
+          order.CharacterHash = user.CharacterHash;
+
+          itemOrderMatch.push(order);
+        }
+      });
+    });
+
+    itemOrderMatch.forEach((order) => {
+      const user = users.find((u) => u.CharacterHash === order.CharacterHash);
+
+      const itemTrans = JSON.parse(
+        sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
+      ).filter(
+        (trans) =>
+          order.location_id === trans.location_id &&
+          order.type_id === trans.type_id &&
+          !linkedTransIDs.includes(trans.transaction_id) &&
+          !parentUser.linkedTrans.has(trans.transaction_id) &&
+          !transactionData.find(
+            (item) => item.transaction_id === trans.transaction_id
+          ) &&
+          trans.unit_price >= 0
+      );
+
+      itemTrans.forEach((trans) => {
+        const transJournal = JSON.parse(
+          sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
+        ).find((entry) => trans.transaction_id === entry.context_id);
+        const transTax = JSON.parse(
+          sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
+        ).find(
+          (entry) =>
+            entry.ref_type === "transaction_tax" &&
+            Date.parse(entry.date) === Date.parse(trans.date)
         );
+        if (transJournal !== undefined && transTax !== undefined) {
+          trans.description = transJournal.description;
+          trans.tax = Math.abs(transTax.amount);
 
-        itemTrans.forEach((trans) => {
-          const transJournal = JSON.parse(
-            sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
-          ).find((entry) => trans.transaction_id === entry.context_id);
-          const transTax = JSON.parse(
-            sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
-          ).find(
-            (entry) =>
-              entry.ref_type === "transaction_tax" &&
-              Date.parse(entry.date) === Date.parse(trans.date)
-          );
-          if (transJournal !== undefined && transTax !== undefined) {
-            trans.description = transJournal.description;
-            trans.amount = transJournal.unit_price;
-            trans.tax = Math.abs(transTax.amount);
-            trans.item_name = order.item_name;
-
-            transactionData.push(trans);
-          }
-        });
+          transactionData.push(trans);
+        }
       });
     });
-    transactionData.sort((a, b) => {
-      return new Date(b.date) - new Date(a.date);
-    });
-  }, [userJobSnapshot, users]);
+  });
+  transactionData.sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  });
 
   if (transactionData.length > 0) {
     return (

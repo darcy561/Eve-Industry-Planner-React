@@ -249,8 +249,7 @@ export function AccountData() {
     );
   } else {
     return (
-      return(
-    <Paper
+      <Paper
         elevation={3}
         sx={{
           padding: "20px",
@@ -275,7 +274,7 @@ export function AccountData() {
             </Typography>
           </Grid>
         </Grid>
-      </Grid>
-    </Paper>;
+      </Paper>
+    );
   }
 }

@@ -9,7 +9,6 @@ export default function GroupPage() {
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
     const { activeGroup, updateActiveGroupp } = useContext(ActiveJobContext);
     
-    console.log(activeGroup)
   return (
     <Paper
       elevation={3}

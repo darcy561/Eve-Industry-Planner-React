@@ -161,7 +161,11 @@ export function PriceEntryDialog() {
         <Grid item xs={12} align="center" sx={{ marginBottom: "20px" }}>
           <Typography variant="caption">
             Use the dropdown options to select imported costs from your chosen
-            market hub or enter your own values for the items.{<br />}
+            market hub or enter your own values for the items.{<br />}{<br />}
+            Use the Import From Clipboard button to import costs copied from the
+            MultiBuy window in the Eve client. This can be found in the dropdown
+            menu in the top right hand corner of the window.
+            {<br />}{<br />}
             Once you are happy with the item cost use the checkbox to confirm
             the cost. Only items with confirmed costs will be imported, these
             will satisfy all remaining materials needed.
@@ -312,36 +316,46 @@ export function PriceEntryDialog() {
                   let matches = importedText.matchAll(
                     /(\D*|\S*?\D*\d*?\D*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)(\r?\n|\r)/g
                   );
-                  for (let importMatch of matches) {
-                    for (let listItem of newList) {
-                      if (
-                        listItem.name === importMatch[1] &&
-                        !listItem.confirmed
-                      ) {
-                        let number = parseFloat(
-                          importMatch[3].replace(/,/g, "")
-                        );
+                  if (matches.length > 0) {
+                    for (let importMatch of matches) {
+                      for (let listItem of newList) {
+                        if (
+                          listItem.name === importMatch[1] &&
+                          !listItem.confirmed
+                        ) {
+                          let number = parseFloat(
+                            importMatch[3].replace(/,/g, "")
+                          );
 
-                        newTotal += number * listItem.quantity;
-                        listItem.confirmed = true;
-                        listItem.itemPrice = number;
-                        importCount++;
+                          newTotal += number * listItem.quantity;
+                          listItem.confirmed = true;
+                          listItem.itemPrice = number;
+                          importCount++;
+                        }
                       }
                     }
+                    updateTotalImportedCost(newTotal);
+                    updatePriceEntryListData((prev) => ({
+                      ...prev,
+                      list: newList,
+                    }));
+                    updateImportFromClipboard(true);
+                    setSnackbarData((prev) => ({
+                      ...prev,
+                      open: true,
+                      message: `${importCount} Prices Added`,
+                      severity: "success",
+                      autoHideDuration: 3000,
+                    }));
+                  } else {
+                    setSnackbarData((prev) => ({
+                      ...prev,
+                      open: true,
+                      message: `No Matching Items Found`,
+                      severity: "error",
+                      autoHideDuration: 3000,
+                    }));
                   }
-                  updateTotalImportedCost(newTotal);
-                  updatePriceEntryListData((prev) => ({
-                    ...prev,
-                    list: newList,
-                  }));
-                  updateImportFromClipboard(true);
-                  setSnackbarData((prev) => ({
-                    ...prev,
-                    open: true,
-                    message: `${importCount} Prices Added`,
-                    severity: "success",
-                    autoHideDuration: 3000,
-                  }));
                 }}
               >
                 Import From Clipboard

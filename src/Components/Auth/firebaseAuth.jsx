@@ -18,6 +18,7 @@ export async function firebaseAuth(charObj) {
           "Content-Type": "application/json",
           "X-Firebase-AppCheck": appCheckToken.token,
           "Access-Token": charObj.aToken,
+          "appVersion":  __APP_VERSION__
         },
         body: JSON.stringify({
           UID: charObj.accountID,

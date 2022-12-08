@@ -1,14 +1,17 @@
-const functions = require("firebase-functions")
+const functions = require("firebase-functions");
+const checkAppVersion =
+  require("../sharedFunctions/appVersion").checkAppVersion;
 
-function checkAppVersion(req, res, next) {
+function checkVersion(req, res, next) {
+  let verify = checkAppVersion(req.header("appVersion"));
 
-    if (req.header("appVersion") !== "0.5.5") {
-        functions.logger.error("Outdated App Version")
-        res.status(401)
-        return next("Outdated")
-    }
-    next()
+  if (!verify) {
+    res.status(400);
+    res.send("Outdated App Version");
+    return next(`Outdated App Version - ${req.header("appVersion")}`);
+  }
+  next();
 }
 module.exports = {
-    checkAppVersion: checkAppVersion
-}
+  checkAppVersion: checkVersion,
+};

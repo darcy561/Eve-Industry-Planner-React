@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
 import { ApiJobsContext } from "../../../Context/JobContext";
 import { useEveApi } from "../../../Hooks/useEveApi";
@@ -7,7 +7,10 @@ import { Tooltip, IconButton } from "@mui/material";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import TimerIcon from "@mui/icons-material/Timer";
-import { RefreshStateContext } from "../../../Context/LayoutContext";
+import {
+  DialogDataContext,
+  RefreshStateContext,
+} from "../../../Context/LayoutContext";
 import {
   EveIDsContext,
   EvePricesContext,
@@ -16,6 +19,8 @@ import { useFirebase } from "../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import searchData from "../../../RawData/searchIndex.json";
 import { useAccountManagement } from "../../../Hooks/useAccountManagement";
+import { httpsCallable } from "firebase/functions";
+import { functions } from "../../../firebase";
 
 export function RefreshApiIcon() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -28,9 +33,16 @@ export function RefreshApiIcon() {
   const { refreshState, updateRefreshState } = useContext(RefreshStateContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const [refreshTrigger, updateRefreshTrigger] = useState(false);
+  const { updateDialogData } = useContext(DialogDataContext);
   const analytics = getAnalytics();
+  const checkAppVersion = httpsCallable(
+    functions,
+    "appVersion-checkAppVersion"
+  );
 
-  const parentUser = users.find((i) => i.ParentUser);
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
 
   useEffect(() => {
     const refreshAPIData = async () => {
@@ -39,8 +51,23 @@ export function RefreshApiIcon() {
       });
       let newUsers = [...users];
       let newAPIArray = [];
+
+      let verifyApp = [checkAppVersion({ appVersion: __APP_VERSION__ })];
       updateRefreshState(2);
       const sStatus = await serverStatus();
+      let [appVersionPass] = await Promise.all(verifyApp);
+      if (!appVersionPass.data) {
+        updateDialogData((prev) => ({
+          ...prev,
+          buttonText: "Close",
+          id: "OutdatedAppVersion",
+          open: true,
+          title: "Outdated App Version",
+          body: "A newer version of the application is available, refresh the page to begin using this.",
+        }));
+        updateRefreshState(1);
+        return;
+      }
       if (sStatus) {
         for (let user of newUsers) {
           if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {

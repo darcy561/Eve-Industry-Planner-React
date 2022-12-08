@@ -36,7 +36,7 @@ export function NewTransactions() {
       ).forEach((order) => {
         if (
           order.type_id === job.itemID &&
-          !linkedOrderIDs.includes(order.order_id) &&
+          linkedOrderIDs.includes(order.order_id) &&
           !parentUser.linkedOrders.has(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
@@ -51,7 +51,7 @@ export function NewTransactions() {
       ).forEach((order) => {
         if (
           order.type_id === job.itemID &&
-          !linkedOrderIDs.includes(order.order_id) &&
+          linkedOrderIDs.includes(order.order_id) &&
           !parentUser.linkedOrders.has(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
@@ -61,7 +61,6 @@ export function NewTransactions() {
         }
       });
     });
-
     itemOrderMatch.forEach((order) => {
       const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
@@ -78,7 +77,6 @@ export function NewTransactions() {
           ) &&
           trans.unit_price >= 0
       );
-
       itemTrans.forEach((trans) => {
         const transJournal = JSON.parse(
           sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)

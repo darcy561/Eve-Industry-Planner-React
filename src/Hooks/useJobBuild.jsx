@@ -139,10 +139,15 @@ export function useJobBuild() {
           headers: {
             "X-Firebase-AppCheck": appCheckToken.token,
             accountID: parentUser.accountID,
-            appVersion: __APP_VERSION__
+            appVersion: __APP_VERSION__,
           },
         }
       );
+      // console.log(response)
+      if (response.status === 400) {
+        jobBuildErrors(buildRequest, "Outdated App Version");
+        return undefined
+      }
       const itemJson = await response.json();
 
       const outputObject = new Job(itemJson, buildRequest);
@@ -256,7 +261,7 @@ export function useJobBuild() {
         }
         return outputObject;
       } catch (err) {
-        console.log(err);
+        console.log(err.body);
         jobBuildErrors(buildRequest, "objectError");
         return undefined;
       }
@@ -286,6 +291,15 @@ export function useJobBuild() {
           message: "Error building job object, please try again",
           severity: "error",
           autoHideDuration: 2000,
+        }));
+      } else if (newJob === "Outdated App Version") {
+        updateDialogData((prev) => ({
+          ...prev,
+          buttonText: "Close",
+          id: "OutdatedAppVersion",
+          open: true,
+          title: "Outdated App Version",
+          body: "A newer version of the application is available, refresh the page to begin using this.",
         }));
       } else if (newJob === "Item Data Missing From Request") {
         setSnackbarData((prev) => ({

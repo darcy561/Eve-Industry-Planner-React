@@ -1,4 +1,5 @@
 import { useContext, useMemo } from "react";
+import { functions } from "../firebase";
 import {
   SnackBarDataContext,
   DataExchangeContext,
@@ -6,6 +7,7 @@ import {
   LoadingTextContext,
   MultiSelectJobPlannerContext,
   MassBuildDisplayContext,
+  DialogDataContext,
 } from "../Context/LayoutContext";
 import { UserJobSnapshotContext, UsersContext } from "../Context/AuthContext";
 import {
@@ -24,6 +26,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { EvePricesContext } from "../Context/EveDataContext";
 import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
+import { httpsCallable } from "firebase/functions";
 
 export function useJobManagement() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -32,9 +35,11 @@ export function useJobManagement() {
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
+  const { updateDialogData } = useContext(DialogDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
@@ -68,6 +73,10 @@ export function useJobManagement() {
   const { buildJob, checkAllowBuild, recalculateItemQty } = useJobBuild();
   const t = trace(performance, "CreateJobProcessFull");
   const r = trace(performance, "MassCreateJobProcessFull");
+  const checkAppVersion = httpsCallable(
+    functions,
+    "appVersion-checkAppVersion"
+  );
 
   class newSnapshot {
     constructor(inputJob, childJobs, totalComplete, materialIDs, endDate) {
@@ -194,6 +203,8 @@ export function useJobManagement() {
       jobData: true,
     }));
     updatePageLoad(true);
+    let verify = [checkAppVersion({ appVersion: __APP_VERSION__ })];
+
     let [openJob] = await findJobData(
       inputJobID,
       newUserJobSnapshot,
@@ -239,7 +250,25 @@ export function useJobManagement() {
       updateArchivedJobs(newArchivedJobsArray);
       uploadUserJobSnapshot(newUserJobSnapshot);
     }
-
+    let [appVersionPass] = await Promise.all(verify);
+    if (!appVersionPass.data) {
+      updateLoadingText((prevObj) => ({
+        ...prevObj,
+        jobData: false,
+        jobDataComp: false,
+        priceData: false,
+        priceDataComp: false,
+      }));
+      updateDialogData((prev) => ({
+        ...prev,
+        buttonText: "Close",
+        id: "OutdatedAppVersion",
+        open: true,
+        title: "Outdated App Version",
+        body: "A newer version of the application is available, refresh the page to begin using this.",
+      }));
+      return;
+    }
     let jobPrices = await getItemPrices([...itemIDs], parentUser);
     if (jobPrices.length > 0) {
       updateEvePrices((prev) => prev.concat(jobPrices));

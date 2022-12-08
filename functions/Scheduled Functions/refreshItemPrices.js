@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const ESIMarketQuery = require("../Item Prices/priceData").ESIMarketQuery;
+const ESIMarketQuery = require("../sharedFunctions/priceData").ESIMarketQuery;
 const axios = require("axios");
 
 exports.scheduledFunction = functions.region("europe-west1").runWith({timeoutSeconds:540}).pubsub

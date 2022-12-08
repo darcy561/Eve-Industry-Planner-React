@@ -4,11 +4,12 @@ import { useContext } from "react";
 import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
 import { ActiveJobContext } from "../../../Context/JobContext";
 import { OutputJobsPanel } from "./OutputJobs";
+import { GroupAccordion } from "./groupAccordion";
 
 export default function GroupPage() {
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
-    const { activeGroup, updateActiveGroupp } = useContext(ActiveJobContext);
-    
+  const { activeGroup, updateActiveGroupp } = useContext(ActiveJobContext);
+
   return (
     <Paper
       elevation={3}
@@ -18,7 +19,7 @@ export default function GroupPage() {
         marginBottom: "20px",
         width: "100%",
       }}
-      square={true}
+      square
     >
       <Grid container>
         <Grid item xs={7} md={9} lg={10} />
@@ -43,11 +44,14 @@ export default function GroupPage() {
         <Grid item xs={12}>
           <Typography>{activeGroup.groupName}</Typography>
           <Typography>{activeGroup.groupID}</Typography>
-              </Grid>
-              
-              <Grid item xs={12}>
-                  <OutputJobsPanel/>
-              </Grid>
+        </Grid>
+
+        <Grid item xs={12}>
+          <OutputJobsPanel />
+        </Grid>
+        <Grid item xs={12}>
+          <GroupAccordion />
+        </Grid>
       </Grid>
     </Paper>
   );

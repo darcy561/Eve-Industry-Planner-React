@@ -12,7 +12,7 @@ export function useGroupManagement() {
   const { findJobData, updateJobSnapshotActiveJob } = useJobManagement();
   class JobGroupTemplate {
     constructor(groupID, inputIDs, includedTypeIDs) {
-      this.groupName = "Unitled Group";
+      this.groupName = "Untitled Group";
       this.groupID = groupID;
       this.includedJobIDs = new Set(inputIDs);
       this.includedTypeIDs = includedTypeIDs;

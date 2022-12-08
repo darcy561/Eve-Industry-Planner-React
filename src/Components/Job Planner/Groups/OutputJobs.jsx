@@ -6,7 +6,7 @@ import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 
-export function OutputJobsPanel() {
+export function OutputJobsPanel({ groupJobs }) {
   const { activeGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobArray } = useContext(JobArrayContext);
@@ -18,7 +18,9 @@ export function OutputJobsPanel() {
       let returnArray = [];
       for (let jobID of activeGroup.includedJobIDs) {
         let [job] = await findJobData(jobID, userJobSnapshot, jobArray);
-        returnArray.push(job);
+        if (job.parentJob.length === 0) {
+          returnArray.push(job);
+        }
       }
       updateOutputJobs(returnArray);
     }

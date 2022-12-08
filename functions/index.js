@@ -7,7 +7,7 @@ const cors = require("cors");
 const appCheckVerification =
   require("./Middleware/AppCheck").appCheckVerification;
 const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
-const ESIMarketQuery = require("./Item Prices/priceData").ESIMarketQuery;
+const ESIMarketQuery = require("./sharedFunctions/priceData").ESIMarketQuery;
 const checkAppVersion = require("./Middleware/appVersion").checkAppVersion;
 
 admin.initializeApp();
@@ -220,3 +220,4 @@ exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndex
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
 exports.feedback = require("./Triggered Functions/storeFeedback");
 exports.userClaims = require("./Triggered Functions/addCorpClaim");
+exports.appVersion = require("./Triggered Functions/checkAppVersion");

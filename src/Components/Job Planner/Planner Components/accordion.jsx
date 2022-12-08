@@ -38,9 +38,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function PlannerAccordion({ updateEditJobTrigger }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
-  const { users } = useContext(UsersContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { apiJobs } = useContext(ApiJobsContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
@@ -72,7 +70,7 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
       sx={{ marginRight: { md: "10px" }, marginLeft: { md: "10px" } }}
       square={true}
     >
-      {jobStatus.map((status, index) => {
+      {jobStatus.map((status) => {
         return (
           <Accordion
             className={classes.Accordion}

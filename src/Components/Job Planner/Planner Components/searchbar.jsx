@@ -421,6 +421,7 @@ export function SearchBar({
               onClick={async () => {
                 let newGroup = await createNewGroupWithJobs(multiSelectJobPlanner);
                 updateActiveGroup(newGroup)
+                updateMultiSelectJobPlanner([]);
                 updateEditGroupTrigger((prev) => !prev);
               }}
             >

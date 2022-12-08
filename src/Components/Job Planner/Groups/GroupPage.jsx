@@ -45,12 +45,13 @@ export default function GroupPage() {
           <Typography>{activeGroup.groupName}</Typography>
           <Typography>{activeGroup.groupID}</Typography>
         </Grid>
-
-        <Grid item xs={12}>
-          <OutputJobsPanel />
-        </Grid>
-        <Grid item xs={12}>
-          <GroupAccordion />
+        <Grid container item xs={12} spacing={2}>
+          <Grid item xs={12}>
+            <OutputJobsPanel />
+          </Grid>
+          <Grid item xs={12}>
+            <GroupAccordion />
+          </Grid>
         </Grid>
       </Grid>
     </Paper>

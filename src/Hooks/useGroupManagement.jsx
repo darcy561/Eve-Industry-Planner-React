@@ -54,7 +54,20 @@ export function useGroupManagement() {
 
   const openGroup = async (inputGroupID) => {};
 
-  const closeGroup = async (inputGroupID) => {};
+  const closeGroup = async (inputGroupID) => { };
+  
+  const calculateJobBuildCostFromChildren = (outputJob) => {
+    let finalBuildCost = 0;
+
+     const findItemBuildCost = (childJobs)=> {
+       for (let childJobID of childJobs) {
+         
+       }
+    }
+    for (let material of outputJob.build.materials) {
+      
+    }
+  }
 
   return {
     createNewGroupWithJobs,

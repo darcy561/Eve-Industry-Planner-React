@@ -28,7 +28,15 @@ export function OutputJobsPanel({ groupJobs }) {
   }, [activeGroup.includedJobIDs]);
 
   return (
-    <Paper>
+    <Paper
+      elevation={3}
+      square
+      sx={{
+        marginRight: { md: "10px" },
+        marginLeft: { md: "10px" },
+        padding: "20px",
+      }}
+    >
       <Grid container>
         {outputJobs.map((job) => {
           return (

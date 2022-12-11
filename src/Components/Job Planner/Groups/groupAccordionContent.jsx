@@ -64,7 +64,7 @@ export function GroupAccordionContent({ status, statusJobs }) {
               arrow
               placement="bottom"
             >
-              <IconButton color="secondry" onClicl={() => {}}>
+              <IconButton color="secondry" onClick={() => {}}>
                 <AddIcon />
               </IconButton>
             </Tooltip>

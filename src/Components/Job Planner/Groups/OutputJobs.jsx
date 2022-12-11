@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useContext } from "react";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
+import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 
 export function OutputJobsPanel({ groupJobs }) {
@@ -12,7 +13,7 @@ export function OutputJobsPanel({ groupJobs }) {
   const { jobArray } = useContext(JobArrayContext);
   const [outputJobs, updateOutputJobs] = useState([]);
   const { findJobData } = useJobManagement();
-
+  const { calculateCurrentJobBuildCostFromChildren } = useGroupManagement();
   useEffect(() => {
     async function findOutputJobs() {
       let returnArray = [];
@@ -39,6 +40,8 @@ export function OutputJobsPanel({ groupJobs }) {
     >
       <Grid container>
         {outputJobs.map((job) => {
+          let buildCost = calculateCurrentJobBuildCostFromChildren(job);
+          console.log(buildCost);
           return (
             <Grid container item xs={6} sm={4}>
               <Grid item xs={12}>
@@ -60,6 +63,9 @@ export function OutputJobsPanel({ groupJobs }) {
               <Grid item xs={12}>
                 <Typography>{job.build.products.totalQuantity}</Typography>
               </Grid>
+              {/* <Grid item xs={12}>
+                <Typography>{calculateCurrentJobBuildCostFromChildren(job)}</Typography>
+                </Grid> */}
             </Grid>
           );
         })}

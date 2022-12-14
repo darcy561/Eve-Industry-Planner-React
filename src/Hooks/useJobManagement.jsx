@@ -1501,6 +1501,139 @@ export function useJobManagement() {
     // await deleteMultipleJobsProcess([...jobIDsToRemove], false);
   };
 
+  const mergeJobsNew2 = async (inputJobIDs) => {
+    let buildData = [];
+    let newJobHold = [];
+    let newJobArray = [...jobArray];
+    let newUserJobSnapshot = [...userJobSnapshot];
+    let newApiJobsArary = [...apiJobs];
+    let newLinkedJobIDs = new Set(linkedJobIDs);
+    let newLinkedOrderIDs = new Set(linkedOrderIDs);
+    let newLinkedTransIDs = new Set(linkedTransIDs);
+
+    for (let inputJobID of inputJobIDs) {
+      let [currentJob] = await findJobData(
+        inputJobID,
+        newUserJobSnapshot,
+        newJobArray
+      );
+      if (currentJob === undefined) {
+        continue;
+      }
+      let buildEntry = buildData.find((i) => i.typeID === currentJob.itemID);
+
+      if (buildEntry === undefined) {
+        let childJobArray = [];
+        currentJob.build.materials.forEach((mat) => {
+          if (mat.childJob.length > 0) {
+            childJobArray.push({
+              typeID: mat.typeID,
+              childJobs: new Set(mat.childJob),
+            });
+          }
+        });
+
+        buildData.push({
+          inputJobCount: 1,
+          typeID: currentJob.itemID,
+          parentJobs: new Set(currentJob.parentJob),
+          childJobs: childJobArray,
+          totalItemQuantity: currentJob.build.products.totalQuantity,
+          oldJobIDs: new Set([currentJob.jobID]),
+          newJobIDs: new Set(),
+        });
+      } else {
+        buildEntry.inputJobCount++;
+        buildEntry.parentJobs = new Set([
+          ...buildEntry.parentJobs,
+          ...currentJob.parentJob,
+        ]);
+        buildEntry.totalItemQuantity += currentJob.build.products.totalQuantity;
+        buildEntry.oldJobIDs.add(currentJob.jobID);
+
+        currentJob.build.materials.forEach((mat) => {
+          let childJobEntry = buildEntry.childJobs.find(
+            (i) => i.typeID === mat.typeID
+          );
+          if (childJobEntry === undefined) {
+            buildEntry.childJobs.push({
+              typeID: mat.typeID,
+              childJobs: new Set(mat.childJob),
+            });
+          } else {
+            childJobEntry.childJobs = new Set([
+              ...childJobEntry.childJobs,
+              ...mat.childJob,
+            ]);
+          }
+        });
+      }
+    }
+    buildData = buildData.filter((i) => i.inputJobCount > 1);
+
+    console.log(buildData);
+    for (let buildItem of buildData) {
+      for (let material of buildItem.childJobs) {
+        let replacementJob = newJobHold.find(
+          (i) => i.itemID === material.typeID
+        );
+        if (replacementJob === undefined) {
+          continue;
+        }
+        console.log(material.childJobs)
+        material.childJobs.add(replacementJob.jobID);
+      }
+      
+      console.log(buildItem);
+      let newJob = await buildJob({
+        itemID: buildItem.typeID,
+        itemQty: buildItem.totalItemQuantity,
+        parentJobs: [...buildItem.parentJobs],
+        childJobs: [...buildItem.childJobs],
+      });
+      buildItem.newJobIDs.add(newJob.jobID);
+      newJobHold.push(newJob);
+    }
+
+    console.log(newJobHold);
+
+    // for (let buildItem of buildData) {
+    //   if (buildItem.inputJobCount < 2) {
+    //     continue;
+    //   }
+    //   buildItem.parentJobs.forEach((parentJobID) => {
+    //     let parentJob = newJobArray.find((i) => i.jobID === parentJobID);
+    //     if (parentJob === undefined) {
+    //       return;
+    //     }
+
+    //     let parentMaterial = parentJob.build.materials.find(
+    //       (mat) => mat.typeID === buildItem.typeID
+    //     );
+    //     if (parentMaterial === undefined) {
+    //       return;
+    //     }
+    //     parentMaterial.childJob = parentMaterial.childJob.filter(
+    //       (i) => !buildData.oldJobIDs.has(i)
+    //     );
+    //     parentMaterial.childJob = parentMaterial.childJob.concat([
+    //       ...buildItem.newJobIDs,
+    //     ]);
+    //   });
+    //   for (let replacementJob of newJobHold) {
+    //     let matchingMaterial = replacementJob.build.materials.find(
+    //       (i) => i.typeID === buildItem.typeID
+    //     );
+    //     if (matchingMaterial === undefined) {
+    //       continue;
+    //     }
+    //     matchingMaterial.childJob = matchingJob.childJob.concat([
+    //       ...buildItem.newJobIDs,
+    //     ]);
+    //   }
+    // }
+  };
+
   const calcBrokersFee = async (user, marketOrder) => {
     let brokerFeePercentage = parentUser.settings.editJob.citadelBrokersFee;
     let factionStanding = { standing: 0 };
@@ -1597,6 +1730,7 @@ export function useJobManagement() {
     massBuildMaterials,
     mergeJobs,
     mergeJobsNew,
+    mergeJobsNew2,
     moveMultipleJobsForward,
     moveMultipleJobsBackward,
     newJobProcess,

@@ -64,6 +64,7 @@ export function SearchBar({
     massBuildMaterials,
     mergeJobs,
     mergeJobsNew,
+    mergeJobsNew2,
     moveMultipleJobsBackward,
     moveMultipleJobsForward,
     newJobProcess,
@@ -327,7 +328,7 @@ export function SearchBar({
                   }
                   onClick={() => {
                     if (multiSelectJobPlanner.length > 1) {
-                      mergeJobsNew(multiSelectJobPlanner);
+                      mergeJobsNew2(multiSelectJobPlanner);
                       updateMultiSelectJobPlanner([]);
                     } else {
                       updateDialogData((prev) => ({
@@ -419,8 +420,10 @@ export function SearchBar({
               variant="outlined"
               size="small"
               onClick={async () => {
-                let newGroup = await createNewGroupWithJobs(multiSelectJobPlanner);
-                updateActiveGroup(newGroup)
+                let newGroup = await createNewGroupWithJobs(
+                  multiSelectJobPlanner
+                );
+                updateActiveGroup(newGroup);
                 updateMultiSelectJobPlanner([]);
                 updateEditGroupTrigger((prev) => !prev);
               }}

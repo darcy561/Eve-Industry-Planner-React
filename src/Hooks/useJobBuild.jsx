@@ -261,6 +261,7 @@ export function useJobBuild() {
         }
         return outputObject;
       } catch (err) {
+        console.log(err)
         console.log(err.body);
         jobBuildErrors(buildRequest, "objectError");
         return undefined;

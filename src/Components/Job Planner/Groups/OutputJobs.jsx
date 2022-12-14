@@ -14,6 +14,7 @@ export function OutputJobsPanel({ groupJobs }) {
   const [outputJobs, updateOutputJobs] = useState([]);
   const { findJobData } = useJobManagement();
   const { calculateCurrentJobBuildCostFromChildren } = useGroupManagement();
+
   useEffect(() => {
     async function findOutputJobs() {
       let returnArray = [];
@@ -43,7 +44,7 @@ export function OutputJobsPanel({ groupJobs }) {
           let buildCost = calculateCurrentJobBuildCostFromChildren(job);
           console.log(buildCost);
           return (
-            <Grid container item xs={6} sm={4}>
+            <Grid key={job.jobID} container item xs={6} sm={4}>
               <Grid item xs={12}>
                 <picture>
                   <source
@@ -63,9 +64,9 @@ export function OutputJobsPanel({ groupJobs }) {
               <Grid item xs={12}>
                 <Typography>{job.build.products.totalQuantity}</Typography>
               </Grid>
-              {/* <Grid item xs={12}>
-                <Typography>{calculateCurrentJobBuildCostFromChildren(job)}</Typography>
-                </Grid> */}
+              <Grid item xs={12}>
+                <Typography>{buildCost.toLocaleString()}</Typography>
+                </Grid>
             </Grid>
           );
         })}

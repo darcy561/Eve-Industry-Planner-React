@@ -946,6 +946,7 @@ export function useJobManagement() {
         }
       }
     }
+    console.log(newUserJobSnapshot);
     if (updateState) {
       if (isLoggedIn) {
         updateMainUserDoc();
@@ -1145,26 +1146,30 @@ export function useJobManagement() {
     let parentJobs = [];
     let childJobs = [];
     let newUserJobSnapshot = [...userJobSnapshot];
+    let newJobArray = [...jobArray];
     let inputJob = null;
 
     for (let inputJobID of inputJobIDs) {
-      let jobSnapshot = newUserJobSnapshot.find((i) => i.jobID === inputJobID);
-      if (jobSnapshot.isSnapshot) {
-        inputJob = await downloadCharacterJobs(jobSnapshot);
-        jobSnapshot.isSnapshot = false;
-      } else {
-        inputJob = jobArray.find((i) => i.jobID === inputJobID);
-      }
+      [inputJob] = await findJobData(
+        inputJobID,
+        newUserJobSnapshot,
+        newJobArray
+      );
+      console.log(inputJobID);
 
       totalItems += inputJob.build.products.totalQuantity;
       for (let parentJobID of inputJob.parentJob) {
         if (!parentJobs.includes(parentJobID)) {
-          let parentMatch = jobArray.find((i) => i.jobID === parentJobID);
-          if (parentMatch.isSnapshot) {
-            parentMatch = await downloadCharacterJobs(parentMatch);
-            parentMatch.isSnapshot = false;
-          }
+          let [parentMatch] = await findJobData(
+            parentJobID,
+            newUserJobSnapshot,
+            newJobArray
+          );
 
+          if (parentMatch === undefined) {
+            continue;
+          }
+          console.log(parentMatch);
           parentJobs.push(parentMatch);
         }
       }
@@ -1179,9 +1184,9 @@ export function useJobManagement() {
         }
       });
     }
-
+    console.log(inputJob);
     await deleteMultipleJobsProcess(inputJobIDs);
-
+    console.log(inputJob);
     let newJob = await newJobProcess({
       itemID: inputJob.itemID,
       itemQty: totalItems,
@@ -1219,9 +1224,10 @@ export function useJobManagement() {
       }
     }
     if (isLoggedIn) {
-      await updateMainUserDoc();
+      // await updateMainUserDoc();
       await uploadJob(newJob);
     }
+    updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
   };
 
@@ -1260,7 +1266,6 @@ export function useJobManagement() {
         newUserJobSnapshot,
         newJobArray
       );
-
       if (newJobBuildData.some((i) => i.typeID === currentJob.itemID)) {
         let index = newJobBuildData.findIndex(
           (i) => i.typeID === currentJob.itemID
@@ -1443,7 +1448,9 @@ export function useJobManagement() {
       if (jobToRemove.parentJob !== null) {
         for (let parentJobID of jobToRemove.parentJob) {
           let parentJob = newJobArray.find((i) => i.jobID === parentJobID);
-
+          if (parentJob === undefined) {
+            continue;
+          }
           for (let mat of parentJob.build.materials) {
             if (mat.childJob !== undefined) {
               let index = mat.childJob.findIndex(

@@ -1511,6 +1511,7 @@ export function useJobManagement() {
   const mergeJobsNew2 = async (inputJobIDs) => {
     let buildData = [];
     let newJobHold = [];
+    let jobsToSave = new Set()
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newApiJobsArary = [...apiJobs];
@@ -1580,18 +1581,6 @@ export function useJobManagement() {
 
     console.log(buildData);
     for (let buildItem of buildData) {
-      for (let material of buildItem.childJobs) {
-        let replacementJob = newJobHold.find(
-          (i) => i.itemID === material.typeID
-        );
-        if (replacementJob === undefined) {
-          continue;
-        }
-        console.log(material.childJobs)
-        material.childJobs.add(replacementJob.jobID);
-      }
-      
-      console.log(buildItem);
       let newJob = await buildJob({
         itemID: buildItem.typeID,
         itemQty: buildItem.totalItemQuantity,
@@ -1602,43 +1591,130 @@ export function useJobManagement() {
       newJobHold.push(newJob);
     }
 
+    for (let buildItem of buildData) {
+      for (let material of buildItem.childJobs) {
+        let replacementJob = newJobHold.find(
+          (i) => i.itemID === material.typeID
+        );
+        if (replacementJob === undefined) {
+          continue;
+        }
+        replacementJob.parentJob = replacementJob.parentJob.concat([
+          ...buildItem.newJobIDs,
+        ]);
+        replacementJob.parentJob = replacementJob.parentJob.filter(
+          (i) => !buildItem.oldJobIDs.has(i)
+        );
+      }
+    }
+
+    for (let buildItem of buildData) {
+      if (buildItem.inputJobCount < 2) {
+        continue;
+      }
+      buildItem.parentJobs.forEach((parentJobID) => {
+        let parentJob = newJobArray.find((i) => i.jobID === parentJobID);
+        if (parentJob === undefined) {
+          return;
+        }
+
+        let parentMaterial = parentJob.build.materials.find(
+          (mat) => mat.typeID === buildItem.typeID
+        );
+        if (parentMaterial === undefined) {
+          return;
+        }
+
+        parentMaterial.childJob = parentMaterial.childJob.filter(
+          (i) => !buildItem.oldJobIDs.has(i)
+        );
+        parentMaterial.childJob = parentMaterial.childJob.concat([
+          ...buildItem.newJobIDs,
+        ]);
+        jobsToSave.add(parentJob.jobID);
+      });
+      for (let replacementJob of newJobHold) {
+        let matchingMaterial = replacementJob.build.materials.find(
+          (i) => i.typeID === buildItem.typeID
+        );
+        if (matchingMaterial === undefined) {
+          continue;
+        }
+        matchingMaterial.childJob = matchingMaterial.childJob.concat([
+          ...buildItem.newJobIDs,
+        ]);
+        matchingMaterial.childJob = matchingMaterial.childJob.filter(
+          (i) => !buildItem.oldJobIDs.has(i)
+        );
+      }
+    }
+
+    for (let buildItem of buildData) {
+      buildItem.oldJobIDs.forEach((oldJobID) => {
+        let oldJob = newJobArray.find((i) => i.jobID === oldJobID);
+        if (oldJob === undefined) {
+          return;
+        }
+
+        oldJob.apiJobs.forEach((jobID) => {
+          newLinkedJobIDs.delete(jobID);
+        });
+
+        oldJob.build.sale.transactions.forEach((trans) => {
+          newLinkedTransIDs.delete(trans.order_id);
+        });
+
+        oldJob.build.sale.marketOrders.forEach((order) => {
+          newLinkedOrderIDs.delete(order.order_id);
+        });
+        if (isLoggedIn) {
+          removeJob(oldJob);
+        }
+      });
+      newJobArray = newJobArray.filter(
+        (i) => !buildItem.oldJobIDs.has(i.jobID)
+      );
+      newUserJobSnapshot = newUserJobSnapshot.filter(
+        (i) => !buildItem.oldJobIDs.has(i.jobID)
+      );
+    }
+    for (let job of newJobHold) {
+      newUserJobSnapshot = newJobSnapshot(job, newUserJobSnapshot);
+      if (isLoggedIn) {
+        addNewJob(job);
+      }
+    }
+
+    newJobArray = newJobArray.concat(newJobHold);
+
     console.log(newJobHold);
+    if (isLoggedIn) {
+      uploadUserJobSnapshot(newUserJobSnapshot);
+    }
+    updateLinkedJobIDs([...newLinkedJobIDs]);
+    updateLinkedOrderIDs([...newLinkedOrderIDs]);
+    updateLinkedTransIDs([...newLinkedTransIDs]);
+    updateUserJobSnapshot(newUserJobSnapshot);
+    updateJobArray(newJobArray);
+    updateApiJobs(newApiJobsArary);
 
-    // for (let buildItem of buildData) {
-    //   if (buildItem.inputJobCount < 2) {
-    //     continue;
-    //   }
-    //   buildItem.parentJobs.forEach((parentJobID) => {
-    //     let parentJob = newJobArray.find((i) => i.jobID === parentJobID);
-    //     if (parentJob === undefined) {
-    //       return;
-    //     }
-
-    //     let parentMaterial = parentJob.build.materials.find(
-    //       (mat) => mat.typeID === buildItem.typeID
-    //     );
-    //     if (parentMaterial === undefined) {
-    //       return;
-    //     }
-    //     parentMaterial.childJob = parentMaterial.childJob.filter(
-    //       (i) => !buildData.oldJobIDs.has(i)
-    //     );
-    //     parentMaterial.childJob = parentMaterial.childJob.concat([
-    //       ...buildItem.newJobIDs,
-    //     ]);
-    //   });
-    //   for (let replacementJob of newJobHold) {
-    //     let matchingMaterial = replacementJob.build.materials.find(
-    //       (i) => i.typeID === buildItem.typeID
-    //     );
-    //     if (matchingMaterial === undefined) {
-    //       continue;
-    //     }
-    //     matchingMaterial.childJob = matchingJob.childJob.concat([
-    //       ...buildItem.newJobIDs,
-    //     ]);
-    //   }
-    // }
+    if (newJobHold.length > 0) {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `${newJobHold.length} Jobs Merged Successfully`,
+        severity: "success",
+        autoHideDuration: 3000,
+      }));
+    } else {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `0 Jobs Merged`,
+        severity: "success",
+        autoHideDuration: 3000,
+      }));
+    }
   };
 
   const calcBrokersFee = async (user, marketOrder) => {

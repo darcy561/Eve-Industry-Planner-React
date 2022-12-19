@@ -291,28 +291,33 @@ export function useAccountManagement() {
   };
 
   const failedUserRefresh = (failedRefreshSet, userObject) => {
-    if (failedRefreshSet.size > 0) {
-      if (userObject.settings.account.cloudAccounts) {
-        userObject.accountRefreshTokens =
-          userObject.accountRefreshTokens.filter(
-            (i) => !failedRefreshSet.has(i.CharacterHash)
-          );
-      } else {
-        let oldLS = JSON.parse(
-          localStorage.getItem(
-            `${refreshedUser.CharacterHash} AdditionalAccounts`
-          )
-        );
-        let newLS = oldLS.filter((i) => !failedRefreshSet.has(i.CharacterHash));
-        localStorage.setItem(
-          `${refreshedUser.CharacterHash} AdditionalAccounts`,
-          JSON.stringify(newLS)
-        );
-      }
+    if (failedRefreshSet.size === 0) {
+      return;
     }
+    if (userObject.settings.account.cloudAccounts) {
+      userObject.accountRefreshTokens = userObject.accountRefreshTokens.filter(
+        (i) => !failedRefreshSet.has(i.CharacterHash)
+      );
+      return;
+    }
+    let oldLS = JSON.parse(
+      localStorage.getItem(`${refreshedUser.CharacterHash} AdditionalAccounts`)
+    );
+    let newLS = oldLS.filter((i) => !failedRefreshSet.has(i.CharacterHash));
+    localStorage.setItem(
+      `${refreshedUser.CharacterHash} AdditionalAccounts`,
+      JSON.stringify(newLS)
+    );
+    return;
   };
 
-  const tidyLinkedData = (newLinkedJobs, newLinkedOrders, newLinkedTrans, userObject, userArray) => {
+  const tidyLinkedData = (
+    newLinkedJobs,
+    newLinkedOrders,
+    newLinkedTrans,
+    userObject,
+    userArray
+  ) => {
     let allJobIDs = new Set();
     let allOrderIDs = new Set();
     let allTransIDs = new Set();
@@ -390,9 +395,10 @@ export function useAccountManagement() {
         continue;
       }
       newUser = await characterAPICall(sStatus, newUser);
-      if (newUser !== undefined) {
-        userArray.push(newUser);
+      if (newUser === undefined) {
+        continue;
       }
+      userArray.push(newUser);
     }
     return userArray;
   };
@@ -413,9 +419,10 @@ export function useAccountManagement() {
         continue;
       }
       newUser = await characterAPICall(sStatus, newUser);
-      if (newUser !== undefined) {
-        userArray.push(newUser);
+      if (newUser === undefined) {
+        continue;
       }
+      userArray.push(newUser);
     }
     return userArray;
   };

@@ -252,7 +252,7 @@ export function useJobBuild() {
           outputObject.jobCount;
 
         outputObject.build.products.quantityPerJob =
-          outputObject.rawData.products[0].quantity * outputObject.jobCount;
+          outputObject.rawData.products[0].quantity * outputObject.runCount;
 
         if (buildRequest.parentJobs !== undefined) {
           outputObject.parentJob = outputObject.parentJob.concat(

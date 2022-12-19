@@ -38,9 +38,7 @@ export function NavRoutes({ mode, colorMode }) {
         <Suspense fallback={<LoadingPage />}>
           <Routes>
             <Route path="/" element={<Home />} />
-
             <Route path="/jobplanner" element={<JobPlanner />} />
-
             <Route path="/auth/" element={<AuthMainUser />} />
             <Route path="/itemtree" element={<ItemTree />} />
             <Route path="/upcoming-changes" element={<UpcomingChanges />} />
@@ -50,6 +48,7 @@ export function NavRoutes({ mode, colorMode }) {
               <Route path="/blueprint-library" element={<BlueprintLibrary />} />
               <Route path="/asset-library" element={<AssetLibrary />} />
             </Route>
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Suspense>
         <Footer />

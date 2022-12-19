@@ -124,7 +124,7 @@ export function useJobBuild() {
 
   const buildJob = async (buildRequest) => {
     try {
-      if (buildRequest.itemID === undefined) {
+      if (!buildRequest.hasOwnProperty("itemID")) {
         jobBuildErrors(buildRequest, "Item Data Missing From Request");
         return undefined;
       }
@@ -146,7 +146,7 @@ export function useJobBuild() {
       // console.log(response)
       if (response.status === 400) {
         jobBuildErrors(buildRequest, "Outdated App Version");
-        return undefined
+        return undefined;
       }
       const itemJson = await response.json();
 
@@ -158,14 +158,11 @@ export function useJobBuild() {
           material.purchasedCost = 0;
           material.purchaseComplete = false;
           material.childJob = [];
-          if (buildRequest.childJobs !== undefined) {
-            buildRequest.childJobs.forEach((i) => {
-              if (i.typeID === material.typeID) {
-                material.childJob = [...i.childJobs];
-              }
-            });
-          }
         });
+        outputObject.build.buildChar = parentUser.CharacterHash;
+
+        buildRequest_ChildJobs(buildRequest, outputObject);
+        buildRequest_ParentJobs(buildRequest, outputObject);
 
         outputObject.build.materials.sort((a, b) => {
           if (a.name < b.name) {
@@ -177,52 +174,11 @@ export function useJobBuild() {
           return 0;
         });
 
-        outputObject.build.buildChar = parentUser.CharacterHash;
         if (isLoggedIn) {
-          if (outputObject.jobType === jobTypes.manufacturing) {
-            let blueprintOptions = [];
-            users.forEach((user) => {
-              let temp = JSON.parse(
-                sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
-              ).filter((i) => i.type_id === outputObject.blueprintTypeID);
-              temp.forEach((i) => {
-                blueprintOptions.push(i);
-              });
-            });
-            if (blueprintOptions.length > 0) {
-              blueprintOptions.sort(
-                (a, b) =>
-                  b.material_efficiency - a.material_efficiency ||
-                  b.time_efficiency - a.time_efficiency
-              );
-              outputObject.bpME = blueprintOptions[0].material_efficiency;
-              outputObject.bpTE = blueprintOptions[0].time_efficiency / 2;
-            }
-
-            const structureData =
-              parentUser.settings.structures.manufacturing.find(
-                (i) => i.default === true
-              );
-            if (structureData !== undefined) {
-              outputObject.rigType = structureData.rigType;
-              outputObject.systemType = structureData.systemType;
-              outputObject.structureType = structureData.structureValue;
-              outputObject.structureTypeDisplay = structureData.structureName;
-            }
-          }
-          if (outputObject.jobType === jobTypes.reaction) {
-            const structureData = parentUser.settings.structures.reaction.find(
-              (i) => i.default === true
-            );
-            if (structureData !== undefined) {
-              outputObject.rigType = structureData.rigType;
-              outputObject.systemType = structureData.systemType;
-              outputObject.structureType = structureData.structureValue;
-              outputObject.structureTypeDisplay = structureData.structureName;
-            }
-          }
+          addItemBlueprint(outputObject);
+          addDefaultStructure(outputObject);
         }
-        if (buildRequest.itemQty !== undefined) {
+        if (buildRequest.hasOwnProperty("itemQty")) {
           recalculateItemQty(outputObject, buildRequest.itemQty);
         }
 
@@ -254,14 +210,9 @@ export function useJobBuild() {
         outputObject.build.products.quantityPerJob =
           outputObject.rawData.products[0].quantity * outputObject.jobCount;
 
-        if (buildRequest.parentJobs !== undefined) {
-          outputObject.parentJob = outputObject.parentJob.concat(
-            buildRequest.parentJobs
-          );
-        }
         return outputObject;
       } catch (err) {
-        console.log(err)
+        console.log(err);
         console.log(err.body);
         jobBuildErrors(buildRequest, "objectError");
         return undefined;
@@ -360,6 +311,81 @@ export function useJobBuild() {
       itemQty / job.rawData.products[0].quantity / job.jobCount
     );
     return job;
+  };
+
+  const addItemBlueprint = (outputObject) => {
+    if (outputObject.jobType !== jobTypes.manufacturing) {
+      return;
+    }
+    let blueprintOptions = [];
+    users.forEach((user) => {
+      let charBlueprints = JSON.parse(
+        sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
+      ).filter((i) => i.type_id === outputObject.blueprintTypeID);
+      blueprintOptions = blueprintOptions.concat(charBlueprints);
+    });
+    if (blueprintOptions.length === 0) {
+      return;
+    }
+    blueprintOptions.sort(
+      (a, b) =>
+        b.material_efficiency - a.material_efficiency ||
+        b.time_efficiency - a.time_efficiency
+    );
+    outputObject.bpME = blueprintOptions[0].material_efficiency;
+    outputObject.bpTE = blueprintOptions[0].time_efficiency / 2;
+    return;
+  };
+
+  const addDefaultStructure = (outputObject) => {
+    if (outputObject.jobType === jobTypes.manufacturing) {
+      const structureData = parentUser.settings.structures.manufacturing.find(
+        (i) => i.default
+      );
+      if (structureData === undefined) {
+        return;
+      }
+      outputObject.rigType = structureData.rigType;
+      outputObject.systemType = structureData.systemType;
+      outputObject.structureType = structureData.structureValue;
+      outputObject.structureTypeDisplay = structureData.structureName;
+      return;
+    }
+    if (outputObject.jobType === jobTypes.reaction) {
+      const structureData = parentUser.settings.structures.reaction.find(
+        (i) => i.default
+      );
+      if (structureData === undefined) {
+        return;
+      }
+      outputObject.rigType = structureData.rigType;
+      outputObject.systemType = structureData.systemType;
+      outputObject.structureType = structureData.structureValue;
+      outputObject.structureTypeDisplay = structureData.structureName;
+      return;
+    }
+    return;
+  };
+
+  const buildRequest_ChildJobs = (buildRequest, outputObject) => {
+    if (!buildRequest.hasOwnProperty("childJobs")) {
+      return;
+    }
+    for (let material of outputObject.build.materials) {
+      const buildItem = buildRequest.childJobs.find(
+        (i) => i.typeID === material.typeID
+      );
+      if (buildItem === undefined) {
+        continue;
+      }
+      material.childJob = [...buildItem.childJobs];
+    }
+  };
+  const buildRequest_ParentJobs = (buildRequest, outputObject) => {
+    if (!buildRequest.hasOwnProperty("parentJobs")) {
+      return;
+    }
+    outputObject.parentJob = [...buildRequest.parentJobs];
   };
 
   return { buildJob, checkAllowBuild, jobBuildErrors, recalculateItemQty };

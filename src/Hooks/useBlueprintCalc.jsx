@@ -83,6 +83,9 @@ export function useBlueprintCalc() {
 
   const CalculateTime = (calcData) => {
     let user = users.find((i) => i.CharacterHash === calcData.CharacterHash);
+    if (user === undefined) {
+      user = users.find((i)=> i.ParentUser)
+    }
     const userSkills = JSON.parse(
       sessionStorage.getItem(`esiSkills_${user.CharacterHash}`)
     );

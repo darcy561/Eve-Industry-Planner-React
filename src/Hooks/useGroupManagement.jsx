@@ -56,22 +56,17 @@ export function useGroupManagement() {
 
   const closeGroup = async (inputGroupID) => {};
 
-  const calculateCurrentJobBuildCostFromChildren = async (outputJob) => {
+  const calculateCurrentJobBuildCostFromChildren = (outputJob) => {
     let finalBuildCost = 0;
 
-    const findItemBuildCost = async (material) => {
-      console.log(material)
+    const findItemBuildCost = (material) => {
       if (material.purchaseComplete || material.childJob.length === 0) {
         return material.purchasedCost;
       }
 
       let returnTotal = 0;
       for (let childJobID of material.childJob) {
-        let [childJob] = await findJobData(
-          childJobID,
-          userJobSnapshot,
-          jobArray
-        );
+        let childJob = jobArray.find((i) => i.jobID === childJobID);
 
         if (childJob === undefined) {
           continue;
@@ -79,19 +74,17 @@ export function useGroupManagement() {
         returnTotal += childJob.build.costs.installCosts;
         returnTotal += childJob.build.costs.extrasTotal;
         for (let cMaterial of childJob.build.materials) {
-          // let total = await findItemBuildCost(cMaterial);
-          // console.log(total)
-          // returnTotal += total
-          }
+          returnTotal += findItemBuildCost(cMaterial);
+        }
       }
       console.log(returnTotal)
       return returnTotal;
     };
-    
+
     finalBuildCost += outputJob.build.costs.installCosts;
     finalBuildCost += outputJob.build.costs.extrasTotal;
     for (let material of outputJob.build.materials) {
-      finalBuildCost += await findItemBuildCost(material);
+      finalBuildCost += findItemBuildCost(material);
     }
     return finalBuildCost;
   };

@@ -76,11 +76,18 @@ export function ChildJobPopover({
       if (material.childJob.length > 0) {
         for (let id of material.childJob) {
           let childJob = jobArray.find((i) => i.jobID === id);
-          if (childJob.isSnapshot) {
-            childJob = await downloadCharacterJobs(childJob);
-            childJob.isSnapshot = false;
-            replaceSnapshot(childJob);
+          if (childJob === undefined) {
+            let snap = userJobSnapshot.find((i) => i.jobID === id);
+            if (snap !== undefined) {
+              childJob = await downloadCharacterJobs(snap);
+              childJob.isSnapshot = false;
+              replaceSnapshot(childJob);
+            }
+            if (childJob === undefined) {
+              continue
+            }
           }
+          console.log(childJob)
           if (!jobs.some((i) => i.jobID === childJob.jobID)) {
             jobs.push(childJob);
           }

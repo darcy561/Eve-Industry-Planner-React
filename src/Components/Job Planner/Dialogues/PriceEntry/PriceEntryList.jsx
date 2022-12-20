@@ -29,7 +29,7 @@ import { useJobManagement } from "../../../../Hooks/useJobManagement";
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users } = useContext(UsersContext);
+  const { users, userDataFetch } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
@@ -157,21 +157,23 @@ export function PriceEntryDialog() {
       <DialogTitle id="PriceEntryListDialog" align="center" color="primary">
         Price Entry
       </DialogTitle>
-      {!parentUser.settings.layout.hideTutorials && (
+      {!parentUser.settings.layout.hideTutorials && !userDataFetch ? (
         <Grid item xs={12} align="center" sx={{ marginBottom: "20px" }}>
           <Typography variant="caption">
             Use the dropdown options to select imported costs from your chosen
-            market hub or enter your own values for the items.{<br />}{<br />}
+            market hub or enter your own values for the items.{<br />}
+            {<br />}
             Use the Import From Clipboard button to import costs copied from the
             MultiBuy window in the Eve client. This can be found in the dropdown
             menu in the top right hand corner of the window.
-            {<br />}{<br />}
+            {<br />}
+            {<br />}
             Once you are happy with the item cost use the checkbox to confirm
             the cost. Only items with confirmed costs will be imported, these
             will satisfy all remaining materials needed.
           </Typography>
         </Grid>
-      )}
+      ) : null}
 
       <DialogActions>
         <Grid container align="center">

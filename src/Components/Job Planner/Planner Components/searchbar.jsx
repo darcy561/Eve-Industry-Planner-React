@@ -62,9 +62,7 @@ export function SearchBar({
   const {
     deleteMultipleJobsProcess,
     massBuildMaterials,
-    mergeJobs,
     mergeJobsNew,
-    mergeJobsNew2,
     moveMultipleJobsBackward,
     moveMultipleJobsForward,
     newJobProcess,
@@ -328,7 +326,7 @@ export function SearchBar({
                   }
                   onClick={() => {
                     if (multiSelectJobPlanner.length > 1) {
-                      mergeJobsNew2(multiSelectJobPlanner);
+                      mergeJobsNew(multiSelectJobPlanner);
                       updateMultiSelectJobPlanner([]);
                     } else {
                       updateDialogData((prev) => ({
@@ -397,7 +395,7 @@ export function SearchBar({
                 color="error"
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    deleteMultipleJobsProcess(multiSelectJobPlanner, true);
+                    deleteMultipleJobsProcess(multiSelectJobPlanner);
                     updateMultiSelectJobPlanner([]);
                   } else {
                     updateDialogData((prev) => ({

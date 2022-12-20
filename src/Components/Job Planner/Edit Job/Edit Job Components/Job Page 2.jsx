@@ -44,11 +44,8 @@ export function EditPage2({
   return (
     <Container disableGutters maxWidth="false">
       <Grid container direction="row" spacing={2}>
-        {!parentUser.settings.layout.hideTutorials && (
-          <Grid item xs={12}>
-            <TutorialStep2 />
-          </Grid>
-        )}
+        <TutorialStep2 />
+
         <PurchasingData
           orderDisplay={orderDisplay}
           changeOrderDisplay={changeOrderDisplay}

@@ -141,12 +141,7 @@ export function JobPlanner() {
           <PriceEntryDialog />
 
           <ESIOffline />
-
-          {!parentUser.settings.layout.hideTutorials && (
-            <Grid item xs={12}>
-              <TutorialPlanner />
-            </Grid>
-          )}
+          <TutorialPlanner />
           <Grid item xs={12}>
             <SearchBar
               updateShoppingListTrigger={updateShoppingListTrigger}

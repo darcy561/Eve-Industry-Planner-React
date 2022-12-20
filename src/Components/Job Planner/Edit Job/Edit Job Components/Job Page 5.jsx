@@ -23,7 +23,7 @@ export function EditPage5({ setJobModified }) {
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
-  
+
   class Transaction {
     constructor(trans, desc, journal, tax) {
       this.order_id = null;
@@ -92,9 +92,7 @@ export function EditPage5({ setJobModified }) {
       itemTrans.forEach((trans) => {
         const transJournal = JSON.parse(
           sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
-        ).find(
-          (entry) => trans.transaction_id === entry.context_id
-        );
+        ).find((entry) => trans.transaction_id === entry.context_id);
         if (transJournal !== undefined) {
           const transTax = JSON.parse(
             sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
@@ -128,11 +126,8 @@ export function EditPage5({ setJobModified }) {
   return (
     <Container disableGutters maxWidth="false">
       <Grid container spacing={2}>
-        {!parentUser.settings.layout.hideTutorials && (
-          <Grid item xs={12}>
-            <TutorialStep5 />
-          </Grid>
-        )}
+        <TutorialStep5 />
+
         <Grid item xs={12}>
           <MarketCostsPanel />
         </Grid>

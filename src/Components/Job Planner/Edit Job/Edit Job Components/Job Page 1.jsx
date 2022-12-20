@@ -50,11 +50,7 @@ export function EditPage1({ jobModified, setJobModified }) {
       sx={{ width: "100%", marginTop: "20px" }}
     >
       <Grid container direction="row" spacing={2}>
-        {!parentUser.settings.layout.hideTutorials && (
-          <Grid item xs={12}>
-            <TutorialStep1 />
-          </Grid>
-        )}
+        <TutorialStep1 />
         <Grid item xs={12} md={3}>
           <Masonry columns={1} spacing={2}>
             <ProductionStats />

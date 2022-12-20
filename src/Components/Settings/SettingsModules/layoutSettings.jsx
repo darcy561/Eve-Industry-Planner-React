@@ -21,7 +21,7 @@ export function LayoutSettings({ parentUserIndex }) {
           </Typography>
         </Grid>
         <Grid container item xs={12}>
-          <Grid item xs={6} sm={4} >
+          <Grid item xs={6} sm={4}>
             <FormGroup>
               <FormControlLabel
                 control={
@@ -36,10 +36,17 @@ export function LayoutSettings({ parentUserIndex }) {
                         parentUserIndex
                       ].settings.layout.hideTutorials = !e.target.checked;
                       updateUsers(newUsersArray);
+                      updateMainUserDoc();
                     }}
                   />
                 }
-                label={<Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>Enable Help Cards</Typography>}
+                label={
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    Enable Help Cards
+                  </Typography>
+                }
                 labelPlacement="bottom"
               />
             </FormGroup>

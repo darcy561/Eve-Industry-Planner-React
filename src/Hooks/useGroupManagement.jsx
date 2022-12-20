@@ -65,6 +65,8 @@ export function useGroupManagement() {
       }
 
       let returnTotal = 0;
+      let totalProduced = 0;
+
       for (let childJobID of material.childJob) {
         let childJob = jobArray.find((i) => i.jobID === childJobID);
 
@@ -73,12 +75,12 @@ export function useGroupManagement() {
         }
         returnTotal += childJob.build.costs.installCosts;
         returnTotal += childJob.build.costs.extrasTotal;
+        totalProduced += childJob.build.products.totalQuantity;
         for (let cMaterial of childJob.build.materials) {
           returnTotal += findItemBuildCost(cMaterial);
         }
       }
-      console.log(returnTotal)
-      return returnTotal;
+      return (returnTotal / totalProduced) * material.quantity;
     };
 
     finalBuildCost += outputJob.build.costs.installCosts;
@@ -86,7 +88,7 @@ export function useGroupManagement() {
     for (let material of outputJob.build.materials) {
       finalBuildCost += findItemBuildCost(material);
     }
-    return finalBuildCost;
+    return finalBuildCost / outputJob.build.products.totalQuantity;
   };
 
   return {

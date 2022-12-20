@@ -2,6 +2,7 @@ import { useContext, useMemo } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
 import { UsersContext } from "../../../Context/AuthContext";
 import { makeStyles } from "@mui/styles";
+import { useFirebase } from "../../../Hooks/useFirebase";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -14,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function TutorialDashboard() {
   const { users, userDataFetch, updateUsers } = useContext(UsersContext);
+  const { updateMainUserDoc } = useFirebase();
   const classes = useStyles();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
@@ -65,6 +67,7 @@ export function TutorialDashboard() {
                     ].settings.layout.hideTutorials = true;
 
                     updateUsers(newUsers);
+                    updateMainUserDoc()
                   }}
                 />
               </Grid>

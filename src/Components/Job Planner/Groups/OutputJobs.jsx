@@ -42,7 +42,6 @@ export function OutputJobsPanel({ groupJobs }) {
       <Grid container>
         {outputJobs.map((job) => {
           let buildCost = calculateCurrentJobBuildCostFromChildren(job);
-          console.log(buildCost);
           return (
             <Grid key={job.jobID} container item xs={6} sm={4}>
               <Grid item xs={12}>
@@ -65,8 +64,13 @@ export function OutputJobsPanel({ groupJobs }) {
                 <Typography>{job.build.products.totalQuantity}</Typography>
               </Grid>
               <Grid item xs={12}>
-                <Typography>{buildCost.toLocaleString()}</Typography>
-                </Grid>
+                <Typography>
+                  {buildCost.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </Typography>
+              </Grid>
             </Grid>
           );
         })}

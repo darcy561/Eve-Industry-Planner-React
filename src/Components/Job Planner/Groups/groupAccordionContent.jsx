@@ -2,7 +2,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-    Box,
+  Box,
   Grid,
   IconButton,
   Tooltip,
@@ -12,7 +12,7 @@ import { useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import { makeStyles } from "@mui/styles";
-import { JobCardFrame } from "../Job Cards/JobCard";
+import { GroupJobCardFrame } from "./groupJobCards";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -74,7 +74,7 @@ export function GroupAccordionContent({ status, statusJobs }) {
       <AccordionDetails>
         <Grid container item xs={12} spacing={2}>
           {statusJobs.map((job) => {
-            return <JobCardFrame key={job.jobID} job={job} />;
+            return <GroupJobCardFrame key={job.jobID} job={job} />;
           })}
         </Grid>
       </AccordionDetails>

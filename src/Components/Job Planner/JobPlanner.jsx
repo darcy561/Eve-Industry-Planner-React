@@ -102,7 +102,7 @@ export function JobPlanner() {
   if (pageLoad) {
     return <LoadingPage />;
   } else {
-    if (editJobTrigger && !editGroupTrigger) {
+    if (editJobTrigger) {
       return (
         <Suspense fallback={<LoadingPage />}>
           <ShoppingListDialog

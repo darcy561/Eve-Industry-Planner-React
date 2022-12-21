@@ -11,11 +11,14 @@ export function useGroupManagement() {
   const { updateGroupArray } = useContext(JobArrayContext);
   const { findJobData, updateJobSnapshotActiveJob } = useJobManagement();
   class JobGroupTemplate {
-    constructor(groupID, inputIDs, includedTypeIDs) {
+    constructor(groupID, inputIDs, includedTypeIDs, outputJobCount) {
       this.groupName = "Untitled Group";
       this.groupID = groupID;
       this.includedJobIDs = new Set(inputIDs);
-      this.includedTypeIDs = includedTypeIDs;
+      this.includedTypeIDs = [...includedTypeIDs];
+      this.outputJobCount = outputJobCount;
+      this.groupStatus = 0
+      this.groupType = 1
     }
   }
 
@@ -24,6 +27,7 @@ export function useGroupManagement() {
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
     let jobTypeIDs = new Set();
+    let outputJobCount = 0;
 
     for (let inputID of inputJobIDs) {
       let [inputJob] = await findJobData(
@@ -41,12 +45,20 @@ export function useGroupManagement() {
         newUserJobSnapshot
       );
       jobTypeIDs.add(inputJob.itemID);
+      outputJobCount++;
     }
 
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateGroupArray((prev) =>
-      prev.concat(new JobGroupTemplate(newGroupID, inputJobIDs, jobTypeIDs))
+      prev.concat(
+        new JobGroupTemplate(
+          newGroupID,
+          inputJobIDs,
+          jobTypeIDs,
+          outputJobCount
+        )
+      )
     );
 
     return new JobGroupTemplate(newGroupID, inputJobIDs, jobTypeIDs);
@@ -80,7 +92,7 @@ export function useGroupManagement() {
           returnTotal += findItemBuildCost(cMaterial);
         }
       }
-      return (returnTotal / totalProduced) * material.quantity;
+      return Math.round(returnTotal / totalProduced) * material.quantity;
     };
 
     finalBuildCost += outputJob.build.costs.installCosts;

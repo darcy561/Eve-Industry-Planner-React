@@ -84,7 +84,7 @@ export function useBlueprintCalc() {
   const CalculateTime = (calcData) => {
     let user = users.find((i) => i.CharacterHash === calcData.CharacterHash);
     if (user === undefined) {
-      user = users.find((i)=> i.ParentUser)
+      user = users.find((i) => i.ParentUser);
     }
     const userSkills = JSON.parse(
       sessionStorage.getItem(`esiSkills_${user.CharacterHash}`)
@@ -148,17 +148,21 @@ export function useBlueprintCalc() {
 
     function skillModifierCalc(reqSkills, userSkills) {
       let indexer = 1;
+      if (reqSkills === undefined) {
+        return indexer;
+      }
       reqSkills.forEach((skill) => {
         let charSkill = userSkills.find((i) => i.id === skill.typeID);
-        if (charSkill !== undefined) {
-          if (
-            charSkill.id !== 3380 &&
-            charSkill.id !== 3388 &&
-            charSkill.id !== 45746 &&
-            charSkill.id !== 22242
-          ) {
-            indexer = indexer - 0.01 * charSkill.activeLevel;
-          }
+        if (charSkill === undefined) {
+          return;
+        }
+        if (
+          charSkill.id !== 3380 &&
+          charSkill.id !== 3388 &&
+          charSkill.id !== 45746 &&
+          charSkill.id !== 22242
+        ) {
+          indexer = indexer - 0.01 * charSkill.activeLevel;
         }
       });
       return indexer;

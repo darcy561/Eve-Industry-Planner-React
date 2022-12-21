@@ -41,6 +41,16 @@ export function SkillCheck() {
               </Typography>
             </Grid>
           </Grid>
+          {activeJob.skills.length === 0 && (
+            <Grid item xs={12} sx={{ marginTop: "10px" }}>
+              <Typography
+                align="center"
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+              >
+                No Skills Required
+              </Typography>
+            </Grid>
+          )}
           {activeJob.skills.map((jSkill) => {
             const charSkill = characterSkills.find(
               (i) => i.id === jSkill.typeID

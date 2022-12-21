@@ -92,7 +92,7 @@ export function useJobBuild() {
         this.rawData.time = itemJson.activities.manufacturing.time;
         this.structureType = 0;
         this.structureTypeDisplay = "Station";
-        this.skills = itemJson.activities.manufacturing.skills;
+        this.skills = itemJson.activities.manufacturing.skills || [];
         this.build.materials = JSON.parse(
           JSON.stringify(itemJson.activities.manufacturing.materials)
         );
@@ -107,7 +107,7 @@ export function useJobBuild() {
         this.rawData.time = itemJson.activities.reaction.time;
         this.structureType = 1;
         this.structureTypeDisplay = "Medium";
-        this.skills = itemJson.activities.reaction.skills;
+        this.skills = itemJson.activities.reaction.skills || [];
         this.build.materials = JSON.parse(
           JSON.stringify(itemJson.activities.reaction.materials)
         );
@@ -143,7 +143,7 @@ export function useJobBuild() {
           },
         }
       );
-      // console.log(response)
+
       if (response.status === 400) {
         jobBuildErrors(buildRequest, "Outdated App Version");
         return undefined;
@@ -213,7 +213,6 @@ export function useJobBuild() {
         return outputObject;
       } catch (err) {
         console.log(err);
-        console.log(err.body);
         jobBuildErrors(buildRequest, "objectError");
         return undefined;
       }

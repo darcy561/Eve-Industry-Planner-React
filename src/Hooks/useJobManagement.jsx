@@ -656,7 +656,7 @@ export function useJobManagement() {
         updateActiveJob(updatedJob);
       }
       if (isLoggedIn) {
-        jobsToSave.add(updateActiveJob.jobID);
+        jobsToSave.add(updatedJob.jobID);
       }
     }
 

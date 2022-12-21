@@ -4,15 +4,21 @@ import {
   UserJobSnapshotContext,
   UsersContext,
 } from "../../../Context/AuthContext";
-import { ApiJobsContext, LinkedIDsContext } from "../../../Context/JobContext";
+import {
+  ApiJobsContext,
+  JobArrayContext,
+  LinkedIDsContext,
+} from "../../../Context/JobContext";
 import { JobCardFrame } from "../Job Cards/JobCard";
 import { ApiJobCard } from "../Job Cards/ApiJobCard";
+import { GroupJobCard } from "../Job Cards/groupJobCard";
 
 export function AccordionContents({ updateEditJobTrigger, status }) {
   const { users } = useContext(UsersContext);
   const { userJobSnapshot, userJobSnapshotDataFetch } = useContext(
     UserJobSnapshotContext
   );
+  const { groupArray } = useContext(JobArrayContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { linkedJobIDs } = useContext(LinkedIDsContext);
 
@@ -36,8 +42,15 @@ export function AccordionContents({ updateEditJobTrigger, status }) {
   } else {
     return (
       <Grid container direction="row" item xs={12} spacing={2}>
+        {groupArray.map((group) => {
+          if (group.groupStatus === status.id) {
+            return <GroupJobCard key={group.groupID} group={group} />;
+          } else {
+            return null;
+          }
+        })}
         {userJobSnapshot.map((job) => {
-          if (job.jobStatus === status.id) {
+          if (job.jobStatus === status.id && job.groupID === null) {
             return (
               <JobCardFrame
                 key={job.jobID}

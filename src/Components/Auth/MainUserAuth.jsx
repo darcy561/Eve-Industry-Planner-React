@@ -1,25 +1,23 @@
 import { useContext, useEffect } from "react";
-import {
-  UserJobSnapshotContext
-} from "../../Context/AuthContext";
+import { UserJobSnapshotContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
 import { decodeJwt } from "jose";
 import { firebaseAuth } from "./firebaseAuth";
 import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
-import {
-  JobArrayContext,
-} from "../../Context/JobContext";
+import { JobArrayContext } from "../../Context/JobContext";
 import { trace } from "@firebase/performance";
-import { performance } from "../../firebase";
+import { functions, performance } from "../../firebase";
 import {
   PageLoadContext,
   LoadingTextContext,
+  DialogDataContext,
 } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
+import { httpsCallable } from "firebase/functions";
 
 export function login() {
   const state = "/";
@@ -37,15 +35,19 @@ export default function AuthMainUser() {
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { updateDialogData } = useContext(DialogDataContext);
   const {
     determineUserState,
     userJobSnapshotListener,
     userWatchlistListener,
     userMaindDocListener,
+    userGroupDataListener,
   } = useFirebase();
-  const {
-    characterAPICall,
-  } = useAccountManagement();
+  const { characterAPICall } = useAccountManagement();
+  const checkAppVersion = httpsCallable(
+    functions,
+    "appVersion-checkAppVersion"
+  );
   const navigate = useNavigate();
   const analytics = getAnalytics();
 
@@ -61,6 +63,20 @@ export default function AuthMainUser() {
         ...prevObj,
         eveSSO: true,
       }));
+      
+      let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
+      if (!appVersion.data) {
+        updateDialogData((prev) => ({
+          ...prev,
+          buttonText: "Close",
+          id: "OutdatedAppVersion",
+          open: true,
+          title: "Outdated App Version",
+          body: "A newer version of the application is available, refresh the page to begin using this.",
+        }));
+        return;
+      }
+
       updateUserJobSnapshot([]);
 
       let userObject = await EveSSOTokens(authCode, true);
@@ -77,6 +93,7 @@ export default function AuthMainUser() {
       userMaindDocListener(fbToken, userObject);
       userJobSnapshotListener(userObject);
       userWatchlistListener(fbToken, userObject);
+      userGroupDataListener(userObject);
 
       updateLoadingText((prevObj) => ({
         ...prevObj,

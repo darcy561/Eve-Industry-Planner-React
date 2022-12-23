@@ -34,7 +34,7 @@ export const ActiveJobContext = createContext();
 
 export const ActiveJob = (props) => {
   const [activeJob, updateActiveJob] = useState({});
-  const [activeGroup, updateActiveGroup] = useState({});
+  const [activeGroup, updateActiveGroup] = useState(null);
 
   return (
     <ActiveJobContext.Provider

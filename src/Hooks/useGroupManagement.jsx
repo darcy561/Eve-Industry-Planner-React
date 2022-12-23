@@ -1,24 +1,34 @@
 import { useContext } from "react";
-import { UserJobSnapshotContext } from "../Context/AuthContext";
-import { JobArrayContext } from "../Context/JobContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+} from "../Context/AuthContext";
+import { ActiveJobContext, JobArrayContext } from "../Context/JobContext";
+import { JobPlannerPageTriggerContext } from "../Context/LayoutContext";
+import { useFirebase } from "./useFirebase";
 import { useJobManagement } from "./useJobManagement";
 
 export function useGroupManagement() {
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { updateGroupArray } = useContext(JobArrayContext);
-  const { findJobData, updateJobSnapshotActiveJob } = useJobManagement();
+  const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
+  const { groupArray, updateGroupArray } = useContext(JobArrayContext);
+  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { findJobData, updateJobSnapshotFromFullJob } = useJobManagement();
+  const { uploadGroups, uploadUserJobSnapshot, uploadJob } = useFirebase();
+
   class JobGroupTemplate {
     constructor(groupID, inputIDs, includedTypeIDs, outputJobCount) {
       this.groupName = "Untitled Group";
       this.groupID = groupID;
-      this.includedJobIDs = new Set(inputIDs);
+      this.includedJobIDs = inputIDs;
       this.includedTypeIDs = [...includedTypeIDs];
       this.outputJobCount = outputJobCount;
-      this.groupStatus = 0
-      this.groupType = 1
+      this.groupStatus = 0;
+      this.groupType = 1;
     }
   }
 
@@ -26,8 +36,10 @@ export function useGroupManagement() {
     const newGroupID = `group-${Date.now()}-${Math.floor(Math.random() * 100)}`;
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
+    let newGroupArray = [...groupArray];
     let jobTypeIDs = new Set();
     let outputJobCount = 0;
+    let jobsToSave = new Set();
 
     for (let inputID of inputJobIDs) {
       let [inputJob] = await findJobData(
@@ -40,33 +52,67 @@ export function useGroupManagement() {
       }
 
       inputJob.groupID = newGroupID;
-      newUserJobSnapshot = updateJobSnapshotActiveJob(
+
+      newUserJobSnapshot = updateJobSnapshotFromFullJob(
         inputJob,
         newUserJobSnapshot
       );
+
       jobTypeIDs.add(inputJob.itemID);
+      jobsToSave.add(inputJob.jobID);
       outputJobCount++;
+    }
+    let newGroupEntry = Object.assign(
+      {},
+      new JobGroupTemplate(newGroupID, inputJobIDs, jobTypeIDs, outputJobCount)
+    );
+
+    newGroupArray.push(newGroupEntry);
+    updateJobArray(newJobArray);
+    updateUserJobSnapshot(newUserJobSnapshot);
+    updateGroupArray(newGroupArray);
+
+    if (isLoggedIn) {
+      uploadUserJobSnapshot(newUserJobSnapshot);
+      uploadGroups(newGroupArray);
+
+      jobsToSave.forEach((id) => {
+        let job = newJobArray.find((i) => i.jobID === id);
+        if (job === undefined) {
+          return;
+        }
+        uploadJob(job);
+      });
+    }
+
+    return newGroupEntry;
+  };
+
+  const openGroup = async (inputGroupID) => {
+    let newJobArray = [...jobArray];
+    let requestedGroup = groupArray.find((i) => i.groupID === inputGroupID);
+    if (requestedGroup === undefined) {
+      return;
+    }
+    updateActiveGroup(requestedGroup);
+    for (let jobID of requestedGroup.includedJobIDs) {
+      let [inputJob] = await findJobData(jobID, userJobSnapshot, newJobArray);
+      if (inputJob === undefined) {
+        continue;
+      }
     }
 
     updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
-    updateGroupArray((prev) =>
-      prev.concat(
-        new JobGroupTemplate(
-          newGroupID,
-          inputJobIDs,
-          jobTypeIDs,
-          outputJobCount
-        )
-      )
-    );
 
-    return new JobGroupTemplate(newGroupID, inputJobIDs, jobTypeIDs);
   };
 
-  const openGroup = async (inputGroupID) => {};
+  const closeGroup = async (activeGroup) => {
+    updateEditGroupTrigger((prev) => !prev);
+  };
 
-  const closeGroup = async (inputGroupID) => {};
+  const deleteGroup = async (activeGroupID) => {
+    console.log("D")
+  }
 
   const calculateCurrentJobBuildCostFromChildren = (outputJob) => {
     let finalBuildCost = 0;
@@ -105,6 +151,9 @@ export function useGroupManagement() {
 
   return {
     calculateCurrentJobBuildCostFromChildren,
+    closeGroup,
     createNewGroupWithJobs,
+    deleteGroup,
+    openGroup,
   };
 }

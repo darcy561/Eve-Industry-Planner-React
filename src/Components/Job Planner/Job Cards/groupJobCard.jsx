@@ -9,7 +9,11 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext, useMemo } from "react";
-import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
+import {
+  MultiSelectJobPlannerContext,
+  JobPlannerPageTriggerContext,
+} from "../../../Context/LayoutContext";
+import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
 import { makeStyles } from "@mui/styles";
@@ -33,12 +37,14 @@ export function GroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
+  const { openGroup, deleteGroup } = useGroupManagement();
+
   const classes = useStyles();
   let groupCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i == group.groupID);
   }, [multiSelectJobPlanner]);
 
-  console.log(group);
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
       <Paper
@@ -78,7 +84,12 @@ export function GroupJobCard({ group }) {
             </Grid>
             <Grid item xs={9} />
             <Grid item align="center" xs={2}>
-              <IconButton className={classes.DeleteIcon} onClick={() => {}}>
+              <IconButton
+                className={classes.DeleteIcon}
+                onClick={() => {
+                  deleteGroup(group.groupID);
+                }}
+              >
                 <DeleteIcon />
               </IconButton>
             </Grid>
@@ -98,7 +109,7 @@ export function GroupJobCard({ group }) {
           <Grid container item xs={12} style={{ height: "100%" }}>
             <Grid item xs={4} sm={3} />
             <Grid item xs={4} sm={6}>
-              <AvatarGroup max={4} style={{height:"100%"}}>
+              <AvatarGroup max={4} style={{ height: "100%" }}>
                 {group.includedTypeIDs.map((typeID) => {
                   return (
                     <Avatar
@@ -123,8 +134,8 @@ export function GroupJobCard({ group }) {
               variant="outlined"
               color="primary"
               onClick={() => {
-                // openEditJob(job.jobID);
-                // updateEditJobTrigger((prev) => !prev);
+                openGroup(group.groupID);
+                updateEditGroupTrigger((prev) => !prev);
               }}
               sx={{ height: "25px", width: "100px" }}
             >

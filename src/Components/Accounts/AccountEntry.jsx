@@ -25,7 +25,7 @@ export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
   const { uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
   const { characterAPICall, checkUserClaims } = useAccountManagement();
-  const { findJobData, updateJobSnapshotActiveJob } = useJobManagement();
+  const { findJobData, updateJobSnapshotFromFullJob } = useJobManagement();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -101,7 +101,7 @@ export function AccountEntry({ user, parentUserIndex }) {
           newJobArray
         );
         job.build.buildChar = parentUser.CharacterHash;
-        newUserJobSnapshot = updateJobSnapshotActiveJob(
+        newUserJobSnapshot = updateJobSnapshotFromFullJob(
           job,
           newUserJobSnapshot
         );

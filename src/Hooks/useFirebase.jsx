@@ -46,7 +46,8 @@ export function useFirebase() {
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { updateUserWatchlist, updateUserWatchlistDataFetch } =
     useContext(UserWatchlistContext);
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { jobArray, updateJobArray, updateGroupArray } =
+    useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { updateLinkedJobIDs, updateLinkedOrderIDs, updateLinkedTransIDs } =
     useContext(LinkedIDsContext);
@@ -133,11 +134,13 @@ export function useFirebase() {
         parentJob: job.parentJob,
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
+        groupID: job.groupID || null
       }
     );
   };
 
   const uploadJob = async (job) => {
+    console.log(job)
     await fbAuthState();
     updateDoc(
       doc(
@@ -172,31 +175,7 @@ export function useFirebase() {
         parentJob: job.parentJob,
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
-      }
-    );
-  };
-
-  const uploadJobAsSnapshot = async (job) => {
-    await fbAuthState();
-    updateDoc(
-      doc(
-        firestore,
-        `Users/${parentUser.accountID}/Jobs`,
-        job.jobID.toString()
-      ),
-      {
-        jobType: job.jobType,
-        name: job.name,
-        jobID: job.jobID,
-        jobStatus: job.jobStatus,
-        itemID: job.itemID,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        apiJobs: [...job.apiJobs],
-        apiOrders: [...job.apiOrders],
-        apiTransactions: [...job.apiTransactions],
-        buildVer: job.buildVer,
-        metaLevel: job.metaLevel,
+        groupID: job.groupID || null
       }
     );
   };
@@ -285,6 +264,7 @@ export function useFirebase() {
         parentJob: job.parentJob,
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
+        groupID: job.groupID || null
       }
     );
   };
@@ -325,6 +305,7 @@ export function useFirebase() {
         parentJob: downloadDoc.parentJob,
         blueprintTypeID: downloadDoc.blueprintTypeID,
         layout: downloadDoc.layout,
+        groupID: downloadDoc.groupID
       };
 
       return newJob;
@@ -343,8 +324,8 @@ export function useFirebase() {
           headers: {
             "Content-Type": "application/json",
             "X-Firebase-AppCheck": appCheckToken.token,
-            "accountID": userObj.accountID,
-            "appVersion": __APP_VERSION__
+            accountID: userObj.accountID,
+            appVersion: __APP_VERSION__,
           },
           body: JSON.stringify({
             idArray: array,
@@ -515,9 +496,6 @@ export function useFirebase() {
                 priceIDRequest.add(id);
               });
               priceIDRequest.add(snap.itemID);
-              if (jobArray.some((i) => i.jobID !== snap.jobID)) {
-                snap.isSnapshot = true;
-              }
               newUserJobSnapshot.push(snap);
             });
             let newEvePrices = await getItemPrices(
@@ -617,6 +595,7 @@ export function useFirebase() {
             parentJob: downloadDoc.parentJob,
             blueprintTypeID: downloadDoc.blueprintTypeID,
             layout: downloadDoc.layout,
+            groupID: downloadDoc.groupID
           };
           let index = jobArray.findIndex((i) => i.jobID === newJob.jobID);
           if (index === -1) {
@@ -680,6 +659,30 @@ export function useFirebase() {
     updateFirebaseListeners((prev) => prev.concat(unsub));
   };
 
+  const uploadGroups = async (groupSnapshot) => {
+    await fbAuthState();
+    updateDoc(
+      doc(firestore, `Users/${parentUser.accountID}/ProfileInfo`, "GroupData"),
+      {
+        groupData: groupSnapshot,
+      }
+    );
+  };
+
+  const userGroupDataListener = async (userObj) => {
+    const unsub = onSnapshot(
+      doc(firestore, `Users/${userObj.accountID}/ProfileInfo`, "GroupData"),
+      (doc) => {
+        if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+          let snapshotData = doc.data();
+
+          updateGroupArray(snapshotData.groupData);
+        }
+      }
+    );
+    updateFirebaseListeners((prev) => prev.concat(unsub));
+  };
+
   return {
     addNewJob,
     archiveJob,
@@ -687,15 +690,16 @@ export function useFirebase() {
     getArchivedJobData,
     getItemPrices,
     uploadJob,
-    uploadJobAsSnapshot,
     updateMainUserDoc,
     refreshItemPrices,
     removeJob,
     downloadCharacterJobs,
+    userGroupDataListener,
     userJobListener,
     userJobSnapshotListener,
     userMaindDocListener,
     userWatchlistListener,
+    uploadGroups,
     uploadUserJobSnapshot,
     uploadUserWatchlist,
   };

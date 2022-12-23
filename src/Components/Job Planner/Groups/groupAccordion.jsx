@@ -1,50 +1,36 @@
 import { Paper } from "@mui/material";
-import { useContext, useEffect, useState } from "react";
-import { UserJobSnapshotContext } from "../../../Context/AuthContext";
-import {
-  ActiveJobContext,
-  JobArrayContext,
-  JobStatusContext,
-} from "../../../Context/JobContext";
-import { useJobManagement } from "../../../Hooks/useJobManagement";
+import { useContext } from "react";
+import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import { GroupAccordionContent } from "./groupAccordionContent";
 
-export function GroupAccordion() {
+export function GroupAccordion({ groupJobs, groupPageRefresh }) {
+  const { activeGroup } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
-  const { activeGroup } = useContext(ActiveJobContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { jobArray } = useContext(JobArrayContext);
-  const [groupJobs, updateGroupJobs] = useState([]);
-  const { findJobData } = useJobManagement();
 
-  useEffect(() => {
-    async function findAllJobs() {
-      let newGroupJobs = [];
-      for (let jobID of activeGroup.includedJobIDs) {
-        let [job] = await findJobData(jobID, userJobSnapshot, jobArray);
-        newGroupJobs.push(job);
-      }
-      updateGroupJobs(newGroupJobs);
-    }
-    findAllJobs();
-  }, [userJobSnapshot, activeGroup]);
-
-  return (
-    <Paper
-      elevation={3}
-      square
-      sx={{ marginRight: { md: "10px" }, marginLeft: { md: "10px" } }}
-    >
-      {jobStatus.map((status) => {
-        let statusJobs = groupJobs.filter((i) => i.jobStatus === status.id);
-        return (
-          <GroupAccordionContent
-            key={status.id}
-            status={status}
-            statusJobs={statusJobs}
-          />
-        );
-      })}
-    </Paper>
-  );
+  if (!groupPageRefresh && activeGroup !== null) {
+    return (
+      <Paper
+        elevation={3}
+        square
+        sx={{ marginRight: { md: "10px" }, marginLeft: { md: "10px" } }}
+      >
+        {jobStatus.map((status) => {
+          let statusJobs = groupJobs.filter((i) => i.jobStatus === status.id);
+          return (
+            <GroupAccordionContent
+              key={status.id}
+              status={status}
+              statusJobs={statusJobs}
+            />
+          );
+        })}
+      </Paper>
+    );
+  } else {
+    return (
+      <Paper>
+        Refresh
+      </Paper>
+    )
+  }
 }

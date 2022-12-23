@@ -39,7 +39,7 @@ export function PriceEntryDialog() {
     uploadJob,
     uploadUserJobSnapshot,
   } = useFirebase();
-  const { updateJobSnapshot } = useJobManagement();
+  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
@@ -86,12 +86,10 @@ export function PriceEntryDialog() {
       if (material.confirmed) {
         totalConfirmed++;
         for (let ref of material.jobRef) {
-          let job = newJobArray.find((i) => i.jobID === ref);
-          if (job.isSnapshot) {
-            job = await downloadCharacterJobs(job);
-            job.isSnapshot = false;
+          let [job] = await findJobData(ref, userJobSnapshot, newJobArray);
+          if (job === undefined) {
+            continue;
           }
-
           let newTotal = 0;
           job.build.materials.forEach((mat) => {
             if (mat.typeID === material.typeID && !mat.purchaseComplete) {
@@ -109,8 +107,6 @@ export function PriceEntryDialog() {
             newTotal += mat.purchasedCost;
           });
           job.build.costs.totalPurchaseCost = newTotal;
-          let jobIndex = newJobArray.findIndex((i) => i.jobID === job.jobID);
-          newJobArray[jobIndex] = job;
           if (!uploadIDs.some((i) => i.jobID === job.jobID)) {
             uploadIDs.push(job);
           }
@@ -119,7 +115,10 @@ export function PriceEntryDialog() {
     }
     let newUserJobSnapshot = [...userJobSnapshot];
     for (let job of uploadIDs) {
-      newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
+      newUserJobSnapshot = updateJobSnapshotFromFullJob(
+        job,
+        newUserJobSnapshot
+      );
       if (isLoggedIn) {
         await uploadJob(job);
       }
@@ -318,6 +317,7 @@ export function PriceEntryDialog() {
                   let matches = importedText.matchAll(
                     /(\D*|\S*?\D*\d*?\D*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)(\r?\n|\r)/g
                   );
+                  console.log(matches)
                   if (matches.length > 0) {
                     for (let importMatch of matches) {
                       for (let listItem of newList) {

@@ -2,79 +2,116 @@ import { Grid, Paper, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useContext } from "react";
-import { UserJobSnapshotContext } from "../../../Context/AuthContext";
-import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
+import { makeStyles } from "@mui/styles";
+import { ActiveJobContext } from "../../../Context/JobContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
-import { useJobManagement } from "../../../Hooks/useJobManagement";
 
-export function OutputJobsPanel({ groupJobs }) {
+const useStyles = makeStyles((theme) => ({
+  Header: {
+    color:
+      theme.palette.type === "dark" ? "secondary" : theme.palette.primary.main,
+  },
+}));
+
+export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(ActiveJobContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { jobArray } = useContext(JobArrayContext);
   const [outputJobs, updateOutputJobs] = useState([]);
-  const { findJobData } = useJobManagement();
   const { calculateCurrentJobBuildCostFromChildren } = useGroupManagement();
+  const classes = useStyles();
 
   useEffect(() => {
-    async function findOutputJobs() {
-      let returnArray = [];
-      for (let jobID of activeGroup.includedJobIDs) {
-        let [job] = await findJobData(jobID, userJobSnapshot, jobArray);
-        if (job.parentJob.length === 0) {
-          returnArray.push(job);
-        }
+    let returnArray = [];
+    for (let job of groupJobs) {
+      if (job.parentJob.length === 0) {
+        returnArray.push(job);
       }
-      updateOutputJobs(returnArray);
     }
-    findOutputJobs();
-  }, [activeGroup.includedJobIDs]);
+    updateOutputJobs(returnArray);
+  }, [groupJobs]);
 
-  return (
-    <Paper
-      elevation={3}
-      square
-      sx={{
-        marginRight: { md: "10px" },
-        marginLeft: { md: "10px" },
-        padding: "20px",
-      }}
-    >
-      <Grid container>
-        {outputJobs.map((job) => {
-          let buildCost = calculateCurrentJobBuildCostFromChildren(job);
-          return (
-            <Grid key={job.jobID} container item xs={6} sm={4}>
-              <Grid item xs={12}>
-                <picture>
-                  <source
-                    media="(max-width:700px)"
-                    srcSet={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
-                    alt=""
-                  />
-                  <img
-                    src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
-                    alt=""
-                  />
-                </picture>
+  if (!groupPageRefresh && activeGroup !== null) {
+    return (
+      <Paper
+        elevation={3}
+        square
+        sx={{
+          marginRight: { md: "10px" },
+          marginLeft: { md: "10px" },
+          padding: "20px",
+        }}
+      >
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Typography variant="h4" className={classes.Header}>
+              Output
+            </Typography>
+          </Grid>
+          {outputJobs.map((job) => {
+            let buildCost = calculateCurrentJobBuildCostFromChildren(job);
+            return (
+              <Grid key={job.jobID} container item xs={6} sm={4} md={3}>
+                <Paper
+                  elevation={3}
+                  square
+                  sx={{ padding: "20px", width: "100%" }}
+                >
+                  <Grid container item xs={12}>
+                    <Grid item xs={3}>
+                      <picture>
+                        <source
+                          media="(max-width:700px)"
+                          srcSet={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
+                          alt=""
+                        />
+                        <img
+                          src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
+                          alt=""
+                        />
+                      </picture>
+                    </Grid>
+                    <Grid item xs={9}>
+                      <Typography
+                        color="secondary"
+                        align="center"
+                        sx={{
+                          minHeight: {
+                            xs: "2rem",
+                            sm: "3rem",
+                            md: "3rem",
+                            lg: "4rem",
+                          },
+                          typography: { xs: "body1", lg: "h6" },
+                        }}
+                      >
+                        {job.name}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                    >
+                      {job.build.products.totalQuantity}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                    >
+                      {buildCost.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </Typography>
+                  </Grid>
+                </Paper>
               </Grid>
-              <Grid item xs={12}>
-                <Typography>{job.name}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography>{job.build.products.totalQuantity}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography>
-                  {buildCost.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </Typography>
-              </Grid>
-            </Grid>
-          );
-        })}
-      </Grid>
-    </Paper>
-  );
+            );
+          })}
+        </Grid>
+      </Paper>
+    );
+  } else {
+    return <Paper>refresh</Paper>;
+  }
 }

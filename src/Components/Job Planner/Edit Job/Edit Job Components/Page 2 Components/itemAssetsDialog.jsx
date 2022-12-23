@@ -123,7 +123,7 @@ export function ItemAssetsDialogue({
                         sm={6}
                         sx={{ marginBottom: "5px" }}
                       >
-                        <Grid item xs={2}>
+                        <Grid item xs={2} sm={3} align="center">
                           <Tooltip
                             title={assetOwner.CharacterName}
                             arrow
@@ -133,8 +133,8 @@ export function ItemAssetsDialogue({
                               variant="circle"
                               src={`https://images.evetech.net/characters/${assetOwner.CharacterID}/portrait`}
                               sx={{
-                                height: { xs: "30px", md: "40px" },
-                                width: { xs: "30px", md: "40px" },
+                                height: { xs: "30px", md: "35px" },
+                                width: { xs: "30px", md: "35px" },
                               }}
                             />
                           </Tooltip>
@@ -143,6 +143,7 @@ export function ItemAssetsDialogue({
                           item
                           alignItems="center"
                           xs={10}
+                          sm={9}
                           sx={{ paddingLeft: "5px", display: "flex" }}
                         >
                           <Typography
@@ -212,7 +213,7 @@ export function ItemAssetsDialogue({
                           sm={6}
                           sx={{ marginBottom: "5px" }}
                         >
-                          <Grid item xs={2}>
+                          <Grid item xs={2} sm={3} align="center">
                             <Tooltip
                               title={assetOwner.CharacterName}
                               arrow
@@ -222,8 +223,8 @@ export function ItemAssetsDialogue({
                                 variant="circle"
                                 src={`https://images.evetech.net/characters/${assetOwner.CharacterID}/portrait`}
                                 sx={{
-                                  height: { xs: "30px", md: "40px" },
-                                  width: { xs: "30px", md: "40px" },
+                                  height: { xs: "30px", md: "35px" },
+                                  width: { xs: "30px", md: "35px" },
                                 }}
                               />
                             </Tooltip>
@@ -232,6 +233,7 @@ export function ItemAssetsDialogue({
                             item
                             alignItems="center"
                             xs={10}
+                            sm={9}
                             sx={{ paddingLeft: "5px", display: "flex" }}
                           >
                             <Typography

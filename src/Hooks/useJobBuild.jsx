@@ -38,7 +38,6 @@ export function useJobBuild() {
       }
       this.jobID = Date.now();
       this.jobStatus = 0;
-      this.isSnapshot = false;
       this.volume = itemJson.volume;
       this.itemID = itemJson.itemID;
       this.maxProductionLimit = itemJson.maxProductionLimit;
@@ -53,7 +52,7 @@ export function useJobBuild() {
       this.apiTransactions = new Set();
       this.parentJob = [];
       this.blueprintTypeID = itemJson.blueprintTypeID || null;
-      this.projectID = null;
+      this.groupID = null;
       this.build = {
         products: {
           totalQuantity: 0,

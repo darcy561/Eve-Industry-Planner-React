@@ -34,11 +34,13 @@ export function MaterialRow({ material }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
   const { addNewJob, getItemPrices, updateMainUserDoc, uploadJob } =
     useFirebase();
   const { checkAllowBuild, buildJob } = useJobBuild();
-  const { newJobSnapshot, updateJobSnapshot } = useJobManagement();
+  const { newJobSnapshot, updateJobSnapshotFromFullJob } = useJobManagement();
   const [addJob, updateAddJob] = useState(false);
   const analytics = getAnalytics();
   const parentUser = useMemo(() => {
@@ -59,7 +61,7 @@ export function MaterialRow({ material }) {
           itemQty: material.quantity,
           parentJobs: [activeJob],
         });
-        let newUserJobSnapshot = [...userJobSnapshot]
+        let newUserJobSnapshot = [...userJobSnapshot];
         if (newJob !== undefined) {
           let priceIDRequest = new Set();
           let promiseArray = [];
@@ -69,7 +71,7 @@ export function MaterialRow({ material }) {
           });
           let itemPrices = getItemPrices([...priceIDRequest], parentUser);
           promiseArray.push(itemPrices);
-           newUserJobSnapshot =  newJobSnapshot(newJob, userJobSnapshot);
+          newUserJobSnapshot = newJobSnapshot(newJob, userJobSnapshot);
 
           if (isLoggedIn) {
             await updateMainUserDoc();
@@ -95,7 +97,10 @@ export function MaterialRow({ material }) {
           }));
         }
         material.childJob.push(newJob.jobID);
-        newUserJobSnapshot = updateJobSnapshot(activeJob, newUserJobSnapshot);
+        newUserJobSnapshot = updateJobSnapshotFromFullJob(
+          activeJob,
+          newUserJobSnapshot
+        );
         updateUserJobSnapshot(newUserJobSnapshot);
         await uploadJob(activeJob);
       }

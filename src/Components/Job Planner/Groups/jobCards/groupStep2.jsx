@@ -4,11 +4,11 @@ export default function GroupStep2JobCard({ job }) {
   let totalComplete = 0;
 
   job.build.materials.forEach((material) => {
-    if (material.quntityPurchased >= material.quantity) {
+    if (material.purchaseComplete) {
       totalComplete++;
     }
   });
-  
+
   return (
     <Grid
       container

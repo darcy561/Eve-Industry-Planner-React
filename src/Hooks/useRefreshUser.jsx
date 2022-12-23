@@ -3,31 +3,33 @@ import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { useEveApi } from "./useEveApi";
 import { useFirebase } from "./useFirebase";
-import {
-  JobArrayContext,
-  } from "../Context/JobContext";
+import { JobArrayContext } from "../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
   UsersContext,
 } from "../Context/AuthContext";
-import { LoadingTextContext, PageLoadContext } from "../Context/LayoutContext";
+import {
+  DialogDataContext,
+  LoadingTextContext,
+  PageLoadContext,
+} from "../Context/LayoutContext";
 import { decodeJwt } from "jose";
 import { trace } from "firebase/performance";
-import { performance } from "../firebase";
+import { functions, performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "./useAccountManagement";
+import { httpsCallable } from "firebase/functions";
 
 export function useRefreshUser() {
   const { serverStatus } = useEveApi();
-  const {
-    characterAPICall,
-  } = useAccountManagement();
+  const { characterAPICall } = useAccountManagement();
   const {
     determineUserState,
     userJobSnapshotListener,
     userWatchlistListener,
     userMaindDocListener,
+    userGroupDataListener,
   } = useFirebase();
   const { updateJobArray } = useContext(JobArrayContext);
   const { users, updateUsers } = useContext(UsersContext);
@@ -35,6 +37,12 @@ export function useRefreshUser() {
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { updateDialogData } = useContext(DialogDataContext);
+
+  const checkAppVersion = httpsCallable(
+    functions,
+    "appVersion-checkAppVersion"
+  );
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -62,11 +70,24 @@ export function useRefreshUser() {
     const analytics = getAnalytics();
     const t = trace(performance, "MainUserRefreshProcessFull");
     t.start();
-
     updateLoadingText((prevObj) => ({
       ...prevObj,
       eveSSO: true,
     }));
+
+    let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
+    if (!appVersion.data) {
+      updateDialogData((prev) => ({
+        ...prev,
+        buttonText: "Close",
+        id: "OutdatedAppVersion",
+        open: true,
+        title: "Outdated App Version",
+        body: "A newer version of the application is available, refresh the page to begin using this.",
+      }));
+      return;
+    }
+
     updateUserJobSnapshot([]);
 
     let refreshedUser = await RefreshTokens(refreshToken, true);
@@ -83,6 +104,7 @@ export function useRefreshUser() {
     userMaindDocListener(fbToken, refreshedUser);
     userJobSnapshotListener(refreshedUser);
     userWatchlistListener(fbToken, refreshedUser);
+    userGroupDataListener(refreshedUser);
 
     updateLoadingText((prevObj) => ({
       ...prevObj,

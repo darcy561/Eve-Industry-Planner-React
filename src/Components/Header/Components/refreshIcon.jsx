@@ -27,7 +27,8 @@ export function RefreshApiIcon() {
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { serverStatus, IDtoName } = useEveApi();
-  const { characterAPICall, checkUserClaims } = useAccountManagement();
+  const { characterAPICall, checkUserClaims, getCharacterInfo } =
+    useAccountManagement();
   const { refreshItemPrices } = useFirebase();
   const { RefreshUserAToken } = useRefreshUser();
   const { refreshState, updateRefreshState } = useContext(RefreshStateContext);
@@ -73,9 +74,13 @@ export function RefreshApiIcon() {
           if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
             user = await RefreshUserAToken(user);
           }
+          await getCharacterInfo(user);
           user = await characterAPICall(sStatus, user);
           JSON.parse(
             sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+          ).forEach((i) => newAPIArray.push(i));
+          JSON.parse(
+            sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`)
           ).forEach((i) => newAPIArray.push(i));
         }
       }
@@ -148,6 +153,24 @@ export function RefreshApiIcon() {
             locationIDS.add(order.region_id);
           }
         });
+        JSON.parse(
+          sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`)
+        ).forEach((job) => {
+          if (job.facility_id.toString().length > 10) {
+            if (
+              !existingLocations.has(job.facility_id) &&
+              !citadelStore.has(job.facility_id)
+            ) {
+              citadelIDs.add(job.facility_id);
+              citadelStore.add(job.facility_id);
+            }
+          } else {
+            if (!existingLocations.has(job.facility_id)) {
+              locationIDS.add(job.facility_id);
+            }
+          }
+        });
+
         if ([...citadelIDs].length > 0) {
           let tempCit = IDtoName([...citadelIDs], user);
           newIDNamePromises.push(tempCit);
@@ -178,6 +201,9 @@ export function RefreshApiIcon() {
             i.itemID === b.product_type_id ||
             i.blueprintID === b.blueprint_type_id
         );
+        if (aName === undefined || bName === undefined) {
+          return -1;
+        }
         if (aName.name < bName.name) {
           return -1;
         }

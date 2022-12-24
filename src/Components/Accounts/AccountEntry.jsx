@@ -24,7 +24,7 @@ import { useMemo } from "react";
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
   const { uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
-  const { characterAPICall, checkUserClaims } = useAccountManagement();
+  const { characterAPICall, checkUserClaims,getCharacterInfo } = useAccountManagement();
   const { findJobData, updateJobSnapshotFromFullJob } = useJobManagement();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
@@ -53,6 +53,7 @@ export function AccountEntry({ user, parentUserIndex }) {
         user = await RefreshUserAToken(user);
       }
       if (user !== "RefreshFail") {
+        await getCharacterInfo(user);
         user = await characterAPICall(sStatus, user);
         newAPIArray = apiJobs.filter(
           (i) => i.installer_id !== user.CharacterID

@@ -16,9 +16,7 @@ export function IndustryESICardActive({ job }) {
   const buildChar = users.find((i) => i.CharacterID === job.installer_id);
   const blueprintData = JSON.parse(
     sessionStorage.getItem(`esiBlueprints_${buildChar.CharacterHash}`)
-  ).find(
-    (i) => i.item_id === job.blueprint_id
-  );
+  ).find((i) => i.item_id === job.blueprint_id);
   let blueprintType = "bp";
   if (blueprintData !== undefined) {
     if (blueprintData.quantity === -2) {
@@ -149,7 +147,11 @@ export function IndustryESICardActive({ job }) {
               }}
             >
               <Typography align="center" variant="body2" color="black">
-                <b>ESI Manufacturing Job</b>
+                {job.isCorp ? (
+                  <b>ESI Manufacturing Job Corp Job</b>
+                ) : (
+                  <b>ESI Manufacturing Job</b>
+                )}
               </Typography>
             </Grid>
           </Grid>

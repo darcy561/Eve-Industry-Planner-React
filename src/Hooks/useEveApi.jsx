@@ -55,11 +55,11 @@ export function useEveApi() {
           new Date() - Date.parse(job.completed_date) <= 1209600000
         // 10 days
       );
-      const includedActivities = [1, 4, 3, 9, 5];
 
-      return filterOld.filter((job) =>
-        includedActivities.includes(job.activity_id)
-      );
+      filterOld.forEach((job) => {
+        job.isCorp = false;
+      });
+      return filterOld;
     } catch (err) {
       console.log(err);
       return [];
@@ -342,7 +342,7 @@ export function useEveApi() {
       }
       return standingsJSON;
     } catch (err) {
-      console.log(err)
+      console.log(err);
       return [];
     }
   };
@@ -378,10 +378,56 @@ export function useEveApi() {
     }
   };
 
+  const corpIndustryJobs = async (userObj) => {
+    let returnArray = [];
+    let pageCount = 1;
+    while (pageCount < 11) {
+      try {
+        const corpIndyPromise = await fetch(
+          `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/industry/jobs/?include_completed=true&page=${pageCount}&token=${userObj.aToken}`
+        );
+        const corpIndyJSON = await corpIndyPromise.json();
+        if (corpIndyPromise.status === 200) {
+          let filterOld = corpIndyJSON.filter(
+            (job) =>
+              job.completed_date === undefined ||
+              new Date() - Date.parse(job.completed_date) <= 1209600000
+            // 10 days
+          );
+
+          let filterOnlyChar = filterOld.filter(
+            (job) => job.installer_id === userObj.CharacterID
+          );
+
+          filterOnlyChar.forEach((job) => {
+            job.isCorp = true;
+          });
+
+          returnArray = returnArray.concat(filterOnlyChar);
+
+          if (corpIndyJSON.length < 1000) {
+            pageCount = 11;
+          } else {
+            pageCount++;
+          }
+        } else {
+          pageCount = 11;
+        }
+      } catch (err) {
+        pageCount = 11;
+        console.log(err);
+        return [];
+      }
+    }
+
+    return returnArray;
+  };
+
   return {
     BlueprintLibrary,
     characterData,
     CharacterSkills,
+    corpIndustryJobs,
     fullAssetsList,
     HistoricMarketOrders,
     IDtoName,

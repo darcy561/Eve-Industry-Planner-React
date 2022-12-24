@@ -1,15 +1,13 @@
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
-import searchData from "../../../../RawData/searchIndex.json";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import itemRef from "../../../../RawData/searchIndex.json";
 
-export function ReactionESICardActive({ job }) {
+export function InventionESICardActive({ job }) {
   const { timeRemainingCalc } = useJobManagement();
 
   const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
-  const product = searchData.find(
-    (i) => i.blueprintID === job.blueprint_type_id
-  );
 
+  const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id);
   return (
     <Tooltip title="Job imported from the Eve ESI">
       <Grid key={job.job_id} item xs={16} sm={6} md={4} lg={3}>
@@ -23,7 +21,7 @@ export function ReactionESICardActive({ job }) {
                   typography: { xs: "body1", lg: "h6" },
                 }}
               >
-                {product.name}
+                {itemName.name}
               </Typography>
             </Grid>
             <Grid
@@ -60,10 +58,10 @@ export function ReactionESICardActive({ job }) {
                   <picture>
                     <source
                       media="(max-width:700px)"
-                      srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=32`}
+                      srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/bpc?size=32`}
                     />
                     <img
-                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
+                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/bpc?size=64`}
                       alt=""
                     />
                   </picture>
@@ -77,19 +75,23 @@ export function ReactionESICardActive({ job }) {
                 sx={{ paddingLeft: { xs: "0px", sm: "5px" } }}
               >
                 <Grid container item xs={12}>
-                  <Grid item xs={4}>
+                  <Grid item xs={8}>
                     <Typography
                       sx={{ typography: { xs: "body2", md: "body1" } }}
                     >
-                      Runs:
+                      Runs/Probability
                     </Typography>
                   </Grid>
-                  <Grid item xs={8}>
+                  <Grid item xs={4}>
                     <Typography
                       sx={{ typography: { xs: "body2", md: "body1" } }}
                       align="right"
                     >
-                      {job.runs}
+                      {job.runs}/
+                      {job.probability.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}%
                     </Typography>
                   </Grid>
                 </Grid>
@@ -134,9 +136,9 @@ export function ReactionESICardActive({ job }) {
             >
               <Typography align="center" variant="body2" color="black">
                 {job.isCorp ? (
-                  <b>ESI Reaction Corp Job</b>
+                  <b>ESI Invention Corp Job</b>
                 ) : (
-                  <b>ESI Reaction Job</b>
+                  <b>ESI Invention Job</b>
                 )}
               </Typography>
             </Grid>

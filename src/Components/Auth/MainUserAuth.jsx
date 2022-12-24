@@ -37,6 +37,7 @@ export default function AuthMainUser() {
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const {
+    characterData,
     determineUserState,
     userJobSnapshotListener,
     userWatchlistListener,
@@ -63,7 +64,7 @@ export default function AuthMainUser() {
         ...prevObj,
         eveSSO: true,
       }));
-      
+
       let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
       if (!appVersion.data) {
         updateDialogData((prev) => ({
@@ -81,6 +82,7 @@ export default function AuthMainUser() {
 
       let userObject = await EveSSOTokens(authCode, true);
       let fbToken = await firebaseAuth(userObject);
+      await getCharacterInfo(refreshedUser);
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
@@ -168,7 +170,6 @@ async function EveSSOTokens(authCode, accountType) {
     const tokenJSON = await eveTokenPromise.json();
 
     const decodedToken = decodeJwt(tokenJSON.access_token);
-
     if (accountType) {
       const newUser = new MainUser(decodedToken, tokenJSON);
       newUser.ParentUser = accountType;
@@ -199,6 +200,7 @@ class MainUser {
     this.settings = null;
     this.accountRefreshTokens = [];
     this.refreshState = 1;
+    this.corporation_id = null;
   }
 }
 class SecondaryUser {
@@ -211,5 +213,6 @@ class SecondaryUser {
     this.rToken = tokenJSON.refresh_token;
     this.ParentUser = null;
     this.refreshState = 1;
+    this.corporation_id = null;
   }
 }

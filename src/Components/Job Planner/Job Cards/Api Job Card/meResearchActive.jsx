@@ -132,7 +132,11 @@ export function MeResearchESICardActive({ job }) {
               }}
             >
               <Typography align="center" variant="body2" color="black">
-                <b>ESI Material Efficiency Research Job</b>
+                {job.isCorp ? (
+                  <b>ESI Material Efficiency Research Corp Job</b>
+                ) : (
+                  <b>ESI Material Efficiency Research </b>
+                )}
               </Typography>
             </Grid>
           </Grid>

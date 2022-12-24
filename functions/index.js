@@ -1,5 +1,4 @@
 const functions = require("firebase-functions");
-const { onRequest } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const express = require("express");
 const helmet = require("helmet");
@@ -23,7 +22,7 @@ app.use(
       "https://www.eveindustryplanner.com",
       "https://eveindustryplanner.com",
     ],
-    methods: "GET,PUT,POST",
+    methods: "GET,POST",
     preflightContinue: false,
     optionsSuccessStatus: 204,
   })
@@ -213,7 +212,10 @@ app.get("/systemindexes/:systemID", async (req, res) => {
 });
 
 //Export the api to Firebase Cloud Functions
-exports.api = onRequest({ region: ["europe-west1"], maxInstances: 40 }, app);
+exports.api = functions
+  .region("europe-west1")
+  .runWith({ maxInstances: 40 })
+  .https.onRequest(app);
 exports.buildUser = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");

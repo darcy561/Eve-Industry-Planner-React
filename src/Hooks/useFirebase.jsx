@@ -56,6 +56,7 @@ export function useFirebase() {
     buildCloudAccountData,
     buildLocalAccountData,
     checkUserClaims,
+    getCharacterInfo,
     getLocationNames,
     tidyLinkedData,
     updateCloudRefreshTokens,
@@ -623,6 +624,7 @@ export function useFirebase() {
           let mainUser = newUserArray.find((i) => i.ParentUser);
           mainUser.accountID = userData.accountID;
           mainUser.settings = userData.settings;
+
           if (userData.settings.account.cloudAccounts) {
             newUserArray = await buildCloudAccountData(
               userData.refreshTokens,

@@ -47,6 +47,9 @@ export function AccountData() {
         newIndJobs += JSON.parse(
           sessionStorage.getItem(`esiJobs_${i.CharacterHash}`)
         ).length;
+        newIndJobs += JSON.parse(
+          sessionStorage.getItem(`esiCorpJobs_${i.CharacterHash}`)
+        ).length;
         newBlueprints += JSON.parse(
           sessionStorage.getItem(`esiBlueprints_${i.CharacterHash}`)
         ).length;

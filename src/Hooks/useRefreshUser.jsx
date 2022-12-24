@@ -31,6 +31,7 @@ export function useRefreshUser() {
     userMaindDocListener,
     userGroupDataListener,
   } = useFirebase();
+  const { getCharacterInfo } = useAccountManagement();
   const { updateJobArray } = useContext(JobArrayContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -92,6 +93,7 @@ export function useRefreshUser() {
 
     let refreshedUser = await RefreshTokens(refreshToken, true);
     let fbToken = await firebaseAuth(refreshedUser);
+    await getCharacterInfo(refreshedUser);
 
     updateLoadingText((prevObj) => ({
       ...prevObj,

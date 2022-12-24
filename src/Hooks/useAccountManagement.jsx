@@ -56,6 +56,7 @@ export function useAccountManagement() {
   const {
     characterData,
     CharacterSkills,
+    corpIndustryJobs,
     IndustryJobs,
     MarketOrders,
     HistoricMarketOrders,
@@ -93,7 +94,7 @@ export function useAccountManagement() {
         journal,
         assets,
         standings,
-        corporation,
+        corpIndJobs,
       ] = await Promise.all([
         CharacterSkills(userObject),
         IndustryJobs(userObject),
@@ -104,7 +105,7 @@ export function useAccountManagement() {
         WalletJournal(userObject),
         fullAssetsList(userObject),
         standingsList(userObject),
-        characterData(userObject),
+        corpIndustryJobs(userObject),
       ]);
 
       sessionStorage.setItem(
@@ -143,7 +144,10 @@ export function useAccountManagement() {
         `esiStandings_${userObject.CharacterHash}`,
         JSON.stringify(standings)
       );
-      userObject.corporation_id = corporation.corporation_id;
+      sessionStorage.setItem(
+        `esiCorpJobs_${userObject.CharacterHash}`,
+        JSON.stringify(corpIndJobs)
+      );
     } else {
       sessionStorage.setItem(
         `esiSkills_${userObject.CharacterHash}`,
@@ -181,7 +185,10 @@ export function useAccountManagement() {
         `esiStandings_${userObject.CharacterHash}`,
         JSON.stringify([])
       );
-      userObject.corporation_id = null;
+      sessionStorage.setItem(
+        `esiCorpJobs_${userObject.CharacterHash}`,
+        JSON.stringify([])
+      );
     }
 
     return userObject;
@@ -394,6 +401,7 @@ export function useAccountManagement() {
       if (newUser === "RefreshFail") {
         continue;
       }
+      await getCharacterInfo(newUser);
       newUser = await characterAPICall(sStatus, newUser);
       if (newUser === undefined) {
         continue;
@@ -418,10 +426,12 @@ export function useAccountManagement() {
       if (newUser === "RefreshFail") {
         continue;
       }
+      await getCharacterInfo(newUser);
       newUser = await characterAPICall(sStatus, newUser);
       if (newUser === undefined) {
         continue;
       }
+
       userArray.push(newUser);
     }
     return userArray;
@@ -474,7 +484,11 @@ export function useAccountManagement() {
       newApiArray = newApiArray.concat(
         JSON.parse(sessionStorage.getItem(`esiJobs_${user.CharacterHash}`))
       );
+      newApiArray = newApiArray.concat(
+        JSON.parse(sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`))
+      );
     }
+
     newApiArray.sort((a, b) => {
       let aName = searchData.find(
         (i) =>
@@ -486,6 +500,9 @@ export function useAccountManagement() {
           i.itemID === b.product_type_id ||
           i.blueprintID === b.blueprint_type_id
       );
+      if (aName === undefined || bName === undefined) {
+        return -1;
+      }
       if (aName.name < bName.name) {
         return -1;
       }
@@ -497,6 +514,11 @@ export function useAccountManagement() {
     return newApiArray;
   };
 
+  const getCharacterInfo = async (userObj) => {
+    const charData = await characterData(userObj);
+    userObj.corporation_id = charData.corporation_id;
+  };
+
   return {
     buildApiArray,
     buildCloudAccountData,
@@ -505,6 +527,7 @@ export function useAccountManagement() {
     characterAPICall,
     checkUserClaims,
     failedUserRefresh,
+    getCharacterInfo,
     getLocationNames,
     logUserOut,
     tidyLinkedData,

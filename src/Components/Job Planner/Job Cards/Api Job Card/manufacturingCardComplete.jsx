@@ -10,13 +10,20 @@ export function IndustryESICardComplete({ job }) {
     (i) => i.blueprintID === job.blueprint_type_id
   );
   const buildChar = users.find((i) => i.CharacterID === job.installer_id);
-  const blueprintData = JSON.parse(
-    sessionStorage.getItem(`esiBlueprints_${buildChar.CharacterHash}`)
-  ).find((i) => i.item_id === job.blueprint_id);
-
+  let blueprintData = null;
   let blueprintType = "bp";
-  if (blueprintData === undefined || blueprintData.quantity === -2) {
-    blueprintType = "bpc";
+  if (buildChar !== undefined) {
+    blueprintData = JSON.parse(
+      sessionStorage.getItem(`esiBlueprints_${buildChar.CharacterHash}`)
+    ).find((i) => i.item_id === job.blueprint_id);
+
+    if (
+      blueprintData === undefined ||
+      blueprintData === null ||
+      blueprintData.quantity === -2
+    ) {
+      blueprintType = "bpc";
+    }
   }
 
   return (
@@ -130,7 +137,11 @@ export function IndustryESICardComplete({ job }) {
               }}
             >
               <Typography align="center" variant="body2" color="black">
-                <b>ESI Manufacturing Job</b>
+                {job.isCorp ? (
+                  <b>ESI Manufacturing Corp Job</b>
+                ) : (
+                  <b>ESI Manufacturing Job</b>
+                )}
               </Typography>
             </Grid>
           </Grid>

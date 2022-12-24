@@ -131,7 +131,11 @@ export function BpCopyESICardActive({ job }) {
               }}
             >
               <Typography align="center" variant="body2" color="black">
-                <b>ESI Blueprint Copy Job</b>
+                {job.isCorp ? (
+                  <b>ESI Blueprint Copy Corp Job</b>
+                ) : (
+                  <b>ESI Blueprint Copy Job</b>
+                )}
               </Typography>
             </Grid>
           </Grid>

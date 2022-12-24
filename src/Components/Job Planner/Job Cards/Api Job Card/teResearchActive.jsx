@@ -135,7 +135,11 @@ export function TeResearchESICardActive({ job }) {
               }}
             >
               <Typography align="center" variant="body2" color="black">
-                <b>ESI Time Efficiency Research Job</b>
+                {job.isCorp ? (
+                  <b>ESI Time Efficiency Research Corp Job</b>
+                ) : (
+                  <b>ESI Time Efficiency Research Job</b>
+                )}
               </Typography>
             </Grid>
           </Grid>

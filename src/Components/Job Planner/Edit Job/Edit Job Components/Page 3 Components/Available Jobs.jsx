@@ -40,7 +40,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
       this.runs = originalJob.runs;
       this.job_id = originalJob.job_id;
       this.completed_date = originalJob.completed_date || null;
-      this.station_id = originalJob.station_id;
+      this.station_id = originalJob.facility_id;
       this.start_date = originalJob.start_date;
       this.end_date = originalJob.end_date;
       this.cost = originalJob.cost;
@@ -49,6 +49,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
       this.activity_id = originalJob.activity_id;
       this.duration = originalJob.duration;
       this.blueprint_id = originalJob.blueprint_id;
+      this.isCorp = originalJob.isCorp
     }
   }
 
@@ -176,6 +177,16 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                       : "Location Data Unavailable"}
                   </Typography>
                 </Grid>
+                {job.isCorp ? (
+                  <Grid item xs={12}>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      align="center"
+                    >
+                      Corporation Job
+                    </Typography>
+                  </Grid>
+                ) : null}
                 <Grid item xs={12}>
                   <Typography
                     sx={{ typography: { xs: "caption", sm: "body2" } }}

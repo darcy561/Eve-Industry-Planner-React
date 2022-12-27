@@ -141,7 +141,6 @@ export function useFirebase() {
   };
 
   const uploadJob = async (job) => {
-    console.log(job)
     await fbAuthState();
     updateDoc(
       doc(

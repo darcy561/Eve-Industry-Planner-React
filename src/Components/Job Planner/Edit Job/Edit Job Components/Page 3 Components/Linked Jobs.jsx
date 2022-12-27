@@ -94,10 +94,10 @@ export function LinkedJobs({ setJobModified }) {
             );
             if (jobOwner !== undefined) {
               const jobBP = JSON.parse(
-                sessionStorage.getItem(`esiBlueprints_${jobOwner.CharacterHash}`)
-              ).find(
-                (i) => i.item_id === job.blueprint_id
-              );
+                sessionStorage.getItem(
+                  `esiBlueprints_${jobOwner.CharacterHash}`
+                )
+              ).find((i) => i.item_id === job.blueprint_id);
               if (jobBP !== undefined) {
                 blueprintType = "bp";
                 if (jobBP.quantity === -2) {
@@ -189,6 +189,16 @@ export function LinkedJobs({ setJobModified }) {
                     })}
                   </Typography>
                 </Grid>
+                {job.isCorp ? (
+                  <Grid item xs={12}>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      align="center"
+                    >
+                      Corporation Job
+                    </Typography>
+                  </Grid>
+                ) : null}
 
                 <Grid item xs={12}>
                   <Typography

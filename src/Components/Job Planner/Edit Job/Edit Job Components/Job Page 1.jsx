@@ -60,7 +60,10 @@ export function EditPage1({ jobModified, setJobModified }) {
         <Grid item xs={12} md={9}>
           <Masonry columns={1} spacing={2}>
             <RawResourceList />
-            <ItemCostPanel jobModified={jobModified} />
+            <ItemCostPanel
+              jobModified={jobModified}
+              setJobModified={setJobModified}
+            />
             <ArchiveJobs />
             <SkillCheck />
           </Masonry>

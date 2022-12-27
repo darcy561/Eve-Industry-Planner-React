@@ -9,7 +9,7 @@ import {
   marketOptions,
 } from "../../../../../Context/defaultValues";
 
-export function ItemCostPanel({ jobModified }) {
+export function ItemCostPanel({ jobModified, setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
@@ -167,7 +167,7 @@ export function ItemCostPanel({ jobModified }) {
           </Grid>
         </Grid>
         <Grid container item xs={12}>
-          {activeJob.build.materials.map((material) => {
+          {activeJob.build.materials.map((material, materialIndex) => {
             let materialPrice = evePrices.find(
               (i) => i.typeID === material.typeID
             );
@@ -182,6 +182,8 @@ export function ItemCostPanel({ jobModified }) {
                 listingSelect={listingSelect}
                 materialPrice={materialPrice}
                 jobModified={jobModified}
+                setJobModified={setJobModified}
+                materialIndex={materialIndex}
               />
             );
           })}

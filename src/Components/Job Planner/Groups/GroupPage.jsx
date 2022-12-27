@@ -1,11 +1,33 @@
-import { Grid, IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import {
+  Grid,
+  IconButton,
+  Paper,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import DoneIcon from "@mui/icons-material/Done";
 import { useContext, useEffect, useState } from "react";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { OutputJobsPanel } from "./OutputJobs";
 import { GroupAccordion } from "./groupAccordion";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  TextField: {
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.secondary.main,
+    },
+    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+      {
+        display: "none",
+      },
+  },
+}));
 
 export default function GroupPage() {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -13,12 +35,13 @@ export default function GroupPage() {
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const [groupJobs, updateGroupJobs] = useState([]);
   const [groupPageRefresh, updateGroupPageRefresh] = useState(false);
+  const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
   const { closeGroup } = useGroupManagement();
+  const classes = useStyles();
 
   useEffect(() => {
     if (activeGroup !== null) {
       let returnArray = [];
-      console.log(activeGroup);
       updateGroupPageRefresh((prev) => !prev);
       for (let jobID of activeGroup.includedJobIDs) {
         let job = jobArray.find((i) => i.jobID === jobID);
@@ -31,6 +54,11 @@ export default function GroupPage() {
       updateGroupPageRefresh((prev) => !prev);
     }
   }, [activeGroup, jobArray, userJobSnapshot]);
+
+  const handleNameChange = (event) => {
+    event.preventDefault();
+    console.log(event);
+  };
 
   if (!groupPageRefresh) {
     return (
@@ -46,14 +74,24 @@ export default function GroupPage() {
       >
         <Grid container>
           <Grid item xs={7} md={9} lg={10} />
-          <Grid item xs={5} md={3} lg={2}>
+          <Grid item xs={5} md={3} lg={2} align="right">
+            <Tooltip arrow title="Edit Group Name" placement="bottom">
+              <IconButton
+                color="primary"
+                onClick={() => {
+                  updateEditGroupNameTrigger((prev) => !prev);
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
             <Tooltip
               arrow
               title="Saves all changes and returns to the job planner page."
               placement="bottom"
             >
               <IconButton
-                color="primary"
+                color="error"
                 onClick={async () => {
                   closeGroup();
                 }}
@@ -64,9 +102,35 @@ export default function GroupPage() {
               </IconButton>
             </Tooltip>
           </Grid>
-          <Grid item xs={12}>
-            <Typography>{activeGroup.groupName}</Typography>
-            <Typography>{activeGroup.groupID}</Typography>
+          <Grid container item xs={12} sx={{ marginBottom: "50px" }}>
+            {editGroupNameTrigger ? (
+              <form onSubmit={handleNameChange}>
+                <Grid container item xs={12}>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      defaultValue={activeGroup.groupName}
+                      size="small"
+                      variant="standard"
+                      className={classes.TextField}
+                      helperText="Group Name"
+                      type="text"
+                    />
+                  </Grid>
+                  <Grid item xs={1}>
+                    <IconButton color="success" type="submit">
+                      <DoneIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              </form>
+            ) : (
+              <Grid item xs={12}>
+                <Typography variant="h3" align="left" color="primary">
+                  {activeGroup.groupName}
+                </Typography>
+              </Grid>
+            )}
           </Grid>
           <Grid container item xs={12} spacing={2}>
             <Grid item xs={12}>

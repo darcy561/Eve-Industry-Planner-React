@@ -310,7 +310,7 @@ export function useJobManagement() {
       newUserJobSnapshot
     );
     if (isLoggedIn && jobModified) {
-      await uploadJob(existingJob);
+      uploadJob(existingJob);
     }
     updateLoadingText((prevObj) => ({
       ...prevObj,

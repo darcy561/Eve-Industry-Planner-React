@@ -1,9 +1,8 @@
 import React, { useContext, useState } from "react";
-import { ApiJobsContext, JobStatusContext } from "../../../Context/JobContext";
+import { JobStatusContext } from "../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
-  UsersContext,
 } from "../../../Context/AuthContext";
 import {
   Accordion,
@@ -19,7 +18,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AddIcon from "@mui/icons-material/Add";
 import { StatusSettings } from "./StatusSettings";
-import { useFirebase } from "../../../Hooks/useFirebase";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { makeStyles } from "@mui/styles";
 import { AccordionContents } from "./accordionContents";
@@ -53,14 +51,12 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
     openAPIJobs: false,
     completeAPIJobs: false,
   });
-  const { updateMainUserDoc } = useFirebase();
   const classes = useStyles();
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);
     let newStatusArray = [...jobStatus];
     newStatusArray[index].expanded = !newStatusArray[index].expanded;
-    isLoggedIn && updateMainUserDoc(newStatusArray);
     setJobStatus(newStatusArray);
   }
 

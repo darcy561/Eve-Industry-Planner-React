@@ -63,13 +63,12 @@ export function useJobManagement() {
     getArchivedJobData,
     getItemPrices,
     removeJob,
-    updateMainUserDoc,
     uploadJob,
     uploadUserJobSnapshot,
     userJobListener,
   } = useFirebase();
   const { stationData } = useEveApi();
-  const { buildJob, checkAllowBuild, recalculateItemQty } = useJobBuild();
+  const { buildJob, checkAllowBuild } = useJobBuild();
   const t = trace(performance, "CreateJobProcessFull");
   const r = trace(performance, "MassCreateJobProcessFull");
   const checkAppVersion = httpsCallable(
@@ -285,7 +284,6 @@ export function useJobManagement() {
       await uploadUserJobSnapshot(newUserJobSnapshot);
     }
     if (isLoggedIn && jobModified) {
-      await updateMainUserDoc();
       await uploadJob(inputJob);
     }
     if (jobModified) {
@@ -485,26 +483,28 @@ export function useJobManagement() {
 
       inputJob.build.materials.forEach((material) => {
         materialPriceIDs.add(material.typeID);
-        if (material.childJob.length === 0) {
-          if (
-            material.jobType === jobTypes.manufacturing ||
-            material.jobType === jobTypes.reaction
-          ) {
-            if (!finalBuildCount.some((i) => i.typeID === material.typeID)) {
-              finalBuildCount.push({
-                typeID: material.typeID,
-                quantity: material.quantity,
-                parentIDs: new Set([inputJob.jobID]),
-              });
-            } else {
-              const index = finalBuildCount.findIndex(
-                (i) => i.typeID === material.typeID
-              );
-              if (index !== -1) {
-                finalBuildCount[index].quantity += material.quantity;
-                finalBuildCount[index].parentIDs.add(inputJob.jobID);
-              }
-            }
+        if (material.childJob.length > 0) {
+          return;
+        }
+        if (
+          material.jobType !== jobTypes.manufacturing ||
+          material.jobType !== jobTypes.reaction
+        ) {
+          return;
+        }
+        if (!finalBuildCount.some((i) => i.typeID === material.typeID)) {
+          finalBuildCount.push({
+            typeID: material.typeID,
+            quantity: material.quantity,
+            parentIDs: new Set([inputJob.jobID]),
+          });
+        } else {
+          const index = finalBuildCount.findIndex(
+            (i) => i.typeID === material.typeID
+          );
+          if (index !== -1) {
+            finalBuildCount[index].quantity += material.quantity;
+            finalBuildCount[index].parentIDs.add(inputJob.jobID);
           }
         }
       });
@@ -524,45 +524,48 @@ export function useJobManagement() {
     }));
 
     for (let item of finalBuildCount) {
-      if (checkAllowBuild()) {
-        const newJob = await buildJob({
-          itemID: item.typeID,
-          itemQty: item.quantity,
-          parentJobs: [...item.parentIDs],
-        });
-        if (newJob === undefined) {
-          continue;
-        }
-        materialPriceIDs.add(newJob.itemID);
-        newJob.build.materials.forEach((mat) => {
-          materialPriceIDs.add(mat.typeID);
-        });
-        childJobs.push(newJob);
-        logEvent(analytics, "New Job", {
-          loggedIn: isLoggedIn,
-          UID: parentUser.accountID,
-          name: newJob.name,
-          itemID: newJob.itemID,
-        });
-        updateMassBuildDisplay((prev) => ({
-          ...prev,
-          currentJob: prev.currentJob + 1,
-        }));
+      if (!checkAllowBuild()) {
+        continue;
       }
+      const newJob = await buildJob({
+        itemID: item.typeID,
+        itemQty: item.quantity,
+        parentJobs: [...item.parentIDs],
+      });
+      if (newJob === undefined) {
+        continue;
+      }
+      materialPriceIDs.add(newJob.itemID);
+      newJob.build.materials.forEach((mat) => {
+        materialPriceIDs.add(mat.typeID);
+      });
+      childJobs.push(newJob);
+      logEvent(analytics, "New Job", {
+        loggedIn: isLoggedIn,
+        UID: parentUser.accountID,
+        name: newJob.name,
+        itemID: newJob.itemID,
+      });
+      updateMassBuildDisplay((prev) => ({
+        ...prev,
+        currentJob: prev.currentJob + 1,
+      }));
     }
 
     for (let inputJobID of inputJobIDs) {
       let updatedJob = newJobArray.find((i) => i.jobID === inputJobID);
       for (let material of updatedJob.build.materials) {
         if (
-          material.jobType === jobTypes.manufacturing ||
-          material.jobType === jobTypes.reaction
+          material.jobType !== jobTypes.manufacturing ||
+          material.jobType !== jobTypes.reaction
         ) {
-          let match = childJobs.find((i) => i.itemID === material.typeID);
-          if (match !== undefined) {
-            material.childJob.push(match.jobID);
-          }
+          continue;
         }
+        let match = childJobs.find((i) => i.itemID === material.typeID);
+        if (match === undefined) {
+          continue;
+        }
+        material.childJob.push(match.jobID);
       }
       newUserJobSnapshot = updateJobSnapshotFromFullJob(
         updatedJob,
@@ -571,9 +574,7 @@ export function useJobManagement() {
       if (activeJob.jobID === updatedJob.jobID) {
         updateActiveJob(updatedJob);
       }
-      if (isLoggedIn) {
-        jobsToSave.add(updatedJob.jobID);
-      }
+      jobsToSave.add(updatedJob.jobID);
     }
 
     childJobs.sort((a, b) => {
@@ -590,21 +591,20 @@ export function useJobManagement() {
       newUserJobSnapshot = newJobSnapshot(childJob, newUserJobSnapshot);
 
       if (isLoggedIn) {
-        await addNewJob(childJob);
+        addNewJob(childJob);
       }
       newJobArray.push(childJob);
     }
 
-    jobsToSave.forEach((jobID) => {
-      let job = newJobArray.find((i) => i.jobID === jobID);
-      if (job === undefined) {
-        return;
-      }
-      uploadJob(job);
-    });
-
     if (isLoggedIn) {
-      await uploadUserJobSnapshot(newUserJobSnapshot);
+      jobsToSave.forEach((jobID) => {
+        let job = newJobArray.find((i) => i.jobID === jobID);
+        if (job === undefined) {
+          return;
+        }
+        uploadJob(job);
+      });
+      uploadUserJobSnapshot(newUserJobSnapshot);
     }
     updateMassBuildDisplay((prev) => ({
       ...prev,
@@ -677,9 +677,8 @@ export function useJobManagement() {
               child,
               newUserJobSnapshot
             );
-            if (isLoggedIn) {
-              jobsToSave.add(child.jobID);
-            }
+
+            jobsToSave.add(child.jobID);
           }
         }
       }
@@ -703,9 +702,7 @@ export function useJobManagement() {
           parentJob,
           newUserJobSnapshot
         );
-        if (isLoggedIn) {
-          jobsToSave.add(parentJob.jobID);
-        }
+        jobsToSave.add(parentJob.jobID);
       }
 
       inputJob.build.sale.transactions.forEach((trans) => {
@@ -724,16 +721,14 @@ export function useJobManagement() {
 
       newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
 
-      jobsToSave.forEach((jobID) => {
-        let job = newJobArray.find((i) => i.jobID === jobID);
-        if (job === undefined) {
-          return;
-        }
-        uploadJob(job);
-      });
-
       if (isLoggedIn) {
-        updateMainUserDoc();
+        jobsToSave.forEach((jobID) => {
+          let job = newJobArray.find((i) => i.jobID === jobID);
+          if (job === undefined) {
+            return;
+          }
+          uploadJob(job);
+        });
         uploadUserJobSnapshot(newUserJobSnapshot);
         removeJob(inputJob);
       }
@@ -816,9 +811,7 @@ export function useJobManagement() {
           }
           child.parentJob = child.parentJob.filter((i) => inputJob.jobID !== i);
 
-          if (isLoggedIn) {
-            jobsToSave.add(child.jobID);
-          }
+          jobsToSave.add(child.jobID);
         }
       }
       //Removes inputJob IDs from Parent jobs
@@ -843,30 +836,26 @@ export function useJobManagement() {
             parentJob,
             newUserJobSnapshot
           );
-          if (isLoggedIn) {
-            jobsToSave.add(parentJob.jobID);
-          }
+          jobsToSave.add(parentJob.jobID);
         }
       }
 
       newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
 
       if (isLoggedIn) {
-        await removeJob(inputJob);
+        removeJob(inputJob);
       }
     }
     newJobArray = newJobArray.filter((i) => !inputJobIDs.includes(i.jobID));
 
-    jobsToSave.forEach((jobID) => {
-      let job = newJobArray.find((i) => i.jobID === jobID);
-      if (job === undefined) {
-        return;
-      }
-      uploadJob(job);
-    });
-
     if (isLoggedIn) {
-      updateMainUserDoc();
+      jobsToSave.forEach((jobID) => {
+        let job = newJobArray.find((i) => i.jobID === jobID);
+        if (job === undefined) {
+          return;
+        }
+        uploadJob(job);
+      });
       uploadUserJobSnapshot(newUserJobSnapshot);
     }
     updateLinkedJobIDs([...newLinkedJobIDs]);
@@ -910,7 +899,7 @@ export function useJobManagement() {
       );
 
       if (isLoggedIn) {
-        await uploadJob(inputJob);
+        uploadJob(inputJob);
       }
     }
     if (isLoggedIn) {
@@ -941,7 +930,7 @@ export function useJobManagement() {
       );
 
       if (isLoggedIn) {
-        await uploadJob(inputJob);
+        uploadJob(inputJob);
       }
     }
     if (isLoggedIn) {
@@ -963,25 +952,26 @@ export function useJobManagement() {
         newJobArray
       );
       inputJob.build.materials.forEach((material) => {
-        if (material.quantityPurchased < material.quantity) {
-          if (!finalShoppingList.find((i) => i.typeID === material.typeID)) {
-            finalShoppingList.push({
-              name: material.name,
-              typeID: material.typeID,
-              quantity: material.quantity - material.quantityPurchased,
-              quantityLessAsset: 0,
-              volume: material.volume,
-              hasChild: material.childJob.length > 0 ? true : false,
-              isVisible: false,
-            });
-          } else {
-            const index = finalShoppingList.findIndex(
-              (i) => i.typeID === material.typeID
-            );
-            if (index !== -1) {
-              finalShoppingList[index].quantity +=
-                material.quantity - material.quantityPurchased;
-            }
+        if (material.quantityPurchased >= material.quantity) {
+          return;
+        }
+        if (!finalShoppingList.find((i) => i.typeID === material.typeID)) {
+          finalShoppingList.push({
+            name: material.name,
+            typeID: material.typeID,
+            quantity: material.quantity - material.quantityPurchased,
+            quantityLessAsset: 0,
+            volume: material.volume,
+            hasChild: material.childJob.length > 0 ? true : false,
+            isVisible: false,
+          });
+        } else {
+          const index = finalShoppingList.findIndex(
+            (i) => i.typeID === material.typeID
+          );
+          if (index !== -1) {
+            finalShoppingList[index].quantity +=
+              material.quantity - material.quantityPurchased;
           }
         }
       });
@@ -1019,25 +1009,26 @@ export function useJobManagement() {
 
       inputJob.build.materials.forEach((material) => {
         if (
-          material.quantityPurchased < material.quantity &&
-          material.childJob.length === 0
+          material.quantityPurchased >= material.quantity &&
+          material.childJob.length > 0
         ) {
-          if (!finalPriceEntry.some((i) => i.typeID === material.typeID)) {
-            finalPriceEntry.push({
-              name: material.name,
-              typeID: material.typeID,
-              quantity: material.quantity,
-              itemPrice: 0,
-              confirmed: false,
-              jobRef: [inputJob.jobID],
-            });
-          } else {
-            let index = finalPriceEntry.findIndex(
-              (i) => i.typeID === material.typeID
-            );
-            finalPriceEntry[index].quantity += material.quantity;
-            finalPriceEntry[index].jobRef.push(inputJob.jobID);
-          }
+          return;
+        }
+        if (!finalPriceEntry.some((i) => i.typeID === material.typeID)) {
+          finalPriceEntry.push({
+            name: material.name,
+            typeID: material.typeID,
+            quantity: material.quantity,
+            itemPrice: 0,
+            confirmed: false,
+            jobRef: [inputJob.jobID],
+          });
+        } else {
+          let index = finalPriceEntry.findIndex(
+            (i) => i.typeID === material.typeID
+          );
+          finalPriceEntry[index].quantity += material.quantity;
+          finalPriceEntry[index].jobRef.push(inputJob.jobID);
         }
       });
     }

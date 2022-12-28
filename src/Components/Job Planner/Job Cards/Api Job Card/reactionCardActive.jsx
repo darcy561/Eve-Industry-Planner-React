@@ -1,6 +1,7 @@
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
 import searchData from "../../../../RawData/searchIndex.json";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import { blueGrey, grey } from "@mui/material/colors";
 
 export function ReactionESICardActive({ job }) {
   const { timeRemainingCalc } = useJobManagement();
@@ -128,7 +129,7 @@ export function ReactionESICardActive({ job }) {
               item
               xs={12}
               sx={{
-                backgroundColor: "rgba(204,204,204,0.5)",
+                backgroundColor: job.isCorp ? blueGrey[400] : grey[600],
                 marginTop: "10px",
               }}
             >

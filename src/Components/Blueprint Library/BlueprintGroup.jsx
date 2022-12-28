@@ -39,8 +39,7 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
   const [loadingBuild, updateLoadingBuild] = useState(false);
   const { buildJob, checkAllowBuild } = useJobBuild();
   const { newJobSnapshot } = useJobManagement();
-  const { addNewJob, getItemPrices, updateMainUserDoc, uploadJob } =
-    useFirebase();
+  const { addNewJob, getItemPrices, uploadJob } = useFirebase();
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");
 

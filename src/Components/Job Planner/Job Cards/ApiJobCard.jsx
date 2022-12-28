@@ -6,7 +6,7 @@ import { TeResearchESICardActive } from "./Api Job Card/teResearchActive";
 import { ReactionESICardComplete } from "./Api Job Card/reactionCardComplete";
 import { ReactionESICardActive } from "./Api Job Card/reactionCardActive";
 import { BpCopyESICardActive } from "./Api Job Card/bpCopyActive";
-import { InventionESICardActive } from "./Api Job Card/InventionCardActive copy";
+import { InventionESICardActive } from "./Api Job Card/InventionCardActive";
 
 export function ApiJobCard({ job }) {
   switch (job.activity_id) {

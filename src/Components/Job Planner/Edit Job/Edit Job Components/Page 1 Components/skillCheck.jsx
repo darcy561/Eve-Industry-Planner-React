@@ -1,4 +1,11 @@
-import { Container, Grid, Icon, Paper, Typography } from "@mui/material";
+import {
+  Container,
+  Grid,
+  Icon,
+  Paper,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
@@ -89,9 +96,15 @@ export function SkillCheck() {
                   <Masonry columns={1}>
                     {charSkill !== undefined &&
                     charSkill.activeLevel >= jSkill.level ? (
-                      <Icon fontSize="large" color="success">
-                        <DoneIcon />
-                      </Icon>
+                      <Tooltip
+                        arrow
+                        title={`Level ${jSkill.level} Required`}
+                        placement="bottom"
+                      >
+                        <Icon fontSize="large" color="success">
+                          <DoneIcon />
+                        </Icon>
+                      </Tooltip>
                     ) : (
                       <Grid item>
                         <Icon fontSize="large" color="error">

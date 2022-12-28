@@ -33,12 +33,7 @@ export function PriceEntryDialog() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const {
-    downloadCharacterJobs,
-    updateMainUserDoc,
-    uploadJob,
-    uploadUserJobSnapshot,
-  } = useFirebase();
+  const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -317,7 +312,7 @@ export function PriceEntryDialog() {
                   let matches = importedText.matchAll(
                     /(\D*|\S*?\D*\d*?\D*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)(\r?\n|\r)/g
                   );
-                  console.log(matches)
+                  console.log(matches);
                   if (matches.length > 0) {
                     for (let importMatch of matches) {
                       for (let listItem of newList) {

@@ -21,6 +21,7 @@ import {
 import { MdOutlineLinkOff } from "react-icons/md";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { EveIDsContext } from "../../../../../Context/EveDataContext";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function LinkedJobs({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -30,33 +31,11 @@ export function LinkedJobs({ setJobModified }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedJobIDs, updateLinkedJobIDs } = useContext(LinkedIDsContext);
+  const { timeRemainingCalc } = useJobManagement();
   const analytics = getAnalytics();
   const ParentUserIndex = useMemo(() => {
     return users.findIndex((i) => i.ParentUser);
   }, [users]);
-
-  function timeRemainingcalc(job) {
-    let now = new Date().getTime();
-    let timeLeft = Date.parse(job.end_date) - now;
-
-    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    let hour = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (day < 0) {
-      day = 0;
-    }
-    if (hour < 0) {
-      hour = 0;
-    }
-    if (min < 0) {
-      min = 0;
-    }
-
-    return { days: day, hours: hour, mins: min };
-  }
 
   activeJob.build.costs.linkedJobs.forEach((job) => {
     if (job.status === "active") {
@@ -107,7 +86,7 @@ export function LinkedJobs({ setJobModified }) {
             }
             const facilityData = eveIDs.find((i) => i.id === job.station_id);
 
-            const timeRemaining = timeRemainingcalc(job);
+            const timeRemaining = timeRemainingCalc(job);
             return (
               <Grid
                 key={job.job_id}

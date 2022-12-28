@@ -2,6 +2,7 @@ import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
 import searchData from "../../../../RawData/searchIndex.json";
+import { blueGrey, grey } from "@mui/material/colors";
 
 export function IndustryESICardComplete({ job }) {
   const { users } = useContext(UsersContext);
@@ -132,7 +133,7 @@ export function IndustryESICardComplete({ job }) {
               item
               xs={12}
               sx={{
-                backgroundColor: "rgba(204,204,204,0.5)",
+                backgroundColor: job.isCorp ? blueGrey[400] : grey[600],
                 marginTop: "10px",
               }}
             >

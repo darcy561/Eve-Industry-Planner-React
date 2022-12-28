@@ -379,6 +379,7 @@ export function useJobBuild() {
       material.childJob = [...buildItem.childJobs];
     }
   };
+
   const buildRequest_ParentJobs = (buildRequest, outputObject) => {
     if (!buildRequest.hasOwnProperty("parentJobs")) {
       return;

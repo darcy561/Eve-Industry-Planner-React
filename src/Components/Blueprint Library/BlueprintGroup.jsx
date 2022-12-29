@@ -39,7 +39,8 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
   const [loadingBuild, updateLoadingBuild] = useState(false);
   const { buildJob, checkAllowBuild } = useJobBuild();
   const { newJobSnapshot } = useJobManagement();
-  const { addNewJob, getItemPrices, uploadJob } = useFirebase();
+  const { addNewJob, getItemPrices, uploadJob, uploadUserJobSnapshot } =
+    useFirebase();
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");
 
@@ -87,52 +88,55 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
                     onClick={async () => {
                       t.start();
                       updateLoadingBuild((prev) => !prev);
-                      if (checkAllowBuild) {
-                        let newJob = await buildJob({ itemID: bpData.itemID });
-                        if (newJob === undefined) {
-                          updateLoadingBuild((prev) => !prev);
-                          return;
-                        }
-                        let priceIDRequest = new Set();
-                        let promiseArray = [];
-                        priceIDRequest.add(newJob.itemID);
-                        newJob.build.materials.forEach((mat) => {
-                          priceIDRequest.add(mat.typeID);
-                        });
-                        let itemPrices = getItemPrices(
-                          [...priceIDRequest],
-                          parentUser
-                        );
-                        promiseArray.push(itemPrices);
-                        let newUserJobSnapshot = newJobSnapshot(newJob, [
-                          ...userJobSnapshot,
-                        ]);
-                        await addNewJob(newJob);
-                        await updateUserJobSnapshot(newUserJobSnapshot);
-
-                        logEvent(analytics, "New Job", {
-                          loggedIn: true,
-                          UID: parentUser.accountID,
-                          name: newJob.name,
-                          itemID: newJob.itemID,
-                        });
-                        let returnPromiseArray = await Promise.all(
-                          promiseArray
-                        );
-                        updateUserJobSnapshot(newUserJobSnapshot);
-                        updateEvePrices((prev) =>
-                          prev.concat(returnPromiseArray[0])
-                        );
-                        updateJobArray((prev) => [...prev, newJob]);
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: `${newJob.name} Added`,
-                          severity: "success",
-                          autoHideDuration: 3000,
-                        }));
-                        await uploadJob(newJob);
+                      if (!checkAllowBuild) {
+                        updateLoadingBuild((prev) => !prev);
+                        return;
                       }
+                      let newJob = await buildJob({ itemID: bpData.itemID });
+                      if (newJob === undefined) {
+                        updateLoadingBuild((prev) => !prev);
+                        return;
+                      }
+                      let priceIDRequest = new Set();
+                      let promiseArray = [];
+                      priceIDRequest.add(newJob.itemID);
+                      newJob.build.materials.forEach((mat) => {
+                        priceIDRequest.add(mat.typeID);
+                      });
+                      let itemPrices = getItemPrices(
+                        [...priceIDRequest],
+                        parentUser
+                      );
+                      promiseArray.push(itemPrices);
+                      let newUserJobSnapshot = newJobSnapshot(newJob, [
+                        ...userJobSnapshot,
+                      ]);
+                      addNewJob(newJob);
+                      uploadUserJobSnapshot(newUserJobSnapshot);
+
+                      logEvent(analytics, "New Job", {
+                        loggedIn: true,
+                        UID: parentUser.accountID,
+                        name: newJob.name,
+                        itemID: newJob.itemID,
+                      });
+                      let returnPromiseArray = await Promise.all(promiseArray);
+                      updateUserJobSnapshot(newUserJobSnapshot);
+                      updateEvePrices((prev) => {
+                        let newEvePrices = returnPromiseArray[0].filter(
+                          (n) => !prev.some((p) => p.typeID === n.typeID)
+                        );
+                        return prev.concat(newEvePrices);
+                      });
+                      updateJobArray((prev) => [...prev, newJob]);
+                      setSnackbarData((prev) => ({
+                        ...prev,
+                        open: true,
+                        message: `${newJob.name} Added`,
+                        severity: "success",
+                        autoHideDuration: 3000,
+                      }));
+
                       updateLoadingBuild((prev) => !prev);
                       t.stop();
                     }}

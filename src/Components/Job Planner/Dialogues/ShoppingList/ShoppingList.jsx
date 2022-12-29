@@ -202,7 +202,12 @@ export function ShoppingListDialog({
         updateDisplayData(newDisplayData);
         updateVolumeTotal(newVolumeTotal);
         updateCopyText(newCopyText);
-        updateEvePrices((prev) => prev.concat(itemPrices));
+        updateEvePrices((prev) => {
+          itemPrices = itemPrices.filter(
+            (n) => !prev.some((p) => p.typeID === n.typeID)
+          );
+          return prev.concat(itemPrices);
+        });
         updateLoadingData(false);
       }
     }

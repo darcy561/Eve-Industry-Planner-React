@@ -149,7 +149,12 @@ export function useJobManagement() {
     let returnPromiseArray = await Promise.all(promiseArray);
 
     updateUserJobSnapshot(newUserJobSnapshot);
-    updateEvePrices((prev) => prev.concat(returnPromiseArray[0]));
+    updateEvePrices((prev) => {
+      let newEvePrices = returnPromiseArray[0].filter(
+        (n) => !prev.some((p) => p.typeID === n.typeID)
+      );
+      return prev.concat(newEvePrices);
+    });
     updateDataExchange(false);
     setSnackbarData((prev) => ({
       ...prev,
@@ -242,7 +247,12 @@ export function useJobManagement() {
     }
     let jobPrices = await getItemPrices([...itemIDs], parentUser);
     if (jobPrices.length > 0) {
-      updateEvePrices((prev) => prev.concat(jobPrices));
+      updateEvePrices((prev) => {
+        jobPrices = jobPrices.filter(
+          (n) => !prev.some((p) => p.typeID === n.typeID)
+        );
+        return prev.concat(jobPrices);
+      });
     }
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
@@ -364,7 +374,12 @@ export function useJobManagement() {
 
     let jobPrices = await getItemPrices([...itemIDs], parentUser);
     if (jobPrices.length > 0) {
-      updateEvePrices((prev) => prev.concat(jobPrices));
+      updateEvePrices((prev) => {
+        jobPrices = jobPrices.filter(
+          (n) => !prev.some((p) => p.typeID === n.typeID)
+        );
+        return prev.concat(jobPrices);
+      });
     }
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
@@ -487,11 +502,12 @@ export function useJobManagement() {
           return;
         }
         if (
-          material.jobType !== jobTypes.manufacturing ||
+          material.jobType !== jobTypes.manufacturing &&
           material.jobType !== jobTypes.reaction
         ) {
           return;
         }
+
         if (!finalBuildCount.some((i) => i.typeID === material.typeID)) {
           finalBuildCount.push({
             typeID: material.typeID,
@@ -556,7 +572,7 @@ export function useJobManagement() {
       let updatedJob = newJobArray.find((i) => i.jobID === inputJobID);
       for (let material of updatedJob.build.materials) {
         if (
-          material.jobType !== jobTypes.manufacturing ||
+          material.jobType !== jobTypes.manufacturing &&
           material.jobType !== jobTypes.reaction
         ) {
           continue;
@@ -612,7 +628,12 @@ export function useJobManagement() {
     }));
     let itemPrices = await getItemPrices([...materialPriceIDs], parentUser);
     updateUserJobSnapshot(newUserJobSnapshot);
-    updateEvePrices((prev) => prev.concat(itemPrices));
+    updateEvePrices((prev) => {
+      itemPrices = itemPrices.filter(
+        (n) => !prev.some((p) => p.typeID === n.typeID)
+      );
+      return prev.concat(itemPrices);
+    });
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateMassBuildDisplay((prev) => ({

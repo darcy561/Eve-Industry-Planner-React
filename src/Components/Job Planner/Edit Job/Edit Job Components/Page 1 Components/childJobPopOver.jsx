@@ -369,7 +369,12 @@ export function ChildJobPopover({
                       },
                     }));
                     updateUserJobSnapshot(newUserJobSnapshot);
-                    updateEvePrices((prev) => prev.concat(tempPrices));
+                    updateEvePrices((prev) => {
+                      let newItemPrices = tempPrices.filter(
+                        (n) => !prev.some((p) => p.typeID === n.typeID)
+                      );
+                      return prev.concat(newItemPrices);
+                    });
                     updateJobArray(newJobArray);
                     setSnackbarData((prev) => ({
                       ...prev,

@@ -135,7 +135,7 @@ export function useFirebase() {
         parentJob: job.parentJob,
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
-        groupID: job.groupID || null
+        groupID: job.groupID || null,
       }
     );
   };
@@ -175,7 +175,7 @@ export function useFirebase() {
         parentJob: job.parentJob,
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
-        groupID: job.groupID || null
+        groupID: job.groupID || null,
       }
     );
   };
@@ -264,7 +264,7 @@ export function useFirebase() {
         parentJob: job.parentJob,
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
-        groupID: job.groupID || null
+        groupID: job.groupID || null,
       }
     );
   };
@@ -305,7 +305,7 @@ export function useFirebase() {
         parentJob: downloadDoc.parentJob,
         blueprintTypeID: downloadDoc.blueprintTypeID,
         layout: downloadDoc.layout,
-        groupID: downloadDoc.groupID
+        groupID: downloadDoc.groupID,
       };
 
       return newJob;
@@ -505,7 +505,12 @@ export function useFirebase() {
             updateLinkedJobIDs([...newLinkedJobIDs]);
             updateLinkedOrderIDs([...newLinkedOrderIDs]);
             updateLinkedTransIDs([...newLinkedTransIDs]);
-            updateEvePrices((prev) => prev.concat(newEvePrices));
+            updateEvePrices((prev) => {
+              newEvePrices = newEvePrices.filter(
+                (n) => !prev.some((p) => p.typeID === n.typeID)
+              );
+              return prev.concat(newEvePrices);
+            });
             updateUserJobSnapshot(newUserJobSnapshot);
             updateUserJobSnapshotDataFetch(false);
           }
@@ -545,7 +550,12 @@ export function useFirebase() {
               [...priceIDRequest],
               userObj
             );
-            updateEvePrices((prev) => prev.concat(newEvePrices));
+            updateEvePrices((prev) => {
+              newEvePrices = newEvePrices.filter(
+                (n) => !prev.some((p) => p.typeID === n.typeID)
+              );
+              return prev.concat(newEvePrices);
+            });
             updateUserWatchlist({
               groups: newWatchlistGroups,
               items: newWatchlistItems,
@@ -595,7 +605,7 @@ export function useFirebase() {
             parentJob: downloadDoc.parentJob,
             blueprintTypeID: downloadDoc.blueprintTypeID,
             layout: downloadDoc.layout,
-            groupID: downloadDoc.groupID
+            groupID: downloadDoc.groupID,
           };
           let index = jobArray.findIndex((i) => i.jobID === newJob.jobID);
           if (index === -1) {

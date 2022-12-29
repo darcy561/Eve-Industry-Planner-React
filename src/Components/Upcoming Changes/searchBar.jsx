@@ -63,10 +63,16 @@ export function UpcomingChangesSearch({
                 });
               }
 
-              let newEvePrices = evePrices.concat(
-                await getItemPrices([...priceIDRequest], parentUser)
+              let newEvePrices = await getItemPrices(
+                [...priceIDRequest],
+                parentUser
               );
-              updateEvePrices(newEvePrices);
+              updateEvePrices((prev) => {
+                newEvePrices = newEvePrices.filter(
+                  (n) => !prev.some((p) => p.typeID === n.typeID)
+                );
+                return prev.concat(newEvePrices);
+              });
               if (newTranqJob === undefined) {
                 updateTranqItem("missing");
               } else {

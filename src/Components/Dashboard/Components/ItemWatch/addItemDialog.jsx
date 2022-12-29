@@ -193,9 +193,12 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                       parentUser
                     );
 
-                    updateEvePrices((prev) =>
-                      prev.concat(returnPricePromiseArray)
-                    );
+                    updateEvePrices((prev) => {
+                      let newItemPrices = returnPricePromiseArray[0].filter(
+                        (n) => !prev.some((p) => p.typeID === n.typeID)
+                      );
+                      return prev.concat(newItemPrices);
+                    });
                     setMaterialJobs(returnJobPromiseArray);
                     setImportedJob(newJob);
                     updateSaveReady(true);

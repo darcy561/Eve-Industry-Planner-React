@@ -133,7 +133,7 @@ export function IndustryESICardComplete({ job }) {
               item
               xs={12}
               sx={{
-                backgroundColor: job.isCorp ? blueGrey[400] : grey[600],
+                backgroundColor: job.isCorp ? blueGrey[400] : grey[500],
                 marginTop: "10px",
               }}
             >

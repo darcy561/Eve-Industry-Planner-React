@@ -475,6 +475,8 @@ export function useFirebase() {
       (doc) => {
         const updateSnapshotState = async () => {
           if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+            const t = trace(performance, "UserJobSnapshotListener");
+            t.start();
             updateUserJobSnapshotDataFetch(true);
             let snapshotData = doc.data();
             let priceIDRequest = new Set();
@@ -513,6 +515,7 @@ export function useFirebase() {
             });
             updateUserJobSnapshot(newUserJobSnapshot);
             updateUserJobSnapshotDataFetch(false);
+            t.stop();
           }
         };
         updateSnapshotState();
@@ -528,6 +531,8 @@ export function useFirebase() {
       (doc) => {
         const updateSnapshotState = async () => {
           if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+            const t = trace(performance, "UserWatchlistListener");
+            t.start();
             updateUserWatchlistDataFetch(true);
             let snapshotData = doc.data();
             let priceIDRequest = new Set();
@@ -561,6 +566,7 @@ export function useFirebase() {
               items: newWatchlistItems,
             });
             updateUserWatchlistDataFetch(false);
+            t.stop();
           }
         };
         updateSnapshotState();
@@ -575,6 +581,8 @@ export function useFirebase() {
       doc(firestore, `Users/${userObj.accountID}/Jobs`, JobID.toString()),
       (doc) => {
         if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+          const t = trace(performance, "UserJobListener");
+          t.start();
           let downloadDoc = doc.data();
           let newJobArray = [...jobArray];
           let newJob = {
@@ -617,6 +625,7 @@ export function useFirebase() {
             updateActiveJob(newJob);
           }
           updateJobArray(newJobArray);
+          t.stop();
         }
       }
     );
@@ -627,6 +636,8 @@ export function useFirebase() {
     const unsub = onSnapshot(doc(firestore, "Users", token.user.uid), (doc) => {
       const updateMainDocData = async () => {
         if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+          const t = trace(performance, "MainUserDocListener");
+          t.start();
           updateUserDataFetch(true);
           let userData = doc.data();
           let newUserArray = [userObject];
@@ -663,6 +674,7 @@ export function useFirebase() {
           updateUsers(newUserArray);
           setJobStatus(userData.jobStatusArray);
           updateUserDataFetch(false);
+          t.stop();
         }
       };
       updateMainDocData();
@@ -685,9 +697,12 @@ export function useFirebase() {
       doc(firestore, `Users/${userObj.accountID}/ProfileInfo`, "GroupData"),
       (doc) => {
         if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+          const t = trace(performance, "UserGroupListener");
+          t.start();
           let snapshotData = doc.data();
 
           updateGroupArray(snapshotData.groupData);
+          t.stop();
         }
       }
     );

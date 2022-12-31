@@ -38,7 +38,7 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
   const [archiveOpen, updateArchiveOpen] = useState(false);
   const [loadingBuild, updateLoadingBuild] = useState(false);
   const { buildJob, checkAllowBuild } = useJobBuild();
-  const { newJobSnapshot } = useJobManagement();
+  const { generatePriceRequestFromJob, newJobSnapshot } = useJobManagement();
   const { addNewJob, getItemPrices, uploadJob, uploadUserJobSnapshot } =
     useFirebase();
   const analytics = getAnalytics();
@@ -97,17 +97,13 @@ export function BlueprintGroup({ bpID, blueprintResults }) {
                         updateLoadingBuild((prev) => !prev);
                         return;
                       }
-                      let priceIDRequest = new Set();
-                      let promiseArray = [];
-                      priceIDRequest.add(newJob.itemID);
-                      newJob.build.materials.forEach((mat) => {
-                        priceIDRequest.add(mat.typeID);
-                      });
-                      let itemPrices = getItemPrices(
-                        [...priceIDRequest],
-                        parentUser
-                      );
-                      promiseArray.push(itemPrices);
+
+                      let promiseArray = [
+                        getItemPrices(
+                          generatePriceRequestFromJob(newJob),
+                          parentUser
+                        ),
+                      ];
                       let newUserJobSnapshot = newJobSnapshot(newJob, [
                         ...userJobSnapshot,
                       ]);

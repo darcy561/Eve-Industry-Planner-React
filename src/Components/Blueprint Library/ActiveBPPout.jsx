@@ -1,4 +1,5 @@
 import { Grid, Paper, Popover, Typography } from "@mui/material";
+import { useJobManagement } from "../../Hooks/useJobManagement";
 
 export function ActiveBPPopout({
   blueprint,
@@ -6,30 +7,9 @@ export function ActiveBPPopout({
   displayPopover,
   updateDisplayPopover,
 }) {
-  function timeRemainingcalc() {
-    let now = new Date().getTime();
-    let timeLeft = Date.parse(esiJob.end_date) - now;
+  const {timeRemainingCalc} = useJobManagement()
 
-    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    let hour = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (day < 0) {
-      day = 0;
-    }
-    if (hour < 0) {
-      hour = 0;
-    }
-    if (min < 0) {
-      min = 0;
-    }
-
-    return { days: day, hours: hour, mins: min };
-  }
-
-  const timeRemaining = timeRemainingcalc();
+  const timeRemaining = timeRemainingCalc();
 
   return (
     <Popover

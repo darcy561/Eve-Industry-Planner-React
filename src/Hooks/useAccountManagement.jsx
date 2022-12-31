@@ -1,7 +1,7 @@
 import { useEveApi } from "./useEveApi";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth, signOut } from "firebase/auth";
-import { functions } from "../firebase";
+import { functions, performance } from "../firebase";
 import { useNavigate } from "react-router";
 import { useContext, useMemo } from "react";
 import {
@@ -31,6 +31,7 @@ import {
 import { httpsCallable } from "firebase/functions";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import searchData from "../RawData/searchIndex.json";
+import { trace } from "firebase/performance";
 
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -83,6 +84,8 @@ export function useAccountManagement() {
   };
 
   const characterAPICall = async (sStatus, userObject) => {
+    const t = trace(performance, "CharacterESICalls");
+    t.start();
     if (sStatus) {
       const [
         skills,
@@ -190,7 +193,7 @@ export function useAccountManagement() {
         JSON.stringify([])
       );
     }
-
+    t.stop();
     return userObject;
   };
 

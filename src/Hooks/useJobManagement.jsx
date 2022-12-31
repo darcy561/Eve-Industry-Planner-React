@@ -69,8 +69,6 @@ export function useJobManagement() {
   } = useFirebase();
   const { stationData } = useEveApi();
   const { buildJob, checkAllowBuild } = useJobBuild();
-  const t = trace(performance, "CreateJobProcessFull");
-  const r = trace(performance, "MassCreateJobProcessFull");
   const checkAppVersion = httpsCallable(
     functions,
     "appVersion-checkAppVersion"
@@ -112,6 +110,7 @@ export function useJobManagement() {
   }, [users]);
 
   const newJobProcess = async (buildRequest) => {
+    const t = trace(performance, "CreateJobProcessFull");
     t.start();
     if (!checkAllowBuild()) {
       return;
@@ -121,14 +120,9 @@ export function useJobManagement() {
     if (newJob === undefined) {
       return;
     }
-    let priceIDRequest = new Set();
-    let promiseArray = [];
-    priceIDRequest.add(newJob.itemID);
-    newJob.build.materials.forEach((mat) => {
-      priceIDRequest.add(mat.typeID);
-    });
-    let itemPrices = getItemPrices([...priceIDRequest], parentUser);
-    promiseArray.push(itemPrices);
+    let promiseArray = [
+      getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
+    ];
 
     let newUserJobSnapshot = newJobSnapshot(newJob, [...userJobSnapshot]);
     if (isLoggedIn) {
@@ -197,10 +191,8 @@ export function useJobManagement() {
       priceData: true,
     }));
 
-    let itemIDs = new Set();
-    itemIDs.add(openJob.itemID);
+    let itemIDs = new Set(generatePriceRequestFromJob(openJob));
     for (let mat of openJob.build.materials) {
-      itemIDs.add(mat.typeID);
       if (mat.childJob.length === 0) {
         continue;
       }
@@ -210,15 +202,11 @@ export function useJobManagement() {
           newUserJobSnapshot,
           newJobArray
         );
-
         if (snapshot === undefined) {
           continue;
         }
-        itemIDs.add(snapshot.itemID);
 
-        snapshot.materialIDs.forEach((o) => {
-          itemIDs.add(o);
-        });
+        itemIDs = new Set(itemIDs, generatePriceRequestFromSnapshot(snapshot));
       }
     }
     if (isLoggedIn) {
@@ -342,10 +330,8 @@ export function useJobManagement() {
       jobDataComp: true,
       priceData: true,
     }));
-    let itemIDs = new Set();
-    itemIDs.add(openJob.itemID);
+    let itemIDs = new Set(generatePriceRequestFromJob(openJob));
     for (let mat of openJob.build.materials) {
-      itemIDs.add(mat.typeID);
       if (mat.childJob.length === 0) {
         continue;
       }
@@ -359,11 +345,7 @@ export function useJobManagement() {
         if (snapshot === undefined) {
           continue;
         }
-        itemIDs.add(snapshot.itemID);
-
-        snapshot.materialIDs.forEach((o) => {
-          itemIDs.add(o);
-        });
+        itemIDs = new Set(itemIDs, generatePriceRequestFromSnapshot(snapshot));
       }
     }
     if (isLoggedIn) {
@@ -481,6 +463,7 @@ export function useJobManagement() {
   };
 
   const massBuildMaterials = async (inputJobIDs) => {
+    const r = trace(performance, "MassCreateJobProcessFull");
     r.start();
     let finalBuildCount = [];
     let childJobs = [];
@@ -497,7 +480,10 @@ export function useJobManagement() {
       );
 
       inputJob.build.materials.forEach((material) => {
-        materialPriceIDs.add(material.typeID);
+        materialPriceIDs = new Set(
+          materialPriceIDs,
+          generatePriceRequestFromJob(inputJob)
+        );
         if (material.childJob.length > 0) {
           return;
         }
@@ -551,10 +537,10 @@ export function useJobManagement() {
       if (newJob === undefined) {
         continue;
       }
-      materialPriceIDs.add(newJob.itemID);
-      newJob.build.materials.forEach((mat) => {
-        materialPriceIDs.add(mat.typeID);
-      });
+      materialPriceIDs = new Set(
+        materialPriceIDs,
+        generatePriceRequestFromJob(newJob)
+      );
       childJobs.push(newJob);
       logEvent(analytics, "New Job", {
         loggedIn: isLoggedIn,
@@ -779,6 +765,8 @@ export function useJobManagement() {
   };
 
   const deleteMultipleJobsProcess = async (inputJobIDs) => {
+    const r = trace(performance, "massDeleteProcess");
+    r.start();
     let newApiJobsArary = [...apiJobs];
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
@@ -893,6 +881,7 @@ export function useJobManagement() {
       severity: "error",
       autoHideDuration: 3000,
     }));
+    r.stop();
   };
 
   const moveMultipleJobsForward = async (inputSnapIDs) => {
@@ -1086,6 +1075,8 @@ export function useJobManagement() {
   };
 
   const mergeJobsNew = async (inputJobIDs) => {
+    const r = trace(performance, "mergeJobsProcessFull");
+    r.start();
     let buildData = [];
     let newJobHold = [];
     let jobsToSave = new Set();
@@ -1154,7 +1145,9 @@ export function useJobManagement() {
         });
       }
     }
-    buildData = buildData.filter((i) => i.inputJobCount > 1);
+    buildData = buildData.filter(
+      (i) => i.inputJobCount > 1 && i.parentJobs.size > 0
+    );
 
     for (let buildItem of buildData) {
       let newJob = await buildJob({
@@ -1326,6 +1319,7 @@ export function useJobManagement() {
         autoHideDuration: 3000,
       }));
     }
+    r.stop();
   };
 
   const calcBrokersFee = async (user, marketOrder) => {
@@ -1411,6 +1405,23 @@ export function useJobManagement() {
     return { days: day, hours: hour, mins: min };
   };
 
+  const generatePriceRequestFromJob = (inputJob) => {
+    let priceIDRequest = new Set();
+    priceIDRequest.add(inputJob.itemID);
+    inputJob.build.materials.forEach((mat) => {
+      priceIDRequest.add(mat.typeID);
+    });
+    return [...priceIDRequest];
+  };
+
+  const generatePriceRequestFromSnapshot = (snapshot) => {
+    let priceIDRequest = new Set();
+
+    priceIDRequest.add(snapshot.itemID);
+    priceIDRequest = new Set(priceIDRequest, snapshot.materialIDs);
+    return [...priceIDRequest];
+  };
+
   return {
     buildItemPriceEntry,
     buildShoppingList,
@@ -1420,6 +1431,8 @@ export function useJobManagement() {
     deleteJobSnapshot,
     deleteMultipleJobsProcess,
     findJobData,
+    generatePriceRequestFromJob,
+    generatePriceRequestFromSnapshot,
     lockUserJob,
     massBuildMaterials,
     mergeJobsNew,

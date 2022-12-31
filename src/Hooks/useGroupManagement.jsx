@@ -103,7 +103,6 @@ export function useGroupManagement() {
     }
 
     updateJobArray(newJobArray);
-
   };
 
   const closeGroup = async (activeGroup) => {
@@ -111,8 +110,8 @@ export function useGroupManagement() {
   };
 
   const deleteGroup = async (activeGroupID) => {
-    console.log("D")
-  }
+    console.log("D");
+  };
 
   const calculateCurrentJobBuildCostFromChildren = (outputJob) => {
     let finalBuildCost = 0;

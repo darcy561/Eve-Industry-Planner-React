@@ -38,7 +38,7 @@ export function GroupJobCard({ group }) {
     MultiSelectJobPlannerContext
   );
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
-  const { openGroup, deleteGroup } = useGroupManagement();
+  const { openGroup, deleteGroupWithoutJobs } = useGroupManagement();
 
   const classes = useStyles();
   let groupCardChecked = useMemo(() => {
@@ -87,7 +87,7 @@ export function GroupJobCard({ group }) {
               <IconButton
                 className={classes.DeleteIcon}
                 onClick={() => {
-                  deleteGroup(group.groupID);
+                  deleteGroupWithoutJobs(group.groupID);
                 }}
               >
                 <DeleteIcon />

@@ -269,10 +269,10 @@ export function useFirebase() {
     );
   };
 
-  const downloadCharacterJobs = async (job) => {
+  const downloadCharacterJobs = async (jobID) => {
     await fbAuthState();
     const document = await getDoc(
-      doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
+      doc(firestore, `Users/${parentUser.accountID}/Jobs`, jobID.toString())
     );
     let downloadDoc = document.data();
     if (downloadDoc !== undefined) {
@@ -696,14 +696,30 @@ export function useFirebase() {
     const unsub = onSnapshot(
       doc(firestore, `Users/${userObj.accountID}/ProfileInfo`, "GroupData"),
       (doc) => {
-        if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
-          const t = trace(performance, "UserGroupListener");
-          t.start();
-          let snapshotData = doc.data();
-
-          updateGroupArray(snapshotData.groupData);
-          t.stop();
-        }
+        const updateGroupData = async () => {
+          if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+            const t = trace(performance, "UserGroupListener");
+            t.start();
+            let groupData = doc.data().groupData;
+            let priceIDRequest = new Set();
+            for (let group of groupData) {
+              priceIDRequest = new Set([
+                ...priceIDRequest,
+                ...group.materialIDs,
+              ]);
+            }
+            let itemPrices = await getItemPrices([...priceIDRequest], userObj);
+            updateGroupArray(groupData);
+            updateEvePrices((prev) => {
+              itemPrices = itemPrices.filter(
+                (n) => !prev.some((p) => p.typeID === n.typeID)
+              );
+              return prev.concat(itemPrices);
+            });
+            t.stop();
+          }
+        };
+        updateGroupData();
       }
     );
     updateFirebaseListeners((prev) => prev.concat(unsub));

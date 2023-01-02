@@ -132,7 +132,7 @@ export function IndustryESICardActive({ job }) {
                         align="right"
                       >
                         {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                        {timeRemaining.mins}
+                        {timeRemaining.mins}M
                       </Typography>
                     )}
                   </Grid>

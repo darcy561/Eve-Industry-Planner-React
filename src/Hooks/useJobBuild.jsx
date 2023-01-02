@@ -162,6 +162,7 @@ export function useJobBuild() {
 
         buildRequest_ChildJobs(buildRequest, outputObject);
         buildRequest_ParentJobs(buildRequest, outputObject);
+        buildRequest_GroupID(buildRequest, outputObject);
 
         outputObject.build.materials.sort((a, b) => {
           if (a.name < b.name) {
@@ -385,6 +386,13 @@ export function useJobBuild() {
       return;
     }
     outputObject.parentJob = [...buildRequest.parentJobs];
+  };
+
+  const buildRequest_GroupID = (buildRequest, outputObject) => {
+    if (!buildRequest.hasOwnProperty("groupID")) {
+      return;
+    }
+    outputObject.groupID = buildRequest.groupID;
   };
 
   return { buildJob, checkAllowBuild, jobBuildErrors, recalculateItemQty };

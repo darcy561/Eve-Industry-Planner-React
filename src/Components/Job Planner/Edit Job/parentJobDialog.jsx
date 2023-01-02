@@ -30,7 +30,7 @@ export function ParentJobDialog({
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { downloadCharacterJobs, uploadJob } = useFirebase();
+  const { uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
   const [matches, updateMatches] = useState([]);

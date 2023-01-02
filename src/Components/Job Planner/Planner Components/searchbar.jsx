@@ -63,8 +63,8 @@ export function SearchBar({
     deleteMultipleJobsProcess,
     massBuildMaterials,
     mergeJobsNew,
-    moveMultipleJobsBackward,
-    moveMultipleJobsForward,
+    moveItemsBackward,
+    moveItemsForward,
     newJobProcess,
     buildItemPriceEntry,
   } = useJobManagement();
@@ -265,7 +265,7 @@ export function SearchBar({
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    moveMultipleJobsBackward(multiSelectJobPlanner);
+                    moveItemsBackward(multiSelectJobPlanner);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -288,7 +288,7 @@ export function SearchBar({
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    moveMultipleJobsForward(multiSelectJobPlanner);
+                    moveItemsForward(multiSelectJobPlanner);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,

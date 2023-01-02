@@ -76,7 +76,7 @@ export function ChildJobPopover({
           if (childJob === undefined) {
             let snap = userJobSnapshot.find((i) => i.jobID === id);
             if (snap !== undefined) {
-              childJob = await downloadCharacterJobs(snap);
+              childJob = await downloadCharacterJobs(snap.jobID);
               replaceSnapshot(childJob);
             }
             if (childJob === undefined) {
@@ -191,7 +191,7 @@ export function ChildJobPopover({
             {childJobObjects[jobDisplay].jobType === jobTypes.manufacturing ? (
               <Grid item xs={12} sx={{ marginBottom: "10px" }}>
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-                  ME: {childJobObjects[jobDisplay].bpME}
+                  <b>ME: {childJobObjects[jobDisplay].bpME}</b>
                 </Typography>
               </Grid>
             ) : null}
@@ -263,7 +263,7 @@ export function ChildJobPopover({
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   Total Material{" "}
                   {listingSelect.charAt(0).toUpperCase() +
-                    listingSelect.slice(1)}{" "}
+                    listingSelect.slice(1)}{" "} Price
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={4} align="right">

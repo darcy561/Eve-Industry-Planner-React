@@ -312,7 +312,6 @@ export function PriceEntryDialog() {
                   let matches = importedText.matchAll(
                     /(\D*|\S*?\D*\d*?\D*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)(\r?\n|\r)/g
                   );
-                  console.log(matches);
                   if (matches.length > 0) {
                     for (let importMatch of matches) {
                       for (let listItem of newList) {
@@ -355,7 +354,7 @@ export function PriceEntryDialog() {
                   }
                 }}
               >
-                Import From Clipboard
+                Import From MultiBuy
               </Button>
               <Button
                 variant="contained"

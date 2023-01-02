@@ -30,12 +30,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function GroupPage() {
-  const { activeGroup } = useContext(ActiveJobContext);
+  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const [groupJobs, updateGroupJobs] = useState([]);
   const [groupPageRefresh, updateGroupPageRefresh] = useState(false);
   const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
+  const [tempName, updateTempName] = useState("");
   const { closeGroup } = useGroupManagement();
   const classes = useStyles();
 
@@ -57,7 +58,11 @@ export default function GroupPage() {
 
   const handleNameChange = (event) => {
     event.preventDefault();
-    console.log(event);
+    updateActiveGroup((prev) => ({
+      ...prev,
+      groupName: tempName,
+    }));
+    updateEditGroupNameTrigger((prev) => !prev);
   };
 
   if (!groupPageRefresh) {
@@ -93,7 +98,7 @@ export default function GroupPage() {
               <IconButton
                 color="error"
                 onClick={async () => {
-                  closeGroup();
+                  closeGroup(groupJobs);
                 }}
                 size="medium"
                 sx={{ marginRight: { sm: "10px" } }}
@@ -104,26 +109,27 @@ export default function GroupPage() {
           </Grid>
           <Grid container item xs={12} sx={{ marginBottom: "50px" }}>
             {editGroupNameTrigger ? (
-              <form onSubmit={handleNameChange}>
-                <Grid container item xs={12}>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      defaultValue={activeGroup.groupName}
-                      size="small"
-                      variant="standard"
-                      className={classes.TextField}
-                      helperText="Group Name"
-                      type="text"
-                    />
-                  </Grid>
-                  <Grid item xs={1}>
-                    <IconButton color="success" type="submit">
-                      <DoneIcon />
-                    </IconButton>
-                  </Grid>
+              <Grid container item xs={12}>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    defaultValue={activeGroup.groupName}
+                    size="small"
+                    variant="standard"
+                    className={classes.TextField}
+                    helperText="Group Name"
+                    type="text"
+                    onChange={(e) => {
+                      updateTempName(e.target.value);
+                    }}
+                  />
                 </Grid>
-              </form>
+                <Grid item xs={1}>
+                  <IconButton color="success" onClick={handleNameChange}>
+                    <DoneIcon />
+                  </IconButton>
+                </Grid>
+              </Grid>
             ) : (
               <Grid item xs={12}>
                 <Typography variant="h3" align="left" color="primary">

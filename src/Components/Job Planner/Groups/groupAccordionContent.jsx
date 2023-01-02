@@ -8,11 +8,12 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import { makeStyles } from "@mui/styles";
 import { GroupJobCardFrame } from "./groupJobCards";
+import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -28,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
 
 export function GroupAccordionContent({ status, statusJobs }) {
   const [expanded, updateExpanded] = useState(status.expanded);
+  const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
+    MultiSelectJobPlannerContext
+  );
 
   const classes = useStyles();
 
@@ -64,7 +68,16 @@ export function GroupAccordionContent({ status, statusJobs }) {
               arrow
               placement="bottom"
             >
-              <IconButton color="secondry" onClick={() => {}}>
+              <IconButton
+                color="secondry"
+                onClick={() => {
+                  let newMultiArray = new Set([...multiSelectJobPlanner]);
+                  statusJobs.forEach((job) => {
+                    newMultiArray.add(job.jobID);
+                  });
+                  updateMultiSelectJobPlanner([...newMultiArray]);
+                }}
+              >
                 <AddIcon />
               </IconButton>
             </Tooltip>

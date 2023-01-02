@@ -82,7 +82,6 @@ export function ItemPriceRow({
   useEffect(() => {
     item.itemPrice = Number(inputItem);
   }, []);
-
   return (
     <Grid
       key={item.typeID}

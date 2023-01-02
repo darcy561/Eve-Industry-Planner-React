@@ -28,9 +28,7 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const esiJob = esiJobs.find(
     (i) => i.blueprint_id === blueprint.item_id && i.status === "active"
   );
-  const bpOwner = users.find((u) => u.CharacterHash === blueprint.owner);
-  console.log(blueprint)
-console.log(bpOwner)
+  const bpOwner = users.find((u) => u.CharacterHash);
   return (
     <Grid
       key={blueprint.item_id}

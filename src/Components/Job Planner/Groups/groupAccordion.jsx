@@ -16,21 +16,19 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
       >
         {jobStatus.map((status) => {
           let statusJobs = groupJobs.filter((i) => i.jobStatus === status.id);
-          return (
-            <GroupAccordionContent
-              key={status.id}
-              status={status}
-              statusJobs={statusJobs}
-            />
-          );
+          if (status.id !== 4) {
+            return (
+              <GroupAccordionContent
+                key={status.id}
+                status={status}
+                statusJobs={statusJobs}
+              />
+            );
+          } else return null;
         })}
       </Paper>
     );
   } else {
-    return (
-      <Paper>
-        Refresh
-      </Paper>
-    )
+    return <Paper>Refresh</Paper>;
   }
 }

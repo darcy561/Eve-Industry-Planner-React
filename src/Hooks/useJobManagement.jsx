@@ -29,9 +29,11 @@ import { useEveApi } from "./useEveApi";
 import { httpsCallable } from "firebase/functions";
 
 export function useJobManagement() {
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { jobArray, groupArray, updateJobArray, updateGroupArray } =
+    useContext(JobArrayContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { activeJob, activeGroup, updateActiveJob } =
+    useContext(ActiveJobContext);
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -63,6 +65,7 @@ export function useJobManagement() {
     getArchivedJobData,
     getItemPrices,
     removeJob,
+    uploadGroups,
     uploadJob,
     uploadUserJobSnapshot,
     userJobListener,
@@ -111,6 +114,7 @@ export function useJobManagement() {
 
   const newJobProcess = async (buildRequest) => {
     const t = trace(performance, "CreateJobProcessFull");
+    let newUserJobSnapshot = [...userJobSnapshot];
     t.start();
     if (!checkAllowBuild()) {
       return;
@@ -123,10 +127,14 @@ export function useJobManagement() {
     let promiseArray = [
       getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
     ];
+    if (newJob.groupID === null) {
+      newUserJobSnapshot = newJobSnapshot(newJob, newUserJobSnapshot);
+    }
 
-    let newUserJobSnapshot = newJobSnapshot(newJob, [...userJobSnapshot]);
     if (isLoggedIn) {
-      uploadUserJobSnapshot(newUserJobSnapshot);
+      if (!buildRequest.hasOwnProperty("groupID")) {
+        uploadUserJobSnapshot(newUserJobSnapshot);
+      }
       addNewJob(newJob);
       userJobListener(parentUser, newJob.jobID);
     } else {
@@ -142,7 +150,11 @@ export function useJobManagement() {
 
     let returnPromiseArray = await Promise.all(promiseArray);
 
-    updateUserJobSnapshot(newUserJobSnapshot);
+    if (buildRequest.hasOwnProperty("groupID")) {
+      updateJobArray((prev) => [...prev, newJob]);
+    } else {
+      updateUserJobSnapshot(newUserJobSnapshot);
+    }
     updateEvePrices((prev) => {
       let newEvePrices = returnPromiseArray[0].filter(
         (n) => !prev.some((p) => p.typeID === n.typeID)
@@ -884,21 +896,25 @@ export function useJobManagement() {
     r.stop();
   };
 
-  const moveMultipleJobsForward = async (inputSnapIDs) => {
+  const moveItemsForward = async (inputSnapIDs) => {
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
-    for (let inputSnapID of inputSnapIDs) {
+    let newGroupArray = [...groupArray];
+    let groupsModified = false;
+    let jobsModified = false;
+
+    const moveJobs = async (inputSnapID) => {
       let [inputJob] = await findJobData(
         inputSnapID,
         newUserJobSnapshot,
         newJobArray
       );
       if (inputJob === undefined) {
-        continue;
+        return;
       }
 
       if (inputJob.jobStatus >= 4) {
-        continue;
+        return;
       }
 
       inputJob.jobStatus++;
@@ -907,47 +923,131 @@ export function useJobManagement() {
         inputJob,
         newUserJobSnapshot
       );
-
+      jobsModified = true;
       if (isLoggedIn) {
         uploadJob(inputJob);
       }
+
+      return;
+    };
+    const moveGroups = async (inputID) => {
+      let inputGroup = newGroupArray.find((i) => i.groupID === inputID);
+      if (inputGroup === undefined) {
+        return;
+      }
+      if (activeGroup !== null && activeGroup.groupID === inputGroup.groupID) {
+        inputGroup = activeGroup;
+      }
+      if (inputGroup.groupStatus >= 3) {
+        return;
+      }
+      inputGroup.groupStatus++;
+      newGroupArray = newGroupArray.filter((i) => i.groupID !== inputID);
+      newGroupArray.push(inputGroup);
+      groupsModified = true;
+      return;
+    };
+
+    for (let inputSnapID of inputSnapIDs) {
+      if (typeof inputSnapID === "string") {
+        await moveGroups(inputSnapID);
+      } else {
+        await moveJobs(inputSnapID);
+      }
     }
+
     if (isLoggedIn) {
-      uploadUserJobSnapshot(newUserJobSnapshot);
+      if (jobsModified) {
+        uploadUserJobSnapshot(newUserJobSnapshot);
+      }
+      if (groupsModified) {
+        uploadGroups(newGroupArray);
+      }
     }
-    updateUserJobSnapshot(newUserJobSnapshot);
-    updateJobArray(newJobArray);
+    if (jobsModified) {
+      updateUserJobSnapshot(newUserJobSnapshot);
+      updateJobArray(newJobArray);
+    }
+    if (groupsModified) {
+      updateGroupArray(newGroupArray);
+    }
   };
 
-  const moveMultipleJobsBackward = async (inputSnapIDs) => {
+  const moveItemsBackward = async (inputSnapIDs) => {
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
-    for (let inputSnapID of inputSnapIDs) {
+    let newGroupArray = [...groupArray];
+    let groupsModified = false;
+    let jobsModified = false;
+
+    const moveJobs = async (inputSnapID) => {
       let [inputJob] = await findJobData(
         inputSnapID,
         newUserJobSnapshot,
         newJobArray
       );
-
-      if (inputJob.jobStatus <= 0) {
-        continue;
+      if (inputJob === undefined) {
+        return;
       }
+
+      if (inputJob.jobStatus === 0) {
+        return;
+      }
+
       inputJob.jobStatus--;
 
       newUserJobSnapshot = updateJobSnapshotFromFullJob(
         inputJob,
         newUserJobSnapshot
       );
-
+      jobsModified = true;
       if (isLoggedIn) {
         uploadJob(inputJob);
       }
+
+      return;
+    };
+    const moveGroups = async (inputID) => {
+      let inputGroup = newGroupArray.find((i) => i.groupID === inputID);
+      if (inputGroup === undefined) {
+        return;
+      }
+      if (activeGroup !== null && activeGroup.groupID === inputGroup.groupID) {
+        inputGroup = activeGroup;
+      }
+      if (inputGroup.groupStatus === 0) {
+        return;
+      }
+      inputGroup.groupStatus--;
+      newGroupArray = newGroupArray.filter((i) => i.groupID !== inputID);
+      newGroupArray.push(inputGroup);
+      groupsModified = true;
+      return;
+    };
+
+    for (let inputSnapID of inputSnapIDs) {
+      if (typeof inputSnapID === "string") {
+        await moveGroups(inputSnapID);
+      } else {
+        await moveJobs(inputSnapID);
+      }
     }
+
     if (isLoggedIn) {
-      uploadUserJobSnapshot(newUserJobSnapshot);
+      if (jobsModified) {
+        uploadUserJobSnapshot(newUserJobSnapshot);
+      }
+      if (groupsModified) {
+        uploadGroups(newGroupArray);
+      }
     }
-    updateUserJobSnapshot(newUserJobSnapshot);
-    updateJobArray(newJobArray);
+    if (jobsModified) {
+      updateUserJobSnapshot(newUserJobSnapshot);
+      updateJobArray(newJobArray);
+    }
+    if (groupsModified) {
+      updateGroupArray(newGroupArray);
+    }
   };
 
   const buildShoppingList = async (inputJobIDs) => {
@@ -1019,26 +1119,25 @@ export function useJobManagement() {
 
       inputJob.build.materials.forEach((material) => {
         if (
-          material.quantityPurchased >= material.quantity &&
-          material.childJob.length > 0
+          material.quantityPurchased < material.quantity &&
+          material.childJob.length === 0
         ) {
-          return;
-        }
-        if (!finalPriceEntry.some((i) => i.typeID === material.typeID)) {
-          finalPriceEntry.push({
-            name: material.name,
-            typeID: material.typeID,
-            quantity: material.quantity,
-            itemPrice: 0,
-            confirmed: false,
-            jobRef: [inputJob.jobID],
-          });
-        } else {
-          let index = finalPriceEntry.findIndex(
-            (i) => i.typeID === material.typeID
-          );
-          finalPriceEntry[index].quantity += material.quantity;
-          finalPriceEntry[index].jobRef.push(inputJob.jobID);
+          if (!finalPriceEntry.some((i) => i.typeID === material.typeID)) {
+            finalPriceEntry.push({
+              name: material.name,
+              typeID: material.typeID,
+              quantity: material.quantity,
+              itemPrice: 0,
+              confirmed: false,
+              jobRef: [inputJob.jobID],
+            });
+          } else {
+            let index = finalPriceEntry.findIndex(
+              (i) => i.typeID === material.typeID
+            );
+            finalPriceEntry[index].quantity += material.quantity;
+            finalPriceEntry[index].jobRef.push(inputJob.jobID);
+          }
         }
       });
     }
@@ -1068,7 +1167,7 @@ export function useJobManagement() {
       foundJob = activeJob;
     }
     if (foundJob === undefined && jobSnapshot !== undefined) {
-      foundJob = await downloadCharacterJobs(jobSnapshot);
+      foundJob = await downloadCharacterJobs(jobSnapshot.jobID);
       chosenJobArray.push(foundJob);
     }
     return [foundJob, jobSnapshot];
@@ -1436,8 +1535,8 @@ export function useJobManagement() {
     lockUserJob,
     massBuildMaterials,
     mergeJobsNew,
-    moveMultipleJobsForward,
-    moveMultipleJobsBackward,
+    moveItemsForward,
+    moveItemsBackward,
     newJobProcess,
     newJobSnapshot,
     openEditJob,

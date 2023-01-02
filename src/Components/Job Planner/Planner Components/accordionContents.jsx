@@ -50,7 +50,7 @@ export function AccordionContents({ updateEditJobTrigger, status }) {
           }
         })}
         {userJobSnapshot.map((job) => {
-          if (job.jobStatus === status.id && job.groupID === null) {
+          if (job.jobStatus === status.id) {
             return (
               <JobCardFrame
                 key={job.jobID}

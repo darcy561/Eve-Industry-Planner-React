@@ -1,7 +1,7 @@
 import { useEveApi } from "./useEveApi";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth, signOut } from "firebase/auth";
-import { functions } from "../firebase";
+import { functions, performance } from "../firebase";
 import { useNavigate } from "react-router";
 import { useContext, useMemo } from "react";
 import {
@@ -29,6 +29,9 @@ import {
   userJobSnapshotDefault,
 } from "../Context/defaultValues";
 import { httpsCallable } from "firebase/functions";
+import { RefreshTokens } from "../Components/Auth/RefreshToken";
+import searchData from "../RawData/searchIndex.json";
+import { trace } from "firebase/performance";
 
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -54,6 +57,7 @@ export function useAccountManagement() {
   const {
     characterData,
     CharacterSkills,
+    corpIndustryJobs,
     IndustryJobs,
     MarketOrders,
     HistoricMarketOrders,
@@ -63,6 +67,7 @@ export function useAccountManagement() {
     fullAssetsList,
     IDtoName,
     standingsList,
+    serverStatus,
   } = useEveApi();
   const analytics = getAnalytics();
   const navigate = useNavigate();
@@ -79,6 +84,8 @@ export function useAccountManagement() {
   };
 
   const characterAPICall = async (sStatus, userObject) => {
+    const t = trace(performance, "CharacterESICalls");
+    t.start();
     if (sStatus) {
       const [
         skills,
@@ -90,7 +97,7 @@ export function useAccountManagement() {
         journal,
         assets,
         standings,
-        corporation,
+        corpIndJobs,
       ] = await Promise.all([
         CharacterSkills(userObject),
         IndustryJobs(userObject),
@@ -101,38 +108,92 @@ export function useAccountManagement() {
         WalletJournal(userObject),
         fullAssetsList(userObject),
         standingsList(userObject),
-        characterData(userObject),
+        corpIndustryJobs(userObject),
       ]);
 
-      userObject.apiSkills = skills;
-      userObject.apiJobs = indJobs;
-      userObject.apiOrders = orders;
-      userObject.apiHistOrders = histOrders;
-      userObject.apiBlueprints = blueprints;
-      userObject.apiTransactions = transactions;
-      userObject.apiJournal = journal;
+      sessionStorage.setItem(
+        `esiSkills_${userObject.CharacterHash}`,
+        JSON.stringify(skills)
+      );
+      sessionStorage.setItem(
+        `esiJobs_${userObject.CharacterHash}`,
+        JSON.stringify(indJobs)
+      );
+      sessionStorage.setItem(
+        `esiOrders_${userObject.CharacterHash}`,
+        JSON.stringify(orders)
+      );
+      sessionStorage.setItem(
+        `esiHistOrders_${userObject.CharacterHash}`,
+        JSON.stringify(histOrders)
+      );
+      sessionStorage.setItem(
+        `esiBlueprints_${userObject.CharacterHash}`,
+        JSON.stringify(blueprints)
+      );
+      sessionStorage.setItem(
+        `esiTransactions_${userObject.CharacterHash}`,
+        JSON.stringify(transactions)
+      );
+      sessionStorage.setItem(
+        `esiJournal_${userObject.CharacterHash}`,
+        JSON.stringify(journal)
+      );
       sessionStorage.setItem(
         `assets_${userObject.CharacterHash}`,
         JSON.stringify(assets)
       );
-      userObject.standings = standings;
-      userObject.corporation = corporation.corporation_id;
+      sessionStorage.setItem(
+        `esiStandings_${userObject.CharacterHash}`,
+        JSON.stringify(standings)
+      );
+      sessionStorage.setItem(
+        `esiCorpJobs_${userObject.CharacterHash}`,
+        JSON.stringify(corpIndJobs)
+      );
     } else {
-      userObject.apiSkills = [];
-      userObject.apiJobs = [];
-      userObject.apiOrders = [];
-      userObject.apiHistOrders = [];
-      userObject.apiBlueprints = [];
-      userObject.apiTransactions = [];
-      userObject.apiJournal = [];
+      sessionStorage.setItem(
+        `esiSkills_${userObject.CharacterHash}`,
+        JSON.stringify([])
+      );
+      sessionStorage.setItem(
+        `esiJobs_${userObject.CharacterHash}`,
+        JSON.stringify([])
+      );
+      sessionStorage.setItem(
+        `esiOrders_${userObject.CharacterHash}`,
+        JSON.stringify([])
+      );
+      sessionStorage.setItem(
+        `esiHistOrders_${userObject.CharacterHash}`,
+        JSON.stringify([])
+      );
+      sessionStorage.setItem(
+        `esiBlueprints_${userObject.CharacterHash}`,
+        JSON.stringify([])
+      );
+      sessionStorage.setItem(
+        `esiTransactions_${userObject.CharacterHash}`,
+        JSON.stringify([])
+      );
+      sessionStorage.setItem(
+        `esiJournal_${userObject.CharacterHash}`,
+        JSON.stringify([])
+      );
       sessionStorage.setItem(
         `assets_${userObject.CharacterHash}`,
         JSON.stringify([])
       );
-      userObject.standings = [];
-      userObject.corporation = null;
+      sessionStorage.setItem(
+        `esiStandings_${userObject.CharacterHash}`,
+        JSON.stringify([])
+      );
+      sessionStorage.setItem(
+        `esiCorpJobs_${userObject.CharacterHash}`,
+        JSON.stringify([])
+      );
     }
-
+    t.stop();
     return userObject;
   };
 
@@ -154,7 +215,9 @@ export function useAccountManagement() {
           locationIDS.add(user.settings.editJob.defaultAssetLocation);
         }
       }
-      user.apiJobs.forEach((job) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+      ).forEach((job) => {
         if (job.facility_id.toString().length > 10) {
           if (!citadelStore.has(job.facility_id)) {
             citadelIDs.add(job.facility_id);
@@ -164,7 +227,9 @@ export function useAccountManagement() {
           locationIDS.add(job.facility_id);
         }
       });
-      user.apiOrders.forEach((order) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
+      ).forEach((order) => {
         if (order.location_id.toString().length > 10) {
           if (!citadelStore.has(order.location_id)) {
             citadelIDs.add(order.location_id);
@@ -175,7 +240,9 @@ export function useAccountManagement() {
         }
         locationIDS.add(order.region_id);
       });
-      user.apiHistOrders.forEach((order) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
+      ).forEach((order) => {
         if (order.location_id.toString().length > 10) {
           if (!citadelStore.has(order.location_id)) {
             citadelIDs.add(order.location_id);
@@ -234,46 +301,56 @@ export function useAccountManagement() {
   };
 
   const failedUserRefresh = (failedRefreshSet, userObject) => {
-    if (failedRefreshSet.size > 0) {
-      if (userObject.settings.account.cloudAccounts) {
-        userObject.accountRefreshTokens =
-          userObject.accountRefreshTokens.filter(
-            (i) => !failedRefreshSet.has(i.CharacterHash)
-          );
-      } else {
-        let oldLS = JSON.parse(
-          localStorage.getItem(
-            `${refreshedUser.CharacterHash} AdditionalAccounts`
-          )
-        );
-        let newLS = oldLS.filter((i) => !failedRefreshSet.has(i.CharacterHash));
-        localStorage.setItem(
-          `${refreshedUser.CharacterHash} AdditionalAccounts`,
-          JSON.stringify(newLS)
-        );
-      }
+    if (failedRefreshSet.size === 0) {
+      return;
     }
+    if (userObject.settings.account.cloudAccounts) {
+      userObject.accountRefreshTokens = userObject.accountRefreshTokens.filter(
+        (i) => !failedRefreshSet.has(i.CharacterHash)
+      );
+      return;
+    }
+    let oldLS = JSON.parse(
+      localStorage.getItem(`${refreshedUser.CharacterHash} AdditionalAccounts`)
+    );
+    let newLS = oldLS.filter((i) => !failedRefreshSet.has(i.CharacterHash));
+    localStorage.setItem(
+      `${refreshedUser.CharacterHash} AdditionalAccounts`,
+      JSON.stringify(newLS)
+    );
+    return;
   };
 
-  const tidyLinkedData = (userObject, userArray) => {
+  const tidyLinkedData = (
+    newLinkedJobs,
+    newLinkedOrders,
+    newLinkedTrans,
+    userObject,
+    userArray
+  ) => {
     let allJobIDs = new Set();
     let allOrderIDs = new Set();
     let allTransIDs = new Set();
-    let newLinkedJobs = [...userObject.linkedJobs];
-    let newLinkedOrders = [...userObject.linkedOrders];
-    let newLinkedTrans = [...userObject.linkedTrans];
 
     for (let user of userArray) {
-      user.apiJobs.forEach((job) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+      ).forEach((job) => {
         allJobIDs.add(job.job_id);
       });
-      user.apiHistOrders.forEach((order) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
+      ).forEach((order) => {
         allOrderIDs.add(order.order_id);
       });
-      user.apiOrders.forEach((order) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
+      ).forEach((order) => {
         allOrderIDs.add(order.order_id);
       });
-      user.apiTransactions.forEach((trans) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
+      ).forEach((trans) => {
         allTransIDs.add(trans.transaction_id);
       });
     }
@@ -294,15 +371,21 @@ export function useAccountManagement() {
     let corpIDs = new Set();
 
     for (let user of newUserArray) {
-      if (!token.claims.corporations.includes(user.corporation)) {
+      if (
+        !token.claims.hasOwnProperty("corporations") ||
+        !token.claims.corporations.includes(user.corporation_id)
+      ) {
         triggerClaimUpdate = true;
       }
       dataArray.push({
         authToken: `${user.aToken}`,
       });
-      corpIDs.add(user.corporation);
+      corpIDs.add(user.corporation_id);
     }
-    if (corpIDs.size !== token.claims.corporations.length) {
+    if (
+      !triggerClaimUpdate &&
+      corpIDs.size !== token.claims.corporations.length
+    ) {
       triggerClaimUpdate = true;
     }
 
@@ -314,13 +397,144 @@ export function useAccountManagement() {
     return;
   };
 
+  const buildCloudAccountData = async (refreshTokens, userArray) => {
+    const sStatus = await serverStatus();
+    for (let token of refreshTokens) {
+      let newUser = await RefreshTokens(token.rToken, false);
+      if (newUser === "RefreshFail") {
+        continue;
+      }
+      await getCharacterInfo(newUser);
+      newUser = await characterAPICall(sStatus, newUser);
+      if (newUser === undefined) {
+        continue;
+      }
+      userArray.push(newUser);
+    }
+    return userArray;
+  };
+
+  const buildLocalAccountData = async (userArray) => {
+    const sStatus = await serverStatus();
+    let parent = userArray.find((i) => i.ParentUser);
+    let rTokens = JSON.parse(
+      localStorage.getItem(`${parent.CharacterHash} AdditionalAccounts`)
+    );
+
+    if (rTokens === null) {
+      return userArray;
+    }
+    for (let token of rTokens) {
+      let newUser = await RefreshTokens(token.rToken, false);
+      if (newUser === "RefreshFail") {
+        continue;
+      }
+      await getCharacterInfo(newUser);
+      newUser = await characterAPICall(sStatus, newUser);
+      if (newUser === undefined) {
+        continue;
+      }
+
+      userArray.push(newUser);
+    }
+    return userArray;
+  };
+
+  const updateCloudRefreshTokens = (refreshTokens, userArray) => {
+    for (let user of userArray) {
+      if (user.ParentUser) {
+        continue;
+      }
+      let token = refreshTokens.find(
+        (i) => i.CharacterHash === user.CharacterHash
+      );
+      if (token === undefined) {
+        continue;
+      }
+      if (user.rToken !== token.rToken) {
+        token.rToken = user.rToken;
+      }
+    }
+    refreshTokens = refreshTokens.filter((i) =>
+      userArray.some(
+        (u) => u.CharacterHash === i.CharacterHash && !u.ParentUser
+      )
+    );
+    return refreshTokens;
+  };
+
+  const updateLocalRefreshTokens = (userArray) => {
+    let tokenArray = [];
+    let parent = userArray.find((i) => i.ParentUser);
+    for (let user of userArray) {
+      if (user.ParentUser) {
+        continue;
+      }
+      tokenArray.push({
+        CharacterHash: user.CharacterHash,
+        rToken: user.rToken,
+      });
+    }
+    localStorage.setItem(
+      `${parent.CharacterHash} AdditionalAccounts`,
+      JSON.stringify(tokenArray)
+    );
+  };
+
+  const buildApiArray = (userArray) => {
+    let newApiArray = [];
+    for (let user of userArray) {
+      newApiArray = newApiArray.concat(
+        JSON.parse(sessionStorage.getItem(`esiJobs_${user.CharacterHash}`))
+      );
+      newApiArray = newApiArray.concat(
+        JSON.parse(sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`))
+      );
+    }
+
+    newApiArray.sort((a, b) => {
+      let aName = searchData.find(
+        (i) =>
+          i.itemID === a.product_type_id ||
+          i.blueprintID === a.blueprint_type_id
+      );
+      let bName = searchData.find(
+        (i) =>
+          i.itemID === b.product_type_id ||
+          i.blueprintID === b.blueprint_type_id
+      );
+      if (aName === undefined || bName === undefined) {
+        return -1;
+      }
+      if (aName.name < bName.name) {
+        return -1;
+      }
+      if (aName.name > bName.name) {
+        return 1;
+      }
+      return 0;
+    });
+    return newApiArray;
+  };
+
+  const getCharacterInfo = async (userObj) => {
+    const charData = await characterData(userObj);
+    userObj.corporation_id = charData.corporation_id;
+  };
+
   return {
+    buildApiArray,
+    buildCloudAccountData,
+    buildLocalAccountData,
     buildMainUser,
     characterAPICall,
     checkUserClaims,
     failedUserRefresh,
+    getCharacterInfo,
     getLocationNames,
     logUserOut,
     tidyLinkedData,
+    updateCloudRefreshTokens,
+    updateLocalRefreshTokens,
   };
 }

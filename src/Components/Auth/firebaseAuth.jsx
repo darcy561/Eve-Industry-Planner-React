@@ -18,6 +18,7 @@ export async function firebaseAuth(charObj) {
           "Content-Type": "application/json",
           "X-Firebase-AppCheck": appCheckToken.token,
           "Access-Token": charObj.aToken,
+          "appVersion":  __APP_VERSION__
         },
         body: JSON.stringify({
           UID: charObj.accountID,
@@ -28,9 +29,9 @@ export async function firebaseAuth(charObj) {
     const fbTokenJSON = await fbtokenPromise.json();
 
     await setPersistence(auth, browserSessionPersistence);
-    const fbUser = await signInWithCustomToken(auth, fbTokenJSON.access_token);
+    const fbToken = await signInWithCustomToken(auth, fbTokenJSON.access_token);
 
-    return fbUser;
+    return fbToken;
   } catch (error) {
     console.log(error);
   }

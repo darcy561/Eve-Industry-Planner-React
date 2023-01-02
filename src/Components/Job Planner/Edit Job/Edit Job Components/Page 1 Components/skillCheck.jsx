@@ -1,4 +1,11 @@
-import { Container, Grid, Icon, Paper, Typography } from "@mui/material";
+import {
+  Container,
+  Grid,
+  Icon,
+  Paper,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
@@ -19,6 +26,10 @@ export function SkillCheck() {
     buildChar = parentUser;
   }
 
+  let characterSkills = JSON.parse(
+    sessionStorage.getItem(`esiSkills_${buildChar.CharacterHash}`)
+  );
+
   return (
     <Paper
       elevation={3}
@@ -37,8 +48,18 @@ export function SkillCheck() {
               </Typography>
             </Grid>
           </Grid>
+          {activeJob.skills.length === 0 && (
+            <Grid item xs={12} sx={{ marginTop: "10px" }}>
+              <Typography
+                align="center"
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+              >
+                No Skills Required
+              </Typography>
+            </Grid>
+          )}
           {activeJob.skills.map((jSkill) => {
-            const charSkill = buildChar.apiSkills.find(
+            const charSkill = characterSkills.find(
               (i) => i.id === jSkill.typeID
             );
             const skillData = bpSkills.find((i) => i.id === jSkill.typeID);
@@ -75,9 +96,15 @@ export function SkillCheck() {
                   <Masonry columns={1}>
                     {charSkill !== undefined &&
                     charSkill.activeLevel >= jSkill.level ? (
-                      <Icon fontSize="large" color="success">
-                        <DoneIcon />
-                      </Icon>
+                      <Tooltip
+                        arrow
+                        title={`Level ${jSkill.level} Required`}
+                        placement="bottom"
+                      >
+                        <Icon fontSize="large" color="success">
+                          <DoneIcon />
+                        </Icon>
+                      </Tooltip>
                     ) : (
                       <Grid item>
                         <Icon fontSize="large" color="error">

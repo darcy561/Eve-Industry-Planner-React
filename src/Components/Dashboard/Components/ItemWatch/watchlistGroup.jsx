@@ -65,7 +65,6 @@ export function WatchlistGroup({
                     ...prev,
                     groups: newUserWatchlistGroups,
                   }));
-                  uploadUserWatchlist(newUserWatchlistGroups, userWatchlist.items, );
                 }}
               >
                 <ExpandMoreIcon />

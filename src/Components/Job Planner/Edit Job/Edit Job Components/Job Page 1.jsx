@@ -1,9 +1,6 @@
 import React, { useContext } from "react";
 import { ActiveJobContext } from "../../../../Context/JobContext";
-import {
-  IsLoggedInContext,
-  UsersContext,
-} from "../../../../Context/AuthContext";
+import { UsersContext } from "../../../../Context/AuthContext";
 import { Container, Grid } from "@mui/material";
 import { ManufacturingOptions } from "./Page 1 Components/maunfacturingOptions";
 import { ReactionOptions } from "./Page 1 Components/reactionOptions";
@@ -19,7 +16,6 @@ import { ArchiveJobs } from "./Page 1 Components/archiveJobs";
 
 export function EditPage1({ jobModified, setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
-  const { isloggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
 
   const parentUser = users.find((i) => i.ParentUser === true);
@@ -54,11 +50,7 @@ export function EditPage1({ jobModified, setJobModified }) {
       sx={{ width: "100%", marginTop: "20px" }}
     >
       <Grid container direction="row" spacing={2}>
-        {!parentUser.settings.layout.hideTutorials && (
-          <Grid item xs={12}>
-            <TutorialStep1 />
-          </Grid>
-        )}
+        <TutorialStep1 />
         <Grid item xs={12} md={3}>
           <Masonry columns={1} spacing={2}>
             <ProductionStats />
@@ -68,8 +60,11 @@ export function EditPage1({ jobModified, setJobModified }) {
         <Grid item xs={12} md={9}>
           <Masonry columns={1} spacing={2}>
             <RawResourceList />
-            <ItemCostPanel jobModified={jobModified} />
-            {isloggedIn && <ArchiveJobs />}
+            <ItemCostPanel
+              jobModified={jobModified}
+              setJobModified={setJobModified}
+            />
+            <ArchiveJobs />
             <SkillCheck />
           </Masonry>
         </Grid>

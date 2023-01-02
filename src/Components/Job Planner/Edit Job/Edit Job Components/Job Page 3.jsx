@@ -28,11 +28,8 @@ export function EditPage3({ setJobModified }) {
   return (
     <Container disableGutters maxWidth="false" sx={{ width: "100%" }}>
       <Grid container direction="row" spacing={2}>
-        {!parentUser.settings.layout.hideTutorials && (
-          <Grid item xs={12}>
-            <TutorialStep3 />
-          </Grid>
-        )}
+        <TutorialStep3 />
+
         <Grid item xs={12}>
           <InformationPanel />
         </Grid>

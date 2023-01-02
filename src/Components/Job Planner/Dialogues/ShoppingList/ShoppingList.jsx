@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import {
   Button,
@@ -24,8 +24,12 @@ import {
   UsersContext,
 } from "../../../../Context/AuthContext";
 import { useCharAssets } from "../../../../Hooks/useCharAssets";
-import { EveIDsContext } from "../../../../Context/EveDataContext";
+import {
+  EveIDsContext,
+  EvePricesContext,
+} from "../../../../Context/EveDataContext";
 import { makeStyles } from "@mui/styles";
+import { useFirebase } from "../../../../Hooks/useFirebase";
 
 const useStyles = makeStyles((theme) => ({
   Select: {
@@ -44,9 +48,11 @@ export function ShoppingListDialog({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
+  const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { getAssetLocationList } = useCharAssets();
   const { buildShoppingList } = useJobManagement();
   const { findLocationAssets } = useCharAssets();
+  const { getItemPrices } = useFirebase();
   const [childJobDisplay, updateChildJobDisplay] = useState(false);
   const [displayData, updateDisplayData] = useState([]);
   const [volumeTotal, updateVolumeTotal] = useState(0);
@@ -65,19 +71,11 @@ export function ShoppingListDialog({
   );
   const [newEveIDs, updateNewEveIDs] = useState([]);
   const classes = useStyles();
+  const shoppingListValue = useRef(0);
 
   useEffect(() => {
     async function createShoppingListDisplay() {
       if (shoppingListTrigger) {
-        updateLoadingData(true);
-        let newVolumeTotal = 0;
-        let newCopyText = "";
-        let newDisplayData = [];
-        let shoppingList = await buildShoppingList(shoppingListData);
-        let [fullAssetList, locationAssets] = await findLocationAssets(
-          selectedLocation
-        );
-
         function calcVolume(listItem, assetQuantity) {
           if (removeAssets) {
             return listItem.volume * (listItem.quantity - assetQuantity);
@@ -85,11 +83,40 @@ export function ShoppingListDialog({
             return listItem.volume * listItem.quantity;
           }
         }
+
         function buildCopyText(listItem) {
           if (removeAssets) {
             return `${listItem.name} ${listItem.quantityLessAsset}\n`;
           } else {
             return `${listItem.name} ${listItem.quantity}\n`;
+          }
+        }
+
+        function calcItemPrice(listItem, assetQuantity) {
+          let itemPriceData = evePrices.find(
+            (i) => i.typeID === listItem.typeID
+          );
+          if (itemPriceData === undefined) {
+            itemPriceData = itemPrices.find(
+              (i) => i.typeID === listItem.typeID
+            );
+          }
+          if (itemPriceData === undefined) {
+            return 0;
+          }
+          if (removeAssets) {
+            return (
+              itemPriceData[parentUser.settings.editJob.defaultMarket][
+                parentUser.settings.editJob.defaultOrders
+              ] *
+              (listItem.quantity - assetQuantity)
+            );
+          } else {
+            return (
+              itemPriceData[parentUser.settings.editJob.defaultMarket][
+                parentUser.settings.editJob.defaultOrders
+              ] * listItem.quantity
+            );
           }
         }
 
@@ -129,6 +156,21 @@ export function ShoppingListDialog({
           return fullAssetList.find((m) => m.item_id === item);
         }
 
+        updateLoadingData(true);
+        let newVolumeTotal = 0;
+        let newCopyText = "";
+        let newDisplayData = [];
+        let itemIDs = new Set();
+        let newListTotal = 0;
+        let shoppingList = await buildShoppingList(shoppingListData);
+        shoppingList.forEach((item) => {
+          itemIDs.add(item.typeID);
+        });
+        let itemPrices = await getItemPrices([...itemIDs], parentUser);
+        let [fullAssetList, locationAssets] = await findLocationAssets(
+          selectedLocation
+        );
+
         shoppingList.forEach((listItem) => {
           let assetType = locationAssets.find(
             (i) => i.type_id === listItem.typeID
@@ -150,14 +192,22 @@ export function ShoppingListDialog({
           );
 
           if (listItem.isVisible) {
+            newListTotal += calcItemPrice(listItem, assetQuantity);
             newVolumeTotal += calcVolume(listItem, assetQuantity);
             newCopyText = newCopyText.concat(buildCopyText(listItem));
             newDisplayData.push(listItem);
           }
         });
+        shoppingListValue.current = newListTotal;
         updateDisplayData(newDisplayData);
         updateVolumeTotal(newVolumeTotal);
         updateCopyText(newCopyText);
+        updateEvePrices((prev) => {
+          itemPrices = itemPrices.filter(
+            (n) => !prev.some((p) => p.typeID === n.typeID)
+          );
+          return prev.concat(itemPrices);
+        });
         updateLoadingData(false);
       }
     }
@@ -337,6 +387,26 @@ export function ShoppingListDialog({
                     sx={{ typography: { xs: "caption", sm: "body1" } }}
                   >
                     {volumeTotal.toLocaleString()} m3
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid container sx={{ marginTop: "20px" }}>
+                <Grid item xs={4}>
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body1" } }}
+                  >
+                    Estimated Value
+                  </Typography>
+                </Grid>
+                <Grid item xs={8} align="right">
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body1" } }}
+                  >
+                    {shoppingListValue.current.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    ISK
                   </Typography>
                 </Grid>
               </Grid>

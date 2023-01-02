@@ -24,9 +24,8 @@ import { useMemo } from "react";
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
   const { uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
-  const { characterAPICall, checkUserClaims } = useAccountManagement();
-  const { findJobData, updateJobSnapshotActiveJob } =
-    useJobManagement();
+  const { characterAPICall, checkUserClaims,getCharacterInfo } = useAccountManagement();
+  const { findJobData, updateJobSnapshotFromFullJob } = useJobManagement();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -54,11 +53,14 @@ export function AccountEntry({ user, parentUserIndex }) {
         user = await RefreshUserAToken(user);
       }
       if (user !== "RefreshFail") {
+        await getCharacterInfo(user);
         user = await characterAPICall(sStatus, user);
         newAPIArray = apiJobs.filter(
           (i) => i.installer_id !== user.CharacterID
         );
-        user.apiJobs.forEach((i) => newAPIArray.push(i));
+        JSON.parse(
+          sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+        ).forEach((i) => newAPIArray.push(i));
         newAPIArray.sort((a, b) => {
           if (a.product_name < b.product_name) {
             return -1;
@@ -100,7 +102,7 @@ export function AccountEntry({ user, parentUserIndex }) {
           newJobArray
         );
         job.build.buildChar = parentUser.CharacterHash;
-        newUserJobSnapshot = updateJobSnapshotActiveJob(
+        newUserJobSnapshot = updateJobSnapshotFromFullJob(
           job,
           newUserJobSnapshot
         );

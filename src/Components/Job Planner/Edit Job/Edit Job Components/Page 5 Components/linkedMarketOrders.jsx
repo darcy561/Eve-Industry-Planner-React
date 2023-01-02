@@ -67,11 +67,13 @@ export function LinkedMarketOrders({
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
     if (user !== undefined) {
-      const newOrderData = user.apiOrders.find(
-        (newOrder) => newOrder.order_id === order.order_id
-      );
+      const newOrderData = JSON.parse(
+        sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
+      ).find((newOrder) => newOrder.order_id === order.order_id);
 
-      const completedOrderData = user.apiHistOrders.find(
+      const completedOrderData = JSON.parse(
+        sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
+      ).find(
         (histOrder) => histOrder.order_id === order.order_id
       );
       if (newOrderData !== undefined && !order.complete) {
@@ -86,7 +88,9 @@ export function LinkedMarketOrders({
           if (Date.parse(order.issued) !== Date.parse(newOrderData.issued)) {
             order.timeStamps.push(newOrderData.issued);
 
-            user.apiJournal.forEach((entry) => {
+            JSON.parse(
+              sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
+            ).forEach((entry) => {
               if (
                 entry.ref_type === "brokers_fee" &&
                 Date.parse(newOrderData.issued) === Date.parse(entry.date)
@@ -120,7 +124,9 @@ export function LinkedMarketOrders({
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
     if (order.timeStamps.length > activeJob.build.sale.brokersFee.length) {
       order.timeStamps.forEach((stamp) => {
-        user.apiJournal.forEach((entry) => {
+        JSON.parse(
+          sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
+        ).forEach((entry) => {
           if (
             entry.ref_type === "brokers_fee" &&
             Date.parse(stamp) === Date.parse(entry.date)

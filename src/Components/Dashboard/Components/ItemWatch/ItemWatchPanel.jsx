@@ -10,15 +10,13 @@ import AddIcon from "@mui/icons-material/Add";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { AddWatchItemDialog } from "./addItemDialog";
 import { useContext, useMemo, useState } from "react";
-import { UsersContext, UserWatchlistContext } from "../../../../Context/AuthContext";
-import { WatchListRow } from "./ItemRow";
-import { WatchlistGroup } from "./watchlistGroup";
+import { UsersContext } from "../../../../Context/AuthContext";
 import { AddGroupDialog } from "./addGroupDialog";
 import { GroupSettingsDialog } from "./groupSettings";
+import { WatchlistContainer } from "./itemWatchContainer";
 
 export function ItemWatchPanel() {
   const { users } = useContext(UsersContext);
-  const { userWatchlist, updateUserWatchlist } = useContext(UserWatchlistContext);
   const [openDialog, setOpenDialog] = useState(false);
   const [addNewGroupTrigger, updateAddNewGroupTrigger] = useState(false);
   const [groupSettingsTrigger, updateGroupSettingsTrigger] = useState(false);
@@ -51,6 +49,7 @@ export function ItemWatchPanel() {
           setOpenDialog={setOpenDialog}
         />
         <AddGroupDialog
+          parentUser={parentUser}
           addNewGroupTrigger={addNewGroupTrigger}
           updateAddNewGroupTrigger={updateAddNewGroupTrigger}
         />
@@ -88,90 +87,12 @@ export function ItemWatchPanel() {
             </Tooltip>
           </Box>
           <Grid container item xs={12}>
-            {userWatchlist.items.length > 0 && (
-              <Grid
-                container
-                item
-                xs={12}
-                sx={{
-                  marginBottom: "20px",
-                  display: { xs: "none", sm: "flex" },
-                }}
-              >
-                <Grid item sm={4} lg={3} />
-                <Grid item sm={2} lg={2}>
-                  <Typography
-                    align="center"
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
-                  >
-                    Item Sell Price
-                  </Typography>
-                </Grid>
-                <Grid item sm={3} lg={3}>
-                  <Typography
-                    align="center"
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
-                  >
-                    Total Material Purchase Cost Per Item (
-                    {parentUser.settings.editJob.defaultOrders
-                      .charAt(0)
-                      .toUpperCase() +
-                      parentUser.settings.editJob.defaultOrders.slice(1)}{" "}
-                    Orders)
-                  </Typography>
-                </Grid>
-                <Grid item sm={3} lg={3}>
-                  <Typography
-                    align="center"
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
-                  >
-                    Total Material Cost To Build Child Jobs Per Item (
-                    {parentUser.settings.editJob.defaultOrders
-                      .charAt(0)
-                      .toUpperCase() +
-                      parentUser.settings.editJob.defaultOrders.slice(1)}{" "}
-                    Orders)
-                  </Typography>
-                </Grid>
-              </Grid>
-            )}
-            {userWatchlist.items.length === 0 ? (
-              <Grid item xs={12} align="center">
-                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-                  You have no items on your watchlist.
-                </Typography>
-              </Grid>
-            ) : (
-              <>
-                {userWatchlist.groups.map((group, index) => {
-                  return (
-                    <WatchlistGroup
-                      key={group.id}
-                      group={group}
-                      parentUser={parentUser}
-                      index={index}
-                      updateGroupSettingsTrigger={updateGroupSettingsTrigger}
-                      updateGroupSettingsContent={updateGroupSettingsContent}
-                      groupSettingsContent={groupSettingsContent}
-                    />
-                  );
-                })}
-
-                {userWatchlist.items.map((item, index) => {
-                  if (item.group === undefined || item.group === 0) {
-                    return (
-                      <WatchListRow
-                        key={item.id}
-                        item={item}
-                        parentUser={parentUser}
-                        index={index}
-                      />
-                    );
-                  }
-                  return null;
-                })}
-              </>
-            )}
+            <WatchlistContainer
+              parentUser={parentUser}
+              updateGroupSettingsTrigger={updateGroupSettingsTrigger}
+              groupSettingsContent={groupSettingsContent}
+              updateGroupSettingsContent={updateGroupSettingsContent}
+            />
           </Grid>
         </Grid>
       </Paper>

@@ -13,24 +13,25 @@ export function useEveApi() {
       const skillsJSON = await skillsPromise.json();
 
       const newSkillArray = [];
-      if (skillsPromise.status === 200) {
-        skillsReference.forEach((ref) => {
-          const x = skillsJSON.skills.find((s) => ref.id === s.skill_id);
-          const y = {
-            id: ref.id,
-            activeLevel: null,
-          };
+      if (skillsPromise.status !== 200) {
+        return [];
+      }
+      skillsReference.forEach((ref) => {
+        const x = skillsJSON.skills.find((s) => ref.id === s.skill_id);
+        const y = {
+          id: ref.id,
+          activeLevel: null,
+        };
 
-          if (x !== undefined) {
-            y.activeLevel = x.active_skill_level;
-          } else {
-            y.activeLevel = 0;
-          }
-          newSkillArray.push(y);
-        });
+        if (x !== undefined) {
+          y.activeLevel = x.active_skill_level;
+        } else {
+          y.activeLevel = 0;
+        }
+        newSkillArray.push(y);
+      });
 
-        return newSkillArray;
-      } else return [];
+      return newSkillArray;
     } catch (err) {
       console.log(err);
       return [];
@@ -45,25 +46,20 @@ export function useEveApi() {
 
       const indyJSON = await indyPromise.json();
 
-      if (indyPromise.status === 200) {
-        let filterOld = indyJSON.filter(
-          (job) =>
-            job.completed_date === undefined ||
-            new Date() - Date.parse(job.completed_date) <= 1209600000
-          // 10 days
-        );
+      if (indyPromise.status !== 200) {
+        return [];
+      }
+      let filterOld = indyJSON.filter(
+        (job) =>
+          job.completed_date === undefined ||
+          new Date() - Date.parse(job.completed_date) <= 1209600000
+        // 10 days
+      );
 
-        let filtered = filterOld.filter(
-          (job) =>
-            job.activity_id === 1 ||
-            job.activity_id === 4 ||
-            job.activity_id === 3 ||
-            job.activity_id === 9 ||
-            job.activity_id === 5
-        );
-
-        return filtered;
-      } else return [];
+      filterOld.forEach((job) => {
+        job.isCorp = false;
+      });
+      return filterOld;
     } catch (err) {
       console.log(err);
       return [];
@@ -76,17 +72,18 @@ export function useEveApi() {
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/orders/?datasource=tranquility&token=${userObj.aToken}`
       );
 
-      const marketJSON = await marketPromise.json();
+      let marketJSON = await marketPromise.json();
 
-      if (marketPromise.status === 200) {
-        marketJSON.forEach((item) => {
-          item.CharacterHash = userObj.CharacterHash;
-        });
-
-        let filtered = marketJSON.filter((item) => !item.is_buy_order);
-
-        return filtered;
+      if (marketPromise.status !== 200) {
+        return [];
       }
+      marketJSON = marketJSON.filter((item) => !item.is_buy_order);
+
+      marketJSON.forEach((item) => {
+        item.CharacterHash = userObj.CharacterHash;
+      });
+
+      return marketJSON;
     } catch (err) {
       console.log(err);
       return [];
@@ -113,6 +110,8 @@ export function useEveApi() {
           } else {
             pageCount++;
           }
+        } else {
+          pageCount = 11;
         }
       } catch (err) {
         return [];
@@ -128,7 +127,7 @@ export function useEveApi() {
   };
 
   const BlueprintLibrary = async (userObj) => {
-    const returnArray = [];
+    let returnArray = [];
     let pageCount = 1;
     while (pageCount < 11) {
       try {
@@ -138,9 +137,8 @@ export function useEveApi() {
 
         const blueprintJSON = await blueprintPromise.json();
         if (blueprintPromise.status === 200) {
-          blueprintJSON.forEach((item) => {
-            returnArray.push(item);
-          });
+          returnArray = returnArray.concat(blueprintJSON);
+
           if (blueprintJSON.length < 1000) {
             pageCount = 11;
           } else {
@@ -187,14 +185,14 @@ export function useEveApi() {
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/wallet/journal/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
         );
 
-        const journalJSON = await journalPromise.json();
+        let journalJSON = await journalPromise.json();
         if (journalPromise.status === 200) {
           let currentDate = new Date();
-          journalJSON.forEach((item) => {
-            if (currentDate - Date.parse(item.date) <= 1209600000) {
-              returnArray.push(item);
-            }
-          });
+
+          journalJSON = journalJSON.filter(
+            (item) => currentDate - Date.parse(item.date) <= 1209600000
+          );
+          returnArray = returnArray.concat(journalJSON);
 
           if (journalJSON.length < 1000) {
             pageCount = 11;
@@ -218,7 +216,7 @@ export function useEveApi() {
     let citadelIDs = idArray.filter((i) => i.toString().length > 10);
 
     let standardIDs = idArray.filter((i) => i.toString().length < 10);
-    const newArray = [];
+    let newArray = [];
     if (standardIDs.length > 0) {
       const idPromise = await fetch(
         `https://esi.evetech.net/latest/universe/names/?datasource=tranquility`,
@@ -229,9 +227,7 @@ export function useEveApi() {
       );
       if (idPromise.status === 200) {
         const idJSON = await idPromise.json();
-        idJSON.forEach((item) => {
-          newArray.push(item);
-        });
+        newArray = newArray.concat(idJSON);
       }
     }
     if (citadelIDs.length > 0) {
@@ -314,8 +310,8 @@ export function useEveApi() {
         if (assetPromise.status === 200) {
           assetJSON.forEach((item) => {
             item.CharacterHash = userObj.CharacterHash;
-            returnArray.push(item);
           });
+          returnArray = returnArray.concat(assetJSON);
 
           if (assetJSON.length < 1000) {
             pageCount = 21;
@@ -341,10 +337,12 @@ export function useEveApi() {
       );
       const standingsJSON = await standingsPromise.json();
 
-      if (standingsPromise.status === 200) {
-        return standingsJSON;
-      } else return [];
+      if (standingsPromise.status !== 200) {
+        return [];
+      }
+      return standingsJSON;
     } catch (err) {
+      console.log(err);
       return [];
     }
   };
@@ -380,10 +378,56 @@ export function useEveApi() {
     }
   };
 
+  const corpIndustryJobs = async (userObj) => {
+    let returnArray = [];
+    let pageCount = 1;
+    while (pageCount < 11) {
+      try {
+        const corpIndyPromise = await fetch(
+          `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/industry/jobs/?include_completed=true&page=${pageCount}&token=${userObj.aToken}`
+        );
+        const corpIndyJSON = await corpIndyPromise.json();
+        if (corpIndyPromise.status === 200) {
+          let filterOld = corpIndyJSON.filter(
+            (job) =>
+              job.completed_date === undefined ||
+              new Date() - Date.parse(job.completed_date) <= 1209600000
+            // 10 days
+          );
+
+          let filterOnlyChar = filterOld.filter(
+            (job) => job.installer_id === userObj.CharacterID
+          );
+
+          filterOnlyChar.forEach((job) => {
+            job.isCorp = true;
+          });
+
+          returnArray = returnArray.concat(filterOnlyChar);
+
+          if (corpIndyJSON.length < 1000) {
+            pageCount = 11;
+          } else {
+            pageCount++;
+          }
+        } else {
+          pageCount = 11;
+        }
+      } catch (err) {
+        pageCount = 11;
+        console.log(err);
+        return [];
+      }
+    }
+
+    return returnArray;
+  };
+
   return {
     BlueprintLibrary,
     characterData,
     CharacterSkills,
+    corpIndustryJobs,
     fullAssetsList,
     HistoricMarketOrders,
     IDtoName,

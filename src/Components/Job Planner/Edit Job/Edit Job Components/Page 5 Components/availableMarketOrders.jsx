@@ -177,8 +177,10 @@ export function AvailableMarketOrders({
                           let brokersFee = await calcBrokersFee(char, order);
                           let newBrokersArray = [];
                           if (char !== undefined) {
-                            char.apiJournal.forEach((entry) => {
-                              if (
+                            JSON.parse(
+                              sessionStorage.getItem(`esiJournal_${char.CharacterHash}`)
+                            ).forEach((entry) => {
+                                if (
                                 entry.ref_type === "brokers_fee" &&
                                 Date.parse(order.issued) ===
                                   Date.parse(entry.date)

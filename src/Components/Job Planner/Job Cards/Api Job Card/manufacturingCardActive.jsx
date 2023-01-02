@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import searchData from "../../../../RawData/searchIndex.json";
+import { blueGrey, grey } from "@mui/material/colors";
 
 export function IndustryESICardActive({ job }) {
   const { users } = useContext(UsersContext);
@@ -14,9 +15,9 @@ export function IndustryESICardActive({ job }) {
     (i) => i.blueprintID === job.blueprint_type_id
   );
   const buildChar = users.find((i) => i.CharacterID === job.installer_id);
-  const blueprintData = buildChar.apiBlueprints.find(
-    (i) => i.item_id === job.blueprint_id
-  );
+  const blueprintData = JSON.parse(
+    sessionStorage.getItem(`esiBlueprints_${buildChar.CharacterHash}`)
+  ).find((i) => i.item_id === job.blueprint_id);
   let blueprintType = "bp";
   if (blueprintData !== undefined) {
     if (blueprintData.quantity === -2) {
@@ -142,12 +143,16 @@ export function IndustryESICardActive({ job }) {
               item
               xs={12}
               sx={{
-                backgroundColor: "rgba(204,204,204,0.5)",
+                backgroundColor: job.isCorp ? blueGrey[400] : grey[500],
                 marginTop: "10px",
               }}
             >
               <Typography align="center" variant="body2" color="black">
-                <b>ESI Manufacturing Job</b>
+                {job.isCorp ? (
+                  <b>ESI Manufacturing Job Corp Job</b>
+                ) : (
+                  <b>ESI Manufacturing Job</b>
+                )}
               </Typography>
             </Grid>
           </Grid>

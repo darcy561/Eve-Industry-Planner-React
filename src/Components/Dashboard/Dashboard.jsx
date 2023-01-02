@@ -20,12 +20,8 @@ function Dashboard() {
       }}
       spacing={2}
     >
-      {!parentUser.settings.layout.hideTutorials && (
-        <Grid item xs={12}>
-          <TutorialDashboard />
-        </Grid>
-      )}
-      <ESIOffline/>
+      <TutorialDashboard />
+      <ESIOffline />
       <Grid item xs={12} md={6} lg={4}>
         <AccountData />
       </Grid>
@@ -34,9 +30,9 @@ function Dashboard() {
       </Grid>
       <Grid item xs={12}>
         <ItemWatchPanel />
-        </Grid>
+      </Grid>
     </Grid>
   );
 }
 
-export default Dashboard
+export default Dashboard;

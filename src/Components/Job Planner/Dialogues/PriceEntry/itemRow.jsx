@@ -22,7 +22,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function ItemPriceRow({ item, index, displayOrder, displayMarket, totalImportedCost, updateTotalImportedCost }) {
+export function ItemPriceRow({
+  item,
+  index,
+  displayOrder,
+  displayMarket,
+  totalImportedCost,
+  updateTotalImportedCost,
+  importFromClipboard,
+  updateImportFromClipboard,
+}) {
   const { priceEntryListData, updatePriceEntryListData } = useContext(
     PriceEntryListContext
   );
@@ -60,14 +69,19 @@ export function ItemPriceRow({ item, index, displayOrder, displayMarket, totalIm
   }, [displayMarket, displayOrder, evePrices]);
 
   useEffect(() => {
-    item.itemPrice = Number(inputItem);
     updateInputChecked(item.confirmed);
   }, [priceEntryListData]);
 
   useEffect(() => {
+    if (importFromClipboard) {
+      updateInputItem(item.itemPrice);
+      updateImportFromClipboard(false);
+    }
+  }, [importFromClipboard]);
+
+  useEffect(() => {
     item.itemPrice = Number(inputItem);
   }, []);
-
   return (
     <Grid
       key={item.typeID}
@@ -92,7 +106,9 @@ export function ItemPriceRow({ item, index, displayOrder, displayMarket, totalIm
         />
       </Grid>
       <Grid item xs={12} sm={7}>
-        <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>{item.name}</Typography>
+        <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+          {item.name}
+        </Typography>
       </Grid>
       <Grid item xs={10} sm={3}>
         <Tooltip
@@ -132,9 +148,13 @@ export function ItemPriceRow({ item, index, displayOrder, displayMarket, totalIm
             onChange={() => {
               let newList = [...priceEntryListData.list];
               if (newList[index].confirmed) {
-                updateTotalImportedCost((prev)=> prev -= (inputItem * newList[index].quantity))
+                updateTotalImportedCost(
+                  (prev) => (prev -= inputItem * newList[index].quantity)
+                );
               } else {
-                updateTotalImportedCost((prev)=> prev += (inputItem * newList[index].quantity))
+                updateTotalImportedCost(
+                  (prev) => (prev += inputItem * newList[index].quantity)
+                );
               }
               newList[index].confirmed = !inputChecked;
               newList[index].itemPrice = inputItem;

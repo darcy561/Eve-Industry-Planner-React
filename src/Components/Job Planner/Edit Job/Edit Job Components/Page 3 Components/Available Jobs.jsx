@@ -20,6 +20,7 @@ import {
 import { MdOutlineAddLink } from "react-icons/md";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { EveIDsContext } from "../../../../../Context/EveDataContext";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function AvailableJobs({ jobMatches, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -28,6 +29,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedJobIDs, updateLinkedJobIDs } = useContext(LinkedIDsContext);
+  const { timeRemainingCalc } = useJobManagement();
   const analytics = getAnalytics();
   const ParentUserIndex = useMemo(() => {
     return users.findIndex((i) => i.ParentUser);
@@ -40,7 +42,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
       this.runs = originalJob.runs;
       this.job_id = originalJob.job_id;
       this.completed_date = originalJob.completed_date || null;
-      this.station_id = originalJob.station_id;
+      this.station_id = originalJob.facility_id;
       this.start_date = originalJob.start_date;
       this.end_date = originalJob.end_date;
       this.cost = originalJob.cost;
@@ -49,30 +51,8 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
       this.activity_id = originalJob.activity_id;
       this.duration = originalJob.duration;
       this.blueprint_id = originalJob.blueprint_id;
+      this.isCorp = originalJob.isCorp;
     }
-  }
-
-  function timeRemainingcalc(job) {
-    let now = new Date().getTime();
-    let timeLeft = Date.parse(job.end_date) - now;
-
-    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    let hour = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (day < 0) {
-      day = 0;
-    }
-    if (hour < 0) {
-      hour = 0;
-    }
-    if (min < 0) {
-      min = 0;
-    }
-
-    return { days: day, hours: hour, mins: min };
   }
 
   if (jobMatches.length !== 0 && activeJob.apiJobs.size < activeJob.jobCount) {
@@ -97,9 +77,9 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
             const jobOwner = users.find(
               (i) => i.CharacterID === job.installer_id
             );
-            const jobBP = jobOwner.apiBlueprints.find(
-              (i) => i.item_id === job.blueprint_id
-            );
+            const jobBP = JSON.parse(
+              sessionStorage.getItem(`esiBlueprints_${jobOwner.CharacterHash}`)
+            ).find((i) => i.item_id === job.blueprint_id);
 
             const facilityData = eveIDs.find((i) => i.id === job.facility_id);
 
@@ -111,7 +91,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
               }
             }
 
-            const timeRemaining = timeRemainingcalc(job);
+            const timeRemaining = timeRemainingCalc(job);
             return (
               <Grid
                 key={job.job_id}
@@ -176,6 +156,16 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                       : "Location Data Unavailable"}
                   </Typography>
                 </Grid>
+                {job.isCorp ? (
+                  <Grid item xs={12}>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      align="center"
+                    >
+                      Corporation Job
+                    </Typography>
+                  </Grid>
+                ) : null}
                 <Grid item xs={12}>
                   <Typography
                     sx={{ typography: { xs: "caption", sm: "body2" } }}
@@ -214,21 +204,28 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                       color="primary"
                       size="standard"
                       onClick={() => {
-                        setJobModified(true);
-
+                        let newInstallCosts =
+                          activeJob.build.costs.installCosts;
                         let newLinkedJobIDs = new Set(linkedJobIDs);
-                        const newActiveJobSet = new Set(activeJob.apiJobs);
-                        newActiveJobSet.add(job.job_id);
-
+                        let newActiveJobSet = new Set(activeJob.apiJobs);
                         let newLinkedJobsArray = [
                           ...activeJob.build.costs.linkedJobs,
                         ];
+
+                        if (isNaN(newInstallCosts) || newInstallCosts < 0) {
+                          newInstallCosts = 0;
+                          newLinkedJobsArray.forEach((linkedJob) => {
+                            newInstallCosts += linkedJob.cost;
+                          });
+                        }
 
                         newLinkedJobsArray.push(
                           Object.assign({}, new ESIJob(job, jobOwner))
                         );
 
+                        newActiveJobSet.add(job.job_id);
                         newLinkedJobIDs.add(job.job_id);
+                        newInstallCosts += job.cost;
 
                         updateLinkedJobIDs([...newLinkedJobIDs]);
                         updateActiveJob((prevObj) => ({
@@ -239,9 +236,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                             costs: {
                               ...prevObj.build.costs,
                               linkedJobs: newLinkedJobsArray,
-                              installCosts:
-                                (activeJob.build.costs.installCosts +=
-                                  job.cost),
+                              installCosts: newInstallCosts,
                             },
                           },
                         }));
@@ -256,6 +251,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                           UID: users[ParentUserIndex].accountID,
                           isLoggedIn: isLoggedIn,
                         });
+                        setJobModified(true);
                       }}
                     >
                       <MdOutlineAddLink />
@@ -275,13 +271,20 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                 variant="contained"
                 size="small"
                 onClick={() => {
-                  setJobModified(true);
                   let newLinkedJobIDs = new Set(linkedJobIDs);
-                  const newApiJobsSet = new Set(activeJob.apiJobs);
+                  let newApiJobsSet = new Set(activeJob.apiJobs);
                   let newLinkedJobsArray = [
                     ...activeJob.build.costs.linkedJobs,
                   ];
-                  let newInstallCosts = activeJob.installCosts;
+                  let newInstallCosts = activeJob.build.costs.installCosts;
+
+                  if (isNaN(newInstallCosts) || newInstallCosts < 0) {
+                    newInstallCosts = 0;
+                    newLinkedJobsArray.forEach((linkedJob) => {
+                      newInstallCosts += linkedJob.cost;
+                    });
+                  }
+
                   for (let job of jobMatches) {
                     const jobOwner = users.find(
                       (i) => i.CharacterID === job.installer_id
@@ -317,6 +320,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
                     UID: users[ParentUserIndex].accountID,
                     isLoggedIn: isLoggedIn,
                   });
+                  setJobModified(true);
                 }}
               >
                 Link All

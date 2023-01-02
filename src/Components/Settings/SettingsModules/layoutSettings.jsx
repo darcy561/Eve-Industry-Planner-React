@@ -8,9 +8,11 @@ import {
 } from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
+import { useFirebase } from "../../../Hooks/useFirebase";
 
 export function LayoutSettings({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
+  const { updateMainUserDoc } = useFirebase();
 
   return (
     <Paper elevation={3} sx={{ padding: "20px" }} square={true}>
@@ -21,7 +23,7 @@ export function LayoutSettings({ parentUserIndex }) {
           </Typography>
         </Grid>
         <Grid container item xs={12}>
-          <Grid item xs={6} sm={4} >
+          <Grid item xs={6} sm={4}>
             <FormGroup>
               <FormControlLabel
                 control={
@@ -36,10 +38,17 @@ export function LayoutSettings({ parentUserIndex }) {
                         parentUserIndex
                       ].settings.layout.hideTutorials = !e.target.checked;
                       updateUsers(newUsersArray);
+                      updateMainUserDoc();
                     }}
                   />
                 }
-                label={<Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>Enable Help Cards</Typography>}
+                label={
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    Enable Help Cards
+                  </Typography>
+                }
                 labelPlacement="bottom"
               />
             </FormGroup>

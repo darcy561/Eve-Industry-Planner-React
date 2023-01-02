@@ -35,10 +35,10 @@ export function ChildJobDialog({
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { downloadCharacterJobs, uploadJob, uploadUserJobSnapshot } =
+  const { uploadJob, uploadUserJobSnapshot } =
     useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshot,updateJobSnapshotActiveJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
 
   const handleClose = () => {
     updateChildDialogTrigger(false);
@@ -117,7 +117,7 @@ export function ChildJobDialog({
 
                         inputJob.parentJob.push(activeJob.jobID);
 
-                        newUserJobSnapshot = updateJobSnapshotActiveJob(
+                        newUserJobSnapshot = updateJobSnapshotFromFullJob(
                           inputJob,
                           newUserJobSnapshot
                         );
@@ -234,7 +234,7 @@ export function ChildJobDialog({
                         if (parentIndex !== -1) {
                           inputJob.parentJob.splice(parentIndex, 1);
                         }
-                        newUserJobSnapshot = updateJobSnapshotActiveJob(
+                        newUserJobSnapshot = updateJobSnapshotFromFullJob(
                           inputJob,
                           newUserJobSnapshot
                         );

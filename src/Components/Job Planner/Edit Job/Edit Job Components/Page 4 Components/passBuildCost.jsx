@@ -1,5 +1,5 @@
 import { Button, Grid, Tooltip } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import {
   ActiveJobContext,
   JobArrayContext,
@@ -24,10 +24,10 @@ export function PassBuildCostButton() {
     UserJobSnapshotContext
   );
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshotActiveJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
   const analytics = getAnalytics();
 
-  const parentUser = users.find((i) => i.ParentUser === true);
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   const passCost = async () => {
     let itemsAdded = 0;
@@ -50,43 +50,52 @@ export function PassBuildCostButton() {
       if (parentJob === undefined) {
         continue;
       }
-      parentJob.build.materials.forEach((material) => {
-        if (!material.purchasing.some((i) => i.childID === activeJob.jobID)) {
-          if (material.childJob.includes(activeJob.jobID)) {
-            if (availableForImport >= material.quantity) {
-              quantityImported = material.quantity;
-            } else {
-              quantityImported = availableForImport;
-            }
-            itemsAdded++;
-            availableForImport -= material.quantity;
-            material.purchasing.push({
-              id: Date.now(),
-              childID: activeJob.jobID,
-              childJobImport: true,
-              itemCount: Number(quantityImported),
-              itemCost: itemCost,
-            });
-            material.quantityPurchased = quantityImported;
-            material.purchasedCost += quantityImported * itemCost;
-            if (quantityImported >= material.quantity) {
-              material.purchaseComplete = true;
-            }
-            newTotal += material.purchasedCost;
-          }
-        }
+      let material = parentJob.build.materials.find(
+        (i) => i.typeID === activeJob.itemID
+      );
+      if (material === undefined) {
+        continue;
+      }
+      if (
+        material.purchasing.some((i) => i.childID === activeJob.jobID) &&
+        !material.childJob.includes(activeJob.jobID)
+      ) {
+        continue;
+      }
+
+      if (availableForImport >= material.quantity) {
+        quantityImported = material.quantity;
+      } else {
+        quantityImported = availableForImport;
+      }
+      itemsAdded++;
+      availableForImport -= material.quantity;
+      material.purchasing.push({
+        id: Date.now(),
+        childID: activeJob.jobID,
+        childJobImport: true,
+        itemCount: Number(quantityImported),
+        itemCost: itemCost,
       });
+      material.quantityPurchased = quantityImported;
+      material.purchasedCost += quantityImported * itemCost;
+      if (quantityImported >= material.quantity) {
+        material.purchaseComplete = true;
+      }
+      newTotal += material.purchasedCost;
+
       parentJob.build.costs.totalPurchaseCost += newTotal;
       if (isLoggedIn) {
         await uploadJob(parentJob);
       }
-      newUserJobSnapshot = updateJobSnapshotActiveJob(
+      newUserJobSnapshot = updateJobSnapshotFromFullJob(
         parentJob,
         newUserJobSnapshot
       );
       let index = newJobArray.findIndex((i) => i.jobID === parentJob.jobID);
-
-      newJobArray[index] = parentJob;
+      if (index !== -1) {
+        newJobArray[index] = parentJob;
+      }
     }
     if (itemsAdded > 0) {
       if (itemsAdded === 1) {

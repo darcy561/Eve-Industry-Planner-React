@@ -1,7 +1,7 @@
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
-import itemRef from "../../../../RawData/searchIndex.json";
 import searchData from "../../../../RawData/searchIndex.json";
+import { blueGrey, grey } from "@mui/material/colors";
 
 export function TeResearchESICardActive({ job }) {
   const { timeRemainingCalc } = useJobManagement();
@@ -10,7 +10,6 @@ export function TeResearchESICardActive({ job }) {
   const product = searchData.find(
     (i) => i.blueprintID === job.blueprint_type_id
   );
-  const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id);
 
   return (
     <Tooltip title="Job imported from the Eve ESI">
@@ -130,12 +129,16 @@ export function TeResearchESICardActive({ job }) {
               item
               xs={12}
               sx={{
-                backgroundColor: "rgba(204,204,204,0.5)",
+                backgroundColor: job.isCorp ? blueGrey[400] : grey[500],
                 marginTop: "10px",
               }}
             >
               <Typography align="center" variant="body2" color="black">
-                <b>ESI Time Efficiency Research Job</b>
+                {job.isCorp ? (
+                  <b>ESI Time Efficiency Research Corp Job</b>
+                ) : (
+                  <b>ESI Time Efficiency Research Job</b>
+                )}
               </Typography>
             </Grid>
           </Grid>

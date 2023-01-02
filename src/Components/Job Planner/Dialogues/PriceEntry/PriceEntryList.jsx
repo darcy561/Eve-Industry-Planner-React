@@ -29,10 +29,12 @@ import { useJobManagement } from "../../../../Hooks/useJobManagement";
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users } = useContext(UsersContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { downloadCharacterJobs, updateMainUserDoc, uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshot } = useJobManagement();
+  const { users, userDataFetch } = useContext(UsersContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
+  const { uploadJob, uploadUserJobSnapshot } = useFirebase();
+  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
@@ -56,6 +58,7 @@ export function PriceEntryDialog() {
   );
   const [totalImportedCost, updateTotalImportedCost] = useState(0);
   const [totalConfirmed, updateTotalConfirmed] = useState(false);
+  const [importFromClipboard, updateImportFromClipboard] = useState(false);
 
   const handleClose = () => {
     updateTotalImportedCost(0);
@@ -78,12 +81,10 @@ export function PriceEntryDialog() {
       if (material.confirmed) {
         totalConfirmed++;
         for (let ref of material.jobRef) {
-          let job = newJobArray.find((i) => i.jobID === ref);
-          if (job.isSnapshot) {
-            job = await downloadCharacterJobs(job);
-            job.isSnapshot = false;
+          let [job] = await findJobData(ref, userJobSnapshot, newJobArray);
+          if (job === undefined) {
+            continue;
           }
-
           let newTotal = 0;
           job.build.materials.forEach((mat) => {
             if (mat.typeID === material.typeID && !mat.purchaseComplete) {
@@ -101,23 +102,24 @@ export function PriceEntryDialog() {
             newTotal += mat.purchasedCost;
           });
           job.build.costs.totalPurchaseCost = newTotal;
-          let jobIndex = newJobArray.findIndex((i) => i.jobID === job.jobID);
-          newJobArray[jobIndex] = job;
           if (!uploadIDs.some((i) => i.jobID === job.jobID)) {
             uploadIDs.push(job);
           }
         }
       }
     }
-    let newUserJobSnapshot = [...userJobSnapshot]
+    let newUserJobSnapshot = [...userJobSnapshot];
     for (let job of uploadIDs) {
-      newUserJobSnapshot =  updateJobSnapshot(job, newUserJobSnapshot);
+      newUserJobSnapshot = updateJobSnapshotFromFullJob(
+        job,
+        newUserJobSnapshot
+      );
       if (isLoggedIn) {
         await uploadJob(job);
       }
     }
     if (isLoggedIn) {
-      uploadUserJobSnapshot(newUserJobSnapshot)
+      uploadUserJobSnapshot(newUserJobSnapshot);
     }
     updateUserJobSnapshot(newUserJobSnapshot);
     updateJobArray(newJobArray);
@@ -149,17 +151,23 @@ export function PriceEntryDialog() {
       <DialogTitle id="PriceEntryListDialog" align="center" color="primary">
         Price Entry
       </DialogTitle>
-      {!parentUser.settings.layout.hideTutorials && (
+      {!parentUser.settings.layout.hideTutorials && !userDataFetch ? (
         <Grid item xs={12} align="center" sx={{ marginBottom: "20px" }}>
           <Typography variant="caption">
             Use the dropdown options to select imported costs from your chosen
             market hub or enter your own values for the items.{<br />}
+            {<br />}
+            Use the Import From Clipboard button to import costs copied from the
+            MultiBuy window in the Eve client. This can be found in the dropdown
+            menu in the top right hand corner of the window.
+            {<br />}
+            {<br />}
             Once you are happy with the item cost use the checkbox to confirm
             the cost. Only items with confirmed costs will be imported, these
             will satisfy all remaining materials needed.
           </Typography>
         </Grid>
-      )}
+      ) : null}
 
       <DialogActions>
         <Grid container align="center">
@@ -230,6 +238,8 @@ export function PriceEntryDialog() {
                   displayMarket={displayMarket}
                   totalImportedCost={totalImportedCost}
                   updateTotalImportedCost={updateTotalImportedCost}
+                  importFromClipboard={importFromClipboard}
+                  updateImportFromClipboard={updateImportFromClipboard}
                 />
               );
             })}
@@ -292,13 +302,68 @@ export function PriceEntryDialog() {
 
         <DialogActions sx={{ padding: "20px" }}>
           {!importAction ? (
-            <Button
-              variant="contained"
-              sx={{ marginRight: "20px" }}
-              type="submit"
-            >
-              Add Prices
-            </Button>
+            <>
+              <Button
+                onClick={async () => {
+                  let newList = [...priceEntryListData.list];
+                  let newTotal = totalImportedCost;
+                  let importedText = await navigator.clipboard.readText();
+                  let importCount = 0;
+                  let matches = importedText.matchAll(
+                    /(\D*|\S*?\D*\d*?\D*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)(\r?\n|\r)/g
+                  );
+                  if (matches.length > 0) {
+                    for (let importMatch of matches) {
+                      for (let listItem of newList) {
+                        if (
+                          listItem.name === importMatch[1] &&
+                          !listItem.confirmed
+                        ) {
+                          let number = parseFloat(
+                            importMatch[3].replace(/,/g, "")
+                          );
+
+                          newTotal += number * listItem.quantity;
+                          listItem.confirmed = true;
+                          listItem.itemPrice = number;
+                          importCount++;
+                        }
+                      }
+                    }
+                    updateTotalImportedCost(newTotal);
+                    updatePriceEntryListData((prev) => ({
+                      ...prev,
+                      list: newList,
+                    }));
+                    updateImportFromClipboard(true);
+                    setSnackbarData((prev) => ({
+                      ...prev,
+                      open: true,
+                      message: `${importCount} Prices Added`,
+                      severity: "success",
+                      autoHideDuration: 3000,
+                    }));
+                  } else {
+                    setSnackbarData((prev) => ({
+                      ...prev,
+                      open: true,
+                      message: `No Matching Items Found`,
+                      severity: "error",
+                      autoHideDuration: 3000,
+                    }));
+                  }
+                }}
+              >
+                Import From MultiBuy
+              </Button>
+              <Button
+                variant="contained"
+                sx={{ marginRight: "20px" }}
+                type="submit"
+              >
+                Add Prices
+              </Button>
+            </>
           ) : (
             <CircularProgress size="small" color="primary" />
           )}

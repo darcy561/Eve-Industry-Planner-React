@@ -23,7 +23,7 @@ export function EditPage5({ setJobModified }) {
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
-  
+
   class Transaction {
     constructor(trans, desc, journal, tax) {
       this.order_id = null;
@@ -41,7 +41,9 @@ export function EditPage5({ setJobModified }) {
     }
   }
   users.forEach((user) => {
-    user.apiOrders.forEach((order) => {
+    JSON.parse(
+      sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
+    ).forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
         !activeJob.apiOrders.has(order.order_id) &&
@@ -52,7 +54,9 @@ export function EditPage5({ setJobModified }) {
         itemOrderMatch.push(order);
       }
     });
-    user.apiHistOrders.forEach((order) => {
+    JSON.parse(
+      sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
+    ).forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
         !activeJob.apiOrders.has(order.order_id) &&
@@ -70,7 +74,9 @@ export function EditPage5({ setJobModified }) {
   activeJob.build.sale.marketOrders.forEach((order) => {
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
     if (user !== undefined) {
-      const itemTrans = user.apiTransactions.filter(
+      const itemTrans = JSON.parse(
+        sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
+      ).filter(
         (trans) =>
           order.location_id === trans.location_id &&
           order.type_id === trans.type_id &&
@@ -84,11 +90,13 @@ export function EditPage5({ setJobModified }) {
       );
 
       itemTrans.forEach((trans) => {
-        const transJournal = user.apiJournal.find(
-          (entry) => trans.transaction_id === entry.context_id
-        );
+        const transJournal = JSON.parse(
+          sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
+        ).find((entry) => trans.transaction_id === entry.context_id);
         if (transJournal !== undefined) {
-          const transTax = user.apiJournal.find(
+          const transTax = JSON.parse(
+            sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
+          ).find(
             (entry) =>
               entry.ref_type === "transaction_tax" &&
               Date.parse(entry.date) === Date.parse(trans.date)
@@ -118,11 +126,8 @@ export function EditPage5({ setJobModified }) {
   return (
     <Container disableGutters maxWidth="false">
       <Grid container spacing={2}>
-        {!parentUser.settings.layout.hideTutorials && (
-          <Grid item xs={12}>
-            <TutorialStep5 />
-          </Grid>
-        )}
+        <TutorialStep5 />
+
         <Grid item xs={12}>
           <MarketCostsPanel />
         </Grid>

@@ -1,7 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const { WebhookClient, EmbedBuilder } = require("discord.js");
-const { uid } = require("uid");
+const crypto = require("crypto");
 require("dotenv").config();
 const bucket = admin.storage().bucket();
 
@@ -22,10 +22,9 @@ exports.submitUserFeedback = functions
       );
     }
     try {
-      let fileID = uid(16);
+      let fileID = crypto.randomUUID();
       if (data.esiData !== null) {
         bucket.file(`${fileID}.json`).save(JSON.stringify(data.esiData));
-        bucket.file(`${fileID}-Assets.json`).save(JSON.stringify(data.assets));
       }
 
       const embed = new EmbedBuilder()
@@ -49,5 +48,9 @@ exports.submitUserFeedback = functions
         username: "Feedback Webhook",
         embeds: [embed],
       });
-    } catch (err) {}
+      functions.logger.log("Feedback Submitted Successfully");
+    } catch (err) {
+      functions.logger.error("Failed to submit feedback");
+      functions.logger.error(err);
+    }
   });

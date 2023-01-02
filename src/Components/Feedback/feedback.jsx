@@ -15,6 +15,16 @@ import { functions } from "../../firebase";
 import { UsersContext } from "../../Context/AuthContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { httpsCallable } from "firebase/functions";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  Checkbox: {
+    color:
+      theme.palette.type === "dark"
+        ? theme.palette.primary.main
+        : theme.palette.secondary.main,
+  },
+}));
 
 export function FeedbackIcon() {
   const { users } = useContext(UsersContext);
@@ -22,31 +32,61 @@ export function FeedbackIcon() {
   const [open, setOpen] = useState(false);
   const [inputText, updateInputText] = useState("");
   const [dataDump, updateDataDump] = useState(false);
+  const classes = useStyles();
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
 
   const handleSubmit = async () => {
-    let userAssets = () => {
-      let assetList = [];
+    let userData = () => {
+      let userList = [];
       for (let user of users) {
-        assetList = assetList.concat(
-          JSON.parse(sessionStorage.getItem(`assets_${user.CharacterHash}`))
-        );
+        userList.push({
+          user: user,
+          skills: JSON.parse(
+            sessionStorage.getItem(`esiSkills_${user.CharacterHash}`)
+          ),
+          jobs: JSON.parse(
+            sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+          ),
+          orders: JSON.parse(
+            sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
+          ),
+          histOrders: JSON.parse(
+            sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
+          ),
+          blueprints: JSON.parse(
+            sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
+          ),
+          transactions: JSON.parse(
+            sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
+          ),
+          journal: JSON.parse(
+            sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
+          ),
+          assets: JSON.parse(
+            sessionStorage.getItem(`assets_${user.CharacterHash}`)
+          ),
+          standings: JSON.parse(
+            sessionStorage.getItem(`esiStandings_${user.CharacterHash}`)
+          ),
+          corpJobs: JSON.parse(
+            sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`)
+          ),
+        });
       }
-      return assetList;
+      return userList;
     };
 
     const call = httpsCallable(functions, "feedback-submitUserFeedback");
-
     call({
       accountID: parentUser.accountID || null,
       response: inputText,
-      esiData: dataDump ? JSON.stringify(users) : null,
-      assets: dataDump ? JSON.stringify(userAssets()) : null,
+      esiData: dataDump ? JSON.stringify(userData()) : null,
     });
 
+    updateDataDump((prev) => !prev);
     setOpen(false);
     setSnackbarData((prev) => ({
       ...prev,
@@ -105,6 +145,7 @@ export function FeedbackIcon() {
           <FormControlLabel
             control={
               <Checkbox
+                className={classes.Checkbox}
                 checked={dataDump}
                 onChange={() => {
                   updateDataDump((prev) => !prev);

@@ -29,7 +29,9 @@ export default function BlueprintLibrary() {
     let tempArray = [];
     let idArray = new Set();
     for (let user of users) {
-      user.apiBlueprints.forEach((bp) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
+      ).forEach((bp) => {
         bp.owner = user.CharacterHash;
         tempArray.push(bp);
       });

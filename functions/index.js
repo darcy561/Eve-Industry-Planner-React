@@ -1,5 +1,4 @@
 const functions = require("firebase-functions");
-const {onRequest} = require("firebase-functions/v2/https")
 const admin = require("firebase-admin");
 const express = require("express");
 const helmet = require("helmet");
@@ -7,7 +6,8 @@ const cors = require("cors");
 const appCheckVerification =
   require("./Middleware/AppCheck").appCheckVerification;
 const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
-const ESIMarketQuery = require("./Item Prices/priceData").ESIMarketQuery;
+const ESIMarketQuery = require("./sharedFunctions/priceData").ESIMarketQuery;
+const checkAppVersion = require("./Middleware/appVersion").checkAppVersion;
 
 admin.initializeApp();
 
@@ -22,7 +22,7 @@ app.use(
       "https://www.eveindustryplanner.com",
       "https://eveindustryplanner.com",
     ],
-    methods: "GET,PUT,POST",
+    methods: "GET,POST",
     preflightContinue: false,
     optionsSuccessStatus: 204,
   })
@@ -30,6 +30,7 @@ app.use(
 app.use(express.json());
 app.use(helmet());
 app.use(appCheckVerification);
+app.use(checkAppVersion);
 
 //Routes
 
@@ -39,7 +40,7 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
     functions.logger.warn("UID missing from request");
     functions.logger.info(`Header ${JSON.stringify(req.header)}`);
     functions.logger.info(`Body ${JSON.stringify(req.body)}`);
-    return res.status(400).send("malformed Request");
+    return res.status(400).send("Malformed Request");
   }
   try {
     const authToken = await admin.auth().createCustomToken(req.body.UID);
@@ -211,10 +212,14 @@ app.get("/systemindexes/:systemID", async (req, res) => {
 });
 
 //Export the api to Firebase Cloud Functions
-exports.api = onRequest({region:["europe-west1"], maxInstances: 40}, app);
+exports.api = functions
+  .region("europe-west1")
+  .runWith({ maxInstances: 40 })
+  .https.onRequest(app);
 exports.buildUser = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
 exports.feedback = require("./Triggered Functions/storeFeedback");
-exports.userClaims = require("./Triggered Functions/addCorpClaim")
+exports.userClaims = require("./Triggered Functions/addCorpClaim");
+exports.appVersion = require("./Triggered Functions/checkAppVersion");

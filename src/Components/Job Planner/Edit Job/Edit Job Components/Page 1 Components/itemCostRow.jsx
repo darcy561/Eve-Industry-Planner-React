@@ -10,6 +10,8 @@ export function ItemCostRow({
   listingSelect,
   materialPrice,
   jobModified,
+  setJobModified,
+  materialIndex,
 }) {
   const [displayPopover, updateDisplayPopover] = useState(null);
   const [currentPurchasePrice, updateCurrentPurchasePrice] = useState(
@@ -83,9 +85,11 @@ export function ItemCostRow({
                 marketSelect={marketSelect}
                 listingSelect={listingSelect}
                 jobModified={jobModified}
+                setJobModified={setJobModified}
                 currentBuildPrice={currentBuildPrice}
                 updateCurrentBuildPrice={updateCurrentBuildPrice}
                 currentPurchasePrice={currentPurchasePrice}
+                materialIndex={materialIndex}
               />
             </>
           ) : null}

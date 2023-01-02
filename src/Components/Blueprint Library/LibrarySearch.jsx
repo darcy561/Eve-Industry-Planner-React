@@ -68,7 +68,13 @@ export function LibrarySearch({
               let tempArray = [];
               let idArray = new Set();
               for (let user of users) {
-                tempArray = tempArray.concat(user.apiBlueprints);
+                tempArray = tempArray.concat(
+                  JSON.parse(
+                    sessionStorage.getItem(
+                      `esiBlueprints_${user.CharacterHash}`
+                    )
+                  )
+                );
               }
               tempArray = tempArray.filter(
                 (i) => i.type_id === value.blueprintID
@@ -154,7 +160,13 @@ export function LibrarySearch({
                         changeDisplayBPC((prev) => !prev);
                       }
                       for (let user of users) {
-                        tempArray = tempArray.concat(user.apiBlueprints);
+                        tempArray = tempArray.concat(
+                          JSON.parse(
+                            sessionStorage.getItem(
+                              `esiBlueprints_${user.CharacterHash}`
+                            )
+                          )
+                        );
                       }
                       tempArray.forEach((bp) => {
                         idArray.add(bp.type_id);
@@ -198,7 +210,13 @@ export function LibrarySearch({
                         changeDisplayBPC((prev) => !prev);
                       }
                       for (let user of users) {
-                        tempArray = tempArray.concat(user.apiBlueprints);
+                        tempArray = tempArray.concat(
+                          JSON.parse(
+                            sessionStorage.getItem(
+                              `esiBlueprints_${user.CharacterHash}`
+                            )
+                          )
+                        );
                       }
 
                       tempArray = tempArray.filter((blueprint) =>
@@ -250,7 +268,13 @@ export function LibrarySearch({
                         changeDisplayBPC((prev) => !prev);
                       }
                       for (let user of users) {
-                        tempArray = tempArray.concat(user.apiBlueprints);
+                        tempArray = tempArray.concat(
+                          JSON.parse(
+                            sessionStorage.getItem(
+                              `esiBlueprints_${user.CharacterHash}`
+                            )
+                          )
+                        );
                       }
 
                       tempArray = tempArray.filter((blueprint) =>
@@ -302,7 +326,13 @@ export function LibrarySearch({
                         changeDisplayBPC((prev) => !prev);
                       }
                       for (let user of users) {
-                        tempArray = tempArray.concat(user.apiBlueprints);
+                        tempArray = tempArray.concat(
+                          JSON.parse(
+                            sessionStorage.getItem(
+                              `esiBlueprints_${user.CharacterHash}`
+                            )
+                          )
+                        );
                       }
 
                       tempArray = tempArray.filter((blueprint) =>
@@ -354,7 +384,13 @@ export function LibrarySearch({
                         changeDisplayBPC((prev) => !prev);
                       }
                       for (let user of users) {
-                        tempArray = tempArray.concat(user.apiBlueprints);
+                        tempArray = tempArray.concat(
+                          JSON.parse(
+                            sessionStorage.getItem(
+                              `esiBlueprints_${user.CharacterHash}`
+                            )
+                          )
+                        );
                       }
 
                       tempArray = tempArray.filter(
@@ -408,7 +444,13 @@ export function LibrarySearch({
                         changeDisplayBPO((prev) => !prev);
                       }
                       for (let user of users) {
-                        tempArray = tempArray.concat(user.apiBlueprints);
+                        tempArray = tempArray.concat(
+                          JSON.parse(
+                            sessionStorage.getItem(
+                              `esiBlueprints_${user.CharacterHash}`
+                            )
+                          )
+                        );
                       }
 
                       tempArray = tempArray.filter(

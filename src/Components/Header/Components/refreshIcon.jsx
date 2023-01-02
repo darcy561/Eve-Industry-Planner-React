@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
 import { ApiJobsContext } from "../../../Context/JobContext";
 import { useEveApi } from "../../../Hooks/useEveApi";
@@ -7,7 +7,10 @@ import { Tooltip, IconButton } from "@mui/material";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import TimerIcon from "@mui/icons-material/Timer";
-import { RefreshStateContext } from "../../../Context/LayoutContext";
+import {
+  DialogDataContext,
+  RefreshStateContext,
+} from "../../../Context/LayoutContext";
 import {
   EveIDsContext,
   EvePricesContext,
@@ -16,21 +19,31 @@ import { useFirebase } from "../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import searchData from "../../../RawData/searchIndex.json";
 import { useAccountManagement } from "../../../Hooks/useAccountManagement";
+import { httpsCallable } from "firebase/functions";
+import { functions } from "../../../firebase";
 
 export function RefreshApiIcon() {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { serverStatus, IDtoName } = useEveApi();
-  const { characterAPICall, checkUserClaims } = useAccountManagement();
+  const { characterAPICall, checkUserClaims, getCharacterInfo } =
+    useAccountManagement();
   const { refreshItemPrices } = useFirebase();
   const { RefreshUserAToken } = useRefreshUser();
   const { refreshState, updateRefreshState } = useContext(RefreshStateContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const [refreshTrigger, updateRefreshTrigger] = useState(false);
+  const { updateDialogData } = useContext(DialogDataContext);
   const analytics = getAnalytics();
+  const checkAppVersion = httpsCallable(
+    functions,
+    "appVersion-checkAppVersion"
+  );
 
-  const parentUser = users.find((i) => i.ParentUser);
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
 
   useEffect(() => {
     const refreshAPIData = async () => {
@@ -39,15 +52,36 @@ export function RefreshApiIcon() {
       });
       let newUsers = [...users];
       let newAPIArray = [];
+
+      let verifyApp = [checkAppVersion({ appVersion: __APP_VERSION__ })];
       updateRefreshState(2);
       const sStatus = await serverStatus();
+      let [appVersionPass] = await Promise.all(verifyApp);
+      if (!appVersionPass.data) {
+        updateDialogData((prev) => ({
+          ...prev,
+          buttonText: "Close",
+          id: "OutdatedAppVersion",
+          open: true,
+          title: "Outdated App Version",
+          body: "A newer version of the application is available, refresh the page to begin using this.",
+        }));
+        updateRefreshState(1);
+        return;
+      }
       if (sStatus) {
         for (let user of newUsers) {
           if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
             user = await RefreshUserAToken(user);
           }
+          await getCharacterInfo(user);
           user = await characterAPICall(sStatus, user);
-          user.apiJobs.forEach((i) => newAPIArray.push(i));
+          JSON.parse(
+            sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+          ).forEach((i) => newAPIArray.push(i));
+          JSON.parse(
+            sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`)
+          ).forEach((i) => newAPIArray.push(i));
         }
       }
       let existingLocations = new Set();
@@ -62,7 +96,9 @@ export function RefreshApiIcon() {
 
       for (let user of newUsers) {
         let citadelIDs = new Set();
-        user.apiJobs.forEach((job) => {
+        JSON.parse(
+          sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
+        ).forEach((job) => {
           if (job.facility_id.toString().length > 10) {
             if (
               !existingLocations.has(job.facility_id) &&
@@ -77,7 +113,9 @@ export function RefreshApiIcon() {
             }
           }
         });
-        user.apiOrders.forEach((order) => {
+        JSON.parse(
+          sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
+        ).forEach((order) => {
           if (order.location_id.toString().length > 10) {
             if (
               !existingLocations.has(order.location_id) &&
@@ -95,7 +133,9 @@ export function RefreshApiIcon() {
             locationIDS.add(order.region_id);
           }
         });
-        user.apiHistOrders.forEach((order) => {
+        JSON.parse(
+          sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
+        ).forEach((order) => {
           if (order.location_id.toString().length > 10) {
             if (
               !existingLocations.has(order.location_id) &&
@@ -113,6 +153,24 @@ export function RefreshApiIcon() {
             locationIDS.add(order.region_id);
           }
         });
+        JSON.parse(
+          sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`)
+        ).forEach((job) => {
+          if (job.facility_id.toString().length > 10) {
+            if (
+              !existingLocations.has(job.facility_id) &&
+              !citadelStore.has(job.facility_id)
+            ) {
+              citadelIDs.add(job.facility_id);
+              citadelStore.add(job.facility_id);
+            }
+          } else {
+            if (!existingLocations.has(job.facility_id)) {
+              locationIDS.add(job.facility_id);
+            }
+          }
+        });
+
         if ([...citadelIDs].length > 0) {
           let tempCit = IDtoName([...citadelIDs], user);
           newIDNamePromises.push(tempCit);
@@ -143,6 +201,9 @@ export function RefreshApiIcon() {
             i.itemID === b.product_type_id ||
             i.blueprintID === b.blueprint_type_id
         );
+        if (aName === undefined || bName === undefined) {
+          return -1;
+        }
         if (aName.name < bName.name) {
           return -1;
         }

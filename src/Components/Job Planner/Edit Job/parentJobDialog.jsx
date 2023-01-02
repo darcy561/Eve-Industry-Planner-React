@@ -30,9 +30,9 @@ export function ParentJobDialog({
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { downloadCharacterJobs, uploadJob } = useFirebase();
+  const { uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshotActiveJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
   const [matches, updateMatches] = useState([]);
 
   const handleClose = () => {
@@ -121,7 +121,7 @@ export function ParentJobDialog({
                         material.childJob.push(activeJob.jobID);
                         let newParentJobArray = [...activeJob.parentJob];
                         newParentJobArray.push(job.jobID);
-                        newUserJobSnapshot = updateJobSnapshotActiveJob(
+                        newUserJobSnapshot = updateJobSnapshotFromFullJob(
                           fullJob,
                           [...userJobSnapshot]
                         );

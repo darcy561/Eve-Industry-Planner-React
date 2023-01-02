@@ -18,9 +18,9 @@ export function ReactionBlueprints() {
   users.forEach((user) => {
     let inUseCount = 0;
     let totalBP = 0;
-    let temp = user.apiBlueprints.filter(
-      (i) => i.type_id === activeJob.blueprintTypeID
-    );
+    let temp = JSON.parse(
+      sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
+    ).filter((i) => i.type_id === activeJob.blueprintTypeID);
     temp.forEach((i) => {
       i.owner_id = user.CharacterID;
       if (

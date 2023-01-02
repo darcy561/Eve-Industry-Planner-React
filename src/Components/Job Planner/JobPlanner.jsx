@@ -6,7 +6,7 @@ import {
   Suspense,
   useMemo,
 } from "react";
-import { UsersContext } from "../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import {
@@ -21,6 +21,17 @@ import { ShoppingListDialog } from "./Dialogues/ShoppingList/ShoppingList";
 import { PriceEntryDialog } from "./Dialogues/PriceEntry/PriceEntryList";
 import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
 import { ESIOffline } from "../offlineNotification";
+import {
+  defaultEsiAssets,
+  defaultEsiBlueprints,
+  defaultEsiHistOrders,
+  defaultEsiJobs,
+  defaultEsiJournal,
+  defaultEsiOrders,
+  defaultEsiSkills,
+  defaultEsiStandings,
+  defaultEsiTransactions,
+} from "../../Context/defaultValues";
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
@@ -32,6 +43,7 @@ export function JobPlanner() {
     updateEditJobTrigger,
     updateEditGroupTrigger,
   } = useContext(JobPlannerPageTriggerContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const [shoppingListTrigger, updateShoppingListTrigger] = useState(false);
   const [shoppingListData, updateShoppingListData] = useState([]);
   const { users } = useContext(UsersContext);
@@ -43,13 +55,54 @@ export function JobPlanner() {
   }, [users]);
 
   useEffect(() => {
+    if (!isLoggedIn) {
+      sessionStorage.setItem(
+        `esiSkills_${parentUser.CharacterHash}`,
+        JSON.stringify(defaultEsiSkills)
+      );
+      sessionStorage.setItem(
+        `esiJobs_${parentUser.CharacterHash}`,
+        JSON.stringify(defaultEsiJobs)
+      );
+      sessionStorage.setItem(
+        `esiOrders_${parentUser.CharacterHash}`,
+        JSON.stringify(defaultEsiOrders)
+      );
+      sessionStorage.setItem(
+        `esiHistOrders_${parentUser.CharacterHash}`,
+        JSON.stringify(defaultEsiHistOrders)
+      );
+      sessionStorage.setItem(
+        `esiBlueprints_${parentUser.CharacterHash}`,
+        JSON.stringify(defaultEsiBlueprints)
+      );
+      sessionStorage.setItem(
+        `esiTransactions_${parentUser.CharacterHash}`,
+        JSON.stringify(defaultEsiTransactions)
+      );
+      sessionStorage.setItem(
+        `esiJournal_${parentUser.CharacterHash}`,
+        JSON.stringify(defaultEsiJournal)
+      );
+      sessionStorage.setItem(
+        `assets_${parentUser.CharacterHash}`,
+        JSON.stringify(defaultEsiAssets)
+      );
+      sessionStorage.setItem(
+        `esiStandings_${parentUser.CharacterHash}`,
+        JSON.stringify(defaultEsiStandings)
+      );
+    }
+  }, []);
+
+  useEffect(() => {
     checkUserState();
   }, []);
 
   if (pageLoad) {
     return <LoadingPage />;
   } else {
-    if (editJobTrigger && !editGroupTrigger) {
+    if (editJobTrigger) {
       return (
         <Suspense fallback={<LoadingPage />}>
           <ShoppingListDialog
@@ -88,12 +141,7 @@ export function JobPlanner() {
           <PriceEntryDialog />
 
           <ESIOffline />
-
-          {!parentUser.settings.layout.hideTutorials && (
-            <Grid item xs={12}>
-              <TutorialPlanner />
-            </Grid>
-          )}
+          <TutorialPlanner />
           <Grid item xs={12}>
             <SearchBar
               updateShoppingListTrigger={updateShoppingListTrigger}

@@ -21,6 +21,7 @@ import {
 import { MdOutlineLinkOff } from "react-icons/md";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { EveIDsContext } from "../../../../../Context/EveDataContext";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function LinkedJobs({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -30,33 +31,11 @@ export function LinkedJobs({ setJobModified }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedJobIDs, updateLinkedJobIDs } = useContext(LinkedIDsContext);
+  const { timeRemainingCalc } = useJobManagement();
   const analytics = getAnalytics();
   const ParentUserIndex = useMemo(() => {
     return users.findIndex((i) => i.ParentUser);
   }, [users]);
-
-  function timeRemainingcalc(job) {
-    let now = new Date().getTime();
-    let timeLeft = Date.parse(job.end_date) - now;
-
-    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    let hour = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (day < 0) {
-      day = 0;
-    }
-    if (hour < 0) {
-      hour = 0;
-    }
-    if (min < 0) {
-      min = 0;
-    }
-
-    return { days: day, hours: hour, mins: min };
-  }
 
   activeJob.build.costs.linkedJobs.forEach((job) => {
     if (job.status === "active") {
@@ -93,9 +72,11 @@ export function LinkedJobs({ setJobModified }) {
               (i) => i.CharacterHash === job.CharacterHash
             );
             if (jobOwner !== undefined) {
-              const jobBP = jobOwner.apiBlueprints.find(
-                (i) => i.item_id === job.blueprint_id
-              );
+              const jobBP = JSON.parse(
+                sessionStorage.getItem(
+                  `esiBlueprints_${jobOwner.CharacterHash}`
+                )
+              ).find((i) => i.item_id === job.blueprint_id);
               if (jobBP !== undefined) {
                 blueprintType = "bp";
                 if (jobBP.quantity === -2) {
@@ -105,7 +86,7 @@ export function LinkedJobs({ setJobModified }) {
             }
             const facilityData = eveIDs.find((i) => i.id === job.station_id);
 
-            const timeRemaining = timeRemainingcalc(job);
+            const timeRemaining = timeRemainingCalc(job);
             return (
               <Grid
                 key={job.job_id}
@@ -187,6 +168,16 @@ export function LinkedJobs({ setJobModified }) {
                     })}
                   </Typography>
                 </Grid>
+                {job.isCorp ? (
+                  <Grid item xs={12}>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      align="center"
+                    >
+                      Corporation Job
+                    </Typography>
+                  </Grid>
+                ) : null}
 
                 <Grid item xs={12}>
                   <Typography
@@ -221,15 +212,21 @@ export function LinkedJobs({ setJobModified }) {
                       size="standard"
                       onClick={() => {
                         let newLinkedJobIDs = new Set(linkedJobIDs);
-                        const newActiveJobArray = new Set(activeJob.apiJobs);
+                        let newActiveJobArray = new Set(activeJob.apiJobs);
                         let newLinkedJobsArray = [
                           ...activeJob.build.costs.linkedJobs,
                         ];
-
+                        let newInstallCosts =
+                          activeJob.build.costs.installCosts;
+                        if (isNaN(newInstallCosts) || newInstallCosts < 0) {
+                          newInstallCosts = 0;
+                          newLinkedJobsArray.forEach((linkedJob) => {
+                            newInstallCosts += linkedJob.cost;
+                          });
+                        }
+                        newInstallCosts -= job.cost;
                         newActiveJobArray.delete(job.job_id);
-
                         newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
-
                         newLinkedJobIDs.delete(job.job_id);
 
                         setJobModified(true);
@@ -242,9 +239,7 @@ export function LinkedJobs({ setJobModified }) {
                             costs: {
                               ...prevObj.build.costs,
                               linkedJobs: newLinkedJobsArray,
-                              installCosts:
-                                (activeJob.build.costs.installCosts -=
-                                  job.cost),
+                              installCosts: newInstallCosts,
                             },
                           },
                         }));
@@ -279,25 +274,10 @@ export function LinkedJobs({ setJobModified }) {
                 color="error"
                 onClick={() => {
                   let newLinkedJobIDs = new Set(linkedJobIDs);
-                  const newActiveJobArray = new Set(activeJob.apiJobs);
-                  let newLinkedJobsArray = [
-                    ...activeJob.build.costs.linkedJobs,
-                  ];
-                  let newInstallCosts = 0;
+                  let jobsToRemoveQuantity =
+                    activeJob.build.costs.linkedJobs.length;
 
                   for (let job of activeJob.apiJobs) {
-                    newActiveJobArray.delete(job);
-
-                    const linkedJobsArrayIndex = newLinkedJobsArray.findIndex(
-                      (i) => i.job_id === job
-                    );
-
-                    if (linkedJobsArrayIndex !== -1) {
-                      newInstallCosts +=
-                        newLinkedJobsArray[linkedJobsArrayIndex].cost;
-                      newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
-                    }
-
                     newLinkedJobIDs.delete(job);
                   }
 
@@ -305,21 +285,20 @@ export function LinkedJobs({ setJobModified }) {
                   updateLinkedJobIDs([...newLinkedJobIDs]);
                   updateActiveJob((prevObj) => ({
                     ...prevObj,
-                    apiJobs: newActiveJobArray,
+                    apiJobs: new Set(),
                     build: {
                       ...prevObj.build,
                       costs: {
                         ...prevObj.build.costs,
-                        linkedJobs: newLinkedJobsArray,
-                        installCosts: (prevObj.build.costs.installCosts -=
-                          newInstallCosts),
+                        linkedJobs: [],
+                        installCosts: 0,
                       },
                     },
                   }));
                   setSnackbarData((prev) => ({
                     ...prev,
                     open: true,
-                    message: `${activeJob.apiJobs.size} Jobs Unlinked`,
+                    message: `${jobsToRemoveQuantity} Jobs Unlinked`,
                     severity: "success",
                     autoHideDuration: 1000,
                   }));

@@ -70,6 +70,7 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
     setMaterialJobs([]);
     updateSaveReady(false);
     setImportedJob(null);
+    updateGroupSelect(0);
   };
 
   const handleSave = async () => {
@@ -193,9 +194,12 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                       parentUser
                     );
 
-                    updateEvePrices((prev) =>
-                      prev.concat(returnPricePromiseArray)
-                    );
+                    updateEvePrices((prev) => {
+                      let newItemPrices = returnPricePromiseArray.filter(
+                        (n) => !prev.some((p) => p.typeID === n.typeID)
+                      );
+                      return prev.concat(newItemPrices);
+                    });
                     setMaterialJobs(returnJobPromiseArray);
                     setImportedJob(newJob);
                     updateSaveReady(true);

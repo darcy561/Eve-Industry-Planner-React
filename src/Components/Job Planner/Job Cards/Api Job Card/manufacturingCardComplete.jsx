@@ -1,27 +1,30 @@
-import {
-  Avatar,
-  Badge,
-  Grid,
-  Paper,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
 import searchData from "../../../../RawData/searchIndex.json";
+import { blueGrey, grey } from "@mui/material/colors";
 
 export function IndustryESICardComplete({ job }) {
   const { users } = useContext(UsersContext);
 
-  const product = searchData.find((i) => i.blueprintID === job.blueprint_type_id);
-  const buildChar = users.find((i) => i.CharacterID === job.installer_id);
-  const blueprintData = buildChar.apiBlueprints.find(
-    (i) => i.item_id === job.blueprint_id
+  const product = searchData.find(
+    (i) => i.blueprintID === job.blueprint_type_id
   );
-
+  const buildChar = users.find((i) => i.CharacterID === job.installer_id);
+  let blueprintData = null;
   let blueprintType = "bp";
-  if (blueprintData === undefined || blueprintData.quantity === -2) {
-    blueprintType = "bpc";
+  if (buildChar !== undefined) {
+    blueprintData = JSON.parse(
+      sessionStorage.getItem(`esiBlueprints_${buildChar.CharacterHash}`)
+    ).find((i) => i.item_id === job.blueprint_id);
+
+    if (
+      blueprintData === undefined ||
+      blueprintData === null ||
+      blueprintData.quantity === -2
+    ) {
+      blueprintType = "bpc";
+    }
   }
 
   return (
@@ -66,7 +69,7 @@ export function IndustryESICardComplete({ job }) {
                       variant="circular"
                       sx={{
                         height: { xs: "16px", sm: "24px", md: "32px" },
-                        width: { xs: "16px", sm:"24px", md: "32px" },
+                        width: { xs: "16px", sm: "24px", md: "32px" },
                       }}
                     />
                   }
@@ -92,24 +95,34 @@ export function IndustryESICardComplete({ job }) {
               >
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                    >
                       Runs:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
-                    <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      align="right"
+                    >
                       {job.runs}
                     </Typography>
                   </Grid>
                 </Grid>
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
-                    <Typography sx={{typography:{xs:"body2", md:"body1"}}}>
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                    >
                       Status:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
-                    <Typography sx={{typography:{xs:"body2", md:"body1"}}} align="right">
+                    <Typography
+                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      align="right"
+                    >
                       Delivered
                     </Typography>
                   </Grid>
@@ -120,12 +133,16 @@ export function IndustryESICardComplete({ job }) {
               item
               xs={12}
               sx={{
-                backgroundColor: "rgba(204,204,204,0.5)",
+                backgroundColor: job.isCorp ? blueGrey[400] : grey[500],
                 marginTop: "10px",
               }}
             >
               <Typography align="center" variant="body2" color="black">
-                <b>ESI Manufacturing Job</b>
+                {job.isCorp ? (
+                  <b>ESI Manufacturing Corp Job</b>
+                ) : (
+                  <b>ESI Manufacturing Job</b>
+                )}
               </Typography>
             </Grid>
           </Grid>

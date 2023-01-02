@@ -1,31 +1,23 @@
 import { useContext, useEffect } from "react";
-import {
-  UserJobSnapshotContext,
-  UsersContext,
-} from "../../Context/AuthContext";
+import { UserJobSnapshotContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
 import { decodeJwt } from "jose";
 import { firebaseAuth } from "./firebaseAuth";
 import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
-import {
-  ApiJobsContext,
-  JobArrayContext,
-  JobStatusContext,
-} from "../../Context/JobContext";
+import { JobArrayContext } from "../../Context/JobContext";
 import { trace } from "@firebase/performance";
-import { performance } from "../../firebase";
+import { functions, performance } from "../../firebase";
 import {
   PageLoadContext,
   LoadingTextContext,
+  DialogDataContext,
 } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { RefreshTokens } from "./RefreshToken";
-import { EveIDsContext } from "../../Context/EveDataContext";
-import searchData from "../../RawData/searchIndex.json";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
+import { httpsCallable } from "firebase/functions";
 
 export function login() {
   const state = "/";
@@ -37,26 +29,26 @@ export function login() {
 }
 
 export default function AuthMainUser() {
-  const { setJobStatus } = useContext(JobStatusContext);
   const { updateJobArray } = useContext(JobArrayContext);
-  const { updateApiJobs } = useContext(ApiJobsContext);
-  const { updateUsers } = useContext(UsersContext);
-  const { updateEveIDs } = useContext(EveIDsContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { serverStatus } = useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { determineUserState, userJobSnapshotListener, userWatchlistListener } =
-    useFirebase();
+  const { updateDialogData } = useContext(DialogDataContext);
   const {
-    buildMainUser,
-    characterAPICall,
-    checkUserClaims,
-    failedUserRefresh,
-    getLocationNames,
-    tidyLinkedData,
-  } = useAccountManagement();
+    characterData,
+    determineUserState,
+    userJobSnapshotListener,
+    userWatchlistListener,
+    userMaindDocListener,
+    userGroupDataListener,
+  } = useFirebase();
+  const { characterAPICall } = useAccountManagement();
+  const checkAppVersion = httpsCallable(
+    functions,
+    "appVersion-checkAppVersion"
+  );
   const navigate = useNavigate();
   const analytics = getAnalytics();
 
@@ -72,10 +64,25 @@ export default function AuthMainUser() {
         ...prevObj,
         eveSSO: true,
       }));
+
+      let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
+      if (!appVersion.data) {
+        updateDialogData((prev) => ({
+          ...prev,
+          buttonText: "Close",
+          id: "OutdatedAppVersion",
+          open: true,
+          title: "Outdated App Version",
+          body: "A newer version of the application is available, refresh the page to begin using this.",
+        }));
+        return;
+      }
+
       updateUserJobSnapshot([]);
 
       let userObject = await EveSSOTokens(authCode, true);
-      userObject.fbToken = await firebaseAuth(userObject);
+      let fbToken = await firebaseAuth(userObject);
+      await getCharacterInfo(refreshedUser);
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
@@ -83,25 +90,12 @@ export default function AuthMainUser() {
         charData: true,
       }));
 
-      const userSettings = await determineUserState(userObject);
+      await determineUserState(fbToken);
 
-      buildMainUser(userObject, userSettings);
-
-      let listenerPromises = [];
-
-      listenerPromises.push(
-        new Promise(async (resolve) => {
-          await userJobSnapshotListener(userObject);
-          resolve();
-        })
-      );
-
-      listenerPromises.push(
-        new Promise(async (resolve) => {
-          await userWatchlistListener(userObject);
-          resolve();
-        })
-      );
+      userMaindDocListener(fbToken, userObject);
+      userJobSnapshotListener(userObject);
+      userWatchlistListener(fbToken, userObject);
+      userGroupDataListener(userObject);
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
@@ -113,95 +107,16 @@ export default function AuthMainUser() {
 
       userObject = await characterAPICall(sStatus, userObject);
 
-      let apiJobsArray = userObject.apiJobs;
-      let userArray = [userObject];
       updateLoadingText((prevObj) => ({
         ...prevObj,
         apiDataComp: true,
       }));
 
-      let failedRefresh = new Set();
-      if (userSettings.settings.account.cloudAccounts) {
-        for (let token of userSettings.refreshTokens) {
-          let newUser = await RefreshTokens(token.rToken, false);
-          if (newUser === "RefreshFail") {
-            failedRefresh.add(token.CharacterHash);
-          }
-          if (token.rToken !== newUser.rToken) {
-            token.rToken = newUser.rToken;
-          }
-          if (newUser !== "RefreshFail") {
-            newUser = await characterAPICall(sStatus, newUser);
-            newUser.apiJobs.forEach((i) => {
-              apiJobsArray.push(i);
-            });
-            if (newUser !== undefined) {
-              userArray.push(newUser);
-            }
-          }
-        }
-      } else {
-        let rTokens = JSON.parse(
-          localStorage.getItem(`${userObject.CharacterHash} AdditionalAccounts`)
-        );
-        if (rTokens !== null) {
-          for (let token of rTokens) {
-            let newUser = await RefreshTokens(token.rToken, false);
-            if (newUser === "RefreshFail") {
-              failedRefresh.add(token.CharacterHash);
-            }
-            if (token.rToken !== newUser.rToken) {
-              token.rToken = newUser.rToken;
-              localStorage.setItem(
-                `${userObject.CharacterHash} AdditionalAccounts`,
-                JSON.stringify(rTokens)
-              );
-            }
-            if (newUser !== "RefreshFail") {
-              newUser = await characterAPICall(sStatus, newUser);
-              apiJobsArray = apiJobsArray.concat(newUser.apiJobs);
-              userArray.push(newUser);
-            }
-          }
-        }
-      }
-
-      failedUserRefresh(failedRefresh, userObject);
-
-      apiJobsArray.sort((a, b) => {
-        let aName = searchData.find(
-          (i) =>
-            i.itemID === a.product_type_id ||
-            i.blueprintID === a.blueprint_type_id
-        );
-        let bName = searchData.find(
-          (i) =>
-            i.itemID === b.product_type_id ||
-            i.blueprintID === b.blueprint_type_id
-        );
-        if (aName.name < bName.name) {
-          return -1;
-        }
-        if (aName.name > bName.name) {
-          return 1;
-        }
-        return 0;
-      });
-
-      tidyLinkedData(userObject, userArray);
-      await checkUserClaims(userArray);
-
-      let newNameArray = await getLocationNames(userArray, userObject);
-      await Promise.all(listenerPromises);
-      updateEveIDs(newNameArray);
-      setJobStatus(userSettings.jobStatusArray);
       updateJobArray([]);
-      updateUsers(userArray);
-      updateApiJobs(apiJobsArray);
       updateIsLoggedIn(true);
       updatePageLoad(false);
       logEvent(analytics, "userSignIn", {
-        UID: userObject.accountID,
+        UID: fbToken.user.uid,
       });
       t.stop();
       updateLoadingText((prevObj) => ({
@@ -255,7 +170,6 @@ async function EveSSOTokens(authCode, accountType) {
     const tokenJSON = await eveTokenPromise.json();
 
     const decodedToken = decodeJwt(tokenJSON.access_token);
-
     if (accountType) {
       const newUser = new MainUser(decodedToken, tokenJSON);
       newUser.ParentUser = accountType;
@@ -280,18 +194,13 @@ class MainUser {
     this.aToken = tokenJSON.access_token;
     this.aTokenEXP = Number(decodedToken.exp);
     this.ParentUser = null;
-    this.apiSkills = null;
-    this.apiJobs = null;
     this.linkedJobs = new Set();
     this.linkedOrders = new Set();
     this.linkedTrans = new Set();
-    this.apiOrders = null;
-    this.apiHistOrders = null;
-    this.apiBlueprints = null;
-    this.watchlist = [];
     this.settings = null;
     this.accountRefreshTokens = [];
     this.refreshState = 1;
+    this.corporation_id = null;
   }
 }
 class SecondaryUser {
@@ -303,11 +212,7 @@ class SecondaryUser {
     this.aTokenEXP = Number(decodedToken.exp);
     this.rToken = tokenJSON.refresh_token;
     this.ParentUser = null;
-    this.apiSkills = null;
-    this.apiJobs = null;
-    this.apiOrders = null;
-    this.apiHistOrders = null;
-    this.apiBlueprints = null;
     this.refreshState = 1;
+    this.corporation_id = null;
   }
 }

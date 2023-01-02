@@ -21,7 +21,6 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const classes = useStyles();
   const { users } = useContext(UsersContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
-
   let blueprintType = "bp";
   if (blueprint.quantity === -2) {
     blueprintType = "bpc";
@@ -30,7 +29,6 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
     (i) => i.blueprint_id === blueprint.item_id && i.status === "active"
   );
   const bpOwner = users.find((u) => u.CharacterHash);
-
   return (
     <Grid
       key={blueprint.item_id}

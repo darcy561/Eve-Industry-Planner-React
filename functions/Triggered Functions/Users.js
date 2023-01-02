@@ -104,6 +104,12 @@ exports.createUserData = functions
         .set({
           snapshot: [],
         });
+      admin
+        .firestore()
+        .doc(`Users/${context.auth.uid}/ProfileInfo/GroupData`)
+        .set({
+          groupData: [],
+        });
       functions.logger.log(
         `Account ${context.auth.uid} document created successfully`
       );

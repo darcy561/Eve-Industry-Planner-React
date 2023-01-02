@@ -62,10 +62,9 @@ export function SearchBar({
   const {
     deleteMultipleJobsProcess,
     massBuildMaterials,
-    mergeJobs,
     mergeJobsNew,
-    moveMultipleJobsBackward,
-    moveMultipleJobsForward,
+    moveItemsBackward,
+    moveItemsForward,
     newJobProcess,
     buildItemPriceEntry,
   } = useJobManagement();
@@ -266,7 +265,7 @@ export function SearchBar({
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    moveMultipleJobsBackward(multiSelectJobPlanner);
+                    moveItemsBackward(multiSelectJobPlanner);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -289,7 +288,7 @@ export function SearchBar({
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    moveMultipleJobsForward(multiSelectJobPlanner);
+                    moveItemsForward(multiSelectJobPlanner);
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -396,7 +395,7 @@ export function SearchBar({
                 color="error"
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    deleteMultipleJobsProcess(multiSelectJobPlanner, true);
+                    deleteMultipleJobsProcess(multiSelectJobPlanner);
                     updateMultiSelectJobPlanner([]);
                   } else {
                     updateDialogData((prev) => ({
@@ -419,8 +418,11 @@ export function SearchBar({
               variant="outlined"
               size="small"
               onClick={async () => {
-                let newGroup = await createNewGroupWithJobs(multiSelectJobPlanner);
-                updateActiveGroup(newGroup)
+                let newGroup = await createNewGroupWithJobs(
+                  multiSelectJobPlanner
+                );
+                updateActiveGroup(newGroup);
+                updateMultiSelectJobPlanner([]);
                 updateEditGroupTrigger((prev) => !prev);
               }}
             >

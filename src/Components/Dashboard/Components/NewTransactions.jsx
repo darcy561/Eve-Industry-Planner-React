@@ -1,8 +1,12 @@
 import { Grid, Paper, Typography } from "@mui/material";
+import { useEffect } from "react";
 import { useContext, useMemo } from "react";
-import { UsersContext } from "../../../Context/AuthContext";
 import {
-  JobArrayContext,
+  UserJobSnapshot,
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../../../Context/AuthContext";
+import {
   JobStatusContext,
   LinkedIDsContext,
 } from "../../../Context/JobContext";
@@ -10,13 +14,9 @@ import itemData from "../../../RawData/searchIndex.json";
 
 export function NewTransactions() {
   const { users } = useContext(UsersContext);
-  const { jobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobStatus } = useContext(JobStatusContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
-
-  const filteredJobs = jobArray.filter(
-    (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
-  );
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -25,12 +25,18 @@ export function NewTransactions() {
   let itemOrderMatch = [];
   let transactionData = [];
 
+  const filteredJobs = userJobSnapshot.filter(
+    (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
+  );
+
   filteredJobs.forEach((job) => {
     users.forEach((user) => {
-      user.apiOrders.forEach((order) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
+      ).forEach((order) => {
         if (
           order.type_id === job.itemID &&
-          !linkedOrderIDs.includes(order.order_id) &&
+          linkedOrderIDs.includes(order.order_id) &&
           !parentUser.linkedOrders.has(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
@@ -40,10 +46,12 @@ export function NewTransactions() {
         }
       });
 
-      user.apiHistOrders.forEach((order) => {
+      JSON.parse(
+        sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
+      ).forEach((order) => {
         if (
           order.type_id === job.itemID &&
-          !linkedOrderIDs.includes(order.order_id) &&
+          linkedOrderIDs.includes(order.order_id) &&
           !parentUser.linkedOrders.has(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
@@ -56,7 +64,9 @@ export function NewTransactions() {
     itemOrderMatch.forEach((order) => {
       const user = users.find((u) => u.CharacterHash === order.CharacterHash);
 
-      const itemTrans = user.apiTransactions.filter(
+      const itemTrans = JSON.parse(
+        sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
+      ).filter(
         (trans) =>
           order.location_id === trans.location_id &&
           order.type_id === trans.type_id &&
@@ -67,21 +77,20 @@ export function NewTransactions() {
           ) &&
           trans.unit_price >= 0
       );
-
       itemTrans.forEach((trans) => {
-        const transJournal = user.apiJournal.find(
-          (entry) => trans.transaction_id === entry.context_id
-        );
-        const transTax = user.apiJournal.find(
+        const transJournal = JSON.parse(
+          sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
+        ).find((entry) => trans.transaction_id === entry.context_id);
+        const transTax = JSON.parse(
+          sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
+        ).find(
           (entry) =>
             entry.ref_type === "transaction_tax" &&
             Date.parse(entry.date) === Date.parse(trans.date)
         );
         if (transJournal !== undefined && transTax !== undefined) {
           trans.description = transJournal.description;
-          trans.amount = transJournal.unit_price;
           trans.tax = Math.abs(transTax.amount);
-          trans.item_name = order.item_name;
 
           transactionData.push(trans);
         }
@@ -92,7 +101,7 @@ export function NewTransactions() {
     return new Date(b.date) - new Date(a.date);
   });
 
-  if (transactionData.length !== 0) {
+  if (transactionData.length > 0) {
     return (
       <Paper
         elevation={3}

@@ -83,18 +83,24 @@ export function useBlueprintCalc() {
 
   const CalculateTime = (calcData) => {
     let user = users.find((i) => i.CharacterHash === calcData.CharacterHash);
+    if (user === undefined) {
+      user = users.find((i) => i.ParentUser);
+    }
+    const userSkills = JSON.parse(
+      sessionStorage.getItem(`esiSkills_${user.CharacterHash}`)
+    );
 
-    let timeModifier = timeModifierCalc(calcData, user);
-    let skillModifier = skillModifierCalc(calcData.skills, user);
+    let timeModifier = timeModifierCalc(calcData, userSkills);
+    let skillModifier = skillModifierCalc(calcData.skills, userSkills);
 
     return Math.floor(
       calcData.rawTime * timeModifier * skillModifier * calcData.runCount
     );
 
-    function timeModifierCalc(job, user) {
+    function timeModifierCalc(job, userSkills) {
       if (job.jobType === jobTypes.manufacturing) {
-        const indySkill = user.apiSkills.find((i) => i.id === 3380);
-        const advIndySkill = user.apiSkills.find((i) => i.id === 3388);
+        const indySkill = userSkills.find((i) => i.id === 3380);
+        const advIndySkill = userSkills.find((i) => i.id === 3388);
         const strucData = structureOptions.manStructure.find(
           (i) => i.label === job.structureTypeDisplay
         );
@@ -122,7 +128,7 @@ export function useBlueprintCalc() {
         return timeModifier;
       }
       if (job.jobType === jobTypes.reaction) {
-        const reactionSkill = user.apiSkills.find((i) => i.id === 45746);
+        const reactionSkill = userSkills.find((i) => i.id === 45746);
         const strucData = structureOptions.reactionStructure.find(
           (i) => i.label === job.structureTypeDisplay
         );
@@ -140,19 +146,23 @@ export function useBlueprintCalc() {
       }
     }
 
-    function skillModifierCalc(reqSkills, user) {
+    function skillModifierCalc(reqSkills, userSkills) {
       let indexer = 1;
+      if (reqSkills === undefined) {
+        return indexer;
+      }
       reqSkills.forEach((skill) => {
-        let charSkill = user.apiSkills.find((i) => i.id === skill.typeID);
-        if (charSkill !== undefined) {
-          if (
-            charSkill.id !== 3380 &&
-            charSkill.id !== 3388 &&
-            charSkill.id !== 45746 &&
-            charSkill.id !== 22242
-          ) {
-            indexer = indexer - 0.01 * charSkill.activeLevel;
-          }
+        let charSkill = userSkills.find((i) => i.id === skill.typeID);
+        if (charSkill === undefined) {
+          return;
+        }
+        if (
+          charSkill.id !== 3380 &&
+          charSkill.id !== 3388 &&
+          charSkill.id !== 45746 &&
+          charSkill.id !== 22242
+        ) {
+          indexer = indexer - 0.01 * charSkill.activeLevel;
         }
       });
       return indexer;

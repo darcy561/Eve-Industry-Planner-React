@@ -33,13 +33,15 @@ export function ChildJobPopover({
   marketSelect,
   listingSelect,
   jobModified,
+  setJobModified,
   currentBuildPrice,
   updateCurrentBuildPrice,
   currentPurchasePrice,
+  materialIndex,
 }) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
-  const { activeJob } = useContext(ActiveJobContext);
+  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -49,13 +51,11 @@ export function ChildJobPopover({
   const {
     addNewJob,
     downloadCharacterJobs,
-    updateMainUserDoc,
-    uploadJob,
     getItemPrices,
     uploadUserJobSnapshot,
   } = useFirebase();
   const { buildJob } = useJobBuild();
-  const { newJobSnapshot, replaceSnapshot, closeEditJob, openEditJob } =
+  const { newJobSnapshot, replaceSnapshot, switchActiveJob } =
     useJobManagement();
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImport, updateJobImport] = useState(false);
@@ -65,10 +65,7 @@ export function ChildJobPopover({
   const [recalculateTotal, updateRecalculateTotal] = useState(false);
   const [fetchError, updateFetchError] = useState(false);
 
-  const parentUser = useMemo(
-    () => users.find((i) => i.ParentUser === true),
-    [users]
-  );
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   useEffect(async () => {
     if (displayPopover !== null) {
@@ -76,10 +73,15 @@ export function ChildJobPopover({
       if (material.childJob.length > 0) {
         for (let id of material.childJob) {
           let childJob = jobArray.find((i) => i.jobID === id);
-          if (childJob.isSnapshot) {
-            childJob = await downloadCharacterJobs(childJob);
-            childJob.isSnapshot = false;
-            replaceSnapshot(childJob);
+          if (childJob === undefined) {
+            let snap = userJobSnapshot.find((i) => i.jobID === id);
+            if (snap !== undefined) {
+              childJob = await downloadCharacterJobs(snap.jobID);
+              replaceSnapshot(childJob);
+            }
+            if (childJob === undefined) {
+              continue;
+            }
           }
           if (!jobs.some((i) => i.jobID === childJob.jobID)) {
             jobs.push(childJob);
@@ -189,7 +191,7 @@ export function ChildJobPopover({
             {childJobObjects[jobDisplay].jobType === jobTypes.manufacturing ? (
               <Grid item xs={12} sx={{ marginBottom: "10px" }}>
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-                  ME: {childJobObjects[jobDisplay].bpME}
+                  <b>ME: {childJobObjects[jobDisplay].bpME}</b>
                 </Typography>
               </Grid>
             ) : null}
@@ -256,6 +258,36 @@ export function ChildJobPopover({
                 ) : null}
               </Grid>
             </Grid>
+            <Grid container item xs={12} sx={{ marginTop: "10px" }}>
+              <Grid item xs={12} sm={8}>
+                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                  Total Material{" "}
+                  {listingSelect.charAt(0).toUpperCase() +
+                    listingSelect.slice(1)}{" "} Price
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={4} align="right">
+                {currentBuildPrice !== null ? (
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    align="right"
+                    color={
+                      currentPurchasePrice <= currentBuildPrice
+                        ? "error.main"
+                        : "success.main"
+                    }
+                  >
+                    {(
+                      currentBuildPrice *
+                      childJobObjects[jobDisplay].build.products.totalQuantity
+                    ).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Typography>
+                ) : null}
+              </Grid>
+            </Grid>
 
             {childJobObjects.length > 1 && (
               <Grid container item xs={12} sx={{ marginTop: "10px" }}>
@@ -300,11 +332,11 @@ export function ChildJobPopover({
                 <Button
                   size="small"
                   onClick={() => {
-                    if (isLoggedIn && jobModified) {
-                      uploadJob(activeJob);
-                    }
-                    closeEditJob(activeJob);
-                    openEditJob(childJobObjects[jobDisplay].jobID);
+                    switchActiveJob(
+                      activeJob,
+                      childJobObjects[jobDisplay].jobID,
+                      jobModified
+                    );
                   }}
                 >
                   Open Child Job
@@ -319,14 +351,30 @@ export function ChildJobPopover({
                       [...userJobSnapshot]
                     );
                     let newJobArray = [...jobArray];
+                    let newMaterialArray = [...activeJob.build.materials];
+
                     newJobArray.push(childJobObjects[jobDisplay]);
                     if (isLoggedIn) {
                       await uploadUserJobSnapshot(newUserJobSnapshot);
                       await addNewJob(childJobObjects[jobDisplay]);
                     }
-                    material.childJob.push(childJobObjects[jobDisplay].jobID);
+                    newMaterialArray[materialIndex].childJob.push(
+                      childJobObjects[jobDisplay].jobID
+                    );
+                    updateActiveJob((prev) => ({
+                      ...prev,
+                      build: {
+                        ...prev.build,
+                        materials: newMaterialArray,
+                      },
+                    }));
                     updateUserJobSnapshot(newUserJobSnapshot);
-                    updateEvePrices((prev) => prev.concat(tempPrices));
+                    updateEvePrices((prev) => {
+                      let newItemPrices = tempPrices.filter(
+                        (n) => !prev.some((p) => p.typeID === n.typeID)
+                      );
+                      return prev.concat(newItemPrices);
+                    });
                     updateJobArray(newJobArray);
                     setSnackbarData((prev) => ({
                       ...prev,
@@ -335,6 +383,7 @@ export function ChildJobPopover({
                       severity: "success",
                       autoHideDuration: 3000,
                     }));
+                    setJobModified(true);
                     updateBuildLoad((prev) => !prev);
                   }}
                 >

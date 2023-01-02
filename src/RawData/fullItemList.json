@@ -2229,7 +2229,7 @@
   },
   {
     "type_id": 1351,
-    "name": "Basic Reactor Control Unit"
+    "name": "'Basic' Reactor Control Unit"
   },
   {
     "type_id": 1353,
@@ -6841,7 +6841,7 @@
   },
   {
     "type_id": 3469,
-    "name": "Basic Co-Processor"
+    "name": "'Basic' Co-Processor"
   },
   {
     "type_id": 3470,
@@ -30885,11 +30885,11 @@
   },
   {
     "type_id": 25540,
-    "name": "'Crop' Gas Cloud Scoop "
+    "name": "'Crop' Gas Cloud Scoop"
   },
   {
     "type_id": 25542,
-    "name": "'Plow' Gas Cloud Scoop "
+    "name": "'Plow' Gas Cloud Scoop"
   },
   {
     "type_id": 25544,
@@ -36521,7 +36521,7 @@
   },
   {
     "type_id": 28788,
-    "name": "Syndicate Gas Cloud Scoop "
+    "name": "Syndicate Gas Cloud Scoop"
   },
   {
     "type_id": 28790,
@@ -43721,7 +43721,7 @@
   },
   {
     "type_id": 33213,
-    "name": "A piece of Steve"
+    "name": "A Piece of Steve"
   },
   {
     "type_id": 33214,
@@ -54369,7 +54369,7 @@
   },
   {
     "type_id": 37881,
-    "name": "Grand Teigjon Casino Chip"
+    "name": "Grand Tiegjon Casino Chip"
   },
   {
     "type_id": 37882,
@@ -62554,22 +62554,6 @@
   {
     "type_id": 45668,
     "name": "Machariel Angel's Hex SKIN"
-  },
-  {
-    "type_id": 45669,
-    "name": "Baker_PLACEHOLDER"
-  },
-  {
-    "type_id": 45671,
-    "name": "Charlie_PLACEHOLDER"
-  },
-  {
-    "type_id": 45673,
-    "name": "Dog_PLACEHOLDER"
-  },
-  {
-    "type_id": 45675,
-    "name": "Easy_PLACEHOLDER"
   },
   {
     "type_id": 45677,
@@ -78304,10 +78288,6 @@
     "name": "Vorton Tuning System II"
   },
   {
-    "type_id": 54976,
-    "name": "Serenity Monthly Cerebral Accelerator - 2020.6"
-  },
-  {
     "type_id": 54991,
     "name": "Encrypted Semiosis Console (Perun Clade)"
   },
@@ -79352,10 +79332,6 @@
     "name": "Claymore Biosecurity Responders SKIN"
   },
   {
-    "type_id": 55700,
-    "name": "Serenity Special Cerebral Accelerator"
-  },
-  {
     "type_id": 55712,
     "name": "Claymore Freedom's Revolution SKIN"
   },
@@ -79432,10 +79408,6 @@
     "name": "Federation Day Clothing Crate"
   },
   {
-    "type_id": 55747,
-    "name": "Serenity Monthly Cerebral Accelerator - 2020.7"
-  },
-  {
     "type_id": 55751,
     "name": "Women's 'Imperial Loyalist' Beret"
   },
@@ -79482,22 +79454,6 @@
   {
     "type_id": 55763,
     "name": "'Dunk' Salvage Drone Blueprint"
-  },
-  {
-    "type_id": 55803,
-    "name": "Amarr spaceship skill accelerator"
-  },
-  {
-    "type_id": 55804,
-    "name": "Caldari spaceship skill accelerator"
-  },
-  {
-    "type_id": 55805,
-    "name": "Gallente spaceship skill accelerator"
-  },
-  {
-    "type_id": 55806,
-    "name": "Minmatar spaceship skill accelerator"
   },
   {
     "type_id": 55807,
@@ -79757,7 +79713,7 @@
   },
   {
     "type_id": 56089,
-    "name": "Caldari Shuttle Sukuuvestaa SKIN "
+    "name": "Caldari Shuttle Sukuuvestaa SKIN"
   },
   {
     "type_id": 56090,
@@ -82076,18 +82032,6 @@
     "name": "Serenity YC123.3 Season Pass"
   },
   {
-    "type_id": 57433,
-    "name": "Serenity Basic 'Bonding' Cerebral Accelerator"
-  },
-  {
-    "type_id": 57434,
-    "name": "Serenity Potent 'Bonding' Cerebral Accelerator"
-  },
-  {
-    "type_id": 57435,
-    "name": "Serenity Extended 'Bonding' Cerebral Accelerator"
-  },
-  {
     "type_id": 57442,
     "name": "Counter-Subversion Sensor Array"
   },
@@ -82261,7 +82205,7 @@
   },
   {
     "type_id": 57485,
-    "name": "Genetic Mutation Inhibiter"
+    "name": "Genetic Mutation Inhibitor"
   },
   {
     "type_id": 57486,
@@ -82409,7 +82353,7 @@
   },
   {
     "type_id": 57522,
-    "name": "Genetic Mutation Inhibiter Blueprint"
+    "name": "Genetic Mutation Inhibitor Blueprint"
   },
   {
     "type_id": 57523,
@@ -82945,7 +82889,7 @@
   },
   {
     "type_id": 58797,
-    "name": " Capsuleer Day XVIII T-Shirt and Cap Crate"
+    "name": "Capsuleer Day XVIII T-Shirt and Cap Crate"
   },
   {
     "type_id": 58798,
@@ -83693,7 +83637,7 @@
   },
   {
     "type_id": 59322,
-    "name": " Capsuleer Day XVIII Omega Booster Gift Box"
+    "name": "Capsuleer Day XVIII Omega Booster Gift Box"
   },
   {
     "type_id": 59324,
@@ -83848,8 +83792,36 @@
     "name": "Cyclone Fleet Ordnance Spike SKIN"
   },
   {
+    "type_id": 59462,
+    "name": "Rifter Liberation Games SKIN"
+  },
+  {
+    "type_id": 59463,
+    "name": "Probe Liberation Games SKIN"
+  },
+  {
     "type_id": 59464,
     "name": "Republic Fleet Firetail Liberation Games SKIN"
+  },
+  {
+    "type_id": 59465,
+    "name": "Talwar Liberation Games SKIN"
+  },
+  {
+    "type_id": 59466,
+    "name": "Scythe Liberation Games SKIN"
+  },
+  {
+    "type_id": 59467,
+    "name": "Cyclone Liberation Games SKIN"
+  },
+  {
+    "type_id": 59468,
+    "name": "Tempest Liberation Games SKIN"
+  },
+  {
+    "type_id": 59469,
+    "name": "Claw Liberation Games SKIN"
   },
   {
     "type_id": 59470,
@@ -83870,6 +83842,10 @@
   {
     "type_id": 59474,
     "name": "Vargur Liberation Games SKIN"
+  },
+  {
+    "type_id": 59475,
+    "name": "Minmatar Shuttle Liberation Games SKIN"
   },
   {
     "type_id": 59587,
@@ -84412,10 +84388,6 @@
     "name": "Serenity Rookie Exclusive Cerebral Accelerator"
   },
   {
-    "type_id": 60078,
-    "name": "Crimson Harvest Destroyer FFA Proving Filament"
-  },
-  {
     "type_id": 60081,
     "name": "Blackbird Abyssal Glory SKIN"
   },
@@ -84482,6 +84454,14 @@
   {
     "type_id": 60099,
     "name": "Nestor Friendship League SKIN"
+  },
+  {
+    "type_id": 60105,
+    "name": "Caldari Shuttle Wiyrkomi SKIN"
+  },
+  {
+    "type_id": 60106,
+    "name": "Badger Wiyrkomi SKIN"
   },
   {
     "type_id": 60107,
@@ -85548,14 +85528,6 @@
     "name": "Zealot Sarum SKIN"
   },
   {
-    "type_id": 60681,
-    "name": "Tetrimon Base Shortcut Keypass"
-  },
-  {
-    "type_id": 60682,
-    "name": "Crimson Gauntlet Shortcut Keypass"
-  },
-  {
     "type_id": 60730,
     "name": "AEGIS Coded Security Key SCCF-FTS"
   },
@@ -86460,10 +86432,6 @@
     "name": "Nyx Interstellar Convergence SKIN"
   },
   {
-    "type_id": 62279,
-    "name": "Capsuleer Day 2v2 Navy Frigates Proving Filament"
-  },
-  {
     "type_id": 62287,
     "name": "Crucifier Navy Issue Abyssal Glory SKIN"
   },
@@ -86553,7 +86521,7 @@
   },
   {
     "type_id": 62389,
-    "name": "Compressed Gamboge Cytoserocin "
+    "name": "Compressed Gamboge Cytoserocin"
   },
   {
     "type_id": 62390,
@@ -86573,7 +86541,7 @@
   },
   {
     "type_id": 62394,
-    "name": "Compressed Viridian Cytoserocin "
+    "name": "Compressed Viridian Cytoserocin"
   },
   {
     "type_id": 62396,
@@ -86581,15 +86549,15 @@
   },
   {
     "type_id": 62397,
-    "name": "Compressed Fullerite-C60 "
+    "name": "Compressed Fullerite-C60"
   },
   {
     "type_id": 62398,
-    "name": "Compressed Fullerite-C70 "
+    "name": "Compressed Fullerite-C70"
   },
   {
     "type_id": 62399,
-    "name": "Compressed Fullerite-C50 "
+    "name": "Compressed Fullerite-C50"
   },
   {
     "type_id": 62400,
@@ -86605,11 +86573,11 @@
   },
   {
     "type_id": 62404,
-    "name": "Compressed Fullerite-C32 "
+    "name": "Compressed Fullerite-C32"
   },
   {
     "type_id": 62405,
-    "name": "Compressed Fullerite-C540 "
+    "name": "Compressed Fullerite-C540"
   },
   {
     "type_id": 62406,
@@ -86641,35 +86609,35 @@
   },
   {
     "type_id": 62456,
-    "name": "Compressed Glistening Bitumens "
+    "name": "Compressed Glistening Bitumens"
   },
   {
     "type_id": 62457,
-    "name": "Compressed Coesite "
+    "name": "Compressed Coesite"
   },
   {
     "type_id": 62458,
-    "name": "Compressed Brimful Coesite "
+    "name": "Compressed Brimful Coesite"
   },
   {
     "type_id": 62459,
-    "name": "Compressed Glistening Coesite "
+    "name": "Compressed Glistening Coesite"
   },
   {
     "type_id": 62460,
-    "name": "Compressed Sylvite "
+    "name": "Compressed Sylvite"
   },
   {
     "type_id": 62461,
-    "name": "Compressed Brimful Sylvite "
+    "name": "Compressed Brimful Sylvite"
   },
   {
     "type_id": 62463,
-    "name": "Compressed Zeolites "
+    "name": "Compressed Zeolites"
   },
   {
     "type_id": 62464,
-    "name": "Compressed Brimful Zeolites "
+    "name": "Compressed Brimful Zeolites"
   },
   {
     "type_id": 62466,
@@ -86677,23 +86645,23 @@
   },
   {
     "type_id": 62467,
-    "name": "Compressed Glistening Zeolites "
+    "name": "Compressed Glistening Zeolites"
   },
   {
     "type_id": 62468,
-    "name": "Compressed Scheelite "
+    "name": "Compressed Scheelite"
   },
   {
     "type_id": 62469,
-    "name": "Compressed Copious Scheelite "
+    "name": "Compressed Copious Scheelite"
   },
   {
     "type_id": 62470,
-    "name": "Compressed Twinkling Scheelite "
+    "name": "Compressed Twinkling Scheelite"
   },
   {
     "type_id": 62471,
-    "name": "Compressed Euxenite "
+    "name": "Compressed Euxenite"
   },
   {
     "type_id": 62472,
@@ -86701,15 +86669,15 @@
   },
   {
     "type_id": 62473,
-    "name": "Compressed Twinkling Euxenite "
+    "name": "Compressed Twinkling Euxenite"
   },
   {
     "type_id": 62474,
-    "name": "Compressed Cobaltite "
+    "name": "Compressed Cobaltite"
   },
   {
     "type_id": 62475,
-    "name": "Compressed Copious Cobaltite "
+    "name": "Compressed Copious Cobaltite"
   },
   {
     "type_id": 62476,
@@ -86717,7 +86685,7 @@
   },
   {
     "type_id": 62477,
-    "name": "Compressed Titanite "
+    "name": "Compressed Titanite"
   },
   {
     "type_id": 62478,
@@ -86725,7 +86693,7 @@
   },
   {
     "type_id": 62479,
-    "name": "Compressed Twinkling Titanite "
+    "name": "Compressed Twinkling Titanite"
   },
   {
     "type_id": 62480,
@@ -86737,15 +86705,15 @@
   },
   {
     "type_id": 62482,
-    "name": "Compressed Shimmering Chromite "
+    "name": "Compressed Shimmering Chromite"
   },
   {
     "type_id": 62483,
-    "name": "Compressed Otavite "
+    "name": "Compressed Otavite"
   },
   {
     "type_id": 62484,
-    "name": "Compressed Lavish Otavite "
+    "name": "Compressed Lavish Otavite"
   },
   {
     "type_id": 62485,
@@ -86753,15 +86721,15 @@
   },
   {
     "type_id": 62486,
-    "name": "Compressed Sperrylite "
+    "name": "Compressed Sperrylite"
   },
   {
     "type_id": 62487,
-    "name": "Compressed Lavish Sperrylite "
+    "name": "Compressed Lavish Sperrylite"
   },
   {
     "type_id": 62488,
-    "name": "Compressed Shimmering Sperrylite "
+    "name": "Compressed Shimmering Sperrylite"
   },
   {
     "type_id": 62489,
@@ -86773,15 +86741,15 @@
   },
   {
     "type_id": 62491,
-    "name": "Compressed Shimmering Vanadinite "
+    "name": "Compressed Shimmering Vanadinite"
   },
   {
     "type_id": 62492,
-    "name": "Compressed Carnotite "
+    "name": "Compressed Carnotite"
   },
   {
     "type_id": 62493,
-    "name": "Compressed Replete Carnotite "
+    "name": "Compressed Replete Carnotite"
   },
   {
     "type_id": 62494,
@@ -86789,67 +86757,67 @@
   },
   {
     "type_id": 62495,
-    "name": "Compressed Cinnabar "
+    "name": "Compressed Cinnabar"
   },
   {
     "type_id": 62496,
-    "name": "Compressed Replete Cinnabar "
+    "name": "Compressed Replete Cinnabar"
   },
   {
     "type_id": 62497,
-    "name": "Compressed Glowing Cinnabar "
+    "name": "Compressed Glowing Cinnabar"
   },
   {
     "type_id": 62498,
-    "name": "Compressed Pollucite "
+    "name": "Compressed Pollucite"
   },
   {
     "type_id": 62499,
-    "name": "Compressed Replete Pollucite "
+    "name": "Compressed Replete Pollucite"
   },
   {
     "type_id": 62500,
-    "name": "Compressed Glowing Pollucite "
+    "name": "Compressed Glowing Pollucite"
   },
   {
     "type_id": 62501,
-    "name": "Compressed Zircon "
+    "name": "Compressed Zircon"
   },
   {
     "type_id": 62502,
-    "name": "Compressed Replete Zircon "
+    "name": "Compressed Replete Zircon"
   },
   {
     "type_id": 62503,
-    "name": "Compressed Glowing Zircon "
+    "name": "Compressed Glowing Zircon"
   },
   {
     "type_id": 62504,
-    "name": "Compressed Loparite "
+    "name": "Compressed Loparite"
   },
   {
     "type_id": 62505,
-    "name": "Compressed Bountiful Loparite "
+    "name": "Compressed Bountiful Loparite"
   },
   {
     "type_id": 62506,
-    "name": "Compressed Shining Loparite "
+    "name": "Compressed Shining Loparite"
   },
   {
     "type_id": 62507,
-    "name": "Compressed Monazite "
+    "name": "Compressed Monazite"
   },
   {
     "type_id": 62508,
-    "name": "Compressed Bountiful Monazite "
+    "name": "Compressed Bountiful Monazite"
   },
   {
     "type_id": 62509,
-    "name": "Compressed Shining Monazite "
+    "name": "Compressed Shining Monazite"
   },
   {
     "type_id": 62510,
-    "name": "Compressed Xenotime "
+    "name": "Compressed Xenotime"
   },
   {
     "type_id": 62511,
@@ -86857,15 +86825,15 @@
   },
   {
     "type_id": 62512,
-    "name": "Compressed Shining Xenotime "
+    "name": "Compressed Shining Xenotime"
   },
   {
     "type_id": 62513,
-    "name": "Compressed Ytterbite "
+    "name": "Compressed Ytterbite"
   },
   {
     "type_id": 62514,
-    "name": "Compressed Bountiful Ytterbite "
+    "name": "Compressed Bountiful Ytterbite"
   },
   {
     "type_id": 62515,
@@ -86877,15 +86845,15 @@
   },
   {
     "type_id": 62517,
-    "name": "Compressed Concentrated Veldspar "
+    "name": "Compressed Concentrated Veldspar"
   },
   {
     "type_id": 62518,
-    "name": "Compressed Dense Veldspar "
+    "name": "Compressed Dense Veldspar"
   },
   {
     "type_id": 62519,
-    "name": "Compressed Stable Veldspar "
+    "name": "Compressed Stable Veldspar"
   },
   {
     "type_id": 62520,
@@ -86893,7 +86861,7 @@
   },
   {
     "type_id": 62521,
-    "name": "Compressed Condensed Scordite "
+    "name": "Compressed Condensed Scordite"
   },
   {
     "type_id": 62522,
@@ -86901,11 +86869,11 @@
   },
   {
     "type_id": 62523,
-    "name": "Compressed Glossy Scordite "
+    "name": "Compressed Glossy Scordite"
   },
   {
     "type_id": 62524,
-    "name": "Compressed Pyroxeres "
+    "name": "Compressed Pyroxeres"
   },
   {
     "type_id": 62525,
@@ -86913,59 +86881,59 @@
   },
   {
     "type_id": 62526,
-    "name": "Compressed Viscous Pyroxeres "
+    "name": "Compressed Viscous Pyroxeres"
   },
   {
     "type_id": 62527,
-    "name": "Compressed Opulent Pyroxeres "
+    "name": "Compressed Opulent Pyroxeres"
   },
   {
     "type_id": 62528,
-    "name": "Compressed Plagioclase "
+    "name": "Compressed Plagioclase"
   },
   {
     "type_id": 62529,
-    "name": "Compressed Azure Plagioclase "
+    "name": "Compressed Azure Plagioclase"
   },
   {
     "type_id": 62530,
-    "name": "Compressed Rich Plagioclase "
+    "name": "Compressed Rich Plagioclase"
   },
   {
     "type_id": 62531,
-    "name": "Compressed Sparkling Plagioclase "
+    "name": "Compressed Sparkling Plagioclase"
   },
   {
     "type_id": 62532,
-    "name": "Compressed Omber "
+    "name": "Compressed Omber"
   },
   {
     "type_id": 62533,
-    "name": "Compressed Silvery Omber "
+    "name": "Compressed Silvery Omber"
   },
   {
     "type_id": 62534,
-    "name": "Compressed Golden Omber "
+    "name": "Compressed Golden Omber"
   },
   {
     "type_id": 62535,
-    "name": "Compressed Platinoid Omber "
+    "name": "Compressed Platinoid Omber"
   },
   {
     "type_id": 62536,
-    "name": "Compressed Kernite "
+    "name": "Compressed Kernite"
   },
   {
     "type_id": 62537,
-    "name": "Compressed Luminous Kernite "
+    "name": "Compressed Luminous Kernite"
   },
   {
     "type_id": 62538,
-    "name": "Compressed Fiery Kernite "
+    "name": "Compressed Fiery Kernite"
   },
   {
     "type_id": 62539,
-    "name": "Compressed Resplendant Kernite "
+    "name": "Compressed Resplendant Kernite"
   },
   {
     "type_id": 62540,
@@ -86977,11 +86945,11 @@
   },
   {
     "type_id": 62542,
-    "name": "Compressed Pristine Jaspet "
+    "name": "Compressed Pristine Jaspet"
   },
   {
     "type_id": 62543,
-    "name": "Compressed Immaculate Jaspet "
+    "name": "Compressed Immaculate Jaspet"
   },
   {
     "type_id": 62544,
@@ -86989,23 +86957,23 @@
   },
   {
     "type_id": 62545,
-    "name": "Compressed Vivid Hemorphite "
+    "name": "Compressed Vivid Hemorphite"
   },
   {
     "type_id": 62546,
-    "name": "Compressed Radiant Hemorphite "
+    "name": "Compressed Radiant Hemorphite"
   },
   {
     "type_id": 62547,
-    "name": "Compressed Scintillating Hemorphite "
+    "name": "Compressed Scintillating Hemorphite"
   },
   {
     "type_id": 62548,
-    "name": "Compressed Hedbergite "
+    "name": "Compressed Hedbergite"
   },
   {
     "type_id": 62549,
-    "name": "Compressed Vitric Hedbergite "
+    "name": "Compressed Vitric Hedbergite"
   },
   {
     "type_id": 62550,
@@ -87013,7 +86981,7 @@
   },
   {
     "type_id": 62551,
-    "name": "Compressed Lustrous Hedbergite "
+    "name": "Compressed Lustrous Hedbergite"
   },
   {
     "type_id": 62552,
@@ -87021,7 +86989,7 @@
   },
   {
     "type_id": 62553,
-    "name": "Compressed Iridescent Gneiss "
+    "name": "Compressed Iridescent Gneiss"
   },
   {
     "type_id": 62554,
@@ -87029,19 +86997,19 @@
   },
   {
     "type_id": 62555,
-    "name": "Compressed Brilliant Gneiss "
+    "name": "Compressed Brilliant Gneiss"
   },
   {
     "type_id": 62556,
-    "name": "Compressed Dark Ochre "
+    "name": "Compressed Dark Ochre"
   },
   {
     "type_id": 62557,
-    "name": "Compressed Onyx Ochre "
+    "name": "Compressed Onyx Ochre"
   },
   {
     "type_id": 62558,
-    "name": "Compressed Obsidian Ochre "
+    "name": "Compressed Obsidian Ochre"
   },
   {
     "type_id": 62559,
@@ -87057,35 +87025,35 @@
   },
   {
     "type_id": 62562,
-    "name": "Compressed Crystalline Crokite "
+    "name": "Compressed Crystalline Crokite"
   },
   {
     "type_id": 62563,
-    "name": "Compressed Pellucid Crokite "
+    "name": "Compressed Pellucid Crokite"
   },
   {
     "type_id": 62564,
-    "name": "Compressed Bistot "
+    "name": "Compressed Bistot"
   },
   {
     "type_id": 62565,
-    "name": "Compressed Triclinic Bistot "
+    "name": "Compressed Triclinic Bistot"
   },
   {
     "type_id": 62566,
-    "name": "Compressed Monoclinic Bistot "
+    "name": "Compressed Monoclinic Bistot"
   },
   {
     "type_id": 62567,
-    "name": "Compressed Cubic Bistot "
+    "name": "Compressed Cubic Bistot"
   },
   {
     "type_id": 62568,
-    "name": "Compressed Arkonor "
+    "name": "Compressed Arkonor"
   },
   {
     "type_id": 62569,
-    "name": "Compressed Crimson Arkonor "
+    "name": "Compressed Crimson Arkonor"
   },
   {
     "type_id": 62570,
@@ -87101,23 +87069,23 @@
   },
   {
     "type_id": 62573,
-    "name": "Compressed Bright Spodumain "
+    "name": "Compressed Bright Spodumain"
   },
   {
     "type_id": 62574,
-    "name": "Compressed Gleaming Spodumain "
+    "name": "Compressed Gleaming Spodumain"
   },
   {
     "type_id": 62575,
-    "name": "Compressed Dazzling Spodumain "
+    "name": "Compressed Dazzling Spodumain"
   },
   {
     "type_id": 62576,
-    "name": "Compressed Bezdnacine "
+    "name": "Compressed Bezdnacine"
   },
   {
     "type_id": 62577,
-    "name": "Compressed Abyssal Bezdnacine "
+    "name": "Compressed Abyssal Bezdnacine"
   },
   {
     "type_id": 62578,
@@ -87125,19 +87093,19 @@
   },
   {
     "type_id": 62579,
-    "name": "Compressed Rakovene "
+    "name": "Compressed Rakovene"
   },
   {
     "type_id": 62580,
-    "name": "Compressed Abyssal Rakovene "
+    "name": "Compressed Abyssal Rakovene"
   },
   {
     "type_id": 62581,
-    "name": "Compressed Hadal Rakovene "
+    "name": "Compressed Hadal Rakovene"
   },
   {
     "type_id": 62582,
-    "name": "Compressed Talassonite "
+    "name": "Compressed Talassonite"
   },
   {
     "type_id": 62583,
@@ -87145,19 +87113,19 @@
   },
   {
     "type_id": 62584,
-    "name": "Compressed Hadal Talassonite "
+    "name": "Compressed Hadal Talassonite"
   },
   {
     "type_id": 62586,
-    "name": "Compressed Mercoxit "
+    "name": "Compressed Mercoxit"
   },
   {
     "type_id": 62587,
-    "name": "Compressed Magma Mercoxit "
+    "name": "Compressed Magma Mercoxit"
   },
   {
     "type_id": 62588,
-    "name": "Compressed Vitreous Mercoxit "
+    "name": "Compressed Vitreous Mercoxit"
   },
   {
     "type_id": 62590,
@@ -87165,7 +87133,7 @@
   },
   {
     "type_id": 62591,
-    "name": "Medium Industrial Core II "
+    "name": "Medium Industrial Core II"
   },
   {
     "type_id": 62592,
@@ -87393,11 +87361,11 @@
   },
   {
     "type_id": 63058,
-    "name": "Men's 'Semiotique Superluminal' Shades "
+    "name": "Men's 'Semiotique Superluminal' Shades"
   },
   {
     "type_id": 63061,
-    "name": "Women's 'Semiotique Superluminal' Shades "
+    "name": "Women's 'Semiotique Superluminal' Shades"
   },
   {
     "type_id": 63097,
@@ -87426,6 +87394,14 @@
   {
     "type_id": 63124,
     "name": "Women's Ace of Podhunters Pants"
+  },
+  {
+    "type_id": 63135,
+    "name": "Men's Proven Bioadaptive Mask"
+  },
+  {
+    "type_id": 63138,
+    "name": "Women's Proven Bioadaptive Mask"
   },
   {
     "type_id": 63140,
@@ -88728,18 +88704,6 @@
     "name": "Hunt YC124 Acceleration Gate Key"
   },
   {
-    "type_id": 63633,
-    "name": "Basic 'Guri Kikhivaa' Cerebral Accelerator"
-  },
-  {
-    "type_id": 63634,
-    "name": "Potent 'Guri Kikhivaa' Cerebral Accelerator"
-  },
-  {
-    "type_id": 63635,
-    "name": "Extended 'Guri Kikhivaa' Cerebral Accelerator"
-  },
-  {
     "type_id": 63637,
     "name": "Omen Navy Issue Hunter's Quiver SKIN"
   },
@@ -88770,134 +88734,6 @@
   {
     "type_id": 63644,
     "name": "Rattlesnake Versus Redforce SKIN"
-  },
-  {
-    "type_id": 63645,
-    "name": "Hunt Probing Booster I"
-  },
-  {
-    "type_id": 63646,
-    "name": "Hunt Probing Booster II"
-  },
-  {
-    "type_id": 63647,
-    "name": "Hunt Probing Booster III"
-  },
-  {
-    "type_id": 63648,
-    "name": "Hunt Probing Booster IV"
-  },
-  {
-    "type_id": 63649,
-    "name": "Hunt Pursuit Booster I"
-  },
-  {
-    "type_id": 63650,
-    "name": "Hunt Pursuit Booster II"
-  },
-  {
-    "type_id": 63651,
-    "name": "Hunt Pursuit Booster III"
-  },
-  {
-    "type_id": 63652,
-    "name": "Hunt Pursuit Booster IV"
-  },
-  {
-    "type_id": 63653,
-    "name": "Hunt Rapid Repair Booster I"
-  },
-  {
-    "type_id": 63654,
-    "name": "Hunt Rapid Repair Booster II"
-  },
-  {
-    "type_id": 63655,
-    "name": "Hunt Rapid Repair Booster III"
-  },
-  {
-    "type_id": 63656,
-    "name": "Hunt Rapid Repair Booster IV"
-  },
-  {
-    "type_id": 63657,
-    "name": "Hunt Resistance Booster I"
-  },
-  {
-    "type_id": 63658,
-    "name": "Hunt Resistance Booster II"
-  },
-  {
-    "type_id": 63659,
-    "name": "Hunt Resistance Booster III"
-  },
-  {
-    "type_id": 63660,
-    "name": "Hunt Resistance Booster IV"
-  },
-  {
-    "type_id": 63661,
-    "name": "Hunt Drone Precision Booster I"
-  },
-  {
-    "type_id": 63662,
-    "name": "Hunt Drone Precision Booster II"
-  },
-  {
-    "type_id": 63663,
-    "name": "Hunt Drone Precision Booster III"
-  },
-  {
-    "type_id": 63664,
-    "name": "Hunt Drone Precision Booster IV"
-  },
-  {
-    "type_id": 63665,
-    "name": "Hunt Missile Velocity Booster I"
-  },
-  {
-    "type_id": 63666,
-    "name": "Hunt Missile Velocity Booster II"
-  },
-  {
-    "type_id": 63667,
-    "name": "Hunt Missile Velocity Booster III"
-  },
-  {
-    "type_id": 63668,
-    "name": "Hunt Missile Velocity Booster IV"
-  },
-  {
-    "type_id": 63669,
-    "name": "Hunt Drone Damage Booster I"
-  },
-  {
-    "type_id": 63670,
-    "name": "Hunt Drone Damage Booster II"
-  },
-  {
-    "type_id": 63671,
-    "name": "Hunt Drone Damage Booster III"
-  },
-  {
-    "type_id": 63672,
-    "name": "Hunt Drone Damage Booster IV"
-  },
-  {
-    "type_id": 63673,
-    "name": "Hunt Missile Damage Booster I"
-  },
-  {
-    "type_id": 63674,
-    "name": "Hunt Missile Damage Booster II"
-  },
-  {
-    "type_id": 63675,
-    "name": "Hunt Missile Damage Booster III"
-  },
-  {
-    "type_id": 63676,
-    "name": "Hunt Missile Damage Booster IV"
   },
   {
     "type_id": 63677,
@@ -89012,14 +88848,6 @@
     "name": "Capsule Subsystem Holostorage EH-CN-J44-003"
   },
   {
-    "type_id": 63714,
-    "name": "Capsuleer Day Sunesis FFA Proving Filament"
-  },
-  {
-    "type_id": 63715,
-    "name": "Event 58 Proving Filament"
-  },
-  {
     "type_id": 63747,
     "name": "Men's Kimotoro Eskeitan Commander's Jacket"
   },
@@ -89034,6 +88862,102 @@
   {
     "type_id": 63750,
     "name": "Women's Kimotoro Eskeitan Commander's Pants"
+  },
+  {
+    "type_id": 63770,
+    "name": "Explorer - Frigate Skill Crate"
+  },
+  {
+    "type_id": 63771,
+    "name": "Explorer - Frigate Crate"
+  },
+  {
+    "type_id": 63772,
+    "name": "Industrialist - Frigate Blueprint Crate"
+  },
+  {
+    "type_id": 63773,
+    "name": "Industrialist - Destroyer Blueprint Crate"
+  },
+  {
+    "type_id": 63774,
+    "name": "Industrialist - Cruiser Blueprint Crate"
+  },
+  {
+    "type_id": 63775,
+    "name": "Industrialist - Hauler Blueprint Crate"
+  },
+  {
+    "type_id": 63776,
+    "name": "Industrialist -  Hauler Skill Crate"
+  },
+  {
+    "type_id": 63777,
+    "name": "Industrialist - Light Combat Drones Crate"
+  },
+  {
+    "type_id": 63778,
+    "name": "Enforcer - Destroyer Skill Crate"
+  },
+  {
+    "type_id": 63779,
+    "name": "Enforcer - Frigate Skill Crate"
+  },
+  {
+    "type_id": 63780,
+    "name": "Enforcer - Frigate Crate"
+  },
+  {
+    "type_id": 63781,
+    "name": "Enforcer - Defense System Skill Crate"
+  },
+  {
+    "type_id": 63782,
+    "name": "Enforcer - Frigate Crate"
+  },
+  {
+    "type_id": 63783,
+    "name": "Soldier of Fortune - Frigate Skill Crate"
+  },
+  {
+    "type_id": 63784,
+    "name": "Soldier of Fortune - Combat Frigate Crate"
+  },
+  {
+    "type_id": 63785,
+    "name": "Soldier of Fortune - Support Frigate Crate"
+  },
+  {
+    "type_id": 63786,
+    "name": "Enforcer - Tranquil Abyssal Filaments Crate"
+  },
+  {
+    "type_id": 63787,
+    "name": "Enforcer - Calm Abyssal Filaments Crate"
+  },
+  {
+    "type_id": 63789,
+    "name": "Men's Grand Prix Racing Jacket"
+  },
+  {
+    "type_id": 63790,
+    "name": "Women's Grand Prix Racing Jacket"
+  },
+  {
+    "type_id": 63826,
+    "name": "Free AIR Explorer Expert System"
+  },
+  {
+    "type_id": 63827,
+    "name": "Free AIR Industrialist Expert System"
+  },
+  {
+    "type_id": 63828,
+    "name": "Free AIR Enforcer Expert System"
+  },
+  {
+    "type_id": 63829,
+    "name": "Free AIR Soldier of Fortune Expert System"
   },
   {
     "type_id": 63841,
@@ -89066,30 +88990,6 @@
   {
     "type_id": 63848,
     "name": "Capsule Capsuleer Day XIX SKIN"
-  },
-  {
-    "type_id": 63849,
-    "name": "Basic Capsuleer Day Glamourex Booster"
-  },
-  {
-    "type_id": 63850,
-    "name": "Extended Capsuleer Day Glamourex Booster"
-  },
-  {
-    "type_id": 63851,
-    "name": "Potent Capsuleer Day Glamourex Booster"
-  },
-  {
-    "type_id": 63852,
-    "name": "Basic Capsuleer Day Cerebral Accelerator"
-  },
-  {
-    "type_id": 63853,
-    "name": "Extended Capsuleer Day Cerebral Accelerator"
-  },
-  {
-    "type_id": 63854,
-    "name": "Potent Capsuleer Day Cerebral Accelerator"
   },
   {
     "type_id": 63855,
@@ -89156,134 +89056,6 @@
     "name": "Panther Versus Redforce SKIN"
   },
   {
-    "type_id": 63878,
-    "name": "Smuggler Low Observability Booster I"
-  },
-  {
-    "type_id": 63879,
-    "name": "Smuggler Low Observability Booster II"
-  },
-  {
-    "type_id": 63880,
-    "name": "Smuggler Low Observability Booster III"
-  },
-  {
-    "type_id": 63881,
-    "name": "Smuggler Low Observability Booster IV"
-  },
-  {
-    "type_id": 63882,
-    "name": "DED Scan Booster I"
-  },
-  {
-    "type_id": 63883,
-    "name": "DED Scan Booster II"
-  },
-  {
-    "type_id": 63884,
-    "name": "DED Scan Booster III"
-  },
-  {
-    "type_id": 63885,
-    "name": "DED Scan Booster IV"
-  },
-  {
-    "type_id": 63886,
-    "name": "Smuggler Shield Booster I"
-  },
-  {
-    "type_id": 63887,
-    "name": "Smuggler Shield Booster II"
-  },
-  {
-    "type_id": 63888,
-    "name": "Smuggler Shield Booster III"
-  },
-  {
-    "type_id": 63889,
-    "name": "Smuggler Shield Booster IV"
-  },
-  {
-    "type_id": 63890,
-    "name": "DED Armor Booster I"
-  },
-  {
-    "type_id": 63891,
-    "name": "DED Armor Booster II"
-  },
-  {
-    "type_id": 63892,
-    "name": "DED Armor Booster III"
-  },
-  {
-    "type_id": 63893,
-    "name": "DED Armor Booster IV"
-  },
-  {
-    "type_id": 63894,
-    "name": "Smuggler Blockade Running Booster I"
-  },
-  {
-    "type_id": 63895,
-    "name": "Smuggler Blockade Running Booster II"
-  },
-  {
-    "type_id": 63896,
-    "name": "Smuggler Blockade Running Booster III"
-  },
-  {
-    "type_id": 63897,
-    "name": "Smuggler Blockade Running Booster IV"
-  },
-  {
-    "type_id": 63898,
-    "name": "DED Apprehension Booster I"
-  },
-  {
-    "type_id": 63899,
-    "name": "DED Apprehension Booster II"
-  },
-  {
-    "type_id": 63900,
-    "name": "DED Apprehension Booster III"
-  },
-  {
-    "type_id": 63901,
-    "name": "DED Apprehension Booster IV"
-  },
-  {
-    "type_id": 63902,
-    "name": "Smuggler Bay Loading Booster I"
-  },
-  {
-    "type_id": 63903,
-    "name": "Smuggler Bay Loading Booster II"
-  },
-  {
-    "type_id": 63904,
-    "name": "Smuggler Bay Loading Booster III"
-  },
-  {
-    "type_id": 63905,
-    "name": "Smuggler Bay Loading Booster IV"
-  },
-  {
-    "type_id": 63906,
-    "name": "DED Turret Booster I"
-  },
-  {
-    "type_id": 63907,
-    "name": "DED Turret Booster II"
-  },
-  {
-    "type_id": 63908,
-    "name": "DED Turret Booster III"
-  },
-  {
-    "type_id": 63909,
-    "name": "DED Turret Booster IV"
-  },
-  {
     "type_id": 64028,
     "name": "Capsuleer Day XIX Fireworks Gift Box"
   },
@@ -89326,5 +89098,2337 @@
   {
     "type_id": 64190,
     "name": "Boobook Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 64195,
+    "name": "Women's 'Hyper' Racing Jacket"
+  },
+  {
+    "type_id": 64196,
+    "name": "Men's 'Hyper' Racing Jacket"
+  },
+  {
+    "type_id": 64201,
+    "name": "Men's Minmatar 'Rebellion' Cap"
+  },
+  {
+    "type_id": 64202,
+    "name": "Women's Minmatar 'Rebellion' Cap"
+  },
+  {
+    "type_id": 64203,
+    "name": "Women's Minmatar 'Rebellion' T-Shirt"
+  },
+  {
+    "type_id": 64204,
+    "name": "Men's Minmatar 'Rebellion' T-Shirt"
+  },
+  {
+    "type_id": 64268,
+    "name": "Men's Minmatar 'Freedom Fighter' T-Shirt"
+  },
+  {
+    "type_id": 64269,
+    "name": "Women's Minmatar 'Freedom Fighter' T-Shirt"
+  },
+  {
+    "type_id": 64270,
+    "name": "Men's Minmatar 'Freedom Fighter' Cap"
+  },
+  {
+    "type_id": 64271,
+    "name": "Women's Minmatar 'Freedom Fighter' Cap"
+  },
+  {
+    "type_id": 64345,
+    "name": "Council Diplomatic Shuttle Semiotique Sports SKIN"
+  },
+  {
+    "type_id": 64373,
+    "name": "Grand Prix Booster I"
+  },
+  {
+    "type_id": 64374,
+    "name": "Grand Prix Booster II"
+  },
+  {
+    "type_id": 64375,
+    "name": "Grand Prix Booster III"
+  },
+  {
+    "type_id": 64376,
+    "name": "Grand Prix Booster IV"
+  },
+  {
+    "type_id": 64377,
+    "name": "Women's Amarr Devotional Robe"
+  },
+  {
+    "type_id": 64378,
+    "name": "Women's Amarr Courtly Robe"
+  },
+  {
+    "type_id": 64379,
+    "name": "Men's Amarr Devotional Robe"
+  },
+  {
+    "type_id": 64380,
+    "name": "Men's Amarr Courtly Robe"
+  },
+  {
+    "type_id": 64390,
+    "name": "Nereus Strategic Materiel Defender SKIN"
+  },
+  {
+    "type_id": 64391,
+    "name": "Kryos Strategic Materiel Defender SKIN"
+  },
+  {
+    "type_id": 64392,
+    "name": "Epithal Strategic Materiel Defender SKIN"
+  },
+  {
+    "type_id": 64393,
+    "name": "Miasmos Strategic Materiel Defender SKIN"
+  },
+  {
+    "type_id": 64394,
+    "name": "Iteron Mark V Strategic Materiel Defender SKIN"
+  },
+  {
+    "type_id": 64395,
+    "name": "Malediction Luminaire Zenith SKIN"
+  },
+  {
+    "type_id": 64396,
+    "name": "Crow Luminaire Zenith SKIN"
+  },
+  {
+    "type_id": 64397,
+    "name": "Ares Luminaire Zenith SKIN"
+  },
+  {
+    "type_id": 64398,
+    "name": "Tristan Luminaire Zenith SKIN"
+  },
+  {
+    "type_id": 64399,
+    "name": "Federation Navy Comet Luminaire Zenith SKIN"
+  },
+  {
+    "type_id": 64400,
+    "name": "Exequror Luminaire Zenith SKIN"
+  },
+  {
+    "type_id": 64401,
+    "name": "Megathron Luminaire Zenith SKIN"
+  },
+  {
+    "type_id": 64402,
+    "name": "Stiletto Luminaire Zenith SKIN"
+  },
+  {
+    "type_id": 64405,
+    "name": "Malediction Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64406,
+    "name": "Anathema Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64407,
+    "name": "Crow Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64408,
+    "name": "Buzzard Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64409,
+    "name": "Pacifier Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64410,
+    "name": "Claw Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64411,
+    "name": "Cheetah Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64412,
+    "name": "Ares Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64413,
+    "name": "Helios Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64568,
+    "name": "Vexor Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64569,
+    "name": "Ishtar Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64570,
+    "name": "Brutix Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64571,
+    "name": "Dominix Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64572,
+    "name": "Thanatos Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64573,
+    "name": "Nyx Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64574,
+    "name": "Erebus Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 64587,
+    "name": "Rifter Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64588,
+    "name": "Sabre Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64589,
+    "name": "Rupture Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64590,
+    "name": "Vagabond Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64591,
+    "name": "Hurricane Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64592,
+    "name": "Hurricane Fleet Issue Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64593,
+    "name": "Tornado Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64594,
+    "name": "Typhoon Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64595,
+    "name": "Typhoon Fleet Issue Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64596,
+    "name": "Tempest Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64597,
+    "name": "Tempest Fleet Issue Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64598,
+    "name": "Maelstrom Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 64724,
+    "name": "Basic Glamourex Booster"
+  },
+  {
+    "type_id": 64726,
+    "name": "Thrasher Liberation Games SKIN"
+  },
+  {
+    "type_id": 64727,
+    "name": "Sabre Liberation Games SKIN"
+  },
+  {
+    "type_id": 64728,
+    "name": "Slasher Liberation Games SKIN"
+  },
+  {
+    "type_id": 64729,
+    "name": "Hurricane Fleet Issue Liberation Games SKIN"
+  },
+  {
+    "type_id": 64730,
+    "name": "Hurricane Liberation Games SKIN"
+  },
+  {
+    "type_id": 64731,
+    "name": "Sleipnir Liberation Games SKIN"
+  },
+  {
+    "type_id": 64732,
+    "name": "Rupture Liberation Games SKIN"
+  },
+  {
+    "type_id": 64733,
+    "name": "Muninn Liberation Games SKIN"
+  },
+  {
+    "type_id": 64746,
+    "name": "Federation Grand Prix Jacket Crate"
+  },
+  {
+    "type_id": 64883,
+    "name": "Defunct Minmatar Encounter Surveillance System (DO NOT TRANSLATE)"
+  },
+  {
+    "type_id": 64907,
+    "name": "Hoarder Fleet Ordnance Spike SKIN"
+  },
+  {
+    "type_id": 64908,
+    "name": "Mammoth Fleet Ordnance Spike SKIN"
+  },
+  {
+    "type_id": 64909,
+    "name": "Wreathe Fleet Ordnance Spike SKIN"
+  },
+  {
+    "type_id": 64910,
+    "name": "Scythe Fleet Issue Liberation Games SKIN"
+  },
+  {
+    "type_id": 64911,
+    "name": "Tempest Fleet Issue Liberation Games SKIN"
+  },
+  {
+    "type_id": 64912,
+    "name": "Vigil Fleet Issue Sebiestor SKIN"
+  },
+  {
+    "type_id": 64913,
+    "name": "Thrasher Sebiestor SKIN"
+  },
+  {
+    "type_id": 64914,
+    "name": "Cyclone Sebiestor SKIN"
+  },
+  {
+    "type_id": 64915,
+    "name": "Typhoon Fleet Issue Sebiestor SKIN"
+  },
+  {
+    "type_id": 64916,
+    "name": "Vigil Fleet Issue Krusual SKIN"
+  },
+  {
+    "type_id": 64917,
+    "name": "Talwar Krusual SKIN"
+  },
+  {
+    "type_id": 64918,
+    "name": "Typhoon Fleet Issue Krusual SKIN"
+  },
+  {
+    "type_id": 64919,
+    "name": "Hurricane Krusual SKIN"
+  },
+  {
+    "type_id": 64920,
+    "name": "Vigil Fleet Issue Brutor SKIN"
+  },
+  {
+    "type_id": 64921,
+    "name": "Thrasher Brutor SKIN"
+  },
+  {
+    "type_id": 64922,
+    "name": "Cyclone Brutor SKIN"
+  },
+  {
+    "type_id": 64923,
+    "name": "Typhoon Fleet Issue Brutor SKIN"
+  },
+  {
+    "type_id": 64924,
+    "name": "Vigil Fleet Issue Vherokior SKIN"
+  },
+  {
+    "type_id": 64925,
+    "name": "Thrasher Vherokior SKIN"
+  },
+  {
+    "type_id": 64926,
+    "name": "Hurricane Vherokior SKIN"
+  },
+  {
+    "type_id": 64927,
+    "name": "Typhoon Fleet Issue Vherokior SKIN"
+  },
+  {
+    "type_id": 64928,
+    "name": "Vigil Fleet Issue Nefantar SKIN"
+  },
+  {
+    "type_id": 64929,
+    "name": "Talwar Nefantar SKIN"
+  },
+  {
+    "type_id": 64930,
+    "name": "Cyclone Nefantar SKIN"
+  },
+  {
+    "type_id": 64931,
+    "name": "Typhoon Fleet Issue Nefantar SKIN"
+  },
+  {
+    "type_id": 64932,
+    "name": "Vigil Fleet Issue Thukker Tribe SKIN"
+  },
+  {
+    "type_id": 64933,
+    "name": "Talwar Thukker Tribe SKIN"
+  },
+  {
+    "type_id": 64934,
+    "name": "Hurricane Thukker Tribe SKIN"
+  },
+  {
+    "type_id": 64935,
+    "name": "Typhoon Fleet Issue Thukker Tribe SKIN"
+  },
+  {
+    "type_id": 64936,
+    "name": "Vigil Fleet Issue Starkmanir SKIN"
+  },
+  {
+    "type_id": 64937,
+    "name": "Thrasher Starkmanir SKIN"
+  },
+  {
+    "type_id": 64938,
+    "name": "Hurricane Starkmanir SKIN"
+  },
+  {
+    "type_id": 64939,
+    "name": "Typhoon Fleet Issue Starkmanir SKIN"
+  },
+  {
+    "type_id": 65080,
+    "name": "Purifier Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65081,
+    "name": "Harbinger Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65082,
+    "name": "Imperial Navy Slicer Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65083,
+    "name": "Augoror Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65084,
+    "name": "Manticore Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65085,
+    "name": "Drake Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65086,
+    "name": "Caldari Navy Hookbill Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65087,
+    "name": "Osprey Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65088,
+    "name": "Nemesis Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65089,
+    "name": "Myrmidon Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65090,
+    "name": "Federation Navy Comet Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65091,
+    "name": "Exequror Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65092,
+    "name": "Hound Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65093,
+    "name": "Hurricane Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65094,
+    "name": "Republic Fleet Firetail Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 65095,
+    "name": "Scythe Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 70794,
+    "name": "Sigil Sarum SKIN"
+  },
+  {
+    "type_id": 70795,
+    "name": "Amarr Shuttle Sarum SKIN"
+  },
+  {
+    "type_id": 70797,
+    "name": "Amarr Foundation Day Robe Crate"
+  },
+  {
+    "type_id": 70798,
+    "name": "Sigil War Reserves Lieutenant SKIN"
+  },
+  {
+    "type_id": 70799,
+    "name": "Bestower War Reserves Lieutenant SKIN"
+  },
+  {
+    "type_id": 70836,
+    "name": "Badger Military Stockpile Captain SKIN"
+  },
+  {
+    "type_id": 70837,
+    "name": "Tayra Military Stockpile Captain SKIN"
+  },
+  {
+    "type_id": 70838,
+    "name": "Men's Caldari Navy Crew Jacket"
+  },
+  {
+    "type_id": 70839,
+    "name": "Men's Ishukone Crew Jacket"
+  },
+  {
+    "type_id": 70840,
+    "name": "Men's CBD Corporation Crew Jacket"
+  },
+  {
+    "type_id": 70841,
+    "name": "Men's Hyasyoda Crew Jacket"
+  },
+  {
+    "type_id": 70842,
+    "name": "Men's Kaalakiota Crew Jacket"
+  },
+  {
+    "type_id": 70843,
+    "name": "Men's Wiyrkomi Crew Jacket"
+  },
+  {
+    "type_id": 70844,
+    "name": "Men's Lai Dai Crew Jacket"
+  },
+  {
+    "type_id": 70845,
+    "name": "Men's Sukuuvestaa Crew Jacket"
+  },
+  {
+    "type_id": 70846,
+    "name": "Men's Nugoeihuvi Crew Jacket"
+  },
+  {
+    "type_id": 70847,
+    "name": "Women's Caldari Navy Crew Jacket"
+  },
+  {
+    "type_id": 70848,
+    "name": "Women's Ishukone Crew Jacket"
+  },
+  {
+    "type_id": 70849,
+    "name": "Women's CBD Corporation Crew Jacket"
+  },
+  {
+    "type_id": 70850,
+    "name": "Women's Hyasyoda Crew Jacket"
+  },
+  {
+    "type_id": 70851,
+    "name": "Women's Kaalakiota Crew Jacket"
+  },
+  {
+    "type_id": 70852,
+    "name": "Women's Wiyrkomi Crew Jacket"
+  },
+  {
+    "type_id": 70853,
+    "name": "Women's Lai Dai Crew Jacket"
+  },
+  {
+    "type_id": 70854,
+    "name": "Women's Sukuuvestaa Crew Jacket"
+  },
+  {
+    "type_id": 70855,
+    "name": "Women's Nugoeihuvi Crew Jacket"
+  },
+  {
+    "type_id": 71075,
+    "name": "Merlin Corporate Police Force SKIN"
+  },
+  {
+    "type_id": 71076,
+    "name": "Stork Corporate Police Force SKIN"
+  },
+  {
+    "type_id": 71077,
+    "name": "Blackbird Corporate Police Force SKIN"
+  },
+  {
+    "type_id": 71078,
+    "name": "Rokh Corporate Police Force SKIN"
+  },
+  {
+    "type_id": 71080,
+    "name": "Merlin Home Guard SKIN"
+  },
+  {
+    "type_id": 71081,
+    "name": "Stork Home Guard SKIN"
+  },
+  {
+    "type_id": 71082,
+    "name": "Caracal Home Guard SKIN"
+  },
+  {
+    "type_id": 71083,
+    "name": "Rokh Home Guard SKIN"
+  },
+  {
+    "type_id": 71085,
+    "name": "Merlin Internal Security SKIN"
+  },
+  {
+    "type_id": 71086,
+    "name": "Stork Internal Security SKIN"
+  },
+  {
+    "type_id": 71087,
+    "name": "Caracal Internal Security SKIN"
+  },
+  {
+    "type_id": 71088,
+    "name": "Rokh Internal Security SKIN"
+  },
+  {
+    "type_id": 71090,
+    "name": "Merlin Ishukone Watch SKIN"
+  },
+  {
+    "type_id": 71091,
+    "name": "Flycatcher Ishukone Watch SKIN"
+  },
+  {
+    "type_id": 71092,
+    "name": "Rokh Ishukone Watch SKIN"
+  },
+  {
+    "type_id": 71093,
+    "name": "Merlin Lai Dai Protection Service SKIN"
+  },
+  {
+    "type_id": 71094,
+    "name": "Flycatcher Lai Dai Protection Service SKIN"
+  },
+  {
+    "type_id": 71095,
+    "name": "Caracal Lai Dai Protection Service SKIN"
+  },
+  {
+    "type_id": 71096,
+    "name": "Rokh Lai Dai Protection Service SKIN"
+  },
+  {
+    "type_id": 71097,
+    "name": "Merlin Peace and Order Unit SKIN"
+  },
+  {
+    "type_id": 71098,
+    "name": "Flycatcher Peace and Order Unit SKIN"
+  },
+  {
+    "type_id": 71099,
+    "name": "Rokh Peace and Order Unit SKIN"
+  },
+  {
+    "type_id": 71100,
+    "name": "Merlin Spacelane Patrol SKIN"
+  },
+  {
+    "type_id": 71101,
+    "name": "Flycatcher Spacelane Patrol SKIN"
+  },
+  {
+    "type_id": 71102,
+    "name": "Blackbird Spacelane Patrol SKIN"
+  },
+  {
+    "type_id": 71103,
+    "name": "Rokh Spacelane Patrol SKIN"
+  },
+  {
+    "type_id": 71109,
+    "name": "Merlin Wiyrkomi Peace Corps SKIN"
+  },
+  {
+    "type_id": 71110,
+    "name": "Caracal Wiyrkomi Peace Corps SKIN"
+  },
+  {
+    "type_id": 71111,
+    "name": "Rokh Wiyrkomi Peace Corps SKIN"
+  },
+  {
+    "type_id": 71195,
+    "name": "Blackbird Peace and Order Unit SKIN"
+  },
+  {
+    "type_id": 71196,
+    "name": "Stork Wiyrkomi Peace Corps SKIN"
+  },
+  {
+    "type_id": 71480,
+    "name": "Blackbird Ishukone Watch SKIN"
+  },
+  {
+    "type_id": 71707,
+    "name": "Caldari Shuttle Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71708,
+    "name": "Kestrel Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71709,
+    "name": "Heron Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71710,
+    "name": "Caldari Navy Hookbill Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71711,
+    "name": "Raptor Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71712,
+    "name": "Cormorant Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71713,
+    "name": "Stork Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71714,
+    "name": "Caracal Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71715,
+    "name": "Rook Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71716,
+    "name": "Eagle Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71717,
+    "name": "Drake Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71718,
+    "name": "Vulture Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71719,
+    "name": "Scorpion Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71720,
+    "name": "Golem Union Day Workers SKIN"
+  },
+  {
+    "type_id": 71721,
+    "name": "Corax Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71722,
+    "name": "Stork Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71723,
+    "name": "Jackdaw Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71724,
+    "name": "Caracal Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71725,
+    "name": "Cerberus Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71726,
+    "name": "Osprey Navy Issue Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71727,
+    "name": "Nighthawk Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71728,
+    "name": "Bustard Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71729,
+    "name": "Tayra Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71730,
+    "name": "Drake Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71731,
+    "name": "Raven Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71732,
+    "name": "Crane Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71733,
+    "name": "Phoenix Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71734,
+    "name": "Leviathan Union Day Executive SKIN"
+  },
+  {
+    "type_id": 71755,
+    "name": "Union of Eight Paths Firework"
+  },
+  {
+    "type_id": 72087,
+    "name": "Union of Eight Paths Fireworks Crate"
+  },
+  {
+    "type_id": 72238,
+    "name": "Basic 'Boost' Cerebral Accelerator "
+  },
+  {
+    "type_id": 72239,
+    "name": "Standard 'Boost' Cerebral Accelerator"
+  },
+  {
+    "type_id": 72240,
+    "name": "Advanced 'Boost' Cerebral Accelerator"
+  },
+  {
+    "type_id": 72241,
+    "name": "Specialist 'Boost' Cerebral Accelerator"
+  },
+  {
+    "type_id": 72242,
+    "name": "Expert 'Boost' Cerebral Accelerator"
+  },
+  {
+    "type_id": 72258,
+    "name": "Operation Center Reward Token"
+  },
+  {
+    "type_id": 72259,
+    "name": "Ishukone Jacket Crate"
+  },
+  {
+    "type_id": 72260,
+    "name": "CBD Corporation Jacket Crate"
+  },
+  {
+    "type_id": 72261,
+    "name": "Hyasyoda Jacket Crate"
+  },
+  {
+    "type_id": 72262,
+    "name": "Kaalakiota Jacket Crate"
+  },
+  {
+    "type_id": 72263,
+    "name": "Wiyrkomi Jacket Crate"
+  },
+  {
+    "type_id": 72264,
+    "name": "Lai Dai Jacket Crate"
+  },
+  {
+    "type_id": 72265,
+    "name": "Sukuuvestaa Jacket Crate"
+  },
+  {
+    "type_id": 72266,
+    "name": "Nugoeihuvi Jacket Crate"
+  },
+  {
+    "type_id": 72373,
+    "name": "Encrypted Stellar Research Data"
+  },
+  {
+    "type_id": 72552,
+    "name": "Raven State Police SKIN"
+  },
+  {
+    "type_id": 72553,
+    "name": "Flycatcher State Police SKIN"
+  },
+  {
+    "type_id": 72554,
+    "name": "Cormorant State Police SKIN"
+  },
+  {
+    "type_id": 72555,
+    "name": "Raptor State Police SKIN"
+  },
+  {
+    "type_id": 72556,
+    "name": "Harpy State Police SKIN"
+  },
+  {
+    "type_id": 72557,
+    "name": "Phoenix State Police SKIN"
+  },
+  {
+    "type_id": 72811,
+    "name": "Cyclone Fleet Issue"
+  },
+  {
+    "type_id": 72812,
+    "name": "Ferox Navy Issue"
+  },
+  {
+    "type_id": 72818,
+    "name": "Harvest Nosferatu Booster I"
+  },
+  {
+    "type_id": 72819,
+    "name": "Harvest Nosferatu Booster II "
+  },
+  {
+    "type_id": 72820,
+    "name": "Harvest Nosferatu Booster III"
+  },
+  {
+    "type_id": 72821,
+    "name": "Harvest Webifier Booster I"
+  },
+  {
+    "type_id": 72822,
+    "name": "Harvest Webifier Booster II"
+  },
+  {
+    "type_id": 72823,
+    "name": "Harvest Webifier Booster III"
+  },
+  {
+    "type_id": 72828,
+    "name": "Harvest Nosferatu Booster IV"
+  },
+  {
+    "type_id": 72829,
+    "name": "Harvest Webifier Booster IV"
+  },
+  {
+    "type_id": 72830,
+    "name": "Harvest Damage Booster III"
+  },
+  {
+    "type_id": 72831,
+    "name": "Harvest Damage Booster IV"
+  },
+  {
+    "type_id": 72832,
+    "name": "Harvest Damage Booster I"
+  },
+  {
+    "type_id": 72833,
+    "name": "Harvest Damage Booster II"
+  },
+  {
+    "type_id": 72834,
+    "name": "Harvest Anti-Disruptor Booster I"
+  },
+  {
+    "type_id": 72835,
+    "name": "Harvest Anti-Disruptor Booster II"
+  },
+  {
+    "type_id": 72836,
+    "name": "Harvest Anti-Disruptor Booster III"
+  },
+  {
+    "type_id": 72837,
+    "name": "Harvest Anti-Disruptor Booster IV"
+  },
+  {
+    "type_id": 72839,
+    "name": "Tetrimon Resistance Booster IV"
+  },
+  {
+    "type_id": 72840,
+    "name": "Tetrimon Resistance Booster I"
+  },
+  {
+    "type_id": 72841,
+    "name": "Tetrimon Resistance Booster II"
+  },
+  {
+    "type_id": 72842,
+    "name": "Tetrimon Resistance Booster III"
+  },
+  {
+    "type_id": 72854,
+    "name": "Tetrimon Capacitor Booster III"
+  },
+  {
+    "type_id": 72855,
+    "name": "Tetrimon Capacitor Booster IV"
+  },
+  {
+    "type_id": 72856,
+    "name": "Tetrimon Capacitor Booster I"
+  },
+  {
+    "type_id": 72857,
+    "name": "Tetrimon Capacitor Booster II"
+  },
+  {
+    "type_id": 72858,
+    "name": "Tetrimon Precision Booster I"
+  },
+  {
+    "type_id": 72859,
+    "name": "Tetrimon Precision Booster II"
+  },
+  {
+    "type_id": 72860,
+    "name": "Tetrimon Precision Booster III"
+  },
+  {
+    "type_id": 72861,
+    "name": "Tetrimon Precision Booster IV"
+  },
+  {
+    "type_id": 72862,
+    "name": "Tetrimon Anti-Drain Booster III"
+  },
+  {
+    "type_id": 72863,
+    "name": "Tetrimon Anti-Drain Booster IV"
+  },
+  {
+    "type_id": 72864,
+    "name": "Tetrimon Anti-Drain Booster I"
+  },
+  {
+    "type_id": 72865,
+    "name": "Tetrimon Anti-Drain Booster II"
+  },
+  {
+    "type_id": 72866,
+    "name": "Basic 'Radiance' Cerebral Accelerator"
+  },
+  {
+    "type_id": 72867,
+    "name": "Potent 'Radiance' Cerebral Accelerator"
+  },
+  {
+    "type_id": 72868,
+    "name": "Extended 'Radiance' Cerebral Accelerator"
+  },
+  {
+    "type_id": 72869,
+    "name": "Myrmidon Navy Issue"
+  },
+  {
+    "type_id": 72872,
+    "name": "Prophecy Navy Issue"
+  },
+  {
+    "type_id": 72903,
+    "name": "Probe Fleet Issue"
+  },
+  {
+    "type_id": 72904,
+    "name": "Heron Navy Issue"
+  },
+  {
+    "type_id": 72907,
+    "name": "Magnate Navy Issue"
+  },
+  {
+    "type_id": 72913,
+    "name": "Imicus Navy Issue"
+  },
+  {
+    "type_id": 72917,
+    "name": "Probe Fleet Issue Blueprint"
+  },
+  {
+    "type_id": 72919,
+    "name": "Imicus Navy Issue Blueprint"
+  },
+  {
+    "type_id": 72920,
+    "name": "Magnate Navy Issue Blueprint"
+  },
+  {
+    "type_id": 72922,
+    "name": "Heron Navy Issue Blueprint"
+  },
+  {
+    "type_id": 72923,
+    "name": "Cyclone Fleet Issue Blueprint"
+  },
+  {
+    "type_id": 72924,
+    "name": "Prophecy Navy Issue Blueprint"
+  },
+  {
+    "type_id": 72925,
+    "name": "Myrmidon Navy Issue Blueprint"
+  },
+  {
+    "type_id": 72926,
+    "name": "Ferox Navy Issue Blueprint"
+  },
+  {
+    "type_id": 72935,
+    "name": "Dense Moissanite"
+  },
+  {
+    "type_id": 72964,
+    "name": "Rifter Corporation Emblem"
+  },
+  {
+    "type_id": 72976,
+    "name": "ATXVIII 1v1 Navy Cruisers Proving Filament"
+  },
+  {
+    "type_id": 72977,
+    "name": "ATXVIII 1v1 T1 Frigates Proving Filament"
+  },
+  {
+    "type_id": 72978,
+    "name": "Event 74 Proving Filament "
+  },
+  {
+    "type_id": 72979,
+    "name": "Event 75 Proving Filament"
+  },
+  {
+    "type_id": 72980,
+    "name": "Event 76 Proving Filament"
+  },
+  {
+    "type_id": 73041,
+    "name": "Triglavian Encrypted Relay Data"
+  },
+  {
+    "type_id": 73225,
+    "name": "Amarr Propaganda Broadcast Structure"
+  },
+  {
+    "type_id": 73226,
+    "name": "Minmatar Propaganda Broadcast Structure"
+  },
+  {
+    "type_id": 73227,
+    "name": "Caldari Propaganda Broadcast Structure"
+  },
+  {
+    "type_id": 73228,
+    "name": "Gallente Propaganda Broadcast Structure"
+  },
+  {
+    "type_id": 73248,
+    "name": "Caldari Loyalty Token"
+  },
+  {
+    "type_id": 73249,
+    "name": "Gallente Loyalty Token"
+  },
+  {
+    "type_id": 73250,
+    "name": "Amarr Loyalty Token"
+  },
+  {
+    "type_id": 73251,
+    "name": "Minmatar Loyalty Token"
+  },
+  {
+    "type_id": 73270,
+    "name": "Amarr Listening Outpost"
+  },
+  {
+    "type_id": 73271,
+    "name": "Minmatar Listening Outpost"
+  },
+  {
+    "type_id": 73272,
+    "name": "Caldari Listening Outpost"
+  },
+  {
+    "type_id": 73273,
+    "name": "Gallente Listening Outpost"
+  },
+  {
+    "type_id": 73366,
+    "name": "Drake Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 73367,
+    "name": "Brutix Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 73368,
+    "name": "Hurricane Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 73369,
+    "name": "Prophecy Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 73370,
+    "name": "Corax Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 73371,
+    "name": "Algos Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 73372,
+    "name": "Talwar Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 73373,
+    "name": "Dragoon Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 73377,
+    "name": "Heron Corporation Emblem"
+  },
+  {
+    "type_id": 73394,
+    "name": "Rifter Alliance Emblem"
+  },
+  {
+    "type_id": 73397,
+    "name": "Amarr Decoder Package"
+  },
+  {
+    "type_id": 73398,
+    "name": "Minmatar Decoder Package"
+  },
+  {
+    "type_id": 73399,
+    "name": "Caldari Decoder Package"
+  },
+  {
+    "type_id": 73400,
+    "name": "Gallente Decoder Package"
+  },
+  {
+    "type_id": 73401,
+    "name": "Amarr Encoder Splice"
+  },
+  {
+    "type_id": 73402,
+    "name": "Minmatar Encoder Splice"
+  },
+  {
+    "type_id": 73403,
+    "name": "Caldari Encoder Splice"
+  },
+  {
+    "type_id": 73404,
+    "name": "Gallente Encoder Splice"
+  },
+  {
+    "type_id": 73408,
+    "name": "Scarlet Embrace Firework"
+  },
+  {
+    "type_id": 73409,
+    "name": "Scarlet Embrace Fireworks Crate"
+  },
+  {
+    "type_id": 73423,
+    "name": "Women's Desert Nomad Mask"
+  },
+  {
+    "type_id": 73424,
+    "name": "Women's Desert Nomad Goggles"
+  },
+  {
+    "type_id": 73425,
+    "name": "Men's Desert Nomad Mask"
+  },
+  {
+    "type_id": 73426,
+    "name": "Men's Desert Nomad Goggles"
+  },
+  {
+    "type_id": 73431,
+    "name": "Crimson Gauntlet Shortcut Keypass "
+  },
+  {
+    "type_id": 73432,
+    "name": "Tetrimon Base Shortcut Keypass "
+  },
+  {
+    "type_id": 73451,
+    "name": "Apocalypse Sanguinary Savant SKIN"
+  },
+  {
+    "type_id": 73452,
+    "name": "Apocalypse Navy Issue Sanguinary Savant SKIN"
+  },
+  {
+    "type_id": 73453,
+    "name": "Dragoon Sanguinary Savant SKIN"
+  },
+  {
+    "type_id": 73454,
+    "name": "Paladin Sanguinary Savant SKIN"
+  },
+  {
+    "type_id": 73455,
+    "name": "Prophecy Sanguinary Savant SKIN"
+  },
+  {
+    "type_id": 73456,
+    "name": "Punisher Sanguinary Savant SKIN"
+  },
+  {
+    "type_id": 73457,
+    "name": "Retribution Sanguinary Savant SKIN"
+  },
+  {
+    "type_id": 73458,
+    "name": "Tormentor Order of Tetrimon SKIN"
+  },
+  {
+    "type_id": 73459,
+    "name": "Magnate Navy Issue Order of Tetrimon SKIN"
+  },
+  {
+    "type_id": 73460,
+    "name": "Retribution Order of Tetrimon SKIN"
+  },
+  {
+    "type_id": 73461,
+    "name": "Coercer Order of Tetrimon SKIN"
+  },
+  {
+    "type_id": 73462,
+    "name": "Pontifex Order of Tetrimon SKIN"
+  },
+  {
+    "type_id": 73463,
+    "name": "Augoror Order of Tetrimon SKIN"
+  },
+  {
+    "type_id": 73464,
+    "name": "Curse Order of Tetrimon SKIN"
+  },
+  {
+    "type_id": 73465,
+    "name": "Prophecy Navy Issue Order of Tetrimon SKIN"
+  },
+  {
+    "type_id": 73466,
+    "name": "Paladin Order of Tetrimon SKIN"
+  },
+  {
+    "type_id": 73468,
+    "name": "Magnate Navy Issue Ironblood SKIN"
+  },
+  {
+    "type_id": 73474,
+    "name": "Prophecy Navy Issue Ironblood SKIN"
+  },
+  {
+    "type_id": 73567,
+    "name": "Providence Alliance Emblem"
+  },
+  {
+    "type_id": 73568,
+    "name": "Tayra Alliance Emblem"
+  },
+  {
+    "type_id": 73569,
+    "name": "Violator Alliance Emblem"
+  },
+  {
+    "type_id": 73570,
+    "name": "Wreathe Alliance Emblem"
+  },
+  {
+    "type_id": 73571,
+    "name": "Amarr Shuttle Corporation Emblem"
+  },
+  {
+    "type_id": 73572,
+    "name": "Apotheosis Corporation Emblem"
+  },
+  {
+    "type_id": 73573,
+    "name": "Astero Corporation Emblem"
+  },
+  {
+    "type_id": 73574,
+    "name": "Atron Corporation Emblem"
+  },
+  {
+    "type_id": 73575,
+    "name": "Badger Corporation Emblem"
+  },
+  {
+    "type_id": 73576,
+    "name": "Bantam Corporation Emblem"
+  },
+  {
+    "type_id": 73577,
+    "name": "Bestower Corporation Emblem"
+  },
+  {
+    "type_id": 73578,
+    "name": "Boobook Corporation Emblem"
+  },
+  {
+    "type_id": 73579,
+    "name": "Breacher Corporation Emblem"
+  },
+  {
+    "type_id": 73580,
+    "name": "Brutix Corporation Emblem"
+  },
+  {
+    "type_id": 73581,
+    "name": "Caldari Shuttle Corporation Emblem"
+  },
+  {
+    "type_id": 73582,
+    "name": "Catalyst Corporation Emblem"
+  },
+  {
+    "type_id": 73583,
+    "name": "Charon Corporation Emblem"
+  },
+  {
+    "type_id": 73584,
+    "name": "Coercer Corporation Emblem"
+  },
+  {
+    "type_id": 73585,
+    "name": "Condor Corporation Emblem"
+  },
+  {
+    "type_id": 73586,
+    "name": "Corax Corporation Emblem"
+  },
+  {
+    "type_id": 73587,
+    "name": "Cormorant Corporation Emblem"
+  },
+  {
+    "type_id": 73588,
+    "name": "Council Diplomatic Shuttle Corporation Emblem"
+  },
+  {
+    "type_id": 73589,
+    "name": "Crucifier Corporation Emblem"
+  },
+  {
+    "type_id": 73590,
+    "name": "Cyclone Corporation Emblem"
+  },
+  {
+    "type_id": 73591,
+    "name": "Drake Corporation Emblem"
+  },
+  {
+    "type_id": 73592,
+    "name": "Echo Corporation Emblem"
+  },
+  {
+    "type_id": 73593,
+    "name": "Epithal Corporation Emblem"
+  },
+  {
+    "type_id": 73594,
+    "name": "Executioner Corporation Emblem"
+  },
+  {
+    "type_id": 73595,
+    "name": "Fenrir Corporation Emblem"
+  },
+  {
+    "type_id": 73596,
+    "name": "Ferox Corporation Emblem"
+  },
+  {
+    "type_id": 73597,
+    "name": "Gallente Shuttle Corporation Emblem"
+  },
+  {
+    "type_id": 73598,
+    "name": "Gnosis Corporation Emblem"
+  },
+  {
+    "type_id": 73599,
+    "name": "Gold Magnate Corporation Emblem"
+  },
+  {
+    "type_id": 73600,
+    "name": "Goru's Shuttle Corporation Emblem"
+  },
+  {
+    "type_id": 73601,
+    "name": "Guristas Shuttle Corporation Emblem"
+  },
+  {
+    "type_id": 73602,
+    "name": "Harbinger Corporation Emblem"
+  },
+  {
+    "type_id": 73603,
+    "name": "Hematos Corporation Emblem"
+  },
+  {
+    "type_id": 73604,
+    "name": "Hoarder Corporation Emblem"
+  },
+  {
+    "type_id": 73605,
+    "name": "Hurricane Corporation Emblem"
+  },
+  {
+    "type_id": 73606,
+    "name": "Ibis Corporation Emblem"
+  },
+  {
+    "type_id": 73607,
+    "name": "Imicus Corporation Emblem"
+  },
+  {
+    "type_id": 73608,
+    "name": "Immolator Corporation Emblem"
+  },
+  {
+    "type_id": 73609,
+    "name": "Impairor Corporation Emblem"
+  },
+  {
+    "type_id": 73610,
+    "name": "Incursus Corporation Emblem"
+  },
+  {
+    "type_id": 73611,
+    "name": "InterBus Shuttle Corporation Emblem"
+  },
+  {
+    "type_id": 73612,
+    "name": "Iteron Mark V Corporation Emblem"
+  },
+  {
+    "type_id": 73613,
+    "name": "Kestrel Corporation Emblem"
+  },
+  {
+    "type_id": 73614,
+    "name": "Kryos Corporation Emblem"
+  },
+  {
+    "type_id": 73615,
+    "name": "Leopard Corporation Emblem"
+  },
+  {
+    "type_id": 73616,
+    "name": "Magnate Corporation Emblem"
+  },
+  {
+    "type_id": 73617,
+    "name": "Mammoth Corporation Emblem"
+  },
+  {
+    "type_id": 73618,
+    "name": "Maulus Corporation Emblem"
+  },
+  {
+    "type_id": 73619,
+    "name": "Merlin Corporation Emblem"
+  },
+  {
+    "type_id": 73620,
+    "name": "Miasmos Corporation Emblem"
+  },
+  {
+    "type_id": 73621,
+    "name": "Moros Corporation Emblem"
+  },
+  {
+    "type_id": 73622,
+    "name": "Myrmidon Corporation Emblem"
+  },
+  {
+    "type_id": 73623,
+    "name": "Naga Corporation Emblem"
+  },
+  {
+    "type_id": 73624,
+    "name": "Naglfar Corporation Emblem"
+  },
+  {
+    "type_id": 73625,
+    "name": "Navitas Corporation Emblem"
+  },
+  {
+    "type_id": 73626,
+    "name": "Nereus Corporation Emblem"
+  },
+  {
+    "type_id": 73627,
+    "name": "Obelisk Corporation Emblem"
+  },
+  {
+    "type_id": 73628,
+    "name": "Oracle Corporation Emblem"
+  },
+  {
+    "type_id": 73629,
+    "name": "Phoenix Corporation Emblem"
+  },
+  {
+    "type_id": 73630,
+    "name": "Probe Corporation Emblem"
+  },
+  {
+    "type_id": 73631,
+    "name": "Providence Corporation Emblem"
+  },
+  {
+    "type_id": 73632,
+    "name": "Punisher Corporation Emblem"
+  },
+  {
+    "type_id": 73633,
+    "name": "Reaper Corporation Emblem"
+  },
+  {
+    "type_id": 73634,
+    "name": "Revelation Corporation Emblem"
+  },
+  {
+    "type_id": 73635,
+    "name": "Sigil Corporation Emblem"
+  },
+  {
+    "type_id": 73636,
+    "name": "Silver Magnate Corporation Emblem"
+  },
+  {
+    "type_id": 73637,
+    "name": "Slasher Corporation Emblem"
+  },
+  {
+    "type_id": 73638,
+    "name": "Sunesis Corporation Emblem"
+  },
+  {
+    "type_id": 73639,
+    "name": "Taipan Corporation Emblem"
+  },
+  {
+    "type_id": 73640,
+    "name": "Talos Corporation Emblem"
+  },
+  {
+    "type_id": 73641,
+    "name": "Tayra Corporation Emblem"
+  },
+  {
+    "type_id": 73642,
+    "name": "Thrasher Corporation Emblem"
+  },
+  {
+    "type_id": 73643,
+    "name": "Tormentor Corporation Emblem"
+  },
+  {
+    "type_id": 73644,
+    "name": "Tornado Corporation Emblem"
+  },
+  {
+    "type_id": 73645,
+    "name": "Tristan Corporation Emblem"
+  },
+  {
+    "type_id": 73646,
+    "name": "Velator Corporation Emblem"
+  },
+  {
+    "type_id": 73647,
+    "name": "Venture Corporation Emblem"
+  },
+  {
+    "type_id": 73648,
+    "name": "Vigil Corporation Emblem"
+  },
+  {
+    "type_id": 73649,
+    "name": "Violator Corporation Emblem"
+  },
+  {
+    "type_id": 73650,
+    "name": "Wreathe Corporation Emblem"
+  },
+  {
+    "type_id": 73651,
+    "name": "Astero Alliance Emblem"
+  },
+  {
+    "type_id": 73652,
+    "name": "Atron Alliance Emblem"
+  },
+  {
+    "type_id": 73653,
+    "name": "Badger Alliance Emblem"
+  },
+  {
+    "type_id": 73654,
+    "name": "Bantam Alliance Emblem"
+  },
+  {
+    "type_id": 73655,
+    "name": "Bestower Alliance Emblem"
+  },
+  {
+    "type_id": 73656,
+    "name": "Boobook Alliance Emblem"
+  },
+  {
+    "type_id": 73657,
+    "name": "Breacher Alliance Emblem"
+  },
+  {
+    "type_id": 73658,
+    "name": "Brutix Alliance Emblem"
+  },
+  {
+    "type_id": 73659,
+    "name": "Burst Alliance Emblem"
+  },
+  {
+    "type_id": 73660,
+    "name": "Caldari Shuttle Alliance Emblem"
+  },
+  {
+    "type_id": 73661,
+    "name": "Charon Alliance Emblem"
+  },
+  {
+    "type_id": 73662,
+    "name": "Coercer Alliance Emblem"
+  },
+  {
+    "type_id": 73663,
+    "name": "Condor Alliance Emblem"
+  },
+  {
+    "type_id": 73664,
+    "name": "Corax Alliance Emblem"
+  },
+  {
+    "type_id": 73665,
+    "name": "Cormorant Alliance Emblem"
+  },
+  {
+    "type_id": 73666,
+    "name": "Council Diplomatic Shuttle Alliance Emblem"
+  },
+  {
+    "type_id": 73667,
+    "name": "Crucifier Alliance Emblem"
+  },
+  {
+    "type_id": 73668,
+    "name": "Cyclone Alliance Emblem"
+  },
+  {
+    "type_id": 73669,
+    "name": "Dragoon Alliance Emblem"
+  },
+  {
+    "type_id": 73670,
+    "name": "Drake Alliance Emblem"
+  },
+  {
+    "type_id": 73671,
+    "name": "Epithal Alliance Emblem"
+  },
+  {
+    "type_id": 73672,
+    "name": "Executioner Alliance Emblem"
+  },
+  {
+    "type_id": 73673,
+    "name": "Fenrir Alliance Emblem"
+  },
+  {
+    "type_id": 73674,
+    "name": "Ferox Alliance Emblem"
+  },
+  {
+    "type_id": 73675,
+    "name": "Gallente Shuttle Alliance Emblem"
+  },
+  {
+    "type_id": 73676,
+    "name": "Gnosis Alliance Emblem"
+  },
+  {
+    "type_id": 73677,
+    "name": "Gold Magnate Alliance Emblem"
+  },
+  {
+    "type_id": 73678,
+    "name": "Goru's Shuttle Alliance Emblem"
+  },
+  {
+    "type_id": 73679,
+    "name": "Griffin Alliance Emblem"
+  },
+  {
+    "type_id": 73680,
+    "name": "Guristas Shuttle Alliance Emblem"
+  },
+  {
+    "type_id": 73681,
+    "name": "Hematos Alliance Emblem"
+  },
+  {
+    "type_id": 73682,
+    "name": "Heron Alliance Emblem"
+  },
+  {
+    "type_id": 73683,
+    "name": "Hoarder Alliance Emblem"
+  },
+  {
+    "type_id": 73684,
+    "name": "Hurricane Alliance Emblem"
+  },
+  {
+    "type_id": 73685,
+    "name": "Ibis Alliance Emblem"
+  },
+  {
+    "type_id": 73686,
+    "name": "Imicus Alliance Emblem"
+  },
+  {
+    "type_id": 73687,
+    "name": "Immolator Alliance Emblem"
+  },
+  {
+    "type_id": 73688,
+    "name": "Impairor Alliance Emblem"
+  },
+  {
+    "type_id": 73689,
+    "name": "Incursus Alliance Emblem"
+  },
+  {
+    "type_id": 73690,
+    "name": "Inquisitor Alliance Emblem"
+  },
+  {
+    "type_id": 73691,
+    "name": "Iteron Mark V Alliance Emblem"
+  },
+  {
+    "type_id": 73692,
+    "name": "Kestrel Alliance Emblem"
+  },
+  {
+    "type_id": 73693,
+    "name": "Kryos Alliance Emblem"
+  },
+  {
+    "type_id": 73694,
+    "name": "Leopard Alliance Emblem"
+  },
+  {
+    "type_id": 73695,
+    "name": "Magnate Alliance Emblem"
+  },
+  {
+    "type_id": 73696,
+    "name": "Mammoth Alliance Emblem"
+  },
+  {
+    "type_id": 73697,
+    "name": "Maulus Alliance Emblem"
+  },
+  {
+    "type_id": 73698,
+    "name": "Merlin Alliance Emblem"
+  },
+  {
+    "type_id": 73699,
+    "name": "Miasmos Alliance Emblem"
+  },
+  {
+    "type_id": 73700,
+    "name": "Minmatar Shuttle Alliance Emblem"
+  },
+  {
+    "type_id": 73701,
+    "name": "Myrmidon Alliance Emblem"
+  },
+  {
+    "type_id": 73702,
+    "name": "Naga Alliance Emblem"
+  },
+  {
+    "type_id": 73703,
+    "name": "Naglfar Alliance Emblem"
+  },
+  {
+    "type_id": 73704,
+    "name": "Navitas Alliance Emblem"
+  },
+  {
+    "type_id": 73705,
+    "name": "Nereus Alliance Emblem"
+  },
+  {
+    "type_id": 73706,
+    "name": "Obelisk Alliance Emblem"
+  },
+  {
+    "type_id": 73707,
+    "name": "Oracle Alliance Emblem"
+  },
+  {
+    "type_id": 73708,
+    "name": "Phoenix Alliance Emblem"
+  },
+  {
+    "type_id": 73709,
+    "name": "Probe Alliance Emblem"
+  },
+  {
+    "type_id": 73710,
+    "name": "Prophecy Alliance Emblem"
+  },
+  {
+    "type_id": 73711,
+    "name": "Punisher Alliance Emblem"
+  },
+  {
+    "type_id": 73712,
+    "name": "Reaper Alliance Emblem"
+  },
+  {
+    "type_id": 73713,
+    "name": "Revelation Alliance Emblem"
+  },
+  {
+    "type_id": 73714,
+    "name": "Sigil Alliance Emblem"
+  },
+  {
+    "type_id": 73715,
+    "name": "Silver Magnate Alliance Emblem"
+  },
+  {
+    "type_id": 73716,
+    "name": "Slasher Alliance Emblem"
+  },
+  {
+    "type_id": 73717,
+    "name": "Sunesis Alliance Emblem"
+  },
+  {
+    "type_id": 73718,
+    "name": "Taipan Alliance Emblem"
+  },
+  {
+    "type_id": 73719,
+    "name": "Talos Alliance Emblem"
+  },
+  {
+    "type_id": 73720,
+    "name": "Talwar Alliance Emblem"
+  },
+  {
+    "type_id": 73721,
+    "name": "Thrasher Alliance Emblem"
+  },
+  {
+    "type_id": 73722,
+    "name": "Tormentor Alliance Emblem"
+  },
+  {
+    "type_id": 73723,
+    "name": "Tornado Alliance Emblem"
+  },
+  {
+    "type_id": 73724,
+    "name": "Tristan Alliance Emblem"
+  },
+  {
+    "type_id": 73725,
+    "name": "Velator Alliance Emblem"
+  },
+  {
+    "type_id": 73726,
+    "name": "Venture Alliance Emblem"
+  },
+  {
+    "type_id": 73727,
+    "name": "Vigil Alliance Emblem"
+  },
+  {
+    "type_id": 73728,
+    "name": "Algos Alliance Emblem"
+  },
+  {
+    "type_id": 73729,
+    "name": "Amarr Shuttle Alliance Emblem"
+  },
+  {
+    "type_id": 73730,
+    "name": "Algos Corporation Emblem"
+  },
+  {
+    "type_id": 73731,
+    "name": "Burst Corporation Emblem"
+  },
+  {
+    "type_id": 73732,
+    "name": "Dragoon Corporation Emblem"
+  },
+  {
+    "type_id": 73733,
+    "name": "Griffin Corporation Emblem"
+  },
+  {
+    "type_id": 73734,
+    "name": "Inquisitor Corporation Emblem"
+  },
+  {
+    "type_id": 73735,
+    "name": "Minmatar Shuttle Corporation Emblem"
+  },
+  {
+    "type_id": 73736,
+    "name": "Prophecy Corporation Emblem"
+  },
+  {
+    "type_id": 73737,
+    "name": "Talwar Corporation Emblem"
+  },
+  {
+    "type_id": 73738,
+    "name": "Apotheosis Alliance Emblem"
+  },
+  {
+    "type_id": 73739,
+    "name": "Catalyst Alliance Emblem"
+  },
+  {
+    "type_id": 73740,
+    "name": "Echo Alliance Emblem"
+  },
+  {
+    "type_id": 73741,
+    "name": "Harbinger Alliance Emblem"
+  },
+  {
+    "type_id": 73742,
+    "name": "InterBus Shuttle Alliance Emblem"
+  },
+  {
+    "type_id": 73743,
+    "name": "Moros Alliance Emblem"
+  },
+  {
+    "type_id": 73787,
+    "name": "Naglfar Fleet Issue"
+  },
+  {
+    "type_id": 73789,
+    "name": "Coercer Navy Issue"
+  },
+  {
+    "type_id": 73790,
+    "name": "Revelation Navy Issue"
+  },
+  {
+    "type_id": 73792,
+    "name": "Moros Navy Issue"
+  },
+  {
+    "type_id": 73793,
+    "name": "Phoenix Navy Issue"
+  },
+  {
+    "type_id": 73794,
+    "name": "Thrasher Fleet Issue"
+  },
+  {
+    "type_id": 73795,
+    "name": "Cormorant Navy Issue"
+  },
+  {
+    "type_id": 73796,
+    "name": "Catalyst Navy Issue"
+  },
+  {
+    "type_id": 73838,
+    "name": "Magnate Navy Issue Semiotique Superluminal SKIN"
+  },
+  {
+    "type_id": 73839,
+    "name": "Heron Navy Issue Semiotique Superluminal SKIN"
+  },
+  {
+    "type_id": 73840,
+    "name": "Imicus Navy Issue Semiotique Superluminal SKIN"
+  },
+  {
+    "type_id": 73841,
+    "name": "Probe Fleet Issue Semiotique Superluminal SKIN"
+  },
+  {
+    "type_id": 73869,
+    "name": "Cyclone Fleet Issue Snowline Bladeracer SKIN"
+  },
+  {
+    "type_id": 73870,
+    "name": "Ferox Navy Issue Steel Cardinal SKIN"
+  },
+  {
+    "type_id": 73871,
+    "name": "Myrmidon Navy Issue Inner Zone Vanguard SKIN"
+  },
+  {
+    "type_id": 73872,
+    "name": "Prophecy Navy Issue Crown and Swords SKIN"
+  },
+  {
+    "type_id": 73873,
+    "name": "Caldari Navy Hookbill Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 73874,
+    "name": "Ferox Navy Issue Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 73875,
+    "name": "Imperial Navy Slicer Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 73876,
+    "name": "Prophecy Navy Issue Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 73877,
+    "name": "Federation Navy Comet Versus Redforce SKIN"
+  },
+  {
+    "type_id": 73878,
+    "name": "Myrmidon Navy Issue Versus Redforce SKIN"
+  },
+  {
+    "type_id": 73879,
+    "name": "Republic Fleet Firetail Versus Redforce SKIN"
+  },
+  {
+    "type_id": 73880,
+    "name": "Cyclone Fleet Issue Versus Redforce SKIN"
+  },
+  {
+    "type_id": 73910,
+    "name": "Elite Infomorph Psychology"
+  },
+  {
+    "type_id": 73912,
+    "name": "Advanced Contracting"
+  },
+  {
+    "type_id": 73995,
+    "name": "Phoenix Navy Issue Blueprint"
+  },
+  {
+    "type_id": 73996,
+    "name": "Moros Navy Issue Blueprint"
+  },
+  {
+    "type_id": 74000,
+    "name": "Revelation Navy Issue Blueprint"
+  },
+  {
+    "type_id": 74001,
+    "name": "Military Navigation Telemetry"
+  },
+  {
+    "type_id": 74002,
+    "name": "Turnur Aftermath"
+  },
+  {
+    "type_id": 74007,
+    "name": "Probe Fleet Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74008,
+    "name": "Heron Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74010,
+    "name": "Magnate Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74013,
+    "name": "Imicus Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74015,
+    "name": "Cyclone Fleet Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74018,
+    "name": "Ferox Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74020,
+    "name": "Prophecy Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74023,
+    "name": "Myrmidon Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74025,
+    "name": "Revelation Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74028,
+    "name": "Moros Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74029,
+    "name": "Phoenix Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74030,
+    "name": "Naglfar Fleet Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74031,
+    "name": "Coercer Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74032,
+    "name": "Cormorant Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74033,
+    "name": "Catalyst Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74034,
+    "name": "Thrasher Fleet Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74035,
+    "name": "Probe Fleet Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74036,
+    "name": "Heron Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74037,
+    "name": "Magnate Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74038,
+    "name": "Imicus Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74039,
+    "name": "Cyclone Fleet Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74040,
+    "name": "Ferox Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74041,
+    "name": "Prophecy Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74042,
+    "name": "Myrmidon Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74043,
+    "name": "Revelation Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74044,
+    "name": "Moros Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74045,
+    "name": "Phoenix Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74046,
+    "name": "Naglfar Fleet Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74047,
+    "name": "Coercer Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74048,
+    "name": "Cormorant Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74049,
+    "name": "Catalyst Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74050,
+    "name": "Thrasher Fleet Issue Corporation Emblem"
   }
 ]

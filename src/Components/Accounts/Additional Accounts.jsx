@@ -113,7 +113,13 @@ export function AdditionalAccounts({ parentUserIndex }) {
           }
         }
         updateUsers(newUserArray);
-        updateApiJobs((prev) => prev.concat(newUser.apiJobs));
+        updateApiJobs((prev) =>
+          prev.concat(
+            JSON.parse(
+              sessionStorage.getItem(`esiJobs_${newUser.CharacterHash}`)
+            )
+          )
+        );
         if (newUserArray[parentUserIndex].settings.account.cloudAccounts) {
           updateMainUserDoc();
         }

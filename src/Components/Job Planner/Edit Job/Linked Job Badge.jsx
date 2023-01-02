@@ -29,7 +29,7 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
   );
   const [dialogTrigger, updateDialogTrigger] = useState(false);
   const { uploadUserJobSnapshot, uploadJob } = useFirebase();
-  const { switchActiveJob, updateJobSnapshot, findJobData } =
+  const { switchActiveJob, updateJobSnapshotFromFullJob, findJobData } =
     useJobManagement();
 
   return (
@@ -126,7 +126,7 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
                         if (parentIndex !== -1) {
                           newParentJobs.splice(parentIndex, 1);
                         }
-                        newUserJobSnapshot = updateJobSnapshot(
+                        newUserJobSnapshot = updateJobSnapshotFromFullJob(
                           selectedJob,
                           newUserJobSnapshot
                         );

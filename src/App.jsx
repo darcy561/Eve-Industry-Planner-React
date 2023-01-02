@@ -12,6 +12,7 @@ import {
   deepPurple,
   grey,
   lightGreen,
+  yellow,
 } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
 import { NavRoutes } from "./Routes";
@@ -56,6 +57,9 @@ export default function App() {
             baseMat: {
               main: blueGrey[100],
             },
+            groupJob: {
+              main: yellow[600],
+            },
           }
         : {
             type: "dark",
@@ -76,6 +80,9 @@ export default function App() {
             },
             baseMat: {
               main: blueGrey[100],
+            },
+            groupJob: {
+              main: yellow[600],
             },
             background: {
               default: grey[900],
@@ -101,7 +108,7 @@ export default function App() {
       <SnackBarNotification />
       <DialogBox />
       <NavRoutes mode={mode} colorMode={colorMode} />
-      <FeedbackIcon/>
+      <FeedbackIcon />
     </ThemeProvider>
   );
 }

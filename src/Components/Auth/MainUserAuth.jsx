@@ -103,10 +103,6 @@ export default function AuthMainUser() {
         apiData: true,
       }));
 
-      const sStatus = await serverStatus();
-
-      userObject = await characterAPICall(sStatus, userObject);
-
       updateLoadingText((prevObj) => ({
         ...prevObj,
         apiDataComp: true,

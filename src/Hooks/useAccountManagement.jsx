@@ -83,128 +83,61 @@ export function useAccountManagement() {
     return userObject;
   };
 
-  const characterAPICall = async (sStatus, userObject) => {
+  const characterAPICall = async (userObject) => {
     const t = trace(performance, "CharacterESICalls");
     t.start();
-    if (sStatus) {
-      const [
-        skills,
-        indJobs,
-        orders,
-        histOrders,
-        blueprints,
-        transactions,
-        journal,
-        assets,
-        standings,
-        corpIndJobs,
-      ] = await Promise.all([
-        CharacterSkills(userObject),
-        IndustryJobs(userObject),
-        MarketOrders(userObject),
-        HistoricMarketOrders(userObject),
-        BlueprintLibrary(userObject),
-        WalletTransactions(userObject),
-        WalletJournal(userObject),
-        fullAssetsList(userObject),
-        standingsList(userObject),
-        corpIndustryJobs(userObject),
-      ]);
-
-      sessionStorage.setItem(
-        `esiSkills_${userObject.CharacterHash}`,
-        JSON.stringify(skills)
-      );
-      sessionStorage.setItem(
-        `esiJobs_${userObject.CharacterHash}`,
-        JSON.stringify(indJobs)
-      );
-      sessionStorage.setItem(
-        `esiOrders_${userObject.CharacterHash}`,
-        JSON.stringify(orders)
-      );
-      sessionStorage.setItem(
-        `esiHistOrders_${userObject.CharacterHash}`,
-        JSON.stringify(histOrders)
-      );
-      sessionStorage.setItem(
-        `esiBlueprints_${userObject.CharacterHash}`,
-        JSON.stringify(blueprints)
-      );
-      sessionStorage.setItem(
-        `esiTransactions_${userObject.CharacterHash}`,
-        JSON.stringify(transactions)
-      );
-      sessionStorage.setItem(
-        `esiJournal_${userObject.CharacterHash}`,
-        JSON.stringify(journal)
-      );
-      sessionStorage.setItem(
-        `assets_${userObject.CharacterHash}`,
-        JSON.stringify(assets)
-      );
-      sessionStorage.setItem(
-        `esiStandings_${userObject.CharacterHash}`,
-        JSON.stringify(standings)
-      );
-      sessionStorage.setItem(
-        `esiCorpJobs_${userObject.CharacterHash}`,
-        JSON.stringify(corpIndJobs)
-      );
-    } else {
-      sessionStorage.setItem(
-        `esiSkills_${userObject.CharacterHash}`,
-        JSON.stringify([])
-      );
-      sessionStorage.setItem(
-        `esiJobs_${userObject.CharacterHash}`,
-        JSON.stringify([])
-      );
-      sessionStorage.setItem(
-        `esiOrders_${userObject.CharacterHash}`,
-        JSON.stringify([])
-      );
-      sessionStorage.setItem(
-        `esiHistOrders_${userObject.CharacterHash}`,
-        JSON.stringify([])
-      );
-      sessionStorage.setItem(
-        `esiBlueprints_${userObject.CharacterHash}`,
-        JSON.stringify([])
-      );
-      sessionStorage.setItem(
-        `esiTransactions_${userObject.CharacterHash}`,
-        JSON.stringify([])
-      );
-      sessionStorage.setItem(
-        `esiJournal_${userObject.CharacterHash}`,
-        JSON.stringify([])
-      );
-      sessionStorage.setItem(
-        `assets_${userObject.CharacterHash}`,
-        JSON.stringify([])
-      );
-      sessionStorage.setItem(
-        `esiStandings_${userObject.CharacterHash}`,
-        JSON.stringify([])
-      );
-      sessionStorage.setItem(
-        `esiCorpJobs_${userObject.CharacterHash}`,
-        JSON.stringify([])
-      );
-    }
+    const [
+      skills,
+      indJobs,
+      orders,
+      histOrders,
+      blueprints,
+      transactions,
+      journal,
+      assets,
+      standings,
+      corpIndJobs,
+    ] = await Promise.all([
+      CharacterSkills(userObject),
+      IndustryJobs(userObject),
+      MarketOrders(userObject),
+      HistoricMarketOrders(userObject),
+      BlueprintLibrary(userObject),
+      WalletTransactions(userObject),
+      WalletJournal(userObject),
+      fullAssetsList(userObject),
+      standingsList(userObject),
+      corpIndustryJobs(userObject),
+    ]);
     t.stop();
-    return userObject;
+    return {
+      owner: userObject.CharacterHash,
+      esiSkills: skills,
+      esiJobs: indJobs,
+      esiOrders: orders,
+      esiHistOrders: histOrders,
+      esiBlueprints: blueprints,
+      esiJournal: journal,
+      esiTransactions: transactions,
+      esiAssets: assets,
+      esiStandings: standings,
+      esiCorpJobs: corpIndJobs,
+    };
   };
 
-  const getLocationNames = async (users, mainUser) => {
+  const getLocationNames = async (users, mainUser, esiObjectArray) => {
     let locationIDS = new Set();
     let citadelStore = new Set();
     let newIDNamePromises = [];
     let newNameArray = [];
 
     for (let user of users) {
+      let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
+      if (data === undefined) {
+        continue;
+      }
       let citadelIDs = new Set();
+
       if (user.ParentUser) {
         if (user.settings.editJob.defaultAssetLocation.toString().length > 10) {
           if (!citadelStore.has(user.settings.editJob.defaultAssetLocation)) {
@@ -215,9 +148,7 @@ export function useAccountManagement() {
           locationIDS.add(user.settings.editJob.defaultAssetLocation);
         }
       }
-      JSON.parse(
-        sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
-      ).forEach((job) => {
+      data.esiJobs.forEach((job) => {
         if (job.facility_id.toString().length > 10) {
           if (!citadelStore.has(job.facility_id)) {
             citadelIDs.add(job.facility_id);
@@ -227,9 +158,7 @@ export function useAccountManagement() {
           locationIDS.add(job.facility_id);
         }
       });
-      JSON.parse(
-        sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
-      ).forEach((order) => {
+      data.esiOrders.forEach((order) => {
         if (order.location_id.toString().length > 10) {
           if (!citadelStore.has(order.location_id)) {
             citadelIDs.add(order.location_id);
@@ -240,9 +169,7 @@ export function useAccountManagement() {
         }
         locationIDS.add(order.region_id);
       });
-      JSON.parse(
-        sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
-      ).forEach((order) => {
+      data.esiHistOrders.forEach((order) => {
         if (order.location_id.toString().length > 10) {
           if (!citadelStore.has(order.location_id)) {
             citadelIDs.add(order.location_id);
@@ -288,6 +215,7 @@ export function useAccountManagement() {
     updateArchivedJobs([]);
     updateApiJobs(apiJobsDefault);
     updateUserWatchlist({ groups: [], items: [] });
+    sessionStorage.clear();
     localStorage.removeItem("Auth");
     signOut(auth);
     navigate("/");
@@ -326,31 +254,31 @@ export function useAccountManagement() {
     newLinkedOrders,
     newLinkedTrans,
     userObject,
-    userArray
+    userArray,
+    esiObjectArray
   ) => {
     let allJobIDs = new Set();
     let allOrderIDs = new Set();
     let allTransIDs = new Set();
 
     for (let user of userArray) {
-      JSON.parse(
-        sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
-      ).forEach((job) => {
+      let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
+      if (data === undefined) {
+        continue;
+      }
+      data.esiJobs.forEach((job) => {
         allJobIDs.add(job.job_id);
       });
-      JSON.parse(
-        sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
-      ).forEach((order) => {
+
+      data.esiOrders.forEach((order) => {
         allOrderIDs.add(order.order_id);
       });
-      JSON.parse(
-        sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
-      ).forEach((order) => {
+
+      data.esiHistOrders.forEach((order) => {
         allOrderIDs.add(order.order_id);
       });
-      JSON.parse(
-        sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
-      ).forEach((trans) => {
+
+      data.esiTransactions.forEach((trans) => {
         allTransIDs.add(trans.transaction_id);
       });
     }
@@ -397,25 +325,24 @@ export function useAccountManagement() {
     return;
   };
 
-  const buildCloudAccountData = async (refreshTokens, userArray) => {
-    const sStatus = await serverStatus();
+  const buildCloudAccountData = async (
+    refreshTokens,
+    userArray,
+    esiObjectArray
+  ) => {
     for (let token of refreshTokens) {
       let newUser = await RefreshTokens(token.rToken, false);
       if (newUser === "RefreshFail") {
         continue;
       }
       await getCharacterInfo(newUser);
-      newUser = await characterAPICall(sStatus, newUser);
-      if (newUser === undefined) {
-        continue;
-      }
+      let esiObject = await characterAPICall(newUser);
       userArray.push(newUser);
+      esiObjectArray.push(esiObject);
     }
-    return userArray;
   };
 
-  const buildLocalAccountData = async (userArray) => {
-    const sStatus = await serverStatus();
+  const buildLocalAccountData = async (userArray, esiObjectArray) => {
     let parent = userArray.find((i) => i.ParentUser);
     let rTokens = JSON.parse(
       localStorage.getItem(`${parent.CharacterHash} AdditionalAccounts`)
@@ -430,14 +357,11 @@ export function useAccountManagement() {
         continue;
       }
       await getCharacterInfo(newUser);
-      newUser = await characterAPICall(sStatus, newUser);
-      if (newUser === undefined) {
-        continue;
-      }
+      let esiObject = await characterAPICall(newUser);
 
+      esiObjectArray.push(esiObject);
       userArray.push(newUser);
     }
-    return userArray;
   };
 
   const updateCloudRefreshTokens = (refreshTokens, userArray) => {
@@ -481,15 +405,15 @@ export function useAccountManagement() {
     );
   };
 
-  const buildApiArray = (userArray) => {
+  const buildApiArray = (userArray, esiObjectArray) => {
     let newApiArray = [];
     for (let user of userArray) {
-      newApiArray = newApiArray.concat(
-        JSON.parse(sessionStorage.getItem(`esiJobs_${user.CharacterHash}`))
-      );
-      newApiArray = newApiArray.concat(
-        JSON.parse(sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`))
-      );
+      let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
+      if (data === undefined) {
+        continue;
+      }
+      newApiArray = newApiArray.concat(data.esiJobs);
+      newApiArray = newApiArray.concat(data.esiCorpJobs);
     }
 
     newApiArray.sort((a, b) => {
@@ -517,6 +441,51 @@ export function useAccountManagement() {
     return newApiArray;
   };
 
+  const storeESIData = async (esiObjectArray) => {
+    for (let esiUser of esiObjectArray) {
+      sessionStorage.setItem(
+        `esiSkills_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiSkills)
+      );
+      sessionStorage.setItem(
+        `esiJobs_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiJobs)
+      );
+      sessionStorage.setItem(
+        `esiOrders_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiOrders)
+      );
+      sessionStorage.setItem(
+        `esiHistOrders_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiHistOrders)
+      );
+      sessionStorage.setItem(
+        `esiBlueprints_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiBlueprints)
+      );
+      sessionStorage.setItem(
+        `esiTransactions_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiTransactions)
+      );
+      sessionStorage.setItem(
+        `esiJournal_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiJournal)
+      );
+      sessionStorage.setItem(
+        `assets_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiAssets)
+      );
+      sessionStorage.setItem(
+        `esiStandings_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiStandings)
+      );
+      sessionStorage.setItem(
+        `esiCorpJobs_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiCorpJobs)
+      );
+    }
+  };
+
   const getCharacterInfo = async (userObj) => {
     const charData = await characterData(userObj);
     userObj.corporation_id = charData.corporation_id;
@@ -533,6 +502,7 @@ export function useAccountManagement() {
     getCharacterInfo,
     getLocationNames,
     logUserOut,
+    storeESIData,
     tidyLinkedData,
     updateCloudRefreshTokens,
     updateLocalRefreshTokens,

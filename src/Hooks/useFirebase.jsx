@@ -31,6 +31,7 @@ import { getToken } from "firebase/app-check";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
 import { useAccountManagement } from "./useAccountManagement";
+import { useEveApi } from "./useEveApi";
 
 export function useFirebase() {
   const { users, updateUserDataFetch, updateUsers } = useContext(UsersContext);
@@ -55,13 +56,15 @@ export function useFirebase() {
     buildApiArray,
     buildCloudAccountData,
     buildLocalAccountData,
+    characterAPICall,
     checkUserClaims,
-    getCharacterInfo,
     getLocationNames,
+    storeESIData,
     tidyLinkedData,
     updateCloudRefreshTokens,
     updateLocalRefreshTokens,
   } = useAccountManagement();
+  const { serverStatus } = useEveApi();
   const analytics = getAnalytics();
 
   const parentUser = useMemo(() => {
@@ -641,34 +644,46 @@ export function useFirebase() {
           updateUserDataFetch(true);
           let userData = doc.data();
           let newUserArray = [userObject];
+          let esiOjectArray = [];
           let mainUser = newUserArray.find((i) => i.ParentUser);
           mainUser.accountID = userData.accountID;
           mainUser.settings = userData.settings;
+          serverStatus();
+          let mainUserESIObject = await characterAPICall(mainUser);
+          esiOjectArray.push(mainUserESIObject);
 
           if (userData.settings.account.cloudAccounts) {
-            newUserArray = await buildCloudAccountData(
+            await buildCloudAccountData(
               userData.refreshTokens,
-              newUserArray
+              newUserArray,
+              esiOjectArray
             );
             mainUser.accountRefreshTokens = updateCloudRefreshTokens(
               userData.refreshTokens,
               newUserArray
             );
+            await storeESIData(esiOjectArray);
           }
           if (!userData.settings.account.cloudAccounts) {
-            newUserArray = await buildLocalAccountData(newUserArray);
+            await buildLocalAccountData(newUserArray, esiOjectArray);
             updateLocalRefreshTokens(newUserArray);
+            await storeESIData(esiOjectArray);
           }
           tidyLinkedData(
             userData.linkedJobs,
             userData.linkedOrders,
             userData.linkedTrans,
             mainUser,
-            newUserArray
+            newUserArray,
+            esiOjectArray
           );
-          let newApiArray = buildApiArray(newUserArray);
+          let newApiArray = buildApiArray(newUserArray, esiOjectArray);
           await checkUserClaims(newUserArray);
-          let names = await getLocationNames(newUserArray, mainUser);
+          let names = await getLocationNames(
+            newUserArray,
+            mainUser,
+            esiOjectArray
+          );
           updateEveIDs(names);
           updateApiJobs(newApiArray);
           updateUsers(newUserArray);

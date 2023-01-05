@@ -28,49 +28,35 @@ export function AccountData() {
     jEntries: 0,
   });
 
-  useEffect(() => {
-    if (!userDataFetch) {
-      let newOpenMOrders = 0;
-      let newHistMOrders = 0;
-      let newIndJobs = 0;
-      let newBlueprints = 0;
-      let newMTrans = 0;
-      let newJEntries = 0;
-
-      users.forEach((i) => {
-        newOpenMOrders += JSON.parse(
-          sessionStorage.getItem(`esiOrders_${i.CharacterHash}`)
-        ).length;
-        newHistMOrders += JSON.parse(
-          sessionStorage.getItem(`esiHistOrders_${i.CharacterHash}`)
-        ).length;
-        newIndJobs += JSON.parse(
-          sessionStorage.getItem(`esiJobs_${i.CharacterHash}`)
-        ).length;
-        newIndJobs += JSON.parse(
-          sessionStorage.getItem(`esiCorpJobs_${i.CharacterHash}`)
-        ).length;
-        newBlueprints += JSON.parse(
-          sessionStorage.getItem(`esiBlueprints_${i.CharacterHash}`)
-        ).length;
-        newMTrans += JSON.parse(
-          sessionStorage.getItem(`esiTransactions_${i.CharacterHash}`)
-        ).length;
-        newJEntries += JSON.parse(
-          sessionStorage.getItem(`esiJournal_${i.CharacterHash}`)
-        ).length;
-      });
-
-      updateDataCount({
-        openMOrders: newOpenMOrders,
-        histMOrders: newHistMOrders,
-        indJobs: newIndJobs,
-        blueprints: newBlueprints,
-        mTrans: newMTrans,
-        jEntries: newJEntries,
-      });
-    }
-  }, [users, userDataFetch]);
+  let newOpenMOrders = 0;
+  let newHistMOrders = 0;
+  let newIndJobs = 0;
+  let newBlueprints = 0;
+  let newMTrans = 0;
+  let newJEntries = 0;
+  // users.forEach((i) => {
+  //   newOpenMOrders += JSON.parse(
+  //     sessionStorage.getItem(`esiOrders_${i.CharacterHash}`)
+  //   ).length;
+  //   newHistMOrders += JSON.parse(
+  //     sessionStorage.getItem(`esiHistOrders_${i.CharacterHash}`)
+  //   ).length;
+  //   newIndJobs += JSON.parse(
+  //     sessionStorage.getItem(`esiJobs_${i.CharacterHash}`)
+  //   ).length;
+  //   newIndJobs += JSON.parse(
+  //     sessionStorage.getItem(`esiCorpJobs_${i.CharacterHash}`)
+  //   ).length;
+  //   newBlueprints += JSON.parse(
+  //     sessionStorage.getItem(`esiBlueprints_${i.CharacterHash}`)
+  //   ).length;
+  //   newMTrans += JSON.parse(
+  //     sessionStorage.getItem(`esiTransactions_${i.CharacterHash}`)
+  //   ).length;
+  //   newJEntries += JSON.parse(
+  //     sessionStorage.getItem(`esiJournal_${i.CharacterHash}`)
+  //   ).length;
+  // });
 
   if (!userDataFetch && !userJobSnapshotDataFetch) {
     return (
@@ -158,7 +144,7 @@ export function AccountData() {
               );
             })}
           </Grid>
-          <Grid container item xs={12} sx={{ marginTop: "20px" }}>
+          {/* <Grid container item xs={12} sx={{ marginTop: "20px" }}>
             <Grid item xs={6}>
               <Typography
                 sx={{ typography: { xs: "caption", sm: "subtitle1" } }}
@@ -178,7 +164,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {dataCount.openMOrders.toLocaleString()}
+                {newOpenMOrders.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={8}>
@@ -191,7 +177,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {dataCount.histMOrders.toLocaleString()}
+                {newHistMOrders.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={8}>
@@ -204,7 +190,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {dataCount.indJobs.toLocaleString()}
+                {newIndJobs.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={8}>
@@ -217,7 +203,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {dataCount.blueprints.toLocaleString()}
+                {newBlueprints.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={8}>
@@ -230,7 +216,7 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {dataCount.mTrans.toLocaleString()}
+                {newMTrans.toLocaleString()}
               </Typography>
             </Grid>
             <Grid item xs={8}>
@@ -243,10 +229,10 @@ export function AccountData() {
                 align="right"
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
               >
-                {dataCount.jEntries.toLocaleString()}
+                {newJEntries.toLocaleString()}
               </Typography>
             </Grid>
-          </Grid>
+          </Grid> */}
         </Grid>
       </Paper>
     );

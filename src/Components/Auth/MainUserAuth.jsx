@@ -44,7 +44,7 @@ export default function AuthMainUser() {
     userMaindDocListener,
     userGroupDataListener,
   } = useFirebase();
-  const { characterAPICall } = useAccountManagement();
+  const { characterAPICall,getCharacterInfo } = useAccountManagement();
   const checkAppVersion = httpsCallable(
     functions,
     "appVersion-checkAppVersion"
@@ -82,7 +82,7 @@ export default function AuthMainUser() {
 
       let userObject = await EveSSOTokens(authCode, true);
       let fbToken = await firebaseAuth(userObject);
-      await getCharacterInfo(refreshedUser);
+      await getCharacterInfo(userObject);
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
@@ -102,10 +102,6 @@ export default function AuthMainUser() {
         charDataComp: true,
         apiData: true,
       }));
-
-      const sStatus = await serverStatus();
-
-      userObject = await characterAPICall(sStatus, userObject);
 
       updateLoadingText((prevObj) => ({
         ...prevObj,

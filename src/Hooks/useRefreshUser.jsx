@@ -114,9 +114,6 @@ export function useRefreshUser() {
       apiData: true,
     }));
 
-    const sStatus = await serverStatus();
-    refreshedUser = await characterAPICall(sStatus, refreshedUser);
-
     updateLoadingText((prevObj) => ({
       ...prevObj,
       apiDataComp: true,

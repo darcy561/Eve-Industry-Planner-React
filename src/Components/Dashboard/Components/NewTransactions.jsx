@@ -1,8 +1,6 @@
-import { Grid, Paper, Typography } from "@mui/material";
-import { useEffect } from "react";
+import { CircularProgress, Grid, Paper, Typography } from "@mui/material";
 import { useContext, useMemo } from "react";
 import {
-  UserJobSnapshot,
   UserJobSnapshotContext,
   UsersContext,
 } from "../../../Context/AuthContext";
@@ -13,8 +11,10 @@ import {
 import itemData from "../../../RawData/searchIndex.json";
 
 export function NewTransactions() {
-  const { users } = useContext(UsersContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { users, userDataFetch } = useContext(UsersContext);
+  const { userJobSnapshot, userJobSnapshotDataFetch } = useContext(
+    UserJobSnapshotContext
+  );
   const { jobStatus } = useContext(JobStatusContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
 
@@ -101,69 +101,116 @@ export function NewTransactions() {
     return new Date(b.date) - new Date(a.date);
   });
 
-  if (transactionData.length > 0) {
-    return (
-      <Paper
-        elevation={3}
-        sx={{
-          padding: "20px",
-          marginLeft: {
-            xs: "5px",
-            md: "10px",
-          },
-          marginRight: {
-            xs: "5px",
-            md: "10px",
-          },
-        }}
-        square
-      >
-        <Grid container>
-          <Grid item xs={12} sx={{ marginBottom: "20px" }}>
-            <Typography variant="h5" color="primary" align="center">
-              New Job Transactions
-            </Typography>
+  if (!userDataFetch && !userJobSnapshotDataFetch) {
+    if (transactionData.length > 0) {
+      return (
+        <Paper
+          elevation={3}
+          sx={{
+            padding: "20px",
+            marginLeft: {
+              xs: "5px",
+              md: "10px",
+            },
+            marginRight: {
+              xs: "5px",
+              md: "10px",
+            },
+          }}
+          square
+        >
+          <Grid container>
+            <Grid item xs={12} sx={{ marginBottom: "20px" }}>
+              <Typography variant="h5" color="primary" align="center">
+                New Job Transactions
+              </Typography>
+            </Grid>
+            <Grid container item xs={12}>
+              {transactionData.map((trans) => {
+                let itemName = itemData.find((i) => i.itemID === trans.type_id);
+                return (
+                  <Grid
+                    key={trans.transaction_id}
+                    container
+                    item
+                    sx={{ marginBottom: "5px" }}
+                  >
+                    <Grid item xs={3}>
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
+                        {new Date(trans.date).toLocaleString()}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography
+                        align="center"
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
+                        {itemName.name}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography
+                        align="right"
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
+                        {trans.quantity} @ {trans.unit_price.toLocaleString()}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                );
+              })}
+            </Grid>
           </Grid>
-          <Grid container item xs={12}>
-            {transactionData.map((trans) => {
-              let itemName = itemData.find((i) => i.itemID === trans.type_id);
-              return (
-                <Grid
-                  key={trans.transaction_id}
-                  container
-                  item
-                  sx={{ marginBottom: "5px" }}
-                >
-                  <Grid item xs={3}>
-                    <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                    >
-                      {new Date(trans.date).toLocaleString()}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Typography
-                      align="center"
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                    >
-                      {itemName.name}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Typography
-                      align="right"
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                    >
-                      {trans.quantity} @ {trans.unit_price.toLocaleString()}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              );
-            })}
+        </Paper>
+      );
+    } else {
+      return (
+        <Paper
+          elevation={3}
+          sx={{
+            padding: "20px",
+            marginLeft: {
+              xs: "5px",
+              md: "10px",
+            },
+            marginRight: {
+              xs: "5px",
+              md: "10px",
+            },
+          }}
+          square={true}
+        >
+          <Grid container>
+            <Grid item xs={12} sx={{ marginBottom: "20px" }}>
+              <Typography variant="h5" color="primary" align="center">
+                New Job Transactions
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography
+                align="center"
+                sx={{
+                  marginBottom: "10px",
+                  typography: { xs: "caption", sm: "body2" },
+                }}
+              >
+                There are currently no new transactions for your linked market
+                orders within the ESI data.
+              </Typography>
+              <Typography
+                align="center"
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+              >
+                Transaction data from the Eve ESI updates peridodically, either
+                refresh the current data or check back later.
+              </Typography>
+            </Grid>
           </Grid>
-        </Grid>
-      </Paper>
-    );
+        </Paper>
+      );
+    }
   } else {
     return (
       <Paper
@@ -176,34 +223,18 @@ export function NewTransactions() {
           },
           marginRight: {
             xs: "5px",
-            md: "10px",
+            md: "0px",
           },
         }}
-        square={true}
+        square
       >
         <Grid container>
-          <Grid item xs={12} sx={{ marginBottom: "20px" }}>
-            <Typography variant="h5" color="primary" align="center">
-              New Job Transactions
-            </Typography>
+          <Grid item xs={12} align="center">
+            <CircularProgress color="primary" />
           </Grid>
-          <Grid item xs={12}>
-            <Typography
-              align="center"
-              sx={{
-                marginBottom: "10px",
-                typography: { xs: "caption", sm: "body2" },
-              }}
-            >
-              There are currently no new transactions for your linked market
-              orders within the ESI data.
-            </Typography>
-            <Typography
-              align="center"
-              sx={{ typography: { xs: "caption", sm: "body2" } }}
-            >
-              Transaction data from the Eve ESI updates peridodically, either
-              refresh the current data or check back later.
+          <Grid item xs={12} align="center">
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              Updating User Data
             </Typography>
           </Grid>
         </Grid>

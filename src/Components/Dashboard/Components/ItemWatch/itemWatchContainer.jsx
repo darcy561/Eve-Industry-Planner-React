@@ -15,11 +15,13 @@ export function WatchlistContainer({
 
   if (!userWatchlistDataFetch) {
     if (userWatchlist.items.length === 0) {
-      <Grid item xs={12} align="center">
-        <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-          You have no items on your watchlist.
-        </Typography>
-      </Grid>;
+      return (
+        <Grid item xs={12} align="center">
+          <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+            You have no items on your watchlist.
+          </Typography>
+        </Grid>
+      );
     }
 
     if (userWatchlist.items.length > 0) {

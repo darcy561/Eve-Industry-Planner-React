@@ -24,7 +24,7 @@ import { useMemo } from "react";
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
   const { uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
-  const { characterAPICall, checkUserClaims,getCharacterInfo } = useAccountManagement();
+  const { buildApiArray, characterAPICall, checkUserClaims,getCharacterInfo, storeESIData } = useAccountManagement();
   const { findJobData, updateJobSnapshotFromFullJob } = useJobManagement();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
@@ -38,6 +38,7 @@ export function AccountEntry({ user, parentUserIndex }) {
   const [userRefreshState, updateUserRefreshState] = useState(
     user.refreshState
   );
+  const {}
   const analytics = getAnalytics();
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -45,6 +46,7 @@ export function AccountEntry({ user, parentUserIndex }) {
   async function refreshUserAPI(user) {
     let newUsers = [...users];
     let newAPIArray = [];
+    let esiObjectsArray = [];
     updateUserRefreshState(2);
     user.refreshState = 2;
     const sStatus = await serverStatus();
@@ -54,10 +56,9 @@ export function AccountEntry({ user, parentUserIndex }) {
       }
       if (user !== "RefreshFail") {
         await getCharacterInfo(user);
-        user = await characterAPICall(sStatus, user);
-        newAPIArray = apiJobs.filter(
-          (i) => i.installer_id !== user.CharacterID
-        );
+        esiObjectsArray.push(await characterAPICall(user));
+        await storeESIData(esiObjectsArray)
+        newAPIArray = buildApiArray(newUsers, esiObjectsArray)
         JSON.parse(
           sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
         ).forEach((i) => newAPIArray.push(i));

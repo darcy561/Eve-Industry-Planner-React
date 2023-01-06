@@ -457,48 +457,67 @@ export function useAccountManagement() {
   };
 
   const storeESIData = async (esiObjectArray) => {
+    let skills = [];
+    let jobs = [];
+    let orders = [];
+    let histOrders = [];
+    let blueprints = [];
+    let transactions = [];
+    let journal = [];
+    let standings = [];
+    let corpJobs = [];
+
     for (let esiUser of esiObjectArray) {
-      sessionStorage.setItem(
-        `esiSkills_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiSkills)
-      );
-      sessionStorage.setItem(
-        `esiJobs_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiJobs)
-      );
-      sessionStorage.setItem(
-        `esiOrders_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiOrders)
-      );
-      sessionStorage.setItem(
-        `esiHistOrders_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiHistOrders)
-      );
-      sessionStorage.setItem(
-        `esiBlueprints_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiBlueprints)
-      );
-      sessionStorage.setItem(
-        `esiTransactions_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiTransactions)
-      );
-      sessionStorage.setItem(
-        `esiJournal_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiJournal)
-      );
+      skills.push({
+        user: esiUser.owner,
+        skills: esiUser.esiSkills,
+      });
+      jobs.push({
+        user: esiUser.owner,
+        jobs: esiUser.esiJobs,
+      });
+      orders.push({
+        user: esiUser.owner,
+        orders: esiUser.esiOrders,
+      });
+      histOrders.push({
+        user: esiUser.owner,
+        histOrders: esiUser.esiHistOrders,
+      });
+      blueprints.push({
+        user: esiUser.owner,
+        blueprints: esiUser.esiBlueprints,
+      });
+      transactions.push({
+        user: esiUser.owner,
+        transactions: esiUser.esiTransactions,
+      });
+      journal.push({
+        user: esiUser.owner,
+        journal: esiUser.esiJournal,
+      });
+      standings.push({
+        user: esiUser.owner,
+        standings: esiUser.esiStandings,
+      });
       sessionStorage.setItem(
         `assets_${esiUser.owner}`,
         JSON.stringify(esiUser.esiAssets)
       );
-      sessionStorage.setItem(
-        `esiStandings_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiStandings)
-      );
-      sessionStorage.setItem(
-        `esiCorpJobs_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiCorpJobs)
-      );
+      corpJobs.push({
+        user: esiUser.owner,
+        jobs: esiUser.esiCorpJobs,
+      });
     }
+    updateEsiIndJobs(jobs);
+    updateEsiSkills(skills);
+    updateEsiOrders(orders);
+    updateEsiHistOrders(histOrders);
+    updateEsiBlueprints(blueprints);
+    updateEsiJournal(journal);
+    updateEsiTransactions(transactions);
+    updateEsiStandings(standings);
+    updateCorpEsiIndJobs(corpJobs);
   };
 
   const getCharacterInfo = async (userObj) => {

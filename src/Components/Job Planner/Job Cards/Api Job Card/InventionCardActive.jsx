@@ -78,20 +78,20 @@ export function InventionESICardActive({ job }) {
                 <Grid container item xs={12}>
                   <Grid item xs={8}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                     >
                       Runs/Probability
                     </Typography>
                   </Grid>
                   <Grid item xs={4}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                       align="right"
                     >
                       {job.runs}/
-                      {job.probability.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
+                      {(job.probability * 100).toLocaleString(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
                       })}
                       %
                     </Typography>
@@ -106,24 +106,14 @@ export function InventionESICardActive({ job }) {
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
-                    {timeRemaining.days === 0 &&
-                    timeRemaining.hours === 0 &&
-                    timeRemaining.mins === 0 ? (
-                      <Typography
-                        sx={{ typography: { xs: "body2", md: "body1" } }}
-                        align="right"
-                      >
-                        Ready to Deliver
-                      </Typography>
-                    ) : (
-                      <Typography
-                        sx={{ typography: { xs: "body2", md: "body1" } }}
-                        align="right"
-                      >
-                        {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                        {timeRemaining.mins}M
-                      </Typography>
-                    )}
+                    <Typography
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
+                      align="right"
+                    >
+                      {timeRemaining !== "complete"
+                        ? timeRemaining
+                        : "Ready To Deliver"}
+                    </Typography>
                   </Grid>
                 </Grid>
               </Grid>

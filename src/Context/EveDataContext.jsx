@@ -13,6 +13,53 @@ export const EveIDs = (props) => {
   );
 };
 
+export const PersonalESIDataContext = createContext();
+export const PersonalEsiData = (props) => {
+  const [esiIndJobs, updateEsiIndJobs] = useState([]);
+  const [esiSkills, updateEsiSkills] = useState([]);
+  const [esiOrders, updateEsiOrders] = useState([]);
+  const [esiHistOrders, updateEsiHistOrders] = useState([]);
+  const [esiBlueprints, updateEsiBlueprints] = useState([]);
+  const [esiJournal, updateEsiJournal] = useState([]);
+  const [esiTrancsactions, updateEsiTransactions] = useState([]);
+  const [esiStandings, updateEsiStandings] = useState([]);
+  return (
+    <PersonalESIDataContext.Provider
+      value={{
+        esiIndJobs,
+        updateEsiIndJobs,
+        esiSkills,
+        updateEsiSkills,
+        esiOrders,
+        updateEsiOrders,
+        esiHistOrders,
+        updateEsiHistOrders,
+        esiBlueprints,
+        updateEsiBlueprints,
+        esiJournal,
+        updateEsiJournal,
+        esiTrancsactions,
+        updateEsiTransactions,
+        esiStandings,
+        updateEsiStandings,
+      }}
+    >
+      {props.children}
+    </PersonalESIDataContext.Provider>
+  );
+};
+
+export const CorpEsiDataContext = createContext();
+
+export const CorpEsiData = (props) => {
+  const [corpEsiIndJobs, updateCorpEsiIndJobs] = useState([]);
+  return (
+    <CorpEsiDataContext.Provider value={{ corpEsiIndJobs, updateCorpEsiIndJobs }}>
+      {props.children}
+    </CorpEsiDataContext.Provider>
+  );
+};
+
 export const EveESIStatusContext = createContext();
 
 export const EveESIStatus = (props) => {

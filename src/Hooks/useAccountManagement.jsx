@@ -18,7 +18,11 @@ import {
   JobArrayContext,
   JobStatusContext,
 } from "../Context/JobContext";
-import { EveIDsContext } from "../Context/EveDataContext";
+import {
+  CorpEsiDataContext,
+  EveIDsContext,
+  PersonalESIDataContext,
+} from "../Context/EveDataContext";
 import { SnackBarDataContext } from "../Context/LayoutContext";
 import {
   apiJobsDefault,
@@ -48,6 +52,17 @@ export function useAccountManagement() {
   const { firebaseListeners, updateFirebaseListeners } = useContext(
     FirebaseListenersContext
   );
+  const {
+    updateEsiIndJobs,
+    updateEsiSkills,
+    updateEsiOrders,
+    updateEsiHistOrders,
+    updateEsiBlueprints,
+    updateEsiJournal,
+    updateEsiTransactions,
+    updateEsiStandings,
+  } = useContext(PersonalESIDataContext);
+  const { updateCorpEsiIndJobs } = useContext(CorpEsiDataContext);
   const checkClaims = httpsCallable(functions, "userClaims-updateCorpIDs");
   const auth = getAuth();
   const parentUser = useMemo(() => {

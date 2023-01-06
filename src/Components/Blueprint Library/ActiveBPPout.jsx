@@ -7,9 +7,9 @@ export function ActiveBPPopout({
   displayPopover,
   updateDisplayPopover,
 }) {
-  const {timeRemainingCalc} = useJobManagement()
+  const { timeRemainingCalc } = useJobManagement();
 
-  const timeRemaining = timeRemainingCalc();
+  const timeRemaining = timeRemainingCalc(Date.parse(esiJob.end_date));
 
   return (
     <Popover
@@ -62,21 +62,12 @@ export function ActiveBPPopout({
             <Grid item xs={12}>
               <Typography>
                 Status:{" "}
-                {timeRemaining.days === 0 &&
-                timeRemaining.hours === 0 &&
-                timeRemaining.mins === 0
-                  ? "Ready to Deliver"
-                  : "Active"}
+                {timeRemaining === "complete" ? "Ready to Deliver" : "Active"}
               </Typography>
             </Grid>
-            {timeRemaining.days !== 0 &&
-            timeRemaining.hours !== 0 &&
-            timeRemaining.mins !== 0 ? (
+            {timeRemaining !== "complete" ? (
               <Grid item xs={12}>
-                <Typography>
-                  Time Remaining: {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                  {timeRemaining.mins}M
-                </Typography>
+                <Typography>Time Remaining: {timeRemaining}</Typography>
               </Grid>
             ) : null}
           </Grid>

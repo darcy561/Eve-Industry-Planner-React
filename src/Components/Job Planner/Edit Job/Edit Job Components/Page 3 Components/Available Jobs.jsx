@@ -91,7 +91,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
               }
             }
 
-            const timeRemaining = timeRemainingCalc(job);
+            const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
             return (
               <Grid
                 key={job.job_id}
@@ -177,25 +177,11 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
 
                 <Grid item xs={12}>
                   {job.status !== "delivered" ? (
-                    job.status === "active" &&
-                    timeRemaining.days === 0 &&
-                    timeRemaining.hours === 0 &&
-                    timeRemaining.mins === 0 ? (
-                      <Typography
-                        sx={{ typography: { xs: "caption", sm: "body2" } }}
-                        align="center"
-                      >
-                        Ready to Deliver
-                      </Typography>
-                    ) : (
-                      <Typography
-                        sx={{ typography: { xs: "caption", sm: "body2" } }}
-                        align="center"
-                      >
-                        {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                        {timeRemaining.mins}M
-                      </Typography>
-                    )
+                    <Typography variant="body2" align="center">
+                      {job.status === "active" && timeRemaining === "complete"
+                        ? "Ready to Deliver"
+                        : timeRemaining}
+                    </Typography>
                   ) : null}
                 </Grid>
                 <Grid item xs={12} align="center">

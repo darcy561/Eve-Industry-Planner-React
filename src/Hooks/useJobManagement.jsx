@@ -1483,6 +1483,7 @@ export function useJobManagement() {
   };
 
   const timeRemainingCalc = (inputTime) => {
+    let returnArray = [];
     let now = Date.now();
     let timeLeft = inputTime - now;
     let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
@@ -1491,17 +1492,20 @@ export function useJobManagement() {
     );
     let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
-    if (day < 0) {
-      day = 0;
+    if (day <= 0 && hour <= 0 && min <= 0) {
+      returnArray.push("complete");
     }
-    if (hour < 0) {
-      hour = 0;
+    if (day > 0) {
+      returnArray.push(`${day}D`);
     }
-    if (min < 0) {
-      min = 0;
+    if (hour > 0) {
+      returnArray.push(`${hour}H`);
+    }
+    if (min > 0) {
+      returnArray.push(`${min}M`);
     }
 
-    return { days: day, hours: hour, mins: min };
+    return returnArray.join(" ");
   };
 
   const generatePriceRequestFromJob = (inputJob) => {

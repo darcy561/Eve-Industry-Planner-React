@@ -31,7 +31,7 @@ export function LinkedJobs({ setJobModified }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedJobIDs, updateLinkedJobIDs } = useContext(LinkedIDsContext);
-  const { timeRemainingCalc } = useJobManagement();
+  const { findBlueprintType, timeRemainingCalc } = useJobManagement();
   const analytics = getAnalytics();
   const ParentUserIndex = useMemo(() => {
     return users.findIndex((i) => i.ParentUser);
@@ -67,23 +67,11 @@ export function LinkedJobs({ setJobModified }) {
           }}
         >
           {activeJob.build.costs.linkedJobs.map((job, linkedJobsArrayIndex) => {
-            let blueprintType = "bpc";
             const jobOwner = users.find(
               (i) => i.CharacterHash === job.CharacterHash
             );
-            if (jobOwner !== undefined) {
-              const jobBP = JSON.parse(
-                sessionStorage.getItem(
-                  `esiBlueprints_${jobOwner.CharacterHash}`
-                )
-              ).find((i) => i.item_id === job.blueprint_id);
-              if (jobBP !== undefined) {
-                blueprintType = "bp";
-                if (jobBP.quantity === -2) {
-                  blueprintType = "bpc";
-                }
-              }
-            }
+            const blueprintType = findBlueprintType(job.blueprint_id);
+
             const facilityData = eveIDs.find((i) => i.id === job.station_id);
 
             const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));

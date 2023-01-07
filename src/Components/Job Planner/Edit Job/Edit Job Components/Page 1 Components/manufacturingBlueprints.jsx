@@ -7,6 +7,7 @@ import { UsersContext } from "../../../../../Context/AuthContext";
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
+import { PersonalESIDataContext } from "../../../../../Context/EveDataContext";
 
 const useStyles = makeStyles((theme) => ({
   inUse: {
@@ -23,6 +24,7 @@ export function ManufacturingBlueprints({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { users } = useContext(UsersContext);
+  const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const classes = useStyles();
 
@@ -31,9 +33,8 @@ export function ManufacturingBlueprints({ setJobModified }) {
     (i) => i.blueprint_type_id === activeJob.blueprintTypeID
   );
   users.forEach((user) => {
-    let temp = JSON.parse(
-      sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
-    ).filter(
+    let userData = esiBlueprints.find((i)=> i.user === user.CharacterHash)
+    let temp = userData.blueprints.filter(
       (i) => i.type_id === activeJob.blueprintTypeID
     );
     temp.forEach((i) => {

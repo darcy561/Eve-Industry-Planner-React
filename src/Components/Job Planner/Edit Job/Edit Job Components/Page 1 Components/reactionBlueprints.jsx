@@ -5,11 +5,13 @@ import {
 } from "../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { Avatar, Badge, Grid, Paper, Typography } from "@mui/material";
+import { PersonalESIDataContext } from "../../../../../Context/EveDataContext";
 
 export function ReactionBlueprints() {
   const { activeJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const { apiJobs } = useContext(ApiJobsContext);
+  const { esiBlueprints } = useContext(PersonalESIDataContext);
 
   let blueprintOptions = [];
   let esiJobSelection = apiJobs.filter(
@@ -18,9 +20,8 @@ export function ReactionBlueprints() {
   users.forEach((user) => {
     let inUseCount = 0;
     let totalBP = 0;
-    let temp = JSON.parse(
-      sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
-    ).filter((i) => i.type_id === activeJob.blueprintTypeID);
+    let userData = esiBlueprints.find((i)=> i.user === user.CharacterHash)
+    let temp = userData.blueprints.filter((i) => i.type_id === activeJob.blueprintTypeID);
     temp.forEach((i) => {
       i.owner_id = user.CharacterID;
       if (

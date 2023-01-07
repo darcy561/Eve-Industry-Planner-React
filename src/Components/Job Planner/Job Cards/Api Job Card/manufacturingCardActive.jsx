@@ -4,26 +4,20 @@ import { UsersContext } from "../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import searchData from "../../../../RawData/searchIndex.json";
 import { blueGrey, grey } from "@mui/material/colors";
+import { PersonalESIDataContext } from "../../../../Context/EveDataContext";
 
 export function IndustryESICardActive({ job }) {
   const { users } = useContext(UsersContext);
-  const { timeRemainingCalc } = useJobManagement();
+  const { esiBlueprints } = useContext(PersonalESIDataContext);
+  const { findBlueprintType, timeRemainingCalc } = useJobManagement();
 
   const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
 
   const product = searchData.find(
     (i) => i.blueprintID === job.blueprint_type_id
   );
-  const buildChar = users.find((i) => i.CharacterID === job.installer_id);
-  const blueprintData = JSON.parse(
-    sessionStorage.getItem(`esiBlueprints_${buildChar.CharacterHash}`)
-  ).find((i) => i.item_id === job.blueprint_id);
-  let blueprintType = "bp";
-  if (blueprintData !== undefined) {
-    if (blueprintData.quantity === -2) {
-      blueprintType = "bpc";
-    }
-  }
+
+  const blueprintType = findBlueprintType(job.blueprint_id)
 
   return (
     <Tooltip title="Job imported from the Eve ESI">
@@ -117,7 +111,7 @@ export function IndustryESICardActive({ job }) {
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
-                  <Typography
+                    <Typography
                       sx={{ typography: { xs: "body2", lg: "body1" } }}
                       align="right"
                     >

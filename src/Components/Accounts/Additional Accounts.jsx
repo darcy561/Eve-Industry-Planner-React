@@ -19,10 +19,16 @@ import { useAccountManagement } from "../../Hooks/useAccountManagement";
 
 export function AdditionalAccounts({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
-  const { updateApiJobs } = useContext(ApiJobsContext);
+  const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateMainUserDoc } = useFirebase();
-  const { characterAPICall, checkUserClaims } = useAccountManagement();
+  const {
+    characterAPICall,
+    checkUserClaims,
+    getCharacterInfo,
+    updateApiArray,
+    updateUserEsiData,
+  } = useAccountManagement();
   const [skeletonVisible, toggleSkeleton] = useState(false);
   const analytics = getAnalytics();
   let newUser = null;
@@ -74,7 +80,10 @@ export function AdditionalAccounts({ parentUserIndex }) {
         }));
       } else {
         let newUserArray = [...users];
-        newUser = await characterAPICall(true, newUser);
+        let esiObjectsArray = [];
+        let newApiArray = [...apiJobs];
+        await getCharacterInfo(newUser);
+        esiObjectsArray.push(await characterAPICall(newUser));
         localStorage.removeItem("AddAccount");
         localStorage.removeItem("AddAccountComplete");
         localStorage.removeItem("AdditionalUser");
@@ -112,14 +121,14 @@ export function AdditionalAccounts({ parentUserIndex }) {
             );
           }
         }
-        updateUsers(newUserArray);
-        updateApiJobs((prev) =>
-          prev.concat(
-            JSON.parse(
-              sessionStorage.getItem(`esiJobs_${newUser.CharacterHash}`)
-            )
-          )
+        updateUserEsiData(esiObjectsArray);
+        newApiArray = updateApiArray(
+          newApiArray,
+          newUserArray,
+          esiObjectsArray
         );
+        updateUsers(newUserArray);
+        updateApiJobs(newApiArray);
         if (newUserArray[parentUserIndex].settings.account.cloudAccounts) {
           updateMainUserDoc();
         }

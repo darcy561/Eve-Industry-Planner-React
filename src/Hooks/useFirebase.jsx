@@ -684,6 +684,15 @@ export function useFirebase() {
             mainUser,
             esiOjectArray
           );
+          newUserArray.sort((a, b) => {
+            if (a.name < b.name) {
+              return -1;
+            }
+            if (a.name > b.name) {
+              return 1;
+            }
+            return 0;
+          });
           updateEveIDs(names);
           updateApiJobs(newApiArray);
           updateUsers(newUserArray);

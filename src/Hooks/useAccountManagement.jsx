@@ -53,16 +53,25 @@ export function useAccountManagement() {
     FirebaseListenersContext
   );
   const {
+    esiIndJobs,
     updateEsiIndJobs,
+    esiSkills,
     updateEsiSkills,
+    esiOrders,
     updateEsiOrders,
+    esiHistOrders,
     updateEsiHistOrders,
+    esiBlueprints,
     updateEsiBlueprints,
+    esiJournal,
     updateEsiJournal,
+    esiTransactions,
     updateEsiTransactions,
+    esiStandings,
     updateEsiStandings,
   } = useContext(PersonalESIDataContext);
-  const { updateCorpEsiIndJobs } = useContext(CorpEsiDataContext);
+  const { corpEsiIndJobs, updateCorpEsiIndJobs } =
+    useContext(CorpEsiDataContext);
   const checkClaims = httpsCallable(functions, "userClaims-updateCorpIDs");
   const auth = getAuth();
   const parentUser = useMemo(() => {
@@ -427,8 +436,7 @@ export function useAccountManagement() {
       if (data === undefined) {
         continue;
       }
-      newApiArray = newApiArray.concat(data.esiJobs);
-      newApiArray = newApiArray.concat(data.esiCorpJobs);
+      newApiArray = newApiArray.concat(data.esiJobs, data.esiCorpJobs);
     }
 
     newApiArray.sort((a, b) => {
@@ -454,6 +462,54 @@ export function useAccountManagement() {
       return 0;
     });
     return newApiArray;
+  };
+  const updateApiArray = (
+    chosenApiArray,
+    chosentUsersArray,
+    esiObjectArray
+  ) => {
+    let characterIDToRemove = new Set();
+
+    for (let entry of esiObjectArray) {
+      let id = chosentUsersArray.find(
+        (i) => i.CharacterHash === entry.owner
+      ).CharacterID;
+      characterIDToRemove.add(id);
+    }
+
+    if (characterIDToRemove.szie > 0) {
+      chosenApiArray = chosenApiArray.filter(
+        (i) => !characterIDToRemove.has(i.installer_id)
+      );
+    }
+
+    for (let entry of esiObjectArray) {
+      chosenApiArray = chosenApiArray.concat(entry.esiJobs, entry.esiCorpJobs);
+    }
+    chosenApiArray.sort((a, b) => {
+      let aName = searchData.find(
+        (i) =>
+          i.itemID === a.product_type_id ||
+          i.blueprintID === a.blueprint_type_id
+      );
+      let bName = searchData.find(
+        (i) =>
+          i.itemID === b.product_type_id ||
+          i.blueprintID === b.blueprint_type_id
+      );
+      if (aName === undefined || bName === undefined) {
+        return -1;
+      }
+      if (aName.name < bName.name) {
+        return -1;
+      }
+      if (aName.name > bName.name) {
+        return 1;
+      }
+      return 0;
+    });
+
+    return chosenApiArray;
   };
 
   const storeESIData = async (esiObjectArray) => {
@@ -520,6 +576,128 @@ export function useAccountManagement() {
     updateCorpEsiIndJobs(corpJobs);
   };
 
+  const updateUserEsiData = (esiObjectArray) => {
+    let usersToUpdate = new Set();
+    let newEsiIndJobs = [...esiIndJobs];
+    let newEsiSkills = [...esiSkills];
+    let newEsiOrders = [...esiOrders];
+    let newEsiHistOrders = [...esiHistOrders];
+    let newEsiBlueprints = [...esiBlueprints];
+    let newEsiJournal = [...esiJournal];
+    let newEsiTransactions = [...esiTransactions];
+    let newEsiStandings = [...esiStandings];
+    let newCorpEsiIndJobs = [...corpEsiIndJobs];
+
+    esiObjectArray.forEach((entry) => {
+      usersToUpdate.add(entry.user);
+    });
+
+    newEsiIndJobs = newEsiIndJobs.filter((i) => !usersToUpdate.has(i.user));
+    newEsiSkills = newEsiSkills.filter((i) => !usersToUpdate.has(i.user));
+    newEsiOrders = newEsiOrders.filter((i) => !usersToUpdate.has(i.user));
+    newEsiHistOrders = newEsiHistOrders.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newEsiBlueprints = newEsiBlueprints.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newEsiJournal = newEsiJournal.filter((i) => !usersToUpdate.has(i.user));
+    newEsiTransactions = newEsiTransactions.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newEsiStandings = newEsiStandings.filter((i) => !usersToUpdate.has(i.user));
+    newCorpEsiIndJobs = newCorpEsiIndJobs.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+
+    for (let esiUser of esiObjectArray) {
+      newEsiOrders.push({
+        user: esiUser.owner,
+        jobs: esiUser.esiJobs,
+      });
+      newEsiSkills.push({
+        user: esiUser.owner,
+        skills: esiUser.esiSkills,
+      });
+      newEsiOrders.push({
+        user: esiUser.owner,
+        orders: esiUser.esiOrders,
+      });
+      newEsiHistOrders.push({
+        user: esiUser.owner,
+        histOrders: esiUser.esiHistOrders,
+      });
+      newEsiBlueprints.push({
+        user: esiUser.owner,
+        blueprints: esiUser.esiBlueprints,
+      });
+      newEsiTransactions.push({
+        user: esiUser.owner,
+        transactions: esiUser.esiTransactions,
+      });
+      newEsiJournal.push({
+        user: esiUser.owner,
+        journal: esiUser.esiJournal,
+      });
+      newEsiStandings.push({
+        user: esiUser.owner,
+        standings: esiUser.esiStandings,
+      });
+      sessionStorage.setItem(
+        `assets_${esiUser.owner}`,
+        JSON.stringify(esiUser.esiAssets)
+      );
+      newCorpEsiIndJobs.push({
+        user: esiUser.owner,
+        jobs: esiUser.esiCorpJobs,
+      });
+    }
+
+    updateEsiIndJobs(newEsiIndJobs);
+    updateEsiSkills(newEsiSkills);
+    updateEsiOrders(newEsiOrders);
+    updateEsiHistOrders(newEsiHistOrders);
+    updateEsiBlueprints(newEsiBlueprints);
+    updateEsiJournal(newEsiJournal);
+    updateEsiTransactions(newEsiTransactions);
+    updateEsiStandings(newEsiStandings);
+    updateCorpEsiIndJobs(newCorpEsiIndJobs);
+  };
+
+  const removeUserEsiData = (userHash) => {
+    let newEsiIndJobs = [...esiIndJobs];
+    let newEsiSkills = [...esiSkills];
+    let newEsiOrders = [...esiOrders];
+    let newEsiHistOrders = [...esiHistOrders];
+    let newEsiBlueprints = [...esiBlueprints];
+    let newEsiJournal = [...esiJournal];
+    let newEsiTransactions = [...esiTransactions];
+    let newEsiStandings = [...esiStandings];
+    let newCorpEsiIndJobs = [...corpEsiIndJobs];
+
+    newEsiIndJobs = newEsiIndJobs.filter((i) => i.user !== userHash);
+    newEsiSkills = newEsiSkills.filter((i) => i.user !== userHash);
+    newEsiOrders = newEsiOrders.filter((i) => i.user !== userHash);
+    newEsiHistOrders = newEsiHistOrders.filter((i) => i.user !== userHash);
+    newEsiBlueprints = newEsiBlueprints.filter((i) => i.user !== userHash);
+    newEsiJournal = newEsiJournal.filter((i) => i.user !== userHash);
+    newEsiTransactions = newEsiTransactions.filter((i) => i.user !== userHash);
+    newEsiStandings = newEsiStandings.filter((i) => i.user !== userHash);
+    newCorpEsiIndJobs = newCorpEsiIndJobs.filter((i) => i.user !== userHash);
+
+    sessionStorage.removeItem(`assets_${userHash}`);
+
+    updateEsiIndJobs(newEsiIndJobs);
+    updateEsiSkills(newEsiSkills);
+    updateEsiOrders(newEsiOrders);
+    updateEsiHistOrders(newEsiHistOrders);
+    updateEsiBlueprints(newEsiBlueprints);
+    updateEsiJournal(newEsiJournal);
+    updateEsiTransactions(newEsiTransactions);
+    updateEsiStandings(newEsiStandings);
+    updateCorpEsiIndJobs(newCorpEsiIndJobs);
+  };
+
   const getCharacterInfo = async (userObj) => {
     const charData = await characterData(userObj);
     userObj.corporation_id = charData.corporation_id;
@@ -536,9 +714,12 @@ export function useAccountManagement() {
     getCharacterInfo,
     getLocationNames,
     logUserOut,
+    removeUserEsiData,
     storeESIData,
     tidyLinkedData,
+    updateApiArray,
     updateCloudRefreshTokens,
     updateLocalRefreshTokens,
+    updateUserEsiData,
   };
 }

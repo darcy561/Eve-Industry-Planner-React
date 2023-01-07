@@ -76,14 +76,14 @@ export function ReactionESICardComplete({ job }) {
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                     >
                       Runs:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                       align="right"
                     >
                       {job.runs}
@@ -93,14 +93,14 @@ export function ReactionESICardComplete({ job }) {
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                     >
                       Status:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                       align="right"
                     >
                       Delivered

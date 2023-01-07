@@ -55,47 +55,6 @@ export function JobPlanner() {
   }, [users]);
 
   useEffect(() => {
-    if (!isLoggedIn) {
-      sessionStorage.setItem(
-        `esiSkills_${parentUser.CharacterHash}`,
-        JSON.stringify(defaultEsiSkills)
-      );
-      sessionStorage.setItem(
-        `esiJobs_${parentUser.CharacterHash}`,
-        JSON.stringify(defaultEsiJobs)
-      );
-      sessionStorage.setItem(
-        `esiOrders_${parentUser.CharacterHash}`,
-        JSON.stringify(defaultEsiOrders)
-      );
-      sessionStorage.setItem(
-        `esiHistOrders_${parentUser.CharacterHash}`,
-        JSON.stringify(defaultEsiHistOrders)
-      );
-      sessionStorage.setItem(
-        `esiBlueprints_${parentUser.CharacterHash}`,
-        JSON.stringify(defaultEsiBlueprints)
-      );
-      sessionStorage.setItem(
-        `esiTransactions_${parentUser.CharacterHash}`,
-        JSON.stringify(defaultEsiTransactions)
-      );
-      sessionStorage.setItem(
-        `esiJournal_${parentUser.CharacterHash}`,
-        JSON.stringify(defaultEsiJournal)
-      );
-      sessionStorage.setItem(
-        `assets_${parentUser.CharacterHash}`,
-        JSON.stringify(defaultEsiAssets)
-      );
-      sessionStorage.setItem(
-        `esiStandings_${parentUser.CharacterHash}`,
-        JSON.stringify(defaultEsiStandings)
-      );
-    }
-  }, []);
-
-  useEffect(() => {
     checkUserState();
   }, []);
 

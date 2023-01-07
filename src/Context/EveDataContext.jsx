@@ -1,5 +1,15 @@
 import React, { createContext, useState } from "react";
-import { eveIDsDefault } from "./defaultValues";
+import {
+  defaultEsiBlueprints,
+  defaultEsiHistOrders,
+  defaultEsiJobs,
+  defaultEsiJournal,
+  defaultEsiOrders,
+  defaultEsiSkills,
+  defaultEsiStandings,
+  defaultEsiTransactions,
+  eveIDsDefault,
+} from "./defaultValues";
 
 export const EveIDsContext = createContext();
 
@@ -10,6 +20,57 @@ export const EveIDs = (props) => {
     <EveIDsContext.Provider value={{ eveIDs, updateEveIDs }}>
       {props.children}
     </EveIDsContext.Provider>
+  );
+};
+
+export const PersonalESIDataContext = createContext();
+export const PersonalEsiData = (props) => {
+  const [esiIndJobs, updateEsiIndJobs] = useState([]);
+  const [esiSkills, updateEsiSkills] = useState([]);
+  const [esiOrders, updateEsiOrders] = useState([]);
+  const [esiHistOrders, updateEsiHistOrders] = useState([]);
+  const [esiBlueprints, updateEsiBlueprints] = useState([]);
+  const [esiJournal, updateEsiJournal] = useState([]);
+  const [esiTransactions, updateEsiTransactions] = useState(
+    []
+  );
+  const [esiStandings, updateEsiStandings] = useState(defaultEsiStandings);
+  return (
+    <PersonalESIDataContext.Provider
+      value={{
+        esiIndJobs,
+        updateEsiIndJobs,
+        esiSkills,
+        updateEsiSkills,
+        esiOrders,
+        updateEsiOrders,
+        esiHistOrders,
+        updateEsiHistOrders,
+        esiBlueprints,
+        updateEsiBlueprints,
+        esiJournal,
+        updateEsiJournal,
+        esiTransactions,
+        updateEsiTransactions,
+        esiStandings,
+        updateEsiStandings,
+      }}
+    >
+      {props.children}
+    </PersonalESIDataContext.Provider>
+  );
+};
+
+export const CorpEsiDataContext = createContext();
+
+export const CorpEsiData = (props) => {
+  const [corpEsiIndJobs, updateCorpEsiIndJobs] = useState([]);
+  return (
+    <CorpEsiDataContext.Provider
+      value={{ corpEsiIndJobs, updateCorpEsiIndJobs }}
+    >
+      {props.children}
+    </CorpEsiDataContext.Provider>
   );
 };
 

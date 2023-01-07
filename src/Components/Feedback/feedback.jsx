@@ -16,6 +16,10 @@ import { UsersContext } from "../../Context/AuthContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { httpsCallable } from "firebase/functions";
 import { makeStyles } from "@mui/styles";
+import {
+  CorpEsiDataContext,
+  PersonalESIDataContext,
+} from "../../Context/EveDataContext";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -29,6 +33,17 @@ const useStyles = makeStyles((theme) => ({
 export function FeedbackIcon() {
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const {
+    esiIndJobs,
+    esiOrders,
+    esiHistOrders,
+    esiSkills,
+    esiJournal,
+    esiTransactions,
+    esiStandings,
+    esiBlueprints,
+  } = useContext(PersonalESIDataContext);
+  const { corpEsiIndJobs } = useContext(CorpEsiDataContext);
   const [open, setOpen] = useState(false);
   const [inputText, updateInputText] = useState("");
   const [dataDump, updateDataDump] = useState(false);
@@ -40,43 +55,28 @@ export function FeedbackIcon() {
 
   const handleSubmit = async () => {
     let userData = () => {
-      let userList = [];
-      for (let user of users) {
-        userList.push({
-          user: user,
-          skills: JSON.parse(
-            sessionStorage.getItem(`esiSkills_${user.CharacterHash}`)
-          ),
-          jobs: JSON.parse(
-            sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
-          ),
-          orders: JSON.parse(
-            sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
-          ),
-          histOrders: JSON.parse(
-            sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
-          ),
-          blueprints: JSON.parse(
-            sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
-          ),
-          transactions: JSON.parse(
-            sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
-          ),
-          journal: JSON.parse(
-            sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
-          ),
-          assets: JSON.parse(
-            sessionStorage.getItem(`assets_${user.CharacterHash}`)
-          ),
-          standings: JSON.parse(
-            sessionStorage.getItem(`esiStandings_${user.CharacterHash}`)
-          ),
-          corpJobs: JSON.parse(
-            sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`)
-          ),
-        });
-      }
-      return userList;
+      let allAssets = () => {
+        let assetArray = [];
+        for (let user of users) {
+          assetArray = assetArray.concat(
+            JSON.parse(sessionStorage.getItem(`assets_${user.CharacterHash}`))
+          );
+        }
+        return assetArray;
+      };
+
+      return {
+        skills: esiSkills,
+        jobs: esiIndJobs,
+        orders: esiOrders,
+        histOrders: esiHistOrders,
+        blueprints: esiBlueprints,
+        transactions: esiTransactions,
+        journal: esiJournal,
+        assets: allAssets(),
+        standings: esiStandings,
+        corpJobs: corpEsiIndJobs,
+      };
     };
 
     const call = httpsCallable(functions, "feedback-submitUserFeedback");

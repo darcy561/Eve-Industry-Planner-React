@@ -4,6 +4,7 @@ import {
   UserJobSnapshotContext,
   UsersContext,
 } from "../../../Context/AuthContext";
+import { PersonalESIDataContext } from "../../../Context/EveDataContext";
 import {
   JobStatusContext,
   LinkedIDsContext,
@@ -17,6 +18,9 @@ export function NewTransactions() {
   );
   const { jobStatus } = useContext(JobStatusContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
+  const { esiOrders, esiHistOrders, esiTransactions, esiJournal } = useContext(
+    PersonalESIDataContext
+  );
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -30,43 +34,39 @@ export function NewTransactions() {
   );
 
   filteredJobs.forEach((job) => {
-    users.forEach((user) => {
-      JSON.parse(
-        sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
-      ).forEach((order) => {
+    esiOrders.forEach((entry) => {
+      entry.orders.forEach((order) => {
         if (
           order.type_id === job.itemID &&
           linkedOrderIDs.includes(order.order_id) &&
           !parentUser.linkedOrders.has(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
-          order.CharacterHash = user.CharacterHash;
-
+          order.CharacterHash = entry.user;
           itemOrderMatch.push(order);
         }
       });
-
-      JSON.parse(
-        sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
-      ).forEach((order) => {
+    });
+    esiHistOrders.forEach((entry) => {
+      entry.histOrders.forEach((order) => {
         if (
           order.type_id === job.itemID &&
           linkedOrderIDs.includes(order.order_id) &&
           !parentUser.linkedOrders.has(order.order_id) &&
           !itemOrderMatch.find((item) => item.order_id === order.order_id)
         ) {
-          order.CharacterHash = user.CharacterHash;
+          order.CharacterHash = entry.user;
 
           itemOrderMatch.push(order);
         }
       });
     });
     itemOrderMatch.forEach((order) => {
-      const user = users.find((u) => u.CharacterHash === order.CharacterHash);
+      const transactions = esiTransactions.find(
+        (u) => u.user === order.CharacterHash
+      ).transactions;
 
-      const itemTrans = JSON.parse(
-        sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
-      ).filter(
+      const itemTrans = transactions.filter(
         (trans) =>
           order.location_id === trans.location_id &&
           order.type_id === trans.type_id &&
@@ -78,12 +78,13 @@ export function NewTransactions() {
           trans.unit_price >= 0
       );
       itemTrans.forEach((trans) => {
-        const transJournal = JSON.parse(
-          sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
-        ).find((entry) => trans.transaction_id === entry.context_id);
-        const transTax = JSON.parse(
-          sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
-        ).find(
+        const journal = esiJournal.find(
+          (u) => u.user === order.CharacterHash
+        ).journal;
+        const transJournal = journal.find(
+          (entry) => trans.transaction_id === entry.context_id
+        );
+        const transTax = journal.find(
           (entry) =>
             entry.ref_type === "transaction_tax" &&
             Date.parse(entry.date) === Date.parse(trans.date)

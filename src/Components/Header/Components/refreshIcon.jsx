@@ -12,8 +12,10 @@ import {
   RefreshStateContext,
 } from "../../../Context/LayoutContext";
 import {
+  CorpEsiDataContext,
   EveIDsContext,
   EvePricesContext,
+  PersonalESIDataContext,
 } from "../../../Context/EveDataContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
@@ -27,14 +29,23 @@ export function RefreshApiIcon() {
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { serverStatus, IDtoName } = useEveApi();
-  const { characterAPICall, checkUserClaims, getCharacterInfo } =
-    useAccountManagement();
+  const {
+    buildApiArray,
+    characterAPICall,
+    checkUserClaims,
+    getCharacterInfo,
+    storeESIData,
+  } = useAccountManagement();
   const { refreshItemPrices } = useFirebase();
   const { RefreshUserAToken } = useRefreshUser();
   const { refreshState, updateRefreshState } = useContext(RefreshStateContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const [refreshTrigger, updateRefreshTrigger] = useState(false);
   const { updateDialogData } = useContext(DialogDataContext);
+  const { esiIndJobs, esiOrders, esiHistOrders } = useContext(
+    PersonalESIDataContext
+  );
+  const { corpEsiIndJobs } = useContext(CorpEsiDataContext);
   const analytics = getAnalytics();
   const checkAppVersion = httpsCallable(
     functions,
@@ -70,19 +81,16 @@ export function RefreshApiIcon() {
         return;
       }
       if (sStatus) {
+        let esiObjectsArray = [];
         for (let user of newUsers) {
           if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
             user = await RefreshUserAToken(user);
           }
           await getCharacterInfo(user);
-          user = await characterAPICall(sStatus, user);
-          JSON.parse(
-            sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
-          ).forEach((i) => newAPIArray.push(i));
-          JSON.parse(
-            sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`)
-          ).forEach((i) => newAPIArray.push(i));
+          esiObjectsArray.push(await characterAPICall(user));
         }
+        await storeESIData(esiObjectsArray);
+        newAPIArray = buildApiArray(newUsers, esiObjectsArray);
       }
       let existingLocations = new Set();
       let locationIDS = new Set();
@@ -96,9 +104,20 @@ export function RefreshApiIcon() {
 
       for (let user of newUsers) {
         let citadelIDs = new Set();
-        JSON.parse(
-          sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
-        ).forEach((job) => {
+        let userJobs = esiIndJobs.find(
+          (i) => i.user === user.CharacterHash
+        ).jobs;
+        let userOrders = esiOrders.find(
+          (i) => i.user === user.CharacterHash
+        ).orders;
+        let userHistOrders = esiHistOrders.find(
+          (i) => i.user === user.CharacterHash
+        ).histOrders;
+        let corpJobs = corpEsiIndJobs.find(
+          (i) => i.user === user.CharacterHash
+        ).jobs;
+
+        userJobs.forEach((job) => {
           if (job.facility_id.toString().length > 10) {
             if (
               !existingLocations.has(job.facility_id) &&
@@ -113,9 +132,7 @@ export function RefreshApiIcon() {
             }
           }
         });
-        JSON.parse(
-          sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
-        ).forEach((order) => {
+        userOrders.forEach((order) => {
           if (order.location_id.toString().length > 10) {
             if (
               !existingLocations.has(order.location_id) &&
@@ -133,9 +150,7 @@ export function RefreshApiIcon() {
             locationIDS.add(order.region_id);
           }
         });
-        JSON.parse(
-          sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
-        ).forEach((order) => {
+        userHistOrders.forEach((order) => {
           if (order.location_id.toString().length > 10) {
             if (
               !existingLocations.has(order.location_id) &&
@@ -153,9 +168,7 @@ export function RefreshApiIcon() {
             locationIDS.add(order.region_id);
           }
         });
-        JSON.parse(
-          sessionStorage.getItem(`esiCorpJobs_${user.CharacterHash}`)
-        ).forEach((job) => {
+        corpJobs.forEach((job) => {
           if (job.facility_id.toString().length > 10) {
             if (
               !existingLocations.has(job.facility_id) &&

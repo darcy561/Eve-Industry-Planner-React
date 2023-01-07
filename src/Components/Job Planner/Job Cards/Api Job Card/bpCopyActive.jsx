@@ -77,14 +77,14 @@ export function BpCopyESICardActive({ job }) {
                 <Grid container item xs={12}>
                   <Grid item xs={8}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                     >
                       Copies/Runs Per Copy
                     </Typography>
                   </Grid>
                   <Grid item xs={4}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                       align="right"
                     >
                       {job.runs}/{job.licensed_runs}
@@ -94,30 +94,20 @@ export function BpCopyESICardActive({ job }) {
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                     >
                       Remaining:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
-                    {timeRemaining.days === 0 &&
-                    timeRemaining.hours === 0 &&
-                    timeRemaining.mins === 0 ? (
-                      <Typography
-                        sx={{ typography: { xs: "body2", md: "body1" } }}
-                        align="right"
-                      >
-                        Ready to Deliver
-                      </Typography>
-                    ) : (
-                      <Typography
-                        sx={{ typography: { xs: "body2", md: "body1" } }}
-                        align="right"
-                      >
-                        {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                        {timeRemaining.mins}M
-                      </Typography>
-                    )}
+                    <Typography
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
+                      align="right"
+                    >
+                      {timeRemaining !== "complete"
+                        ? timeRemaining
+                        : "Ready To Deliver"}
+                    </Typography>
                   </Grid>
                 </Grid>
               </Grid>

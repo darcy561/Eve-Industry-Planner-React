@@ -11,7 +11,10 @@ import {
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EveIDsContext } from "../../../../../Context/EveDataContext";
+import {
+  EveIDsContext,
+  PersonalESIDataContext,
+} from "../../../../../Context/EveDataContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 class ESIBrokerFee {
@@ -55,6 +58,7 @@ export function AvailableMarketOrders({
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedOrderIDs, updateLinkedOrderIDs } = useContext(LinkedIDsContext);
+  const { esiJournal } = useContext(PersonalESIDataContext);
   const { calcBrokersFee } = useJobManagement();
   const analytics = getAnalytics();
 
@@ -173,68 +177,70 @@ export function AvailableMarketOrders({
                           const char = users.find(
                             (user) => user.CharacterHash === order.CharacterHash
                           );
+                          const charJournal = esiJournal.find(
+                            (i) => i.user === char.CharacterHash
+                          ).journal;
 
                           let brokersFee = await calcBrokersFee(char, order);
                           let newBrokersArray = [];
-                          if (char !== undefined) {
-                            JSON.parse(
-                              sessionStorage.getItem(`esiJournal_${char.CharacterHash}`)
-                            ).forEach((entry) => {
-                                if (
-                                entry.ref_type === "brokers_fee" &&
-                                Date.parse(order.issued) ===
-                                  Date.parse(entry.date)
-                              ) {
-                                newBrokersArray.push(
-                                  Object.assign(
-                                    {},
-                                    new ESIBrokerFee(
-                                      entry,
-                                      order,
-                                      char,
-                                      brokersFee
-                                    )
-                                  )
-                                );
-                              }
-                            });
-                            let newMarketOrderArray =
-                              activeJob.build.sale.marketOrders;
-                            newMarketOrderArray.push(
-                              Object.assign({}, new ESIMarketOrder(order))
-                            );
-                            let newApiOrders = new Set(activeJob.apiOrders);
-                            newApiOrders.add(order.order_id);
-
-                            let newLinkedOrderIDs = new Set(linkedOrderIDs);
-                            newLinkedOrderIDs.add(order.order_id);
-                            updateLinkedOrderIDs([...newLinkedOrderIDs]);
-                            updateActiveJob((prev) => ({
-                              ...prev,
-                              apiOrders: newApiOrders,
-                              build: {
-                                ...prev.build,
-                                sale: {
-                                  ...prev.build.sale,
-                                  marketOrders: newMarketOrderArray,
-                                  brokersFee: newBrokersArray,
-                                },
-                              },
-                            }));
-
-                            setSnackbarData((prev) => ({
-                              ...prev,
-                              open: true,
-                              message: "Linked",
-                              severity: "success",
-                              autoHideDuration: 1000,
-                            }));
-                            setJobModified(true);
-                            logEvent(analytics, "linkedMarketOrder", {
-                              UID: users[ParentUserIndex].accountID,
-                              isLoggedIn: isLoggedIn,
-                            });
+                          if (char === undefined && charJournal === undefined) {
+                            return;
                           }
+                          charJournal.forEach((entry) => {
+                            if (
+                              entry.ref_type === "brokers_fee" &&
+                              Date.parse(order.issued) ===
+                                Date.parse(entry.date)
+                            ) {
+                              newBrokersArray.push(
+                                Object.assign(
+                                  {},
+                                  new ESIBrokerFee(
+                                    entry,
+                                    order,
+                                    char,
+                                    brokersFee
+                                  )
+                                )
+                              );
+                            }
+                          });
+                          let newMarketOrderArray =
+                            activeJob.build.sale.marketOrders;
+                          newMarketOrderArray.push(
+                            Object.assign({}, new ESIMarketOrder(order))
+                          );
+                          let newApiOrders = new Set(activeJob.apiOrders);
+                          newApiOrders.add(order.order_id);
+
+                          let newLinkedOrderIDs = new Set(linkedOrderIDs);
+                          newLinkedOrderIDs.add(order.order_id);
+                          updateLinkedOrderIDs([...newLinkedOrderIDs]);
+                          updateActiveJob((prev) => ({
+                            ...prev,
+                            apiOrders: newApiOrders,
+                            build: {
+                              ...prev.build,
+                              sale: {
+                                ...prev.build.sale,
+                                marketOrders: newMarketOrderArray,
+                                brokersFee: newBrokersArray,
+                              },
+                            },
+                          }));
+
+                          setSnackbarData((prev) => ({
+                            ...prev,
+                            open: true,
+                            message: "Linked",
+                            severity: "success",
+                            autoHideDuration: 1000,
+                          }));
+                          setJobModified(true);
+                          logEvent(analytics, "linkedMarketOrder", {
+                            UID: users[ParentUserIndex].accountID,
+                            isLoggedIn: isLoggedIn,
+                          });
                         }}
                       >
                         <AddLinkIcon />

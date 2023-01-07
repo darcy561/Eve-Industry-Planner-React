@@ -1,31 +1,15 @@
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
-import { useContext } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
 import searchData from "../../../../RawData/searchIndex.json";
 import { blueGrey, grey } from "@mui/material/colors";
+import { useJobManagement } from "../../../../Hooks/useJobManagement";
 
 export function IndustryESICardComplete({ job }) {
-  const { users } = useContext(UsersContext);
+  const { findBlueprintType } = useJobManagement();   
 
   const product = searchData.find(
     (i) => i.blueprintID === job.blueprint_type_id
   );
-  const buildChar = users.find((i) => i.CharacterID === job.installer_id);
-  let blueprintData = null;
-  let blueprintType = "bp";
-  if (buildChar !== undefined) {
-    blueprintData = JSON.parse(
-      sessionStorage.getItem(`esiBlueprints_${buildChar.CharacterHash}`)
-    ).find((i) => i.item_id === job.blueprint_id);
-
-    if (
-      blueprintData === undefined ||
-      blueprintData === null ||
-      blueprintData.quantity === -2
-    ) {
-      blueprintType = "bpc";
-    }
-  }
+  const blueprintType = findBlueprintType(job.blueprint_id);
 
   return (
     <Tooltip title="Job imported from the Eve ESI">
@@ -96,14 +80,14 @@ export function IndustryESICardComplete({ job }) {
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                     >
                       Runs:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                       align="right"
                     >
                       {job.runs}
@@ -113,14 +97,14 @@ export function IndustryESICardComplete({ job }) {
                 <Grid container item xs={12}>
                   <Grid item xs={4}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                     >
                       Status:
                     </Typography>
                   </Grid>
                   <Grid item xs={8}>
                     <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
+                      sx={{ typography: { xs: "body2", lg: "body1" } }}
                       align="right"
                     >
                       Delivered

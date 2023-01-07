@@ -11,6 +11,7 @@ import { LinkedTransactions } from "./Page 5 Components/linkedTransactions";
 import { TutorialStep5 } from "./Page 5 Components/tutorialStep5";
 import { MarketOrderTabs } from "./Page 5 Components/marketOrderTabs";
 import { MarketCostsPanel } from "./Page 5 Components/marketCostsPanel";
+import { PersonalESIDataContext } from "../../../../Context/EveDataContext";
 
 export function EditPage5({ setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -18,6 +19,9 @@ export function EditPage5({ setJobModified }) {
   const [activeOrder, updateActiveOrder] = useState([]);
   const { users } = useContext(UsersContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
+  const { esiOrders, esiHistOrders, esiTransactions, esiJournal } = useContext(
+    PersonalESIDataContext
+  );
   let itemOrderMatch = [];
 
   const parentUser = useMemo(() => {
@@ -40,10 +44,8 @@ export function EditPage5({ setJobModified }) {
       this.description = desc;
     }
   }
-  users.forEach((user) => {
-    JSON.parse(
-      sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
-    ).forEach((order) => {
+  esiOrders.forEach((entry) => {
+    entry.orders.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
         !activeJob.apiOrders.has(order.order_id) &&
@@ -51,76 +53,72 @@ export function EditPage5({ setJobModified }) {
         !parentUser.linkedOrders.has(order.order_id) &&
         !itemOrderMatch.some((i) => i.order_id === order.order_id)
       ) {
-        itemOrderMatch.push(order);
-      }
-    });
-    JSON.parse(
-      sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
-    ).forEach((order) => {
-      if (
-        order.type_id === activeJob.itemID &&
-        !activeJob.apiOrders.has(order.order_id) &&
-        !linkedOrderIDs.includes(order.order_id) &&
-        !parentUser.linkedOrders.has(order.order_id) &&
-        !itemOrderMatch.some((i) => i.order_id === order.order_id)
-      ) {
-        order.CharacterHash = user.CharacterHash;
         itemOrderMatch.push(order);
       }
     });
   });
+  esiHistOrders.forEach((entry) => {
+    entry.histOrders.forEach((order) => {
+      if (
+        order.type_id === activeJob.itemID &&
+        !activeJob.apiOrders.has(order.order_id) &&
+        !linkedOrderIDs.includes(order.order_id) &&
+        !parentUser.linkedOrders.has(order.order_id) &&
+        !itemOrderMatch.some((i) => i.order_id === order.order_id)
+      ) {
+        order.CharacterHash = entry.user;
+        itemOrderMatch.push(order);
+      }
+    });
+  });
+
   let transactionData = [];
 
   activeJob.build.sale.marketOrders.forEach((order) => {
-    const user = users.find((u) => u.CharacterHash === order.CharacterHash);
-    if (user !== undefined) {
-      const itemTrans = JSON.parse(
-        sessionStorage.getItem(`esiTransactions_${user.CharacterHash}`)
-      ).filter(
-        (trans) =>
-          order.location_id === trans.location_id &&
-          order.type_id === trans.type_id &&
-          !trans.is_buy &&
-          !activeJob.apiTransactions.has(trans.transaction_id) &&
-          !linkedTransIDs.includes(trans.transaction_id) &&
-          !parentUser.linkedTrans.has(trans.transaction_id) &&
-          !transactionData.some(
-            (i) => i.transaction_id === trans.transaction_id
-          )
+    let userTrans = esiTransactions.find(
+      (i) => i.user === order.CharacterHash
+    ).transactions;
+    let userJournal = esiJournal.find(
+      (i) => i.user === order.CharacterHash
+    ).journal;
+
+    const itemTrans = userTrans.filter(
+      (trans) =>
+        order.location_id === trans.location_id &&
+        order.type_id === trans.type_id &&
+        !trans.is_buy &&
+        !activeJob.apiTransactions.has(trans.transaction_id) &&
+        !linkedTransIDs.includes(trans.transaction_id) &&
+        !parentUser.linkedTrans.has(trans.transaction_id) &&
+        !transactionData.some((i) => i.transaction_id === trans.transaction_id)
+    );
+
+    itemTrans.forEach((trans) => {
+      const transJournal = userJournal.find(
+        (entry) => trans.transaction_id === entry.context_id
       );
+      if (transJournal === undefined) {
+        return;
+      }
+      const transTax = userJournal.find(
+        (entry) =>
+          entry.ref_type === "transaction_tax" &&
+          Date.parse(entry.date) === Date.parse(trans.date)
+      );
+      if (transTax === undefined) {
+        return;
+      }
+      let descriptionTrim = transJournal.description
+        .replace("Market: ", "")
+        .split(" bought");
 
-      itemTrans.forEach((trans) => {
-        const transJournal = JSON.parse(
-          sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
-        ).find((entry) => trans.transaction_id === entry.context_id);
-        if (transJournal !== undefined) {
-          const transTax = JSON.parse(
-            sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
-          ).find(
-            (entry) =>
-              entry.ref_type === "transaction_tax" &&
-              Date.parse(entry.date) === Date.parse(trans.date)
-          );
-          if (transTax !== undefined) {
-            let descriptionTrim = transJournal.description
-              .replace("Market: ", "")
-              .split(" bought");
-
-            transactionData.push(
-              Object.assign(
-                {},
-                new Transaction(
-                  trans,
-                  descriptionTrim[0],
-                  transJournal,
-                  transTax
-                )
-              )
-            );
-          }
-        }
-      });
-    }
+      transactionData.push(
+        Object.assign(
+          {},
+          new Transaction(trans, descriptionTrim[0], transJournal, transTax)
+        )
+      );
+    });
   });
 
   return (

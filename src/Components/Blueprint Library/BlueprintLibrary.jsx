@@ -4,9 +4,11 @@ import { UsersContext } from "../../Context/AuthContext";
 import { ESIOffline } from "../offlineNotification";
 import { LibrarySearch } from "./LibrarySearch";
 import { BlueprintGroup } from "./BlueprintGroup";
+import { PersonalESIDataContext } from "../../Context/EveDataContext";
 
 export default function BlueprintLibrary() {
   const { users } = useContext(UsersContext);
+  const {esiBlueprints} = useContext(PersonalESIDataContext)
 
   const [pagination, setPagination] = useState({
     count: 0,
@@ -28,13 +30,11 @@ export default function BlueprintLibrary() {
   useEffect(() => {
     let tempArray = [];
     let idArray = new Set();
-    for (let user of users) {
-      JSON.parse(
-        sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
-      ).forEach((bp) => {
-        bp.owner = user.CharacterHash;
-        tempArray.push(bp);
-      });
+    for (let entry of esiBlueprints) {
+      entry.blueprints.forEach((bp) => {
+        bp.owner = entry.user
+        tempArray.push(bp)
+      })
     }
     tempArray.forEach((bp) => {
       idArray.add(bp.type_id);

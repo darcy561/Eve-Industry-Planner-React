@@ -2,7 +2,10 @@ import { useContext, useMemo } from "react";
 import { appCheck } from "../firebase";
 import { getToken } from "firebase/app-check";
 import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
-import { SisiDataFilesContext } from "../Context/EveDataContext";
+import {
+  PersonalESIDataContext,
+  SisiDataFilesContext,
+} from "../Context/EveDataContext";
 import { jobTypes } from "../Context/defaultValues";
 import { useBlueprintCalc } from "./useBlueprintCalc";
 import {
@@ -20,6 +23,7 @@ export function useJobBuild() {
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateDialogData } = useContext(DialogDataContext);
+  const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
 
   const parentUser = useMemo(() => {
@@ -317,11 +321,11 @@ export function useJobBuild() {
       return;
     }
     let blueprintOptions = [];
-    users.forEach((user) => {
-      let charBlueprints = JSON.parse(
-        sessionStorage.getItem(`esiBlueprints_${user.CharacterHash}`)
-      ).filter((i) => i.type_id === outputObject.blueprintTypeID);
-      blueprintOptions = blueprintOptions.concat(charBlueprints);
+    esiBlueprints.forEach((entry) => {
+      let blueprintMatch = entry.blueprints.filter(
+        (i) => i.type_id === outputObject.blueprintTypeID
+      );
+      blueprintOptions = blueprintOptions.concat(blueprintMatch);
     });
     if (blueprintOptions.length === 0) {
       return;

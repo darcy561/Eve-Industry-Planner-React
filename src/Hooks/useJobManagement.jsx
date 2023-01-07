@@ -23,7 +23,10 @@ import { trace } from "@firebase/performance";
 import { performance } from "../firebase";
 import { jobTypes } from "../Context/defaultValues";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EvePricesContext } from "../Context/EveDataContext";
+import {
+  EvePricesContext,
+  PersonalESIDataContext,
+} from "../Context/EveDataContext";
 import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
 import { httpsCallable } from "firebase/functions";
@@ -59,6 +62,9 @@ export function useJobManagement() {
     linkedTransIDs,
     updateLinkedTransIDs,
   } = useContext(LinkedIDsContext);
+  const { esiBlueprints, esiSkills, esiStandings } = useContext(
+    PersonalESIDataContext
+  );
   const {
     addNewJob,
     downloadCharacterJobs,
@@ -1427,16 +1433,18 @@ export function useJobManagement() {
     let corpStanding = { standing: 0 };
 
     if (marketOrder.location_id.toString().length < 10) {
-      const brokerSkill = JSON.parse(
-        sessionStorage.getItem(`esiSkills_${user.CharacterHash}`)
-      ).find((i) => i.id === 3446);
+      const userSkills = esiSkills.find(
+        (i) => i.user === user.CharacterHash
+      ).skills;
+      const userStandings = esiStandings.find(
+        (i) => i.user === user.CharacterHash
+      ).standings;
+      const brokerSkill = userSkills.find((i) => i.id === 3446);
       const stationInfo = await stationData(marketOrder.location_id);
-      factionStanding = JSON.parse(
-        sessionStorage.getItem(`esiStandings_${user.CharacterHash}`)
-      ).find((i) => i.from_id === stationInfo.race_id);
-      corpStanding = JSON.parse(
-        sessionStorage.getItem(`esiStandings_${user.CharacterHash}`)
-      ).find((i) => i.from_id === stationInfo.owner);
+      factionStanding = userStandings.find(
+        (i) => i.from_id === stationInfo.race_id
+      );
+      corpStanding = userStandings.find((i) => i.from_id === stationInfo.owner);
       if (factionStanding === undefined) {
         factionStanding = { standing: 0 };
       }
@@ -1483,6 +1491,7 @@ export function useJobManagement() {
   };
 
   const timeRemainingCalc = (inputTime) => {
+    let returnArray = [];
     let now = Date.now();
     let timeLeft = inputTime - now;
     let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
@@ -1491,17 +1500,20 @@ export function useJobManagement() {
     );
     let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
-    if (day < 0) {
-      day = 0;
+    if (day <= 0 && hour <= 0 && min <= 0) {
+      returnArray.push("complete");
     }
-    if (hour < 0) {
-      hour = 0;
+    if (day > 0) {
+      returnArray.push(`${day}D`);
     }
-    if (min < 0) {
-      min = 0;
+    if (hour > 0) {
+      returnArray.push(`${hour}H`);
+    }
+    if (min > 0) {
+      returnArray.push(`${min}M`);
     }
 
-    return { days: day, hours: hour, mins: min };
+    return returnArray.join(" ");
   };
 
   const generatePriceRequestFromJob = (inputJob) => {
@@ -1521,6 +1533,24 @@ export function useJobManagement() {
     return [...priceIDRequest];
   };
 
+  const findBlueprintType = (blueprintID) => {
+    if (blueprintID === undefined) {
+      return "bpc";
+    }
+    for (let entry of esiBlueprints) {
+      let blueprintData = entry.blueprints.find(
+        (i) => i.item_id === blueprintID
+      );
+      if (blueprintData === undefined) {
+        return "bpc";
+      }
+      if (blueprintData.quantity === -2) {
+        return "bpc";
+      }
+      return "bp";
+    }
+  };
+
   return {
     buildItemPriceEntry,
     buildShoppingList,
@@ -1529,6 +1559,7 @@ export function useJobManagement() {
     deleteJobProcess,
     deleteJobSnapshot,
     deleteMultipleJobsProcess,
+    findBlueprintType,
     findJobData,
     generatePriceRequestFromJob,
     generatePriceRequestFromSnapshot,

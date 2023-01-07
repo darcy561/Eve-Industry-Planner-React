@@ -2,9 +2,11 @@ import { useContext } from "react";
 import { UsersContext } from "../Context/AuthContext";
 import { jobTypes } from "../Context/defaultValues";
 import { structureOptions } from "../Context/defaultValues";
+import { PersonalESIDataContext } from "../Context/EveDataContext";
 
 export function useBlueprintCalc() {
   const { users } = useContext(UsersContext);
+  const { esiSkills } = useContext(PersonalESIDataContext);
 
   const CalculateResources = (calcData) => {
     switch (calcData.jobType) {
@@ -86,9 +88,7 @@ export function useBlueprintCalc() {
     if (user === undefined) {
       user = users.find((i) => i.ParentUser);
     }
-    const userSkills = JSON.parse(
-      sessionStorage.getItem(`esiSkills_${user.CharacterHash}`)
-    );
+    const userSkills = esiSkills.find((i)=> i.user === user.CharacterHash).skills;
 
     let timeModifier = timeModifierCalc(calcData, userSkills);
     let skillModifier = skillModifierCalc(calcData.skills, userSkills);

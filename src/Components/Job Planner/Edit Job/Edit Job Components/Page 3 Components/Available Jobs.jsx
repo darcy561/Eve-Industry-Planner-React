@@ -29,7 +29,7 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedJobIDs, updateLinkedJobIDs } = useContext(LinkedIDsContext);
-  const { timeRemainingCalc } = useJobManagement();
+  const { findBlueprintType, timeRemainingCalc } = useJobManagement();
   const analytics = getAnalytics();
   const ParentUserIndex = useMemo(() => {
     return users.findIndex((i) => i.ParentUser);
@@ -77,21 +77,12 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
             const jobOwner = users.find(
               (i) => i.CharacterID === job.installer_id
             );
-            const jobBP = JSON.parse(
-              sessionStorage.getItem(`esiBlueprints_${jobOwner.CharacterHash}`)
-            ).find((i) => i.item_id === job.blueprint_id);
+            const blueprintType = findBlueprintType(job.blueprint_id);
 
             const facilityData = eveIDs.find((i) => i.id === job.facility_id);
 
-            let blueprintType = "bpc";
-            if (jobBP !== undefined) {
-              blueprintType = "bp";
-              if (jobBP.quantity === -2) {
-                blueprintType = "bpc";
-              }
-            }
+            const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
 
-            const timeRemaining = timeRemainingCalc(job);
             return (
               <Grid
                 key={job.job_id}
@@ -177,25 +168,11 @@ export function AvailableJobs({ jobMatches, setJobModified }) {
 
                 <Grid item xs={12}>
                   {job.status !== "delivered" ? (
-                    job.status === "active" &&
-                    timeRemaining.days === 0 &&
-                    timeRemaining.hours === 0 &&
-                    timeRemaining.mins === 0 ? (
-                      <Typography
-                        sx={{ typography: { xs: "caption", sm: "body2" } }}
-                        align="center"
-                      >
-                        Ready to Deliver
-                      </Typography>
-                    ) : (
-                      <Typography
-                        sx={{ typography: { xs: "caption", sm: "body2" } }}
-                        align="center"
-                      >
-                        {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                        {timeRemaining.mins}M
-                      </Typography>
-                    )
+                    <Typography variant="body2" align="center">
+                      {job.status === "active" && timeRemaining === "complete"
+                        ? "Ready to Deliver"
+                        : timeRemaining}
+                    </Typography>
                   ) : null}
                 </Grid>
                 <Grid item xs={12} align="center">

@@ -6,22 +6,26 @@ export function ProductionStats() {
   const { activeJob } = useContext(ActiveJobContext);
 
   function timeDisplay() {
+    let returnArray = [];
     let d = Math.floor(activeJob.build.time / (3600 * 24));
     let h = Math.floor((activeJob.build.time % (3600 * 24)) / 3600);
     let m = Math.floor((activeJob.build.time % 3600) / 60);
     let s = Math.floor(activeJob.build.time % 60);
 
-    let dDisplay =
-      d > 0 ? d + (d == 1 ? " day" : " days") + (h !== 0 ? ", " : "") : "";
-    let hDisplay =
-      h > 0 ? h + (h == 1 ? " hour" : " hours") + (m !== 0 ? ", " : "") : "";
-    let mDisplay =
-      m > 0
-        ? m + (m == 1 ? " minute" : " minutes") + (s !== 0 ? ", " : "")
-        : "";
-    let sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
+    if (d > 0) {
+      returnArray.push(`${d}D`);
+    }
+    if (h > 0) {
+      returnArray.push(`${h}H`);
+    }
+    if (m > 0) {
+      returnArray.push(`${m}M`);
+    }
+    if (s > 0) {
+      returnArray.push(`${s}S`);
+    }
 
-    return dDisplay + hDisplay + mDisplay + sDisplay;
+    return returnArray.join(" ");
   }
 
   let timeDisplayFigure = timeDisplay();

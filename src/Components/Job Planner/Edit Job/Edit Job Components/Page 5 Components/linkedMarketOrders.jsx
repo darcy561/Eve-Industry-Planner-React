@@ -17,7 +17,10 @@ import { MdOutlineLinkOff } from "react-icons/md";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { makeStyles } from "@mui/styles";
-import { EveIDsContext } from "../../../../../Context/EveDataContext";
+import {
+  EveIDsContext,
+  PersonalESIDataContext,
+} from "../../../../../Context/EveDataContext";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -58,6 +61,9 @@ export function LinkedMarketOrders({
     linkedTransIDs,
     updateLinkedTransIDs,
   } = useContext(LinkedIDsContext);
+  const { esiOrders, esiHistOrders, esiJournal } = useContext(
+    PersonalESIDataContext
+  );
   const classes = useStyles();
 
   let linkedMarketOrders = [];
@@ -65,15 +71,26 @@ export function LinkedMarketOrders({
 
   activeJob.build.sale.marketOrders.forEach((order) => {
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
+    const userOrders = esiOrders.find(
+      (i) => i.user === user.CharacterHash
+    ).orders;
+    const userHistOrders = esiHistOrders.find(
+      (i) => i.user === user.CharacterHash
+    ).histOrders;
+    const userJournal = esiJournal.find(
+      (i) => i.user === user.CharacterHash
+    ).journal;
 
-    if (user !== undefined) {
-      const newOrderData = JSON.parse(
-        sessionStorage.getItem(`esiOrders_${user.CharacterHash}`)
-      ).find((newOrder) => newOrder.order_id === order.order_id);
+    if (
+      user !== undefined &&
+      userOrders !== undefined &&
+      userHistOrders !== undefined
+    ) {
+      const newOrderData = userOrders.find(
+        (newOrder) => newOrder.order_id === order.order_id
+      );
 
-      const completedOrderData = JSON.parse(
-        sessionStorage.getItem(`esiHistOrders_${user.CharacterHash}`)
-      ).find(
+      const completedOrderData = userHistOrders.find(
         (histOrder) => histOrder.order_id === order.order_id
       );
       if (newOrderData !== undefined && !order.complete) {
@@ -88,9 +105,7 @@ export function LinkedMarketOrders({
           if (Date.parse(order.issued) !== Date.parse(newOrderData.issued)) {
             order.timeStamps.push(newOrderData.issued);
 
-            JSON.parse(
-              sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
-            ).forEach((entry) => {
+            userJournal.forEach((entry) => {
               if (
                 entry.ref_type === "brokers_fee" &&
                 Date.parse(newOrderData.issued) === Date.parse(entry.date)
@@ -122,11 +137,12 @@ export function LinkedMarketOrders({
 
   activeJob.build.sale.marketOrders.forEach((order) => {
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
+    const userJournal = esiJournal.find(
+      (i) => i.user === user.CharacterHash
+    ).journal;
     if (order.timeStamps.length > activeJob.build.sale.brokersFee.length) {
       order.timeStamps.forEach((stamp) => {
-        JSON.parse(
-          sessionStorage.getItem(`esiJournal_${user.CharacterHash}`)
-        ).forEach((entry) => {
+        userJournal.forEach((entry) => {
           if (
             entry.ref_type === "brokers_fee" &&
             Date.parse(stamp) === Date.parse(entry.date)

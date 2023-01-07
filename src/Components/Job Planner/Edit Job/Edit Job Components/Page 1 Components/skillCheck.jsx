@@ -13,10 +13,12 @@ import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { Masonry } from "@mui/lab";
 import bpSkills from "../../../../../RawData/bpSkills.json";
+import { PersonalESIDataContext } from "../../../../../Context/EveDataContext";
 
 export function SkillCheck() {
   const { activeJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
+  const { esiSkills } = useContext(PersonalESIDataContext);
   const parentUser = users.find((i) => i.ParentUser);
   let buildChar = users.find(
     (i) => i.CharacterHash === activeJob.build.buildChar
@@ -26,10 +28,8 @@ export function SkillCheck() {
     buildChar = parentUser;
   }
 
-  let characterSkills = JSON.parse(
-    sessionStorage.getItem(`esiSkills_${buildChar.CharacterHash}`)
-  );
-
+  let characterSkills = esiSkills.find((i) => i.user === buildChar.CharacterHash).skills;
+  
   return (
     <Paper
       elevation={3}

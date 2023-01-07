@@ -22,8 +22,6 @@ export default function GroupStep3JobCard({ job }) {
     return timeRemainingCalc(Date.parse(tempJobs[0].end_date));
   }, [job]);
 
-  console.log(timeRemaining)
-  
   return (
     <Grid
       container
@@ -48,9 +46,7 @@ export default function GroupStep3JobCard({ job }) {
         </Grid>
 
         {job.apiJobs.size > 0 ? (
-          timeRemaining.days === 0 &&
-          timeRemaining.hours === 0 &&
-          timeRemaining.mins === 0 ? (
+          timeRemaining === "complete" ? (
             <Grid item xs={12}>
               <Typography
                 sx={{ typography: { xs: "body2", md: "body1" } }}
@@ -71,8 +67,7 @@ export default function GroupStep3JobCard({ job }) {
                   sx={{ typography: { xs: "body2", md: "body1" } }}
                   align="right"
                 >
-                  {timeRemaining.days}D, {timeRemaining.hours}H,{" "}
-                  {timeRemaining.mins}M
+                  {timeRemaining}
                 </Typography>
               </Grid>
             </>

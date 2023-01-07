@@ -24,7 +24,14 @@ import { useMemo } from "react";
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
   const { uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
-  const { characterAPICall, checkUserClaims,getCharacterInfo } = useAccountManagement();
+  const {
+    characterAPICall,
+    checkUserClaims,
+    getCharacterInfo,
+    removeUserEsiData,
+    updateApiArray,
+    updateUserEsiData,
+  } = useAccountManagement();
   const { findJobData, updateJobSnapshotFromFullJob } = useJobManagement();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
@@ -44,7 +51,8 @@ export function AccountEntry({ user, parentUserIndex }) {
 
   async function refreshUserAPI(user) {
     let newUsers = [...users];
-    let newAPIArray = [];
+    let newApiArray = [...apiJobs];
+    let esiObjectsArray = [];
     updateUserRefreshState(2);
     user.refreshState = 2;
     const sStatus = await serverStatus();
@@ -54,31 +62,25 @@ export function AccountEntry({ user, parentUserIndex }) {
       }
       if (user !== "RefreshFail") {
         await getCharacterInfo(user);
-        user = await characterAPICall(sStatus, user);
-        newAPIArray = apiJobs.filter(
-          (i) => i.installer_id !== user.CharacterID
+        esiObjectsArray.push(await characterAPICall(user));
+        updateUserEsiData(esiObjectsArray);
+        user.refreshState = 3;
+        newUsers = newUsers.filter(
+          (i) => i.CharacterHash !== user.CharacterHash
         );
-        JSON.parse(
-          sessionStorage.getItem(`esiJobs_${user.CharacterHash}`)
-        ).forEach((i) => newAPIArray.push(i));
-        newAPIArray.sort((a, b) => {
-          if (a.product_name < b.product_name) {
+        newUsers.push(user);
+        newUsers.sort((a, b) => {
+          if (a.name > b.name) {
             return -1;
           }
-          if (a.product_name > b.product_name) {
+          if (a.name < b.name) {
             return 1;
           }
           return 0;
         });
-        user.refreshState = 3;
-        const index = newUsers.findIndex(
-          (i) => i.CharacterHash === user.CharacterHash
-        );
-        if (index !== -1) {
-          newUsers[index] = user;
-        }
+        newApiArray = updateApiArray(newApiArray, newUsers, esiObjectsArray);
         updateUsers(newUsers);
-        updateApiJobs(newAPIArray);
+        updateApiJobs(newApiArray);
         updateUserRefreshState(3);
 
         setTimeout(() => {
@@ -129,7 +131,7 @@ export function AccountEntry({ user, parentUserIndex }) {
     }
 
     newUsers = newUsers.filter((i) => i.CharacterHash !== user.CharacterHash);
-    sessionStorage.removeItem(`assets_${user.CharacterHash}`);
+    removeUserEsiData(user.CharacterHash);
     await checkUserClaims(newUsers);
     updateUsers(newUsers);
     updateApiJobs(newApiArray);

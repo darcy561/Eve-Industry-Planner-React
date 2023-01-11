@@ -309,9 +309,11 @@ export function PriceEntryDialog() {
                   let newTotal = totalImportedCost;
                   let importedText = await navigator.clipboard.readText();
                   let importCount = 0;
-                  let matches = importedText.matchAll(
-                    /(\D*|\S*?\D*\d*?\D*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)(\r?\n|\r)/g
-                  );
+                  let matches = [
+                    ...importedText.matchAll(
+                      /^(.*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)$/gm
+                    ),
+                  ];
                   if (matches.length > 0) {
                     for (let importMatch of matches) {
                       for (let listItem of newList) {

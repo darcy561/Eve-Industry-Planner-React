@@ -298,10 +298,11 @@ export function useJobManagement() {
 
     if (isLoggedIn) {
       await uploadUserJobSnapshot(newUserJobSnapshot);
+      if (jobModified) {
+        await uploadJob(inputJob);
+      }
     }
-    if (isLoggedIn && jobModified) {
-      await uploadJob(inputJob);
-    }
+
     if (jobModified) {
       setSnackbarData((prev) => ({
         ...prev,
@@ -318,6 +319,7 @@ export function useJobManagement() {
     let newUserJobSnapshot = [...userJobSnapshot];
     const index = newJobArray.findIndex((x) => existingJob.jobID === x.jobID);
     newJobArray[index] = existingJob;
+    console.log(existingJob);
     // newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, existingJob.jobID);
     newUserJobSnapshot = updateJobSnapshotFromFullJob(
       existingJob,
@@ -381,6 +383,7 @@ export function useJobManagement() {
         return prev.concat(jobPrices);
       });
     }
+    console.log(newJobArray);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateActiveJob(openJob);

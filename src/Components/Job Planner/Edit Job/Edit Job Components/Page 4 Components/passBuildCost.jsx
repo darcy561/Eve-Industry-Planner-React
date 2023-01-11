@@ -58,7 +58,7 @@ export function PassBuildCostButton() {
       }
       if (
         material.purchasing.some((i) => i.childID === activeJob.jobID) &&
-        !material.childJob.includes(activeJob.jobID)
+        material.childJob.includes(activeJob.jobID)
       ) {
         continue;
       }

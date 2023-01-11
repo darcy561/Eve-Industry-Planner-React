@@ -4,7 +4,10 @@ import {
   UserJobSnapshotContext,
 } from "../Context/AuthContext";
 import { ActiveJobContext, JobArrayContext } from "../Context/JobContext";
-import { JobPlannerPageTriggerContext } from "../Context/LayoutContext";
+import {
+  JobPlannerPageTriggerContext,
+  MultiSelectJobPlannerContext,
+} from "../Context/LayoutContext";
 import { useFirebase } from "./useFirebase";
 import { useJobManagement } from "./useJobManagement";
 
@@ -17,6 +20,9 @@ export function useGroupManagement() {
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { updateMultiSelectJobPlanner } = useContext(
+    MultiSelectJobPlannerContext
+  );
   const { findJobData, deleteJobSnapshot, newJobSnapshot } = useJobManagement();
   const {
     downloadCharacterJobs,
@@ -78,7 +84,8 @@ export function useGroupManagement() {
       let [inputJob, inputJobSnapshot] = await findJobData(
         inputID,
         newUserJobSnapshot,
-        newJobArray
+        newJobArray,
+        "all"
       );
       if (inputJob === undefined) {
         continue;
@@ -90,7 +97,7 @@ export function useGroupManagement() {
         if (inputJobIDs.includes(id)) {
           continue;
         }
-        let [job] = await findJobData(id, newUserJobSnapshot, newJobArray);
+        let job = await findJobData(id, newUserJobSnapshot, newJobArray);
         if (job === undefined) {
           continue;
         }
@@ -113,7 +120,7 @@ export function useGroupManagement() {
           if (inputJobIDs.includes(id)) {
             continue;
           }
-          let [job] = await findJobData(id, newUserJobSnapshot, newJobArray);
+          let job = await findJobData(id, newUserJobSnapshot, newJobArray);
           if (job === undefined) {
             continue;
           }
@@ -177,7 +184,12 @@ export function useGroupManagement() {
     }
     updateActiveGroup(requestedGroup);
     for (let jobID of requestedGroup.includedJobIDs) {
-      let inputJob = await findGroupJob(jobID, newJobArray);
+      let inputJob = await findJobData(
+        jobID,
+        userJobSnapshot,
+        newJobArray,
+        "groupJob"
+      );
       if (inputJob === undefined) {
         continue;
       }
@@ -222,6 +234,7 @@ export function useGroupManagement() {
     newGroupArray.push(newGroupEntry);
     updateActiveGroup(null);
     updateGroupArray(newGroupArray);
+    updateMultiSelectJobPlanner([]);
     updateEditGroupTrigger((prev) => !prev);
   };
 
@@ -241,7 +254,12 @@ export function useGroupManagement() {
     let chosenGroup = newGroupArray.find((i) => i.groupID === inputGroupID);
 
     for (let jobID of chosenGroup.includedJobIDs) {
-      let foundJob = await findGroupJob(jobID, newJobArray);
+      let foundJob = await findJobData(
+        jobID,
+        userJobSnapshot,
+        newJobArray,
+        "groupJob"
+      );
       if (foundJob === undefined) {
         continue;
       }
@@ -297,16 +315,6 @@ export function useGroupManagement() {
     return finalBuildCost / outputJob.build.products.totalQuantity;
   };
 
-  const findGroupJob = async (jobID, chosenJobArray) => {
-    let inputJob = chosenJobArray.find((i) => i.jobID === jobID);
-
-    if (inputJob === undefined) {
-      inputJob = await downloadCharacterJobs(jobID);
-      chosenJobArray.push(inputJob);
-    }
-    return inputJob;
-  };
-
   const findGroupData = (inputGroupID, chosenGroupArray) => {
     let foundGroup = chosenGroupArray.find((i) => i.groupID === inputGroupID);
 
@@ -315,9 +323,6 @@ export function useGroupManagement() {
     }
     return foundGroup;
   };
-  const moveGroupsForward = async (groupIDs) => {};
-
-  const moveGroupsBackwards = async (groupIDs) => {};
 
   return {
     calculateCurrentJobBuildCostFromChildren,
@@ -325,7 +330,6 @@ export function useGroupManagement() {
     createNewGroupWithJobs,
     deleteGroupWithoutJobs,
     findGroupData,
-    findGroupJob,
     openGroup,
     replaceGroupData,
   };

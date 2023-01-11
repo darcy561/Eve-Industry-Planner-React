@@ -322,7 +322,7 @@ export function useJobBuild() {
     }
     let blueprintOptions = [];
     esiBlueprints.forEach((entry) => {
-      let blueprintMatch = entry.blueprints.filter(
+      let blueprintMatch = entry.data.filter(
         (i) => i.type_id === outputObject.blueprintTypeID
       );
       blueprintOptions = blueprintOptions.concat(blueprintMatch);

@@ -1,14 +1,9 @@
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
-import { useContext } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import searchData from "../../../../RawData/searchIndex.json";
 import { blueGrey, grey } from "@mui/material/colors";
-import { PersonalESIDataContext } from "../../../../Context/EveDataContext";
 
 export function IndustryESICardActive({ job }) {
-  const { users } = useContext(UsersContext);
-  const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { findBlueprintType, timeRemainingCalc } = useJobManagement();
 
   const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
@@ -17,7 +12,7 @@ export function IndustryESICardActive({ job }) {
     (i) => i.blueprintID === job.blueprint_type_id
   );
 
-  const blueprintType = findBlueprintType(job.blueprint_id)
+  const blueprintType = findBlueprintType(job.blueprint_id);
 
   return (
     <Tooltip title="Job imported from the Eve ESI">

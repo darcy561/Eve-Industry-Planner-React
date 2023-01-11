@@ -35,7 +35,7 @@ export function NewTransactions() {
 
   filteredJobs.forEach((job) => {
     esiOrders.forEach((entry) => {
-      entry.orders.forEach((order) => {
+      entry.data.forEach((order) => {
         if (
           order.type_id === job.itemID &&
           linkedOrderIDs.includes(order.order_id) &&
@@ -48,7 +48,7 @@ export function NewTransactions() {
       });
     });
     esiHistOrders.forEach((entry) => {
-      entry.histOrders.forEach((order) => {
+      entry.data.forEach((order) => {
         if (
           order.type_id === job.itemID &&
           linkedOrderIDs.includes(order.order_id) &&
@@ -64,7 +64,7 @@ export function NewTransactions() {
     itemOrderMatch.forEach((order) => {
       const transactions = esiTransactions.find(
         (u) => u.user === order.CharacterHash
-      ).transactions;
+      ).data;
 
       const itemTrans = transactions.filter(
         (trans) =>
@@ -80,7 +80,7 @@ export function NewTransactions() {
       itemTrans.forEach((trans) => {
         const journal = esiJournal.find(
           (u) => u.user === order.CharacterHash
-        ).journal;
+        ).data;
         const transJournal = journal.find(
           (entry) => trans.transaction_id === entry.context_id
         );

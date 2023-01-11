@@ -21,17 +21,6 @@ import { ShoppingListDialog } from "./Dialogues/ShoppingList/ShoppingList";
 import { PriceEntryDialog } from "./Dialogues/PriceEntry/PriceEntryList";
 import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
 import { ESIOffline } from "../offlineNotification";
-import {
-  defaultEsiAssets,
-  defaultEsiBlueprints,
-  defaultEsiHistOrders,
-  defaultEsiJobs,
-  defaultEsiJournal,
-  defaultEsiOrders,
-  defaultEsiSkills,
-  defaultEsiStandings,
-  defaultEsiTransactions,
-} from "../../Context/defaultValues";
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
@@ -82,7 +71,18 @@ export function JobPlanner() {
     if (!editJobTrigger && editGroupTrigger) {
       return (
         <Suspense fallback={<LoadingPage />}>
-          <EditGroup updateEditGroupTrigger={updateEditGroupTrigger} />
+          <ShoppingListDialog
+            shoppingListTrigger={shoppingListTrigger}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            shoppingListData={shoppingListData}
+            updateShoppingListData={updateShoppingListData}
+          />
+          <PriceEntryDialog />
+          <EditGroup
+            updateEditGroupTrigger={updateEditGroupTrigger}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            updateShoppingListData={updateShoppingListData}
+          />
         </Suspense>
       );
     }

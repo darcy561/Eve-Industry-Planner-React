@@ -71,7 +71,7 @@ export function LibrarySearch({
               let idArray = new Set();
 
               for (let entry of esiBlueprints) {
-                entry.blueprints.forEach((bp) => {
+                entry.data.forEach((bp) => {
                   bp.owner = entry.user;
                   tempArray.push(bp);
                 });
@@ -161,7 +161,7 @@ export function LibrarySearch({
                         changeDisplayBPC((prev) => !prev);
                       }
                       for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
+                        entry.data.forEach((bp) => {
                           bp.owner = entry.user;
                           tempArray.push(bp);
                         });
@@ -208,7 +208,7 @@ export function LibrarySearch({
                         changeDisplayBPC((prev) => !prev);
                       }
                       for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
+                        entry.data.forEach((bp) => {
                           bp.owner = entry.user;
                           tempArray.push(bp);
                         });
@@ -263,7 +263,7 @@ export function LibrarySearch({
                         changeDisplayBPC((prev) => !prev);
                       }
                       for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
+                        entry.data.forEach((bp) => {
                           bp.owner = entry.user;
                           tempArray.push(bp);
                         });
@@ -318,7 +318,7 @@ export function LibrarySearch({
                         changeDisplayBPC((prev) => !prev);
                       }
                       for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
+                        entry.data.forEach((bp) => {
                           bp.owner = entry.user;
                           tempArray.push(bp);
                         });
@@ -373,7 +373,7 @@ export function LibrarySearch({
                         changeDisplayBPC((prev) => !prev);
                       }
                       for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
+                        entry.data.forEach((bp) => {
                           bp.owner = entry.user;
                           tempArray.push(bp);
                         });
@@ -430,7 +430,7 @@ export function LibrarySearch({
                         changeDisplayBPO((prev) => !prev);
                       }
                       for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
+                        entry.data.forEach((bp) => {
                           bp.owner = entry.user;
                           tempArray.push(bp);
                         });

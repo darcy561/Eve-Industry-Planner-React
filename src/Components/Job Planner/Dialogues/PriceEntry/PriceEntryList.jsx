@@ -81,7 +81,7 @@ export function PriceEntryDialog() {
       if (material.confirmed) {
         totalConfirmed++;
         for (let ref of material.jobRef) {
-          let [job] = await findJobData(ref, userJobSnapshot, newJobArray);
+          let job = await findJobData(ref, userJobSnapshot, newJobArray);
           if (job === undefined) {
             continue;
           }

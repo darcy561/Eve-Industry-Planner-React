@@ -46,7 +46,7 @@ export function PassBuildCostButton() {
     for (let job of activeJob.parentJob) {
       let newTotal = 0;
       let quantityImported = 0;
-      let [parentJob] = await findJobData(job, newUserJobSnapshot, newJobArray);
+      let parentJob = await findJobData(job, newUserJobSnapshot, newJobArray);
       if (parentJob === undefined) {
         continue;
       }

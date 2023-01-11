@@ -110,7 +110,7 @@ export function ParentJobDialog({
                       onClick={async () => {
                         let newUserJobSnapshot = [...userJobSnapshot];
                         let newJobArray = [...jobArray];
-                        let [fullJob] = await findJobData(
+                        let fullJob = await findJobData(
                           job.jobID,
                           newUserJobSnapshot,
                           newJobArray

@@ -50,25 +50,25 @@ export function AccountData() {
     let newJEntries = 0;
 
     esiIndJobs.forEach((entry) => {
-      newIndJobs += entry.jobs.length;
+      newIndJobs += entry.data.length;
     });
     corpEsiIndJobs.forEach((entry) => {
-      newIndJobs += entry.jobs.length;
+      newIndJobs += entry.data.length;
     });
     esiOrders.forEach((entry) => {
-      newOpenMOrders += entry.orders.length;
+      newOpenMOrders += entry.data.length;
     });
     esiHistOrders.forEach((entry) => {
-      newHistMOrders += entry.histOrders.length;
+      newHistMOrders += entry.data.length;
     });
     esiTransactions.forEach((entry) => {
-      newMTrans += entry.transactions.length;
+      newMTrans += entry.data.length;
     });
     esiJournal.forEach((entry) => {
-      newJEntries += entry.journal.length;
+      newJEntries += entry.data.length;
     });
     esiBlueprints.forEach((entry) => {
-      newBlueprints += entry.blueprints.length;
+      newBlueprints += entry.data.length;
     });
 
     updateDataCount({

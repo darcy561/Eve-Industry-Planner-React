@@ -463,6 +463,7 @@ export function useAccountManagement() {
     });
     return newApiArray;
   };
+
   const updateApiArray = (
     chosenApiArray,
     chosentUsersArray,
@@ -526,35 +527,35 @@ export function useAccountManagement() {
     for (let esiUser of esiObjectArray) {
       skills.push({
         user: esiUser.owner,
-        skills: esiUser.esiSkills,
+        data: esiUser.esiSkills,
       });
       jobs.push({
         user: esiUser.owner,
-        jobs: esiUser.esiJobs,
+        data: esiUser.esiJobs,
       });
       orders.push({
         user: esiUser.owner,
-        orders: esiUser.esiOrders,
+        data: esiUser.esiOrders,
       });
       histOrders.push({
         user: esiUser.owner,
-        histOrders: esiUser.esiHistOrders,
+        data: esiUser.esiHistOrders,
       });
       blueprints.push({
         user: esiUser.owner,
-        blueprints: esiUser.esiBlueprints,
+        data: esiUser.esiBlueprints,
       });
       transactions.push({
         user: esiUser.owner,
-        transactions: esiUser.esiTransactions,
+        data: esiUser.esiTransactions,
       });
       journal.push({
         user: esiUser.owner,
-        journal: esiUser.esiJournal,
+        data: esiUser.esiJournal,
       });
       standings.push({
         user: esiUser.owner,
-        standings: esiUser.esiStandings,
+        data: esiUser.esiStandings,
       });
       sessionStorage.setItem(
         `assets_${esiUser.owner}`,
@@ -562,7 +563,7 @@ export function useAccountManagement() {
       );
       corpJobs.push({
         user: esiUser.owner,
-        jobs: esiUser.esiCorpJobs,
+        data: esiUser.esiCorpJobs,
       });
     }
     updateEsiIndJobs(jobs);
@@ -613,35 +614,35 @@ export function useAccountManagement() {
     for (let esiUser of esiObjectArray) {
       newEsiOrders.push({
         user: esiUser.owner,
-        jobs: esiUser.esiJobs,
+        data: esiUser.esiJobs,
       });
       newEsiSkills.push({
         user: esiUser.owner,
-        skills: esiUser.esiSkills,
+        data: esiUser.esiSkills,
       });
       newEsiOrders.push({
         user: esiUser.owner,
-        orders: esiUser.esiOrders,
+        data: esiUser.esiOrders,
       });
       newEsiHistOrders.push({
         user: esiUser.owner,
-        histOrders: esiUser.esiHistOrders,
+        data: esiUser.esiHistOrders,
       });
       newEsiBlueprints.push({
         user: esiUser.owner,
-        blueprints: esiUser.esiBlueprints,
+        data: esiUser.esiBlueprints,
       });
       newEsiTransactions.push({
         user: esiUser.owner,
-        transactions: esiUser.esiTransactions,
+        data: esiUser.esiTransactions,
       });
       newEsiJournal.push({
         user: esiUser.owner,
-        journal: esiUser.esiJournal,
+        data: esiUser.esiJournal,
       });
       newEsiStandings.push({
         user: esiUser.owner,
-        standings: esiUser.esiStandings,
+        data: esiUser.esiStandings,
       });
       sessionStorage.setItem(
         `assets_${esiUser.owner}`,
@@ -649,7 +650,7 @@ export function useAccountManagement() {
       );
       newCorpEsiIndJobs.push({
         user: esiUser.owner,
-        jobs: esiUser.esiCorpJobs,
+        data: esiUser.esiCorpJobs,
       });
     }
 

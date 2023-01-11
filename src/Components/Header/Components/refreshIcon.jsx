@@ -106,16 +106,16 @@ export function RefreshApiIcon() {
         let citadelIDs = new Set();
         let userJobs = esiIndJobs.find(
           (i) => i.user === user.CharacterHash
-        ).jobs;
+        ).data;
         let userOrders = esiOrders.find(
           (i) => i.user === user.CharacterHash
-        ).orders;
+        ).data;
         let userHistOrders = esiHistOrders.find(
           (i) => i.user === user.CharacterHash
-        ).histOrders;
+        ).data;
         let corpJobs = corpEsiIndJobs.find(
           (i) => i.user === user.CharacterHash
-        ).jobs;
+        ).data;
 
         userJobs.forEach((job) => {
           if (job.facility_id.toString().length > 10) {

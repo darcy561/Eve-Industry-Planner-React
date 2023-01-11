@@ -98,7 +98,7 @@ export function AccountEntry({ user, parentUserIndex }) {
 
     for (let jobSnap of newUserJobSnapshot) {
       if (jobSnap.jobOwner === user.CharacterHash) {
-        let [job] = await findJobData(
+        let job = await findJobData(
           jobSnap.jobID,
           newUserJobSnapshot,
           newJobArray

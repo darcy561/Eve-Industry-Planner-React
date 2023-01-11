@@ -33,10 +33,10 @@ export function ManufacturingBlueprints({ setJobModified }) {
     (i) => i.blueprint_type_id === activeJob.blueprintTypeID
   );
   users.forEach((user) => {
-    let userData = esiBlueprints.find((i)=> i.user === user.CharacterHash)
-    let temp = userData.blueprints.filter(
-      (i) => i.type_id === activeJob.blueprintTypeID
-    );
+    let userData = esiBlueprints.find(
+      (i) => i.user === user.CharacterHash
+    ).data;
+    let temp = userData.filter((i) => i.type_id === activeJob.blueprintTypeID);
     temp.forEach((i) => {
       i.owner_id = user.CharacterID;
       blueprintOptions.push(i);

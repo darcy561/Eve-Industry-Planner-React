@@ -16,6 +16,7 @@ import { GroupAccordion } from "./groupAccordion";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { makeStyles } from "@mui/styles";
+import { GroupOptionsBar } from "./groupOptions";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -29,7 +30,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function GroupPage() {
+export default function GroupPage({
+  shoppingListTrigger,
+  updateShoppingListTrigger,
+  shoppingListData,
+  updateShoppingListData,
+}) {
   const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -139,6 +145,12 @@ export default function GroupPage() {
             )}
           </Grid>
           <Grid container item xs={12} spacing={2}>
+            <Grid item xs={12}>
+              <GroupOptionsBar
+                updateShoppingListTrigger={updateShoppingListTrigger}
+                updateShoppingListData={updateShoppingListData}
+              />
+            </Grid>
             <Grid item xs={12}>
               <OutputJobsPanel
                 groupJobs={groupJobs}

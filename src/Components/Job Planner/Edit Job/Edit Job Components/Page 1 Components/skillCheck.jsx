@@ -28,7 +28,7 @@ export function SkillCheck() {
     buildChar = parentUser;
   }
 
-  let characterSkills = esiSkills.find((i) => i.user === buildChar.CharacterHash).skills;
+  let characterSkills = esiSkills.find((i) => i.user === buildChar.CharacterHash).data;
   
   return (
     <Paper

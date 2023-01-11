@@ -103,7 +103,7 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
                       onDelete={async () => {
                         let newJobArray = [...jobArray];
                         let newUserJobSnapshot = [...userJobSnapshot];
-                        let [selectedJob] = await findJobData(
+                        let selectedJob = await findJobData(
                           parent.jobID,
                           newUserJobSnapshot,
                           newJobArray

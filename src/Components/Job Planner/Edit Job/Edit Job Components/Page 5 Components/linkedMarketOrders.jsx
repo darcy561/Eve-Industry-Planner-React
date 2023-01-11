@@ -73,13 +73,13 @@ export function LinkedMarketOrders({
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
     const userOrders = esiOrders.find(
       (i) => i.user === user.CharacterHash
-    ).orders;
+    ).data;
     const userHistOrders = esiHistOrders.find(
       (i) => i.user === user.CharacterHash
-    ).histOrders;
+    ).data;
     const userJournal = esiJournal.find(
       (i) => i.user === user.CharacterHash
-    ).journal;
+    ).data;
 
     if (
       user !== undefined &&
@@ -139,7 +139,7 @@ export function LinkedMarketOrders({
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
     const userJournal = esiJournal.find(
       (i) => i.user === user.CharacterHash
-    ).journal;
+    ).data;
     if (order.timeStamps.length > activeJob.build.sale.brokersFee.length) {
       order.timeStamps.forEach((stamp) => {
         userJournal.forEach((entry) => {

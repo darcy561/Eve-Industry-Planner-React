@@ -179,7 +179,7 @@ export function AvailableMarketOrders({
                           );
                           const charJournal = esiJournal.find(
                             (i) => i.user === char.CharacterHash
-                          ).journal;
+                          ).data;
 
                           let brokersFee = await calcBrokersFee(char, order);
                           let newBrokersArray = [];

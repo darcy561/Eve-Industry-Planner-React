@@ -45,7 +45,7 @@ export function EditPage5({ setJobModified }) {
     }
   }
   esiOrders.forEach((entry) => {
-    entry.orders.forEach((order) => {
+    entry.data.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
         !activeJob.apiOrders.has(order.order_id) &&
@@ -58,7 +58,7 @@ export function EditPage5({ setJobModified }) {
     });
   });
   esiHistOrders.forEach((entry) => {
-    entry.histOrders.forEach((order) => {
+    entry.data.forEach((order) => {
       if (
         order.type_id === activeJob.itemID &&
         !activeJob.apiOrders.has(order.order_id) &&
@@ -77,10 +77,10 @@ export function EditPage5({ setJobModified }) {
   activeJob.build.sale.marketOrders.forEach((order) => {
     let userTrans = esiTransactions.find(
       (i) => i.user === order.CharacterHash
-    ).transactions;
+    ).data;
     let userJournal = esiJournal.find(
       (i) => i.user === order.CharacterHash
-    ).journal;
+    ).data;
 
     const itemTrans = userTrans.filter(
       (trans) =>

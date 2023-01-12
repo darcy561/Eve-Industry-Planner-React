@@ -26,91 +26,91 @@ export function GroupOptionsBar({
   const { buildNextJobs } = useGroupManagement();
 
   return (
-    // <Paper
-    //   elevation={3}
-    //   square
-    //   sx={{
-    //     marginRight: { md: "10px" },
-    //     marginLeft: { md: "10px" },
-    //     padding: "20px",
-    //   }}
-    // >
-    <Grid container sx={{ marginRight: "10px" }}>
-      <ButtonGroup fullWidth variant="outlined" size="small">
-        <Tooltip
-          title="Displays a shopping list of the remaining materials needed to build all of the jobs within the group or just the selected jobs."
-          arrow
-          placement="bottom"
-        >
+    <Paper
+      elevation={3}
+      square
+      sx={{
+        marginRight: { md: "10px" },
+        marginLeft: { md: "10px" },
+        padding: "20px",
+      }}
+    >
+      <Grid container sx={{ marginRight: "10px" }}>
+        <ButtonGroup fullWidth variant="outlined" size="small">
+          <Tooltip
+            title="Displays a shopping list of the remaining materials needed to build all of the jobs within the group or just the selected jobs."
+            arrow
+            placement="bottom"
+          >
+            <Button
+              onClick={async () => {
+                if (multiSelectJobPlanner.length > 0) {
+                  updateShoppingListData(multiSelectJobPlanner);
+                } else {
+                  updateShoppingListData([...activeGroup.includedJobIDs]);
+                }
+                updateShoppingListTrigger((prev) => !prev);
+              }}
+            >
+              Shopping List
+            </Button>
+          </Tooltip>
           <Button
+            fullWidth
+            variant="outlined"
+            size="small"
             onClick={async () => {
+              let itemList = null;
               if (multiSelectJobPlanner.length > 0) {
-                updateShoppingListData(multiSelectJobPlanner);
+                itemList = await buildItemPriceEntry(multiSelectJobPlanner);
               } else {
-                updateShoppingListData([...activeGroup.includedJobIDs]);
+                itemList = await buildItemPriceEntry([
+                  ...activeGroup.includedJobIDs,
+                ]);
               }
-              updateShoppingListTrigger((prev) => !prev);
+              updatePriceEntryListData((prev) => ({
+                ...prev,
+                open: true,
+                list: itemList,
+              }));
             }}
           >
-            Shopping List
+            Add Item Prices
           </Button>
-        </Tooltip>
-        <Button
-          fullWidth
-          variant="outlined"
-          size="small"
-          onClick={async () => {
-            let itemList = null;
-            if (multiSelectJobPlanner.length > 0) {
-              itemList = await buildItemPriceEntry(multiSelectJobPlanner);
-            } else {
-              itemList = await buildItemPriceEntry([
-                ...activeGroup.includedJobIDs,
-              ]);
-            }
-            updatePriceEntryListData((prev) => ({
-              ...prev,
-              open: true,
-              list: itemList,
-            }));
-          }}
-        >
-          Add Item Prices
-        </Button>
-        <Tooltip title="Moves the selected jobs 1 step backwards." arrow>
+          <Tooltip title="Moves the selected jobs 1 step backwards." arrow>
+            <Button
+              disabled={multiSelectJobPlanner.length === 0}
+              onClick={() => {
+                moveItemsOnPlanner(multiSelectJobPlanner, "backward");
+              }}
+            >
+              Move Backward
+            </Button>
+          </Tooltip>
+          <Tooltip title="Moves the selected jobs 1 step forwards." arrow>
+            <Button
+              disabled={multiSelectJobPlanner.length === 0}
+              onClick={() => {
+                moveItemsOnPlanner(multiSelectJobPlanner, "forward");
+              }}
+            >
+              Move Forward
+            </Button>
+          </Tooltip>
           <Button
-            disabled={multiSelectJobPlanner.length === 0}
             onClick={() => {
-              moveItemsOnPlanner(multiSelectJobPlanner, "backward");
+              if (multiSelectJobPlanner.length > 0) {
+                buildNextJobs(multiSelectJobPlanner);
+              } else {
+                buildNextJobs([...activeGroup.includedJobIDs]);
+              }
             }}
           >
-            Move Backward
+            s
           </Button>
-        </Tooltip>
-        <Tooltip title="Moves the selected jobs 1 step forwards." arrow>
-          <Button
-            disabled={multiSelectJobPlanner.length === 0}
-            onClick={() => {
-              moveItemsOnPlanner(multiSelectJobPlanner, "forward");
-            }}
-          >
-            Move Forward
-          </Button>
-        </Tooltip>
-        <Button
-          onClick={() => {
-            if (multiSelectJobPlanner.length > 0) {
-              buildNextJobs(multiSelectJobPlanner);
-            } else {
-              buildNextJobs([...activeGroup.includedJobIDs]);
-            }
-          }}
-        >
-          s
-        </Button>
-        <Button onClick={() => {}}>f</Button>
-      </ButtonGroup>
-    </Grid>
-    // </Paper>
+          <Button onClick={() => {}}>f</Button>
+        </ButtonGroup>
+      </Grid>
+    </Paper>
   );
 }

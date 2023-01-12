@@ -125,7 +125,7 @@ export function useJobBuild() {
     }
   }
 
-  const buildJob = async (buildRequest) => {
+  const buildJobObject = async (buildRequest, itemJson ) => {
     try {
       if (!buildRequest.hasOwnProperty("itemID")) {
         jobBuildErrors(buildRequest, "Item Data Missing From Request");
@@ -223,6 +223,39 @@ export function useJobBuild() {
     } catch (err) {
       jobBuildErrors(buildRequest, err.name);
       return undefined;
+    }
+  };
+
+  const buildJob = async (buildRequest) => {
+    if (Array.isArray(buildRequest)) {
+      let idRequest = new Set();
+      for (let build of buildRequest) {
+        idRequest.add(build.typeID);
+      }
+
+      const appCheckToken = await getToken(appCheck, true);
+      const response = await fetch(
+        `${import.meta.env.VITE_APIURL}/item/bulkRequest`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Firebase-AppCheck": appCheckToken.token,
+            accountID: parentUser.accountID,
+            appVersion: __APP_VERSION__,
+          },
+          body: JSON.stringify({
+            idArray: [...idRequest],
+          }),
+        }
+      );
+      let recipieArray = response.json();
+      for (let build of buildRequest) {
+        
+      }
+
+    } else {
+      
     }
   };
 

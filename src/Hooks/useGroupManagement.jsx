@@ -10,6 +10,7 @@ import {
   MultiSelectJobPlannerContext,
 } from "../Context/LayoutContext";
 import { useFirebase } from "./useFirebase";
+import { useJobBuild } from "./useJobBuild";
 import { useJobManagement } from "./useJobManagement";
 
 export function useGroupManagement() {
@@ -31,6 +32,7 @@ export function useGroupManagement() {
     uploadUserJobSnapshot,
     uploadJob,
   } = useFirebase();
+  const {buildJob} = useJobBuild()
 
   class newJobGroupTemplate {
     constructor(
@@ -337,6 +339,7 @@ export function useGroupManagement() {
 
     await buildExistingTypes();
     await generateRequestList();
+    await buildJob(buildRequests)
     async function buildExistingTypes() {
       for (let jobID of [...activeGroup.includedJobIDs]) {
         let job = await findJobData(
@@ -359,6 +362,7 @@ export function useGroupManagement() {
           }
           childJobArray.push({
             typeID: material.typeID,
+            name: material.name,
             childJobs: new Set([...material.childJob]),
           });
         });
@@ -465,6 +469,7 @@ export function useGroupManagement() {
         });
       }
     }
+
     console.log(existingTypeIDData);
     console.log(modifiedJobData);
     console.log(buildRequests);

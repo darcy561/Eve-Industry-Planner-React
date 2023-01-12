@@ -8,6 +8,7 @@ import {
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
+import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 
 export function GroupOptionsBar({
   updateShoppingListTrigger,
@@ -22,6 +23,7 @@ export function GroupOptionsBar({
   const { activeGroup } = useContext(ActiveJobContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const { buildItemPriceEntry, moveItemsOnPlanner } = useJobManagement();
+  const { buildNextJobs } = useGroupManagement();
 
   return (
     // <Paper
@@ -95,7 +97,17 @@ export function GroupOptionsBar({
             Move Forward
           </Button>
         </Tooltip>
-        <Button onClick={() => {}}>s</Button>
+        <Button
+          onClick={() => {
+            if (multiSelectJobPlanner.length > 0) {
+              buildNextJobs(multiSelectJobPlanner);
+            } else {
+              buildNextJobs([...activeGroup.includedJobIDs]);
+            }
+          }}
+        >
+          s
+        </Button>
         <Button onClick={() => {}}>f</Button>
       </ButtonGroup>
     </Grid>

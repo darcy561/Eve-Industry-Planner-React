@@ -187,6 +187,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
                       newUsersArray[
                         parentUserIndex
                       ].settings.account.cloudAccounts = e.target.checked;
+
                       if (e.target.checked) {
                         let additionalAccounts = JSON.parse(
                           localStorage.getItem(

@@ -66,8 +66,14 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
           </IconButton>
 
           {activeJob.parentJob.map((jobID) => {
-            console.log(jobID);
-            let parent = userJobSnapshot.find((i) => i.jobID === jobID);
+            let findParent = () => {
+              if (activeJob.groupID === null) {
+                return userJobSnapshot.find((i) => i.jobID === jobID);
+              } else {
+                return jobArray.find((i) => i.jobID === jobID);
+              }
+            };
+            let parent = findParent();
             if (parent === undefined) {
               return null;
             }

@@ -8,7 +8,9 @@ import { ActiveJobContext, JobArrayContext } from "../Context/JobContext";
 import {
   JobPlannerPageTriggerContext,
   MultiSelectJobPlannerContext,
+  SnackBarDataContext,
 } from "../Context/LayoutContext";
+import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
 import { useJobManagement } from "./useJobManagement";
@@ -25,14 +27,12 @@ export function useGroupManagement() {
   const { updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { findJobData, deleteJobSnapshot, newJobSnapshot } = useJobManagement();
-  const {
-    downloadCharacterJobs,
-    uploadGroups,
-    uploadUserJobSnapshot,
-    uploadJob,
-  } = useFirebase();
-  const {buildJob} = useJobBuild()
+  const { addNewJob, uploadGroups, uploadUserJobSnapshot, uploadJob } =
+    useFirebase();
+  const { buildJob, recalculateItemQty } = useJobBuild();
+  const { CalculateResources, CalculateTime } = useBlueprintCalc();
 
   class newJobGroupTemplate {
     constructor(
@@ -43,7 +43,7 @@ export function useGroupManagement() {
       materialIDs,
       outputJobCount
     ) {
-      this.groupName = outputJobNames.join(", ");
+      this.groupName = outputJobNames.join(", ").substring(0, 75);
       this.groupID = groupID;
       this.includedJobIDs = inputIDs;
       this.includedTypeIDs = [...includedTypeIDs];
@@ -53,6 +53,7 @@ export function useGroupManagement() {
       this.groupType = 1;
     }
   }
+
   class updateJobGroupTemplate {
     constructor(
       inputGroup,
@@ -63,7 +64,7 @@ export function useGroupManagement() {
     ) {
       this.groupName = inputGroup.groupName;
       this.groupID = inputGroup.groupID;
-      this.includedJobIDs = inputIDs;
+      this.includedJobIDs = [...inputIDs];
       this.includedTypeIDs = [...includedTypeIDs];
       this.materialIDs = [...materialIDs];
       this.outputJobCount = outputJobCount;
@@ -239,6 +240,7 @@ export function useGroupManagement() {
     updateGroupArray(newGroupArray);
     updateMultiSelectJobPlanner([]);
     updateEditGroupTrigger((prev) => !prev);
+    uploadGroups(newGroupArray);
   };
 
   const replaceGroupData = (inputGroup, chosenGroupArray) => {
@@ -334,12 +336,92 @@ export function useGroupManagement() {
     let modifiedJobIDSet = new Set();
     let buildRequests = [];
     let buildRequestsIDSet = new Set();
+    let newJobIDs = new Set();
     let newJobArray = [...jobArray];
-    let newGroupArray = [...groupArray];
+    let newMaterialIDs = new Set(activeGroup.materialIDs);
+    let newTypeIDs = new Set(activeGroup.includedTypeIDs);
+    let newFinalJobIDs = new Set(activeGroup.includedJobIDs);
 
     await buildExistingTypes();
     await generateRequestList();
-    await buildJob(buildRequests)
+
+    let newJobData = await buildJob(buildRequests);
+
+    for (let newJob of newJobData) {
+      newJobIDs.add(newJob.jobID);
+      newTypeIDs.add(newJob.itemID);
+      newMaterialIDs.add(newJob.itemID);
+
+      newJob.build.materials.forEach((material) => {
+        newMaterialIDs.add(material.typeID);
+      });
+
+      for (let parentID of newJob.parentJob) {
+        let parentJob = newJobArray.find((i) => i.jobID === parentID);
+
+        let material = parentJob.build.materials.find(
+          (i) => i.typeID === newJob.itemID
+        );
+
+        material.childJob.push(newJob.jobID);
+      }
+
+      newJobArray.push(newJob);
+      if (isLoggedIn) {
+        addNewJob(newJob);
+      }
+    }
+    updateModifiedJobs();
+
+    newFinalJobIDs = new Set([...newFinalJobIDs, ...newJobIDs]);
+
+    updateActiveGroup((prev) => ({
+      ...prev,
+      includedTypeIDs: [...newTypeIDs],
+      includedJobIDs: [...newFinalJobIDs],
+      outputJobCount: (prev.outputJobCount += newJobData.length),
+      materialIDs: [...newMaterialIDs],
+    }));
+
+    updateJobArray(newJobArray);
+
+    if (modifiedJobData.length > 0 && buildRequests.length > 0) {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `${modifiedJobData.length} Jobs Updated & ${buildRequests.length} Jobs Created`,
+        severity: "success",
+        autoHideDuration: 3000,
+      }));
+    }
+    if (buildRequests.length > 0) {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `${buildRequests.length} Jobs Created`,
+        severity: "success",
+        autoHideDuration: 3000,
+      }));
+    }
+    if (modifiedJobData.length > 0) {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `${modifiedJobData.length} Jobs Updated `,
+        severity: "success",
+        autoHideDuration: 3000,
+      }));
+    }
+    if (modifiedJobData.length === 0 && buildRequests.length === 0) {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `Job Tree Complete`,
+        severity: "success",
+        autoHideDuration: 3000,
+      }));
+    }
+
     async function buildExistingTypes() {
       for (let jobID of [...activeGroup.includedJobIDs]) {
         let job = await findJobData(
@@ -360,8 +442,9 @@ export function useGroupManagement() {
           ) {
             return;
           }
+
           childJobArray.push({
-            typeID: material.typeID,
+            itemID: material.typeID,
             name: material.name,
             childJobs: new Set([...material.childJob]),
           });
@@ -370,13 +453,14 @@ export function useGroupManagement() {
         existingTypeIDData.push({
           name: job.name,
           jobID: job.jobID,
-          typeID: job.itemID,
-          quantity: job.build.products.totalQuantity,
+          itemID: job.itemID,
+          itemQty: job.build.products.totalQuantity,
           parentJobs: new Set([...job.parentJob]),
           childJobs: childJobArray,
         });
       }
     }
+
     async function generateRequestList() {
       for (let inputJobID of inputIDs) {
         let inputJob = await findJobData(
@@ -401,34 +485,31 @@ export function useGroupManagement() {
 
           if (existingIDSet.has(material.typeID)) {
             let existingTypeData = existingTypeIDData.filter(
-              (i) => i.typeID === material.typeID
+              (i) => i.itemID === material.typeID
             );
+
             let evenQuantity = Math.floor(
               material.quantity / existingTypeData.length
             );
             let remainingQuantity = material.quantity % existingTypeData.length;
 
-            console.log(material);
             for (let dataSet of existingTypeData) {
-              console.log(dataSet);
-              dataSet.quantity += evenQuantity;
-              dataSet.parentJobs = new Set([
-                ...inputJob.parentJob,
-                ...dataSet.parentJobs,
-              ]);
+              dataSet.itemQty += evenQuantity;
+              dataSet.parentJobs.add(inputJob.jobID);
             }
-            existingTypeData[0].quantity += remainingQuantity;
+            existingTypeData[0].itemQty += remainingQuantity;
             modifiedJobData = modifiedJobData.concat(existingTypeData);
             modifiedJobIDSet.add(material.typeID);
             existingTypeData = existingTypeData.filter(
-              (i) => i.typeID !== material.typeID
+              (i) => i.itemID !== material.typeID
             );
             existingIDSet.delete(material.typeID);
             return;
           }
+
           if (modifiedJobIDSet.has(material.typeID)) {
             let modifiedTypeData = modifiedJobData.filter(
-              (i) => i.typeID === material.typeID
+              (i) => i.itemID === material.typeID
             );
             let evenQuantity = Math.floor(
               material.quantity / modifiedTypeData.length
@@ -436,46 +517,319 @@ export function useGroupManagement() {
             let remainingQuantity = material.quantity % modifiedTypeData.length;
 
             for (let dataSet of modifiedTypeData) {
-              dataSet.quantity += evenQuantity;
-              dataSet.parentJobs = new Set([
-                ...inputJob.parentJob,
-                ...dataSet.parentJobs,
-              ]);
+              dataSet.itemQty += evenQuantity;
+              dataSet.parentJobs.add(inputJob.jobID);
             }
-            modifiedTypeData[0].quantity += remainingQuantity;
+            modifiedTypeData[0].itemQty += remainingQuantity;
             modifiedJobData = modifiedJobData.filter(
-              (i) => i.typeID !== material.typeID
+              (i) => i.itemID !== material.typeID
             );
 
             modifiedJobData = modifiedJobData.concat(modifiedTypeData);
             return;
           }
+
           if (buildRequestsIDSet.has(material.typeID)) {
             let buildData = buildRequests.find(
-              (i) => i.typeID === material.typeID
+              (i) => i.itemID === material.typeID
             );
             buildData.parentJobs.add(inputJob.jobID);
-            buildData.quantity += material.quantity;
+            buildData.itemQty += material.quantity;
           } else {
             buildRequestsIDSet.add(material.typeID);
             buildRequests.push({
               name: material.name,
-              typeID: material.typeID,
-              quantity: material.quantity,
+              itemID: material.typeID,
+              itemQty: material.quantity,
               parentJobs: new Set([inputJob.jobID]),
               childJobs: [],
+              groupID: activeGroup.groupID,
             });
           }
         });
       }
     }
 
+    function updateModifiedJobs() {
+      for (let modifiedData of modifiedJobData) {
+        let job = newJobArray.find((i) => i.jobID === modifiedData.jobID);
+
+        if (job === undefined) {
+          continue;
+        }
+
+        job.parentJob = [
+          ...new Set(job.parentJob, [...modifiedData.parentJobs]),
+        ];
+
+        recalculateItemQty(job, modifiedData.itemQty);
+        job.build.materials = CalculateResources({
+          jobType: job.jobType,
+          rawMaterials: job.rawData.materials,
+          outputMaterials: job.build.materials,
+          runCount: job.runCount,
+          jobCount: job.jobCount,
+          bpME: job.bpME,
+          structureType: job.structureType,
+          rigType: job.rigType,
+          systemType: job.systemType,
+        });
+
+        job.build.products.totalQuantity =
+          job.rawData.products[0].quantity * job.runCount * job.jobCount;
+
+        job.build.products.quantityPerJob =
+          job.rawData.products[0].quantity * job.jobCount;
+
+        job.build.time = CalculateTime({
+          jobType: job.jobType,
+          CharacterHash: job.build.buildChar,
+          structureTypeDisplay: job.structureTypeDisplay,
+          runCount: job.runCount,
+          bpTE: job.bpTE,
+          rawTime: job.rawData.time,
+          skills: job.skills,
+        });
+
+        for (let parentID of modifiedData.parentJobs) {
+          let parentJob = newJobArray.find((i) => i.jobID === parentID);
+          if (parentJob === undefined) {
+            continue;
+          }
+
+          let material = parentJob.build.materials.find(
+            (i) => i.typeID === modifiedData.itemID
+          );
+          if (material === undefined) {
+            continue;
+          }
+          material.childJob = [
+            ...new Set([modifiedData.jobID], material.childJob),
+          ];
+        }
+
+        if (isLoggedIn) {
+          uploadJob(job);
+        }
+      }
+    }
+  };
+
+  const buildFullJobTree = async (inputIDs) => {
+    let newJobArray = [...jobArray];
+    let existingIDSet = new Set();
+    let existingTypeIDData = [];
+    let modifiedJobIDSet = new Set();
+    let modifiedJobData = [];
+    let buildRequestsIDSet = new Set();
+    let buildRequests = [];
+    let newMaterialIDs = new Set(activeGroup.materialIDs);
+    let newTypeIDs = new Set(activeGroup.includedTypeIDs);
+    let newFinalJobIDs = new Set(activeGroup.includedJobIDs);
+    let newJobIDs = new Set();
+
+    await buildExistingTypes();
+    await buildTree(inputIDs)
     console.log(existingTypeIDData);
     console.log(modifiedJobData);
     console.log(buildRequests);
+
+    async function buildTree(inputs) {
+      let buildIDsToPass = new Set();
+      for (let jobID of inputIDs) {
+        let job = await findJobData(
+          jobID,
+          userJobSnapshot,
+          newJobArray,
+          "groupJob"
+        );
+        if (job === undefined) {
+          continue;
+        }
+
+        await generateRequestList(job);
+      }
+      console.log(buildRequests)
+      let newJobData = await buildJob(buildRequests);
+
+      for (let newJob of newJobData) {
+        newJobIDs.add(newJob.jobID);
+        newTypeIDs.add(newJob.itemID);
+        newMaterialIDs.add(newJob.itemID);
+        buildIDsToPass.add(newJob.jobID);
+
+        newJob.build.materials.forEach((material) => {
+          newMaterialIDs.add(material.typeID);
+        });
+
+        for (let parentID of newJob.parentJob) {
+          let parentJob = newJobArray.find((i) => i.jobID === parentID);
+
+          let material = parentJob.build.materials.find(
+            (i) => i.typeID === newJob.itemID
+          );
+
+          material.childJob.push(newJob.jobID);
+        }
+
+        newJobArray.push(newJob);
+        if (isLoggedIn) {
+          addNewJob(newJob);
+        }
+
+        let childJobArray = [];
+        existingIDSet.add(newJob.itemID);
+        newJob.build.materials.forEach((material) => {
+          if (
+            material.jobType !== jobTypes.manufacturing &&
+            material.jobType !== jobTypes.reaction
+          ) {
+            return;
+          }
+
+          childJobArray.push({
+            itemID: material.typeID,
+            name: material.name,
+            childJobs: new Set([...material.childJob]),
+          });
+        });
+
+        existingTypeIDData.push({
+          name: newJob.name,
+          jobID: newJob.jobID,
+          itemID: newJob.itemID,
+          itemQty: newJob.build.products.totalQuantity,
+          parentJobs: new Set([...newJob.parentJob]),
+          childJobs: childJobArray,
+        });
+      }
+      buildRequestsIDSet = new Set();
+      buildRequests = [];
+      console.log(buildIDsToPass)
+      buildTree([...buildIDsToPass]);
+    }
+
+    async function buildExistingTypes() {
+      for (let jobID of inputIDs) {
+        let job = await findJobData(
+          jobID,
+          userJobSnapshot,
+          newJobArray,
+          "groupJob"
+        );
+        if (job === undefined) {
+          continue;
+        }
+        let childJobArray = [];
+        existingIDSet.add(job.itemID);
+        job.build.materials.forEach((material) => {
+          if (
+            material.jobType !== jobTypes.manufacturing &&
+            material.jobType !== jobTypes.reaction
+          ) {
+            return;
+          }
+
+          childJobArray.push({
+            itemID: material.typeID,
+            name: material.name,
+            childJobs: new Set([...material.childJob]),
+          });
+        });
+
+        existingTypeIDData.push({
+          name: job.name,
+          jobID: job.jobID,
+          itemID: job.itemID,
+          itemQty: job.build.products.totalQuantity,
+          parentJobs: new Set([...job.parentJob]),
+          childJobs: childJobArray,
+        });
+      }
+    }
+
+    async function generateRequestList(inputJob) {
+      console.log(inputJob)
+      inputJob.build.materials.forEach((material) => {
+        if (material.childJob.length > 0) {
+          return;
+        }
+        if (
+          material.jobType !== jobTypes.manufacturing &&
+          material.jobType !== jobTypes.reaction
+        ) {
+          return;
+        }
+
+        if (existingIDSet.has(material.typeID)) {
+          let existingTypeData = existingTypeIDData.filter(
+            (i) => i.itemID === material.typeID
+          );
+
+          let evenQuantity = Math.floor(
+            material.quantity / existingTypeData.length
+          );
+          let remainingQuantity = material.quantity % existingTypeData.length;
+
+          for (let dataSet of existingTypeData) {
+            dataSet.itemQty += evenQuantity;
+            dataSet.parentJobs.add(inputJob.jobID);
+          }
+          existingTypeData[0].itemQty += remainingQuantity;
+          modifiedJobData = modifiedJobData.concat(existingTypeData);
+          modifiedJobIDSet.add(material.typeID);
+          existingTypeData = existingTypeData.filter(
+            (i) => i.itemID !== material.typeID
+          );
+          existingIDSet.delete(material.typeID);
+          return;
+        }
+
+        if (modifiedJobIDSet.has(material.typeID)) {
+          let modifiedTypeData = modifiedJobData.filter(
+            (i) => i.itemID === material.typeID
+          );
+          let evenQuantity = Math.floor(
+            material.quantity / modifiedTypeData.length
+          );
+          let remainingQuantity = material.quantity % modifiedTypeData.length;
+
+          for (let dataSet of modifiedTypeData) {
+            dataSet.itemQty += evenQuantity;
+            dataSet.parentJobs.add(inputJob.jobID);
+          }
+          modifiedTypeData[0].itemQty += remainingQuantity;
+          modifiedJobData = modifiedJobData.filter(
+            (i) => i.itemID !== material.typeID
+          );
+
+          modifiedJobData = modifiedJobData.concat(modifiedTypeData);
+          return;
+        }
+
+        if (buildRequestsIDSet.has(material.typeID)) {
+          let buildData = buildRequests.find(
+            (i) => i.itemID === material.typeID
+          );
+          buildData.parentJobs.add(inputJob.jobID);
+          buildData.itemQty += material.quantity;
+        } else {
+          buildRequestsIDSet.add(material.typeID);
+          buildRequests.push({
+            name: material.name,
+            itemID: material.typeID,
+            itemQty: material.quantity,
+            parentJobs: new Set([inputJob.jobID]),
+            childJobs: [],
+            groupID: activeGroup.groupID,
+          });
+        }
+      });
+    }
   };
 
   return {
+    buildFullJobTree,
     buildNextJobs,
     calculateCurrentJobBuildCostFromChildren,
     closeGroup,

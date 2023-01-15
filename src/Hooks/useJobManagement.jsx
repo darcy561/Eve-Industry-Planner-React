@@ -1168,8 +1168,10 @@ export function useJobManagement() {
       case "snapshot":
         return jobSnapshot;
       case "groupJob":
-        foundJob = await downloadCharacterJobs(inputJobID);
-        chosenJobArray.push(foundJob);
+        if (foundJob === undefined) {
+          foundJob = await downloadCharacterJobs(inputJobID);
+          chosenJobArray.push(foundJob);
+        }
         return foundJob;
       case "all":
         if (foundJob === undefined && jobSnapshot !== undefined) {

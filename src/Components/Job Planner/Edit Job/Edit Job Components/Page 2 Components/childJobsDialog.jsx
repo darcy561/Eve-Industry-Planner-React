@@ -8,7 +8,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import {
   ActiveJobContext,
   JobArrayContext,
@@ -44,15 +44,30 @@ export function ChildJobDialog({
     updateChildDialogTrigger(false);
   };
 
-  let matches = [];
-  for (let job of userJobSnapshot) {
-    if (
-      job.itemID === material.typeID &&
-      !material.childJob.includes(job.jobID)
-    ) {
-      matches.push(job);
+  let matches = useMemo(() => {
+    let returnArray = []
+    if (activeJob.groupID === null) {
+      for (let job of userJobSnapshot) {
+        if (
+          job.itemID === material.typeID &&
+          !material.childJob.includes(job.jobID)
+        ) {
+          returnArray.push(job);
+        }
+      }
+    } else {
+      for (let job of jobArray) {
+        if (
+          job.groupID === activeJob.groupID &&
+          job.itemID === material.typeID &&
+          !material.childJob.includes(job.jobID)
+        ) {
+          returnArray.push(job);
+        }
+      }
     }
-  }
+    return returnArray
+  },[userJobSnapshot, jobArray])
 
   return (
     <Dialog
@@ -167,7 +182,16 @@ export function ChildJobDialog({
         <Grid container item>
           {material.childJob.length > 0 ? (
             material.childJob.map((job) => {
-              let jobMatch = userJobSnapshot.find((i) => i.jobID === job);
+
+              let findJobMatchs = () => {
+                if (activeJob.groupID === null) {
+                  return userJobSnapshot.find((i) => i.jobID === job)
+                } else {
+                  return jobArray.find((i)=> i.jobID === job)
+                }
+              }
+              
+              let jobMatch = findJobMatchs();
               if (jobMatch === undefined) {
                 return null;
               }

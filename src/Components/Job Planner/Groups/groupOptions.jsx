@@ -23,7 +23,7 @@ export function GroupOptionsBar({
   const { activeGroup } = useContext(ActiveJobContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const { buildItemPriceEntry, moveItemsOnPlanner } = useJobManagement();
-  const { buildNextJobs } = useGroupManagement();
+  const { buildFullJobTree, buildNextJobs } = useGroupManagement();
 
   return (
     <Paper
@@ -79,7 +79,6 @@ export function GroupOptionsBar({
           </Button>
           <Tooltip title="Moves the selected jobs 1 step backwards." arrow>
             <Button
-              disabled={multiSelectJobPlanner.length === 0}
               onClick={() => {
                 moveItemsOnPlanner(multiSelectJobPlanner, "backward");
               }}
@@ -89,7 +88,6 @@ export function GroupOptionsBar({
           </Tooltip>
           <Tooltip title="Moves the selected jobs 1 step forwards." arrow>
             <Button
-              disabled={multiSelectJobPlanner.length === 0}
               onClick={() => {
                 moveItemsOnPlanner(multiSelectJobPlanner, "forward");
               }}
@@ -106,9 +104,15 @@ export function GroupOptionsBar({
               }
             }}
           >
-            s
+            Build Child Jobs
           </Button>
-          <Button onClick={() => {}}>f</Button>
+          <Button
+            onClick={() => {
+              buildFullJobTree([...activeGroup.includedJobIDs]);
+            }}
+          >
+            Build Full Tree
+          </Button>
         </ButtonGroup>
       </Grid>
     </Paper>

@@ -104,7 +104,6 @@ export function useBlueprintCalc() {
         const strucData = structureOptions.manStructure.find(
           (i) => i.label === job.structureTypeDisplay
         );
-
         let teIndexer = 1;
         let indyIndexer = 1 - 0.04 * indySkill.activeLevel;
         let advIndyIndexer = 1 - 0.03 * advIndySkill.activeLevel;

@@ -30,6 +30,10 @@ export function useJobBuild() {
     return users.find((i) => i.ParentUser);
   }, [users]);
 
+  function returnData() {
+    return;
+  }
+
   class Job {
     constructor(itemJson, buildRequest) {
       this.buildVer = __APP_VERSION__;
@@ -40,7 +44,7 @@ export function useJobBuild() {
       } else {
         this.name = itemJson.name;
       }
-      this.jobID = Date.now();
+      this.jobID = null;
       this.jobStatus = 0;
       this.volume = itemJson.volume;
       this.itemID = itemJson.itemID;
@@ -125,36 +129,11 @@ export function useJobBuild() {
     }
   }
 
-  const buildJobObject = async (buildRequest, itemJson ) => {
+  const buildJobObject = (buildRequest, itemJson) => {
     try {
-      if (!buildRequest.hasOwnProperty("itemID")) {
-        jobBuildErrors(buildRequest, "Item Data Missing From Request");
-        return undefined;
-      }
-      const appCheckToken = await getToken(appCheck, true);
-      const response = await fetch(
-        buildRequest.sisiData
-          ? `${import.meta.env.VITE_APIURL}/item/sisiData/${
-              buildRequest.itemID
-            }`
-          : `${import.meta.env.VITE_APIURL}/item/${buildRequest.itemID}`,
-        {
-          headers: {
-            "X-Firebase-AppCheck": appCheckToken.token,
-            accountID: parentUser.accountID,
-            appVersion: __APP_VERSION__,
-          },
-        }
-      );
-
-      if (response.status === 400) {
-        jobBuildErrors(buildRequest, "Outdated App Version");
-        return undefined;
-      }
-      const itemJson = await response.json();
-
       const outputObject = new Job(itemJson, buildRequest);
       try {
+        outputObject.jobID = Date.now() + outputObject.itemID;
         outputObject.build.materials.forEach((material) => {
           material.purchasing = [];
           material.quantityPurchased = 0;
@@ -227,13 +206,14 @@ export function useJobBuild() {
   };
 
   const buildJob = async (buildRequest) => {
+    const appCheckToken = await getToken(appCheck, true);
     if (Array.isArray(buildRequest)) {
       let idRequest = new Set();
-      for (let build of buildRequest) {
-        idRequest.add(build.typeID);
-      }
+      let returnArray = [];
 
-      const appCheckToken = await getToken(appCheck, true);
+      for (let build of buildRequest) {
+        idRequest.add(build.itemID);
+      }
       const response = await fetch(
         `${import.meta.env.VITE_APIURL}/item/bulkRequest`,
         {
@@ -249,13 +229,43 @@ export function useJobBuild() {
           }),
         }
       );
-      let recipieArray = response.json();
-      for (let build of buildRequest) {
-        
+      if (response.status === 400) {
+        jobBuildErrors(buildRequest, "Outdated App Version");
+        return undefined;
       }
-
+      let recipieArray = await response.json();
+      for (let build of buildRequest) {
+        let recipie = recipieArray.find((i) => i.itemID === build.itemID);
+        if (recipie === undefined) {
+          continue;
+        }
+        returnArray.push(buildJobObject(build, recipie));
+      }
+      return returnArray;
     } else {
-      
+      if (!buildRequest.hasOwnProperty("itemID")) {
+        jobBuildErrors(buildRequest, "Item Data Missing From Request");
+        return undefined;
+      }
+      const response = await fetch(
+        buildRequest.sisiData
+          ? `${import.meta.env.VITE_APIURL}/item/sisiData/${
+              buildRequest.itemID
+            }`
+          : `${import.meta.env.VITE_APIURL}/item/${buildRequest.itemID}`,
+        {
+          headers: {
+            "X-Firebase-AppCheck": appCheckToken.token,
+            accountID: parentUser.accountID,
+            appVersion: __APP_VERSION__,
+          },
+        }
+      );
+      if (response.status === 400) {
+        jobBuildErrors(buildRequest, "Outdated App Version");
+        return undefined;
+      }
+      return buildJobObject(buildRequest, await response.json());
     }
   };
 

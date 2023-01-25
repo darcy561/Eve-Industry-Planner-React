@@ -626,17 +626,28 @@ export function useGroupManagement() {
     let newMaterialIDs = new Set(activeGroup.materialIDs);
     let newTypeIDs = new Set(activeGroup.includedTypeIDs);
     let newFinalJobIDs = new Set(activeGroup.includedJobIDs);
-    let newJobIDs = new Set();
+    let totalJobsCreated = 0;
 
     await buildExistingTypes();
-    await buildTree(inputIDs)
+    await buildTree(inputIDs);
     console.log(existingTypeIDData);
     console.log(modifiedJobData);
     console.log(buildRequests);
+    console.log(newFinalJobIDs)
+    updateActiveGroup((prev) => ({
+      ...prev,
+      includedTypeIDs: [...newTypeIDs],
+      includedJobIDs: [...newFinalJobIDs],
+      outputJobCount: (prev.outputJobCount += totalJobsCreated),
+      materialIDs: [...newMaterialIDs],
+    }));
+    console.log(newJobArray)
+    updateJobArray(newJobArray);
 
     async function buildTree(inputs) {
-      let buildIDsToPass = new Set();
-      for (let jobID of inputIDs) {
+      let newJobIDs = new Set();
+
+      for (let jobID of inputs) {
         let job = await findJobData(
           jobID,
           userJobSnapshot,
@@ -646,17 +657,21 @@ export function useGroupManagement() {
         if (job === undefined) {
           continue;
         }
-
+        newFinalJobIDs.add(job.jobID)
         await generateRequestList(job);
       }
-      console.log(buildRequests)
+      console.log(buildRequests);
+      if (buildRequests.length === 0) {
+        return;
+      }
+      totalJobsCreated += buildRequests.length;
       let newJobData = await buildJob(buildRequests);
 
       for (let newJob of newJobData) {
         newJobIDs.add(newJob.jobID);
+
         newTypeIDs.add(newJob.itemID);
         newMaterialIDs.add(newJob.itemID);
-        buildIDsToPass.add(newJob.jobID);
 
         newJob.build.materials.forEach((material) => {
           newMaterialIDs.add(material.typeID);
@@ -705,8 +720,7 @@ export function useGroupManagement() {
       }
       buildRequestsIDSet = new Set();
       buildRequests = [];
-      console.log(buildIDsToPass)
-      buildTree([...buildIDsToPass]);
+      buildTree([...newJobIDs]);
     }
 
     async function buildExistingTypes() {
@@ -749,7 +763,6 @@ export function useGroupManagement() {
     }
 
     async function generateRequestList(inputJob) {
-      console.log(inputJob)
       inputJob.build.materials.forEach((material) => {
         if (material.childJob.length > 0) {
           return;

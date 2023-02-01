@@ -360,8 +360,8 @@ export function useFirebase() {
       }
     }
     if (requestArray.length > 0) {
-      for (let x = 0; x < requestArray.length; x += 30) {
-        let chunk = requestArray.slice(x, x + 30);
+      for (let x = 0; x < requestArray.length; x += 500) {
+        let chunk = requestArray.slice(x, x + 500);
         let chunkData = getItemPriceBulk(chunk, userObj);
         promiseArray.push(chunkData);
       }

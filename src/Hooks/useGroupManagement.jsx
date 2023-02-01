@@ -630,10 +630,6 @@ export function useGroupManagement() {
 
     await buildExistingTypes();
     await buildTree(inputIDs);
-    console.log(existingTypeIDData);
-    console.log(modifiedJobData);
-    console.log(buildRequests);
-    console.log(newFinalJobIDs)
     updateActiveGroup((prev) => ({
       ...prev,
       includedTypeIDs: [...newTypeIDs],
@@ -641,8 +637,15 @@ export function useGroupManagement() {
       outputJobCount: (prev.outputJobCount += totalJobsCreated),
       materialIDs: [...newMaterialIDs],
     }));
-    console.log(newJobArray)
     updateJobArray(newJobArray);
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `${totalJobsCreated} Jobs Created`,
+      severity: "success",
+      autoHideDuration: 3000,
+    }));
+    
 
     async function buildTree(inputs) {
       let newJobIDs = new Set();
@@ -657,10 +660,9 @@ export function useGroupManagement() {
         if (job === undefined) {
           continue;
         }
-        newFinalJobIDs.add(job.jobID)
+
         await generateRequestList(job);
       }
-      console.log(buildRequests);
       if (buildRequests.length === 0) {
         return;
       }
@@ -669,9 +671,9 @@ export function useGroupManagement() {
 
       for (let newJob of newJobData) {
         newJobIDs.add(newJob.jobID);
-
         newTypeIDs.add(newJob.itemID);
         newMaterialIDs.add(newJob.itemID);
+        newFinalJobIDs.add(newJob.jobID);
 
         newJob.build.materials.forEach((material) => {
           newMaterialIDs.add(material.typeID);
@@ -720,7 +722,7 @@ export function useGroupManagement() {
       }
       buildRequestsIDSet = new Set();
       buildRequests = [];
-      buildTree([...newJobIDs]);
+      await buildTree([...newJobIDs]);
     }
 
     async function buildExistingTypes() {

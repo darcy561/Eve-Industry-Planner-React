@@ -517,19 +517,19 @@ export function useJobManagement() {
           return;
         }
 
-        if (!finalBuildCount.some((i) => i.itemID === material.typeID)) {
+        if (!finalBuildCount.some((i) => i.typeID === material.typeID)) {
           finalBuildCount.push({
-            itemID: material.typeID,
+            typeID: material.typeID,
             quantity: material.quantity,
-            parentJobs: new Set([inputJob.jobID]),
+            parentIDs: new Set([inputJob.jobID]),
           });
         } else {
           const index = finalBuildCount.findIndex(
-            (i) => i.itemID === material.typeID
+            (i) => i.typeID === material.typeID
           );
           if (index !== -1) {
             finalBuildCount[index].quantity += material.quantity;
-            finalBuildCount[index].parentJobs.add(inputJob.jobID);
+            finalBuildCount[index].parentIDs.add(inputJob.jobID);
           }
         }
       });
@@ -548,9 +548,18 @@ export function useJobManagement() {
       totalJob: finalBuildCount.length,
     }));
 
-    let newJobs = await buildJob(finalBuildCount);
-
-    for (let newJob of newJobs) {
+    for (let item of finalBuildCount) {
+      if (!checkAllowBuild()) {
+        continue;
+      }
+      const newJob = await buildJob({
+        itemID: item.typeID,
+        itemQty: item.quantity,
+        parentJobs: [...item.parentIDs],
+      });
+      if (newJob === undefined) {
+        continue;
+      }
       materialPriceIDs = new Set(
         materialPriceIDs,
         generatePriceRequestFromJob(newJob)
@@ -627,7 +636,6 @@ export function useJobManagement() {
       totalPrice: [...materialPriceIDs].length,
     }));
     let itemPrices = await getItemPrices([...materialPriceIDs], parentUser);
-    updateUserJobSnapshot(newUserJobSnapshot);
     updateEvePrices((prev) => {
       itemPrices = itemPrices.filter(
         (n) => !prev.some((p) => p.typeID === n.typeID)
@@ -1034,7 +1042,12 @@ export function useJobManagement() {
         if (material.quantityPurchased >= material.quantity) {
           return;
         }
-        if (!finalShoppingList.find((i) => i.typeID === material.typeID)) {
+
+        let shoppingListEntries = finalShoppingList.filter(
+          (i) => i.typeID === material.typeID
+        );
+
+        if (shoppingListEntries.length === 0) {
           finalShoppingList.push({
             name: material.name,
             typeID: material.typeID,
@@ -1044,13 +1057,29 @@ export function useJobManagement() {
             hasChild: material.childJob.length > 0 ? true : false,
             isVisible: false,
           });
-        } else {
-          const index = finalShoppingList.findIndex(
-            (i) => i.typeID === material.typeID
-          );
-          if (index !== -1) {
-            finalShoppingList[index].quantity +=
-              material.quantity - material.quantityPurchased;
+          return;
+        }
+        if (material.childJob.length > 0) {
+          let foundChild = shoppingListEntries.find((i) => i.hasChild);
+
+          if (foundChild) {
+            const index = finalShoppingList.findIndex(
+              (i) => i.typeID === material.typeID
+            );
+            if (index !== -1) {
+              finalShoppingList[index].quantity +=
+                material.quantity - material.quantityPurchased;
+            }
+          } else {
+            finalShoppingList.push({
+              name: material.name,
+              typeID: material.typeID,
+              quantity: material.quantity - material.quantityPurchased,
+              quantityLessAsset: 0,
+              volume: material.volume,
+              hasChild: true,
+              isVisible: false,
+            });
           }
         }
       });

@@ -125,34 +125,8 @@ export function useJobBuild() {
     }
   }
 
-  const buildJob = async (buildRequest) => {
+  const buildJobObject = (itemJson, buildRequest) => {
     try {
-      if (!buildRequest.hasOwnProperty("itemID")) {
-        jobBuildErrors(buildRequest, "Item Data Missing From Request");
-        return undefined;
-      }
-      const appCheckToken = await getToken(appCheck, true);
-      const response = await fetch(
-        buildRequest.sisiData
-          ? `${import.meta.env.VITE_APIURL}/item/sisiData/${
-              buildRequest.itemID
-            }`
-          : `${import.meta.env.VITE_APIURL}/item/${buildRequest.itemID}`,
-        {
-          headers: {
-            "X-Firebase-AppCheck": appCheckToken.token,
-            accountID: parentUser.accountID,
-            appVersion: __APP_VERSION__,
-          },
-        }
-      );
-
-      if (response.status === 400) {
-        jobBuildErrors(buildRequest, "Outdated App Version");
-        return undefined;
-      }
-      const itemJson = await response.json();
-
       const outputObject = new Job(itemJson, buildRequest);
       try {
         outputObject.build.materials.forEach((material) => {
@@ -223,6 +197,67 @@ export function useJobBuild() {
     } catch (err) {
       jobBuildErrors(buildRequest, err.name);
       return undefined;
+    }
+  };
+
+  const buildJob = async (buildRequest) => {
+    if (Array.isArray(buildRequest)) {
+      let buildRequestIDs = new Set();
+      for (let request of buildRequest) {
+        buildRequestIDs.add(request.itemID);
+      }
+      const appCheckToken = await getToken(appCheck, true);
+      const response = await fetch(
+        `${import.meta.env.VITE_APIURL}/item/bulkRequest`,
+        {
+          method: "POST",
+          headers: {
+            "X-Firebase-AppCheck": appCheckToken.token,
+            accountID: parentUser.accountID,
+            appVersion: __APP_VERSION__,
+          },
+          body: JSON.stringify({
+            idArray: [...buildRequestIDs],
+          }),
+        }
+      );
+      let jsonData = await response.json();
+      let returnArray = [];
+      for (let request of buildRequest) {
+        let itemJson = jsonData.find((i) => i.itemID === request.itemID);
+        if (itemJson === undefined) {
+          continue;
+        }
+        returnArray.push(buildJobObject(itemJson, request));
+      }
+      return returnArray;
+    } else {
+      if (!buildRequest.hasOwnProperty("itemID")) {
+        jobBuildErrors(buildRequest, "Item Data Missing From Request");
+        return undefined;
+      }
+      const appCheckToken = await getToken(appCheck, true);
+      const response = await fetch(
+        buildRequest.sisiData
+          ? `${import.meta.env.VITE_APIURL}/item/sisiData/${
+              buildRequest.itemID
+            }`
+          : `${import.meta.env.VITE_APIURL}/item/${buildRequest.itemID}`,
+        {
+          headers: {
+            "X-Firebase-AppCheck": appCheckToken.token,
+            accountID: parentUser.accountID,
+            appVersion: __APP_VERSION__,
+          },
+        }
+      );
+      if (response.status === 400) {
+        jobBuildErrors(buildRequest, "Outdated App Version");
+        return undefined;
+      }
+      const itemJson = await response.json();
+
+      return buildJobObject(itemJson, buildRequest);
     }
   };
 
@@ -316,7 +351,7 @@ export function useJobBuild() {
     return job;
   };
 
-  const addItemBlueprint = (outputObject) => {
+  function addItemBlueprint(outputObject) {
     if (outputObject.jobType !== jobTypes.manufacturing) {
       return;
     }
@@ -338,9 +373,9 @@ export function useJobBuild() {
     outputObject.bpME = blueprintOptions[0].material_efficiency;
     outputObject.bpTE = blueprintOptions[0].time_efficiency / 2;
     return;
-  };
+  }
 
-  const addDefaultStructure = (outputObject) => {
+  function addDefaultStructure(outputObject) {
     if (outputObject.jobType === jobTypes.manufacturing) {
       const structureData = parentUser.settings.structures.manufacturing.find(
         (i) => i.default
@@ -368,9 +403,9 @@ export function useJobBuild() {
       return;
     }
     return;
-  };
+  }
 
-  const buildRequest_ChildJobs = (buildRequest, outputObject) => {
+  function buildRequest_ChildJobs(buildRequest, outputObject) {
     if (!buildRequest.hasOwnProperty("childJobs")) {
       return;
     }
@@ -383,21 +418,21 @@ export function useJobBuild() {
       }
       material.childJob = [...buildItem.childJobs];
     }
-  };
+  }
 
-  const buildRequest_ParentJobs = (buildRequest, outputObject) => {
+  function buildRequest_ParentJobs(buildRequest, outputObject) {
     if (!buildRequest.hasOwnProperty("parentJobs")) {
       return;
     }
     outputObject.parentJob = [...buildRequest.parentJobs];
-  };
+  }
 
-  const buildRequest_GroupID = (buildRequest, outputObject) => {
+  function buildRequest_GroupID(buildRequest, outputObject) {
     if (!buildRequest.hasOwnProperty("groupID")) {
       return;
     }
     outputObject.groupID = buildRequest.groupID;
-  };
+  }
 
   return { buildJob, checkAllowBuild, jobBuildErrors, recalculateItemQty };
 }

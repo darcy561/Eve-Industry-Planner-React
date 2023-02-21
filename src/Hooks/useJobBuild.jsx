@@ -40,7 +40,9 @@ export function useJobBuild() {
       } else {
         this.name = itemJson.name;
       }
-      this.jobID = Date.now();
+      this.jobID = Math.floor(
+        Date.now() + itemJson.itemID + Math.random() * 100
+      );
       this.jobStatus = 0;
       this.volume = itemJson.volume;
       this.itemID = itemJson.itemID;
@@ -212,6 +214,7 @@ export function useJobBuild() {
         {
           method: "POST",
           headers: {
+            "Content-Type": "application/json",
             "X-Firebase-AppCheck": appCheckToken.token,
             accountID: parentUser.accountID,
             appVersion: __APP_VERSION__,

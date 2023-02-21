@@ -517,19 +517,19 @@ export function useJobManagement() {
           return;
         }
 
-        if (!finalBuildCount.some((i) => i.typeID === material.typeID)) {
+        if (!finalBuildCount.some((i) => i.itemID === material.typeID)) {
           finalBuildCount.push({
-            typeID: material.typeID,
-            quantity: material.quantity,
-            parentIDs: new Set([inputJob.jobID]),
+            itemID: material.typeID,
+            itemQty: material.quantity,
+            parentJobs: new Set([inputJob.jobID]),
           });
         } else {
           const index = finalBuildCount.findIndex(
-            (i) => i.typeID === material.typeID
+            (i) => i.itemID === material.typeID
           );
           if (index !== -1) {
-            finalBuildCount[index].quantity += material.quantity;
-            finalBuildCount[index].parentIDs.add(inputJob.jobID);
+            finalBuildCount[index].itemQty += material.quantity;
+            finalBuildCount[index].parentJobs.add(inputJob.jobID);
           }
         }
       });
@@ -548,18 +548,9 @@ export function useJobManagement() {
       totalJob: finalBuildCount.length,
     }));
 
-    for (let item of finalBuildCount) {
-      if (!checkAllowBuild()) {
-        continue;
-      }
-      const newJob = await buildJob({
-        itemID: item.typeID,
-        itemQty: item.quantity,
-        parentJobs: [...item.parentIDs],
-      });
-      if (newJob === undefined) {
-        continue;
-      }
+    let newJobs = await buildJob(finalBuildCount);
+
+    for (let newJob of newJobs) {
       materialPriceIDs = new Set(
         materialPriceIDs,
         generatePriceRequestFromJob(newJob)
@@ -1046,7 +1037,6 @@ export function useJobManagement() {
         let shoppingListEntries = finalShoppingList.filter(
           (i) => i.typeID === material.typeID
         );
-
         if (shoppingListEntries.length === 0) {
           finalShoppingList.push({
             name: material.name,
@@ -1059,28 +1049,26 @@ export function useJobManagement() {
           });
           return;
         }
-        if (material.childJob.length > 0) {
-          let foundChild = shoppingListEntries.find((i) => i.hasChild);
 
-          if (foundChild) {
-            const index = finalShoppingList.findIndex(
-              (i) => i.typeID === material.typeID
-            );
-            if (index !== -1) {
-              finalShoppingList[index].quantity +=
-                material.quantity - material.quantityPurchased;
-            }
-          } else {
-            finalShoppingList.push({
-              name: material.name,
-              typeID: material.typeID,
-              quantity: material.quantity - material.quantityPurchased,
-              quantityLessAsset: 0,
-              volume: material.volume,
-              hasChild: true,
-              isVisible: false,
-            });
+        let foundChild = shoppingListEntries.some((i) => i.hasChild);
+        if (!foundChild) {
+          const index = finalShoppingList.findIndex(
+            (i) => i.typeID === material.typeID
+          );
+          if (index !== -1) {
+            finalShoppingList[index].quantity +=
+              material.quantity - material.quantityPurchased;
           }
+        } else {
+          finalShoppingList.push({
+            name: material.name,
+            typeID: material.typeID,
+            quantity: material.quantity - material.quantityPurchased,
+            quantityLessAsset: 0,
+            volume: material.volume,
+            hasChild: material.childJob.length > 0 ? true : false,
+            isVisible: false,
+          });
         }
       });
     }

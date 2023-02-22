@@ -1033,7 +1033,7 @@ export function useJobManagement() {
         if (material.quantityPurchased >= material.quantity) {
           return;
         }
-
+        console.log(material);
         let shoppingListEntries = finalShoppingList.filter(
           (i) => i.typeID === material.typeID
         );
@@ -1049,26 +1049,25 @@ export function useJobManagement() {
           });
           return;
         }
-
+        console.log(shoppingListEntries);
         let foundChild = shoppingListEntries.some((i) => i.hasChild);
+        console.log(foundChild)
         if (!foundChild) {
           const index = finalShoppingList.findIndex(
-            (i) => i.typeID === material.typeID
+            (i) => i.typeID === material.typeID && !i.hasChild
           );
           if (index !== -1) {
             finalShoppingList[index].quantity +=
               material.quantity - material.quantityPurchased;
           }
         } else {
-          finalShoppingList.push({
-            name: material.name,
-            typeID: material.typeID,
-            quantity: material.quantity - material.quantityPurchased,
-            quantityLessAsset: 0,
-            volume: material.volume,
-            hasChild: material.childJob.length > 0 ? true : false,
-            isVisible: false,
-          });
+          const index = finalShoppingList.findIndex(
+            (i) => i.typeID === material.typeID && i.hasChild
+          );
+          if (index !== -1) {
+            finalShoppingList[index].quantity +=
+              material.quantity - material.quantityPurchased;
+          }
         }
       });
     }

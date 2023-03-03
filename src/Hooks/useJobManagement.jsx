@@ -659,117 +659,128 @@ export function useJobManagement() {
     let jobsToSave = new Set();
     let newMutliSelct = new Set([...multiSelectJobPlanner]);
 
+    logEvent(analytics, "DeleteJob", {
+      UID: parentUser.accountID,
+      itemID: inputJob.itemID,
+      loggedIn: isLoggedIn,
+    });
+
     let inputJob = await findJobData(
       inputJobSnap.jobID,
       newUserJobSnapshot,
       newJobArray
     );
 
-    if (inputJob !== undefined) {
-      logEvent(analytics, "DeleteJob", {
-        UID: parentUser.accountID,
-        itemID: inputJob.itemID,
-        loggedIn: isLoggedIn,
-      });
-
-      //Removes apiJob references from users
-      inputJob.apiJobs.forEach((job) => {
-        newLinkedJobIDs.delete(job);
-      });
-
-      //Removes inputJob IDs from child jobs
-      for (let mat of inputJob.build.materials) {
-        if (mat !== null) {
-          for (let job of mat.childJob) {
-            let child = await findJobData(job, newUserJobSnapshot, newJobArray);
-            if (child === undefined) {
-              continue;
-            }
-
-            child.parentJob = child.parentJob.filter(
-              (i) => i !== inputJob.jobID
-            );
-
-            newUserJobSnapshot = updateJobSnapshotFromFullJob(
-              child,
-              newUserJobSnapshot
-            );
-
-            jobsToSave.add(child.jobID);
-          }
-        }
-      }
-      //Removes inputJob IDs from Parent jobs
-      for (let parentJobID of inputJob.parentJob) {
-        let parentJob = await findJobData(
-          parentJobID,
-          newUserJobSnapshot,
-          newJobArray
-        );
-        if (parentJob === undefined) {
-          continue;
-        }
-        for (let mat of parentJob.build.materials) {
-          if (mat.childJob === undefined) {
-            continue;
-          }
-          mat.childJob = mat.childJob.filter((i) => i !== inputJob.jobID);
-        }
-        newUserJobSnapshot = updateJobSnapshotFromFullJob(
-          parentJob,
-          newUserJobSnapshot
-        );
-        jobsToSave.add(parentJob.jobID);
-      }
-
-      inputJob.build.sale.transactions.forEach((trans) => {
-        newLinkedTransIDs.delete(trans.transaction_id);
-      });
-
-      inputJob.build.sale.marketOrders.forEach((order) => {
-        newLinkedOrderIDs.delete(order.order_id);
-      });
-
-      newMutliSelct.delete(inputJob.jobID);
-
-      newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
-
-      newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
-
-      if (isLoggedIn) {
-        jobsToSave.forEach((jobID) => {
-          let job = newJobArray.find((i) => i.jobID === jobID);
-          if (job === undefined) {
-            return;
-          }
-          uploadJob(job);
-        });
-        uploadUserJobSnapshot(newUserJobSnapshot);
-        removeJob(inputJob);
-      }
-
-      updateLinkedJobIDs([...newLinkedJobIDs]);
-      updateLinkedOrderIDs([...newLinkedOrderIDs]);
-      updateLinkedTransIDs([...newLinkedTransIDs]);
-      updateApiJobs(newApiJobsArary);
-      updateMultiSelectJobPlanner([...newMutliSelct]);
-      updateJobArray(newJobArray);
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${inputJob.name} Deleted`,
-        severity: "error",
-        autoHideDuration: 3000,
-      }));
-    } else {
+    if (inputJob === undefined) {
       newUserJobSnapshot = newUserJobSnapshot.filter(
         (i) => i.jobID !== inputJobSnap.jobID
       );
+
+      updateUserJobSnapshot(newUserJobSnapshot);
+      if (isLoggedIn) {
+        uploadUserJobSnapshot(newUserJobSnapshot);
+      }
+      return;
     }
-    updateUserJobSnapshot(newUserJobSnapshot);
+
+    //Removes apiJob references from users
+    inputJob.apiJobs.forEach((job) => {
+      newLinkedJobIDs.delete(job);
+    });
+
+    //Removes inputJob IDs from child jobs
+    for (let mat of inputJob.build.materials) {
+      if (mat !== null) {
+        for (let job of mat.childJob) {
+          let child = await findJobData(job, newUserJobSnapshot, newJobArray);
+          if (child === undefined) {
+            continue;
+          }
+
+          child.parentJob = child.parentJob.filter((i) => i !== inputJob.jobID);
+
+          newUserJobSnapshot = updateJobSnapshotFromFullJob(
+            child,
+            newUserJobSnapshot
+          );
+
+          jobsToSave.add(child.jobID);
+        }
+      }
+    }
+    //Removes inputJob IDs from Parent jobs
+    for (let parentJobID of inputJob.parentJob) {
+      let parentJob = await findJobData(
+        parentJobID,
+        newUserJobSnapshot,
+        newJobArray
+      );
+      if (parentJob === undefined) {
+        continue;
+      }
+      for (let mat of parentJob.build.materials) {
+        if (mat.childJob === undefined) {
+          continue;
+        }
+        mat.childJob = mat.childJob.filter((i) => i !== inputJob.jobID);
+      }
+      newUserJobSnapshot = updateJobSnapshotFromFullJob(
+        parentJob,
+        newUserJobSnapshot
+      );
+      jobsToSave.add(parentJob.jobID);
+    }
+
+    inputJob.build.sale.transactions.forEach((trans) => {
+      newLinkedTransIDs.delete(trans.transaction_id);
+    });
+
+    inputJob.build.sale.marketOrders.forEach((order) => {
+      newLinkedOrderIDs.delete(order.order_id);
+    });
+
+    newMutliSelct.delete(inputJob.jobID);
+
+    newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
+
+    newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
+
+    removeFromGroup: if (inputJob.groupID !== null) {
+      let newGroupArray = [...groupArray]
+      let groupItem = newGroupArray.find((i) => i.groupID === inputJob.groupID)
+      if (groupItem === undefined) {
+        break removeFromGroup
+      }
+      groupItem.includedJobIDs = groupItem.includedJobIDs.filter((i)=> i !== inputJob.jobID)
+    }
+
+
     if (isLoggedIn) {
+      jobsToSave.forEach((jobID) => {
+        let job = newJobArray.find((i) => i.jobID === jobID);
+        if (job === undefined) {
+          return;
+        }
+        uploadJob(job);
+      });
       uploadUserJobSnapshot(newUserJobSnapshot);
+      removeJob(inputJob);
     }
+
+    updateLinkedJobIDs([...newLinkedJobIDs]);
+    updateLinkedOrderIDs([...newLinkedOrderIDs]);
+    updateLinkedTransIDs([...newLinkedTransIDs]);
+    updateApiJobs(newApiJobsArary);
+    updateMultiSelectJobPlanner([...newMutliSelct]);
+    updateJobArray(newJobArray);
+    updateUserJobSnapshot(newUserJobSnapshot);
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `${inputJob.name} Deleted`,
+      severity: "error",
+      autoHideDuration: 3000,
+    }));
   };
 
   const deleteMultipleJobsProcess = async (inputJobIDs) => {
@@ -1033,7 +1044,7 @@ export function useJobManagement() {
         if (material.quantityPurchased >= material.quantity) {
           return;
         }
-        console.log(material);
+        let childState = material.childJob.length > 0 ? true : false;
         let shoppingListEntries = finalShoppingList.filter(
           (i) => i.typeID === material.typeID
         );
@@ -1044,30 +1055,26 @@ export function useJobManagement() {
             quantity: material.quantity - material.quantityPurchased,
             quantityLessAsset: 0,
             volume: material.volume,
-            hasChild: material.childJob.length > 0 ? true : false,
+            hasChild: childState,
             isVisible: false,
           });
           return;
         }
-        console.log(shoppingListEntries);
-        let foundChild = shoppingListEntries.some((i) => i.hasChild);
-        console.log(foundChild)
-        if (!foundChild) {
-          const index = finalShoppingList.findIndex(
-            (i) => i.typeID === material.typeID && !i.hasChild
-          );
-          if (index !== -1) {
-            finalShoppingList[index].quantity +=
-              material.quantity - material.quantityPurchased;
-          }
+        let foundChild = shoppingListEntries.find(
+          (i) => i.hasChild === childState
+        );
+        if (foundChild === undefined) {
+          finalShoppingList.push({
+            name: material.name,
+            typeID: material.typeID,
+            quantity: material.quantity - material.quantityPurchased,
+            quantityLessAsset: 0,
+            volume: material.volume,
+            hasChild: childState,
+            isVisible: false,
+          });
         } else {
-          const index = finalShoppingList.findIndex(
-            (i) => i.typeID === material.typeID && i.hasChild
-          );
-          if (index !== -1) {
-            finalShoppingList[index].quantity +=
-              material.quantity - material.quantityPurchased;
-          }
+          foundChild.quantity += material.quantity - material.quantityPurchased;
         }
       });
     }

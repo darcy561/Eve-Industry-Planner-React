@@ -17,6 +17,8 @@ import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
 import { makeStyles } from "@mui/styles";
+import { useDrag } from "react-dnd";
+import { ItemTypes } from "../../../Context/DnDTypes";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -39,6 +41,17 @@ export function GroupJobCard({ group }) {
   );
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
   const { openGroup, deleteGroupWithoutJobs } = useGroupManagement();
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: ItemTypes.groupCard,
+    item: {
+      id: group.groupID,
+      cardType: ItemTypes.groupCard,
+      currentStatus: group.groupStatus
+    },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
 
   const classes = useStyles();
   let groupCardChecked = useMemo(() => {
@@ -46,7 +59,7 @@ export function GroupJobCard({ group }) {
   }, [multiSelectJobPlanner]);
 
   return (
-    <Grid item xs={12} sm={6} md={4} lg={3}>
+    <Grid ref={drag} item xs={12} sm={6} md={4} lg={3}>
       <Paper
         elevation={3}
         square
@@ -54,7 +67,7 @@ export function GroupJobCard({ group }) {
           padding: "10px",
           height: "100%",
           backgroundColor: (theme) =>
-            groupCardChecked
+            groupCardChecked || isDragging
               ? theme.palette.type !== "dark"
                 ? grey[300]
                 : grey[900]

@@ -18,6 +18,8 @@ import Step3JobCard from "./Job Cards/step3";
 import Step4JobCard from "./Job Cards/step4";
 import Step5JobCard from "./Job Cards/step5";
 import { grey } from "@mui/material/colors";
+import { useDrag } from "react-dnd";
+import { ItemTypes } from "../../../Context/DnDTypes";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -56,6 +58,17 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
     MultiSelectJobPlannerContext
   );
   const { deleteJobProcess, openEditJob } = useJobManagement();
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: ItemTypes.jobCard,
+    item: {
+      id: job.jobID,
+      cardType: ItemTypes.jobCard,
+      currentStatus: job.jobStatus,
+    },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
   const classes = useStyles();
 
   let jobCardChecked = useMemo(() => {
@@ -63,7 +76,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
   }, [multiSelectJobPlanner]);
 
   return (
-    <Grid key={job.jobID} item xs={12} sm={6} md={4} lg={3}>
+    <Grid ref={drag} key={job.jobID} item xs={12} sm={6} md={4} lg={3}>
       <Paper
         elevation={3}
         square={true}
@@ -71,7 +84,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
           padding: "10px",
           height: "100%",
           backgroundColor: (theme) =>
-            jobCardChecked
+            jobCardChecked || isDragging
               ? theme.palette.type !== "dark"
                 ? grey[300]
                 : grey[900]

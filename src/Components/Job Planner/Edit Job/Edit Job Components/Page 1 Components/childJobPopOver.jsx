@@ -263,7 +263,8 @@ export function ChildJobPopover({
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   Total Material{" "}
                   {listingSelect.charAt(0).toUpperCase() +
-                    listingSelect.slice(1)}{" "} Price
+                    listingSelect.slice(1)}{" "}
+                  Price
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={4} align="right">
@@ -277,13 +278,13 @@ export function ChildJobPopover({
                         : "success.main"
                     }
                   >
-                    {(
-                      currentBuildPrice *
-                      childJobObjects[jobDisplay].build.products.totalQuantity
-                    ).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    {(currentBuildPrice * material.quantity).toLocaleString(
+                      undefined,
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
                   </Typography>
                 ) : null}
               </Grid>

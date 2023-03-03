@@ -630,6 +630,20 @@ export function useGroupManagement() {
 
     await buildExistingTypes();
     await buildTree(inputIDs);
+    if (isLoggedIn) {
+      for (let jobID of [...newFinalJobIDs]) {
+        let job = await findJobData(
+          jobID,
+          userJobSnapshot,
+          newJobArray,
+          "groupJob"
+        );
+        if (job === undefined) {
+          return;
+        }
+        addNewJob(job);
+      }
+    }
     updateActiveGroup((prev) => ({
       ...prev,
       includedTypeIDs: [...newTypeIDs],
@@ -645,7 +659,6 @@ export function useGroupManagement() {
       severity: "success",
       autoHideDuration: 3000,
     }));
-    
 
     async function buildTree(inputs) {
       let newJobIDs = new Set();
@@ -668,7 +681,7 @@ export function useGroupManagement() {
       }
       totalJobsCreated += buildRequests.length;
       let newJobData = await buildJob(buildRequests);
-
+      
       for (let newJob of newJobData) {
         newJobIDs.add(newJob.jobID);
         newTypeIDs.add(newJob.itemID);
@@ -690,9 +703,6 @@ export function useGroupManagement() {
         }
 
         newJobArray.push(newJob);
-        if (isLoggedIn) {
-          addNewJob(newJob);
-        }
 
         let childJobArray = [];
         existingIDSet.add(newJob.itemID);

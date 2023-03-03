@@ -14,6 +14,12 @@ import AddIcon from "@mui/icons-material/Add";
 import { makeStyles } from "@mui/styles";
 import { GroupJobCardFrame } from "./groupJobCards";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
+import { UserJobSnapshotContext } from "../../../Context/AuthContext";
+import { JobArrayContext } from "../../../Context/JobContext";
+import { useDrop } from "react-dnd";
+import { useDnD } from "../../../Hooks/useDnD";
+import { ItemTypes } from "../../../Context/DnDTypes";
+import { grey } from "@mui/material/colors";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -32,17 +38,47 @@ export function GroupAccordionContent({ status, statusJobs }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { jobArray } = useContext(JobArrayContext);
+  const { canDropCard, recieveJobCardToStage } = useDnD();
+  const [{ isOver, canDrop }, drop] = useDrop(
+    () => ({
+      accept: ItemTypes.jobCard,
+      drop: (item) => {
+        recieveJobCardToStage(item, status);
+      },
+      canDrop: (item) => canDropCard(item, status),
+      collect: (monitor) => ({
+        isOver: !!monitor.isOver(),
+        canDrop: !!monitor.canDrop(),
+      }),
+    }),
+    [status, userJobSnapshot, jobArray]
+  );
 
   const classes = useStyles();
 
   return (
     <Accordion
+      ref={drop}
       className={classes.Accordion}
       square
       spacing={1}
       id={status.id}
       disableGutters
       expanded={expanded}
+      sx={{
+        ...(canDrop &&
+          !isOver && {
+            backgroundColor: (theme) =>
+              theme.palette.type !== "dark" ? grey[400] : grey[700],
+          }),
+        ...(canDrop &&
+          isOver && {
+            backgroundColor: (theme) =>
+              theme.palette.type !== "dark" ? grey[600] : grey[600],
+          }),
+      }}
     >
       <AccordionSummary
         expandIcon={

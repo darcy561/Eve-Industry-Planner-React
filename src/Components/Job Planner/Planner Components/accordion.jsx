@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { JobStatusContext } from "../../../Context/JobContext";
+import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
@@ -21,6 +21,10 @@ import { StatusSettings } from "./StatusSettings";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { makeStyles } from "@mui/styles";
 import { AccordionContents } from "./accordionContents";
+import { useDrop } from "react-dnd";
+import { useDnD } from "../../../Hooks/useDnD";
+import { ItemTypes } from "../../../Context/DnDTypes";
+import { grey } from "@mui/material/colors";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -37,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
 export function PlannerAccordion({ updateEditJobTrigger }) {
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { jobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
@@ -51,6 +56,8 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
     openAPIJobs: false,
     completeAPIJobs: false,
   });
+  const { canDropCard, recieveJobCardToStage } = useDnD();
+
   const classes = useStyles();
 
   function handleExpand(statusID) {
@@ -67,8 +74,23 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
       square={true}
     >
       {jobStatus.map((status) => {
+        const [{ isOver, canDrop }, drop] = useDrop(
+          () => ({
+            accept: [ItemTypes.jobCard, ItemTypes.groupCard],
+            drop: (item) => {
+              recieveJobCardToStage(item, status);
+            },
+            canDrop: (item) => canDropCard(item, status),
+            collect: (monitor) => ({
+              isOver: !!monitor.isOver(),
+              canDrop: !!monitor.canDrop(),
+            }),
+          }),
+          [status, userJobSnapshot, jobArray]
+        );
         return (
           <Accordion
+            ref={drop}
             className={classes.Accordion}
             expanded={status.expanded === true}
             square={true}
@@ -76,6 +98,18 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
             id={status.id}
             key={status.id}
             disableGutters={true}
+            sx={{
+              ...(canDrop &&
+                !isOver && {
+                  backgroundColor: (theme) =>
+                    theme.palette.type !== "dark" ? grey[400] : grey[700],
+                }),
+              ...(canDrop &&
+                isOver && {
+                  backgroundColor: (theme) =>
+                    theme.palette.type !== "dark" ? grey[600] : grey[600],
+                }),
+            }}
           >
             <AccordionSummary
               expandIcon={

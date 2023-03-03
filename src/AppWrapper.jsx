@@ -36,6 +36,8 @@ import {
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import App from "./App";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 export function AppWrapper() {
   return (
@@ -71,7 +73,9 @@ export function AppWrapper() {
                                                               AdapterDateFns
                                                             }
                                                           >
-                                                            <App />
+                                                            <DndProvider backend={HTML5Backend}>
+                                                              <App />
+                                                              </DndProvider>
                                                           </LocalizationProvider>
                                                         </ArchivedJobs>
                                                       </MassBuildDisplay>

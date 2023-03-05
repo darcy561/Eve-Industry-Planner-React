@@ -189,10 +189,22 @@ export function ChildJobPopover({
               </Typography>
             </Grid>
             {childJobObjects[jobDisplay].jobType === jobTypes.manufacturing ? (
-              <Grid item xs={12} sx={{ marginBottom: "10px" }}>
-                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-                  <b>ME: {childJobObjects[jobDisplay].bpME}</b>
-                </Typography>
+              <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
+                <Grid item xs={2}>
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    <b>ME: {childJobObjects[jobDisplay].bpME}</b>
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    <b>Item Quantity: {material.quantity}</b>
+                  </Typography>
+                </Grid>
+                <Grid item xs={2}></Grid>
               </Grid>
             ) : null}
             {childJobObjects[jobDisplay].build.materials.map((mat) => {
@@ -229,7 +241,7 @@ export function ChildJobPopover({
                 </Grid>
               );
             })}
-            <Grid container item xs={12} sx={{ marginTop: "10px" }}>
+            <Grid container item xs={12} sx={{ marginTop: "20px" }}>
               <Grid item xs={12} sm={8}>
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   Total Material{" "}
@@ -258,7 +270,7 @@ export function ChildJobPopover({
                 ) : null}
               </Grid>
             </Grid>
-            <Grid container item xs={12} sx={{ marginTop: "10px" }}>
+            <Grid container item xs={12}>
               <Grid item xs={12} sm={8}>
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   Total Material{" "}
@@ -289,6 +301,58 @@ export function ChildJobPopover({
                 ) : null}
               </Grid>
             </Grid>
+            {material.quantity !==
+            childJobObjects[jobDisplay].build.products.totalQuantity ? (
+              <>
+                <Grid container item xs={12} sx={{ marginTop: "20px" }}>
+                  <Grid item xs={12} sm={8}>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      Total Items Produced By Child Job{" "}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={4} align="right">
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      {childJobObjects[jobDisplay].build.products.totalQuantity}
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Grid container item xs={12}>
+                  <Grid item xs={12} sm={8}>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      Child Job Total Material{" "}
+                      {listingSelect.charAt(0).toUpperCase() +
+                        listingSelect.slice(1)}{" "}
+                      Price
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={4} align="right">
+                    {currentBuildPrice !== null ? (
+                      <>
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body2" } }}
+                          align="right"
+                        >
+                          {(
+                            currentBuildPrice *
+                            childJobObjects[jobDisplay].build.products
+                              .totalQuantity
+                          ).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </Typography>
+                      </>
+                    ) : null}
+                  </Grid>
+                </Grid>
+              </>
+            ) : null}
 
             {childJobObjects.length > 1 && (
               <Grid container item xs={12} sx={{ marginTop: "10px" }}>

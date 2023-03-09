@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Grid,
   IconButton,
   Paper,
@@ -17,6 +18,8 @@ import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { makeStyles } from "@mui/styles";
 import { GroupOptionsBar } from "./groupOptions";
+import { useJobManagement } from "../../../Hooks/useJobManagement";
+import itemList from "../../../RawData/searchIndex.json";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -44,6 +47,7 @@ export default function GroupPage({
   const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
   const [tempName, updateTempName] = useState("");
   const { closeGroup } = useGroupManagement();
+  const { newJobProcess } = useJobManagement();
   const classes = useStyles();
 
   useEffect(() => {
@@ -145,6 +149,36 @@ export default function GroupPage({
             )}
           </Grid>
           <Grid container item xs={12} spacing={2}>
+            <Grid item xs={12} align="right">
+              <Autocomplete
+                disableClearable
+                fullWidth
+                id="recipeSearch"
+                clearOnBlur
+                variant="standard"
+                size="small"
+                options={itemList}
+                getOptionLabel={(option) => option.name}
+                onChange={(event, value) => {
+                  newJobProcess({
+                    itemID: value.itemID,
+                    groupID: activeGroup.groupID,
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    size="small"
+                    label="Item Search"
+                    className={classes.Autocomplete}
+                    margin="none"
+                    variant="standard"
+                    style={{ borderRadius: "5px" }}
+                    InputProps={{ ...params.InputProps, type: "search" }}
+                  />
+                )}
+              />
+            </Grid>
             <Grid item xs={12}>
               <GroupOptionsBar
                 updateShoppingListTrigger={updateShoppingListTrigger}

@@ -324,7 +324,7 @@ export function useGroupManagement() {
     let foundGroup = chosenGroupArray.find((i) => i.groupID === inputGroupID);
 
     if (activeGroup.groupID === inputGroupID) {
-      foundGroup === activeGroup;
+      foundGroup = { ...activeGroup };
     }
     return foundGroup;
   };
@@ -681,7 +681,7 @@ export function useGroupManagement() {
       }
       totalJobsCreated += buildRequests.length;
       let newJobData = await buildJob(buildRequests);
-      
+
       for (let newJob of newJobData) {
         newJobIDs.add(newJob.jobID);
         newTypeIDs.add(newJob.itemID);

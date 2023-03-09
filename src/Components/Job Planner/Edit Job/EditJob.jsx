@@ -49,8 +49,10 @@ function EditJob({
   const { jobStatus } = useContext(JobStatusContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { closeEditJob, deleteJobProcess } = useJobManagement();
+  const { closeEditJob } = useJobManagement();
+  const { deleteSingleJob } = useDeleteSingleJob();
   const [jobModified, setJobModified] = useState(false);
+
   const classes = useStyles();
 
   function StepContentSelector() {
@@ -116,7 +118,7 @@ function EditJob({
               variant="contained"
               color="error"
               onClick={async () => {
-                await useDeleteSingleJob(activeJob.jobID);
+                await deleteSingleJob(activeJob.jobID);
                 updateEditJobTrigger((prev) => !prev);
               }}
               size="medium"

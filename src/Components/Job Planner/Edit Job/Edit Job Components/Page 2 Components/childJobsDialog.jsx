@@ -30,13 +30,12 @@ export function ChildJobDialog({
   setJobModified,
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { activeJob, updateActiveJob, activeGroup } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { uploadJob, uploadUserJobSnapshot } =
-    useFirebase();
+  const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
 
@@ -45,7 +44,7 @@ export function ChildJobDialog({
   };
 
   let matches = useMemo(() => {
-    let returnArray = []
+    let returnArray = [];
     if (activeJob.groupID === null) {
       for (let job of userJobSnapshot) {
         if (
@@ -66,8 +65,8 @@ export function ChildJobDialog({
         }
       }
     }
-    return returnArray
-  },[userJobSnapshot, jobArray])
+    return returnArray;
+  }, [activeGroup, userJobSnapshot, jobArray]);
 
   return (
     <Dialog
@@ -182,15 +181,14 @@ export function ChildJobDialog({
         <Grid container item>
           {material.childJob.length > 0 ? (
             material.childJob.map((job) => {
-
               let findJobMatchs = () => {
                 if (activeJob.groupID === null) {
-                  return userJobSnapshot.find((i) => i.jobID === job)
+                  return userJobSnapshot.find((i) => i.jobID === job);
                 } else {
-                  return jobArray.find((i)=> i.jobID === job)
+                  return jobArray.find((i) => i.jobID === job);
                 }
-              }
-              
+              };
+
               let jobMatch = findJobMatchs();
               if (jobMatch === undefined) {
                 return null;

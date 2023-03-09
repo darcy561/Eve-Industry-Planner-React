@@ -30,13 +30,12 @@ import {
 import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
 import { httpsCallable } from "firebase/functions";
-import { useRemoveJobFromGroup } from "./GroupHooks/useRemoveJobFromGroup";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { activeJob, activeGroup, updateActiveJob } =
+  const { activeJob, activeGroup, updateActiveJob, updateActiveGroup } =
     useContext(ActiveJobContext);
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
@@ -136,6 +135,52 @@ export function useJobManagement() {
     ];
     if (newJob.groupID === null) {
       newUserJobSnapshot = newJobSnapshot(newJob, newUserJobSnapshot);
+    }
+
+    addJobToGroup: if (newJob.groupID !== null) {
+      let newGroupArray = [...groupArray];
+      let selectedGroup = newGroupArray.find(
+        (i) => i.groupID === newJob.groupID
+      );
+      let isActiveGroup = false;
+
+      if (activeGroup.groupID === newJob.groupID) {
+        selectedGroup = activeGroup;
+        isActiveGroup = true;
+      }
+
+      if (selectedGroup === undefined) break addJobToGroup;
+
+      let newIncludedJobIDs = new Set(selectedGroup.includedJobIDs);
+      let newIncludedTypeIDs = new Set(selectedGroup.includedTypeIDs);
+      let newMaterialIDs = new Set(selectedGroup.materialIDs);
+      let newOutputJobCount = selectedGroup.outputJobCount;
+
+      if (newJob.parentJob.length === 0) {
+        newOutputJobCount++;
+      }
+
+      newMaterialIDs.add(newJob.itemID);
+      newJob.build.materials.forEach((mat) => {
+        newMaterialIDs.add(mat.typeID);
+      });
+      newIncludedJobIDs.add(newJob.jobID);
+      newIncludedTypeIDs.add(newJob.itemID);
+
+      selectedGroup.includedJobIDs = [...newIncludedJobIDs];
+      selectedGroup.includedTypeIDs = [...newIncludedTypeIDs];
+      selectedGroup.materialIDs = [...newMaterialIDs];
+      selectedGroup.outputJobCount = newOutputJobCount;
+
+      updateGroupArray(newGroupArray);
+
+      if (isActiveGroup) {
+        updateActiveGroup({ ...selectedGroup });
+      }
+
+      if (isLoggedIn) {
+        uploadGroups(newGroupArray);
+      }
     }
 
     if (isLoggedIn) {
@@ -645,258 +690,6 @@ export function useJobManagement() {
       open: true,
       message: `${childJobs.length} Job/Jobs Added`,
       severity: "success",
-      autoHideDuration: 3000,
-    }));
-    r.stop();
-  };
-
-  const deleteJobProcess = async (inputJobSnap) => {
-    let newApiJobsArary = [...apiJobs];
-    let newUserJobSnapshot = [...userJobSnapshot];
-    let newJobArray = [...jobArray];
-    let newLinkedJobIDs = new Set(linkedJobIDs);
-    let newLinkedOrderIDs = new Set(linkedOrderIDs);
-    let newLinkedTransIDs = new Set(linkedTransIDs);
-    let jobsToSave = new Set();
-    let newMutliSelct = new Set([...multiSelectJobPlanner]);
-
-    logEvent(analytics, "DeleteJob", {
-      UID: parentUser.accountID,
-      itemID: inputJobSnap.jobID,
-      loggedIn: isLoggedIn,
-    });
-
-    let inputJob = await findJobData(
-      inputJobSnap.jobID,
-      newUserJobSnapshot,
-      newJobArray
-    );
-
-    if (inputJob === undefined) {
-      newUserJobSnapshot = newUserJobSnapshot.filter(
-        (i) => i.jobID !== inputJobSnap.jobID
-      );
-
-      updateUserJobSnapshot(newUserJobSnapshot);
-      if (isLoggedIn) {
-        uploadUserJobSnapshot(newUserJobSnapshot);
-      }
-      return;
-    }
-
-    //Removes apiJob references from users
-    inputJob.apiJobs.forEach((job) => {
-      newLinkedJobIDs.delete(job);
-    });
-
-    //Removes inputJob IDs from child jobs
-    for (let mat of inputJob.build.materials) {
-      if (mat !== null) {
-        for (let job of mat.childJob) {
-          let child = await findJobData(job, newUserJobSnapshot, newJobArray);
-          if (child === undefined) {
-            continue;
-          }
-
-          child.parentJob = child.parentJob.filter((i) => i !== inputJob.jobID);
-
-          newUserJobSnapshot = updateJobSnapshotFromFullJob(
-            child,
-            newUserJobSnapshot
-          );
-
-          jobsToSave.add(child.jobID);
-        }
-      }
-    }
-    //Removes inputJob IDs from Parent jobs
-    for (let parentJobID of inputJob.parentJob) {
-      let parentJob = await findJobData(
-        parentJobID,
-        newUserJobSnapshot,
-        newJobArray
-      );
-      if (parentJob === undefined) {
-        continue;
-      }
-      for (let mat of parentJob.build.materials) {
-        if (mat.childJob === undefined) {
-          continue;
-        }
-        mat.childJob = mat.childJob.filter((i) => i !== inputJob.jobID);
-      }
-      newUserJobSnapshot = updateJobSnapshotFromFullJob(
-        parentJob,
-        newUserJobSnapshot
-      );
-      jobsToSave.add(parentJob.jobID);
-    }
-
-    inputJob.build.sale.transactions.forEach((trans) => {
-      newLinkedTransIDs.delete(trans.transaction_id);
-    });
-
-    inputJob.build.sale.marketOrders.forEach((order) => {
-      newLinkedOrderIDs.delete(order.order_id);
-    });
-
-    newMutliSelct.delete(inputJob.jobID);
-
-    newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
-
-    newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
-
-    if (inputJob.groupID !== null) {
-      await useRemoveJobFromGroup(
-        inputJob.jobID,
-        inputJob.groupID,
-        newJobArray
-      );
-    }
-
-    if (isLoggedIn) {
-      jobsToSave.forEach((jobID) => {
-        let job = newJobArray.find((i) => i.jobID === jobID);
-        if (job === undefined) {
-          return;
-        }
-        uploadJob(job);
-      });
-      uploadUserJobSnapshot(newUserJobSnapshot);
-      removeJob(inputJob);
-    }
-
-    updateLinkedJobIDs([...newLinkedJobIDs]);
-    updateLinkedOrderIDs([...newLinkedOrderIDs]);
-    updateLinkedTransIDs([...newLinkedTransIDs]);
-    updateApiJobs(newApiJobsArary);
-    updateMultiSelectJobPlanner([...newMutliSelct]);
-    updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${inputJob.name} Deleted`,
-      severity: "error",
-      autoHideDuration: 3000,
-    }));
-  };
-
-  const deleteMultipleJobsProcess = async (inputJobIDs) => {
-    const r = trace(performance, "massDeleteProcess");
-    r.start();
-    let newApiJobsArary = [...apiJobs];
-    let newJobArray = [...jobArray];
-    let newUserJobSnapshot = [...userJobSnapshot];
-    let newLinkedJobIDs = new Set(linkedJobIDs);
-    let newLinkedOrderIDs = new Set(linkedOrderIDs);
-    let newLinkedTransIDs = new Set(linkedTransIDs);
-    let jobsToSave = new Set();
-    let newMutliSelct = new Set([...multiSelectJobPlanner]);
-
-    logEvent(analytics, "Mass Delete", {
-      UID: parentUser.accountID,
-      buildCount: inputJobIDs.length,
-      loggedIn: isLoggedIn,
-    });
-
-    for (let inputJobID of inputJobIDs) {
-      let inputJob = await findJobData(
-        inputJobID,
-        newUserJobSnapshot,
-        newJobArray
-      );
-
-      if (inputJob === undefined) {
-        continue;
-      }
-      inputJob.apiJobs.forEach((job) => {
-        newLinkedJobIDs.delete(job);
-      });
-
-      inputJob.build.sale.transactions.forEach((trans) => {
-        newLinkedTransIDs.delete(trans.order_id);
-      });
-
-      inputJob.build.sale.marketOrders.forEach((order) => {
-        newLinkedOrderIDs.delete(order.order_id);
-      });
-
-      newMutliSelct.delete(inputJob.jobID);
-
-      //Removes inputJob IDs from child jobs
-      for (let mat of inputJob.build.materials) {
-        if (mat === null) {
-          continue;
-        }
-        for (let jobID of mat.childJob) {
-          let child = await findJobData(jobID, newUserJobSnapshot, newJobArray);
-
-          if (child === undefined) {
-            continue;
-          }
-          child.parentJob = child.parentJob.filter((i) => inputJob.jobID !== i);
-
-          jobsToSave.add(child.jobID);
-        }
-      }
-      //Removes inputJob IDs from Parent jobs
-      if (inputJob.parentJob !== null) {
-        for (let parentJobID of inputJob.parentJob) {
-          let parentJob = await findJobData(
-            parentJobID,
-            newUserJobSnapshot,
-            newJobArray
-          );
-
-          if (parentJob === undefined) {
-            continue;
-          }
-          for (let mat of parentJob.build.materials) {
-            if (mat.childJob === undefined) {
-              continue;
-            }
-            mat.childJob = mat.childJob.filter((i) => inputJob.jobID !== i);
-          }
-          newUserJobSnapshot = updateJobSnapshotFromFullJob(
-            parentJob,
-            newUserJobSnapshot
-          );
-          jobsToSave.add(parentJob.jobID);
-        }
-      }
-
-      newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
-
-      if (isLoggedIn) {
-        removeJob(inputJob);
-      }
-    }
-    newJobArray = newJobArray.filter((i) => !inputJobIDs.includes(i.jobID));
-
-    if (isLoggedIn) {
-      jobsToSave.forEach((jobID) => {
-        let job = newJobArray.find((i) => i.jobID === jobID);
-        if (job === undefined) {
-          return;
-        }
-        uploadJob(job);
-      });
-      uploadUserJobSnapshot(newUserJobSnapshot);
-    }
-    updateLinkedJobIDs([...newLinkedJobIDs]);
-    updateLinkedOrderIDs([...newLinkedOrderIDs]);
-    updateLinkedTransIDs([...newLinkedTransIDs]);
-    updateApiJobs(newApiJobsArary);
-    updateUserJobSnapshot(newUserJobSnapshot);
-    updateJobArray(newJobArray);
-    updateMultiSelectJobPlanner([...newMutliSelct]);
-
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${inputJobIDs.length} Job/Jobs Deleted`,
-      severity: "error",
       autoHideDuration: 3000,
     }));
     r.stop();
@@ -1576,9 +1369,7 @@ export function useJobManagement() {
     buildShoppingList,
     calcBrokersFee,
     closeEditJob,
-    deleteJobProcess,
     deleteJobSnapshot,
-    deleteMultipleJobsProcess,
     findBlueprintType,
     findJobData,
     generatePriceRequestFromJob,

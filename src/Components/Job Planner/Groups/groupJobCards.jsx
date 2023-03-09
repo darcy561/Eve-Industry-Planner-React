@@ -62,7 +62,8 @@ export function GroupJobCardFrame({ job }) {
     MultiSelectJobPlannerContext
   );
   const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
-  const { deleteJobProcess, openEditJob } = useJobManagement();
+  const { openEditJob } = useJobManagement();
+  const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.jobCard,
     item: {
@@ -124,7 +125,7 @@ export function GroupJobCardFrame({ job }) {
               <IconButton
                 disabled={job.isLocked}
                 className={classes.DeleteIcon}
-                onClick={() => useDeleteSingleJob(job.jobID)}
+                onClick={() => deleteSingleJob(job.jobID)}
               >
                 <DeleteIcon />
               </IconButton>

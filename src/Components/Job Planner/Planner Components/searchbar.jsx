@@ -26,6 +26,7 @@ import { SisiDataFilesContext } from "../../../Context/EveDataContext";
 import { makeStyles } from "@mui/styles";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
+import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
 
 const useStyles = makeStyles((theme) => ({
   Autocomplete: {
@@ -60,13 +61,13 @@ export function SearchBar({
   );
   const { updateActiveGroup } = useContext(ActiveJobContext);
   const {
-    deleteMultipleJobsProcess,
     massBuildMaterials,
     mergeJobsNew,
     moveItemsOnPlanner,
     newJobProcess,
     buildItemPriceEntry,
   } = useJobManagement();
+  const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { createNewGroupWithJobs } = useGroupManagement();
   const classes = useStyles();
 
@@ -394,7 +395,7 @@ export function SearchBar({
                 color="error"
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    deleteMultipleJobsProcess(multiSelectJobPlanner);
+                    deleteMultipleJobs(multiSelectJobPlanner);
                     updateMultiSelectJobPlanner([]);
                   } else {
                     updateDialogData((prev) => ({

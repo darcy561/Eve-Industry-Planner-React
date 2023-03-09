@@ -31,6 +31,7 @@ import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { makeStyles } from "@mui/styles";
 import { LinkedJobBadge } from "./Linked Job Badge";
 import { PassBuildCostButton } from "./Edit Job Components/Page 4 Components/passBuildCost";
+import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
 
 const useStyles = makeStyles((theme) => ({
   Stepper: {
@@ -115,7 +116,7 @@ function EditJob({
               variant="contained"
               color="error"
               onClick={async () => {
-                await deleteJobProcess(activeJob);
+                await useDeleteSingleJob(activeJob.jobID);
                 updateEditJobTrigger((prev) => !prev);
               }}
               size="medium"

@@ -30,6 +30,7 @@ import {
 import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
 import { httpsCallable } from "firebase/functions";
+import { useRemoveJobFromGroup } from "./GroupHooks/useRemoveJobFromGroup";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
@@ -661,7 +662,7 @@ export function useJobManagement() {
 
     logEvent(analytics, "DeleteJob", {
       UID: parentUser.accountID,
-      itemID: inputJob.itemID,
+      itemID: inputJobSnap.jobID,
       loggedIn: isLoggedIn,
     });
 
@@ -745,15 +746,13 @@ export function useJobManagement() {
 
     newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
 
-    removeFromGroup: if (inputJob.groupID !== null) {
-      let newGroupArray = [...groupArray]
-      let groupItem = newGroupArray.find((i) => i.groupID === inputJob.groupID)
-      if (groupItem === undefined) {
-        break removeFromGroup
-      }
-      groupItem.includedJobIDs = groupItem.includedJobIDs.filter((i)=> i !== inputJob.jobID)
+    if (inputJob.groupID !== null) {
+      await useRemoveJobFromGroup(
+        inputJob.jobID,
+        inputJob.groupID,
+        newJobArray
+      );
     }
-
 
     if (isLoggedIn) {
       jobsToSave.forEach((jobID) => {

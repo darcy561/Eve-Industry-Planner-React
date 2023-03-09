@@ -20,6 +20,7 @@ import Step5JobCard from "./Job Cards/step5";
 import { grey } from "@mui/material/colors";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../Context/DnDTypes";
+import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -118,7 +119,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
               <IconButton
                 disabled={job.isLocked}
                 className={classes.DeleteIcon}
-                onClick={() => deleteJobProcess(job)}
+                onClick={() => useDeleteSingleJob(job.jobID)}
               >
                 <DeleteIcon />
               </IconButton>

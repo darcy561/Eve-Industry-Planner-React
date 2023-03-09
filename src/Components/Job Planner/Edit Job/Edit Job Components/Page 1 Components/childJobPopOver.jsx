@@ -188,59 +188,62 @@ export function ChildJobPopover({
                 {material.name}
               </Typography>
             </Grid>
-            {childJobObjects[jobDisplay].jobType === jobTypes.manufacturing ? (
-              <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
-                <Grid item xs={2}>
+            <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
+              <Grid item xs={6}>
+                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                  <b>Item Quantity: {material.quantity}</b>
+                </Typography>
+              </Grid>
+              {childJobObjects[jobDisplay].jobType ===
+              jobTypes.manufacturing ? (
+                <Grid item xs={6}>
                   <Typography
+                    align="right"
                     sx={{ typography: { xs: "caption", sm: "body2" } }}
                   >
                     <b>ME: {childJobObjects[jobDisplay].bpME}</b>
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
-                  >
-                    <b>Item Quantity: {material.quantity}</b>
-                  </Typography>
-                </Grid>
-                <Grid item xs={2}></Grid>
-              </Grid>
-            ) : null}
-            {childJobObjects[jobDisplay].build.materials.map((mat) => {
-              let materialPrice = evePrices.find(
-                (i) => i.typeID === mat.typeID
-              );
-              if (materialPrice === undefined) {
-                materialPrice = tempPrices.find((i) => i.typeID === mat.typeID);
-              }
+              ) : null}
+            </Grid>
+            <Grid container item xs={12}>
+              {childJobObjects[jobDisplay].build.materials.map((mat) => {
+                let materialPrice = evePrices.find(
+                  (i) => i.typeID === mat.typeID
+                );
+                if (materialPrice === undefined) {
+                  materialPrice = tempPrices.find(
+                    (i) => i.typeID === mat.typeID
+                  );
+                }
 
-              return (
-                <Grid key={mat.typeID} container item xs={12}>
-                  <Grid item xs={8}>
-                    <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                    >
-                      {mat.name}
-                    </Typography>
+                return (
+                  <Grid key={mat.typeID} container item xs={12}>
+                    <Grid item xs={8}>
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
+                        {mat.name}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        align="right"
+                      >
+                        {(
+                          materialPrice[marketSelect][listingSelect] *
+                          mat.quantity
+                        ).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Typography>
+                    </Grid>
                   </Grid>
-                  <Grid item xs={4}>
-                    <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                      align="right"
-                    >
-                      {(
-                        materialPrice[marketSelect][listingSelect] *
-                        mat.quantity
-                      ).toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              );
-            })}
+                );
+              })}
+            </Grid>
             <Grid container item xs={12} sx={{ marginTop: "20px" }}>
               <Grid item xs={12} sm={8}>
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>

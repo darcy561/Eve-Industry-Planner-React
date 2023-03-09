@@ -23,6 +23,7 @@ import GroupStep4JobCard from "./jobCards/groupStep4";
 import GroupStep5JobCard from "./jobCards/groupStep5";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../Context/DnDTypes";
+import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -89,11 +90,11 @@ export function GroupJobCardFrame({ job }) {
           padding: "10px",
           height: "100%",
           backgroundColor: (theme) =>
-          jobCardChecked || isDragging
-          ? theme.palette.type !== "dark"
-            ? grey[300]
-            : grey[900]
-          : "none",
+            jobCardChecked || isDragging
+              ? theme.palette.type !== "dark"
+                ? grey[300]
+                : grey[900]
+              : "none",
         }}
       >
         <Grid container item xs={12}>
@@ -123,7 +124,7 @@ export function GroupJobCardFrame({ job }) {
               <IconButton
                 disabled={job.isLocked}
                 className={classes.DeleteIcon}
-                onClick={() => deleteJobProcess(job)}
+                onClick={() => useDeleteSingleJob(job.jobID)}
               >
                 <DeleteIcon />
               </IconButton>

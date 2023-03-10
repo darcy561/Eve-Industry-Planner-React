@@ -27,11 +27,12 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 import { ArchiveJobButton } from "./Edit Job Components/Page 5 Components/archiveJobButton";
-import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { makeStyles } from "@mui/styles";
 import { LinkedJobBadge } from "./Linked Job Badge";
 import { PassBuildCostButton } from "./Edit Job Components/Page 4 Components/passBuildCost";
 import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
+import { SellGroupJob } from "./Edit Job Components/Page 4 Components/sellGroupJob";
+import { useCloseActiveJob } from "../../../Hooks/JobHooks/useCloseActiveJob";
 
 const useStyles = makeStyles((theme) => ({
   Stepper: {
@@ -49,7 +50,7 @@ function EditJob({
   const { jobStatus } = useContext(JobStatusContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { closeEditJob } = useJobManagement();
+  const { closeActiveJob } = useCloseActiveJob();
   const { deleteSingleJob } = useDeleteSingleJob();
   const [jobModified, setJobModified] = useState(false);
 
@@ -134,7 +135,7 @@ function EditJob({
             <IconButton
               color="primary"
               onClick={async () => {
-                closeEditJob(activeJob, jobModified);
+                closeActiveJob(activeJob, jobModified);
                 updateEditJobTrigger((prev) => !prev);
               }}
               size="medium"
@@ -232,6 +233,10 @@ function EditJob({
                               color="primary"
                               onClick={stepForward}
                               size="large"
+                              disabled={
+                                !activeJob.isReadyToSell &&
+                                activeJob.jobStatus === jobStatus.length - 2
+                              }
                             >
                               <ArrowDownwardIcon />
                             </IconButton>
@@ -241,9 +246,19 @@ function EditJob({
                     )}
                     <Grid container>
                       <Grid item sm={8} lg={8} xl={8} />
+                      {activeJob.groupID !== null &&
+                      activeJob.jobStatus === jobStatus.length - 2 &&
+                      activeJob.parentJob.length === 0 ? (
+                        <Grid item container xs={7} sm={2}>
+                          <SellGroupJob
+                            setJobModified={setJobModified}
+                          />
+                        </Grid>
+                      ) : null}
+
                       {activeJob.jobStatus === jobStatus.length - 2 &&
                         activeJob.parentJob.length > 0 && (
-                          <Grid item container xs={7} sm={2} lg={2} xl={2}>
+                          <Grid item container xs={7} sm={2}>
                             <PassBuildCostButton
                               updateEditJobTrigger={updateEditJobTrigger}
                             />
@@ -251,7 +266,7 @@ function EditJob({
                         )}
                       {activeJob.jobStatus === jobStatus.length - 2 &&
                         isLoggedIn && (
-                          <Grid item container xs={5} sm={2} lg={2} xl={2}>
+                          <Grid item container xs={5} sm={2}>
                             <ArchiveJobButton
                               updateEditJobTrigger={updateEditJobTrigger}
                             />
@@ -260,7 +275,7 @@ function EditJob({
                       <Divider />
                       {activeJob.jobStatus === jobStatus.length - 1 &&
                         isLoggedIn && (
-                          <Grid item container xs={12} sm={4} lg={4}>
+                          <Grid item container xs={12} sm={4}>
                             <ArchiveJobButton
                               updateEditJobTrigger={updateEditJobTrigger}
                             />

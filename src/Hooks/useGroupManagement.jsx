@@ -49,6 +49,7 @@ export function useGroupManagement() {
       this.includedTypeIDs = [...includedTypeIDs];
       this.materialIDs = [...materialIDs];
       this.outputJobCount = outputJobCount;
+      this.areComplete = [];
       this.groupStatus = 0;
       this.groupType = 1;
     }
@@ -68,6 +69,7 @@ export function useGroupManagement() {
       this.includedTypeIDs = [...includedTypeIDs];
       this.materialIDs = [...materialIDs];
       this.outputJobCount = outputJobCount;
+      this.areComplete = inputGroup.areComplete;
       this.groupStatus = inputGroup.groupStatus;
       this.groupType = inputGroup.groupType;
     }
@@ -232,10 +234,15 @@ export function useGroupManagement() {
       )
     );
 
-    newGroupArray = newGroupArray.filter(
-      (i) => i.groupID !== activeGroup.groupID
+    let index = newGroupArray.findIndex(
+      (i) => i.groupID === activeGroup.groupID
     );
-    newGroupArray.push(newGroupEntry);
+
+    if (index !== -1) {
+      newGroupArray[index] = activeGroup;
+    } else {
+      newGroupArray.push(newGroupEntry);
+    }
     updateActiveGroup(null);
     updateGroupArray(newGroupArray);
     updateMultiSelectJobPlanner([]);
@@ -259,6 +266,7 @@ export function useGroupManagement() {
     let chosenGroup = newGroupArray.find((i) => i.groupID === inputGroupID);
 
     for (let jobID of chosenGroup.includedJobIDs) {
+      console.log(jobID)
       let foundJob = await findJobData(
         jobID,
         userJobSnapshot,
@@ -323,7 +331,7 @@ export function useGroupManagement() {
   const findGroupData = (inputGroupID, chosenGroupArray) => {
     let foundGroup = chosenGroupArray.find((i) => i.groupID === inputGroupID);
 
-    if (activeGroup.groupID === inputGroupID) {
+    if (activeGroup !== null && activeGroup.groupID === inputGroupID) {
       foundGroup = { ...activeGroup };
     }
     return foundGroup;

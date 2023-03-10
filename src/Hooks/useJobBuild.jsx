@@ -59,6 +59,7 @@ export function useJobBuild() {
       this.parentJob = [];
       this.blueprintTypeID = itemJson.blueprintTypeID || null;
       this.groupID = null;
+      this.isReadyToSell = false;
       this.build = {
         products: {
           totalQuantity: 0,

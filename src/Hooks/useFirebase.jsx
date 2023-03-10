@@ -139,6 +139,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
+        isReadyToSell: job.isReadyToSell || false
       }
     );
   };
@@ -179,6 +180,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
+        isReadyToSell: job.isReadyToSell || null
       }
     );
   };
@@ -268,6 +270,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
+        isReadyToSell: job.isReadyToSell || false
       }
     );
   };
@@ -309,6 +312,7 @@ export function useFirebase() {
         blueprintTypeID: downloadDoc.blueprintTypeID,
         layout: downloadDoc.layout,
         groupID: downloadDoc.groupID,
+        isReadyToSell: downloadDoc.isReadyToSell || false
       };
 
       return newJob;
@@ -626,6 +630,7 @@ export function useFirebase() {
             blueprintTypeID: downloadDoc.blueprintTypeID,
             layout: downloadDoc.layout,
             groupID: downloadDoc.groupID,
+            isReadyToSell: downloadDoc.isReadyToSell || false
           };
           let index = jobArray.findIndex((i) => i.jobID === newJob.jobID);
           if (index === -1) {

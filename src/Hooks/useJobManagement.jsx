@@ -121,6 +121,9 @@ export function useJobManagement() {
   const newJobProcess = async (buildRequest) => {
     const t = trace(performance, "CreateJobProcessFull");
     let newUserJobSnapshot = [...userJobSnapshot];
+    let newGroupArray = [...groupArray];
+    let isActiveGroup = false;
+    let selectedGroup = null;
     t.start();
     if (!checkAllowBuild()) {
       return;
@@ -138,11 +141,7 @@ export function useJobManagement() {
     }
 
     addJobToGroup: if (newJob.groupID !== null) {
-      let newGroupArray = [...groupArray];
-      let selectedGroup = newGroupArray.find(
-        (i) => i.groupID === newJob.groupID
-      );
-      let isActiveGroup = false;
+      selectedGroup = newGroupArray.find((i) => i.groupID === newJob.groupID);
 
       if (activeGroup.groupID === newJob.groupID) {
         selectedGroup = activeGroup;
@@ -171,16 +170,6 @@ export function useJobManagement() {
       selectedGroup.includedTypeIDs = [...newIncludedTypeIDs];
       selectedGroup.materialIDs = [...newMaterialIDs];
       selectedGroup.outputJobCount = newOutputJobCount;
-
-      updateGroupArray(newGroupArray);
-
-      if (isActiveGroup) {
-        updateActiveGroup({ ...selectedGroup });
-      }
-
-      if (isLoggedIn) {
-        uploadGroups(newGroupArray);
-      }
     }
 
     if (isLoggedIn) {
@@ -204,6 +193,13 @@ export function useJobManagement() {
 
     if (buildRequest.hasOwnProperty("groupID")) {
       updateJobArray((prev) => [...prev, newJob]);
+      updateGroupArray(newGroupArray);
+      if (isActiveGroup && selectedGroup !== null && selectedGroup !== undefined) {
+        updateActiveGroup({ ...selectedGroup });
+      }
+      if (isLoggedIn) {
+        uploadGroups(newGroupArray);
+      }
     } else {
       updateUserJobSnapshot(newUserJobSnapshot);
     }
@@ -324,40 +320,6 @@ export function useJobManagement() {
     }));
     if (isLoggedIn) {
       userJobListener(parentUser, inputJobID);
-    }
-  };
-
-  const closeEditJob = async (inputJob, jobModified) => {
-    let newJobArray = [...jobArray];
-    let newUserJobSnapshot = [...userJobSnapshot];
-    const index = newJobArray.findIndex((x) => inputJob.jobID === x.jobID);
-    newJobArray[index] = inputJob;
-    // newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, inputJob.jobID);
-
-    newUserJobSnapshot = updateJobSnapshotFromFullJob(
-      inputJob,
-      newUserJobSnapshot
-    );
-
-    updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
-    updateActiveJob({});
-
-    if (isLoggedIn) {
-      await uploadUserJobSnapshot(newUserJobSnapshot);
-      if (jobModified) {
-        await uploadJob(inputJob);
-      }
-    }
-
-    if (jobModified) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${inputJob.name} Updated`,
-        severity: "info",
-        autoHideDuration: 1000,
-      }));
     }
   };
 
@@ -1368,7 +1330,6 @@ export function useJobManagement() {
     buildItemPriceEntry,
     buildShoppingList,
     calcBrokersFee,
-    closeEditJob,
     deleteJobSnapshot,
     findBlueprintType,
     findJobData,

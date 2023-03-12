@@ -1,8 +1,11 @@
 import {
   Autocomplete,
+  FormControlLabel,
+  FormGroup,
   Grid,
   IconButton,
   Paper,
+  Switch,
   TextField,
   Tooltip,
   Typography,
@@ -149,7 +152,7 @@ export default function GroupPage({
             )}
           </Grid>
           <Grid container item xs={12} spacing={2}>
-            <Grid item xs={12} align="right">
+            <Grid item xs={12} sm={8} md={6}>
               <Autocomplete
                 disableClearable
                 fullWidth
@@ -178,6 +181,32 @@ export default function GroupPage({
                   />
                 )}
               />
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              sm={4}
+              md={6}
+              align="right"
+              sx={{ paddingRight: "20px" }}
+            >
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={activeGroup.showComplete}
+                      onChange={() => {
+                        updateActiveGroup((prev) => ({
+                          ...prev,
+                          showComplete: !prev.showComplete,
+                        }));
+                      }}
+                    />
+                  }
+                  label="Show Complete Jobs"
+                  labelPlacement="start"
+                />
+              </FormGroup>
             </Grid>
             <Grid item xs={12}>
               <GroupOptionsBar

@@ -50,6 +50,7 @@ export function useGroupManagement() {
       this.materialIDs = [...materialIDs];
       this.outputJobCount = outputJobCount;
       this.areComplete = [];
+      this.showComplete = true;
       this.groupStatus = 0;
       this.groupType = 1;
     }
@@ -70,6 +71,7 @@ export function useGroupManagement() {
       this.materialIDs = [...materialIDs];
       this.outputJobCount = outputJobCount;
       this.areComplete = inputGroup.areComplete;
+      this.showComplete = inputGroup.showComplete;
       this.groupStatus = inputGroup.groupStatus;
       this.groupType = inputGroup.groupType;
     }
@@ -266,7 +268,7 @@ export function useGroupManagement() {
     let chosenGroup = newGroupArray.find((i) => i.groupID === inputGroupID);
 
     for (let jobID of chosenGroup.includedJobIDs) {
-      console.log(jobID)
+      console.log(jobID);
       let foundJob = await findJobData(
         jobID,
         userJobSnapshot,

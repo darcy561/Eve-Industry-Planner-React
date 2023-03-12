@@ -15,7 +15,7 @@ import { makeStyles } from "@mui/styles";
 import { GroupJobCardFrame } from "./groupJobCards";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
-import { JobArrayContext } from "../../../Context/JobContext";
+import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { useDrop } from "react-dnd";
 import { useDnD } from "../../../Hooks/useDnD";
 import { ItemTypes } from "../../../Context/DnDTypes";
@@ -38,6 +38,7 @@ export function GroupAccordionContent({ status, statusJobs }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { activeGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobArray } = useContext(JobArrayContext);
   const { canDropCard, recieveJobCardToStage } = useDnD();
@@ -123,7 +124,11 @@ export function GroupAccordionContent({ status, statusJobs }) {
       <AccordionDetails>
         <Grid container item xs={12} spacing={2}>
           {statusJobs.map((job) => {
-            return <GroupJobCardFrame key={job.jobID} job={job} />;
+            if (!activeGroup.showComplete) {
+              if (!activeGroup.areComplete.includes(job.jobID)) {
+                return <GroupJobCardFrame key={job.jobID} job={job} />;
+              } else return null;
+            } else return <GroupJobCardFrame key={job.jobID} job={job} />;
           })}
         </Grid>
       </AccordionDetails>

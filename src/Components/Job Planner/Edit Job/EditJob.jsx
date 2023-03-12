@@ -33,6 +33,7 @@ import { PassBuildCostButton } from "./Edit Job Components/Page 4 Components/pas
 import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
 import { SellGroupJob } from "./Edit Job Components/Page 4 Components/sellGroupJob";
 import { useCloseActiveJob } from "../../../Hooks/JobHooks/useCloseActiveJob";
+import { MarkAsCompleteButton } from "./Edit Job Components/Page 4 Components/markAsComplete";
 
 const useStyles = makeStyles((theme) => ({
   Stepper: {
@@ -250,9 +251,7 @@ function EditJob({
                       activeJob.jobStatus === jobStatus.length - 2 &&
                       activeJob.parentJob.length === 0 ? (
                         <Grid item container xs={7} sm={2}>
-                          <SellGroupJob
-                            setJobModified={setJobModified}
-                          />
+                          <SellGroupJob setJobModified={setJobModified} />
                         </Grid>
                       ) : null}
 
@@ -264,8 +263,18 @@ function EditJob({
                             />
                           </Grid>
                         )}
-                      {activeJob.jobStatus === jobStatus.length - 2 &&
+                      {activeJob.groupID !== null &&
+                        activeJob.jobStatus === jobStatus.length - 2 &&
                         isLoggedIn && (
+                          <Grid item container xs={5} sm={2}>
+                            <MarkAsCompleteButton
+                              setJobModified={setJobModified}
+                            />
+                          </Grid>
+                        )}
+                      {activeJob.jobStatus === jobStatus.length - 2 &&
+                        isLoggedIn &&
+                        activeJob.groupID === null && (
                           <Grid item container xs={5} sm={2}>
                             <ArchiveJobButton
                               updateEditJobTrigger={updateEditJobTrigger}

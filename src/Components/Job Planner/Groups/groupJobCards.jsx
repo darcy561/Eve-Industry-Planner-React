@@ -24,6 +24,7 @@ import GroupStep5JobCard from "./jobCards/groupStep5";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
+import { ActiveJobContext } from "../../../Context/JobContext";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -62,6 +63,7 @@ export function GroupJobCardFrame({ job }) {
     MultiSelectJobPlannerContext
   );
   const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
+  const { activeGroup } = useContext(ActiveJobContext);
   const { openEditJob } = useJobManagement();
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -81,6 +83,10 @@ export function GroupJobCardFrame({ job }) {
   let jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
+
+  let jobMarkedAsCompelte = useMemo(() => {
+    return activeGroup.areComplete.includes(job.jobID);
+  }, [activeGroup]);
 
   return (
     <Grid ref={drag} item xs={12} sm={6} md={4} lg={3}>
@@ -204,7 +210,9 @@ export function GroupJobCardFrame({ job }) {
             }}
           >
             <Typography align="center" variant="body2" color="black">
-              {job.jobType === jobTypes.manufacturing ? (
+              {jobMarkedAsCompelte ? (
+                <b>Complete</b>
+              ) : job.jobType === jobTypes.manufacturing ? (
                 <b>Manufacturing Job</b>
               ) : (
                 <b>Reaction Job</b>

@@ -21,7 +21,8 @@ export function ArchiveJobButton({ updateEditJobTrigger }) {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { archiveJob, removeJob, uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
+  const { archiveJob, removeJob, uploadUserJobSnapshot, updateMainUserDoc } =
+    useFirebase();
   const { deleteJobSnapshot } = useJobManagement();
   const analytics = getAnalytics();
 
@@ -32,12 +33,11 @@ export function ArchiveJobButton({ updateEditJobTrigger }) {
     logEvent(analytics, "Archive Job", {
       UID: newUserArray[parentUserIndex].accountID,
       jobID: activeJob.jobID,
-      name: activeJob.name,
       itemID: activeJob.itemID,
-      stage: activeJob.status,
     });
 
     const newJobArray = jobArray.filter((job) => job.jobID !== activeJob.jobID);
+
     activeJob.apiOrders.forEach((id) => {
       newUserArray[parentUserIndex].linkedOrders.add(id);
     });

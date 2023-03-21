@@ -109,7 +109,6 @@ export function useCloseActiveJob() {
         }
       }
     }
-
     if (
       inputJob.groupID !== null &&
       inputJob.isReadyToSell &&

@@ -25,6 +25,7 @@ import {
 import { useJobBuild } from "../../../../../Hooks/useJobBuild";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { jobTypes } from "../../../../../Context/defaultValues";
+import { useSwitchActiveJob } from "../../../../../Hooks/JobHooks/useSwitchActiveJob";
 
 export function ChildJobPopover({
   displayPopover,
@@ -55,8 +56,9 @@ export function ChildJobPopover({
     uploadUserJobSnapshot,
   } = useFirebase();
   const { buildJob } = useJobBuild();
-  const { newJobSnapshot, replaceSnapshot, switchActiveJob } =
+  const { newJobSnapshot, replaceSnapshot } =
     useJobManagement();
+  const { switchActiveJob } = useSwitchActiveJob();
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImport, updateJobImport] = useState(false);
   const [jobDisplay, setJobDisplay] = useState(0);

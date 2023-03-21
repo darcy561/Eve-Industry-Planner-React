@@ -194,7 +194,11 @@ export function useJobManagement() {
     if (buildRequest.hasOwnProperty("groupID")) {
       updateJobArray((prev) => [...prev, newJob]);
       updateGroupArray(newGroupArray);
-      if (isActiveGroup && selectedGroup !== null && selectedGroup !== undefined) {
+      if (
+        isActiveGroup &&
+        selectedGroup !== null &&
+        selectedGroup !== undefined
+      ) {
         updateActiveGroup({ ...selectedGroup });
       }
       if (isLoggedIn) {
@@ -320,97 +324,6 @@ export function useJobManagement() {
     }));
     if (isLoggedIn) {
       userJobListener(parentUser, inputJobID);
-    }
-  };
-
-  const switchActiveJob = async (existingJob, requestedJobID, jobModified) => {
-    let newJobArray = [...jobArray];
-    let newUserJobSnapshot = [...userJobSnapshot];
-    const index = newJobArray.findIndex((x) => existingJob.jobID === x.jobID);
-    newJobArray[index] = existingJob;
-    console.log(existingJob);
-    // newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, existingJob.jobID);
-    newUserJobSnapshot = updateJobSnapshotFromFullJob(
-      existingJob,
-      newUserJobSnapshot
-    );
-    if (isLoggedIn && jobModified) {
-      uploadJob(existingJob);
-    }
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      jobData: true,
-    }));
-    updatePageLoad(true);
-    let openJob = await findJobData(
-      requestedJobID,
-      newUserJobSnapshot,
-      newJobArray
-    );
-    // newUserJobSnapshot = lockUserJob(
-    //   parentUser.CharacterHash,
-    //   requestedJobID,
-    //   newUserJobSnapshot
-    // );
-
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      jobData: true,
-      jobDataComp: true,
-      priceData: true,
-    }));
-    let itemIDs = new Set(generatePriceRequestFromJob(openJob));
-    for (let mat of openJob.build.materials) {
-      if (mat.childJob.length === 0) {
-        continue;
-      }
-      for (let cJ of mat.childJob) {
-        let snapshot = await findJobData(
-          cJ,
-          newUserJobSnapshot,
-          newJobArray,
-          "snapshot"
-        );
-
-        if (snapshot === undefined) {
-          continue;
-        }
-        itemIDs = new Set(itemIDs, generatePriceRequestFromSnapshot(snapshot));
-      }
-    }
-    if (isLoggedIn) {
-      let newArchivedJobsArray = await getArchivedJobData(openJob.itemID);
-      updateArchivedJobs(newArchivedJobsArray);
-      uploadUserJobSnapshot(newUserJobSnapshot);
-    }
-
-    let jobPrices = await getItemPrices([...itemIDs], parentUser);
-    if (jobPrices.length > 0) {
-      updateEvePrices((prev) => {
-        jobPrices = jobPrices.filter(
-          (n) => !prev.some((p) => p.typeID === n.typeID)
-        );
-        return prev.concat(jobPrices);
-      });
-    }
-    console.log(newJobArray);
-    updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
-    updateActiveJob(openJob);
-    updatePageLoad(false);
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      priceDataComp: true,
-    }));
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      jobData: false,
-      jobDataComp: false,
-      priceData: false,
-      priceDataComp: false,
-    }));
-    if (isLoggedIn) {
-      userJobListener(parentUser, requestedJobID);
     }
   };
 
@@ -1342,7 +1255,6 @@ export function useJobManagement() {
     newJobProcess,
     newJobSnapshot,
     openEditJob,
-    switchActiveJob,
     timeRemainingCalc,
     replaceSnapshot,
     unlockUserJob,

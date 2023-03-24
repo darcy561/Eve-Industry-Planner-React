@@ -235,6 +235,7 @@ function EditJob({
                               onClick={stepForward}
                               size="large"
                               disabled={
+                                activeJob.groupID !== null &&
                                 !activeJob.isReadyToSell &&
                                 activeJob.jobStatus === jobStatus.length - 2
                               }

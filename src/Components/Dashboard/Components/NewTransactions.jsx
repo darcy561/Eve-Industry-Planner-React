@@ -1,5 +1,5 @@
 import { CircularProgress, Grid, Paper, Typography } from "@mui/material";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useCallback } from "react";
 import {
   UserJobSnapshotContext,
   UsersContext,
@@ -27,80 +27,102 @@ export function NewTransactions() {
   }, [users]);
 
   let itemOrderMatch = [];
-  let transactionData = [];
-
-  const filteredJobs = userJobSnapshot.filter(
-    (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
+  const filteredJobs = useMemo(
+    () =>
+      userJobSnapshot.filter(
+        (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
+      ),
+    [userJobSnapshot]
   );
 
-  filteredJobs.forEach((job) => {
-    esiOrders.forEach((entry) => {
-      entry.data.forEach((order) => {
-        if (
-          order.type_id === job.itemID &&
-          linkedOrderIDs.includes(order.order_id) &&
-          !parentUser.linkedOrders.has(order.order_id) &&
-          !itemOrderMatch.find((item) => item.order_id === order.order_id)
-        ) {
-          order.CharacterHash = entry.user;
-          itemOrderMatch.push(order);
-        }
+  let findTransactionData = useCallback(() => {
+    let returnTransactions = [];
+    if (
+      esiOrders === undefined ||
+      esiTransactions === undefined ||
+      esiJournal === undefined ||
+      esiOrders === undefined ||
+      esiHistOrders === undefined
+    ) {
+      return returnTransactions;
+    }
+    filteredJobs.forEach((job) => {
+      esiOrders.forEach((entry) => {
+        entry.data.forEach((order) => {
+          if (
+            order.type_id === job.itemID &&
+            linkedOrderIDs.includes(order.order_id) &&
+            !parentUser.linkedOrders.has(order.order_id) &&
+            !itemOrderMatch.find((item) => item.order_id === order.order_id)
+          ) {
+            order.CharacterHash = entry.user;
+            itemOrderMatch.push(order);
+          }
+        });
       });
-    });
-    esiHistOrders.forEach((entry) => {
-      entry.data.forEach((order) => {
-        if (
-          order.type_id === job.itemID &&
-          linkedOrderIDs.includes(order.order_id) &&
-          !parentUser.linkedOrders.has(order.order_id) &&
-          !itemOrderMatch.find((item) => item.order_id === order.order_id)
-        ) {
-          order.CharacterHash = entry.user;
+      esiHistOrders.forEach((entry) => {
+        entry.data.forEach((order) => {
+          if (
+            order.type_id === job.itemID &&
+            linkedOrderIDs.includes(order.order_id) &&
+            !parentUser.linkedOrders.has(order.order_id) &&
+            !itemOrderMatch.find((item) => item.order_id === order.order_id)
+          ) {
+            order.CharacterHash = entry.user;
 
-          itemOrderMatch.push(order);
-        }
+            itemOrderMatch.push(order);
+          }
+        });
       });
-    });
-    itemOrderMatch.forEach((order) => {
-      const transactions = esiTransactions.find(
-        (u) => u.user === order.CharacterHash
-      ).data;
-
-      const itemTrans = transactions.filter(
-        (trans) =>
-          order.location_id === trans.location_id &&
-          order.type_id === trans.type_id &&
-          !linkedTransIDs.includes(trans.transaction_id) &&
-          !parentUser.linkedTrans.has(trans.transaction_id) &&
-          !transactionData.find(
-            (item) => item.transaction_id === trans.transaction_id
-          ) &&
-          trans.unit_price >= 0
-      );
-      itemTrans.forEach((trans) => {
-        const journal = esiJournal.find(
+      itemOrderMatch.forEach((order) => {
+        const userTransactions = esiTransactions.find(
           (u) => u.user === order.CharacterHash
-        ).data;
-        const transJournal = journal.find(
-          (entry) => trans.transaction_id === entry.context_id
         );
-        const transTax = journal.find(
-          (entry) =>
-            entry.ref_type === "transaction_tax" &&
-            Date.parse(entry.date) === Date.parse(trans.date)
-        );
-        if (transJournal !== undefined && transTax !== undefined) {
-          trans.description = transJournal.description;
-          trans.tax = Math.abs(transTax.amount);
+        if (userTransactions === undefined) return;
 
-          transactionData.push(trans);
-        }
+        const transactions = userTransactions.data;
+
+        const itemTrans = transactions.filter(
+          (trans) =>
+            order.location_id === trans.location_id &&
+            order.type_id === trans.type_id &&
+            !linkedTransIDs.includes(trans.transaction_id) &&
+            !parentUser.linkedTrans.has(trans.transaction_id) &&
+            !returnTransactions.find(
+              (item) => item.transaction_id === trans.transaction_id
+            ) &&
+            trans.unit_price >= 0
+        );
+        itemTrans.forEach((trans) => {
+          const userJournal = esiJournal.find(
+            (u) => u.user === order.CharacterHash
+          );
+          if (userJournal === undefined) return;
+          const journal = userJournal.data;
+          const transJournal = journal.find(
+            (entry) => trans.transaction_id === entry.context_id
+          );
+          const transTax = journal.find(
+            (entry) =>
+              entry.ref_type === "transaction_tax" &&
+              Date.parse(entry.date) === Date.parse(trans.date)
+          );
+          if (transJournal !== undefined && transTax !== undefined) {
+            trans.description = transJournal.description;
+            trans.tax = Math.abs(transTax.amount);
+
+            returnTransactions.push(trans);
+          }
+        });
       });
     });
-  });
-  transactionData.sort((a, b) => {
-    return new Date(b.date) - new Date(a.date);
-  });
+    returnTransactions.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+    return returnTransactions;
+  }, [filteredJobs, esiJournal, esiHistOrders, esiOrders, esiTransactions]);
+
+  let transactionData = findTransactionData();
 
   if (!userDataFetch && !userJobSnapshotDataFetch) {
     if (transactionData.length > 0) {
@@ -129,6 +151,7 @@ export function NewTransactions() {
             <Grid container item xs={12}>
               {transactionData.map((trans) => {
                 let itemName = itemData.find((i) => i.itemID === trans.type_id);
+                if (itemName === undefined) return null;
                 return (
                   <Grid
                     key={trans.transaction_id}
@@ -156,7 +179,8 @@ export function NewTransactions() {
                         align="right"
                         sx={{ typography: { xs: "caption", sm: "body2" } }}
                       >
-                        {trans.quantity} @ {trans.unit_price.toLocaleString()}
+                        {trans.quantity.toLocaleString()} @{" "}
+                        {trans.unit_price.toLocaleString()}
                       </Typography>
                     </Grid>
                   </Grid>

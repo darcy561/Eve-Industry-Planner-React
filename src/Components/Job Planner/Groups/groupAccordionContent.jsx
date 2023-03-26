@@ -3,6 +3,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  CircularProgress,
   Grid,
   IconButton,
   Tooltip,
@@ -13,7 +14,10 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import { makeStyles } from "@mui/styles";
 import { GroupJobCardFrame } from "./groupJobCards";
-import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
+import {
+  DataExchangeContext,
+  MultiSelectJobPlannerContext,
+} from "../../../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { useDrop } from "react-dnd";
@@ -41,6 +45,7 @@ export function GroupAccordionContent({ status, statusJobs }) {
   const { activeGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobArray } = useContext(JobArrayContext);
+  const { dataExchange } = useContext(DataExchangeContext);
   const { canDropCard, recieveJobCardToStage } = useDnD();
   const [{ isOver, canDrop }, drop] = useDrop(
     () => ({
@@ -123,13 +128,17 @@ export function GroupAccordionContent({ status, statusJobs }) {
       </AccordionSummary>
       <AccordionDetails>
         <Grid container item xs={12} spacing={2}>
-          {statusJobs.map((job) => {
-            if (!activeGroup.showComplete) {
-              if (!activeGroup.areComplete.includes(job.jobID)) {
-                return <GroupJobCardFrame key={job.jobID} job={job} />;
-              } else return null;
-            } else return <GroupJobCardFrame key={job.jobID} job={job} />;
-          })}
+          {!dataExchange ? (
+            statusJobs.map((job) => {
+              if (!activeGroup.showComplete) {
+                if (!activeGroup.areComplete.includes(job.jobID)) {
+                  return <GroupJobCardFrame key={job.jobID} job={job} />;
+                } else return null;
+              } else return <GroupJobCardFrame key={job.jobID} job={job} />;
+            })
+          ) : (
+            <CircularProgress color="primary" />
+          )}
         </Grid>
       </AccordionDetails>
     </Accordion>

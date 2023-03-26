@@ -41,16 +41,26 @@ export function ParentJobDialog({
 
   useEffect(() => {
     let newMatches = [];
-    for (let job of userJobSnapshot) {
-      if (
-        job.materialIDs.includes(activeJob.itemID) &&
-        !activeJob.parentJob.includes(job.jobID)
-      ) {
-        newMatches.push(job);
+    if (activeJob.groupID === null) {
+      for (let job of userJobSnapshot) {
+        if (
+          job.materialIDs.includes(activeJob.itemID) &&
+          !activeJob.parentJob.includes(job.jobID)
+        ) {
+          newMatches.push(job);
+        }
       }
+    } else {
+      let matchs = jobArray.filter(
+        (i) =>
+          i.groupID === activeJob.groupID &&
+          !activeJob.parentJob.includes(i.jobID) &&
+          i.build.materials.some((x) => x.typeID === activeJob.itemID)
+      );
+      newMatches = newMatches.concat(matchs);
     }
     updateMatches(newMatches);
-  }, [userJobSnapshot]);
+  }, [dialogTrigger]);
 
   return (
     <Dialog

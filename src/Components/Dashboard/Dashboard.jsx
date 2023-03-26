@@ -2,16 +2,10 @@ import { Grid } from "@mui/material";
 import { AccountData } from "./Components/AccountData";
 import { NewTransactions } from "./Components/NewTransactions";
 import { TutorialDashboard } from "./Components/dashboardTutorial";
-import { useContext } from "react";
-import { UsersContext } from "../../Context/AuthContext";
 import { ESIOffline } from "../offlineNotification";
 import { ItemWatchPanel } from "./Components/ItemWatch/ItemWatchPanel";
 
 function Dashboard() {
-  const { users } = useContext(UsersContext);
-
-  const parentUser = users.find((i) => i.ParentUser === true);
-
   return (
     <Grid
       container

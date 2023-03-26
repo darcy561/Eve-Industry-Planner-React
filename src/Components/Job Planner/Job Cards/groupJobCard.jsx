@@ -19,6 +19,7 @@ import { grey } from "@mui/material/colors";
 import { makeStyles } from "@mui/styles";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../Context/DnDTypes";
+import { useOpenGroup } from "../../../Hooks/GroupHooks/useOpenGroup";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -40,13 +41,14 @@ export function GroupJobCard({ group }) {
     MultiSelectJobPlannerContext
   );
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
-  const { openGroup, deleteGroupWithoutJobs } = useGroupManagement();
+  const { deleteGroupWithoutJobs } = useGroupManagement();
+  const { openGroup } = useOpenGroup();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.groupCard,
     item: {
       id: group.groupID,
       cardType: ItemTypes.groupCard,
-      currentStatus: group.groupStatus
+      currentStatus: group.groupStatus,
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),

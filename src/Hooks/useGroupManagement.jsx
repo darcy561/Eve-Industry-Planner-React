@@ -5,11 +5,7 @@ import {
 } from "../Context/AuthContext";
 import { jobTypes } from "../Context/defaultValues";
 import { ActiveJobContext, JobArrayContext } from "../Context/JobContext";
-import {
-  JobPlannerPageTriggerContext,
-  MultiSelectJobPlannerContext,
-  SnackBarDataContext,
-} from "../Context/LayoutContext";
+import { SnackBarDataContext } from "../Context/LayoutContext";
 import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
@@ -21,12 +17,8 @@ export function useGroupManagement() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
-  const { updateMultiSelectJobPlanner } = useContext(
-    MultiSelectJobPlannerContext
-  );
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { findJobData, deleteJobSnapshot, newJobSnapshot } = useJobManagement();
   const { addNewJob, uploadGroups, uploadUserJobSnapshot, uploadJob } =
@@ -53,27 +45,6 @@ export function useGroupManagement() {
       this.showComplete = true;
       this.groupStatus = 0;
       this.groupType = 1;
-    }
-  }
-
-  class updateJobGroupTemplate {
-    constructor(
-      inputGroup,
-      inputIDs,
-      includedTypeIDs,
-      materialIDs,
-      outputJobCount
-    ) {
-      this.groupName = inputGroup.groupName;
-      this.groupID = inputGroup.groupID;
-      this.includedJobIDs = [...inputIDs];
-      this.includedTypeIDs = [...includedTypeIDs];
-      this.materialIDs = [...materialIDs];
-      this.outputJobCount = outputJobCount;
-      this.areComplete = inputGroup.areComplete;
-      this.showComplete = inputGroup.showComplete;
-      this.groupStatus = inputGroup.groupStatus;
-      this.groupType = inputGroup.groupType;
     }
   }
 
@@ -182,74 +153,6 @@ export function useGroupManagement() {
     }
 
     return newGroupEntry;
-  };
-
-  const openGroup = async (inputGroupID) => {
-    let newJobArray = [...jobArray];
-    let requestedGroup = groupArray.find((i) => i.groupID === inputGroupID);
-    if (requestedGroup === undefined) {
-      return;
-    }
-    updateActiveGroup(requestedGroup);
-    for (let jobID of requestedGroup.includedJobIDs) {
-      let inputJob = await findJobData(
-        jobID,
-        userJobSnapshot,
-        newJobArray,
-        "groupJob"
-      );
-      if (inputJob === undefined) {
-        continue;
-      }
-    }
-
-    updateJobArray(newJobArray);
-  };
-
-  const closeGroup = async (groupJobs) => {
-    let newGroupArray = [...groupArray];
-    let outputJobCount = 0;
-    let materialIDs = new Set();
-    let jobTypeIDs = new Set();
-    let includedJobIDs = new Set();
-    for (let job of groupJobs) {
-      if (job.parentJob.length === 0) {
-        outputJobCount++;
-      }
-
-      materialIDs.add(job.itemID);
-      job.build.materials.forEach((mat) => {
-        materialIDs.add(mat.typeID);
-      });
-      jobTypeIDs.add(job.itemID);
-      includedJobIDs.add(job.jobID);
-    }
-
-    let newGroupEntry = Object.assign(
-      {},
-      new updateJobGroupTemplate(
-        activeGroup,
-        includedJobIDs,
-        jobTypeIDs,
-        materialIDs,
-        outputJobCount
-      )
-    );
-
-    let index = newGroupArray.findIndex(
-      (i) => i.groupID === activeGroup.groupID
-    );
-
-    if (index !== -1) {
-      newGroupArray[index] = activeGroup;
-    } else {
-      newGroupArray.push(newGroupEntry);
-    }
-    updateActiveGroup(null);
-    updateGroupArray(newGroupArray);
-    updateMultiSelectJobPlanner([]);
-    updateEditGroupTrigger((prev) => !prev);
-    uploadGroups(newGroupArray);
   };
 
   const replaceGroupData = (inputGroup, chosenGroupArray) => {
@@ -867,11 +770,9 @@ export function useGroupManagement() {
     buildFullJobTree,
     buildNextJobs,
     calculateCurrentJobBuildCostFromChildren,
-    closeGroup,
     createNewGroupWithJobs,
     deleteGroupWithoutJobs,
     findGroupData,
-    openGroup,
     replaceGroupData,
   };
 }

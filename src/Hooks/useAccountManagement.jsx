@@ -23,7 +23,10 @@ import {
   EveIDsContext,
   PersonalESIDataContext,
 } from "../Context/EveDataContext";
-import { SnackBarDataContext } from "../Context/LayoutContext";
+import {
+  SnackBarDataContext,
+  UserLoginUIContext,
+} from "../Context/LayoutContext";
 import {
   apiJobsDefault,
   jobArrayDefault,
@@ -72,6 +75,7 @@ export function useAccountManagement() {
   } = useContext(PersonalESIDataContext);
   const { corpEsiIndJobs, updateCorpEsiIndJobs } =
     useContext(CorpEsiDataContext);
+  const { updateUserUIData } = useContext(UserLoginUIContext);
   const checkClaims = httpsCallable(functions, "userClaims-updateCorpIDs");
   const auth = getAuth();
   const parentUser = useMemo(() => {
@@ -361,6 +365,13 @@ export function useAccountManagement() {
       }
       await getCharacterInfo(newUser);
       let esiObject = await characterAPICall(newUser);
+      updateUserUIData((prev) => [
+        ...prev,
+        {
+          CharacterID: newUser.CharacterID,
+          CharacterName: newUser.CharacterName,
+        },
+      ]);
       userArray.push(newUser);
       esiObjectArray.push(esiObject);
     }

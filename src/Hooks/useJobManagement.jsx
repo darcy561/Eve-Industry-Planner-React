@@ -385,10 +385,10 @@ export function useJobManagement() {
 
     if (tempJobs.length > 0) {
       tempJobs.sort((a, b) => {
-        if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
+        if (Date.parse(a.end_date) < Date.parse(b.end_date)) {
           return 1;
         }
-        if (Date.parse(a.end_date) < Date.parse(b.end_date)) {
+        if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
           return -1;
         }
         return 0;

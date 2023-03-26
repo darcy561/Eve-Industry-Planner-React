@@ -56,8 +56,7 @@ export function ChildJobPopover({
     uploadUserJobSnapshot,
   } = useFirebase();
   const { buildJob } = useJobBuild();
-  const { newJobSnapshot, replaceSnapshot } =
-    useJobManagement();
+  const { newJobSnapshot, replaceSnapshot } = useJobManagement();
   const { switchActiveJob } = useSwitchActiveJob();
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImport, updateJobImport] = useState(false);

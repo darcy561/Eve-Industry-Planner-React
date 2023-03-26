@@ -20,6 +20,7 @@ import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 export function GroupOptionsBar({
   updateShoppingListTrigger,
   updateShoppingListData,
+  updateShowProcessing,
 }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
@@ -31,8 +32,6 @@ export function GroupOptionsBar({
   const { updateDialogData } = useContext(DialogDataContext);
   const { buildItemPriceEntry, moveItemsOnPlanner } = useJobManagement();
   const { buildFullJobTree, buildNextJobs } = useGroupManagement();
-  const [loadNextLevel, setLoadNextLevel] = useState(false);
-  const [loadFullTree, setLoadFullTree] = useState(false);
 
   return (
     <Paper
@@ -56,11 +55,13 @@ export function GroupOptionsBar({
               variant="outlined"
               size="small"
               onClick={async () => {
+                updateShowProcessing((prev) => !prev);
                 if (multiSelectJobPlanner.length > 0) {
                   updateShoppingListData(multiSelectJobPlanner);
                 } else {
                   updateShoppingListData([...activeGroup.includedJobIDs]);
                 }
+                updateShowProcessing((prev) => !prev);
                 updateShoppingListTrigger((prev) => !prev);
               }}
               sx={{
@@ -79,6 +80,7 @@ export function GroupOptionsBar({
             size="small"
             onClick={async () => {
               let itemList = null;
+              updateShowProcessing((prev) => !prev);
               if (multiSelectJobPlanner.length > 0) {
                 itemList = await buildItemPriceEntry(multiSelectJobPlanner);
               } else {
@@ -86,6 +88,7 @@ export function GroupOptionsBar({
                   ...activeGroup.includedJobIDs,
                 ]);
               }
+              updateShowProcessing((prev) => !prev);
               updatePriceEntryListData((prev) => ({
                 ...prev,
                 open: true,
@@ -106,8 +109,10 @@ export function GroupOptionsBar({
               fullWidth
               variant="outlined"
               size="small"
-              onClick={() => {
-                moveItemsOnPlanner(multiSelectJobPlanner, "backward");
+              onClick={async () => {
+                updateShowProcessing((prev) => !prev);
+                await moveItemsOnPlanner(multiSelectJobPlanner, "backward");
+                updateShowProcessing((prev) => !prev);
               }}
               sx={{
                 marginRight: "2px",
@@ -124,8 +129,10 @@ export function GroupOptionsBar({
               fullWidth
               variant="outlined"
               size="small"
-              onClick={() => {
+              onClick={async () => {
+                updateShowProcessing((prev) => !prev);
                 moveItemsOnPlanner(multiSelectJobPlanner, "forward");
+                updateShowProcessing((prev) => !prev);
               }}
               sx={{
                 marginRight: "2px",
@@ -137,9 +144,7 @@ export function GroupOptionsBar({
           </Tooltip>
         </Grid>
         <Grid item xs={2}>
-          {loadNextLevel ? (
-            <CircularProgress color="primary" />
-          ) : (
+
             <Tooltip
               title="Adds the next ingrediants of all of the jobs or just the selected jobs."
               arrow
@@ -150,13 +155,13 @@ export function GroupOptionsBar({
                 variant="outlined"
                 size="small"
                 onClick={async () => {
-                  setLoadNextLevel((prev) => !prev);
+                  updateShowProcessing((prev) => !prev);
                   if (multiSelectJobPlanner.length > 0) {
                     await buildNextJobs(multiSelectJobPlanner);
                   } else {
                     await buildNextJobs([...activeGroup.includedJobIDs]);
                   }
-                  setLoadNextLevel((prev) => !prev);
+                  updateShowProcessing((prev) => !prev);
                 }}
                 sx={{
                   marginRight: "2px",
@@ -166,31 +171,27 @@ export function GroupOptionsBar({
                 Build Child Jobs
               </Button>
             </Tooltip>
-          )}
+
         </Grid>
         <Grid item xs={2}>
-          {loadFullTree ? (
-            <CircularProgress color="primary" sx={{ fontSize: "24px" }} />
-          ) : (
-            <Tooltip title="Adds the full item tree." arrow placement="bottom">
-              <Button
-                fullWidth
-                variant="outlined"
-                size="small"
-                onClick={async () => {
-                  setLoadFullTree((prev) => !prev);
-                  await buildFullJobTree([...activeGroup.includedJobIDs]);
-                  setLoadFullTree((prev) => !prev);
-                }}
-                sx={{
-                  marginRight: "2px",
-                  marginLeft: "2px",
-                }}
-              >
-                Build Full Tree
-              </Button>
-            </Tooltip>
-          )}
+          <Tooltip title="Adds the full item tree." arrow placement="bottom">
+            <Button
+              fullWidth
+              variant="outlined"
+              size="small"
+              onClick={async () => {
+                updateShowProcessing((prev) => !prev);
+                await buildFullJobTree([...activeGroup.includedJobIDs]);
+                updateShowProcessing((prev) => !prev);
+              }}
+              sx={{
+                marginRight: "2px",
+                marginLeft: "2px",
+              }}
+            >
+              Build Full Tree
+            </Button>
+          </Tooltip>
         </Grid>
       </Grid>
     </Paper>

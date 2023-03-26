@@ -169,3 +169,23 @@ export const JobPlannerPageTrigger = (props) => {
     </JobPlannerPageTriggerContext.Provider>
   );
 };
+
+export const UserLoginUIContext = createContext();
+
+export const UserLoginUI = (props) => {
+  const [loginInProgressComplete, updateLoginInProgressComplete] = useState(false);
+  const [userUIData, updateUserUIData] = useState([]);
+
+  return (
+    <UserLoginUIContext.Provider
+      value={{
+        loginInProgressComplete,
+        updateLoginInProgressComplete,
+        userUIData,
+        updateUserUIData,
+      }}
+    >
+      {props.children}
+    </UserLoginUIContext.Provider>
+  );
+};

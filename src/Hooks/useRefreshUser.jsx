@@ -1,7 +1,6 @@
 import { useContext, useMemo } from "react";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
-import { useEveApi } from "./useEveApi";
 import { useFirebase } from "./useFirebase";
 import { JobArrayContext } from "../Context/JobContext";
 import {
@@ -13,6 +12,7 @@ import {
   DialogDataContext,
   LoadingTextContext,
   PageLoadContext,
+  UserLoginUIContext,
 } from "../Context/LayoutContext";
 import { decodeJwt } from "jose";
 import { trace } from "firebase/performance";
@@ -22,8 +22,6 @@ import { useAccountManagement } from "./useAccountManagement";
 import { httpsCallable } from "firebase/functions";
 
 export function useRefreshUser() {
-  const { serverStatus } = useEveApi();
-  const { characterAPICall } = useAccountManagement();
   const {
     determineUserState,
     userJobSnapshotListener,
@@ -39,6 +37,7 @@ export function useRefreshUser() {
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateDialogData } = useContext(DialogDataContext);
+  const { updateUserUIData } = useContext(UserLoginUIContext);
 
   const checkAppVersion = httpsCallable(
     functions,
@@ -94,6 +93,14 @@ export function useRefreshUser() {
     let refreshedUser = await RefreshTokens(refreshToken, true);
     let fbToken = await firebaseAuth(refreshedUser);
     await getCharacterInfo(refreshedUser);
+
+    updateUserUIData((prev) => [
+      ...prev,
+      {
+        CharacterID: refreshedUser.CharacterID,
+        CharacterName: refreshedUser.CharacterName,
+      },
+    ]);
 
     updateLoadingText((prevObj) => ({
       ...prevObj,

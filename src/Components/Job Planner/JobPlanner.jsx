@@ -12,6 +12,7 @@ import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import {
   JobPlannerPageTriggerContext,
   PageLoadContext,
+  UserLoginUIContext,
 } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { SearchBar } from "./Planner Components/searchbar";
@@ -21,6 +22,7 @@ import { ShoppingListDialog } from "./Dialogues/ShoppingList/ShoppingList";
 import { PriceEntryDialog } from "./Dialogues/PriceEntry/PriceEntryList";
 import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
 import { ESIOffline } from "../offlineNotification";
+import { UserLogInUI } from "../Auth/LoginUI";  
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
@@ -38,6 +40,7 @@ export function JobPlanner() {
   const { users } = useContext(UsersContext);
   const { checkUserState } = useRefreshUser();
   const { pageLoad } = useContext(PageLoadContext);
+  const { loginProcessComplete } = useContext(UserLoginUIContext);
 
   let parentUser = useMemo(() => {
     return users.find((u) => u.ParentUser);
@@ -47,8 +50,8 @@ export function JobPlanner() {
     checkUserState();
   }, []);
 
-  if (pageLoad) {
-    return <LoadingPage />;
+  if (!loginProcessComplete) {
+    return <UserLogInUI />;
   } else {
     if (editJobTrigger) {
       return (

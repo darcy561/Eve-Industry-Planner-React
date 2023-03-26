@@ -30,8 +30,7 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
   );
   const [dialogTrigger, updateDialogTrigger] = useState(false);
   const { uploadUserJobSnapshot, uploadJob } = useFirebase();
-  const { updateJobSnapshotFromFullJob, findJobData } =
-    useJobManagement();
+  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
   const { switchActiveJob } = useSwitchActiveJob();
 
   return (

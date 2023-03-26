@@ -14,10 +14,10 @@ export function LoadingPage() {
       sx={{ minHeight: "100vh", minWidth: "100vw" }}
     >
       <Grid container item xs={12} align="center">
-        <Grid item xs={0} xl={5}/>
+        <Grid item xs={0} xl={5} />
         <Grid item xs={12} xl={1}>
           <CircularProgress color="primary" />
-          </Grid>
+        </Grid>
       </Grid>
       <Grid container item xs={12}>
         {loadingText.eveSSO && (

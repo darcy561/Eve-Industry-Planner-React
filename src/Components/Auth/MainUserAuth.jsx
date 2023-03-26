@@ -1,10 +1,9 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { UserJobSnapshotContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
 import { decodeJwt } from "jose";
 import { firebaseAuth } from "./firebaseAuth";
-import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { JobArrayContext } from "../../Context/JobContext";
 import { trace } from "@firebase/performance";
@@ -18,6 +17,7 @@ import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { httpsCallable } from "firebase/functions";
+import { UserLogInUI } from "./LoginUI";
 
 export function login() {
   const state = "/";
@@ -31,20 +31,19 @@ export function login() {
 export default function AuthMainUser() {
   const { updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { serverStatus } = useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const {
-    characterData,
     determineUserState,
     userJobSnapshotListener,
     userWatchlistListener,
     userMaindDocListener,
     userGroupDataListener,
   } = useFirebase();
-  const { characterAPICall,getCharacterInfo } = useAccountManagement();
+  const { getCharacterInfo } = useAccountManagement();
+  const returnState = useRef("")
   const checkAppVersion = httpsCallable(
     functions,
     "appVersion-checkAppVersion"
@@ -57,7 +56,7 @@ export default function AuthMainUser() {
       const t = trace(performance, "MainUserLoginProcessFull");
       t.start();
       const authCode = window.location.search.match(/code=(\S*)&/)[1];
-      const returnState = decodeURIComponent(
+      returnState.current = decodeURIComponent(
         window.location.search.match(/state=(\S*)/)[1]
       );
       updateLoadingText((prevObj) => ({
@@ -124,7 +123,7 @@ export default function AuthMainUser() {
         apiData: false,
         apiDataComp: false,
       }));
-      navigate(returnState);
+      navigate(returnState.current);
     }
     async function importAccount() {
       const authCode = window.location.search.match(/code=(\S*)&/)[1];
@@ -140,7 +139,15 @@ export default function AuthMainUser() {
     }
   }, []);
 
-  return <LoadingPage />;
+  // useEffect(() => {
+
+  //   if () {
+  //     navigate(returnState);
+  //   }
+    
+  // },[])
+
+  return <UserLogInUI />;
 }
 
 async function EveSSOTokens(authCode, accountType) {

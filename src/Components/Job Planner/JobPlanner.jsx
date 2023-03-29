@@ -22,7 +22,7 @@ import { ShoppingListDialog } from "./Dialogues/ShoppingList/ShoppingList";
 import { PriceEntryDialog } from "./Dialogues/PriceEntry/PriceEntryList";
 import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
 import { ESIOffline } from "../offlineNotification";
-import { UserLogInUI } from "../Auth/LoginUI";  
+import { UserLogInUI } from "../Auth/LoginUI/LoginUI";
 
 const EditJob = lazy(() => import("./Edit Job/EditJob"));
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
@@ -50,7 +50,7 @@ export function JobPlanner() {
     checkUserState();
   }, []);
 
-  if (!loginProcessComplete) {
+  if (loginProcessComplete) {
     return <UserLogInUI />;
   } else {
     if (editJobTrigger) {

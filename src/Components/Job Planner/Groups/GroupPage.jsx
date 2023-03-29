@@ -68,28 +68,27 @@ export default function GroupPage({
   const classes = useStyles();
 
   useEffect(() => {
-    if (activeGroup !== null) {
-      let returnArray = [];
-      updateGroupPageRefresh((prev) => !prev);
-      for (let jobID of activeGroup.includedJobIDs) {
-        let job = jobArray.find((i) => i.jobID === jobID);
-        if (job === undefined) {
-          continue;
-        }
-        returnArray.sort((a, b) => {
-          if (a.name < b.name) {
-            return -1;
-          }
-          if (a.name > b.name) {
-            return 1;
-          }
-          return 0;
-        });
-        returnArray.push(job);
+    if (activeGroup === null) return;
+    let returnArray = [];
+    updateGroupPageRefresh((prev) => !prev);
+    for (let jobID of activeGroup.includedJobIDs) {
+      let job = jobArray.find((i) => i.jobID === jobID);
+      if (job === undefined) {
+        continue;
       }
-      updateGroupJobs(returnArray);
-      updateGroupPageRefresh((prev) => !prev);
+      returnArray.push(job);
+      returnArray.sort((a, b) => {
+        if (a.name < b.name) {
+          return -1;
+        }
+        if (a.name > b.name) {
+          return 1;
+        }
+        return 0;
+      });
     }
+    updateGroupJobs(returnArray);
+    updateGroupPageRefresh((prev) => !prev);
   }, [activeGroup, jobArray, userJobSnapshot]);
 
   const handleNameChange = (event) => {

@@ -1,4 +1,4 @@
-import { Grid, Paper, Typography } from "@mui/material";
+import { Grid, Grow, Paper, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useContext } from "react";
@@ -49,63 +49,65 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
           {outputJobs.map((job) => {
             let buildCost = calculateCurrentJobBuildCostFromChildren(job);
             return (
-              <Grid key={job.jobID} container item xs={6} sm={4} md={3}>
-                <Paper
-                  elevation={3}
-                  square
-                  sx={{ padding: "20px", width: "100%" }}
-                >
-                  <Grid container item xs={12}>
-                    <Grid item xs={3}>
-                      <picture>
-                        <source
-                          media="(max-width:700px)"
-                          srcSet={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
-                          alt=""
-                        />
-                        <img
-                          src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
-                          alt=""
-                        />
-                      </picture>
+              <Grow in={true} key={job.jobID}>
+                <Grid container item xs={6} sm={4} md={3}>
+                  <Paper
+                    elevation={3}
+                    square
+                    sx={{ padding: "20px", width: "100%" }}
+                  >
+                    <Grid container item xs={12}>
+                      <Grid item xs={3}>
+                        <picture>
+                          <source
+                            media="(max-width:700px)"
+                            srcSet={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
+                            alt=""
+                          />
+                          <img
+                            src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
+                            alt=""
+                          />
+                        </picture>
+                      </Grid>
+                      <Grid item xs={9}>
+                        <Typography
+                          color="secondary"
+                          align="center"
+                          sx={{
+                            minHeight: {
+                              xs: "2rem",
+                              sm: "3rem",
+                              md: "3rem",
+                              lg: "4rem",
+                            },
+                            typography: { xs: "body1", lg: "h6" },
+                          }}
+                        >
+                          {job.name}
+                        </Typography>
+                      </Grid>
                     </Grid>
-                    <Grid item xs={9}>
+                    <Grid item xs={12}>
                       <Typography
-                        color="secondary"
-                        align="center"
-                        sx={{
-                          minHeight: {
-                            xs: "2rem",
-                            sm: "3rem",
-                            md: "3rem",
-                            lg: "4rem",
-                          },
-                          typography: { xs: "body1", lg: "h6" },
-                        }}
+                        sx={{ typography: { xs: "body2", md: "body1" } }}
                       >
-                        {job.name}
+                        {job.build.products.totalQuantity}
                       </Typography>
                     </Grid>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
-                    >
-                      {job.build.products.totalQuantity}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
-                    >
-                      {buildCost.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </Typography>
-                  </Grid>
-                </Paper>
-              </Grid>
+                    <Grid item xs={12}>
+                      <Typography
+                        sx={{ typography: { xs: "body2", md: "body1" } }}
+                      >
+                        {buildCost.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Typography>
+                    </Grid>
+                  </Paper>
+                </Grid>
+              </Grow>
             );
           })}
         </Grid>

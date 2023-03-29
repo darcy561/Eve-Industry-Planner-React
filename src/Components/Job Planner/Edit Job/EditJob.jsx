@@ -101,6 +101,8 @@ function EditJob({
     setJobModified(true);
   }
 
+  if (activeJob === undefined) return null;
+
   return (
     <Paper
       elevation={3}

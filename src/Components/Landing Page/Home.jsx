@@ -4,7 +4,8 @@ import { LoggedOutHome } from "./LoggedOut";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import { PageLoadContext } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
-import { UserLogInUI } from "../Auth/LoginUI";
+import { UserLogInUI } from "../Auth/LoginUI/LoginUI";
+
 
 const Dashboard = lazy(() => import("../Dashboard/Dashboard"));
 
@@ -18,7 +19,7 @@ export function Home() {
   }, []);
 
   if (pageLoad) {
-    return <UserLogInUI />;
+    return <UserLogInUI/>
   } else {
     if (isLoggedIn) {
       return (

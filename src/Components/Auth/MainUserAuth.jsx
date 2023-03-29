@@ -17,7 +17,8 @@ import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { httpsCallable } from "firebase/functions";
-import { UserLogInUI } from "./LoginUI";
+import { UserLogInUI } from "./LoginUI/LoginUI";
+
 
 export function login() {
   const state = "/";
@@ -139,15 +140,7 @@ export default function AuthMainUser() {
     }
   }, []);
 
-  // useEffect(() => {
-
-  //   if () {
-  //     navigate(returnState);
-  //   }
-    
-  // },[])
-
-  return <UserLogInUI />;
+  return <UserLogInUI/>
 }
 
 async function EveSSOTokens(authCode, accountType) {

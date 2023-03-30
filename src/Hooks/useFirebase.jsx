@@ -484,7 +484,7 @@ export function useFirebase() {
           if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
             const t = trace(performance, "UserJobSnapshotListener");
             t.start();
-            updateUserJobSnapshotDataFetch(true);
+            updateUserJobSnapshotDataFetch(false);
             let snapshotData = doc.data();
             let priceIDRequest = new Set();
             let newUserJobSnapshot = [];
@@ -530,7 +530,7 @@ export function useFirebase() {
               return prev.concat(newEvePrices);
             });
             updateUserJobSnapshot(newUserJobSnapshot);
-            updateUserJobSnapshotDataFetch(false);
+            updateUserJobSnapshotDataFetch(true);
             t.stop();
           }
         };
@@ -549,7 +549,7 @@ export function useFirebase() {
           if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
             const t = trace(performance, "UserWatchlistListener");
             t.start();
-            updateUserWatchlistDataFetch(true);
+            updateUserWatchlistDataFetch(false);
             let snapshotData = doc.data();
             let priceIDRequest = new Set();
             let newWatchlistGroups = [];
@@ -581,7 +581,7 @@ export function useFirebase() {
               groups: newWatchlistGroups,
               items: newWatchlistItems,
             });
-            updateUserWatchlistDataFetch(false);
+            updateUserWatchlistDataFetch(true);
             t.stop();
           }
         };
@@ -655,7 +655,7 @@ export function useFirebase() {
         if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
           const t = trace(performance, "MainUserDocListener");
           t.start();
-          updateUserDataFetch(true);
+          updateUserDataFetch(false);
           let userData = doc.data();
           let newUserArray = [userObject];
           let esiOjectArray = [];
@@ -711,7 +711,7 @@ export function useFirebase() {
           updateApiJobs(newApiArray);
           updateUsers(newUserArray);
           setJobStatus(userData.jobStatusArray);
-          updateUserDataFetch(false);
+          updateUserDataFetch(true);
           t.stop();
         }
       };

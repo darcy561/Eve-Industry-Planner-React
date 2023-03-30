@@ -89,7 +89,7 @@ export function AccountData() {
     esiBlueprints,
   ]);
 
-  if (!userDataFetch && !userJobSnapshotDataFetch) {
+  if (userDataFetch && userJobSnapshotDataFetch) {
     return (
       <Paper
         elevation={3}

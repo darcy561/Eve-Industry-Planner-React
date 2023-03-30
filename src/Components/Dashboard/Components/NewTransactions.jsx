@@ -124,7 +124,7 @@ export function NewTransactions() {
 
   let transactionData = findTransactionData();
 
-  if (!userDataFetch && !userJobSnapshotDataFetch) {
+  if (userDataFetch && userJobSnapshotDataFetch) {
     if (transactionData.length > 0) {
       return (
         <Paper

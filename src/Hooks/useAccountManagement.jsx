@@ -75,7 +75,8 @@ export function useAccountManagement() {
   } = useContext(PersonalESIDataContext);
   const { corpEsiIndJobs, updateCorpEsiIndJobs } =
     useContext(CorpEsiDataContext);
-  const { updateUserUIData } = useContext(UserLoginUIContext);
+  const { updateUserUIData, updateLoginInProgressComplete } = useContext(UserLoginUIContext);
+
   const checkClaims = httpsCallable(functions, "userClaims-updateCorpIDs");
   const auth = getAuth();
   const parentUser = useMemo(() => {
@@ -232,6 +233,7 @@ export function useAccountManagement() {
     firebaseListeners.forEach((unsub) => {
       unsub();
     });
+    updateLoginInProgressComplete(false)
     updateFirebaseListeners([]);
     updateIsLoggedIn(false);
     updateUsers(usersDefault);

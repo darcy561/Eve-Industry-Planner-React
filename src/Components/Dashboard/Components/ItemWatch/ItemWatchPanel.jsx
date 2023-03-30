@@ -31,7 +31,7 @@ export function ItemWatchPanel() {
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
-  if (userWatchlistDataFetch) {
+  if (!userWatchlistDataFetch) {
     return (
       <Paper
         sx={{

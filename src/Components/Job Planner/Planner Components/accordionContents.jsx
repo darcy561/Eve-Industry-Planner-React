@@ -26,7 +26,7 @@ export function AccordionContents({ updateEditJobTrigger, status }) {
     return users.find((i) => i.ParentUser);
   }, [users]);
 
-  if (userJobSnapshotDataFetch) {
+  if (!userJobSnapshotDataFetch) {
     return (
       <Grid container align="center">
         <Grid item xs={12}>

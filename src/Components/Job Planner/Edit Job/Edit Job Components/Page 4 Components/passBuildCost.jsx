@@ -13,6 +13,7 @@ import {
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import { useFindJobObject } from "../../../../../Hooks/GeneralHooks/useFindJobObject";
 
 export function PassBuildCostButton() {
   const { activeJob } = useContext(ActiveJobContext);
@@ -24,7 +25,8 @@ export function PassBuildCostButton() {
     UserJobSnapshotContext
   );
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const analytics = getAnalytics();
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);

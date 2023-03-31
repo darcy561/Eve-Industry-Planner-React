@@ -3,6 +3,7 @@ import { Grid, Paper, Typography, Checkbox } from "@mui/material";
 import { IsLoggedInContext, UsersContext } from "../../../Context/AuthContext";
 import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../Hooks/useFirebase";
+import { UserLoginUIContext } from "../../../Context/LayoutContext";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -15,7 +16,8 @@ const useStyles = makeStyles((theme) => ({
 
 export function TutorialPlanner() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, userDataFetch, updateUsers } = useContext(UsersContext);
+  const { users, updateUsers } = useContext(UsersContext);
+  const { userDataFetch, } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
   const classes = useStyles();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);

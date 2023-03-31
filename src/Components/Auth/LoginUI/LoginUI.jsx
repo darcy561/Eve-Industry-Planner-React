@@ -2,36 +2,40 @@ import {
   Avatar,
   CircularProgress,
   Grid,
-  Grow,
   Paper,
   Typography,
   Zoom,
 } from "@mui/material";
 import { useContext, useEffect } from "react";
-import {
-  UserJobSnapshotContext,
-  UsersContext,
-  UserWatchlistContext,
-} from "../../../Context/AuthContext";
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
+import { useNavigate } from "react-router-dom";
 
-export function UserLogInUI() {
+export function UserLogInUI({ returnState }) {
   const {
     userUIData,
     updateUserUIData,
     loginInProgressComplete,
     updateLoginInProgressComplete,
+    userDataFetch,
+    userJobSnapshotDataFetch,
+    userWatchlistDataFetch,
+    userGroupsDataFetch,
   } = useContext(UserLoginUIContext);
-  const { userWatchlistDataFetch } = useContext(UserWatchlistContext);
-  const { userJobSnapshotDataFetch } = useContext(UserJobSnapshotContext);
-  const { userDataFetch } = useContext(UsersContext);
+  const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   if (userWatchlistDataFetch && userJobSnapshotDataFetch && userDataFetch) {
-  //     console.log("true")
-  //     updateLoginInProgressComplete(true);
-  //   }
-  // }, [userWatchlistDataFetch, userJobSnapshotDataFetch, userDataFetch]);
+  useEffect(() => {
+    if (
+      userWatchlistDataFetch &&
+      userJobSnapshotDataFetch &&
+      userDataFetch &&
+      userGroupsDataFetch
+    ) {
+      updateLoginInProgressComplete(true);
+      if (returnState !== undefined) {
+        navigate(returnState);
+      }
+    }
+  }, [userWatchlistDataFetch, userJobSnapshotDataFetch, userDataFetch, userGroupsDataFetch]);
 
   return (
     <Paper
@@ -77,17 +81,22 @@ export function UserLogInUI() {
         </Grid>
         {userDataFetch && (
           <Grid container item xs={4}>
-            ff
+            users
           </Grid>
         )}
         {userJobSnapshotDataFetch && (
           <Grid container item xs={4}>
-            ff
+            Snapshot
+          </Grid>
+        )}
+        {userGroupsDataFetch && (
+          <Grid container item xs={4}>
+            groups
           </Grid>
         )}
         {userWatchlistDataFetch && (
           <Grid container item xs={4}>
-            ff
+            watchlist
           </Grid>
         )}
       </Grid>

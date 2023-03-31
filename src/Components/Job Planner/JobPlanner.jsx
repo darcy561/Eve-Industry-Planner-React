@@ -3,14 +3,10 @@ import {
   useContext,
   useEffect,
   useState,
-  Suspense,
-  useMemo,
+  Suspense
 } from "react";
 import {
   IsLoggedInContext,
-  UserJobSnapshotContext,
-  UsersContext,
-  UserWatchlistContext,
 } from "../../Context/AuthContext";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
@@ -42,13 +38,15 @@ export function JobPlanner() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const [shoppingListTrigger, updateShoppingListTrigger] = useState(false);
   const [shoppingListData, updateShoppingListData] = useState([]);
-  const { userDataFetch } = useContext(UsersContext);
   const { checkUserState } = useRefreshUser();
   const { pageLoad } = useContext(PageLoadContext);
-  const { loginInProgressComplete, updateLoginInProgressComplete } =
-    useContext(UserLoginUIContext);
-  const { userJobSnapshotDataFetch } = useContext(UserJobSnapshotContext);
-  const { userWatchlistDataFetch } = useContext(UserWatchlistContext);
+  const {
+    loginInProgressComplete,
+    updateLoginInProgressComplete,
+    userDataFetch,
+    userJobSnapshotDataFetch,
+    userWatchlistDataFetch,
+  } = useContext(UserLoginUIContext);
 
   useEffect(() => {
     checkUserState();

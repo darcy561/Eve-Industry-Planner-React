@@ -11,7 +11,6 @@ import {
 import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { jobTypes } from "../../../Context/defaultValues";
-import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import Step1JobCard from "./Job Cards/step1";
 import Step2JobCard from "./Job Cards/step2";
@@ -22,6 +21,7 @@ import { grey } from "@mui/material/colors";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
+import { useOpenEditJob } from "../../../Hooks/JobHooks/useOpenEditJob";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -59,7 +59,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { openEditJob } = useJobManagement();
+  const { openEditJob } = useOpenEditJob();
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.jobCard,

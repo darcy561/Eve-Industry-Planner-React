@@ -7,6 +7,7 @@ import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
 import { useJobManagement } from "../useJobManagement";
+import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 
 export function useCloseActiveJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -17,8 +18,8 @@ export function useCloseActiveJob() {
   );
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { findJobData, newJobSnapshot, updateJobSnapshotFromFullJob } =
-    useJobManagement();
+  const { newJobSnapshot, updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
 
   const closeActiveJob = async (inputJob, jobModifiedFlag) => {
     let newJobArray = [...jobArray];

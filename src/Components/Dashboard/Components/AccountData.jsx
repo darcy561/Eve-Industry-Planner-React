@@ -16,12 +16,11 @@ import {
   PersonalESIDataContext,
 } from "../../../Context/EveDataContext";
 import { JobStatusContext } from "../../../Context/JobContext";
+import { UserLoginUIContext } from "../../../Context/LayoutContext";
 
 export function AccountData() {
-  const { users, userDataFetch } = useContext(UsersContext);
-  const { userJobSnapshot, userJobSnapshotDataFetch } = useContext(
-    UserJobSnapshotContext
-  );
+  const { users } = useContext(UsersContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobStatus } = useContext(JobStatusContext);
   const {
     esiIndJobs,
@@ -32,6 +31,8 @@ export function AccountData() {
     esiJournal,
   } = useContext(PersonalESIDataContext);
   const { corpEsiIndJobs } = useContext(CorpEsiDataContext);
+  const { userDataFetch, userJobSnapshotDataFetch } =
+    useContext(UserLoginUIContext);
   const [dataCount, updateDataCount] = useState({
     openMOrders: 0,
     histMOrders: 0,

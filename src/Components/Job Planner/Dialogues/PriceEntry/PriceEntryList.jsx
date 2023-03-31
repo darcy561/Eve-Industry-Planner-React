@@ -2,6 +2,7 @@ import { useContext, useMemo, useState } from "react";
 import {
   PriceEntryListContext,
   SnackBarDataContext,
+  UserLoginUIContext,
 } from "../../../../Context/LayoutContext";
 import {
   Button,
@@ -25,16 +26,19 @@ import { marketOptions, listingType } from "../../../../Context/defaultValues";
 import { ItemPriceRow } from "./itemRow";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObject";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, userDataFetch } = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
+  const { userDataFetch } = useContext(UserLoginUIContext);
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);

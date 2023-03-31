@@ -16,6 +16,7 @@ import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
+import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
 
 export function GroupOptionsBar({
   updateShoppingListTrigger,
@@ -30,8 +31,9 @@ export function GroupOptionsBar({
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { activeGroup } = useContext(ActiveJobContext);
   const { updateDialogData } = useContext(DialogDataContext);
-  const { buildItemPriceEntry, moveItemsOnPlanner } = useJobManagement();
+  const { buildItemPriceEntry } = useJobManagement();
   const { buildFullJobTree, buildNextJobs } = useGroupManagement();
+  const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
 
   return (
     <Paper
@@ -144,34 +146,32 @@ export function GroupOptionsBar({
           </Tooltip>
         </Grid>
         <Grid item xs={2}>
-
-            <Tooltip
-              title="Adds the next ingrediants of all of the jobs or just the selected jobs."
-              arrow
-              placement="bottom"
+          <Tooltip
+            title="Adds the next ingrediants of all of the jobs or just the selected jobs."
+            arrow
+            placement="bottom"
+          >
+            <Button
+              fullWidth
+              variant="outlined"
+              size="small"
+              onClick={async () => {
+                updateShowProcessing((prev) => !prev);
+                if (multiSelectJobPlanner.length > 0) {
+                  await buildNextJobs(multiSelectJobPlanner);
+                } else {
+                  await buildNextJobs([...activeGroup.includedJobIDs]);
+                }
+                updateShowProcessing((prev) => !prev);
+              }}
+              sx={{
+                marginRight: "2px",
+                marginLeft: "2px",
+              }}
             >
-              <Button
-                fullWidth
-                variant="outlined"
-                size="small"
-                onClick={async () => {
-                  updateShowProcessing((prev) => !prev);
-                  if (multiSelectJobPlanner.length > 0) {
-                    await buildNextJobs(multiSelectJobPlanner);
-                  } else {
-                    await buildNextJobs([...activeGroup.includedJobIDs]);
-                  }
-                  updateShowProcessing((prev) => !prev);
-                }}
-                sx={{
-                  marginRight: "2px",
-                  marginLeft: "2px",
-                }}
-              >
-                Build Child Jobs
-              </Button>
-            </Tooltip>
-
+              Build Child Jobs
+            </Button>
+          </Tooltip>
         </Grid>
         <Grid item xs={2}>
           <Tooltip title="Adds the full item tree." arrow placement="bottom">

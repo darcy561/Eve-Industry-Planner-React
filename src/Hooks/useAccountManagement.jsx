@@ -43,11 +43,11 @@ import { trace } from "firebase/performance";
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const { updateJobArray } = useContext(JobArrayContext);
+  const { updateGroupArray, updateJobArray } = useContext(JobArrayContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { setJobStatus } = useContext(JobStatusContext);
-  const { updateActiveJob } = useContext(ActiveJobContext);
+  const { updateActiveJob, updateActiveGroup } = useContext(ActiveJobContext);
   const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -75,7 +75,8 @@ export function useAccountManagement() {
   } = useContext(PersonalESIDataContext);
   const { corpEsiIndJobs, updateCorpEsiIndJobs } =
     useContext(CorpEsiDataContext);
-  const { updateUserUIData, updateLoginInProgressComplete } = useContext(UserLoginUIContext);
+  const { updateUserUIData, updateLoginInProgressComplete } =
+    useContext(UserLoginUIContext);
 
   const checkClaims = httpsCallable(functions, "userClaims-updateCorpIDs");
   const auth = getAuth();
@@ -233,7 +234,7 @@ export function useAccountManagement() {
     firebaseListeners.forEach((unsub) => {
       unsub();
     });
-    updateLoginInProgressComplete(false)
+    updateLoginInProgressComplete(false);
     updateFirebaseListeners([]);
     updateIsLoggedIn(false);
     updateUsers(usersDefault);
@@ -243,6 +244,8 @@ export function useAccountManagement() {
     setJobStatus(jobStatusDefault);
     updateActiveJob({});
     updateArchivedJobs([]);
+    updateGroupArray([])
+    updateActiveGroup(null)
     updateApiJobs(apiJobsDefault);
     updateUserWatchlist({ groups: [], items: [] });
     sessionStorage.clear();

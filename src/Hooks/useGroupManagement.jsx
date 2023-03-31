@@ -6,6 +6,7 @@ import {
 import { jobTypes } from "../Context/defaultValues";
 import { ActiveJobContext, JobArrayContext } from "../Context/JobContext";
 import { SnackBarDataContext } from "../Context/LayoutContext";
+import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
@@ -20,7 +21,8 @@ export function useGroupManagement() {
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { findJobData, deleteJobSnapshot, newJobSnapshot } = useJobManagement();
+  const { deleteJobSnapshot, newJobSnapshot } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const { addNewJob, uploadGroups, uploadUserJobSnapshot, uploadJob } =
     useFirebase();
   const { buildJob, recalculateItemQty } = useJobBuild();
@@ -64,6 +66,7 @@ export function useGroupManagement() {
         inputID,
         newUserJobSnapshot,
         newJobArray,
+        undefined,
         "all"
       );
       if (inputJob === undefined) {
@@ -176,6 +179,7 @@ export function useGroupManagement() {
         jobID,
         userJobSnapshot,
         newJobArray,
+        undefined,
         "groupJob"
       );
       if (foundJob === undefined) {
@@ -231,15 +235,6 @@ export function useGroupManagement() {
       return Math.round(returnTotal / totalProduced) * material.quantity;
     }
     return finalBuildCost / outputJob.build.products.totalQuantity;
-  };
-
-  const findGroupData = (inputGroupID, chosenGroupArray) => {
-    let foundGroup = chosenGroupArray.find((i) => i.groupID === inputGroupID);
-
-    if (activeGroup !== null && activeGroup.groupID === inputGroupID) {
-      foundGroup = { ...activeGroup };
-    }
-    return foundGroup;
   };
 
   const buildNextJobs = async (inputIDs) => {
@@ -341,6 +336,7 @@ export function useGroupManagement() {
           jobID,
           userJobSnapshot,
           newJobArray,
+          undefined,
           "groupJob"
         );
         if (job === undefined) {
@@ -549,6 +545,7 @@ export function useGroupManagement() {
           jobID,
           userJobSnapshot,
           newJobArray,
+          undefined,
           "groupJob"
         );
         if (job === undefined) {
@@ -581,6 +578,7 @@ export function useGroupManagement() {
           jobID,
           userJobSnapshot,
           newJobArray,
+          undefined,
           "groupJob"
         );
         if (job === undefined) {
@@ -654,6 +652,7 @@ export function useGroupManagement() {
           jobID,
           userJobSnapshot,
           newJobArray,
+          undefined,
           "groupJob"
         );
         if (job === undefined) {
@@ -772,7 +771,6 @@ export function useGroupManagement() {
     calculateCurrentJobBuildCostFromChildren,
     createNewGroupWithJobs,
     deleteGroupWithoutJobs,
-    findGroupData,
     replaceGroupData,
   };
 }

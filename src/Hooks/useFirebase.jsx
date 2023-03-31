@@ -32,26 +32,30 @@ import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
 import { useAccountManagement } from "./useAccountManagement";
 import { useEveApi } from "./useEveApi";
+import { UserLoginUIContext } from "../Context/LayoutContext";
 
 export function useFirebase() {
-  const { users, updateUserDataFetch, updateUsers } = useContext(UsersContext);
+  const { users, updateUsers } = useContext(UsersContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { archivedJobs } = useContext(ArchivedJobsContext);
   const { updateFirebaseListeners } = useContext(FirebaseListenersContext);
-  const { updateUserJobSnapshot, updateUserJobSnapshotDataFetch } = useContext(
-    UserJobSnapshotContext
-  );
+  const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
-  const { updateUserWatchlist, updateUserWatchlistDataFetch } =
-    useContext(UserWatchlistContext);
+  const { updateUserWatchlist } = useContext(UserWatchlistContext);
   const { jobArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { updateLinkedJobIDs, updateLinkedOrderIDs, updateLinkedTransIDs } =
     useContext(LinkedIDsContext);
+  const {
+    updateUserDataFetch,
+    updateUserJobSnapshotDataFetch,
+    updateUserWatchlistDataFetch,
+    updateUserGroupsDataFetch,
+  } = useContext(UserLoginUIContext);
   const {
     buildApiArray,
     buildCloudAccountData,
@@ -139,7 +143,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
-        isReadyToSell: job.isReadyToSell || false
+        isReadyToSell: job.isReadyToSell || false,
       }
     );
   };
@@ -180,7 +184,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
-        isReadyToSell: job.isReadyToSell || null
+        isReadyToSell: job.isReadyToSell || null,
       }
     );
   };
@@ -270,7 +274,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
-        isReadyToSell: job.isReadyToSell || false
+        isReadyToSell: job.isReadyToSell || false,
       }
     );
   };
@@ -312,7 +316,7 @@ export function useFirebase() {
         blueprintTypeID: downloadDoc.blueprintTypeID,
         layout: downloadDoc.layout,
         groupID: downloadDoc.groupID,
-        isReadyToSell: downloadDoc.isReadyToSell || false
+        isReadyToSell: downloadDoc.isReadyToSell || false,
       };
 
       return newJob;
@@ -630,7 +634,7 @@ export function useFirebase() {
             blueprintTypeID: downloadDoc.blueprintTypeID,
             layout: downloadDoc.layout,
             groupID: downloadDoc.groupID,
-            isReadyToSell: downloadDoc.isReadyToSell || false
+            isReadyToSell: downloadDoc.isReadyToSell || false,
           };
           let index = jobArray.findIndex((i) => i.jobID === newJob.jobID);
           if (index === -1) {
@@ -738,6 +742,7 @@ export function useFirebase() {
           if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
             const t = trace(performance, "UserGroupListener");
             t.start();
+            updateUserGroupsDataFetch(false);
             let groupData = doc.data().groupData;
             let priceIDRequest = new Set();
             for (let group of groupData) {
@@ -746,14 +751,8 @@ export function useFirebase() {
                 ...group.materialIDs,
               ]);
             }
-            let itemPrices = await getItemPrices([...priceIDRequest], userObj);
             updateGroupArray(groupData);
-            updateEvePrices((prev) => {
-              itemPrices = itemPrices.filter(
-                (n) => !prev.some((p) => p.typeID === n.typeID)
-              );
-              return prev.concat(itemPrices);
-            });
+            updateUserGroupsDataFetch(true);
             t.stop();
           }
         };

@@ -16,8 +16,8 @@ import {
   SnackBarDataContext,
 } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
-import { useGroupManagement } from "../useGroupManagement";
 import { useJobManagement } from "../useJobManagement";
+import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 
 export function useDeleteSingleJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -43,9 +43,9 @@ export function useDeleteSingleJob() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
-  const { deleteJobSnapshot, findJobData, updateJobSnapshotFromFullJob } =
+  const { deleteJobSnapshot, updateJobSnapshotFromFullJob } =
     useJobManagement();
-  const { findGroupData } = useGroupManagement();
+  const { findJobData } = useFindJobObject();
   const analytics = getAnalytics();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
@@ -152,15 +152,26 @@ export function useDeleteSingleJob() {
       let newMaterialIDs = new Set();
       let newOutputJobCount = 0;
       let isActiveGroup = false;
-      let selectedGroup = findGroupData(inputJob.groupID, newGroupArray);
+      let selectedGroup = await findJobData(
+        inputJob.groupID,
+        undefined,
+        undefined,
+        newGroupArray
+      );
 
       if (selectedGroup === undefined) break removeJobFromGroup;
 
       if (selectedGroup.groupID === activeGroup.groupID) {
-        isActiveGroup = true
+        isActiveGroup = true;
       }
       for (let jobID of selectedGroup.includedJobIDs) {
-        await findJobData(jobID, newUserJobSnapshot, newJobArray, "groupJob");
+        await findJobData(
+          jobID,
+          newUserJobSnapshot,
+          newJobArray,
+          undefined,
+          "groupJob"
+        );
       }
 
       for (let jobID of selectedGroup.includedJobIDs) {
@@ -170,6 +181,7 @@ export function useDeleteSingleJob() {
           jobID,
           newUserJobSnapshot,
           newJobArray,
+          undefined,
           "groupJob"
         );
         if (foundJob === undefined) continue;
@@ -191,7 +203,7 @@ export function useDeleteSingleJob() {
       selectedGroup.outputJobCount = newOutputJobCount;
       updateGroupArray(newGroupArray);
       if (isActiveGroup) {
-        updateActiveGroup(selectedGroup );
+        updateActiveGroup(selectedGroup);
       }
       if (isLoggedIn) {
         uploadGroups(newGroupArray);

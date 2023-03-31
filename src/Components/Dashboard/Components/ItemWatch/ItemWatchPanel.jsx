@@ -11,17 +11,15 @@ import AddIcon from "@mui/icons-material/Add";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { AddWatchItemDialog } from "./addItemDialog";
 import { useContext, useMemo, useState } from "react";
-import {
-  UsersContext,
-  UserWatchlistContext,
-} from "../../../../Context/AuthContext";
+import { UsersContext } from "../../../../Context/AuthContext";
 import { AddGroupDialog } from "./addGroupDialog";
 import { GroupSettingsDialog } from "./groupSettings";
 import { WatchlistContainer } from "./itemWatchContainer";
+import { UserLoginUIContext } from "../../../../Context/LayoutContext";
 
 export function ItemWatchPanel() {
   const { users } = useContext(UsersContext);
-  const { userWatchlistDataFetch } = useContext(UserWatchlistContext);
+  const { userWatchlistDataFetch } = useContext(UserLoginUIContext);
   const [openDialog, setOpenDialog] = useState(false);
   const [addNewGroupTrigger, updateAddNewGroupTrigger] = useState(false);
   const [groupSettingsTrigger, updateGroupSettingsTrigger] = useState(false);

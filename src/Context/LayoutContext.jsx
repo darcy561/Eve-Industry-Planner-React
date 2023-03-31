@@ -173,8 +173,15 @@ export const JobPlannerPageTrigger = (props) => {
 export const UserLoginUIContext = createContext();
 
 export const UserLoginUI = (props) => {
-  const [loginInProgressComplete, updateLoginInProgressComplete] = useState(false);
+  const [loginInProgressComplete, updateLoginInProgressComplete] =
+    useState(false);
   const [userUIData, updateUserUIData] = useState([]);
+  const [userDataFetch, updateUserDataFetch] = useState(false);
+  const [userJobSnapshotDataFetch, updateUserJobSnapshotDataFetch] =
+    useState(false);
+  const [userWatchlistDataFetch, updateUserWatchlistDataFetch] =
+    useState(false);
+  const [userGroupsDataFetch, updateUserGroupsDataFetch] = useState(false);
 
   return (
     <UserLoginUIContext.Provider
@@ -183,6 +190,14 @@ export const UserLoginUI = (props) => {
         updateLoginInProgressComplete,
         userUIData,
         updateUserUIData,
+        userDataFetch,
+        updateUserDataFetch,
+        userJobSnapshotDataFetch,
+        updateUserJobSnapshotDataFetch,
+        userWatchlistDataFetch,
+        updateUserWatchlistDataFetch,
+        userGroupsDataFetch,
+        updateUserGroupsDataFetch,
       }}
     >
       {props.children}

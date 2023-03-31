@@ -18,6 +18,7 @@ import {
   UserJobSnapshotContext,
 } from "../../../Context/AuthContext";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
+import { useFindJobObject } from "../../../Hooks/GeneralHooks/useFindJobObject";
 
 export function ParentJobDialog({
   dialogTrigger,
@@ -32,7 +33,8 @@ export function ParentJobDialog({
   );
   const { uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const [matches, updateMatches] = useState([]);
 
   const handleClose = () => {

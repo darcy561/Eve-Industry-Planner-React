@@ -10,15 +10,14 @@ import { trace } from "@firebase/performance";
 import { functions, performance } from "../../firebase";
 import {
   PageLoadContext,
-  LoadingTextContext,
   DialogDataContext,
+  UserLoginUIContext,
 } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { httpsCallable } from "firebase/functions";
 import { UserLogInUI } from "./LoginUI/LoginUI";
-
 
 export function login() {
   const state = "/";
@@ -33,9 +32,10 @@ export default function AuthMainUser() {
   const { updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updatePageLoad } = useContext(PageLoadContext);
-  const { updateLoadingText } = useContext(LoadingTextContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateDialogData } = useContext(DialogDataContext);
+  const { updateUserUIData, updateLoginInProgressComplete } =
+    useContext(UserLoginUIContext);
   const {
     determineUserState,
     userJobSnapshotListener,
@@ -44,7 +44,7 @@ export default function AuthMainUser() {
     userGroupDataListener,
   } = useFirebase();
   const { getCharacterInfo } = useAccountManagement();
-  const returnState = useRef("")
+  const returnState = useRef("");
   const checkAppVersion = httpsCallable(
     functions,
     "appVersion-checkAppVersion"
@@ -60,10 +60,7 @@ export default function AuthMainUser() {
       returnState.current = decodeURIComponent(
         window.location.search.match(/state=(\S*)/)[1]
       );
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        eveSSO: true,
-      }));
+      updateLoginInProgressComplete(false);
 
       let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
       if (!appVersion.data) {
@@ -83,30 +80,19 @@ export default function AuthMainUser() {
       let userObject = await EveSSOTokens(authCode, true);
       let fbToken = await firebaseAuth(userObject);
       await getCharacterInfo(userObject);
-
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        eveSSOComp: true,
-        charData: true,
-      }));
-
+      updateUserUIData((prev) => [
+        ...prev,
+        {
+          CharacterID: userObject.CharacterID,
+          CharacterName: userObject.CharacterName,
+        },
+      ]);
       await determineUserState(fbToken);
 
       userMaindDocListener(fbToken, userObject);
       userJobSnapshotListener(userObject);
       userWatchlistListener(fbToken, userObject);
       userGroupDataListener(userObject);
-
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        charDataComp: true,
-        apiData: true,
-      }));
-
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        apiDataComp: true,
-      }));
 
       updateJobArray([]);
       updateIsLoggedIn(true);
@@ -115,16 +101,7 @@ export default function AuthMainUser() {
         UID: fbToken.user.uid,
       });
       t.stop();
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        eveSSO: false,
-        eveSSOComp: false,
-        charData: false,
-        charDataComp: false,
-        apiData: false,
-        apiDataComp: false,
-      }));
-      navigate(returnState.current);
+      // navigate(returnState.current);
     }
     async function importAccount() {
       const authCode = window.location.search.match(/code=(\S*)&/)[1];
@@ -140,7 +117,7 @@ export default function AuthMainUser() {
     }
   }, []);
 
-  return <UserLogInUI/>
+  return <UserLogInUI returnState={returnState.current} />;
 }
 
 async function EveSSOTokens(authCode, accountType) {

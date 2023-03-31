@@ -15,7 +15,6 @@ import {
   JobPlannerPageTriggerContext,
   MultiSelectJobPlannerContext,
 } from "../../../Context/LayoutContext";
-import { useJobManagement } from "../../../Hooks/useJobManagement";
 import Step1JobCard from "../Job Cards/Job Cards/step1";
 import { makeStyles } from "@mui/styles";
 import GroupStep2JobCard from "./jobCards/groupStep2";
@@ -26,6 +25,7 @@ import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
 import { ActiveJobContext } from "../../../Context/JobContext";
+import { useOpenEditJob } from "../../../Hooks/JobHooks/useOpenEditJob";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -65,7 +65,7 @@ export function GroupJobCardFrame({ job }) {
   );
   const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
   const { activeGroup } = useContext(ActiveJobContext);
-  const { openEditJob } = useJobManagement();
+  const { openEditJob } = useOpenEditJob();
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.jobCard,

@@ -19,6 +19,7 @@ import {
 } from "../../../Context/AuthContext";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { useSwitchActiveJob } from "../../../Hooks/JobHooks/useSwitchActiveJob";
+import { useFindJobObject } from "../../../Hooks/GeneralHooks/useFindJobObject";
 
 export function LinkedJobBadge({ jobModified, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -30,10 +31,9 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
   );
   const [dialogTrigger, updateDialogTrigger] = useState(false);
   const { uploadUserJobSnapshot, uploadJob } = useFirebase();
-  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const { switchActiveJob } = useSwitchActiveJob();
-
-  console.log(activeJob);
 
   return (
     <>

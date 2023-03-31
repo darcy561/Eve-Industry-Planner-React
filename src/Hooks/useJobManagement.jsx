@@ -1,19 +1,13 @@
 import { useContext, useMemo } from "react";
-import { functions } from "../firebase";
 import {
   SnackBarDataContext,
   DataExchangeContext,
-  PageLoadContext,
-  LoadingTextContext,
-  MultiSelectJobPlannerContext,
   MassBuildDisplayContext,
-  DialogDataContext,
 } from "../Context/LayoutContext";
 import { UserJobSnapshotContext, UsersContext } from "../Context/AuthContext";
 import {
   ActiveJobContext,
   ApiJobsContext,
-  ArchivedJobsContext,
   JobArrayContext,
   LinkedIDsContext,
 } from "../Context/JobContext";
@@ -29,7 +23,7 @@ import {
 } from "../Context/EveDataContext";
 import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
-import { httpsCallable } from "firebase/functions";
+import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
@@ -37,19 +31,12 @@ export function useJobManagement() {
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { activeJob, activeGroup, updateActiveJob, updateActiveGroup } =
     useContext(ActiveJobContext);
-  const { updatePageLoad } = useContext(PageLoadContext);
-  const { updateLoadingText } = useContext(LoadingTextContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
-  const { updateDialogData } = useContext(DialogDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
-  const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
-    MultiSelectJobPlannerContext
-  );
-  const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const { updateMassBuildDisplay } = useContext(MassBuildDisplayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
@@ -67,8 +54,6 @@ export function useJobManagement() {
   );
   const {
     addNewJob,
-    downloadCharacterJobs,
-    getArchivedJobData,
     getItemPrices,
     removeJob,
     uploadGroups,
@@ -78,10 +63,7 @@ export function useJobManagement() {
   } = useFirebase();
   const { stationData } = useEveApi();
   const { buildJob, checkAllowBuild } = useJobBuild();
-  const checkAppVersion = httpsCallable(
-    functions,
-    "appVersion-checkAppVersion"
-  );
+  const { findJobData } = useFindJobObject();
 
   class newSnapshot {
     constructor(inputJob, childJobs, totalComplete, materialIDs, endDate) {
@@ -225,106 +207,6 @@ export function useJobManagement() {
       return newJob;
     }
     t.stop();
-  };
-
-  const openEditJob = async (inputJobID) => {
-    let newUserJobSnapshot = [...userJobSnapshot];
-    let newJobArray = [...jobArray];
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      jobData: true,
-    }));
-    updatePageLoad(true);
-    let verify = [checkAppVersion({ appVersion: __APP_VERSION__ })];
-
-    let openJob = await findJobData(
-      inputJobID,
-      newUserJobSnapshot,
-      newJobArray
-    );
-    // newUserJobSnapshot = lockUserJob(
-    //   parentUser.CharacterHash,
-    //   inputJobID,
-    //   newUserJobSnapshot
-    // );
-
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      jobData: true,
-      jobDataComp: true,
-      priceData: true,
-    }));
-    console.log(openJob);
-    let itemIDs = new Set(generatePriceRequestFromJob(openJob));
-    for (let mat of openJob.build.materials) {
-      if (mat.childJob.length === 0) {
-        continue;
-      }
-      for (let cJ of mat.childJob) {
-        let snapshot = await findJobData(
-          cJ,
-          newUserJobSnapshot,
-          newJobArray,
-          "snapshot"
-        );
-        if (snapshot === undefined) {
-          continue;
-        }
-
-        itemIDs = new Set(itemIDs, generatePriceRequestFromSnapshot(snapshot));
-      }
-    }
-    if (isLoggedIn) {
-      let newArchivedJobsArray = await getArchivedJobData(openJob.itemID);
-      updateArchivedJobs(newArchivedJobsArray);
-      uploadUserJobSnapshot(newUserJobSnapshot);
-    }
-    let [appVersionPass] = await Promise.all(verify);
-    if (!appVersionPass.data) {
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        jobData: false,
-        jobDataComp: false,
-        priceData: false,
-        priceDataComp: false,
-      }));
-      updateDialogData((prev) => ({
-        ...prev,
-        buttonText: "Close",
-        id: "OutdatedAppVersion",
-        open: true,
-        title: "Outdated App Version",
-        body: "A newer version of the application is available, refresh the page to begin using this.",
-      }));
-      return;
-    }
-    let jobPrices = await getItemPrices([...itemIDs], parentUser);
-    if (jobPrices.length > 0) {
-      updateEvePrices((prev) => {
-        jobPrices = jobPrices.filter(
-          (n) => !prev.some((p) => p.typeID === n.typeID)
-        );
-        return prev.concat(jobPrices);
-      });
-    }
-    updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
-    updateActiveJob(openJob);
-    updatePageLoad(false);
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      priceDataComp: true,
-    }));
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      jobData: false,
-      jobDataComp: false,
-      priceData: false,
-      priceDataComp: false,
-    }));
-    if (isLoggedIn) {
-      userJobListener(parentUser, inputJobID);
-    }
   };
 
   const replaceSnapshot = async (inputJob) => {
@@ -570,108 +452,6 @@ export function useJobManagement() {
     r.stop();
   };
 
-  const moveItemsOnPlanner = async (inputSnapIDs, direction) => {
-    let newJobArray = [...jobArray];
-    let newUserJobSnapshot = [...userJobSnapshot];
-    let newGroupArray = [...groupArray];
-    let groupsModified = false;
-    let jobsModified = false;
-
-    if (direction === undefined) {
-      return;
-    }
-
-    for (let inputSnapID of inputSnapIDs) {
-      if (typeof inputSnapID === "string") {
-        await moveGroups(inputSnapID);
-      } else {
-        await moveJobs(inputSnapID);
-      }
-    }
-
-    if (isLoggedIn) {
-      if (jobsModified) {
-        uploadUserJobSnapshot(newUserJobSnapshot);
-      }
-      if (groupsModified) {
-        uploadGroups(newGroupArray);
-      }
-    }
-    if (jobsModified) {
-      updateUserJobSnapshot(newUserJobSnapshot);
-      updateJobArray(newJobArray);
-    }
-    if (groupsModified) {
-      updateGroupArray(newGroupArray);
-    }
-    async function moveGroups(inputID) {
-      let inputGroup = newGroupArray.find((i) => i.groupID === inputID);
-      if (inputGroup === undefined) {
-        return;
-      }
-      if (activeGroup !== null && activeGroup.groupID === inputGroup.groupID) {
-        inputGroup = activeGroup;
-      }
-
-      if (direction === "forward") {
-        if (inputGroup.groupStatus >= 3) {
-          return;
-        }
-        inputGroup.groupStatus++;
-      }
-      if (direction === "backward") {
-        if (inputGroup.groupStatus === 0) {
-          return;
-        }
-        inputGroup.groupStatus--;
-      }
-
-      newGroupArray = newGroupArray.filter((i) => i.groupID !== inputID);
-      newGroupArray.push(inputGroup);
-      groupsModified = true;
-      return;
-    }
-    async function moveJobs(inputSnapID) {
-      let inputJob = await findJobData(
-        inputSnapID,
-        newUserJobSnapshot,
-        newJobArray
-      );
-      if (inputJob === undefined) {
-        return;
-      }
-
-      if (direction === "forward") {
-        if (inputJob.jobStatus >= 4) {
-          return;
-        }
-        if (inputJob.groupID !== null && inputJob.jobStatus >= 3) {
-          return;
-        }
-        inputJob.jobStatus++;
-      }
-      if (direction === "backward") {
-        if (inputJob.jobStatus === 0) {
-          return;
-        }
-        inputJob.jobStatus--;
-      }
-
-      if (inputJob.groupID === null) {
-        newUserJobSnapshot = updateJobSnapshotFromFullJob(
-          inputJob,
-          newUserJobSnapshot
-        );
-      }
-      jobsModified = true;
-      if (isLoggedIn) {
-        uploadJob(inputJob);
-      }
-
-      return;
-    }
-  };
-
   const buildShoppingList = async (inputJobIDs) => {
     let finalInputList = [];
     let finalShoppingList = [];
@@ -832,41 +612,6 @@ export function useJobManagement() {
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     return finalPriceEntry;
-  };
-
-  const findJobData = async (
-    inputJobID,
-    chosenSnapshotArray,
-    chosenJobArray,
-    returnRequest
-  ) => {
-    let jobSnapshot = chosenSnapshotArray.find((i) => i.jobID === inputJobID);
-    let foundJob = chosenJobArray.find((i) => i.jobID === inputJobID);
-    if (activeJob.jobID === inputJobID) {
-      foundJob = activeJob;
-    }
-    switch (returnRequest) {
-      case "snapshot":
-        return jobSnapshot;
-      case "groupJob":
-        if (foundJob === undefined) {
-          foundJob = await downloadCharacterJobs(inputJobID);
-          chosenJobArray.push(foundJob);
-        }
-        return foundJob;
-      case "all":
-        if (foundJob === undefined && jobSnapshot !== undefined) {
-          foundJob = await downloadCharacterJobs(inputJobID);
-          chosenJobArray.push(foundJob);
-        }
-        return [foundJob, jobSnapshot];
-      default:
-        if (foundJob === undefined && jobSnapshot !== undefined) {
-          foundJob = await downloadCharacterJobs(inputJobID);
-          chosenJobArray.push(foundJob);
-        }
-        return foundJob;
-    }
   };
 
   const mergeJobsNew = async (inputJobIDs) => {
@@ -1245,16 +990,13 @@ export function useJobManagement() {
     calcBrokersFee,
     deleteJobSnapshot,
     findBlueprintType,
-    findJobData,
     generatePriceRequestFromJob,
     generatePriceRequestFromSnapshot,
     lockUserJob,
     massBuildMaterials,
     mergeJobsNew,
-    moveItemsOnPlanner,
     newJobProcess,
     newJobSnapshot,
-    openEditJob,
     timeRemainingCalc,
     replaceSnapshot,
     unlockUserJob,

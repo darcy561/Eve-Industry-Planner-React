@@ -9,18 +9,19 @@ import {
   JobStatusContext,
   LinkedIDsContext,
 } from "../../../Context/JobContext";
+import { UserLoginUIContext } from "../../../Context/LayoutContext";
 import itemData from "../../../RawData/searchIndex.json";
 
 export function NewTransactions() {
-  const { users, userDataFetch } = useContext(UsersContext);
-  const { userJobSnapshot, userJobSnapshotDataFetch } = useContext(
-    UserJobSnapshotContext
-  );
+  const { users } = useContext(UsersContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobStatus } = useContext(JobStatusContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
   const { esiOrders, esiHistOrders, esiTransactions, esiJournal } = useContext(
     PersonalESIDataContext
   );
+  const { userDataFetch, userJobSnapshotDataFetch } =
+    useContext(UserLoginUIContext);
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);

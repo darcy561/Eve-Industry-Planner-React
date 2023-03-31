@@ -12,15 +12,15 @@ import {
 import { JobCardFrame } from "../Job Cards/JobCard";
 import { ApiJobCard } from "../Job Cards/ApiJobCard";
 import { GroupJobCard } from "../Job Cards/groupJobCard";
+import { UserLoginUIContext } from "../../../Context/LayoutContext";
 
 export function AccordionContents({ updateEditJobTrigger, status }) {
   const { users } = useContext(UsersContext);
-  const { userJobSnapshot, userJobSnapshotDataFetch } = useContext(
-    UserJobSnapshotContext
-  );
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { groupArray } = useContext(JobArrayContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { linkedJobIDs } = useContext(LinkedIDsContext);
+  const { userJobSnapshotDataFetch } = useContext(UserLoginUIContext);
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);

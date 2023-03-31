@@ -27,6 +27,7 @@ import { makeStyles } from "@mui/styles";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
+import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
 
 const useStyles = makeStyles((theme) => ({
   Autocomplete: {
@@ -63,11 +64,11 @@ export function SearchBar({
   const {
     massBuildMaterials,
     mergeJobsNew,
-    moveItemsOnPlanner,
     newJobProcess,
     buildItemPriceEntry,
   } = useJobManagement();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
+  const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { createNewGroupWithJobs } = useGroupManagement();
   const classes = useStyles();
 

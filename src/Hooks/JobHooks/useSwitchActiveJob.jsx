@@ -16,6 +16,7 @@ import {
 } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
 import { useJobManagement } from "../useJobManagement";
+import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 
 export function useSwitchActiveJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -30,12 +31,12 @@ export function useSwitchActiveJob() {
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const {
-    findJobData,
     generatePriceRequestFromJob,
     generatePriceRequestFromSnapshot,
     newJobSnapshot,
     updateJobSnapshotFromFullJob,
   } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const {
     getArchivedJobData,
     getItemPrices,
@@ -178,6 +179,7 @@ export function useSwitchActiveJob() {
           cJ,
           newUserJobSnapshot,
           newJobArray,
+          undefined,
           "snapshot"
         );
 

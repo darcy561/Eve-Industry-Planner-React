@@ -5,6 +5,7 @@ import {
 } from "../Context/AuthContext";
 import { ItemTypes } from "../Context/DnDTypes";
 import { JobArrayContext } from "../Context/JobContext";
+import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useFirebase } from "./useFirebase";
 import { useJobManagement } from "./useJobManagement";
 
@@ -15,7 +16,8 @@ export function useDnD() {
   );
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
-  const { findJobData, updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const { uploadJob } = useFirebase();
 
   const recieveJobCardToStage = async (item, status) => {

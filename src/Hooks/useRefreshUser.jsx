@@ -10,7 +10,6 @@ import {
 } from "../Context/AuthContext";
 import {
   DialogDataContext,
-  LoadingTextContext,
   PageLoadContext,
   UserLoginUIContext,
 } from "../Context/LayoutContext";
@@ -33,11 +32,17 @@ export function useRefreshUser() {
   const { updateJobArray } = useContext(JobArrayContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateDialogData } = useContext(DialogDataContext);
-  const { updateUserUIData } = useContext(UserLoginUIContext);
+  const {
+    updateUserUIData,
+    updateLoginInProgressComplete,
+    updateUserDataFetch,
+    updateUserJobSnapshotDataFetch,
+    updateUserWatchlistDataFetch,
+    updateUserGroupsDataFetch,
+  } = useContext(UserLoginUIContext);
 
   const checkAppVersion = httpsCallable(
     functions,
@@ -60,6 +65,11 @@ export function useRefreshUser() {
     } else {
       if (localStorage.getItem("Auth") == null) {
         updatePageLoad(false);
+        updateLoginInProgressComplete(true);
+        updateUserDataFetch(true);
+        updateUserJobSnapshotDataFetch(true);
+        updateUserWatchlistDataFetch(true);
+        updateUserGroupsDataFetch(true);
       } else {
         reloadMainUser(localStorage.getItem("Auth"));
       }
@@ -70,10 +80,7 @@ export function useRefreshUser() {
     const analytics = getAnalytics();
     const t = trace(performance, "MainUserRefreshProcessFull");
     t.start();
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      eveSSO: true,
-    }));
+    updateLoginInProgressComplete(false);
 
     let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
     if (!appVersion.data) {
@@ -102,12 +109,6 @@ export function useRefreshUser() {
       },
     ]);
 
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      eveSSOComp: true,
-      charData: true,
-    }));
-
     await determineUserState(fbToken);
 
     userMaindDocListener(fbToken, refreshedUser);
@@ -115,33 +116,14 @@ export function useRefreshUser() {
     userWatchlistListener(fbToken, refreshedUser);
     userGroupDataListener(refreshedUser);
 
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      charDataComp: true,
-      apiData: true,
-    }));
-
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      apiDataComp: true,
-    }));
-
     updateJobArray([]);
     updateIsLoggedIn(true);
+    updatePageLoad(false);
     logEvent(analytics, "userSignIn", {
       UID: fbToken.user.uid,
     });
     t.stop();
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      eveSSO: false,
-      eveSSOComp: false,
-      charData: false,
-      charDataComp: false,
-      apiData: false,
-      apiDataComp: false,
-    }));
-    updatePageLoad(false);
+
   };
 
   const RefreshUserAToken = async (user) => {

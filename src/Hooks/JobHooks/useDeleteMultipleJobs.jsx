@@ -18,8 +18,8 @@ import {
 } from "../../Context/LayoutContext";
 import { performance } from "../../firebase";
 import { useFirebase } from "../useFirebase";
-import { useGroupManagement } from "../useGroupManagement";
 import { useJobManagement } from "../useJobManagement";
+import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 
 export function useDeleteMultipleJobs() {
   const { users } = useContext(UsersContext);
@@ -43,9 +43,9 @@ export function useDeleteMultipleJobs() {
     MultiSelectJobPlannerContext
   );
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { deleteJobSnapshot, findJobData, updateJobSnapshotFromFullJob } =
+  const { deleteJobSnapshot, updateJobSnapshotFromFullJob } =
     useJobManagement();
-  const { findGroupData } = useGroupManagement();
+  const { findJobData } = useFindJobObject();
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
 
@@ -143,7 +143,12 @@ export function useDeleteMultipleJobs() {
         let newMaterialIDs = new Set();
         let newOutputJobCount = 0;
         let isActiveGroup = false;
-        let selectedGroup = findGroupData(inputJob.groupID, newGroupArray);
+        let selectedGroup = await findJobData(
+          inputJob.groupID,
+          undefined,
+          undefined,
+          newGroupArray
+        );
 
         if (selectedGroup === undefined) break removeJobFromGroup;
 
@@ -152,7 +157,13 @@ export function useDeleteMultipleJobs() {
         }
 
         for (let jobID of selectedGroup.includedJobIDs) {
-          await findJobData(jobID, newUserJobSnapshot, newJobArray, "groupJob");
+          await findJobData(
+            jobID,
+            newUserJobSnapshot,
+            newJobArray,
+            undefined,
+            "groupJob"
+          );
         }
 
         for (let jobID of selectedGroup.includedJobIDs) {
@@ -162,6 +173,7 @@ export function useDeleteMultipleJobs() {
             jobID,
             newUserJobSnapshot,
             newJobArray,
+            undefined,
             "groupJob"
           );
           if (foundJob === undefined) continue;

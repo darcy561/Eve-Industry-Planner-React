@@ -22,6 +22,7 @@ import {
   UserJobSnapshotContext,
 } from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import { useFindJobObject } from "../../../../../Hooks/GeneralHooks/useFindJobObject";
 
 export function ChildJobDialog({
   material,
@@ -30,14 +31,16 @@ export function ChildJobDialog({
   setJobModified,
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { activeJob, updateActiveJob, activeGroup } = useContext(ActiveJobContext);
+  const { activeJob, updateActiveJob, activeGroup } =
+    useContext(ActiveJobContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
 
   const handleClose = () => {
     updateChildDialogTrigger(false);

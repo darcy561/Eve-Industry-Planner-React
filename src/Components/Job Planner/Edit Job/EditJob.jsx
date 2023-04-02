@@ -34,6 +34,7 @@ import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
 import { SellGroupJob } from "./Edit Job Components/Page 4 Components/sellGroupJob";
 import { useCloseActiveJob } from "../../../Hooks/JobHooks/useCloseActiveJob";
 import { MarkAsCompleteButton } from "./Edit Job Components/Page 4 Components/markAsComplete";
+import { useActiveJobTotals } from "../../../Hooks/GeneralHooks/useActiveJobTotals";
 
 const useStyles = makeStyles((theme) => ({
   Stepper: {
@@ -56,6 +57,9 @@ function EditJob({
   const [jobModified, setJobModified] = useState(false);
 
   const classes = useStyles();
+
+  const activeSlots = useActiveJobTotals();
+  console.log(activeSlots);
 
   function StepContentSelector() {
     switch (activeJob.jobStatus) {

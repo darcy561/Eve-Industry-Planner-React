@@ -1,13 +1,5 @@
-import {
-  lazy,
-  useContext,
-  useEffect,
-  useState,
-  Suspense
-} from "react";
-import {
-  IsLoggedInContext,
-} from "../../Context/AuthContext";
+import { lazy, useContext, useEffect, useState, Suspense } from "react";
+import { IsLoggedInContext } from "../../Context/AuthContext";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import {
@@ -46,6 +38,7 @@ export function JobPlanner() {
     userDataFetch,
     userJobSnapshotDataFetch,
     userWatchlistDataFetch,
+    userGroupsDataFetch,
   } = useContext(UserLoginUIContext);
 
   useEffect(() => {
@@ -53,10 +46,20 @@ export function JobPlanner() {
   }, []);
 
   useEffect(() => {
-    if (userWatchlistDataFetch && userJobSnapshotDataFetch && userDataFetch) {
+    if (
+      userWatchlistDataFetch &&
+      userJobSnapshotDataFetch &&
+      userDataFetch &&
+      userGroupsDataFetch
+    ) {
       updateLoginInProgressComplete(true);
     }
-  }, [userWatchlistDataFetch, userJobSnapshotDataFetch, userDataFetch]);
+  }, [
+    userWatchlistDataFetch,
+    userJobSnapshotDataFetch,
+    userDataFetch,
+    userGroupsDataFetch,
+  ]);
 
   if (!loginInProgressComplete) {
     return <UserLogInUI />;

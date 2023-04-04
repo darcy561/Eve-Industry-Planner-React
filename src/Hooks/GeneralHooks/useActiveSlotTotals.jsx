@@ -3,7 +3,7 @@ import { UsersContext } from "../../Context/AuthContext";
 import { PersonalESIDataContext } from "../../Context/EveDataContext";
 import { CorpEsiDataContext } from "../../Context/EveDataContext";
 
-export function useActiveJobTotals() {
+export function useActiveSlotTotals() {
   const { users } = useContext(UsersContext);
   const { esiIndJobs, esiSkills } = useContext(PersonalESIDataContext);
   const { corpEsiIndJobs } = useContext(CorpEsiDataContext);

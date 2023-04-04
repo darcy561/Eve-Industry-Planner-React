@@ -23,21 +23,6 @@ export function Home() {
   useEffect(() => {
     checkUserState();
   }, []);
-  useEffect(() => {
-    if (
-      userWatchlistDataFetch &&
-      userJobSnapshotDataFetch &&
-      userDataFetch &&
-      userGroupsDataFetch
-    ) {
-      updateLoginInProgressComplete(true);
-    }
-  }, [
-    userWatchlistDataFetch,
-    userJobSnapshotDataFetch,
-    userDataFetch,
-    userGroupsDataFetch,
-  ]);
 
   if (logInProcessComplete) {
     return <UserLogInUI />;

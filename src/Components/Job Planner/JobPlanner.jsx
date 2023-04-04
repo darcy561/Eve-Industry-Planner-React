@@ -45,22 +45,6 @@ export function JobPlanner() {
     checkUserState();
   }, []);
 
-  useEffect(() => {
-    if (
-      userWatchlistDataFetch &&
-      userJobSnapshotDataFetch &&
-      userDataFetch &&
-      userGroupsDataFetch
-    ) {
-      updateLoginInProgressComplete(true);
-    }
-  }, [
-    userWatchlistDataFetch,
-    userJobSnapshotDataFetch,
-    userDataFetch,
-    userGroupsDataFetch,
-  ]);
-
   if (!loginInProgressComplete) {
     return <UserLogInUI />;
   } else {

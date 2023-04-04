@@ -80,9 +80,7 @@ export function useAccountManagement() {
 
   const checkClaims = httpsCallable(functions, "userClaims-updateCorpIDs");
   const auth = getAuth();
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser), [users];
-  });
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   const {
     characterData,
@@ -244,8 +242,8 @@ export function useAccountManagement() {
     setJobStatus(jobStatusDefault);
     updateActiveJob({});
     updateArchivedJobs([]);
-    updateGroupArray([])
-    updateActiveGroup(null)
+    updateGroupArray([]);
+    updateActiveGroup(null);
     updateApiJobs(apiJobsDefault);
     updateUserWatchlist({ groups: [], items: [] });
     sessionStorage.clear();

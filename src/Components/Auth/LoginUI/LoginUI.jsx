@@ -33,10 +33,12 @@ export function UserLogInUI({ returnState }) {
       userDataFetch &&
       userGroupsDataFetch
     ) {
-      updateLoginInProgressComplete(true);
-      if (returnState !== undefined) {
-        navigate(returnState);
-      }
+      setTimeout(() => {
+        updateLoginInProgressComplete(true);
+        if (returnState !== undefined) {
+          navigate(returnState);
+        }
+      }, 2000);
     }
   }, [
     userWatchlistDataFetch,
@@ -59,7 +61,20 @@ export function UserLogInUI({ returnState }) {
     >
       <Grid container>
         <Grid item xs={12} align="center" sx={{ padding: "20px" }}>
-          <CircularProgress color="primary" />
+          {!userWatchlistDataFetch ||
+          !userJobSnapshotDataFetch ||
+          !userDataFetch ||
+          !userGroupsDataFetch ? (
+            <CircularProgress color="primary" />
+          ) : (
+            <Typography
+              align="center"
+              sx={{ typograpyh: { xs: "h6", sm: "h5" } }}
+              color="primary"
+            >
+              Login Complete
+            </Typography>
+          )}
         </Grid>
         <Grid container item xs={12}>
           {userUIData.map((user, index) => {

@@ -38,6 +38,7 @@ export function JobPlanner() {
     userDataFetch,
     userJobSnapshotDataFetch,
     userWatchlistDataFetch,
+    userGroupsDataFetch,
   } = useContext(UserLoginUIContext);
 
   useEffect(() => {
@@ -45,10 +46,20 @@ export function JobPlanner() {
   }, []);
 
   useEffect(() => {
-    if (userWatchlistDataFetch && userJobSnapshotDataFetch && userDataFetch) {
+    if (
+      userWatchlistDataFetch &&
+      userJobSnapshotDataFetch &&
+      userDataFetch &&
+      userGroupsDataFetch
+    ) {
       updateLoginInProgressComplete(true);
     }
-  }, [userWatchlistDataFetch, userJobSnapshotDataFetch, userDataFetch]);
+  }, [
+    userWatchlistDataFetch,
+    userJobSnapshotDataFetch,
+    userDataFetch,
+    userGroupsDataFetch,
+  ]);
 
   if (!loginInProgressComplete) {
     return <UserLogInUI />;

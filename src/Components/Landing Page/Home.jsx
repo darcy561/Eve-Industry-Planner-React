@@ -17,16 +17,27 @@ export function Home() {
     userDataFetch,
     userJobSnapshotDataFetch,
     userWatchlistDataFetch,
+    userGroupsDataFetch,
   } = useContext(UserLoginUIContext);
 
   useEffect(() => {
     checkUserState();
   }, []);
   useEffect(() => {
-    if (userWatchlistDataFetch && userJobSnapshotDataFetch && userDataFetch) {
+    if (
+      userWatchlistDataFetch &&
+      userJobSnapshotDataFetch &&
+      userDataFetch &&
+      userGroupsDataFetch
+    ) {
       updateLoginInProgressComplete(true);
     }
-  }, [userWatchlistDataFetch, userJobSnapshotDataFetch, userDataFetch]);
+  }, [
+    userWatchlistDataFetch,
+    userJobSnapshotDataFetch,
+    userDataFetch,
+    userGroupsDataFetch,
+  ]);
 
   if (logInProcessComplete) {
     return <UserLogInUI />;

@@ -1,13 +1,5 @@
-import {
-  lazy,
-  useContext,
-  useEffect,
-  useState,
-  Suspense
-} from "react";
-import {
-  IsLoggedInContext,
-} from "../../Context/AuthContext";
+import { lazy, useContext, useEffect, useState, Suspense } from "react";
+import { IsLoggedInContext } from "../../Context/AuthContext";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import {

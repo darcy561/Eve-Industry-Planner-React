@@ -2,6 +2,7 @@ import {
   Avatar,
   CircularProgress,
   Grid,
+  Icon,
   Paper,
   Typography,
   Zoom,
@@ -9,6 +10,8 @@ import {
 import { useContext, useEffect } from "react";
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
 import { useNavigate } from "react-router-dom";
+import CheckIcon from "@mui/icons-material/Check";
+import { Box } from "@mui/system";
 
 export function UserLogInUI({ returnState }) {
   const {
@@ -35,7 +38,12 @@ export function UserLogInUI({ returnState }) {
         navigate(returnState);
       }
     }
-  }, [userWatchlistDataFetch, userJobSnapshotDataFetch, userDataFetch, userGroupsDataFetch]);
+  }, [
+    userWatchlistDataFetch,
+    userJobSnapshotDataFetch,
+    userDataFetch,
+    userGroupsDataFetch,
+  ]);
 
   return (
     <Paper
@@ -59,7 +67,15 @@ export function UserLogInUI({ returnState }) {
 
             return (
               <Zoom key={user.CharacterID} in={true}>
-                <Grid container item xs={12} sm={4} md={2} xl={1}>
+                <Grid
+                  container
+                  item
+                  xs={6}
+                  sm={4}
+                  md={2}
+                  xl={1}
+                  sx={{ marginBottom: "10px" }}
+                >
                   <Grid item xs={12} align="center">
                     <Avatar
                       src={`https://images.evetech.net/characters/${user.CharacterID}/portrait`}
@@ -71,34 +87,107 @@ export function UserLogInUI({ returnState }) {
                     />
                   </Grid>
 
-                  <Grid item xs={12}>
-                    <Typography align="center">{user.CharacterName}</Typography>
+                  <Grid item xs={12} sx={{ marginTop: "5px" }}>
+                    <Typography
+                      align="center"
+                      sx={{ typography: { xs: "body2", sm: "body1" } }}
+                    >
+                      {user.CharacterName}
+                    </Typography>
                   </Grid>
                 </Grid>
               </Zoom>
             );
           })}
         </Grid>
-        {userDataFetch && (
-          <Grid container item xs={4}>
-            users
+        <Grid container item xs={12} sx={{ paddingTop: "10vh" }}>
+          <Grid container item xs={6} sm={3}>
+            <Grid item xs={12}>
+              <Typography
+                align="center"
+                sx={{ typography: { xs: "caption", sm: "body1" } }}
+              >
+                Loading User Data
+              </Typography>
+            </Grid>
+            <Grid item xs={12} align="center">
+              {userDataFetch ? (
+                <Zoom in={true}>
+                  <Box>
+                    <Icon sx={{ color: "success.main" }}>
+                      <CheckIcon />
+                    </Icon>
+                  </Box>
+                </Zoom>
+              ) : (
+                <CircularProgress color="primary" />
+              )}
+            </Grid>
           </Grid>
-        )}
-        {userJobSnapshotDataFetch && (
-          <Grid container item xs={4}>
-            Snapshot
+          <Grid container item xs={6} sm={3}>
+            <Grid item xs={12}>
+              <Typography
+                align="center"
+                sx={{ typography: { xs: "caption", sm: "body1" } }}
+              >
+                Loading Snapshot Data
+              </Typography>
+            </Grid>
+            <Grid item xs={12} align="center">
+              {userJobSnapshotDataFetch ? (
+                <Zoom in={true}>
+                  <Icon sx={{ color: "success.main" }}>
+                    <CheckIcon />
+                  </Icon>
+                </Zoom>
+              ) : (
+                <CircularProgress color="primary" />
+              )}
+            </Grid>
           </Grid>
-        )}
-        {userGroupsDataFetch && (
-          <Grid container item xs={4}>
-            groups
+          <Grid container item xs={6} sm={3}>
+            <Grid item xs={12}>
+              <Typography
+                align="center"
+                sx={{ typography: { xs: "caption", sm: "body1" } }}
+              >
+                Loading User Groups
+              </Typography>
+            </Grid>
+            <Grid item xs={12} align="center">
+              {userGroupsDataFetch ? (
+                <Zoom in={true}>
+                  <Icon sx={{ color: "success.main" }}>
+                    <CheckIcon />
+                  </Icon>
+                </Zoom>
+              ) : (
+                <CircularProgress color="primary" />
+              )}
+            </Grid>
           </Grid>
-        )}
-        {userWatchlistDataFetch && (
-          <Grid container item xs={4}>
-            watchlist
+          <Grid container item xs={6} sm={3}>
+            <Grid item xs={12}>
+              <Typography
+                align="center"
+                sx={{ typography: { xs: "caption", sm: "body1" } }}
+              >
+                Loading User Watchlist
+              </Typography>
+            </Grid>
+            <Grid item xs={12} align="center">
+              {userWatchlistDataFetch ? (
+                <Zoom in={true}>
+                  <Icon sx={{ color: "success.main" }}>
+                    <CheckIcon />
+                  </Icon>
+                </Zoom>
+              ) : (
+                <CircularProgress color="primary" />
+              )}
+            </Grid>
           </Grid>
-        )}
+        </Grid>
       </Grid>
     </Paper>
   );

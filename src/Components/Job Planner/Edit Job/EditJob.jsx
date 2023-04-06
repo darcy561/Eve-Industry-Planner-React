@@ -54,11 +54,12 @@ function EditJob({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { closeActiveJob } = useCloseActiveJob();
   const { deleteSingleJob } = useDeleteSingleJob();
+  const {calculateActiveSlotsMultiple} = useActiveSlotTotals()
   const [jobModified, setJobModified] = useState(false);
 
   const classes = useStyles();
 
-  const activeSlots = useActiveSlotTotals();
+  const activeSlots = calculateActiveSlotsMultiple();
   console.log(activeSlots);
 
   function StepContentSelector() {

@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Box,
   CircularProgress,
   Grid,
   Icon,
@@ -11,7 +12,13 @@ import { useContext, useEffect } from "react";
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
 import { useNavigate } from "react-router-dom";
 import CheckIcon from "@mui/icons-material/Check";
-import { Box } from "@mui/system";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  childJobText: {
+    color: "white",
+  },
+}));
 
 export function UserLogInUI({ returnState }) {
   const {
@@ -25,6 +32,7 @@ export function UserLogInUI({ returnState }) {
     userGroupsDataFetch,
   } = useContext(UserLoginUIContext);
   const navigate = useNavigate();
+  const classes = useStyles();
 
   useEffect(() => {
     if (
@@ -77,7 +85,7 @@ export function UserLogInUI({ returnState }) {
           )}
         </Grid>
         <Grid container item xs={12}>
-          {userUIData.map((user, index) => {
+          {userUIData.slice(0, 5).map((user, index) => {
             if (index > 5) return null;
 
             return (
@@ -114,15 +122,47 @@ export function UserLogInUI({ returnState }) {
               </Zoom>
             );
           })}
+          {userUIData.length > 5 ? (
+            <Zoom in={true}>
+              <Grid
+                container
+                item
+                xs={6}
+                sm={4}
+                md={2}
+                xl={1}
+                sx={{ marginBottom: "10px" }}
+              >
+                <Grid item xs={12} align="center">
+                  <Avatar
+                    className={classes.childJobText}
+                    variant="circular"
+                    sx={{
+                      bgcolor: "primary.main",
+                      height: { xs: "48px", sm: "64px", lg: "128px" },
+                      width: { xs: "48px", sm: "64px", lg: "128px" },
+                    }}
+                  >
+                    +{userUIData.length - 5}
+                  </Avatar>
+                </Grid>
+              </Grid>
+            </Zoom>
+          ) : null}
         </Grid>
-        <Grid container item xs={12} sx={{ paddingTop: "10vh" }}>
+        <Grid
+          container
+          item
+          xs={12}
+          sx={{ paddingTop: { xs: "5vh", sm: "10vh" } }}
+        >
           <Grid container item xs={6} sm={3}>
             <Grid item xs={12}>
               <Typography
                 align="center"
                 sx={{ typography: { xs: "caption", sm: "body1" } }}
               >
-                Loading User Data
+                Retrieving Character Data
               </Typography>
             </Grid>
             <Grid item xs={12} align="center">
@@ -145,7 +185,7 @@ export function UserLogInUI({ returnState }) {
                 align="center"
                 sx={{ typography: { xs: "caption", sm: "body1" } }}
               >
-                Loading Snapshot Data
+                Building Job Planner
               </Typography>
             </Grid>
             <Grid item xs={12} align="center">
@@ -166,7 +206,7 @@ export function UserLogInUI({ returnState }) {
                 align="center"
                 sx={{ typography: { xs: "caption", sm: "body1" } }}
               >
-                Loading User Groups
+                Building Group Data
               </Typography>
             </Grid>
             <Grid item xs={12} align="center">
@@ -187,7 +227,7 @@ export function UserLogInUI({ returnState }) {
                 align="center"
                 sx={{ typography: { xs: "caption", sm: "body1" } }}
               >
-                Loading User Watchlist
+                Building Watchlist Data
               </Typography>
             </Grid>
             <Grid item xs={12} align="center">

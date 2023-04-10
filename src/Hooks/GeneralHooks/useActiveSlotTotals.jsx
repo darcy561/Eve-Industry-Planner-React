@@ -17,73 +17,71 @@ export function useActiveSlotTotals() {
     let totalActiveScienceSlots = 0;
     let corpJobsPresent = false;
 
-    let userPersonalIndJobs = esiIndJobs.find(
-      (i) => i.user === CharacterHash
-    ).data;
-    let userCorpIndJobs = corpEsiIndJobs.find(
-      (i) => i.user === CharacterHash
-    ).data;
+    let userPersonalIndJobs = esiIndJobs.find((i) => i.user === CharacterHash);
+    let userCorpIndJobs = corpEsiIndJobs.find((i) => i.user === CharacterHash);
     let userSkills = esiSkills.find((i) => i.user === CharacterHash).data;
 
-    for (let job of userPersonalIndJobs) {
-      if (job.status !== "active") continue;
+    if (userPersonalIndJobs !== undefined) {
+      for (let job of userPersonalIndJobs.data) {
+        if (job.status !== "active") continue;
 
-      switch (job.activity_id) {
-        case 1:
-          totalActiveManufacturingSlots++;
-          break;
-        case 3:
-          totalActiveScienceSlots++;
-          break;
-        case 4:
-          totalActiveScienceSlots++;
-          break;
-        case 5:
-          totalActiveScienceSlots++;
-          break;
-        case 8:
-          totalActiveScienceSlots++;
-          break;
-        case 9:
-          totalActiveReactionSlots++;
-          break;
-        default:
-          continue;
+        switch (job.activity_id) {
+          case 1:
+            totalActiveManufacturingSlots++;
+            break;
+          case 3:
+            totalActiveScienceSlots++;
+            break;
+          case 4:
+            totalActiveScienceSlots++;
+            break;
+          case 5:
+            totalActiveScienceSlots++;
+            break;
+          case 8:
+            totalActiveScienceSlots++;
+            break;
+          case 9:
+            totalActiveReactionSlots++;
+            break;
+          default:
+            continue;
+        }
       }
     }
-
-    for (let job of userCorpIndJobs) {
-      if (job.status !== "active") continue;
-      switch (job.activity_id) {
-        case 1:
-          totalActiveManufacturingSlots++;
-          corpJobsPresent = true;
-          break;
-        case 3:
-          totalActiveScienceSlots++;
-          corpJobsPresent = true;
-          break;
-        case 4:
-          totalActiveScienceSlots++;
-          corpJobsPresent = true;
-          break;
-        case 5:
-          totalActiveScienceSlots++;
-          corpJobsPresent = true;
-          break;
-        case 8:
-          totalActiveScienceSlots++;
-          corpJobsPresent = true;
-          break;
-        case 9:
-          totalActiveReactionSlots++;
-          corpJobsPresent = true;
-          break;
-        default:
-          continue;
+    if (userCorpIndJobs !== undefined) {
+      for (let job of userCorpIndJobs.data) {
+        if (job.status !== "active") continue;
+        switch (job.activity_id) {
+          case 1:
+            totalActiveManufacturingSlots++;
+            corpJobsPresent = true;
+            break;
+          case 3:
+            totalActiveScienceSlots++;
+            corpJobsPresent = true;
+            break;
+          case 4:
+            totalActiveScienceSlots++;
+            corpJobsPresent = true;
+            break;
+          case 5:
+            totalActiveScienceSlots++;
+            corpJobsPresent = true;
+            break;
+          case 8:
+            totalActiveScienceSlots++;
+            corpJobsPresent = true;
+            break;
+          case 9:
+            totalActiveReactionSlots++;
+            corpJobsPresent = true;
+            break;
+          default:
+            continue;
+        }
       }
     }
-
     let massPoductionSkill = userSkills.find((i) => i.id === 3387);
     let advancedMassPoductionSkill = userSkills.find((i) => i.id === 24625);
     let massReactionsSkill = userSkills.find((i) => i.id === 45748);
@@ -131,6 +129,7 @@ export function useActiveSlotTotals() {
     }
     return returnArray;
   };
+
   return {
     calculateActiveSlotsSingle,
     calculateActiveSlotsMultiple,

@@ -1,5 +1,6 @@
 import { useContext, useMemo } from "react";
 import {
+  Avatar,
   Button,
   Checkbox,
   Grid,
@@ -104,6 +105,7 @@ export function GroupJobCardFrame({ job }) {
                   ? grey[300]
                   : grey[900]
                 : "none",
+            cursor: "grab",
           }}
         >
           <Grid container item xs={12}>
@@ -168,16 +170,11 @@ export function GroupJobCardFrame({ job }) {
                 justifyContent="center"
                 alignItems="center"
               >
-                <picture>
-                  <source
-                    media="(max-width:700px)"
-                    srcSet={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
-                  />
-                  <img
-                    src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
-                    alt=""
-                  />
-                </picture>
+                <Avatar
+                  src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
+                  alt={job.name}
+                  variant="square"
+                />
               </Grid>
               <DisplaySwitch job={job} />
             </Grid>

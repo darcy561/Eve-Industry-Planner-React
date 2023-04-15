@@ -44,7 +44,7 @@ export function useOpenGroup() {
       );
       return prev.concat(newEvePrices);
     });
-    console.log(newJobArray);
+
     updateActiveGroup(requestedGroup);
     updateJobArray(newJobArray);
     updateDataExchange((prev) => !prev);

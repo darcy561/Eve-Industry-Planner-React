@@ -76,6 +76,7 @@ export function GroupJobCard({ group }) {
                   ? grey[300]
                   : grey[900]
                 : "none",
+            cursor: "grab",
           }}
         >
           <Grid container item xs={12}>

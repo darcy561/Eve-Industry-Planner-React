@@ -25,6 +25,7 @@ const BlueprintLibrary = lazy(() =>
   import("./Components/Blueprint Library/BlueprintLibrary")
 );
 const AssetLibrary = lazy(() => import("./Components/Assets/assets"));
+const Dashboard = lazy(() => import("./Components/Dashboard/Dashboard"));
 
 export function NavRoutes({ mode, colorMode }) {
   return (
@@ -40,9 +41,10 @@ export function NavRoutes({ mode, colorMode }) {
             <Route path="/" element={<Home />} />
             <Route path="/jobplanner" element={<JobPlanner />} />
             <Route path="/auth/" element={<AuthMainUser />} />
-            <Route path="/itemtree" element={<ItemTree />} />
+            {/* <Route path="/itemtree" element={<ItemTree />} /> */}
             <Route path="/upcoming-changes" element={<UpcomingChanges />} />
             <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/accounts" element={<AccountsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/blueprint-library" element={<BlueprintLibrary />} />

@@ -25,14 +25,14 @@ export const EveIDs = (props) => {
 
 export const PersonalESIDataContext = createContext();
 export const PersonalEsiData = (props) => {
-  const [esiIndJobs, updateEsiIndJobs] = useState([]);
-  const [esiSkills, updateEsiSkills] = useState([]);
-  const [esiOrders, updateEsiOrders] = useState([]);
-  const [esiHistOrders, updateEsiHistOrders] = useState([]);
-  const [esiBlueprints, updateEsiBlueprints] = useState([]);
-  const [esiJournal, updateEsiJournal] = useState([]);
+  const [esiIndJobs, updateEsiIndJobs] = useState(defaultEsiJobs);
+  const [esiSkills, updateEsiSkills] = useState(defaultEsiSkills);
+  const [esiOrders, updateEsiOrders] = useState(defaultEsiOrders);
+  const [esiHistOrders, updateEsiHistOrders] = useState(defaultEsiHistOrders);
+  const [esiBlueprints, updateEsiBlueprints] = useState(defaultEsiBlueprints);
+  const [esiJournal, updateEsiJournal] = useState(defaultEsiJournal);
   const [esiTransactions, updateEsiTransactions] = useState(
-    []
+    defaultEsiTransactions
   );
   const [esiStandings, updateEsiStandings] = useState(defaultEsiStandings);
   return (

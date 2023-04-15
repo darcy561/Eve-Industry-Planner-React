@@ -69,16 +69,15 @@ export function BpCopyESICardActive({ job }) {
                       />
                     }
                   >
-                    <picture>
-                      <source
-                        media="(max-width:700px)"
-                        srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=32`}
-                      />
-                      <img
-                        src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
-                        alt=""
-                      />
-                    </picture>
+                    <Avatar
+                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
+                      alt={itemName.name}
+                      variant="square"
+                      sx={{
+                        xs: { height: "32", width: "32" },
+                        sm: { height: "64", width: "64" },
+                      }}
+                    />
                   </Badge>
                 </Grid>
                 <Grid

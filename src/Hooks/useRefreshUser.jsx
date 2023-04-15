@@ -19,6 +19,7 @@ import { functions, performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "./useAccountManagement";
 import { httpsCallable } from "firebase/functions";
+import { useNavigate } from "react-router-dom";
 
 export function useRefreshUser() {
   const {
@@ -43,6 +44,7 @@ export function useRefreshUser() {
     updateUserWatchlistDataFetch,
     updateUserGroupsDataFetch,
   } = useContext(UserLoginUIContext);
+  const Navigate = useNavigate();
 
   const checkAppVersion = httpsCallable(
     functions,
@@ -100,14 +102,16 @@ export function useRefreshUser() {
     let refreshedUser = await RefreshTokens(refreshToken, true);
     let fbToken = await firebaseAuth(refreshedUser);
     await getCharacterInfo(refreshedUser);
-
-    updateUserUIData((prev) => [
+    updateUserUIData((prev) => ({
       ...prev,
-      {
-        CharacterID: refreshedUser.CharacterID,
-        CharacterName: refreshedUser.CharacterName,
-      },
-    ]);
+      eveLoginComplete: true,
+      userArray: [
+        {
+          CharacterID: refreshedUser.CharacterID,
+          CharacterName: refreshedUser.CharacterName,
+        },
+      ],
+    }));
 
     await determineUserState(fbToken);
 
@@ -123,7 +127,6 @@ export function useRefreshUser() {
       UID: fbToken.user.uid,
     });
     t.stop();
-
   };
 
   const RefreshUserAToken = async (user) => {

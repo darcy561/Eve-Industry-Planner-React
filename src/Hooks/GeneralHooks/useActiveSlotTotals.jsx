@@ -48,7 +48,7 @@ export function useActiveSlotTotals() {
             continue;
         }
       }
-    }
+    } 
     if (userCorpIndJobs !== undefined) {
       for (let job of userCorpIndJobs.data) {
         if (job.status !== "active") continue;

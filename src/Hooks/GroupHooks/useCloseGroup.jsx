@@ -34,10 +34,9 @@ export function useCloseGroup() {
       jobTypeIDs.add(job.itemID);
       includedJobIDs.add(job.jobID);
     }
-
-    newGroupEntry.includedJobIDs = includedJobIDs;
-    newGroupEntry.includedTypeIDs = jobTypeIDs;
-    newGroupEntry.materialIDs = materialIDs;
+    newGroupEntry.includedJobIDs = [...includedJobIDs];
+    newGroupEntry.includedTypeIDs = [...jobTypeIDs];
+    newGroupEntry.materialIDs = [...materialIDs];
     newGroupEntry.outputJobCount = outputJobCount;
 
     let index = newGroupArray.findIndex(
@@ -45,7 +44,7 @@ export function useCloseGroup() {
     );
 
     if (index !== -1) {
-      newGroupArray[index] = activeGroup;
+      newGroupArray[index] = newGroupEntry;
     } else {
       newGroupArray.push(newGroupEntry);
     }

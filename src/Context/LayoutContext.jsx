@@ -175,7 +175,11 @@ export const UserLoginUIContext = createContext();
 export const UserLoginUI = (props) => {
   const [loginInProgressComplete, updateLoginInProgressComplete] =
     useState(false);
-  const [userUIData, updateUserUIData] = useState([]);
+  const [userUIData, updateUserUIData] = useState({
+    returnState: "",
+    userArray: [],
+    eveLoginComplete: false,
+  });
   const [userDataFetch, updateUserDataFetch] = useState(false);
   const [userJobSnapshotDataFetch, updateUserJobSnapshotDataFetch] =
     useState(false);

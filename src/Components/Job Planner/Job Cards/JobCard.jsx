@@ -1,5 +1,6 @@
 import { useContext, useMemo } from "react";
 import {
+  Avatar,
   Button,
   Checkbox,
   Grid,
@@ -93,6 +94,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
                   ? grey[300]
                   : grey[900]
                 : "none",
+            cursor: "grab",
           }}
         >
           <Grid container item xs={12}>
@@ -157,16 +159,15 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
                 justifyContent="center"
                 alignItems="center"
               >
-                <picture>
-                  <source
-                    media="(max-width:700px)"
-                    srcSet={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
-                  />
-                  <img
-                    src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
-                    alt=""
-                  />
-                </picture>
+                <Avatar
+                  src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
+                  alt={job.name}
+                  variant="square"
+                  sx={{
+                    xs: { height: "32", width: "32" },
+                    sm: { height: "64", width: "64" },
+                  }}
+                />
               </Grid>
               <DisplaySwitch job={job} />
             </Grid>

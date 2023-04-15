@@ -1,6 +1,7 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import {
+  Avatar,
   Button,
   CircularProgress,
   Dialog,
@@ -349,9 +350,11 @@ export function ShoppingListDialog({
                         }}
                         align="center"
                       >
-                        <img
+                        <Avatar
                           src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
-                          alt=""
+                          alt={item.name}
+                          variant="square"
+                          sx={{ height: 32, width: 32 }}  
                         />
                       </Grid>
                       <Grid item xs={8} sm={7}>

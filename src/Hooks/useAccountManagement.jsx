@@ -260,9 +260,8 @@ export function useAccountManagement() {
   };
 
   const failedUserRefresh = (failedRefreshSet, userObject) => {
-    if (failedRefreshSet.size === 0) {
-      return;
-    }
+    if (failedRefreshSet.size === 0) return;
+
     if (userObject.settings.account.cloudAccounts) {
       userObject.accountRefreshTokens = userObject.accountRefreshTokens.filter(
         (i) => !failedRefreshSet.has(i.CharacterHash)
@@ -294,9 +293,8 @@ export function useAccountManagement() {
 
     for (let user of userArray) {
       let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
-      if (data === undefined) {
-        continue;
-      }
+      if (data === undefined) continue;
+
       data.esiJobs.forEach((job) => {
         allJobIDs.add(job.job_id);
       });
@@ -363,18 +361,17 @@ export function useAccountManagement() {
   ) => {
     for (let token of refreshTokens) {
       let newUser = await RefreshTokens(token.rToken, false);
-      if (newUser === "RefreshFail") {
-        continue;
-      }
+      if (newUser === "RefreshFail") continue;
+
       await getCharacterInfo(newUser);
       let esiObject = await characterAPICall(newUser);
-      updateUserUIData((prev) => [
+      updateUserUIData((prev) => ({
         ...prev,
-        {
+        userArray: prev.userArray.concat([{
           CharacterID: newUser.CharacterID,
           CharacterName: newUser.CharacterName,
-        },
-      ]);
+        }]),
+      }));
       userArray.push(newUser);
       esiObjectArray.push(esiObject);
     }
@@ -391,12 +388,17 @@ export function useAccountManagement() {
     }
     for (let token of rTokens) {
       let newUser = await RefreshTokens(token.rToken, false);
-      if (newUser === "RefreshFail") {
-        continue;
-      }
+      if (newUser === "RefreshFail") continue;
+
       await getCharacterInfo(newUser);
       let esiObject = await characterAPICall(newUser);
-
+      updateUserUIData((prev) => ({
+        ...prev,
+        userArray: prev.userArray.concat([{
+          CharacterID: newUser.CharacterID,
+          CharacterName: newUser.CharacterName,
+        }]),
+      }));
       esiObjectArray.push(esiObject);
       userArray.push(newUser);
     }
@@ -404,15 +406,13 @@ export function useAccountManagement() {
 
   const updateCloudRefreshTokens = (refreshTokens, userArray) => {
     for (let user of userArray) {
-      if (user.ParentUser) {
-        continue;
-      }
+      if (user.ParentUser) continue;
+
       let token = refreshTokens.find(
         (i) => i.CharacterHash === user.CharacterHash
       );
-      if (token === undefined) {
-        continue;
-      }
+      if (token === undefined) continue;
+
       if (user.rToken !== token.rToken) {
         token.rToken = user.rToken;
       }
@@ -429,9 +429,8 @@ export function useAccountManagement() {
     let tokenArray = [];
     let parent = userArray.find((i) => i.ParentUser);
     for (let user of userArray) {
-      if (user.ParentUser) {
-        continue;
-      }
+      if (user.ParentUser) continue;
+
       tokenArray.push({
         CharacterHash: user.CharacterHash,
         rToken: user.rToken,
@@ -447,9 +446,8 @@ export function useAccountManagement() {
     let newApiArray = [];
     for (let user of userArray) {
       let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
-      if (data === undefined) {
-        continue;
-      }
+      if (data === undefined) continue;
+
       newApiArray = newApiArray.concat(data.esiJobs, data.esiCorpJobs);
     }
 

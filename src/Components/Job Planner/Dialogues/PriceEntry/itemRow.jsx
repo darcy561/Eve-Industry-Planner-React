@@ -1,4 +1,11 @@
-import { Checkbox, Grid, TextField, Tooltip, Typography } from "@mui/material";
+import {
+  Avatar,
+  Checkbox,
+  Grid,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
 import { PriceEntryListContext } from "../../../../Context/LayoutContext";
@@ -100,9 +107,11 @@ export function ItemPriceRow({
         }}
         align="center"
       >
-        <img
+        <Avatar
           src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
-          alt=""
+          alt={item.name}
+          variant="square"
+          sx={{ height: 32, width: 32 }}
         />
       </Grid>
       <Grid item xs={12} sm={7}>

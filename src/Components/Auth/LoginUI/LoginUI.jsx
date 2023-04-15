@@ -13,6 +13,7 @@ import { UserLoginUIContext } from "../../../Context/LayoutContext";
 import { useNavigate } from "react-router-dom";
 import CheckIcon from "@mui/icons-material/Check";
 import { makeStyles } from "@mui/styles";
+import { IsLoggedInContext } from "../../../Context/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   childJobText: {
@@ -20,7 +21,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function UserLogInUI({ returnState }) {
+export function UserLogInUI({}) {
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const {
     userUIData,
     updateUserUIData,
@@ -43,8 +45,22 @@ export function UserLogInUI({ returnState }) {
     ) {
       setTimeout(() => {
         updateLoginInProgressComplete(true);
-        if (returnState !== undefined) {
-          navigate(returnState);
+        switch (userUIData.returnState) {
+          case undefined:
+            break;
+          case "/":
+            switch (isLoggedIn) {
+              case true:
+                navigate("/dashboard");
+                break;
+              default:
+                navigate("/");
+                break;
+            }
+            break;
+          default:
+            navigate(userUIData.returnState);
+            break;
         }
       }, 2000);
     }
@@ -85,7 +101,7 @@ export function UserLogInUI({ returnState }) {
           )}
         </Grid>
         <Grid container item xs={12}>
-          {userUIData.slice(0, 5).map((user, index) => {
+          {userUIData.userArray.slice(0, 5).map((user, index) => {
             if (index > 5) return null;
 
             return (
@@ -96,7 +112,6 @@ export function UserLogInUI({ returnState }) {
                   xs={6}
                   sm={4}
                   md={2}
-                  xl={1}
                   sx={{ marginBottom: "10px" }}
                 >
                   <Grid item xs={12} align="center">
@@ -122,7 +137,7 @@ export function UserLogInUI({ returnState }) {
               </Zoom>
             );
           })}
-          {userUIData.length > 5 ? (
+          {userUIData.userArray.length > 5 ? (
             <Zoom in={true}>
               <Grid
                 container
@@ -130,7 +145,6 @@ export function UserLogInUI({ returnState }) {
                 xs={6}
                 sm={4}
                 md={2}
-                xl={1}
                 sx={{ marginBottom: "10px" }}
               >
                 <Grid item xs={12} align="center">
@@ -143,7 +157,7 @@ export function UserLogInUI({ returnState }) {
                       width: { xs: "48px", sm: "64px", lg: "128px" },
                     }}
                   >
-                    +{userUIData.length - 5}
+                    +{userUIData.userArray.length - 5}
                   </Avatar>
                 </Grid>
               </Grid>

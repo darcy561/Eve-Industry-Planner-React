@@ -75,16 +75,15 @@ export function IndustryESICardActive({ job }) {
                       />
                     }
                   >
-                    <picture>
-                      <source
-                        media="(max-width:700px)"
-                        srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
-                      />
-                      <img
-                        src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
-                        alt=""
-                      />
-                    </picture>
+                    <Avatar
+                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                      alt={product.name}
+                      variant="square"
+                      sx={{
+                        xs: { height: "32", width: "32" },
+                        sm: { height: "64", width: "64" },  
+                      }}
+                    />
                   </Badge>
                 </Grid>
                 <Grid

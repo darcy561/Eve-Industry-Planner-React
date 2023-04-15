@@ -238,6 +238,7 @@ export default function GroupPage({
           </Grid>
           <Grid item xs={12}>
             <GroupOptionsBar
+              groupJobs={groupJobs}
               updateShoppingListTrigger={updateShoppingListTrigger}
               updateShoppingListData={updateShoppingListData}
               updateShowProcessing={updateShowProcessing}

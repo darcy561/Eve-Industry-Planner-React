@@ -44,12 +44,10 @@ export default function AuthMainUser() {
     userGroupDataListener,
   } = useFirebase();
   const { getCharacterInfo } = useAccountManagement();
-  const returnState = useRef("");
   const checkAppVersion = httpsCallable(
     functions,
     "appVersion-checkAppVersion"
   );
-  const navigate = useNavigate();
   const analytics = getAnalytics();
 
   useEffect(() => {
@@ -57,9 +55,6 @@ export default function AuthMainUser() {
       const t = trace(performance, "MainUserLoginProcessFull");
       t.start();
       const authCode = window.location.search.match(/code=(\S*)&/)[1];
-      returnState.current = decodeURIComponent(
-        window.location.search.match(/state=(\S*)/)[1]
-      );
       updateLoginInProgressComplete(false);
 
       let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
@@ -80,13 +75,19 @@ export default function AuthMainUser() {
       let userObject = await EveSSOTokens(authCode, true);
       let fbToken = await firebaseAuth(userObject);
       await getCharacterInfo(userObject);
-      updateUserUIData((prev) => [
+      updateUserUIData((prev) => ({
         ...prev,
-        {
-          CharacterID: userObject.CharacterID,
-          CharacterName: userObject.CharacterName,
-        },
-      ]);
+        eveLoginComplete: true,
+        userArray: [
+          {
+            CharacterID: userObject.CharacterID,
+            CharacterName: userObject.CharacterName,
+          },
+        ],
+        returnState: decodeURIComponent(
+          window.location.search.match(/state=(\S*)/)[1]
+        ),
+      }));
       await determineUserState(fbToken);
 
       userMaindDocListener(fbToken, userObject);
@@ -101,7 +102,6 @@ export default function AuthMainUser() {
         UID: fbToken.user.uid,
       });
       t.stop();
-      // navigate(returnState.current);
     }
     async function importAccount() {
       const authCode = window.location.search.match(/code=(\S*)&/)[1];
@@ -117,7 +117,7 @@ export default function AuthMainUser() {
     }
   }, []);
 
-  return <UserLogInUI returnState={returnState.current} />;
+  return <UserLogInUI />;
 }
 
 async function EveSSOTokens(authCode, accountType) {

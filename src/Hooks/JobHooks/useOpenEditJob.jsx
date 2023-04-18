@@ -34,8 +34,7 @@ export function useOpenEditJob() {
   const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
-  const { generatePriceRequestFromJob, generatePriceRequestFromSnapshot } =
-    useJobManagement();
+  const { generatePriceRequestFromJob } = useJobManagement();
   const { findJobData } = useFindJobObject();
 
   const {
@@ -79,23 +78,26 @@ export function useOpenEditJob() {
       priceData: true,
     }));
     let itemIDs = new Set(generatePriceRequestFromJob(openJob));
+    for (let parentID of openJob.parentJob) {
+      let parentJob = await findJobData(
+        parentID,
+        newUserJobSnapshot,
+        newJobArray
+      );
+      if (parentJob === undefined) continue;
+      itemIDs = new Set(itemIDs, generatePriceRequestFromJob(parentJob));
+    }
     for (let mat of openJob.build.materials) {
       if (mat.childJob.length === 0) {
         continue;
       }
-      for (let cJ of mat.childJob) {
-        let snapshot = await findJobData(
-          cJ,
-          newUserJobSnapshot,
-          newJobArray,
-          undefined,
-          "snapshot"
-        );
-        if (snapshot === undefined) {
+      for (let cJID of mat.childJob) {
+        let childJob = await findJobData(cJID, newUserJobSnapshot, newJobArray);
+        if (childJob === undefined) {
           continue;
         }
 
-        itemIDs = new Set(itemIDs, generatePriceRequestFromSnapshot(snapshot));
+        itemIDs = new Set(itemIDs, generatePriceRequestFromJob(childJob));
       }
     }
     if (isLoggedIn) {
@@ -131,6 +133,7 @@ export function useOpenEditJob() {
         return prev.concat(jobPrices);
       });
     }
+    console.log(newJobArray);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateActiveJob(openJob);
@@ -148,6 +151,14 @@ export function useOpenEditJob() {
     }));
     if (isLoggedIn) {
       userJobListener(parentUser, inputJobID);
+      for (let parentID of openJob.parentJob) {
+        userJobListener(parentUser, parentID);
+      }
+      for (let material of openJob.build.materials) {
+        for (let childJobID of material.childJob) {
+          userJobListener(parentUser, childJobID);
+        }
+      }
     }
   };
   return { openEditJob };

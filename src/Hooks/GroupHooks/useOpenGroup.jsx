@@ -5,7 +5,10 @@ import {
 } from "../../Context/AuthContext";
 import { EvePricesContext } from "../../Context/EveDataContext";
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
-import { DataExchangeContext } from "../../Context/LayoutContext";
+import {
+  DataExchangeContext,
+  LoadingTextContext,
+} from "../../Context/LayoutContext";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useFirebase } from "../useFirebase";
 
@@ -16,6 +19,7 @@ export function useOpenGroup() {
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
+  const { updateLoadingText } = useContext(LoadingTextContext);
   const { findJobData } = useFindJobObject();
   const { getItemPrices } = useFirebase();
 
@@ -29,15 +33,29 @@ export function useOpenGroup() {
     }
     updateDataExchange((prev) => !prev);
 
-    let pricePromise = [
-      getItemPrices(requestedGroup.includedTypeIDs, parentUser),
-    ];
+    let pricePromise = [getItemPrices(requestedGroup.materialIDs, parentUser)];
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobData: true,
+      priceData: true,
+    }));
 
     for (let jobID of requestedGroup.includedJobIDs) {
       await findJobData(jobID, userJobSnapshot, newJobArray, undefined, "none");
     }
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobDataComp: true,
+    }));
 
     let returnPrices = await Promise.all(pricePromise);
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobData: true,
+      jobDataComp: true,
+      priceData: true,
+      priceDataComp: true,
+    }));
     updateEvePrices((prev) => {
       let newEvePrices = returnPrices[0].filter(
         (n) => !prev.some((p) => p.typeID === n.typeID)
@@ -48,6 +66,13 @@ export function useOpenGroup() {
     updateActiveGroup(requestedGroup);
     updateJobArray(newJobArray);
     updateDataExchange((prev) => !prev);
+    updateLoadingText((prevObj) => ({
+      ...prevObj,
+      jobData: false,
+      jobDataComp: false,
+      priceData: false,
+      priceDataComp: false,
+    }));
   };
 
   return {

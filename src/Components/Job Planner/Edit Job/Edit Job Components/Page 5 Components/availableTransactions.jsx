@@ -11,18 +11,22 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { useMarketOrderFunctions } from "../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 
 export function AvailableTransactionData({
   setJobModified,
   activeOrder,
-  transactionData,
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedTransIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
+  const { buildTransactionData } = useMarketOrderFunctions();
   const analytics = getAnalytics();
+  
+
+  const transactionData = buildTransactionData()
 
   return (
     <Paper

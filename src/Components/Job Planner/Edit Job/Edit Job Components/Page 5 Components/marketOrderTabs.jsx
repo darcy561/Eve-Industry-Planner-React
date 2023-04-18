@@ -4,10 +4,10 @@ import { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { AvailableMarketOrders } from "../Page 5 Components/availableMarketOrders";
 import { LinkedMarketOrders } from "../Page 5 Components/linkedMarketOrders";
+import { useMarketOrderFunctions } from "../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 
 export function MarketOrderTabs({
   setJobModified,
-  itemOrderMatch,
   updateShowAvailableOrders,
   activeOrder,
   updateActiveOrder,
@@ -20,6 +20,10 @@ export function MarketOrderTabs({
       return "0";
     }
   });
+
+  const { findMarketOrdersForItem } = useMarketOrderFunctions();
+
+  const itemOrderMatch = findMarketOrdersForItem();
 
   const handleChange = (event, newValue) => {
     updateTab(newValue);
@@ -58,8 +62,8 @@ export function MarketOrderTabs({
         </TabPanel>
         <TabPanel value="1">
           <AvailableMarketOrders
-            setJobModified={setJobModified}
             itemOrderMatch={itemOrderMatch}
+            setJobModified={setJobModified}
             updateShowAvailableOrders={updateShowAvailableOrders}
           />
         </TabPanel>

@@ -65,9 +65,30 @@ export const CorpEsiDataContext = createContext();
 
 export const CorpEsiData = (props) => {
   const [corpEsiIndJobs, updateCorpEsiIndJobs] = useState([]);
+  const [corpEsiOrders, updateCorpEsiOrders] = useState([]);
+  const [corpEsiHistOrders, updateCorpEsiHistOrders] = useState([]);
+  const [corpEsiBlueprints, updateCorpEsiBlueprints] = useState([]);
+  const [corpEsiJournal, updateCorpEsiJournal] = useState([]);
+  const [corpEsiTransactions, updateCorpEsiTransactions] = useState([]);
+  const [corpEsiDivisions, updateCorpEsiDivisions] = useState([]);
   return (
     <CorpEsiDataContext.Provider
-      value={{ corpEsiIndJobs, updateCorpEsiIndJobs }}
+      value={{
+        corpEsiIndJobs,
+        updateCorpEsiIndJobs,
+        corpEsiOrders,
+        updateCorpEsiOrders,
+        corpEsiHistOrders,
+        updateCorpEsiHistOrders,
+        corpEsiBlueprints,
+        updateCorpEsiBlueprints,
+        corpEsiJournal,
+        updateCorpEsiJournal,
+        corpEsiTransactions,
+        updateCorpEsiTransactions,
+        corpEsiDivisions,
+        updateCorpEsiDivisions,
+      }}
     >
       {props.children}
     </CorpEsiDataContext.Provider>

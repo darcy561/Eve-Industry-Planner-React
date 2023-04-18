@@ -356,6 +356,7 @@ export function useFirebase() {
     const t = trace(performance, "GetItemPrices");
     t.start();
     await fbAuthState();
+    const MAX_CHUNK_SIZE = 500;
     let requestArray = [];
     let promiseArray = [];
     let returnData = [];
@@ -368,8 +369,8 @@ export function useFirebase() {
       }
     }
     if (requestArray.length > 0) {
-      for (let x = 0; x < requestArray.length; x += 500) {
-        let chunk = requestArray.slice(x, x + 500);
+      for (let x = 0; x < requestArray.length; x += MAX_CHUNK_SIZE) {
+        let chunk = requestArray.slice(x, x + MAX_CHUNK_SIZE);
         let chunkData = getItemPriceBulk(chunk, userObj);
         promiseArray.push(chunkData);
       }
@@ -397,38 +398,40 @@ export function useFirebase() {
     const t = trace(performance, "refreshItemPrices");
     t.start();
     await fbAuthState();
-    let promiseArray = [];
-    let oldEvePrices = [...evePrices];
-    let priceUpdates = new Set();
+    const CHUNK_SIZE = 500;
+    const oldEvePrices = [...evePrices];
+    const priceUpdates = new Set();
+    const newEvePrices = [];
 
     oldEvePrices.forEach((item) => {
       if (item.lastUpdated <= Date.now() - 14400000) {
         priceUpdates.add(item.typeID);
+      } else {
+        newEvePrices.push(item);
       }
     });
-    let newEvePrices = oldEvePrices.filter((i) => !priceUpdates.has(i.typeID));
-    let requestArray = [...priceUpdates];
+
+    const requestArray = [...priceUpdates];
     if (requestArray.length > 0) {
-      for (let x = 0; x < requestArray.length; x += 30) {
-        let chunk = requestArray.slice(x, x + 30);
-        let chunkData = getItemPriceBulk(chunk, userObj);
+      const promiseArray = [];
+      for (let x = 0; x < requestArray.length; x += CHUNK_SIZE) {
+        const chunk = requestArray.slice(x, x + CHUNK_SIZE);
+        const chunkData = getItemPriceBulk(chunk, userObj);
         promiseArray.push(chunkData);
       }
-    } else {
-      t.stop();
-      return newEvePrices;
-    }
-    let returnPromiseArray = await Promise.all(promiseArray);
-
-    for (let data of returnPromiseArray) {
-      if (Array.isArray(data)) {
-        data.forEach((id) => {
-          newEvePrices.push(id);
-        });
-      } else {
-        newEvePrices.push(data);
+      const returnPromiseArray = await Promise.all(promiseArray);
+      for (let data of returnPromiseArray) {
+        if (Array.isArray(data)) {
+          data.forEach((id) => {
+            newEvePrices.push(id);
+          });
+        } else {
+          newEvePrices.push(data);
+        }
       }
     }
+
+    t.stop();
     return newEvePrices;
   };
 
@@ -635,9 +638,9 @@ export function useFirebase() {
             groupID: downloadDoc.groupID,
             isReadyToSell: downloadDoc.isReadyToSell || false,
           };
-          console.log(activeJob)
+          console.log(activeJob);
           if (activeJob.jobID == newJob.jobID) {
-            console.log("11")
+            console.log("11");
             updateActiveJob(newJob);
           }
           updateJobArray((prev) => {

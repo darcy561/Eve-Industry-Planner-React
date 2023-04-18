@@ -5,211 +5,179 @@ import { EveESIStatusContext } from "../Context/EveDataContext";
 export function useEveApi() {
   const { eveESIStatus, updateEveESIStatus } = useContext(EveESIStatusContext);
 
-  const CharacterSkills = async (userObj) => {
+  const fetchCharacterSkills = async (userObj) => {
     try {
-      const skillsPromise = await fetch(
+      const response = await fetch(
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/skills/?datasource=tranquility&token=${userObj.aToken}`
       );
-      const skillsJSON = await skillsPromise.json();
+      const skills = await response.json();
 
-      const newSkillArray = [];
-      if (skillsPromise.status !== 200) {
-        return [];
-      }
-      skillsReference.forEach((ref) => {
-        const x = skillsJSON.skills.find((s) => ref.id === s.skill_id);
-        const y = {
-          id: ref.id,
-          activeLevel: null,
-        };
-
-        if (x !== undefined) {
-          y.activeLevel = x.active_skill_level;
-        } else {
-          y.activeLevel = 0;
-        }
-        newSkillArray.push(y);
+      const mappedSkills = skillsReference.map((ref) => {
+        const { active_skill_level = 0 } =
+          skills.skills.find((s) => s.skill_id === ref.id) || {};
+        return { id: ref.id, activeLevel: active_skill_level };
       });
 
-      return newSkillArray;
+      return mappedSkills;
     } catch (err) {
-      console.log(err);
+      console.error(`Error fetching character skills: ${err}`);
       return [];
     }
   };
 
-  const IndustryJobs = async (userObj) => {
+  const fetchCharacterIndustryJobs = async (userObj) => {
     try {
-      const indyPromise = await fetch(
+      const request = await fetch(
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/industry/jobs/?datasource=tranquility&include_completed=true&token=${userObj.aToken}`
       );
 
-      const indyJSON = await indyPromise.json();
+      let data = await request.json();
 
-      if (indyPromise.status !== 200) {
+      if (request.status !== 200) {
         return [];
       }
-      let filterOld = indyJSON.filter(
+      data = data.filter(
         (job) =>
           job.completed_date === undefined ||
           new Date() - Date.parse(job.completed_date) <= 1209600000
-        // 10 days
+        // 14 days
       );
 
-      filterOld.forEach((job) => {
-        job.isCorp = false;
-      });
-      return filterOld;
+      return data.map((a) => ({ ...a, isCorp: false }));
     } catch (err) {
-      console.log(err);
+      console.error(`Error fetching character industry jobs: ${err}`);
       return [];
     }
   };
 
-  const MarketOrders = async (userObj) => {
+  const fetchCharacterMarketOrders = async (userObj) => {
     try {
-      const marketPromise = await fetch(
+      const request = await fetch(
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/orders/?datasource=tranquility&token=${userObj.aToken}`
       );
 
-      let marketJSON = await marketPromise.json();
+      let data = await request.json();
 
-      if (marketPromise.status !== 200) {
+      if (request.status !== 200) {
         return [];
       }
-      marketJSON = marketJSON.filter((item) => !item.is_buy_order);
+      data = data.filter((item) => !item.is_buy_order);
 
-      marketJSON.forEach((item) => {
-        item.CharacterHash = userObj.CharacterHash;
-      });
-
-      return marketJSON;
+      return data.map((a) => ({ ...a, CharacterHash: userObj.CharacterHash }));
     } catch (err) {
-      console.log(err);
+      console.error(`Error fetching character orders: ${err}`);
       return [];
     }
   };
 
-  const HistoricMarketOrders = async (userObj) => {
-    const returnArray = [];
+  const fetchCharacterHistMarketOrders = async (userObj) => {
+    let orders = [];
+    let maxPages = 50;
+    let maxEntries = 2500;
 
-    let pageCount = 1;
-    while (pageCount < 11) {
+    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
       try {
-        const histPromise = await fetch(
+        const request = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/orders/history/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
         );
-        const histJSON = await histPromise.json();
-        if (histPromise.status === 200) {
-          histJSON.forEach((item) => {
-            returnArray.push(item);
-          });
+        const data = await request.json();
+        if (request.status !== 200) break;
 
-          if (histJSON.length < 2501) {
-            pageCount = 11;
-          } else {
-            pageCount++;
-          }
-        } else {
-          pageCount = 11;
-        }
+        orders.push(...data);
+
+        if (data.length < maxEntries) break;
       } catch (err) {
+        console.error(`Error fetching character historic orders: ${err}`);
         return [];
       }
     }
-    let filtered = returnArray.filter((item) => !item.is_buy_order);
+    orders = orders.filter((item) => !item.is_buy_order);
 
-    filtered.forEach((item) => {
-      item.CharacterHash = userObj.CharacterHash;
-    });
-
-    return filtered;
+    return orders.map((a) => ({ ...a, CharacterHash: userObj.CharacterHash }));
   };
 
-  const BlueprintLibrary = async (userObj) => {
-    let returnArray = [];
-    let pageCount = 1;
-    while (pageCount < 11) {
+  const fetchCharacterBlueprints = async (userObj) => {
+    let blueprints = [];
+    let maxPages = 50;
+    let maxEntries = 1000;
+
+    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
       try {
-        const blueprintPromise = await fetch(
+        const request = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/blueprints/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
         );
 
-        const blueprintJSON = await blueprintPromise.json();
-        if (blueprintPromise.status === 200) {
-          returnArray = returnArray.concat(blueprintJSON);
+        const data = await request.json();
+        if (request.status !== 200) break;
 
-          if (blueprintJSON.length < 1000) {
-            pageCount = 11;
-          } else {
-            pageCount++;
-          }
-        } else {
-          pageCount = 11;
-        }
+        blueprints.push(...data);
+
+        if (data.length < maxEntries) break;
       } catch (err) {
-        pageCount = 11;
-        console.log(err);
+        console.error(`Error fetching character blueprints: ${err}`);
         return [];
       }
     }
-    return returnArray;
+    return blueprints;
   };
 
-  const WalletTransactions = async (userObj) => {
-    try {
-      const transactionsPromise = await fetch(
-        `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/wallet/transactions/?datasource=tranquility&token=${userObj.aToken}`
-      );
+  const fetchCharacterTransactions = async (userObj) => {
+    let transactions = [];
+    let maxPages = 20;
+    let maxEntries = 2500;
+    let currentDate = new Date();
 
-      const transactionsJSON = await transactionsPromise.json();
-      if (transactionsPromise.status === 200) {
-        const filtered = transactionsJSON.filter(
-          (i) =>
-            i.is_buy === false && new Date() - Date.parse(i.date) <= 1209600000
-        );
-        return filtered;
-      } else return [];
-    } catch (err) {
-      console.log(err);
-      return [];
-    }
-  };
-
-  const WalletJournal = async (userObj) => {
-    let pageCount = 1;
-    let returnArray = [];
-    while (pageCount < 11) {
+    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
       try {
-        const journalPromise = await fetch(
+        const request = await fetch(
+          `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/wallet/transactions/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
+        );
+        const data = await request.json();
+        if (request.status !== 200) break;
+
+        transactions.push(...data);
+
+        if (data.length < maxEntries) break;
+      } catch (err) {
+        console.error(`Error fetching character transactions: ${err}`);
+        return [];
+      }
+    }
+
+    return transactions.filter(
+      (i) =>
+        i.is_buy === false && currentDate - Date.parse(i.date) <= 1209600000
+    );
+  };
+
+  const fetchCharacterJournal = async (userObj) => {
+    let journal = [];
+    let maxPages = 20;
+    let maxEntries = 2500;
+    let currentDate = new Date();
+
+    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+      try {
+        const request = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/wallet/journal/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
         );
 
-        let journalJSON = await journalPromise.json();
-        if (journalPromise.status === 200) {
-          let currentDate = new Date();
+        let data = await request.json();
+        if (request.status !== 200) break;
 
-          journalJSON = journalJSON.filter(
-            (item) => currentDate - Date.parse(item.date) <= 1209600000
-          );
-          returnArray = returnArray.concat(journalJSON);
+        journal.push(...data);
 
-          if (journalJSON.length < 1000) {
-            pageCount = 11;
-          } else {
-            pageCount++;
-          }
-        } else {
-          pageCount = 11;
-        }
+        if (data.length < maxEntries) break;
       } catch (err) {
-        pageCount = 11;
-        console.log(err);
+        console.error(`Error fetching character journal: ${err}`);
         return [];
       }
     }
 
-    return returnArray;
+    // 14 Days
+    return journal.filter(
+      (item) => currentDate - Date.parse(item.date) <= 1209600000
+    );
   };
 
   const IDtoName = async (idArray, userObj) => {
@@ -296,53 +264,44 @@ export function useEveApi() {
     }
   };
 
-  const fullAssetsList = async (userObj) => {
-    let pageCount = 1;
-    let returnArray = [];
+  const fetchCharacterAssets = async (userObj) => {
+    let assets = [];
+    let maxPages = 20;
+    let maxEntries = 1000;
 
-    while (pageCount < 21) {
+    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
       try {
-        const assetPromise = await fetch(
+        const request = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/assets/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
         );
-        const assetJSON = await assetPromise.json();
+        const data = await request.json();
 
-        if (assetPromise.status === 200) {
-          assetJSON.forEach((item) => {
-            item.CharacterHash = userObj.CharacterHash;
-          });
-          returnArray = returnArray.concat(assetJSON);
+        if (request.status !== 200) break;
 
-          if (assetJSON.length < 1000) {
-            pageCount = 21;
-          } else {
-            pageCount++;
-          }
-        } else {
-          pageCount = 21;
-        }
+        assets.push(...data);
+
+        if (data.length < maxEntries) break;
       } catch (err) {
-        pageCount = 21;
-        console.log(err);
+        console.error(`Error fetching character assets: ${err}`);
         return [];
       }
     }
-    return returnArray;
+
+    return assets.map((a) => ({ ...a, CharacterHash: userObj.CharacterHash }));
   };
 
-  const standingsList = async (userObj) => {
+  const fetchCharacterStandings = async (userObj) => {
     try {
-      const standingsPromise = await fetch(
+      const request = await fetch(
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/standings/?datasource=tranquility&token=${userObj.aToken}`
       );
-      const standingsJSON = await standingsPromise.json();
+      const data = await request.json();
 
-      if (standingsPromise.status !== 200) {
-        return [];
-      }
-      return standingsJSON;
+      if (request.status !== 200) return [];
+
+      return data;
     } catch (err) {
-      console.log(err);
+      console.error(`Error fetching character standings: ${err}`);
       return [];
     }
   };
@@ -363,80 +322,256 @@ export function useEveApi() {
     }
   };
 
-  const characterData = async (userObj) => {
+  const fetchCharacterData = async (userObj) => {
     try {
-      const characterPromise = await fetch(
+      const request = await fetch(
         `https://esi.evetech.net/legacy/characters/${userObj.CharacterID}/?datasource=tranquility`
       );
-      const characterData = await characterPromise.json();
+      const data = await request.json();
 
-      if (characterPromise.status === 200) {
-        return characterData;
+      if (request.status === 200) {
+        return data;
       }
     } catch (err) {
+      console.error(`Error fetching character data: ${err}`);
       return {};
     }
   };
 
-  const corpIndustryJobs = async (userObj) => {
-    let returnArray = [];
-    let pageCount = 1;
-    while (pageCount < 11) {
+  const fetchCorpIndustryJobs = async (userObj) => {
+    let indyJobs = [];
+    let maxPages = 1;
+    let maxEntries = 1000;
+
+    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
       try {
-        const corpIndyPromise = await fetch(
+        const request = await fetch(
           `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/industry/jobs/?include_completed=true&page=${pageCount}&token=${userObj.aToken}`
         );
-        const corpIndyJSON = await corpIndyPromise.json();
-        if (corpIndyPromise.status === 200) {
-          let filterOld = corpIndyJSON.filter(
-            (job) =>
-              job.completed_date === undefined ||
-              new Date() - Date.parse(job.completed_date) <= 1209600000
-            // 10 days
-          );
+        const data = await request.json();
+        if (request.status !== 200) break;
 
-          let filterOnlyChar = filterOld.filter(
-            (job) => job.installer_id === userObj.CharacterID
-          );
+        indyJobs.push(...data);
 
-          filterOnlyChar.forEach((job) => {
-            job.isCorp = true;
-          });
-
-          returnArray = returnArray.concat(filterOnlyChar);
-
-          if (corpIndyJSON.length < 1000) {
-            pageCount = 11;
-          } else {
-            pageCount++;
-          }
-        } else {
-          pageCount = 11;
-        }
+        if (data.length < maxEntries) break;
       } catch (err) {
-        pageCount = 11;
-        console.log(err);
+        console.error(`Error fetching corporation industry job data: ${err}`);
         return [];
       }
     }
 
-    return returnArray;
+    indyJobs = indyJobs.filter(
+      (job) =>
+        job.completed_date === undefined ||
+        new Date() - Date.parse(job.completed_date) <= 1209600000
+      // 10 days
+    );
+
+    indyJobs = indyJobs.filter(
+      (job) => job.installer_id === userObj.CharacterID
+    );
+
+    return indyJobs.map((bp) => ({ ...bp, isCorp: true }));
+  };
+
+  const fetchCorpMarketOrdersJobs = async (userObj) => {
+    let orders = [];
+    let maxPages = 1;
+    let maxEntries = 1000;
+
+    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+      try {
+        const request = await fetch(
+          `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/orders?page=${pageCount}&token=${userObj.aToken}`
+        );
+        const data = await request.json();
+        if (request.promise !== 200) break;
+
+        orders.push(...data);
+
+        if (data.length < maxEntries) break;
+      } catch (err) {
+        console.error(`Error fetching corporation market order data: ${err}`);
+        return [];
+      }
+    }
+    orders = orders.filter(
+      (item) => !item.is_buy_order && item.issued_by === userObj.CharacterID
+    );
+
+    return orders.map((bp) => ({ ...bp, isCorp: true }));
+  };
+
+  const fetchCorpHistMarketOrders = async (userObj) => {
+    let orders = [];
+    let maxPages = 10;
+    let maxEntries = 1000;
+
+    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+      try {
+        const request = await fetch(
+          `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/orders/history?page=${pageCount}&token=${userObj.aToken}`
+        );
+        const data = await request.json();
+        if (request.status !== 200) break;
+
+        orders.push(...data);
+
+        if (data.length < maxEntries) break;
+      } catch (err) {
+        console.error(
+          `Error fetching corporation historic market order data: ${err}`
+        );
+        break;
+      }
+    }
+    orders = orders.filter(
+      (item) => !item.is_buy_order && item.issued_by === userObj.CharacterID
+    );
+
+    return orders.map((bp) => ({ ...bp, isCorp: true }));
+  };
+
+  const fetchCorpBlueprintLibrary = async (userObj) => {
+    let blueprints = [];
+    let maxPages = 50;
+    let maxEntries = 1000;
+
+    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+      try {
+        const request = await fetch(
+          `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/blueprints?page=${pageCount}&token=${userObj.aToken}`
+        );
+
+        const data = await request.json();
+
+        if (request.status !== 200) break;
+
+        blueprints.push(...data);
+        if (data.length < maxEntries) break;
+      } catch (err) {
+        console.error(`Error fetching corporation blueprint data: ${err}`);
+        break;
+      }
+    }
+
+    return blueprints.map((bp) => ({ ...bp, isCorp: true }));
+  };
+
+  const fetchCorpDivisions = async (userObj) => {
+    try {
+      const request = await fetch(
+        `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/divisions?token=${userObj.aToken}`
+      );
+      let data = await request.json();
+      if (request.status === 403) return null;
+
+      data.corporation_id = userObj.corporation_id;
+      console.log(data);
+      return data;
+    } catch (err) {}
+  };
+
+  const fetchCorpJournal = async (userObj) => {
+    let journal = [];
+    let maxDivisions = 7;
+    let maxPages = 50;
+    let maxEntries = 2500;
+    let currentDate = Date.now();
+    let refTypes = new Set(["market_escrow", "market_transaction","transaction_tax"]);
+
+    try {
+      for (let division = 1; division <= maxDivisions; division++) {
+        let divisionArray = [];
+        for (let page = 1; page <= maxPages; page++) {
+          const request = await fetch(
+            `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/wallets/${division}/journal?page=${page}&token=${userObj.aToken}`
+          );
+          const data = await request.json();
+
+          if (!request.ok) break;
+
+          divisionArray.push(...data);
+
+          if (data.length < maxEntries) break;
+        }
+        //14 Days
+        divisionArray = divisionArray.filter(
+          (item) =>
+            currentDate - Date.parse(item.date) <= 1209600000 &&
+            refTypes.has(item.ref_type)
+        );
+        journal.push({
+          division,
+          data: divisionArray,
+        });
+      }
+      return journal;
+    } catch (err) {
+      console.error(`Error fetching corporation journal: ${err}`);
+      return [];
+    }
+  };
+
+  const fetchCorpTransactions = async (userObj) => {
+    let transactions = [];
+    let maxDivisions = 7;
+    let maxPages = 50;
+    let maxEntries = 2500;
+    let currentDate = Date.now();
+
+    try {
+      for (let division = 1; division <= maxDivisions; division++) {
+        let divisionArray = [];
+        for (let page = 1; page <= maxPages; page++) {
+          const request = await fetch(
+            `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/wallets/${division}/transactions?page=${page}&token=${userObj.aToken}`
+          );
+          const data = await request.json();
+
+          if (!request.ok) break;
+
+          divisionArray.push(...data);
+
+          if (data.length < maxEntries) break;
+        }
+        //14 Days
+        divisionArray = divisionArray.filter(
+          (item) =>
+            currentDate - Date.parse(item.date) <= 1209600000 && !item.is_buy
+        );
+        transactions.push({
+          division,
+          data: divisionArray,
+        });
+      }
+      return transactions;
+    } catch (err) {
+      console.error(`Error fetching corporation transactions: ${err}`);
+      return [];
+    }
   };
 
   return {
-    BlueprintLibrary,
-    characterData,
-    CharacterSkills,
-    corpIndustryJobs,
-    fullAssetsList,
-    HistoricMarketOrders,
+    fetchCharacterBlueprints,
+    fetchCharacterData,
+    fetchCharacterSkills,
+    fetchCharacterAssets,
+    fetchCharacterHistMarketOrders,
+    fetchCharacterStandings,
+    fetchCharacterIndustryJobs,
+    fetchCharacterMarketOrders,
+    fetchCharacterTransactions,
+    fetchCharacterJournal,
     IDtoName,
-    IndustryJobs,
-    MarketOrders,
     serverStatus,
-    standingsList,
     stationData,
-    WalletTransactions,
-    WalletJournal,
+    fetchCorpDivisions,
+    fetchCorpIndustryJobs,
+    fetchCorpJournal,
+    fetchCorpTransactions,
+    fetchCorpMarketOrdersJobs,
+    fetchCorpHistMarketOrders,
+    fetchCorpBlueprintLibrary,
   };
 }

@@ -49,8 +49,8 @@ class ESIMarketOrder {
 
 export function AvailableMarketOrders({
   setJobModified,
-  itemOrderMatch,
   updateShowAvailableOrders,
+  itemOrderMatch,
 }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { eveIDs } = useContext(EveIDsContext);

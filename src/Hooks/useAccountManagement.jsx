@@ -73,8 +73,22 @@ export function useAccountManagement() {
     esiStandings,
     updateEsiStandings,
   } = useContext(PersonalESIDataContext);
-  const { corpEsiIndJobs, updateCorpEsiIndJobs } =
-    useContext(CorpEsiDataContext);
+  const {
+    corpEsiIndJobs,
+    updateCorpEsiIndJobs,
+    corpEsiOrders,
+    updateCorpEsiOrders,
+    corpEsiHistOrders,
+    updateCorpEsiHistOrders,
+    corpEsiBlueprints,
+    updateCorpEsiBlueprints,
+    corpEsiJournal,
+    updateCorpEsiJournal,
+    corpEsiTransactions,
+    updateCorpEsiTransactions,
+    corpEsiDivisions,
+    updateCorpEsiDivisions,
+  } = useContext(CorpEsiDataContext);
   const { updateUserUIData, updateLoginInProgressComplete } =
     useContext(UserLoginUIContext);
 
@@ -83,18 +97,24 @@ export function useAccountManagement() {
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   const {
-    characterData,
-    CharacterSkills,
-    corpIndustryJobs,
-    IndustryJobs,
-    MarketOrders,
-    HistoricMarketOrders,
-    BlueprintLibrary,
-    WalletJournal,
-    WalletTransactions,
-    fullAssetsList,
+    fetchCharacterData,
+    fetchCharacterSkills,
+    fetchCorpIndustryJobs,
+    fetchCorpMarketOrdersJobs,
+    fetchCorpHistMarketOrders,
+    fetchCorpBlueprintLibrary,
+    fetchCorpDivisions,
+    fetchCorpJournal,
+    fetchCorpTransactions,
+    fetchCharacterIndustryJobs,
+    fetchCharacterMarketOrders,
+    fetchCharacterHistMarketOrders,
+    fetchCharacterBlueprints,
+    fetchCharacterJournal,
+    fetchCharacterTransactions,
+    fetchCharacterAssets,
     IDtoName,
-    standingsList,
+    fetchCharacterStandings,
     serverStatus,
   } = useEveApi();
   const analytics = getAnalytics();
@@ -125,17 +145,29 @@ export function useAccountManagement() {
       assets,
       standings,
       corpIndJobs,
+      corpMOrders,
+      corpHistMOrders,
+      corpBlueprints,
+      corpJournal,
+      corpTransactions,
+      corpDivisions,
     ] = await Promise.all([
-      CharacterSkills(userObject),
-      IndustryJobs(userObject),
-      MarketOrders(userObject),
-      HistoricMarketOrders(userObject),
-      BlueprintLibrary(userObject),
-      WalletTransactions(userObject),
-      WalletJournal(userObject),
-      fullAssetsList(userObject),
-      standingsList(userObject),
-      corpIndustryJobs(userObject),
+      fetchCharacterSkills(userObject),
+      fetchCharacterIndustryJobs(userObject),
+      fetchCharacterMarketOrders(userObject),
+      fetchCharacterHistMarketOrders(userObject),
+      fetchCharacterBlueprints(userObject),
+      fetchCharacterTransactions(userObject),
+      fetchCharacterJournal(userObject),
+      fetchCharacterAssets(userObject),
+      fetchCharacterStandings(userObject),
+      fetchCorpIndustryJobs(userObject),
+      fetchCorpMarketOrdersJobs(userObject),
+      fetchCorpHistMarketOrders(userObject),
+      fetchCorpBlueprintLibrary(userObject),
+      fetchCorpJournal(userObject),
+      fetchCorpTransactions(userObject),
+      fetchCorpDivisions(userObject),
     ]);
     t.stop();
     return {
@@ -150,6 +182,11 @@ export function useAccountManagement() {
       esiAssets: assets,
       esiStandings: standings,
       esiCorpJobs: corpIndJobs,
+      esiCorpMOrders: corpMOrders,
+      esiCorpHistMOrders: corpHistMOrders,
+      esiCorpBlueprints: corpBlueprints,
+      esiCorpJournal: corpJournal,
+      esiCorpTransactions: corpTransactions,
     };
   };
 
@@ -367,10 +404,12 @@ export function useAccountManagement() {
       let esiObject = await characterAPICall(newUser);
       updateUserUIData((prev) => ({
         ...prev,
-        userArray: prev.userArray.concat([{
-          CharacterID: newUser.CharacterID,
-          CharacterName: newUser.CharacterName,
-        }]),
+        userArray: prev.userArray.concat([
+          {
+            CharacterID: newUser.CharacterID,
+            CharacterName: newUser.CharacterName,
+          },
+        ]),
       }));
       userArray.push(newUser);
       esiObjectArray.push(esiObject);
@@ -394,10 +433,12 @@ export function useAccountManagement() {
       let esiObject = await characterAPICall(newUser);
       updateUserUIData((prev) => ({
         ...prev,
-        userArray: prev.userArray.concat([{
-          CharacterID: newUser.CharacterID,
-          CharacterName: newUser.CharacterName,
-        }]),
+        userArray: prev.userArray.concat([
+          {
+            CharacterID: newUser.CharacterID,
+            CharacterName: newUser.CharacterName,
+          },
+        ]),
       }));
       esiObjectArray.push(esiObject);
       userArray.push(newUser);
@@ -535,6 +576,11 @@ export function useAccountManagement() {
     let journal = [];
     let standings = [];
     let corpJobs = [];
+    let corpOrders = [];
+    let corpHistMOrders = [];
+    let corpBlueprints = [];
+    let corpJournal = [];
+    let corpTransactions = [];
 
     for (let esiUser of esiObjectArray) {
       skills.push({
@@ -577,6 +623,26 @@ export function useAccountManagement() {
         user: esiUser.owner,
         data: esiUser.esiCorpJobs,
       });
+      corpOrders.push({
+        user: esiUser.owner,
+        data: esiUser.esiOrders,
+      });
+      corpHistMOrders.push({
+        user: esiUser.owner,
+        data: esiUser.esiCorpHistMOrders,
+      });
+      corpBlueprints.push({
+        user: esiUser.owner,
+        data: esiUser.esiCorpBlueprints,
+      });
+      corpJournal.push({
+        user: esiUser.owner,
+        data: esiUser.esiCorpJournal,
+      });
+      corpTransactions.push({
+        user: esiUser.owner,
+        data: esiUser.esiCorpTransactions,
+      });
     }
     updateEsiIndJobs(jobs);
     updateEsiSkills(skills);
@@ -587,6 +653,11 @@ export function useAccountManagement() {
     updateEsiTransactions(transactions);
     updateEsiStandings(standings);
     updateCorpEsiIndJobs(corpJobs);
+    updateCorpEsiOrders(corpOrders);
+    updateCorpEsiHistOrders(corpHistMOrders);
+    updateCorpEsiBlueprints(corpBlueprints);
+    updateCorpEsiJournal(corpJournal);
+    updateCorpEsiTransactions(corpTransactions);
   };
 
   const updateUserEsiData = (esiObjectArray) => {
@@ -600,6 +671,11 @@ export function useAccountManagement() {
     let newEsiTransactions = [...esiTransactions];
     let newEsiStandings = [...esiStandings];
     let newCorpEsiIndJobs = [...corpEsiIndJobs];
+    let newCorpEsiOrders = [corpEsiOrders];
+    let newCorpEsiHistMOrders = [...corpEsiHistOrders];
+    let newCorpEsiBlueprints = [...corpEsiBlueprints];
+    let newCorpEsiJournal = [...corpEsiJournal];
+    let newCorpESiTransactions = [...corpEsiTransactions];
 
     esiObjectArray.forEach((entry) => {
       usersToUpdate.add(entry.user);
@@ -620,6 +696,21 @@ export function useAccountManagement() {
     );
     newEsiStandings = newEsiStandings.filter((i) => !usersToUpdate.has(i.user));
     newCorpEsiIndJobs = newCorpEsiIndJobs.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newCorpEsiOrders = newCorpEsiOrders.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newCorpEsiHistMOrders = newCorpEsiHistMOrders.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newCorpEsiBlueprints = newCorpEsiBlueprints.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newCorpEsiJournal = newCorpEsiJournal.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newCorpESiTransactions = newCorpESiTransactions.filter(
       (i) => !usersToUpdate.has(i.user)
     );
 
@@ -664,6 +755,26 @@ export function useAccountManagement() {
         user: esiUser.owner,
         data: esiUser.esiCorpJobs,
       });
+      newCorpEsiOrders.push({
+        user: esiUser.owner,
+        data: esiUser.esiOrders,
+      });
+      newCorpEsiHistMOrders.push({
+        user: esiUser.owner,
+        data: esiUser.esiCorpHistMOrders,
+      });
+      newCorpEsiBlueprints.push({
+        user: esiUser.owner,
+        data: esiUser.esiBlueprints,
+      });
+      newCorpEsiJournal.push({
+        user: esiUser.owner,
+        data: esiUser.esiJournal,
+      });
+      newCorpESiTransactions.push({
+        user: esiUser.owner,
+        data: esiUser.esiTransactions,
+      });
     }
 
     updateEsiIndJobs(newEsiIndJobs);
@@ -675,6 +786,11 @@ export function useAccountManagement() {
     updateEsiTransactions(newEsiTransactions);
     updateEsiStandings(newEsiStandings);
     updateCorpEsiIndJobs(newCorpEsiIndJobs);
+    updateCorpEsiOrders(newCorpEsiOrders);
+    updateCorpEsiHistOrders(newCorpEsiHistMOrders);
+    updateCorpEsiBlueprints(newCorpEsiBlueprints);
+    updateCorpEsiJournal(newCorpEsiJournal);
+    updateCorpEsiTransactions(newCorpESiTransactions);
   };
 
   const removeUserEsiData = (userHash) => {
@@ -687,6 +803,11 @@ export function useAccountManagement() {
     let newEsiTransactions = [...esiTransactions];
     let newEsiStandings = [...esiStandings];
     let newCorpEsiIndJobs = [...corpEsiIndJobs];
+    let newCorpEsiOrders = [...corpEsiOrders];
+    let newCorpEsiHistMOrders = [...corpEsiHistOrders];
+    let newCorpEsiBlueprints = [...corpEsiBlueprints];
+    let newCorpEsiJournal = [...corpEsiJournal];
+    let newCorpESiTransactions = [...corpEsiTransactions];
 
     newEsiIndJobs = newEsiIndJobs.filter((i) => i.user !== userHash);
     newEsiSkills = newEsiSkills.filter((i) => i.user !== userHash);
@@ -697,6 +818,17 @@ export function useAccountManagement() {
     newEsiTransactions = newEsiTransactions.filter((i) => i.user !== userHash);
     newEsiStandings = newEsiStandings.filter((i) => i.user !== userHash);
     newCorpEsiIndJobs = newCorpEsiIndJobs.filter((i) => i.user !== userHash);
+    newCorpEsiOrders = newCorpEsiOrders.filter((i) => i.user !== userHash);
+    newCorpEsiHistMOrders = newCorpEsiHistMOrders.filter(
+      (i) => i.user !== userHash
+    );
+    newCorpEsiBlueprints = newCorpEsiBlueprints.filter(
+      (i) => i.user !== userHash
+    );
+    newCorpEsiJournal = newCorpEsiJournal.filter((i) => i.user !== userHash);
+    newCorpESiTransactions = newCorpESiTransactions.filter(
+      (i) => i.user !== userHash
+    );
 
     sessionStorage.removeItem(`assets_${userHash}`);
 
@@ -709,10 +841,15 @@ export function useAccountManagement() {
     updateEsiTransactions(newEsiTransactions);
     updateEsiStandings(newEsiStandings);
     updateCorpEsiIndJobs(newCorpEsiIndJobs);
+    updateCorpEsiOrders(newCorpEsiOrders);
+    updateCorpEsiHistOrders(newCorpEsiHistMOrders);
+    updateCorpEsiBlueprints(newCorpEsiBlueprints);
+    updateCorpEsiJournal(newCorpEsiJournal);
+    updateCorpEsiTransactions(newCorpESiTransactions);
   };
 
   const getCharacterInfo = async (userObj) => {
-    const charData = await characterData(userObj);
+    const charData = await fetchCharacterData(userObj);
     userObj.corporation_id = charData.corporation_id;
   };
 

@@ -4,6 +4,7 @@ import {
   LinkedIDsContext,
 } from "../../../../../Context/JobContext";
 import {
+  Avatar,
   Grid,
   IconButton,
   Menu,
@@ -15,8 +16,10 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { AddTransactionDialog } from "./addTransaction";
+import { UsersContext } from "../../../../../Context/AuthContext";
 
 export function LinkedTransactions({ setJobModified, activeOrder }) {
+  const { users } = useContext(UsersContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { linkedTransIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
@@ -97,6 +100,9 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
           >
             {activeJob.build.sale.transactions.length !== 0 ? (
               activeJob.build.sale.transactions.map((tData, index) => {
+                const charData = users.find(
+                  (i) => i.CharacterHash === tData.CharacterHash
+                );
                 if (!activeOrder.some((t) => t !== tData.location_id)) {
                   return (
                     <Grid
@@ -104,9 +110,22 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                       container
                       sx={{ marginBottom: "10px" }}
                     >
+                      <Grid item xs={1}>
+                        <Avatar
+                          src={
+                            charData !== undefined
+                              ? tData.is_corp
+                                ? `https://images.evetech.net/corporations/${charData.corporation_id}/logo`
+                                : `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
+                              : ""
+                          }
+                          variant="circular"
+                          sx={{ height: "32px", width: "32px" }}
+                        />
+                      </Grid>
                       <Grid
                         item
-                        xs={4}
+                        xs={11}
                         md={1}
                         align="center"
                         sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
@@ -117,7 +136,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                           {new Date(tData.date).toLocaleString()}
                         </Typography>
                       </Grid>
-                      <Grid item xs={6} md={2} align="center">
+                      <Grid item xs={12} md={2} align="center">
                         <Typography
                           sx={{ typography: { xs: "caption", sm: "body2" } }}
                         >
@@ -143,10 +162,9 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}{" "}
-                          ISK Each
                         </Typography>
                       </Grid>
-                      <Grid item xs={6} md={2} align="center">
+                      <Grid item xs={12} sm={6} md={3} align="center">
                         <Typography
                           sx={{ typography: { xs: "caption", sm: "body2" } }}
                         >
@@ -156,7 +174,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                           })}
                         </Typography>
                       </Grid>
-                      <Grid item xs={6} md={2} align="center">
+                      <Grid item sm={6} md={2} align="center" sx={{display:{xs:"none", sm: "block"}}}>
                         <Typography
                           sx={{ typography: { xs: "caption", sm: "body2" } }}
                         >
@@ -165,7 +183,6 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })}{" "}
-                          Tax Paid
                         </Typography>
                       </Grid>
                       <Grid item xs={12} md={1} align="center">

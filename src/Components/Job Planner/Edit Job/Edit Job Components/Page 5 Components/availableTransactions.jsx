@@ -1,4 +1,11 @@
-import { Button, Grid, IconButton, Paper, Typography } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  Grid,
+  IconButton,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { useContext } from "react";
 import {
   IsLoggedInContext,
@@ -13,10 +20,7 @@ import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useMarketOrderFunctions } from "../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 
-export function AvailableTransactionData({
-  setJobModified,
-  activeOrder,
-}) {
+export function AvailableTransactionData({ setJobModified, activeOrder }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -24,10 +28,10 @@ export function AvailableTransactionData({
   const { linkedTransIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
   const { buildTransactionData } = useMarketOrderFunctions();
   const analytics = getAnalytics();
-  
 
-  const transactionData = buildTransactionData()
+  const transactionData = buildTransactionData();
 
+  console.log(transactionData);
   return (
     <Paper
       sx={{
@@ -61,6 +65,10 @@ export function AvailableTransactionData({
         >
           {transactionData.length !== 0 ? (
             transactionData.map((tData) => {
+              const charData = users.find(
+                (i) => i.CharacterHash === tData.CharacterHash
+              );
+
               return (
                 <Grid
                   item
@@ -69,9 +77,22 @@ export function AvailableTransactionData({
                   container
                   sx={{ marginBottom: "10px" }}
                 >
+                  <Grid item xs={1}>
+                    <Avatar
+                      src={
+                        charData !== undefined
+                          ? tData.is_corp
+                            ? `https://images.evetech.net/corporations/${charData.corporation_id}/logo`
+                            : `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
+                          : ""
+                      }
+                      variant="circular"
+                      sx={{ height: "32px", width: "32px" }}
+                    />
+                  </Grid>
                   <Grid
                     item
-                    xs={6}
+                    xs={11}
                     md={1}
                     align="center"
                     sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
@@ -82,7 +103,7 @@ export function AvailableTransactionData({
                       {new Date(tData.date).toLocaleString()}
                     </Typography>
                   </Grid>
-                  <Grid item xs={6} md={2} align="center">
+                  <Grid item xs={12} md={2} align="center">
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >
@@ -102,16 +123,15 @@ export function AvailableTransactionData({
                       {tData.quantity.toLocaleString(undefined, {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0,
-                      })}
-                      {""}@{" "}
+                      })}{" "}
+                      @{" "}
                       {tData.unit_price.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}{" "}
-                      ISK Each
                     </Typography>
                   </Grid>
-                  <Grid item xs={6} md={2} align="center">
+                  <Grid item xs={12} sm={6} md={3} align="center">
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >
@@ -119,10 +139,9 @@ export function AvailableTransactionData({
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}{" "}
-                      ISK
                     </Typography>
                   </Grid>
-                  <Grid item xs={6} md={2} align="center">
+                  <Grid item sm={6} md={2} align="center" sx={{display:{xs:"none", sm: "block"}}}>
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >
@@ -131,7 +150,6 @@ export function AvailableTransactionData({
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}{" "}
-                      ISK
                     </Typography>
                   </Grid>
                   <Grid item xs={12} md={1} align="center">

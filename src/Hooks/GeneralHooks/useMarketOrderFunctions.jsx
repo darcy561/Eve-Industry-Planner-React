@@ -22,7 +22,7 @@ export function useMarketOrderFunctions() {
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   class Transaction {
-    constructor(trans, desc, journal, tax) {
+    constructor(trans, desc, journal, tax, CharacterHash) {
       this.order_id = null;
       this.journal_ref_id = trans.journal_ref_id;
       this.unit_price = trans.unit_price;
@@ -35,6 +35,7 @@ export function useMarketOrderFunctions() {
       this.is_corp = !trans.is_personal;
       this.type_id = trans.type_id;
       this.description = desc;
+      this.CharacterHash = CharacterHash;
     }
   }
 
@@ -157,14 +158,15 @@ export function useMarketOrderFunctions() {
           const descriptionTrim = transJournal.description
             .replace("Market: ", "")
             .split(" bought");
-          transactionData.push(
-            new Transaction(
+          transactionData.push({
+            ...new Transaction(
               itemTrans,
               descriptionTrim[0],
               transJournal,
-              transTax
-            )
-          );
+              transTax,
+              order.CharacterHash
+            ),
+          });
         }
       });
     });

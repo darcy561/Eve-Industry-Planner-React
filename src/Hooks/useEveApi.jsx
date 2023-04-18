@@ -74,6 +74,7 @@ export function useEveApi() {
     let orders = [];
     let maxPages = 50;
     let maxEntries = 2500;
+    let currentDate = Date.now();
 
     for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
       try {
@@ -91,7 +92,12 @@ export function useEveApi() {
         return [];
       }
     }
-    orders = orders.filter((item) => !item.is_buy_order);
+    //14 Days
+    orders = orders.filter(
+      (item) =>
+        !item.is_buy_order 
+        // currentDate - Date.parse(item.issued) <= 1209600000
+    );
 
     return orders.map((a) => ({ ...a, CharacterHash: userObj.CharacterHash }));
   };
@@ -144,6 +150,7 @@ export function useEveApi() {
       }
     }
 
+    //14 Days
     return transactions.filter(
       (i) =>
         i.is_buy === false && currentDate - Date.parse(i.date) <= 1209600000
@@ -364,7 +371,7 @@ export function useEveApi() {
       (job) =>
         job.completed_date === undefined ||
         new Date() - Date.parse(job.completed_date) <= 1209600000
-      // 10 days
+      // 14 days
     );
 
     indyJobs = indyJobs.filter(
@@ -406,6 +413,7 @@ export function useEveApi() {
     let orders = [];
     let maxPages = 10;
     let maxEntries = 1000;
+    let currentDate = Date.now();
 
     for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
       try {
@@ -425,8 +433,12 @@ export function useEveApi() {
         break;
       }
     }
+    //14 Days
     orders = orders.filter(
-      (item) => !item.is_buy_order && item.issued_by === userObj.CharacterID
+      (item) =>
+        !item.is_buy_order &&
+        item.issued_by === userObj.CharacterID &&
+        currentDate - Date.parse(item.issued) <= 1209600000
     );
 
     return orders.map((bp) => ({ ...bp, isCorp: true }));
@@ -478,18 +490,22 @@ export function useEveApi() {
     let maxPages = 50;
     let maxEntries = 2500;
     let currentDate = Date.now();
-    let refTypes = new Set(["market_escrow", "market_transaction","transaction_tax"]);
+    let refTypes = new Set([
+      "market_escrow",
+      "market_transaction",
+      "transaction_tax",
+    ]);
 
     try {
-      for (let division = 1; division <= maxDivisions; division++) {
+      divisions: for (let division = 1; division <= maxDivisions; division++) {
         let divisionArray = [];
-        for (let page = 1; page <= maxPages; page++) {
+        pages: for (let page = 1; page <= maxPages; page++) {
           const request = await fetch(
             `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/wallets/${division}/journal?page=${page}&token=${userObj.aToken}`
           );
           const data = await request.json();
 
-          if (!request.ok) break;
+          if (!request.ok) break divisions;
 
           divisionArray.push(...data);
 
@@ -521,15 +537,15 @@ export function useEveApi() {
     let currentDate = Date.now();
 
     try {
-      for (let division = 1; division <= maxDivisions; division++) {
+      divisions: for (let division = 1; division <= maxDivisions; division++) {
         let divisionArray = [];
-        for (let page = 1; page <= maxPages; page++) {
+        pages: for (let page = 1; page <= maxPages; page++) {
           const request = await fetch(
             `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/wallets/${division}/transactions?page=${page}&token=${userObj.aToken}`
           );
           const data = await request.json();
 
-          if (!request.ok) break;
+          if (!request.ok) break divisions;
 
           divisionArray.push(...data);
 

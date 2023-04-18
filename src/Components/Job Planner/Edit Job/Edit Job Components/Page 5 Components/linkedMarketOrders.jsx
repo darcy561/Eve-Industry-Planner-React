@@ -193,7 +193,24 @@ export function LinkedMarketOrders({
               sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
             >
               <Grid container item>
-                <Grid item xs={12} align="center">
+                <Grid
+                  container
+                  item
+                  xs={12}
+                  align="center"
+                  justifyContent="center"
+                >
+                  {order.is_corporation && (
+                    <Avatar
+                      src={
+                        charData !== undefined
+                          ? `https://images.evetech.net/corporations/${charData.corporation_id}/logo`
+                          : ""
+                      }
+                      variant="circular"
+                      sx={{ height: "32px", width: "32px" }}
+                    />
+                  )}
                   <Avatar
                     src={
                       charData !== undefined

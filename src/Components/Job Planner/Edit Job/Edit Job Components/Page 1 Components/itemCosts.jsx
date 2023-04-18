@@ -118,10 +118,12 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
               Item Sell Price:
             </Typography>
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-              {activeJobPrices[marketSelect].sell.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {activeJobPrices !== undefined
+                ? activeJobPrices[marketSelect].sell.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : 0}
             </Typography>
           </Grid>
           <Grid
@@ -135,13 +137,15 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
               Total Sell Price:
             </Typography>
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-              {(
-                activeJobPrices[marketSelect].sell *
-                activeJob.build.products.totalQuantity
-              ).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {activeJobPrices !== undefined
+                ? (
+                    activeJobPrices[marketSelect].sell *
+                    activeJob.build.products.totalQuantity
+                  ).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : 0}
             </Typography>
           </Grid>
           <Grid

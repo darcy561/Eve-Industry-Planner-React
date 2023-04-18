@@ -604,7 +604,6 @@ export function useFirebase() {
           const t = trace(performance, "UserJobListener");
           t.start();
           let downloadDoc = doc.data();
-          let newJobArray = [...jobArray];
           let newJob = {
             jobType: downloadDoc.jobType,
             name: downloadDoc.name,
@@ -636,16 +635,20 @@ export function useFirebase() {
             groupID: downloadDoc.groupID,
             isReadyToSell: downloadDoc.isReadyToSell || false,
           };
-          let index = jobArray.findIndex((i) => i.jobID === newJob.jobID);
-          if (index === -1) {
-            newJobArray.push(newJob);
-          } else {
-            newJobArray[index] = newJob;
-          }
-          if (activeJob.jobID === newJob.jobID) {
+          console.log(activeJob)
+          if (activeJob.jobID == newJob.jobID) {
+            console.log("11")
             updateActiveJob(newJob);
           }
-          updateJobArray(newJobArray);
+          updateJobArray((prev) => {
+            let index = prev.findIndex((i) => i.jobID === newJob.jobID);
+            if (index === -1) {
+              return prev.push(newJob);
+            } else {
+              prev[index] = newJob;
+              return prev;
+            }
+          });
           t.stop();
         }
       }

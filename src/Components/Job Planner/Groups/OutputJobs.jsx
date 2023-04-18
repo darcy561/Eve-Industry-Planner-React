@@ -76,8 +76,8 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
               {outputJobs.map((job) => {
                 let buildCost = calculateCurrentJobBuildCostFromChildren(job);
                 return (
-                  <ImageListItem>
-                    <Grow in={true} key={job.jobID}>
+                  <ImageListItem key={job.jobID}>
+                    <Grow in={true}>
                       <Card
                         variant="outlined"
                         square

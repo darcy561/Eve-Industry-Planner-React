@@ -126,7 +126,12 @@ export function ChildJobPopover({
         if (materialPrice === undefined) {
           materialPrice = tempPrices.find((i) => i.typeID === mat.typeID);
         }
-        totalPrice += materialPrice[marketSelect][listingSelect] * mat.quantity;
+        if (materialPrice === undefined) {
+          totalPrice += 0;
+        } else {
+          totalPrice +=
+            materialPrice[marketSelect][listingSelect] * mat.quantity;
+        }
       });
       updateCurrentBuildPrice(
         totalPrice / childJobObjects[jobDisplay].build.products.totalQuantity
@@ -232,13 +237,15 @@ export function ChildJobPopover({
                         sx={{ typography: { xs: "caption", sm: "body2" } }}
                         align="right"
                       >
-                        {(
-                          materialPrice[marketSelect][listingSelect] *
-                          mat.quantity
-                        ).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        {materialPrice !== undefined
+                          ? (
+                              materialPrice[marketSelect][listingSelect] *
+                              mat.quantity
+                            ).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })
+                          : 0}
                       </Typography>
                     </Grid>
                   </Grid>

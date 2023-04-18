@@ -88,11 +88,8 @@ export function useBlueprintCalc() {
     if (user === undefined) {
       user = users.find((i) => i.ParentUser);
     }
-    console.log(esiSkills)
-    let userSkills = esiSkills.find(
-      (i) => i.user === user.CharacterHash
-    ).data;
 
+    let userSkills = esiSkills.find((i) => i.user === user.CharacterHash).data;
 
     let timeModifier = timeModifierCalc(calcData, userSkills);
     let skillModifier = skillModifierCalc(calcData.skills, userSkills);

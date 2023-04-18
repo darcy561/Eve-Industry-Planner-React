@@ -545,31 +545,21 @@ export function useJobManagement() {
   };
 
   const buildItemPriceEntry = async (inputJobIDs) => {
-    let finalInputList = [];
-    let finalPriceEntry = [];
-    let newUserJobSnapshot = [...userJobSnapshot];
-    let newJobArray = [...jobArray];
+    const finalInputList = [];
+    const finalPriceEntry = [];
+    const newUserJobSnapshot = [...userJobSnapshot];
+    const newJobArray = [...jobArray];
 
-    for (let inputID of inputJobIDs) {
-      if (typeof inputID === "string") {
-        let inputGroup = groupArray.find((i) => i.groupID === inputID);
-        if (inputGroup === undefined) {
-          return;
-        }
-        if (
-          activeGroup !== null &&
-          inputGroup.groupID === activeGroup.groupID
-        ) {
-          inputGroup = activeGroup;
-        }
-        finalInputList = finalInputList.concat([...inputGroup.includedJobIDs]);
-      } else {
-        finalInputList.push(inputID);
-      }
+    for (const inputID of inputJobIDs) {
+      const inputGroup = groupArray.find((i) => i.groupID === inputID);
+      if (!inputGroup) continue;
+
+      const groupInputJobIDs = inputGroup.includedJobIDs || [];
+      finalInputList.push(...groupInputJobIDs);
     }
 
-    for (let inputJobID of finalInputList) {
-      let inputJob = await findJobData(
+    for (const inputJobID of finalInputList) {
+      const inputJob = await findJobData(
         inputJobID,
         newUserJobSnapshot,
         newJobArray
@@ -577,40 +567,36 @@ export function useJobManagement() {
 
       inputJob.build.materials.forEach((material) => {
         if (
-          material.quantityPurchased < material.quantity &&
-          material.childJob.length === 0
+          material.quantityPurchased >= material.quantity ||
+          material.childJob.length > 0
         ) {
-          if (!finalPriceEntry.some((i) => i.typeID === material.typeID)) {
-            finalPriceEntry.push({
-              name: material.name,
-              typeID: material.typeID,
-              quantity: material.quantity,
-              itemPrice: 0,
-              confirmed: false,
-              jobRef: [inputJob.jobID],
-            });
-          } else {
-            let index = finalPriceEntry.findIndex(
-              (i) => i.typeID === material.typeID
-            );
-            finalPriceEntry[index].quantity += material.quantity;
-            finalPriceEntry[index].jobRef.push(inputJob.jobID);
-          }
+          return;
+        }
+
+        const existingEntryIndex = finalPriceEntry.findIndex(
+          (i) => i.typeID === material.typeID
+        );
+        if (existingEntryIndex !== -1) {
+          finalPriceEntry[existingEntryIndex].quantity += material.quantity;
+          finalPriceEntry[existingEntryIndex].jobRef.push(inputJob.jobID);
+        } else {
+          finalPriceEntry.push({
+            name: material.name,
+            typeID: material.typeID,
+            quantity: material.quantity,
+            itemPrice: 0,
+            confirmed: false,
+            jobRef: [inputJob.jobID],
+          });
         }
       });
     }
 
-    finalPriceEntry.sort((a, b) => {
-      if (a.name < b.name) {
-        return -1;
-      }
-      if (a.name < b.name) {
-        return 1;
-      }
-      return 0;
-    });
+    finalPriceEntry.sort((a, b) => a.name.localeCompare(b.name));
+
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
+
     return finalPriceEntry;
   };
 
@@ -862,45 +848,81 @@ export function useJobManagement() {
     r.stop();
   };
 
+  // const calcBrokersFee = async (user, marketOrder) => {
+  //   let brokerFeePercentage = parentUser.settings.editJob.citadelBrokersFee;
+  //   let factionStanding = { standing: 0 };
+  //   let corpStanding = { standing: 0 };
+
+  //   if (marketOrder.location_id.toString().length < 10) {
+  //     const userSkills = esiSkills.find(
+  //       (i) => i.user === user.CharacterHash
+  //     ).data;
+  //     const userStandings = esiStandings.find(
+  //       (i) => i.user === user.CharacterHash
+  //     ).data;
+  //     const brokerSkill = userSkills.find((i) => i.id === 3446);
+  //     const stationInfo = await stationData(marketOrder.location_id);
+  //     factionStanding = userStandings.find(
+  //       (i) => i.from_id === stationInfo.race_id
+  //     );
+  //     corpStanding = userStandings.find((i) => i.from_id === stationInfo.owner);
+  //     if (factionStanding === undefined) {
+  //       factionStanding = { standing: 0 };
+  //     }
+  //     if (corpStanding === undefined) {
+  //       corpStanding = { standing: 0 };
+  //     }
+
+  //     brokerFeePercentage =
+  //       3 -
+  //       0.3 * brokerSkill.activeLevel -
+  //       0.03 * factionStanding.standing -
+  //       0.02 * corpStanding.standing;
+  //   }
+
+  //   let brokersFee =
+  //     (brokerFeePercentage / 100) *
+  //     (marketOrder.price * marketOrder.volume_total);
+
+  //   if (brokersFee < 100) {
+  //     brokersFee = 100;
+  //   }
+
+  //   return brokersFee;
+  // };
+
   const calcBrokersFee = async (user, marketOrder) => {
     let brokerFeePercentage = parentUser.settings.editJob.citadelBrokersFee;
-    let factionStanding = { standing: 0 };
-    let corpStanding = { standing: 0 };
 
     if (marketOrder.location_id.toString().length < 10) {
       const userSkills = esiSkills.find(
         (i) => i.user === user.CharacterHash
-      ).data;
+      )?.data;
       const userStandings = esiStandings.find(
         (i) => i.user === user.CharacterHash
-      ).data;
-      const brokerSkill = userSkills.find((i) => i.id === 3446);
+      )?.data;
+
+      const brokerSkill = userSkills?.find((i) => i.id === 3446);
       const stationInfo = await stationData(marketOrder.location_id);
-      factionStanding = userStandings.find(
-        (i) => i.from_id === stationInfo.race_id
-      );
-      corpStanding = userStandings.find((i) => i.from_id === stationInfo.owner);
-      if (factionStanding === undefined) {
-        factionStanding = { standing: 0 };
-      }
-      if (corpStanding === undefined) {
-        corpStanding = { standing: 0 };
-      }
+
+      const factionStanding =
+        userStandings?.find((i) => i.from_id === stationInfo.race_id)
+          ?.standing || 0;
+      const corpStanding =
+        userStandings?.find((i) => i.from_id === stationInfo.owner)?.standing ||
+        0;
 
       brokerFeePercentage =
         3 -
-        0.3 * brokerSkill.activeLevel -
-        0.03 * factionStanding.standing -
-        0.02 * corpStanding.standing;
+        0.3 * (brokerSkill?.activeLevel || 0) -
+        0.03 * factionStanding -
+        0.02 * corpStanding;
     }
 
     let brokersFee =
       (brokerFeePercentage / 100) *
       (marketOrder.price * marketOrder.volume_total);
-
-    if (brokersFee < 100) {
-      brokersFee = 100;
-    }
+    brokersFee = Math.max(brokersFee, 100);
 
     return brokersFee;
   };

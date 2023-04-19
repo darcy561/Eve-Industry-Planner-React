@@ -12,6 +12,7 @@ import AddLinkIcon from "@mui/icons-material/AddLink";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import {
+  CorpEsiDataContext,
   EveIDsContext,
   PersonalESIDataContext,
 } from "../../../../../Context/EveDataContext";
@@ -59,11 +60,10 @@ export function AvailableMarketOrders({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedOrderIDs, updateLinkedOrderIDs } = useContext(LinkedIDsContext);
   const { esiJournal } = useContext(PersonalESIDataContext);
+  const { corpEsiJournal } = useContext(CorpEsiDataContext);
   const { calcBrokersFee } = useJobManagement();
   const analytics = getAnalytics();
 
-
-  console.log(itemOrderMatch);
   return (
     <Grid container direction="row">
       <Grid
@@ -200,7 +200,11 @@ export function AvailableMarketOrders({
                           );
                           const charJournal = esiJournal.find(
                             (i) => i.user === char.CharacterHash
-                          ).data;
+                          )?.data;
+
+                          const corpJournal = corpEsiJournal.find(
+                            (i) => i.user === char.CharacterHash
+                          )?.data;
 
                           let brokersFee = await calcBrokersFee(char, order);
                           let newBrokersArray = [];
@@ -213,19 +217,34 @@ export function AvailableMarketOrders({
                               Date.parse(order.issued) ===
                                 Date.parse(entry.date)
                             ) {
-                              newBrokersArray.push(
-                                Object.assign(
-                                  {},
-                                  new ESIBrokerFee(
+                              newBrokersArray.push({
+                                ...new ESIBrokerFee(
+                                  entry,
+                                  order,
+                                  char,
+                                  brokersFee
+                                ),
+                              });
+                            }
+                          });
+                          for (let { data } of corpJournal) {
+                            for (let entry of data) {
+                              if (
+                                entry.ref_type === "brokers_fee" &&
+                                Date.parse(order.issued) ===
+                                  Date.parse(entry.date)
+                              ) {
+                                newBrokersArray.push({
+                                  ...new ESIBrokerFee(
                                     entry,
                                     order,
                                     char,
                                     brokersFee
-                                  )
-                                )
-                              );
+                                  ),
+                                });
+                              }
                             }
-                          });
+                          }
                           let newMarketOrderArray =
                             activeJob.build.sale.marketOrders;
                           newMarketOrderArray.push(

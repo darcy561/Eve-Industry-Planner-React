@@ -73,65 +73,63 @@ export function LinkedMarketOrders({
     const user = users.find((u) => u.CharacterHash === order.CharacterHash);
     const userOrders = esiOrders.find(
       (i) => i.user === user.CharacterHash
-    ).data;
+    )?.data;
     const userHistOrders = esiHistOrders.find(
       (i) => i.user === user.CharacterHash
-    ).data;
+    )?.data;
     const userJournal = esiJournal.find(
       (i) => i.user === user.CharacterHash
-    ).data;
+    )?.data;
 
-    if (
-      user !== undefined &&
-      userOrders !== undefined &&
-      userHistOrders !== undefined
-    ) {
-      const newOrderData = userOrders.find(
-        (newOrder) => newOrder.order_id === order.order_id
-      );
+    if (!user && !userOrders.length && !userHistOrders.length) return;
 
-      const completedOrderData = userHistOrders.find(
-        (histOrder) => histOrder.order_id === order.order_id
-      );
-      if (newOrderData !== undefined && !order.complete) {
-        if (
-          order.volume_remain !== newOrderData.volume_remain ||
-          Date.parse(order.issued) !== Date.parse(newOrderData.issued)
-        ) {
-          order.duration = newOrderData.duration;
-          order.item_price = newOrderData.price;
-          order.range = newOrderData.range;
-          order.volume_remain = newOrderData.volume_remain;
-          if (Date.parse(order.issued) !== Date.parse(newOrderData.issued)) {
-            order.timeStamps.push(newOrderData.issued);
+    const newOrderData = userOrders.find(
+      (newOrder) => newOrder.order_id === order.order_id
+    );
 
-            userJournal.forEach((entry) => {
-              if (
-                entry.ref_type === "brokers_fee" &&
-                Date.parse(newOrderData.issued) === Date.parse(entry.date)
-              ) {
-                entry.amount = Math.abs(entry.amount);
-                entry.order_id = order.order_id;
-                delete entry.balance;
-                activeJob.build.sale.brokersFee.push(entry);
-              }
-            });
-          }
+    const completedOrderData = userHistOrders.find(
+      (histOrder) => histOrder.order_id === order.order_id
+    );
+
+    if (newOrderData !== undefined && !order.complete) {
+      if (
+        order.volume_remain !== newOrderData.volume_remain ||
+        Date.parse(order.issued) !== Date.parse(newOrderData.issued)
+      ) {
+        order.duration = newOrderData.duration;
+        order.item_price = newOrderData.price;
+        order.range = newOrderData.range;
+        order.volume_remain = newOrderData.volume_remain;
+        if (Date.parse(order.issued) !== Date.parse(newOrderData.issued)) {
+          order.timeStamps.push(newOrderData.issued);
+
+          userJournal.forEach((entry) => {
+            if (
+              entry.ref_type === "brokers_fee" &&
+              Date.parse(newOrderData.issued) === Date.parse(entry.date)
+            ) {
+              entry.amount = Math.abs(entry.amount);
+              entry.order_id = order.order_id;
+              delete entry.balance;
+              activeJob.build.sale.brokersFee.push(entry);
+            }
+          });
         }
       }
-      if (
-        newOrderData === undefined &&
-        !order.complete &&
-        completedOrderData !== undefined
-      ) {
-        order.duration = completedOrderData.duration;
-        order.item_price = completedOrderData.price;
-        order.range = completedOrderData.range;
-        order.volume_remain = completedOrderData.volume_remain;
-        order.issued = completedOrderData.issued;
-        order.complete = true;
-      }
     }
+    if (
+      newOrderData === undefined &&
+      !order.complete &&
+      completedOrderData !== undefined
+    ) {
+      order.duration = completedOrderData.duration;
+      order.item_price = completedOrderData.price;
+      order.range = completedOrderData.range;
+      order.volume_remain = completedOrderData.volume_remain;
+      order.issued = completedOrderData.issued;
+      order.complete = true;
+    }
+
     linkedMarketOrders.push(order);
   });
 

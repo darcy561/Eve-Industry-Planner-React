@@ -31,7 +31,6 @@ export function AvailableTransactionData({ setJobModified, activeOrder }) {
 
   const transactionData = buildTransactionData();
 
-  console.log(transactionData);
   return (
     <Paper
       sx={{

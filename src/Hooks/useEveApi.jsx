@@ -491,6 +491,7 @@ export function useEveApi() {
     let maxEntries = 2500;
     let currentDate = Date.now();
     let refTypes = new Set([
+      "brokers_fee",
       "market_escrow",
       "market_transaction",
       "transaction_tax",

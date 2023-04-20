@@ -39,6 +39,47 @@ export function useMarketOrderFunctions() {
     }
   }
 
+  class ESIMarketOrder {
+    constructor(order) {
+      this.duration = order.duration;
+      this.is_corporation = order.is_corporation;
+      this.issued = order.issued;
+      this.location_id = order.location_id;
+      this.order_id = order.order_id;
+      this.item_price = order.price;
+      this.range = order.range;
+      this.region_id = order.region_id;
+      this.type_id = order.type_id;
+      this.volume_remain = order.volume_remain;
+      this.volume_total = order.volume_total;
+      this.timeStamps = [order.issued];
+      this.CharacterHash = order.CharacterHash;
+      this.complete = order.complete || false;
+    }
+  }
+
+  class ESIBrokerFee {
+    constructor(entry, order, brokersFee) {
+      this.order_id = order.order_id;
+      this.id = entry.id;
+      this.complete = false;
+      this.date = entry.date;
+      this.amount = brokersFee;
+      this.CharacterHash = order.CharacterHash;
+    }
+  }
+
+  class BrokerFee {
+    constructor(entry, order, char) {
+      this.order_id = order.order_id;
+      this.id = entry.id;
+      this.complete = false;
+      this.date = entry.date;
+      this.amount = Math.abs(entry.amount);
+      this.CharacterHash = char.CharacterHash;
+    }
+  }
+
   function filterMarketOrders(orders, existingOrders) {
     orders.forEach((entry) => {
       entry.data.forEach((order) => {
@@ -76,35 +117,29 @@ export function useMarketOrderFunctions() {
   }
 
   const findJournalEntry = (transaction, charJournal, corpJournal) => {
-    if (transaction.is_personal) {
-      return charJournal.find(
-        (entry) => transaction.transaction_id === entry.context_id
-      );
-    } else {
-      for (let { data } of corpJournal) {
-        let t = data.find((i) => i.context_id === transaction.transaction_id);
-        if (t) return t;
-      }
-    }
+    const corporationEntries = corpJournal.reduce(
+      (allEntries, corp) => allEntries.concat(corp.data),
+      []
+    );
+    const journalEntries = [...charJournal, ...corporationEntries];
+
+    return journalEntries.find(
+      (entry) => transaction.transaction_id === entry.context_id
+    );
   };
 
   const findTransactionTax = (transaction, charJournal, corpJournal) => {
-    if (transaction.is_personal) {
-      return charJournal.find(
-        (entry) =>
-          entry.ref_type === "transaction_tax" &&
-          Date.parse(entry.date) === Date.parse(transaction.date)
-      );
-    } else {
-      for (let { data } of corpJournal) {
-        let t = data.find(
-          (entry) =>
-            entry.ref_type === "transaction_tax" &&
-            Date.parse(entry.date) === Date.parse(transaction.date)
-        );
-        if (t) return t;
-      }
-    }
+    const corporationEntries = corpJournal.reduce(
+      (allEntries, corp) => allEntries.concat(corp.data),
+      []
+    );
+    const journalEntries = [...charJournal, ...corporationEntries];
+
+    return journalEntries.find(
+      (entry) =>
+        entry.ref_type === "transaction_tax" &&
+        Date.parse(entry.date) === Date.parse(transaction.date)
+    );
   };
 
   const findMarketOrdersForItem = () => {
@@ -173,9 +208,45 @@ export function useMarketOrderFunctions() {
     return transactionData;
   };
 
+  const findBrokersFeeEntry = (order, brokersFee) => {
+    const checkEntry = (entry) => {
+      if (
+        entry.ref_type === "brokers_fee" ||
+        Date.parse(order.issued) === Date.parse(entry.date)
+      ) {
+        return { ...new ESIBrokerFee(entry, order, brokersFee) };
+      }
+      return null;
+    };
+
+    const characterJournal =
+      esiJournal.find((journal) => journal.user === order.CharacterHash)
+        ?.data ?? [];
+
+    const corporationJournal =
+      corpEsiJournal.find((journal) => journal.user === order.CharacterHash)
+        ?.data ?? [];
+
+    const corporationEntries = corporationJournal.reduce(
+      (allEntries, corp) => allEntries.concat(corp.data),
+      []
+    );
+
+    const journalEntries = [...characterJournal, ...corporationEntries];
+
+    for (const entry of journalEntries) {
+      const brokerFee = checkEntry(entry);
+      if (brokerFee !== null) {
+        return brokerFee;
+      }
+    }
+
+    return null;
+  };
+
   return {
-    findMarketOrdersForItem,
-    findTransactionsForMarketOrders,
     buildTransactionData,
+    findBrokersFeeEntry,
+    findMarketOrdersForItem,
   };
 }

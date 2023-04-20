@@ -19,7 +19,7 @@ import { functions, performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "./useAccountManagement";
 import { httpsCallable } from "firebase/functions";
-import { useNavigate } from "react-router-dom";
+import { Buffer } from "buffer";
 
 export function useRefreshUser() {
   const {
@@ -44,7 +44,6 @@ export function useRefreshUser() {
     updateUserWatchlistDataFetch,
     updateUserGroupsDataFetch,
   } = useContext(UserLoginUIContext);
-  const Navigate = useNavigate();
 
   const checkAppVersion = httpsCallable(
     functions,
@@ -131,16 +130,19 @@ export function useRefreshUser() {
 
   const RefreshUserAToken = async (user) => {
     try {
+      const buffer = Buffer.from(
+        `${import.meta.env.VITE_eveClientID}:${
+          import.meta.env.VITE_eveSecretKey
+        }`
+      );
+      const authHeader = `Basic ${buffer.toString("base64")}`;
+
       const newTokenPromise = await fetch(
         "https://login.eveonline.com/v2/oauth/token",
         {
           method: "POST",
           headers: {
-            Authorization: `Basic ${btoa(
-              `${import.meta.env.VITE_eveClientID}:${
-                import.meta.env.VITE_eveSecretKey
-              }`
-            )}`,
+            Authorization: authHeader,
             "Content-Type": "application/x-www-form-urlencoded",
             Host: "login.eveonline.com",
           },

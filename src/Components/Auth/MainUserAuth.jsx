@@ -18,6 +18,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { httpsCallable } from "firebase/functions";
 import { UserLogInUI } from "./LoginUI/LoginUI";
+import { Buffer } from "buffer";
 
 export function login() {
   const state = "/";
@@ -122,17 +123,18 @@ export default function AuthMainUser() {
 
 async function EveSSOTokens(authCode, accountType) {
   try {
+    const buffer = Buffer.from(
+      `${import.meta.env.VITE_eveClientID}:${import.meta.env.VITE_eveSecretKey}`
+    );
+    const authHeader = `Basic ${buffer.toString("base64")}`;
+
     const eveTokenPromise = await fetch(
       "https://login.eveonline.com/v2/oauth/token",
       {
         method: "POST",
         headers: {
-          Authorization: `Basic ${btoa(
-            `${import.meta.env.VITE_eveClientID}:${
-              import.meta.env.VITE_eveSecretKey
-            }`
-          )}`,
-          "Content-Type": "application / x-www-form-urlencoded",
+          Authorization: authHeader,
+          "Content-Type": "application/x-www-form-urlencoded",
           Host: "login.eveonline.com",
           "Access-Control-Allow-Origin": "*",
         },

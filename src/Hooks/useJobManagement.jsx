@@ -219,72 +219,55 @@ export function useJobManagement() {
   };
 
   const newJobSnapshot = (inputJob, newSnapshotArray) => {
-    let totalComplete = 0;
-    let materialIDs = [];
-    let childJobs = [];
-    let endDate = null;
+    const materialIDs = inputJob.build.materials.map(
+      (material) => material.typeID
+    );
+    const childJobs = inputJob.build.materials.flatMap(
+      (material) => material.childJob
+    );
+    const totalComplete = inputJob.build.materials.filter(
+      (material) => material.quantityPurchased >= material.quantity
+    ).length;
 
-    inputJob.build.materials.forEach((material) => {
-      materialIDs.push(material.typeID);
-      childJobs = childJobs.concat(material.childJob);
-      if (material.quantityPurchased >= material.quantity) {
-        totalComplete++;
-      }
+    newSnapshotArray.push({
+      ...new newSnapshot(inputJob, childJobs, totalComplete, materialIDs, null),
     });
 
-    newSnapshotArray.push(
-      Object.assign(
-        {},
-        new newSnapshot(
-          inputJob,
-          childJobs,
-          totalComplete,
-          materialIDs,
-          endDate
-        )
-      )
-    );
     return newSnapshotArray;
   };
 
   const updateJobSnapshotFromFullJob = (inputJob, newSnapshotArray) => {
-    let totalComplete = 0;
-    let materialIDs = [];
-    let childJobs = [];
-    let endDate = null;
-    let tempJobs = [...inputJob.build.costs.linkedJobs];
+    const materialIDs = inputJob.build.materials.map(
+      (material) => material.typeID
+    );
+    const childJobs = inputJob.build.materials.flatMap(
+      (material) => material.childJob
+    );
+    const totalComplete = inputJob.build.materials.filter(
+      (material) => material.quantityPurchased >= material.quantity
+    ).length;
+    const tempJobs = [...inputJob.build.costs.linkedJobs];
+    const endDate =
+      tempJobs.length > 0
+        ? Date.parse(
+            tempJobs.sort(
+              (a, b) => Date.parse(b.end_date) - Date.parse(a.end_date)
+            )[0].end_date
+          )
+        : null;
     const snapshotIndex = newSnapshotArray.findIndex(
       (i) => i.jobID === inputJob.jobID
     );
 
-    inputJob.build.materials.forEach((material) => {
-      materialIDs.push(material.typeID);
-      childJobs.push(...material.childJob);
-      if (material.quantityPurchased >= material.quantity) {
-        totalComplete++;
-      }
-    });
-
-    if (tempJobs.length > 0) {
-      tempJobs.sort((a, b) => {
-        if (Date.parse(a.end_date) < Date.parse(b.end_date)) {
-          return 1;
-        }
-        if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
-          return -1;
-        }
-        return 0;
-      });
-      endDate = Date.parse(tempJobs[0].end_date);
-    }
-
-    let replacementSnap = Object.assign(
-      {},
-      new newSnapshot(inputJob, childJobs, totalComplete, materialIDs, endDate)
-    );
-
-    newSnapshotArray[snapshotIndex] = replacementSnap;
-
+    newSnapshotArray[snapshotIndex] = {
+      ...new newSnapshot(
+        inputJob,
+        childJobs,
+        totalComplete,
+        materialIDs,
+        endDate
+      ),
+    };
     return newSnapshotArray;
   };
 
@@ -848,58 +831,15 @@ export function useJobManagement() {
     r.stop();
   };
 
-  // const calcBrokersFee = async (user, marketOrder) => {
-  //   let brokerFeePercentage = parentUser.settings.editJob.citadelBrokersFee;
-  //   let factionStanding = { standing: 0 };
-  //   let corpStanding = { standing: 0 };
-
-  //   if (marketOrder.location_id.toString().length < 10) {
-  //     const userSkills = esiSkills.find(
-  //       (i) => i.user === user.CharacterHash
-  //     ).data;
-  //     const userStandings = esiStandings.find(
-  //       (i) => i.user === user.CharacterHash
-  //     ).data;
-  //     const brokerSkill = userSkills.find((i) => i.id === 3446);
-  //     const stationInfo = await stationData(marketOrder.location_id);
-  //     factionStanding = userStandings.find(
-  //       (i) => i.from_id === stationInfo.race_id
-  //     );
-  //     corpStanding = userStandings.find((i) => i.from_id === stationInfo.owner);
-  //     if (factionStanding === undefined) {
-  //       factionStanding = { standing: 0 };
-  //     }
-  //     if (corpStanding === undefined) {
-  //       corpStanding = { standing: 0 };
-  //     }
-
-  //     brokerFeePercentage =
-  //       3 -
-  //       0.3 * brokerSkill.activeLevel -
-  //       0.03 * factionStanding.standing -
-  //       0.02 * corpStanding.standing;
-  //   }
-
-  //   let brokersFee =
-  //     (brokerFeePercentage / 100) *
-  //     (marketOrder.price * marketOrder.volume_total);
-
-  //   if (brokersFee < 100) {
-  //     brokersFee = 100;
-  //   }
-
-  //   return brokersFee;
-  // };
-
-  const calcBrokersFee = async (user, marketOrder) => {
+  const calcBrokersFee = async (marketOrder) => {
     let brokerFeePercentage = parentUser.settings.editJob.citadelBrokersFee;
 
     if (marketOrder.location_id.toString().length < 10) {
       const userSkills = esiSkills.find(
-        (i) => i.user === user.CharacterHash
+        (i) => i.user === marketOrder.CharacterHash
       )?.data;
       const userStandings = esiStandings.find(
-        (i) => i.user === user.CharacterHash
+        (i) => i.user === marketOrder.CharacterHash
       )?.data;
 
       const brokerSkill = userSkills?.find((i) => i.id === 3446);
@@ -974,19 +914,16 @@ export function useJobManagement() {
   };
 
   const generatePriceRequestFromJob = (inputJob) => {
-    let priceIDRequest = new Set();
-    priceIDRequest.add(inputJob.itemID);
-    inputJob.build.materials.forEach((mat) => {
-      priceIDRequest.add(mat.typeID);
-    });
-    return [...priceIDRequest];
+    const { itemID, build } = inputJob;
+    const materialTypeIDs = build.materials.map((mat) => mat.typeID);
+    return [...new Set([itemID, ...materialTypeIDs])];
   };
 
   const generatePriceRequestFromSnapshot = (snapshot) => {
     let priceIDRequest = new Set();
 
     priceIDRequest.add(snapshot.itemID);
-    priceIDRequest = new Set(priceIDRequest, snapshot.materialIDs);
+    priceIDRequest = new Set([...priceIDRequest, ...snapshot.materialIDs]);
     return [...priceIDRequest];
   };
 
@@ -994,17 +931,22 @@ export function useJobManagement() {
     if (blueprintID === undefined) {
       return "bpc";
     }
-    for (let entry of esiBlueprints) {
-      let blueprintData = entry.data.find((i) => i.item_id === blueprintID);
-      if (blueprintData === undefined) {
-        return "bpc";
-      }
-      if (blueprintData.quantity === -2) {
-        return "bpc";
-      }
-      return "bp";
+
+    const entry = esiBlueprints.find((entry) =>
+      entry.data.some((i) => i.item_id === blueprintID)
+    );
+
+    if (entry === undefined) {
+      return "bpc";
     }
-    return "bpc";
+
+    const blueprintData = entry.data.find((i) => i.item_id === blueprintID);
+
+    if (blueprintData.quantity === -2) {
+      return "bpc";
+    }
+
+    return "bp";
   };
 
   return {

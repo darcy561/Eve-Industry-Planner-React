@@ -31,7 +31,6 @@ export function AvailableTransactionData({ setJobModified, activeOrder }) {
 
   const transactionData = buildTransactionData();
 
-  console.log(transactionData);
   return (
     <Paper
       sx={{
@@ -141,7 +140,13 @@ export function AvailableTransactionData({ setJobModified, activeOrder }) {
                       })}{" "}
                     </Typography>
                   </Grid>
-                  <Grid item sm={6} md={2} align="center" sx={{display:{xs:"none", sm: "block"}}}>
+                  <Grid
+                    item
+                    sm={6}
+                    md={2}
+                    align="center"
+                    sx={{ display: { xs: "none", sm: "block" } }}
+                  >
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >

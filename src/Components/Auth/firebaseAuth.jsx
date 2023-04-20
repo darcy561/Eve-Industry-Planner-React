@@ -8,17 +8,17 @@ import { getToken } from "firebase/app-check";
 
 export async function firebaseAuth(charObj) {
   const appCheckToken = await getToken(appCheck, true);
-  try {
 
-    const fbtokenPromise = await fetch(
-      `${  import.meta.env.VITE_APIURL}/auth/gentoken`,
+  try {
+    const fbTokenResponse = await fetch(
+      `${import.meta.env.VITE_APIURL}/auth/gentoken`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-Firebase-AppCheck": appCheckToken.token,
           "Access-Token": charObj.aToken,
-          "appVersion":  __APP_VERSION__
+          appVersion: __APP_VERSION__,
         },
         body: JSON.stringify({
           UID: charObj.accountID,
@@ -26,13 +26,17 @@ export async function firebaseAuth(charObj) {
         }),
       }
     );
-    const fbTokenJSON = await fbtokenPromise.json();
 
-    await setPersistence(auth, browserSessionPersistence);
+    if (!fbTokenResponse.ok) {
+      throw new Error("Failed to generate Firebase token");
+    }
+
+    const fbTokenJSON = await fbTokenResponse.json();
     const fbToken = await signInWithCustomToken(auth, fbTokenJSON.access_token);
 
     return fbToken;
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    throw error;
   }
 }

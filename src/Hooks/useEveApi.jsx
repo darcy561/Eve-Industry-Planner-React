@@ -95,8 +95,8 @@ export function useEveApi() {
     //14 Days
     orders = orders.filter(
       (item) =>
-        !item.is_buy_order 
-        // currentDate - Date.parse(item.issued) <= 1209600000
+        !item.is_buy_order &&
+        currentDate - Date.parse(item.issued) <= 1209600000
     );
 
     return orders.map((a) => ({ ...a, CharacterHash: userObj.CharacterHash }));

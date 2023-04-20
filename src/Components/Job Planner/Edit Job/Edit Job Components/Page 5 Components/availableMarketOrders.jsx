@@ -49,7 +49,7 @@ export function AvailableMarketOrders({
   const { findBrokersFeeEntry } = useMarketOrderFunctions();
   const analytics = getAnalytics();
 
-  console.log(itemOrderMatch);
+
   return (
     <Grid container direction="row">
       <Grid

@@ -69,17 +69,6 @@ export function useMarketOrderFunctions() {
     }
   }
 
-  class BrokerFee {
-    constructor(entry, order, char) {
-      this.order_id = order.order_id;
-      this.id = entry.id;
-      this.complete = false;
-      this.date = entry.date;
-      this.amount = Math.abs(entry.amount);
-      this.CharacterHash = char.CharacterHash;
-    }
-  }
-
   function filterMarketOrders(orders, existingOrders) {
     orders.forEach((entry) => {
       entry.data.forEach((order) => {

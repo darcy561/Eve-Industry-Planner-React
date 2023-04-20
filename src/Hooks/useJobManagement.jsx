@@ -18,6 +18,7 @@ import { performance } from "../firebase";
 import { jobTypes } from "../Context/defaultValues";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import {
+  CorpEsiDataContext,
   EvePricesContext,
   PersonalESIDataContext,
 } from "../Context/EveDataContext";
@@ -52,6 +53,7 @@ export function useJobManagement() {
   const { esiBlueprints, esiSkills, esiStandings } = useContext(
     PersonalESIDataContext
   );
+  const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const {
     addNewJob,
     getItemPrices,
@@ -932,9 +934,13 @@ export function useJobManagement() {
       return "bpc";
     }
 
-    const entry = esiBlueprints.find((entry) =>
-      entry.data.some((i) => i.item_id === blueprintID)
-    );
+    let entry =
+      esiBlueprints.find((entry) =>
+        entry.data.some((i) => i.item_id === blueprintID)
+      ) ||
+      corpEsiBlueprints.find((entry) =>
+        entry.data.some((i) => i.item_id === blueprintID)
+      );
 
     if (entry === undefined) {
       return "bpc";

@@ -124,7 +124,11 @@ export function useEveApi() {
         return [];
       }
     }
-    return blueprints;
+    return blueprints.map((a) => ({
+      ...a,
+      CharacterHash: userObj.CharacterHash,
+      isCorp: false,
+    }));
   };
 
   const fetchCharacterTransactions = async (userObj) => {
@@ -467,7 +471,11 @@ export function useEveApi() {
       }
     }
 
-    return blueprints.map((bp) => ({ ...bp, isCorp: true }));
+    return blueprints.map((bp) => ({
+      ...bp,
+      isCorp: true,
+      corporation_id: userObj.corporation_id,
+    }));
   };
 
   const fetchCorpDivisions = async (userObj) => {
@@ -479,7 +487,6 @@ export function useEveApi() {
       if (request.status === 403) return null;
 
       data.corporation_id = userObj.corporation_id;
-      console.log(data);
       return data;
     } catch (err) {}
   };

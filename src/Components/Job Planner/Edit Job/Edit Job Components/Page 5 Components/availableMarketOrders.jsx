@@ -49,7 +49,6 @@ export function AvailableMarketOrders({
   const { findBrokersFeeEntry } = useMarketOrderFunctions();
   const analytics = getAnalytics();
 
-
   return (
     <Grid container direction="row">
       <Grid

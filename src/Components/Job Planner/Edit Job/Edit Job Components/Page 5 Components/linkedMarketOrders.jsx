@@ -52,6 +52,7 @@ export function LinkedMarketOrders({
     updateLinkedTransIDs,
   } = useContext(LinkedIDsContext);
   const { esiOrders, esiHistOrders } = useContext(PersonalESIDataContext);
+  const { esiCorpData } = useContext(CorpEsiDataContext);
   const [linkedMarketOrders, updateLinkedMarketOrders] = useState([]);
   const classes = useStyles();
 
@@ -134,7 +135,9 @@ export function LinkedMarketOrders({
             (i) => i.CharacterHash === order.CharacterHash
           );
           const locationData = eveIDs.find((i) => i.id === order.location_id);
-
+          const corpData = esiCorpData.find(
+            (i) => i.corporation_id === charData?.corporation_id
+          );
           return (
             <Grid
               key={order.order_id}
@@ -152,29 +155,32 @@ export function LinkedMarketOrders({
                   align="center"
                   justifyContent="center"
                 >
-                  {order.is_corporation && (
+                  <Tooltip
+                    title={
+                      order.is_corporation
+                        ? corpData.name
+                        : charData.CharacterName
+                    }
+                    arrow
+                    placement="right"
+                  >
                     <Avatar
                       src={
-                        charData !== undefined
-                          ? `https://images.evetech.net/corporations/${charData.corporation_id}/logo`
+                        order.is_corporation
+                          ? corpData !== undefined
+                            ? `https://images.evetech.net/corporations/${corpData.corporation_id}/logo`
+                            : ""
+                          : charData !== undefined
+                          ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
                           : ""
                       }
                       variant="circular"
-                      sx={{ height: "32px", width: "32px" }}
+                      sx={{
+                        height: "32px",
+                        width: "32px",
+                      }}
                     />
-                  )}
-                  <Avatar
-                    src={
-                      charData !== undefined
-                        ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
-                        : ""
-                    }
-                    variant="circular"
-                    sx={{
-                      height: "32px",
-                      width: "32px",
-                    }}
-                  />
+                  </Tooltip>
                   <Grid item xs={12}>
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}

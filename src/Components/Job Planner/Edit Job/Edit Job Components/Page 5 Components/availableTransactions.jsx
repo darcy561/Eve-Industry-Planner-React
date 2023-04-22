@@ -4,6 +4,7 @@ import {
   Grid,
   IconButton,
   Paper,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useContext } from "react";
@@ -19,6 +20,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useMarketOrderFunctions } from "../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
+import { CorpEsiDataContext } from "../../../../../Context/EveDataContext";
 
 export function AvailableTransactionData({ setJobModified, activeOrder }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -26,6 +28,7 @@ export function AvailableTransactionData({ setJobModified, activeOrder }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedTransIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
+  const { esiCorpData } = useContext(CorpEsiDataContext);
   const { buildTransactionData } = useMarketOrderFunctions();
   const analytics = getAnalytics();
 
@@ -67,7 +70,9 @@ export function AvailableTransactionData({ setJobModified, activeOrder }) {
               const charData = users.find(
                 (i) => i.CharacterHash === tData.CharacterHash
               );
-
+              const corpData = esiCorpData.find(
+                (i) => i.corporation_id === charData?.corporation_id
+              );
               return (
                 <Grid
                   item
@@ -77,17 +82,30 @@ export function AvailableTransactionData({ setJobModified, activeOrder }) {
                   sx={{ marginBottom: "10px" }}
                 >
                   <Grid item xs={1}>
-                    <Avatar
-                      src={
-                        charData !== undefined
-                          ? tData.is_corp
-                            ? `https://images.evetech.net/corporations/${charData.corporation_id}/logo`
-                            : `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
-                          : ""
+                    <Tooltip
+                      title={
+                        tData.is_corp ? corpData.name : charData.CharacterName
                       }
-                      variant="circular"
-                      sx={{ height: "32px", width: "32px" }}
-                    />
+                      arrow
+                      placement="right"
+                    >
+                      <Avatar
+                        src={
+                          tData.is_corp
+                            ? corpData !== undefined
+                              ? `https://images.evetech.net/corporations/${corpData.corporation_id}/logo`
+                              : ""
+                            : charData !== undefined
+                            ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
+                            : ""
+                        }
+                        variant="circular"
+                        sx={{
+                          height: "32px",
+                          width: "32px",
+                        }}
+                      />
+                    </Tooltip>
                   </Grid>
                   <Grid
                     item

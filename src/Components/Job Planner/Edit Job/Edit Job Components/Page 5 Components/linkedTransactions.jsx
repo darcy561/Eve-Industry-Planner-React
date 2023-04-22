@@ -10,6 +10,7 @@ import {
   Menu,
   MenuItem,
   Paper,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -17,12 +18,14 @@ import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { AddTransactionDialog } from "./addTransaction";
 import { UsersContext } from "../../../../../Context/AuthContext";
+import { CorpEsiDataContext } from "../../../../../Context/EveDataContext";
 
 export function LinkedTransactions({ setJobModified, activeOrder }) {
   const { users } = useContext(UsersContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { linkedTransIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
+  const { esiCorpData } = useContext(CorpEsiDataContext);
   const [newTransactionTrigger, updateNewTransactionTrigger] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -103,6 +106,10 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                 const charData = users.find(
                   (i) => i.CharacterHash === tData.CharacterHash
                 );
+                const corpData = esiCorpData.find(
+                  (i) => i.corporation_id === charData?.corporation_id
+                );
+                console.log(tData)
                 if (!activeOrder.some((t) => t !== tData.location_id)) {
                   return (
                     <Grid
@@ -111,17 +118,32 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                       sx={{ marginBottom: "10px" }}
                     >
                       <Grid item xs={1}>
-                        <Avatar
-                          src={
-                            charData !== undefined
-                              ? tData.is_corp
-                                ? `https://images.evetech.net/corporations/${charData.corporation_id}/logo`
-                                : `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
-                              : ""
+                        <Tooltip
+                          title={
+                            tData.is_corp
+                              ? corpData.name
+                              : charData.CharacterName
                           }
-                          variant="circular"
-                          sx={{ height: "32px", width: "32px" }}
-                        />
+                          arrow
+                          placement="right"
+                        >
+                          <Avatar
+                            src={
+                              tData.is_corp
+                                ? corpData !== undefined
+                                  ? `https://images.evetech.net/corporations/${corpData.corporation_id}/logo`
+                                  : ""
+                                : charData !== undefined
+                                ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
+                                : ""
+                            }
+                            variant="circular"
+                            sx={{
+                              height: "32px",
+                              width: "32px",
+                            }}
+                          />
+                        </Tooltip>
                       </Grid>
                       <Grid
                         item
@@ -174,7 +196,13 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                           })}
                         </Typography>
                       </Grid>
-                      <Grid item sm={6} md={2} align="center" sx={{display:{xs:"none", sm: "block"}}}>
+                      <Grid
+                        item
+                        sm={6}
+                        md={2}
+                        align="center"
+                        sx={{ display: { xs: "none", sm: "block" } }}
+                      >
                         <Typography
                           sx={{ typography: { xs: "caption", sm: "body2" } }}
                         >

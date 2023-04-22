@@ -14,6 +14,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { EveIDsContext } from "../../../../../Context/EveDataContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import { useMarketOrderFunctions } from "../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
+import { CorpEsiDataContext } from "../../../../../Context/EveDataContext";
 
 class ESIMarketOrder {
   constructor(order) {
@@ -45,6 +46,7 @@ export function AvailableMarketOrders({
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedOrderIDs, updateLinkedOrderIDs } = useContext(LinkedIDsContext);
+  const { esiCorpData } = useContext(CorpEsiDataContext);
   const { calcBrokersFee } = useJobManagement();
   const { findBrokersFeeEntry } = useMarketOrderFunctions();
   const analytics = getAnalytics();
@@ -70,6 +72,9 @@ export function AvailableMarketOrders({
               (i) => i.CharacterHash === order.CharacterHash
             );
             const locationData = eveIDs.find((i) => i.id === order.location_id);
+            const corpData = esiCorpData.find(
+              (i) => i.corporation_id === charData?.corporation_id
+            );
 
             return (
               <Grid
@@ -88,31 +93,32 @@ export function AvailableMarketOrders({
                     align="center"
                     justifyContent="center"
                   >
-                    {order.is_corporation && (
+                    <Tooltip
+                      title={
+                        order.is_corporation
+                          ? corpData.name
+                          : charData.CharacterName
+                      }
+                      arrow
+                      placement="right"
+                    >
                       <Avatar
                         src={
-                          charData !== undefined
-                            ? `https://images.evetech.net/corporations/${charData.corporation_id}/logo`
+                          order.is_corporation
+                            ? corpData !== undefined
+                              ? `https://images.evetech.net/corporations/${corpData.corporation_id}/logo`
+                              : ""
+                            : charData !== undefined
+                            ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
                             : ""
                         }
                         variant="circular"
-                        sx={{ height: "32px", width: "32px" }}
+                        sx={{
+                          height: "32px",
+                          width: "32px",
+                        }}
                       />
-                    )}
-
-                    <Avatar
-                      src={
-                        charData !== undefined
-                          ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
-                          : ""
-                      }
-                      variant="circular"
-                      sx={{
-                        height: "32px",
-                        width: "32px",
-                      }}
-                    />
-
+                    </Tooltip>
                     <Grid item xs={12}>
                       <Typography variant="body2">
                         {order.volume_remain.toLocaleString(undefined, {

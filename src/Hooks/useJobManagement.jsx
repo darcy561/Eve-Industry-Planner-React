@@ -934,19 +934,14 @@ export function useJobManagement() {
       return "bpc";
     }
 
-    let entry =
-      esiBlueprints.find((entry) =>
-        entry.data.some((i) => i.item_id === blueprintID)
-      ) ||
-      corpEsiBlueprints.find((entry) =>
-        entry.data.some((i) => i.item_id === blueprintID)
-      );
+    let blueprintData = [
+      ...esiBlueprints.flatMap((entry) => entry.data),
+      ...corpEsiBlueprints.flatMap((entry) => entry.data),
+    ].find((i) => i.item_id === blueprintID);
 
-    if (entry === undefined) {
+    if (blueprintData === undefined) {
       return "bpc";
     }
-
-    const blueprintData = entry.data.find((i) => i.item_id === blueprintID);
 
     if (blueprintData.quantity === -2) {
       return "bpc";

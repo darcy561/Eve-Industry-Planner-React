@@ -69,31 +69,69 @@ export function useMarketOrderFunctions() {
     }
   }
 
-  function filterMarketOrders(orders, existingOrders) {
-    orders.forEach((entry) => {
-      entry.data.forEach((order) => {
-        if (
-          order.type_id === activeJob.itemID &&
-          !activeJob.apiOrders.has(order.order_id) &&
-          !linkedOrderIDs.includes(order.order_id) &&
-          !parentUser.linkedOrders.has(order.order_id) &&
-          !existingOrders.some((i) => i.order_id === order.order_id)
-        ) {
-          if (entry.user) {
-            order.CharacterHash = entry.user;
-          }
-          existingOrders.push(order);
-        }
-      });
-    });
-  }
+  const findJournalEntry = (transaction) => {
+    const journalEntries = [
+      ...esiJournal.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiJournal.flatMap((user) =>
+        user?.data.flatMap(({ data }) => data ?? [])
+      ),
+    ];
 
-  function filterTransactions(order, transactions, existingTransactions) {
+    return journalEntries.find(
+      (entry) => transaction?.transaction_id === entry?.context_id
+    );
+  };
+
+  const findTransactionTax = (transaction) => {
+    const journalEntries = [
+      ...esiTransactions.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiJournal.flatMap((user) =>
+        user?.data.flatMap(({ data }) => data ?? [])
+      ),
+    ];
+
+    return journalEntries.find(
+      (entry) =>
+        entry?.ref_type === "transaction_tax" &&
+        Date.parse(entry?.date) === Date.parse(transaction?.date)
+    );
+  };
+
+  const findMarketOrdersForItem = () => {
+    const matchingMarketOrders = [];
+    [esiOrders, esiHistOrders, corpEsiOrders, corpEsiHistOrders].forEach(
+      (orders) => {
+        orders.forEach((entry) => {
+          entry?.data.forEach((order) => {
+            if (
+              order.type_id === activeJob.itemID &&
+              !linkedOrderIDs.includes(order.order_id) &&
+              !parentUser.linkedOrders.has(order.order_id) &&
+              !matchingMarketOrders.some((i) => i.order_id === order.order_id)
+            ) {
+              matchingMarketOrders.push(order);
+            }
+          });
+        });
+      }
+    );
+
+    return matchingMarketOrders;
+  };
+
+  const findTransactionsForMarketOrders = (order) => {
+    const existingTransactions = [];
+    const transactions = [
+      ...esiTransactions.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiJournal.flatMap((user) =>
+        user?.data.flatMap(({ data }) => data ?? [])
+      ),
+    ];
+
     transactions.forEach((trans) => {
       if (
         order.location_id === trans.location_id &&
         order.type_id === trans.type_id &&
-        !activeJob.apiTransactions.has(trans.transaction_id) &&
         !linkedTransIDs.includes(trans.transaction_id) &&
         !parentUser.linkedTrans.has(trans.transaction_id) &&
         !existingTransactions.some(
@@ -103,81 +141,18 @@ export function useMarketOrderFunctions() {
         existingTransactions.push(trans);
       }
     });
-  }
 
-  const findJournalEntry = (transaction, charJournal, corpJournal) => {
-    const corporationEntries = corpJournal.reduce(
-      (allEntries, corp) => allEntries.concat(corp.data),
-      []
-    );
-    const journalEntries = [...charJournal, ...corporationEntries];
-
-    return journalEntries.find(
-      (entry) => transaction.transaction_id === entry.context_id
-    );
-  };
-
-  const findTransactionTax = (transaction, charJournal, corpJournal) => {
-    const corporationEntries = corpJournal.reduce(
-      (allEntries, corp) => allEntries.concat(corp.data),
-      []
-    );
-    const journalEntries = [...charJournal, ...corporationEntries];
-
-    return journalEntries.find(
-      (entry) =>
-        entry.ref_type === "transaction_tax" &&
-        Date.parse(entry.date) === Date.parse(transaction.date)
-    );
-  };
-
-  const findMarketOrdersForItem = () => {
-    let matchingMarketOrders = [];
-    filterMarketOrders(esiOrders, matchingMarketOrders);
-    filterMarketOrders(esiHistOrders, matchingMarketOrders);
-    filterMarketOrders(corpEsiOrders, matchingMarketOrders);
-    filterMarketOrders(corpEsiHistOrders, matchingMarketOrders);
-    return matchingMarketOrders;
-  };
-
-  const findTransactionsForMarketOrders = (order) => {
-    let characterTransactions =
-      esiTransactions.find((i) => i.user === order.CharacterHash)?.data || [];
-    let corporationTransactions =
-      corpEsiTransactions.find((i) => i.user === order.CharacterHash)?.data ||
-      [];
-    let matchingTransactions = [];
-    filterTransactions(order, characterTransactions, matchingTransactions);
-    for (let { data } of corporationTransactions) {
-      filterTransactions(order, data, matchingTransactions);
-    }
-
-    return matchingTransactions;
+    return existingTransactions;
   };
 
   const buildTransactionData = () => {
     const transactionData = [];
     activeJob.build.sale.marketOrders.forEach((order) => {
-      let characterJournal = esiJournal.find(
-        (i) => i.user === order.CharacterHash
-      )?.data;
-      let corporationJournal = corpEsiJournal.find(
-        (i) => i.user === order.CharacterHash
-      )?.data;
-
       const itemTransactions = findTransactionsForMarketOrders(order);
 
       itemTransactions.forEach((itemTrans) => {
-        const transJournal = findJournalEntry(
-          itemTrans,
-          characterJournal,
-          corporationJournal
-        );
-        const transTax = findTransactionTax(
-          itemTrans,
-          characterJournal,
-          corporationJournal
-        );
+        const transJournal = findJournalEntry(itemTrans);
+        const transTax = findTransactionTax(itemTrans);
         if (transJournal && transTax) {
           const descriptionTrim = transJournal.description
             .replace("Market: ", "")
@@ -200,28 +175,20 @@ export function useMarketOrderFunctions() {
   const findBrokersFeeEntry = (order, brokersFee) => {
     const checkEntry = (entry) => {
       if (
-        entry.ref_type === "brokers_fee" ||
-        Date.parse(order.issued) === Date.parse(entry.date)
+        entry?.ref_type === "brokers_fee" ||
+        Date.parse(order?.issued) === Date.parse(entry?.date)
       ) {
         return { ...new ESIBrokerFee(entry, order, brokersFee) };
       }
       return null;
     };
 
-    const characterJournal =
-      esiJournal.find((journal) => journal.user === order.CharacterHash)
-        ?.data ?? [];
-
-    const corporationJournal =
-      corpEsiJournal.find((journal) => journal.user === order.CharacterHash)
-        ?.data ?? [];
-
-    const corporationEntries = corporationJournal.reduce(
-      (allEntries, corp) => allEntries.concat(corp.data),
-      []
-    );
-
-    const journalEntries = [...characterJournal, ...corporationEntries];
+    const journalEntries = [
+      ...esiJournal.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiJournal.flatMap((user) =>
+        user?.data.flatMap(({ data }) => data ?? [])
+      ),
+    ];
 
     for (const entry of journalEntries) {
       const brokerFee = checkEntry(entry);
@@ -237,5 +204,8 @@ export function useMarketOrderFunctions() {
     buildTransactionData,
     findBrokersFeeEntry,
     findMarketOrdersForItem,
+    findTransactionsForMarketOrders,
+    findJournalEntry,
+    findTransactionTax,
   };
 }

@@ -41,7 +41,13 @@ export function useOpenGroup() {
     }));
 
     for (let jobID of requestedGroup.includedJobIDs) {
-      await findJobData(jobID, userJobSnapshot, newJobArray, undefined, "none");
+      await findJobData(
+        jobID,
+        userJobSnapshot,
+        newJobArray,
+        undefined,
+        "groupJob"
+      );
     }
     updateLoadingText((prevObj) => ({
       ...prevObj,

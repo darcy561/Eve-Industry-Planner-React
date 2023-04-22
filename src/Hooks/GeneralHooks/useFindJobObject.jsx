@@ -40,23 +40,30 @@ export function useFindJobObject() {
         case "groupJob":
           if (foundJob === undefined) {
             foundJob = await downloadCharacterJobs(inputJobID);
-            chosenJobArray.push(await downloadCharacterJobs(inputJobID));
+            if (!foundJob) return undefined;
+            chosenJobArray.push(foundJob);
           }
           return foundJob;
         case "all":
           if (foundJob === undefined && jobSnapshot !== undefined) {
             foundJob = await downloadCharacterJobs(inputJobID);
+            if (!foundJob) return undefined;
             chosenJobArray.push(foundJob);
           }
           return [foundJob, jobSnapshot];
         case "none":
           if (foundJob === undefined) {
-            chosenJobArray.push(await downloadCharacterJobs(inputJobID));
+            foundJob = await downloadCharacterJobs(inputJobID);
+            if (!foundJob) {
+              return undefined;
+            }
+            chosenJobArray.push();
           }
           return null;
         default:
           if (foundJob === undefined && jobSnapshot !== undefined) {
             foundJob = await downloadCharacterJobs(inputJobID);
+            if (!foundJob) return undefined;
             chosenJobArray.push(foundJob);
           }
           return foundJob;

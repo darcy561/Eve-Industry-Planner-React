@@ -94,7 +94,7 @@ app.get("/item/:itemID", async (req, res) => {
   }
 });
 
-app.post("/item/bulkRequest", async (req, res) => {
+app.post("/item", async (req, res) => {
   if (req.body.idArray === undefined) {
     return res.status(500).send("Item Data Missing From Request");
   }
@@ -170,7 +170,7 @@ app.get("/item/sisiData/:itemID", async (req, res) => {
   }
 });
 
-app.post("/costs/bulkPrices", async (req, res) => {
+app.post("/costs", async (req, res) => {
   if (req.body.idArray === undefined) {
     return res.status(500).send("Item Data Missing From Request");
   }

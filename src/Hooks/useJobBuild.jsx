@@ -3,6 +3,7 @@ import { appCheck } from "../firebase";
 import { getToken } from "firebase/app-check";
 import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
 import {
+  CorpEsiDataContext,
   PersonalESIDataContext,
   SisiDataFilesContext,
 } from "../Context/EveDataContext";
@@ -24,6 +25,7 @@ export function useJobBuild() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
+  const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
 
   const parentUser = useMemo(() => {
@@ -210,21 +212,18 @@ export function useJobBuild() {
         buildRequestIDs.add(request.itemID);
       }
       const appCheckToken = await getToken(appCheck, true);
-      const response = await fetch(
-        `${import.meta.env.VITE_APIURL}/item/bulkRequest`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Firebase-AppCheck": appCheckToken.token,
-            accountID: parentUser.accountID,
-            appVersion: __APP_VERSION__,
-          },
-          body: JSON.stringify({
-            idArray: [...buildRequestIDs],
-          }),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_APIURL}/item`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Firebase-AppCheck": appCheckToken.token,
+          accountID: parentUser.accountID,
+          appVersion: __APP_VERSION__,
+        },
+        body: JSON.stringify({
+          idArray: [...buildRequestIDs],
+        }),
+      });
       let jsonData = await response.json();
       let returnArray = [];
       for (let request of buildRequest) {
@@ -359,54 +358,52 @@ export function useJobBuild() {
     if (outputObject.jobType !== jobTypes.manufacturing) {
       return;
     }
-    let blueprintOptions = [];
-    esiBlueprints.forEach((entry) => {
-      let blueprintMatch = entry.data.filter(
-        (i) => i.type_id === outputObject.blueprintTypeID
-      );
-      blueprintOptions = blueprintOptions.concat(blueprintMatch);
+    const filteredBlueprints = [
+      ...esiBlueprints.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiBlueprints.flatMap((entry) => entry?.data ?? []),
+    ].filter((entry) => {
+      return entry.type_id === outputObject.blueprintTypeID;
     });
-    if (blueprintOptions.length === 0) {
+
+    if (filteredBlueprints.length === 0) {
       return;
     }
-    blueprintOptions.sort(
+    filteredBlueprints.sort(
       (a, b) =>
+        a.quantity.toString().localeCompare(b.quantity.toString()) ||
         b.material_efficiency - a.material_efficiency ||
         b.time_efficiency - a.time_efficiency
     );
-    outputObject.bpME = blueprintOptions[0].material_efficiency;
-    outputObject.bpTE = blueprintOptions[0].time_efficiency / 2;
+    outputObject.bpME = filteredBlueprints[0].material_efficiency;
+    outputObject.bpTE = filteredBlueprints[0].time_efficiency / 2;
     return;
   }
 
   function addDefaultStructure(outputObject) {
-    if (outputObject.jobType === jobTypes.manufacturing) {
-      const structureData = parentUser.settings.structures.manufacturing.find(
-        (i) => i.default
-      );
-      if (structureData === undefined) {
-        return;
-      }
-      outputObject.rigType = structureData.rigType;
-      outputObject.systemType = structureData.systemType;
-      outputObject.structureType = structureData.structureValue;
-      outputObject.structureTypeDisplay = structureData.structureName;
-      return;
+    switch (outputObject.jobType) {
+      case jobTypes.manufacturing:
+        const manufacturingStructure =
+          parentUser.settings.structures.manufacturing.find((i) => i.default);
+        if (manufacturingStructure === undefined) break;
+
+        outputObject.rigType = manufacturingStructure.rigType;
+        outputObject.systemType = manufacturingStructure.systemType;
+        outputObject.structureType = manufacturingStructure.structureValue;
+        outputObject.structureTypeDisplay =
+          manufacturingStructure.structureName;
+        break;
+      case jobTypes.reaction:
+        const reactionStructure = parentUser.settings.structures.reaction.find(
+          (i) => i.default
+        );
+        if (reactionStructure === undefined) break;
+
+        outputObject.rigType = reactionStructure.rigType;
+        outputObject.systemType = reactionStructure.systemType;
+        outputObject.structureType = reactionStructure.structureValue;
+        outputObject.structureTypeDisplay = reactionStructure.structureName;
+        break;
     }
-    if (outputObject.jobType === jobTypes.reaction) {
-      const structureData = parentUser.settings.structures.reaction.find(
-        (i) => i.default
-      );
-      if (structureData === undefined) {
-        return;
-      }
-      outputObject.rigType = structureData.rigType;
-      outputObject.systemType = structureData.systemType;
-      outputObject.structureType = structureData.structureValue;
-      outputObject.structureTypeDisplay = structureData.structureName;
-      return;
-    }
-    return;
   }
 
   function buildRequest_ChildJobs(buildRequest, outputObject) {

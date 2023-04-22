@@ -174,7 +174,6 @@ export function useGroupManagement() {
     let chosenGroup = newGroupArray.find((i) => i.groupID === inputGroupID);
 
     for (let jobID of chosenGroup.includedJobIDs) {
-      console.log(jobID);
       let foundJob = await findJobData(
         jobID,
         userJobSnapshot,

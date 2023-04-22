@@ -70,7 +70,7 @@ export const CorpEsiData = (props) => {
   const [corpEsiBlueprints, updateCorpEsiBlueprints] = useState([]);
   const [corpEsiJournal, updateCorpEsiJournal] = useState([]);
   const [corpEsiTransactions, updateCorpEsiTransactions] = useState([]);
-  const [corpEsiDivisions, updateCorpEsiDivisions] = useState([]);
+  const [esiCorpData, updateESICorpData] = useState([]);
   return (
     <CorpEsiDataContext.Provider
       value={{
@@ -86,8 +86,8 @@ export const CorpEsiData = (props) => {
         updateCorpEsiJournal,
         corpEsiTransactions,
         updateCorpEsiTransactions,
-        corpEsiDivisions,
-        updateCorpEsiDivisions,
+        esiCorpData,
+        updateESICorpData,
       }}
     >
       {props.children}

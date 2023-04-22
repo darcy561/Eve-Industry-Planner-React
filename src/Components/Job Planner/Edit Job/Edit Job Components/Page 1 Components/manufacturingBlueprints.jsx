@@ -35,15 +35,10 @@ export function ManufacturingBlueprints({ setJobModified }) {
   const classes = useStyles();
 
   useEffect(() => {
-    const corpBlueprints = corpEsiBlueprints.reduce(
-      (allEntries, character) => allEntries.concat(character.data),
-      []
-    );
-    const characterBlueprints = esiBlueprints.reduce(
-      (allEntries, character) => allEntries.concat(character.data),
-      []
-    );
-    const combinedBlueprints = [...corpBlueprints, ...characterBlueprints];
+    const combinedBlueprints = [
+      ...esiBlueprints.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiBlueprints.flatMap((entry) => entry?.data ?? []),
+    ];
 
     let filteredBlueprints = combinedBlueprints.filter(
       (i) => i.type_id === activeJob.blueprintTypeID
@@ -60,6 +55,7 @@ export function ManufacturingBlueprints({ setJobModified }) {
 
     filteredBlueprints.sort(
       (a, b) =>
+        a.quantity.toString().localeCompare(b.quantity.toString()) ||
         b.material_efficiency - a.material_efficiency ||
         b.time_efficiency - a.time_efficiency
     );
@@ -330,7 +326,11 @@ export function ManufacturingBlueprints({ setJobModified }) {
                             }}
                             badgeContent={
                               <Avatar
-                                src={`https://images.evetech.net/characters/${print.owner_id}/portrait`}
+                                src={
+                                  print.isCorp
+                                    ? `https://images.evetech.net/corporations/${print.corporation_id}/logo`
+                                    : `https://images.evetech.net/characters/${blueprintOwner.CharacterID}/portrait`
+                                }
                                 variant="circular"
                                 sx={{
                                   height: "18px",

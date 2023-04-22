@@ -151,20 +151,15 @@ export function useDeleteSingleJob() {
       let newIncludedTypeIDs = new Set();
       let newMaterialIDs = new Set();
       let newOutputJobCount = 0;
-      let isActiveGroup = false;
-      let selectedGroup = await findJobData(
-        inputJob.groupID,
-        undefined,
-        undefined,
-        newGroupArray
+      const selectedGroupIndex = newGroupArray.findIndex(
+        (i) => i.groupID === inputJob.groupID
       );
+      const isActiveGroup =
+        newGroupArray[selectedGroupIndex].groupID === activeGroup.groupID;
 
-      if (selectedGroup === undefined) break removeJobFromGroup;
+      if (selectedGroupIndex === -1) break removeJobFromGroup;
 
-      if (selectedGroup.groupID === activeGroup.groupID) {
-        isActiveGroup = true;
-      }
-      for (let jobID of selectedGroup.includedJobIDs) {
+      for (let jobID of newGroupArray[selectedGroupIndex].includedJobIDs) {
         await findJobData(
           jobID,
           newUserJobSnapshot,
@@ -174,7 +169,7 @@ export function useDeleteSingleJob() {
         );
       }
 
-      for (let jobID of selectedGroup.includedJobIDs) {
+      for (let jobID of newGroupArray[selectedGroupIndex].includedJobIDs) {
         if (jobID === inputJob.jobID) continue;
 
         let foundJob = await findJobData(
@@ -197,13 +192,15 @@ export function useDeleteSingleJob() {
         newIncludedJobIDs.add(foundJob.jobID);
       }
 
-      selectedGroup.includedJobIDs = [...newIncludedJobIDs];
-      selectedGroup.includedTypeIDs = [...newIncludedTypeIDs];
-      selectedGroup.materialIDs = [...newMaterialIDs];
-      selectedGroup.outputJobCount = newOutputJobCount;
+      newGroupArray[selectedGroupIndex].includedJobIDs = [...newIncludedJobIDs];
+      newGroupArray[selectedGroupIndex].includedTypeIDs = [
+        ...newIncludedTypeIDs,
+      ];
+      newGroupArray[selectedGroupIndex].materialIDs = [...newMaterialIDs];
+      newGroupArray[selectedGroupIndex].outputJobCount = newOutputJobCount;
       updateGroupArray(newGroupArray);
       if (isActiveGroup) {
-        updateActiveGroup(selectedGroup);
+        updateActiveGroup(newGroupArray[selectedGroupIndex]);
       }
       if (isLoggedIn) {
         uploadGroups(newGroupArray);

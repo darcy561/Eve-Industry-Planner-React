@@ -18,13 +18,11 @@ import { useContext, useEffect, useState } from "react";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { OutputJobsPanel } from "./OutputJobs";
 import { GroupAccordion } from "./groupAccordion";
-import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { makeStyles } from "@mui/styles";
 import { GroupOptionsBar } from "./groupOptions";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import itemList from "../../../RawData/searchIndex.json";
-import { DataExchangeContext } from "../../../Context/LayoutContext";
 import { useCloseGroup } from "../../../Hooks/GroupHooks/useCloseGroup";
 import { LoadingPage } from "../../loadingPage";
 
@@ -57,7 +55,6 @@ export default function GroupPage({
   const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { dataExchange } = useContext(DataExchangeContext);
   const [groupJobs, updateGroupJobs] = useState([]);
   const [groupPageRefresh, updateGroupPageRefresh] = useState(false);
   const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
@@ -68,11 +65,24 @@ export default function GroupPage({
   const classes = useStyles();
 
   useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  useEffect(() => {
     if (activeGroup === null) return;
     let returnArray = [];
     updateGroupPageRefresh((prev) => !prev);
     for (let jobID of activeGroup.includedJobIDs) {
-      let job = jobArray.find((i) => i.jobID === jobID);
+      let job = jobArray.find((i) => i?.jobID === jobID);
       if (job === undefined) {
         continue;
       }

@@ -63,6 +63,7 @@ export function useFirebase() {
     characterAPICall,
     checkUserClaims,
     getLocationNames,
+    storeCorpObjects,
     storeESIData,
     tidyLinkedData,
     updateCloudRefreshTokens,
@@ -329,7 +330,7 @@ export function useFirebase() {
     try {
       const appCheckToken = await getToken(appCheck, true);
       const itemsPricePromise = await fetch(
-        `${import.meta.env.VITE_APIURL}/costs/bulkPrices`,
+        `${import.meta.env.VITE_APIURL}/costs`,
         {
           method: "POST",
           headers: {
@@ -638,9 +639,7 @@ export function useFirebase() {
             groupID: downloadDoc.groupID,
             isReadyToSell: downloadDoc.isReadyToSell || false,
           };
-          console.log(activeJob);
           if (activeJob.jobID == newJob.jobID) {
-            console.log("11");
             updateActiveJob(newJob);
           }
           updateJobArray((prev) => {
@@ -687,11 +686,13 @@ export function useFirebase() {
               newUserArray
             );
             await storeESIData(esiOjectArray);
+            storeCorpObjects(esiOjectArray);
           }
           if (!userData.settings.account.cloudAccounts) {
             await buildLocalAccountData(newUserArray, esiOjectArray);
             updateLocalRefreshTokens(newUserArray);
             await storeESIData(esiOjectArray);
+            storeCorpObjects(esiOjectArray);
           }
           tidyLinkedData(
             userData.linkedJobs,

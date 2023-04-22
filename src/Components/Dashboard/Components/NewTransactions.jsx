@@ -4,13 +4,17 @@ import {
   UserJobSnapshotContext,
   UsersContext,
 } from "../../../Context/AuthContext";
-import { PersonalESIDataContext } from "../../../Context/EveDataContext";
+import {
+  CorpEsiDataContext,
+  PersonalESIDataContext,
+} from "../../../Context/EveDataContext";
 import {
   JobStatusContext,
   LinkedIDsContext,
 } from "../../../Context/JobContext";
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
 import itemData from "../../../RawData/searchIndex.json";
+import { useMarketOrderFunctions } from "../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 
 export function NewTransactions() {
   const { users } = useContext(UsersContext);
@@ -20,100 +24,75 @@ export function NewTransactions() {
   const { esiOrders, esiHistOrders, esiTransactions, esiJournal } = useContext(
     PersonalESIDataContext
   );
+  const {
+    corpEsiOrders,
+    corpEsiHistOrders,
+    corpEsiJournal,
+    corpEsiTransactions,
+  } = useContext(CorpEsiDataContext);
   const { userDataFetch, userJobSnapshotDataFetch } =
     useContext(UserLoginUIContext);
+  const {
+    findTransactionsForMarketOrders,
+    findJournalEntry,
+    findTransactionTax,
+  } = useMarketOrderFunctions();
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
 
-  let itemOrderMatch = [];
-  const filteredJobs = useMemo(
-    () =>
-      userJobSnapshot.filter(
-        (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
-      ),
-    [userJobSnapshot]
-  );
-
   let findTransactionData = useCallback(() => {
     let returnTransactions = [];
+    const includedOrderIDs = new Set();
     if (
-      esiOrders === undefined ||
-      esiTransactions === undefined ||
-      esiJournal === undefined ||
-      esiOrders === undefined ||
-      esiHistOrders === undefined
-    ) {
+      !esiOrders ||
+      !esiHistOrders ||
+      !esiTransactions ||
+      !esiJournal ||
+      !corpEsiOrders ||
+      !corpEsiHistOrders ||
+      !corpEsiJournal ||
+      !corpEsiTransactions
+    )
       return returnTransactions;
-    }
-    filteredJobs.forEach((job) => {
-      esiOrders.forEach((entry) => {
-        entry.data.forEach((order) => {
-          if (
-            order.type_id === job.itemID &&
-            linkedOrderIDs.includes(order.order_id) &&
-            !parentUser.linkedOrders.has(order.order_id) &&
-            !itemOrderMatch.find((item) => item.order_id === order.order_id)
-          ) {
-            order.CharacterHash = entry.user;
-            itemOrderMatch.push(order);
-          }
-        });
-      });
-      esiHistOrders.forEach((entry) => {
-        entry.data.forEach((order) => {
-          if (
-            order.type_id === job.itemID &&
-            linkedOrderIDs.includes(order.order_id) &&
-            !parentUser.linkedOrders.has(order.order_id) &&
-            !itemOrderMatch.find((item) => item.order_id === order.order_id)
-          ) {
-            order.CharacterHash = entry.user;
 
-            itemOrderMatch.push(order);
-          }
-        });
-      });
-      itemOrderMatch.forEach((order) => {
-        const userTransactions = esiTransactions.find(
-          (u) => u.user === order.CharacterHash
-        );
-        if (userTransactions === undefined) return;
+    const filteredJobs = userJobSnapshot.filter(
+      (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
+    );
 
-        const transactions = userTransactions.data;
+    const combinedESIData = [
+      ...esiOrders.flatMap((entry) => entry?.data ?? []),
+      ...esiHistOrders.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiOrders.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiHistOrders.flatMap((entry) => entry?.data ?? []),
+    ];
 
-        const itemTrans = transactions.filter(
-          (trans) =>
-            order.location_id === trans.location_id &&
-            order.type_id === trans.type_id &&
-            !linkedTransIDs.includes(trans.transaction_id) &&
-            !parentUser.linkedTrans.has(trans.transaction_id) &&
-            !returnTransactions.find(
-              (item) => item.transaction_id === trans.transaction_id
-            ) &&
-            trans.unit_price >= 0
-        );
-        itemTrans.forEach((trans) => {
-          const userJournal = esiJournal.find(
-            (u) => u.user === order.CharacterHash
-          );
-          if (userJournal === undefined) return;
-          const journal = userJournal.data;
-          const transJournal = journal.find(
-            (entry) => trans.transaction_id === entry.context_id
-          );
-          const transTax = journal.find(
-            (entry) =>
-              entry.ref_type === "transaction_tax" &&
-              Date.parse(entry.date) === Date.parse(trans.date)
-          );
-          if (transJournal !== undefined && transTax !== undefined) {
-            trans.description = transJournal.description;
-            trans.tax = Math.abs(transTax.amount);
+    const itemOrderMatch = combinedESIData.filter((order) => {
+      const isMatch =
+        filteredJobs.some((job) => job.itemID === order.type_id) &&
+        linkedOrderIDs.includes(order.order_id) &&
+        !parentUser.linkedOrders.has(order.order_id) &&
+        !includedOrderIDs.has(order.order_id);
+      if (isMatch) {
+        includedOrderIDs.add(order.order_id);
+      }
+      return isMatch;
+    });
 
-            returnTransactions.push(trans);
-          }
+    itemOrderMatch.forEach((order) => {
+      const itemTrans = findTransactionsForMarketOrders(order);
+
+      itemTrans.forEach((trans) => {
+        const transJournal = findJournalEntry(trans);
+        const transTax = findTransactionTax(trans);
+
+        if (!transJournal || !transTax) return;
+
+        returnTransactions.push({
+          ...trans,
+          description: transJournal.description,
+          tax: Math.abs(transTax.amount),
         });
       });
     });
@@ -121,7 +100,7 @@ export function NewTransactions() {
       return new Date(b.date) - new Date(a.date);
     });
     return returnTransactions;
-  }, [filteredJobs, esiJournal, esiHistOrders, esiOrders, esiTransactions]);
+  }, [userJobSnapshot, esiJournal, esiHistOrders, esiOrders, esiTransactions]);
 
   let transactionData = findTransactionData();
 

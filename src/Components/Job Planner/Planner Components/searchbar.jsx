@@ -393,6 +393,7 @@ export function SearchBar({
               <Button
                 variant="outlined"
                 size="small"
+                sx={{ marginRight: "10px" }}
                 color="error"
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
@@ -413,22 +414,26 @@ export function SearchBar({
                 Delete
               </Button>
             </Tooltip>
-          </Grid>
-          <Grid item xs={12} md="auto" align="center">
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={async () => {
-                let newGroup = await createNewGroupWithJobs(
-                  multiSelectJobPlanner
-                );
-                updateActiveGroup(newGroup);
-                updateMultiSelectJobPlanner([]);
-                updateEditGroupTrigger((prev) => !prev);
-              }}
+            <Tooltip
+              title="Creates a new job group from the job selection you have or an empty group"
+              arrow
+              placement="bottom"
             >
-              New Group
-            </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={async () => {
+                  let newGroup = await createNewGroupWithJobs(
+                    multiSelectJobPlanner
+                  );
+                  updateActiveGroup(newGroup);
+                  updateMultiSelectJobPlanner([]);
+                  updateEditGroupTrigger((prev) => !prev);
+                }}
+              >
+                New Group
+              </Button>
+            </Tooltip>
           </Grid>
         </Grid>
       </Grid>

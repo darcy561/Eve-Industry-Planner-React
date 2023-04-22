@@ -133,7 +133,7 @@ export function useEveApi() {
 
   const fetchCharacterTransactions = async (userObj) => {
     let transactions = [];
-    let maxPages = 20;
+    let maxPages = 50;
     let maxEntries = 2500;
     let currentDate = new Date();
 
@@ -163,7 +163,7 @@ export function useEveApi() {
 
   const fetchCharacterJournal = async (userObj) => {
     let journal = [];
-    let maxPages = 20;
+    let maxPages = 50;
     let maxEntries = 2500;
     let currentDate = new Date();
 
@@ -277,7 +277,7 @@ export function useEveApi() {
 
   const fetchCharacterAssets = async (userObj) => {
     let assets = [];
-    let maxPages = 20;
+    let maxPages = 50;
     let maxEntries = 1000;
 
     for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
@@ -351,7 +351,7 @@ export function useEveApi() {
 
   const fetchCorpIndustryJobs = async (userObj) => {
     let indyJobs = [];
-    let maxPages = 1;
+    let maxPages = 50;
     let maxEntries = 1000;
 
     for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
@@ -387,7 +387,7 @@ export function useEveApi() {
 
   const fetchCorpMarketOrdersJobs = async (userObj) => {
     let orders = [];
-    let maxPages = 1;
+    let maxPages = 50;
     let maxEntries = 1000;
 
     for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
@@ -403,7 +403,7 @@ export function useEveApi() {
         if (data.length < maxEntries) break;
       } catch (err) {
         console.error(`Error fetching corporation market order data: ${err}`);
-        return [];
+        break
       }
     }
     orders = orders.filter(
@@ -478,6 +478,25 @@ export function useEveApi() {
     }));
   };
 
+  const fetchCorpPublicInfo = async (userObj) => {
+    try {
+      const request = await fetch(
+        `
+        https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/
+        `
+      )
+
+      const data = await request.json();
+      if (!request.ok) return null
+      
+      data.corporation_id = userObj.corporation_id;
+        return data
+    } catch (err) {
+      console.error(`Error fetching public corporation data: ${err}`);
+      return null
+    } 
+  }
+
   const fetchCorpDivisions = async (userObj) => {
     try {
       const request = await fetch(
@@ -488,7 +507,10 @@ export function useEveApi() {
 
       data.corporation_id = userObj.corporation_id;
       return data;
-    } catch (err) {}
+    } catch (err) {
+      console.error(`Error fetching corporation divisions: ${err}`);
+      return null
+    }
   };
 
   const fetchCorpJournal = async (userObj) => {
@@ -590,6 +612,7 @@ export function useEveApi() {
     IDtoName,
     serverStatus,
     stationData,
+    fetchCorpPublicInfo,
     fetchCorpDivisions,
     fetchCorpIndustryJobs,
     fetchCorpJournal,

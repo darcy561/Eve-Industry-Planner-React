@@ -133,7 +133,6 @@ export function useOpenEditJob() {
         return prev.concat(jobPrices);
       });
     }
-    console.log(newJobArray);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateActiveJob(openJob);

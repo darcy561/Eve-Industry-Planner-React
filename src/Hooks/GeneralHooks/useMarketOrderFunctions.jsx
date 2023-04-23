@@ -123,7 +123,7 @@ export function useMarketOrderFunctions() {
     const existingTransactions = [];
     const transactions = [
       ...esiTransactions.flatMap((entry) => entry?.data ?? []),
-      ...corpEsiJournal.flatMap((user) =>
+      ...corpEsiTransactions.flatMap((user) =>
         user?.data.flatMap(({ data }) => data ?? [])
       ),
     ];

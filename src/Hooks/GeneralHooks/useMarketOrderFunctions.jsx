@@ -84,7 +84,7 @@ export function useMarketOrderFunctions() {
 
   const findTransactionTax = (transaction) => {
     const journalEntries = [
-      ...esiTransactions.flatMap((entry) => entry?.data ?? []),
+      ...esiJournal.flatMap((entry) => entry?.data ?? []),
       ...corpEsiJournal.flatMap((user) =>
         user?.data.flatMap(({ data }) => data ?? [])
       ),
@@ -149,7 +149,6 @@ export function useMarketOrderFunctions() {
     const transactionData = [];
     activeJob.build.sale.marketOrders.forEach((order) => {
       const itemTransactions = findTransactionsForMarketOrders(order);
-
       itemTransactions.forEach((itemTrans) => {
         const transJournal = findJournalEntry(itemTrans);
         const transTax = findTransactionTax(itemTrans);

@@ -94,6 +94,7 @@ export function ManufacturingBlueprints({ setJobModified }) {
               sx={{
                 maxHeight: { xs: "370px", sm: "220px", md: "370px" },
                 overflowY: "auto",
+
               }}
             >
               {blueprintOptions.map((print) => {

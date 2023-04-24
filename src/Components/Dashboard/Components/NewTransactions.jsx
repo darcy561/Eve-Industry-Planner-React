@@ -128,7 +128,7 @@ export function NewTransactions() {
                 New Job Transactions
               </Typography>
             </Grid>
-            <Grid container item xs={12}>
+            <Grid container item xs={12} sx={{overflowY:"auto", maxHeight:{xs:"320px", md:"750px"}}}>
               {transactionData.map((trans) => {
                 let itemName = itemData.find((i) => i.itemID === trans.type_id);
                 if (itemName === undefined) return null;

@@ -109,7 +109,6 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                 const corpData = esiCorpData.find(
                   (i) => i.corporation_id === charData?.corporation_id
                 );
-                console.log(tData)
                 if (!activeOrder.some((t) => t !== tData.location_id)) {
                   return (
                     <Grid

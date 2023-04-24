@@ -117,13 +117,15 @@ export function ItemCostRow({
               : null
           }
         >
-          {materialPrice[marketSelect][listingSelect].toLocaleString(
-            undefined,
-            {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }
-          )}{" "}
+          {materialPrice !== undefined
+            ? materialPrice[marketSelect][listingSelect].toLocaleString(
+                undefined,
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }
+              )
+            : 0}
         </Typography>
       </Grid>
       <Grid
@@ -145,12 +147,14 @@ export function ItemCostRow({
               : null
           }
         >
-          {(
-            materialPrice[marketSelect][listingSelect] * material.quantity
-          ).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {materialPrice !== undefined
+            ? (
+                materialPrice[marketSelect][listingSelect] * material.quantity
+              ).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : 0}
         </Typography>
       </Grid>
     </Grid>

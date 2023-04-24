@@ -25,6 +25,7 @@ import {
 import { useJobBuild } from "../../../../../Hooks/useJobBuild";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { jobTypes } from "../../../../../Context/defaultValues";
+import { useSwitchActiveJob } from "../../../../../Hooks/JobHooks/useSwitchActiveJob";
 
 export function ChildJobPopover({
   displayPopover,
@@ -55,8 +56,8 @@ export function ChildJobPopover({
     uploadUserJobSnapshot,
   } = useFirebase();
   const { buildJob } = useJobBuild();
-  const { newJobSnapshot, replaceSnapshot, switchActiveJob } =
-    useJobManagement();
+  const { newJobSnapshot, replaceSnapshot } = useJobManagement();
+  const { switchActiveJob } = useSwitchActiveJob();
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImport, updateJobImport] = useState(false);
   const [jobDisplay, setJobDisplay] = useState(0);
@@ -125,7 +126,12 @@ export function ChildJobPopover({
         if (materialPrice === undefined) {
           materialPrice = tempPrices.find((i) => i.typeID === mat.typeID);
         }
-        totalPrice += materialPrice[marketSelect][listingSelect] * mat.quantity;
+        if (materialPrice === undefined) {
+          totalPrice += 0;
+        } else {
+          totalPrice +=
+            materialPrice[marketSelect][listingSelect] * mat.quantity;
+        }
       });
       updateCurrentBuildPrice(
         totalPrice / childJobObjects[jobDisplay].build.products.totalQuantity
@@ -188,48 +194,65 @@ export function ChildJobPopover({
                 {material.name}
               </Typography>
             </Grid>
-            {childJobObjects[jobDisplay].jobType === jobTypes.manufacturing ? (
-              <Grid item xs={12} sx={{ marginBottom: "10px" }}>
+            <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
+              <Grid item xs={6}>
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-                  <b>ME: {childJobObjects[jobDisplay].bpME}</b>
+                  <b>Item Quantity: {material.quantity}</b>
                 </Typography>
               </Grid>
-            ) : null}
-            {childJobObjects[jobDisplay].build.materials.map((mat) => {
-              let materialPrice = evePrices.find(
-                (i) => i.typeID === mat.typeID
-              );
-              if (materialPrice === undefined) {
-                materialPrice = tempPrices.find((i) => i.typeID === mat.typeID);
-              }
-
-              return (
-                <Grid key={mat.typeID} container item xs={12}>
-                  <Grid item xs={8}>
-                    <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                    >
-                      {mat.name}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                      align="right"
-                    >
-                      {(
-                        materialPrice[marketSelect][listingSelect] *
-                        mat.quantity
-                      ).toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </Typography>
-                  </Grid>
+              {childJobObjects[jobDisplay].jobType ===
+              jobTypes.manufacturing ? (
+                <Grid item xs={6}>
+                  <Typography
+                    align="right"
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    <b>ME: {childJobObjects[jobDisplay].bpME}</b>
+                  </Typography>
                 </Grid>
-              );
-            })}
-            <Grid container item xs={12} sx={{ marginTop: "10px" }}>
+              ) : null}
+            </Grid>
+            <Grid container item xs={12}>
+              {childJobObjects[jobDisplay].build.materials.map((mat) => {
+                let materialPrice = evePrices.find(
+                  (i) => i.typeID === mat.typeID
+                );
+                if (materialPrice === undefined) {
+                  materialPrice = tempPrices.find(
+                    (i) => i.typeID === mat.typeID
+                  );
+                }
+
+                return (
+                  <Grid key={mat.typeID} container item xs={12}>
+                    <Grid item xs={8}>
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      >
+                        {mat.name}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography
+                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        align="right"
+                      >
+                        {materialPrice !== undefined
+                          ? (
+                              materialPrice[marketSelect][listingSelect] *
+                              mat.quantity
+                            ).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })
+                          : 0}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                );
+              })}
+            </Grid>
+            <Grid container item xs={12} sx={{ marginTop: "20px" }}>
               <Grid item xs={12} sm={8}>
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   Total Material{" "}
@@ -258,12 +281,13 @@ export function ChildJobPopover({
                 ) : null}
               </Grid>
             </Grid>
-            <Grid container item xs={12} sx={{ marginTop: "10px" }}>
+            <Grid container item xs={12}>
               <Grid item xs={12} sm={8}>
                 <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
                   Total Material{" "}
                   {listingSelect.charAt(0).toUpperCase() +
-                    listingSelect.slice(1)}{" "} Price
+                    listingSelect.slice(1)}{" "}
+                  Price
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={4} align="right">
@@ -277,17 +301,69 @@ export function ChildJobPopover({
                         : "success.main"
                     }
                   >
-                    {(
-                      currentBuildPrice *
-                      childJobObjects[jobDisplay].build.products.totalQuantity
-                    ).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    {(currentBuildPrice * material.quantity).toLocaleString(
+                      undefined,
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
                   </Typography>
                 ) : null}
               </Grid>
             </Grid>
+            {material.quantity !==
+            childJobObjects[jobDisplay].build.products.totalQuantity ? (
+              <>
+                <Grid container item xs={12} sx={{ marginTop: "20px" }}>
+                  <Grid item xs={12} sm={8}>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      Total Items Produced By Child Job{" "}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={4} align="right">
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      {childJobObjects[jobDisplay].build.products.totalQuantity}
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Grid container item xs={12}>
+                  <Grid item xs={12} sm={8}>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    >
+                      Child Job Total Material{" "}
+                      {listingSelect.charAt(0).toUpperCase() +
+                        listingSelect.slice(1)}{" "}
+                      Price
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={4} align="right">
+                    {currentBuildPrice !== null ? (
+                      <>
+                        <Typography
+                          sx={{ typography: { xs: "caption", sm: "body2" } }}
+                          align="right"
+                        >
+                          {(
+                            currentBuildPrice *
+                            childJobObjects[jobDisplay].build.products
+                              .totalQuantity
+                          ).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </Typography>
+                      </>
+                    ) : null}
+                  </Grid>
+                </Grid>
+              </>
+            ) : null}
 
             {childJobObjects.length > 1 && (
               <Grid container item xs={12} sx={{ marginTop: "10px" }}>

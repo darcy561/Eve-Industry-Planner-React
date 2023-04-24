@@ -57,7 +57,7 @@ export function SideMenu(props) {
           <ListItem
             button
             onClick={() => {
-              navigate("/");
+              navigate("/dashboard");
               setOpen(false);
             }}
           >

@@ -1,108 +1,110 @@
 import { CircularProgress, Grid, Paper, Typography } from "@mui/material";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useCallback } from "react";
 import {
   UserJobSnapshotContext,
   UsersContext,
 } from "../../../Context/AuthContext";
-import { PersonalESIDataContext } from "../../../Context/EveDataContext";
+import {
+  CorpEsiDataContext,
+  PersonalESIDataContext,
+} from "../../../Context/EveDataContext";
 import {
   JobStatusContext,
   LinkedIDsContext,
 } from "../../../Context/JobContext";
+import { UserLoginUIContext } from "../../../Context/LayoutContext";
 import itemData from "../../../RawData/searchIndex.json";
+import { useMarketOrderFunctions } from "../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 
 export function NewTransactions() {
-  const { users, userDataFetch } = useContext(UsersContext);
-  const { userJobSnapshot, userJobSnapshotDataFetch } = useContext(
-    UserJobSnapshotContext
-  );
+  const { users } = useContext(UsersContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobStatus } = useContext(JobStatusContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
   const { esiOrders, esiHistOrders, esiTransactions, esiJournal } = useContext(
     PersonalESIDataContext
   );
+  const {
+    corpEsiOrders,
+    corpEsiHistOrders,
+    corpEsiJournal,
+    corpEsiTransactions,
+  } = useContext(CorpEsiDataContext);
+  const { userDataFetch, userJobSnapshotDataFetch } =
+    useContext(UserLoginUIContext);
+  const {
+    findTransactionsForMarketOrders,
+    findJournalEntry,
+    findTransactionTax,
+  } = useMarketOrderFunctions();
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
 
-  let itemOrderMatch = [];
-  let transactionData = [];
+  let findTransactionData = useCallback(() => {
+    let returnTransactions = [];
+    const includedOrderIDs = new Set();
+    if (
+      !esiOrders ||
+      !esiHistOrders ||
+      !esiTransactions ||
+      !esiJournal ||
+      !corpEsiOrders ||
+      !corpEsiHistOrders ||
+      !corpEsiJournal ||
+      !corpEsiTransactions
+    )
+      return returnTransactions;
 
-  const filteredJobs = userJobSnapshot.filter(
-    (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
-  );
+    const filteredJobs = userJobSnapshot.filter(
+      (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
+    );
 
-  filteredJobs.forEach((job) => {
-    esiOrders.forEach((entry) => {
-      entry.orders.forEach((order) => {
-        if (
-          order.type_id === job.itemID &&
-          linkedOrderIDs.includes(order.order_id) &&
-          !parentUser.linkedOrders.has(order.order_id) &&
-          !itemOrderMatch.find((item) => item.order_id === order.order_id)
-        ) {
-          order.CharacterHash = entry.user;
-          itemOrderMatch.push(order);
-        }
-      });
+    const combinedESIData = [
+      ...esiOrders.flatMap((entry) => entry?.data ?? []),
+      ...esiHistOrders.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiOrders.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiHistOrders.flatMap((entry) => entry?.data ?? []),
+    ];
+
+    const itemOrderMatch = combinedESIData.filter((order) => {
+      const isMatch =
+        filteredJobs.some((job) => job.itemID === order.type_id) &&
+        linkedOrderIDs.includes(order.order_id) &&
+        !parentUser.linkedOrders.has(order.order_id) &&
+        !includedOrderIDs.has(order.order_id);
+      if (isMatch) {
+        includedOrderIDs.add(order.order_id);
+      }
+      return isMatch;
     });
-    esiHistOrders.forEach((entry) => {
-      entry.histOrders.forEach((order) => {
-        if (
-          order.type_id === job.itemID &&
-          linkedOrderIDs.includes(order.order_id) &&
-          !parentUser.linkedOrders.has(order.order_id) &&
-          !itemOrderMatch.find((item) => item.order_id === order.order_id)
-        ) {
-          order.CharacterHash = entry.user;
 
-          itemOrderMatch.push(order);
-        }
-      });
-    });
     itemOrderMatch.forEach((order) => {
-      const transactions = esiTransactions.find(
-        (u) => u.user === order.CharacterHash
-      ).transactions;
+      const itemTrans = findTransactionsForMarketOrders(order);
 
-      const itemTrans = transactions.filter(
-        (trans) =>
-          order.location_id === trans.location_id &&
-          order.type_id === trans.type_id &&
-          !linkedTransIDs.includes(trans.transaction_id) &&
-          !parentUser.linkedTrans.has(trans.transaction_id) &&
-          !transactionData.find(
-            (item) => item.transaction_id === trans.transaction_id
-          ) &&
-          trans.unit_price >= 0
-      );
       itemTrans.forEach((trans) => {
-        const journal = esiJournal.find(
-          (u) => u.user === order.CharacterHash
-        ).journal;
-        const transJournal = journal.find(
-          (entry) => trans.transaction_id === entry.context_id
-        );
-        const transTax = journal.find(
-          (entry) =>
-            entry.ref_type === "transaction_tax" &&
-            Date.parse(entry.date) === Date.parse(trans.date)
-        );
-        if (transJournal !== undefined && transTax !== undefined) {
-          trans.description = transJournal.description;
-          trans.tax = Math.abs(transTax.amount);
+        const transJournal = findJournalEntry(trans);
+        const transTax = findTransactionTax(trans);
 
-          transactionData.push(trans);
-        }
+        if (!transJournal || !transTax) return;
+
+        returnTransactions.push({
+          ...trans,
+          description: transJournal.description,
+          tax: Math.abs(transTax.amount),
+        });
       });
     });
-  });
-  transactionData.sort((a, b) => {
-    return new Date(b.date) - new Date(a.date);
-  });
+    returnTransactions.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+    return returnTransactions;
+  }, [userJobSnapshot, esiJournal, esiHistOrders, esiOrders, esiTransactions]);
 
-  if (!userDataFetch && !userJobSnapshotDataFetch) {
+  let transactionData = findTransactionData();
+
+  if (userDataFetch && userJobSnapshotDataFetch) {
     if (transactionData.length > 0) {
       return (
         <Paper
@@ -126,9 +128,10 @@ export function NewTransactions() {
                 New Job Transactions
               </Typography>
             </Grid>
-            <Grid container item xs={12}>
+            <Grid container item xs={12} sx={{overflowY:"auto", maxHeight:{xs:"320px", md:"750px"}}}>
               {transactionData.map((trans) => {
                 let itemName = itemData.find((i) => i.itemID === trans.type_id);
+                if (itemName === undefined) return null;
                 return (
                   <Grid
                     key={trans.transaction_id}
@@ -156,7 +159,8 @@ export function NewTransactions() {
                         align="right"
                         sx={{ typography: { xs: "caption", sm: "body2" } }}
                       >
-                        {trans.quantity} @ {trans.unit_price.toLocaleString()}
+                        {trans.quantity.toLocaleString()} @{" "}
+                        {trans.unit_price.toLocaleString()}
                       </Typography>
                     </Grid>
                   </Grid>

@@ -26,6 +26,8 @@ import { SisiDataFilesContext } from "../../../Context/EveDataContext";
 import { makeStyles } from "@mui/styles";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
+import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
+import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
 
 const useStyles = makeStyles((theme) => ({
   Autocomplete: {
@@ -60,14 +62,13 @@ export function SearchBar({
   );
   const { updateActiveGroup } = useContext(ActiveJobContext);
   const {
-    deleteMultipleJobsProcess,
     massBuildMaterials,
     mergeJobsNew,
-    moveItemsBackward,
-    moveItemsForward,
     newJobProcess,
     buildItemPriceEntry,
   } = useJobManagement();
+  const { deleteMultipleJobs } = useDeleteMultipleJobs();
+  const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { createNewGroupWithJobs } = useGroupManagement();
   const classes = useStyles();
 
@@ -265,7 +266,7 @@ export function SearchBar({
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    moveItemsBackward(multiSelectJobPlanner);
+                    moveItemsOnPlanner(multiSelectJobPlanner, "backward");
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -288,7 +289,7 @@ export function SearchBar({
                 sx={{ marginRight: "10px" }}
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    moveItemsForward(multiSelectJobPlanner);
+                    moveItemsOnPlanner(multiSelectJobPlanner, "forward");
                   } else {
                     updateDialogData((prev) => ({
                       ...prev,
@@ -392,10 +393,11 @@ export function SearchBar({
               <Button
                 variant="outlined"
                 size="small"
+                sx={{ marginRight: "10px" }}
                 color="error"
                 onClick={() => {
                   if (multiSelectJobPlanner.length > 0) {
-                    deleteMultipleJobsProcess(multiSelectJobPlanner);
+                    deleteMultipleJobs(multiSelectJobPlanner);
                     updateMultiSelectJobPlanner([]);
                   } else {
                     updateDialogData((prev) => ({
@@ -412,22 +414,26 @@ export function SearchBar({
                 Delete
               </Button>
             </Tooltip>
-          </Grid>
-          <Grid item xs={12} md="auto" align="center">
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={async () => {
-                let newGroup = await createNewGroupWithJobs(
-                  multiSelectJobPlanner
-                );
-                updateActiveGroup(newGroup);
-                updateMultiSelectJobPlanner([]);
-                updateEditGroupTrigger((prev) => !prev);
-              }}
+            <Tooltip
+              title="Creates a new job group from the job selection you have or an empty group"
+              arrow
+              placement="bottom"
             >
-              New Group
-            </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={async () => {
+                  let newGroup = await createNewGroupWithJobs(
+                    multiSelectJobPlanner
+                  );
+                  updateActiveGroup(newGroup);
+                  updateMultiSelectJobPlanner([]);
+                  updateEditGroupTrigger((prev) => !prev);
+                }}
+              >
+                New Group
+              </Button>
+            </Tooltip>
           </Grid>
         </Grid>
       </Grid>

@@ -6,7 +6,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import {
   ActiveJobContext,
@@ -18,6 +18,7 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { makeStyles } from "@mui/styles";
 import {
+  CorpEsiDataContext,
   EveIDsContext,
   PersonalESIDataContext,
 } from "../../../../../Context/EveDataContext";
@@ -33,17 +34,6 @@ const useStyles = makeStyles((theme) => ({
       },
   },
 }));
-
-class BrokerFee {
-  constructor(entry, order, char) {
-    this.order_id = order.order_id;
-    this.id = entry.id;
-    this.complete = false;
-    this.date = entry.date;
-    this.amount = Math.abs(entry.amount);
-    this.CharacterHash = char.CharacterHash;
-  }
-}
 
 export function LinkedMarketOrders({
   setJobModified,
@@ -61,104 +51,67 @@ export function LinkedMarketOrders({
     linkedTransIDs,
     updateLinkedTransIDs,
   } = useContext(LinkedIDsContext);
-  const { esiOrders, esiHistOrders, esiJournal } = useContext(
-    PersonalESIDataContext
-  );
+  const { esiOrders, esiHistOrders } = useContext(PersonalESIDataContext);
+  const { esiCorpData } = useContext(CorpEsiDataContext);
+  const [linkedMarketOrders, updateLinkedMarketOrders] = useState([]);
   const classes = useStyles();
 
-  let linkedMarketOrders = [];
-  let replacementBrokersFees = [];
+  useEffect(() => {
+    const newLinkedMarketOrders = activeJob.build.sale.marketOrders.map(
+      (order) => {
+        const userOrders =
+          esiOrders.find((i) => i.user === order.CharacterHash)?.data || [];
+        const userHistOrders =
+          esiHistOrders.find((i) => i.user === order.CharacterHash)?.data || [];
 
-  activeJob.build.sale.marketOrders.forEach((order) => {
-    const user = users.find((u) => u.CharacterHash === order.CharacterHash);
-    const userOrders = esiOrders.find(
-      (i) => i.user === user.CharacterHash
-    ).orders;
-    const userHistOrders = esiHistOrders.find(
-      (i) => i.user === user.CharacterHash
-    ).histOrders;
-    const userJournal = esiJournal.find(
-      (i) => i.user === user.CharacterHash
-    ).journal;
+        if (!userOrders.length && !userHistOrders.length) return order;
 
-    if (
-      user !== undefined &&
-      userOrders !== undefined &&
-      userHistOrders !== undefined
-    ) {
-      const newOrderData = userOrders.find(
-        (newOrder) => newOrder.order_id === order.order_id
-      );
+        const newOrderData = userOrders.find(
+          (newOrder) => newOrder.order_id === order.order_id
+        );
+        const completedOrderData = userHistOrders.find(
+          (histOrder) => histOrder.order_id === order.order_id
+        );
 
-      const completedOrderData = userHistOrders.find(
-        (histOrder) => histOrder.order_id === order.order_id
-      );
-      if (newOrderData !== undefined && !order.complete) {
-        if (
-          order.volume_remain !== newOrderData.volume_remain ||
-          Date.parse(order.issued) !== Date.parse(newOrderData.issued)
-        ) {
-          order.duration = newOrderData.duration;
-          order.item_price = newOrderData.price;
-          order.range = newOrderData.range;
-          order.volume_remain = newOrderData.volume_remain;
-          if (Date.parse(order.issued) !== Date.parse(newOrderData.issued)) {
-            order.timeStamps.push(newOrderData.issued);
+        let newOrder = order;
 
-            userJournal.forEach((entry) => {
-              if (
-                entry.ref_type === "brokers_fee" &&
-                Date.parse(newOrderData.issued) === Date.parse(entry.date)
-              ) {
-                entry.amount = Math.abs(entry.amount);
-                entry.order_id = order.order_id;
-                delete entry.balance;
-                activeJob.build.sale.brokersFee.push(entry);
-              }
-            });
+        if (newOrderData !== undefined && !order.complete) {
+          if (
+            order.volume_remain !== newOrderData.volume_remain ||
+            Date.parse(order.issued) !== Date.parse(newOrderData.issued)
+          ) {
+            newOrder = {
+              ...order,
+              duration: newOrderData.duration,
+              item_price: newOrderData.price,
+              range: newOrderData.range,
+              volume_remain: newOrderData.volume_remain,
+              timeStamps: [...order.timeStamps],
+            };
           }
         }
-      }
-      if (
-        newOrderData === undefined &&
-        !order.complete &&
-        completedOrderData !== undefined
-      ) {
-        order.duration = completedOrderData.duration;
-        order.item_price = completedOrderData.price;
-        order.range = completedOrderData.range;
-        order.volume_remain = completedOrderData.volume_remain;
-        order.issued = completedOrderData.issued;
-        order.complete = true;
-      }
-    }
-    linkedMarketOrders.push(order);
-  });
+        if (
+          newOrderData === undefined &&
+          !order.complete &&
+          completedOrderData !== undefined
+        ) {
+          newOrder = {
+            ...order,
+            duration: completedOrderData.duration,
+            item_price: completedOrderData.price,
+            range: completedOrderData.range,
+            volume_remain: completedOrderData.volume_remain,
+            issued: completedOrderData.issued,
+            complete: true,
+          };
+        }
 
-  activeJob.build.sale.marketOrders.forEach((order) => {
-    const user = users.find((u) => u.CharacterHash === order.CharacterHash);
-    const userJournal = esiJournal.find(
-      (i) => i.user === user.CharacterHash
-    ).journal;
-    if (order.timeStamps.length > activeJob.build.sale.brokersFee.length) {
-      order.timeStamps.forEach((stamp) => {
-        userJournal.forEach((entry) => {
-          if (
-            entry.ref_type === "brokers_fee" &&
-            Date.parse(stamp) === Date.parse(entry.date)
-          ) {
-            replacementBrokersFees.push(
-              Object.assign({}, new BrokerFee(entry, order, user))
-            );
-          }
-        });
-      });
-    }
-  });
-
-  if (replacementBrokersFees.length !== 0) {
-    activeJob.build.sale.brokersFee = replacementBrokersFees;
-  }
+        return newOrder;
+      }
+    );
+    activeJob.build.sale.marketOrders = newLinkedMarketOrders;
+    updateLinkedMarketOrders(newLinkedMarketOrders);
+  }, [activeJob, esiOrders, esiHistOrders]);
 
   return (
     <Grid container direction="row">
@@ -177,12 +130,14 @@ export function LinkedMarketOrders({
           },
         }}
       >
-        {linkedMarketOrders.map((order) => {
+        {linkedMarketOrders?.map((order) => {
           const charData = users.find(
             (i) => i.CharacterHash === order.CharacterHash
           );
           const locationData = eveIDs.find((i) => i.id === order.location_id);
-
+          const corpData = esiCorpData.find(
+            (i) => i.corporation_id === charData?.corporation_id
+          );
           return (
             <Grid
               key={order.order_id}
@@ -193,19 +148,39 @@ export function LinkedMarketOrders({
               sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
             >
               <Grid container item>
-                <Grid item xs={12} align="center">
-                  <Avatar
-                    src={
-                      charData !== undefined
-                        ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
-                        : ""
+                <Grid
+                  container
+                  item
+                  xs={12}
+                  align="center"
+                  justifyContent="center"
+                >
+                  <Tooltip
+                    title={
+                      order.is_corporation
+                        ? corpData.name
+                        : charData.CharacterName
                     }
-                    variant="circular"
-                    sx={{
-                      height: "32px",
-                      width: "32px",
-                    }}
-                  />
+                    arrow
+                    placement="right"
+                  >
+                    <Avatar
+                      src={
+                        order.is_corporation
+                          ? corpData !== undefined
+                            ? `https://images.evetech.net/corporations/${corpData.corporation_id}/logo`
+                            : ""
+                          : charData !== undefined
+                          ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
+                          : ""
+                      }
+                      variant="circular"
+                      sx={{
+                        height: "32px",
+                        width: "32px",
+                      }}
+                    />
+                  </Tooltip>
                   <Grid item xs={12}>
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}

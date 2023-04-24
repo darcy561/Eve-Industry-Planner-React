@@ -23,7 +23,10 @@ import {
   EveIDsContext,
   PersonalESIDataContext,
 } from "../Context/EveDataContext";
-import { SnackBarDataContext } from "../Context/LayoutContext";
+import {
+  SnackBarDataContext,
+  UserLoginUIContext,
+} from "../Context/LayoutContext";
 import {
   apiJobsDefault,
   jobArrayDefault,
@@ -31,6 +34,14 @@ import {
   usersDefault,
   eveIDsDefault,
   userJobSnapshotDefault,
+  defaultEsiJobs,
+  defaultEsiSkills,
+  defaultEsiOrders,
+  defaultEsiHistOrders,
+  defaultEsiBlueprints,
+  defaultEsiJournal,
+  defaultEsiTransactions,
+  defaultEsiStandings,
 } from "../Context/defaultValues";
 import { httpsCallable } from "firebase/functions";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
@@ -40,11 +51,11 @@ import { trace } from "firebase/performance";
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const { updateJobArray } = useContext(JobArrayContext);
+  const { updateGroupArray, updateJobArray } = useContext(JobArrayContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { setJobStatus } = useContext(JobStatusContext);
-  const { updateActiveJob } = useContext(ActiveJobContext);
+  const { updateActiveJob, updateActiveGroup } = useContext(ActiveJobContext);
   const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -70,27 +81,49 @@ export function useAccountManagement() {
     esiStandings,
     updateEsiStandings,
   } = useContext(PersonalESIDataContext);
-  const { corpEsiIndJobs, updateCorpEsiIndJobs } =
-    useContext(CorpEsiDataContext);
+  const {
+    corpEsiIndJobs,
+    updateCorpEsiIndJobs,
+    corpEsiOrders,
+    updateCorpEsiOrders,
+    corpEsiHistOrders,
+    updateCorpEsiHistOrders,
+    corpEsiBlueprints,
+    updateCorpEsiBlueprints,
+    corpEsiJournal,
+    updateCorpEsiJournal,
+    corpEsiTransactions,
+    updateCorpEsiTransactions,
+    esiCorpData,
+    updateESICorpData,
+  } = useContext(CorpEsiDataContext);
+  const { updateUserUIData, updateLoginInProgressComplete } =
+    useContext(UserLoginUIContext);
+
   const checkClaims = httpsCallable(functions, "userClaims-updateCorpIDs");
   const auth = getAuth();
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser), [users];
-  });
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   const {
-    characterData,
-    CharacterSkills,
-    corpIndustryJobs,
-    IndustryJobs,
-    MarketOrders,
-    HistoricMarketOrders,
-    BlueprintLibrary,
-    WalletJournal,
-    WalletTransactions,
-    fullAssetsList,
+    fetchCharacterData,
+    fetchCharacterSkills,
+    fetchCorpIndustryJobs,
+    fetchCorpMarketOrdersJobs,
+    fetchCorpHistMarketOrders,
+    fetchCorpBlueprintLibrary,
+    fetchCorpDivisions,
+    fetchCorpPublicInfo,
+    fetchCorpJournal,
+    fetchCorpTransactions,
+    fetchCharacterIndustryJobs,
+    fetchCharacterMarketOrders,
+    fetchCharacterHistMarketOrders,
+    fetchCharacterBlueprints,
+    fetchCharacterJournal,
+    fetchCharacterTransactions,
+    fetchCharacterAssets,
     IDtoName,
-    standingsList,
+    fetchCharacterStandings,
     serverStatus,
   } = useEveApi();
   const analytics = getAnalytics();
@@ -121,17 +154,31 @@ export function useAccountManagement() {
       assets,
       standings,
       corpIndJobs,
+      corpMOrders,
+      corpHistMOrders,
+      corpBlueprints,
+      corpJournal,
+      corpTransactions,
+      corpDivisions,
+      corpPublicInfo,
     ] = await Promise.all([
-      CharacterSkills(userObject),
-      IndustryJobs(userObject),
-      MarketOrders(userObject),
-      HistoricMarketOrders(userObject),
-      BlueprintLibrary(userObject),
-      WalletTransactions(userObject),
-      WalletJournal(userObject),
-      fullAssetsList(userObject),
-      standingsList(userObject),
-      corpIndustryJobs(userObject),
+      fetchCharacterSkills(userObject),
+      fetchCharacterIndustryJobs(userObject),
+      fetchCharacterMarketOrders(userObject),
+      fetchCharacterHistMarketOrders(userObject),
+      fetchCharacterBlueprints(userObject),
+      fetchCharacterTransactions(userObject),
+      fetchCharacterJournal(userObject),
+      fetchCharacterAssets(userObject),
+      fetchCharacterStandings(userObject),
+      fetchCorpIndustryJobs(userObject),
+      fetchCorpMarketOrdersJobs(userObject),
+      fetchCorpHistMarketOrders(userObject),
+      fetchCorpBlueprintLibrary(userObject),
+      fetchCorpJournal(userObject),
+      fetchCorpTransactions(userObject),
+      fetchCorpDivisions(userObject),
+      fetchCorpPublicInfo(userObject),
     ]);
     t.stop();
     return {
@@ -146,64 +193,79 @@ export function useAccountManagement() {
       esiAssets: assets,
       esiStandings: standings,
       esiCorpJobs: corpIndJobs,
+      esiCorpMOrders: corpMOrders,
+      esiCorpHistMOrders: corpHistMOrders,
+      esiCorpBlueprints: corpBlueprints,
+      esiCorpJournal: corpJournal,
+      esiCorpTransactions: corpTransactions,
+      esiCorpDivisions: corpDivisions,
+      esiCorpPublicInfo: corpPublicInfo,
     };
   };
 
   const getLocationNames = async (users, mainUser, esiObjectArray) => {
     let locationIDS = new Set();
     let citadelStore = new Set();
+    let existingLocations = new Set();
     let newIDNamePromises = [];
-    let newNameArray = [];
 
     for (let user of users) {
+      let citadelIDs = new Set();
+      const addLocation = (id) => {
+        if (!existingLocations.has(id)) {
+          locationIDS.add(id);
+        }
+      };
+
+      const addCitadel = (id) => {
+        if (!existingLocations.has(id) && !citadelIDs.has(id)) {
+          citadelIDs.add(id);
+        }
+      };
       let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
       if (data === undefined) {
         continue;
       }
-      let citadelIDs = new Set();
 
       if (user.ParentUser) {
         if (user.settings.editJob.defaultAssetLocation.toString().length > 10) {
           if (!citadelStore.has(user.settings.editJob.defaultAssetLocation)) {
-            citadelIDs.add(user.settings.editJob.defaultAssetLocation);
             citadelStore.add(user.settings.editJob.defaultAssetLocation);
+            addCitadel(user.settings.editJob.defaultAssetLocation);
           }
         } else {
-          locationIDS.add(user.settings.editJob.defaultAssetLocation);
+          addLocation(user.settings.editJob.defaultAssetLocation);
         }
       }
-      data.esiJobs.forEach((job) => {
+
+      [...data.esiJobs, ...data.esiCorpJobs].forEach((job) => {
         if (job.facility_id.toString().length > 10) {
           if (!citadelStore.has(job.facility_id)) {
-            citadelIDs.add(job.facility_id);
             citadelStore.add(job.facility_id);
+            addCitadel(job.facility_id);
           }
         } else {
-          locationIDS.add(job.facility_id);
+          addLocation(job.facility_id);
         }
       });
-      data.esiOrders.forEach((order) => {
+
+      [
+        ...data.esiOrders,
+        ...data.esiHistOrders,
+        ...data.esiCorpMOrders,
+        ...data.esiCorpHistMOrders,
+      ].forEach((order) => {
         if (order.location_id.toString().length > 10) {
           if (!citadelStore.has(order.location_id)) {
-            citadelIDs.add(order.location_id);
             citadelStore.add(order.location_id);
+            addCitadel(order.location_id);
           }
         } else {
-          locationIDS.add(order.location_id);
+          addLocation(order.location_id);
         }
-        locationIDS.add(order.region_id);
+        addLocation(order.region_id);
       });
-      data.esiHistOrders.forEach((order) => {
-        if (order.location_id.toString().length > 10) {
-          if (!citadelStore.has(order.location_id)) {
-            citadelIDs.add(order.location_id);
-            citadelStore.add(order.location_id);
-          }
-        } else {
-          locationIDS.add(order.location_id);
-        }
-        locationIDS.add(order.region_id);
-      });
+
       if ([...citadelIDs].length > 0) {
         newIDNamePromises.push(IDtoName([...citadelIDs], user));
       }
@@ -212,13 +274,9 @@ export function useAccountManagement() {
       newIDNamePromises.push(IDtoName([...locationIDS], mainUser));
     }
 
-    let returnLocations = await Promise.all(newIDNamePromises);
+    const returnLocations = await Promise.all(newIDNamePromises);
 
-    returnLocations.forEach((group) => {
-      newNameArray = newNameArray.concat(group);
-    });
-
-    return newNameArray;
+    return returnLocations.flat();
   };
 
   const logUserOut = () => {
@@ -228,6 +286,7 @@ export function useAccountManagement() {
     firebaseListeners.forEach((unsub) => {
       unsub();
     });
+    updateLoginInProgressComplete(false);
     updateFirebaseListeners([]);
     updateIsLoggedIn(false);
     updateUsers(usersDefault);
@@ -237,8 +296,28 @@ export function useAccountManagement() {
     setJobStatus(jobStatusDefault);
     updateActiveJob({});
     updateArchivedJobs([]);
+    updateGroupArray([]);
+    updateActiveGroup(null);
     updateApiJobs(apiJobsDefault);
     updateUserWatchlist({ groups: [], items: [] });
+
+    updateEsiIndJobs(defaultEsiJobs);
+    updateEsiSkills(defaultEsiSkills);
+    updateEsiOrders(defaultEsiOrders);
+    updateEsiHistOrders(defaultEsiHistOrders);
+    updateEsiBlueprints(defaultEsiBlueprints);
+    updateEsiJournal(defaultEsiJournal);
+    updateEsiTransactions(defaultEsiTransactions);
+    updateEsiStandings(defaultEsiStandings);
+
+    updateCorpEsiIndJobs([]);
+    updateCorpEsiOrders([]);
+    updateCorpEsiHistOrders([]);
+    updateCorpEsiBlueprints([]);
+    updateCorpEsiJournal([]);
+    updateCorpEsiTransactions([]);
+    updateESICorpData([]);
+
     sessionStorage.clear();
     localStorage.removeItem("Auth");
     signOut(auth);
@@ -253,9 +332,8 @@ export function useAccountManagement() {
   };
 
   const failedUserRefresh = (failedRefreshSet, userObject) => {
-    if (failedRefreshSet.size === 0) {
-      return;
-    }
+    if (failedRefreshSet.size === 0) return;
+
     if (userObject.settings.account.cloudAccounts) {
       userObject.accountRefreshTokens = userObject.accountRefreshTokens.filter(
         (i) => !failedRefreshSet.has(i.CharacterHash)
@@ -281,39 +359,52 @@ export function useAccountManagement() {
     userArray,
     esiObjectArray
   ) => {
-    let allJobIDs = new Set();
-    let allOrderIDs = new Set();
-    let allTransIDs = new Set();
+    const allJobIDs = new Set(
+      userArray.flatMap((user) => {
+        const data = esiObjectArray.find(
+          (obj) => obj.owner === user.CharacterHash
+        );
+        if (!data) return [];
+        return [...data.esiJobs, ...data.esiCorpJobs].map((job) => job.job_id);
+      })
+    );
 
-    for (let user of userArray) {
-      let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
-      if (data === undefined) {
-        continue;
-      }
-      data.esiJobs.forEach((job) => {
-        allJobIDs.add(job.job_id);
-      });
+    const allOrderIDs = new Set(
+      userArray.flatMap((user) => {
+        const data = esiObjectArray.find(
+          (obj) => obj.owner === user.CharacterHash
+        );
+        if (!data) return [];
+        return [
+          ...data.esiOrders,
+          ...data.esiHistOrders,
+          ...data.esiCorpMOrders,
+          ...data.esiCorpHistMOrders,
+        ].map((order) => order.order_id);
+      })
+    );
 
-      data.esiOrders.forEach((order) => {
-        allOrderIDs.add(order.order_id);
-      });
-
-      data.esiHistOrders.forEach((order) => {
-        allOrderIDs.add(order.order_id);
-      });
-
-      data.esiTransactions.forEach((trans) => {
-        allTransIDs.add(trans.transaction_id);
-      });
-    }
+    const allTransIDs = new Set(
+      userArray.flatMap((user) => {
+        const data = esiObjectArray.find(
+          (obj) => obj.owner === user.CharacterHash
+        );
+        if (!data) return [];
+        return [...data.esiTransactions, ...data.esiCorpTransactions].map(
+          (trans) => trans.transaction_id
+        );
+      })
+    );
 
     newLinkedJobs = newLinkedJobs.filter((id) => allJobIDs.has(id));
     newLinkedOrders = newLinkedOrders.filter((id) => allOrderIDs.has(id));
     newLinkedTrans = newLinkedTrans.filter((id) => allTransIDs.has(id));
 
-    userObject.linkedJobs = new Set(newLinkedJobs);
-    userObject.linkedOrders = new Set(newLinkedOrders);
-    userObject.linkedTrans = new Set(newLinkedTrans);
+    Object.assign(userObject, {
+      linkedJobs: new Set(newLinkedJobs),
+      linkedOrders: new Set(newLinkedOrders),
+      linkedTrans: new Set(newLinkedTrans),
+    });
   };
 
   const checkUserClaims = async (newUserArray) => {
@@ -356,11 +447,19 @@ export function useAccountManagement() {
   ) => {
     for (let token of refreshTokens) {
       let newUser = await RefreshTokens(token.rToken, false);
-      if (newUser === "RefreshFail") {
-        continue;
-      }
+      if (newUser === "RefreshFail") continue;
+
       await getCharacterInfo(newUser);
       let esiObject = await characterAPICall(newUser);
+      updateUserUIData((prev) => ({
+        ...prev,
+        userArray: prev.userArray.concat([
+          {
+            CharacterID: newUser.CharacterID,
+            CharacterName: newUser.CharacterName,
+          },
+        ]),
+      }));
       userArray.push(newUser);
       esiObjectArray.push(esiObject);
     }
@@ -377,12 +476,19 @@ export function useAccountManagement() {
     }
     for (let token of rTokens) {
       let newUser = await RefreshTokens(token.rToken, false);
-      if (newUser === "RefreshFail") {
-        continue;
-      }
+      if (newUser === "RefreshFail") continue;
+
       await getCharacterInfo(newUser);
       let esiObject = await characterAPICall(newUser);
-
+      updateUserUIData((prev) => ({
+        ...prev,
+        userArray: prev.userArray.concat([
+          {
+            CharacterID: newUser.CharacterID,
+            CharacterName: newUser.CharacterName,
+          },
+        ]),
+      }));
       esiObjectArray.push(esiObject);
       userArray.push(newUser);
     }
@@ -390,15 +496,13 @@ export function useAccountManagement() {
 
   const updateCloudRefreshTokens = (refreshTokens, userArray) => {
     for (let user of userArray) {
-      if (user.ParentUser) {
-        continue;
-      }
+      if (user.ParentUser) continue;
+
       let token = refreshTokens.find(
         (i) => i.CharacterHash === user.CharacterHash
       );
-      if (token === undefined) {
-        continue;
-      }
+      if (token === undefined) continue;
+
       if (user.rToken !== token.rToken) {
         token.rToken = user.rToken;
       }
@@ -415,9 +519,8 @@ export function useAccountManagement() {
     let tokenArray = [];
     let parent = userArray.find((i) => i.ParentUser);
     for (let user of userArray) {
-      if (user.ParentUser) {
-        continue;
-      }
+      if (user.ParentUser) continue;
+
       tokenArray.push({
         CharacterHash: user.CharacterHash,
         rToken: user.rToken,
@@ -433,36 +536,28 @@ export function useAccountManagement() {
     let newApiArray = [];
     for (let user of userArray) {
       let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
-      if (data === undefined) {
-        continue;
-      }
+      if (data === undefined) continue;
+
       newApiArray = newApiArray.concat(data.esiJobs, data.esiCorpJobs);
     }
 
     newApiArray.sort((a, b) => {
-      let aName = searchData.find(
-        (i) =>
-          i.itemID === a.product_type_id ||
-          i.blueprintID === a.blueprint_type_id
-      );
-      let bName = searchData.find(
-        (i) =>
-          i.itemID === b.product_type_id ||
-          i.blueprintID === b.blueprint_type_id
-      );
-      if (aName === undefined || bName === undefined) {
-        return -1;
-      }
-      if (aName.name < bName.name) {
-        return -1;
-      }
-      if (aName.name > bName.name) {
-        return 1;
-      }
-      return 0;
+      const getItemName = (itemId, blueprintId) => {
+        const item = searchData.find(
+          (i) => i.itemID === itemId || i.blueprintID === blueprintId
+        );
+        return item ? item.name : "";
+      };
+
+      const aName = getItemName(a.product_type_id, a.blueprint_type_id);
+      const bName = getItemName(b.product_type_id, b.blueprint_type_id);
+
+      return aName.localeCompare(bName);
     });
+
     return newApiArray;
   };
+
   const updateApiArray = (
     chosenApiArray,
     chosentUsersArray,
@@ -487,26 +582,17 @@ export function useAccountManagement() {
       chosenApiArray = chosenApiArray.concat(entry.esiJobs, entry.esiCorpJobs);
     }
     chosenApiArray.sort((a, b) => {
-      let aName = searchData.find(
-        (i) =>
-          i.itemID === a.product_type_id ||
-          i.blueprintID === a.blueprint_type_id
-      );
-      let bName = searchData.find(
-        (i) =>
-          i.itemID === b.product_type_id ||
-          i.blueprintID === b.blueprint_type_id
-      );
-      if (aName === undefined || bName === undefined) {
-        return -1;
-      }
-      if (aName.name < bName.name) {
-        return -1;
-      }
-      if (aName.name > bName.name) {
-        return 1;
-      }
-      return 0;
+      const getItemName = (itemId, blueprintId) => {
+        const item = searchData.find(
+          (i) => i.itemID === itemId || i.blueprintID === blueprintId
+        );
+        return item ? item.name : "";
+      };
+
+      const aName = getItemName(a.product_type_id, a.blueprint_type_id);
+      const bName = getItemName(b.product_type_id, b.blueprint_type_id);
+
+      return aName.localeCompare(bName);
     });
 
     return chosenApiArray;
@@ -522,39 +608,44 @@ export function useAccountManagement() {
     let journal = [];
     let standings = [];
     let corpJobs = [];
+    let corpOrders = [];
+    let corpHistMOrders = [];
+    let corpBlueprints = [];
+    let corpJournal = [];
+    let corpTransactions = [];
 
     for (let esiUser of esiObjectArray) {
       skills.push({
         user: esiUser.owner,
-        skills: esiUser.esiSkills,
+        data: esiUser.esiSkills,
       });
       jobs.push({
         user: esiUser.owner,
-        jobs: esiUser.esiJobs,
+        data: esiUser.esiJobs,
       });
       orders.push({
         user: esiUser.owner,
-        orders: esiUser.esiOrders,
+        data: esiUser.esiOrders,
       });
       histOrders.push({
         user: esiUser.owner,
-        histOrders: esiUser.esiHistOrders,
+        data: esiUser.esiHistOrders,
       });
       blueprints.push({
         user: esiUser.owner,
-        blueprints: esiUser.esiBlueprints,
+        data: esiUser.esiBlueprints,
       });
       transactions.push({
         user: esiUser.owner,
-        transactions: esiUser.esiTransactions,
+        data: esiUser.esiTransactions,
       });
       journal.push({
         user: esiUser.owner,
-        journal: esiUser.esiJournal,
+        data: esiUser.esiJournal,
       });
       standings.push({
         user: esiUser.owner,
-        standings: esiUser.esiStandings,
+        data: esiUser.esiStandings,
       });
       sessionStorage.setItem(
         `assets_${esiUser.owner}`,
@@ -562,7 +653,27 @@ export function useAccountManagement() {
       );
       corpJobs.push({
         user: esiUser.owner,
-        jobs: esiUser.esiCorpJobs,
+        data: esiUser.esiCorpJobs,
+      });
+      corpOrders.push({
+        user: esiUser.owner,
+        data: esiUser.esiOrders,
+      });
+      corpHistMOrders.push({
+        user: esiUser.owner,
+        data: esiUser.esiCorpHistMOrders,
+      });
+      corpBlueprints.push({
+        user: esiUser.owner,
+        data: esiUser.esiCorpBlueprints,
+      });
+      corpJournal.push({
+        user: esiUser.owner,
+        data: esiUser.esiCorpJournal,
+      });
+      corpTransactions.push({
+        user: esiUser.owner,
+        data: esiUser.esiCorpTransactions,
       });
     }
     updateEsiIndJobs(jobs);
@@ -574,6 +685,11 @@ export function useAccountManagement() {
     updateEsiTransactions(transactions);
     updateEsiStandings(standings);
     updateCorpEsiIndJobs(corpJobs);
+    updateCorpEsiOrders(corpOrders);
+    updateCorpEsiHistOrders(corpHistMOrders);
+    updateCorpEsiBlueprints(corpBlueprints);
+    updateCorpEsiJournal(corpJournal);
+    updateCorpEsiTransactions(corpTransactions);
   };
 
   const updateUserEsiData = (esiObjectArray) => {
@@ -587,6 +703,11 @@ export function useAccountManagement() {
     let newEsiTransactions = [...esiTransactions];
     let newEsiStandings = [...esiStandings];
     let newCorpEsiIndJobs = [...corpEsiIndJobs];
+    let newCorpEsiOrders = [corpEsiOrders];
+    let newCorpEsiHistMOrders = [...corpEsiHistOrders];
+    let newCorpEsiBlueprints = [...corpEsiBlueprints];
+    let newCorpEsiJournal = [...corpEsiJournal];
+    let newCorpESiTransactions = [...corpEsiTransactions];
 
     esiObjectArray.forEach((entry) => {
       usersToUpdate.add(entry.user);
@@ -609,39 +730,54 @@ export function useAccountManagement() {
     newCorpEsiIndJobs = newCorpEsiIndJobs.filter(
       (i) => !usersToUpdate.has(i.user)
     );
+    newCorpEsiOrders = newCorpEsiOrders.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newCorpEsiHistMOrders = newCorpEsiHistMOrders.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newCorpEsiBlueprints = newCorpEsiBlueprints.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newCorpEsiJournal = newCorpEsiJournal.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
+    newCorpESiTransactions = newCorpESiTransactions.filter(
+      (i) => !usersToUpdate.has(i.user)
+    );
 
     for (let esiUser of esiObjectArray) {
       newEsiOrders.push({
         user: esiUser.owner,
-        jobs: esiUser.esiJobs,
+        data: esiUser.esiJobs,
       });
       newEsiSkills.push({
         user: esiUser.owner,
-        skills: esiUser.esiSkills,
+        data: esiUser.esiSkills,
       });
       newEsiOrders.push({
         user: esiUser.owner,
-        orders: esiUser.esiOrders,
+        data: esiUser.esiOrders,
       });
       newEsiHistOrders.push({
         user: esiUser.owner,
-        histOrders: esiUser.esiHistOrders,
+        data: esiUser.esiHistOrders,
       });
       newEsiBlueprints.push({
         user: esiUser.owner,
-        blueprints: esiUser.esiBlueprints,
+        data: esiUser.esiBlueprints,
       });
       newEsiTransactions.push({
         user: esiUser.owner,
-        transactions: esiUser.esiTransactions,
+        data: esiUser.esiTransactions,
       });
       newEsiJournal.push({
         user: esiUser.owner,
-        journal: esiUser.esiJournal,
+        data: esiUser.esiJournal,
       });
       newEsiStandings.push({
         user: esiUser.owner,
-        standings: esiUser.esiStandings,
+        data: esiUser.esiStandings,
       });
       sessionStorage.setItem(
         `assets_${esiUser.owner}`,
@@ -649,7 +785,27 @@ export function useAccountManagement() {
       );
       newCorpEsiIndJobs.push({
         user: esiUser.owner,
-        jobs: esiUser.esiCorpJobs,
+        data: esiUser.esiCorpJobs,
+      });
+      newCorpEsiOrders.push({
+        user: esiUser.owner,
+        data: esiUser.esiOrders,
+      });
+      newCorpEsiHistMOrders.push({
+        user: esiUser.owner,
+        data: esiUser.esiCorpHistMOrders,
+      });
+      newCorpEsiBlueprints.push({
+        user: esiUser.owner,
+        data: esiUser.esiBlueprints,
+      });
+      newCorpEsiJournal.push({
+        user: esiUser.owner,
+        data: esiUser.esiJournal,
+      });
+      newCorpESiTransactions.push({
+        user: esiUser.owner,
+        data: esiUser.esiTransactions,
       });
     }
 
@@ -662,6 +818,11 @@ export function useAccountManagement() {
     updateEsiTransactions(newEsiTransactions);
     updateEsiStandings(newEsiStandings);
     updateCorpEsiIndJobs(newCorpEsiIndJobs);
+    updateCorpEsiOrders(newCorpEsiOrders);
+    updateCorpEsiHistOrders(newCorpEsiHistMOrders);
+    updateCorpEsiBlueprints(newCorpEsiBlueprints);
+    updateCorpEsiJournal(newCorpEsiJournal);
+    updateCorpEsiTransactions(newCorpESiTransactions);
   };
 
   const removeUserEsiData = (userHash) => {
@@ -674,6 +835,11 @@ export function useAccountManagement() {
     let newEsiTransactions = [...esiTransactions];
     let newEsiStandings = [...esiStandings];
     let newCorpEsiIndJobs = [...corpEsiIndJobs];
+    let newCorpEsiOrders = [...corpEsiOrders];
+    let newCorpEsiHistMOrders = [...corpEsiHistOrders];
+    let newCorpEsiBlueprints = [...corpEsiBlueprints];
+    let newCorpEsiJournal = [...corpEsiJournal];
+    let newCorpESiTransactions = [...corpEsiTransactions];
 
     newEsiIndJobs = newEsiIndJobs.filter((i) => i.user !== userHash);
     newEsiSkills = newEsiSkills.filter((i) => i.user !== userHash);
@@ -684,6 +850,17 @@ export function useAccountManagement() {
     newEsiTransactions = newEsiTransactions.filter((i) => i.user !== userHash);
     newEsiStandings = newEsiStandings.filter((i) => i.user !== userHash);
     newCorpEsiIndJobs = newCorpEsiIndJobs.filter((i) => i.user !== userHash);
+    newCorpEsiOrders = newCorpEsiOrders.filter((i) => i.user !== userHash);
+    newCorpEsiHistMOrders = newCorpEsiHistMOrders.filter(
+      (i) => i.user !== userHash
+    );
+    newCorpEsiBlueprints = newCorpEsiBlueprints.filter(
+      (i) => i.user !== userHash
+    );
+    newCorpEsiJournal = newCorpEsiJournal.filter((i) => i.user !== userHash);
+    newCorpESiTransactions = newCorpESiTransactions.filter(
+      (i) => i.user !== userHash
+    );
 
     sessionStorage.removeItem(`assets_${userHash}`);
 
@@ -696,11 +873,50 @@ export function useAccountManagement() {
     updateEsiTransactions(newEsiTransactions);
     updateEsiStandings(newEsiStandings);
     updateCorpEsiIndJobs(newCorpEsiIndJobs);
+    updateCorpEsiOrders(newCorpEsiOrders);
+    updateCorpEsiHistOrders(newCorpEsiHistMOrders);
+    updateCorpEsiBlueprints(newCorpEsiBlueprints);
+    updateCorpEsiJournal(newCorpEsiJournal);
+    updateCorpEsiTransactions(newCorpESiTransactions);
   };
 
   const getCharacterInfo = async (userObj) => {
-    const charData = await characterData(userObj);
+    const charData = await fetchCharacterData(userObj);
     userObj.corporation_id = charData.corporation_id;
+  };
+
+  const storeCorpObjects = (esiObjectArray) => {
+    const corporationData = esiObjectArray
+      .filter(({ esiCorpPublicInfo }) => esiCorpPublicInfo)
+      .reduce((acc, { esiCorpDivisions, esiCorpPublicInfo }) => {
+        const existingCorpIndex = acc.findIndex(
+          ({ corporation_id }) =>
+            corporation_id === esiCorpPublicInfo.corporation_id
+        );
+        if (existingCorpIndex === -1) {
+          acc.push({
+            alliance_id: esiCorpPublicInfo.alliance_id,
+            name: esiCorpPublicInfo.name,
+            tax_rate: esiCorpPublicInfo.tax_rate,
+            ticker: esiCorpPublicInfo.ticker,
+            corporation_id: esiCorpPublicInfo.corporation_id,
+            hangar: esiCorpDivisions?.hangar || null,
+            wallet: esiCorpDivisions?.wallet || null,
+          });
+        } else {
+          const existingCorp = acc[existingCorpIndex];
+          if (
+            esiCorpDivisions &&
+            (!existingCorp.hangar || !existingCorp.wallet)
+          ) {
+            existingCorp.hangar = esiCorpDivisions.hangar;
+            existingCorp.wallet = esiCorpDivisions.wallet;
+          }
+        }
+        return acc;
+      }, []);
+
+    updateESICorpData(corporationData);
   };
 
   return {
@@ -715,6 +931,7 @@ export function useAccountManagement() {
     getLocationNames,
     logUserOut,
     removeUserEsiData,
+    storeCorpObjects,
     storeESIData,
     tidyLinkedData,
     updateApiArray,

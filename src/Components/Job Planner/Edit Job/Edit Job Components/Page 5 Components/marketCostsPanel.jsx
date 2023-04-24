@@ -33,17 +33,21 @@ export function MarketCostsPanel() {
           <Grid item xs={12} sm={10}>
             <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Sell:{" "}
-              {itemCosts.amarr.sell.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {itemCosts
+                ? itemCosts.amarr.sell.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : 0}
             </Typography>
             <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Buy:{" "}
-              {itemCosts.amarr.buy.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {itemCosts
+                ? itemCosts.amarr.buy.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : 0}
             </Typography>
           </Grid>
         </Grid>
@@ -64,17 +68,21 @@ export function MarketCostsPanel() {
           <Grid item xs={12} sm={10}>
             <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Sell:{" "}
-              {itemCosts.dodixie.sell.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {itemCosts
+                ? itemCosts.dodixie.sell.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : 0}
             </Typography>
             <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Buy:{" "}
-              {itemCosts.dodixie.buy.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {itemCosts
+                ? itemCosts.dodixie.buy.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : 0}
             </Typography>
           </Grid>
         </Grid>
@@ -95,17 +103,21 @@ export function MarketCostsPanel() {
           <Grid item xs={12} sm={10}>
             <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Sell:{" "}
-              {itemCosts.jita.sell.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {itemCosts
+                ? itemCosts.jita.sell.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : 0}
             </Typography>
             <Typography sx={{ typography: { xs: "caption", lg: "body1" } }}>
               Buy:{" "}
-              {itemCosts.jita.buy.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {itemCosts
+                ? itemCosts.jita.buy.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : 0}
             </Typography>
           </Grid>
         </Grid>

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import {
+  Avatar,
   Button,
   CircularProgress,
   Dialog,
@@ -191,12 +192,13 @@ export function ShoppingListDialog({
             0
           );
 
-          if (listItem.isVisible) {
-            newListTotal += calcItemPrice(listItem, assetQuantity);
-            newVolumeTotal += calcVolume(listItem, assetQuantity);
-            newCopyText = newCopyText.concat(buildCopyText(listItem));
-            newDisplayData.push(listItem);
+          if (!listItem.isVisible) {
+            return;
           }
+          newListTotal += calcItemPrice(listItem, assetQuantity);
+          newVolumeTotal += calcVolume(listItem, assetQuantity);
+          newCopyText = newCopyText.concat(buildCopyText(listItem));
+          newDisplayData.push(listItem);
         });
         shoppingListValue.current = newListTotal;
         updateDisplayData(newDisplayData);
@@ -331,7 +333,7 @@ export function ShoppingListDialog({
                 {displayData.map((item) => {
                   return (
                     <Grid
-                      key={item.typeID}
+                      key={`${item.typeID}-${Math.floor(Math.random() * 100)}`}
                       container
                       item
                       xs={12}
@@ -348,9 +350,11 @@ export function ShoppingListDialog({
                         }}
                         align="center"
                       >
-                        <img
+                        <Avatar
                           src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
-                          alt=""
+                          alt={item.name}
+                          variant="square"
+                          sx={{ height: 32, width: 32 }}  
                         />
                       </Grid>
                       <Grid item xs={8} sm={7}>
@@ -374,42 +378,6 @@ export function ShoppingListDialog({
                   );
                 })}
               </Grid>
-              <Grid container sx={{ marginTop: "20px" }}>
-                <Grid item xs={4}>
-                  <Typography
-                    sx={{ typography: { xs: "caption", sm: "body1" } }}
-                  >
-                    Total Volume
-                  </Typography>
-                </Grid>
-                <Grid item xs={8} align="right">
-                  <Typography
-                    sx={{ typography: { xs: "caption", sm: "body1" } }}
-                  >
-                    {volumeTotal.toLocaleString()} m3
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Grid container sx={{ marginTop: "20px" }}>
-                <Grid item xs={4}>
-                  <Typography
-                    sx={{ typography: { xs: "caption", sm: "body1" } }}
-                  >
-                    Estimated Value
-                  </Typography>
-                </Grid>
-                <Grid item xs={8} align="right">
-                  <Typography
-                    sx={{ typography: { xs: "caption", sm: "body1" } }}
-                  >
-                    {shoppingListValue.current.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}{" "}
-                    ISK
-                  </Typography>
-                </Grid>
-              </Grid>
             </>
           ) : (
             <Grid container>
@@ -431,8 +399,51 @@ export function ShoppingListDialog({
           </Grid>
         )}
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ paddingBottom: "20px" }}>
         <Grid container>
+          <Grid
+            container
+            sx={{
+              marginTop: "10px",
+              paddingLeft: "20px",
+              paddingRight: "20px",
+            }}
+          >
+            <Grid item xs={4}>
+              <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
+                Total Volume
+              </Typography>
+            </Grid>
+            <Grid item xs={8} align="right">
+              <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
+                {volumeTotal.toLocaleString()} m3
+              </Typography>
+            </Grid>
+          </Grid>
+          <Grid
+            container
+            sx={{
+              marginTop: "20px",
+              marginBottom: "20px",
+              paddingLeft: "20px",
+              paddingRight: "20px",
+            }}
+          >
+            <Grid item xs={4}>
+              <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
+                Estimated Value
+              </Typography>
+            </Grid>
+            <Grid item xs={8} align="right">
+              <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
+                {shoppingListValue.current.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}{" "}
+                ISK
+              </Typography>
+            </Grid>
+          </Grid>
           <Grid container item xs={12}>
             <Grid item xs={6}>
               {isLoggedIn && (

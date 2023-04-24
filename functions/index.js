@@ -94,6 +94,48 @@ app.get("/item/:itemID", async (req, res) => {
   }
 });
 
+app.post("/item", async (req, res) => {
+  if (req.body.idArray === undefined) {
+    return res.status(500).send("Item Data Missing From Request");
+  }
+  try {
+    let returnArray = [];
+    let missingIDs = [];
+    let returnIDs = new Set();
+
+    for (let itemID of req.body.idArray) {
+      let document = await db.collection("Items").doc(itemID.toString()).get();
+      if (document.exists) {
+        let documentData = document.data();
+        returnArray.push(documentData);
+        returnIDs.add(itemID);
+      } else {
+        missingIDs.push(itemID);
+      }
+    }
+
+    if (missingIDs.length > 0) {
+      functions.logger.error(
+        `${missingIDs.length} item/items missing: [${missingIDs}]`
+      );
+    }
+
+    functions.logger.log(
+      `${returnArray.length} items returned: [${[...returnIDs]}]`
+    );
+
+    return res
+      .status(200)
+      .setHeader("Content-Type", "application/json")
+      .send(returnArray);
+  } catch (err) {
+    functions.logger.error(err);
+    return res
+      .status(500)
+      .send("Error retrieving item data, please try again.");
+  }
+});
+
 //Read Full Single Item Singularity
 app.get("/item/sisiData/:itemID", async (req, res) => {
   if (req.params.itemID === undefined) {
@@ -128,37 +170,7 @@ app.get("/item/sisiData/:itemID", async (req, res) => {
   }
 });
 
-// app.get("/costs/:itemID", async (req, res) => {
-//   if (req.params.itemID !== undefined) {
-//     try {
-//       let returnData = null;
-//       const itemDoc = await db
-//         .collection("Pricing")
-//         .doc(req.params.itemID)
-//         .get();
-//       if (itemDoc.exists) {
-//         returnData = itemDoc.data();
-//       } else {
-//         returnData = await ESIMarketQuery(req.params.itemID);
-//       }
-//       functions.logger.log(`${req.params.itemID} Price Data Sent`);
-//       return res
-//         .status(200)
-//         .setHeader("Content-Type", "application/json")
-//         .set("Cache-Control", "public, max-age=3600, s-maxage=7200")
-//         .send(returnData);
-//     } catch (err) {
-//       functions.logger.error(err);
-//       return res
-//         .status(500)
-//         .send("Error retrieving item data, please try again.");
-//     }
-//   } else {
-//     return res.status(400).send("Item Data Missing From Request");
-//   }
-// });
-
-app.post("/costs/bulkPrices", async (req, res) => {
+app.post("/costs", async (req, res) => {
   if (req.body.idArray === undefined) {
     return res.status(500).send("Item Data Missing From Request");
   }

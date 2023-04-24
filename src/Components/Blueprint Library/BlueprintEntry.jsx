@@ -5,6 +5,7 @@ import { jobTypes } from "../../Context/defaultValues";
 import { makeStyles } from "@mui/styles";
 import { ActiveBPPopout } from "./ActiveBPPout";
 import { UsersContext } from "../../Context/AuthContext";
+import { CorpEsiDataContext } from "../../Context/EveDataContext";
 
 const useStyles = makeStyles((theme) => ({
   inUse: {
@@ -20,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
 export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const classes = useStyles();
   const { users } = useContext(UsersContext);
+  const { esiCorpData } = useContext(CorpEsiDataContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
   let blueprintType = "bp";
   if (blueprint.quantity === -2) {
@@ -28,7 +30,13 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const esiJob = esiJobs.find(
     (i) => i.blueprint_id === blueprint.item_id && i.status === "active"
   );
-  const bpOwner = users.find((u) => u.CharacterHash === blueprint.owner);
+  const bpOwner = users.find(
+    (u) => u.CharacterHash === blueprint.CharacterHash
+  );
+  const corpOwner = esiCorpData.find(
+    (i) => i.corporation_id === blueprint?.corporation_id
+  );
+
   return (
     <Grid
       key={blueprint.item_id}
@@ -40,7 +48,11 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
       align="center"
       sx={{ marginBottom: "10px" }}
     >
-      <Tooltip title={bpOwner.CharacterName} arrow placement="top">
+      <Tooltip
+        title={blueprint.isCorp ? corpOwner.name : bpOwner.CharacterName}
+        arrow
+        placement="top"
+      >
         <Grid item xs={12}>
           <Grid item xs={12}>
             <Badge
@@ -48,7 +60,11 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
               badgeContent={
                 <Avatar
-                  src={`https://images.evetech.net/characters/${bpOwner.CharacterID}/portrait`}
+                  src={
+                    blueprint.isCorp
+                      ? `https://images.evetech.net/corporations/${blueprint.corporation_id}/logo`
+                      : `https://images.evetech.net/characters/${bpOwner.CharacterID}/portrait`
+                  }
                   variant="circular"
                   sx={{
                     height: { xs: "24px", md: "24px", lg: "32px" },

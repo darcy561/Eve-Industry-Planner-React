@@ -1,5 +1,5 @@
 function checkAppVersion(appVersion) {
-  if (appVersion !== "0.5.6") {
+  if (appVersion !== "0.6.0") {
     return false;
   }
   return true;

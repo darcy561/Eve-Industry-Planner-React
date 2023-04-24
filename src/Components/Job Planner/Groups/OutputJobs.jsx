@@ -1,10 +1,25 @@
-import { Grid, Paper, Typography } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Grid,
+  Grow,
+  IconButton,
+  ImageList,
+  ImageListItem,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useContext } from "react";
 import { makeStyles } from "@mui/styles";
 import { ActiveJobContext } from "../../../Context/JobContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
+import { useOpenEditJob } from "../../../Hooks/JobHooks/useOpenEditJob";
+import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
 
 const useStyles = makeStyles((theme) => ({
   Header: {
@@ -15,8 +30,11 @@ const useStyles = makeStyles((theme) => ({
 
 export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(ActiveJobContext);
+  const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
   const [outputJobs, updateOutputJobs] = useState([]);
   const { calculateCurrentJobBuildCostFromChildren } = useGroupManagement();
+  const { openEditJob } = useOpenEditJob();
+
   const classes = useStyles();
 
   useEffect(() => {
@@ -40,74 +58,120 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
           padding: "20px",
         }}
       >
-        <Grid container spacing={2}>
+        <Grid container>
           <Grid item xs={12}>
             <Typography variant="h4" className={classes.Header}>
               Output
             </Typography>
           </Grid>
-          {outputJobs.map((job) => {
-            let buildCost = calculateCurrentJobBuildCostFromChildren(job);
-            return (
-              <Grid key={job.jobID} container item xs={6} sm={4} md={3}>
-                <Paper
-                  elevation={3}
-                  square
-                  sx={{ padding: "20px", width: "100%" }}
-                >
-                  <Grid container item xs={12}>
-                    <Grid item xs={3}>
-                      <picture>
-                        <source
-                          media="(max-width:700px)"
-                          srcSet={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
-                          alt=""
-                        />
-                        <img
-                          src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
-                          alt=""
-                        />
-                      </picture>
-                    </Grid>
-                    <Grid item xs={9}>
-                      <Typography
-                        color="secondary"
-                        align="center"
-                        sx={{
-                          minHeight: {
-                            xs: "2rem",
-                            sm: "3rem",
-                            md: "3rem",
-                            lg: "4rem",
-                          },
-                          typography: { xs: "body1", lg: "h6" },
-                        }}
+          <Grid container item xs={12}>
+            <ImageList
+              sx={{
+                gridAutoFlow: "column",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(330px,1fr)) !important",
+                gridAutoColumns: "minmax(330px, 1fr)",
+              }}
+            >
+              {outputJobs.map((job) => {
+                let buildCost = calculateCurrentJobBuildCostFromChildren(job);
+                return (
+                  <ImageListItem key={job.jobID}>
+                    <Grow in={true}>
+                      <Card
+                        variant="outlined"
+                        square
+                        sx={{ padding: "10px", marginBottom: "10px" }}
                       >
-                        {job.name}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
-                    >
-                      {job.build.products.totalQuantity}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography
-                      sx={{ typography: { xs: "body2", md: "body1" } }}
-                    >
-                      {buildCost.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </Typography>
-                  </Grid>
-                </Paper>
-              </Grid>
-            );
-          })}
+                        <CardContent>
+                          <Grid container item xs={12}>
+                            <Grid item xs={2} align="center">
+                              <Avatar
+                                src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
+                                alt={job.name}
+                                variant="square"
+                                sx={{ height: 32, width: 32 }}
+                              />
+                            </Grid>
+                            <Grid item xs={10}>
+                              <Typography
+                                color="secondary"
+                                align="left"
+                                sx={{
+                                  minHeight: {
+                                    xs: "2rem",
+                                    sm: "3rem",
+                                    md: "3rem",
+                                    lg: "4rem",
+                                  },
+                                  typography: { xs: "body2", lg: "body1" },
+                                }}
+                              >
+                                {job.name}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                          <Grid container item xs={12}>
+                            <Grid item xs={9}>
+                              <Typography
+                                sx={{
+                                  typography: { xs: "caption", md: "body2" },
+                                }}
+                              >
+                                Total Produced
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={3} align="right">
+                              <Typography
+                                sx={{
+                                  typography: { xs: "caption", md: "body2" },
+                                }}
+                              >
+                                {job.build.products.totalQuantity}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                          <Grid container item xs={12}>
+                            <Grid item xs={9}>
+                              <Typography
+                                sx={{
+                                  typography: { xs: "caption", md: "caption" },
+                                }}
+                              >
+                                Estimated Current Build Cost / Item
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={3} align="right">
+                              <Typography
+                                sx={{
+                                  typography: { xs: "caption", md: "body2" },
+                                }}
+                              >
+                                {buildCost.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </CardContent>
+                        <CardActions>
+                          <Button
+                            onClick={() => {
+                              openEditJob(job.jobID);
+                              updateEditJobTrigger((prev) => !prev);
+                            }}
+                          >
+                            View
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    </Grow>
+                  </ImageListItem>
+                );
+              })}
+            </ImageList>
+          </Grid>
         </Grid>
       </Paper>
     );

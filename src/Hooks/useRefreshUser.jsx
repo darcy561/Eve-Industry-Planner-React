@@ -1,7 +1,6 @@
 import { useContext, useMemo } from "react";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
-import { useEveApi } from "./useEveApi";
 import { useFirebase } from "./useFirebase";
 import { JobArrayContext } from "../Context/JobContext";
 import {
@@ -11,8 +10,8 @@ import {
 } from "../Context/AuthContext";
 import {
   DialogDataContext,
-  LoadingTextContext,
   PageLoadContext,
+  UserLoginUIContext,
 } from "../Context/LayoutContext";
 import { decodeJwt } from "jose";
 import { trace } from "firebase/performance";
@@ -20,10 +19,9 @@ import { functions, performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "./useAccountManagement";
 import { httpsCallable } from "firebase/functions";
+import { Buffer } from "buffer";
 
 export function useRefreshUser() {
-  const { serverStatus } = useEveApi();
-  const { characterAPICall } = useAccountManagement();
   const {
     determineUserState,
     userJobSnapshotListener,
@@ -35,10 +33,17 @@ export function useRefreshUser() {
   const { updateJobArray } = useContext(JobArrayContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateDialogData } = useContext(DialogDataContext);
+  const {
+    updateUserUIData,
+    updateLoginInProgressComplete,
+    updateUserDataFetch,
+    updateUserJobSnapshotDataFetch,
+    updateUserWatchlistDataFetch,
+    updateUserGroupsDataFetch,
+  } = useContext(UserLoginUIContext);
 
   const checkAppVersion = httpsCallable(
     functions,
@@ -61,6 +66,11 @@ export function useRefreshUser() {
     } else {
       if (localStorage.getItem("Auth") == null) {
         updatePageLoad(false);
+        updateLoginInProgressComplete(true);
+        updateUserDataFetch(true);
+        updateUserJobSnapshotDataFetch(true);
+        updateUserWatchlistDataFetch(true);
+        updateUserGroupsDataFetch(true);
       } else {
         reloadMainUser(localStorage.getItem("Auth"));
       }
@@ -71,10 +81,7 @@ export function useRefreshUser() {
     const analytics = getAnalytics();
     const t = trace(performance, "MainUserRefreshProcessFull");
     t.start();
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      eveSSO: true,
-    }));
+    updateLoginInProgressComplete(false);
 
     let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
     if (!appVersion.data) {
@@ -94,11 +101,15 @@ export function useRefreshUser() {
     let refreshedUser = await RefreshTokens(refreshToken, true);
     let fbToken = await firebaseAuth(refreshedUser);
     await getCharacterInfo(refreshedUser);
-
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      eveSSOComp: true,
-      charData: true,
+    updateUserUIData((prev) => ({
+      ...prev,
+      eveLoginComplete: true,
+      userArray: [
+        {
+          CharacterID: refreshedUser.CharacterID,
+          CharacterName: refreshedUser.CharacterName,
+        },
+      ],
     }));
 
     await determineUserState(fbToken);
@@ -108,47 +119,30 @@ export function useRefreshUser() {
     userWatchlistListener(fbToken, refreshedUser);
     userGroupDataListener(refreshedUser);
 
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      charDataComp: true,
-      apiData: true,
-    }));
-
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      apiDataComp: true,
-    }));
-
     updateJobArray([]);
     updateIsLoggedIn(true);
+    updatePageLoad(false);
     logEvent(analytics, "userSignIn", {
       UID: fbToken.user.uid,
     });
     t.stop();
-    updateLoadingText((prevObj) => ({
-      ...prevObj,
-      eveSSO: false,
-      eveSSOComp: false,
-      charData: false,
-      charDataComp: false,
-      apiData: false,
-      apiDataComp: false,
-    }));
-    updatePageLoad(false);
   };
 
   const RefreshUserAToken = async (user) => {
     try {
+      const buffer = Buffer.from(
+        `${import.meta.env.VITE_eveClientID}:${
+          import.meta.env.VITE_eveSecretKey
+        }`
+      );
+      const authHeader = `Basic ${buffer.toString("base64")}`;
+
       const newTokenPromise = await fetch(
         "https://login.eveonline.com/v2/oauth/token",
         {
           method: "POST",
           headers: {
-            Authorization: `Basic ${btoa(
-              `${import.meta.env.VITE_eveClientID}:${
-                import.meta.env.VITE_eveSecretKey
-              }`
-            )}`,
+            Authorization: authHeader,
             "Content-Type": "application/x-www-form-urlencoded",
             Host: "login.eveonline.com",
           },

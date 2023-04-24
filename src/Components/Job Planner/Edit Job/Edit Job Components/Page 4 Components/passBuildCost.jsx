@@ -13,6 +13,7 @@ import {
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import { useFindJobObject } from "../../../../../Hooks/GeneralHooks/useFindJobObject";
 
 export function PassBuildCostButton() {
   const { activeJob } = useContext(ActiveJobContext);
@@ -24,7 +25,8 @@ export function PassBuildCostButton() {
     UserJobSnapshotContext
   );
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const analytics = getAnalytics();
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -46,7 +48,7 @@ export function PassBuildCostButton() {
     for (let job of activeJob.parentJob) {
       let newTotal = 0;
       let quantityImported = 0;
-      let [parentJob] = await findJobData(job, newUserJobSnapshot, newJobArray);
+      let parentJob = await findJobData(job, newUserJobSnapshot, newJobArray);
       if (parentJob === undefined) {
         continue;
       }
@@ -58,7 +60,7 @@ export function PassBuildCostButton() {
       }
       if (
         material.purchasing.some((i) => i.childID === activeJob.jobID) &&
-        !material.childJob.includes(activeJob.jobID)
+        material.childJob.includes(activeJob.jobID)
       ) {
         continue;
       }

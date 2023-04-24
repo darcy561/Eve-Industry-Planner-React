@@ -17,7 +17,10 @@ import { jobTypes } from "../../Context/defaultValues";
 import { ApiJobsContext } from "../../Context/JobContext";
 import itemList from "../../RawData/searchIndex.json";
 import { makeStyles } from "@mui/styles";
-import { PersonalESIDataContext } from "../../Context/EveDataContext";
+import {
+  CorpEsiDataContext,
+  PersonalESIDataContext,
+} from "../../Context/EveDataContext";
 
 const useStyles = makeStyles((theme) => ({
   Select: {
@@ -45,6 +48,7 @@ export function LibrarySearch({
   const { apiJobs } = useContext(ApiJobsContext);
   const { users } = useContext(UsersContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
+  const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const classes = useStyles();
   return (
     <Paper
@@ -67,23 +71,11 @@ export function LibrarySearch({
             options={itemList}
             getOptionLabel={(option) => option.name}
             onChange={(event, value) => {
-              let tempArray = [];
-              let idArray = new Set();
-
-              for (let entry of esiBlueprints) {
-                entry.blueprints.forEach((bp) => {
-                  bp.owner = entry.user;
-                  tempArray.push(bp);
-                });
-              }
-
-              tempArray = tempArray.filter(
-                (i) => i.type_id === value.blueprintID
-              );
-              tempArray.forEach((bp) => {
-                idArray.add(bp.type_id);
-              });
-              idArray.add(value.blueprintID);
+              const tempArray = [
+                ...esiBlueprints.flatMap((entry) => entry.data),
+                ...corpEsiBlueprints.flatMap((entry) => entry.data),
+              ].filter((i) => i.type_id === value.blueprintID);
+              const idArray = new Set(tempArray.map((bp) => bp.type_id));
               updateBlueprintData({
                 ids: [...idArray],
                 blueprints: tempArray,
@@ -143,8 +135,6 @@ export function LibrarySearch({
                     }}
                     checked={displayAll}
                     onChange={() => {
-                      let tempArray = [];
-                      let idArray = new Set();
                       if (displayActive) {
                         changeDisplayActive((prev) => !prev);
                       }
@@ -160,15 +150,22 @@ export function LibrarySearch({
                       if (displayBPC) {
                         changeDisplayBPC((prev) => !prev);
                       }
-                      for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
-                          bp.owner = entry.user;
-                          tempArray.push(bp);
-                        });
-                      }
-                      tempArray.forEach((bp) => {
-                        idArray.add(bp.type_id);
-                      });
+                      const tempArray = [
+                        ...esiBlueprints.flatMap((entry) => entry.data),
+                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                      ];
+                      const idArray = new Set(
+                        tempArray.map((bp) => bp.type_id)
+                      );
+
+                      tempArray.sort(
+                        (a, b) =>
+                          a.quantity
+                            .toString()
+                            .localeCompare(b.quantity.toString()) ||
+                          b.material_efficiency - a.material_efficiency ||
+                          b.time_efficiency - a.time_efficiency
+                      );
 
                       updateBlueprintData({
                         ids: [...idArray],
@@ -188,10 +185,13 @@ export function LibrarySearch({
               <FormControlLabel
                 control={
                   <Radio
+                    sx={{
+                      "&, &.MuiButtonBase-root.MuiRadio-root": {
+                        color: "secondary.main",
+                      },
+                    }}
                     checked={displayActive}
                     onChange={() => {
-                      let tempArray = [];
-                      let idArray = new Set();
                       if (displayAll) {
                         changeDisplayAll((prev) => !prev);
                       }
@@ -207,23 +207,28 @@ export function LibrarySearch({
                       if (displayBPC) {
                         changeDisplayBPC((prev) => !prev);
                       }
-                      for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
-                          bp.owner = entry.user;
-                          tempArray.push(bp);
-                        });
-                      }
-
-                      tempArray = tempArray.filter((blueprint) =>
+                      const tempArray = [
+                        ...esiBlueprints.flatMap((entry) => entry.data),
+                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                      ].filter((blueprint) =>
                         apiJobs.some(
                           (job) =>
                             job.blueprint_id === blueprint.item_id &&
                             job.status === "active"
                         )
                       );
-                      tempArray.forEach((bp) => {
-                        idArray.add(bp.type_id);
-                      });
+                      const idArray = new Set(
+                        tempArray.map((bp) => bp.type_id)
+                      );
+
+                      tempArray.sort(
+                        (a, b) =>
+                          a.quantity
+                            .toString()
+                            .localeCompare(b.quantity.toString()) ||
+                          b.material_efficiency - a.material_efficiency ||
+                          b.time_efficiency - a.time_efficiency
+                      );
 
                       updateBlueprintData({
                         ids: [...idArray],
@@ -243,10 +248,13 @@ export function LibrarySearch({
               <FormControlLabel
                 control={
                   <Radio
+                    sx={{
+                      "&, &.MuiButtonBase-root.MuiRadio-root": {
+                        color: "secondary.main",
+                      },
+                    }}
                     checked={displayManufacturing}
                     onChange={() => {
-                      let tempArray = [];
-                      let idArray = new Set();
                       if (displayAll) {
                         changeDisplayAll((prev) => !prev);
                       }
@@ -262,23 +270,28 @@ export function LibrarySearch({
                       if (displayBPC) {
                         changeDisplayBPC((prev) => !prev);
                       }
-                      for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
-                          bp.owner = entry.user;
-                          tempArray.push(bp);
-                        });
-                      }
-
-                      tempArray = tempArray.filter((blueprint) =>
+                      const tempArray = [
+                        ...esiBlueprints.flatMap((entry) => entry.data),
+                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                      ].filter((blueprint) =>
                         itemList.some(
                           (item) =>
                             item.blueprintID === blueprint.type_id &&
                             item.jobType === jobTypes.manufacturing
                         )
                       );
-                      tempArray.forEach((bp) => {
-                        idArray.add(bp.type_id);
-                      });
+                      const idArray = new Set(
+                        tempArray.map((bp) => bp.type_id)
+                      );
+
+                      tempArray.sort(
+                        (a, b) =>
+                          a.quantity
+                            .toString()
+                            .localeCompare(b.quantity.toString()) ||
+                          b.material_efficiency - a.material_efficiency ||
+                          b.time_efficiency - a.time_efficiency
+                      );
 
                       updateBlueprintData({
                         ids: [...idArray],
@@ -298,10 +311,13 @@ export function LibrarySearch({
               <FormControlLabel
                 control={
                   <Radio
+                    sx={{
+                      "&, &.MuiButtonBase-root.MuiRadio-root": {
+                        color: "secondary.main",
+                      },
+                    }}
                     checked={displayReactions}
                     onChange={() => {
-                      let tempArray = [];
-                      let idArray = new Set();
                       if (displayAll) {
                         changeDisplayAll((prev) => !prev);
                       }
@@ -317,23 +333,28 @@ export function LibrarySearch({
                       if (displayBPC) {
                         changeDisplayBPC((prev) => !prev);
                       }
-                      for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
-                          bp.owner = entry.user;
-                          tempArray.push(bp);
-                        });
-                      }
-
-                      tempArray = tempArray.filter((blueprint) =>
+                      const tempArray = [
+                        ...esiBlueprints.flatMap((entry) => entry.data),
+                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                      ].filter((blueprint) =>
                         itemList.some(
                           (item) =>
                             item.blueprintID === blueprint.type_id &&
                             item.jobType === jobTypes.reaction
                         )
                       );
-                      tempArray.forEach((bp) => {
-                        idArray.add(bp.type_id);
-                      });
+                      const idArray = new Set(
+                        tempArray.map((bp) => bp.type_id)
+                      );
+
+                      tempArray.sort(
+                        (a, b) =>
+                          a.quantity
+                            .toString()
+                            .localeCompare(b.quantity.toString()) ||
+                          b.material_efficiency - a.material_efficiency ||
+                          b.time_efficiency - a.time_efficiency
+                      );
 
                       updateBlueprintData({
                         ids: [...idArray],
@@ -353,10 +374,13 @@ export function LibrarySearch({
               <FormControlLabel
                 control={
                   <Radio
+                    sx={{
+                      "&, &.MuiButtonBase-root.MuiRadio-root": {
+                        color: "secondary.main",
+                      },
+                    }}
                     checked={displayBPO}
                     onChange={() => {
-                      let tempArray = [];
-                      let idArray = new Set();
                       if (displayAll) {
                         changeDisplayAll((prev) => !prev);
                       }
@@ -372,14 +396,10 @@ export function LibrarySearch({
                       if (displayBPC) {
                         changeDisplayBPC((prev) => !prev);
                       }
-                      for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
-                          bp.owner = entry.user;
-                          tempArray.push(bp);
-                        });
-                      }
-
-                      tempArray = tempArray.filter(
+                      const tempArray = [
+                        ...esiBlueprints.flatMap((entry) => entry.data),
+                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                      ].filter(
                         (blueprint) =>
                           blueprint.runs === -1 &&
                           itemList.some(
@@ -388,10 +408,18 @@ export function LibrarySearch({
                               item.jobType === jobTypes.manufacturing
                           )
                       );
-                      tempArray.forEach((bp) => {
-                        idArray.add(bp.type_id);
-                      });
+                      const idArray = new Set(
+                        tempArray.map((bp) => bp.type_id)
+                      );
 
+                      tempArray.sort(
+                        (a, b) =>
+                          a.quantity
+                            .toString()
+                            .localeCompare(b.quantity.toString()) ||
+                          b.material_efficiency - a.material_efficiency ||
+                          b.time_efficiency - a.time_efficiency
+                      );
                       updateBlueprintData({
                         ids: [...idArray],
                         blueprints: tempArray,
@@ -410,10 +438,13 @@ export function LibrarySearch({
               <FormControlLabel
                 control={
                   <Radio
+                    sx={{
+                      "&, &.MuiButtonBase-root.MuiRadio-root": {
+                        color: "secondary.main",
+                      },
+                    }}
                     checked={displayBPC}
                     onChange={() => {
-                      let tempArray = [];
-                      let idArray = new Set();
                       if (displayAll) {
                         changeDisplayAll((prev) => !prev);
                       }
@@ -429,14 +460,10 @@ export function LibrarySearch({
                       if (displayBPO) {
                         changeDisplayBPO((prev) => !prev);
                       }
-                      for (let entry of esiBlueprints) {
-                        entry.blueprints.forEach((bp) => {
-                          bp.owner = entry.user;
-                          tempArray.push(bp);
-                        });
-                      }
-
-                      tempArray = tempArray.filter(
+                      const tempArray = [
+                        ...esiBlueprints.flatMap((entry) => entry.data),
+                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                      ].filter(
                         (blueprint) =>
                           blueprint.quantity === -2 &&
                           itemList.some(
@@ -445,9 +472,18 @@ export function LibrarySearch({
                               item.jobType === jobTypes.manufacturing
                           )
                       );
-                      tempArray.forEach((bp) => {
-                        idArray.add(bp.type_id);
-                      });
+                      const idArray = new Set(
+                        tempArray.map((bp) => bp.type_id)
+                      );
+
+                      tempArray.sort(
+                        (a, b) =>
+                          a.quantity
+                            .toString()
+                            .localeCompare(b.quantity.toString()) ||
+                          b.material_efficiency - a.material_efficiency ||
+                          b.time_efficiency - a.time_efficiency
+                      );
 
                       updateBlueprintData({
                         ids: [...idArray],

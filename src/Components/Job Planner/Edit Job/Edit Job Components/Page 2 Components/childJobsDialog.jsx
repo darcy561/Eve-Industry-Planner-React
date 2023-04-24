@@ -8,7 +8,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import {
   ActiveJobContext,
   JobArrayContext,
@@ -22,6 +22,7 @@ import {
   UserJobSnapshotContext,
 } from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import { useFindJobObject } from "../../../../../Hooks/GeneralHooks/useFindJobObject";
 
 export function ChildJobDialog({
   material,
@@ -30,29 +31,45 @@ export function ChildJobDialog({
   setJobModified,
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { activeJob, updateActiveJob, activeGroup } =
+    useContext(ActiveJobContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { uploadJob, uploadUserJobSnapshot } =
-    useFirebase();
+  const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
 
   const handleClose = () => {
     updateChildDialogTrigger(false);
   };
 
-  let matches = [];
-  for (let job of userJobSnapshot) {
-    if (
-      job.itemID === material.typeID &&
-      !material.childJob.includes(job.jobID)
-    ) {
-      matches.push(job);
+  let matches = useMemo(() => {
+    let returnArray = [];
+    if (activeJob.groupID === null) {
+      for (let job of userJobSnapshot) {
+        if (
+          job.itemID === material.typeID &&
+          !material.childJob.includes(job.jobID)
+        ) {
+          returnArray.push(job);
+        }
+      }
+    } else {
+      for (let job of jobArray) {
+        if (
+          job.groupID === activeJob.groupID &&
+          job.itemID === material.typeID &&
+          !material.childJob.includes(job.jobID)
+        ) {
+          returnArray.push(job);
+        }
+      }
     }
-  }
+    return returnArray;
+  }, [activeGroup, userJobSnapshot, jobArray]);
 
   return (
     <Dialog
@@ -104,7 +121,7 @@ export function ChildJobDialog({
                       onClick={async () => {
                         let newUserJobSnapshot = [...userJobSnapshot];
                         let newJobArray = [...jobArray];
-                        let [inputJob] = await findJobData(
+                        let inputJob = await findJobData(
                           job.jobID,
                           newUserJobSnapshot,
                           newJobArray
@@ -167,7 +184,15 @@ export function ChildJobDialog({
         <Grid container item>
           {material.childJob.length > 0 ? (
             material.childJob.map((job) => {
-              let jobMatch = userJobSnapshot.find((i) => i.jobID === job);
+              let findJobMatchs = () => {
+                if (activeJob.groupID === null) {
+                  return userJobSnapshot.find((i) => i.jobID === job);
+                } else {
+                  return jobArray.find((i) => i.jobID === job);
+                }
+              };
+
+              let jobMatch = findJobMatchs();
               if (jobMatch === undefined) {
                 return null;
               }
@@ -208,7 +233,7 @@ export function ChildJobDialog({
                       onClick={async () => {
                         let newUserJobSnapshot = [...userJobSnapshot];
                         let newJobArray = [...jobArray];
-                        let [inputJob] = await findJobData(
+                        let inputJob = await findJobData(
                           job,
                           newUserJobSnapshot,
                           newJobArray

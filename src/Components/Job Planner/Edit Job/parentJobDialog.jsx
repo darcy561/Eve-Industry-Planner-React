@@ -18,6 +18,7 @@ import {
   UserJobSnapshotContext,
 } from "../../../Context/AuthContext";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
+import { useFindJobObject } from "../../../Hooks/GeneralHooks/useFindJobObject";
 
 export function ParentJobDialog({
   dialogTrigger,
@@ -32,7 +33,8 @@ export function ParentJobDialog({
   );
   const { uploadJob } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const [matches, updateMatches] = useState([]);
 
   const handleClose = () => {
@@ -41,16 +43,26 @@ export function ParentJobDialog({
 
   useEffect(() => {
     let newMatches = [];
-    for (let job of userJobSnapshot) {
-      if (
-        job.materialIDs.includes(activeJob.itemID) &&
-        !activeJob.parentJob.includes(job.jobID)
-      ) {
-        newMatches.push(job);
+    if (activeJob.groupID === null) {
+      for (let job of userJobSnapshot) {
+        if (
+          job.materialIDs.includes(activeJob.itemID) &&
+          !activeJob.parentJob.includes(job.jobID)
+        ) {
+          newMatches.push(job);
+        }
       }
+    } else {
+      let matchs = jobArray.filter(
+        (i) =>
+          i.groupID === activeJob.groupID &&
+          !activeJob.parentJob.includes(i.jobID) &&
+          i.build.materials.some((x) => x.typeID === activeJob.itemID)
+      );
+      newMatches = newMatches.concat(matchs);
     }
     updateMatches(newMatches);
-  }, [userJobSnapshot]);
+  }, [dialogTrigger]);
 
   return (
     <Dialog
@@ -110,7 +122,7 @@ export function ParentJobDialog({
                       onClick={async () => {
                         let newUserJobSnapshot = [...userJobSnapshot];
                         let newJobArray = [...jobArray];
-                        let [fullJob] = await findJobData(
+                        let fullJob = await findJobData(
                           job.jobID,
                           newUserJobSnapshot,
                           newJobArray

@@ -32,26 +32,30 @@ import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
 import { useAccountManagement } from "./useAccountManagement";
 import { useEveApi } from "./useEveApi";
+import { UserLoginUIContext } from "../Context/LayoutContext";
 
 export function useFirebase() {
-  const { users, updateUserDataFetch, updateUsers } = useContext(UsersContext);
+  const { users, updateUsers } = useContext(UsersContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { archivedJobs } = useContext(ArchivedJobsContext);
   const { updateFirebaseListeners } = useContext(FirebaseListenersContext);
-  const { updateUserJobSnapshot, updateUserJobSnapshotDataFetch } = useContext(
-    UserJobSnapshotContext
-  );
+  const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
-  const { updateUserWatchlist, updateUserWatchlistDataFetch } =
-    useContext(UserWatchlistContext);
+  const { updateUserWatchlist } = useContext(UserWatchlistContext);
   const { jobArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { updateLinkedJobIDs, updateLinkedOrderIDs, updateLinkedTransIDs } =
     useContext(LinkedIDsContext);
+  const {
+    updateUserDataFetch,
+    updateUserJobSnapshotDataFetch,
+    updateUserWatchlistDataFetch,
+    updateUserGroupsDataFetch,
+  } = useContext(UserLoginUIContext);
   const {
     buildApiArray,
     buildCloudAccountData,
@@ -59,6 +63,7 @@ export function useFirebase() {
     characterAPICall,
     checkUserClaims,
     getLocationNames,
+    storeCorpObjects,
     storeESIData,
     tidyLinkedData,
     updateCloudRefreshTokens,
@@ -139,6 +144,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
+        isReadyToSell: job.isReadyToSell || false,
       }
     );
   };
@@ -179,6 +185,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
+        isReadyToSell: job.isReadyToSell || null,
       }
     );
   };
@@ -268,6 +275,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
+        isReadyToSell: job.isReadyToSell || false,
       }
     );
   };
@@ -309,6 +317,7 @@ export function useFirebase() {
         blueprintTypeID: downloadDoc.blueprintTypeID,
         layout: downloadDoc.layout,
         groupID: downloadDoc.groupID,
+        isReadyToSell: downloadDoc.isReadyToSell || false,
       };
 
       return newJob;
@@ -321,7 +330,7 @@ export function useFirebase() {
     try {
       const appCheckToken = await getToken(appCheck, true);
       const itemsPricePromise = await fetch(
-        `${import.meta.env.VITE_APIURL}/costs/bulkPrices`,
+        `${import.meta.env.VITE_APIURL}/costs`,
         {
           method: "POST",
           headers: {
@@ -348,6 +357,7 @@ export function useFirebase() {
     const t = trace(performance, "GetItemPrices");
     t.start();
     await fbAuthState();
+    const MAX_CHUNK_SIZE = 500;
     let requestArray = [];
     let promiseArray = [];
     let returnData = [];
@@ -360,8 +370,8 @@ export function useFirebase() {
       }
     }
     if (requestArray.length > 0) {
-      for (let x = 0; x < requestArray.length; x += 30) {
-        let chunk = requestArray.slice(x, x + 30);
+      for (let x = 0; x < requestArray.length; x += MAX_CHUNK_SIZE) {
+        let chunk = requestArray.slice(x, x + MAX_CHUNK_SIZE);
         let chunkData = getItemPriceBulk(chunk, userObj);
         promiseArray.push(chunkData);
       }
@@ -389,38 +399,40 @@ export function useFirebase() {
     const t = trace(performance, "refreshItemPrices");
     t.start();
     await fbAuthState();
-    let promiseArray = [];
-    let oldEvePrices = [...evePrices];
-    let priceUpdates = new Set();
+    const CHUNK_SIZE = 500;
+    const oldEvePrices = [...evePrices];
+    const priceUpdates = new Set();
+    const newEvePrices = [];
 
     oldEvePrices.forEach((item) => {
       if (item.lastUpdated <= Date.now() - 14400000) {
         priceUpdates.add(item.typeID);
+      } else {
+        newEvePrices.push(item);
       }
     });
-    let newEvePrices = oldEvePrices.filter((i) => !priceUpdates.has(i.typeID));
-    let requestArray = [...priceUpdates];
+
+    const requestArray = [...priceUpdates];
     if (requestArray.length > 0) {
-      for (let x = 0; x < requestArray.length; x += 30) {
-        let chunk = requestArray.slice(x, x + 30);
-        let chunkData = getItemPriceBulk(chunk, userObj);
+      const promiseArray = [];
+      for (let x = 0; x < requestArray.length; x += CHUNK_SIZE) {
+        const chunk = requestArray.slice(x, x + CHUNK_SIZE);
+        const chunkData = getItemPriceBulk(chunk, userObj);
         promiseArray.push(chunkData);
       }
-    } else {
-      t.stop();
-      return newEvePrices;
-    }
-    let returnPromiseArray = await Promise.all(promiseArray);
-
-    for (let data of returnPromiseArray) {
-      if (Array.isArray(data)) {
-        data.forEach((id) => {
-          newEvePrices.push(id);
-        });
-      } else {
-        newEvePrices.push(data);
+      const returnPromiseArray = await Promise.all(promiseArray);
+      for (let data of returnPromiseArray) {
+        if (Array.isArray(data)) {
+          data.forEach((id) => {
+            newEvePrices.push(id);
+          });
+        } else {
+          newEvePrices.push(data);
+        }
       }
     }
+
+    t.stop();
     return newEvePrices;
   };
 
@@ -480,7 +492,7 @@ export function useFirebase() {
           if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
             const t = trace(performance, "UserJobSnapshotListener");
             t.start();
-            updateUserJobSnapshotDataFetch(true);
+            updateUserJobSnapshotDataFetch(false);
             let snapshotData = doc.data();
             let priceIDRequest = new Set();
             let newUserJobSnapshot = [];
@@ -507,6 +519,15 @@ export function useFirebase() {
               [...priceIDRequest],
               userObj
             );
+            newUserJobSnapshot.sort((a, b) => {
+              if (a.name < b.name) {
+                return -1;
+              }
+              if (a.name > b.name) {
+                return 1;
+              }
+              return 0;
+            });
             updateLinkedJobIDs([...newLinkedJobIDs]);
             updateLinkedOrderIDs([...newLinkedOrderIDs]);
             updateLinkedTransIDs([...newLinkedTransIDs]);
@@ -517,7 +538,7 @@ export function useFirebase() {
               return prev.concat(newEvePrices);
             });
             updateUserJobSnapshot(newUserJobSnapshot);
-            updateUserJobSnapshotDataFetch(false);
+            updateUserJobSnapshotDataFetch(true);
             t.stop();
           }
         };
@@ -536,7 +557,7 @@ export function useFirebase() {
           if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
             const t = trace(performance, "UserWatchlistListener");
             t.start();
-            updateUserWatchlistDataFetch(true);
+            updateUserWatchlistDataFetch(false);
             let snapshotData = doc.data();
             let priceIDRequest = new Set();
             let newWatchlistGroups = [];
@@ -568,7 +589,7 @@ export function useFirebase() {
               groups: newWatchlistGroups,
               items: newWatchlistItems,
             });
-            updateUserWatchlistDataFetch(false);
+            updateUserWatchlistDataFetch(true);
             t.stop();
           }
         };
@@ -587,7 +608,6 @@ export function useFirebase() {
           const t = trace(performance, "UserJobListener");
           t.start();
           let downloadDoc = doc.data();
-          let newJobArray = [...jobArray];
           let newJob = {
             jobType: downloadDoc.jobType,
             name: downloadDoc.name,
@@ -617,17 +637,20 @@ export function useFirebase() {
             blueprintTypeID: downloadDoc.blueprintTypeID,
             layout: downloadDoc.layout,
             groupID: downloadDoc.groupID,
+            isReadyToSell: downloadDoc.isReadyToSell || false,
           };
-          let index = jobArray.findIndex((i) => i.jobID === newJob.jobID);
-          if (index === -1) {
-            newJobArray.push(newJob);
-          } else {
-            newJobArray[index] = newJob;
-          }
-          if (activeJob.jobID === newJob.jobID) {
+          if (activeJob.jobID == newJob.jobID) {
             updateActiveJob(newJob);
           }
-          updateJobArray(newJobArray);
+          updateJobArray((prev) => {
+            let index = prev.findIndex((i) => i.jobID === newJob.jobID);
+            if (index === -1) {
+              return prev.push(newJob);
+            } else {
+              prev[index] = newJob;
+              return prev;
+            }
+          });
           t.stop();
         }
       }
@@ -641,7 +664,7 @@ export function useFirebase() {
         if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
           const t = trace(performance, "MainUserDocListener");
           t.start();
-          updateUserDataFetch(true);
+          updateUserDataFetch(false);
           let userData = doc.data();
           let newUserArray = [userObject];
           let esiOjectArray = [];
@@ -663,11 +686,13 @@ export function useFirebase() {
               newUserArray
             );
             await storeESIData(esiOjectArray);
+            storeCorpObjects(esiOjectArray);
           }
           if (!userData.settings.account.cloudAccounts) {
             await buildLocalAccountData(newUserArray, esiOjectArray);
             updateLocalRefreshTokens(newUserArray);
             await storeESIData(esiOjectArray);
+            storeCorpObjects(esiOjectArray);
           }
           tidyLinkedData(
             userData.linkedJobs,
@@ -697,7 +722,7 @@ export function useFirebase() {
           updateApiJobs(newApiArray);
           updateUsers(newUserArray);
           setJobStatus(userData.jobStatusArray);
-          updateUserDataFetch(false);
+          updateUserDataFetch(true);
           t.stop();
         }
       };
@@ -724,6 +749,7 @@ export function useFirebase() {
           if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
             const t = trace(performance, "UserGroupListener");
             t.start();
+            updateUserGroupsDataFetch(false);
             let groupData = doc.data().groupData;
             let priceIDRequest = new Set();
             for (let group of groupData) {
@@ -732,14 +758,8 @@ export function useFirebase() {
                 ...group.materialIDs,
               ]);
             }
-            let itemPrices = await getItemPrices([...priceIDRequest], userObj);
             updateGroupArray(groupData);
-            updateEvePrices((prev) => {
-              itemPrices = itemPrices.filter(
-                (n) => !prev.some((p) => p.typeID === n.typeID)
-              );
-              return prev.concat(itemPrices);
-            });
+            updateUserGroupsDataFetch(true);
             t.stop();
           }
         };

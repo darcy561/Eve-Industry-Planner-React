@@ -5,7 +5,10 @@ import { EvePricesContext } from "../../../../Context/EveDataContext";
 export function ExpandedWatchlistRow({ mat, parentUser }) {
   const { evePrices } = useContext(EvePricesContext);
 
-  let matPrice = evePrices.find((i) => i.typeID === mat.typeID);
+  let matPrice = useMemo(
+    () => evePrices.find((i) => i.typeID === mat.typeID),
+    [evePrices]
+  );
   let matBuildPrice = useMemo(() => {
     let buildPrice = 0;
     mat.materials.forEach((x) => {
@@ -21,7 +24,7 @@ export function ExpandedWatchlistRow({ mat, parentUser }) {
     });
     return buildPrice / mat.quantity;
   }, [evePrices]);
-    
+
   return (
     <Grid container item xs={6} lg={2}>
       <Grid item xs={12} align="center">

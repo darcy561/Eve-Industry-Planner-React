@@ -2,6 +2,7 @@ import { useContext, useMemo, useState } from "react";
 import {
   PriceEntryListContext,
   SnackBarDataContext,
+  UserLoginUIContext,
 } from "../../../../Context/LayoutContext";
 import {
   Button,
@@ -25,16 +26,19 @@ import { marketOptions, listingType } from "../../../../Context/defaultValues";
 import { ItemPriceRow } from "./itemRow";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObject";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, userDataFetch } = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
+  const { userDataFetch } = useContext(UserLoginUIContext);
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshotFromFullJob, findJobData } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
@@ -81,7 +85,7 @@ export function PriceEntryDialog() {
       if (material.confirmed) {
         totalConfirmed++;
         for (let ref of material.jobRef) {
-          let [job] = await findJobData(ref, userJobSnapshot, newJobArray);
+          let job = await findJobData(ref, userJobSnapshot, newJobArray);
           if (job === undefined) {
             continue;
           }
@@ -309,9 +313,11 @@ export function PriceEntryDialog() {
                   let newTotal = totalImportedCost;
                   let importedText = await navigator.clipboard.readText();
                   let importCount = 0;
-                  let matches = importedText.matchAll(
-                    /(\D*|\S*?\D*\d*?\D*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)(\r?\n|\r)/g
-                  );
+                  let matches = [
+                    ...importedText.matchAll(
+                      /^(.*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)$/gm
+                    ),
+                  ];
                   if (matches.length > 0) {
                     for (let importMatch of matches) {
                       for (let listItem of newList) {

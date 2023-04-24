@@ -2,21 +2,22 @@ import { trace } from "@firebase/performance";
 import { performance } from "../../firebase";
 import { decodeJwt } from "jose";
 import { login } from "./MainUserAuth";
+import { Buffer } from "buffer";
 
 export async function RefreshTokens(rToken, accountType) {
   const t = trace(performance, "UseRefreshToken");
   t.start();
   try {
+    const authHeader = `Basic ${Buffer.from(
+      `${import.meta.env.VITE_eveClientID}:${import.meta.env.VITE_eveSecretKey}`
+    ).toString("base64")}`;
+
     const newTokenPromise = await fetch(
       "https://login.eveonline.com/v2/oauth/token",
       {
         method: "POST",
         headers: {
-          Authorization: `Basic ${btoa(
-            `${import.meta.env.VITE_eveClientID}:${
-              import.meta.env.VITE_eveSecretKey
-            }`
-          )}`,
+          Authorization: authHeader,
           "Content-Type": "application/x-www-form-urlencoded",
           Host: "login.eveonline.com",
         },

@@ -20,6 +20,7 @@ import { useJobManagement } from "../../Hooks/useJobManagement";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { useMemo } from "react";
+import { useFindJobObject } from "../../Hooks/GeneralHooks/useFindJobObject";
 
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
@@ -32,7 +33,8 @@ export function AccountEntry({ user, parentUserIndex }) {
     updateApiArray,
     updateUserEsiData,
   } = useAccountManagement();
-  const { findJobData, updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { findJobData } = useFindJobObject();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -98,7 +100,7 @@ export function AccountEntry({ user, parentUserIndex }) {
 
     for (let jobSnap of newUserJobSnapshot) {
       if (jobSnap.jobOwner === user.CharacterHash) {
-        let [job] = await findJobData(
+        let job = await findJobData(
           jobSnap.jobID,
           newUserJobSnapshot,
           newJobArray

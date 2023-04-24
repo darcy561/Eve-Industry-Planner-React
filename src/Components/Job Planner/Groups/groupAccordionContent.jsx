@@ -3,6 +3,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  CircularProgress,
   Grid,
   IconButton,
   Tooltip,
@@ -13,7 +14,16 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import { makeStyles } from "@mui/styles";
 import { GroupJobCardFrame } from "./groupJobCards";
-import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
+import {
+  DataExchangeContext,
+  MultiSelectJobPlannerContext,
+} from "../../../Context/LayoutContext";
+import { UserJobSnapshotContext } from "../../../Context/AuthContext";
+import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
+import { useDrop } from "react-dnd";
+import { useDnD } from "../../../Hooks/useDnD";
+import { ItemTypes } from "../../../Context/DnDTypes";
+import { grey } from "@mui/material/colors";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -32,17 +42,49 @@ export function GroupAccordionContent({ status, statusJobs }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { activeGroup } = useContext(ActiveJobContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { jobArray } = useContext(JobArrayContext);
+  const { dataExchange } = useContext(DataExchangeContext);
+  const { canDropCard, recieveJobCardToStage } = useDnD();
+  const [{ isOver, canDrop }, drop] = useDrop(
+    () => ({
+      accept: ItemTypes.jobCard,
+      drop: (item) => {
+        recieveJobCardToStage(item, status);
+      },
+      canDrop: (item) => canDropCard(item, status),
+      collect: (monitor) => ({
+        isOver: !!monitor.isOver(),
+        canDrop: !!monitor.canDrop(),
+      }),
+    }),
+    [status, userJobSnapshot, jobArray]
+  );
 
   const classes = useStyles();
 
   return (
     <Accordion
+      ref={drop}
       className={classes.Accordion}
       square
       spacing={1}
       id={status.id}
       disableGutters
       expanded={expanded}
+      sx={{
+        ...(canDrop &&
+          !isOver && {
+            backgroundColor: (theme) =>
+              theme.palette.type !== "dark" ? grey[400] : grey[700],
+          }),
+        ...(canDrop &&
+          isOver && {
+            backgroundColor: (theme) =>
+              theme.palette.type !== "dark" ? grey[600] : grey[600],
+          }),
+      }}
     >
       <AccordionSummary
         expandIcon={
@@ -86,9 +128,17 @@ export function GroupAccordionContent({ status, statusJobs }) {
       </AccordionSummary>
       <AccordionDetails>
         <Grid container item xs={12} spacing={2}>
-          {statusJobs.map((job) => {
-            return <GroupJobCardFrame key={job.jobID} job={job} />;
-          })}
+          {!dataExchange ? (
+            statusJobs.map((job) => {
+              if (!activeGroup.showComplete) {
+                if (!activeGroup.areComplete.includes(job.jobID)) {
+                  return <GroupJobCardFrame key={job.jobID} job={job} />;
+                } else return null;
+              } else return <GroupJobCardFrame key={job.jobID} job={job} />;
+            })
+          ) : (
+            <CircularProgress color="primary" />
+          )}
         </Grid>
       </AccordionDetails>
     </Accordion>

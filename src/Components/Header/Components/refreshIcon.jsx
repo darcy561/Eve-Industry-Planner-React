@@ -10,6 +10,7 @@ import TimerIcon from "@mui/icons-material/Timer";
 import {
   DialogDataContext,
   RefreshStateContext,
+  UserLoginUIContext,
 } from "../../../Context/LayoutContext";
 import {
   CorpEsiDataContext,
@@ -34,6 +35,7 @@ export function RefreshApiIcon() {
     characterAPICall,
     checkUserClaims,
     getCharacterInfo,
+    storeCorpObjects,
     storeESIData,
   } = useAccountManagement();
   const { refreshItemPrices } = useFirebase();
@@ -45,7 +47,9 @@ export function RefreshApiIcon() {
   const { esiIndJobs, esiOrders, esiHistOrders } = useContext(
     PersonalESIDataContext
   );
-  const { corpEsiIndJobs } = useContext(CorpEsiDataContext);
+  const { corpEsiIndJobs, corpEsiOrders, corpEsiHistOrders } =
+    useContext(CorpEsiDataContext);
+  const { loginInProgressComplete } = useContext(UserLoginUIContext);
   const analytics = getAnalytics();
   const checkAppVersion = httpsCallable(
     functions,
@@ -90,6 +94,7 @@ export function RefreshApiIcon() {
           esiObjectsArray.push(await characterAPICall(user));
         }
         await storeESIData(esiObjectsArray);
+        storeCorpObjects(esiObjectsArray);
         newAPIArray = buildApiArray(newUsers, esiObjectsArray);
       }
       let existingLocations = new Set();
@@ -106,82 +111,61 @@ export function RefreshApiIcon() {
         let citadelIDs = new Set();
         let userJobs = esiIndJobs.find(
           (i) => i.user === user.CharacterHash
-        ).jobs;
+        )?.data;
         let userOrders = esiOrders.find(
           (i) => i.user === user.CharacterHash
-        ).orders;
+        )?.data;
         let userHistOrders = esiHistOrders.find(
           (i) => i.user === user.CharacterHash
-        ).histOrders;
+        )?.data;
         let corpJobs = corpEsiIndJobs.find(
           (i) => i.user === user.CharacterHash
-        ).jobs;
+        )?.data;
+        let userCorpOrders = corpEsiOrders.find(
+          (i) => i.user === user.CharacterHash
+        )?.data;
+        let userCorpHistOrders = corpEsiHistOrders.find(
+          (i) => i.user === user.CharacterHash
+        )?.data;
 
-        userJobs.forEach((job) => {
+        const addLocation = (id) => {
+          if (!existingLocations.has(id)) {
+            locationIDS.add(id);
+          }
+        };
+
+        const addCitadel = (id) => {
+          if (!existingLocations.has(id) && !citadelIDs.has(id)) {
+            citadelIDs.add(id);
+          }
+        };
+
+        [...userJobs, ...corpJobs].forEach((job) => {
           if (job.facility_id.toString().length > 10) {
-            if (
-              !existingLocations.has(job.facility_id) &&
-              !citadelStore.has(job.facility_id)
-            ) {
-              citadelIDs.add(job.facility_id);
+            if (!citadelStore.has(job.facility_id)) {
               citadelStore.add(job.facility_id);
+              addCitadel(job.facility_id);
             }
           } else {
-            if (!existingLocations.has(job.facility_id)) {
-              locationIDS.add(job.facility_id);
-            }
+            addLocation(job.facility_id);
           }
         });
-        userOrders.forEach((order) => {
+
+        [
+          ...userOrders,
+          ...userHistOrders,
+          ...userCorpOrders,
+          ...userCorpHistOrders,
+        ].forEach((order) => {
           if (order.location_id.toString().length > 10) {
-            if (
-              !existingLocations.has(order.location_id) &&
-              !citadelStore.has(order.location_id)
-            ) {
-              citadelIDs.add(order.location_id);
+            if (!citadelStore.has(order.location_id)) {
               citadelStore.add(order.location_id);
+              addCitadel(order.location_id);
             }
           } else {
-            if (!existingLocations.has(order.location_id)) {
-              locationIDS.add(order.location_id);
-            }
+            addLocation(order.location_id);
           }
-          if (!existingLocations.has(order.region_id)) {
-            locationIDS.add(order.region_id);
-          }
-        });
-        userHistOrders.forEach((order) => {
-          if (order.location_id.toString().length > 10) {
-            if (
-              !existingLocations.has(order.location_id) &&
-              !citadelStore.has(order.location_id)
-            ) {
-              citadelIDs.add(order.location_id);
-              citadelStore.add(order.location_id);
-            }
-          } else {
-            if (!existingLocations.has(order.location_id)) {
-              locationIDS.add(order.location_id);
-            }
-          }
-          if (!existingLocations.has(order.region_id)) {
-            locationIDS.add(order.region_id);
-          }
-        });
-        corpJobs.forEach((job) => {
-          if (job.facility_id.toString().length > 10) {
-            if (
-              !existingLocations.has(job.facility_id) &&
-              !citadelStore.has(job.facility_id)
-            ) {
-              citadelIDs.add(job.facility_id);
-              citadelStore.add(job.facility_id);
-            }
-          } else {
-            if (!existingLocations.has(job.facility_id)) {
-              locationIDS.add(job.facility_id);
-            }
-          }
+          addLocation(order.region_id);
         });
 
         if ([...citadelIDs].length > 0) {
@@ -204,26 +188,17 @@ export function RefreshApiIcon() {
       });
 
       newAPIArray.sort((a, b) => {
-        let aName = searchData.find(
-          (i) =>
-            i.itemID === a.product_type_id ||
-            i.blueprintID === a.blueprint_type_id
-        );
-        let bName = searchData.find(
-          (i) =>
-            i.itemID === b.product_type_id ||
-            i.blueprintID === b.blueprint_type_id
-        );
-        if (aName === undefined || bName === undefined) {
-          return -1;
-        }
-        if (aName.name < bName.name) {
-          return -1;
-        }
-        if (aName.name > bName.name) {
-          return 1;
-        }
-        return 0;
+        const getItemName = (itemId, blueprintId) => {
+          const item = searchData.find(
+            (i) => i.itemID === itemId || i.blueprintID === blueprintId
+          );
+          return item ? item.name : "";
+        };
+
+        const aName = getItemName(a.product_type_id, a.blueprint_type_id);
+        const bName = getItemName(b.product_type_id, b.blueprint_type_id);
+
+        return aName.localeCompare(bName);
       });
 
       updateEveIDs((prev) => prev.concat(newNameArray));
@@ -242,6 +217,10 @@ export function RefreshApiIcon() {
       refreshAPIData();
     }
   }, [refreshTrigger]);
+
+  if (!loginInProgressComplete) {
+    return null
+  }
 
   if (refreshState === 1) {
     return (

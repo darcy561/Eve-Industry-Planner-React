@@ -1,4 +1,12 @@
-import { Button, Grid, IconButton, Paper, Typography } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  Grid,
+  IconButton,
+  Paper,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useContext } from "react";
 import {
   IsLoggedInContext,
@@ -11,18 +19,20 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { useMarketOrderFunctions } from "../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
+import { CorpEsiDataContext } from "../../../../../Context/EveDataContext";
 
-export function AvailableTransactionData({
-  setJobModified,
-  activeOrder,
-  transactionData,
-}) {
+export function AvailableTransactionData({ setJobModified, activeOrder }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { linkedTransIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
+  const { esiCorpData } = useContext(CorpEsiDataContext);
+  const { buildTransactionData } = useMarketOrderFunctions();
   const analytics = getAnalytics();
+
+  const transactionData = buildTransactionData();
 
   return (
     <Paper
@@ -57,6 +67,12 @@ export function AvailableTransactionData({
         >
           {transactionData.length !== 0 ? (
             transactionData.map((tData) => {
+              const charData = users.find(
+                (i) => i.CharacterHash === tData.CharacterHash
+              );
+              const corpData = esiCorpData.find(
+                (i) => i.corporation_id === charData?.corporation_id
+              );
               return (
                 <Grid
                   item
@@ -65,9 +81,35 @@ export function AvailableTransactionData({
                   container
                   sx={{ marginBottom: "10px" }}
                 >
+                  <Grid item xs={1}>
+                    <Tooltip
+                      title={
+                        tData.is_corp ? corpData.name : charData.CharacterName
+                      }
+                      arrow
+                      placement="right"
+                    >
+                      <Avatar
+                        src={
+                          tData.is_corp
+                            ? corpData !== undefined
+                              ? `https://images.evetech.net/corporations/${corpData.corporation_id}/logo`
+                              : ""
+                            : charData !== undefined
+                            ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
+                            : ""
+                        }
+                        variant="circular"
+                        sx={{
+                          height: "32px",
+                          width: "32px",
+                        }}
+                      />
+                    </Tooltip>
+                  </Grid>
                   <Grid
                     item
-                    xs={6}
+                    xs={11}
                     md={1}
                     align="center"
                     sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
@@ -78,7 +120,7 @@ export function AvailableTransactionData({
                       {new Date(tData.date).toLocaleString()}
                     </Typography>
                   </Grid>
-                  <Grid item xs={6} md={2} align="center">
+                  <Grid item xs={12} md={2} align="center">
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >
@@ -98,16 +140,15 @@ export function AvailableTransactionData({
                       {tData.quantity.toLocaleString(undefined, {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0,
-                      })}
-                      {""}@{" "}
+                      })}{" "}
+                      @{" "}
                       {tData.unit_price.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}{" "}
-                      ISK Each
                     </Typography>
                   </Grid>
-                  <Grid item xs={6} md={2} align="center">
+                  <Grid item xs={12} sm={6} md={3} align="center">
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >
@@ -115,10 +156,15 @@ export function AvailableTransactionData({
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}{" "}
-                      ISK
                     </Typography>
                   </Grid>
-                  <Grid item xs={6} md={2} align="center">
+                  <Grid
+                    item
+                    sm={6}
+                    md={2}
+                    align="center"
+                    sx={{ display: { xs: "none", sm: "block" } }}
+                  >
                     <Typography
                       sx={{ typography: { xs: "caption", sm: "body2" } }}
                     >
@@ -127,7 +173,6 @@ export function AvailableTransactionData({
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}{" "}
-                      ISK
                     </Typography>
                   </Grid>
                   <Grid item xs={12} md={1} align="center">

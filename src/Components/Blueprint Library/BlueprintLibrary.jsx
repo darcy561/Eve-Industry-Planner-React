@@ -4,11 +4,15 @@ import { UsersContext } from "../../Context/AuthContext";
 import { ESIOffline } from "../offlineNotification";
 import { LibrarySearch } from "./LibrarySearch";
 import { BlueprintGroup } from "./BlueprintGroup";
-import { PersonalESIDataContext } from "../../Context/EveDataContext";
+import {
+  CorpEsiDataContext,
+  PersonalESIDataContext,
+} from "../../Context/EveDataContext";
 
 export default function BlueprintLibrary() {
   const { users } = useContext(UsersContext);
-  const {esiBlueprints} = useContext(PersonalESIDataContext)
+  const { esiBlueprints } = useContext(PersonalESIDataContext);
+  const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
 
   const [pagination, setPagination] = useState({
     count: 0,
@@ -28,23 +32,24 @@ export default function BlueprintLibrary() {
   });
 
   useEffect(() => {
-    let tempArray = [];
-    let idArray = new Set();
-    for (let entry of esiBlueprints) {
-      entry.blueprints.forEach((bp) => {
-        bp.owner = entry.user
-        tempArray.push(bp)
-      })
-    }
-    tempArray.forEach((bp) => {
-      idArray.add(bp.type_id);
-    });
+    const tempArray = [
+      ...esiBlueprints.flatMap((entry) => entry.data),
+      ...corpEsiBlueprints.flatMap((entry) => entry.data),
+    ];
+    const idArray = [...new Set(tempArray.map((bp) => bp.type_id))];
+
+    tempArray.sort(
+      (a, b) =>
+        a.quantity.toString().localeCompare(b.quantity.toString()) ||
+        b.material_efficiency - a.material_efficiency ||
+        b.time_efficiency - a.time_efficiency
+    );
 
     updateBlueprintData({
       ids: [...idArray],
       blueprints: tempArray,
     });
-  }, [users]);
+  }, [esiBlueprints, corpEsiBlueprints]);
 
   useEffect(() => {
     let returnIDs = blueprintData.ids.slice(pagination.from, pagination.to);

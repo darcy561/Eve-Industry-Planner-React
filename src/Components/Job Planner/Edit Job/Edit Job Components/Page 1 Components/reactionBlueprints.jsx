@@ -1,54 +1,124 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   ActiveJobContext,
   ApiJobsContext,
 } from "../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { Avatar, Badge, Grid, Paper, Typography } from "@mui/material";
-import { PersonalESIDataContext } from "../../../../../Context/EveDataContext";
+import {
+  CorpEsiDataContext,
+  PersonalESIDataContext,
+} from "../../../../../Context/EveDataContext";
 
 export function ReactionBlueprints() {
   const { activeJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
+  const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
+  const [blueprintOptions, updateBlueprintOptions] = useState([]);
+  const [esiJobSelection, updateESIJobSelection] = useState([]);
 
-  let blueprintOptions = [];
-  let esiJobSelection = apiJobs.filter(
-    (i) => i.blueprint_type_id === activeJob.blueprintTypeID
-  );
-  users.forEach((user) => {
-    let inUseCount = 0;
-    let totalBP = 0;
-    let userData = esiBlueprints.find((i)=> i.user === user.CharacterHash)
-    let temp = userData.blueprints.filter((i) => i.type_id === activeJob.blueprintTypeID);
-    temp.forEach((i) => {
-      i.owner_id = user.CharacterID;
-      if (
-        esiJobSelection.some(
-          (job) => job.blueprint_id === i.item_id && job.status === "active"
-        )
-      ) {
-        inUseCount++;
+  useEffect(() => {
+    const userBlueprints = [];
+    const corpBlueprints = [];
+
+    // Process user blueprints
+    users.forEach((user) => {
+      const userData = esiBlueprints.find(
+        (i) => i.user === user.CharacterHash
+      )?.data;
+      if (userData) {
+        const temp = userData.filter(
+          (i) => i.type_id === activeJob.blueprintTypeID
+        );
+        temp.forEach((i) => {
+          i.owner_id = user.CharacterID;
+        });
+        userBlueprints.push({
+          ownerID: user.CharacterID,
+          blueprints: temp,
+          totalBP: temp.reduce(
+            (total, i) => (i.quantity > 0 ? total + i.quantity : total + 1),
+            0
+          ),
+          inUse: esiJobSelection.filter(
+            (job) =>
+              temp.some((i) => i.item_id === job.blueprint_id) &&
+              job.status === "active"
+          ).length,
+          isCorp: false,
+        });
       }
-      if (i.quantity > 0) {
-        totalBP += i.quantity;
+    });
+
+    // Process corporation blueprints
+    corpEsiBlueprints.forEach((corpBlueprint) => {
+      const existingCorp = corpBlueprints.find(
+        (corp) => corp.corporation_id === corp.corporation_id
+      );
+      if (existingCorp) {
+        existingCorp.blueprints = [
+          ...existingCorp.blueprints,
+          ...corpBlueprint.data.filter(
+            (i) => i.type_id === activeJob.blueprintTypeID
+          ),
+        ];
+        existingCorp.totalBP +
+          existingCorp.blueprints.reduce(
+            (total, i) => (i.quantity > 0 ? total + i.quantity : total + 1),
+            0
+          );
+        existingCorp.inUse += esiJobSelection.filter(
+          (job) =>
+            corpBlueprint.data.some((i) => i.item_id === job.blueprint_id) &&
+            job.status === "active"
+        ).length;
       } else {
-        totalBP++;
+        const temp = corpBlueprint.data.filter(
+          (i) => i.type_id === activeJob.blueprintTypeID
+        );
+
+        corpBlueprints.push({
+          corporation_id: temp[0]?.corporation_id,
+          blueprints: temp,
+          totalBP: temp.reduce(
+            (total, i) => (i.quantity >= 0 ? total + i.quantity : total + 1),
+            0
+          ),
+          inUse: esiJobSelection.filter(
+            (job) =>
+              temp.some((i) => i.item_id === job.blueprint_id) &&
+              job.status === "active"
+          ).length,
+          isCorp: true,
+        });
       }
     });
-    blueprintOptions.push({
-      owner: user.CharacterID,
-      blueprints: temp,
-      totalBP: totalBP,
-      inUse: inUseCount,
-    });
-  });
-  blueprintOptions.sort(
-    (a, b) =>
-      b.material_efficiency - a.material_efficiency ||
-      b.time_efficiency - a.time_efficiency
-  );
+
+    // Combine and sort blueprints
+    const combinedBlueprints = [...userBlueprints, ...corpBlueprints];
+    const filteredBlueprints = combinedBlueprints.filter(
+      (i) => i.blueprints.length > 0
+    );
+
+    filteredBlueprints.sort(
+      (a, b) =>
+        b.blueprints[0].material_efficiency -
+          a.blueprints[0].material_efficiency ||
+        b.blueprints[0].time_efficiency - a.blueprints[0].time_efficiency
+    );
+
+    updateBlueprintOptions(filteredBlueprints);
+  }, [esiBlueprints, corpEsiBlueprints, esiJobSelection]);
+
+  useEffect(() => {
+    const selection = apiJobs.filter(
+      (i) => i.blueprint_type_id === activeJob.blueprintTypeID
+    );
+
+    updateESIJobSelection(selection);
+  }, [apiJobs]);
 
   return (
     <Paper
@@ -70,7 +140,14 @@ export function ReactionBlueprints() {
             {blueprintOptions.map((charBP) => {
               if (charBP.blueprints.length > 0) {
                 return (
-                  <Grid key={charBP.owner} container item xs={6} sm={6} md={12}>
+                  <Grid
+                    key={charBP.isCorp ? charBP.corporation_id : charBP.ownerID}
+                    container
+                    item
+                    xs={6}
+                    sm={6}
+                    md={12}
+                  >
                     <Grid
                       container
                       justifyContent="center"
@@ -88,11 +165,15 @@ export function ReactionBlueprints() {
                         anchorOrigin={{ vertical: "top", horizontal: "right" }}
                         badgeContent={
                           <Avatar
-                            src={`https://images.evetech.net/characters/${charBP.owner}/portrait`}
+                            src={
+                              charBP.isCorp
+                                ? `https://images.evetech.net/corporations/${charBP.corporation_id}/logo`
+                                : `https://images.evetech.net/characters/${charBP.ownerID}/portrait`
+                            }
                             variant="circular"
                             sx={{
-                              height: "18px",
-                              width: "18px",
+                              height: "24px",
+                              width: "24px",
                             }}
                           />
                         }

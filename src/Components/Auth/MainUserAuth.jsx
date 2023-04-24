@@ -1,23 +1,24 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { UserJobSnapshotContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useNavigate } from "react-router";
 import { decodeJwt } from "jose";
 import { firebaseAuth } from "./firebaseAuth";
-import { useEveApi } from "../../Hooks/useEveApi";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { JobArrayContext } from "../../Context/JobContext";
 import { trace } from "@firebase/performance";
 import { functions, performance } from "../../firebase";
 import {
   PageLoadContext,
-  LoadingTextContext,
   DialogDataContext,
+  UserLoginUIContext,
 } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { httpsCallable } from "firebase/functions";
+import { UserLogInUI } from "./LoginUI/LoginUI";
+import { Buffer } from "buffer";
 
 export function login() {
   const state = "/";
@@ -31,25 +32,23 @@ export function login() {
 export default function AuthMainUser() {
   const { updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { serverStatus } = useEveApi();
   const { updatePageLoad } = useContext(PageLoadContext);
-  const { updateLoadingText } = useContext(LoadingTextContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateDialogData } = useContext(DialogDataContext);
+  const { updateUserUIData, updateLoginInProgressComplete } =
+    useContext(UserLoginUIContext);
   const {
-    characterData,
     determineUserState,
     userJobSnapshotListener,
     userWatchlistListener,
     userMaindDocListener,
     userGroupDataListener,
   } = useFirebase();
-  const { characterAPICall,getCharacterInfo } = useAccountManagement();
+  const { getCharacterInfo } = useAccountManagement();
   const checkAppVersion = httpsCallable(
     functions,
     "appVersion-checkAppVersion"
   );
-  const navigate = useNavigate();
   const analytics = getAnalytics();
 
   useEffect(() => {
@@ -57,13 +56,7 @@ export default function AuthMainUser() {
       const t = trace(performance, "MainUserLoginProcessFull");
       t.start();
       const authCode = window.location.search.match(/code=(\S*)&/)[1];
-      const returnState = decodeURIComponent(
-        window.location.search.match(/state=(\S*)/)[1]
-      );
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        eveSSO: true,
-      }));
+      updateLoginInProgressComplete(false);
 
       let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
       if (!appVersion.data) {
@@ -83,30 +76,25 @@ export default function AuthMainUser() {
       let userObject = await EveSSOTokens(authCode, true);
       let fbToken = await firebaseAuth(userObject);
       await getCharacterInfo(userObject);
-
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        eveSSOComp: true,
-        charData: true,
+      updateUserUIData((prev) => ({
+        ...prev,
+        eveLoginComplete: true,
+        userArray: [
+          {
+            CharacterID: userObject.CharacterID,
+            CharacterName: userObject.CharacterName,
+          },
+        ],
+        returnState: decodeURIComponent(
+          window.location.search.match(/state=(\S*)/)[1]
+        ),
       }));
-
       await determineUserState(fbToken);
 
       userMaindDocListener(fbToken, userObject);
       userJobSnapshotListener(userObject);
       userWatchlistListener(fbToken, userObject);
       userGroupDataListener(userObject);
-
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        charDataComp: true,
-        apiData: true,
-      }));
-
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        apiDataComp: true,
-      }));
 
       updateJobArray([]);
       updateIsLoggedIn(true);
@@ -115,16 +103,6 @@ export default function AuthMainUser() {
         UID: fbToken.user.uid,
       });
       t.stop();
-      updateLoadingText((prevObj) => ({
-        ...prevObj,
-        eveSSO: false,
-        eveSSOComp: false,
-        charData: false,
-        charDataComp: false,
-        apiData: false,
-        apiDataComp: false,
-      }));
-      navigate(returnState);
     }
     async function importAccount() {
       const authCode = window.location.search.match(/code=(\S*)&/)[1];
@@ -140,22 +118,23 @@ export default function AuthMainUser() {
     }
   }, []);
 
-  return <LoadingPage />;
+  return <UserLogInUI />;
 }
 
 async function EveSSOTokens(authCode, accountType) {
   try {
+    const buffer = Buffer.from(
+      `${import.meta.env.VITE_eveClientID}:${import.meta.env.VITE_eveSecretKey}`
+    );
+    const authHeader = `Basic ${buffer.toString("base64")}`;
+
     const eveTokenPromise = await fetch(
       "https://login.eveonline.com/v2/oauth/token",
       {
         method: "POST",
         headers: {
-          Authorization: `Basic ${btoa(
-            `${import.meta.env.VITE_eveClientID}:${
-              import.meta.env.VITE_eveSecretKey
-            }`
-          )}`,
-          "Content-Type": "application / x-www-form-urlencoded",
+          Authorization: authHeader,
+          "Content-Type": "application/x-www-form-urlencoded",
           Host: "login.eveonline.com",
           "Access-Control-Allow-Origin": "*",
         },

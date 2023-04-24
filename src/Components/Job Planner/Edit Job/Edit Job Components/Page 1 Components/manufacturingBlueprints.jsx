@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   ActiveJobContext,
   ApiJobsContext,
@@ -7,7 +7,10 @@ import { UsersContext } from "../../../../../Context/AuthContext";
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
-import { PersonalESIDataContext } from "../../../../../Context/EveDataContext";
+import {
+  CorpEsiDataContext,
+  PersonalESIDataContext,
+} from "../../../../../Context/EveDataContext";
 
 const useStyles = makeStyles((theme) => ({
   inUse: {
@@ -25,28 +28,46 @@ export function ManufacturingBlueprints({ setJobModified }) {
   const { apiJobs } = useContext(ApiJobsContext);
   const { users } = useContext(UsersContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
+  const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
+  const [blueprintOptions, updateBlueprintOptions] = useState([]);
+  const [esiJobSelection, updateESIJobSelection] = useState([]);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const classes = useStyles();
 
-  let blueprintOptions = [];
-  let esiJobSelection = apiJobs.filter(
-    (i) => i.blueprint_type_id === activeJob.blueprintTypeID
-  );
-  users.forEach((user) => {
-    let userData = esiBlueprints.find((i)=> i.user === user.CharacterHash)
-    let temp = userData.blueprints.filter(
+  useEffect(() => {
+    const combinedBlueprints = [
+      ...esiBlueprints.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiBlueprints.flatMap((entry) => entry?.data ?? []),
+    ];
+
+    let filteredBlueprints = combinedBlueprints.filter(
       (i) => i.type_id === activeJob.blueprintTypeID
     );
-    temp.forEach((i) => {
-      i.owner_id = user.CharacterID;
-      blueprintOptions.push(i);
+
+    const uniqueBlueprintIds = new Set();
+    filteredBlueprints = filteredBlueprints.filter((item) => {
+      if (uniqueBlueprintIds.has(item.item_id)) {
+        return false;
+      }
+      uniqueBlueprintIds.add(item.item_id);
+      return true;
     });
-  });
-  blueprintOptions.sort(
-    (a, b) =>
-      b.material_efficiency - a.material_efficiency ||
-      b.time_efficiency - a.time_efficiency
-  );
+
+    filteredBlueprints.sort(
+      (a, b) =>
+        a.quantity.toString().localeCompare(b.quantity.toString()) ||
+        b.material_efficiency - a.material_efficiency ||
+        b.time_efficiency - a.time_efficiency
+    );
+    updateBlueprintOptions(filteredBlueprints);
+  }, [esiBlueprints, corpEsiBlueprints]);
+
+  useEffect(() => {
+    const selection = apiJobs.filter(
+      (i) => i.blueprint_type_id === activeJob.blueprintTypeID
+    );
+    updateESIJobSelection(selection);
+  }, [apiJobs]);
 
   return (
     <Paper
@@ -73,12 +94,16 @@ export function ManufacturingBlueprints({ setJobModified }) {
               sx={{
                 maxHeight: { xs: "370px", sm: "220px", md: "370px" },
                 overflowY: "auto",
+
               }}
             >
               {blueprintOptions.map((print) => {
-                let esiJob = esiJobSelection.find(
+                const esiJob = esiJobSelection.find(
                   (i) =>
                     i.blueprint_id === print.item_id && i.status === "active"
+                );
+                const blueprintOwner = users.find(
+                  (i) => i.CharacterHash === print.CharacterHash
                 );
                 if (print.quantity === -2) {
                   return (
@@ -146,7 +171,11 @@ export function ManufacturingBlueprints({ setJobModified }) {
                             }}
                             badgeContent={
                               <Avatar
-                                src={`https://images.evetech.net/characters/${print.owner_id}/portrait`}
+                                src={
+                                  print.isCorp
+                                    ? `https://images.evetech.net/corporations/${print.corporation_id}/logo`
+                                    : `https://images.evetech.net/characters/${blueprintOwner.CharacterID}/portrait`
+                                }
                                 variant="circular"
                                 sx={{
                                   height: "18px",
@@ -298,7 +327,11 @@ export function ManufacturingBlueprints({ setJobModified }) {
                             }}
                             badgeContent={
                               <Avatar
-                                src={`https://images.evetech.net/characters/${print.owner_id}/portrait`}
+                                src={
+                                  print.isCorp
+                                    ? `https://images.evetech.net/corporations/${print.corporation_id}/logo`
+                                    : `https://images.evetech.net/characters/${blueprintOwner.CharacterID}/portrait`
+                                }
                                 variant="circular"
                                 sx={{
                                   height: "18px",

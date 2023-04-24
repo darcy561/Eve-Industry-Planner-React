@@ -15,10 +15,12 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { UserIcon } from "./Components/UserIcon";
 import { RefreshApiIcon } from "./Components/refreshIcon";
+import { UserLoginUIContext } from "../../Context/LayoutContext";
 
 export function Header({ mode, colorMode }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const [open, setOpen] = useState(false);
+  const { loginInProgressComplete } = useContext(UserLoginUIContext);
 
   return (
     <>
@@ -91,7 +93,7 @@ export function Header({ mode, colorMode }) {
             </Tooltip>
           )}
 
-          {isLoggedIn ? (
+          {isLoggedIn && loginInProgressComplete ? (
             <>
               <RefreshApiIcon />
               <UserIcon />

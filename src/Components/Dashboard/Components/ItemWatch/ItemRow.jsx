@@ -9,17 +9,27 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ClearIcon from "@mui/icons-material/Clear";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { UserWatchlistContext } from "../../../../Context/AuthContext";
+import {
+  UserJobSnapshotContext,
+  UserWatchlistContext,
+} from "../../../../Context/AuthContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { ExpandedWatchlistRow } from "./ItemRowExpanded";
 import { makeStyles } from "@mui/styles";
+import AddIcon from "@mui/icons-material/Add";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { useJobBuild } from "../../../../Hooks/useJobBuild";
+import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import { JobArrayContext } from "../../../../Context/JobContext";
+import { trace } from "firebase/performance";
+import { performance } from "../../../../firebase";
 
 const useStyles = makeStyles((theme) => ({
   Select: {
@@ -37,11 +47,23 @@ export function WatchListRow({ item, parentUser, index }) {
   const [expanded, setExpanded] = useState(false);
   const { userWatchlist, updateUserWatchlist } =
     useContext(UserWatchlistContext);
-  const { evePrices } = useContext(EvePricesContext);
-  const { uploadUserWatchlist } = useFirebase();
+  const { updateJobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
+  const { evePrices, updateEvePrices } = useContext(EvePricesContext);
+  const {
+    addNewJob,
+    getItemPrices,
+    uploadUserJobSnapshot,
+    uploadUserWatchlist,
+  } = useFirebase();
+  const { checkAllowBuild, buildJob } = useJobBuild();
+  const { generatePriceRequestFromJob, newJobSnapshot } = useJobManagement();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const analytics = getAnalytics();
   const classes = useStyles();
+  const t = trace(performance, "CreateJobProcessFull");
 
   const handleRemove = async () => {
     let newUserWatchlistItems = [...userWatchlist.items];
@@ -60,13 +82,80 @@ export function WatchListRow({ item, parentUser, index }) {
     }));
   };
 
-  let mainItemPrice = evePrices.find((i) => i.typeID === item.typeID);
+  const handleAdd = async () => {
+    t.start();
+    if (!checkAllowBuild) return;
 
-  let calculatedCosts = useMemo(() => {
+    let newJob = await buildJob({
+      itemID: item.typeID,
+    });
+
+    if (newJob === undefined) return;
+
+    let promiseArray = [
+      getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
+    ];
+
+    let newUserJobSnapshot = newJobSnapshot(newJob, [...userJobSnapshot]);
+
+    addNewJob(newJob);
+    uploadUserJobSnapshot(newUserJobSnapshot);
+    logEvent(analytics, "New Job", {
+      loggedIn: true,
+      UID: parentUser.accountID,
+      name: newJob.name,
+      itemID: newJob.itemID,
+    });
+
+    let returnPromiseArray = await Promise.all(promiseArray);
+
+    updateUserJobSnapshot(newUserJobSnapshot);
+    updateEvePrices((prev) => {
+      let newEvePrices = returnPromiseArray[0].filter(
+        (n) => !prev.some((p) => p.typeID === n.typeID)
+      );
+      return prev.concat(newEvePrices);
+    });
+    updateJobArray((prev) => [...prev, newJob]);
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `${newJob.name} Added`,
+      severity: "success",
+      autoHideDuration: 3000,
+    }));
+    t.stop();
+  };
+
+  let buildCosts = useCallback(() => {
     let totalPurchase = 0;
     let totalBuild = 0;
+    let missingItemCost = {
+      jita: {
+        buy: 0,
+        sell: 0,
+      },
+      amarr: {
+        buy: 0,
+        sell: 0,
+      },
+      dodixie: {
+        buy: 0,
+        sell: 0,
+      },
+    };
+    let mainItemPrice = evePrices.find((i) => i.typeID === item.typeID);
+    if (mainItemPrice === undefined) {
+      mainItemPrice = missingItemCost;
+    }
+
     item.materials.forEach((mat) => {
       let itemPrice = evePrices.find((i) => i.typeID === mat.typeID);
+
+      if (itemPrice === undefined) {
+        itemPrice = missingItemCost;
+      }
+
       totalPurchase +=
         (itemPrice[parentUser.settings.editJob.defaultMarket][
           parentUser.settings.editJob.defaultOrders
@@ -93,8 +182,14 @@ export function WatchListRow({ item, parentUser, index }) {
     });
 
     totalBuild = totalBuild / item.quantity;
-    return { totalBuild: totalBuild, totalPurchase: totalPurchase };
+    return {
+      totalBuild: totalBuild,
+      totalPurchase: totalPurchase,
+      mainItemPrice: mainItemPrice,
+    };
   }, [evePrices]);
+
+  const calculatedCosts = buildCosts();
 
   return (
     <Grid container item xs={12}>
@@ -141,8 +236,9 @@ export function WatchListRow({ item, parentUser, index }) {
             lg={2}
             sx={{
               color:
-                mainItemPrice[parentUser.settings.editJob.defaultMarket]
-                  .sell !== 0
+                calculatedCosts.mainItemPrice[
+                  parentUser.settings.editJob.defaultMarket
+                ].sell !== 0
                   ? "none"
                   : "success.main",
               marginBottom: { xs: "5px", sm: "0px" },
@@ -151,7 +247,7 @@ export function WatchListRow({ item, parentUser, index }) {
             alignItems="center"
           >
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-              {mainItemPrice[
+              {calculatedCosts.mainItemPrice[
                 parentUser.settings.editJob.defaultMarket
               ].sell.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
@@ -178,8 +274,9 @@ export function WatchListRow({ item, parentUser, index }) {
                   typography: { xs: "caption", sm: "body2" },
                   color:
                     calculatedCosts.totalPurchase <
-                    mainItemPrice[parentUser.settings.editJob.defaultMarket]
-                      .sell
+                    calculatedCosts.mainItemPrice[
+                      parentUser.settings.editJob.defaultMarket
+                    ].sell
                       ? calculatedCosts.totalBuild <
                         calculatedCosts.totalPurchase
                         ? "orange"
@@ -203,8 +300,9 @@ export function WatchListRow({ item, parentUser, index }) {
               <Tooltip
                 title={(
                   ((calculatedCosts.totalPurchase -
-                    mainItemPrice[parentUser.settings.editJob.defaultMarket]
-                      .sell) /
+                    calculatedCosts.mainItemPrice[
+                      parentUser.settings.editJob.defaultMarket
+                    ].sell) /
                     calculatedCosts.totalPurchase) *
                   100
                 ).toLocaleString(undefined, {
@@ -219,8 +317,9 @@ export function WatchListRow({ item, parentUser, index }) {
                     typography: "caption",
                     color:
                       calculatedCosts.totalPurchase <
-                      mainItemPrice[parentUser.settings.editJob.defaultMarket]
-                        .sell
+                      calculatedCosts.mainItemPrice[
+                        parentUser.settings.editJob.defaultMarket
+                      ].sell
                         ? calculatedCosts.totalBuild <
                           calculatedCosts.totalPurchase
                           ? "orange"
@@ -230,8 +329,9 @@ export function WatchListRow({ item, parentUser, index }) {
                 >
                   {(
                     ((calculatedCosts.totalPurchase -
-                      mainItemPrice[parentUser.settings.editJob.defaultMarket]
-                        .sell) /
+                      calculatedCosts.mainItemPrice[
+                        parentUser.settings.editJob.defaultMarket
+                      ].sell) /
                       calculatedCosts.totalPurchase) *
                     100
                   ).toLocaleString(undefined, {
@@ -284,8 +384,9 @@ export function WatchListRow({ item, parentUser, index }) {
                       typography: { xs: "caption", sm: "body2" },
                       color:
                         calculatedCosts.totalBuild <
-                        mainItemPrice[parentUser.settings.editJob.defaultMarket]
-                          .sell
+                        calculatedCosts.mainItemPrice[
+                          parentUser.settings.editJob.defaultMarket
+                        ].sell
                           ? calculatedCosts.totalBuild >
                             calculatedCosts.totalPurchase
                             ? "orange"
@@ -309,8 +410,9 @@ export function WatchListRow({ item, parentUser, index }) {
                   <Tooltip
                     title={(
                       ((calculatedCosts.totalBuild -
-                        mainItemPrice[parentUser.settings.editJob.defaultMarket]
-                          .sell) /
+                        calculatedCosts.mainItemPrice[
+                          parentUser.settings.editJob.defaultMarket
+                        ].sell) /
                         calculatedCosts.totalBuild) *
                       100
                     ).toLocaleString(undefined, {
@@ -326,7 +428,7 @@ export function WatchListRow({ item, parentUser, index }) {
                         typography: { xs: "caption", sm: "body2" },
                         color:
                           calculatedCosts.totalBuild <
-                          mainItemPrice[
+                          calculatedCosts.mainItemPrice[
                             parentUser.settings.editJob.defaultMarket
                           ].sell
                             ? calculatedCosts.totalBuild >
@@ -338,7 +440,7 @@ export function WatchListRow({ item, parentUser, index }) {
                     >
                       {(
                         ((calculatedCosts.totalBuild -
-                          mainItemPrice[
+                          calculatedCosts.mainItemPrice[
                             parentUser.settings.editJob.defaultMarket
                           ].sell) /
                           calculatedCosts.totalBuild) *
@@ -408,44 +510,52 @@ export function WatchListRow({ item, parentUser, index }) {
                   );
                 })}
               </Grid>
-              <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                <FormControl
-                  className={classes.Select}
-                  sx={{
-                    width: "140px",
-                  }}
-                >
-                  <Select
-                    variant="standard"
-                    size="small"
-                    value={item.group}
-                    onChange={(e) => {
-                      let newUserWatchlistItems = [...userWatchlist.items];
+              <Grid container item xs={12} sx={{ marginTop: "10px" }}>
+                <Grid item xs={2}>
+                  <FormControl fullWidth className={classes.Select}>
+                    <Select
+                      variant="standard"
+                      size="small"
+                      value={item.group}
+                      onChange={(e) => {
+                        let newUserWatchlistItems = [...userWatchlist.items];
 
-                      newUserWatchlistItems[index].group = e.target.value;
-                      updateUserWatchlist((prev) => ({
-                        ...prev,
-                        items: newUserWatchlistItems,
-                      }));
-                      uploadUserWatchlist(
-                        userWatchlist.groups,
-                        newUserWatchlistItems
-                      );
-                    }}
+                        newUserWatchlistItems[index].group = e.target.value;
+                        updateUserWatchlist((prev) => ({
+                          ...prev,
+                          items: newUserWatchlistItems,
+                        }));
+                        uploadUserWatchlist(
+                          userWatchlist.groups,
+                          newUserWatchlistItems
+                        );
+                      }}
+                    >
+                      <MenuItem value={0}>None</MenuItem>
+                      {userWatchlist.groups.map((entry) => {
+                        return (
+                          <MenuItem key={entry.id} value={entry.id}>
+                            {entry.name}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                    <FormHelperText variant="standard">
+                      Watchlist Group
+                    </FormHelperText>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
+                  <Tooltip
+                    title="Create a new job on the Job Planner."
+                    arrow
+                    placement="bottom"
                   >
-                    <MenuItem value={0}>None</MenuItem>
-                    {userWatchlist.groups.map((entry) => {
-                      return (
-                        <MenuItem key={entry.id} value={entry.id}>
-                          {entry.name}
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                  <FormHelperText variant="standard">
-                    Watchlist Group
-                  </FormHelperText>
-                </FormControl>
+                    <IconButton color="primary" onClick={handleAdd}>
+                      <AddIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
               </Grid>
               <Grid item align="center" xs={12} sx={{ marginTop: "5px" }}>
                 <Tooltip title="Less Information" arrow placement="bottom">

@@ -23,21 +23,35 @@ exports.scheduledfunction = functions
     for (let doc of snapshotArray) {
       let job = doc.data();
 
-      let transactionFeeTotal = 0;
-      let totalSale = 0;
-      let averageQuantity = 0;
-      let brokersFeesTotal = 0;
-
-      job.build.sale.brokersFee.forEach(
-        (item) => (brokersFeesTotal += item.amount)
+      const brokersFeesTotal = job.build.sale.brokersFee.reduce(
+        (total, item) => total + item.amount,
+        0
       );
-      job.build.sale.transactions.forEach((item) => {
-        transactionFeeTotal += item.tax;
-        totalSale += item.amount;
-        averageQuantity += item.quantity;
-      });
+      const { transactionFeeTotal, totalSale, averageQuantity } =
+        job.build.sale.transactions.reduce(
+          (totals, item) => ({
+            transactionFeeTotal: totals.transactionFeeTotal + item.tax,
+            totalSale: totals.totalSale + item.amount,
+            averageQuantity: totals.averageQuantity + item.quantity,
+          }),
+          { transactionFeeTotal: 0, totalSale: 0, averageQuantity: 0 }
+        );
+      const totalProduced = job.build.products.totalQuantity;
+      const totalMaterialCost = job.build.costs.totalPurchaseCost;
+      const materialCostPerItem = totalMaterialCost / totalProduced;
+      const totalInventionCost = job.build.costs.inventionCosts || 0;
+      const totalInstallCost = job.build.costs.installCosts;
+      const totalExtras = job.build.costs.extrasTotal;
+      const totalBuildCosts =
+        totalMaterialCost + totalInstallCost + totalExtras;
+      const totalJobCost =
+        totalBuildCosts + brokersFeesTotal + transactionFeeTotal;
+      const totalCostPerItem =
+        Math.round((totalJobCost / totalProduced + Number.EPSILON) * 100) / 100;
+      const totalSales = totalSale;
+      const profitLoss = totalSale > 0 ? totalSale - totalJobCost : 0;
 
-      let archiveObject = {
+      const archiveObject = {
         typeID: job.itemID,
         jobID: job.jobID,
         jobType: job.jobType,
@@ -46,58 +60,21 @@ exports.scheduledfunction = functions
         bpTE: job.bpTE,
         runs: job.runCount,
         jobs: job.jobCount,
-        childJob:
-          job.parentJob !== undefined && job.parentJob !== null
-            ? job.parentJob.length > 0
-              ? true
-              : false
-            : false,
-        totalProduced: job.build.products.totalQuantity,
-        totalMaterialCost: job.build.costs.totalPurchaseCost,
-        materialCostPerItem:
-          job.build.costs.totalPurchaseCost / job.build.products.totalQuantity,
-        totalInventionCost: job.build.costs.inventionCosts || 0,
-        totalInstallCost: job.build.costs.installCosts,
-        totalExtras: job.build.costs.extrasTotal,
-        totalBuildCosts:
-          job.build.costs.totalPurchaseCost +
-          job.build.costs.installCosts +
-          job.build.costs.extrasTotal,
+        childJob: !!job.parentJob?.length,
+        totalProduced,
+        totalMaterialCost,
+        materialCostPerItem,
+        totalInventionCost,
+        totalInstallCost,
+        totalExtras,
+        totalBuildCosts,
         brokersFeeTotal: brokersFeesTotal,
-        transactionFeeTotal: transactionFeeTotal,
-        totalJobCost:
-          job.build.costs.totalPurchaseCost +
-          job.build.costs.installCosts +
-          job.build.costs.extrasTotal +
-          brokersFeesTotal +
-          transactionFeeTotal,
-        totalCostPerItem:
-          Math.round(
-            ((job.build.costs.totalPurchaseCost +
-              job.build.costs.installCosts +
-              job.build.costs.extrasTotal +
-              brokersFeesTotal +
-              transactionFeeTotal) /
-              job.build.products.totalQuantity +
-              Number.EPSILON) *
-              100
-          ) / 100,
-        totalSales: totalSale,
-        averageSalePrice: !isNaN(
-          Math.round((totalSale / averageQuantity + Number.EPSILON) * 100) / 100
-        )
-          ? Math.round((totalSale / averageQuantity + Number.EPSILON) * 100) /
-            100
-          : 0,
-        profitLoss:
-          totalSale > 0
-            ? totalSale -
-              (job.build.costs.totalPurchaseCost +
-                job.build.costs.installCosts +
-                job.build.costs.extrasTotal +
-                brokersFeesTotal +
-                transactionFeeTotal)
-            : 0,
+        transactionFeeTotal,
+        totalJobCost,
+        totalCostPerItem,
+        totalSales,
+        averageSalePrice,
+        profitLoss,
       };
 
       let dbObject = {

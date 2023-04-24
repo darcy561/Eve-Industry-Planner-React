@@ -1,9 +1,13 @@
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { Grid, Paper, Typography } from "@mui/material";
-import { ActiveJobContext } from "../../../../../Context/JobContext";
+import {
+  ActiveJobContext,
+  JobArrayContext,
+} from "../../../../../Context/JobContext";
 
 export function ProductionStats() {
   const { activeJob } = useContext(ActiveJobContext);
+  const { jobArray } = useContext(JobArrayContext);
 
   function timeDisplay() {
     let returnArray = [];
@@ -27,8 +31,40 @@ export function ProductionStats() {
 
     return returnArray.join(" ");
   }
+  const calculateParentRequirements = useCallback(() => {
+    let returnObject = {
+      parentTotal: 0,
+      multipleChildren: false,
+      childrenTotal: 0,
+    };
+
+    let total = 0;
+    for (let jobID of activeJob.parentJob) {
+      let job = jobArray.find((i) => i.jobID === jobID);
+      if (job === undefined) continue;
+      let material = job.build.materials.find(
+        (i) => i.typeID === activeJob.itemID
+      );
+      if (material === undefined) continue;
+      returnObject.parentTotal += material.quantity;
+
+      let flag = material.childJob.some((i) => i !== activeJob.jobID);
+
+      if (flag) {
+        for (let childID of material.childJob) {
+          if (childID === activeJob.jobID) continue;
+          let childJob = jobArray.find((i) => i.jobID === childID);
+          if (childJob === undefined) continue;
+          returnObject.multipleChildren = true;
+          returnObject.childrenTotal += childJob.build.products.totalQuantity;
+        }
+      }
+    }
+    return returnObject;
+  }, [jobArray]);
 
   let timeDisplayFigure = timeDisplay();
+  let parentRequirements = calculateParentRequirements();
 
   return (
     <Paper
@@ -75,7 +111,16 @@ export function ProductionStats() {
           </Grid>
           <Grid container item xs={12}>
             <Grid item xs={10}>
-              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              <Typography
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+                color={
+                  activeJob.build.products.totalQuantity +
+                    parentRequirements.childrenTotal <
+                  parentRequirements.parentTotal
+                    ? "error.main"
+                    : null
+                }
+              >
                 Total Items Being Produced
               </Typography>
             </Grid>
@@ -84,11 +129,72 @@ export function ProductionStats() {
               <Typography
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
                 align="right"
+                color={
+                  activeJob.build.products.totalQuantity +
+                    parentRequirements.childrenTotal <
+                  parentRequirements.parentTotal
+                    ? "error.main"
+                    : null
+                }
               >
                 {activeJob.build.products.totalQuantity.toLocaleString()}
               </Typography>
             </Grid>
           </Grid>
+          {activeJob.parentJob.length > 0 && activeJob.groupID !== null ? (
+            <>
+              <Grid container item xs={12} sx={{ marginTop: "10px" }}>
+                <Grid item xs={10}>
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    Parent Job(s) Require
+                  </Typography>
+                </Grid>
+                <Grid item xs={2}>
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    align="right"
+                  >
+                    {parentRequirements.parentTotal.toLocaleString()}
+                  </Typography>
+                </Grid>
+              </Grid>
+              {parentRequirements.multipleChildren ? (
+                <Grid container item xs={12} sx={{ marginTop: "5px" }}>
+                  <Grid item xs={10}>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      color={
+                        activeJob.build.products.totalQuantity +
+                          parentRequirements.childrenTotal <
+                        parentRequirements.parentTotal
+                          ? "error.main"
+                          : null
+                      }
+                    >
+                      Parents Other Children Produce
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Typography
+                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      align="right"
+                      color={
+                        activeJob.build.products.totalQuantity +
+                          parentRequirements.childrenTotal <
+                        parentRequirements.parentTotal
+                          ? "error.main"
+                          : null
+                      }
+                    >
+                      {parentRequirements.childrenTotal.toLocaleString()}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              ) : null}
+            </>
+          ) : null}
           <Grid container item xs={12}>
             <Grid item xs={12} sx={{ marginTop: "20px" }}>
               <Typography

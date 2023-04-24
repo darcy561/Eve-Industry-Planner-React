@@ -18,6 +18,10 @@ import {
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../../../../Context/AuthContext";
+import {
+  ActiveJobContext,
+  JobArrayContext,
+} from "../../../../../Context/JobContext";
 
 const useStyles = makeStyles((theme) => ({
   childJobText: {
@@ -37,17 +41,26 @@ function MaterialCard({
     useState(false);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { activeJob } = useContext(ActiveJobContext);
+  const { jobArray } = useContext(JobArrayContext);
   const classes = useStyles();
   let childJobs = [];
   let childJobProductionTotal = 0;
 
   if (material.childJob.length > 0) {
-    childJobs = userJobSnapshot.filter((i) =>
-      material.childJob.includes(i.jobID)
-    );
-    childJobs.forEach((i) => {
-      childJobProductionTotal += i.itemQuantity;
-    });
+    if (activeJob.groupID === null) {
+      childJobs = userJobSnapshot.filter((i) =>
+        material.childJob.includes(i.jobID)
+      );
+      childJobs.forEach((i) => {
+        childJobProductionTotal += i.itemQuantity;
+      });
+    } else {
+      childJobs = jobArray.filter((i) => material.childJob.includes(i.jobID));
+      childJobs.forEach((i) => {
+        childJobProductionTotal += i.build.products.totalQuantity;
+      });
+    }
   }
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>

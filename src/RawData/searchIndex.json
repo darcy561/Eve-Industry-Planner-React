@@ -7638,7 +7638,7 @@
     "jobType": 1
   },
   {
-    "name": "Synthetic Hull Conversion Inertia Stabilizers",
+    "name": "Synthetic Hull Conversion Inertial Stabilizers",
     "itemID": 21498,
     "blueprintID": 21499,
     "jobType": 1
@@ -22698,7 +22698,7 @@
     "jobType": 1
   },
   {
-    "name": "Restrained Interdiction Nullifier",
+    "name": "Enduring Interdiction Nullifier",
     "itemID": 58971,
     "blueprintID": 58974,
     "jobType": 1
@@ -23325,6 +23325,24 @@
     "name": "Catalyst Navy Issue",
     "itemID": 73796,
     "blueprintID": 73972,
+    "jobType": 1
+  },
+  {
+    "name": "Stellar Transmuter Datacore",
+    "itemID": 76203,
+    "blueprintID": 76205,
+    "jobType": 1
+  },
+  {
+    "name": "Transport Relay Datacore",
+    "itemID": 76204,
+    "blueprintID": 76206,
+    "jobType": 1
+  },
+  {
+    "name": "Mutadaptive Construction Component",
+    "itemID": 76375,
+    "blueprintID": 76376,
     "jobType": 1
   }
 ]

@@ -1,5 +1,6 @@
 export let jobArrayDefault = [
   {
+    groupID: null,
     buildVer: "0.6.0",
     jobType: 1,
     name: "Nova Light Missile",
@@ -133,6 +134,7 @@ export let jobArrayDefault = [
     },
   },
   {
+    groupID: null,
     buildVer: "0.2.0",
     jobType: 2,
     name: "Scandium Metallofullerene",
@@ -278,6 +280,7 @@ export let jobArrayDefault = [
     },
   },
   {
+    groupID: null,
     jobType: 2,
     name: "Graphene Nanoribbons",
     jobID: 1642711045845,
@@ -422,6 +425,7 @@ export let jobArrayDefault = [
     },
   },
   {
+    groupID: null,
     isSnapshot: false,
     jobType: 1,
     name: "Mining Drone I",
@@ -536,6 +540,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 10246,
             description: "Abi Sweet",
+            CharacterHash: "ABC123",
           },
           {
             order_id: 6161413749,
@@ -550,6 +555,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 10246,
             description: "IceQwen bought",
+            CharacterHash: "ABC123",
           },
           {
             order_id: 6161413749,
@@ -564,6 +570,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 10246,
             description: "Igor Alexeevich",
+            CharacterHash: "ABC123",
           },
           {
             order_id: 6161413749,
@@ -578,6 +585,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 10246,
             description: "Markus Dux",
+            CharacterHash: "ABC123",
           },
         ],
         totalSold: 0,
@@ -698,6 +706,7 @@ export let jobArrayDefault = [
     },
   },
   {
+    groupID: null,
     isSnapshot: false,
     jobType: 1,
     name: "Light Missile Launcher I",
@@ -810,6 +819,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 499,
             description: "ArianGG",
+            CharacterHash: "ABC123",
           },
           {
             order_id: 6161414065,
@@ -824,6 +834,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 499,
             description: "Shelby Skye",
+            CharacterHash: "ABC123",
           },
           {
             order_id: 6161414065,
@@ -838,6 +849,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 499,
             description: "Oryza Prodigy",
+            CharacterHash: "ABC123",
           },
         ],
         totalSold: 0,
@@ -908,6 +920,7 @@ export let jobArrayDefault = [
     },
   },
   {
+    groupID: null,
     jobType: 1,
     name: "Reinforced Metallofullerene Alloys",
     jobID: 1642710724535,
@@ -1747,6 +1760,7 @@ export let defaultEsiTransactions = [
     user: "ABC123",
     data: [
       {
+        CharacterHash: "ABC123",
         client_id: 784956701,
         date: "2021-12-31T15:48:16Z",
         is_buy: false,
@@ -1759,6 +1773,7 @@ export let defaultEsiTransactions = [
         unit_price: 11400,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2119194221,
         date: "2021-12-31T15:35:22Z",
         is_buy: false,
@@ -1771,6 +1786,7 @@ export let defaultEsiTransactions = [
         unit_price: 11400,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2118912977,
         date: "2021-12-31T14:53:18Z",
         is_buy: false,
@@ -1783,6 +1799,7 @@ export let defaultEsiTransactions = [
         unit_price: 11400,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2119059949,
         date: "2021-12-31T14:40:06Z",
         is_buy: false,
@@ -1795,6 +1812,7 @@ export let defaultEsiTransactions = [
         unit_price: 12000,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 96311212,
         date: "2021-12-30T18:39:02Z",
         is_buy: false,
@@ -1807,6 +1825,7 @@ export let defaultEsiTransactions = [
         unit_price: 11400,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2119433506,
         date: "2021-12-29T23:00:46Z",
         is_buy: false,
@@ -1819,6 +1838,7 @@ export let defaultEsiTransactions = [
         unit_price: 11850,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 122887441,
         date: "2022-01-01T02:36:32Z",
         is_buy: false,
@@ -1831,6 +1851,7 @@ export let defaultEsiTransactions = [
         unit_price: 34250,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2119513212,
         date: "2021-12-30T01:42:27Z",
         is_buy: false,
@@ -1843,6 +1864,7 @@ export let defaultEsiTransactions = [
         unit_price: 32950,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2119484455,
         date: "2021-12-29T21:53:26Z",
         is_buy: false,
@@ -1863,6 +1885,7 @@ export let defaultEsiJournal = [
     user: "ABC123",
     data: [
       {
+        CharacterHash: "ABC123",
         amount: -5472,
         balance: 5835304896.8761,
         date: "2021-12-30T18:33:45Z",
@@ -1875,6 +1898,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000086,
       },
       {
+        CharacterHash: "ABC123",
         amount: -4860,
         balance: 5835310368.8761,
         date: "2021-12-30T18:33:26Z",
@@ -1887,6 +1911,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000086,
       },
       {
+        CharacterHash: "ABC123",
         amount: 65900,
         balance: 5835120538.8761,
         context_id: 5762760174,
@@ -1901,6 +1926,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -5272,
         balance: 5835115266.8761,
         date: "2021-12-29T21:53:26Z",
@@ -1912,6 +1938,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 98850,
         balance: 5835323136.8761,
         context_id: 5762870250,
@@ -1925,6 +1952,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -7908,
         balance: 5835315228.8761,
         date: "2021-12-30T01:42:27Z",
@@ -1936,6 +1964,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 513750,
         balance: 4166935940.1241,
         context_id: 5764179431,
@@ -1949,6 +1978,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -23016,
         balance: 4166912924.1241,
         date: "2022-01-01T02:36:32Z",
@@ -1960,6 +1990,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 118500,
         balance: 5835233766.8761,
         context_id: 5762799195,
@@ -1973,6 +2004,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -9480,
         balance: 5835224286.8761,
         date: "2021-12-29T23:00:46Z",
@@ -1984,6 +2016,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 57000,
         balance: 5835361896.8761,
         context_id: 5763314805,
@@ -1997,6 +2030,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -4560,
         balance: 5835357336.8761,
         date: "2021-12-30T18:39:02Z",
@@ -2008,6 +2042,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 48000,
         balance: 4166086686.8761,
         context_id: 5763852213,
@@ -2021,6 +2056,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -2150.4,
         balance: 4166084536.4761,
         date: "2021-12-31T14:40:06Z",
@@ -2032,6 +2068,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 57000,
         balance: 4166141536.4761,
         context_id: 5763860401,
@@ -2045,6 +2082,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -2553.6,
         balance: 4166138982.8761,
         date: "2021-12-31T14:53:18Z",
@@ -2056,6 +2094,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 57000,
         balance: 4166195982.8761,
         context_id: 5763883247,
@@ -2070,6 +2109,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -2553.6,
         balance: 4166193429.2761,
         date: "2021-12-31T15:35:22Z",
@@ -2081,6 +2121,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 228000,
         balance: 4166421429.2761,
         context_id: 5763890268,
@@ -2094,6 +2135,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -10214.4,
         balance: 4166411214.8761,
         date: "2021-12-31T15:48:16Z",

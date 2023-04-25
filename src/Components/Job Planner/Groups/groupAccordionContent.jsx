@@ -13,7 +13,7 @@ import { useContext, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import { makeStyles } from "@mui/styles";
-import { GroupJobCardFrame } from "./groupJobCards";
+import { ClassicGroupJobCardFrame } from "./groupJobCardFrame";
 import {
   DataExchangeContext,
   MultiSelectJobPlannerContext,
@@ -132,9 +132,9 @@ export function GroupAccordionContent({ status, statusJobs }) {
             statusJobs.map((job) => {
               if (!activeGroup.showComplete) {
                 if (!activeGroup.areComplete.includes(job.jobID)) {
-                  return <GroupJobCardFrame key={job.jobID} job={job} />;
+                  return <ClassicGroupJobCardFrame key={job.jobID} job={job} />;
                 } else return null;
-              } else return <GroupJobCardFrame key={job.jobID} job={job} />;
+              } else return <ClassicGroupJobCardFrame key={job.jobID} job={job} />;
             })
           ) : (
             <CircularProgress color="primary" />

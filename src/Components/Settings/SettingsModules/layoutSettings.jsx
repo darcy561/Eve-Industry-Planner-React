@@ -51,6 +51,33 @@ export function LayoutSettings({ parentUserIndex }) {
                 }
                 labelPlacement="bottom"
               />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={
+                      users[parentUserIndex].settings.layout?.enableCompactView
+                    }
+                    color="primary"
+                    onChange={(e) => {
+                      let newUsersArray = [...users];
+                      newUsersArray[
+                        parentUserIndex
+                      ].settings.layout.enableCompactView = e.target.checked;
+
+                      updateUsers(newUsersArray);
+                      updateMainUserDoc();
+                    }}
+                  />
+                }
+                label={
+                  <Typography
+                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  >
+                    Enable Compact View
+                  </Typography>
+                }
+                labelPlacement="bottom"
+              />
             </FormGroup>
           </Grid>
         </Grid>

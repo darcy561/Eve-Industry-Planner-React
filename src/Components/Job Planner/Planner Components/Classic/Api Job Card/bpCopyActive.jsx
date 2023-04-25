@@ -7,18 +7,15 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import searchData from "../../../../RawData/searchIndex.json";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import itemRef from "../../../../../RawData/searchIndex.json";
 import { blueGrey, grey } from "@mui/material/colors";
-
-export function ReactionESICardActive({ job }) {
+export function BpCopyESICardActive({ job }) {
   const { timeRemainingCalc } = useJobManagement();
 
   const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
-  const product = searchData.find(
-    (i) => i.blueprintID === job.blueprint_type_id
-  );
 
+  const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id);
   return (
     <Grow in={true}>
       <Tooltip title="Job imported from the Eve ESI">
@@ -38,7 +35,7 @@ export function ReactionESICardActive({ job }) {
                     typography: { xs: "body1", lg: "h6" },
                   }}
                 >
-                  {product.name}
+                  {itemName.name}
                 </Typography>
               </Grid>
               <Grid
@@ -74,7 +71,7 @@ export function ReactionESICardActive({ job }) {
                   >
                     <Avatar
                       src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
-                      alt={product.name}
+                      alt={itemName.name}
                       variant="square"
                       sx={{
                         xs: { height: "32", width: "32" },
@@ -91,19 +88,19 @@ export function ReactionESICardActive({ job }) {
                   sx={{ paddingLeft: { xs: "0px", sm: "5px" } }}
                 >
                   <Grid container item xs={12}>
-                    <Grid item xs={4}>
+                    <Grid item xs={8}>
                       <Typography
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                       >
-                        Runs:
+                        Copies/Runs Per Copy
                       </Typography>
                     </Grid>
-                    <Grid item xs={8}>
+                    <Grid item xs={4}>
                       <Typography
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                         align="right"
                       >
-                        {job.runs}
+                        {job.runs}/{job.licensed_runs}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -138,9 +135,9 @@ export function ReactionESICardActive({ job }) {
               >
                 <Typography align="center" variant="body2" color="black">
                   {job.isCorp ? (
-                    <b>ESI Reaction Corp Job</b>
+                    <b>ESI Blueprint Copy Corp Job</b>
                   ) : (
-                    <b>ESI Reaction Job</b>
+                    <b>ESI Blueprint Copy Job</b>
                   )}
                 </Typography>
               </Grid>

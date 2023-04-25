@@ -9,19 +9,23 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { jobTypes } from "../../../Context/defaultValues";
-import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
-import Step1JobCard from "./Job Cards/step1";
-import Step2JobCard from "./Job Cards/step2";
-import Step3JobCard from "./Job Cards/step3";
-import Step4JobCard from "./Job Cards/step4";
-import Step5JobCard from "./Job Cards/step5";
 import { grey } from "@mui/material/colors";
+import { jobTypes } from "../../../Context/defaultValues";
+import {
+  JobPlannerPageTriggerContext,
+  MultiSelectJobPlannerContext,
+} from "../../../Context/LayoutContext";
+import Step1JobCard from "../Planner Components/Classic/Job Cards/step1";
+import { makeStyles } from "@mui/styles";
+import GroupStep2JobCard from "./jobCards/groupStep2";
+import GroupStep3JobCard from "./jobCards/GroupStep3";
+import GroupStep4JobCard from "./jobCards/groupStep4";
+import GroupStep5JobCard from "./jobCards/groupStep5";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
+import { ActiveJobContext } from "../../../Context/JobContext";
 import { useOpenEditJob } from "../../../Hooks/JobHooks/useOpenEditJob";
 
 const useStyles = makeStyles((theme) => ({
@@ -44,22 +48,24 @@ function DisplaySwitch({ job }) {
     case 0:
       return <Step1JobCard job={job} />;
     case 1:
-      return <Step2JobCard job={job} />;
+      return <GroupStep2JobCard job={job} />;
     case 2:
-      return <Step3JobCard job={job} />;
+      return <GroupStep3JobCard job={job} />;
     case 3:
-      return <Step4JobCard job={job} />;
+      return <GroupStep4JobCard job={job} />;
     case 4:
-      return <Step5JobCard job={job} />;
+      return <GroupStep5JobCard job={job} />;
     default:
       return <Step1JobCard job={job} />;
   }
 }
 
-export function JobCardFrame({ job, updateEditJobTrigger }) {
+export function ClassicGroupJobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
+  const { activeGroup } = useContext(ActiveJobContext);
   const { openEditJob } = useOpenEditJob();
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -73,11 +79,16 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
+
   const classes = useStyles();
 
   let jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
+
+  let jobMarkedAsCompelte = useMemo(() => {
+    return activeGroup.areComplete.includes(job.jobID);
+  }, [activeGroup]);
 
   return (
     <Grow in={true}>
@@ -163,10 +174,6 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
                   src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
                   alt={job.name}
                   variant="square"
-                  sx={{
-                    xs: { height: "32", width: "32" },
-                    sm: { height: "64", width: "64" },
-                  }}
                 />
               </Grid>
               <DisplaySwitch job={job} />
@@ -202,7 +209,9 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
               }}
             >
               <Typography align="center" variant="body2" color="black">
-                {job.jobType === jobTypes.manufacturing ? (
+                {jobMarkedAsCompelte ? (
+                  <b>Complete</b>
+                ) : job.jobType === jobTypes.manufacturing ? (
                   <b>Manufacturing Job</b>
                 ) : (
                   <b>Reaction Job</b>

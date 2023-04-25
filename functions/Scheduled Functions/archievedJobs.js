@@ -49,6 +49,11 @@ exports.scheduledfunction = functions
       const totalCostPerItem =
         Math.round((totalJobCost / totalProduced + Number.EPSILON) * 100) / 100;
       const totalSales = totalSale;
+      const averageSalePrice = !isNaN(
+        Math.round((totalSale / averageQuantity + Number.EPSILON) * 100) / 100
+      )
+        ? Math.round((totalSale / averageQuantity + Number.EPSILON) * 100) / 100
+        : 0;
       const profitLoss = totalSale > 0 ? totalSale - totalJobCost : 0;
 
       const archiveObject = {

@@ -3,18 +3,18 @@ import { useContext, useMemo } from "react";
 import {
   UserJobSnapshotContext,
   UsersContext,
-} from "../../../Context/AuthContext";
+} from "../../../../Context/AuthContext";
 import {
   ApiJobsContext,
   JobArrayContext,
   LinkedIDsContext,
-} from "../../../Context/JobContext";
-import { JobCardFrame } from "../Job Cards/JobCard";
-import { ApiJobCard } from "../Job Cards/ApiJobCard";
-import { GroupJobCard } from "../Job Cards/groupJobCard";
-import { UserLoginUIContext } from "../../../Context/LayoutContext";
+} from "../../../../Context/JobContext";
+import { JobCardFrame } from "./ClassicJobCardFrame";
+import { ApiJobCardSorter } from "./ClassicApiJobCardSorter";
+import { ClassicGroupJobCard } from "./ClassicGroupJobCard";
+import { UserLoginUIContext } from "../../../../Context/LayoutContext";
 
-export function AccordionContents({ updateEditJobTrigger, status }) {
+export function ClassicAccordionContents({ updateEditJobTrigger, status }) {
   const { users } = useContext(UsersContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { groupArray } = useContext(JobArrayContext);
@@ -44,7 +44,7 @@ export function AccordionContents({ updateEditJobTrigger, status }) {
       <Grid container direction="row" item xs={12} spacing={2}>
         {groupArray.map((group) => {
           if (group.groupStatus === status.id) {
-            return <GroupJobCard key={group.groupID} group={group} />;
+            return <ClassicGroupJobCard key={group.groupID} group={group} />;
           } else {
             return null;
           }
@@ -70,7 +70,7 @@ export function AccordionContents({ updateEditJobTrigger, status }) {
               !linkedJobIDs.includes(j.job_id) &&
               j.status === "active"
             ) {
-              return <ApiJobCard key={j.job_id} job={j} />;
+              return <ApiJobCardSorter key={j.job_id} job={j} />;
             } else {
               return null;
             }

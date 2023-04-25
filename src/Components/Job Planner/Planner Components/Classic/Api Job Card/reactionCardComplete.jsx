@@ -7,7 +7,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import searchData from "../../../../RawData/searchIndex.json";
+import searchData from "../../../../../RawData/searchIndex.json";
 import { blueGrey, grey } from "@mui/material/colors";
 
 export function ReactionESICardComplete({ job }) {

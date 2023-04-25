@@ -1,5 +1,5 @@
 import { Grid, Typography } from "@mui/material";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export default function Step3JobCard({ job }) {
   const { timeRemainingCalc } = useJobManagement();

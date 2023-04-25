@@ -7,17 +7,17 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
-import searchData from "../../../../RawData/searchIndex.json";
 import { blueGrey, grey } from "@mui/material/colors";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import searchData from "../../../../../RawData/searchIndex.json";
 
-export function TeResearchESICardActive({ job }) {
-  const { timeRemainingCalc } = useJobManagement();
+export function IndustryESICardComplete({ job }) {
+  const { findBlueprintType } = useJobManagement();
 
-  const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
   const product = searchData.find(
     (i) => i.blueprintID === job.blueprint_type_id
   );
+  const blueprintType = findBlueprintType(job.blueprint_id);
 
   return (
     <Grow in={true}>
@@ -73,7 +73,7 @@ export function TeResearchESICardActive({ job }) {
                     }
                   >
                     <Avatar
-                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
+                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
                       alt={product.name}
                       variant="square"
                       sx={{
@@ -91,14 +91,14 @@ export function TeResearchESICardActive({ job }) {
                   sx={{ paddingLeft: { xs: "0px", sm: "5px" } }}
                 >
                   <Grid container item xs={12}>
-                    <Grid item xs={8}>
+                    <Grid item xs={4}>
                       <Typography
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                       >
-                        Time Efficiency:
+                        Runs:
                       </Typography>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={8}>
                       <Typography
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                         align="right"
@@ -112,7 +112,7 @@ export function TeResearchESICardActive({ job }) {
                       <Typography
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                       >
-                        Remaining:
+                        Status:
                       </Typography>
                     </Grid>
                     <Grid item xs={8}>
@@ -120,9 +120,7 @@ export function TeResearchESICardActive({ job }) {
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                         align="right"
                       >
-                        {timeRemaining !== "complete"
-                          ? timeRemaining
-                          : "Ready To Deliver"}
+                        Delivered
                       </Typography>
                     </Grid>
                   </Grid>
@@ -138,9 +136,9 @@ export function TeResearchESICardActive({ job }) {
               >
                 <Typography align="center" variant="body2" color="black">
                   {job.isCorp ? (
-                    <b>ESI Time Efficiency Research Corp Job</b>
+                    <b>ESI Manufacturing Corp Job</b>
                   ) : (
-                    <b>ESI Time Efficiency Research Job</b>
+                    <b>ESI Manufacturing Job</b>
                   )}
                 </Typography>
               </Grid>

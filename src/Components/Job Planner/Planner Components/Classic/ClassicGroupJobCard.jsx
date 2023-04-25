@@ -13,14 +13,14 @@ import { useContext, useMemo } from "react";
 import {
   MultiSelectJobPlannerContext,
   JobPlannerPageTriggerContext,
-} from "../../../Context/LayoutContext";
-import { useGroupManagement } from "../../../Hooks/useGroupManagement";
+} from "../../../../Context/LayoutContext";
+import { useGroupManagement } from "../../../../Hooks/useGroupManagement";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
 import { makeStyles } from "@mui/styles";
 import { useDrag } from "react-dnd";
-import { ItemTypes } from "../../../Context/DnDTypes";
-import { useOpenGroup } from "../../../Hooks/GroupHooks/useOpenGroup";
+import { ItemTypes } from "../../../../Context/DnDTypes";
+import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function GroupJobCard({ group }) {
+export function ClassicGroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
@@ -87,11 +87,9 @@ export function GroupJobCard({ group }) {
                   checked={groupCardChecked}
                   onChange={(event) => {
                     if (event.target.checked) {
-                      if (!multiSelectJobPlanner.includes(group.groupID)) {
-                        updateMultiSelectJobPlanner((prev) =>
-                          prev.concat(group.groupID)
-                        );
-                      }
+                      updateMultiSelectJobPlanner((prev) => {
+                        return [...new Set([...prev, group.groupID])];
+                      });
                     } else {
                       updateMultiSelectJobPlanner((prev) =>
                         prev.filter((i) => i !== group.groupID)

@@ -8,7 +8,7 @@ import { ReactionESICardActive } from "./Api Job Card/reactionCardActive";
 import { BpCopyESICardActive } from "./Api Job Card/bpCopyActive";
 import { InventionESICardActive } from "./Api Job Card/InventionCardActive";
 
-export function ApiJobCard({ job }) {
+export function ApiJobCardSorter({ job }) {
   switch (job.activity_id) {
     case 1:
       switch (job.status) {

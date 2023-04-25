@@ -7,16 +7,20 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
-import itemRef from "../../../../RawData/searchIndex.json";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import searchData from "../../../../../RawData/searchIndex.json";
 import { blueGrey, grey } from "@mui/material/colors";
 
-export function MeResearchESICardActive({ job }) {
-  const { timeRemainingCalc } = useJobManagement();
+export function IndustryESICardActive({ job }) {
+  const { findBlueprintType, timeRemainingCalc } = useJobManagement();
 
   const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
 
-  const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id);
+  const product = searchData.find(
+    (i) => i.blueprintID === job.blueprint_type_id
+  );
+
+  const blueprintType = findBlueprintType(job.blueprint_id);
 
   return (
     <Grow in={true}>
@@ -37,7 +41,7 @@ export function MeResearchESICardActive({ job }) {
                     typography: { xs: "body1", lg: "h6" },
                   }}
                 >
-                  {itemName.name}
+                  {product.name}
                 </Typography>
               </Grid>
               <Grid
@@ -72,12 +76,12 @@ export function MeResearchESICardActive({ job }) {
                     }
                   >
                     <Avatar
-                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
-                      alt={itemName.name}
+                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                      alt={product.name}
                       variant="square"
                       sx={{
                         xs: { height: "32", width: "32" },
-                        sm: { height: "64", width: "64" },
+                        sm: { height: "64", width: "64" },  
                       }}
                     />
                   </Badge>
@@ -90,14 +94,14 @@ export function MeResearchESICardActive({ job }) {
                   sx={{ paddingLeft: { xs: "0px", sm: "5px" } }}
                 >
                   <Grid container item xs={12}>
-                    <Grid item xs={8}>
+                    <Grid item xs={4}>
                       <Typography
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                       >
-                        Material Efficiency:
+                        Runs:
                       </Typography>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={8}>
                       <Typography
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                         align="right"
@@ -137,9 +141,9 @@ export function MeResearchESICardActive({ job }) {
               >
                 <Typography align="center" variant="body2" color="black">
                   {job.isCorp ? (
-                    <b>ESI Material Efficiency Research Corp Job</b>
+                    <b>ESI Manufacturing Job Corp Job</b>
                   ) : (
-                    <b>ESI Material Efficiency Research </b>
+                    <b>ESI Manufacturing Job</b>
                   )}
                 </Typography>
               </Grid>

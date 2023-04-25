@@ -7,15 +7,18 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
-import itemRef from "../../../../RawData/searchIndex.json";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import searchData from "../../../../../RawData/searchIndex.json";
 import { blueGrey, grey } from "@mui/material/colors";
-export function BpCopyESICardActive({ job }) {
+
+export function TeResearchESICardActive({ job }) {
   const { timeRemainingCalc } = useJobManagement();
 
   const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
+  const product = searchData.find(
+    (i) => i.blueprintID === job.blueprint_type_id
+  );
 
-  const itemName = itemRef.find((i) => i.blueprintID === job.blueprint_type_id);
   return (
     <Grow in={true}>
       <Tooltip title="Job imported from the Eve ESI">
@@ -35,7 +38,7 @@ export function BpCopyESICardActive({ job }) {
                     typography: { xs: "body1", lg: "h6" },
                   }}
                 >
-                  {itemName.name}
+                  {product.name}
                 </Typography>
               </Grid>
               <Grid
@@ -71,7 +74,7 @@ export function BpCopyESICardActive({ job }) {
                   >
                     <Avatar
                       src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
-                      alt={itemName.name}
+                      alt={product.name}
                       variant="square"
                       sx={{
                         xs: { height: "32", width: "32" },
@@ -92,7 +95,7 @@ export function BpCopyESICardActive({ job }) {
                       <Typography
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                       >
-                        Copies/Runs Per Copy
+                        Time Efficiency:
                       </Typography>
                     </Grid>
                     <Grid item xs={4}>
@@ -100,7 +103,7 @@ export function BpCopyESICardActive({ job }) {
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                         align="right"
                       >
-                        {job.runs}/{job.licensed_runs}
+                        {job.runs}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -135,9 +138,9 @@ export function BpCopyESICardActive({ job }) {
               >
                 <Typography align="center" variant="body2" color="black">
                   {job.isCorp ? (
-                    <b>ESI Blueprint Copy Corp Job</b>
+                    <b>ESI Time Efficiency Research Corp Job</b>
                   ) : (
-                    <b>ESI Blueprint Copy Job</b>
+                    <b>ESI Time Efficiency Research Job</b>
                   )}
                 </Typography>
               </Grid>

@@ -7,8 +7,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
-import itemRef from "../../../../RawData/searchIndex.json";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import itemRef from "../../../../../RawData/searchIndex.json";
 import { blueGrey, grey } from "@mui/material/colors";
 
 export function InventionESICardActive({ job }) {

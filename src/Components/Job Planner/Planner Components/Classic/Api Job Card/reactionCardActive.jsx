@@ -7,17 +7,17 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import searchData from "../../../../RawData/searchIndex.json";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import searchData from "../../../../../RawData/searchIndex.json";
 import { blueGrey, grey } from "@mui/material/colors";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
 
-export function IndustryESICardComplete({ job }) {
-  const { findBlueprintType } = useJobManagement();
+export function ReactionESICardActive({ job }) {
+  const { timeRemainingCalc } = useJobManagement();
 
+  const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
   const product = searchData.find(
     (i) => i.blueprintID === job.blueprint_type_id
   );
-  const blueprintType = findBlueprintType(job.blueprint_id);
 
   return (
     <Grow in={true}>
@@ -73,7 +73,7 @@ export function IndustryESICardComplete({ job }) {
                     }
                   >
                     <Avatar
-                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                      src={`https://images.evetech.net/types/${job.blueprint_type_id}/bp?size=64`}
                       alt={product.name}
                       variant="square"
                       sx={{
@@ -112,7 +112,7 @@ export function IndustryESICardComplete({ job }) {
                       <Typography
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                       >
-                        Status:
+                        Remaining:
                       </Typography>
                     </Grid>
                     <Grid item xs={8}>
@@ -120,7 +120,9 @@ export function IndustryESICardComplete({ job }) {
                         sx={{ typography: { xs: "body2", lg: "body1" } }}
                         align="right"
                       >
-                        Delivered
+                        {timeRemaining !== "complete"
+                          ? timeRemaining
+                          : "Ready To Deliver"}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -136,9 +138,9 @@ export function IndustryESICardComplete({ job }) {
               >
                 <Typography align="center" variant="body2" color="black">
                   {job.isCorp ? (
-                    <b>ESI Manufacturing Corp Job</b>
+                    <b>ESI Reaction Corp Job</b>
                   ) : (
-                    <b>ESI Manufacturing Job</b>
+                    <b>ESI Reaction Job</b>
                   )}
                 </Typography>
               </Grid>

@@ -145,6 +145,7 @@ export function useDeleteSingleJob() {
 
     newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
 
+    console.log(inputJob.groupID)
     removeJobFromGroup: if (inputJob.groupID !== null) {
       let newGroupArray = [...groupArray];
       let newIncludedJobIDs = new Set();

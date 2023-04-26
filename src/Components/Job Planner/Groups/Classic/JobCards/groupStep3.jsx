@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Grid, Typography } from "@mui/material";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export default function GroupStep3JobCard({ job }) {
   const { timeRemainingCalc } = useJobManagement();

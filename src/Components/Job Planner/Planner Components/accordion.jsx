@@ -99,7 +99,7 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
           <Accordion
             ref={drop}
             className={classes.Accordion}
-            expanded={status.expanded === true}
+            expanded={status.expanded}
             square={true}
             spacing={1}
             id={status.id}
@@ -207,6 +207,7 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
                   status={status}
                 />
               )}
+
             </AccordionDetails>
           </Accordion>
         );

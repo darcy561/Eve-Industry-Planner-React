@@ -101,7 +101,9 @@ export function CompactGroupJobCard({ group }) {
           />
         </Grid>
         <Grid container item xs={6} sm={8} alignItems="center">
-          <Typography variant="body2">{group.groupName}</Typography>
+          <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+            {group.groupName}
+          </Typography>
         </Grid>
         <Grid item xs={3} sm={2} align="center">
           <Button

@@ -11,22 +11,22 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
-import { jobTypes } from "../../../Context/defaultValues";
+import { jobTypes } from "../../../../Context/defaultValues";
 import {
   JobPlannerPageTriggerContext,
   MultiSelectJobPlannerContext,
-} from "../../../Context/LayoutContext";
-import Step1JobCard from "../Planner Components/Classic/Job Cards/step1";
+} from "../../../../Context/LayoutContext";
+import Step1JobCard from "../../Planner Components/Classic/Job Cards/step1";
 import { makeStyles } from "@mui/styles";
-import GroupStep2JobCard from "./jobCards/groupStep2";
-import GroupStep3JobCard from "./jobCards/GroupStep3";
-import GroupStep4JobCard from "./jobCards/groupStep4";
-import GroupStep5JobCard from "./jobCards/groupStep5";
+import GroupStep2JobCard from "./JobCards/groupStep2";
+import GroupStep3JobCard from "./JobCards/GroupStep3";
+import GroupStep4JobCard from "./JobCards/groupStep4";
+import GroupStep5JobCard from "./JobCards/groupStep5";
 import { useDrag } from "react-dnd";
-import { ItemTypes } from "../../../Context/DnDTypes";
-import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
-import { ActiveJobContext } from "../../../Context/JobContext";
-import { useOpenEditJob } from "../../../Hooks/JobHooks/useOpenEditJob";
+import { ItemTypes } from "../../../../Context/DnDTypes";
+import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
+import { ActiveJobContext } from "../../../../Context/JobContext";
+import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -82,11 +82,11 @@ export function ClassicGroupJobCardFrame({ job }) {
 
   const classes = useStyles();
 
-  let jobCardChecked = useMemo(() => {
+  const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
 
-  let jobMarkedAsCompelte = useMemo(() => {
+  const jobMarkedAsCompelte = useMemo(() => {
     return activeGroup.areComplete.includes(job.jobID);
   }, [activeGroup]);
 

@@ -35,85 +35,84 @@ function AddMaterialCost({
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const classes = useStyles();
 
-  useEffect(() => {
-    setInputs((prev) => ({
-      ...prev,
-      itemCost: Number(materialPrice[marketDisplay][orderDisplay]).toFixed(2),
-    }));
-  }, [marketDisplay, orderDisplay]);
-
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (inputs.itemCount > 0) {
-      let newArray = [...activeJob.build.materials];
-      let newTotal = activeJob.build.costs.totalPurchaseCost;
+    if (inputs.itemCount <= 0) return;
 
-      if (
-        isNaN(newArray[materialIndex].quantityPurchased) ||
-        newArray[materialIndex].quantityPurchased < 0 ||
-        isNaN(newArray[materialIndex].purchasedCost) ||
-        newArray[materialIndex].purchasedCost < 0
-      ) {
-        let newQuantity = 0;
-        let newPurchaseCost = 0;
-        newArray[materialIndex].purchasing.forEach((entry) => {
-          newQuantity += entry.itemCount;
-          newPurchaseCost += entry.itemCount * entry.itemCost;
-        });
-        newArray[materialIndex].quantityPurchased = newQuantity;
-        newArray[materialIndex].purchasedCost = newPurchaseCost;
-      }
-      if (
-        isNaN(activeJob.build.costs.totalPurchaseCost) ||
-        activeJob.build.costs.totalPurchaseCost < 0
-      ) {
-        newTotal = 0;
-        newArray.forEach((i) => {
-          newTotal += i.purchasedCost;
-        });
-      }
+    let newArray = [...activeJob.build.materials];
+    let newTotal = activeJob.build.costs.totalPurchaseCost;
 
-      newArray[materialIndex].purchasing.push({
-        id: Date.now(),
-        childID: null,
-        childJobImport: false,
-        itemCount: inputs.itemCount,
-        itemCost: Number(inputs.itemCost),
-      });
+    const hasInvalidQuantityOrCost = newArray[materialIndex].purchasing.some(
+      (entry) =>
+        isNaN(entry.itemCount) ||
+        entry.itemCount < 0 ||
+        isNaN(entry.itemCost) ||
+        entry.itemCost < 0
+    );
 
-      newArray[materialIndex].quantityPurchased += inputs.itemCount;
-      newArray[materialIndex].purchasedCost +=
-        inputs.itemCount * inputs.itemCost;
-      newTotal += inputs.itemCount * inputs.itemCost;
-      if (
-        newArray[materialIndex].quantityPurchased >=
-        newArray[materialIndex].quantity
-      ) {
-        newArray[materialIndex].purchaseComplete = true;
-      }
+    if (hasInvalidQuantityOrCost) {
+      const { newQuantity, newPurchaseCost } = newArray[
+        materialIndex
+      ].purchasing.reduce(
+        (acc, entry) => ({
+          newQuantity: acc.newQuantity + entry.itemCount,
+          newPurchaseCost:
+            acc.newPurchaseCost + entry.itemCount * entry.itemCost,
+        }),
+        { newQuantity: 0, newPurchaseCost: 0 }
+      );
 
-      updateActiveJob((prevObj) => ({
-        ...prevObj,
-        build: {
-          ...prevObj.build,
-          materials: newArray,
-          costs: {
-            ...prevObj.build.costs,
-            totalPurchaseCost: newTotal,
-          },
-        },
-      }));
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `Added`,
-        severity: "success",
-        autoHideDuration: 1000,
-      }));
-      setInputs({ itemCost: 0, itemCount: 0 });
-      setJobModified(true);
-    } else {
+      newArray[materialIndex].quantityPurchased = newQuantity;
+      newArray[materialIndex].purchasedCost = newPurchaseCost;
     }
+
+    const hasInvalidTotalPurchaseCost = isNaN(newTotal) || newTotal < 0;
+
+    if (hasInvalidTotalPurchaseCost) {
+      newTotal = newArray.reduce((acc, entry) => acc + entry.purchasedCost, 0);
+    }
+
+    newArray[materialIndex].purchasing.push({
+      id: Date.now(),
+      childID: null,
+      childJobImport: false,
+      itemCount: inputs.itemCount,
+      itemCost: Number(inputs.itemCost),
+    });
+
+    newArray[materialIndex].quantityPurchased += inputs.itemCount;
+    newArray[materialIndex].purchasedCost += inputs.itemCount * inputs.itemCost;
+    newTotal += inputs.itemCount * inputs.itemCost;
+
+    if (
+      newArray[materialIndex].quantityPurchased >=
+      newArray[materialIndex].quantity
+    ) {
+      newArray[materialIndex].purchaseComplete = true;
+    }
+
+    updateActiveJob((prevObj) => ({
+      ...prevObj,
+      build: {
+        ...prevObj.build,
+        materials: newArray,
+        costs: {
+          ...prevObj.build.costs,
+          totalPurchaseCost: newTotal,
+        },
+      },
+    }));
+
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: `Added`,
+      severity: "success",
+      autoHideDuration: 1000,
+    }));
+
+    setInputs({ itemCost: 0, itemCount: 0 });
+    setJobModified(true);
   };
 
   return (

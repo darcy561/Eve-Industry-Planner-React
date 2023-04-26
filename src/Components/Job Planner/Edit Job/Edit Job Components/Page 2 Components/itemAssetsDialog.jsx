@@ -60,6 +60,18 @@ export function ItemAssetsDialogue({
     buildAssetList();
   }, [itemAssetsDialogTrigger]);
 
+  const formatLocation = (locationFlag) => {
+    switch (locationFlag) {
+      case "Hangar":
+        return "Hangar";
+      case "Unlocked":
+      case "AutoFit":
+        return "Container";
+      default:
+        return "Other";
+    }
+  };
+
   return (
     <Dialog
       open={itemAssetsDialogTrigger}
@@ -80,9 +92,8 @@ export function ItemAssetsDialogue({
               let assetLocationData = tempEveIDs.find(
                 (i) => i.id === asset.location_id
               );
-              if (assetLocationData === undefined) {
-                return null;
-              }
+
+              if (!assetLocationData) return null;
 
               return (
                 <Grid
@@ -101,19 +112,22 @@ export function ItemAssetsDialogue({
                       align="center"
                       sx={{ typography: { xs: "body2", sm: "body1" } }}
                     >
-                      {assetLocationData !== undefined
+                      {assetLocationData
                         ? assetLocationData.name
                         : "Unknown Location"}
                     </Typography>
                   </Grid>
                   {asset.itemIDs.map((item) => {
-                    let itemData = assetList.find((i) => item === i.item_id);
-                    let assetOwner = users.find(
-                      (i) => i.CharacterHash === itemData.CharacterHash
-                    );
-                    if (itemData === undefined) {
-                      return null;
-                    }
+                      const asset = assetList.find((i) => item === i.item_id);
+                      if (!asset) return null;
+                      const { CharacterHash, location_flag, quantity } = asset;
+                      const user = users.find(
+                        (i) => i.CharacterHash === CharacterHash
+                      );
+                      if (!user) return null;
+                      const { CharacterName, CharacterID } = user;
+                      const locationFlag = formatLocation(location_flag);
+                      if (!locationFlag) return null;
                     return (
                       <Grid
                         key={itemData.item_id}
@@ -125,13 +139,13 @@ export function ItemAssetsDialogue({
                       >
                         <Grid item xs={2} sm={3} align="center">
                           <Tooltip
-                            title={assetOwner.CharacterName}
+                            title={CharacterName}
                             arrow
                             placement="bottom"
                           >
                             <Avatar
                               variant="circle"
-                              src={`https://images.evetech.net/characters/${assetOwner.CharacterID}/portrait`}
+                              src={`https://images.evetech.net/characters/${CharacterID}/portrait`}
                               sx={{
                                 height: { xs: "30px", md: "35px" },
                                 width: { xs: "30px", md: "35px" },
@@ -151,13 +165,8 @@ export function ItemAssetsDialogue({
                               typography: { xs: "caption", sm: "body2" },
                             }}
                           >
-                            {itemData.quantity.toLocaleString()} Units
-                            {itemData.location_flag === "Hangar"
-                              ? " - Hangar"
-                              : itemData.location_flag === "Unlocked" ||
-                                itemData.location_flag === "AutoFit"
-                              ? " - Container"
-                              : " - Other"}
+                            {quantity.toLocaleString()} Units -{" "}
+                            {locationFlag}
                           </Typography>
                         </Grid>
                       </Grid>
@@ -171,8 +180,9 @@ export function ItemAssetsDialogue({
                 let assetLocationData = tempEveIDs.find(
                   (i) => i.id === entry.location_id
                 );
+
                 if (
-                  assetLocationData === undefined ||
+                  !assetLocationData ||
                   entry.location_id ===
                     parentUser.settings.editJob.defaultAssetLocation
                 ) {
@@ -191,19 +201,23 @@ export function ItemAssetsDialogue({
                         align="center"
                         sx={{ typography: { xs: "body2", sm: "body1" } }}
                       >
-                        {assetLocationData !== undefined
+                        {assetLocationData
                           ? assetLocationData.name
                           : "Unknown Location"}
                       </Typography>
                     </Grid>
                     {entry.itemIDs.map((item) => {
-                      let itemData = assetList.find((i) => item === i.item_id);
-                      let assetOwner = users.find(
-                        (i) => i.CharacterHash === itemData.CharacterHash
+                      const asset = assetList.find((i) => item === i.item_id);
+                      if (!asset) return null;
+                      const { CharacterHash, location_flag, quantity } = asset;
+                      const user = users.find(
+                        (i) => i.CharacterHash === CharacterHash
                       );
-                      if (itemData === undefined) {
-                        return null;
-                      }
+                      if (!user) return null;
+                      const { CharacterName, CharacterID } = user;
+                      const locationFlag = formatLocation(location_flag);
+                      if (!locationFlag) return null;
+
                       return (
                         <Grid
                           key={item}
@@ -215,13 +229,13 @@ export function ItemAssetsDialogue({
                         >
                           <Grid item xs={2} sm={3} align="center">
                             <Tooltip
-                              title={assetOwner.CharacterName}
+                              title={CharacterName}
                               arrow
                               placement="bottom"
                             >
                               <Avatar
                                 variant="circle"
-                                src={`https://images.evetech.net/characters/${assetOwner.CharacterID}/portrait`}
+                                src={`https://images.evetech.net/characters/${CharacterID}/portrait`}
                                 sx={{
                                   height: { xs: "30px", md: "35px" },
                                   width: { xs: "30px", md: "35px" },
@@ -241,13 +255,7 @@ export function ItemAssetsDialogue({
                                 typography: { xs: "caption", sm: "body2" },
                               }}
                             >
-                              {itemData.quantity.toLocaleString()} Units
-                              {itemData.location_flag === "Hangar"
-                                ? " - Hangar"
-                                : itemData.location_flag === "Unlocked" ||
-                                  itemData.location_flag === "AutoFit"
-                                ? " - Container"
-                                : " - Other"}
+                              {quantity.toLocaleString()} Units - {locationFlag}
                             </Typography>
                           </Grid>
                         </Grid>

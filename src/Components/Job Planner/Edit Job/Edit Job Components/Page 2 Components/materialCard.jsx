@@ -46,22 +46,21 @@ function MaterialCard({
   const classes = useStyles();
   let childJobs = [];
   let childJobProductionTotal = 0;
-
+  
   if (material.childJob.length > 0) {
+    const filterJobs = (jobList) => {
+      return jobList.filter((job) => material.childJob.includes(job.jobID));
+    };
+    
     if (activeJob.groupID === null) {
-      childJobs = userJobSnapshot.filter((i) =>
-        material.childJob.includes(i.jobID)
-      );
-      childJobs.forEach((i) => {
-        childJobProductionTotal += i.itemQuantity;
-      });
+      childJobs = filterJobs(userJobSnapshot);
+      childJobProductionTotal = childJobs.reduce((total, job) => total + job.itemQuantity, 0);
     } else {
-      childJobs = jobArray.filter((i) => material.childJob.includes(i.jobID));
-      childJobs.forEach((i) => {
-        childJobProductionTotal += i.build.products.totalQuantity;
-      });
+      childJobs = filterJobs(jobArray);
+      childJobProductionTotal = childJobs.reduce((total, job) => total + job.build.products.totalQuantity, 0);
     }
   }
+  
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
       <ChildJobDialog

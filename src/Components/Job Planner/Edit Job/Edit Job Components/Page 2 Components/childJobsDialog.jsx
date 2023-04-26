@@ -46,30 +46,16 @@ export function ChildJobDialog({
     updateChildDialogTrigger(false);
   };
 
-  let matches = useMemo(() => {
-    let returnArray = [];
-    if (activeJob.groupID === null) {
-      for (let job of userJobSnapshot) {
-        if (
-          job.itemID === material.typeID &&
-          !material.childJob.includes(job.jobID)
-        ) {
-          returnArray.push(job);
-        }
-      }
-    } else {
-      for (let job of jobArray) {
-        if (
-          job.groupID === activeJob.groupID &&
-          job.itemID === material.typeID &&
-          !material.childJob.includes(job.jobID)
-        ) {
-          returnArray.push(job);
-        }
-      }
-    }
-    return returnArray;
-  }, [activeGroup, userJobSnapshot, jobArray]);
+  const matches = useMemo(() => {
+    const jobs = activeJob.groupID === null ? userJobSnapshot : jobArray;
+    const filteredJobs = jobs.filter(
+      (job) =>
+        job.itemID === material.typeID &&
+        !material.childJob.includes(job.jobID) &&
+        (activeJob.groupID === null || job.groupID === activeJob.groupID)
+    );
+    return filteredJobs;
+  }, [activeJob, userJobSnapshot, jobArray, material]);
 
   return (
     <Dialog
@@ -120,17 +106,20 @@ export function ChildJobDialog({
                       color="primary"
                       onClick={async () => {
                         let newUserJobSnapshot = [...userJobSnapshot];
-                        let newJobArray = [...jobArray];
+                        const newJobArray = [...jobArray];
                         let inputJob = await findJobData(
                           job.jobID,
                           newUserJobSnapshot,
                           newJobArray
                         );
-                        let newMaterialArray = [...activeJob.build.materials];
-                        let index = newMaterialArray.findIndex(
-                          (i) => i.typeID === material.typeID
+                        const newMaterialArray = activeJob.build.materials.map(
+                          (mat) => {
+                            if (mat.typeID === material.typeID) {
+                              mat.childJob.push(inputJob.jobID);
+                            }
+                            return mat;
+                          }
                         );
-                        newMaterialArray[index].childJob.push(inputJob.jobID);
 
                         inputJob.parentJob.push(activeJob.jobID);
 
@@ -157,8 +146,10 @@ export function ChildJobDialog({
                           autoHideDuration: 1000,
                         }));
                         if (isLoggedIn) {
-                          uploadJob(inputJob);
-                          uploadUserJobSnapshot(newUserJobSnapshot);
+                          await Promise.all([
+                            uploadJob(inputJob),
+                            uploadUserJobSnapshot(newUserJobSnapshot),
+                          ]);
                         }
                       }}
                     >
@@ -183,16 +174,14 @@ export function ChildJobDialog({
         </Grid>
         <Grid container item>
           {material.childJob.length > 0 ? (
-            material.childJob.map((job) => {
-              let findJobMatchs = () => {
-                if (activeJob.groupID === null) {
-                  return userJobSnapshot.find((i) => i.jobID === job);
-                } else {
-                  return jobArray.find((i) => i.jobID === job);
-                }
+            material.childJob.map((childJobID) => {
+              const findJobMatch = () => {
+                const jobs =
+                  activeJob.groupID === null ? userJobSnapshot : jobArray;
+                return jobs.find((i) => i.jobID == childJobID);
               };
 
-              let jobMatch = findJobMatchs();
+              const jobMatch = findJobMatch();
               if (jobMatch === undefined) {
                 return null;
               }
@@ -232,26 +221,24 @@ export function ChildJobDialog({
                       color="error"
                       onClick={async () => {
                         let newUserJobSnapshot = [...userJobSnapshot];
-                        let newJobArray = [...jobArray];
-                        let inputJob = await findJobData(
-                          job,
+                        const newJobArray = [...jobArray];
+                        const inputJob = await findJobData(
+                          childJobID,
                           newUserJobSnapshot,
                           newJobArray
                         );
 
-                        let newMaterialArray = [...activeJob.build.materials];
-                        let matIndex = newMaterialArray.findIndex(
-                          (i) => i.typeID === material.typeID
+                        const newMaterialArray = activeJob.build.materials.map(
+                          (material) => {
+                            if (material.typeID === material.typeID) {
+                              const newChildJob = material.childJob.filter(
+                                (jobID) => jobID !== inputJob.jobID
+                              );
+                              return { ...material, childJob: newChildJob };
+                            }
+                            return material;
+                          }
                         );
-                        let matChildIndex = newMaterialArray[
-                          matIndex
-                        ].childJob.findIndex((i) => i === inputJob.jobID);
-                        if (matChildIndex !== -1) {
-                          newMaterialArray[matIndex].childJob.splice(
-                            matChildIndex,
-                            1
-                          );
-                        }
 
                         let parentIndex = inputJob.parentJob.findIndex(
                           (i) => i === activeJob.jobID
@@ -282,8 +269,10 @@ export function ChildJobDialog({
                           autoHideDuration: 1000,
                         }));
                         if (isLoggedIn) {
-                          uploadJob(inputJob);
-                          uploadUserJobSnapshot(newUserJobSnapshot);
+                          await Promise.all([
+                            uploadJob(inputJob),
+                            uploadUserJobSnapshot(newUserJobSnapshot),
+                          ]);
                         }
                       }}
                     >

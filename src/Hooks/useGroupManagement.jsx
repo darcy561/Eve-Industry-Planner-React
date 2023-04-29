@@ -11,6 +11,7 @@ import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
 import { useJobManagement } from "./useJobManagement";
+import uuid from "react-uuid";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -38,7 +39,7 @@ export function useGroupManagement() {
       outputJobCount
     ) {
       this.groupName = outputJobNames.join(", ").substring(0, 75);
-      this.groupID = groupID;
+      this.groupID = `group-${uuid()}`;
       this.includedJobIDs = inputIDs;
       this.includedTypeIDs = [...includedTypeIDs];
       this.materialIDs = [...materialIDs];
@@ -136,7 +137,7 @@ export function useGroupManagement() {
         outputJobCount
       )
     );
-
+    console.log(newGroupEntry)
     newGroupArray.push(newGroupEntry);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);

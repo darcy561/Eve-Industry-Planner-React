@@ -5,8 +5,10 @@ import {
   MultiSelectJobPlannerContext,
 } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
+import { IsLoggedInContext } from "../../Context/AuthContext";
 
 export function useCloseGroup() {
+  const {isLoggedIn} = useContext(IsLoggedInContext)
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
   const { updateMultiSelectJobPlanner } = useContext(
@@ -52,7 +54,9 @@ export function useCloseGroup() {
     updateGroupArray(newGroupArray);
     updateMultiSelectJobPlanner([]);
     updateEditGroupTrigger((prev) => !prev);
-    uploadGroups(newGroupArray);
+    if (isLoggedIn) {
+      uploadGroups(newGroupArray);
+    }
   };
 
   return { closeGroup };

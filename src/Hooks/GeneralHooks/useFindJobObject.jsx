@@ -13,7 +13,7 @@ export function useFindJobObject() {
     chosenGroupArray,
     returnRequest
   ) => {
-    if (typeof inputJobID === "string") {
+    if (inputJobID.includes("group")) {
       return findGroupObject();
     } else {
       return await findJobObject();

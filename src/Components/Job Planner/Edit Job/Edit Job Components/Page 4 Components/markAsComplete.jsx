@@ -7,18 +7,16 @@ export function MarkAsCompleteButton({ setJobModified }) {
     useContext(ActiveJobContext);
 
   const toggleMarkJobAsComplete = () => {
-    let newAreComplete = new Set(activeGroup.areComplete);
-
-    if (newAreComplete.has(activeJob.jobID)) {
-      newAreComplete.delete(activeJob.jobID);
-    } else {
-      newAreComplete.add(activeJob.jobID);
-    }
-
-    updateActiveGroup((prev) => ({
-      ...prev,
-      areComplete: [...newAreComplete],
-    }));
+    updateActiveGroup((prev) => {
+      const newAreComplete = new Set(prev.areComplete);
+      newAreComplete[prev.areComplete.has(activeJob.jobID) ? "delete" : "add"](
+        activeJob.jobID
+      );
+      return {
+        ...prev,
+        areComplete: [...newAreComplete],
+      };
+    });
     setJobModified(true);
   };
 

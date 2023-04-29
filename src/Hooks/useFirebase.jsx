@@ -185,7 +185,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
-        isReadyToSell: job.isReadyToSell || null,
+        isReadyToSell: job.isReadyToSell || false,
       }
     );
   };
@@ -291,7 +291,7 @@ export function useFirebase() {
         hasListener: false,
         jobType: downloadDoc.jobType,
         name: downloadDoc.name,
-        jobID: downloadDoc.jobID,
+        jobID: downloadDoc.jobID.toString(),
         jobStatus: downloadDoc.jobStatus,
         isSnapshot: false,
         volume: downloadDoc.volume,
@@ -313,12 +313,16 @@ export function useFirebase() {
         build: downloadDoc.build,
         buildVer: downloadDoc.buildVer,
         metaLevel: downloadDoc.metaLevel,
-        parentJob: downloadDoc.parentJob,
+        parentJob: downloadDoc.parentJob.map(String),
         blueprintTypeID: downloadDoc.blueprintTypeID,
         layout: downloadDoc.layout,
         groupID: downloadDoc.groupID,
         isReadyToSell: downloadDoc.isReadyToSell || false,
       };
+
+      newJob.build.materials.forEach((mat) => {
+        mat.childJob = mat.childJob.map(String)
+      })
 
       return newJob;
     } else {
@@ -500,6 +504,10 @@ export function useFirebase() {
             let newLinkedJobIDs = new Set();
             let newLinkedTransIDs = new Set();
             snapshotData.snapshot.forEach((snap) => {
+              snap.jobID = snap.jobID.toString();
+              snap.parentJob = snap.parentJob.map(String);
+              snap.childJobs = snap.childJobs.map(String);
+
               snap.apiJobs.forEach((id) => {
                 newLinkedJobIDs.add(id);
               });
@@ -611,7 +619,7 @@ export function useFirebase() {
           let newJob = {
             jobType: downloadDoc.jobType,
             name: downloadDoc.name,
-            jobID: downloadDoc.jobID,
+            jobID: downloadDoc.jobID.toString(),
             jobStatus: downloadDoc.jobStatus,
             isSnapshot: false,
             volume: downloadDoc.volume,
@@ -633,12 +641,15 @@ export function useFirebase() {
             build: downloadDoc.build,
             buildVer: downloadDoc.buildVer,
             metaLevel: downloadDoc.metaLevel,
-            parentJob: downloadDoc.parentJob,
+            parentJob: downloadDoc.parentJob.map(String),
             blueprintTypeID: downloadDoc.blueprintTypeID,
             layout: downloadDoc.layout,
             groupID: downloadDoc.groupID,
             isReadyToSell: downloadDoc.isReadyToSell || false,
           };
+          newJob.build.materials.forEach((mat) => {
+            mat.childJob = mat.childJob.map(String);
+          });
           if (activeJob.jobID == newJob.jobID) {
             updateActiveJob(newJob);
           }
@@ -753,6 +764,7 @@ export function useFirebase() {
             let groupData = doc.data().groupData;
             let priceIDRequest = new Set();
             for (let group of groupData) {
+              group.includedJobIDs = group.includedJobIDs.map(String);
               priceIDRequest = new Set([
                 ...priceIDRequest,
                 ...group.materialIDs,

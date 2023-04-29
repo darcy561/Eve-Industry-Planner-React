@@ -10,19 +10,20 @@ import {
 import React, { useContext } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import fullItemNames from "../../RawData/fullItemList.json";
+import { useAssetHelperHooks } from "../../Hooks/AssetHooks/useAssetHelper";
 
 export function AssetType({ displayedAssets, fullAssetList, pageLoad }) {
   const { users } = useContext(UsersContext);
+  const { formatLocation } = useAssetHelperHooks();
   if (pageLoad) {
     return (
       <Grid container item xs={12} spacing={2}>
         {displayedAssets.map((assetType) => {
-          let assetData = fullItemNames.find(
+          let { name } = fullItemNames.find(
             (i) => i.type_id === assetType.type_id
           );
-          if (assetData === undefined) {
-            return null;
-          }
+          if (!name) return null;
+
           return (
             <Grid key={assetType.type_id} container item xs={12} sm={6}>
               <Paper
@@ -36,21 +37,32 @@ export function AssetType({ displayedAssets, fullAssetList, pageLoad }) {
                       color="primary"
                       sx={{ typography: { xs: "h6", sm: "h5" } }}
                     >
-                      {assetData.name}
+                      {name}
                     </Typography>
                   </Grid>
                   <Grid container item xs={12}>
                     {assetType.itemIDs.map((item) => {
-                      const itemData = fullAssetList.find(
-                        (i) => i.item_id === item
+                      const asset = fullAssetList.find(
+                        (i) => item === i.item_id
                       );
-                      const assetOwner = users.find(
-                        (i) => i.CharacterHash === itemData.CharacterHash
+                      if (!asset) return null;
+                      const {
+                        CharacterHash,
+                        location_flag,
+                        quantity,
+                        type_id,
+                      } = asset;
+                      const user = users.find(
+                        (i) => i.CharacterHash === CharacterHash
                       );
+                      if (!user) return null;
+                      const { CharacterName, CharacterID } = user;
+                      const locationFlag = formatLocation(location_flag);
+                      if (!locationFlag) return null;
                       return (
                         <Tooltip
                           key={item}
-                          title={assetOwner.CharacterName}
+                          title={CharacterName}
                           arrow
                           placement="top"
                         >
@@ -64,7 +76,7 @@ export function AssetType({ displayedAssets, fullAssetList, pageLoad }) {
                                 }}
                                 badgeContent={
                                   <Avatar
-                                    src={`https://images.evetech.net/characters/${assetOwner.CharacterID}/portrait`}
+                                    src={`https://images.evetech.net/characters/${CharacterID}/portrait`}
                                     variant="circular"
                                     sx={{
                                       height: {
@@ -83,7 +95,7 @@ export function AssetType({ displayedAssets, fullAssetList, pageLoad }) {
                               >
                                 <picture>
                                   <img
-                                    src={`https://images.evetech.net/types/${itemData.type_id}/icon/?size=64`}
+                                    src={`https://images.evetech.net/types/${type_id}/icon/?size=64`}
                                     alt=""
                                     loading="lazy"
                                   />
@@ -96,7 +108,7 @@ export function AssetType({ displayedAssets, fullAssetList, pageLoad }) {
                                   typography: { xs: "caption", sm: "body2" },
                                 }}
                               >
-                                {itemData.quantity.toLocaleString()}
+                                {quantity.toLocaleString()}
                               </Typography>
                             </Grid>
                             <Grid item xs={12} align="center">
@@ -105,12 +117,7 @@ export function AssetType({ displayedAssets, fullAssetList, pageLoad }) {
                                   typography: { xs: "caption", sm: "body2" },
                                 }}
                               >
-                                {itemData.location_flag === "Hangar"
-                                  ? "Hangar"
-                                  : itemData.location_flag === "Unlocked" ||
-                                    itemData.location_flag === "AutoFit"
-                                  ? "Container"
-                                  : "Other"}
+                                {locationFlag}
                               </Typography>
                             </Grid>
                           </Grid>

@@ -92,7 +92,7 @@ export function PriceEntryDialog() {
           let newTotal = 0;
           job.build.materials.forEach((mat) => {
             if (mat.typeID === material.typeID && !mat.purchaseComplete) {
-              mat.purchasing.push({
+              mat.purchasing.push({ 
                 id: Date.now(),
                 childID: null,
                 childJobImport: false,

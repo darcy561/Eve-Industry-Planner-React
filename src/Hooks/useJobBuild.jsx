@@ -15,6 +15,7 @@ import {
   SnackBarDataContext,
 } from "../Context/LayoutContext";
 import { JobArrayContext } from "../Context/JobContext";
+import uuid from "react-uuid";
 
 export function useJobBuild() {
   const { sisiDataFiles } = useContext(SisiDataFilesContext);
@@ -42,9 +43,7 @@ export function useJobBuild() {
       } else {
         this.name = itemJson.name;
       }
-      this.jobID = Math.floor(
-        Date.now() + itemJson.itemID + Math.random() * 100
-      );
+      this.jobID = `job-${uuid()}`
       this.jobStatus = 0;
       this.volume = itemJson.volume;
       this.itemID = itemJson.itemID;
@@ -133,6 +132,7 @@ export function useJobBuild() {
   const buildJobObject = (itemJson, buildRequest) => {
     try {
       const outputObject = new Job(itemJson, buildRequest);
+      console.log(outputObject)
       try {
         outputObject.build.materials.forEach((material) => {
           material.purchasing = [];

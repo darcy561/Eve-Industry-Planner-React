@@ -52,17 +52,17 @@ export function AssetSearch({
                   }}
                 >
                   {locationList.map((entry) => {
-                    let locationNameData = eveIDs.find((i) => entry === i.id);
+                    const name = eveIDs.find((i) => entry === i.id)?.name;
 
                     if (
-                      locationNameData === undefined ||
-                      locationNameData.name === "No Access To Location"
+                      !name ||
+                      name === "No Access To Location"
                     ) {
                       return null;
                     }
                     return (
                       <MenuItem key={entry} value={entry}>
-                        {locationNameData.name}
+                        {name}
                       </MenuItem>
                     );
                   })}

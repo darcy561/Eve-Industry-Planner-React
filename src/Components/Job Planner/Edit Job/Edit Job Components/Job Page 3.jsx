@@ -25,6 +25,7 @@ export function EditPage3({ setJobModified }) {
       !linkedJobIDs.includes(job.job_id) &&
       !parentUser.linkedJobs.has(job.job_id)
   );
+
   return (
     <Container disableGutters maxWidth="false" sx={{ width: "100%" }}>
       <Grid container direction="row" spacing={2}>

@@ -23,15 +23,13 @@ export function EditPage2({
   }, [users, IsLoggedIn]);
 
   const [orderDisplay, changeOrderDisplay] = useState(
-    activeJob.layout.localOrderDisplay === undefined ||
-      activeJob.layout.localOrderDisplay === null
+    !activeJob.layout.localOrderDisplay
       ? parentUser.settings.editJob.defaultOrders
       : activeJob.layout.localOrderDisplay
   );
 
   const [marketDisplay, changeMarketDisplay] = useState(
-    activeJob.layout.localMarketDisplay === undefined ||
-      activeJob.layout.localMarketDisplay === null
+    !activeJob.layout.localMarketDisplay
       ? parentUser.settings.editJob.defaultMarket
       : activeJob.layout.localMarketDisplay
   );

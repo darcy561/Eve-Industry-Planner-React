@@ -14,6 +14,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { EveIDsContext } from "../../../../../Context/EveDataContext";
 import { useCharAssets } from "../../../../../Hooks/useCharAssets";
+import { useAssetHelperHooks } from "../../../../../Hooks/AssetHooks/useAssetHelper";
 
 export function ItemAssetsDialogue({
   material,
@@ -28,6 +29,7 @@ export function ItemAssetsDialogue({
   const [assetLocations, updateAssetLocations] = useState([]);
   const [tempEveIDs, updateTempEveIDs] = useState(eveIDs);
   const [defaultLocationAssets, updateDefaultLocationAssets] = useState([]);
+  const {formatLocation} = useAssetHelperHooks()
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
@@ -59,18 +61,6 @@ export function ItemAssetsDialogue({
     }
     buildAssetList();
   }, [itemAssetsDialogTrigger]);
-
-  const formatLocation = (locationFlag) => {
-    switch (locationFlag) {
-      case "Hangar":
-        return "Hangar";
-      case "Unlocked":
-      case "AutoFit":
-        return "Container";
-      default:
-        return "Other";
-    }
-  };
 
   return (
     <Dialog

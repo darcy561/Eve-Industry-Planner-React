@@ -6,8 +6,7 @@ require("dotenv").config();
 const bucket = admin.storage().bucket();
 
 const webhookClient = new WebhookClient({
-  id: process.env.ID,
-  token: process.env.TOKEN,
+  url:process.env.FEEDBACKURL
 });
 
 exports.submitUserFeedback = functions

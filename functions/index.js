@@ -29,7 +29,7 @@ app.use(
 );
 app.use(express.json());
 app.use(helmet());
-app.use(appCheckVerification);
+// app.use(appCheckVerification);
 app.use(checkAppVersion);
 
 //Routes
@@ -99,18 +99,24 @@ app.post("/item", async (req, res) => {
     return res.status(500).send("Item Data Missing From Request");
   }
   try {
-    let returnArray = [];
-    let missingIDs = [];
-    let returnIDs = new Set();
+    const returnArray = [];
+    const missingIDs = [];
+    const returnIDs = new Set(req.body.idArray);
 
-    for (let itemID of req.body.idArray) {
-      let document = await db.collection("Items").doc(itemID.toString()).get();
-      if (document.exists) {
-        let documentData = document.data();
-        returnArray.push(documentData);
-        returnIDs.add(itemID);
+    const promises = req.body.idArray.map((id) => {
+      return db.collection("Items").doc(id.toString()).get();
+    });
+
+    const results = await Promise.all(promises);
+
+    for (let i = 0; i < results.length; i++) {
+      const doc = results[i];
+      if (doc.exists) {
+        const docData = doc.data();
+        returnArray.push(docData);
       } else {
-        missingIDs.push(itemID);
+        missingIDs.push(req.body.idArray[i]);
+        returnIDs.delete(req.body.idArray[i]);
       }
     }
 
@@ -121,7 +127,9 @@ app.post("/item", async (req, res) => {
     }
 
     functions.logger.log(
-      `${returnArray.length} items returned: [${[...returnIDs]}]`
+      `${returnArray.length} items returned to ${req.header("accountID")}: [${[
+        ...returnIDs,
+      ]}]`
     );
 
     return res
@@ -147,7 +155,7 @@ app.get("/item/sisiData/:itemID", async (req, res) => {
     if (product.exists) {
       let response = product.data();
       functions.logger.log(
-        `${req.params.itemID} Tranquilty Build Data Sent To ${req.header(
+        `${req.params.itemID} Singularity Build Data Sent To ${req.header(
           "accountID"
         )} `
       );
@@ -174,29 +182,39 @@ app.post("/costs", async (req, res) => {
   if (req.body.idArray === undefined) {
     return res.status(500).send("Item Data Missing From Request");
   }
+
   try {
-    let returnData = [];
-    let missingItems = [];
-    let liveObject = await db.collection("Pricing").doc("Live").get();
-    let liveObjectData = liveObject.data();
-    for (let itemID of req.body.idArray) {
-      if (liveObjectData.hasOwnProperty(itemID.toString())) {
-        returnData.push(liveObjectData[itemID.toString()]);
-      } else {
-        missingItems.push(itemID);
+    const idArray = req.body.idArray;
+    const pricingRef = admin.database().ref("market-prices");
+    const missingDatabaseEntries = new Set();
+
+    const promises = idArray.map(async (typeID) => {
+      const itemRef = pricingRef.child(typeID.toString());
+      const itemSnapshot = await itemRef.once("value");
+
+      if (!itemSnapshot.exists()) {
+        missingDatabaseEntries.add(typeID);
+        return null;
       }
+
+      return itemSnapshot.val();
+    });
+
+    const itemDataArray = await Promise.all(promises);
+    const returnData = itemDataArray.filter((itemData) => itemData !== null);
+
+    if (missingDatabaseEntries.size > 0) {
+      const missingPromises = [...missingDatabaseEntries].map((id) =>
+        ESIMarketQuery(id.toString(), true)
+      );
+      const missingData = await Promise.all(missingPromises);
+      returnData.push(...missingData);
     }
 
-    if (missingItems.length > 0) {
-      for (let id of missingItems) {
-        let data = await ESIMarketQuery(id.toString(), true);
-        returnData.push(data);
-      }
-    }
     functions.logger.log(
-      `${req.body.idArray.length} Prices Returned for ${req.header(
+      `${returnData.length} Prices Returned for ${req.header(
         "accountID"
-      )}, [${req.body.idArray}]`
+      )}, [${idArray}]`
     );
 
     return res
@@ -212,8 +230,9 @@ app.post("/costs", async (req, res) => {
 });
 
 app.get("/systemindexes/:systemID", async (req, res) => {
-  if (req.params.systemID === undefined) {
-    return res.status(500).send("System Index Missing From Request");
+  const systemID = +req.params.systemID;
+  if (isNaN(systemID)) {
+    return res.status(400).send("Invalid System ID");
   }
   const indexesRaw = await admin
     .storage()
@@ -221,6 +240,35 @@ app.get("/systemindexes/:systemID", async (req, res) => {
     .file("systemIndexes.json")
     .download();
   const indexesParsed = JSON.parse(indexesRaw);
+
+  const systemIndex = indexesParsed.find(
+    (index) => index.solar_system_id === systemID
+  );
+  if (!systemIndex) {
+    return res.status(404).send("System Index Not Found");
+  }
+
+  res.send(systemIndex);
+});
+
+app.post("/systemindexes", async (req, res) => {
+  const idArray = req.body.idArray;
+  if (!Array.isArray(idArray)) {
+    return res.status(400).send("System IDs must be an array");
+  }
+
+  const indexesRaw = await admin
+    .storage()
+    .bucket()
+    .file("systemIndexes.json")
+    .download();
+  const indexesParsed = JSON.parse(indexesRaw);
+
+  const systemIndexes = indexesParsed.filter((index) =>
+    idArray.includes(index.solar_system_id)
+  );
+
+  res.send(systemIndexes);
 });
 
 //Export the api to Firebase Cloud Functions
@@ -235,3 +283,4 @@ exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
 exports.feedback = require("./Triggered Functions/storeFeedback");
 exports.userClaims = require("./Triggered Functions/addCorpClaim");
 exports.appVersion = require("./Triggered Functions/checkAppVersion");
+exports.checkSDEUpdates = require("./Scheduled Functions/checkSDEUpdates");

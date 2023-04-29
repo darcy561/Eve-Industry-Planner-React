@@ -121,7 +121,9 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
                           title={
                             tData.is_corp
                               ? corpData.name
-                              : charData.CharacterName
+                              : charData
+                              ? charData.CharacterName
+                              : ""
                           }
                           arrow
                           placement="right"

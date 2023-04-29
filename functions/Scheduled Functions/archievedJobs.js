@@ -5,6 +5,7 @@ exports.scheduledfunction = functions
   .region("europe-west1")
   .runWith({ timeoutSeconds: 540 })
   .pubsub.schedule("every 1 hours")
+  .timeZone("Etc/GMT")
   .onRun(async (context) => {
     let snapshotArray = [];
     const snapshot = await admin

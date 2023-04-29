@@ -51,19 +51,13 @@ async function ESIMarketQuery(typeID, newItem, outdatedDoc) {
         return a.price - b.price;
       });
     }
-    Object.assign(dbObject, {
-      [location.name]: {
-        buy: buyOrders.length ? buyOrders[0].price : 0,
-        sell: sellOrders.length ? sellOrders[0].price : 0,
-      },
-    });
+    dbObject[location.name] = {
+      buy: buyOrders.length ? buyOrders[0].price : 0,
+      sell: sellOrders.length ? sellOrders[0].price : 0,
+    };
   }
-  if (!newItem) {
-    await admin
-      .firestore()
-      .collection("Pricing")
-      .doc("Live")
-      .update({ [`${typeID}`]: dbObject });
+  if (newItem) {
+    await admin.database().ref(`market-prices/${typeID}`).set(dbObject);
   }
   return dbObject;
 }

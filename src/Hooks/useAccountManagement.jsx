@@ -143,64 +143,42 @@ export function useAccountManagement() {
   const characterAPICall = async (userObject) => {
     const t = trace(performance, "CharacterESICalls");
     t.start();
-    const [
-      skills,
-      indJobs,
-      orders,
-      histOrders,
-      blueprints,
-      transactions,
-      journal,
-      assets,
-      standings,
-      corpIndJobs,
-      corpMOrders,
-      corpHistMOrders,
-      corpBlueprints,
-      corpJournal,
-      corpTransactions,
-      corpDivisions,
-      corpPublicInfo,
-    ] = await Promise.all([
-      fetchCharacterSkills(userObject),
-      fetchCharacterIndustryJobs(userObject),
-      fetchCharacterMarketOrders(userObject),
-      fetchCharacterHistMarketOrders(userObject),
-      fetchCharacterBlueprints(userObject),
-      fetchCharacterTransactions(userObject),
-      fetchCharacterJournal(userObject),
-      fetchCharacterAssets(userObject),
-      fetchCharacterStandings(userObject),
-      fetchCorpIndustryJobs(userObject),
-      fetchCorpMarketOrdersJobs(userObject),
-      fetchCorpHistMarketOrders(userObject),
-      fetchCorpBlueprintLibrary(userObject),
-      fetchCorpJournal(userObject),
-      fetchCorpTransactions(userObject),
-      fetchCorpDivisions(userObject),
-      fetchCorpPublicInfo(userObject),
-    ]);
-    t.stop();
-    return {
-      owner: userObject.CharacterHash,
-      esiSkills: skills,
-      esiJobs: indJobs,
-      esiOrders: orders,
-      esiHistOrders: histOrders,
-      esiBlueprints: blueprints,
-      esiJournal: journal,
-      esiTransactions: transactions,
-      esiAssets: assets,
-      esiStandings: standings,
-      esiCorpJobs: corpIndJobs,
-      esiCorpMOrders: corpMOrders,
-      esiCorpHistMOrders: corpHistMOrders,
-      esiCorpBlueprints: corpBlueprints,
-      esiCorpJournal: corpJournal,
-      esiCorpTransactions: corpTransactions,
-      esiCorpDivisions: corpDivisions,
-      esiCorpPublicInfo: corpPublicInfo,
+
+    const apiFunctions = {
+      esiSkills: fetchCharacterSkills,
+      esiJobs: fetchCharacterIndustryJobs,
+      esiOrders: fetchCharacterMarketOrders,
+      esiHistOrders: fetchCharacterHistMarketOrders,
+      esiBlueprints: fetchCharacterBlueprints,
+      esiTransactions: fetchCharacterTransactions,
+      esiJournal: fetchCharacterJournal,
+      esiAssets: fetchCharacterAssets,
+      esiStandings: fetchCharacterStandings,
+      esiCorpJobs: fetchCorpIndustryJobs,
+      esiCorpMOrders: fetchCorpMarketOrdersJobs,
+      esiCorpHistMOrders: fetchCorpHistMarketOrders,
+      esiCorpBlueprints: fetchCorpBlueprintLibrary,
+      esiCorpJournal: fetchCorpJournal,
+      esiCorpTransactions: fetchCorpTransactions,
+      esiCorpDivisions: fetchCorpDivisions,
+      esiCorpPublicInfo: fetchCorpPublicInfo,
     };
+
+    const apiResults = await Promise.all(
+      Object.values(apiFunctions).map((apiFunction) => apiFunction(userObject))
+    );
+
+    t.stop();
+
+    const resultObject = {};
+
+    Object.keys(apiFunctions).forEach((key, index) => {
+      resultObject[key] = apiResults[index];
+    });
+
+    resultObject.owner = userObject.CharacterHash;
+
+    return resultObject;
   };
 
   const getLocationNames = async (users, mainUser, esiObjectArray) => {

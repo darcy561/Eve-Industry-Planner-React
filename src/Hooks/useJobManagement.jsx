@@ -536,11 +536,17 @@ export function useJobManagement() {
     const newJobArray = [...jobArray];
 
     for (const inputID of inputJobIDs) {
-      const inputGroup = groupArray.find((i) => i.groupID === inputID);
-      if (!inputGroup) continue;
+      if (typeof inputID === "string") {
+        continue;
+        // const inputGroup = groupArray.find((i) => i.groupID === inputID);
 
-      const groupInputJobIDs = inputGroup.includedJobIDs || [];
-      finalInputList.push(...groupInputJobIDs);
+        // if (!inputGroup) continue;
+
+        // const groupInputJobIDs = inputGroup.includedJobIDs || [];
+        // finalInputList.push(...groupInputJobIDs);
+      } else {
+        finalInputList.push(inputID);
+      }
     }
 
     for (const inputJobID of finalInputList) {
@@ -549,7 +555,6 @@ export function useJobManagement() {
         newUserJobSnapshot,
         newJobArray
       );
-
       inputJob.build.materials.forEach((material) => {
         if (
           material.quantityPurchased >= material.quantity ||
@@ -581,7 +586,6 @@ export function useJobManagement() {
 
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
-
     return finalPriceEntry;
   };
 

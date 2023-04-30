@@ -3,11 +3,15 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useContext, useState } from "react";
 import { useArchiveGroupJobs } from "../../../Hooks/GroupHooks/useArchiveGroupJobs";
 import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
+import { useBuildChildJobs } from "../../../Hooks/GroupHooks/useBuildChildJobs";
+import { ActiveJobContext } from "../../../Context/JobContext";
 
 export function GroupOptionsDropDown({ groupJobs }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const { archiveGroupJobs } = useArchiveGroupJobs();
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
+  const { activeGroup } = useContext(ActiveJobContext);
+  const { buildChildJobsNew } = useBuildChildJobs();
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -45,6 +49,12 @@ export function GroupOptionsDropDown({ groupJobs }) {
           }}
         >
           Archive Group Jobs
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            buildChildJobsNew(activeGroup.includedJobIDs)
+          }}>
+          test
         </MenuItem>
       </Menu>
     </>

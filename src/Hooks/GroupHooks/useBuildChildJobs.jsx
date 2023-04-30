@@ -11,6 +11,17 @@ export function useBuildChildJobs() {
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { findJobData } = useFindJobObject();
 
+  const buildChildJobsNew = async (inputJobIDs) => {
+    let currentTypeIDData = await calculateExistingTypeIDs();
+    console.log(currentTypeIDData);
+    let { requestList, jobsToBeModified } = await calculateNeededJobs(
+      inputJobIDs,
+      currentTypeIDData
+    );
+    console.log(requestList);
+    console.log(jobsToBeModified);
+  };
+
   const calculateExistingTypeIDs = async () => {
     const result = [];
 
@@ -51,12 +62,12 @@ export function useBuildChildJobs() {
         childJobs: childJobData,
       });
     }
-
     return result;
   };
 
   const calculateNeededJobs = async (requestedJobIDs, existingTypeIDData) => {
-    const result = [];
+    let requestList = [];
+    let jobsToBeModified = [];
     for (const inputJobID of requestedJobIDs) {
       const requestedJob = await findJobData(
         inputJobID,
@@ -68,19 +79,106 @@ export function useBuildChildJobs() {
       if (!requestedJob) {
         continue;
       }
-      const typeIDsToModify = requestedJob.build.materials.reduce(
-        (output, material) => {
-          if (
-            material.childJob.length === 0 &&
-            material.jobType === jobTypes.manufacturing &&
-            material.jobType === jobTypes.reaction &&
-            existingTypeIDData.some((i) => i.itemID === material.typeID)
-          ) {
-            
-          }
-        },
-        []
-      );
+      requestedJob.build.materials.forEach((material) => {
+        if (
+          material.jobType !== jobTypes.manufacturing &&
+          material.jobType !== jobTypes.reaction
+        ) {
+          return;
+        }
+        handleExistingID(
+          inputJobID,
+          material,
+          existingTypeIDData,
+          jobsToBeModified
+        );
+        handleModifiedID(
+          inputJobID,
+          material,
+          existingTypeIDData,
+          jobsToBeModified
+        );
+        handleBuildRequests(inputJobID, material, requestList);
+      });
     }
+
+    return { requestList, jobsToBeModified };
+  };
+
+  function calculateQuantities(materialQuantity, dataSetLength) {
+    const evenQuantity = Math.floor(materialQuantity / dataSetLength);
+    const remainingQuantity = materialQuantity % dataSetLength;
+    return { evenQuantity, remainingQuantity };
+  }
+
+  function handleExistingID(
+    requestedJobID,
+    material,
+    existingData,
+    jobsToBeModified
+  ) {
+    if (!existingData.some((i) => i.itemID === material.typeID)) return;
+    let matchingData = existingData.filter((i) => i.itemID === material.typeID);
+    const { evenQuantity, remainingQuantity } = calculateQuantities(
+      material.quantity,
+      matchingData.length
+    );
+    for (let dataSet of matchingData) {
+      console.log(dataSet);
+      dataSet.itemQty += evenQuantity;
+      dataSet.parentJobIDs.add(requestedJobID);
+    }
+    matchingData[0].itemQty += remainingQuantity;
+    jobsToBeModified = jobsToBeModified.concat(matchingData);
+    existingData = existingData.filter((i) => i.itemID !== material.typeID);
+    console.log(existingData) 
+  }
+
+  function handleModifiedID(
+    requestedJobID,
+    material,
+    existingData,
+    jobsToBeModified
+  ) {
+    let matchingData = jobsToBeModified.filter(
+      (i) => i.itemID === material.typeID
+    );
+    if (matchingData.length === 0) return;
+
+    const { evenQuantity, remainingQuantity } = calculateQuantities(
+      material.quantity,
+      matchingData.length
+    );
+
+    for (let dataSet of matchingData) {
+      dataSet.itemQty += evenQuantity;
+      dataSet.parentJobs.add(requestedJobID);
+    }
+    matchingData[0].itemQty += remainingQuantity;
+    jobsToBeModified = jobsToBeModified.filter(
+      (i) => i.itemID !== material.typeID
+    );
+    jobsToBeModified = jobsToBeModified.concat(matchingData);
+  }
+
+  function handleBuildRequests(requestedJobID, material, buildRequests) {
+    let buildObject = buildRequests.find((i) => i.itemID === material.typeID);
+
+    if (!buildObject) {
+      buildRequests.push({
+        name: material.name,
+        itemID: material.typeID,
+        itemQty: material.quantity,
+        parentJobs: new Set([requestedJobID]),
+        childJobs: [],
+        groupID: activeGroup.groupID,
+      });
+    } else {
+      buildObject.parentJobs.add(requestedJobID);
+      buildObject.itemQty += material.quantity;
+    }
+  }
+  return {
+    buildChildJobsNew,
   };
 }

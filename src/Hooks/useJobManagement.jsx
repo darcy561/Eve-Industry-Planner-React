@@ -444,7 +444,7 @@ export function useJobManagement() {
     let newJobArray = [...jobArray];
 
     for (let inputID of inputJobIDs) {
-      if ( inputID.incudes("group")) {
+      if (inputID.incudes("group")) {
         let inputGroup = groupArray.find((i) => i.groupID === inputID);
         if (inputGroup === undefined) {
           return;
@@ -543,7 +543,7 @@ export function useJobManagement() {
         const groupInputJobIDs = inputGroup.includedJobIDs || [];
         finalInputList.push(...groupInputJobIDs);
       } else {
-        finalInputList.push(inputID)
+        finalInputList.push(inputID);
       }
     }
 

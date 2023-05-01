@@ -321,8 +321,8 @@ export function useFirebase() {
       };
 
       newJob.build.materials.forEach((mat) => {
-        mat.childJob = mat.childJob.map(String)
-      })
+        mat.childJob = mat.childJob.map(String);
+      });
 
       return newJob;
     } else {
@@ -497,13 +497,13 @@ export function useFirebase() {
             const t = trace(performance, "UserJobSnapshotListener");
             t.start();
             updateUserJobSnapshotDataFetch(false);
-            let snapshotData = doc.data();
+            let snapshotData = doc.data().snapshot;
             let priceIDRequest = new Set();
             let newUserJobSnapshot = [];
             let newLinkedOrderIDs = new Set();
             let newLinkedJobIDs = new Set();
             let newLinkedTransIDs = new Set();
-            snapshotData.snapshot.forEach((snap) => {
+            snapshotData.forEach((snap) => {
               snap.jobID = snap.jobID.toString();
               snap.parentJob = snap.parentJob.map(String);
               snap.childJobs = snap.childJobs.map(String);
@@ -536,9 +536,15 @@ export function useFirebase() {
               }
               return 0;
             });
-            updateLinkedJobIDs([...newLinkedJobIDs]);
-            updateLinkedOrderIDs([...newLinkedOrderIDs]);
-            updateLinkedTransIDs([...newLinkedTransIDs]);
+            updateLinkedJobIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedJobIDs])];
+            });
+            updateLinkedOrderIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedOrderIDs])];
+            });
+            updateLinkedTransIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedTransIDs])];
+            });
             updateEvePrices((prev) => {
               newEvePrices = newEvePrices.filter(
                 (n) => !prev.some((p) => p.typeID === n.typeID)
@@ -762,14 +768,30 @@ export function useFirebase() {
             t.start();
             updateUserGroupsDataFetch(false);
             let groupData = doc.data().groupData;
-            let priceIDRequest = new Set();
+            let newLinkedOrderIDs = new Set()
+            let newLinkedJobIDs = new Set()
+            let newLinkedTransIDs = new Set()
             for (let group of groupData) {
               group.includedJobIDs = group.includedJobIDs.map(String);
-              priceIDRequest = new Set([
-                ...priceIDRequest,
-                ...group.materialIDs,
-              ]);
+              group?.linkedJobIDs?.forEach(id => {
+                newLinkedJobIDs.add(id)
+              })
+              group?.linkedOrderIDs?.forEach(id => {
+                newLinkedOrderIDs.add(id)
+              })
+              group?.linkedTransIDs?.forEach(id => {
+                newLinkedTransIDs.add(id)
+              })
             }
+            updateLinkedJobIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedJobIDs])];
+            });
+            updateLinkedOrderIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedOrderIDs])];
+            });
+            updateLinkedTransIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedTransIDs])];
+            });
             updateGroupArray(groupData);
             updateUserGroupsDataFetch(true);
             t.stop();

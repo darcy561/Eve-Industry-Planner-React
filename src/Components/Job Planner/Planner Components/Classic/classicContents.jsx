@@ -83,7 +83,7 @@ export function ClassicAccordionContents({ updateEditJobTrigger, status }) {
               !linkedJobIDs.includes(j.job_id) &&
               j.status === "delivered"
             ) {
-              return <ApiJobCard key={j.job_id} job={j} />;
+              return <ApiJobCardSorter key={j.job_id} job={j} />;
             } else {
               return null;
             }

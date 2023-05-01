@@ -9,7 +9,7 @@ export function MarkAsCompleteButton({ setJobModified }) {
   const toggleMarkJobAsComplete = () => {
     updateActiveGroup((prev) => {
       const newAreComplete = new Set(prev.areComplete);
-      newAreComplete[prev.areComplete.has(activeJob.jobID) ? "delete" : "add"](
+      newAreComplete[newAreComplete.has(activeJob.jobID) ? "delete" : "add"](
         activeJob.jobID
       );
       return {

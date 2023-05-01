@@ -662,7 +662,7 @@ export function useFirebase() {
           updateJobArray((prev) => {
             let index = prev.findIndex((i) => i.jobID === newJob.jobID);
             if (index === -1) {
-              return prev.push(newJob);
+              return [...prev, newJob];
             } else {
               prev[index] = newJob;
               return prev;
@@ -768,20 +768,21 @@ export function useFirebase() {
             t.start();
             updateUserGroupsDataFetch(false);
             let groupData = doc.data().groupData;
-            let newLinkedOrderIDs = new Set()
-            let newLinkedJobIDs = new Set()
-            let newLinkedTransIDs = new Set()
+            let newLinkedOrderIDs = new Set();
+            let newLinkedJobIDs = new Set();
+            let newLinkedTransIDs = new Set();
             for (let group of groupData) {
+              group.areComplete = group.areComplete.map(String);
               group.includedJobIDs = group.includedJobIDs.map(String);
-              group?.linkedJobIDs?.forEach(id => {
-                newLinkedJobIDs.add(id)
-              })
-              group?.linkedOrderIDs?.forEach(id => {
-                newLinkedOrderIDs.add(id)
-              })
-              group?.linkedTransIDs?.forEach(id => {
-                newLinkedTransIDs.add(id)
-              })
+              group?.linkedJobIDs?.forEach((id) => {
+                newLinkedJobIDs.add(id);
+              });
+              group?.linkedOrderIDs?.forEach((id) => {
+                newLinkedOrderIDs.add(id);
+              });
+              group?.linkedTransIDs?.forEach((id) => {
+                newLinkedTransIDs.add(id);
+              });
             }
             updateLinkedJobIDs((prevState) => {
               return [...new Set([...prevState, ...newLinkedJobIDs])];

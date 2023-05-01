@@ -70,7 +70,6 @@ export function useOpenEditJob() {
     //   inputJobID,
     //   newUserJobSnapshot
     // );
-
     updateLoadingText((prevObj) => ({
       ...prevObj,
       jobData: true,

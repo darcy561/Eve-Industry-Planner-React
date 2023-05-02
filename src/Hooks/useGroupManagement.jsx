@@ -107,7 +107,6 @@ export function useGroupManagement() {
           if (job === undefined) {
             continue;
           }
-          console.log(job);
           job.parentJob = job.parentJob.filter((i) => !inputJob.jobID);
         }
         mat.childJob = mat.childJob.filter((i) => inputJobIDs.includes(i));
@@ -137,7 +136,6 @@ export function useGroupManagement() {
         outputJobCount
       )
     );
-    console.log(newGroupEntry)
     newGroupArray.push(newGroupEntry);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);

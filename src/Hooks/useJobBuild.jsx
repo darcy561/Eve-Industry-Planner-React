@@ -132,7 +132,6 @@ export function useJobBuild() {
   const buildJobObject = (itemJson, buildRequest) => {
     try {
       const outputObject = new Job(itemJson, buildRequest);
-      console.log(outputObject)
       try {
         outputObject.build.materials.forEach((material) => {
           material.purchasing = [];

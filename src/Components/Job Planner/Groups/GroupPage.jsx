@@ -25,6 +25,7 @@ import { useJobManagement } from "../../../Hooks/useJobManagement";
 import itemList from "../../../RawData/searchIndex.json";
 import { useCloseGroup } from "../../../Hooks/GroupHooks/useCloseGroup";
 import { LoadingPage } from "../../loadingPage";
+import { ImportItemFitDialogue } from "./Dialogues/importFit/importFittingDialgue";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -60,6 +61,7 @@ export default function GroupPage({
   const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
   const [tempName, updateTempName] = useState("");
   const [showProcessing, updateShowProcessing] = useState(false);
+  const [importFitDialogueTrigger, updateImportFitDialogueTrigger] = useState(false);
   const { closeGroup } = useCloseGroup();
   const { newJobProcess } = useJobManagement();
   const classes = useStyles();
@@ -122,6 +124,7 @@ export default function GroupPage({
       }}
       square
     >
+      <ImportItemFitDialogue importFitDialogueTrigger={importFitDialogueTrigger} updateImportFitDialogueTrigger={updateImportFitDialogueTrigger} />
       <Grid container>
         <Grid item xs={7} md={9} lg={10} />
         <Grid item xs={5} md={3} lg={2} align="right">
@@ -252,12 +255,14 @@ export default function GroupPage({
               updateShoppingListTrigger={updateShoppingListTrigger}
               updateShoppingListData={updateShoppingListData}
               updateShowProcessing={updateShowProcessing}
+            updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
             />
           </Grid>
           <Grid item xs={12}>
             <OutputJobsPanel
               groupJobs={groupJobs}
               groupPageRefresh={groupPageRefresh}
+              
             />
           </Grid>
           <Grid item xs={12}>

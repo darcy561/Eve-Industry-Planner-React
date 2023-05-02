@@ -25,6 +25,7 @@ export function GroupOptionsBar({
   updateShoppingListTrigger,
   updateShoppingListData,
   updateShowProcessing,
+  updateImportFitDialogueTrigger
 }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
@@ -255,7 +256,7 @@ export function GroupOptionsBar({
           </Grid>
         </Grid>
         <Grid item xs={1} align="right">
-          <GroupOptionsDropDown groupJobs={groupJobs} />
+          <GroupOptionsDropDown groupJobs={groupJobs} updateImportFitDialogueTrigger={updateImportFitDialogueTrigger} />
         </Grid>
       </Grid>
     </Paper>

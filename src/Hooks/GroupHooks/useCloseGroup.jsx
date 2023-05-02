@@ -80,7 +80,6 @@ export function useCloseGroup() {
     newGroupEntry.linkedJobIDs = [...linkedJobIDs];
     newGroupEntry.linkedOrderIDs = [...linkedOrderIDs];
     newGroupEntry.linkedTransIDs = [...linkedTransIDs];
-    console.log(newGroupEntry)
 
     const filteredJobs = jobArray.filter((job) =>
       groupJobs.some((groupJob) => groupJob.jobID === job.jobID)

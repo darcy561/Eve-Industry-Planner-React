@@ -9,16 +9,16 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useImportFitFromClipboard } from "../../../../../Hooks/GroupHooks/useImportFitFromClipboard";
+import { ImportFittingItemRow } from "./importFittingItemRow";
 
 export function ImportItemFitDialogue({
   importFitDialogueTrigger,
   updateImportFitDialogueTrigger,
 }) {
   const [clipboardPermissionDisabled, updateClipboardPermissionDisabled] =
-      useState(false);
-    const [importedItemList, updateImportedItemList] = useState([])
-    const { importFromClipboard } = useImportFitFromClipboard();
-    
+    useState(false);
+  const [importedItemList, updateImportedItemList] = useState([]);
+  const { importFromClipboard } = useImportFitFromClipboard();
 
   const handleClose = () => {
     updateImportFitDialogueTrigger((prev) => !prev);
@@ -35,8 +35,8 @@ export function ImportItemFitDialogue({
           return;
         }
         try {
-            const items = await importFromClipboard();
-            updateImportedItemList(items)
+          const items = await importFromClipboard();
+          updateImportedItemList(items);
         } catch (err) {
           if (err.message == "Read permission denied.") {
             updateClipboardPermissionDisabled(true);
@@ -54,13 +54,16 @@ export function ImportItemFitDialogue({
       sx={{ padding: "20px" }}
     >
       <DialogTitle>Import Fit</DialogTitle>
-          <DialogContent>
-              {clipboardPermissionDisabled ?
-              <Typography> No Access To Clipboard</Typography>
-            :
-                  <Grid container>
-                      
-            </Grid>}
+      <DialogContent>
+        {clipboardPermissionDisabled ? (
+          <Typography> No Access To Clipboard</Typography>
+        ) : (
+          <Grid container>
+            {importedItemList.map((item) => {
+              return <ImportFittingItemRow item={item} />;
+            })}
+          </Grid>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Close</Button>

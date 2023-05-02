@@ -22,7 +22,7 @@ export function useImportFitFromClipboard() {
       console.log(itemsWithQuantities)
 
     if (itemNameMatch.length === 0) {
-      return;
+      return [];
     }
 
     const filteredItemMatches = itemMatches
@@ -61,6 +61,7 @@ export function useImportFitFromClipboard() {
     }
       console.log(objectArray);
     
+    return objectArray
   };
     
   return {

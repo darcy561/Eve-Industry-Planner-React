@@ -102,7 +102,7 @@ export function PurchasingData({
                         .hideCompleteMaterials
                     }
                     onChange={() => {
-                      let newUsers = JSON.parse(JSON.stringify(users));
+                      let newUsers = [...users]
                       newUsers[
                         parentUserIndex
                       ].settings.editJob.hideCompleteMaterials =

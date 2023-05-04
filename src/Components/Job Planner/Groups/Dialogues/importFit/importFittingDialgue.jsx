@@ -77,11 +77,13 @@ export function ImportItemFitDialogue({
         Import Fit
       </DialogTitle>
       <DialogContent>
-        {clipboardPermissionDisabled ? (
-          <Typography> No Access To Clipboard</Typography>
-        ) : (
-          <Grid container>
-            {importedItemList.map((item, index) => {
+        <Grid container>
+          {clipboardPermissionDisabled ? (
+            <Grid item xs={12}>
+              <Typography align="center"> No Access To Clipboard</Typography>
+            </Grid>
+          ) : importedItemList.length > 0 ? (
+            importedItemList.map((item, index) => {
               return (
                 <ImportFittingItemRow
                   key={item.itemID}
@@ -90,14 +92,26 @@ export function ImportItemFitDialogue({
                   index={index}
                 />
               );
-            })}
-          </Grid>
-        )}
+            })
+          ) : (
+            <Grid item xs={12}>
+              <Typography align="center">No Imported Items</Typography>
+            </Grid>
+          )}
+        </Grid>
       </DialogContent>
       <DialogActions sx={{ padding: "20px" }}>
         <Grid container>
-          <Grid item xs={3}>
+          <Grid
+            item
+            xs={12}
+            sm={3}
+            sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
+          >
             <TextField
+              disabled={
+                importedItemList.length === 0 || clipboardPermissionDisabled
+              }
               fullWidth
               className={classes.TextField}
               size="size"
@@ -117,9 +131,12 @@ export function ImportItemFitDialogue({
               }}
             />
           </Grid>
-          <Grid item xs={3} />
-          <Grid item xs={4} align="center">
+          <Grid item xs={3} sx={{ display: { xs: "none", sm: "block" } }} />
+          <Grid item xs={6} sm={4} align="center">
             <Button
+              disabled={
+                importedItemList.length === 0 || clipboardPermissionDisabled
+              }
               size="small"
               variant="contained"
               onClick={async () => {
@@ -130,7 +147,7 @@ export function ImportItemFitDialogue({
               Import Items
             </Button>
           </Grid>
-          <Grid item xs={2} align="center">
+          <Grid item xs={6} sm={2} align="center">
             <Button onClick={handleClose}>Close</Button>
           </Grid>
         </Grid>

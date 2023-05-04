@@ -5,6 +5,7 @@ import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJo
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { jobTypes } from "../../../../Context/defaultValues";
+import { InfoPopout } from "./InfoBadge";
 import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deepPurple, grey, lightGreen } from "@mui/material/colors";
@@ -13,6 +14,7 @@ import {
   Card,
   Checkbox,
   Grid,
+  Icon,
   IconButton,
   Typography,
 } from "@mui/material";
@@ -109,7 +111,16 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
             {job.name}
           </Typography>
         </Grid>
-        <Grid item xs={3} sm={2} align="center">
+        <Grid
+          container
+          item
+          sm={1}
+          alignItems="center"
+          sx={{ display: { xs: "none", sm: "flex" } }}
+        >
+          <InfoPopout job={job} />
+        </Grid>
+        <Grid container item xs={3} sm={1} align="center" alignItems="center">
           <Button
             color="primary"
             onClick={() => {
@@ -120,14 +131,14 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
             Edit
           </Button>
         </Grid>
-        <Grid item xs={1} align="center">
+        <Grid container item xs={1} align="center" alignItems="center">
           <IconButton
             className={classes.DeleteIcon}
             onClick={() => {
               deleteSingleJob(job.jobID);
             }}
           >
-            <DeleteIcon />
+            <DeleteIcon fontSize="small" />
           </IconButton>
         </Grid>
         <Grid

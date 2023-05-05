@@ -24,12 +24,13 @@ export function useCloseGroup() {
     UserJobSnapshotContext
   );
   const { updateJobSnapshotFromFullJob } = useJobManagement();
-  const { uploadGroups } = useFirebase();
+  const { uploadGroups, uploadJob } = useFirebase();
 
   const closeGroup = (groupJobs) => {
     let newGroupArray = [...groupArray];
     let newGroupEntry = { ...activeGroup };
     let newUserJobSnapshot = [...userJobSnapshot];
+    let jobsToSave = new Set();
 
     const {
       outputJobCount,
@@ -48,14 +49,14 @@ export function useCloseGroup() {
         prev.jobTypeIDs.add(job.itemID);
         prev.includedJobIDs.add(job.jobID);
         prev.linkedJobIDs = new Set([...prev.linkedJobIDs, ...job.apiJobs]);
-        prev.linkedOrderIDs = new Set(
-          [...prev.linkedOrderIDs,
-          ...job.apiOrders]
-        );
-        prev.linkedTransIDs = new Set(
-          [...prev.linkedTransIDs,
-          ...job.apiTransactions]
-        );
+        prev.linkedOrderIDs = new Set([
+          ...prev.linkedOrderIDs,
+          ...job.apiOrders,
+        ]);
+        prev.linkedTransIDs = new Set([
+          ...prev.linkedTransIDs,
+          ...job.apiTransactions,
+        ]);
 
         job.build.materials.forEach((mat) => {
           prev.materialIDs.add(mat.typeID);
@@ -100,11 +101,40 @@ export function useCloseGroup() {
             newUserJobSnapshot
           );
         }
+        jobsToSave.add(newJob.jobID);
         return newJob;
       } else {
         return job;
       }
     });
+
+    for (const startingJob of newJobArray) {
+      if (!includedJobIDs.has(startingJob.jobID)) continue;
+
+      for (const parentID of startingJob.parentJob) {
+        let parentMatch = newJobArray.find((i) => i.jobID === parentID);
+        if (!parentMatch) continue;
+        let materialMatch = parentMatch.build.materials.find(
+          (i) => i.typeID === startingJob.itemID
+        );
+        if (!materialMatch) continue;
+        if (!materialMatch.childJob.includes(startingJob.jobID)) {
+          materialMatch.childJob.push(startingJob.jobID);
+          jobsToSave.add(parentMatch.jobID);
+        }
+      }
+
+      for (const startingMaterial of startingJob.build.materials) {
+        for (const childID of startingMaterial.childJob) {
+          let childMatch = newJobArray.find((i) => i.jobID === childID);
+          if (!childMatch) continue;
+          if (!childMatch.parentJob.includes(startingJob.jobID)) {
+            childMatch.parentJob.push(startingJob.jobID);
+            jobsToSave.add(childMatch);
+          }
+        }
+      }
+    }
 
     let index = newGroupArray.findIndex(
       (i) => i.groupID === activeGroup.groupID
@@ -123,6 +153,11 @@ export function useCloseGroup() {
     updateEditGroupTrigger((prev) => !prev);
     if (isLoggedIn) {
       uploadGroups(newGroupArray);
+      jobsToSave.forEach((jobID) => {
+        let job = newJobArray.find((i) => i.jobID === jobID);
+        if (!job) return;
+        uploadJob(job);
+      });
     }
   };
 

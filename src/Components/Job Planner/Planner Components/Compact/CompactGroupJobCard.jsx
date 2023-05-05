@@ -100,12 +100,12 @@ export function CompactGroupJobCard({ group }) {
             }}
           />
         </Grid>
-        <Grid container item xs={6} sm={8} alignItems="center">
+        <Grid container item xs={6} sm={9} alignItems="center">
           <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
             {group.groupName}
           </Typography>
         </Grid>
-        <Grid item xs={3} sm={2} align="center">
+        <Grid container item xs={3} sm={1} align="center" alignItems="center">
           <Button
             color="primary"
             onClick={() => {
@@ -116,14 +116,14 @@ export function CompactGroupJobCard({ group }) {
             View
           </Button>
         </Grid>
-        <Grid item xs={1} align="center">
+        <Grid container item xs={1} align="center" alignItems="center">
           <IconButton
             className={classes.DeleteIcon}
             onClick={() => {
               deleteGroupWithoutJobs(group.groupID);
             }}
           >
-            <DeleteIcon />
+            <DeleteIcon fontSize="small" />
           </IconButton>
         </Grid>
         <Grid item xs={12} className={classes.GroupJob} />

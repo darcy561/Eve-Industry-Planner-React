@@ -5,7 +5,7 @@ import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJo
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { jobTypes } from "../../../../Context/defaultValues";
-import { InfoPopout } from "./InfoBadge";
+import PlannerInfoBadge from "./PlannerInfoBadge";
 import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deepPurple, grey, lightGreen } from "@mui/material/colors";
@@ -118,7 +118,7 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
           alignItems="center"
           sx={{ display: { xs: "none", sm: "flex" } }}
         >
-          <InfoPopout job={job} />
+          <PlannerInfoBadge job={job} />
         </Grid>
         <Grid container item xs={3} sm={1} align="center" alignItems="center">
           <Button

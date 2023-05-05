@@ -20,6 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 import { deepPurple, grey, lightGreen } from "@mui/material/colors";
+import GroupInfoPopout from "./GroupInfoBadge";
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -118,7 +119,16 @@ export function CompactGroupJobCardFrame({ job }) {
             {job.name}
           </Typography>
         </Grid>
-        <Grid item xs={3} sm={2} align="center">
+        <Grid
+          container
+          item
+          sm={1}
+          alignItems="center"
+          sx={{ display: { xs: "none", sm: "flex" } }}
+        >
+          <GroupInfoPopout job={job} />
+        </Grid>
+        <Grid container item xs={3} sm={1} align="center" alignItems="center">
           <Button
             color="primary"
             onClick={() => {
@@ -129,14 +139,14 @@ export function CompactGroupJobCardFrame({ job }) {
             Edit
           </Button>
         </Grid>
-        <Grid item xs={1} align="center">
+        <Grid container item xs={1} align="center" alignItems="center">
           <IconButton
             className={classes.DeleteIcon}
             onClick={() => {
               deleteSingleJob(job.jobID);
             }}
           >
-            <DeleteIcon />
+            <DeleteIcon fontSize="small" />
           </IconButton>
         </Grid>
         <Grid

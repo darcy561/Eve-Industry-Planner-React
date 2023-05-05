@@ -227,7 +227,7 @@ export function useJobBuild() {
       let returnArray = [];
       for (let request of buildRequest) {
         let itemJson = jsonData.find((i) => i.itemID === request.itemID);
-        if (itemJson === undefined) {
+        if (!itemJson) {
           continue;
         }
         returnArray.push(buildJobObject(itemJson, request));
@@ -413,7 +413,7 @@ export function useJobBuild() {
       const buildItem = buildRequest.childJobs.find(
         (i) => i.typeID === material.typeID
       );
-      if (buildItem === undefined) {
+      if (!buildItem) {
         continue;
       }
       material.childJob = [...buildItem.childJobs];

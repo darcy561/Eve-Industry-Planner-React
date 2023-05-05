@@ -444,7 +444,7 @@ export function useJobManagement() {
     let newJobArray = [...jobArray];
 
     for (let inputID of inputJobIDs) {
-      if (inputID.incudes("group")) {
+      if (inputID.includes("group")) {
         let inputGroup = groupArray.find((i) => i.groupID === inputID);
         if (inputGroup === undefined) {
           return;

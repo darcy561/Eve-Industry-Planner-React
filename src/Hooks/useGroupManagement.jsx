@@ -70,7 +70,7 @@ export function useGroupManagement() {
         undefined,
         "all"
       );
-      if (inputJob === undefined) {
+      if (!inputJob) {
         continue;
       }
 
@@ -81,13 +81,13 @@ export function useGroupManagement() {
           continue;
         }
         let job = await findJobData(id, newUserJobSnapshot, newJobArray);
-        if (job === undefined) {
+        if (!job) {
           continue;
         }
         let material = job.build.materials.find(
           (i) => i.typeID === inputJob.itemID
         );
-        if (material === undefined) {
+        if (!material) {
           continue;
         }
         material.childJob = material.childJob.filter(
@@ -104,7 +104,7 @@ export function useGroupManagement() {
             continue;
           }
           let job = await findJobData(id, newUserJobSnapshot, newJobArray);
-          if (job === undefined) {
+          if (!job) {
             continue;
           }
           job.parentJob = job.parentJob.filter((i) => !inputJob.jobID);
@@ -147,7 +147,7 @@ export function useGroupManagement() {
 
       jobsToSave.forEach((id) => {
         let job = newJobArray.find((i) => i.jobID === id);
-        if (job === undefined) {
+        if (!job) {
           return;
         }
         uploadJob(job);
@@ -180,7 +180,7 @@ export function useGroupManagement() {
         undefined,
         "groupJob"
       );
-      if (foundJob === undefined) {
+      if (!foundJob) {
         continue;
       }
       foundJob.groupID = null;
@@ -220,7 +220,7 @@ export function useGroupManagement() {
       for (let childJobID of material.childJob) {
         let childJob = jobArray.find((i) => i.jobID === childJobID);
 
-        if (childJob === undefined) {
+        if (!childJob) {
           continue;
         }
         returnTotal += childJob.build.costs.installCosts;
@@ -375,7 +375,7 @@ export function useGroupManagement() {
           userJobSnapshot,
           newJobArray
         );
-        if (inputJob === undefined) {
+        if (!inputJob) {
           continue;
         }
 
@@ -461,7 +461,7 @@ export function useGroupManagement() {
       for (let modifiedData of modifiedJobData) {
         let job = newJobArray.find((i) => i.jobID === modifiedData.jobID);
 
-        if (job === undefined) {
+        if (!job) {
           continue;
         }
 
@@ -579,7 +579,7 @@ export function useGroupManagement() {
           undefined,
           "groupJob"
         );
-        if (job === undefined) {
+        if (!job) {
           continue;
         }
 
@@ -653,7 +653,7 @@ export function useGroupManagement() {
           undefined,
           "groupJob"
         );
-        if (job === undefined) {
+        if (!job) {
           continue;
         }
         let childJobArray = [];

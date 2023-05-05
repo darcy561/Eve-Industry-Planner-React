@@ -54,7 +54,7 @@ function getTooltipContent(job, timeRemaining) {
   }
 }
 
-export default function InfoPopout({ job }) {
+export default function PlannerInfoBadge({ job }) {
   const { timeRemainingCalc } = useJobManagement();
   const timeRemaining = timeRemainingCalc(job.endDateDisplay);
   const tooltipContent = getTooltipContent(job, timeRemaining);

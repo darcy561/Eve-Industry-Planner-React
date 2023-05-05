@@ -18,7 +18,7 @@ export function useDnD() {
     useContext(JobArrayContext);
   const { updateJobSnapshotFromFullJob } = useJobManagement();
   const { findJobData } = useFindJobObject();
-  const { uploadJob } = useFirebase();
+  const { uploadJob, uploadGroups } = useFirebase();
 
   const recieveJobCardToStage = async (item, status) => {
     if (item.currentStatus === status.id) {
@@ -35,7 +35,7 @@ export function useDnD() {
           newUserJobSnapshot,
           newJobArray
         );
-        if (inputJob === undefined) {
+        if (!inputJob) {
           return;
         }
         inputJob.jobStatus = status.id;
@@ -55,13 +55,16 @@ export function useDnD() {
         let newGroupArray = [...groupArray];
 
         let groupItem = newGroupArray.find((i) => i.groupID === item.id);
-        if (groupItem === undefined) {
+        if (!groupItem) {
           return;
         }
 
         groupItem.groupStatus = status.id;
 
         updateGroupArray(newGroupArray);
+        if (isLoggedIn) {
+          uploadGroups(newGroupArray)
+        }
     }
   };
   const canDropCard = (item, status) => {

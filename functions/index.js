@@ -29,7 +29,7 @@ app.use(
 );
 app.use(express.json());
 app.use(helmet());
-// app.use(appCheckVerification);
+app.use(appCheckVerification);
 app.use(checkAppVersion);
 
 //Routes
@@ -184,37 +184,45 @@ app.post("/costs", async (req, res) => {
   }
 
   try {
-    const idArray = req.body.idArray;
-    const pricingRef = admin.database().ref("market-prices");
-    const missingDatabaseEntries = new Set();
+    const requestedIDS = req.body.idArray;
+    const results = {};
 
-    const promises = idArray.map(async (typeID) => {
-      const itemRef = pricingRef.child(typeID.toString());
-      const itemSnapshot = await itemRef.once("value");
-
-      if (!itemSnapshot.exists()) {
-        missingDatabaseEntries.add(typeID);
-        return null;
-      }
-
-      return itemSnapshot.val();
+    const databaseQueryPromises = requestedIDS.map((id) => {
+      return admin
+        .database()
+        .ref(`live-data/market-prices/${id}`)
+        .once("value");
     });
 
-    const itemDataArray = await Promise.all(promises);
-    const returnData = itemDataArray.filter((itemData) => itemData !== null);
+    const resolves = await Promise.all(databaseQueryPromises);
 
-    if (missingDatabaseEntries.size > 0) {
-      const missingPromises = [...missingDatabaseEntries].map((id) =>
-        ESIMarketQuery(id.toString(), true)
-      );
-      const missingData = await Promise.all(missingPromises);
-      returnData.push(...missingData);
+    for (let item of resolves) {
+      let itemData = item.val();
+      if (itemData !== null) {
+        results[itemData.typeID] = itemData;
+      }
     }
+
+    const missingPromises = [];
+    const missingIDs = [];
+    requestedIDS.forEach((id) => {
+      if (!results[id]) {
+        missingIDs.push(id);
+        missingPromises.push(ESIMarketQuery(id.toString()));
+      }
+    });
+
+    const missingData = await Promise.all(missingPromises);
+    missingData.forEach((item) => {
+      results[item.typeID] = item;
+    });
+
+    const returnData = Object.values(results);
 
     functions.logger.log(
       `${returnData.length} Prices Returned for ${req.header(
         "accountID"
-      )}, [${idArray}]`
+      )}, [${requestedIDS}]`
     );
 
     return res
@@ -230,7 +238,7 @@ app.post("/costs", async (req, res) => {
 });
 
 app.get("/systemindexes/:systemID", async (req, res) => {
-  const systemID = +req.params.systemID;
+  const systemID = req.params.systemID;
   if (isNaN(systemID)) {
     return res.status(400).send("Invalid System ID");
   }
@@ -280,7 +288,7 @@ exports.buildUser = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
-// exports.feedback = require("./Triggered Functions/storeFeedback");
+exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");
 exports.userClaims = require("./Triggered Functions/addCorpClaim");
 exports.appVersion = require("./Triggered Functions/checkAppVersion");
 exports.checkSDEUpdates = require("./Scheduled Functions/checkSDEUpdates");

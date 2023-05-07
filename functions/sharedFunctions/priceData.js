@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
 
-async function ESIMarketQuery(typeID, newItem) {
+async function ESIMarketQuery(typeID) {
   const maxPages = 50;
   const maxEntries = 1000;
   const locations = [
@@ -79,9 +79,10 @@ async function ESIMarketQuery(typeID, newItem) {
 
   async function saveMarketPricesToDatabase(typeID, marketPrices) {
     try {
-      if (newItem) {
-        await admin.database().ref(`market-prices/${typeID}`).set(marketPrices);
-      }
+      await admin
+        .database()
+        .ref(`live-data/market-prices/${typeID.toString()}`)
+        .update(marketPrices);
     } catch (err) {
       functions.logger.error(err);
     }

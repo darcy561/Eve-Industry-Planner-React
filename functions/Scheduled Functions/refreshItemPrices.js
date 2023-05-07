@@ -5,7 +5,7 @@ const axios = require("axios");
 
 const EVE_SERVER_STATUS_API =
   "https://esi.evetech.net/latest/status/?datasource=tranquility";
-const MARKET_PRICES_REF = "market-prices";
+const MARKET_PRICES_REF = "live-data/market-prices";
 const TIME_LIMIT = 4 * 60 * 60 * 1000; // 4 hours
 const MAX_ITEMS = 150;
 
@@ -30,6 +30,11 @@ exports.scheduledFunction = functions
         return null;
       }
 
+      if (pricingData.length === 0) {
+        functions.logger.log("No TypeID's Found To Refresh");
+        return null;
+      }
+
       const server = await axios.get(EVE_SERVER_STATUS_API);
 
       if (server.status !== 200) {
@@ -45,7 +50,7 @@ exports.scheduledFunction = functions
       const failedIDs = [];
 
       for (const [typeID] of Object.entries(pricingData)) {
-        const response = await ESIMarketQuery(typeID, false);
+        const response = await ESIMarketQuery(typeID);
         if (response === "fail") {
           failedRefreshCount++;
           failedIDs.push(typeID);

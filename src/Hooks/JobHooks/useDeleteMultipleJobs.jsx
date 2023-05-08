@@ -151,16 +151,6 @@ export function useDeleteMultipleJobs() {
         if (selectedGroupIndex === -1) break removeJobFromGroup;
 
         for (let jobID of newGroupArray[selectedGroupIndex].includedJobIDs) {
-          await findJobData(
-            jobID,
-            newUserJobSnapshot,
-            newJobArray,
-            undefined,
-            "groupJob"
-          );
-        }
-
-        for (let jobID of newGroupArray[selectedGroupIndex].includedJobIDs) {
           if (jobID === inputJob.jobID) continue;
 
           let foundJob = await findJobData(
@@ -240,6 +230,10 @@ export function useDeleteMultipleJobs() {
       autoHideDuration: 3000,
     }));
     r.stop();
+
+    async function removeJobsFromGroup() {
+      if(input) return
+    }
   };
   return { deleteMultipleJobs };
 }

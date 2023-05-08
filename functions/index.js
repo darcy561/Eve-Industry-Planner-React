@@ -187,12 +187,9 @@ app.post("/costs", async (req, res) => {
     const requestedIDS = req.body.idArray;
     const results = {};
 
-    const databaseQueryPromises = requestedIDS.map((id) => {
-      return admin
-        .database()
-        .ref(`live-data/market-prices/${id}`)
-        .once("value");
-    });
+    const databaseQueryPromises = requestedIDS.map((id) =>
+      admin.database().ref(`live-data/market-prices/${id}`).once("value")
+    );
 
     const resolves = await Promise.all(databaseQueryPromises);
 
@@ -230,7 +227,7 @@ app.post("/costs", async (req, res) => {
       .setHeader("Content-Type", "application/json")
       .send(returnData);
   } catch (err) {
-    functions.logger.error(err);
+    functions.logger.error(err.message);
     return res
       .status(500)
       .send("Error retrieving item data, please try again.");
@@ -242,21 +239,22 @@ app.get("/systemindexes/:systemID", async (req, res) => {
   if (isNaN(systemID)) {
     return res.status(400).send("Invalid System ID");
   }
-  const indexesRaw = await admin
-    .storage()
-    .bucket()
-    .file("systemIndexes.json")
-    .download();
-  const indexesParsed = JSON.parse(indexesRaw);
+  try {
+    const idData = admin
+      .database()
+      .ref(`live-data/system-indexes/${systemID}`)
+      .once("value")
+      .val();
 
-  const systemIndex = indexesParsed.find(
-    (index) => index.solar_system_id === systemID
-  );
-  if (!systemIndex) {
-    return res.status(404).send("System Index Not Found");
+    if (!idData) {
+      res.status(404).send("No System Data Found");
+    }
+
+    res.status(200).send(idData);
+  } catch (err) {
+    functions.logger.log(err.message);
+    res.status(500).send("Error retrieving system data, please try again.");
   }
-
-  res.send(systemIndex);
 });
 
 app.post("/systemindexes", async (req, res) => {
@@ -264,19 +262,40 @@ app.post("/systemindexes", async (req, res) => {
   if (!Array.isArray(idArray)) {
     return res.status(400).send("System IDs must be an array");
   }
+  try {
+    const results = {};
 
-  const indexesRaw = await admin
-    .storage()
-    .bucket()
-    .file("systemIndexes.json")
-    .download();
-  const indexesParsed = JSON.parse(indexesRaw);
+    const databaseRequests = idArray.map((id) =>
+      admin.database().ref(`live-data/system-indexes/${id}`).once("value")
+    );
 
-  const systemIndexes = indexesParsed.filter((index) =>
-    idArray.includes(index.solar_system_id)
-  );
+    const databaseResponses = await Promise.all(databaseRequests);
 
-  res.send(systemIndexes);
+    for (let item of databaseResponses) {
+      let itemData = item.val();
+      if (itemData !== null) {
+        results[itemData.system - index] = itemData;
+      }
+    }
+
+    const returnData = Object.values(results);
+
+    functions.logger.log(
+      `${returnData.kength} System Indexes Returned For ${req.header(
+        "accountID"
+      )}, [${idArray}]`
+    );
+
+    res
+      .status(200)
+      .setHeader("Content-Type", "application/json")
+      .send(returnData);
+  } catch (err) {
+    functions.logger.error(err.message);
+    return res
+      .status(500)
+      .send("Error retrieving system data, please try again.");
+  }
 });
 
 //Export the api to Firebase Cloud Functions

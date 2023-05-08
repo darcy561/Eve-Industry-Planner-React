@@ -19,16 +19,17 @@ import { NavRoutes } from "./Routes";
 import { FeedbackIcon } from "./Components/Feedback/feedback";
 
 export default function App() {
+
   const [mode, setMode] = useState(localStorage.getItem("theme"));
   const colorMode = useMemo(
     () => ({
       toggleColorMode: () => {
         setMode((prevMode) =>
-          prevMode === "light" || prevMode === null ? "dark" : "light"
+          prevMode === 'light' ? 'dark' : 'light',
         );
       },
     }),
-    []
+    [],
   );
 
   const getDesignTokens = (mode) => ({
@@ -36,8 +37,8 @@ export default function App() {
       typography: {
         fontFamily: "Montserrat",
       },
-      ...(mode === "light" || mode === null
-        ? {
+      ...(mode === "light"
+        ? { 
             type: "light",
             primary: {
               main: blue[600],
@@ -99,8 +100,7 @@ export default function App() {
     },
   });
 
-  let theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
-  theme = responsiveFontSizes(theme);
+  const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
 
   return (
     <ThemeProvider theme={theme}>

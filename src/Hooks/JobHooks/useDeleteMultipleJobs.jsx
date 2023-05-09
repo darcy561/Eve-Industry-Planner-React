@@ -232,7 +232,7 @@ export function useDeleteMultipleJobs() {
     r.stop();
 
     async function removeJobsFromGroup() {
-      if(input) return
+      if (input) return;
     }
   };
   return { deleteMultipleJobs };

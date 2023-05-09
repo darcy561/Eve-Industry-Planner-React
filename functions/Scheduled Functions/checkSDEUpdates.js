@@ -2,11 +2,14 @@ const functions = require("firebase-functions");
 const { WebhookClient } = require("discord.js");
 const axios = require("axios");
 require("dotenv").config();
+const GLOBAL_CONFIG = require("../global-config-functions");
+
+const { FIREBASE_SERVER_REGION, FIREBASE_SERVER_TIMEZONE } = GLOBAL_CONFIG;
 
 exports.checkSDEUpdates = functions
-  .region("europe-west1")
+  .region(FIREBASE_SERVER_REGION)
   .pubsub.schedule("0 16 * * *")
-  .timeZone("Etc/GMT")
+  .timeZone(FIREBASE_SERVER_TIMEZONE)
   .onRun(async (context) => {
     const sdeUrl =
       "https://eve-static-data-export.s3-eu-west-1.amazonaws.com/tranquility/sde.zip";
@@ -23,7 +26,7 @@ exports.checkSDEUpdates = functions
       const response = await axios(options);
       const lastModified = response.headers["last-modified"];
       const lastModifiedTimestamp = Date.parse(lastModified);
-      
+
       if (lastModifiedTimestamp > last24HoursTimestamp) {
         const webhookClient = new WebhookClient({ url: discordWebhookUrl });
         const message = `Hey <@${

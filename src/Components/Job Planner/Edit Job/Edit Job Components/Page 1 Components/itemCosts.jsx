@@ -5,9 +5,9 @@ import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { ItemCostRow } from "./itemCostRow";
 import {
-  listingType,
-  marketOptions,
+  listingType
 } from "../../../../../Context/defaultValues";
+import GLOBAL_CONFIG from "../../../../../global-config-app";
 
 export function ItemCostPanel({ jobModified, setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -20,10 +20,12 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
   const [listingSelect, updateListingSelect] = useState(
     parentUser.settings.editJob.defaultOrders
   );
+  const { MARKET_OPTIONS } = GLOBAL_CONFIG;
+
+  let totalJobBuy = 0;  
 
   let activeJobPrices = evePrices.find((i) => i.typeID === activeJob.itemID);
 
-  let totalJobBuy = 0;
   let totalJobSell = 0;
 
   return (
@@ -79,7 +81,7 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
             right: { xs: "10%", sm: "30px" },
           }}
         >
-          {marketOptions.map((option) => {
+          {MARKET_OPTIONS.map((option) => {
             return (
               <MenuItem key={option.name} value={option.id}>
                 {option.name}

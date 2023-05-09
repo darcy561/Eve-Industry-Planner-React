@@ -16,9 +16,9 @@ import {
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import {
-  listingType,
-  marketOptions,
+  listingType
 } from "../../../../../Context/defaultValues";
+import GLOBAL_CONFIG from "../../../../../global-config-app";
 
 export function PurchasingData({
   orderDisplay,
@@ -33,6 +33,7 @@ export function PurchasingData({
   const { users, updateUsers } = useContext(UsersContext);
   const [orderSelect, updateOrderSelect] = useState(orderDisplay);
   const [marketSelect, updateMarketSelect] = useState(marketDisplay);
+  const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
   const parentUserIndex = useMemo(() => {
     return users.findIndex((i) => i.ParentUser);
@@ -162,7 +163,7 @@ export function PurchasingData({
                     marginRight: "5px",
                   }}
                 >
-                  {marketOptions.map((option) => {
+                  {MARKET_OPTIONS.map((option) => {
                     return (
                       <MenuItem key={option.name} value={option.id}>
                         {option.name}

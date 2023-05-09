@@ -1,8 +1,11 @@
 const functions = require("firebase-functions");
 const checkVersion = require("../sharedFunctions/appVersion").checkAppVersion;
+const GLOBAL_CONFIG = require("../global-config-functions");
+
+const { FIREBASE_SERVER_REGION } = GLOBAL_CONFIG;
 
 exports.checkAppVersion = functions
-  .region("europe-west1")
+  .region(FIREBASE_SERVER_REGION)
   .https.onCall((data, context) => {
     if (context.app === undefined) {
       functions.logger.warn("Unverified function Call");

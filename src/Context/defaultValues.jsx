@@ -2215,12 +2215,6 @@ export let eveIDsDefault = [
   },
 ];
 
-export let marketOptions = [
-  { id: "amarr", name: "Amarr" },
-  { id: "dodixie", name: "Dodixie" },
-  { id: "jita", name: "Jita" },
-];
-
 export let listingType = [
   { id: "buy", name: "Buy Orders" },
   { id: "sell", name: "Sell Orders" },

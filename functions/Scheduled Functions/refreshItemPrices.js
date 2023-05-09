@@ -2,18 +2,21 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const ESIMarketQuery = require("../sharedFunctions/priceData").ESIMarketQuery;
 const axios = require("axios");
+const GLOBAL_CONFIG = require("../global-config-functions");
+
+const { FIREBASE_SERVER_REGION, FIREBASE_SERVER_TIMEZONE, DEFAULT_ITEM_REFRESH_PERIOD, DEFAULT_ITEM_MAKET_REFRESH_QUANTITY } =
+  GLOBAL_CONFIG;
 
 const EVE_SERVER_STATUS_API =
   "https://esi.evetech.net/latest/status/?datasource=tranquility";
 const MARKET_PRICES_REF = "live-data/market-prices";
-const TIME_LIMIT = 4 * 60 * 60 * 1000; // 4 hours
-const MAX_ITEMS = 150;
+const TIME_LIMIT = DEFAULT_ITEM_REFRESH_PERIOD * 60 * 60 * 1000;
 
 exports.scheduledFunction = functions
-  .region("europe-west1")
+  .region(FIREBASE_SERVER_REGION)
   .runWith({ timeoutSeconds: 540 })
   .pubsub.schedule("every 30 minutes")
-  .timeZone("Etc/GMT")
+  .timeZone(FIREBASE_SERVER_TIMEZONE)
   .onRun(async (context) => {
     try {
       const pricingSnapshot = await admin
@@ -21,7 +24,7 @@ exports.scheduledFunction = functions
         .ref(MARKET_PRICES_REF)
         .orderByChild("lastUpdated")
         .endAt(Date.now() - TIME_LIMIT)
-        .limitToLast(MAX_ITEMS)
+        .limitToLast(DEFAULT_ITEM_MAKET_REFRESH_QUANTITY)
         .once("value");
 
       let pricingData = pricingSnapshot.val();

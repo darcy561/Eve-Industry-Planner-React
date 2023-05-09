@@ -250,7 +250,7 @@ function EditJob({
                               onClick={stepForward}
                               size="large"
                               disabled={
-                                activeJob.groupID !== null &&
+                                activeJob.groupID &&
                                 !activeJob.isReadyToSell &&
                                 activeJob.jobStatus === jobStatus.length - 2
                               }
@@ -263,7 +263,7 @@ function EditJob({
                     )}
                     <Grid container>
                       <Grid item sm={8} lg={8} xl={8} />
-                      {activeJob.groupID !== null &&
+                      {activeJob.groupID &&
                       activeJob.jobStatus === jobStatus.length - 2 &&
                       activeJob.parentJob.length === 0 ? (
                         <Grid item container xs={7} sm={2}>
@@ -279,7 +279,7 @@ function EditJob({
                             />
                           </Grid>
                         )}
-                      {activeJob.groupID !== null &&
+                      {activeJob.groupID &&
                         activeJob.jobStatus === jobStatus.length - 2 &&
                         isLoggedIn && (
                           <Grid item container xs={5} sm={2}>
@@ -290,7 +290,7 @@ function EditJob({
                         )}
                       {activeJob.jobStatus === jobStatus.length - 2 &&
                         isLoggedIn &&
-                        activeJob.groupID === null && (
+                        !activeJob.groupID && (
                           <Grid item container xs={5} sm={2}>
                             <ArchiveJobButton
                               updateEditJobTrigger={updateEditJobTrigger}

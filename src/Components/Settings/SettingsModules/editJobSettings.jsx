@@ -14,11 +14,12 @@ import {
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
-import { listingType, marketOptions } from "../../../Context/defaultValues";
+import { listingType } from "../../../Context/defaultValues";
 import { makeStyles } from "@mui/styles";
 import { useCharAssets } from "../../../Hooks/useCharAssets";
-import { EveIDs, EveIDsContext } from "../../../Context/EveDataContext";
+import { EveIDsContext } from "../../../Context/EveDataContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
+import GLOBAL_CONFIG from "../../../global-config-app";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -53,6 +54,7 @@ export function EditJobSettings({ parentUserIndex }) {
     users[parentUserIndex].settings.editJob.defaultAssetLocation
   );
   const [assetLocationEntries, updateAssetLocationEntries] = useState([]);
+  const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
   const classes = useStyles();
 
@@ -95,7 +97,7 @@ export function EditJobSettings({ parentUserIndex }) {
                   width: "90px",
                 }}
               >
-                {marketOptions.map((option) => {
+                {MARKET_OPTIONS.map((option) => {
                   return (
                     <MenuItem key={option.name} value={option.id}>
                       {option.name}
@@ -246,8 +248,9 @@ export function EditJobSettings({ parentUserIndex }) {
                 newUsersArray[
                   parentUserIndex
                 ].settings.editJob.citadelBrokersFee =
-                  Math.round((Number(e.target.value) + Number.EPSILON) * 100) / 100;
-                updateUsers(newUsersArray)
+                  Math.round((Number(e.target.value) + Number.EPSILON) * 100) /
+                  100;
+                updateUsers(newUsersArray);
                 updateMainUserDoc();
               }}
             />

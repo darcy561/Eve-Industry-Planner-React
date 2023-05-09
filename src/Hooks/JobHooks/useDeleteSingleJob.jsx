@@ -176,7 +176,7 @@ export function useDeleteSingleJob() {
 
     async function removeJobFromGroup() {
       if (!inputJob.groupID) return;
-      
+
       let newGroupArray = [...groupArray];
 
       const selectedGroupIndex = newGroupArray.findIndex(

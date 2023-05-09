@@ -1,7 +1,6 @@
 import { useContext, useEffect, useRef } from "react";
 import { UserJobSnapshotContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
-import { useNavigate } from "react-router";
 import { decodeJwt } from "jose";
 import { firebaseAuth } from "./firebaseAuth";
 import { useFirebase } from "../../Hooks/useFirebase";
@@ -13,7 +12,6 @@ import {
   DialogDataContext,
   UserLoginUIContext,
 } from "../../Context/LayoutContext";
-import { LoadingPage } from "../loadingPage";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { httpsCallable } from "firebase/functions";

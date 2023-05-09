@@ -1,9 +1,5 @@
 import { auth, appCheck } from "../../firebase";
-import {
-  browserSessionPersistence,
-  setPersistence,
-  signInWithCustomToken,
-} from "firebase/auth";
+import { signInWithCustomToken } from "firebase/auth";
 import { getToken } from "firebase/app-check";
 
 export async function firebaseAuth(charObj) {

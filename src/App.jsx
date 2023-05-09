@@ -17,19 +17,22 @@ import {
 import CssBaseline from "@mui/material/CssBaseline";
 import { NavRoutes } from "./Routes";
 import { FeedbackIcon } from "./Components/Feedback/feedback";
+import GLOBAL_CONFIG from "./global-config-app";
 
 export default function App() {
+  const { ENABLE_FEEDBACK_ICON, PRIMARY_THEME, SECONDARY_THEME } =
+    GLOBAL_CONFIG;
 
   const [mode, setMode] = useState(localStorage.getItem("theme"));
   const colorMode = useMemo(
     () => ({
       toggleColorMode: () => {
         setMode((prevMode) =>
-          prevMode === 'light' ? 'dark' : 'light',
+          prevMode === SECONDARY_THEME ? PRIMARY_THEME : SECONDARY_THEME
         );
       },
     }),
-    [],
+    []
   );
 
   const getDesignTokens = (mode) => ({
@@ -37,33 +40,9 @@ export default function App() {
       typography: {
         fontFamily: "Montserrat",
       },
-      ...(mode === "light"
-        ? { 
-            type: "light",
-            primary: {
-              main: blue[600],
-            },
-            secondary: {
-              main: grey[600],
-            },
-            manufacturing: {
-              main: lightGreen[200],
-            },
-            reaction: {
-              main: deepPurple[100],
-            },
-            pi: {
-              main: blue[100],
-            },
-            baseMat: {
-              main: blueGrey[100],
-            },
-            groupJob: {
-              main: yellow[600],
-            },
-          }
-        : {
-            type: "dark",
+      ...(mode !== SECONDARY_THEME
+        ? {
+            type: PRIMARY_THEME,
             primary: {
               main: blue[600],
             },
@@ -96,6 +75,30 @@ export default function App() {
               hint: grey[200],
             },
             divider: grey[700],
+          }
+        : {
+            type: SECONDARY_THEME,
+            primary: {
+              main: blue[600],
+            },
+            secondary: {
+              main: grey[600],
+            },
+            manufacturing: {
+              main: lightGreen[200],
+            },
+            reaction: {
+              main: deepPurple[100],
+            },
+            pi: {
+              main: blue[100],
+            },
+            baseMat: {
+              main: blueGrey[100],
+            },
+            groupJob: {
+              main: yellow[600],
+            },
           }),
     },
   });
@@ -108,7 +111,7 @@ export default function App() {
       <SnackBarNotification />
       <DialogBox />
       <NavRoutes mode={mode} colorMode={colorMode} />
-      <FeedbackIcon />
+      {ENABLE_FEEDBACK_ICON && <FeedbackIcon />}
     </ThemeProvider>
   );
 }

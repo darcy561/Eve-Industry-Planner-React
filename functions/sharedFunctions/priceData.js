@@ -1,24 +1,22 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
+const GLOBAL_CONFIG = require("../global-config-functions");
+
+const { DEFAULT_MARKET_LOCATIONS, ESI_MAX_PAGES } = GLOBAL_CONFIG
 
 async function ESIMarketQuery(typeID) {
-  const maxPages = 50;
   const maxEntries = 1000;
-  const locations = [
-    { name: "jita", regionID: 10000002, stationID: 60003760 },
-    { name: "amarr", regionID: 10000043, stationID: 60008494 },
-    { name: "dodixie", regionID: 10000032, stationID: 60011866 },
-  ];
 
   const dbObject = { typeID: Number(typeID), lastUpdated: Date.now() };
-  const promises = locations.map((location) =>
+
+  const promises = DEFAULT_MARKET_LOCATIONS.map((location) =>
     fetchMarketOrders(typeID, location)
   );
   const responses = await Promise.all(promises);
 
   for (let i = 0; i < responses.length; i++) {
-    const location = locations[i];
+    const location = DEFAULT_MARKET_LOCATIONS[i];
     const orders = responses[i];
 
     if (!orders) {
@@ -35,7 +33,7 @@ async function ESIMarketQuery(typeID) {
 
   async function fetchMarketOrders(typeID, location) {
     let orders = [];
-    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
       try {
         const response = await axios.get(
           `https://esi.evetech.net/latest/markets/${location.regionID}/orders/?datasource=tranquility&order_type=all&page=${pageCount}&type_id=${typeID}`

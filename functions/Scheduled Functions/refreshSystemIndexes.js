@@ -1,7 +1,9 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
-const bucket = admin.storage().bucket();
+const GLOBAL_CONFIG = require("../global-config-functions");
+
+const {FIREBASE_SERVER_REGION, FIREBASE_SERVER_TIMEZONE} = GLOBAL_CONFIG
 
 const EVE_SERVER_STATUS_API =
   "https://esi.evetech.net/latest/status/?datasource=tranquility";
@@ -10,9 +12,9 @@ const EVE_SYSTEM_INDEX_API =
 const SYSTEM_INDEXES_REF = "live-data/system-indexes";
 
 exports.scheduledFunction = functions
-  .region("europe-west1")
+  .region(FIREBASE_SERVER_REGION)
   .pubsub.schedule("every 1 hours")
-  .timeZone("Etc/GMT")
+  .timeZone(FIREBASE_SERVER_TIMEZONE)
   .onRun(async (context) => {
     try {
       const eveServerResponse = await axios.get(EVE_SERVER_STATUS_API);

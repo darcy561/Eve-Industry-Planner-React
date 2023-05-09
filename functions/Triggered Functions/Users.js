@@ -1,8 +1,20 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const GLOBAL_CONFIG = require("../global-config-functions");
+
+const {
+  FIREBASE_SERVER_REGION,
+  DEFAULT_CLOUD_ACCOUNTS,
+  DEFAULT_MARKET_OPTION,
+  DEFAULT_ORDER_OPTION,
+  DEFAULT_ASSET_LOCATION,
+  DEFAULT_CITADEL_BROKERS_FEE,
+  DEFAULT_MANUFACTURING_STRUCTURES,
+  DEFAULT_REACTION_STRUCTURES,
+} = GLOBAL_CONFIG;
 
 exports.createUserData = functions
-  .region("europe-west1")
+  .region(FIREBASE_SERVER_REGION)
   .https.onCall((data, context) => {
     if (context.app == undefined) {
       functions.logger.warn("Unverified function Call");
@@ -63,7 +75,7 @@ exports.createUserData = functions
         linkedOrders: [],
         settings: {
           account: {
-            cloudAccounts: false,
+            cloudAccounts: DEFAULT_CLOUD_ACCOUNTS || false,
           },
           layout: {
             hideTutorials: false,
@@ -72,15 +84,15 @@ exports.createUserData = functions
             esiJobTab: null,
           },
           editJob: {
-            defaultMarket: "jita",
-            defaultOrders: "sell",
+            defaultMarket: DEFAULT_MARKET_OPTION || "jita",
+            defaultOrders: DEFAULT_ORDER_OPTION || "sell",
             hideCompleteMaterials: false,
-            defaultAssetLocation: 60003760,
-            citadelBrokersFee: 1,
+            defaultAssetLocation: DEFAULT_ASSET_LOCATION || 60003760,
+            citadelBrokersFee: DEFAULT_CITADEL_BROKERS_FEE || 1,
           },
           structures: {
-            manufacturing: [],
-            reaction: [],
+            manufacturing: DEFAULT_MANUFACTURING_STRUCTURES || [],
+            reaction: DEFAULT_REACTION_STRUCTURES || [],
           },
         },
         refreshTokens: [],

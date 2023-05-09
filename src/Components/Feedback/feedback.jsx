@@ -79,7 +79,7 @@ export function FeedbackIcon() {
       };
     };
 
-    const call = httpsCallable(functions, "feedback-submitUserFeedback");
+    const call = httpsCallable(functions, "submitUserFeedback-submitUserFeedback");
     call({
       accountID: parentUser.accountID || null,
       response: inputText,

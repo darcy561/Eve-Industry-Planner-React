@@ -8,6 +8,9 @@ import {
 import { getPerformance } from "firebase/performance";
 import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 import { getAnalytics } from "firebase/analytics";
+import GLOBAL_CONFIG from "./global-config-app";
+
+const { FIREBASE_FUNCTION_REGION } = GLOBAL_CONFIG;
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_fbApiKey,
@@ -25,7 +28,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 export const firestore = getFirestore(app);
-export const functions = getFunctions(app, "europe-west1");
+export const functions = getFunctions(app, FIREBASE_FUNCTION_REGION);
 export const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(import.meta.env.VITE_ReCaptchaKey),
   isTokenAutoRefreshEnabled: true,

@@ -33,6 +33,7 @@ import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
 import { useAccountManagement } from "./useAccountManagement";
 import { useEveApi } from "./useEveApi";
 import { UserLoginUIContext } from "../Context/LayoutContext";
+import GLOBAL_CONFIG from "../global-config-app";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -71,6 +72,8 @@ export function useFirebase() {
   } = useAccountManagement();
   const { serverStatus } = useEveApi();
   const analytics = getAnalytics();
+  const { DEFAULT_ITEM_REFRESH_PERIOD, DEFAULT_ARCHIVE_REFRESH_PERIOD } =
+    GLOBAL_CONFIG;
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser === true);
@@ -409,7 +412,10 @@ export function useFirebase() {
     const newEvePrices = [];
 
     oldEvePrices.forEach((item) => {
-      if (item.lastUpdated <= Date.now() - 14400000) {
+      if (
+        item.lastUpdated <=
+        Date.now() - DEFAULT_ITEM_REFRESH_PERIOD * 24 * 60 * 60 * 1000
+      ) {
         priceUpdates.add(item.typeID);
       } else {
         newEvePrices.push(item);
@@ -467,7 +473,11 @@ export function useFirebase() {
     } else {
       let index = newArchivedJobsArray.findIndex((i) => i.typeID === typeID);
       if (index !== -1) {
-        if (newArchivedJobsArray[index].lastUpdated + 10800000 <= Date.now()) {
+        if (
+          newArchivedJobsArray[index].lastUpdated +
+            DEFAULT_ARCHIVE_REFRESH_PERIOD * 24 * 60 * 60 * 1000 <=
+          Date.now()
+        ) {
           const document = await getDoc(
             doc(
               firestore,

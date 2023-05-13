@@ -7,26 +7,26 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import blueprintIDs from "../../RawData/searchIndex.json";
+import blueprintIDs from "../../../RawData/searchIndex.json";
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
-import { BlueprintEntry } from "./BlueprintEntry";
-import { ApiJobsContext, JobArrayContext } from "../../Context/JobContext";
+import { BlueprintEntry } from "./classicBlueprintEntry";
+import { ApiJobsContext, JobArrayContext } from "../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
-import { ArchiveBpData } from "./blueprintArchiveData";
-import { useJobBuild } from "../../Hooks/useJobBuild";
-import { useJobManagement } from "../../Hooks/useJobManagement";
-import { useFirebase } from "../../Hooks/useFirebase";
-import { EvePricesContext } from "../../Context/EveDataContext";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
+import { ArchiveBpData } from "../blueprintArchiveData";
+import { useJobBuild } from "../../../Hooks/useJobBuild";
+import { useJobManagement } from "../../../Hooks/useJobManagement";
+import { useFirebase } from "../../../Hooks/useFirebase";
+import { EvePricesContext } from "../../../Context/EveDataContext";
+import { SnackBarDataContext } from "../../../Context/LayoutContext";
 import {
   UserJobSnapshotContext,
   UsersContext,
-} from "../../Context/AuthContext";
+} from "../../../Context/AuthContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "@firebase/performance";
-import { performance } from "../../firebase";
+import { performance } from "../../../firebase";
 
-export function BlueprintGroup({ bpID, blueprintResults }) {
+export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   const { users } = useContext(UsersContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { updateJobArray } = useContext(JobArrayContext);

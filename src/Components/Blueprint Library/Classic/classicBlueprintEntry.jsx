@@ -1,11 +1,11 @@
 import { useContext, useState } from "react";
 import { Avatar, Badge, Grid, Icon, Tooltip, Typography } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
-import { jobTypes } from "../../Context/defaultValues";
+import { jobTypes } from "../../../Context/defaultValues";
 import { makeStyles } from "@mui/styles";
-import { ActiveBPPopout } from "./ActiveBPPout";
-import { UsersContext } from "../../Context/AuthContext";
-import { CorpEsiDataContext } from "../../Context/EveDataContext";
+import { ActiveBPPopout } from "../ActiveBPPout";
+import { UsersContext } from "../../../Context/AuthContext";
+import { CorpEsiDataContext } from "../../../Context/EveDataContext";
 
 const useStyles = makeStyles((theme) => ({
   inUse: {

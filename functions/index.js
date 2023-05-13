@@ -3,11 +3,13 @@ const admin = require("firebase-admin");
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
-const appCheckVerification =
-  require("./Middleware/AppCheck").appCheckVerification;
-const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
-const ESIMarketQuery = require("./sharedFunctions/priceData").ESIMarketQuery;
-const checkAppVersion = require("./Middleware/appVersion").checkAppVersion;
+const { appCheckVerification } = require("./Middleware/AppCheck");
+const { verifyEveToken } = require("./Middleware/eveTokenVerify");
+const { ESIMarketQuery } = require("./sharedFunctions/fetchMarketPrices");
+const {
+  ESIMarketHistoryQuery,
+} = require("./sharedFunctions/fetchMarketHistory");
+const { checkAppVersion } = require("./Middleware/appVersion");
 
 admin.initializeApp();
 
@@ -185,42 +187,78 @@ app.post("/costs", async (req, res) => {
 
   try {
     const requestedIDS = req.body.idArray;
-    const results = {};
 
-    const databaseQueryPromises = requestedIDS.map((id) =>
+    const databaseMarketPricesQueryPromises = requestedIDS.map((id) =>
       admin.database().ref(`live-data/market-prices/${id}`).once("value")
     );
+    const databaseMarketHistoryQueryPromises = requestedIDS
+      .map((id) => admin.database().ref(`live-data/market-history`))
+      .once("value");
+    const databaseResolves = await Promise.all([
+      ...databaseMarketPricesQueryPromises,
+      ...databaseMarketHistoryQueryPromises,
+    ]);
 
-    const resolves = await Promise.all(databaseQueryPromises);
+    const { returnData: databaseResults, missingIDs } = meregeReturnPromises(
+      requestedIDS,
+      databaseResolves
+    );
 
-    for (let item of resolves) {
-      let itemData = item.val();
-      if (itemData !== null) {
-        results[itemData.typeID] = itemData;
-      }
-    }
+    const missingPricePromises = missingIDs.map((id) =>
+      ESIMarketQuery(id.toString())
+    );
+    const missingHistoryPromises = missingIDs.map((id) =>
+      ESIMarketHistoryQuery(id.toString())
+    );
+    const missingESIResolves = await Promise.all([
+      ...missingPricePromises,
+      ...missingHistoryPromises,
+    ]);
 
-    const missingPromises = [];
-    const missingIDs = [];
-    requestedIDS.forEach((id) => {
-      if (!results[id]) {
-        missingIDs.push(id);
-        missingPromises.push(ESIMarketQuery(id.toString()));
-      }
-    });
+    const { returnData: esiResults, missingIDs: failedToRetrieve } =
+      meregeReturnPromises(missingIDs, missingESIResolves);
 
-    const missingData = await Promise.all(missingPromises);
-    missingData.forEach((item) => {
-      results[item.typeID] = item;
-    });
-
-    const returnData = Object.values(results);
+    const returnData = [...databaseResults, ...esiResults];
 
     functions.logger.log(
-      `${returnData.length} Prices Returned for ${req.header(
+      `${returnData.length} Market Objects Returned for ${req.header(
         "accountID"
       )}, [${requestedIDS}]`
     );
+
+    if (failedToRetrieve.length > 0) {
+      functions.logger.warn(
+        `${failedToRetrieve.length} Market Objects Could Not Be Found`
+      );
+    }
+
+    function meregeReturnPromises(requestedIDS, resolvedArray) {
+      const missingData = [];
+      const returnData = [];
+
+      const marketPricesData = resolvedArray.slice(0, requestedIDS.length);
+      const marketHistoryData = resolvedArray.slice(requestedIDS);
+
+      for (let i in requestedIDS) {
+        let marketPrices = marketPricesData[i].val();
+        let marketHistory = marketHistoryData[i].val();
+
+        if (!marketPrices || !marketHistory) {
+          missingData.push(requestedIDS[i]);
+        }
+
+        let outputObject = { ...marketPrices };
+
+        Object.assign(outputObject, marketHistory.average);
+        Object.assign(outputObject, marketHistory.highest);
+        Object.assign(outputObject, marketHistory.lowest);
+        Object.assign(outputObject, marketHistory.orderCount);
+
+        returnData.push(outputObject);
+      }
+
+      return { returnData, missingData };
+    }
 
     return res
       .status(200)
@@ -230,7 +268,7 @@ app.post("/costs", async (req, res) => {
     functions.logger.error(err.message);
     return res
       .status(500)
-      .send("Error retrieving item data, please try again.");
+      .send("Error retrieving market data, please try again.");
   }
 });
 

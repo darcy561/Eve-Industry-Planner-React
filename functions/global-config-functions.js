@@ -23,10 +23,21 @@ const GLOBAL_CONFIG = {
   ],
   //Number of hours between updates of item market data.
   //(Number)
-  DEFAULT_ITEM_REFRESH_PERIOD: 4,
+  DEFAULT_ITEM_PRICE_REFRESH_PERIOD: 4,
 
   //Number of items that are refreshed at a time.
-  DEFAULT_ITEM_MAKET_REFRESH_QUANTITY: 150,
+  DEFAULT_ITEM_MARKET_REFRESH_QUANTITY: 150,
+
+
+  //Number of hours between updates to item history data.
+  //(Number)
+  DEFAUL_ITEM_HISTROY_REFRESH_PERIOD: 6,
+
+  //Number of items market history to refresh at a time.
+  DEFAULT_ITEM_MARKET_HISTORY_REFRESH_QUANTITY: 50,
+
+  //Length of time the market history is calaculated on.
+  DEFAULT_DAYS_FOR_MARKET_HISTORY: 30,
 
   //Account Creation: These settings define the default settings that are used when new accounts are created.
 

@@ -1,9 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Grid, Pagination } from "@mui/material";
 import { UsersContext } from "../../Context/AuthContext";
 import { ESIOffline } from "../offlineNotification";
 import { LibrarySearch } from "./LibrarySearch";
-import { BlueprintGroup } from "./BlueprintGroup";
+import { ClassicBlueprintGroup } from "./Classic/classicBlueprintGroup";
+import { CompactBlueprintGroup } from "./Compact/compactBlueprintGroup";
 import {
   CorpEsiDataContext,
   PersonalESIDataContext,
@@ -13,6 +14,8 @@ export default function BlueprintLibrary() {
   const { users } = useContext(UsersContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
+
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   const [pagination, setPagination] = useState({
     count: 0,
@@ -80,13 +83,23 @@ export default function BlueprintLibrary() {
       <Grid item xs={12} sx={{ marginLeft: "10px", marginRight: "10px" }}>
         <Grid container item spacing={2}>
           {blueprintResults.ids.map((bpID) => {
-            return (
-              <BlueprintGroup
-                key={bpID}
-                bpID={bpID}
-                blueprintResults={blueprintResults}
-              />
-            );
+            if (parentUser.settings.layout.enableCompactView) {
+              return (
+                <CompactBlueprintGroup
+                  key={bpID}
+                  bpID={bpID}
+                  blueprintResults={blueprintResults}
+                />
+              );
+            } else {
+              return (
+                <ClassicBlueprintGroup
+                  key={bpID}
+                  bpID={bpID}
+                  blueprintResults={blueprintResults}
+                />
+              );
+            }
           })}
           <Grid
             container

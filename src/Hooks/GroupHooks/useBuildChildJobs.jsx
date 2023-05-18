@@ -1,30 +1,112 @@
 import { useContext } from "react";
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
-import { UserJobSnapshotContext } from "../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+} from "../../Context/AuthContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { useJobBuild } from "../useJobBuild";
+import { useBlueprintCalc } from "../useBlueprintCalc";
+import { useFirebase } from "../useFirebase";
+import { SnackBarDataContext } from "../../Context/LayoutContext";
 
 export function useBuildChildJobs() {
-  const { jobArray, groupArray } = useContext(JobArrayContext);
-  const { activeGroup } = useContext(ActiveJobContext);
+  const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
+  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { isLoggedOn } = useContext(IsLoggedInContext);
   const { findJobData } = useFindJobObject();
-  const {buildJob} = useJobBuild()
+  const { buildJob, recalculateItemQty } = useJobBuild();
+  const { CalculateResources, CalculateTime } = useBlueprintCalc();
+  const { uploadJob } = useFirebase();
 
-  const buildChildJobsNew = async (inputJobIDs) => {
-    const currentTypeIDData = await calculateExistingTypeIDs();
-    console.log(currentTypeIDData);
+  const buildChildJobs = async (inputJobIDs) => {
+    console.log(inputJobIDs)
+    const existingGroupData = await calculateExistingTypeIDs();
     const { buildRequests, jobsToBeModified } = await calculateNeededJobs(
       inputJobIDs,
-      currentTypeIDData
+      existingGroupData
     );
-    let newJobData = await buildJob(buildRequests)
+    let newJobData = await buildJob(buildRequests);
+    console.log(buildRequests)
+    console.log(jobsToBeModified)
+    const newJobArray = await buildNewJobArray(newJobData, jobsToBeModified);
+    console.log(newJobArray);
+    const groupJobs = newJobArray.filter(
+      (i) => i.groupID === activeGroup.groupID
+    );
 
-    const newJobArray = buildNewJobArray(newJobData)
+    const { outputJobCount, materialIDs, jobTypeIDs, includedJobIDs } =
+      groupJobs.reduce(
+        (prev, job) => {
+          if (job.parentJob.length === 0) {
+            prev.outputJobCount++;
+          }
+          prev.materialIDs.add(job.itemID);
+          prev.jobTypeIDs.add(job.itemID);
+          prev.includedJobIDs.add(job.jobID);
 
-    console.log(newJobData);
-    console.log(jobsToBeModified);
+          job.build.materials.forEach((mat) => {
+            prev.materialIDs.add(mat.typeID);
+          });
+          return prev;
+        },
+        {
+          outputJobCount: 0,
+          materialIDs: new Set(),
+          jobTypeIDs: new Set(),
+          includedJobIDs: new Set(),
+        }
+      );
+
+    updateActiveGroup((prev) => ({
+      ...prev,
+      includedTypeIDs: [...jobTypeIDs],
+      includedJobIDs: [...includedJobIDs],
+      outputJobCount: outputJobCount,
+      materialIDs: [...materialIDs],
+    }));
+
+    updateJobArray(newJobArray);
+
+    if (jobsToBeModified.length > 0 && buildRequests.length > 0) {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `${jobsToBeModified.length} Jobs Updated & ${buildRequests.length} Jobs Created`,
+        severity: "success",
+        autoHideDuration: 3000,
+      }));
+    }
+    if (buildRequests.length > 0) {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `${buildRequests.length} Jobs Created`,
+        severity: "success",
+        autoHideDuration: 3000,
+      }));
+    }
+    if (jobsToBeModified.length > 0) {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `${jobsToBeModified.length} Jobs Updated `,
+        severity: "success",
+        autoHideDuration: 3000,
+      }));
+    }
+    if (jobsToBeModified.length === 0 && buildRequests.length === 0) {
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `Job Tree Complete`,
+        severity: "success",
+        autoHideDuration: 3000,
+      }));
+    }
   };
 
   async function calculateExistingTypeIDs() {
@@ -88,6 +170,9 @@ export function useBuildChildJobs() {
       }
 
       requestedJob.build.materials.forEach((material) => {
+        if (material.childJob.length > 0) {
+          return
+        }
         if (
           material.jobType !== jobTypes.manufacturing &&
           material.jobType !== jobTypes.reaction
@@ -143,19 +228,58 @@ export function useBuildChildJobs() {
     return { buildRequests, jobsToBeModified };
   }
 
-  async function buildNewJobArray(newJobData) {
-    let newJobArray = [...jobArray, ...newJobData]
-    
-    newJobArray = linkNewJobsToParent(newJobData, newJobArray)
-    
+  async function buildNewJobArray(newJobData, jobsToBeModified) {
+    let newJobArray = [...jobArray, ...newJobData];
 
-    return newJobArray
+    newJobArray = linkNewJobsToParent(newJobData, newJobArray);
+
+    for (let modifiedData of jobsToBeModified) {
+      let job = newJobArray.find((i) => i.jobID === modifiedData.jobID);
+
+      if (!job) {
+        continue;
+      }
+      job.parentJob = [...new Set(job.parentJob, [...modifiedData.parentJobIDs])];
+
+      recalculateItemQty(job, modifiedData.itemQty);
+      job.build.materials = CalculateResources({
+        jobType: job.jobType,
+        rawMaterials: job.rawData.materials,
+        outputMaterials: job.build.materials,
+        runCount: job.runCount,
+        jobCount: job.jobCount,
+        bpME: job.bpME,
+        structureType: job.structureType,
+        rigType: job.rigType,
+        systemType: job.systemType,
+      });
+
+      job.build.products.totalQuantity =
+        job.rawData.products[0].quantity * job.runCount * job.jobCount;
+
+      job.build.products.quantityPerJob =
+        job.rawData.products[0].quantity * job.jobCount;
+
+      job.build.time = CalculateTime({
+        jobType: job.jobType,
+        CharacterHash: job.build.buildChar,
+        structureTypeDisplay: job.structureTypeDisplay,
+        runCount: job.runCount,
+        bpTE: job.bpTE,
+        rawTime: job.rawData.time,
+        skills: job.skills,
+      });
+
+      if (isLoggedOn) {
+        uploadJob(job);
+      }
+    }
+
+    return newJobArray;
   }
 
-
-
   return {
-    buildChildJobsNew,
+    buildChildJobs,
   };
 }
 
@@ -250,11 +374,15 @@ function removeExistingEntry(material, existingData) {
 function linkNewJobsToParent(newJobs, jobArray) {
   for (let newJob of newJobs) {
     for (let parentJobID of newJob.parentJob) {
-      let parentMatch = jobArray.find((i) => i.jobID === parentJobID)
-      let materialMatch = parentMatch.build.materials.find(i => i.typeID === newJob.itemID)
+      let parentMatch = jobArray.find((i) => i.jobID === parentJobID);
+      let materialMatch = parentMatch.build.materials.find(
+        (i) => i.typeID === newJob.itemID
+      );
 
-      materialMatch.childJob.push(newJob.jobID)
+      materialMatch.childJob = [
+        ...new Set([newJob.jobID], materialMatch.childJob),
+      ];
     }
   }
-  return jobArray
+  return jobArray;
 }

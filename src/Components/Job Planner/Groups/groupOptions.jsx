@@ -19,13 +19,14 @@ import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
 import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
 import { GroupOptionsDropDown } from "./groupOptionsDropdown";
+import { useBuildChildJobs } from "../../../Hooks/GroupHooks/useBuildChildJobs";
 
 export function GroupOptionsBar({
   groupJobs,
   updateShoppingListTrigger,
   updateShoppingListData,
   updateShowProcessing,
-  updateImportFitDialogueTrigger
+  updateImportFitDialogueTrigger,
 }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
@@ -36,9 +37,10 @@ export function GroupOptionsBar({
   const { activeGroup } = useContext(ActiveJobContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const { buildItemPriceEntry } = useJobManagement();
-  const { buildFullJobTree, buildNextJobs } = useGroupManagement();
+  const { buildFullJobTree } = useGroupManagement();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
+  const { buildChildJobs } = useBuildChildJobs();
 
   return (
     <Paper
@@ -164,9 +166,9 @@ export function GroupOptionsBar({
                 onClick={async () => {
                   updateShowProcessing((prev) => !prev);
                   if (multiSelectJobPlanner.length > 0) {
-                    await buildNextJobs(multiSelectJobPlanner);
+                    await buildChildJobs(multiSelectJobPlanner);
                   } else {
-                    await buildNextJobs([...activeGroup.includedJobIDs]);
+                    await buildChildJobs(activeGroup.includedJobIDs);
                   }
                   updateShowProcessing((prev) => !prev);
                 }}
@@ -256,7 +258,10 @@ export function GroupOptionsBar({
           </Grid>
         </Grid>
         <Grid item xs={1} align="right">
-          <GroupOptionsDropDown groupJobs={groupJobs} updateImportFitDialogueTrigger={updateImportFitDialogueTrigger} />
+          <GroupOptionsDropDown
+            groupJobs={groupJobs}
+            updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
+          />
         </Grid>
       </Grid>
     </Paper>

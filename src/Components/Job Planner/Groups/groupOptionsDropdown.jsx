@@ -14,7 +14,7 @@ export function GroupOptionsDropDown({
   const { archiveGroupJobs } = useArchiveGroupJobs();
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
   const { activeGroup } = useContext(ActiveJobContext);
-  const { buildChildJobsNew } = useBuildChildJobs();
+  const { buildChildJobs } = useBuildChildJobs();
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -63,7 +63,7 @@ export function GroupOptionsDropDown({
         </MenuItem>
         <MenuItem
           onClick={() => {
-            buildChildJobsNew(activeGroup.includedJobIDs);
+            buildChildJobs(activeGroup.includedJobIDs);
           }}
         >
           test

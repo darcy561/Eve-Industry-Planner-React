@@ -4,7 +4,7 @@ const { WebhookClient, EmbedBuilder } = require("discord.js");
 const crypto = require("crypto");
 require("dotenv").config();
 const bucket = admin.storage().bucket();
-const GLOBAL_CONFIG = require("../global-config-functions")
+const { GLOBAL_CONFIG } = require("../global-config-functions")
 
 
 const { FIREBASE_SERVER_REGION } = GLOBAL_CONFIG;

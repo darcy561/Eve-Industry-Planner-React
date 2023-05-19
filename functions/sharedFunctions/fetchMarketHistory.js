@@ -1,7 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
-const GLOBAL_CONFIG = require("../global-config-functions");
+const { GLOBAL_CONFIG } = require("../global-config-functions");
 
 const { DEFAULT_MARKET_LOCATIONS, DEFAULT_DAYS_FOR_MARKET_HISTORY } =
   GLOBAL_CONFIG;
@@ -18,9 +18,9 @@ async function ESIMarketHistoryQuery(typeID) {
   for (let i = 0; i < responses.length; i++) {
     const location = DEFAULT_MARKET_LOCATIONS[i];
     const rawMarketData = responses[i];
-
+    functions.logger.log(rawMarketData)
     if (!rawMarketData) {
-      return fail;
+      return "fail";
     }
 
     const marketData = filterOldEntries(rawMarketData);

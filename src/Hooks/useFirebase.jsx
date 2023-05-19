@@ -94,7 +94,7 @@ export function useFirebase() {
       const t = trace(performance, "NewUserCloudBuild");
       try {
         t.start();
-        const buildData = httpsCallable(functions, "buildUser-createUserData");
+        const buildData = httpsCallable(functions, "createUserData-createUserData");
         const charData = await buildData();
         logEvent(analytics, "newUserCreation", {
           UID: charData.data.accountID,

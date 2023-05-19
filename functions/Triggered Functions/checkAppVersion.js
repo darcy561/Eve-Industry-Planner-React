@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
 const checkVersion = require("../sharedFunctions/appVersion").checkAppVersion;
-const GLOBAL_CONFIG = require("../global-config-functions");
+const { GLOBAL_CONFIG } = require("../global-config-functions");
 
 const { FIREBASE_SERVER_REGION } = GLOBAL_CONFIG;
 

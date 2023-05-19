@@ -53,7 +53,7 @@ export function RefreshApiIcon() {
   const analytics = getAnalytics();
   const checkAppVersion = httpsCallable(
     functions,
-    "appVersion-checkAppVersion"
+    "checkAppVersion-checkAppVersion"
   );
 
   const parentUser = useMemo(() => {

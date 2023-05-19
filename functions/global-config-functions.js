@@ -1,6 +1,6 @@
 // This document changes the default server functions. Incorect values here will result in errors when deployed.
 
-const GLOBAL_CONFIG = {
+exports.GLOBAL_CONFIG = {
   //Firebase Deployment
 
   FIREBASE_SERVER_REGION: "europe-west1",
@@ -64,4 +64,3 @@ const GLOBAL_CONFIG = {
   DEFAULT_REACTION_STRUCTURES: [],
 };
 
-exports.GLOBAL_CONFIG;

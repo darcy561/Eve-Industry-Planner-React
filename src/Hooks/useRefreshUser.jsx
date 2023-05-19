@@ -47,7 +47,7 @@ export function useRefreshUser() {
 
   const checkAppVersion = httpsCallable(
     functions,
-    "appVersion-checkAppVersion"
+    "checkAppVersion-checkAppVersion"
   );
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);

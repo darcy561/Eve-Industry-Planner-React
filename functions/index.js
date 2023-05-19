@@ -191,18 +191,16 @@ app.post("/costs", async (req, res) => {
     const databaseMarketPricesQueryPromises = requestedIDS.map((id) =>
       admin.database().ref(`live-data/market-prices/${id}`).once("value")
     );
-    const databaseMarketHistoryQueryPromises = requestedIDS
-      .map((id) => admin.database().ref(`live-data/market-history`))
-      .once("value");
+    const databaseMarketHistoryQueryPromises = requestedIDS.map((id) =>
+      admin.database().ref(`live-data/market-history/${id}`).once("value")
+    );
     const databaseResolves = await Promise.all([
       ...databaseMarketPricesQueryPromises,
       ...databaseMarketHistoryQueryPromises,
     ]);
 
-    const { returnData: databaseResults, missingIDs } = meregeReturnPromises(
-      requestedIDS,
-      databaseResolves
-    );
+    const { returnData: databaseResults, missingData: missingIDs } =
+      meregeReturnPromises(requestedIDS, databaseResolves);
 
     const missingPricePromises = missingIDs.map((id) =>
       ESIMarketQuery(id.toString())
@@ -243,16 +241,18 @@ app.post("/costs", async (req, res) => {
         let marketPrices = marketPricesData[i].val();
         let marketHistory = marketHistoryData[i].val();
 
+        functions.logger.log(marketHistory)
         if (!marketPrices || !marketHistory) {
           missingData.push(requestedIDS[i]);
+          continue
         }
 
         let outputObject = { ...marketPrices };
 
-        Object.assign(outputObject, marketHistory.average);
-        Object.assign(outputObject, marketHistory.highest);
-        Object.assign(outputObject, marketHistory.lowest);
-        Object.assign(outputObject, marketHistory.orderCount);
+        Object.assign(outputObject, marketHistory.average || 0);
+        Object.assign(outputObject, marketHistory.highest || 0);
+        Object.assign(outputObject, marketHistory.lowest || 0);
+        Object.assign(outputObject, marketHistory.orderCount || 0);
 
         returnData.push(outputObject);
       }
@@ -266,6 +266,7 @@ app.post("/costs", async (req, res) => {
       .send(returnData);
   } catch (err) {
     functions.logger.error(err.message);
+    functions.logger.error(err);
     return res
       .status(500)
       .send("Error retrieving market data, please try again.");
@@ -341,11 +342,11 @@ exports.api = functions
   .region("europe-west1")
   .runWith({ maxInstances: 40 })
   .https.onRequest(app);
-exports.buildUser = require("./Triggered Functions/Users");
+exports.createUserData = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
 exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");
 exports.userClaims = require("./Triggered Functions/addCorpClaim");
-exports.appVersion = require("./Triggered Functions/checkAppVersion");
+exports.checkAppVersion = require("./Triggered Functions/checkAppVersion");
 exports.checkSDEUpdates = require("./Scheduled Functions/checkSDEUpdates");

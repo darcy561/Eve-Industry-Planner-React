@@ -45,7 +45,7 @@ export default function AuthMainUser() {
   const { getCharacterInfo } = useAccountManagement();
   const checkAppVersion = httpsCallable(
     functions,
-    "appVersion-checkAppVersion"
+    "checkAppVersion-checkAppVersion"
   );
   const analytics = getAnalytics();
 

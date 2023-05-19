@@ -1,7 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
-const GLOBAL_CONFIG = require("../global-config-functions");
+const { GLOBAL_CONFIG } = require("../global-config-functions");
 
 const { DEFAULT_MARKET_LOCATIONS, ESI_MAX_PAGES } = GLOBAL_CONFIG;
 

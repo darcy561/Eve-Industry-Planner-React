@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const { WebhookClient } = require("discord.js");
 const axios = require("axios");
 require("dotenv").config();
-const GLOBAL_CONFIG = require("../global-config-functions");
+const { GLOBAL_CONFIG } = require("../global-config-functions");
 
 const { FIREBASE_SERVER_REGION, FIREBASE_SERVER_TIMEZONE } = GLOBAL_CONFIG;
 

@@ -1,4 +1,4 @@
-const GLOBAL_CONFIG = require("../global-config-functions");
+const { GLOBAL_CONFIG } = require("../global-config-functions");
 
 const { APP_VERSION } = GLOBAL_CONFIG;
 

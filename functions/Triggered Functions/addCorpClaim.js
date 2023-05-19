@@ -3,7 +3,7 @@ const functions = require("firebase-functions");
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const jwksClient = require("jwks-rsa");
-const GLOBAL_CONFIG = require("../global-config-functions");
+const { GLOBAL_CONFIG } = require("../global-config-functions");
 
 const { FIREBASE_SERVER_REGION } = GLOBAL_CONFIG
 

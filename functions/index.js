@@ -10,6 +10,9 @@ const {
   ESIMarketHistoryQuery,
 } = require("./sharedFunctions/fetchMarketHistory");
 const { checkAppVersion } = require("./Middleware/appVersion");
+const { GLOBAL_CONFIG } = require("./global-config-functions");
+
+const { DEFAULT_MARKET_LOCATIONS } = GLOBAL_CONFIG;
 
 admin.initializeApp();
 
@@ -31,7 +34,7 @@ app.use(
 );
 app.use(express.json());
 app.use(helmet());
-app.use(appCheckVerification);
+// app.use(appCheckVerification);
 app.use(checkAppVersion);
 
 //Routes
@@ -200,7 +203,7 @@ app.post("/costs", async (req, res) => {
     ]);
 
     const { returnData: databaseResults, missingData: missingIDs } =
-      meregeReturnPromises(requestedIDS, databaseResolves);
+      meregeReturnPromises(requestedIDS, databaseResolves, true);
 
     const missingPricePromises = missingIDs.map((id) =>
       ESIMarketQuery(id.toString())
@@ -213,8 +216,8 @@ app.post("/costs", async (req, res) => {
       ...missingHistoryPromises,
     ]);
 
-    const { returnData: esiResults, missingIDs: failedToRetrieve } =
-      meregeReturnPromises(missingIDs, missingESIResolves);
+    const { returnData: esiResults, missingData: failedToRetrieve } =
+      meregeReturnPromises(missingIDs, missingESIResolves, false);
 
     const returnData = [...databaseResults, ...esiResults];
 
@@ -230,29 +233,49 @@ app.post("/costs", async (req, res) => {
       );
     }
 
-    function meregeReturnPromises(requestedIDS, resolvedArray) {
+    function meregeReturnPromises(requestedIDS, resolvedArray, fromDatabase) {
       const missingData = [];
       const returnData = [];
 
       const marketPricesData = resolvedArray.slice(0, requestedIDS.length);
-      const marketHistoryData = resolvedArray.slice(requestedIDS);
+      const marketHistoryData = resolvedArray.slice(requestedIDS.length);
 
       for (let i in requestedIDS) {
-        let marketPrices = marketPricesData[i].val();
-        let marketHistory = marketHistoryData[i].val();
+        let marketPrices = null;
+        let marketHistory = null;
+        if (fromDatabase) {
+          marketPrices = marketPricesData[i]?.val() || null;
+          marketHistory = marketHistoryData[i]?.val() || null;
+        } else {
+          marketPrices = marketPricesData[i] || null;
+          marketHistory = marketHistoryData[i] || null;
+        }
 
-        functions.logger.log(marketHistory)
         if (!marketPrices || !marketHistory) {
           missingData.push(requestedIDS[i]);
-          continue
+          continue;
         }
 
         let outputObject = { ...marketPrices };
 
-        Object.assign(outputObject, marketHistory.average || 0);
-        Object.assign(outputObject, marketHistory.highest || 0);
-        Object.assign(outputObject, marketHistory.lowest || 0);
-        Object.assign(outputObject, marketHistory.orderCount || 0);
+        for (let location of DEFAULT_MARKET_LOCATIONS) {
+          const {
+            dailyAverageMarketPrice,
+            highestMarketPrice,
+            lowestMarketPrice,
+            dailyAverageOrderQuantity,
+            dailyAverageUnitCount,
+          } = marketHistory[location.name];
+
+          outputObject[location.name] = {
+            ...outputObject[location.name],
+            dailyAverageMarketPrice,
+            highestMarketPrice,
+            lowestMarketPrice,
+            dailyAverageOrderQuantity,
+            dailyAverageUnitCount,
+          };
+        }
 
         returnData.push(outputObject);
       }
@@ -265,7 +288,6 @@ app.post("/costs", async (req, res) => {
       .setHeader("Content-Type", "application/json")
       .send(returnData);
   } catch (err) {
-    functions.logger.error(err.message);
     functions.logger.error(err);
     return res
       .status(500)
@@ -344,6 +366,7 @@ exports.api = functions
   .https.onRequest(app);
 exports.createUserData = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
+exports.RefreshItemHistory = require("./Scheduled Functions/marketHistoryRefresh");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
 exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");

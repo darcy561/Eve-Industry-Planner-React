@@ -56,7 +56,7 @@ exports.scheduledFunction = functions
 
       for (const [typeID] of Object.entries(pricingData)) {
         const response = await ESIMarketQuery(typeID);
-        if (response === "fail") {
+        if (!response) {
           failedIDs.add(typeID);
           continue;
         }

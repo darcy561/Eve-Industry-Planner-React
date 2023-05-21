@@ -1,7 +1,8 @@
 const { GLOBAL_CONFIG } = require("../global-config-functions");
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const ESIMarketHistoryQuery = require();
+const axios = require("axios")
+const ESIMarketHistoryQuery = require("../sharedFunctions/fetchMarketHistory");
 
 const {
   FIREBASE_SERVER_REGION,
@@ -51,7 +52,7 @@ exports.scheduledfunction = functions
 
       for (let [typeID] of Object.entries(pricingData)) {
         const response = await ESIMarketHistoryQuery(typeID);
-        if (response === "fail") {
+        if (!response) {
           failedIDs.add(typeID);
           continue;
         }
@@ -71,12 +72,9 @@ exports.scheduledfunction = functions
           } Items. ${JSON.stringify([...failedIDs])}`
         );
       }
-    } catch (err) {}
-    returnObject = {
-      average: 0,
-      highest: 0,
-      lowsest: 0,
-      lastUpdated: 0,
-      orderCount: 0,
-    };
+      return null
+    } catch (err) {
+      functions.logger.error(`An error occured: ${err}`);
+      return null;
+    }
   });

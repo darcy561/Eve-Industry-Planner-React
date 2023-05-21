@@ -7,50 +7,54 @@ const { DEFAULT_MARKET_LOCATIONS, DEFAULT_DAYS_FOR_MARKET_HISTORY } =
   GLOBAL_CONFIG;
 
 async function ESIMarketHistoryQuery(typeID) {
-  const dbObject = { typeID: Number(typeID), lastUpdated: Date.now() };
+  try {
+    const dbObject = { typeID: Number(typeID), lastUpdated: Date.now() };
 
-  const promises = DEFAULT_MARKET_LOCATIONS.map((location) => {
-    fetchMarketHistory(typeID, location.regionID);
-  });
+    const promises = DEFAULT_MARKET_LOCATIONS.map((location) =>
+      fetchMarketHistory(typeID, location.regionID)
+    );
 
-  const responses = await Promise.all(promises);
+    const responses = await Promise.all(promises);  
 
-  for (let i = 0; i < responses.length; i++) {
-    const location = DEFAULT_MARKET_LOCATIONS[i];
-    const rawMarketData = responses[i];
-    functions.logger.log(rawMarketData)
-    if (!rawMarketData) {
-      return "fail";
+    for (let i = 0; i < responses.length; i++) {
+      const location = DEFAULT_MARKET_LOCATIONS[i];
+      const rawMarketData = responses[i];
+      if (!rawMarketData) {
+        return null;
+      }
+
+      const marketData = filterOldEntries(rawMarketData);
+      const { highestMarketPrice, lowestMarketPrice } =
+        getHighestAndLowestMarketPrices(marketData);
+      const {
+        dailyAverageUnitCount,
+        dailyAverageOrderQuantity,
+        dailyAverageMarketPrice,
+      } = getAverageMarketData(marketData);
+
+      dbObject[location.name] = {
+        highestMarketPrice,
+        lowestMarketPrice,
+        dailyAverageUnitCount,
+        dailyAverageOrderQuantity,
+        dailyAverageMarketPrice,
+      };
     }
-
-    const marketData = filterOldEntries(rawMarketData);
-
-    const { highestMarketPrice, lowestMarketPrice } =
-      getHighestAndLowestMarketPrices(marketData);
-    const { averageMarketPrice, averageOrderQuantity, averageUnitCount } =
-      getAverageMarketData(marketData);
-
-    dbObject[location.name] = {
-      highestMarketPrice,
-      lowestMarketPrice,
-      averageMarketPrice,
-      averageOrderQuantity,
-      averageUnitCount,
-    };
     await saveMarketHistoryToDatabase(typeID, dbObject);
     return dbObject;
+  } catch (err) {
+    functions.logger.error(`An error occured: ${err}`);
+    return null;
   }
 }
 
 async function fetchMarketHistory(typeID, regionID) {
   try {
-    let historyData = [];
     const response = await axios.get(
       `https://esi.evetech.net/latest/markets/${regionID}/history/?datasource=tranquility&type_id=${typeID}`
     );
 
     if (response.status !== 200) return null;
-
     return [...response.data];
   } catch (err) {
     functions.logger.error(err);
@@ -63,15 +67,15 @@ function filterOldEntries(rawMarketData) {
   const chosenTimePeriod =
     currentDate - DEFAULT_DAYS_FOR_MARKET_HISTORY * 60 * 60 * 1000;
 
-  return rawMarketData.filter((ob) => Date.parse(ob.date) >= chosenTimePeriod);
+  return rawMarketData.filter((ob) => Date.parse(ob.date) <= chosenTimePeriod);
 }
 
 function getHighestAndLowestMarketPrices(marketData) {
   const highestMarketPrice =
-    marketOrder.length > 0 ? Math.max(...marketData.map((i) => i.highest)) : 0;
+    marketData.length > 0 ? Math.max(...marketData.map((i) => i.highest)) : 0;
 
   const lowestMarketPrice =
-    marketOrder.length > 0 ? Math.max(...marketData.map((i) => i.lowest)) : 0;
+    marketData.length > 0 ? Math.min(...marketData.map((i) => i.lowest)) : 0;
 
   return { highestMarketPrice, lowestMarketPrice };
 }
@@ -87,15 +91,21 @@ function getAverageMarketData(marketData) {
     sumVolume += obj.volume;
   });
 
-  const averageMarketPrice =
-    Math.round((sumAverage / marketData.length + Number.EPSILON) * 100) / 100;
-  const averageOrderQuantity =
+  const dailyAverageMarketPrice =
+    Math.round((sumAverage / marketData.length + Number.EPSILON) * 100) / 100 ||
+    0;
+  const dailyAverageOrderQuantity =
     Math.round((sumOrderCount / marketData.length + Number.EPSILON) * 100) /
-    100;
-  const averageUnitCount =
-    Math.round((sumVolume / marketData.length + Number.EPSILON) * 100) / 100;
+      100 || 0;
+  const dailyAverageUnitCount =
+    Math.round((sumVolume / marketData.length + Number.EPSILON) * 100) / 100 ||
+    0;
 
-  return { averageMarketPrice, averageOrderQuantity, averageUnitCount };
+  return {
+    dailyAverageMarketPrice,
+    dailyAverageOrderQuantity,
+    dailyAverageUnitCount,
+  };
 }
 
 async function saveMarketHistoryToDatabase(typeID, dbObject) {

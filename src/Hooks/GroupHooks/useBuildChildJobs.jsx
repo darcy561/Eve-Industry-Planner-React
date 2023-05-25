@@ -23,17 +23,15 @@ export function useBuildChildJobs() {
   const { uploadJob } = useFirebase();
 
   const buildChildJobs = async (inputJobIDs) => {
-    console.log(inputJobIDs)
     const existingGroupData = await calculateExistingTypeIDs();
     const { buildRequests, jobsToBeModified } = await calculateNeededJobs(
       inputJobIDs,
       existingGroupData
     );
     let newJobData = await buildJob(buildRequests);
-    console.log(buildRequests)
-    console.log(jobsToBeModified)
+
     const newJobArray = await buildNewJobArray(newJobData, jobsToBeModified);
-    console.log(newJobArray);
+
     const groupJobs = newJobArray.filter(
       (i) => i.groupID === activeGroup.groupID
     );
@@ -170,9 +168,9 @@ export function useBuildChildJobs() {
       }
 
       requestedJob.build.materials.forEach((material) => {
-        if (material.childJob.length > 0) {
-          return
-        }
+        // if (material.childJob.length > 0) {
+        //   return
+        // }
         if (
           material.jobType !== jobTypes.manufacturing &&
           material.jobType !== jobTypes.reaction
@@ -220,7 +218,7 @@ export function useBuildChildJobs() {
 
         if (!isOriginal && isModified) {
           //update Modified
-          jobsToBeModified = updateModifiedEntry(material, jobsToBeModified);
+          jobsToBeModified = updateModifiedEntry(material, jobsToBeModified, inputJobID);
         }
       });
     }
@@ -295,6 +293,7 @@ function addMaterialToBuild(
   activeGroupID,
   parentJobID
 ) {
+
   const newObject = {
     name: material.name,
     itemID: material.typeID,
@@ -309,6 +308,7 @@ function addMaterialToBuild(
 }
 
 function updateMaterialToBuild(material, existingBuildRequests, parentJobID) {
+  
   const newBuildRequests = [...existingBuildRequests];
 
   const entry = newBuildRequests.find((i) => i.itemID === material.typeID);
@@ -325,6 +325,14 @@ function addNewModifiedEntry(
   originalEntries,
   parentJobID
 ) {
+
+  // const existingObject = originalEntries.find((i) => i.itemID === material.typeID)
+
+  // if (!existingObject.parentJobIDs.has(parentJobID)) {
+  //   return existingModifiedEntries
+  // }
+
+
   const entriesToMove = originalEntries.filter(
     (i) => i.itemID === material.typeID
   );

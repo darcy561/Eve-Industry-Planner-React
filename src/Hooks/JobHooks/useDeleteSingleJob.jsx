@@ -182,10 +182,14 @@ export function useDeleteSingleJob() {
       const selectedGroupIndex = newGroupArray.findIndex(
         (i) => i.groupID === inputJob.groupID
       );
+
+      if (selectedGroupIndex === -1) return 
+      
       const groupJobs = newJobArray.filter(
         (job) =>
           job.groupID === activeGroup.groupID && job.jobID !== inputJob.jobID
       );
+
       const isActiveGroup =
         newGroupArray[selectedGroupIndex].groupID === activeGroup.groupID;
 

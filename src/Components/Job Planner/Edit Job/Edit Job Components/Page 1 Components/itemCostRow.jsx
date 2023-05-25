@@ -11,7 +11,7 @@ export function ItemCostRow({
   materialPrice,
   jobModified,
   setJobModified,
-  materialIndex,
+  materialIndex
 }) {
   const [displayPopover, updateDisplayPopover] = useState(null);
   const [currentPurchasePrice, updateCurrentPurchasePrice] = useState(
@@ -107,26 +107,68 @@ export function ItemCostRow({
           display: "flex",
         }}
       >
-        <Typography
-          sx={{ typography: { xs: "caption", sm: "body2" } }}
-          color={
-            currentBuildPrice !== null
-              ? currentPurchasePrice >= currentBuildPrice
-                ? "error.main"
-                : "success.main"
-              : null
+        <Tooltip
+          title={
+            <span>
+              <p>
+                <b>30 Day Region Market History</b>
+              </p>
+              <p>
+                Highest Market Price:{" "}
+                {materialPrice[
+                  marketSelect
+                ].highestMarketPrice.toLocaleString()}
+              </p>
+              <p>
+                Lowest Market Price:{" "}
+                {materialPrice[
+                  marketSelect
+                ].lowestMarketPrice.toLocaleString()}
+              </p>
+              <p>
+                Daily Average Market Price:{" "}
+                {materialPrice[
+                  marketSelect
+                ].dailyAverageMarketPrice.toLocaleString()}
+              </p>
+              <p>
+                Daily Average Order Quantity:{" "}
+                {materialPrice[
+                  marketSelect
+                ].dailyAverageOrderQuantity.toLocaleString()}
+              </p>
+              <p>
+                Daily Average Unit Count:{" "}
+                {materialPrice  [
+                  marketSelect
+                ].dailyAverageUnitCount.toLocaleString()}
+              </p>
+            </span>
           }
+          arrow
+          placement="top"
         >
-          {materialPrice !== undefined
-            ? materialPrice[marketSelect][listingSelect].toLocaleString(
-                undefined,
-                {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }
-              )
-            : 0}
-        </Typography>
+          <Typography
+            sx={{ typography: { xs: "caption", sm: "body2" } }}
+            color={
+              currentBuildPrice !== null
+                ? currentPurchasePrice >= currentBuildPrice
+                  ? "error.main"
+                  : "success.main"
+                : null
+            }
+          >
+            {materialPrice !== undefined
+              ? materialPrice[marketSelect][listingSelect].toLocaleString(
+                  undefined,
+                  {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }
+                )
+              : 0}
+          </Typography>
+        </Tooltip>
       </Grid>
       <Grid
         alignItems="center"

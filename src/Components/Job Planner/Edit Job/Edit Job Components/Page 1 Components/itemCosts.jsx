@@ -1,12 +1,17 @@
-import { Grid, MenuItem, Paper, Select, Typography } from "@mui/material";
+import {
+  Grid,
+  MenuItem,
+  Paper,
+  Select,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useContext, useState } from "react";
 import { EvePricesContext } from "../../../../../Context/EveDataContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { ItemCostRow } from "./itemCostRow";
-import {
-  listingType
-} from "../../../../../Context/defaultValues";
+import { listingType } from "../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../global-config-app";
 
 export function ItemCostPanel({ jobModified, setJobModified }) {
@@ -22,7 +27,7 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
   );
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
-  let totalJobBuy = 0;  
+  let totalJobBuy = 0;
 
   let activeJobPrices = evePrices.find((i) => i.typeID === activeJob.itemID);
 
@@ -119,14 +124,59 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               Item Sell Price:
             </Typography>
-            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-              {activeJobPrices !== undefined
-                ? activeJobPrices[marketSelect].sell.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
-                : 0}
-            </Typography>
+            <Tooltip
+              title={
+                <span>
+                  <p>
+                    <b>30 Day Region Market History</b>
+                  </p>
+                  <p>
+                    Highest Market Price:{" "}
+                    {activeJobPrices[
+                      marketSelect
+                    ].highestMarketPrice.toLocaleString()}
+                  </p>
+                  <p>
+                    Lowest Market Price:{" "}
+                    {activeJobPrices[
+                      marketSelect
+                    ].lowestMarketPrice.toLocaleString()}
+                  </p>
+                  <p>
+                    Daily Average Market Price:{" "}
+                    {activeJobPrices[
+                      marketSelect
+                    ].dailyAverageMarketPrice.toLocaleString()}
+                  </p>
+                  <p>
+                    Daily Average Order Quantity:{" "}
+                    {activeJobPrices[
+                      marketSelect
+                    ].dailyAverageOrderQuantity.toLocaleString()}
+                  </p>
+                  <p>
+                    Daily Average Unit Count:{" "}
+                    {activeJobPrices[
+                      marketSelect
+                    ].dailyAverageUnitCount.toLocaleString()}
+                  </p>
+                </span>
+              }
+              arrow
+              placement="top"
+            >
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                {activeJobPrices !== undefined
+                  ? activeJobPrices[marketSelect].sell.toLocaleString(
+                      undefined,
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )
+                  : 0}
+              </Typography>
+            </Tooltip>
           </Grid>
           <Grid
             item
@@ -138,6 +188,7 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               Total Sell Price:
             </Typography>
+
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               {activeJobPrices !== undefined
                 ? (
@@ -174,7 +225,7 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
         </Grid>
         <Grid container item xs={12}>
           {activeJob.build.materials.map((material, materialIndex) => {
-            let materialPrice = evePrices.find(
+            const materialPrice = evePrices.find(
               (i) => i.typeID === material.typeID
             );
             totalJobBuy += materialPrice[marketSelect].buy * material.quantity;

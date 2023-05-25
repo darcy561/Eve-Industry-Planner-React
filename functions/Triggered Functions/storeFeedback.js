@@ -52,6 +52,7 @@ exports.submitUserFeedback = functions
         embeds: [embed],
       });
       functions.logger.log("Feedback Submitted Successfully");
+      return null
     } catch (err) {
       functions.logger.error("Failed to submit feedback");
       functions.logger.error(err);

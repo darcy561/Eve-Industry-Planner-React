@@ -2,7 +2,7 @@ const { GLOBAL_CONFIG } = require("../global-config-functions");
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios")
-const ESIMarketHistoryQuery = require("../sharedFunctions/fetchMarketHistory");
+const { ESIMarketHistoryQuery } = require("../sharedFunctions/fetchMarketHistory");
 
 const {
   FIREBASE_SERVER_REGION,

@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const ESIMarketQuery = require("../sharedFunctions/fetchMarketPrices").ESIMarketQuery;
+const { ESIMarketQuery } = require("../sharedFunctions/fetchMarketPrices");
 const axios = require("axios");
 const { GLOBAL_CONFIG } = require("../global-config-functions");
 

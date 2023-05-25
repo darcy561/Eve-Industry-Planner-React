@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   JobStatusContext,
   ActiveJobContext,
@@ -114,7 +114,7 @@ function EditJob({
     setJobModified(true);
   }
 
-  if (activeJob === undefined) return null;
+  if (!activeJob) return null;
 
   return (
     <Paper

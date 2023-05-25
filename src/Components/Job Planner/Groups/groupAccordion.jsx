@@ -151,7 +151,7 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
                     placement="bottom"
                   >
                     <IconButton
-                      color="secondry"
+                      color="secondary"
                       onClick={() => {
                         const selectedJobIds = statusJobs.reduce((acc, job) => {
                           return acc.add(job.jobID);

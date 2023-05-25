@@ -59,7 +59,7 @@ exports.updateCorpIDs = functions
       return;
     }
 
-    if (context.auth === undefined) {
+    if (!context.auth) {
       functions.logger.error("Unathorised Claims User");
       return { error: "Unauthorised User" };
     }

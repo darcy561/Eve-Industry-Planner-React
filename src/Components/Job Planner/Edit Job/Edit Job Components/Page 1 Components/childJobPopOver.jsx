@@ -42,7 +42,8 @@ export function ChildJobPopover({
 }) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { activeJob, activeGroup, updateActiveJob } =
+    useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -56,7 +57,8 @@ export function ChildJobPopover({
     uploadUserJobSnapshot,
   } = useFirebase();
   const { buildJob } = useJobBuild();
-  const { newJobSnapshot, replaceSnapshot } = useJobManagement();
+  const { newJobSnapshot, replaceSnapshot, generatePriceRequestFromJob } =
+    useJobManagement();
   const { switchActiveJob } = useSwitchActiveJob();
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImport, updateJobImport] = useState(false);
@@ -69,75 +71,77 @@ export function ChildJobPopover({
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   useEffect(async () => {
-    if (displayPopover !== null) {
-      let jobs = [];
+    const fetchData = async () => {
+      if (!displayPopover) {
+        return;
+      }
+
+      const jobs = [];
+
       if (material.childJob.length > 0) {
         for (let id of material.childJob) {
           let childJob = jobArray.find((i) => i.jobID === id);
-          if (childJob === undefined) {
+          if (!childJob) {
             let snap = userJobSnapshot.find((i) => i.jobID === id);
-            if (snap !== undefined) {
+            if (!snap) {
               childJob = await downloadCharacterJobs(snap.jobID);
               replaceSnapshot(childJob);
             }
-            if (childJob === undefined) {
-              continue;
-            }
+            if (!childJob) continue;
           }
           if (!jobs.some((i) => i.jobID === childJob.jobID)) {
             jobs.push(childJob);
           }
         }
       } else {
-        let newJob = await buildJob({
+        const newJob = await buildJob({
           itemID: material.typeID,
           itemQty: material.quantity,
           parentJobs: [activeJob.jobID],
+          groupID: activeGroup?.groupID,
         });
-        if (newJob !== undefined) {
-          let priceIDRequest = new Set();
-          let promiseArray = [];
-          priceIDRequest.add(newJob.itemID);
-          newJob.build.materials.forEach((mat) => {
-            priceIDRequest.add(mat.typeID);
-          });
-          let itemPrices = getItemPrices([...priceIDRequest], parentUser);
-          promiseArray.push(itemPrices);
-          let returnPromiseArray = await Promise.all(promiseArray);
-          updateTempPrices((prev) => prev.concat(returnPromiseArray[0]));
-          jobs.push(newJob);
-        } else {
+
+        if (!newJob) {
           updateFetchError(true);
         }
+
+        const itemPrices = await getItemPrices(
+          generatePriceRequestFromJob(newJob),
+          parentUser
+        );
+
+        updateTempPrices((prev) => prev.concat(itemPrices));
+        jobs.push(newJob);
       }
       if (jobs.length > 0) {
         updateChildJobObjects(jobs);
       }
       updateRecalculateTotal(true);
       updateJobImport(true);
-    }
+    };
+
+    fetchData();
   }, [displayPopover]);
 
   useEffect(() => {
-    if (recalculateTotal) {
-      let totalPrice = 0;
-      childJobObjects[jobDisplay].build.materials.forEach((mat) => {
-        let materialPrice = evePrices.find((i) => i.typeID === mat.typeID);
-        if (materialPrice === undefined) {
-          materialPrice = tempPrices.find((i) => i.typeID === mat.typeID);
-        }
-        if (materialPrice === undefined) {
-          totalPrice += 0;
-        } else {
-          totalPrice +=
-            materialPrice[marketSelect][listingSelect] * mat.quantity;
-        }
-      });
-      updateCurrentBuildPrice(
-        totalPrice / childJobObjects[jobDisplay].build.products.totalQuantity
-      );
-      updateRecalculateTotal(false);
+    if (!recalculateTotal) {
+      return;
     }
+    let totalPrice = 0;
+    const currentJob = childJobObjects[jobDisplay];
+    currentJob.build.materials.forEach((mat) => {
+      const materialPrice =
+        evePrices.find((i) => i.typeID === mat.typeID) ||
+        tempPrices.find((i) => i.typeID === mat.typeID);
+
+      if (materialPrice) {
+        totalPrice += materialPrice[marketSelect][listingSelect] * mat.quantity;
+      }
+    });
+    updateCurrentBuildPrice(
+      totalPrice / currentJob.build.products.totalQuantity
+    );
+    updateRecalculateTotal(false);
   }, [childJobObjects, recalculateTotal]);
 
   return (

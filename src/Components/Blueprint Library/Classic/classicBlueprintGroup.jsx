@@ -44,9 +44,7 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   const esiJobs = apiJobs.filter(
     (i) => i.product_type_id === bpID || i.blueprint_type_id === bpID
@@ -55,137 +53,138 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   let bpData = blueprintIDs.find((i) => i.blueprintID === bpID);
   let output = blueprintResults.blueprints.filter((bp) => bp.type_id === bpID);
 
-  if (bpData !== undefined) {
-    return (
-      <Grid key={bpID} container item xs={12} sm={6}>
-        <Paper
-          square={true}
-          elevation={2}
-          sx={{ width: "100%", padding: "20px" }}
+  if (!bpData) {
+    return null;
+  }
+  return (
+    <Grid key={bpID} container item xs={12} sm={6}>
+      <Paper
+        square={true}
+        elevation={2}
+        sx={{ width: "100%", padding: "20px" }}
+      >
+        <Grid
+          container
+          item
+          xs={12}
+          sx={{
+            paddingBottom: "10px",
+          }}
         >
-          <Grid
-            container
-            item
-            xs={12}
-            sx={{
-              paddingBottom: "10px",
-            }}
-          >
-            <Grid item xs={9} sx={{ marginBottom: "20px" }}>
-              <Typography
-                color="primary"
-                sx={{ typography: { xs: "h6", sm: "h5" } }}
-              >
-                {bpData.name}
-              </Typography>
-            </Grid>
-            <Grid item xs={3} align="right">
-              {!loadingBuild ? (
-                <Tooltip title="Create Job On Planner" arrow placement="bottom">
-                  <IconButton
-                    color="primary"
-                    size="small"
-                    onClick={async () => {
-                      t.start();
-                      updateLoadingBuild((prev) => !prev);
-                      if (!checkAllowBuild) {
-                        updateLoadingBuild((prev) => !prev);
-                        return;
-                      }
-                      let newJob = await buildJob({ itemID: bpData.itemID });
-                      if (newJob === undefined) {
-                        updateLoadingBuild((prev) => !prev);
-                        return;
-                      }
-
-                      let promiseArray = [
-                        getItemPrices(
-                          generatePriceRequestFromJob(newJob),
-                          parentUser
-                        ),
-                      ];
-                      let newUserJobSnapshot = newJobSnapshot(newJob, [
-                        ...userJobSnapshot,
-                      ]);
-                      addNewJob(newJob);
-                      uploadUserJobSnapshot(newUserJobSnapshot);
-
-                      logEvent(analytics, "New Job", {
-                        loggedIn: true,
-                        UID: parentUser.accountID,
-                        name: newJob.name,
-                        itemID: newJob.itemID,
-                      });
-                      let returnPromiseArray = await Promise.all(promiseArray);
-                      updateUserJobSnapshot(newUserJobSnapshot);
-                      updateEvePrices((prev) => {
-                        let newEvePrices = returnPromiseArray[0].filter(
-                          (n) => !prev.some((p) => p.typeID === n.typeID)
-                        );
-                        return prev.concat(newEvePrices);
-                      });
-                      updateJobArray((prev) => [...prev, newJob]);
-                      setSnackbarData((prev) => ({
-                        ...prev,
-                        open: true,
-                        message: `${newJob.name} Added`,
-                        severity: "success",
-                        autoHideDuration: 3000,
-                      }));
-
-                      updateLoadingBuild((prev) => !prev);
-                      t.stop();
-                    }}
-                  >
-                    <AddIcon />
-                  </IconButton>
-                </Tooltip>
-              ) : (
-                <CircularProgress color="primary" size={14} />
-              )}
-              <Tooltip title="Archived Job Data" arrow placement="bottom">
+          <Grid item xs={9} sx={{ marginBottom: "20px" }}>
+            <Typography
+              color="primary"
+              sx={{ typography: { xs: "h6", sm: "h5" } }}
+            >
+              {bpData.name}
+            </Typography>
+          </Grid>
+          <Grid item xs={3} align="right">
+            {!loadingBuild ? (
+              <Tooltip title="Create Job On Planner" arrow placement="bottom">
                 <IconButton
                   color="primary"
                   size="small"
-                  onClick={() => {
-                    updateArchiveOpen((prev) => !prev);
+                  onClick={async () => {
+                    t.start();
+                    updateLoadingBuild((prev) => !prev);
+                    if (!checkAllowBuild) {
+                      updateLoadingBuild((prev) => !prev);
+                      return;
+                    }
+                    let newJob = await buildJob({ itemID: bpData.itemID });
+                    if (newJob === undefined) {
+                      updateLoadingBuild((prev) => !prev);
+                      return;
+                    }
+
+                    let promiseArray = [
+                      getItemPrices(
+                        generatePriceRequestFromJob(newJob),
+                        parentUser
+                      ),
+                    ];
+                    let newUserJobSnapshot = newJobSnapshot(newJob, [
+                      ...userJobSnapshot,
+                    ]);
+                    addNewJob(newJob);
+                    uploadUserJobSnapshot(newUserJobSnapshot);
+
+                    logEvent(analytics, "New Job", {
+                      loggedIn: true,
+                      UID: parentUser.accountID,
+                      name: newJob.name,
+                      itemID: newJob.itemID,
+                    });
+                    let returnPromiseArray = await Promise.all(promiseArray);
+                    updateUserJobSnapshot(newUserJobSnapshot);
+                    updateEvePrices((prev) => {
+                      let newEvePrices = returnPromiseArray[0].filter(
+                        (n) => !prev.some((p) => p.typeID === n.typeID)
+                      );
+                      return prev.concat(newEvePrices);
+                    });
+                    updateJobArray((prev) => [...prev, newJob]);
+                    setSnackbarData((prev) => ({
+                      ...prev,
+                      open: true,
+                      message: `${newJob.name} Added`,
+                      severity: "success",
+                      autoHideDuration: 3000,
+                    }));
+
+                    updateLoadingBuild((prev) => !prev);
+                    t.stop();
                   }}
                 >
-                  <AssessmentOutlinedIcon />
+                  <AddIcon />
                 </IconButton>
               </Tooltip>
-              <ArchiveBpData
-                archiveOpen={archiveOpen}
-                updateArchiveOpen={updateArchiveOpen}
-                bpData={bpData}
-              />
-            </Grid>
-
-            {output.length > 0 ? (
-              output.map((blueprint) => {
-                return (
-                  <BlueprintEntry
-                    key={blueprint.item_id}
-                    blueprint={blueprint}
-                    esiJobs={esiJobs}
-                    bpData={bpData}
-                  />
-                );
-              })
             ) : (
-              <Grid item xs={12}>
-                <Typography
-                  align="center"
-                  sx={{ typography: { xs: "caption", sm: "body2" } }}
-                >
-                  {" "}
-                  No Blueprints Owned
-                </Typography>
-              </Grid>
+              <CircularProgress color="primary" size={14} />
             )}
+            <Tooltip title="Archived Job Data" arrow placement="bottom">
+              <IconButton
+                color="primary"
+                size="small"
+                onClick={() => {
+                  updateArchiveOpen((prev) => !prev);
+                }}
+              >
+                <AssessmentOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+            <ArchiveBpData
+              archiveOpen={archiveOpen}
+              updateArchiveOpen={updateArchiveOpen}
+              bpData={bpData}
+            />
           </Grid>
-        </Paper>
-      </Grid>
-    );
-  } else return null;
+
+          {output.length > 0 ? (
+            output.map((blueprint) => {
+              return (
+                <BlueprintEntry
+                  key={blueprint.item_id}
+                  blueprint={blueprint}
+                  esiJobs={esiJobs}
+                  bpData={bpData}
+                />
+              );
+            })
+          ) : (
+            <Grid item xs={12}>
+              <Typography
+                align="center"
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+              >
+                {" "}
+                No Blueprints Owned
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
+      </Paper>
+    </Grid>
+  );
 }

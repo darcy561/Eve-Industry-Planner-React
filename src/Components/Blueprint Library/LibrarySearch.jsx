@@ -50,6 +50,7 @@ export function LibrarySearch({
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const classes = useStyles();
+  
   return (
     <Paper
       square={true}

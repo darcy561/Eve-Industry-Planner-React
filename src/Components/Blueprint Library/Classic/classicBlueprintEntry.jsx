@@ -23,10 +23,9 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const { users } = useContext(UsersContext);
   const { esiCorpData } = useContext(CorpEsiDataContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
-  let blueprintType = "bp";
-  if (blueprint.quantity === -2) {
-    blueprintType = "bpc";
-  }
+
+  const blueprintType = blueprint.quantity === -2 ? "bpc" : "bp";
+
   const esiJob = esiJobs.find(
     (i) => i.blueprint_id === blueprint.item_id && i.status === "active"
   );
@@ -101,7 +100,7 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
               marginRight: "5px",
             }}
           />
-          {bpData.jobType === jobTypes.manufacturing ? (
+          {bpData.jobType === jobTypes.manufacturing && (
             <>
               <Grid item xs={12}>
                 <Typography variant="caption">
@@ -113,18 +112,18 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
                   T.E: {blueprint.time_efficiency}
                 </Typography>
               </Grid>
-              {blueprint.runs !== -1 ? (
+              {blueprint.runs !== -1 && (
                 <Grid item xs={12}>
                   <Typography variant="caption">
                     Runs: {blueprint.runs}
                   </Typography>
                 </Grid>
-              ) : null}
+              )}
             </>
-          ) : null}
+          )}
         </Grid>
       </Tooltip>
-      {esiJob ? (
+      {esiJob && (
         <Grid item xs={12}>
           <Tooltip title="Click to View ESI Job Info" arrow placement="bottom">
             <Icon
@@ -144,7 +143,7 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
             updateDisplayPopover={updateDisplayPopover}
           />
         </Grid>
-      ) : null}
+      )}
     </Grid>
   );
 }

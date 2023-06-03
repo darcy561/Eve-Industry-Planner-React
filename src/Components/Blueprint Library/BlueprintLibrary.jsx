@@ -55,8 +55,8 @@ export default function BlueprintLibrary() {
   }, [esiBlueprints, corpEsiBlueprints]);
 
   useEffect(() => {
-    let returnIDs = blueprintData.ids.slice(pagination.from, pagination.to);
-    let returnBps = blueprintData.blueprints.filter((i) =>
+    const returnIDs = blueprintData.ids.slice(pagination.from, pagination.to);
+    const returnBps = blueprintData.blueprints.filter((i) =>
       returnIDs.includes(i.type_id)
     );
 

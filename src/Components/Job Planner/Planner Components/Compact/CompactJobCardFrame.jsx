@@ -67,9 +67,10 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
   }));
 
   const classes = useStyles();
-  const jobCardChecked = useMemo(() => {
-    return multiSelectJobPlanner.some((i) => i === job.jobID);
-  }, [multiSelectJobPlanner]);
+  const jobCardChecked = useMemo(
+    () => multiSelectJobPlanner.some((i) => i === job.jobID),
+    [multiSelectJobPlanner]
+  );
 
   return (
     <Card

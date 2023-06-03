@@ -21,52 +21,46 @@ export function useMarketOrderFunctions() {
   } = useContext(CorpEsiDataContext);
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
-  class Transaction {
-    constructor(trans, desc, journal, tax, CharacterHash) {
-      this.order_id = null;
-      this.journal_ref_id = trans.journal_ref_id;
-      this.unit_price = trans.unit_price;
-      this.amount = journal.amount;
-      this.tax = Math.abs(tax.amount);
-      this.transaction_id = trans.transaction_id;
-      this.quantity = trans.quantity;
-      this.date = trans.date;
-      this.location_id = trans.location_id;
-      this.is_corp = !trans.is_personal;
-      this.type_id = trans.type_id;
-      this.description = desc;
-      this.CharacterHash = CharacterHash;
-    }
+  function Transaction(trans, desc, journal, tax, CharacterHash) {
+    this.order_id = null;
+    this.journal_ref_id = trans.journal_ref_id;
+    this.unit_price = trans.unit_price;
+    this.amount = journal.amount;
+    this.tax = Math.abs(tax.amount);
+    this.transaction_id = trans.transaction_id;
+    this.quantity = trans.quantity;
+    this.date = trans.date;
+    this.location_id = trans.location_id;
+    this.is_corp = !trans.is_personal;
+    this.type_id = trans.type_id;
+    this.description = desc;
+    this.CharacterHash = CharacterHash;
   }
 
-  class ESIMarketOrder {
-    constructor(order) {
-      this.duration = order.duration;
-      this.is_corporation = order.is_corporation;
-      this.issued = order.issued;
-      this.location_id = order.location_id;
-      this.order_id = order.order_id;
-      this.item_price = order.price;
-      this.range = order.range;
-      this.region_id = order.region_id;
-      this.type_id = order.type_id;
-      this.volume_remain = order.volume_remain;
-      this.volume_total = order.volume_total;
-      this.timeStamps = [order.issued];
-      this.CharacterHash = order.CharacterHash;
-      this.complete = order.complete || false;
-    }
+  function ESIMarketOrder(order) {
+    this.duration = order.duration;
+    this.is_corporation = order.is_corporation;
+    this.issued = order.issued;
+    this.location_id = order.location_id;
+    this.order_id = order.order_id;
+    this.item_price = order.price;
+    this.range = order.range;
+    this.region_id = order.region_id;
+    this.type_id = order.type_id;
+    this.volume_remain = order.volume_remain;
+    this.volume_total = order.volume_total;
+    this.timeStamps = [order.issued];
+    this.CharacterHash = order.CharacterHash;
+    this.complete = order.complete || false;
   }
 
-  class ESIBrokerFee {
-    constructor(entry, order, brokersFee) {
-      this.order_id = order.order_id;
-      this.id = entry.id;
-      this.complete = false;
-      this.date = entry.date;
-      this.amount = brokersFee;
-      this.CharacterHash = order.CharacterHash;
-    }
+  function ESIBrokerFee(entry, order, brokersFee) {
+    this.order_id = order.order_id;
+    this.id = entry.id;
+    this.complete = false;
+    this.date = entry.date;
+    this.amount = brokersFee;
+    this.CharacterHash = order.CharacterHash;
   }
 
   const findJournalEntry = (transaction) => {

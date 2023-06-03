@@ -83,16 +83,16 @@ export function useOpenEditJob() {
         newUserJobSnapshot,
         newJobArray
       );
-      if (parentJob === undefined) continue;
+      if (!parentJob) continue;
       itemIDs = new Set(itemIDs, generatePriceRequestFromJob(parentJob));
     }
     for (let mat of openJob.build.materials) {
       if (mat.childJob.length === 0) {
-        continue;
+        continue;s
       }
       for (let cJID of mat.childJob) {
         let childJob = await findJobData(cJID, newUserJobSnapshot, newJobArray);
-        if (childJob === undefined) {
+        if (!childJob) {
           continue;
         }
 

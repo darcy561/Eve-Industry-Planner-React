@@ -78,7 +78,7 @@ export function useDeleteMultipleJobs() {
         newJobArray
       );
 
-      if (inputJob === undefined) {
+      if (!inputJob) {
         continue;
       }
       inputJob.apiJobs.forEach((job) => {
@@ -97,13 +97,13 @@ export function useDeleteMultipleJobs() {
 
       //Removes inputJob IDs from child jobs
       for (let mat of inputJob.build.materials) {
-        if (mat === null) {
+        if (!mat) {
           continue;
         }
         for (let jobID of mat.childJob) {
           let child = await findJobData(jobID, newUserJobSnapshot, newJobArray);
 
-          if (child === undefined) {
+          if (!child) {
             continue;
           }
           child.parentJob = child.parentJob.filter((i) => inputJob.jobID !== i);
@@ -120,11 +120,11 @@ export function useDeleteMultipleJobs() {
             newJobArray
           );
 
-          if (parentJob === undefined) {
+          if (!parentJob) {
             continue;
           }
           for (let mat of parentJob.build.materials) {
-            if (mat.childJob === undefined) {
+            if (!mat.childJob) {
               continue;
             }
             mat.childJob = mat.childJob.filter((i) => inputJob.jobID !== i);
@@ -137,59 +137,61 @@ export function useDeleteMultipleJobs() {
         }
       }
 
-      removeJobFromGroup: if (inputJob.groupID !== null) {
-        let newIncludedJobIDs = new Set();
-        let newIncludedTypeIDs = new Set();
-        let newMaterialIDs = new Set();
-        let newOutputJobCount = 0;
-        const selectedGroupIndex = newGroupArray.findIndex(
-          (i) => i.groupID === inputJob.groupID
-        );
-        const isActiveGroup =
-          newGroupArray[selectedGroupIndex].groupID === activeGroup.groupID;
+      newGroupArray = removeJobFromGroup(newGroupArray, inputJob)
+      // removeJobFromGroup: if (inputJob.groupID) {
+      //   let newIncludedJobIDs = new Set();
+      //   let newIncludedTypeIDs = new Set();
+      //   let newMaterialIDs = new Set();
+      //   let newOutputJobCount = 0;
+      //   const selectedGroupIndex = newGroupArray.findIndex(
+      //     (i) => i.groupID === inputJob.groupID
+      //   );
+      //   const isActiveGroup =
+      //     newGroupArray[selectedGroupIndex].groupID === activeGroup.groupID;
 
-        if (selectedGroupIndex === -1) break removeJobFromGroup;
+      //   if (selectedGroupIndex === -1) break removeJobFromGroup;
 
-        for (let jobID of newGroupArray[selectedGroupIndex].includedJobIDs) {
-          if (jobID === inputJob.jobID) continue;
+      //   for (let jobID of newGroupArray[selectedGroupIndex].includedJobIDs) {
+      //     if (jobID === inputJob.jobID) continue;
 
-          let foundJob = await findJobData(
-            jobID,
-            newUserJobSnapshot,
-            newJobArray,
-            undefined,
-            "groupJob"
-          );
-          if (foundJob === undefined) continue;
+      //     let foundJob = await findJobData(
+      //       jobID,
+      //       newUserJobSnapshot,
+      //       newJobArray,
+      //       undefined,
+      //       "groupJob"
+      //     );
+      //     if (!foundJob) continue;
 
-          if (foundJob.parentJob.length === 0) {
-            newOutputJobCount++;
-          }
-          newMaterialIDs.add(foundJob.itemID);
-          foundJob.build.materials.forEach((mat) => {
-            newMaterialIDs.add(mat.typeID);
-          });
-          newIncludedTypeIDs.add(foundJob.itemID);
-          newIncludedJobIDs.add(foundJob.jobID);
-        }
+      //     if (foundJob.parentJob.length === 0) {
+      //       newOutputJobCount++;
+      //     }
+      //     newMaterialIDs.add(foundJob.itemID);
+      //     foundJob.build.materials.forEach((mat) => {
+      //       newMaterialIDs.add(mat.typeID);
+      //     });
+      //     newIncludedTypeIDs.add(foundJob.itemID);
+      //     newIncludedJobIDs.add(foundJob.jobID);
+      //   }
 
-        newGroupArray[selectedGroupIndex].includedJobIDs = [
-          ...newIncludedJobIDs,
-        ];
-        newGroupArray[selectedGroupIndex].includedTypeIDs = [
-          ...newIncludedTypeIDs,
-        ];
-        newGroupArray[selectedGroupIndex].materialIDs = [...newMaterialIDs];
-        newGroupArray[selectedGroupIndex].outputJobCount = newOutputJobCount;
-        if (isActiveGroup) {
-          updateActiveGroup(newGroupArray[selectedGroupIndex]);
-        }
+      //   newGroupArray[selectedGroupIndex].includedJobIDs = [
+      //     ...newIncludedJobIDs,
+      //   ];
+      //   newGroupArray[selectedGroupIndex].includedTypeIDs = [
+      //     ...newIncludedTypeIDs,
+      //   ];
+      //   newGroupArray[selectedGroupIndex].materialIDs = [...newMaterialIDs];
+      //   newGroupArray[selectedGroupIndex].outputJobCount = newOutputJobCount;
+      //   if (isActiveGroup) {
+      //     updateActiveGroup(newGroupArray[selectedGroupIndex]);
+      //   }
 
-        updateGroupArray(newGroupArray);
-        if (isLoggedIn) {
-          uploadGroups(newGroupArray);
-        }
-      }
+      //   updateGroupArray(newGroupArray);
+      //   if (isLoggedIn) {
+      //     uploadGroups(newGroupArray);
+      //   }
+      // }
+      console.log(newGroupArray)
 
       newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
 
@@ -203,7 +205,7 @@ export function useDeleteMultipleJobs() {
     if (isLoggedIn) {
       jobsToSave.forEach((jobID) => {
         let job = newJobArray.find((i) => i.jobID === jobID);
-        if (job === undefined) {
+        if (!job) {
           return;
         }
         uploadJob(job);
@@ -219,6 +221,7 @@ export function useDeleteMultipleJobs() {
     updateApiJobs(newApiJobsArary);
     updateUserJobSnapshot(newUserJobSnapshot);
 
+    updateGroupArray(newGroupArray)
     updateJobArray(newJobArray);
     updateMultiSelectJobPlanner([...newMutliSelct]);
 
@@ -231,8 +234,78 @@ export function useDeleteMultipleJobs() {
     }));
     r.stop();
 
-    async function removeJobsFromGroup() {
-      if (input) return;
+    function removeJobFromGroup(newGroupArray, inputJob) {
+      if (!inputJob || !inputJob.groupID) return newGroupArray;
+
+      const selectedGroupIndex = newGroupArray.findIndex(
+        (i) => i.groupID === inputJob.groupID
+      );
+
+      if (selectedGroupIndex === -1) return;
+
+      const groupJobs = newJobArray.filter(
+        (job) =>
+          job.groupID === activeGroup.groupID && job.jobID !== inputJob.jobID
+      );
+
+      const isActiveGroup =
+        newGroupArray[selectedGroupIndex].groupID === activeGroup.groupID;
+
+      const {
+        outputJobCount,
+        materialIDs,
+        jobTypeIDs,
+        includedJobIDs,
+        linkedJobIDs,
+        linkedTransIDs,
+        linkedOrderIDs,
+      } = groupJobs.reduce(
+        (prev, job) => {
+          if (job.parentJob.length === 0) {
+            prev.outputJobCount++;
+          }
+          prev.materialIDs.add(job.itemID);
+          prev.jobTypeIDs.add(job.itemID);
+          prev.includedJobIDs.add(job.jobID);
+          prev.linkedJobIDs = new Set([...prev.linkedJobIDs, ...job.apiJobs]);
+          prev.linkedOrderIDs = new Set([
+            ...prev.linkedOrderIDs,
+            ...job.apiOrders,
+          ]);
+          prev.linkedTransIDs = new Set([
+            ...prev.linkedTransIDs,
+            ...job.apiTransactions,
+          ]);
+
+          job.build.materials.forEach((mat) => {
+            prev.materialIDs.add(mat.typeID);
+          });
+          return prev;
+        },
+        {
+          outputJobCount: 0,
+          materialIDs: new Set(),
+          jobTypeIDs: new Set(),
+          includedJobIDs: new Set(),
+          linkedJobIDs: new Set(),
+          linkedTransIDs: new Set(),
+          linkedOrderIDs: new Set(),
+        }
+      );
+
+      newGroupArray[selectedGroupIndex].includedJobIDs = [...includedJobIDs];
+      newGroupArray[selectedGroupIndex].includedTypeIDs = [...jobTypeIDs];
+      newGroupArray[selectedGroupIndex].materialIDs = [...materialIDs];
+      newGroupArray[selectedGroupIndex].outputJobCount = outputJobCount;
+      newGroupArray[selectedGroupIndex].linkedJobIDs = [...linkedJobIDs];
+      newGroupArray[selectedGroupIndex].linkedOrderIDs = [...linkedOrderIDs];
+      newGroupArray[selectedGroupIndex].linkedTransIDs = [...linkedTransIDs];
+
+      if (isActiveGroup) {
+        updateActiveGroup(newGroupArray[selectedGroupIndex]);
+      }
+
+      return newGroupArray;
     }
   };
   return { deleteMultipleJobs };

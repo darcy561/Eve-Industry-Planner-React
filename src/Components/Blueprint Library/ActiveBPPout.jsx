@@ -65,11 +65,11 @@ export function ActiveBPPopout({
                 {timeRemaining === "complete" ? "Ready to Deliver" : "Active"}
               </Typography>
             </Grid>
-            {timeRemaining !== "complete" ? (
+            {timeRemaining !== "complete" && (
               <Grid item xs={12}>
                 <Typography>Time Remaining: {timeRemaining}</Typography>
               </Grid>
-            ) : null}
+            )}
           </Grid>
         </Grid>
       </Paper>

@@ -71,7 +71,7 @@ export function useDeleteSingleJob() {
       newJobArray
     );
 
-    if (inputJob === undefined) {
+    if (!inputJob) {
       newUserJobSnapshot = newUserJobSnapshot.filter(
         (i) => i.jobID !== inputJobID
       );
@@ -90,22 +90,23 @@ export function useDeleteSingleJob() {
 
     //Removes inputJob IDs from child jobs
     for (let mat of inputJob.build.materials) {
-      if (mat !== null) {
-        for (let job of mat.childJob) {
-          let child = await findJobData(job, newUserJobSnapshot, newJobArray);
-          if (child === undefined) {
-            continue;
-          }
-
-          child.parentJob = child.parentJob.filter((i) => i !== inputJob.jobID);
-
-          newUserJobSnapshot = updateJobSnapshotFromFullJob(
-            child,
-            newUserJobSnapshot
-          );
-
-          jobsToSave.add(child.jobID);
+      if (!mat) {
+        continue;
+      }
+      for (let job of mat.childJob) {
+        let child = await findJobData(job, newUserJobSnapshot, newJobArray);
+        if (!child) {
+          continue;
         }
+
+        child.parentJob = child.parentJob.filter((i) => i !== inputJob.jobID);
+
+        newUserJobSnapshot = updateJobSnapshotFromFullJob(
+          child,
+          newUserJobSnapshot
+        );
+
+        jobsToSave.add(child.jobID);
       }
     }
     //Removes inputJob IDs from Parent jobs
@@ -115,11 +116,11 @@ export function useDeleteSingleJob() {
         newUserJobSnapshot,
         newJobArray
       );
-      if (parentJob === undefined) {
+      if (!parentJob) {
         continue;
       }
       for (let mat of parentJob.build.materials) {
-        if (mat.childJob === undefined) {
+        if (!mat.childJob) {
           continue;
         }
         mat.childJob = mat.childJob.filter((i) => i !== inputJob.jobID);
@@ -150,7 +151,7 @@ export function useDeleteSingleJob() {
     if (isLoggedIn) {
       jobsToSave.forEach((jobID) => {
         let job = newJobArray.find((i) => i.jobID === jobID);
-        if (job === undefined) {
+        if (!job) {
           return;
         }
         uploadJob(job);
@@ -183,8 +184,8 @@ export function useDeleteSingleJob() {
         (i) => i.groupID === inputJob.groupID
       );
 
-      if (selectedGroupIndex === -1) return 
-      
+      if (selectedGroupIndex === -1) return;
+
       const groupJobs = newJobArray.filter(
         (job) =>
           job.groupID === activeGroup.groupID && job.jobID !== inputJob.jobID
@@ -193,7 +194,6 @@ export function useDeleteSingleJob() {
       const isActiveGroup =
         newGroupArray[selectedGroupIndex].groupID === activeGroup.groupID;
 
-      if (selectedGroupIndex === -1) return;
 
       const {
         outputJobCount,

@@ -21,7 +21,7 @@ export function AssetType({ displayedAssets, fullAssetList, pageLoad }) {
         {displayedAssets.map((assetType) => {
           let { name } = fullItemNames.find(
             (i) => i.type_id === assetType.type_id
-          );
+          ) || {};
           if (!name) return null;
 
           return (

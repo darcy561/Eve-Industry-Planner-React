@@ -20,25 +20,25 @@ export function ArchiveBpData({ archiveOpen, updateArchiveOpen, bpData }) {
   const { getArchivedJobData } = useFirebase();
   const analytics = getAnalytics();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   useEffect(() => {
     async function getArchiveData() {
-      if (archiveOpen) {
-        let newArchivedJobsArray = await getArchivedJobData(bpData.itemID);
-        let data = newArchivedJobsArray.find((i) => i.typeID === bpData.itemID);
-        logEvent(analytics, "View Archived Job Data", {
-          UID: parentUser.accountID,
-        });
-        updateGetData(false);
-        updateJobData(data);
-        updateArchivedJobs(newArchivedJobsArray);
+      if (!archiveOpen) {
+        return;
       }
+      const newArchivedJobsArray = await getArchivedJobData(bpData.itemID);
+      const data = newArchivedJobsArray.find((i) => i.typeID === bpData.itemID);
+      logEvent(analytics, "View Archived Job Data", {
+        UID: parentUser.accountID,
+      });
+      updateGetData(false);
+      updateJobData(data);
+      updateArchivedJobs(newArchivedJobsArray);
     }
     getArchiveData();
   }, [archiveOpen]);
+
 
   return (
     <Dialog
@@ -64,7 +64,7 @@ export function ArchiveBpData({ archiveOpen, updateArchiveOpen, bpData }) {
         </DialogContent>
       )}
 
-      {jobData !== undefined ? (
+      {jobData ? (
         <DialogContent>
           <Grid container>
             <Grid container item xs={12}>

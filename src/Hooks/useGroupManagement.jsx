@@ -29,30 +29,26 @@ export function useGroupManagement() {
   const { buildJob, recalculateItemQty } = useJobBuild();
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
 
-  class newJobGroupTemplate {
-    constructor(
-      groupID,
-      outputJobNames,
-      inputIDs,
-      includedTypeIDs,
-      materialIDs,
-      outputJobCount
-    ) {
-      this.groupName = outputJobNames.join(", ").substring(0, 75);
-      this.groupID = `group-${uuid()}`;
-      this.includedJobIDs = inputIDs;
-      this.includedTypeIDs = [...includedTypeIDs];
-      this.materialIDs = [...materialIDs];
-      this.outputJobCount = outputJobCount;
-      this.areComplete = [];
-      this.showComplete = true;
-      this.groupStatus = 0;
-      this.groupType = 1;
-    }
+  function newJobGroupTemplate(
+    outputJobNames,
+    inputIDs,
+    includedTypeIDs,
+    materialIDs,
+    outputJobCount
+  ) {
+    this.groupName = outputJobNames.join(", ").substring(0, 75);
+    this.groupID = `group-${uuid()}`;
+    this.includedJobIDs = inputIDs;
+    this.includedTypeIDs = [...includedTypeIDs];
+    this.materialIDs = [...materialIDs];
+    this.outputJobCount = outputJobCount;
+    this.areComplete = [];
+    this.showComplete = true;
+    this.groupStatus = 0;
+    this.groupType = 1;
   }
 
   const createNewGroupWithJobs = async (inputJobIDs) => {
-    const newGroupID = `group-${Date.now()}-${Math.floor(Math.random() * 100)}`;
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newGroupArray = [...groupArray];
@@ -125,16 +121,12 @@ export function useGroupManagement() {
     if (outputJobNames.length === 0) {
       outputJobNames.push("Untitled Group");
     }
-    let newGroupEntry = Object.assign(
-      {},
-      new newJobGroupTemplate(
-        newGroupID,
-        outputJobNames,
-        inputJobIDs,
-        jobTypeIDs,
-        materialIDs,
-        outputJobCount
-      )
+    let newGroupEntry = new newJobGroupTemplate(
+      outputJobNames,
+      inputJobIDs,
+      jobTypeIDs,
+      materialIDs,
+      outputJobCount
     );
     newGroupArray.push(newGroupEntry);
     updateJobArray(newJobArray);

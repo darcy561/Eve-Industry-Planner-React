@@ -40,7 +40,8 @@ export function ChildJobPopover({
   currentPurchasePrice,
   materialIndex,
 }) {
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { jobArray, groupArray, updateGroupArray, updateJobArray } =
+    useContext(JobArrayContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { activeJob, activeGroup, updateActiveJob } =
     useContext(ActiveJobContext);
@@ -426,21 +427,30 @@ export function ChildJobPopover({
                   size="small"
                   onClick={async () => {
                     updateBuildLoad((prev) => !prev);
-                    let newUserJobSnapshot = newJobSnapshot(
-                      childJobObjects[jobDisplay],
-                      [...userJobSnapshot]
-                    );
+                    const inputJob = childJobObjects[jobDisplay];
                     let newJobArray = [...jobArray];
                     let newMaterialArray = [...activeJob.build.materials];
 
-                    newJobArray.push(childJobObjects[jobDisplay]);
+                    newJobArray.push(inputJob);
                     if (isLoggedIn) {
-                      await uploadUserJobSnapshot(newUserJobSnapshot);
-                      await addNewJob(childJobObjects[jobDisplay]);
+                      addNewJob(inputJob);
                     }
                     newMaterialArray[materialIndex].childJob.push(
-                      childJobObjects[jobDisplay].jobID
+                      inputJob.jobID
                     );
+
+                    if (!inputJob.groupID) {
+                      let newUserJobSnapshot = newJobSnapshot(inputJob, [
+                        ...userJobSnapshot,
+                      ]);
+
+                      if (isLoggedIn) {
+                        uploadUserJobSnapshot(newUserJobSnapshot);
+                      }
+                      updateUserJobSnapshot(newUserJobSnapshot);
+                    } else {
+                      
+                    }
                     updateActiveJob((prev) => ({
                       ...prev,
                       build: {
@@ -448,7 +458,6 @@ export function ChildJobPopover({
                         materials: newMaterialArray,
                       },
                     }));
-                    updateUserJobSnapshot(newUserJobSnapshot);
                     updateEvePrices((prev) => {
                       let newItemPrices = tempPrices.filter(
                         (n) => !prev.some((p) => p.typeID === n.typeID)
@@ -459,7 +468,7 @@ export function ChildJobPopover({
                     setSnackbarData((prev) => ({
                       ...prev,
                       open: true,
-                      message: `${childJobObjects[jobDisplay].name} Added`,
+                      message: `${inputJob.name} Added`,
                       severity: "success",
                       autoHideDuration: 3000,
                     }));

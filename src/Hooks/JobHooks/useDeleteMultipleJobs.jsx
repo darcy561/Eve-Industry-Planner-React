@@ -137,61 +137,7 @@ export function useDeleteMultipleJobs() {
         }
       }
 
-      newGroupArray = removeJobFromGroup(newGroupArray, inputJob)
-      // removeJobFromGroup: if (inputJob.groupID) {
-      //   let newIncludedJobIDs = new Set();
-      //   let newIncludedTypeIDs = new Set();
-      //   let newMaterialIDs = new Set();
-      //   let newOutputJobCount = 0;
-      //   const selectedGroupIndex = newGroupArray.findIndex(
-      //     (i) => i.groupID === inputJob.groupID
-      //   );
-      //   const isActiveGroup =
-      //     newGroupArray[selectedGroupIndex].groupID === activeGroup.groupID;
-
-      //   if (selectedGroupIndex === -1) break removeJobFromGroup;
-
-      //   for (let jobID of newGroupArray[selectedGroupIndex].includedJobIDs) {
-      //     if (jobID === inputJob.jobID) continue;
-
-      //     let foundJob = await findJobData(
-      //       jobID,
-      //       newUserJobSnapshot,
-      //       newJobArray,
-      //       undefined,
-      //       "groupJob"
-      //     );
-      //     if (!foundJob) continue;
-
-      //     if (foundJob.parentJob.length === 0) {
-      //       newOutputJobCount++;
-      //     }
-      //     newMaterialIDs.add(foundJob.itemID);
-      //     foundJob.build.materials.forEach((mat) => {
-      //       newMaterialIDs.add(mat.typeID);
-      //     });
-      //     newIncludedTypeIDs.add(foundJob.itemID);
-      //     newIncludedJobIDs.add(foundJob.jobID);
-      //   }
-
-      //   newGroupArray[selectedGroupIndex].includedJobIDs = [
-      //     ...newIncludedJobIDs,
-      //   ];
-      //   newGroupArray[selectedGroupIndex].includedTypeIDs = [
-      //     ...newIncludedTypeIDs,
-      //   ];
-      //   newGroupArray[selectedGroupIndex].materialIDs = [...newMaterialIDs];
-      //   newGroupArray[selectedGroupIndex].outputJobCount = newOutputJobCount;
-      //   if (isActiveGroup) {
-      //     updateActiveGroup(newGroupArray[selectedGroupIndex]);
-      //   }
-
-      //   updateGroupArray(newGroupArray);
-      //   if (isLoggedIn) {
-      //     uploadGroups(newGroupArray);
-      //   }
-      // }
-      console.log(newGroupArray)
+      newGroupArray = removeJobFromGroup(newGroupArray, inputJob);
 
       newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
 
@@ -221,7 +167,7 @@ export function useDeleteMultipleJobs() {
     updateApiJobs(newApiJobsArary);
     updateUserJobSnapshot(newUserJobSnapshot);
 
-    updateGroupArray(newGroupArray)
+    updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
     updateMultiSelectJobPlanner([...newMutliSelct]);
 
@@ -235,21 +181,23 @@ export function useDeleteMultipleJobs() {
     r.stop();
 
     function removeJobFromGroup(newGroupArray, inputJob) {
-      if (!inputJob || !inputJob.groupID) return newGroupArray;
+      if (!inputJob) return newGroupArray;
+
+      if (!inputJob.groupID) return newGroupArray;
 
       const selectedGroupIndex = newGroupArray.findIndex(
         (i) => i.groupID === inputJob.groupID
       );
 
-      if (selectedGroupIndex === -1) return;
+      if (selectedGroupIndex === -1) return newGroupArray;
 
       const groupJobs = newJobArray.filter(
         (job) =>
-          job.groupID === activeGroup.groupID && job.jobID !== inputJob.jobID
+          job.groupID === activeGroup?.groupID && job.jobID !== inputJob.jobID
       );
 
       const isActiveGroup =
-        newGroupArray[selectedGroupIndex].groupID === activeGroup.groupID;
+        newGroupArray[selectedGroupIndex].groupID === activeGroup?.groupID;
 
       const {
         outputJobCount,

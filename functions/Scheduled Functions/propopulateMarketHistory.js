@@ -1,8 +1,9 @@
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const { ESIMarketQuery } = require("../sharedFunctions/fetchMarketPrices");
-const axios = require("axios");
 const { GLOBAL_CONFIG } = require("../global-config-functions");
+const admin = require("firebasse-admin");
+const functions = require("firebase-functions");
+const {
+  ESIMarketHistoryQuery,
+} = require("../sharedFunctions/fetchMarketHistory");
 
 const {
   FIREBASE_SERVER_REGION,
@@ -10,11 +11,10 @@ const {
   DEFAULT_ITEM_PRICE_REFRESH_PERIOD,
   DEFAULT_ITEM_MARKET_REFRESH_QUANTITY,
 } = GLOBAL_CONFIG;
-
 const EVE_SERVER_STATUS_API =
   "https://esi.evetech.net/latest/status/?datasource=tranquility";
-const MARKET_PRICES_REF = "live-data/market-prices";
-const TIME_LIMIT = DEFAULT_ITEM_PRICE_REFRESH_PERIOD * 60 * 60 * 1000;
+const MARKET_PRICES_REF = "live-data/market-history";
+const TIME_LIMIT = DEFAUL_ITEM_HISTROY_REFRESH_PERIOD * 60 * 60 * 1000;
 
 exports.scheduledFunction = functions
   .region(FIREBASE_SERVER_REGION)
@@ -38,7 +38,7 @@ exports.scheduledFunction = functions
       }
 
       if (pricingData.length === 0) {
-        functions.logger.log("No TypeID's Found To Refresh");
+        functions.logger.log("No TypeID's Found To Convert");
         return null;
       }
 
@@ -51,26 +51,27 @@ exports.scheduledFunction = functions
         return null;
       }
 
-      const refreshedIDs = new Set();
+      const successfulIDs = new Set();
       const failedIDs = new Set();
 
       for (const [typeID] of Object.entries(pricingData)) {
-        const response = await ESIMarketQuery(typeID);
+        const response = await ESIMarketHistoryQuery(typeID);
         if (!response) {
           failedIDs.add(typeID);
           continue;
         }
-        refreshedIDs.add(typeID);
+        successfulIDs.add(typeID);
       }
 
       functions.logger.log(
-        `Market Prices Refreshed For ${
-          refreshedIDs.size
-        } Items. ${JSON.stringify([...refreshedIDs])}`
+        `Market History Added For ${successfulIDs.size} Items. ${JSON.stringify(
+          [...successfulIDs]
+        )}`
       );
+
       if (failedIDs.size > 0) {
         functions.logger.log(
-          `Market Prices Refresh Failed For ${
+          ` Market History Addition Failed For ${
             failedIDs.size
           } Items. ${JSON.stringify([...failedIDs])}`
         );

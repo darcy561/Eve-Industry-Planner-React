@@ -26,6 +26,7 @@ import { useJobBuild } from "../../../../../Hooks/useJobBuild";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { jobTypes } from "../../../../../Context/defaultValues";
 import { useSwitchActiveJob } from "../../../../../Hooks/JobHooks/useSwitchActiveJob";
+import { useManageGroupJobs } from "../../../../../Hooks/GroupHooks/useManageGroupJobs";
 
 export function ChildJobPopover({
   displayPopover,
@@ -43,7 +44,7 @@ export function ChildJobPopover({
   const { jobArray, groupArray, updateGroupArray, updateJobArray } =
     useContext(JobArrayContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
-  const { activeJob, activeGroup, updateActiveJob } =
+  const { activeJob, activeGroup, updateActiveJob, updateActiveGroup } =
     useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -61,6 +62,7 @@ export function ChildJobPopover({
   const { newJobSnapshot, replaceSnapshot, generatePriceRequestFromJob } =
     useJobManagement();
   const { switchActiveJob } = useSwitchActiveJob();
+  const { addJobToGroup } = useManageGroupJobs();
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImport, updateJobImport] = useState(false);
   const [jobDisplay, setJobDisplay] = useState(0);
@@ -449,7 +451,19 @@ export function ChildJobPopover({
                       }
                       updateUserJobSnapshot(newUserJobSnapshot);
                     } else {
-                      
+                      let newGroupArray = addJobToGroup(
+                        inputJob,
+                        [...groupArray],
+                        newJobArray
+                      );
+                      let updatedGroupObject = newGroupArray.find(
+                        (i) => i.groupID === inputJob.groupID
+                      );
+
+                      if (updatedGroupObject) {
+                        updateActiveGroup(updatedGroupObject);
+                      }
+                      updateGroupArray(newGroupArray);
                     }
                     updateActiveJob((prev) => ({
                       ...prev,

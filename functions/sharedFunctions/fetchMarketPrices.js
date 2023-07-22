@@ -18,7 +18,7 @@ async function ESIMarketQuery(typeID) {
     const orders = responses[i];
 
     if (!orders) {
-      return null;
+      continue;
     }
     const { buyOrders, sellOrders } = filterOrders(orders, location.stationID);
     const { highestBuyPrice, lowestSellPrice } =

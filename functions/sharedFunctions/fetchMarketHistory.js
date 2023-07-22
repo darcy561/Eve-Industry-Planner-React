@@ -20,7 +20,7 @@ async function ESIMarketHistoryQuery(typeID) {
       const location = DEFAULT_MARKET_LOCATIONS[i];
       const rawMarketData = responses[i];
       if (!rawMarketData) {
-        return null;
+        continue;
       }
 
       const marketData = filterOldEntries(rawMarketData);

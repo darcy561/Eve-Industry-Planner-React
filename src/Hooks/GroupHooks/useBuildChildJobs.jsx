@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import {
+  IsLoggedIn,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
@@ -16,11 +17,11 @@ export function useBuildChildJobs() {
   const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { isLoggedOn } = useContext(IsLoggedInContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { findJobData } = useFindJobObject();
   const { buildJob, recalculateItemQty } = useJobBuild();
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
-  const { uploadJob } = useFirebase();
+  const { addNewJob, uploadJob } = useFirebase();
 
   const buildChildJobs = async (inputJobIDs) => {
     const existingGroupData = await calculateExistingTypeIDs();
@@ -218,7 +219,11 @@ export function useBuildChildJobs() {
 
         if (!isOriginal && isModified) {
           //update Modified
-          jobsToBeModified = updateModifiedEntry(material, jobsToBeModified, inputJobID);
+          jobsToBeModified = updateModifiedEntry(
+            material,
+            jobsToBeModified,
+            inputJobID
+          );
         }
       });
     }
@@ -228,6 +233,11 @@ export function useBuildChildJobs() {
 
   async function buildNewJobArray(newJobData, jobsToBeModified) {
     let newJobArray = [...jobArray, ...newJobData];
+    if (isLoggedIn) {
+      for (let job of newJobData) {
+        addNewJob(job);
+      }
+    }
 
     newJobArray = linkNewJobsToParent(newJobData, newJobArray);
 
@@ -237,7 +247,9 @@ export function useBuildChildJobs() {
       if (!job) {
         continue;
       }
-      job.parentJob = [...new Set(job.parentJob, [...modifiedData.parentJobIDs])];
+      job.parentJob = [
+        ...new Set(job.parentJob, [...modifiedData.parentJobIDs]),
+      ];
 
       recalculateItemQty(job, modifiedData.itemQty);
       job.build.materials = CalculateResources({
@@ -268,7 +280,7 @@ export function useBuildChildJobs() {
         skills: job.skills,
       });
 
-      if (isLoggedOn) {
+      if (isLoggedIn) {
         uploadJob(job);
       }
     }
@@ -293,7 +305,6 @@ function addMaterialToBuild(
   activeGroupID,
   parentJobID
 ) {
-
   const newObject = {
     name: material.name,
     itemID: material.typeID,
@@ -308,7 +319,6 @@ function addMaterialToBuild(
 }
 
 function updateMaterialToBuild(material, existingBuildRequests, parentJobID) {
-  
   const newBuildRequests = [...existingBuildRequests];
 
   const entry = newBuildRequests.find((i) => i.itemID === material.typeID);
@@ -325,14 +335,6 @@ function addNewModifiedEntry(
   originalEntries,
   parentJobID
 ) {
-
-  // const existingObject = originalEntries.find((i) => i.itemID === material.typeID)
-
-  // if (!existingObject.parentJobIDs.has(parentJobID)) {
-  //   return existingModifiedEntries
-  // }
-
-
   const entriesToMove = originalEntries.filter(
     (i) => i.itemID === material.typeID
   );

@@ -373,4 +373,5 @@ exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");
 exports.userClaims = require("./Triggered Functions/addCorpClaim");
 exports.checkAppVersion = require("./Triggered Functions/checkAppVersion");
 exports.checkSDEUpdates = require("./Scheduled Functions/checkSDEUpdates");
+exports.populateMarketHistory = require("./Scheduled Functions/propopulateMarketHistory");
 exports.findIngrediants = require("./Triggered Functions/findIngrediants");

@@ -15,16 +15,27 @@ exports.findIngrediants = functions
         "Function must be called from a verified app"
       );
     }
+    /// data = {ids: [34,35,36], matchType: "Any"|| "All"}
 
-    const matchingIngrediants = new Set();
+    const { ids: requestedIDs, matchType } = data;
 
-    const requestedIngrediant = data;
+    const matchingTypeIDs = new Set();
 
-    for (let item of ingrediantList) {
-      if (item.materials.includes(requestedIngrediant)) {
-        matchingIngrediants.add(item.typeID);
+    for (const material of requestedIDs) {
+      if (materialToTypeIDs[material]) {
+        if (matchType === "any") {
+          materialToTypeIDs[material].forEach((typeID) =>
+            matchingTypeIDs.add(typeID)
+          );
+        } else if (matchType === "all" && matchingTypeIDs.size > 0) {
+          matchingTypeIDs = new Set(
+            materialToTypeIDs[material].filter((typeID) =>
+              matchingTypeIDs.has(typeID)
+            )
+          );
+        }
       }
     }
 
-    return [...matchingIngrediants];
+    return [...matchingTypeIDs];
   });

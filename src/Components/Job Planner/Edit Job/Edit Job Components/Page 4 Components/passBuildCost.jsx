@@ -138,26 +138,21 @@ export function PassBuildCostButton() {
     }
   };
 
+  if (activeJob.parentJob.length === 0) {
+    return null;
+  }
+
   return (
-    <Grid
-      container
-      sx={{
-        marginTop: "20px",
-        marginBottom: "20px",
-      }}
-    >
-      <Grid item xs={12} align="center">
-        <Tooltip arrow title="Sends the item build cost to all parent jobs.">
-          <Button
-            color="primary"
-            variant="contained"
-            size="small"
-            onClick={passCost}
-          >
-            Send Build Costs
-          </Button>
-        </Tooltip>
-      </Grid>
-    </Grid>
+    <Tooltip arrow title="Sends the item build cost to all parent jobs.">
+      <Button
+        color="primary"
+        variant="contained"
+        size="small"
+        onClick={passCost}
+        sx={{ margin: "10px" }}
+      >
+        Send Build Costs
+      </Button>
+    </Tooltip>
   );
 }

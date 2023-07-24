@@ -20,28 +20,21 @@ export function MarkAsCompleteButton({ setJobModified }) {
     setJobModified(true);
   };
 
+  if (!activeGroup) {
+    return null;
+  }
+
   return (
-    <Grid
-      container
-      item
-      xs={12}
-      sx={{
-        marginTop: "20px",
-        marginBottom: "20px",
-      }}
+    <Button
+      color="primary"
+      variant="contained"
+      size="small"
+      onClick={toggleMarkJobAsComplete}
+      sx={{ margin: "10px" }}
     >
-      <Grid item xs={12} align="center">
-        <Button
-          color="primary"
-          variant="contained"
-          size="small"
-          onClick={toggleMarkJobAsComplete}
-        >
-          {activeGroup.areComplete.includes(activeJob.jobID)
-            ? "Mark As Incomplete"
-            : "Mark As Complete"}
-        </Button>
-      </Grid>
-    </Grid>
+      {activeGroup.areComplete.includes(activeJob.jobID)
+        ? "Mark As Incomplete"
+        : "Mark As Complete"}
+    </Button>
   );
 }

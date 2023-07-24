@@ -8,19 +8,21 @@ import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import {
+  IsLoggedInContext,
   UserJobSnapshotContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function ArchiveJobButton({ updateEditJobTrigger }) {
-  const { activeJob } = useContext(ActiveJobContext);
+  const { activeJob, activeGroup } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { archiveJob, removeJob, uploadUserJobSnapshot, updateMainUserDoc } =
     useFirebase();
   const { deleteJobSnapshot } = useJobManagement();
@@ -66,29 +68,24 @@ export function ArchiveJobButton({ updateEditJobTrigger }) {
     updateEditJobTrigger((prev) => !prev);
   };
 
+  if (!isLoggedIn || activeGroup) {
+    return null;
+  }
+
   return (
-    <Grid
-      container
-      sx={{
-        marginTop: "20px",
-        marginBottom: "20px",
-      }}
+    <Tooltip
+      arrow
+      title="Removes the job from your planner but stores the data for later use in reporting and cost calculations. If you do not wish to store this job data then simply delete the job."
     >
-      <Grid item xs={12} align="center">
-        <Tooltip
-          arrow
-          title="Removes the job from your planner but stores the data for later use in reporting and cost calculations. If you do not wish to store this job data then simply delete the job."
-        >
-          <Button
-            color="primary"
-            variant="contained"
-            size="small"
-            onClick={archiveJobProcess}
-          >
-            Archive Job
-          </Button>
-        </Tooltip>
-      </Grid>
-    </Grid>
+      <Button
+        color="primary"
+        variant="contained"
+        size="small"
+        onClick={archiveJobProcess}
+        sx={{ margin: "10px" }}
+      >
+        Archive Job
+      </Button>
+    </Tooltip>
   );
 }

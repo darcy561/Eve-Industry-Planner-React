@@ -7,8 +7,9 @@ import { LinkedTransactions } from "./Page 5 Components/linkedTransactions";
 import { TutorialStep5 } from "./Page 5 Components/tutorialStep5";
 import { MarketOrderTabs } from "./Page 5 Components/marketOrderTabs";
 import { MarketCostsPanel } from "./Page 5 Components/marketCostsPanel";
+import { Step5Buttons } from "./Page 5 Components/optionsBar";
 
-export function EditPage5({ setJobModified }) {
+export function EditPage5({ setJobModified, updateEditJobTrigger }) {
   const [showAvailableOrders, updateShowAvailableOrders] = useState(false);
   const [activeOrder, updateActiveOrder] = useState([]);
 
@@ -42,6 +43,12 @@ export function EditPage5({ setJobModified }) {
           <LinkedTransactions
             setJobModified={setJobModified}
             activeOrder={activeOrder}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Step5Buttons
+            setJobModified={setJobModified}
+            updateEditJobTrigger={updateEditJobTrigger}
           />
         </Grid>
       </Grid>

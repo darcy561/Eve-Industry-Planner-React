@@ -70,14 +70,14 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
 
           {activeJob.parentJob.map((jobID) => {
             let findParent = () => {
-              if (activeJob.groupID === null) {
+              if (!activeJob.groupID) {
                 return userJobSnapshot.find((i) => i.jobID === jobID);
               } else {
                 return jobArray.find((i) => i.jobID === jobID);
               }
             };
             let parent = findParent();
-            if (parent === undefined) {
+            if (!parent) {
               return null;
             }
             return (
@@ -117,7 +117,7 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
                       newUserJobSnapshot,
                       newJobArray
                     );
-                    if (selectedJob === undefined) {
+                    if (!selectedJob) {
                       return;
                     }
                     let newParentMaterials = [...selectedJob.build.materials];

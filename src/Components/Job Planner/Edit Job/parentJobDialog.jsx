@@ -42,28 +42,29 @@ export function ParentJobDialog({
   };
 
   useEffect(() => {
-    if (dialogTrigger) {
-      let newMatches = [];
-      if (activeJob.groupID === null) {
-        for (let job of userJobSnapshot) {
-          if (
-            job.materialIDs.includes(activeJob.itemID) &&
-            !activeJob.parentJob.includes(job.jobID)
-          ) {
-            newMatches.push(job);
-          }
-        }
-      } else {
-        let matchs = jobArray.filter(
-          (i) =>
-            i.groupID === activeJob.groupID &&
-            !activeJob.parentJob.includes(i.jobID) &&
-            i.build.materials.some((x) => x.typeID === activeJob.itemID)
-        );
-        newMatches = newMatches.concat(matchs);
-      }
-      updateMatches(newMatches);
+    if (!dialogTrigger) {
+      return;
     }
+    let newMatches = [];
+    if (!activeJob.groupID) {
+      for (let job of userJobSnapshot) {
+        if (
+          job.materialIDs.includes(activeJob.itemID) &&
+          !activeJob.parentJob.includes(job.jobID)
+        ) {
+          newMatches.push(job);
+        }
+      }
+    } else {
+      let matchs = jobArray.filter(
+        (i) =>
+          i.groupID === activeJob.groupID &&
+          !activeJob.parentJob.includes(i.jobID) &&
+          i.build.materials.some((x) => x.typeID === activeJob.itemID)
+      );
+      newMatches = newMatches.concat(matchs);
+    }
+    updateMatches(newMatches);
   }, [dialogTrigger]);
 
   return (
@@ -110,9 +111,6 @@ export function ParentJobDialog({
                     <Typography variant="body1">{job.name}</Typography>
                   </Grid>
                   <Grid item xs={4} align="center">
-                    {/* <Typography variant="body2">
-                      ME {job.bpME} TE {job.bpTE}
-                    </Typography> */}
                     <Typography variant="body2">
                       Runs {job.runCount} Jobs {job.jobCount}
                     </Typography>

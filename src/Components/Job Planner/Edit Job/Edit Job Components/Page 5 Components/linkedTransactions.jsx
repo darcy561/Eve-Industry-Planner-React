@@ -65,7 +65,7 @@ export function LinkedTransactions({ setJobModified, activeOrder }) {
               aria-expanded={Boolean(anchorEl) ? "true" : undefined}
               sx={{ position: "absolute", top: "10px", right: "10px" }}
             >
-              <MoreVertIcon size="small" color="Secondary" />
+              <MoreVertIcon size="small" color="primary" />
             </IconButton>
             <Menu
               id="linkedTransactions_menu"

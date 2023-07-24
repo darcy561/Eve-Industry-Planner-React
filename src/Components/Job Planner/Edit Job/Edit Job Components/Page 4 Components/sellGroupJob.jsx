@@ -5,7 +5,8 @@ import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
 export function SellGroupJob({ setJobModified }) {
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { activeJob, updateActiveJob, activeGroup } =
+    useContext(ActiveJobContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
@@ -31,27 +32,22 @@ export function SellGroupJob({ setJobModified }) {
     setJobModified(true);
   };
 
+  if (!activeGroup || activeJob.parentJob.length !== 0) {
+    return null;
+  }
+
   return (
-    <Grid
-      container
-      item
-      sx={{
-        marginTop: "20px",
-        marginBottom: "20px",
-      }}
-    >
-      <Grid item xs={12} align="center">
-        <Tooltip title="Sell" arrow placement="bottom">
-          <Button
-            color="primary"
-            variant="contained"
-            size="small"
-            onClick={toggleMarkForSell}
-          >
-            {activeJob.isReadyToSell ? "Not Ready For Sale" : "Ready For Sale"}
-          </Button>
-        </Tooltip>
-      </Grid>
-    </Grid>
+    <Tooltip title="Sell" arrow placement="bottom">
+      <Button
+        color="primary"
+        variant="contained"
+        size="small"
+        onClick={toggleMarkForSell}
+        sx={{ margin: "10px" }}
+        disabled={activeJob.isReadyToSell}
+      >
+        {activeJob.isReadyToSell ? "Not Ready For Sale" : "Ready For Sale"}
+      </Button>
+    </Tooltip>
   );
 }

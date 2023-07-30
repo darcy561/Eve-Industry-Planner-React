@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
@@ -25,6 +26,9 @@ import { Masonry } from "@mui/lab";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
+import uuid from "react-uuid";
+import systemIDS from "../../../RawData/systems.json";
+import { parseNonNullablePickerDate } from "@mui/x-date-pickers/internals";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -37,8 +41,11 @@ const useStyles = makeStyles((theme) => ({
       },
   },
   Autocomplete: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
+    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
+      color:
+        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
+      borderColor:
+        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
     },
   },
 }));
@@ -48,17 +55,16 @@ export function ManuStrutures({ parentUserIndex }) {
   const { updateMainUserDoc } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
 
-  const [textValue, updateTextValue] = useState("");
-  const [systemValue, updateSystemValue] = useState(
-    structureOptions.manSystem[0].value
+  const [textValue, updateTextValue] = useState(null);
+  const [systemTypeValue, updateSystemTypeValue] = useState(
+    structureOptions.manSystem[0].id
   );
   const [structValue, updateStructValue] = useState(
-    structureOptions.manStructure[0].value
+    structureOptions.manStructure[0].id
   );
-  const [rigsValue, updateRigsValue] = useState(
-    structureOptions.manRigs[0].value
-  );
-  const [taxValue, updateTaxValue] = useState("");
+  const [rigsValue, updateRigsValue] = useState(structureOptions.manRigs[0].id);
+  const [taxValue, updateTaxValue] = useState(null);
+  const [systemIDValue, updateSystemIDValue] = useState(null);
   const classes = useStyles();
   const analytics = getAnalytics();
 
@@ -66,19 +72,20 @@ export function ManuStrutures({ parentUserIndex }) {
     event.preventDefault();
     let newUsersArray = [...users];
     newUsersArray[parentUserIndex].settings.structures.manufacturing.push({
-      id: Date.now(),
+      id: `manStruct-${uuid()}`,
       name: textValue,
-      systemType: systemValue,
-      structureName: structValue,
-      structureValue: structValue === "Station" ? 0 : 1,
+      systemType: systemTypeValue,
+      structureType: structValue,
       rigType: rigsValue,
+      systemID: systemIDValue,
+      tax: taxValue,
       default:
         newUsersArray[parentUserIndex].settings.structures.manufacturing
           .length === 0
           ? true
           : false,
-      tax: taxValue,
     });
+
     updateMainUserDoc(newUsersArray);
     updateUsers(newUsersArray);
     logEvent(analytics, "Add Manufacturing Structure", {
@@ -124,7 +131,7 @@ export function ManuStrutures({ parentUserIndex }) {
                         size="small"
                         variant="standard"
                         className={classes.TextField}
-                        helperText="Name"
+                        helperText="Display Name"
                         type="text"
                         onBlur={(e) => {
                           let input = e.target.value.replace(
@@ -143,18 +150,20 @@ export function ManuStrutures({ parentUserIndex }) {
                         <Select
                           variant="standard"
                           size="small"
-                          value={systemValue}
+                          value={systemTypeValue}
                           onChange={(e) => {
-                            updateSystemValue(e.target.value);
+                            updateSystemTypeValue(e.target.value);
                           }}
                         >
-                          {structureOptions.manSystem.map((entry) => {
-                            return (
-                              <MenuItem key={entry.label} value={entry.value}>
-                                {entry.label}
-                              </MenuItem>
-                            );
-                          })}
+                          {Object.values(structureOptions.manSystem).map(
+                            (entry) => {
+                              return (
+                                <MenuItem key={entry.id} value={entry.id}>
+                                  {entry.label}
+                                </MenuItem>
+                              );
+                            }
+                          )}
                         </Select>
                         <FormHelperText variant="standard">
                           System Type
@@ -174,13 +183,15 @@ export function ManuStrutures({ parentUserIndex }) {
                             updateStructValue(e.target.value);
                           }}
                         >
-                          {structureOptions.manStructure.map((entry) => {
-                            return (
-                              <MenuItem key={entry.label} value={entry.value}>
-                                {entry.label}
-                              </MenuItem>
-                            );
-                          })}
+                          {Object.values(structureOptions.manStructure).map(
+                            (entry) => {
+                              return (
+                                <MenuItem key={entry.id} value={entry.id}>
+                                  {entry.label}
+                                </MenuItem>
+                              );
+                            }
+                          )}
                         </Select>
                         <FormHelperText variant="standard">
                           Structure Type
@@ -200,13 +211,15 @@ export function ManuStrutures({ parentUserIndex }) {
                             updateRigsValue(e.target.value);
                           }}
                         >
-                          {structureOptions.manRigs.map((entry) => {
-                            return (
-                              <MenuItem key={entry.label} value={entry.value}>
-                                {entry.label}
-                              </MenuItem>
-                            );
-                          })}
+                          {Object.values(structureOptions.manRigs).map(
+                            (entry) => {
+                              return (
+                                <MenuItem key={entry.id} value={entry.id}>
+                                  {entry.label}
+                                </MenuItem>
+                              );
+                            }
+                          )}
                         </Select>
                         <FormHelperText variant="standard">
                           Rig Type
@@ -218,23 +231,58 @@ export function ManuStrutures({ parentUserIndex }) {
                         className={classes.TextField}
                         fullWidth={true}
                       >
-                        <Tooltip
-                          title="Calculation not yet implemented"
-                          arrow
-                          placement="right"
-                        >
-                          <TextField
-                            required={true}
-                            size="small"
-                            variant="standard"
-                            className={classes.TextField}
-                            helperText="Installation Tax %"
-                            type="number"
-                            onBlur={(e) => {
-                              updateTaxValue(e.target.value / 100);
-                            }}
-                          />
-                        </Tooltip>
+                        <TextField
+                          required={true}
+                          size="small"
+                          variant="standard"
+                          className={classes.TextField}
+                          helperText="Installation Tax %"
+                          inputProps={{
+                            step: "0.01",
+                          }}
+                          type="number"
+                          onBlur={(e) => {
+                            updateTaxValue(Number(e.target.value));
+                          }}
+                        />
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
+                      <FormControl
+                        className={classes.TextField}
+                        fullWidth={true}
+                      >
+                        <Autocomplete
+                          disableClearable
+                          fullWidth
+                          id="System Search"
+                          clearOnBlur
+                          blurOnSelect
+                          variant="standard"
+                          size="small"
+                          options={systemIDS}
+                          getOptionLabel={(option) => option.name}
+                          onChange={(event, value) => {
+                            updateSystemIDValue(Number(value.id));
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              size="small"
+                              className={classes.Autocomplete}
+                              margin="none"
+                              variant="standard"
+                              style={{ borderRadius: "5px" }}
+                              InputProps={{
+                                ...params.InputProps,
+                                type: "System Name",
+                              }}
+                            />
+                          )}
+                        />
+                        <FormHelperText variant="standard">
+                          System Name
+                        </FormHelperText>
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} align="center">
@@ -266,15 +314,15 @@ export function ManuStrutures({ parentUserIndex }) {
           >
             {users[parentUserIndex].settings.structures.manufacturing.map(
               (entry) => {
-                const systemText = structureOptions.manSystem.find(
-                  (x) => x.value === entry.systemType
-                );
-                const structureText = structureOptions.manStructure.find(
-                  (x) => x.value === entry.structureName
-                );
-                const rigText = structureOptions.manRigs.find(
-                  (x) => x.value === entry.rigType
-                );
+                const systemText =
+                  structureOptions.manSystem[entry.systemType]?.label || "A";
+
+                const structureText =
+                  structureOptions.manStructure[entry.structureType]?.label || "B";
+
+                const rigText =
+                  structureOptions.manRigs[entry.rigType]?.label || "C";
+
                 return (
                   <Grid key={entry.id} item xs={12}>
                     <Card
@@ -300,18 +348,16 @@ export function ManuStrutures({ parentUserIndex }) {
                           </Grid>
                           <Grid item xs={4}>
                             <Typography variant="body1">
-                              {systemText.label}
+                              {systemText}
                             </Typography>
                           </Grid>
                           <Grid item xs={4}>
                             <Typography variant="body1">
-                              {structureText.label}
+                              {structureText}
                             </Typography>
                           </Grid>
                           <Grid item xs={4}>
-                            <Typography variant="body1">
-                              {rigText.label}
-                            </Typography>
+                            <Typography variant="body1">{rigText}</Typography>
                           </Grid>
                         </Grid>
                       </CardContent>{" "}
@@ -351,15 +397,16 @@ export function ManuStrutures({ parentUserIndex }) {
                                 let newUsersArray = [...users];
                                 newUsersArray[
                                   parentUserIndex
-                                ].settings.structures.manufacturing = newUsersArray[
-                                  parentUserIndex
-                                ].settings.structures.manufacturing.filter(
-                                  (i) => i.id !== entry.id
-                                );
+                                ].settings.structures.manufacturing =
+                                  newUsersArray[
+                                    parentUserIndex
+                                  ].settings.structures.manufacturing.filter(
+                                    (i) => i.id !== entry.id
+                                  );
                                 if (
                                   newUsersArray[parentUserIndex].settings
                                     .structures.manufacturing.length > 0 &&
-                                  entry.default === true
+                                  entry.default
                                 ) {
                                   newUsersArray[
                                     parentUserIndex

@@ -36,7 +36,6 @@ export function ReactionOptionsUpcomingChanges({
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const [runValue, updateRunValue] = useState(1);
   const [jobValue, updateJobValue] = useState(1);
-  const [structValue, updateStructValue] = useState("Medium");
   const [structType, updateStructType] = useState(0);
   const [rigsValue, updateRigsValue] = useState(0);
   const [systemValue, updateSystemValue] = useState(1);
@@ -49,14 +48,12 @@ export function ReactionOptionsUpcomingChanges({
         if (tranqItem === null && sisiItem !== null) {
           updateRunValue(sisiItem.runCount);
           updateJobValue(sisiItem.jobCount);
-          updateStructValue(sisiItem.structureTypeDisplay);
           updateStructType(sisiItem.structureType);
           updateRigsValue(sisiItem.rigType);
           updateSystemValue(sisiItem.systemType);
         } else {
           updateRunValue(tranqItem.runCount);
           updateJobValue(tranqItem.jobCount);
-          updateStructValue(tranqItem.structureTypeDisplay);
           updateStructType(tranqItem.structureType);
           updateRigsValue(tranqItem.rigType);
           updateSystemValue(tranqItem.systemType);
@@ -72,7 +69,6 @@ export function ReactionOptionsUpcomingChanges({
       runCount: runValue,
       jobCount: jobValue,
       structureType: structType,
-      structureTypeDisplay: structValue,
       rigType: rigsValue,
       systemType: systemValue,
       build: {
@@ -97,7 +93,8 @@ export function ReactionOptionsUpcomingChanges({
         time: CalculateTime({
           jobType: prev.jobType,
           CharacterHash: prev.build.buildChar,
-          structureTypeDisplay: structValue,
+          structureType: structType,
+          rigType: rigsValue,
           runCount: runValue,
           bpTE: 0,
           rawTime: prev.rawData.time,
@@ -110,7 +107,6 @@ export function ReactionOptionsUpcomingChanges({
       runCount: runValue,
       jobCount: jobValue,
       structureType: structType,
-      structureTypeDisplay: structValue,
       rigType: rigsValue,
       systemType: systemValue,
       build: {
@@ -135,7 +131,8 @@ export function ReactionOptionsUpcomingChanges({
         time: CalculateTime({
           jobType: prev.jobType,
           CharacterHash: prev.build.buildChar,
-          structureTypeDisplay: structValue,
+          structureType: structType,
+          rigType: rigsValue,
           runCount: runValue,
           bpTE: 0,
           rawTime: prev.rawData.time,
@@ -143,7 +140,7 @@ export function ReactionOptionsUpcomingChanges({
         }),
       },
     }));
-  }, [runValue, jobValue, structType, structValue, rigsValue, systemValue]);
+  }, [runValue, jobValue, structType, rigsValue, systemValue]);
 
   return (
     <Paper
@@ -203,19 +200,20 @@ export function ReactionOptionsUpcomingChanges({
               <Select
                 variant="standard"
                 size="small"
-                value={structValue}
+                value={structType}
                 onChange={(e) => {
-                  updateStructType(e.target.value === "Station" ? 0 : 1);
-                  updateStructValue(e.target.value);
+                  updateStructType(e.target.value);
                 }}
               >
-                {structureOptions.reactionStructure.map((entry) => {
-                  return (
-                    <MenuItem key={entry.label} value={entry.value}>
-                      {entry.label}
-                    </MenuItem>
-                  );
-                })}
+                {Object.values(structureOptions.reactionStructure).map(
+                  (entry) => {
+                    return (
+                      <MenuItem key={entry.id} value={entry.id}>
+                        {entry.label}
+                      </MenuItem>
+                    );
+                  }
+                )}
               </Select>
               <FormHelperText variant="standard">Structure Type</FormHelperText>
             </FormControl>
@@ -235,9 +233,9 @@ export function ReactionOptionsUpcomingChanges({
                 updateRigsValue(e.target.value);
               }}
             >
-              {structureOptions.reactionRigs.map((entry) => {
+              {Object.values(structureOptions.reactionRigs).map((entry) => {
                 return (
-                  <MenuItem key={entry.label} value={entry.value}>
+                  <MenuItem key={entry.id} value={entry.id}>
                     {entry.label}
                   </MenuItem>
                 );
@@ -260,9 +258,9 @@ export function ReactionOptionsUpcomingChanges({
                 updateSystemValue(e.target.value);
               }}
             >
-              {structureOptions.reactionSystem.map((entry) => {
+              {Object.values(structureOptions.reactionSystem).map((entry) => {
                 return (
-                  <MenuItem key={entry.label} value={entry.value}>
+                  <MenuItem key={entry.id} value={entry.id}>
                     {entry.label}
                   </MenuItem>
                 );

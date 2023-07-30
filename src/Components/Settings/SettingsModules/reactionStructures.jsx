@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
@@ -25,6 +26,8 @@ import { Masonry } from "@mui/lab";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { SnackBarDataContext } from "../../../Context/LayoutContext";
+import systemIDS from "../../../RawData/systems.json";
+import uuid from "react-uuid";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -37,8 +40,11 @@ const useStyles = makeStyles((theme) => ({
       },
   },
   Autocomplete: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
+    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
+      color:
+        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
+      borderColor:
+        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
     },
   },
 }));
@@ -49,15 +55,16 @@ export function ReactionStrutures({ parentUserIndex }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const [textValue, updateTextValue] = useState("");
   const [systemValue, updateSystemValue] = useState(
-    structureOptions.reactionSystem[0].value
+    structureOptions.reactionSystem[0].id
   );
   const [structValue, updateStructValue] = useState(
-    structureOptions.reactionStructure[0].value
+    structureOptions.reactionStructure[0].id
   );
   const [rigsValue, updateRigsValue] = useState(
-    structureOptions.reactionRigs[0].value
+    structureOptions.reactionRigs[0].id
   );
   const [taxValue, updateTaxValue] = useState("");
+  const [systemIDValue, updateSystemIDValue] = useState("");
   const classes = useStyles();
   const analytics = getAnalytics();
 
@@ -65,17 +72,17 @@ export function ReactionStrutures({ parentUserIndex }) {
     event.preventDefault();
     let newUsersArray = [...users];
     newUsersArray[parentUserIndex].settings.structures.reaction.push({
-      id: Date.now(),
+      id: `reacStruct-${uuid()}`,
       name: textValue,
       systemType: systemValue,
-      structureName: structValue,
-      structureValue: 1,
+      structureType: structValue,
       rigType: rigsValue,
+      tax: taxValue,
+      systemID: systemIDValue,
       default:
         newUsersArray[parentUserIndex].settings.structures.reaction.length === 0
           ? true
           : false,
-      tax: taxValue,
     });
     updateMainUserDoc(newUsersArray);
     updateUsers(newUsersArray);
@@ -146,13 +153,15 @@ export function ReactionStrutures({ parentUserIndex }) {
                             updateSystemValue(e.target.value);
                           }}
                         >
-                          {structureOptions.reactionSystem.map((entry) => {
-                            return (
-                              <MenuItem key={entry.label} value={entry.value}>
-                                {entry.label}
-                              </MenuItem>
-                            );
-                          })}
+                          {Object.values(structureOptions.reactionSystem).map(
+                            (entry) => {
+                              return (
+                                <MenuItem key={entry.id} value={entry.id}>
+                                  {entry.label}
+                                </MenuItem>
+                              );
+                            }
+                          )}
                         </Select>
                         <FormHelperText variant="standard">
                           System Type
@@ -172,9 +181,11 @@ export function ReactionStrutures({ parentUserIndex }) {
                             updateStructValue(e.target.value);
                           }}
                         >
-                          {structureOptions.reactionStructure.map((entry) => {
+                          {Object.values(
+                            structureOptions.reactionStructure
+                          ).map((entry) => {
                             return (
-                              <MenuItem key={entry.label} value={entry.value}>
+                              <MenuItem key={entry.id} value={entry.id}>
                                 {entry.label}
                               </MenuItem>
                             );
@@ -198,13 +209,15 @@ export function ReactionStrutures({ parentUserIndex }) {
                             updateRigsValue(e.target.value);
                           }}
                         >
-                          {structureOptions.reactionRigs.map((entry) => {
-                            return (
-                              <MenuItem key={entry.label} value={entry.value}>
-                                {entry.label}
-                              </MenuItem>
-                            );
-                          })}
+                          {Object.values(structureOptions.reactionRigs).map(
+                            (entry) => {
+                              return (
+                                <MenuItem key={entry.id} value={entry.id}>
+                                  {entry.label}
+                                </MenuItem>
+                              );
+                            }
+                          )}
                         </Select>
                         <FormHelperText variant="standard">
                           Rig Type
@@ -216,23 +229,58 @@ export function ReactionStrutures({ parentUserIndex }) {
                         className={classes.TextField}
                         fullWidth={true}
                       >
-                        <Tooltip
-                          title="Calculation not yet implemented"
-                          arrow
-                          placement="right"
-                        >
-                          <TextField
-                            required={true}
-                            size="small"
-                            variant="standard"
-                            className={classes.TextField}
-                            helperText="Installation Tax %"
-                            type="number"
-                            onBlur={(e) => {
-                              updateTaxValue(e.target.value / 100);
-                            }}
-                          />
-                        </Tooltip>
+                        <TextField
+                          required={true}
+                          size="small"
+                          variant="standard"
+                          className={classes.TextField}
+                          helperText="Installation Tax %"
+                          inputProps={{
+                            step: "0.01",
+                          }}
+                          type="number"
+                          onBlur={(e) => {
+                            updateTaxValue(Number(e.target.value));
+                          }}
+                        />
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
+                      <FormControl
+                        className={classes.TextField}
+                        fullWidth={true}
+                      >
+                        <Autocomplete
+                          disableClearable
+                          fullWidth
+                          id="System Search"
+                          clearOnBlur
+                          blurOnSelect
+                          variant="standard"
+                          size="small"
+                          options={systemIDS}
+                          getOptionLabel={(option) => option.name}
+                          onChange={(event, value) => {
+                            updateSystemIDValue(Number(value.id));
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              size="small"
+                              className={classes.Autocomplete}
+                              margin="none"
+                              variant="standard"
+                              style={{ borderRadius: "5px" }}
+                              InputProps={{
+                                ...params.InputProps,
+                                type: "System Name",
+                              }}
+                            />
+                          )}
+                        />
+                        <FormHelperText variant="standard">
+                          System Name
+                        </FormHelperText>
                       </FormControl>
                     </Grid>
                     <Grid item xs={12} align="center">
@@ -263,15 +311,15 @@ export function ReactionStrutures({ parentUserIndex }) {
           >
             {users[parentUserIndex].settings.structures.reaction.map(
               (entry) => {
-                const systemText = structureOptions.reactionSystem.find(
-                  (x) => x.value === entry.systemType
-                );
-                const structureText = structureOptions.reactionStructure.find(
-                  (x) => x.value === entry.structureName
-                );
-                const rigText = structureOptions.reactionRigs.find(
-                  (x) => x.value === entry.rigType
-                );
+                const systemText =
+                  structureOptions.reactionSystem[entry.systemType]?.label ||
+                  "A";
+                const structureText =
+                  structureOptions.reactionStructure[entry.structureType]?.label ||
+                  "B";
+                const rigText =
+                  structureOptions.reactionRigs[entry.rigType]?.label || "C";
+
                 return (
                   <Grid key={entry.id} item xs={12}>
                     <Card
@@ -297,18 +345,16 @@ export function ReactionStrutures({ parentUserIndex }) {
                           </Grid>
                           <Grid item xs={4}>
                             <Typography variant="body1">
-                              {systemText.label}
+                              {systemText}
                             </Typography>
                           </Grid>
                           <Grid item xs={4}>
                             <Typography variant="body1">
-                              {structureText.label}
+                              {structureText}
                             </Typography>
                           </Grid>
                           <Grid item xs={4}>
-                            <Typography variant="body1">
-                              {rigText.label}
-                            </Typography>
+                            <Typography variant="body1">{rigText}</Typography>
                           </Grid>
                         </Grid>
                       </CardContent>{" "}
@@ -354,7 +400,7 @@ export function ReactionStrutures({ parentUserIndex }) {
                                 if (
                                   newUsersArray[parentUserIndex].settings
                                     .structures.reaction.length > 0 &&
-                                  entry.default === true
+                                  entry.default
                                 ) {
                                   newUsersArray[
                                     parentUserIndex

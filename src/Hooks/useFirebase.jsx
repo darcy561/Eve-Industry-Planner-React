@@ -34,6 +34,7 @@ import { useAccountManagement } from "./useAccountManagement";
 import { useEveApi } from "./useEveApi";
 import { UserLoginUIContext } from "../Context/LayoutContext";
 import GLOBAL_CONFIG from "../global-config-app";
+import { jobTypes, structureOptions } from "../Context/defaultValues";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -94,7 +95,10 @@ export function useFirebase() {
       const t = trace(performance, "NewUserCloudBuild");
       try {
         t.start();
-        const buildData = httpsCallable(functions, "createUserData-createUserData");
+        const buildData = httpsCallable(
+          functions,
+          "createUserData-createUserData"
+        );
         const charData = await buildData();
         logEvent(analytics, "newUserCreation", {
           UID: charData.data.accountID,
@@ -132,7 +136,6 @@ export function useFirebase() {
         bpME: job.bpME,
         bpTE: job.bpTE,
         structureType: job.structureType,
-        structureTypeDisplay: job.structureTypeDisplay,
         rigType: job.rigType,
         systemType: job.systemType,
         apiJobs: [...job.apiJobs],
@@ -173,7 +176,6 @@ export function useFirebase() {
         bpME: job.bpME,
         bpTE: job.bpTE,
         structureType: job.structureType,
-        structureTypeDisplay: job.structureTypeDisplay,
         rigType: job.rigType,
         systemType: job.systemType,
         apiJobs: [...job.apiJobs],
@@ -263,7 +265,6 @@ export function useFirebase() {
         bpME: job.bpME,
         bpTE: job.bpTE,
         structureType: job.structureType,
-        structureTypeDisplay: job.structureTypeDisplay,
         rigType: job.rigType,
         systemType: job.systemType,
         apiJobs: [...job.apiJobs],
@@ -305,7 +306,7 @@ export function useFirebase() {
         bpME: downloadDoc.bpME,
         bpTE: downloadDoc.bpTE,
         structureType: downloadDoc.structureType,
-        structureTypeDisplay: downloadDoc.structureTypeDisplay,
+        structureTypeDisplay: downloadDoc.structureTypeDisplay || null,
         rigType: downloadDoc.rigType,
         systemType: downloadDoc.systemType,
         apiJobs: new Set(downloadDoc.apiJobs),
@@ -326,6 +327,49 @@ export function useFirebase() {
       newJob.build.materials.forEach((mat) => {
         mat.childJob = mat.childJob.map(String);
       });
+
+      if (newJob.structureTypeDisplay) {
+        switch (newJob.jobType) {
+          case jobTypes.manufacturing:
+            const matchedManStructure = Object.values(
+              structureOptions.manStructure
+            ).find((i) => i.label === newJob.structureTypeDisplay);
+            const matchedManRig = Object.values(structureOptions.manRigs).find(
+              (i) => {
+                i.material === newJob.rigType && i.id <= 2;
+              }
+            );
+            const matchedManSystem = Object.values(
+              structureOptions.manSystem
+            ).find((i) => {
+              i.value === newJob.systemType;
+            });
+            newJob.structureType = matchedManStructure?.id || 0;
+            newJob.rigType = matchedManRig?.id || 0;
+            newJob.systemType = matchedManSystem?.id || 0;
+            break;
+          case jobTypes.reaction:
+            const matchedReactionStructure =
+              structureOptions.reactionStructure.find(
+                (i) => i.label === newJob.structureTypeDisplay
+              );
+            const matchedReactionRig = Object.values(
+              structureOptions.reactionRigs
+            ).find((i) => {
+              i.material === newJob.rigType && i.id <= 2;
+            });
+            const matchedReactionSystem = Object.values(
+              structureOptions.reactionSystem
+            ).find((i) => {
+              i.value === newJob.systemType;
+            });
+            newJob.structureType = matchedReactionStructure?.id || 0;
+            newJob.rigType = matchedReactionRig?.id || 0;
+            newJob.systemType = matchedReactionSystem?.id || 0;
+            break;
+        }
+        delete newJob.structureTypeDisplay;
+      }
 
       return newJob;
     } else {
@@ -646,7 +690,7 @@ export function useFirebase() {
             bpME: downloadDoc.bpME,
             bpTE: downloadDoc.bpTE,
             structureType: downloadDoc.structureType,
-            structureTypeDisplay: downloadDoc.structureTypeDisplay,
+            structureTypeDisplay: downloadDoc.structureTypeDisplay || null,
             rigType: downloadDoc.rigType,
             systemType: downloadDoc.systemType,
             apiJobs: new Set(downloadDoc.apiJobs),
@@ -666,6 +710,50 @@ export function useFirebase() {
           newJob.build.materials.forEach((mat) => {
             mat.childJob = mat.childJob.map(String);
           });
+
+          if (newJob.structureTypeDisplay) {
+            switch (newJob.jobType) {
+              case jobTypes.manufacturing:
+                const matchedManStructure = Object.values(
+                  structureOptions.manStructure
+                ).find((i) => i.label === newJob.structureTypeDisplay);
+                const matchedManRig = Object.values(
+                  structureOptions.manRigs
+                ).find((i) => {
+                  i.material === newJob.rigType && i.id <= 2;
+                });
+                const matchedManSystem = Object.values(
+                  structureOptions.manSystem
+                ).find((i) => {
+                  i.value === newJob.systemType;
+                });
+                newJob.structureType = matchedManStructure?.id || 0;
+                newJob.rigType = matchedManRig?.id || 0;
+                newJob.systemType = matchedManSystem?.id || 0;
+                break;
+              case jobTypes.reaction:
+                const matchedReactionStructure =
+                  structureOptions.reactionStructure.find(
+                    (i) => i.label === newJob.structureTypeDisplay
+                  );
+                const matchedReactionRig = Object.values(
+                  structureOptions.reactionRigs
+                ).find((i) => {
+                  i.material === newJob.rigType && i.id <= 2;
+                });
+                const matchedReactionSystem = Object.values(
+                  structureOptions.reactionSystem
+                ).find((i) => {
+                  i.value === newJob.systemType;
+                });
+                newJob.structureType = matchedReactionStructure?.id || 0;
+                newJob.rigType = matchedReactionRig?.id || 0;
+                newJob.systemType = matchedReactionSystem?.id || 0;
+                break;
+            }
+            delete newJob.structureTypeDisplay;
+          }
+
           if (activeJob.jobID == newJob.jobID) {
             updateActiveJob(newJob);
           }

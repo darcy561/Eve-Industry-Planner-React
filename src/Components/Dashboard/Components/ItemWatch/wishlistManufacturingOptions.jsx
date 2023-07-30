@@ -13,7 +13,6 @@ import {
   structureOptions,
 } from "../../../../Context/defaultValues";
 import { useBlueprintCalc } from "../../../../Hooks/useBlueprintCalc";
-import { jobTypes } from "../../../../Context/defaultValues";
 import { useJobBuild } from "../../../../Hooks/useJobBuild";
 import { UsersContext } from "../../../../Context/AuthContext";
 
@@ -39,7 +38,7 @@ export function WishListManufacturingOptions({
   const [meValue, updateMEValue] = useState(importedJob.bpME);
   const [teValue, updateTEValue] = useState(importedJob.bpTE);
   const [structValue, updateStructValue] = useState(
-    importedJob.structureTypeDisplay
+    importedJob.structureType
   );
   const [rigsValue, updateRigsValue] = useState(importedJob.rigType);
   const [systemValue, updateSystemValue] = useState(importedJob.systemType);
@@ -73,7 +72,8 @@ export function WishListManufacturingOptions({
         newMaterialJobs[index].build.time = CalculateTime({
           jobType: newMaterialJobs[index].jobType,
           CharacterHash: newMaterialJobs[index].build.buildChar,
-          structureTypeDisplay: newMaterialJobs[index].structureTypeDisplay,
+          structureType: newMaterialJobs[index].structureType,
+          rigType: newMaterialJobs[index].rigType,
           runCount: newMaterialJobs[index].runCount,
           bpTE: newMaterialJobs[index].bpTE,
           rawTime: newMaterialJobs[index].rawData.time,
@@ -133,7 +133,8 @@ export function WishListManufacturingOptions({
                   time: CalculateTime({
                     jobType: prev.jobType,
                     CharacterHash: prev.build.buildChar,
-                    structureTypeDisplay: prev.structureTypeDisplay,
+                    structureType: prev.structureType,
+                    rigType:prev.rigType,
                     runCount: Number(e.target.value),
                     bpTE: prev.bpTE,
                     rawTime: prev.rawData.time,
@@ -242,7 +243,8 @@ export function WishListManufacturingOptions({
                     time: CalculateTime({
                       jobType: prev.jobType,
                       CharacterHash: prev.build.buildChar,
-                      structureTypeDisplay: prev.structureTypeDisplay,
+                      structureType: prev.structureType,
+                      rigType: prev.rigType,
                       runCount: prev.runCount,
                       bpTE: e.target.value,
                       rawTime: prev.rawData.time,
@@ -275,8 +277,7 @@ export function WishListManufacturingOptions({
                 updateStructValue(e.target.value);
                 setImportedJob((prev) => ({
                   ...prev,
-                  structureTypeDisplay: e.target.value,
-                  structureType: e.target.value === "Station" ? 0 : 1,
+                  structureType: e.target.value,
                   build: {
                     ...prev.build,
                     materials: CalculateResources({
@@ -286,14 +287,15 @@ export function WishListManufacturingOptions({
                       runCount: prev.runCount,
                       jobCount: prev.jobCount,
                       bpME: prev.bpME,
-                      structureType: e.target.value === "Station" ? 0 : 1,
+                      structureType: e.target.value ,
                       rigType: prev.rigType,
                       systemType: prev.systemType,
                     }),
                     time: CalculateTime({
                       jobType: prev.jobType,
                       CharacterHash: prev.build.buildChar,
-                      structureTypeDisplay: e.target.value,
+                      structureType: e.target.value,
+                      rigType: prev.rigType,
                       runCount: prev.runCount,
                       bpTE: prev.bpTE,
                       rawTime: prev.rawData.time,
@@ -303,9 +305,9 @@ export function WishListManufacturingOptions({
                 }));
               }}
             >
-              {structureOptions.manStructure.map((entry) => {
+              {Object.values(structureOptions.manStructure).map((entry) => {
                 return (
-                  <MenuItem key={entry.label} value={entry.value}>
+                  <MenuItem key={entry.id} value={entry.id}>
                     {entry.label}
                   </MenuItem>
                 );
@@ -341,7 +343,8 @@ export function WishListManufacturingOptions({
                     time: CalculateTime({
                       jobType: prev.jobType,
                       CharacterHash: prev.build.buildChar,
-                      structureTypeDisplay: prev.structureTypeDisplay,
+                      structureType: prev.structureType,
+                      rigType: e.target.value,
                       runCount: prev.runCount,
                       bpTE: prev.bpTE,
                       rawTime: prev.rawData.time,
@@ -351,9 +354,9 @@ export function WishListManufacturingOptions({
                 }));
               }}
             >
-              {structureOptions.manRigs.map((entry) => {
+              {Object.values(structureOptions.manRigs).map((entry) => {
                 return (
-                  <MenuItem key={entry.label} value={entry.value}>
+                  <MenuItem key={entry.id} value={entry.id}>
                     {entry.label}
                   </MenuItem>
                 );
@@ -392,9 +395,9 @@ export function WishListManufacturingOptions({
                 }));
               }}
             >
-              {structureOptions.manSystem.map((entry) => {
+              {Object.values(structureOptions.manSystem).map((entry) => {
                 return (
-                  <MenuItem key={entry.label} value={entry.value}>
+                  <MenuItem key={entry.id} value={entry.id}>
                     {entry.label}
                   </MenuItem>
                 );
@@ -424,8 +427,7 @@ export function WishListManufacturingOptions({
                   ...prev,
                   rigType: structure.rigType,
                   systemType: structure.systemType,
-                  structureTypeDisplay: structure.structureName,
-                  structureType: structure.structureValue,
+                  structureType: structure.structureType,
                   build: {
                     ...prev.build,
                     materials: CalculateResources({
@@ -435,14 +437,15 @@ export function WishListManufacturingOptions({
                       runCount: prev.runCount,
                       jobCount: prev.jobCount,
                       bpME: prev.bpME,
-                      structureType: structure.structureValue,
+                      structureType: structure.structureType,
                       rigType: structure.rigType,
                       systemType: structure.systemType,
                     }),
                     time: CalculateTime({
                       jobType: prev.jobType,
                       CharacterHash: prev.build.buildChar,
-                      structureTypeDisplay: structure.structureName,
+                      structureType: structure.structureType,
+                      rigType: structure.rigType,
                       runCount: prev.runCount,
                       bpTE: prev.bpTE,
                       rawTime: prev.rawData.time,

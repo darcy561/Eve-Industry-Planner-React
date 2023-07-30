@@ -273,7 +273,8 @@ export function useBuildChildJobs() {
       job.build.time = CalculateTime({
         jobType: job.jobType,
         CharacterHash: job.build.buildChar,
-        structureTypeDisplay: job.structureTypeDisplay,
+        structureType: job.structureType,
+        rigType: job.rigType,
         runCount: job.runCount,
         bpTE: job.bpTE,
         rawTime: job.rawData.time,

@@ -1,5 +1,5 @@
 const { GLOBAL_CONFIG } = require("../global-config-functions");
-const admin = require("firebasse-admin");
+const admin = require("firebase-admin");
 const functions = require("firebase-functions");
 const {
   ESIMarketHistoryQuery,

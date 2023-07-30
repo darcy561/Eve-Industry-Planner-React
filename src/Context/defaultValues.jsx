@@ -120,7 +120,6 @@ export let jobArrayDefault = [
       time: 300,
     },
     structureType: 0,
-    structureTypeDisplay: "Station",
     skills: [
       {
         level: 1,
@@ -266,7 +265,6 @@ export let jobArrayDefault = [
       time: 10800,
     },
     structureType: 1,
-    structureTypeDisplay: "Medium",
     skills: [
       {
         typeID: 45746,
@@ -411,7 +409,6 @@ export let jobArrayDefault = [
       time: 10800,
     },
     structureType: 1,
-    structureTypeDisplay: "Medium",
     skills: [
       {
         level: 3,
@@ -439,7 +436,6 @@ export let jobArrayDefault = [
     bpME: 0,
     bpTE: 0,
     structureType: 0,
-    structureTypeDisplay: "Station",
     rigType: 0,
     systemType: 1,
     apiJobs: new Set([477723892]),
@@ -720,7 +716,6 @@ export let jobArrayDefault = [
     bpME: 0,
     bpTE: 0,
     structureType: 0,
-    structureTypeDisplay: "Station",
     rigType: 0,
     systemType: 1,
     apiJobs: new Set([477724009]),
@@ -1107,8 +1102,7 @@ export let jobArrayDefault = [
       ],
       time: 600,
     },
-    structureType: 1,
-    structureTypeDisplay: "Large",
+    structureType: 3,
     skills: [
       {
         typeID: 3380,
@@ -2256,33 +2250,45 @@ export let blueprintOptions = {
   ],
 };
 export let structureOptions = {
-  manStructure: [
-    { value: "Station", label: "Station", time: 0 },
-    { value: "Medium", label: "Medium", time: 0.15 },
-    { value: "Large", label: "Large", time: 0.2 },
-    { value: "X-Large", label: "X-Large", time: 0.3 },
-  ],
-  manRigs: [
-    { value: 0, label: "None" },
-    { value: 2.0, label: "Tech 1" },
-    { value: 2.4, label: "Tech 2" },
-  ],
-  manSystem: [
-    { value: 1, label: "High Sec" },
-    { value: 1.9, label: "Low Sec" },
-    { value: 2.1, label: "Null Sec / WH" },
-  ],
-  reactionSystem: [
-    { value: 1, label: "Low Sec" },
-    { value: 1.1, label: "Null Sec / WH" },
-  ],
-  reactionStructure: [
-    { value: "Medium", label: "Medium", time: 0 },
-    { value: "Large", label: "Large", time: 0.25 },
-  ],
-  reactionRigs: [
-    { value: 0, label: "None" },
-    { value: 2.0, label: "Tech 1" },
-    { value: 2.4, label: "Tech 2" },
-  ],
+  manStructure: {
+    0: { id: 0, label: "Station", material: 0, time: 0 },
+    1: { id: 1, label: "Medium", material: 1, time: 0.15 },
+    2: { id: 2, label: "Large", material: 1, time: 0.2 },
+    3: { id: 3, label: "X-Large", material: 1, time: 0.3 },
+  },
+  manRigs: {
+    0: { id: 0, label: "None", material: 0, time: 0 },
+    1: { id: 1, label: "T1 - ME", material: 2.0, time: 0 },
+    2: { id: 2, label: "T2 - ME", material: 2.4, time: 0 },
+    3: { id: 3, label: "T1 - TE", material: 0, time: 0.2 },
+    4: { id: 4, label: "T2 - TE", material: 0, time: 0.24 },
+    5: { id: 5, label: "T1 - ME & TE", material: 2.0, time: 0.2 },
+    6: { id: 6, label: "T2 - ME & TE", material: 2.4, time: 0.24 },
+    7: { id: 7, label: "T1 - ME, T2 - TE ", material: 2.0, time: 0.24 },
+    8: { id: 8, label: "T2 - ME, T1 - TE", material: 2.4, time: 0.2 },
+  },
+  manSystem: {
+    0: { id: 0, label: "High Sec", value: 1 },
+    1: { id: 1, label: "Low Sec", value: 1.9 },
+    2: { id: 2, label: "Null Sec / WH", value: 2.1 },
+  },
+  reactionSystem: {
+    0: { id: 0, label: "Low Sec", value: 1 },
+    1: { id: 1, label: "Null Sec / WH", value: 1.1 },
+  },
+  reactionStructure: {
+    0: { id: 0, label: "Medium", material: 1, time: 0 },
+    1: { id: 1, label: "Large", material: 1, time: 0.25 },
+  },
+  reactionRigs: {
+    0: { id: 0, label: "None", material: 0, time: 0 },
+    1: { id: 1, label: "T1 - ME", material: 2.0, time: 0 },
+    2: { id: 2, label: "T2 - ME", material: 2.4, time: 0 },
+    3: { id: 3, label: "T1 - TE", material: 0, time: 0.2 },
+    4: { id: 4, label: "T2 - TE", material: 0, time: 0.24 },
+    5: { id: 5, label: "T1 - ME & TE", material: 2.0, time: 0.2 },
+    6: { id: 6, label: "T2 - ME & TE", material: 2.4, time: 0.24 },
+    7: { id: 7, label: "T1 - ME, T2 - TE ", material: 2.0, time: 0.24 },
+    8: { id: 8, label: "T2 - ME, T1 - TE", material: 2.4, time: 0.2 },
+  },
 };

@@ -23344,5 +23344,53 @@
     "itemID": 76375,
     "blueprintID": 76376,
     "jobType": 1
+  },
+  {
+    "name": "Hubris",
+    "itemID": 77281,
+    "blueprintID": 77414,
+    "jobType": 1
+  },
+  {
+    "name": "Bane",
+    "itemID": 77283,
+    "blueprintID": 77417,
+    "jobType": 1
+  },
+  {
+    "name": "Karura",
+    "itemID": 77284,
+    "blueprintID": 77415,
+    "jobType": 1
+  },
+  {
+    "name": "Valravn",
+    "itemID": 77288,
+    "blueprintID": 77416,
+    "jobType": 1
+  },
+  {
+    "name": "‘Atgeir’ Explosive Disruptive Lance ",
+    "itemID": 77398,
+    "blueprintID": 77402,
+    "jobType": 1
+  },
+  {
+    "name": "'Azmaru' Electromagnetic Disruptive Lance",
+    "itemID": 77399,
+    "blueprintID": 77403,
+    "jobType": 1
+  },
+  {
+    "name": "‘Steel Yari’ Kinetic Disruptive Lance",
+    "itemID": 77400,
+    "blueprintID": 77404,
+    "jobType": 1
+  },
+  {
+    "name": "‘Sarissa’ Thermal Disruptive Lance",
+    "itemID": 77401,
+    "blueprintID": 77405,
+    "jobType": 1
   }
 ]

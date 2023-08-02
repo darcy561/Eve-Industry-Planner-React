@@ -80,7 +80,7 @@ async function saveMarketPricesToDatabase(typeID, marketPrices) {
     await admin
       .database()
       .ref(`live-data/market-prices/${typeID.toString()}`)
-      .update(marketPrices);
+      .set(marketPrices);
   } catch (err) {
     functions.logger.error(err);
   }

@@ -113,7 +113,7 @@ async function saveMarketHistoryToDatabase(typeID, dbObject) {
     await admin
       .database()
       .ref(`live-data/market-history/${typeID.toString()}`)
-      .update(dbObject);
+      .set(dbObject);
   } catch (err) {
     functions.logger.error(err);
   }

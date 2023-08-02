@@ -90052,18 +90052,6 @@
     "name": "Rifter Corporation Emblem"
   },
   {
-    "type_id": 72986,
-    "name": "Event 82 Proving Filament"
-  },
-  {
-    "type_id": 72987,
-    "name": "Event 83 Proving Filament"
-  },
-  {
-    "type_id": 72988,
-    "name": "Event 84 Proving Filament"
-  },
-  {
     "type_id": 73041,
     "name": "Triglavian Encrypted Relay Data"
   },
@@ -91390,10 +91378,6 @@
   {
     "type_id": 74316,
     "name": "Bestla"
-  },
-  {
-    "type_id": 74385,
-    "name": "Scarlet Embrace Firework ( copy )"
   },
   {
     "type_id": 74386,
@@ -93904,6 +93888,126 @@
     "name": "Muninn GalNet StreamCast Unit SKIN"
   },
   {
+    "type_id": 76506,
+    "name": "Potent Capsuleer Day XX Cerebral Accelerator"
+  },
+  {
+    "type_id": 76507,
+    "name": "Extended Capsuleer Day XX Cerebral Accelerator"
+  },
+  {
+    "type_id": 76508,
+    "name": "Basic Capsuleer Day XX Cerebral Accelerator"
+  },
+  {
+    "type_id": 76509,
+    "name": "Basic Capsuleer Day XX Glamourex Booster"
+  },
+  {
+    "type_id": 76510,
+    "name": "Extended Capsuleer Day XX Glamourex Booster"
+  },
+  {
+    "type_id": 76511,
+    "name": "Potent Capsuleer Day XX Glamourex Booster"
+  },
+  {
+    "type_id": 76512,
+    "name": "Guri Malakim Observability Booster I"
+  },
+  {
+    "type_id": 76513,
+    "name": "Guri Malakim Observability Booster II"
+  },
+  {
+    "type_id": 76514,
+    "name": "Guri Malakim Observability Booster III"
+  },
+  {
+    "type_id": 76515,
+    "name": "Guri Malakim Observability Booster IV"
+  },
+  {
+    "type_id": 76516,
+    "name": "SoCT Scan Booster I"
+  },
+  {
+    "type_id": 76517,
+    "name": "SoCT Scan Booster II"
+  },
+  {
+    "type_id": 76518,
+    "name": "SoCT Scan Booster III"
+  },
+  {
+    "type_id": 76519,
+    "name": "SoCT Scan Booster IV"
+  },
+  {
+    "type_id": 76520,
+    "name": "Guri Malakim Shield Booster I"
+  },
+  {
+    "type_id": 76521,
+    "name": "Guri Malakim Shield Booster II"
+  },
+  {
+    "type_id": 76522,
+    "name": "Guri Malakim Shield Booster III"
+  },
+  {
+    "type_id": 76523,
+    "name": "Guri Malakim Shield Booster IV"
+  },
+  {
+    "type_id": 76524,
+    "name": "SoCT Armor Booster I"
+  },
+  {
+    "type_id": 76525,
+    "name": "SoCT Armor Booster II"
+  },
+  {
+    "type_id": 76526,
+    "name": "SoCT Armor Booster III"
+  },
+  {
+    "type_id": 76527,
+    "name": "SoCT Armor Booster IV"
+  },
+  {
+    "type_id": 76528,
+    "name": "Guri Malakim Turret Booster I"
+  },
+  {
+    "type_id": 76529,
+    "name": "Guri Malakim Turret Booster II"
+  },
+  {
+    "type_id": 76530,
+    "name": "Guri Malakim Turret Booster III"
+  },
+  {
+    "type_id": 76531,
+    "name": "Guri Malakim Turret Booster IV"
+  },
+  {
+    "type_id": 76532,
+    "name": "SoCT Agility Booster I"
+  },
+  {
+    "type_id": 76533,
+    "name": "SoCT Agility Booster II"
+  },
+  {
+    "type_id": 76534,
+    "name": "SoCT Agility Booster III"
+  },
+  {
+    "type_id": 76535,
+    "name": "SoCT Agility Booster IV"
+  },
+  {
     "type_id": 76717,
     "name": "Abaddon Alliance Emblem"
   },
@@ -94622,5 +94726,309 @@
   {
     "type_id": 76958,
     "name": "Vulture Zydrine Burn SKIN"
+  },
+  {
+    "type_id": 76963,
+    "name": " Infinite Celebrations Firework"
+  },
+  {
+    "type_id": 76964,
+    "name": "Capsuleer Day XX Fireworks Package"
+  },
+  {
+    "type_id": 76986,
+    "name": "Scorched Container"
+  },
+  {
+    "type_id": 77005,
+    "name": "Bustard Alliance Emblem"
+  },
+  {
+    "type_id": 77006,
+    "name": "Bustard Corporation Emblem"
+  },
+  {
+    "type_id": 77041,
+    "name": "Capsule Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77043,
+    "name": "Apotheosis Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77044,
+    "name": "Sunesis Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77045,
+    "name": "Gnosis Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77046,
+    "name": "Praxis Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77047,
+    "name": "Dramiel Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77048,
+    "name": "Cynabal Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77049,
+    "name": "Worm Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77050,
+    "name": "Gila Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77051,
+    "name": "Caldari Shuttle Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77052,
+    "name": "Amarr Shuttle Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77053,
+    "name": "Gallente Shuttle Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77054,
+    "name": "Minmatar Shuttle Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77055,
+    "name": "Capsuleer Day Glamourex Crate"
+  },
+  {
+    "type_id": 77114,
+    "name": "Metamorphosis"
+  },
+  {
+    "type_id": 77115,
+    "name": "Metamorphosis Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77118,
+    "name": "Amperum Mutanite"
+  },
+  {
+    "type_id": 77164,
+    "name": "Minokawa Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77165,
+    "name": "Scorpion Navy Issue Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77166,
+    "name": "Drake Navy Issue Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77167,
+    "name": "Apocalypse Navy Issue Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77168,
+    "name": "Avatar Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77169,
+    "name": "Typhoon Fleet Issue Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77170,
+    "name": "Naglfar Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77171,
+    "name": "Megathron Navy Issue Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77172,
+    "name": "Capsule Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77173,
+    "name": "Drake Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77174,
+    "name": "Raven Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77175,
+    "name": "Ishtar Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77176,
+    "name": "Gila Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77177,
+    "name": "Megathron Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77178,
+    "name": "Eagle Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77281,
+    "name": "Hubris"
+  },
+  {
+    "type_id": 77283,
+    "name": "Bane"
+  },
+  {
+    "type_id": 77284,
+    "name": "Karura"
+  },
+  {
+    "type_id": 77288,
+    "name": "Valravn"
+  },
+  {
+    "type_id": 77398,
+    "name": "‘Atgeir’ Explosive Disruptive Lance "
+  },
+  {
+    "type_id": 77399,
+    "name": "'Azmaru' Electromagnetic Disruptive Lance"
+  },
+  {
+    "type_id": 77400,
+    "name": "‘Steel Yari’ Kinetic Disruptive Lance"
+  },
+  {
+    "type_id": 77401,
+    "name": "‘Sarissa’ Thermal Disruptive Lance"
+  },
+  {
+    "type_id": 77402,
+    "name": "‘Atgeir’ Explosive Disruptive Lance Blueprint"
+  },
+  {
+    "type_id": 77403,
+    "name": "'Azmaru' Electromagnetic Disruptive Lance Blueprint"
+  },
+  {
+    "type_id": 77404,
+    "name": "‘Steel Yari’ Kinetic Disruptive Lance Blueprint"
+  },
+  {
+    "type_id": 77405,
+    "name": "‘Sarissa’ Thermal Disruptive Lance Blueprint"
+  },
+  {
+    "type_id": 77414,
+    "name": "Hubris Blueprint"
+  },
+  {
+    "type_id": 77415,
+    "name": "Karura Blueprint"
+  },
+  {
+    "type_id": 77416,
+    "name": "Valravn Blueprint"
+  },
+  {
+    "type_id": 77417,
+    "name": "Bane Blueprint"
+  },
+  {
+    "type_id": 77418,
+    "name": "Peregrinus Mutanite"
+  },
+  {
+    "type_id": 77419,
+    "name": "Conflagrati Mutanite"
+  },
+  {
+    "type_id": 77420,
+    "name": "Solis Mutanite"
+  },
+  {
+    "type_id": 77421,
+    "name": "Tenebraet Mutanite"
+  },
+  {
+    "type_id": 77427,
+    "name": "Historic Capsuleer Day Clothing Crate"
+  },
+  {
+    "type_id": 77473,
+    "name": "Warclone Blanks Vat"
+  },
+  {
+    "type_id": 77474,
+    "name": "Contraband Freight"
+  },
+  {
+    "type_id": 77475,
+    "name": "Narcotics Package"
+  },
+  {
+    "type_id": 77476,
+    "name": "M.R.F. Supplies"
+  },
+  {
+    "type_id": 77524,
+    "name": "Admixti Mutanite"
+  },
+  {
+    "type_id": 77707,
+    "name": "Unaligned Dekaisogen"
+  },
+  {
+    "type_id": 77708,
+    "name": "Fluctuating Entropic Regulator"
+  },
+  {
+    "type_id": 77725,
+    "name": "Advanced Capital Ship Construction"
+  },
+  {
+    "type_id": 77738,
+    "name": "Lancer Dreadnoughts"
+  },
+  {
+    "type_id": 77739,
+    "name": "Disruptive Lance Operation"
+  },
+  {
+    "type_id": 77867,
+    "name": "Catalyst Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77868,
+    "name": "Nemesis Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77869,
+    "name": "Maulus Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77872,
+    "name": "Megathron Navy Issue Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77873,
+    "name": "Maulus Navy Issue Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77874,
+    "name": "Brutix Navy Issue Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77886,
+    "name": "Catalyst Navy Issue Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77887,
+    "name": "Hubris Luminaire Rising SKIN"
   }
 ]

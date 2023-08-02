@@ -3,11 +3,16 @@ const admin = require("firebase-admin");
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
-const appCheckVerification =
-  require("./Middleware/AppCheck").appCheckVerification;
-const verifyEveToken = require("./Middleware/eveTokenVerify").verifyEveToken;
-const ESIMarketQuery = require("./sharedFunctions/priceData").ESIMarketQuery;
-const checkAppVersion = require("./Middleware/appVersion").checkAppVersion;
+const { appCheckVerification } = require("./Middleware/AppCheck");
+const { verifyEveToken } = require("./Middleware/eveTokenVerify");
+const { ESIMarketQuery } = require("./sharedFunctions/fetchMarketPrices");
+const {
+  ESIMarketHistoryQuery,
+} = require("./sharedFunctions/fetchMarketHistory");
+const { checkAppVersion } = require("./Middleware/appVersion");
+const { GLOBAL_CONFIG } = require("./global-config-functions");
+
+const { DEFAULT_MARKET_LOCATIONS } = GLOBAL_CONFIG;
 
 admin.initializeApp();
 
@@ -99,18 +104,24 @@ app.post("/item", async (req, res) => {
     return res.status(500).send("Item Data Missing From Request");
   }
   try {
-    let returnArray = [];
-    let missingIDs = [];
-    let returnIDs = new Set();
+    const returnArray = [];
+    const missingIDs = [];
+    const returnIDs = new Set(req.body.idArray);
 
-    for (let itemID of req.body.idArray) {
-      let document = await db.collection("Items").doc(itemID.toString()).get();
-      if (document.exists) {
-        let documentData = document.data();
-        returnArray.push(documentData);
-        returnIDs.add(itemID);
+    const promises = req.body.idArray.map((id) => {
+      return db.collection("Items").doc(id.toString()).get();
+    });
+
+    const results = await Promise.all(promises);
+
+    for (let i = 0; i < results.length; i++) {
+      const doc = results[i];
+      if (doc.exists) {
+        const docData = doc.data();
+        returnArray.push(docData);
       } else {
-        missingIDs.push(itemID);
+        missingIDs.push(req.body.idArray[i]);
+        returnIDs.delete(req.body.idArray[i]);
       }
     }
 
@@ -121,7 +132,9 @@ app.post("/item", async (req, res) => {
     }
 
     functions.logger.log(
-      `${returnArray.length} items returned: [${[...returnIDs]}]`
+      `${returnArray.length} items returned to ${req.header("accountID")}: [${[
+        ...returnIDs,
+      ]}]`
     );
 
     return res
@@ -147,7 +160,7 @@ app.get("/item/sisiData/:itemID", async (req, res) => {
     if (product.exists) {
       let response = product.data();
       functions.logger.log(
-        `${req.params.itemID} Tranquilty Build Data Sent To ${req.header(
+        `${req.params.itemID} Singularity Build Data Sent To ${req.header(
           "accountID"
         )} `
       );
@@ -170,34 +183,133 @@ app.get("/item/sisiData/:itemID", async (req, res) => {
   }
 });
 
-app.post("/costs", async (req, res) => {
+app.post("/market-data", async (req, res) => {
   if (req.body.idArray === undefined) {
     return res.status(500).send("Item Data Missing From Request");
   }
+
   try {
-    let returnData = [];
-    let missingItems = [];
-    let liveObject = await db.collection("Pricing").doc("Live").get();
-    let liveObjectData = liveObject.data();
-    for (let itemID of req.body.idArray) {
-      if (liveObjectData.hasOwnProperty(itemID.toString())) {
-        returnData.push(liveObjectData[itemID.toString()]);
-      } else {
-        missingItems.push(itemID);
-      }
+    const requestedIDS = req.body.idArray;
+
+    const databaseMarketPricesQueryPromises = requestedIDS.map((id) =>
+      admin.database().ref(`live-data/market-prices/${id}`).once("value")
+    );
+    const databaseMarketHistoryQueryPromises = requestedIDS.map((id) =>
+      admin.database().ref(`live-data/market-history/${id}`).once("value")
+    );
+    const databaseAdjustedPricesQueryPromises = requestedIDS.map((id) =>
+      admin.database().ref(`live-data/adjusted-prices/${id}`).once("value")
+    );
+
+    const databaseMarketPricesQueryResolves = await Promise.all(
+      databaseMarketPricesQueryPromises
+    );
+    const databaseMarketHistoryQueryResolves = await Promise.all(
+      databaseMarketHistoryQueryPromises
+    );
+    const databaseAdjustedPricesQueryResolves = await Promise.all(
+      databaseAdjustedPricesQueryPromises
+    );
+
+    const { returnData: databaseResults, missingData: missingIDs } =
+      meregeReturnPromises(
+        requestedIDS,
+        databaseMarketPricesQueryResolves,
+        databaseMarketHistoryQueryResolves,
+        databaseAdjustedPricesQueryResolves,
+        true
+      );
+
+    const missingPricePromises = missingIDs.map((id) =>
+      ESIMarketQuery(id.toString())
+    );
+    const missingHistoryPromises = missingIDs.map((id) =>
+      ESIMarketHistoryQuery(id.toString())
+    );
+
+    const missingPriceResolves = await Promise.all(missingPricePromises);
+    const missingHistoryResolves = await Promise.all(missingHistoryPromises);
+
+    const { returnData: esiResults, missingData: failedToRetrieve } =
+      meregeReturnPromises(
+        missingIDs,
+        missingPriceResolves,
+        missingHistoryResolves,
+        databaseAdjustedPricesQueryResolves,
+        false
+      );
+
+    const returnData = [...databaseResults, ...esiResults];
+
+    functions.logger.log(
+      `${returnData.length} Market Objects Returned for ${req.header(
+        "accountID"
+      )}, [${requestedIDS}]`
+    );
+
+    if (failedToRetrieve.length > 0) {
+      functions.logger.warn(
+        `${failedToRetrieve.length} Market Objects Could Not Be Found`
+      );
     }
 
-    if (missingItems.length > 0) {
-      for (let id of missingItems) {
-        let data = await ESIMarketQuery(id.toString(), true);
-        returnData.push(data);
+    function meregeReturnPromises(
+      requestedIDS,
+      marketPricesData,
+      marketHistoryData,
+      adjustedPriceData,
+      fromDatabase
+    ) {
+      const missingData = [];
+      const returnData = [];
+
+      for (let i in requestedIDS) {
+        let marketPrices = null;
+        let marketHistory = null;
+        let adjustedPrice = null;
+
+        if (fromDatabase) {
+          marketPrices = marketPricesData[i]?.val() || null;
+          marketHistory = marketHistoryData[i]?.val() || null;
+          adjustedPrice = adjustedPriceData[i]?.val() || null;
+        } else {
+          marketPrices = marketPricesData[i] || null;
+          marketHistory = marketHistoryData[i] || null;
+          adjustedPrice = adjustedPriceData[i]?.val() || null;
+        }
+
+        if (!marketPrices || !marketHistory) {
+          missingData.push(requestedIDS[i]);
+          continue;
+        }
+
+        let outputObject = { ...marketPrices };
+        outputObject.adjustedPrice = adjustedPrice?.adjusted_price || 0;
+
+        for (let location of DEFAULT_MARKET_LOCATIONS) {
+          const {
+            dailyAverageMarketPrice,
+            highestMarketPrice,
+            lowestMarketPrice,
+            dailyAverageOrderQuantity,
+            dailyAverageUnitCount,
+          } = marketHistory[location.name];
+
+          outputObject[location.name] = {
+            ...outputObject[location.name],
+            dailyAverageMarketPrice,
+            highestMarketPrice,
+            lowestMarketPrice,
+            dailyAverageOrderQuantity,
+            dailyAverageUnitCount,
+          };
+        }
+
+        returnData.push(outputObject);
       }
+
+      return { returnData, missingData };
     }
-    functions.logger.log(
-      `${req.body.idArray.length} Prices Returned for ${req.header(
-        "accountID"
-      )}, [${req.body.idArray}]`
-    );
 
     return res
       .status(200)
@@ -207,20 +319,72 @@ app.post("/costs", async (req, res) => {
     functions.logger.error(err);
     return res
       .status(500)
-      .send("Error retrieving item data, please try again.");
+      .send("Error retrieving market data, please try again.");
   }
 });
 
 app.get("/systemindexes/:systemID", async (req, res) => {
-  if (req.params.systemID === undefined) {
-    return res.status(500).send("System Index Missing From Request");
+  const systemID = req.params.systemID;
+  if (isNaN(systemID)) {
+    return res.status(400).send("Invalid System ID");
   }
-  const indexesRaw = await admin
-    .storage()
-    .bucket()
-    .file("systemIndexes.json")
-    .download();
-  const indexesParsed = JSON.parse(indexesRaw);
+  try {
+    const idData = admin
+      .database()
+      .ref(`live-data/system-indexes/${systemID}`)
+      .once("value")
+      .val();
+
+    if (!idData) {
+      res.status(404).send("No System Data Found");
+    }
+
+    res.status(200).send(idData);
+  } catch (err) {
+    functions.logger.log(err.message);
+    res.status(500).send("Error retrieving system data, please try again.");
+  }
+});
+
+app.post("/systemindexes", async (req, res) => {
+  const idArray = req.body.idArray;
+  if (!Array.isArray(idArray)) {
+    return res.status(400).send("System IDs must be an array");
+  }
+  try {
+    const results = {};
+
+    const databaseRequests = idArray.map((id) =>
+      admin.database().ref(`live-data/system-indexes/${id}`).once("value")
+    );
+
+    const databaseResponses = await Promise.all(databaseRequests);
+
+    for (let item of databaseResponses) {
+      let itemData = item.val();
+      if (itemData !== null) {
+        results[itemData.system - index] = itemData;
+      }
+    }
+
+    const returnData = Object.values(results);
+
+    functions.logger.log(
+      `${returnData.length} System Indexes Returned For ${req.header(
+        "accountID"
+      )}, [${idArray}]`
+    );
+
+    res
+      .status(200)
+      .setHeader("Content-Type", "application/json")
+      .send(returnData);
+  } catch (err) {
+    functions.logger.error(err.message);
+    return res
+      .status(500)
+      .send("Error retrieving system data, please try again.");
+  }
 });
 
 //Export the api to Firebase Cloud Functions
@@ -228,10 +392,14 @@ exports.api = functions
   .region("europe-west1")
   .runWith({ maxInstances: 40 })
   .https.onRequest(app);
-exports.buildUser = require("./Triggered Functions/Users");
+exports.createUserData = require("./Triggered Functions/Users");
 exports.RefreshItemPrices = require("./Scheduled Functions/refreshItemPrices");
+exports.RefreshItemHistory = require("./Scheduled Functions/marketHistoryRefresh");
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
+exports.RefreshAdjustedPrices = require("./Scheduled Functions/refreshAdjustedPrices");
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
-exports.feedback = require("./Triggered Functions/storeFeedback");
+exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");
 exports.userClaims = require("./Triggered Functions/addCorpClaim");
-exports.appVersion = require("./Triggered Functions/checkAppVersion");
+exports.checkAppVersion = require("./Triggered Functions/checkAppVersion");
+exports.checkSDEUpdates = require("./Scheduled Functions/checkSDEUpdates");
+// exports.findIngrediants = require("./Triggered Functions/findIngrediants");

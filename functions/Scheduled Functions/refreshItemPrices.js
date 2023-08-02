@@ -1,77 +1,83 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const ESIMarketQuery = require("../sharedFunctions/priceData").ESIMarketQuery;
+const { ESIMarketQuery } = require("../sharedFunctions/fetchMarketPrices");
 const axios = require("axios");
+const { GLOBAL_CONFIG } = require("../global-config-functions");
 
-exports.scheduledFunction = functions.region("europe-west1").runWith({timeoutSeconds:540}).pubsub
-  .schedule("every 30 minutes")
+const {
+  FIREBASE_SERVER_REGION,
+  FIREBASE_SERVER_TIMEZONE,
+  DEFAULT_ITEM_PRICE_REFRESH_PERIOD,
+  DEFAULT_ITEM_MARKET_REFRESH_QUANTITY,
+} = GLOBAL_CONFIG;
+
+const EVE_SERVER_STATUS_API =
+  "https://esi.evetech.net/latest/status/?datasource=tranquility";
+const MARKET_PRICES_REF = "live-data/market-prices";
+const TIME_LIMIT = DEFAULT_ITEM_PRICE_REFRESH_PERIOD * 60 * 60 * 1000;
+
+exports.scheduledFunction = functions
+  .region(FIREBASE_SERVER_REGION)
+  .runWith({ timeoutSeconds: 540 })
+  .pubsub.schedule("every 30 minutes")
+  .timeZone(FIREBASE_SERVER_TIMEZONE)
   .onRun(async (context) => {
-    const pricingDoc = await admin.firestore().doc("Pricing/Live").get();
-    if (pricingDoc.exists) {
-      let pricingDocData = pricingDoc.data();
-      const server = await axios.get(
-        "https://esi.evetech.net/latest/status/?datasource=tranquility"
-      );
-      let successRefreshCount = 0;
-      let failedRefreshCount = 0;
-      let refreshList = [];
-      let refreshedIDs = [];
-      let failedIDs = [];
-      if (server.status === 200) {
-        for (let item in pricingDocData) {
-          if (
-            (pricingDocData[item].lastUpdated < Date.now() - 14400000) &
-            (refreshList.length <= 150)
-          ) {
-            refreshList.push(pricingDocData[item].typeID);
-          }
-        }
-        if (refreshList.length > 0) {
-          for (let typeID of refreshList) {
-            let response = await ESIMarketQuery(
-              typeID,
-              false,
-              pricingDocData[typeID]
-            );
-            if (response === "fail") {
-              failedRefreshCount++;
-              failedIDs.push(typeID);
-            } else {
-              successRefreshCount++;
-              refreshedIDs.push(typeID);
-              pricingDocData[typeID] = response;
-            }
-          }
-        }
-      } else {
-        refreshData.forEach((i) => {
-          failedIDs.push(i.typeID, server.status);
-        });
-        failedRefreshCount = failedIDs.length;
-        functions.logger.error(
-          `Eve Servers Offline - Unable To Refresh Item Prices`
-        );
-      }
-      if (refreshedIDs.length > 0) {
-        await admin
-          .firestore()
-          .collection("Pricing")
-          .doc("Live")
-          .update(pricingDocData);
-      }
-      functions.logger.info(
-        `Number of TypeID's Refreshed ${successRefreshCount}. TypeID's Refreshed ${JSON.stringify(
-          refreshedIDs
-        )} `
-      );
+    try {
+      const pricingSnapshot = await admin
+        .database()
+        .ref(MARKET_PRICES_REF)
+        .orderByChild("lastUpdated")
+        .endAt(Date.now() - TIME_LIMIT)
+        .limitToLast(DEFAULT_ITEM_MARKET_REFRESH_QUANTITY)
+        .once("value");
 
-      if (failedRefreshCount > 0) {
-        functions.logger.info(
-          `Number of TypeID's Failed ${failedRefreshCount}. TypeID's Failed ${JSON.stringify(
-            failedIDs
-          )}`
+      let pricingData = pricingSnapshot.val();
+
+      if (!pricingData) {
+        return null;
+      }
+
+      if (pricingData.length === 0) {
+        functions.logger.log("No TypeID's Found To Refresh");
+        return null;
+      }
+
+      const server = await axios.get(EVE_SERVER_STATUS_API);
+
+      if (server.status !== 200) {
+        functions.logger.warn(
+          "Eve Servers Offline - Unable To Refresh Item Prices"
+        );
+        return null;
+      }
+
+      const refreshedIDs = new Set();
+      const failedIDs = new Set();
+
+      for (const [typeID] of Object.entries(pricingData)) {
+        const response = await ESIMarketQuery(typeID);
+        if (!response) {
+          failedIDs.add(typeID);
+          continue;
+        }
+        refreshedIDs.add(typeID);
+      }
+
+      functions.logger.log(
+        `Market Prices Refreshed For ${
+          refreshedIDs.size
+        } Items. ${JSON.stringify([...refreshedIDs])}`
+      );
+      if (failedIDs.size > 0) {
+        functions.logger.log(
+          `Market Prices Refresh Failed For ${
+            failedIDs.size
+          } Items. ${JSON.stringify([...failedIDs])}`
         );
       }
+      return null;
+    } catch (err) {
+      functions.logger.error(`An error occured: ${err}`);
+      return null;
     }
-    return null;
   });

@@ -38,15 +38,15 @@ export default function AssetLibrary() {
         selectedLocation
       );
       newLocationAssets.sort((a, b) => {
-        let aName = itemData.find((i) => i.type_id === a.type_id);
-        let bName = itemData.find((i) => i.type_id === b.type_id);
-        if (aName === undefined || bName === undefined) {
+        let aName = itemData.find((i) => i.type_id === a.type_id)?.name;
+        let bName = itemData.find((i) => i.type_id === b.type_id)?.name;
+        if (!aName || !bName) {
           return 0;
         }
-        if (aName.name < bName.name) {
+        if (aName < bName) {
           return -1;
         }
-        if (aName.name > bName.name) {
+        if (aName > bName) {
           return 1;
         }
         return 0;
@@ -82,8 +82,8 @@ export default function AssetLibrary() {
 
   return (
     <Grid container sx={{ marginTop: "5px" }} spacing={2}>
-      <ESIOffline/>
-      <Grid item xs={12} sx={{marginLeft: "10px", marginRight:"10px"}}>
+      <ESIOffline />
+      <Grid item xs={12} sx={{ marginLeft: "10px", marginRight: "10px" }}>
         <AssetSearch
           locationList={locationList}
           selectedLocation={selectedLocation}

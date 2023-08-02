@@ -16,9 +16,9 @@ import {
   UsersContext,
 } from "../../../../../Context/AuthContext";
 import {
-  listingType,
-  marketOptions,
+  listingType
 } from "../../../../../Context/defaultValues";
+import GLOBAL_CONFIG from "../../../../../global-config-app";
 
 export function PurchasingData({
   orderDisplay,
@@ -26,25 +26,25 @@ export function PurchasingData({
   marketDisplay,
   changeMarketDisplay,
   updateShoppingListTrigger,
-  updateShoppingListData
+  updateShoppingListData,
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users, updateUsers } = useContext(UsersContext);
   const [orderSelect, updateOrderSelect] = useState(orderDisplay);
   const [marketSelect, updateMarketSelect] = useState(marketDisplay);
+  const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
   const parentUserIndex = useMemo(() => {
     return users.findIndex((i) => i.ParentUser);
   }, [users, isLoggedIn]);
 
-  let totalComplete = 0;
-
-  activeJob.build.materials.forEach((material) => {
-    if (material.quantityPurchased >= material.quantity) {
-      totalComplete++;
+  const totalComplete = activeJob.build.materials.reduce((acc, mat) => {
+    if (mat.purchaseComplete) {
+      acc++;
     }
-  });
+    return acc;
+  }, 0);
 
   return (
     <Grid item xs={12}>
@@ -89,7 +89,12 @@ export function PurchasingData({
             </Grid>
           </Grid>
           <Grid container item xs={12} sx={{ marginTop: "20px" }}>
-            <Grid item xs={12} md={4} sx={{marginBottom:{ xs:"20px", sm:"0px"}}}>
+            <Grid
+              item
+              xs={12}
+              md={4}
+              sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
+            >
               <FormControlLabel
                 control={
                   <Switch
@@ -98,7 +103,7 @@ export function PurchasingData({
                         .hideCompleteMaterials
                     }
                     onChange={() => {
-                      let newUsers = JSON.parse(JSON.stringify(users));
+                      let newUsers = [...users]
                       newUsers[
                         parentUserIndex
                       ].settings.editJob.hideCompleteMaterials =
@@ -112,7 +117,12 @@ export function PurchasingData({
                 labelPlacement="start"
               />
             </Grid>{" "}
-            <Grid item xs={12} md={4} sx={{marginBottom:{xs:"20px", sm:"0px"}}}>
+            <Grid
+              item
+              xs={12}
+              md={4}
+              sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
+            >
               {totalComplete < activeJob.build.materials.length && (
                 <Tooltip
                   title="Displays a shopping list of the remaining materials needed."
@@ -123,7 +133,7 @@ export function PurchasingData({
                     size="small"
                     onClick={async () => {
                       updateShoppingListData([activeJob.jobID]);
-                      updateShoppingListTrigger((prev)=> !prev)
+                      updateShoppingListTrigger((prev) => !prev);
                     }}
                   >
                     Shopping List
@@ -153,7 +163,7 @@ export function PurchasingData({
                     marginRight: "5px",
                   }}
                 >
-                  {marketOptions.map((option) => {
+                  {MARKET_OPTIONS.map((option) => {
                     return (
                       <MenuItem key={option.name} value={option.id}>
                         {option.name}

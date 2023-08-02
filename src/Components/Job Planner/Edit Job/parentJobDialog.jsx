@@ -42,8 +42,11 @@ export function ParentJobDialog({
   };
 
   useEffect(() => {
+    if (!dialogTrigger) {
+      return;
+    }
     let newMatches = [];
-    if (activeJob.groupID === null) {
+    if (!activeJob.groupID) {
       for (let job of userJobSnapshot) {
         if (
           job.materialIDs.includes(activeJob.itemID) &&
@@ -108,9 +111,6 @@ export function ParentJobDialog({
                     <Typography variant="body1">{job.name}</Typography>
                   </Grid>
                   <Grid item xs={4} align="center">
-                    {/* <Typography variant="body2">
-                      ME {job.bpME} TE {job.bpTE}
-                    </Typography> */}
                     <Typography variant="body2">
                       Runs {job.runCount} Jobs {job.jobCount}
                     </Typography>

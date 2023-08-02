@@ -1,6 +1,6 @@
 {
   "name": "eve-industry-planner-react",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.16.7",
@@ -19,7 +19,7 @@
     "date-fns": "^2.28.0",
     "dotenv": "^10.0.0",
     "firebase": "^9.6.11",
-    "firebase-tools": "^11.24.0",
+    "firebase-tools": "^11.30.0",
     "glob-parent": "^6.0.2",
     "jose": "^4.9.2",
     "react": "^17.0.2",
@@ -29,6 +29,7 @@
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
     "react-router-dom": "^6.0.2",
+    "react-uuid": "^2.0.0",
     "web-vitals": "^1.1.2"
   },
   "devDependencies": {

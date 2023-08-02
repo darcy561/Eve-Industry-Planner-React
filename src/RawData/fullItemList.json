@@ -15017,7 +15017,7 @@
   },
   {
     "type_id": 14527,
-    "name": "Tobias's Modified Torpedo Launcher"
+    "name": "Tobias' Modified Torpedo Launcher"
   },
   {
     "type_id": 14528,
@@ -15261,7 +15261,7 @@
   },
   {
     "type_id": 14682,
-    "name": "Vepas's Modified Torpedo Launcher"
+    "name": "Vepas' Modified Torpedo Launcher"
   },
   {
     "type_id": 14683,
@@ -15421,7 +15421,7 @@
   },
   {
     "type_id": 14750,
-    "name": "Vepas's Modified Kinetic Shield Hardener"
+    "name": "Vepas' Modified Kinetic Shield Hardener"
   },
   {
     "type_id": 14751,
@@ -15437,7 +15437,7 @@
   },
   {
     "type_id": 14754,
-    "name": "Vepas's Modified EM Shield Hardener"
+    "name": "Vepas' Modified EM Shield Hardener"
   },
   {
     "type_id": 14755,
@@ -15453,7 +15453,7 @@
   },
   {
     "type_id": 14758,
-    "name": "Vepas's Modified Explosive Shield Hardener"
+    "name": "Vepas' Modified Explosive Shield Hardener"
   },
   {
     "type_id": 14759,
@@ -15469,7 +15469,7 @@
   },
   {
     "type_id": 14762,
-    "name": "Vepas's Modified Thermal Shield Hardener"
+    "name": "Vepas' Modified Thermal Shield Hardener"
   },
   {
     "type_id": 14763,
@@ -15485,7 +15485,7 @@
   },
   {
     "type_id": 14766,
-    "name": "Vepas's Modified Multispectrum Shield Hardener"
+    "name": "Vepas' Modified Multispectrum Shield Hardener"
   },
   {
     "type_id": 14767,
@@ -25685,11 +25685,11 @@
   },
   {
     "type_id": 21498,
-    "name": "Synthetic Hull Conversion Inertia Stabilizers"
+    "name": "Synthetic Hull Conversion Inertial Stabilizers"
   },
   {
     "type_id": 21499,
-    "name": "Synthetic Hull Conversion Inertia Stabilizers Blueprint"
+    "name": "Synthetic Hull Conversion Inertial Stabilizers Blueprint"
   },
   {
     "type_id": 21500,
@@ -75460,6 +75460,10 @@
     "name": "Capital Absorption Thruster Array"
   },
   {
+    "type_id": 53038,
+    "name": "Men's 'SteelKnight TorsoRig' Body Augmentation"
+  },
+  {
     "type_id": 53041,
     "name": "Men's 'RubySet TorsoRig' Body Augmentation"
   },
@@ -75806,6 +75810,10 @@
   {
     "type_id": 53210,
     "name": "Rifter Harmonious Ascension SKIN"
+  },
+  {
+    "type_id": 53226,
+    "name": "Women's 'SteelKnight TorsoRig' Body Augmentation"
   },
   {
     "type_id": 53229,
@@ -83269,7 +83277,7 @@
   },
   {
     "type_id": 58971,
-    "name": "Restrained Interdiction Nullifier"
+    "name": "Enduring Interdiction Nullifier"
   },
   {
     "type_id": 58972,
@@ -83281,7 +83289,7 @@
   },
   {
     "type_id": 58974,
-    "name": "Restrained Interdiction Nullifier Blueprint"
+    "name": "Enduring Interdiction Nullifier Blueprint"
   },
   {
     "type_id": 58975,
@@ -85832,46 +85840,6 @@
     "name": "Naglfar Yoiul Star SKIN"
   },
   {
-    "type_id": 61129,
-    "name": "Ice Storm Filaments Crate"
-  },
-  {
-    "type_id": 61130,
-    "name": "DSHR-01H Highsec Ice Storm Filament"
-  },
-  {
-    "type_id": 61131,
-    "name": "DNCR-05H Highsec Ice Storm Filament"
-  },
-  {
-    "type_id": 61132,
-    "name": "PRNCR-10H Highsec Ice Storm Filament"
-  },
-  {
-    "type_id": 61133,
-    "name": "VXN-01N Nullsec Ice Storm Filament"
-  },
-  {
-    "type_id": 61134,
-    "name": "CMT-05N Nullsec Ice Storm Filament"
-  },
-  {
-    "type_id": 61135,
-    "name": "CPD-10N Nullsec Ice Storm Filament"
-  },
-  {
-    "type_id": 61136,
-    "name": "DNNR-01L Lowsec Ice Storm Filament"
-  },
-  {
-    "type_id": 61137,
-    "name": "BLTZN-05L Lowsec Ice Storm Filament"
-  },
-  {
-    "type_id": 61138,
-    "name": "RDLF-10L Lowsec Ice Storm Filament"
-  },
-  {
     "type_id": 61182,
     "name": "Leshak Scope Syndication YC122 SKIN"
   },
@@ -86317,7 +86285,7 @@
   },
   {
     "type_id": 62048,
-    "name": "Bag of Gelatinized Confectionary "
+    "name": "Bag of Gelatinized Confectionary"
   },
   {
     "type_id": 62049,
@@ -89929,7 +89897,7 @@
   },
   {
     "type_id": 72238,
-    "name": "Basic 'Boost' Cerebral Accelerator "
+    "name": "Basic 'Boost' Cerebral Accelerator"
   },
   {
     "type_id": 72239,
@@ -90020,146 +89988,6 @@
     "name": "Ferox Navy Issue"
   },
   {
-    "type_id": 72818,
-    "name": "Harvest Nosferatu Booster I"
-  },
-  {
-    "type_id": 72819,
-    "name": "Harvest Nosferatu Booster II "
-  },
-  {
-    "type_id": 72820,
-    "name": "Harvest Nosferatu Booster III"
-  },
-  {
-    "type_id": 72821,
-    "name": "Harvest Webifier Booster I"
-  },
-  {
-    "type_id": 72822,
-    "name": "Harvest Webifier Booster II"
-  },
-  {
-    "type_id": 72823,
-    "name": "Harvest Webifier Booster III"
-  },
-  {
-    "type_id": 72828,
-    "name": "Harvest Nosferatu Booster IV"
-  },
-  {
-    "type_id": 72829,
-    "name": "Harvest Webifier Booster IV"
-  },
-  {
-    "type_id": 72830,
-    "name": "Harvest Damage Booster III"
-  },
-  {
-    "type_id": 72831,
-    "name": "Harvest Damage Booster IV"
-  },
-  {
-    "type_id": 72832,
-    "name": "Harvest Damage Booster I"
-  },
-  {
-    "type_id": 72833,
-    "name": "Harvest Damage Booster II"
-  },
-  {
-    "type_id": 72834,
-    "name": "Harvest Anti-Disruptor Booster I"
-  },
-  {
-    "type_id": 72835,
-    "name": "Harvest Anti-Disruptor Booster II"
-  },
-  {
-    "type_id": 72836,
-    "name": "Harvest Anti-Disruptor Booster III"
-  },
-  {
-    "type_id": 72837,
-    "name": "Harvest Anti-Disruptor Booster IV"
-  },
-  {
-    "type_id": 72839,
-    "name": "Tetrimon Resistance Booster IV"
-  },
-  {
-    "type_id": 72840,
-    "name": "Tetrimon Resistance Booster I"
-  },
-  {
-    "type_id": 72841,
-    "name": "Tetrimon Resistance Booster II"
-  },
-  {
-    "type_id": 72842,
-    "name": "Tetrimon Resistance Booster III"
-  },
-  {
-    "type_id": 72854,
-    "name": "Tetrimon Capacitor Booster III"
-  },
-  {
-    "type_id": 72855,
-    "name": "Tetrimon Capacitor Booster IV"
-  },
-  {
-    "type_id": 72856,
-    "name": "Tetrimon Capacitor Booster I"
-  },
-  {
-    "type_id": 72857,
-    "name": "Tetrimon Capacitor Booster II"
-  },
-  {
-    "type_id": 72858,
-    "name": "Tetrimon Precision Booster I"
-  },
-  {
-    "type_id": 72859,
-    "name": "Tetrimon Precision Booster II"
-  },
-  {
-    "type_id": 72860,
-    "name": "Tetrimon Precision Booster III"
-  },
-  {
-    "type_id": 72861,
-    "name": "Tetrimon Precision Booster IV"
-  },
-  {
-    "type_id": 72862,
-    "name": "Tetrimon Anti-Drain Booster III"
-  },
-  {
-    "type_id": 72863,
-    "name": "Tetrimon Anti-Drain Booster IV"
-  },
-  {
-    "type_id": 72864,
-    "name": "Tetrimon Anti-Drain Booster I"
-  },
-  {
-    "type_id": 72865,
-    "name": "Tetrimon Anti-Drain Booster II"
-  },
-  {
-    "type_id": 72866,
-    "name": "Basic 'Radiance' Cerebral Accelerator"
-  },
-  {
-    "type_id": 72867,
-    "name": "Potent 'Radiance' Cerebral Accelerator"
-  },
-  {
-    "type_id": 72868,
-    "name": "Extended 'Radiance' Cerebral Accelerator"
-  },
-  {
     "type_id": 72869,
     "name": "Myrmidon Navy Issue"
   },
@@ -90222,26 +90050,6 @@
   {
     "type_id": 72964,
     "name": "Rifter Corporation Emblem"
-  },
-  {
-    "type_id": 72976,
-    "name": "ATXVIII 1v1 Navy Cruisers Proving Filament"
-  },
-  {
-    "type_id": 72977,
-    "name": "ATXVIII 1v1 T1 Frigates Proving Filament"
-  },
-  {
-    "type_id": 72978,
-    "name": "Event 74 Proving Filament "
-  },
-  {
-    "type_id": 72979,
-    "name": "Event 75 Proving Filament"
-  },
-  {
-    "type_id": 72980,
-    "name": "Event 76 Proving Filament"
   },
   {
     "type_id": 73041,
@@ -90393,11 +90201,19 @@
   },
   {
     "type_id": 73431,
-    "name": "Crimson Gauntlet Shortcut Keypass "
+    "name": "Crimson Gauntlet Shortcut Keypass"
   },
   {
     "type_id": 73432,
-    "name": "Tetrimon Base Shortcut Keypass "
+    "name": "Tetrimon Base Shortcut Keypass"
+  },
+  {
+    "type_id": 73436,
+    "name": "Men's 'Barbatus Rojo' Facial Augmentation"
+  },
+  {
+    "type_id": 73437,
+    "name": "Women's 'Domino Rojo' Facial Augmentation"
   },
   {
     "type_id": 73451,
@@ -91284,12 +91100,32 @@
     "name": "Advanced Contracting"
   },
   {
+    "type_id": 73972,
+    "name": "Catalyst Navy Issue Blueprint"
+  },
+  {
+    "type_id": 73973,
+    "name": "Coercer Navy Issue Blueprint"
+  },
+  {
+    "type_id": 73978,
+    "name": "Cormorant Navy Issue Blueprint"
+  },
+  {
+    "type_id": 73979,
+    "name": "Thrasher Fleet Issue Blueprint"
+  },
+  {
     "type_id": 73995,
     "name": "Phoenix Navy Issue Blueprint"
   },
   {
     "type_id": 73996,
     "name": "Moros Navy Issue Blueprint"
+  },
+  {
+    "type_id": 73999,
+    "name": "Naglfar Fleet Issue Blueprint"
   },
   {
     "type_id": 74000,
@@ -91430,5 +91266,3769 @@
   {
     "type_id": 74050,
     "name": "Thrasher Fleet Issue Corporation Emblem"
+  },
+  {
+    "type_id": 74110,
+    "name": "Cormorant Navy Issue Sukuuvestaa SKIN"
+  },
+  {
+    "type_id": 74111,
+    "name": "Thrasher Fleet Issue Justice SKIN"
+  },
+  {
+    "type_id": 74112,
+    "name": "Catalyst Navy Issue Aliastra SKIN"
+  },
+  {
+    "type_id": 74113,
+    "name": "Coercer Navy Issue Purity of the Throne SKIN"
+  },
+  {
+    "type_id": 74114,
+    "name": "Navy Destroyers Expert System"
+  },
+  {
+    "type_id": 74115,
+    "name": "Praxis Tercio Rojo SKIN"
+  },
+  {
+    "type_id": 74116,
+    "name": "Sunesis Tercio Rojo SKIN"
+  },
+  {
+    "type_id": 74117,
+    "name": "Gnosis Tercio Rojo SKIN"
+  },
+  {
+    "type_id": 74118,
+    "name": "Capsule Tercio Rojo SKIN"
+  },
+  {
+    "type_id": 74141,
+    "name": "Geri"
+  },
+  {
+    "type_id": 74143,
+    "name": "Cruor Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74144,
+    "name": "Worm Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74145,
+    "name": "Succubus Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74146,
+    "name": "Dramiel Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74147,
+    "name": "Daredevil Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74148,
+    "name": "Astero Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74149,
+    "name": "Skybreaker Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74150,
+    "name": "Damavik Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74151,
+    "name": "Garmur Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74152,
+    "name": "Sacrilege Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74153,
+    "name": "Cerberus Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74154,
+    "name": "Muninn Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74155,
+    "name": "Armageddon Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74156,
+    "name": "Scorpion Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74157,
+    "name": "Dominix Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74158,
+    "name": "Typhoon Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74160,
+    "name": "Ishtar Aurora Universalis SKIN"
+  },
+  {
+    "type_id": 74316,
+    "name": "Bestla"
+  },
+  {
+    "type_id": 74386,
+    "name": "Yoiul's Ascent Firework"
+  },
+  {
+    "type_id": 74387,
+    "name": "Yoiul's Ascent Firework Crate"
+  },
+  {
+    "type_id": 74426,
+    "name": "DNCR-05H Highsec Ice Storm Filament"
+  },
+  {
+    "type_id": 74427,
+    "name": "DNNR-01L Lowsec Ice Storm Filament"
+  },
+  {
+    "type_id": 74428,
+    "name": "DSHR-01H Highsec Ice Storm Filament"
+  },
+  {
+    "type_id": 74429,
+    "name": "PRNCR-10H Highsec Ice Storm Filament"
+  },
+  {
+    "type_id": 74430,
+    "name": "RDLF-10L Lowsec Ice Storm Filament"
+  },
+  {
+    "type_id": 74431,
+    "name": "VXN-01N Nullsec Ice Storm Filament"
+  },
+  {
+    "type_id": 74432,
+    "name": "BLTZN-05L Lowsec Ice Storm Filament"
+  },
+  {
+    "type_id": 74433,
+    "name": "CMT-05N Nullsec Ice Storm Filament"
+  },
+  {
+    "type_id": 74434,
+    "name": "CPD-10N Nullsec Ice Storm Filament"
+  },
+  {
+    "type_id": 74449,
+    "name": "Ice Storm Filaments Crate"
+  },
+  {
+    "type_id": 74500,
+    "name": "Winter Nexus Expert System"
+  },
+  {
+    "type_id": 74521,
+    "name": "Mordunium"
+  },
+  {
+    "type_id": 74522,
+    "name": "Plum Mordunium"
+  },
+  {
+    "type_id": 74523,
+    "name": "Prize Mordunium"
+  },
+  {
+    "type_id": 74524,
+    "name": "Plunder Mordunium"
+  },
+  {
+    "type_id": 74525,
+    "name": "Ytirium"
+  },
+  {
+    "type_id": 74526,
+    "name": "Bootleg Ytirium"
+  },
+  {
+    "type_id": 74527,
+    "name": "Firewater Ytirium"
+  },
+  {
+    "type_id": 74528,
+    "name": "Moonshine Ytirium"
+  },
+  {
+    "type_id": 74529,
+    "name": "Eifyrium"
+  },
+  {
+    "type_id": 74530,
+    "name": "Doped Eifyrium"
+  },
+  {
+    "type_id": 74531,
+    "name": "Boosted Eifyrium"
+  },
+  {
+    "type_id": 74532,
+    "name": "Augmented Eifyrium"
+  },
+  {
+    "type_id": 74533,
+    "name": "Ducinium"
+  },
+  {
+    "type_id": 74534,
+    "name": "Noble Ducinium"
+  },
+  {
+    "type_id": 74535,
+    "name": "Royal Ducinium"
+  },
+  {
+    "type_id": 74536,
+    "name": "Imperial Ducinium"
+  },
+  {
+    "type_id": 74884,
+    "name": "Adrestia Alliance Emblem"
+  },
+  {
+    "type_id": 74885,
+    "name": "Anathema Alliance Emblem"
+  },
+  {
+    "type_id": 74886,
+    "name": "Arazu Alliance Emblem"
+  },
+  {
+    "type_id": 74887,
+    "name": "Arbitrator Alliance Emblem"
+  },
+  {
+    "type_id": 74888,
+    "name": "Ares Alliance Emblem"
+  },
+  {
+    "type_id": 74889,
+    "name": "Armageddon Alliance Emblem"
+  },
+  {
+    "type_id": 74890,
+    "name": "Ashimmu Alliance Emblem"
+  },
+  {
+    "type_id": 74891,
+    "name": "Augoror Alliance Emblem"
+  },
+  {
+    "type_id": 74892,
+    "name": "Augoror Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74893,
+    "name": "Basilisk Alliance Emblem"
+  },
+  {
+    "type_id": 74894,
+    "name": "Bellicose Alliance Emblem"
+  },
+  {
+    "type_id": 74895,
+    "name": "Bestla Alliance Emblem"
+  },
+  {
+    "type_id": 74896,
+    "name": "Bifrost Alliance Emblem"
+  },
+  {
+    "type_id": 74897,
+    "name": "Blackbird Alliance Emblem"
+  },
+  {
+    "type_id": 74898,
+    "name": "Broadsword Alliance Emblem"
+  },
+  {
+    "type_id": 74899,
+    "name": "Buzzard Alliance Emblem"
+  },
+  {
+    "type_id": 74900,
+    "name": "Caedes Alliance Emblem"
+  },
+  {
+    "type_id": 74901,
+    "name": "Caldari Navy Hookbill Alliance Emblem"
+  },
+  {
+    "type_id": 74902,
+    "name": "Cambion Alliance Emblem"
+  },
+  {
+    "type_id": 74903,
+    "name": "Caracal Alliance Emblem"
+  },
+  {
+    "type_id": 74904,
+    "name": "Caracal Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74905,
+    "name": "Celestis Alliance Emblem"
+  },
+  {
+    "type_id": 74906,
+    "name": "Cerberus Alliance Emblem"
+  },
+  {
+    "type_id": 74907,
+    "name": "Chameleon Alliance Emblem"
+  },
+  {
+    "type_id": 74908,
+    "name": "Cheetah Alliance Emblem"
+  },
+  {
+    "type_id": 74909,
+    "name": "Chremoas Alliance Emblem"
+  },
+  {
+    "type_id": 74910,
+    "name": "Claw Alliance Emblem"
+  },
+  {
+    "type_id": 74911,
+    "name": "Confessor Alliance Emblem"
+  },
+  {
+    "type_id": 74912,
+    "name": "Covetor Alliance Emblem"
+  },
+  {
+    "type_id": 74913,
+    "name": "Crane Alliance Emblem"
+  },
+  {
+    "type_id": 74914,
+    "name": "Crow Alliance Emblem"
+  },
+  {
+    "type_id": 74915,
+    "name": "Crucifier Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74916,
+    "name": "Cruor Alliance Emblem"
+  },
+  {
+    "type_id": 74917,
+    "name": "Crusader Alliance Emblem"
+  },
+  {
+    "type_id": 74918,
+    "name": "Curse Alliance Emblem"
+  },
+  {
+    "type_id": 74919,
+    "name": "Cynabal Alliance Emblem"
+  },
+  {
+    "type_id": 74920,
+    "name": "Damavik Alliance Emblem"
+  },
+  {
+    "type_id": 74921,
+    "name": "Daredevil Alliance Emblem"
+  },
+  {
+    "type_id": 74922,
+    "name": "Deacon Alliance Emblem"
+  },
+  {
+    "type_id": 74923,
+    "name": "Deimos Alliance Emblem"
+  },
+  {
+    "type_id": 74924,
+    "name": "Devoter Alliance Emblem"
+  },
+  {
+    "type_id": 74925,
+    "name": "Dominix Alliance Emblem"
+  },
+  {
+    "type_id": 74926,
+    "name": "Dramiel Alliance Emblem"
+  },
+  {
+    "type_id": 74927,
+    "name": "Draugur Alliance Emblem"
+  },
+  {
+    "type_id": 74928,
+    "name": "Eagle Alliance Emblem"
+  },
+  {
+    "type_id": 74929,
+    "name": "Echelon Alliance Emblem"
+  },
+  {
+    "type_id": 74930,
+    "name": "Endurance Alliance Emblem"
+  },
+  {
+    "type_id": 74931,
+    "name": "Enforcer Alliance Emblem"
+  },
+  {
+    "type_id": 74932,
+    "name": "Enyo Alliance Emblem"
+  },
+  {
+    "type_id": 74933,
+    "name": "Eris Alliance Emblem"
+  },
+  {
+    "type_id": 74934,
+    "name": "Etana Alliance Emblem"
+  },
+  {
+    "type_id": 74935,
+    "name": "Exequror Alliance Emblem"
+  },
+  {
+    "type_id": 74936,
+    "name": "Exequror Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74937,
+    "name": "Falcon Alliance Emblem"
+  },
+  {
+    "type_id": 74938,
+    "name": "Federation Navy Comet Alliance Emblem"
+  },
+  {
+    "type_id": 74939,
+    "name": "Fiend Alliance Emblem"
+  },
+  {
+    "type_id": 74940,
+    "name": "Flycatcher Alliance Emblem"
+  },
+  {
+    "type_id": 74941,
+    "name": "Freki Alliance Emblem"
+  },
+  {
+    "type_id": 74942,
+    "name": "Garmur Alliance Emblem"
+  },
+  {
+    "type_id": 74943,
+    "name": "Geri Alliance Emblem"
+  },
+  {
+    "type_id": 74944,
+    "name": "Gila Alliance Emblem"
+  },
+  {
+    "type_id": 74945,
+    "name": "Griffin Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74946,
+    "name": "Guardian Alliance Emblem"
+  },
+  {
+    "type_id": 74947,
+    "name": "Guardian-Vexor Alliance Emblem"
+  },
+  {
+    "type_id": 74948,
+    "name": "Harpy Alliance Emblem"
+  },
+  {
+    "type_id": 74949,
+    "name": "Hawk Alliance Emblem"
+  },
+  {
+    "type_id": 74950,
+    "name": "Hecate Alliance Emblem"
+  },
+  {
+    "type_id": 74951,
+    "name": "Helios Alliance Emblem"
+  },
+  {
+    "type_id": 74952,
+    "name": "Heretic Alliance Emblem"
+  },
+  {
+    "type_id": 74953,
+    "name": "Hound Alliance Emblem"
+  },
+  {
+    "type_id": 74954,
+    "name": "Huginn Alliance Emblem"
+  },
+  {
+    "type_id": 74955,
+    "name": "Hulk Alliance Emblem"
+  },
+  {
+    "type_id": 74956,
+    "name": "Hydra Alliance Emblem"
+  },
+  {
+    "type_id": 74957,
+    "name": "Hyena Alliance Emblem"
+  },
+  {
+    "type_id": 74958,
+    "name": "Ikitursa Alliance Emblem"
+  },
+  {
+    "type_id": 74959,
+    "name": "Imp Alliance Emblem"
+  },
+  {
+    "type_id": 74960,
+    "name": "Impel Alliance Emblem"
+  },
+  {
+    "type_id": 74961,
+    "name": "Imperial Navy Slicer Alliance Emblem"
+  },
+  {
+    "type_id": 74962,
+    "name": "Ishkur Alliance Emblem"
+  },
+  {
+    "type_id": 74963,
+    "name": "Ishtar Alliance Emblem"
+  },
+  {
+    "type_id": 74964,
+    "name": "Jackdaw Alliance Emblem"
+  },
+  {
+    "type_id": 74965,
+    "name": "Jaguar Alliance Emblem"
+  },
+  {
+    "type_id": 74966,
+    "name": "Keres Alliance Emblem"
+  },
+  {
+    "type_id": 74967,
+    "name": "Kikimora Alliance Emblem"
+  },
+  {
+    "type_id": 74968,
+    "name": "Kirin Alliance Emblem"
+  },
+  {
+    "type_id": 74969,
+    "name": "Kitsune Alliance Emblem"
+  },
+  {
+    "type_id": 74970,
+    "name": "Lachesis Alliance Emblem"
+  },
+  {
+    "type_id": 74971,
+    "name": "Laelaps Alliance Emblem"
+  },
+  {
+    "type_id": 74972,
+    "name": "Legion Alliance Emblem"
+  },
+  {
+    "type_id": 74973,
+    "name": "Loki Alliance Emblem"
+  },
+  {
+    "type_id": 74974,
+    "name": "Mackinaw Alliance Emblem"
+  },
+  {
+    "type_id": 74975,
+    "name": "Magus Alliance Emblem"
+  },
+  {
+    "type_id": 74976,
+    "name": "Malediction Alliance Emblem"
+  },
+  {
+    "type_id": 74977,
+    "name": "Malice Alliance Emblem"
+  },
+  {
+    "type_id": 74978,
+    "name": "Maller Alliance Emblem"
+  },
+  {
+    "type_id": 74979,
+    "name": "Manticore Alliance Emblem"
+  },
+  {
+    "type_id": 74980,
+    "name": "Mastodon Alliance Emblem"
+  },
+  {
+    "type_id": 74981,
+    "name": "Maulus Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74982,
+    "name": "Miasmos Amastris Edition Alliance Emblem"
+  },
+  {
+    "type_id": 74983,
+    "name": "Miasmos Quafe Ultra Edition Alliance Emblem"
+  },
+  {
+    "type_id": 74984,
+    "name": "Miasmos Quafe Ultramarine Edition Alliance Emblem"
+  },
+  {
+    "type_id": 74985,
+    "name": "Mimir Alliance Emblem"
+  },
+  {
+    "type_id": 74986,
+    "name": "Moa Alliance Emblem"
+  },
+  {
+    "type_id": 74987,
+    "name": "Monitor Alliance Emblem"
+  },
+  {
+    "type_id": 74988,
+    "name": "Moracha Alliance Emblem"
+  },
+  {
+    "type_id": 74989,
+    "name": "Muninn Alliance Emblem"
+  },
+  {
+    "type_id": 74990,
+    "name": "Nemesis Alliance Emblem"
+  },
+  {
+    "type_id": 74991,
+    "name": "Nergal Alliance Emblem"
+  },
+  {
+    "type_id": 74992,
+    "name": "Noctis Alliance Emblem"
+  },
+  {
+    "type_id": 74993,
+    "name": "Occator Alliance Emblem"
+  },
+  {
+    "type_id": 74994,
+    "name": "Omen Alliance Emblem"
+  },
+  {
+    "type_id": 74995,
+    "name": "Omen Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 74996,
+    "name": "Oneiros Alliance Emblem"
+  },
+  {
+    "type_id": 74997,
+    "name": "Onyx Alliance Emblem"
+  },
+  {
+    "type_id": 74998,
+    "name": "Opux Luxury Yacht Alliance Emblem"
+  },
+  {
+    "type_id": 74999,
+    "name": "Orca Alliance Emblem"
+  },
+  {
+    "type_id": 75000,
+    "name": "Orthrus Alliance Emblem"
+  },
+  {
+    "type_id": 75001,
+    "name": "Osprey Alliance Emblem"
+  },
+  {
+    "type_id": 75002,
+    "name": "Osprey Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 75003,
+    "name": "Pacifier Alliance Emblem"
+  },
+  {
+    "type_id": 75004,
+    "name": "Phantasm Alliance Emblem"
+  },
+  {
+    "type_id": 75005,
+    "name": "Phobos Alliance Emblem"
+  },
+  {
+    "type_id": 75006,
+    "name": "Pilgrim Alliance Emblem"
+  },
+  {
+    "type_id": 75007,
+    "name": "Pontifex Alliance Emblem"
+  },
+  {
+    "type_id": 75008,
+    "name": "Porpoise Alliance Emblem"
+  },
+  {
+    "type_id": 75009,
+    "name": "Primae Alliance Emblem"
+  },
+  {
+    "type_id": 75010,
+    "name": "Procurer Alliance Emblem"
+  },
+  {
+    "type_id": 75011,
+    "name": "Prorator Alliance Emblem"
+  },
+  {
+    "type_id": 75012,
+    "name": "Prospect Alliance Emblem"
+  },
+  {
+    "type_id": 75013,
+    "name": "Proteus Alliance Emblem"
+  },
+  {
+    "type_id": 75014,
+    "name": "Prowler Alliance Emblem"
+  },
+  {
+    "type_id": 75015,
+    "name": "Purifier Alliance Emblem"
+  },
+  {
+    "type_id": 75016,
+    "name": "Rabisu Alliance Emblem"
+  },
+  {
+    "type_id": 75017,
+    "name": "Raiju Alliance Emblem"
+  },
+  {
+    "type_id": 75018,
+    "name": "Rapier Alliance Emblem"
+  },
+  {
+    "type_id": 75019,
+    "name": "Raptor Alliance Emblem"
+  },
+  {
+    "type_id": 75020,
+    "name": "Republic Fleet Firetail Alliance Emblem"
+  },
+  {
+    "type_id": 75021,
+    "name": "Retribution Alliance Emblem"
+  },
+  {
+    "type_id": 75022,
+    "name": "Retriever Alliance Emblem"
+  },
+  {
+    "type_id": 75023,
+    "name": "Rodiva Alliance Emblem"
+  },
+  {
+    "type_id": 75024,
+    "name": "Rook Alliance Emblem"
+  },
+  {
+    "type_id": 75025,
+    "name": "Rupture Alliance Emblem"
+  },
+  {
+    "type_id": 75026,
+    "name": "Sabre Alliance Emblem"
+  },
+  {
+    "type_id": 75027,
+    "name": "Sacrilege Alliance Emblem"
+  },
+  {
+    "type_id": 75028,
+    "name": "Scalpel Alliance Emblem"
+  },
+  {
+    "type_id": 75029,
+    "name": "Scimitar Alliance Emblem"
+  },
+  {
+    "type_id": 75030,
+    "name": "Scorpion Alliance Emblem"
+  },
+  {
+    "type_id": 75031,
+    "name": "Scythe Alliance Emblem"
+  },
+  {
+    "type_id": 75032,
+    "name": "Scythe Fleet Issue Alliance Emblem"
+  },
+  {
+    "type_id": 75033,
+    "name": "Sentinel Alliance Emblem"
+  },
+  {
+    "type_id": 75034,
+    "name": "Skiff Alliance Emblem"
+  },
+  {
+    "type_id": 75035,
+    "name": "Skybreaker Alliance Emblem"
+  },
+  {
+    "type_id": 75036,
+    "name": "Stabber Alliance Emblem"
+  },
+  {
+    "type_id": 75037,
+    "name": "Stabber Fleet Issue Alliance Emblem"
+  },
+  {
+    "type_id": 75038,
+    "name": "Stiletto Alliance Emblem"
+  },
+  {
+    "type_id": 75039,
+    "name": "Stork Alliance Emblem"
+  },
+  {
+    "type_id": 75040,
+    "name": "Stormbringer Alliance Emblem"
+  },
+  {
+    "type_id": 75041,
+    "name": "Stratios Alliance Emblem"
+  },
+  {
+    "type_id": 75042,
+    "name": "Stratios Emergency Responder Alliance Emblem"
+  },
+  {
+    "type_id": 75043,
+    "name": "Succubus Alliance Emblem"
+  },
+  {
+    "type_id": 75044,
+    "name": "Svipul Alliance Emblem"
+  },
+  {
+    "type_id": 75045,
+    "name": "Taranis Alliance Emblem"
+  },
+  {
+    "type_id": 75046,
+    "name": "Tengu Alliance Emblem"
+  },
+  {
+    "type_id": 75047,
+    "name": "Thalia Alliance Emblem"
+  },
+  {
+    "type_id": 75048,
+    "name": "Thorax Alliance Emblem"
+  },
+  {
+    "type_id": 75049,
+    "name": "Tiamat Alliance Emblem"
+  },
+  {
+    "type_id": 75050,
+    "name": "Typhoon Alliance Emblem"
+  },
+  {
+    "type_id": 75051,
+    "name": "Utu Alliance Emblem"
+  },
+  {
+    "type_id": 75052,
+    "name": "Vagabond Alliance Emblem"
+  },
+  {
+    "type_id": 75053,
+    "name": "Vangel Alliance Emblem"
+  },
+  {
+    "type_id": 75054,
+    "name": "Vedmak Alliance Emblem"
+  },
+  {
+    "type_id": 75055,
+    "name": "Vengeance Alliance Emblem"
+  },
+  {
+    "type_id": 75056,
+    "name": "Vexor Alliance Emblem"
+  },
+  {
+    "type_id": 75057,
+    "name": "Vexor Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 75058,
+    "name": "Viator Alliance Emblem"
+  },
+  {
+    "type_id": 75059,
+    "name": "Victor Alliance Emblem"
+  },
+  {
+    "type_id": 75060,
+    "name": "Victorieux Luxury Yacht Alliance Emblem"
+  },
+  {
+    "type_id": 75061,
+    "name": "Vigil Fleet Issue Alliance Emblem"
+  },
+  {
+    "type_id": 75062,
+    "name": "Vigilant Alliance Emblem"
+  },
+  {
+    "type_id": 75063,
+    "name": "Virtuoso Alliance Emblem"
+  },
+  {
+    "type_id": 75064,
+    "name": "Whiptail Alliance Emblem"
+  },
+  {
+    "type_id": 75065,
+    "name": "Wolf Alliance Emblem"
+  },
+  {
+    "type_id": 75066,
+    "name": "Worm Alliance Emblem"
+  },
+  {
+    "type_id": 75067,
+    "name": "Zarmazd Alliance Emblem"
+  },
+  {
+    "type_id": 75068,
+    "name": "Zealot Alliance Emblem"
+  },
+  {
+    "type_id": 75069,
+    "name": "Zephyr Alliance Emblem"
+  },
+  {
+    "type_id": 75070,
+    "name": "Adrestia Corporation Emblem"
+  },
+  {
+    "type_id": 75071,
+    "name": "Anathema Corporation Emblem"
+  },
+  {
+    "type_id": 75072,
+    "name": "Arazu Corporation Emblem"
+  },
+  {
+    "type_id": 75073,
+    "name": "Arbitrator Corporation Emblem"
+  },
+  {
+    "type_id": 75074,
+    "name": "Ares Corporation Emblem"
+  },
+  {
+    "type_id": 75075,
+    "name": "Armageddon Corporation Emblem"
+  },
+  {
+    "type_id": 75076,
+    "name": "Ashimmu Corporation Emblem"
+  },
+  {
+    "type_id": 75077,
+    "name": "Augoror Corporation Emblem"
+  },
+  {
+    "type_id": 75078,
+    "name": "Augoror Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75079,
+    "name": "Basilisk Corporation Emblem"
+  },
+  {
+    "type_id": 75080,
+    "name": "Bellicose Corporation Emblem"
+  },
+  {
+    "type_id": 75081,
+    "name": "Bestla Corporation Emblem"
+  },
+  {
+    "type_id": 75082,
+    "name": "Bifrost Corporation Emblem"
+  },
+  {
+    "type_id": 75083,
+    "name": "Blackbird Corporation Emblem"
+  },
+  {
+    "type_id": 75084,
+    "name": "Broadsword Corporation Emblem"
+  },
+  {
+    "type_id": 75085,
+    "name": "Buzzard Corporation Emblem"
+  },
+  {
+    "type_id": 75086,
+    "name": "Caedes Corporation Emblem"
+  },
+  {
+    "type_id": 75087,
+    "name": "Caldari Navy Hookbill Corporation Emblem"
+  },
+  {
+    "type_id": 75088,
+    "name": "Cambion Corporation Emblem"
+  },
+  {
+    "type_id": 75089,
+    "name": "Caracal Corporation Emblem"
+  },
+  {
+    "type_id": 75090,
+    "name": "Caracal Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75091,
+    "name": "Celestis Corporation Emblem"
+  },
+  {
+    "type_id": 75092,
+    "name": "Cerberus Corporation Emblem"
+  },
+  {
+    "type_id": 75093,
+    "name": "Chameleon Corporation Emblem"
+  },
+  {
+    "type_id": 75094,
+    "name": "Cheetah Corporation Emblem"
+  },
+  {
+    "type_id": 75095,
+    "name": "Chremoas Corporation Emblem"
+  },
+  {
+    "type_id": 75096,
+    "name": "Claw Corporation Emblem"
+  },
+  {
+    "type_id": 75097,
+    "name": "Confessor Corporation Emblem"
+  },
+  {
+    "type_id": 75098,
+    "name": "Covetor Corporation Emblem"
+  },
+  {
+    "type_id": 75099,
+    "name": "Crane Corporation Emblem"
+  },
+  {
+    "type_id": 75100,
+    "name": "Crow Corporation Emblem"
+  },
+  {
+    "type_id": 75101,
+    "name": "Crucifier Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75102,
+    "name": "Cruor Corporation Emblem"
+  },
+  {
+    "type_id": 75103,
+    "name": "Crusader Corporation Emblem"
+  },
+  {
+    "type_id": 75104,
+    "name": "Curse Corporation Emblem"
+  },
+  {
+    "type_id": 75105,
+    "name": "Cynabal Corporation Emblem"
+  },
+  {
+    "type_id": 75106,
+    "name": "Damavik Corporation Emblem"
+  },
+  {
+    "type_id": 75107,
+    "name": "Daredevil Corporation Emblem"
+  },
+  {
+    "type_id": 75108,
+    "name": "Deacon Corporation Emblem"
+  },
+  {
+    "type_id": 75109,
+    "name": "Deimos Corporation Emblem"
+  },
+  {
+    "type_id": 75110,
+    "name": "Devoter Corporation Emblem"
+  },
+  {
+    "type_id": 75111,
+    "name": "Dominix Corporation Emblem"
+  },
+  {
+    "type_id": 75112,
+    "name": "Dramiel Corporation Emblem"
+  },
+  {
+    "type_id": 75113,
+    "name": "Draugur Corporation Emblem"
+  },
+  {
+    "type_id": 75114,
+    "name": "Eagle Corporation Emblem"
+  },
+  {
+    "type_id": 75115,
+    "name": "Echelon Corporation Emblem"
+  },
+  {
+    "type_id": 75116,
+    "name": "Endurance Corporation Emblem"
+  },
+  {
+    "type_id": 75117,
+    "name": "Enforcer Corporation Emblem"
+  },
+  {
+    "type_id": 75118,
+    "name": "Enyo Corporation Emblem"
+  },
+  {
+    "type_id": 75119,
+    "name": "Eris Corporation Emblem"
+  },
+  {
+    "type_id": 75120,
+    "name": "Etana Corporation Emblem"
+  },
+  {
+    "type_id": 75121,
+    "name": "Exequror Corporation Emblem"
+  },
+  {
+    "type_id": 75122,
+    "name": "Exequror Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75123,
+    "name": "Falcon Corporation Emblem"
+  },
+  {
+    "type_id": 75124,
+    "name": "Federation Navy Comet Corporation Emblem"
+  },
+  {
+    "type_id": 75125,
+    "name": "Fiend Corporation Emblem"
+  },
+  {
+    "type_id": 75126,
+    "name": "Flycatcher Corporation Emblem"
+  },
+  {
+    "type_id": 75127,
+    "name": "Freki Corporation Emblem"
+  },
+  {
+    "type_id": 75128,
+    "name": "Garmur Corporation Emblem"
+  },
+  {
+    "type_id": 75129,
+    "name": "Geri Corporation Emblem"
+  },
+  {
+    "type_id": 75130,
+    "name": "Gila Corporation Emblem"
+  },
+  {
+    "type_id": 75131,
+    "name": "Griffin Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75132,
+    "name": "Guardian Corporation Emblem"
+  },
+  {
+    "type_id": 75133,
+    "name": "Guardian-Vexor Corporation Emblem"
+  },
+  {
+    "type_id": 75134,
+    "name": "Harpy Corporation Emblem"
+  },
+  {
+    "type_id": 75135,
+    "name": "Hawk Corporation Emblem"
+  },
+  {
+    "type_id": 75136,
+    "name": "Hecate Corporation Emblem"
+  },
+  {
+    "type_id": 75137,
+    "name": "Helios Corporation Emblem"
+  },
+  {
+    "type_id": 75138,
+    "name": "Heretic Corporation Emblem"
+  },
+  {
+    "type_id": 75139,
+    "name": "Hound Corporation Emblem"
+  },
+  {
+    "type_id": 75140,
+    "name": "Huginn Corporation Emblem"
+  },
+  {
+    "type_id": 75141,
+    "name": "Hulk Corporation Emblem"
+  },
+  {
+    "type_id": 75142,
+    "name": "Hydra Corporation Emblem"
+  },
+  {
+    "type_id": 75143,
+    "name": "Hyena Corporation Emblem"
+  },
+  {
+    "type_id": 75144,
+    "name": "Ikitursa Corporation Emblem"
+  },
+  {
+    "type_id": 75145,
+    "name": "Imp Corporation Emblem"
+  },
+  {
+    "type_id": 75146,
+    "name": "Impel Corporation Emblem"
+  },
+  {
+    "type_id": 75147,
+    "name": "Imperial Navy Slicer Corporation Emblem"
+  },
+  {
+    "type_id": 75148,
+    "name": "Ishkur Corporation Emblem"
+  },
+  {
+    "type_id": 75149,
+    "name": "Ishtar Corporation Emblem"
+  },
+  {
+    "type_id": 75150,
+    "name": "Jackdaw Corporation Emblem"
+  },
+  {
+    "type_id": 75151,
+    "name": "Jaguar Corporation Emblem"
+  },
+  {
+    "type_id": 75152,
+    "name": "Keres Corporation Emblem"
+  },
+  {
+    "type_id": 75153,
+    "name": "Kikimora Corporation Emblem"
+  },
+  {
+    "type_id": 75154,
+    "name": "Kirin Corporation Emblem"
+  },
+  {
+    "type_id": 75155,
+    "name": "Kitsune Corporation Emblem"
+  },
+  {
+    "type_id": 75156,
+    "name": "Lachesis Corporation Emblem"
+  },
+  {
+    "type_id": 75157,
+    "name": "Laelaps Corporation Emblem"
+  },
+  {
+    "type_id": 75158,
+    "name": "Legion Corporation Emblem"
+  },
+  {
+    "type_id": 75159,
+    "name": "Loki Corporation Emblem"
+  },
+  {
+    "type_id": 75160,
+    "name": "Mackinaw Corporation Emblem"
+  },
+  {
+    "type_id": 75161,
+    "name": "Magus Corporation Emblem"
+  },
+  {
+    "type_id": 75162,
+    "name": "Malediction Corporation Emblem"
+  },
+  {
+    "type_id": 75163,
+    "name": "Malice Corporation Emblem"
+  },
+  {
+    "type_id": 75164,
+    "name": "Maller Corporation Emblem"
+  },
+  {
+    "type_id": 75165,
+    "name": "Manticore Corporation Emblem"
+  },
+  {
+    "type_id": 75166,
+    "name": "Mastodon Corporation Emblem"
+  },
+  {
+    "type_id": 75167,
+    "name": "Maulus Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75168,
+    "name": "Miasmos Amastris Edition Corporation Emblem"
+  },
+  {
+    "type_id": 75169,
+    "name": "Miasmos Quafe Ultra Edition Corporation Emblem"
+  },
+  {
+    "type_id": 75170,
+    "name": "Miasmos Quafe Ultramarine Edition Corporation Emblem"
+  },
+  {
+    "type_id": 75171,
+    "name": "Mimir Corporation Emblem"
+  },
+  {
+    "type_id": 75172,
+    "name": "Moa Corporation Emblem"
+  },
+  {
+    "type_id": 75173,
+    "name": "Monitor Corporation Emblem"
+  },
+  {
+    "type_id": 75174,
+    "name": "Moracha Corporation Emblem"
+  },
+  {
+    "type_id": 75175,
+    "name": "Muninn Corporation Emblem"
+  },
+  {
+    "type_id": 75176,
+    "name": "Nemesis Corporation Emblem"
+  },
+  {
+    "type_id": 75177,
+    "name": "Nergal Corporation Emblem"
+  },
+  {
+    "type_id": 75178,
+    "name": "Noctis Corporation Emblem"
+  },
+  {
+    "type_id": 75179,
+    "name": "Occator Corporation Emblem"
+  },
+  {
+    "type_id": 75180,
+    "name": "Omen Corporation Emblem"
+  },
+  {
+    "type_id": 75181,
+    "name": "Omen Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75182,
+    "name": "Oneiros Corporation Emblem"
+  },
+  {
+    "type_id": 75183,
+    "name": "Onyx Corporation Emblem"
+  },
+  {
+    "type_id": 75184,
+    "name": "Opux Luxury Yacht Corporation Emblem"
+  },
+  {
+    "type_id": 75185,
+    "name": "Orca Corporation Emblem"
+  },
+  {
+    "type_id": 75186,
+    "name": "Orthrus Corporation Emblem"
+  },
+  {
+    "type_id": 75187,
+    "name": "Osprey Corporation Emblem"
+  },
+  {
+    "type_id": 75188,
+    "name": "Osprey Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75189,
+    "name": "Pacifier Corporation Emblem"
+  },
+  {
+    "type_id": 75190,
+    "name": "Phantasm Corporation Emblem"
+  },
+  {
+    "type_id": 75191,
+    "name": "Phobos Corporation Emblem"
+  },
+  {
+    "type_id": 75192,
+    "name": "Pilgrim Corporation Emblem"
+  },
+  {
+    "type_id": 75193,
+    "name": "Pontifex Corporation Emblem"
+  },
+  {
+    "type_id": 75194,
+    "name": "Porpoise Corporation Emblem"
+  },
+  {
+    "type_id": 75195,
+    "name": "Primae Corporation Emblem"
+  },
+  {
+    "type_id": 75196,
+    "name": "Procurer Corporation Emblem"
+  },
+  {
+    "type_id": 75197,
+    "name": "Prorator Corporation Emblem"
+  },
+  {
+    "type_id": 75198,
+    "name": "Prospect Corporation Emblem"
+  },
+  {
+    "type_id": 75199,
+    "name": "Proteus Corporation Emblem"
+  },
+  {
+    "type_id": 75200,
+    "name": "Prowler Corporation Emblem"
+  },
+  {
+    "type_id": 75201,
+    "name": "Purifier Corporation Emblem"
+  },
+  {
+    "type_id": 75202,
+    "name": "Rabisu Corporation Emblem"
+  },
+  {
+    "type_id": 75203,
+    "name": "Raiju Corporation Emblem"
+  },
+  {
+    "type_id": 75204,
+    "name": "Rapier Corporation Emblem"
+  },
+  {
+    "type_id": 75205,
+    "name": "Raptor Corporation Emblem"
+  },
+  {
+    "type_id": 75206,
+    "name": "Republic Fleet Firetail Corporation Emblem"
+  },
+  {
+    "type_id": 75207,
+    "name": "Retribution Corporation Emblem"
+  },
+  {
+    "type_id": 75208,
+    "name": "Retriever Corporation Emblem"
+  },
+  {
+    "type_id": 75209,
+    "name": "Rodiva Corporation Emblem"
+  },
+  {
+    "type_id": 75210,
+    "name": "Rook Corporation Emblem"
+  },
+  {
+    "type_id": 75211,
+    "name": "Rupture Corporation Emblem"
+  },
+  {
+    "type_id": 75212,
+    "name": "Sabre Corporation Emblem"
+  },
+  {
+    "type_id": 75213,
+    "name": "Sacrilege Corporation Emblem"
+  },
+  {
+    "type_id": 75214,
+    "name": "Scalpel Corporation Emblem"
+  },
+  {
+    "type_id": 75215,
+    "name": "Scimitar Corporation Emblem"
+  },
+  {
+    "type_id": 75216,
+    "name": "Scorpion Corporation Emblem"
+  },
+  {
+    "type_id": 75217,
+    "name": "Scythe Corporation Emblem"
+  },
+  {
+    "type_id": 75218,
+    "name": "Scythe Fleet Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75219,
+    "name": "Sentinel Corporation Emblem"
+  },
+  {
+    "type_id": 75220,
+    "name": "Skiff Corporation Emblem"
+  },
+  {
+    "type_id": 75221,
+    "name": "Skybreaker Corporation Emblem"
+  },
+  {
+    "type_id": 75222,
+    "name": "Stabber Corporation Emblem"
+  },
+  {
+    "type_id": 75223,
+    "name": "Stabber Fleet Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75224,
+    "name": "Stiletto Corporation Emblem"
+  },
+  {
+    "type_id": 75225,
+    "name": "Stork Corporation Emblem"
+  },
+  {
+    "type_id": 75226,
+    "name": "Stormbringer Corporation Emblem"
+  },
+  {
+    "type_id": 75227,
+    "name": "Stratios Corporation Emblem"
+  },
+  {
+    "type_id": 75228,
+    "name": "Stratios Emergency Responder Corporation Emblem"
+  },
+  {
+    "type_id": 75229,
+    "name": "Succubus Corporation Emblem"
+  },
+  {
+    "type_id": 75230,
+    "name": "Svipul Corporation Emblem"
+  },
+  {
+    "type_id": 75231,
+    "name": "Taranis Corporation Emblem"
+  },
+  {
+    "type_id": 75232,
+    "name": "Tengu Corporation Emblem"
+  },
+  {
+    "type_id": 75233,
+    "name": "Thalia Corporation Emblem"
+  },
+  {
+    "type_id": 75234,
+    "name": "Thorax Corporation Emblem"
+  },
+  {
+    "type_id": 75235,
+    "name": "Tiamat Corporation Emblem"
+  },
+  {
+    "type_id": 75236,
+    "name": "Typhoon Corporation Emblem"
+  },
+  {
+    "type_id": 75237,
+    "name": "Utu Corporation Emblem"
+  },
+  {
+    "type_id": 75238,
+    "name": "Vagabond Corporation Emblem"
+  },
+  {
+    "type_id": 75239,
+    "name": "Vangel Corporation Emblem"
+  },
+  {
+    "type_id": 75240,
+    "name": "Vedmak Corporation Emblem"
+  },
+  {
+    "type_id": 75241,
+    "name": "Vengeance Corporation Emblem"
+  },
+  {
+    "type_id": 75242,
+    "name": "Vexor Corporation Emblem"
+  },
+  {
+    "type_id": 75243,
+    "name": "Vexor Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75244,
+    "name": "Viator Corporation Emblem"
+  },
+  {
+    "type_id": 75245,
+    "name": "Victor Corporation Emblem"
+  },
+  {
+    "type_id": 75246,
+    "name": "Victorieux Luxury Yacht Corporation Emblem"
+  },
+  {
+    "type_id": 75247,
+    "name": "Vigil Fleet Issue Corporation Emblem"
+  },
+  {
+    "type_id": 75248,
+    "name": "Vigilant Corporation Emblem"
+  },
+  {
+    "type_id": 75249,
+    "name": "Virtuoso Corporation Emblem"
+  },
+  {
+    "type_id": 75250,
+    "name": "Whiptail Corporation Emblem"
+  },
+  {
+    "type_id": 75251,
+    "name": "Wolf Corporation Emblem"
+  },
+  {
+    "type_id": 75252,
+    "name": "Worm Corporation Emblem"
+  },
+  {
+    "type_id": 75253,
+    "name": "Zarmazd Corporation Emblem"
+  },
+  {
+    "type_id": 75254,
+    "name": "Zealot Corporation Emblem"
+  },
+  {
+    "type_id": 75255,
+    "name": "Zephyr Corporation Emblem"
+  },
+  {
+    "type_id": 75265,
+    "name": "Succubus Luminae Polaris SKIN"
+  },
+  {
+    "type_id": 75266,
+    "name": "Phantasm Luminae Polaris SKIN"
+  },
+  {
+    "type_id": 75267,
+    "name": "Nightmare Luminae Polaris SKIN"
+  },
+  {
+    "type_id": 75268,
+    "name": "Barghest Luminae Polaris SKIN"
+  },
+  {
+    "type_id": 75269,
+    "name": "Orthrus Luminae Polaris SKIN"
+  },
+  {
+    "type_id": 75270,
+    "name": "Garmur Luminae Polaris SKIN"
+  },
+  {
+    "type_id": 75271,
+    "name": "Ashimmu Luminae Polaris SKIN"
+  },
+  {
+    "type_id": 75272,
+    "name": "Bhaalgorn Luminae Polaris SKIN"
+  },
+  {
+    "type_id": 75273,
+    "name": "Cruor Luminae Polaris SKIN"
+  },
+  {
+    "type_id": 75275,
+    "name": "Compressed Mordunium"
+  },
+  {
+    "type_id": 75276,
+    "name": "Compressed Plum Mordunium"
+  },
+  {
+    "type_id": 75277,
+    "name": "Compressed Prize Mordunium"
+  },
+  {
+    "type_id": 75278,
+    "name": "Compressed Plunder Mordunium"
+  },
+  {
+    "type_id": 75279,
+    "name": "Compressed Ytirium"
+  },
+  {
+    "type_id": 75280,
+    "name": "Compressed Bootleg Ytirium"
+  },
+  {
+    "type_id": 75281,
+    "name": "Compressed Firewater Ytirium"
+  },
+  {
+    "type_id": 75282,
+    "name": "Compressed Moonshine Ytirium"
+  },
+  {
+    "type_id": 75283,
+    "name": "Compressed Eifyrium"
+  },
+  {
+    "type_id": 75284,
+    "name": "Compressed Doped Eifyrium"
+  },
+  {
+    "type_id": 75285,
+    "name": "Compressed Boosted Eifyrium"
+  },
+  {
+    "type_id": 75286,
+    "name": "Compressed Augmented Eifyrium"
+  },
+  {
+    "type_id": 75287,
+    "name": "Compressed Ducinium"
+  },
+  {
+    "type_id": 75288,
+    "name": "Compressed Noble Ducinium"
+  },
+  {
+    "type_id": 75289,
+    "name": "Compressed Royal Ducinium"
+  },
+  {
+    "type_id": 75290,
+    "name": "Compressed Imperial Ducinium"
+  },
+  {
+    "type_id": 75870,
+    "name": "Tormentor Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 75871,
+    "name": "Armageddon Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 75872,
+    "name": "Kestrel Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 75873,
+    "name": "Scorpion Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 75874,
+    "name": "Incursus Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 75875,
+    "name": "Dominix Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 75876,
+    "name": "Breacher Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 75877,
+    "name": "Tempest Abyssal Glory SKIN"
+  },
+  {
+    "type_id": 75898,
+    "name": "Vindicator Red Stargazer SKIN"
+  },
+  {
+    "type_id": 75899,
+    "name": "Bhaalgorn Red Stargazer SKIN"
+  },
+  {
+    "type_id": 75906,
+    "name": "Rattlesnake Red Stargazer SKIN"
+  },
+  {
+    "type_id": 75907,
+    "name": "Machariel Red Stargazer SKIN"
+  },
+  {
+    "type_id": 75908,
+    "name": "Barghest Red Stargazer SKIN"
+  },
+  {
+    "type_id": 75909,
+    "name": "Marshal Red Stargazer SKIN"
+  },
+  {
+    "type_id": 75910,
+    "name": "Nightmare Red Stargazer SKIN"
+  },
+  {
+    "type_id": 75911,
+    "name": "Minmatar Victory SKIN"
+  },
+  {
+    "type_id": 76050,
+    "name": "Imperial Damage Booster I"
+  },
+  {
+    "type_id": 76051,
+    "name": "Imperial Damage Booster II"
+  },
+  {
+    "type_id": 76052,
+    "name": "Imperial Damage Booster III"
+  },
+  {
+    "type_id": 76053,
+    "name": "Imperial Damage Booster IV"
+  },
+  {
+    "type_id": 76054,
+    "name": "Imperial Projection Booster I"
+  },
+  {
+    "type_id": 76055,
+    "name": "Imperial Projection Booster II"
+  },
+  {
+    "type_id": 76056,
+    "name": "Imperial Projection Booster III"
+  },
+  {
+    "type_id": 76057,
+    "name": "Imperial Projection Booster IV"
+  },
+  {
+    "type_id": 76058,
+    "name": "Imperial Application Booster I"
+  },
+  {
+    "type_id": 76059,
+    "name": "Imperial Application Booster II"
+  },
+  {
+    "type_id": 76060,
+    "name": "Imperial Application Booster III"
+  },
+  {
+    "type_id": 76061,
+    "name": "Imperial Application Booster IV"
+  },
+  {
+    "type_id": 76062,
+    "name": "Imperial Defense Booster I"
+  },
+  {
+    "type_id": 76063,
+    "name": "Imperial Defense Booster II"
+  },
+  {
+    "type_id": 76064,
+    "name": "Imperial Defense Booster III"
+  },
+  {
+    "type_id": 76065,
+    "name": "Imperial Defense Booster IV"
+  },
+  {
+    "type_id": 76066,
+    "name": "Imperial Electronics Booster I"
+  },
+  {
+    "type_id": 76067,
+    "name": "Imperial Electronics Booster II"
+  },
+  {
+    "type_id": 76068,
+    "name": "Imperial Electronics Booster III"
+  },
+  {
+    "type_id": 76069,
+    "name": "Imperial Electronics Booster IV"
+  },
+  {
+    "type_id": 76070,
+    "name": "Imperial Mobility Booster I"
+  },
+  {
+    "type_id": 76071,
+    "name": "Imperial Mobility Booster II"
+  },
+  {
+    "type_id": 76072,
+    "name": "Imperial Mobility Booster III"
+  },
+  {
+    "type_id": 76073,
+    "name": "Imperial Mobility Booster IV"
+  },
+  {
+    "type_id": 76074,
+    "name": "Republic Damage Booster I"
+  },
+  {
+    "type_id": 76075,
+    "name": "Republic Damage Booster II"
+  },
+  {
+    "type_id": 76076,
+    "name": "Republic Damage Booster III"
+  },
+  {
+    "type_id": 76077,
+    "name": "Republic Damage Booster IV"
+  },
+  {
+    "type_id": 76078,
+    "name": "Republic Projection Booster I"
+  },
+  {
+    "type_id": 76079,
+    "name": "Republic Projection Booster II"
+  },
+  {
+    "type_id": 76080,
+    "name": "Republic Projection Booster III"
+  },
+  {
+    "type_id": 76081,
+    "name": "Republic Projection Booster IV"
+  },
+  {
+    "type_id": 76082,
+    "name": "Republic Application Booster I"
+  },
+  {
+    "type_id": 76083,
+    "name": "Republic Application Booster II"
+  },
+  {
+    "type_id": 76084,
+    "name": "Republic Application Booster III"
+  },
+  {
+    "type_id": 76085,
+    "name": "Republic Application Booster IV"
+  },
+  {
+    "type_id": 76086,
+    "name": "Republic Defense Booster I"
+  },
+  {
+    "type_id": 76087,
+    "name": "Republic Defense Booster II"
+  },
+  {
+    "type_id": 76088,
+    "name": "Republic Defense Booster III"
+  },
+  {
+    "type_id": 76089,
+    "name": "Republic Defense Booster IV"
+  },
+  {
+    "type_id": 76090,
+    "name": "Republic Electronics Booster I"
+  },
+  {
+    "type_id": 76091,
+    "name": "Republic Electronics Booster II"
+  },
+  {
+    "type_id": 76092,
+    "name": "Republic Electronics Booster III"
+  },
+  {
+    "type_id": 76093,
+    "name": "Republic Electronics Booster IV"
+  },
+  {
+    "type_id": 76094,
+    "name": "Republic Mobility Booster I"
+  },
+  {
+    "type_id": 76095,
+    "name": "Republic Mobility Booster II"
+  },
+  {
+    "type_id": 76096,
+    "name": "Republic Mobility Booster III"
+  },
+  {
+    "type_id": 76097,
+    "name": "Republic Mobility Booster IV"
+  },
+  {
+    "type_id": 76098,
+    "name": "State Damage Booster I"
+  },
+  {
+    "type_id": 76099,
+    "name": "State Damage Booster II"
+  },
+  {
+    "type_id": 76100,
+    "name": "State Damage Booster III"
+  },
+  {
+    "type_id": 76101,
+    "name": "State Damage Booster IV"
+  },
+  {
+    "type_id": 76102,
+    "name": "State Projection Booster I"
+  },
+  {
+    "type_id": 76103,
+    "name": "State Projection Booster II"
+  },
+  {
+    "type_id": 76104,
+    "name": "State Projection Booster III"
+  },
+  {
+    "type_id": 76105,
+    "name": "State Projection Booster IV"
+  },
+  {
+    "type_id": 76106,
+    "name": "State Application Booster I"
+  },
+  {
+    "type_id": 76107,
+    "name": "State Application Booster II"
+  },
+  {
+    "type_id": 76108,
+    "name": "State Application Booster III"
+  },
+  {
+    "type_id": 76109,
+    "name": "State Application Booster IV"
+  },
+  {
+    "type_id": 76110,
+    "name": "State Defense Booster I"
+  },
+  {
+    "type_id": 76111,
+    "name": "State Defense Booster II"
+  },
+  {
+    "type_id": 76112,
+    "name": "State Defense Booster III"
+  },
+  {
+    "type_id": 76113,
+    "name": "State Defense Booster IV"
+  },
+  {
+    "type_id": 76114,
+    "name": "State Electronics Booster I"
+  },
+  {
+    "type_id": 76115,
+    "name": "State Electronics Booster II"
+  },
+  {
+    "type_id": 76116,
+    "name": "State Electronics Booster III"
+  },
+  {
+    "type_id": 76117,
+    "name": "State Electronics Booster IV"
+  },
+  {
+    "type_id": 76118,
+    "name": "State Mobility Booster I"
+  },
+  {
+    "type_id": 76119,
+    "name": "State Mobility Booster II"
+  },
+  {
+    "type_id": 76120,
+    "name": "State Mobility Booster III"
+  },
+  {
+    "type_id": 76121,
+    "name": "State Mobility Booster IV"
+  },
+  {
+    "type_id": 76122,
+    "name": "Federation Damage Booster I"
+  },
+  {
+    "type_id": 76123,
+    "name": "Federation Damage Booster II"
+  },
+  {
+    "type_id": 76124,
+    "name": "Federation Damage Booster III"
+  },
+  {
+    "type_id": 76125,
+    "name": "Federation Damage Booster IV"
+  },
+  {
+    "type_id": 76126,
+    "name": "Federation Projection Booster I"
+  },
+  {
+    "type_id": 76127,
+    "name": "Federation Projection Booster II"
+  },
+  {
+    "type_id": 76128,
+    "name": "Federation Projection Booster III"
+  },
+  {
+    "type_id": 76129,
+    "name": "Federation Projection Booster IV"
+  },
+  {
+    "type_id": 76130,
+    "name": "Federation Application Booster I"
+  },
+  {
+    "type_id": 76131,
+    "name": "Federation Application Booster II"
+  },
+  {
+    "type_id": 76132,
+    "name": "Federation Application Booster III"
+  },
+  {
+    "type_id": 76133,
+    "name": "Federation Application Booster IV"
+  },
+  {
+    "type_id": 76134,
+    "name": "Federation Defense Booster I"
+  },
+  {
+    "type_id": 76135,
+    "name": "Federation Defense Booster II"
+  },
+  {
+    "type_id": 76136,
+    "name": "Federation Defense Booster III"
+  },
+  {
+    "type_id": 76137,
+    "name": "Federation Defense Booster IV"
+  },
+  {
+    "type_id": 76138,
+    "name": "Federation Electronics Booster I"
+  },
+  {
+    "type_id": 76139,
+    "name": "Federation Electronics Booster II"
+  },
+  {
+    "type_id": 76140,
+    "name": "Federation Electronics Booster III"
+  },
+  {
+    "type_id": 76141,
+    "name": "Federation Electronics Booster IV"
+  },
+  {
+    "type_id": 76142,
+    "name": "Federation Mobility Booster I"
+  },
+  {
+    "type_id": 76143,
+    "name": "Federation Mobility Booster II"
+  },
+  {
+    "type_id": 76144,
+    "name": "Federation Mobility Booster III"
+  },
+  {
+    "type_id": 76145,
+    "name": "Federation Mobility Booster IV"
+  },
+  {
+    "type_id": 76150,
+    "name": "Magnate Navy Issue Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76151,
+    "name": "Coercer Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76152,
+    "name": "Oracle Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76153,
+    "name": "Abaddon Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76154,
+    "name": "Punisher Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76155,
+    "name": "Augoror Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76156,
+    "name": "Harbinger Navy Issue Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76157,
+    "name": "Heron Navy Issue Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76158,
+    "name": "Cormorant Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76159,
+    "name": "Naga Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76160,
+    "name": "Rokh Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76162,
+    "name": "Kestrel Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76163,
+    "name": "Osprey Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76164,
+    "name": "Drake Navy Issue Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76165,
+    "name": "Imicus Navy Issue Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76166,
+    "name": "Catalyst Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76167,
+    "name": "Talos Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76168,
+    "name": "Hyperion Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76169,
+    "name": "Tristan Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76170,
+    "name": "Exequror Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76171,
+    "name": "Brutix Navy Issue Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76172,
+    "name": "Probe Fleet Issue Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76173,
+    "name": "Thrasher Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76174,
+    "name": "Tornado Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76175,
+    "name": "Maelstrom Versus Redforce SKIN"
+  },
+  {
+    "type_id": 76176,
+    "name": "Rifter Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76177,
+    "name": "Scythe Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76178,
+    "name": "Hurricane Fleet Issue Versus Blueforce SKIN"
+  },
+  {
+    "type_id": 76203,
+    "name": "Stellar Transmuter Datacore"
+  },
+  {
+    "type_id": 76204,
+    "name": "Transport Relay Datacore"
+  },
+  {
+    "type_id": 76205,
+    "name": "Stellar Transmuter Datacore Blueprint"
+  },
+  {
+    "type_id": 76206,
+    "name": "Transport Relay Datacore Blueprint"
+  },
+  {
+    "type_id": 76207,
+    "name": "Stellar Transmuter Research Index File"
+  },
+  {
+    "type_id": 76208,
+    "name": "Stellar Transmuter Research Data Fragment"
+  },
+  {
+    "type_id": 76209,
+    "name": "Stellar Transmuter Research Encryption Key"
+  },
+  {
+    "type_id": 76210,
+    "name": "Transport Relay Research Index File"
+  },
+  {
+    "type_id": 76211,
+    "name": "Transport Relay Research Data Fragment"
+  },
+  {
+    "type_id": 76212,
+    "name": "Transport Relay Research Encryption Key"
+  },
+  {
+    "type_id": 76214,
+    "name": "Imperial Shadow War Reward Crate"
+  },
+  {
+    "type_id": 76215,
+    "name": "State Shadow War Reward Crate"
+  },
+  {
+    "type_id": 76216,
+    "name": "Federation Shadow War Reward Crate"
+  },
+  {
+    "type_id": 76217,
+    "name": "Republic Shadow War Reward Crate"
+  },
+  {
+    "type_id": 76235,
+    "name": "Omen Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76236,
+    "name": "Omen Navy Issue Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76237,
+    "name": "Apocalypse Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76238,
+    "name": "Apocalypse Navy Issue Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76239,
+    "name": "Caracal Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76240,
+    "name": "Caracal Navy Issue Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76241,
+    "name": "Raven Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76242,
+    "name": "Raven Navy Issue Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76243,
+    "name": "Vexor Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76244,
+    "name": "Vexor Navy Issue Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76245,
+    "name": "Megathron Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76246,
+    "name": "Megathron Navy Issue Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76247,
+    "name": "Stabber Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76248,
+    "name": "Stabber Fleet Issue Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76249,
+    "name": "Tempest Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76250,
+    "name": "Tempest Fleet Issue Penumbral Shadows SKIN"
+  },
+  {
+    "type_id": 76281,
+    "name": "Vargur Heartsurge SKIN"
+  },
+  {
+    "type_id": 76282,
+    "name": "Broadsword Heartsurge SKIN"
+  },
+  {
+    "type_id": 76283,
+    "name": "Hyena Heartsurge SKIN"
+  },
+  {
+    "type_id": 76284,
+    "name": "Thrasher Fleet Issue Heartsurge SKIN"
+  },
+  {
+    "type_id": 76285,
+    "name": "Naglfar Fleet Issue Heartsurge SKIN"
+  },
+  {
+    "type_id": 76286,
+    "name": "Kronos Heartsurge SKIN"
+  },
+  {
+    "type_id": 76287,
+    "name": "Keres Heartsurge SKIN"
+  },
+  {
+    "type_id": 76288,
+    "name": "Phobos Heartsurge SKIN"
+  },
+  {
+    "type_id": 76289,
+    "name": "Catalyst Navy Issue Heartsurge SKIN"
+  },
+  {
+    "type_id": 76290,
+    "name": "Moros Navy Issue Heartsurge SKIN"
+  },
+  {
+    "type_id": 76291,
+    "name": "Cormorant Navy Issue Heartsurge SKIN"
+  },
+  {
+    "type_id": 76292,
+    "name": "Phoenix Navy Issue Heartsurge SKIN"
+  },
+  {
+    "type_id": 76293,
+    "name": "Coercer Navy Issue Heartsurge SKIN"
+  },
+  {
+    "type_id": 76294,
+    "name": "Revelation Navy Issue Heartsurge SKIN"
+  },
+  {
+    "type_id": 76373,
+    "name": "Nesosilicate Rakovene"
+  },
+  {
+    "type_id": 76374,
+    "name": "Neo-Jadarite"
+  },
+  {
+    "type_id": 76375,
+    "name": "Mutadaptive Construction Component"
+  },
+  {
+    "type_id": 76376,
+    "name": "Mutadaptive Construction Component Blueprint"
+  },
+  {
+    "type_id": 76484,
+    "name": "Caracal GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76485,
+    "name": "Jackdaw GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76486,
+    "name": "Rattlesnake GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76487,
+    "name": "Heretic GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76488,
+    "name": "Vargur GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76489,
+    "name": "Stiletto GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76490,
+    "name": "Myrmidon GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76491,
+    "name": "Exequror GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76492,
+    "name": "Hulk GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76493,
+    "name": "Venture GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76494,
+    "name": "Gnosis GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76495,
+    "name": "Stratios GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76496,
+    "name": "Muninn GalNet StreamCast Unit SKIN"
+  },
+  {
+    "type_id": 76506,
+    "name": "Potent Capsuleer Day XX Cerebral Accelerator"
+  },
+  {
+    "type_id": 76507,
+    "name": "Extended Capsuleer Day XX Cerebral Accelerator"
+  },
+  {
+    "type_id": 76508,
+    "name": "Basic Capsuleer Day XX Cerebral Accelerator"
+  },
+  {
+    "type_id": 76509,
+    "name": "Basic Capsuleer Day XX Glamourex Booster"
+  },
+  {
+    "type_id": 76510,
+    "name": "Extended Capsuleer Day XX Glamourex Booster"
+  },
+  {
+    "type_id": 76511,
+    "name": "Potent Capsuleer Day XX Glamourex Booster"
+  },
+  {
+    "type_id": 76512,
+    "name": "Guri Malakim Observability Booster I"
+  },
+  {
+    "type_id": 76513,
+    "name": "Guri Malakim Observability Booster II"
+  },
+  {
+    "type_id": 76514,
+    "name": "Guri Malakim Observability Booster III"
+  },
+  {
+    "type_id": 76515,
+    "name": "Guri Malakim Observability Booster IV"
+  },
+  {
+    "type_id": 76516,
+    "name": "SoCT Scan Booster I"
+  },
+  {
+    "type_id": 76517,
+    "name": "SoCT Scan Booster II"
+  },
+  {
+    "type_id": 76518,
+    "name": "SoCT Scan Booster III"
+  },
+  {
+    "type_id": 76519,
+    "name": "SoCT Scan Booster IV"
+  },
+  {
+    "type_id": 76520,
+    "name": "Guri Malakim Shield Booster I"
+  },
+  {
+    "type_id": 76521,
+    "name": "Guri Malakim Shield Booster II"
+  },
+  {
+    "type_id": 76522,
+    "name": "Guri Malakim Shield Booster III"
+  },
+  {
+    "type_id": 76523,
+    "name": "Guri Malakim Shield Booster IV"
+  },
+  {
+    "type_id": 76524,
+    "name": "SoCT Armor Booster I"
+  },
+  {
+    "type_id": 76525,
+    "name": "SoCT Armor Booster II"
+  },
+  {
+    "type_id": 76526,
+    "name": "SoCT Armor Booster III"
+  },
+  {
+    "type_id": 76527,
+    "name": "SoCT Armor Booster IV"
+  },
+  {
+    "type_id": 76528,
+    "name": "Guri Malakim Turret Booster I"
+  },
+  {
+    "type_id": 76529,
+    "name": "Guri Malakim Turret Booster II"
+  },
+  {
+    "type_id": 76530,
+    "name": "Guri Malakim Turret Booster III"
+  },
+  {
+    "type_id": 76531,
+    "name": "Guri Malakim Turret Booster IV"
+  },
+  {
+    "type_id": 76532,
+    "name": "SoCT Agility Booster I"
+  },
+  {
+    "type_id": 76533,
+    "name": "SoCT Agility Booster II"
+  },
+  {
+    "type_id": 76534,
+    "name": "SoCT Agility Booster III"
+  },
+  {
+    "type_id": 76535,
+    "name": "SoCT Agility Booster IV"
+  },
+  {
+    "type_id": 76717,
+    "name": "Abaddon Alliance Emblem"
+  },
+  {
+    "type_id": 76718,
+    "name": "Absolution Alliance Emblem"
+  },
+  {
+    "type_id": 76719,
+    "name": "Aeon Alliance Emblem"
+  },
+  {
+    "type_id": 76720,
+    "name": "Anshar Alliance Emblem"
+  },
+  {
+    "type_id": 76721,
+    "name": "Apocalypse Alliance Emblem"
+  },
+  {
+    "type_id": 76722,
+    "name": "Apocalypse Imperial Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76723,
+    "name": "Apocalypse Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76724,
+    "name": "Apostle Alliance Emblem"
+  },
+  {
+    "type_id": 76725,
+    "name": "Archon Alliance Emblem"
+  },
+  {
+    "type_id": 76726,
+    "name": "Ark Alliance Emblem"
+  },
+  {
+    "type_id": 76727,
+    "name": "Armageddon Imperial Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76728,
+    "name": "Armageddon Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76729,
+    "name": "Astarte Alliance Emblem"
+  },
+  {
+    "type_id": 76730,
+    "name": "Avatar Alliance Emblem"
+  },
+  {
+    "type_id": 76731,
+    "name": "Barghest Alliance Emblem"
+  },
+  {
+    "type_id": 76732,
+    "name": "Bhaalgorn Alliance Emblem"
+  },
+  {
+    "type_id": 76733,
+    "name": "Bowhead Alliance Emblem"
+  },
+  {
+    "type_id": 76734,
+    "name": "Brutix Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76735,
+    "name": "Caiman Alliance Emblem"
+  },
+  {
+    "type_id": 76736,
+    "name": "Chemosh Alliance Emblem"
+  },
+  {
+    "type_id": 76737,
+    "name": "Chimera Alliance Emblem"
+  },
+  {
+    "type_id": 76738,
+    "name": "Claymore Alliance Emblem"
+  },
+  {
+    "type_id": 76739,
+    "name": "Dagon Alliance Emblem"
+  },
+  {
+    "type_id": 76740,
+    "name": "Damnation Alliance Emblem"
+  },
+  {
+    "type_id": 76741,
+    "name": "Dominix Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76742,
+    "name": "Drake Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76743,
+    "name": "Drekavac Alliance Emblem"
+  },
+  {
+    "type_id": 76744,
+    "name": "Eos Alliance Emblem"
+  },
+  {
+    "type_id": 76745,
+    "name": "Erebus Alliance Emblem"
+  },
+  {
+    "type_id": 76746,
+    "name": "Golem Alliance Emblem"
+  },
+  {
+    "type_id": 76747,
+    "name": "Harbinger Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76748,
+    "name": "Hel Alliance Emblem"
+  },
+  {
+    "type_id": 76749,
+    "name": "Hurricane Fleet Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76750,
+    "name": "Hyperion Alliance Emblem"
+  },
+  {
+    "type_id": 76751,
+    "name": "Komodo Alliance Emblem"
+  },
+  {
+    "type_id": 76752,
+    "name": "Kronos Alliance Emblem"
+  },
+  {
+    "type_id": 76753,
+    "name": "Leshak Alliance Emblem"
+  },
+  {
+    "type_id": 76754,
+    "name": "Leviathan Alliance Emblem"
+  },
+  {
+    "type_id": 76755,
+    "name": "Lif Alliance Emblem"
+  },
+  {
+    "type_id": 76756,
+    "name": "Loggerhead Alliance Emblem"
+  },
+  {
+    "type_id": 76757,
+    "name": "Machariel Alliance Emblem"
+  },
+  {
+    "type_id": 76758,
+    "name": "Maelstrom Alliance Emblem"
+  },
+  {
+    "type_id": 76759,
+    "name": "Marshal Alliance Emblem"
+  },
+  {
+    "type_id": 76760,
+    "name": "Megathron Alliance Emblem"
+  },
+  {
+    "type_id": 76761,
+    "name": "Megathron Federate Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76762,
+    "name": "Megathron Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76763,
+    "name": "Minokawa Alliance Emblem"
+  },
+  {
+    "type_id": 76764,
+    "name": "Molok Alliance Emblem"
+  },
+  {
+    "type_id": 76765,
+    "name": "Nestor Alliance Emblem"
+  },
+  {
+    "type_id": 76766,
+    "name": "Nidhoggur Alliance Emblem"
+  },
+  {
+    "type_id": 76767,
+    "name": "Nighthawk Alliance Emblem"
+  },
+  {
+    "type_id": 76768,
+    "name": "Nightmare Alliance Emblem"
+  },
+  {
+    "type_id": 76769,
+    "name": "Ninazu Alliance Emblem"
+  },
+  {
+    "type_id": 76770,
+    "name": "Nomad Alliance Emblem"
+  },
+  {
+    "type_id": 76771,
+    "name": "Nyx Alliance Emblem"
+  },
+  {
+    "type_id": 76772,
+    "name": "Paladin Alliance Emblem"
+  },
+  {
+    "type_id": 76773,
+    "name": "Panther Alliance Emblem"
+  },
+  {
+    "type_id": 76774,
+    "name": "Praxis Alliance Emblem"
+  },
+  {
+    "type_id": 76775,
+    "name": "Ragnarok Alliance Emblem"
+  },
+  {
+    "type_id": 76776,
+    "name": "Rattlesnake Alliance Emblem"
+  },
+  {
+    "type_id": 76777,
+    "name": "Raven Alliance Emblem"
+  },
+  {
+    "type_id": 76778,
+    "name": "Raven Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76779,
+    "name": "Raven State Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76780,
+    "name": "Redeemer Alliance Emblem"
+  },
+  {
+    "type_id": 76781,
+    "name": "Revenant Alliance Emblem"
+  },
+  {
+    "type_id": 76782,
+    "name": "Rhea Alliance Emblem"
+  },
+  {
+    "type_id": 76783,
+    "name": "Rokh Alliance Emblem"
+  },
+  {
+    "type_id": 76784,
+    "name": "Rorqual Alliance Emblem"
+  },
+  {
+    "type_id": 76785,
+    "name": "Scorpion Navy Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76786,
+    "name": "Sin Alliance Emblem"
+  },
+  {
+    "type_id": 76787,
+    "name": "Sleipnir Alliance Emblem"
+  },
+  {
+    "type_id": 76788,
+    "name": "Tempest Alliance Emblem"
+  },
+  {
+    "type_id": 76789,
+    "name": "Tempest Fleet Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76790,
+    "name": "Tempest Tribal Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76791,
+    "name": "Thanatos Alliance Emblem"
+  },
+  {
+    "type_id": 76792,
+    "name": "Thunderchild Alliance Emblem"
+  },
+  {
+    "type_id": 76793,
+    "name": "Typhoon Fleet Issue Alliance Emblem"
+  },
+  {
+    "type_id": 76794,
+    "name": "Vanquisher Alliance Emblem"
+  },
+  {
+    "type_id": 76795,
+    "name": "Vargur Alliance Emblem"
+  },
+  {
+    "type_id": 76796,
+    "name": "Vendetta Alliance Emblem"
+  },
+  {
+    "type_id": 76797,
+    "name": "Vindicator Alliance Emblem"
+  },
+  {
+    "type_id": 76798,
+    "name": "Vulture Alliance Emblem"
+  },
+  {
+    "type_id": 76799,
+    "name": "Widow Alliance Emblem"
+  },
+  {
+    "type_id": 76800,
+    "name": "Wyvern Alliance Emblem"
+  },
+  {
+    "type_id": 76801,
+    "name": "Abaddon Corporation Emblem"
+  },
+  {
+    "type_id": 76802,
+    "name": "Absolution Corporation Emblem"
+  },
+  {
+    "type_id": 76803,
+    "name": "Aeon Corporation Emblem"
+  },
+  {
+    "type_id": 76804,
+    "name": "Anshar Corporation Emblem"
+  },
+  {
+    "type_id": 76805,
+    "name": "Apocalypse Corporation Emblem"
+  },
+  {
+    "type_id": 76806,
+    "name": "Apocalypse Imperial Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76807,
+    "name": "Apocalypse Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76808,
+    "name": "Apostle Corporation Emblem"
+  },
+  {
+    "type_id": 76809,
+    "name": "Archon Corporation Emblem"
+  },
+  {
+    "type_id": 76810,
+    "name": "Ark Corporation Emblem"
+  },
+  {
+    "type_id": 76811,
+    "name": "Armageddon Imperial Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76812,
+    "name": "Armageddon Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76813,
+    "name": "Astarte Corporation Emblem"
+  },
+  {
+    "type_id": 76814,
+    "name": "Avatar Corporation Emblem"
+  },
+  {
+    "type_id": 76815,
+    "name": "Barghest Corporation Emblem"
+  },
+  {
+    "type_id": 76816,
+    "name": "Bhaalgorn Corporation Emblem"
+  },
+  {
+    "type_id": 76817,
+    "name": "Bowhead Corporation Emblem"
+  },
+  {
+    "type_id": 76818,
+    "name": "Brutix Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76819,
+    "name": "Caiman Corporation Emblem"
+  },
+  {
+    "type_id": 76820,
+    "name": "Chemosh Corporation Emblem"
+  },
+  {
+    "type_id": 76821,
+    "name": "Chimera Corporation Emblem"
+  },
+  {
+    "type_id": 76822,
+    "name": "Claymore Corporation Emblem"
+  },
+  {
+    "type_id": 76823,
+    "name": "Dagon Corporation Emblem"
+  },
+  {
+    "type_id": 76824,
+    "name": "Damnation Corporation Emblem"
+  },
+  {
+    "type_id": 76825,
+    "name": "Dominix Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76826,
+    "name": "Drake Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76827,
+    "name": "Drekavac Corporation Emblem"
+  },
+  {
+    "type_id": 76828,
+    "name": "Eos Corporation Emblem"
+  },
+  {
+    "type_id": 76829,
+    "name": "Erebus Corporation Emblem"
+  },
+  {
+    "type_id": 76830,
+    "name": "Golem Corporation Emblem"
+  },
+  {
+    "type_id": 76831,
+    "name": "Harbinger Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76832,
+    "name": "Hel Corporation Emblem"
+  },
+  {
+    "type_id": 76833,
+    "name": "Hurricane Fleet Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76834,
+    "name": "Hyperion Corporation Emblem"
+  },
+  {
+    "type_id": 76835,
+    "name": "Komodo Corporation Emblem"
+  },
+  {
+    "type_id": 76836,
+    "name": "Kronos Corporation Emblem"
+  },
+  {
+    "type_id": 76837,
+    "name": "Leshak Corporation Emblem"
+  },
+  {
+    "type_id": 76838,
+    "name": "Leviathan Corporation Emblem"
+  },
+  {
+    "type_id": 76839,
+    "name": "Lif Corporation Emblem"
+  },
+  {
+    "type_id": 76840,
+    "name": "Loggerhead Corporation Emblem"
+  },
+  {
+    "type_id": 76841,
+    "name": "Machariel Corporation Emblem"
+  },
+  {
+    "type_id": 76842,
+    "name": "Maelstrom Corporation Emblem"
+  },
+  {
+    "type_id": 76843,
+    "name": "Marshal Corporation Emblem"
+  },
+  {
+    "type_id": 76844,
+    "name": "Megathron Corporation Emblem"
+  },
+  {
+    "type_id": 76845,
+    "name": "Megathron Federate Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76846,
+    "name": "Megathron Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76847,
+    "name": "Minokawa Corporation Emblem"
+  },
+  {
+    "type_id": 76848,
+    "name": "Molok Corporation Emblem"
+  },
+  {
+    "type_id": 76849,
+    "name": "Nestor Corporation Emblem"
+  },
+  {
+    "type_id": 76850,
+    "name": "Nidhoggur Corporation Emblem"
+  },
+  {
+    "type_id": 76851,
+    "name": "Nighthawk Corporation Emblem"
+  },
+  {
+    "type_id": 76852,
+    "name": "Nightmare Corporation Emblem"
+  },
+  {
+    "type_id": 76853,
+    "name": "Ninazu Corporation Emblem"
+  },
+  {
+    "type_id": 76854,
+    "name": "Nomad Corporation Emblem"
+  },
+  {
+    "type_id": 76855,
+    "name": "Nyx Corporation Emblem"
+  },
+  {
+    "type_id": 76856,
+    "name": "Paladin Corporation Emblem"
+  },
+  {
+    "type_id": 76857,
+    "name": "Panther Corporation Emblem"
+  },
+  {
+    "type_id": 76858,
+    "name": "Praxis Corporation Emblem"
+  },
+  {
+    "type_id": 76859,
+    "name": "Ragnarok Corporation Emblem"
+  },
+  {
+    "type_id": 76860,
+    "name": "Rattlesnake Corporation Emblem"
+  },
+  {
+    "type_id": 76861,
+    "name": "Raven Corporation Emblem"
+  },
+  {
+    "type_id": 76862,
+    "name": "Raven Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76863,
+    "name": "Raven State Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76864,
+    "name": "Redeemer Corporation Emblem"
+  },
+  {
+    "type_id": 76865,
+    "name": "Revenant Corporation Emblem"
+  },
+  {
+    "type_id": 76866,
+    "name": "Rhea Corporation Emblem"
+  },
+  {
+    "type_id": 76867,
+    "name": "Rokh Corporation Emblem"
+  },
+  {
+    "type_id": 76868,
+    "name": "Rorqual Corporation Emblem"
+  },
+  {
+    "type_id": 76869,
+    "name": "Scorpion Navy Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76870,
+    "name": "Sin Corporation Emblem"
+  },
+  {
+    "type_id": 76871,
+    "name": "Sleipnir Corporation Emblem"
+  },
+  {
+    "type_id": 76872,
+    "name": "Tempest Corporation Emblem"
+  },
+  {
+    "type_id": 76873,
+    "name": "Tempest Fleet Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76874,
+    "name": "Tempest Tribal Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76875,
+    "name": "Thanatos Corporation Emblem"
+  },
+  {
+    "type_id": 76876,
+    "name": "Thunderchild Corporation Emblem"
+  },
+  {
+    "type_id": 76877,
+    "name": "Typhoon Fleet Issue Corporation Emblem"
+  },
+  {
+    "type_id": 76878,
+    "name": "Vanquisher Corporation Emblem"
+  },
+  {
+    "type_id": 76879,
+    "name": "Vargur Corporation Emblem"
+  },
+  {
+    "type_id": 76880,
+    "name": "Vendetta Corporation Emblem"
+  },
+  {
+    "type_id": 76881,
+    "name": "Vindicator Corporation Emblem"
+  },
+  {
+    "type_id": 76882,
+    "name": "Vulture Corporation Emblem"
+  },
+  {
+    "type_id": 76883,
+    "name": "Widow Corporation Emblem"
+  },
+  {
+    "type_id": 76884,
+    "name": "Wyvern Corporation Emblem"
+  },
+  {
+    "type_id": 76947,
+    "name": "Vehement Alliance Emblem"
+  },
+  {
+    "type_id": 76948,
+    "name": "Vehement Corporation Emblem"
+  },
+  {
+    "type_id": 76949,
+    "name": "Zirnitra Alliance Emblem"
+  },
+  {
+    "type_id": 76950,
+    "name": "Zirnitra Corporation Emblem"
+  },
+  {
+    "type_id": 76951,
+    "name": "Ishtar Zydrine Burn SKIN"
+  },
+  {
+    "type_id": 76952,
+    "name": "Sin Zydrine Burn SKIN"
+  },
+  {
+    "type_id": 76953,
+    "name": "Eos Zydrine Burn SKIN"
+  },
+  {
+    "type_id": 76954,
+    "name": "Ishkur Zydrine Burn SKIN"
+  },
+  {
+    "type_id": 76955,
+    "name": "Eagle Zydrine Burn SKIN"
+  },
+  {
+    "type_id": 76956,
+    "name": "Golem Zydrine Burn SKIN"
+  },
+  {
+    "type_id": 76957,
+    "name": "Hawk Zydrine Burn SKIN"
+  },
+  {
+    "type_id": 76958,
+    "name": "Vulture Zydrine Burn SKIN"
+  },
+  {
+    "type_id": 76963,
+    "name": " Infinite Celebrations Firework"
+  },
+  {
+    "type_id": 76964,
+    "name": "Capsuleer Day XX Fireworks Package"
+  },
+  {
+    "type_id": 76986,
+    "name": "Scorched Container"
+  },
+  {
+    "type_id": 77005,
+    "name": "Bustard Alliance Emblem"
+  },
+  {
+    "type_id": 77006,
+    "name": "Bustard Corporation Emblem"
+  },
+  {
+    "type_id": 77041,
+    "name": "Capsule Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77043,
+    "name": "Apotheosis Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77044,
+    "name": "Sunesis Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77045,
+    "name": "Gnosis Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77046,
+    "name": "Praxis Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77047,
+    "name": "Dramiel Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77048,
+    "name": "Cynabal Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77049,
+    "name": "Worm Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77050,
+    "name": "Gila Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77051,
+    "name": "Caldari Shuttle Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77052,
+    "name": "Amarr Shuttle Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77053,
+    "name": "Gallente Shuttle Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77054,
+    "name": "Minmatar Shuttle Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77055,
+    "name": "Capsuleer Day Glamourex Crate"
+  },
+  {
+    "type_id": 77114,
+    "name": "Metamorphosis"
+  },
+  {
+    "type_id": 77115,
+    "name": "Metamorphosis Capsuleer Day XX SKIN"
+  },
+  {
+    "type_id": 77118,
+    "name": "Amperum Mutanite"
+  },
+  {
+    "type_id": 77164,
+    "name": "Minokawa Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77165,
+    "name": "Scorpion Navy Issue Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77166,
+    "name": "Drake Navy Issue Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77167,
+    "name": "Apocalypse Navy Issue Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77168,
+    "name": "Avatar Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77169,
+    "name": "Typhoon Fleet Issue Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77170,
+    "name": "Naglfar Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77171,
+    "name": "Megathron Navy Issue Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77172,
+    "name": "Capsule Capsuleer Elite XX SKIN"
+  },
+  {
+    "type_id": 77173,
+    "name": "Drake Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77174,
+    "name": "Raven Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77175,
+    "name": "Ishtar Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77176,
+    "name": "Gila Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77177,
+    "name": "Megathron Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77178,
+    "name": "Eagle Gilded Predator SKIN"
+  },
+  {
+    "type_id": 77281,
+    "name": "Hubris"
+  },
+  {
+    "type_id": 77283,
+    "name": "Bane"
+  },
+  {
+    "type_id": 77284,
+    "name": "Karura"
+  },
+  {
+    "type_id": 77288,
+    "name": "Valravn"
+  },
+  {
+    "type_id": 77398,
+    "name": "‘Atgeir’ Explosive Disruptive Lance "
+  },
+  {
+    "type_id": 77399,
+    "name": "'Azmaru' Electromagnetic Disruptive Lance"
+  },
+  {
+    "type_id": 77400,
+    "name": "‘Steel Yari’ Kinetic Disruptive Lance"
+  },
+  {
+    "type_id": 77401,
+    "name": "‘Sarissa’ Thermal Disruptive Lance"
+  },
+  {
+    "type_id": 77402,
+    "name": "‘Atgeir’ Explosive Disruptive Lance Blueprint"
+  },
+  {
+    "type_id": 77403,
+    "name": "'Azmaru' Electromagnetic Disruptive Lance Blueprint"
+  },
+  {
+    "type_id": 77404,
+    "name": "‘Steel Yari’ Kinetic Disruptive Lance Blueprint"
+  },
+  {
+    "type_id": 77405,
+    "name": "‘Sarissa’ Thermal Disruptive Lance Blueprint"
+  },
+  {
+    "type_id": 77414,
+    "name": "Hubris Blueprint"
+  },
+  {
+    "type_id": 77415,
+    "name": "Karura Blueprint"
+  },
+  {
+    "type_id": 77416,
+    "name": "Valravn Blueprint"
+  },
+  {
+    "type_id": 77417,
+    "name": "Bane Blueprint"
+  },
+  {
+    "type_id": 77418,
+    "name": "Peregrinus Mutanite"
+  },
+  {
+    "type_id": 77419,
+    "name": "Conflagrati Mutanite"
+  },
+  {
+    "type_id": 77420,
+    "name": "Solis Mutanite"
+  },
+  {
+    "type_id": 77421,
+    "name": "Tenebraet Mutanite"
+  },
+  {
+    "type_id": 77427,
+    "name": "Historic Capsuleer Day Clothing Crate"
+  },
+  {
+    "type_id": 77473,
+    "name": "Warclone Blanks Vat"
+  },
+  {
+    "type_id": 77474,
+    "name": "Contraband Freight"
+  },
+  {
+    "type_id": 77475,
+    "name": "Narcotics Package"
+  },
+  {
+    "type_id": 77476,
+    "name": "M.R.F. Supplies"
+  },
+  {
+    "type_id": 77524,
+    "name": "Admixti Mutanite"
+  },
+  {
+    "type_id": 77707,
+    "name": "Unaligned Dekaisogen"
+  },
+  {
+    "type_id": 77708,
+    "name": "Fluctuating Entropic Regulator"
+  },
+  {
+    "type_id": 77725,
+    "name": "Advanced Capital Ship Construction"
+  },
+  {
+    "type_id": 77738,
+    "name": "Lancer Dreadnoughts"
+  },
+  {
+    "type_id": 77739,
+    "name": "Disruptive Lance Operation"
+  },
+  {
+    "type_id": 77867,
+    "name": "Catalyst Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77868,
+    "name": "Nemesis Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77869,
+    "name": "Maulus Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77872,
+    "name": "Megathron Navy Issue Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77873,
+    "name": "Maulus Navy Issue Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77874,
+    "name": "Brutix Navy Issue Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77886,
+    "name": "Catalyst Navy Issue Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77887,
+    "name": "Hubris Luminaire Rising SKIN"
   }
 ]

@@ -51,9 +51,7 @@ export function ManufacturingOptions({ setJobModified }) {
   });
   const [meValue, updateMEValue] = useState(activeJob.bpME);
   const [teValue, updateTEValue] = useState(activeJob.bpTE);
-  const [structValue, updateStructValue] = useState(
-    activeJob.structureTypeDisplay
-  );
+  const [structValue, updateStructValue] = useState(activeJob.structureType);
   const [rigsValue, updateRigsValue] = useState(activeJob.rigType);
   const [systemValue, updateSystemValue] = useState(activeJob.systemType);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
@@ -86,7 +84,8 @@ export function ManufacturingOptions({ setJobModified }) {
                       time: CalculateTime({
                         jobType: prev.jobType,
                         CharacterHash: e.target.value,
-                        structureTypeDisplay: prev.structureTypeDisplay,
+                        structureType: prev.structureType,
+                        rigType: prev.rigType,
                         runCount: prev.runCount,
                         bpTE: prev.bpTE,
                         rawTime: prev.rawData.time,
@@ -100,7 +99,7 @@ export function ManufacturingOptions({ setJobModified }) {
                 {users.map((user) => {
                   return (
                     <MenuItem
-                      key={user.CharacterName}
+                      key={user.CharacterHash}
                       value={user.CharacterHash}
                     >
                       {user.CharacterName}
@@ -149,7 +148,8 @@ export function ManufacturingOptions({ setJobModified }) {
                     time: CalculateTime({
                       jobType: prev.jobType,
                       CharacterHash: prev.build.buildChar,
-                      structureTypeDisplay: prev.structureTypeDisplay,
+                      structureType: prev.structureType,
+                      rigType: prev.rigType,
                       runCount: Number(e.target.value),
                       bpTE: prev.bpTE,
                       rawTime: prev.rawData.time,
@@ -259,7 +259,8 @@ export function ManufacturingOptions({ setJobModified }) {
                       time: CalculateTime({
                         jobType: prev.jobType,
                         CharacterHash: prev.build.buildChar,
-                        structureTypeDisplay: prev.structureTypeDisplay,
+                        structureType: prev.structureType,
+                        rigType: prev.rigType,
                         runCount: prev.runCount,
                         bpTE: e.target.value,
                         rawTime: prev.rawData.time,
@@ -304,8 +305,7 @@ export function ManufacturingOptions({ setJobModified }) {
                     updateStructValue(e.target.value);
                     updateActiveJob((prev) => ({
                       ...prev,
-                      structureTypeDisplay: e.target.value,
-                      structureType: e.target.value === "Station" ? 0 : 1,
+                      structureType: e.target.value,
                       build: {
                         ...prev.build,
                         materials: CalculateResources({
@@ -315,14 +315,15 @@ export function ManufacturingOptions({ setJobModified }) {
                           runCount: prev.runCount,
                           jobCount: prev.jobCount,
                           bpME: prev.bpME,
-                          structureType: e.target.value === "Station" ? 0 : 1,
+                          structureType: e.target.value,
                           rigType: prev.rigType,
                           systemType: prev.systemType,
                         }),
                         time: CalculateTime({
                           jobType: prev.jobType,
                           CharacterHash: prev.build.buildChar,
-                          structureTypeDisplay: e.target.value,
+                          structureType: e.target.value,
+                          rigType: prev.rigType,
                           runCount: prev.runCount,
                           bpTE: prev.bpTE,
                           rawTime: prev.rawData.time,
@@ -332,9 +333,9 @@ export function ManufacturingOptions({ setJobModified }) {
                     }));
                   }}
                 >
-                  {structureOptions.manStructure.map((entry) => {
+                  {Object.values(structureOptions.manStructure).map((entry) => {
                     return (
-                      <MenuItem key={entry.label} value={entry.value}>
+                      <MenuItem key={entry.id} value={entry.id}>
                         {entry.label}
                       </MenuItem>
                     );
@@ -373,7 +374,8 @@ export function ManufacturingOptions({ setJobModified }) {
                       time: CalculateTime({
                         jobType: prev.jobType,
                         CharacterHash: prev.build.buildChar,
-                        structureTypeDisplay: prev.structureTypeDisplay,
+                        structureType: prev.structureType,
+                        rigType: e.target.value,
                         runCount: prev.runCount,
                         bpTE: prev.bpTE,
                         rawTime: prev.rawData.time,
@@ -384,9 +386,9 @@ export function ManufacturingOptions({ setJobModified }) {
                   setJobModified(true);
                 }}
               >
-                {structureOptions.manRigs.map((entry) => {
+                {Object.values(structureOptions.manRigs).map((entry) => {
                   return (
-                    <MenuItem key={entry.label} value={entry.value}>
+                    <MenuItem key={entry.id} value={entry.id}>
                       {entry.label}
                     </MenuItem>
                   );
@@ -424,9 +426,9 @@ export function ManufacturingOptions({ setJobModified }) {
                   setJobModified(true);
                 }}
               >
-                {structureOptions.manSystem.map((entry) => {
+                {Object.values(structureOptions.manSystem).map((entry) => {
                   return (
-                    <MenuItem key={entry.label} value={entry.value}>
+                    <MenuItem key={entry.id} value={entry.id}>
                       {entry.label}
                     </MenuItem>
                   );
@@ -454,8 +456,7 @@ export function ManufacturingOptions({ setJobModified }) {
                       ...prev,
                       rigType: structure.rigType,
                       systemType: structure.systemType,
-                      structureTypeDisplay: structure.structureName,
-                      structureType: structure.structureValue,
+                      structureType: structure.structureType,
                       build: {
                         ...prev.build,
                         materials: CalculateResources({
@@ -465,14 +466,15 @@ export function ManufacturingOptions({ setJobModified }) {
                           runCount: prev.runCount,
                           jobCount: prev.jobCount,
                           bpME: prev.bpME,
-                          structureType: structure.structureValue,
+                          structureType: structure.structureType,
                           rigType: structure.rigType,
                           systemType: structure.systemType,
                         }),
                         time: CalculateTime({
                           jobType: prev.jobType,
                           CharacterHash: prev.build.buildChar,
-                          structureTypeDisplay: structure.structureName,
+                          structureType: structure.structureType,
+                          rigType: structure.rigType,
                           runCount: prev.runCount,
                           bpTE: prev.bpTE,
                           rawTime: prev.rawData.time,

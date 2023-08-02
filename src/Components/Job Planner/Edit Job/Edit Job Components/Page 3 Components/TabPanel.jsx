@@ -43,7 +43,7 @@ export function Step3TabMenu({ jobMatches, setJobModified }) {
           value={currentTab}
           onChange={handleChange}
           variant="fullWidth"
-          textColor={"secondary.main"}
+          textColor="secondary.main"
         >
           <Tab
             label={

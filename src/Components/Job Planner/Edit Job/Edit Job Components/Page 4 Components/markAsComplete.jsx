@@ -7,43 +7,34 @@ export function MarkAsCompleteButton({ setJobModified }) {
     useContext(ActiveJobContext);
 
   const toggleMarkJobAsComplete = () => {
-    let newAreComplete = new Set(activeGroup.areComplete);
-
-    if (newAreComplete.has(activeJob.jobID)) {
-      newAreComplete.delete(activeJob.jobID);
-    } else {
-      newAreComplete.add(activeJob.jobID);
-    }
-
-    updateActiveGroup((prev) => ({
-      ...prev,
-      areComplete: [...newAreComplete],
-    }));
+    updateActiveGroup((prev) => {
+      const newAreComplete = new Set(prev.areComplete);
+      newAreComplete[newAreComplete.has(activeJob.jobID) ? "delete" : "add"](
+        activeJob.jobID
+      );
+      return {
+        ...prev,
+        areComplete: [...newAreComplete],
+      };
+    });
     setJobModified(true);
   };
 
+  if (!activeGroup) {
+    return null;
+  }
+
   return (
-    <Grid
-      container
-      item
-      xs={12}
-      sx={{
-        marginTop: "20px",
-        marginBottom: "20px",
-      }}
+    <Button
+      color="primary"
+      variant="contained"
+      size="small"
+      onClick={toggleMarkJobAsComplete}
+      sx={{ margin: "10px" }}
     >
-      <Grid item xs={12} align="center">
-        <Button
-          color="primary"
-          variant="contained"
-          size="small"
-          onClick={toggleMarkJobAsComplete}
-        >
-          {activeGroup.areComplete.includes(activeJob.jobID)
-            ? "Mark As Incomplete"
-            : "Mark As Complete"}
-        </Button>
-      </Grid>
-    </Grid>
+      {activeGroup.areComplete.includes(activeJob.jobID)
+        ? "Mark As Incomplete"
+        : "Mark As Complete"}
+    </Button>
   );
 }

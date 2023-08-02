@@ -68,10 +68,11 @@ export function UpcomingChangesSearch({
                 parentUser
               );
               updateEvePrices((prev) => {
-                newEvePrices = newEvePrices.filter(
-                  (n) => !prev.some((p) => p.typeID === n.typeID)
+                const prevIds = new Set(prev.map((item) => item.typeID));
+                const uniqueNewEvePrices = newEvePrices.filter(
+                  (item) => !prevIds.has(item.typeID)
                 );
-                return prev.concat(newEvePrices);
+                return [...prev, ...uniqueNewEvePrices];
               });
               if (newTranqJob === undefined) {
                 updateTranqItem("missing");

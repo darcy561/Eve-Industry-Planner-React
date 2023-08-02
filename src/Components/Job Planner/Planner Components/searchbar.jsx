@@ -102,7 +102,6 @@ export function SearchBar({
                 <TextField
                   {...params}
                   size="small"
-                  label="Item Search"
                   className={classes.Autocomplete}
                   margin="none"
                   variant="standard"

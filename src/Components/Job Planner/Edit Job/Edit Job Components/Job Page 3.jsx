@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import {
   ActiveJobContext,
   ApiJobsContext,
@@ -16,7 +16,7 @@ export function EditPage3({ setJobModified }) {
   const { users } = useContext(UsersContext);
   const { linkedJobIDs } = useContext(LinkedIDsContext);
 
-  const parentUser = users.find((i) => i.ParentUser === true);
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   const jobMatches = apiJobs.filter(
     (job) =>
@@ -25,6 +25,7 @@ export function EditPage3({ setJobModified }) {
       !linkedJobIDs.includes(job.job_id) &&
       !parentUser.linkedJobs.has(job.job_id)
   );
+
   return (
     <Container disableGutters maxWidth="false" sx={{ width: "100%" }}>
       <Grid container direction="row" spacing={2}>

@@ -37,14 +37,14 @@ export function MarketOrderTabs({
         minHeight: "30vh",
       }}
       elevation={3}
-      square={true}
+      square
     >
       <TabContext value={currentTab}>
         <TabList
           value={currentTab}
           onChange={handleChange}
           variant="fullWidth"
-          textColor={"secondary.main"}
+          textColor="secondary.main"
         >
           <Tab label={`${itemOrderMatch.length} Available Orders`} value="1" />
           <Tab

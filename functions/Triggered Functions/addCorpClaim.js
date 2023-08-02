@@ -3,13 +3,16 @@ const functions = require("firebase-functions");
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const jwksClient = require("jwks-rsa");
+const { GLOBAL_CONFIG } = require("../global-config-functions");
+
+const { FIREBASE_SERVER_REGION } = GLOBAL_CONFIG
 
 const client = jwksClient({
   jwksUri: "https://login.eveonline.com/oauth/jwks",
 });
 
 exports.updateCorpIDs = functions
-  .region("europe-west1")
+  .region(FIREBASE_SERVER_REGION)
   .https.onCall(async (data, context) => {
     async function setClaim() {
       let corpIDs = new Set();
@@ -56,7 +59,7 @@ exports.updateCorpIDs = functions
       return;
     }
 
-    if (context.auth === undefined) {
+    if (!context.auth) {
       functions.logger.error("Unathorised Claims User");
       return { error: "Unauthorised User" };
     }

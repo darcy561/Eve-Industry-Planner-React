@@ -192,10 +192,11 @@ export function useJobManagement() {
       updateUserJobSnapshot(newUserJobSnapshot);
     }
     updateEvePrices((prev) => {
-      let newEvePrices = returnPromiseArray[0].filter(
-        (n) => !prev.some((p) => p.typeID === n.typeID)
+      const prevIds = new Set(prev.map((item) => item.typeID));
+      const uniqueNewEvePrices = returnPromiseArray[0].filter(
+        (item) => !prevIds.has(item.typeID)
       );
-      return prev.concat(newEvePrices);
+      return [...prev, ...uniqueNewEvePrices];
     });
     updateDataExchange(false);
     setSnackbarData((prev) => ({
@@ -416,10 +417,11 @@ export function useJobManagement() {
     }));
     let itemPrices = await getItemPrices([...materialPriceIDs], parentUser);
     updateEvePrices((prev) => {
-      itemPrices = itemPrices.filter(
-        (n) => !prev.some((p) => p.typeID === n.typeID)
+      const prevIds = new Set(prev.map((item) => item.typeID));
+      const uniqueNewEvePrices = itemPrices.filter(
+        (item) => !prevIds.has(item.typeID)
       );
-      return prev.concat(itemPrices);
+      return [...prev, ...uniqueNewEvePrices];
     });
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
@@ -444,7 +446,7 @@ export function useJobManagement() {
     let newJobArray = [...jobArray];
 
     for (let inputID of inputJobIDs) {
-      if (typeof inputID === "string") {
+      if (inputID.includes("group")) {
         let inputGroup = groupArray.find((i) => i.groupID === inputID);
         if (inputGroup === undefined) {
           return;
@@ -536,11 +538,15 @@ export function useJobManagement() {
     const newJobArray = [...jobArray];
 
     for (const inputID of inputJobIDs) {
-      const inputGroup = groupArray.find((i) => i.groupID === inputID);
-      if (!inputGroup) continue;
+      if (inputID.includes("group")) {
+        const inputGroup = groupArray.find((i) => i.groupID === inputID);
+        if (!inputGroup) continue;
 
-      const groupInputJobIDs = inputGroup.includedJobIDs || [];
-      finalInputList.push(...groupInputJobIDs);
+        const groupInputJobIDs = inputGroup.includedJobIDs || [];
+        finalInputList.push(...groupInputJobIDs);
+      } else {
+        finalInputList.push(inputID);
+      }
     }
 
     for (const inputJobID of finalInputList) {
@@ -549,7 +555,6 @@ export function useJobManagement() {
         newUserJobSnapshot,
         newJobArray
       );
-
       inputJob.build.materials.forEach((material) => {
         if (
           material.quantityPurchased >= material.quantity ||
@@ -581,7 +586,6 @@ export function useJobManagement() {
 
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
-
     return finalPriceEntry;
   };
 

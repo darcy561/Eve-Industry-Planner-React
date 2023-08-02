@@ -94,7 +94,6 @@ export function ManufacturingBlueprints({ setJobModified }) {
               sx={{
                 maxHeight: { xs: "370px", sm: "220px", md: "370px" },
                 overflowY: "auto",
-
               }}
             >
               {blueprintOptions.map((print) => {
@@ -135,7 +134,8 @@ export function ManufacturingBlueprints({ setJobModified }) {
                               time: CalculateTime({
                                 jobType: prev.jobType,
                                 CharacterHash: prev.build.buildChar,
-                                structureTypeDisplay: prev.structureTypeDisplay,
+                                structureType: prev.structureType,
+                                rigType: prev.rigType,
                                 runCount: prev.runCount,
                                 bpTE: print.time_efficiency / 2,
                                 rawTime: prev.rawData.time,
@@ -270,7 +270,6 @@ export function ManufacturingBlueprints({ setJobModified }) {
                     >
                       <Grid
                         onClick={() => {
-                          const oldJob = JSON.parse(JSON.stringify(activeJob));
                           updateActiveJob((prev) => ({
                             ...prev,
                             bpME: print.material_efficiency,
@@ -291,7 +290,8 @@ export function ManufacturingBlueprints({ setJobModified }) {
                               time: CalculateTime({
                                 jobType: prev.jobType,
                                 CharacterHash: prev.build.buildChar,
-                                structureTypeDisplay: prev.structureTypeDisplay,
+                                structureType: prev.structureType,
+                                rigType: prev.rigType,
                                 runCount: prev.runCount,
                                 bpTE: print.time_efficiency / 2,
                                 rawTime: prev.rawData.time,

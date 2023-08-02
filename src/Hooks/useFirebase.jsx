@@ -33,6 +33,9 @@ import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
 import { useAccountManagement } from "./useAccountManagement";
 import { useEveApi } from "./useEveApi";
 import { UserLoginUIContext } from "../Context/LayoutContext";
+import GLOBAL_CONFIG from "../global-config-app";
+import { jobTypes, structureOptions } from "../Context/defaultValues";
+import { updateStructureValues } from "./outdatedJobFunctions/convertJobStructures";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -71,6 +74,8 @@ export function useFirebase() {
   } = useAccountManagement();
   const { serverStatus } = useEveApi();
   const analytics = getAnalytics();
+  const { DEFAULT_ITEM_REFRESH_PERIOD, DEFAULT_ARCHIVE_REFRESH_PERIOD } =
+    GLOBAL_CONFIG;
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser === true);
@@ -91,7 +96,10 @@ export function useFirebase() {
       const t = trace(performance, "NewUserCloudBuild");
       try {
         t.start();
-        const buildData = httpsCallable(functions, "buildUser-createUserData");
+        const buildData = httpsCallable(
+          functions,
+          "createUserData-createUserData"
+        );
         const charData = await buildData();
         logEvent(analytics, "newUserCreation", {
           UID: charData.data.accountID,
@@ -129,7 +137,6 @@ export function useFirebase() {
         bpME: job.bpME,
         bpTE: job.bpTE,
         structureType: job.structureType,
-        structureTypeDisplay: job.structureTypeDisplay,
         rigType: job.rigType,
         systemType: job.systemType,
         apiJobs: [...job.apiJobs],
@@ -170,7 +177,6 @@ export function useFirebase() {
         bpME: job.bpME,
         bpTE: job.bpTE,
         structureType: job.structureType,
-        structureTypeDisplay: job.structureTypeDisplay,
         rigType: job.rigType,
         systemType: job.systemType,
         apiJobs: [...job.apiJobs],
@@ -185,7 +191,7 @@ export function useFirebase() {
         blueprintTypeID: job.blueprintTypeID,
         layout: job.layout,
         groupID: job.groupID || null,
-        isReadyToSell: job.isReadyToSell || null,
+        isReadyToSell: job.isReadyToSell || false,
       }
     );
   };
@@ -260,7 +266,6 @@ export function useFirebase() {
         bpME: job.bpME,
         bpTE: job.bpTE,
         structureType: job.structureType,
-        structureTypeDisplay: job.structureTypeDisplay,
         rigType: job.rigType,
         systemType: job.systemType,
         apiJobs: [...job.apiJobs],
@@ -291,7 +296,7 @@ export function useFirebase() {
         hasListener: false,
         jobType: downloadDoc.jobType,
         name: downloadDoc.name,
-        jobID: downloadDoc.jobID,
+        jobID: downloadDoc.jobID.toString(),
         jobStatus: downloadDoc.jobStatus,
         isSnapshot: false,
         volume: downloadDoc.volume,
@@ -302,7 +307,7 @@ export function useFirebase() {
         bpME: downloadDoc.bpME,
         bpTE: downloadDoc.bpTE,
         structureType: downloadDoc.structureType,
-        structureTypeDisplay: downloadDoc.structureTypeDisplay,
+        structureTypeDisplay: downloadDoc.structureTypeDisplay || null,
         rigType: downloadDoc.rigType,
         systemType: downloadDoc.systemType,
         apiJobs: new Set(downloadDoc.apiJobs),
@@ -313,12 +318,19 @@ export function useFirebase() {
         build: downloadDoc.build,
         buildVer: downloadDoc.buildVer,
         metaLevel: downloadDoc.metaLevel,
-        parentJob: downloadDoc.parentJob,
+        parentJob: downloadDoc.parentJob.map(String),
         blueprintTypeID: downloadDoc.blueprintTypeID,
         layout: downloadDoc.layout,
         groupID: downloadDoc.groupID,
         isReadyToSell: downloadDoc.isReadyToSell || false,
       };
+
+      newJob.build.materials.forEach((mat) => {
+        mat.childJob = mat.childJob.map(String);
+      });
+
+      //updateOldJobs
+      updateStructureValues(newJob);
 
       return newJob;
     } else {
@@ -330,7 +342,7 @@ export function useFirebase() {
     try {
       const appCheckToken = await getToken(appCheck, true);
       const itemsPricePromise = await fetch(
-        `${import.meta.env.VITE_APIURL}/costs`,
+        `${import.meta.env.VITE_APIURL}/market-data`,
         {
           method: "POST",
           headers: {
@@ -405,7 +417,10 @@ export function useFirebase() {
     const newEvePrices = [];
 
     oldEvePrices.forEach((item) => {
-      if (item.lastUpdated <= Date.now() - 14400000) {
+      if (
+        item.lastUpdated <=
+        Date.now() - DEFAULT_ITEM_REFRESH_PERIOD * 24 * 60 * 60 * 1000
+      ) {
         priceUpdates.add(item.typeID);
       } else {
         newEvePrices.push(item);
@@ -463,7 +478,11 @@ export function useFirebase() {
     } else {
       let index = newArchivedJobsArray.findIndex((i) => i.typeID === typeID);
       if (index !== -1) {
-        if (newArchivedJobsArray[index].lastUpdated + 10800000 <= Date.now()) {
+        if (
+          newArchivedJobsArray[index].lastUpdated +
+            DEFAULT_ARCHIVE_REFRESH_PERIOD * 24 * 60 * 60 * 1000 <=
+          Date.now()
+        ) {
           const document = await getDoc(
             doc(
               firestore,
@@ -493,13 +512,17 @@ export function useFirebase() {
             const t = trace(performance, "UserJobSnapshotListener");
             t.start();
             updateUserJobSnapshotDataFetch(false);
-            let snapshotData = doc.data();
+            let snapshotData = doc.data().snapshot;
             let priceIDRequest = new Set();
             let newUserJobSnapshot = [];
             let newLinkedOrderIDs = new Set();
             let newLinkedJobIDs = new Set();
             let newLinkedTransIDs = new Set();
-            snapshotData.snapshot.forEach((snap) => {
+            snapshotData.forEach((snap) => {
+              snap.jobID = snap.jobID.toString();
+              snap.parentJob = snap.parentJob.map(String);
+              snap.childJobs = snap.childJobs.map(String);
+
               snap.apiJobs.forEach((id) => {
                 newLinkedJobIDs.add(id);
               });
@@ -528,14 +551,21 @@ export function useFirebase() {
               }
               return 0;
             });
-            updateLinkedJobIDs([...newLinkedJobIDs]);
-            updateLinkedOrderIDs([...newLinkedOrderIDs]);
-            updateLinkedTransIDs([...newLinkedTransIDs]);
+            updateLinkedJobIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedJobIDs])];
+            });
+            updateLinkedOrderIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedOrderIDs])];
+            });
+            updateLinkedTransIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedTransIDs])];
+            });
             updateEvePrices((prev) => {
-              newEvePrices = newEvePrices.filter(
-                (n) => !prev.some((p) => p.typeID === n.typeID)
+              const prevIds = new Set(prev.map((item) => item.typeID));
+              const uniqueNewEvePrices = newEvePrices.filter(
+                (item) => !prevIds.has(item.typeID)
               );
-              return prev.concat(newEvePrices);
+              return [...prev, ...uniqueNewEvePrices];
             });
             updateUserJobSnapshot(newUserJobSnapshot);
             updateUserJobSnapshotDataFetch(true);
@@ -580,10 +610,11 @@ export function useFirebase() {
               userObj
             );
             updateEvePrices((prev) => {
-              newEvePrices = newEvePrices.filter(
-                (n) => !prev.some((p) => p.typeID === n.typeID)
+              const prevIds = new Set(prev.map((item) => item.typeID));
+              const uniqueNewEvePrices = newEvePrices.filter(
+                (item) => !prevIds.has(item.typeID)
               );
-              return prev.concat(newEvePrices);
+              return [...prev, ...uniqueNewEvePrices];
             });
             updateUserWatchlist({
               groups: newWatchlistGroups,
@@ -611,7 +642,7 @@ export function useFirebase() {
           let newJob = {
             jobType: downloadDoc.jobType,
             name: downloadDoc.name,
-            jobID: downloadDoc.jobID,
+            jobID: downloadDoc.jobID.toString(),
             jobStatus: downloadDoc.jobStatus,
             isSnapshot: false,
             volume: downloadDoc.volume,
@@ -622,7 +653,7 @@ export function useFirebase() {
             bpME: downloadDoc.bpME,
             bpTE: downloadDoc.bpTE,
             structureType: downloadDoc.structureType,
-            structureTypeDisplay: downloadDoc.structureTypeDisplay,
+            structureTypeDisplay: downloadDoc.structureTypeDisplay || null,
             rigType: downloadDoc.rigType,
             systemType: downloadDoc.systemType,
             apiJobs: new Set(downloadDoc.apiJobs),
@@ -633,23 +664,28 @@ export function useFirebase() {
             build: downloadDoc.build,
             buildVer: downloadDoc.buildVer,
             metaLevel: downloadDoc.metaLevel,
-            parentJob: downloadDoc.parentJob,
+            parentJob: downloadDoc.parentJob.map(String),
             blueprintTypeID: downloadDoc.blueprintTypeID,
             layout: downloadDoc.layout,
             groupID: downloadDoc.groupID,
             isReadyToSell: downloadDoc.isReadyToSell || false,
           };
+          newJob.build.materials.forEach((mat) => {
+            mat.childJob = mat.childJob.map(String);
+          });
+
+          //updateOldJobs
+          updateStructureValues(newJob);
+
           if (activeJob.jobID == newJob.jobID) {
             updateActiveJob(newJob);
           }
           updateJobArray((prev) => {
-            let index = prev.findIndex((i) => i.jobID === newJob.jobID);
+            const index = prev.findIndex((i) => i.jobID === newJob.jobID);
             if (index === -1) {
-              return prev.push(newJob);
-            } else {
-              prev[index] = newJob;
-              return prev;
+              return [...prev, newJob];
             }
+            return prev.map((job, idx) => (idx === index ? newJob : job));
           });
           t.stop();
         }
@@ -751,13 +787,31 @@ export function useFirebase() {
             t.start();
             updateUserGroupsDataFetch(false);
             let groupData = doc.data().groupData;
-            let priceIDRequest = new Set();
+            let newLinkedOrderIDs = new Set();
+            let newLinkedJobIDs = new Set();
+            let newLinkedTransIDs = new Set();
             for (let group of groupData) {
-              priceIDRequest = new Set([
-                ...priceIDRequest,
-                ...group.materialIDs,
-              ]);
+              group.areComplete = group.areComplete.map(String);
+              group.includedJobIDs = group.includedJobIDs.map(String);
+              group?.linkedJobIDs?.forEach((id) => {
+                newLinkedJobIDs.add(id);
+              });
+              group?.linkedOrderIDs?.forEach((id) => {
+                newLinkedOrderIDs.add(id);
+              });
+              group?.linkedTransIDs?.forEach((id) => {
+                newLinkedTransIDs.add(id);
+              });
             }
+            updateLinkedJobIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedJobIDs])];
+            });
+            updateLinkedOrderIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedOrderIDs])];
+            });
+            updateLinkedTransIDs((prevState) => {
+              return [...new Set([...prevState, ...newLinkedTransIDs])];
+            });
             updateGroupArray(groupData);
             updateUserGroupsDataFetch(true);
             t.stop();

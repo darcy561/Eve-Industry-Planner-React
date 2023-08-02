@@ -1,14 +1,18 @@
 import { Container, Grid, Paper } from "@mui/material";
 import { useContext } from "react";
 import { UsersContext } from "../../Context/AuthContext";
-import { EditJobSettings } from "./SettingsModules/editJobSettings";
-import { LayoutSettings } from "./SettingsModules/layoutSettings";
-import { ManuStrutures } from "./SettingsModules/manufacturingStructures";
-import { ReactionStrutures } from "./SettingsModules/reactionStructures";
+import { ClassicEditJobSettings } from "./SettingsModules/Classic/classicEditJobSettings";
+import { ClassicLayoutSettings } from "./SettingsModules/Classic/classicLayoutSettings";
+import { ClassicManufacturingStrutures } from "./SettingsModules/Classic/classicManufacturingStructures";
+import { ClassicReactionStrutures } from "./SettingsModules/Classic/classicReactionStructures";
+import { CompactLayoutSettings } from "./SettingsModules/Compact/compactLayoutSettings";
+import { CompactEditJobSettings } from "./SettingsModules/Compact/compactEditJobSettings";
+import { CompactManufacturingStrutures } from "./SettingsModules/Compact/compactManufacturingStructures";
+import { CompactReactionStrutures } from "./SettingsModules/Compact/compactReactionStructures";
 
 export default function SettingsPage() {
   const { users } = useContext(UsersContext);
-  const parentUserIndex = users.findIndex((i) => i.ParentUser === true);
+  const parentUserIndex = users.findIndex((i) => i.ParentUser);
   return (
     <Container disableGutters maxWidth="false">
       <Paper
@@ -20,21 +24,44 @@ export default function SettingsPage() {
           marginRight: { md: "10px" },
           marginBottom: "20px",
         }}
-        square={true}
+        square
       >
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <LayoutSettings parentUserIndex={parentUserIndex} />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <EditJobSettings parentUserIndex={parentUserIndex} />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <ManuStrutures parentUserIndex={parentUserIndex} />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <ReactionStrutures parentUserIndex={parentUserIndex} />
-          </Grid>
+          {users[parentUserIndex].settings.layout.enableCompactView ? (
+            <>
+              <Grid item xs={12} md={6}>
+                <CompactLayoutSettings parentUserIndex={parentUserIndex} />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <CompactEditJobSettings parentUserIndex={parentUserIndex} />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <CompactManufacturingStrutures
+                  parentUserIndex={parentUserIndex}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <CompactReactionStrutures parentUserIndex={parentUserIndex} />
+              </Grid>
+            </>
+          ) : (
+            <>
+              <Grid item xs={12} md={6}>
+                <ClassicLayoutSettings parentUserIndex={parentUserIndex} />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <ClassicEditJobSettings parentUserIndex={parentUserIndex} />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <ClassicManufacturingStrutures
+                  parentUserIndex={parentUserIndex}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <ClassicReactionStrutures parentUserIndex={parentUserIndex} />
+              </Grid>
+            </>
+          )}
         </Grid>
       </Paper>
     </Container>

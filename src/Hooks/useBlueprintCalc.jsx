@@ -10,7 +10,12 @@ export function useBlueprintCalc() {
 
   const CalculateResources = (calcData) => {
     switch (calcData.jobType) {
-      case 1:
+      case jobTypes.manufacturing:
+        const manStructureData =
+          structureOptions.manStructure[calcData.structureType];
+        const manRigData = structureOptions.manRigs[calcData.rigType];
+        const manSystemData = structureOptions.manSystem[calcData.systemType];
+
         for (let material of calcData.outputMaterials) {
           const rawIndex = calcData.rawMaterials.findIndex(
             (i) => i.typeID === material.typeID
@@ -20,14 +25,18 @@ export function useBlueprintCalc() {
             calcData.runCount,
             calcData.jobCount,
             calcData.bpME,
-            calcData.structureType,
-            calcData.rigType,
-            calcData.systemType
+            manStructureData.material,
+            manRigData.material,
+            manSystemData.value
           );
         }
         return calcData.outputMaterials;
 
-      case 2:
+      case jobTypes.reaction:
+        const reactionRigData = structureOptions.reactionRigs[calcData.rigType];
+        const reactionSystemData =
+          structureOptions.reactionSystem[calcData.systemType];
+
         for (let material of calcData.outputMaterials) {
           const rawIndex = calcData.rawMaterials.findIndex(
             (i) => i.typeID === material.typeID
@@ -36,8 +45,8 @@ export function useBlueprintCalc() {
             calcData.rawMaterials[rawIndex].quantity,
             calcData.runCount,
             calcData.jobCount,
-            calcData.rigType,
-            calcData.systemType
+            reactionRigData.material,
+            reactionSystemData.value,
           );
         }
         return calcData.outputMaterials;
@@ -102,13 +111,14 @@ export function useBlueprintCalc() {
       if (job.jobType === jobTypes.manufacturing) {
         const indySkill = userSkills.find((i) => i.id === 3380);
         const advIndySkill = userSkills.find((i) => i.id === 3388);
-        const strucData = structureOptions.manStructure.find(
-          (i) => i.label === job.structureTypeDisplay
-        );
+        const strucData = structureOptions.manStructure[job.structureType];
+        const rigData = structureOptions.manRigs[job.rigType];
+
         let teIndexer = 1;
         let indyIndexer = 1 - 0.04 * indySkill.activeLevel;
         let advIndyIndexer = 1 - 0.03 * advIndySkill.activeLevel;
         let strucIndexer = 1 - strucData.time;
+        let rigIndexer = 1 - rigData.time;
 
         for (let x = 1; x <= job.bpTE * 2; x++) {
           teIndexer = teIndexer - 0.01;
@@ -124,23 +134,23 @@ export function useBlueprintCalc() {
         }
 
         let timeModifier =
-          teIndexer * indyIndexer * advIndyIndexer * strucIndexer;
+          teIndexer * indyIndexer * advIndyIndexer * strucIndexer * rigIndexer;
         return timeModifier;
       }
       if (job.jobType === jobTypes.reaction) {
         const reactionSkill = userSkills.find((i) => i.id === 45746);
-        const strucData = structureOptions.reactionStructure.find(
-          (i) => i.label === job.structureTypeDisplay
-        );
+        const strucData = structureOptions.reactionStructure[job.structureType];
+        const rigData = structureOptions.reactionRigs[job.rigType];
 
         let reacIndexer = 1 - 0.04 * reactionSkill.activeLevel;
         let strucIndexer = 1 - strucData.time;
+        let rigIndexer = 1 - rigData.time;
 
         if (reacIndexer < 0.8) {
           reacIndexer = 0.8;
         }
 
-        let timeModifier = reacIndexer * strucIndexer;
+        let timeModifier = reacIndexer * strucIndexer * rigIndexer;
 
         return timeModifier;
       }
@@ -148,12 +158,12 @@ export function useBlueprintCalc() {
 
     function skillModifierCalc(reqSkills, userSkills) {
       let indexer = 1;
-      if (reqSkills === undefined) {
+      if (!reqSkills) {
         return indexer;
       }
       reqSkills.forEach((skill) => {
         let charSkill = userSkills.find((i) => i.id === skill.typeID);
-        if (charSkill === undefined) {
+        if (!charSkill) {
           return;
         }
         if (

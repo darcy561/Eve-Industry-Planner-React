@@ -205,10 +205,11 @@ export function ShoppingListDialog({
         updateVolumeTotal(newVolumeTotal);
         updateCopyText(newCopyText);
         updateEvePrices((prev) => {
-          itemPrices = itemPrices.filter(
-            (n) => !prev.some((p) => p.typeID === n.typeID)
+          const prevIds = new Set(prev.map((item) => item.typeID));
+          const uniqueNewEvePrices = itemPrices.filter(
+            (item) => !prevIds.has(item.typeID)
           );
-          return prev.concat(itemPrices);
+          return [...prev, ...uniqueNewEvePrices];
         });
         updateLoadingData(false);
       }

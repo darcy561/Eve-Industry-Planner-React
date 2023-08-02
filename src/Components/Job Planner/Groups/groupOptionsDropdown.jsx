@@ -3,11 +3,18 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useContext, useState } from "react";
 import { useArchiveGroupJobs } from "../../../Hooks/GroupHooks/useArchiveGroupJobs";
 import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
+import { useBuildChildJobs } from "../../../Hooks/GroupHooks/useBuildChildJobs";
+import { ActiveJobContext } from "../../../Context/JobContext";
 
-export function GroupOptionsDropDown({ groupJobs }) {
+export function GroupOptionsDropDown({
+  groupJobs,
+  updateImportFitDialogueTrigger,
+}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const { archiveGroupJobs } = useArchiveGroupJobs();
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
+  const { activeGroup } = useContext(ActiveJobContext);
+  const { buildChildJobs } = useBuildChildJobs();
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -40,11 +47,26 @@ export function GroupOptionsDropDown({ groupJobs }) {
       >
         <MenuItem
           onClick={() => {
+            updateImportFitDialogueTrigger((prev) => !prev);
+            handleMenuClose();
+          }}
+        >
+          Import Fit From Clipboard
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
             archiveGroupJobs(groupJobs);
             updateEditGroupTrigger((prev) => !prev);
           }}
         >
           Archive Group Jobs
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            buildChildJobs(activeGroup.includedJobIDs);
+          }}
+        >
+          test
         </MenuItem>
       </Menu>
     </>

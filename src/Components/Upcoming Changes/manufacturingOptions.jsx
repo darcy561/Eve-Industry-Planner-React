@@ -41,7 +41,6 @@ export function ManufacturingOptionsUpcomingChanges({
   const [jobValue, updateJobValue] = useState(1);
   const [meValue, updateMEValue] = useState(0);
   const [teValue, updateTEValue] = useState(0);
-  const [structValue, updateStructValue] = useState("Station");
   const [structType, updateStructType] = useState(0);
   const [rigsValue, updateRigsValue] = useState(0);
   const [systemValue, updateSystemValue] = useState(1);
@@ -56,7 +55,6 @@ export function ManufacturingOptionsUpcomingChanges({
           updateJobValue(sisiItem.jobCount);
           updateMEValue(sisiItem.bpME);
           updateTEValue(sisiItem.bpTE);
-          updateStructValue(sisiItem.structureTypeDisplay);
           updateStructType(sisiItem.structureType);
           updateRigsValue(sisiItem.rigType);
           updateSystemValue(sisiItem.systemType);
@@ -65,7 +63,6 @@ export function ManufacturingOptionsUpcomingChanges({
           updateJobValue(tranqItem.jobCount);
           updateMEValue(tranqItem.bpME);
           updateTEValue(tranqItem.bpTE);
-          updateStructValue(tranqItem.structureTypeDisplay);
           updateStructType(tranqItem.structureType);
           updateRigsValue(tranqItem.rigType);
           updateSystemValue(tranqItem.systemType);
@@ -83,7 +80,6 @@ export function ManufacturingOptionsUpcomingChanges({
       bpME: meValue,
       bpTE: teValue,
       structureType: structType,
-      structureTypeDisplay: structValue,
       rigType: rigsValue,
       systemType: systemValue,
       build: {
@@ -108,7 +104,8 @@ export function ManufacturingOptionsUpcomingChanges({
         time: CalculateTime({
           jobType: prev.jobType,
           CharacterHash: prev.build.buildChar,
-          structureTypeDisplay: structValue,
+          structureType: structType,
+          rigType: rigsValue,
           runCount: runValue,
           bpTE: teValue,
           rawTime: prev.rawData.time,
@@ -123,7 +120,6 @@ export function ManufacturingOptionsUpcomingChanges({
       bpME: meValue,
       bpTE: teValue,
       structureType: structType,
-      structureTypeDisplay: structValue,
       rigType: rigsValue,
       systemType: systemValue,
       build: {
@@ -148,7 +144,8 @@ export function ManufacturingOptionsUpcomingChanges({
         time: CalculateTime({
           jobType: prev.jobType,
           CharacterHash: prev.build.buildChar,
-          structureTypeDisplay: structValue,
+          structureType: structType,
+          rigType: rigsValue,
           runCount: runValue,
           bpTE: teValue,
           rawTime: prev.rawData.time,
@@ -162,7 +159,6 @@ export function ManufacturingOptionsUpcomingChanges({
     meValue,
     teValue,
     structType,
-    structValue,
     rigsValue,
     systemValue,
   ]);
@@ -284,15 +280,14 @@ export function ManufacturingOptionsUpcomingChanges({
               <Select
                 variant="standard"
                 size="small"
-                value={structValue}
+                value={structType}
                 onChange={(e) => {
-                  updateStructType(e.target.value === "Station" ? 0 : 1);
-                  updateStructValue(e.target.value);
+                  updateStructType(e.target.value);
                 }}
               >
-                {structureOptions.manStructure.map((entry) => {
+                {Object.values(structureOptions.manStructure).map((entry) => {
                   return (
-                    <MenuItem key={entry.label} value={entry.value}>
+                    <MenuItem key={entry.id} value={entry.id}>
                       {entry.label}
                     </MenuItem>
                   );
@@ -316,9 +311,9 @@ export function ManufacturingOptionsUpcomingChanges({
                 updateRigsValue(e.target.value);
               }}
             >
-              {structureOptions.manRigs.map((entry) => {
+              {Object.values(structureOptions.manRigs).map((entry) => {
                 return (
-                  <MenuItem key={entry.label} value={entry.value}>
+                  <MenuItem key={entry.id} value={entry.id}>
                     {entry.label}
                   </MenuItem>
                 );
@@ -341,9 +336,9 @@ export function ManufacturingOptionsUpcomingChanges({
                 updateSystemValue(e.target.value);
               }}
             >
-              {structureOptions.manSystem.map((entry) => {
+              {Object.values(structureOptions.manSystem).map((entry) => {
                 return (
-                  <MenuItem key={entry.label} value={entry.value}>
+                  <MenuItem key={entry.id} value={entry.id}>
                     {entry.label}
                   </MenuItem>
                 );

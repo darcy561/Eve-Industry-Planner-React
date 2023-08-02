@@ -1,9 +1,10 @@
 export let jobArrayDefault = [
   {
+    groupID: null,
     buildVer: "0.6.0",
     jobType: 1,
     name: "Nova Light Missile",
-    jobID: 1642030534709,
+    jobID: "job-1642030534709",
     isSnapshot: false,
     jobStatus: 2,
     volume: 0.015,
@@ -119,7 +120,6 @@ export let jobArrayDefault = [
       time: 300,
     },
     structureType: 0,
-    structureTypeDisplay: "Station",
     skills: [
       {
         level: 1,
@@ -133,10 +133,11 @@ export let jobArrayDefault = [
     },
   },
   {
+    groupID: null,
     buildVer: "0.2.0",
     jobType: 2,
     name: "Scandium Metallofullerene",
-    jobID: 1642710994021,
+    jobID: "job-1642710994021",
     jobStatus: 1,
     volume: 0.65,
     itemID: 30308,
@@ -150,7 +151,7 @@ export let jobArrayDefault = [
     apiJobs: new Set(),
     apiOrders: new Set(),
     apiTransactions: new Set(),
-    parentJob: [1642710724535],
+    parentJob: ["job-1642710724535"],
     build: {
       products: {
         totalQuantity: 1920,
@@ -264,7 +265,6 @@ export let jobArrayDefault = [
       time: 10800,
     },
     structureType: 1,
-    structureTypeDisplay: "Medium",
     skills: [
       {
         typeID: 45746,
@@ -278,9 +278,10 @@ export let jobArrayDefault = [
     },
   },
   {
+    groupID: null,
     jobType: 2,
     name: "Graphene Nanoribbons",
-    jobID: 1642711045845,
+    jobID: "job-1642711045845",
     jobStatus: 1,
     volume: 1.5,
     itemID: 30309,
@@ -294,7 +295,7 @@ export let jobArrayDefault = [
     apiJobs: new Set(),
     apiOrders: new Set(),
     apiTransactions: new Set(),
-    parentJob: [1642710724535],
+    parentJob: ["job-1642710724535"],
     build: {
       products: {
         totalQuantity: 600,
@@ -408,7 +409,6 @@ export let jobArrayDefault = [
       time: 10800,
     },
     structureType: 1,
-    structureTypeDisplay: "Medium",
     skills: [
       {
         level: 3,
@@ -422,10 +422,11 @@ export let jobArrayDefault = [
     },
   },
   {
+    groupID: null,
     isSnapshot: false,
     jobType: 1,
     name: "Mining Drone I",
-    jobID: 1640798624845,
+    jobID: "job-1640798624845",
     jobStatus: 4,
     volume: 5,
     itemID: 10246,
@@ -435,7 +436,6 @@ export let jobArrayDefault = [
     bpME: 0,
     bpTE: 0,
     structureType: 0,
-    structureTypeDisplay: "Station",
     rigType: 0,
     systemType: 1,
     apiJobs: new Set([477723892]),
@@ -536,6 +536,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 10246,
             description: "Abi Sweet",
+            CharacterHash: "ABC123",
           },
           {
             order_id: 6161413749,
@@ -550,6 +551,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 10246,
             description: "IceQwen bought",
+            CharacterHash: "ABC123",
           },
           {
             order_id: 6161413749,
@@ -564,6 +566,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 10246,
             description: "Igor Alexeevich",
+            CharacterHash: "ABC123",
           },
           {
             order_id: 6161413749,
@@ -578,6 +581,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 10246,
             description: "Markus Dux",
+            CharacterHash: "ABC123",
           },
         ],
         totalSold: 0,
@@ -698,10 +702,11 @@ export let jobArrayDefault = [
     },
   },
   {
+    groupID: null,
     isSnapshot: false,
     jobType: 1,
     name: "Light Missile Launcher I",
-    jobID: 1640798839177,
+    jobID: "job-1640798839177",
     jobStatus: 4,
     volume: 5,
     itemID: 499,
@@ -711,7 +716,6 @@ export let jobArrayDefault = [
     bpME: 0,
     bpTE: 0,
     structureType: 0,
-    structureTypeDisplay: "Station",
     rigType: 0,
     systemType: 1,
     apiJobs: new Set([477724009]),
@@ -810,6 +814,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 499,
             description: "ArianGG",
+            CharacterHash: "ABC123",
           },
           {
             order_id: 6161414065,
@@ -824,6 +829,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 499,
             description: "Shelby Skye",
+            CharacterHash: "ABC123",
           },
           {
             order_id: 6161414065,
@@ -838,6 +844,7 @@ export let jobArrayDefault = [
             is_corp: false,
             type_id: 499,
             description: "Oryza Prodigy",
+            CharacterHash: "ABC123",
           },
         ],
         totalSold: 0,
@@ -908,9 +915,10 @@ export let jobArrayDefault = [
     },
   },
   {
+    groupID: null,
     jobType: 1,
     name: "Reinforced Metallofullerene Alloys",
-    jobID: 1642710724535,
+    jobID: "job-1642710724535",
     jobStatus: 0,
     volume: 10,
     itemID: 30008,
@@ -977,7 +985,7 @@ export let jobArrayDefault = [
           quantity: 1878,
           volume: 0.65,
           purchasing: [],
-          childJob: [1642710994021],
+          childJob: ["job-1642710994021"],
           quantityPurchased: 0,
           purchasedCost: 0,
           purchaseComplete: false,
@@ -1025,7 +1033,7 @@ export let jobArrayDefault = [
           jobType: 2,
           quantity: 598,
           purchasing: [],
-          childJob: [1642711045845],
+          childJob: ["job-1642711045845"],
           quantityPurchased: 0,
           purchasedCost: 0,
           purchaseComplete: false,
@@ -1094,8 +1102,7 @@ export let jobArrayDefault = [
       ],
       time: 600,
     },
-    structureType: 1,
-    structureTypeDisplay: "Large",
+    structureType: 3,
     skills: [
       {
         typeID: 3380,
@@ -1120,7 +1127,7 @@ export let jobArrayDefault = [
 
 export let userJobSnapshotDefault = [
   {
-    jobID: 1642030534709,
+    jobID: "job-1642030534709",
     name: "Nova Light Missile",
     runCount: 50,
     jobCount: 1,
@@ -1143,7 +1150,7 @@ export let userJobSnapshotDefault = [
     endDateDisplay: null,
   },
   {
-    jobID: 1642710994021,
+    jobID: "job-1642710994021",
     name: "Scandium Metallofullerene",
     runCount: 12,
     jobCount: 1,
@@ -1166,7 +1173,7 @@ export let userJobSnapshotDefault = [
     endDataDisplay: null,
   },
   {
-    jobID: 1642711045845,
+    jobID: "job-1642711045845",
     name: "Graphene Nanoribbons",
     runCount: 5,
     jobCount: 1,
@@ -1189,7 +1196,7 @@ export let userJobSnapshotDefault = [
     endDataDisplay: null,
   },
   {
-    jobID: 1640798624845,
+    jobID: "job-1640798624845",
     name: "Mining Drone I",
     runCount: 50,
     jobCount: 1,
@@ -1212,7 +1219,7 @@ export let userJobSnapshotDefault = [
     endDateDisplay: "2021-12-29T20:46:36Z",
   },
   {
-    jobID: 1642710724535,
+    jobID: "job-1642710724535",
     name: "Reinforced Metallofullerene Alloys",
     runCount: 50,
     jobCount: 2,
@@ -1747,6 +1754,7 @@ export let defaultEsiTransactions = [
     user: "ABC123",
     data: [
       {
+        CharacterHash: "ABC123",
         client_id: 784956701,
         date: "2021-12-31T15:48:16Z",
         is_buy: false,
@@ -1759,6 +1767,7 @@ export let defaultEsiTransactions = [
         unit_price: 11400,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2119194221,
         date: "2021-12-31T15:35:22Z",
         is_buy: false,
@@ -1771,6 +1780,7 @@ export let defaultEsiTransactions = [
         unit_price: 11400,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2118912977,
         date: "2021-12-31T14:53:18Z",
         is_buy: false,
@@ -1783,6 +1793,7 @@ export let defaultEsiTransactions = [
         unit_price: 11400,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2119059949,
         date: "2021-12-31T14:40:06Z",
         is_buy: false,
@@ -1795,6 +1806,7 @@ export let defaultEsiTransactions = [
         unit_price: 12000,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 96311212,
         date: "2021-12-30T18:39:02Z",
         is_buy: false,
@@ -1807,6 +1819,7 @@ export let defaultEsiTransactions = [
         unit_price: 11400,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2119433506,
         date: "2021-12-29T23:00:46Z",
         is_buy: false,
@@ -1819,6 +1832,7 @@ export let defaultEsiTransactions = [
         unit_price: 11850,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 122887441,
         date: "2022-01-01T02:36:32Z",
         is_buy: false,
@@ -1831,6 +1845,7 @@ export let defaultEsiTransactions = [
         unit_price: 34250,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2119513212,
         date: "2021-12-30T01:42:27Z",
         is_buy: false,
@@ -1843,6 +1858,7 @@ export let defaultEsiTransactions = [
         unit_price: 32950,
       },
       {
+        CharacterHash: "ABC123",
         client_id: 2119484455,
         date: "2021-12-29T21:53:26Z",
         is_buy: false,
@@ -1863,6 +1879,7 @@ export let defaultEsiJournal = [
     user: "ABC123",
     data: [
       {
+        CharacterHash: "ABC123",
         amount: -5472,
         balance: 5835304896.8761,
         date: "2021-12-30T18:33:45Z",
@@ -1875,6 +1892,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000086,
       },
       {
+        CharacterHash: "ABC123",
         amount: -4860,
         balance: 5835310368.8761,
         date: "2021-12-30T18:33:26Z",
@@ -1887,6 +1905,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000086,
       },
       {
+        CharacterHash: "ABC123",
         amount: 65900,
         balance: 5835120538.8761,
         context_id: 5762760174,
@@ -1901,6 +1920,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -5272,
         balance: 5835115266.8761,
         date: "2021-12-29T21:53:26Z",
@@ -1912,6 +1932,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 98850,
         balance: 5835323136.8761,
         context_id: 5762870250,
@@ -1925,6 +1946,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -7908,
         balance: 5835315228.8761,
         date: "2021-12-30T01:42:27Z",
@@ -1936,6 +1958,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 513750,
         balance: 4166935940.1241,
         context_id: 5764179431,
@@ -1949,6 +1972,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -23016,
         balance: 4166912924.1241,
         date: "2022-01-01T02:36:32Z",
@@ -1960,6 +1984,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 118500,
         balance: 5835233766.8761,
         context_id: 5762799195,
@@ -1973,6 +1998,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -9480,
         balance: 5835224286.8761,
         date: "2021-12-29T23:00:46Z",
@@ -1984,6 +2010,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 57000,
         balance: 5835361896.8761,
         context_id: 5763314805,
@@ -1997,6 +2024,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -4560,
         balance: 5835357336.8761,
         date: "2021-12-30T18:39:02Z",
@@ -2008,6 +2036,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 48000,
         balance: 4166086686.8761,
         context_id: 5763852213,
@@ -2021,6 +2050,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -2150.4,
         balance: 4166084536.4761,
         date: "2021-12-31T14:40:06Z",
@@ -2032,6 +2062,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 57000,
         balance: 4166141536.4761,
         context_id: 5763860401,
@@ -2045,6 +2076,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -2553.6,
         balance: 4166138982.8761,
         date: "2021-12-31T14:53:18Z",
@@ -2056,6 +2088,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 57000,
         balance: 4166195982.8761,
         context_id: 5763883247,
@@ -2070,6 +2103,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -2553.6,
         balance: 4166193429.2761,
         date: "2021-12-31T15:35:22Z",
@@ -2081,6 +2115,7 @@ export let defaultEsiJournal = [
         second_party_id: 1000132,
       },
       {
+        CharacterHash: "ABC123",
         amount: 228000,
         balance: 4166421429.2761,
         context_id: 5763890268,
@@ -2094,6 +2129,7 @@ export let defaultEsiJournal = [
         second_party_id: 94800326,
       },
       {
+        CharacterHash: "ABC123",
         amount: -10214.4,
         balance: 4166411214.8761,
         date: "2021-12-31T15:48:16Z",
@@ -2173,12 +2209,6 @@ export let eveIDsDefault = [
   },
 ];
 
-export let marketOptions = [
-  { id: "amarr", name: "Amarr" },
-  { id: "dodixie", name: "Dodixie" },
-  { id: "jita", name: "Jita" },
-];
-
 export let listingType = [
   { id: "buy", name: "Buy Orders" },
   { id: "sell", name: "Sell Orders" },
@@ -2220,33 +2250,45 @@ export let blueprintOptions = {
   ],
 };
 export let structureOptions = {
-  manStructure: [
-    { value: "Station", label: "Station", time: 0 },
-    { value: "Medium", label: "Medium", time: 0.15 },
-    { value: "Large", label: "Large", time: 0.2 },
-    { value: "X-Large", label: "X-Large", time: 0.3 },
-  ],
-  manRigs: [
-    { value: 0, label: "None" },
-    { value: 2.0, label: "Tech 1" },
-    { value: 2.4, label: "Tech 2" },
-  ],
-  manSystem: [
-    { value: 1, label: "High Sec" },
-    { value: 1.9, label: "Low Sec" },
-    { value: 2.1, label: "Null Sec / WH" },
-  ],
-  reactionSystem: [
-    { value: 1, label: "Low Sec" },
-    { value: 1.1, label: "Null Sec / WH" },
-  ],
-  reactionStructure: [
-    { value: "Medium", label: "Medium", time: 0 },
-    { value: "Large", label: "Large", time: 0.25 },
-  ],
-  reactionRigs: [
-    { value: 0, label: "None" },
-    { value: 2.0, label: "Tech 1" },
-    { value: 2.4, label: "Tech 2" },
-  ],
+  manStructure: {
+    0: { id: 0, label: "Station", material: 0, time: 0 },
+    1: { id: 1, label: "Medium", material: 1, time: 0.15 },
+    2: { id: 2, label: "Large", material: 1, time: 0.2 },
+    3: { id: 3, label: "X-Large", material: 1, time: 0.3 },
+  },
+  manRigs: {
+    0: { id: 0, label: "None", material: 0, time: 0 },
+    1: { id: 1, label: "T1 - ME", material: 2.0, time: 0 },
+    2: { id: 2, label: "T2 - ME", material: 2.4, time: 0 },
+    3: { id: 3, label: "T1 - TE", material: 0, time: 0.2 },
+    4: { id: 4, label: "T2 - TE", material: 0, time: 0.24 },
+    5: { id: 5, label: "T1 - ME & TE", material: 2.0, time: 0.2 },
+    6: { id: 6, label: "T2 - ME & TE", material: 2.4, time: 0.24 },
+    7: { id: 7, label: "T1 - ME, T2 - TE ", material: 2.0, time: 0.24 },
+    8: { id: 8, label: "T2 - ME, T1 - TE", material: 2.4, time: 0.2 },
+  },
+  manSystem: {
+    0: { id: 0, label: "High Sec", value: 1 },
+    1: { id: 1, label: "Low Sec", value: 1.9 },
+    2: { id: 2, label: "Null Sec / WH", value: 2.1 },
+  },
+  reactionSystem: {
+    0: { id: 0, label: "Low Sec", value: 1 },
+    1: { id: 1, label: "Null Sec / WH", value: 1.1 },
+  },
+  reactionStructure: {
+    0: { id: 0, label: "Medium", material: 1, time: 0 },
+    1: { id: 1, label: "Large", material: 1, time: 0.25 },
+  },
+  reactionRigs: {
+    0: { id: 0, label: "None", material: 0, time: 0 },
+    1: { id: 1, label: "T1 - ME", material: 2.0, time: 0 },
+    2: { id: 2, label: "T2 - ME", material: 2.4, time: 0 },
+    3: { id: 3, label: "T1 - TE", material: 0, time: 0.2 },
+    4: { id: 4, label: "T2 - TE", material: 0, time: 0.24 },
+    5: { id: 5, label: "T1 - ME & TE", material: 2.0, time: 0.2 },
+    6: { id: 6, label: "T2 - ME & TE", material: 2.4, time: 0.24 },
+    7: { id: 7, label: "T1 - ME, T2 - TE ", material: 2.0, time: 0.24 },
+    8: { id: 8, label: "T2 - ME, T1 - TE", material: 2.4, time: 0.2 },
+  },
 };

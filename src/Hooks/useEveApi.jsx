@@ -1,9 +1,11 @@
 import { useContext } from "react";
 import skillsReference from "../RawData/bpSkills.json";
 import { EveESIStatusContext } from "../Context/EveDataContext";
+import GLOBAL_CONFIG from "../global-config-app";
 
 export function useEveApi() {
   const { eveESIStatus, updateEveESIStatus } = useContext(EveESIStatusContext);
+  const { ESI_DATE_PERIOD, ESI_MAX_PAGES } = GLOBAL_CONFIG;
 
   const fetchCharacterSkills = async (userObj) => {
     try {
@@ -39,8 +41,8 @@ export function useEveApi() {
       data = data.filter(
         (job) =>
           job.completed_date === undefined ||
-          new Date() - Date.parse(job.completed_date) <= 1209600000
-        // 14 days
+          new Date() - Date.parse(job.completed_date) <=
+            ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
       );
 
       return data.map((a) => ({ ...a, isCorp: false }));
@@ -72,11 +74,10 @@ export function useEveApi() {
 
   const fetchCharacterHistMarketOrders = async (userObj) => {
     let orders = [];
-    let maxPages = 50;
-    let maxEntries = 2500;
-    let currentDate = Date.now();
+    const maxEntries = 2500;
+    const currentDate = Date.now();
 
-    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
       try {
         const request = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/orders/history/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
@@ -92,11 +93,11 @@ export function useEveApi() {
         return [];
       }
     }
-    //14 Days
+
     orders = orders.filter(
       (item) =>
         !item.is_buy_order &&
-        currentDate - Date.parse(item.issued) <= 1209600000
+        currentDate - Date.parse(item.issued) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
     );
 
     return orders.map((a) => ({ ...a, CharacterHash: userObj.CharacterHash }));
@@ -104,10 +105,9 @@ export function useEveApi() {
 
   const fetchCharacterBlueprints = async (userObj) => {
     let blueprints = [];
-    let maxPages = 50;
-    let maxEntries = 1000;
+    const maxEntries = 1000;
 
-    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
       try {
         const request = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/blueprints/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
@@ -133,11 +133,10 @@ export function useEveApi() {
 
   const fetchCharacterTransactions = async (userObj) => {
     let transactions = [];
-    let maxPages = 50;
-    let maxEntries = 2500;
-    let currentDate = new Date();
+    const maxEntries = 2500;
+    const currentDate = new Date();
 
-    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
       try {
         const request = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/wallet/transactions/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
@@ -154,20 +153,18 @@ export function useEveApi() {
       }
     }
 
-    //14 Days
     return transactions.filter(
       (i) =>
-        i.is_buy === false && currentDate - Date.parse(i.date) <= 1209600000
+        i.is_buy === false && currentDate - Date.parse(i.date) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
     );
   };
 
   const fetchCharacterJournal = async (userObj) => {
     let journal = [];
-    let maxPages = 50;
-    let maxEntries = 2500;
-    let currentDate = new Date();
+    const maxEntries = 2500;
+    const currentDate = new Date();
 
-    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
       try {
         const request = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/wallet/journal/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
@@ -185,9 +182,8 @@ export function useEveApi() {
       }
     }
 
-    // 14 Days
     return journal.filter(
-      (item) => currentDate - Date.parse(item.date) <= 1209600000
+      (item) => currentDate - Date.parse(item.date) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
     );
   };
 
@@ -277,10 +273,9 @@ export function useEveApi() {
 
   const fetchCharacterAssets = async (userObj) => {
     let assets = [];
-    let maxPages = 50;
-    let maxEntries = 1000;
+    const maxEntries = 1000;
 
-    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
       try {
         const request = await fetch(
           `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/assets/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
@@ -351,10 +346,9 @@ export function useEveApi() {
 
   const fetchCorpIndustryJobs = async (userObj) => {
     let indyJobs = [];
-    let maxPages = 50;
-    let maxEntries = 1000;
+    const maxEntries = 1000;
 
-    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
       try {
         const request = await fetch(
           `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/industry/jobs/?include_completed=true&page=${pageCount}&token=${userObj.aToken}`
@@ -374,8 +368,7 @@ export function useEveApi() {
     indyJobs = indyJobs.filter(
       (job) =>
         job.completed_date === undefined ||
-        new Date() - Date.parse(job.completed_date) <= 1209600000
-      // 14 days
+        new Date() - Date.parse(job.completed_date) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
     );
 
     indyJobs = indyJobs.filter(
@@ -387,10 +380,9 @@ export function useEveApi() {
 
   const fetchCorpMarketOrdersJobs = async (userObj) => {
     let orders = [];
-    let maxPages = 50;
-    let maxEntries = 1000;
+    const maxEntries = 1000;
 
-    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
       try {
         const request = await fetch(
           `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/orders?page=${pageCount}&token=${userObj.aToken}`
@@ -403,7 +395,7 @@ export function useEveApi() {
         if (data.length < maxEntries) break;
       } catch (err) {
         console.error(`Error fetching corporation market order data: ${err}`);
-        break
+        break;
       }
     }
     orders = orders.filter(
@@ -415,11 +407,10 @@ export function useEveApi() {
 
   const fetchCorpHistMarketOrders = async (userObj) => {
     let orders = [];
-    let maxPages = 10;
-    let maxEntries = 1000;
-    let currentDate = Date.now();
+    const maxEntries = 1000;
+    const currentDate = Date.now();
 
-    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
       try {
         const request = await fetch(
           `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/orders/history?page=${pageCount}&token=${userObj.aToken}`
@@ -437,12 +428,12 @@ export function useEveApi() {
         break;
       }
     }
-    //14 Days
+
     orders = orders.filter(
       (item) =>
         !item.is_buy_order &&
         item.issued_by === userObj.CharacterID &&
-        currentDate - Date.parse(item.issued) <= 1209600000
+        currentDate - Date.parse(item.issued) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
     );
 
     return orders.map((bp) => ({ ...bp, isCorp: true }));
@@ -450,10 +441,9 @@ export function useEveApi() {
 
   const fetchCorpBlueprintLibrary = async (userObj) => {
     let blueprints = [];
-    let maxPages = 50;
-    let maxEntries = 1000;
+    const maxEntries = 1000;
 
-    for (let pageCount = 1; pageCount <= maxPages; pageCount++) {
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
       try {
         const request = await fetch(
           `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/blueprints?page=${pageCount}&token=${userObj.aToken}`
@@ -484,18 +474,18 @@ export function useEveApi() {
         `
         https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/
         `
-      )
+      );
 
       const data = await request.json();
-      if (!request.ok) return null
-      
+      if (!request.ok) return null;
+
       data.corporation_id = userObj.corporation_id;
-        return data
+      return data;
     } catch (err) {
       console.error(`Error fetching public corporation data: ${err}`);
-      return null
-    } 
-  }
+      return null;
+    }
+  };
 
   const fetchCorpDivisions = async (userObj) => {
     try {
@@ -509,17 +499,16 @@ export function useEveApi() {
       return data;
     } catch (err) {
       console.error(`Error fetching corporation divisions: ${err}`);
-      return null
+      return null;
     }
   };
 
   const fetchCorpJournal = async (userObj) => {
     let journal = [];
-    let maxDivisions = 7;
-    let maxPages = 50;
-    let maxEntries = 2500;
-    let currentDate = Date.now();
-    let refTypes = new Set([
+    const maxDivisions = 7;
+    const maxEntries = 2500;
+    const currentDate = Date.now();
+    const refTypes = new Set([
       "brokers_fee",
       "market_escrow",
       "market_transaction",
@@ -529,7 +518,7 @@ export function useEveApi() {
     try {
       divisions: for (let division = 1; division <= maxDivisions; division++) {
         let divisionArray = [];
-        pages: for (let page = 1; page <= maxPages; page++) {
+        pages: for (let page = 1; page <= ESI_MAX_PAGES; page++) {
           const request = await fetch(
             `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/wallets/${division}/journal?page=${page}&token=${userObj.aToken}`
           );
@@ -541,10 +530,10 @@ export function useEveApi() {
 
           if (data.length < maxEntries) break;
         }
-        //14 Days
+
         divisionArray = divisionArray.filter(
           (item) =>
-            currentDate - Date.parse(item.date) <= 1209600000 &&
+            currentDate - Date.parse(item.date) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 &&
             refTypes.has(item.ref_type)
         );
         journal.push({
@@ -561,15 +550,14 @@ export function useEveApi() {
 
   const fetchCorpTransactions = async (userObj) => {
     let transactions = [];
-    let maxDivisions = 7;
-    let maxPages = 50;
-    let maxEntries = 2500;
-    let currentDate = Date.now();
+    const maxDivisions = 7;
+    const maxEntries = 2500;
+    const currentDate = Date.now();
 
     try {
       divisions: for (let division = 1; division <= maxDivisions; division++) {
         let divisionArray = [];
-        pages: for (let page = 1; page <= maxPages; page++) {
+        pages: for (let page = 1; page <= ESI_MAX_PAGES; page++) {
           const request = await fetch(
             `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/wallets/${division}/transactions?page=${page}&token=${userObj.aToken}`
           );
@@ -581,10 +569,10 @@ export function useEveApi() {
 
           if (data.length < maxEntries) break;
         }
-        //14 Days
+
         divisionArray = divisionArray.filter(
           (item) =>
-            currentDate - Date.parse(item.date) <= 1209600000 && !item.is_buy
+            currentDate - Date.parse(item.date) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 && !item.is_buy
         );
         transactions.push({
           division,

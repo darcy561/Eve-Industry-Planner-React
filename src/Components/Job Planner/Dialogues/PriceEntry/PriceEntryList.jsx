@@ -22,11 +22,12 @@ import {
   UserJobSnapshotContext,
   UsersContext,
 } from "../../../../Context/AuthContext";
-import { marketOptions, listingType } from "../../../../Context/defaultValues";
+import { listingType } from "../../../../Context/defaultValues";
 import { ItemPriceRow } from "./itemRow";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObject";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -39,6 +40,7 @@ export function PriceEntryDialog() {
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { updateJobSnapshotFromFullJob } = useJobManagement();
   const { findJobData } = useFindJobObject();
+
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
@@ -63,6 +65,7 @@ export function PriceEntryDialog() {
   const [totalImportedCost, updateTotalImportedCost] = useState(0);
   const [totalConfirmed, updateTotalConfirmed] = useState(false);
   const [importFromClipboard, updateImportFromClipboard] = useState(false);
+  const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
   const handleClose = () => {
     updateTotalImportedCost(0);
@@ -192,7 +195,7 @@ export function PriceEntryDialog() {
                 marginRight: "5px",
               }}
             >
-              {marketOptions.map((option) => {
+              {MARKET_OPTIONS.map((option) => {
                 return (
                   <MenuItem key={option.name} value={option.id}>
                     {option.name}

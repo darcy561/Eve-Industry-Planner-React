@@ -10,7 +10,6 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { makeStyles } from "@mui/styles";
 import { structureOptions } from "../../../../Context/defaultValues";
 import { useBlueprintCalc } from "../../../../Hooks/useBlueprintCalc";
-import { jobTypes } from "../../../../Context/defaultValues";
 import { useJobBuild } from "../../../../Hooks/useJobBuild";
 import { UsersContext } from "../../../../Context/AuthContext";
 
@@ -33,7 +32,7 @@ export function WishlistReactionOptions({
   setMaterialJobs,
 }) {
   const [structValue, updateStructValue] = useState(
-    importedJob.structureTypeDisplay
+    importedJob.structureType
   );
   const [rigsValue, updateRigsValue] = useState(importedJob.rigType);
   const [systemValue, updateSystemValue] = useState(importedJob.systemType);
@@ -68,7 +67,8 @@ export function WishlistReactionOptions({
         newMaterialJobs[index].build.time = CalculateTime({
           jobType: newMaterialJobs[index].jobType,
           CharacterHash: newMaterialJobs[index].build.buildChar,
-          structureTypeDisplay: newMaterialJobs[index].structureTypeDisplay,
+          structureType: newMaterialJobs[index].structureType,
+          rigType: newMaterialJobs[index].rigType,
           runCount: newMaterialJobs[index].runCount,
           bpTE: newMaterialJobs[index].bpTE,
           rawTime: newMaterialJobs[index].rawData.time,
@@ -128,7 +128,8 @@ export function WishlistReactionOptions({
                   time: CalculateTime({
                     jobType: prev.jobType,
                     CharacterHash: prev.build.buildChar,
-                    structureTypeDisplay: prev.structureTypeDisplay,
+                    structureType: prev.structureType,
+                    rigType: prev.rigType,
                     runCount: Number(e.target.value),
                     bpTE: prev.bpTE,
                     rawTime: prev.rawData.time,
@@ -190,8 +191,7 @@ export function WishlistReactionOptions({
                 updateStructValue(e.target.value);
                 setImportedJob((prev) => ({
                   ...prev,
-                  structureTypeDisplay: e.target.value,
-                  structureType: 1,
+                  structureType: e.target.value,
                   build: {
                     ...prev.build,
                     materials: CalculateResources({
@@ -201,14 +201,15 @@ export function WishlistReactionOptions({
                       runCount: prev.runCount,
                       jobCount: prev.jobCount,
                       bpME: prev.bpME,
-                      structureType: 1,
+                      structureType: e.target.value,
                       rigType: prev.rigType,
                       systemType: prev.systemType,
                     }),
                     time: CalculateTime({
                       jobType: prev.jobType,
                       CharacterHash: prev.build.buildChar,
-                      structureTypeDisplay: e.target.value,
+                      structureType: e.target.value,
+                      rigType: prev.rigType,
                       runCount: prev.runCount,
                       bpTE: prev.bpTE,
                       rawTime: prev.rawData.time,
@@ -218,9 +219,9 @@ export function WishlistReactionOptions({
                 }));
               }}
             >
-              {structureOptions.reactionStructure.map((entry) => {
+              {Object.values(structureOptions.reactionStructure).map((entry) => {
                 return (
-                  <MenuItem key={entry.label} value={entry.value}>
+                  <MenuItem key={entry.id} value={entry.id}>
                     {entry.label}
                   </MenuItem>
                 );
@@ -255,7 +256,8 @@ export function WishlistReactionOptions({
                     time: CalculateTime({
                       jobType: prev.jobType,
                       CharacterHash: prev.build.buildChar,
-                      structureTypeDisplay: prev.structureTypeDisplay,
+                      structureType: prev.structureType,
+                      rigType: e.target.value,
                       runCount: prev.runCount,
                       bpTE: prev.bpTE,
                       rawTime: prev.rawData.time,
@@ -266,9 +268,9 @@ export function WishlistReactionOptions({
                 updateRigsValue(e.target.value);
               }}
             >
-              {structureOptions.reactionRigs.map((entry) => {
+              {Object.values(structureOptions.reactionRigs).map((entry) => {
                 return (
-                  <MenuItem key={entry.label} value={entry.value}>
+                  <MenuItem key={entry.id} value={entry.id}>
                     {entry.label}
                   </MenuItem>
                 );
@@ -307,9 +309,9 @@ export function WishlistReactionOptions({
                 updateSystemValue(e.target.value);
               }}
             >
-              {structureOptions.reactionSystem.map((entry) => {
+              {Object.values(structureOptions.reactionSystem).map((entry) => {
                 return (
-                  <MenuItem key={entry.label} value={entry.value}>
+                  <MenuItem key={entry.id} value={entry.id}>
                     {entry.label}
                   </MenuItem>
                 );
@@ -331,15 +333,14 @@ export function WishlistReactionOptions({
                 const structure = parentUser.settings.structures.reaction.find(
                   (i) => i.id === e.target.value
                 );
-                updateStructValue(structure.structureName);
+                updateStructValue(structure.structureType);
                 updateRigsValue(structure.rigType);
                 updateSystemValue(structure.systemType);
                 setImportedJob((prev) => ({
                   ...prev,
                   rigType: structure.rigType,
                   systemType: structure.systemType,
-                  structureTypeDisplay: structure.structureName,
-                  structureType: structure.structureValue,
+                  structureType: structure.structureType,
                   build: {
                     ...prev.build,
                     materials: CalculateResources({
@@ -349,14 +350,15 @@ export function WishlistReactionOptions({
                       runCount: prev.runCount,
                       jobCount: prev.jobCount,
                       bpME: prev.bpME,
-                      structureType: structure.structureValue,
+                      structureType: structure.structureType,
                       rigType: structure.rigType,
                       systemType: structure.systemType,
                     }),
                     time: CalculateTime({
                       jobType: prev.jobType,
                       CharacterHash: prev.build.buildChar,
-                      structureTypeDisplay: structure.structureName,
+                      structureType: structure.structureType,
+                      rigType: structure.rigType,
                       runCount: prev.runCount,
                       bpTE: prev.bpTE,
                       rawTime: prev.rawData.time,

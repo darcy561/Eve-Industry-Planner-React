@@ -4,14 +4,17 @@ const { WebhookClient, EmbedBuilder } = require("discord.js");
 const crypto = require("crypto");
 require("dotenv").config();
 const bucket = admin.storage().bucket();
+const { GLOBAL_CONFIG } = require("../global-config-functions")
+
+
+const { FIREBASE_SERVER_REGION } = GLOBAL_CONFIG;
 
 const webhookClient = new WebhookClient({
-  id: process.env.ID,
-  token: process.env.TOKEN,
+  url:process.env.FEEDBACKURL
 });
 
 exports.submitUserFeedback = functions
-  .region("europe-west1")
+  .region(FIREBASE_SERVER_REGION)
   .https.onCall((data, context) => {
     if (context.app === undefined) {
       functions.logger.warn("Unverified function Call");
@@ -49,6 +52,7 @@ exports.submitUserFeedback = functions
         embeds: [embed],
       });
       functions.logger.log("Feedback Submitted Successfully");
+      return null
     } catch (err) {
       functions.logger.error("Failed to submit feedback");
       functions.logger.error(err);

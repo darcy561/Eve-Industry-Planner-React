@@ -15,6 +15,7 @@ import {
   SnackBarDataContext,
 } from "../Context/LayoutContext";
 import { JobArrayContext } from "../Context/JobContext";
+import uuid from "react-uuid";
 
 export function useJobBuild() {
   const { sisiDataFiles } = useContext(SisiDataFilesContext);
@@ -42,9 +43,7 @@ export function useJobBuild() {
       } else {
         this.name = itemJson.name;
       }
-      this.jobID = Math.floor(
-        Date.now() + itemJson.itemID + Math.random() * 100
-      );
+      this.jobID = `job-${uuid()}`
       this.jobStatus = 0;
       this.volume = itemJson.volume;
       this.itemID = itemJson.itemID;
@@ -54,7 +53,7 @@ export function useJobBuild() {
       this.bpME = 0;
       this.bpTE = 0;
       this.rigType = 0;
-      this.systemType = 1;
+      this.systemType = 0;
       this.apiJobs = new Set();
       this.apiOrders = new Set();
       this.apiTransactions = new Set();
@@ -99,7 +98,6 @@ export function useJobBuild() {
         this.rawData.products = itemJson.activities.manufacturing.products;
         this.rawData.time = itemJson.activities.manufacturing.time;
         this.structureType = 0;
-        this.structureTypeDisplay = "Station";
         this.skills = itemJson.activities.manufacturing.skills || [];
         this.build.materials = JSON.parse(
           JSON.stringify(itemJson.activities.manufacturing.materials)
@@ -114,7 +112,6 @@ export function useJobBuild() {
         this.rawData.products = itemJson.activities.reaction.products;
         this.rawData.time = itemJson.activities.reaction.time;
         this.structureType = 1;
-        this.structureTypeDisplay = "Medium";
         this.skills = itemJson.activities.reaction.skills || [];
         this.build.materials = JSON.parse(
           JSON.stringify(itemJson.activities.reaction.materials)
@@ -179,7 +176,8 @@ export function useJobBuild() {
         outputObject.build.time = CalculateTime({
           jobType: outputObject.jobType,
           CharacterHash: outputObject.build.buildChar,
-          structureTypeDisplay: outputObject.structureTypeDisplay,
+          structureType: outputObject.structureType,
+          rigType: outputObject.rigType,
           runCount: outputObject.runCount,
           bpTE: outputObject.bpTE,
           rawTime: outputObject.rawData.time,
@@ -228,7 +226,7 @@ export function useJobBuild() {
       let returnArray = [];
       for (let request of buildRequest) {
         let itemJson = jsonData.find((i) => i.itemID === request.itemID);
-        if (itemJson === undefined) {
+        if (!itemJson) {
           continue;
         }
         returnArray.push(buildJobObject(itemJson, request));
@@ -388,9 +386,7 @@ export function useJobBuild() {
 
         outputObject.rigType = manufacturingStructure.rigType;
         outputObject.systemType = manufacturingStructure.systemType;
-        outputObject.structureType = manufacturingStructure.structureValue;
-        outputObject.structureTypeDisplay =
-          manufacturingStructure.structureName;
+        outputObject.structureType = manufacturingStructure.structureType;
         break;
       case jobTypes.reaction:
         const reactionStructure = parentUser.settings.structures.reaction.find(
@@ -400,8 +396,7 @@ export function useJobBuild() {
 
         outputObject.rigType = reactionStructure.rigType;
         outputObject.systemType = reactionStructure.systemType;
-        outputObject.structureType = reactionStructure.structureValue;
-        outputObject.structureTypeDisplay = reactionStructure.structureName;
+        outputObject.structureType = reactionStructure.structureType;
         break;
     }
   }
@@ -414,7 +409,7 @@ export function useJobBuild() {
       const buildItem = buildRequest.childJobs.find(
         (i) => i.typeID === material.typeID
       );
-      if (buildItem === undefined) {
+      if (!buildItem) {
         continue;
       }
       material.childJob = [...buildItem.childJobs];

@@ -11,6 +11,7 @@ import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
 import { useJobManagement } from "./useJobManagement";
+import uuid from "react-uuid";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -28,30 +29,26 @@ export function useGroupManagement() {
   const { buildJob, recalculateItemQty } = useJobBuild();
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
 
-  class newJobGroupTemplate {
-    constructor(
-      groupID,
-      outputJobNames,
-      inputIDs,
-      includedTypeIDs,
-      materialIDs,
-      outputJobCount
-    ) {
-      this.groupName = outputJobNames.join(", ").substring(0, 75);
-      this.groupID = groupID;
-      this.includedJobIDs = inputIDs;
-      this.includedTypeIDs = [...includedTypeIDs];
-      this.materialIDs = [...materialIDs];
-      this.outputJobCount = outputJobCount;
-      this.areComplete = [];
-      this.showComplete = true;
-      this.groupStatus = 0;
-      this.groupType = 1;
-    }
+  function newJobGroupTemplate(
+    outputJobNames,
+    inputIDs,
+    includedTypeIDs,
+    materialIDs,
+    outputJobCount
+  ) {
+    this.groupName = outputJobNames.join(", ").substring(0, 75);
+    this.groupID = `group-${uuid()}`;
+    this.includedJobIDs = inputIDs;
+    this.includedTypeIDs = [...includedTypeIDs];
+    this.materialIDs = [...materialIDs];
+    this.outputJobCount = outputJobCount;
+    this.areComplete = [];
+    this.showComplete = true;
+    this.groupStatus = 0;
+    this.groupType = 1;
   }
 
   const createNewGroupWithJobs = async (inputJobIDs) => {
-    const newGroupID = `group-${Date.now()}-${Math.floor(Math.random() * 100)}`;
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newGroupArray = [...groupArray];
@@ -69,7 +66,7 @@ export function useGroupManagement() {
         undefined,
         "all"
       );
-      if (inputJob === undefined) {
+      if (!inputJob) {
         continue;
       }
 
@@ -80,13 +77,13 @@ export function useGroupManagement() {
           continue;
         }
         let job = await findJobData(id, newUserJobSnapshot, newJobArray);
-        if (job === undefined) {
+        if (!job) {
           continue;
         }
         let material = job.build.materials.find(
           (i) => i.typeID === inputJob.itemID
         );
-        if (material === undefined) {
+        if (!material) {
           continue;
         }
         material.childJob = material.childJob.filter(
@@ -103,10 +100,9 @@ export function useGroupManagement() {
             continue;
           }
           let job = await findJobData(id, newUserJobSnapshot, newJobArray);
-          if (job === undefined) {
+          if (!job) {
             continue;
           }
-          console.log(job);
           job.parentJob = job.parentJob.filter((i) => !inputJob.jobID);
         }
         mat.childJob = mat.childJob.filter((i) => inputJobIDs.includes(i));
@@ -125,18 +121,13 @@ export function useGroupManagement() {
     if (outputJobNames.length === 0) {
       outputJobNames.push("Untitled Group");
     }
-    let newGroupEntry = Object.assign(
-      {},
-      new newJobGroupTemplate(
-        newGroupID,
-        outputJobNames,
-        inputJobIDs,
-        jobTypeIDs,
-        materialIDs,
-        outputJobCount
-      )
+    let newGroupEntry = new newJobGroupTemplate(
+      outputJobNames,
+      inputJobIDs,
+      jobTypeIDs,
+      materialIDs,
+      outputJobCount
     );
-
     newGroupArray.push(newGroupEntry);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
@@ -148,7 +139,7 @@ export function useGroupManagement() {
 
       jobsToSave.forEach((id) => {
         let job = newJobArray.find((i) => i.jobID === id);
-        if (job === undefined) {
+        if (!job) {
           return;
         }
         uploadJob(job);
@@ -181,7 +172,7 @@ export function useGroupManagement() {
         undefined,
         "groupJob"
       );
-      if (foundJob === undefined) {
+      if (!foundJob) {
         continue;
       }
       foundJob.groupID = null;
@@ -221,7 +212,7 @@ export function useGroupManagement() {
       for (let childJobID of material.childJob) {
         let childJob = jobArray.find((i) => i.jobID === childJobID);
 
-        if (childJob === undefined) {
+        if (!childJob) {
           continue;
         }
         returnTotal += childJob.build.costs.installCosts;
@@ -376,7 +367,7 @@ export function useGroupManagement() {
           userJobSnapshot,
           newJobArray
         );
-        if (inputJob === undefined) {
+        if (!inputJob) {
           continue;
         }
 
@@ -462,7 +453,7 @@ export function useGroupManagement() {
       for (let modifiedData of modifiedJobData) {
         let job = newJobArray.find((i) => i.jobID === modifiedData.jobID);
 
-        if (job === undefined) {
+        if (!job) {
           continue;
         }
 
@@ -492,7 +483,8 @@ export function useGroupManagement() {
         job.build.time = CalculateTime({
           jobType: job.jobType,
           CharacterHash: job.build.buildChar,
-          structureTypeDisplay: job.structureTypeDisplay,
+          structureType: job.structureType,
+          rigType: job.rigType,
           runCount: job.runCount,
           bpTE: job.bpTE,
           rawTime: job.rawData.time,
@@ -580,7 +572,7 @@ export function useGroupManagement() {
           undefined,
           "groupJob"
         );
-        if (job === undefined) {
+        if (!job) {
           continue;
         }
 
@@ -654,7 +646,7 @@ export function useGroupManagement() {
           undefined,
           "groupJob"
         );
-        if (job === undefined) {
+        if (!job) {
           continue;
         }
         let childJobArray = [];

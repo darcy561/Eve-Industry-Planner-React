@@ -29,7 +29,7 @@ export function useMoveItemsOnPlanner() {
     if (direction === undefined) return;
 
     for (let inputSnapID of inputSnapIDs) {
-      if (typeof inputSnapID === "string") {
+      if (inputSnapID.includes("group")) {
         await moveGroups(inputSnapID);
       } else {
         await moveJobs(inputSnapID);
@@ -83,7 +83,7 @@ export function useMoveItemsOnPlanner() {
         newUserJobSnapshot,
         newJobArray
       );
-      if (inputJob === undefined) return;
+      if (!inputJob) return;
 
       if (direction === "forward") {
         if (inputJob.jobStatus >= 4) return;
@@ -95,7 +95,7 @@ export function useMoveItemsOnPlanner() {
         inputJob.jobStatus--;
       }
 
-      if (inputJob.groupID === null) {
+      if (!inputJob.groupID) {
         newUserJobSnapshot = updateJobSnapshotFromFullJob(
           inputJob,
           newUserJobSnapshot

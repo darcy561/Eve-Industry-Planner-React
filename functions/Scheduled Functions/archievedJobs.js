@@ -1,10 +1,14 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const { GLOBAL_CONFIG } = require("../global-config-functions");
+
+const { FIREBASE_SERVER_REGION, FIREBASE_SERVER_TIMEZONE } = GLOBAL_CONFIG;
 
 exports.scheduledfunction = functions
-  .region("europe-west1")
+  .region(FIREBASE_SERVER_REGION)
   .runWith({ timeoutSeconds: 540 })
   .pubsub.schedule("every 1 hours")
+  .timeZone(FIREBASE_SERVER_TIMEZONE)
   .onRun(async (context) => {
     let snapshotArray = [];
     const snapshot = await admin
@@ -49,7 +53,30 @@ exports.scheduledfunction = functions
       const totalCostPerItem =
         Math.round((totalJobCost / totalProduced + Number.EPSILON) * 100) / 100;
       const totalSales = totalSale;
+      const averageSalePrice = !isNaN(
+        Math.round((totalSale / averageQuantity + Number.EPSILON) * 100) / 100
+      )
+        ? Math.round((totalSale / averageQuantity + Number.EPSILON) * 100) / 100
+        : 0;
       const profitLoss = totalSale > 0 ? totalSale - totalJobCost : 0;
+      const corpMarketOrder = job.build.sale.marketOrders.reduce(
+        (res, order) => {
+          if (order.is_corporation) {
+            res = true;
+          }
+          return res;
+        },
+        false
+      );
+      const corpIndustyJob = job.build.costs.linkedJobs.reduce(
+        (res, linkedJob) => {
+          if (linkedJob.isCorp) {
+            res = true;
+          }
+          return res;
+        },
+        false
+      );
 
       const archiveObject = {
         typeID: job.itemID,
@@ -75,6 +102,8 @@ exports.scheduledfunction = functions
         totalSales,
         averageSalePrice,
         profitLoss,
+        corpMarketOrder,
+        corpIndustyJob,
       };
 
       let dbObject = {

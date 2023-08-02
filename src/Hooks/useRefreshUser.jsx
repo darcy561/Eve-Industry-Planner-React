@@ -47,12 +47,10 @@ export function useRefreshUser() {
 
   const checkAppVersion = httpsCallable(
     functions,
-    "appVersion-checkAppVersion"
+    "checkAppVersion-checkAppVersion"
   );
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   const checkUserState = async () => {
     if (isLoggedIn) {

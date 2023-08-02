@@ -9,27 +9,24 @@ export function useCharAssets() {
   const { users } = useContext(UsersContext);
   const { eveIDs } = useContext(EveIDsContext);
   const { IDtoName } = useEveApi();
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+
+  const acceptedDirectLocationTypes = new Set(["station", "solar_system"]);
+  const acceptedExtendedLocationTypes = new Set(["item", "other"]);
+
+  const acceptedLocationFlags = new Set(["Hangar", "Unlocked", "AutoFit"]);
 
   const retrieveAssetLocation = (initialAsset, userAssets) => {
     let parentAsset = userAssets.find(
       (i) => i.item_id === initialAsset.location_id
     );
-    if (parentAsset == undefined) {
+    if (!parentAsset) {
       return initialAsset;
     }
-    if (
-      parentAsset.location_type === "item" ||
-      parentAsset.location_type === "other"
-    ) {
+    if (acceptedExtendedLocationTypes.has(parentAsset.location_type)) {
       return retrieveAssetLocation(parentAsset, userAssets);
     }
-    if (
-      parentAsset.location_type === "station" ||
-      parentAsset.location_type === "solar_system"
-    ) {
+    if (acceptedDirectLocationTypes.has(parentAsset.location_type)) {
       return parentAsset;
     }
   };
@@ -43,16 +40,13 @@ export function useCharAssets() {
       let userAssets = JSON.parse(
         sessionStorage.getItem(`assets_${user.CharacterHash}`)
       );
-      
+
       if (!isLoggedIn) {
-        return [[],[]]
+        return [[], []];
       }
 
       for (let asset of userAssets) {
-        if (
-          asset.location_type === "station" ||
-          asset.location_type === "solar_system"
-        ) {
+        if (acceptedDirectLocationTypes.has(asset.location_type)) {
           if (!newEveIDs.some((i) => i.id === asset.location_id)) {
             if (asset.location_id.toString().length > 10) {
               missingCitadelIDs.add(asset.location_id);
@@ -64,10 +58,10 @@ export function useCharAssets() {
             itemLocations.push(asset.location_id);
           }
         }
-        if (asset.location_type === "item" || asset.location_type === "other") {
+        if (acceptedExtendedLocationTypes.has(asset.location_type)) {
           let parentLocation = retrieveAssetLocation(asset, userAssets);
           if (
-            parentLocation !== undefined &&
+            parentLocation &&
             parentLocation.location_type !== "other"
           ) {
             if (!itemLocations.some((i) => i === parentLocation.location_id)) {
@@ -102,12 +96,12 @@ export function useCharAssets() {
     }
 
     itemLocations.sort((a, b) => {
-      let aName = newEveIDs.find((i) => i.id === a);
-      let bName = newEveIDs.find((i) => i.id === b);
-      if (aName.name < bName.name) {
+      let aName = newEveIDs.find((i) => i.id === a)?.name;
+      let bName = newEveIDs.find((i) => i.id === b)?.name;
+      if (aName < bName) {
         return -1;
       }
-      if (aName.name > bName.name) {
+      if (aName > bName) {
         return 1;
       }
       return 0;
@@ -130,10 +124,7 @@ export function useCharAssets() {
         (entry) => entry.type_id === requestedItemID
       );
       for (let item of filteredUserAssetList) {
-        if (
-          item.location_type === "station" ||
-          item.location_type === "solar_system"
-        ) {
+        if (acceptedDirectLocationTypes.has(item.location_type)) {
           if (item.location_id.toString().length > 10) {
             missingCitadelIDs.add(item.location_id);
           } else {
@@ -153,10 +144,10 @@ export function useCharAssets() {
             });
           }
         }
-        if (item.location_type === "item" || item.location_type === "other") {
+        if (acceptedExtendedLocationTypes.has(item.location_type)) {
           let parentLocation = retrieveAssetLocation(item, userAssets);
           if (
-            parentLocation !== undefined &&
+            parentLocation &&
             parentLocation.location_type !== "other" &&
             item.location_flag !== "Cargo"
           ) {
@@ -209,17 +200,14 @@ export function useCharAssets() {
       );
 
       if (!isLoggedIn) {
-        return [[],[]]
+        return [[], []];
       }
 
       for (let item of userAssets) {
         if (searchData.some((i) => i.blueprintID === item.type_id)) {
           continue;
         }
-        if (
-          item.location_type === "station" ||
-          item.location_type === "solar_system"
-        ) {
+        if (acceptedDirectLocationTypes.has(item.location_type)) {
           if (item.location_id !== requiredLocationID) {
             continue;
           }
@@ -241,9 +229,9 @@ export function useCharAssets() {
           }
         }
 
-        if (item.location_type === "item" || item.location_type === "other") {
+        if (acceptedExtendedLocationTypes.has(item.location_type)) {
           let parentLocation = retrieveAssetLocation(item, userAssets);
-          if (parentLocation === undefined && item.location_flag !== "Cargo") {
+          if (!parentLocation && item.location_flag !== "Cargo") {
             continue;
           }
           if (item.location_id !== requiredLocationID) {
@@ -255,11 +243,7 @@ export function useCharAssets() {
             parentLocation.item_id === item.location_id ||
             parentLocation.item_id === item.item_id
           ) {
-            if (
-              item.location_flag !== "Hangar" &&
-              item.location_flag !== "Unlocked" &&
-              item.location_flag !== "AutoFit"
-            ) {
+            if (!acceptedLocationFlags.has(item.location_flag)) {
               continue;
             }
 

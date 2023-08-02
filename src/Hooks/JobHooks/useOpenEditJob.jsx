@@ -45,7 +45,7 @@ export function useOpenEditJob() {
   } = useFirebase();
   const checkAppVersion = httpsCallable(
     functions,
-    "appVersion-checkAppVersion"
+    "checkAppVersion-checkAppVersion"
   );
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -70,7 +70,6 @@ export function useOpenEditJob() {
     //   inputJobID,
     //   newUserJobSnapshot
     // );
-
     updateLoadingText((prevObj) => ({
       ...prevObj,
       jobData: true,
@@ -84,16 +83,16 @@ export function useOpenEditJob() {
         newUserJobSnapshot,
         newJobArray
       );
-      if (parentJob === undefined) continue;
+      if (!parentJob) continue;
       itemIDs = new Set(itemIDs, generatePriceRequestFromJob(parentJob));
     }
     for (let mat of openJob.build.materials) {
       if (mat.childJob.length === 0) {
-        continue;
+        continue;s
       }
       for (let cJID of mat.childJob) {
         let childJob = await findJobData(cJID, newUserJobSnapshot, newJobArray);
-        if (childJob === undefined) {
+        if (!childJob) {
           continue;
         }
 
@@ -127,10 +126,11 @@ export function useOpenEditJob() {
     let jobPrices = await getItemPrices([...itemIDs], parentUser);
     if (jobPrices.length > 0) {
       updateEvePrices((prev) => {
-        jobPrices = jobPrices.filter(
-          (n) => !prev.some((p) => p.typeID === n.typeID)
+        const prevIds = new Set(prev.map((item) => item.typeID));
+        const uniqueNewEvePrices = jobPrices.filter(
+          (item) => !prevIds.has(item.typeID)
         );
-        return prev.concat(jobPrices);
+        return [...prev, ...uniqueNewEvePrices];
       });
     }
     updateJobArray(newJobArray);

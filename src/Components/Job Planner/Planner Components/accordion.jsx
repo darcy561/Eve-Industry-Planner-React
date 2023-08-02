@@ -1,8 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
+  UsersContext,
 } from "../../../Context/AuthContext";
 import {
   Accordion,
@@ -20,11 +21,12 @@ import AddIcon from "@mui/icons-material/Add";
 import { StatusSettings } from "./StatusSettings";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { makeStyles } from "@mui/styles";
-import { AccordionContents } from "./accordionContents";
+import { ClassicAccordionContents } from "./Classic/classicContents";
 import { useDrop } from "react-dnd";
 import { useDnD } from "../../../Hooks/useDnD";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { grey } from "@mui/material/colors";
+import { CompactAccordionContents } from "./Compact/compactContents";
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -39,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function PlannerAccordion({ updateEditJobTrigger }) {
+  const { users } = useContext(UsersContext);
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobArray } = useContext(JobArrayContext);
@@ -57,6 +60,10 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
     completeAPIJobs: false,
   });
   const { canDropCard, recieveJobCardToStage } = useDnD();
+
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
 
   const classes = useStyles();
 
@@ -92,7 +99,7 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
           <Accordion
             ref={drop}
             className={classes.Accordion}
-            expanded={status.expanded === true}
+            expanded={status.expanded}
             square={true}
             spacing={1}
             id={status.id}
@@ -189,10 +196,18 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              <AccordionContents
-                updateEditJobTrigger={updateEditJobTrigger}
-                status={status}
-              />
+              {parentUser.settings.layout.enableCompactView ? (
+                <CompactAccordionContents
+                  updateEditJobTrigger={updateEditJobTrigger}
+                  status={status}
+                />
+              ) : (
+                <ClassicAccordionContents
+                  updateEditJobTrigger={updateEditJobTrigger}
+                  status={status}
+                />
+              )}
+
             </AccordionDetails>
           </Accordion>
         );

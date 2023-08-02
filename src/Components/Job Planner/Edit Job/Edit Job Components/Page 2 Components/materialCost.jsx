@@ -11,62 +11,53 @@ export function MaterialCost({ materialIndex, material, setJobModified }) {
   function handleRemove(purchasingIndex) {
     const newArray = [...activeJob.build.materials];
     let newTotal = activeJob.build.costs.totalPurchaseCost;
+    let material = newArray[materialIndex];
+    const itemCost = material.purchasing[purchasingIndex].itemCost;
+    const itemCount = material.purchasing[purchasingIndex].itemCount;
+    const hasInvalidQuantityOrCost = material.purchasing.some(
+      (entry) =>
+        isNaN(entry.itemCount) ||
+        entry.itemCount < 0 ||
+        isNaN(entry.itemCost) ||
+        entry.itemCost < 0
+    );
+    const hasInvalidTotalPurchaseCost = isNaN(newTotal) || newTotal < 0;
 
-    if (
-      isNaN(newArray[materialIndex].quantityPurchased) ||
-      newArray[materialIndex].quantityPurchased < 0 ||
-      isNaN(newArray[materialIndex].purchasedCost) ||
-      newArray[materialIndex].purchasedCost < 0
-    ) {
-      let newQuantity = 0;
-      let newPurchaseCost = 0;
-      newArray[materialIndex].purchasing.forEach((entry) => {
-        newQuantity += entry.itemCount;
-        newPurchaseCost += entry.itemCount * entry.itemCost;
-      });
-      newArray[materialIndex].quantityPurchased = newQuantity;
-      newArray[materialIndex].purchasedCost = newPurchaseCost;
-    }
-    if (
-      isNaN(activeJob.build.costs.totalPurchaseCost) ||
-      activeJob.build.costs.totalPurchaseCost < 0
-    ) {
-      newTotal = 0;
-      newArray.forEach((i) => {
-        newTotal += i.purchasedCost;
-      });
-    }
+    if (hasInvalidQuantityOrCost) {
+      const { newQuantity, newPurchaseCost } = material.purchasing.reduce(
+        (acc, entry) => ({
+          newQuantity: acc.newQuantity + entry.itemCount,
+          newPurchaseCost:
+            acc.newPurchaseCost + entry.itemCount * entry.itemCost,
+        }),
+        { newQuantity: 0, newPurchaseCost: 0 }
+      );
 
-    newArray[materialIndex].quantityPurchased -=
-      newArray[materialIndex].purchasing[purchasingIndex].itemCount;
-    newArray[materialIndex].purchasedCost -=
-      newArray[materialIndex].purchasing[purchasingIndex].itemCount *
-      newArray[materialIndex].purchasing[purchasingIndex].itemCost;
-    newTotal -=
-      newArray[materialIndex].purchasing[purchasingIndex].itemCount *
-      newArray[materialIndex].purchasing[purchasingIndex].itemCost;
-    if (
-      newArray[materialIndex].quantityPurchased <
-      newArray[materialIndex].quantity
-    ) {
-      newArray[materialIndex].purchaseComplete = false;
+      material.quantityPurchased = newQuantity;
+      material.purchasedCost = newPurchaseCost;
     }
-    if (purchasingIndex !== -1 && materialIndex !== -1) {
-      newArray[materialIndex].purchasing.splice(purchasingIndex, 1);
+    if (hasInvalidTotalPurchaseCost) {
+      newTotal = newArray.reduce((acc, entry) => acc + entry.purchasedCost, 0);
     }
 
-    if (newArray[materialIndex].purchasing.length === 0) {
-      if (
-        newArray[materialIndex].quantityPurchased !== 0 ||
-        newArray[materialIndex].purchasedCost !== 0
-      ) {
-        newArray[materialIndex].quantityPurchased = 0;
-        newArray[materialIndex].purchasedCost = 0;
 
-        newTotal = 0;
-        newArray.forEach((i) => {
-          newTotal += i.purchasedCost;
-        });
+    material.quantityPurchased -= itemCount;
+    material.purchasedCost -= itemCount * itemCost;
+    newTotal -= itemCount * itemCost;
+    if (material.quantityPurchased < material.quantity) {
+      material.purchaseComplete = false;
+    }
+
+    material.purchasing = material.purchasing.filter(
+      (item, index) => index !== purchasingIndex
+    );
+
+    if (material.purchasing.length === 0) {
+      if (material.quantityPurchased !== 0 || material.purchasedCost !== 0) {
+        material.quantityPurchased = 0;
+        material.purchasedCost = 0;
+
+        newTotal = newArray.reduce((acc, entry) => acc + entry.purchasedCost, 0)
       }
     }
 

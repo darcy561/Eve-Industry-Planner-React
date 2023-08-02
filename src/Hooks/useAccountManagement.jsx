@@ -143,64 +143,42 @@ export function useAccountManagement() {
   const characterAPICall = async (userObject) => {
     const t = trace(performance, "CharacterESICalls");
     t.start();
-    const [
-      skills,
-      indJobs,
-      orders,
-      histOrders,
-      blueprints,
-      transactions,
-      journal,
-      assets,
-      standings,
-      corpIndJobs,
-      corpMOrders,
-      corpHistMOrders,
-      corpBlueprints,
-      corpJournal,
-      corpTransactions,
-      corpDivisions,
-      corpPublicInfo,
-    ] = await Promise.all([
-      fetchCharacterSkills(userObject),
-      fetchCharacterIndustryJobs(userObject),
-      fetchCharacterMarketOrders(userObject),
-      fetchCharacterHistMarketOrders(userObject),
-      fetchCharacterBlueprints(userObject),
-      fetchCharacterTransactions(userObject),
-      fetchCharacterJournal(userObject),
-      fetchCharacterAssets(userObject),
-      fetchCharacterStandings(userObject),
-      fetchCorpIndustryJobs(userObject),
-      fetchCorpMarketOrdersJobs(userObject),
-      fetchCorpHistMarketOrders(userObject),
-      fetchCorpBlueprintLibrary(userObject),
-      fetchCorpJournal(userObject),
-      fetchCorpTransactions(userObject),
-      fetchCorpDivisions(userObject),
-      fetchCorpPublicInfo(userObject),
-    ]);
-    t.stop();
-    return {
-      owner: userObject.CharacterHash,
-      esiSkills: skills,
-      esiJobs: indJobs,
-      esiOrders: orders,
-      esiHistOrders: histOrders,
-      esiBlueprints: blueprints,
-      esiJournal: journal,
-      esiTransactions: transactions,
-      esiAssets: assets,
-      esiStandings: standings,
-      esiCorpJobs: corpIndJobs,
-      esiCorpMOrders: corpMOrders,
-      esiCorpHistMOrders: corpHistMOrders,
-      esiCorpBlueprints: corpBlueprints,
-      esiCorpJournal: corpJournal,
-      esiCorpTransactions: corpTransactions,
-      esiCorpDivisions: corpDivisions,
-      esiCorpPublicInfo: corpPublicInfo,
+
+    const apiFunctions = {
+      esiSkills: fetchCharacterSkills,
+      esiJobs: fetchCharacterIndustryJobs,
+      esiOrders: fetchCharacterMarketOrders,
+      esiHistOrders: fetchCharacterHistMarketOrders,
+      esiBlueprints: fetchCharacterBlueprints,
+      esiTransactions: fetchCharacterTransactions,
+      esiJournal: fetchCharacterJournal,
+      esiAssets: fetchCharacterAssets,
+      esiStandings: fetchCharacterStandings,
+      esiCorpJobs: fetchCorpIndustryJobs,
+      esiCorpMOrders: fetchCorpMarketOrdersJobs,
+      esiCorpHistMOrders: fetchCorpHistMarketOrders,
+      esiCorpBlueprints: fetchCorpBlueprintLibrary,
+      esiCorpJournal: fetchCorpJournal,
+      esiCorpTransactions: fetchCorpTransactions,
+      esiCorpDivisions: fetchCorpDivisions,
+      esiCorpPublicInfo: fetchCorpPublicInfo,
     };
+
+    const apiResults = await Promise.all(
+      Object.values(apiFunctions).map((apiFunction) => apiFunction(userObject))
+    );
+
+    t.stop();
+
+    const resultObject = {};
+
+    Object.keys(apiFunctions).forEach((key, index) => {
+      resultObject[key] = apiResults[index];
+    });
+
+    resultObject.owner = userObject.CharacterHash;
+
+    return resultObject;
   };
 
   const getLocationNames = async (users, mainUser, esiObjectArray) => {
@@ -223,7 +201,7 @@ export function useAccountManagement() {
         }
       };
       let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
-      if (data === undefined) {
+      if (!data) {
         continue;
       }
 
@@ -409,9 +387,9 @@ export function useAccountManagement() {
 
   const checkUserClaims = async (newUserArray) => {
     let triggerClaimUpdate = false;
-    let token = await auth.currentUser.getIdTokenResult();
-    let dataArray = [];
-    let corpIDs = new Set();
+    const token = await auth.currentUser.getIdTokenResult();
+    const dataArray = [];
+    const corpIDs = new Set();
 
     for (let user of newUserArray) {
       if (
@@ -466,12 +444,12 @@ export function useAccountManagement() {
   };
 
   const buildLocalAccountData = async (userArray, esiObjectArray) => {
-    let parent = userArray.find((i) => i.ParentUser);
-    let rTokens = JSON.parse(
+    const parent = userArray.find((i) => i.ParentUser);
+    const rTokens = JSON.parse(
       localStorage.getItem(`${parent.CharacterHash} AdditionalAccounts`)
     );
 
-    if (rTokens === null) {
+    if (!rTokens) {
       return userArray;
     }
     for (let token of rTokens) {
@@ -501,7 +479,7 @@ export function useAccountManagement() {
       let token = refreshTokens.find(
         (i) => i.CharacterHash === user.CharacterHash
       );
-      if (token === undefined) continue;
+      if (!token) continue;
 
       if (user.rToken !== token.rToken) {
         token.rToken = user.rToken;
@@ -516,8 +494,8 @@ export function useAccountManagement() {
   };
 
   const updateLocalRefreshTokens = (userArray) => {
-    let tokenArray = [];
-    let parent = userArray.find((i) => i.ParentUser);
+    const tokenArray = [];
+    const parent = userArray.find((i) => i.ParentUser);
     for (let user of userArray) {
       if (user.ParentUser) continue;
 
@@ -536,7 +514,7 @@ export function useAccountManagement() {
     let newApiArray = [];
     for (let user of userArray) {
       let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
-      if (data === undefined) continue;
+      if (!data) continue;
 
       newApiArray = newApiArray.concat(data.esiJobs, data.esiCorpJobs);
     }
@@ -563,7 +541,7 @@ export function useAccountManagement() {
     chosentUsersArray,
     esiObjectArray
   ) => {
-    let characterIDToRemove = new Set();
+    const characterIDToRemove = new Set();
 
     for (let entry of esiObjectArray) {
       let id = chosentUsersArray.find(

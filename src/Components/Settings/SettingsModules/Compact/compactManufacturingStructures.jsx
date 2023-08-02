@@ -16,18 +16,18 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { structureOptions } from "../../../Context/defaultValues";
+import { structureOptions } from "../../../../Context/defaultValues";
 import AddIcon from "@mui/icons-material/Add";
 import { makeStyles } from "@mui/styles";
 import { useState } from "react";
 import { useContext } from "react";
-import { UsersContext } from "../../../Context/AuthContext";
+import { UsersContext } from "../../../../Context/AuthContext";
 import { Masonry } from "@mui/lab";
-import { useFirebase } from "../../../Hooks/useFirebase";
+import { useFirebase } from "../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { SnackBarDataContext } from "../../../Context/LayoutContext";
-import systemIDS from "../../../RawData/systems.json";
+import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import uuid from "react-uuid";
+import systemIDS from "../../../../RawData/systems.json";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -49,44 +49,45 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function ReactionStrutures({ parentUserIndex }) {
+export function CompactManufacturingStrutures({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateMainUserDoc } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const [textValue, updateTextValue] = useState("");
-  const [systemValue, updateSystemValue] = useState(
-    structureOptions.reactionSystem[0].id
+
+  const [textValue, updateTextValue] = useState(null);
+  const [systemTypeValue, updateSystemTypeValue] = useState(
+    structureOptions.manSystem[0].id
   );
   const [structValue, updateStructValue] = useState(
-    structureOptions.reactionStructure[0].id
+    structureOptions.manStructure[0].id
   );
-  const [rigsValue, updateRigsValue] = useState(
-    structureOptions.reactionRigs[0].id
-  );
-  const [taxValue, updateTaxValue] = useState("");
-  const [systemIDValue, updateSystemIDValue] = useState("");
+  const [rigsValue, updateRigsValue] = useState(structureOptions.manRigs[0].id);
+  const [taxValue, updateTaxValue] = useState(null);
+  const [systemIDValue, updateSystemIDValue] = useState(null);
   const classes = useStyles();
   const analytics = getAnalytics();
 
   const handleSubmit = (event) => {
     event.preventDefault();
     let newUsersArray = [...users];
-    newUsersArray[parentUserIndex].settings.structures.reaction.push({
-      id: `reacStruct-${uuid()}`,
+    newUsersArray[parentUserIndex].settings.structures.manufacturing.push({
+      id: `manStruct-${uuid()}`,
       name: textValue,
-      systemType: systemValue,
+      systemType: systemTypeValue,
       structureType: structValue,
       rigType: rigsValue,
-      tax: taxValue,
       systemID: systemIDValue,
+      tax: taxValue,
       default:
-        newUsersArray[parentUserIndex].settings.structures.reaction.length === 0
+        newUsersArray[parentUserIndex].settings.structures.manufacturing
+          .length === 0
           ? true
           : false,
     });
+
     updateMainUserDoc(newUsersArray);
     updateUsers(newUsersArray);
-    logEvent(analytics, "Add Reaction Structure", {
+    logEvent(analytics, "Add Manufacturing Structure", {
       UID: newUsersArray[parentUserIndex].accountID,
     });
     setSnackbarData((prev) => ({
@@ -103,7 +104,7 @@ export function ReactionStrutures({ parentUserIndex }) {
       <Grid container>
         <Grid item xs={12} align="center" sx={{ marginBottom: "10px" }}>
           <Typography variant="h6" color="primary">
-            Reaction Structures
+            Manufacturing Structures
           </Typography>
         </Grid>
         <Grid container item xs={12}>
@@ -129,7 +130,7 @@ export function ReactionStrutures({ parentUserIndex }) {
                         size="small"
                         variant="standard"
                         className={classes.TextField}
-                        helperText="Name"
+                        helperText="Display Name"
                         type="text"
                         onBlur={(e) => {
                           let input = e.target.value.replace(
@@ -148,12 +149,12 @@ export function ReactionStrutures({ parentUserIndex }) {
                         <Select
                           variant="standard"
                           size="small"
-                          value={systemValue}
+                          value={systemTypeValue}
                           onChange={(e) => {
-                            updateSystemValue(e.target.value);
+                            updateSystemTypeValue(e.target.value);
                           }}
                         >
-                          {Object.values(structureOptions.reactionSystem).map(
+                          {Object.values(structureOptions.manSystem).map(
                             (entry) => {
                               return (
                                 <MenuItem key={entry.id} value={entry.id}>
@@ -181,15 +182,15 @@ export function ReactionStrutures({ parentUserIndex }) {
                             updateStructValue(e.target.value);
                           }}
                         >
-                          {Object.values(
-                            structureOptions.reactionStructure
-                          ).map((entry) => {
-                            return (
-                              <MenuItem key={entry.id} value={entry.id}>
-                                {entry.label}
-                              </MenuItem>
-                            );
-                          })}
+                          {Object.values(structureOptions.manStructure).map(
+                            (entry) => {
+                              return (
+                                <MenuItem key={entry.id} value={entry.id}>
+                                  {entry.label}
+                                </MenuItem>
+                              );
+                            }
+                          )}
                         </Select>
                         <FormHelperText variant="standard">
                           Structure Type
@@ -209,7 +210,7 @@ export function ReactionStrutures({ parentUserIndex }) {
                             updateRigsValue(e.target.value);
                           }}
                         >
-                          {Object.values(structureOptions.reactionRigs).map(
+                          {Object.values(structureOptions.manRigs).map(
                             (entry) => {
                               return (
                                 <MenuItem key={entry.id} value={entry.id}>
@@ -301,6 +302,7 @@ export function ReactionStrutures({ parentUserIndex }) {
             item
             xs={12}
             lg={6}
+            spacing={1}
             sx={{
               paddingLeft: "5px",
               paddingRight: "5px",
@@ -309,16 +311,23 @@ export function ReactionStrutures({ parentUserIndex }) {
               height: { xs: "200px", lg: "380px" },
             }}
           >
-            {users[parentUserIndex].settings.structures.reaction.map(
+            {users[parentUserIndex].settings.structures.manufacturing.map(
               (entry) => {
                 const systemText =
-                  structureOptions.reactionSystem[entry.systemType]?.label ||
-                  "A";
+                  structureOptions.manSystem[entry.systemType]?.label ||
+                  "Missing System Type";
+
                 const structureText =
-                  structureOptions.reactionStructure[entry.structureType]?.label ||
-                  "B";
+                  structureOptions.manStructure[entry.structureType]?.label ||
+                  "Missing Structure Type";
+
                 const rigText =
-                  structureOptions.reactionRigs[entry.rigType]?.label || "C";
+                  structureOptions.manRigs[entry.rigType]?.label ||
+                  "Missing Rig Type";
+
+                const systemName =
+                  systemIDS.find((i) => i.id === entry.systemID)?.name ||
+                  "Missing System Name";
 
                 return (
                   <Grid key={entry.id} item xs={12}>
@@ -356,6 +365,12 @@ export function ReactionStrutures({ parentUserIndex }) {
                           <Grid item xs={4}>
                             <Typography variant="body1">{rigText}</Typography>
                           </Grid>
+                          <Grid item xs={6}>
+                            <Typography>{`${entry.tax || 0}%`}</Typography>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Typography>{systemName}</Typography>
+                          </Grid>
                         </Grid>
                       </CardContent>{" "}
                       <CardActions>
@@ -369,13 +384,15 @@ export function ReactionStrutures({ parentUserIndex }) {
                                 let newUsersArray = [...users];
                                 newUsersArray[
                                   parentUserIndex
-                                ].settings.structures.reaction.forEach((i) => {
-                                  if (i.id === entry.id) {
-                                    i.default = true;
-                                  } else {
-                                    i.default = false;
+                                ].settings.structures.manufacturing.forEach(
+                                  (i) => {
+                                    if (i.id === entry.id) {
+                                      i.default = true;
+                                    } else {
+                                      i.default = false;
+                                    }
                                   }
-                                });
+                                );
                                 updateUsers(newUsersArray);
                                 updateMainUserDoc(newUsersArray);
                               }}
@@ -392,25 +409,26 @@ export function ReactionStrutures({ parentUserIndex }) {
                                 let newUsersArray = [...users];
                                 newUsersArray[
                                   parentUserIndex
-                                ].settings.structures.reaction = newUsersArray[
-                                  parentUserIndex
-                                ].settings.structures.reaction.filter(
-                                  (i) => i.id !== entry.id
-                                );
+                                ].settings.structures.manufacturing =
+                                  newUsersArray[
+                                    parentUserIndex
+                                  ].settings.structures.manufacturing.filter(
+                                    (i) => i.id !== entry.id
+                                  );
                                 if (
                                   newUsersArray[parentUserIndex].settings
-                                    .structures.reaction.length > 0 &&
+                                    .structures.manufacturing.length > 0 &&
                                   entry.default
                                 ) {
                                   newUsersArray[
                                     parentUserIndex
-                                  ].settings.structures.reaction[0].default = true;
+                                  ].settings.structures.manufacturing[0].default = true;
                                 }
                                 updateUsers(newUsersArray);
                                 updateMainUserDoc(newUsersArray);
                                 logEvent(
                                   analytics,
-                                  "Remove Reaction Structure",
+                                  "Remove Manufacturing Structure",
                                   {
                                     UID: newUsersArray[parentUserIndex]
                                       .accountID,

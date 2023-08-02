@@ -16,19 +16,18 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { structureOptions } from "../../../Context/defaultValues";
+import { structureOptions } from "../../../../Context/defaultValues";
 import AddIcon from "@mui/icons-material/Add";
 import { makeStyles } from "@mui/styles";
 import { useState } from "react";
 import { useContext } from "react";
-import { UsersContext } from "../../../Context/AuthContext";
+import { UsersContext } from "../../../../Context/AuthContext";
 import { Masonry } from "@mui/lab";
-import { useFirebase } from "../../../Hooks/useFirebase";
+import { useFirebase } from "../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { SnackBarDataContext } from "../../../Context/LayoutContext";
+import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import uuid from "react-uuid";
-import systemIDS from "../../../RawData/systems.json";
-import { parseNonNullablePickerDate } from "@mui/x-date-pickers/internals";
+import systemIDS from "../../../../RawData/systems.json";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -50,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function ManuStrutures({ parentUserIndex }) {
+export function ClassicManufacturingStrutures({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateMainUserDoc } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -315,13 +314,20 @@ export function ManuStrutures({ parentUserIndex }) {
             {users[parentUserIndex].settings.structures.manufacturing.map(
               (entry) => {
                 const systemText =
-                  structureOptions.manSystem[entry.systemType]?.label || "A";
+                  structureOptions.manSystem[entry.systemType]?.label ||
+                  "Missing System Type";
 
                 const structureText =
-                  structureOptions.manStructure[entry.structureType]?.label || "B";
+                  structureOptions.manStructure[entry.structureType]?.label ||
+                  "Missing Structure Type";
 
                 const rigText =
-                  structureOptions.manRigs[entry.rigType]?.label || "C";
+                  structureOptions.manRigs[entry.rigType]?.label ||
+                  "Missing Rig Type";
+
+                const systemName =
+                  systemIDS.find((i) => i.id === entry.systemID)?.name ||
+                  "Missing System Name";
 
                 return (
                   <Grid key={entry.id} item xs={12}>
@@ -358,6 +364,16 @@ export function ManuStrutures({ parentUserIndex }) {
                           </Grid>
                           <Grid item xs={4}>
                             <Typography variant="body1">{rigText}</Typography>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Typography>
+                              {`${entry.tax||0}%`}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Typography>
+                              {systemName}
+                            </Typography>
                           </Grid>
                         </Grid>
                       </CardContent>{" "}

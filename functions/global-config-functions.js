@@ -9,7 +9,7 @@ exports.GLOBAL_CONFIG = {
   //App Version
   //This must match the app version found in the package.json file of the web application.
   //(String)
-  APP_VERSION: "0.6.0",
+  APP_VERSION: "0.6.1",
 
   // Max number of ESI pages to query.
   //(Int)

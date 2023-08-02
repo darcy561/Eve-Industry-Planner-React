@@ -35,6 +35,7 @@ import { useEveApi } from "./useEveApi";
 import { UserLoginUIContext } from "../Context/LayoutContext";
 import GLOBAL_CONFIG from "../global-config-app";
 import { jobTypes, structureOptions } from "../Context/defaultValues";
+import { updateStructureValues } from "./outdatedJobFunctions/convertJobStructures";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -328,48 +329,8 @@ export function useFirebase() {
         mat.childJob = mat.childJob.map(String);
       });
 
-      if (newJob.structureTypeDisplay) {
-        switch (newJob.jobType) {
-          case jobTypes.manufacturing:
-            const matchedManStructure = Object.values(
-              structureOptions.manStructure
-            ).find((i) => i.label === newJob.structureTypeDisplay);
-            const matchedManRig = Object.values(structureOptions.manRigs).find(
-              (i) => {
-                i.material === newJob.rigType && i.id <= 2;
-              }
-            );
-            const matchedManSystem = Object.values(
-              structureOptions.manSystem
-            ).find((i) => {
-              i.value === newJob.systemType;
-            });
-            newJob.structureType = matchedManStructure?.id || 0;
-            newJob.rigType = matchedManRig?.id || 0;
-            newJob.systemType = matchedManSystem?.id || 0;
-            break;
-          case jobTypes.reaction:
-            const matchedReactionStructure =
-              structureOptions.reactionStructure.find(
-                (i) => i.label === newJob.structureTypeDisplay
-              );
-            const matchedReactionRig = Object.values(
-              structureOptions.reactionRigs
-            ).find((i) => {
-              i.material === newJob.rigType && i.id <= 2;
-            });
-            const matchedReactionSystem = Object.values(
-              structureOptions.reactionSystem
-            ).find((i) => {
-              i.value === newJob.systemType;
-            });
-            newJob.structureType = matchedReactionStructure?.id || 0;
-            newJob.rigType = matchedReactionRig?.id || 0;
-            newJob.systemType = matchedReactionSystem?.id || 0;
-            break;
-        }
-        delete newJob.structureTypeDisplay;
-      }
+      //updateOldJobs
+      updateStructureValues(newJob);
 
       return newJob;
     } else {
@@ -381,7 +342,7 @@ export function useFirebase() {
     try {
       const appCheckToken = await getToken(appCheck, true);
       const itemsPricePromise = await fetch(
-        `${import.meta.env.VITE_APIURL}/costs`,
+        `${import.meta.env.VITE_APIURL}/market-data`,
         {
           method: "POST",
           headers: {
@@ -600,10 +561,11 @@ export function useFirebase() {
               return [...new Set([...prevState, ...newLinkedTransIDs])];
             });
             updateEvePrices((prev) => {
-              newEvePrices = newEvePrices.filter(
-                (n) => !prev.some((p) => p.typeID === n.typeID)
+              const prevIds = new Set(prev.map((item) => item.typeID));
+              const uniqueNewEvePrices = newEvePrices.filter(
+                (item) => !prevIds.has(item.typeID)
               );
-              return prev.concat(newEvePrices);
+              return [...prev, ...uniqueNewEvePrices];
             });
             updateUserJobSnapshot(newUserJobSnapshot);
             updateUserJobSnapshotDataFetch(true);
@@ -648,10 +610,11 @@ export function useFirebase() {
               userObj
             );
             updateEvePrices((prev) => {
-              newEvePrices = newEvePrices.filter(
-                (n) => !prev.some((p) => p.typeID === n.typeID)
+              const prevIds = new Set(prev.map((item) => item.typeID));
+              const uniqueNewEvePrices = newEvePrices.filter(
+                (item) => !prevIds.has(item.typeID)
               );
-              return prev.concat(newEvePrices);
+              return [...prev, ...uniqueNewEvePrices];
             });
             updateUserWatchlist({
               groups: newWatchlistGroups,
@@ -711,60 +674,18 @@ export function useFirebase() {
             mat.childJob = mat.childJob.map(String);
           });
 
-          if (newJob.structureTypeDisplay) {
-            switch (newJob.jobType) {
-              case jobTypes.manufacturing:
-                const matchedManStructure = Object.values(
-                  structureOptions.manStructure
-                ).find((i) => i.label === newJob.structureTypeDisplay);
-                const matchedManRig = Object.values(
-                  structureOptions.manRigs
-                ).find((i) => {
-                  i.material === newJob.rigType && i.id <= 2;
-                });
-                const matchedManSystem = Object.values(
-                  structureOptions.manSystem
-                ).find((i) => {
-                  i.value === newJob.systemType;
-                });
-                newJob.structureType = matchedManStructure?.id || 0;
-                newJob.rigType = matchedManRig?.id || 0;
-                newJob.systemType = matchedManSystem?.id || 0;
-                break;
-              case jobTypes.reaction:
-                const matchedReactionStructure =
-                  structureOptions.reactionStructure.find(
-                    (i) => i.label === newJob.structureTypeDisplay
-                  );
-                const matchedReactionRig = Object.values(
-                  structureOptions.reactionRigs
-                ).find((i) => {
-                  i.material === newJob.rigType && i.id <= 2;
-                });
-                const matchedReactionSystem = Object.values(
-                  structureOptions.reactionSystem
-                ).find((i) => {
-                  i.value === newJob.systemType;
-                });
-                newJob.structureType = matchedReactionStructure?.id || 0;
-                newJob.rigType = matchedReactionRig?.id || 0;
-                newJob.systemType = matchedReactionSystem?.id || 0;
-                break;
-            }
-            delete newJob.structureTypeDisplay;
-          }
+          //updateOldJobs
+          updateStructureValues(newJob);
 
           if (activeJob.jobID == newJob.jobID) {
             updateActiveJob(newJob);
           }
           updateJobArray((prev) => {
-            let index = prev.findIndex((i) => i.jobID === newJob.jobID);
+            const index = prev.findIndex((i) => i.jobID === newJob.jobID);
             if (index === -1) {
               return [...prev, newJob];
-            } else {
-              prev[index] = newJob;
-              return prev;
             }
+            return prev.map((job, idx) => (idx === index ? newJob : job));
           });
           t.stop();
         }

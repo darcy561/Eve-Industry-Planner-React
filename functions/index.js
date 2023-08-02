@@ -34,7 +34,7 @@ app.use(
 );
 app.use(express.json());
 app.use(helmet());
-// app.use(appCheckVerification);
+app.use(appCheckVerification);
 app.use(checkAppVersion);
 
 //Routes
@@ -183,7 +183,7 @@ app.get("/item/sisiData/:itemID", async (req, res) => {
   }
 });
 
-app.post("/costs", async (req, res) => {
+app.post("/market-data", async (req, res) => {
   if (req.body.idArray === undefined) {
     return res.status(500).send("Item Data Missing From Request");
   }
@@ -197,13 +197,28 @@ app.post("/costs", async (req, res) => {
     const databaseMarketHistoryQueryPromises = requestedIDS.map((id) =>
       admin.database().ref(`live-data/market-history/${id}`).once("value")
     );
-    const databaseResolves = await Promise.all([
-      ...databaseMarketPricesQueryPromises,
-      ...databaseMarketHistoryQueryPromises,
-    ]);
+    const databaseAdjustedPricesQueryPromises = requestedIDS.map((id) =>
+      admin.database().ref(`live-data/adjusted-prices/${id}`).once("value")
+    );
+
+    const databaseMarketPricesQueryResolves = await Promise.all(
+      databaseMarketPricesQueryPromises
+    );
+    const databaseMarketHistoryQueryResolves = await Promise.all(
+      databaseMarketHistoryQueryPromises
+    );
+    const databaseAdjustedPricesQueryResolves = await Promise.all(
+      databaseAdjustedPricesQueryPromises
+    );
 
     const { returnData: databaseResults, missingData: missingIDs } =
-      meregeReturnPromises(requestedIDS, databaseResolves, true);
+      meregeReturnPromises(
+        requestedIDS,
+        databaseMarketPricesQueryResolves,
+        databaseMarketHistoryQueryResolves,
+        databaseAdjustedPricesQueryResolves,
+        true
+      );
 
     const missingPricePromises = missingIDs.map((id) =>
       ESIMarketQuery(id.toString())
@@ -211,13 +226,18 @@ app.post("/costs", async (req, res) => {
     const missingHistoryPromises = missingIDs.map((id) =>
       ESIMarketHistoryQuery(id.toString())
     );
-    const missingESIResolves = await Promise.all([
-      ...missingPricePromises,
-      ...missingHistoryPromises,
-    ]);
+
+    const missingPriceResolves = await Promise.all(missingPricePromises);
+    const missingHistoryResolves = await Promise.all(missingHistoryPromises);
 
     const { returnData: esiResults, missingData: failedToRetrieve } =
-      meregeReturnPromises(missingIDs, missingESIResolves, false);
+      meregeReturnPromises(
+        missingIDs,
+        missingPriceResolves,
+        missingHistoryResolves,
+        databaseAdjustedPricesQueryResolves,
+        false
+      );
 
     const returnData = [...databaseResults, ...esiResults];
 
@@ -233,22 +253,29 @@ app.post("/costs", async (req, res) => {
       );
     }
 
-    function meregeReturnPromises(requestedIDS, resolvedArray, fromDatabase) {
+    function meregeReturnPromises(
+      requestedIDS,
+      marketPricesData,
+      marketHistoryData,
+      adjustedPriceData,
+      fromDatabase
+    ) {
       const missingData = [];
       const returnData = [];
-
-      const marketPricesData = resolvedArray.slice(0, requestedIDS.length);
-      const marketHistoryData = resolvedArray.slice(requestedIDS.length);
 
       for (let i in requestedIDS) {
         let marketPrices = null;
         let marketHistory = null;
+        let adjustedPrice = null;
+
         if (fromDatabase) {
           marketPrices = marketPricesData[i]?.val() || null;
           marketHistory = marketHistoryData[i]?.val() || null;
+          adjustedPrice = adjustedPriceData[i]?.val() || null;
         } else {
           marketPrices = marketPricesData[i] || null;
           marketHistory = marketHistoryData[i] || null;
+          adjustedPrice = adjustedPriceData[i]?.val() || null;
         }
 
         if (!marketPrices || !marketHistory) {
@@ -257,6 +284,7 @@ app.post("/costs", async (req, res) => {
         }
 
         let outputObject = { ...marketPrices };
+        outputObject.adjustedPrice = adjustedPrice?.adjusted_price || 0;
 
         for (let location of DEFAULT_MARKET_LOCATIONS) {
           const {
@@ -342,7 +370,7 @@ app.post("/systemindexes", async (req, res) => {
     const returnData = Object.values(results);
 
     functions.logger.log(
-      `${returnData.kength} System Indexes Returned For ${req.header(
+      `${returnData.length} System Indexes Returned For ${req.header(
         "accountID"
       )}, [${idArray}]`
     );

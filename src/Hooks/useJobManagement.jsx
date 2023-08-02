@@ -192,10 +192,11 @@ export function useJobManagement() {
       updateUserJobSnapshot(newUserJobSnapshot);
     }
     updateEvePrices((prev) => {
-      let newEvePrices = returnPromiseArray[0].filter(
-        (n) => !prev.some((p) => p.typeID === n.typeID)
+      const prevIds = new Set(prev.map((item) => item.typeID));
+      const uniqueNewEvePrices = returnPromiseArray[0].filter(
+        (item) => !prevIds.has(item.typeID)
       );
-      return prev.concat(newEvePrices);
+      return [...prev, ...uniqueNewEvePrices];
     });
     updateDataExchange(false);
     setSnackbarData((prev) => ({
@@ -416,10 +417,11 @@ export function useJobManagement() {
     }));
     let itemPrices = await getItemPrices([...materialPriceIDs], parentUser);
     updateEvePrices((prev) => {
-      itemPrices = itemPrices.filter(
-        (n) => !prev.some((p) => p.typeID === n.typeID)
+      const prevIds = new Set(prev.map((item) => item.typeID));
+      const uniqueNewEvePrices = itemPrices.filter(
+        (item) => !prevIds.has(item.typeID)
       );
-      return prev.concat(itemPrices);
+      return [...prev, ...uniqueNewEvePrices];
     });
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);

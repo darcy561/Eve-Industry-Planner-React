@@ -111,10 +111,11 @@ export function WatchListRow({ item, parentUser, index }) {
 
     updateUserJobSnapshot(newUserJobSnapshot);
     updateEvePrices((prev) => {
-      let newEvePrices = returnPromiseArray[0].filter(
-        (n) => !prev.some((p) => p.typeID === n.typeID)
+      const prevIds = new Set(prev.map((item) => item.typeID));
+      const uniqueNewEvePrices = returnPromiseArray[0].filter(
+        (item) => !prevIds.has(item.typeID)
       );
-      return prev.concat(newEvePrices);
+      return [...prev, ...uniqueNewEvePrices];
     });
     updateJobArray((prev) => [...prev, newJob]);
     setSnackbarData((prev) => ({

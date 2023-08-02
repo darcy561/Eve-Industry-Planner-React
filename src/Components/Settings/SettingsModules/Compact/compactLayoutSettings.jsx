@@ -7,10 +7,10 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext } from "react";
-import { UsersContext } from "../../../Context/AuthContext";
-import { useFirebase } from "../../../Hooks/useFirebase";
+import { UsersContext } from "../../../../Context/AuthContext";
+import { useFirebase } from "../../../../Hooks/useFirebase";
 
-export function LayoutSettings({ parentUserIndex }) {
+export function CompactLayoutSettings({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateMainUserDoc } = useFirebase();
 

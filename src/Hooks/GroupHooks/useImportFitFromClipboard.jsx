@@ -220,10 +220,11 @@ export function useImportFitFromClipboard() {
     }));
     updateJobArray(newJobArray);
     updateEvePrices((prev) => {
-      let newEvePrices = itemPriceData[0].filter(
-        (n) => !prev.some((p) => p.typeID === n.typeID)
+      const prevIds = new Set(prev.map((item) => item.typeID));
+      const uniqueNewEvePrices = itemPriceData[0].filter(
+        (item) => !prevIds.has(item.typeID)
       );
-      return prev.concat(newEvePrices);
+      return [...prev, ...uniqueNewEvePrices];
     });
     if (isLoggedIn) {
       jobsToSave.forEach((id) => {

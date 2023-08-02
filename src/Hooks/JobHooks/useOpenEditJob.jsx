@@ -126,10 +126,11 @@ export function useOpenEditJob() {
     let jobPrices = await getItemPrices([...itemIDs], parentUser);
     if (jobPrices.length > 0) {
       updateEvePrices((prev) => {
-        jobPrices = jobPrices.filter(
-          (n) => !prev.some((p) => p.typeID === n.typeID)
+        const prevIds = new Set(prev.map((item) => item.typeID));
+        const uniqueNewEvePrices = jobPrices.filter(
+          (item) => !prevIds.has(item.typeID)
         );
-        return prev.concat(jobPrices);
+        return [...prev, ...uniqueNewEvePrices];
       });
     }
     updateJobArray(newJobArray);

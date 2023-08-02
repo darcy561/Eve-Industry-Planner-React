@@ -13,13 +13,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
-import { UsersContext } from "../../../Context/AuthContext";
-import { listingType } from "../../../Context/defaultValues";
+import { UsersContext } from "../../../../Context/AuthContext";
+import { listingType } from "../../../../Context/defaultValues";
 import { makeStyles } from "@mui/styles";
-import { useCharAssets } from "../../../Hooks/useCharAssets";
-import { EveIDsContext } from "../../../Context/EveDataContext";
-import { useFirebase } from "../../../Hooks/useFirebase";
-import GLOBAL_CONFIG from "../../../global-config-app";
+import { useCharAssets } from "../../../../Hooks/useCharAssets";
+import { EveIDsContext } from "../../../../Context/EveDataContext";
+import { useFirebase } from "../../../../Hooks/useFirebase";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 const useStyles = makeStyles((theme) => ({
   TextField: {
@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function EditJobSettings({ parentUserIndex }) {
+export function CompactEditJobSettings({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { getAssetLocationList } = useCharAssets();

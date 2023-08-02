@@ -473,10 +473,11 @@ export function ChildJobPopover({
                       },
                     }));
                     updateEvePrices((prev) => {
-                      let newItemPrices = tempPrices.filter(
-                        (n) => !prev.some((p) => p.typeID === n.typeID)
+                      const prevIds = new Set(prev.map((item) => item.typeID));
+                      const uniqueNewEvePrices = tempPrices.filter(
+                        (item) => !prevIds.has(item.typeID)
                       );
-                      return prev.concat(newItemPrices);
+                      return [...prev, ...uniqueNewEvePrices];
                     });
                     updateJobArray(newJobArray);
                     setSnackbarData((prev) => ({

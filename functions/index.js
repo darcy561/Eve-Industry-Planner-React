@@ -263,7 +263,7 @@ app.post("/market-data", async (req, res) => {
       const missingData = [];
       const returnData = [];
 
-      for (let i in requestedIDS) {
+      requestedIDLoop: for (let i in requestedIDS) {
         let marketPrices = null;
         let marketHistory = null;
         let adjustedPrice = null;
@@ -285,8 +285,12 @@ app.post("/market-data", async (req, res) => {
 
         let outputObject = { ...marketPrices };
         outputObject.adjustedPrice = adjustedPrice?.adjusted_price || 0;
-
         for (let location of DEFAULT_MARKET_LOCATIONS) {
+          if (fromDatabase && !marketHistory[location.name]) {
+            missingData.push(requestedIDS[i]);
+            continue requestedIDLoop;
+          }
+
           const {
             dailyAverageMarketPrice,
             highestMarketPrice,
@@ -398,7 +402,7 @@ exports.RefreshItemHistory = require("./Scheduled Functions/marketHistoryRefresh
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
 exports.RefreshAdjustedPrices = require("./Scheduled Functions/refreshAdjustedPrices");
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
-exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");
+// exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");
 exports.userClaims = require("./Triggered Functions/addCorpClaim");
 exports.checkAppVersion = require("./Triggered Functions/checkAppVersion");
 exports.checkSDEUpdates = require("./Scheduled Functions/checkSDEUpdates");

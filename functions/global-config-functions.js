@@ -39,12 +39,12 @@ exports.GLOBAL_CONFIG = {
   //Number of hours between updates to item history data.
   //(Int)
   //Default: 4
-  DEFAUL_ITEM_HISTROY_REFRESH_PERIOD: 4,
+  DEFAULT_ITEM_HISTROY_REFRESH_PERIOD: 4,
 
   //Number of items market history to refresh each period.
   //(Int)
   //Default: 50
-  DEFAULT_ITEM_MARKET_HISTORY_REFRESH_QUANTITY: 50,
+  DEFAULT_ITEM_MARKET_HISTORY_REFRESH_QUANTITY: 150,
 
   //Length of time the market history is calaculated on.
   //(Int)

@@ -29,12 +29,15 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getToken } from "firebase/app-check";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
-import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
+import {
+  EveIDsContext,
+  EvePricesContext,
+  SystemIndexContext,
+} from "../Context/EveDataContext";
 import { useAccountManagement } from "./useAccountManagement";
 import { useEveApi } from "./useEveApi";
 import { UserLoginUIContext } from "../Context/LayoutContext";
 import GLOBAL_CONFIG from "../global-config-app";
-import { jobTypes, structureOptions } from "../Context/defaultValues";
 import { updateStructureValues } from "./outdatedJobFunctions/convertJobStructures";
 
 export function useFirebase() {
@@ -48,8 +51,7 @@ export function useFirebase() {
   const { updateEveIDs } = useContext(EveIDsContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { updateUserWatchlist } = useContext(UserWatchlistContext);
-  const { jobArray, updateJobArray, updateGroupArray } =
-    useContext(JobArrayContext);
+  const { updateJobArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { updateLinkedJobIDs, updateLinkedOrderIDs, updateLinkedTransIDs } =
     useContext(LinkedIDsContext);
@@ -59,6 +61,7 @@ export function useFirebase() {
     updateUserWatchlistDataFetch,
     updateUserGroupsDataFetch,
   } = useContext(UserLoginUIContext);
+  const { updateSystemIndexData } = useContext(SystemIndexContext);
   const {
     buildApiArray,
     buildCloudAccountData,
@@ -66,6 +69,7 @@ export function useFirebase() {
     characterAPICall,
     checkUserClaims,
     getLocationNames,
+    getSystemIndexData,
     storeCorpObjects,
     storeESIData,
     tidyLinkedData,
@@ -139,6 +143,8 @@ export function useFirebase() {
         structureType: job.structureType,
         rigType: job.rigType,
         systemType: job.systemType,
+        buildSystem: job.buildSystem,
+        appliedStructureID : job.appliedStructureID,
         apiJobs: [...job.apiJobs],
         apiOrders: [...job.apiOrders],
         apiTransactions: [...job.apiTransactions],
@@ -177,6 +183,8 @@ export function useFirebase() {
         bpME: job.bpME,
         bpTE: job.bpTE,
         structureType: job.structureType,
+        buildSystem: job.buildSystem,
+        appliedStructureID : job.appliedStructureID,
         rigType: job.rigType,
         systemType: job.systemType,
         apiJobs: [...job.apiJobs],
@@ -268,6 +276,8 @@ export function useFirebase() {
         structureType: job.structureType,
         rigType: job.rigType,
         systemType: job.systemType,
+        buildSystem: job.buildSystem,
+        appliedStructureID : job.appliedStructureID,
         apiJobs: [...job.apiJobs],
         apiOrders: [...job.apiOrders],
         apiTransactions: [...job.apiTransactions],
@@ -308,6 +318,8 @@ export function useFirebase() {
         bpTE: downloadDoc.bpTE,
         structureType: downloadDoc.structureType,
         structureTypeDisplay: downloadDoc.structureTypeDisplay || null,
+        buildSystem: downloadDoc.buildSystem || null,
+        appliedStructureID: downloadDoc.appliedStructureID || null,
         rigType: downloadDoc.rigType,
         systemType: downloadDoc.systemType,
         apiJobs: new Set(downloadDoc.apiJobs),
@@ -656,6 +668,8 @@ export function useFirebase() {
             structureTypeDisplay: downloadDoc.structureTypeDisplay || null,
             rigType: downloadDoc.rigType,
             systemType: downloadDoc.systemType,
+            buildSystem: downloadDoc.buildSystem || null,
+            appliedStructureID : downloadDoc.appliedStructureID || null,
             apiJobs: new Set(downloadDoc.apiJobs),
             apiOrders: new Set(downloadDoc.apiOrders),
             apiTransactions: new Set(downloadDoc.apiTransactions),
@@ -745,6 +759,7 @@ export function useFirebase() {
             mainUser,
             esiOjectArray
           );
+          const systemIndexes = await getSystemIndexData(mainUser);
           newUserArray.sort((a, b) => {
             if (a.name < b.name) {
               return -1;
@@ -755,6 +770,7 @@ export function useFirebase() {
             return 0;
           });
           updateEveIDs(names);
+          updateSystemIndexData(systemIndexes);
           updateApiJobs(newApiArray);
           updateUsers(newUserArray);
           setJobStatus(userData.jobStatusArray);

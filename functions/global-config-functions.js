@@ -35,7 +35,6 @@ exports.GLOBAL_CONFIG = {
   //Default: 150
   DEFAULT_ITEM_MARKET_REFRESH_QUANTITY: 150,
 
-
   //Number of hours between updates to item history data.
   //(Int)
   //Default: 4
@@ -70,6 +69,7 @@ exports.GLOBAL_CONFIG = {
   //Options: "buy", "sell"
   DEFAULT_ORDER_OPTION: "sell",
 
+
   //Default asset location station id.
   //(Int)
   //Default: 60003760 (Jita 4-4)
@@ -80,8 +80,6 @@ exports.GLOBAL_CONFIG = {
   //Default: 1
   DEFAULT_CITADEL_BROKERS_FEE: 1,
 
-
   DEFAULT_MANUFACTURING_STRUCTURES: [],
   DEFAULT_REACTION_STRUCTURES: [],
 };
-

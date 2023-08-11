@@ -243,13 +243,15 @@ export function ReactionOptions({ setJobModified }) {
                     }));
                   }}
                 >
-                  {Object.values(structureOptions.reactionStructure).map((entry) => {
-                    return (
-                      <MenuItem key={entry.id} value={entry.id}>
-                        {entry.label}
-                      </MenuItem>
-                    );
-                  })}
+                  {Object.values(structureOptions.reactionStructure).map(
+                    (entry) => {
+                      return (
+                        <MenuItem key={entry.id} value={entry.id}>
+                          {entry.label}
+                        </MenuItem>
+                      );
+                    }
+                  )}
                 </Select>
                 <FormHelperText variant="standard">
                   Structure Type
@@ -367,6 +369,8 @@ export function ReactionOptions({ setJobModified }) {
                       rigType: structure.rigType,
                       systemType: structure.systemType,
                       structureType: structure.structureType,
+                      buildSystem: structure.systemID,
+                      appliedStructureID: structure.id,
                       build: {
                         ...prev.build,
                         materials: CalculateResources({

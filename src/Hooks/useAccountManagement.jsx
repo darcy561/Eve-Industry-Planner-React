@@ -47,6 +47,7 @@ import { httpsCallable } from "firebase/functions";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import searchData from "../RawData/searchIndex.json";
 import { trace } from "firebase/performance";
+import { fetchSystemIndexes } from "./FetchDataHooks/fetchSystemIndexes";
 
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -107,6 +108,7 @@ export function useAccountManagement() {
   const {
     fetchCharacterData,
     fetchCharacterSkills,
+    fetchCorpAssets,
     fetchCorpIndustryJobs,
     fetchCorpMarketOrdersJobs,
     fetchCorpHistMarketOrders,
@@ -162,6 +164,7 @@ export function useAccountManagement() {
       esiCorpTransactions: fetchCorpTransactions,
       esiCorpDivisions: fetchCorpDivisions,
       esiCorpPublicInfo: fetchCorpPublicInfo,
+      esiCorpAssets: fetchCorpAssets,
     };
 
     const apiResults = await Promise.all(
@@ -864,39 +867,116 @@ export function useAccountManagement() {
   };
 
   const storeCorpObjects = (esiObjectArray) => {
-    const corporationData = esiObjectArray
-      .filter(({ esiCorpPublicInfo }) => esiCorpPublicInfo)
-      .reduce((acc, { esiCorpDivisions, esiCorpPublicInfo }) => {
-        const existingCorpIndex = acc.findIndex(
-          ({ corporation_id }) =>
-            corporation_id === esiCorpPublicInfo.corporation_id
-        );
-        if (existingCorpIndex === -1) {
-          acc.push({
-            alliance_id: esiCorpPublicInfo.alliance_id,
-            name: esiCorpPublicInfo.name,
-            tax_rate: esiCorpPublicInfo.tax_rate,
-            ticker: esiCorpPublicInfo.ticker,
-            corporation_id: esiCorpPublicInfo.corporation_id,
-            hangar: esiCorpDivisions?.hangar || null,
-            wallet: esiCorpDivisions?.wallet || null,
-          });
-        } else {
-          const existingCorp = acc[existingCorpIndex];
-          if (
-            esiCorpDivisions &&
-            (!existingCorp.hangar || !existingCorp.wallet)
-          ) {
-            existingCorp.hangar = esiCorpDivisions.hangar;
-            existingCorp.wallet = esiCorpDivisions.wallet;
-          }
-        }
-        return acc;
-      }, []);
+    const corporationData = filterAndReduceCorpData(esiObjectArray);
 
     updateESICorpData(corporationData);
+
+    function filterAndReduceCorpData(esiObjectArray) {
+      return esiObjectArray
+        .filter(({ esiCorpPublicInfo }) => esiCorpPublicInfo)
+        .reduce(
+          (acc, { esiCorpDivisions, esiCorpPublicInfo, esiCorpAssets }) => {
+            const existingCorpIndex = findExistingCorpIndex(
+              acc,
+              esiCorpPublicInfo
+            );
+
+            if (existingCorpIndex === -1) {
+              const newCorpData = createNewCorpData(
+                esiCorpDivisions,
+                esiCorpPublicInfo,
+                esiCorpAssets
+              );
+              acc.push(newCorpData);
+            } else {
+              updateExistingCorpData(
+                acc,
+                existingCorpIndex,
+                esiCorpPublicInfo,
+                esiCorpDivisions,
+                esiCorpAssets
+              );
+            }
+
+            return acc;
+          },
+          []
+        );
+    }
+
+    function findExistingCorpIndex(corporationData, esiCorpPublicInfo) {
+      return corporationData.findIndex(
+        ({ corporation_id }) =>
+          corporation_id === esiCorpPublicInfo.corporation_id
+      );
+    }
+
+    function createNewCorpData(
+      esiCorpDivisions,
+      esiCorpPublicInfo,
+      esiCorpAssets
+    ) {
+      const updatedHangarData = esiCorpDivisions?.hangar.map((hangarItem) => ({
+        ...hangarItem,
+        assetLocationRef: `CorpSAG${hangarItem.division}`,
+      }));
+
+      if (esiCorpAssets.length > 0) {
+        sessionStorage.setItem(
+          `corpAssets_${esiCorpPublicInfo.corporation_id}`,
+          JSON.stringify(esiCorpAssets)
+        );
+      }
+
+      return {
+        alliance_id: esiCorpPublicInfo.alliance_id,
+        name: esiCorpPublicInfo.name,
+        tax_rate: esiCorpPublicInfo.tax_rate,
+        ticker: esiCorpPublicInfo.ticker,
+        corporation_id: esiCorpPublicInfo.corporation_id,
+        hangar: updatedHangarData || null,
+        wallet: esiCorpDivisions?.wallet || null,
+      };
+    }
+
+    function updateExistingCorpData(
+      corporationData,
+      index,
+      esiCorpPublicInfo,
+      esiCorpDivisions,
+      esiCorpAssets
+    ) {
+      if (esiCorpAssets.length > 0) {
+        sessionStorage.setItem(
+          `corpAssets_${esiCorpPublicInfo.corporation_id}`,
+          JSON.stringify(esiCorpAssets)
+        );
+      }
+
+      const existingCorp = corporationData[index];
+      if (esiCorpDivisions && (!existingCorp.hangar || !existingCorp.wallet)) {
+        existingCorp.hangar = esiCorpDivisions.hangar;
+        existingCorp.wallet = esiCorpDivisions.wallet;
+      }
+    }
   };
 
+  const getSystemIndexData = async (userObject) => {
+    const manufacturingStructures =
+      userObject.settings.structures.manufacturing;
+    const reactionStructures = userObject.settings.structures.reaction;
+
+    const requestIDs = new Set(
+      [...manufacturingStructures, ...reactionStructures].map(
+        (entry) => entry.systemID
+      )
+    );
+
+    const systemIndexData = await fetchSystemIndexes([...requestIDs]);
+
+    return systemIndexData;
+  };
+  
   return {
     buildApiArray,
     buildCloudAccountData,
@@ -906,6 +986,7 @@ export function useAccountManagement() {
     checkUserClaims,
     failedUserRefresh,
     getCharacterInfo,
+    getSystemIndexData,
     getLocationNames,
     logUserOut,
     removeUserEsiData,

@@ -13,6 +13,7 @@ import { UsersContext } from "../../../../../Context/AuthContext";
 import { ItemCostRow } from "./itemCostRow";
 import { listingType } from "../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../global-config-app";
+import { useInstallCostsCalc } from "../../../../../Hooks/GeneralHooks/useInstallCostCalc";
 
 export function ItemCostPanel({ jobModified, setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -25,6 +26,7 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
   const [listingSelect, updateListingSelect] = useState(
     parentUser.settings.editJob.defaultOrders
   );
+  const { calculateInstallCostFromJob } = useInstallCostsCalc();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
   let totalJobBuy = 0;
@@ -32,7 +34,7 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
   let activeJobPrices = evePrices.find((i) => i.typeID === activeJob.itemID);
 
   let totalJobSell = 0;
-
+  console.log(calculateInstallCostFromJob(activeJob));
   return (
     <Paper
       elevation={3}

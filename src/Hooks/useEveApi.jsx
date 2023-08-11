@@ -97,7 +97,8 @@ export function useEveApi() {
     orders = orders.filter(
       (item) =>
         !item.is_buy_order &&
-        currentDate - Date.parse(item.issued) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
+        currentDate - Date.parse(item.issued) <=
+          ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
     );
 
     return orders.map((a) => ({ ...a, CharacterHash: userObj.CharacterHash }));
@@ -155,7 +156,9 @@ export function useEveApi() {
 
     return transactions.filter(
       (i) =>
-        i.is_buy === false && currentDate - Date.parse(i.date) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
+        i.is_buy === false &&
+        currentDate - Date.parse(i.date) <=
+          ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
     );
   };
 
@@ -183,7 +186,9 @@ export function useEveApi() {
     }
 
     return journal.filter(
-      (item) => currentDate - Date.parse(item.date) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
+      (item) =>
+        currentDate - Date.parse(item.date) <=
+        ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
     );
   };
 
@@ -368,7 +373,8 @@ export function useEveApi() {
     indyJobs = indyJobs.filter(
       (job) =>
         job.completed_date === undefined ||
-        new Date() - Date.parse(job.completed_date) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
+        new Date() - Date.parse(job.completed_date) <=
+          ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
     );
 
     indyJobs = indyJobs.filter(
@@ -433,7 +439,8 @@ export function useEveApi() {
       (item) =>
         !item.is_buy_order &&
         item.issued_by === userObj.CharacterID &&
-        currentDate - Date.parse(item.issued) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
+        currentDate - Date.parse(item.issued) <=
+          ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
     );
 
     return orders.map((bp) => ({ ...bp, isCorp: true }));
@@ -533,7 +540,8 @@ export function useEveApi() {
 
         divisionArray = divisionArray.filter(
           (item) =>
-            currentDate - Date.parse(item.date) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 &&
+            currentDate - Date.parse(item.date) <=
+              ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 &&
             refTypes.has(item.ref_type)
         );
         journal.push({
@@ -572,7 +580,8 @@ export function useEveApi() {
 
         divisionArray = divisionArray.filter(
           (item) =>
-            currentDate - Date.parse(item.date) <= ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 && !item.is_buy
+            currentDate - Date.parse(item.date) <=
+              ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 && !item.is_buy
         );
         transactions.push({
           division,
@@ -584,6 +593,33 @@ export function useEveApi() {
       console.error(`Error fetching corporation transactions: ${err}`);
       return [];
     }
+  };
+
+  const fetchCorpAssets = async (userObj) => {
+    const maxEntries = 1000;
+    const assets = [];
+
+    for (let pageCount = 1; pageCount <= ESI_MAX_PAGES; pageCount++) {
+      try {
+        const request = await fetch(
+          `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/assets/?datasource=tranquility&page=${pageCount}&token=${userObj.aToken}`
+        );
+        const data = await request.json();
+
+        if (request.status !== 200) break;
+
+        assets.push(...data);
+
+        if (data.length < maxEntries) break;
+      } catch (err) {
+        console.error(`Error fetching character assets: ${err}`);
+        return [];
+      }
+    }
+    return assets.map((a) => ({
+      ...a,
+      corporation_id: userObj.corporation_id,
+    }));
   };
 
   return {
@@ -608,5 +644,6 @@ export function useEveApi() {
     fetchCorpMarketOrdersJobs,
     fetchCorpHistMarketOrders,
     fetchCorpBlueprintLibrary,
+    fetchCorpAssets,
   };
 }

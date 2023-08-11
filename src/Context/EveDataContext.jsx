@@ -161,3 +161,16 @@ export const SisiDataFiles = (props) => {
     </SisiDataFilesContext.Provider>
   );
 };
+
+export const SystemIndexContext = createContext();
+
+export const SystemIndex = (props) => {
+  const [systemIndexData, updateSystemIndexData] = useState([]);
+  return (
+    <SystemIndexContext.Provider
+      value={{ systemIndexData, updateSystemIndexData }}
+    >
+      {props.children}
+    </SystemIndexContext.Provider>
+  );
+};

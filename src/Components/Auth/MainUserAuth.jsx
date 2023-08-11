@@ -174,6 +174,7 @@ class MainUser {
     this.accountRefreshTokens = [];
     this.refreshState = 1;
     this.corporation_id = null;
+    this.isOmega = decodedToken.tier === "live" ? true : false;
   }
 }
 class SecondaryUser {
@@ -187,5 +188,6 @@ class SecondaryUser {
     this.ParentUser = null;
     this.refreshState = 1;
     this.corporation_id = null;
+    this.isOmega = decodedToken.tier === "live" ? true : false;
   }
 }

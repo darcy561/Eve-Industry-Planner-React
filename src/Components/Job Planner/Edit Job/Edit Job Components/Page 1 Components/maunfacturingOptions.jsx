@@ -457,6 +457,8 @@ export function ManufacturingOptions({ setJobModified }) {
                       rigType: structure.rigType,
                       systemType: structure.systemType,
                       structureType: structure.structureType,
+                      buildSystem: structure.systemID,
+                      appliedStructureID: structure.id,
                       build: {
                         ...prev.build,
                         materials: CalculateResources({

@@ -43,7 +43,7 @@ export function useJobBuild() {
       } else {
         this.name = itemJson.name;
       }
-      this.jobID = `job-${uuid()}`
+      this.jobID = `job-${uuid()}`;
       this.jobStatus = 0;
       this.volume = itemJson.volume;
       this.itemID = itemJson.itemID;
@@ -54,6 +54,8 @@ export function useJobBuild() {
       this.bpTE = 0;
       this.rigType = 0;
       this.systemType = 0;
+      this.buildSystem = null;
+      this.appliedStructureID = null;
       this.apiJobs = new Set();
       this.apiOrders = new Set();
       this.apiTransactions = new Set();
@@ -67,6 +69,7 @@ export function useJobBuild() {
           quantityPerJob: 0,
         },
         costs: {
+          estimatedBuildCost: 0,
           totalPurchaseCost: 0,
           extrasCosts: [],
           extrasTotal: 0,
@@ -382,21 +385,25 @@ export function useJobBuild() {
       case jobTypes.manufacturing:
         const manufacturingStructure =
           parentUser.settings.structures.manufacturing.find((i) => i.default);
-        if (manufacturingStructure === undefined) break;
+        if (!manufacturingStructure) break;
 
         outputObject.rigType = manufacturingStructure.rigType;
         outputObject.systemType = manufacturingStructure.systemType;
         outputObject.structureType = manufacturingStructure.structureType;
+        outputObject.buildSystem = manufacturingStructure.systemID;
+        outputObject.appliedStructureID = manufacturingStructure.id;
         break;
       case jobTypes.reaction:
         const reactionStructure = parentUser.settings.structures.reaction.find(
           (i) => i.default
         );
-        if (reactionStructure === undefined) break;
+        if (!reactionStructure) break;
 
         outputObject.rigType = reactionStructure.rigType;
         outputObject.systemType = reactionStructure.systemType;
         outputObject.structureType = reactionStructure.structureType;
+        outputObject.buildSystem = reactionStructure.systemID;
+        outputObject.appliedStructureID = reactionStructure.id;
         break;
     }
   }

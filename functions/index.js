@@ -64,7 +64,7 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
 
 //Read Full Single Item Tranquilty
 app.get("/item/:itemID", async (req, res) => {
-  if (req.params.itemID === undefined) {
+  if (!req.params.itemID) {
     return res.status(400).send("Item Data Missing From Request");
   }
   try {
@@ -79,7 +79,7 @@ app.get("/item/:itemID", async (req, res) => {
       );
       return res
         .status(200)
-        .set("Cache-Control", "public, max-age=600, s-maxage=3600")
+        .set("Cache-Control", "public, max-age=1800, s-maxage=3600")
         .send(response);
     } else {
       functions.logger.error("Error retrieving item data");
@@ -333,11 +333,10 @@ app.get("/systemindexes/:systemID", async (req, res) => {
     return res.status(400).send("Invalid System ID");
   }
   try {
-    const idData = admin
+    const idData = await admin
       .database()
       .ref(`live-data/system-indexes/${systemID}`)
-      .once("value")
-      .val();
+      .once("value");
 
     if (!idData) {
       res.status(404).send("No System Data Found");
@@ -364,10 +363,11 @@ app.post("/systemindexes", async (req, res) => {
 
     const databaseResponses = await Promise.all(databaseRequests);
 
-    for (let item of databaseResponses) {
-      let itemData = item.val();
+    for (let itemReturn of databaseResponses) {
+      const itemData = itemReturn.val();
+      functions.logger.log(itemData);
       if (itemData !== null) {
-        results[itemData.system - index] = itemData;
+        results[itemData.solar_system_id] = itemData;
       }
     }
 

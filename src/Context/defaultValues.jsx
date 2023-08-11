@@ -2251,10 +2251,10 @@ export let blueprintOptions = {
 };
 export let structureOptions = {
   manStructure: {
-    0: { id: 0, label: "Station", material: 0, time: 0 },
-    1: { id: 1, label: "Medium", material: 1, time: 0.15 },
-    2: { id: 2, label: "Large", material: 1, time: 0.2 },
-    3: { id: 3, label: "X-Large", material: 1, time: 0.3 },
+    0: { id: 0, label: "Station", material: 0, time: 0, cost: 0 },
+    1: { id: 1, label: "Medium", material: 1, time: 0.15, cost: 0.03 },
+    2: { id: 2, label: "Large", material: 1, time: 0.2, cost: 0.04 },
+    3: { id: 3, label: "X-Large", material: 1, time: 0.3, cost: 0.05 },
   },
   manRigs: {
     0: { id: 0, label: "None", material: 0, time: 0 },
@@ -2277,8 +2277,8 @@ export let structureOptions = {
     1: { id: 1, label: "Null Sec / WH", value: 1.1 },
   },
   reactionStructure: {
-    0: { id: 0, label: "Medium", material: 1, time: 0 },
-    1: { id: 1, label: "Large", material: 1, time: 0.25 },
+    0: { id: 0, label: "Medium", material: 1, time: 0, cost: 0 },
+    1: { id: 1, label: "Large", material: 1, time: 0.25, cost: 0 },
   },
   reactionRigs: {
     0: { id: 0, label: "None", material: 0, time: 0 },

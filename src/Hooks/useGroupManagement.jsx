@@ -30,6 +30,7 @@ export function useGroupManagement() {
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
 
   function newJobGroupTemplate(
+    assignedGroupID,
     outputJobNames,
     inputIDs,
     includedTypeIDs,
@@ -37,7 +38,7 @@ export function useGroupManagement() {
     outputJobCount
   ) {
     this.groupName = outputJobNames.join(", ").substring(0, 75);
-    this.groupID = `group-${uuid()}`;
+    this.groupID = assignedGroupID;
     this.includedJobIDs = inputIDs;
     this.includedTypeIDs = [...includedTypeIDs];
     this.materialIDs = [...materialIDs];
@@ -57,6 +58,7 @@ export function useGroupManagement() {
     let jobsToSave = new Set();
     let materialIDs = new Set();
     let outputJobNames = [];
+    let assignedGroupID = `group-${uuid()}`;
 
     for (let inputID of inputJobIDs) {
       let [inputJob, inputJobSnapshot] = await findJobData(
@@ -70,7 +72,7 @@ export function useGroupManagement() {
         continue;
       }
 
-      inputJob.groupID = newGroupID;
+      inputJob.groupID = assignedGroupID;
 
       for (let id of inputJob.parentJob) {
         if (inputJobIDs.includes(id)) {
@@ -121,13 +123,17 @@ export function useGroupManagement() {
     if (outputJobNames.length === 0) {
       outputJobNames.push("Untitled Group");
     }
-    let newGroupEntry = new newJobGroupTemplate(
-      outputJobNames,
-      inputJobIDs,
-      jobTypeIDs,
-      materialIDs,
-      outputJobCount
-    );
+    let newGroupEntry = {
+      ...new newJobGroupTemplate(
+        assignedGroupID,
+        outputJobNames,
+        inputJobIDs,
+        jobTypeIDs,
+        materialIDs,
+        outputJobCount
+      ),
+    };
+
     newGroupArray.push(newGroupEntry);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);

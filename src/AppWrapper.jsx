@@ -20,6 +20,7 @@ import {
   EvePrices,
   PersonalEsiData,
   SisiDataFiles,
+  SystemIndex,
 } from "./Context/EveDataContext";
 import {
   DataExchange,
@@ -65,29 +66,31 @@ export function AppWrapper() {
                                             <EveIDs>
                                               <EveESIStatus>
                                                 <EvePrices>
-                                                  <MultiSelectJobPlanner>
-                                                    <PriceEntryList>
-                                                      <SisiDataFiles>
-                                                        <MassBuildDisplay>
-                                                          <ArchivedJobs>
-                                                            <LocalizationProvider
-                                                              dateAdapter={
-                                                                AdapterDateFns
-                                                              }
-                                                            >
-                                                              <DndProvider
-                                                                backend={
-                                                                  HTML5Backend
+                                                  <SystemIndex>
+                                                    <MultiSelectJobPlanner>
+                                                      <PriceEntryList>
+                                                        <SisiDataFiles>
+                                                          <MassBuildDisplay>
+                                                            <ArchivedJobs>
+                                                              <LocalizationProvider
+                                                                dateAdapter={
+                                                                  AdapterDateFns
                                                                 }
                                                               >
-                                                                <App />
-                                                              </DndProvider>
-                                                            </LocalizationProvider>
-                                                          </ArchivedJobs>
-                                                        </MassBuildDisplay>
-                                                      </SisiDataFiles>
-                                                    </PriceEntryList>
-                                                  </MultiSelectJobPlanner>
+                                                                <DndProvider
+                                                                  backend={
+                                                                    HTML5Backend
+                                                                  }
+                                                                >
+                                                                  <App />
+                                                                </DndProvider>
+                                                              </LocalizationProvider>
+                                                            </ArchivedJobs>
+                                                          </MassBuildDisplay>
+                                                        </SisiDataFiles>
+                                                      </PriceEntryList>
+                                                    </MultiSelectJobPlanner>
+                                                  </SystemIndex>
                                                 </EvePrices>
                                               </EveESIStatus>
                                             </EveIDs>

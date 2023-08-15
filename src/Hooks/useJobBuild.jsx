@@ -71,6 +71,7 @@ export function useJobBuild() {
           totalQuantity: 0,
           quantityPerJob: 0,
         },
+        childJobs: {},
         costs: {
           estimatedBuildCost: 0,
           totalPurchaseCost: 0,
@@ -143,8 +144,10 @@ export function useJobBuild() {
           material.purchasedCost = 0;
           material.purchaseComplete = false;
           material.childJob = [];
+          outputObject.build.childJobs[material.typeID] = [];
         });
         outputObject.build.buildChar = parentUser.CharacterHash;
+        buildSetupOptions(outputObject, buildRequest);
 
         buildRequest_ChildJobs(buildRequest, outputObject);
         buildRequest_ParentJobs(buildRequest, outputObject);
@@ -196,7 +199,7 @@ export function useJobBuild() {
 
         outputObject.build.products.quantityPerJob =
           outputObject.rawData.products[0].quantity * outputObject.runCount;
-
+        console.log(outputObject);
         return outputObject;
       } catch (err) {
         console.log(err);
@@ -358,6 +361,99 @@ export function useJobBuild() {
     return job;
   };
 
+  function recalculateItemQty_New(
+    maxProductionLimit,
+    baseQuantity,
+    itemQuantityRequired
+  ) {
+    let remainingQuatity = itemQuantityRequired;
+    const resultArray = [];
+
+    while (remainingQuatity > 0) {
+      const numberOfJobsRequired = Math.max(
+        Math.floor(remainingQuatity / maxProductionLimit),
+        1
+      );
+
+      const numberOfRunsRequired = Math.min(
+        maxProductionLimit,
+        remainingQuatity
+      );
+
+      if (remainingQuatity > 0) {
+        resultArray.push({
+          runCount: numberOfRunsRequired,
+          jobCount: numberOfJobsRequired,
+        });
+      }
+
+      let removedItemCount =
+        numberOfRunsRequired * baseQuantity * numberOfJobsRequired;
+
+      remainingQuatity -= removedItemCount;
+    }
+
+    return resultArray;
+  }
+
+  function buildSetupOptions(inputJobObject, buildRequestObject) {
+    const setupLocation = inputJobObject.build.setup;
+    const existingMaterialsLocation = inputJobObject.rawData.materials;
+    const requiredQuantity =
+      buildRequestObject?.itemQty ||
+      inputJobObject.rawData.products[0].quantity;
+
+    const { ME, TE } = addItemBlueprint_New(
+      inputJobObject.jobType,
+      inputJobObject.blueprintTypeID
+    );
+    const structureData = addDefaultStructure_New(inputJobObject.jobType);
+
+    const setupQuantities = recalculateItemQty_New(
+      inputJobObject.maxProductionLimit,
+      inputJobObject.rawData.products[0].quantity,
+      requiredQuantity
+    );
+
+    for (let i = 0; i < setupQuantities.length; i++) {
+      let nextObject = buildNewSetupObject(
+        {
+          ME,
+          TE,
+          ...structureData,
+          ...setupQuantities[i],
+        },
+        buildRequestObject
+      );
+      setupLocation[nextObject.id] = nextObject;
+
+      existingMaterialsLocation.forEach((material) => {
+        setupLocation[nextObject.id].materialCount[material.typeID] =
+          material.quantity;
+      });
+    }
+  }
+
+  function buildNewSetupObject(inputOptions, buildRequestObject) {
+    const chosenID = uuid();
+    return {
+      id: chosenID,
+      runCount: inputOptions?.runCount || 0,
+      jobCount: inputOptions?.jobCount || 0,
+      ME: inputOptions?.ME || 0,
+      TE: inputOptions?.TE || 0,
+      structureID: inputOptions?.structureID || 0,
+      rigID: inputOptions?.rigID || 0,
+      systemTypeID: inputOptions?.systemTypeID || 0,
+      systemID: inputOptions?.systemID || 0,
+      taxValue: inputOptions?.taxValue || 0,
+      estimatedInstallCost: 0,
+      customStructureID: inputOptions?.customStructureID || null,
+      selectedCharacter: buildRequestObject?.characterToUse || null,
+      materialCount: {},
+    };
+  }
+
   function addItemBlueprint(outputObject) {
     if (outputObject.jobType !== jobTypes.manufacturing) {
       return;
@@ -380,7 +476,38 @@ export function useJobBuild() {
     );
     outputObject.bpME = filteredBlueprints[0].material_efficiency;
     outputObject.bpTE = filteredBlueprints[0].time_efficiency / 2;
+
     return;
+  }
+  function addItemBlueprint_New(inputJobType, blueprintTypeID) {
+    const defaultReturn = { ME: 0, TE: 0 };
+
+    if (inputJobType !== jobTypes.manufacturing || !isLoggedIn) {
+      return defaultReturn;
+    }
+
+    const filteredBlueprints = [
+      ...esiBlueprints.flatMap((entry) => entry?.data ?? []),
+      ...corpEsiBlueprints.flatMap((entry) => entry?.data ?? []),
+    ].filter((entry) => {
+      return entry.type_id === blueprintTypeID;
+    });
+
+    if (filteredBlueprints.length < 1) {
+      return defaultReturn;
+    }
+
+    filteredBlueprints.sort(
+      (a, b) =>
+        a.quantity.toString().localeCompare(b.quantity.toString()) ||
+        b.material_efficiency - a.material_efficiency ||
+        b.time_efficiency - a.time_efficiency
+    );
+
+    return {
+      ME: filteredBlueprints[0].material_efficiency,
+      TE: filteredBlueprints[0].time_efficiency / 2,
+    };
   }
 
   function addDefaultStructure(outputObject) {
@@ -415,6 +542,28 @@ export function useJobBuild() {
     }
   }
 
+  function addDefaultStructure_New(inputJobType) {
+    const typeMap = {
+      [jobTypes.manufacturing]: "manufacturing",
+      [jobTypes.reaction]: "reaction",
+    };
+
+    const matchedStructure = parentUser.settings.structures[
+      typeMap[inputJobType]
+    ].find((i) => i.default);
+
+    if (!matchedStructure) return {};
+
+    return {
+      rigID: matchedStructure.rigType,
+      structureID: matchedStructure.structureType,
+      systemTypeID: matchedStructure.systemType,
+      systemID: matchedStructure.systemID,
+      taxValue: matchedStructure.tax,
+      customStructureID: matchedStructure.id,
+    };
+  }
+
   function buildRequest_ChildJobs(buildRequest, outputObject) {
     if (!buildRequest.hasOwnProperty("childJobs")) {
       return;
@@ -427,6 +576,7 @@ export function useJobBuild() {
         continue;
       }
       material.childJob = [...buildItem.childJobs];
+      outputObject.build.childJobs[material.typeID] = [...buildItem.childJobs];
     }
   }
 

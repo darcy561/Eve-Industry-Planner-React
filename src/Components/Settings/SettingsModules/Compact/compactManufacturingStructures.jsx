@@ -77,7 +77,8 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
       structureType: structValue,
       rigType: rigsValue,
       systemID: systemIDValue,
-      tax: taxValue,
+      tax:
+        structValue === structureOptions.manStructure[0].id ? 0.25 : taxValue,
       default:
         newUsersArray[parentUserIndex].settings.structures.manufacturing
           .length === 0

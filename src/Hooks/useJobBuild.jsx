@@ -16,6 +16,7 @@ import {
 } from "../Context/LayoutContext";
 import { JobArrayContext } from "../Context/JobContext";
 import uuid from "react-uuid";
+import { useInstallCostsCalc } from "./GeneralHooks/useInstallCostCalc";
 
 export function useJobBuild() {
   const { sisiDataFiles } = useContext(SisiDataFilesContext);
@@ -28,6 +29,7 @@ export function useJobBuild() {
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
+  const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -64,6 +66,7 @@ export function useJobBuild() {
       this.groupID = null;
       this.isReadyToSell = false;
       this.build = {
+        setup: {},
         products: {
           totalQuantity: 0,
           quantityPerJob: 0,
@@ -392,6 +395,8 @@ export function useJobBuild() {
         outputObject.structureType = manufacturingStructure.structureType;
         outputObject.buildSystem = manufacturingStructure.systemID;
         outputObject.appliedStructureID = manufacturingStructure.id;
+        outputObject.build.costs.estimatedBuildCost =
+          calculateInstallCostFromJob(outputObject);
         break;
       case jobTypes.reaction:
         const reactionStructure = parentUser.settings.structures.reaction.find(
@@ -404,6 +409,8 @@ export function useJobBuild() {
         outputObject.structureType = reactionStructure.structureType;
         outputObject.buildSystem = reactionStructure.systemID;
         outputObject.appliedStructureID = reactionStructure.id;
+        outputObject.build.costs.estimatedBuildCost =
+          calculateInstallCostFromJob(outputObject);
         break;
     }
   }

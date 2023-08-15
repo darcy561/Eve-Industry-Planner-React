@@ -77,7 +77,8 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
       structureType: structValue,
       rigType: rigsValue,
       systemID: systemIDValue,
-      tax: taxValue,
+      tax:
+        structValue === structureOptions.manStructure[0].id ? 0.25 : taxValue,
       default:
         newUsersArray[parentUserIndex].settings.structures.manufacturing
           .length === 0
@@ -366,14 +367,10 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
                             <Typography variant="body1">{rigText}</Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography>
-                              {`${entry.tax||0}%`}
-                            </Typography>
+                            <Typography>{`${entry.tax || 0}%`}</Typography>
                           </Grid>
                           <Grid item xs={6}>
-                            <Typography>
-                              {systemName}
-                            </Typography>
+                            <Typography>{systemName}</Typography>
                           </Grid>
                         </Grid>
                       </CardContent>{" "}

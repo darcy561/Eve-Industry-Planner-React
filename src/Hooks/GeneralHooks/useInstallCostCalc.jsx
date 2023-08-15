@@ -23,7 +23,8 @@ export function useInstallCostsCalc() {
 
   const calculateInstallCostFromJob = (selectedJob) => {
     const estimatedItemValue = estimatedItemPriceCalc(
-      selectedJob.build.materials
+      selectedJob.build.materials,
+      selectedJob.jobCount
     );
 
     const facilityModifier = findFacilityModifier(
@@ -54,10 +55,10 @@ export function useInstallCostsCalc() {
     return installCost;
   };
 
-  function estimatedItemPriceCalc(materialArray) {
+  function estimatedItemPriceCalc(materialArray, jobCount) {
     return materialArray.reduce((preValue, material) => {
       return (preValue += estimatedMaterialPriceCalc(
-        material.quantity,
+        material.quantity / jobCount,
         material.typeID
       ));
     }, 0);

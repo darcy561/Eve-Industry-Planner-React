@@ -144,7 +144,7 @@ export function useFirebase() {
         rigType: job.rigType,
         systemType: job.systemType,
         buildSystem: job.buildSystem,
-        appliedStructureID : job.appliedStructureID,
+        appliedStructureID: job.appliedStructureID,
         apiJobs: [...job.apiJobs],
         apiOrders: [...job.apiOrders],
         apiTransactions: [...job.apiTransactions],
@@ -184,7 +184,7 @@ export function useFirebase() {
         bpTE: job.bpTE,
         structureType: job.structureType,
         buildSystem: job.buildSystem,
-        appliedStructureID : job.appliedStructureID,
+        appliedStructureID: job.appliedStructureID,
         rigType: job.rigType,
         systemType: job.systemType,
         apiJobs: [...job.apiJobs],
@@ -277,7 +277,7 @@ export function useFirebase() {
         rigType: job.rigType,
         systemType: job.systemType,
         buildSystem: job.buildSystem,
-        appliedStructureID : job.appliedStructureID,
+        appliedStructureID: job.appliedStructureID,
         apiJobs: [...job.apiJobs],
         apiOrders: [...job.apiOrders],
         apiTransactions: [...job.apiTransactions],
@@ -377,52 +377,51 @@ export function useFirebase() {
     }
   };
 
-  const getItemPrices = async (idArray, userObj) => {
-    const t = trace(performance, "GetItemPrices");
-    t.start();
-    await fbAuthState();
-    const MAX_CHUNK_SIZE = 500;
-    let requestArray = [];
-    let promiseArray = [];
-    let returnData = [];
+    const getItemPrices = async (idArray, userObj) => {
+      const t = trace(performance, "GetItemPrices");
+      t.start();
+      await fbAuthState();
+      const MAX_CHUNK_SIZE = 500;
+      let requestArray = [];
+      let promiseArray = [];
+      let returnData = [];
 
-    if (idArray !== undefined && idArray.length > 0) {
-      for (let id of idArray) {
-        if (!evePrices.some((i) => i.typeID === id)) {
-          requestArray.push(id);
+      if (idArray !== undefined && idArray.length > 0) {
+        for (let id of idArray) {
+          if (!evePrices.some((i) => i.typeID === id)) {
+            requestArray.push(id);
+          }
         }
       }
-    }
-    if (requestArray.length > 0) {
-      for (let x = 0; x < requestArray.length; x += MAX_CHUNK_SIZE) {
-        let chunk = requestArray.slice(x, x + MAX_CHUNK_SIZE);
-        let chunkData = getItemPriceBulk(chunk, userObj);
-        promiseArray.push(chunkData);
-      }
-    } else {
-      t.stop();
-      return [];
-    }
-
-    let returnedPromise = await Promise.all(promiseArray);
-
-    for (let data of returnedPromise) {
-      if (Array.isArray(data)) {
-        data.forEach((id) => {
-          returnData.push(id);
-        });
+      if (requestArray.length > 0) {
+        for (let x = 0; x < requestArray.length; x += MAX_CHUNK_SIZE) {
+          let chunk = requestArray.slice(x, x + MAX_CHUNK_SIZE);
+          let chunkData = getItemPriceBulk(chunk, userObj);
+          promiseArray.push(chunkData);
+        }
       } else {
-        returnData.push(data);
+        t.stop();
+        return [];
       }
-    }
-    t.stop();
-    return returnData;
-  };
+
+      let returnedPromise = await Promise.all(promiseArray);
+
+      for (let data of returnedPromise) {
+        if (Array.isArray(data)) {
+          data.forEach((id) => {
+            returnData.push(id);
+          });
+        } else {
+          returnData.push(data);
+        }
+      }
+      t.stop();
+      return returnData;
+    };
 
   const refreshItemPrices = async (userObj) => {
     const t = trace(performance, "refreshItemPrices");
     t.start();
-    await fbAuthState();
     const CHUNK_SIZE = 500;
     const oldEvePrices = [...evePrices];
     const priceUpdates = new Set();
@@ -669,7 +668,7 @@ export function useFirebase() {
             rigType: downloadDoc.rigType,
             systemType: downloadDoc.systemType,
             buildSystem: downloadDoc.buildSystem || null,
-            appliedStructureID : downloadDoc.appliedStructureID || null,
+            appliedStructureID: downloadDoc.appliedStructureID || null,
             apiJobs: new Set(downloadDoc.apiJobs),
             apiOrders: new Set(downloadDoc.apiOrders),
             apiTransactions: new Set(downloadDoc.apiTransactions),

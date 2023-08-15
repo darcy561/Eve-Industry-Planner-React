@@ -14,12 +14,16 @@ import {
   ArchivedJobsContext,
   JobArrayContext,
 } from "../../Context/JobContext";
-import { EvePricesContext } from "../../Context/EveDataContext";
+import {
+  EvePricesContext,
+  SystemIndexContext,
+} from "../../Context/EveDataContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
   UsersContext,
 } from "../../Context/AuthContext";
+import { useMissingSystemIndex } from "../GeneralHooks/useImportMissingSystemIndexData";
 
 export function useOpenEditJob() {
   const { users } = useContext(UsersContext);
@@ -34,8 +38,10 @@ export function useOpenEditJob() {
   const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
+  const { updateSystemIndexData } = useContext(SystemIndexContext);
   const { generatePriceRequestFromJob } = useJobManagement();
   const { findJobData } = useFindJobObject();
+  const { findMissingSystemIndex } = useMissingSystemIndex();
 
   const {
     getArchivedJobData,
@@ -88,7 +94,8 @@ export function useOpenEditJob() {
     }
     for (let mat of openJob.build.materials) {
       if (mat.childJob.length === 0) {
-        continue;s
+        continue;
+        s;
       }
       for (let cJID of mat.childJob) {
         let childJob = await findJobData(cJID, newUserJobSnapshot, newJobArray);
@@ -99,11 +106,13 @@ export function useOpenEditJob() {
         itemIDs = new Set(itemIDs, generatePriceRequestFromJob(childJob));
       }
     }
+
     if (isLoggedIn) {
       let newArchivedJobsArray = await getArchivedJobData(openJob.itemID);
       updateArchivedJobs(newArchivedJobsArray);
       uploadUserJobSnapshot(newUserJobSnapshot);
     }
+
     let [appVersionPass] = await Promise.all(verify);
     if (!appVersionPass.data) {
       updateLoadingText((prevObj) => ({
@@ -124,6 +133,7 @@ export function useOpenEditJob() {
       return;
     }
     let jobPrices = await getItemPrices([...itemIDs], parentUser);
+    await checkSystemIndexData(openJob);
     if (jobPrices.length > 0) {
       updateEvePrices((prev) => {
         const prevIds = new Set(prev.map((item) => item.typeID));
@@ -160,5 +170,13 @@ export function useOpenEditJob() {
       }
     }
   };
+
+  async function checkSystemIndexData(inputJob) {
+    const updatedSystemIndexData = await findMissingSystemIndex(
+      inputJob.buildSystem
+    );
+    if (!updatedSystemIndexData) return;
+    updateSystemIndexData(updatedSystemIndexData);
+  }
   return { openEditJob };
 }

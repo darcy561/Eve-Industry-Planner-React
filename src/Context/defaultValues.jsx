@@ -2251,7 +2251,7 @@ export let blueprintOptions = {
 };
 export let structureOptions = {
   manStructure: {
-    0: { id: 0, label: "Station", material: 0, time: 0, cost: 0 },
+    0: { id: 0, label: "NPC Station", material: 0, time: 0, cost: 0 },
     1: { id: 1, label: "Medium", material: 1, time: 0.15, cost: 0.03 },
     2: { id: 2, label: "Large", material: 1, time: 0.2, cost: 0.04 },
     3: { id: 3, label: "X-Large", material: 1, time: 0.3, cost: 0.05 },

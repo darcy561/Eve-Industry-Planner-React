@@ -4,7 +4,10 @@ import {
   UserJobSnapshotContext,
   UsersContext,
 } from "../../Context/AuthContext";
-import { EvePricesContext } from "../../Context/EveDataContext";
+import {
+  EvePricesContext,
+  SystemIndexContext,
+} from "../../Context/EveDataContext";
 import {
   ActiveJobContext,
   ArchivedJobsContext,
@@ -17,6 +20,7 @@ import {
 import { useFirebase } from "../useFirebase";
 import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
+import { useMissingSystemIndex } from "../GeneralHooks/useImportMissingSystemIndexData";
 
 export function useSwitchActiveJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -30,6 +34,8 @@ export function useSwitchActiveJob() {
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updateEvePrices } = useContext(EvePricesContext);
+  const { updateSystemIndexData } = useContext(SystemIndexContext);
+  const { findMissingSystemIndex } = useMissingSystemIndex();
   const {
     generatePriceRequestFromJob,
     generatePriceRequestFromSnapshot,
@@ -194,7 +200,7 @@ export function useSwitchActiveJob() {
       updateArchivedJobs(newArchivedJobsArray);
       uploadUserJobSnapshot(newUserJobSnapshot);
     }
-
+    await checkSystemIndexData(openJob);
     let jobPrices = await getItemPrices([...itemIDs], parentUser);
     if (jobPrices.length > 0) {
       updateEvePrices((prev) => {
@@ -205,7 +211,7 @@ export function useSwitchActiveJob() {
         return [...prev, ...uniqueNewEvePrices];
       });
     }
-    console.log(newJobArray);
+
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateActiveJob(openJob);
@@ -225,6 +231,14 @@ export function useSwitchActiveJob() {
       userJobListener(parentUser, requestedJobID);
     }
   };
+
+  async function checkSystemIndexData(inputJob) {
+    const updatedSystemIndexData = await findMissingSystemIndex(
+      inputJob.buildSystem
+    );
+    if (!updatedSystemIndexData) return;
+    updateSystemIndexData(updatedSystemIndexData);
+  }
 
   return { switchActiveJob };
 }

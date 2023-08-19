@@ -67,8 +67,7 @@ export function useJobManagement() {
   const { stationData } = useEveApi();
   const { buildJob, checkAllowBuild } = useJobBuild();
   const { findJobData } = useFindJobObject();
-  const { newJobSnapshot, updateJobSnapshot } =
-    useJobSnapshotManagement();
+  const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
 
   const analytics = getAnalytics();
 
@@ -280,15 +279,12 @@ export function useJobManagement() {
           continue;
         }
         let match = childJobs.find((i) => i.itemID === material.typeID);
-        if (match === undefined) {
+        if (!match) {
           continue;
         }
-        material.childJob.push(match.jobID);
+        updatedJob.build.childJobs[material.typeID].push(match.jobID);
       }
-      newUserJobSnapshot = updateJobSnapshot(
-        updatedJob,
-        newUserJobSnapshot
-      );
+      newUserJobSnapshot = updateJobSnapshot(updatedJob, newUserJobSnapshot);
       if (activeJob.jobID === updatedJob.jobID) {
         updateActiveJob(updatedJob);
       }
@@ -317,7 +313,7 @@ export function useJobManagement() {
     if (isLoggedIn) {
       jobsToSave.forEach((jobID) => {
         let job = newJobArray.find((i) => i.jobID === jobID);
-        if (job === undefined) {
+        if (!job) {
           return;
         }
         uploadJob(job);
@@ -361,7 +357,7 @@ export function useJobManagement() {
     for (let inputID of inputJobIDs) {
       if (inputID.includes("group")) {
         let inputGroup = groupArray.find((i) => i.groupID === inputID);
-        if (inputGroup === undefined) {
+        if (!inputGroup) {
           return;
         }
         if (
@@ -383,7 +379,7 @@ export function useJobManagement() {
         newJobArray
       );
 
-      if (inputJob === undefined) {
+      if (!inputJob) {
         continue;
       }
 
@@ -391,7 +387,8 @@ export function useJobManagement() {
         if (material.quantityPurchased >= material.quantity) {
           return;
         }
-        let childState = material.childJob.length > 0 ? true : false;
+        let childState =
+          inputJob.build.childJobs[material.typeID].length > 0 ? true : false;
         let shoppingListEntries = finalShoppingList.filter(
           (i) => i.typeID === material.typeID
         );
@@ -410,7 +407,7 @@ export function useJobManagement() {
         let foundChild = shoppingListEntries.find(
           (i) => i.hasChild === childState
         );
-        if (foundChild === undefined) {
+        if (!foundChild) {
           finalShoppingList.push({
             name: material.name,
             typeID: material.typeID,
@@ -521,18 +518,18 @@ export function useJobManagement() {
         newUserJobSnapshot,
         newJobArray
       );
-      if (currentJob === undefined) {
+      if (!currentJob) {
         continue;
       }
       let buildEntry = buildData.find((i) => i.typeID === currentJob.itemID);
 
-      if (buildEntry === undefined) {
+      if (!buildEntry) {
         let childJobArray = [];
         currentJob.build.materials.forEach((mat) => {
-          if (mat.childJob.length > 0) {
+          if (currentJob.build.childJobs.length > 0) {
             childJobArray.push({
               typeID: mat.typeID,
-              childJobs: new Set(mat.childJob),
+              childJobs: new Set(currentJob.build.childJobs[mat.typeID]),
             });
           }
         });
@@ -559,15 +556,15 @@ export function useJobManagement() {
           let childJobEntry = buildEntry.childJobs.find(
             (i) => i.typeID === mat.typeID
           );
-          if (childJobEntry === undefined) {
+          if (!childJobEntry) {
             buildEntry.childJobs.push({
               typeID: mat.typeID,
-              childJobs: new Set(mat.childJob),
+              childJobs: new Set(currentJob.build.childJobs[mat.typeID]),
             });
           } else {
             childJobEntry.childJobs = new Set([
               ...childJobEntry.childJobs,
-              ...mat.childJob,
+              ...currentJob.build.childJobs[mat.typeID],
             ]);
           }
         });
@@ -593,7 +590,7 @@ export function useJobManagement() {
         let replacementJob = newJobHold.find(
           (i) => i.itemID === material.typeID
         );
-        if (replacementJob === undefined) {
+        if (!replacementJob) {
           continue;
         }
         replacementJob.parentJob = replacementJob.parentJob.concat([
@@ -611,29 +608,22 @@ export function useJobManagement() {
       }
       buildItem.parentJobs.forEach((parentJobID) => {
         let parentJob = newJobArray.find((i) => i.jobID === parentJobID);
-        if (parentJob === undefined) {
+        if (!parentJob) {
           return;
         }
 
-        let parentMaterial = parentJob.build.materials.find(
-          (mat) => mat.typeID === buildItem.typeID
-        );
-        if (parentMaterial === undefined) {
-          return;
-        }
+        let parentMaterial = parentJob.build.childJobs[buildItem.typeID];
 
-        parentMaterial.childJob = parentMaterial.childJob.filter(
+        parentMaterial = parentMaterial.filter(
           (i) => !buildItem.oldJobIDs.has(i)
         );
-        parentMaterial.childJob = parentMaterial.childJob.concat([
-          ...buildItem.newJobIDs,
-        ]);
+        parentMaterial = parentMaterial.concat([...buildItem.newJobIDs]);
         jobsToSave.add(parentJob.jobID);
       });
       for (let itemType of buildItem.childJobs) {
         itemType.childJobs.forEach((id) => {
           let matchingJob = newJobArray.find((i) => i.jobID === id);
-          if (matchingJob === undefined) {
+          if (!matchingJob) {
             return;
           }
           matchingJob.parentJob = matchingJob.parentJob.filter(
@@ -646,16 +636,9 @@ export function useJobManagement() {
         });
       }
       for (let replacementJob of newJobHold) {
-        let matchingMaterial = replacementJob.build.materials.find(
-          (i) => i.typeID === buildItem.typeID
-        );
-        if (matchingMaterial === undefined) {
-          continue;
-        }
-        matchingMaterial.childJob = matchingMaterial.childJob.concat([
-          ...buildItem.newJobIDs,
-        ]);
-        matchingMaterial.childJob = matchingMaterial.childJob.filter(
+        let matchingMaterial = replacementJob.build.childJobs[buildItem.typeID];
+        matchingMaterial = matchingMaterial.concat([...buildItem.newJobIDs]);
+        matchingMaterial = matchingMaterial.filter(
           (i) => !buildItem.oldJobIDs.has(i)
         );
       }
@@ -664,7 +647,7 @@ export function useJobManagement() {
     for (let buildItem of buildData) {
       buildItem.oldJobIDs.forEach((oldJobID) => {
         let oldJob = newJobArray.find((i) => i.jobID === oldJobID);
-        if (oldJob === undefined) {
+        if (!oldJob) {
           return;
         }
 
@@ -701,13 +684,10 @@ export function useJobManagement() {
 
     jobsToSave.forEach((id) => {
       let job = newJobArray.find((i) => i.jobID === id);
-      if (job === undefined) {
+      if (!job) {
         return;
       }
-      newUserJobSnapshot = updateJobSnapshot(
-        job,
-        newUserJobSnapshot
-      );
+      newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
       if (isLoggedIn) {
         uploadJob(job);
       }
@@ -856,7 +836,7 @@ export function useJobManagement() {
       ...corpEsiBlueprints.flatMap((entry) => entry.data),
     ].find((i) => i.item_id === blueprintID);
 
-    if (blueprintData === undefined) {
+    if (!blueprintData) {
       return "bpc";
     }
 

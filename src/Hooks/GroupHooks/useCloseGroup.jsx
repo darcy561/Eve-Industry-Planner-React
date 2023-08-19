@@ -9,7 +9,7 @@ import {
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
-import { useJobManagement } from "../useJobManagement";
+import { useJobSnapshotManagement } from "../JobHooks/useJobSnapshots";
 
 export function useCloseGroup() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -23,7 +23,7 @@ export function useCloseGroup() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { uploadGroups, uploadJob } = useFirebase();
 
   const closeGroup = (groupJobs) => {
@@ -96,7 +96,7 @@ export function useCloseGroup() {
           mat.childJo = mat.childJob.filter((id) => includedJobIDs.has(id));
         });
         if (newJob.isReadyToSell) {
-          newUserJobSnapshot = updateJobSnapshotFromFullJob(
+          newUserJobSnapshot = updateJobSnapshot(
             newJob,
             newUserJobSnapshot
           );

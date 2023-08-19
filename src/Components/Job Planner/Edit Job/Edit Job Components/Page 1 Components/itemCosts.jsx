@@ -34,7 +34,7 @@ export function ItemCostPanel({ jobModified, setJobModified }) {
   let activeJobPrices = evePrices.find((i) => i.typeID === activeJob.itemID);
 
   let totalJobSell = 0;
-  console.log(calculateInstallCostFromJob(activeJob));
+
   return (
     <Paper
       elevation={3}

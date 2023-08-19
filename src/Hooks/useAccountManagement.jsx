@@ -976,7 +976,7 @@ export function useAccountManagement() {
 
     return systemIndexData;
   };
-  
+
   return {
     buildApiArray,
     buildCloudAccountData,

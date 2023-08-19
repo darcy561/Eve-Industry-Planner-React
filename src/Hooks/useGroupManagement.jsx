@@ -12,6 +12,7 @@ import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
 import { useJobManagement } from "./useJobManagement";
 import uuid from "react-uuid";
+import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -22,7 +23,7 @@ export function useGroupManagement() {
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { deleteJobSnapshot, newJobSnapshot } = useJobManagement();
+  const { deleteJobSnapshot, newJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { addNewJob, uploadGroups, uploadUserJobSnapshot, uploadJob } =
     useFirebase();

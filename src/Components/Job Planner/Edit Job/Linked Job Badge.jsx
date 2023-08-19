@@ -20,6 +20,7 @@ import {
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { useSwitchActiveJob } from "../../../Hooks/JobHooks/useSwitchActiveJob";
 import { useFindJobObject } from "../../../Hooks/GeneralHooks/useFindJobObject";
+import { useJobSnapshotManagement } from "../../../Hooks/JobHooks/useJobSnapshots";
 
 export function LinkedJobBadge({ jobModified, setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -31,7 +32,7 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
   );
   const [dialogTrigger, updateDialogTrigger] = useState(false);
   const { uploadUserJobSnapshot, uploadJob } = useFirebase();
-  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { switchActiveJob } = useSwitchActiveJob();
 
@@ -134,7 +135,7 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
                     newParentJobs = newParentJobs.filter(
                       (i) => i !== selectedJob.jobID
                     );
-                    newUserJobSnapshot = updateJobSnapshotFromFullJob(
+                    newUserJobSnapshot = updateJobSnapshot(
                       selectedJob,
                       newUserJobSnapshot
                     );

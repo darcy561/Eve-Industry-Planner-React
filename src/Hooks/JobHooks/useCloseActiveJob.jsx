@@ -6,8 +6,8 @@ import {
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
-import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
+import { useJobSnapshotManagement } from "./useJobSnapshots";
 
 export function useCloseActiveJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -18,7 +18,7 @@ export function useCloseActiveJob() {
   );
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { newJobSnapshot, updateJobSnapshotFromFullJob } = useJobManagement();
+  const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
 
   const closeActiveJob = async (inputJob, jobModifiedFlag) => {
@@ -28,7 +28,7 @@ export function useCloseActiveJob() {
     newJobArray[index] = inputJob;
     // newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, inputJob.jobID);
 
-    newUserJobSnapshot = updateJobSnapshotFromFullJob(
+    newUserJobSnapshot = updateJobSnapshot(
       inputJob,
       newUserJobSnapshot
     );
@@ -59,7 +59,7 @@ export function useCloseActiveJob() {
         if (!childJobSet.has(inputJob.jobID)) {
           childJobSet.add(inputJob.jobID);
           parentMaterial.childJob = [...childJobSet];
-          newUserJobSnapshot = updateJobSnapshotFromFullJob(
+          newUserJobSnapshot = updateJobSnapshot(
             parentJob,
             newUserJobSnapshot
           );
@@ -94,7 +94,7 @@ export function useCloseActiveJob() {
           if (!childJobParentSet.has(inputJob.jobID)) {
             childJobParentSet.add(inputJob.jobID);
             childJob.parentJob = [...childJobParentSet];
-            newUserJobSnapshot = updateJobSnapshotFromFullJob(
+            newUserJobSnapshot = updateJobSnapshot(
               childJob,
               newUserJobSnapshot
             );

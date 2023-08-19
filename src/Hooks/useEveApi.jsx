@@ -12,18 +12,24 @@ export function useEveApi() {
       const response = await fetch(
         `https://esi.evetech.net/latest/characters/${userObj.CharacterID}/skills/?datasource=tranquility&token=${userObj.aToken}`
       );
-      const skills = await response.json();
+      const responseData = await response.json();
+      const skillsMap = {};
 
-      const mappedSkills = skillsReference.map((ref) => {
-        const { active_skill_level = 0 } =
-          skills.skills.find((s) => s.skill_id === ref.id) || {};
-        return { id: ref.id, activeLevel: active_skill_level };
+      responseData.skills.forEach((skill) => {
+        const ref = skillsReference[skill.skill_id];
+        if (ref) {
+          const { active_skill_level = 0, trained_skill_level = 0 } = skill;
+          skillsMap[ref.id] = {
+            id: ref.id,
+            activeLevel: active_skill_level,
+            trainedLevel: trained_skill_level,
+          };
+        }
       });
-
-      return mappedSkills;
+      return skillsMap;
     } catch (err) {
       console.error(`Error fetching character skills: ${err}`);
-      return [];
+      return {};
     }
   };
 

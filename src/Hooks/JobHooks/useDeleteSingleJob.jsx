@@ -18,6 +18,7 @@ import {
 import { useFirebase } from "../useFirebase";
 import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
+import { useJobSnapshotManagement } from "./useJobSnapshots";
 
 export function useDeleteSingleJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -43,8 +44,8 @@ export function useDeleteSingleJob() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
-  const { deleteJobSnapshot, updateJobSnapshotFromFullJob } =
-    useJobManagement();
+  const { deleteJobSnapshot, updateJobSnapshot } =
+    useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const analytics = getAnalytics();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -101,7 +102,7 @@ export function useDeleteSingleJob() {
 
         child.parentJob = child.parentJob.filter((i) => i !== inputJob.jobID);
 
-        newUserJobSnapshot = updateJobSnapshotFromFullJob(
+        newUserJobSnapshot = updateJobSnapshot(
           child,
           newUserJobSnapshot
         );
@@ -125,7 +126,7 @@ export function useDeleteSingleJob() {
         }
         mat.childJob = mat.childJob.filter((i) => i !== inputJob.jobID);
       }
-      newUserJobSnapshot = updateJobSnapshotFromFullJob(
+      newUserJobSnapshot = updateJobSnapshot(
         parentJob,
         newUserJobSnapshot
       );

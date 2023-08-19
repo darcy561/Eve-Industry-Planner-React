@@ -20,6 +20,7 @@ import { performance } from "../../firebase";
 import { useFirebase } from "../useFirebase";
 import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
+import { useJobSnapshotManagement } from "./useJobSnapshots";
 
 export function useDeleteMultipleJobs() {
   const { users } = useContext(UsersContext);
@@ -43,8 +44,8 @@ export function useDeleteMultipleJobs() {
     MultiSelectJobPlannerContext
   );
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { deleteJobSnapshot, updateJobSnapshotFromFullJob } =
-    useJobManagement();
+  const { deleteJobSnapshot, updateJobSnapshot } =
+    useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
@@ -129,7 +130,7 @@ export function useDeleteMultipleJobs() {
             }
             mat.childJob = mat.childJob.filter((i) => inputJob.jobID !== i);
           }
-          newUserJobSnapshot = updateJobSnapshotFromFullJob(
+          newUserJobSnapshot = updateJobSnapshot(
             parentJob,
             newUserJobSnapshot
           );

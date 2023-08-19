@@ -12,7 +12,7 @@ import {
   UserJobSnapshotContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import { useJobSnapshotManagement } from "../../../../../Hooks/JobHooks/useJobSnapshots";
 
 export function ArchiveJobButton({ updateEditJobTrigger }) {
   const { activeJob, activeGroup } = useContext(ActiveJobContext);
@@ -25,7 +25,7 @@ export function ArchiveJobButton({ updateEditJobTrigger }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { archiveJob, removeJob, uploadUserJobSnapshot, updateMainUserDoc } =
     useFirebase();
-  const { deleteJobSnapshot } = useJobManagement();
+  const { deleteJobSnapshot } = useJobSnapshotManagement();
   const analytics = getAnalytics();
 
   const archiveJobProcess = async () => {

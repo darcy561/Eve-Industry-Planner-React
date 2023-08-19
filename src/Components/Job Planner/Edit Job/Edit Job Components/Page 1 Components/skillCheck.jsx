@@ -28,8 +28,10 @@ export function SkillCheck() {
     buildChar = parentUser;
   }
 
-  let characterSkills = esiSkills.find((i) => i.user === buildChar.CharacterHash).data;
-  
+  let characterSkills = esiSkills.find(
+    (i) => i.user === buildChar.CharacterHash
+  ).data;
+
   return (
     <Paper
       elevation={3}
@@ -59,10 +61,8 @@ export function SkillCheck() {
             </Grid>
           )}
           {activeJob.skills.map((jSkill) => {
-            const charSkill = characterSkills.find(
-              (i) => i.id === jSkill.typeID
-            );
-            const skillData = bpSkills.find((i) => i.id === jSkill.typeID);
+            const charSkill = characterSkills[jSkill.typeID];
+            const skillData = bpSkills[jSkill.typeID];
 
             return (
               <Grid

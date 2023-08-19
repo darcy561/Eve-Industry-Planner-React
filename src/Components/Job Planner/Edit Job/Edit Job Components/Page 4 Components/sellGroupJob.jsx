@@ -2,7 +2,7 @@ import { Button, Grid, Tooltip } from "@mui/material";
 import { useContext } from "react";
 import { UserJobSnapshotContext } from "../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import { useJobSnapshotManagement } from "../../../../../Hooks/JobHooks/useJobSnapshots";
 
 export function SellGroupJob({ setJobModified }) {
   const { activeJob, updateActiveJob, activeGroup } =
@@ -10,7 +10,7 @@ export function SellGroupJob({ setJobModified }) {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { deleteJobSnapshot } = useJobManagement();
+  const { deleteJobSnapshot } = useJobSnapshotManagement();
 
   const toggleMarkForSell = async () => {
     if (!activeJob.isReadyToSell) {

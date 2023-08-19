@@ -11,26 +11,18 @@ export function useMissingSystemIndex() {
     }
 
     const requiredIDsSet = new Set(requiredIDs);
-    const availableIDs = new Set(systemIndexData.map((i) => i.solar_system_id));
+    const availableIDs = new Set(Object.keys(systemIndexData));
 
     const missingIDs = [...requiredIDsSet].filter((i) => !availableIDs.has(i));
 
     if (missingIDs.length === 0) {
-      return null;
+      return systemIndexData;
     }
 
-    if (missingIDs.length === 0) {
-      return null;
-    }
     const fetchInput = missingIDs.length === 1 ? missingIDs[0] : missingIDs;
     const missingSystemIndexes = await fetchSystemIndexes(fetchInput);
 
-    return [
-      ...systemIndexData,
-      ...(missingIDs.length === 1
-        ? [missingSystemIndexes]
-        : missingSystemIndexes),
-    ];
+    return { ...systemIndexData, ...missingSystemIndexes };
   };
 
   return {

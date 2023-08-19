@@ -16,11 +16,11 @@ import {
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import { ApiJobsContext, JobArrayContext } from "../../Context/JobContext";
 import { useFirebase } from "../../Hooks/useFirebase";
-import { useJobManagement } from "../../Hooks/useJobManagement";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { useMemo } from "react";
 import { useFindJobObject } from "../../Hooks/GeneralHooks/useFindJobObject";
+import { useJobSnapshotManagement } from "../../Hooks/JobHooks/useJobSnapshots";
 
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
@@ -33,7 +33,7 @@ export function AccountEntry({ user, parentUserIndex }) {
     updateApiArray,
     updateUserEsiData,
   } = useAccountManagement();
-  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
@@ -106,7 +106,7 @@ export function AccountEntry({ user, parentUserIndex }) {
           newJobArray
         );
         job.build.buildChar = parentUser.CharacterHash;
-        newUserJobSnapshot = updateJobSnapshotFromFullJob(
+        newUserJobSnapshot = updateJobSnapshot(
           job,
           newUserJobSnapshot
         );

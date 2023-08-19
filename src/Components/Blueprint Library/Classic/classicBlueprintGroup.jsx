@@ -25,6 +25,7 @@ import {
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "@firebase/performance";
 import { performance } from "../../../firebase";
+import { useJobSnapshotManagement } from "../../../Hooks/JobHooks/useJobSnapshots";
 
 export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   const { users } = useContext(UsersContext);
@@ -38,7 +39,8 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   const [archiveOpen, updateArchiveOpen] = useState(false);
   const [loadingBuild, updateLoadingBuild] = useState(false);
   const { buildJob, checkAllowBuild } = useJobBuild();
-  const { generatePriceRequestFromJob, newJobSnapshot } = useJobManagement();
+  const { generatePriceRequestFromJob } = useJobManagement();
+  const { newJobSnapshot } = useJobSnapshotManagement();
   const { addNewJob, getItemPrices, uploadJob, uploadUserJobSnapshot } =
     useFirebase();
   const analytics = getAnalytics();

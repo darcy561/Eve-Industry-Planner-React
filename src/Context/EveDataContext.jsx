@@ -165,7 +165,7 @@ export const SisiDataFiles = (props) => {
 export const SystemIndexContext = createContext();
 
 export const SystemIndex = (props) => {
-  const [systemIndexData, updateSystemIndexData] = useState([]);
+  const [systemIndexData, updateSystemIndexData] = useState({});
   return (
     <SystemIndexContext.Provider
       value={{ systemIndexData, updateSystemIndexData }}

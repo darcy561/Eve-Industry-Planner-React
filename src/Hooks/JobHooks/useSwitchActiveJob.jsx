@@ -21,6 +21,7 @@ import { useFirebase } from "../useFirebase";
 import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useMissingSystemIndex } from "../GeneralHooks/useImportMissingSystemIndexData";
+import { useJobSnapshotManagement } from "./useJobSnapshots";
 
 export function useSwitchActiveJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -36,12 +37,10 @@ export function useSwitchActiveJob() {
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
   const { findMissingSystemIndex } = useMissingSystemIndex();
-  const {
-    generatePriceRequestFromJob,
-    generatePriceRequestFromSnapshot,
-    newJobSnapshot,
-    updateJobSnapshotFromFullJob,
-  } = useJobManagement();
+  const { generatePriceRequestFromJob, generatePriceRequestFromSnapshot } =
+    useJobManagement();
+  const { newJobSnapshot, updateJobSnapshot } =
+    useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const {
     getArchivedJobData,
@@ -90,7 +89,7 @@ export function useSwitchActiveJob() {
         if (!childJobSet.has(existingJob.jobID)) {
           childJobSet.add(existingJob.jobID);
           parentMaterial.childJob = [...childJobSet];
-          newUserJobSnapshot = updateJobSnapshotFromFullJob(
+          newUserJobSnapshot = updateJobSnapshot(
             parentJob,
             newUserJobSnapshot
           );
@@ -125,7 +124,7 @@ export function useSwitchActiveJob() {
           if (!childJobParentSet.has(existingJob.jobID)) {
             childJobParentSet.add(existingJob.jobID);
             childJob.parentJob = [...childJobParentSet];
-            newUserJobSnapshot = updateJobSnapshotFromFullJob(
+            newUserJobSnapshot = updateJobSnapshot(
               childJob,
               newUserJobSnapshot
             );

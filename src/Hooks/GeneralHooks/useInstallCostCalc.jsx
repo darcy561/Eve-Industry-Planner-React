@@ -23,27 +23,27 @@ export function useInstallCostsCalc() {
 
   const calculateInstallCostFromJob = (selectedJob) => {
     const estimatedItemValue = estimatedItemPriceCalc(
-      selectedJob.build.materials,
+      selectedJob.materialCount,
       selectedJob.jobCount
     );
 
     const facilityModifier = findFacilityModifier(
-      selectedJob.structureType,
+      selectedJob.structureID,
       selectedJob.jobType
     );
 
     const facilityTax = findFacilityTax(
-      selectedJob.appliedStructureID,
-      selectedJob.structureType,
+      selectedJob.customStructureID,
+      selectedJob.structureID,
       selectedJob.jobType
     );
 
     const systemIndexValue = findSystemIndex(
-      selectedJob.buildSystem,
+      selectedJob.systemID,
       selectedJob.jobType
     );
 
-    const cloneValue = findCloneValue(selectedJob.build.buildChar);
+    const cloneValue = findCloneValue(selectedJob.selectedCharacter);
 
     const installCost =
       estimatedItemValue *
@@ -56,7 +56,7 @@ export function useInstallCostsCalc() {
   };
 
   function estimatedItemPriceCalc(materialArray, jobCount) {
-    return materialArray.reduce((preValue, material) => {
+    return Object.values(materialArray).reduce((preValue, material) => {
       return (preValue += estimatedMaterialPriceCalc(
         material.quantity / jobCount,
         material.typeID
@@ -89,11 +89,7 @@ export function useInstallCostsCalc() {
   }
 
   function findSystemIndex(requiredSystemID, jobType) {
-    return (
-      systemIndexData.find((i) => i.solar_system_id === requiredSystemID)?.[
-        jobTypeMapping[jobType]
-      ] || 0
-    );
+    return systemIndexData[requiredSystemID]?.[jobTypeMapping[jobType]] || 0;
   }
 
   function findCloneValue(inputCharacterHash) {

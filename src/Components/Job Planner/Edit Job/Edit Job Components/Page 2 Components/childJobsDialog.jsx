@@ -23,6 +23,7 @@ import {
 } from "../../../../../Context/AuthContext";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import { useFindJobObject } from "../../../../../Hooks/GeneralHooks/useFindJobObject";
+import { useJobSnapshotManagement } from "../../../../../Hooks/JobHooks/useJobSnapshots";
 
 export function ChildJobDialog({
   material,
@@ -39,7 +40,7 @@ export function ChildJobDialog({
   );
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
 
   const handleClose = () => {
@@ -123,7 +124,7 @@ export function ChildJobDialog({
 
                         inputJob.parentJob.push(activeJob.jobID);
 
-                        newUserJobSnapshot = updateJobSnapshotFromFullJob(
+                        newUserJobSnapshot = updateJobSnapshot(
                           inputJob,
                           newUserJobSnapshot
                         );
@@ -246,7 +247,7 @@ export function ChildJobDialog({
                         if (parentIndex !== -1) {
                           inputJob.parentJob.splice(parentIndex, 1);
                         }
-                        newUserJobSnapshot = updateJobSnapshotFromFullJob(
+                        newUserJobSnapshot = updateJobSnapshot(
                           inputJob,
                           newUserJobSnapshot
                         );

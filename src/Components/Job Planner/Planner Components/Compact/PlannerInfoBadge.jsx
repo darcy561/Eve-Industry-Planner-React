@@ -7,8 +7,7 @@ function getTooltipContent(job, timeRemaining) {
     case 0:
       return (
         <span>
-          <p>Runs: {job.runCount.toLocaleString()}</p>
-          <p>Job Slots: {job.jobCount.toLocaleString()} </p>
+          <p>Job Setups: </p>
         </span>
       );
     case 1:

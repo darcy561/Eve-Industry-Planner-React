@@ -5,8 +5,8 @@ import {
 } from "../../Context/AuthContext";
 import { JobArrayContext } from "../../Context/JobContext";
 import { useFirebase } from "../useFirebase";
-import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "./useFindJobObject";
+import { useJobSnapshotManagement } from "../JobHooks/useJobSnapshots";
 
 export function useMoveItemsOnPlanner() {
   const { jobArray, updateJobArray, groupArray, updateGroupArray } =
@@ -15,7 +15,7 @@ export function useMoveItemsOnPlanner() {
     UserJobSnapshotContext
   );
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { uploadGroups, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { findJobData } = useFindJobObject();
 
@@ -96,7 +96,7 @@ export function useMoveItemsOnPlanner() {
       }
 
       if (!inputJob.groupID) {
-        newUserJobSnapshot = updateJobSnapshotFromFullJob(
+        newUserJobSnapshot = updateJobSnapshot(
           inputJob,
           newUserJobSnapshot
         );

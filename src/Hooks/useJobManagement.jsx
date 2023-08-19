@@ -25,6 +25,7 @@ import {
 import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
+import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
@@ -66,35 +67,8 @@ export function useJobManagement() {
   const { stationData } = useEveApi();
   const { buildJob, checkAllowBuild } = useJobBuild();
   const { findJobData } = useFindJobObject();
-
-  class newSnapshot {
-    constructor(inputJob, childJobs, totalComplete, materialIDs, endDate) {
-      this.jobOwner = inputJob.build.buildChar;
-      this.isLocked = false;
-      this.lockedTimestamp = null;
-      this.lockedUser = null;
-      this.jobID = inputJob.jobID;
-      this.name = inputJob.name;
-      this.runCount = inputJob.runCount;
-      this.jobCount = inputJob.jobCount;
-      this.jobStatus = inputJob.jobStatus;
-      this.jobType = inputJob.jobType;
-      this.itemID = inputJob.itemID;
-      this.apiJobs = [...inputJob.apiJobs];
-      this.apiOrders = [...inputJob.apiOrders];
-      this.apiTransactions = [...inputJob.apiTransactions];
-      this.itemQuantity = inputJob.build.products.totalQuantity;
-      this.totalMaterials = inputJob.build.materials.length;
-      this.totalComplete = totalComplete;
-      this.buildVer = inputJob.buildVer;
-      this.parentJob = inputJob.parentJob;
-      this.childJobs = childJobs;
-      this.materialIDs = materialIDs;
-      this.metaLevel = inputJob.metaLevel;
-      this.groupID = inputJob.groupID || null;
-      this.endDateDisplay = endDate;
-    }
-  }
+  const { newJobSnapshot, updateJobSnapshot } =
+    useJobSnapshotManagement();
 
   const analytics = getAnalytics();
 
@@ -120,9 +94,10 @@ export function useJobManagement() {
     let promiseArray = [
       getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
     ];
-    if (newJob.groupID === null) {
+    if (!newJob.groupID) {
       newUserJobSnapshot = newJobSnapshot(newJob, newUserJobSnapshot);
     }
+    console.log(newUserJobSnapshot);
 
     addJobToGroup: if (newJob.groupID !== null) {
       selectedGroup = newGroupArray.find((i) => i.groupID === newJob.groupID);
@@ -210,68 +185,6 @@ export function useJobManagement() {
       return newJob;
     }
     t.stop();
-  };
-
-  const replaceSnapshot = async (inputJob) => {
-    const index = jobArray.findIndex((x) => inputJob.jobID === x.jobID);
-    jobArray[index] = inputJob;
-  };
-
-  const deleteJobSnapshot = (inputJob, newSnapshotArray) => {
-    return newSnapshotArray.filter((i) => i.jobID !== inputJob.jobID);
-  };
-
-  const newJobSnapshot = (inputJob, newSnapshotArray) => {
-    const materialIDs = inputJob.build.materials.map(
-      (material) => material.typeID
-    );
-    const childJobs = inputJob.build.materials.flatMap(
-      (material) => material.childJob
-    );
-    const totalComplete = inputJob.build.materials.filter(
-      (material) => material.quantityPurchased >= material.quantity
-    ).length;
-
-    newSnapshotArray.push({
-      ...new newSnapshot(inputJob, childJobs, totalComplete, materialIDs, null),
-    });
-
-    return newSnapshotArray;
-  };
-
-  const updateJobSnapshotFromFullJob = (inputJob, newSnapshotArray) => {
-    const materialIDs = inputJob.build.materials.map(
-      (material) => material.typeID
-    );
-    const childJobs = inputJob.build.materials.flatMap(
-      (material) => material.childJob
-    );
-    const totalComplete = inputJob.build.materials.filter(
-      (material) => material.quantityPurchased >= material.quantity
-    ).length;
-    const tempJobs = [...inputJob.build.costs.linkedJobs];
-    const endDate =
-      tempJobs.length > 0
-        ? Date.parse(
-            tempJobs.sort(
-              (a, b) => Date.parse(b.end_date) - Date.parse(a.end_date)
-            )[0].end_date
-          )
-        : null;
-    const snapshotIndex = newSnapshotArray.findIndex(
-      (i) => i.jobID === inputJob.jobID
-    );
-
-    newSnapshotArray[snapshotIndex] = {
-      ...new newSnapshot(
-        inputJob,
-        childJobs,
-        totalComplete,
-        materialIDs,
-        endDate
-      ),
-    };
-    return newSnapshotArray;
   };
 
   const massBuildMaterials = async (inputJobIDs) => {
@@ -372,7 +285,7 @@ export function useJobManagement() {
         }
         material.childJob.push(match.jobID);
       }
-      newUserJobSnapshot = updateJobSnapshotFromFullJob(
+      newUserJobSnapshot = updateJobSnapshot(
         updatedJob,
         newUserJobSnapshot
       );
@@ -791,7 +704,7 @@ export function useJobManagement() {
       if (job === undefined) {
         return;
       }
-      newUserJobSnapshot = updateJobSnapshotFromFullJob(
+      newUserJobSnapshot = updateJobSnapshot(
         job,
         newUserJobSnapshot
       );
@@ -958,7 +871,6 @@ export function useJobManagement() {
     buildItemPriceEntry,
     buildShoppingList,
     calcBrokersFee,
-    deleteJobSnapshot,
     findBlueprintType,
     generatePriceRequestFromJob,
     generatePriceRequestFromSnapshot,
@@ -966,10 +878,7 @@ export function useJobManagement() {
     massBuildMaterials,
     mergeJobsNew,
     newJobProcess,
-    newJobSnapshot,
     timeRemainingCalc,
-    replaceSnapshot,
     unlockUserJob,
-    updateJobSnapshotFromFullJob,
   };
 }

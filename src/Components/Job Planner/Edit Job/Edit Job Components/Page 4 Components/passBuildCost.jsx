@@ -12,8 +12,8 @@ import {
   UserJobSnapshotContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import { useFindJobObject } from "../../../../../Hooks/GeneralHooks/useFindJobObject";
+import { useJobSnapshotManagement } from "../../../../../Hooks/JobHooks/useJobSnapshots";
 
 export function PassBuildCostButton() {
   const { activeJob } = useContext(ActiveJobContext);
@@ -25,7 +25,7 @@ export function PassBuildCostButton() {
     UserJobSnapshotContext
   );
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const analytics = getAnalytics();
 
@@ -90,7 +90,7 @@ export function PassBuildCostButton() {
       if (isLoggedIn) {
         await uploadJob(parentJob);
       }
-      newUserJobSnapshot = updateJobSnapshotFromFullJob(
+      newUserJobSnapshot = updateJobSnapshot(
         parentJob,
         newUserJobSnapshot
       );

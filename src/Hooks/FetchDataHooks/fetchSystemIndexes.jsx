@@ -10,6 +10,10 @@ export async function fetchSystemIndexes(systemIndexInput) {
     URL += `/${systemIndexInput}`;
   }
 
+  if (!systemIndexInput) {
+    return {};
+  }
+
   const response = await fetch(URL, {
     method: isInputArray ? "POST" : "GET",
     headers: {
@@ -26,8 +30,17 @@ export async function fetchSystemIndexes(systemIndexInput) {
   });
 
   if (response.status !== 200) {
-    return null;
+    return {};
   }
+  const responseData = await response.json();
 
-  return response.json();
+
+  if (Array.isArray(responseData)) {
+    let returnObject = {};
+    responseData.forEach((entry) => {
+      returnObject[entry.solar_system_id] = entry;
+    });
+    return returnObject;
+  }
+  return { [responseData.solar_system_id]: responseData };
 }

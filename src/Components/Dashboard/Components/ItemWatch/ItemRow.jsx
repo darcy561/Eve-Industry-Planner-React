@@ -30,6 +30,7 @@ import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import { JobArrayContext } from "../../../../Context/JobContext";
 import { trace } from "firebase/performance";
 import { performance } from "../../../../firebase";
+import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
 
 const useStyles = makeStyles((theme) => ({
   Select: {
@@ -59,7 +60,8 @@ export function WatchListRow({ item, parentUser, index }) {
     uploadUserWatchlist,
   } = useFirebase();
   const { checkAllowBuild, buildJob } = useJobBuild();
-  const { generatePriceRequestFromJob, newJobSnapshot } = useJobManagement();
+  const { generatePriceRequestFromJob } = useJobManagement();
+  const { newJobSnapshot } = useJobSnapshotManagement();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const analytics = getAnalytics();
   const classes = useStyles();

@@ -28,7 +28,12 @@ export function useJobBuild() {
   const { updateDialogData } = useContext(DialogDataContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
-  const { CalculateResources, CalculateTime } = useBlueprintCalc();
+  const {
+    CalculateResources,
+    CalculateTime,
+    CalculateTime_New,
+    CalculateResources_New,
+  } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
   const parentUser = useMemo(() => {
@@ -50,14 +55,7 @@ export function useJobBuild() {
       this.volume = itemJson.volume;
       this.itemID = itemJson.itemID;
       this.maxProductionLimit = itemJson.maxProductionLimit;
-      this.runCount = 1;
-      this.jobCount = 1;
-      this.bpME = 0;
-      this.bpTE = 0;
-      this.rigType = 0;
-      this.systemType = 0;
-      this.buildSystem = null;
-      this.appliedStructureID = null;
+
       this.apiJobs = new Set();
       this.apiOrders = new Set();
       this.apiTransactions = new Set();
@@ -69,11 +67,9 @@ export function useJobBuild() {
         setup: {},
         products: {
           totalQuantity: 0,
-          quantityPerJob: 0,
         },
         childJobs: {},
         costs: {
-          estimatedBuildCost: 0,
           totalPurchaseCost: 0,
           extrasCosts: [],
           extrasTotal: 0,
@@ -90,8 +86,7 @@ export function useJobBuild() {
           brokersFee: [],
         },
         materials: null,
-        buildChar: null,
-        sisiData: buildRequest.sisiData || false,
+        sisiData: buildRequest?.sisiData || false,
       };
       this.rawData = {};
       this.layout = {
@@ -104,32 +99,24 @@ export function useJobBuild() {
         this.rawData.materials = itemJson.activities.manufacturing.materials;
         this.rawData.products = itemJson.activities.manufacturing.products;
         this.rawData.time = itemJson.activities.manufacturing.time;
-        this.structureType = 0;
         this.skills = itemJson.activities.manufacturing.skills || [];
         this.build.materials = JSON.parse(
           JSON.stringify(itemJson.activities.manufacturing.materials)
         );
-        this.build.time = JSON.parse(
-          JSON.stringify(itemJson.activities.manufacturing.time)
-        );
+        this.itemsProducedPerRun =
+          itemJson.activities.manufacturing.products[0].quantity;
       }
 
       if (itemJson.jobType === jobTypes.reaction) {
         this.rawData.materials = itemJson.activities.reaction.materials;
         this.rawData.products = itemJson.activities.reaction.products;
         this.rawData.time = itemJson.activities.reaction.time;
-        this.structureType = 1;
         this.skills = itemJson.activities.reaction.skills || [];
         this.build.materials = JSON.parse(
           JSON.stringify(itemJson.activities.reaction.materials)
         );
-        this.build.time = JSON.parse(
-          JSON.stringify(itemJson.activities.reaction.time)
-        );
-      }
-
-      if (itemJson.jobType === jobTypes.pi) {
-        this.rawData = itemJson.activities.pi;
+        this.itemsProducedPerRun =
+          itemJson.activities.reaction.products[0].quantity;
       }
     }
   }
@@ -143,10 +130,9 @@ export function useJobBuild() {
           material.quantityPurchased = 0;
           material.purchasedCost = 0;
           material.purchaseComplete = false;
-          material.childJob = [];
           outputObject.build.childJobs[material.typeID] = [];
         });
-        outputObject.build.buildChar = parentUser.CharacterHash;
+
         buildSetupOptions(outputObject, buildRequest);
 
         buildRequest_ChildJobs(buildRequest, outputObject);
@@ -163,42 +149,12 @@ export function useJobBuild() {
           return 0;
         });
 
-        if (isLoggedIn) {
-          addItemBlueprint(outputObject);
-          addDefaultStructure(outputObject);
-        }
-        if (buildRequest.hasOwnProperty("itemQty")) {
-          recalculateItemQty(outputObject, buildRequest.itemQty);
-        }
+        outputObject.build.products.totalQuantity = Object.values(
+          outputObject.build.setup
+        ).reduce((prev, { runCount, jobCount }) => {
+          return prev + outputObject.itemsProducedPerRun * runCount * jobCount;
+        }, 0);
 
-        outputObject.build.materials = CalculateResources({
-          jobType: outputObject.jobType,
-          rawMaterials: outputObject.rawData.materials,
-          outputMaterials: outputObject.build.materials,
-          runCount: outputObject.runCount,
-          jobCount: outputObject.jobCount,
-          bpME: outputObject.bpME,
-          structureType: outputObject.structureType,
-          rigType: outputObject.rigType,
-          systemType: outputObject.systemType,
-        });
-        outputObject.build.time = CalculateTime({
-          jobType: outputObject.jobType,
-          CharacterHash: outputObject.build.buildChar,
-          structureType: outputObject.structureType,
-          rigType: outputObject.rigType,
-          runCount: outputObject.runCount,
-          bpTE: outputObject.bpTE,
-          rawTime: outputObject.rawData.time,
-          skills: outputObject.skills,
-        });
-        outputObject.build.products.totalQuantity =
-          outputObject.rawData.products[0].quantity *
-          outputObject.runCount *
-          outputObject.jobCount;
-
-        outputObject.build.products.quantityPerJob =
-          outputObject.rawData.products[0].quantity * outputObject.runCount;
         console.log(outputObject);
         return outputObject;
       } catch (err) {
@@ -366,39 +322,32 @@ export function useJobBuild() {
     baseQuantity,
     itemQuantityRequired
   ) {
-    let remainingQuatity = itemQuantityRequired;
-    const resultArray = [];
+    let remainingItemQty = itemQuantityRequired;
+    let jobCount = 0;
+    let runCount = 0;
 
-    while (remainingQuatity > 0) {
-      const numberOfJobsRequired = Math.max(
-        Math.floor(remainingQuatity / maxProductionLimit),
-        1
-      );
+    while (remainingItemQty > 0) {
+      const itemsPerJob = maxProductionLimit * baseQuantity;
+      const jobsProduced = Math.floor(remainingItemQty / itemsPerJob);
+      const itemsProduced = jobsProduced * itemsPerJob;
 
-      const numberOfRunsRequired = Math.min(
-        maxProductionLimit,
-        remainingQuatity
-      );
-
-      if (remainingQuatity > 0) {
-        resultArray.push({
-          runCount: numberOfRunsRequired,
-          jobCount: numberOfJobsRequired,
-        });
+      if (itemsProduced > 0) {
+        remainingItemQty -= itemsProduced;
+        jobCount += jobsProduced;
+        runCount += jobsProduced * baseQuantity;
+      } else {
+        break;
       }
-
-      let removedItemCount =
-        numberOfRunsRequired * baseQuantity * numberOfJobsRequired;
-
-      remainingQuatity -= removedItemCount;
     }
 
-    return resultArray;
+    return [{ runCount, jobCount }];
   }
 
   function buildSetupOptions(inputJobObject, buildRequestObject) {
     const setupLocation = inputJobObject.build.setup;
     const existingMaterialsLocation = inputJobObject.rawData.materials;
+    const rawTimeValue = inputJobObject.rawData.time;
+
     const requiredQuantity =
       buildRequestObject?.itemQty ||
       inputJobObject.rawData.products[0].quantity;
@@ -416,41 +365,56 @@ export function useJobBuild() {
     );
 
     for (let i = 0; i < setupQuantities.length; i++) {
-      let nextObject = buildNewSetupObject(
-        {
-          ME,
-          TE,
-          ...structureData,
-          ...setupQuantities[i],
-        },
-        buildRequestObject
-      );
+      let nextObject = buildNewSetupObject({
+        ME,
+        TE,
+        ...structureData,
+        ...setupQuantities[i],
+        characterToUse:
+          buildRequestObject?.characterToUse || parentUser.CharacterHash,
+        rawTimeValue,
+        jobType: inputJobObject.jobType,
+      });
       setupLocation[nextObject.id] = nextObject;
 
       existingMaterialsLocation.forEach((material) => {
-        setupLocation[nextObject.id].materialCount[material.typeID] =
-          material.quantity;
+        setupLocation[nextObject.id].materialCount[material.typeID] = {
+          typeID: material.typeID,
+          quantity: material.quantity,
+          rawQuantity: material.quantity,
+        };
       });
+      setupLocation[nextObject.id].estimatedTime = CalculateTime_New(
+        setupLocation[nextObject.id],
+        inputJobObject.skills
+      );
+      setupLocation[nextObject.id].materialCount = CalculateResources_New(
+        setupLocation[nextObject.id]
+      );
+      setupLocation[nextObject.id].estimatedInstallCost =
+        calculateInstallCostFromJob(setupLocation[nextObject.id]);
     }
   }
 
-  function buildNewSetupObject(inputOptions, buildRequestObject) {
-    const chosenID = uuid();
+  function buildNewSetupObject(inputOptions) {
     return {
-      id: chosenID,
-      runCount: inputOptions?.runCount || 0,
-      jobCount: inputOptions?.jobCount || 0,
+      id: uuid(),
+      runCount: inputOptions?.runCount || 1,
+      jobCount: inputOptions?.jobCount || 1,
       ME: inputOptions?.ME || 0,
       TE: inputOptions?.TE || 0,
       structureID: inputOptions?.structureID || 0,
       rigID: inputOptions?.rigID || 0,
       systemTypeID: inputOptions?.systemTypeID || 0,
-      systemID: inputOptions?.systemID || 0,
+      systemID: inputOptions?.systemID || null,
       taxValue: inputOptions?.taxValue || 0,
       estimatedInstallCost: 0,
       customStructureID: inputOptions?.customStructureID || null,
-      selectedCharacter: buildRequestObject?.characterToUse || null,
+      selectedCharacter: inputOptions?.characterToUse || null,
       materialCount: {},
+      estimatedTime: 0,
+      rawTime: inputOptions?.rawTimeValue || 0,
+      jobType: inputOptions.jobType,
     };
   }
 
@@ -479,6 +443,7 @@ export function useJobBuild() {
 
     return;
   }
+
   function addItemBlueprint_New(inputJobType, blueprintTypeID) {
     const defaultReturn = { ME: 0, TE: 0 };
 
@@ -522,8 +487,7 @@ export function useJobBuild() {
         outputObject.structureType = manufacturingStructure.structureType;
         outputObject.buildSystem = manufacturingStructure.systemID;
         outputObject.appliedStructureID = manufacturingStructure.id;
-        outputObject.build.costs.estimatedBuildCost =
-          calculateInstallCostFromJob(outputObject);
+
         break;
       case jobTypes.reaction:
         const reactionStructure = parentUser.settings.structures.reaction.find(
@@ -536,8 +500,7 @@ export function useJobBuild() {
         outputObject.structureType = reactionStructure.structureType;
         outputObject.buildSystem = reactionStructure.systemID;
         outputObject.appliedStructureID = reactionStructure.id;
-        outputObject.build.costs.estimatedBuildCost =
-          calculateInstallCostFromJob(outputObject);
+
         break;
     }
   }
@@ -565,17 +528,17 @@ export function useJobBuild() {
   }
 
   function buildRequest_ChildJobs(buildRequest, outputObject) {
-    if (!buildRequest.hasOwnProperty("childJobs")) {
+    if (!Object.hasOwn(buildRequest, "childJobs")) {
       return;
     }
+
     for (let material of outputObject.build.materials) {
-      const buildItem = buildRequest.childJobs.find(
+      const buildItem = buildRequest.childJobs.find(  
         (i) => i.typeID === material.typeID
       );
       if (!buildItem) {
         continue;
       }
-      material.childJob = [...buildItem.childJobs];
       outputObject.build.childJobs[material.typeID] = [...buildItem.childJobs];
     }
   }

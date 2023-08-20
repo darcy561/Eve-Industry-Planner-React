@@ -127,16 +127,14 @@ export function ParentJobDialog({
                           newUserJobSnapshot,
                           newJobArray
                         );
-                        let material = fullJob.build.materials.find(
-                          (i) => i.typeID === activeJob.itemID
+                        fullJob.build.childJobs[activeJob.itemID].push(
+                          activeJob.jobID
                         );
-                        material.childJob.push(activeJob.jobID);
                         let newParentJobArray = [...activeJob.parentJob];
                         newParentJobArray.push(job.jobID);
-                        newUserJobSnapshot = updateJobSnapshot(
-                          fullJob,
-                          [...userJobSnapshot]
-                        );
+                        newUserJobSnapshot = updateJobSnapshot(fullJob, [
+                          ...userJobSnapshot,
+                        ]);
                         updateJobArray(newJobArray);
                         updateUserJobSnapshot(newUserJobSnapshot);
                         updateActiveJob((prev) => ({

@@ -121,12 +121,11 @@ export function LinkedJobBadge({ jobModified, setJobModified }) {
                     if (!selectedJob) {
                       return;
                     }
-                    let newParentMaterials = [...selectedJob.build.materials];
-                    const material = newParentMaterials.find(
-                      (i) => i.typeID === activeJob.itemID
-                    );
+                    let newParentMaterials = [
+                      ...selectedJob.build.childJobs[activeJob.itemID],
+                    ];
 
-                    material.childJob = material.childJob.filter(
+                    newParentMaterials = newParentMaterials.filter(
                       (i) => i !== activeJob.jobID
                     );
 

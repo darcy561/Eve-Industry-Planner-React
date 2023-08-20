@@ -101,13 +101,9 @@ export function useInstallCostsCalc() {
   }
 
   function findFacilityModifier(inputFacilityID, jobType) {
-    if (jobType === jobTypes.manufacturing) {
-      return structureOptions.manStructure[inputFacilityID].cost;
-    }
-    if (jobType === jobTypes.reaction) {
-      return structureOptions.reactionStructure[inputFacilityID].cost;
-    }
-    return 0;
+    return (
+      structureOptions[jobTypeMapping[jobType]][inputFacilityID]?.cost || 0
+    );
   }
 
   return { calculateInstallCostFromJob };

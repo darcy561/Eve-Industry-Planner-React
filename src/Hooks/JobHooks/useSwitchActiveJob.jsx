@@ -71,24 +71,24 @@ export function useSwitchActiveJob() {
           newJobArray
         );
 
-        if (parentJob === undefined) continue;
+        if (!parentJob) continue;
 
         let parentMaterial = parentJob.build.materials.find(
           (mat) => mat.typeID === existingJob.itemID
         );
 
-        if (parentMaterial === undefined) continue;
+        if (!parentMaterial) continue;
 
         if (parentMaterial.typeID !== existingJob.itemID) {
           parentIDsToRemove.add(parentID);
           continue;
         }
 
-        let childJobSet = new Set(parentMaterial.childJob);
+        let childJobSet = new Set(parentJob.build.childJobs[parentMaterial.typeID]);
 
         if (!childJobSet.has(existingJob.jobID)) {
           childJobSet.add(existingJob.jobID);
-          parentMaterial.childJob = [...childJobSet];
+          parentJob.build.childJobs[parentMaterial.typeID] = [...childJobSet];
           newUserJobSnapshot = updateJobSnapshot(
             parentJob,
             newUserJobSnapshot
@@ -106,13 +106,13 @@ export function useSwitchActiveJob() {
 
       for (let material of existingJob.build.materials) {
         let childJobsToRemove = new Set();
-        for (let childJobID of material.childJob) {
+        for (let childJobID of existingJob.build.childJobs[material.typeID]) {
           let childJob = await findJobData(
             childJobID,
             newUserJobSnapshot,
             newJobArray
           );
-          if (childJob === undefined) continue;
+          if (!childJob) continue;
 
           if (childJob.itemID !== material.typeID) {
             childJobsToRemove.add(childJobID);
@@ -132,11 +132,11 @@ export function useSwitchActiveJob() {
           }
         }
         if (childJobsToRemove.size > 0) {
-          let replacementChildJobs = new Set(material.childJob);
+          let replacementChildJobs = new Set(existingJob.build.childJobs[material.typeID]);
           childJobsToRemove.forEach((id) => {
             replacementChildJobs.delete(id);
           });
-          material.childJob = [...replacementChildJobs];
+          existingJob.build.childJobs[material.typeID] = [...replacementChildJobs];
         }
       }
     }

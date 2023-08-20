@@ -87,7 +87,7 @@ export function useJobManagement() {
     }
     updateDataExchange(true);
     const newJob = await buildJob(buildRequest);
-    if (newJob === undefined) {
+    if (!newJob) {
       return;
     }
     let promiseArray = [
@@ -106,7 +106,7 @@ export function useJobManagement() {
         isActiveGroup = true;
       }
 
-      if (selectedGroup === undefined) break addJobToGroup;
+      if (!selectedGroup) break addJobToGroup;
 
       let newIncludedJobIDs = new Set(selectedGroup.includedJobIDs);
       let newIncludedTypeIDs = new Set(selectedGroup.includedTypeIDs);

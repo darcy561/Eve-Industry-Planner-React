@@ -10,7 +10,6 @@ import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
-import { useJobManagement } from "./useJobManagement";
 import uuid from "react-uuid";
 import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 
@@ -27,8 +26,8 @@ export function useGroupManagement() {
   const { findJobData } = useFindJobObject();
   const { addNewJob, uploadGroups, uploadUserJobSnapshot, uploadJob } =
     useFirebase();
-  const { buildJob, recalculateItemQty } = useJobBuild();
-  const { CalculateResources, CalculateTime } = useBlueprintCalc();
+  const { buildJob, recalculateItemQty_New } = useJobBuild();
+  const { CalculateResources_New, CalculateTime_New } = useBlueprintCalc();
 
   function newJobGroupTemplate(
     assignedGroupID,
@@ -83,22 +82,19 @@ export function useGroupManagement() {
         if (!job) {
           continue;
         }
-        let material = job.build.materials.find(
-          (i) => i.typeID === inputJob.itemID
-        );
+        let material = job.build.childJobs[inputJob.itemID];
         if (!material) {
           continue;
         }
-        material.childJob = material.childJob.filter(
-          (i) => i !== inputJob.jobID
-        );
+        material = material.filter((i) => i !== inputJob.jobID);
       }
       inputJob.parentJob = inputJob.parentJob.filter((i) =>
         inputJobIDs.includes(i)
       );
 
       for (let mat of inputJob.build.materials) {
-        for (let id of mat.childJob) {
+        const childJobArray = inputJob.build.childJobs[mat.typeID];
+        for (let id of childJobArray) {
           if (inputJobIDs.includes(id)) {
             continue;
           }
@@ -108,7 +104,7 @@ export function useGroupManagement() {
           }
           job.parentJob = job.parentJob.filter((i) => !inputJob.jobID);
         }
-        mat.childJob = mat.childJob.filter((i) => inputJobIDs.includes(i));
+        childJobArray = childJobArray.filter((i) => inputJobIDs.includes(i));
       }
 
       materialIDs = new Set([...materialIDs, ...inputJobSnapshot.materialIDs]);
@@ -205,18 +201,19 @@ export function useGroupManagement() {
     finalBuildCost += outputJob.build.costs.installCosts;
     finalBuildCost += outputJob.build.costs.extrasTotal;
     for (let material of outputJob.build.materials) {
-      finalBuildCost += findItemBuildCost(material);
+      const childJobs = outputJob.build.childJobs[material.typeID];
+      finalBuildCost += findItemBuildCost(material, childJobs);
     }
 
-    function findItemBuildCost(material) {
-      if (material.purchaseComplete || material.childJob.length === 0) {
+    function findItemBuildCost(material, inputChildJobs) {
+      if (material.purchaseComplete || inputChildJobs.length === 0) {
         return material.purchasedCost;
       }
 
       let returnTotal = 0;
       let totalProduced = 0;
 
-      for (let childJobID of material.childJob) {
+      for (let childJobID of inputChildJobs) {
         let childJob = jobArray.find((i) => i.jobID === childJobID);
 
         if (!childJob) {
@@ -226,7 +223,8 @@ export function useGroupManagement() {
         returnTotal += childJob.build.costs.extrasTotal;
         totalProduced += childJob.build.products.totalQuantity;
         for (let cMaterial of childJob.build.materials) {
-          returnTotal += findItemBuildCost(cMaterial);
+          const childJobs = childJob.build.childJobs[cMaterial.typeID];
+          returnTotal += findItemBuildCost(cMaterial, childJobs);
         }
       }
       return Math.round(returnTotal / totalProduced) * material.quantity;
@@ -264,11 +262,7 @@ export function useGroupManagement() {
       for (let parentID of newJob.parentJob) {
         let parentJob = newJobArray.find((i) => i.jobID === parentID);
 
-        let material = parentJob.build.materials.find(
-          (i) => i.typeID === newJob.itemID
-        );
-
-        material.childJob.push(newJob.jobID);
+        parentJob.build.childJobs[newJob.itemID].push(newJob.jobID);
       }
 
       newJobArray.push(newJob);
@@ -336,7 +330,7 @@ export function useGroupManagement() {
           undefined,
           "groupJob"
         );
-        if (job === undefined) {
+        if (!job) {
           continue;
         }
         let childJobArray = [];
@@ -352,7 +346,7 @@ export function useGroupManagement() {
           childJobArray.push({
             itemID: material.typeID,
             name: material.name,
-            childJobs: new Set([...material.childJob]),
+            childJobs: new Set([job.build.childJobs[material.typeID]]),
           });
         });
 
@@ -379,7 +373,7 @@ export function useGroupManagement() {
         }
 
         inputJob.build.materials.forEach((material) => {
-          if (material.childJob.length > 0) {
+          if (inputJob.build.childJobs[material.typeID].length > 0) {
             return;
           }
           if (
@@ -468,8 +462,8 @@ export function useGroupManagement() {
           ...new Set(job.parentJob, [...modifiedData.parentJobs]),
         ];
 
-        recalculateItemQty(job, modifiedData.itemQty);
-        job.build.materials = CalculateResources({
+        recalculateItemQty_New(job, modifiedData.itemQty);
+        job.build.materials = CalculateResources_New({
           jobType: job.jobType,
           rawMaterials: job.rawData.materials,
           outputMaterials: job.build.materials,
@@ -487,7 +481,7 @@ export function useGroupManagement() {
         job.build.products.quantityPerJob =
           job.rawData.products[0].quantity * job.jobCount;
 
-        job.build.time = CalculateTime({
+        job.build.time = CalculateTime_New({
           jobType: job.jobType,
           CharacterHash: job.build.buildChar,
           structureType: job.structureType,
@@ -500,18 +494,21 @@ export function useGroupManagement() {
 
         for (let parentID of modifiedData.parentJobs) {
           let parentJob = newJobArray.find((i) => i.jobID === parentID);
-          if (parentJob === undefined) {
+          if (!parentJob) {
             continue;
           }
 
           let material = parentJob.build.materials.find(
             (i) => i.typeID === modifiedData.itemID
           );
-          if (material === undefined) {
+          if (!material) {
             continue;
           }
           material.childJob = [
-            ...new Set([modifiedData.jobID], material.childJob),
+            ...new Set(
+              [modifiedData.jobID],
+              parentJob.build.childJobs[modifiedData.itemID]
+            ),
           ];
         }
 
@@ -546,7 +543,7 @@ export function useGroupManagement() {
           undefined,
           "groupJob"
         );
-        if (job === undefined) {
+        if (!job) {
           return;
         }
         addNewJob(job);
@@ -604,11 +601,7 @@ export function useGroupManagement() {
         for (let parentID of newJob.parentJob) {
           let parentJob = newJobArray.find((i) => i.jobID === parentID);
 
-          let material = parentJob.build.materials.find(
-            (i) => i.typeID === newJob.itemID
-          );
-
-          material.childJob.push(newJob.jobID);
+          parentJob.build.setup[newJob.itemID].push(newJob.jobID);
         }
 
         newJobArray.push(newJob);
@@ -626,7 +619,7 @@ export function useGroupManagement() {
           childJobArray.push({
             itemID: material.typeID,
             name: material.name,
-            childJobs: new Set([...material.childJob]),
+            childJobs: new Set([...newJob.build.childJobs[material.typeID]]),
           });
         });
 
@@ -669,7 +662,7 @@ export function useGroupManagement() {
           childJobArray.push({
             itemID: material.typeID,
             name: material.name,
-            childJobs: new Set([...material.childJob]),
+            childJobs: new Set([...job.build.childJobs[material.typeID]]),
           });
         });
 

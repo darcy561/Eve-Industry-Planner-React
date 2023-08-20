@@ -132,7 +132,7 @@ export function useBuildChildJobs() {
           output.push({
             itemID: material.typeID,
             name: material.name,
-            childJobIDs: new Set(material.childJob),
+            childJobIDs: new Set(job.build.childJobs[material.typeID]),
           });
         }
 
@@ -169,7 +169,7 @@ export function useBuildChildJobs() {
       }
 
       requestedJob.build.materials.forEach((material) => {
-        // if (material.childJob.length > 0) {
+        // if (requestedJob.build.childJobs[material.typeID].length > 0) {
         //   return
         // }
         if (

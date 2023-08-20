@@ -26,7 +26,7 @@ export function useMoveItemsOnPlanner() {
     let groupsModified = false;
     let jobsModified = false;
 
-    if (direction === undefined) return;
+    if (!direction) return;
 
     for (let inputSnapID of inputSnapIDs) {
       if (inputSnapID.includes("group")) {
@@ -60,7 +60,7 @@ export function useMoveItemsOnPlanner() {
         newGroupArray
       );
 
-      if (inputGroup === undefined) return;
+      if (!inputGroup) return;
 
       if (direction === "forward") {
         if (inputGroup.groupStatus >= 3) return;

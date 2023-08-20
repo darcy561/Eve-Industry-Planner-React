@@ -28,7 +28,7 @@ export function useOpenGroup() {
   const openGroup = async (inputGroupID) => {
     let newJobArray = [...jobArray];
     let requestedGroup = groupArray.find((i) => i.groupID === inputGroupID);
-    if (requestedGroup === undefined) {
+    if (!requestedGroup) {
       return;
     }
     updateDataExchange((prev) => !prev);

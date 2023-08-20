@@ -93,11 +93,11 @@ export function useOpenEditJob() {
       itemIDs = new Set(itemIDs, generatePriceRequestFromJob(parentJob));
     }
     for (let mat of openJob.build.materials) {
-      if (mat.childJob.length === 0) {
+      if (openJob.build.childJobs[mat.typeID].length === 0) {
         continue;
         s;
       }
-      for (let cJID of mat.childJob) {
+      for (let cJID of openJob.build.childJobs[mat.typeID]) {
         let childJob = await findJobData(cJID, newUserJobSnapshot, newJobArray);
         if (!childJob) {
           continue;
@@ -164,7 +164,7 @@ export function useOpenEditJob() {
         userJobListener(parentUser, parentID);
       }
       for (let material of openJob.build.materials) {
-        for (let childJobID of material.childJob) {
+        for (let childJobID of openJob.build.childJobs[material.typeID]) {
           userJobListener(parentUser, childJobID);
         }
       }

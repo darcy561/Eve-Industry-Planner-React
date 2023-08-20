@@ -101,7 +101,7 @@ export function useDeleteMultipleJobs() {
         if (!mat) {
           continue;
         }
-        for (let jobID of mat.childJob) {
+        for (let jobID of inputJob.build.childJobs[mat.typeID]) {
           let child = await findJobData(jobID, newUserJobSnapshot, newJobArray);
 
           if (!child) {
@@ -128,7 +128,7 @@ export function useDeleteMultipleJobs() {
             if (!mat.childJob) {
               continue;
             }
-            mat.childJob = mat.childJob.filter((i) => inputJob.jobID !== i);
+            parentJob.build.childJobs = parentJob.build.childJobs.filter((i) => inputJob.jobID !== i);
           }
           newUserJobSnapshot = updateJobSnapshot(
             parentJob,

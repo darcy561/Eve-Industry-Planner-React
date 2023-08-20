@@ -68,11 +68,6 @@ export function useBlueprintCalc() {
         meModifier = 1;
       }
       return Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
-      // console.log(itemRuns)
-      // console.log(baseQty)
-      // console.log(meModifier);
-      // console.log(itemJobs)
-      // console.log(x);
     }
 
     function reactionMaterialCalc(
@@ -86,9 +81,7 @@ export function useBlueprintCalc() {
       if (baseQty === 1) {
         meModifier = 1;
       }
-      //console.log(meModifier);
       return Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
-      //console.log(x);
     }
   };
 

@@ -28,10 +28,7 @@ export function useCloseActiveJob() {
     newJobArray[index] = inputJob;
     // newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, inputJob.jobID);
 
-    newUserJobSnapshot = updateJobSnapshot(
-      inputJob,
-      newUserJobSnapshot
-    );
+    newUserJobSnapshot = updateJobSnapshot(inputJob, newUserJobSnapshot);
     if (jobModifiedFlag) {
       let parentIDsToRemove = new Set();
       for (let parentID of inputJob.parentJob) {
@@ -41,28 +38,27 @@ export function useCloseActiveJob() {
           newJobArray
         );
 
-        if (parentJob === undefined) continue;
+        if (!parentJob) continue;
 
         let parentMaterial = parentJob.build.materials.find(
           (mat) => mat.typeID === inputJob.itemID
         );
 
-        if (parentMaterial === undefined) continue;
+        if (!parentMaterial) continue;
 
         if (parentMaterial.typeID !== inputJob.itemID) {
           parentIDsToRemove.add(parentID);
           continue;
         }
 
-        let childJobSet = new Set(parentMaterial.childJob);
+        let childJobSet = new Set(
+          parentJob.build.childJobs[parentMaterial.typeID]
+        );
 
         if (!childJobSet.has(inputJob.jobID)) {
           childJobSet.add(inputJob.jobID);
-          parentMaterial.childJob = [...childJobSet];
-          newUserJobSnapshot = updateJobSnapshot(
-            parentJob,
-            newUserJobSnapshot
-          );
+          parentJob.build.childJobs[parentMaterial.typeID] = [...childJobSet];
+          newUserJobSnapshot = updateJobSnapshot(parentJob, newUserJobSnapshot);
           uploadJob(parentJob);
         }
       }
@@ -76,13 +72,13 @@ export function useCloseActiveJob() {
 
       for (let material of inputJob.build.materials) {
         let childJobsToRemove = new Set();
-        for (let childJobID of material.childJob) {
+        for (let childJobID of inputJob.build.childJobs[material.typeID]) {
           let childJob = await findJobData(
             childJobID,
             newUserJobSnapshot,
             newJobArray
           );
-          if (childJob === undefined) continue;
+          if (!childJob) continue;
 
           if (childJob.itemID !== material.typeID) {
             childJobsToRemove.add(childJobID);
@@ -106,7 +102,7 @@ export function useCloseActiveJob() {
           childJobsToRemove.forEach((id) => {
             replacementChildJobs.delete(id);
           });
-          material.childJob = [...replacementChildJobs];
+          inputJob.build.childJobs[material.typeID] = [...replacementChildJobs];
         }
       }
     }

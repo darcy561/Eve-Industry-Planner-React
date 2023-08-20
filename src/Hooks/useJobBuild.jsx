@@ -557,5 +557,5 @@ export function useJobBuild() {
     outputObject.groupID = buildRequest.groupID;
   }
 
-  return { buildJob, checkAllowBuild, jobBuildErrors, recalculateItemQty };
+  return { buildJob, checkAllowBuild, jobBuildErrors, recalculateItemQty, recalculateItemQty_New };
 }

@@ -93,7 +93,7 @@ export function useGroupManagement() {
       );
 
       for (let mat of inputJob.build.materials) {
-        const childJobArray = inputJob.build.childJobs[mat.typeID];
+        let childJobArray = inputJob.build.childJobs[mat.typeID];
         for (let id of childJobArray) {
           if (inputJobIDs.includes(id)) {
             continue;

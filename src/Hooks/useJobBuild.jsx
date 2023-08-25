@@ -155,7 +155,6 @@ export function useJobBuild() {
           return prev + outputObject.itemsProducedPerRun * runCount * jobCount;
         }, 0);
 
-        console.log(outputObject);
         return outputObject;
       } catch (err) {
         console.log(err);
@@ -533,7 +532,7 @@ export function useJobBuild() {
     }
 
     for (let material of outputObject.build.materials) {
-      const buildItem = buildRequest.childJobs.find(  
+      const buildItem = buildRequest.childJobs.find(
         (i) => i.typeID === material.typeID
       );
       if (!buildItem) {
@@ -557,5 +556,11 @@ export function useJobBuild() {
     outputObject.groupID = buildRequest.groupID;
   }
 
-  return { buildJob, checkAllowBuild, jobBuildErrors, recalculateItemQty, recalculateItemQty_New };
+  return {
+    buildJob,
+    checkAllowBuild,
+    jobBuildErrors,
+    recalculateItemQty,
+    recalculateItemQty_New,
+  };
 }

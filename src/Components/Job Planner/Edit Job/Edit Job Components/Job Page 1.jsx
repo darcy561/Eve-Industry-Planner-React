@@ -14,6 +14,7 @@ import { ManufacturingBlueprints } from "./Page 1 Components/manufacturingBluepr
 import { ReactionBlueprints } from "./Page 1 Components/reactionBlueprints";
 import { ArchiveJobs } from "./Page 1 Components/archiveJobs";
 import { JobSetupPanel } from "./Page 1 Components/jobSetups";
+import { EditJobSetup } from "./Page 1 Components/editJobSetup";
 
 export function EditPage1({ jobModified, setJobModified }) {
   const { activeJob } = useContext(ActiveJobContext);
@@ -46,7 +47,7 @@ export function EditPage1({ jobModified, setJobModified }) {
         return null;
     }
   }
-  console.log(setupToEdit);
+
   return (
     <Container
       disableGutters
@@ -57,8 +58,12 @@ export function EditPage1({ jobModified, setJobModified }) {
         <TutorialStep1 />
         <Grid item xs={12} md={3}>
           <Masonry columns={1} spacing={2}>
-            {/* <ProductionStats />
-            <OptionSwitch /> */}
+            <ProductionStats setupToEdit={setupToEdit} />
+            <EditJobSetup
+              setJobModified={setJobModified}
+              setupToEdit={setupToEdit}
+              updateSetupToEdit={updateSetupToEdit}
+            />
           </Masonry>
         </Grid>
         <Grid item xs={12} md={9}>
@@ -68,13 +73,14 @@ export function EditPage1({ jobModified, setJobModified }) {
               setupToEdit={setupToEdit}
               updateSetupToEdit={updateSetupToEdit}
             />
-            <RawResourceList />
+            <RawResourceList setupToEdit={setupToEdit} />
+            {/* 
             <ItemCostPanel
               jobModified={jobModified}
               setJobModified={setJobModified}
             />
             <ArchiveJobs />
-            <SkillCheck />
+            <SkillCheck /> */}
           </Masonry>
         </Grid>
       </Grid>

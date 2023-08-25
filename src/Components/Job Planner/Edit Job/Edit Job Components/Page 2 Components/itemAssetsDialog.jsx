@@ -29,7 +29,7 @@ export function ItemAssetsDialogue({
   const [assetLocations, updateAssetLocations] = useState([]);
   const [tempEveIDs, updateTempEveIDs] = useState(eveIDs);
   const [defaultLocationAssets, updateDefaultLocationAssets] = useState([]);
-  const {formatLocation} = useAssetHelperHooks()
+  const { formatLocation } = useAssetHelperHooks();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
@@ -82,7 +82,6 @@ export function ItemAssetsDialogue({
               let assetLocationData = tempEveIDs.find(
                 (i) => i.id === asset.location_id
               );
-
               if (!assetLocationData) return null;
 
               return (
@@ -108,19 +107,19 @@ export function ItemAssetsDialogue({
                     </Typography>
                   </Grid>
                   {asset.itemIDs.map((item) => {
-                      const asset = assetList.find((i) => item === i.item_id);
-                      if (!asset) return null;
-                      const { CharacterHash, location_flag, quantity } = asset;
-                      const user = users.find(
-                        (i) => i.CharacterHash === CharacterHash
-                      );
-                      if (!user) return null;
-                      const { CharacterName, CharacterID } = user;
-                      const locationFlag = formatLocation(location_flag);
-                      if (!locationFlag) return null;
+                    const asset = assetList.find((i) => item === i.item_id);
+                    if (!asset) return null;
+                    const { CharacterHash, location_flag, quantity } = asset;
+                    const user = users.find(
+                      (i) => i.CharacterHash === CharacterHash
+                    );
+                    if (!user) return null;
+                    const { CharacterName, CharacterID } = user;
+                    const locationFlag = formatLocation(location_flag);
+                    if (!locationFlag) return null;
                     return (
                       <Grid
-                        key={itemData.item_id}
+                        key={item.item_id}
                         container
                         item
                         xs={12}
@@ -155,8 +154,7 @@ export function ItemAssetsDialogue({
                               typography: { xs: "caption", sm: "body2" },
                             }}
                           >
-                            {quantity.toLocaleString()} Units -{" "}
-                            {locationFlag}
+                            {quantity.toLocaleString()} Units - {locationFlag}
                           </Typography>
                         </Grid>
                       </Grid>
@@ -207,7 +205,6 @@ export function ItemAssetsDialogue({
                       const { CharacterName, CharacterID } = user;
                       const locationFlag = formatLocation(location_flag);
                       if (!locationFlag) return null;
-
                       return (
                         <Grid
                           key={item}

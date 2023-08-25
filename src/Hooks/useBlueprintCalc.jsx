@@ -125,7 +125,7 @@ export function useBlueprintCalc() {
           );
         });
 
-        return calcData.outputMaterials;
+        return calcData.materialCount;
     }
     function manufacturingMaterialCalc(
       baseQty,
@@ -245,15 +245,19 @@ export function useBlueprintCalc() {
     }
   };
   const CalculateTime_New = (calcData, jobSkills) => {
-    let user = users.find((i) => i.CharacterHash === calcData.CharacterHash);
+    let user = users.find(
+      (i) => i.CharacterHash === calcData.selectedCharacter
+    );
     if (!user) {
       user = users.find((i) => i.ParentUser);
     }
 
-    let userSkills = esiSkills.find((i) => i.user === user.CharacterHash).data;
+    const userSkills = esiSkills.find(
+      (i) => i.user === user.CharacterHash
+    ).data;
 
-    let timeModifier = timeModifierCalc(calcData, userSkills);
-    let skillModifier = skillModifierCalc(jobSkills, userSkills);
+    const timeModifier = timeModifierCalc(calcData, userSkills);
+    const skillModifier = skillModifierCalc(jobSkills, userSkills);
 
     return Math.floor(
       calcData.rawTime * timeModifier * skillModifier * calcData.runCount
@@ -272,7 +276,7 @@ export function useBlueprintCalc() {
         let strucIndexer = 1 - strucData;
         let rigIndexer = 1 - rigData;
 
-        for (let x = 1; x <= job.TE * 2; x++) {
+        for (let x = 1; x <= job.TE; x++) {
           teIndexer = teIndexer - 0.01;
           if (teIndexer < 0.8) {
             teIndexer = 0.8;

@@ -21,6 +21,11 @@ export function useInstallCostsCalc() {
     [jobTypes.reaction]: "reaction",
   };
 
+  const structureTypeMap = {
+    [jobTypes.manufacturing]: structureOptions.manStructure,
+    [jobTypes.reaction]: structureOptions.reactionStructure,
+  };
+
   const calculateInstallCostFromJob = (selectedJob) => {
     const estimatedItemValue = estimatedItemPriceCalc(
       selectedJob.materialCount,
@@ -35,7 +40,8 @@ export function useInstallCostsCalc() {
     const facilityTax = findFacilityTax(
       selectedJob.customStructureID,
       selectedJob.structureID,
-      selectedJob.jobType
+      selectedJob.jobType,
+      selectedJob.taxValue
     );
 
     const systemIndexValue = findSystemIndex(
@@ -71,13 +77,15 @@ export function useInstallCostsCalc() {
     return materialQuantity * adjustedPrice;
   }
 
-  function findFacilityTax(facilityID, structureType, jobType) {
+  function findFacilityTax(facilityID, structureType, jobType, taxValue) {
     if (
       jobType === jobTypes.manufacturing &&
-      structureType === structureOptions.manStructure[0].id
+      structureType === structureTypeMap[jobTypes.manufacturing].id
     ) {
       return DEFAULT_STATION_TAX / 100;
     }
+
+    if (!facilityID) return taxValue / 100;
 
     const parentUser = users.find((i) => i.ParentUser);
     if (!parentUser) return 0;
@@ -101,9 +109,7 @@ export function useInstallCostsCalc() {
   }
 
   function findFacilityModifier(inputFacilityID, jobType) {
-    return (
-      structureOptions[jobTypeMapping[jobType]][inputFacilityID]?.cost || 0
-    );
+    return structureTypeMap[jobType][inputFacilityID]?.cost || 0;
   }
 
   return { calculateInstallCostFromJob };

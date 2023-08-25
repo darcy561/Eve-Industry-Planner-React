@@ -60,10 +60,7 @@ export function useCharAssets() {
         }
         if (acceptedExtendedLocationTypes.has(asset.location_type)) {
           let parentLocation = retrieveAssetLocation(asset, userAssets);
-          if (
-            parentLocation &&
-            parentLocation.location_type !== "other"
-          ) {
+          if (parentLocation && parentLocation.location_type !== "other") {
             if (!itemLocations.some((i) => i === parentLocation.location_id)) {
               if (!newEveIDs.some((i) => i.id === parentLocation.location_id)) {
                 if (parentLocation.location_id.toString().length > 10) {

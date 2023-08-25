@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   CircularProgress,
   Grid,
@@ -9,14 +9,16 @@ import {
 import { jobTypes } from "../../../../../Context/defaultValues";
 import DoneIcon from "@mui/icons-material/Done";
 import LensIcon from "@mui/icons-material/Lens";
+import { ActiveJobContext } from "../../../../../Context/JobContext";
 
 export function MaterialRow({ material }) {
+  const { activeJob } = useContext(ActiveJobContext);
   const [addJob, updateAddJob] = useState(false);
 
   return (
     <Grid item container direction="row">
       <Grid item xs={2} sm={1} align="center">
-        {material.childJob.length === 0 ? (
+        {activeJob.build.childJobs[material.typeID].length === 0 ? (
           addJob ? (
             <CircularProgress size={14} color="primary" />
           ) : (

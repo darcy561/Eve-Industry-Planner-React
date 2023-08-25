@@ -5,16 +5,22 @@ import {
   JobArrayContext,
 } from "../../../../../Context/JobContext";
 
-export function ProductionStats() {
+export function ProductionStats({ setupToEdit }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
 
   function timeDisplay() {
     let returnArray = [];
-    let d = Math.floor(activeJob.build.time / (3600 * 24));
-    let h = Math.floor((activeJob.build.time % (3600 * 24)) / 3600);
-    let m = Math.floor((activeJob.build.time % 3600) / 60);
-    let s = Math.floor(activeJob.build.time % 60);
+    let d = Math.floor(
+      activeJob.build.setup[setupToEdit].estimatedTime / (3600 * 24)
+    );
+    let h = Math.floor(
+      (activeJob.build.setup[setupToEdit].estimatedTime % (3600 * 24)) / 3600
+    );
+    let m = Math.floor(
+      (activeJob.build.setup[setupToEdit].estimatedTime % 3600) / 60
+    );
+    let s = Math.floor(activeJob.build.setup[setupToEdit].estimatedTime % 60);
 
     if (d > 0) {
       returnArray.push(`${d}D`);
@@ -41,11 +47,11 @@ export function ProductionStats() {
     let total = 0;
     for (let jobID of activeJob.parentJob) {
       let job = jobArray.find((i) => i.jobID === jobID);
-      if (job === undefined) continue;
+      if (!job) continue;
       let material = job.build.materials.find(
         (i) => i.typeID === activeJob.itemID
       );
-      if (material === undefined) continue;
+      if (!material) continue;
       returnObject.parentTotal += material.quantity;
 
       let flag = material.childJob.some((i) => i !== activeJob.jobID);
@@ -54,7 +60,7 @@ export function ProductionStats() {
         for (let childID of material.childJob) {
           if (childID === activeJob.jobID) continue;
           let childJob = jobArray.find((i) => i.jobID === childID);
-          if (childJob === undefined) continue;
+          if (!childJob) continue;
           returnObject.multipleChildren = true;
           returnObject.childrenTotal += childJob.build.products.totalQuantity;
         }
@@ -63,8 +69,8 @@ export function ProductionStats() {
     return returnObject;
   }, [jobArray]);
 
-  let timeDisplayFigure = timeDisplay();
-  let parentRequirements = calculateParentRequirements();
+  const timeDisplayFigure = timeDisplay();
+  const parentRequirements = calculateParentRequirements();
 
   return (
     <Paper
@@ -88,9 +94,7 @@ export function ProductionStats() {
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
                 align="right"
               >
-                {Number(
-                  activeJob.rawData.products[0].quantity
-                ).toLocaleString()}
+                {Number(activeJob.itemsProducedPerRun).toLocaleString()}
               </Typography>
             </Grid>
           </Grid>
@@ -105,7 +109,10 @@ export function ProductionStats() {
                 sx={{ typography: { xs: "caption", sm: "body2" } }}
                 align="right"
               >
-                {activeJob.build.products.quantityPerJob.toLocaleString()}
+                {(
+                  activeJob.itemsProducedPerRun *
+                  activeJob.build.setup[setupToEdit].runCount
+                ).toLocaleString()}
               </Typography>
             </Grid>
           </Grid>

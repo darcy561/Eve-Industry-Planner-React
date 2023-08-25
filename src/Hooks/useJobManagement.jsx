@@ -96,7 +96,6 @@ export function useJobManagement() {
     if (!newJob.groupID) {
       newUserJobSnapshot = newJobSnapshot(newJob, newUserJobSnapshot);
     }
-    console.log(newUserJobSnapshot);
 
     addJobToGroup: if (newJob.groupID !== null) {
       selectedGroup = newGroupArray.find((i) => i.groupID === newJob.groupID);

@@ -65,7 +65,6 @@ export function useOpenEditJob() {
     }));
     updatePageLoad(true);
     let verify = [checkAppVersion({ appVersion: __APP_VERSION__ })];
-
     let openJob = await findJobData(
       inputJobID,
       newUserJobSnapshot,

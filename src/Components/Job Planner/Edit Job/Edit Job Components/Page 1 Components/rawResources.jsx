@@ -6,6 +6,7 @@ import {
   Menu,
   MenuItem,
   Paper,
+  Select,
   Typography,
 } from "@mui/material";
 import { useContext, useState } from "react";
@@ -16,11 +17,12 @@ import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { MaterialRow } from "./materialRow";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 
-export function RawResourceList() {
+export function RawResourceList({ setupToEdit }) {
   const { activeJob } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { massBuildMaterials } = useJobManagement();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [displayType, updateDisplyType] = useState("all");
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -34,8 +36,12 @@ export function RawResourceList() {
   let volumeTotal = 0;
 
   activeJob.build.materials.forEach((i) => {
-    copyText = copyText.concat(`${i.name} ${i.quantity}\n`);
-    volumeTotal += i.volume * i.quantity;
+    let quantityToUse =
+      displayType === "active"
+        ? activeJob.build.setup[setupToEdit].materialCount[i.typeID].quantity
+        : i.quantity;
+    copyText = copyText.concat(`${i.name} ${quantityToUse}\n`);
+    volumeTotal += i.volume * quantityToUse;
   });
 
   return (
@@ -51,7 +57,27 @@ export function RawResourceList() {
     >
       <Container disableGutters={true}>
         <Box sx={{ marginBottom: "20px" }}>
-          <Grid container direction="row">
+          <Grid container>
+            <Select
+              variant="standard"
+              size="small"
+              value={displayType}
+              sx={{
+                position: "absolute",
+                top: "10px",
+                left: "10px",
+              }}
+              onChange={(e) => {
+                updateDisplyType(e.target.value);
+              }}
+            >
+              <MenuItem key="all" value="all">
+                Display All Setups
+              </MenuItem>
+              <MenuItem key="active" value="active">
+                Display Selected Setup
+              </MenuItem>
+            </Select>
             <Grid item xs={12}>
               <Typography variant="h6" color="primary" align="center">
                 Raw Resources

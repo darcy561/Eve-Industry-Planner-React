@@ -46,40 +46,68 @@ export function JobSetupPanel({ jobModified, setupToEdit, updateSetupToEdit }) {
               )?.CharacterName || "No Matching Character Found";
             console.log(setupEntry);
             return (
-              <Tooltip title="Click to edit" arrow placement="bottom">
-                <Grid container item xs={6} sm={4} lg={3}>
-                  <Card elevation={3} square sx={{ minWidth: "100%" }}>
-                    <CardActionArea
-                      onClick={() => updateSetupToEdit(setupEntry.id)}
-                    >
-                      <CardContent>
-                        <Grid container item xs={12}>
-                          <Grid item xs={3}>
-                            <Typography> ME: {setupEntry.ME}</Typography>
-                          </Grid>
-                          <Grid item xs={3}>
-                            <Typography>TE: {setupEntry.TE * 2}</Typography>
-                          </Grid>
-                          <Grid item xs={3}>
-                            <Typography>Runs: {setupEntry.runCount}</Typography>
-                          </Grid>
-                          <Grid item xs={3}>
-                            <Typography>Jobs: {setupEntry.jobCount}</Typography>
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Typography align="center">
-                              {assignedCharacterName}
-                            </Typography>
-                          </Grid>
-                          {setupEntry.customStructureID ? (
-                            <UseCustomStructure setupEntry={setupEntry} />
-                          ) : (
-                            <UseDefaultStructures setupEntry={setupEntry} />
-                          )}
+              <Grid container item xs={6} sm={4} lg={3}>
+                <Card elevation={3} square sx={{ minWidth: "100%" }}>
+                  <CardActionArea
+                    onClick={() => updateSetupToEdit(setupEntry.id)}
+                  >
+                    <CardContent>
+                      <Grid container item xs={12}>
+                        {jobTypes.manufacturing === setupEntry.jobType && (
+                          <>
+                            <Grid item xs={3}>
+                              <Typography> ME: {setupEntry.ME}</Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                              <Typography>TE: {setupEntry.TE * 2}</Typography>
+                            </Grid>
+                          </>
+                        )}
+                        <Grid
+                          item
+                          xs={
+                            jobTypes.manufacturing === setupEntry.jobType
+                              ? 3
+                              : 6
+                          }
+                        >
+                          <Typography>Runs: {setupEntry.runCount}</Typography>
+                        </Grid>
+                        <Grid
+                          item
+                          xs={
+                            jobTypes.manufacturing === setupEntry.jobType
+                              ? 3
+                              : 6
+                          }
+                        >
+                          <Typography>Jobs: {setupEntry.jobCount}</Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                          <Typography align="center">
+                            {assignedCharacterName}
+                          </Typography>
+                        </Grid>
+                        {setupEntry.customStructureID ? (
+                          <UseCustomStructure setupEntry={setupEntry} />
+                        ) : (
+                          <UseDefaultStructures setupEntry={setupEntry} />
+                        )}
 
+                        <Tooltip
+                          title={`Install Cost Per Job: ${setupEntry.estimatedInstallCost.toLocaleString(
+                            undefined,
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )}`}
+                          arrow
+                          placement="bottom"
+                        >
                           <Grid item xs={12}>
                             <Typography align="center">
-                              Est Install Cost:{" "}
+                              Est Total Install Costs:{" "}
                               {(
                                 setupEntry.estimatedInstallCost *
                                 setupEntry.jobCount
@@ -89,21 +117,21 @@ export function JobSetupPanel({ jobModified, setupToEdit, updateSetupToEdit }) {
                               })}
                             </Typography>
                           </Grid>
-                        </Grid>
-                        <Grid
-                          item
-                          xs={12}
-                          sx={{
-                            height: "1px",
-                            backgroundColor:
-                              setupEntry.id === setupToEdit ? "blue" : null,
-                          }}
-                        />
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </Grid>
-              </Tooltip>
+                        </Tooltip>
+                      </Grid>
+                      <Grid
+                        item
+                        xs={12}
+                        sx={{
+                          height: "1px",
+                          backgroundColor:
+                            setupEntry.id === setupToEdit ? "blue" : null,
+                        }}
+                      />
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Grid>
             );
           })}
         </Grid>

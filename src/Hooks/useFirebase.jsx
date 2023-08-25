@@ -136,15 +136,6 @@ export function useFirebase() {
         volume: job.volume,
         itemID: job.itemID,
         maxProductionLimit: job.maxProductionLimit,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        bpME: job.bpME,
-        bpTE: job.bpTE,
-        structureType: job.structureType,
-        rigType: job.rigType,
-        systemType: job.systemType,
-        buildSystem: job.buildSystem,
-        appliedStructureID: job.appliedStructureID,
         apiJobs: [...job.apiJobs],
         apiOrders: [...job.apiOrders],
         apiTransactions: [...job.apiTransactions],
@@ -158,6 +149,7 @@ export function useFirebase() {
         layout: job.layout,
         groupID: job.groupID || null,
         isReadyToSell: job.isReadyToSell || false,
+        itemsProducedPerRun: job.itemsProducedPerRun
       }
     );
   };
@@ -178,15 +170,6 @@ export function useFirebase() {
         volume: job.volume,
         itemID: job.itemID,
         maxProductionLimit: job.maxProductionLimit,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        bpME: job.bpME,
-        bpTE: job.bpTE,
-        structureType: job.structureType,
-        buildSystem: job.buildSystem,
-        appliedStructureID: job.appliedStructureID,
-        rigType: job.rigType,
-        systemType: job.systemType,
         apiJobs: [...job.apiJobs],
         apiOrders: [...job.apiOrders],
         apiTransactions: [...job.apiTransactions],
@@ -200,6 +183,7 @@ export function useFirebase() {
         layout: job.layout,
         groupID: job.groupID || null,
         isReadyToSell: job.isReadyToSell || false,
+        itemsProducedPerRun: job.itemsProducedPerRun || job.rawData.products[0].quantity
       }
     );
   };
@@ -269,15 +253,6 @@ export function useFirebase() {
         volume: job.volume,
         itemID: job.itemID,
         maxProductionLimit: job.maxProductionLimit,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        bpME: job.bpME,
-        bpTE: job.bpTE,
-        structureType: job.structureType,
-        rigType: job.rigType,
-        systemType: job.systemType,
-        buildSystem: job.buildSystem,
-        appliedStructureID: job.appliedStructureID,
         apiJobs: [...job.apiJobs],
         apiOrders: [...job.apiOrders],
         apiTransactions: [...job.apiTransactions],
@@ -291,6 +266,7 @@ export function useFirebase() {
         layout: job.layout,
         groupID: job.groupID || null,
         isReadyToSell: job.isReadyToSell || false,
+        itemsProducedPerRun: job.itemsProducedPerRun || job.rawData.products[0].quantity
       }
     );
   };
@@ -312,16 +288,6 @@ export function useFirebase() {
         volume: downloadDoc.volume,
         itemID: downloadDoc.itemID,
         maxProductionLimit: downloadDoc.maxProductionLimit,
-        runCount: downloadDoc.runCount,
-        jobCount: downloadDoc.jobCount,
-        bpME: downloadDoc.bpME,
-        bpTE: downloadDoc.bpTE,
-        structureType: downloadDoc.structureType,
-        structureTypeDisplay: downloadDoc.structureTypeDisplay || null,
-        buildSystem: downloadDoc.buildSystem || null,
-        appliedStructureID: downloadDoc.appliedStructureID || null,
-        rigType: downloadDoc.rigType,
-        systemType: downloadDoc.systemType,
         apiJobs: new Set(downloadDoc.apiJobs),
         apiOrders: new Set(downloadDoc.apiOrders),
         apiTransactions: new Set(downloadDoc.apiTransactions),
@@ -335,11 +301,12 @@ export function useFirebase() {
         layout: downloadDoc.layout,
         groupID: downloadDoc.groupID,
         isReadyToSell: downloadDoc.isReadyToSell || false,
+        itemsProducedPerRun: downloadDoc.itemsProducedPerRun || downloadDoc.rawData.products[0].quantity
       };
 
-      newJob.build.materials.forEach((mat) => {
-        mat.childJob = mat.childJob.map(String);
-      });
+      // newJob.build.materials.forEach((mat) => {
+      //   mat.childJob = mat.childJob.map(String);
+      // });
 
       //updateOldJobs
       updateStructureValues(newJob);
@@ -659,16 +626,6 @@ export function useFirebase() {
             volume: downloadDoc.volume,
             itemID: downloadDoc.itemID,
             maxProductionLimit: downloadDoc.maxProductionLimit,
-            runCount: downloadDoc.runCount,
-            jobCount: downloadDoc.jobCount,
-            bpME: downloadDoc.bpME,
-            bpTE: downloadDoc.bpTE,
-            structureType: downloadDoc.structureType,
-            structureTypeDisplay: downloadDoc.structureTypeDisplay || null,
-            rigType: downloadDoc.rigType,
-            systemType: downloadDoc.systemType,
-            buildSystem: downloadDoc.buildSystem || null,
-            appliedStructureID: downloadDoc.appliedStructureID || null,
             apiJobs: new Set(downloadDoc.apiJobs),
             apiOrders: new Set(downloadDoc.apiOrders),
             apiTransactions: new Set(downloadDoc.apiTransactions),
@@ -682,10 +639,11 @@ export function useFirebase() {
             layout: downloadDoc.layout,
             groupID: downloadDoc.groupID,
             isReadyToSell: downloadDoc.isReadyToSell || false,
+            itemsProducedPerRun: downloadDoc.itemsProducedPerRun || downloadDoc.rawData.products[0].quantity
           };
-          newJob.build.materials.forEach((mat) => {
-            mat.childJob = mat.childJob.map(String);
-          });
+          // newJob.build.materials.forEach((mat) => {
+          //   mat.childJob = mat.childJob.map(String);
+          // });
 
           //updateOldJobs
           updateStructureValues(newJob);

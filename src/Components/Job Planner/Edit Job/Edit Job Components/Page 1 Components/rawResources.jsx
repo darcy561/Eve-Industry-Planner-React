@@ -58,6 +58,7 @@ export function RawResourceList({ setupToEdit }) {
       <Container disableGutters={true}>
         <Box sx={{ marginBottom: "20px" }}>
           <Grid container>
+
             <Select
               variant="standard"
               size="small"
@@ -78,6 +79,7 @@ export function RawResourceList({ setupToEdit }) {
                 Display Selected Setup
               </MenuItem>
             </Select>
+            
             <Grid item xs={12}>
               <Typography variant="h6" color="primary" align="center">
                 Raw Resources
@@ -138,7 +140,14 @@ export function RawResourceList({ setupToEdit }) {
         >
           <Grid container item direction="column">
             {activeJob.build.materials.map((material) => {
-              return <MaterialRow key={material.typeID} material={material} />;
+              return (
+                <MaterialRow
+                  key={material.typeID}
+                  material={material}
+                  setupToEdit={setupToEdit}
+                  displayType={displayType}
+                />
+              );
             })}
           </Grid>
         </Box>

@@ -14,6 +14,8 @@ import { JobPlanner } from "./Components/Job Planner";
 import { IsLoggedInContext } from "./Context/AuthContext";
 import { Container } from "@mui/material";
 import { LoadingPage } from "./Components/loadingPage";
+import EditJob from "./Components/Job Planner/Edit Job/EditJob";
+import { EditJob_New } from "./Components/Edit Job/editJob";
 
 const AuthMainUser = lazy(() => import("./Components/Auth/MainUserAuth"));
 const UpcomingChanges = lazy(() =>
@@ -40,6 +42,7 @@ export function NavRoutes({ mode, colorMode }) {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/jobplanner" element={<JobPlanner />} />
+            <Route path="/editjob/:jobID" element={<EditJob_New />} />
             <Route path="/auth/" element={<AuthMainUser />} />
             {/* <Route path="/itemtree" element={<ItemTree />} /> */}
             <Route path="/upcoming-changes" element={<UpcomingChanges />} />

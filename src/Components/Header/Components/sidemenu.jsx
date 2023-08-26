@@ -8,17 +8,16 @@ import {
   SwipeableDrawer,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
 import { EveESIStatusContext } from "../../../Context/EveDataContext";
 
-export function SideMenu(props) {
+export function SideMenu({ open, setOpen }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { eveESIStatus } = useContext(EveESIStatusContext);
-  const open = props.open;
-  const setOpen = props.setOpen;
-  const navigate = useNavigate();
+
+  // const navigate = useNavigate();
 
   return (
     <SwipeableDrawer
@@ -54,10 +53,10 @@ export function SideMenu(props) {
       <Box sx={{ width: "250px" }}>
         <List>
           <Divider />
+
           <ListItem
-            button
             onClick={() => {
-              navigate("/dashboard");
+              // navigate("/dashboard");
               setOpen(false);
             }}
           >
@@ -67,36 +66,40 @@ export function SideMenu(props) {
               <ListItemText primary={"Home"} />
             )}
           </ListItem>
-          <Divider sx={{ marginBottom: "20px" }} />
+
+          {/* <Divider sx={{ marginBottom: "20px" }} />
           {isLoggedIn && (
             <>
               <Divider />
-              <ListItem
-                button
-                onClick={() => {
-                  navigate("/asset-library");
-                  setOpen(false);
-                }}
-              >
-                <ListItemText primary={"Asset Library"} />
-              </ListItem>
+              <Link>
+                <ListItem
+                  onClick={() => {
+                    navigate("/asset-library");
+                    setOpen(false);
+                  }}
+                >
+                  <ListItemText primary={"Asset Library"} />
+                </ListItem>
+              </Link>
             </>
           )}
           <Divider />
           {isLoggedIn && (
             <>
-              <ListItem
-                button
-                onClick={() => {
-                  navigate("/blueprint-library");
-                  setOpen(false);
-                }}
-              >
-                <ListItemText primary={"Blueprint Library"} />
-              </ListItem>
+              <Link>
+                <ListItem
+                  onClick={() => {
+                    navigate("/blueprint-library");
+                    setOpen(false);
+                  }}
+                >
+                  <ListItemText primary={"Blueprint Library"} />
+                </ListItem>
+              </Link>
               <Divider />
             </>
           )}
+          <Link>
           <ListItem
             button
             onClick={() => {
@@ -116,7 +119,7 @@ export function SideMenu(props) {
           >
             <ListItemText primary={"Upcoming Changes"} />
           </ListItem>
-          <Divider />
+          <Divider /> */}
         </List>
       </Box>
     </SwipeableDrawer>

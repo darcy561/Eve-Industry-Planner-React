@@ -11,9 +11,15 @@ import DoneIcon from "@mui/icons-material/Done";
 import LensIcon from "@mui/icons-material/Lens";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 
-export function MaterialRow({ material }) {
+export function MaterialRow({ material, setupToEdit, displayType }) {
   const { activeJob } = useContext(ActiveJobContext);
   const [addJob, updateAddJob] = useState(false);
+
+  const quantityToUse =
+    displayType === "active"
+      ? activeJob.build.setup[setupToEdit].materialCount[material.typeID]
+          .quantity
+      : material.quantity;
 
   return (
     <Grid item container direction="row">
@@ -86,7 +92,7 @@ export function MaterialRow({ material }) {
       </Grid>
       <Grid item xs={3} sm={4} align="right">
         <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
-          {material.quantity.toLocaleString()}
+          {quantityToUse.toLocaleString()}
         </Typography>
       </Grid>
     </Grid>

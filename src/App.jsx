@@ -18,7 +18,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { NavRoutes } from "./Routes";
 import { FeedbackIcon } from "./Components/Feedback/feedback";
 import GLOBAL_CONFIG from "./global-config-app";
-import { Header } from "./Components/Header";
 
 export default function App() {
   const { ENABLE_FEEDBACK_ICON, PRIMARY_THEME, SECONDARY_THEME } =
@@ -38,9 +37,6 @@ export default function App() {
 
   const getDesignTokens = (mode) => ({
     palette: {
-      typography: {
-        fontFamily: "Montserrat",
-      },
       ...(mode !== SECONDARY_THEME
         ? {
             type: PRIMARY_THEME,
@@ -104,14 +100,13 @@ export default function App() {
     },
   });
 
-  const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
+  const theme = useMemo(() => responsiveFontSizes(createTheme(getDesignTokens(mode))), [mode]);
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <SnackBarNotification />
       <DialogBox />
-      {/* <Header mode={mode} colorMode={colorMode}/> */}
       <NavRoutes mode={mode} colorMode={colorMode} />
       {ENABLE_FEEDBACK_ICON && <FeedbackIcon />}
     </ThemeProvider>

@@ -16,24 +16,11 @@ import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { MdOutlineLinkOff } from "react-icons/md";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
-import { makeStyles } from "@mui/styles";
 import {
   CorpEsiDataContext,
   EveIDsContext,
   PersonalESIDataContext,
 } from "../../../../../Context/EveDataContext";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 export function LinkedMarketOrders({
   setJobModified,
@@ -54,7 +41,6 @@ export function LinkedMarketOrders({
   const { esiOrders, esiHistOrders } = useContext(PersonalESIDataContext);
   const { esiCorpData } = useContext(CorpEsiDataContext);
   const [linkedMarketOrders, updateLinkedMarketOrders] = useState([]);
-  const classes = useStyles();
 
   useEffect(() => {
     const newLinkedMarketOrders = activeJob.build.sale.marketOrders.map(
@@ -248,13 +234,19 @@ export function LinkedMarketOrders({
                       {(charData !== undefined && order.volume_remain === 0) ||
                         (order.complete && (
                           <Box
-                            className={classes.StatusBox}
                             sx={{
                               backgroundColor: "secondary.main",
                               color: "black",
                               marginLeft: "auto",
                               marginRight: "auto",
                               padding: "2px",
+                              "& .MuiFormHelperText-root": {
+                                color: (theme) => theme.palette.secondary.main,
+                              },
+                              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                                {
+                                  display: "none",
+                                },
                             }}
                           >
                             <Typography
@@ -268,13 +260,19 @@ export function LinkedMarketOrders({
                         order.volume_remain === 0 &&
                         order.complete && (
                           <Box
-                            className={classes.StatusBox}
                             sx={{
                               color: "black",
                               backgroundColor: "manufacturing.main",
                               marginLeft: "auto",
                               marginRight: "auto",
                               padding: "2px",
+                              "& .MuiFormHelperText-root": {
+                                color: (theme) => theme.palette.secondary.main,
+                              },
+                              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                                {
+                                  display: "none",
+                                },
                             }}
                           >
                             <Typography
@@ -288,13 +286,19 @@ export function LinkedMarketOrders({
                         order.volume_remain > 0 &&
                         !order.complete && (
                           <Box
-                            className={classes.StatusBox}
                             sx={{
                               color: "black",
                               backgroundColor: "primary.main",
                               marginLeft: "auto",
                               marginRight: "auto",
                               padding: "2px",
+                              "& .MuiFormHelperText-root": {
+                                color: (theme) => theme.palette.secondary.main,
+                              },
+                              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                                {
+                                  display: "none",
+                                },
                             }}
                           >
                             <Typography

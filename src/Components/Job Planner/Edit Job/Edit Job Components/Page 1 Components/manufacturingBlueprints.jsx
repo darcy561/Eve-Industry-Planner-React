@@ -5,7 +5,6 @@ import {
 } from "../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import { Avatar, Badge, Grid, Paper, Tooltip, Typography } from "@mui/material";
-import { makeStyles } from "@mui/styles";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 import {
   CorpEsiDataContext,

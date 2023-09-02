@@ -5,24 +5,14 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
-import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { UserLoginUIContext } from "../../../../../Context/LayoutContext";
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
 
 export function TutorialStep4() {
   const { activeJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const { userDataFetch, } = useContext(UserLoginUIContext);
+  const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
   const classes = useStyles();
 
@@ -78,7 +68,12 @@ export function TutorialStep4() {
                 <Grid item xs={6} sm={3} align="right">
                   <Typography variant="caption">Hide Help Options</Typography>
                   <Checkbox
-                    className={classes.Checkbox}
+                    sx={{
+                      color: (theme) =>
+                        theme.palette.type === "dark"
+                          ? theme.palette.primary.main
+                          : theme.palette.secondary.main,
+                    }}
                     size="small"
                     onClick={() => {
                       let newUsers = [...users];

@@ -12,7 +12,6 @@ import AddMaterialCost from "./addMaterialCost";
 import { MaterialCost } from "./materialCost";
 import { jobTypes } from "../../../../../Context/defaultValues";
 import { ChildJobDialog } from "./childJobsDialog";
-import { makeStyles } from "@mui/styles";
 import { ItemAssetsDialogue } from "./itemAssetsDialog";
 import {
   IsLoggedInContext,
@@ -22,12 +21,6 @@ import {
   ActiveJobContext,
   JobArrayContext,
 } from "../../../../../Context/JobContext";
-
-const useStyles = makeStyles((theme) => ({
-  childJobText: {
-    color: "white",
-  },
-}));
 
 function MaterialCard({
   materialIndex,
@@ -43,24 +36,29 @@ function MaterialCard({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { activeJob } = useContext(ActiveJobContext);
   const { jobArray } = useContext(JobArrayContext);
-  const classes = useStyles();
   let childJobs = [];
   let childJobProductionTotal = 0;
-  
+
   if (material.childJob.length > 0) {
     const filterJobs = (jobList) => {
       return jobList.filter((job) => material.childJob.includes(job.jobID));
     };
-    
+
     if (activeJob.groupID === null) {
       childJobs = filterJobs(userJobSnapshot);
-      childJobProductionTotal = childJobs.reduce((total, job) => total + job.itemQuantity, 0);
+      childJobProductionTotal = childJobs.reduce(
+        (total, job) => total + job.itemQuantity,
+        0
+      );
     } else {
       childJobs = filterJobs(jobArray);
-      childJobProductionTotal = childJobs.reduce((total, job) => total + job.build.products.totalQuantity, 0);
+      childJobProductionTotal = childJobs.reduce(
+        (total, job) => total + job.build.products.totalQuantity,
+        0
+      );
     }
   }
-  
+
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
       <ChildJobDialog
@@ -95,8 +93,8 @@ function MaterialCard({
               >
                 <Avatar
                   variant="circle"
-                  className={classes.childJobText}
                   sx={{
+                    color: "white",
                     bgcolor: "primary.main",
                     height: "30px",
                     width: "30px",
@@ -119,8 +117,8 @@ function MaterialCard({
               <Tooltip title="View Assets" arrow placement="top">
                 <Avatar
                   variant="circle"
-                  className={classes.childJobText}
                   sx={{
+                    color: "white",
                     bgcolor: "primary.main",
                     height: "30px",
                     width: "30px",

@@ -17,25 +17,9 @@ import {
 import { useGroupManagement } from "../../../../Hooks/useGroupManagement";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
-import { makeStyles } from "@mui/styles";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  DeleteIcon: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
 
 export function ClassicGroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -55,8 +39,6 @@ export function ClassicGroupJobCard({ group }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-
-  const classes = useStyles();
   let groupCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i == group.groupID);
   }, [multiSelectJobPlanner]);
@@ -83,7 +65,12 @@ export function ClassicGroupJobCard({ group }) {
             <Grid container item xs={12}>
               <Grid item xs={1}>
                 <Checkbox
-                  className={classes.Checkbox}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.type === "dark"
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   checked={groupCardChecked}
                   onChange={(event) => {
                     if (event.target.checked) {
@@ -101,7 +88,12 @@ export function ClassicGroupJobCard({ group }) {
               <Grid item xs={9} />
               <Grid item align="center" xs={2}>
                 <IconButton
-                  className={classes.DeleteIcon}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.type === "dark"
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   onClick={() => {
                     deleteGroupWithoutJobs(group.groupID);
                   }}

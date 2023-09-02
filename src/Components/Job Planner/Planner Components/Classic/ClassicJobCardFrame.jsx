@@ -9,7 +9,6 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { jobTypes } from "../../../../Context/defaultValues";
 import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
@@ -23,21 +22,7 @@ import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
 import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  DeleteIcon: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
+import { useNavigate } from "react-router-dom";
 
 function DisplaySwitch({ job }) {
   switch (job.jobStatus) {
@@ -73,7 +58,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-  const classes = useStyles();
+  const navigate = useNavigate();
 
   let jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
@@ -102,8 +87,13 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
               <Grid item xs={1}>
                 <Checkbox
                   disabled={job.isLocked}
-                  className={classes.Checkbox}
                   checked={jobCardChecked}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.type === "dark"
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   onChange={(event) => {
                     if (event.target.checked) {
                       updateMultiSelectJobPlanner((prev) => {
@@ -121,7 +111,12 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
               <Grid item align="center" xs={2}>
                 <IconButton
                   disabled={job.isLocked}
-                  className={classes.DeleteIcon}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.type === "dark"
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   onClick={() => deleteSingleJob(job.jobID)}
                 >
                   <DeleteIcon />
@@ -180,8 +175,9 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
                 color="primary"
                 disabled={job.isLocked}
                 onClick={() => {
-                  openEditJob(job.jobID);
-                  updateEditJobTrigger((prev) => !prev);
+                  navigate(`/editJob/${job.jobID}`);
+                  // openEditJob(job.jobID);
+                  // updateEditJobTrigger((prev) => !prev);
                 }}
                 sx={{ height: "25px", width: "100px" }}
               >

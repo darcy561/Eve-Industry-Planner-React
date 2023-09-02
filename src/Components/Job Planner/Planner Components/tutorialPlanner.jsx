@@ -1,25 +1,14 @@
 import { useContext, useMemo } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
 import { IsLoggedInContext, UsersContext } from "../../../Context/AuthContext";
-import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
 
 export function TutorialPlanner() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const { userDataFetch, } = useContext(UserLoginUIContext);
+  const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
-  const classes = useStyles();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   if (!parentUser.settings.layout.hideTutorials && !userDataFetch) {
@@ -77,8 +66,13 @@ export function TutorialPlanner() {
                 <Grid item xs={6} sm={3} align="right">
                   <Typography variant="caption">Hide Help Options</Typography>
                   <Checkbox
-                    className={classes.Checkbox}
                     size="small"
+                    sx={{
+                      color: (theme) =>
+                        theme.palette.type === "dark"
+                          ? theme.palette.primary.main
+                          : theme.palette.secondary.main,
+                    }}
                     onClick={() => {
                       let newUsers = [...users];
                       let parentUserIndex = newUsers.findIndex(

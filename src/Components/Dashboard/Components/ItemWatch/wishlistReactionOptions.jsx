@@ -7,23 +7,10 @@ import {
   TextField,
 } from "@mui/material";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { makeStyles } from "@mui/styles";
 import { structureOptions } from "../../../../Context/defaultValues";
 import { useBlueprintCalc } from "../../../../Hooks/useBlueprintCalc";
 import { useJobBuild } from "../../../../Hooks/useJobBuild";
 import { UsersContext } from "../../../../Context/AuthContext";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 export function WishlistReactionOptions({
   importedJob,
@@ -31,15 +18,12 @@ export function WishlistReactionOptions({
   materialJobs,
   setMaterialJobs,
 }) {
-  const [structValue, updateStructValue] = useState(
-    importedJob.structureType
-  );
+  const [structValue, updateStructValue] = useState(importedJob.structureType);
   const [rigsValue, updateRigsValue] = useState(importedJob.rigType);
   const [systemValue, updateSystemValue] = useState(importedJob.systemType);
   const { users } = useContext(UsersContext);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const { recalculateItemQty } = useJobBuild();
-  const classes = useStyles();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
@@ -95,7 +79,15 @@ export function WishlistReactionOptions({
             defaultValue={importedJob.runCount}
             size="small"
             variant="standard"
-            className={classes.TextField}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
             helperText="Blueprint Runs"
             type="number"
             onBlur={(e) => {
@@ -145,7 +137,15 @@ export function WishlistReactionOptions({
             defaultValue={importedJob.jobCount}
             size="small"
             variant="standard"
-            className={classes.TextField}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
             helperText="Job Slots"
             type="number"
             onBlur={(e) => {
@@ -182,7 +182,18 @@ export function WishlistReactionOptions({
       </Grid>
       <Grid container item xs={12}>
         <Grid item xs={6} sx={{ paddingRight: "10px" }}>
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               size="small"
@@ -219,19 +230,32 @@ export function WishlistReactionOptions({
                 }));
               }}
             >
-              {Object.values(structureOptions.reactionStructure).map((entry) => {
-                return (
-                  <MenuItem key={entry.id} value={entry.id}>
-                    {entry.label}
-                  </MenuItem>
-                );
-              })}
+              {Object.values(structureOptions.reactionStructure).map(
+                (entry) => {
+                  return (
+                    <MenuItem key={entry.id} value={entry.id}>
+                      {entry.label}
+                    </MenuItem>
+                  );
+                }
+              )}
             </Select>
             <FormHelperText variant="standard">Structure Type</FormHelperText>
           </FormControl>
         </Grid>
         <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               size="small"
@@ -282,7 +306,18 @@ export function WishlistReactionOptions({
       </Grid>
       <Grid container item xs={12}>
         <Grid item xs={6} sx={{ paddingRight: "10px" }}>
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               size="small"
@@ -321,7 +356,18 @@ export function WishlistReactionOptions({
           </FormControl>
         </Grid>
         <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               size="small"

@@ -29,16 +29,7 @@ import {
   EveIDsContext,
   EvePricesContext,
 } from "../../../../Context/EveDataContext";
-import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../../Hooks/useFirebase";
-
-const useStyles = makeStyles((theme) => ({
-  Select: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}));
 
 export function ShoppingListDialog({
   shoppingListTrigger,
@@ -71,7 +62,6 @@ export function ShoppingListDialog({
     users.length > 1 ? "all" : parentUser.CharacterHash
   );
   const [newEveIDs, updateNewEveIDs] = useState([]);
-  const classes = useStyles();
   const shoppingListValue = useRef(0);
 
   useEffect(() => {
@@ -262,7 +252,14 @@ export function ShoppingListDialog({
         <DialogActions>
           <Grid container>
             <Grid item xs={6}>
-              <FormControl className={classes.Select} fullWidth={true}>
+              <FormControl
+                fullWidth={true}
+                sx={{
+                  "& .MuiFormHelperText-root": {
+                    color: (theme) => theme.palette.secondary.main,
+                  },
+                }}
+              >
                 <Select
                   value={selectedLocation}
                   size="small"
@@ -294,7 +291,14 @@ export function ShoppingListDialog({
               </FormControl>
             </Grid>
             <Grid item xs={6}>
-              <FormControl className={classes.Select} fullWidth={true}>
+              <FormControl
+                fullWidth={true}
+                sx={{
+                  "& .MuiFormHelperText-root": {
+                    color: (theme) => theme.palette.secondary.main,
+                  },
+                }}
+              >
                 <Select
                   value={selectedCharacter}
                   size="small"
@@ -355,7 +359,7 @@ export function ShoppingListDialog({
                           src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
                           alt={item.name}
                           variant="square"
-                          sx={{ height: 32, width: 32 }}  
+                          sx={{ height: 32, width: 32 }}
                         />
                       </Grid>
                       <Grid item xs={8} sm={7}>

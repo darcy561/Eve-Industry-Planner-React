@@ -28,19 +28,6 @@ import {
 } from "../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   const { users } = useContext(UsersContext);
@@ -58,7 +45,6 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
   const [saveReady, updateSaveReady] = useState(false);
   const [groupSelect, updateGroupSelect] = useState(0);
   const analytics = getAnalytics();
-  const classes = useStyles();
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -274,7 +260,18 @@ export function AddWatchItemDialog({ openDialog, setOpenDialog }) {
                   xs={6}
                   sx={{ paddingRight: "10px", marginTop: "20px" }}
                 >
-                  <FormControl className={classes.TextField} fullWidth={true}>
+                  <FormControl
+                    sx={{
+                      "& .MuiFormHelperText-root": {
+                        color: (theme) => theme.palette.secondary.main,
+                      },
+                      "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                        {
+                          display: "none",
+                        },
+                    }}
+                    fullWidth={true}
+                  >
                     <Select
                       variant="standard"
                       size="small"

@@ -1,0 +1,177 @@
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Typography,
+} from "@mui/material";
+import { useContext, useEffect, useState } from "react";
+import { JobArrayContext } from "../../Context/JobContext";
+import AddIcon from "@mui/icons-material/Add";
+import { useFirebase } from "../../Hooks/useFirebase";
+import { SnackBarDataContext } from "../../Context/LayoutContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+} from "../../Context/AuthContext";
+import { useFindJobObject } from "../../Hooks/GeneralHooks/useFindJobObject";
+import { useJobSnapshotManagement } from "../../Hooks/JobHooks/useJobSnapshots";
+
+export function ParentJobDialog({
+  activeJob,
+  updateActiveJob,
+  dialogTrigger,
+  updateDialogTrigger,
+  setJobModified,
+}) {
+  const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
+  const { uploadJob } = useFirebase();
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { updateJobSnapshot } = useJobSnapshotManagement();
+  const { findJobData } = useFindJobObject();
+  const [matches, updateMatches] = useState([]);
+
+  const handleClose = () => {
+    updateDialogTrigger(false);
+  };
+
+  useEffect(() => {
+    if (!dialogTrigger) {
+      return;
+    }
+    let newMatches = [];
+    if (!activeJob.groupID) {
+      for (let job of userJobSnapshot) {
+        if (
+          job.materialIDs.includes(activeJob.itemID) &&
+          !activeJob.parentJob.includes(job.jobID)
+        ) {
+          newMatches.push(job);
+        }
+      }
+    } else {
+      let matchs = jobArray.filter(
+        (i) =>
+          i.groupID === activeJob.groupID &&
+          !activeJob.parentJob.includes(i.jobID) &&
+          i.build.materials.some((x) => x.typeID === activeJob.itemID)
+      );
+      newMatches = newMatches.concat(matchs);
+    }
+    updateMatches(newMatches);
+  }, [dialogTrigger]);
+
+  return (
+    <Dialog
+      open={dialogTrigger}
+      onClose={handleClose}
+      sx={{ padding: "20px", width: "100%" }}
+    >
+      <DialogTitle
+        id="ParentJobDialog"
+        align="center"
+        sx={{ marginBottom: "10px" }}
+        color="primary"
+      >
+        Link Parent Job
+      </DialogTitle>
+      <DialogContent>
+        <Grid container>
+          {matches.length > 0 ? (
+            matches.map((job) => {
+              return (
+                <Grid
+                  container
+                  key={job.jobID}
+                  item
+                  xs={12}
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Grid
+                    item
+                    sm={1}
+                    sx={{
+                      display: { xs: "none", sm: "block" },
+                    }}
+                    align="center"
+                  >
+                    <img
+                      src={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
+                      alt=""
+                    />
+                  </Grid>
+                  <Grid item xs={6} align="center" sx={{ paddingLeft: "10px" }}>
+                    <Typography variant="body1">{job.name}</Typography>
+                  </Grid>
+                  <Grid item xs={4} align="center">
+                    <Typography variant="body2">
+                      Runs {job.runCount} Jobs {job.jobCount}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={1}>
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={async () => {
+                        let newUserJobSnapshot = [...userJobSnapshot];
+                        let newJobArray = [...jobArray];
+                        let fullJob = await findJobData(
+                          job.jobID,
+                          newUserJobSnapshot,
+                          newJobArray
+                        );
+                        fullJob.build.childJobs[activeJob.itemID].push(
+                          activeJob.jobID
+                        );
+                        let newParentJobArray = [...activeJob.parentJob];
+                        newParentJobArray.push(job.jobID);
+                        newUserJobSnapshot = updateJobSnapshot(fullJob, [
+                          ...userJobSnapshot,
+                        ]);
+                        updateJobArray(newJobArray);
+                        updateUserJobSnapshot(newUserJobSnapshot);
+                        updateActiveJob((prev) => ({
+                          ...prev,
+                          parentJob: newParentJobArray,
+                        }));
+                        setJobModified(true);
+                        setSnackbarData((prev) => ({
+                          ...prev,
+                          open: true,
+                          message: `${job.name} Linked`,
+                          severity: "success",
+                          autoHideDuration: 1000,
+                        }));
+                        if (isLoggedIn) {
+                          uploadJob(fullJob);
+                        }
+                        handleClose();
+                      }}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              );
+            })
+          ) : (
+            <Grid item xs={12}>
+              No Jobs Available
+            </Grid>
+          )}
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}

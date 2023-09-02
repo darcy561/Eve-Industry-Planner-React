@@ -22,29 +22,10 @@ import {
 } from "../../../Context/LayoutContext";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { SisiDataFilesContext } from "../../../Context/EveDataContext";
-
-import { makeStyles } from "@mui/styles";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
 import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
-
-const useStyles = makeStyles((theme) => ({
-  Autocomplete: {
-    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
-      color:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-      borderColor:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-    },
-  },
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
 
 export function SearchBar({
   updateShoppingListTrigger,
@@ -70,7 +51,6 @@ export function SearchBar({
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { createNewGroupWithJobs } = useGroupManagement();
-  const classes = useStyles();
 
   return (
     <Paper
@@ -102,10 +82,22 @@ export function SearchBar({
                 <TextField
                   {...params}
                   size="small"
-                  className={classes.Autocomplete}
                   margin="none"
                   variant="standard"
-                  style={{ borderRadius: "5px" }}
+                  sx={{
+                    borderRadius: "5px",
+                    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot":
+                      {
+                        color: (theme) =>
+                          theme.palette.type === "dark"
+                            ? "black"
+                            : theme.palette.secondary.main,
+                        borderColor: (theme) =>
+                          theme.palette.type === "dark"
+                            ? "black"
+                            : theme.palette.secondary.main,
+                      },
+                  }}
                   InputProps={{ ...params.InputProps, type: "search" }}
                 />
               )}
@@ -129,6 +121,12 @@ export function SearchBar({
                   className={classes.Checkbox}
                   size="small"
                   checked={sisiDataFiles}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.type === "dark"
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   onChange={() => {
                     updateSisiDataFiles((prev) => !prev);
                   }}

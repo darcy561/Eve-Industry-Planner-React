@@ -8,7 +8,6 @@ import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
-import { makeStyles } from "@mui/styles";
 import { jobTypes } from "../../../../Context/defaultValues";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -22,34 +21,20 @@ import {
 import { deepPurple, grey, lightGreen } from "@mui/material/colors";
 import GroupInfoPopout from "./GroupInfoBadge";
 
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  DeleteIcon: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  ManufacturingJob: {
-    height: "1px",
-    background:
-      theme.palette.type === "dark"
-        ? `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`
-        : `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`,
-  },
-  ReactionJob: {
-    height: "1px",
-    background:
-      theme.palette.type === "dark"
-        ? `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`
-        : `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`,
-  },
-}));
+function getCardColor(theme, jobType) {
+  if (jobType === jobTypes.manufacturing) {
+    if (theme.pallete.type === "dark") {
+      return `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`;
+    } else
+      return `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`;
+  }
+  if (jobType === jobTypes.reaction) {
+    if (theme.palette.type === "dark") {
+      return `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`;
+    } else
+      return `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
+  }
+}
 
 export function CompactGroupJobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -70,7 +55,6 @@ export function CompactGroupJobCardFrame({ job }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-  const classes = useStyles();
   const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
@@ -99,7 +83,12 @@ export function CompactGroupJobCardFrame({ job }) {
       <Grid container item xs={12}>
         <Grid item xs={2} sm={1} align="center">
           <Checkbox
-            className={classes.Checkbox}
+            sx={{
+              color: (theme) =>
+                theme.palette.type === "dark"
+                  ? theme.palette.primary.main
+                  : theme.palette.secondary.main,
+            }}
             checked={jobCardChecked}
             onChange={(event) => {
               if (event.target.checked) {
@@ -141,7 +130,12 @@ export function CompactGroupJobCardFrame({ job }) {
         </Grid>
         <Grid container item xs={1} align="center" alignItems="center">
           <IconButton
-            className={classes.DeleteIcon}
+            sx={{
+              color: (theme) =>
+                theme.palette.type === "dark"
+                  ? theme.palette.primary.main
+                  : theme.palette.secondary.main,
+            }}
             onClick={() => {
               deleteSingleJob(job.jobID);
             }}
@@ -150,11 +144,10 @@ export function CompactGroupJobCardFrame({ job }) {
           </IconButton>
         </Grid>
         <Grid
-          className={
-            jobTypes.manufacturing === job.jobType
-              ? classes.ManufacturingJob
-              : classes.ReactionJob
-          }
+          sx={{
+            height: "1px",
+            backgroundColor: (theme) => getCardColor(theme, job.jobType),
+          }}
           item
           xs={12}
         />

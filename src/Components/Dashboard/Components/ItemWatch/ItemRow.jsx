@@ -22,27 +22,13 @@ import { useFirebase } from "../../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { ExpandedWatchlistRow } from "./ItemRowExpanded";
-import { makeStyles } from "@mui/styles";
 import AddIcon from "@mui/icons-material/Add";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useJobBuild } from "../../../../Hooks/useJobBuild";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import { JobArrayContext } from "../../../../Context/JobContext";
 import { trace } from "firebase/performance";
 import { performance } from "../../../../firebase";
 import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
-
-const useStyles = makeStyles((theme) => ({
-  Select: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 export function WatchListRow({ item, parentUser, index }) {
   const [expanded, setExpanded] = useState(false);
@@ -64,7 +50,6 @@ export function WatchListRow({ item, parentUser, index }) {
   const { newJobSnapshot } = useJobSnapshotManagement();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const analytics = getAnalytics();
-  const classes = useStyles();
   const t = trace(performance, "CreateJobProcessFull");
 
   const handleRemove = async () => {
@@ -515,7 +500,18 @@ export function WatchListRow({ item, parentUser, index }) {
               </Grid>
               <Grid container item xs={12} sx={{ marginTop: "10px" }}>
                 <Grid item xs={2}>
-                  <FormControl fullWidth className={classes.Select}>
+                  <FormControl
+                    fullWidth
+                    sx={{
+                      "& .MuiFormHelperText-root": {
+                        color: (theme) => theme.palette.secondary.main,
+                      },
+                      "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                        {
+                          display: "none",
+                        },
+                    }}
+                  >
                     <Select
                       variant="standard"
                       size="small"

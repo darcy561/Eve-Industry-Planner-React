@@ -3,20 +3,7 @@ import { Grid, IconButton, TextField, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
-import { makeStyles } from "@mui/styles";
 import { EvePricesContext } from "../../../../../Context/EveDataContext";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 function AddMaterialCost({
   materialIndex,
@@ -33,7 +20,6 @@ function AddMaterialCost({
     itemCount: Number(material.quantity - material.quantityPurchased),
   });
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const classes = useStyles();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -120,7 +106,15 @@ function AddMaterialCost({
       <Grid container spacing={1}>
         <Grid item xs={6}>
           <TextField
-            className={classes.TextField}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
             required={true}
             size="small"
             variant="standard"
@@ -146,7 +140,15 @@ function AddMaterialCost({
             placement="top"
           >
             <TextField
-              className={classes.TextField}
+              sx={{
+                "& .MuiFormHelperText-root": {
+                  color: (theme) => theme.palette.secondary.main,
+                },
+                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                  {
+                    display: "none",
+                  },
+              }}
               required={true}
               size="small"
               variant="standard"

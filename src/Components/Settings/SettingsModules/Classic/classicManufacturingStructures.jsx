@@ -18,7 +18,6 @@ import {
 } from "@mui/material";
 import { structureOptions } from "../../../../Context/defaultValues";
 import AddIcon from "@mui/icons-material/Add";
-import { makeStyles } from "@mui/styles";
 import { useState } from "react";
 import { useContext } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
@@ -28,26 +27,6 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import uuid from "react-uuid";
 import systemIDS from "../../../../RawData/systems.json";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  Autocomplete: {
-    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
-      color:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-      borderColor:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-    },
-  },
-}));
 
 export function ClassicManufacturingStrutures({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
@@ -64,7 +43,6 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
   const [rigsValue, updateRigsValue] = useState(structureOptions.manRigs[0].id);
   const [taxValue, updateTaxValue] = useState(null);
   const [systemIDValue, updateSystemIDValue] = useState(null);
-  const classes = useStyles();
   const analytics = getAnalytics();
 
   const handleSubmit = (event) => {
@@ -130,7 +108,15 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
                         required={true}
                         size="small"
                         variant="standard"
-                        className={classes.TextField}
+                        sx={{
+                          "& .MuiFormHelperText-root": {
+                            color: (theme) => theme.palette.secondary.main,
+                          },
+                          "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                            {
+                              display: "none",
+                            },
+                        }}
                         helperText="Display Name"
                         type="text"
                         onBlur={(e) => {
@@ -144,7 +130,15 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
                       <FormControl
-                        className={classes.TextField}
+                        sx={{
+                          "& .MuiFormHelperText-root": {
+                            color: (theme) => theme.palette.secondary.main,
+                          },
+                          "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                            {
+                              display: "none",
+                            },
+                        }}
                         fullWidth={true}
                       >
                         <Select
@@ -172,7 +166,15 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingRight: "5px" }}>
                       <FormControl
-                        className={classes.TextField}
+                        sx={{
+                          "& .MuiFormHelperText-root": {
+                            color: (theme) => theme.palette.secondary.main,
+                          },
+                          "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                            {
+                              display: "none",
+                            },
+                        }}
                         fullWidth={true}
                       >
                         <Select
@@ -200,7 +202,15 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
                       <FormControl
-                        className={classes.TextField}
+                        sx={{
+                          "& .MuiFormHelperText-root": {
+                            color: (theme) => theme.palette.secondary.main,
+                          },
+                          "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                            {
+                              display: "none",
+                            },
+                        }}
                         fullWidth={true}
                       >
                         <Select
@@ -228,14 +238,30 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingRight: "5px" }}>
                       <FormControl
-                        className={classes.TextField}
+                        sx={{
+                          "& .MuiFormHelperText-root": {
+                            color: (theme) => theme.palette.secondary.main,
+                          },
+                          "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                            {
+                              display: "none",
+                            },
+                        }}
                         fullWidth={true}
                       >
                         <TextField
                           required={true}
                           size="small"
                           variant="standard"
-                          className={classes.TextField}
+                          sx={{
+                            "& .MuiFormHelperText-root": {
+                              color: (theme) => theme.palette.secondary.main,
+                            },
+                            "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                              {
+                                display: "none",
+                              },
+                          }}
                           helperText="Installation Tax %"
                           inputProps={{
                             step: "0.01",
@@ -249,7 +275,15 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
                       <FormControl
-                        className={classes.TextField}
+                        sx={{
+                          "& .MuiFormHelperText-root": {
+                            color: (theme) => theme.palette.secondary.main,
+                          },
+                          "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                            {
+                              display: "none",
+                            },
+                        }}
                         fullWidth={true}
                       >
                         <Autocomplete
@@ -269,7 +303,16 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
                             <TextField
                               {...params}
                               size="small"
-                              className={classes.Autocomplete}
+                              sx={{
+                                color: (theme) =>
+                                  theme.palette.type === "dark"
+                                    ? "black"
+                                    : theme.palette.secondary.main,
+                                borderColor: (theme) =>
+                                  theme.palette.type === "dark"
+                                    ? "black"
+                                    : theme.palette.secondary.main,
+                              }}
                               margin="none"
                               variant="standard"
                               style={{ borderRadius: "5px" }}

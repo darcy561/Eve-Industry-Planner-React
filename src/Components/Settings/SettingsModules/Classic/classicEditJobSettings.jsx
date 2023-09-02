@@ -15,28 +15,10 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { listingType } from "../../../../Context/defaultValues";
-import { makeStyles } from "@mui/styles";
 import { useCharAssets } from "../../../../Hooks/useCharAssets";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../../../global-config-app";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  Select: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}));
 
 export function ClassicEditJobSettings({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
@@ -79,7 +61,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
         </Grid>
         <Grid container item xs={12}>
           <Grid item xs={6} sm={4} lg={3}>
-            <FormControl className={classes.Select} fullWidth={true}>
+            <FormControl fullWidth>
               <Select
                 value={marketSelect}
                 variant="standard"
@@ -111,7 +93,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
             </FormControl>
           </Grid>
           <Grid item xs={6} sm={4} lg={3}>
-            <FormControl className={classes.Select} fullWidth={true}>
+            <FormControl fullWidth>
               <Select
                 value={listingSelect}
                 variant="standard"
@@ -190,7 +172,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
             {dataLoading ? (
               <CircularProgress color="primary" size="20px" />
             ) : (
-              <FormControl className={classes.Select} fullWidth>
+              <FormControl fullWidth>
                 <Select
                   value={assetLocationSelect}
                   variant="standard"
@@ -240,7 +222,15 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
               }
               size="small"
               variant="standard"
-              className={classes.TextField}
+              sx={{
+                "& .MuiFormHelperText-root": {
+                  color: (theme) => theme.palette.secondary.main,
+                },
+                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                  {
+                    display: "none",
+                  },
+              }}
               helperText="Citadel Brokers Fee Percentage"
               type="number"
               onBlur={(e) => {

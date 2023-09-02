@@ -20,25 +20,12 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import AddIcon from "@mui/icons-material/Add";
 import { StatusSettings } from "./StatusSettings";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
-import { makeStyles } from "@mui/styles";
 import { ClassicAccordionContents } from "./Classic/classicContents";
 import { useDrop } from "react-dnd";
 import { useDnD } from "../../../Hooks/useDnD";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { grey } from "@mui/material/colors";
 import { CompactAccordionContents } from "./Compact/compactContents";
-
-const useStyles = makeStyles((theme) => ({
-  Accordion: {
-    "& .MuiAccordionSummary-root:hover": {
-      cursor: "default",
-    },
-  },
-  Header: {
-    color:
-      theme.palette.type === "dark" ? "secondary" : theme.palette.primary.main,
-  },
-}));
 
 export function PlannerAccordion({ updateEditJobTrigger }) {
   const { users } = useContext(UsersContext);
@@ -64,8 +51,6 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
-
-  const classes = useStyles();
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);
@@ -98,7 +83,6 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
         return (
           <Accordion
             ref={drop}
-            className={classes.Accordion}
             expanded={status.expanded}
             square={true}
             spacing={1}
@@ -116,6 +100,9 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
                   backgroundColor: (theme) =>
                     theme.palette.type !== "dark" ? grey[600] : grey[600],
                 }),
+              "& .MuiAccordionSummary-root:hover": {
+                cursor: "default",
+              },
             }}
           >
             <AccordionSummary
@@ -145,7 +132,15 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
                     flexDirection: "row",
                   }}
                 >
-                  <Typography variant="h4" className={classes.Header}>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      color: (theme) =>
+                        theme.palette.type === "dark"
+                          ? "secondary"
+                          : theme.palette.primary.main,
+                    }}
+                  >
                     {status.name}
                   </Typography>
                 </Box>
@@ -207,7 +202,6 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
                   status={status}
                 />
               )}
-
             </AccordionDetails>
           </Accordion>
         );

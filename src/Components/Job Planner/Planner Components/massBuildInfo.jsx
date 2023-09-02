@@ -3,26 +3,12 @@ import { useContext } from "react";
 import { MassBuildDisplayContext } from "../../../Context/LayoutContext";
 import { grey } from "@mui/material/colors";
 
-import { makeStyles } from "@mui/styles";
-const useStyles = makeStyles((theme) => ({
-  Box: {
-    backgroundColor: theme.palette.type === "dark" ? grey[800] : "white",
-    borderStyle: "solid",
-    borderRightStyle: { xs: "solid", sm: "none" },
-    borderWidth: "1px",
-    borderColor:
-      theme.palette.type === "dark" ? grey[900] : theme.palette.secondary.main,
-  },
-}));
-
 export function MassBuildFeedback() {
   const { massBuildDisplay } = useContext(MassBuildDisplayContext);
-  const classes = useStyles();
   if (massBuildDisplay.open) {
     return (
       <Slide direction="left" in={massBuildDisplay.open} unmountOnExit>
         <Box
-          className={classes.Box}
           sx={{
             position: "fixed",
             top: { xs: "5%", sm: "10%" },
@@ -33,6 +19,15 @@ export function MassBuildFeedback() {
             padding: "20px",
             zIndex: "2",
             boxShadow: 5,
+            backgroundColor: (theme) =>
+              theme.palette.type === "dark" ? grey[800] : "white",
+            borderStyle: "solid",
+            borderRightStyle: { xs: "solid", sm: "none" },
+            borderWidth: "1px",
+            borderColor: (theme) =>
+              theme.palette.type === "dark"
+                ? grey[900]
+                : theme.palette.secondary.main,
           }}
         >
           <Grid container>

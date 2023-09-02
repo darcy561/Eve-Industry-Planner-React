@@ -5,23 +5,10 @@ import {
   DialogContent,
   TextField,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
 import { useContext, useState } from "react";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { UserWatchlistContext } from "../../../../Context/AuthContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 export function AddGroupDialog({
   addNewGroupTrigger,
@@ -33,7 +20,6 @@ export function AddGroupDialog({
   const [setName, updateSetName] = useState("");
   const { uploadUserWatchlist } = useFirebase();
   const analytics = getAnalytics();
-  const classes = useStyles();
   const handleClose = () => {
     updateSetName("");
     updateAddNewGroupTrigger((prev) => !prev);
@@ -45,7 +31,15 @@ export function AddGroupDialog({
           defaultValue={setName}
           size="small"
           variant="standard"
-          className={classes.TextField}
+          sx={{
+            "& .MuiFormHelperText-root": {
+              color: (theme) => theme.palette.secondary.main,
+            },
+            "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+              {
+                display: "none",
+              },
+          }}
           helperText="Group Name"
           type="text"
           onChange={(e) => {

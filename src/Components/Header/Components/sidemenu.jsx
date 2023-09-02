@@ -17,7 +17,7 @@ export function SideMenu({ open, setOpen }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { eveESIStatus } = useContext(EveESIStatusContext);
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   return (
     <SwipeableDrawer
@@ -55,8 +55,9 @@ export function SideMenu({ open, setOpen }) {
           <Divider />
 
           <ListItem
+            button
             onClick={() => {
-              // navigate("/dashboard");
+              navigate("/dashboard");
               setOpen(false);
             }}
           >
@@ -67,12 +68,13 @@ export function SideMenu({ open, setOpen }) {
             )}
           </ListItem>
 
-          {/* <Divider sx={{ marginBottom: "20px" }} />
+          <Divider sx={{ marginBottom: "20px" }} />
           {isLoggedIn && (
             <>
               <Divider />
               <Link>
                 <ListItem
+                  button
                   onClick={() => {
                     navigate("/asset-library");
                     setOpen(false);
@@ -86,20 +88,19 @@ export function SideMenu({ open, setOpen }) {
           <Divider />
           {isLoggedIn && (
             <>
-              <Link>
-                <ListItem
-                  onClick={() => {
-                    navigate("/blueprint-library");
-                    setOpen(false);
-                  }}
-                >
-                  <ListItemText primary={"Blueprint Library"} />
-                </ListItem>
-              </Link>
+              <ListItem
+                button
+                onClick={() => {
+                  navigate("/blueprint-library");
+                  setOpen(false);
+                }}
+              >
+                <ListItemText primary={"Blueprint Library"} />
+              </ListItem>
               <Divider />
             </>
           )}
-          <Link>
+
           <ListItem
             button
             onClick={() => {
@@ -119,7 +120,7 @@ export function SideMenu({ open, setOpen }) {
           >
             <ListItemText primary={"Upcoming Changes"} />
           </ListItem>
-          <Divider /> */}
+          <Divider />
         </List>
       </Box>
     </SwipeableDrawer>

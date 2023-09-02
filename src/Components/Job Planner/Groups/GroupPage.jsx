@@ -19,33 +19,12 @@ import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { OutputJobsPanel } from "./OutputJobs";
 import { GroupAccordion } from "./groupAccordion";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
-import { makeStyles } from "@mui/styles";
 import { GroupOptionsBar } from "./groupOptions";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import itemList from "../../../RawData/searchIndex.json";
 import { useCloseGroup } from "../../../Hooks/GroupHooks/useCloseGroup";
 import { LoadingPage } from "../../loadingPage";
 import { ImportItemFitDialogue } from "./Dialogues/importFit/importFittingDialgue";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  SearchBar: {
-    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
-      color:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-      borderColor:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-    },
-  },
-}));
 
 export default function GroupPage({
   shoppingListTrigger,
@@ -61,7 +40,8 @@ export default function GroupPage({
   const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
   const [tempName, updateTempName] = useState("");
   const [showProcessing, updateShowProcessing] = useState(false);
-  const [importFitDialogueTrigger, updateImportFitDialogueTrigger] = useState(false);
+  const [importFitDialogueTrigger, updateImportFitDialogueTrigger] =
+    useState(false);
   const { closeGroup } = useCloseGroup();
   const { newJobProcess } = useJobManagement();
   const classes = useStyles();
@@ -124,7 +104,10 @@ export default function GroupPage({
       }}
       square
     >
-      <ImportItemFitDialogue importFitDialogueTrigger={importFitDialogueTrigger} updateImportFitDialogueTrigger={updateImportFitDialogueTrigger} />
+      <ImportItemFitDialogue
+        importFitDialogueTrigger={importFitDialogueTrigger}
+        updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
+      />
       <Grid container>
         <Grid item xs={7} md={9} lg={10} />
         <Grid item xs={5} md={3} lg={2} align="right">
@@ -168,7 +151,15 @@ export default function GroupPage({
                   defaultValue={activeGroup.groupName}
                   size="small"
                   variant="standard"
-                  className={classes.TextField}
+                  sx={{
+                    "& .MuiFormHelperText-root": {
+                      color: (theme) => theme.palette.secondary.main,
+                    },
+                    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                      {
+                        display: "none",
+                      },
+                  }}
                   helperText="Group Name"
                   type="text"
                   onChange={(e) => {
@@ -214,7 +205,19 @@ export default function GroupPage({
                   {...params}
                   size="small"
                   label="Item Search"
-                  className={classes.Autocomplete}
+                  sx={{
+                    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot":
+                      {
+                        color: (theme) =>
+                          theme.palette.type === "dark"
+                            ? "black"
+                            : theme.palette.secondary.main,
+                        borderColor: (theme) =>
+                          theme.palette.type === "dark"
+                            ? "black"
+                            : theme.palette.secondary.main,
+                      },
+                  }}
                   margin="none"
                   variant="standard"
                   style={{ borderRadius: "5px" }}
@@ -255,14 +258,13 @@ export default function GroupPage({
               updateShoppingListTrigger={updateShoppingListTrigger}
               updateShoppingListData={updateShoppingListData}
               updateShowProcessing={updateShowProcessing}
-            updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
+              updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
             />
           </Grid>
           <Grid item xs={12}>
             <OutputJobsPanel
               groupJobs={groupJobs}
               groupPageRefresh={groupPageRefresh}
-              
             />
           </Grid>
           <Grid item xs={12}>

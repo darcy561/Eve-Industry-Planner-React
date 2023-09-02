@@ -20,22 +20,9 @@ import { useDnD } from "../../../Hooks/useDnD";
 import { useDrop } from "react-dnd";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { ItemTypes } from "../../../Context/DnDTypes";
-import { makeStyles } from "@mui/styles";
 import { CompactGroupAccordionContent } from "./Compact/CompactGroupAccordionContent";
 import { ClassicGroupAccordionContent } from "./Classic/ClassicGroupAccordionContent";
 import { grey } from "@mui/material/colors";
-
-const useStyles = makeStyles((theme) => ({
-  Accordion: {
-    "& .MuiAccordionSummary-root:hover": {
-      cursor: "default",
-    },
-  },
-  Header: {
-    color:
-      theme.palette.type === "dark" ? "secondary" : theme.palette.primary.main,
-  },
-}));
 
 export function GroupAccordion({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(JobArrayContext);
@@ -53,7 +40,6 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
-  const classes = useStyles();
 
   if (groupPageRefresh && activeGroup == null) return null;
 
@@ -86,13 +72,15 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
           <Accordion
             key={status.id}
             ref={drop}
-            className={classes.Accordion}
             square
             spacing={1}
             id={status.id}
             disableGutters
             expanded={!notExpanded.includes(status.id)}
             sx={{
+              "& .MuiAccordionSummary-root:hover": {
+                cursor: "default",
+              },
               ...(canDrop &&
                 !isOver && {
                   backgroundColor: (theme) =>
@@ -140,7 +128,15 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
                     flexDirection: "row",
                   }}
                 >
-                  <Typography variant="h4" className={classes.Header}>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      color: (theme) =>
+                        theme.palette.type === "dark"
+                          ? "secondary"
+                          : theme.palette.primary.main,
+                    }}
+                  >
                     {status.name}
                   </Typography>
                 </Box>

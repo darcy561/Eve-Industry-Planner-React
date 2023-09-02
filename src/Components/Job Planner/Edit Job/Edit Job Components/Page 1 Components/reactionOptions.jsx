@@ -16,19 +16,6 @@ import {
 } from "../../../../../Context/AuthContext";
 import { structureOptions } from "../../../../../Context/defaultValues";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 export function ReactionOptions({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -49,7 +36,6 @@ export function ReactionOptions({ setJobModified }) {
   const [rigsValue, updateRigsValue] = useState(activeJob.rigType);
   const [systemValue, updateSystemValue] = useState(activeJob.systemType);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
-  const classes = useStyles();
 
   return (
     <Paper

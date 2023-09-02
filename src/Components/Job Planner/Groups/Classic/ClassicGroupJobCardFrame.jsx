@@ -17,7 +17,6 @@ import {
   MultiSelectJobPlannerContext,
 } from "../../../../Context/LayoutContext";
 import Step1JobCard from "../../Planner Components/Classic/Job Cards/step1";
-import { makeStyles } from "@mui/styles";
 import GroupStep2JobCard from "./JobCards/groupStep2";
 import GroupStep3JobCard from "./JobCards/GroupStep3";
 import GroupStep4JobCard from "./JobCards/groupStep4";
@@ -27,21 +26,6 @@ import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  DeleteIcon: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
 
 function DisplaySwitch({ job }) {
   switch (job.jobStatus) {
@@ -80,8 +64,6 @@ export function ClassicGroupJobCardFrame({ job }) {
     }),
   }));
 
-  const classes = useStyles();
-
   const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
@@ -113,7 +95,12 @@ export function ClassicGroupJobCardFrame({ job }) {
               <Grid item xs={1}>
                 <Checkbox
                   disabled={job.isLocked}
-                  className={classes.Checkbox}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.type === "dark"
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   checked={jobCardChecked}
                   onChange={(event) => {
                     if (event.target.checked) {
@@ -134,7 +121,12 @@ export function ClassicGroupJobCardFrame({ job }) {
               <Grid item align="center" xs={2}>
                 <IconButton
                   disabled={job.isLocked}
-                  className={classes.DeleteIcon}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.type === "dark"
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   onClick={() => deleteSingleJob(job.jobID)}
                 >
                   <DeleteIcon />

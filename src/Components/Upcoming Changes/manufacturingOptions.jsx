@@ -13,21 +13,7 @@ import {
   blueprintOptions,
   structureOptions,
 } from "../../Context/defaultValues";
-
-import { makeStyles } from "@mui/styles";
 import { useBlueprintCalc } from "../../Hooks/useBlueprintCalc";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 export function ManufacturingOptionsUpcomingChanges({
   tranqItem,
@@ -175,7 +161,6 @@ export function ManufacturingOptionsUpcomingChanges({
         <Grid item xs={6} sm={3} md={3} align="center">
           <TextField
             fullWidth
-            className={classes.TextField}
             defaultValue={runValue}
             size="small"
             variant="standard"
@@ -185,6 +170,13 @@ export function ManufacturingOptionsUpcomingChanges({
               updateRunValue(Number(e.target.value));
             }}
             sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
               paddingLeft: "5px",
               paddingRight: "5px",
             }}
@@ -194,7 +186,6 @@ export function ManufacturingOptionsUpcomingChanges({
           <TextField
             fullWidth
             defaultValue={jobValue}
-            className={classes.TextField}
             size="small"
             variant="standard"
             helperText="Job Slots"
@@ -202,14 +193,33 @@ export function ManufacturingOptionsUpcomingChanges({
             onBlur={(e) => {
               updateJobValue(Number(e.target.value));
             }}
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+              paddingLeft: "5px",
+              paddingRight: "5px",
+            }}
           />
         </Grid>
         <Grid item xs={6} sm={3} md={3} align="center">
           <FormControl
-            className={classes.TextField}
             fullWidth
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+              paddingLeft: "5px",
+              paddingRight: "5px",
+            }}
           >
             <Select
               fullWidth
@@ -236,9 +246,18 @@ export function ManufacturingOptionsUpcomingChanges({
         </Grid>
         <Grid item xs={6} sm={3} md={3} align="center">
           <FormControl
-            className={classes.TextField}
             fullWidth
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+              paddingLeft: "5px",
+              paddingRight: "5px",
+            }}
           >
             <Select
               defaultValue={teValue}
@@ -273,9 +292,18 @@ export function ManufacturingOptionsUpcomingChanges({
             placement="top"
           >
             <FormControl
-              className={classes.TextField}
               fullWidth
-              sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+              sx={{
+                "& .MuiFormHelperText-root": {
+                  color: (theme) => theme.palette.secondary.main,
+                },
+                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                  {
+                    display: "none",
+                  },
+                paddingLeft: "5px",
+                paddingRight: "5px",
+              }}
             >
               <Select
                 variant="standard"
@@ -299,9 +327,18 @@ export function ManufacturingOptionsUpcomingChanges({
         </Grid>
         <Grid item xs={6} sm={3} md={4} align="center">
           <FormControl
-            className={classes.TextField}
             fullWidth
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+              paddingLeft: "5px",
+              paddingRight: "5px",
+            }}
           >
             <Select
               variant="standard"
@@ -324,9 +361,18 @@ export function ManufacturingOptionsUpcomingChanges({
         </Grid>
         <Grid item xs={6} sm={3} md={4} align="center">
           <FormControl
-            className={classes.TextField}
             fullWidth
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+              paddingLeft: "5px",
+              paddingRight: "5px",
+            }}
           >
             <Select
               variant="standard"

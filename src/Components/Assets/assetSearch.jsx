@@ -9,15 +9,6 @@ import {
 } from "@mui/material";
 import { useContext } from "react";
 import { EveIDsContext } from "../../Context/EveDataContext";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  Select: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}));
 
 export function AssetSearch({
   locationList,
@@ -28,8 +19,6 @@ export function AssetSearch({
   setPagination,
 }) {
   const { eveIDs } = useContext(EveIDsContext);
-
-  const classes = useStyles();
 
   return (
     <Paper
@@ -43,7 +32,14 @@ export function AssetSearch({
         {namesLoad ? (
           <>
             <Grid item xs={8} sm={6}>
-              <FormControl className={classes.Select} fullWidth>
+              <FormControl
+                sx={{
+                  "& .MuiFormHelperText-root": {
+                    color: (theme) => theme.palette.secondary.main,
+                  },
+                }}
+                fullWidth
+              >
                 <Select
                   value={selectedLocation}
                   size="small"
@@ -54,10 +50,7 @@ export function AssetSearch({
                   {locationList.map((entry) => {
                     const name = eveIDs.find((i) => entry === i.id)?.name;
 
-                    if (
-                      !name ||
-                      name === "No Access To Location"
-                    ) {
+                    if (!name || name === "No Access To Location") {
                       return null;
                     }
                     return (
@@ -73,7 +66,13 @@ export function AssetSearch({
               </FormControl>
             </Grid>
             <Grid item xs={4} sm={6} align="right">
-              <FormControl className={classes.Select}>
+              <FormControl
+                sx={{
+                  "& .MuiFormHelperText-root": {
+                    color: (theme) => theme.palette.secondary.main,
+                  },
+                }}
+              >
                 <Select
                   variant="standard"
                   value={pagination.pageSize}

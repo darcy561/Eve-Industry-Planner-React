@@ -4,25 +4,14 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../Context/AuthContext";
-import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { UserLoginUIContext } from "../../../../../Context/LayoutContext";
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
 
 export function TutorialStep2() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const { userDataFetch, } = useContext(UserLoginUIContext);
+  const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
-  const classes = useStyles();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   if (!parentUser.settings.layout.hideTutorials && !userDataFetch) {
@@ -82,7 +71,12 @@ export function TutorialStep2() {
                     Hide Help Options
                   </Typography>
                   <Checkbox
-                    className={classes.Checkbox}
+                    sx={{
+                      color: (theme) =>
+                        theme.palette.type === "dark"
+                          ? theme.palette.primary.main
+                          : theme.palette.secondary.main,
+                    }}
                     size="small"
                     onClick={() => {
                       let newUsers = [...users];
@@ -95,7 +89,7 @@ export function TutorialStep2() {
                       ].settings.layout.hideTutorials = true;
 
                       updateUsers(newUsers);
-                      updateMainUserDoc()
+                      updateMainUserDoc();
                     }}
                   />
                 </Grid>

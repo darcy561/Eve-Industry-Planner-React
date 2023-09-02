@@ -1,9 +1,5 @@
-import ReactDOM from 'react-dom';
-import { AppWrapper } from './AppWrapper';
+import ReactDOM from "react-dom/client";
+import { AppWrapper } from "./AppWrapper";
 
-ReactDOM.render(
-  <>
-    <AppWrapper />
-  </>,
-  document.getElementById('pageWrapper')
-);
+const root = ReactDOM.createRoot(document.getElementById("pageWrapper"));
+root.render(<AppWrapper />);

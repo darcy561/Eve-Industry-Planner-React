@@ -12,7 +12,7 @@ export default function Step1JobCard({ job }) {
       <Grid container item xs={12}>
         <Grid item xs={8}>
           <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
-            Runs
+            Quantity
           </Typography>
         </Grid>
         <Grid item xs={4}>
@@ -20,14 +20,14 @@ export default function Step1JobCard({ job }) {
             align="right"
             sx={{ typography: { xs: "body2", md: "body1" } }}
           >
-            {job.runCount.toLocaleString()}
+            {job.itemQuantity.toLocaleString()}
           </Typography>
         </Grid>
       </Grid>
       <Grid container item xs={12}>
         <Grid item xs={10}>
           <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
-            Job Slots
+            Child Jobs
           </Typography>
         </Grid>
         <Grid item xs={2}>
@@ -35,7 +35,7 @@ export default function Step1JobCard({ job }) {
             align="right"
             sx={{ typography: { xs: "body2", md: "body1" } }}
           >
-            {job.jobCount.toLocaleString()}
+            {job.childJobs.length.toLocaleString()}
           </Typography>
         </Grid>
       </Grid>

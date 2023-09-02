@@ -6,7 +6,6 @@ import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { jobTypes } from "../../../../Context/defaultValues";
 import PlannerInfoBadge from "./PlannerInfoBadge";
-import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deepPurple, grey, lightGreen } from "@mui/material/colors";
 import {
@@ -18,35 +17,22 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  DeleteIcon: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  ManufacturingJob: {
-    height: "1px",
-    background:
-      theme.palette.type === "dark"
-        ? `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`
-        : `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`,
-  },
-  ReactionJob: {
-    height: "1px",
-    background:
-      theme.palette.type === "dark"
-        ? `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`
-        : `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`,
-  },
-}));
+function getCardColor(theme, jobType) {
+  if (jobType === jobTypes.manufacturing) {
+    if (theme.pallete.type === "dark") {
+      return `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`;
+    } else
+      return `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`;
+  }
+  if (jobType === jobTypes.reaction) {
+    if (theme.palette.type === "dark") {
+      return `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`;
+    } else
+      return `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
+  }
+}
 
 export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -66,11 +52,11 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
     }),
   }));
 
-  const classes = useStyles();
   const jobCardChecked = useMemo(
     () => multiSelectJobPlanner.some((i) => i === job.jobID),
     [multiSelectJobPlanner]
   );
+  const navigate = useNavigate();
 
   return (
     <Card
@@ -92,8 +78,13 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
       <Grid container item xs={12}>
         <Grid item xs={2} sm={1} align="center">
           <Checkbox
-            className={classes.Checkbox}
             checked={jobCardChecked}
+            sx={{
+              color: (theme) =>
+                theme.palette.type === "dark"
+                  ? theme.palette.primary.main
+                  : theme.palette.secondary.main,
+            }}
             onChange={(event) => {
               if (event.target.checked) {
                 updateMultiSelectJobPlanner((prev) => {
@@ -125,8 +116,9 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
           <Button
             color="primary"
             onClick={() => {
-              openEditJob(job.jobID);
-              updateEditJobTrigger((prev) => !prev);
+              navigate(`/editJob/${job.jobID}`);
+              // openEditJob(job.jobID);
+              // updateEditJobTrigger((prev) => !prev);
             }}
           >
             Edit
@@ -134,7 +126,12 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
         </Grid>
         <Grid container item xs={1} align="center" alignItems="center">
           <IconButton
-            className={classes.DeleteIcon}
+            sx={{
+              color: (theme) =>
+                theme.palette.type === "dark"
+                  ? theme.palette.primary.main
+                  : theme.palette.secondary.main,
+            }}
             onClick={() => {
               deleteSingleJob(job.jobID);
             }}
@@ -143,11 +140,10 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
           </IconButton>
         </Grid>
         <Grid
-          className={
-            jobTypes.manufacturing === job.jobType
-              ? classes.ManufacturingJob
-              : classes.ReactionJob
-          }
+          sx={{
+            height: "1px",
+            backgroundColor: (theme) => getCardColor(theme, job.jobType),
+          }}
           item
           xs={12}
         />

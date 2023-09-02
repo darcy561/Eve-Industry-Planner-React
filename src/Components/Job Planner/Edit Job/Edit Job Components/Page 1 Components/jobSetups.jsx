@@ -18,7 +18,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { UsersContext } from "../../../../../Context/AuthContext";
 import rawSystemData from "../../../../../RawData/systems.json";
 
-export function JobSetupPanel({ jobModified, setupToEdit, updateSetupToEdit }) {
+export function JobSetupPanel({
+  jobModified,
+  setupToEdit,
+  updateSetupToEdit,
+}) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
 

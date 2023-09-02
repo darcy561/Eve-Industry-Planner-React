@@ -11,25 +11,7 @@ import { useContext, useState } from "react";
 import { ActiveJobContext } from "../../../../../Context/JobContext";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
-import { makeStyles } from "@mui/styles";
 import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  Autocomplete: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}));
 
 export function InventionCostsCard({ setJobModified }) {
   const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
@@ -38,7 +20,6 @@ export function InventionCostsCard({ setJobModified }) {
     itemCost: 0,
   });
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const classes = useStyles();
 
   function handleRemove(record, recordIndex) {
     let newArray = [...activeJob.build.costs.inventionEntries];
@@ -208,7 +189,15 @@ export function InventionCostsCard({ setJobModified }) {
             <Grid container spacing={1}>
               <Grid item xs={6}>
                 <TextField
-                  className={classes.TextField}
+                  sx={{
+                    "& .MuiFormHelperText-root": {
+                      color: (theme) => theme.palette.secondary.main,
+                    },
+                    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                      {
+                        display: "none",
+                      },
+                  }}
                   required={true}
                   size="small"
                   variant="standard"
@@ -225,7 +214,11 @@ export function InventionCostsCard({ setJobModified }) {
               </Grid>
               <Grid item xs={4}>
                 <TextField
-                  className={classes.TextField}
+                  sx={{
+                    "& .MuiFormHelperText-root": {
+                      color: (theme) => theme.palette.secondary.main,
+                    },
+                  }}
                   required={true}
                   size="small"
                   variant="standard"

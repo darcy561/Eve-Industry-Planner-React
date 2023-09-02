@@ -15,18 +15,10 @@ import {
 import { useEffect } from "react";
 import { useState } from "react";
 import { useContext } from "react";
-import { makeStyles } from "@mui/styles";
 import { ActiveJobContext } from "../../../Context/JobContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useOpenEditJob } from "../../../Hooks/JobHooks/useOpenEditJob";
 import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
-
-const useStyles = makeStyles((theme) => ({
-  Header: {
-    color:
-      theme.palette.type === "dark" ? "secondary" : theme.palette.primary.main,
-  },
-}));
 
 export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -34,8 +26,6 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
   const [outputJobs, updateOutputJobs] = useState([]);
   const { calculateCurrentJobBuildCostFromChildren } = useGroupManagement();
   const { openEditJob } = useOpenEditJob();
-
-  const classes = useStyles();
 
   useEffect(() => {
     let returnArray = [];
@@ -60,7 +50,15 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
       >
         <Grid container>
           <Grid item xs={12}>
-            <Typography variant="h4" className={classes.Header}>
+            <Typography
+              variant="h4"
+              sx={{
+                color: (theme) =>
+                  theme.palette.type === "dark"
+                    ? "secondary"
+                    : theme.palette.primary.main,
+              }}
+            >
               Output
             </Typography>
           </Grid>

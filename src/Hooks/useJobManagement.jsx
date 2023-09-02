@@ -846,10 +846,27 @@ export function useJobManagement() {
     return "bp";
   };
 
+
+  function deepCopyJobObject(inputJob) {
+    
+    const newApiJobs = new Set(inputJob.apiJobs)
+    const newApiOrders = new Set(inputJob.apiOrders)
+    const newApiTransactions = new Set(inputJob.apiTransactions)
+
+    let deepCopy = structuredClone(inputJob);
+    deepCopy.apiJobs = newApiJobs
+    deepCopy.apiOrders = newApiOrders
+    deepCopy.apiTransactions = newApiTransactions
+
+    return deepCopy
+
+  }
+
   return {
     buildItemPriceEntry,
     buildShoppingList,
     calcBrokersFee,
+    deepCopyJobObject,
     findBlueprintType,
     generatePriceRequestFromJob,
     generatePriceRequestFromSnapshot,

@@ -265,8 +265,8 @@ export function useBlueprintCalc() {
 
     function timeModifierCalc(job, userSkills) {
       if (job.jobType === jobTypes.manufacturing) {
-        const indySkill = userSkills[3380].activeLevel;
-        const advIndySkill = userSkills[3388].activeLevel;
+        const indySkill = userSkills[3380]?.activeLevel || 0;
+        const advIndySkill = userSkills[3388]?.activeLevel || 0;
         const strucData = structureOptions.manStructure[job.structureID].time;
         const rigData = structureOptions.manRigs[job.rigID].time;
 

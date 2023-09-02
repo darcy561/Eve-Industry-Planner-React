@@ -7,7 +7,6 @@ import {
   TextField,
 } from "@mui/material";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { makeStyles } from "@mui/styles";
 import {
   blueprintOptions,
   structureOptions,
@@ -15,18 +14,6 @@ import {
 import { useBlueprintCalc } from "../../../../Hooks/useBlueprintCalc";
 import { useJobBuild } from "../../../../Hooks/useJobBuild";
 import { UsersContext } from "../../../../Context/AuthContext";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 export function WishListManufacturingOptions({
   importedJob,
@@ -37,9 +24,7 @@ export function WishListManufacturingOptions({
   const { users } = useContext(UsersContext);
   const [meValue, updateMEValue] = useState(importedJob.bpME);
   const [teValue, updateTEValue] = useState(importedJob.bpTE);
-  const [structValue, updateStructValue] = useState(
-    importedJob.structureType
-  );
+  const [structValue, updateStructValue] = useState(importedJob.structureType);
   const [rigsValue, updateRigsValue] = useState(importedJob.rigType);
   const [systemValue, updateSystemValue] = useState(importedJob.systemType);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
@@ -100,7 +85,15 @@ export function WishListManufacturingOptions({
             defaultValue={importedJob.runCount}
             size="small"
             variant="standard"
-            className={classes.TextField}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
             helperText="Blueprint Runs"
             type="number"
             onBlur={(e) => {
@@ -134,7 +127,7 @@ export function WishListManufacturingOptions({
                     jobType: prev.jobType,
                     CharacterHash: prev.build.buildChar,
                     structureType: prev.structureType,
-                    rigType:prev.rigType,
+                    rigType: prev.rigType,
                     runCount: Number(e.target.value),
                     bpTE: prev.bpTE,
                     rawTime: prev.rawData.time,
@@ -150,7 +143,15 @@ export function WishListManufacturingOptions({
             defaultValue={importedJob.jobCount}
             size="small"
             variant="standard"
-            className={classes.TextField}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
             helperText="Job Slots"
             type="number"
             onBlur={(e) => {
@@ -187,7 +188,18 @@ export function WishListManufacturingOptions({
       </Grid>
       <Grid container item xs={12}>
         <Grid item xs={6} sx={{ paddingRight: "10px" }}>
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               size="small"
@@ -228,7 +240,18 @@ export function WishListManufacturingOptions({
           </FormControl>
         </Grid>
         <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               size="small"
@@ -268,7 +291,18 @@ export function WishListManufacturingOptions({
       </Grid>
       <Grid container item xs={12}>
         <Grid item xs={6} sx={{ paddingRight: "10px" }}>
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               size="small"
@@ -287,7 +321,7 @@ export function WishListManufacturingOptions({
                       runCount: prev.runCount,
                       jobCount: prev.jobCount,
                       bpME: prev.bpME,
-                      structureType: e.target.value ,
+                      structureType: e.target.value,
                       rigType: prev.rigType,
                       systemType: prev.systemType,
                     }),
@@ -317,7 +351,18 @@ export function WishListManufacturingOptions({
           </FormControl>
         </Grid>
         <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               size="small"
@@ -368,7 +413,18 @@ export function WishListManufacturingOptions({
       </Grid>
       <Grid container item xs={12}>
         <Grid item xs={6} sx={{ paddingRight: "10px" }}>
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               size="small"
@@ -407,7 +463,18 @@ export function WishListManufacturingOptions({
           </FormControl>
         </Grid>
         <Grid item xs={6} sx={{ paddingLeft: "10px" }}>
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               size="small"

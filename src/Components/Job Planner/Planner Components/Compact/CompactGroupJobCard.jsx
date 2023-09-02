@@ -15,31 +15,8 @@ import {
   MultiSelectJobPlannerContext,
 } from "../../../../Context/LayoutContext";
 import { grey, yellow } from "@mui/material/colors";
-import { makeStyles } from "@mui/styles";
 import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
 import { useGroupManagement } from "../../../../Hooks/useGroupManagement";
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  DeleteIcon: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  GroupJob: {
-    height: "1px",
-    background:
-      theme.palette.type === "dark"
-        ? `linear-gradient(to right, ${yellow[600]} 30%, ${grey[800]} 60%)`
-        : `linear-gradient(to right, ${yellow[600]} 20%, white 60%)`,
-  },
-}));
 
 export function CompactGroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -60,7 +37,6 @@ export function CompactGroupJobCard({ group }) {
     }),
   }));
 
-  const classes = useStyles();
   const groupCardChecked = useMemo(
     () => multiSelectJobPlanner.includes(group.groupID),
     [multiSelectJobPlanner]
@@ -85,7 +61,12 @@ export function CompactGroupJobCard({ group }) {
       <Grid container item xs={12}>
         <Grid item xs={2} sm={1} align="center">
           <Checkbox
-            className={classes.Checkbox}
+            sx={{
+              color: (theme) =>
+                theme.palette.type === "dark"
+                  ? theme.palette.primary.main
+                  : theme.palette.secondary.main,
+            }}
             checked={groupCardChecked}
             onChange={(event) => {
               if (event.target.checked) {
@@ -118,7 +99,12 @@ export function CompactGroupJobCard({ group }) {
         </Grid>
         <Grid container item xs={1} align="center" alignItems="center">
           <IconButton
-            className={classes.DeleteIcon}
+            sx={{
+              color: (theme) =>
+                theme.palette.type === "dark"
+                  ? theme.palette.primary.main
+                  : theme.palette.secondary.main,
+            }}
             onClick={() => {
               deleteGroupWithoutJobs(group.groupID);
             }}
@@ -126,7 +112,17 @@ export function CompactGroupJobCard({ group }) {
             <DeleteIcon fontSize="small" />
           </IconButton>
         </Grid>
-        <Grid item xs={12} className={classes.GroupJob} />
+        <Grid
+          item
+          xs={12}
+          sx={{
+            height: "1px",
+            background: (theme) =>
+              theme.palette.type === "dark"
+                ? `linear-gradient(to right, ${yellow[600]} 30%, ${grey[800]} 60%)`
+                : `linear-gradient(to right, ${yellow[600]} 20%, white 60%)`,
+          }}
+        />
       </Grid>
     </Card>
   );

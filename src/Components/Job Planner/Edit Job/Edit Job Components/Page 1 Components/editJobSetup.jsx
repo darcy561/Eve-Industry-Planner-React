@@ -21,30 +21,9 @@ import {
   structureOptions,
 } from "../../../../../Context/defaultValues";
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
-import { makeStyles } from "@mui/styles";
 import { jobTypes } from "../../../../../Context/defaultValues";
 import systemIDS from "../../../../../RawData/systems.json";
 import { useUpdateJobSetups } from "../../../../../Hooks/GeneralHooks/useUpdateJobSetup";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  Autocomplete: {
-    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
-      color:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-      borderColor:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-    },
-  },
-}));
 
 export function EditJobSetup({
   setJobModified,
@@ -58,7 +37,6 @@ export function EditJobSetup({
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const { recalculateSetup } = useUpdateJobSetups();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
-  const classes = useStyles();
 
   let buildObject = useMemo(() => {
     return { ...activeJob.build.setup[setupToEdit] };
@@ -107,7 +85,6 @@ export function EditJobSetup({
               defaultValue={activeJob.build.setup[setupToEdit].runCount}
               size="small"
               variant="standard"
-              className={classes.TextField}
               helperText="Blueprint Runs"
               type="number"
               onBlur={(e) => {
@@ -122,7 +99,6 @@ export function EditJobSetup({
               defaultValue={activeJob.build.setup[setupToEdit].jobCount}
               size="small"
               variant="standard"
-              className={classes.TextField}
               helperText="Job Slots"
               type="number"
               onBlur={(e) => {
@@ -135,7 +111,7 @@ export function EditJobSetup({
           {activeJob.jobType === jobTypes.manufacturing && (
             <>
               <Grid item xs={6}>
-                <FormControl className={classes.TextField} fullWidth={true}>
+                <FormControl fullWidth={true}>
                   <Select
                     variant="standard"
                     size="small"
@@ -160,13 +136,13 @@ export function EditJobSetup({
                 </FormControl>
               </Grid>
               <Grid item xs={6}>
-                <FormControl className={classes.TextField} fullWidth={true}>
+                <FormControl fullWidth={true}>
                   <Select
                     variant="standard"
                     size="small"
                     value={activeJob.build.setup[setupToEdit].TE}
-                                      onChange={(e) => {
-                        console.log(e.target.value)
+                    onChange={(e) => {
+                      console.log(e.target.value);
                       buildObject.TE = e.target.value;
                       updateRecalculationTrigger(true);
                       setJobModified(true);
@@ -196,7 +172,7 @@ export function EditJobSetup({
           {isLoggedIn && (
             <>
               <Grid item xs={12}>
-                <FormControl className={classes.TextField} fullWidth={true}>
+                <FormControl fullWidth={true}>
                   <Select
                     variant="standard"
                     size="small"
@@ -244,7 +220,7 @@ export function EditJobSetup({
                 </FormControl>
               </Grid>
               <Grid item xs={12} xl={8}>
-                <FormControl className={classes.TextField} fullWidth={true}>
+                <FormControl fullWidth={true}>
                   <Select
                     variant="standard"
                     size="small"
@@ -323,7 +299,7 @@ function ManualStructureSelection({
           arrow
           placement="top"
         >
-          <FormControl className={classes.TextField} fullWidth={true}>
+          <FormControl fullWidth={true}>
             <Select
               variant="standard"
               size="small"
@@ -349,7 +325,7 @@ function ManualStructureSelection({
         </Tooltip>
       </Grid>
       <Grid item xs={6}>
-        <FormControl className={classes.TextField} fullWidth={true}>
+        <FormControl fullWidth={true}>
           <Select
             variant="standard"
             size="small"
@@ -372,7 +348,7 @@ function ManualStructureSelection({
         </FormControl>
       </Grid>
       <Grid item xs={6}>
-        <FormControl className={classes.TextField} fullWidth={true}>
+        <FormControl fullWidth={true}>
           <Select
             variant="standard"
             size="small"
@@ -395,7 +371,7 @@ function ManualStructureSelection({
         </FormControl>
       </Grid>
       <Grid item xs={6}>
-        <FormControl className={classes.TextField} fullWidth>
+        <FormControl fullWidth>
           <Autocomplete
             disableClearable
             fullWidth
@@ -415,7 +391,6 @@ function ManualStructureSelection({
               <TextField
                 {...params}
                 size="small"
-                className={classes.Autocomplete}
                 margin="none"
                 variant="standard"
                 style={{ borderRadius: "5px" }}

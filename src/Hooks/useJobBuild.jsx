@@ -514,6 +514,8 @@ export function useJobBuild() {
       typeMap[inputJobType]
     ].find((i) => i.default);
 
+
+
     if (!matchedStructure) return {};
 
     return {

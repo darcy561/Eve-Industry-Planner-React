@@ -25,18 +25,10 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
-import { makeStyles } from "@mui/styles";
 import { LinkedJobBadge } from "./Linked Job Badge";
 import { useDeleteSingleJob } from "../../../Hooks/JobHooks/useDeleteSingleJob";
 import { useCloseActiveJob } from "../../../Hooks/JobHooks/useCloseActiveJob";
 
-const useStyles = makeStyles((theme) => ({
-  Stepper: {
-    "& MuiStepIcon-text": {
-      fill: "#000",
-    },
-  },
-}));
 
 function EditJob({
   updateEditJobTrigger,
@@ -49,7 +41,6 @@ function EditJob({
   const { deleteSingleJob } = useDeleteSingleJob();
   const [jobModified, setJobModified] = useState(false);
 
-  const classes = useStyles();
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -203,7 +194,7 @@ function EditJob({
           <Stepper activeStep={activeJob.jobStatus} orientation="vertical">
             {jobStatus.map((status) => {
               return (
-                <Step className={classes.Stepper} key={status.id}>
+                <Step key={status.id}>
                   <StepLabel>{status.name}</StepLabel>
                   <StepContent>
                     <Divider />

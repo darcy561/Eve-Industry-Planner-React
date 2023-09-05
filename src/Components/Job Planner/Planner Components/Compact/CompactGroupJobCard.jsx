@@ -52,7 +52,7 @@ export function CompactGroupJobCard({ group }) {
         cursor: "grab",
         backgroundColor: (theme) =>
           groupCardChecked || isDragging
-            ? theme.palette.type !== "dark"
+            ? theme.palette.mode !== "dark"
               ? grey[300]
               : grey[900]
             : "none",
@@ -63,7 +63,7 @@ export function CompactGroupJobCard({ group }) {
           <Checkbox
             sx={{
               color: (theme) =>
-                theme.palette.type === "dark"
+                theme.palette.mode === "dark"
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}
@@ -101,7 +101,7 @@ export function CompactGroupJobCard({ group }) {
           <IconButton
             sx={{
               color: (theme) =>
-                theme.palette.type === "dark"
+                theme.palette.mode === "dark"
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}
@@ -118,7 +118,7 @@ export function CompactGroupJobCard({ group }) {
           sx={{
             height: "1px",
             background: (theme) =>
-              theme.palette.type === "dark"
+              theme.palette.mode === "dark"
                 ? `linear-gradient(to right, ${yellow[600]} 30%, ${grey[800]} 60%)`
                 : `linear-gradient(to right, ${yellow[600]} 20%, white 60%)`,
           }}

@@ -22,7 +22,7 @@ import {
 import { useBlueprintCalc } from "../../../../Hooks/useBlueprintCalc";
 import { jobTypes } from "../../../../Context/defaultValues";
 import systemIDS from "../../../../RawData/systems.json";
-import { useUpdateJobSetups } from "../../../../Hooks/GeneralHooks/useUpdateJobSetup";
+import { useSetupManagement } from "../../../../Hooks/GeneralHooks/useSetupManagement";
 
 export function EditJobSetup({
   activeJob,
@@ -35,7 +35,7 @@ export function EditJobSetup({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const [recalculationTrigger, updateRecalculationTrigger] = useState(false);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
-  const { recalculateSetup } = useUpdateJobSetups();
+  const { recalculateSetup } = useSetupManagement();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   let buildObject = useMemo(() => {
@@ -50,7 +50,7 @@ export function EditJobSetup({
   useEffect(() => {
     if (recalculationTrigger) {
       const { jobSetups, newMaterialArray, newTotalProduced } =
-        recalculateSetup(buildObject);
+        recalculateSetup(buildObject, activeJob);
 
       updateActiveJob((prev) => ({
         ...prev,
@@ -498,7 +498,6 @@ function ManualStructureSelection({
             options={systemIDS}
             getOptionLabel={(option) => option.name}
             onChange={(event, value) => {
-              console.log(event);
               buildObject.systemID = Number(value.id);
               updateRecalculationTrigger(true);
               setJobModified(true);
@@ -511,17 +510,6 @@ function ManualStructureSelection({
                 variant="standard"
                 sx={{
                   borderRadius: "5px",
-                  "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot":
-                    {
-                      color: (theme) =>
-                        theme.palette.type === "dark"
-                          ? "black"
-                          : theme.palette.secondary.main,
-                      borderColor: (theme) =>
-                        theme.palette.type === "dark"
-                          ? "black"
-                          : theme.palette.secondary.main,
-                    },
                 }}
                 InputProps={{
                   ...params.InputProps,

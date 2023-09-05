@@ -23,13 +23,13 @@ import GroupInfoPopout from "./GroupInfoBadge";
 
 function getCardColor(theme, jobType) {
   if (jobType === jobTypes.manufacturing) {
-    if (theme.pallete.type === "dark") {
+    if (theme.palette.mode === "dark") {
       return `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`;
     } else
       return `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`;
   }
   if (jobType === jobTypes.reaction) {
-    if (theme.palette.type === "dark") {
+    if (theme.palette.mode === "dark") {
       return `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`;
     } else
       return `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
@@ -74,7 +74,7 @@ export function CompactGroupJobCardFrame({ job }) {
         cursor: "grab",
         backgroundColor: (theme) =>
           jobCardChecked || isDragging
-            ? theme.palette.type !== "dark"
+            ? theme.palette.mode !== "dark"
               ? grey[300]
               : grey[900]
             : "none",
@@ -85,7 +85,7 @@ export function CompactGroupJobCardFrame({ job }) {
           <Checkbox
             sx={{
               color: (theme) =>
-                theme.palette.type === "dark"
+                theme.palette.mode === "dark"
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}
@@ -132,7 +132,7 @@ export function CompactGroupJobCardFrame({ job }) {
           <IconButton
             sx={{
               color: (theme) =>
-                theme.palette.type === "dark"
+                theme.palette.mode === "dark"
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}

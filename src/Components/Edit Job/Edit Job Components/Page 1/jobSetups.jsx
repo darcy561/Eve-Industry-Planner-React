@@ -15,8 +15,11 @@ import { ActiveJobContext } from "../../../../Context/JobContext";
 import { structureOptions } from "../../../../Context/defaultValues";
 import { jobTypes } from "../../../../Context/defaultValues";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 import { UsersContext } from "../../../../Context/AuthContext";
 import rawSystemData from "../../../../RawData/systems.json";
+import { useJobBuild } from "../../../../Hooks/useJobBuild";
+import { useSetupManagement } from "../../../../Hooks/GeneralHooks/useSetupManagement";
 
 export function JobSetupPanel({
   activeJob,
@@ -26,6 +29,7 @@ export function JobSetupPanel({
   updateSetupToEdit,
 }) {
   const { users } = useContext(UsersContext);
+  const { addNewSetup } = useSetupManagement();
 
   return (
     <Paper
@@ -37,6 +41,25 @@ export function JobSetupPanel({
       elevation={3}
       square
     >
+      <IconButton
+        sx={{ position: "absolute", top: "10px", right: "10px" }}
+        color="primary"
+        onClick={() => {
+          const  newSetups = addNewSetup(activeJob)
+          updateActiveJob((prev) => ({
+            ...prev,
+            build: {
+              ...prev.build,
+              setup: {
+                ...prev.build.setup,
+                ...newSetups
+              }
+            }
+          }))
+        }}
+      >
+        <AddIcon />
+      </IconButton>
       <Grid container>
         <Grid item xs={12}>
           <Typography variant="h6" align="center" color="primary">
@@ -49,9 +72,8 @@ export function JobSetupPanel({
               users.find(
                 (i) => i.CharacterHash === setupEntry.selectedCharacter
               )?.CharacterName || "No Matching Character Found";
-            console.log(setupEntry);
             return (
-              <Grid container item xs={6} sm={4} lg={3}>
+              <Grid container item xs={6} sm={4}>
                 <Card elevation={3} square sx={{ minWidth: "100%" }}>
                   <CardActionArea
                     onClick={() => updateSetupToEdit(setupEntry.id)}
@@ -61,10 +83,23 @@ export function JobSetupPanel({
                         {jobTypes.manufacturing === setupEntry.jobType && (
                           <>
                             <Grid item xs={3}>
-                              <Typography> ME: {setupEntry.ME}</Typography>
+                              <Typography
+                                sx={{
+                                  typography: { xs: "caption", sm: "body2" },
+                                }}
+                              >
+                                {" "}
+                                ME: {setupEntry.ME}
+                              </Typography>
                             </Grid>
                             <Grid item xs={3}>
-                              <Typography>TE: {setupEntry.TE * 2}</Typography>
+                              <Typography
+                                sx={{
+                                  typography: { xs: "caption", sm: "body2" },
+                                }}
+                              >
+                                TE: {setupEntry.TE * 2}
+                              </Typography>
                             </Grid>
                           </>
                         )}
@@ -76,7 +111,11 @@ export function JobSetupPanel({
                               : 6
                           }
                         >
-                          <Typography>Runs: {setupEntry.runCount}</Typography>
+                          <Typography
+                            sx={{ typography: { xs: "caption", sm: "body2" } }}
+                          >
+                            Runs: {setupEntry.runCount}
+                          </Typography>
                         </Grid>
                         <Grid
                           item
@@ -86,10 +125,17 @@ export function JobSetupPanel({
                               : 6
                           }
                         >
-                          <Typography>Jobs: {setupEntry.jobCount}</Typography>
+                          <Typography
+                            sx={{ typography: { xs: "caption", sm: "body2" } }}
+                          >
+                            Jobs: {setupEntry.jobCount}
+                          </Typography>
                         </Grid>
                         <Grid item xs={12}>
-                          <Typography align="center">
+                          <Typography
+                            align="center"
+                            sx={{ typography: { xs: "caption", sm: "body2" } }}
+                          >
                             {assignedCharacterName}
                           </Typography>
                         </Grid>
@@ -111,7 +157,12 @@ export function JobSetupPanel({
                           placement="bottom"
                         >
                           <Grid item xs={12}>
-                            <Typography align="center">
+                            <Typography
+                              align="center"
+                              sx={{
+                                typography: { xs: "caption", sm: "body2" },
+                              }}
+                            >
                               Est Total Install Costs:{" "}
                               {(
                                 setupEntry.estimatedInstallCost *
@@ -129,8 +180,10 @@ export function JobSetupPanel({
                         xs={12}
                         sx={{
                           height: "1px",
-                          backgroundColor:
-                            setupEntry.id === setupToEdit ? "blue" : null,
+                          backgroundColor: (theme) =>
+                            setupEntry.id === setupToEdit
+                              ? theme.palette.primary.main
+                              : null,
                         }}
                       />
                     </CardContent>
@@ -160,7 +213,7 @@ function UseCustomStructure({ setupEntry }) {
       (i) => i.id === setupEntry.customStructureID
     ) || null;
   return (
-    <Grid item xs={12}>
+    <Grid item xs={12} sx={{ typography: { xs: "caption", sm: "body2" } }}>
       <Typography align="center">{assignedStructureData.name}</Typography>
     </Grid>
   );
@@ -192,19 +245,44 @@ function UseDefaultStructures({ setupEntry }) {
   return (
     <Grid container item xs={12}>
       <Grid item xs={4}>
-        <Typography align="center">{systemTypeData.label}</Typography>
+        <Typography
+          align="center"
+          sx={{ typography: { xs: "caption", sm: "body2" } }}
+        >
+          {systemTypeData.label}
+        </Typography>
       </Grid>
       <Grid item xs={4}>
-        <Typography align="center">{structureTypeData.label}</Typography>
+        <Typography
+          align="center"
+          sx={{ typography: { xs: "caption", sm: "body2" } }}
+        >
+          {structureTypeData.label}
+        </Typography>
       </Grid>
       <Grid item xs={4}>
-        <Typography align="center">{rigTypeData.label}</Typography>
+        <Typography
+          align="center"
+          sx={{ typography: { xs: "caption", sm: "body2" } }}
+        >
+          {rigTypeData.label}
+        </Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography align="center">{matchedSystemID}</Typography>
+        <Typography
+          align="center"
+          sx={{ typography: { xs: "caption", sm: "body2" } }}
+        >
+          {matchedSystemID}
+        </Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography align="center">Tax: {setupEntry.taxValue}%</Typography>
+        <Typography
+          align="center"
+          sx={{ typography: { xs: "caption", sm: "body2" } }}
+        >
+          Tax: {setupEntry.taxValue}%
+        </Typography>
       </Grid>
     </Grid>
   );

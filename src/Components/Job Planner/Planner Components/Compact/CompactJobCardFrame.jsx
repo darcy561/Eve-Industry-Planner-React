@@ -27,7 +27,7 @@ function getCardColor(theme, jobType) {
       return `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`;
   }
   if (jobType === jobTypes.reaction) {
-    if (theme.palette.type === "dark") {
+    if (theme.palette.mode === "dark") {
       return `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`;
     } else
       return `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
@@ -69,7 +69,7 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
         cursor: "grab",
         backgroundColor: (theme) =>
           jobCardChecked || isDragging
-            ? theme.palette.type !== "dark"
+            ? theme.palette.mode !== "dark"
               ? grey[300]
               : grey[900]
             : "none",
@@ -81,7 +81,7 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
             checked={jobCardChecked}
             sx={{
               color: (theme) =>
-                theme.palette.type === "dark"
+                theme.palette.mode === "dark"
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}
@@ -128,7 +128,7 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
           <IconButton
             sx={{
               color: (theme) =>
-                theme.palette.type === "dark"
+                theme.palette.mode === "dark"
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}

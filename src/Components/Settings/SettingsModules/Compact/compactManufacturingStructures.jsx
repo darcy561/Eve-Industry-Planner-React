@@ -296,11 +296,11 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                               size="small"
                               sx={{
                                 color: (theme) =>
-                                  theme.palette.type === "dark"
+                                  theme.palette.mode === "dark"
                                     ? "black"
                                     : theme.palette.secondary.main,
                                 borderColor: (theme) =>
-                                  theme.palette.type === "dark"
+                                  theme.palette.mode === "dark"
                                     ? "black"
                                     : theme.palette.secondary.main,
                               }}

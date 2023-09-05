@@ -559,10 +559,15 @@ export function useJobBuild() {
   }
 
   return {
+    addDefaultStructure_New,
+    addItemBlueprint_New,
     buildJob,
+    buildSetupOptions,
+    buildNewSetupObject,
     checkAllowBuild,
     jobBuildErrors,
     recalculateItemQty,
     recalculateItemQty_New,
+
   };
 }

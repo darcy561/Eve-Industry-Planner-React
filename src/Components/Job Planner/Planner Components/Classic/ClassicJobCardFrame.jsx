@@ -75,7 +75,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
             height: "100%",
             backgroundColor: (theme) =>
               jobCardChecked || isDragging
-                ? theme.palette.type !== "dark"
+                ? theme.palette.mode !== "dark"
                   ? grey[300]
                   : grey[900]
                 : "none",
@@ -90,7 +90,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
                   checked={jobCardChecked}
                   sx={{
                     color: (theme) =>
-                      theme.palette.type === "dark"
+                      theme.palette.mode === "dark"
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}
@@ -113,7 +113,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
                   disabled={job.isLocked}
                   sx={{
                     color: (theme) =>
-                      theme.palette.type === "dark"
+                      theme.palette.mode === "dark"
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}

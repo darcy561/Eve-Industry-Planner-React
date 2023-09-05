@@ -54,7 +54,7 @@ export function ClassicGroupJobCard({ group }) {
             height: "100%",
             backgroundColor: (theme) =>
               groupCardChecked || isDragging
-                ? theme.palette.type !== "dark"
+                ? theme.palette.mode !== "dark"
                   ? grey[300]
                   : grey[900]
                 : "none",
@@ -67,7 +67,7 @@ export function ClassicGroupJobCard({ group }) {
                 <Checkbox
                   sx={{
                     color: (theme) =>
-                      theme.palette.type === "dark"
+                      theme.palette.mode === "dark"
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}
@@ -90,7 +90,7 @@ export function ClassicGroupJobCard({ group }) {
                 <IconButton
                   sx={{
                     color: (theme) =>
-                      theme.palette.type === "dark"
+                      theme.palette.mode === "dark"
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}

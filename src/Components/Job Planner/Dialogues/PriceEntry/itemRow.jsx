@@ -144,7 +144,7 @@ export function ItemPriceRow({
             size="small"
             sx={{
               color: (theme) =>
-                theme.palette.type === "dark"
+                theme.palette.mode === "dark"
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}

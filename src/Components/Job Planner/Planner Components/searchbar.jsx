@@ -84,20 +84,6 @@ export function SearchBar({
                   size="small"
                   margin="none"
                   variant="standard"
-                  sx={{
-                    borderRadius: "5px",
-                    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot":
-                      {
-                        color: (theme) =>
-                          theme.palette.type === "dark"
-                            ? "black"
-                            : theme.palette.secondary.main,
-                        borderColor: (theme) =>
-                          theme.palette.type === "dark"
-                            ? "black"
-                            : theme.palette.secondary.main,
-                      },
-                  }}
                   InputProps={{ ...params.InputProps, type: "search" }}
                 />
               )}
@@ -123,7 +109,7 @@ export function SearchBar({
                   checked={sisiDataFiles}
                   sx={{
                     color: (theme) =>
-                      theme.palette.type === "dark"
+                      theme.palette.mode === "dark"
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}

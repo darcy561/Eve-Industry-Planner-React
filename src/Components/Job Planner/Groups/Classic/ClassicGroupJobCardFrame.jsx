@@ -83,7 +83,7 @@ export function ClassicGroupJobCardFrame({ job }) {
             height: "100%",
             backgroundColor: (theme) =>
               jobCardChecked || isDragging
-                ? theme.palette.type !== "dark"
+                ? theme.palette.mode !== "dark"
                   ? grey[300]
                   : grey[900]
                 : "none",
@@ -97,9 +97,9 @@ export function ClassicGroupJobCardFrame({ job }) {
                   disabled={job.isLocked}
                   sx={{
                     color: (theme) =>
-                      theme.palette.type === "dark"
+                      theme.palette.mode === "dark"
                         ? theme.palette.primary.main
-                        : theme.palette.secondary.main,
+                        : theme.palette.secondary.main, 
                   }}
                   checked={jobCardChecked}
                   onChange={(event) => {
@@ -123,7 +123,7 @@ export function ClassicGroupJobCardFrame({ job }) {
                   disabled={job.isLocked}
                   sx={{
                     color: (theme) =>
-                      theme.palette.type === "dark"
+                      theme.palette.mode === "dark"
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}

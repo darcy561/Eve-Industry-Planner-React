@@ -70,7 +70,7 @@ export function WatchlistGroup({
                 variant="h6"
                 sx={{
                   color: (theme) =>
-                    theme.palette.type === "dark"
+                    theme.palette.mode === "dark"
                       ? "secondary"
                       : theme.palette.primary.main,
                 }}

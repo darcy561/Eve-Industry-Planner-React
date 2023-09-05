@@ -303,16 +303,6 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
                             <TextField
                               {...params}
                               size="small"
-                              sx={{
-                                color: (theme) =>
-                                  theme.palette.type === "dark"
-                                    ? "black"
-                                    : theme.palette.secondary.main,
-                                borderColor: (theme) =>
-                                  theme.palette.type === "dark"
-                                    ? "black"
-                                    : theme.palette.secondary.main,
-                              }}
                               margin="none"
                               variant="standard"
                               style={{ borderRadius: "5px" }}

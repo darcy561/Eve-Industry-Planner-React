@@ -144,7 +144,7 @@ export function FeedbackIcon() {
                 sx={{
                   marginRight: { xs: "20px", sm: "60px" },
                   color: (theme) =>
-                    theme.palette.type === "dark"
+                    theme.palette.mode === "dark"
                       ? theme.palette.primary.main
                       : theme.palette.secondary.main,
                 }}

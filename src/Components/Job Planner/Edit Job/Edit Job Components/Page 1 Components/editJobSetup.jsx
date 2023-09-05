@@ -23,7 +23,7 @@ import {
 import { useBlueprintCalc } from "../../../../../Hooks/useBlueprintCalc";
 import { jobTypes } from "../../../../../Context/defaultValues";
 import systemIDS from "../../../../../RawData/systems.json";
-import { useUpdateJobSetups } from "../../../../../Hooks/GeneralHooks/useUpdateJobSetup";
+import { useSetupManagement } from "../../../../../Hooks/GeneralHooks/useSetupManagement";
 
 export function EditJobSetup({
   setJobModified,
@@ -35,7 +35,7 @@ export function EditJobSetup({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const [recalculationTrigger, updateRecalculationTrigger] = useState(false);
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
-  const { recalculateSetup } = useUpdateJobSetups();
+  const { recalculateSetup } = useSetupManagement();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   let buildObject = useMemo(() => {
@@ -50,7 +50,7 @@ export function EditJobSetup({
   useEffect(() => {
     if (recalculationTrigger) {
       const { jobSetups, newMaterialArray, newTotalProduced } =
-        recalculateSetup(buildObject);
+        recalculateSetup(buildObject, activeJob);
 
       updateActiveJob((prev) => ({
         ...prev,

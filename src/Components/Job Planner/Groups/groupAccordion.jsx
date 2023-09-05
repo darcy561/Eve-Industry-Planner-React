@@ -84,12 +84,12 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
               ...(canDrop &&
                 !isOver && {
                   backgroundColor: (theme) =>
-                    theme.palette.type !== "dark" ? grey[400] : grey[700],
+                    theme.palette.mode !== "dark" ? grey[400] : grey[700],
                 }),
               ...(canDrop &&
                 isOver && {
                   backgroundColor: (theme) =>
-                    theme.palette.type !== "dark" ? grey[600] : grey[600],
+                    theme.palette.mode !== "dark" ? grey[600] : grey[600],
                 }),
             }}
           >
@@ -132,7 +132,7 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
                     variant="h4"
                     sx={{
                       color: (theme) =>
-                        theme.palette.type === "dark"
+                        theme.palette.mode === "dark"
                           ? "secondary"
                           : theme.palette.primary.main,
                     }}

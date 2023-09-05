@@ -20,12 +20,12 @@ export function MassBuildFeedback() {
             zIndex: "2",
             boxShadow: 5,
             backgroundColor: (theme) =>
-              theme.palette.type === "dark" ? grey[800] : "white",
+              theme.palette.mode === "dark" ? grey[800] : "white",
             borderStyle: "solid",
             borderRightStyle: { xs: "solid", sm: "none" },
             borderWidth: "1px",
             borderColor: (theme) =>
-              theme.palette.type === "dark"
+              theme.palette.mode === "dark"
                 ? grey[900]
                 : theme.palette.secondary.main,
           }}

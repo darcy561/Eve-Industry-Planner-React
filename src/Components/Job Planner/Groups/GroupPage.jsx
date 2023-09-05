@@ -205,19 +205,6 @@ export default function GroupPage({
                   {...params}
                   size="small"
                   label="Item Search"
-                  sx={{
-                    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot":
-                      {
-                        color: (theme) =>
-                          theme.palette.type === "dark"
-                            ? "black"
-                            : theme.palette.secondary.main,
-                        borderColor: (theme) =>
-                          theme.palette.type === "dark"
-                            ? "black"
-                            : theme.palette.secondary.main,
-                      },
-                  }}
                   margin="none"
                   variant="standard"
                   style={{ borderRadius: "5px" }}

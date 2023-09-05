@@ -39,7 +39,7 @@ export default function App() {
     palette: {
       ...(mode !== SECONDARY_THEME
         ? {
-            type: PRIMARY_THEME,
+            mode: PRIMARY_THEME,
             primary: {
               main: blue[600],
             },
@@ -74,7 +74,7 @@ export default function App() {
             divider: grey[700],
           }
         : {
-            type: SECONDARY_THEME,
+            mode: SECONDARY_THEME,
             primary: {
               main: blue[600],
             },
@@ -100,7 +100,10 @@ export default function App() {
     },
   });
 
-  const theme = useMemo(() => responsiveFontSizes(createTheme(getDesignTokens(mode))), [mode]);
+  const theme = useMemo(
+    () => responsiveFontSizes(createTheme(getDesignTokens(mode))),
+    [mode]
+  );
 
   return (
     <ThemeProvider theme={theme}>

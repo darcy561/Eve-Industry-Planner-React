@@ -26,6 +26,7 @@ import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
 import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
+import GLOBAL_CONFIG from "../../../global-config-app";
 
 export function SearchBar({
   updateShoppingListTrigger,
@@ -51,6 +52,7 @@ export function SearchBar({
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { createNewGroupWithJobs } = useGroupManagement();
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   return (
     <Paper
@@ -109,7 +111,7 @@ export function SearchBar({
                   checked={sisiDataFiles}
                   sx={{
                     color: (theme) =>
-                      theme.palette.mode === "dark"
+                      theme.palette.mode === PRIMARY_THEME
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}

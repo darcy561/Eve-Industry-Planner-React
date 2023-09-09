@@ -26,6 +26,7 @@ import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 function DisplaySwitch({ job }) {
   switch (job.jobStatus) {
@@ -63,7 +64,8 @@ export function ClassicGroupJobCardFrame({ job }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-
+  const { PRIMARY_THEME } = GLOBAL_CONFIG
+  
   const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
@@ -97,7 +99,7 @@ export function ClassicGroupJobCardFrame({ job }) {
                   disabled={job.isLocked}
                   sx={{
                     color: (theme) =>
-                      theme.palette.mode === "dark"
+                      theme.palette.mode === PRIMARY_THEME
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main, 
                   }}
@@ -123,7 +125,7 @@ export function ClassicGroupJobCardFrame({ job }) {
                   disabled={job.isLocked}
                   sx={{
                     color: (theme) =>
-                      theme.palette.mode === "dark"
+                      theme.palette.mode === PRIMARY_THEME
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}

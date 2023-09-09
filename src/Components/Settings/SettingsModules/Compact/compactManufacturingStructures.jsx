@@ -27,6 +27,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import uuid from "react-uuid";
 import systemIDS from "../../../../RawData/systems.json";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function CompactManufacturingStrutures({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
@@ -44,6 +45,7 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
   const [taxValue, updateTaxValue] = useState(null);
   const [systemIDValue, updateSystemIDValue] = useState(null);
   const analytics = getAnalytics();
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -296,11 +298,11 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                               size="small"
                               sx={{
                                 color: (theme) =>
-                                  theme.palette.mode === "dark"
+                                  theme.palette.mode === PRIMARY_THEME
                                     ? "black"
                                     : theme.palette.secondary.main,
                                 borderColor: (theme) =>
-                                  theme.palette.mode === "dark"
+                                  theme.palette.mode === PRIMARY_THEME
                                     ? "black"
                                     : theme.palette.secondary.main,
                               }}

@@ -3,12 +3,14 @@ import { Grid, Paper, Typography, Checkbox } from "@mui/material";
 import { UsersContext } from "../../../Context/AuthContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
+import GLOBAL_CONFIG from "../../../global-config-app";
 
 export function TutorialDashboard() {
   const { users, updateUsers } = useContext(UsersContext);
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   if (!parentUser.settings.layout.hideTutorials && !userDataFetch) {
     return (
@@ -47,7 +49,7 @@ export function TutorialDashboard() {
                 <Checkbox
                   sx={{
                     color: (theme) =>
-                      theme.palette.mode === "dark"
+                      theme.palette.mode === PRIMARY_THEME
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}

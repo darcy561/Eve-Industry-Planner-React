@@ -9,7 +9,7 @@ exports.GLOBAL_CONFIG = {
   //App Version
   //This must match the app version found in the package.json file of the web application.
   //(String)
-  APP_VERSION: "0.6.1",
+  APP_VERSION: "0.6.2",
 
   // Max number of ESI pages to query.
   //(Int)
@@ -33,7 +33,7 @@ exports.GLOBAL_CONFIG = {
   //Number of items that are refreshed at a time.
   //(Int)
   //Default: 150
-  DEFAULT_ITEM_MARKET_REFRESH_QUANTITY: 150,
+  DEFAULT_ITEM_MARKET_REFRESH_QUANTITY: 50,
 
   //Number of hours between updates to item history data.
   //(Int)

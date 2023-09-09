@@ -3,6 +3,7 @@ import { Grid, Paper, Typography, Checkbox } from "@mui/material";
 import { IsLoggedInContext, UsersContext } from "../../../Context/AuthContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
+import GLOBAL_CONFIG from "../../../global-config-app";
 
 export function TutorialPlanner() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -10,6 +11,7 @@ export function TutorialPlanner() {
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
 
   if (!parentUser.settings.layout.hideTutorials && !userDataFetch) {
     return (
@@ -69,7 +71,7 @@ export function TutorialPlanner() {
                     size="small"
                     sx={{
                       color: (theme) =>
-                        theme.palette.mode === "dark"
+                        theme.palette.mode === PRIMARY_THEME
                           ? theme.palette.primary.main
                           : theme.palette.secondary.main,
                     }}

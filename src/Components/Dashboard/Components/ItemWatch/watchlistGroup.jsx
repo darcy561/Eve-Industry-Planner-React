@@ -14,6 +14,7 @@ import { WatchListRow } from "./ItemRow";
 import { useContext, useState } from "react";
 import { UserWatchlistContext } from "../../../../Context/AuthContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function WatchlistGroup({
   group,
@@ -26,6 +27,7 @@ export function WatchlistGroup({
     useContext(UserWatchlistContext);
   const { uploadUserWatchlist } = useFirebase();
   const [expandGroup, updateExpandGroup] = useState(group.expanded);
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   return (
     <Grid item xs={12}>
@@ -70,7 +72,7 @@ export function WatchlistGroup({
                 variant="h6"
                 sx={{
                   color: (theme) =>
-                    theme.palette.mode === "dark"
+                    theme.palette.mode === PRIMARY_THEME
                       ? "secondary"
                       : theme.palette.primary.main,
                 }}

@@ -20,21 +20,7 @@ import {
 } from "@mui/material";
 import { deepPurple, grey, lightGreen } from "@mui/material/colors";
 import GroupInfoPopout from "./GroupInfoBadge";
-
-function getCardColor(theme, jobType) {
-  if (jobType === jobTypes.manufacturing) {
-    if (theme.palette.mode === "dark") {
-      return `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`;
-    } else
-      return `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`;
-  }
-  if (jobType === jobTypes.reaction) {
-    if (theme.palette.mode === "dark") {
-      return `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`;
-    } else
-      return `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
-  }
-}
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function CompactGroupJobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -55,6 +41,7 @@ export function CompactGroupJobCardFrame({ job }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
   const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
@@ -62,6 +49,21 @@ export function CompactGroupJobCardFrame({ job }) {
   const jobMarkedAsCompelte = useMemo(() => {
     return activeGroup.areComplete.includes(job.jobID);
   }, [activeGroup]);
+
+  function getCardColor(theme, jobType) {
+    if (jobType === jobTypes.manufacturing) {
+      if (theme.palette.mode === PRIMARY_THEME) {
+        return `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`;
+      } else
+        return `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`;
+    }
+    if (jobType === jobTypes.reaction) {
+      if (theme.palette.mode === PRIMARY_THEME) {
+        return `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`;
+      } else
+        return `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
+    }
+  }
 
   return (
     <Card
@@ -85,7 +87,7 @@ export function CompactGroupJobCardFrame({ job }) {
           <Checkbox
             sx={{
               color: (theme) =>
-                theme.palette.mode === "dark"
+                theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}
@@ -132,7 +134,7 @@ export function CompactGroupJobCardFrame({ job }) {
           <IconButton
             sx={{
               color: (theme) =>
-                theme.palette.mode === "dark"
+                theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}

@@ -72,7 +72,6 @@ export function SideMenu({ open, setOpen }) {
           {isLoggedIn && (
             <>
               <Divider />
-              <Link>
                 <ListItem
                   button
                   onClick={() => {
@@ -82,7 +81,6 @@ export function SideMenu({ open, setOpen }) {
                 >
                   <ListItemText primary={"Asset Library"} />
                 </ListItem>
-              </Link>
             </>
           )}
           <Divider />

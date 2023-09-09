@@ -18,21 +18,9 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
-function getCardColor(theme, jobType) {
-  if (jobType === jobTypes.manufacturing) {
-    if (theme.pallete.type === "dark") {
-      return `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`;
-    } else
-      return `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`;
-  }
-  if (jobType === jobTypes.reaction) {
-    if (theme.palette.mode === "dark") {
-      return `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`;
-    } else
-      return `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
-  }
-}
+
 
 export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -51,12 +39,28 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
 
   const jobCardChecked = useMemo(
     () => multiSelectJobPlanner.some((i) => i === job.jobID),
     [multiSelectJobPlanner]
   );
   const navigate = useNavigate();
+
+  function getCardColor(theme, jobType) {
+    if (jobType === jobTypes.manufacturing) {
+      if (theme.palette.mode === PRIMARY_THEME) {
+        return `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`;
+      } else
+        return `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`;
+    }
+    if (jobType === jobTypes.reaction) {
+      if (theme.palette.mode === PRIMARY_THEME) {
+        return `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`;
+      } else
+        return `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
+    }
+  }
 
   return (
     <Card
@@ -81,7 +85,7 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
             checked={jobCardChecked}
             sx={{
               color: (theme) =>
-                theme.palette.mode === "dark"
+                theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}
@@ -128,7 +132,7 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
           <IconButton
             sx={{
               color: (theme) =>
-                theme.palette.mode === "dark"
+                theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}

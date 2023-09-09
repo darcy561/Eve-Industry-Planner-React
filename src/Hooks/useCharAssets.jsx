@@ -3,33 +3,22 @@ import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
 import { EveIDsContext } from "../Context/EveDataContext";
 import { useEveApi } from "./useEveApi";
 import searchData from "../RawData/searchIndex.json";
+import { useAssetHelperHooks } from "./AssetHooks/useAssetHelper";
 
 export function useCharAssets() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
   const { eveIDs } = useContext(EveIDsContext);
   const { IDtoName } = useEveApi();
+  const {
+    acceptedDirectLocationTypes,
+    acceptedExtendedLocationTypes,
+    acceptedLocationFlags,
+    retrieveAssetLocation
+  } = useAssetHelperHooks();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
-  const acceptedDirectLocationTypes = new Set(["station", "solar_system"]);
-  const acceptedExtendedLocationTypes = new Set(["item", "other"]);
 
-  const acceptedLocationFlags = new Set(["Hangar", "Unlocked", "AutoFit"]);
-
-  const retrieveAssetLocation = (initialAsset, userAssets) => {
-    let parentAsset = userAssets.find(
-      (i) => i.item_id === initialAsset.location_id
-    );
-    if (!parentAsset) {
-      return initialAsset;
-    }
-    if (acceptedExtendedLocationTypes.has(parentAsset.location_type)) {
-      return retrieveAssetLocation(parentAsset, userAssets);
-    }
-    if (acceptedDirectLocationTypes.has(parentAsset.location_type)) {
-      return parentAsset;
-    }
-  };
 
   const getAssetLocationList = async () => {
     let itemLocations = [];
@@ -208,9 +197,6 @@ export function useCharAssets() {
           if (item.location_id !== requiredLocationID) {
             continue;
           }
-          if (searchData.some((i) => i.blueprintID === item.type_id)) {
-            continue;
-          }
           if (locationAssets.some((i) => i.type_id === item.type_id)) {
             let index = locationAssets.findIndex(
               (i) => i.type_id === item.type_id
@@ -234,7 +220,7 @@ export function useCharAssets() {
           if (item.location_id !== requiredLocationID) {
             if (parentLocation.location_id !== requiredLocationID) {
               continue;
-            }
+            } 
           }
           if (
             parentLocation.item_id === item.location_id ||

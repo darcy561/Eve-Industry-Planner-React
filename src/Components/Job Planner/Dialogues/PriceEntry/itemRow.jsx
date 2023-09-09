@@ -9,6 +9,7 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
 import { PriceEntryListContext } from "../../../../Context/LayoutContext";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function ItemPriceRow({
   item,
@@ -24,6 +25,8 @@ export function ItemPriceRow({
     PriceEntryListContext
   );
   const { evePrices } = useContext(EvePricesContext);
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
+
   let materialPrice = evePrices.find((i) => i.typeID === item.typeID);
 
   if (materialPrice === undefined) {
@@ -144,7 +147,7 @@ export function ItemPriceRow({
             size="small"
             sx={{
               color: (theme) =>
-                theme.palette.mode === "dark"
+                theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}

@@ -17,6 +17,7 @@ import {
 import { grey, yellow } from "@mui/material/colors";
 import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
 import { useGroupManagement } from "../../../../Hooks/useGroupManagement";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function CompactGroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -36,6 +37,7 @@ export function CompactGroupJobCard({ group }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
 
   const groupCardChecked = useMemo(
     () => multiSelectJobPlanner.includes(group.groupID),
@@ -63,7 +65,7 @@ export function CompactGroupJobCard({ group }) {
           <Checkbox
             sx={{
               color: (theme) =>
-                theme.palette.mode === "dark"
+                theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}
@@ -101,7 +103,7 @@ export function CompactGroupJobCard({ group }) {
           <IconButton
             sx={{
               color: (theme) =>
-                theme.palette.mode === "dark"
+                theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}
@@ -118,7 +120,7 @@ export function CompactGroupJobCard({ group }) {
           sx={{
             height: "1px",
             background: (theme) =>
-              theme.palette.mode === "dark"
+              theme.palette.mode === PRIMARY_THEME
                 ? `linear-gradient(to right, ${yellow[600]} 30%, ${grey[800]} 60%)`
                 : `linear-gradient(to right, ${yellow[600]} 20%, white 60%)`,
           }}

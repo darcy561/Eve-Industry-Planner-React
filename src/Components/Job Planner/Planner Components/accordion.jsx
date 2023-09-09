@@ -26,6 +26,7 @@ import { useDnD } from "../../../Hooks/useDnD";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { grey } from "@mui/material/colors";
 import { CompactAccordionContents } from "./Compact/compactContents";
+import GLOBAL_CONFIG from "../../../global-config-app";
 
 export function PlannerAccordion({ updateEditJobTrigger }) {
   const { users } = useContext(UsersContext);
@@ -36,7 +37,6 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-
   const [statusSettingsTrigger, updateStatusSettingsTrigger] = useState(false);
   const [statusData, updateStatusData] = useState({
     id: 0,
@@ -47,6 +47,7 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
     completeAPIJobs: false,
   });
   const { canDropCard, recieveJobCardToStage } = useDnD();
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -136,7 +137,7 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
                     variant="h4"
                     sx={{
                       color: (theme) =>
-                        theme.palette.mode === "dark"
+                        theme.palette.mode === PRIMARY_THEME
                           ? "secondary"
                           : theme.palette.primary.main,
                     }}

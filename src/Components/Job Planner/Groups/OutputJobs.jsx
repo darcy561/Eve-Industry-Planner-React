@@ -19,6 +19,7 @@ import { ActiveJobContext } from "../../../Context/JobContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useOpenEditJob } from "../../../Hooks/JobHooks/useOpenEditJob";
 import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
+import GLOBAL_CONFIG from "../../../global-config-app";
 
 export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -26,6 +27,7 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
   const [outputJobs, updateOutputJobs] = useState([]);
   const { calculateCurrentJobBuildCostFromChildren } = useGroupManagement();
   const { openEditJob } = useOpenEditJob();
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
 
   useEffect(() => {
     let returnArray = [];
@@ -54,7 +56,7 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
               variant="h4"
               sx={{
                 color: (theme) =>
-                  theme.palette.mode === "dark"
+                  theme.palette.mode === PRIMARY_THEME
                     ? "secondary"
                     : theme.palette.primary.main,
               }}

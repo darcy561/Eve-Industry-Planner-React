@@ -23,6 +23,7 @@ import { ItemTypes } from "../../../Context/DnDTypes";
 import { CompactGroupAccordionContent } from "./Compact/CompactGroupAccordionContent";
 import { ClassicGroupAccordionContent } from "./Classic/ClassicGroupAccordionContent";
 import { grey } from "@mui/material/colors";
+import GLOBAL_CONFIG from "../../../global-config-app";
 
 export function GroupAccordion({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(JobArrayContext);
@@ -34,12 +35,12 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
     MultiSelectJobPlannerContext
   );
   const { canDropCard, recieveJobCardToStage } = useDnD();
-
   const [notExpanded, updateNotExpanded] = useState([]);
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
 
   if (groupPageRefresh && activeGroup == null) return null;
 
@@ -132,7 +133,7 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
                     variant="h4"
                     sx={{
                       color: (theme) =>
-                        theme.palette.mode === "dark"
+                        theme.palette.mode === PRIMARY_THEME
                           ? "secondary"
                           : theme.palette.primary.main,
                     }}

@@ -19,7 +19,7 @@ const TIME_LIMIT = DEFAULT_ITEM_PRICE_REFRESH_PERIOD * 60 * 60 * 1000;
 exports.scheduledFunction = functions
   .region(FIREBASE_SERVER_REGION)
   .runWith({ timeoutSeconds: 540 })
-  .pubsub.schedule("every 30 minutes")
+  .pubsub.schedule("every 10 minutes")
   .timeZone(FIREBASE_SERVER_TIMEZONE)
   .onRun(async (context) => {
     try {

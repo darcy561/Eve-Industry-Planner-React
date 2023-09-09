@@ -19,6 +19,7 @@ import {
   CorpEsiDataContext,
   PersonalESIDataContext,
 } from "../../Context/EveDataContext";
+import GLOBAL_CONFIG from "../../global-config-app";
 
 export function FeedbackIcon() {
   const { users } = useContext(UsersContext);
@@ -41,6 +42,8 @@ export function FeedbackIcon() {
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
+
+  const {PRIMARY_THEME } = GLOBAL_CONFIG
 
   const handleSubmit = async () => {
     let userData = () => {
@@ -144,7 +147,7 @@ export function FeedbackIcon() {
                 sx={{
                   marginRight: { xs: "20px", sm: "60px" },
                   color: (theme) =>
-                    theme.palette.mode === "dark"
+                    theme.palette.mode === PRIMARY_THEME
                       ? theme.palette.primary.main
                       : theme.palette.secondary.main,
                 }}

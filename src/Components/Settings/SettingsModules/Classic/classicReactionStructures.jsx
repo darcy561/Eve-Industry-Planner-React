@@ -27,6 +27,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import systemIDS from "../../../../RawData/systems.json";
 import uuid from "react-uuid";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function ClassicReactionStrutures({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
@@ -45,6 +46,7 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
   const [taxValue, updateTaxValue] = useState("");
   const [systemIDValue, updateSystemIDValue] = useState("");
   const analytics = getAnalytics();
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -294,11 +296,11 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
                               size="small"
                               sx={{
                                 color: (theme) =>
-                                  theme.palette.mode === "dark"
+                                  theme.palette.mode === PRIMARY_THEME
                                     ? "black"
                                     : theme.palette.secondary.main,
                                 borderColor: (theme) =>
-                                  theme.palette.mode === "dark"
+                                  theme.palette.mode === PRIMARY_THEME
                                     ? "black"
                                     : theme.palette.secondary.main,
                               }}

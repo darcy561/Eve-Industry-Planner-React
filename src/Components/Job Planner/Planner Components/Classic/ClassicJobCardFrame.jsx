@@ -23,6 +23,7 @@ import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
 import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
 import { useNavigate } from "react-router-dom";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 function DisplaySwitch({ job }) {
   switch (job.jobStatus) {
@@ -59,6 +60,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
     }),
   }));
   const navigate = useNavigate();
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
 
   let jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
@@ -90,7 +92,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
                   checked={jobCardChecked}
                   sx={{
                     color: (theme) =>
-                      theme.palette.mode === "dark"
+                      theme.palette.mode === PRIMARY_THEME
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}
@@ -113,7 +115,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
                   disabled={job.isLocked}
                   sx={{
                     color: (theme) =>
-                      theme.palette.mode === "dark"
+                      theme.palette.mode === PRIMARY_THEME
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}

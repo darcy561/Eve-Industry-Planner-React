@@ -20,6 +20,7 @@ import { grey } from "@mui/material/colors";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function ClassicGroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -39,6 +40,7 @@ export function ClassicGroupJobCard({ group }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
   let groupCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i == group.groupID);
   }, [multiSelectJobPlanner]);
@@ -67,7 +69,7 @@ export function ClassicGroupJobCard({ group }) {
                 <Checkbox
                   sx={{
                     color: (theme) =>
-                      theme.palette.mode === "dark"
+                      theme.palette.mode === PRIMARY_THEME
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}
@@ -90,7 +92,7 @@ export function ClassicGroupJobCard({ group }) {
                 <IconButton
                   sx={{
                     color: (theme) =>
-                      theme.palette.mode === "dark"
+                      theme.palette.mode === PRIMARY_THEME
                         ? theme.palette.primary.main
                         : theme.palette.secondary.main,
                   }}

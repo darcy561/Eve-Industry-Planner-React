@@ -2,9 +2,12 @@ import { CircularProgress, Box, Grid, Typography, Slide } from "@mui/material";
 import { useContext } from "react";
 import { MassBuildDisplayContext } from "../../../Context/LayoutContext";
 import { grey } from "@mui/material/colors";
+import GLOBAL_CONFIG from "../../../global-config-app";
 
 export function MassBuildFeedback() {
   const { massBuildDisplay } = useContext(MassBuildDisplayContext);
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
+
   if (massBuildDisplay.open) {
     return (
       <Slide direction="left" in={massBuildDisplay.open} unmountOnExit>
@@ -20,12 +23,12 @@ export function MassBuildFeedback() {
             zIndex: "2",
             boxShadow: 5,
             backgroundColor: (theme) =>
-              theme.palette.mode === "dark" ? grey[800] : "white",
+              theme.palette.mode === PRIMARY_THEME ? grey[800] : "white",
             borderStyle: "solid",
             borderRightStyle: { xs: "solid", sm: "none" },
             borderWidth: "1px",
             borderColor: (theme) =>
-              theme.palette.mode === "dark"
+              theme.palette.mode === PRIMARY_THEME
                 ? grey[900]
                 : theme.palette.secondary.main,
           }}

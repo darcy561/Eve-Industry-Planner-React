@@ -7,6 +7,7 @@ import { AssetType } from "./assetType";
 import { AssetSearch } from "./assetSearch";
 import itemData from "../../RawData/fullItemList.json";
 import { ESIOffline } from "../offlineNotification";
+import { useAssetManagement } from "../../Hooks/AssetHooks/useAssetManagement";
 
 export default function AssetLibrary() {
   const { users } = useContext(UsersContext);
@@ -28,6 +29,9 @@ export default function AssetLibrary() {
     pageSize: 16,
   });
   const [displayedAssets, updateDisplayedAssets] = useState([]);
+  const { findCorpLocationAssets } = useAssetManagement();
+
+  findCorpLocationAssets(selectedLocation);
 
   useEffect(() => {
     const assetLocationFetch = async () => {

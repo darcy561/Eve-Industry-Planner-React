@@ -21,6 +21,7 @@ export function EditPage1({
 }) {
   const { users } = useContext(UsersContext);
   const [setupToEdit, updateSetupToEdit] = useState(
+    activeJob.layout?.setupToEdit ||
     Object.keys(activeJob.build.setup)[0] || null
   );
 
@@ -80,7 +81,7 @@ export function EditPage1({
             />
             <RawResourceList
               activeJob={activeJob}
-              updateActveJob={updateActiveJob}
+              updateActiveJob={updateActiveJob}
               setupToEdit={setupToEdit}
             />
             {/* 

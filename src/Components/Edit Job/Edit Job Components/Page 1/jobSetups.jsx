@@ -45,17 +45,17 @@ export function JobSetupPanel({
         sx={{ position: "absolute", top: "10px", right: "10px" }}
         color="primary"
         onClick={() => {
-          const  newSetups = addNewSetup(activeJob)
+          const newSetups = addNewSetup(activeJob);
           updateActiveJob((prev) => ({
             ...prev,
             build: {
               ...prev.build,
               setup: {
                 ...prev.build.setup,
-                ...newSetups
-              }
-            }
-          }))
+                ...newSetups,
+              },
+            },
+          }));
         }}
       >
         <AddIcon />
@@ -76,7 +76,16 @@ export function JobSetupPanel({
               <Grid container item xs={6} sm={4}>
                 <Card elevation={3} square sx={{ minWidth: "100%" }}>
                   <CardActionArea
-                    onClick={() => updateSetupToEdit(setupEntry.id)}
+                    onClick={() => {
+                      updateActiveJob((prev) => ({
+                        ...prev,
+                        layout: {
+                          ...prev.layout,
+                          setupToEdit: setupEntry.id,
+                        },
+                      }));
+                      updateSetupToEdit(setupEntry.id);
+                    }}
                   >
                     <CardContent>
                       <Grid container item xs={12}>

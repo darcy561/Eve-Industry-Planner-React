@@ -23,6 +23,8 @@ import { useBlueprintCalc } from "../../../../Hooks/useBlueprintCalc";
 import { jobTypes } from "../../../../Context/defaultValues";
 import systemIDS from "../../../../RawData/systems.json";
 import { useSetupManagement } from "../../../../Hooks/GeneralHooks/useSetupManagement";
+import { useMissingSystemIndex } from "../../../../Hooks/GeneralHooks/useImportMissingSystemIndexData";
+import { SystemIndexContext } from "../../../../Context/EveDataContext";
 
 export function EditJobSetup({
   activeJob,
@@ -34,13 +36,19 @@ export function EditJobSetup({
   const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const [recalculationTrigger, updateRecalculationTrigger] = useState(false);
+
   const { CalculateResources, CalculateTime } = useBlueprintCalc();
   const { recalculateSetup } = useSetupManagement();
+  const { findMissingSystemIndex } = useMissingSystemIndex();
+  const { updateSystemIndexData } = useContext(SystemIndexContext);
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   let buildObject = useMemo(() => {
     return { ...activeJob.build.setup[setupToEdit] };
-  }, [activeJob]);
+  }, [activeJob, recalculationTrigger]);
+
+  const [runCountInput, updateRunCountInput] = useState(buildObject.runCount);
+  const [jobCountInput, updateJobCountInput] = useState(buildObject.jobCount);
 
   const customStructureMap = {
     [jobTypes.manufacturing]: "manufacturing",
@@ -48,25 +56,32 @@ export function EditJobSetup({
   };
 
   useEffect(() => {
-    if (recalculationTrigger) {
-      const { jobSetups, newMaterialArray, newTotalProduced } =
-        recalculateSetup(buildObject, activeJob);
-
-      updateActiveJob((prev) => ({
-        ...prev,
-        build: {
-          ...prev.build,
-          setup: jobSetups,
-          materials: newMaterialArray,
-          products: {
-            ...prev.build.products,
-            totalQuantity: newTotalProduced,
+    console.log(recalculationTrigger);
+    async function updateResourceCount() {
+      if (recalculationTrigger) {
+        const updatedSystemIndex = await findMissingSystemIndex(
+          buildObject.systemID
+        );
+        const { jobSetups, newMaterialArray, newTotalProduced } =
+          recalculateSetup(buildObject, activeJob);
+        updateSystemIndexData(updatedSystemIndex);
+        updateActiveJob((prev) => ({
+          ...prev,
+          build: {
+            ...prev.build,
+            setup: jobSetups,
+            materials: newMaterialArray,
+            products: {
+              ...prev.build.products,
+              totalQuantity: newTotalProduced,
+            },
           },
-        },
-      }));
+        }));
 
-      updateRecalculationTrigger(false);
+        updateRecalculationTrigger(false);
+      }
     }
+    updateResourceCount();
   }, [recalculationTrigger]);
 
   return (
@@ -82,7 +97,7 @@ export function EditJobSetup({
         <Grid item container direction="row" spacing={2}>
           <Grid item xs={6}>
             <TextField
-              defaultValue={activeJob.build.setup[setupToEdit].runCount}
+              value={runCountInput}
               size="small"
               variant="standard"
               helperText="Blueprint Runs"
@@ -96,8 +111,15 @@ export function EditJobSetup({
                     display: "none",
                   },
               }}
+              onChange={(e) => {
+                updateRunCountInput(e.target.value);
+              }}
               onBlur={(e) => {
-                buildObject.runCount = Number(e.target.value);
+                if (runCountInput > 0) {
+                  buildObject.runCount = Number(runCountInput);
+                } else {
+                  buildObject.runCount = 1;
+                }
                 updateRecalculationTrigger(true);
                 setJobModified(true);
               }}
@@ -105,7 +127,7 @@ export function EditJobSetup({
           </Grid>
           <Grid item xs={6}>
             <TextField
-              defaultValue={activeJob.build.setup[setupToEdit].jobCount}
+              value={jobCountInput}
               size="small"
               variant="standard"
               sx={{
@@ -119,8 +141,15 @@ export function EditJobSetup({
               }}
               helperText="Job Slots"
               type="number"
+              onChange={(e) => {
+                updateJobCountInput(e.target.value);
+              }}
               onBlur={(e) => {
-                buildObject.jobCount = Number(e.target.value);
+                if (jobCountInput > 0) {
+                  buildObject.jobCount = Number(jobCountInput);
+                } else {
+                  buildObject.jobCount = 1;
+                }
                 updateRecalculationTrigger(true);
                 setJobModified(true);
               }}
@@ -182,7 +211,6 @@ export function EditJobSetup({
                     size="small"
                     value={activeJob.build.setup[setupToEdit].TE}
                     onChange={(e) => {
-                      console.log(e.target.value);
                       buildObject.TE = e.target.value;
                       updateRecalculationTrigger(true);
                       setJobModified(true);
@@ -497,7 +525,7 @@ function ManualStructureSelection({
             size="small"
             options={systemIDS}
             getOptionLabel={(option) => option.name}
-            onChange={(event, value) => {
+            onChange={async (event, value) => {
               buildObject.systemID = Number(value.id);
               updateRecalculationTrigger(true);
               setJobModified(true);

@@ -31,33 +31,39 @@ export function useInstallCostsCalc() {
       selectedJob.materialCount,
       selectedJob.jobCount
     );
-
+    console.log(estimatedItemValue);
     const facilityModifier = findFacilityModifier(
       selectedJob.structureID,
       selectedJob.jobType
     );
-
+    console.log(facilityModifier);
     const facilityTax = findFacilityTax(
       selectedJob.customStructureID,
       selectedJob.structureID,
       selectedJob.jobType,
       selectedJob.taxValue
     );
-
+    console.log(facilityTax);
     const systemIndexValue = findSystemIndex(
       selectedJob.systemID,
       selectedJob.jobType
     );
-
+    console.log("System Index Value " + systemIndexValue);
     const cloneValue = findCloneValue(selectedJob.selectedCharacter);
-
+    console.log("Clone Value " + cloneValue);
+    console.log("__")
     const installCost =
       estimatedItemValue *
       (systemIndexValue * facilityModifier +
         facilityTax +
         SCC_SURCHARGE / 100 +
         cloneValue);
-
+    console.log(
+      systemIndexValue * facilityModifier +
+      facilityTax +
+      SCC_SURCHARGE / 100 +
+      cloneValue);
+    
     return installCost;
   };
 

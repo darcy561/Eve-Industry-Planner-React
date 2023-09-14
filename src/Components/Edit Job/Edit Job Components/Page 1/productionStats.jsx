@@ -112,6 +112,26 @@ export function ProductionStats({ activeJob, setupToEdit }) {
               </Typography>
             </Grid>
           </Grid>
+          <Grid container item xs={12} sx={{ marginBottom: "5px" }}>
+            <Grid item xs={10}>
+              <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                Total Produced Items For Setup
+              </Typography>
+            </Grid>
+            <Grid item xs={2}>
+              <Typography
+                sx={{ typography: { xs: "caption", sm: "body2" } }}
+                align="right"
+              >
+                {(
+                  activeJob.itemsProducedPerRun *
+                  activeJob.build.setup[setupToEdit].runCount *
+                  activeJob.build.setup[setupToEdit].jobCount
+                ).toLocaleString()}
+                
+              </Typography>
+            </Grid>
+          </Grid>
           <Grid container item xs={12}>
             <Grid item xs={10}>
               <Typography
@@ -124,7 +144,7 @@ export function ProductionStats({ activeJob, setupToEdit }) {
                     : null
                 }
               >
-                Total Items Being Produced
+                Total Produced Items For Job
               </Typography>
             </Grid>
 

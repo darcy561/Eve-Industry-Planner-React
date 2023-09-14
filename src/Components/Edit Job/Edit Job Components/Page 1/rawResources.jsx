@@ -16,11 +16,13 @@ import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { MaterialRow } from "./materialRow";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 
-export function RawResourceList({ activeJob, updateActiveJob,setupToEdit }) {
+export function RawResourceList({ activeJob, updateActiveJob, setupToEdit }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { massBuildMaterials } = useJobManagement();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [displayType, updateDisplyType] = useState("all");
+  const [displayType, updateDisplyType] = useState(
+    activeJob.layout?.resourceDisplayType || "all"
+  );
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -56,7 +58,6 @@ export function RawResourceList({ activeJob, updateActiveJob,setupToEdit }) {
       <Container disableGutters={true}>
         <Box sx={{ marginBottom: "20px" }}>
           <Grid container>
-
             <Select
               variant="standard"
               size="small"
@@ -67,6 +68,13 @@ export function RawResourceList({ activeJob, updateActiveJob,setupToEdit }) {
                 left: "10px",
               }}
               onChange={(e) => {
+                updateActiveJob((prev) => ({
+                  ...prev,
+                  layout: {
+                    ...prev.layout,
+                    resourceDisplayType: e.target.value,
+                  },
+                }));
                 updateDisplyType(e.target.value);
               }}
             >
@@ -77,7 +85,7 @@ export function RawResourceList({ activeJob, updateActiveJob,setupToEdit }) {
                 Display Selected Setup
               </MenuItem>
             </Select>
-            
+
             <Grid item xs={12}>
               <Typography variant="h6" color="primary" align="center">
                 Raw Resources

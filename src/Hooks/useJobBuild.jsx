@@ -93,6 +93,8 @@ export function useJobBuild() {
         localMarketDisplay: null,
         localOrderDisplay: null,
         esiJobTab: null,
+        setupToEdit: null,
+        resourceDisplayType: null,
       };
 
       if (itemJson.jobType === jobTypes.manufacturing) {
@@ -406,7 +408,7 @@ export function useJobBuild() {
       rigID: inputOptions?.rigID || 0,
       systemTypeID: inputOptions?.systemTypeID || 0,
       systemID: inputOptions?.systemID || null,
-      taxValue: inputOptions?.taxValue || 0,
+      taxValue: inputOptions?.taxValue || 0.25,
       estimatedInstallCost: 0,
       customStructureID: inputOptions?.customStructureID || null,
       selectedCharacter: inputOptions?.characterToUse || null,

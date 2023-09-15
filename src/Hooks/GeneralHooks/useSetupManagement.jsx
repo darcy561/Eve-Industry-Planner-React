@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react";
-import { ActiveJobContext } from "../../Context/JobContext";
+import { ActiveJobContext, JobStatus } from "../../Context/JobContext";
 import { useBlueprintCalc } from "../useBlueprintCalc";
 import { useInstallCostsCalc } from "./useInstallCostCalc";
 import { useJobBuild } from "../useJobBuild";
@@ -19,14 +19,16 @@ export function useSetupManagement() {
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
-  function recalculateSetup(chosenSetup, chosenJob) {
+  async function recalculateSetup(chosenSetup, chosenJob) {
     let jobSetups = { ...chosenJob.build.setup };
     const itemsProducedPerRun = chosenJob.itemsProducedPerRun;
     let newMaterialArray = [...chosenJob.build.materials];
 
     chosenSetup.materialCount = CalculateResources_New(chosenSetup);
     chosenSetup.estimatedTime = CalculateTime_New(chosenSetup);
-    chosenSetup.estimatedInstallCost = calculateInstallCostFromJob(chosenSetup);
+    chosenSetup.estimatedInstallCost = await calculateInstallCostFromJob(
+      chosenSetup
+    );
 
     jobSetups[chosenSetup.id] = chosenSetup;
 
@@ -64,7 +66,7 @@ export function useSetupManagement() {
     return { jobSetups, newMaterialArray, newTotalProduced };
   }
 
-  function addNewSetup(selectedJob) {
+  async function addNewSetup(selectedJob) {
     const existingMaterialsLocation = selectedJob.rawData.materials;
     const rawTimeValue = selectedJob.rawData.time;
 
@@ -81,37 +83,33 @@ export function useSetupManagement() {
       selectedJob.rawData.products[0].quantity,
       requiredQuantity
     );
-    let returnObject = {};
 
-    for (let i = 0; i < setupQuantities.length; i++) {
-      let nextObject = buildNewSetupObject({
-        ME,
-        TE,
-        ...structureData,
-        ...setupQuantities[i],
-        characterToUse: parentUser.CharacterHash,
-        rawTimeValue,
-        jobType: selectedJob.jobType,
-      });
+    const newSetup = buildNewSetupObject({
+      ME,
+      TE,
+      ...structureData,
+      ...setupQuantities[0],
+      characterToUse: parentUser.CharacterHash,
+      rawTimeValue,
+      jobType: selectedJob.jobType,
+    });
 
-      existingMaterialsLocation.forEach((material) => {
-        nextObject.materialCount[material.typeID] = {
-          typeID: material.typeID,
-          quantity: material.quantity,
-          rawQuantity: material.quantity,
-        };
-      });
+    existingMaterialsLocation.forEach((material) => {
+      newSetup.materialCount[material.typeID] = {
+        typeID: material.typeID,
+        quantity: material.quantity,
+        rawQuantity: material.quantity,
+      };
+    });
 
-      nextObject.estimatedTime = CalculateTime_New(
-        nextObject,
-        selectedJob.skills
-      );
-      nextObject.materialCount = CalculateResources_New(nextObject);
-      nextObject.estimatedInstallCost = calculateInstallCostFromJob(nextObject);
+    newSetup.estimatedTime = CalculateTime_New(newSetup, selectedJob.skills);
+    newSetup.materialCount = CalculateResources_New(newSetup);
+    newSetup.estimatedInstallCost = await calculateInstallCostFromJob(newSetup);
 
-      returnObject[nextObject.id] = nextObject;
-    }
-    return returnObject;
+    const { jobSetups, newMaterialArray, newTotalProduced } =
+      await recalculateSetup(newSetup, selectedJob);
+
+    return { jobSetups, newMaterialArray, newTotalProduced };
   }
 
   return {

@@ -123,7 +123,7 @@ export function useJobBuild() {
     }
   }
 
-  const buildJobObject = (itemJson, buildRequest) => {
+  const buildJobObject = async (itemJson, buildRequest) => {
     try {
       const outputObject = new Job(itemJson, buildRequest);
       try {
@@ -135,7 +135,7 @@ export function useJobBuild() {
           outputObject.build.childJobs[material.typeID] = [];
         });
 
-        buildSetupOptions(outputObject, buildRequest);
+        await buildSetupOptions(outputObject, buildRequest);
 
         buildRequest_ChildJobs(buildRequest, outputObject);
         buildRequest_ParentJobs(buildRequest, outputObject);
@@ -195,7 +195,7 @@ export function useJobBuild() {
         if (!itemJson) {
           continue;
         }
-        returnArray.push(buildJobObject(itemJson, request));
+        returnArray.push(await buildJobObject(itemJson, request));
       }
       return returnArray;
     } else {
@@ -224,7 +224,7 @@ export function useJobBuild() {
       }
       const itemJson = await response.json();
 
-      return buildJobObject(itemJson, buildRequest);
+      return await buildJobObject(itemJson, buildRequest);
     }
   };
 
@@ -344,7 +344,7 @@ export function useJobBuild() {
     return [{ runCount, jobCount }];
   }
 
-  function buildSetupOptions(inputJobObject, buildRequestObject) {
+  async function buildSetupOptions(inputJobObject, buildRequestObject) {
     const setupLocation = inputJobObject.build.setup;
     const existingMaterialsLocation = inputJobObject.rawData.materials;
     const rawTimeValue = inputJobObject.rawData.time;
@@ -393,7 +393,7 @@ export function useJobBuild() {
         setupLocation[nextObject.id]
       );
       setupLocation[nextObject.id].estimatedInstallCost =
-        calculateInstallCostFromJob(setupLocation[nextObject.id]);
+        await calculateInstallCostFromJob(setupLocation[nextObject.id]);
     }
   }
 
@@ -564,7 +564,6 @@ export function useJobBuild() {
     addDefaultStructure_New,
     addItemBlueprint_New,
     buildJob,
-    buildSetupOptions,
     buildNewSetupObject,
     checkAllowBuild,
     jobBuildErrors,

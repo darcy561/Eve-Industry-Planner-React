@@ -6,15 +6,14 @@ import {
 import { jobTypes } from "../../Context/defaultValues";
 import { UsersContext } from "../../Context/AuthContext";
 import { structureOptions } from "../../Context/defaultValues";
+import { useMissingSystemIndex } from "./useImportMissingSystemIndexData";
 
 export function useInstallCostsCalc() {
-  const { systemIndexData } = useContext(SystemIndexContext);
+  const { systemIndexData, updateSystemIndexData } =
+    useContext(SystemIndexContext);
   const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
-
-  const DEFAULT_STATION_TAX = 0.25;
-  const SCC_SURCHARGE = 0.75;
-  const ALPHA_CLONE_TAX = 0.25;
+  const { findMissingSystemIndex } = useMissingSystemIndex();
 
   const jobTypeMapping = {
     [jobTypes.manufacturing]: "manufacturing",
@@ -26,54 +25,77 @@ export function useInstallCostsCalc() {
     [jobTypes.reaction]: structureOptions.reactionStructure,
   };
 
-  const calculateInstallCostFromJob = (selectedJob) => {
+  const DEFAULT_STATION_TAX =
+    structureTypeMap[jobTypes.manufacturing].defaultTax;
+  const SCC_SURCHARGE = 1.5;
+  const ALPHA_CLONE_TAX = 0.25;
+
+  async function calculateInstallCostFromJob(selectedJob) {
     const estimatedItemValue = estimatedItemPriceCalc(
       selectedJob.materialCount,
       selectedJob.jobCount
     );
-    console.log(estimatedItemValue);
+
     const facilityModifier = findFacilityModifier(
       selectedJob.structureID,
       selectedJob.jobType
     );
-    console.log(facilityModifier);
+
     const facilityTax = findFacilityTax(
       selectedJob.customStructureID,
       selectedJob.structureID,
       selectedJob.jobType,
       selectedJob.taxValue
     );
-    console.log(facilityTax);
-    const systemIndexValue = findSystemIndex(
+
+    const systemIndexValue = await findSystemIndex(
       selectedJob.systemID,
       selectedJob.jobType
     );
-    console.log("System Index Value " + systemIndexValue);
+
     const cloneValue = findCloneValue(selectedJob.selectedCharacter);
-    console.log("Clone Value " + cloneValue);
-    console.log("__")
-    const installCost =
+
+    const taxModifierTotal =
       estimatedItemValue *
       (systemIndexValue * facilityModifier +
         facilityTax +
         SCC_SURCHARGE / 100 +
         cloneValue);
-    console.log(
-      systemIndexValue * facilityModifier +
-      facilityTax +
-      SCC_SURCHARGE / 100 +
-      cloneValue);
-    
+
+    const systemIndexDeduction = Math.ceil(
+      systemIndexValue * estimatedItemValue
+    );
+
+    const facilityBonusDeduction = Math.ceil(
+      facilityModifier * systemIndexDeduction
+    );
+
+    const jobGrossCost = systemIndexDeduction - facilityBonusDeduction;
+
+    const installCost = jobGrossCost + taxModifierTotal;
+
+    async function findSystemIndex(requiredSystemID, jobType) {
+      const updatedSystemIndexData = await findMissingSystemIndex(
+        requiredSystemID
+      );
+      updateSystemIndexData(updatedSystemIndexData);
+      return (
+        updatedSystemIndexData[requiredSystemID]?.[jobTypeMapping[jobType]] || 0
+      );
+    }
+
     return installCost;
-  };
+  }
 
   function estimatedItemPriceCalc(materialArray, jobCount) {
-    return Object.values(materialArray).reduce((preValue, material) => {
-      return (preValue += estimatedMaterialPriceCalc(
-        material.quantity / jobCount,
-        material.typeID
-      ));
-    }, 0);
+    return Math.ceil(
+      Object.values(materialArray).reduce((preValue, material) => {
+        return (preValue += estimatedMaterialPriceCalc(
+          material.quantity / jobCount,
+          material.typeID
+        ));
+      }, 0)
+    );
   }
 
   function estimatedMaterialPriceCalc(materialQuantity, materialTypeID) {
@@ -100,10 +122,6 @@ export function useInstallCostsCalc() {
       parentUser.settings.structures[jobTypeMapping[jobType]] || [];
 
     return structureSelection.find((i) => i.id === facilityID)?.tax / 100 || 0;
-  }
-
-  function findSystemIndex(requiredSystemID, jobType) {
-    return systemIndexData[requiredSystemID]?.[jobTypeMapping[jobType]] || 0;
   }
 
   function findCloneValue(inputCharacterHash) {

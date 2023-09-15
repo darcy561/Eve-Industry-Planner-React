@@ -8,8 +8,9 @@ import {
   TextField,
   Tooltip,
   Select,
+  CircularProgress,
 } from "@mui/material";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import {
   IsLoggedInContext,
   UsersContext,
@@ -19,12 +20,9 @@ import {
   blueprintOptions,
   structureOptions,
 } from "../../../../Context/defaultValues";
-import { useBlueprintCalc } from "../../../../Hooks/useBlueprintCalc";
 import { jobTypes } from "../../../../Context/defaultValues";
 import systemIDS from "../../../../RawData/systems.json";
-import { useSetupManagement } from "../../../../Hooks/GeneralHooks/useSetupManagement";
-import { useMissingSystemIndex } from "../../../../Hooks/GeneralHooks/useImportMissingSystemIndexData";
-import { SystemIndexContext } from "../../../../Context/EveDataContext";
+import { useUpdateSetupValue } from "../../../../Hooks/JobHooks/useUpdateSetupValue";
 
 export function EditJobSetup({
   activeJob,
@@ -35,17 +33,10 @@ export function EditJobSetup({
 }) {
   const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const [recalculationTrigger, updateRecalculationTrigger] = useState(false);
-
-  const { CalculateResources, CalculateTime } = useBlueprintCalc();
-  const { recalculateSetup } = useSetupManagement();
-  const { findMissingSystemIndex } = useMissingSystemIndex();
-  const { updateSystemIndexData } = useContext(SystemIndexContext);
+  const { recalcuateJobFromSetup } = useUpdateSetupValue();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
-  let buildObject = useMemo(() => {
-    return { ...activeJob.build.setup[setupToEdit] };
-  }, [activeJob, recalculationTrigger]);
+  let buildObject = activeJob.build.setup[setupToEdit]
 
   const [runCountInput, updateRunCountInput] = useState(buildObject.runCount);
   const [jobCountInput, updateJobCountInput] = useState(buildObject.jobCount);
@@ -54,35 +45,6 @@ export function EditJobSetup({
     [jobTypes.manufacturing]: "manufacturing",
     [jobTypes.reaction]: "reaction",
   };
-
-  useEffect(() => {
-    console.log(recalculationTrigger);
-    async function updateResourceCount() {
-      if (recalculationTrigger) {
-        const updatedSystemIndex = await findMissingSystemIndex(
-          buildObject.systemID
-        );
-        const { jobSetups, newMaterialArray, newTotalProduced } =
-          recalculateSetup(buildObject, activeJob);
-        updateSystemIndexData(updatedSystemIndex);
-        updateActiveJob((prev) => ({
-          ...prev,
-          build: {
-            ...prev.build,
-            setup: jobSetups,
-            materials: newMaterialArray,
-            products: {
-              ...prev.build.products,
-              totalQuantity: newTotalProduced,
-            },
-          },
-        }));
-
-        updateRecalculationTrigger(false);
-      }
-    }
-    updateResourceCount();
-  }, [recalculationTrigger]);
 
   return (
     <Paper
@@ -115,12 +77,18 @@ export function EditJobSetup({
                 updateRunCountInput(e.target.value);
               }}
               onBlur={(e) => {
-                if (runCountInput > 0) {
-                  buildObject.runCount = Number(runCountInput);
-                } else {
-                  buildObject.runCount = 1;
+                let valueToPass = Number(runCountInput);
+                if (valueToPass <= 0) {
+                  valueToPass = 1;
                 }
-                updateRecalculationTrigger(true);
+                recalcuateJobFromSetup(
+                  buildObject,
+                  "runCount",
+                  valueToPass,
+                  activeJob,
+                  updateActiveJob,
+                  false
+                );
                 setJobModified(true);
               }}
             />
@@ -145,12 +113,18 @@ export function EditJobSetup({
                 updateJobCountInput(e.target.value);
               }}
               onBlur={(e) => {
-                if (jobCountInput > 0) {
-                  buildObject.jobCount = Number(jobCountInput);
-                } else {
-                  buildObject.jobCount = 1;
+                let valueToPass = Number(jobCountInput);
+                if (valueToPass <= 0) {
+                  valueToPass = 1;
                 }
-                updateRecalculationTrigger(true);
+                recalcuateJobFromSetup(
+                  buildObject,
+                  "jobCount",
+                  valueToPass,
+                  activeJob,
+                  updateActiveJob,
+                  false
+                );
                 setJobModified(true);
               }}
             />
@@ -175,8 +149,14 @@ export function EditJobSetup({
                     size="small"
                     value={activeJob.build.setup[setupToEdit].ME}
                     onChange={(e) => {
-                      buildObject.ME = e.target.value;
-                      updateRecalculationTrigger(true);
+                      recalcuateJobFromSetup(
+                        buildObject,
+                        "ME",
+                        e.target.value,
+                        activeJob,
+                        updateActiveJob,
+                        false
+                      );
                       setJobModified(true);
                     }}
                   >
@@ -211,8 +191,14 @@ export function EditJobSetup({
                     size="small"
                     value={activeJob.build.setup[setupToEdit].TE}
                     onChange={(e) => {
-                      buildObject.TE = e.target.value;
-                      updateRecalculationTrigger(true);
+                      recalcuateJobFromSetup(
+                        buildObject,
+                        "TE",
+                        e.target.value,
+                        activeJob,
+                        updateActiveJob,
+                        false
+                      );
                       setJobModified(true);
                     }}
                   >
@@ -236,7 +222,6 @@ export function EditJobSetup({
             updateActiveJob={updateActiveJob}
             setJobModified={setJobModified}
             setupToEdit={setupToEdit}
-            updateRecalculationTrigger={updateRecalculationTrigger}
             buildObject={buildObject}
           />
           {isLoggedIn && (
@@ -263,28 +248,22 @@ export function EditJobSetup({
                         : ""
                     }
                     onChange={(e) => {
-                      if (!e.target.value) {
-                        buildObject.customStructureID = null;
-                      } else {
-                        const selectedStructure =
-                          parentUser.settings.structures[
-                            customStructureMap[activeJob.jobType]
-                          ].find((i) => i.id === e.target.value);
-                        buildObject.customStructureID = selectedStructure.id;
-                        buildObject.structureID =
-                          selectedStructure.structureType;
-                        buildObject.rigID = selectedStructure.rigType;
-                        buildObject.systemTypeID = selectedStructure.systemType;
-                        buildObject.systemID = selectedStructure.systemID;
-                        buildObject.taxValue = selectedStructure.tax;
-                      }
-                      updateRecalculationTrigger(true);
+                      recalcuateJobFromSetup(
+                        buildObject,
+                        "customStructureID",
+                        e.target.value,
+                        activeJob,
+                        updateActiveJob,
+                        false
+                      );
                       setJobModified(true);
                     }}
                   >
-                    <MenuItem key="clear" value={null}>
-                      Clear
-                    </MenuItem>
+                    {activeJob.build.setup[setupToEdit].customStructureID ? (
+                      <MenuItem key="clear" value={null}>
+                        Clear
+                      </MenuItem>
+                    ) : null}
                     {parentUser.settings.structures[
                       customStructureMap[activeJob.jobType]
                     ].map((entry) => {
@@ -324,8 +303,14 @@ export function EditJobSetup({
                       )?.CharacterHash || parentUser.CharacterHash
                     }
                     onChange={(e) => {
-                      buildObject.selectedCharacter = e.target.value;
-                      updateRecalculationTrigger(true);
+                      recalcuateJobFromSetup(
+                        buildObject,
+                        "selectedCharacter",
+                        e.target.value,
+                        activeJob,
+                        updateActiveJob,
+                        false
+                      );
                       setJobModified(true);
                     }}
                   >
@@ -358,9 +343,11 @@ function ManualStructureSelection({
   updateActiveJob,
   setJobModified,
   setupToEdit,
-  updateRecalculationTrigger,
   buildObject,
 }) {
+  const [fetchSystemDataTrigger, updateFetchSystemDataTrigger] =
+    useState(false);
+  const { recalcuateJobFromSetup } = useUpdateSetupValue();
   const structureTypeMap = {
     [jobTypes.manufacturing]: structureOptions.manStructure,
     [jobTypes.reaction]: structureOptions.reactionStructure,
@@ -407,16 +394,14 @@ function ManualStructureSelection({
               size="small"
               value={activeJob.build.setup[setupToEdit].structureID}
               onChange={(e) => {
-                if (
-                  activeJob.jobType === jobTypes.manufacturing &&
-                  e.target.value === structureTypeMap[activeJob.jobType][0].id
-                ) {
-                  buildObject.taxValue =
-                    structureTypeMap[activeJob.jobType][0].defaultTax;
-                }
-
-                buildObject.structureID = e.target.value;
-                updateRecalculationTrigger(true);
+                recalcuateJobFromSetup(
+                  buildObject,
+                  "structureID",
+                  e.target.value,
+                  activeJob,
+                  updateActiveJob,
+                  false
+                );
                 setJobModified(true);
               }}
             >
@@ -452,8 +437,14 @@ function ManualStructureSelection({
             size="small"
             value={activeJob.build.setup[setupToEdit].rigID}
             onChange={(e) => {
-              buildObject.rigID = e.target.value;
-              updateRecalculationTrigger(true);
+              recalcuateJobFromSetup(
+                buildObject,
+                "rigID",
+                e.target.value,
+                activeJob,
+                updateActiveJob,
+                false
+              );
               setJobModified(true);
             }}
           >
@@ -486,8 +477,14 @@ function ManualStructureSelection({
             size="small"
             value={activeJob.build.setup[setupToEdit].systemTypeID}
             onChange={(e) => {
-              buildObject.systemTypeID = e.target.value;
-              updateRecalculationTrigger(true);
+              recalcuateJobFromSetup(
+                buildObject,
+                "systemTypeID",
+                e.target.value,
+                activeJob,
+                updateActiveJob,
+                false
+              );
               setJobModified(true);
             }}
           >
@@ -503,51 +500,63 @@ function ManualStructureSelection({
         </FormControl>
       </Grid>
       <Grid item xs={6}>
-        <FormControl
-          sx={{
-            "& .MuiFormHelperText-root": {
-              color: (theme) => theme.palette.secondary.main,
-            },
-            "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-              {
-                display: "none",
+        {!fetchSystemDataTrigger ? (
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
               },
-          }}
-          fullWidth
-        >
-          <Autocomplete
-            disableClearable
-            fullWidth
-            id="System Search"
-            clearOnBlur
-            blurOnSelect
-            variant="standard"
-            size="small"
-            options={systemIDS}
-            getOptionLabel={(option) => option.name}
-            onChange={async (event, value) => {
-              buildObject.systemID = Number(value.id);
-              updateRecalculationTrigger(true);
-              setJobModified(true);
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
             }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                size="small"
-                margin="none"
-                variant="standard"
-                sx={{
-                  borderRadius: "5px",
-                }}
-                InputProps={{
-                  ...params.InputProps,
-                  type: "System Name",
-                }}
-              />
-            )}
-          />
-          <FormHelperText variant="standard">System Name</FormHelperText>
-        </FormControl>
+            fullWidth
+          >
+            <Autocomplete
+              disableClearable
+              fullWidth
+              id="System Search"
+              clearOnBlur
+              blurOnSelect
+              variant="standard"
+              size="small"
+              options={systemIDS}
+              getOptionLabel={(option) => option.name}
+              onChange={async (event, value) => {
+                updateFetchSystemDataTrigger((prev) => !prev);
+                await recalcuateJobFromSetup(
+                  buildObject,
+                  "systemID",
+                  Number(value.id),
+                  activeJob,
+                  updateActiveJob,
+                  true
+                );
+                setJobModified(true);
+                updateFetchSystemDataTrigger((prev) => !prev);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  size="small"
+                  margin="none"
+                  variant="standard"
+                  sx={{
+                    borderRadius: "5px",
+                  }}
+                  InputProps={{
+                    ...params.InputProps,
+                    type: "System Name",
+                  }}
+                />
+              )}
+            />
+            <FormHelperText variant="standard">System Name</FormHelperText>
+          </FormControl>
+        ) : (
+          <CircularProgress />
+        )}
       </Grid>
       <Grid item xs={6}>
         <TextField
@@ -571,17 +580,14 @@ function ManualStructureSelection({
             if (inputValue < 0) {
               inputValue = 0;
             }
-            if (
-              activeJob.jobType === jobTypes.manufacturing &&
-              activeJob.build.setup[setupToEdit].structureID ===
-                structureTypeMap[activeJob.jobType][0].id
-            ) {
-              buildObject.taxValue =
-                structureTypeMap[activeJob.jobType][0].defaultTax;
-            } else {
-              buildObject.taxValue = inputValue;
-            }
-            updateRecalculationTrigger(true);
+            recalcuateJobFromSetup(
+              buildObject,
+              "taxValue",
+              inputValue,
+              activeJob,
+              updateActiveJob,
+              false
+            );
             setJobModified(true);
           }}
         />

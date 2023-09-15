@@ -46,29 +46,7 @@ export function EditJobSetup({
     [jobTypes.manufacturing]: "manufacturing",
     [jobTypes.reaction]: "reaction",
   };
-
-  useEffect(() => {
-    if (recalculationTrigger) {
-      const { jobSetups, newMaterialArray, newTotalProduced } =
-        recalculateSetup(buildObject, activeJob);
-
-      updateActiveJob((prev) => ({
-        ...prev,
-        build: {
-          ...prev.build,
-          setup: jobSetups,
-          materials: newMaterialArray,
-          products: {
-            ...prev.build.products,
-            totalQuantity: newTotalProduced,
-          },
-        },
-      }));
-
-      updateRecalculationTrigger(false);
-    }
-  }, [recalculationTrigger]);
-
+  
   return (
     <Paper
       elevation={3}

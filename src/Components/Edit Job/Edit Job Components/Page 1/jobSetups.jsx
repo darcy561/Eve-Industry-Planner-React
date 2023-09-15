@@ -44,15 +44,18 @@ export function JobSetupPanel({
       <IconButton
         sx={{ position: "absolute", top: "10px", right: "10px" }}
         color="primary"
-        onClick={() => {
-          const newSetups = addNewSetup(activeJob);
+        onClick={async () => {
+          const { jobSetups, newMaterialArray, newTotalProduced } =
+            await addNewSetup(activeJob);
           updateActiveJob((prev) => ({
             ...prev,
             build: {
               ...prev.build,
-              setup: {
-                ...prev.build.setup,
-                ...newSetups,
+              setup: jobSetups,
+              materials: newMaterialArray,
+              products: {
+                ...prev.build.products,
+                totalQuantity: newTotalProduced,
               },
             },
           }));
@@ -221,9 +224,19 @@ function UseCustomStructure({ setupEntry }) {
     parentUser.settings.structures[customStructureMap[setupEntry.jobType]].find(
       (i) => i.id === setupEntry.customStructureID
     ) || null;
+
   return (
-    <Grid item xs={12} sx={{ typography: { xs: "caption", sm: "body2" } }}>
-      <Typography align="center">{assignedStructureData.name}</Typography>
+    <Grid item xs={12}>
+      <Typography
+        align="center"
+        sx={{
+          typography: { xs: "caption", sm: "body2" },
+        }}
+      >
+        {assignedStructureData
+          ? assignedStructureData.name
+          : "Missing Structure"}
+      </Typography>
     </Grid>
   );
 }

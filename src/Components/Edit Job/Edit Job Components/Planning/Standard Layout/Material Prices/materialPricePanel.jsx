@@ -4,9 +4,13 @@ import { UsersContext } from "../../../../../../Context/AuthContext";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import { Grid, MenuItem, Paper, Select, Typography } from "@mui/material";
 import { listingType } from "../../../../../../Context/defaultValues";
+import { CurrentMaterialHeader } from "./currentMaterialHeader";
+import { MaterialCostRow_MaterialPricePanel } from "./itemRow";
+import { MaterialTotals_MaterialPricesPanel } from "./materialTotals";
 
 export function MaterialCostPanel({
   activeJob,
+  updateActiveJob,
   jobModified,
   setJobModified,
   setupToEdit,
@@ -22,9 +26,8 @@ export function MaterialCostPanel({
   );
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
-  let totalJobBuy = 0;
+  let totalMaterialCost = 0;
   let activeJobPrices = evePrices.find((i) => i.typeID === activeJob.itemID);
-  let totalJobSell = 0;
 
   return (
     <Paper
@@ -87,6 +90,40 @@ export function MaterialCostPanel({
             );
           })}
         </Select>
+      </Grid>
+      <CurrentMaterialHeader
+        activeJob={activeJob}
+        activeJobPrices={activeJobPrices}
+        marketSelect={marketSelect}
+        listingSelect={listingSelect}
+      />
+      <Grid container item xs={12}>
+        {activeJob.build.materials.map((material, materialIndex) => {
+          const materialPrice = evePrices.find(
+            (i) => i.typeID === material.typeID
+          );
+          totalMaterialCost +=
+            materialPrice[marketSelect][listingSelect] * material.quantity;
+          return (
+            <MaterialCostRow_MaterialPricePanel
+              key={material.typeID}
+              activeJob={activeJob}
+              updateActiveJob={updateActiveJob}
+              material={material}
+              marketSelect={marketSelect}
+              listingSelect={listingSelect}
+              materialPrice={materialPrice}
+              jobModified={jobModified}
+              setJobModified={setJobModified}
+              materialIndex={materialIndex}
+            />
+          );
+        })}
+        <MaterialTotals_MaterialPricesPanel
+          activeJob={activeJob}
+          totalMaterialCost={totalMaterialCost}
+          listingSelect={listingSelect}
+        />
       </Grid>
     </Paper>
   );

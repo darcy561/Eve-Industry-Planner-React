@@ -48,6 +48,7 @@ export default function App() {
             },
             secondary: {
               main: grey[200],
+              dark: grey[800],
             },
             manufacturing: {
               main: green[600],
@@ -77,6 +78,7 @@ export default function App() {
               main: blue[600],
             },
             secondary: {
+              light: grey[300],
               main: grey[600],
             },
             manufacturing: {

@@ -67,6 +67,7 @@ export function EditPage1({
             />
             <MaterialCostPanel
               activeJob={activeJob}
+              updateActiveJob={updateActiveJob}
               jobModified={jobModified}
               setJobModified={setJobModified}
               setupToEdit={setupToEdit}

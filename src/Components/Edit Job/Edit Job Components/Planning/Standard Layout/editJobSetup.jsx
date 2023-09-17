@@ -14,15 +14,15 @@ import React, { useContext, useMemo, useState } from "react";
 import {
   IsLoggedInContext,
   UsersContext,
-} from "../../../../Context/AuthContext";
+} from "../../../../../Context/AuthContext";
 
 import {
   blueprintOptions,
   structureOptions,
-} from "../../../../Context/defaultValues";
-import { jobTypes } from "../../../../Context/defaultValues";
-import systemIDS from "../../../../RawData/systems.json";
-import { useUpdateSetupValue } from "../../../../Hooks/JobHooks/useUpdateSetupValue";
+} from "../../../../../Context/defaultValues";
+import { jobTypes } from "../../../../../Context/defaultValues";
+import systemIDS from "../../../../../RawData/systems.json";
+import { useUpdateSetupValue } from "../../../../../Hooks/JobHooks/useUpdateSetupValue";
 
 export function EditJobSetup({
   activeJob,
@@ -499,7 +499,7 @@ function ManualStructureSelection({
           <FormHelperText variant="standard">System Type</FormHelperText>
         </FormControl>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={6} align="center">
         {!fetchSystemDataTrigger ? (
           <FormControl
             sx={{
@@ -555,7 +555,7 @@ function ManualStructureSelection({
             <FormHelperText variant="standard">System Name</FormHelperText>
           </FormControl>
         ) : (
-          <CircularProgress />
+            <CircularProgress size={26} />
         )}
       </Grid>
       <Grid item xs={6}>

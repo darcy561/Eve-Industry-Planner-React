@@ -10,8 +10,11 @@ import {
   blue,
   blueGrey,
   deepPurple,
+  green,
   grey,
   lightGreen,
+  purple,
+  red,
   yellow,
 } from "@mui/material/colors";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -41,37 +44,32 @@ export default function App() {
         ? {
             mode: PRIMARY_THEME,
             primary: {
-              main: blue[600],
+              main: blue[800],
             },
             secondary: {
               main: grey[200],
             },
             manufacturing: {
-              main: lightGreen[300],
+              main: green[600],
             },
             reaction: {
-              main: deepPurple[300],
+              main: purple[600],
             },
             pi: {
-              main: blue[100],
+              main: red[300],
             },
             baseMat: {
-              main: blueGrey[100],
+              main: blueGrey[600],
             },
             groupJob: {
               main: yellow[600],
             },
-            background: {
-              default: grey[900],
-              paper: grey[800],
+            blueprintOriginal: {
+              main: blue[700],
             },
-            text: {
-              primary: grey[200],
-              secondary: grey[800],
-              disabled: grey[200],
-              hint: grey[200],
+            blueprintCopy: {
+              main: blue[300],
             },
-            divider: grey[700],
           }
         : {
             mode: SECONDARY_THEME,
@@ -88,13 +86,19 @@ export default function App() {
               main: deepPurple[100],
             },
             pi: {
-              main: blue[100],
+              main: red[200],
             },
             baseMat: {
               main: blueGrey[100],
             },
             groupJob: {
               main: yellow[600],
+            },
+            blueprintOriginal: {
+              main: blue[700],
+            },
+            blueprintCopy: {
+              main: blue[300],
             },
           }),
     },

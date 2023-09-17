@@ -1,6 +1,6 @@
 import { useCallback, useContext } from "react";
 import { Grid, Paper, Typography } from "@mui/material";
-import { JobArrayContext } from "../../../../Context/JobContext";
+import { JobArrayContext } from "../../../../../Context/JobContext";
 
 export function ProductionStats({ activeJob, setupToEdit }) {
   const { jobArray } = useContext(JobArrayContext);

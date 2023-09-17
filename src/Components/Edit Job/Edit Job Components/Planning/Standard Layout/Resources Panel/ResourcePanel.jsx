@@ -12,9 +12,9 @@ import {
 import { useContext, useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CopyToClipboard from "react-copy-to-clipboard";
-import { SnackBarDataContext } from "../../../../Context/LayoutContext";
+import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { MaterialRow } from "./materialRow";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 
 export function RawResourceList({ activeJob, updateActiveJob, setupToEdit }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);

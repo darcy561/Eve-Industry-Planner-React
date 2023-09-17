@@ -23,7 +23,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { useOpenEditJob_New } from "../../Hooks/JobHooks/useOpenEditJob_New";
 import { LoadingPage } from "../loadingPage";
-import { EditPage1 } from "./Edit Job Components/Page 1/Job Page 1";
+import { EditPage1 } from "./Edit Job Components/Planning/Job Page 1";
 // import { EditPage2 } from "./Edit Job Components/Page 2/Job Page 2";
 // import { EditPage3 } from "./Edit Job Components/Page 3/Job Page 3";
 // import { EditPage4 } from "./Edit Job Components/Page 4/Job Page 4";

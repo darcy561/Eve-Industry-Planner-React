@@ -1,8 +1,7 @@
-import { useContext, useMemo, useState } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
+import { useState } from "react";
 import { Container, Grid } from "@mui/material";
-import { RawResourceList } from "./rawResources";
-import { ProductionStats } from "./productionStats";
+import { RawResourceList } from "./Standard Layout/Resources Panel/ResourcePanel";
+import { ProductionStats } from "./Standard Layout/productionStats";
 import { TutorialStep1 } from "./tutorialStep1";
 // import { SkillCheck } from "./Page 1 Components/skillCheck";
 import { Masonry } from "@mui/lab";
@@ -10,8 +9,9 @@ import { Masonry } from "@mui/lab";
 // import { ManufacturingBlueprints } from "./Page 1 Components/manufacturingBlueprints";
 // import { ReactionBlueprints } from "./Page 1 Components/reactionBlueprints";
 // import { ArchiveJobs } from "./Page 1 Components/archiveJobs";
-import { JobSetupPanel } from "./jobSetups";
-import { EditJobSetup } from "./editJobSetup";
+import { JobSetupPanel } from "./Standard Layout/Setup Panel/jobSetups";
+import { EditJobSetup } from "./Standard Layout/editJobSetup";
+import { AvailableBlueprintsPanel } from "./Standard Layout/Blueprint Options/blueprintPanel";
 
 export function EditPage1({
   activeJob,
@@ -19,36 +19,10 @@ export function EditPage1({
   jobModified,
   setJobModified,
 }) {
-  const { users } = useContext(UsersContext);
   const [setupToEdit, updateSetupToEdit] = useState(
     activeJob.layout?.setupToEdit ||
     Object.keys(activeJob.build.setup)[0] || null
   );
-
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
-
-  // function OptionSwitch() {
-  //   switch (activeJob.jobType) {
-  //     case 1:
-  //       return (
-  //         <>
-  //           <ManufacturingOptions setJobModified={setJobModified} />
-  //           <ManufacturingBlueprints setJobModified={setJobModified} />
-  //         </>
-  //       );
-  //     case 2:
-  //       return (
-  //         <>
-  //           <ReactionOptions setJobModified={setJobModified} />
-  //           <ReactionBlueprints />
-  //         </>
-  //       );
-  //     case 3:
-  //       return null;
-  //     default:
-  //       return null;
-  //   }
-  // }
 
   return (
     <Container
@@ -68,6 +42,12 @@ export function EditPage1({
               setupToEdit={setupToEdit}
               updateSetupToEdit={updateSetupToEdit}
             />
+            <AvailableBlueprintsPanel
+              activeJob={activeJob}
+              updateActiveJob={updateActiveJob}
+              setJobModified={setJobModified}
+              setupToEdit={setupToEdit}
+            />
           </Masonry>
         </Grid>
         <Grid item xs={12} md={9}>
@@ -75,7 +55,7 @@ export function EditPage1({
             <JobSetupPanel
               activeJob={activeJob}
               updateActiveJob={updateActiveJob}
-              jobModified={jobModified}
+              setJobModified={setJobModified}
               setupToEdit={setupToEdit}
               updateSetupToEdit={updateSetupToEdit}
             />

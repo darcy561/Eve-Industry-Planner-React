@@ -6,7 +6,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { jobTypes } from "../../../../Context/defaultValues";
+import { jobTypes } from "../../../../../../Context/defaultValues";
 import DoneIcon from "@mui/icons-material/Done";
 import LensIcon from "@mui/icons-material/Lens";
 

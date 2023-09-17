@@ -9,8 +9,7 @@ import { structureOptions } from "../../Context/defaultValues";
 import { useMissingSystemIndex } from "./useImportMissingSystemIndexData";
 
 export function useInstallCostsCalc() {
-  const { systemIndexData, updateSystemIndexData } =
-    useContext(SystemIndexContext);
+  const { updateSystemIndexData } = useContext(SystemIndexContext);
   const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
   const { findMissingSystemIndex } = useMissingSystemIndex();

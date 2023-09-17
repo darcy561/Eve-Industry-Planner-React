@@ -314,6 +314,7 @@ export function useBlueprintCalc() {
     }
 
     function skillModifierCalc(reqSkills, userSkills) {
+
       const skillsToIgnore = new Set([3380, 3388, 45746, 22242]);
       let indexer = 1;
       if (!reqSkills) {

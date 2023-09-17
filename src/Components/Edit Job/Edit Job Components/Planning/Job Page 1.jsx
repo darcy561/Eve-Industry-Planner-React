@@ -12,6 +12,7 @@ import { Masonry } from "@mui/lab";
 import { JobSetupPanel } from "./Standard Layout/Setup Panel/jobSetups";
 import { EditJobSetup } from "./Standard Layout/editJobSetup";
 import { AvailableBlueprintsPanel } from "./Standard Layout/Blueprint Options/blueprintPanel";
+import { MaterialCostPanel } from "./Standard Layout/Material Prices/materialPricePanel";
 
 export function EditPage1({
   activeJob,
@@ -62,6 +63,12 @@ export function EditPage1({
             <RawResourceList
               activeJob={activeJob}
               updateActiveJob={updateActiveJob}
+              setupToEdit={setupToEdit}
+            />
+            <MaterialCostPanel
+              activeJob={activeJob}
+              jobModified={jobModified}
+              setJobModified={setJobModified}
               setupToEdit={setupToEdit}
             />
             {/* 

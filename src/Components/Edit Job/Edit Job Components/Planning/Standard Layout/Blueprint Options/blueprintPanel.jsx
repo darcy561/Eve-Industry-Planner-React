@@ -1,6 +1,7 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import { ManufacturingLayout_BlueprintPanel } from "./manufacturingLayout";
+import { ReactionLayout_BlueprintOptions } from "./reactionLayout";
 
 export function AvailableBlueprintsPanel({
   activeJob,
@@ -37,7 +38,13 @@ function LayoutSwitcher({ activeJob, updateActiveJob, setJobModified }) {
         />
       );
     case jobTypes.reaction:
-      return null;
+      return (
+        <ReactionLayout_BlueprintOptions
+          activeJob={activeJob}
+          updateActiveJob={updateActiveJob}
+          setJobModified={setJobModified}
+        />
+      );
     default:
       return (
         <Grid item xs={12} align="center">

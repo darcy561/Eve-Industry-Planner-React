@@ -4,18 +4,16 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../Context/AuthContext";
-import { useFirebase } from "../../../../Hooks/useFirebase";
 import { UserLoginUIContext } from "../../../../Context/LayoutContext";
-import GLOBAL_CONFIG from "../../../../global-config-app";
+import { useFirebase } from "../../../../Hooks/useFirebase";
 
-export function TutorialStep1({ activeJob }) {
+export function TutorialStep2() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
-  const { PRIMARY_THEME } = GLOBAL_CONFIG;
-  
+
   if (!parentUser.settings.layout.hideTutorials && userDataFetch) {
     return (
       <Grid item xs={12}>
@@ -37,24 +35,29 @@ export function TutorialStep1({ activeJob }) {
             </Grid>
             <Grid item xs={12}>
               <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-                This is your first step along the way to building your{" "}
-                {activeJob.name}.{<br />}
+                Now that you know what you are building, it is time to acquire
+                the necessary parts.{<br />} {<br />}
+                On each material card there is a small form allowing you to
+                enter the quantity, this value defaults to the remaining needed,
+                and the price that you paid for the item. Clicking the <b>
+                  +
+                </b>{" "}
+                will add this to the job. You can add as many entries as needed,
+                each entry can be removed using the <b>X</b>.{<br />}
+                For manufacturing or reaction jobs there is an icon displayed in
+                the top left corner indicating the number of child jobs that are
+                attached, clicking this will allow you to manually add or remove
+                child jobs.
                 {<br />}
-                Use the available options to set up the build and calculate the
-                resources that are needed to complete your job.{<br />}
                 {<br />}
-                With some items you may also want to build the components
-                yourself rather than buying these items. Clicking the i icon
-                next to each of the components in the Item Cost panel will
-                display a pop out showing you the total cost of the materials
-                needed to build the component. The total cost is then
-                highlighted in red or green to indicate if it is cheaper to buy
-                the materials or purchase the finished product. If you are happy
-                with the cost of the item then you simply use the Create Job
-                button to create a new job on your planner that is linked to the
-                current job you have open. This new job will automatically be
-                created to make the total number of items indicated in the Raw
-                Resources panel.
+                As you add entries the total cost for the material is
+                calculated. This is then added to the total material cost for
+                the job which is used to calculate an individual item cost.
+                {<br />}
+                {<br />}
+                You can use the "Hide Completed Purchases" toggle switch if you
+                only want to see the items that you have not completely
+                purchased.
               </Typography>
             </Grid>
             {isLoggedIn && (
@@ -68,17 +71,17 @@ export function TutorialStep1({ activeJob }) {
                     Hide Help Options
                   </Typography>
                   <Checkbox
-                    size="small"
                     sx={{
                       color: (theme) =>
-                        theme.palette.mode === PRIMARY_THEME
+                        theme.palette.type === "dark"
                           ? theme.palette.primary.main
                           : theme.palette.secondary.main,
                     }}
+                    size="small"
                     onClick={() => {
                       let newUsers = [...users];
                       let parentUserIndex = newUsers.findIndex(
-                        (i) => i.ParentUser
+                        (i) => i.ParentUser === true
                       );
 
                       newUsers[

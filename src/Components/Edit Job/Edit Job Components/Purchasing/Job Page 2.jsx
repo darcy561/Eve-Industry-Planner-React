@@ -16,11 +16,11 @@ export function EditPage2({
   updateShoppingListTrigger,
   updateShoppingListData,
 }) {
-  const { IsLoggedIn } = useContext(IsLoggedInContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
   const parentUser = useMemo(
     () => users.find((i) => i.ParentUser),
-    [users, IsLoggedIn]
+    [users, isLoggedIn]
   );
 
   const [orderDisplay, changeOrderDisplay] = useState(

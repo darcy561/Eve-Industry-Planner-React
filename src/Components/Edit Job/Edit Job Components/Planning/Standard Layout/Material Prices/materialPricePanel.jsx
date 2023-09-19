@@ -98,7 +98,7 @@ export function MaterialCostPanel({
         listingSelect={listingSelect}
       />
       <Grid container item xs={12}>
-        {activeJob.build.materials.map((material, materialIndex) => {
+        {activeJob.build.materials.map((material) => {
           const materialPrice = evePrices.find(
             (i) => i.typeID === material.typeID
           );
@@ -115,7 +115,6 @@ export function MaterialCostPanel({
               materialPrice={materialPrice}
               jobModified={jobModified}
               setJobModified={setJobModified}
-              materialIndex={materialIndex}
             />
           );
         })}

@@ -16,17 +16,17 @@ export function MaterialCostRow_MaterialPricePanel({
   materialPrice,
   jobModified,
   setJobModified,
-  materialIndex,
 }) {
   const [displayPopover, updateDisplayPopover] = useState(null);
   const [currentPurchasePrice, updateCurrentPurchasePrice] = useState(
     materialPrice[marketSelect][listingSelect]
   );
-  const [currentBuildPrice, updateCurrentBuildPrice] = useState(null);
+  const [currentMaterialPrice, updateCurrentMaterialPrice] = useState(null);
+  const [currentInstallCost, updateCurrentInstallCost] = useState(null);
 
   useEffect(() => {
     updateCurrentPurchasePrice(materialPrice[marketSelect][listingSelect]);
-  }, [marketSelect, listingSelect, currentBuildPrice]);
+  }, [marketSelect, listingSelect, currentMaterialPrice, currentInstallCost]);
 
   const marketSelection = materialPrice[marketSelect];
 
@@ -79,16 +79,8 @@ export function MaterialCostRow_MaterialPricePanel({
                 <Icon
                   aria-haspopup="true"
                   color="primary"
-                    onClick={(event) => {
-                    console.log(event.currentTarget)
+                  onClick={(event) => {
                     updateDisplayPopover(event.currentTarget);
-                    updateActiveJob((prev) => ({
-                      ...prev,
-                      layout: {
-                        ...prev.layout,
-                        childJobPopOverID: event.currentTarget,
-                      },
-                    }));
                   }}
                 >
                   <InfoIcon fontSize="small" />
@@ -104,10 +96,11 @@ export function MaterialCostRow_MaterialPricePanel({
                 listingSelect={listingSelect}
                 jobModified={jobModified}
                 setJobModified={setJobModified}
-                currentBuildPrice={currentBuildPrice}
-                updateCurrentBuildPrice={updateCurrentBuildPrice}
+                currentMaterialPrice={currentMaterialPrice}
+                updateCurrentMaterialPrice={updateCurrentMaterialPrice}
+                currentInstallCost={currentInstallCost}
+                updateCurrentInstallCost={updateCurrentInstallCost}
                 currentPurchasePrice={currentPurchasePrice}
-                materialIndex={materialIndex}
               />
             </>
           ) : null}
@@ -159,8 +152,8 @@ export function MaterialCostRow_MaterialPricePanel({
           <Typography
             sx={{ typography: { xs: "caption", sm: "body2" } }}
             color={
-              currentBuildPrice
-                ? currentPurchasePrice >= currentBuildPrice
+              currentMaterialPrice
+                ? currentPurchasePrice >= currentMaterialPrice
                   ? "error.main"
                   : "success.main"
                 : null
@@ -187,8 +180,8 @@ export function MaterialCostRow_MaterialPricePanel({
         <Typography
           sx={{ typography: { xs: "caption", sm: "body2" } }}
           color={
-            currentBuildPrice
-              ? currentPurchasePrice >= currentBuildPrice
+            currentMaterialPrice
+              ? currentPurchasePrice >= currentMaterialPrice
                 ? "error.main"
                 : "success.main"
               : null

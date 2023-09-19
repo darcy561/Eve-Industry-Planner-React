@@ -1,6 +1,6 @@
 import { useCallback, useContext } from "react";
 import { Grid, Paper, Typography } from "@mui/material";
-import { JobArrayContext } from "../../../../../Context/JobContext";
+import { JobArrayContext } from "../../../../../../Context/JobContext";
 
 export function ProductionStats({ activeJob, setupToEdit }) {
   const { jobArray } = useContext(JobArrayContext);
@@ -42,15 +42,15 @@ export function ProductionStats({ activeJob, setupToEdit }) {
 
     let total = 0;
     for (let jobID of activeJob.parentJob) {
-      let job = jobArray.find((i) => i.jobID === jobID);
+      const  job = jobArray.find((i) => i.jobID === jobID);
       if (!job) continue;
-      let material = job.build.materials.find(
+      const material = job.build.materials.find(
         (i) => i.typeID === activeJob.itemID
       );
       if (!material) continue;
       returnObject.parentTotal += material.quantity;
 
-      let flag = material.childJob.some((i) => i !== activeJob.jobID);
+      const flag = job.build.childJobs[material.typeID].some((i) => i !== activeJob.jobID);
 
       if (flag) {
         for (let childID of material.childJob) {

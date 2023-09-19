@@ -23,7 +23,8 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { useOpenEditJob_New } from "../../Hooks/JobHooks/useOpenEditJob_New";
 import { LoadingPage } from "../loadingPage";
-import { EditPage1 } from "./Edit Job Components/Planning/Job Page 1";
+import { LayoutSelector_EditJob_Planning } from "./Edit Job Components/Planning/layoutSelector";
+import { LayoutSelector_EditJob_Purchasing } from "./Edit Job Components/Purchasing/layoutSelector";
 // import { EditPage2 } from "./Edit Job Components/Page 2/Job Page 2";
 // import { EditPage3 } from "./Edit Job Components/Page 3/Job Page 3";
 // import { EditPage4 } from "./Edit Job Components/Page 4/Job Page 4";
@@ -79,7 +80,7 @@ export function EditJob_New() {
     switch (activeJob.jobStatus) {
       case 0:
         return (
-          <EditPage1
+          <LayoutSelector_EditJob_Planning
             activeJob={activeJob}
             updateActiveJob={updateActiveJob}
             jobModified={jobModified}
@@ -87,16 +88,14 @@ export function EditJob_New() {
           />
         );
       case 1:
-        return null;
-      // return (
-      //   <EditPage2
-      //     activeJob={activeJob}
-      //     updateActiveJob={updateActiveJob}
-      //     setJobModified={setJobModified}
-      //     updateShoppingListTrigger={updateShoppingListTrigger}
-      //     updateShoppingListData={updateShoppingListData}
-      //   />
-      // );
+        return (
+          <LayoutSelector_EditJob_Purchasing
+            activeJob={activeJob}
+            updateActiveJob={updateActiveJob}
+            jobModified={jobModified}
+            setJobModified={setJobModified}
+          />
+        );
       case 2:
         return null;
       // return (

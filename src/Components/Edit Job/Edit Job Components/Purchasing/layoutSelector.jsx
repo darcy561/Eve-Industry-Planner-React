@@ -3,6 +3,7 @@ import { useMediaQuery } from "@mui/material";
 import { Purchasing_StandardLayout_EditJob } from "./Standard Layout/StandardLayout";
 import { Purchasing_MobileLayout_EditJob } from "./Mobile Layout/mobileLayout";
 import { UsersContext } from "../../../../Context/AuthContext";
+import { ShoppingListDialog } from "../../../Job Planner/Dialogues/ShoppingList/ShoppingList";
 
 export function LayoutSelector_EditJob_Purchasing({
   activeJob,
@@ -28,29 +29,36 @@ export function LayoutSelector_EditJob_Purchasing({
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
   //metaLevel
-  const requiresInventionCosts = [2, 14, 53];
+  const requiresInventionCosts = new Set([2, 14, 53]);
   //TypeID
-  const ignoreInventionCosts = [];
+  const ignoreInventionCosts = new Set();
 
   switch (deviceNotMobile) {
     case true:
       return (
-        <Purchasing_StandardLayout_EditJob
-          activeJob={activeJob}
-          updateActiveJob={updateActiveJob}
-          jobModified={jobModified}
-          setJobModified={setJobModified}
-          shoppingListTrigger={shoppingListTrigger}
-          updateShoppingListTrigger={updateShoppingListTrigger}
-          shoppingListData={shoppingListData}
-          updateShoppingListData={updateShoppingListData}
-          orderDisplay={orderDisplay}
-          changeOrderDisplay={changeOrderDisplay}
-          marketDisplay={marketDisplay}
-          changeMarketDisplay={changeMarketDisplay}
-          requiresInventionCosts={requiresInventionCosts}
-          ignoreInventionCosts={ignoreInventionCosts}
-        />
+        <>
+          <ShoppingListDialog
+            shoppingListTrigger={shoppingListTrigger}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            shoppingListData={shoppingListData}
+          />
+          <Purchasing_StandardLayout_EditJob
+            activeJob={activeJob}
+            updateActiveJob={updateActiveJob}
+            jobModified={jobModified}
+            setJobModified={setJobModified}
+            shoppingListTrigger={shoppingListTrigger}
+            updateShoppingListTrigger={updateShoppingListTrigger}
+            shoppingListData={shoppingListData}
+            updateShoppingListData={updateShoppingListData}
+            orderDisplay={orderDisplay}
+            changeOrderDisplay={changeOrderDisplay}
+            marketDisplay={marketDisplay}
+            changeMarketDisplay={changeMarketDisplay}
+            requiresInventionCosts={requiresInventionCosts}
+            ignoreInventionCosts={ignoreInventionCosts}
+          />
+        </>   
       );
 
     case false:

@@ -4,6 +4,8 @@ import { UsersContext } from "../../../../../Context/AuthContext";
 import { TutorialStep2 } from "../tutorialStep2";
 import { PurchasingDataPanel_EditJob } from "./Purchasing Data Panel/purchsingDataPanel";
 import { MaterialCard } from "./Material Cards/materialCard";
+import { InventionCostsCard } from "./Invention Costs/inventionCostsCard";
+import { ShoppingListDialog } from "../../../../Job Planner/Dialogues/ShoppingList/ShoppingList";
 
 export function Purchasing_StandardLayout_EditJob({
   activeJob,
@@ -63,6 +65,7 @@ export function Purchasing_StandardLayout_EditJob({
                 updateActiveJob={updateActiveJob}
                 key={material.typeID}
                 material={material}
+                materialIndex={materialIndex}
                 setJobModified={setJobModified}
                 orderDisplay={orderDisplay}
                 marketDisplay={marketDisplay}
@@ -70,6 +73,14 @@ export function Purchasing_StandardLayout_EditJob({
             );
           }
         })}
+        {requiresInventionCosts.has(activeJob.metaLevel) &&
+        !ignoreInventionCosts.has(activeJob.itemID) ? (
+          <InventionCostsCard
+            activeJob={activeJob}
+            updateActiveJob={updateActiveJob}
+            setJobModified={setJobModified}
+          />
+        ) : null}
       </Grid>
     </Grid>
   );

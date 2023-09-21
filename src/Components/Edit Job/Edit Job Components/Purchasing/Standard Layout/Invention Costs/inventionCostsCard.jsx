@@ -1,3 +1,4 @@
+import { useContext, useState } from "react";
 import {
   Avatar,
   Chip,
@@ -7,19 +8,20 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useContext, useState } from "react";
-import { ActiveJobContext } from "../../../../../Context/JobContext";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
-import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
+import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 
-export function InventionCostsCard({ setJobModified }) {
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+export function InventionCostsCard({
+  activeJob,
+  updateActiveJob,
+  setJobModified,
+}) {
+  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [inputs, setInputs] = useState({
     itemName: null,
     itemCost: 0,
   });
-  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   function handleRemove(record, recordIndex) {
     let newArray = [...activeJob.build.costs.inventionEntries];
@@ -141,7 +143,6 @@ export function InventionCostsCard({ setJobModified }) {
           </Grid>
           <Grid
             container
-            direction="row"
             sx={{
               height: "7vh",
               overflowY: "auto",
@@ -153,7 +154,6 @@ export function InventionCostsCard({ setJobModified }) {
                   <Grid
                     key={record.id}
                     container
-                    direction="row"
                     item
                     justifyContent="center"
                     alignItems="center"

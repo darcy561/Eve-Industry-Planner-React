@@ -33,7 +33,7 @@ exports.GLOBAL_CONFIG = {
   //Number of items that are refreshed at a time.
   //(Int)
   //Default: 150
-  DEFAULT_ITEM_MARKET_REFRESH_QUANTITY: 50,
+  DEFAULT_ITEM_MARKET_REFRESH_QUANTITY: 100,
 
   //Number of hours between updates to item history data.
   //(Int)

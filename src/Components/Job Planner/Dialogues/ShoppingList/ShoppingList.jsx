@@ -84,17 +84,11 @@ export function ShoppingListDialog({
         }
 
         function calcItemPrice(listItem, assetQuantity) {
-          let itemPriceData = evePrices.find(
-            (i) => i.typeID === listItem.typeID
-          );
-          if (itemPriceData === undefined) {
-            itemPriceData = itemPrices.find(
-              (i) => i.typeID === listItem.typeID
-            );
-          }
-          if (itemPriceData === undefined) {
-            return 0;
-          }
+          let itemPriceData =
+            evePrices.find((i) => i.typeID === listItem.typeID) ||
+            itemPrices.find((i) => i.typeID === listItem.typeID)
+            
+
           if (removeAssets) {
             return (
               itemPriceData[parentUser.settings.editJob.defaultMarket][
@@ -233,7 +227,8 @@ export function ShoppingListDialog({
     updateEveIDs(newEveIDs);
     updateLoadingData(true);
   };
-
+  console.log(shoppingListTrigger);
+  console.log(shoppingListData);
   return (
     <Dialog
       open={shoppingListTrigger}

@@ -6,6 +6,10 @@ import {
 } from "../../../../../../Context/AuthContext";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
 import { jobTypes } from "../../../../../../Context/defaultValues";
+import { MaterialCosts } from "./materialCosts";
+import { AddMaterialCost } from "./addMaterialCosts";
+import { AssetDialogue } from "../Assets Dialogue/assetsDialogue";
+import { ChildJobDialogue } from "../Child Job Dialogue/childJobDialogue";
 
 export function MaterialCard({
   activeJob,
@@ -50,17 +54,19 @@ export function MaterialCard({
 
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
-      {/* <ChildJobDialog
+      <ChildJobDialogue
+        activeJob={activeJob}
+        updateActiveJob={updateActiveJob}
         material={material}
         childDialogTrigger={childDialogTrigger}
         updateChildDialogTrigger={updateChildDialogTrigger}
         setJobModified={setJobModified}
       />
-      <ItemAssetsDialogue
+      <AssetDialogue
         material={material}
         itemAssetsDialogTrigger={itemAssetsDialogTrigger}
         updateItemAssetsDialogTrigger={updateItemAssetsDialogTrigger}
-      /> */}
+      />
       <Paper
         sx={{
           padding: "20px",
@@ -125,17 +131,12 @@ export function MaterialCard({
             </Tooltip>
           )}
           <Grid item xs={12} align="center">
-            <picture>
-              <source
-                media="(max-width:700px)"
-                srcSet={`https://images.evetech.net/types/${material.typeID}/icon?size=32`}
-                alt=""
-              />
-              <img
-                src={`https://images.evetech.net/types/${material.typeID}/icon?size=64`}
-                alt=""
-              />
-            </picture>
+            <Avatar
+              src={`https://images.evetech.net/types/${material.typeID}/icon?size=64`}
+              alt={material.name}
+              variant="square"
+              sx={{ height: { xs: 32, sm: 64 }, width: { xs: 32, sm: 64 } }}
+            />
           </Grid>
           <Grid
             item
@@ -186,21 +187,25 @@ export function MaterialCard({
               ISK
             </Typography>
           </Grid>
-          {/* <MaterialCost
-              materialIndex={materialIndex}
-              material={material}
-              setJobModified={setJobModified}
-            /> */}
-          {/* {material.quantityPurchased < material.quantity &&
-              childJobProductionTotal < material.quantity && (
-                <AddMaterialCost
-                  materialIndex={materialIndex}
-                  material={material}
-                  setJobModified={setJobModified}
-                  marketDisplay={marketDisplay}
-                  orderDisplay={orderDisplay}
-                />
-              )} */}
+          <MaterialCosts
+            activeJob={activeJob}
+            updateActiveJob={updateActiveJob}
+            materialIndex={materialIndex}
+            material={material}
+            setJobModified={setJobModified}
+          />
+          {material.quantityPurchased < material.quantity &&
+            childJobProductionTotal < material.quantity && (
+              <AddMaterialCost
+                activeJob={activeJob}
+                updateActiveJob={updateActiveJob}
+                materialIndex={materialIndex}
+                material={material}
+                setJobModified={setJobModified}
+                marketDisplay={marketDisplay}
+                orderDisplay={orderDisplay}
+              />
+            )}
           {material.quantityPurchased === material.quantity && (
             <Box
               sx={{

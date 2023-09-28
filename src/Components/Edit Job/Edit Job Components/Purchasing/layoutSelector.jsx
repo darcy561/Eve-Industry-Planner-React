@@ -3,7 +3,6 @@ import { useMediaQuery } from "@mui/material";
 import { Purchasing_StandardLayout_EditJob } from "./Standard Layout/StandardLayout";
 import { Purchasing_MobileLayout_EditJob } from "./Mobile Layout/mobileLayout";
 import { UsersContext } from "../../../../Context/AuthContext";
-import { ShoppingListDialog } from "../../../Job Planner/Dialogues/ShoppingList/ShoppingList";
 
 export function LayoutSelector_EditJob_Purchasing({
   activeJob,
@@ -12,8 +11,6 @@ export function LayoutSelector_EditJob_Purchasing({
   setJobModified,
 }) {
   const { users } = useContext(UsersContext);
-  const [shoppingListTrigger, updateShoppingListTrigger] = useState(false);
-  const [shoppingListData, updateShoppingListData] = useState([]);
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
   const [orderDisplay, changeOrderDisplay] = useState(
     !activeJob.layout.localOrderDisplay
@@ -36,21 +33,11 @@ export function LayoutSelector_EditJob_Purchasing({
   switch (deviceNotMobile) {
     case true:
       return (
-        <>
-          <ShoppingListDialog
-            shoppingListTrigger={shoppingListTrigger}
-            updateShoppingListTrigger={updateShoppingListTrigger}
-            shoppingListData={shoppingListData}
-          />
           <Purchasing_StandardLayout_EditJob
             activeJob={activeJob}
             updateActiveJob={updateActiveJob}
             jobModified={jobModified}
             setJobModified={setJobModified}
-            shoppingListTrigger={shoppingListTrigger}
-            updateShoppingListTrigger={updateShoppingListTrigger}
-            shoppingListData={shoppingListData}
-            updateShoppingListData={updateShoppingListData}
             orderDisplay={orderDisplay}
             changeOrderDisplay={changeOrderDisplay}
             marketDisplay={marketDisplay}
@@ -58,7 +45,6 @@ export function LayoutSelector_EditJob_Purchasing({
             requiresInventionCosts={requiresInventionCosts}
             ignoreInventionCosts={ignoreInventionCosts}
           />
-        </>   
       );
 
     case false:
@@ -68,10 +54,6 @@ export function LayoutSelector_EditJob_Purchasing({
           updateActiveJob={updateActiveJob}
           jobModified={jobModified}
           setJobModified={setJobModified}
-          shoppingListTrigger={shoppingListTrigger}
-          updateShoppingListTrigger={updateShoppingListTrigger}
-          shoppingListData={shoppingListData}
-          updateShoppingListData={updateShoppingListData}
           orderDisplay={orderDisplay}
           changeOrderDisplay={changeOrderDisplay}
           marketDisplay={marketDisplay}
@@ -87,10 +69,6 @@ export function LayoutSelector_EditJob_Purchasing({
           updateActiveJob={updateActiveJob}
           jobModified={jobModified}
           setJobModified={setJobModified}
-          shoppingListTrigger={shoppingListTrigger}
-          updateShoppingListTrigger={updateShoppingListTrigger}
-          shoppingListData={shoppingListData}
-          updateShoppingListData={updateShoppingListData}
           orderDisplay={orderDisplay}
           changeOrderDisplay={changeOrderDisplay}
           marketDisplay={marketDisplay}

@@ -16,6 +16,7 @@ import {
 } from "../../../../../../Context/AuthContext";
 import { listingType } from "../../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
+import { ShoppingListContext } from "../../../../../../Context/LayoutContext";
 
 export function PurchasingDataPanel_EditJob({
   activeJob,
@@ -24,11 +25,11 @@ export function PurchasingDataPanel_EditJob({
   changeOrderDisplay,
   marketDisplay,
   changeMarketDisplay,
-  updateShoppingListTrigger,
-  updateShoppingListData,
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
+  const { updateShoppingListTrigger, updateShoppingListData } =
+    useContext(ShoppingListContext);
   const [orderSelect, updateOrderSelect] = useState(orderDisplay);
   const [marketSelect, updateMarketSelect] = useState(marketDisplay);
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;

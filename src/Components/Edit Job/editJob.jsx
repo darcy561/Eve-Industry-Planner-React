@@ -25,6 +25,8 @@ import { useOpenEditJob_New } from "../../Hooks/JobHooks/useOpenEditJob_New";
 import { LoadingPage } from "../loadingPage";
 import { LayoutSelector_EditJob_Planning } from "./Edit Job Components/Planning/layoutSelector";
 import { LayoutSelector_EditJob_Purchasing } from "./Edit Job Components/Purchasing/layoutSelector";
+import { ShoppingListDialog } from "../Job Planner/Dialogues/ShoppingList/ShoppingList";
+import { LayoutSelector_EditJob_Building } from "./Edit Job Components/Building/layoutSelector";
 // import { EditPage2 } from "./Edit Job Components/Page 2/Job Page 2";
 // import { EditPage3 } from "./Edit Job Components/Page 3/Job Page 3";
 // import { EditPage4 } from "./Edit Job Components/Page 4/Job Page 4";
@@ -97,14 +99,14 @@ export function EditJob_New() {
           />
         );
       case 2:
-        return null;
-      // return (
-      //   <EditPage3
-      //     activeJob={activeJob}
-      //     updateActiveJob={updateActiveJob}
-      //     setJobModified={setJobModified}
-      //   />
-      // );
+        return (
+          <LayoutSelector_EditJob_Building
+            activeJob={activeJob}
+            updateActiveJob={updateActiveJob}
+            jobModified={jobModified}
+            setJobModified={setJobModified}
+          />
+        );
       case 3:
         return null;
       // return (
@@ -149,6 +151,7 @@ export function EditJob_New() {
       }}
       square
     >
+      <ShoppingListDialog />
       <Grid container>
         <Grid item xs={7} md={9} lg={10} />
         <Grid item xs={5} md={3} lg={2} align="right">

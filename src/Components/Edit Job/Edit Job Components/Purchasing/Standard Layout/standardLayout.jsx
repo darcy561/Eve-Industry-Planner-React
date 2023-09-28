@@ -12,10 +12,6 @@ export function Purchasing_StandardLayout_EditJob({
   updateActiveJob,
   jobModified,
   setJobModified,
-  shoppingListTrigger,
-  updateShoppingListTrigger,
-  shoppingListData,
-  updateShoppingListData,
   orderDisplay,
   changeOrderDisplay,
   marketDisplay,
@@ -31,8 +27,6 @@ export function Purchasing_StandardLayout_EditJob({
       <PurchasingDataPanel_EditJob
         activeJob={activeJob}
         updateActiveJob={updateActiveJob}
-        updateShoppingListTrigger={updateShoppingListTrigger}
-        updateShoppingListData={updateShoppingListData}
         orderDisplay={orderDisplay}
         changeOrderDisplay={changeOrderDisplay}
         marketDisplay={marketDisplay}

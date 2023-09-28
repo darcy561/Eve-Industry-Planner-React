@@ -1,5 +1,8 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { SnackBarDataContext } from "../../../../Context/LayoutContext";
+import {
+  ShoppingListContext,
+  SnackBarDataContext,
+} from "../../../../Context/LayoutContext";
 import {
   Avatar,
   Button,
@@ -31,13 +34,15 @@ import {
 } from "../../../../Context/EveDataContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 
-export function ShoppingListDialog({
-  shoppingListTrigger,
-  updateShoppingListTrigger,
-  shoppingListData,
-}) {
+export function ShoppingListDialog() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const {
+    shoppingListTrigger,
+    shoppingListData,
+    updateShoppingListTrigger,
+    updateShoppingListData,
+  } = useContext(ShoppingListContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
@@ -86,8 +91,7 @@ export function ShoppingListDialog({
         function calcItemPrice(listItem, assetQuantity) {
           let itemPriceData =
             evePrices.find((i) => i.typeID === listItem.typeID) ||
-            itemPrices.find((i) => i.typeID === listItem.typeID)
-            
+            itemPrices.find((i) => i.typeID === listItem.typeID);
 
           if (removeAssets) {
             return (
@@ -219,6 +223,7 @@ export function ShoppingListDialog({
   }, [shoppingListTrigger]);
 
   const handleClose = () => {
+    updateShoppingListData([]);
     updateShoppingListTrigger(false);
     updateChildJobDisplay(false);
     updateRemoveAssets(false);
@@ -227,8 +232,7 @@ export function ShoppingListDialog({
     updateEveIDs(newEveIDs);
     updateLoadingData(true);
   };
-  console.log(shoppingListTrigger);
-  console.log(shoppingListData);
+  
   return (
     <Dialog
       open={shoppingListTrigger}

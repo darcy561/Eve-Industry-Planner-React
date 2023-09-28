@@ -63,7 +63,7 @@ export function useMarketOrderFunctions() {
     this.CharacterHash = order.CharacterHash;
   }
 
-  const findJournalEntry = (transaction) => {
+  function findJournalEntry(transaction) {
     const journalEntries = [
       ...esiJournal.flatMap((entry) => entry?.data ?? []),
       ...corpEsiJournal.flatMap((user) =>
@@ -74,9 +74,9 @@ export function useMarketOrderFunctions() {
     return journalEntries.find(
       (entry) => transaction?.transaction_id === entry?.context_id
     );
-  };
+  }
 
-  const findTransactionTax = (transaction) => {
+  function findTransactionTax(transaction) {
     const journalEntries = [
       ...esiJournal.flatMap((entry) => entry?.data ?? []),
       ...corpEsiJournal.flatMap((user) =>
@@ -89,9 +89,9 @@ export function useMarketOrderFunctions() {
         entry?.ref_type === "transaction_tax" &&
         Date.parse(entry?.date) === Date.parse(transaction?.date)
     );
-  };
+  }
 
-  const findMarketOrdersForItem = () => {
+  function findMarketOrdersForItem() {
     const matchingMarketOrders = [];
     [esiOrders, esiHistOrders, corpEsiOrders, corpEsiHistOrders].forEach(
       (orders) => {
@@ -111,9 +111,12 @@ export function useMarketOrderFunctions() {
     );
 
     return matchingMarketOrders;
-  };
+  }
 
-  const findTransactionsForMarketOrders = (order) => {
+  function findTransactionsForMarketOrders(
+    order,
+    existingMatchedTransactionIDs
+  ) {
     const existingTransactions = [];
     const transactions = [
       ...esiTransactions.flatMap((entry) => entry?.data ?? []),
@@ -130,42 +133,47 @@ export function useMarketOrderFunctions() {
         !parentUser.linkedTrans.has(trans.transaction_id) &&
         !existingTransactions.some(
           (i) => i.transaction_id === trans.transaction_id
-        )
+        ) &&
+        !existingMatchedTransactionIDs.has(trans.transaction_id)
       ) {
         existingTransactions.push(trans);
       }
     });
 
     return existingTransactions;
-  };
+  }
 
-  const buildTransactionData = () => {
+  function buildTransactionData(inputJob) {
     const transactionData = [];
-    activeJob.build.sale.marketOrders.forEach((order) => {
-      const itemTransactions = findTransactionsForMarketOrders(order);
+    const matchedTransactions = new Set();
+    inputJob.build.sale.marketOrders.forEach((order) => {
+      const itemTransactions = findTransactionsForMarketOrders(
+        order,
+        matchedTransactions
+      );
       itemTransactions.forEach((itemTrans) => {
+        matchedTransactions.add(itemTrans.transaction_id);
         const transJournal = findJournalEntry(itemTrans);
         const transTax = findTransactionTax(itemTrans);
-        if (transJournal && transTax) {
-          const descriptionTrim = transJournal.description
-            .replace("Market: ", "")
-            .split(" bought");
-          transactionData.push({
-            ...new Transaction(
-              itemTrans,
-              descriptionTrim[0],
-              transJournal,
-              transTax,
-              order.CharacterHash
-            ),
-          });
-        }
+        if (!transJournal && !transTax) return;
+        const descriptionTrim = transJournal.description
+          .replace("Market: ", "")
+          .split(" bought");
+        transactionData.push({
+          ...new Transaction(
+            itemTrans,
+            descriptionTrim[0],
+            transJournal,
+            transTax,
+            order.CharacterHash
+          ),
+        });
       });
     });
     return transactionData;
-  };
+  }
 
-  const findBrokersFeeEntry = (order, brokersFee) => {
+  function findBrokersFeeEntry(order, brokersFee) {
     const checkEntry = (entry) => {
       if (
         entry?.ref_type === "brokers_fee" ||
@@ -191,7 +199,7 @@ export function useMarketOrderFunctions() {
     }
 
     return null;
-  };
+  }
 
   return {
     buildTransactionData,

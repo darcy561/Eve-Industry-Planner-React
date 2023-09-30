@@ -27,10 +27,7 @@ import { LayoutSelector_EditJob_Planning } from "./Edit Job Components/Planning/
 import { LayoutSelector_EditJob_Purchasing } from "./Edit Job Components/Purchasing/layoutSelector";
 import { ShoppingListDialog } from "../Job Planner/Dialogues/ShoppingList/ShoppingList";
 import { LayoutSelector_EditJob_Building } from "./Edit Job Components/Building/layoutSelector";
-// import { EditPage2 } from "./Edit Job Components/Page 2/Job Page 2";
-// import { EditPage3 } from "./Edit Job Components/Page 3/Job Page 3";
-// import { EditPage4 } from "./Edit Job Components/Page 4/Job Page 4";
-// import { EditPage5 } from "./Edit Job Components/Page 5/Job Page 5";
+import { LayoutSelector_EditJob_Complete } from "./Edit Job Components/Complete/LayoutSelector";
 
 export function EditJob_New() {
   const { jobStatus } = useContext(JobStatusContext);
@@ -108,15 +105,13 @@ export function EditJob_New() {
           />
         );
       case 3:
-        return null;
-      // return (
-      //   <EditPage4
-      //     activeJob={activeJob}
-      //     updateActiveJob={updateActiveJob}
-      //     setJobModified={setJobModified}
-      //     updateEditJobTrigger={updateEditJobTrigger}
-      //   />
-      // );
+        return (
+          <LayoutSelector_EditJob_Complete
+            activeJob={activeJob}
+            updateActiveJob={updateActiveJob}
+            setJobModified={setJobModified}
+          />
+        );
       case 4:
         return null;
       // return (

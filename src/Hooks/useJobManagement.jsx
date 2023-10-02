@@ -740,7 +740,7 @@ export function useJobManagement() {
         (i) => i.user === marketOrder.CharacterHash
       )?.data;
 
-      const brokerSkill = userSkills?.find((i) => i.id === 3446);
+      const brokerSkill = userSkills[3446];
       const stationInfo = await stationData(marketOrder.location_id);
 
       const factionStanding =

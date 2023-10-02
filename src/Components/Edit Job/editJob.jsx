@@ -25,9 +25,11 @@ import { useOpenEditJob_New } from "../../Hooks/JobHooks/useOpenEditJob_New";
 import { LoadingPage } from "../loadingPage";
 import { LayoutSelector_EditJob_Planning } from "./Edit Job Components/Planning/layoutSelector";
 import { LayoutSelector_EditJob_Purchasing } from "./Edit Job Components/Purchasing/layoutSelector";
-import { ShoppingListDialog } from "../Job Planner/Dialogues/ShoppingList/ShoppingList";
 import { LayoutSelector_EditJob_Building } from "./Edit Job Components/Building/layoutSelector";
 import { LayoutSelector_EditJob_Complete } from "./Edit Job Components/Complete/LayoutSelector";
+import { LayoutSelector_EditJob_Selling } from "./Edit Job Components/Selling/LayoutSelector";
+import { ShoppingListDialog } from "../Job Planner/Dialogues/ShoppingList/ShoppingList";
+
 
 export function EditJob_New() {
   const { jobStatus } = useContext(JobStatusContext);
@@ -113,15 +115,13 @@ export function EditJob_New() {
           />
         );
       case 4:
-        return null;
-      // return (
-      //   <EditPage5
-      //     activeJob={activeJob}
-      //     updateActiveJob={updateActiveJob}
-      //     setJobModified={setJobModified}
-      //     updateEditJobTrigger={updateEditJobTrigger}
-      //   />
-      // );
+        return (
+          <LayoutSelector_EditJob_Selling
+            activeJob={activeJob}
+            updateActiveJob={updateActiveJob}
+            setJobModified={setJobModified}
+          />
+        );
       default:
         return (
           <EditPage1

@@ -1,7 +1,7 @@
 import { useMediaQuery } from "@mui/material";
-import { Complete_StandardLayout_EditJob } from "./Standard Layout/standardLayout";
+import { Selling_StandardLayout_EditJob } from "./Standard Layout/standardLayout";
 
-export function LayoutSelector_EditJob_Complete({
+export function LayoutSelector_EditJob_Selling({
   activeJob,
   updateActiveJob,
   setJobModified,
@@ -11,7 +11,7 @@ export function LayoutSelector_EditJob_Complete({
   switch (deviceNotMobile) {
     case true:
       return (
-        <Complete_StandardLayout_EditJob
+        <Selling_StandardLayout_EditJob
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
@@ -19,7 +19,7 @@ export function LayoutSelector_EditJob_Complete({
       );
     case false:
       return (
-        <Complete_StandardLayout_EditJob
+        <Selling_StandardLayout_EditJob
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
@@ -27,7 +27,7 @@ export function LayoutSelector_EditJob_Complete({
       );
     default:
       return (
-        <Complete_StandardLayout_EditJob
+        <Selling_StandardLayout_EditJob
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}

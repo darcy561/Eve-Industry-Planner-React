@@ -207,7 +207,7 @@ export function useJobManagement() {
           materialPriceIDs,
           generatePriceRequestFromJob(inputJob)
         );
-        if (material.childJob.length > 0) {
+        if (inputJob.build.childJobs[material.typeID].length > 0) {
           return;
         }
         if (
@@ -284,9 +284,7 @@ export function useJobManagement() {
         updatedJob.build.childJobs[material.typeID].push(match.jobID);
       }
       newUserJobSnapshot = updateJobSnapshot(updatedJob, newUserJobSnapshot);
-      if (activeJob.jobID === updatedJob.jobID) {
-        updateActiveJob(updatedJob);
-      }
+
       jobsToSave.add(updatedJob.jobID);
     }
 
@@ -525,12 +523,11 @@ export function useJobManagement() {
       if (!buildEntry) {
         let childJobArray = [];
         currentJob.build.materials.forEach((mat) => {
-          if (currentJob.build.childJobs.length > 0) {
-            childJobArray.push({
-              typeID: mat.typeID,
-              childJobs: new Set(currentJob.build.childJobs[mat.typeID]),
-            });
-          }
+          if (currentJob.build.childJobs[mat.typeID].length === 0) return;
+          childJobArray.push({
+            typeID: mat.typeID,
+            childJobs: new Set(currentJob.build.childJobs[mat.typeID]),
+          });
         });
 
         buildData.push({
@@ -569,6 +566,7 @@ export function useJobManagement() {
         });
       }
     }
+
     buildData = buildData.filter(
       (i) => i.inputJobCount > 1 && i.parentJobs.size > 0
     );
@@ -636,6 +634,7 @@ export function useJobManagement() {
       }
       for (let replacementJob of newJobHold) {
         let matchingMaterial = replacementJob.build.childJobs[buildItem.typeID];
+        if (!matchingMaterial) continue;
         matchingMaterial = matchingMaterial.concat([...buildItem.newJobIDs]);
         matchingMaterial = matchingMaterial.filter(
           (i) => !buildItem.oldJobIDs.has(i)
@@ -846,20 +845,17 @@ export function useJobManagement() {
     return "bp";
   };
 
-
   function deepCopyJobObject(inputJob) {
-    
-    const newApiJobs = new Set(inputJob.apiJobs)
-    const newApiOrders = new Set(inputJob.apiOrders)
-    const newApiTransactions = new Set(inputJob.apiTransactions)
+    const newApiJobs = new Set(inputJob.apiJobs);
+    const newApiOrders = new Set(inputJob.apiOrders);
+    const newApiTransactions = new Set(inputJob.apiTransactions);
 
     let deepCopy = structuredClone(inputJob);
-    deepCopy.apiJobs = newApiJobs
-    deepCopy.apiOrders = newApiOrders
-    deepCopy.apiTransactions = newApiTransactions
+    deepCopy.apiJobs = newApiJobs;
+    deepCopy.apiOrders = newApiOrders;
+    deepCopy.apiTransactions = newApiTransactions;
 
-    return deepCopy
-
+    return deepCopy;
   }
 
   return {

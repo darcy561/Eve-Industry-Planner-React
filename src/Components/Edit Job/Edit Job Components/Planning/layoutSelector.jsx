@@ -7,6 +7,8 @@ export function LayoutSelector_EditJob_Planning({
   updateActiveJob,
   jobModified,
   setJobModified,
+  temporaryChildJobs,
+  updateTemporaryChildJobs
 }) {
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
@@ -18,6 +20,8 @@ export function LayoutSelector_EditJob_Planning({
           updateActiveJob={updateActiveJob}
           jobModified={jobModified}
           setJobModified={setJobModified}
+          temporaryChildJobs={temporaryChildJobs}
+          updateTemporaryChildJobs={updateTemporaryChildJobs}
         />
       );
     case false:
@@ -27,6 +31,8 @@ export function LayoutSelector_EditJob_Planning({
           updateActiveJob={updateActiveJob}
           jobModified={jobModified}
           setJobModified={setJobModified}
+          temporaryChildJobs={temporaryChildJobs}
+          updateTemporaryChildJobs={updateTemporaryChildJobs}
         />
       );
     default:
@@ -36,6 +42,8 @@ export function LayoutSelector_EditJob_Planning({
           updateActiveJob={updateActiveJob}
           jobModified={jobModified}
           setJobModified={setJobModified}
+          temporaryChildJobs={temporaryChildJobs}
+          updateTemporaryChildJobs={updateTemporaryChildJobs}
         />
       );
   }

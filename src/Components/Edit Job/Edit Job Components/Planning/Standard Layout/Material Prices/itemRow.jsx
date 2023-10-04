@@ -16,6 +16,8 @@ export function MaterialCostRow_MaterialPricePanel({
   materialPrice,
   jobModified,
   setJobModified,
+  temporaryChildJobs,
+  updateTemporaryChildJobs
 }) {
   const [displayPopover, updateDisplayPopover] = useState(null);
   const [currentPurchasePrice, updateCurrentPurchasePrice] = useState(
@@ -100,7 +102,9 @@ export function MaterialCostRow_MaterialPricePanel({
                 updateCurrentMaterialPrice={updateCurrentMaterialPrice}
                 currentInstallCost={currentInstallCost}
                 updateCurrentInstallCost={updateCurrentInstallCost}
-                currentPurchasePrice={currentPurchasePrice}
+                  currentPurchasePrice={currentPurchasePrice}
+                  temporaryChildJobs={temporaryChildJobs}
+                  updateTemporaryChildJobs={updateTemporaryChildJobs}
               />
             </>
           ) : null}

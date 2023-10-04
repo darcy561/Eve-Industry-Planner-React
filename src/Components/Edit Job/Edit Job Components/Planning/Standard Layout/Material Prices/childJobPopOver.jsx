@@ -28,6 +28,7 @@ import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJo
 import { useSwitchActiveJob } from "../../../../../../Hooks/JobHooks/useSwitchActiveJob";
 import { useManageGroupJobs } from "../../../../../../Hooks/GroupHooks/useManageGroupJobs";
 import { jobTypes } from "../../../../../../Context/defaultValues";
+import { fi } from "date-fns/locale";
 
 export function ChildJobPopover({
   activeJob,
@@ -44,6 +45,8 @@ export function ChildJobPopover({
   currentInstallCost,
   updateCurrentInstallCost,
   currentPurchasePrice,
+  temporaryChildJobs,
+  updateTemporaryChildJobs
 }) {
   const { jobArray, groupArray, updateGroupArray, updateJobArray } =
     useContext(JobArrayContext);
@@ -76,7 +79,28 @@ export function ChildJobPopover({
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
   const childJobsLocation = activeJob.build.childJobs[material.typeID];
+
   useEffect(() => {
+    // async function fetchData() {
+    //   if (!displayPopover) return
+
+    //   if (childJobsLocation.length > 0) {
+    //     for (let childJobID of childJobsLocation) {
+          
+    //       let matchedChildJob = jobArray.find((i) => i.jobID === childJobID);
+    //       if (!matchedChildJob) {
+    //         let matchedSnapshot = userJobSnapshot.find((i) => i.jobID === childJobID)
+    //         if (!matchedSnapshot) {
+    //           matchedChildJob
+    //         }
+    //       }
+
+    //     }
+        
+    //   }
+      
+      
+    // } 
     const fetchData = async () => {
       if (!displayPopover) {
         return;

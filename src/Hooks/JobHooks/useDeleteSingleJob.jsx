@@ -113,17 +113,14 @@ export function useDeleteSingleJob() {
         newUserJobSnapshot,
         newJobArray
       );
-      if (!parentJob) {
+      if (!parentJob || !parentJob.build.childJobs[inputJob.itemID]) {
         continue;
       }
-      for (let mat of parentJob.build.materials) {
-        if (!mat.childJob) {
-          continue;
-        }
-        parentJob.build.childJobs[mat.typeID] = parentJob.build.childJobs[
-          mat.typeID
-        ].filter((i) => i !== inputJob.jobID);
-      }
+
+      parentJob.build.childJobs[inputJob.itemID] = parentJob.build.childJobs[
+        inputJob.itemID
+      ].filter((i) => i !== inputJob.jobID);
+
       newUserJobSnapshot = updateJobSnapshot(parentJob, newUserJobSnapshot);
       jobsToSave.add(parentJob.jobID);
     }

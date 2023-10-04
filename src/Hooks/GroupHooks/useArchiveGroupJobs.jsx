@@ -61,6 +61,7 @@ export function useArchiveGroupJobs() {
     updateUsers(newUserArray);
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
+    updateActiveGroup(null);
     if (isLoggedIn) {
       await uploadGroups(newGroupArray);
       await updateMainUserDoc();

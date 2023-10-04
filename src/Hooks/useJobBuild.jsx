@@ -323,25 +323,36 @@ export function useJobBuild() {
     baseQuantity,
     itemQuantityRequired
   ) {
-    let remainingItemQty = itemQuantityRequired;
-    let jobCount = 0;
-    let runCount = 0;
+    const jobs = [];
+    const totalPerMaxRuns = maxProductionLimit * baseQuantity;
+    const numMaxRuns = Math.floor(itemQuantityRequired / totalPerMaxRuns);
+    let leftOvers = 0;
+    let singleJobRequired = false;
 
-    while (remainingItemQty > 0) {
-      const itemsPerJob = maxProductionLimit * baseQuantity;
-      const jobsProduced = Math.floor(remainingItemQty / itemsPerJob);
-      const itemsProduced = jobsProduced * itemsPerJob;
-
-      if (itemsProduced > 0) {
-        remainingItemQty -= itemsProduced;
-        jobCount += jobsProduced;
-        runCount += jobsProduced * baseQuantity;
-      } else {
-        break;
-      }
+    if (totalPerMaxRuns > itemQuantityRequired) {
+      jobs.push({
+        runCount: Math.ceil(itemQuantityRequired / baseQuantity),
+        jobCount: 1,
+      });
+      singleJobRequired = true;
+    } else {
+      leftOvers = itemQuantityRequired - totalPerMaxRuns * numMaxRuns;
     }
 
-    return [{ runCount, jobCount }];
+    if (!singleJobRequired) {
+      jobs.push({
+        runCount: maxProductionLimit,
+        jobCount: numMaxRuns,
+      });
+    }
+    if (leftOvers > 0) {
+      jobs.push({
+        runCount: Math.ceil(leftOvers / baseQuantity),
+        jobCount: 1,
+      });
+    }
+
+    return jobs;
   }
 
   async function buildSetupOptions(inputJobObject, buildRequestObject) {
@@ -359,11 +370,13 @@ export function useJobBuild() {
     );
     const structureData = addDefaultStructure_New(inputJobObject.jobType);
 
+
     const setupQuantities = recalculateItemQty_New(
       inputJobObject.maxProductionLimit,
       inputJobObject.rawData.products[0].quantity,
       requiredQuantity
     );
+
 
     for (let i = 0; i < setupQuantities.length; i++) {
       let nextObject = buildNewSetupObject({
@@ -395,6 +408,16 @@ export function useJobBuild() {
       setupLocation[nextObject.id].estimatedInstallCost =
         await calculateInstallCostFromJob(setupLocation[nextObject.id]);
     }
+
+    const newTotalQuantities = calculateJobMaterialQuantities(setupLocation);
+
+    for (const material of inputJobObject.build.materials) {
+      const materialId = material.typeID.toString();
+      if (materialId in newTotalQuantities) {
+        material.quantity = newTotalQuantities[materialId];
+      }
+    }
+
   }
 
   function buildNewSetupObject(inputOptions) {
@@ -516,8 +539,6 @@ export function useJobBuild() {
       typeMap[inputJobType]
     ].find((i) => i.default);
 
-
-
     if (!matchedStructure) return {};
 
     return {
@@ -560,15 +581,30 @@ export function useJobBuild() {
     outputObject.groupID = buildRequest.groupID;
   }
 
+  function calculateJobMaterialQuantities(jobSetupObject) {
+    const totals = {};
+
+    for (const objId of Object.keys(jobSetupObject)) {
+      const materialCount = jobSetupObject[objId].materialCount || {};
+
+      for (const materialId of Object.keys(materialCount)) {
+        const quantity = materialCount[materialId].quantity || 0;
+        totals[materialId] = (totals[materialId] || 0) + quantity;
+      }
+    }
+
+    return totals;
+  }
+
   return {
     addDefaultStructure_New,
     addItemBlueprint_New,
     buildJob,
     buildNewSetupObject,
+    calculateJobMaterialQuantities,
     checkAllowBuild,
     jobBuildErrors,
     recalculateItemQty,
     recalculateItemQty_New,
-
   };
 }

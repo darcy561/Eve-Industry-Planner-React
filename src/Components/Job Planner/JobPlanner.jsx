@@ -17,7 +17,7 @@ import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
 import { ESIOffline } from "../offlineNotification";
 import { UserLogInUI } from "../Auth/LoginUI/LoginUI";
 
-const EditJob = lazy(() => import("./Edit Job/EditJob"));
+const EditJob = lazy(() => import("../Edit Job/editJob"));
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
 
 export function JobPlanner() {

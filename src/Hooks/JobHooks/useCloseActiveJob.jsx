@@ -10,8 +10,8 @@ import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./useJobSnapshots";
 
 export function useCloseActiveJob() {
-  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { updateActiveJob } = useContext(ActiveJobContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
@@ -113,10 +113,9 @@ export function useCloseActiveJob() {
     ) {
       newUserJobSnapshot = newJobSnapshot(inputJob, newUserJobSnapshot);
     }
-
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
-    updateActiveJob({});
+    updateActiveJob(null);
 
     if (isLoggedIn && jobModifiedFlag) {
       await uploadUserJobSnapshot(newUserJobSnapshot);

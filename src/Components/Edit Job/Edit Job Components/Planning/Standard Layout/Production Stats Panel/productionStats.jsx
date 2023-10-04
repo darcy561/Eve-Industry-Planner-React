@@ -42,7 +42,7 @@ export function ProductionStats({ activeJob, setupToEdit }) {
 
     let total = 0;
     for (let jobID of activeJob.parentJob) {
-      const  job = jobArray.find((i) => i.jobID === jobID);
+      const job = jobArray.find((i) => i.jobID === jobID);
       if (!job) continue;
       const material = job.build.materials.find(
         (i) => i.typeID === activeJob.itemID
@@ -50,10 +50,12 @@ export function ProductionStats({ activeJob, setupToEdit }) {
       if (!material) continue;
       returnObject.parentTotal += material.quantity;
 
-      const flag = job.build.childJobs[material.typeID].some((i) => i !== activeJob.jobID);
+      const flag = job.build.childJobs[material.typeID].some(
+        (i) => i !== activeJob.jobID
+      );
 
       if (flag) {
-        for (let childID of material.childJob) {
+        for (let childID of job.build.childJobs[material.typeID]) {
           if (childID === activeJob.jobID) continue;
           let childJob = jobArray.find((i) => i.jobID === childID);
           if (!childJob) continue;
@@ -128,7 +130,6 @@ export function ProductionStats({ activeJob, setupToEdit }) {
                   activeJob.build.setup[setupToEdit].runCount *
                   activeJob.build.setup[setupToEdit].jobCount
                 ).toLocaleString()}
-                
               </Typography>
             </Grid>
           </Grid>

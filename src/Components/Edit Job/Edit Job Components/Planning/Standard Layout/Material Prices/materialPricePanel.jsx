@@ -14,6 +14,8 @@ export function MaterialCostPanel({
   jobModified,
   setJobModified,
   setupToEdit,
+  temporaryChildJobs,
+  updateTemporaryChildJobs
 }) {
   const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
@@ -115,6 +117,8 @@ export function MaterialCostPanel({
               materialPrice={materialPrice}
               jobModified={jobModified}
               setJobModified={setJobModified}
+              temporaryChildJobs={temporaryChildJobs}
+              updateTemporaryChildJobs={updateTemporaryChildJobs}
             />
           );
         })}

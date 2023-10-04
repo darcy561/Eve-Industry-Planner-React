@@ -38,8 +38,6 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
   const [assetLocationEntries, updateAssetLocationEntries] = useState([]);
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
-  const classes = useStyles();
-
   useEffect(() => {
     async function getAsset() {
       updateDataLoading(true);

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { JobStatusContext } from "../../Context/JobContext";
 import { useJobManagement } from "../../Hooks/useJobManagement";
 import {
@@ -35,14 +35,21 @@ export function EditJob_New() {
   const { jobStatus } = useContext(JobStatusContext);
   const [activeJob, updateActiveJob] = useState(null);
   const [jobModified, setJobModified] = useState(false);
+  const [temporaryChildJobs, updateTemporaryChildJobs] = useState({})
   const { deepCopyJobObject } = useJobManagement();
   const { openEditJob } = useOpenEditJob_New();
+  const navigate = useNavigate();
   const { jobID } = useParams();
   let backupJob = useRef(null);
+
 
   useEffect(() => {
     async function openJobProcess() {
       const matchedJob = await openEditJob(jobID);
+      if (!matchedJob) {
+        navigate("/jobplanner")
+        return
+      }
       updateActiveJob(deepCopyJobObject(matchedJob));
       backupJob.current = deepCopyJobObject(matchedJob);
     }
@@ -86,6 +93,8 @@ export function EditJob_New() {
             updateActiveJob={updateActiveJob}
             jobModified={jobModified}
             setJobModified={setJobModified}
+            temporaryChildJobs={temporaryChildJobs}
+            updateTemporaryChildJobs={updateTemporaryChildJobs}
           />
         );
       case 1:
@@ -151,7 +160,7 @@ export function EditJob_New() {
         <Grid item xs={7} md={9} lg={10} />
         <Grid item xs={5} md={3} lg={2} align="right">
           <DeleteJobIcon activeJob={activeJob} />
-          <SaveJobIcon jobModified={jobModified} />
+          <SaveJobIcon activeJob={activeJob} jobModified={jobModified} />
           <CloseJobIcon />
         </Grid>
         <Grid item xs={12}>

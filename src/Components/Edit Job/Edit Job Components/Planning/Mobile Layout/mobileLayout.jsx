@@ -15,6 +15,8 @@ export function Planning_MobileLayout_EditJob({
   updateActiveJob,
   jobModified,
   setJobModified,
+  temporaryChildJobs,
+  updateTemporaryChildJobs
 }) {
   const [setupToEdit, updateSetupToEdit] = useState(
     activeJob.layout?.setupToEdit ||
@@ -57,6 +59,8 @@ export function Planning_MobileLayout_EditJob({
           jobModified={jobModified}
           setJobModified={setJobModified}
           setupToEdit={setupToEdit}
+          temporaryChildJobs={temporaryChildJobs}
+          updateTemporaryChildJobs={updateTemporaryChildJobs}
         />
         <ArchiveJobsPanel activeJob={activeJob} />
         <SkillsPanel activeJob={activeJob} setupToEdit={setupToEdit} />

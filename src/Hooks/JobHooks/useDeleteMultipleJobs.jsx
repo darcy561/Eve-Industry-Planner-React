@@ -44,8 +44,7 @@ export function useDeleteMultipleJobs() {
     MultiSelectJobPlannerContext
   );
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { deleteJobSnapshot, updateJobSnapshot } =
-    useJobSnapshotManagement();
+  const { deleteJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
@@ -121,19 +120,16 @@ export function useDeleteMultipleJobs() {
             newJobArray
           );
 
-          if (!parentJob) {
+          if (!parentJob || !parentJob.build.childJobs[inputJob.itemID]) {
             continue;
           }
-          for (let mat of parentJob.build.materials) {
-            if (!mat.childJob) {
-              continue;
-            }
-            parentJob.build.childJobs = parentJob.build.childJobs.filter((i) => inputJob.jobID !== i);
-          }
-          newUserJobSnapshot = updateJobSnapshot(
-            parentJob,
-            newUserJobSnapshot
-          );
+
+          parentJob.build.childJobs[inputJob.itemID] =
+            parentJob.build.childJobs[inputJob.itemID].filter(
+              (i) => inputJob.jobID !== i
+            );
+
+          newUserJobSnapshot = updateJobSnapshot(parentJob, newUserJobSnapshot);
           jobsToSave.add(parentJob.jobID);
         }
       }

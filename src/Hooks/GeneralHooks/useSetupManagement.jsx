@@ -15,6 +15,7 @@ export function useSetupManagement() {
     addItemBlueprint_New,
     addDefaultStructure_New,
     recalculateItemQty_New,
+    calculateJobMaterialQuantities
   } = useJobBuild();
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -39,7 +40,7 @@ export function useSetupManagement() {
       0
     );
 
-    const newTotalQuantities = calculateTotalQuantities(jobSetups);
+    const newTotalQuantities = calculateJobMaterialQuantities(jobSetups);
 
     for (const material of newMaterialArray) {
       const materialId = material.typeID.toString();
@@ -48,20 +49,7 @@ export function useSetupManagement() {
       }
     }
 
-    function calculateTotalQuantities(objectsList) {
-      const totals = {};
 
-      for (const objId of Object.keys(objectsList)) {
-        const materialCount = objectsList[objId].materialCount || {};
-
-        for (const materialId of Object.keys(materialCount)) {
-          const quantity = materialCount[materialId].quantity || 0;
-          totals[materialId] = (totals[materialId] || 0) + quantity;
-        }
-      }
-
-      return totals;
-    }
 
     return { jobSetups, newMaterialArray, newTotalProduced };
   }
@@ -111,6 +99,7 @@ export function useSetupManagement() {
 
     return { jobSetups, newMaterialArray, newTotalProduced };
   }
+
 
   return {
     addNewSetup,

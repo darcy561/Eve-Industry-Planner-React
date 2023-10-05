@@ -13,24 +13,18 @@ export function MaterialCostRow_MaterialPricePanel({
   material,
   marketSelect,
   listingSelect,
-  materialPrice,
+  itemPriceObject,
   jobModified,
   setJobModified,
   temporaryChildJobs,
   updateTemporaryChildJobs,
 }) {
   const [displayPopover, updateDisplayPopover] = useState(null);
-  const [currentPurchasePrice, updateCurrentPurchasePrice] = useState(
-    materialPrice[marketSelect][listingSelect]
-  );
-  const [currentMaterialPrice, updateCurrentMaterialPrice] = useState(null);
   const [currentInstallCost, updateCurrentInstallCost] = useState(null);
 
-  useEffect(() => {
-    updateCurrentPurchasePrice(materialPrice[marketSelect][listingSelect]);
-  }, [marketSelect, listingSelect, currentMaterialPrice, currentInstallCost]);
-
-  const marketSelection = materialPrice[marketSelect];
+  const marketObject = itemPriceObject[marketSelect];
+  const currentMaterialPrice = itemPriceObject[marketSelect][listingSelect];
+  let calculatedChildPrice = 0;
 
   return (
     <Grid
@@ -39,7 +33,8 @@ export function MaterialCostRow_MaterialPricePanel({
       xs={12}
       sx={{
         padding: { xs: "7px 0px", sm: "10px 0px" },
-        backgroundColor: (theme) => selectHighlightColor(theme, displayPopover),
+        backgroundColor: (theme) =>
+          selectRowHighlightColor(theme, displayPopover),
       }}
     >
       <Grid
@@ -98,13 +93,12 @@ export function MaterialCostRow_MaterialPricePanel({
                 listingSelect={listingSelect}
                 jobModified={jobModified}
                 setJobModified={setJobModified}
-                currentMaterialPrice={currentMaterialPrice}
-                updateCurrentMaterialPrice={updateCurrentMaterialPrice}
                 currentInstallCost={currentInstallCost}
                 updateCurrentInstallCost={updateCurrentInstallCost}
-                currentPurchasePrice={currentPurchasePrice}
                 temporaryChildJobs={temporaryChildJobs}
                 updateTemporaryChildJobs={updateTemporaryChildJobs}
+                currentMaterialPrice={currentMaterialPrice}
+                calculatedChildPrice={calculatedChildPrice}
               />
             </>
           ) : null}
@@ -130,23 +124,23 @@ export function MaterialCostRow_MaterialPricePanel({
               </p>
               <p>
                 Highest Market Price:{" "}
-                {marketSelection.highestMarketPrice.toLocaleString()}
+                {marketObject.highestMarketPrice.toLocaleString()}
               </p>
               <p>
                 Lowest Market Price:{" "}
-                {marketSelection.lowestMarketPrice.toLocaleString()}
+                {marketObject.lowestMarketPrice.toLocaleString()}
               </p>
               <p>
                 Daily Average Market Price:{" "}
-                {marketSelection.dailyAverageMarketPrice.toLocaleString()}
+                {marketObject.dailyAverageMarketPrice.toLocaleString()}
               </p>
               <p>
                 Daily Average Order Quantity:{" "}
-                {marketSelection.dailyAverageOrderQuantity.toLocaleString()}
+                {marketObject.dailyAverageOrderQuantity.toLocaleString()}
               </p>
               <p>
                 Daily Average Unit Count:{" "}
-                {marketSelection.dailyAverageUnitCount.toLocaleString()}
+                {marketObject.dailyAverageUnitCount.toLocaleString()}
               </p>
             </span>
           }
@@ -155,20 +149,15 @@ export function MaterialCostRow_MaterialPricePanel({
         >
           <Typography
             sx={{ typography: { xs: "caption", sm: "body2" } }}
-            color={
-              currentMaterialPrice
-                ? currentPurchasePrice >= currentMaterialPrice
-                  ? "error.main"
-                  : "success.main"
-                : null
-            }
+            color={selectTextPriceHighlight(
+              currentMaterialPrice,
+              calculatedChildPrice
+            )}
           >
-            {materialPrice
-              ? marketSelection[listingSelect].toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })
-              : 0}
+            {currentMaterialPrice.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </Typography>
         </Tooltip>
       </Grid>
@@ -183,29 +172,25 @@ export function MaterialCostRow_MaterialPricePanel({
       >
         <Typography
           sx={{ typography: { xs: "caption", sm: "body2" } }}
-          color={
-            currentMaterialPrice
-              ? currentPurchasePrice >= currentMaterialPrice
-                ? "error.main"
-                : "success.main"
-              : null
-          }
+          color={selectTextPriceHighlight(
+            currentMaterialPrice,
+            calculatedChildPrice
+          )}
         >
-          {materialPrice
-            ? (
-                marketSelection[listingSelect] * material.quantity
-              ).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })
-            : 0}
+          {(currentMaterialPrice * material.quantity).toLocaleString(
+            undefined,
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }
+          )}
         </Typography>
       </Grid>
     </Grid>
   );
 }
 
-function selectHighlightColor(theme, displayPopover) {
+function selectRowHighlightColor(theme, displayPopover) {
   if (!displayPopover) return null;
 
   switch (theme.palette.mode) {
@@ -217,5 +202,15 @@ function selectHighlightColor(theme, displayPopover) {
 
     default:
       return theme.palette.secondary.main;
+  }
+}
+
+function selectTextPriceHighlight(currentMaterialPrice, calculatedChildPrice) {
+  if (calculatedChildPrice === 0) return null;
+
+  if (currentMaterialPrice >= calculatedChildPrice) {
+    return "error.main";
+  } else {
+    return "success.main";
   }
 }

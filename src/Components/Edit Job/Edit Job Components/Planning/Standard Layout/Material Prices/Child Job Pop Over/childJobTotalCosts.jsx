@@ -3,7 +3,7 @@ import { Grid, Typography } from "@mui/material";
 export function ChildJobMaterialTotalCosts_ChildJobPopoverFrame({
   material,
   currentInstallCost,
-  currentMaterialPrice,
+  calculatedChildPrice,
   currentPurchasePrice,
   listingSelect,
 }) {

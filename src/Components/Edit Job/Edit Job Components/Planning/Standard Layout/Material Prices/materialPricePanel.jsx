@@ -13,9 +13,8 @@ export function MaterialCostPanel({
   updateActiveJob,
   jobModified,
   setJobModified,
-  setupToEdit,
   temporaryChildJobs,
-  updateTemporaryChildJobs
+  updateTemporaryChildJobs,
 }) {
   const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
@@ -29,7 +28,6 @@ export function MaterialCostPanel({
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
   let totalMaterialCost = 0;
-  let activeJobPrices = evePrices.find((i) => i.typeID === activeJob.itemID);
 
   return (
     <Paper
@@ -95,7 +93,6 @@ export function MaterialCostPanel({
       </Grid>
       <CurrentMaterialHeader
         activeJob={activeJob}
-        activeJobPrices={activeJobPrices}
         marketSelect={marketSelect}
         listingSelect={listingSelect}
       />
@@ -114,7 +111,7 @@ export function MaterialCostPanel({
               material={material}
               marketSelect={marketSelect}
               listingSelect={listingSelect}
-              materialPrice={materialPrice}
+              itemPriceObject={materialPrice}
               jobModified={jobModified}
               setJobModified={setJobModified}
               temporaryChildJobs={temporaryChildJobs}

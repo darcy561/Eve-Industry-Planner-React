@@ -4,7 +4,7 @@ export function DisplayMismatchedChildTotals_ChildJobPopoverFrame({
   material,
   childJobObjects,
   jobDisplay,
-  currentMaterialPrice,
+  calculatedChildPrice,
   currentInstallCost,
   listingSelect,
 }) {

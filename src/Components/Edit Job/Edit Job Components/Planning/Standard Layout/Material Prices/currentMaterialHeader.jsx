@@ -1,14 +1,22 @@
 import { Grid, Tooltip, Typography } from "@mui/material";
+import { useContext } from "react";
+import { EvePricesContext } from "../../../../../../Context/EveDataContext";
 
 export function CurrentMaterialHeader({
   activeJob,
-  activeJobPrices,
   marketSelect,
   listingSelect,
 }) {
+  const { evePrices } = useContext(EvePricesContext);
+
   const formatedMarketTitle =
     listingSelect.charAt(0).toUpperCase() + listingSelect.slice(1);
-  const itemPrice = activeJobPrices[marketSelect][listingSelect];
+
+  const priceObject = evePrices.find((i) => i.typeID === activeJob.itemID);
+
+  const marketPriceObject = priceObject[marketSelect];
+
+  const itemPrice = marketPriceObject[listingSelect];
 
   return (
     <Grid container item xs={12}>
@@ -49,33 +57,23 @@ export function CurrentMaterialHeader({
               </p>
               <p>
                 Highest Market Price:{" "}
-                {activeJobPrices[
-                  marketSelect
-                ].highestMarketPrice.toLocaleString()}
+                {marketPriceObject.highestMarketPrice.toLocaleString()}
               </p>
               <p>
                 Lowest Market Price:{" "}
-                {activeJobPrices[
-                  marketSelect
-                ].lowestMarketPrice.toLocaleString()}
+                {marketPriceObject.lowestMarketPrice.toLocaleString()}
               </p>
               <p>
                 Daily Average Market Price:{" "}
-                {activeJobPrices[
-                  marketSelect
-                ].dailyAverageMarketPrice.toLocaleString()}
+                {marketPriceObject.dailyAverageMarketPrice.toLocaleString()}
               </p>
               <p>
                 Daily Average Order Quantity:{" "}
-                {activeJobPrices[
-                  marketSelect
-                ].dailyAverageOrderQuantity.toLocaleString()}
+                {marketPriceObject.dailyAverageOrderQuantity.toLocaleString()}
               </p>
               <p>
                 Daily Average Unit Count:{" "}
-                {activeJobPrices[
-                  marketSelect
-                ].dailyAverageUnitCount.toLocaleString()}
+                {marketPriceObject.dailyAverageUnitCount.toLocaleString()}
               </p>
             </span>
           }
@@ -83,12 +81,10 @@ export function CurrentMaterialHeader({
           placement="top"
         >
           <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-            {activeJobPrices
-              ? itemPrice.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })
-              : 0}
+            {itemPrice.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </Typography>
         </Tooltip>
       </Grid>
@@ -104,14 +100,13 @@ export function CurrentMaterialHeader({
         </Typography>
 
         <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-          {activeJobPrices
-            ? (
-                itemPrice * activeJob.build.products.totalQuantity
-              ).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })
-            : 0}
+          {(itemPrice * activeJob.build.products.totalQuantity).toLocaleString(
+            undefined,
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }
+          )}
         </Typography>
       </Grid>
       <Grid

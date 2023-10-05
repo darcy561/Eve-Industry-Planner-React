@@ -3,7 +3,7 @@ import { Grid, Icon, Tooltip, Typography } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
-import { ChildJobPopover } from "./childJobPopOver";
+import { ChildJobPopoverFrame } from "./Child Job Pop Over/childJobPopoverFrame";
 
 const { PRIMARY_THEME, SECONDARY_THEME } = GLOBAL_CONFIG;
 
@@ -17,7 +17,7 @@ export function MaterialCostRow_MaterialPricePanel({
   jobModified,
   setJobModified,
   temporaryChildJobs,
-  updateTemporaryChildJobs
+  updateTemporaryChildJobs,
 }) {
   const [displayPopover, updateDisplayPopover] = useState(null);
   const [currentPurchasePrice, updateCurrentPurchasePrice] = useState(
@@ -88,7 +88,7 @@ export function MaterialCostRow_MaterialPricePanel({
                   <InfoIcon fontSize="small" />
                 </Icon>
               </Tooltip>
-              <ChildJobPopover
+              <ChildJobPopoverFrame
                 activeJob={activeJob}
                 updateActiveJob={updateActiveJob}
                 displayPopover={displayPopover}
@@ -102,9 +102,9 @@ export function MaterialCostRow_MaterialPricePanel({
                 updateCurrentMaterialPrice={updateCurrentMaterialPrice}
                 currentInstallCost={currentInstallCost}
                 updateCurrentInstallCost={updateCurrentInstallCost}
-                  currentPurchasePrice={currentPurchasePrice}
-                  temporaryChildJobs={temporaryChildJobs}
-                  updateTemporaryChildJobs={updateTemporaryChildJobs}
+                currentPurchasePrice={currentPurchasePrice}
+                temporaryChildJobs={temporaryChildJobs}
+                updateTemporaryChildJobs={updateTemporaryChildJobs}
               />
             </>
           ) : null}

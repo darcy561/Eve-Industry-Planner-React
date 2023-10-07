@@ -11,7 +11,6 @@ import {
   UsersContext,
 } from "../../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import { LinkedIDsContext } from "../../../../../../Context/JobContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 import { useMarketOrderFunctions } from "../../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 
@@ -40,12 +39,13 @@ export function AvailableMarketOrdersTab({
   setJobModified,
   updateShowAvailableOrders,
   itemOrderMatch,
+  esiDataToLink,
+  updateEsiDataToLink,
 }) {
   const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { linkedOrderIDs, updateLinkedOrderIDs } = useContext(LinkedIDsContext);
   const { esiCorpData } = useContext(CorpEsiDataContext);
   const { calcBrokersFee } = useJobManagement();
   const { findBrokersFeeEntry } = useMarketOrderFunctions();
@@ -204,10 +204,23 @@ export function AvailableMarketOrdersTab({
                             const newApiOrders = new Set(activeJob.apiOrders);
                             newApiOrders.add(order.order_id);
 
-                            const newLinkedOrderIDs = new Set(linkedOrderIDs);
-                            newLinkedOrderIDs.add(order.order_id);
+                            const newDataToLink = new Set(
+                              esiDataToLink.marketOrders.add
+                            );
+                            const newDataToUnlink = new Set(
+                              esiDataToLink.marketOrders.remove
+                            );
+                            newDataToLink.add(order.order_id);
+                            newDataToUnlink.delete(order.order_id);
 
-                            updateLinkedOrderIDs([...newLinkedOrderIDs]);
+                            updateEsiDataToLink((prev) => ({
+                              ...prev,
+                              marketOrders: {
+                                ...prev.marketOrders,
+                                add: [...newDataToLink],
+                                remove: [...newDataToUnlink],
+                              },
+                            }));
                             updateActiveJob((prev) => ({
                               ...prev,
                               apiOrders: newApiOrders,

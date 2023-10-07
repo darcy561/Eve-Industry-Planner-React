@@ -17,7 +17,6 @@ import {
 } from "../../../../../../Context/EveDataContext";
 import { UsersContext } from "../../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import { LinkedIDsContext } from "../../../../../../Context/JobContext";
 
 export function LinkedMarketOrdersTab({
   activeJob,
@@ -26,16 +25,12 @@ export function LinkedMarketOrdersTab({
   activeOrder,
   updateActiveOrder,
   updateShowAvailableOrders,
+  esiDataToLink,
+  updateEsiDataToLink,
 }) {
   const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const {
-    linkedOrderIDs,
-    updateLinkedOrderIDs,
-    linkedTransIDs,
-    updateLinkedTransIDs,
-  } = useContext(LinkedIDsContext);
   const { esiOrders, esiHistOrders } = useContext(PersonalESIDataContext);
   const { esiCorpData } = useContext(CorpEsiDataContext);
   const [linkedMarketOrders, updateLinkedMarketOrders] = useState([]);
@@ -366,8 +361,19 @@ export function LinkedMarketOrdersTab({
                         let newApiTransactions = new Set(
                           activeJob.apiTransactions
                         );
-                        let newLinkedTransIDs = new Set(linkedTransIDs);
-                        let newLinkedOrderIDs = new Set(linkedOrderIDs);
+
+                        const newMarketOrdersToLink = new Set(
+                          esiDataToLink.marketOrders.add
+                        );
+                        const newMarketOrdersToUnlink = new Set(
+                          esiDataToLink.marketOrders.remove
+                        );
+                        const newTransactionsToLink = new Set(
+                          esiDataToLink.transactions.add
+                        );
+                        const newTransactionsToUnlink = new Set(
+                          esiDataToLink.transactions.remove
+                        );
                         let brokerFees = new Set();
                         let transactions = new Set();
 
@@ -380,7 +386,9 @@ export function LinkedMarketOrdersTab({
                         activeJob.build.sale.transactions.forEach((trans) => {
                           if (trans.location_id === order.location_id) {
                             transactions.add(trans.transaction_id);
-                            newLinkedTransIDs.delete(trans.transaction_id);
+
+                            newTransactionsToLink.delete(trans.transaction_id);
+                            newTransactionsToUnlink.add(trans.transaction_id);
                             newApiTransactions.delete(trans.transaction_id);
                           }
                         });
@@ -393,15 +401,27 @@ export function LinkedMarketOrdersTab({
                           brokerFees.has(item.id)
                         );
 
-                        newLinkedOrderIDs.delete(order.order_id);
+                        newMarketOrdersToUnlink.add(order.order_id);
+                        newMarketOrdersToLink.delete(order.order_id);
 
                         newTransactionArray = newTransactionArray.filter(
                           (item) => !transactions.has(item.transaction_id)
                         );
                         newApiOrders.delete(order.order_id);
 
-                        updateLinkedOrderIDs([...newLinkedOrderIDs]);
-                        updateLinkedTransIDs([...newLinkedTransIDs]);
+                        updateEsiDataToLink((prev) => ({
+                          ...prev,
+                          marketOrders: {
+                            ...prev.marketOrders,
+                            add: [...newMarketOrdersToLink],
+                            remove: [...newMarketOrdersToUnlink],
+                          },
+                          transactions: {
+                            ...prev.transactions,
+                            add: [...newTransactionsToLink],
+                            remove: [...newTransactionsToUnlink],
+                          },
+                        }));
                         updateActiveJob((prev) => ({
                           ...prev,
                           apiOrders: newApiOrders,

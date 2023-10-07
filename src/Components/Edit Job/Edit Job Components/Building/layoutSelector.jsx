@@ -10,8 +10,9 @@ import { Building_StandardLayout_EditJob } from "./StandardLayout/standardLayout
 export function LayoutSelector_EditJob_Building({
   activeJob,
   updateActiveJob,
-  jobModified,
   setJobModified,
+  esiDataToLink,
+  updateEsiDataToLink
 }) {
   const { apiJobs } = useContext(ApiJobsContext);
   const { users } = useContext(UsersContext);
@@ -29,7 +30,7 @@ export function LayoutSelector_EditJob_Building({
         !linkedJobIDs.includes(job.job_id) &&
         !parentUser.linkedJobs.has(job.job_id)
     );
-  }, [apiJobs, linkedJobIDs, parentUser]);
+  }, [apiJobs, activeJob, linkedJobIDs, parentUser]);
 
   switch (deviceNotMobile) {
     case true:
@@ -37,10 +38,11 @@ export function LayoutSelector_EditJob_Building({
         <Building_StandardLayout_EditJob
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
-          jobModified={jobModified}
           setJobModified={setJobModified}
           parentUser={parentUser}
           jobMatches={jobMatches}
+          esiDataToLink={esiDataToLink}
+          updateEsiDataToLink={updateEsiDataToLink}
         />
       );
     case false:
@@ -48,10 +50,11 @@ export function LayoutSelector_EditJob_Building({
         <Building_StandardLayout_EditJob
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
-          jobModified={jobModified}
           setJobModified={setJobModified}
           parentUser={parentUser}
           jobMatches={jobMatches}
+          esiDataToLink={esiDataToLink}
+          updateEsiDataToLink={updateEsiDataToLink}
         />
       );
     default:
@@ -59,10 +62,11 @@ export function LayoutSelector_EditJob_Building({
         <Building_StandardLayout_EditJob
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
-          jobModified={jobModified}
           setJobModified={setJobModified}
           parentUser={parentUser}
           jobMatches={jobMatches}
+          esiDataToLink={esiDataToLink}
+          updateEsiDataToLink={updateEsiDataToLink}
         />
       );
   }

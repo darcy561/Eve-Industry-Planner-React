@@ -13,6 +13,8 @@ export function Purchasing_MobileLayout_EditJob({
   changeMarketDisplay,
   requiresInventionCosts,
   ignoreInventionCosts,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
   return null;
 }

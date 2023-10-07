@@ -5,6 +5,8 @@ export function LayoutSelector_EditJob_Selling({
   activeJob,
   updateActiveJob,
   setJobModified,
+  esiDataToLink,
+  updateEsiDataToLink
 }) {
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
@@ -15,6 +17,8 @@ export function LayoutSelector_EditJob_Selling({
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
+          esiDataToLink={esiDataToLink}
+          updateEsiDataToLink={updateEsiDataToLink}
         />
       );
     case false:
@@ -23,6 +27,8 @@ export function LayoutSelector_EditJob_Selling({
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
+          esiDataToLink={esiDataToLink}
+          updateEsiDataToLink={updateEsiDataToLink}
         />
       );
     default:
@@ -31,6 +37,8 @@ export function LayoutSelector_EditJob_Selling({
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
+          esiDataToLink={esiDataToLink}
+          updateEsiDataToLink={updateEsiDataToLink}
         />
       );
   }

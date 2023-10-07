@@ -20,11 +20,15 @@ export function MaterialCostRow_MaterialPricePanel({
   updateTemporaryChildJobs,
 }) {
   const [displayPopover, updateDisplayPopover] = useState(null);
-  const [currentInstallCost, updateCurrentInstallCost] = useState(null);
+  const [childJobProductionCosts, updateChildJobProductionCosts] = useState({
+    materialCost: 0,
+    installCost: 0,
+    finalCost: 0,
+    finalCostPerItem:0
+  });
 
   const marketObject = itemPriceObject[marketSelect];
   const currentMaterialPrice = itemPriceObject[marketSelect][listingSelect];
-  let calculatedChildPrice = 0;
 
   return (
     <Grid
@@ -93,12 +97,11 @@ export function MaterialCostRow_MaterialPricePanel({
                 listingSelect={listingSelect}
                 jobModified={jobModified}
                 setJobModified={setJobModified}
-                currentInstallCost={currentInstallCost}
-                updateCurrentInstallCost={updateCurrentInstallCost}
                 temporaryChildJobs={temporaryChildJobs}
                 updateTemporaryChildJobs={updateTemporaryChildJobs}
                 currentMaterialPrice={currentMaterialPrice}
-                calculatedChildPrice={calculatedChildPrice}
+                childJobProductionCosts={childJobProductionCosts}
+                updateChildJobProductionCosts={updateChildJobProductionCosts}
               />
             </>
           ) : null}
@@ -151,7 +154,7 @@ export function MaterialCostRow_MaterialPricePanel({
             sx={{ typography: { xs: "caption", sm: "body2" } }}
             color={selectTextPriceHighlight(
               currentMaterialPrice,
-              calculatedChildPrice
+              childJobProductionCosts.finalCostPerItem
             )}
           >
             {currentMaterialPrice.toLocaleString(undefined, {
@@ -174,7 +177,7 @@ export function MaterialCostRow_MaterialPricePanel({
           sx={{ typography: { xs: "caption", sm: "body2" } }}
           color={selectTextPriceHighlight(
             currentMaterialPrice,
-            calculatedChildPrice
+            childJobProductionCosts.finalCostPerItem
           )}
         >
           {(currentMaterialPrice * material.quantity).toLocaleString(

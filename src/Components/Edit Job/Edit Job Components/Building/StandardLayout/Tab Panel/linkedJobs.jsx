@@ -17,8 +17,7 @@ import {
 } from "../../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import {
-  ApiJobsContext,
-  LinkedIDsContext,
+  ApiJobsContext
 } from "../../../../../../Context/JobContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 
@@ -27,13 +26,14 @@ export function LinkedJobsTab({
   updateActiveJob,
   setJobModified,
   parentUser,
+  esiDataToLink,
+  updateEsiDataToLink,
 }) {
   const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { linkedJobIDs, updateLinkedJobIDs } = useContext(LinkedIDsContext);
   const { findBlueprintType, timeRemainingCalc } = useJobManagement();
 
   const analytics = getAnalytics();
@@ -52,6 +52,7 @@ export function LinkedJobsTab({
         }
       });
     }
+    updateStoredAPIdata();
   }, [apiJobs]);
 
   if (activeJob.apiJobs.size !== 0) {
@@ -195,7 +196,12 @@ export function LinkedJobsTab({
                       color="error"
                       size="standard"
                       onClick={() => {
-                        let newLinkedJobIDs = new Set(linkedJobIDs);
+                        let newDataToLink = new Set(
+                          esiDataToLink.industryJobs.add
+                        );
+                        let newDataToUnLink = new Set(
+                          esiDataToLink.industryJobs.remove
+                        );
                         let newActiveJobArray = new Set(activeJob.apiJobs);
                         let newLinkedJobsArray = [
                           ...activeJob.build.costs.linkedJobs,
@@ -211,10 +217,18 @@ export function LinkedJobsTab({
                         newInstallCosts -= job.cost;
                         newActiveJobArray.delete(job.job_id);
                         newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
-                        newLinkedJobIDs.delete(job.job_id);
+                        newDataToLink.delete(job.job_id);
+                        newDataToUnLink.add(job.job_id);
 
                         setJobModified(true);
-                        updateLinkedJobIDs([...newLinkedJobIDs]);
+                        updateEsiDataToLink((prev) => ({
+                          ...prev,
+                          industryJobs: {
+                            ...prev.industryJobs,
+                            add: [...newDataToLink],
+                            remove: [...newDataToUnLink],
+                          },
+                        }));
                         updateActiveJob((prevObj) => ({
                           ...prevObj,
                           apiJobs: newActiveJobArray,
@@ -257,16 +271,27 @@ export function LinkedJobsTab({
                 size="small"
                 color="error"
                 onClick={() => {
-                  let newLinkedJobIDs = new Set(linkedJobIDs);
+                  let newDataToLink = new Set(esiDataToLink.industryJobs.add);
+                  let newDataToUnLink = new Set(
+                    esiDataToLink.industryJobs.remove
+                  );
                   let jobsToRemoveQuantity =
                     activeJob.build.costs.linkedJobs.length;
 
                   for (let job of activeJob.apiJobs) {
-                    newLinkedJobIDs.delete(job);
+                    newDataToLink.delete(job.job_id);
+                    newDataToUnLink.add(job.job_id);
                   }
 
                   setJobModified(true);
-                  updateLinkedJobIDs([...newLinkedJobIDs]);
+                  updateEsiDataToLink((prev) => ({
+                    ...prev,
+                    industryJobs: {
+                      ...prev.industryJobs,
+                      add: [...newDataToLink],
+                      remove: [...newDataToUnLink],
+                    },
+                  }));
                   updateActiveJob((prevObj) => ({
                     ...prevObj,
                     apiJobs: new Set(),

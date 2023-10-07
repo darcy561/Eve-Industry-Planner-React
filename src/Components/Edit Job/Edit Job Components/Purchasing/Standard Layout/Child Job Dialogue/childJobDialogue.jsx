@@ -28,6 +28,8 @@ export function ChildJobDialogue({
   childDialogTrigger,
   updateChildDialogTrigger,
   setJobModified,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -103,26 +105,12 @@ export function ChildJobDialogue({
                     <IconButton
                       size="small"
                       color="primary"
-                      onClick={async () => {
-                        let newUserJobSnapshot = [...userJobSnapshot];
-                        const newJobArray = [...jobArray];
-                        let inputJob = await findJobData(
-                          job.jobID,
-                          newUserJobSnapshot,
-                          newJobArray
-                        );
-
+                      onClick={() => {
                         const newChildJobArray = [
                           ...activeJob.build.childJobs[material.typeID],
                         ];
 
                         newChildJobArray.push(inputJob.jobID);
-                        inputJob.parentJob.push(activeJob.jobID);
-
-                        newUserJobSnapshot = updateJobSnapshot(
-                          inputJob,
-                          newUserJobSnapshot
-                        );
 
                         updateActiveJob((prev) => ({
                           ...prev,
@@ -134,8 +122,6 @@ export function ChildJobDialogue({
                             },
                           },
                         }));
-                        updateJobArray(newJobArray);
-                        updateUserJobSnapshot(newUserJobSnapshot);
                         setJobModified(true);
                         setSnackbarData((prev) => ({
                           ...prev,
@@ -144,12 +130,6 @@ export function ChildJobDialogue({
                           severity: "success",
                           autoHideDuration: 1000,
                         }));
-                        if (isLoggedIn) {
-                          await Promise.all([
-                            uploadJob(inputJob),
-                            uploadUserJobSnapshot(newUserJobSnapshot),
-                          ]);
-                        }
                       }}
                     >
                       <AddIcon />
@@ -218,35 +198,15 @@ export function ChildJobDialogue({
                     <IconButton
                       size="small"
                       color="error"
-                      onClick={async () => {
-                        let newUserJobSnapshot = [...userJobSnapshot];
-                        const newJobArray = [...jobArray];
-                        const inputJob = await findJobData(
-                          childJobID,
-                          newUserJobSnapshot,
-                          newJobArray
-                        );
+                      onClick={() => {
                         const newChildJobArray = [
                           ...new Set(
                             [...materialChildJobs].filter(
-                              (jobID) => jobID !== inputJob.jobID
+                              (jobID) => jobID !== jobMatch.jobID
                             )
                           ),
                         ];
 
-                        const parentIndex = inputJob.parentJob.findIndex(
-                          (i) => i === activeJob.jobID
-                        );
-                        if (parentIndex !== -1) {
-                          inputJob.parentJob.splice(parentIndex, 1);
-                        }
-                        newUserJobSnapshot = updateJobSnapshot(
-                          inputJob,
-                          newUserJobSnapshot
-                        );
-
-                        updateUserJobSnapshot(newUserJobSnapshot);
-                        updateJobArray(newJobArray);
                         updateActiveJob((prev) => ({
                           ...prev,
                           build: {
@@ -261,16 +221,10 @@ export function ChildJobDialogue({
                         setSnackbarData((prev) => ({
                           ...prev,
                           open: true,
-                          message: `${inputJob.name} Unlinked`,
+                          message: `${jobMatch.name} Unlinked`,
                           severity: "success",
                           autoHideDuration: 1000,
                         }));
-                        if (isLoggedIn) {
-                          await Promise.all([
-                            uploadJob(inputJob),
-                            uploadUserJobSnapshot(newUserJobSnapshot),
-                          ]);
-                        }
                       }}
                     >
                       <ClearIcon />

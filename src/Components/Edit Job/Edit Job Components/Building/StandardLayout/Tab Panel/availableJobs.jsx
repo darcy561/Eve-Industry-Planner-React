@@ -16,7 +16,6 @@ import {
   UsersContext,
 } from "../../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import { LinkedIDsContext } from "../../../../../../Context/JobContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 
 export function AvailableJobsTab({
@@ -26,12 +25,13 @@ export function AvailableJobsTab({
   jobMatches,
   parentUser,
   totalJobCount,
+  esiDataToLink,
+  updateEsiDataToLink,
 }) {
   const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { linkedJobIDs, updateLinkedJobIDs } = useContext(LinkedIDsContext);
   const { findBlueprintType, timeRemainingCalc } = useJobManagement();
 
   const analytics = getAnalytics();
@@ -182,7 +182,12 @@ export function AvailableJobsTab({
                       onClick={() => {
                         let newInstallCosts =
                           activeJob.build.costs.installCosts;
-                        let newLinkedJobIDs = new Set(linkedJobIDs);
+                        let newDataToLink = new Set(
+                          esiDataToLink.industryJobs.add
+                        );
+                        let newDataToUnLink = new Set(
+                          esiDataToLink.industryJobs.remove
+                        );
                         let newActiveJobSet = new Set(activeJob.apiJobs);
                         let newLinkedJobsArray = [
                           ...activeJob.build.costs.linkedJobs,
@@ -200,10 +205,18 @@ export function AvailableJobsTab({
                         });
 
                         newActiveJobSet.add(job.job_id);
-                        newLinkedJobIDs.add(job.job_id);
+                        newDataToLink.add(job.job_id);
+                        newDataToUnLink.delete(job.job_id);
                         newInstallCosts += job.cost;
 
-                        updateLinkedJobIDs([...newLinkedJobIDs]);
+                        updateEsiDataToLink((prev) => ({
+                          ...prev,
+                          industryJobs: {
+                            ...prev.industryJobs,
+                            add: [...newDataToLink],
+                            remove: [...newDataToUnLink],
+                          },
+                        }));
                         updateActiveJob((prevObj) => ({
                           ...prevObj,
                           apiJobs: newActiveJobSet,
@@ -247,7 +260,10 @@ export function AvailableJobsTab({
                 variant="contained"
                 size="small"
                 onClick={() => {
-                  let newLinkedJobIDs = new Set(linkedJobIDs);
+                  let newDataToLink = new Set(esiDataToLink.industryJobs.add);
+                  let newDataToUnLink = new Set(
+                    esiDataToLink.industryJobs.remove
+                  );
                   let newApiJobsSet = new Set(activeJob.apiJobs);
                   let newLinkedJobsArray = [
                     ...activeJob.build.costs.linkedJobs,
@@ -268,9 +284,17 @@ export function AvailableJobsTab({
                     newApiJobsSet.add(job.job_id);
                     newLinkedJobsArray.push({ ...new ESIJob(job, jobOwner) });
                     newInstallCosts += job.cost;
-                    newLinkedJobIDs.add(job.job_id);
+                    newDataToLink.add(job.job_id);
+                    newDataToUnLink.delete(job.job_id);
                   }
-                  updateLinkedJobIDs([...newLinkedJobIDs]);
+                  updateEsiDataToLink((prev) => ({
+                    ...prev,
+                    industryJobs: {
+                      ...prev.industryJobs,
+                      add: [...newDataToLink],
+                      remove: [...newDataToUnLink],
+                    },
+                  }));
                   updateActiveJob((prevObj) => ({
                     ...prevObj,
                     apiJobs: newApiJobsSet,

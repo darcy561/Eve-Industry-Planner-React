@@ -4,9 +4,7 @@ export function DisplayMismatchedChildTotals_ChildJobPopoverFrame({
   material,
   childJobObjects,
   jobDisplay,
-  calculatedChildPrice,
-  currentInstallCost,
-  listingSelect,
+  childJobProductionCosts,
 }) {
   if (
     material.quantity !==
@@ -27,28 +25,21 @@ export function DisplayMismatchedChildTotals_ChildJobPopoverFrame({
           </Grid>
         </Grid>
         <Grid container item xs={12}>
-          <Grid item xs={12} sm={8}>
+          <Grid item xs={12} sm={8}>  
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-              {`Child Job Total Material 
-              ${listingSelect.charAt(0).toUpperCase() + listingSelect.slice(1)} 
-              Price`}
+              Total Estimated Cost
             </Typography>
           </Grid>
           <Grid item xs={12} sm={4} align="right">
-            <Typography
-              sx={{ typography: { xs: "caption", sm: "body2" } }}
-              align="right"
-            >
-              {!currentMaterialPrice || !currentInstallCost
-                ? "-"
-                : (
-                    currentMaterialPrice *
-                    childJobObjects[jobDisplay].build.products.totalQuantity
-                  ).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-            </Typography>
+            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+              {(
+                childJobProductionCosts.finalCostPerItem *
+                childJobObjects[jobDisplay].build.products.totalQuantity
+              ).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </Typography> 
           </Grid>
         </Grid>
       </Grid>

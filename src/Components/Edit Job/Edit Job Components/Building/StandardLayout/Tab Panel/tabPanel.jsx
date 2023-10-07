@@ -7,10 +7,11 @@ import { LinkedJobsTab } from "./linkedJobs";
 export function TabPanel_Building({
   activeJob,
   updateActiveJob,
-  jobModified,
   setJobModified,
   jobMatches,
   parentUser,
+  esiDataToLink,
+  updateEsiDataToLink,
 }) {
   const [currentTab, updateTab] = useState(() => {
     if (activeJob.layout.esiJobTab) {
@@ -82,6 +83,8 @@ export function TabPanel_Building({
             jobMatches={jobMatches}
             parentUser={parentUser}
             totalJobCount={totalJobCount}
+            esiDataToLink={esiDataToLink}
+            updateEsiDataToLink={updateEsiDataToLink}
           />
         </TabPanel>
         <TabPanel value="1">
@@ -90,6 +93,8 @@ export function TabPanel_Building({
             updateActiveJob={updateActiveJob}
             setJobModified={setJobModified}
             parentUser={parentUser}
+            esiDataToLink={esiDataToLink}
+            updateEsiDataToLink={updateEsiDataToLink}
           />
         </TabPanel>
       </TabContext>

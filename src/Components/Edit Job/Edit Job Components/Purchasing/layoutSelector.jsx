@@ -7,8 +7,9 @@ import { UsersContext } from "../../../../Context/AuthContext";
 export function LayoutSelector_EditJob_Purchasing({
   activeJob,
   updateActiveJob,
-  jobModified,
   setJobModified,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
   const { users } = useContext(UsersContext);
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -33,18 +34,19 @@ export function LayoutSelector_EditJob_Purchasing({
   switch (deviceNotMobile) {
     case true:
       return (
-          <Purchasing_StandardLayout_EditJob
-            activeJob={activeJob}
-            updateActiveJob={updateActiveJob}
-            jobModified={jobModified}
-            setJobModified={setJobModified}
-            orderDisplay={orderDisplay}
-            changeOrderDisplay={changeOrderDisplay}
-            marketDisplay={marketDisplay}
-            changeMarketDisplay={changeMarketDisplay}
-            requiresInventionCosts={requiresInventionCosts}
-            ignoreInventionCosts={ignoreInventionCosts}
-          />
+        <Purchasing_StandardLayout_EditJob
+          activeJob={activeJob}
+          updateActiveJob={updateActiveJob}
+          setJobModified={setJobModified}
+          orderDisplay={orderDisplay}
+          changeOrderDisplay={changeOrderDisplay}
+          marketDisplay={marketDisplay}
+          changeMarketDisplay={changeMarketDisplay}
+          requiresInventionCosts={requiresInventionCosts}
+          ignoreInventionCosts={ignoreInventionCosts}
+          parentChildToEdit={parentChildToEdit}
+          updateParentChildToEdit={updateParentChildToEdit}
+        />
       );
 
     case false:
@@ -52,7 +54,6 @@ export function LayoutSelector_EditJob_Purchasing({
         <Purchasing_StandardLayout_EditJob
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
-          jobModified={jobModified}
           setJobModified={setJobModified}
           orderDisplay={orderDisplay}
           changeOrderDisplay={changeOrderDisplay}
@@ -60,6 +61,8 @@ export function LayoutSelector_EditJob_Purchasing({
           changeMarketDisplay={changeMarketDisplay}
           requiresInventionCosts={requiresInventionCosts}
           ignoreInventionCosts={ignoreInventionCosts}
+          parentChildToEdit={parentChildToEdit}
+          updateParentChildToEdit={updateParentChildToEdit}
         />
       );
     default:
@@ -67,7 +70,6 @@ export function LayoutSelector_EditJob_Purchasing({
         <Purchasing_StandardLayout_EditJob
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
-          jobModified={jobModified}
           setJobModified={setJobModified}
           orderDisplay={orderDisplay}
           changeOrderDisplay={changeOrderDisplay}
@@ -75,6 +77,8 @@ export function LayoutSelector_EditJob_Purchasing({
           changeMarketDisplay={changeMarketDisplay}
           requiresInventionCosts={requiresInventionCosts}
           ignoreInventionCosts={ignoreInventionCosts}
+          parentChildToEdit={parentChildToEdit}
+          updateParentChildToEdit={updateParentChildToEdit}
         />
       );
   }

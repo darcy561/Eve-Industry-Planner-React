@@ -3,9 +3,16 @@ import SaveIcon from "@mui/icons-material/Save";
 import { useCloseActiveJob } from "../../Hooks/JobHooks/useCloseActiveJob";
 import { useNavigate } from "react-router-dom";
 
-export function SaveJobIcon({ activeJob, jobModified }) {
+export function SaveJobIcon({
+  activeJob,
+  jobModified,
+  temporaryChildJobs,
+  esiDataToLink,
+  parentChildToEdit
+}) {
   const { closeActiveJob } = useCloseActiveJob();
   const navigate = useNavigate();
+
   return (
     <Tooltip
       title="Saves all changes and returns to the job planner page."
@@ -16,7 +23,12 @@ export function SaveJobIcon({ activeJob, jobModified }) {
         color="primary"
         size="medium"
         onClick={async () => {
-          await closeActiveJob(activeJob, jobModified);
+          await closeActiveJob(
+            activeJob,
+            jobModified,
+            temporaryChildJobs,
+            esiDataToLink
+          );
           navigate("/jobplanner");
         }}
       >

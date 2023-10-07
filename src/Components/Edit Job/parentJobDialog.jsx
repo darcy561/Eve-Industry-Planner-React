@@ -1,3 +1,4 @@
+import { useContext, useEffect, useState } from "react";
 import {
   Button,
   Dialog,
@@ -8,17 +9,10 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { useContext, useEffect, useState } from "react";
-import { JobArrayContext } from "../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
-import { useFirebase } from "../../Hooks/useFirebase";
+import { JobArrayContext } from "../../Context/JobContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
-import {
-  IsLoggedInContext,
-  UserJobSnapshotContext,
-} from "../../Context/AuthContext";
-import { useFindJobObject } from "../../Hooks/GeneralHooks/useFindJobObject";
-import { useJobSnapshotManagement } from "../../Hooks/JobHooks/useJobSnapshots";
+import { UserJobSnapshotContext } from "../../Context/AuthContext";
 
 export function ParentJobDialog({
   activeJob,
@@ -26,16 +20,12 @@ export function ParentJobDialog({
   dialogTrigger,
   updateDialogTrigger,
   setJobModified,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
-  const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
-    UserJobSnapshotContext
-  );
-  const { uploadJob } = useFirebase();
+  const { jobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshot } = useJobSnapshotManagement();
-  const { findJobData } = useFindJobObject();
   const [matches, updateMatches] = useState([]);
 
   const handleClose = () => {
@@ -120,24 +110,28 @@ export function ParentJobDialog({
                     <IconButton
                       size="small"
                       color="primary"
-                      onClick={async () => {
-                        let newUserJobSnapshot = [...userJobSnapshot];
-                        let newJobArray = [...jobArray];
-                        let fullJob = await findJobData(
-                          job.jobID,
-                          newUserJobSnapshot,
-                          newJobArray
+                      onClick={() => {
+                        const newParentJobArray = [...activeJob.parentJob];
+                        const newParentJobsToAdd = new Set(
+                          parentChildToEdit.parentJobs.add
                         );
-                        fullJob.build.childJobs[activeJob.itemID].push(
-                          activeJob.jobID
+                        const newParentJobsToRemove = new Set(
+                          parentChildToEdit.parentJobs.remove
                         );
-                        let newParentJobArray = [...activeJob.parentJob];
+
+                        newParentJobsToAdd.add(job.jobID);
+                        newParentJobsToRemove.delete(job.jobID);
+
                         newParentJobArray.push(job.jobID);
-                        newUserJobSnapshot = updateJobSnapshot(fullJob, [
-                          ...userJobSnapshot,
-                        ]);
-                        updateJobArray(newJobArray);
-                        updateUserJobSnapshot(newUserJobSnapshot);
+
+                        updateParentChildToEdit((prev) => ({
+                          ...prev,
+                          parentJobs: {
+                            ...prev.parentJobs,
+                            add: [...newParentJobsToAdd],
+                            remove: [...newParentJobsToRemove],
+                          },
+                        }));
                         updateActiveJob((prev) => ({
                           ...prev,
                           parentJob: newParentJobArray,
@@ -150,9 +144,6 @@ export function ParentJobDialog({
                           severity: "success",
                           autoHideDuration: 1000,
                         }));
-                        if (isLoggedIn) {
-                          uploadJob(fullJob);
-                        }
                         handleClose();
                       }}
                     >

@@ -13,7 +13,6 @@ import ClearIcon from "@mui/icons-material/Clear";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { UsersContext } from "../../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import { LinkedIDsContext } from "../../../../../../Context/JobContext";
 import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
 import { AddCustomTransactionDialog } from "./addCustomTransaction";
 
@@ -22,10 +21,11 @@ export function LinkedTransactionPanel({
   updateActiveJob,
   setJobModified,
   activeOrder,
+  esiDataToLink,
+  updateEsiDataToLink,
 }) {
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { linkedTransIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
   const { esiCorpData } = useContext(CorpEsiDataContext);
   const [newTransactionTrigger, updateNewTransactionTrigger] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -226,13 +226,23 @@ export function LinkedTransactionPanel({
                             let newApiTransactions = new Set(
                               activeJob.apiTransactions
                             );
-                            let newLinkedTransIDs = new Set(linkedTransIDs);
+
+                            const newDataToLink = new Set(esiDataToLink.transactions.add)
+                            const newDataToUnlink = new Set(esiDataToLink.transactions.remove)
 
                             newTransArray.splice(index, 1);
-                            newLinkedTransIDs.delete(tData.transaction_id);
                             newApiTransactions.delete(tData.transaction_id);
+                            newDataToLink.delete(tData.transaction_id)
+                              newDataToUnlink.add(tData.transaction_id)
 
-                            updateLinkedTransIDs([...newLinkedTransIDs]);
+                            updateEsiDataToLink((prev) => ({
+                              ...prev,
+                              transactions: {
+                                ...prev.transactions,
+                                add: [...newDataToLink],
+                                remove: [...newDataToUnlink],
+                              },
+                            }));
                             updateActiveJob((prev) => ({
                               ...prev,
                               apiTransactions: newApiTransactions,

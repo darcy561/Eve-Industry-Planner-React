@@ -1,3 +1,4 @@
+import { useContext, useState } from "react";
 import {
   Avatar,
   Chip,
@@ -6,38 +7,35 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { useContext, useState } from "react";
-import { JobArrayContext } from "../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
+import { JobArrayContext } from "../../Context/JobContext";
 import { ParentJobDialog } from "./parentJobDialog";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
-import { useFirebase } from "../../Hooks/useFirebase";
-import {
-  IsLoggedInContext,
-  UserJobSnapshotContext,
-} from "../../Context/AuthContext";
+import { UserJobSnapshotContext } from "../../Context/AuthContext";
 import { useSwitchActiveJob } from "../../Hooks/JobHooks/useSwitchActiveJob";
-import { useFindJobObject } from "../../Hooks/GeneralHooks/useFindJobObject";
-import { useJobSnapshotManagement } from "../../Hooks/JobHooks/useJobSnapshots";
 
 export function LinkedJobBadge({
   activeJob,
   updateActiveJob,
   jobModified,
   setJobModified,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { jobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
-    UserJobSnapshotContext
-  );
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const [dialogTrigger, updateDialogTrigger] = useState(false);
-  const { uploadUserJobSnapshot, uploadJob } = useFirebase();
-  const { updateJobSnapshot } = useJobSnapshotManagement();
-  const { findJobData } = useFindJobObject();
   const { switchActiveJob } = useSwitchActiveJob();
+
+  function findParent(inputID) {
+    if (!activeJob.groupID) {
+      return userJobSnapshot.find((i) => i.jobID === inputID);
+    } else {
+      return jobArray.find((i) => i.jobID === inputID);
+    }
+  }
 
   return (
     <>
@@ -47,6 +45,8 @@ export function LinkedJobBadge({
         dialogTrigger={dialogTrigger}
         updateDialogTrigger={updateDialogTrigger}
         setJobModified={setJobModified}
+        parentChildToEdit={parentChildToEdit}
+        updateParentChildToEdit={updateParentChildToEdit}
       />
       <Stack
         direction="row"
@@ -75,17 +75,8 @@ export function LinkedJobBadge({
           </IconButton>
 
           {activeJob.parentJob.map((jobID) => {
-            let findParent = () => {
-              if (!activeJob.groupID) {
-                return userJobSnapshot.find((i) => i.jobID === jobID);
-              } else {
-                return jobArray.find((i) => i.jobID === jobID);
-              }
-            };
-            let parent = findParent();
-            if (!parent) {
-              return null;
-            }
+            let parent = findParent(jobID);
+            if (!parent) return null;
             return (
               <Grid
                 key={parent.jobID}
@@ -115,36 +106,28 @@ export function LinkedJobBadge({
                     },
                     boxShadow: 3,
                   }}
-                  onDelete={async () => {
-                    let newJobArray = [...jobArray];
-                    let newUserJobSnapshot = [...userJobSnapshot];
-                    let selectedJob = await findJobData(
-                      parent.jobID,
-                      newUserJobSnapshot,
-                      newJobArray
+                  onDelete={() => {
+                    const newParentJobsToAdd = new Set(
+                      parentChildToEdit.parentJobs.add
                     );
-                    if (!selectedJob) {
-                      return;
-                    }
-                    let newParentMaterials = [
-                      ...selectedJob.build.childJobs[activeJob.itemID],
-                    ];
+                    const newParentJobsToRemove = new Set(
+                      parentChildToEdit.parentJobs.remove
+                    );
+                    newParentJobsToAdd.delete(jobID);
+                    newParentJobsToRemove.add(jobID);
 
-                    newParentMaterials = newParentMaterials.filter(
-                      (i) => i !== activeJob.jobID
+                    const newParentJobs = activeJob.parentJob.filter(
+                      (i) => i !== jobID
                     );
 
-                    let newParentJobs = [...activeJob.parentJob];
-
-                    newParentJobs = newParentJobs.filter(
-                      (i) => i !== selectedJob.jobID
-                    );
-                    newUserJobSnapshot = updateJobSnapshot(
-                      selectedJob,
-                      newUserJobSnapshot
-                    );
-                    updateJobArray(newJobArray);
-                    updateUserJobSnapshot(newUserJobSnapshot);
+                    updateParentChildToEdit((prev) => ({
+                      ...prev,
+                      parentJobs: {
+                        ...prev.parentJobs,
+                        add: [...newParentJobsToAdd],
+                        remove: [...newParentJobsToRemove],
+                      },
+                    }));
                     updateActiveJob((prev) => ({
                       ...prev,
                       parentJob: newParentJobs,
@@ -153,15 +136,11 @@ export function LinkedJobBadge({
                     setSnackbarData((prev) => ({
                       ...prev,
                       open: true,
-                      message: `${selectedJob.name} Unlinked`,
+                      message: `${parent.name} Unlinked`,
                       severity: "error",
                       autoHideDuration: 1000,
                     }));
                     setJobModified(true);
-                    if (isLoggedIn) {
-                      uploadJob(selectedJob);
-                      uploadUserJobSnapshot(newUserJobSnapshot);
-                    }
                   }}
                 />
               </Grid>

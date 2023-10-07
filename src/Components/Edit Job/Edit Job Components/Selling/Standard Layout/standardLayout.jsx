@@ -12,9 +12,12 @@ export function Selling_StandardLayout_EditJob({
   activeJob,
   updateActiveJob,
   setJobModified,
+  esiDataToLink,
+  updateEsiDataToLink
 }) {
   const [showAvailableOrders, updateShowAvailableOrders] = useState(false);
   const [activeOrder, updateActiveOrder] = useState([]);
+  console.log(esiDataToLink)
   return (
     <Grid container spacing={2}>
       <TutorialStep5 />
@@ -29,6 +32,8 @@ export function Selling_StandardLayout_EditJob({
           updateShowAvailableOrders={updateShowAvailableOrders}
           activeOrder={activeOrder}
           updateActiveOrder={updateActiveOrder}
+          esiDataToLink={esiDataToLink}
+          updateEsiDataToLink={updateEsiDataToLink}
         />
       </Grid>
       <Grid item xs={12} md={4}>
@@ -40,6 +45,8 @@ export function Selling_StandardLayout_EditJob({
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
           activeOrder={activeOrder}
+          esiDataToLink={esiDataToLink}
+          updateEsiDataToLink={updateEsiDataToLink}
         />
       </Grid>
       <Grid item xs={12}>
@@ -48,6 +55,8 @@ export function Selling_StandardLayout_EditJob({
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
           activeOrder={activeOrder}
+          esiDataToLink={esiDataToLink}
+          updateEsiDataToLink={updateEsiDataToLink}
         />
       </Grid>
       <Grid item xs={12}>

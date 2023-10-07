@@ -15,7 +15,6 @@ import {
   UsersContext,
 } from "../../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import { LinkedIDsContext } from "../../../../../../Context/JobContext";
 import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
 import { useMarketOrderFunctions } from "../../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 
@@ -24,16 +23,17 @@ export function AvailableTransactionsPanel({
   updateActiveJob,
   setJobModified,
   activeOrder,
+  esiDataToLink,
+  updateEsiDataToLink,
 }) {
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { linkedTransIDs, updateLinkedTransIDs } = useContext(LinkedIDsContext);
   const { esiCorpData } = useContext(CorpEsiDataContext);
   const { buildTransactionData } = useMarketOrderFunctions();
   const analytics = getAnalytics();
 
-  const transactionData = buildTransactionData(activeJob);
+  const transactionData = buildTransactionData(activeJob, esiDataToLink.transactions.add);
 
   return (
     <Paper
@@ -187,7 +187,13 @@ export function AvailableTransactionsPanel({
                         let newApiTransactions = new Set(
                           activeJob.apiTransactions
                         );
-                        let newLinkedTransIDs = new Set(linkedTransIDs);
+
+                        const newDataToLink = new Set(
+                          esiDataToLink.transactions.add
+                        );
+                        const newDataToUnlink = new Set(
+                          esiDataToLink.transactions.remove
+                        );
 
                         if (activeJob.build.sale.marketOrders > 1) {
                           tData.order_id = activeOrder;
@@ -205,11 +211,19 @@ export function AvailableTransactionsPanel({
                           (i) => i.ParentUser === true
                         );
 
-                        newLinkedTransIDs.add(tData.transaction_id);
+                        newDataToLink.add(tData.transaction_id);
+                        newDataToUnlink.delete(tData.transaction_id);
 
                         newApiTransactions.add(tData.transaction_id);
 
-                        updateLinkedTransIDs([...newLinkedTransIDs]);
+                        updateEsiDataToLink((prev) => ({
+                          ...prev,
+                          transactions: {
+                            ...prev.transactions,
+                            add: [...newDataToLink],
+                            remove: [...newDataToUnlink],
+                          },
+                        }));
                         updateActiveJob((prev) => ({
                           ...prev,
                           apiTransactions: newApiTransactions,
@@ -263,7 +277,11 @@ export function AvailableTransactionsPanel({
                   ...activeJob.build.sale.transactions,
                 ];
                 let newApiTransactions = new Set(activeJob.apiTransactions);
-                let newLinkedTransIDs = new Set(linkedTransIDs);
+
+                const newDataToLink = new Set(esiDataToLink.transactions.add);
+                const newDataToUnlink = new Set(
+                  esiDataToLink.transactions.remove
+                );
                 let parentUserIndex = users.findIndex(
                   (i) => i.ParentUser === true
                 );
@@ -276,12 +294,22 @@ export function AvailableTransactionsPanel({
                   }
                   newTransactionArray.push(trans);
                   newApiTransactions.add(trans.transaction_id);
-                  newLinkedTransIDs.add(trans.transaction_id);
+
+                  newDataToLink.add(trans.transaction_id);
+                  newDataToUnlink.delete(trans.transaction_id);
                 }
                 newTransactionArray.sort((a, b) => {
                   return new Date(b.date) - new Date(a.date);
                 });
-                updateLinkedTransIDs([...newLinkedTransIDs]);
+
+                updateEsiDataToLink((prev) => ({
+                  ...prev,
+                  transactions: {
+                    ...prev.transactions,
+                    add: [...newDataToLink],
+                    remove: [...newDataToUnlink],
+                  },
+                }));
                 updateActiveJob((prev) => ({
                   ...prev,
                   apiTransactions: newApiTransactions,

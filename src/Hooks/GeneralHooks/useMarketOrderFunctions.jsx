@@ -91,17 +91,21 @@ export function useMarketOrderFunctions() {
     );
   }
 
-  function findMarketOrdersForItem() {
+  function findMarketOrdersForItem(inputJob, temporaryOrderIDs) {
+    if (!temporaryOrderIDs) {
+      temporaryOrderIDs = [];
+    }
     const matchingMarketOrders = [];
     [esiOrders, esiHistOrders, corpEsiOrders, corpEsiHistOrders].forEach(
       (orders) => {
         orders.forEach((entry) => {
           entry?.data.forEach((order) => {
             if (
-              order.type_id === activeJob.itemID &&
+              order.type_id === inputJob.itemID &&
               !linkedOrderIDs.includes(order.order_id) &&
               !parentUser.linkedOrders.has(order.order_id) &&
-              !matchingMarketOrders.some((i) => i.order_id === order.order_id)
+              !matchingMarketOrders.some((i) => i.order_id === order.order_id) &&
+              !temporaryOrderIDs.some((i)=> i === order.order_id)
             ) {
               matchingMarketOrders.push(order);
             }
@@ -124,7 +128,6 @@ export function useMarketOrderFunctions() {
         user?.data.flatMap(({ data }) => data ?? [])
       ),
     ];
-
     transactions.forEach((trans) => {
       if (
         order.location_id === trans.location_id &&
@@ -143,9 +146,12 @@ export function useMarketOrderFunctions() {
     return existingTransactions;
   }
 
-  function buildTransactionData(inputJob) {
+  function buildTransactionData(inputJob, temporaryTransactionIDs) {
+    if (!temporaryTransactionIDs) {
+      temporaryTransactionIDs = []
+    }
     const transactionData = [];
-    const matchedTransactions = new Set();
+    const matchedTransactions = new Set(temporaryTransactionIDs);
     inputJob.build.sale.marketOrders.forEach((order) => {
       const itemTransactions = findTransactionsForMarketOrders(
         order,

@@ -3,30 +3,71 @@ import {
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
-import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
+import {
+  ActiveJobContext,
+  JobArrayContext,
+  LinkedIDsContext,
+} from "../../Context/JobContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./useJobSnapshots";
+import { useManageGroupJobs } from "../GroupHooks/useManageGroupJobs";
 
 export function useCloseActiveJob() {
-  const { updateActiveJob } = useContext(ActiveJobContext);
+  const { updateActiveJob, updateActiveGroup } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { jobArray, updateJobArray, groupArray, updateGroupArray } =
+    useContext(JobArrayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
+  const {
+    linkedJobIDs,
+    updateLinkedJobIDs,
+    linkedOrderIDs,
+    updateLinkedOrderIDs,
+    linkedTransIDs,
+    updateLinkedTransIDs,
+  } = useContext(LinkedIDsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { uploadJob, uploadUserJobSnapshot } = useFirebase();
+  const { addNewJob, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
+  const { addJobToGroup } = useManageGroupJobs();
   const { findJobData } = useFindJobObject();
 
-  const closeActiveJob = async (inputJob, jobModifiedFlag) => {
+  const closeActiveJob = async (
+    inputJob,
+    jobModifiedFlag,
+    tempJobsToAdd,
+    esiDataToLink
+  ) => {
     let newJobArray = [...jobArray];
+    let newGroupArray = [...groupArray];
     let newUserJobSnapshot = [...userJobSnapshot];
+    const newLinkedJobIDs = new Set(linkedJobIDs);
+    const newLinkedOrderIDs = new Set(linkedOrderIDs);
+    const newLinkedTransIDs = new Set(linkedTransIDs);
     const index = newJobArray.findIndex((x) => inputJob.jobID === x.jobID);
     newJobArray[index] = inputJob;
     // newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, inputJob.jobID);
+
+    Object.values(tempJobsToAdd).forEach((tempJob) => {
+      inputJob.build.childJobs[tempJob.itemID].push(tempJob.jobID);
+      newJobArray.push(tempJob);
+      if (!inputJob.groupID) {
+        newUserJobSnapshot = newJobSnapshot(tempJob, newUserJobSnapshot);
+      } else {
+        newGroupArray = addJobToGroup(tempJob, newGroupArray, newJobArray);
+      }
+      addNewJob(tempJob);
+    });
+    addIDsToSet(newLinkedJobIDs, esiDataToLink.industryJobs.add);
+    addIDsToSet(newLinkedOrderIDs, esiDataToLink.marketOrders.add);
+    addIDsToSet(newLinkedTransIDs, esiDataToLink.transactions.add);
+    removeIDsFromSet(newLinkedJobIDs, esiDataToLink.industryJobs.remove);
+    removeIDsFromSet(newLinkedOrderIDs, esiDataToLink.marketOrders.remove);
+    removeIDsFromSet(newLinkedTransIDs, esiDataToLink.transactions.remove);
 
     newUserJobSnapshot = updateJobSnapshot(inputJob, newUserJobSnapshot);
     if (jobModifiedFlag) {
@@ -113,6 +154,20 @@ export function useCloseActiveJob() {
     ) {
       newUserJobSnapshot = newJobSnapshot(inputJob, newUserJobSnapshot);
     }
+
+    if (inputJob.groupID) {
+      let updatedGroupObject = newGroupArray.find(
+        (i) => i.groupID === inputJob.groupID
+      );
+      if (updatedGroup) {
+        updateActiveGroup(updatedGroupObject);
+      }
+      updateGroupArray(newGroupArray);
+    }
+    console.log(newLinkedOrderIDs);
+    updateLinkedJobIDs([...newLinkedJobIDs]);
+    updateLinkedOrderIDs([...newLinkedOrderIDs]);
+    updateLinkedTransIDs([...newLinkedTransIDs]);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateActiveJob(null);
@@ -132,6 +187,18 @@ export function useCloseActiveJob() {
       }));
     }
   };
+
+  function addIDsToSet(originalSet, toBeAdded) {
+    toBeAdded.forEach((i) => {
+      originalSet.add(i);
+    });
+  }
+
+  function removeIDsFromSet(originalSet, toBeRemoved) {
+    toBeRemoved.forEach((i) => {
+      originalSet.delete(i);
+    });
+  }
 
   return {
     closeActiveJob,

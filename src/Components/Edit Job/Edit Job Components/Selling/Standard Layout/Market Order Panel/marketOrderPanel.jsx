@@ -12,6 +12,8 @@ export function MarketOrderPanel({
   updateShowAvailableOrders,
   activeOrder,
   updateActiveOrder,
+  esiDataToLink,
+  updateEsiDataToLink
 }) {
   const [currentTab, updateTab] = useState(() => {
     if (activeJob.build.sale.marketOrders.length === 0) {
@@ -23,12 +25,11 @@ export function MarketOrderPanel({
 
   const { findMarketOrdersForItem } = useMarketOrderFunctions();
 
-  const itemOrderMatch = findMarketOrdersForItem();
+  const itemOrderMatch = findMarketOrdersForItem(activeJob, esiDataToLink.marketOrders.add);
 
   const handleChange = (event, newValue) => {
     updateTab(newValue);
   };
-
   return (
     <Paper
       sx={{
@@ -60,6 +61,8 @@ export function MarketOrderPanel({
             activeOrder={activeOrder}
             updateActiveOrder={updateActiveOrder}
             updateShowAvailableOrders={updateShowAvailableOrders}
+            esiDataToLink={esiDataToLink}
+            updateEsiDataToLink={updateEsiDataToLink}
           />
         </TabPanel>
         <TabPanel value="1">
@@ -69,6 +72,8 @@ export function MarketOrderPanel({
             setJobModified={setJobModified}
             itemOrderMatch={itemOrderMatch}
             updateShowAvailableOrders={updateShowAvailableOrders}
+            esiDataToLink={esiDataToLink}
+            updateEsiDataToLink={updateEsiDataToLink}
           />
         </TabPanel>
       </TabContext>

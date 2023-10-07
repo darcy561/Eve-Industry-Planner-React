@@ -6,10 +6,11 @@ import { TabPanel_Building } from "./Tab Panel/tabPanel";
 export function Building_StandardLayout_EditJob({
   activeJob,
   updateActiveJob,
-  jobModified,
   setJobModified,
   jobMatches,
   parentUser,
+  esiDataToLink,
+  updateEsiDataToLink
 }) {
   return (
     <Grid container spacing={2} sx={{ width: "100%" }}>
@@ -21,10 +22,11 @@ export function Building_StandardLayout_EditJob({
         <TabPanel_Building
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
-          jobModified={jobModified}
           setJobModified={setJobModified}
           parentUser={parentUser}
           jobMatches={jobMatches}
+          esiDataToLink={esiDataToLink}
+          updateEsiDataToLink={updateEsiDataToLink}
         />
       </Grid>
     </Grid>

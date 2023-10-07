@@ -19,6 +19,8 @@ export function MaterialCard({
   setJobModified,
   orderDisplay,
   marketDisplay,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
   const [childDialogTrigger, updateChildDialogTrigger] = useState(false);
   const [itemAssetsDialogTrigger, updateItemAssetsDialogTrigger] =
@@ -33,9 +35,9 @@ export function MaterialCard({
   const childJobLocation = activeJob.build.childJobs[material.typeID];
 
   if (childJobLocation.length > 0) {
-    const filterJobs = (jobList) => {
+    function filterJobs(jobList) {
       return jobList.filter((job) => childJobLocation.includes(job.jobID));
-    };
+    }
 
     if (!activeJob.groupID) {
       childJobs = filterJobs(userJobSnapshot);
@@ -61,6 +63,8 @@ export function MaterialCard({
         childDialogTrigger={childDialogTrigger}
         updateChildDialogTrigger={updateChildDialogTrigger}
         setJobModified={setJobModified}
+        parentChildToEdit={parentChildToEdit}
+        updateParentChildToEdit={updateParentChildToEdit}
       />
       <AssetDialogue
         material={material}

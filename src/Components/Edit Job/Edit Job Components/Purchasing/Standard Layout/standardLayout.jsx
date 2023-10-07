@@ -5,12 +5,10 @@ import { TutorialStep2 } from "../tutorialStep2";
 import { PurchasingDataPanel_EditJob } from "./Purchasing Data Panel/purchsingDataPanel";
 import { MaterialCard } from "./Material Cards/materialCard";
 import { InventionCostsCard } from "./Invention Costs/inventionCostsCard";
-import { ShoppingListDialog } from "../../../../Job Planner/Dialogues/ShoppingList/ShoppingList";
 
 export function Purchasing_StandardLayout_EditJob({
   activeJob,
   updateActiveJob,
-  jobModified,
   setJobModified,
   orderDisplay,
   changeOrderDisplay,
@@ -18,6 +16,8 @@ export function Purchasing_StandardLayout_EditJob({
   changeMarketDisplay,
   requiresInventionCosts,
   ignoreInventionCosts,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
   const { users } = useContext(UsersContext);
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -63,6 +63,8 @@ export function Purchasing_StandardLayout_EditJob({
                 setJobModified={setJobModified}
                 orderDisplay={orderDisplay}
                 marketDisplay={marketDisplay}
+                parentChildToEdit={parentChildToEdit}
+                updateParentChildToEdit={updateParentChildToEdit}
               />
             );
           }

@@ -30,25 +30,45 @@ import { LayoutSelector_EditJob_Complete } from "./Edit Job Components/Complete/
 import { LayoutSelector_EditJob_Selling } from "./Edit Job Components/Selling/LayoutSelector";
 import { ShoppingListDialog } from "../Job Planner/Dialogues/ShoppingList/ShoppingList";
 
-
 export function EditJob_New() {
   const { jobStatus } = useContext(JobStatusContext);
   const [activeJob, updateActiveJob] = useState(null);
   const [jobModified, setJobModified] = useState(false);
-  const [temporaryChildJobs, updateTemporaryChildJobs] = useState({})
+  const [temporaryChildJobs, updateTemporaryChildJobs] = useState({});
+  const [esiDataToLink, updateEsiDataToLink] = useState({
+    industryJobs: {
+      add: [],
+      remove: [],
+    },
+    marketOrders: {
+      add: [],
+      remove: [],
+    },
+    transactions: {
+      add: [],
+      remove: [],
+    },
+  });
+  const [parentChildToEdit, updateParentChildToEdit] = useState({
+    parentJobs: {
+      add: [],
+      remove: [],
+    },
+    childJobs: {},
+  });
+  console.log(parentChildToEdit)
   const { deepCopyJobObject } = useJobManagement();
   const { openEditJob } = useOpenEditJob_New();
   const navigate = useNavigate();
   const { jobID } = useParams();
   let backupJob = useRef(null);
 
-
   useEffect(() => {
     async function openJobProcess() {
       const matchedJob = await openEditJob(jobID);
       if (!matchedJob) {
-        navigate("/jobplanner")
-        return
+        navigate("/jobplanner");
+        return;
       }
       updateActiveJob(deepCopyJobObject(matchedJob));
       backupJob.current = deepCopyJobObject(matchedJob);
@@ -102,8 +122,9 @@ export function EditJob_New() {
           <LayoutSelector_EditJob_Purchasing
             activeJob={activeJob}
             updateActiveJob={updateActiveJob}
-            jobModified={jobModified}
             setJobModified={setJobModified}
+            parentChildToEdit={parentChildToEdit}
+            updateParentChildToEdit={updateParentChildToEdit}
           />
         );
       case 2:
@@ -111,8 +132,9 @@ export function EditJob_New() {
           <LayoutSelector_EditJob_Building
             activeJob={activeJob}
             updateActiveJob={updateActiveJob}
-            jobModified={jobModified}
             setJobModified={setJobModified}
+            esiDataToLink={esiDataToLink}
+            updateEsiDataToLink={updateEsiDataToLink}
           />
         );
       case 3:
@@ -129,6 +151,8 @@ export function EditJob_New() {
             activeJob={activeJob}
             updateActiveJob={updateActiveJob}
             setJobModified={setJobModified}
+            esiDataToLink={esiDataToLink}
+            updateEsiDataToLink={updateEsiDataToLink}
           />
         );
       default:
@@ -160,8 +184,14 @@ export function EditJob_New() {
         <Grid item xs={7} md={9} lg={10} />
         <Grid item xs={5} md={3} lg={2} align="right">
           <DeleteJobIcon activeJob={activeJob} />
-          <SaveJobIcon activeJob={activeJob} jobModified={jobModified} />
           <CloseJobIcon />
+          <SaveJobIcon
+            activeJob={activeJob}
+            jobModified={jobModified}
+            temporaryChildJobs={temporaryChildJobs}
+            esiDataToLink={esiDataToLink}
+            parentChildToEdit={parentChildToEdit}
+          />
         </Grid>
         <Grid item xs={12}>
           <Typography variant="h3" color="primary" align="left">
@@ -192,6 +222,8 @@ export function EditJob_New() {
             updateActiveJob={updateActiveJob}
             jobModified={jobModified}
             setJobModified={setJobModified}
+            parentChildToEdit={parentChildToEdit}
+            updateParentChildToEdit={updateParentChildToEdit}
           />
         </Grid>
         <Grid item xs={12}>

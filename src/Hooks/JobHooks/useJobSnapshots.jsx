@@ -9,7 +9,8 @@ export function useJobSnapshotManagement() {
     childJobs,
     totalComplete,
     materialIDs,
-    endDate
+    endDate,
+    setupCount
   ) {
     this.isLocked = false;
     this.lockedTimestamp = null;
@@ -32,6 +33,7 @@ export function useJobSnapshotManagement() {
     this.metaLevel = inputJob.metaLevel;
     this.groupID = inputJob.groupID || null;
     this.endDateDisplay = endDate;
+    this.setupCount = setupCount
   }
 
   const replaceSnapshot = async (inputJob) => {
@@ -54,13 +56,18 @@ export function useJobSnapshotManagement() {
       (material) => material.quantityPurchased >= material.quantity
     ).length;
 
+    const setupCount = Object.values(inputJob.build.setup).reduce((prev,) => {
+      return prev +1
+    }, 0)
+
     newSnapshotArray.push({
       ...new snapshotObject(
         inputJob,
         childJobs,
         totalComplete,
         materialIDs,
-        null
+        null,
+        setupCount
       ),
     });
 
@@ -77,6 +84,10 @@ export function useJobSnapshotManagement() {
     const totalComplete = inputJob.build.materials.filter(
       (material) => material.quantityPurchased >= material.quantity
     ).length;
+
+    const setupCount = Object.values(inputJob.build.setup).reduce((prev,) => {
+      return prev +1
+    }, 0)
 
     const tempJobs = [...inputJob.build.costs.linkedJobs];
     const endDate =
@@ -97,7 +108,8 @@ export function useJobSnapshotManagement() {
         childJobs,
         totalComplete,
         materialIDs,
-        endDate
+        endDate,
+        setupCount
       ),
     };
     return newSnapshotArray;

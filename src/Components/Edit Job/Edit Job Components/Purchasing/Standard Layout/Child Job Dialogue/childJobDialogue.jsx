@@ -71,6 +71,12 @@ export function ChildJobDialogue({
         <Grid container sx={{ marginBottom: "40px" }}>
           {matches.length > 0 ? (
             matches.map((job) => {
+              const setupCount = Object.values(job.build.setup).reduce(
+                (prev, setup) => {
+                  return prev + 1;
+                },
+                0
+              );
               return (
                 <Grid
                   container
@@ -98,7 +104,7 @@ export function ChildJobDialogue({
                   </Grid>
                   <Grid item xs={4}>
                     <Typography variant="body2">
-                      Runs: {job.runCount} Jobs: {job.jobCount}
+                      Setups: {setupCount}
                     </Typography>
                   </Grid>
                   <Grid item xs={1}>
@@ -109,8 +115,28 @@ export function ChildJobDialogue({
                         const newChildJobArray = [
                           ...activeJob.build.childJobs[material.typeID],
                         ];
+                        const newChildJobstoAdd = new Set(
+                          parentChildToEdit.childJobs[material.typeID]?.add
+                        );
+                        const newChildJobsToRemove = new Set(
+                          parentChildToEdit.childJobs[material.typeID]?.remove
+                        );
 
-                        newChildJobArray.push(inputJob.jobID);
+                        newChildJobstoAdd.add(job.jobID);
+                        newChildJobsToRemove.delete(job.jobID);
+
+                        newChildJobArray.push(job.jobID);
+
+                        updateParentChildToEdit((prev) => ({
+                          ...prev,
+                          childJobs: {
+                            [material.typeID]: {
+                              ...prev.childJobs[material.typeID],
+                              add: [...newChildJobstoAdd],
+                              remove: [...newChildJobsToRemove],
+                            },
+                          },
+                        }));
 
                         updateActiveJob((prev) => ({
                           ...prev,
@@ -126,7 +152,7 @@ export function ChildJobDialogue({
                         setSnackbarData((prev) => ({
                           ...prev,
                           open: true,
-                          message: `${inputJob.name} Linked`,
+                          message: `${job.name} Linked`,
                           severity: "success",
                           autoHideDuration: 1000,
                         }));
@@ -154,16 +180,16 @@ export function ChildJobDialogue({
         <Grid container item>
           {materialChildJobs.length > 0 ? (
             materialChildJobs.map((childJobID) => {
-              const findJobMatch = () => {
-                const jobs =
-                  activeJob.groupID === null ? userJobSnapshot : jobArray;
-                return jobs.find((i) => i.jobID == childJobID);
-              };
+              const jobMatch = jobArray.find((i) => i.jobID == childJobID);
+              if (!jobMatch) return null;
+              console.log(jobMatch);
+              const setupCount = Object.values(jobMatch.build.setup).reduce(
+                (prev, setup) => {
+                  return prev + 1;
+                },
+                0
+              );
 
-              const jobMatch = findJobMatch();
-              if (!jobMatch) {
-                return null;
-              }
               return (
                 <Grid
                   container
@@ -191,7 +217,7 @@ export function ChildJobDialogue({
                   </Grid>
                   <Grid item xs={4}>
                     <Typography variant="body2">
-                      Runs: {jobMatch.runCount} Jobs: {jobMatch.jobCount}
+                      Setups: {setupCount}
                     </Typography>
                   </Grid>
                   <Grid item xs={1}>
@@ -206,6 +232,27 @@ export function ChildJobDialogue({
                             )
                           ),
                         ];
+
+                        const newChildJobstoAdd = new Set(
+                          parentChildToEdit.childJobs[material.typeID]?.add
+                        );
+                        const newChildJobsToRemove = new Set(
+                          parentChildToEdit.childJobs[material.typeID]?.remove
+                        );
+
+                        newChildJobstoAdd.delete(jobMatch.jobID);
+                        newChildJobsToRemove.add(jobMatch.jobID);
+
+                        updateParentChildToEdit((prev) => ({
+                          ...prev,
+                          childJobs: {
+                            [material.typeID]: {
+                              ...prev.childJobs[material.typeID],
+                              add: [...newChildJobstoAdd],
+                              remove: [...newChildJobsToRemove],
+                            },
+                          },
+                        }));
 
                         updateActiveJob((prev) => ({
                           ...prev,

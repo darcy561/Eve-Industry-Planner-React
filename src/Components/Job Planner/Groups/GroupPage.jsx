@@ -1,3 +1,4 @@
+import { useContext, useEffect, useState } from "react";
 import {
   Autocomplete,
   CircularProgress,
@@ -14,7 +15,6 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import DoneIcon from "@mui/icons-material/Done";
-import { useContext, useEffect, useState } from "react";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { OutputJobsPanel } from "./OutputJobs";
 import { GroupAccordion } from "./groupAccordion";
@@ -44,7 +44,6 @@ export default function GroupPage({
     useState(false);
   const { closeGroup } = useCloseGroup();
   const { newJobProcess } = useJobManagement();
-  const classes = useStyles();
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -91,6 +90,7 @@ export default function GroupPage({
     }));
     updateEditGroupNameTrigger((prev) => !prev);
   };
+
   if (activeGroup === null) return <LoadingPage />;
 
   return (

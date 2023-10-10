@@ -31,10 +31,8 @@ export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { activeJob, activeGroup, updateActiveJob, updateActiveGroup } =
-    useContext(ActiveJobContext);
+  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);

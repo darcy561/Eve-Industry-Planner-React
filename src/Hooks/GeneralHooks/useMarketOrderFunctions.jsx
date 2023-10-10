@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react";
-import { ActiveJobContext, LinkedIDsContext } from "../../Context/JobContext";
+import { LinkedIDsContext } from "../../Context/JobContext";
 import {
   CorpEsiDataContext,
   PersonalESIDataContext,
@@ -7,7 +7,6 @@ import {
 import { UsersContext } from "../../Context/AuthContext";
 
 export function useMarketOrderFunctions() {
-  const { activeJob } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
   const { esiOrders, esiHistOrders, esiJournal, esiTransactions } = useContext(
@@ -104,8 +103,10 @@ export function useMarketOrderFunctions() {
               order.type_id === inputJob.itemID &&
               !linkedOrderIDs.includes(order.order_id) &&
               !parentUser.linkedOrders.has(order.order_id) &&
-              !matchingMarketOrders.some((i) => i.order_id === order.order_id) &&
-              !temporaryOrderIDs.some((i)=> i === order.order_id)
+              !matchingMarketOrders.some(
+                (i) => i.order_id === order.order_id
+              ) &&
+              !temporaryOrderIDs.some((i) => i === order.order_id)
             ) {
               matchingMarketOrders.push(order);
             }
@@ -148,7 +149,7 @@ export function useMarketOrderFunctions() {
 
   function buildTransactionData(inputJob, temporaryTransactionIDs) {
     if (!temporaryTransactionIDs) {
-      temporaryTransactionIDs = []
+      temporaryTransactionIDs = [];
     }
     const transactionData = [];
     const matchedTransactions = new Set(temporaryTransactionIDs);

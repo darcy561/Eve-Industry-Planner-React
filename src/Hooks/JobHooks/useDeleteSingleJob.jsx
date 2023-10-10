@@ -16,7 +16,6 @@ import {
   SnackBarDataContext,
 } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
-import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./useJobSnapshots";
 

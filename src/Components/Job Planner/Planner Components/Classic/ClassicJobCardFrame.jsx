@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { grey } from "@mui/material/colors";
 import { jobTypes } from "../../../../Context/defaultValues";
 import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
 import Step1JobCard from "./Job Cards/step1";
@@ -17,11 +18,9 @@ import Step2JobCard from "./Job Cards/step2";
 import Step3JobCard from "./Job Cards/step3";
 import Step4JobCard from "./Job Cards/step4";
 import Step5JobCard from "./Job Cards/step5";
-import { grey } from "@mui/material/colors";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
-import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
 import { useNavigate } from "react-router-dom";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 
@@ -42,11 +41,10 @@ function DisplaySwitch({ job }) {
   }
 }
 
-export function JobCardFrame({ job, updateEditJobTrigger }) {
+export function JobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { openEditJob } = useOpenEditJob();
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.jobCard,
@@ -60,7 +58,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
     }),
   }));
   const navigate = useNavigate();
-  const {PRIMARY_THEME} = GLOBAL_CONFIG
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   let jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
@@ -178,8 +176,6 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
                 disabled={job.isLocked}
                 onClick={() => {
                   navigate(`/editJob/${job.jobID}`);
-                  // openEditJob(job.jobID);
-                  // updateEditJobTrigger((prev) => !prev);
                 }}
                 sx={{ height: "25px", width: "100px" }}
               >

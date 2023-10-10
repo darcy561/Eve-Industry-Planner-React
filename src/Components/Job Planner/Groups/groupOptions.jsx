@@ -1,20 +1,10 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
+import { Button, Grid, Paper, Tooltip } from "@mui/material";
 import {
-  Button,
-  ButtonGroup,
-  CircularProgress,
-  Grid,
-  Paper,
-  Tooltip,
-} from "@mui/material";
-import {
-  DialogDataContext,
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
 } from "../../../Context/LayoutContext";
-import { useJobManagement } from "../../../Hooks/useJobManagement";
-import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
-import { UserJobSnapshotContext } from "../../../Context/AuthContext";
+import { ActiveJobContext } from "../../../Context/JobContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
 import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
@@ -32,11 +22,7 @@ export function GroupOptionsBar({
     MultiSelectJobPlannerContext
   );
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
-  const { jobArray } = useContext(JobArrayContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { activeGroup } = useContext(ActiveJobContext);
-  const { updateDialogData } = useContext(DialogDataContext);
-  const { buildItemPriceEntry } = useJobManagement();
   const { buildFullJobTree } = useGroupManagement();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();

@@ -9,7 +9,9 @@ export function useJobSnapshotManagement() {
     childJobs,
     totalComplete,
     materialIDs,
-    endDate
+    endDate,
+    totalSetupCount,
+    totalJobCount
   ) {
     this.isLocked = false;
     this.lockedTimestamp = null;
@@ -25,6 +27,8 @@ export function useJobSnapshotManagement() {
     this.itemQuantity = inputJob.build.products.totalQuantity;
     this.totalMaterials = inputJob.build.materials.length;
     this.totalComplete = totalComplete;
+    this.totalJobCount = totalJobCount;
+    this.totalSetupCount = totalSetupCount;
     this.buildVer = inputJob.buildVer;
     this.parentJob = inputJob.parentJob;
     this.childJobs = childJobs;
@@ -54,13 +58,27 @@ export function useJobSnapshotManagement() {
       (material) => material.quantityPurchased >= material.quantity
     ).length;
 
+    const { totalJobCount, totalSetupCount } = Object.values(
+      inputJob.build.setup
+    ).reduce(
+      (prev, { jobCount }) => {
+        return {
+          totalJobCount: (prev.totalJobCount += jobCount),
+          totalSetupCount: prev.totalSetupCount + 1,
+        };
+      },
+      { totalJobCount: 0, totalSetupCount: 0 }
+    );
+
     newSnapshotArray.push({
       ...new snapshotObject(
         inputJob,
         childJobs,
         totalComplete,
         materialIDs,
-        null
+        null,
+        totalSetupCount,
+        totalJobCount
       ),
     });
 
@@ -91,13 +109,27 @@ export function useJobSnapshotManagement() {
       (i) => i.jobID === inputJob.jobID
     );
 
+    const { totalJobCount, totalSetupCount } = Object.values(
+      inputJob.build.setup
+    ).reduce(
+      (prev, { jobCount }) => {
+        return {
+          totalJobCount: (prev.totalJobCount += jobCount),
+          totalSetupCount: prev.totalSetupCount + 1,
+        };
+      },
+      { totalJobCount: 0, totalSetupCount: 0 }
+    );
+
     newSnapshotArray[snapshotIndex] = {
       ...new snapshotObject(
         inputJob,
         childJobs,
         totalComplete,
         materialIDs,
-        endDate
+        endDate,
+        totalSetupCount,
+        totalJobCount
       ),
     };
     return newSnapshotArray;

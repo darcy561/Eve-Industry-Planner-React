@@ -1,5 +1,4 @@
 import { useContext, useMemo } from "react";
-import { ActiveJobContext, JobStatus } from "../../Context/JobContext";
 import { useBlueprintCalc } from "../useBlueprintCalc";
 import { useInstallCostsCalc } from "./useInstallCostCalc";
 import { useJobBuild } from "../useJobBuild";
@@ -7,7 +6,6 @@ import { UsersContext } from "../../Context/AuthContext";
 
 export function useSetupManagement() {
   const { users } = useContext(UsersContext);
-  const { activeJob } = useContext(ActiveJobContext);
   const { CalculateResources_New, CalculateTime_New } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
   const {
@@ -15,7 +13,7 @@ export function useSetupManagement() {
     addItemBlueprint_New,
     addDefaultStructure_New,
     recalculateItemQty_New,
-    calculateJobMaterialQuantities
+    calculateJobMaterialQuantities,
   } = useJobBuild();
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -48,8 +46,6 @@ export function useSetupManagement() {
         material.quantity = newTotalQuantities[materialId];
       }
     }
-
-
 
     return { jobSetups, newMaterialArray, newTotalProduced };
   }
@@ -99,7 +95,6 @@ export function useSetupManagement() {
 
     return { jobSetups, newMaterialArray, newTotalProduced };
   }
-
 
   return {
     addNewSetup,

@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import {
   Button,
   Dialog,
@@ -6,7 +7,6 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import React, { useContext } from "react";
 import { DialogDataContext } from "../Context/LayoutContext";
 
 export function DialogBox() {
@@ -20,21 +20,18 @@ export function DialogBox() {
   };
 
   return (
-      <Dialog
-        open={dialogData.open}
-        onClose={handleClose}
-      >
-        <DialogTitle id={dialogData.id}>{dialogData.title}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id={dialogData.id} color="secondary">
-            {dialogData.body}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} autoFocus>
-            {dialogData.buttonText}
-          </Button>
-        </DialogActions>
-      </Dialog>
+    <Dialog open={dialogData.open} onClose={handleClose}>
+      <DialogTitle id={dialogData.id}>{dialogData.title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id={dialogData.id} color="secondary">
+          {dialogData.body}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose} autoFocus>
+          {dialogData.buttonText}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

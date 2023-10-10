@@ -18,7 +18,6 @@ import {
 } from "../../Context/LayoutContext";
 import { performance } from "../../firebase";
 import { useFirebase } from "../useFirebase";
-import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./useJobSnapshots";
 

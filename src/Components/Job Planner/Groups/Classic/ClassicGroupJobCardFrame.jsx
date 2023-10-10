@@ -16,7 +16,6 @@ import {
   JobPlannerPageTriggerContext,
   MultiSelectJobPlannerContext,
 } from "../../../../Context/LayoutContext";
-import Step1JobCard from "../../Planner Components/Classic/Job Cards/step1";
 import GroupStep2JobCard from "./JobCards/groupStep2";
 import GroupStep3JobCard from "./JobCards/GroupStep3";
 import GroupStep4JobCard from "./JobCards/groupStep4";
@@ -27,11 +26,13 @@ import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJo
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+import GroupStep1JobCard from "./JobCards/groupStep1";
+import { useNavigate } from "react-router-dom";
 
 function DisplaySwitch({ job }) {
   switch (job.jobStatus) {
     case 0:
-      return <Step1JobCard job={job} />;
+      return <GroupStep1JobCard job={job} />;
     case 1:
       return <GroupStep2JobCard job={job} />;
     case 2:
@@ -41,7 +42,7 @@ function DisplaySwitch({ job }) {
     case 4:
       return <GroupStep5JobCard job={job} />;
     default:
-      return <Step1JobCard job={job} />;
+      return <GroupStep1JobCard job={job} />;
   }
 }
 
@@ -64,8 +65,8 @@ export function ClassicGroupJobCardFrame({ job }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-  const { PRIMARY_THEME } = GLOBAL_CONFIG
-  
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
+
   const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
@@ -74,12 +75,14 @@ export function ClassicGroupJobCardFrame({ job }) {
     return activeGroup.areComplete.includes(job.jobID);
   }, [activeGroup]);
 
+  const navigate = useNavigate();
+
   return (
     <Grow in={true}>
       <Grid ref={drag} item xs={12} sm={6} md={4} lg={3}>
         <Paper
           elevation={3}
-          square={true}
+          square
           sx={{
             padding: "10px",
             height: "100%",
@@ -101,7 +104,7 @@ export function ClassicGroupJobCardFrame({ job }) {
                     color: (theme) =>
                       theme.palette.mode === PRIMARY_THEME
                         ? theme.palette.primary.main
-                        : theme.palette.secondary.main, 
+                        : theme.palette.secondary.main,
                   }}
                   checked={jobCardChecked}
                   onChange={(event) => {
@@ -183,8 +186,7 @@ export function ClassicGroupJobCardFrame({ job }) {
                 color="primary"
                 disabled={job.isLocked}
                 onClick={() => {
-                  openEditJob(job.jobID);
-                  updateEditJobTrigger((prev) => !prev);
+                  navigate(`/editJob/${job.jobID}`);
                 }}
                 sx={{ height: "25px", width: "100px" }}
               >

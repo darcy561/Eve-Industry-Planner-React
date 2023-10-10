@@ -52,7 +52,6 @@ export function useFirebase() {
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { updateUserWatchlist } = useContext(UserWatchlistContext);
   const { updateJobArray, updateGroupArray } = useContext(JobArrayContext);
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
   const { updateLinkedJobIDs, updateLinkedOrderIDs, updateLinkedTransIDs } =
     useContext(LinkedIDsContext);
   const {
@@ -648,9 +647,6 @@ export function useFirebase() {
           //updateOldJobs
           updateStructureValues(newJob);
 
-          if (activeJob.jobID == newJob.jobID) {
-            updateActiveJob(newJob);
-          }
           updateJobArray((prev) => {
             const index = prev.findIndex((i) => i.jobID === newJob.jobID);
             if (index === -1) {

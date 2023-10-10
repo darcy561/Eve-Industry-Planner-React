@@ -1,3 +1,4 @@
+import { useContext, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -8,10 +9,10 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useContext, useMemo, useState } from "react";
-import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
+import { grey } from "@mui/material/colors";
+import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import {
   UserJobSnapshotContext,
   UsersContext,
@@ -22,7 +23,6 @@ import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { CompactGroupAccordionContent } from "./Compact/CompactGroupAccordionContent";
 import { ClassicGroupAccordionContent } from "./Classic/ClassicGroupAccordionContent";
-import { grey } from "@mui/material/colors";
 import GLOBAL_CONFIG from "../../../global-config-app";
 
 export function GroupAccordion({ groupJobs, groupPageRefresh }) {
@@ -36,13 +36,13 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
   );
   const { canDropCard, recieveJobCardToStage } = useDnD();
   const [notExpanded, updateNotExpanded] = useState([]);
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
-  const {PRIMARY_THEME} = GLOBAL_CONFIG
 
-  if (groupPageRefresh && activeGroup == null) return null;
+  if (groupPageRefresh && !activeGroup) return null;
 
   return (
     <Paper

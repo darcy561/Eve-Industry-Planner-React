@@ -93,14 +93,12 @@ export function useCloseGroup() {
           includedJobIDs.has(id)
         );
         newJob.build.materials.forEach((mat) => {
-
-          newJob.build.childJobs[mat.typeID] = newJob.build.childJobs[mat.typeID].filter((id) => includedJobIDs.has(id));
+          newJob.build.childJobs[mat.typeID] = newJob.build.childJobs[
+            mat.typeID
+          ].filter((id) => includedJobIDs.has(id));
         });
         if (newJob.isReadyToSell) {
-          newUserJobSnapshot = updateJobSnapshot(
-            newJob,
-            newUserJobSnapshot
-          );
+          newUserJobSnapshot = updateJobSnapshot(newJob, newUserJobSnapshot);
         }
         jobsToSave.add(newJob.jobID);
         return newJob;
@@ -111,11 +109,10 @@ export function useCloseGroup() {
 
     for (const startingJob of newJobArray) {
       if (!includedJobIDs.has(startingJob.jobID)) continue;
-
       for (const parentID of startingJob.parentJob) {
         let parentMatch = newJobArray.find((i) => i.jobID === parentID);
         if (!parentMatch) continue;
-        let materialMatch = parentMatch.build.childJobs[startingJob.itemID]
+        let materialMatch = parentMatch.build.childJobs[startingJob.itemID];
         if (!materialMatch) continue;
         if (!materialMatch.includes(startingJob.jobID)) {
           materialMatch.push(startingJob.jobID);
@@ -124,7 +121,9 @@ export function useCloseGroup() {
       }
 
       for (const startingMaterial of startingJob.build.materials) {
-        for (const childID of startingMaterial.build.childJobs[startingMaterial.typeID]) {
+        for (const childID of startingJob.build.childJobs[
+          startingMaterial.typeID
+        ]) {
           let childMatch = newJobArray.find((i) => i.jobID === childID);
           if (!childMatch) continue;
           if (!childMatch.parentJob.includes(startingJob.jobID)) {

@@ -14,6 +14,7 @@ export function useAssetHelperHooks() {
     "CorpSAG5",
     "CorpSAG6",
     "CorpSAG7",
+    "CorporationGoalDeliveries"
   ]);
 
   function formatLocation(locationFlag) {

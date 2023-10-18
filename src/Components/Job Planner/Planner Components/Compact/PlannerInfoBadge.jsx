@@ -2,12 +2,12 @@ import { Icon, Tooltip } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 
-function getTooltipContent(job, timeRemaining) {
+function getTooltipContent(job, timeRemaining){
   switch (job.jobStatus) {
     case 0:
       return (
         <span>
-          <p>Job Setups: </p>
+          <p>Job Setups: {job.totalSetupCount}</p>
         </span>
       );
     case 1:

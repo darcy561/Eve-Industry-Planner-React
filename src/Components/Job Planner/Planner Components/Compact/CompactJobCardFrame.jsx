@@ -121,8 +121,6 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
             color="primary"
             onClick={() => {
               navigate(`/editJob/${job.jobID}`);
-              // openEditJob(job.jobID);
-              // updateEditJobTrigger((prev) => !prev);
             }}
           >
             Edit

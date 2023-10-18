@@ -37,7 +37,7 @@ export function CompactGroupJobCard({ group }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-  const {PRIMARY_THEME} = GLOBAL_CONFIG
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const groupCardChecked = useMemo(
     () => multiSelectJobPlanner.includes(group.groupID),

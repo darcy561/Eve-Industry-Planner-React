@@ -928,6 +928,13 @@ export function useAccountManagement() {
         );
       }
 
+      const officeLocations = esiCorpAssets.reduce((prev, asset) => {
+        if (asset.location_flag === "OfficeFolder") {
+          prev.add(asset.location_id)
+        }
+        return prev
+      }, new Set())
+
       return {
         alliance_id: esiCorpPublicInfo.alliance_id,
         name: esiCorpPublicInfo.name,
@@ -936,6 +943,7 @@ export function useAccountManagement() {
         corporation_id: esiCorpPublicInfo.corporation_id,
         hangar: updatedHangarData || null,
         wallet: esiCorpDivisions?.wallet || null,
+        officeLocations: [...officeLocations]
       };
     }
 
@@ -953,11 +961,19 @@ export function useAccountManagement() {
         );
       }
 
+      const officeLocations = esiCorpAssets.reduce((prev, asset) => {
+        if (asset.location_flag === "OfficeFolder") {
+          prev.add(asset.location_id)
+        }
+        return prev
+      }, new Set())
+
       const existingCorp = corporationData[index];
       if (esiCorpDivisions && (!existingCorp.hangar || !existingCorp.wallet)) {
         existingCorp.hangar = esiCorpDivisions.hangar;
         existingCorp.wallet = esiCorpDivisions.wallet;
       }
+      existingCorp.officeLocations = [... new Set([...officeLocations], existingCorp.officeLocations)]
     }
   };
 

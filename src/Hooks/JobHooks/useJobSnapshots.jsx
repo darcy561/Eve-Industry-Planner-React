@@ -10,9 +10,8 @@ export function useJobSnapshotManagement() {
     totalComplete,
     materialIDs,
     endDate,
-    setupCount,
-    totalSetupCount,
-    totalJobCount
+    totalJobCount,
+    totalSetupCount
   ) {
     this.isLocked = false;
     this.lockedTimestamp = null;
@@ -37,7 +36,6 @@ export function useJobSnapshotManagement() {
     this.metaLevel = inputJob.metaLevel;
     this.groupID = inputJob.groupID || null;
     this.endDateDisplay = endDate;
-    this.setupCount = setupCount
   }
 
   const replaceSnapshot = async (inputJob) => {
@@ -60,13 +58,27 @@ export function useJobSnapshotManagement() {
       (material) => material.quantityPurchased >= material.quantity
     ).length;
 
+    const { totalJobCount, totalSetupCount } = Object.values(
+      inputJob.build.setup
+    ).reduce(
+      (prev, { jobCount }) => {
+        return {
+          totalJobCount: (prev.totalJobCount += jobCount),
+          totalSetupCount: prev.totalSetupCount + 1,
+        };
+      },
+      { totalJobCount: 0, totalSetupCount: 0 }
+    );
+
     newSnapshotArray.push({
       ...new snapshotObject(
         inputJob,
         childJobs,
         totalComplete,
         materialIDs,
-        null
+        null,
+        totalJobCount,
+        totalSetupCount
       ),
     });
 
@@ -74,6 +86,9 @@ export function useJobSnapshotManagement() {
   };
 
   const updateJobSnapshot = (inputJob, newSnapshotArray) => {
+    if (!newSnapshotArray.find((i) => i.jobID === inputJob.jobID))
+      return newSnapshotArray;
+
     const materialIDs = inputJob.build.materials.map(
       (material) => material.typeID
     );
@@ -83,10 +98,6 @@ export function useJobSnapshotManagement() {
     const totalComplete = inputJob.build.materials.filter(
       (material) => material.quantityPurchased >= material.quantity
     ).length;
-
-    const setupCount = Object.values(inputJob.build.setup).reduce((prev,) => {
-      return prev +1
-    }, 0)
 
     const tempJobs = [...inputJob.build.costs.linkedJobs];
     const endDate =
@@ -119,7 +130,9 @@ export function useJobSnapshotManagement() {
         childJobs,
         totalComplete,
         materialIDs,
-        endDate
+        endDate,
+        totalJobCount,
+        totalSetupCount
       ),
     };
     return newSnapshotArray;

@@ -601,7 +601,7 @@ export function useGroupManagement() {
         for (let parentID of newJob.parentJob) {
           let parentJob = newJobArray.find((i) => i.jobID === parentID);
 
-          parentJob.build.setup[newJob.itemID].push(newJob.jobID);
+          parentJob.build.childJobs[newJob.itemID].push(newJob.jobID);
         }
 
         newJobArray.push(newJob);
@@ -679,7 +679,7 @@ export function useGroupManagement() {
 
     async function generateRequestList(inputJob) {
       inputJob.build.materials.forEach((material) => {
-        if (material.childJob.length > 0) {
+        if (inputJob.build.childJobs[material.typeID].length > 0) {
           return;
         }
         if (

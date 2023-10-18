@@ -26,16 +26,16 @@ export default function Step1JobCard({ job }) {
       </Grid>
       <Grid container item xs={12}>
         <Grid item xs={10}>
-          <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
-            Child Jobs
+          <Typography sx={{ typography: { xs: "body2", md: "bo  dy1" } }}>
+            Setup Count:
           </Typography>
         </Grid>
         <Grid item xs={2}>
           <Typography
             align="right"
-            sx={{ typography: { xs: "body2", md: "body1" } }}
+            sx={{ typography: { xs: "body2", md: "body1" } }} 
           >
-            {job.childJobs.length.toLocaleString()}
+            {job.totalSetupCount ? job.totalSetupCount.toLocaleString() : 0}
           </Typography>
         </Grid>
       </Grid>

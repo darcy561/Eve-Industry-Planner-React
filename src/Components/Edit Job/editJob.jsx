@@ -56,7 +56,6 @@ export function EditJob_New() {
     },
     childJobs: {},
   });
-  console.log(parentChildToEdit)
   const { deepCopyJobObject } = useJobManagement();
   const { openEditJob } = useOpenEditJob_New();
   const navigate = useNavigate();

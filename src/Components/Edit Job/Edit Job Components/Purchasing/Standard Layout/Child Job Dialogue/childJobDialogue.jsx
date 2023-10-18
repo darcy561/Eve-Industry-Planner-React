@@ -48,7 +48,7 @@ export function ChildJobDialogue({
   };
 
   const matches = useMemo(() => {
-    const jobs = activeJob.groupID === null ? userJobSnapshot : jobArray;
+    const jobs = !activeJob.groupID ? userJobSnapshot : jobArray;
     const filteredJobs = jobs.filter(
       (job) =>
         job.itemID === material.typeID &&
@@ -71,12 +71,6 @@ export function ChildJobDialogue({
         <Grid container sx={{ marginBottom: "40px" }}>
           {matches.length > 0 ? (
             matches.map((job) => {
-              const setupCount = Object.values(job.build.setup).reduce(
-                (prev, setup) => {
-                  return prev + 1;
-                },
-                0
-              );
               return (
                 <Grid
                   container
@@ -104,7 +98,7 @@ export function ChildJobDialogue({
                   </Grid>
                   <Grid item xs={4}>
                     <Typography variant="body2">
-                      Setups: {setupCount}
+                      Setups: {job.totalSetupCount ? job.totalSetupCount : 0}
                     </Typography>
                   </Grid>
                   <Grid item xs={1}>
@@ -182,7 +176,6 @@ export function ChildJobDialogue({
             materialChildJobs.map((childJobID) => {
               const jobMatch = jobArray.find((i) => i.jobID == childJobID);
               if (!jobMatch) return null;
-              console.log(jobMatch);
               const setupCount = Object.values(jobMatch.build.setup).reduce(
                 (prev, setup) => {
                   return prev + 1;

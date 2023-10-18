@@ -2,8 +2,8 @@ import { Grid, Typography } from "@mui/material";
 
 export default function GroupStep1JobCard({ job }) {
 
-    const childJobCount = Object.values(job.build.childJobs).reduce((prev, childJobArray) => {
-        return prev += childJobArray.length
+    const totalSetupCount = Object.values(job.build.setup).reduce((prev, setup) => {
+        return prev + 1
     }, 0)
 
   return (
@@ -32,7 +32,7 @@ export default function GroupStep1JobCard({ job }) {
       <Grid container item xs={12}>
         <Grid item xs={10}>
           <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
-            Child Jobs
+            Setup Count:
           </Typography>
         </Grid>
         <Grid item xs={2}>
@@ -40,7 +40,7 @@ export default function GroupStep1JobCard({ job }) {
             align="right"
             sx={{ typography: { xs: "body2", md: "body1" } }}
           >
-            {childJobCount.toLocaleString()}
+            {totalSetupCount.toLocaleString()}
           </Typography>
         </Grid>
       </Grid>

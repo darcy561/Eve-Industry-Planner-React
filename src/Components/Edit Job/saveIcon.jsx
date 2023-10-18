@@ -27,7 +27,8 @@ export function SaveJobIcon({
             activeJob,
             jobModified,
             temporaryChildJobs,
-            esiDataToLink
+            esiDataToLink,
+            parentChildToEdit
           );
           navigate("/jobplanner");
         }}

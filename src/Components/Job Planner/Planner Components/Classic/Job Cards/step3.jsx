@@ -6,8 +6,6 @@ export default function Step3JobCard({ job }) {
 
   const timeRemaining = timeRemainingCalc(job.endDateDisplay);
 
-  const jobCountTotal = []
-
   return (
     <Grid
       container

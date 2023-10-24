@@ -44,6 +44,45 @@ export function useAssetHelperHooks() {
     }
   }
 
+  function buildItemTree(flatList) {
+    const tree = {};
+    
+    const itemMap = new Map(); // To store items by item_id for quick access
+    
+    // Create a map for quick access to items by item_id
+    flatList.forEach(item => {
+      itemMap.set(item.item_id, item);
+    });
+    
+    // Recursively build the tree
+    function buildSubtree(location_id) {
+      const children = flatList.filter(item => item.location_id === location_id);
+      
+      if (children.length > 0) {
+        for (const child of children) {
+          if (!tree[location_id]) {
+            tree[location_id] = [];
+          }
+          tree[location_id].push(child);
+          
+          const childId = child.item_id;
+          if (itemMap.has(childId)) {
+            buildSubtree(childId);
+          }
+        }
+      }
+    }
+    
+    // Start building the tree from the root nodes (location_id not found as an item_id)
+    flatList.forEach(item => {
+      if (!itemMap.has(item.location_id)) {
+        buildSubtree(item.location_id);
+      }
+    });
+    
+    return tree;
+  }
+
   function findBlueprintTypeIDs() {
     return searchData.reduce((prev, { blueprintID }) => {
       return prev.add(blueprintID);
@@ -54,6 +93,7 @@ export function useAssetHelperHooks() {
     acceptedDirectLocationTypes,
     acceptedExtendedLocationTypes,
     acceptedLocationFlags,
+    buildItemTree,
     findBlueprintTypeIDs,
     formatLocation,
     retrieveAssetLocation,

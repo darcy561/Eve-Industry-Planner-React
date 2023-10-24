@@ -247,6 +247,20 @@ export function useAccountManagement() {
         addLocation(order.region_id);
       });
 
+      const corporationOfficeLocationObjects = data.esiCorpAssets.filter(
+        (i) => i.location_flag === "OfficeFolder"
+      );
+      corporationOfficeLocationObjects.forEach(({ location_id }) => {
+        if (location_id.toString().length > 10) {
+          if (!citadelStore.has(location_id)) {
+            citadelStore.add(location_id);
+            addCitadel(location_id);
+          }
+        } else {
+          addLocation(location_id);
+        }
+      });
+
       if ([...citadelIDs].length > 0) {
         newIDNamePromises.push(IDtoName([...citadelIDs], user));
       }
@@ -930,10 +944,10 @@ export function useAccountManagement() {
 
       const officeLocations = esiCorpAssets.reduce((prev, asset) => {
         if (asset.location_flag === "OfficeFolder") {
-          prev.add(asset.location_id)
+          prev.add(asset.location_id);
         }
-        return prev
-      }, new Set())
+        return prev;
+      }, new Set());
 
       return {
         alliance_id: esiCorpPublicInfo.alliance_id,
@@ -943,7 +957,7 @@ export function useAccountManagement() {
         corporation_id: esiCorpPublicInfo.corporation_id,
         hangar: updatedHangarData || null,
         wallet: esiCorpDivisions?.wallet || null,
-        officeLocations: [...officeLocations]
+        officeLocations: [...officeLocations],
       };
     }
 
@@ -963,17 +977,19 @@ export function useAccountManagement() {
 
       const officeLocations = esiCorpAssets.reduce((prev, asset) => {
         if (asset.location_flag === "OfficeFolder") {
-          prev.add(asset.location_id)
+          prev.add(asset.location_id);
         }
-        return prev
-      }, new Set())
+        return prev;
+      }, new Set());
 
       const existingCorp = corporationData[index];
       if (esiCorpDivisions && (!existingCorp.hangar || !existingCorp.wallet)) {
         existingCorp.hangar = esiCorpDivisions.hangar;
         existingCorp.wallet = esiCorpDivisions.wallet;
       }
-      existingCorp.officeLocations = [... new Set([...officeLocations], existingCorp.officeLocations)]
+      existingCorp.officeLocations = [
+        ...new Set([...officeLocations], existingCorp.officeLocations),
+      ];
     }
   };
 

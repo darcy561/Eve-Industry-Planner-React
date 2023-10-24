@@ -17,6 +17,7 @@ export function useAssetManagement() {
     acceptedDirectLocationTypes,
     acceptedExtendedLocationTypes,
     acceptedLocationFlags,
+    buildItemTree,
     findBlueprintTypeIDs,
     retrieveAssetLocation,
   } = useAssetHelperHooks();
@@ -34,8 +35,7 @@ export function useAssetManagement() {
 
       let filteredAssets = corporationAssets.filter(
         (i) =>
-          !blueprintTypeIDsSet.has(i.type_id) &&
-          i.location_id === requestedLocationID
+          !blueprintTypeIDsSet.has(i.type_id)
       );
 
       const corporationOfficeObject = filteredAssets.find(
@@ -57,14 +57,14 @@ export function useAssetManagement() {
       const acceptedExtendedLocationItems = filteredAssets.filter((i) =>
         acceptedExtendedLocationTypes.has(i.location_type)
       );
+      console.log(buildItemTree(filteredAssets))
+      // console.log(requestedLocationID);
+      // console.log(corporationAssets);
+      // console.log(corporationOfficeObject);
 
-      console.log(requestedLocationID);
-      console.log(corporationAssets);
-      console.log(corporationOfficeObject);
-
-      console.log(filteredAssets);
-      console.log(acceptedLocationItems);
-      console.log(acceptedExtendedLocationItems);
+      // console.log(filteredAssets);
+      // console.log(acceptedLocationItems);
+      // console.log(acceptedExtendedLocationItems);
     }
   }
 

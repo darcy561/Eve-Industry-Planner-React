@@ -78304,6 +78304,10 @@
     "name": "Encrypted Semiosis Console (Veles Clade)"
   },
   {
+    "type_id": 54993,
+    "name": "Council Diplomatic Shuttle SARO 'Black Troop' SKIN"
+  },
+  {
     "type_id": 55025,
     "name": "Upwell Encryption Methods"
   },
@@ -93148,390 +93152,6 @@
     "name": "Minmatar Victory SKIN"
   },
   {
-    "type_id": 76050,
-    "name": "Imperial Damage Booster I"
-  },
-  {
-    "type_id": 76051,
-    "name": "Imperial Damage Booster II"
-  },
-  {
-    "type_id": 76052,
-    "name": "Imperial Damage Booster III"
-  },
-  {
-    "type_id": 76053,
-    "name": "Imperial Damage Booster IV"
-  },
-  {
-    "type_id": 76054,
-    "name": "Imperial Projection Booster I"
-  },
-  {
-    "type_id": 76055,
-    "name": "Imperial Projection Booster II"
-  },
-  {
-    "type_id": 76056,
-    "name": "Imperial Projection Booster III"
-  },
-  {
-    "type_id": 76057,
-    "name": "Imperial Projection Booster IV"
-  },
-  {
-    "type_id": 76058,
-    "name": "Imperial Application Booster I"
-  },
-  {
-    "type_id": 76059,
-    "name": "Imperial Application Booster II"
-  },
-  {
-    "type_id": 76060,
-    "name": "Imperial Application Booster III"
-  },
-  {
-    "type_id": 76061,
-    "name": "Imperial Application Booster IV"
-  },
-  {
-    "type_id": 76062,
-    "name": "Imperial Defense Booster I"
-  },
-  {
-    "type_id": 76063,
-    "name": "Imperial Defense Booster II"
-  },
-  {
-    "type_id": 76064,
-    "name": "Imperial Defense Booster III"
-  },
-  {
-    "type_id": 76065,
-    "name": "Imperial Defense Booster IV"
-  },
-  {
-    "type_id": 76066,
-    "name": "Imperial Electronics Booster I"
-  },
-  {
-    "type_id": 76067,
-    "name": "Imperial Electronics Booster II"
-  },
-  {
-    "type_id": 76068,
-    "name": "Imperial Electronics Booster III"
-  },
-  {
-    "type_id": 76069,
-    "name": "Imperial Electronics Booster IV"
-  },
-  {
-    "type_id": 76070,
-    "name": "Imperial Mobility Booster I"
-  },
-  {
-    "type_id": 76071,
-    "name": "Imperial Mobility Booster II"
-  },
-  {
-    "type_id": 76072,
-    "name": "Imperial Mobility Booster III"
-  },
-  {
-    "type_id": 76073,
-    "name": "Imperial Mobility Booster IV"
-  },
-  {
-    "type_id": 76074,
-    "name": "Republic Damage Booster I"
-  },
-  {
-    "type_id": 76075,
-    "name": "Republic Damage Booster II"
-  },
-  {
-    "type_id": 76076,
-    "name": "Republic Damage Booster III"
-  },
-  {
-    "type_id": 76077,
-    "name": "Republic Damage Booster IV"
-  },
-  {
-    "type_id": 76078,
-    "name": "Republic Projection Booster I"
-  },
-  {
-    "type_id": 76079,
-    "name": "Republic Projection Booster II"
-  },
-  {
-    "type_id": 76080,
-    "name": "Republic Projection Booster III"
-  },
-  {
-    "type_id": 76081,
-    "name": "Republic Projection Booster IV"
-  },
-  {
-    "type_id": 76082,
-    "name": "Republic Application Booster I"
-  },
-  {
-    "type_id": 76083,
-    "name": "Republic Application Booster II"
-  },
-  {
-    "type_id": 76084,
-    "name": "Republic Application Booster III"
-  },
-  {
-    "type_id": 76085,
-    "name": "Republic Application Booster IV"
-  },
-  {
-    "type_id": 76086,
-    "name": "Republic Defense Booster I"
-  },
-  {
-    "type_id": 76087,
-    "name": "Republic Defense Booster II"
-  },
-  {
-    "type_id": 76088,
-    "name": "Republic Defense Booster III"
-  },
-  {
-    "type_id": 76089,
-    "name": "Republic Defense Booster IV"
-  },
-  {
-    "type_id": 76090,
-    "name": "Republic Electronics Booster I"
-  },
-  {
-    "type_id": 76091,
-    "name": "Republic Electronics Booster II"
-  },
-  {
-    "type_id": 76092,
-    "name": "Republic Electronics Booster III"
-  },
-  {
-    "type_id": 76093,
-    "name": "Republic Electronics Booster IV"
-  },
-  {
-    "type_id": 76094,
-    "name": "Republic Mobility Booster I"
-  },
-  {
-    "type_id": 76095,
-    "name": "Republic Mobility Booster II"
-  },
-  {
-    "type_id": 76096,
-    "name": "Republic Mobility Booster III"
-  },
-  {
-    "type_id": 76097,
-    "name": "Republic Mobility Booster IV"
-  },
-  {
-    "type_id": 76098,
-    "name": "State Damage Booster I"
-  },
-  {
-    "type_id": 76099,
-    "name": "State Damage Booster II"
-  },
-  {
-    "type_id": 76100,
-    "name": "State Damage Booster III"
-  },
-  {
-    "type_id": 76101,
-    "name": "State Damage Booster IV"
-  },
-  {
-    "type_id": 76102,
-    "name": "State Projection Booster I"
-  },
-  {
-    "type_id": 76103,
-    "name": "State Projection Booster II"
-  },
-  {
-    "type_id": 76104,
-    "name": "State Projection Booster III"
-  },
-  {
-    "type_id": 76105,
-    "name": "State Projection Booster IV"
-  },
-  {
-    "type_id": 76106,
-    "name": "State Application Booster I"
-  },
-  {
-    "type_id": 76107,
-    "name": "State Application Booster II"
-  },
-  {
-    "type_id": 76108,
-    "name": "State Application Booster III"
-  },
-  {
-    "type_id": 76109,
-    "name": "State Application Booster IV"
-  },
-  {
-    "type_id": 76110,
-    "name": "State Defense Booster I"
-  },
-  {
-    "type_id": 76111,
-    "name": "State Defense Booster II"
-  },
-  {
-    "type_id": 76112,
-    "name": "State Defense Booster III"
-  },
-  {
-    "type_id": 76113,
-    "name": "State Defense Booster IV"
-  },
-  {
-    "type_id": 76114,
-    "name": "State Electronics Booster I"
-  },
-  {
-    "type_id": 76115,
-    "name": "State Electronics Booster II"
-  },
-  {
-    "type_id": 76116,
-    "name": "State Electronics Booster III"
-  },
-  {
-    "type_id": 76117,
-    "name": "State Electronics Booster IV"
-  },
-  {
-    "type_id": 76118,
-    "name": "State Mobility Booster I"
-  },
-  {
-    "type_id": 76119,
-    "name": "State Mobility Booster II"
-  },
-  {
-    "type_id": 76120,
-    "name": "State Mobility Booster III"
-  },
-  {
-    "type_id": 76121,
-    "name": "State Mobility Booster IV"
-  },
-  {
-    "type_id": 76122,
-    "name": "Federation Damage Booster I"
-  },
-  {
-    "type_id": 76123,
-    "name": "Federation Damage Booster II"
-  },
-  {
-    "type_id": 76124,
-    "name": "Federation Damage Booster III"
-  },
-  {
-    "type_id": 76125,
-    "name": "Federation Damage Booster IV"
-  },
-  {
-    "type_id": 76126,
-    "name": "Federation Projection Booster I"
-  },
-  {
-    "type_id": 76127,
-    "name": "Federation Projection Booster II"
-  },
-  {
-    "type_id": 76128,
-    "name": "Federation Projection Booster III"
-  },
-  {
-    "type_id": 76129,
-    "name": "Federation Projection Booster IV"
-  },
-  {
-    "type_id": 76130,
-    "name": "Federation Application Booster I"
-  },
-  {
-    "type_id": 76131,
-    "name": "Federation Application Booster II"
-  },
-  {
-    "type_id": 76132,
-    "name": "Federation Application Booster III"
-  },
-  {
-    "type_id": 76133,
-    "name": "Federation Application Booster IV"
-  },
-  {
-    "type_id": 76134,
-    "name": "Federation Defense Booster I"
-  },
-  {
-    "type_id": 76135,
-    "name": "Federation Defense Booster II"
-  },
-  {
-    "type_id": 76136,
-    "name": "Federation Defense Booster III"
-  },
-  {
-    "type_id": 76137,
-    "name": "Federation Defense Booster IV"
-  },
-  {
-    "type_id": 76138,
-    "name": "Federation Electronics Booster I"
-  },
-  {
-    "type_id": 76139,
-    "name": "Federation Electronics Booster II"
-  },
-  {
-    "type_id": 76140,
-    "name": "Federation Electronics Booster III"
-  },
-  {
-    "type_id": 76141,
-    "name": "Federation Electronics Booster IV"
-  },
-  {
-    "type_id": 76142,
-    "name": "Federation Mobility Booster I"
-  },
-  {
-    "type_id": 76143,
-    "name": "Federation Mobility Booster II"
-  },
-  {
-    "type_id": 76144,
-    "name": "Federation Mobility Booster III"
-  },
-  {
-    "type_id": 76145,
-    "name": "Federation Mobility Booster IV"
-  },
-  {
     "type_id": 76150,
     "name": "Magnate Navy Issue Versus Redforce SKIN"
   },
@@ -93886,126 +93506,6 @@
   {
     "type_id": 76496,
     "name": "Muninn GalNet StreamCast Unit SKIN"
-  },
-  {
-    "type_id": 76506,
-    "name": "Potent Capsuleer Day XX Cerebral Accelerator"
-  },
-  {
-    "type_id": 76507,
-    "name": "Extended Capsuleer Day XX Cerebral Accelerator"
-  },
-  {
-    "type_id": 76508,
-    "name": "Basic Capsuleer Day XX Cerebral Accelerator"
-  },
-  {
-    "type_id": 76509,
-    "name": "Basic Capsuleer Day XX Glamourex Booster"
-  },
-  {
-    "type_id": 76510,
-    "name": "Extended Capsuleer Day XX Glamourex Booster"
-  },
-  {
-    "type_id": 76511,
-    "name": "Potent Capsuleer Day XX Glamourex Booster"
-  },
-  {
-    "type_id": 76512,
-    "name": "Guri Malakim Observability Booster I"
-  },
-  {
-    "type_id": 76513,
-    "name": "Guri Malakim Observability Booster II"
-  },
-  {
-    "type_id": 76514,
-    "name": "Guri Malakim Observability Booster III"
-  },
-  {
-    "type_id": 76515,
-    "name": "Guri Malakim Observability Booster IV"
-  },
-  {
-    "type_id": 76516,
-    "name": "SoCT Scan Booster I"
-  },
-  {
-    "type_id": 76517,
-    "name": "SoCT Scan Booster II"
-  },
-  {
-    "type_id": 76518,
-    "name": "SoCT Scan Booster III"
-  },
-  {
-    "type_id": 76519,
-    "name": "SoCT Scan Booster IV"
-  },
-  {
-    "type_id": 76520,
-    "name": "Guri Malakim Shield Booster I"
-  },
-  {
-    "type_id": 76521,
-    "name": "Guri Malakim Shield Booster II"
-  },
-  {
-    "type_id": 76522,
-    "name": "Guri Malakim Shield Booster III"
-  },
-  {
-    "type_id": 76523,
-    "name": "Guri Malakim Shield Booster IV"
-  },
-  {
-    "type_id": 76524,
-    "name": "SoCT Armor Booster I"
-  },
-  {
-    "type_id": 76525,
-    "name": "SoCT Armor Booster II"
-  },
-  {
-    "type_id": 76526,
-    "name": "SoCT Armor Booster III"
-  },
-  {
-    "type_id": 76527,
-    "name": "SoCT Armor Booster IV"
-  },
-  {
-    "type_id": 76528,
-    "name": "Guri Malakim Turret Booster I"
-  },
-  {
-    "type_id": 76529,
-    "name": "Guri Malakim Turret Booster II"
-  },
-  {
-    "type_id": 76530,
-    "name": "Guri Malakim Turret Booster III"
-  },
-  {
-    "type_id": 76531,
-    "name": "Guri Malakim Turret Booster IV"
-  },
-  {
-    "type_id": 76532,
-    "name": "SoCT Agility Booster I"
-  },
-  {
-    "type_id": 76533,
-    "name": "SoCT Agility Booster II"
-  },
-  {
-    "type_id": 76534,
-    "name": "SoCT Agility Booster III"
-  },
-  {
-    "type_id": 76535,
-    "name": "SoCT Agility Booster IV"
   },
   {
     "type_id": 76717,
@@ -94893,7 +94393,7 @@
   },
   {
     "type_id": 77398,
-    "name": "‘Atgeir’ Explosive Disruptive Lance "
+    "name": "'Atgeir' Explosive Disruptive Lance"
   },
   {
     "type_id": 77399,
@@ -94901,15 +94401,15 @@
   },
   {
     "type_id": 77400,
-    "name": "‘Steel Yari’ Kinetic Disruptive Lance"
+    "name": "'Steel Yari' Kinetic Disruptive Lance"
   },
   {
     "type_id": 77401,
-    "name": "‘Sarissa’ Thermal Disruptive Lance"
+    "name": "'Sarissa' Thermal Disruptive Lance"
   },
   {
     "type_id": 77402,
-    "name": "‘Atgeir’ Explosive Disruptive Lance Blueprint"
+    "name": "'Atgeir' Explosive Disruptive Lance Blueprint"
   },
   {
     "type_id": 77403,
@@ -94917,11 +94417,11 @@
   },
   {
     "type_id": 77404,
-    "name": "‘Steel Yari’ Kinetic Disruptive Lance Blueprint"
+    "name": "'Steel Yari' Kinetic Disruptive Lance Blueprint"
   },
   {
     "type_id": 77405,
-    "name": "‘Sarissa’ Thermal Disruptive Lance Blueprint"
+    "name": "'Sarissa' Thermal Disruptive Lance Blueprint"
   },
   {
     "type_id": 77414,
@@ -95030,5 +94530,513 @@
   {
     "type_id": 77887,
     "name": "Hubris Luminaire Rising SKIN"
+  },
+  {
+    "type_id": 77919,
+    "name": "Genius 'Boost' Cerebral Accelerator"
+  },
+  {
+    "type_id": 77934,
+    "name": "Heimatar Rise Accelerator"
+  },
+  {
+    "type_id": 77946,
+    "name": "Insurgent Trojan Fragments"
+  },
+  {
+    "type_id": 77947,
+    "name": "Federal Encryption Key"
+  },
+  {
+    "type_id": 77948,
+    "name": "Megacorp Transaction Thread"
+  },
+  {
+    "type_id": 77949,
+    "name": "Imperial Exploit Log"
+  },
+  {
+    "type_id": 77957,
+    "name": "Cyclone Fleet Issue Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 77958,
+    "name": "Cyclone Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 77959,
+    "name": "Sleipnir Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 77960,
+    "name": "Svipul Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 77961,
+    "name": "Wolf Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 77962,
+    "name": "Jaguar Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 77963,
+    "name": "Stabber Fleet Issue Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 77964,
+    "name": "Valravn Chainbreaker Khumaak SKIN"
+  },
+  {
+    "type_id": 78267,
+    "name": "Gallente Victory SKIN"
+  },
+  {
+    "type_id": 78287,
+    "name": "Basic 'Radiance' Cerebral Accelerator"
+  },
+  {
+    "type_id": 78288,
+    "name": "Potent 'Radiance' Cerebral Accelerator"
+  },
+  {
+    "type_id": 78289,
+    "name": "Extended 'Radiance' Cerebral Accelerator"
+  },
+  {
+    "type_id": 78290,
+    "name": "Harvest Anti-Disruptor Booster I"
+  },
+  {
+    "type_id": 78291,
+    "name": "Harvest Anti-Disruptor Booster II"
+  },
+  {
+    "type_id": 78292,
+    "name": "Harvest Anti-Disruptor Booster III"
+  },
+  {
+    "type_id": 78293,
+    "name": "Harvest Anti-Disruptor Booster IV"
+  },
+  {
+    "type_id": 78294,
+    "name": "Harvest Nosferatu Booster I"
+  },
+  {
+    "type_id": 78295,
+    "name": "Harvest Nosferatu Booster II"
+  },
+  {
+    "type_id": 78300,
+    "name": "Harvest Nosferatu Booster III"
+  },
+  {
+    "type_id": 78301,
+    "name": "Harvest Nosferatu Booster IV"
+  },
+  {
+    "type_id": 78302,
+    "name": "Harvest Webifier Booster I"
+  },
+  {
+    "type_id": 78303,
+    "name": "Harvest Webifier Booster II"
+  },
+  {
+    "type_id": 78305,
+    "name": "Harvest Webifier Booster III"
+  },
+  {
+    "type_id": 78306,
+    "name": "Harvest Webifier Booster IV"
+  },
+  {
+    "type_id": 78307,
+    "name": "Harvest Damage Booster I"
+  },
+  {
+    "type_id": 78311,
+    "name": "Harvest Damage Booster II"
+  },
+  {
+    "type_id": 78312,
+    "name": "Harvest Damage Booster III"
+  },
+  {
+    "type_id": 78313,
+    "name": "Harvest Damage Booster IV"
+  },
+  {
+    "type_id": 78314,
+    "name": "Tetrimon Anti-Drain Booster I"
+  },
+  {
+    "type_id": 78315,
+    "name": "Tetrimon Anti-Drain Booster II"
+  },
+  {
+    "type_id": 78316,
+    "name": "Tetrimon Anti-Drain Booster III"
+  },
+  {
+    "type_id": 78317,
+    "name": "Tetrimon Anti-Drain Booster IV"
+  },
+  {
+    "type_id": 78318,
+    "name": "Tetrimon Capacitor Booster I"
+  },
+  {
+    "type_id": 78319,
+    "name": "Tetrimon Capacitor Booster II"
+  },
+  {
+    "type_id": 78320,
+    "name": "Tetrimon Capacitor Booster III"
+  },
+  {
+    "type_id": 78321,
+    "name": "Tetrimon Capacitor Booster IV"
+  },
+  {
+    "type_id": 78322,
+    "name": "Tetrimon Resistance Booster I"
+  },
+  {
+    "type_id": 78323,
+    "name": "Tetrimon Resistance Booster II"
+  },
+  {
+    "type_id": 78324,
+    "name": "Tetrimon Resistance Booster III"
+  },
+  {
+    "type_id": 78325,
+    "name": "Tetrimon Resistance Booster IV"
+  },
+  {
+    "type_id": 78326,
+    "name": "Tetrimon Precision Booster I"
+  },
+  {
+    "type_id": 78327,
+    "name": "Tetrimon Precision Booster II"
+  },
+  {
+    "type_id": 78328,
+    "name": "Tetrimon Precision Booster III"
+  },
+  {
+    "type_id": 78329,
+    "name": "Tetrimon Precision Booster IV"
+  },
+  {
+    "type_id": 78333,
+    "name": "Mekubal"
+  },
+  {
+    "type_id": 78357,
+    "name": "Crimson Harvest Fireworks Crate"
+  },
+  {
+    "type_id": 78358,
+    "name": "Wisdom of Gheinok"
+  },
+  {
+    "type_id": 78360,
+    "name": "Mekubal Blueprint"
+  },
+  {
+    "type_id": 78367,
+    "name": "Mamba"
+  },
+  {
+    "type_id": 78393,
+    "name": "Mamba Blueprint"
+  },
+  {
+    "type_id": 78405,
+    "name": "Bane Lavacore Imperial SKIN"
+  },
+  {
+    "type_id": 78406,
+    "name": "Paladin Lavacore Imperial SKIN"
+  },
+  {
+    "type_id": 78407,
+    "name": "Oracle Lavacore Imperial SKIN"
+  },
+  {
+    "type_id": 78408,
+    "name": "Omen Navy Issue Lavacore Imperial SKIN"
+  },
+  {
+    "type_id": 78409,
+    "name": "Heretic Lavacore Imperial SKIN"
+  },
+  {
+    "type_id": 78410,
+    "name": "Coercer Navy Issue Lavacore Imperial SKIN"
+  },
+  {
+    "type_id": 78411,
+    "name": "Coercer Lavacore Imperial SKIN"
+  },
+  {
+    "type_id": 78412,
+    "name": "Retribution Lavacore Imperial SKIN"
+  },
+  {
+    "type_id": 78688,
+    "name": "Megathron Immortal Eden SKIN"
+  },
+  {
+    "type_id": 78689,
+    "name": "Vagabond Solar Brilliance SKIN"
+  },
+  {
+    "type_id": 78690,
+    "name": "Tornado Solar Brilliance SKIN"
+  },
+  {
+    "type_id": 78766,
+    "name": "Imicus Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78767,
+    "name": "Helios Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78768,
+    "name": "Talos Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78769,
+    "name": "Dominix Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78770,
+    "name": "Sin Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78771,
+    "name": "Hubris Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78772,
+    "name": "Moros Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78773,
+    "name": "Magnate Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78774,
+    "name": "Anathema Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78775,
+    "name": "Harbinger Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78776,
+    "name": "Absolution Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78777,
+    "name": "Apocalypse Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78778,
+    "name": "Paladin Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78779,
+    "name": "Bane Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78780,
+    "name": "Revelation Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78781,
+    "name": "Heron Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78782,
+    "name": "Buzzard Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78783,
+    "name": "Ferox Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78784,
+    "name": "Vulture Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78785,
+    "name": "Rokh Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78786,
+    "name": "Karura Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78787,
+    "name": "Phoenix Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78788,
+    "name": "Probe Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78789,
+    "name": "Cheetah Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78790,
+    "name": "Tornado Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78791,
+    "name": "Maelstrom Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78792,
+    "name": "Valravn Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78793,
+    "name": "Naglfar Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78794,
+    "name": "Vedmak Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78795,
+    "name": "Thunderchild Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78796,
+    "name": "Stratios Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78797,
+    "name": "Garmur Deathglow Remnant SKIN"
+  },
+  {
+    "type_id": 78816,
+    "name": "Phoenix Navy Issue Union Day Executive SKIN"
+  },
+  {
+    "type_id": 78817,
+    "name": "Scorpion Navy Issue Union Day Executive SKIN"
+  },
+  {
+    "type_id": 78818,
+    "name": "Caracal Navy Issue Union Day Executive SKIN"
+  },
+  {
+    "type_id": 78819,
+    "name": "Karura Union Day Executive SKIN"
+  },
+  {
+    "type_id": 78820,
+    "name": "Hawk Union Day Executive SKIN"
+  },
+  {
+    "type_id": 78821,
+    "name": "Tengu Union Day Executive SKIN"
+  },
+  {
+    "type_id": 78822,
+    "name": "Drake Navy Issue Union Day Executive SKIN"
+  },
+  {
+    "type_id": 78823,
+    "name": "Kestrel Union Day Executive SKIN"
+  },
+  {
+    "type_id": 78886,
+    "name": "Element Control Data"
+  },
+  {
+    "type_id": 78887,
+    "name": "Element Containment Vessel"
+  },
+  {
+    "type_id": 78889,
+    "name": "Mysterious GalNet Crate"
+  },
+  {
+    "type_id": 78906,
+    "name": "Deathless Circle Reward Token "
+  },
+  {
+    "type_id": 78910,
+    "name": "Drake Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78911,
+    "name": "Megathron Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78912,
+    "name": "Rifter Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78913,
+    "name": "Naglfar Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78914,
+    "name": "Avatar Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78915,
+    "name": "Heron Navy Issue Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78916,
+    "name": "Vagabond Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78917,
+    "name": "Falcon Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78918,
+    "name": "Lachesis Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78919,
+    "name": "Proteus Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78920,
+    "name": "Pilgrim Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78921,
+    "name": "Legion Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 78923,
+    "name": "Huginn Awakening YC125 SKIN"
+  },
+  {
+    "type_id": 79006,
+    "name": "Metamorphosis Genolution Dazzle SKIN"
+  },
+  {
+    "type_id": 79007,
+    "name": "Sunesis Genolution Dazzle SKIN"
+  },
+  {
+    "type_id": 79008,
+    "name": "Gnosis Genolution Dazzle SKIN"
   }
 ]

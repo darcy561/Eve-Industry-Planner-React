@@ -8,6 +8,7 @@ import { AssetSearch } from "./assetSearch";
 import itemData from "../../RawData/fullItemList.json";
 import { ESIOffline } from "../offlineNotification";
 import { useAssetManagement } from "../../Hooks/AssetHooks/useAssetManagement";
+import { AssetTypeSelectPanel } from "./AssetTypeSelect";
 
 export default function AssetLibrary() {
   const { users } = useContext(UsersContext);
@@ -31,7 +32,7 @@ export default function AssetLibrary() {
   const [displayedAssets, updateDisplayedAssets] = useState([]);
   const { findCorpLocationAssets } = useAssetManagement();
 
-  findCorpLocationAssets(selectedLocation);
+  // findCorpLocationAssets(selectedLocation);
 
   useEffect(() => {
     const assetLocationFetch = async () => {
@@ -88,16 +89,17 @@ export default function AssetLibrary() {
     <Grid container sx={{ marginTop: "5px" }} spacing={2}>
       <ESIOffline />
       <Grid item xs={12} sx={{ marginLeft: "10px", marginRight: "10px" }}>
-        <AssetSearch
+        <AssetTypeSelectPanel />
+        {/* <AssetSearch
           locationList={locationList}
           selectedLocation={selectedLocation}
           updateSelectedLocation={updateSelectedLocation}
           namesLoad={namesLoad}
           pagination={pagination}
           setPagination={setPagination}
-        />
+        /> */}
       </Grid>
-      <Grid
+      {/* <Grid
         container
         item
         xs={12}
@@ -123,7 +125,7 @@ export default function AssetLibrary() {
           count={Math.ceil(locationAsset.length / pagination.pageSize)}
           onChange={handlePageChange}
         />
-      </Grid>
+      </Grid> */}
     </Grid>
   );
 }

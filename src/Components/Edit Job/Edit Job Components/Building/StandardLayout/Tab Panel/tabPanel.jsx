@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Paper, Tab } from "@mui/material";
+import { Paper, Tab, Tabs } from "@mui/material";
 import { AvailableJobsTab } from "./availableJobs";
 import { LinkedJobsTab } from "./linkedJobs";
 
@@ -52,12 +52,7 @@ export function TabPanel_Building({
       square
     >
       <TabContext value={currentTab}>
-        <TabList
-          value={currentTab}
-          onChange={handleChange}
-          variant="fullWidth"
-          textColor="secondary.main"
-        >
+        <Tabs value={currentTab} onChange={handleChange} variant="fullWidth">
           <Tab
             label={
               jobMatches.length === 1
@@ -74,7 +69,7 @@ export function TabPanel_Building({
             }
             value="1"
           />
-        </TabList>
+        </Tabs>
         <TabPanel value="0">
           <AvailableJobsTab
             activeJob={activeJob}

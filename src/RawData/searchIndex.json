@@ -23370,7 +23370,7 @@
     "jobType": 1
   },
   {
-    "name": "‘Atgeir’ Explosive Disruptive Lance ",
+    "name": "'Atgeir' Explosive Disruptive Lance",
     "itemID": 77398,
     "blueprintID": 77402,
     "jobType": 1
@@ -23382,15 +23382,27 @@
     "jobType": 1
   },
   {
-    "name": "‘Steel Yari’ Kinetic Disruptive Lance",
+    "name": "'Steel Yari' Kinetic Disruptive Lance",
     "itemID": 77400,
     "blueprintID": 77404,
     "jobType": 1
   },
   {
-    "name": "‘Sarissa’ Thermal Disruptive Lance",
+    "name": "'Sarissa' Thermal Disruptive Lance",
     "itemID": 77401,
     "blueprintID": 77405,
+    "jobType": 1
+  },
+  {
+    "name": "Mekubal",
+    "itemID": 78333,
+    "blueprintID": 78360,
+    "jobType": 1
+  },
+  {
+    "name": "Mamba",
+    "itemID": 78367,
+    "blueprintID": 78393,
     "jobType": 1
   }
 ]

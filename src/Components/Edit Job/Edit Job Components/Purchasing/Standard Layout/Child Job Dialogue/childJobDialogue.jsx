@@ -11,15 +11,9 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
-import {
-  IsLoggedInContext,
-  UserJobSnapshotContext,
-} from "../../../../../../Context/AuthContext";
+import { UserJobSnapshotContext } from "../../../../../../Context/AuthContext";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
-import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
-import { useFindJobObject } from "../../../../../../Hooks/GeneralHooks/useFindJobObject";
 
 export function ChildJobDialogue({
   activeJob,
@@ -31,15 +25,9 @@ export function ChildJobDialogue({
   parentChildToEdit,
   updateParentChildToEdit,
 }) {
-  const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
-    UserJobSnapshotContext
-  );
-  const { uploadJob, uploadUserJobSnapshot } = useFirebase();
+  const { jobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateJobSnapshot } = useJobSnapshotManagement();
-  const { findJobData } = useFindJobObject();
 
   const materialChildJobs = activeJob.build.childJobs[material.typeID];
 

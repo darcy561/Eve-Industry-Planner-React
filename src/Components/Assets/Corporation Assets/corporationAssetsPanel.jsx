@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { TabContext, TabPanel } from "@mui/lab";
-import { Tab, Tabs } from "@mui/material";
-import { OfficesPage_Corporation } from "./Corporation Assets/officesPage";
-import { AssetsPage_Corporation } from "./Corporation Assets/assetsPage";
-import { DeliveriesPage_Corporation } from "./Corporation Assets/deliveriesPage";
-import { AssetSafetyPage_Corporation } from "./Corporation Assets/assetSafetyPage";
+import { Tab, Tabs, useMediaQuery } from "@mui/material";
+import { OfficesPage_Corporation } from "./Standard Layout/officesPage";
+import { AssetsPage_Corporation } from "./Standard Layout/assetsPage";
+import { DeliveriesPage_Corporation } from "./Standard Layout/deliveriesPage";
+import { AssetSafetyPage_Corporation } from "./Standard Layout/assetSafetyPage";
 import uuid from "react-uuid";
 
-export function CorporationAssetsPanel({}) {
+export function CorporationAssetsPanel({parentUser}) {
   const [tabSelect, updateTabSelect] = useState("Assets");
+
+  const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
   function onTabChange(event, newValue) {
     updateTabSelect(newValue);
@@ -16,7 +18,11 @@ export function CorporationAssetsPanel({}) {
 
   return (
     <TabContext value={tabSelect}>
-      <Tabs value={tabSelect} onChange={onTabChange} variant="standard">
+      <Tabs
+        value={tabSelect}
+        onChange={onTabChange}
+        variant={deviceNotMobile ? "standard" : "scrollable"}
+      >
         <Tab key={uuid()} label="Assets" value="Assets" />;
         <Tab key={uuid()} label="Offices" value="Offices" />
         <Tab key={uuid()} label="Deliveries" value="Deliveries" />;

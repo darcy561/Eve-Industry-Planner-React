@@ -45,49 +45,47 @@ export function useAssetHelperHooks() {
   }
 
   function buildItemTree(flatList) {
-    const tree = {};
-    
-    const itemMap = new Map(); // To store items by item_id for quick access
-    
-    // Create a map for quick access to items by item_id
-    flatList.forEach(item => {
+    const tree = [];
+  
+    // Create a mapping of items by their item_id for quick lookup
+    const itemMap = new Map();
+    for (const item of flatList) {
       itemMap.set(item.item_id, item);
-    });
-    
-    // Recursively build the tree
+    }
+  
+    // Recursively build the tree starting from the root items
     function buildSubtree(location_id) {
-      const children = flatList.filter(item => item.location_id === location_id);
-      
-      if (children.length > 0) {
-        for (const child of children) {
-          if (!tree[location_id]) {
-            tree[location_id] = [];
-          }
-          tree[location_id].push(child);
-          
-          const childId = child.item_id;
-          if (itemMap.has(childId)) {
-            buildSubtree(childId);
-          }
+      const children = [];
+      for (const item of flatList) {
+        if (item.location_id === location_id) {
+          const child = {
+            ...item,
+            children: buildSubtree(item.item_id),
+          };
+          children.push(child);
         }
       }
+      return children.length > 0 ? children : null;
     }
-    
-    // Start building the tree from the root nodes (location_id not found as an item_id)
-    flatList.forEach(item => {
+  
+    for (const item of flatList) {
       if (!itemMap.has(item.location_id)) {
-        buildSubtree(item.location_id);
+        const rootItem = {
+          ...item,
+          children: buildSubtree(item.item_id),
+        };
+        tree.push(rootItem);
       }
-    });
-    
+    }
+  
     return tree;
   }
 
-  function findBlueprintTypeIDs() {
-    return searchData.reduce((prev, { blueprintID }) => {
-      return prev.add(blueprintID);
-    }, new Set());
-  }
+    function findBlueprintTypeIDs() {
+      return searchData.reduce((prev, { blueprintID }) => {
+        return prev.add(blueprintID);
+      }, new Set());
+    }
 
   return {
     acceptedDirectLocationTypes,

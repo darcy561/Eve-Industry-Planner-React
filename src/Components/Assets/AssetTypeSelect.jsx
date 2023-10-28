@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Paper, Tab, Tabs } from "@mui/material";
 import { TabContext, TabPanel } from "@mui/lab";
-import { CharacterAssetsPanel } from "./characterAssetsPanel";
-import { CorporationAssetsPanel } from "./corporationAssetsPanel";
+import { CharacterAssetsPanel } from "./Character Assets/characterAssetsPanel";
+import { CorporationAssetsPanel } from "./Corporation Assets/corporationAssetsPanel";
 
-export function AssetTypeSelectPanel({}) {
+export function AssetTypeSelectPanel({parentUser}) {
   const [tabSelect, updateTabSelect] = useState(0);
 
   function onTabChange(event, newValue) {
@@ -26,10 +26,10 @@ export function AssetTypeSelectPanel({}) {
         </Tabs>
 
         <TabPanel value={0}>
-          <CharacterAssetsPanel />
+          <CharacterAssetsPanel parentUser={parentUser} />
         </TabPanel>
         <TabPanel value={1}>
-          <CorporationAssetsPanel />
+          <CorporationAssetsPanel parentUser={parentUser} />
         </TabPanel>
       </TabContext>
     </Paper>

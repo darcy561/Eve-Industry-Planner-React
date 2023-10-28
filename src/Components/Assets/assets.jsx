@@ -72,60 +72,13 @@ export default function AssetLibrary() {
     assetLocationFetch();
   }, [users, selectedLocation]);
 
-  useEffect(() => {
-    updatePageLoad(false);
-    let returnedAssets = locationAsset.slice(pagination.from, pagination.to);
-    updateDisplayedAssets(returnedAssets);
-    updatePageLoad(true);
-  }, [locationAsset, pagination.from, pagination.to, pagination.pageSize]);
-
-  const handlePageChange = (event, page) => {
-    const from = (page - 1) * pagination.pageSize;
-    const to = (page - 1) * pagination.pageSize + pagination.pageSize;
-    setPagination((prev) => ({ ...prev, from: from, to: to }));
-  };
 
   return (
     <Grid container sx={{ marginTop: "5px" }} spacing={2}>
       <ESIOffline />
       <Grid item xs={12} sx={{ marginLeft: "10px", marginRight: "10px" }}>
-        <AssetTypeSelectPanel />
-        {/* <AssetSearch
-          locationList={locationList}
-          selectedLocation={selectedLocation}
-          updateSelectedLocation={updateSelectedLocation}
-          namesLoad={namesLoad}
-          pagination={pagination}
-          setPagination={setPagination}
-        /> */}
+        <AssetTypeSelectPanel parentUser={parentUser} />
       </Grid>
-      {/* <Grid
-        container
-        item
-        xs={12}
-        sx={{ marginLeft: "10px", marginRight: "10px" }}
-      >
-        <AssetType
-          displayedAssets={displayedAssets}
-          fullAssetList={fullAssetList}
-          pageLoad={pageLoad}
-        />
-      </Grid>
-      <Grid
-        container
-        item
-        xs={12}
-        justifyContent="center"
-        align="center"
-        sx={{ marginTop: "40px" }}
-      >
-        <Pagination
-          color="primary"
-          size="small"
-          count={Math.ceil(locationAsset.length / pagination.pageSize)}
-          onChange={handlePageChange}
-        />
-      </Grid> */}
     </Grid>
   );
 }

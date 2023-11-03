@@ -1,23 +1,27 @@
 import { Button } from "@mui/material";
 import { useContext } from "react";
-import { ActiveJobContext } from "../../../../../../Context/JobContext";
+import {
+  ActiveJobContext,
+  JobArrayContext,
+} from "../../../../../../Context/JobContext";
 
 export function MarkAsCompleteButton({ activeJob, setJobModified }) {
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { groupArray, updateGroupArray } = useContext(JobArrayContext);
+  const { activeGroup } = useContext(ActiveJobContext);
 
   const toggleMarkJobAsComplete = () => {
-    updateActiveGroup((prev) => {
-      const newAreComplete = new Set(prev.areComplete);
-      newAreComplete[newAreComplete.has(activeJob.jobID) ? "delete" : "add"](
-        activeJob.jobID
-      );
-      return {
-        ...prev,
-        areComplete: [...newAreComplete],
-      };
-    });
+    const newGroupArray = [...groupArray];
+    let selectedJob = newGroupArray.find((i) => i.groupID === activeGroup);
+
+    const newAreComplete = new Set(selectedJob.areComplete);
+    newAreComplete[newAreComplete.has(activeJob.jobID) ? "delete" : "add"](
+      activeJob.jobID
+    );
+    selectedJob.areComplete = [...newAreComplete];
+    updateGroupArray(newGroupArray);
     setJobModified(true);
   };
+  const activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
 
   if (!activeGroup) {
     return null;
@@ -31,7 +35,7 @@ export function MarkAsCompleteButton({ activeJob, setJobModified }) {
       onClick={toggleMarkJobAsComplete}
       sx={{ margin: "10px" }}
     >
-      {activeGroup.areComplete.includes(activeJob.jobID)
+      {activeGroupObject.areComplete.includes(activeJob.jobID)
         ? "Mark As Incomplete"
         : "Mark As Complete"}
     </Button>

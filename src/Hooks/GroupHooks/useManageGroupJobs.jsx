@@ -1,9 +1,8 @@
 import { useContext } from "react";
-import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
+import { ActiveJobContext } from "../../Context/JobContext";
 
 export function useManageGroupJobs() {
-  const { groupArray } = useContext(JobArrayContext);
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { activeGroup } = useContext(ActiveJobContext);
 
   const addJobToGroup = (inputJob, inputGroupArray, inputJobArray) => {
     if (!inputJob) return inputGroupArray;
@@ -19,8 +18,7 @@ export function useManageGroupJobs() {
     const matchedGroup = inputGroupArray[selectedGroupIndex];
 
     const filteredGroupJobs = inputJobArray.filter(
-      (job) =>
-        job.groupID === activeGroup.groupID && job.jobID !== inputJob.jobID
+      (job) => job.groupID === activeGroup && job.jobID !== inputJob.jobID
     );
 
     filteredGroupJobs.push(inputJob);

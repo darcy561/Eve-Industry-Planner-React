@@ -4,7 +4,7 @@ import {
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
 } from "../../../Context/LayoutContext";
-import { ActiveJobContext } from "../../../Context/JobContext";
+import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
 import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
@@ -23,10 +23,13 @@ export function GroupOptionsBar({
   );
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
   const { activeGroup } = useContext(ActiveJobContext);
+  const { groupArray } = useContext(JobArrayContext);
   const { buildFullJobTree } = useGroupManagement();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { buildChildJobs } = useBuildChildJobs();
+
+  let activeGroupObject = groupArray.find((i)=> i.groupID === activeGroup)
 
   return (
     <Paper
@@ -55,7 +58,7 @@ export function GroupOptionsBar({
                   if (multiSelectJobPlanner.length > 0) {
                     updateShoppingListData(multiSelectJobPlanner);
                   } else {
-                    updateShoppingListData([...activeGroup.includedJobIDs]);
+                    updateShoppingListData([...activeGroupObject.includedJobIDs]);
                   }
                   updateShowProcessing((prev) => !prev);
                   updateShoppingListTrigger((prev) => !prev);
@@ -81,7 +84,7 @@ export function GroupOptionsBar({
                   itemList = await buildItemPriceEntry(multiSelectJobPlanner);
                 } else {
                   itemList = await buildItemPriceEntry([
-                    ...activeGroup.includedJobIDs,
+                    ...activeGroupObject.includedJobIDs,
                   ]);
                 }
                 updateShowProcessing((prev) => !prev);
@@ -154,7 +157,7 @@ export function GroupOptionsBar({
                   if (multiSelectJobPlanner.length > 0) {
                     await buildChildJobs(multiSelectJobPlanner);
                   } else {
-                    await buildChildJobs(activeGroup.includedJobIDs);
+                    await buildChildJobs(activeGroupObject.includedJobIDs);
                   }
                   updateShowProcessing((prev) => !prev);
                 }}
@@ -179,7 +182,7 @@ export function GroupOptionsBar({
                 size="small"
                 onClick={async () => {
                   updateShowProcessing((prev) => !prev);
-                  await buildFullJobTree([...activeGroup.includedJobIDs]);
+                  await buildFullJobTree([...activeGroupObject.includedJobIDs]);
                   updateShowProcessing((prev) => !prev);
                 }}
                 sx={{

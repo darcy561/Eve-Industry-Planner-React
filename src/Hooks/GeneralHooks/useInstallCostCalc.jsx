@@ -29,30 +29,30 @@ export function useInstallCostsCalc() {
   const SCC_SURCHARGE = 1.5;
   const ALPHA_CLONE_TAX = 0.25;
 
-  async function calculateInstallCostFromJob(selectedJob) {
+  async function calculateInstallCostFromJob(inputSetup) {
     const estimatedItemValue = estimatedItemPriceCalc(
-      selectedJob.materialCount,
-      selectedJob.jobCount
+      inputSetup.materialCount,
+      inputSetup.jobCount
     );
 
     const facilityModifier = findFacilityModifier(
-      selectedJob.structureID,
-      selectedJob.jobType
+      inputSetup.structureID,
+      inputSetup.jobType
     );
 
     const facilityTax = findFacilityTax(
-      selectedJob.customStructureID,
-      selectedJob.structureID,
-      selectedJob.jobType,
-      selectedJob.taxValue
+      inputSetup.customStructureID,
+      inputSetup.structureID,
+      inputSetup.jobType,
+      inputSetup.taxValue
     );
 
     const systemIndexValue = await findSystemIndex(
-      selectedJob.systemID,
-      selectedJob.jobType
+      inputSetup.systemID,
+      inputSetup.jobType
     );
 
-    const cloneValue = findCloneValue(selectedJob.selectedCharacter);
+    const cloneValue = findCloneValue(inputSetup.selectedCharacter);
 
     const taxModifierTotal =
       estimatedItemValue *

@@ -15,7 +15,7 @@ import { useJobSnapshotManagement } from "./useJobSnapshots";
 import { useManageGroupJobs } from "../GroupHooks/useManageGroupJobs";
 
 export function useCloseActiveJob() {
-  const { updateActiveJob, updateActiveGroup } = useContext(ActiveJobContext);
+  const { updateActiveJob } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { jobArray, updateJobArray, groupArray, updateGroupArray } =
     useContext(JobArrayContext);
@@ -68,6 +68,7 @@ export function useCloseActiveJob() {
       }
       addNewJob(tempJob);
     });
+
     addIDsToSet(newLinkedJobIDs, esiDataToLink.industryJobs.add);
     addIDsToSet(newLinkedOrderIDs, esiDataToLink.marketOrders.add);
     addIDsToSet(newLinkedTransIDs, esiDataToLink.transactions.add);
@@ -135,7 +136,7 @@ export function useCloseActiveJob() {
       if (!matchingJob) continue;
       matchingJob.build.childJobs[inputJob.itemID] =
         matchingJob.build.childJobs[inputJob.itemID].filter(
-          (i) => i !== inputJob.jobID 
+          (i) => i !== inputJob.jobID
         );
       modifiedJobsSet.add(matchingJob.jobID);
     }
@@ -211,12 +212,6 @@ export function useCloseActiveJob() {
     }
 
     if (inputJob.groupID) {
-      let updatedGroupObject = newGroupArray.find(
-        (i) => i.groupID === inputJob.groupID
-      );
-      if (updatedGroupObject) {
-        updateActiveGroup(updatedGroupObject);
-      }
       updateGroupArray(newGroupArray);
     }
 

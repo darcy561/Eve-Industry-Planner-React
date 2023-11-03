@@ -1,9 +1,6 @@
-import { useContext } from "react";
-import { ActiveJobContext } from "../../Context/JobContext";
 import { useFirebase } from "../useFirebase";
 
 export function useFindJobObject() {
-  const { activeGroup } = useContext(ActiveJobContext);
   const { downloadCharacterJobs } = useFirebase();
 
   const findJobData = async (
@@ -20,12 +17,7 @@ export function useFindJobObject() {
     }
 
     function findGroupObject() {
-      let foundGroup = chosenGroupArray.find((i) => i.groupID === inputJobID);
-
-      if (activeGroup && activeGroup.groupID === inputJobID) {
-        foundGroup = { ...activeGroup };
-      }
-      return foundGroup;
+      return chosenGroupArray.find((i) => i.groupID === inputJobID);
     }
 
     async function findJobObject() {

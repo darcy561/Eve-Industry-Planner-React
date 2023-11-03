@@ -20,7 +20,7 @@ export function useGroupManagement() {
     UserJobSnapshotContext
   );
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { activeGroup } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { deleteJobSnapshot, newJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
@@ -233,6 +233,7 @@ export function useGroupManagement() {
   };
 
   const buildNextJobs = async (inputIDs) => {
+    let selectedGroupObject = groupArray.find((i) => i.groupID === activeGroup);
     let existingTypeIDData = [];
     let existingIDSet = new Set();
     let modifiedJobData = [];
@@ -241,12 +242,12 @@ export function useGroupManagement() {
     let buildRequestsIDSet = new Set();
     let newJobIDs = new Set();
     let newJobArray = [...jobArray];
-    let newMaterialIDs = new Set(activeGroup.materialIDs);
-    let newTypeIDs = new Set(activeGroup.includedTypeIDs);
-    let newFinalJobIDs = new Set(activeGroup.includedJobIDs);
+    let newMaterialIDs = new Set(selectedGroupObject.materialIDs);
+    let newTypeIDs = new Set(selectedGroupObject.includedTypeIDs);
+    let newFinalJobIDs = new Set(selectedGroupObject.includedJobIDs);
 
-    await buildExistingTypes();
-    await generateRequestList();
+    await buildExistingTypes(selectedGroupObject);
+    await generateRequestList(selectedGroupObject);
 
     let newJobData = await buildJob(buildRequests);
 
@@ -274,14 +275,16 @@ export function useGroupManagement() {
 
     newFinalJobIDs = new Set([...newFinalJobIDs, ...newJobIDs]);
 
-    updateActiveGroup((prev) => ({
-      ...prev,
-      includedTypeIDs: [...newTypeIDs],
-      includedJobIDs: [...newFinalJobIDs],
-      outputJobCount: (prev.outputJobCount += newJobData.length),
-      materialIDs: [...newMaterialIDs],
-    }));
+    const newGroupArray = [...groupArray];
+    const objectToUpdate = newGroupArray.find((i) => i.groupID === activeGroup);
 
+    objectToUpdate.includedTypeIDs = [...newTypeIDs];
+    objectToUpdate.includedJobIDs = [...newFinalJobIDs];
+    objectToUpdate.outputJobCount = objectToUpdate.outputJobCount +=
+      newJobData.length;
+    objectToUpdate.materialIDs = [...newMaterialIDs];
+
+    updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
 
     if (modifiedJobData.length > 0 && buildRequests.length > 0) {
@@ -321,8 +324,8 @@ export function useGroupManagement() {
       }));
     }
 
-    async function buildExistingTypes() {
-      for (let jobID of [...activeGroup.includedJobIDs]) {
+    async function buildExistingTypes(selectedGroupObject) {
+      for (let jobID of [...selectedGroupObject.includedJobIDs]) {
         let job = await findJobData(
           jobID,
           userJobSnapshot,
@@ -361,7 +364,7 @@ export function useGroupManagement() {
       }
     }
 
-    async function generateRequestList() {
+    async function generateRequestList(selectedGroupObject) {
       for (let inputJobID of inputIDs) {
         let inputJob = await findJobData(
           inputJobID,
@@ -443,7 +446,7 @@ export function useGroupManagement() {
               itemQty: material.quantity,
               parentJobs: new Set([inputJob.jobID]),
               childJobs: [],
-              groupID: activeGroup.groupID,
+              groupID: selectedGroupObject.groupID,
             });
           }
         });
@@ -520,6 +523,8 @@ export function useGroupManagement() {
   };
 
   const buildFullJobTree = async (inputIDs) => {
+    let selectedGroupObject = groupArray.find((i) => i.groupID === activeGroup);
+
     let newJobArray = [...jobArray];
     let existingIDSet = new Set();
     let existingTypeIDData = [];
@@ -527,13 +532,13 @@ export function useGroupManagement() {
     let modifiedJobData = [];
     let buildRequestsIDSet = new Set();
     let buildRequests = [];
-    let newMaterialIDs = new Set(activeGroup.materialIDs);
-    let newTypeIDs = new Set(activeGroup.includedTypeIDs);
-    let newFinalJobIDs = new Set(activeGroup.includedJobIDs);
+    let newMaterialIDs = new Set(selectedGroupObject.materialIDs);
+    let newTypeIDs = new Set(selectedGroupObject.includedTypeIDs);
+    let newFinalJobIDs = new Set(selectedGroupObject.includedJobIDs);
     let totalJobsCreated = 0;
 
     await buildExistingTypes();
-    await buildTree(inputIDs);
+    await buildTree(inputIDs, selectedGroupObject);
     if (isLoggedIn) {
       for (let jobID of [...newFinalJobIDs]) {
         let job = await findJobData(
@@ -549,13 +554,16 @@ export function useGroupManagement() {
         addNewJob(job);
       }
     }
-    updateActiveGroup((prev) => ({
-      ...prev,
-      includedTypeIDs: [...newTypeIDs],
-      includedJobIDs: [...newFinalJobIDs],
-      outputJobCount: (prev.outputJobCount += totalJobsCreated),
-      materialIDs: [...newMaterialIDs],
-    }));
+    const newGroupArray = [groupArray];
+    let groupToUpdate = newGroupArray.find((i) => i.groupID === activeGroup);
+
+    (groupToUpdate.includedTypeIDs = [...newTypeIDs])(
+      (groupToUpdate.includedJobIDs = [...newFinalJobIDs])
+    )(
+      (groupToUpdate.outputJobCount = groupToUpdate.outputJobCount +=
+        totalJobsCreated)
+    )((groupToUpdate.materialIDs = [...newMaterialIDs]));
+    updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
     setSnackbarData((prev) => ({
       ...prev,
@@ -565,7 +573,7 @@ export function useGroupManagement() {
       autoHideDuration: 3000,
     }));
 
-    async function buildTree(inputs) {
+    async function buildTree(inputs, selectedGroupObject) {
       let newJobIDs = new Set();
 
       for (let jobID of inputs) {
@@ -580,7 +588,7 @@ export function useGroupManagement() {
           continue;
         }
 
-        await generateRequestList(job);
+        await generateRequestList(job, selectedGroupObject);
       }
       if (buildRequests.length === 0) {
         return;
@@ -677,7 +685,7 @@ export function useGroupManagement() {
       }
     }
 
-    async function generateRequestList(inputJob) {
+    async function generateRequestList(inputJob, selectedGroupObject) {
       inputJob.build.materials.forEach((material) => {
         if (inputJob.build.childJobs[material.typeID].length > 0) {
           return;
@@ -749,7 +757,7 @@ export function useGroupManagement() {
             itemQty: material.quantity,
             parentJobs: new Set([inputJob.jobID]),
             childJobs: [],
-            groupID: activeGroup.groupID,
+            groupID: selectedGroupObject.groupID,
           });
         }
       });

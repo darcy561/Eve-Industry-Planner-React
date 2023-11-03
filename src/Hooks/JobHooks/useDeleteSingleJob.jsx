@@ -22,7 +22,7 @@ import { useJobSnapshotManagement } from "./useJobSnapshots";
 export function useDeleteSingleJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { activeGroup } = useContext(ActiveJobContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
@@ -179,12 +179,8 @@ export function useDeleteSingleJob() {
       if (selectedGroupIndex === -1) return;
 
       const groupJobs = newJobArray.filter(
-        (job) =>
-          job.groupID === activeGroup.groupID && job.jobID !== inputJob.jobID
+        (job) => job.groupID === activeGroup && job.jobID !== inputJob.jobID
       );
-
-      const isActiveGroup =
-        newGroupArray[selectedGroupIndex].groupID === activeGroup.groupID;
 
       const {
         outputJobCount,
@@ -237,9 +233,6 @@ export function useDeleteSingleJob() {
       newGroupArray[selectedGroupIndex].linkedTransIDs = [...linkedTransIDs];
 
       updateGroupArray(newGroupArray);
-      if (isActiveGroup) {
-        updateActiveGroup(newGroupArray[selectedGroupIndex]);
-      }
       if (isLoggedIn) {
         uploadGroups(newGroupArray);
       }

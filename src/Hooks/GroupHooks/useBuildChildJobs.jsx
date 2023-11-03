@@ -13,8 +13,9 @@ import { useFirebase } from "../useFirebase";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 
 export function useBuildChildJobs() {
-  const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { jobArray, groupArray, updateJobArray, updateGroupArray } =
+    useContext(JobArrayContext);
+  const { activeGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -33,9 +34,7 @@ export function useBuildChildJobs() {
 
     const newJobArray = await buildNewJobArray(newJobData, jobsToBeModified);
 
-    const groupJobs = newJobArray.filter(
-      (i) => i.groupID === activeGroup.groupID
-    );
+    const groupJobs = newJobArray.filter((i) => i.groupID === activeGroup);
 
     const { outputJobCount, materialIDs, jobTypeIDs, includedJobIDs } =
       groupJobs.reduce(
@@ -59,15 +58,15 @@ export function useBuildChildJobs() {
           includedJobIDs: new Set(),
         }
       );
+    const newGroupArray = [...groupArray];
+    let groupToUpdate = newGroupArray.find((i) => i.groupID === activeGroup);
 
-    updateActiveGroup((prev) => ({
-      ...prev,
-      includedTypeIDs: [...jobTypeIDs],
-      includedJobIDs: [...includedJobIDs],
-      outputJobCount: outputJobCount,
-      materialIDs: [...materialIDs],
-    }));
+    groupToUpdate.includedTypeIDs = [...jobTypeIDs];
+    groupToUpdate.includedJobIDs = [...includedJobIDs];
+    groupToUpdate.outputJobCount = outputJobCount;
+    groupToUpdate.materialIDs = [...materialIDs];
 
+    updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
 
     if (jobsToBeModified.length > 0 && buildRequests.length > 0) {
@@ -111,7 +110,11 @@ export function useBuildChildJobs() {
   async function calculateExistingTypeIDs() {
     const result = [];
 
-    for (const jobID of activeGroup.includedJobIDs) {
+    const selectedGroupObject = groupArray.find(
+      (i) => i.groupID === activeGroup
+    );
+
+    for (const jobID of selectedGroupObject.includedJobIDs) {
       const job = await findJobData(
         jobID,
         userJobSnapshot,
@@ -192,7 +195,7 @@ export function useBuildChildJobs() {
           buildRequests = addMaterialToBuild(
             material,
             buildRequests,
-            activeGroup.groupID,
+            activeGroup,
             inputJobID
           );
         }

@@ -24,7 +24,7 @@ import { useJobSnapshotManagement } from "./useJobSnapshots";
 export function useDeleteMultipleJobs() {
   const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { activeGroup } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray, groupArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
@@ -188,12 +188,8 @@ export function useDeleteMultipleJobs() {
       if (selectedGroupIndex === -1) return newGroupArray;
 
       const groupJobs = newJobArray.filter(
-        (job) =>
-          job.groupID === activeGroup?.groupID && job.jobID !== inputJob.jobID
+        (job) => job.groupID === activeGroup && job.jobID !== inputJob.jobID
       );
-
-      const isActiveGroup =
-        newGroupArray[selectedGroupIndex].groupID === activeGroup?.groupID;
 
       const {
         outputJobCount,
@@ -244,10 +240,6 @@ export function useDeleteMultipleJobs() {
       newGroupArray[selectedGroupIndex].linkedJobIDs = [...linkedJobIDs];
       newGroupArray[selectedGroupIndex].linkedOrderIDs = [...linkedOrderIDs];
       newGroupArray[selectedGroupIndex].linkedTransIDs = [...linkedTransIDs];
-
-      if (isActiveGroup) {
-        updateActiveGroup(newGroupArray[selectedGroupIndex]);
-      }
 
       return newGroupArray;
     }

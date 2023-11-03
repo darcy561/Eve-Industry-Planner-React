@@ -70,7 +70,7 @@ export function useOpenGroup() {
       return [...prev, ...uniqueNewEvePrices];
     });
 
-    updateActiveGroup(requestedGroup);
+    updateActiveGroup(inputGroupID);
     updateJobArray(newJobArray);
     updateDataExchange((prev) => !prev);
     updateLoadingText((prevObj) => ({

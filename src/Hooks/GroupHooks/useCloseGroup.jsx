@@ -28,7 +28,7 @@ export function useCloseGroup() {
 
   const closeGroup = (groupJobs) => {
     let newGroupArray = [...groupArray];
-    let newGroupEntry = { ...activeGroup };
+    let newGroupEntry = newGroupArray.find((i) => i.groupID === activeGroup);
     let newUserJobSnapshot = [...userJobSnapshot];
     let jobsToSave = new Set();
 
@@ -133,16 +133,7 @@ export function useCloseGroup() {
         }
       }
     }
-
-    let index = newGroupArray.findIndex(
-      (i) => i.groupID === activeGroup.groupID
-    );
-
-    if (index !== -1) {
-      newGroupArray[index] = newGroupEntry;
-    } else {
-      newGroupArray.push(newGroupEntry);
-    }
+    
     updateActiveGroup(null);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);

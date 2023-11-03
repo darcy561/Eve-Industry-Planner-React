@@ -98,8 +98,8 @@ export function useJobManagement() {
     addJobToGroup: if (newJob.groupID !== null) {
       selectedGroup = newGroupArray.find((i) => i.groupID === newJob.groupID);
 
-      if (activeGroup.groupID === newJob.groupID) {
-        selectedGroup = activeGroup;
+      if (activeGroup === newJob.groupID) {
+        selectedGroup = groupArray.find((i) => i.groupID === activeGroup);
         isActiveGroup = true;
       }
 
@@ -154,7 +154,7 @@ export function useJobManagement() {
         selectedGroup !== null &&
         selectedGroup !== undefined
       ) {
-        updateActiveGroup({ ...selectedGroup });
+        updateActiveGroup(selectedGroup.groupID);
       }
       if (isLoggedIn) {
         uploadGroups(newGroupArray);
@@ -354,12 +354,6 @@ export function useJobManagement() {
         let inputGroup = groupArray.find((i) => i.groupID === inputID);
         if (!inputGroup) {
           return;
-        }
-        if (
-          activeGroup !== null &&
-          inputGroup.groupID === activeGroup.groupID
-        ) {
-          inputGroup = activeGroup;
         }
         finalInputList = finalInputList.concat([...inputGroup.includedJobIDs]);
       } else {

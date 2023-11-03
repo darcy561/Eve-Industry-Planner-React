@@ -24,6 +24,7 @@ import {
   UsersContext,
 } from "../../Context/AuthContext";
 import { useMissingSystemIndex } from "../GeneralHooks/useImportMissingSystemIndexData";
+import { useInstallCostsCalc } from "../GeneralHooks/useInstallCostCalc";
 
 export function useOpenEditJob_New() {
   const { users } = useContext(UsersContext);
@@ -42,6 +43,7 @@ export function useOpenEditJob_New() {
   const { generatePriceRequestFromJob } = useJobManagement();
   const { findJobData } = useFindJobObject();
   const { findMissingSystemIndex } = useMissingSystemIndex();
+  const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
   const {
     getArchivedJobData,
@@ -69,7 +71,8 @@ export function useOpenEditJob_New() {
       let openJob = await findJobData(
         inputJobID,
         newUserJobSnapshot,
-        newJobArray, undefined,
+        newJobArray,
+        undefined
       );
       // newUserJobSnapshot = lockUserJob(
       //   parentUser.CharacterHash,
@@ -109,6 +112,10 @@ export function useOpenEditJob_New() {
 
           itemIDs = new Set(itemIDs, generatePriceRequestFromJob(childJob));
         }
+      }
+
+      for (let setup of Object.values(openJob.build.setup)) {
+        setup.estimatedInstallCost = await calculateInstallCostFromJob(setup);
       }
 
       if (isLoggedIn) {

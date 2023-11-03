@@ -3,7 +3,6 @@ import {
   JobPlannerPageTriggerContext,
   MultiSelectJobPlannerContext,
 } from "../../../../Context/LayoutContext";
-import { ActiveJobContext } from "../../../../Context/JobContext";
 import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
 import { useDrag } from "react-dnd";
@@ -27,7 +26,6 @@ export function CompactGroupJobCardFrame({ job }) {
     MultiSelectJobPlannerContext
   );
   const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
-  const { activeGroup } = useContext(ActiveJobContext);
   const { openEditJob } = useOpenEditJob();
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -45,10 +43,6 @@ export function CompactGroupJobCardFrame({ job }) {
   const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
-
-  const jobMarkedAsCompelte = useMemo(() => {
-    return activeGroup.areComplete.includes(job.jobID);
-  }, [activeGroup]);
 
   function getCardColor(theme, jobType) {
     if (jobType === jobTypes.manufacturing) {

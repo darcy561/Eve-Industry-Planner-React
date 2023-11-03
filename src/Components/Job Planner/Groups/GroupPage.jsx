@@ -32,8 +32,8 @@ export default function GroupPage({
   shoppingListData,
   updateShoppingListData,
 }) {
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
-  const { jobArray } = useContext(JobArrayContext);
+  const { activeGroup } = useContext(ActiveJobContext);
+  const { jobArray, groupArray } = useContext(JobArrayContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const [groupJobs, updateGroupJobs] = useState([]);
   const [groupPageRefresh, updateGroupPageRefresh] = useState(false);
@@ -59,40 +59,43 @@ export default function GroupPage({
   }, []);
 
   useEffect(() => {
-    if (activeGroup === null) return;
-    let returnArray = [];
+    if (!activeGroup) return;
     updateGroupPageRefresh((prev) => !prev);
-    for (let jobID of activeGroup.includedJobIDs) {
-      let job = jobArray.find((i) => i?.jobID === jobID);
-      if (job === undefined) {
-        continue;
+
+    const selectedGroup = groupArray.find((i) => i.groupID === activeGroup);
+
+    const includedJobIDSet = new Set(selectedGroup.includedJobIDs);
+
+    const groupJobs = jobArray.filter((i) => includedJobIDSet.has(i.jobID));
+
+    groupJobs.sort((a, b) => {
+      if (a.name < b.name) {
+        return -1;
       }
-      returnArray.push(job);
-      returnArray.sort((a, b) => {
-        if (a.name < b.name) {
-          return -1;
-        }
-        if (a.name > b.name) {
-          return 1;
-        }
-        return 0;
-      });
-    }
-    updateGroupJobs(returnArray);
+      if (a.name > b.name) {
+        return 1;
+      }
+      return 0;
+    });
+
+    updateGroupJobs(groupJobs);
     updateGroupPageRefresh((prev) => !prev);
-  }, [activeGroup, jobArray, userJobSnapshot]);
+  }, [activeGroup, groupArray, jobArray, userJobSnapshot]);
 
   const handleNameChange = (event) => {
     event.preventDefault();
-    updateActiveGroup((prev) => ({
-      ...prev,
-      groupName: tempName,
-    }));
+    let newGroupArray = [...groupArray];
+    let selectedGroup = newGroupArray.find((i) => i.groupID === activeGroup);
+    selectedGroup.groupName = tempName;
+    updateGroupArray(newGroupArray);
     updateEditGroupNameTrigger((prev) => !prev);
   };
 
-  if (activeGroup === null) return <LoadingPage />;
+  let activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
 
+  if (!activeGroup) return <LoadingPage />;
+  console.log(groupJobs)
+  console.log(jobArray)
   return (
     <Paper
       elevation={3}
@@ -148,7 +151,7 @@ export default function GroupPage({
               <Grid item xs={6}>
                 <TextField
                   fullWidth
-                  defaultValue={activeGroup.groupName}
+                  defaultValue={activeGroupObject.groupName}
                   size="small"
                   variant="standard"
                   sx={{
@@ -196,7 +199,7 @@ export default function GroupPage({
                 updateShowProcessing((prev) => !prev);
                 await newJobProcess({
                   itemID: value.itemID,
-                  groupID: activeGroup.groupID,
+                  groupID: activeGroupObject.groupID,
                 });
                 updateShowProcessing((prev) => !prev);
               }}
@@ -225,12 +228,10 @@ export default function GroupPage({
               <FormControlLabel
                 control={
                   <Switch
-                    checked={activeGroup.showComplete}
+                    checked={activeGroupObject.showComplete}
                     onChange={() => {
-                      updateActiveGroup((prev) => ({
-                        ...prev,
-                        showComplete: !prev.showComplete,
-                      }));
+                      activeGroupObject.showComplete =
+                        !activeGroupObject.showComplete;
                     }}
                   />
                 }

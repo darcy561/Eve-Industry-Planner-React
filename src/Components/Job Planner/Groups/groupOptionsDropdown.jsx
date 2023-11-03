@@ -3,8 +3,6 @@ import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useArchiveGroupJobs } from "../../../Hooks/GroupHooks/useArchiveGroupJobs";
 import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
-import { useBuildChildJobs } from "../../../Hooks/GroupHooks/useBuildChildJobs";
-import { ActiveJobContext } from "../../../Context/JobContext";
 
 export function GroupOptionsDropDown({
   groupJobs,
@@ -13,8 +11,6 @@ export function GroupOptionsDropDown({
   const [anchorEl, setAnchorEl] = useState(null);
   const { archiveGroupJobs } = useArchiveGroupJobs();
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
-  const { activeGroup } = useContext(ActiveJobContext);
-  const { buildChildJobs } = useBuildChildJobs();
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);

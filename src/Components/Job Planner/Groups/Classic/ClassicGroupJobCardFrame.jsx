@@ -23,7 +23,7 @@ import GroupStep5JobCard from "./JobCards/groupStep5";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
-import { ActiveJobContext } from "../../../../Context/JobContext";
+import { ActiveJobContext, JobArrayContext } from "../../../../Context/JobContext";
 import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import GroupStep1JobCard from "./JobCards/groupStep1";
@@ -52,6 +52,7 @@ export function ClassicGroupJobCardFrame({ job }) {
   );
   const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
   const { activeGroup } = useContext(ActiveJobContext);
+  const { groupArray } = useContext(JobArrayContext);  
   const { openEditJob } = useOpenEditJob();
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -67,13 +68,15 @@ export function ClassicGroupJobCardFrame({ job }) {
   }));
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
+  const activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
+
   const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
 
   const jobMarkedAsCompelte = useMemo(() => {
-    return activeGroup.areComplete.includes(job.jobID);
-  }, [activeGroup]);
+    return activeGroupObject.areComplete.includes(job.jobID);
+  }, [activeGroupObject]);
 
   const navigate = useNavigate();
 

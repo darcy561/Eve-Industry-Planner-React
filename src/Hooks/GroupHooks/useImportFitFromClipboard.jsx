@@ -9,7 +9,7 @@ import { useFirebase } from "../useFirebase";
 import { EvePricesContext } from "../../Context/EveDataContext";
 
 export function useImportFitFromClipboard() {
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { activeGroup } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray, groupArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { users } = useContext(UsersContext);
@@ -98,6 +98,7 @@ export function useImportFitFromClipboard() {
   };
 
   const finalBuildRequests = async (itemArray) => {
+    const activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
     if (!itemArray) return;
     let newJobArray = [...jobArray];
     let newPriceIDs = new Set();
@@ -109,14 +110,14 @@ export function useImportFitFromClipboard() {
           return {
             itemID: itemEntry.itemID,
             itemQty: itemEntry.itemCalculatedQty,
-            groupID: activeGroup.groupID,
+            groupID: activeGroup,
           };
         }
       })
       .filter((entry) => entry);
 
     const groupEntriesToModifiy = buildRequests.filter((entry) =>
-      activeGroup.includedTypeIDs.includes(entry.itemID)
+      activeGroupObject.includedTypeIDs.includes(entry.itemID)
     );
     const itemsToBuild = buildRequests.filter(
       (entry) => !groupEntriesToModifiy.some((i) => i.itemID === entry.itemID)
@@ -130,8 +131,7 @@ export function useImportFitFromClipboard() {
 
       job.build.materials.forEach((material) => {
         let materialMatch = newJobArray.find(
-          (i) =>
-            i.itemID === material.typeID && i.groupID === activeGroup.groupID
+          (i) => i.itemID === material.typeID && i.groupID === activeGroup
         );
         if (materialMatch) {
           materialMatch.parentJob.push(job.jobID);
@@ -207,17 +207,23 @@ export function useImportFitFromClipboard() {
 
     const itemPriceData = await Promise.all(itemPriceRequest);
     newJobArray = newJobArray.concat(newJobData);
-    updateActiveGroup((prev) => ({
-      ...prev,
-      includedJobIDs: [
-        ...new Set([...prev.includedJobIDs, ...newIncludedJobIDs]),
-      ],
-      includedTypeIDs: [
-        ...new Set([...prev.includedTypeIDs, ...newIncludedTypeIDs]),
-      ],
-      outputJobCount: prev.outputJobCount + newOuputJobCount,
-      materialIDs: [...new Set([...prev.materialIDs, ...newMaterialIDs])],
-    }));
+
+    const newGroupArray = [...groupArray];
+    let groupToUpdate = newGroupArray.find((i) => (i.groupID = activeGroup));
+
+    groupToUpdate.includedJobIDs = [
+      ...new Set([...groupToUpdate.includedJobIDs, ...newIncludedJobIDs]),
+    ];
+    groupToUpdate.includedTypeIDs = [
+      ...new Set([...groupToUpdate.includedTypeIDs, ...newIncludedTypeIDs]),
+    ];
+    groupToUpdate.outputJobCount =
+      groupToUpdate.outputJobCount + newOuputJobCount;
+    groupToUpdate.materialIDs = [
+      ...new Set([...groupToUpdate.materialIDs, ...newMaterialIDs]),
+    ];
+
+    updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
     updateEvePrices((prev) => {
       const prevIds = new Set(prev.map((item) => item.typeID));

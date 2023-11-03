@@ -42,6 +42,7 @@ export function SearchBar({
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateGroupArray } = useContext(JobArrayContext);
   const { updateActiveGroup } = useContext(ActiveJobContext);
   const {
     massBuildMaterials,
@@ -411,7 +412,8 @@ export function SearchBar({
                   let newGroup = await createNewGroupWithJobs(
                     multiSelectJobPlanner
                   );
-                  updateActiveGroup(newGroup);
+                  updateGroupArray((prev)=> [...prev, newGroup])
+                  updateActiveGroup(newGroup.groupID);
                   updateMultiSelectJobPlanner([]);
                   updateEditGroupTrigger((prev) => !prev);
                 }}

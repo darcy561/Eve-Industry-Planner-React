@@ -75,7 +75,7 @@ export function ChildJobPopoverFrame({
           itemID: material.typeID,
           itemQty: material.quantity,
           parentJobs: [activeJob.jobID],
-          groupID: activeGroup?.groupID,
+          groupID: activeGroup,
         });
 
         if (!newJob) {

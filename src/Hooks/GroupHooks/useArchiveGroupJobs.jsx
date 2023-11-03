@@ -23,6 +23,9 @@ export function useArchiveGroupJobs() {
   const analytics = getAnalytics();
 
   const archiveGroupJobs = async (selectedJobs) => {
+    const { groupID, groupName } = groupArray.find(
+      (i) => i.groupID === activeGroup
+    );
     let newUserArray = [...users];
     let parentUserIndex = newUserArray.findIndex((i) => i.ParentUser);
     let newLinkedOrders = new Set(newUserArray[parentUserIndex].linkedOrders);
@@ -31,7 +34,7 @@ export function useArchiveGroupJobs() {
 
     logEvent(analytics, "Archive Group Jobs", {
       UID: newUserArray[parentUserIndex].accountID,
-      groupID: activeGroup.groupID,
+      groupID: groupID,
       groupSize: selectedJobs.length,
     });
 
@@ -49,9 +52,7 @@ export function useArchiveGroupJobs() {
         !userJobSnapshot.some((x) => x.job === i.jobID)
     );
 
-    let newGroupArray = groupArray.filter(
-      (i) => i.groupID !== activeGroup.groupID
-    );
+    let newGroupArray = groupArray.filter((i) => i.groupID !== activeGroup);
 
     for (let selectedJob of selectedJobs) {
       if (userJobSnapshot.some((i) => i.jobID === selectedJob.jobID)) continue;
@@ -69,7 +70,7 @@ export function useArchiveGroupJobs() {
     setSnackbarData((prev) => ({
       ...prev,
       open: true,
-      message: `${activeGroup.groupName} Archived`,
+      message: `${groupName} Archived`,
       severity: "success",
       autoHideDuration: 3000,
     }));

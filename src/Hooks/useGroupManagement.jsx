@@ -47,6 +47,9 @@ export function useGroupManagement() {
     this.showComplete = true;
     this.groupStatus = 0;
     this.groupType = 1;
+    this.linkedJobIDs = [];
+    this.linkedOrderIDs = [];
+    this.linkedTransIDs = [];
   }
 
   const createNewGroupWithJobs = async (inputJobIDs) => {
@@ -131,10 +134,8 @@ export function useGroupManagement() {
       ),
     };
 
-    newGroupArray.push(newGroupEntry);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
-    updateGroupArray(newGroupArray);
 
     if (isLoggedIn) {
       uploadUserJobSnapshot(newUserJobSnapshot);

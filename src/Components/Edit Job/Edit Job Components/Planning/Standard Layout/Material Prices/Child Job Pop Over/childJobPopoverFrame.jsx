@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Button, Grid, Paper, Popover, Typography } from "@mui/material";
 import {
-  ActiveJobContext,
   JobArrayContext,
 } from "../../../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../../../Context/AuthContext";
@@ -35,7 +34,6 @@ export function ChildJobPopoverFrame({
 }) {
   const { jobArray } = useContext(JobArrayContext);
   const { evePrices } = useContext(EvePricesContext);
-  const { activeGroup } = useContext(ActiveJobContext);
   const { users } = useContext(UsersContext);
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImportState, updateJobImportState] = useState(false);
@@ -75,9 +73,8 @@ export function ChildJobPopoverFrame({
           itemID: material.typeID,
           itemQty: material.quantity,
           parentJobs: [activeJob.jobID],
-          groupID: activeGroup,
+          groupID: activeJob.groupID,
         });
-
         if (!newJob) {
           updateFetchError(true);
         }
@@ -94,7 +91,6 @@ export function ChildJobPopoverFrame({
       if (jobs.length > 0) {
         updateChildJobObjects(jobs);
       }
-
       updateRecalculateTotal(true);
       updateJobImportState(true);
     }
@@ -104,6 +100,7 @@ export function ChildJobPopoverFrame({
   }, [displayPopover]);
 
   useEffect(() => {
+    console.log(recalculateTotal)
     if (!recalculateTotal) {
       return;
     }

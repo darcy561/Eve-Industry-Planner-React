@@ -133,7 +133,6 @@ export function useCloseGroup() {
         }
       }
     }
-    
     updateActiveGroup(null);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);

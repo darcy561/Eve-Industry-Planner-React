@@ -45,6 +45,7 @@ export function useAssetHelperHooks() {
   }
 
   function buildItemTree(flatList) {
+    const childLocationReference = new Set();
     const tree = [];
   
     // Create a mapping of items by their item_id for quick lookup

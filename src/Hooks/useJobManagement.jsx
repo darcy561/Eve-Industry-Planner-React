@@ -95,13 +95,8 @@ export function useJobManagement() {
       newUserJobSnapshot = newJobSnapshot(newJob, newUserJobSnapshot);
     }
 
-    addJobToGroup: if (newJob.groupID !== null) {
+    addJobToGroup: if (newJob.groupID) {
       selectedGroup = newGroupArray.find((i) => i.groupID === newJob.groupID);
-
-      if (activeGroup === newJob.groupID) {
-        selectedGroup = groupArray.find((i) => i.groupID === activeGroup);
-        isActiveGroup = true;
-      }
 
       if (!selectedGroup) break addJobToGroup;
 
@@ -147,15 +142,7 @@ export function useJobManagement() {
     let returnPromiseArray = await Promise.all(promiseArray);
 
     if (buildRequest.hasOwnProperty("groupID")) {
-      updateJobArray((prev) => [...prev, newJob]);
       updateGroupArray(newGroupArray);
-      if (
-        isActiveGroup &&
-        selectedGroup !== null &&
-        selectedGroup !== undefined
-      ) {
-        updateActiveGroup(selectedGroup.groupID);
-      }
       if (isLoggedIn) {
         uploadGroups(newGroupArray);
       }

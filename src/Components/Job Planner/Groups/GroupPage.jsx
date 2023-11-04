@@ -94,8 +94,7 @@ export default function GroupPage({
   let activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
 
   if (!activeGroup) return <LoadingPage />;
-  console.log(groupJobs)
-  console.log(jobArray)
+
   return (
     <Paper
       elevation={3}

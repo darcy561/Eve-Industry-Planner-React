@@ -215,6 +215,7 @@ export function useCloseActiveJob() {
       updateGroupArray(newGroupArray);
     }
 
+    console.log(jobArray)
     updateLinkedJobIDs([...newLinkedJobIDs]);
     updateLinkedOrderIDs([...newLinkedOrderIDs]);
     updateLinkedTransIDs([...newLinkedTransIDs]);

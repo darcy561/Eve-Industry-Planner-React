@@ -9,7 +9,7 @@ export function useManageGroupJobs() {
 
     if (!inputJob.groupID) return inputGroupArray;
 
-    const selectedGroupIndex = inputGroupArray.findIndex(
+    const selectedGroupIndex = inputGroupArray.find(
       (i) => i.groupID === inputJob.groupID
     );
 
@@ -72,8 +72,6 @@ export function useManageGroupJobs() {
     matchedGroup.linkedJobIDs = [...linkedJobIDs];
     matchedGroup.linkedOrderIDs = [...linkedOrderIDs];
     matchedGroup.linkedTransIDs = [...linkedTransIDs];
-
-    inputGroupArray[selectedGroupIndex] = matchedGroup;
 
     return inputGroupArray;
   };

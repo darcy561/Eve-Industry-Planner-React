@@ -10,7 +10,7 @@ export async function fetchSystemIndexes(systemIndexInput) {
     URL += `/${systemIndexInput}`;
   }
 
-  if (!systemIndexInput) {
+  if (!systemIndexInput || systemIndexInput === 0) {
     return {};
   }
 
@@ -33,7 +33,6 @@ export async function fetchSystemIndexes(systemIndexInput) {
     return {};
   }
   const responseData = await response.json();
-
 
   if (Array.isArray(responseData)) {
     let returnObject = {};

@@ -12,10 +12,6 @@ export function CharacterAssetsPanel({ parentUser }) {
   const [selectedCharacter, updateSelectedCharacter] = useState(
     parentUser.CharacterHash
   );
-  const [characterAssetMap, updateCharacterAssetMap] = useState(null);
-  const [characterDeliveriesMap, updateCharacterDeliveriesMap] = useState(null);
-  const [characterAssetSafetyMap, updateCharacterAssetSafetyMap] =
-    useState(null);
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
   function onTabChange(event, newValue) {
@@ -42,25 +38,13 @@ export function CharacterAssetsPanel({ parentUser }) {
             <Tab key={uuid()} label="Asset Safety" value="Asset Safety" />;
           </Tabs>
           <TabPanel key={uuid()} value="Assets">
-            <AssetsPage_Character
-              selectedCharacter={selectedCharacter}
-              characterAssetMap={characterAssetMap}
-              updateCharacterAssetMap={updateCharacterAssetMap}
-            />
+            <AssetsPage_Character selectedCharacter={selectedCharacter} />
           </TabPanel>
           <TabPanel key={uuid()} value="Deliveries">
-            <DeliveriesPage_Character
-              selectedCharacter={selectedCharacter}
-              characterDeliveriesMap={characterDeliveriesMap}
-              updateCharacterDeliveriesMap={updateCharacterDeliveriesMap}
-            />
+            <DeliveriesPage_Character selectedCharacter={selectedCharacter} />
           </TabPanel>
           <TabPanel key={uuid()} value="Asset Safety">
-            <AssetSafetyPage_Character
-              selectedCharacter={selectedCharacter}
-              characterAssetSafetyMap={characterAssetSafetyMap}
-              updateCharacterAssetSafetyMap={updateCharacterAssetSafetyMap}
-            />
+            <AssetSafetyPage_Character selectedCharacter={selectedCharacter} />
           </TabPanel>
         </TabContext>
       </Grid>

@@ -1,8 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Button, Grid, Paper, Popover, Typography } from "@mui/material";
-import {
-  JobArrayContext,
-} from "../../../../../../../Context/JobContext";
+import { JobArrayContext } from "../../../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../../../Context/AuthContext";
 import { useFirebase } from "../../../../../../../Hooks/useFirebase";
 import { EvePricesContext } from "../../../../../../../Context/EveDataContext";
@@ -15,6 +13,7 @@ import { ChildJobSwitcher_ChildJobPopoverFrame } from "./switchChildJob";
 import { DisplayMismatchedChildTotals_ChildJobPopoverFrame } from "./mismatchedTotals";
 import { ChildJobMaterialTotalCosts_ChildJobPopoverFrame } from "./childJobTotalCosts";
 import { CreateChildJobsButtons_ChildJobPopoverFrame } from "./createJobsButton";
+import { useInstallCostsCalc } from "../../../../../../../Hooks/GeneralHooks/useInstallCostCalc";
 
 export function ChildJobPopoverFrame({
   activeJob,
@@ -31,8 +30,9 @@ export function ChildJobPopoverFrame({
   currentMaterialPrice,
   childJobProductionCosts,
   updateChildJobProductionCosts,
+  matchedChildJobs,
+  setupToEdit,
 }) {
-  const { jobArray } = useContext(JobArrayContext);
   const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
   const [tempPrices, updateTempPrices] = useState([]);
@@ -45,6 +45,7 @@ export function ChildJobPopoverFrame({
   const { buildJob } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { switchActiveJob } = useSwitchActiveJob();
+  const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
   const childJobsLocation = activeJob.build.childJobs[material.typeID];
@@ -52,21 +53,14 @@ export function ChildJobPopoverFrame({
   useEffect(() => {
     async function fetchData() {
       if (!displayPopover) return;
-      const jobs = [];
-      if (childJobsLocation.length > 0) {
-        for (let childJobID of childJobsLocation) {
-          let matchedChildJob = jobArray.find((i) => i.jobID === childJobID);
-          if (!jobs.some((i) => i.jobID === matchedChildJob.jobID)) {
-            jobs.push(matchedChildJob);
-          }
-        }
-      } else if (temporaryChildJobs[material.typeID]) {
+
+      if (temporaryChildJobs[material.typeID]) {
         if (
-          !jobs.some(
+          !matchedChildJobs.some(
             (i) => i.jobID === temporaryChildJobs[material.typeID].jobID
           )
         ) {
-          jobs.push(temporaryChildJobs[material.typeID]);
+          matchedChildJobs.push(temporaryChildJobs[material.typeID]);
         }
       } else {
         const newJob = await buildJob({
@@ -74,6 +68,7 @@ export function ChildJobPopoverFrame({
           itemQty: material.quantity,
           parentJobs: [activeJob.jobID],
           groupID: activeJob.groupID,
+          systemID: activeJob.build.setup[setupToEdit].systemID,
         });
         if (!newJob) {
           updateFetchError(true);
@@ -85,11 +80,11 @@ export function ChildJobPopoverFrame({
         );
 
         updateTempPrices((prev) => prev.concat(itemPrices));
-        jobs.push(newJob);
+        matchedChildJobs.push(newJob);
       }
 
-      if (jobs.length > 0) {
-        updateChildJobObjects(jobs);
+      if (matchedChildJobs.length > 0) {
+        updateChildJobObjects(matchedChildJobs);
       }
       updateRecalculateTotal(true);
       updateJobImportState(true);
@@ -100,44 +95,57 @@ export function ChildJobPopoverFrame({
   }, [displayPopover]);
 
   useEffect(() => {
-    console.log(recalculateTotal)
-    if (!recalculateTotal) {
-      return;
+    async function runCalculations() {
+      if (!recalculateTotal) {
+        return;
+      }
+
+      const currentJob = childJobObjects[jobDisplay];
+
+      const totalMaterialPrice = currentJob.build.materials.reduce(
+        (prev, { typeID, quantity }) => {
+          const priceObject =
+            evePrices.find((i) => i.typeID === typeID) ||
+            tempPrices.find((i) => i.typeID === typeID);
+
+          if (priceObject) {
+            prev += priceObject[marketSelect][listingSelect] * quantity;
+          }
+          return prev;
+        },
+        0
+      );
+      let installCosts = 0;
+
+      for (const setup of Object.values(currentJob.build.setup)) {
+        if (setup.estimatedInstallCost === 0) {
+          const cost = await calculateInstallCostFromJob(setup, tempPrices);
+          installCosts += cost;
+        } else {
+          installCosts += setup.estimatedInstallCost;
+        }
+      }
+
+      // const installCosts = Object.values(currentJob.build.setup).reduce(
+      //   (prev, { estimatedInstallCost }) => {
+      //     return (prev += estimatedInstallCost);
+      //   },
+      //   0
+      // );
+
+      updateChildJobProductionCosts((prev) => ({
+        ...prev,
+        materialCost: totalMaterialPrice,
+        installCost: installCosts,
+        finalCost: totalMaterialPrice + installCosts,
+        finalCostPerItem:
+          (totalMaterialPrice + installCosts) /
+          currentJob.build.products.totalQuantity,
+      }));
+      updateRecalculateTotal(false);
     }
 
-    const currentJob = childJobObjects[jobDisplay];
-
-    const totalMaterialPrice = currentJob.build.materials.reduce(
-      (prev, { typeID, quantity }) => {
-        const priceObject =
-          evePrices.find((i) => i.typeID === typeID) ||
-          tempPrices.find((i) => i.typeID === typeID);
-
-        if (priceObject) {
-          prev += priceObject[marketSelect][listingSelect] * quantity;
-        }
-        return prev;
-      },
-      0
-    );
-
-    const installCosts = Object.values(currentJob.build.setup).reduce(
-      (prev, { estimatedInstallCost }) => {
-        return (prev += estimatedInstallCost);
-      },
-      0
-    );
-
-    updateChildJobProductionCosts((prev) => ({
-      ...prev,
-      materialCost: totalMaterialPrice,
-      installCost: installCosts,
-      finalCost: totalMaterialPrice + installCosts,
-      finalCostPerItem:
-        (totalMaterialPrice + installCosts) /
-        currentJob.build.products.totalQuantity,
-    }));
-    updateRecalculateTotal(false);
+    runCalculations();
   }, [childJobObjects, recalculateTotal]);
 
   return (

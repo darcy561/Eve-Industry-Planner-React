@@ -26,6 +26,7 @@ import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
+import { useManageGroupJobs } from "./GroupHooks/useManageGroupJobs";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
@@ -66,6 +67,7 @@ export function useJobManagement() {
   const { buildJob, checkAllowBuild } = useJobBuild();
   const { findJobData } = useFindJobObject();
   const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
+  const { addJobToGroup } = useManageGroupJobs();
 
   const analytics = getAnalytics();
 
@@ -77,8 +79,9 @@ export function useJobManagement() {
     const t = trace(performance, "CreateJobProcessFull");
     let newUserJobSnapshot = [...userJobSnapshot];
     let newGroupArray = [...groupArray];
+    let newJobArray = [...jobArray];
     let isActiveGroup = false;
-    let selectedGroup = null;
+
     t.start();
     if (!checkAllowBuild()) {
       return;
@@ -94,32 +97,36 @@ export function useJobManagement() {
     if (!newJob.groupID) {
       newUserJobSnapshot = newJobSnapshot(newJob, newUserJobSnapshot);
     }
+    newJobArray.push(newJob);
 
     addJobToGroup: if (newJob.groupID) {
-      selectedGroup = newGroupArray.find((i) => i.groupID === newJob.groupID);
+      newGroupArray = addJobToGroup(newJob, newGroupArray, newJobArray);
+      // let selectedGroup = newGroupArray.find(
+      //   (i) => i.groupID === newJob.groupID
+      // );
+      // console.log(selectedGroup);
+      // if (!selectedGroup) break addJobToGroup;
 
-      if (!selectedGroup) break addJobToGroup;
+      // let newIncludedJobIDs = new Set(selectedGroup.includedJobIDs);
+      // let newIncludedTypeIDs = new Set(selectedGroup.includedTypeIDs);
+      // let newMaterialIDs = new Set(selectedGroup.materialIDs);
+      // let newOutputJobCount = selectedGroup.outputJobCount;
 
-      let newIncludedJobIDs = new Set(selectedGroup.includedJobIDs);
-      let newIncludedTypeIDs = new Set(selectedGroup.includedTypeIDs);
-      let newMaterialIDs = new Set(selectedGroup.materialIDs);
-      let newOutputJobCount = selectedGroup.outputJobCount;
+      // if (newJob.parentJob.length === 0) {
+      //   newOutputJobCount++;
+      // }
 
-      if (newJob.parentJob.length === 0) {
-        newOutputJobCount++;
-      }
+      // newMaterialIDs.add(newJob.itemID);
+      // newJob.build.materials.forEach((mat) => {
+      //   newMaterialIDs.add(mat.typeID);
+      // });
+      // newIncludedJobIDs.add(newJob.jobID);
+      // newIncludedTypeIDs.add(newJob.itemID);
 
-      newMaterialIDs.add(newJob.itemID);
-      newJob.build.materials.forEach((mat) => {
-        newMaterialIDs.add(mat.typeID);
-      });
-      newIncludedJobIDs.add(newJob.jobID);
-      newIncludedTypeIDs.add(newJob.itemID);
-
-      selectedGroup.includedJobIDs = [...newIncludedJobIDs];
-      selectedGroup.includedTypeIDs = [...newIncludedTypeIDs];
-      selectedGroup.materialIDs = [...newMaterialIDs];
-      selectedGroup.outputJobCount = newOutputJobCount;
+      // selectedGroup.includedJobIDs = [...newIncludedJobIDs];
+      // selectedGroup.includedTypeIDs = [...newIncludedTypeIDs];
+      // selectedGroup.materialIDs = [...newMaterialIDs];
+      // selectedGroup.outputJobCount = newOutputJobCount;
     }
 
     if (isLoggedIn) {
@@ -128,10 +135,9 @@ export function useJobManagement() {
       }
       addNewJob(newJob);
       userJobListener(parentUser, newJob.jobID);
-    } else {
-      updateJobArray((prev) => [...prev, newJob]);
     }
 
+    updateJobArray(newJobArray);
     logEvent(analytics, "New Job", {
       loggedIn: isLoggedIn,
       UID: parentUser.accountID,

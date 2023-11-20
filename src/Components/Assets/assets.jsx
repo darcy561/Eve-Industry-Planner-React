@@ -1,77 +1,12 @@
-import { Grid, Pagination } from "@mui/material";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { Grid } from "@mui/material";
+import { useContext, useMemo } from "react";
 import { UsersContext } from "../../Context/AuthContext";
-import { EveIDsContext } from "../../Context/EveDataContext";
-import { useCharAssets } from "../../Hooks/useCharAssets";
-import { AssetType } from "./assetType";
-import { AssetSearch } from "./assetSearch";
-import itemData from "../../RawData/fullItemList.json";
 import { ESIOffline } from "../offlineNotification";
-import { useAssetManagement } from "../../Hooks/AssetHooks/useAssetManagement";
 import { AssetTypeSelectPanel } from "./AssetTypeSelect";
 
 export default function AssetLibrary() {
   const { users } = useContext(UsersContext);
-  const { updateEveIDs } = useContext(EveIDsContext);
-  const { findLocationAssets, getAssetLocationList } = useCharAssets();
-  const [locationList, updateLocationList] = useState([]);
-  const [locationAsset, updateLocationAssets] = useState([]);
-  const [fullAssetList, updateFullAssetList] = useState([]);
-  const [namesLoad, updateNamesLoad] = useState(false);
-  const [pageLoad, updatePageLoad] = useState(false);
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
-  const [selectedLocation, updateSelectedLocation] = useState(
-    parentUser.settings.editJob.defaultAssetLocation
-  );
-  const [pagination, setPagination] = useState({
-    count: 0,
-    from: 0,
-    to: 16,
-    pageSize: 16,
-  });
-  const [displayedAssets, updateDisplayedAssets] = useState([]);
-  const { findCorpLocationAssets } = useAssetManagement();
-
-  // findCorpLocationAssets(selectedLocation);
-
-  useEffect(() => {
-    const assetLocationFetch = async () => {
-      updatePageLoad(false);
-      updateNamesLoad(false);
-      let [assetLocationList, newEveIDs] = await getAssetLocationList();
-      let [newFullAssetList, newLocationAssets] = await findLocationAssets(
-        selectedLocation
-      );
-      newLocationAssets.sort((a, b) => {
-        let aName = itemData.find((i) => i.type_id === a.type_id)?.name;
-        let bName = itemData.find((i) => i.type_id === b.type_id)?.name;
-        if (!aName || !bName) {
-          return 0;
-        }
-        if (aName < bName) {
-          return -1;
-        }
-        if (aName > bName) {
-          return 1;
-        }
-        return 0;
-      });
-
-      setPagination((prev) => ({
-        ...prev,
-        from: 0,
-        to: prev.pageSize,
-      }));
-      updateFullAssetList(newFullAssetList);
-      updateLocationAssets(newLocationAssets);
-      updateEveIDs(newEveIDs);
-      updateLocationList(assetLocationList);
-      updatePageLoad(true);
-      updateNamesLoad(true);
-    };
-    assetLocationFetch();
-  }, [users, selectedLocation]);
-
 
   return (
     <Grid container sx={{ marginTop: "5px" }} spacing={2}>

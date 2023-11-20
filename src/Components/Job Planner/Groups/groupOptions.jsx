@@ -3,6 +3,7 @@ import { Button, Grid, Paper, Tooltip } from "@mui/material";
 import {
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
+  ShoppingListContext,
 } from "../../../Context/LayoutContext";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
@@ -10,21 +11,21 @@ import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsO
 import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
 import { GroupOptionsDropDown } from "./groupOptionsDropdown";
 import { useBuildChildJobs } from "../../../Hooks/GroupHooks/useBuildChildJobs";
+import { useBuildFullJobTree } from "../../../Hooks/GroupHooks/useBuildFullJobTree";
 
 export function GroupOptionsBar({
   groupJobs,
-  updateShoppingListTrigger,
-  updateShoppingListData,
   updateShowProcessing,
   updateImportFitDialogueTrigger,
 }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateShoppingListTrigger, updateShoppingListData } = useContext(ShoppingListContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
   const { activeGroup } = useContext(ActiveJobContext);
   const { groupArray } = useContext(JobArrayContext);
-  const { buildFullJobTree } = useGroupManagement();
+  const { buildFullJobTree } = useBuildFullJobTree();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { buildChildJobs } = useBuildChildJobs();

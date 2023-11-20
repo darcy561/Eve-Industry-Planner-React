@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Grid, Icon, Tooltip, Typography } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import { ChildJobPopoverFrame } from "./Child Job Pop Over/childJobPopoverFrame";
+import { EvePricesContext } from "../../../../../../Context/EveDataContext";
+import { JobArrayContext } from "../../../../../../Context/JobContext";
 
 const { PRIMARY_THEME, SECONDARY_THEME } = GLOBAL_CONFIG;
 
@@ -13,22 +15,31 @@ export function MaterialCostRow_MaterialPricePanel({
   material,
   marketSelect,
   listingSelect,
-  itemPriceObject,
   jobModified,
   setJobModified,
   temporaryChildJobs,
   updateTemporaryChildJobs,
+  setupToEdit,
 }) {
+  const { jobArray } = useContext(JobArrayContext);
+  const { evePrices } = useContext(EvePricesContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
   const [childJobProductionCosts, updateChildJobProductionCosts] = useState({
     materialCost: 0,
     installCost: 0,
     finalCost: 0,
-    finalCostPerItem:0
+    finalCostPerItem: 0,
   });
-
+  const itemPriceObject = useMemo(
+    () => evePrices.find((i) => i.typeID === material.typeID),
+    [evePrices]
+  );
   const marketObject = itemPriceObject[marketSelect];
   const currentMaterialPrice = itemPriceObject[marketSelect][listingSelect];
+
+  const matchedChildJobs = jobArray.filter((i) =>
+    activeJob.build.childJobs[material.typeID].includes(i.jobID)
+  );
 
   return (
     <Grid
@@ -102,6 +113,8 @@ export function MaterialCostRow_MaterialPricePanel({
                 currentMaterialPrice={currentMaterialPrice}
                 childJobProductionCosts={childJobProductionCosts}
                 updateChildJobProductionCosts={updateChildJobProductionCosts}
+                matchedChildJobs={matchedChildJobs}
+                setupToEdit={setupToEdit}
               />
             </>
           ) : null}

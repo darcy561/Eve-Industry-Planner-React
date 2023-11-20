@@ -25,11 +25,10 @@ import itemList from "../../../RawData/searchIndex.json";
 import { useCloseGroup } from "../../../Hooks/GroupHooks/useCloseGroup";
 import { LoadingPage } from "../../loadingPage";
 import { ImportItemFitDialogue } from "./Dialogues/importFit/importFittingDialgue";
+import { ShoppingListDialog } from "../Dialogues/ShoppingList/ShoppingList";
 
 export default function GroupPage({
-  shoppingListTrigger,
   updateShoppingListTrigger,
-  shoppingListData,
   updateShoppingListData,
 }) {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -68,6 +67,7 @@ export default function GroupPage({
 
     const groupJobs = jobArray.filter((i) => includedJobIDSet.has(i.jobID));
 
+
     groupJobs.sort((a, b) => {
       if (a.name < b.name) {
         return -1;
@@ -80,7 +80,7 @@ export default function GroupPage({
 
     updateGroupJobs(groupJobs);
     updateGroupPageRefresh((prev) => !prev);
-  }, [activeGroup, groupArray, jobArray, userJobSnapshot]);
+  }, [activeGroup, groupArray, jobArray]);
 
   const handleNameChange = (event) => {
     event.preventDefault();
@@ -110,6 +110,7 @@ export default function GroupPage({
         importFitDialogueTrigger={importFitDialogueTrigger}
         updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
       />
+      <ShoppingListDialog />
       <Grid container>
         <Grid item xs={7} md={9} lg={10} />
         <Grid item xs={5} md={3} lg={2} align="right">

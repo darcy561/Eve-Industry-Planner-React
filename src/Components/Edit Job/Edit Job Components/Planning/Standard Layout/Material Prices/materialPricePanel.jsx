@@ -1,5 +1,4 @@
 import { useContext, useState } from "react";
-import { EvePricesContext } from "../../../../../../Context/EveDataContext";
 import { UsersContext } from "../../../../../../Context/AuthContext";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import { Grid, MenuItem, Paper, Select, Typography } from "@mui/material";
@@ -13,10 +12,10 @@ export function MaterialCostPanel({
   updateActiveJob,
   jobModified,
   setJobModified,
+  setupToEdit,
   temporaryChildJobs,
   updateTemporaryChildJobs,
 }) {
-  const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
   const parentUser = users.find((i) => i.ParentUser);
   const [marketSelect, updateMarketSelect] = useState(
@@ -26,8 +25,6 @@ export function MaterialCostPanel({
     parentUser.settings.editJob.defaultOrders
   );
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
-
-  let totalMaterialCost = 0;
 
   return (
     <Paper
@@ -98,11 +95,6 @@ export function MaterialCostPanel({
       />
       <Grid container item xs={12}>
         {activeJob.build.materials.map((material) => {
-          const materialPrice = evePrices.find(
-            (i) => i.typeID === material.typeID
-          );
-          totalMaterialCost +=
-            materialPrice[marketSelect][listingSelect] * material.quantity;
           return (
             <MaterialCostRow_MaterialPricePanel
               key={material.typeID}
@@ -111,17 +103,17 @@ export function MaterialCostPanel({
               material={material}
               marketSelect={marketSelect}
               listingSelect={listingSelect}
-              itemPriceObject={materialPrice}
               jobModified={jobModified}
               setJobModified={setJobModified}
               temporaryChildJobs={temporaryChildJobs}
               updateTemporaryChildJobs={updateTemporaryChildJobs}
+              setupToEdit={setupToEdit}
             />
           );
         })}
         <MaterialTotals_MaterialPricesPanel
           activeJob={activeJob}
-          totalMaterialCost={totalMaterialCost}
+          marketSelect={marketSelect}
           listingSelect={listingSelect}
         />
       </Grid>

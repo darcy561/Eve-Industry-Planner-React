@@ -179,7 +179,11 @@ function UseCustomStructure({ setupEntry }) {
 
   return (
     <Grid item xs={12}>
-      <Tooltip title={`System Index: ${systemIndexValue *100}%`} arrow placement="bottom">
+      <Tooltip
+        title={`System Index: ${systemIndexValue * 100}%`}
+        arrow
+        placement="bottom"
+      >
         <Typography
           align="center"
           sx={{
@@ -215,13 +219,14 @@ function UseDefaultStructures({ setupEntry }) {
     [jobTypes.reaction]: structureOptions.reactionSystem,
   };
 
+
+
   const structureTypeData =
     structureTypeMap[setupEntry.jobType][setupEntry.structureID];
 
   const rigTypeData = rigTypeMap[setupEntry.jobType][setupEntry.rigID];
 
-  const systemTypeData =
-    systemTypeMap[setupEntry.jobType][setupEntry.systemTypeID];
+  const systemTypeData = systemTypeMap[setupEntry.jobType][setupEntry.systemTypeID];
 
   const matchedSystemID =
     rawSystemData.find((i) => i.id === setupEntry.systemID)?.name ||
@@ -231,7 +236,6 @@ function UseDefaultStructures({ setupEntry }) {
     systemIndexData[setupEntry.systemID]?.[
       jobTypeMapping[setupEntry.jobType]
     ] || 0;
-
 
   return (
     <Grid container item xs={12}>

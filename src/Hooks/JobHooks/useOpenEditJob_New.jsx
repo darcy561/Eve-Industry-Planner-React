@@ -182,6 +182,7 @@ export function useOpenEditJob_New() {
       }
       return openJob;
     } catch (err) {
+      console.log(err)
       return null;
     }
   };

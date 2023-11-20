@@ -14,7 +14,7 @@ export function useAssetHelperHooks() {
     "CorpSAG5",
     "CorpSAG6",
     "CorpSAG7",
-    "CorporationGoalDeliveries"
+    "CorporationGoalDeliveries",
   ]);
 
   function formatLocation(locationFlag) {
@@ -44,55 +44,47 @@ export function useAssetHelperHooks() {
     }
   }
 
-  function buildItemTree(flatList) {
-    const childLocationReference = new Set();
-    const tree = [];
-  
-    // Create a mapping of items by their item_id for quick lookup
-    const itemMap = new Map();
-    for (const item of flatList) {
-      itemMap.set(item.item_id, item);
-    }
-  
-    // Recursively build the tree starting from the root items
-    function buildSubtree(location_id) {
-      const children = [];
-      for (const item of flatList) {
-        if (item.location_id === location_id) {
-          const child = {
-            ...item,
-            children: buildSubtree(item.item_id),
-          };
-          children.push(child);
+  function buildAssetMaps(assetList) {
+    const assetItemMap = new Map();
+    const assetsByLocationMap = new Map();
+    const topLevelAssetLocations = new Map();
+
+
+    assetList.forEach((item) => {
+      const locationId = item.location_id;
+      assetItemMap.set(item.item_id, item);
+      if (assetsByLocationMap.has(locationId)) {
+        assetsByLocationMap.get(locationId).push(item);
+      } else {
+        assetsByLocationMap.set(locationId, [item]);
+      }
+    });
+
+    assetsByLocationMap.forEach((items, locationId) => {
+      items.forEach((item) => {
+        const assetLocation = item.location_id;
+        if (!assetItemMap.has(assetLocation)) {
+          topLevelAssetLocations.set(locationId, items);
         }
-      }
-      return children.length > 0 ? children : null;
-    }
-  
-    for (const item of flatList) {
-      if (!itemMap.has(item.location_id)) {
-        const rootItem = {
-          ...item,
-          children: buildSubtree(item.item_id),
-        };
-        tree.push(rootItem);
-      }
-    }
-  
-    return tree;
+      });
+    });
+    
+    
+    return {topLevelAssetLocations, assetItemMap, assetsByLocationMap}
   }
 
-    function findBlueprintTypeIDs() {
-      return searchData.reduce((prev, { blueprintID }) => {
-        return prev.add(blueprintID);
-      }, new Set());
-    }
+
+  function findBlueprintTypeIDs() {
+    return searchData.reduce((prev, { blueprintID }) => {
+      return prev.add(blueprintID);
+    }, new Set());
+  }
 
   return {
     acceptedDirectLocationTypes,
     acceptedExtendedLocationTypes,
     acceptedLocationFlags,
-    buildItemTree,
+    buildAssetMaps,
     findBlueprintTypeIDs,
     formatLocation,
     retrieveAssetLocation,

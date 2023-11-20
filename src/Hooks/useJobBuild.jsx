@@ -29,8 +29,6 @@ export function useJobBuild() {
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const {
-    CalculateResources,
-    CalculateTime,
     CalculateTime_New,
     CalculateResources_New,
   } = useBlueprintCalc();
@@ -370,13 +368,11 @@ export function useJobBuild() {
     );
     const structureData = addDefaultStructure_New(inputJobObject.jobType);
 
-
     const setupQuantities = recalculateItemQty_New(
       inputJobObject.maxProductionLimit,
       inputJobObject.rawData.products[0].quantity,
       requiredQuantity
     );
-
 
     for (let i = 0; i < setupQuantities.length; i++) {
       let nextObject = buildNewSetupObject({
@@ -384,6 +380,7 @@ export function useJobBuild() {
         TE,
         ...structureData,
         ...setupQuantities[i],
+        systemID: buildRequestObject?.systemID,
         characterToUse:
           buildRequestObject?.characterToUse || parentUser.CharacterHash,
         rawTimeValue,
@@ -417,7 +414,6 @@ export function useJobBuild() {
         material.quantity = newTotalQuantities[materialId];
       }
     }
-
   }
 
   function buildNewSetupObject(inputOptions) {
@@ -429,8 +425,8 @@ export function useJobBuild() {
       TE: inputOptions?.TE || 0,
       structureID: inputOptions?.structureID || 0,
       rigID: inputOptions?.rigID || 0,
-      systemTypeID: inputOptions?.systemTypeID || 0,
-      systemID: inputOptions?.systemID || null,
+      systemTypeID: inputOptions?.systemTypeID || 0,  
+      systemID: inputOptions?.systemID || 30000142,
       taxValue: inputOptions?.taxValue || 0.25,
       estimatedInstallCost: 0,
       customStructureID: inputOptions?.customStructureID || null,

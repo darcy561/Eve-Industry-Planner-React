@@ -7,8 +7,8 @@ import { DeliveriesPage_Corporation } from "./Standard Layout/deliveriesPage";
 import { AssetSafetyPage_Corporation } from "./Standard Layout/assetSafetyPage";
 import uuid from "react-uuid";
 
-export function CorporationAssetsPanel({parentUser}) {
-  const [tabSelect, updateTabSelect] = useState("Assets");
+export function CorporationAssetsPanel({ parentUser }) {
+  const [tabSelect, updateTabSelect] = useState("Offices");
 
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
@@ -23,14 +23,10 @@ export function CorporationAssetsPanel({parentUser}) {
         onChange={onTabChange}
         variant={deviceNotMobile ? "standard" : "scrollable"}
       >
-        <Tab key={uuid()} label="Assets" value="Assets" />;
         <Tab key={uuid()} label="Offices" value="Offices" />
         <Tab key={uuid()} label="Deliveries" value="Deliveries" />;
         <Tab key={uuid()} label="Asset Safety" value="Asset Safety" />;
       </Tabs>
-      <TabPanel key={uuid()} value="Assets">
-        <AssetsPage_Corporation />
-      </TabPanel>
       <TabPanel key={uuid()} value="Offices">
         <OfficesPage_Corporation />
       </TabPanel>

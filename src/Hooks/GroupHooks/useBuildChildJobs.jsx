@@ -2,15 +2,14 @@ import { useContext } from "react";
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import {
-  IsLoggedIn,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { useJobBuild } from "../useJobBuild";
-import { useBlueprintCalc } from "../useBlueprintCalc";
 import { useFirebase } from "../useFirebase";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
+import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
 
 export function useBuildChildJobs() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
@@ -20,8 +19,8 @@ export function useBuildChildJobs() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { findJobData } = useFindJobObject();
-  const { buildJob, recalculateItemQty } = useJobBuild();
-  const { CalculateResources, CalculateTime } = useBlueprintCalc();
+  const { buildJob } = useJobBuild();
+  const { recalculateJobForNewTotal } = useRecalcuateJob();
   const { addNewJob, uploadJob } = useFirebase();
 
   const buildChildJobs = async (inputJobIDs) => {
@@ -108,7 +107,7 @@ export function useBuildChildJobs() {
   };
 
   async function calculateExistingTypeIDs() {
-    const result = [];
+    const resultMap = new Map();
 
     const selectedGroupObject = groupArray.find(
       (i) => i.groupID === activeGroup
@@ -142,22 +141,21 @@ export function useBuildChildJobs() {
         return output;
       }, []);
 
-      result.push({
+      resultMap.set(job.itemID, {
         name: job.name,
         jobID: job.jobID,
         itemID: job.itemID,
         itemQty: job.build.products.totalQuantity,
-        parentJobIDs: new Set(job.parentJob),
+        parentJobs: new Set(job.parentJob),
         childJobs: childJobData,
       });
     }
-    return result;
+    return resultMap;
   }
 
-  async function calculateNeededJobs(requestedJobIDs, existingTypeIDData) {
-    let existingTypeIDs = [...existingTypeIDData];
-    let buildRequests = [];
-    let jobsToBeModified = [];
+  async function calculateNeededJobs(requestedJobIDs, existingTypeIDsMap) {
+    let buildRequests = new Map();
+    let jobsToBeModified = new Map();
 
     for (const inputJobID of requestedJobIDs) {
       const requestedJob = await findJobData(
@@ -172,9 +170,6 @@ export function useBuildChildJobs() {
       }
 
       requestedJob.build.materials.forEach((material) => {
-        // if (requestedJob.build.childJobs[material.typeID].length > 0) {
-        //   return
-        // }
         if (
           material.jobType !== jobTypes.manufacturing &&
           material.jobType !== jobTypes.reaction
@@ -182,54 +177,59 @@ export function useBuildChildJobs() {
           return;
         }
 
-        const isOriginal = existingTypeIDs.some(
-          (i) => i.itemID === material.typeID
-        );
-        const isModified = jobsToBeModified.some(
-          (i) => i.itemID === material.typeID
-        );
-        const isBuild = buildRequests.some((i) => i.itemID === material.typeID);
+        const isOriginal = existingTypeIDsMap.has(material.typeID);
+        const isModified = jobsToBeModified.has(material.typeID);
+        const isBuild = buildRequests.has(material.typeID);
 
         if (!isOriginal && !isModified && !isBuild) {
           //Add New Build
-          buildRequests = addMaterialToBuild(
-            material,
-            buildRequests,
-            activeGroup,
-            inputJobID
+          buildRequests.set(
+            material.typeID,
+            addMaterialToBuild(material, activeGroup, inputJobID)
           );
         }
 
         if (!isOriginal && !isModified && isBuild) {
           //Update Existing Build
-          buildRequests = updateMaterialToBuild(
-            material,
-            buildRequests,
-            inputJobID
+          buildRequests.set(
+            material.typeID,
+            updateMaterialToBuild(
+              material,
+              buildRequests.get(material.typeID),
+              inputJobID
+            )
           );
         }
 
         if (isOriginal && !isModified) {
           //Add To Modified & remove from existing
-          jobsToBeModified = addNewModifiedEntry(
-            material,
-            jobsToBeModified,
-            existingTypeIDs,
-            inputJobID
+          jobsToBeModified.set(
+            material.typeID,
+            updateMaterialToBuild(
+              material,
+              existingTypeIDsMap.get(material.typeID),
+              inputJobID
+            )
           );
-          existingTypeIDs = removeExistingEntry(material, existingTypeIDs);
+          existingTypeIDsMap.delete(material.typeID);
         }
 
         if (!isOriginal && isModified) {
           //update Modified
-          jobsToBeModified = updateModifiedEntry(
-            material,
-            jobsToBeModified,
-            inputJobID
+          jobsToBeModified.set(
+            material.typeID,
+            updateMaterialToBuild(
+              material,
+              jobsToBeModified.get(material.typeID),
+              inputJobID
+            )
           );
         }
       });
     }
+
+    buildRequests = Array.from(buildRequests.values());
+    jobsToBeModified = Array.from(jobsToBeModified.values());
 
     return { buildRequests, jobsToBeModified };
   }
@@ -250,39 +250,9 @@ export function useBuildChildJobs() {
       if (!job) {
         continue;
       }
-      job.parentJob = [
-        ...new Set(job.parentJob, [...modifiedData.parentJobIDs]),
-      ];
+      job.parentJob = [...new Set(job.parentJob, [...modifiedData.parentJobs])];
 
-      recalculateItemQty(job, modifiedData.itemQty);
-      job.build.materials = CalculateResources({
-        jobType: job.jobType,
-        rawMaterials: job.rawData.materials,
-        outputMaterials: job.build.materials,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        bpME: job.bpME,
-        structureType: job.structureType,
-        rigType: job.rigType,
-        systemType: job.systemType,
-      });
-
-      job.build.products.totalQuantity =
-        job.rawData.products[0].quantity * job.runCount * job.jobCount;
-
-      job.build.products.quantityPerJob =
-        job.rawData.products[0].quantity * job.jobCount;
-
-      job.build.time = CalculateTime({
-        jobType: job.jobType,
-        CharacterHash: job.build.buildChar,
-        structureType: job.structureType,
-        rigType: job.rigType,
-        runCount: job.runCount,
-        bpTE: job.bpTE,
-        rawTime: job.rawData.time,
-        skills: job.skills,
-      });
+      await recalculateJobForNewTotal(job, modifiedData.itemQty);
 
       if (isLoggedIn) {
         uploadJob(job);
@@ -297,18 +267,7 @@ export function useBuildChildJobs() {
   };
 }
 
-function calculateQuantities(materialQuantity, dataSetLength) {
-  const evenQuantity = Math.floor(materialQuantity / dataSetLength);
-  const remainingQuantity = materialQuantity % dataSetLength;
-  return { evenQuantity, remainingQuantity };
-}
-
-function addMaterialToBuild(
-  material,
-  existingBuildRequests,
-  activeGroupID,
-  parentJobID
-) {
+function addMaterialToBuild(material, activeGroupID, parentJobID) {
   const newObject = {
     name: material.name,
     itemID: material.typeID,
@@ -317,84 +276,25 @@ function addMaterialToBuild(
     childJobs: [],
     groupID: activeGroupID,
   };
-  const newBuildRequests = [...existingBuildRequests, newObject];
 
-  return newBuildRequests;
+  return newObject;
 }
 
-function updateMaterialToBuild(material, existingBuildRequests, parentJobID) {
-  const newBuildRequests = [...existingBuildRequests];
+function updateMaterialToBuild(material, existingBuildObject, parentJobID) {
+  existingBuildObject.parentJobs.add(parentJobID);
+  existingBuildObject.itemQty += material.quantity;
 
-  const entry = newBuildRequests.find((i) => i.itemID === material.typeID);
-
-  entry.parentJobs.add(parentJobID);
-  entry.itemQty += material.quantity;
-
-  return newBuildRequests;
+  return existingBuildObject;
 }
 
-function addNewModifiedEntry(
-  material,
-  existingModifiedEntries,
-  originalEntries,
-  parentJobID
-) {
-  const entriesToMove = originalEntries.filter(
-    (i) => i.itemID === material.typeID
-  );
-
-  const { evenQuantity, remainingQuantity } = calculateQuantities(
-    material.quantity,
-    entriesToMove.length
-  );
-
-  entriesToMove.forEach((entry) => {
-    entry.itemQty += evenQuantity;
-    entry.parentJobIDs.add(parentJobID);
-  });
-
-  entriesToMove[0].itemQty += remainingQuantity;
-
-  return [...existingModifiedEntries, ...entriesToMove];
-}
-
-function updateModifiedEntry(material, existingModified, parentJobID) {
-  const entriesToUpdate = existingModified.filter(
-    (i) => i.itemID === material.typeID
-  );
-
-  const { evenQuantity, remainingQuantity } = calculateQuantities(
-    material.quantity,
-    entriesToUpdate.length
-  );
-
-  entriesToUpdate.forEach((entry) => {
-    entry.itemQty += evenQuantity;
-    entry.parentJobIDs.add(parentJobID);
-  });
-
-  entriesToUpdate[0].itemQty += remainingQuantity;
-
-  const newExistingModified = existingModified.filter(
-    (i) => i.itemID !== material.typeID
-  );
-
-  return [...newExistingModified, ...entriesToUpdate];
-}
-
-function removeExistingEntry(material, existingData) {
-  return existingData.filter((i) => i.itemID !== material.typeID);
-}
 function linkNewJobsToParent(newJobs, jobArray) {
-  for (let newJob of newJobs) {
-    for (let parentJobID of newJob.parentJob) {
+  for (let { parentJob, jobID, itemID } of newJobs) {
+    for (let parentJobID of parentJob) {
       let parentMatch = jobArray.find((i) => i.jobID === parentJobID);
-      let materialMatch = parentMatch.build.materials.find(
-        (i) => i.typeID === newJob.itemID
-      );
+      if (!parentMatch) continue;
 
-      materialMatch.childJob = [
-        ...new Set([newJob.jobID], materialMatch.childJob),
+      parentMatch.build.childJobs[itemID] = [
+        ...new Set([...parentMatch.build.childJobs[itemID], jobID]),
       ];
     }
   }

@@ -652,7 +652,7 @@ export function useGroupManagement() {
           jobID,
           userJobSnapshot,
           newJobArray,
-          undefined,
+          groupArray,
           "groupJob"
         );
         if (!job) {

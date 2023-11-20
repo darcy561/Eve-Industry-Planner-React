@@ -29,10 +29,14 @@ export function useInstallCostsCalc() {
   const SCC_SURCHARGE = 1.5;
   const ALPHA_CLONE_TAX = 0.25;
 
-  async function calculateInstallCostFromJob(inputSetup) {
+  async function calculateInstallCostFromJob(
+    inputSetup,
+    additionalMaterialPrices
+  ) {
     const estimatedItemValue = estimatedItemPriceCalc(
       inputSetup.materialCount,
-      inputSetup.jobCount
+      inputSetup.jobCount,
+      additionalMaterialPrices
     );
 
     const facilityModifier = findFacilityModifier(
@@ -77,7 +81,10 @@ export function useInstallCostsCalc() {
       const updatedSystemIndexData = await findMissingSystemIndex(
         requiredSystemID
       );
-      updateSystemIndexData(updatedSystemIndexData);
+      if (updateSystemIndexData) {
+        updateSystemIndexData(updatedSystemIndexData);
+      }
+
       return (
         updatedSystemIndexData[requiredSystemID]?.[jobTypeMapping[jobType]] || 0
       );
@@ -86,20 +93,31 @@ export function useInstallCostsCalc() {
     return installCost;
   }
 
-  function estimatedItemPriceCalc(materialArray, jobCount) {
+  function estimatedItemPriceCalc(materialArray, jobCount, pricesArray) {
     return Math.ceil(
       Object.values(materialArray).reduce((preValue, material) => {
         return (preValue += estimatedMaterialPriceCalc(
           material.quantity / jobCount,
-          material.typeID
+          material.typeID,
+          pricesArray
         ));
       }, 0)
     );
   }
 
-  function estimatedMaterialPriceCalc(materialQuantity, materialTypeID) {
+  function estimatedMaterialPriceCalc(
+    materialQuantity,
+    materialTypeID,
+    pricesArray
+  ) {
+    if (!pricesArray) {
+      pricesArray = [];
+    }
+
+    const mergedPriceArray = [...pricesArray, ...evePrices];
     const adjustedPrice =
-      evePrices.find((i) => i.typeID === materialTypeID)?.adjustedPrice || 0;
+      mergedPriceArray.find((i) => i.typeID === materialTypeID)
+        ?.adjustedPrice || 0;
 
     return materialQuantity * adjustedPrice;
   }

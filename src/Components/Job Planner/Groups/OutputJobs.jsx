@@ -14,16 +14,14 @@ import {
 } from "@mui/material";
 import { ActiveJobContext } from "../../../Context/JobContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
-import { useOpenEditJob } from "../../../Hooks/JobHooks/useOpenEditJob";
-import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
 import GLOBAL_CONFIG from "../../../global-config-app";
+import { useNavigate } from "react-router-dom";
 
 export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(ActiveJobContext);
-  const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
   const [outputJobs, updateOutputJobs] = useState([]);
   const { calculateCurrentJobBuildCostFromChildren } = useGroupManagement();
-  const { openEditJob } = useOpenEditJob();
+  const navigate = useNavigate();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   useEffect(() => {
@@ -155,8 +153,7 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
                         <CardActions>
                           <Button
                             onClick={() => {
-                              openEditJob(job.jobID);
-                              updateEditJobTrigger((prev) => !prev);
+                              navigate(`/editJob/${job.jobID}`);
                             }}
                           >
                             View

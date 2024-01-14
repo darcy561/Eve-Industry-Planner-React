@@ -12,8 +12,8 @@ export function useMissingSystemIndex() {
 
     const requiredIDsSet = new Set(requiredIDs);
     const availableIDs = new Set(Object.keys(systemIndexData));
-    const missingIDs = []
-    
+    const missingIDs = [];
+
     for (const id of requiredIDsSet) {
       if (!availableIDs.has(String(id))) {
         missingIDs.push(id);
@@ -21,7 +21,7 @@ export function useMissingSystemIndex() {
     }
 
     if (missingIDs.length === 0) {
-      return systemIndexData;
+      return { ...systemIndexData };
     }
 
     const fetchInput = missingIDs.length === 1 ? missingIDs[0] : missingIDs;

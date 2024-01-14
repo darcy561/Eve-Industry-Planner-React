@@ -11,6 +11,9 @@ const {
 } = require("./sharedFunctions/fetchMarketHistory");
 const { checkAppVersion } = require("./Middleware/appVersion");
 const { GLOBAL_CONFIG } = require("./global-config-functions");
+const {
+  BuildMissingSystemIndexValue,
+} = require("./sharedFunctions/misingSystemIndexValue");
 
 const { DEFAULT_MARKET_LOCATIONS } = GLOBAL_CONFIG;
 
@@ -49,7 +52,7 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
   }
   try {
     const authToken = await admin.auth().createCustomToken(req.body.UID);
-    functions.logger.log(`${req.body.UID} Token Generated, Log In Successful`);
+    functions.logger.log(`FB Auth Token Generated - ${req.body.UID}`);
     return res.status(200).send({
       access_token: authToken,
     });
@@ -338,8 +341,9 @@ app.get("/systemindexes/:systemID", async (req, res) => {
       .ref(`live-data/system-indexes/${systemID}`)
       .once("value");
 
-    if (!idData) {
-      res.status(404).send("No System Data Found");
+    if (!JSON.stringify(idData)) {
+      functions.logger.log(`No System Data Found - ${systemID}`);
+      res.status(200).send(BuildMissingSystemIndexValue(systemID));
     }
 
     res.status(200).send(idData);
@@ -370,6 +374,12 @@ app.post("/systemindexes", async (req, res) => {
         results[itemData.solar_system_id] = itemData;
       }
     }
+
+    idArray.forEach((i) => {
+      if (!results[i]) {
+        results[i] = BuildMissingSystemIndexValue(i);
+      }
+    });
 
     const returnData = Object.values(results);
 

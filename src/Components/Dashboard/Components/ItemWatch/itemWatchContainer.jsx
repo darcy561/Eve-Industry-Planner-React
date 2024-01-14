@@ -9,6 +9,8 @@ export function WatchlistContainer({
   updateGroupSettingsTrigger,
   groupSettingsContent,
   updateGroupSettingsContent,
+  setOpenDialog,
+  updateWatchlistItemToEdit,
 }) {
   const { userWatchlist } = useContext(UserWatchlistContext);
 
@@ -48,7 +50,13 @@ export function WatchlistContainer({
               align="center"
               sx={{ typography: { xs: "caption", sm: "body2" } }}
             >
-              Total Material Purchase Cost Per Item (
+              Total Est Build Cost Per Item
+            </Typography>
+            <Typography
+              align="center"
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+            >
+              (
               {parentUser.settings.editJob.defaultOrders
                 .charAt(0)
                 .toUpperCase() +
@@ -61,7 +69,13 @@ export function WatchlistContainer({
               align="center"
               sx={{ typography: { xs: "caption", sm: "body2" } }}
             >
-              Total Material Cost To Build Child Jobs Per Item (
+              Total Est Build Cost With Child Jobs Per Item
+            </Typography>
+            <Typography
+              align="center"
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+            >
+              (
               {parentUser.settings.editJob.defaultOrders
                 .charAt(0)
                 .toUpperCase() +
@@ -81,6 +95,8 @@ export function WatchlistContainer({
               updateGroupSettingsTrigger={updateGroupSettingsTrigger}
               updateGroupSettingsContent={updateGroupSettingsContent}
               groupSettingsContent={groupSettingsContent}
+              setOpenDialog={setOpenDialog}
+              updateWatchlistItemToEdit={updateWatchlistItemToEdit}
             />
           );
         })}
@@ -93,6 +109,8 @@ export function WatchlistContainer({
                 item={item}
                 parentUser={parentUser}
                 index={index}
+                setOpenDialog={setOpenDialog}
+                updateWatchlistItemToEdit={updateWatchlistItemToEdit}
               />
             );
           }

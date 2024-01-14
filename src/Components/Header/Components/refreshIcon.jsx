@@ -29,7 +29,7 @@ export function RefreshApiIcon() {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
-  const { serverStatus, IDtoName } = useEveApi();
+  const { serverStatus, fetchUniverseNames } = useEveApi();
   const {
     buildApiArray,
     characterAPICall,
@@ -118,9 +118,7 @@ export function RefreshApiIcon() {
         let userHistOrders = esiHistOrders.find(
           (i) => i.user === user.CharacterHash
         )?.data;
-        let corpJobs = corpEsiIndJobs.find(
-          (i) => i.user === user.CharacterHash
-        )?.data;
+        let corpJobs = corpEsiIndJobs.get(user.CharacterHash);
         let userCorpOrders = corpEsiOrders.find(
           (i) => i.user === user.CharacterHash
         )?.data;
@@ -169,12 +167,12 @@ export function RefreshApiIcon() {
         });
 
         if ([...citadelIDs].length > 0) {
-          let tempCit = IDtoName([...citadelIDs], user);
+          let tempCit = fetchUniverseNames([...citadelIDs], user);
           newIDNamePromises.push(tempCit);
         }
       }
       if ([...locationIDS].length > 0) {
-        let tempLoc = IDtoName([...locationIDS], parentUser);
+        let tempLoc = fetchUniverseNames([...locationIDS], parentUser);
         newIDNamePromises.push(tempLoc);
       }
 
@@ -219,7 +217,7 @@ export function RefreshApiIcon() {
   }, [refreshTrigger]);
 
   if (!loginInProgressComplete) {
-    return null
+    return null;
   }
 
   if (refreshState === 1) {

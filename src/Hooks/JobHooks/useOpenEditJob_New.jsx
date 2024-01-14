@@ -114,8 +114,23 @@ export function useOpenEditJob_New() {
         }
       }
 
+      const systemIndexesRequired = Object.values(openJob.build.setup).reduce(
+        (prev, setup) => {
+          return new Set([...prev, [setup.systemID]]);
+        },
+        new Set()
+      );
+
+      const updatedSystemIndexData = await findMissingSystemIndex([
+        ...systemIndexesRequired,
+      ]);
+
       for (let setup of Object.values(openJob.build.setup)) {
-        setup.estimatedInstallCost = await calculateInstallCostFromJob(setup);
+        setup.estimatedInstallCost = calculateInstallCostFromJob(
+          setup,
+          undefined,
+          updatedSystemIndexData
+        );
       }
 
       if (isLoggedIn) {
@@ -144,7 +159,7 @@ export function useOpenEditJob_New() {
         return;
       }
       let jobPrices = await getItemPrices([...itemIDs], parentUser);
-      await checkSystemIndexData(openJob);
+
       if (jobPrices.length > 0) {
         updateEvePrices((prev) => {
           const prevIds = new Set(prev.map((item) => item.typeID));
@@ -157,6 +172,7 @@ export function useOpenEditJob_New() {
       updateJobArray(newJobArray);
       updateUserJobSnapshot(newUserJobSnapshot);
       updateActiveJob(openJob.jobID);
+      updateSystemIndexData(updatedSystemIndexData);
       updatePageLoad(false);
       updateLoadingText((prevObj) => ({
         ...prevObj,
@@ -182,17 +198,10 @@ export function useOpenEditJob_New() {
       }
       return openJob;
     } catch (err) {
-      console.log(err)
+      console.log(err);
       return null;
     }
   };
 
-  async function checkSystemIndexData(inputJob) {
-    const updatedSystemIndexData = await findMissingSystemIndex(
-      inputJob.buildSystem
-    );
-    if (!updatedSystemIndexData) return;
-    updateSystemIndexData(updatedSystemIndexData);
-  }
   return { openEditJob };
 }

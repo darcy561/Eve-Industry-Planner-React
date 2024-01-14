@@ -8,7 +8,10 @@ export function LayoutSelector_EditJob_Planning({
   jobModified,
   setJobModified,
   temporaryChildJobs,
-  updateTemporaryChildJobs
+  updateTemporaryChildJobs,
+  esiDataToLink,
+  parentChildToEdit,
+  updateParentChildToEdit
 }) {
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
@@ -22,6 +25,9 @@ export function LayoutSelector_EditJob_Planning({
           setJobModified={setJobModified}
           temporaryChildJobs={temporaryChildJobs}
           updateTemporaryChildJobs={updateTemporaryChildJobs}
+          esiDataToLink={esiDataToLink}
+          parentChildToEdit={parentChildToEdit}
+          updateParentChildToEdit={updateParentChildToEdit}
         />
       );
     case false:
@@ -33,6 +39,9 @@ export function LayoutSelector_EditJob_Planning({
           setJobModified={setJobModified}
           temporaryChildJobs={temporaryChildJobs}
           updateTemporaryChildJobs={updateTemporaryChildJobs}
+          esiDataToLink={esiDataToLink}
+          parentChildToEdit={parentChildToEdit}
+          updateParentChildToEdit={updateParentChildToEdit}
         />
       );
     default:
@@ -44,6 +53,9 @@ export function LayoutSelector_EditJob_Planning({
           setJobModified={setJobModified}
           temporaryChildJobs={temporaryChildJobs}
           updateTemporaryChildJobs={updateTemporaryChildJobs}
+          esiDataToLink={esiDataToLink}
+          parentChildToEdit={parentChildToEdit}
+          updateParentChildToEdit={updateParentChildToEdit}
         />
       );
   }

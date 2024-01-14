@@ -1,16 +1,18 @@
 import { useContext, useMemo } from "react";
 import { Grid, Typography } from "@mui/material";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
+import { useInstallCostsCalc } from "../../../../Hooks/GeneralHooks/useInstallCostCalc";
 
 export function ExpandedWatchlistRow({ mat, parentUser }) {
   const { evePrices } = useContext(EvePricesContext);
+  const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
-  let matPrice = useMemo(
+  const matPrice = useMemo(
     () => evePrices.find((i) => i.typeID === mat.typeID),
     [evePrices]
   );
-  let matBuildPrice = useMemo(() => {
-    let buildPrice = 0;
+  const matBuildPrice = useMemo(() => {
+    let buildPrice = calculateInstallCostFromJob(mat?.buildData);
     mat.materials.forEach((x) => {
       let matBuildCalc = 0;
       let xPrice = evePrices.find((i) => i.typeID === x.typeID);

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { JobStatusContext } from "../../Context/JobContext";
+import { ActiveJobContext, JobStatusContext } from "../../Context/JobContext";
 import { useJobManagement } from "../../Hooks/useJobManagement";
 import {
   Avatar,
@@ -30,8 +30,9 @@ import { LayoutSelector_EditJob_Complete } from "./Edit Job Components/Complete/
 import { LayoutSelector_EditJob_Selling } from "./Edit Job Components/Selling/LayoutSelector";
 import { ShoppingListDialog } from "../Job Planner/Dialogues/ShoppingList/ShoppingList";
 
-export function EditJob_New() {
+export default function EditJob_New() {
   const { jobStatus } = useContext(JobStatusContext);
+  const { activeJob: activeJobID } = useContext(ActiveJobContext);
   const [activeJob, updateActiveJob] = useState(null);
   const [jobModified, setJobModified] = useState(false);
   const [temporaryChildJobs, updateTemporaryChildJobs] = useState({});
@@ -73,7 +74,7 @@ export function EditJob_New() {
       backupJob.current = deepCopyJobObject(matchedJob);
     }
     openJobProcess();
-  }, []);
+  }, [activeJobID]);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -114,6 +115,9 @@ export function EditJob_New() {
             setJobModified={setJobModified}
             temporaryChildJobs={temporaryChildJobs}
             updateTemporaryChildJobs={updateTemporaryChildJobs}
+            esiDataToLink={esiDataToLink}
+            parentChildToEdit={parentChildToEdit}
+            updateParentChildToEdit={updateParentChildToEdit}
           />
         );
       case 1:
@@ -124,6 +128,7 @@ export function EditJob_New() {
             setJobModified={setJobModified}
             parentChildToEdit={parentChildToEdit}
             updateParentChildToEdit={updateParentChildToEdit}
+            temporaryChildJobs={temporaryChildJobs}
           />
         );
       case 2:
@@ -156,10 +161,16 @@ export function EditJob_New() {
         );
       default:
         return (
-          <EditPage1
+          <LayoutSelector_EditJob_Planning
             activeJob={activeJob}
             updateActiveJob={updateActiveJob}
+            jobModified={jobModified}
             setJobModified={setJobModified}
+            temporaryChildJobs={temporaryChildJobs}
+            updateTemporaryChildJobs={updateTemporaryChildJobs}
+            esiDataToLink={esiDataToLink}
+            parentChildToEdit={parentChildToEdit}
+            updateParentChildToEdit={updateParentChildToEdit}
           />
         );
     }
@@ -223,6 +234,8 @@ export function EditJob_New() {
             setJobModified={setJobModified}
             parentChildToEdit={parentChildToEdit}
             updateParentChildToEdit={updateParentChildToEdit}
+            temporaryChildJobs={temporaryChildJobs}
+            esiDataToLink={esiDataToLink}
           />
         </Grid>
         <Grid item xs={12}>

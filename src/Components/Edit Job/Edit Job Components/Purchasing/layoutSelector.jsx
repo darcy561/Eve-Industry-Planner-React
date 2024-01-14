@@ -10,6 +10,7 @@ export function LayoutSelector_EditJob_Purchasing({
   setJobModified,
   parentChildToEdit,
   updateParentChildToEdit,
+  temporaryChildJobs
 }) {
   const { users } = useContext(UsersContext);
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -46,6 +47,7 @@ export function LayoutSelector_EditJob_Purchasing({
           ignoreInventionCosts={ignoreInventionCosts}
           parentChildToEdit={parentChildToEdit}
           updateParentChildToEdit={updateParentChildToEdit}
+          temporaryChildJobs={temporaryChildJobs}
         />
       );
 
@@ -63,6 +65,7 @@ export function LayoutSelector_EditJob_Purchasing({
           ignoreInventionCosts={ignoreInventionCosts}
           parentChildToEdit={parentChildToEdit}
           updateParentChildToEdit={updateParentChildToEdit}
+          temporaryChildJobs={temporaryChildJobs}
         />
       );
     default:
@@ -79,6 +82,7 @@ export function LayoutSelector_EditJob_Purchasing({
           ignoreInventionCosts={ignoreInventionCosts}
           parentChildToEdit={parentChildToEdit}
           updateParentChildToEdit={updateParentChildToEdit}
+          temporaryChildJobs={temporaryChildJobs}
         />
       );
   }

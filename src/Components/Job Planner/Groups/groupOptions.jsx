@@ -12,6 +12,7 @@ import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultiple
 import { GroupOptionsDropDown } from "./groupOptionsDropdown";
 import { useBuildChildJobs } from "../../../Hooks/GroupHooks/useBuildChildJobs";
 import { useBuildFullJobTree } from "../../../Hooks/GroupHooks/useBuildFullJobTree";
+import { useJobManagement } from "../../../Hooks/useJobManagement";
 
 export function GroupOptionsBar({
   groupJobs,
@@ -21,16 +22,18 @@ export function GroupOptionsBar({
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { updateShoppingListTrigger, updateShoppingListData } = useContext(ShoppingListContext);
+  const { updateShoppingListTrigger, updateShoppingListData } =
+    useContext(ShoppingListContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
   const { activeGroup } = useContext(ActiveJobContext);
   const { groupArray } = useContext(JobArrayContext);
+  const { buildItemPriceEntry } = useJobManagement();
   const { buildFullJobTree } = useBuildFullJobTree();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { buildChildJobs } = useBuildChildJobs();
 
-  let activeGroupObject = groupArray.find((i)=> i.groupID === activeGroup)
+  let activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
 
   return (
     <Paper
@@ -59,7 +62,9 @@ export function GroupOptionsBar({
                   if (multiSelectJobPlanner.length > 0) {
                     updateShoppingListData(multiSelectJobPlanner);
                   } else {
-                    updateShoppingListData([...activeGroupObject.includedJobIDs]);
+                    updateShoppingListData([
+                      ...activeGroupObject.includedJobIDs,
+                    ]);
                   }
                   updateShowProcessing((prev) => !prev);
                   updateShoppingListTrigger((prev) => !prev);

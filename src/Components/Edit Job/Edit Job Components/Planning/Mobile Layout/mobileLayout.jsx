@@ -16,7 +16,10 @@ export function Planning_MobileLayout_EditJob({
   jobModified,
   setJobModified,
   temporaryChildJobs,
-  updateTemporaryChildJobs
+  updateTemporaryChildJobs,
+  esiDataToLink,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
   const [setupToEdit, updateSetupToEdit] = useState(
     activeJob.layout?.setupToEdit ||
@@ -24,10 +27,10 @@ export function Planning_MobileLayout_EditJob({
       null
   );
   return (
-    <Grid container spacing={2} sx={{marginTop: "10px"}}>
+    <Grid container spacing={2} sx={{ marginTop: "10px" }}>
       <TutorialStep1 activeJob={activeJob} />
       <Grid item xs={12}>
-        <ProductionStats activeJob={activeJob} setupToEdit={setupToEdit} />
+        <ProductionStats activeJob={activeJob} setupToEdit={setupToEdit} parentChildToEdit={parentChildToEdit} />
         <JobSetupPanel
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
@@ -52,6 +55,11 @@ export function Planning_MobileLayout_EditJob({
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
           setupToEdit={setupToEdit}
+          setJobModified={setJobModified}
+          temporaryChildJobs={temporaryChildJobs}
+          updateTemporaryChildJobs={updateTemporaryChildJobs}
+          parentChildToEdit={parentChildToEdit}
+          updateParentChildToEdit={updateParentChildToEdit}
         />
         <MaterialCostPanel
           activeJob={activeJob}
@@ -61,6 +69,9 @@ export function Planning_MobileLayout_EditJob({
           setupToEdit={setupToEdit}
           temporaryChildJobs={temporaryChildJobs}
           updateTemporaryChildJobs={updateTemporaryChildJobs}
+          esiDataToLink={esiDataToLink}
+          parentChildToEdit={parentChildToEdit}
+          updateParentChildToEdit={updateParentChildToEdit}
         />
         <ArchiveJobsPanel activeJob={activeJob} />
         <SkillsPanel activeJob={activeJob} setupToEdit={setupToEdit} />

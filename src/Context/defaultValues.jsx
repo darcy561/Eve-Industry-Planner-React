@@ -413,6 +413,7 @@ export let defaultEsiJournal = [
   },
 ];
 export let defaultEsiAssets = [];
+
 export let defaultEsiStandings = [
   {
     user: "ABC123",
@@ -452,8 +453,7 @@ export let usersDefault = [
   },
 ];
 
-export let apiOrdersDefault = [
-];
+export let apiOrdersDefault = [];
 
 export let eveIDsDefault = [
   {
@@ -480,7 +480,7 @@ export let jobTypes = {
   pi: 3,
 };
 
-export let blueprintOptions = {
+export const blueprintOptions = {
   me: [
     { value: 0, label: "0" },
     { value: 1, label: "1" },
@@ -508,13 +508,37 @@ export let blueprintOptions = {
     { value: 10, label: "20" },
   ],
 };
-export let structureOptions = {
+export const structureOptions = {
   manStructure: {
-    0: { id: 0, label: "NPC Station", material: 0, time: 0, cost: 0, defaultTax: 0.25 },
+    0: {
+      id: 0,
+      label: "NPC Station",
+      material: 0,
+      time: 0,
+      cost: 0,
+      requirements: {
+        taxValue: 0.25,
+        rigID: 0,
+      },
+    },
     1: { id: 1, label: "Medium", material: 1, time: 0.15, cost: 0.03 },
     2: { id: 2, label: "Large", material: 1, time: 0.2, cost: 0.04 },
     3: { id: 3, label: "X-Large", material: 1, time: 0.3, cost: 0.05 },
+    4: {
+      id: 4,
+      label: "The Fulcrum",
+      material: 1.06,
+      time: 0.7,
+      cost: 0.9,
+      requirements: {
+        rigID: 0,
+        systemTypeID: 3,
+        systemID: 30100000,
+        taxValue: 42,
+      },
+    },
   },
+
   manRigs: {
     0: { id: 0, label: "None", material: 0, time: 0 },
     1: { id: 1, label: "T1 - ME", material: 2.0, time: 0 },
@@ -526,10 +550,22 @@ export let structureOptions = {
     7: { id: 7, label: "T1 - ME, T2 - TE ", material: 2.0, time: 0.24 },
     8: { id: 8, label: "T2 - ME, T1 - TE", material: 2.4, time: 0.2 },
   },
+
   manSystem: {
     0: { id: 0, label: "High Sec", value: 1 },
     1: { id: 1, label: "Low Sec", value: 1.9 },
     2: { id: 2, label: "Null Sec / WH", value: 2.1 },
+    3: {
+      id: 3,
+      label: "Zarzakh",
+      value: 1,
+      requirements: {
+        rigID: 0,
+        structureID: 4,
+        systemID: 30100000,
+        taxValue: 42,
+      },
+    },
   },
   reactionSystem: {
     0: { id: 0, label: "Low Sec", value: 1 },
@@ -550,4 +586,24 @@ export let structureOptions = {
     7: { id: 7, label: "T1 - ME, T2 - TE ", material: 2.0, time: 0.24 },
     8: { id: 8, label: "T2 - ME, T1 - TE", material: 2.4, time: 0.2 },
   },
+};
+
+export const ancientRelicIDs = new Set([
+  30614, 30615, 30618, 30599, 30600, 30605, 30582, 30586, 30588, 30752, 30753,
+  34412, 34414, 34416, 30754, 30628, 30632, 30633, 30187, 30558, 30562,
+]);
+
+export const STATIONID_RANGE = {
+  low: 60000000,
+  high: 64000000,
+};
+
+export const SYSTEMID_RANGE = {
+  low: 30000000,
+  high: 32000000,
+};
+
+export const TWO_DECIMAL_PLACES = {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 };

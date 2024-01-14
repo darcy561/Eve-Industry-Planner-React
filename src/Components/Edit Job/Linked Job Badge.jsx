@@ -13,7 +13,9 @@ import { JobArrayContext } from "../../Context/JobContext";
 import { ParentJobDialog } from "./parentJobDialog";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../../Context/AuthContext";
-import { useSwitchActiveJob } from "../../Hooks/JobHooks/useSwitchActiveJob";
+import { useCloseActiveJob } from "../../Hooks/JobHooks/useCloseActiveJob";
+import { useNavigate } from "react-router-dom";
+import { useJobManagement } from "../../Hooks/useJobManagement";
 
 export function LinkedJobBadge({
   activeJob,
@@ -22,12 +24,17 @@ export function LinkedJobBadge({
   setJobModified,
   parentChildToEdit,
   updateParentChildToEdit,
+  temporaryChildJobs,
+  esiDataToLink,
 }) {
   const { jobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const [dialogTrigger, updateDialogTrigger] = useState(false);
-  const { switchActiveJob } = useSwitchActiveJob();
+  const { closeActiveJob } = useCloseActiveJob();
+  const { Add_RemovePendingParentJobs } = useJobManagement();
+
+  const navigate = useNavigate();
 
   function findParent(inputID) {
     if (!activeJob.groupID) {
@@ -36,6 +43,14 @@ export function LinkedJobBadge({
       return jobArray.find((i) => i.jobID === inputID);
     }
   }
+
+  const parentJobSelection = [
+    ...new Set(
+      [...activeJob.parentJob, ...parentChildToEdit.parentJobs.add].filter(
+        (i) => !parentChildToEdit.parentJobs.remove.includes(i)
+      )
+    ),
+  ];
 
   return (
     <>
@@ -74,7 +89,7 @@ export function LinkedJobBadge({
             <AddIcon />
           </IconButton>
 
-          {activeJob.parentJob.map((jobID) => {
+          {parentJobSelection.map((jobID) => {
             let parent = findParent(jobID);
             if (!parent) return null;
             return (
@@ -97,7 +112,14 @@ export function LinkedJobBadge({
                   }
                   clickable
                   onClick={async () => {
-                    await switchActiveJob(activeJob, parent.jobID, jobModified);
+                    await closeActiveJob(
+                      activeJob,
+                      jobModified,
+                      temporaryChildJobs,
+                      esiDataToLink,
+                      parentChildToEdit
+                    );
+                    navigate(`/editjob/${parent.jobID}`);
                   }}
                   variant="outlined"
                   sx={{
@@ -107,30 +129,19 @@ export function LinkedJobBadge({
                     boxShadow: 3,
                   }}
                   onDelete={() => {
-                    const newParentJobsToAdd = new Set(
-                      parentChildToEdit.parentJobs.add
-                    );
-                    const newParentJobsToRemove = new Set(
-                      parentChildToEdit.parentJobs.remove
-                    );
-                    newParentJobsToAdd.delete(jobID);
-                    newParentJobsToRemove.add(jobID);
-
-                    const newParentJobs = activeJob.parentJob.filter(
-                      (i) => i !== jobID
-                    );
-
+                    const { newParentJobsToAdd, newParentJobsToRemove } =
+                      Add_RemovePendingParentJobs(
+                        parentChildToEdit.parentJobs,
+                        jobID,
+                        false
+                      );
                     updateParentChildToEdit((prev) => ({
                       ...prev,
                       parentJobs: {
                         ...prev.parentJobs,
-                        add: [...newParentJobsToAdd],
-                        remove: [...newParentJobsToRemove],
+                        add: newParentJobsToAdd,
+                        remove: newParentJobsToRemove,
                       },
-                    }));
-                    updateActiveJob((prev) => ({
-                      ...prev,
-                      parentJob: newParentJobs,
                     }));
 
                     setSnackbarData((prev) => ({

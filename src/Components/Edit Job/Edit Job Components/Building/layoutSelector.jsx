@@ -23,21 +23,34 @@ export function LayoutSelector_EditJob_Building({
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
   const jobMatches = useMemo(() => {
-    return apiJobs.filter(
-      (job) =>
+    const uniqueJobIds = new Set(); 
+  
+    return apiJobs.filter((job) => {
+      const isDuplicate = uniqueJobIds.has(job.job_id);
+
+      if (!isDuplicate) {
+        uniqueJobIds.add(job.job_id);
+      }
+
+      return (
+        !isDuplicate &&
         activeJob.itemID === job.product_type_id &&
         !activeJob.apiJobs.has(job.job_id) &&
         !linkedJobIDs.includes(job.job_id) &&
         !parentUser.linkedJobs.has(job.job_id)
-    );
+      );
+    });
   }, [apiJobs, activeJob, linkedJobIDs, parentUser]);
+  
+
+  console.log(jobMatches)
 
   switch (deviceNotMobile) {
     case true:
       return (
         <Building_StandardLayout_EditJob
           activeJob={activeJob}
-          updateActiveJob={updateActiveJob}
+          updateActiveJob={updateActiveJob} 
           setJobModified={setJobModified}
           parentUser={parentUser}
           jobMatches={jobMatches}

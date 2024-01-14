@@ -12,10 +12,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
 import { jobTypes } from "../../../../Context/defaultValues";
-import {
-  JobPlannerPageTriggerContext,
-  MultiSelectJobPlannerContext,
-} from "../../../../Context/LayoutContext";
+import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
 import GroupStep2JobCard from "./JobCards/groupStep2";
 import GroupStep3JobCard from "./JobCards/GroupStep3";
 import GroupStep4JobCard from "./JobCards/groupStep4";
@@ -23,8 +20,10 @@ import GroupStep5JobCard from "./JobCards/groupStep5";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
-import { ActiveJobContext, JobArrayContext } from "../../../../Context/JobContext";
-import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
+import {
+  ActiveJobContext,
+  JobArrayContext,
+} from "../../../../Context/JobContext";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import GroupStep1JobCard from "./JobCards/groupStep1";
 import { useNavigate } from "react-router-dom";
@@ -50,10 +49,8 @@ export function ClassicGroupJobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
   const { activeGroup } = useContext(ActiveJobContext);
-  const { groupArray } = useContext(JobArrayContext);  
-  const { openEditJob } = useOpenEditJob();
+  const { groupArray } = useContext(JobArrayContext);
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.jobCard,

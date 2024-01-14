@@ -26,7 +26,7 @@ export function LinkedTransactionPanel({
 }) {
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { esiCorpData } = useContext(CorpEsiDataContext);
+  const { corpEsiData } = useContext(CorpEsiDataContext);
   const [newTransactionTrigger, updateNewTransactionTrigger] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -107,9 +107,8 @@ export function LinkedTransactionPanel({
                 const charData = users.find(
                   (i) => i.CharacterHash === tData.CharacterHash
                 );
-                const corpData = esiCorpData.find(
-                  (i) => i.corporation_id === charData?.corporation_id
-                );
+                const corpData = corpEsiData.get(charData?.corporation_id);
+
                 if (!activeOrder.some((t) => t !== tData.location_id)) {
                   return (
                     <Grid
@@ -227,13 +226,17 @@ export function LinkedTransactionPanel({
                               activeJob.apiTransactions
                             );
 
-                            const newDataToLink = new Set(esiDataToLink.transactions.add)
-                            const newDataToUnlink = new Set(esiDataToLink.transactions.remove)
+                            const newDataToLink = new Set(
+                              esiDataToLink.transactions.add
+                            );
+                            const newDataToUnlink = new Set(
+                              esiDataToLink.transactions.remove
+                            );
 
                             newTransArray.splice(index, 1);
                             newApiTransactions.delete(tData.transaction_id);
-                            newDataToLink.delete(tData.transaction_id)
-                              newDataToUnlink.add(tData.transaction_id)
+                            newDataToLink.delete(tData.transaction_id);
+                            newDataToUnlink.add(tData.transaction_id);
 
                             updateEsiDataToLink((prev) => ({
                               ...prev,

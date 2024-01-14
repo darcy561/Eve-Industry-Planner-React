@@ -1,9 +1,11 @@
 import { useCallback, useContext } from "react";
 import { Grid, Paper, Typography } from "@mui/material";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
+import { UserJobSnapshotContext } from "../../../../../../Context/AuthContext";
 
-export function ProductionStats({ activeJob, setupToEdit }) {
+export function ProductionStats({ activeJob, setupToEdit, parentChildToEdit }) {
   const { jobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
 
   function timeDisplay() {
     let returnArray = [];
@@ -41,9 +43,18 @@ export function ProductionStats({ activeJob, setupToEdit }) {
     };
 
     let total = 0;
-    for (let jobID of activeJob.parentJob) {
+
+    const parentJobSelection = [
+      ...new Set(
+        [...activeJob.parentJob, ...parentChildToEdit.parentJobs.add].filter(
+          (i) => !parentChildToEdit.parentJobs.remove.includes(i)
+        )
+      ),
+    ];
+
+    for (let jobID of parentJobSelection) {
       const job = jobArray.find((i) => i.jobID === jobID);
-      if (!job) continue;
+
       const material = job.build.materials.find(
         (i) => i.typeID === activeJob.itemID
       );
@@ -65,7 +76,9 @@ export function ProductionStats({ activeJob, setupToEdit }) {
       }
     }
     return returnObject;
-  }, [jobArray]);
+  }, [jobArray, parentChildToEdit]);
+
+  if (!activeJob.build.setup[setupToEdit]) return null;
 
   const timeDisplayFigure = timeDisplay();
   const parentRequirements = calculateParentRequirements();

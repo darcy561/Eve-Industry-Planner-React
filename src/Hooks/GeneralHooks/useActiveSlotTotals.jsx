@@ -27,7 +27,7 @@ export function useActiveSlotTotals() {
     const userIndJobs =
       esiIndJobs.find((i) => i.user === CharacterHash)?.data || [];
     const userCorpIndJobs =
-      corpEsiIndJobs.find((i) => i.user === CharacterHash)?.data || [];
+      corpEsiIndJobs.get(CharacterHash)?.data || [];
     const userSkills =
       esiSkills.find((i) => i.user === CharacterHash)?.data || [];
 

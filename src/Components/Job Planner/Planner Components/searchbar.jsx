@@ -19,6 +19,7 @@ import {
   JobPlannerPageTriggerContext,
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
+  ShoppingListContext,
 } from "../../../Context/LayoutContext";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { SisiDataFilesContext } from "../../../Context/EveDataContext";
@@ -28,10 +29,7 @@ import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultiple
 import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
 import GLOBAL_CONFIG from "../../../global-config-app";
 
-export function SearchBar({
-  updateShoppingListTrigger,
-  updateShoppingListData,
-}) {
+export function SearchBar() {
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
   const { DataExchange } = useContext(DataExchangeContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
@@ -42,6 +40,8 @@ export function SearchBar({
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateShoppingListTrigger, updateShoppingListData } =
+    useContext(ShoppingListContext);
   const { updateGroupArray } = useContext(JobArrayContext);
   const { updateActiveGroup } = useContext(ActiveJobContext);
   const {
@@ -412,7 +412,7 @@ export function SearchBar({
                   let newGroup = await createNewGroupWithJobs(
                     multiSelectJobPlanner
                   );
-                  updateGroupArray((prev)=> [...prev, newGroup])
+                  updateGroupArray((prev) => [...prev, newGroup]);
                   updateActiveGroup(newGroup.groupID);
                   updateMultiSelectJobPlanner([]);
                   updateEditGroupTrigger((prev) => !prev);

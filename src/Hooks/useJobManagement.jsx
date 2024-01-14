@@ -6,7 +6,6 @@ import {
 } from "../Context/LayoutContext";
 import { UserJobSnapshotContext, UsersContext } from "../Context/AuthContext";
 import {
-  ActiveJobContext,
   ApiJobsContext,
   JobArrayContext,
   LinkedIDsContext,
@@ -27,12 +26,12 @@ import { useEveApi } from "./useEveApi";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 import { useManageGroupJobs } from "./GroupHooks/useManageGroupJobs";
+import { STATIONID_RANGE } from "../Context/defaultValues";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -448,9 +447,10 @@ export function useJobManagement() {
         newJobArray
       );
       inputJob.build.materials.forEach((material) => {
+        const childJobs = inputJob.build.childJobs[material.typeID];
         if (
           material.quantityPurchased >= material.quantity ||
-          material.childJob.length > 0
+          childJobs.length > 0
         ) {
           return;
         }
@@ -713,10 +713,13 @@ export function useJobManagement() {
     r.stop();
   };
 
-  const calcBrokersFee = async (marketOrder) => {
+  async function calcBrokersFee(marketOrder) {
     let brokerFeePercentage = parentUser.settings.editJob.citadelBrokersFee;
 
-    if (marketOrder.location_id.toString().length < 10) {
+    if (
+      marketOrder.location_id >= STATIONID_RANGE.low &&
+      marketOrder.location_id <= STATIONID_RANGE.high
+    ) {
       const userSkills = esiSkills.find(
         (i) => i.user === marketOrder.CharacterHash
       )?.data;
@@ -741,15 +744,14 @@ export function useJobManagement() {
         0.02 * corpStanding;
     }
 
-    let brokersFee =
+    const brokersFee =
       (brokerFeePercentage / 100) *
       (marketOrder.price * marketOrder.volume_total);
-    brokersFee = Math.max(brokersFee, 100);
 
-    return brokersFee;
-  };
+    return Math.max(brokersFee, 100);
+  }
 
-  const lockUserJob = (CharacterHash, jobID, newUserJobSnapshot) => {
+  function lockUserJob(CharacterHash, jobID, newUserJobSnapshot) {
     let snapshot = newUserJobSnapshot.find((i) => i.jobID === jobID);
 
     snapshot.isLocked = true;
@@ -757,9 +759,9 @@ export function useJobManagement() {
     snapshot.lockedUser = CharacterHash;
 
     return newUserJobSnapshot;
-  };
+  }
 
-  const unlockUserJob = (newUserJobSnapshot, jobID) => {
+  function unlockUserJob(newUserJobSnapshot, jobID) {
     let snapshot = newUserJobSnapshot.find((i) => i.jobID === jobID);
 
     snapshot.isLocked = false;
@@ -767,14 +769,14 @@ export function useJobManagement() {
     snapshot.lockedUser = null;
 
     return newUserJobSnapshot;
-  };
+  }
 
-  const timeRemainingCalc = (inputTime) => {
-    let returnArray = [];
-    let now = Date.now();
-    let timeLeft = inputTime - now;
-    let day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    let hour = Math.floor(
+  function timeRemainingCalc(inputTime) {
+    const returnArray = [];
+    const now = Date.now();
+    const timeLeft = inputTime - now;
+    const day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hour = Math.floor(
       (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
     );
     let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
@@ -793,24 +795,23 @@ export function useJobManagement() {
     }
 
     return returnArray.join(" ");
-  };
+  }
 
-  const generatePriceRequestFromJob = (inputJob) => {
-    const { itemID, build } = inputJob;
+  function generatePriceRequestFromJob({ itemID, build }) {
     const materialTypeIDs = build.materials.map((mat) => mat.typeID);
     return [...new Set([itemID, ...materialTypeIDs])];
-  };
+  }
 
-  const generatePriceRequestFromSnapshot = (snapshot) => {
+  function generatePriceRequestFromSnapshot({ itemID, materialIDs }) {
     let priceIDRequest = new Set();
 
-    priceIDRequest.add(snapshot.itemID);
-    priceIDRequest = new Set([...priceIDRequest, ...snapshot.materialIDs]);
+    priceIDRequest.add(itemID);
+    priceIDRequest = new Set([...priceIDRequest, ...materialIDs]);
     return [...priceIDRequest];
-  };
+  }
 
-  const findBlueprintType = (blueprintID) => {
-    if (blueprintID === undefined) {
+  function findBlueprintType(blueprintID) {
+    if (!blueprintID) {
       return "bpc";
     }
 
@@ -828,7 +829,7 @@ export function useJobManagement() {
     }
 
     return "bp";
-  };
+  }
 
   function deepCopyJobObject(inputJob) {
     const newApiJobs = new Set(inputJob.apiJobs);
@@ -843,11 +844,102 @@ export function useJobManagement() {
     return deepCopy;
   }
 
+  function Add_RemovePendingChildJobs(
+    materialChildJobObject,
+    reqiredID,
+    isAdd
+  ) {
+    const newChildJobstoAdd = new Set(materialChildJobObject?.add);
+    const newChildJobsToRemove = new Set(materialChildJobObject?.remove);
+
+    if (isAdd) {
+      newChildJobstoAdd.add(reqiredID);
+      newChildJobsToRemove.delete(reqiredID);
+    } else {
+      newChildJobstoAdd.delete(reqiredID);
+      newChildJobsToRemove.add(reqiredID);
+    }
+    return {
+      newChildJobstoAdd: [...newChildJobstoAdd],
+      newChildJobsToRemove: [...newChildJobsToRemove],
+    };
+  }
+
+  function Add_RemovePendingParentJobs(parentJobObject, reqiredID, isAdd) {
+    const newParentJobsToAdd = new Set(parentJobObject.add);
+    const newParentJobsToRemove = new Set(parentJobObject.remove);
+
+    if (isAdd) {
+      newParentJobsToAdd.add(reqiredID);
+      newParentJobsToRemove.delete(reqiredID);
+    } else {
+      newParentJobsToAdd.delete(reqiredID);
+      newParentJobsToRemove.add(reqiredID);
+    }
+
+    return {
+      newParentJobsToAdd: [...newParentJobsToAdd],
+      newParentJobsToRemove: [...newParentJobsToRemove],
+    };
+  }
+
+  function findAllChildJobCountOrIDs(
+    childJobsFromJobObject,
+    temporaryChildJobObject,
+    parentChildCache
+  ) {
+
+    const childJobObjectCombinedIDs = Object.values(
+      childJobsFromJobObject
+    ).flat();
+
+    const temporaryChildJobObjectIDs = Object.values(
+      temporaryChildJobObject
+    ).flatMap(({ jobID }) => jobID);
+
+    const { parentCacheIDsToAdd, parentCacheIDsToRemove } = Object.values(
+      parentChildCache
+    ).reduce(
+      (prev, materialObject) => ({
+        parentCacheIDsToAdd: [
+          ...prev.parentCacheIDsToAdd,
+          ...materialObject.add,
+        ],
+        parentCacheIDsToRemove: [
+          ...prev.parentCacheIDsToRemove,
+          ...materialObject.remove,
+        ],
+      }),
+      {
+        parentCacheIDsToAdd: [],
+        parentCacheIDsToRemove: [],
+      }
+    );
+
+    const finalfilteredArray = [
+      ...new Set(
+        [
+          ...childJobObjectCombinedIDs,
+          ...temporaryChildJobObjectIDs,
+          ...parentCacheIDsToAdd,
+        ].filter((i) => !parentCacheIDsToRemove.includes(i))
+      ),
+    ];
+
+    return {
+      childJobIDs: finalfilteredArray,
+      childJobCount: finalfilteredArray.length,
+    };
+  }
+
   return {
+    Add_RemovePendingChildJobs,
+    Add_RemovePendingParentJobs,
     buildItemPriceEntry,
     buildShoppingList,
     calcBrokersFee,
     deepCopyJobObject,
+    findAllChildJobCountOrIDs,
     findBlueprintType,
     generatePriceRequestFromJob,
     generatePriceRequestFromSnapshot,

@@ -13,7 +13,6 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import { WatchListRow } from "./ItemRow";
 import { useContext, useState } from "react";
 import { UserWatchlistContext } from "../../../../Context/AuthContext";
-import { useFirebase } from "../../../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function WatchlistGroup({
@@ -22,10 +21,11 @@ export function WatchlistGroup({
   index,
   updateGroupSettingsTrigger,
   updateGroupSettingsContent,
+  setOpenDialog,
+  updateWatchlistItemToEdit,
 }) {
   const { userWatchlist, updateUserWatchlist } =
     useContext(UserWatchlistContext);
-  const { uploadUserWatchlist } = useFirebase();
   const [expandGroup, updateExpandGroup] = useState(group.expanded);
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
@@ -104,6 +104,8 @@ export function WatchlistGroup({
                   item={item}
                   parentUser={parentUser}
                   index={index}
+                  setOpenDialog={setOpenDialog}
+                  updateWatchlistItemToEdit={updateWatchlistItemToEdit}
                 />
               );
             } else return null;

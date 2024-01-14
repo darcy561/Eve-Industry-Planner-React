@@ -46,7 +46,7 @@ export function AvailableMarketOrdersTab({
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { esiCorpData } = useContext(CorpEsiDataContext);
+  const { corpEsiData } = useContext(CorpEsiDataContext);
   const { calcBrokersFee } = useJobManagement();
   const { findBrokersFeeEntry } = useMarketOrderFunctions();
   const analytics = getAnalytics();
@@ -72,9 +72,7 @@ export function AvailableMarketOrdersTab({
               (i) => i.CharacterHash === order.CharacterHash
             );
             const locationData = eveIDs.find((i) => i.id === order.location_id);
-            const corpData = esiCorpData.find(
-              (i) => i.corporation_id === charData?.corporation_id
-            );
+            const corpData = corpEsiData.get(charData?.corporation_id);
 
             return (
               <Grid

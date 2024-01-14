@@ -18,6 +18,7 @@ export function Purchasing_StandardLayout_EditJob({
   ignoreInventionCosts,
   parentChildToEdit,
   updateParentChildToEdit,
+  temporaryChildJobs
 }) {
   const { users } = useContext(UsersContext);
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -65,6 +66,7 @@ export function Purchasing_StandardLayout_EditJob({
                 marketDisplay={marketDisplay}
                 parentChildToEdit={parentChildToEdit}
                 updateParentChildToEdit={updateParentChildToEdit}
+                temporaryChildJobs={temporaryChildJobs}
               />
             );
           }

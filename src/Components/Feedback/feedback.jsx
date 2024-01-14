@@ -67,7 +67,7 @@ export function FeedbackIcon() {
         journal: esiJournal,
         assets: allAssets(),
         standings: esiStandings,
-        corpJobs: corpEsiIndJobs,
+        corpJobs: Array.from(corpEsiIndJobs.entries()),
       };
     };
 

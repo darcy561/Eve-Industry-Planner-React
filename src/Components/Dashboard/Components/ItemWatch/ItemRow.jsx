@@ -2,6 +2,7 @@ import {
   FormControl,
   FormHelperText,
   Grid,
+  Icon,
   IconButton,
   MenuItem,
   Paper,
@@ -23,14 +24,23 @@ import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { ExpandedWatchlistRow } from "./ItemRowExpanded";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { useJobBuild } from "../../../../Hooks/useJobBuild";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import { JobArrayContext } from "../../../../Context/JobContext";
 import { trace } from "firebase/performance";
 import { performance } from "../../../../firebase";
 import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
+import { useInstallCostsCalc } from "../../../../Hooks/GeneralHooks/useInstallCostCalc";
 
-export function WatchListRow({ item, parentUser, index }) {
+export function WatchListRow({
+  item,
+  parentUser,
+  index,
+  setOpenDialog,
+  updateWatchlistItemToEdit,
+}) {
   const [expanded, setExpanded] = useState(false);
   const { userWatchlist, updateUserWatchlist } =
     useContext(UserWatchlistContext);
@@ -49,10 +59,11 @@ export function WatchListRow({ item, parentUser, index }) {
   const { generatePriceRequestFromJob } = useJobManagement();
   const { newJobSnapshot } = useJobSnapshotManagement();
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { calculateInstallCostFromJob } = useInstallCostsCalc();
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");
 
-  const handleRemove = async () => {
+  async function handleRemove() {
     let newUserWatchlistItems = [...userWatchlist.items];
     newUserWatchlistItems.splice(index, 1);
     updateUserWatchlist((prev) => ({ ...prev, items: newUserWatchlistItems }));
@@ -67,9 +78,9 @@ export function WatchListRow({ item, parentUser, index }) {
       severity: "error",
       autoHideDuration: 2000,
     }));
-  };
+  }
 
-  const handleAdd = async () => {
+  async function handleAdd() {
     t.start();
     if (!checkAllowBuild) return;
 
@@ -77,7 +88,7 @@ export function WatchListRow({ item, parentUser, index }) {
       itemID: item.typeID,
     });
 
-    if (newJob === undefined) return;
+    if (!newJob) return;
 
     let promiseArray = [
       getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
@@ -113,11 +124,9 @@ export function WatchListRow({ item, parentUser, index }) {
       autoHideDuration: 3000,
     }));
     t.stop();
-  };
+  }
 
-  let buildCosts = useCallback(() => {
-    let totalPurchase = 0;
-    let totalBuild = 0;
+  const buildCosts = useCallback(() => {
     let missingItemCost = {
       jita: {
         buy: 0,
@@ -137,19 +146,22 @@ export function WatchListRow({ item, parentUser, index }) {
       mainItemPrice = missingItemCost;
     }
 
+    let totalBuild = calculateInstallCostFromJob(item?.buildData);
+    let totalPurchase = calculateInstallCostFromJob(item?.buildData);
+
     item.materials.forEach((mat) => {
       let itemPrice = evePrices.find((i) => i.typeID === mat.typeID);
 
       if (itemPrice === undefined) {
         itemPrice = missingItemCost;
       }
-
       totalPurchase +=
         (itemPrice[parentUser.settings.editJob.defaultMarket][
           parentUser.settings.editJob.defaultOrders
         ] *
           mat.quantity) /
         item.quantity;
+
       if (mat.materials.length === 0) {
         totalBuild +=
           itemPrice[parentUser.settings.editJob.defaultMarket][
@@ -157,7 +169,8 @@ export function WatchListRow({ item, parentUser, index }) {
           ] * mat.quantity;
         return;
       }
-      let matBuild = 0;
+      let matBuild = calculateInstallCostFromJob(mat?.buildData);
+      // let matBuild = 0
       mat.materials.forEach((cMat) => {
         let itemCPrice = evePrices.find((i) => i.typeID === cMat.typeID);
         matBuild +=
@@ -165,6 +178,7 @@ export function WatchListRow({ item, parentUser, index }) {
             parentUser.settings.editJob.defaultOrders
           ] * cMat.quantity;
       });
+
       matBuild = matBuild / mat.quantityProduced;
       totalBuild += matBuild * mat.quantity;
     });
@@ -198,10 +212,22 @@ export function WatchListRow({ item, parentUser, index }) {
             alignItems="center"
             sx={{ display: "flex" }}
           >
-            <img
-              src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
-              alt=""
-            />
+            {!item.buildData ? (
+              <Tooltip
+                title="Outdated watchlist item, the values calculated may no longer be accurate. Edit this item or replace it to correct."
+                arrow
+                placement="bottom"
+              >
+                <Icon color="warning">
+                  <WarningAmberIcon />
+                </Icon>
+              </Tooltip>
+            ) : (
+              <img
+                src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
+                alt=""
+              />
+            )}
           </Grid>
           <Grid
             container
@@ -267,7 +293,7 @@ export function WatchListRow({ item, parentUser, index }) {
                     ].sell
                       ? calculatedCosts.totalBuild <
                         calculatedCosts.totalPurchase
-                        ? "orange"
+                        ? "warning.main"
                         : "success.main"
                       : "error.main",
                 }}
@@ -310,7 +336,7 @@ export function WatchListRow({ item, parentUser, index }) {
                       ].sell
                         ? calculatedCosts.totalBuild <
                           calculatedCosts.totalPurchase
-                          ? "orange"
+                          ? "warning.main"
                           : "success.main"
                         : "error.main",
                   }}
@@ -552,6 +578,17 @@ export function WatchListRow({ item, parentUser, index }) {
                   >
                     <IconButton color="primary" onClick={handleAdd}>
                       <AddIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Edit Watchlist Item" arrow placement="bottom">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        setOpenDialog(true);
+                        updateWatchlistItemToEdit(index);
+                      }}
+                    >
+                      <EditIcon />
                     </IconButton>
                   </Tooltip>
                 </Grid>

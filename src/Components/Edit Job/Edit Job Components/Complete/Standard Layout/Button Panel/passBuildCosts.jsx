@@ -10,7 +10,7 @@ import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
 import { useFindJobObject } from "../../../../../../Hooks/GeneralHooks/useFindJobObject";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 export function PassBuildCostsButton({ activeJob }) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -56,7 +56,7 @@ export function PassBuildCostsButton({ activeJob }) {
       }
       if (
         material.purchasing.some((i) => i.childID === activeJob.jobID) &&
-        material.childJob.includes(activeJob.jobID)
+        parentJob.build.childJobs[material.typeID].includes(activeJob.jobID)
       ) {
         continue;
       }

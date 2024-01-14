@@ -18,7 +18,6 @@ import DoneIcon from "@mui/icons-material/Done";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { OutputJobsPanel } from "./OutputJobs";
 import { GroupAccordion } from "./groupAccordion";
-import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { GroupOptionsBar } from "./groupOptions";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import itemList from "../../../RawData/searchIndex.json";
@@ -27,13 +26,9 @@ import { LoadingPage } from "../../loadingPage";
 import { ImportItemFitDialogue } from "./Dialogues/importFit/importFittingDialgue";
 import { ShoppingListDialog } from "../Dialogues/ShoppingList/ShoppingList";
 
-export default function GroupPage({
-  updateShoppingListTrigger,
-  updateShoppingListData,
-}) {
+export default function GroupPage() {
   const { activeGroup } = useContext(ActiveJobContext);
   const { jobArray, groupArray } = useContext(JobArrayContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const [groupJobs, updateGroupJobs] = useState([]);
   const [groupPageRefresh, updateGroupPageRefresh] = useState(false);
   const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
@@ -66,7 +61,6 @@ export default function GroupPage({
     const includedJobIDSet = new Set(selectedGroup.includedJobIDs);
 
     const groupJobs = jobArray.filter((i) => includedJobIDSet.has(i.jobID));
-
 
     groupJobs.sort((a, b) => {
       if (a.name < b.name) {
@@ -243,8 +237,6 @@ export default function GroupPage({
           <Grid item xs={12}>
             <GroupOptionsBar
               groupJobs={groupJobs}
-              updateShoppingListTrigger={updateShoppingListTrigger}
-              updateShoppingListData={updateShoppingListData}
               updateShowProcessing={updateShowProcessing}
               updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
             />

@@ -13,6 +13,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { JobArrayContext } from "../../Context/JobContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../../Context/AuthContext";
+import { useJobManagement } from "../../Hooks/useJobManagement";
 
 export function ParentJobDialog({
   activeJob,
@@ -27,6 +28,7 @@ export function ParentJobDialog({
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const [matches, updateMatches] = useState([]);
+  const { Add_RemovePendingParentJobs } = useJobManagement();
 
   const handleClose = () => {
     updateDialogTrigger(false);
@@ -41,7 +43,8 @@ export function ParentJobDialog({
       for (let job of userJobSnapshot) {
         if (
           job.materialIDs.includes(activeJob.itemID) &&
-          !activeJob.parentJob.includes(job.jobID)
+          !activeJob.parentJob.includes(job.jobID) &&
+          !parentChildToEdit.parentJobs.add.includes(job.jobID)
         ) {
           newMatches.push(job);
         }
@@ -51,7 +54,8 @@ export function ParentJobDialog({
         (i) =>
           i.groupID === activeJob.groupID &&
           !activeJob.parentJob.includes(i.jobID) &&
-          i.build.materials.some((x) => x.typeID === activeJob.itemID)
+          i.build.materials.some((x) => x.typeID === activeJob.itemID) &&
+          !parentChildToEdit.parentJobs.add.includes(i.jobID)
       );
       newMatches = newMatches.concat(matchs);
     }
@@ -111,18 +115,12 @@ export function ParentJobDialog({
                       size="small"
                       color="primary"
                       onClick={() => {
-                        const newParentJobArray = [...activeJob.parentJob];
-                        const newParentJobsToAdd = new Set(
-                          parentChildToEdit.parentJobs.add
-                        );
-                        const newParentJobsToRemove = new Set(
-                          parentChildToEdit.parentJobs.remove
-                        );
-
-                        newParentJobsToAdd.add(job.jobID);
-                        newParentJobsToRemove.delete(job.jobID);
-
-                        newParentJobArray.push(job.jobID);
+                        const { newParentJobsToAdd, newParentJobsToRemove } =
+                          Add_RemovePendingParentJobs(
+                            parentChildToEdit.parentJobs,
+                            job.jobID,
+                            true
+                          );
 
                         updateParentChildToEdit((prev) => ({
                           ...prev,
@@ -131,10 +129,6 @@ export function ParentJobDialog({
                             add: [...newParentJobsToAdd],
                             remove: [...newParentJobsToRemove],
                           },
-                        }));
-                        updateActiveJob((prev) => ({
-                          ...prev,
-                          parentJob: newParentJobArray,
                         }));
                         setJobModified(true);
                         setSnackbarData((prev) => ({

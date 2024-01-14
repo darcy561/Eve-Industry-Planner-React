@@ -173,14 +173,11 @@ export const MassBuildDisplay = (props) => {
 export const JobPlannerPageTriggerContext = createContext();
 
 export const JobPlannerPageTrigger = (props) => {
-  const [editJobTrigger, updateEditJobTrigger] = useState(false);
   const [editGroupTrigger, updateEditGroupTrigger] = useState(false);
 
   return (
     <JobPlannerPageTriggerContext.Provider
       value={{
-        editJobTrigger,
-        updateEditJobTrigger,
         editGroupTrigger,
         updateEditGroupTrigger,
       }}

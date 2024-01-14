@@ -1,16 +1,21 @@
-const functions = require("firebase-functions");
 const checkAppVersion =
   require("../sharedFunctions/appVersion").checkAppVersion;
+const { logErrorAndRespond } = require("./eveTokenVerify");
 
 function checkVersion(req, res, next) {
   let verify = checkAppVersion(req.header("appVersion"));
 
   if (!verify) {
-    res.status(400);
-    res.send("Outdated App Version");
-    return next(`Outdated App Version - ${req.header("appVersion")}`);
+    logErrorAndRespond(
+      "Outdated App Version",
+      res,
+      next,
+      401,
+      req.header("appVersion")
+    );
+  } else {
+    next();
   }
-  next();
 }
 module.exports = {
   checkAppVersion: checkVersion,

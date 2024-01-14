@@ -6,6 +6,8 @@ import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import { ChildJobPopoverFrame } from "./Child Job Pop Over/childJobPopoverFrame";
 import { EvePricesContext } from "../../../../../../Context/EveDataContext";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
+import { useGroupManagement } from "../../../../../../Hooks/useGroupManagement";
+import { useMaterialCostCalculations } from "../../../../../../Hooks/GeneralHooks/useMaterialCostCalculations";
 
 const { PRIMARY_THEME, SECONDARY_THEME } = GLOBAL_CONFIG;
 
@@ -20,16 +22,15 @@ export function MaterialCostRow_MaterialPricePanel({
   temporaryChildJobs,
   updateTemporaryChildJobs,
   setupToEdit,
+  esiDataToLink,
+  updateEsiDataToLink,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
   const { jobArray } = useContext(JobArrayContext);
   const { evePrices } = useContext(EvePricesContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
-  const [childJobProductionCosts, updateChildJobProductionCosts] = useState({
-    materialCost: 0,
-    installCost: 0,
-    finalCost: 0,
-    finalCostPerItem: 0,
-  });
+  const { calculateMaterialCostFromChildJobs } = useMaterialCostCalculations();
   const itemPriceObject = useMemo(
     () => evePrices.find((i) => i.typeID === material.typeID),
     [evePrices]
@@ -40,6 +41,46 @@ export function MaterialCostRow_MaterialPricePanel({
   const matchedChildJobs = jobArray.filter((i) =>
     activeJob.build.childJobs[material.typeID].includes(i.jobID)
   );
+  if (temporaryChildJobs[material.typeID]) {
+    const tempJobID = temporaryChildJobs[material.typeID].jobID;
+
+    if (!matchedChildJobs.some((i) => i.jobID === tempJobID)) {
+      matchedChildJobs.push(temporaryChildJobs[material.typeID]);
+    }
+  }
+  if (parentChildToEdit.childJobs[material.typeID]?.add) {
+    for (let id of parentChildToEdit.childJobs[material.typeID].add) {
+      const match = jobArray.find((i) => i.jobID === id);
+      if (!match) continue;
+      matchedChildJobs.push(match);
+    }
+  }
+
+  const matchedChildJobIDs = [
+    ...activeJob.build.childJobs[material.typeID],
+    ...(temporaryChildJobs[material.typeID]
+      ? [temporaryChildJobs[material.typeID].jobID]
+      : []),
+    ...(parentChildToEdit.childJobs[material.typeID]?.add
+      ? parentChildToEdit.childJobs[material.typeID].add
+      : []),
+  ];
+
+  const totalPurchaseCost = currentMaterialPrice * material.quantity;
+  const productionCostPerItem =
+    Math.round(
+      (calculateMaterialCostFromChildJobs(
+        material,
+        matchedChildJobIDs,
+        matchedChildJobs,
+        [],
+        marketSelect,
+        listingSelect
+      ) /
+        material.quantity +
+        Number.EPSILON) *
+        100
+    ) / 100;
 
   return (
     <Grid
@@ -111,10 +152,12 @@ export function MaterialCostRow_MaterialPricePanel({
                 temporaryChildJobs={temporaryChildJobs}
                 updateTemporaryChildJobs={updateTemporaryChildJobs}
                 currentMaterialPrice={currentMaterialPrice}
-                childJobProductionCosts={childJobProductionCosts}
-                updateChildJobProductionCosts={updateChildJobProductionCosts}
                 matchedChildJobs={matchedChildJobs}
                 setupToEdit={setupToEdit}
+                esiDataToLink={esiDataToLink}
+                updateEsiDataToLink={updateEsiDataToLink}
+                parentChildToEdit={parentChildToEdit}
+                updateParentChildToEdit={updateParentChildToEdit}
               />
             </>
           ) : null}
@@ -123,6 +166,7 @@ export function MaterialCostRow_MaterialPricePanel({
       <Grid
         alignItems="center"
         justifyContent="center"
+        container
         item
         xs={6}
         md={3}
@@ -132,75 +176,126 @@ export function MaterialCostRow_MaterialPricePanel({
           display: "flex",
         }}
       >
-        <Tooltip
-          title={
-            <span>
-              <p>
-                <b>30 Day Region Market History</b>
-              </p>
-              <p>
-                Highest Market Price:{" "}
-                {marketObject.highestMarketPrice.toLocaleString()}
-              </p>
-              <p>
-                Lowest Market Price:{" "}
-                {marketObject.lowestMarketPrice.toLocaleString()}
-              </p>
-              <p>
-                Daily Average Market Price:{" "}
-                {marketObject.dailyAverageMarketPrice.toLocaleString()}
-              </p>
-              <p>
-                Daily Average Order Quantity:{" "}
-                {marketObject.dailyAverageOrderQuantity.toLocaleString()}
-              </p>
-              <p>
-                Daily Average Unit Count:{" "}
-                {marketObject.dailyAverageUnitCount.toLocaleString()}
-              </p>
-            </span>
-          }
-          arrow
-          placement="top"
-        >
-          <Typography
-            sx={{ typography: { xs: "caption", sm: "body2" } }}
-            color={selectTextPriceHighlight(
-              currentMaterialPrice,
-              childJobProductionCosts.finalCostPerItem
-            )}
+        <Grid item xs={12}>
+          <Tooltip
+            title={
+              <span>
+                <p>
+                  <b>30 Day Region Market History</b>
+                </p>
+                <p>
+                  Highest Market Price:{" "}
+                  {marketObject.highestMarketPrice.toLocaleString()}
+                </p>
+                <p>
+                  Lowest Market Price:{" "}
+                  {marketObject.lowestMarketPrice.toLocaleString()}
+                </p>
+                <p>
+                  Daily Average Market Price:{" "}
+                  {marketObject.dailyAverageMarketPrice.toLocaleString()}
+                </p>
+                <p>
+                  Daily Average Order Quantity:{" "}
+                  {marketObject.dailyAverageOrderQuantity.toLocaleString()}
+                </p>
+                <p>
+                  Daily Average Unit Count:{" "}
+                  {marketObject.dailyAverageUnitCount.toLocaleString()}
+                </p>
+              </span>
+            }
+            arrow
+            placement="top"
           >
-            {currentMaterialPrice.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
-          </Typography>
-        </Tooltip>
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              color={selectTextHighlight(
+                currentMaterialPrice,
+                productionCostPerItem,
+                true
+              )}
+            >
+              {currentMaterialPrice.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </Typography>
+          </Tooltip>
+        </Grid>
+        {(material.jobType === jobTypes.manufacturing ||
+          material.jobType === jobTypes.reaction) && (
+          <Grid item xs={12} sx={{ marginTop: 1 }}>
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              color={selectTextHighlight(
+                currentMaterialPrice,
+                productionCostPerItem,
+                false
+              )}
+            >
+              <i>
+                {matchedChildJobs.length > 0
+                  ? productionCostPerItem.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  : "-"}
+              </i>
+            </Typography>
+          </Grid>
+        )}
       </Grid>
       <Grid
         alignItems="center"
         justifyContent="center"
+        container
         item
         xs={6}
         md={4}
         align="center"
         sx={{ marginTop: { xs: "10px", md: "0px" }, display: "flex" }}
       >
-        <Typography
-          sx={{ typography: { xs: "caption", sm: "body2" } }}
-          color={selectTextPriceHighlight(
-            currentMaterialPrice,
-            childJobProductionCosts.finalCostPerItem
-          )}
-        >
-          {(currentMaterialPrice * material.quantity).toLocaleString(
-            undefined,
-            {
+        <Grid item xs={12}>
+          <Typography
+            sx={{ typography: { xs: "caption", sm: "body2" } }}
+            color={selectTextHighlight(
+              currentMaterialPrice,
+              productionCostPerItem,
+              true
+            )}
+          >
+            {totalPurchaseCost.toLocaleString(undefined, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
-            }
-          )}
-        </Typography>
+            })}
+          </Typography>
+        </Grid>
+        {(material.jobType === jobTypes.manufacturing ||
+          material.jobType === jobTypes.reaction) && (
+          <Grid item xs={12}>
+            <Typography
+              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              color={selectTextHighlight(
+                currentMaterialPrice,
+                productionCostPerItem,
+                false
+              )}
+            >
+              <i>
+                {matchedChildJobIDs.length > 0
+                  ? (productionCostPerItem * material.quantity).toLocaleString(
+                      undefined,
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )
+                  : "-"}
+              </i>
+            </Typography>
+          </Grid>
+        )}
       </Grid>
     </Grid>
   );
@@ -211,20 +306,29 @@ function selectRowHighlightColor(theme, displayPopover) {
 
   switch (theme.palette.mode) {
     case PRIMARY_THEME:
-      return theme.palette.secondary.dark;
+      return theme.palette.secondary.highlight;
 
     case SECONDARY_THEME:
-      return theme.palette.secondary.light;
+      return theme.palette.secondary.highlight;
 
     default:
       return theme.palette.secondary.main;
   }
 }
 
-function selectTextPriceHighlight(currentMaterialPrice, calculatedChildPrice) {
+function selectTextHighlight(
+  currentMaterialPrice,
+  calculatedChildPrice,
+  highlightIfGreater
+) {
   if (calculatedChildPrice === 0) return null;
 
-  if (currentMaterialPrice >= calculatedChildPrice) {
+  if (currentMaterialPrice == calculatedChildPrice) return null;
+
+  if (
+    (highlightIfGreater && currentMaterialPrice >= calculatedChildPrice) ||
+    (!highlightIfGreater && currentMaterialPrice <= calculatedChildPrice)
+  ) {
     return "error.main";
   } else {
     return "success.main";

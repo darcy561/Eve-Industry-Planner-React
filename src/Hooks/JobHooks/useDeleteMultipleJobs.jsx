@@ -100,6 +100,7 @@ export function useDeleteMultipleJobs() {
           continue;
         }
         for (let jobID of inputJob.build.childJobs[mat.typeID]) {
+          if (inputJobIDs.includes(jobID)) continue;
           let child = await findJobData(jobID, newUserJobSnapshot, newJobArray);
 
           if (!child) {
@@ -113,6 +114,7 @@ export function useDeleteMultipleJobs() {
       //Removes inputJob IDs from Parent jobs
       if (inputJob.parentJob !== null) {
         for (let parentJobID of inputJob.parentJob) {
+          if (inputJobIDs.includes(parentJobID)) continue;
           let parentJob = await findJobData(
             parentJobID,
             newUserJobSnapshot,

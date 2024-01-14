@@ -9,10 +9,9 @@ import { structureOptions } from "../../Context/defaultValues";
 import { useMissingSystemIndex } from "./useImportMissingSystemIndexData";
 
 export function useInstallCostsCalc() {
-  const { updateSystemIndexData } = useContext(SystemIndexContext);
+  const { systemIndexData } = useContext(SystemIndexContext);
   const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
-  const { findMissingSystemIndex } = useMissingSystemIndex();
 
   const jobTypeMapping = {
     [jobTypes.manufacturing]: "manufacturing",
@@ -29,10 +28,13 @@ export function useInstallCostsCalc() {
   const SCC_SURCHARGE = 1.5;
   const ALPHA_CLONE_TAX = 0.25;
 
-  async function calculateInstallCostFromJob(
+  function calculateInstallCostFromJob(
     inputSetup,
-    additionalMaterialPrices
+    additionalMaterialPrices,
+    additionalSystemIndexValues
   ) {
+    if (!inputSetup) return 0;
+
     const estimatedItemValue = estimatedItemPriceCalc(
       inputSetup.materialCount,
       inputSetup.jobCount,
@@ -51,9 +53,10 @@ export function useInstallCostsCalc() {
       inputSetup.taxValue
     );
 
-    const systemIndexValue = await findSystemIndex(
+    const systemIndexValue = findSystemIndex(
       inputSetup.systemID,
-      inputSetup.jobType
+      inputSetup.jobType,
+      additionalSystemIndexValues
     );
 
     const cloneValue = findCloneValue(inputSetup.selectedCharacter);
@@ -77,17 +80,23 @@ export function useInstallCostsCalc() {
 
     const installCost = jobGrossCost + taxModifierTotal;
 
-    async function findSystemIndex(requiredSystemID, jobType) {
-      const updatedSystemIndexData = await findMissingSystemIndex(
-        requiredSystemID
-      );
-      if (updateSystemIndexData) {
-        updateSystemIndexData(updatedSystemIndexData);
+    function findSystemIndex(
+      requiredSystemID,
+      jobType,
+      alternativeSystemIndexData
+    ) {
+      if (
+        systemIndexData[requiredSystemID] ||
+        !alternativeSystemIndexData[requiredSystemID]
+      ) {
+        return (
+          systemIndexData[requiredSystemID]?.[jobTypeMapping[jobType]] || 0
+        );
+      } else {
+        return alternativeSystemIndexData[requiredSystemID]?.[
+          jobTypeMapping[jobType]
+        ];
       }
-
-      return (
-        updatedSystemIndexData[requiredSystemID]?.[jobTypeMapping[jobType]] || 0
-      );
     }
 
     return installCost;

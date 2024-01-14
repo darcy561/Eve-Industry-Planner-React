@@ -14,6 +14,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { UserJobSnapshotContext } from "../../../../../../Context/AuthContext";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
+import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 
 export function ChildJobDialogue({
   activeJob,
@@ -24,12 +25,24 @@ export function ChildJobDialogue({
   setJobModified,
   parentChildToEdit,
   updateParentChildToEdit,
+  temporaryChildJobs,
 }) {
   const { jobArray } = useContext(JobArrayContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { Add_RemovePendingChildJobs } = useJobManagement();
 
-  const materialChildJobs = activeJob.build.childJobs[material.typeID];
+  const materialChildJobs = [
+    ...activeJob.build.childJobs[material.typeID],
+    ...(temporaryChildJobs[material.typeID]
+      ? [temporaryChildJobs[material.typeID].jobID]
+      : []),
+    ...(parentChildToEdit.childJobs[material.typeID]?.add
+      ? parentChildToEdit.childJobs[material.typeID].add
+      : []),
+  ].filter(
+    (i) => !parentChildToEdit.childJobs[material.typeID]?.remove.includes(i)
+  );
 
   const handleClose = () => {
     updateChildDialogTrigger(false);
@@ -94,20 +107,12 @@ export function ChildJobDialogue({
                       size="small"
                       color="primary"
                       onClick={() => {
-                        const newChildJobArray = [
-                          ...activeJob.build.childJobs[material.typeID],
-                        ];
-                        const newChildJobstoAdd = new Set(
-                          parentChildToEdit.childJobs[material.typeID]?.add
-                        );
-                        const newChildJobsToRemove = new Set(
-                          parentChildToEdit.childJobs[material.typeID]?.remove
-                        );
-
-                        newChildJobstoAdd.add(job.jobID);
-                        newChildJobsToRemove.delete(job.jobID);
-
-                        newChildJobArray.push(job.jobID);
+                        const { newChildJobstoAdd, newChildJobsToRemove } =
+                          Add_RemovePendingChildJobs(
+                            parentChildToEdit.childJobs[material.typeID],
+                            job.jobID,
+                            true
+                          );
 
                         updateParentChildToEdit((prev) => ({
                           ...prev,
@@ -120,16 +125,6 @@ export function ChildJobDialogue({
                           },
                         }));
 
-                        updateActiveJob((prev) => ({
-                          ...prev,
-                          build: {
-                            ...prev.build,
-                            childJobs: {
-                              ...prev.build.childJobs,
-                              [material.typeID]: newChildJobArray,
-                            },
-                          },
-                        }));
                         setJobModified(true);
                         setSnackbarData((prev) => ({
                           ...prev,
@@ -206,23 +201,12 @@ export function ChildJobDialogue({
                       size="small"
                       color="error"
                       onClick={() => {
-                        const newChildJobArray = [
-                          ...new Set(
-                            [...materialChildJobs].filter(
-                              (jobID) => jobID !== jobMatch.jobID
-                            )
-                          ),
-                        ];
-
-                        const newChildJobstoAdd = new Set(
-                          parentChildToEdit.childJobs[material.typeID]?.add
-                        );
-                        const newChildJobsToRemove = new Set(
-                          parentChildToEdit.childJobs[material.typeID]?.remove
-                        );
-
-                        newChildJobstoAdd.delete(jobMatch.jobID);
-                        newChildJobsToRemove.add(jobMatch.jobID);
+                        const { newChildJobstoAdd, newChildJobsToRemove } =
+                          Add_RemovePendingChildJobs(
+                            parentChildToEdit.childJobs[material.typeID],
+                            jobMatch.jobID,
+                            false
+                          );
 
                         updateParentChildToEdit((prev) => ({
                           ...prev,
@@ -235,16 +219,6 @@ export function ChildJobDialogue({
                           },
                         }));
 
-                        updateActiveJob((prev) => ({
-                          ...prev,
-                          build: {
-                            ...prev.build,
-                            childJobs: {
-                              ...prev.build.childJobs,
-                              [material.typeID]: newChildJobArray,
-                            },
-                          },
-                        }));
                         setJobModified(true);
                         setSnackbarData((prev) => ({
                           ...prev,

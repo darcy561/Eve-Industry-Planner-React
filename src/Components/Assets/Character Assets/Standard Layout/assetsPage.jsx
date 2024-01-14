@@ -1,68 +1,122 @@
 import { useContext, useEffect, useState } from "react";
 import { useAssetHelperHooks } from "../../../../Hooks/AssetHooks/useAssetHelper";
-import { AssetEntry_Parent } from "./AssetFolders/parentFolder";
-import { AssetEntry_Selector } from "./AssetFolders/displaySelector";
-import { Grid, Typography, useControlled } from "@mui/material";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { useEveApi } from "../../../../Hooks/useEveApi";
-import { EveIDsContext } from "../../../../Context/EveDataContext";
+import {
+  EveIDsContext,
+  PersonalESIDataContext,
+} from "../../../../Context/EveDataContext";
 import { AssetEntry_TopLevel } from "./AssetFolders/topLevelFolder";
 import { AssetsPage_Loading } from "./loadingPage";
 
-export function AssetsPage_Character({
-  selectedCharacter
-}) {
+export function AssetsPage_Character({ selectedCharacter }) {
   const { users } = useContext(UsersContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { esiBlueprints } = useContext(PersonalESIDataContext);
   const [topLevelAssets, updateTopLevelAssets] = useState(null);
   const [assetLocations, updateAssetLocations] = useState(null);
-  const { buildAssetMaps, findBlueprintTypeIDs } = useAssetHelperHooks();
-  const { IDtoName } = useEveApi();
+  const [assetLocationNames, updateAssetLocationNames] = useState(null);
+  const [characterBlueprintsMap, updateCharacterBlueprintsMap] = useState(null);
+  const { buildAssetMaps, sortLocationMapsAlphabetically } =
+    useAssetHelperHooks();
+  const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
 
   useEffect(() => {
     async function buildCharacterAssetsTree() {
-      const assetsJSON = JSON.parse(
-        sessionStorage.getItem(`assets_${selectedCharacter}`)
-      );
-      const blueprintTypeIDsSet = findBlueprintTypeIDs();
-      const filteredAssets = assetsJSON.filter(
-        (i) =>
-          !blueprintTypeIDsSet.has(i.type_id) &&
-          i.location_flag !== ("AssetSafety" || "Deliveries")
-      );
-      const { topLevelAssetLocations, assetsByLocationMap } =
-        buildAssetMaps(filteredAssets);
-      const requiredLocationID = [];
       const requiredUserObject = users.find(
         (i) => i.CharacterHash === selectedCharacter
       );
 
-      for (let locationID of Array.from(topLevelAssetLocations.keys())) {
-        if (!eveIDs.some((i) => i.id === locationID)) {
-          requiredLocationID.push(locationID);
-        }
-      }
+      const characterBlueprints =
+        esiBlueprints.find((i) => i.user === selectedCharacter)?.data || [];
+      const blueprintsMap = new Map(
+        characterBlueprints.map((i) => [i.item_id, i])
+      );
 
-      const newIDData = await IDtoName(requiredLocationID, requiredUserObject);
+      const assetsJSON = JSON.parse(
+        sessionStorage.getItem(`assets_${selectedCharacter}`)
+      );
 
-      updateEveIDs((prev) => [...prev, ...newIDData]);
-      updateTopLevelAssets(topLevelAssetLocations);
+      const filteredAssets = assetsJSON.filter(
+        (i) => i.location_flag !== ("AssetSafety" && "Deliveries")
+      );
+
+      const { topLevelAssetLocations, assetsByLocationMap, assetIDSet } =
+        buildAssetMaps(filteredAssets);
+
+      const requiredLocationID = [...topLevelAssetLocations.keys()].reduce(
+        (prev, locationID) => {
+          const matchedID = eveIDs.find((i) => i.id === locationID);
+
+          if (!matchedID) {
+            prev.add(locationID);
+          } else {
+            if (matchedID.unResolvedLocation) {
+              prev.add(locationID);
+            }
+          }
+          return prev;
+        },
+        new Set()
+      );
+
+      const locationNamesMap = await fetchAssetLocationNames(
+        requiredUserObject,
+        [...assetIDSet],
+        "character"
+      );
+
+      const additonalIDObjects = await fetchUniverseNames(
+        [...requiredLocationID],
+        requiredUserObject
+      );
+
+      const newEveIDs = [
+        ...eveIDs.filter(
+          (firstObj) =>
+            !additonalIDObjects.some(
+              (secondObj) => firstObj.id === secondObj.id
+            )
+        ),
+        ...additonalIDObjects,
+      ];
+
+      const topLevelAssetLocationsSORTED = sortLocationMapsAlphabetically(
+        topLevelAssetLocations,
+        newEveIDs
+      );
+
+      updateEveIDs(newEveIDs);
+      updateAssetLocationNames(locationNamesMap);
+      updateTopLevelAssets(topLevelAssetLocationsSORTED);
       updateAssetLocations(assetsByLocationMap);
+      updateCharacterBlueprintsMap(blueprintsMap);
     }
     buildCharacterAssetsTree();
   }, []);
 
-  if (!assetLocations || !topLevelAssets) return <AssetsPage_Loading/>
+  if (
+    !assetLocations ||
+    !topLevelAssets ||
+    !assetLocationNames ||
+    !characterBlueprintsMap
+  )
+    return <AssetsPage_Loading />;
 
   return (
     <>
-      {Array.from(topLevelAssets).map(([locationID, assets]) => {
+      {Array.from(topLevelAssets).map(([locationID, assets], index) => {
+        let depth = 1;
         return (
           <AssetEntry_TopLevel
             locationID={locationID}
             assets={assets}
             assetLocations={assetLocations}
             topLevelAssets={topLevelAssets}
+            assetLocationNames={assetLocationNames}
+            characterBlueprintsMap={characterBlueprintsMap}
+            depth={depth}
+            index={index}
           />
         );
       })}

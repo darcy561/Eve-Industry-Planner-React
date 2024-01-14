@@ -15,6 +15,10 @@ export function MaterialCostPanel({
   setupToEdit,
   temporaryChildJobs,
   updateTemporaryChildJobs,
+  esiDataToLink,
+  updateEsiDataToLink,
+  parentChildToEdit,
+  updateParentChildToEdit
 }) {
   const { users } = useContext(UsersContext);
   const parentUser = users.find((i) => i.ParentUser);
@@ -25,6 +29,8 @@ export function MaterialCostPanel({
     parentUser.settings.editJob.defaultOrders
   );
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
+
+  if (!activeJob.build.setup[setupToEdit]) return null;
 
   return (
     <Paper
@@ -108,6 +114,10 @@ export function MaterialCostPanel({
               temporaryChildJobs={temporaryChildJobs}
               updateTemporaryChildJobs={updateTemporaryChildJobs}
               setupToEdit={setupToEdit}
+              esiDataToLink={esiDataToLink}
+              updateEsiDataToLink={updateEsiDataToLink}
+              parentChildToEdit={parentChildToEdit}
+              updateParentChildToEdit={updateParentChildToEdit}
             />
           );
         })}
@@ -115,6 +125,8 @@ export function MaterialCostPanel({
           activeJob={activeJob}
           marketSelect={marketSelect}
           listingSelect={listingSelect}
+          temporaryChildJobs={temporaryChildJobs}
+          parentChildToEdit={parentChildToEdit}
         />
       </Grid>
     </Paper>

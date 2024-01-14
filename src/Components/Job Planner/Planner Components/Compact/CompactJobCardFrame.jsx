@@ -20,9 +20,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 
-
-
-export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
+export function CompactJobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
@@ -39,7 +37,7 @@ export function CompactJobCardFrame({ job, updateEditJobTrigger }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-  const {PRIMARY_THEME} = GLOBAL_CONFIG
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const jobCardChecked = useMemo(
     () => multiSelectJobPlanner.some((i) => i === job.jobID),

@@ -5,10 +5,13 @@ export function AssetEntry_Selector({
   assetObject,
   assetLocations,
   topLevelAssets,
+  assetLocationNames,
+  characterBlueprintsMap,
+  depth,
+  index
 }) {
   if (!assetObject) return null;
   const matchedAssets = assetLocations.get(assetObject.item_id);
-
   if (matchedAssets) {
     return (
       <AssetEntry_Parent
@@ -16,7 +19,11 @@ export function AssetEntry_Selector({
         matchedAssets={matchedAssets}
         assetLocations={assetLocations}
         topLevelAssets={topLevelAssets}
-      />
+        assetLocationNames={assetLocationNames}
+        characterBlueprintsMap={characterBlueprintsMap}
+        depth={depth}
+        index={index}
+      /> 
     );
   } else {
     return (
@@ -24,6 +31,10 @@ export function AssetEntry_Selector({
         assetObject={assetObject}
         assetLocations={assetLocations}
         topLevelAssets={topLevelAssets}
+        assetLocationNames={assetLocationNames}
+        characterBlueprintsMap={characterBlueprintsMap}
+        depth={depth}
+        index={index}
       />
     );
   }

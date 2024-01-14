@@ -35,7 +35,7 @@ function styleBlueprintEntry(job, bpType, bpRuns) {
 
 export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const { users } = useContext(UsersContext);
-  const { esiCorpData } = useContext(CorpEsiDataContext);
+  const { corpEsiData } = useContext(CorpEsiDataContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
 
   const blueprintType = blueprint.quantity === -2 ? "bpc" : "bp";
@@ -46,9 +46,7 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const bpOwner = users.find(
     (u) => u.CharacterHash === blueprint.CharacterHash
   );
-  const corpOwner = esiCorpData.find(
-    (i) => i.corporation_id === blueprint?.corporation_id
-  );
+  const corpOwner = corpEsiData.get(blueprint?.corporation_id);
 
   return (
     <Grid

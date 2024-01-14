@@ -12,6 +12,8 @@ export function SkillsPanel({ activeJob, setupToEdit }) {
   const { esiSkills } = useContext(PersonalESIDataContext);
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
+  if (!activeJob.build.setup[setupToEdit]) return null;
+
   const buildChar =
     users.find(
       (i) =>

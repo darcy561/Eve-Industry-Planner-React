@@ -120,13 +120,13 @@ export function CurrentMaterialHeader({
       >
         <Grid item md={5} sx={{ marginTop: { xs: "10px", sm: "20px" } }} />
         <Grid item xs={6} md={3} align="center">
-          <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
-            Item Price
+          <Typography sx={{ typography: { xs: "body2", sm: "body2" } }}>
+           { `Material ${formatedMarketTitle}`} Price<br/><i>Build Price</i>
           </Typography>
         </Grid>
         <Grid item xs={6} md={4} align="center">
-          <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
-            Total Price
+          <Typography sx={{ typography: { xs: "body2", sm: "body2" } }}>
+            Total Material Price <br /><i>Total Build Price</i>
           </Typography>
         </Grid>
       </Grid>

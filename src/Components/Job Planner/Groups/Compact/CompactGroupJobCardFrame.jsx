@@ -1,9 +1,5 @@
 import { useContext, useMemo } from "react";
-import {
-  JobPlannerPageTriggerContext,
-  MultiSelectJobPlannerContext,
-} from "../../../../Context/LayoutContext";
-import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
+import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
@@ -20,13 +16,12 @@ import {
 import { deepPurple, grey, lightGreen } from "@mui/material/colors";
 import GroupInfoPopout from "./GroupInfoBadge";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+import { useNavigate } from "react-router-dom";
 
 export function CompactGroupJobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
-  const { openEditJob } = useOpenEditJob();
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.jobCard,
@@ -43,6 +38,7 @@ export function CompactGroupJobCardFrame({ job }) {
   const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
+  const navigate = useNavigate();
 
   function getCardColor(theme, jobType) {
     if (jobType === jobTypes.manufacturing) {
@@ -117,8 +113,7 @@ export function CompactGroupJobCardFrame({ job }) {
           <Button
             color="primary"
             onClick={() => {
-              openEditJob(job.jobID);
-              updateEditJobTrigger((prev) => !prev);
+              navigate(`/editJob/${job.jobID}`);
             }}
           >
             Edit

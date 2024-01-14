@@ -32,7 +32,7 @@ export function LinkedMarketOrdersTab({
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { esiOrders, esiHistOrders } = useContext(PersonalESIDataContext);
-  const { esiCorpData } = useContext(CorpEsiDataContext);
+  const { corpEsiData } = useContext(CorpEsiDataContext);
   const [linkedMarketOrders, updateLinkedMarketOrders] = useState([]);
 
   useEffect(() => {
@@ -110,9 +110,7 @@ export function LinkedMarketOrdersTab({
             (i) => i.CharacterHash === order.CharacterHash
           );
           const locationData = eveIDs.find((i) => i.id === order.location_id);
-          const corpData = esiCorpData.find(
-            (i) => i.corporation_id === charData?.corporation_id
-          );
+          const corpData = corpEsiData.get(charData?.corporation_id);
           return (
             <Grid
               key={order.order_id}

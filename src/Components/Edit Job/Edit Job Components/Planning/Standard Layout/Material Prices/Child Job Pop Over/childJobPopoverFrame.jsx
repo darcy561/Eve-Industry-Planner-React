@@ -1,19 +1,18 @@
-import { useContext, useEffect, useMemo, useState } from "react";
-import { Button, Grid, Paper, Popover, Typography } from "@mui/material";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Grid, Paper, Popover, Typography } from "@mui/material";
 import { JobArrayContext } from "../../../../../../../Context/JobContext";
 import { UsersContext } from "../../../../../../../Context/AuthContext";
 import { useFirebase } from "../../../../../../../Hooks/useFirebase";
-import { EvePricesContext } from "../../../../../../../Context/EveDataContext";
 import { useJobBuild } from "../../../../../../../Hooks/useJobBuild";
 import { useJobManagement } from "../../../../../../../Hooks/useJobManagement";
-import { useSwitchActiveJob } from "../../../../../../../Hooks/JobHooks/useSwitchActiveJob";
 import { ImportingStateLayout_ChildJobPopoverFrame } from "./fetchState";
 import { ChildJobMaterials_ChildJobPopoverFrame } from "./childJobMaterials";
 import { ChildJobSwitcher_ChildJobPopoverFrame } from "./switchChildJob";
 import { DisplayMismatchedChildTotals_ChildJobPopoverFrame } from "./mismatchedTotals";
 import { ChildJobMaterialTotalCosts_ChildJobPopoverFrame } from "./childJobTotalCosts";
-import { CreateChildJobsButtons_ChildJobPopoverFrame } from "./createJobsButton";
-import { useInstallCostsCalc } from "../../../../../../../Hooks/GeneralHooks/useInstallCostCalc";
+import { useMaterialCostCalculations } from "../../../../../../../Hooks/GeneralHooks/useMaterialCostCalculations";
+import { useManageGroupJobs } from "../../../../../../../Hooks/GroupHooks/useManageGroupJobs";
+import { ButtonSelectionLogic_ChildJobPopoverFrame } from "./buttonSelectionLogic";
 
 export function ChildJobPopoverFrame({
   activeJob,
@@ -28,41 +27,45 @@ export function ChildJobPopoverFrame({
   temporaryChildJobs,
   updateTemporaryChildJobs,
   currentMaterialPrice,
-  childJobProductionCosts,
-  updateChildJobProductionCosts,
   matchedChildJobs,
   setupToEdit,
+  esiDataToLink,
+  updateEsiDataToLink,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
-  const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
+  const { jobArray } = useContext(JobArrayContext);
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImportState, updateJobImportState] = useState(false);
   const [jobDisplay, setJobDisplay] = useState(0);
   const [childJobObjects, updateChildJobObjects] = useState([]);
-  const [recalculateTotal, updateRecalculateTotal] = useState(false);
   const [fetchError, updateFetchError] = useState(false);
   const { getItemPrices } = useFirebase();
   const { buildJob } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
-  const { switchActiveJob } = useSwitchActiveJob();
-  const { calculateInstallCostFromJob } = useInstallCostsCalc();
+  const { calculateMaterialCostFromChildJobs } = useMaterialCostCalculations();
+  const { findJobIDOfMaterialFromGroup } = useManageGroupJobs();
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
   const childJobsLocation = activeJob.build.childJobs[material.typeID];
+  const currentJob = childJobObjects[jobDisplay];
+  const isExistingJobInGroup = useRef(false);
 
   useEffect(() => {
     async function fetchData() {
       if (!displayPopover) return;
+      const matchedGroupJobID = findJobIDOfMaterialFromGroup(
+        material.typeID,
+        activeJob.groupID
+      );
+      if (matchedGroupJobID && matchedChildJobs.length === 0) {
+        const matchedJob = jobArray.find((i) => i.jobID === matchedGroupJobID);
+        if (!matchedJob) return;
 
-      if (temporaryChildJobs[material.typeID]) {
-        if (
-          !matchedChildJobs.some(
-            (i) => i.jobID === temporaryChildJobs[material.typeID].jobID
-          )
-        ) {
-          matchedChildJobs.push(temporaryChildJobs[material.typeID]);
-        }
-      } else {
+        matchedChildJobs.push(matchedJob);
+        isExistingJobInGroup.current = true;
+      } else if (matchedChildJobs.length === 0) {
         const newJob = await buildJob({
           itemID: material.typeID,
           itemQty: material.quantity,
@@ -86,7 +89,6 @@ export function ChildJobPopoverFrame({
       if (matchedChildJobs.length > 0) {
         updateChildJobObjects(matchedChildJobs);
       }
-      updateRecalculateTotal(true);
       updateJobImportState(true);
     }
     fetchData();
@@ -94,59 +96,32 @@ export function ChildJobPopoverFrame({
     return;
   }, [displayPopover]);
 
-  useEffect(() => {
-    async function runCalculations() {
-      if (!recalculateTotal) {
-        return;
-      }
+  const totalCostOfMaterials = (currentJob?.build?.materials || []).reduce(
+    (prev, material) => {
+      const childJobs = currentJob.build.childJobs[material.typeID];
+      return (prev += calculateMaterialCostFromChildJobs(
+        material,
+        childJobs,
+        temporaryChildJobs[currentJob.itemID],
+        tempPrices,
+        marketSelect,
+        listingSelect
+      ));
+    },
+    0
+  );
 
-      const currentJob = childJobObjects[jobDisplay];
+  const totalInstallCosts = Object.values(
+    currentJob?.build?.setup || []
+  ).reduce((prev, { estimatedInstallCost }) => {
+    return (prev += estimatedInstallCost);
+  }, 0);
 
-      const totalMaterialPrice = currentJob.build.materials.reduce(
-        (prev, { typeID, quantity }) => {
-          const priceObject =
-            evePrices.find((i) => i.typeID === typeID) ||
-            tempPrices.find((i) => i.typeID === typeID);
-
-          if (priceObject) {
-            prev += priceObject[marketSelect][listingSelect] * quantity;
-          }
-          return prev;
-        },
-        0
-      );
-      let installCosts = 0;
-
-      for (const setup of Object.values(currentJob.build.setup)) {
-        if (setup.estimatedInstallCost === 0) {
-          const cost = await calculateInstallCostFromJob(setup, tempPrices);
-          installCosts += cost;
-        } else {
-          installCosts += setup.estimatedInstallCost;
-        }
-      }
-
-      // const installCosts = Object.values(currentJob.build.setup).reduce(
-      //   (prev, { estimatedInstallCost }) => {
-      //     return (prev += estimatedInstallCost);
-      //   },
-      //   0
-      // );
-
-      updateChildJobProductionCosts((prev) => ({
-        ...prev,
-        materialCost: totalMaterialPrice,
-        installCost: installCosts,
-        finalCost: totalMaterialPrice + installCosts,
-        finalCostPerItem:
-          (totalMaterialPrice + installCosts) /
-          currentJob.build.products.totalQuantity,
-      }));
-      updateRecalculateTotal(false);
-    }
-
-    runCalculations();
-  }, [childJobObjects, recalculateTotal]);
+  const totalCostPerItem =
+    (currentJob?.build?.products?.totalQuantity || 0) !== 0
+      ? (totalCostOfMaterials + totalInstallCosts) /
+        currentJob.build.products.totalQuantity
+      : 0;
 
   return (
     <Popover
@@ -187,6 +162,7 @@ export function ChildJobPopoverFrame({
             <Grid container item xs={12}>
               <ChildJobMaterials_ChildJobPopoverFrame
                 childJobObjects={childJobObjects}
+                temporaryChildJobs={temporaryChildJobs}
                 jobDisplay={jobDisplay}
                 tempPrices={tempPrices}
                 marketSelect={marketSelect}
@@ -195,13 +171,16 @@ export function ChildJobPopoverFrame({
             </Grid>
             <ChildJobMaterialTotalCosts_ChildJobPopoverFrame
               currentMaterialPrice={currentMaterialPrice}
-              childJobProductionCosts={childJobProductionCosts}
+              totalCostOfMaterials={totalCostOfMaterials}
+              totalInstallCosts={totalInstallCosts}
+              totalCostPerItem={totalCostPerItem}
             />
             <DisplayMismatchedChildTotals_ChildJobPopoverFrame
-              material={material}
-              childJobObjects={childJobObjects}
-              jobDisplay={jobDisplay}
-              childJobProductionCosts={childJobProductionCosts}
+              materialQuantity={material?.quantity || 0}
+              totalItemsProduced={
+                currentJob?.build?.products?.totalQuantity || 0
+              }
+              totalCostPerItem={totalCostPerItem}
             />
             <ChildJobSwitcher_ChildJobPopoverFrame
               childJobObjects={childJobObjects}
@@ -210,21 +189,11 @@ export function ChildJobPopoverFrame({
             />
 
             <Grid item xs={12} align="center" sx={{ marginTop: "10px" }}>
-              {childJobsLocation.length > 0 && (
-                <Button
-                  size="small"
-                  onClick={() => {
-                    switchActiveJob(
-                      activeJob,
-                      childJobObjects[jobDisplay].jobID,
-                      jobModified
-                    );
-                  }}
-                >
-                  Open Child Job
-                </Button>
-              )}
-              <CreateChildJobsButtons_ChildJobPopoverFrame
+              <ButtonSelectionLogic_ChildJobPopoverFrame
+                activeJob={activeJob}
+                updateActiveJob={updateActiveJob}
+                material={material}
+                jobModified={jobModified}
                 childJobsLocation={childJobsLocation}
                 childJobObjects={childJobObjects}
                 jobDisplay={jobDisplay}
@@ -232,6 +201,11 @@ export function ChildJobPopoverFrame({
                 updateTemporaryChildJobs={updateTemporaryChildJobs}
                 tempPrices={tempPrices}
                 setJobModified={setJobModified}
+                isExistingJobInGroup={isExistingJobInGroup}
+                esiDataToLink={esiDataToLink}
+                updateEsiDataToLink={updateEsiDataToLink}
+                parentChildToEdit={parentChildToEdit}
+                updateParentChildToEdit={updateParentChildToEdit}
               />
             </Grid>
           </Grid>

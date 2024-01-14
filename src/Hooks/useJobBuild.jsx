@@ -28,10 +28,7 @@ export function useJobBuild() {
   const { updateDialogData } = useContext(DialogDataContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
-  const {
-    CalculateTime_New,
-    CalculateResources_New,
-  } = useBlueprintCalc();
+  const { CalculateTime_New, CalculateResources_New } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
   const parentUser = useMemo(() => {
@@ -168,61 +165,69 @@ export function useJobBuild() {
   };
 
   const buildJob = async (buildRequest) => {
-    if (Array.isArray(buildRequest)) {
-      let buildRequestIDs = new Set();
-      for (let request of buildRequest) {
-        buildRequestIDs.add(request.itemID);
-      }
-      const appCheckToken = await getToken(appCheck, true);
-      const response = await fetch(`${import.meta.env.VITE_APIURL}/item`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Firebase-AppCheck": appCheckToken.token,
-          accountID: parentUser.accountID,
-          appVersion: __APP_VERSION__,
-        },
-        body: JSON.stringify({
-          idArray: [...buildRequestIDs],
-        }),
-      });
-      let jsonData = await response.json();
-      let returnArray = [];
-      for (let request of buildRequest) {
-        let itemJson = jsonData.find((i) => i.itemID === request.itemID);
-        if (!itemJson) {
-          continue;
+    try {
+      if (Array.isArray(buildRequest)) {
+        let returnArray = [];
+        if (buildRequest.length === 0) return returnArray;
+        
+        let buildRequestIDs = new Set();
+        for (let request of buildRequest) {
+          buildRequestIDs.add(request.itemID);
         }
-        returnArray.push(await buildJobObject(itemJson, request));
-      }
-      return returnArray;
-    } else {
-      if (!buildRequest.hasOwnProperty("itemID")) {
-        jobBuildErrors(buildRequest, "Item Data Missing From Request");
-        return undefined;
-      }
-      const appCheckToken = await getToken(appCheck, true);
-      const response = await fetch(
-        buildRequest.sisiData
-          ? `${import.meta.env.VITE_APIURL}/item/sisiData/${
-              buildRequest.itemID
-            }`
-          : `${import.meta.env.VITE_APIURL}/item/${buildRequest.itemID}`,
-        {
+        const appCheckToken = await getToken(appCheck, true);
+        const response = await fetch(`${import.meta.env.VITE_APIURL}/item`, {
+          method: "POST",
           headers: {
+            "Content-Type": "application/json",
             "X-Firebase-AppCheck": appCheckToken.token,
             accountID: parentUser.accountID,
             appVersion: __APP_VERSION__,
           },
-        }
-      );
-      if (response.status === 400) {
-        jobBuildErrors(buildRequest, "Outdated App Version");
-        return undefined;
-      }
-      const itemJson = await response.json();
+          body: JSON.stringify({
+            idArray: [...buildRequestIDs],
+          }),
+        });
+        let jsonData = await response.json();
 
-      return await buildJobObject(itemJson, buildRequest);
+        for (let request of buildRequest) {
+          let itemJson = jsonData.find((i) => i.itemID === request.itemID);
+          if (!itemJson) {
+            continue;
+          }
+          returnArray.push(await buildJobObject(itemJson, request));
+        }
+        return returnArray;
+      } else {
+        if (!buildRequest.hasOwnProperty("itemID")) {
+          jobBuildErrors(buildRequest, "Item Data Missing From Request");
+          return undefined;
+        }
+        const appCheckToken = await getToken(appCheck, true);
+        const response = await fetch(
+          buildRequest.sisiData
+            ? `${import.meta.env.VITE_APIURL}/item/sisiData/${
+                buildRequest.itemID
+              }`
+            : `${import.meta.env.VITE_APIURL}/item/${buildRequest.itemID}`,
+          {
+            headers: {
+              "X-Firebase-AppCheck": appCheckToken.token,
+              accountID: parentUser.accountID,
+              appVersion: __APP_VERSION__,
+            },
+          }
+        );
+        if (response.status === 400) {
+          jobBuildErrors(buildRequest, "Outdated App Version");
+          return undefined;
+        }
+        const itemJson = await response.json();
+
+        return await buildJobObject(itemJson, buildRequest);
+      }
+    } catch (err) {
+      console.log(err.message);
+      return null;
     }
   };
 
@@ -380,7 +385,7 @@ export function useJobBuild() {
         TE,
         ...structureData,
         ...setupQuantities[i],
-        systemID: buildRequestObject?.systemID,
+        systemID: buildRequestObject?.systemID || structureData.systemID,
         characterToUse:
           buildRequestObject?.characterToUse || parentUser.CharacterHash,
         rawTimeValue,
@@ -403,7 +408,7 @@ export function useJobBuild() {
         setupLocation[nextObject.id]
       );
       setupLocation[nextObject.id].estimatedInstallCost =
-        await calculateInstallCostFromJob(setupLocation[nextObject.id]);
+        calculateInstallCostFromJob(setupLocation[nextObject.id]);
     }
 
     const newTotalQuantities = calculateJobMaterialQuantities(setupLocation);
@@ -425,7 +430,7 @@ export function useJobBuild() {
       TE: inputOptions?.TE || 0,
       structureID: inputOptions?.structureID || 0,
       rigID: inputOptions?.rigID || 0,
-      systemTypeID: inputOptions?.systemTypeID || 0,  
+      systemTypeID: inputOptions?.systemTypeID || 0,
       systemID: inputOptions?.systemID || 30000142,
       taxValue: inputOptions?.taxValue || 0.25,
       estimatedInstallCost: 0,
@@ -436,32 +441,6 @@ export function useJobBuild() {
       rawTime: inputOptions?.rawTimeValue || 0,
       jobType: inputOptions.jobType,
     };
-  }
-
-  function addItemBlueprint(outputObject) {
-    if (outputObject.jobType !== jobTypes.manufacturing) {
-      return;
-    }
-    const filteredBlueprints = [
-      ...esiBlueprints.flatMap((entry) => entry?.data ?? []),
-      ...corpEsiBlueprints.flatMap((entry) => entry?.data ?? []),
-    ].filter((entry) => {
-      return entry.type_id === outputObject.blueprintTypeID;
-    });
-
-    if (filteredBlueprints.length === 0) {
-      return;
-    }
-    filteredBlueprints.sort(
-      (a, b) =>
-        a.quantity.toString().localeCompare(b.quantity.toString()) ||
-        b.material_efficiency - a.material_efficiency ||
-        b.time_efficiency - a.time_efficiency
-    );
-    outputObject.bpME = filteredBlueprints[0].material_efficiency;
-    outputObject.bpTE = filteredBlueprints[0].time_efficiency / 2;
-
-    return;
   }
 
   function addItemBlueprint_New(inputJobType, blueprintTypeID) {
@@ -493,36 +472,6 @@ export function useJobBuild() {
       ME: filteredBlueprints[0].material_efficiency,
       TE: filteredBlueprints[0].time_efficiency / 2,
     };
-  }
-
-  function addDefaultStructure(outputObject) {
-    switch (outputObject.jobType) {
-      case jobTypes.manufacturing:
-        const manufacturingStructure =
-          parentUser.settings.structures.manufacturing.find((i) => i.default);
-        if (!manufacturingStructure) break;
-
-        outputObject.rigType = manufacturingStructure.rigType;
-        outputObject.systemType = manufacturingStructure.systemType;
-        outputObject.structureType = manufacturingStructure.structureType;
-        outputObject.buildSystem = manufacturingStructure.systemID;
-        outputObject.appliedStructureID = manufacturingStructure.id;
-
-        break;
-      case jobTypes.reaction:
-        const reactionStructure = parentUser.settings.structures.reaction.find(
-          (i) => i.default
-        );
-        if (!reactionStructure) break;
-
-        outputObject.rigType = reactionStructure.rigType;
-        outputObject.systemType = reactionStructure.systemType;
-        outputObject.structureType = reactionStructure.structureType;
-        outputObject.buildSystem = reactionStructure.systemID;
-        outputObject.appliedStructureID = reactionStructure.id;
-
-        break;
-    }
   }
 
   function addDefaultStructure_New(inputJobType) {

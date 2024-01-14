@@ -5,6 +5,7 @@ import {
   Icon,
   Tooltip,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import DoneIcon from "@mui/icons-material/Done";
@@ -16,8 +17,11 @@ export function MaterialRow({
   material,
   setupToEdit,
   displayType,
+  temporaryChildJobs,
+  parentChildToEdit,
+  updateParentChildToEdit,
 }) {
-  const [addJob, updateAddJob] = useState(false);
+  const theme = useTheme();
 
   const quantityToUse =
     displayType === "active"
@@ -25,48 +29,70 @@ export function MaterialRow({
           .quantity
       : material.quantity;
 
+  const jobTypeTextMap = {
+    [jobTypes.baseMaterial]: "Base Material",
+    [jobTypes.manufacturing]: "Manufacturing Job",
+    [jobTypes.reaction]: "Reaction Job",
+    [jobTypes.pi]: "Planetary Interaction",
+  };
+
+  function colorSelector() {
+    const { jobType, typeID } = material;
+    const { childJobs } = activeJob.build;
+
+    switch (jobType) {
+      case jobTypes.manufacturing:
+      case jobTypes.reaction:
+        if (childJobs[typeID].length > 0) {
+          return jobType === jobTypes.manufacturing
+            ? theme.palette.manufacturing.main
+            : theme.palette.reaction.main;
+        } else if (
+          temporaryChildJobs[typeID] ||
+          parentChildToEdit.childJobs[typeID]?.add.length > 0
+        ) {
+          return theme.palette.warning.main;
+        } else {
+          return jobType === jobTypes.manufacturing
+            ? theme.palette.manufacturing.main
+            : theme.palette.reaction.main;
+        }
+
+      case jobTypes.pi:
+        return theme.palette.pi.main;
+
+      default:
+        return theme.palette.baseMat.main;
+    }
+  }
+
   return (
-    <Grid item container direction="row">
+    <Grid item container>
       <Grid item xs={2} sm={1} align="center">
-        {activeJob.build.childJobs[material.typeID].length === 0 ? (
-          addJob ? (
-            <CircularProgress size={14} color="primary" />
-          ) : (
-            <Tooltip
-              title={
-                material.jobType === jobTypes.manufacturing
-                  ? "Manufacturing Job"
-                  : material.jobType === jobTypes.reaction
-                  ? "Reaction Job"
-                  : material.jobType === jobTypes.pi
-                  ? "Planetary Interaction"
-                  : "Base Material"
-              }
-              placement="left-start"
-              arrow
+        {activeJob.build.childJobs[material.typeID].length === 0 &&
+        !temporaryChildJobs[material.typeID] &&
+        (!parentChildToEdit.childJobs[material.typeID]?.add ||
+          parentChildToEdit.childJobs[material.typeID].add.length === 0) ? (
+          <Tooltip
+            title={jobTypeTextMap[material.jobType]}
+            placement="left-start"
+            arrow
+          >
+            <Icon
+              sx={{
+                color: colorSelector(),
+              }}
             >
-              <Icon
-                sx={{
-                  color:
-                    material.jobType === jobTypes.manufacturing
-                      ? "manufacturing.main"
-                      : material.jobType === jobTypes.reaction
-                      ? "reaction.main"
-                      : material.jobType === jobTypes.pi
-                      ? "pi.main"
-                      : "baseMat.main",
-                }}
-              >
-                <LensIcon fontSize="small" />
-              </Icon>
-            </Tooltip>
-          )
+              <LensIcon fontSize="small" />
+            </Icon>
+          </Tooltip>
         ) : (
           <Tooltip
             title={
-              material.jobType === jobTypes.manufacturing
-                ? "Manufacturing Child Job Linked."
-                : "Reaction Child Job Linked."
+              temporaryChildJobs[material.typeID] ||
+              parentChildToEdit.childJobs[material.typeID]?.add.length > 0
+                ? `${jobTypeTextMap[material.jobType]} Pending`
+                : `${jobTypeTextMap[material.jobType]} Linked`
             }
             placement="left-start"
             arrow
@@ -74,14 +100,7 @@ export function MaterialRow({
             <Icon
               size="small"
               sx={{
-                color:
-                  material.jobType === jobTypes.manufacturing
-                    ? "manufacturing.main"
-                    : material.jobType === jobTypes.reaction
-                    ? "reaction.main"
-                    : material.jobType === jobTypes.pi
-                    ? "pi.main"
-                    : "baseMat.main",
+                color: colorSelector(),
               }}
             >
               <DoneIcon size={22} />

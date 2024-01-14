@@ -28,7 +28,7 @@ import { grey } from "@mui/material/colors";
 import { CompactAccordionContents } from "./Compact/compactContents";
 import GLOBAL_CONFIG from "../../../global-config-app";
 
-export function PlannerAccordion({ updateEditJobTrigger }) {
+export function PlannerAccordion() {
   const { users } = useContext(UsersContext);
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -193,15 +193,9 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
             </AccordionSummary>
             <AccordionDetails>
               {parentUser.settings.layout.enableCompactView ? (
-                <CompactAccordionContents
-                  updateEditJobTrigger={updateEditJobTrigger}
-                  status={status}
-                />
+                <CompactAccordionContents status={status} />
               ) : (
-                <ClassicAccordionContents
-                  updateEditJobTrigger={updateEditJobTrigger}
-                  status={status}
-                />
+                <ClassicAccordionContents status={status} />
               )}
             </AccordionDetails>
           </Accordion>

@@ -29,11 +29,14 @@ export function AvailableTransactionsPanel({
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { esiCorpData } = useContext(CorpEsiDataContext);
+  const { corpEsiData } = useContext(CorpEsiDataContext);
   const { buildTransactionData } = useMarketOrderFunctions();
   const analytics = getAnalytics();
 
-  const transactionData = buildTransactionData(activeJob, esiDataToLink.transactions.add);
+  const transactionData = buildTransactionData(
+    activeJob,
+    esiDataToLink.transactions.add
+  );
 
   return (
     <Paper
@@ -71,9 +74,7 @@ export function AvailableTransactionsPanel({
               const charData = users.find(
                 (i) => i.CharacterHash === tData.CharacterHash
               );
-              const corpData = esiCorpData.find(
-                (i) => i.corporation_id === charData?.corporation_id
-              );
+              const corpData = corpEsiData.get(charData?.corporation_id);
               return (
                 <Grid
                   item

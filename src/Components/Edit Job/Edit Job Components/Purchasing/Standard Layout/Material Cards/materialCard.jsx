@@ -21,6 +21,7 @@ export function MaterialCard({
   marketDisplay,
   parentChildToEdit,
   updateParentChildToEdit,
+  temporaryChildJobs,
 }) {
   const [childDialogTrigger, updateChildDialogTrigger] = useState(false);
   const [itemAssetsDialogTrigger, updateItemAssetsDialogTrigger] =
@@ -32,7 +33,16 @@ export function MaterialCard({
   let childJobs = [];
   let childJobProductionTotal = 0;
 
-  const childJobLocation = activeJob.build.childJobs[material.typeID];
+
+  const childJobLocation = [
+    ...activeJob.build.childJobs[material.typeID],
+    ...(temporaryChildJobs[material.typeID]
+      ? [temporaryChildJobs[material.typeID].jobID]
+      : []),
+    ...(parentChildToEdit.childJobs[material.typeID]?.add
+      ? parentChildToEdit.childJobs[material.typeID].add
+      : []),
+  ];
 
   if (childJobLocation.length > 0) {
     function filterJobs(jobList) {
@@ -46,7 +56,7 @@ export function MaterialCard({
         0
       );
     } else {
-      childJobs = filterJobs(jobArray);
+      childJobs = filterJobs([...jobArray, Object.entries(temporaryChildJobs)]);
       childJobProductionTotal = childJobs.reduce(
         (total, job) => total + job.build.products.totalQuantity,
         0
@@ -65,6 +75,7 @@ export function MaterialCard({
         setJobModified={setJobModified}
         parentChildToEdit={parentChildToEdit}
         updateParentChildToEdit={updateParentChildToEdit}
+        temporaryChildJobs={temporaryChildJobs}
       />
       <AssetDialogue
         material={material}

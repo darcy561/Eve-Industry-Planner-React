@@ -4,14 +4,12 @@ import { useInstallCostsCalc } from "./useInstallCostCalc";
 import { useBlueprintCalc } from "../useBlueprintCalc";
 
 export function useRecalcuateJob() {
-  const {
-    calculateJobMaterialQuantities,
-    recalculateItemQty_New,
-    } = useJobBuild();
-    const {CalculateTime_New, CalculateResources_New} = useBlueprintCalc()
+  const { calculateJobMaterialQuantities, recalculateItemQty_New } =
+    useJobBuild();
+  const { CalculateTime_New, CalculateResources_New } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
-  async function recalculateJobForNewTotal(inputJob, requiredQuantity) {
+  function recalculateJobForNewTotal(inputJob, requiredQuantity) {
     if (!inputJob || !requiredQuantity) return;
 
     let setupLocation = inputJob.build.setup;
@@ -50,7 +48,7 @@ export function useRecalcuateJob() {
     for (let setup of Object.values(setupLocation)) {
       setup.estimatedTime = CalculateTime_New(setup, inputJob.skills);
       setup.materialCount = CalculateResources_New(setup);
-      setup.estimatedInstallCost = await calculateInstallCostFromJob(setup);
+      setup.estimatedInstallCost = calculateInstallCostFromJob(setup);
     }
     const newTotalQuantities = calculateJobMaterialQuantities(setupLocation);
 

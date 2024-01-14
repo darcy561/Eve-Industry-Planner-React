@@ -95,8 +95,8 @@ export function useAccountManagement() {
     updateCorpEsiJournal,
     corpEsiTransactions,
     updateCorpEsiTransactions,
-    esiCorpData,
-    updateESICorpData,
+    corpEsiData,
+    updateCorpEsiData,
   } = useContext(CorpEsiDataContext);
   const { updateUserUIData, updateLoginInProgressComplete } =
     useContext(UserLoginUIContext);
@@ -124,7 +124,7 @@ export function useAccountManagement() {
     fetchCharacterJournal,
     fetchCharacterTransactions,
     fetchCharacterAssets,
-    IDtoName,
+    fetchUniverseNames,
     fetchCharacterStandings,
     serverStatus,
   } = useEveApi();
@@ -262,11 +262,11 @@ export function useAccountManagement() {
       });
 
       if ([...citadelIDs].length > 0) {
-        newIDNamePromises.push(IDtoName([...citadelIDs], user));
+        newIDNamePromises.push(fetchUniverseNames([...citadelIDs], user));
       }
     }
     if ([...locationIDS].length > 0) {
-      newIDNamePromises.push(IDtoName([...locationIDS], mainUser));
+      newIDNamePromises.push(fetchUniverseNames([...locationIDS], mainUser));
     }
 
     const returnLocations = await Promise.all(newIDNamePromises);
@@ -305,13 +305,13 @@ export function useAccountManagement() {
     updateEsiTransactions(defaultEsiTransactions);
     updateEsiStandings(defaultEsiStandings);
 
-    updateCorpEsiIndJobs([]);
+    updateCorpEsiIndJobs(new Map());
     updateCorpEsiOrders([]);
     updateCorpEsiHistOrders([]);
     updateCorpEsiBlueprints([]);
     updateCorpEsiJournal([]);
     updateCorpEsiTransactions([]);
-    updateESICorpData([]);
+    updateCorpEsiData(new Map());
 
     sessionStorage.clear();
     localStorage.removeItem("Auth");
@@ -602,7 +602,7 @@ export function useAccountManagement() {
     let transactions = [];
     let journal = [];
     let standings = [];
-    let corpJobs = [];
+    let corpJobs = new Map();
     let corpOrders = [];
     let corpHistMOrders = [];
     let corpBlueprints = [];
@@ -646,10 +646,10 @@ export function useAccountManagement() {
         `assets_${esiUser.owner}`,
         JSON.stringify(esiUser.esiAssets)
       );
-      corpJobs.push({
-        user: esiUser.owner,
-        data: esiUser.esiCorpJobs,
-      });
+      corpJobs.set(
+        esiUser.owner,
+        esiUser.esiCorpJobs,
+      );
       corpOrders.push({
         user: esiUser.owner,
         data: esiUser.esiOrders,
@@ -688,7 +688,7 @@ export function useAccountManagement() {
   };
 
   const updateUserEsiData = (esiObjectArray) => {
-    let usersToUpdate = new Set();
+      let usersToUpdate = new Set();
     let newEsiIndJobs = [...esiIndJobs];
     let newEsiSkills = [...esiSkills];
     let newEsiOrders = [...esiOrders];
@@ -697,7 +697,6 @@ export function useAccountManagement() {
     let newEsiJournal = [...esiJournal];
     let newEsiTransactions = [...esiTransactions];
     let newEsiStandings = [...esiStandings];
-    let newCorpEsiIndJobs = [...corpEsiIndJobs];
     let newCorpEsiOrders = [corpEsiOrders];
     let newCorpEsiHistMOrders = [...corpEsiHistOrders];
     let newCorpEsiBlueprints = [...corpEsiBlueprints];
@@ -722,8 +721,8 @@ export function useAccountManagement() {
       (i) => !usersToUpdate.has(i.user)
     );
     newEsiStandings = newEsiStandings.filter((i) => !usersToUpdate.has(i.user));
-    newCorpEsiIndJobs = newCorpEsiIndJobs.filter(
-      (i) => !usersToUpdate.has(i.user)
+    const newCorpEsiIndJobs = new Map(
+      [...corpEsiIndJobs.entries()].filter(([key]) => !usersToUpdate.has(key))
     );
     newCorpEsiOrders = newCorpEsiOrders.filter(
       (i) => !usersToUpdate.has(i.user)
@@ -778,10 +777,10 @@ export function useAccountManagement() {
         `assets_${esiUser.owner}`,
         JSON.stringify(esiUser.esiAssets)
       );
-      newCorpEsiIndJobs.push({
-        user: esiUser.owner,
-        data: esiUser.esiCorpJobs,
-      });
+      newCorpEsiIndJobs.set(
+       esiUser.owner,
+       esiUser.esiCorpJobs,
+      );
       newCorpEsiOrders.push({
         user: esiUser.owner,
         data: esiUser.esiOrders,
@@ -829,7 +828,6 @@ export function useAccountManagement() {
     let newEsiJournal = [...esiJournal];
     let newEsiTransactions = [...esiTransactions];
     let newEsiStandings = [...esiStandings];
-    let newCorpEsiIndJobs = [...corpEsiIndJobs];
     let newCorpEsiOrders = [...corpEsiOrders];
     let newCorpEsiHistMOrders = [...corpEsiHistOrders];
     let newCorpEsiBlueprints = [...corpEsiBlueprints];
@@ -844,7 +842,7 @@ export function useAccountManagement() {
     newEsiJournal = newEsiJournal.filter((i) => i.user !== userHash);
     newEsiTransactions = newEsiTransactions.filter((i) => i.user !== userHash);
     newEsiStandings = newEsiStandings.filter((i) => i.user !== userHash);
-    newCorpEsiIndJobs = newCorpEsiIndJobs.filter((i) => i.user !== userHash);
+    const newCorpEsiIndJobs = new Map([...corpEsiIndJobs].filter(([key]) => key !== userHash));
     newCorpEsiOrders = newCorpEsiOrders.filter((i) => i.user !== userHash);
     newCorpEsiHistMOrders = newCorpEsiHistMOrders.filter(
       (i) => i.user !== userHash
@@ -883,46 +881,37 @@ export function useAccountManagement() {
   const storeCorpObjects = (esiObjectArray) => {
     const corporationData = filterAndReduceCorpData(esiObjectArray);
 
-    updateESICorpData(corporationData);
+    updateCorpEsiData(corporationData);
 
     function filterAndReduceCorpData(esiObjectArray) {
       return esiObjectArray
         .filter(({ esiCorpPublicInfo }) => esiCorpPublicInfo)
         .reduce(
-          (acc, { esiCorpDivisions, esiCorpPublicInfo, esiCorpAssets }) => {
-            const existingCorpIndex = findExistingCorpIndex(
-              acc,
-              esiCorpPublicInfo
-            );
+          (corpMap, { esiCorpDivisions, esiCorpPublicInfo, esiCorpAssets }) => {
+            const corporationID = esiCorpPublicInfo.corporation_id;
 
-            if (existingCorpIndex === -1) {
-              const newCorpData = createNewCorpData(
-                esiCorpDivisions,
-                esiCorpPublicInfo,
-                esiCorpAssets
+            if (!corpMap.has(corporationID)) {
+              corpMap.set(
+                corporationID,
+                createNewCorpData(
+                  esiCorpDivisions,
+                  esiCorpPublicInfo,
+                  esiCorpAssets
+                )
               );
-              acc.push(newCorpData);
             } else {
               updateExistingCorpData(
-                acc,
-                existingCorpIndex,
+                corpMap.get(corporationID),
                 esiCorpPublicInfo,
                 esiCorpDivisions,
                 esiCorpAssets
               );
             }
 
-            return acc;
+            return corpMap;
           },
-          []
+          new Map()
         );
-    }
-
-    function findExistingCorpIndex(corporationData, esiCorpPublicInfo) {
-      return corporationData.findIndex(
-        ({ corporation_id }) =>
-          corporation_id === esiCorpPublicInfo.corporation_id
-      );
     }
 
     function createNewCorpData(
@@ -930,10 +919,15 @@ export function useAccountManagement() {
       esiCorpPublicInfo,
       esiCorpAssets
     ) {
+
+      const staticHangars = {
+        division:0, name:"Projects", assetLocationRef:"CorporationGoalDeliveries"
+      }
+      
       const updatedHangarData = esiCorpDivisions?.hangar.map((hangarItem) => ({
         ...hangarItem,
         assetLocationRef: `CorpSAG${hangarItem.division}`,
-      }));
+      })).concat([staticHangars])
 
       if (esiCorpAssets.length > 0) {
         sessionStorage.setItem(
@@ -955,15 +949,14 @@ export function useAccountManagement() {
         tax_rate: esiCorpPublicInfo.tax_rate,
         ticker: esiCorpPublicInfo.ticker,
         corporation_id: esiCorpPublicInfo.corporation_id,
-        hangar: updatedHangarData || null,
-        wallet: esiCorpDivisions?.wallet || null,
+        hangars: updatedHangarData || null,
+        wallets: esiCorpDivisions?.wallet || null,
         officeLocations: [...officeLocations],
       };
     }
 
     function updateExistingCorpData(
-      corporationData,
-      index,
+      existingCorp,
       esiCorpPublicInfo,
       esiCorpDivisions,
       esiCorpAssets
@@ -982,10 +975,9 @@ export function useAccountManagement() {
         return prev;
       }, new Set());
 
-      const existingCorp = corporationData[index];
       if (esiCorpDivisions && (!existingCorp.hangar || !existingCorp.wallet)) {
-        existingCorp.hangar = esiCorpDivisions.hangar;
-        existingCorp.wallet = esiCorpDivisions.wallet;
+        existingCorp.hangars = esiCorpDivisions.hangar;
+        existingCorp.wallets = esiCorpDivisions.wallet;
       }
       existingCorp.officeLocations = [
         ...new Set([...officeLocations], existingCorp.officeLocations),

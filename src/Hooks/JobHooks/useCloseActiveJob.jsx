@@ -82,44 +82,7 @@ export function useCloseActiveJob() {
 
     let parentIDsToRemove = new Set();
     const modifiedJobsSet = new Set();
-    for (let parentID of inputJob.parentJob) {
-      let parentJob = await findJobData(
-        parentID,
-        newUserJobSnapshot,
-        newJobArray
-      );
 
-      if (!parentJob) continue;
-
-      let parentMaterial = parentJob.build.materials.find(
-        (mat) => mat.typeID === inputJob.itemID
-      );
-
-      if (!parentMaterial) continue;
-
-      if (parentMaterial.typeID !== inputJob.itemID) {
-        parentIDsToRemove.add(parentID);
-        modifiedJobsSet.add(parentJob.jobID);
-        continue;
-      }
-
-      let childJobSet = new Set(
-        parentJob.build.childJobs[parentMaterial.typeID]
-      );
-
-      if (!childJobSet.has(inputJob.jobID)) {
-        childJobSet.add(inputJob.jobID);
-        modifiedJobsSet.add(parentJob.jobID);
-        parentJob.build.childJobs[parentMaterial.typeID] = [...childJobSet];
-      }
-    }
-    if (parentIDsToRemove.size > 0) {
-      let replacementParentJobs = new Set(inputJob.parentJob);
-      parentIDsToRemove.forEach((id) => {
-        replacementParentJobs.delete(id);
-      });
-      inputJob.parentJob = [...replacementParentJobs];
-    }
     for (const idToRemove of parentChildToEdit.parentJobs.remove) {
       let matchingJob = newJobArray.find((i) => i.jobID === idToRemove);
       if (!matchingJob) continue;
@@ -129,28 +92,84 @@ export function useCloseActiveJob() {
         );
       modifiedJobsSet.add(matchingJob.jobID);
     }
+    inputJob.parentJob = inputJob.parentJob.filter(
+      (i) => !parentChildToEdit.parentJobs.remove.includes(i)
+    );
+
+    for (let idToAdd of parentChildToEdit.parentJobs.add) {
+      let matchingJob = newJobArray.find((i) => i.jobID === idToAdd);
+      if (!matchingJob) continue;
+      matchingJob.build.childJobs[inputJob.itemID].push(idToAdd);
+      modifiedJobsSet.add(matchingJob.jobID);
+    }
+    inputJob.parentJob = [
+      ...new Set([...inputJob.parentJob, ...parentChildToEdit.parentJobs.add]),
+    ];
 
     for (let material of inputJob.build.materials) {
       let childJobsToRemove = new Set();
-      if (parentChildToEdit.childJobs[material.typeID]) {
-        for (const idToAdd of parentChildToEdit.childJobs[material.typeID]
-          .remove) {
-          const matchedJob = newJobArray.find((i) => i.jobID === idToAdd);
-          if (!matchedJob) continue;
-          matchedJob.parentJob.push(inputJob.jobID);
-          modifiedJobsSet.add(matchedJob.jobID);
+      if (!parentChildToEdit.childJobs[material.typeID]) continue;
+
+      for (const idToAdd of parentChildToEdit.childJobs[material.typeID].add) {
+        const matchedJob = newJobArray.find((i) => i.jobID === idToAdd);
+        if (!matchedJob) continue;
+        matchedJob.parentJob.push(inputJob.jobID);
+        inputJob.build.childJobs[material.typeID].push(idToAdd);
+        modifiedJobsSet.add(matchedJob.jobID);
+      }
+      
+      for (const idToRemove of parentChildToEdit.childJobs[material.typeID]
+        .remove) {
+        let matchedJob = newJobArray.find((i) => i.jobID === idToRemove);
+        if (!matchedJob) continue;
+        matchedJob.parentJob = matchedJob.parentJob.filter(
+          (i) => i !== inputJob.jobID
+        );
+        inputJob.build.childJobs[material.typeID] = inputJob.build.childJobs[
+          material.typeID
+        ].filter((i) => i !== matchedJob.jobID);
+        modifiedJobsSet.add(matchedJob.jobID);
+      }
+
+      for (let parentID of inputJob.parentJob) {
+        let parentJob = await findJobData(
+          parentID,
+          newUserJobSnapshot,
+          newJobArray
+        );
+
+        if (!parentJob) continue;
+
+        let parentMaterial = parentJob.build.materials.find(
+          (mat) => mat.typeID === inputJob.itemID
+        );
+
+        if (!parentMaterial) continue;
+
+        if (parentMaterial.typeID !== inputJob.itemID) {
+          parentIDsToRemove.add(parentID);
+          modifiedJobsSet.add(parentJob.jobID);
+          continue;
         }
-        for (const idToRemove of parentChildToEdit.childJobs[material.typeID]
-          .remove) {
-          let matchedJob = newJobArray.find((i) => i.jobID === idToRemove);
-          if (!matchedJob) continue;
-          matchedJob.parentJob = matchedJob.parentJob.filter(
-            (i) => i !== inputJob.jobID
-          );
-          modifiedJobsSet.add(matchedJob.jobID);
+
+        let childJobSet = new Set(
+          parentJob.build.childJobs[parentMaterial.typeID]
+        );
+
+        if (!childJobSet.has(inputJob.jobID)) {
+          childJobSet.add(inputJob.jobID);
+          modifiedJobsSet.add(parentJob.jobID);
+          parentJob.build.childJobs[parentMaterial.typeID] = [...childJobSet];
         }
       }
 
+      if (parentIDsToRemove.size > 0) {
+        let replacementParentJobs = new Set(inputJob.parentJob);
+        parentIDsToRemove.forEach((id) => {
+          replacementParentJobs.delete(id);
+        });
+        inputJob.parentJob = [...replacementParentJobs];
+      }
       for (let childJobID of inputJob.build.childJobs[material.typeID]) {
         let childJob = await findJobData(
           childJobID,

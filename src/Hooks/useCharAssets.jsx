@@ -9,7 +9,7 @@ export function useCharAssets() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
   const { eveIDs } = useContext(EveIDsContext);
-  const { IDtoName } = useEveApi();
+  const { fetchUniverseNames } = useEveApi();
   const {
     acceptedDirectLocationTypes,
     acceptedExtendedLocationTypes,
@@ -65,12 +65,12 @@ export function useCharAssets() {
         }
       }
       if ([...missingCitadelIDs].length > 0) {
-        let tempCit = await IDtoName([...missingCitadelIDs], user);
+        let tempCit = await fetchUniverseNames([...missingCitadelIDs], user);
         newEveIDs = newEveIDs.concat(tempCit);
       }
     }
     if ([...missingStationIDs].length > 0) {
-      let tempStation = await IDtoName([...missingStationIDs], parentUser);
+      let tempStation = await fetchUniverseNames([...missingStationIDs], parentUser);
       newEveIDs = newEveIDs.concat(tempStation);
     }
 
@@ -163,7 +163,7 @@ export function useCharAssets() {
         }
 
         if ([...missingCitadelIDs].length > 0) {
-          let tempCit = await IDtoName([...missingCitadelIDs], user);
+          let tempCit = await fetchUniverseNames([...missingCitadelIDs], user);
           newEveIDs = newEveIDs.concat(tempCit);
         }
       }
@@ -171,7 +171,7 @@ export function useCharAssets() {
     }
 
     if ([...missingStationIDs].length > 0) {
-      let tempStation = await IDtoName([...missingStationIDs], parentUser);
+      let tempStation = await fetchUniverseNames([...missingStationIDs], parentUser);
       newEveIDs = newEveIDs.concat(tempStation);
     }
     return [filteredAssetList, newEveIDs, itemLocations];

@@ -36,7 +36,9 @@ export function EditJobSetup({
   const { recalcuateJobFromSetup } = useUpdateSetupValue();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
-  let buildObject = activeJob.build.setup[setupToEdit]
+  if (!activeJob.build.setup[setupToEdit]) return null;
+
+  let buildObject = activeJob.build.setup[setupToEdit];
 
   const [runCountInput, updateRunCountInput] = useState(buildObject.runCount);
   const [jobCountInput, updateJobCountInput] = useState(buildObject.jobCount);
@@ -85,6 +87,7 @@ export function EditJobSetup({
                   buildObject,
                   "runCount",
                   valueToPass,
+                  undefined,
                   activeJob,
                   updateActiveJob,
                   false
@@ -121,6 +124,7 @@ export function EditJobSetup({
                   buildObject,
                   "jobCount",
                   valueToPass,
+                  undefined,
                   activeJob,
                   updateActiveJob,
                   false
@@ -142,7 +146,7 @@ export function EditJobSetup({
                         display: "none",
                       },
                   }}
-                  fullWidth={true}
+                  fullWidth
                 >
                   <Select
                     variant="standard"
@@ -153,6 +157,7 @@ export function EditJobSetup({
                         buildObject,
                         "ME",
                         e.target.value,
+                        undefined,
                         activeJob,
                         updateActiveJob,
                         false
@@ -195,6 +200,7 @@ export function EditJobSetup({
                         buildObject,
                         "TE",
                         e.target.value,
+                        undefined,
                         activeJob,
                         updateActiveJob,
                         false
@@ -252,6 +258,7 @@ export function EditJobSetup({
                         buildObject,
                         "customStructureID",
                         e.target.value,
+                        undefined,
                         activeJob,
                         updateActiveJob,
                         false
@@ -290,7 +297,7 @@ export function EditJobSetup({
                         display: "none",
                       },
                   }}
-                  fullWidth={true}
+                  fullWidth
                 >
                   <Select
                     variant="standard"
@@ -307,6 +314,7 @@ export function EditJobSetup({
                         buildObject,
                         "selectedCharacter",
                         e.target.value,
+                        undefined,
                         activeJob,
                         updateActiveJob,
                         false
@@ -361,6 +369,10 @@ function ManualStructureSelection({
     [jobTypes.reaction]: structureOptions.reactionSystem,
   };
 
+  const systemIDMap = useMemo(() => {
+    return buildSystemIDMap(systemIDS);
+  }, []);
+
   if (activeJob.build.setup[setupToEdit].customStructureID) return null;
 
   return (
@@ -398,6 +410,8 @@ function ManualStructureSelection({
                   buildObject,
                   "structureID",
                   e.target.value,
+                  structureTypeMap[activeJob.jobType][e.target.value]
+                    .requirements,
                   activeJob,
                   updateActiveJob,
                   false
@@ -441,6 +455,7 @@ function ManualStructureSelection({
                 buildObject,
                 "rigID",
                 e.target.value,
+                rigTypeMap[activeJob.jobType][e.target.value].requirements,
                 activeJob,
                 updateActiveJob,
                 false
@@ -481,6 +496,7 @@ function ManualStructureSelection({
                 buildObject,
                 "systemTypeID",
                 e.target.value,
+                systemTypeMap[activeJob.jobType][e.target.value].requirements,
                 activeJob,
                 updateActiveJob,
                 false
@@ -519,6 +535,9 @@ function ManualStructureSelection({
               id="System Search"
               clearOnBlur
               blurOnSelect
+              value={
+                systemIDMap[activeJob.build.setup[setupToEdit].systemID]
+              }
               variant="standard"
               size="small"
               options={systemIDS}
@@ -529,6 +548,7 @@ function ManualStructureSelection({
                   buildObject,
                   "systemID",
                   Number(value.id),
+                  undefined,
                   activeJob,
                   updateActiveJob,
                   true
@@ -549,13 +569,17 @@ function ManualStructureSelection({
                     ...params.InputProps,
                     type: "System Name",
                   }}
+                  value={
+                    systemIDMap[activeJob.build.setup[setupToEdit].systemID]
+                      .name
+                  }
                 />
               )}
             />
             <FormHelperText variant="standard">System Name</FormHelperText>
           </FormControl>
         ) : (
-            <CircularProgress size={26} />
+          <CircularProgress size={26} />
         )}
       </Grid>
       <Grid item xs={6}>
@@ -584,6 +608,7 @@ function ManualStructureSelection({
               buildObject,
               "taxValue",
               inputValue,
+              null,
               activeJob,
               updateActiveJob,
               false
@@ -594,4 +619,14 @@ function ManualStructureSelection({
       </Grid>
     </>
   );
+}
+
+function buildSystemIDMap(systemIDArray) {
+  let results = {};
+
+  for (let system of systemIDArray) {
+    results[system.id] = system;
+  }
+
+  return results;
 }

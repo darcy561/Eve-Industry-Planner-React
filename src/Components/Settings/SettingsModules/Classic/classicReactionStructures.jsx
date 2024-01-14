@@ -28,9 +28,12 @@ import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import systemIDS from "../../../../RawData/systems.json";
 import uuid from "react-uuid";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+import { useMissingSystemIndex } from "../../../../Hooks/GeneralHooks/useImportMissingSystemIndexData";
+import { SystemIndexContext } from "../../../../Context/EveDataContext";
 
 export function ClassicReactionStrutures({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
+  const { updateSystemIndexData } = useContext(SystemIndexContext);
   const { updateMainUserDoc } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const [textValue, updateTextValue] = useState("");
@@ -45,10 +48,11 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
   );
   const [taxValue, updateTaxValue] = useState("");
   const [systemIDValue, updateSystemIDValue] = useState("");
+  const { findMissingSystemIndex } = useMissingSystemIndex();
   const analytics = getAnalytics();
-  const {PRIMARY_THEME} = GLOBAL_CONFIG
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  const handleSubmit = (event) => {
+  async function handleSubmit(event) {
     event.preventDefault();
     let newUsersArray = [...users];
     newUsersArray[parentUserIndex].settings.structures.reaction.push({
@@ -64,7 +68,11 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
           ? true
           : false,
     });
+
+    const updatedSystemIndex = await findMissingSystemIndex(systemIDValue);
+
     updateMainUserDoc(newUsersArray);
+    updateSystemIndexData(updatedSystemIndex);
     updateUsers(newUsersArray);
     logEvent(analytics, "Add Reaction Structure", {
       UID: newUsersArray[parentUserIndex].accountID,
@@ -76,7 +84,7 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
       severity: "success",
       autoHideDuration: 1000,
     }));
-  };
+  }
 
   return (
     <Paper elevation={3} sx={{ padding: "20px" }} square={true}>

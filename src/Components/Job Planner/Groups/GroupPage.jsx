@@ -15,6 +15,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import DoneIcon from "@mui/icons-material/Done";
+import SaveIcon from '@mui/icons-material/Save';
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { OutputJobsPanel } from "./OutputJobs";
 import { GroupAccordion } from "./groupAccordion";
@@ -28,7 +29,7 @@ import { ShoppingListDialog } from "../Dialogues/ShoppingList/ShoppingList";
 
 export default function GroupPage() {
   const { activeGroup } = useContext(ActiveJobContext);
-  const { jobArray, groupArray } = useContext(JobArrayContext);
+  const { jobArray, groupArray, updateGroupArray  } = useContext(JobArrayContext);
   const [groupJobs, updateGroupJobs] = useState([]);
   const [groupPageRefresh, updateGroupPageRefresh] = useState(false);
   const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
@@ -75,6 +76,7 @@ export default function GroupPage() {
     updateGroupJobs(groupJobs);
     updateGroupPageRefresh((prev) => !prev);
   }, [activeGroup, groupArray, jobArray]);
+
 
   const handleNameChange = (event) => {
     event.preventDefault();
@@ -165,15 +167,17 @@ export default function GroupPage() {
                 />
               </Grid>
               <Grid item xs={1}>
-                <IconButton color="success" onClick={handleNameChange}>
-                  <DoneIcon />
-                </IconButton>
+                <Tooltip title="Save group name" arrow placement="bottom">
+                <IconButton color="primary" onClick={handleNameChange}>
+                  <SaveIcon />
+                  </IconButton>
+                  </Tooltip>
               </Grid>
             </Grid>
           ) : (
             <Grid item xs={12}>
               <Typography variant="h3" align="left" color="primary">
-                {activeGroup.groupName}
+                {activeGroupObject.groupName}
               </Typography>
             </Grid>
           )}

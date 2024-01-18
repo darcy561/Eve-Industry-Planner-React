@@ -32,6 +32,7 @@ export function GroupOptionsBar({
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { buildChildJobs } = useBuildChildJobs();
+  const {buildNextJobs} = useGroupManagement()
 
   let activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
 
@@ -161,9 +162,9 @@ export function GroupOptionsBar({
                 onClick={async () => {
                   updateShowProcessing((prev) => !prev);
                   if (multiSelectJobPlanner.length > 0) {
-                    await buildChildJobs(multiSelectJobPlanner);
+                    await buildNextJobs(multiSelectJobPlanner);
                   } else {
-                    await buildChildJobs(activeGroupObject.includedJobIDs);
+                    await buildNextJobs(activeGroupObject.includedJobIDs);
                   }
                   updateShowProcessing((prev) => !prev);
                 }}

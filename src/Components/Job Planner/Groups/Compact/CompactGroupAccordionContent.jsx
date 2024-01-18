@@ -7,7 +7,7 @@ export function CompactGroupAccordionContent({ status, statusJobs }) {
   const { activeGroup } = useContext(ActiveJobContext);
   const { groupArray } = useContext(JobArrayContext);
 
-  const activeGroupObject = groupArray.find((i) => i.grouID === activeGroup);
+  const activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
 
   return (
     <Grid container>

@@ -24,6 +24,7 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
 
   const matchedCorporation = corpEsiData.get(selectedCorporation);
 
+
   useEffect(() => {
     async function buildCorporationAssestsTree() {
       const requiredUserObject = users.find(
@@ -108,9 +109,11 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
     !characterBlueprintsMap
   )
     return <AssetsPage_Loading />;
+
   return (
     <>
       {Array.from(topLevelAssets).map(([locationID, assets], index) => {
+        console.log(assets)
         let depth = 1;
         return (
           <AssetEntry_TopLevel_CorporationOffices

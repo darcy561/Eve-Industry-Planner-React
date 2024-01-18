@@ -529,11 +529,23 @@ export function useAccountManagement() {
 
   const buildApiArray = (userArray, esiObjectArray) => {
     let newApiArray = [];
+    const includedIDs = new Set();
     for (let user of userArray) {
       let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
       if (!data) continue;
 
-      newApiArray = newApiArray.concat(data.esiJobs, data.esiCorpJobs);
+      data.esiCorpJobs.forEach((job) => {
+        if (includedIDs.has(job.job_id)) return;
+        includedIDs.add(job.job_id);
+        newApiArray.push(job);
+      });
+      data.esiJobs.forEach((job) => {
+        if (includedIDs.has(job.job_id)) return;
+        includedIDs.add(job.job_id);
+        newApiArray.push(job);
+      });
+
+      // newApiArray = newApiArray.concat(data.esiJobs, data.esiCorpJobs);
     }
 
     newApiArray.sort((a, b) => {
@@ -646,10 +658,7 @@ export function useAccountManagement() {
         `assets_${esiUser.owner}`,
         JSON.stringify(esiUser.esiAssets)
       );
-      corpJobs.set(
-        esiUser.owner,
-        esiUser.esiCorpJobs,
-      );
+      corpJobs.set(esiUser.owner, esiUser.esiCorpJobs);
       corpOrders.push({
         user: esiUser.owner,
         data: esiUser.esiOrders,
@@ -688,7 +697,7 @@ export function useAccountManagement() {
   };
 
   const updateUserEsiData = (esiObjectArray) => {
-      let usersToUpdate = new Set();
+    let usersToUpdate = new Set();
     let newEsiIndJobs = [...esiIndJobs];
     let newEsiSkills = [...esiSkills];
     let newEsiOrders = [...esiOrders];
@@ -777,10 +786,7 @@ export function useAccountManagement() {
         `assets_${esiUser.owner}`,
         JSON.stringify(esiUser.esiAssets)
       );
-      newCorpEsiIndJobs.set(
-       esiUser.owner,
-       esiUser.esiCorpJobs,
-      );
+      newCorpEsiIndJobs.set(esiUser.owner, esiUser.esiCorpJobs);
       newCorpEsiOrders.push({
         user: esiUser.owner,
         data: esiUser.esiOrders,
@@ -842,7 +848,9 @@ export function useAccountManagement() {
     newEsiJournal = newEsiJournal.filter((i) => i.user !== userHash);
     newEsiTransactions = newEsiTransactions.filter((i) => i.user !== userHash);
     newEsiStandings = newEsiStandings.filter((i) => i.user !== userHash);
-    const newCorpEsiIndJobs = new Map([...corpEsiIndJobs].filter(([key]) => key !== userHash));
+    const newCorpEsiIndJobs = new Map(
+      [...corpEsiIndJobs].filter(([key]) => key !== userHash)
+    );
     newCorpEsiOrders = newCorpEsiOrders.filter((i) => i.user !== userHash);
     newCorpEsiHistMOrders = newCorpEsiHistMOrders.filter(
       (i) => i.user !== userHash
@@ -919,15 +927,18 @@ export function useAccountManagement() {
       esiCorpPublicInfo,
       esiCorpAssets
     ) {
-
       const staticHangars = {
-        division:0, name:"Projects", assetLocationRef:"CorporationGoalDeliveries"
-      }
-      
-      const updatedHangarData = esiCorpDivisions?.hangar.map((hangarItem) => ({
-        ...hangarItem,
-        assetLocationRef: `CorpSAG${hangarItem.division}`,
-      })).concat([staticHangars])
+        division: 0,
+        name: "Projects",
+        assetLocationRef: "CorporationGoalDeliveries",
+      };
+
+      const updatedHangarData = esiCorpDivisions?.hangar
+        .map((hangarItem) => ({
+          ...hangarItem,
+          assetLocationRef: `CorpSAG${hangarItem.division}`,
+        }))
+        .concat([staticHangars]);
 
       if (esiCorpAssets.length > 0) {
         sessionStorage.setItem(
@@ -980,7 +991,7 @@ export function useAccountManagement() {
         existingCorp.wallets = esiCorpDivisions.wallet;
       }
       existingCorp.officeLocations = [
-        ...new Set([...officeLocations], existingCorp.officeLocations),
+        ...new Set([...officeLocations, ...existingCorp.officeLocations]),
       ];
     }
   };

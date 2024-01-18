@@ -87,6 +87,7 @@ export function useInstallCostsCalc() {
     ) {
       if (
         systemIndexData[requiredSystemID] ||
+        !alternativeSystemIndexData ||
         !alternativeSystemIndexData[requiredSystemID]
       ) {
         return (

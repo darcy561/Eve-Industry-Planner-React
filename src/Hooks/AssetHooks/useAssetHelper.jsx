@@ -127,6 +127,7 @@ export function useAssetHelperHooks() {
 
         hangarMap.set(assetLocationRef, filteredAssets);
       });
+
       topLevelAssetLocations.set(locationID, hangarMap);
     });
 

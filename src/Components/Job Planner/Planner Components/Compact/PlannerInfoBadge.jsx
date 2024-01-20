@@ -2,13 +2,21 @@ import { Icon, Tooltip } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 
+<<<<<<< HEAD
 function getTooltipContent(job, timeRemaining) {
+=======
+function getTooltipContent(job, timeRemaining){
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   switch (job.jobStatus) {
     case 0:
       return (
         <span>
+<<<<<<< HEAD
           <p>Runs: {job.runCount.toLocaleString()}</p>
           <p>Job Slots: {job.jobCount.toLocaleString()} </p>
+=======
+          <p>Job Setups: {job.totalSetupCount}</p>
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
         </span>
       );
     case 1:

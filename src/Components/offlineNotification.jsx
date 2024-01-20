@@ -1,5 +1,5 @@
-import { Grid, Paper, Typography } from "@mui/material";
 import { useContext } from "react";
+import { Grid, Paper, Typography } from "@mui/material";
 import { IsLoggedInContext } from "../Context/AuthContext";
 import { EveESIStatusContext } from "../Context/EveDataContext";
 
@@ -12,7 +12,7 @@ export function ESIOffline() {
       <Grid item xs={12}>
         <Paper
           elevation={2}
-          square={true}
+          square
           sx={{
             padding: "20px",
             marginRight: { md: "10px" },
@@ -36,5 +36,5 @@ export function ESIOffline() {
         </Paper>
       </Grid>
     );
-  } else return null;
+  }
 }

@@ -33,7 +33,7 @@ export const JobArray = (props) => {
 export const ActiveJobContext = createContext();
 
 export const ActiveJob = (props) => {
-  const [activeJob, updateActiveJob] = useState({});
+  const [activeJob, updateActiveJob] = useState(null);
   const [activeGroup, updateActiveGroup] = useState(null);
 
   return (

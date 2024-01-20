@@ -20,6 +20,7 @@ import {
   EvePrices,
   PersonalEsiData,
   SisiDataFiles,
+  SystemIndex,
 } from "./Context/EveDataContext";
 import {
   DataExchange,
@@ -33,6 +34,7 @@ import {
   MassBuildDisplay,
   JobPlannerPageTrigger,
   UserLoginUI,
+  ShoppingList,
 } from "./Context/LayoutContext";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -65,29 +67,33 @@ export function AppWrapper() {
                                             <EveIDs>
                                               <EveESIStatus>
                                                 <EvePrices>
-                                                  <MultiSelectJobPlanner>
-                                                    <PriceEntryList>
-                                                      <SisiDataFiles>
-                                                        <MassBuildDisplay>
-                                                          <ArchivedJobs>
-                                                            <LocalizationProvider
-                                                              dateAdapter={
-                                                                AdapterDateFns
-                                                              }
-                                                            >
-                                                              <DndProvider
-                                                                backend={
-                                                                  HTML5Backend
-                                                                }
-                                                              >
-                                                                <App />
-                                                              </DndProvider>
-                                                            </LocalizationProvider>
-                                                          </ArchivedJobs>
-                                                        </MassBuildDisplay>
-                                                      </SisiDataFiles>
-                                                    </PriceEntryList>
-                                                  </MultiSelectJobPlanner>
+                                                  <SystemIndex>
+                                                    <MultiSelectJobPlanner>
+                                                      <PriceEntryList>
+                                                        <ShoppingList>
+                                                          <SisiDataFiles>
+                                                            <MassBuildDisplay>
+                                                              <ArchivedJobs>
+                                                                <LocalizationProvider
+                                                                  dateAdapter={
+                                                                    AdapterDateFns
+                                                                  }
+                                                                >
+                                                                  <DndProvider
+                                                                    backend={
+                                                                      HTML5Backend
+                                                                    }
+                                                                  >
+                                                                    <App />
+                                                                  </DndProvider>
+                                                                </LocalizationProvider>
+                                                              </ArchivedJobs>
+                                                            </MassBuildDisplay>
+                                                          </SisiDataFiles>
+                                                        </ShoppingList>
+                                                      </PriceEntryList>
+                                                    </MultiSelectJobPlanner>
+                                                  </SystemIndex>
                                                 </EvePrices>
                                               </EveESIStatus>
                                             </EveIDs>

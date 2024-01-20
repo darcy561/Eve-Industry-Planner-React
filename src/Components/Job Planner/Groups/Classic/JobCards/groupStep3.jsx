@@ -22,6 +22,13 @@ export default function GroupStep3JobCard({ job }) {
     return timeRemainingCalc(Date.parse(tempJobs[0].end_date));
   }, [job]);
 
+  const totalJobCount = Object.values(job.build.setup).reduce(
+    (prev, { jobCount }) => {
+      return (prev += jobCount);
+    },
+    0
+  );
+
   return (
     <Grid
       container
@@ -41,7 +48,7 @@ export default function GroupStep3JobCard({ job }) {
             sx={{ typography: { xs: "body2", md: "body1" } }}
             align="right"
           >
-            {job.apiJobs.size.toLocaleString()}/{job.jobCount}
+            {job.apiJobs.size.toLocaleString()}/{totalJobCount}
           </Typography>
         </Grid>
 

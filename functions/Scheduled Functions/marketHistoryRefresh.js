@@ -1,19 +1,21 @@
 const { GLOBAL_CONFIG } = require("../global-config-functions");
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const axios = require("axios")
-const { ESIMarketHistoryQuery } = require("../sharedFunctions/fetchMarketHistory");
+const axios = require("axios");
+const {
+  ESIMarketHistoryQuery,
+} = require("../sharedFunctions/fetchMarketHistory");
 
 const {
   FIREBASE_SERVER_REGION,
   FIREBASE_SERVER_TIMEZONE,
-  DEFAUL_ITEM_HISTROY_REFRESH_PERIOD,
+  DEFAULT_ITEM_HISTROY_REFRESH_PERIOD,
   DEFAULT_ITEM_MARKET_HISTORY_REFRESH_QUANTITY,
 } = GLOBAL_CONFIG;
 const EVE_SERVER_STATUS_API =
   "https://esi.evetech.net/latest/status/?datasource=tranquility";
 const MARKET_PRICES_REF = "live-data/market-history";
-const TIME_LIMIT = DEFAUL_ITEM_HISTROY_REFRESH_PERIOD * 60 * 60 * 1000;
+const TIME_LIMIT = DEFAULT_ITEM_HISTROY_REFRESH_PERIOD * 60 * 60 * 1000;
 
 exports.scheduledfunction = functions
   .region(FIREBASE_SERVER_REGION)
@@ -51,7 +53,11 @@ exports.scheduledfunction = functions
       const failedIDs = new Set();
 
       for (let [typeID] of Object.entries(pricingData)) {
+        if (!typeID) {
+          continue;
+        }
         const response = await ESIMarketHistoryQuery(typeID);
+
         if (!response) {
           failedIDs.add(typeID);
           continue;
@@ -72,7 +78,7 @@ exports.scheduledfunction = functions
           } Items. ${JSON.stringify([...failedIDs])}`
         );
       }
-      return null
+      return null;
     } catch (err) {
       functions.logger.error(`An error occured: ${err}`);
       return null;

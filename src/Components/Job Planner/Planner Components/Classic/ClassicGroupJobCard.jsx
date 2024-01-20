@@ -17,10 +17,10 @@ import {
 import { useGroupManagement } from "../../../../Hooks/useGroupManagement";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
-import { makeStyles } from "@mui/styles";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
+<<<<<<< HEAD
 
 const useStyles = makeStyles((theme) => ({
   Checkbox: {
@@ -37,6 +37,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+=======
+import GLOBAL_CONFIG from "../../../../global-config-app";
+
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 export function ClassicGroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
@@ -55,8 +59,7 @@ export function ClassicGroupJobCard({ group }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-
-  const classes = useStyles();
+  const {PRIMARY_THEME} = GLOBAL_CONFIG
   let groupCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i == group.groupID);
   }, [multiSelectJobPlanner]);
@@ -72,7 +75,7 @@ export function ClassicGroupJobCard({ group }) {
             height: "100%",
             backgroundColor: (theme) =>
               groupCardChecked || isDragging
-                ? theme.palette.type !== "dark"
+                ? theme.palette.mode !== "dark"
                   ? grey[300]
                   : grey[900]
                 : "none",
@@ -83,7 +86,12 @@ export function ClassicGroupJobCard({ group }) {
             <Grid container item xs={12}>
               <Grid item xs={1}>
                 <Checkbox
-                  className={classes.Checkbox}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.mode === PRIMARY_THEME
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   checked={groupCardChecked}
                   onChange={(event) => {
                     if (event.target.checked) {
@@ -101,7 +109,12 @@ export function ClassicGroupJobCard({ group }) {
               <Grid item xs={9} />
               <Grid item align="center" xs={2}>
                 <IconButton
-                  className={classes.DeleteIcon}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.mode === PRIMARY_THEME
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   onClick={() => {
                     deleteGroupWithoutJobs(group.groupID);
                   }}

@@ -13,20 +13,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import { WatchListRow } from "./ItemRow";
 import { useContext, useState } from "react";
 import { UserWatchlistContext } from "../../../../Context/AuthContext";
-import { makeStyles } from "@mui/styles";
-import { useFirebase } from "../../../../Hooks/useFirebase";
-
-const useStyles = makeStyles((theme) => ({
-  Accordion: {
-    "& .MuiAccordionSummary-root:hover": {
-      cursor: "default",
-    },
-  },
-  Header: {
-    color:
-      theme.palette.type === "dark" ? "secondary" : theme.palette.primary.main,
-  },
-}));
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function WatchlistGroup({
   group,
@@ -34,22 +21,27 @@ export function WatchlistGroup({
   index,
   updateGroupSettingsTrigger,
   updateGroupSettingsContent,
+  setOpenDialog,
+  updateWatchlistItemToEdit,
 }) {
   const { userWatchlist, updateUserWatchlist } =
     useContext(UserWatchlistContext);
-  const { uploadUserWatchlist } = useFirebase();
   const [expandGroup, updateExpandGroup] = useState(group.expanded);
-  const classes = useStyles();
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   return (
     <Grid item xs={12}>
       <Accordion
-        className={classes.Accordion}
         expanded={expandGroup}
-        square={true}
+        square
         spacing={1}
         id={group.id}
-        disableGutters={true}
+        disableGutters
+        sx={{
+          "& .MuiAccordionSummary-root:hover": {
+            cursor: "default",
+          },
+        }}
       >
         <AccordionSummary
           expandIcon={
@@ -76,7 +68,15 @@ export function WatchlistGroup({
             <Box
               sx={{ display: "flex", flex: "1 1 95%", flexDirection: "row" }}
             >
-              <Typography variant="h6" className={classes.Header}>
+              <Typography
+                variant="h6"
+                sx={{
+                  color: (theme) =>
+                    theme.palette.mode === PRIMARY_THEME
+                      ? "secondary"
+                      : theme.palette.primary.main,
+                }}
+              >
                 {group.name}
               </Typography>
             </Box>
@@ -104,6 +104,8 @@ export function WatchlistGroup({
                   item={item}
                   parentUser={parentUser}
                   index={index}
+                  setOpenDialog={setOpenDialog}
+                  updateWatchlistItemToEdit={updateWatchlistItemToEdit}
                 />
               );
             } else return null;

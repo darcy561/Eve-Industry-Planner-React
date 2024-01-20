@@ -3,33 +3,22 @@ import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
 import { EveIDsContext } from "../Context/EveDataContext";
 import { useEveApi } from "./useEveApi";
 import searchData from "../RawData/searchIndex.json";
+import { useAssetHelperHooks } from "./AssetHooks/useAssetHelper";
 
 export function useCharAssets() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
   const { eveIDs } = useContext(EveIDsContext);
-  const { IDtoName } = useEveApi();
+  const { fetchUniverseNames } = useEveApi();
+  const {
+    acceptedDirectLocationTypes,
+    acceptedExtendedLocationTypes,
+    acceptedLocationFlags,
+    retrieveAssetLocation
+  } = useAssetHelperHooks();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
-  const acceptedDirectLocationTypes = new Set(["station", "solar_system"]);
-  const acceptedExtendedLocationTypes = new Set(["item", "other"]);
 
-  const acceptedLocationFlags = new Set(["Hangar", "Unlocked", "AutoFit"]);
-
-  const retrieveAssetLocation = (initialAsset, userAssets) => {
-    let parentAsset = userAssets.find(
-      (i) => i.item_id === initialAsset.location_id
-    );
-    if (!parentAsset) {
-      return initialAsset;
-    }
-    if (acceptedExtendedLocationTypes.has(parentAsset.location_type)) {
-      return retrieveAssetLocation(parentAsset, userAssets);
-    }
-    if (acceptedDirectLocationTypes.has(parentAsset.location_type)) {
-      return parentAsset;
-    }
-  };
 
   const getAssetLocationList = async () => {
     let itemLocations = [];
@@ -60,10 +49,7 @@ export function useCharAssets() {
         }
         if (acceptedExtendedLocationTypes.has(asset.location_type)) {
           let parentLocation = retrieveAssetLocation(asset, userAssets);
-          if (
-            parentLocation &&
-            parentLocation.location_type !== "other"
-          ) {
+          if (parentLocation && parentLocation.location_type !== "other") {
             if (!itemLocations.some((i) => i === parentLocation.location_id)) {
               if (!newEveIDs.some((i) => i.id === parentLocation.location_id)) {
                 if (parentLocation.location_id.toString().length > 10) {
@@ -79,12 +65,12 @@ export function useCharAssets() {
         }
       }
       if ([...missingCitadelIDs].length > 0) {
-        let tempCit = await IDtoName([...missingCitadelIDs], user);
+        let tempCit = await fetchUniverseNames([...missingCitadelIDs], user);
         newEveIDs = newEveIDs.concat(tempCit);
       }
     }
     if ([...missingStationIDs].length > 0) {
-      let tempStation = await IDtoName([...missingStationIDs], parentUser);
+      let tempStation = await fetchUniverseNames([...missingStationIDs], parentUser);
       newEveIDs = newEveIDs.concat(tempStation);
     }
 
@@ -177,7 +163,7 @@ export function useCharAssets() {
         }
 
         if ([...missingCitadelIDs].length > 0) {
-          let tempCit = await IDtoName([...missingCitadelIDs], user);
+          let tempCit = await fetchUniverseNames([...missingCitadelIDs], user);
           newEveIDs = newEveIDs.concat(tempCit);
         }
       }
@@ -185,7 +171,7 @@ export function useCharAssets() {
     }
 
     if ([...missingStationIDs].length > 0) {
-      let tempStation = await IDtoName([...missingStationIDs], parentUser);
+      let tempStation = await fetchUniverseNames([...missingStationIDs], parentUser);
       newEveIDs = newEveIDs.concat(tempStation);
     }
     return [filteredAssetList, newEveIDs, itemLocations];
@@ -211,9 +197,6 @@ export function useCharAssets() {
           if (item.location_id !== requiredLocationID) {
             continue;
           }
-          if (searchData.some((i) => i.blueprintID === item.type_id)) {
-            continue;
-          }
           if (locationAssets.some((i) => i.type_id === item.type_id)) {
             let index = locationAssets.findIndex(
               (i) => i.type_id === item.type_id
@@ -237,7 +220,7 @@ export function useCharAssets() {
           if (item.location_id !== requiredLocationID) {
             if (parentLocation.location_id !== requiredLocationID) {
               continue;
-            }
+            } 
           }
           if (
             parentLocation.item_id === item.location_id ||

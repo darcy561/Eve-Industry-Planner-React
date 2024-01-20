@@ -19,37 +19,17 @@ import {
   JobPlannerPageTriggerContext,
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
+  ShoppingListContext,
 } from "../../../Context/LayoutContext";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { SisiDataFilesContext } from "../../../Context/EveDataContext";
-
-import { makeStyles } from "@mui/styles";
 import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
 import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
+import GLOBAL_CONFIG from "../../../global-config-app";
 
-const useStyles = makeStyles((theme) => ({
-  Autocomplete: {
-    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
-      color:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-      borderColor:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-    },
-  },
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
-
-export function SearchBar({
-  updateShoppingListTrigger,
-  updateShoppingListData,
-}) {
+export function SearchBar() {
   const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
   const { DataExchange } = useContext(DataExchangeContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
@@ -60,6 +40,9 @@ export function SearchBar({
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateShoppingListTrigger, updateShoppingListData } =
+    useContext(ShoppingListContext);
+  const { updateGroupArray } = useContext(JobArrayContext);
   const { updateActiveGroup } = useContext(ActiveJobContext);
   const {
     massBuildMaterials,
@@ -70,7 +53,7 @@ export function SearchBar({
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { createNewGroupWithJobs } = useGroupManagement();
-  const classes = useStyles();
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   return (
     <Paper
@@ -102,10 +85,12 @@ export function SearchBar({
                 <TextField
                   {...params}
                   size="small"
+<<<<<<< HEAD
                   className={classes.Autocomplete}
+=======
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                   margin="none"
                   variant="standard"
-                  style={{ borderRadius: "5px" }}
                   InputProps={{ ...params.InputProps, type: "search" }}
                 />
               )}
@@ -129,6 +114,12 @@ export function SearchBar({
                   className={classes.Checkbox}
                   size="small"
                   checked={sisiDataFiles}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.mode === PRIMARY_THEME
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   onChange={() => {
                     updateSisiDataFiles((prev) => !prev);
                   }}
@@ -425,7 +416,8 @@ export function SearchBar({
                   let newGroup = await createNewGroupWithJobs(
                     multiSelectJobPlanner
                   );
-                  updateActiveGroup(newGroup);
+                  updateGroupArray((prev) => [...prev, newGroup]);
+                  updateActiveGroup(newGroup.groupID);
                   updateMultiSelectJobPlanner([]);
                   updateEditGroupTrigger((prev) => !prev);
                 }}

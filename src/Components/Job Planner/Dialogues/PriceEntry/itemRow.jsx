@@ -9,25 +9,7 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
 import { PriceEntryListContext } from "../../../../Context/LayoutContext";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
+import GLOBAL_CONFIG from "../../../../global-config-app";
 
 export function ItemPriceRow({
   item,
@@ -43,6 +25,8 @@ export function ItemPriceRow({
     PriceEntryListContext
   );
   const { evePrices } = useContext(EvePricesContext);
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
+
   let materialPrice = evePrices.find((i) => i.typeID === item.typeID);
 
   if (materialPrice === undefined) {
@@ -67,7 +51,7 @@ export function ItemPriceRow({
     Number(materialPrice[displayMarket][displayOrder])
   );
   const [inputChecked, updateInputChecked] = useState(item.confirmed);
-  const classes = useStyles();
+
   useEffect(() => {
     if (!item.confirmed) {
       updateInputItem(Number(materialPrice[displayMarket][displayOrder]));
@@ -129,12 +113,20 @@ export function ItemPriceRow({
           placement="left"
         >
           <TextField
-            className={classes.TextField}
             disabled={item.confirmed}
             size="small"
             variant="standard"
             type="number"
             value={inputItem}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
             inputProps={{ step: "0.01" }}
             onChange={(e) => {
               let newList = [...priceEntryListData.list];
@@ -151,9 +143,14 @@ export function ItemPriceRow({
       <Grid item xs={2} sm={1}>
         <Tooltip title="Tick To Confirm Cost" arrow placement="right">
           <Checkbox
-            className={classes.Checkbox}
             checked={inputChecked}
             size="small"
+            sx={{
+              color: (theme) =>
+                theme.palette.mode === PRIMARY_THEME
+                  ? theme.palette.primary.main
+                  : theme.palette.secondary.main,
+            }}
             onChange={() => {
               let newList = [...priceEntryListData.list];
               if (newList[index].confirmed) {

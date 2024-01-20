@@ -15,20 +15,11 @@ import { functions } from "../../firebase";
 import { UsersContext } from "../../Context/AuthContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { httpsCallable } from "firebase/functions";
-import { makeStyles } from "@mui/styles";
 import {
   CorpEsiDataContext,
   PersonalESIDataContext,
 } from "../../Context/EveDataContext";
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
+import GLOBAL_CONFIG from "../../global-config-app";
 
 export function FeedbackIcon() {
   const { users } = useContext(UsersContext);
@@ -47,11 +38,12 @@ export function FeedbackIcon() {
   const [open, setOpen] = useState(false);
   const [inputText, updateInputText] = useState("");
   const [dataDump, updateDataDump] = useState(false);
-  const classes = useStyles();
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
+
+  const {PRIMARY_THEME } = GLOBAL_CONFIG
 
   const handleSubmit = async () => {
     let userData = () => {
@@ -75,11 +67,18 @@ export function FeedbackIcon() {
         journal: esiJournal,
         assets: allAssets(),
         standings: esiStandings,
-        corpJobs: corpEsiIndJobs,
+        corpJobs: Array.from(corpEsiIndJobs.entries()),
       };
     };
 
+<<<<<<< HEAD
     const call = httpsCallable(functions, "submitUserFeedback-submitUserFeedback");
+=======
+    const call = httpsCallable(
+      functions,
+      "submitUserFeedback-submitUserFeedback"
+    );
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
     call({
       accountID: parentUser.accountID || null,
       response: inputText,
@@ -145,12 +144,17 @@ export function FeedbackIcon() {
           <FormControlLabel
             control={
               <Checkbox
-                className={classes.Checkbox}
                 checked={dataDump}
                 onChange={() => {
                   updateDataDump((prev) => !prev);
                 }}
-                sx={{ marginRight: { xs: "20px", sm: "60px" } }}
+                sx={{
+                  marginRight: { xs: "20px", sm: "60px" },
+                  color: (theme) =>
+                    theme.palette.mode === PRIMARY_THEME
+                      ? theme.palette.primary.main
+                      : theme.palette.secondary.main,
+                }}
               />
             }
             label="Include ESI data?"

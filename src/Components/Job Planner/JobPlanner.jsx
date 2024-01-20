@@ -1,5 +1,4 @@
-import { lazy, useContext, useEffect, useState, Suspense } from "react";
-import { IsLoggedInContext } from "../../Context/AuthContext";
+import { lazy, useContext, useEffect, Suspense } from "react";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import {
@@ -17,29 +16,15 @@ import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
 import { ESIOffline } from "../offlineNotification";
 import { UserLogInUI } from "../Auth/LoginUI/LoginUI";
 
-const EditJob = lazy(() => import("./Edit Job/EditJob"));
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
 
-export function JobPlanner() {
-  const {
-    editJobTrigger,
-    editGroupTrigger,
-    updateEditJobTrigger,
-    updateEditGroupTrigger,
-  } = useContext(JobPlannerPageTriggerContext);
-  const { isLoggedIn } = useContext(IsLoggedInContext);
-  const [shoppingListTrigger, updateShoppingListTrigger] = useState(false);
-  const [shoppingListData, updateShoppingListData] = useState([]);
+export default function JobPlanner() {
+  const { editGroupTrigger, updateEditGroupTrigger } = useContext(
+    JobPlannerPageTriggerContext
+  );
   const { checkUserState } = useRefreshUser();
   const { pageLoad } = useContext(PageLoadContext);
-  const {
-    loginInProgressComplete,
-    updateLoginInProgressComplete,
-    userDataFetch,
-    userJobSnapshotDataFetch,
-    userWatchlistDataFetch,
-    userGroupsDataFetch,
-  } = useContext(UserLoginUIContext);
+  const { loginInProgressComplete } = useContext(UserLoginUIContext);
 
   useEffect(() => {
     checkUserState();
@@ -51,65 +36,27 @@ export function JobPlanner() {
     if (pageLoad) {
       return <LoadingPage />;
     } else {
-      if (editJobTrigger) {
+      if (editGroupTrigger) {
         return (
           <Suspense fallback={<LoadingPage />}>
-            <ShoppingListDialog
-              shoppingListTrigger={shoppingListTrigger}
-              updateShoppingListTrigger={updateShoppingListTrigger}
-              shoppingListData={shoppingListData}
-              updateShoppingListData={updateShoppingListData}
-            />
-            <MassBuildFeedback />
-            <EditJob
-              updateEditJobTrigger={updateEditJobTrigger}
-              updateShoppingListTrigger={updateShoppingListTrigger}
-              updateShoppingListData={updateShoppingListData}
-            />
-          </Suspense>
-        );
-      }
-      if (!editJobTrigger && editGroupTrigger) {
-        return (
-          <Suspense fallback={<LoadingPage />}>
-            <ShoppingListDialog
-              shoppingListTrigger={shoppingListTrigger}
-              updateShoppingListTrigger={updateShoppingListTrigger}
-              shoppingListData={shoppingListData}
-              updateShoppingListData={updateShoppingListData}
-            />
+            <ShoppingListDialog />
             <PriceEntryDialog />
-            <EditGroup
-              updateEditGroupTrigger={updateEditGroupTrigger}
-              updateShoppingListTrigger={updateShoppingListTrigger}
-              updateShoppingListData={updateShoppingListData}
-            />
+            <EditGroup updateEditGroupTrigger={updateEditGroupTrigger} />
           </Suspense>
         );
-      }
-      if (!editJobTrigger && !editGroupTrigger) {
+      } else {
         return (
           <Grid container sx={{ marginTop: "5px" }} spacing={2}>
-            <ShoppingListDialog
-              shoppingListTrigger={shoppingListTrigger}
-              updateShoppingListTrigger={updateShoppingListTrigger}
-              shoppingListData={shoppingListData}
-              updateShoppingListData={updateShoppingListData}
-            />
-
+            <ShoppingListDialog />
             <MassBuildFeedback />
             <PriceEntryDialog />
-
             <ESIOffline />
             <TutorialPlanner />
             <Grid item xs={12}>
-              <SearchBar
-                updateShoppingListTrigger={updateShoppingListTrigger}
-                updateShoppingListData={updateShoppingListData}
-              />
+              <SearchBar />
             </Grid>
             <Grid item xs={12}>
-              <PlannerAccordion updateEditJobTrigger={updateEditJobTrigger} />
+              <PlannerAccordion />
             </Grid>
           </Grid>
         );

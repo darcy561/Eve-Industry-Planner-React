@@ -12,12 +12,16 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
 import { jobTypes } from "../../../../Context/defaultValues";
+<<<<<<< HEAD
 import {
   JobPlannerPageTriggerContext,
   MultiSelectJobPlannerContext,
 } from "../../../../Context/LayoutContext";
 import Step1JobCard from "../../Planner Components/Classic/Job Cards/step1";
 import { makeStyles } from "@mui/styles";
+=======
+import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import GroupStep2JobCard from "./JobCards/groupStep2";
 import GroupStep3JobCard from "./JobCards/GroupStep3";
 import GroupStep4JobCard from "./JobCards/groupStep4";
@@ -25,6 +29,7 @@ import GroupStep5JobCard from "./JobCards/groupStep5";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
+<<<<<<< HEAD
 import { ActiveJobContext } from "../../../../Context/JobContext";
 import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
 
@@ -42,11 +47,20 @@ const useStyles = makeStyles((theme) => ({
         : theme.palette.secondary.main,
   },
 }));
+=======
+import {
+  ActiveJobContext,
+  JobArrayContext,
+} from "../../../../Context/JobContext";
+import GLOBAL_CONFIG from "../../../../global-config-app";
+import GroupStep1JobCard from "./JobCards/groupStep1";
+import { useNavigate } from "react-router-dom";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 function DisplaySwitch({ job }) {
   switch (job.jobStatus) {
     case 0:
-      return <Step1JobCard job={job} />;
+      return <GroupStep1JobCard job={job} />;
     case 1:
       return <GroupStep2JobCard job={job} />;
     case 2:
@@ -56,7 +70,7 @@ function DisplaySwitch({ job }) {
     case 4:
       return <GroupStep5JobCard job={job} />;
     default:
-      return <Step1JobCard job={job} />;
+      return <GroupStep1JobCard job={job} />;
   }
 }
 
@@ -64,9 +78,8 @@ export function ClassicGroupJobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
   const { activeGroup } = useContext(ActiveJobContext);
-  const { openEditJob } = useOpenEditJob();
+  const { groupArray } = useContext(JobArrayContext);
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.jobCard,
@@ -79,29 +92,37 @@ export function ClassicGroupJobCardFrame({ job }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  const classes = useStyles();
+  const activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
 
   const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
 
   const jobMarkedAsCompelte = useMemo(() => {
+<<<<<<< HEAD
     return activeGroup.areComplete.includes(job.jobID);
   }, [activeGroup]);
+=======
+    return activeGroupObject.areComplete.includes(job.jobID);
+  }, [activeGroupObject]);
+
+  const navigate = useNavigate();
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   return (
     <Grow in={true}>
       <Grid ref={drag} item xs={12} sm={6} md={4} lg={3}>
         <Paper
           elevation={3}
-          square={true}
+          square
           sx={{
             padding: "10px",
             height: "100%",
             backgroundColor: (theme) =>
               jobCardChecked || isDragging
-                ? theme.palette.type !== "dark"
+                ? theme.palette.mode !== "dark"
                   ? grey[300]
                   : grey[900]
                 : "none",
@@ -113,7 +134,12 @@ export function ClassicGroupJobCardFrame({ job }) {
               <Grid item xs={1}>
                 <Checkbox
                   disabled={job.isLocked}
-                  className={classes.Checkbox}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.mode === PRIMARY_THEME
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   checked={jobCardChecked}
                   onChange={(event) => {
                     if (event.target.checked) {
@@ -134,7 +160,12 @@ export function ClassicGroupJobCardFrame({ job }) {
               <Grid item align="center" xs={2}>
                 <IconButton
                   disabled={job.isLocked}
-                  className={classes.DeleteIcon}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.mode === PRIMARY_THEME
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   onClick={() => deleteSingleJob(job.jobID)}
                 >
                   <DeleteIcon />
@@ -189,8 +220,7 @@ export function ClassicGroupJobCardFrame({ job }) {
                 color="primary"
                 disabled={job.isLocked}
                 onClick={() => {
-                  openEditJob(job.jobID);
-                  updateEditJobTrigger((prev) => !prev);
+                  navigate(`/editJob/${job.jobID}`);
                 }}
                 sx={{ height: "25px", width: "100px" }}
               >

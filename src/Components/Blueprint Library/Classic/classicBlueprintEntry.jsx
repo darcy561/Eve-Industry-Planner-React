@@ -2,26 +2,44 @@ import { useContext, useState } from "react";
 import { Avatar, Badge, Grid, Icon, Tooltip, Typography } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { jobTypes } from "../../../Context/defaultValues";
+<<<<<<< HEAD
 import { makeStyles } from "@mui/styles";
+=======
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import { ActiveBPPopout } from "../ActiveBPPout";
 import { UsersContext } from "../../../Context/AuthContext";
 import { CorpEsiDataContext } from "../../../Context/EveDataContext";
 
-const useStyles = makeStyles((theme) => ({
-  inUse: {
-    backgroundColor: "#ffc107",
-    color: "black",
-  },
-  expiring: {
-    backgroundColor: "#d32f2f",
-    color: "black",
-  },
-}));
+const inUse = {
+  backgroundColor: "#ffc107",
+  color: "black",
+};
+const expiring = {
+  backgroundColor: "#d32f2f",
+  color: "black",
+};
+
+function styleBlueprintEntry(job, bpType, bpRuns) {
+  if (bpType === "bpc") {
+    if (job && bpRuns <= job.runs) {
+      return expiring;
+    } else if (job) {
+      return inUse;
+    } else {
+      return null;
+    }
+  } else {
+    if (job) {
+      return inUse;
+    } else {
+      return null;
+    }
+  }
+}
 
 export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
-  const classes = useStyles();
   const { users } = useContext(UsersContext);
-  const { esiCorpData } = useContext(CorpEsiDataContext);
+  const { corpEsiData } = useContext(CorpEsiDataContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
 
   const blueprintType = blueprint.quantity === -2 ? "bpc" : "bp";
@@ -32,9 +50,7 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const bpOwner = users.find(
     (u) => u.CharacterHash === blueprint.CharacterHash
   );
-  const corpOwner = esiCorpData.find(
-    (i) => i.corporation_id === blueprint?.corporation_id
-  );
+  const corpOwner = corpEsiData.get(blueprint?.corporation_id);
 
   return (
     <Grid
@@ -81,23 +97,13 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
             </Badge>
           </Grid>
           <Grid
-            className={
-              blueprintType === "bpc"
-                ? esiJob && blueprint.runs <= esiJob.runs
-                  ? classes.expiring
-                  : esiJob
-                  ? classes.inUse
-                  : "none"
-                : esiJob
-                ? classes.inUse
-                : "none"
-            }
             item
             xs={12}
             sx={{
               height: "3px",
               marginLeft: "5px",
               marginRight: "5px",
+              ...styleBlueprintEntry(esiJob, blueprintType, blueprint.runs),
             }}
           />
           {bpData.jobType === jobTypes.manufacturing && (

@@ -20,13 +20,17 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import AddIcon from "@mui/icons-material/Add";
 import { StatusSettings } from "./StatusSettings";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
+<<<<<<< HEAD
 import { makeStyles } from "@mui/styles";
+=======
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import { ClassicAccordionContents } from "./Classic/classicContents";
 import { useDrop } from "react-dnd";
 import { useDnD } from "../../../Hooks/useDnD";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { grey } from "@mui/material/colors";
 import { CompactAccordionContents } from "./Compact/compactContents";
+<<<<<<< HEAD
 
 const useStyles = makeStyles((theme) => ({
   Accordion: {
@@ -41,6 +45,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function PlannerAccordion({ updateEditJobTrigger }) {
+=======
+import GLOBAL_CONFIG from "../../../global-config-app";
+
+export function PlannerAccordion() {
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const { users } = useContext(UsersContext);
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -49,7 +58,6 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-
   const [statusSettingsTrigger, updateStatusSettingsTrigger] = useState(false);
   const [statusData, updateStatusData] = useState({
     id: 0,
@@ -60,12 +68,16 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
     completeAPIJobs: false,
   });
   const { canDropCard, recieveJobCardToStage } = useDnD();
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
+<<<<<<< HEAD
 
   const classes = useStyles();
+=======
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);
@@ -98,7 +110,10 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
         return (
           <Accordion
             ref={drop}
+<<<<<<< HEAD
             className={classes.Accordion}
+=======
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             expanded={status.expanded}
             square={true}
             spacing={1}
@@ -109,13 +124,16 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
               ...(canDrop &&
                 !isOver && {
                   backgroundColor: (theme) =>
-                    theme.palette.type !== "dark" ? grey[400] : grey[700],
+                    theme.palette.mode !== "dark" ? grey[400] : grey[700],
                 }),
               ...(canDrop &&
                 isOver && {
                   backgroundColor: (theme) =>
-                    theme.palette.type !== "dark" ? grey[600] : grey[600],
+                    theme.palette.mode !== "dark" ? grey[600] : grey[600],
                 }),
+              "& .MuiAccordionSummary-root:hover": {
+                cursor: "default",
+              },
             }}
           >
             <AccordionSummary
@@ -145,7 +163,15 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
                     flexDirection: "row",
                   }}
                 >
-                  <Typography variant="h4" className={classes.Header}>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      color: (theme) =>
+                        theme.palette.mode === PRIMARY_THEME
+                          ? "secondary"
+                          : theme.palette.primary.main,
+                    }}
+                  >
                     {status.name}
                   </Typography>
                 </Box>
@@ -197,6 +223,7 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
             </AccordionSummary>
             <AccordionDetails>
               {parentUser.settings.layout.enableCompactView ? (
+<<<<<<< HEAD
                 <CompactAccordionContents
                   updateEditJobTrigger={updateEditJobTrigger}
                   status={status}
@@ -208,6 +235,12 @@ export function PlannerAccordion({ updateEditJobTrigger }) {
                 />
               )}
 
+=======
+                <CompactAccordionContents status={status} />
+              ) : (
+                <ClassicAccordionContents status={status} />
+              )}
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             </AccordionDetails>
           </Accordion>
         );

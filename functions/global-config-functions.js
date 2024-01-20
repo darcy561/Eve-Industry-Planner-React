@@ -9,7 +9,7 @@ exports.GLOBAL_CONFIG = {
   //App Version
   //This must match the app version found in the package.json file of the web application.
   //(String)
-  APP_VERSION: "0.6.1",
+  APP_VERSION: "0.7.0",
 
   // Max number of ESI pages to query.
   //(Int)
@@ -33,18 +33,17 @@ exports.GLOBAL_CONFIG = {
   //Number of items that are refreshed at a time.
   //(Int)
   //Default: 150
-  DEFAULT_ITEM_MARKET_REFRESH_QUANTITY: 150,
-
+  DEFAULT_ITEM_MARKET_REFRESH_QUANTITY: 100,
 
   //Number of hours between updates to item history data.
   //(Int)
   //Default: 4
-  DEFAUL_ITEM_HISTROY_REFRESH_PERIOD: 4,
+  DEFAULT_ITEM_HISTROY_REFRESH_PERIOD: 4,
 
   //Number of items market history to refresh each period.
   //(Int)
   //Default: 50
-  DEFAULT_ITEM_MARKET_HISTORY_REFRESH_QUANTITY: 50,
+  DEFAULT_ITEM_MARKET_HISTORY_REFRESH_QUANTITY: 150,
 
   //Length of time the market history is calaculated on.
   //(Int)
@@ -70,6 +69,7 @@ exports.GLOBAL_CONFIG = {
   //Options: "buy", "sell"
   DEFAULT_ORDER_OPTION: "sell",
 
+
   //Default asset location station id.
   //(Int)
   //Default: 60003760 (Jita 4-4)
@@ -80,8 +80,6 @@ exports.GLOBAL_CONFIG = {
   //Default: 1
   DEFAULT_CITADEL_BROKERS_FEE: 1,
 
-
   DEFAULT_MANUFACTURING_STRUCTURES: [],
   DEFAULT_REACTION_STRUCTURES: [],
 };
-

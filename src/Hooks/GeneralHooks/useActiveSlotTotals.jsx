@@ -27,7 +27,7 @@ export function useActiveSlotTotals() {
     const userIndJobs =
       esiIndJobs.find((i) => i.user === CharacterHash)?.data || [];
     const userCorpIndJobs =
-      corpEsiIndJobs.find((i) => i.user === CharacterHash)?.data || [];
+      corpEsiIndJobs.get(CharacterHash)?.data || [];
     const userSkills =
       esiSkills.find((i) => i.user === CharacterHash)?.data || [];
 
@@ -57,9 +57,7 @@ export function useActiveSlotTotals() {
     };
 
     for (let [activity, ids] of Object.entries(skillIds)) {
-      const skillLevels = ids.map(
-        (id) => userSkills.find((i) => i.id === id)?.activeLevel
-      );
+      const skillLevels = ids.map((id) => userSkills[id]?.activeLevel);
       const totalLevels = skillLevels
         .filter((lvl) => lvl !== undefined)
         .reduce((acc, lvl) => acc + lvl, 0);

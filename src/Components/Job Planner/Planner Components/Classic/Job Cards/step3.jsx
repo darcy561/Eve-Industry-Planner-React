@@ -25,7 +25,7 @@ export default function Step3JobCard({ job }) {
             sx={{ typography: { xs: "body2", md: "body1" } }}
             align="right"
           >
-            {job.apiJobs.length.toLocaleString()}/{job.jobCount}
+            {job.apiJobs.length.toLocaleString()}/{job.totalJobCount}
           </Typography>
         </Grid>
 

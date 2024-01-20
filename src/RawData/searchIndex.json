@@ -19746,18 +19746,6 @@
     "jobType": 1
   },
   {
-    "name": "Standup L-Set Blueprint Copy Optimization I",
-    "itemID": 43729,
-    "blueprintID": 44084,
-    "jobType": 1
-  },
-  {
-    "name": "Standup L-Set Blueprint Copy Optimization II",
-    "itemID": 43730,
-    "blueprintID": 44085,
-    "jobType": 1
-  },
-  {
     "name": "Standup M-Set Basic Large Ship Manufacturing Material Efficiency I",
     "itemID": 43732,
     "blueprintID": 44022,
@@ -19989,30 +19977,6 @@
     "name": "Standup M-Set TE Research Accelerator I",
     "itemID": 43889,
     "blueprintID": 44060,
-    "jobType": 1
-  },
-  {
-    "name": "Standup M-Set Blueprint Copy Cost Optimization II",
-    "itemID": 43890,
-    "blueprintID": 44063,
-    "jobType": 1
-  },
-  {
-    "name": "Standup M-Set Blueprint Copy Cost Optimization I",
-    "itemID": 43891,
-    "blueprintID": 44062,
-    "jobType": 1
-  },
-  {
-    "name": "Standup M-Set Blueprint Copy Accelerator II",
-    "itemID": 43892,
-    "blueprintID": 44065,
-    "jobType": 1
-  },
-  {
-    "name": "Standup M-Set Blueprint Copy Accelerator I",
-    "itemID": 43893,
-    "blueprintID": 44064,
     "jobType": 1
   },
   {
@@ -23370,7 +23334,7 @@
     "jobType": 1
   },
   {
-    "name": "‘Atgeir’ Explosive Disruptive Lance ",
+    "name": "'Atgeir' Explosive Disruptive Lance",
     "itemID": 77398,
     "blueprintID": 77402,
     "jobType": 1
@@ -23382,15 +23346,51 @@
     "jobType": 1
   },
   {
-    "name": "‘Steel Yari’ Kinetic Disruptive Lance",
+    "name": "'Steel Yari' Kinetic Disruptive Lance",
     "itemID": 77400,
     "blueprintID": 77404,
     "jobType": 1
   },
   {
-    "name": "‘Sarissa’ Thermal Disruptive Lance",
+    "name": "'Sarissa' Thermal Disruptive Lance",
     "itemID": 77401,
     "blueprintID": 77405,
+    "jobType": 1
+  },
+  {
+    "name": "Mekubal",
+    "itemID": 78333,
+    "blueprintID": 78360,
+    "jobType": 1
+  },
+  {
+    "name": "Alligator",
+    "itemID": 78366,
+    "blueprintID": 78368,
+    "jobType": 1
+  },
+  {
+    "name": "Mamba",
+    "itemID": 78367,
+    "blueprintID": 78393,
+    "jobType": 1
+  },
+  {
+    "name": "Khizriel",
+    "itemID": 78369,
+    "blueprintID": 78370,
+    "jobType": 1
+  },
+  {
+    "name": "Azariel",
+    "itemID": 78576,
+    "blueprintID": 79326,
+    "jobType": 1
+  },
+  {
+    "name": "Consortium Vorton Tuning system",
+    "itemID": 78740,
+    "blueprintID": 79175,
     "jobType": 1
   }
 ]

@@ -14,7 +14,11 @@ import { ApiJobCardSorter } from "./ClassicApiJobCardSorter";
 import { ClassicGroupJobCard } from "./ClassicGroupJobCard";
 import { UserLoginUIContext } from "../../../../Context/LayoutContext";
 
+<<<<<<< HEAD
 export function ClassicAccordionContents({ updateEditJobTrigger, status }) {
+=======
+export function ClassicAccordionContents({ status }) {
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const { users } = useContext(UsersContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { groupArray } = useContext(JobArrayContext);
@@ -51,13 +55,7 @@ export function ClassicAccordionContents({ updateEditJobTrigger, status }) {
         })}
         {userJobSnapshot.map((job) => {
           if (job.jobStatus === status.id) {
-            return (
-              <JobCardFrame
-                key={job.jobID}
-                job={job}
-                updateEditJobTrigger={updateEditJobTrigger}
-              />
-            );
+            return <JobCardFrame key={job.jobID} job={job} />;
           } else {
             return null;
           }

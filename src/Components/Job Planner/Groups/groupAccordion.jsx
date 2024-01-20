@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { useContext, useMemo, useState } from "react";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import {
   Accordion,
   AccordionDetails,
@@ -8,10 +12,17 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+<<<<<<< HEAD
 import { useContext, useMemo, useState } from "react";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
+=======
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import AddIcon from "@mui/icons-material/Add";
+import { grey } from "@mui/material/colors";
+import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import {
   UserJobSnapshotContext,
   UsersContext,
@@ -20,6 +31,7 @@ import { useDnD } from "../../../Hooks/useDnD";
 import { useDrop } from "react-dnd";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { ItemTypes } from "../../../Context/DnDTypes";
+<<<<<<< HEAD
 import { makeStyles } from "@mui/styles";
 import { CompactGroupAccordionContent } from "./Compact/CompactGroupAccordionContent";
 import { ClassicGroupAccordionContent } from "./Classic/ClassicGroupAccordionContent";
@@ -36,6 +48,11 @@ const useStyles = makeStyles((theme) => ({
       theme.palette.type === "dark" ? "secondary" : theme.palette.primary.main,
   },
 }));
+=======
+import { CompactGroupAccordionContent } from "./Compact/CompactGroupAccordionContent";
+import { ClassicGroupAccordionContent } from "./Classic/ClassicGroupAccordionContent";
+import GLOBAL_CONFIG from "../../../global-config-app";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 export function GroupAccordion({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(JobArrayContext);
@@ -47,6 +64,7 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
     MultiSelectJobPlannerContext
   );
   const { canDropCard, recieveJobCardToStage } = useDnD();
+<<<<<<< HEAD
 
   const [notExpanded, updateNotExpanded] = useState([]);
 
@@ -56,6 +74,16 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
   const classes = useStyles();
 
   if (groupPageRefresh && activeGroup == null) return null;
+=======
+  const [notExpanded, updateNotExpanded] = useState([]);
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
+
+  const parentUser = useMemo(() => {
+    return users.find((i) => i.ParentUser);
+  }, [users]);
+
+  if (groupPageRefresh && !activeGroup) return null;
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   return (
     <Paper
@@ -86,22 +114,39 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
           <Accordion
             key={status.id}
             ref={drop}
+<<<<<<< HEAD
             className={classes.Accordion}
+=======
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             square
             spacing={1}
             id={status.id}
             disableGutters
             expanded={!notExpanded.includes(status.id)}
             sx={{
+<<<<<<< HEAD
               ...(canDrop &&
                 !isOver && {
                   backgroundColor: (theme) =>
                     theme.palette.type !== "dark" ? grey[400] : grey[700],
+=======
+              "& .MuiAccordionSummary-root:hover": {
+                cursor: "default",
+              },
+              ...(canDrop &&
+                !isOver && {
+                  backgroundColor: (theme) =>
+                    theme.palette.mode !== "dark" ? grey[400] : grey[700],
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                 }),
               ...(canDrop &&
                 isOver && {
                   backgroundColor: (theme) =>
+<<<<<<< HEAD
                     theme.palette.type !== "dark" ? grey[600] : grey[600],
+=======
+                    theme.palette.mode !== "dark" ? grey[600] : grey[600],
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                 }),
             }}
           >
@@ -140,7 +185,19 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
                     flexDirection: "row",
                   }}
                 >
+<<<<<<< HEAD
                   <Typography variant="h4" className={classes.Header}>
+=======
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      color: (theme) =>
+                        theme.palette.mode === PRIMARY_THEME
+                          ? "secondary"
+                          : theme.palette.primary.main,
+                    }}
+                  >
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                     {status.name}
                   </Typography>
                 </Box>

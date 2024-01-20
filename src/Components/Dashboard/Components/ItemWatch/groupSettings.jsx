@@ -7,20 +7,8 @@ import {
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { UserWatchlistContext } from "../../../../Context/AuthContext";
-import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 export function GroupSettingsDialog({
   groupSettingsTrigger,
   updateGroupSettingsTrigger,
@@ -38,8 +26,6 @@ export function GroupSettingsDialog({
     updateSettingsState();
   }, [groupSettingsContent]);
 
-  const classes = useStyles();
-
   const handleClose = () => {
     updateGroupSettingsTrigger((prev) => !prev);
   };
@@ -53,7 +39,15 @@ export function GroupSettingsDialog({
           vairant="standard"
           helperText="Group Name"
           type="text"
-          className={classes.TextField}
+          sx={{
+            "& .MuiFormHelperText-root": {
+              color: (theme) => theme.palette.secondary.main,
+            },
+            "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+              {
+                display: "none",
+              },
+          }}
           onChange={(e) => {
             updateSetName(e.target.value);
           }}
@@ -77,13 +71,15 @@ export function GroupSettingsDialog({
               if (entry.group === groupSettingsContent.id) {
                 entry.group = 0;
               }
-
             });
             updateUserWatchlist({
               groups: newUserWatchlistGroups,
               items: newUserWatchlistItems,
             });
-            await uploadUserWatchlist(newUserWatchlistGroups, newUserWatchlistItems);
+            await uploadUserWatchlist(
+              newUserWatchlistGroups,
+              newUserWatchlistItems
+            );
             handleClose();
           }}
         >
@@ -105,7 +101,10 @@ export function GroupSettingsDialog({
               ...prev,
               groups: newUserWatchlistGroups,
             }));
-            await uploadUserWatchlist(newUserWatchlistGroups, userWatchlist.items);
+            await uploadUserWatchlist(
+              newUserWatchlistGroups,
+              userWatchlist.items
+            );
             handleClose();
           }}
         >

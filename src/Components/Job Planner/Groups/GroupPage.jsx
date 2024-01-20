@@ -1,3 +1,4 @@
+import { useContext, useEffect, useState } from "react";
 import {
   Autocomplete,
   CircularProgress,
@@ -14,57 +15,37 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import DoneIcon from "@mui/icons-material/Done";
-import { useContext, useEffect, useState } from "react";
+import SaveIcon from '@mui/icons-material/Save';
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { OutputJobsPanel } from "./OutputJobs";
 import { GroupAccordion } from "./groupAccordion";
-import { UserJobSnapshotContext } from "../../../Context/AuthContext";
-import { makeStyles } from "@mui/styles";
 import { GroupOptionsBar } from "./groupOptions";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import itemList from "../../../RawData/searchIndex.json";
 import { useCloseGroup } from "../../../Hooks/GroupHooks/useCloseGroup";
 import { LoadingPage } from "../../loadingPage";
 import { ImportItemFitDialogue } from "./Dialogues/importFit/importFittingDialgue";
+<<<<<<< HEAD
+=======
+import { ShoppingListDialog } from "../Dialogues/ShoppingList/ShoppingList";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  SearchBar: {
-    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
-      color:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-      borderColor:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-    },
-  },
-}));
-
-export default function GroupPage({
-  shoppingListTrigger,
-  updateShoppingListTrigger,
-  shoppingListData,
-  updateShoppingListData,
-}) {
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
-  const { jobArray } = useContext(JobArrayContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
+export default function GroupPage() {
+  const { activeGroup } = useContext(ActiveJobContext);
+  const { jobArray, groupArray, updateGroupArray  } = useContext(JobArrayContext);
   const [groupJobs, updateGroupJobs] = useState([]);
   const [groupPageRefresh, updateGroupPageRefresh] = useState(false);
   const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
   const [tempName, updateTempName] = useState("");
   const [showProcessing, updateShowProcessing] = useState(false);
+<<<<<<< HEAD
   const [importFitDialogueTrigger, updateImportFitDialogueTrigger] = useState(false);
+=======
+  const [importFitDialogueTrigger, updateImportFitDialogueTrigger] =
+    useState(false);
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const { closeGroup } = useCloseGroup();
   const { newJobProcess } = useJobManagement();
-  const classes = useStyles();
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -80,38 +61,42 @@ export default function GroupPage({
   }, []);
 
   useEffect(() => {
-    if (activeGroup === null) return;
-    let returnArray = [];
+    if (!activeGroup) return;
     updateGroupPageRefresh((prev) => !prev);
-    for (let jobID of activeGroup.includedJobIDs) {
-      let job = jobArray.find((i) => i?.jobID === jobID);
-      if (job === undefined) {
-        continue;
+
+    const selectedGroup = groupArray.find((i) => i.groupID === activeGroup);
+
+    const includedJobIDSet = new Set(selectedGroup.includedJobIDs);
+
+    const groupJobs = jobArray.filter((i) => includedJobIDSet.has(i.jobID));
+
+    groupJobs.sort((a, b) => {
+      if (a.name < b.name) {
+        return -1;
       }
-      returnArray.push(job);
-      returnArray.sort((a, b) => {
-        if (a.name < b.name) {
-          return -1;
-        }
-        if (a.name > b.name) {
-          return 1;
-        }
-        return 0;
-      });
-    }
-    updateGroupJobs(returnArray);
+      if (a.name > b.name) {
+        return 1;
+      }
+      return 0;
+    });
+
+    updateGroupJobs(groupJobs);
     updateGroupPageRefresh((prev) => !prev);
-  }, [activeGroup, jobArray, userJobSnapshot]);
+  }, [activeGroup, groupArray, jobArray]);
+
 
   const handleNameChange = (event) => {
     event.preventDefault();
-    updateActiveGroup((prev) => ({
-      ...prev,
-      groupName: tempName,
-    }));
+    let newGroupArray = [...groupArray];
+    let selectedGroup = newGroupArray.find((i) => i.groupID === activeGroup);
+    selectedGroup.groupName = tempName;
+    updateGroupArray(newGroupArray);
     updateEditGroupNameTrigger((prev) => !prev);
   };
-  if (activeGroup === null) return <LoadingPage />;
+
+  let activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
+
+  if (!activeGroup) return <LoadingPage />;
 
   return (
     <Paper
@@ -124,7 +109,15 @@ export default function GroupPage({
       }}
       square
     >
+<<<<<<< HEAD
       <ImportItemFitDialogue importFitDialogueTrigger={importFitDialogueTrigger} updateImportFitDialogueTrigger={updateImportFitDialogueTrigger} />
+=======
+      <ImportItemFitDialogue
+        importFitDialogueTrigger={importFitDialogueTrigger}
+        updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
+      />
+      <ShoppingListDialog />
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
       <Grid container>
         <Grid item xs={7} md={9} lg={10} />
         <Grid item xs={5} md={3} lg={2} align="right">
@@ -165,10 +158,18 @@ export default function GroupPage({
               <Grid item xs={6}>
                 <TextField
                   fullWidth
-                  defaultValue={activeGroup.groupName}
+                  defaultValue={activeGroupObject.groupName}
                   size="small"
                   variant="standard"
-                  className={classes.TextField}
+                  sx={{
+                    "& .MuiFormHelperText-root": {
+                      color: (theme) => theme.palette.secondary.main,
+                    },
+                    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                      {
+                        display: "none",
+                      },
+                  }}
                   helperText="Group Name"
                   type="text"
                   onChange={(e) => {
@@ -177,15 +178,17 @@ export default function GroupPage({
                 />
               </Grid>
               <Grid item xs={1}>
-                <IconButton color="success" onClick={handleNameChange}>
-                  <DoneIcon />
-                </IconButton>
+                <Tooltip title="Save group name" arrow placement="bottom">
+                <IconButton color="primary" onClick={handleNameChange}>
+                  <SaveIcon />
+                  </IconButton>
+                  </Tooltip>
               </Grid>
             </Grid>
           ) : (
             <Grid item xs={12}>
               <Typography variant="h3" align="left" color="primary">
-                {activeGroup.groupName}
+                {activeGroupObject.groupName}
               </Typography>
             </Grid>
           )}
@@ -205,7 +208,7 @@ export default function GroupPage({
                 updateShowProcessing((prev) => !prev);
                 await newJobProcess({
                   itemID: value.itemID,
-                  groupID: activeGroup.groupID,
+                  groupID: activeGroupObject.groupID,
                 });
                 updateShowProcessing((prev) => !prev);
               }}
@@ -214,7 +217,6 @@ export default function GroupPage({
                   {...params}
                   size="small"
                   label="Item Search"
-                  className={classes.Autocomplete}
                   margin="none"
                   variant="standard"
                   style={{ borderRadius: "5px" }}
@@ -235,12 +237,10 @@ export default function GroupPage({
               <FormControlLabel
                 control={
                   <Switch
-                    checked={activeGroup.showComplete}
+                    checked={activeGroupObject.showComplete}
                     onChange={() => {
-                      updateActiveGroup((prev) => ({
-                        ...prev,
-                        showComplete: !prev.showComplete,
-                      }));
+                      activeGroupObject.showComplete =
+                        !activeGroupObject.showComplete;
                     }}
                   />
                 }
@@ -252,10 +252,12 @@ export default function GroupPage({
           <Grid item xs={12}>
             <GroupOptionsBar
               groupJobs={groupJobs}
-              updateShoppingListTrigger={updateShoppingListTrigger}
-              updateShoppingListData={updateShoppingListData}
               updateShowProcessing={updateShowProcessing}
+<<<<<<< HEAD
             updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
+=======
+              updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             />
           </Grid>
           <Grid item xs={12}>

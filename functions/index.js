@@ -11,6 +11,9 @@ const {
 } = require("./sharedFunctions/fetchMarketHistory");
 const { checkAppVersion } = require("./Middleware/appVersion");
 const { GLOBAL_CONFIG } = require("./global-config-functions");
+const {
+  BuildMissingSystemIndexValue,
+} = require("./sharedFunctions/misingSystemIndexValue");
 
 const { DEFAULT_MARKET_LOCATIONS } = GLOBAL_CONFIG;
 
@@ -49,7 +52,7 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
   }
   try {
     const authToken = await admin.auth().createCustomToken(req.body.UID);
-    functions.logger.log(`${req.body.UID} Token Generated, Log In Successful`);
+    functions.logger.log(`FB Auth Token Generated - ${req.body.UID}`);
     return res.status(200).send({
       access_token: authToken,
     });
@@ -64,7 +67,7 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
 
 //Read Full Single Item Tranquilty
 app.get("/item/:itemID", async (req, res) => {
-  if (req.params.itemID === undefined) {
+  if (!req.params.itemID) {
     return res.status(400).send("Item Data Missing From Request");
   }
   try {
@@ -79,7 +82,7 @@ app.get("/item/:itemID", async (req, res) => {
       );
       return res
         .status(200)
-        .set("Cache-Control", "public, max-age=600, s-maxage=3600")
+        .set("Cache-Control", "public, max-age=1800, s-maxage=3600")
         .send(response);
     } else {
       functions.logger.error("Error retrieving item data");
@@ -263,7 +266,7 @@ app.post("/market-data", async (req, res) => {
       const missingData = [];
       const returnData = [];
 
-      for (let i in requestedIDS) {
+      requestedIDLoop: for (let i in requestedIDS) {
         let marketPrices = null;
         let marketHistory = null;
         let adjustedPrice = null;
@@ -285,8 +288,12 @@ app.post("/market-data", async (req, res) => {
 
         let outputObject = { ...marketPrices };
         outputObject.adjustedPrice = adjustedPrice?.adjusted_price || 0;
-
         for (let location of DEFAULT_MARKET_LOCATIONS) {
+          if (fromDatabase && !marketHistory[location.name]) {
+            missingData.push(requestedIDS[i]);
+            continue requestedIDLoop;
+          }
+
           const {
             dailyAverageMarketPrice,
             highestMarketPrice,
@@ -329,14 +336,14 @@ app.get("/systemindexes/:systemID", async (req, res) => {
     return res.status(400).send("Invalid System ID");
   }
   try {
-    const idData = admin
+    const idData = await admin
       .database()
       .ref(`live-data/system-indexes/${systemID}`)
-      .once("value")
-      .val();
+      .once("value");
 
-    if (!idData) {
-      res.status(404).send("No System Data Found");
+    if (!JSON.stringify(idData)) {
+      functions.logger.log(`No System Data Found - ${systemID}`);
+      res.status(200).send(BuildMissingSystemIndexValue(systemID));
     }
 
     res.status(200).send(idData);
@@ -360,12 +367,19 @@ app.post("/systemindexes", async (req, res) => {
 
     const databaseResponses = await Promise.all(databaseRequests);
 
-    for (let item of databaseResponses) {
-      let itemData = item.val();
+    for (let itemReturn of databaseResponses) {
+      const itemData = itemReturn.val();
+      functions.logger.log(itemData);
       if (itemData !== null) {
-        results[itemData.system - index] = itemData;
+        results[itemData.solar_system_id] = itemData;
       }
     }
+
+    idArray.forEach((i) => {
+      if (!results[i]) {
+        results[i] = BuildMissingSystemIndexValue(i);
+      }
+    });
 
     const returnData = Object.values(results);
 
@@ -398,7 +412,7 @@ exports.RefreshItemHistory = require("./Scheduled Functions/marketHistoryRefresh
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
 exports.RefreshAdjustedPrices = require("./Scheduled Functions/refreshAdjustedPrices");
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
-exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");
+// exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");
 exports.userClaims = require("./Triggered Functions/addCorpClaim");
 exports.checkAppVersion = require("./Triggered Functions/checkAppVersion");
 exports.checkSDEUpdates = require("./Scheduled Functions/checkSDEUpdates");

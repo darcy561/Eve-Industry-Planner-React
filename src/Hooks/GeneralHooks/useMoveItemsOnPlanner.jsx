@@ -5,8 +5,8 @@ import {
 } from "../../Context/AuthContext";
 import { JobArrayContext } from "../../Context/JobContext";
 import { useFirebase } from "../useFirebase";
-import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "./useFindJobObject";
+import { useJobSnapshotManagement } from "../JobHooks/useJobSnapshots";
 
 export function useMoveItemsOnPlanner() {
   const { jobArray, updateJobArray, groupArray, updateGroupArray } =
@@ -15,7 +15,7 @@ export function useMoveItemsOnPlanner() {
     UserJobSnapshotContext
   );
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { uploadGroups, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { findJobData } = useFindJobObject();
 
@@ -26,7 +26,7 @@ export function useMoveItemsOnPlanner() {
     let groupsModified = false;
     let jobsModified = false;
 
-    if (direction === undefined) return;
+    if (!direction) return;
 
     for (let inputSnapID of inputSnapIDs) {
       if (inputSnapID.includes("group")) {
@@ -60,7 +60,7 @@ export function useMoveItemsOnPlanner() {
         newGroupArray
       );
 
-      if (inputGroup === undefined) return;
+      if (!inputGroup) return;
 
       if (direction === "forward") {
         if (inputGroup.groupStatus >= 3) return;
@@ -96,7 +96,11 @@ export function useMoveItemsOnPlanner() {
       }
 
       if (!inputJob.groupID) {
+<<<<<<< HEAD
         newUserJobSnapshot = updateJobSnapshotFromFullJob(
+=======
+        newUserJobSnapshot = updateJobSnapshot(
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
           inputJob,
           newUserJobSnapshot
         );

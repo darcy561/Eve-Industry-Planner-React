@@ -4,7 +4,10 @@ import {
   UserJobSnapshotContext,
   UsersContext,
 } from "../../Context/AuthContext";
-import { EvePricesContext } from "../../Context/EveDataContext";
+import {
+  EvePricesContext,
+  SystemIndexContext,
+} from "../../Context/EveDataContext";
 import {
   ActiveJobContext,
   ArchivedJobsContext,
@@ -17,6 +20,8 @@ import {
 import { useFirebase } from "../useFirebase";
 import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
+import { useMissingSystemIndex } from "../GeneralHooks/useImportMissingSystemIndexData";
+import { useJobSnapshotManagement } from "./useJobSnapshots";
 
 export function useSwitchActiveJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -30,12 +35,12 @@ export function useSwitchActiveJob() {
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updateEvePrices } = useContext(EvePricesContext);
-  const {
-    generatePriceRequestFromJob,
-    generatePriceRequestFromSnapshot,
-    newJobSnapshot,
-    updateJobSnapshotFromFullJob,
-  } = useJobManagement();
+  const { updateSystemIndexData } = useContext(SystemIndexContext);
+  const { findMissingSystemIndex } = useMissingSystemIndex();
+  const { generatePriceRequestFromJob, generatePriceRequestFromSnapshot } =
+    useJobManagement();
+  const { newJobSnapshot, updateJobSnapshot } =
+    useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const {
     getArchivedJobData,
@@ -66,25 +71,25 @@ export function useSwitchActiveJob() {
           newJobArray
         );
 
-        if (parentJob === undefined) continue;
+        if (!parentJob) continue;
 
         let parentMaterial = parentJob.build.materials.find(
           (mat) => mat.typeID === existingJob.itemID
         );
 
-        if (parentMaterial === undefined) continue;
+        if (!parentMaterial) continue;
 
         if (parentMaterial.typeID !== existingJob.itemID) {
           parentIDsToRemove.add(parentID);
           continue;
         }
 
-        let childJobSet = new Set(parentMaterial.childJob);
+        let childJobSet = new Set(parentJob.build.childJobs[parentMaterial.typeID]);
 
         if (!childJobSet.has(existingJob.jobID)) {
           childJobSet.add(existingJob.jobID);
-          parentMaterial.childJob = [...childJobSet];
-          newUserJobSnapshot = updateJobSnapshotFromFullJob(
+          parentJob.build.childJobs[parentMaterial.typeID] = [...childJobSet];
+          newUserJobSnapshot = updateJobSnapshot(
             parentJob,
             newUserJobSnapshot
           );
@@ -101,13 +106,13 @@ export function useSwitchActiveJob() {
 
       for (let material of existingJob.build.materials) {
         let childJobsToRemove = new Set();
-        for (let childJobID of material.childJob) {
+        for (let childJobID of existingJob.build.childJobs[material.typeID]) {
           let childJob = await findJobData(
             childJobID,
             newUserJobSnapshot,
             newJobArray
           );
-          if (childJob === undefined) continue;
+          if (!childJob) continue;
 
           if (childJob.itemID !== material.typeID) {
             childJobsToRemove.add(childJobID);
@@ -119,7 +124,7 @@ export function useSwitchActiveJob() {
           if (!childJobParentSet.has(existingJob.jobID)) {
             childJobParentSet.add(existingJob.jobID);
             childJob.parentJob = [...childJobParentSet];
-            newUserJobSnapshot = updateJobSnapshotFromFullJob(
+            newUserJobSnapshot = updateJobSnapshot(
               childJob,
               newUserJobSnapshot
             );
@@ -127,11 +132,11 @@ export function useSwitchActiveJob() {
           }
         }
         if (childJobsToRemove.size > 0) {
-          let replacementChildJobs = new Set(material.childJob);
+          let replacementChildJobs = new Set(existingJob.build.childJobs[material.typeID]);
           childJobsToRemove.forEach((id) => {
             replacementChildJobs.delete(id);
           });
-          material.childJob = [...replacementChildJobs];
+          existingJob.build.childJobs[material.typeID] = [...replacementChildJobs];
         }
       }
     }
@@ -194,7 +199,7 @@ export function useSwitchActiveJob() {
       updateArchivedJobs(newArchivedJobsArray);
       uploadUserJobSnapshot(newUserJobSnapshot);
     }
-
+    await checkSystemIndexData(openJob);
     let jobPrices = await getItemPrices([...itemIDs], parentUser);
     if (jobPrices.length > 0) {
       updateEvePrices((prev) => {
@@ -205,7 +210,7 @@ export function useSwitchActiveJob() {
         return [...prev, ...uniqueNewEvePrices];
       });
     }
-    console.log(newJobArray);
+
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateActiveJob(openJob);
@@ -225,6 +230,14 @@ export function useSwitchActiveJob() {
       userJobListener(parentUser, requestedJobID);
     }
   };
+
+  async function checkSystemIndexData(inputJob) {
+    const updatedSystemIndexData = await findMissingSystemIndex(
+      inputJob.buildSystem
+    );
+    if (!updatedSystemIndexData) return;
+    updateSystemIndexData(updatedSystemIndexData);
+  }
 
   return { switchActiveJob };
 }

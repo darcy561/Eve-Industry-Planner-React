@@ -16,13 +16,13 @@ import {
   SnackBarDataContext,
 } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
-import { useJobManagement } from "../useJobManagement";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
+import { useJobSnapshotManagement } from "./useJobSnapshots";
 
 export function useDeleteSingleJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { activeGroup } = useContext(ActiveJobContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
@@ -43,8 +43,7 @@ export function useDeleteSingleJob() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
-  const { deleteJobSnapshot, updateJobSnapshotFromFullJob } =
-    useJobManagement();
+  const { deleteJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const analytics = getAnalytics();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -93,7 +92,7 @@ export function useDeleteSingleJob() {
       if (!mat) {
         continue;
       }
-      for (let job of mat.childJob) {
+      for (let job of inputJob.build.childJobs[mat.typeID]) {
         let child = await findJobData(job, newUserJobSnapshot, newJobArray);
         if (!child) {
           continue;
@@ -101,10 +100,7 @@ export function useDeleteSingleJob() {
 
         child.parentJob = child.parentJob.filter((i) => i !== inputJob.jobID);
 
-        newUserJobSnapshot = updateJobSnapshotFromFullJob(
-          child,
-          newUserJobSnapshot
-        );
+        newUserJobSnapshot = updateJobSnapshot(child, newUserJobSnapshot);
 
         jobsToSave.add(child.jobID);
       }
@@ -116,19 +112,15 @@ export function useDeleteSingleJob() {
         newUserJobSnapshot,
         newJobArray
       );
-      if (!parentJob) {
+      if (!parentJob || !parentJob.build.childJobs[inputJob.itemID]) {
         continue;
       }
-      for (let mat of parentJob.build.materials) {
-        if (!mat.childJob) {
-          continue;
-        }
-        mat.childJob = mat.childJob.filter((i) => i !== inputJob.jobID);
-      }
-      newUserJobSnapshot = updateJobSnapshotFromFullJob(
-        parentJob,
-        newUserJobSnapshot
-      );
+
+      parentJob.build.childJobs[inputJob.itemID] = parentJob.build.childJobs[
+        inputJob.itemID
+      ].filter((i) => i !== inputJob.jobID);
+
+      newUserJobSnapshot = updateJobSnapshot(parentJob, newUserJobSnapshot);
       jobsToSave.add(parentJob.jobID);
     }
 
@@ -187,13 +179,8 @@ export function useDeleteSingleJob() {
       if (selectedGroupIndex === -1) return;
 
       const groupJobs = newJobArray.filter(
-        (job) =>
-          job.groupID === activeGroup.groupID && job.jobID !== inputJob.jobID
+        (job) => job.groupID === activeGroup && job.jobID !== inputJob.jobID
       );
-
-      const isActiveGroup =
-        newGroupArray[selectedGroupIndex].groupID === activeGroup.groupID;
-
 
       const {
         outputJobCount,
@@ -246,9 +233,6 @@ export function useDeleteSingleJob() {
       newGroupArray[selectedGroupIndex].linkedTransIDs = [...linkedTransIDs];
 
       updateGroupArray(newGroupArray);
-      if (isActiveGroup) {
-        updateActiveGroup(newGroupArray[selectedGroupIndex]);
-      }
       if (isLoggedIn) {
         uploadGroups(newGroupArray);
       }

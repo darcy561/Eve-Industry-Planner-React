@@ -47,6 +47,7 @@ import { httpsCallable } from "firebase/functions";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import searchData from "../RawData/searchIndex.json";
 import { trace } from "firebase/performance";
+import { fetchSystemIndexes } from "./FetchDataHooks/fetchSystemIndexes";
 
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -94,8 +95,8 @@ export function useAccountManagement() {
     updateCorpEsiJournal,
     corpEsiTransactions,
     updateCorpEsiTransactions,
-    esiCorpData,
-    updateESICorpData,
+    corpEsiData,
+    updateCorpEsiData,
   } = useContext(CorpEsiDataContext);
   const { updateUserUIData, updateLoginInProgressComplete } =
     useContext(UserLoginUIContext);
@@ -107,6 +108,7 @@ export function useAccountManagement() {
   const {
     fetchCharacterData,
     fetchCharacterSkills,
+    fetchCorpAssets,
     fetchCorpIndustryJobs,
     fetchCorpMarketOrdersJobs,
     fetchCorpHistMarketOrders,
@@ -122,7 +124,7 @@ export function useAccountManagement() {
     fetchCharacterJournal,
     fetchCharacterTransactions,
     fetchCharacterAssets,
-    IDtoName,
+    fetchUniverseNames,
     fetchCharacterStandings,
     serverStatus,
   } = useEveApi();
@@ -162,6 +164,7 @@ export function useAccountManagement() {
       esiCorpTransactions: fetchCorpTransactions,
       esiCorpDivisions: fetchCorpDivisions,
       esiCorpPublicInfo: fetchCorpPublicInfo,
+      esiCorpAssets: fetchCorpAssets,
     };
 
     const apiResults = await Promise.all(
@@ -244,12 +247,26 @@ export function useAccountManagement() {
         addLocation(order.region_id);
       });
 
+      const corporationOfficeLocationObjects = data.esiCorpAssets.filter(
+        (i) => i.location_flag === "OfficeFolder"
+      );
+      corporationOfficeLocationObjects.forEach(({ location_id }) => {
+        if (location_id.toString().length > 10) {
+          if (!citadelStore.has(location_id)) {
+            citadelStore.add(location_id);
+            addCitadel(location_id);
+          }
+        } else {
+          addLocation(location_id);
+        }
+      });
+
       if ([...citadelIDs].length > 0) {
-        newIDNamePromises.push(IDtoName([...citadelIDs], user));
+        newIDNamePromises.push(fetchUniverseNames([...citadelIDs], user));
       }
     }
     if ([...locationIDS].length > 0) {
-      newIDNamePromises.push(IDtoName([...locationIDS], mainUser));
+      newIDNamePromises.push(fetchUniverseNames([...locationIDS], mainUser));
     }
 
     const returnLocations = await Promise.all(newIDNamePromises);
@@ -288,13 +305,13 @@ export function useAccountManagement() {
     updateEsiTransactions(defaultEsiTransactions);
     updateEsiStandings(defaultEsiStandings);
 
-    updateCorpEsiIndJobs([]);
+    updateCorpEsiIndJobs(new Map());
     updateCorpEsiOrders([]);
     updateCorpEsiHistOrders([]);
     updateCorpEsiBlueprints([]);
     updateCorpEsiJournal([]);
     updateCorpEsiTransactions([]);
-    updateESICorpData([]);
+    updateCorpEsiData(new Map());
 
     sessionStorage.clear();
     localStorage.removeItem("Auth");
@@ -512,11 +529,23 @@ export function useAccountManagement() {
 
   const buildApiArray = (userArray, esiObjectArray) => {
     let newApiArray = [];
+    const includedIDs = new Set();
     for (let user of userArray) {
       let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
       if (!data) continue;
 
-      newApiArray = newApiArray.concat(data.esiJobs, data.esiCorpJobs);
+      data.esiCorpJobs.forEach((job) => {
+        if (includedIDs.has(job.job_id)) return;
+        includedIDs.add(job.job_id);
+        newApiArray.push(job);
+      });
+      data.esiJobs.forEach((job) => {
+        if (includedIDs.has(job.job_id)) return;
+        includedIDs.add(job.job_id);
+        newApiArray.push(job);
+      });
+
+      // newApiArray = newApiArray.concat(data.esiJobs, data.esiCorpJobs);
     }
 
     newApiArray.sort((a, b) => {
@@ -585,7 +614,7 @@ export function useAccountManagement() {
     let transactions = [];
     let journal = [];
     let standings = [];
-    let corpJobs = [];
+    let corpJobs = new Map();
     let corpOrders = [];
     let corpHistMOrders = [];
     let corpBlueprints = [];
@@ -629,10 +658,7 @@ export function useAccountManagement() {
         `assets_${esiUser.owner}`,
         JSON.stringify(esiUser.esiAssets)
       );
-      corpJobs.push({
-        user: esiUser.owner,
-        data: esiUser.esiCorpJobs,
-      });
+      corpJobs.set(esiUser.owner, esiUser.esiCorpJobs);
       corpOrders.push({
         user: esiUser.owner,
         data: esiUser.esiOrders,
@@ -680,7 +706,6 @@ export function useAccountManagement() {
     let newEsiJournal = [...esiJournal];
     let newEsiTransactions = [...esiTransactions];
     let newEsiStandings = [...esiStandings];
-    let newCorpEsiIndJobs = [...corpEsiIndJobs];
     let newCorpEsiOrders = [corpEsiOrders];
     let newCorpEsiHistMOrders = [...corpEsiHistOrders];
     let newCorpEsiBlueprints = [...corpEsiBlueprints];
@@ -705,8 +730,8 @@ export function useAccountManagement() {
       (i) => !usersToUpdate.has(i.user)
     );
     newEsiStandings = newEsiStandings.filter((i) => !usersToUpdate.has(i.user));
-    newCorpEsiIndJobs = newCorpEsiIndJobs.filter(
-      (i) => !usersToUpdate.has(i.user)
+    const newCorpEsiIndJobs = new Map(
+      [...corpEsiIndJobs.entries()].filter(([key]) => !usersToUpdate.has(key))
     );
     newCorpEsiOrders = newCorpEsiOrders.filter(
       (i) => !usersToUpdate.has(i.user)
@@ -761,10 +786,7 @@ export function useAccountManagement() {
         `assets_${esiUser.owner}`,
         JSON.stringify(esiUser.esiAssets)
       );
-      newCorpEsiIndJobs.push({
-        user: esiUser.owner,
-        data: esiUser.esiCorpJobs,
-      });
+      newCorpEsiIndJobs.set(esiUser.owner, esiUser.esiCorpJobs);
       newCorpEsiOrders.push({
         user: esiUser.owner,
         data: esiUser.esiOrders,
@@ -812,7 +834,6 @@ export function useAccountManagement() {
     let newEsiJournal = [...esiJournal];
     let newEsiTransactions = [...esiTransactions];
     let newEsiStandings = [...esiStandings];
-    let newCorpEsiIndJobs = [...corpEsiIndJobs];
     let newCorpEsiOrders = [...corpEsiOrders];
     let newCorpEsiHistMOrders = [...corpEsiHistOrders];
     let newCorpEsiBlueprints = [...corpEsiBlueprints];
@@ -827,7 +848,9 @@ export function useAccountManagement() {
     newEsiJournal = newEsiJournal.filter((i) => i.user !== userHash);
     newEsiTransactions = newEsiTransactions.filter((i) => i.user !== userHash);
     newEsiStandings = newEsiStandings.filter((i) => i.user !== userHash);
-    newCorpEsiIndJobs = newCorpEsiIndJobs.filter((i) => i.user !== userHash);
+    const newCorpEsiIndJobs = new Map(
+      [...corpEsiIndJobs].filter(([key]) => key !== userHash)
+    );
     newCorpEsiOrders = newCorpEsiOrders.filter((i) => i.user !== userHash);
     newCorpEsiHistMOrders = newCorpEsiHistMOrders.filter(
       (i) => i.user !== userHash
@@ -864,37 +887,129 @@ export function useAccountManagement() {
   };
 
   const storeCorpObjects = (esiObjectArray) => {
-    const corporationData = esiObjectArray
-      .filter(({ esiCorpPublicInfo }) => esiCorpPublicInfo)
-      .reduce((acc, { esiCorpDivisions, esiCorpPublicInfo }) => {
-        const existingCorpIndex = acc.findIndex(
-          ({ corporation_id }) =>
-            corporation_id === esiCorpPublicInfo.corporation_id
-        );
-        if (existingCorpIndex === -1) {
-          acc.push({
-            alliance_id: esiCorpPublicInfo.alliance_id,
-            name: esiCorpPublicInfo.name,
-            tax_rate: esiCorpPublicInfo.tax_rate,
-            ticker: esiCorpPublicInfo.ticker,
-            corporation_id: esiCorpPublicInfo.corporation_id,
-            hangar: esiCorpDivisions?.hangar || null,
-            wallet: esiCorpDivisions?.wallet || null,
-          });
-        } else {
-          const existingCorp = acc[existingCorpIndex];
-          if (
-            esiCorpDivisions &&
-            (!existingCorp.hangar || !existingCorp.wallet)
-          ) {
-            existingCorp.hangar = esiCorpDivisions.hangar;
-            existingCorp.wallet = esiCorpDivisions.wallet;
-          }
-        }
-        return acc;
-      }, []);
+    const corporationData = filterAndReduceCorpData(esiObjectArray);
 
-    updateESICorpData(corporationData);
+    updateCorpEsiData(corporationData);
+
+    function filterAndReduceCorpData(esiObjectArray) {
+      return esiObjectArray
+        .filter(({ esiCorpPublicInfo }) => esiCorpPublicInfo)
+        .reduce(
+          (corpMap, { esiCorpDivisions, esiCorpPublicInfo, esiCorpAssets }) => {
+            const corporationID = esiCorpPublicInfo.corporation_id;
+
+            if (!corpMap.has(corporationID)) {
+              corpMap.set(
+                corporationID,
+                createNewCorpData(
+                  esiCorpDivisions,
+                  esiCorpPublicInfo,
+                  esiCorpAssets
+                )
+              );
+            } else {
+              updateExistingCorpData(
+                corpMap.get(corporationID),
+                esiCorpPublicInfo,
+                esiCorpDivisions,
+                esiCorpAssets
+              );
+            }
+
+            return corpMap;
+          },
+          new Map()
+        );
+    }
+
+    function createNewCorpData(
+      esiCorpDivisions,
+      esiCorpPublicInfo,
+      esiCorpAssets
+    ) {
+      const staticHangars = {
+        division: 0,
+        name: "Projects",
+        assetLocationRef: "CorporationGoalDeliveries",
+      };
+
+      const updatedHangarData = esiCorpDivisions?.hangar
+        .map((hangarItem) => ({
+          ...hangarItem,
+          assetLocationRef: `CorpSAG${hangarItem.division}`,
+        }))
+        .concat([staticHangars]);
+
+      if (esiCorpAssets.length > 0) {
+        sessionStorage.setItem(
+          `corpAssets_${esiCorpPublicInfo.corporation_id}`,
+          JSON.stringify(esiCorpAssets)
+        );
+      }
+
+      const officeLocations = esiCorpAssets.reduce((prev, asset) => {
+        if (asset.location_flag === "OfficeFolder") {
+          prev.add(asset.location_id);
+        }
+        return prev;
+      }, new Set());
+
+      return {
+        alliance_id: esiCorpPublicInfo.alliance_id,
+        name: esiCorpPublicInfo.name,
+        tax_rate: esiCorpPublicInfo.tax_rate,
+        ticker: esiCorpPublicInfo.ticker,
+        corporation_id: esiCorpPublicInfo.corporation_id,
+        hangars: updatedHangarData || null,
+        wallets: esiCorpDivisions?.wallet || null,
+        officeLocations: [...officeLocations],
+      };
+    }
+
+    function updateExistingCorpData(
+      existingCorp,
+      esiCorpPublicInfo,
+      esiCorpDivisions,
+      esiCorpAssets
+    ) {
+      if (esiCorpAssets.length > 0) {
+        sessionStorage.setItem(
+          `corpAssets_${esiCorpPublicInfo.corporation_id}`,
+          JSON.stringify(esiCorpAssets)
+        );
+      }
+
+      const officeLocations = esiCorpAssets.reduce((prev, asset) => {
+        if (asset.location_flag === "OfficeFolder") {
+          prev.add(asset.location_id);
+        }
+        return prev;
+      }, new Set());
+
+      if (esiCorpDivisions && (!existingCorp.hangar || !existingCorp.wallet)) {
+        existingCorp.hangars = esiCorpDivisions.hangar;
+        existingCorp.wallets = esiCorpDivisions.wallet;
+      }
+      existingCorp.officeLocations = [
+        ...new Set([...officeLocations, ...existingCorp.officeLocations]),
+      ];
+    }
+  };
+
+  const getSystemIndexData = async (userObject) => {
+    const manufacturingStructures =
+      userObject.settings.structures.manufacturing;
+    const reactionStructures = userObject.settings.structures.reaction;
+
+    const requestIDs = new Set(
+      [...manufacturingStructures, ...reactionStructures].map(
+        (entry) => entry.systemID
+      )
+    );
+
+    const systemIndexData = await fetchSystemIndexes([...requestIDs]);
+
+    return systemIndexData;
   };
 
   return {
@@ -906,6 +1021,7 @@ export function useAccountManagement() {
     checkUserClaims,
     failedUserRefresh,
     getCharacterInfo,
+    getSystemIndexData,
     getLocationNames,
     logUserOut,
     removeUserEsiData,

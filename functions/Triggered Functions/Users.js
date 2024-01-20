@@ -9,6 +9,7 @@ const {
   DEFAULT_MARKET_OPTION,
   DEFAULT_ORDER_OPTION,
   DEFAULT_ASSET_LOCATION,
+  DEFAULT_PRODUCTION_SYSTEM,
   DEFAULT_CITADEL_BROKERS_FEE,
   DEFAULT_MANUFACTURING_STRUCTURES,
   DEFAULT_REACTION_STRUCTURES,
@@ -17,7 +18,7 @@ const {
 exports.createUserData = functions
   .region(FIREBASE_SERVER_REGION)
   .https.onCall((data, context) => {
-    if (context.app == undefined) {
+    if (!context.app) {
       functions.logger.warn("Unverified function Call");
       functions.logger.warn(context);
       throw new functions.https.HttpsError(

@@ -10,21 +10,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { structureOptions } from "../../Context/defaultValues";
-
-import { makeStyles } from "@mui/styles";
 import { useBlueprintCalc } from "../../Hooks/useBlueprintCalc";
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 export function ReactionOptionsUpcomingChanges({
   tranqItem,
@@ -39,8 +25,6 @@ export function ReactionOptionsUpcomingChanges({
   const [structType, updateStructType] = useState(0);
   const [rigsValue, updateRigsValue] = useState(0);
   const [systemValue, updateSystemValue] = useState(1);
-
-  const classes = useStyles();
 
   useEffect(() => {
     function updateDefaultValues() {
@@ -154,7 +138,6 @@ export function ReactionOptionsUpcomingChanges({
         <Grid item xs={6}>
           <TextField
             fullWidth
-            className={classes.TextField}
             defaultValue={runValue}
             size="small"
             variant="standard"
@@ -163,14 +146,23 @@ export function ReactionOptionsUpcomingChanges({
             onBlur={(e) => {
               updateRunValue(Number(e.target.value));
             }}
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+              paddingLeft: "5px",
+              paddingRight: "5px",
+            }}
           />
         </Grid>
         <Grid item xs={6}>
           <TextField
             fullWidth
             defaultValue={jobValue}
-            className={classes.TextField}
             size="small"
             variant="standard"
             helperText="Job Slots"
@@ -178,7 +170,17 @@ export function ReactionOptionsUpcomingChanges({
             onBlur={(e) => {
               updateJobValue(Number(e.target.value));
             }}
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+              paddingLeft: "5px",
+              paddingRight: "5px",
+            }}
           />
         </Grid>
         <Grid item xs={4}>
@@ -193,9 +195,18 @@ export function ReactionOptionsUpcomingChanges({
             placement="top"
           >
             <FormControl
-              className={classes.TextField}
               fullWidth
-              sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+              sx={{
+                "& .MuiFormHelperText-root": {
+                  color: (theme) => theme.palette.secondary.main,
+                },
+                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                  {
+                    display: "none",
+                  },
+                paddingLeft: "5px",
+                paddingRight: "5px",
+              }}
             >
               <Select
                 variant="standard"
@@ -221,9 +232,18 @@ export function ReactionOptionsUpcomingChanges({
         </Grid>
         <Grid item xs={4}>
           <FormControl
-            className={classes.TextField}
             fullWidth
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+              paddingLeft: "5px",
+              paddingRight: "5px",
+            }}
           >
             <Select
               variant="standard"
@@ -246,9 +266,18 @@ export function ReactionOptionsUpcomingChanges({
         </Grid>
         <Grid item xs={4}>
           <FormControl
-            className={classes.TextField}
             fullWidth
-            sx={{ paddingLeft: "5px", paddingRight: "5px" }}
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+              paddingLeft: "5px",
+              paddingRight: "5px",
+            }}
           >
             <Select
               variant="standard"

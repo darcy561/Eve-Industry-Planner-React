@@ -1,3 +1,4 @@
+import { useContext, useEffect, useState } from "react";
 import {
   Avatar,
   Button,
@@ -6,36 +7,22 @@ import {
   CardContent,
   Grid,
   Grow,
-  IconButton,
   ImageList,
   ImageListItem,
   Paper,
   Typography,
 } from "@mui/material";
-import { useEffect } from "react";
-import { useState } from "react";
-import { useContext } from "react";
-import { makeStyles } from "@mui/styles";
 import { ActiveJobContext } from "../../../Context/JobContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
-import { useOpenEditJob } from "../../../Hooks/JobHooks/useOpenEditJob";
-import { JobPlannerPageTriggerContext } from "../../../Context/LayoutContext";
-
-const useStyles = makeStyles((theme) => ({
-  Header: {
-    color:
-      theme.palette.type === "dark" ? "secondary" : theme.palette.primary.main,
-  },
-}));
+import GLOBAL_CONFIG from "../../../global-config-app";
+import { useNavigate } from "react-router-dom";
 
 export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(ActiveJobContext);
-  const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
   const [outputJobs, updateOutputJobs] = useState([]);
   const { calculateCurrentJobBuildCostFromChildren } = useGroupManagement();
-  const { openEditJob } = useOpenEditJob();
-
-  const classes = useStyles();
+  const navigate = useNavigate();
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   useEffect(() => {
     let returnArray = [];
@@ -47,7 +34,7 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
     updateOutputJobs(returnArray);
   }, [groupJobs]);
 
-  if (!groupPageRefresh && activeGroup !== null) {
+  if (!groupPageRefresh && activeGroup) {
     return (
       <Paper
         elevation={3}
@@ -60,7 +47,15 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
       >
         <Grid container>
           <Grid item xs={12}>
-            <Typography variant="h4" className={classes.Header}>
+            <Typography
+              variant="h4"
+              sx={{
+                color: (theme) =>
+                  theme.palette.mode === PRIMARY_THEME
+                    ? "secondary"
+                    : theme.palette.primary.main,
+              }}
+            >
               Output
             </Typography>
           </Grid>
@@ -74,7 +69,7 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
               }}
             >
               {outputJobs.map((job) => {
-                let buildCost = calculateCurrentJobBuildCostFromChildren(job);
+                const buildCost = calculateCurrentJobBuildCostFromChildren(job);
                 return (
                   <ImageListItem key={job.jobID}>
                     <Grow in={true}>
@@ -158,8 +153,7 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
                         <CardActions>
                           <Button
                             onClick={() => {
-                              openEditJob(job.jobID);
-                              updateEditJobTrigger((prev) => !prev);
+                              navigate(`/editJob/${job.jobID}`);
                             }}
                           >
                             View

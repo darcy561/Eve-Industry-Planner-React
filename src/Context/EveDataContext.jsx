@@ -64,13 +64,13 @@ export const PersonalEsiData = (props) => {
 export const CorpEsiDataContext = createContext();
 
 export const CorpEsiData = (props) => {
-  const [corpEsiIndJobs, updateCorpEsiIndJobs] = useState([]);
+  const [corpEsiIndJobs, updateCorpEsiIndJobs] = useState(new Map());
   const [corpEsiOrders, updateCorpEsiOrders] = useState([]);
   const [corpEsiHistOrders, updateCorpEsiHistOrders] = useState([]);
   const [corpEsiBlueprints, updateCorpEsiBlueprints] = useState([]);
   const [corpEsiJournal, updateCorpEsiJournal] = useState([]);
   const [corpEsiTransactions, updateCorpEsiTransactions] = useState([]);
-  const [esiCorpData, updateESICorpData] = useState([]);
+  const [corpEsiData, updateCorpEsiData] = useState(new Map());
   return (
     <CorpEsiDataContext.Provider
       value={{
@@ -86,8 +86,8 @@ export const CorpEsiData = (props) => {
         updateCorpEsiJournal,
         corpEsiTransactions,
         updateCorpEsiTransactions,
-        esiCorpData,
-        updateESICorpData,
+        corpEsiData,
+        updateCorpEsiData,
       }}
     >
       {props.children}
@@ -159,5 +159,18 @@ export const SisiDataFiles = (props) => {
     >
       {props.children}
     </SisiDataFilesContext.Provider>
+  );
+};
+
+export const SystemIndexContext = createContext();
+
+export const SystemIndex = (props) => {
+  const [systemIndexData, updateSystemIndexData] = useState({});
+  return (
+    <SystemIndexContext.Provider
+      value={{ systemIndexData, updateSystemIndexData }}
+    >
+      {props.children}
+    </SystemIndexContext.Provider>
   );
 };

@@ -1,6 +1,6 @@
 const functions = require("firebase-functions");
 const { GLOBAL_CONFIG } = require("../global-config-functions");
-const ingrediantList = require("../rawData/ingrediantIDs.json");
+const ingrediantObject = require("../rawData/recipeMaterialLookup.json");
 
 const { FIREBASE_SERVER_REGION } = GLOBAL_CONFIG;
 
@@ -27,7 +27,7 @@ exports.findIngrediants = functions
           materialToTypeIDs[material].forEach((typeID) =>
             matchingTypeIDs.add(typeID)
           );
-        } else if (matchType === "all" && matchingTypeIDs.size > 0) {
+        } else if (matchType === "all" && matchingTypeIDs.size > 0) { 
           matchingTypeIDs = new Set(
             materialToTypeIDs[material].filter((typeID) =>
               matchingTypeIDs.has(typeID)

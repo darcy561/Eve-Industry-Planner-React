@@ -7,7 +7,7 @@ import { ItemTypes } from "../Context/DnDTypes";
 import { JobArrayContext } from "../Context/JobContext";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useFirebase } from "./useFirebase";
-import { useJobManagement } from "./useJobManagement";
+import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 
 export function useDnD() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -16,7 +16,7 @@ export function useDnD() {
   );
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
-  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { uploadJob, uploadGroups } = useFirebase();
 
@@ -40,7 +40,7 @@ export function useDnD() {
         }
         inputJob.jobStatus = status.id;
 
-        newUserJobSnapshot = updateJobSnapshotFromFullJob(
+        newUserJobSnapshot = updateJobSnapshot(
           inputJob,
           newUserJobSnapshot
         );

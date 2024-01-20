@@ -2,21 +2,23 @@ import { useContext, useMemo } from "react";
 import itemTypes from "../../RawData/searchIndex.json";
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
 import { useJobBuild } from "../useJobBuild";
-import { useBlueprintCalc } from "../useBlueprintCalc";
 import { useJobManagement } from "../useJobManagement";
 import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import { useFirebase } from "../useFirebase";
 import { EvePricesContext } from "../../Context/EveDataContext";
+import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
+import { useManageGroupJobs } from "./useManageGroupJobs";
 
 export function useImportFitFromClipboard() {
-  const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
+  const { activeGroup } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray, groupArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { buildJob, recalculateItemQty } = useJobBuild();
-  const { CalculateResources, CalculateTime } = useBlueprintCalc();
+  const { buildJob } = useJobBuild();
+  const { recalculateJobForNewTotal } = useRecalcuateJob();
+  const { addMultipleJobsToGroup } = useManageGroupJobs();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { addNewJob, getItemPrices } = useFirebase();
 
@@ -98,8 +100,8 @@ export function useImportFitFromClipboard() {
   };
 
   const finalBuildRequests = async (itemArray) => {
+    const activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
     if (!itemArray) return;
-    let newJobArray = [...jobArray];
     let newPriceIDs = new Set();
     let jobsToSave = new Set();
 
@@ -109,14 +111,14 @@ export function useImportFitFromClipboard() {
           return {
             itemID: itemEntry.itemID,
             itemQty: itemEntry.itemCalculatedQty,
-            groupID: activeGroup.groupID,
+            groupID: activeGroup,
           };
         }
       })
       .filter((entry) => entry);
 
     const groupEntriesToModifiy = buildRequests.filter((entry) =>
-      activeGroup.includedTypeIDs.includes(entry.itemID)
+      activeGroupObject.includedTypeIDs.includes(entry.itemID)
     );
     const itemsToBuild = buildRequests.filter(
       (entry) => !groupEntriesToModifiy.some((i) => i.itemID === entry.itemID)
@@ -124,18 +126,19 @@ export function useImportFitFromClipboard() {
 
     const newJobData = await buildJob(itemsToBuild);
 
+    const newJobArray = [...jobArray, ...newJobData];
+
     for (const job of newJobData) {
       newPriceIDs = new Set(newPriceIDs, generatePriceRequestFromJob(job));
       jobsToSave.add(job.jobID);
 
       job.build.materials.forEach((material) => {
         let materialMatch = newJobArray.find(
-          (i) =>
-            i.itemID === material.typeID && i.groupID === activeGroup.groupID
+          (i) => i.itemID === material.typeID && i.groupID === activeGroup
         );
         if (materialMatch) {
           materialMatch.parentJob.push(job.jobID);
-          material.childJob.push(materialMatch.jobID);
+          job.build.childJobs[material.typeID].push(materialMatch.jobID);
           jobsToSave.add(materialMatch.jobID);
         }
       });
@@ -148,76 +151,19 @@ export function useImportFitFromClipboard() {
       if (!job) continue;
       const newQuantity = job.build.products.totalQuantity + entry.itemQty;
 
-      recalculateItemQty(job, newQuantity);
-
-      job.build.materials = CalculateResources({
-        jobType: job.jobType,
-        rawMaterials: job.rawData.materials,
-        outputMaterials: job.build.materials,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        bpME: job.bpME,
-        structureType: job.structureType,
-        rigType: job.rigType,
-        systemType: job.systemType,
-      });
-      job.build.products.totalQuantity =
-        job.rawData.products[0].quantity * job.runCount * job.jobCount;
-
-      job.build.products.quantityPerJob =
-        job.rawData.products[0].quantity * job.jobCount;
-
-      job.build.time = CalculateTime({
-        jobType: job.jobType,
-        CharacterHash: job.build.buildChar,
-        structureType: job.structureType,
-        rigType: job.rigType,
-        runCount: job.runCount,
-        bpTE: job.bpTE,
-        rawTime: job.rawData.time,
-        skills: job.skills,
-      });
+      recalculateJobForNewTotal(job, newQuantity);
       jobsToSave.add(job.jobID);
     }
 
-    const {
-      newIncludedTypeIDs,
-      newIncludedJobIDs,
-      newOuputJobCount,
-      newMaterialIDs,
-    } = newJobData.reduce(
-      (prev, entry) => {
-        prev.newIncludedJobIDs.add(entry.jobID);
-        prev.newIncludedTypeIDs.add(entry.itemID);
-        prev.newOuputJobCount++;
-
-        entry.build.materials.forEach((mat) => {
-          prev.newMaterialIDs.add(mat.typeID);
-        });
-
-        return prev;
-      },
-      {
-        newIncludedTypeIDs: new Set(),
-        newIncludedJobIDs: new Set(),
-        newOuputJobCount: 1,
-        newMaterialIDs: new Set(),
-      }
+    const newGroupArray = addMultipleJobsToGroup(
+      newJobData,
+      [...groupArray],
+      newJobArray
     );
 
     const itemPriceData = await Promise.all(itemPriceRequest);
-    newJobArray = newJobArray.concat(newJobData);
-    updateActiveGroup((prev) => ({
-      ...prev,
-      includedJobIDs: [
-        ...new Set([...prev.includedJobIDs, ...newIncludedJobIDs]),
-      ],
-      includedTypeIDs: [
-        ...new Set([...prev.includedTypeIDs, ...newIncludedTypeIDs]),
-      ],
-      outputJobCount: prev.outputJobCount + newOuputJobCount,
-      materialIDs: [...new Set([...prev.materialIDs, ...newMaterialIDs])],
-    }));
+
+    updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
     updateEvePrices((prev) => {
       const prevIds = new Set(prev.map((item) => item.typeID));

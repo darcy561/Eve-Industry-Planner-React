@@ -1,31 +1,34 @@
 const admin = require("firebase-admin");
-const functions = require("firebase-functions");
+const { logErrorAndRespond } = require("./eveTokenVerify");
 
 async function appCheckVerification(req, res, next) {
   const appCheckClaims = await verifyAppCheckToken(
     req.header("X-Firebase-AppCheck")
   );
   if (!appCheckClaims) {
-    functions.logger.warn("Unauthorised App Check Token");
-    functions.logger.warn(JSON.stringify(req.header("X-Firebase-AppCheck")));
-    res.status(401);
-    return next("Unauthorised");
+    logErrorAndRespond(
+      "Unauthorised App Check Token",
+      res,
+      next,
+      401,
+      req.header("X-Firebase-AppCheck")
+    );
+  } else {
+    next();
   }
-  next();
 }
 
-const verifyAppCheckToken = async (token) => {
+async function verifyAppCheckToken(token) {
   if (!token) {
     return null;
   }
   try {
-    return admin.appCheck().verifyToken(token);
+    return await admin.appCheck().verifyToken(token);
   } catch (err) {
-    functions.logger.error("Error Verifying AppCheck Token");
-    functions.logger.error(err);
+    logErrorAndRespond("Error Verifying AppCheck Token", null, null, null);
     return null;
   }
-};
+}
 
 module.exports = {
   appCheckVerification: appCheckVerification,

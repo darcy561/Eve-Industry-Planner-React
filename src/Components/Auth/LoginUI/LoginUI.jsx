@@ -12,14 +12,7 @@ import { useContext, useEffect } from "react";
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
 import { useNavigate } from "react-router-dom";
 import CheckIcon from "@mui/icons-material/Check";
-import { makeStyles } from "@mui/styles";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
-
-const useStyles = makeStyles((theme) => ({
-  childJobText: {
-    color: "white",
-  },
-}));
 
 export function UserLogInUI({}) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -34,7 +27,6 @@ export function UserLogInUI({}) {
     userGroupsDataFetch,
   } = useContext(UserLoginUIContext);
   const navigate = useNavigate();
-  const classes = useStyles();
 
   useEffect(() => {
     if (
@@ -149,9 +141,9 @@ export function UserLogInUI({}) {
               >
                 <Grid item xs={12} align="center">
                   <Avatar
-                    className={classes.childJobText}
                     variant="circular"
                     sx={{
+                      color: "white",
                       bgcolor: "primary.main",
                       height: { xs: "48px", sm: "64px", lg: "128px" },
                       width: { xs: "48px", sm: "64px", lg: "128px" },

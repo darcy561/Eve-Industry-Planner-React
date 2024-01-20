@@ -16,23 +16,10 @@ import { UsersContext } from "../../Context/AuthContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { ApiJobsContext } from "../../Context/JobContext";
 import itemList from "../../RawData/searchIndex.json";
-import { makeStyles } from "@mui/styles";
 import {
   CorpEsiDataContext,
   PersonalESIDataContext,
 } from "../../Context/EveDataContext";
-
-const useStyles = makeStyles((theme) => ({
-  Select: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-}));
 
 export function LibrarySearch({
   updateBlueprintData,
@@ -49,8 +36,12 @@ export function LibrarySearch({
   const { users } = useContext(UsersContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
+<<<<<<< HEAD
   const classes = useStyles();
   
+=======
+
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   return (
     <Paper
       square={true}
@@ -505,7 +496,18 @@ export function LibrarySearch({
           </FormControl>
         </Grid>
         <Grid item xs={12} sm={1} align="center">
-          <FormControl className={classes.Select} fullWidth={true}>
+          <FormControl
+            sx={{
+              "& .MuiFormHelperText-root": {
+                color: (theme) => theme.palette.secondary.main,
+              },
+              "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  display: "none",
+                },
+            }}
+            fullWidth={true}
+          >
             <Select
               variant="standard"
               value={pagination.pageSize}

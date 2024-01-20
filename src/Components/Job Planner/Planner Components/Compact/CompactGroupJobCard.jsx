@@ -15,6 +15,7 @@ import {
   MultiSelectJobPlannerContext,
 } from "../../../../Context/LayoutContext";
 import { grey, yellow } from "@mui/material/colors";
+<<<<<<< HEAD
 import { makeStyles } from "@mui/styles";
 import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
 import { useGroupManagement } from "../../../../Hooks/useGroupManagement";
@@ -40,6 +41,11 @@ const useStyles = makeStyles((theme) => ({
         : `linear-gradient(to right, ${yellow[600]} 20%, white 60%)`,
   },
 }));
+=======
+import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
+import { useGroupManagement } from "../../../../Hooks/useGroupManagement";
+import GLOBAL_CONFIG from "../../../../global-config-app";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 export function CompactGroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -59,8 +65,13 @@ export function CompactGroupJobCard({ group }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
+<<<<<<< HEAD
 
   const classes = useStyles();
+=======
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
+
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const groupCardChecked = useMemo(
     () => multiSelectJobPlanner.includes(group.groupID),
     [multiSelectJobPlanner]
@@ -76,7 +87,11 @@ export function CompactGroupJobCard({ group }) {
         cursor: "grab",
         backgroundColor: (theme) =>
           groupCardChecked || isDragging
+<<<<<<< HEAD
             ? theme.palette.type !== "dark"
+=======
+            ? theme.palette.mode !== "dark"
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
               ? grey[300]
               : grey[900]
             : "none",
@@ -85,7 +100,16 @@ export function CompactGroupJobCard({ group }) {
       <Grid container item xs={12}>
         <Grid item xs={2} sm={1} align="center">
           <Checkbox
+<<<<<<< HEAD
             className={classes.Checkbox}
+=======
+            sx={{
+              color: (theme) =>
+                theme.palette.mode === PRIMARY_THEME
+                  ? theme.palette.primary.main
+                  : theme.palette.secondary.main,
+            }}
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             checked={groupCardChecked}
             onChange={(event) => {
               if (event.target.checked) {
@@ -118,7 +142,16 @@ export function CompactGroupJobCard({ group }) {
         </Grid>
         <Grid container item xs={1} align="center" alignItems="center">
           <IconButton
+<<<<<<< HEAD
             className={classes.DeleteIcon}
+=======
+            sx={{
+              color: (theme) =>
+                theme.palette.mode === PRIMARY_THEME
+                  ? theme.palette.primary.main
+                  : theme.palette.secondary.main,
+            }}
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             onClick={() => {
               deleteGroupWithoutJobs(group.groupID);
             }}
@@ -126,7 +159,21 @@ export function CompactGroupJobCard({ group }) {
             <DeleteIcon fontSize="small" />
           </IconButton>
         </Grid>
+<<<<<<< HEAD
         <Grid item xs={12} className={classes.GroupJob} />
+=======
+        <Grid
+          item
+          xs={12}
+          sx={{
+            height: "1px",
+            background: (theme) =>
+              theme.palette.mode === PRIMARY_THEME
+                ? `linear-gradient(to right, ${yellow[600]} 30%, ${grey[800]} 60%)`
+                : `linear-gradient(to right, ${yellow[600]} 20%, white 60%)`,
+          }}
+        />
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
       </Grid>
     </Card>
   );

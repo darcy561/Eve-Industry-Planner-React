@@ -51,6 +51,26 @@ export const DialogData = (props) => {
   );
 };
 
+export const ShoppingListContext = createContext();
+
+export const ShoppingList = (props) => {
+  const [shoppingListTrigger, updateShoppingListTrigger] = useState(false);
+  const [shoppingListData, updateShoppingListData] = useState([]);
+
+  return (
+    <ShoppingListContext.Provider
+      value={{
+        shoppingListTrigger,
+        shoppingListData,
+        updateShoppingListTrigger,
+        updateShoppingListData,
+      }}
+    >
+      {props.children}
+    </ShoppingListContext.Provider>
+  );
+};
+
 export const PriceEntryListContext = createContext();
 
 export const PriceEntryList = (props) => {
@@ -153,14 +173,11 @@ export const MassBuildDisplay = (props) => {
 export const JobPlannerPageTriggerContext = createContext();
 
 export const JobPlannerPageTrigger = (props) => {
-  const [editJobTrigger, updateEditJobTrigger] = useState(false);
   const [editGroupTrigger, updateEditGroupTrigger] = useState(false);
 
   return (
     <JobPlannerPageTriggerContext.Provider
       value={{
-        editJobTrigger,
-        updateEditJobTrigger,
         editGroupTrigger,
         updateEditGroupTrigger,
       }}

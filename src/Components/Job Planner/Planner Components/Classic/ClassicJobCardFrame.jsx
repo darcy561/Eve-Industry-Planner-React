@@ -9,8 +9,11 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
+<<<<<<< HEAD
+=======
+import { grey } from "@mui/material/colors";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import { jobTypes } from "../../../../Context/defaultValues";
 import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
 import Step1JobCard from "./Job Cards/step1";
@@ -18,10 +21,10 @@ import Step2JobCard from "./Job Cards/step2";
 import Step3JobCard from "./Job Cards/step3";
 import Step4JobCard from "./Job Cards/step4";
 import Step5JobCard from "./Job Cards/step5";
-import { grey } from "@mui/material/colors";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
+<<<<<<< HEAD
 import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
 
 const useStyles = makeStyles((theme) => ({
@@ -38,6 +41,10 @@ const useStyles = makeStyles((theme) => ({
         : theme.palette.secondary.main,
   },
 }));
+=======
+import { useNavigate } from "react-router-dom";
+import GLOBAL_CONFIG from "../../../../global-config-app";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 function DisplaySwitch({ job }) {
   switch (job.jobStatus) {
@@ -56,11 +63,10 @@ function DisplaySwitch({ job }) {
   }
 }
 
-export function JobCardFrame({ job, updateEditJobTrigger }) {
+export function JobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { openEditJob } = useOpenEditJob();
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.jobCard,
@@ -73,7 +79,8 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-  const classes = useStyles();
+  const navigate = useNavigate();
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   let jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
@@ -90,7 +97,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
             height: "100%",
             backgroundColor: (theme) =>
               jobCardChecked || isDragging
-                ? theme.palette.type !== "dark"
+                ? theme.palette.mode !== "dark"
                   ? grey[300]
                   : grey[900]
                 : "none",
@@ -102,8 +109,13 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
               <Grid item xs={1}>
                 <Checkbox
                   disabled={job.isLocked}
-                  className={classes.Checkbox}
                   checked={jobCardChecked}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.mode === PRIMARY_THEME
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   onChange={(event) => {
                     if (event.target.checked) {
                       updateMultiSelectJobPlanner((prev) => {
@@ -121,7 +133,12 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
               <Grid item align="center" xs={2}>
                 <IconButton
                   disabled={job.isLocked}
-                  className={classes.DeleteIcon}
+                  sx={{
+                    color: (theme) =>
+                      theme.palette.mode === PRIMARY_THEME
+                        ? theme.palette.primary.main
+                        : theme.palette.secondary.main,
+                  }}
                   onClick={() => deleteSingleJob(job.jobID)}
                 >
                   <DeleteIcon />
@@ -180,8 +197,7 @@ export function JobCardFrame({ job, updateEditJobTrigger }) {
                 color="primary"
                 disabled={job.isLocked}
                 onClick={() => {
-                  openEditJob(job.jobID);
-                  updateEditJobTrigger((prev) => !prev);
+                  navigate(`/editJob/${job.jobID}`);
                 }}
                 sx={{ height: "25px", width: "100px" }}
               >

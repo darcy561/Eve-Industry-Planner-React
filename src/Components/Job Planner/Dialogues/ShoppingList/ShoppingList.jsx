@@ -1,5 +1,8 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { SnackBarDataContext } from "../../../../Context/LayoutContext";
+import {
+  ShoppingListContext,
+  SnackBarDataContext,
+} from "../../../../Context/LayoutContext";
 import {
   Avatar,
   Button,
@@ -29,24 +32,17 @@ import {
   EveIDsContext,
   EvePricesContext,
 } from "../../../../Context/EveDataContext";
-import { makeStyles } from "@mui/styles";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 
-const useStyles = makeStyles((theme) => ({
-  Select: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}));
-
-export function ShoppingListDialog({
-  shoppingListTrigger,
-  updateShoppingListTrigger,
-  shoppingListData,
-}) {
+export function ShoppingListDialog() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const {
+    shoppingListTrigger,
+    shoppingListData,
+    updateShoppingListTrigger,
+    updateShoppingListData,
+  } = useContext(ShoppingListContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
@@ -71,7 +67,6 @@ export function ShoppingListDialog({
     users.length > 1 ? "all" : parentUser.CharacterHash
   );
   const [newEveIDs, updateNewEveIDs] = useState([]);
-  const classes = useStyles();
   const shoppingListValue = useRef(0);
 
   useEffect(() => {
@@ -94,17 +89,10 @@ export function ShoppingListDialog({
         }
 
         function calcItemPrice(listItem, assetQuantity) {
-          let itemPriceData = evePrices.find(
-            (i) => i.typeID === listItem.typeID
-          );
-          if (itemPriceData === undefined) {
-            itemPriceData = itemPrices.find(
-              (i) => i.typeID === listItem.typeID
-            );
-          }
-          if (itemPriceData === undefined) {
-            return 0;
-          }
+          let itemPriceData =
+            evePrices.find((i) => i.typeID === listItem.typeID) ||
+            itemPrices.find((i) => i.typeID === listItem.typeID);
+
           if (removeAssets) {
             return (
               itemPriceData[parentUser.settings.editJob.defaultMarket][
@@ -235,6 +223,7 @@ export function ShoppingListDialog({
   }, [shoppingListTrigger]);
 
   const handleClose = () => {
+    updateShoppingListData([]);
     updateShoppingListTrigger(false);
     updateChildJobDisplay(false);
     updateRemoveAssets(false);
@@ -243,7 +232,7 @@ export function ShoppingListDialog({
     updateEveIDs(newEveIDs);
     updateLoadingData(true);
   };
-
+  
   return (
     <Dialog
       open={shoppingListTrigger}
@@ -262,7 +251,14 @@ export function ShoppingListDialog({
         <DialogActions>
           <Grid container>
             <Grid item xs={6}>
-              <FormControl className={classes.Select} fullWidth={true}>
+              <FormControl
+                fullWidth={true}
+                sx={{
+                  "& .MuiFormHelperText-root": {
+                    color: (theme) => theme.palette.secondary.main,
+                  },
+                }}
+              >
                 <Select
                   value={selectedLocation}
                   size="small"
@@ -294,7 +290,14 @@ export function ShoppingListDialog({
               </FormControl>
             </Grid>
             <Grid item xs={6}>
-              <FormControl className={classes.Select} fullWidth={true}>
+              <FormControl
+                fullWidth={true}
+                sx={{
+                  "& .MuiFormHelperText-root": {
+                    color: (theme) => theme.palette.secondary.main,
+                  },
+                }}
+              >
                 <Select
                   value={selectedCharacter}
                   size="small"
@@ -355,7 +358,7 @@ export function ShoppingListDialog({
                           src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
                           alt={item.name}
                           variant="square"
-                          sx={{ height: 32, width: 32 }}  
+                          sx={{ height: 32, width: 32 }}
                         />
                       </Grid>
                       <Grid item xs={8} sm={7}>

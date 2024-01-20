@@ -1,46 +1,50 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
+import { Button, Grid, Paper, Tooltip } from "@mui/material";
 import {
-  Button,
-  ButtonGroup,
-  CircularProgress,
-  Grid,
-  Paper,
-  Tooltip,
-} from "@mui/material";
-import {
-  DialogDataContext,
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
+  ShoppingListContext,
 } from "../../../Context/LayoutContext";
-import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
-import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useGroupManagement } from "../../../Hooks/useGroupManagement";
 import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
 import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
 import { GroupOptionsDropDown } from "./groupOptionsDropdown";
 import { useBuildChildJobs } from "../../../Hooks/GroupHooks/useBuildChildJobs";
+<<<<<<< HEAD
+=======
+import { useBuildFullJobTree } from "../../../Hooks/GroupHooks/useBuildFullJobTree";
+import { useJobManagement } from "../../../Hooks/useJobManagement";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 export function GroupOptionsBar({
   groupJobs,
-  updateShoppingListTrigger,
-  updateShoppingListData,
   updateShowProcessing,
   updateImportFitDialogueTrigger,
 }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
+  const { updateShoppingListTrigger, updateShoppingListData } =
+    useContext(ShoppingListContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
-  const { jobArray } = useContext(JobArrayContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { activeGroup } = useContext(ActiveJobContext);
-  const { updateDialogData } = useContext(DialogDataContext);
+  const { groupArray } = useContext(JobArrayContext);
   const { buildItemPriceEntry } = useJobManagement();
+<<<<<<< HEAD
   const { buildFullJobTree } = useGroupManagement();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { buildChildJobs } = useBuildChildJobs();
+=======
+  const { buildFullJobTree } = useBuildFullJobTree();
+  const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
+  const { deleteMultipleJobs } = useDeleteMultipleJobs();
+  const { buildChildJobs } = useBuildChildJobs();
+  const {buildNextJobs} = useGroupManagement()
+
+  let activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   return (
     <Paper
@@ -69,7 +73,9 @@ export function GroupOptionsBar({
                   if (multiSelectJobPlanner.length > 0) {
                     updateShoppingListData(multiSelectJobPlanner);
                   } else {
-                    updateShoppingListData([...activeGroup.includedJobIDs]);
+                    updateShoppingListData([
+                      ...activeGroupObject.includedJobIDs,
+                    ]);
                   }
                   updateShowProcessing((prev) => !prev);
                   updateShoppingListTrigger((prev) => !prev);
@@ -95,7 +101,7 @@ export function GroupOptionsBar({
                   itemList = await buildItemPriceEntry(multiSelectJobPlanner);
                 } else {
                   itemList = await buildItemPriceEntry([
-                    ...activeGroup.includedJobIDs,
+                    ...activeGroupObject.includedJobIDs,
                   ]);
                 }
                 updateShowProcessing((prev) => !prev);
@@ -168,7 +174,11 @@ export function GroupOptionsBar({
                   if (multiSelectJobPlanner.length > 0) {
                     await buildChildJobs(multiSelectJobPlanner);
                   } else {
+<<<<<<< HEAD
                     await buildChildJobs(activeGroup.includedJobIDs);
+=======
+                    await buildNextJobs(activeGroupObject.includedJobIDs);
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                   }
                   updateShowProcessing((prev) => !prev);
                 }}
@@ -193,7 +203,7 @@ export function GroupOptionsBar({
                 size="small"
                 onClick={async () => {
                   updateShowProcessing((prev) => !prev);
-                  await buildFullJobTree([...activeGroup.includedJobIDs]);
+                  await buildFullJobTree([...activeGroupObject.includedJobIDs]);
                   updateShowProcessing((prev) => !prev);
                 }}
                 sx={{

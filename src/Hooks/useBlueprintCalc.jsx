@@ -46,7 +46,7 @@ export function useBlueprintCalc() {
             calcData.runCount,
             calcData.jobCount,
             reactionRigData.material,
-            reactionSystemData.value,
+            reactionSystemData.value
           );
         }
         return calcData.outputMaterials;
@@ -68,11 +68,6 @@ export function useBlueprintCalc() {
         meModifier = 1;
       }
       return Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
-      // console.log(itemRuns)
-      // console.log(baseQty)
-      // console.log(meModifier);
-      // console.log(itemJobs)
-      // console.log(x);
     }
 
     function reactionMaterialCalc(
@@ -86,15 +81,89 @@ export function useBlueprintCalc() {
       if (baseQty === 1) {
         meModifier = 1;
       }
-      //console.log(meModifier);
       return Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
-      //console.log(x);
+    }
+  };
+
+  const CalculateResources_New = (calcData) => {
+    switch (calcData.jobType) {
+      case jobTypes.manufacturing:
+        const manStructureData =
+          structureOptions.manStructure[calcData.structureID]?.material || 0;
+        const manRigData =
+          structureOptions.manRigs[calcData.rigID]?.material || 0;
+        const manSystemData =
+          structureOptions.manSystem[calcData.systemTypeID]?.value || 0;
+
+        Object.values({ ...calcData.materialCount }).forEach((material) => {
+          material.quantity = manufacturingMaterialCalc(
+            material.rawQuantity,
+            calcData.runCount,
+            calcData.jobCount,
+            calcData.ME,
+            manStructureData,
+            manRigData,
+            manSystemData
+          );
+        });
+
+        return calcData.materialCount;
+
+      case jobTypes.reaction:
+        const reactionRigData =
+          structureOptions.reactionRigs[calcData.rigID]?.material || 0;
+        const reactionSystemData =
+          structureOptions.reactionSystem[calcData.systemTypeID]?.value || 0;
+
+        Object.values({ ...calcData.materialCount }).forEach((material) => {
+          material.quantity = reactionMaterialCalc(
+            material.rawQuantity,
+            calcData.runCount,
+            calcData.jobCount,
+            reactionRigData,
+            reactionSystemData
+          );
+        });
+
+        return calcData.materialCount;
+    }
+    function manufacturingMaterialCalc(
+      baseQty,
+      itemRuns,
+      itemJobs,
+      bpME,
+      structureType,
+      rigType,
+      systemType
+    ) {
+      let meModifier =
+        (1 - bpME / 100) *
+        (1 - structureType / 100) *
+        (1 - (rigType / 100) * systemType);
+      if (baseQty === 1) {
+        meModifier = 1;
+      }
+      return Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
+    }
+
+    function reactionMaterialCalc(
+      baseQty,
+      itemRuns,
+      itemJobs,
+      rigType,
+      systemMultiplyer
+    ) {
+      let meModifier = 1 - (rigType / 100) * systemMultiplyer;
+      if (baseQty === 1) {
+        meModifier = 1;
+      }
+      return Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs);
     }
   };
 
   const CalculateTime = (calcData) => {
     let user = users.find((i) => i.CharacterHash === calcData.CharacterHash);
-    if (user === undefined) {
+    if (!user) {
       user = users.find((i) => i.ParentUser);
     }
 
@@ -109,16 +178,16 @@ export function useBlueprintCalc() {
 
     function timeModifierCalc(job, userSkills) {
       if (job.jobType === jobTypes.manufacturing) {
-        const indySkill = userSkills.find((i) => i.id === 3380);
-        const advIndySkill = userSkills.find((i) => i.id === 3388);
-        const strucData = structureOptions.manStructure[job.structureType];
-        const rigData = structureOptions.manRigs[job.rigType];
+        const indySkill = userSkills[3380].activeLevel;
+        const advIndySkill = userSkills[3388].activeLevel;
+        const strucData = structureOptions.manStructure[job.structureType].time;
+        const rigData = structureOptions.manRigs[job.rigType].time;
 
         let teIndexer = 1;
-        let indyIndexer = 1 - 0.04 * indySkill.activeLevel;
-        let advIndyIndexer = 1 - 0.03 * advIndySkill.activeLevel;
-        let strucIndexer = 1 - strucData.time;
-        let rigIndexer = 1 - rigData.time;
+        let indyIndexer = 1 - 0.04 * indySkill;
+        let advIndyIndexer = 1 - 0.03 * advIndySkill;
+        let strucIndexer = 1 - strucData;
+        let rigIndexer = 1 - rigData;
 
         for (let x = 1; x <= job.bpTE * 2; x++) {
           teIndexer = teIndexer - 0.01;
@@ -138,13 +207,14 @@ export function useBlueprintCalc() {
         return timeModifier;
       }
       if (job.jobType === jobTypes.reaction) {
-        const reactionSkill = userSkills.find((i) => i.id === 45746);
-        const strucData = structureOptions.reactionStructure[job.structureType];
-        const rigData = structureOptions.reactionRigs[job.rigType];
+        const reactionSkill = userSkills[45746].activeLevel;
+        const strucData =
+          structureOptions.reactionStructure[job.structureType].time;
+        const rigData = structureOptions.reactionRigs[job.rigType].time;
 
-        let reacIndexer = 1 - 0.04 * reactionSkill.activeLevel;
-        let strucIndexer = 1 - strucData.time;
-        let rigIndexer = 1 - rigData.time;
+        let reacIndexer = 1 - 0.04 * reactionSkill;
+        let strucIndexer = 1 - strucData;
+        let rigIndexer = 1 - rigData;
 
         if (reacIndexer < 0.8) {
           reacIndexer = 0.8;
@@ -157,27 +227,116 @@ export function useBlueprintCalc() {
     }
 
     function skillModifierCalc(reqSkills, userSkills) {
+      const skillsToIgnore = new Set([3380, 3388, 45746, 22242]);
       let indexer = 1;
       if (!reqSkills) {
         return indexer;
       }
       reqSkills.forEach((skill) => {
-        let charSkill = userSkills.find((i) => i.id === skill.typeID);
-        if (!charSkill) {
-          return;
+        let { id, activeLevel } = userSkills[skill.typeID];
+        if (!id || !activeLevel) {
+          return indexer;
         }
-        if (
-          charSkill.id !== 3380 &&
-          charSkill.id !== 3388 &&
-          charSkill.id !== 45746 &&
-          charSkill.id !== 22242
-        ) {
-          indexer = indexer - 0.01 * charSkill.activeLevel;
+        if (skillsToIgnore.has(id)) return;
+
+        indexer = indexer - 0.01 * activeLevel;
+      });
+      return indexer;
+    }
+  };
+  const CalculateTime_New = (calcData, jobSkills) => {
+    let user = users.find(
+      (i) => i.CharacterHash === calcData.selectedCharacter
+    );
+    if (!user) {
+      user = users.find((i) => i.ParentUser);
+    }
+
+    const userSkills = esiSkills.find(
+      (i) => i.user === user.CharacterHash
+    ).data;
+
+    const timeModifier = timeModifierCalc(calcData, userSkills);
+    const skillModifier = skillModifierCalc(jobSkills, userSkills);
+
+    return Math.floor(
+      calcData.rawTime * timeModifier * skillModifier * calcData.runCount
+    );
+
+    function timeModifierCalc(job, userSkills) {
+      if (job.jobType === jobTypes.manufacturing) {
+        const indySkill = userSkills[3380]?.activeLevel || 0;
+        const advIndySkill = userSkills[3388]?.activeLevel || 0;
+        const strucData = structureOptions.manStructure[job.structureID].time;
+        const rigData = structureOptions.manRigs[job.rigID].time;
+
+        let teIndexer = 1;
+        let indyIndexer = 1 - 0.04 * indySkill;
+        let advIndyIndexer = 1 - 0.03 * advIndySkill;
+        let strucIndexer = 1 - strucData;
+        let rigIndexer = 1 - rigData;
+
+        for (let x = 1; x <= job.TE; x++) {
+          teIndexer = teIndexer - 0.01;
+          if (teIndexer < 0.8) {
+            teIndexer = 0.8;
+          }
         }
+        if (indyIndexer < 0.8) {
+          indyIndexer = 0.8;
+        }
+        if (advIndyIndexer < 0.85) {
+          advIndyIndexer = 0.85;
+        }
+
+        let timeModifier =
+          teIndexer * indyIndexer * advIndyIndexer * strucIndexer * rigIndexer;
+        return timeModifier;
+      }
+      if (job.jobType === jobTypes.reaction) {
+        const reactionSkill = userSkills[45746].activeLevel;
+        const strucData =
+          structureOptions.reactionStructure[job.structureID].time;
+        const rigData = structureOptions.reactionRigs[job.rigID].time;
+
+        let reacIndexer = 1 - 0.04 * reactionSkill;
+        let strucIndexer = 1 - strucData;
+        let rigIndexer = 1 - rigData;
+
+        if (reacIndexer < 0.8) {
+          reacIndexer = 0.8;
+        }
+
+        let timeModifier = reacIndexer * strucIndexer * rigIndexer;
+
+        return timeModifier;
+      }
+    }
+
+    function skillModifierCalc(reqSkills, userSkills) {
+
+      const skillsToIgnore = new Set([3380, 3388, 45746, 22242]);
+      let indexer = 1;
+      if (!reqSkills) {
+        return indexer;
+      }
+      reqSkills.forEach((skill) => {
+        let { id, activeLevel } = userSkills[skill.typeID];
+        if (!id || !activeLevel) {
+          return indexer;
+        }
+        if (skillsToIgnore.has(id)) return;
+
+        indexer = indexer - 0.01 * activeLevel;
       });
       return indexer;
     }
   };
 
-  return { CalculateResources, CalculateTime };
+  return {
+    CalculateResources,
+    CalculateTime,
+    CalculateTime_New,
+    CalculateResources_New,
+  };
 }

@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from "react";
 import { useImportFitFromClipboard } from "../../../../../Hooks/GroupHooks/useImportFitFromClipboard";
 import { ImportFittingItemRow } from "./importFittingItemRow";
+<<<<<<< HEAD
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -25,6 +26,8 @@ const useStyles = makeStyles((theme) => ({
       },
   },
 }));
+=======
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 export function ImportItemFitDialogue({
   importFitDialogueTrigger,
@@ -36,7 +39,10 @@ export function ImportItemFitDialogue({
   const [fitQuantityMultiplier, updateFitQuantityMultiplier] = useState(1);
   const { finalBuildRequests, importFromClipboard } =
     useImportFitFromClipboard();
+<<<<<<< HEAD
   const classes = useStyles();
+=======
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   const handleClose = () => {
     updateClipboardPermissionDisabled(false);
@@ -113,7 +119,19 @@ export function ImportItemFitDialogue({
                 importedItemList.length === 0 || clipboardPermissionDisabled
               }
               fullWidth
+<<<<<<< HEAD
               className={classes.TextField}
+=======
+              sx={{
+                "& .MuiFormHelperText-root": {
+                  color: (theme) => theme.palette.secondary.main,
+                },
+                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                  {
+                    display: "none",
+                  },
+              }}
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
               size="size"
               variant="standard"
               helperText="Fit Quantity"

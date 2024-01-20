@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
-import { AddWatchItemDialog } from "./addItemDialog";
+import { AddWatchItemDialog } from "./AddItemDialog/dialogFrame";
 import { useContext, useMemo, useState } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { AddGroupDialog } from "./addGroupDialog";
@@ -21,6 +21,7 @@ export function ItemWatchPanel() {
   const { users } = useContext(UsersContext);
   const { userWatchlistDataFetch } = useContext(UserLoginUIContext);
   const [openDialog, setOpenDialog] = useState(false);
+  const [watchlistItemToEdit, updateWatchlistItemToEdit] = useState(null);
   const [addNewGroupTrigger, updateAddNewGroupTrigger] = useState(false);
   const [groupSettingsTrigger, updateGroupSettingsTrigger] = useState(false);
   const [groupSettingsContent, updateGroupSettingsContent] = useState({
@@ -80,6 +81,8 @@ export function ItemWatchPanel() {
       <AddWatchItemDialog
         openDialog={openDialog}
         setOpenDialog={setOpenDialog}
+        watchlistItemToEdit={watchlistItemToEdit}
+        updateWatchlistItemToEdit={updateWatchlistItemToEdit}
       />
       <AddGroupDialog
         parentUser={parentUser}
@@ -125,6 +128,8 @@ export function ItemWatchPanel() {
             updateGroupSettingsTrigger={updateGroupSettingsTrigger}
             groupSettingsContent={groupSettingsContent}
             updateGroupSettingsContent={updateGroupSettingsContent}
+            setOpenDialog={setOpenDialog}
+            updateWatchlistItemToEdit={updateWatchlistItemToEdit}
           />
         </Grid>
       </Grid>

@@ -25,6 +25,10 @@ import {
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "@firebase/performance";
 import { performance } from "../../../firebase";
+<<<<<<< HEAD
+=======
+import { useJobSnapshotManagement } from "../../../Hooks/JobHooks/useJobSnapshots";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 export function CompactBlueprintGroup({ bpID, blueprintResults }) {
   const { users } = useContext(UsersContext);
@@ -37,7 +41,12 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
   const [archiveOpen, updateArchiveOpen] = useState(false);
   const [loadingBuild, updateLoadingBuild] = useState(false);
   const { buildJob, checkAllowBuild } = useJobBuild();
+<<<<<<< HEAD
   const { generatePriceRequestFromJob, newJobSnapshot } = useJobManagement();
+=======
+  const { generatePriceRequestFromJob } = useJobManagement();
+  const { newJobSnapshot } = useJobSnapshotManagement();
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const { addNewJob, getItemPrices, uploadUserJobSnapshot } = useFirebase();
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");

@@ -53,9 +53,9 @@ export function AccountData() {
     esiIndJobs.forEach((entry) => {
       newIndJobs += entry.data.length;
     });
-    corpEsiIndJobs.forEach((entry) => {
-      newIndJobs += entry.data.length;
-    });
+    for (const [, value] of corpEsiIndJobs) {
+      newIndJobs += value.length;
+    }
     esiOrders.forEach((entry) => {
       newOpenMOrders += entry.data.length;
     });

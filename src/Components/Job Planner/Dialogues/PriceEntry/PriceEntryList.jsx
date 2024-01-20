@@ -25,9 +25,12 @@ import {
 import { listingType } from "../../../../Context/defaultValues";
 import { ItemPriceRow } from "./itemRow";
 import { useFirebase } from "../../../../Hooks/useFirebase";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObject";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+<<<<<<< HEAD
+=======
+import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
+>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -38,7 +41,7 @@ export function PriceEntryDialog() {
   );
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshotFromFullJob } = useJobManagement();
+  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
 
   const parentUser = useMemo(() => {
@@ -117,7 +120,7 @@ export function PriceEntryDialog() {
     }
     let newUserJobSnapshot = [...userJobSnapshot];
     for (let job of uploadIDs) {
-      newUserJobSnapshot = updateJobSnapshotFromFullJob(
+      newUserJobSnapshot = updateJobSnapshot(
         job,
         newUserJobSnapshot
       );

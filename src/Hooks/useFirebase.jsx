@@ -29,12 +29,15 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getToken } from "firebase/app-check";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
-import { EveIDsContext, EvePricesContext } from "../Context/EveDataContext";
+import {
+  EveIDsContext,
+  EvePricesContext,
+  SystemIndexContext,
+} from "../Context/EveDataContext";
 import { useAccountManagement } from "./useAccountManagement";
 import { useEveApi } from "./useEveApi";
 import { UserLoginUIContext } from "../Context/LayoutContext";
 import GLOBAL_CONFIG from "../global-config-app";
-import { jobTypes, structureOptions } from "../Context/defaultValues";
 import { updateStructureValues } from "./outdatedJobFunctions/convertJobStructures";
 
 export function useFirebase() {
@@ -48,9 +51,7 @@ export function useFirebase() {
   const { updateEveIDs } = useContext(EveIDsContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { updateUserWatchlist } = useContext(UserWatchlistContext);
-  const { jobArray, updateJobArray, updateGroupArray } =
-    useContext(JobArrayContext);
-  const { activeJob, updateActiveJob } = useContext(ActiveJobContext);
+  const { updateJobArray, updateGroupArray } = useContext(JobArrayContext);
   const { updateLinkedJobIDs, updateLinkedOrderIDs, updateLinkedTransIDs } =
     useContext(LinkedIDsContext);
   const {
@@ -59,6 +60,7 @@ export function useFirebase() {
     updateUserWatchlistDataFetch,
     updateUserGroupsDataFetch,
   } = useContext(UserLoginUIContext);
+  const { updateSystemIndexData } = useContext(SystemIndexContext);
   const {
     buildApiArray,
     buildCloudAccountData,
@@ -66,6 +68,7 @@ export function useFirebase() {
     characterAPICall,
     checkUserClaims,
     getLocationNames,
+    getSystemIndexData,
     storeCorpObjects,
     storeESIData,
     tidyLinkedData,
@@ -132,13 +135,6 @@ export function useFirebase() {
         volume: job.volume,
         itemID: job.itemID,
         maxProductionLimit: job.maxProductionLimit,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        bpME: job.bpME,
-        bpTE: job.bpTE,
-        structureType: job.structureType,
-        rigType: job.rigType,
-        systemType: job.systemType,
         apiJobs: [...job.apiJobs],
         apiOrders: [...job.apiOrders],
         apiTransactions: [...job.apiTransactions],
@@ -152,6 +148,7 @@ export function useFirebase() {
         layout: job.layout,
         groupID: job.groupID || null,
         isReadyToSell: job.isReadyToSell || false,
+        itemsProducedPerRun: job.itemsProducedPerRun
       }
     );
   };
@@ -172,13 +169,6 @@ export function useFirebase() {
         volume: job.volume,
         itemID: job.itemID,
         maxProductionLimit: job.maxProductionLimit,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        bpME: job.bpME,
-        bpTE: job.bpTE,
-        structureType: job.structureType,
-        rigType: job.rigType,
-        systemType: job.systemType,
         apiJobs: [...job.apiJobs],
         apiOrders: [...job.apiOrders],
         apiTransactions: [...job.apiTransactions],
@@ -192,6 +182,7 @@ export function useFirebase() {
         layout: job.layout,
         groupID: job.groupID || null,
         isReadyToSell: job.isReadyToSell || false,
+        itemsProducedPerRun: job.itemsProducedPerRun || job.rawData.products[0].quantity
       }
     );
   };
@@ -261,13 +252,6 @@ export function useFirebase() {
         volume: job.volume,
         itemID: job.itemID,
         maxProductionLimit: job.maxProductionLimit,
-        runCount: job.runCount,
-        jobCount: job.jobCount,
-        bpME: job.bpME,
-        bpTE: job.bpTE,
-        structureType: job.structureType,
-        rigType: job.rigType,
-        systemType: job.systemType,
         apiJobs: [...job.apiJobs],
         apiOrders: [...job.apiOrders],
         apiTransactions: [...job.apiTransactions],
@@ -281,6 +265,7 @@ export function useFirebase() {
         layout: job.layout,
         groupID: job.groupID || null,
         isReadyToSell: job.isReadyToSell || false,
+        itemsProducedPerRun: job.itemsProducedPerRun || job.rawData.products[0].quantity
       }
     );
   };
@@ -302,14 +287,6 @@ export function useFirebase() {
         volume: downloadDoc.volume,
         itemID: downloadDoc.itemID,
         maxProductionLimit: downloadDoc.maxProductionLimit,
-        runCount: downloadDoc.runCount,
-        jobCount: downloadDoc.jobCount,
-        bpME: downloadDoc.bpME,
-        bpTE: downloadDoc.bpTE,
-        structureType: downloadDoc.structureType,
-        structureTypeDisplay: downloadDoc.structureTypeDisplay || null,
-        rigType: downloadDoc.rigType,
-        systemType: downloadDoc.systemType,
         apiJobs: new Set(downloadDoc.apiJobs),
         apiOrders: new Set(downloadDoc.apiOrders),
         apiTransactions: new Set(downloadDoc.apiTransactions),
@@ -323,11 +300,12 @@ export function useFirebase() {
         layout: downloadDoc.layout,
         groupID: downloadDoc.groupID,
         isReadyToSell: downloadDoc.isReadyToSell || false,
+        itemsProducedPerRun: downloadDoc.itemsProducedPerRun || downloadDoc.rawData.products[0].quantity
       };
 
-      newJob.build.materials.forEach((mat) => {
-        mat.childJob = mat.childJob.map(String);
-      });
+      // newJob.build.materials.forEach((mat) => {
+      //   mat.childJob = mat.childJob.map(String);
+      // });
 
       //updateOldJobs
       updateStructureValues(newJob);
@@ -365,52 +343,51 @@ export function useFirebase() {
     }
   };
 
-  const getItemPrices = async (idArray, userObj) => {
-    const t = trace(performance, "GetItemPrices");
-    t.start();
-    await fbAuthState();
-    const MAX_CHUNK_SIZE = 500;
-    let requestArray = [];
-    let promiseArray = [];
-    let returnData = [];
+    const getItemPrices = async (idArray, userObj) => {
+      const t = trace(performance, "GetItemPrices");
+      t.start();
+      await fbAuthState();
+      const MAX_CHUNK_SIZE = 500;
+      let requestArray = [];
+      let promiseArray = [];
+      let returnData = [];
 
-    if (idArray !== undefined && idArray.length > 0) {
-      for (let id of idArray) {
-        if (!evePrices.some((i) => i.typeID === id)) {
-          requestArray.push(id);
+      if (idArray !== undefined && idArray.length > 0) {
+        for (let id of idArray) {
+          if (!evePrices.some((i) => i.typeID === id)) {
+            requestArray.push(id);
+          }
         }
       }
-    }
-    if (requestArray.length > 0) {
-      for (let x = 0; x < requestArray.length; x += MAX_CHUNK_SIZE) {
-        let chunk = requestArray.slice(x, x + MAX_CHUNK_SIZE);
-        let chunkData = getItemPriceBulk(chunk, userObj);
-        promiseArray.push(chunkData);
-      }
-    } else {
-      t.stop();
-      return [];
-    }
-
-    let returnedPromise = await Promise.all(promiseArray);
-
-    for (let data of returnedPromise) {
-      if (Array.isArray(data)) {
-        data.forEach((id) => {
-          returnData.push(id);
-        });
+      if (requestArray.length > 0) {
+        for (let x = 0; x < requestArray.length; x += MAX_CHUNK_SIZE) {
+          let chunk = requestArray.slice(x, x + MAX_CHUNK_SIZE);
+          let chunkData = getItemPriceBulk(chunk, userObj);
+          promiseArray.push(chunkData);
+        }
       } else {
-        returnData.push(data);
+        t.stop();
+        return [];
       }
-    }
-    t.stop();
-    return returnData;
-  };
+
+      let returnedPromise = await Promise.all(promiseArray);
+
+      for (let data of returnedPromise) {
+        if (Array.isArray(data)) {
+          data.forEach((id) => {
+            returnData.push(id);
+          });
+        } else {
+          returnData.push(data);
+        }
+      }
+      t.stop();
+      return returnData;
+    };
 
   const refreshItemPrices = async (userObj) => {
     const t = trace(performance, "refreshItemPrices");
     t.start();
-    await fbAuthState();
     const CHUNK_SIZE = 500;
     const oldEvePrices = [...evePrices];
     const priceUpdates = new Set();
@@ -648,14 +625,6 @@ export function useFirebase() {
             volume: downloadDoc.volume,
             itemID: downloadDoc.itemID,
             maxProductionLimit: downloadDoc.maxProductionLimit,
-            runCount: downloadDoc.runCount,
-            jobCount: downloadDoc.jobCount,
-            bpME: downloadDoc.bpME,
-            bpTE: downloadDoc.bpTE,
-            structureType: downloadDoc.structureType,
-            structureTypeDisplay: downloadDoc.structureTypeDisplay || null,
-            rigType: downloadDoc.rigType,
-            systemType: downloadDoc.systemType,
             apiJobs: new Set(downloadDoc.apiJobs),
             apiOrders: new Set(downloadDoc.apiOrders),
             apiTransactions: new Set(downloadDoc.apiTransactions),
@@ -669,17 +638,15 @@ export function useFirebase() {
             layout: downloadDoc.layout,
             groupID: downloadDoc.groupID,
             isReadyToSell: downloadDoc.isReadyToSell || false,
+            itemsProducedPerRun: downloadDoc.itemsProducedPerRun || downloadDoc.rawData.products[0].quantity
           };
-          newJob.build.materials.forEach((mat) => {
-            mat.childJob = mat.childJob.map(String);
-          });
+          // newJob.build.materials.forEach((mat) => {
+          //   mat.childJob = mat.childJob.map(String);
+          // });
 
           //updateOldJobs
           updateStructureValues(newJob);
 
-          if (activeJob.jobID == newJob.jobID) {
-            updateActiveJob(newJob);
-          }
           updateJobArray((prev) => {
             const index = prev.findIndex((i) => i.jobID === newJob.jobID);
             if (index === -1) {
@@ -745,6 +712,7 @@ export function useFirebase() {
             mainUser,
             esiOjectArray
           );
+          const systemIndexes = await getSystemIndexData(mainUser);
           newUserArray.sort((a, b) => {
             if (a.name < b.name) {
               return -1;
@@ -755,6 +723,7 @@ export function useFirebase() {
             return 0;
           });
           updateEveIDs(names);
+          updateSystemIndexData(systemIndexes);
           updateApiJobs(newApiArray);
           updateUsers(newUserArray);
           setJobStatus(userData.jobStatusArray);

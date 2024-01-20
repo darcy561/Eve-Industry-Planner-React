@@ -61,13 +61,6 @@ export function GroupOptionsDropDown({
         >
           Archive Group Jobs
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            buildChildJobs(activeGroup.includedJobIDs);
-          }}
-        >
-          test
-        </MenuItem>
       </Menu>
     </>
   );

@@ -52,16 +52,7 @@ export function TabPanel_Building({
       square
     >
       <TabContext value={currentTab}>
-<<<<<<< HEAD:src/Components/Job Planner/Edit Job/Edit Job Components/Page 3 Components/TabPanel.jsx
-        <TabList
-          value={currentTab}
-          onChange={handleChange}
-          variant="fullWidth"
-          textColor="secondary.main"
-        >
-=======
         <Tabs value={currentTab} onChange={handleChange} variant="fullWidth">
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Edit Job/Edit Job Components/Building/StandardLayout/Tab Panel/tabPanel.jsx
           <Tab
             label={
               jobMatches.length === 1

@@ -11,11 +11,8 @@ import { useMoveItemsOnPlanner } from "../../../Hooks/GeneralHooks/useMoveItemsO
 import { useDeleteMultipleJobs } from "../../../Hooks/JobHooks/useDeleteMultipleJobs";
 import { GroupOptionsDropDown } from "./groupOptionsDropdown";
 import { useBuildChildJobs } from "../../../Hooks/GroupHooks/useBuildChildJobs";
-<<<<<<< HEAD
-=======
 import { useBuildFullJobTree } from "../../../Hooks/GroupHooks/useBuildFullJobTree";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 export function GroupOptionsBar({
   groupJobs,
@@ -31,12 +28,6 @@ export function GroupOptionsBar({
   const { activeGroup } = useContext(ActiveJobContext);
   const { groupArray } = useContext(JobArrayContext);
   const { buildItemPriceEntry } = useJobManagement();
-<<<<<<< HEAD
-  const { buildFullJobTree } = useGroupManagement();
-  const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
-  const { deleteMultipleJobs } = useDeleteMultipleJobs();
-  const { buildChildJobs } = useBuildChildJobs();
-=======
   const { buildFullJobTree } = useBuildFullJobTree();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
@@ -44,7 +35,6 @@ export function GroupOptionsBar({
   const {buildNextJobs} = useGroupManagement()
 
   let activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   return (
     <Paper
@@ -174,11 +164,7 @@ export function GroupOptionsBar({
                   if (multiSelectJobPlanner.length > 0) {
                     await buildChildJobs(multiSelectJobPlanner);
                   } else {
-<<<<<<< HEAD
-                    await buildChildJobs(activeGroup.includedJobIDs);
-=======
                     await buildNextJobs(activeGroupObject.includedJobIDs);
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                   }
                   updateShowProcessing((prev) => !prev);
                 }}

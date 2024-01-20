@@ -5,12 +5,6 @@ import { useJobManagement } from "../../../../Hooks/useJobManagement";
 function getTooltipContent(job, timeRemainingCalc) {
   switch (job.jobStatus) {
     case 0:
-<<<<<<< HEAD
-      return (
-        <span>
-          <p>Runs: {job.runCount.toLocaleString()}</p>
-          <p>Job Slots: {job.jobCount.toLocaleString()} </p>
-=======
       const totalSetupCount = Object.values(job.build.setup).reduce(
         (prev, setup) => {
           return prev + 1;
@@ -21,7 +15,6 @@ function getTooltipContent(job, timeRemainingCalc) {
         <span>
           <p>Quantity: {job.build.products.totalQuantity.toLocaleString()}</p>
           <p>Job Setups: {totalSetupCount.toLocaleString()} </p>
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
         </span>
       );
     case 1:
@@ -44,27 +37,7 @@ function getTooltipContent(job, timeRemainingCalc) {
       }
       return <p>Ready To Build</p>;
     case 2:
-<<<<<<< HEAD
-      const sortJobs = () => {
-        let tempJobs = [...job.build.costs.linkedJobs];
-        if (tempJobs.length === 0) return null;
-
-        tempJobs.sort((a, b) => {
-          if (Date.parse(a.end_date) > Date.parse(b.end_date)) {
-            return 1;
-          }
-          if (Date.parse(a.end_date) < Date.parse(b.end_date)) {
-            return -1;
-          }
-          return 0;
-        });
-        return timeRemainingCalc(Date.parse(tempJobs[0].end_date));
-      };
-
-      let timeRemaining = sortJobs();
-=======
       const timeRemaining = sortJobs(job, timeRemainingCalc);
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
       return (
         <span>
@@ -81,13 +54,9 @@ function getTooltipContent(job, timeRemainingCalc) {
     case 3:
       return (
         <span>
-<<<<<<< HEAD
-          <p>Items Built: {job.build.products.totalQuantity.toLocaleString()}</p>
-=======
           <p>
             Items Built: {job.build.products.totalQuantity.toLocaleString()}
           </p>
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
           <p>
             Item Cost:{" "}
             {(
@@ -134,8 +103,6 @@ export default function GroupInfoPopout({ job }) {
     </Tooltip>
   );
 }
-<<<<<<< HEAD
-=======
 
 function sortJobs(job, timeRemainingCalc) {
   let tempJobs = [...job.build.costs.linkedJobs];
@@ -152,4 +119,3 @@ function sortJobs(job, timeRemainingCalc) {
   });
   return timeRemainingCalc(Date.parse(tempJobs[0].end_date));
 }
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569

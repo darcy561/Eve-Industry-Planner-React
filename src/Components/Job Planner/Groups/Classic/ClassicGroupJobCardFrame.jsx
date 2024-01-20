@@ -12,16 +12,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
 import { jobTypes } from "../../../../Context/defaultValues";
-<<<<<<< HEAD
-import {
-  JobPlannerPageTriggerContext,
-  MultiSelectJobPlannerContext,
-} from "../../../../Context/LayoutContext";
-import Step1JobCard from "../../Planner Components/Classic/Job Cards/step1";
-import { makeStyles } from "@mui/styles";
-=======
 import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import GroupStep2JobCard from "./JobCards/groupStep2";
 import GroupStep3JobCard from "./JobCards/GroupStep3";
 import GroupStep4JobCard from "./JobCards/groupStep4";
@@ -29,25 +20,6 @@ import GroupStep5JobCard from "./JobCards/groupStep5";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
-<<<<<<< HEAD
-import { ActiveJobContext } from "../../../../Context/JobContext";
-import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  DeleteIcon: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
-=======
 import {
   ActiveJobContext,
   JobArrayContext,
@@ -55,7 +27,6 @@ import {
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import GroupStep1JobCard from "./JobCards/groupStep1";
 import { useNavigate } from "react-router-dom";
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 function DisplaySwitch({ job }) {
   switch (job.jobStatus) {
@@ -101,15 +72,10 @@ export function ClassicGroupJobCardFrame({ job }) {
   }, [multiSelectJobPlanner]);
 
   const jobMarkedAsCompelte = useMemo(() => {
-<<<<<<< HEAD
-    return activeGroup.areComplete.includes(job.jobID);
-  }, [activeGroup]);
-=======
     return activeGroupObject.areComplete.includes(job.jobID);
   }, [activeGroupObject]);
 
   const navigate = useNavigate();
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   return (
     <Grow in={true}>

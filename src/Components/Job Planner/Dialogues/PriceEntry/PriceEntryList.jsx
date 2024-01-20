@@ -27,10 +27,7 @@ import { ItemPriceRow } from "./itemRow";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObject";
 import GLOBAL_CONFIG from "../../../../global-config-app";
-<<<<<<< HEAD
-=======
 import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);

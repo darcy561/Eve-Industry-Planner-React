@@ -25,10 +25,7 @@ import itemList from "../../../RawData/searchIndex.json";
 import { useCloseGroup } from "../../../Hooks/GroupHooks/useCloseGroup";
 import { LoadingPage } from "../../loadingPage";
 import { ImportItemFitDialogue } from "./Dialogues/importFit/importFittingDialgue";
-<<<<<<< HEAD
-=======
 import { ShoppingListDialog } from "../Dialogues/ShoppingList/ShoppingList";
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 export default function GroupPage() {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -38,12 +35,8 @@ export default function GroupPage() {
   const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
   const [tempName, updateTempName] = useState("");
   const [showProcessing, updateShowProcessing] = useState(false);
-<<<<<<< HEAD
-  const [importFitDialogueTrigger, updateImportFitDialogueTrigger] = useState(false);
-=======
   const [importFitDialogueTrigger, updateImportFitDialogueTrigger] =
     useState(false);
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const { closeGroup } = useCloseGroup();
   const { newJobProcess } = useJobManagement();
 
@@ -109,15 +102,11 @@ export default function GroupPage() {
       }}
       square
     >
-<<<<<<< HEAD
-      <ImportItemFitDialogue importFitDialogueTrigger={importFitDialogueTrigger} updateImportFitDialogueTrigger={updateImportFitDialogueTrigger} />
-=======
       <ImportItemFitDialogue
         importFitDialogueTrigger={importFitDialogueTrigger}
         updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
       />
       <ShoppingListDialog />
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
       <Grid container>
         <Grid item xs={7} md={9} lg={10} />
         <Grid item xs={5} md={3} lg={2} align="right">
@@ -253,11 +242,7 @@ export default function GroupPage() {
             <GroupOptionsBar
               groupJobs={groupJobs}
               updateShowProcessing={updateShowProcessing}
-<<<<<<< HEAD
-            updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
-=======
               updateImportFitDialogueTrigger={updateImportFitDialogueTrigger}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             />
           </Grid>
           <Grid item xs={12}>

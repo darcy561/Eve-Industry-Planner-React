@@ -36,12 +36,6 @@ export function LibrarySearch({
   const { users } = useContext(UsersContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
-<<<<<<< HEAD
-  const classes = useStyles();
-  
-=======
-
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   return (
     <Paper
       square={true}

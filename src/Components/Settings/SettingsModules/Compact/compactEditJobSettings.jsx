@@ -15,35 +15,11 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { listingType } from "../../../../Context/defaultValues";
-<<<<<<< HEAD
-import { makeStyles } from "@mui/styles";
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import { useCharAssets } from "../../../../Hooks/useCharAssets";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 
-<<<<<<< HEAD
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  Select: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}));
-
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 export function CompactEditJobSettings({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
@@ -62,11 +38,6 @@ export function CompactEditJobSettings({ parentUserIndex }) {
   const [assetLocationEntries, updateAssetLocationEntries] = useState([]);
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
-<<<<<<< HEAD
-  const classes = useStyles();
-
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   useEffect(() => {
     async function getAsset() {
       updateDataLoading(true);
@@ -88,9 +59,6 @@ export function CompactEditJobSettings({ parentUserIndex }) {
         </Grid>
         <Grid container item xs={12}>
           <Grid item xs={6} sm={4} lg={3}>
-<<<<<<< HEAD
-            <FormControl className={classes.Select} fullWidth={true}>
-=======
             <FormControl
               sx={{
                 "& .MuiFormHelperText-root": {
@@ -103,7 +71,6 @@ export function CompactEditJobSettings({ parentUserIndex }) {
               }}
               fullWidth={true}
             >
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
               <Select
                 value={marketSelect}
                 variant="standard"
@@ -135,9 +102,6 @@ export function CompactEditJobSettings({ parentUserIndex }) {
             </FormControl>
           </Grid>
           <Grid item xs={6} sm={4} lg={3}>
-<<<<<<< HEAD
-            <FormControl className={classes.Select} fullWidth={true}>
-=======
             <FormControl
               sx={{
                 "& .MuiFormHelperText-root": {
@@ -150,7 +114,6 @@ export function CompactEditJobSettings({ parentUserIndex }) {
               }}
               fullWidth={true}
             >
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
               <Select
                 value={listingSelect}
                 variant="standard"
@@ -229,9 +192,6 @@ export function CompactEditJobSettings({ parentUserIndex }) {
             {dataLoading ? (
               <CircularProgress color="primary" size="20px" />
             ) : (
-<<<<<<< HEAD
-              <FormControl className={classes.Select} fullWidth>
-=======
               <FormControl
                 sx={{
                   "& .MuiFormHelperText-root": {
@@ -244,7 +204,6 @@ export function CompactEditJobSettings({ parentUserIndex }) {
                 }}
                 fullWidth
               >
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                 <Select
                   value={assetLocationSelect}
                   variant="standard"
@@ -294,9 +253,6 @@ export function CompactEditJobSettings({ parentUserIndex }) {
               }
               size="small"
               variant="standard"
-<<<<<<< HEAD
-              className={classes.TextField}
-=======
               sx={{
                 "& .MuiFormHelperText-root": {
                   color: (theme) => theme.palette.secondary.main,
@@ -306,7 +262,6 @@ export function CompactEditJobSettings({ parentUserIndex }) {
                     display: "none",
                   },
               }}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
               helperText="Citadel Brokers Fee Percentage"
               type="number"
               onBlur={(e) => {

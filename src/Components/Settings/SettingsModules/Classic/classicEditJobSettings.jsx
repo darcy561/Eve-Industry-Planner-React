@@ -15,35 +15,11 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { listingType } from "../../../../Context/defaultValues";
-<<<<<<< HEAD
-import { makeStyles } from "@mui/styles";
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import { useCharAssets } from "../../../../Hooks/useCharAssets";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 
-<<<<<<< HEAD
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  Select: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}));
-
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 export function ClassicEditJobSettings({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
@@ -61,11 +37,6 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
   );
   const [assetLocationEntries, updateAssetLocationEntries] = useState([]);
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
-<<<<<<< HEAD
-
-  const classes = useStyles();
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   useEffect(() => {
     async function getAsset() {

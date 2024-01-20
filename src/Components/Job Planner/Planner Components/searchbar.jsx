@@ -85,10 +85,6 @@ export function SearchBar() {
                 <TextField
                   {...params}
                   size="small"
-<<<<<<< HEAD
-                  className={classes.Autocomplete}
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                   margin="none"
                   variant="standard"
                   InputProps={{ ...params.InputProps, type: "search" }}

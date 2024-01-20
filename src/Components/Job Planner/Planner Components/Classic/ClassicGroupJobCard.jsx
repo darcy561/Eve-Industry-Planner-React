@@ -20,27 +20,8 @@ import { grey } from "@mui/material/colors";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
-<<<<<<< HEAD
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  DeleteIcon: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
-
-=======
 import GLOBAL_CONFIG from "../../../../global-config-app";
 
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 export function ClassicGroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext

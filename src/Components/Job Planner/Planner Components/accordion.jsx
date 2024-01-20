@@ -20,36 +20,15 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import AddIcon from "@mui/icons-material/Add";
 import { StatusSettings } from "./StatusSettings";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
-<<<<<<< HEAD
-import { makeStyles } from "@mui/styles";
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import { ClassicAccordionContents } from "./Classic/classicContents";
 import { useDrop } from "react-dnd";
 import { useDnD } from "../../../Hooks/useDnD";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { grey } from "@mui/material/colors";
 import { CompactAccordionContents } from "./Compact/compactContents";
-<<<<<<< HEAD
-
-const useStyles = makeStyles((theme) => ({
-  Accordion: {
-    "& .MuiAccordionSummary-root:hover": {
-      cursor: "default",
-    },
-  },
-  Header: {
-    color:
-      theme.palette.type === "dark" ? "secondary" : theme.palette.primary.main,
-  },
-}));
-
-export function PlannerAccordion({ updateEditJobTrigger }) {
-=======
 import GLOBAL_CONFIG from "../../../global-config-app";
 
 export function PlannerAccordion() {
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const { users } = useContext(UsersContext);
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -73,11 +52,6 @@ export function PlannerAccordion() {
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
   }, [users]);
-<<<<<<< HEAD
-
-  const classes = useStyles();
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);
@@ -110,10 +84,6 @@ export function PlannerAccordion() {
         return (
           <Accordion
             ref={drop}
-<<<<<<< HEAD
-            className={classes.Accordion}
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             expanded={status.expanded}
             square={true}
             spacing={1}
@@ -223,24 +193,10 @@ export function PlannerAccordion() {
             </AccordionSummary>
             <AccordionDetails>
               {parentUser.settings.layout.enableCompactView ? (
-<<<<<<< HEAD
-                <CompactAccordionContents
-                  updateEditJobTrigger={updateEditJobTrigger}
-                  status={status}
-                />
-              ) : (
-                <ClassicAccordionContents
-                  updateEditJobTrigger={updateEditJobTrigger}
-                  status={status}
-                />
-              )}
-
-=======
                 <CompactAccordionContents status={status} />
               ) : (
                 <ClassicAccordionContents status={status} />
               )}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             </AccordionDetails>
           </Accordion>
         );

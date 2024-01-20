@@ -7,24 +7,14 @@ import { blue } from "@mui/material/colors";
 
 export function CompactBlueprintEntry({ blueprintGroup, bpData }) {
   const { users } = useContext(UsersContext);
-<<<<<<< HEAD
-  const { esiCorpData } = useContext(CorpEsiDataContext);
-=======
   const { corpEsiData } = useContext(CorpEsiDataContext);
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   const blueprint = blueprintGroup[0];
 
   const bpOwner = users.find(
     (u) => u.CharacterHash === blueprint.CharacterHash
   );
-<<<<<<< HEAD
-  const corpOwner = esiCorpData.find(
-    (i) => i.corporation_id === blueprint?.corporation_id
-  );
-=======
   const corpOwner = corpEsiData.get(blueprint?.corporation_id)
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   return (
     <Grid container item xs={12} md={6}>

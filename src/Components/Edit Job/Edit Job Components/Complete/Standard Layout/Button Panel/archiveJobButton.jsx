@@ -14,13 +14,8 @@ import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
 import { getAnalytics } from "firebase/analytics";
 
-<<<<<<< HEAD:src/Components/Job Planner/Edit Job/Edit Job Components/Page 5 Components/archiveJobButton.jsx
-export function ArchiveJobButton({ updateEditJobTrigger }) {
-  const { activeJob, activeGroup } = useContext(ActiveJobContext);
-=======
 export function ArchiveJobButton({ activeJob }) {
   const { activeGroup } = useContext(ActiveJobContext);
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Edit Job/Edit Job Components/Complete/Standard Layout/Button Panel/archiveJobButton.jsx
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users, updateUsers } = useContext(UsersContext);

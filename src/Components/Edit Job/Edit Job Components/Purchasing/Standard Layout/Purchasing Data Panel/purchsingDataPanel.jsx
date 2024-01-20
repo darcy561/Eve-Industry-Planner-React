@@ -13,18 +13,10 @@ import {
 import {
   IsLoggedInContext,
   UsersContext,
-<<<<<<< HEAD:src/Components/Job Planner/Edit Job/Edit Job Components/Page 2 Components/purchasingData.jsx
-} from "../../../../../Context/AuthContext";
-import {
-  listingType
-} from "../../../../../Context/defaultValues";
-import GLOBAL_CONFIG from "../../../../../global-config-app";
-=======
 } from "../../../../../../Context/AuthContext";
 import { listingType } from "../../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import { ShoppingListContext } from "../../../../../../Context/LayoutContext";
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Purchasing Data Panel/purchsingDataPanel.jsx
 
 export function PurchasingDataPanel_EditJob({
   activeJob,
@@ -33,11 +25,6 @@ export function PurchasingDataPanel_EditJob({
   changeOrderDisplay,
   marketDisplay,
   changeMarketDisplay,
-<<<<<<< HEAD:src/Components/Job Planner/Edit Job/Edit Job Components/Page 2 Components/purchasingData.jsx
-  updateShoppingListTrigger,
-  updateShoppingListData,
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Purchasing Data Panel/purchsingDataPanel.jsx
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
@@ -115,11 +102,7 @@ export function PurchasingDataPanel_EditJob({
                         .hideCompleteMaterials
                     }
                     onChange={() => {
-<<<<<<< HEAD:src/Components/Job Planner/Edit Job/Edit Job Components/Page 2 Components/purchasingData.jsx
-                      let newUsers = [...users]
-=======
                       let newUsers = [...users];
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Purchasing Data Panel/purchsingDataPanel.jsx
                       newUsers[
                         parentUserIndex
                       ].settings.editJob.hideCompleteMaterials =

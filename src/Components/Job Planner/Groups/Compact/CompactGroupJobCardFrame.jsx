@@ -1,21 +1,8 @@
 import { useContext, useMemo } from "react";
-<<<<<<< HEAD
-import {
-  JobPlannerPageTriggerContext,
-  MultiSelectJobPlannerContext,
-} from "../../../../Context/LayoutContext";
-import { ActiveJobContext } from "../../../../Context/JobContext";
-import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
-import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
-import { useDrag } from "react-dnd";
-import { ItemTypes } from "../../../../Context/DnDTypes";
-import { makeStyles } from "@mui/styles";
-=======
 import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import { jobTypes } from "../../../../Context/defaultValues";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -28,51 +15,13 @@ import {
 } from "@mui/material";
 import { deepPurple, grey, lightGreen } from "@mui/material/colors";
 import GroupInfoPopout from "./GroupInfoBadge";
-<<<<<<< HEAD
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  DeleteIcon: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  ManufacturingJob: {
-    height: "1px",
-    background:
-      theme.palette.type === "dark"
-        ? `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`
-        : `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`,
-  },
-  ReactionJob: {
-    height: "1px",
-    background:
-      theme.palette.type === "dark"
-        ? `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`
-        : `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`,
-  },
-}));
-=======
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useNavigate } from "react-router-dom";
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 export function CompactGroupJobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-<<<<<<< HEAD
-  const { updateEditJobTrigger } = useContext(JobPlannerPageTriggerContext);
-  const { activeGroup } = useContext(ActiveJobContext);
-  const { openEditJob } = useOpenEditJob();
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.jobCard,
@@ -85,16 +34,6 @@ export function CompactGroupJobCardFrame({ job }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
-<<<<<<< HEAD
-  const classes = useStyles();
-  const jobCardChecked = useMemo(() => {
-    return multiSelectJobPlanner.some((i) => i === job.jobID);
-  }, [multiSelectJobPlanner]);
-
-  const jobMarkedAsCompelte = useMemo(() => {
-    return activeGroup.areComplete.includes(job.jobID);
-  }, [activeGroup]);
-=======
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
   const jobCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
@@ -115,7 +54,6 @@ export function CompactGroupJobCardFrame({ job }) {
         return `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
     }
   }
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   return (
     <Card
@@ -128,11 +66,7 @@ export function CompactGroupJobCardFrame({ job }) {
         cursor: "grab",
         backgroundColor: (theme) =>
           jobCardChecked || isDragging
-<<<<<<< HEAD
-            ? theme.palette.type !== "dark"
-=======
             ? theme.palette.mode !== "dark"
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
               ? grey[300]
               : grey[900]
             : "none",
@@ -141,16 +75,12 @@ export function CompactGroupJobCardFrame({ job }) {
       <Grid container item xs={12}>
         <Grid item xs={2} sm={1} align="center">
           <Checkbox
-<<<<<<< HEAD
-            className={classes.Checkbox}
-=======
             sx={{
               color: (theme) =>
                 theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             checked={jobCardChecked}
             onChange={(event) => {
               if (event.target.checked) {
@@ -183,12 +113,7 @@ export function CompactGroupJobCardFrame({ job }) {
           <Button
             color="primary"
             onClick={() => {
-<<<<<<< HEAD
-              openEditJob(job.jobID);
-              updateEditJobTrigger((prev) => !prev);
-=======
               navigate(`/editJob/${job.jobID}`);
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             }}
           >
             Edit
@@ -196,16 +121,12 @@ export function CompactGroupJobCardFrame({ job }) {
         </Grid>
         <Grid container item xs={1} align="center" alignItems="center">
           <IconButton
-<<<<<<< HEAD
-            className={classes.DeleteIcon}
-=======
             sx={{
               color: (theme) =>
                 theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
             }}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
             onClick={() => {
               deleteSingleJob(job.jobID);
             }}
@@ -214,18 +135,10 @@ export function CompactGroupJobCardFrame({ job }) {
           </IconButton>
         </Grid>
         <Grid
-<<<<<<< HEAD
-          className={
-            jobTypes.manufacturing === job.jobType
-              ? classes.ManufacturingJob
-              : classes.ReactionJob
-          }
-=======
           sx={{
             height: "1px",
             backgroundColor: (theme) => getCardColor(theme, job.jobType),
           }}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
           item
           xs={12}
         />

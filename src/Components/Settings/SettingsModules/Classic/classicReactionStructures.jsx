@@ -27,43 +27,11 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import systemIDS from "../../../../RawData/systems.json";
 import uuid from "react-uuid";
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  Autocomplete: {
-    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
-      color:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-      borderColor:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-    },
-  },
-}));
-
-export function ClassicReactionStrutures({ parentUserIndex }) {
-========
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useMissingSystemIndex } from "../../../../Hooks/GeneralHooks/useImportMissingSystemIndexData";
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
 
-<<<<<<< HEAD
-export function CompactReactionStrutures({ parentUserIndex }) {
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
-=======
 export function ClassicReactionStrutures({ parentUserIndex }) {
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const { users, updateUsers } = useContext(UsersContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
   const { updateMainUserDoc } = useFirebase();
@@ -80,23 +48,11 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
   );
   const [taxValue, updateTaxValue] = useState("");
   const [systemIDValue, updateSystemIDValue] = useState("");
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
-  const classes = useStyles();
-========
-  const { findMissingSystemIndex } = useMissingSystemIndex();
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
-  const analytics = getAnalytics();
-  const {PRIMARY_THEME} = GLOBAL_CONFIG
-
-  async function handleSubmit(event){
-=======
   const { findMissingSystemIndex } = useMissingSystemIndex();
   const analytics = getAnalytics();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   async function handleSubmit(event) {
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
     event.preventDefault();
     let newUsersArray = [...users];
     newUsersArray[parentUserIndex].settings.structures.reaction.push({
@@ -128,11 +84,7 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
       severity: "success",
       autoHideDuration: 1000,
     }));
-<<<<<<< HEAD
-  };
-=======
   }
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   return (
     <Paper elevation={3} sx={{ padding: "20px" }} square={true}>
@@ -309,13 +261,6 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
                           required={true}
                           size="small"
                           variant="standard"
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
-                          className={classes.TextField}
-========
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                           helperText="Installation Tax %"
                           inputProps={{
                             step: "0.01",
@@ -329,12 +274,6 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
                       <FormControl
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
-                        className={classes.TextField}
-========
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         sx={{
                           "& .MuiFormHelperText-root": {
                             color: (theme) => theme.palette.secondary.main,
@@ -344,10 +283,6 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
                               display: "none",
                             },
                         }}
-<<<<<<< HEAD
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         fullWidth={true}
                       >
                         <Autocomplete
@@ -367,12 +302,6 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
                             <TextField
                               {...params}
                               size="small"
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
-                              className={classes.Autocomplete}
-========
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                               sx={{
                                 color: (theme) =>
                                   theme.palette.mode === PRIMARY_THEME
@@ -383,10 +312,6 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
                                     ? "black"
                                     : theme.palette.secondary.main,
                               }}
-<<<<<<< HEAD
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                               margin="none"
                               variant="standard"
                               style={{ borderRadius: "5px" }}
@@ -481,23 +406,10 @@ export function ClassicReactionStrutures({ parentUserIndex }) {
                             <Typography variant="body1">{rigText}</Typography>
                           </Grid>
                           <Grid item xs={6}>
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
-                            <Typography>{`${entry.tax||0}%`}</Typography>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <Typography>{systemName}</Typography> 
-========
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                             <Typography>{`${entry.tax || 0}%`}</Typography>
                           </Grid>
                           <Grid item xs={6}>
                             <Typography>{systemName}</Typography>
-<<<<<<< HEAD
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                           </Grid>
                         </Grid>
                       </CardContent>{" "}

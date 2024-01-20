@@ -2,10 +2,6 @@ import { useContext, useState } from "react";
 import { Avatar, Badge, Grid, Icon, Tooltip, Typography } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { jobTypes } from "../../../Context/defaultValues";
-<<<<<<< HEAD
-import { makeStyles } from "@mui/styles";
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import { ActiveBPPopout } from "../ActiveBPPout";
 import { UsersContext } from "../../../Context/AuthContext";
 import { CorpEsiDataContext } from "../../../Context/EveDataContext";

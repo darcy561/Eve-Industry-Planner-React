@@ -27,43 +27,11 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import uuid from "react-uuid";
 import systemIDS from "../../../../RawData/systems.json";
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Compact/compactManufacturingStructures.jsx
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  Autocomplete: {
-    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
-      color:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-      borderColor:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-    },
-  },
-}));
-
-export function CompactManufacturingStrutures({ parentUserIndex }) {
-========
-import { useMissingSystemIndex } from "../../../../Hooks/GeneralHooks/useImportMissingSystemIndexData";
-import { SystemIndexContext } from "../../../../Context/EveDataContext";
-
-export function ClassicManufacturingStrutures({ parentUserIndex }) {
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Classic/classicManufacturingStructures.jsx
-=======
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useMissingSystemIndex } from "../../../../Hooks/GeneralHooks/useImportMissingSystemIndexData";
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
 
 export function CompactManufacturingStrutures({ parentUserIndex }) {
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const { users, updateUsers } = useContext(UsersContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
   const { updateMainUserDoc } = useFirebase();
@@ -79,22 +47,11 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
   const [rigsValue, updateRigsValue] = useState(structureOptions.manRigs[0].id);
   const [taxValue, updateTaxValue] = useState(null);
   const [systemIDValue, updateSystemIDValue] = useState(null);
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Compact/compactManufacturingStructures.jsx
-  const classes = useStyles();
-========
-  const { findMissingSystemIndex } = useMissingSystemIndex();
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Classic/classicManufacturingStructures.jsx
-  const analytics = getAnalytics();
-
-  async function handleSubmit(event) {
-=======
   const { findMissingSystemIndex } = useMissingSystemIndex();
   const analytics = getAnalytics();
   const {PRIMARY_THEME} = GLOBAL_CONFIG
 
   async function handleSubmit(event){
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
     event.preventDefault();
     let newUsersArray = [...users];
     newUsersArray[parentUserIndex].settings.structures.manufacturing.push({
@@ -104,17 +61,8 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
       structureType: structValue,
       rigType: rigsValue,
       systemID: systemIDValue,
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Compact/compactManufacturingStructures.jsx
-      tax: taxValue,
-========
       tax:
         structValue === structureOptions.manStructure[0].id ? 0.25 : taxValue,
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Classic/classicManufacturingStructures.jsx
-=======
-      tax:
-        structValue === structureOptions.manStructure[0].id ? 0.25 : taxValue,
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
       default:
         newUsersArray[parentUserIndex].settings.structures.manufacturing
           .length === 0
@@ -122,16 +70,8 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
           : false,
     });
 
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Compact/compactManufacturingStructures.jsx
-========
     const updatedSystemIndex = await findMissingSystemIndex(systemIDValue);
 
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Classic/classicManufacturingStructures.jsx
-=======
-    const updatedSystemIndex = await findMissingSystemIndex(systemIDValue);
-
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
     updateMainUserDoc(newUsersArray);
     updateSystemIndexData(updatedSystemIndex);
     updateUsers(newUsersArray);
@@ -145,11 +85,7 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
       severity: "success",
       autoHideDuration: 1000,
     }));
-<<<<<<< HEAD
-  }
-=======
   };
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
   return (
     <Paper elevation={3} sx={{ padding: "20px" }} square={true}>
@@ -181,12 +117,6 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                         required={true}
                         size="small"
                         variant="standard"
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Compact/compactManufacturingStructures.jsx
-                        className={classes.TextField}
-========
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         sx={{
                           "& .MuiFormHelperText-root": {
                             color: (theme) => theme.palette.secondary.main,
@@ -196,10 +126,6 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                               display: "none",
                             },
                         }}
-<<<<<<< HEAD
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Classic/classicManufacturingStructures.jsx
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         helperText="Display Name"
                         type="text"
                         onBlur={(e) => {
@@ -336,22 +262,6 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                           required={true}
                           size="small"
                           variant="standard"
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Compact/compactManufacturingStructures.jsx
-                          className={classes.TextField}
-========
-                          sx={{
-                            "& .MuiFormHelperText-root": {
-                              color: (theme) => theme.palette.secondary.main,
-                            },
-                            "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                              {
-                                display: "none",
-                              },
-                          }}
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Classic/classicManufacturingStructures.jsx
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                           helperText="Installation Tax %"
                           inputProps={{
                             step: "0.01",
@@ -365,12 +275,6 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
                       <FormControl
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Compact/compactManufacturingStructures.jsx
-                        className={classes.TextField}
-========
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         sx={{
                           "& .MuiFormHelperText-root": {
                             color: (theme) => theme.palette.secondary.main,
@@ -380,10 +284,6 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                               display: "none",
                             },
                         }}
-<<<<<<< HEAD
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Classic/classicManufacturingStructures.jsx
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         fullWidth={true}
                       >
                         <Autocomplete
@@ -403,12 +303,6 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                             <TextField
                               {...params}
                               size="small"
-<<<<<<< HEAD
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Compact/compactManufacturingStructures.jsx
-                              className={classes.Autocomplete}
-========
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Classic/classicManufacturingStructures.jsx
-=======
                               sx={{
                                 color: (theme) =>
                                   theme.palette.mode === PRIMARY_THEME
@@ -419,7 +313,6 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                                     ? "black"
                                     : theme.palette.secondary.main,
                               }}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                               margin="none"
                               variant="standard"
                               style={{ borderRadius: "5px" }}

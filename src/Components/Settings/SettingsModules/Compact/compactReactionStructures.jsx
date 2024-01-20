@@ -18,10 +18,6 @@ import {
 } from "@mui/material";
 import { structureOptions } from "../../../../Context/defaultValues";
 import AddIcon from "@mui/icons-material/Add";
-<<<<<<< HEAD
-import { makeStyles } from "@mui/styles";
-=======
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import { useState } from "react";
 import { useContext } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
@@ -31,46 +27,13 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import systemIDS from "../../../../RawData/systems.json";
 import uuid from "react-uuid";
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
-
-const useStyles = makeStyles((theme) => ({
-  TextField: {
-    "& .MuiFormHelperText-root": {
-      color: theme.palette.secondary.main,
-    },
-    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-      {
-        display: "none",
-      },
-  },
-  Autocomplete: {
-    "& .MuiInputBase-input.MuiAutocomplete-input.MuiAutocomplete-inputRoot": {
-      color:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-      borderColor:
-        theme.palette.type === "dark" ? "black" : theme.palette.secondary.main,
-    },
-  },
-}));
-
-<<<<<<< HEAD
-export function CompactReactionStrutures({ parentUserIndex }) {
-  const { users, updateUsers } = useContext(UsersContext);
-=======
-export function ClassicReactionStrutures({ parentUserIndex }) {
-========
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useMissingSystemIndex } from "../../../../Hooks/GeneralHooks/useImportMissingSystemIndexData";
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
 
 export function CompactReactionStrutures({ parentUserIndex }) {
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
   const { users, updateUsers } = useContext(UsersContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
   const { updateMainUserDoc } = useFirebase();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const [textValue, updateTextValue] = useState("");
@@ -85,22 +48,11 @@ export function CompactReactionStrutures({ parentUserIndex }) {
   );
   const [taxValue, updateTaxValue] = useState("");
   const [systemIDValue, updateSystemIDValue] = useState("");
-<<<<<<< HEAD
-  const classes = useStyles();
-  const analytics = getAnalytics();
-
-  const handleSubmit = (event) => {
-=======
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
-  const classes = useStyles();
-========
   const { findMissingSystemIndex } = useMissingSystemIndex();
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
   const analytics = getAnalytics();
   const {PRIMARY_THEME} = GLOBAL_CONFIG
 
   async function handleSubmit(event){
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
     event.preventDefault();
     let newUsersArray = [...users];
     newUsersArray[parentUserIndex].settings.structures.reaction.push({
@@ -116,15 +68,11 @@ export function CompactReactionStrutures({ parentUserIndex }) {
           ? true
           : false,
     });
-<<<<<<< HEAD
-    updateMainUserDoc(newUsersArray);
-=======
 
     const updatedSystemIndex = await findMissingSystemIndex(systemIDValue);
 
     updateMainUserDoc(newUsersArray);
     updateSystemIndexData(updatedSystemIndex);
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
     updateUsers(newUsersArray);
     logEvent(analytics, "Add Reaction Structure", {
       UID: newUsersArray[parentUserIndex].accountID,
@@ -168,9 +116,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                         required={true}
                         size="small"
                         variant="standard"
-<<<<<<< HEAD
-                        className={classes.TextField}
-=======
                         sx={{
                           "& .MuiFormHelperText-root": {
                             color: (theme) => theme.palette.secondary.main,
@@ -180,7 +125,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                               display: "none",
                             },
                         }}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         helperText="Name"
                         type="text"
                         onBlur={(e) => {
@@ -194,9 +138,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
                       <FormControl
-<<<<<<< HEAD
-                        className={classes.TextField}
-=======
                         sx={{
                           "& .MuiFormHelperText-root": {
                             color: (theme) => theme.palette.secondary.main,
@@ -206,7 +147,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                               display: "none",
                             },
                         }}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         fullWidth={true}
                       >
                         <Select
@@ -234,9 +174,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingRight: "5px" }}>
                       <FormControl
-<<<<<<< HEAD
-                        className={classes.TextField}
-=======
                         sx={{
                           "& .MuiFormHelperText-root": {
                             color: (theme) => theme.palette.secondary.main,
@@ -246,7 +183,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                               display: "none",
                             },
                         }}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         fullWidth={true}
                       >
                         <Select
@@ -274,9 +210,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
                       <FormControl
-<<<<<<< HEAD
-                        className={classes.TextField}
-=======
                         sx={{
                           "& .MuiFormHelperText-root": {
                             color: (theme) => theme.palette.secondary.main,
@@ -286,7 +219,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                               display: "none",
                             },
                         }}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         fullWidth={true}
                       >
                         <Select
@@ -314,9 +246,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingRight: "5px" }}>
                       <FormControl
-<<<<<<< HEAD
-                        className={classes.TextField}
-=======
                         sx={{
                           "& .MuiFormHelperText-root": {
                             color: (theme) => theme.palette.secondary.main,
@@ -326,21 +255,12 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                               display: "none",
                             },
                         }}
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         fullWidth={true}
                       >
                         <TextField
                           required={true}
                           size="small"
                           variant="standard"
-<<<<<<< HEAD
-                          className={classes.TextField}
-=======
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
-                          className={classes.TextField}
-========
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                           helperText="Installation Tax %"
                           inputProps={{
                             step: "0.01",
@@ -354,12 +274,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                     </Grid>
                     <Grid item xs={6} sx={{ paddingLeft: "5px" }}>
                       <FormControl
-<<<<<<< HEAD
-                        className={classes.TextField}
-=======
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
-                        className={classes.TextField}
-========
                         sx={{
                           "& .MuiFormHelperText-root": {
                             color: (theme) => theme.palette.secondary.main,
@@ -369,8 +283,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                               display: "none",
                             },
                         }}
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                         fullWidth={true}
                       >
                         <Autocomplete
@@ -390,12 +302,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                             <TextField
                               {...params}
                               size="small"
-<<<<<<< HEAD
-                              className={classes.Autocomplete}
-=======
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
-                              className={classes.Autocomplete}
-========
                               sx={{
                                 color: (theme) =>
                                   theme.palette.mode === PRIMARY_THEME
@@ -406,8 +312,6 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                                     ? "black"
                                     : theme.palette.secondary.main,
                               }}
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                               margin="none"
                               variant="standard"
                               style={{ borderRadius: "5px" }}
@@ -502,23 +406,10 @@ export function CompactReactionStrutures({ parentUserIndex }) {
                             <Typography variant="body1">{rigText}</Typography>
                           </Grid>
                           <Grid item xs={6}>
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:src/Components/Settings/SettingsModules/Classic/classicReactionStructures.jsx
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
-                            <Typography>{`${entry.tax||0}%`}</Typography>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <Typography>{systemName}</Typography> 
-<<<<<<< HEAD
-=======
-========
                             <Typography>{`${entry.tax || 0}%`}</Typography>
                           </Grid>
                           <Grid item xs={6}>
                             <Typography>{systemName}</Typography>
->>>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569:src/Components/Settings/SettingsModules/Compact/compactReactionStructures.jsx
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
                           </Grid>
                         </Grid>
                       </CardContent>{" "}

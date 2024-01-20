@@ -71,14 +71,10 @@ export function FeedbackIcon() {
       };
     };
 
-<<<<<<< HEAD
-    const call = httpsCallable(functions, "submitUserFeedback-submitUserFeedback");
-=======
     const call = httpsCallable(
       functions,
       "submitUserFeedback-submitUserFeedback"
     );
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
     call({
       accountID: parentUser.accountID || null,
       response: inputText,

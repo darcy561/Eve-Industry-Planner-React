@@ -10,10 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-<<<<<<< HEAD
-=======
 import { grey } from "@mui/material/colors";
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 import { jobTypes } from "../../../../Context/defaultValues";
 import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
 import Step1JobCard from "./Job Cards/step1";
@@ -24,27 +21,8 @@ import Step5JobCard from "./Job Cards/step5";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
-<<<<<<< HEAD
-import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
-
-const useStyles = makeStyles((theme) => ({
-  Checkbox: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-  DeleteIcon: {
-    color:
-      theme.palette.type === "dark"
-        ? theme.palette.primary.main
-        : theme.palette.secondary.main,
-  },
-}));
-=======
 import { useNavigate } from "react-router-dom";
 import GLOBAL_CONFIG from "../../../../global-config-app";
->>>>>>> 30eec5e2076ea65502f8af77eb7e306834252569
 
 function DisplaySwitch({ job }) {
   switch (job.jobStatus) {

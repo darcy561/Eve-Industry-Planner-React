@@ -6,13 +6,13 @@ import { UsersContext } from "../../Context/AuthContext";
 
 export function useSetupManagement() {
   const { users } = useContext(UsersContext);
-  const { CalculateResources_New, CalculateTime_New } = useBlueprintCalc();
+  const { calculateResources, calculateTime } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
   const {
     buildNewSetupObject,
-    addItemBlueprint_New,
-    addDefaultStructure_New,
-    recalculateItemQty_New,
+    addItemBlueprint,
+    addDefaultStructure,
+    recalculateItemQty,
     calculateJobMaterialQuantities,
   } = useJobBuild();
 
@@ -28,8 +28,8 @@ export function useSetupManagement() {
     const itemsProducedPerRun = chosenJob.itemsProducedPerRun;
     let newMaterialArray = [...chosenJob.build.materials];
 
-    chosenSetup.materialCount = CalculateResources_New(chosenSetup);
-    chosenSetup.estimatedTime = CalculateTime_New(chosenSetup);
+    chosenSetup.materialCount = calculateResources(chosenSetup);
+    chosenSetup.estimatedTime = calculateTime(chosenSetup, chosenJob.skills);
     chosenSetup.estimatedInstallCost = calculateInstallCostFromJob(
       chosenSetup,
       alternativvePriceData,
@@ -63,13 +63,13 @@ export function useSetupManagement() {
 
     const requiredQuantity = selectedJob.rawData.products[0].quantity;
 
-    const { ME, TE } = addItemBlueprint_New(
+    const { ME, TE } = addItemBlueprint(
       selectedJob.jobType,
       selectedJob.blueprintTypeID
     );
-    const structureData = addDefaultStructure_New(selectedJob.jobType);
+    const structureData = addDefaultStructure(selectedJob.jobType);
 
-    const setupQuantities = recalculateItemQty_New(
+    const setupQuantities = recalculateItemQty(
       selectedJob.maxProductionLimit,
       selectedJob.rawData.products[0].quantity,
       requiredQuantity
@@ -93,8 +93,8 @@ export function useSetupManagement() {
       };
     });
 
-    newSetup.estimatedTime = CalculateTime_New(newSetup, selectedJob.skills);
-    newSetup.materialCount = CalculateResources_New(newSetup);
+    newSetup.estimatedTime = calculateTime(newSetup, selectedJob.skills);
+    newSetup.materialCount = calculateResources(newSetup);
     newSetup.estimatedInstallCost = calculateInstallCostFromJob(newSetup);
 
     const { jobSetups, newMaterialArray, newTotalProduced } = recalculateSetup(

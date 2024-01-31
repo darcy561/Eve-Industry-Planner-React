@@ -29,8 +29,7 @@ export function AssetLocations_AssetDialogWindow({
         if (locationID === defaultAssetLocation) return null;
 
         const itemLocationName =
-          tempEveIDs.find((i) => locationID === i.id)?.name ||
-          "Unkown Location";
+          tempEveIDs[locationID]?.name || "Unkown Location";
         return (
           <Grid key={locationID} container>
             <Grid item xs={12}>

@@ -1,9 +1,8 @@
 import { CircularProgress, Grid, Paper, Typography } from "@mui/material";
-import { useContext } from "react";
-import { EvePricesContext } from "../../Context/EveDataContext";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function SisiItem({ sisiItem, itemLoad, tranqItem }) {
-  const { evePrices } = useContext(EvePricesContext);
+  const { findItemPriceObject } = useHelperFunction();
 
   let totalItemCost = 0;
 
@@ -67,9 +66,7 @@ export function SisiItem({ sisiItem, itemLoad, tranqItem }) {
               </Typography>
             </Grid>
             {sisiItem.build.materials.map((material) => {
-              let itemCost = evePrices.find(
-                (i) => i.typeID === material.typeID
-              );
+              let itemCost = findItemPriceObject(material.typeID);
 
               let tranqData = undefined;
               if (tranqItem !== null && tranqItem !== "missing") {

@@ -1,8 +1,8 @@
 import { useContext, useState } from "react";
 import { Grid, IconButton, TextField, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { EvePricesContext } from "../../../../../../Context/EveDataContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AddMaterialCost({
   activeJob,
@@ -13,13 +13,13 @@ export function AddMaterialCost({
   marketDisplay,
   orderDisplay,
 }) {
-  const { evePrices } = useContext(EvePricesContext);
-  const materialPrice = evePrices.find((i) => i.typeID === material.typeID);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { findItemPriceObject } = useHelperFunction();
+  const materialPrice = findItemPriceObject(material.typeID);
   const [inputs, setInputs] = useState({
     itemCost: materialPrice[marketDisplay][orderDisplay].toFixed(2),
     itemCount: Number(material.quantity - material.quantityPurchased),
   });
-  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   const handleSubmit = (event) => {
     event.preventDefault();

@@ -33,6 +33,7 @@ import { trace } from "firebase/performance";
 import { performance } from "../../../../firebase";
 import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
 import { useInstallCostsCalc } from "../../../../Hooks/GeneralHooks/useInstallCostCalc";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function WatchListRow({
   item,
@@ -57,6 +58,7 @@ export function WatchListRow({
   } = useFirebase();
   const { checkAllowBuild, buildJob } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
+  const { findItemPriceObject } = useHelperFunction();
   const { newJobSnapshot } = useJobSnapshotManagement();
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
@@ -90,7 +92,7 @@ export function WatchListRow({
 
     if (!newJob) return;
 
-    let promiseArray = [
+    const itemPricePromise = [
       getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
     ];
 
@@ -105,16 +107,13 @@ export function WatchListRow({
       itemID: newJob.itemID,
     });
 
-    let returnPromiseArray = await Promise.all(promiseArray);
+    const itemPriceResult = await Promise.all(itemPricePromise);
 
     updateUserJobSnapshot(newUserJobSnapshot);
-    updateEvePrices((prev) => {
-      const prevIds = new Set(prev.map((item) => item.typeID));
-      const uniqueNewEvePrices = returnPromiseArray[0].filter(
-        (item) => !prevIds.has(item.typeID)
-      );
-      return [...prev, ...uniqueNewEvePrices];
-    });
+    updateEvePrices((prev) => ({
+      ...prev,
+      ...itemPriceResult,
+    }));
     updateJobArray((prev) => [...prev, newJob]);
     setSnackbarData((prev) => ({
       ...prev,
@@ -127,40 +126,18 @@ export function WatchListRow({
   }
 
   const buildCosts = useCallback(() => {
-    let missingItemCost = {
-      jita: {
-        buy: 0,
-        sell: 0,
-      },
-      amarr: {
-        buy: 0,
-        sell: 0,
-      },
-      dodixie: {
-        buy: 0,
-        sell: 0,
-      },
-    };
-    let mainItemPrice = evePrices.find((i) => i.typeID === item.typeID);
-    if (mainItemPrice === undefined) {
-      mainItemPrice = missingItemCost;
-    }
+    const mainItemPrice = findItemPriceObject(item.typeID);
 
     let totalBuild = calculateInstallCostFromJob(item?.buildData);
     let totalPurchase = calculateInstallCostFromJob(item?.buildData);
 
     item.materials.forEach((mat) => {
-      let itemPrice = evePrices.find((i) => i.typeID === mat.typeID);
+      const itemPrice = findItemPriceObject(mat.typeID);
 
-      if (itemPrice === undefined) {
-        itemPrice = missingItemCost;
-      }
       totalPurchase +=
-        (itemPrice[parentUser.settings.editJob.defaultMarket][
+        itemPrice[parentUser.settings.editJob.defaultMarket][
           parentUser.settings.editJob.defaultOrders
-        ] *
-          mat.quantity) /
-        item.quantity;
+        ] * mat.quantity;
 
       if (mat.materials.length === 0) {
         totalBuild +=
@@ -170,9 +147,8 @@ export function WatchListRow({
         return;
       }
       let matBuild = calculateInstallCostFromJob(mat?.buildData);
-      // let matBuild = 0
       mat.materials.forEach((cMat) => {
-        let itemCPrice = evePrices.find((i) => i.typeID === cMat.typeID);
+        let itemCPrice = findItemPriceObject(cMat.typeID);
         matBuild +=
           itemCPrice[parentUser.settings.editJob.defaultMarket][
             parentUser.settings.editJob.defaultOrders
@@ -182,7 +158,7 @@ export function WatchListRow({
       matBuild = matBuild / mat.quantityProduced;
       totalBuild += matBuild * mat.quantity;
     });
-
+    totalPurchase = totalPurchase / item.quantity;
     totalBuild = totalBuild / item.quantity;
     return {
       totalBuild: totalBuild,
@@ -190,6 +166,8 @@ export function WatchListRow({
       mainItemPrice: mainItemPrice,
     };
   }, [evePrices]);
+
+  console.log(item);
 
   const calculatedCosts = buildCosts();
 
@@ -592,6 +570,24 @@ export function WatchListRow({
                     </IconButton>
                   </Tooltip>
                 </Grid>
+                <Grid item xs={4} align="right">
+                  <Tooltip
+                    title="Remove Item From Watchlist"
+                    arrow
+                    placement="bottom"
+                  >
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={handleRemove}
+                      sx={{
+                        display: { lg: "none" },
+                      }}
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
               </Grid>
               <Grid item align="center" xs={12} sx={{ marginTop: "5px" }}>
                 <Tooltip title="Less Information" arrow placement="bottom">
@@ -602,25 +598,6 @@ export function WatchListRow({
                     }}
                   >
                     <ExpandLessIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip
-                  title="Remove Item From Watchlist"
-                  arrow
-                  placement="bottom"
-                >
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={handleRemove}
-                    sx={{
-                      position: "absolute",
-                      bottom: "10px",
-                      right: "10px",
-                      display: { lg: "none" },
-                    }}
-                  >
-                    <ClearIcon />
                   </IconButton>
                 </Tooltip>
               </Grid>

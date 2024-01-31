@@ -18,7 +18,6 @@ import {
 import { httpsCallable } from "@firebase/functions";
 import { trace } from "firebase/performance";
 import {
-  ActiveJobContext,
   ApiJobsContext,
   ArchivedJobsContext,
   JobArrayContext,
@@ -38,7 +37,6 @@ import { useAccountManagement } from "./useAccountManagement";
 import { useEveApi } from "./useEveApi";
 import { UserLoginUIContext } from "../Context/LayoutContext";
 import GLOBAL_CONFIG from "../global-config-app";
-import { updateStructureValues } from "./outdatedJobFunctions/convertJobStructures";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -148,7 +146,7 @@ export function useFirebase() {
         layout: job.layout,
         groupID: job.groupID || null,
         isReadyToSell: job.isReadyToSell || false,
-        itemsProducedPerRun: job.itemsProducedPerRun
+        itemsProducedPerRun: job.itemsProducedPerRun,
       }
     );
   };
@@ -182,7 +180,8 @@ export function useFirebase() {
         layout: job.layout,
         groupID: job.groupID || null,
         isReadyToSell: job.isReadyToSell || false,
-        itemsProducedPerRun: job.itemsProducedPerRun || job.rawData.products[0].quantity
+        itemsProducedPerRun:
+          job.itemsProducedPerRun || job.rawData.products[0].quantity,
       }
     );
   };
@@ -265,7 +264,8 @@ export function useFirebase() {
         layout: job.layout,
         groupID: job.groupID || null,
         isReadyToSell: job.isReadyToSell || false,
-        itemsProducedPerRun: job.itemsProducedPerRun || job.rawData.products[0].quantity
+        itemsProducedPerRun:
+          job.itemsProducedPerRun || job.rawData.products[0].quantity,
       }
     );
   };
@@ -300,15 +300,10 @@ export function useFirebase() {
         layout: downloadDoc.layout,
         groupID: downloadDoc.groupID,
         isReadyToSell: downloadDoc.isReadyToSell || false,
-        itemsProducedPerRun: downloadDoc.itemsProducedPerRun || downloadDoc.rawData.products[0].quantity
+        itemsProducedPerRun:
+          downloadDoc.itemsProducedPerRun ||
+          downloadDoc.rawData.products[0].quantity,
       };
-
-      // newJob.build.materials.forEach((mat) => {
-      //   mat.childJob = mat.childJob.map(String);
-      // });
-
-      //updateOldJobs
-      updateStructureValues(newJob);
 
       return newJob;
     } else {
@@ -335,98 +330,84 @@ export function useFirebase() {
         }
       );
       const itemsPriceJson = await itemsPricePromise.json();
-      if (itemsPricePromise.status === 200) {
-        return itemsPriceJson;
-      } else return [];
+      if (!itemsPricePromise.ok) return [];
+      return itemsPriceJson;
     } catch (err) {
       console.log(err);
+      return [];
     }
   };
 
-    const getItemPrices = async (idArray, userObj) => {
-      const t = trace(performance, "GetItemPrices");
-      t.start();
-      await fbAuthState();
-      const MAX_CHUNK_SIZE = 500;
-      let requestArray = [];
-      let promiseArray = [];
-      let returnData = [];
+  async function getItemPrices(idArray, userObj) {
+    await fbAuthState();
 
-      if (idArray !== undefined && idArray.length > 0) {
-        for (let id of idArray) {
-          if (!evePrices.some((i) => i.typeID === id)) {
-            requestArray.push(id);
-          }
-        }
+    if (!idArray || idArray.length === 0) return {};
+
+    const requiredIDs = buildRequiredPriceObjects(idArray);
+
+    const returnedPromise = await Promise.all(
+      generateItemPriceChunkRequests(requiredIDs, userObj)
+    );
+    return convertItemPriceResponseToObject(returnedPromise);
+
+    function buildRequiredPriceObjects(inputIDArray) {
+      const requestIDs = new Set();
+      for (const id of inputIDArray) {
+        const priceObject = evePrices[id];
+        if (priceObject) continue;
+        requestIDs.add(id);
       }
-      if (requestArray.length > 0) {
-        for (let x = 0; x < requestArray.length; x += MAX_CHUNK_SIZE) {
-          let chunk = requestArray.slice(x, x + MAX_CHUNK_SIZE);
-          let chunkData = getItemPriceBulk(chunk, userObj);
-          promiseArray.push(chunkData);
-        }
-      } else {
-        t.stop();
-        return [];
-      }
+      return [...requestIDs];
+    }
+  }
 
-      let returnedPromise = await Promise.all(promiseArray);
+  async function refreshItemPrices(userObj) {
+    const outdatedPriceIDs = new Set();
+    const chosenRefreshPoint =
+      Date.now() - DEFAULT_ITEM_REFRESH_PERIOD * 24 * 60 * 60 * 1000;
 
-      for (let data of returnedPromise) {
-        if (Array.isArray(data)) {
-          data.forEach((id) => {
-            returnData.push(id);
-          });
-        } else {
-          returnData.push(data);
-        }
-      }
-      t.stop();
-      return returnData;
-    };
-
-  const refreshItemPrices = async (userObj) => {
-    const t = trace(performance, "refreshItemPrices");
-    t.start();
-    const CHUNK_SIZE = 500;
-    const oldEvePrices = [...evePrices];
-    const priceUpdates = new Set();
-    const newEvePrices = [];
-
-    oldEvePrices.forEach((item) => {
-      if (
-        item.lastUpdated <=
-        Date.now() - DEFAULT_ITEM_REFRESH_PERIOD * 24 * 60 * 60 * 1000
-      ) {
-        priceUpdates.add(item.typeID);
-      } else {
-        newEvePrices.push(item);
+    Object.values(evePrices).forEach((item) => {
+      if (item.lastUpdated <= chosenRefreshPoint) {
+        outdatedPriceIDs.add(item.typeID);
       }
     });
 
-    const requestArray = [...priceUpdates];
-    if (requestArray.length > 0) {
-      const promiseArray = [];
-      for (let x = 0; x < requestArray.length; x += CHUNK_SIZE) {
-        const chunk = requestArray.slice(x, x + CHUNK_SIZE);
-        const chunkData = getItemPriceBulk(chunk, userObj);
-        promiseArray.push(chunkData);
-      }
-      const returnPromiseArray = await Promise.all(promiseArray);
-      for (let data of returnPromiseArray) {
-        if (Array.isArray(data)) {
-          data.forEach((id) => {
-            newEvePrices.push(id);
-          });
-        } else {
-          newEvePrices.push(data);
-        }
+    const returnPromiseArray = await Promise.all(
+      generateItemPriceChunkRequests([...outdatedPriceIDs], userObj)
+    );
+
+    return convertItemPriceResponseToObject(returnPromiseArray);
+  }
+
+  function generateItemPriceChunkRequests(requestArray, userObject) {
+    const MAX_CHUNK_SIZE = 500;
+    const returnPromises = [];
+    const t = trace(performance, "GetItemPrices");
+    if (!requestArray || requestArray.length === 0 || !userObject)
+      return returnPromises;
+
+    t.start();
+
+    for (let x = 0; x < requestArray.length; x += MAX_CHUNK_SIZE) {
+      const chunk = requestArray.slice(x, x + MAX_CHUNK_SIZE);
+      returnPromises.push(getItemPriceBulk(chunk, userObject));
+    }
+    t.stop();
+    return returnPromises;
+  }
+  function convertItemPriceResponseToObject(responseArray) {
+    const responseObject = {};
+    for (let data of responseArray) {
+      if (Array.isArray(data)) {
+        data.forEach((priceObject) => {
+          responseObject[priceObject.typeID] = priceObject;
+        });
+      } else {
+        responseObject[data.typeID] = data;
       }
     }
-
-    t.stop();
-    return newEvePrices;
-  };
+    return responseObject;
+  }
 
   const getArchivedJobData = async (typeID) => {
     let newArchivedJobsArray = [...archivedJobs];
@@ -515,7 +496,7 @@ export function useFirebase() {
               priceIDRequest.add(snap.itemID);
               newUserJobSnapshot.push(snap);
             });
-            let newEvePrices = await getItemPrices(
+            const itemPriceResult = await getItemPrices(
               [...priceIDRequest],
               userObj
             );
@@ -537,13 +518,10 @@ export function useFirebase() {
             updateLinkedTransIDs((prevState) => {
               return [...new Set([...prevState, ...newLinkedTransIDs])];
             });
-            updateEvePrices((prev) => {
-              const prevIds = new Set(prev.map((item) => item.typeID));
-              const uniqueNewEvePrices = newEvePrices.filter(
-                (item) => !prevIds.has(item.typeID)
-              );
-              return [...prev, ...uniqueNewEvePrices];
-            });
+            updateEvePrices((prev) => ({
+              ...prev,
+              ...itemPriceResult,
+            }));
             updateUserJobSnapshot(newUserJobSnapshot);
             updateUserJobSnapshotDataFetch(true);
             t.stop();
@@ -582,17 +560,14 @@ export function useFirebase() {
               });
               newWatchlistItems.push(item);
             });
-            let newEvePrices = await getItemPrices(
+            const itemPriceResult = await getItemPrices(
               [...priceIDRequest],
               userObj
             );
-            updateEvePrices((prev) => {
-              const prevIds = new Set(prev.map((item) => item.typeID));
-              const uniqueNewEvePrices = newEvePrices.filter(
-                (item) => !prevIds.has(item.typeID)
-              );
-              return [...prev, ...uniqueNewEvePrices];
-            });
+            updateEvePrices((prev) => ({
+              ...prev,
+              ...itemPriceResult,
+            }));
             updateUserWatchlist({
               groups: newWatchlistGroups,
               items: newWatchlistItems,
@@ -638,14 +613,10 @@ export function useFirebase() {
             layout: downloadDoc.layout,
             groupID: downloadDoc.groupID,
             isReadyToSell: downloadDoc.isReadyToSell || false,
-            itemsProducedPerRun: downloadDoc.itemsProducedPerRun || downloadDoc.rawData.products[0].quantity
+            itemsProducedPerRun:
+              downloadDoc.itemsProducedPerRun ||
+              downloadDoc.rawData.products[0].quantity,
           };
-          // newJob.build.materials.forEach((mat) => {
-          //   mat.childJob = mat.childJob.map(String);
-          // });
-
-          //updateOldJobs
-          updateStructureValues(newJob);
 
           updateJobArray((prev) => {
             const index = prev.findIndex((i) => i.jobID === newJob.jobID);
@@ -707,12 +678,13 @@ export function useFirebase() {
           );
           let newApiArray = buildApiArray(newUserArray, esiOjectArray);
           await checkUserClaims(newUserArray);
-          let names = await getLocationNames(
+          let newEveIDs = await getLocationNames(
             newUserArray,
             mainUser,
             esiOjectArray
           );
-          const systemIndexes = await getSystemIndexData(mainUser);
+          const systemIndexResults = await getSystemIndexData(mainUser);
+
           newUserArray.sort((a, b) => {
             if (a.name < b.name) {
               return -1;
@@ -722,8 +694,9 @@ export function useFirebase() {
             }
             return 0;
           });
-          updateEveIDs(names);
-          updateSystemIndexData(systemIndexes);
+
+          updateEveIDs((prev) => ({ ...prev, ...newEveIDs }));
+          updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
           updateApiJobs(newApiArray);
           updateUsers(newUserArray);
           setJobStatus(userData.jobStatusArray);

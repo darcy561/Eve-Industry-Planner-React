@@ -79,16 +79,16 @@ export function NewTransactions() {
       }
       return isMatch;
     });
-
+    const matchedTransactions = new Set()
     itemOrderMatch.forEach((order) => {
-      const itemTrans = findTransactionsForMarketOrders(order);
+      const itemTrans = findTransactionsForMarketOrders(order, matchedTransactions);
 
       itemTrans.forEach((trans) => {
         const transJournal = findJournalEntry(trans);
         const transTax = findTransactionTax(trans);
 
         if (!transJournal || !transTax) return;
-
+        matchedTransactions.add(trans.transaction_id)
         returnTransactions.push({
           ...trans,
           description: transJournal.description,

@@ -69,10 +69,10 @@ export function CompactReactionStrutures({ parentUserIndex }) {
           : false,
     });
 
-    const updatedSystemIndex = await findMissingSystemIndex(systemIDValue);
+    const systemIndexResults = await findMissingSystemIndex(systemIDValue);
 
     updateMainUserDoc(newUsersArray);
-    updateSystemIndexData(updatedSystemIndex);
+    updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
     updateUsers(newUsersArray);
     logEvent(analytics, "Add Reaction Structure", {
       UID: newUsersArray[parentUserIndex].accountID,

@@ -15,7 +15,7 @@ import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../../Context/AuthContext";
 import { useCloseActiveJob } from "../../Hooks/JobHooks/useCloseActiveJob";
 import { useNavigate } from "react-router-dom";
-import { useJobManagement } from "../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function LinkedJobBadge({
   activeJob,
@@ -32,7 +32,7 @@ export function LinkedJobBadge({
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const [dialogTrigger, updateDialogTrigger] = useState(false);
   const { closeActiveJob } = useCloseActiveJob();
-  const { Add_RemovePendingParentJobs } = useJobManagement();
+  const { Add_RemovePendingParentJobs } = useHelperFunction();
 
   const navigate = useNavigate();
 

@@ -1,4 +1,4 @@
-  {
+{
   "name": "eve-industry-planner-react",
   "version": "0.7.0",
   "private": true,
@@ -10,9 +10,6 @@
     "@mui/lab": "^5.0.0-alpha.60",
     "@mui/material": "^5.14.7",
     "@mui/x-date-pickers": "^5.0.0-beta.2",
-    "@testing-library/jest-dom": "^5.15.0",
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/user-event": "^12.8.3",
     "buffer": "^6.0.3",
     "css-what": "^5.1.0",
     "date-fns": "^2.28.0",
@@ -33,7 +30,10 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "1.1.1",
-    "vite": "^2.9.15"
+    "vite": "^2.9.15",
+    "@testing-library/jest-dom": "^5.15.0",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/user-event": "^12.8.3"
   },
   "scripts": {
     "start": "vite",

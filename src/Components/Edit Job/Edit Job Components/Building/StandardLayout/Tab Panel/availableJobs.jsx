@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import {
   Avatar,
   Badge,
@@ -10,13 +10,13 @@ import {
 } from "@mui/material";
 import { MdOutlineAddLink } from "react-icons/md";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EveIDsContext } from "../../../../../../Context/EveDataContext";
 import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AvailableJobsTab({
   activeJob,
@@ -28,11 +28,11 @@ export function AvailableJobsTab({
   esiDataToLink,
   updateEsiDataToLink,
 }) {
-  const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { findBlueprintType, timeRemainingCalc } = useJobManagement();
+  const { findUniverseItemObject } = useHelperFunction();
 
   const analytics = getAnalytics();
 
@@ -79,7 +79,7 @@ export function AvailableJobsTab({
             );
             const blueprintType = findBlueprintType(job.blueprint_id);
 
-            const facilityData = eveIDs.find((i) => i.id === job.facility_id);
+            const facilityData = findUniverseItemObject(job.facility_id);
 
             const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
 

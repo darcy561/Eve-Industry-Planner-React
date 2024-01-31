@@ -240,7 +240,7 @@ export function RawResourceList({
       return new Set([...prev, ...generatePriceRequestFromJob(job)]);
     }, new Set());
 
-    const pricePromise = [
+    const itemPricePromise = [
       getItemPrices([...requiredItemPricesSet], parentUser),
     ];
 
@@ -269,20 +269,18 @@ export function RawResourceList({
       newTempChildJobs[typeID] = matchedJob;
     });
 
-    const priceData = (await Promise.all(pricePromise)).flat();
+    const itemPriceResult = await Promise.all(itemPricePromise);
 
     updateTemporaryChildJobs(newTempChildJobs);
     updateParentChildToEdit((prev) => ({
       ...prev,
       childJobs: newParentJobsToEdit_ChildJobs,
     }));
-    updateEvePrices((prev) => {
-      const prevIds = new Set(prev.map((item) => item.typeID));
-      const uniqueNewEvePrices = priceData.filter(
-        (item) => !prevIds.has(item.typeID)
-      );
-      return [...prev, ...uniqueNewEvePrices];
-    });
+
+    updateEvePrices((prev) => ({
+      ...prev,
+      ...itemPriceResult,
+    }));
     setJobModified(true);
   }
 }

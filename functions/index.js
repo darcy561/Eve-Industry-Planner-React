@@ -336,12 +336,13 @@ app.get("/systemindexes/:systemID", async (req, res) => {
     return res.status(400).send("Invalid System ID");
   }
   try {
-    const idData = await admin
+    const idResponse = await admin
       .database()
       .ref(`live-data/system-indexes/${systemID}`)
       .once("value");
 
-    if (!JSON.stringify(idData)) {
+    const idData = idResponse.val();
+    if (!idData) {
       functions.logger.log(`No System Data Found - ${systemID}`);
       res.status(200).send(BuildMissingSystemIndexValue(systemID));
     }
@@ -369,7 +370,6 @@ app.post("/systemindexes", async (req, res) => {
 
     for (let itemReturn of databaseResponses) {
       const itemData = itemReturn.val();
-      functions.logger.log(itemData);
       if (itemData !== null) {
         results[itemData.solar_system_id] = itemData;
       }

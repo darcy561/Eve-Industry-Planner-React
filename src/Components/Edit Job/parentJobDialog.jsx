@@ -13,7 +13,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { JobArrayContext } from "../../Context/JobContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../../Context/AuthContext";
-import { useJobManagement } from "../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ParentJobDialog({
   activeJob,
@@ -28,7 +28,7 @@ export function ParentJobDialog({
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const [matches, updateMatches] = useState([]);
-  const { Add_RemovePendingParentJobs } = useJobManagement();
+  const { Add_RemovePendingParentJobs } = useHelperFunction();
 
   const handleClose = () => {
     updateDialogTrigger(false);

@@ -1,18 +1,17 @@
 import { Grid, Tooltip, Typography } from "@mui/material";
-import { useContext } from "react";
-import { EvePricesContext } from "../../../../../../Context/EveDataContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function CurrentMaterialHeader({
   activeJob,
   marketSelect,
   listingSelect,
 }) {
-  const { evePrices } = useContext(EvePricesContext);
+  const { findItemPriceObject } = useHelperFunction()
 
   const formatedMarketTitle =
     listingSelect.charAt(0).toUpperCase() + listingSelect.slice(1);
 
-  const priceObject = evePrices.find((i) => i.typeID === activeJob.itemID);
+  const priceObject = findItemPriceObject(activeJob.itemID);
 
   const marketPriceObject = priceObject[marketSelect];
 
@@ -121,12 +120,15 @@ export function CurrentMaterialHeader({
         <Grid item md={5} sx={{ marginTop: { xs: "10px", sm: "20px" } }} />
         <Grid item xs={6} md={3} align="center">
           <Typography sx={{ typography: { xs: "body2", sm: "body2" } }}>
-           { `Material ${formatedMarketTitle}`} Price<br/><i>Build Price</i>
+            {`Material ${formatedMarketTitle}`} Price
+            <br />
+            <i>Build Price</i>
           </Typography>
         </Grid>
         <Grid item xs={6} md={4} align="center">
           <Typography sx={{ typography: { xs: "body2", sm: "body2" } }}>
-            Total Material Price <br /><i>Total Build Price</i>
+            Total Material Price <br />
+            <i>Total Build Price</i>
           </Typography>
         </Grid>
       </Grid>

@@ -77,12 +77,12 @@ export function ChildJobPopoverFrame({
           updateFetchError(true);
         }
 
-        const itemPrices = await getItemPrices(
+        const itemPriceResult = await getItemPrices(
           generatePriceRequestFromJob(newJob),
           parentUser
         );
 
-        updateTempPrices((prev) => prev.concat(itemPrices));
+        updateTempPrices((prev) => ({ ...prev, ...itemPriceResult }));
         matchedChildJobs.push(newJob);
       }
 

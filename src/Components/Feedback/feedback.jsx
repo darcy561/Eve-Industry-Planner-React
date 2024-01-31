@@ -34,7 +34,15 @@ export function FeedbackIcon() {
     esiStandings,
     esiBlueprints,
   } = useContext(PersonalESIDataContext);
-  const { corpEsiIndJobs } = useContext(CorpEsiDataContext);
+  const {
+    corpEsiIndJobs,
+    corpEsiOrders,
+    corpEsiHistOrders,
+    corpEsiBlueprints,
+    corpEsiJournal,
+    corpEsiTransactions,
+    corpEsiData,
+  } = useContext(CorpEsiDataContext);
   const [open, setOpen] = useState(false);
   const [inputText, updateInputText] = useState("");
   const [dataDump, updateDataDump] = useState(false);
@@ -43,7 +51,7 @@ export function FeedbackIcon() {
     return users.find((i) => i.ParentUser);
   }, [users]);
 
-  const {PRIMARY_THEME } = GLOBAL_CONFIG
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const handleSubmit = async () => {
     let userData = () => {
@@ -70,6 +78,10 @@ export function FeedbackIcon() {
         corpJobs: Array.from(corpEsiIndJobs.entries()),
       };
     };
+
+    function buildUserObject(userObject) {
+      
+    }
 
     const call = httpsCallable(
       functions,

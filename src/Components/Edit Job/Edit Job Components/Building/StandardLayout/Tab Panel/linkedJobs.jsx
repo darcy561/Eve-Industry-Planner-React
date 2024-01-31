@@ -10,15 +10,12 @@ import {
 } from "@mui/material";
 import { MdOutlineLinkOff } from "react-icons/md";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EveIDsContext } from "../../../../../../Context/EveDataContext";
 import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import {
-  ApiJobsContext
-} from "../../../../../../Context/JobContext";
+import { ApiJobsContext } from "../../../../../../Context/JobContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 
 export function LinkedJobsTab({
@@ -29,7 +26,6 @@ export function LinkedJobsTab({
   esiDataToLink,
   updateEsiDataToLink,
 }) {
-  const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -78,7 +74,7 @@ export function LinkedJobsTab({
             );
             const blueprintType = findBlueprintType(job.blueprint_id);
 
-            const facilityData = eveIDs.find((i) => i.id === job.station_id);
+            const facilityData = findUniverseItemObject(job.station_id);
 
             const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
             return (

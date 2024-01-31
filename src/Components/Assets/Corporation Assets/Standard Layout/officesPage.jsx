@@ -9,21 +9,22 @@ import { AssetEntry_TopLevel_CorporationOffices } from "./AssetFolders/topLevelF
 import { AssetsPage_Loading } from "../../Character Assets/Standard Layout/loadingPage";
 import { useEveApi } from "../../../../Hooks/useEveApi";
 import uuid from "react-uuid";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function OfficesPage_Corporation({ selectedCorporation }) {
   const { corpEsiData, corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const { users } = useContext(UsersContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { updateEveIDs } = useContext(EveIDsContext);
   const [topLevelAssets, updateTopLevelAssets] = useState(null);
   const [assetLocations, updateAssetLocations] = useState(null);
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
   const [characterBlueprintsMap, updateCharacterBlueprintsMap] = useState(null);
   const { buildAssetMapsCorpOffices, sortLocationMapsAlphabetically } =
     useAssetHelperHooks();
+  const { findUniverseItemObject } = useHelperFunction();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
 
   const matchedCorporation = corpEsiData.get(selectedCorporation);
-
 
   useEffect(() => {
     async function buildCorporationAssestsTree() {
@@ -54,7 +55,7 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
 
       const requiredLocationID = [...topLevelAssetLocations.keys()].reduce(
         (prev, locationID) => {
-          const matchedID = eveIDs.find((i) => i.id === locationID);
+          const matchedID = findUniverseItemObject(locationID);
 
           if (!matchedID) {
             prev.add(locationID);
@@ -78,23 +79,13 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
         requiredUserObject
       );
 
-      const newEveIDs = [
-        ...eveIDs.filter(
-          (firstObj) =>
-            !additonalIDObjects.some(
-              (secondObj) => firstObj.id === secondObj.id
-            )
-        ),
-        ...additonalIDObjects,
-      ];
-
       const topLevelAssetLocationsSORTED = sortLocationMapsAlphabetically(
         topLevelAssetLocations,
-        newEveIDs
+        additonalIDObjects
       );
 
-      updateEveIDs(newEveIDs);
-      updateAssetLocationNames(locationNamesMap); 
+      updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
+      updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
       updateAssetLocations(assetsByLocationMap);
       updateCharacterBlueprintsMap(blueprintsMap);
@@ -113,7 +104,7 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
   return (
     <>
       {Array.from(topLevelAssets).map(([locationID, assets], index) => {
-        console.log(assets)
+        console.log(assets);
         let depth = 1;
         return (
           <AssetEntry_TopLevel_CorporationOffices

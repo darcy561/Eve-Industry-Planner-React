@@ -2,12 +2,16 @@ import searchData from "../../RawData/searchIndex.json";
 import { ancientRelicIDs } from "../../Context/defaultValues";
 import { useContext } from "react";
 import { UsersContext } from "../../Context/AuthContext";
-import { CorpEsiDataContext } from "../../Context/EveDataContext";
+import {
+  CorpEsiDataContext,
+  EveIDsContext,
+} from "../../Context/EveDataContext";
 import fullItemList from "../../RawData/fullItemList.json";
 
 export function useAssetHelperHooks() {
   const { users } = useContext(UsersContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
+  const { eveIDs } = useContext(EveIDsContext);
 
   const acceptedDirectLocationTypes = new Set(["station", "solar_system"]);
   const acceptedExtendedLocationTypes = new Set(["item", "other"]);
@@ -297,10 +301,8 @@ export function useAssetHelperHooks() {
   ) {
     return new Map(
       [...inputLocationMap.entries()].sort((a, b) => {
-        const nameA =
-          inputLocationNames.find((id) => id.id === a[0])?.name || "";
-        const nameB =
-          inputLocationNames.find((id) => id.id === b[0])?.name || "";
+        const nameA = inputLocationNames[a]?.name || eveIDs[a]?.name || "";
+        const nameB = inputLocationNames[b]?.name || eveIDs[a]?.name || "";
 
         const noAccessName = "No Access To Location";
 

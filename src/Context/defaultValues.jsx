@@ -455,18 +455,18 @@ export let usersDefault = [
 
 export let apiOrdersDefault = [];
 
-export let eveIDsDefault = [
-  {
+export let eveIDsDefault = {
+  60008494: {
     category: "station",
     id: 60008494,
     name: "Amarr VIII (Oris) - Emperor Family Academy",
   },
-  {
+  10000043: {
     category: "region",
     id: 10000043,
     name: "Domain",
   },
-];
+};
 
 export let listingType = [
   { id: "buy", name: "Buy Orders" },

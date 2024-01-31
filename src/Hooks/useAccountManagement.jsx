@@ -48,13 +48,14 @@ import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import searchData from "../RawData/searchIndex.json";
 import { trace } from "firebase/performance";
 import { fetchSystemIndexes } from "./FetchDataHooks/fetchSystemIndexes";
+import { useBuildCorporationState } from "./Account Management Hools/useBuildCorporationState";
 
 export function useAccountManagement() {
-  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
+   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { updateGroupArray, updateJobArray } = useContext(JobArrayContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { updateEveIDs } = useContext(EveIDsContext);
+  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { setJobStatus } = useContext(JobStatusContext);
   const { updateActiveJob, updateActiveGroup } = useContext(ActiveJobContext);
   const { updateArchivedJobs } = useContext(ArchivedJobsContext);
@@ -128,6 +129,7 @@ export function useAccountManagement() {
     fetchCharacterStandings,
     serverStatus,
   } = useEveApi();
+  const buildCoporationState = useBuildCorporationState()
   const analytics = getAnalytics();
   const navigate = useNavigate();
 
@@ -180,54 +182,38 @@ export function useAccountManagement() {
     });
 
     resultObject.owner = userObject.CharacterHash;
+    resultObject.corporation_id = userObject.corporation_id
 
     return resultObject;
   };
 
   const getLocationNames = async (users, mainUser, esiObjectArray) => {
-    let locationIDS = new Set();
-    let citadelStore = new Set();
-    let existingLocations = new Set();
-    let newIDNamePromises = [];
+    let returnObject = {};
+
+    function checkAndAddLocationID(requestedID, requestSet) {
+      if (!requestedID) return;
+
+      if (!eveIDs[requestedID] && !returnObject[requestedID]) {
+        requestSet.add(requestedID);
+      }
+    }
 
     for (let user of users) {
-      let citadelIDs = new Set();
-      const addLocation = (id) => {
-        if (!existingLocations.has(id)) {
-          locationIDS.add(id);
-        }
-      };
-
-      const addCitadel = (id) => {
-        if (!existingLocations.has(id) && !citadelIDs.has(id)) {
-          citadelIDs.add(id);
-        }
-      };
+      const requestedIDs = new Set();
       let data = esiObjectArray.find((i) => i.owner === user.CharacterHash);
       if (!data) {
         continue;
       }
 
       if (user.ParentUser) {
-        if (user.settings.editJob.defaultAssetLocation.toString().length > 10) {
-          if (!citadelStore.has(user.settings.editJob.defaultAssetLocation)) {
-            citadelStore.add(user.settings.editJob.defaultAssetLocation);
-            addCitadel(user.settings.editJob.defaultAssetLocation);
-          }
-        } else {
-          addLocation(user.settings.editJob.defaultAssetLocation);
-        }
+        checkAndAddLocationID(
+          user.settings.editJob.defaultAssetLocation,
+          requestedIDs
+        );
       }
 
       [...data.esiJobs, ...data.esiCorpJobs].forEach((job) => {
-        if (job.facility_id.toString().length > 10) {
-          if (!citadelStore.has(job.facility_id)) {
-            citadelStore.add(job.facility_id);
-            addCitadel(job.facility_id);
-          }
-        } else {
-          addLocation(job.facility_id);
-        }
+        checkAndAddLocationID(job.facility_id, requestedIDs);
       });
 
       [
@@ -236,42 +222,25 @@ export function useAccountManagement() {
         ...data.esiCorpMOrders,
         ...data.esiCorpHistMOrders,
       ].forEach((order) => {
-        if (order.location_id.toString().length > 10) {
-          if (!citadelStore.has(order.location_id)) {
-            citadelStore.add(order.location_id);
-            addCitadel(order.location_id);
-          }
-        } else {
-          addLocation(order.location_id);
-        }
-        addLocation(order.region_id);
+        checkAndAddLocationID(order.location_id, requestedIDs);
+        checkAndAddLocationID(order.region_id, requestedIDs);
       });
 
       const corporationOfficeLocationObjects = data.esiCorpAssets.filter(
         (i) => i.location_flag === "OfficeFolder"
       );
       corporationOfficeLocationObjects.forEach(({ location_id }) => {
-        if (location_id.toString().length > 10) {
-          if (!citadelStore.has(location_id)) {
-            citadelStore.add(location_id);
-            addCitadel(location_id);
-          }
-        } else {
-          addLocation(location_id);
-        }
+        checkAndAddLocationID(location_id, requestedIDs);
       });
 
-      if ([...citadelIDs].length > 0) {
-        newIDNamePromises.push(fetchUniverseNames([...citadelIDs], user));
-      }
-    }
-    if ([...locationIDS].length > 0) {
-      newIDNamePromises.push(fetchUniverseNames([...locationIDS], mainUser));
+      const newLocationoObjects = await fetchUniverseNames(
+        [...requestedIDs],
+        user
+      );
+      returnObject = { ...returnObject, ...newLocationoObjects };
     }
 
-    const returnLocations = await Promise.all(newIDNamePromises);
-
-    return returnLocations.flat();
+    return returnObject;
   };
 
   const logUserOut = () => {
@@ -621,7 +590,10 @@ export function useAccountManagement() {
     let corpJournal = [];
     let corpTransactions = [];
 
+    console.log(buildCoporationState(esiObjectArray))
+
     for (let esiUser of esiObjectArray) {
+      console.log(esiUser)
       skills.push({
         user: esiUser.owner,
         data: esiUser.esiSkills,
@@ -1007,7 +979,10 @@ export function useAccountManagement() {
       )
     );
 
-    const systemIndexData = await fetchSystemIndexes([...requestIDs]);
+    const systemIndexData = await fetchSystemIndexes(
+      [...requestIDs],
+      userObject
+    );
 
     return systemIndexData;
   };

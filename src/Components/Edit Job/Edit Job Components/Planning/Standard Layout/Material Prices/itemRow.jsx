@@ -1,13 +1,12 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { Grid, Icon, Tooltip, Typography } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import { ChildJobPopoverFrame } from "./Child Job Pop Over/childJobPopoverFrame";
-import { EvePricesContext } from "../../../../../../Context/EveDataContext";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
-import { useGroupManagement } from "../../../../../../Hooks/useGroupManagement";
 import { useMaterialCostCalculations } from "../../../../../../Hooks/GeneralHooks/useMaterialCostCalculations";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 const { PRIMARY_THEME, SECONDARY_THEME } = GLOBAL_CONFIG;
 
@@ -28,13 +27,11 @@ export function MaterialCostRow_MaterialPricePanel({
   updateParentChildToEdit,
 }) {
   const { jobArray } = useContext(JobArrayContext);
-  const { evePrices } = useContext(EvePricesContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
   const { calculateMaterialCostFromChildJobs } = useMaterialCostCalculations();
-  const itemPriceObject = useMemo(
-    () => evePrices.find((i) => i.typeID === material.typeID),
-    [evePrices]
-  );
+  const { findItemPriceObject } = useHelperFunction();
+
+  const itemPriceObject = findItemPriceObject(material.typeID);
   const marketObject = itemPriceObject[marketSelect];
   const currentMaterialPrice = itemPriceObject[marketSelect][listingSelect];
 

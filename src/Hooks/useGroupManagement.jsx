@@ -26,8 +26,8 @@ export function useGroupManagement() {
   const { findJobData } = useFindJobObject();
   const { addNewJob, uploadGroups, uploadUserJobSnapshot, uploadJob } =
     useFirebase();
-  const { buildJob, recalculateItemQty_New } = useJobBuild();
-  const { CalculateResources_New, CalculateTime_New } = useBlueprintCalc();
+  const { buildJob, recalculateItemQty } = useJobBuild();
+  const { calculateResources, calculateTime} = useBlueprintCalc();
 
   function newJobGroupTemplate(
     assignedGroupID,
@@ -466,8 +466,8 @@ export function useGroupManagement() {
           ...new Set(job.parentJob, [...modifiedData.parentJobs]),
         ];
 
-        recalculateItemQty_New(job, modifiedData.itemQty);
-        job.build.materials = CalculateResources_New({
+        recalculateItemQty(job, modifiedData.itemQty);
+        job.build.materials = calculateResources({
           jobType: job.jobType,
           rawMaterials: job.rawData.materials,
           outputMaterials: job.build.materials,
@@ -485,7 +485,7 @@ export function useGroupManagement() {
         job.build.products.quantityPerJob =
           job.rawData.products[0].quantity * job.jobCount;
 
-        job.build.time = CalculateTime_New({
+        job.build.time = calculateTime({
           jobType: job.jobType,
           CharacterHash: job.build.buildChar,
           structureType: job.structureType,

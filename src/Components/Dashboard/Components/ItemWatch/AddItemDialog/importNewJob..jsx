@@ -17,7 +17,7 @@ export function ImportNewJob_WatchlistDialog({
   changeLoadingState,
   updateWatchlistItemRequest,
   watchlistItemToEdit,
-  updateGroupSelect
+  updateGroupSelect,
 }) {
   const { userWatchlist } = useContext(UserWatchlistContext);
   const { updateEvePrices } = useContext(EvePricesContext);
@@ -77,14 +77,11 @@ export function ImportNewJob_WatchlistDialog({
       materialMap[job.itemID] = job;
     }
 
-    const newPriceData = await getItemPrices([...itemPricesSet], parentUser);
-    updateEvePrices((prev) => {
-      const prevIds = new Set(prev.map((item) => item.typeID));
-      const uniqueNewEvePrices = newPriceData.filter(
-        (item) => !prevIds.has(item.typeID)
-      );
-      return [...prev, ...uniqueNewEvePrices];
-    });
+    const itemPriceResult = await getItemPrices([...itemPricesSet], parentUser);
+    updateEvePrices((prev) => ({
+      ...prev,
+      ...itemPriceResult,
+    }));
     updateWatchlistItemRequest(WatchlistItemJob.itemID);
     setMaterialJobs(materialMap);
     updateSaveReady(true);

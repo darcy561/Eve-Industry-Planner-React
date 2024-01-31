@@ -21,7 +21,7 @@ import { DeleteJobIcon } from "./deleteIcon";
 import { LinkedJobBadge } from "./Linked Job Badge";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { useOpenEditJob_New } from "../../Hooks/JobHooks/useOpenEditJob_New";
+import { useOpenEditJob } from "../../Hooks/JobHooks/useOpenEditJob";
 import { LoadingPage } from "../loadingPage";
 import { LayoutSelector_EditJob_Planning } from "./Edit Job Components/Planning/layoutSelector";
 import { LayoutSelector_EditJob_Purchasing } from "./Edit Job Components/Purchasing/layoutSelector";
@@ -58,7 +58,7 @@ export default function EditJob_New() {
     childJobs: {},
   });
   const { deepCopyJobObject } = useJobManagement();
-  const { openEditJob } = useOpenEditJob_New();
+  const { openEditJob } = useOpenEditJob();
   const navigate = useNavigate();
   const { jobID } = useParams();
   let backupJob = useRef(null);

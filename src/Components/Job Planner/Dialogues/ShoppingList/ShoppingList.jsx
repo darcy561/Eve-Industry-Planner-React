@@ -22,7 +22,6 @@ import {
   Typography,
 } from "@mui/material";
 import CopyToClipboard from "react-copy-to-clipboard";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import {
   IsLoggedInContext,
   UsersContext,
@@ -33,6 +32,8 @@ import {
   EvePricesContext,
 } from "../../../../Context/EveDataContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
+import { useShoppingList } from "../../../../Hooks/GeneralHooks/useShoppingList";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ShoppingListDialog() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -45,9 +46,10 @@ export function ShoppingListDialog() {
   } = useContext(ShoppingListContext);
   const { updateEveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
-  const { evePrices, updateEvePrices } = useContext(EvePricesContext);
+  const { updateEvePrices } = useContext(EvePricesContext);
   const { getAssetLocationList } = useCharAssets();
-  const { buildShoppingList } = useJobManagement();
+  const { findItemPriceObject } = useHelperFunction();
+  const { buildShoppingList } = useShoppingList();
   const { findLocationAssets } = useCharAssets();
   const { getItemPrices } = useFirebase();
   const [childJobDisplay, updateChildJobDisplay] = useState(false);
@@ -66,7 +68,7 @@ export function ShoppingListDialog() {
   const [selectedCharacter, updateSelectedCharacter] = useState(
     users.length > 1 ? "all" : parentUser.CharacterHash
   );
-  const [newEveIDs, updateNewEveIDs] = useState([]);
+  const [tempEveIDs, updateTempEveIDs] = useState({});
   const shoppingListValue = useRef(0);
 
   useEffect(() => {
@@ -89,9 +91,7 @@ export function ShoppingListDialog() {
         }
 
         function calcItemPrice(listItem, assetQuantity) {
-          let itemPriceData =
-            evePrices.find((i) => i.typeID === listItem.typeID) ||
-            itemPrices.find((i) => i.typeID === listItem.typeID);
+          let itemPriceData = findItemPriceObject(listItem.typeID, itemPrices);
 
           if (removeAssets) {
             return (
@@ -192,13 +192,10 @@ export function ShoppingListDialog() {
         updateDisplayData(newDisplayData);
         updateVolumeTotal(newVolumeTotal);
         updateCopyText(newCopyText);
-        updateEvePrices((prev) => {
-          const prevIds = new Set(prev.map((item) => item.typeID));
-          const uniqueNewEvePrices = itemPrices.filter(
-            (item) => !prevIds.has(item.typeID)
-          );
-          return [...prev, ...uniqueNewEvePrices];
-        });
+        updateEvePrices((prev) => ({
+          ...prev,
+          ...itemPrices,
+        }));
         updateLoadingData(false);
       }
     }
@@ -214,7 +211,7 @@ export function ShoppingListDialog() {
   useEffect(() => {
     async function assetLocationFetch() {
       let [newAssetList, tempIDs] = await getAssetLocationList();
-      updateNewEveIDs(tempIDs);
+      updateTempEveIDs((prev) => ({ ...prev, ...tempIDs }));
       updateAssetLocations(newAssetList);
     }
     if (shoppingListTrigger) {
@@ -222,17 +219,17 @@ export function ShoppingListDialog() {
     }
   }, [shoppingListTrigger]);
 
-  const handleClose = () => {
+  function handleClose() {
     updateShoppingListData([]);
     updateShoppingListTrigger(false);
     updateChildJobDisplay(false);
     updateRemoveAssets(false);
     updateDisplayData([]);
     updateSelectedLocation(parentUser.settings.editJob.defaultAssetLocation);
-    updateEveIDs(newEveIDs);
+    updateEveIDs((prev) => ({ ...prev, ...tempEveIDs }));
     updateLoadingData(true);
-  };
-  
+  }
+
   return (
     <Dialog
       open={shoppingListTrigger}
@@ -267,9 +264,7 @@ export function ShoppingListDialog() {
                   }}
                 >
                   {assetLocations.map((entry) => {
-                    let locationNameData = newEveIDs.find(
-                      (i) => entry === i.id
-                    );
+                    let locationNameData = tempEveIDs[entry];
 
                     if (
                       locationNameData === undefined ||

@@ -14,76 +14,59 @@ export function useCharAssets() {
     acceptedDirectLocationTypes,
     acceptedExtendedLocationTypes,
     acceptedLocationFlags,
-    retrieveAssetLocation
+    retrieveAssetLocation,
   } = useAssetHelperHooks();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
-
-
   const getAssetLocationList = async () => {
     let itemLocations = [];
-    let newEveIDs = [...eveIDs];
-    let missingStationIDs = new Set();
+    let newEveIDs = {};
+
     for (let user of users) {
-      let missingCitadelIDs = new Set();
+      const missingIDSet = new Set();
       let userAssets = JSON.parse(
         sessionStorage.getItem(`assets_${user.CharacterHash}`)
       );
 
       if (!isLoggedIn) {
-        return [[], []];
+        return [[], {}];
       }
 
       for (let asset of userAssets) {
+        const missingStationIDs = new Set();
         if (acceptedDirectLocationTypes.has(asset.location_type)) {
-          if (!newEveIDs.some((i) => i.id === asset.location_id)) {
-            if (asset.location_id.toString().length > 10) {
-              missingCitadelIDs.add(asset.location_id);
-            } else {
-              missingStationIDs.add(asset.location_id);
-            }
-          }
           if (!itemLocations.some((i) => i === asset.location_id)) {
             itemLocations.push(asset.location_id);
           }
+          checkAndAddLocationID(asset.location_id, missingIDSet);
         }
         if (acceptedExtendedLocationTypes.has(asset.location_type)) {
           let parentLocation = retrieveAssetLocation(asset, userAssets);
           if (parentLocation && parentLocation.location_type !== "other") {
             if (!itemLocations.some((i) => i === parentLocation.location_id)) {
-              if (!newEveIDs.some((i) => i.id === parentLocation.location_id)) {
-                if (parentLocation.location_id.toString().length > 10) {
-                  missingCitadelIDs.add(parentLocation.location_id);
-                } else {
-                  missingStationIDs.add(parentLocation.location_id);
-                }
-              }
-
               itemLocations.push(parentLocation.location_id);
+              checkAndAddLocationID(parentLocation.location_id, missingIDSet);
             }
           }
         }
+        const eveIDResults = await fetchUniverseNames(
+          [...missingStationIDs],
+          user
+        );
+        newEveIDs = { ...newEveIDs, ...eveIDResults };
       }
-      if ([...missingCitadelIDs].length > 0) {
-        let tempCit = await fetchUniverseNames([...missingCitadelIDs], user);
-        newEveIDs = newEveIDs.concat(tempCit);
-      }
-    }
-    if ([...missingStationIDs].length > 0) {
-      let tempStation = await fetchUniverseNames([...missingStationIDs], parentUser);
-      newEveIDs = newEveIDs.concat(tempStation);
     }
 
     for (let item = itemLocations.length - 1; item >= 0; item--) {
-      let itemData = newEveIDs.find((i) => i.id === itemLocations[item]);
+      let itemData = newEveIDs[itemLocations[item]];
       if (itemData === undefined || itemData.name === "No Access To Location") {
         itemLocations.splice(item, 1);
       }
     }
 
     itemLocations.sort((a, b) => {
-      let aName = newEveIDs.find((i) => i.id === a)?.name;
-      let bName = newEveIDs.find((i) => i.id === b)?.name;
+      let aName = newEveIDs[a]?.name;
+      let bName = newEveIDs[b]?.name;
       if (aName < bName) {
         return -1;
       }
@@ -93,88 +76,15 @@ export function useCharAssets() {
       return 0;
     });
 
-    return [itemLocations, newEveIDs];
-  };
+    function checkAndAddLocationID(requestedID, requestSet) {
+      if (!requestedID) return;
 
-  const findItemAssets = async (requestedItemID) => {
-    let filteredAssetList = [];
-    let newEveIDs = [...eveIDs];
-    let missingStationIDs = new Set();
-    let itemLocations = [];
-    for (let user of users) {
-      let missingCitadelIDs = new Set();
-      let userAssets = JSON.parse(
-        sessionStorage.getItem(`assets_${user.CharacterHash}`)
-      );
-      let filteredUserAssetList = userAssets.filter(
-        (entry) => entry.type_id === requestedItemID
-      );
-      for (let item of filteredUserAssetList) {
-        if (acceptedDirectLocationTypes.has(item.location_type)) {
-          if (item.location_id.toString().length > 10) {
-            missingCitadelIDs.add(item.location_id);
-          } else {
-            missingStationIDs.add(item.location_id);
-          }
-          if (itemLocations.some((i) => item.location_id === i.location_id)) {
-            let index = itemLocations.findIndex(
-              (i) => i.location_id === item.location_id
-            );
-            if (index !== -1) {
-              itemLocations[index].itemIDs.push(item.item_id);
-            }
-          } else {
-            itemLocations.push({
-              location_id: item.location_id,
-              itemIDs: [item.item_id],
-            });
-          }
-        }
-        if (acceptedExtendedLocationTypes.has(item.location_type)) {
-          let parentLocation = retrieveAssetLocation(item, userAssets);
-          if (
-            parentLocation &&
-            parentLocation.location_type !== "other" &&
-            item.location_flag !== "Cargo"
-          ) {
-            if (parentLocation.location_id.toString().length > 10) {
-              missingCitadelIDs.add(parentLocation.location_id);
-            } else {
-              missingStationIDs.add(parentLocation.location_id);
-            }
-            if (
-              itemLocations.some(
-                (i) => parentLocation.location_id === i.location_id
-              )
-            ) {
-              let index = itemLocations.findIndex(
-                (i) => i.location_id === parentLocation.location_id
-              );
-              if (index !== -1) {
-                itemLocations[index].itemIDs.push(item.item_id);
-              }
-            } else {
-              itemLocations.push({
-                location_id: parentLocation.location_id,
-                itemIDs: [item.item_id],
-              });
-            }
-          }
-        }
-
-        if ([...missingCitadelIDs].length > 0) {
-          let tempCit = await fetchUniverseNames([...missingCitadelIDs], user);
-          newEveIDs = newEveIDs.concat(tempCit);
-        }
+      if (!eveIDs[requestedID] && !newEveIDs[requestedID]) {
+        requestSet.add(requestedID);
       }
-      filteredAssetList = filteredAssetList.concat(filteredUserAssetList);
     }
 
-    if ([...missingStationIDs].length > 0) {
-      let tempStation = await fetchUniverseNames([...missingStationIDs], parentUser);
-      newEveIDs = newEveIDs.concat(tempStation);
-    }
-    return [filteredAssetList, newEveIDs, itemLocations];
+    return [itemLocations, newEveIDs];
   };
 
   const findLocationAssets = async (requiredLocationID) => {
@@ -220,7 +130,7 @@ export function useCharAssets() {
           if (item.location_id !== requiredLocationID) {
             if (parentLocation.location_id !== requiredLocationID) {
               continue;
-            } 
+            }
           }
           if (
             parentLocation.item_id === item.location_id ||
@@ -252,7 +162,6 @@ export function useCharAssets() {
   };
 
   return {
-    findItemAssets,
     findLocationAssets,
     getAssetLocationList,
     retrieveAssetLocation,

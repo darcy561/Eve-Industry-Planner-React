@@ -1,7 +1,10 @@
 import { getToken } from "firebase/app-check";
 import { appCheck } from "../../firebase";
 
-export async function fetchSystemIndexes(systemIndexInput) {
+export async function fetchSystemIndexes(
+  systemIndexInput,
+  requestingUserObject
+) {
   let URL = `${import.meta.env.VITE_APIURL}/systemindexes`;
   const isInputArray = Array.isArray(systemIndexInput);
   const appCheckToken = await getToken(appCheck, true);
@@ -10,7 +13,7 @@ export async function fetchSystemIndexes(systemIndexInput) {
     URL += `/${systemIndexInput}`;
   }
 
-  if (!systemIndexInput || systemIndexInput === 0) {
+  if (!systemIndexInput || systemIndexInput.length === 0) {
     return {};
   }
 
@@ -19,7 +22,7 @@ export async function fetchSystemIndexes(systemIndexInput) {
     headers: {
       "Content-Type": "application/json",
       "X-Firebase-AppCheck": appCheckToken.token,
-      //   accountID: parentUser.accountID,
+      accountID: requestingUserObject?.accountID || null,
       appVersion: __APP_VERSION__,
     },
     body: isInputArray

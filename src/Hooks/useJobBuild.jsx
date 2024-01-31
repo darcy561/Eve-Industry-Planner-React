@@ -28,7 +28,7 @@ export function useJobBuild() {
   const { updateDialogData } = useContext(DialogDataContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
-  const { CalculateTime_New, CalculateResources_New } = useBlueprintCalc();
+  const { calculateTime, calculateResources } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
   const parentUser = useMemo(() => {
@@ -311,17 +311,7 @@ export function useJobBuild() {
     }
   };
 
-  const recalculateItemQty = (job, itemQty) => {
-    job.jobCount = Math.ceil(
-      itemQty / (job.maxProductionLimit * job.rawData.products[0].quantity)
-    );
-    job.runCount = Math.ceil(
-      itemQty / job.rawData.products[0].quantity / job.jobCount
-    );
-    return job;
-  };
-
-  function recalculateItemQty_New(
+  function recalculateItemQty(
     maxProductionLimit,
     baseQuantity,
     itemQuantityRequired
@@ -367,13 +357,13 @@ export function useJobBuild() {
       buildRequestObject?.itemQty ||
       inputJobObject.rawData.products[0].quantity;
 
-    const { ME, TE } = addItemBlueprint_New(
+    const { ME, TE } = addItemBlueprint(
       inputJobObject.jobType,
       inputJobObject.blueprintTypeID
     );
-    const structureData = addDefaultStructure_New(inputJobObject.jobType);
+    const structureData = addDefaultStructure(inputJobObject.jobType);
 
-    const setupQuantities = recalculateItemQty_New(
+    const setupQuantities = recalculateItemQty(
       inputJobObject.maxProductionLimit,
       inputJobObject.rawData.products[0].quantity,
       requiredQuantity
@@ -400,11 +390,11 @@ export function useJobBuild() {
           rawQuantity: material.quantity,
         };
       });
-      setupLocation[nextObject.id].estimatedTime = CalculateTime_New(
+      setupLocation[nextObject.id].estimatedTime = calculateTime(
         setupLocation[nextObject.id],
         inputJobObject.skills
       );
-      setupLocation[nextObject.id].materialCount = CalculateResources_New(
+      setupLocation[nextObject.id].materialCount = calculateResources(
         setupLocation[nextObject.id]
       );
       setupLocation[nextObject.id].estimatedInstallCost =
@@ -443,7 +433,7 @@ export function useJobBuild() {
     };
   }
 
-  function addItemBlueprint_New(inputJobType, blueprintTypeID) {
+  function addItemBlueprint(inputJobType, blueprintTypeID) {
     const defaultReturn = { ME: 0, TE: 0 };
 
     if (inputJobType !== jobTypes.manufacturing || !isLoggedIn) {
@@ -474,7 +464,7 @@ export function useJobBuild() {
     };
   }
 
-  function addDefaultStructure_New(inputJobType) {
+  function addDefaultStructure(inputJobType) {
     const typeMap = {
       [jobTypes.manufacturing]: "manufacturing",
       [jobTypes.reaction]: "reaction",
@@ -542,14 +532,13 @@ export function useJobBuild() {
   }
 
   return {
-    addDefaultStructure_New,
-    addItemBlueprint_New,
+    addDefaultStructure,
+    addItemBlueprint,
     buildJob,
     buildNewSetupObject,
     calculateJobMaterialQuantities,
     checkAllowBuild,
     jobBuildErrors,
     recalculateItemQty,
-    recalculateItemQty_New,
   };
 }

@@ -140,7 +140,7 @@ export const EveESIStatus = (props) => {
 export const EvePricesContext = createContext();
 
 export const EvePrices = (props) => {
-  const [evePrices, updateEvePrices] = useState([]);
+  const [evePrices, updateEvePrices] = useState({});
 
   return (
     <EvePricesContext.Provider value={{ evePrices, updateEvePrices }}>

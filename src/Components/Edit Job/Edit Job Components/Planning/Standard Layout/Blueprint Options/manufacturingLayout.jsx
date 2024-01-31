@@ -24,10 +24,6 @@ export function ManufacturingLayout_BlueprintPanel({
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const [blueprintOptions, updateBlueprintOptions] = useState([]);
   const [esiJobSelection, updateESIJobSelection] = useState([]);
-  const { CalculateResources_New, CalculateTime_New } = useBlueprintCalc();
-
-  let totalBPOCount = 0;
-  let totalBPCCount = 0;
 
   useEffect(() => {
     const combinedBlueprints = [

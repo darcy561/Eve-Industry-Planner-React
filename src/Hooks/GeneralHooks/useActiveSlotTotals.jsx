@@ -8,15 +8,16 @@ export function useActiveSlotTotals() {
   const { esiIndJobs, esiSkills } = useContext(PersonalESIDataContext);
   const { corpEsiIndJobs } = useContext(CorpEsiDataContext);
 
-  const calculateActiveSlotsMultiple = () => {
+  function calculateActiveSlotsMultiple() {
     let returnArray = [];
     for (let user of users) {
-      returnArray.push(calculateActiveSlotsSingle(user.CharacterHash));
+      returnArray.push(calculateActiveSlotsSingle(user));
     }
     return returnArray;
-  };
+  }
 
-  const calculateActiveSlotsSingle = (CharacterHash) => {
+  function calculateActiveSlotsSingle(user) {
+    const { CharacterHash, CharacterID } = user;
     const slots = {
       manufacturing: { total: 1, active: 0 },
       reaction: { total: 1, active: 0 },
@@ -27,7 +28,9 @@ export function useActiveSlotTotals() {
     const userIndJobs =
       esiIndJobs.find((i) => i.user === CharacterHash)?.data || [];
     const userCorpIndJobs =
-      corpEsiIndJobs.get(CharacterHash)?.data || [];
+      corpEsiIndJobs
+        .get(CharacterHash)
+        .filter((i) => i.installer_id === CharacterID) || [];
     const userSkills =
       esiSkills.find((i) => i.user === CharacterHash)?.data || [];
 
@@ -74,7 +77,7 @@ export function useActiveSlotTotals() {
       scienceSlots: slots.science.total,
       corpJobsPresent: corpJobsPresent,
     };
-  };
+  }
 
   return {
     calculateActiveSlotsSingle,

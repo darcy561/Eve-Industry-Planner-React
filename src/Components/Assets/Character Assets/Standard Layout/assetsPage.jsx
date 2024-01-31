@@ -8,10 +8,11 @@ import {
 } from "../../../../Context/EveDataContext";
 import { AssetEntry_TopLevel } from "./AssetFolders/topLevelFolder";
 import { AssetsPage_Loading } from "./loadingPage";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AssetsPage_Character({ selectedCharacter }) {
   const { users } = useContext(UsersContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const {updateEveIDs } = useContext(EveIDsContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const [topLevelAssets, updateTopLevelAssets] = useState(null);
   const [assetLocations, updateAssetLocations] = useState(null);
@@ -20,6 +21,7 @@ export function AssetsPage_Character({ selectedCharacter }) {
   const { buildAssetMaps, sortLocationMapsAlphabetically } =
     useAssetHelperHooks();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
+  const { findUniverseItemObject } = useHelperFunction();
 
   useEffect(() => {
     async function buildCharacterAssetsTree() {
@@ -46,7 +48,7 @@ export function AssetsPage_Character({ selectedCharacter }) {
 
       const requiredLocationID = [...topLevelAssetLocations.keys()].reduce(
         (prev, locationID) => {
-          const matchedID = eveIDs.find((i) => i.id === locationID);
+          const matchedID = findUniverseItemObject(locationID);
 
           if (!matchedID) {
             prev.add(locationID);
@@ -71,22 +73,12 @@ export function AssetsPage_Character({ selectedCharacter }) {
         requiredUserObject
       );
 
-      const newEveIDs = [
-        ...eveIDs.filter(
-          (firstObj) =>
-            !additonalIDObjects.some(
-              (secondObj) => firstObj.id === secondObj.id
-            )
-        ),
-        ...additonalIDObjects,
-      ];
-
       const topLevelAssetLocationsSORTED = sortLocationMapsAlphabetically(
         topLevelAssetLocations,
-        newEveIDs
+        additonalIDObjects
       );
 
-      updateEveIDs(newEveIDs);
+      updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
       updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
       updateAssetLocations(assetsByLocationMap);

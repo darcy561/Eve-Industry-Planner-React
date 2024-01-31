@@ -12,11 +12,11 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import {
   CorpEsiDataContext,
-  EveIDsContext,
   PersonalESIDataContext,
 } from "../../../../../../Context/EveDataContext";
 import { UsersContext } from "../../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function LinkedMarketOrdersTab({
   activeJob,
@@ -28,12 +28,12 @@ export function LinkedMarketOrdersTab({
   esiDataToLink,
   updateEsiDataToLink,
 }) {
-  const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { esiOrders, esiHistOrders } = useContext(PersonalESIDataContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const [linkedMarketOrders, updateLinkedMarketOrders] = useState([]);
+  const { findUniverseItemObject } = useHelperFunction();
 
   useEffect(() => {
     const newLinkedMarketOrders = activeJob.build.sale.marketOrders.map(
@@ -109,7 +109,8 @@ export function LinkedMarketOrdersTab({
           const charData = users.find(
             (i) => i.CharacterHash === order.CharacterHash
           );
-          const locationData = eveIDs.find((i) => i.id === order.location_id);
+          const locationData = findUniverseItemObject(order.location_id);
+          console.log(locationData)
           const corpData = corpEsiData.get(charData?.corporation_id);
           return (
             <Grid

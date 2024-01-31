@@ -14,7 +14,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { UserJobSnapshotContext } from "../../../../../../Context/AuthContext";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ChildJobDialogue({
   activeJob,
@@ -30,7 +30,7 @@ export function ChildJobDialogue({
   const { jobArray } = useContext(JobArrayContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { Add_RemovePendingChildJobs } = useJobManagement();
+  const { Add_RemovePendingChildJobs } = useHelperFunction();
 
   const materialChildJobs = [
     ...activeJob.build.childJobs[material.typeID],

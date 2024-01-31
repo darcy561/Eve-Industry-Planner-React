@@ -33,7 +33,9 @@ export function useOpenGroup() {
     }
     updateDataExchange((prev) => !prev);
 
-    let pricePromise = [getItemPrices(requestedGroup.materialIDs, parentUser)];
+    const itemPriceRequest = [
+      getItemPrices(requestedGroup.materialIDs, parentUser),
+    ];
     updateLoadingText((prevObj) => ({
       ...prevObj,
       jobData: true,
@@ -54,7 +56,7 @@ export function useOpenGroup() {
       jobDataComp: true,
     }));
 
-    let returnPrices = await Promise.all(pricePromise);
+    const itemPriceResult = await Promise.all(itemPriceRequest);
     updateLoadingText((prevObj) => ({
       ...prevObj,
       jobData: true,
@@ -62,14 +64,10 @@ export function useOpenGroup() {
       priceData: true,
       priceDataComp: true,
     }));
-    updateEvePrices((prev) => {
-      const prevIds = new Set(prev.map((item) => item.typeID));
-      const uniqueNewEvePrices = returnPrices[0].filter(
-        (item) => !prevIds.has(item.typeID)
-      );
-      return [...prev, ...uniqueNewEvePrices];
-    });
-
+    updateEvePrices((prev) => ({
+      ...prev,
+      ...itemPriceResult,
+    }));
     updateActiveGroup(inputGroupID);
     updateJobArray(newJobArray);
     updateDataExchange((prev) => !prev);

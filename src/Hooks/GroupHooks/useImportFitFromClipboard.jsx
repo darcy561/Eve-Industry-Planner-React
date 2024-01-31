@@ -161,17 +161,14 @@ export function useImportFitFromClipboard() {
       newJobArray
     );
 
-    const itemPriceData = await Promise.all(itemPriceRequest);
+    const itemPriceResult = await Promise.all(itemPriceRequest);
 
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
-    updateEvePrices((prev) => {
-      const prevIds = new Set(prev.map((item) => item.typeID));
-      const uniqueNewEvePrices = itemPriceData[0].filter(
-        (item) => !prevIds.has(item.typeID)
-      );
-      return [...prev, ...uniqueNewEvePrices];
-    });
+    updateEvePrices((prev) => ({
+      ...prev,
+      ...itemPriceResult,
+    }));
     if (isLoggedIn) {
       jobsToSave.forEach((id) => {
         let matchedJob = newJobArray.find((i) => i.jobID === id);

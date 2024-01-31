@@ -1,15 +1,10 @@
 import { Grid, IconButton, Typography, useMediaQuery } from "@mui/material";
-import { useContext, useState } from "react";
-import {
-  CorpEsiDataContext,
-  EveIDsContext,
-} from "../../../../../Context/EveDataContext";
-import { AssetEntry_Selector } from "../../../Character Assets/Standard Layout/AssetFolders/displaySelector";
-// import fullItemList from "../../../../../RawData/fullItemList.json";
+import { useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import uuid from "react-uuid";
 import { AssetEntry_CorpOffices } from "./officesParentFolder";
+import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AssetEntry_TopLevel_CorporationOffices({
   locationID,
@@ -21,11 +16,11 @@ export function AssetEntry_TopLevel_CorporationOffices({
   matchedCorporation,
   depth,
 }) {
-  const { eveIDs } = useContext(EveIDsContext);
   const [expanded, updateExpanded] = useState(false);
+  const { findUniverseItemObject } = useHelperFunction();
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
   const itemLocationName =
-    eveIDs.find((i) => locationID === i.id)?.name || "Unkown Location";
+    findUniverseItemObject(locationID)?.name || "Unkown Location";
 
   function toggleClick() {
     updateExpanded((prev) => !prev);

@@ -9,6 +9,7 @@ import { useEveApi } from "../../../../Hooks/useEveApi";
 import { AssetsPage_Loading } from "../../Character Assets/Standard Layout/loadingPage";
 import { AssetEntry_TopLevel } from "../../Character Assets/Standard Layout/AssetFolders/topLevelFolder";
 import uuid from "react-uuid";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AssetLocationFlagPage_Corporation({
   selectedCorporation,
@@ -22,6 +23,7 @@ export function AssetLocationFlagPage_Corporation({
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
   const { buildAssetLocationFlagMaps, sortLocationMapsAlphabetically } =
     useAssetHelperHooks();
+  const { findUniverseItemObject } = useHelperFunction();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
 
   const matchedCorporation = corpEsiData.get(selectedCorporation);
@@ -42,7 +44,7 @@ export function AssetLocationFlagPage_Corporation({
 
       const requiredLocationID = [...topLevelAssetLocations.keys()].reduce(
         (prev, locationID) => {
-          const matchedID = eveIDs.find((i) => i.id === locationID);
+          const matchedID = findUniverseItemObject(locationID);
 
           if (!matchedID) {
             prev.add(locationID);
@@ -67,22 +69,12 @@ export function AssetLocationFlagPage_Corporation({
         requiredUserObject
       );
 
-      const newEveIDs = [
-        ...eveIDs.filter(
-          (firstObj) =>
-            !additonalIDObjects.some(
-              (secondObj) => firstObj.id === secondObj.id
-            )
-        ),
-        ...additonalIDObjects,
-      ];
-
       const topLevelAssetLocationsSORTED = sortLocationMapsAlphabetically(
         topLevelAssetLocations,
-        newEveIDs
+        additonalIDObjects
       );
 
-      updateEveIDs(newEveIDs);
+      updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
       updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
       updateAssetLocations(assetsByLocationMap);

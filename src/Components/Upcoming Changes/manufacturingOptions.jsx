@@ -22,7 +22,7 @@ export function ManufacturingOptionsUpcomingChanges({
   updateSisiItem,
   itemLoad,
 }) {
-  const { CalculateResources, CalculateTime } = useBlueprintCalc();
+  const { calculateResources, calculateTime } = useBlueprintCalc();
   const [runValue, updateRunValue] = useState(1);
   const [jobValue, updateJobValue] = useState(1);
   const [meValue, updateMEValue] = useState(0);
@@ -70,7 +70,7 @@ export function ManufacturingOptionsUpcomingChanges({
       systemType: systemValue,
       build: {
         ...prev.build,
-        materials: CalculateResources({
+        materials: calculateResources({
           jobType: prev.jobType,
           rawMaterials: prev.rawData.materials,
           outputMaterials: prev.build.materials,
@@ -87,7 +87,7 @@ export function ManufacturingOptionsUpcomingChanges({
             prev.rawData.products[0].quantity * runValue * jobValue,
           quantityPerJob: prev.rawData.products[0].quantity * jobValue,
         },
-        time: CalculateTime({
+        time: calculateTime({
           jobType: prev.jobType,
           CharacterHash: prev.build.buildChar,
           structureType: structType,
@@ -110,7 +110,7 @@ export function ManufacturingOptionsUpcomingChanges({
       systemType: systemValue,
       build: {
         ...prev.build,
-        materials: CalculateResources({
+        materials: calculateResources({
           jobType: prev.jobType,
           rawMaterials: prev.rawData.materials,
           outputMaterials: prev.build.materials,
@@ -127,7 +127,7 @@ export function ManufacturingOptionsUpcomingChanges({
             prev.rawData.products[0].quantity * runValue * jobValue,
           quantityPerJob: prev.rawData.products[0].quantity * jobValue,
         },
-        time: CalculateTime({
+        time: calculateTime({
           jobType: prev.jobType,
           CharacterHash: prev.build.buildChar,
           structureType: structType,

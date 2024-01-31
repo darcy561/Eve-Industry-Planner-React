@@ -19,10 +19,11 @@ import { useCharAssets } from "../../../../Hooks/useCharAssets";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ClassicEditJobSettings({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { updateEveIDs } = useContext(EveIDsContext);
   const { getAssetLocationList } = useCharAssets();
   const { updateMainUserDoc } = useFirebase();
   const [marketSelect, updateMarketSelect] = useState(
@@ -36,6 +37,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
     users[parentUserIndex].settings.editJob.defaultAssetLocation
   );
   const [assetLocationEntries, updateAssetLocationEntries] = useState([]);
+  const { findUniverseItemObject } = useHelperFunction();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
       updateDataLoading(true);
       let [newAssetList, newEveIDs] = await getAssetLocationList();
       updateAssetLocationEntries(newAssetList);
-      updateEveIDs(newEveIDs);
+      updateEveIDs((prev) => ({ ...prev, ...newEveIDs }));
       updateDataLoading((prev) => !prev);
     }
     getAsset();
@@ -186,7 +188,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
                   }}
                 >
                   {assetLocationEntries.map((entry) => {
-                    let locationNameData = eveIDs.find((i) => entry === i.id);
+                    let locationNameData = findUniverseItemObject(entry);
 
                     if (
                       locationNameData === undefined ||

@@ -1,10 +1,9 @@
 import { Grid, Typography } from "@mui/material";
-import { useContext } from "react";
-import { EvePricesContext } from "../../../../../../Context/EveDataContext";
 import { useMaterialCostCalculations } from "../../../../../../Hooks/GeneralHooks/useMaterialCostCalculations";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 import { MaterialTotalsWithMarketPrices_MaterialPrices } from "./Material Totals/withMarketPrices";
 import { MaterialTotalsWithChildJobs_MaterialPrices } from "./Material Totals/withChildJobs";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function MaterialTotals_MaterialPricesPanel({
   activeJob,
@@ -13,9 +12,9 @@ export function MaterialTotals_MaterialPricesPanel({
   temporaryChildJobs,
   parentChildToEdit,
 }) {
-  const { evePrices } = useContext(EvePricesContext);
   const { calculateMaterialCostFromChildJobs } = useMaterialCostCalculations();
   const { findAllChildJobCountOrIDs } = useJobManagement();
+  const { findItemPriceObject } = useHelperFunction();
 
   const totalInstallCosts = Object.values(activeJob.build.setup).reduce(
     (prev, setup) => {
@@ -26,7 +25,7 @@ export function MaterialTotals_MaterialPricesPanel({
 
   const totalMaterialCost = activeJob.build.materials.reduce(
     (prev, { typeID, quantity }) => {
-      const materialPriceObject = evePrices.find((i) => i.typeID === typeID);
+      const materialPriceObject = findItemPriceObject(typeID);
       if (!materialPriceObject) return prev;
       const currentMaterialPrice =
         materialPriceObject[marketSelect][listingSelect];
@@ -54,9 +53,8 @@ export function MaterialTotals_MaterialPricesPanel({
   }, 0);
 
   const totalMarketPrice =
-    evePrices.find((i) => i.typeID === activeJob.itemID)?.[marketSelect][
-      listingSelect
-    ] * activeJob.build.products.totalQuantity || 0;
+    findItemPriceObject(activeJob.itemID)?.[marketSelect][listingSelect] *
+      activeJob.build.products.totalQuantity || 0;
 
   const { childJobCount } = findAllChildJobCountOrIDs(
     activeJob.build.childJobs,

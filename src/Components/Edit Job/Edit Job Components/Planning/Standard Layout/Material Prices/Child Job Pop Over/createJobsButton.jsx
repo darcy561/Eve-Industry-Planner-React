@@ -38,13 +38,10 @@ export function CreateChildJobButton_ChildJobPopoverFrame({
           ...prev,
           [childJobObjects[jobDisplay].itemID]: childJobObjects[jobDisplay],
         }));
-        updateEvePrices((prev) => {
-          const prevIds = new Set(prev.map((item) => item.typeID));
-          const uniqueNewEvePrices = tempPrices.filter(
-            (item) => !prevIds.has(item.typeID)
-          );
-          return [...prev, ...uniqueNewEvePrices];
-        });
+        updateEvePrices((prev) => ({
+          ...prev,
+          ...tempPrices,
+        }));
         setJobModified(true);
       }}
     >

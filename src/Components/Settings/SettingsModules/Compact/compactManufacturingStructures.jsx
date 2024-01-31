@@ -28,7 +28,7 @@ import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import uuid from "react-uuid";
 import systemIDS from "../../../../RawData/systems.json";
 import GLOBAL_CONFIG from "../../../../global-config-app";
-import { useMissingSystemIndex } from "../../../../Hooks/GeneralHooks/useImportMissingSystemIndexData";
+import { useSystemIndexFunctions } from "../../../../Hooks/GeneralHooks/useSystemIndexFunctions";
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
 
 export function CompactManufacturingStrutures({ parentUserIndex }) {
@@ -47,7 +47,7 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
   const [rigsValue, updateRigsValue] = useState(structureOptions.manRigs[0].id);
   const [taxValue, updateTaxValue] = useState(null);
   const [systemIDValue, updateSystemIDValue] = useState(null);
-  const { findMissingSystemIndex } = useMissingSystemIndex();
+  const { findMissingSystemIndex } = useSystemIndexFunctions();
   const analytics = getAnalytics();
   const {PRIMARY_THEME} = GLOBAL_CONFIG
 
@@ -70,10 +70,10 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
           : false,
     });
 
-    const updatedSystemIndex = await findMissingSystemIndex(systemIDValue);
+    const systemIndexResults = await findMissingSystemIndex(systemIDValue);
 
     updateMainUserDoc(newUsersArray);
-    updateSystemIndexData(updatedSystemIndex);
+    updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
     updateUsers(newUsersArray);
     logEvent(analytics, "Add Manufacturing Structure", {
       UID: newUsersArray[parentUserIndex].accountID,

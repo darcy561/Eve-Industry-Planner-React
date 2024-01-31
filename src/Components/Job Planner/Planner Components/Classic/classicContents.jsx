@@ -13,6 +13,7 @@ import { JobCardFrame } from "./ClassicJobCardFrame";
 import { ApiJobCardSorter } from "./ClassicApiJobCardSorter";
 import { ClassicGroupJobCard } from "./ClassicGroupJobCard";
 import { UserLoginUIContext } from "../../../../Context/LayoutContext";
+import uuid from "react-uuid";
 
 export function ClassicAccordionContents({ status }) {
   const { users } = useContext(UsersContext);
@@ -44,14 +45,14 @@ export function ClassicAccordionContents({ status }) {
       <Grid container direction="row" item xs={12} spacing={2}>
         {groupArray.map((group) => {
           if (group.groupStatus === status.id) {
-            return <ClassicGroupJobCard key={group.groupID} group={group} />;
+            return <ClassicGroupJobCard key={uuid()} group={group} />;
           } else {
             return null;
           }
         })}
         {userJobSnapshot.map((job) => {
           if (job.jobStatus === status.id) {
-            return <JobCardFrame key={job.jobID} job={job} />;
+            return <JobCardFrame key={uuid()} job={job} />;
           } else {
             return null;
           }
@@ -64,7 +65,7 @@ export function ClassicAccordionContents({ status }) {
               !linkedJobIDs.includes(j.job_id) &&
               j.status === "active"
             ) {
-              return <ApiJobCardSorter key={j.job_id} job={j} />;
+              return <ApiJobCardSorter key={uuid()} job={j} />;
             } else {
               return null;
             }
@@ -77,7 +78,7 @@ export function ClassicAccordionContents({ status }) {
               !linkedJobIDs.includes(j.job_id) &&
               j.status === "delivered"
             ) {
-              return <ApiJobCardSorter key={j.job_id} job={j} />;
+              return <ApiJobCardSorter key={uuid()} job={j} />;
             } else {
               return null;
             }

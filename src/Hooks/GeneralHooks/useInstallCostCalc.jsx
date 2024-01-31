@@ -1,17 +1,14 @@
 import { useContext } from "react";
-import {
-  EvePricesContext,
-  SystemIndexContext,
-} from "../../Context/EveDataContext";
+import { SystemIndexContext } from "../../Context/EveDataContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { UsersContext } from "../../Context/AuthContext";
 import { structureOptions } from "../../Context/defaultValues";
-import { useMissingSystemIndex } from "./useImportMissingSystemIndexData";
+import { useHelperFunction } from "./useHelperFunctions";
 
 export function useInstallCostsCalc() {
   const { systemIndexData } = useContext(SystemIndexContext);
-  const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
+  const { findItemPriceObject } = useHelperFunction();
 
   const jobTypeMapping = {
     [jobTypes.manufacturing]: "manufacturing",
@@ -124,10 +121,10 @@ export function useInstallCostsCalc() {
       pricesArray = [];
     }
 
-    const mergedPriceArray = [...pricesArray, ...evePrices];
-    const adjustedPrice =
-      mergedPriceArray.find((i) => i.typeID === materialTypeID)
-        ?.adjustedPrice || 0;
+    const adjustedPrice = findItemPriceObject(
+      materialTypeID,
+      pricesArray
+    )?.adjustedPrice;
 
     return materialQuantity * adjustedPrice;
   }

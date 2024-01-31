@@ -17,6 +17,7 @@ import { CharacterSelector_AssetDialog } from "./characterSelector";
 import { CorporationSelector_AssetDialog } from "./corporationSelector";
 import { NoAssetsFound_AssetsDialog } from "./noAssetsFound";
 import { UseCorporationSelector_AssetsDialog } from "./useCoporation";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AssetDialogue({
   material,
@@ -26,7 +27,6 @@ export function AssetDialogue({
   const { users } = useContext(UsersContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const [loadingAssets, setLoadingAssets] = useState(false);
-
   const [useCorporationAssets, setUseCorporationAssets] = useState(false);
   const [topLevelAssets, setTopLevelAssets] = useState(null);
   const [assetsByLocation, setAssetsByLocation] = useState(null);
@@ -38,6 +38,7 @@ export function AssetDialogue({
     selectRequiredUser,
     sortLocationMapsAlphabetically,
   } = useAssetHelperHooks();
+  const { findUniverseItemObject } = useHelperFunction();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
   const parentUser = useMemo(() => {
     return users.find((i) => i.ParentUser);
@@ -73,7 +74,7 @@ export function AssetDialogue({
 
         const requiredLocationID = [...topLevelAssetLocations.keys()].reduce(
           (prev, locationID) => {
-            const matchedID = eveIDs.find((i) => i.id === locationID);
+            const matchedID = findUniverseItemObject(locationID);
 
             if (!matchedID) {
               prev.add(locationID);
@@ -98,25 +99,15 @@ export function AssetDialogue({
           requiredUserObject
         );
 
-        const newEveIDs = [
-          ...eveIDs.filter(
-            (firstObj) =>
-              !additonalIDObjects.some(
-                (secondObj) => firstObj.id === secondObj.id
-              )
-          ),
-          ...additonalIDObjects,
-        ];
-
         const topLevelAssetLocationsSORTED = sortLocationMapsAlphabetically(
           topLevelAssetLocations,
-          newEveIDs
+          additonalIDObjects
         );
 
         setTopLevelAssets(topLevelAssetLocationsSORTED);
         setAssetsByLocation(assetsByLocationMap);
         updateAssetLocationNames(locationNamesMap);
-        updateTempEveIDs(newEveIDs);
+        updateTempEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
         setLoadingAssets(false);
       }
     }

@@ -1,7 +1,6 @@
 import { Grid, IconButton, Typography, useMediaQuery } from "@mui/material";
 import { AssetEntry_Selector } from "./displaySelector";
-import { useContext, useState } from "react";
-import { EveIDsContext } from "../../../../../Context/EveDataContext";
+import { useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import fullItemList from "../../../../../RawData/fullItemList.json";
@@ -16,11 +15,11 @@ export function AssetEntry_TopLevel({
   characterBlueprintsMap,
   depth,
 }) {
-  const { eveIDs } = useContext(EveIDsContext);
   const [expanded, updateExpanded] = useState(false);
+  const { findUniverseItemObject } = useHelperFunction();
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
   const itemLocationName =
-    eveIDs.find((i) => locationID === i.id)?.name || "Unkown Location";
+    findUniverseItemObject(locationID)?.name || "Unkown Location";
 
   function toggleClick() {
     updateExpanded((prev) => !prev);

@@ -12,7 +12,8 @@ import {
 } from "../../../../../../Context/AuthContext";
 import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import { useNavigate } from "react-router-dom";
 
 export function ArchiveJobButton({ activeJob }) {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -27,6 +28,7 @@ export function ArchiveJobButton({ activeJob }) {
     useFirebase();
   const { deleteJobSnapshot } = useJobSnapshotManagement();
   const analytics = getAnalytics();
+  const navigate = useNavigate();
 
   const archiveJobProcess = async () => {
     const parentUserIndex = users.findIndex((i) => i.ParentUser);
@@ -65,7 +67,7 @@ export function ArchiveJobButton({ activeJob }) {
     await removeJob(activeJob);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateMainUserDoc();
-    updateEditJobTrigger((prev) => !prev);
+    navigate("/jobplanner");
   };
 
   if (!isLoggedIn || activeGroup) {

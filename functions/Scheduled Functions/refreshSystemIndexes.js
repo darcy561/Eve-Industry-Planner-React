@@ -47,7 +47,7 @@ exports.scheduledFunction = functions
           .set(updates);
       }
 
-      functions.logger.info("System Indexes Data Updated Successfully");
+      functions.logger.info("System Index Data Updated Successfully");
 
       return null;
     } catch (err) {

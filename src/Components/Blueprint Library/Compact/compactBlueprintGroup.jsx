@@ -124,7 +124,7 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
                       return;
                     }
 
-                    let promiseArray = [
+                    const itemPricePromise = [
                       getItemPrices(
                         generatePriceRequestFromJob(newJob),
                         parentUser
@@ -142,15 +142,12 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
                       name: newJob.name,
                       itemID: newJob.itemID,
                     });
-                    let returnPromiseArray = await Promise.all(promiseArray);
+                    const itemPriceResult = await Promise.all(itemPricePromise);
                     updateUserJobSnapshot(newUserJobSnapshot);
-                    updateEvePrices((prev) => {
-                      const prevIds = new Set(prev.map((item) => item.typeID));
-                      const uniqueNewEvePrices = returnPromiseArray[0].filter(
-                        (item) => !prevIds.has(item.typeID)
-                      );
-                      return [...prev, ...uniqueNewEvePrices];
-                    });
+                    updateEvePrices((prev) => ({
+                      ...prev,
+                      ...itemPriceResult,
+                    }));
                     updateJobArray((prev) => [...prev, newJob]);
                     setSnackbarData((prev) => ({
                       ...prev,

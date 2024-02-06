@@ -28,7 +28,10 @@ export function ManufacturingLayout_BlueprintPanel({
   useEffect(() => {
     const combinedBlueprints = [
       ...esiBlueprints.flatMap((entry) => entry?.data ?? []),
-      ...corpEsiBlueprints.flatMap((entry) => entry?.data ?? []),
+      ...Array.from(corpEsiBlueprints.values())
+        .filter((obj) => Object.keys(obj).length > 0)
+        .map(Object.values)
+        .reduce((acc, val) => acc.concat(val), []),
     ];
 
     let filteredBlueprints = combinedBlueprints.filter(

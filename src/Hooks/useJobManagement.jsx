@@ -697,7 +697,10 @@ export function useJobManagement() {
 
     let blueprintData = [
       ...esiBlueprints.flatMap((entry) => entry.data),
-      ...corpEsiBlueprints.flatMap((entry) => entry.data),
+      ...Array.from(corpEsiBlueprints.values())
+        .filter((obj) => Object.keys(obj).length > 0)
+        .map(Object.values)
+        .reduce((acc, val) => acc.concat(val), []),
     ].find((i) => i.item_id === blueprintID);
 
     if (!blueprintData) {

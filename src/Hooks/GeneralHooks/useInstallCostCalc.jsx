@@ -22,7 +22,7 @@ export function useInstallCostsCalc() {
 
   const DEFAULT_STATION_TAX =
     structureTypeMap[jobTypes.manufacturing].defaultTax;
-  const SCC_SURCHARGE = 1.5;
+  const SCC_SURCHARGE = 4.0 / 100;
   const ALPHA_CLONE_TAX = 0.25;
 
   function calculateInstallCostFromJob(
@@ -62,7 +62,7 @@ export function useInstallCostsCalc() {
       estimatedItemValue *
       (systemIndexValue * facilityModifier +
         facilityTax +
-        SCC_SURCHARGE / 100 +
+        SCC_SURCHARGE +
         cloneValue);
 
     const systemIndexDeduction = Math.ceil(

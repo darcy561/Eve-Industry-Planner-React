@@ -61,11 +61,17 @@ export function NewTransactions() {
       (job) => job.jobStatus === jobStatus[jobStatus.length - 1].sortOrder
     );
 
+    const combinedCorpData = [corpEsiOrders, corpEsiHistOrders]
+      .map((map) => Array.from(map.values()))
+      .flat()
+      .filter((obj) => Object.keys(obj).length > 0)
+      .map(Object.values)
+      .reduce((acc, val) => acc.concat(val), []);
+
     const combinedESIData = [
       ...esiOrders.flatMap((entry) => entry?.data ?? []),
       ...esiHistOrders.flatMap((entry) => entry?.data ?? []),
-      ...corpEsiOrders.flatMap((entry) => entry?.data ?? []),
-      ...corpEsiHistOrders.flatMap((entry) => entry?.data ?? []),
+      ...combinedCorpData,
     ];
 
     const itemOrderMatch = combinedESIData.filter((order) => {
@@ -79,16 +85,19 @@ export function NewTransactions() {
       }
       return isMatch;
     });
-    const matchedTransactions = new Set()
+    const matchedTransactions = new Set();
     itemOrderMatch.forEach((order) => {
-      const itemTrans = findTransactionsForMarketOrders(order, matchedTransactions);
+      const itemTrans = findTransactionsForMarketOrders(
+        order,
+        matchedTransactions
+      );
 
       itemTrans.forEach((trans) => {
         const transJournal = findJournalEntry(trans);
         const transTax = findTransactionTax(trans);
 
         if (!transJournal || !transTax) return;
-        matchedTransactions.add(trans.transaction_id)
+        matchedTransactions.add(trans.transaction_id);
         returnTransactions.push({
           ...trans,
           description: transJournal.description,
@@ -128,7 +137,15 @@ export function NewTransactions() {
                 New Job Transactions
               </Typography>
             </Grid>
-            <Grid container item xs={12} sx={{overflowY:"auto", maxHeight:{xs:"320px", md:"750px"}}}>
+            <Grid
+              container
+              item
+              xs={12}
+              sx={{
+                overflowY: "auto",
+                maxHeight: { xs: "320px", md: "750px" },
+              }}
+            >
               {transactionData.map((trans) => {
                 let itemName = itemData.find((i) => i.itemID === trans.type_id);
                 if (itemName === undefined) return null;

@@ -17,7 +17,7 @@ export function useActiveSlotTotals() {
   }
 
   function calculateActiveSlotsSingle(user) {
-    const { CharacterHash, CharacterID } = user;
+    const { CharacterHash, CharacterID, corporation_id } = user;
     const slots = {
       manufacturing: { total: 1, active: 0 },
       reaction: { total: 1, active: 0 },
@@ -28,9 +28,9 @@ export function useActiveSlotTotals() {
     const userIndJobs =
       esiIndJobs.find((i) => i.user === CharacterHash)?.data || [];
     const userCorpIndJobs =
-      corpEsiIndJobs
-        .get(CharacterHash)
-        .filter((i) => i.installer_id === CharacterID) || [];
+      Object.entries(corpEsiIndJobs.get(corporation_id))
+        .filter(([jobId, job]) => job.installer_id === CharacterID)
+        .map(([jobId, job]) => job) || [];
     const userSkills =
       esiSkills.find((i) => i.user === CharacterHash)?.data || [];
 

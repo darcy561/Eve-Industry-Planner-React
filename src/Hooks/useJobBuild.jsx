@@ -169,7 +169,7 @@ export function useJobBuild() {
       if (Array.isArray(buildRequest)) {
         let returnArray = [];
         if (buildRequest.length === 0) return returnArray;
-        
+
         let buildRequestIDs = new Set();
         for (let request of buildRequest) {
           buildRequestIDs.add(request.itemID);
@@ -442,7 +442,10 @@ export function useJobBuild() {
 
     const filteredBlueprints = [
       ...esiBlueprints.flatMap((entry) => entry?.data ?? []),
-      ...corpEsiBlueprints.flatMap((entry) => entry?.data ?? []),
+      ...Array.from(corpEsiBlueprints.values())
+        .filter((obj) => Object.keys(obj).length > 0)
+        .map(Object.values)
+        .reduce((acc, val) => acc.concat(val), []),
     ].filter((entry) => {
       return entry.type_id === blueprintTypeID;
     });

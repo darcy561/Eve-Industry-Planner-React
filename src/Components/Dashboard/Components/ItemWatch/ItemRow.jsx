@@ -167,8 +167,6 @@ export function WatchListRow({
     };
   }, [evePrices]);
 
-  console.log(item);
-
   const calculatedCosts = buildCosts();
 
   return (

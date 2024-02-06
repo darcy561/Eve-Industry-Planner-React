@@ -32,13 +32,10 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
         (i) => i.corporation_id === selectedCorporation
       );
 
-      const corporationBlueprints =
-        corpEsiBlueprints.find(
-          (i) => i.user === requiredUserObject.CharacterHash
-        )?.data || [];
-
       const blueprintsMap = new Map(
-        corporationBlueprints.map((i) => [i.item_id, i])
+        Object.entries(
+          corpEsiBlueprints.get(requiredUserObject.corporation_id) || {}
+        )
       );
 
       const assetsJSON = JSON.parse(

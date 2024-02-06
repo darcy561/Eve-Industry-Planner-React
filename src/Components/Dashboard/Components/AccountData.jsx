@@ -54,7 +54,7 @@ export function AccountData() {
       newIndJobs += entry.data.length;
     });
     for (const [, value] of corpEsiIndJobs) {
-      newIndJobs += value.length;
+      newIndJobs += Object.keys(value).length
     }
     esiOrders.forEach((entry) => {
       newOpenMOrders += entry.data.length;

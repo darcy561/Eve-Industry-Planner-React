@@ -1,7 +1,3 @@
-import { buildCorporatioHistoricnMarketOrders_AccountManagement } from "./Build Corporation State/buildCorporationHistoricMarketOrders";
-import { buildCorporationIndustyJobs_AccountManagement } from "./Build Corporation State/buildCorporationIndustryJobs";
-import { buildCorporationMarketOrders_AccountManagement } from "./Build Corporation State/buildCorporationMarketOrders";
-
 export function useBuildCorporationState() {
   function buildCorporationState(esiObjectArray) {
     const groupedByCorporation = new Map();
@@ -16,11 +12,64 @@ export function useBuildCorporationState() {
       }
     });
 
-    const corpIndustyJobs =
-      buildCorporationIndustyJobs_AccountManagement(groupedByCorporation);
-    const corpMarketOrders = buildCorporationMarketOrders_AccountManagement(groupedByCorporation)
-    const corpHistoricMarketOrders = buildCorporatioHistoricnMarketOrders_AccountManagement(groupedByCorporation)
-    return { corpIndustyJobs, corpMarketOrders, corpHistoricMarketOrders };
+    const corpIndustyJobs = organiseCorporationData(
+      groupedByCorporation,
+      "esiCorpJobs",
+      "job_id"
+    );
+    const corpMarketOrders = organiseCorporationData(
+      groupedByCorporation,
+      "esiCorpMOrders",
+      "order_id"
+    );
+    const corpHistoricMarketOrders = organiseCorporationData(
+      groupedByCorporation,
+      "esiCorpHistMOrders",
+      "order_id"
+    );
+    const corpBlueprints = organiseCorporationData(
+      groupedByCorporation,
+      "esiCorpBlueprints",
+      "item_id"
+    );
+
+    return {
+      corpIndustyJobs,
+      corpMarketOrders,
+      corpHistoricMarketOrders,
+      corpBlueprints,
+    };
+  }
+
+  function organiseCorporationData(
+    corporationMap,
+    requiredAttribute,
+    keyValue
+  ) {
+    const returnMap = new Map();
+
+    corporationMap.forEach((userObjectArray, corporation_id) => {
+      const includedCorporationData = {};
+      userObjectArray.forEach((userObject) => {
+        const data = userObject[requiredAttribute];
+        if (!Array.isArray(data)) return;
+        data.forEach((item) => {
+          if (includedCorporationData[item[keyValue]]) {
+            includedCorporationData[item[keyValue]].owner.push(
+              userObject.owner
+            );
+          } else {
+            includedCorporationData[item[keyValue]] = item;
+            includedCorporationData[item[keyValue]].owner = [
+              userObject.owner,
+            ];
+          }
+        });
+      });
+      returnMap.set(corporation_id, includedCorporationData);
+    });
+
+    return returnMap;
   }
 
   return buildCorporationState;

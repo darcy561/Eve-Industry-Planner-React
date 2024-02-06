@@ -49,47 +49,27 @@ export function ReactionLayout_BlueprintOptions({ activeJob }) {
     });
 
     // Process corporation blueprints
-    corpEsiBlueprints.forEach((corpBlueprint) => {
-      const existingCorp = corpBlueprints.find(
-        (corp) => corp.corporation_id === corp.corporation_id
-      );
-      if (existingCorp) {
-        existingCorp.blueprints = [
-          ...existingCorp.blueprints,
-          ...corpBlueprint.data.filter(
-            (i) => i.type_id === activeJob.blueprintTypeID
-          ),
-        ];
-        existingCorp.totalBP +
-          existingCorp.blueprints.reduce(
-            (total, i) => (i.quantity > 0 ? total + i.quantity : total + 1),
-            0
-          );
-        existingCorp.inUse += esiJobSelection.filter(
-          (job) =>
-            corpBlueprint.data.some((i) => i.item_id === job.blueprint_id) &&
-            job.status === "active"
-        ).length;
-      } else {
-        const temp = corpBlueprint.data.filter(
-          (i) => i.type_id === activeJob.blueprintTypeID
-        );
+    corpEsiBlueprints.forEach((blueprintObjects, corporation_id) => {
+      const bluepringObjectsArray = Object.values(blueprintObjects);
 
-        corpBlueprints.push({
-          corporation_id: temp[0]?.corporation_id,
-          blueprints: temp,
-          totalBP: temp.reduce(
-            (total, i) => (i.quantity >= 0 ? total + i.quantity : total + 1),
-            0
-          ),
-          inUse: esiJobSelection.filter(
-            (job) =>
-              temp.some((i) => i.item_id === job.blueprint_id) &&
-              job.status === "active"
-          ).length,
-          isCorp: true,
-        });
-      }
+      const matchedBlueprints = bluepringObjectsArray.filter(
+        (i) => i.type_id === activeJob.blueprintTypeID
+      );
+
+      corpBlueprints.push({
+        corporation_id: corporation_id,
+        blueprints: matchedBlueprints,
+        totalBP: matchedBlueprints.reduce(
+          (total, i) => (i.quantity >= 0 ? total + i.quantity : total + 1),
+          0
+        ),
+        inUse: esiJobSelection.filter(
+          (job) =>
+            matchedBlueprints.some((i) => i.item_id === job.blueprint_id) &&
+            job.status === "active"
+        ).length,
+        isCorp: true,
+      });
     });
 
     // Combine and sort blueprints

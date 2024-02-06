@@ -37,7 +37,10 @@ export default function BlueprintLibrary() {
   useEffect(() => {
     const tempArray = [
       ...esiBlueprints.flatMap((entry) => entry.data),
-      ...corpEsiBlueprints.flatMap((entry) => entry.data),
+      ...Array.from(corpEsiBlueprints.values())
+        .filter((obj) => Object.keys(obj).length > 0)
+        .map(Object.values)
+        .reduce((acc, val) => acc.concat(val), []),
     ];
     const idArray = [...new Set(tempArray.map((bp) => bp.type_id))];
 

@@ -49,6 +49,8 @@ import searchData from "../RawData/searchIndex.json";
 import { trace } from "firebase/performance";
 import { fetchSystemIndexes } from "./FetchDataHooks/fetchSystemIndexes";
 import { useBuildCorporationState } from "./Account Management Hools/useBuildCorporationState";
+import { useRemoveCorporatinState } from "./Account Management Hools/useRemoveCorporationState";
+import { useUpdateCorporationState } from "./Account Management Hools/useUpdteCorporationState";
 
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -130,6 +132,8 @@ export function useAccountManagement() {
     serverStatus,
   } = useEveApi();
   const buildCoporationState = useBuildCorporationState();
+  const removeCharacterFromCorporationState = useRemoveCorporatinState();
+  const updateCharacterDataInCorporationState = useUpdateCorporationState();
   const analytics = getAnalytics();
   const navigate = useNavigate();
 
@@ -635,8 +639,12 @@ export function useAccountManagement() {
         data: esiUser.esiCorpTransactions,
       });
     }
-    const { corpIndustyJobs, corpMarketOrders, corpHistoricMarketOrders, corpBlueprints } =
-      buildCoporationState(esiObjectArray);
+    const {
+      corpIndustyJobs,
+      corpMarketOrders,
+      corpHistoricMarketOrders,
+      corpBlueprints,
+    } = buildCoporationState(esiObjectArray);
     updateEsiIndJobs(jobs);
     updateEsiSkills(skills);
     updateEsiOrders(orders);
@@ -737,8 +745,18 @@ export function useAccountManagement() {
         data: esiUser.esiTransactions,
       });
     }
-    const { corpIndustyJobs, corpMarketOrders, corpHistoricMarketOrder, corpBlueprintss } =
-      buildCoporationState(esiObjectArray);
+    const {
+      corpIndustyJobs,
+      corpMarketOrders,
+      corpHistoricMarketOrder,
+      corpBlueprintss,
+    } = updateCharacterDataInCorporationState(
+      esiObjectArray[0],
+      corpEsiIndJobs,
+      corpEsiOrders,
+      corpEsiHistOrders,
+      corpEsiBlueprints
+    );
 
     updateEsiIndJobs(newEsiIndJobs);
     updateEsiSkills(newEsiSkills);
@@ -750,8 +768,8 @@ export function useAccountManagement() {
     updateEsiStandings(newEsiStandings);
     updateCorpEsiIndJobs(corpIndustyJobs);
     updateCorpEsiOrders(corpMarketOrders);
-    updateCorpEsiHistOrders(corpHistoricMarketOrders);
-    updateCorpEsiBlueprints(corpBlueprints);
+    updateCorpEsiHistOrders(corpHistoricMarketOrder);
+    updateCorpEsiBlueprints(corpBlueprintss);
     updateCorpEsiJournal(newCorpEsiJournal);
     updateCorpEsiTransactions(newCorpESiTransactions);
   };
@@ -776,17 +794,22 @@ export function useAccountManagement() {
     newEsiJournal = newEsiJournal.filter((i) => i.user !== userHash);
     newEsiTransactions = newEsiTransactions.filter((i) => i.user !== userHash);
     newEsiStandings = newEsiStandings.filter((i) => i.user !== userHash);
-    const newCorpEsiIndJobs = new Map(
-      [...corpEsiIndJobs].filter(([key]) => key !== userHash)
+
+    const corporationIndustryJobs = removeCharacterFromCorporationState(
+      userHash,
+      corpEsiIndJobs
     );
-    const newCorpEsiOrders = new Map(
-      [...corpEsiOrders].filter(([key]) => key !== userHash)
+    const corpotationMarketOrders = removeCharacterFromCorporationState(
+      userHash,
+      corpEsiOrders
     );
-    const newCorpEsiHistMOrders = new Map(
-      [...corpEsiHistOrders].filter(([key]) => key !== userHash)
+    const corporationHistoricOrders = removeCharacterFromCorporationState(
+      userHash,
+      corpEsiHistOrders
     );
-    const newCorpEsiBlueprints = new Map(
-      [...corpEsiBlueprints].filter(([key]) => key !== userHash)
+    const corporationBlueprints = removeCharacterFromCorporationState(
+      userHash,
+      corpEsiBlueprints
     );
 
     newCorpEsiJournal = newCorpEsiJournal.filter((i) => i.user !== userHash);
@@ -795,7 +818,7 @@ export function useAccountManagement() {
     );
 
     sessionStorage.removeItem(`assets_${userHash}`);
-
+console.log(corporationBlueprints)
     updateEsiIndJobs(newEsiIndJobs);
     updateEsiSkills(newEsiSkills);
     updateEsiOrders(newEsiOrders);
@@ -804,10 +827,10 @@ export function useAccountManagement() {
     updateEsiJournal(newEsiJournal);
     updateEsiTransactions(newEsiTransactions);
     updateEsiStandings(newEsiStandings);
-    updateCorpEsiIndJobs(newCorpEsiIndJobs);
-    updateCorpEsiOrders(newCorpEsiOrders);
-    updateCorpEsiHistOrders(newCorpEsiHistMOrders);
-    updateCorpEsiBlueprints(newCorpEsiBlueprints);
+    updateCorpEsiIndJobs(corporationIndustryJobs);
+    updateCorpEsiOrders(corpotationMarketOrders);
+    updateCorpEsiHistOrders(corporationHistoricOrders);
+    updateCorpEsiBlueprints(corporationBlueprints);
     updateCorpEsiJournal(newCorpEsiJournal);
     updateCorpEsiTransactions(newCorpESiTransactions);
   };

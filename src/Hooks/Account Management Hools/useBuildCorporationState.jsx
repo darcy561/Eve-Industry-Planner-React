@@ -44,7 +44,7 @@ export function useBuildCorporationState() {
   function organiseCorporationData(
     corporationMap,
     requiredAttribute,
-    keyValue
+    key
   ) {
     const returnMap = new Map();
 
@@ -54,13 +54,13 @@ export function useBuildCorporationState() {
         const data = userObject[requiredAttribute];
         if (!Array.isArray(data)) return;
         data.forEach((item) => {
-          if (includedCorporationData[item[keyValue]]) {
-            includedCorporationData[item[keyValue]].owner.push(
+          if (includedCorporationData[item[key]]) {
+            includedCorporationData[item[key]].owners.push(
               userObject.owner
             );
           } else {
-            includedCorporationData[item[keyValue]] = item;
-            includedCorporationData[item[keyValue]].owner = [
+            includedCorporationData[item[key]] = item;
+            includedCorporationData[item[key]].owners = [
               userObject.owner,
             ];
           }

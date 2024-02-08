@@ -28,7 +28,7 @@ import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import systemIDS from "../../../../RawData/systems.json";
 import uuid from "react-uuid";
 import GLOBAL_CONFIG from "../../../../global-config-app";
-import { useMissingSystemIndex } from "../../../../Hooks/GeneralHooks/useImportMissingSystemIndexData";
+import { useSystemIndexFunctions } from "../../../../Hooks/GeneralHooks/useSystemIndexFunctions";
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
 
 export function CompactReactionStrutures({ parentUserIndex }) {
@@ -48,7 +48,7 @@ export function CompactReactionStrutures({ parentUserIndex }) {
   );
   const [taxValue, updateTaxValue] = useState("");
   const [systemIDValue, updateSystemIDValue] = useState("");
-  const { findMissingSystemIndex } = useMissingSystemIndex();
+  const { findMissingSystemIndex } = useSystemIndexFunctions();
   const analytics = getAnalytics();
   const {PRIMARY_THEME} = GLOBAL_CONFIG
 

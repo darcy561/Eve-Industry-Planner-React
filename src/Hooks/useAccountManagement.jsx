@@ -48,9 +48,9 @@ import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import searchData from "../RawData/searchIndex.json";
 import { trace } from "firebase/performance";
 import { fetchSystemIndexes } from "./FetchDataHooks/fetchSystemIndexes";
-import { useBuildCorporationState } from "./Account Management Hools/useBuildCorporationState";
-import { useRemoveCorporatinState } from "./Account Management Hools/useRemoveCorporationState";
-import { useUpdateCorporationState } from "./Account Management Hools/useUpdteCorporationState";
+import { useBuildCorporationState } from "./Account Management Hooks/Corporation State/useBuildCorporationState";
+import { useRemoveCorporatinState } from "./Account Management Hooks/Corporation State/useRemoveCorporationState";
+import { useUpdateCorporationState } from "./Account Management Hooks/Corporation State/useUpdateCorporationState";
 
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -590,10 +590,7 @@ export function useAccountManagement() {
     let corpJournal = [];
     let corpTransactions = [];
 
-    console.log(buildCoporationState(esiObjectArray));
-
     for (let esiUser of esiObjectArray) {
-      console.log(esiUser);
       skills.push({
         user: esiUser.owner,
         data: esiUser.esiSkills,
@@ -748,10 +745,10 @@ export function useAccountManagement() {
     const {
       corpIndustyJobs,
       corpMarketOrders,
-      corpHistoricMarketOrder,
-      corpBlueprintss,
+      corpHistoricMarketOrders,
+      corpBlueprints,
     } = updateCharacterDataInCorporationState(
-      esiObjectArray[0],
+      esiObjectArray,
       corpEsiIndJobs,
       corpEsiOrders,
       corpEsiHistOrders,
@@ -768,13 +765,14 @@ export function useAccountManagement() {
     updateEsiStandings(newEsiStandings);
     updateCorpEsiIndJobs(corpIndustyJobs);
     updateCorpEsiOrders(corpMarketOrders);
-    updateCorpEsiHistOrders(corpHistoricMarketOrder);
-    updateCorpEsiBlueprints(corpBlueprintss);
+    updateCorpEsiHistOrders(corpHistoricMarketOrders);
+    updateCorpEsiBlueprints(corpBlueprints);
     updateCorpEsiJournal(newCorpEsiJournal);
     updateCorpEsiTransactions(newCorpESiTransactions);
   };
 
-  const removeUserEsiData = (userHash) => {
+  const removeUserEsiData = (userObject) => {
+    const { CharacterHash } = userObject;
     let newEsiIndJobs = [...esiIndJobs];
     let newEsiSkills = [...esiSkills];
     let newEsiOrders = [...esiOrders];
@@ -786,39 +784,38 @@ export function useAccountManagement() {
     let newCorpEsiJournal = [...corpEsiJournal];
     let newCorpESiTransactions = [...corpEsiTransactions];
 
-    newEsiIndJobs = newEsiIndJobs.filter((i) => i.user !== userHash);
-    newEsiSkills = newEsiSkills.filter((i) => i.user !== userHash);
-    newEsiOrders = newEsiOrders.filter((i) => i.user !== userHash);
-    newEsiHistOrders = newEsiHistOrders.filter((i) => i.user !== userHash);
-    newEsiBlueprints = newEsiBlueprints.filter((i) => i.user !== userHash);
-    newEsiJournal = newEsiJournal.filter((i) => i.user !== userHash);
-    newEsiTransactions = newEsiTransactions.filter((i) => i.user !== userHash);
-    newEsiStandings = newEsiStandings.filter((i) => i.user !== userHash);
+    newEsiIndJobs = newEsiIndJobs.filter((i) => i.user !== CharacterHash);
+    newEsiSkills = newEsiSkills.filter((i) => i.user !== CharacterHash);
+    newEsiOrders = newEsiOrders.filter((i) => i.user !== CharacterHash);
+    newEsiHistOrders = newEsiHistOrders.filter((i) => i.user !== CharacterHash);
+    newEsiBlueprints = newEsiBlueprints.filter((i) => i.user !== CharacterHash);
+    newEsiJournal = newEsiJournal.filter((i) => i.user !== CharacterHash);
+    newEsiTransactions = newEsiTransactions.filter(
+      (i) => i.user !== CharacterHash
+    );
+    newEsiStandings = newEsiStandings.filter((i) => i.user !== CharacterHash);
+    newCorpEsiJournal = newCorpEsiJournal.filter(
+      (i) => i.user !== CharacterHash
+    );
+    newCorpESiTransactions = newCorpESiTransactions.filter(
+      (i) => i.user !== CharacterHash
+    );
 
-    const corporationIndustryJobs = removeCharacterFromCorporationState(
-      userHash,
-      corpEsiIndJobs
-    );
-    const corpotationMarketOrders = removeCharacterFromCorporationState(
-      userHash,
-      corpEsiOrders
-    );
-    const corporationHistoricOrders = removeCharacterFromCorporationState(
-      userHash,
-      corpEsiHistOrders
-    );
-    const corporationBlueprints = removeCharacterFromCorporationState(
-      userHash,
+    sessionStorage.removeItem(`assets_${CharacterHash}`);
+
+    const {
+      corporationIndustryJobs,
+      corpotationMarketOrders,
+      corporationHistoricOrders,
+      corporationBlueprints,
+    } = removeCharacterFromCorporationState(
+      userObject,
+      corpEsiIndJobs,
+      corpEsiOrders,
+      corpEsiHistOrders,
       corpEsiBlueprints
     );
 
-    newCorpEsiJournal = newCorpEsiJournal.filter((i) => i.user !== userHash);
-    newCorpESiTransactions = newCorpESiTransactions.filter(
-      (i) => i.user !== userHash
-    );
-
-    sessionStorage.removeItem(`assets_${userHash}`);
-console.log(corporationBlueprints)
     updateEsiIndJobs(newEsiIndJobs);
     updateEsiSkills(newEsiSkills);
     updateEsiOrders(newEsiOrders);

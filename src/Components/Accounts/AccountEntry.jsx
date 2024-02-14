@@ -133,7 +133,7 @@ export function AccountEntry({ user, parentUserIndex }) {
     }
 
     newUsers = newUsers.filter((i) => i.CharacterHash !== user.CharacterHash);
-    removeUserEsiData(user.CharacterHash);
+    removeUserEsiData(user);
     await checkUserClaims(newUsers);
     updateUsers(newUsers);
     updateApiJobs(newApiArray);

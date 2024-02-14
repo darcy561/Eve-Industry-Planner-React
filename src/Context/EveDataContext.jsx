@@ -65,9 +65,9 @@ export const CorpEsiDataContext = createContext();
 
 export const CorpEsiData = (props) => {
   const [corpEsiIndJobs, updateCorpEsiIndJobs] = useState(new Map());
-  const [corpEsiOrders, updateCorpEsiOrders] = useState([]);
-  const [corpEsiHistOrders, updateCorpEsiHistOrders] = useState([]);
-  const [corpEsiBlueprints, updateCorpEsiBlueprints] = useState([]);
+  const [corpEsiOrders, updateCorpEsiOrders] = useState(new Map());
+  const [corpEsiHistOrders, updateCorpEsiHistOrders] = useState(new Map());
+  const [corpEsiBlueprints, updateCorpEsiBlueprints] = useState(new Map());
   const [corpEsiJournal, updateCorpEsiJournal] = useState([]);
   const [corpEsiTransactions, updateCorpEsiTransactions] = useState([]);
   const [corpEsiData, updateCorpEsiData] = useState(new Map());

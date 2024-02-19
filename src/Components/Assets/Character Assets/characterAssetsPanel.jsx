@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { TabContext, TabPanel } from "@mui/lab";
 import { Grid, Tab, Tabs, useMediaQuery } from "@mui/material";
 import { AssetLocationFlagPage_Character } from "./Standard Layout/assetLocationFlagPage";
@@ -48,14 +48,20 @@ export function CharacterAssetsPanel({ parentUser }) {
             value="Deliveries"
             sx={{ paddingRight: 0, paddingLeft: 0 }}
           >
-            <AssetLocationFlagPage_Character selectedCharacter={selectedCharacter} assetLocationFlagRequest={"Deliveries"} />
+            <AssetLocationFlagPage_Character
+              selectedCharacter={selectedCharacter}
+              assetLocationFlagRequest={"Deliveries"}
+            />
           </TabPanel>
           <TabPanel
             key={uuid()}
             value="Asset Safety"
             sx={{ paddingRight: 0, paddingLeft: 0 }}
           >
-            <AssetLocationFlagPage_Character selectedCharacter={selectedCharacter} assetLocationFlagRequest={"AssetSafety"} />
+            <AssetLocationFlagPage_Character
+              selectedCharacter={selectedCharacter}
+              assetLocationFlagRequest={"AssetSafety"}
+            />
           </TabPanel>
         </TabContext>
       </Grid>

@@ -32,11 +32,14 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
         (i) => i.corporation_id === selectedCorporation
       );
 
-      const blueprintsMap = new Map(
-        Object.entries(
-          corpEsiBlueprints.get(requiredUserObject.corporation_id) || {}
-        )
-      );
+      const corporationBlueprints = new Map();
+
+      for (const [key, value] of Object.entries(
+        corpEsiBlueprints.get(selectedCorporation)
+      )) {
+        const numericKey = Number(key);
+        corporationBlueprints.set(numericKey, value);
+      }
 
       const assetsJSON = JSON.parse(
         sessionStorage.getItem(
@@ -75,7 +78,6 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
         [...requiredLocationID],
         requiredUserObject
       );
-
       const topLevelAssetLocationsSORTED = sortLocationMapsAlphabetically(
         topLevelAssetLocations,
         additonalIDObjects
@@ -85,7 +87,7 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
       updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
       updateAssetLocations(assetsByLocationMap);
-      updateCharacterBlueprintsMap(blueprintsMap);
+      updateCharacterBlueprintsMap(corporationBlueprints);
     }
     buildCorporationAssestsTree();
   }, []);
@@ -101,7 +103,6 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
   return (
     <>
       {Array.from(topLevelAssets).map(([locationID, assets], index) => {
-        console.log(assets);
         let depth = 1;
         return (
           <AssetEntry_TopLevel_CorporationOffices

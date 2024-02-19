@@ -16,6 +16,7 @@ import { useFirebase } from "../../Hooks/useFirebase";
 import { AccountEntry } from "./AccountEntry";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
+import { useCorporationObject } from "../../Hooks/Account Management Hooks/Corporation Objects/useCorporationObject";
 
 export function AdditionalAccounts({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
@@ -30,6 +31,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
     updateUserEsiData,
   } = useAccountManagement();
   const [skeletonVisible, toggleSkeleton] = useState(false);
+  const { updateCorporationObject } = useCorporationObject();
   const analytics = getAnalytics();
   let newUser = null;
 
@@ -122,6 +124,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
           }
         }
         updateUserEsiData(esiObjectsArray);
+        updateCorporationObject(esiObjectsArray);
         newApiArray = updateApiArray(
           newApiArray,
           newUserArray,

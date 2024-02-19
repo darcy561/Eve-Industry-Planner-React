@@ -53,7 +53,7 @@ export function FeedbackIcon() {
 
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  const handleSubmit = async () => {
+  async function handleSubmit(){
     let userData = () => {
       let allAssets = () => {
         let assetArray = [];

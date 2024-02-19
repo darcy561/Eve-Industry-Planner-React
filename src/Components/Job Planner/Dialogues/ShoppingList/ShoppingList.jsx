@@ -210,9 +210,9 @@ export function ShoppingListDialog() {
   ]);
   useEffect(() => {
     async function assetLocationFetch() {
-      let [newAssetList, tempIDs] = await getAssetLocationList();
-      updateTempEveIDs((prev) => ({ ...prev, ...tempIDs }));
-      updateAssetLocations(newAssetList);
+      const { itemLocations, newEveIDs } = await getAssetLocationList();
+      updateTempEveIDs((prev) => ({ ...prev, ...newEveIDs }));
+      updateAssetLocations(itemLocations);
     }
     if (shoppingListTrigger) {
       assetLocationFetch();

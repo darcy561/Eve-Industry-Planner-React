@@ -1,6 +1,10 @@
 import { useContext, useMemo } from "react";
 import { JobArrayContext } from "../../Context/JobContext";
-import { UserJobSnapshotContext, UsersContext } from "../../Context/AuthContext";
+import {
+  IsLoggedInContext,
+  UserJobSnapshotContext,
+  UsersContext,
+} from "../../Context/AuthContext";
 import { useFindJobObject } from "./useFindJobObject";
 import { logEvent } from "firebase/analytics";
 import { analytics } from "../../firebase";
@@ -8,6 +12,7 @@ import { analytics } from "../../firebase";
 export function useShoppingList() {
   const { users } = useContext(UsersContext);
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );

@@ -18,7 +18,7 @@ export function useCharAssets() {
   } = useAssetHelperHooks();
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
 
-  const getAssetLocationList = async () => {
+  async function getAssetLocationList() {
     let itemLocations = [];
     let newEveIDs = {};
 
@@ -31,9 +31,7 @@ export function useCharAssets() {
       if (!isLoggedIn) {
         return [[], {}];
       }
-
       for (let asset of userAssets) {
-        const missingStationIDs = new Set();
         if (acceptedDirectLocationTypes.has(asset.location_type)) {
           if (!itemLocations.some((i) => i === asset.location_id)) {
             itemLocations.push(asset.location_id);
@@ -49,16 +47,13 @@ export function useCharAssets() {
             }
           }
         }
-        const eveIDResults = await fetchUniverseNames(
-          [...missingStationIDs],
-          user
-        );
-        newEveIDs = { ...newEveIDs, ...eveIDResults };
       }
+      const eveIDResults = await fetchUniverseNames([...missingIDSet], user);
+      newEveIDs = { ...newEveIDs, ...eveIDResults };
     }
-
     for (let item = itemLocations.length - 1; item >= 0; item--) {
-      let itemData = newEveIDs[itemLocations[item]];
+      let itemData =
+        newEveIDs[itemLocations[item]] || eveIDs[itemLocations[item]];
       if (itemData === undefined || itemData.name === "No Access To Location") {
         itemLocations.splice(item, 1);
       }
@@ -79,13 +74,13 @@ export function useCharAssets() {
     function checkAndAddLocationID(requestedID, requestSet) {
       if (!requestedID) return;
 
-      if (!eveIDs[requestedID] && !newEveIDs[requestedID]) {
+      if (!eveIDs[requestedID] || !newEveIDs[requestedID]) {
         requestSet.add(requestedID);
       }
     }
 
-    return [itemLocations, newEveIDs];
-  };
+    return {itemLocations, newEveIDs};
+  }
 
   const findLocationAssets = async (requiredLocationID) => {
     let locationAssets = [];

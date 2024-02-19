@@ -262,7 +262,7 @@ export function useAccountManagement() {
     updateJobArray(jobArrayDefault);
     updateEveIDs(eveIDsDefault);
     setJobStatus(jobStatusDefault);
-    updateActiveJob({});
+    updateActiveJob(null);
     updateArchivedJobs([]);
     updateGroupArray([]);
     updateActiveGroup(null);
@@ -279,9 +279,9 @@ export function useAccountManagement() {
     updateEsiStandings(defaultEsiStandings);
 
     updateCorpEsiIndJobs(new Map());
-    updateCorpEsiOrders([]);
-    updateCorpEsiHistOrders([]);
-    updateCorpEsiBlueprints([]);
+    updateCorpEsiOrders(new Map());
+    updateCorpEsiHistOrders(new Map());
+    updateCorpEsiBlueprints(new Map());
     updateCorpEsiJournal([]);
     updateCorpEsiTransactions([]);
     updateCorpEsiData(new Map());
@@ -837,116 +837,6 @@ export function useAccountManagement() {
     userObj.corporation_id = charData.corporation_id;
   };
 
-  const storeCorpObjects = (esiObjectArray) => {
-    const corporationData = filterAndReduceCorpData(esiObjectArray);
-
-    updateCorpEsiData(corporationData);
-
-    function filterAndReduceCorpData(esiObjectArray) {
-      return esiObjectArray
-        .filter(({ esiCorpPublicInfo }) => esiCorpPublicInfo)
-        .reduce(
-          (corpMap, { esiCorpDivisions, esiCorpPublicInfo, esiCorpAssets }) => {
-            const corporationID = esiCorpPublicInfo.corporation_id;
-
-            if (!corpMap.has(corporationID)) {
-              corpMap.set(
-                corporationID,
-                createNewCorpData(
-                  esiCorpDivisions,
-                  esiCorpPublicInfo,
-                  esiCorpAssets
-                )
-              );
-            } else {
-              updateExistingCorpData(
-                corpMap.get(corporationID),
-                esiCorpPublicInfo,
-                esiCorpDivisions,
-                esiCorpAssets
-              );
-            }
-
-            return corpMap;
-          },
-          new Map()
-        );
-    }
-
-    function createNewCorpData(
-      esiCorpDivisions,
-      esiCorpPublicInfo,
-      esiCorpAssets
-    ) {
-      const staticHangars = {
-        division: 0,
-        name: "Projects",
-        assetLocationRef: "CorporationGoalDeliveries",
-      };
-
-      const updatedHangarData = esiCorpDivisions?.hangar
-        .map((hangarItem) => ({
-          ...hangarItem,
-          assetLocationRef: `CorpSAG${hangarItem.division}`,
-        }))
-        .concat([staticHangars]);
-
-      if (esiCorpAssets.length > 0) {
-        sessionStorage.setItem(
-          `corpAssets_${esiCorpPublicInfo.corporation_id}`,
-          JSON.stringify(esiCorpAssets)
-        );
-      }
-
-      const officeLocations = esiCorpAssets.reduce((prev, asset) => {
-        if (asset.location_flag === "OfficeFolder") {
-          prev.add(asset.location_id);
-        }
-        return prev;
-      }, new Set());
-
-      return {
-        alliance_id: esiCorpPublicInfo.alliance_id,
-        name: esiCorpPublicInfo.name,
-        tax_rate: esiCorpPublicInfo.tax_rate,
-        ticker: esiCorpPublicInfo.ticker,
-        corporation_id: esiCorpPublicInfo.corporation_id,
-        hangars: updatedHangarData || null,
-        wallets: esiCorpDivisions?.wallet || null,
-        officeLocations: [...officeLocations],
-      };
-    }
-
-    function updateExistingCorpData(
-      existingCorp,
-      esiCorpPublicInfo,
-      esiCorpDivisions,
-      esiCorpAssets
-    ) {
-      if (esiCorpAssets.length > 0) {
-        sessionStorage.setItem(
-          `corpAssets_${esiCorpPublicInfo.corporation_id}`,
-          JSON.stringify(esiCorpAssets)
-        );
-      }
-
-      const officeLocations = esiCorpAssets.reduce((prev, asset) => {
-        if (asset.location_flag === "OfficeFolder") {
-          prev.add(asset.location_id);
-        }
-        return prev;
-      }, new Set());
-
-      if (esiCorpDivisions && (!existingCorp.hangar || !existingCorp.wallet)) {
-        existingCorp.hangars = esiCorpDivisions.hangar;
-        existingCorp.wallets = esiCorpDivisions.wallet;
-      }
-      existingCorp.officeLocations = [
-        ...new Set([...officeLocations, ...existingCorp.officeLocations]),
-      ];
-    }
-  };
-
   const getSystemIndexData = async (userObject) => {
     const manufacturingStructures =
       userObject.settings.structures.manufacturing;
@@ -979,7 +869,6 @@ export function useAccountManagement() {
     getLocationNames,
     logUserOut,
     removeUserEsiData,
-    storeCorpObjects,
     storeESIData,
     tidyLinkedData,
     updateApiArray,

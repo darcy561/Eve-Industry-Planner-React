@@ -21,6 +21,7 @@ import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { useMemo } from "react";
 import { useFindJobObject } from "../../Hooks/GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "../../Hooks/JobHooks/useJobSnapshots";
+import { useCorporationObject } from "../../Hooks/Account Management Hooks/Corporation Objects/useCorporationObject";
 
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
@@ -47,6 +48,7 @@ export function AccountEntry({ user, parentUserIndex }) {
   const [userRefreshState, updateUserRefreshState] = useState(
     user.refreshState
   );
+  const { removeCorporationObject } = useCorporationObject();
   const analytics = getAnalytics();
 
   const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
@@ -106,10 +108,7 @@ export function AccountEntry({ user, parentUserIndex }) {
           newJobArray
         );
         job.build.buildChar = parentUser.CharacterHash;
-        newUserJobSnapshot = updateJobSnapshot(
-          job,
-          newUserJobSnapshot
-        );
+        newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
       }
     }
     let newApiArray = apiJobs.filter(
@@ -134,6 +133,7 @@ export function AccountEntry({ user, parentUserIndex }) {
 
     newUsers = newUsers.filter((i) => i.CharacterHash !== user.CharacterHash);
     removeUserEsiData(user);
+    removeCorporationObject(user);
     await checkUserClaims(newUsers);
     updateUsers(newUsers);
     updateApiJobs(newApiArray);

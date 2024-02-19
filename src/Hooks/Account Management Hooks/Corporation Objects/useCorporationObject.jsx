@@ -2,51 +2,59 @@ import { useContext } from "react";
 import { CorpEsiDataContext } from "../../../Context/EveDataContext";
 
 export function useCorporationObject() {
-    const { updateCorpEsiData } = useContext(CorpEsiDataContext);
-    
-  function updateCorporationObject(esiObjectArray, inputMap) {
-    const copiedMap = new Map(inputMap);
+  const { corpEsiData, updateCorpEsiData } = useContext(CorpEsiDataContext);
+
+  function updateCorporationObject(esiObjectArray) {
+    const copiedMap = new Map(corpEsiData);
 
     for (const esiObject of esiObjectArray) {
-      const corpPublicInfo = esiObject.esoCorpPublicInfo;
+      const corpPublicInfo = esiObject.esiCorpPublicInfo;
 
       if (!corpPublicInfo) continue;
 
       if (copiedMap.has(corpPublicInfo.corporation_id)) {
-        copiedMap.set(
-          corpPublicInfo.corporation_id,
-          addNewCorporation(esiObject)
-        );
-      } else {
         updateExistingCorporation(
           copiedMap.get(corpPublicInfo.corporation_id),
           esiObject
         );
+      } else {
+        copiedMap.set(
+          corpPublicInfo.corporation_id,
+          addNewCorporation(esiObject)
+        );
       }
     }
-      updateCorpEsiData(copiedMap);
+    updateCorpEsiData(copiedMap);
   }
 
-  function removeCorporationObject() {}
+  function removeCorporationObject(characterObject) {
+    const copiedMap = new Map(corpEsiData);
+
+    const corporationObject = copiedMap.get(characterObject.corporation_id);
+    if (!corporationObject) return
+    
+    if (corporationObject.owners.length > 1) {
+      corporationObject.owners = corporationObject.owners.filter((i) => i !== characterObject.CharacterHash); 
+    } else {
+      copiedMap.delete(characterObject.corporation_id)
+      sessionStorage.removeItem(`corpAssets_${characterObject.corporation_id}`);
+    }
+    updateCorpEsiData(copiedMap)
+  }
 
   return { updateCorporationObject, removeCorporationObject };
 }
 
 function addNewCorporation(esiObject) {
-  const { esiCorpPublicInfo, esiCorpDivisions, esiCorpAssets } = esiObject;
+  const { esiCorpPublicInfo, esiCorpDivisions, esiCorpAssets, owner } =
+    esiObject;
   const staticHangars = {
     division: 0,
     name: "Projects",
     assetLocationRef: "CorporationGoalDeliveries",
   };
 
-  if (
-    !existingCorpObject ||
-    !esiCorpPublicInfo ||
-    !esiCorpDivisions ||
-    !esiCorpAssets
-  )
-    return;
+  if (!esiCorpPublicInfo || !esiCorpDivisions || !esiCorpAssets) return;
 
   saveCorporationAssets(esiCorpPublicInfo, esiCorpAssets);
 
@@ -73,19 +81,14 @@ function addNewCorporation(esiObject) {
     hangars: updatedHangarData || null,
     wallets: esiCorpDivisions?.wallet || null,
     officeLocations: [...officeLocations],
+    owners: [owner],
   };
 }
 
 function updateExistingCorporation(existingCorpObject, esiObject) {
-  const { esiCorpPublicInfo, esiCorpDivisions, esiCorpAssets } = esiObject;
+  const { esiCorpPublicInfo, esiCorpDivisions, esiCorpAssets, owner } =
+    esiObject;
 
-  if (
-    !existingCorpObject ||
-    !esiCorpPublicInfo ||
-    !esiCorpDivisions ||
-    !esiCorpAssets
-  )
-    return;
   saveCorporationAssets(esiCorpPublicInfo, esiCorpAssets);
 
   const officeLocations = esiCorpAssets.reduce((prev, asset) => {
@@ -95,13 +98,14 @@ function updateExistingCorporation(existingCorpObject, esiObject) {
     return prev;
   }, new Set());
 
-  if (esiCorpDivisions && (!existingCorp.hangar || !existingCorp.wallet)) {
-    existingCorp.hangars = esiCorpDivisions.hangar;
-    existingCorp.wallets = esiCorpDivisions.wallet;
+  if (esiCorpDivisions && (!existingCorpObject.hangar || !existingCorpObject.wallet)) {
+    existingCorpObject.hangars = esiCorpDivisions.hangar;
+    existingCorpObject.wallets = esiCorpDivisions.wallet;
   }
-  existingCorp.officeLocations = [
-    ...new Set([...officeLocations, ...existingCorp.officeLocations]),
+  existingCorpObject.officeLocations = [
+    ...new Set([...officeLocations, ...existingCorpObject.officeLocations]),
   ];
+  existingCorpObject.owners.push(owner);
 }
 
 function saveCorporationAssets(esiPublicInfo, esiAssets) {

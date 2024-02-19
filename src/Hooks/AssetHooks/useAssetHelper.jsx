@@ -301,8 +301,8 @@ export function useAssetHelperHooks() {
   ) {
     return new Map(
       [...inputLocationMap.entries()].sort((a, b) => {
-        const nameA = inputLocationNames[a]?.name || eveIDs[a]?.name || "";
-        const nameB = inputLocationNames[b]?.name || eveIDs[a]?.name || "";
+        const nameA = inputLocationNames[a[0]]?.name || eveIDs[a[0]]?.name || "";
+        const nameB = inputLocationNames[b[0]]?.name || eveIDs[b[0]]?.name || "";
 
         const noAccessName = "No Access To Location";
 

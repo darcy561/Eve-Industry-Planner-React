@@ -43,8 +43,8 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
   useEffect(() => {
     async function getAsset() {
       updateDataLoading(true);
-      let [newAssetList, newEveIDs] = await getAssetLocationList();
-      updateAssetLocationEntries(newAssetList);
+      const { itemLocations, newEveIDs  } = await getAssetLocationList();
+      updateAssetLocationEntries(itemLocations);
       updateEveIDs((prev) => ({ ...prev, ...newEveIDs }));
       updateDataLoading((prev) => !prev);
     }

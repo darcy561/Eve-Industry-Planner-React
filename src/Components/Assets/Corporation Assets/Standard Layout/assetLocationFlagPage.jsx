@@ -18,9 +18,12 @@ export function AssetLocationFlagPage_Corporation({
   const { users } = useContext(UsersContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const [topLevelAssets, updateTopLevelAssets] = useState(null);
   const [assetLocations, updateAssetLocations] = useState(null);
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
+  const [corporationBlueprintsMap, updateCorporationBlueprintsMap] =
+    useState(null);
   const { buildAssetLocationFlagMaps, sortLocationMapsAlphabetically } =
     useAssetHelperHooks();
   const { findUniverseItemObject } = useHelperFunction();
@@ -38,6 +41,15 @@ export function AssetLocationFlagPage_Corporation({
           `corpAssets_${matchedCorporation.corporation_id}`
         )
       );
+
+      const corporationBlueprints = new Map();
+
+      for (const [key, value] of Object.entries(
+        corpEsiBlueprints.get(selectedCorporation)
+      )) {
+        const numericKey = Number(key);
+        corporationBlueprints.set(numericKey, value);
+      }
 
       const { topLevelAssetLocations, assetsByLocationMap, assetIDSet } =
         buildAssetLocationFlagMaps(assetsJSON, assetLocationFlagRequest);
@@ -77,6 +89,7 @@ export function AssetLocationFlagPage_Corporation({
       updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
       updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
+      updateCorporationBlueprintsMap(corporationBlueprints);
       updateAssetLocations(assetsByLocationMap);
     }
     buildCorporationAssetsTree();
@@ -96,6 +109,7 @@ export function AssetLocationFlagPage_Corporation({
             assetLocations={assetLocations}
             topLevelAssets={topLevelAssets}
             assetLocationNames={assetLocationNames}
+            characterBlueprintsMap={corporationBlueprintsMap}
             depth={depth}
           />
         );

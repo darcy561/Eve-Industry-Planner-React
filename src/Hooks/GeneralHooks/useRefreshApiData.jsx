@@ -21,6 +21,7 @@ import searchData from "../../RawData/searchIndex.json";
 import { ApiJobsContext } from "../../Context/JobContext";
 import { useSystemIndexFunctions } from "./useSystemIndexFunctions";
 import { useEveApi } from "../useEveApi";
+import { useCorporationObject } from "../Account Management Hooks/Corporation Objects/useCorporationObject";
 
 export function useRefreshApiData() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -35,18 +36,18 @@ export function useRefreshApiData() {
   const { corpEsiIndJobs, corpEsiOrders, corpEsiHistOrders } =
     useContext(CorpEsiDataContext);
   const { updateRefreshState } = useContext(RefreshStateContext);
-  const { refreshUserAToken } = useRefreshUser();
+  const { RefreshUserAToken } = useRefreshUser();
   const {
     buildApiArray,
     characterAPICall,
     checkUserClaims,
     getCharacterInfo,
-    storeCorpObjects,
     storeESIData,
   } = useAccountManagement();
   const { refreshItemPrices } = useFirebase();
   const { fetchUniverseNames } = useEveApi();
   const { refreshSystemIndexes } = useSystemIndexFunctions();
+  const { updateCorporationObject } = useCorporationObject();
 
   const checkAppVersion = httpsCallable(
     functions,
@@ -84,48 +85,44 @@ export function useRefreshApiData() {
 
     for (let user of newUserArray) {
       if (user.aTokenEXP <= userTokenRefreshPoint) {
-        user = await refreshUserAToken();
+        user = await RefreshUserAToken();
       }
       await getCharacterInfo(user);
       esiObjectsPromises.push(characterAPICall(user));
     }
     const esiObjectsArray = (await Promise.all(esiObjectsPromises)).flat();
     await storeESIData(esiObjectsArray);
-    storeCorpObjects(esiObjectsArray);
+    updateCorporationObject(esiObjectsArray);
     const itemPricePromise = refreshItemPrices(parentUser);
     const systemIndexPromise = refreshSystemIndexes();
     const newAPIArray = buildApiArray(newUserArray, esiObjectsArray);
 
-    for (let user of newUserArray) {
+    for (let esiObject of esiObjectsArray) {
       const requestIDs = new Set();
-      const userIndJobs = esiIndJobs.find(
-        (i) => i.user === user.CharacterHash
-      )?.data;
-      const userOrders = esiOrders.find(
-        (i) => i.user === user.CharacterHash
-      )?.data;
-      const userHistOrders = esiHistOrders.find(
-        (i) => i.user === user.CharacterHash
-      )?.data;
-      const corpIndJobs = corpEsiIndJobs.get(user.CharacterHash);
-      const corpOrders = corpEsiOrders.find(
-        (i) => i.user === user.CharacterHash
-      )?.data;
-      const corpHistOrders = corpEsiHistOrders.find(
-        (i) => i.user === user.CharacterHash
-      )?.data;
+      const {
+        esiJobs,
+        esiOrders,
+        esiHistOrders,
+        esiCorpJobs,
+        esiCorpMOrders,
+        esiCorpHistMOrders,
+      } = esiObject;
+      const user = newUserArray.find((i) => i.CharacterHash === i.owner);
 
-      [...userIndJobs, ...corpIndJobs].forEach(({ facility_id }) => {
+      [...esiJobs, ...esiCorpJobs].forEach(({ facility_id }) => {
         if (!facility_id) return;
         checkAndAddLocationID(facility_id, requestIDs);
       });
-      [...userOrders, ...userHistOrders, ...corpOrders, corpHistOrders].forEach(
-        ({ locaton_id, region_id }) => {
-          if (!locaton_id || !region_id) return;
-          checkAndAddLocationID(locaton_id, requestIDs);
-          checkAndAddLocationID(region_id, requestIDs);
-        }
-      );
+      [
+        ...esiOrders,
+        ...esiHistOrders,
+        ...esiCorpMOrders,
+        ...esiCorpHistMOrders,
+      ].forEach(({ locaton_id, region_id }) => {
+        if (!locaton_id || !region_id) return;
+        checkAndAddLocationID(locaton_id, requestIDs);
+        checkAndAddLocationID(region_id, requestIDs);
+      });
       const newLocationObjects = await fetchUniverseNames(
         [...requestIDs],
         user

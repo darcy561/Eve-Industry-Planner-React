@@ -37,6 +37,7 @@ import { useAccountManagement } from "./useAccountManagement";
 import { useEveApi } from "./useEveApi";
 import { UserLoginUIContext } from "../Context/LayoutContext";
 import GLOBAL_CONFIG from "../global-config-app";
+import { useCorporationObject } from "./Account Management Hooks/Corporation Objects/useCorporationObject";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -67,7 +68,6 @@ export function useFirebase() {
     checkUserClaims,
     getLocationNames,
     getSystemIndexData,
-    storeCorpObjects,
     storeESIData,
     tidyLinkedData,
     updateCloudRefreshTokens,
@@ -75,6 +75,7 @@ export function useFirebase() {
   } = useAccountManagement();
   const { serverStatus } = useEveApi();
   const analytics = getAnalytics();
+  const {updateCorporationObject} = useCorporationObject()
   const { DEFAULT_ITEM_REFRESH_PERIOD, DEFAULT_ARCHIVE_REFRESH_PERIOD } =
     GLOBAL_CONFIG;
 
@@ -660,13 +661,13 @@ export function useFirebase() {
               newUserArray
             );
             await storeESIData(esiOjectArray);
-            storeCorpObjects(esiOjectArray);
+            updateCorporationObject(esiOjectArray);
           }
           if (!userData.settings.account.cloudAccounts) {
             await buildLocalAccountData(newUserArray, esiOjectArray);
             updateLocalRefreshTokens(newUserArray);
             await storeESIData(esiOjectArray);
-            storeCorpObjects(esiOjectArray);
+            updateCorporationObject(esiOjectArray);
           }
           tidyLinkedData(
             userData.linkedJobs,

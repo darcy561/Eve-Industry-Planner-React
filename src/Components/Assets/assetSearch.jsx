@@ -19,7 +19,6 @@ export function AssetSearch({
   pagination,
   setPagination,
 }) {
-  const { eveIDs } = useContext(EveIDsContext);
   const { findUniverseItemObject } = useHelperFunction();
 
   return (

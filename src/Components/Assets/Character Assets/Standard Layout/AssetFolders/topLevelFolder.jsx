@@ -5,6 +5,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import fullItemList from "../../../../../RawData/fullItemList.json";
 import uuid from "react-uuid";
+import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AssetEntry_TopLevel({
   locationID,
@@ -24,7 +25,7 @@ export function AssetEntry_TopLevel({
   function toggleClick() {
     updateExpanded((prev) => !prev);
   }
-
+  
   return (
     <Grid container>
       <Grid container item xs={12}>

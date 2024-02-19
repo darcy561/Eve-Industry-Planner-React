@@ -15,7 +15,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import DoneIcon from "@mui/icons-material/Done";
-import SaveIcon from '@mui/icons-material/Save';
+import SaveIcon from "@mui/icons-material/Save";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { OutputJobsPanel } from "./OutputJobs";
 import { GroupAccordion } from "./groupAccordion";
@@ -29,7 +29,10 @@ import { ShoppingListDialog } from "../Dialogues/ShoppingList/ShoppingList";
 
 export default function GroupPage() {
   const { activeGroup } = useContext(ActiveJobContext);
-  const { jobArray, groupArray, updateGroupArray  } = useContext(JobArrayContext);
+  const { jobArray, groupArray, updateGroupArray } =
+    useContext(JobArrayContext);
+  const activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
+
   const [groupJobs, updateGroupJobs] = useState([]);
   const [groupPageRefresh, updateGroupPageRefresh] = useState(false);
   const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
@@ -77,7 +80,6 @@ export default function GroupPage() {
     updateGroupPageRefresh((prev) => !prev);
   }, [activeGroup, groupArray, jobArray]);
 
-
   const handleNameChange = (event) => {
     event.preventDefault();
     let newGroupArray = [...groupArray];
@@ -87,7 +89,13 @@ export default function GroupPage() {
     updateEditGroupNameTrigger((prev) => !prev);
   };
 
-  let activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
+  function updateShowComplete() {
+    let newGroupArray = [...groupArray];
+    let selectedGroup = newGroupArray.find((i) => i.groupID === activeGroup);
+    selectedGroup.showComplete = !selectedGroup.showComplete
+    updateGroupArray(newGroupArray)
+    
+  }
 
   if (!activeGroup) return <LoadingPage />;
 
@@ -168,10 +176,10 @@ export default function GroupPage() {
               </Grid>
               <Grid item xs={1}>
                 <Tooltip title="Save group name" arrow placement="bottom">
-                <IconButton color="primary" onClick={handleNameChange}>
-                  <SaveIcon />
+                  <IconButton color="primary" onClick={handleNameChange}>
+                    <SaveIcon />
                   </IconButton>
-                  </Tooltip>
+                </Tooltip>
               </Grid>
             </Grid>
           ) : (
@@ -227,10 +235,7 @@ export default function GroupPage() {
                 control={
                   <Switch
                     checked={activeGroupObject.showComplete}
-                    onChange={() => {
-                      activeGroupObject.showComplete =
-                        !activeGroupObject.showComplete;
-                    }}
+                    onChange={updateShowComplete}
                   />
                 }
                 label="Show Complete Jobs"

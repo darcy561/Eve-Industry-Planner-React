@@ -1,6 +1,6 @@
 {
   "name": "eve-industry-planner-react",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.16.7",

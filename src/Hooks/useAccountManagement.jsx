@@ -623,10 +623,9 @@ export function useAccountManagement() {
         user: esiUser.owner,
         data: esiUser.esiStandings,
       });
-      sessionStorage.setItem(
-        `assets_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiAssets)
-      );
+
+      saveCharacterAssets(esiUser.owner, esiUser.esiAssets);
+
       corpJournal.push({
         user: esiUser.owner,
         data: esiUser.esiCorpJournal,
@@ -729,10 +728,9 @@ export function useAccountManagement() {
         user: esiUser.owner,
         data: esiUser.esiStandings,
       });
-      sessionStorage.setItem(
-        `assets_${esiUser.owner}`,
-        JSON.stringify(esiUser.esiAssets)
-      );
+
+      saveCharacterAssets(esiUser.owner, esiUser.esiAssets);
+
       newCorpEsiJournal.push({
         user: esiUser.owner,
         data: esiUser.esiJournal,
@@ -856,6 +854,19 @@ export function useAccountManagement() {
     return systemIndexData;
   };
 
+  function saveCharacterAssets(characterHash, esiAssets) {
+    try {
+      if (esiAssets.length === 0) return;
+
+      sessionStorage.setItem(
+        `assets_${characterHash}`,
+        JSON.stringify(esiAssets)
+      );
+    } catch (err) {
+      sessionStorage.setItem(`assets${characterHash}`, null);
+    }
+  }
+
   return {
     buildApiArray,
     buildCloudAccountData,
@@ -869,6 +880,7 @@ export function useAccountManagement() {
     getLocationNames,
     logUserOut,
     removeUserEsiData,
+    saveCharacterAssets,
     storeESIData,
     tidyLinkedData,
     updateApiArray,

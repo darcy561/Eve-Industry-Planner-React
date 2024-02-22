@@ -38,6 +38,7 @@ export function LinkedMarketOrdersTab({
   useEffect(() => {
     const newLinkedMarketOrders = activeJob.build.sale.marketOrders.map(
       (order) => {
+        console.log(order)
         const userOrders =
           esiOrders.find((i) => i.user === order.CharacterHash)?.data || [];
         const userHistOrders =
@@ -52,7 +53,7 @@ export function LinkedMarketOrdersTab({
           (histOrder) => histOrder.order_id === order.order_id
         );
 
-        let newOrder = order;
+        let newOrder = { ...order };
 
         if (newOrderData && !order.complete) {
           if (
@@ -110,7 +111,6 @@ export function LinkedMarketOrdersTab({
             (i) => i.CharacterHash === order.CharacterHash
           );
           const locationData = findUniverseItemObject(order.location_id);
-          console.log(locationData)
           const corpData = corpEsiData.get(charData?.corporation_id);
           return (
             <Grid

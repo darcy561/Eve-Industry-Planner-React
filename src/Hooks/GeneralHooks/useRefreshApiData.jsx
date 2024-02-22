@@ -85,7 +85,7 @@ export function useRefreshApiData() {
 
     for (let user of newUserArray) {
       if (user.aTokenEXP <= userTokenRefreshPoint) {
-        user = await RefreshUserAToken();
+        user = await RefreshUserAToken(user);
       }
       await getCharacterInfo(user);
       esiObjectsPromises.push(characterAPICall(user));

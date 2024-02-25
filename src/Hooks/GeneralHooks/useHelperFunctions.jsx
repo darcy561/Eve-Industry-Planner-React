@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
+import { jobTypes } from "../../Context/defaultValues";
 
 export function useHelperFunction() {
   const { evePrices } = useContext(EvePricesContext);
@@ -73,10 +74,21 @@ export function useHelperFunction() {
     return eveIDs[requestedID];
   }
 
+  function isItemBuildable(requestedJobType) {
+    if (
+      requestedJobType === jobTypes.manufacturing ||
+      requestedJobType === jobTypes.reaction
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   return {
     Add_RemovePendingChildJobs,
     Add_RemovePendingParentJobs,
     findItemPriceObject,
     findUniverseItemObject,
+    isItemBuildable,
   };
 }

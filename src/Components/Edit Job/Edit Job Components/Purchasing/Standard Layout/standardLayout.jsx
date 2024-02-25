@@ -5,6 +5,7 @@ import { TutorialStep2 } from "../tutorialStep2";
 import { PurchasingDataPanel_EditJob } from "./Purchasing Data Panel/purchsingDataPanel";
 import { MaterialCard } from "./Material Cards/materialCard";
 import { InventionCostsCard } from "./Invention Costs/inventionCostsCard";
+import { MaterialCardFrame_Purchasing } from "./Material Cards/materialCardFrame";
 
 export function Purchasing_StandardLayout_EditJob({
   activeJob,
@@ -55,7 +56,7 @@ export function Purchasing_StandardLayout_EditJob({
               material.quantityPurchased < material.quantity)
           ) {
             return (
-              <MaterialCard
+              <MaterialCardFrame_Purchasing
                 activeJob={activeJob}
                 updateActiveJob={updateActiveJob}
                 key={material.typeID}

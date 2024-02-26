@@ -107,7 +107,6 @@ export function MaterialCosts({
             sx={{ marginBottom: "5px" }}
           >
             <Chip
-              key={record.id}
               label={`${record.itemCount.toLocaleString(undefined, {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,

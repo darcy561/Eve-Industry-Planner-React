@@ -4,6 +4,10 @@ import { AssetDialogue } from "../Assets Dialogue/assetsDialogue";
 import { useState } from "react";
 import { AssetsAvatar_Purchasing } from "./assetsAvatar";
 import { ChildJobsAvatar_Purchasing } from "./childJobsAvatar";
+import { RemainingToPurchase_Purchasing } from "./remainingToPurchase";
+import { ChildJobProductionTotal_Purchasing } from "./childJobProductionTotal";
+import { TotalCost_Purchasing } from "./totalMaterialCost";
+import { MaterialCostsFrame, MaterialCostsFrame_Purchasing } from "./materialCostsFrame";
 
 export function MaterialCardFrame_Purchasing({
   activeJob,
@@ -20,6 +24,11 @@ export function MaterialCardFrame_Purchasing({
   const [childDialogTrigger, updateChildDialogTrigger] = useState(false);
   const [itemAssetsDialogTrigger, updateItemAssetsDialogTrigger] =
     useState(false);
+
+  let childJobs = [];
+  let childJobProductionTotal = 0;
+  const childJobLocation = [];
+
   return (
     <Grid container item xs={12} sm={6} md={4} lg={3}>
       <ChildJobDialogue
@@ -67,6 +76,18 @@ export function MaterialCardFrame_Purchasing({
               {material.name}
             </Typography>
           </Grid>
+        </Grid>
+        <Grid container>
+          <RemainingToPurchase_Purchasing
+            material={material}
+            childJobProductionTotal={childJobProductionTotal}
+          />
+          <ChildJobProductionTotal_Purchasing
+            childJobLocation={childJobLocation}
+            childJobProductionTotal={childJobProductionTotal}
+          />
+          <TotalCost_Purchasing material={material} />
+          <MaterialCostsFrame_Purchasing/>
         </Grid>
       </Paper>
     </Grid>

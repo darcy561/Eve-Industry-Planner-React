@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { functions } from "../../firebase";
 import {
   DialogDataContext,
@@ -21,13 +21,12 @@ import {
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
-  UsersContext,
 } from "../../Context/AuthContext";
 import { useSystemIndexFunctions } from "../GeneralHooks/useSystemIndexFunctions";
 import { useInstallCostsCalc } from "../GeneralHooks/useInstallCostCalc";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useOpenEditJob() {
-  const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -51,12 +50,13 @@ export function useOpenEditJob() {
     uploadUserJobSnapshot,
     userJobListener,
   } = useFirebase();
+  const { findParentUser } = useHelperFunction();
   const checkAppVersion = httpsCallable(
     functions,
     "checkAppVersion-checkAppVersion"
   );
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const openEditJob = async (inputJobID) => {
     try {

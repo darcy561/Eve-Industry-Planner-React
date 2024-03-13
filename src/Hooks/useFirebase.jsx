@@ -38,6 +38,7 @@ import { useEveApi } from "./useEveApi";
 import { UserLoginUIContext } from "../Context/LayoutContext";
 import GLOBAL_CONFIG from "../global-config-app";
 import { useCorporationObject } from "./Account Management Hooks/Corporation Objects/useCorporationObject";
+import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -75,13 +76,12 @@ export function useFirebase() {
   } = useAccountManagement();
   const { serverStatus } = useEveApi();
   const analytics = getAnalytics();
-  const {updateCorporationObject} = useCorporationObject()
+  const { updateCorporationObject } = useCorporationObject();
+  const { findParentUser } = useHelperFunction();
   const { DEFAULT_ITEM_REFRESH_PERIOD, DEFAULT_ARCHIVE_REFRESH_PERIOD } =
     GLOBAL_CONFIG;
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser === true);
-  }, [users]);
+  const parentUser = findParentUser();
 
   const fbAuthState = async () => {
     let appCheckToken = await getToken(appCheck);

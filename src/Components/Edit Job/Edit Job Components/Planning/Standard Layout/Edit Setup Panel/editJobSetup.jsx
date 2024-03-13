@@ -23,6 +23,7 @@ import {
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import systemIDS from "../../../../../../RawData/systems.json";
 import { useUpdateSetupValue } from "../../../../../../Hooks/JobHooks/useUpdateSetupValue";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function EditJobSetup({
   activeJob,
@@ -34,7 +35,8 @@ export function EditJobSetup({
   const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { recalcuateJobFromSetup } = useUpdateSetupValue();
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
 
   if (!activeJob.build.setup[setupToEdit]) return null;
 
@@ -535,9 +537,7 @@ function ManualStructureSelection({
               id="System Search"
               clearOnBlur
               blurOnSelect
-              value={
-                systemIDMap[activeJob.build.setup[setupToEdit].systemID]
-              }
+              value={systemIDMap[activeJob.build.setup[setupToEdit].systemID]}
               variant="standard"
               size="small"
               options={systemIDS}

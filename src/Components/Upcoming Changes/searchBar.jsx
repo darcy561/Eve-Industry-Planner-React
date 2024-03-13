@@ -5,6 +5,7 @@ import { EvePricesContext } from "../../Context/EveDataContext";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { useJobBuild } from "../../Hooks/useJobBuild";
 import itemList from "../../RawData/searchIndex.json";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function UpcomingChangesSearch({
   updateTranqItem,
@@ -16,9 +17,8 @@ export function UpcomingChangesSearch({
   const { updateEvePrices } = useContext(EvePricesContext);
   const { buildJob } = useJobBuild();
   const { getItemPrices } = useFirebase();
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
   return (
     <Paper
       square

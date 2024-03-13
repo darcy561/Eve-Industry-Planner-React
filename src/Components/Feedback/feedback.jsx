@@ -10,7 +10,7 @@ import {
   Link,
   TextField,
 } from "@mui/material";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { functions } from "../../firebase";
 import { UsersContext } from "../../Context/AuthContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
@@ -20,6 +20,7 @@ import {
   PersonalESIDataContext,
 } from "../../Context/EveDataContext";
 import GLOBAL_CONFIG from "../../global-config-app";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function FeedbackIcon() {
   const { users } = useContext(UsersContext);
@@ -46,10 +47,9 @@ export function FeedbackIcon() {
   const [open, setOpen] = useState(false);
   const [inputText, updateInputText] = useState("");
   const [dataDump, updateDataDump] = useState(false);
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 

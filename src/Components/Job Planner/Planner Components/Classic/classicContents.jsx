@@ -14,18 +14,17 @@ import { ApiJobCardSorter } from "./ClassicApiJobCardSorter";
 import { ClassicGroupJobCard } from "./ClassicGroupJobCard";
 import { UserLoginUIContext } from "../../../../Context/LayoutContext";
 import uuid from "react-uuid";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ClassicAccordionContents({ status }) {
-  const { users } = useContext(UsersContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { groupArray } = useContext(JobArrayContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { linkedJobIDs } = useContext(LinkedIDsContext);
   const { userJobSnapshotDataFetch } = useContext(UserLoginUIContext);
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   if (!userJobSnapshotDataFetch) {
     return (

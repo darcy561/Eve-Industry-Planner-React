@@ -1,9 +1,6 @@
 import { CircularProgress, Grid, Paper, Typography } from "@mui/material";
-import { useContext, useMemo, useCallback } from "react";
-import {
-  UserJobSnapshotContext,
-  UsersContext,
-} from "../../../Context/AuthContext";
+import { useContext, useCallback } from "react";
+import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import {
   CorpEsiDataContext,
   PersonalESIDataContext,
@@ -15,9 +12,9 @@ import {
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
 import itemData from "../../../RawData/searchIndex.json";
 import { useMarketOrderFunctions } from "../../../Hooks/GeneralHooks/useMarketOrderFunctions";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function NewTransactions() {
-  const { users } = useContext(UsersContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobStatus } = useContext(JobStatusContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
@@ -37,10 +34,9 @@ export function NewTransactions() {
     findJournalEntry,
     findTransactionTax,
   } = useMarketOrderFunctions();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   let findTransactionData = useCallback(() => {
     let returnTransactions = [];

@@ -1,7 +1,10 @@
 import { Avatar, Tooltip } from "@mui/material";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
-export function ChildJobsAvatar_Purchasing({material}) {
+export function ChildJobsAvatar_Purchasing({
+  material,
+  updateChildDialogTrigger,
+}) {
   const { isItemBuildable } = useHelperFunction();
 
   const displayItem = isItemBuildable(material.jobType);
@@ -26,6 +29,9 @@ export function ChildJobsAvatar_Purchasing({material}) {
           left: "5px",
           cursor: "pointer",
           boxShadow: 4,
+        }}
+        onClick={() => {
+          updateChildDialogTrigger((prev) => !prev);
         }}
       >
         2

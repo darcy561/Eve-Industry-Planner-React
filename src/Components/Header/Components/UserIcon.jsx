@@ -1,19 +1,19 @@
 import { Avatar, Box, Grid, Menu, MenuItem, Tooltip } from "@mui/material";
-import { useContext, useMemo, useState } from "react";
-import { UsersContext } from "../../../Context/AuthContext";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router";
 import { useAccountManagement } from "../../../Hooks/useAccountManagement";
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function UserIcon() {
-  const { users } = useContext(UsersContext);
   const { loginInProgressComplete } = useContext(UserLoginUIContext);
   const [anchor, setAnchor] = useState(null);
 
   const { logUserOut } = useAccountManagement();
+  const { findParentUser } = useHelperFunction();
   const navigate = useNavigate();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const openMenu = (event) => {
     setAnchor(event.currentTarget);

@@ -1,7 +1,6 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Grid, Paper, Popover, Typography } from "@mui/material";
 import { JobArrayContext } from "../../../../../../../Context/JobContext";
-import { UsersContext } from "../../../../../../../Context/AuthContext";
 import { useFirebase } from "../../../../../../../Hooks/useFirebase";
 import { useJobBuild } from "../../../../../../../Hooks/useJobBuild";
 import { useJobManagement } from "../../../../../../../Hooks/useJobManagement";
@@ -13,6 +12,7 @@ import { ChildJobMaterialTotalCosts_ChildJobPopoverFrame } from "./childJobTotal
 import { useMaterialCostCalculations } from "../../../../../../../Hooks/GeneralHooks/useMaterialCostCalculations";
 import { useManageGroupJobs } from "../../../../../../../Hooks/GroupHooks/useManageGroupJobs";
 import { ButtonSelectionLogic_ChildJobPopoverFrame } from "./buttonSelectionLogic";
+import { useHelperFunction } from "../../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ChildJobPopoverFrame({
   activeJob,
@@ -34,7 +34,6 @@ export function ChildJobPopoverFrame({
   parentChildToEdit,
   updateParentChildToEdit,
 }) {
-  const { users } = useContext(UsersContext);
   const { jobArray } = useContext(JobArrayContext);
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImportState, updateJobImportState] = useState(false);
@@ -46,8 +45,9 @@ export function ChildJobPopoverFrame({
   const { generatePriceRequestFromJob } = useJobManagement();
   const { calculateMaterialCostFromChildJobs } = useMaterialCostCalculations();
   const { findJobIDOfMaterialFromGroup } = useManageGroupJobs();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
   const childJobsLocation = activeJob.build.childJobs[material.typeID];
   const currentJob = childJobObjects[jobDisplay];
   const isExistingJobInGroup = useRef(false);

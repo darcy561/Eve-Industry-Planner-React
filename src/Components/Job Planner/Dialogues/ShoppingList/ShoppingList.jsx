@@ -48,7 +48,7 @@ export function ShoppingListDialog() {
   const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { getAssetLocationList } = useCharAssets();
-  const { findItemPriceObject } = useHelperFunction();
+  const { findParentUser, findItemPriceObject } = useHelperFunction();
   const { buildShoppingList } = useShoppingList();
   const { findLocationAssets } = useCharAssets();
   const { getItemPrices } = useFirebase();
@@ -59,9 +59,7 @@ export function ShoppingListDialog() {
   const [loadingData, updateLoadingData] = useState(true);
   const [removeAssets, updateRemoveAssets] = useState(false);
   const [assetLocations, updateAssetLocations] = useState([]);
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
   const [selectedLocation, updateSelectedLocation] = useState(
     parentUser.settings.editJob.defaultAssetLocation
   );

@@ -17,6 +17,7 @@ import {
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
 import { useMarketOrderFunctions } from "../../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AvailableTransactionsPanel({
   activeJob,
@@ -31,6 +32,7 @@ export function AvailableTransactionsPanel({
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const { buildTransactionData } = useMarketOrderFunctions();
+  const { findParentUserIndex } = useHelperFunction();
   const analytics = getAnalytics();
 
   const transactionData = buildTransactionData(
@@ -208,9 +210,7 @@ export function AvailableTransactionsPanel({
                           return new Date(b.date) - new Date(a.date);
                         });
 
-                        let parentUserIndex = users.findIndex(
-                          (i) => i.ParentUser === true
-                        );
+                        const parentUserIndex = findParentUserIndex();
 
                         newDataToLink.add(tData.transaction_id);
                         newDataToUnlink.delete(tData.transaction_id);
@@ -283,9 +283,8 @@ export function AvailableTransactionsPanel({
                 const newDataToUnlink = new Set(
                   esiDataToLink.transactions.remove
                 );
-                let parentUserIndex = users.findIndex(
-                  (i) => i.ParentUser === true
-                );
+                const parentUserIndex = findParentUserIndex();
+
                 for (let trans of transactionData) {
                   if (activeJob.build.sale.marketOrders > 1) {
                     trans.order_id = activeOrder;

@@ -1,8 +1,10 @@
 import { useContext } from "react";
 import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
 import { jobTypes } from "../../Context/defaultValues";
+import { UsersContext } from "../../Context/AuthContext";
 
 export function useHelperFunction() {
+  const { users } = useContext(UsersContext);
   const { evePrices } = useContext(EvePricesContext);
   const { eveIDs } = useContext(EveIDsContext);
 
@@ -84,11 +86,40 @@ export function useHelperFunction() {
     return false;
   }
 
+  function findParentUser() {
+    return users.find((i) => i.ParentUser);
+  }
+
+  function findParentUserIndex() {
+    return users.findIndex((i) => i.ParentUser);
+  }
+
+  async function importMultibuyFromClipboard() {
+    const returnArray = [];
+    const importedText = await navigator.clipboard.readText();
+
+    const matchedItems = [
+      ...importedText.matchAll(/^(.*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)$/gm),
+    ];
+
+    for (let item of matchedItems) {
+      returnArray.push({
+        importedName: item[1] || "",
+        importedQuantity: parseFloat(importMatch[2].replace(/,/g, "")) || 0,
+        importedCost: parseFloat(importMatch[3].replace(/,/g, "")) || 0,
+      });
+    }
+    return returnArray;
+  }
+
   return {
     Add_RemovePendingChildJobs,
     Add_RemovePendingParentJobs,
     findItemPriceObject,
+    findParentUser,
+    findParentUserIndex,
     findUniverseItemObject,
+    importMultibuyFromClipboard,
     isItemBuildable,
   };
 }

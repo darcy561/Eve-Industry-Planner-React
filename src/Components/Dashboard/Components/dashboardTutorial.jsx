@@ -1,15 +1,17 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
 import { UsersContext } from "../../../Context/AuthContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { UserLoginUIContext } from "../../../Context/LayoutContext";
 import GLOBAL_CONFIG from "../../../global-config-app";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function TutorialDashboard() {
   const { users, updateUsers } = useContext(UsersContext);
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser, findParentUserIndex } = useHelperFunction();
+  const parentUser = findParentUser();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   if (!parentUser.settings.layout.hideTutorials && !userDataFetch) {
@@ -56,9 +58,7 @@ export function TutorialDashboard() {
                   size="small"
                   onClick={() => {
                     let newUsers = JSON.parse(JSON.stringify(users));
-                    let parentUserIndex = users.findIndex(
-                      (i) => i.ParentUser === true
-                    );
+                    const parentUserIndex = findParentUserIndex();
 
                     newUsers[
                       parentUserIndex

@@ -1,24 +1,24 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { JobArrayContext } from "../../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
-  UsersContext,
 } from "../../Context/AuthContext";
 import { useFindJobObject } from "./useFindJobObject";
 import { logEvent } from "firebase/analytics";
 import { analytics } from "../../firebase";
+import { useHelperFunction } from "./useHelperFunctions";
 
 export function useShoppingList() {
-  const { users } = useContext(UsersContext);
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
   const { findJobData } = useFindJobObject();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   async function buildShoppingList(inputJobIDs) {
     let finalInputList = [];

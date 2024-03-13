@@ -22,6 +22,7 @@ import { useMemo } from "react";
 import { useFindJobObject } from "../../Hooks/GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "../../Hooks/JobHooks/useJobSnapshots";
 import { useCorporationObject } from "../../Hooks/Account Management Hooks/Corporation Objects/useCorporationObject";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
@@ -50,8 +51,9 @@ export function AccountEntry({ user, parentUserIndex }) {
   );
   const { removeCorporationObject } = useCorporationObject();
   const analytics = getAnalytics();
+  const {findParentUser } = useHelperFunction()
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   async function refreshUserAPI(user) {
     let newUsers = [...users];

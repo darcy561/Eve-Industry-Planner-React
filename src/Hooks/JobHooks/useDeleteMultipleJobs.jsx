@@ -20,6 +20,7 @@ import { performance } from "../../firebase";
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./useJobSnapshots";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useDeleteMultipleJobs() {
   const { users } = useContext(UsersContext);
@@ -47,9 +48,10 @@ export function useDeleteMultipleJobs() {
   const { findJobData } = useFindJobObject();
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
+  const { findParentUser } = useHelperFunction();
 
   const analytics = getAnalytics();
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const deleteMultipleJobs = async (inputJobIDs) => {
     const r = trace(performance, "massDeleteProcess");
@@ -58,7 +60,7 @@ export function useDeleteMultipleJobs() {
     let newJobArray = [...jobArray];
     let newGroupArray = [...groupArray];
     let newUserJobSnapshot = [...userJobSnapshot];
-    let newLinkedJobIDs = new Set(linkedJobIDs);
+    let newLinkedJobIDs = new Set(linkedJobIDs);s
     let newLinkedOrderIDs = new Set(linkedOrderIDs);
     let newLinkedTransIDs = new Set(linkedTransIDs);
     let jobsToSave = new Set();

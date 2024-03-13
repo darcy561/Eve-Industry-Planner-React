@@ -8,7 +8,7 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
@@ -17,9 +17,9 @@ import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import { useManageGroupJobs } from "../../../../../../Hooks/GroupHooks/useManageGroupJobs";
 import { useJobBuild } from "../../../../../../Hooks/useJobBuild";
-import { UsersContext } from "../../../../../../Context/AuthContext";
 import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { EvePricesContext } from "../../../../../../Context/EveDataContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function RawResourceList({
   activeJob,
@@ -32,7 +32,6 @@ export function RawResourceList({
   updateParentChildToEdit,
 }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const [displayType, updateDisplyType] = useState(
@@ -42,8 +41,9 @@ export function RawResourceList({
   const { buildJob } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { getItemPrices } = useFirebase();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   if (!activeJob.build.setup[setupToEdit]) return null;
 

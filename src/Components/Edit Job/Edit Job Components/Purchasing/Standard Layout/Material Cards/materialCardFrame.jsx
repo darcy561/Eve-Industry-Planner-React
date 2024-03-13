@@ -7,7 +7,7 @@ import { ChildJobsAvatar_Purchasing } from "./childJobsAvatar";
 import { RemainingToPurchase_Purchasing } from "./remainingToPurchase";
 import { ChildJobProductionTotal_Purchasing } from "./childJobProductionTotal";
 import { TotalCost_Purchasing } from "./totalMaterialCost";
-import { MaterialCostsFrame, MaterialCostsFrame_Purchasing } from "./materialCostsFrame";
+import { MaterialCostsFrame_Purchasing } from "./materialCostsFrame";
 
 export function MaterialCardFrame_Purchasing({
   activeJob,
@@ -60,7 +60,10 @@ export function MaterialCardFrame_Purchasing({
         <AssetsAvatar_Purchasing
           updateItemAssetsDialogTrigger={updateItemAssetsDialogTrigger}
         />
-        <ChildJobsAvatar_Purchasing material={material} />
+        <ChildJobsAvatar_Purchasing
+          material={material}
+          updateChildDialogTrigger={updateChildDialogTrigger}
+        />
 
         <Grid container item sx={{ marginBottom: "15px" }}>
           <Grid item xs={12} align="center">
@@ -87,7 +90,7 @@ export function MaterialCardFrame_Purchasing({
             childJobProductionTotal={childJobProductionTotal}
           />
           <TotalCost_Purchasing material={material} />
-          <MaterialCostsFrame_Purchasing/>
+          <MaterialCostsFrame_Purchasing material={material} />
         </Grid>
       </Paper>
     </Grid>

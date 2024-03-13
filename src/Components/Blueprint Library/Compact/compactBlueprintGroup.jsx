@@ -26,6 +26,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "@firebase/performance";
 import { performance } from "../../../firebase";
 import { useJobSnapshotManagement } from "../../../Hooks/JobHooks/useJobSnapshots";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function CompactBlueprintGroup({ bpID, blueprintResults }) {
   const { users } = useContext(UsersContext);
@@ -41,10 +42,11 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
   const { generatePriceRequestFromJob } = useJobManagement();
   const { newJobSnapshot } = useJobSnapshotManagement();
   const { addNewJob, getItemPrices, uploadUserJobSnapshot } = useFirebase();
+  const { findParentUser } = useHelperFunction();
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   let bpData = blueprintIDs.find((i) => i.blueprintID === bpID);
   let filteredResults = blueprintResults.blueprints.filter(

@@ -8,7 +8,7 @@ import { useHelperFunction } from "./useHelperFunctions";
 export function useInstallCostsCalc() {
   const { systemIndexData } = useContext(SystemIndexContext);
   const { users } = useContext(UsersContext);
-  const { findItemPriceObject } = useHelperFunction();
+  const { findParentUser, findItemPriceObject } = useHelperFunction();
 
   const jobTypeMapping = {
     [jobTypes.manufacturing]: "manufacturing",
@@ -139,7 +139,7 @@ export function useInstallCostsCalc() {
 
     if (!facilityID) return taxValue / 100;
 
-    const parentUser = users.find((i) => i.ParentUser);
+    const parentUser = findParentUser();
     if (!parentUser) return 0;
 
     const structureSelection =

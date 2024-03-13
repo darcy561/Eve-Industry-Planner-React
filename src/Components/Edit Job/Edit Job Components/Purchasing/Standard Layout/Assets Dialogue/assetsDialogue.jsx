@@ -38,11 +38,9 @@ export function AssetDialogue({
     selectRequiredUser,
     sortLocationMapsAlphabetically,
   } = useAssetHelperHooks();
-  const { findUniverseItemObject } = useHelperFunction();
+  const { findParentUser, findUniverseItemObject } = useHelperFunction();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   const [selectedAsset, setSelectedAsset] = useState(parentUser.CharacterHash);
 

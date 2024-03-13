@@ -16,6 +16,7 @@ import { AddGroupDialog } from "./addGroupDialog";
 import { GroupSettingsDialog } from "./groupSettings";
 import { WatchlistContainer } from "./itemWatchContainer";
 import { UserLoginUIContext } from "../../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ItemWatchPanel() {
   const { users } = useContext(UsersContext);
@@ -27,8 +28,9 @@ export function ItemWatchPanel() {
   const [groupSettingsContent, updateGroupSettingsContent] = useState({
     name: "",
   });
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   if (!userWatchlistDataFetch) {
     return (

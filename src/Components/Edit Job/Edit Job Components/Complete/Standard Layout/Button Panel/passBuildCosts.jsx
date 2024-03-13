@@ -1,31 +1,31 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { Button, Tooltip } from "@mui/material";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
-  UsersContext,
 } from "../../../../../../Context/AuthContext";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
 import { useFindJobObject } from "../../../../../../Hooks/GeneralHooks/useFindJobObject";
 import { getAnalytics, logEvent } from "firebase/analytics";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function PassBuildCostsButton({ activeJob }) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { users } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
+  const { findParentUser } = useHelperFunction();
   const analytics = getAnalytics();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const passCost = async () => {
     let itemsAdded = 0;

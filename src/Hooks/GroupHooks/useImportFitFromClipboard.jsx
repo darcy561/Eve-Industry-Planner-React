@@ -8,6 +8,7 @@ import { useFirebase } from "../useFirebase";
 import { EvePricesContext } from "../../Context/EveDataContext";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
 import { useManageGroupJobs } from "./useManageGroupJobs";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useImportFitFromClipboard() {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -21,8 +22,9 @@ export function useImportFitFromClipboard() {
   const { addMultipleJobsToGroup } = useManageGroupJobs();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { addNewJob, getItemPrices } = useFirebase();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const importFromClipboard = async () => {
     const itemNameRegex = /^\[(?<itemName>.+),\s*(?<fittingName>.+)\]/g;

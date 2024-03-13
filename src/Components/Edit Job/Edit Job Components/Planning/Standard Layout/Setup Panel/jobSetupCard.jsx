@@ -1,23 +1,19 @@
 import {
-  Button,
   Card,
   CardActionArea,
-  CardActions,
   CardContent,
   Grid,
-  IconButton,
-  Paper,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useContext, useState, useMemo } from "react";
+import { useContext } from "react";
 import { structureOptions } from "../../../../../../Context/defaultValues";
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import { UsersContext } from "../../../../../../Context/AuthContext";
 import rawSystemData from "../../../../../../RawData/systems.json";
-import { useJobBuild } from "../../../../../../Hooks/useJobBuild";
-import { useSetupManagement } from "../../../../../../Hooks/GeneralHooks/useSetupManagement";
+
 import { SystemIndexContext } from "../../../../../../Context/EveDataContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 const customStructureMap = {
   [jobTypes.manufacturing]: "manufacturing",
@@ -162,10 +158,10 @@ export function JobSetupCard({
 }
 
 function UseCustomStructure({ setupEntry }) {
-  const { users } = useContext(UsersContext);
   const { systemIndexData } = useContext(SystemIndexContext);
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const assignedStructureData =
     parentUser.settings.structures[customStructureMap[setupEntry.jobType]].find(
@@ -219,14 +215,13 @@ function UseDefaultStructures({ setupEntry }) {
     [jobTypes.reaction]: structureOptions.reactionSystem,
   };
 
-
-
   const structureTypeData =
     structureTypeMap[setupEntry.jobType][setupEntry.structureID];
 
   const rigTypeData = rigTypeMap[setupEntry.jobType][setupEntry.rigID];
 
-  const systemTypeData = systemTypeMap[setupEntry.jobType][setupEntry.systemTypeID];
+  const systemTypeData =
+    systemTypeMap[setupEntry.jobType][setupEntry.systemTypeID];
 
   const matchedSystemID =
     rawSystemData.find((i) => i.id === setupEntry.systemID)?.name ||

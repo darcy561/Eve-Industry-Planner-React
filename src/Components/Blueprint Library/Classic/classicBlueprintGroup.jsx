@@ -26,9 +26,9 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "@firebase/performance";
 import { performance } from "../../../firebase";
 import { useJobSnapshotManagement } from "../../../Hooks/JobHooks/useJobSnapshots";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
-  const { users } = useContext(UsersContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { updateJobArray } = useContext(JobArrayContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -43,10 +43,11 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   const { newJobSnapshot } = useJobSnapshotManagement();
   const { addNewJob, getItemPrices, uploadJob, uploadUserJobSnapshot } =
     useFirebase();
+  const { findParentUser } = useHelperFunction();
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const esiJobs = apiJobs.filter(
     (i) => i.product_type_id === bpID || i.blueprint_type_id === bpID

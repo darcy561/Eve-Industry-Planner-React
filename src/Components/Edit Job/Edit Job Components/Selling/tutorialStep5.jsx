@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
 import {
   IsLoggedInContext,
@@ -6,13 +6,15 @@ import {
 } from "../../../../Context/AuthContext";
 import { UserLoginUIContext } from "../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function TutorialStep5() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser, findParentUserIndex } = useHelperFunction();
+  const parentUser = findParentUser();
 
   if (!parentUser.settings.layout.hideTutorials && userDataFetch) {
     return (
@@ -78,9 +80,7 @@ export function TutorialStep5() {
                     size="small"
                     onClick={() => {
                       let newUsers = [...users];
-                      let parentUserIndex = newUsers.findIndex(
-                        (i) => i.ParentUser === true
-                      );
+                      const parentUserIndex = findParentUserIndex();
 
                       newUsers[
                         parentUserIndex

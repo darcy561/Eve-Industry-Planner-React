@@ -27,6 +27,7 @@ import { ItemTypes } from "../../../Context/DnDTypes";
 import { grey } from "@mui/material/colors";
 import { CompactAccordionContents } from "./Compact/compactContents";
 import GLOBAL_CONFIG from "../../../global-config-app";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function PlannerAccordion() {
   const { users } = useContext(UsersContext);
@@ -47,11 +48,10 @@ export function PlannerAccordion() {
     completeAPIJobs: false,
   });
   const { canDropCard, recieveJobCardToStage } = useDnD();
+  const { findParentUser } = useHelperFunction();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);

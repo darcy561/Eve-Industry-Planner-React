@@ -7,7 +7,7 @@ import {
 import { JobArrayContext } from "../../../../../../Context/JobContext";
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import { MaterialCosts } from "./materialCosts";
-import { AddMaterialCost } from "./addMaterialCosts";
+import { AddMaterialCost_Purchasing } from "./addMaterialCosts";
 import { AssetDialogue } from "../Assets Dialogue/assetsDialogue";
 import { ChildJobDialogue } from "../Child Job Dialogue/childJobDialogue";
 
@@ -32,7 +32,6 @@ export function MaterialCard({
 
   let childJobs = [];
   let childJobProductionTotal = 0;
-
 
   const childJobLocation = [
     ...activeJob.build.childJobs[material.typeID],
@@ -211,7 +210,7 @@ export function MaterialCard({
           />
           {material.quantityPurchased < material.quantity &&
             childJobProductionTotal < material.quantity && (
-              <AddMaterialCost
+              <AddMaterialCost_Purchasing
                 activeJob={activeJob}
                 updateActiveJob={updateActiveJob}
                 materialIndex={materialIndex}

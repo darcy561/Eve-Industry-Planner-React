@@ -613,4 +613,9 @@ export const ZERO_DECIMAL_PLACES = {
   maximumFractionDigits: 0,
 };
 
+export const ZERO_TWO_DECIMAL_PLACES = {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+};
+
 export const STANDARD_TEXT_FORMAT = { xs: "caption", sm: "body2" };

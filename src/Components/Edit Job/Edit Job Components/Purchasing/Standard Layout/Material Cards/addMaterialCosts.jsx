@@ -3,8 +3,9 @@ import { Grid, IconButton, TextField, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ZERO_TWO_DECIMAL_PLACES } from "../../../../../../Context/defaultValues";
 
-export function AddMaterialCost({
+export function AddMaterialCost_Purchasing({
   activeJob,
   updateActiveJob,
   materialIndex,
@@ -16,14 +17,16 @@ export function AddMaterialCost({
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { findItemPriceObject } = useHelperFunction();
   const materialPrice = findItemPriceObject(material.typeID);
-  const [inputs, setInputs] = useState({
-    itemCost: materialPrice[marketDisplay][orderDisplay].toFixed(2),
-    itemCount: Number(material.quantity - material.quantityPurchased),
-  });
+  const [itemCountInput, setItemCountInput] = useState(
+    Number(material.quantity - material.quantityPurchased)
+  );
+  const [itemCostInput, setItemCostInput] = useState(
+    materialPrice[marketDisplay][orderDisplay].toFixed(2)
+  );
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (inputs.itemCount <= 0) return;
+    if (itemCountInput <= 0) return;
 
     let newArray = [...activeJob.build.materials];
     let newTotal = activeJob.build.costs.totalPurchaseCost;
@@ -41,9 +44,8 @@ export function AddMaterialCost({
         materialIndex
       ].purchasing.reduce(
         (acc, entry) => ({
-          newQuantity: acc.newQuantity + entry.itemCount,
-          newPurchaseCost:
-            acc.newPurchaseCost + entry.itemCount * entry.itemCost,
+          newQuantity: acc.newQuantity + itemCountInput,
+          newPurchaseCost: acc.newPurchaseCost + itemCountInput * itemCostInput,
         }),
         { newQuantity: 0, newPurchaseCost: 0 }
       );
@@ -62,13 +64,13 @@ export function AddMaterialCost({
       id: Date.now(),
       childID: null,
       childJobImport: false,
-      itemCount: inputs.itemCount,
-      itemCost: Number(inputs.itemCost),
+      itemCount: itemCountInput,
+      itemCost: itemCostInput,
     });
 
-    newArray[materialIndex].quantityPurchased += inputs.itemCount;
-    newArray[materialIndex].purchasedCost += inputs.itemCount * inputs.itemCost;
-    newTotal += inputs.itemCount * inputs.itemCost;
+    newArray[materialIndex].quantityPurchased += itemCountInput;
+    newArray[materialIndex].purchasedCost += itemCountInput * itemCostInput;
+    newTotal += itemCountInput * itemCostInput;
 
     if (
       newArray[materialIndex].quantityPurchased >=
@@ -96,10 +98,14 @@ export function AddMaterialCost({
       severity: "success",
       autoHideDuration: 1000,
     }));
-
-    setInputs({ itemCost: 0, itemCount: 0 });
+    setItemCostInput(0);
+    setItemCountInput(0);
     setJobModified(true);
   };
+
+  // function handleSubmit(event) {
+  //   event.preventDefault();
+  // }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -120,22 +126,19 @@ export function AddMaterialCost({
             variant="standard"
             type="number"
             helperText="Item Quantity"
-            defaultValue={inputs.itemCount}
+            value={itemCountInput}
             inputProps={{ step: "1" }}
             onChange={(e) => {
-              setInputs((prevState) => ({
-                ...prevState,
-                itemCount: Number(e.target.value),
-              }));
+              setItemCountInput(Number(e.target.value));
             }}
           />
         </Grid>
         <Grid item xs={4}>
           <Tooltip
-            title={Number(inputs.itemCost).toLocaleString(undefined, {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 2,
-            })}
+            title={Number(itemCostInput).toLocaleString(
+              undefined,
+              ZERO_TWO_DECIMAL_PLACES
+            )}
             arrow
             placement="top"
           >
@@ -154,15 +157,12 @@ export function AddMaterialCost({
               variant="standard"
               type="number"
               helperText="Item Price"
-              value={inputs.itemCost}
+              value={itemCostInput}
               inputProps={{
                 step: "0.01",
               }}
               onChange={(e) => {
-                setInputs((prevState) => ({
-                  ...prevState,
-                  itemCost: Number(e.target.value),
-                }));
+                setItemCostInput(Number(e.target.value));
               }}
             />
           </Tooltip>

@@ -7,7 +7,8 @@ import { ChildJobsAvatar_Purchasing } from "./childJobsAvatar";
 import { RemainingToPurchase_Purchasing } from "./remainingToPurchase";
 import { ChildJobProductionTotal_Purchasing } from "./childJobProductionTotal";
 import { TotalCost_Purchasing } from "./totalMaterialCost";
-import { MaterialCostsFrame, MaterialCostsFrame_Purchasing } from "./materialCostsFrame";
+import { MaterialCostsFrame_Purchasing } from "./materialCostsFrame";
+import { AddMaterialCost_Purchasing } from "./addMaterialCosts";
 
 export function MaterialCardFrame_Purchasing({
   activeJob,
@@ -87,7 +88,22 @@ export function MaterialCardFrame_Purchasing({
             childJobProductionTotal={childJobProductionTotal}
           />
           <TotalCost_Purchasing material={material} />
-          <MaterialCostsFrame_Purchasing/>
+          <MaterialCostsFrame_Purchasing
+            activeJob={activeJob}
+            updateActiveJob={updateActiveJob}
+            materialIndex={materialIndex}
+            material={material}
+            setJobModified={setJobModified}
+          />
+          <AddMaterialCost_Purchasing
+            activeJob={activeJob}
+            updateActiveJob={updateActiveJob}
+            materialIndex={materialIndex}
+            material={material}
+            setJobModified={setJobModified}
+            marketDisplay={marketDisplay}
+            orderDisplay={orderDisplay}
+          />
         </Grid>
       </Paper>
     </Grid>

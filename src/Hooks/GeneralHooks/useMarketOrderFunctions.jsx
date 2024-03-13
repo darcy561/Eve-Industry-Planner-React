@@ -1,13 +1,12 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { LinkedIDsContext } from "../../Context/JobContext";
 import {
   CorpEsiDataContext,
   PersonalESIDataContext,
 } from "../../Context/EveDataContext";
-import { UsersContext } from "../../Context/AuthContext";
+import { useHelperFunction } from "./useHelperFunctions";
 
 export function useMarketOrderFunctions() {
-  const { users } = useContext(UsersContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
   const { esiOrders, esiHistOrders, esiJournal, esiTransactions } = useContext(
     PersonalESIDataContext
@@ -18,7 +17,8 @@ export function useMarketOrderFunctions() {
     corpEsiJournal,
     corpEsiTransactions,
   } = useContext(CorpEsiDataContext);
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
 
   function Transaction(trans, desc, journal, tax, CharacterHash) {
     this.order_id = null;

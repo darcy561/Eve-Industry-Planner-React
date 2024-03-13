@@ -1,12 +1,11 @@
 import { Container, Grid, Paper } from "@mui/material";
-import { useContext } from "react";
-import { UsersContext } from "../../Context/AuthContext";
 import { AccountInfo } from "./accountInfo";
 import { AdditionalAccounts } from "./Additional Accounts";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export default function AccountsPage() {
-  const { users } = useContext(UsersContext);
-  const parentUserIndex = users.findIndex((i) => i.ParentUser);
+  const { findParentUserIndex } = useHelperFunction();
+  const parentUserIndex = findParentUserIndex();
   return (
     <Container disableGutters maxWidth="false">
       <Paper

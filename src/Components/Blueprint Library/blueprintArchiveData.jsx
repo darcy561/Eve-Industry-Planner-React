@@ -6,21 +6,21 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ArchivedJobsContext } from "../../Context/JobContext";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { UsersContext } from "../../Context/AuthContext";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ArchiveBpData({ archiveOpen, updateArchiveOpen, bpData }) {
   const { updateArchivedJobs } = useContext(ArchivedJobsContext);
-  const { users } = useContext(UsersContext);
   const [jobData, updateJobData] = useState(undefined);
   const [getData, updateGetData] = useState(true);
   const { getArchivedJobData } = useFirebase();
+  const { findParentUser } = useHelperFunction();
   const analytics = getAnalytics();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   useEffect(() => {
     async function getArchiveData() {
@@ -38,7 +38,6 @@ export function ArchiveBpData({ archiveOpen, updateArchiveOpen, bpData }) {
     }
     getArchiveData();
   }, [archiveOpen]);
-
 
   return (
     <Dialog

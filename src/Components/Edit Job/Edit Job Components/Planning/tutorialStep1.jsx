@@ -7,15 +7,17 @@ import {
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { UserLoginUIContext } from "../../../../Context/LayoutContext";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function TutorialStep1({ activeJob }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser, findParentUserIndex } = useHelperFunction();
+  const parentUser = findParentUser();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
-  
+
   if (!parentUser.settings.layout.hideTutorials && userDataFetch) {
     return (
       <Grid item xs={12}>
@@ -77,9 +79,7 @@ export function TutorialStep1({ activeJob }) {
                     }}
                     onClick={() => {
                       let newUsers = [...users];
-                      let parentUserIndex = newUsers.findIndex(
-                        (i) => i.ParentUser
-                      );
+                      const parentUserIndex = findParentUserIndex();
 
                       newUsers[
                         parentUserIndex

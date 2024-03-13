@@ -20,6 +20,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "./useAccountManagement";
 import { httpsCallable } from "firebase/functions";
 import { Buffer } from "buffer";
+import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useRefreshUser() {
   const {
@@ -44,13 +45,14 @@ export function useRefreshUser() {
     updateUserWatchlistDataFetch,
     updateUserGroupsDataFetch,
   } = useContext(UserLoginUIContext);
+  const { findParentUser } = useHelperFunction();
 
   const checkAppVersion = httpsCallable(
     functions,
     "checkAppVersion-checkAppVersion"
   );
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const checkUserState = async () => {
     if (isLoggedIn) {

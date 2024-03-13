@@ -3,6 +3,7 @@ import { useBlueprintCalc } from "../useBlueprintCalc";
 import { useInstallCostsCalc } from "./useInstallCostCalc";
 import { useJobBuild } from "../useJobBuild";
 import { UsersContext } from "../../Context/AuthContext";
+import { useHelperFunction } from "./useHelperFunctions";
 
 export function useSetupManagement() {
   const { users } = useContext(UsersContext);
@@ -15,8 +16,9 @@ export function useSetupManagement() {
     recalculateItemQty,
     calculateJobMaterialQuantities,
   } = useJobBuild();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   function recalculateSetup(
     chosenSetup,

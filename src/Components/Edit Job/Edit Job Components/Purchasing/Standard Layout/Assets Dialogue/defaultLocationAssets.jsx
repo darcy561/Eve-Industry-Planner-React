@@ -1,7 +1,6 @@
-import { useContext, useMemo } from "react";
-import { UsersContext } from "../../../../../../Context/AuthContext";
 import { Grid, Typography } from "@mui/material";
 import { AssetLocationLogic_AssetDialogWindow } from "./AssetTemplates/templateLogic";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function DefaultLocationAssets({
   topLevelAssets,
@@ -11,9 +10,9 @@ export function DefaultLocationAssets({
   tempEveIDs,
   loadingAssets,
 }) {
-  const { users } = useContext(UsersContext);
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
   const defaultAssetLocation = parentUser.settings.editJob.defaultAssetLocation;
 
   if (

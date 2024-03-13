@@ -1,6 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Grid, Pagination } from "@mui/material";
-import { UsersContext } from "../../Context/AuthContext";
 import { ESIOffline } from "../offlineNotification";
 import { LibrarySearch } from "./LibrarySearch";
 import { ClassicBlueprintGroup } from "./Classic/classicBlueprintGroup";
@@ -9,14 +8,13 @@ import {
   CorpEsiDataContext,
   PersonalESIDataContext,
 } from "../../Context/EveDataContext";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export default function BlueprintLibrary() {
-  const { users } = useContext(UsersContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
-
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
-
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
   const [pagination, setPagination] = useState({
     count: 0,
     from: 0,

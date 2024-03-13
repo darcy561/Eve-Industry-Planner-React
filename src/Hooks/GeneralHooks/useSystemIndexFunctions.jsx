@@ -1,13 +1,13 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { SystemIndexContext } from "../../Context/EveDataContext";
 import { fetchSystemIndexes } from "../FetchDataHooks/fetchSystemIndexes";
-import { UsersContext } from "../../Context/AuthContext";
 import GLOBAL_CONFIG from "../../global-config-app";
+import { useHelperFunction } from "./useHelperFunctions";
 
 export function useSystemIndexFunctions() {
   const { systemIndexData } = useContext(SystemIndexContext);
-  const { users } = useContext(UsersContext);
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
   const { DEFAULT_ITEM_REFRESH_PERIOD } = GLOBAL_CONFIG;
 
   async function findMissingSystemIndex(requiredIDs) {

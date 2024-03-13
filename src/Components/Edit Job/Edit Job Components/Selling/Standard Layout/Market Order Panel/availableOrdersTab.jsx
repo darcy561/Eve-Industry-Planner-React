@@ -46,7 +46,7 @@ export function AvailableMarketOrdersTab({
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const { calcBrokersFee } = useJobManagement();
   const { findBrokersFeeEntry } = useMarketOrderFunctions();
-  const { findUniverseItemObject } = useHelperFunction();
+  const { findParentUserIndex, findUniverseItemObject } = useHelperFunction();
   const analytics = getAnalytics();
 
   return (
@@ -180,9 +180,7 @@ export function AvailableMarketOrdersTab({
                         size="small"
                         onClick={async () => {
                           try {
-                            const parentUserIndex = users.findIndex(
-                              (user) => user.ParentUser
-                            );
+                            const parentUserIndex = findParentUserIndex();
                             const brokersFee = await calcBrokersFee(order);
                             const brokersFeeObject = findBrokersFeeEntry(
                               order,

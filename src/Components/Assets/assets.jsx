@@ -1,12 +1,11 @@
 import { Grid } from "@mui/material";
-import { useContext, useMemo } from "react";
-import { UsersContext } from "../../Context/AuthContext";
 import { ESIOffline } from "../offlineNotification";
 import { AssetTypeSelectPanel } from "./AssetTypeSelect";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export default function AssetLibrary() {
-  const { users } = useContext(UsersContext);
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
 
   return (
     <Grid container sx={{ marginTop: "5px" }} spacing={2}>

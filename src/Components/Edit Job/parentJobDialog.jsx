@@ -121,6 +121,9 @@ export function ParentJobDialog({
                             job.jobID,
                             true
                           );
+                        
+                        console.log(newParentJobsToAdd)
+                        console.log(newParentJobsToRemove)
 
                         updateParentChildToEdit((prev) => ({
                           ...prev,

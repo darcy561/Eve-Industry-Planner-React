@@ -1,10 +1,10 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import {
   SnackBarDataContext,
   DataExchangeContext,
   MassBuildDisplayContext,
 } from "../Context/LayoutContext";
-import { UserJobSnapshotContext, UsersContext } from "../Context/AuthContext";
+import { UserJobSnapshotContext } from "../Context/AuthContext";
 import {
   ApiJobsContext,
   JobArrayContext,
@@ -27,6 +27,7 @@ import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 import { useManageGroupJobs } from "./GroupHooks/useManageGroupJobs";
 import { STATIONID_RANGE } from "../Context/defaultValues";
+import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
@@ -35,7 +36,6 @@ export function useJobManagement() {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateMassBuildDisplay } = useContext(MassBuildDisplayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -67,12 +67,11 @@ export function useJobManagement() {
   const { findJobData } = useFindJobObject();
   const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { addJobToGroup } = useManageGroupJobs();
+  const { findParentUser } = useHelperFunction();
 
   const analytics = getAnalytics();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   const newJobProcess = async (buildRequest) => {
     const t = trace(performance, "CreateJobProcessFull");

@@ -22,6 +22,7 @@ import { ApiJobsContext } from "../../Context/JobContext";
 import { useSystemIndexFunctions } from "./useSystemIndexFunctions";
 import { useEveApi } from "../useEveApi";
 import { useCorporationObject } from "../Account Management Hooks/Corporation Objects/useCorporationObject";
+import { useHelperFunction } from "./useHelperFunctions";
 
 export function useRefreshApiData() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -48,14 +49,13 @@ export function useRefreshApiData() {
   const { fetchUniverseNames } = useEveApi();
   const { refreshSystemIndexes } = useSystemIndexFunctions();
   const { updateCorporationObject } = useCorporationObject();
+  const { findParentUser } = useHelperFunction();
 
   const checkAppVersion = httpsCallable(
     functions,
     "checkAppVersion-checkAppVersion"
   );
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   async function refreshApiData(updateRefreshTrigger) {
     logEvent(analytics, "Refresh API Data", {

@@ -99,7 +99,7 @@ export function useCloseActiveJob() {
     for (let idToAdd of parentChildToEdit.parentJobs.add) {
       let matchingJob = newJobArray.find((i) => i.jobID === idToAdd);
       if (!matchingJob) continue;
-      matchingJob.build.childJobs[inputJob.itemID].push(idToAdd);
+      matchingJob.build.childJobs[inputJob.itemID].push(inputJob.jobID);
       modifiedJobsSet.add(matchingJob.jobID);
     }
     inputJob.parentJob = [
@@ -117,7 +117,7 @@ export function useCloseActiveJob() {
         inputJob.build.childJobs[material.typeID].push(idToAdd);
         modifiedJobsSet.add(matchedJob.jobID);
       }
-      
+
       for (const idToRemove of parentChildToEdit.childJobs[material.typeID]
         .remove) {
         let matchedJob = newJobArray.find((i) => i.jobID === idToRemove);

@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { Grid, Icon, Paper, Tooltip, Typography } from "@mui/material";
 import { Masonry } from "@mui/lab";
 import DoneIcon from "@mui/icons-material/Done";
@@ -6,11 +6,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import { UsersContext } from "../../../../../../Context/AuthContext";
 import { PersonalESIDataContext } from "../../../../../../Context/EveDataContext";
 import bpSkills from "../../../../../../RawData/bpSkills.json";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function SkillsPanel({ activeJob, setupToEdit }) {
   const { users } = useContext(UsersContext);
   const { esiSkills } = useContext(PersonalESIDataContext);
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
 
   if (!activeJob.build.setup[setupToEdit]) return null;
 

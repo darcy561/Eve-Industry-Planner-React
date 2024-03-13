@@ -3,7 +3,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth, signOut } from "firebase/auth";
 import { functions, performance } from "../firebase";
 import { useNavigate } from "react-router";
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import {
   FirebaseListenersContext,
   IsLoggedInContext,
@@ -51,10 +51,11 @@ import { fetchSystemIndexes } from "./FetchDataHooks/fetchSystemIndexes";
 import { useBuildCorporationState } from "./Account Management Hooks/Corporation State/useBuildCorporationState";
 import { useRemoveCorporatinState } from "./Account Management Hooks/Corporation State/useRemoveCorporationState";
 import { useUpdateCorporationState } from "./Account Management Hooks/Corporation State/useUpdateCorporationState";
+import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
-  const { users, updateUsers } = useContext(UsersContext);
+  const { updateUsers } = useContext(UsersContext);
   const { updateGroupArray, updateJobArray } = useContext(JobArrayContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
@@ -105,8 +106,9 @@ export function useAccountManagement() {
     useContext(UserLoginUIContext);
 
   const checkClaims = httpsCallable(functions, "userClaims-updateCorpIDs");
+  const { findParentUser } = useHelperFunction();
   const auth = getAuth();
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const {
     fetchCharacterData,

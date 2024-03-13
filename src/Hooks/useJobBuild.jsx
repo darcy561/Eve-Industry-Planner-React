@@ -1,7 +1,7 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { appCheck } from "../firebase";
 import { getToken } from "firebase/app-check";
-import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
+import { IsLoggedInContext } from "../Context/AuthContext";
 import {
   CorpEsiDataContext,
   PersonalESIDataContext,
@@ -17,11 +17,11 @@ import {
 import { JobArrayContext } from "../Context/JobContext";
 import uuid from "react-uuid";
 import { useInstallCostsCalc } from "./GeneralHooks/useInstallCostCalc";
+import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useJobBuild() {
   const { sisiDataFiles } = useContext(SisiDataFilesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users } = useContext(UsersContext);
   const { jobArray } = useContext(JobArrayContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
@@ -30,10 +30,9 @@ export function useJobBuild() {
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const { calculateTime, calculateResources } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   class Job {
     constructor(itemJson, buildRequest) {

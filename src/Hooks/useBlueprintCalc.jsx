@@ -3,10 +3,12 @@ import { UsersContext } from "../Context/AuthContext";
 import { jobTypes } from "../Context/defaultValues";
 import { structureOptions } from "../Context/defaultValues";
 import { PersonalESIDataContext } from "../Context/EveDataContext";
+import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useBlueprintCalc() {
   const { users } = useContext(UsersContext);
   const { esiSkills } = useContext(PersonalESIDataContext);
+  const { findParentUser } = useHelperFunction();
 
   function calculateResources(calcData) {
     switch (calcData.jobType) {
@@ -92,7 +94,7 @@ export function useBlueprintCalc() {
   const calculateTime = (calcData, jobSkills) => {
     let user =
       users.find((i) => i.CharacterHash === calcData.selectedCharacter) ||
-      users.find((i) => i.ParentUser);
+      findParentUser();
 
     const userSkills =
       esiSkills.find((i) => i.user === user.CharacterHash)?.data || {};

@@ -14,6 +14,7 @@ import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useNavigate } from "react-router-dom";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ArchiveJobButton({ activeJob }) {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -27,11 +28,12 @@ export function ArchiveJobButton({ activeJob }) {
   const { archiveJob, removeJob, uploadUserJobSnapshot, updateMainUserDoc } =
     useFirebase();
   const { deleteJobSnapshot } = useJobSnapshotManagement();
+  const { findParentUserIndex } = useHelperFunction();
   const analytics = getAnalytics();
   const navigate = useNavigate();
 
   const archiveJobProcess = async () => {
-    const parentUserIndex = users.findIndex((i) => i.ParentUser);
+    const parentUserIndex = findParentUserIndex();
     let newUserArray = [...users];
 
     logEvent(analytics, "Archive Job", {

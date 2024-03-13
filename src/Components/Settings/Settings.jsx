@@ -9,10 +9,12 @@ import { CompactLayoutSettings } from "./SettingsModules/Compact/compactLayoutSe
 import { CompactEditJobSettings } from "./SettingsModules/Compact/compactEditJobSettings";
 import { CompactManufacturingStrutures } from "./SettingsModules/Compact/compactManufacturingStructures";
 import { CompactReactionStrutures } from "./SettingsModules/Compact/compactReactionStructures";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export default function SettingsPage() {
   const { users } = useContext(UsersContext);
-  const parentUserIndex = users.findIndex((i) => i.ParentUser);
+  const { findParentUserIndex } = useHelperFunction();
+  const parentUserIndex = findParentUserIndex();
   return (
     <Container disableGutters maxWidth="false">
       <Paper

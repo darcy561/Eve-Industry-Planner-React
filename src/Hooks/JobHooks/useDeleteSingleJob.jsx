@@ -18,6 +18,7 @@ import {
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./useJobSnapshots";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useDeleteSingleJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -45,8 +46,9 @@ export function useDeleteSingleJob() {
     useFirebase();
   const { deleteJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
+  const { findParentUser } = useHelperFunction();
   const analytics = getAnalytics();
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const deleteSingleJob = async (inputJobID) => {
     let newApiJobsArary = [...apiJobs];

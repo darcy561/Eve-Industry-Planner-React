@@ -3,28 +3,28 @@ import {
   ApiJobsContext,
   LinkedIDsContext,
 } from "../../../../Context/JobContext";
-import { UsersContext } from "../../../../Context/AuthContext";
 import { useMediaQuery } from "@mui/material";
 import { Building_StandardLayout_EditJob } from "./StandardLayout/standardLayout";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function LayoutSelector_EditJob_Building({
   activeJob,
   updateActiveJob,
   setJobModified,
   esiDataToLink,
-  updateEsiDataToLink
+  updateEsiDataToLink,
 }) {
   const { apiJobs } = useContext(ApiJobsContext);
-  const { users } = useContext(UsersContext);
   const { linkedJobIDs } = useContext(LinkedIDsContext);
+  const { findParentUser } = useHelperFunction();
 
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const jobMatches = useMemo(() => {
-    const uniqueJobIds = new Set(); 
-  
+    const uniqueJobIds = new Set();
+
     return apiJobs.filter((job) => {
       const isDuplicate = uniqueJobIds.has(job.job_id);
 
@@ -41,16 +41,15 @@ export function LayoutSelector_EditJob_Building({
       );
     });
   }, [apiJobs, activeJob, linkedJobIDs, parentUser]);
-  
 
-  console.log(jobMatches)
+  console.log(jobMatches);
 
   switch (deviceNotMobile) {
     case true:
       return (
         <Building_StandardLayout_EditJob
           activeJob={activeJob}
-          updateActiveJob={updateActiveJob} 
+          updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
           parentUser={parentUser}
           jobMatches={jobMatches}

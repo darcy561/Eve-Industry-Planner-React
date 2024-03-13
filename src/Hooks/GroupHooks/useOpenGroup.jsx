@@ -11,6 +11,7 @@ import {
 } from "../../Context/LayoutContext";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useFirebase } from "../useFirebase";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useOpenGroup() {
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
@@ -22,8 +23,9 @@ export function useOpenGroup() {
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { findJobData } = useFindJobObject();
   const { getItemPrices } = useFirebase();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const openGroup = async (inputGroupID) => {
     let newJobArray = [...jobArray];

@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import {
   PriceEntryListContext,
   SnackBarDataContext,
@@ -20,7 +20,6 @@ import { JobArrayContext } from "../../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
-  UsersContext,
 } from "../../../../Context/AuthContext";
 import { listingType } from "../../../../Context/defaultValues";
 import { ItemPriceRow } from "./itemRow";
@@ -28,22 +27,21 @@ import { useFirebase } from "../../../../Hooks/useFirebase";
 import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObject";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { updateJobSnapshot } = useJobSnapshotManagement();
+  const { findParentUser, importMultibuyFromClipboard } = useHelperFunction();
   const { findJobData } = useFindJobObject();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   const { priceEntryListData, updatePriceEntryListData } = useContext(
     PriceEntryListContext
@@ -117,10 +115,7 @@ export function PriceEntryDialog() {
     }
     let newUserJobSnapshot = [...userJobSnapshot];
     for (let job of uploadIDs) {
-      newUserJobSnapshot = updateJobSnapshot(
-        job,
-        newUserJobSnapshot
-      );
+      newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
       if (isLoggedIn) {
         await uploadJob(job);
       }
@@ -314,13 +309,8 @@ export function PriceEntryDialog() {
                 onClick={async () => {
                   let newList = [...priceEntryListData.list];
                   let newTotal = totalImportedCost;
-                  let importedText = await navigator.clipboard.readText();
                   let importCount = 0;
-                  let matches = [
-                    ...importedText.matchAll(
-                      /^(.*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)$/gm
-                    ),
-                  ];
+                  let matches = await importMultibuyFromClipboard();
                   if (matches.length > 0) {
                     for (let importMatch of matches) {
                       for (let listItem of newList) {
@@ -363,7 +353,7 @@ export function PriceEntryDialog() {
                   }
                 }}
               >
-                Import From MultiBuy
+                Import Costs From MultiBuy
               </Button>
               <Button
                 variant="contained"

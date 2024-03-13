@@ -1,8 +1,8 @@
-import { useContext, useMemo, useState } from "react";
+import { useState } from "react";
 import { useMediaQuery } from "@mui/material";
 import { Purchasing_StandardLayout_EditJob } from "./Standard Layout/StandardLayout";
 import { Purchasing_MobileLayout_EditJob } from "./Mobile Layout/mobileLayout";
-import { UsersContext } from "../../../../Context/AuthContext";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function LayoutSelector_EditJob_Purchasing({
   activeJob,
@@ -10,10 +10,10 @@ export function LayoutSelector_EditJob_Purchasing({
   setJobModified,
   parentChildToEdit,
   updateParentChildToEdit,
-  temporaryChildJobs
+  temporaryChildJobs,
 }) {
-  const { users } = useContext(UsersContext);
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
   const [orderDisplay, changeOrderDisplay] = useState(
     !activeJob.layout.localOrderDisplay
       ? parentUser.settings.editJob.defaultOrders
@@ -27,11 +27,6 @@ export function LayoutSelector_EditJob_Purchasing({
   );
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
-  //metaLevel
-  const requiresInventionCosts = new Set([2, 14, 53]);
-  //TypeID
-  const ignoreInventionCosts = new Set();
-
   switch (deviceNotMobile) {
     case true:
       return (
@@ -43,8 +38,6 @@ export function LayoutSelector_EditJob_Purchasing({
           changeOrderDisplay={changeOrderDisplay}
           marketDisplay={marketDisplay}
           changeMarketDisplay={changeMarketDisplay}
-          requiresInventionCosts={requiresInventionCosts}
-          ignoreInventionCosts={ignoreInventionCosts}
           parentChildToEdit={parentChildToEdit}
           updateParentChildToEdit={updateParentChildToEdit}
           temporaryChildJobs={temporaryChildJobs}
@@ -61,8 +54,6 @@ export function LayoutSelector_EditJob_Purchasing({
           changeOrderDisplay={changeOrderDisplay}
           marketDisplay={marketDisplay}
           changeMarketDisplay={changeMarketDisplay}
-          requiresInventionCosts={requiresInventionCosts}
-          ignoreInventionCosts={ignoreInventionCosts}
           parentChildToEdit={parentChildToEdit}
           updateParentChildToEdit={updateParentChildToEdit}
           temporaryChildJobs={temporaryChildJobs}
@@ -78,8 +69,6 @@ export function LayoutSelector_EditJob_Purchasing({
           changeOrderDisplay={changeOrderDisplay}
           marketDisplay={marketDisplay}
           changeMarketDisplay={changeMarketDisplay}
-          requiresInventionCosts={requiresInventionCosts}
-          ignoreInventionCosts={ignoreInventionCosts}
           parentChildToEdit={parentChildToEdit}
           updateParentChildToEdit={updateParentChildToEdit}
           temporaryChildJobs={temporaryChildJobs}

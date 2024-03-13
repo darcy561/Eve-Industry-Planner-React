@@ -61,7 +61,10 @@ export function MaterialCardFrame_Purchasing({
         <AssetsAvatar_Purchasing
           updateItemAssetsDialogTrigger={updateItemAssetsDialogTrigger}
         />
-        <ChildJobsAvatar_Purchasing material={material} />
+        <ChildJobsAvatar_Purchasing
+          material={material}
+          updateChildDialogTrigger={updateChildDialogTrigger}
+        />
 
         <Grid container item sx={{ marginBottom: "15px" }}>
           <Grid item xs={12} align="center">

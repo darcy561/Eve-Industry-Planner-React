@@ -6,12 +6,14 @@ import {
 } from "../../../../Context/AuthContext";
 import { UserLoginUIContext } from "../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function TutorialStep3({ activeJob, parentUser }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
+  const { findParentUserIndex } = useHelperFunction();
 
   if (!parentUser.settings.layout.hideTutorials && userDataFetch) {
     return (
@@ -75,9 +77,7 @@ export function TutorialStep3({ activeJob, parentUser }) {
                     size="small"
                     onClick={() => {
                       let newUsers = [...users];
-                      let parentUserIndex = newUsers.findIndex(
-                        (i) => i.ParentUser === true
-                      );
+                      const parentUserIndex = findParentUserIndex();
 
                       newUsers[
                         parentUserIndex

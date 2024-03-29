@@ -19,7 +19,6 @@
     "glob-parent": "^6.0.2",
     "jose": "^4.9.2",
     "react": "^18.2.0",
-    "react-copy-to-clipboard": "^5.0.4",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
@@ -29,11 +28,11 @@
     "web-vitals": "^1.1.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "1.1.1",
-    "vite": "^2.9.15",
     "@testing-library/jest-dom": "^5.15.0",
     "@testing-library/react": "^11.2.7",
-    "@testing-library/user-event": "^12.8.3"
+    "@testing-library/user-event": "^12.8.3",
+    "@vitejs/plugin-react": "1.1.1",
+    "vite": "^2.9.15"
   },
   "scripts": {
     "start": "vite",

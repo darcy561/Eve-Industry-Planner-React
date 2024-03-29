@@ -4,6 +4,7 @@ import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelpe
 export function ChildJobsAvatar_Purchasing({
   material,
   updateChildDialogTrigger,
+  childJobs,
 }) {
   const { isItemBuildable } = useHelperFunction();
 
@@ -34,7 +35,7 @@ export function ChildJobsAvatar_Purchasing({
           updateChildDialogTrigger((prev) => !prev);
         }}
       >
-        2
+        {childJobs.length}
       </Avatar>
     </Tooltip>
   );

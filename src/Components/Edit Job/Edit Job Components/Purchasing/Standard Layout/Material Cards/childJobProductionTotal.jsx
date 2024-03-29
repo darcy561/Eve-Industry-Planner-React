@@ -5,17 +5,18 @@ import {
 } from "../../../../../../Context/defaultValues";
 
 export function ChildJobProductionTotal_Purchasing({
+  childJobs,
   childJobLocation,
   childJobProductionTotal,
 }) {
-  if (childJobLocation.length !== 0) return null;
+  if (childJobs.length === 0) return null;
 
   return (
     <Grid item xs={12}>
       <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
         {childJobLocation.length > 1
-          ? "Child Jobs Production Total:"
-          : "Child Job Production Total: "}
+          ? "Produced By Child Jobs:"
+          : "Produced By Child Job: "}
         {childJobProductionTotal.toLocaleString(undefined, ZERO_DECIMAL_PLACES)}
       </Typography>
     </Grid>

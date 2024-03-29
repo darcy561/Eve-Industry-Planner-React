@@ -310,47 +310,40 @@ export function PriceEntryDialog() {
                   let newList = [...priceEntryListData.list];
                   let newTotal = totalImportedCost;
                   let importCount = 0;
+                  let importStatus = false;
                   let matches = await importMultibuyFromClipboard();
-                  if (matches.length > 0) {
-                    for (let importMatch of matches) {
-                      for (let listItem of newList) {
-                        if (
-                          listItem.name === importMatch[1] &&
-                          !listItem.confirmed
-                        ) {
-                          let number = parseFloat(
-                            importMatch[3].replace(/,/g, "")
-                          );
 
-                          newTotal += number * listItem.quantity;
-                          listItem.confirmed = true;
-                          listItem.itemPrice = number;
-                          importCount++;
-                        }
-                      }
-                    }
-                    updateTotalImportedCost(newTotal);
-                    updatePriceEntryListData((prev) => ({
-                      ...prev,
-                      list: newList,
-                    }));
-                    updateImportFromClipboard(true);
-                    setSnackbarData((prev) => ({
-                      ...prev,
-                      open: true,
-                      message: `${importCount} Prices Added`,
-                      severity: "success",
-                      autoHideDuration: 3000,
-                    }));
-                  } else {
-                    setSnackbarData((prev) => ({
-                      ...prev,
-                      open: true,
-                      message: `No Matching Items Found`,
-                      severity: "error",
-                      autoHideDuration: 3000,
-                    }));
+                  for (let listItem of newList) {
+                    const importMatch = matches.find(
+                      (i) => i.importedName === listItem.name
+                    );
+                    if (!importMatch) continue;
+
+                    newTotal += importMatch.importedCost * listItem.quantity;
+                    listItem.confirmed = true;
+                    listItem.itemPrice = importMatch.importedCost;
+                    importCount++;
                   }
+
+                  if (importCount > 0) {
+                    importStatus = true;
+                  }
+                  
+                  updateTotalImportedCost(newTotal);
+                  updatePriceEntryListData((prev) => ({
+                    ...prev,
+                    list: newList,
+                  }));
+                  updateImportFromClipboard(true);
+                  setSnackbarData((prev) => ({
+                    ...prev,
+                    open: true,
+                    message: importStatus
+                      ? `${importCount} Prices Added`
+                      : "No Matching Items Found",
+                    severity: importStatus ? "success" : "error",
+                    autoHideDuration: 3000,
+                  }));
                 }}
               >
                 Import Costs From MultiBuy

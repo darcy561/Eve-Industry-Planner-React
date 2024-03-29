@@ -14,10 +14,10 @@ export function RemainingToPurchase_Purchasing({
     <Grid item xs={12}>
       <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
         Remaining To Purchase:{" "}
-        {(material.quantity - material.quantityPurchased).toLocaleString(
-          undefined,
-          ZERO_DECIMAL_PLACES
-        )}
+        {(
+          material.quantity -
+          material.quantityPurchased- childJobProductionTotal
+        ).toLocaleString(undefined, ZERO_DECIMAL_PLACES)}
       </Typography>
     </Grid>
   );

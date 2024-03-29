@@ -4,89 +4,50 @@ import AddIcon from "@mui/icons-material/Add";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { ZERO_TWO_DECIMAL_PLACES } from "../../../../../../Context/defaultValues";
+import { useMaterialCosts } from "../../../../../../Hooks/JobHooks/useMaterialCosts";
 
 export function AddMaterialCost_Purchasing({
   activeJob,
   updateActiveJob,
-  materialIndex,
   material,
   setJobModified,
   marketDisplay,
   orderDisplay,
+  childJobProductionTotal,
+  childJobs,
 }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { findItemPriceObject } = useHelperFunction();
+  const { addPriceEntry } = useMaterialCosts();
   const materialPrice = findItemPriceObject(material.typeID);
   const [itemCountInput, setItemCountInput] = useState(
     Number(material.quantity - material.quantityPurchased)
   );
   const [itemCostInput, setItemCostInput] = useState(
-    materialPrice[marketDisplay][orderDisplay].toFixed(2)
+    Number(materialPrice[marketDisplay][orderDisplay].toFixed(2))
   );
 
-  const handleSubmit = (event) => {
+  function handleSubmit(event) {
     event.preventDefault();
     if (itemCountInput <= 0) return;
 
-    let newArray = [...activeJob.build.materials];
-    let newTotal = activeJob.build.costs.totalPurchaseCost;
-
-    const hasInvalidQuantityOrCost = newArray[materialIndex].purchasing.some(
-      (entry) =>
-        isNaN(entry.itemCount) ||
-        entry.itemCount < 0 ||
-        isNaN(entry.itemCost) ||
-        entry.itemCost < 0
+    const { newMaterialArray, newTotalPurchaseCost } = addPriceEntry(
+      activeJob,
+      material,
+      {
+        itemCount: itemCountInput,
+        itemCost: itemCostInput,
+      }
     );
-
-    if (hasInvalidQuantityOrCost) {
-      const { newQuantity, newPurchaseCost } = newArray[
-        materialIndex
-      ].purchasing.reduce(
-        (acc, entry) => ({
-          newQuantity: acc.newQuantity + itemCountInput,
-          newPurchaseCost: acc.newPurchaseCost + itemCountInput * itemCostInput,
-        }),
-        { newQuantity: 0, newPurchaseCost: 0 }
-      );
-
-      newArray[materialIndex].quantityPurchased = newQuantity;
-      newArray[materialIndex].purchasedCost = newPurchaseCost;
-    }
-
-    const hasInvalidTotalPurchaseCost = isNaN(newTotal) || newTotal < 0;
-
-    if (hasInvalidTotalPurchaseCost) {
-      newTotal = newArray.reduce((acc, entry) => acc + entry.purchasedCost, 0);
-    }
-
-    newArray[materialIndex].purchasing.push({
-      id: Date.now(),
-      childID: null,
-      childJobImport: false,
-      itemCount: itemCountInput,
-      itemCost: itemCostInput,
-    });
-
-    newArray[materialIndex].quantityPurchased += itemCountInput;
-    newArray[materialIndex].purchasedCost += itemCountInput * itemCostInput;
-    newTotal += itemCountInput * itemCostInput;
-
-    if (
-      newArray[materialIndex].quantityPurchased >=
-      newArray[materialIndex].quantity
-    ) {
-      newArray[materialIndex].purchaseComplete = true;
-    }
 
     updateActiveJob((prevObj) => ({
       ...prevObj,
       build: {
         ...prevObj.build,
-        materials: newArray,
+        materials: newMaterialArray,
         costs: {
           ...prevObj.build.costs,
-          totalPurchaseCost: newTotal,
+          totalPurchaseCost: newTotalPurchaseCost,
         },
       },
     }));
@@ -101,11 +62,17 @@ export function AddMaterialCost_Purchasing({
     setItemCostInput(0);
     setItemCountInput(0);
     setJobModified(true);
-  };
+  }
 
-  // function handleSubmit(event) {
-  //   event.preventDefault();
-  // }
+  if (material.quantityPurchased >= material.quantity) return null;
+
+  if (childJobs.length > 0) {
+    if (
+      childJobProductionTotal + material.quantityPurchased >=
+      material.quantity
+    )
+      return null;
+  }
 
   return (
     <form onSubmit={handleSubmit}>

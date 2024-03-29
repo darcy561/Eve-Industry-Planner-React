@@ -105,8 +105,8 @@ export function useHelperFunction() {
     for (let item of matchedItems) {
       returnArray.push({
         importedName: item[1] || "",
-        importedQuantity: parseFloat(importMatch[2].replace(/,/g, "")) || 0,
-        importedCost: parseFloat(importMatch[3].replace(/,/g, "")) || 0,
+        importedQuantity: parseFloat(item[2].replace(/,/g, "")) || 0,
+        importedCost: parseFloat(item[3].replace(/,/g, "")) || 0,
       });
     }
     return returnArray;

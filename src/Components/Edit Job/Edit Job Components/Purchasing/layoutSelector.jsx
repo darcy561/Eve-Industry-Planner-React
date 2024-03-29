@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMediaQuery } from "@mui/material";
-import { Purchasing_StandardLayout_EditJob } from "./Standard Layout/StandardLayout";
+import { Purchasing_StandardLayout_EditJob } from "./Standard Layout/standardLayout";
 import { Purchasing_MobileLayout_EditJob } from "./Mobile Layout/mobileLayout";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 

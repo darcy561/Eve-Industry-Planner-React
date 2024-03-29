@@ -75,7 +75,7 @@ export function PassBuildCostsButton({ activeJob }) {
         itemCount: Number(quantityImported),
         itemCost: itemCost,
       });
-      material.quantityPurchased = quantityImported;
+      material.quantityPurchased += quantityImported;
       material.purchasedCost += quantityImported * itemCost;
       if (quantityImported >= material.quantity) {
         material.purchaseComplete = true;

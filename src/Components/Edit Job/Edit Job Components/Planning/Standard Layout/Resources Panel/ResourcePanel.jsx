@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import { useContext, useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import CopyToClipboard from "react-copy-to-clipboard";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { MaterialRow } from "./materialRow";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
@@ -31,7 +30,6 @@ export function RawResourceList({
   parentChildToEdit,
   updateParentChildToEdit,
 }) {
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const [displayType, updateDisplyType] = useState(
@@ -41,7 +39,7 @@ export function RawResourceList({
   const { buildJob } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { getItemPrices } = useFirebase();
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, writeTextToClipboard } = useHelperFunction();
 
   const parentUser = findParentUser();
 
@@ -134,21 +132,14 @@ export function RawResourceList({
             "aria-labelledby": "rawResources_menu_button",
           }}
         >
-          <CopyToClipboard
-            text={copyText}
-            onCopy={() => {
-              handleMenuClose();
-              setSnackbarData((prev) => ({
-                ...prev,
-                open: true,
-                message: `Resource List Copied`,
-                severity: "success",
-                autoHideDuration: 1000,
-              }));
+          <MenuItem
+            onClick={async () => {
+              await writeTextToClipboard(copyText);
             }}
           >
-            <MenuItem>Copy Resources List</MenuItem>
-          </CopyToClipboard>
+            Copy Resources List
+          </MenuItem>
+
           <MenuItem onClick={buildAllChildJobs}>Create All Child Jobs</MenuItem>
         </Menu>
       </Grid>

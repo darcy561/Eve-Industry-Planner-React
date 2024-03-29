@@ -2,11 +2,13 @@ import { useContext } from "react";
 import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { UsersContext } from "../../Context/AuthContext";
+import { SnackBarDataContext } from "../../Context/LayoutContext";
 
 export function useHelperFunction() {
   const { users } = useContext(UsersContext);
   const { evePrices } = useContext(EvePricesContext);
   const { eveIDs } = useContext(EveIDsContext);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   function Add_RemovePendingChildJobs(
     materialChildJobObject,
@@ -72,8 +74,8 @@ export function useHelperFunction() {
     );
   }
 
-  function findUniverseItemObject(requestedID) {
-    return eveIDs[requestedID];
+  function findUniverseItemObject(requestedID, alternativeItemLocation) {
+    return eveIDs[requestedID] || alternativeItemLocation[requestedID] || null;
   }
 
   function isItemBuildable(requestedJobType) {
@@ -96,7 +98,7 @@ export function useHelperFunction() {
 
   async function importMultibuyFromClipboard() {
     const returnArray = [];
-    const importedText = await navigator.clipboard.readText();
+    const importedText = await readTextFromClipboard();
 
     const matchedItems = [
       ...importedText.matchAll(/^(.*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)$/gm),
@@ -112,6 +114,43 @@ export function useHelperFunction() {
     return returnArray;
   }
 
+  async function writeTextToClipboard(inputTextString) {
+    try {
+      await navigator.clipboard.writeText(inputTextString);
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `Successfully Copied`,
+        severity: "success",
+        autoHideDuration: 1000,
+      }));
+    } catch (err) {
+      console.message(err.message);
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `Error Copying Text To Clipboard`,
+        severity: "error",
+        autoHideDuration: 3000,
+      }));
+    }
+  }
+
+  async function readTextFromClipboard() {
+    try {
+      return await navigator.clipboard.readText();
+    } catch (err) {
+      console.message(err.message);
+      setSnackbarData((prev) => ({
+        ...prev,
+        open: true,
+        message: `Error Reading Text From Clipboard`,
+        severity: "error",
+        autoHideDuration: 3000,
+      }));
+    }
+  }
+
   return {
     Add_RemovePendingChildJobs,
     Add_RemovePendingParentJobs,
@@ -121,5 +160,7 @@ export function useHelperFunction() {
     findUniverseItemObject,
     importMultibuyFromClipboard,
     isItemBuildable,
+    readTextFromClipboard,
+    writeTextToClipboard,
   };
 }

@@ -1,10 +1,9 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
 import { EveIDsContext } from "../Context/EveDataContext";
 import { useEveApi } from "./useEveApi";
 import searchData from "../RawData/searchIndex.json";
 import { useAssetHelperHooks } from "./AssetHooks/useAssetHelper";
-import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useCharAssets() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -17,8 +16,6 @@ export function useCharAssets() {
     acceptedLocationFlags,
     retrieveAssetLocation,
   } = useAssetHelperHooks();
-  const { findParentUser } = useHelperFunction();
-  const parentUser = findParentUser();
 
   async function getAssetLocationList() {
     let itemLocations = [];
@@ -84,7 +81,7 @@ export function useCharAssets() {
     return { itemLocations, newEveIDs };
   }
 
-  const findLocationAssets = async (requiredLocationID) => {
+  function findLocationAssets(requiredLocationID) {
     let locationAssets = [];
     let fullAssetList = [];
     for (let user of users) {
@@ -155,8 +152,8 @@ export function useCharAssets() {
       }
       fullAssetList = fullAssetList.concat(userAssets);
     }
-    return [fullAssetList, locationAssets];
-  };
+    return { fullAssetList, locationAssets }
+  }
 
   return {
     findLocationAssets,

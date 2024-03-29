@@ -619,6 +619,7 @@ export const ZERO_TWO_DECIMAL_PLACES = {
 };
 
 export const STANDARD_TEXT_FORMAT = { xs: "caption", sm: "body2" };
+export const LARGE_TEXT_FORMAT = { xs: "caption", sm: "body1" };
 
 export const META_LEVELS_THAT_REQUIRE_INVENTION_COSTS = new Set([2, 14, 53]);
 export const TYPE_IDS_TO_IGNORE_FOR_INVENTION_COSTS = new Set([]);

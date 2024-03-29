@@ -16,7 +16,7 @@ export function useShoppingList() {
     UserJobSnapshotContext
   );
   const { findJobData } = useFindJobObject();
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, findItemPriceObject } = useHelperFunction();
 
   const parentUser = findParentUser();
 
@@ -107,5 +107,87 @@ export function useShoppingList() {
     return finalShoppingList;
   }
 
-  return { buildShoppingList };
+  function buildCopyText(removeAssetsFlag, item) {
+    return removeAssetsFlag
+      ? `${item.name} ${item.quantityLessAsset}\n`
+      : `${item.name} ${item.quantity}\n`;
+  }
+
+  function calculateItemPrice(
+    removeAssetsFlag,
+    item,
+    assetQuantity,
+    alternativePriceLocation
+  ) {
+    const itemPriceObject = findItemPriceObject(
+      item.typeID,
+      alternativePriceLocation
+    );
+    const individualItemPrice =
+      itemPriceObject[parentUser.settings.editJob.defaultMarket][
+        parentUser.settings.editJob.defaultOrders
+      ];
+
+    return removeAssetsFlag
+      ? individualItemPrice * (item.quantity - assetQuantity)
+      : individualItemPrice * item.quantity;
+  }
+
+  function calculateVolumeTotal(removeAssetsFlag, item, assetQuantity) {
+    return removeAssetsFlag
+      ? item.volume * (item.quantity - assetQuantity)
+      : item.volume * item.quantity;
+  }
+
+  function isAssetQuantityVisable(item, assetQuantity) {
+    return item.quantity - assetQuantity > 0 ? true : false;
+  }
+
+  function isChildJobVisable(childJobDisplayFlag, item) {
+    return !childJobDisplayFlag && !item.hasChild ? true : false;
+  }
+
+  function isItemVisable(
+    remvoveAssetFlag,
+    childJobDisplayFlag,
+    item,
+    assetQuantity
+  ) {
+    const quantity = isAssetQuantityVisable(item, assetQuantity);
+    const childJob = isChildJobVisable(childJobDisplayFlag, item);
+
+    if (remvoveAssetFlag && quantity && childJob) return true;
+
+    if (!remvoveAssetFlag && childJob) return true;
+
+    return false;
+  }
+
+  function findCharacterAssets(fullAssetList, itemID, selectedCharacter) {
+    if (selectedCharacter !== "all") {
+      return fullAssetList.find(
+        (i) => i.itemID === itemID && i.CharacterHash === itemID
+      );
+    }
+
+    return fullAssetList.find((i) => i.item_id === itemID);
+  }
+
+  function generateTextToCopy(removeAssetFlag, inputItems) {
+    let outputText = "";
+
+    inputItems.forEach((item) => {
+      outputText = outputText.concat(buildCopyText(removeAssetFlag, item));
+    });
+    return outputText;
+  }
+
+  return {
+    buildShoppingList,
+    calculateItemPrice,
+    calculateVolumeTotal,
+    findCharacterAssets,
+    generateTextToCopy,
+    isItemVisable,
+  };
 }

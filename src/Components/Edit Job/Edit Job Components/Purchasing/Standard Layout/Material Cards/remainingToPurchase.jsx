@@ -7,8 +7,10 @@ import {
 export function RemainingToPurchase_Purchasing({
   material,
   childJobProductionTotal,
+  remainingTotalToBeImported
 }) {
   if (childJobProductionTotal >= material.quantity) return null;
+
 
   return (
     <Grid item xs={12}>
@@ -16,7 +18,7 @@ export function RemainingToPurchase_Purchasing({
         Remaining To Purchase:{" "}
         {(
           material.quantity -
-          material.quantityPurchased- childJobProductionTotal
+          material.quantityPurchased- remainingTotalToBeImported
         ).toLocaleString(undefined, ZERO_DECIMAL_PLACES)}
       </Typography>
     </Grid>

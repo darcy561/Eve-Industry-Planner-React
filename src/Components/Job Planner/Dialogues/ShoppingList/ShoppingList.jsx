@@ -35,6 +35,7 @@ import {
 import { LoadingDataDisplay_ShoppingListDialog } from "./shoppingListLoading";
 import { ListDataFrame_ShoppingListDialog } from "./shoppingListDataFrame";
 import { SelectAssetLocation_ShoppingListDialog } from "./assetLocationsSelection";
+import { useAssetHelperHooks } from "../../../../Hooks/AssetHooks/useAssetHelper";
 
 export function ShoppingListDialog() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -57,6 +58,7 @@ export function ShoppingListDialog() {
     generateTextToCopy,
     isItemVisable,
   } = useShoppingList();
+  const { buildAssetTypeIDMaps } = useAssetHelperHooks();
   const { findLocationAssets } = useCharAssets();
   const { getItemPrices } = useFirebase();
   const [childJobDisplay, updateChildJobDisplay] = useState(false);
@@ -97,7 +99,6 @@ export function ShoppingListDialog() {
           (i) => i.type_id === listItem.typeID
         );
 
-        console.log(assetType)
         let assetQuantity = 0;
         if (assetType) {
           assetType.itemIDs.forEach((itemID) => {
@@ -106,6 +107,7 @@ export function ShoppingListDialog() {
               itemID,
               selectedCharacter
             );
+            console.log(asset)
             if (asset) {
               assetQuantity += asset.quantity;
             }
@@ -122,7 +124,8 @@ export function ShoppingListDialog() {
           listItem.quantity - assetQuantity,
           0
         );
-
+        listItem.assetQuantity = assetQuantity
+          console.log(listItem)
         if (!listItem.isVisible) return;
 
         newListTotal += calculateItemPrice(

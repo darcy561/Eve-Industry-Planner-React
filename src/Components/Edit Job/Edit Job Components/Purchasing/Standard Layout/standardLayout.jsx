@@ -1,7 +1,6 @@
 import { Grid } from "@mui/material";
 import { TutorialStep2 } from "../tutorialStep2";
 import { PurchasingDataPanel_EditJob } from "./Purchasing Data Panel/purchsingDataPanel";
-import { MaterialCard } from "./Material Cards/materialCard";
 import { InventionCostsCard } from "./Invention Costs/inventionCostsCard";
 import { MaterialCardFrame_Purchasing } from "./Material Cards/materialCardFrame";
 import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";

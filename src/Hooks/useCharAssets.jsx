@@ -15,6 +15,7 @@ export function useCharAssets() {
     acceptedExtendedLocationTypes,
     acceptedLocationFlags,
     retrieveAssetLocation,
+    buildAssetTypeIDMaps
   } = useAssetHelperHooks();
 
   async function getAssetLocationList() {
@@ -83,15 +84,16 @@ export function useCharAssets() {
 
   function findLocationAssets(requiredLocationID) {
     let locationAssets = [];
-    let fullAssetList = [];
+    let fullAssetList = new Map();
     for (let user of users) {
       let userAssets = JSON.parse(
         sessionStorage.getItem(`assets_${user.CharacterHash}`)
       );
 
       if (!isLoggedIn) {
-        return [[], []];
+        return { fullAssetList, locationAssets };
       }
+      console.log(buildAssetTypeIDMaps(userAssets, 11486))
 
       for (let item of userAssets) {
         if (searchData.some((i) => i.blueprintID === item.type_id)) {
@@ -150,9 +152,9 @@ export function useCharAssets() {
           }
         }
       }
-      fullAssetList = fullAssetList.concat(userAssets);
+      fullAssetList.set(user.CharacterHash, userAssets);
     }
-    return { fullAssetList, locationAssets }
+    return { fullAssetList, locationAssets };
   }
 
   return {

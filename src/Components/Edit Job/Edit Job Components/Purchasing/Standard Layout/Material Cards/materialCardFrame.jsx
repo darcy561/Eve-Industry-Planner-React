@@ -39,6 +39,7 @@ export function MaterialCardFrame_Purchasing({
   function calculateChildJobData() {
     let childJobs = [];
     let childJobProductionTotal = 0;
+    let remainingTotalToBeImported = 0;
     const childJobLocation = [
       ...activeJob.build.childJobs[material.typeID],
       ...(temporaryChildJobs[material.typeID]
@@ -60,28 +61,51 @@ export function MaterialCardFrame_Purchasing({
           (total, job) => total + job.itemQuantity,
           0
         );
+        remainingTotalToBeImported = childJobs.reduce((total, job) => {
+          const matchingCostImport = material.purchasing.find(
+            (i) => i.childID === job.jobID
+          );
+
+          if (!matchingCostImport) {
+            return (total += job.itemQuantity);
+          }
+          return total;
+        }, 0);
       } else {
         childJobs = filterJobs([
           ...jobArray,
           Object.entries(temporaryChildJobs),
         ]);
         childJobProductionTotal = childJobs.reduce((total, job) => {
-          if (material.purchasing.some((i) => i.childID !== job.jobID)) {
-            return total + job.build.products.totalQuantity;
-          } else {
-            return total;
-          }
+          return (total += job.build.products.totalQuantity);
         }, 0);
+
         remainingTotalToBeImported = childJobs.reduce((total, job) => {
-                  
-        },0)
+          const matchingCostImport = material.purchasing.find(
+            (i) => i.childID === job.jobID
+          );
+
+          if (!matchingCostImport) {
+            return (total += job.build.products.totalQuantity);
+          }
+          return total;
+        }, 0);
       }
     }
-    return { childJobs, childJobProductionTotal, childJobLocation };
+    return {
+      childJobs,
+      childJobProductionTotal,
+      childJobLocation,
+      remainingTotalToBeImported,
+    };
   }
 
-  const { childJobs, childJobProductionTotal, childJobLocation } =
-    calculateChildJobData();
+  const {
+    childJobs,
+    childJobProductionTotal,
+    childJobLocation,
+    remainingTotalToBeImported,
+  } = calculateChildJobData();
 
   return (
     <Grid container item xs={12} sm={6} md={4} lg={3}>
@@ -152,6 +176,7 @@ export function MaterialCardFrame_Purchasing({
           <RemainingToPurchase_Purchasing
             material={material}
             childJobProductionTotal={childJobProductionTotal}
+            remainingTotalToBeImported={remainingTotalToBeImported}
           />
           <TotalCost_Purchasing material={material} />
           <MaterialCostsFrame_Purchasing

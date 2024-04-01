@@ -59,30 +59,14 @@ export function useShoppingList() {
           (i) => i.typeID === material.typeID
         );
         if (shoppingListEntries.length === 0) {
-          finalShoppingList.push({
-            name: material.name,
-            typeID: material.typeID,
-            quantity: material.quantity - material.quantityPurchased,
-            quantityLessAsset: 0,
-            volume: material.volume,
-            hasChild: childState,
-            isVisible: false,
-          });
+          finalShoppingList.push(buildShoppingListObject(material, childState));
           return;
         }
         let foundChild = shoppingListEntries.find(
           (i) => i.hasChild === childState
         );
         if (!foundChild) {
-          finalShoppingList.push({
-            name: material.name,
-            typeID: material.typeID,
-            quantity: material.quantity - material.quantityPurchased,
-            quantityLessAsset: 0,
-            volume: material.volume,
-            hasChild: childState,
-            isVisible: false,
-          });
+          finalShoppingList.push(buildShoppingListObject(material, childState));
         } else {
           foundChild.quantity += material.quantity - material.quantityPurchased;
         }
@@ -105,6 +89,19 @@ export function useShoppingList() {
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     return finalShoppingList;
+  }
+
+  function buildShoppingListObject(material, childJobPresent) {
+    return {
+      name: material.name,
+      typeID: material.typeID,
+      quantity: material.quantity - material.quantityPurchased,
+      quantityLessAsset: 0,
+      assetQuantity: 0,
+      volume: material.volume,
+      hasChild: childJobPresent,
+      isVisible: false,
+    };
   }
 
   function buildCopyText(removeAssetsFlag, item) {
@@ -164,13 +161,14 @@ export function useShoppingList() {
   }
 
   function findCharacterAssets(fullAssetList, itemID, selectedCharacter) {
+    console.log(Array.from(fullAssetList.values()))
     if (selectedCharacter !== "all") {
-      return fullAssetList.find(
-        (i) => i.itemID === itemID && i.CharacterHash === itemID
-      );
+      return fullAssetList.get(selectedCharacter).find(
+        (i) => i.itemID === itemID
+      );    
     }
 
-    return fullAssetList.find((i) => i.item_id === itemID);
+    return Array.from(fullAssetList.values()).find((i) => i.item_id === itemID);
   }
 
   function generateTextToCopy(removeAssetFlag, inputItems) {

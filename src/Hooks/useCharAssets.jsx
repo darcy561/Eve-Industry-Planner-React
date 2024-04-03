@@ -93,7 +93,6 @@ export function useCharAssets() {
       if (!isLoggedIn) {
         return { fullAssetList, locationAssets };
       }
-      console.log(buildAssetTypeIDMaps(userAssets, 11486))
 
       for (let item of userAssets) {
         if (searchData.some((i) => i.blueprintID === item.type_id)) {

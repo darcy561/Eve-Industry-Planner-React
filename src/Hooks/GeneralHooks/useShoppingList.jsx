@@ -104,18 +104,14 @@ export function useShoppingList() {
     };
   }
 
-  function buildCopyText(removeAssetsFlag, item) {
-    return removeAssetsFlag
-      ? `${item.name} ${item.quantityLessAsset}\n`
-      : `${item.name} ${item.quantity}\n`;
+  function buildCopyText(item) {
+    return `${item.name} ${Math.max(
+      item.quantity - (item.assetQuantity || 0),
+      0
+    )}\n`;
   }
 
-  function calculateItemPrice(
-    removeAssetsFlag,
-    item,
-    assetQuantity,
-    alternativePriceLocation
-  ) {
+  function calculateItemPrice(item, alternativePriceLocation) {
     const itemPriceObject = findItemPriceObject(
       item.typeID,
       alternativePriceLocation
@@ -125,32 +121,25 @@ export function useShoppingList() {
         parentUser.settings.editJob.defaultOrders
       ];
 
-    return removeAssetsFlag
-      ? individualItemPrice * (item.quantity - assetQuantity)
-      : individualItemPrice * item.quantity;
+    return (
+      individualItemPrice * Math.max(item.quantity - item.assetQuantity, 0)
+    );
   }
 
-  function calculateVolumeTotal(removeAssetsFlag, item, assetQuantity) {
-    return removeAssetsFlag
-      ? item.volume * (item.quantity - assetQuantity)
-      : item.volume * item.quantity;
+  function calculateVolumeTotal(item) {
+    return item.volume * Math.max(item.quantity - item.assetQuantity, 0);
   }
 
-  function isAssetQuantityVisable(item, assetQuantity) {
-    return item.quantity - assetQuantity > 0 ? true : false;
+  function isAssetQuantityVisable(item) {
+    return Math.max(item.quantity - item.assetQuantity, 0) > 0 ? true : false;
   }
 
   function isChildJobVisable(childJobDisplayFlag, item) {
     return !childJobDisplayFlag && !item.hasChild ? true : false;
   }
 
-  function isItemVisable(
-    remvoveAssetFlag,
-    childJobDisplayFlag,
-    item,
-    assetQuantity
-  ) {
-    const quantity = isAssetQuantityVisable(item, assetQuantity);
+  function isItemVisable(remvoveAssetFlag, childJobDisplayFlag, item) {
+    const quantity = isAssetQuantityVisable(item);
     const childJob = isChildJobVisable(childJobDisplayFlag, item);
 
     if (remvoveAssetFlag && quantity && childJob) return true;
@@ -160,31 +149,24 @@ export function useShoppingList() {
     return false;
   }
 
-  function findCharacterAssets(fullAssetList, itemID, selectedCharacter) {
-    console.log(Array.from(fullAssetList.values()))
-    if (selectedCharacter !== "all") {
-      return fullAssetList.get(selectedCharacter).find(
-        (i) => i.itemID === itemID
-      );    
-    }
-
-    return Array.from(fullAssetList.values()).find((i) => i.item_id === itemID);
-  }
-
-  function generateTextToCopy(removeAssetFlag, inputItems) {
+  function generateTextToCopy(inputItems) {
     let outputText = "";
 
     inputItems.forEach((item) => {
-      outputText = outputText.concat(buildCopyText(removeAssetFlag, item));
+      outputText = outputText.concat(buildCopyText(item));
     });
     return outputText;
+  }
+
+  function clearAssetQuantities(itemList) {
+    itemList.forEach((item) => (item.assetQuantity = 0));
   }
 
   return {
     buildShoppingList,
     calculateItemPrice,
     calculateVolumeTotal,
-    findCharacterAssets,
+    clearAssetQuantities,
     generateTextToCopy,
     isItemVisable,
   };

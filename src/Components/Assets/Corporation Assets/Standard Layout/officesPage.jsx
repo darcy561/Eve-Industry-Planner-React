@@ -19,8 +19,11 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
   const [assetLocations, updateAssetLocations] = useState(null);
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
   const [characterBlueprintsMap, updateCharacterBlueprintsMap] = useState(null);
-  const { buildAssetMapsCorpOffices, sortLocationMapsAlphabetically } =
-    useAssetHelperHooks();
+  const {
+    buildAssetMapsCorpOffices,
+    sortLocationMapsAlphabetically,
+    getRequestedAssets,
+  } = useAssetHelperHooks();
   const { findUniverseItemObject } = useHelperFunction();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
 
@@ -41,10 +44,9 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
         corporationBlueprints.set(numericKey, value);
       }
 
-      const assetsJSON = JSON.parse(
-        sessionStorage.getItem(
-          `corpAssets_${matchedCorporation.corporation_id}`
-        )
+      const assetsJSON = await getRequestedAssets(
+        matchedCorporation.corporation_id,
+        true
       );
       const filteredAssets = assetsJSON.filter(
         (i) => i.location_flag !== ("AssetSafety" && "CorpDeliveries")

@@ -301,8 +301,10 @@ export function useAssetHelperHooks() {
   ) {
     return new Map(
       [...inputLocationMap.entries()].sort((a, b) => {
-        const nameA = inputLocationNames[a[0]]?.name || eveIDs[a[0]]?.name || "";
-        const nameB = inputLocationNames[b[0]]?.name || eveIDs[b[0]]?.name || "";
+        const nameA =
+          inputLocationNames[a[0]]?.name || eveIDs[a[0]]?.name || "";
+        const nameB =
+          inputLocationNames[b[0]]?.name || eveIDs[b[0]]?.name || "";
 
         const noAccessName = "No Access To Location";
 
@@ -400,6 +402,86 @@ export function useAssetHelperHooks() {
     }
   }
 
+  function findAssetsInLocation(assetList, requestedLocationID) {
+    const assetItemMap = new Map();
+    const assetsByLocationMap = new Map();
+
+    if (!assetList || !requestedLocationID) {
+      return [];
+    }
+
+    const requestedLocationAssets = assetList.filter(
+      (asset) => asset.location_id === requestedLocationID
+    );
+
+    requestedLocationAssets.forEach((item) => {
+      const locationId = item.location_id;
+      assetItemMap.set(item.item_id, item);
+
+      if (assetsByLocationMap.has(locationId)) {
+        assetsByLocationMap.get(locationId).push(item);
+      } else {
+        assetsByLocationMap.set(locationId, [item]);
+      }
+    });
+
+    for (const asset of requestedLocationAssets) {
+      findChildAssets(asset, assetList, assetsByLocationMap);
+    }
+
+    return Array.from(assetsByLocationMap.values()).flat();
+  }
+
+  function convertAssetArrayIntoMapByTypeID(inputAssetArray) {
+    let returnMap = new Map();
+    if (!inputAssetArray) return returnMap;
+
+    for (const asset of inputAssetArray) {
+      if (returnMap.has(asset.type_id)) {
+        returnMap.get(asset.type_id).push(asset);
+      } else {
+        returnMap.set(asset.type_id, [asset]);
+      }
+    }
+
+    return returnMap;
+  }
+
+  function countAssetQuantityFromMap(inputMap, requestTypeID) {
+    const requestedTypeIDArray = inputMap.get(requestTypeID);
+    if (!requestedTypeIDArray || !inputMap || !requestTypeID) return 0;
+
+    return requestedTypeIDArray.reduce((total, { quantity }) => {
+      return (total += quantity);
+    }, 0);
+  }
+
+  async function getRequestedAssets(
+    assetID,
+    isCorporation = false,
+    returnAssets = true
+  ) {
+    try {
+      const assetString = isCorporation
+        ? `corpAssets_${assetID}`
+        : `assets_${assetID}`;
+
+      if (!returnAssets) return [];
+
+      if (assetID === "allUsers") {
+        return users.reduce((returnArray, { CharacterHash }) => {
+          return returnArray.concat(
+            JSON.parse(sessionStorage.getItem(`assets_${CharacterHash}`))
+          );
+        }, []);
+      }
+
+      return JSON.parse(sessionStorage.getItem(assetString));
+    } catch {
+      return [];
+    }
+  }
+
   return {
     acceptedDirectLocationTypes,
     acceptedExtendedLocationTypes,
@@ -409,9 +491,13 @@ export function useAssetHelperHooks() {
     buildAssetName,
     buildAssetLocationFlagMaps,
     buildAssetTypeIDMaps,
+    convertAssetArrayIntoMapByTypeID,
+    countAssetQuantityFromMap,
     findAssetImageURL,
     findBlueprintTypeIDs,
+    findAssetsInLocation,
     formatLocation,
+    getRequestedAssets,
     retrieveAssetLocation,
     selectRequiredAssets,
     selectRequiredUser,

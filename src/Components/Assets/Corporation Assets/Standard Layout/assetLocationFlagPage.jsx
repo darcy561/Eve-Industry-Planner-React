@@ -36,10 +36,9 @@ export function AssetLocationFlagPage_Corporation({
       const requiredUserObject = users.find(
         (i) => i.corporation_id === selectedCorporation
       );
-      const assetsJSON = JSON.parse(
-        sessionStorage.getItem(
-          `corpAssets_${matchedCorporation.corporation_id}`
-        )
+      const assetsJSON = await getRequestedAssets(
+        matchedCorporation.corporation_id,
+        true
       );
 
       const corporationBlueprints = new Map();

@@ -17,8 +17,11 @@ export function AssetLocationFlagPage_Character({
   const [topLevelAssets, updateTopLevelAssets] = useState(null);
   const [assetLocations, updateAssetLocations] = useState(null);
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
-  const { buildAssetLocationFlagMaps, sortLocationMapsAlphabetically } =
-    useAssetHelperHooks();
+  const {
+    buildAssetLocationFlagMaps,
+    sortLocationMapsAlphabetically,
+    getRequestedAssets,
+  } = useAssetHelperHooks();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
   const { findUniverseItemObject } = useHelperFunction();
 
@@ -27,9 +30,7 @@ export function AssetLocationFlagPage_Character({
       const requiredUserObject = users.find(
         (i) => i.CharacterHash === selectedCharacter
       );
-      const assetsJSON = JSON.parse(
-        sessionStorage.getItem(`assets_${selectedCharacter}`)
-      );
+      const assetsJSON = await getRequestedAssets(selectedCharacter);
 
       const { topLevelAssetLocations, assetsByLocationMap, assetIDSet } =
         buildAssetLocationFlagMaps(assetsJSON, assetLocationFlagRequest);

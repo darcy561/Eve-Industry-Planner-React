@@ -82,7 +82,7 @@ export function SelectAssetLocation_ShoppingListDialog({
               }}
             >
               {users.length > 1 && (
-                <MenuItem key={"all"} value={"all"}>
+                <MenuItem key={"allUsers"} value={"allUsers"}>
                   All
                 </MenuItem>
               )}

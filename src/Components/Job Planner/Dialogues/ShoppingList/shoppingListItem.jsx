@@ -3,9 +3,11 @@ import { LARGE_TEXT_FORMAT } from "../../../../Context/defaultValues";
 
 export function ShoppingListItem_ShoppingListDialog({ item, removeAssets }) {
   const { typeID, name } = item;
-  const assetQuantityText = removeAssets
-    ? item.quantityLessAsset.toLocaleString()
-    : item.quantity.toLocaleString();
+  const assetQuantityText = Math.max(
+    item.quantity - item.assetQuantity,
+    0
+  ).toLocaleString();
+
   return (
     <Grid
       container

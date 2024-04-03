@@ -12,13 +12,13 @@ import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunct
 
 export function AssetsPage_Character({ selectedCharacter }) {
   const { users } = useContext(UsersContext);
-  const {updateEveIDs } = useContext(EveIDsContext);
+  const { updateEveIDs } = useContext(EveIDsContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const [topLevelAssets, updateTopLevelAssets] = useState(null);
   const [assetLocations, updateAssetLocations] = useState(null);
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
   const [characterBlueprintsMap, updateCharacterBlueprintsMap] = useState(null);
-  const { buildAssetMaps, sortLocationMapsAlphabetically } =
+  const { buildAssetMaps, sortLocationMapsAlphabetically, getRequestedAssets } =
     useAssetHelperHooks();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
   const { findUniverseItemObject } = useHelperFunction();
@@ -35,9 +35,7 @@ export function AssetsPage_Character({ selectedCharacter }) {
         characterBlueprints.map((i) => [i.item_id, i])
       );
 
-      const assetsJSON = JSON.parse(
-        sessionStorage.getItem(`assets_${selectedCharacter}`)
-      );
+      const assetsJSON = await getRequestedAssets(selectedCharacter);
 
       const filteredAssets = assetsJSON.filter(
         (i) => i.location_flag !== ("AssetSafety" && "Deliveries")

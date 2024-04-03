@@ -54,25 +54,30 @@ export function ShoppingListDialog() {
     buildShoppingList,
     calculateVolumeTotal,
     calculateItemPrice,
-    findCharacterAssets,
+    clearAssetQuantities,
     generateTextToCopy,
     isItemVisable,
   } = useShoppingList();
-  const { buildAssetTypeIDMaps } = useAssetHelperHooks();
-  const { findLocationAssets } = useCharAssets();
+  const {
+    findAssetsInLocation,
+    convertAssetArrayIntoMapByTypeID,
+    countAssetQuantityFromMap,
+    getRequestedAssets,
+  } = useAssetHelperHooks();
   const { getItemPrices } = useFirebase();
   const [childJobDisplay, updateChildJobDisplay] = useState(false);
   const [displayData, updateDisplayData] = useState([]);
   const [volumeTotal, updateVolumeTotal] = useState(0);
   const [loadingData, updateLoadingData] = useState(true);
   const [removeAssets, updateRemoveAssets] = useState(false);
+  const [useCorporation, updateUseCorporation] = useState(false);
   const [assetLocations, updateAssetLocations] = useState([]);
   const parentUser = findParentUser();
   const [selectedLocation, updateSelectedLocation] = useState(
     parentUser.settings.editJob.defaultAssetLocation
   );
   const [selectedCharacter, updateSelectedCharacter] = useState(
-    users.length > 1 ? "all" : parentUser.CharacterHash
+    users.length > 1 ? "allUsers" : parentUser.CharacterHashs
   );
   const [tempEveIDs, updateTempEveIDs] = useState({});
   const shoppingListValue = useRef(0);
@@ -91,54 +96,36 @@ export function ShoppingListDialog() {
         itemIDs.add(item.typeID);
       });
       let itemPrices = await getItemPrices([...itemIDs], parentUser);
-      const { fullAssetList, locationAssets } =
-        findLocationAssets(selectedLocation);
+
+      const selectedAssets = await getRequestedAssets(
+        selectedCharacter,
+        useCorporation,
+        removeAssets
+      );
+
+      const locationAssetArray = findAssetsInLocation(
+        selectedAssets,
+        selectedLocation
+      );
+      const assetsByTypeID =
+        convertAssetArrayIntoMapByTypeID(locationAssetArray);
 
       shoppingList.forEach((listItem) => {
-        const assetType = locationAssets.find(
-          (i) => i.type_id === listItem.typeID
+        listItem.assetQuantity = countAssetQuantityFromMap(
+          assetsByTypeID,
+          listItem.typeID
         );
-
-        let assetQuantity = 0;
-        if (assetType) {
-          assetType.itemIDs.forEach((itemID) => {
-            const asset = findCharacterAssets(
-              fullAssetList,
-              itemID,
-              selectedCharacter
-            );
-            console.log(asset)
-            if (asset) {
-              assetQuantity += asset.quantity;
-            }
-          });
-        }
 
         listItem.isVisible = isItemVisable(
           removeAssets,
           childJobDisplay,
-          listItem,
-          assetQuantity
+          listItem
         );
-        listItem.quantityLessAsset = Math.max(
-          listItem.quantity - assetQuantity,
-          0
-        );
-        listItem.assetQuantity = assetQuantity
-          console.log(listItem)
+
         if (!listItem.isVisible) return;
 
-        newListTotal += calculateItemPrice(
-          removeAssets,
-          listItem,
-          assetQuantity,
-          itemPrices
-        );
-        newVolumeTotal += calculateVolumeTotal(
-          removeAssets,
-          listItem,
-          assetQuantity
-        );
+        newListTotal += calculateItemPrice(listItem, itemPrices);
+        newVolumeTotal += calculateVolumeTotal(listItem);
 
         newDisplayData.push(listItem);
       });
@@ -268,7 +255,10 @@ export function ShoppingListDialog() {
                       <Switch
                         checked={removeAssets}
                         onChange={() => {
+                          const newDisplayData = [...displayData];
+                          clearAssetQuantities(newDisplayData);
                           updateRemoveAssets((prev) => !prev);
+                          updateDisplayData(newDisplayData);
                         }}
                       />
                     }
@@ -311,9 +301,7 @@ export function ShoppingListDialog() {
                   display: { xs: "none", sm: "block" },
                 }}
                 onClick={async () => {
-                  await writeTextToClipboard(
-                    generateTextToCopy(removeAssets, displayData)
-                  );
+                  await writeTextToClipboard(generateTextToCopy(displayData));
                 }}
               >
                 Copy to Clipboard

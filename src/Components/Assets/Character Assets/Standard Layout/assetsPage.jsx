@@ -47,13 +47,8 @@ export function AssetsPage_Character({ selectedCharacter }) {
       const requiredLocationID = [...topLevelAssetLocations.keys()].reduce(
         (prev, locationID) => {
           const matchedID = findUniverseItemObject(locationID);
-
           if (!matchedID) {
             prev.add(locationID);
-          } else {
-            if (matchedID.unResolvedLocation) {
-              prev.add(locationID);
-            }
           }
           return prev;
         },
@@ -76,7 +71,9 @@ export function AssetsPage_Character({ selectedCharacter }) {
         additonalIDObjects
       );
 
-      updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
+      if (Object.keys(additonalIDObjects).length > 0) {
+        updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
+      }
       updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
       updateAssetLocations(assetsByLocationMap);
@@ -99,6 +96,7 @@ export function AssetsPage_Character({ selectedCharacter }) {
         let depth = 1;
         return (
           <AssetEntry_TopLevel
+            key={locationID}
             locationID={locationID}
             assets={assets}
             assetLocations={assetLocations}

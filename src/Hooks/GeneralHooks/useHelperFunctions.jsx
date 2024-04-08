@@ -75,6 +75,12 @@ export function useHelperFunction() {
   }
 
   function findUniverseItemObject(requestedID, alternativeItemLocation) {
+    if (
+      !alternativeItemLocation ||
+      typeof alternativeItemLocation !== "object"
+    ) {
+      return eveIDs[requestedID] || null;
+    }
     return eveIDs[requestedID] || alternativeItemLocation[requestedID] || null;
   }
 
@@ -150,8 +156,6 @@ export function useHelperFunction() {
       }));
     }
   }
-
-
 
   return {
     Add_RemovePendingChildJobs,

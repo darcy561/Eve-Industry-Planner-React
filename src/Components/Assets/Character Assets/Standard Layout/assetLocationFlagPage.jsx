@@ -41,10 +41,6 @@ export function AssetLocationFlagPage_Character({
 
           if (!matchedID) {
             prev.add(locationID);
-          } else {
-            if (matchedID.unResolvedLocation) {
-              prev.add(locationID);
-            }
           }
           return prev;
         },
@@ -66,7 +62,9 @@ export function AssetLocationFlagPage_Character({
         additonalIDObjects
       );
 
-      updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
+      if (Object.keys(additonalIDObjects).length > 0) {
+        updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
+      }
       updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
       updateAssetLocations(assetsByLocationMap);

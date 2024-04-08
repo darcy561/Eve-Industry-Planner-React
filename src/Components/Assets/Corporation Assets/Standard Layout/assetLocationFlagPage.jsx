@@ -17,15 +17,18 @@ export function AssetLocationFlagPage_Corporation({
 }) {
   const { users } = useContext(UsersContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { updateEveIDs } = useContext(EveIDsContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const [topLevelAssets, updateTopLevelAssets] = useState(null);
   const [assetLocations, updateAssetLocations] = useState(null);
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
   const [corporationBlueprintsMap, updateCorporationBlueprintsMap] =
     useState(null);
-  const { buildAssetLocationFlagMaps, sortLocationMapsAlphabetically } =
-    useAssetHelperHooks();
+  const {
+    buildAssetLocationFlagMaps,
+    sortLocationMapsAlphabetically,
+    getRequestedAssets,
+  } = useAssetHelperHooks();
   const { findUniverseItemObject } = useHelperFunction();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
 
@@ -59,10 +62,6 @@ export function AssetLocationFlagPage_Corporation({
 
           if (!matchedID) {
             prev.add(locationID);
-          } else {
-            if (matchedID.unResolvedLocation) {
-              prev.add(locationID);
-            }
           }
           return prev;
         },
@@ -85,7 +84,9 @@ export function AssetLocationFlagPage_Corporation({
         additonalIDObjects
       );
 
-      updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
+      if (Object.keys(additonalIDObjects).length > 0) {
+        updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
+      }
       updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
       updateCorporationBlueprintsMap(corporationBlueprints);

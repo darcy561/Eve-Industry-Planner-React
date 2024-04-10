@@ -32,6 +32,7 @@ export function Purchasing_StandardLayout_EditJob({
         changeOrderDisplay={changeOrderDisplay}
         marketDisplay={marketDisplay}
         changeMarketDisplay={changeMarketDisplay}
+        setJobModified={setJobModified}
       />
       <Grid
         container

@@ -19,8 +19,15 @@ import {
   listingType,
 } from "../../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
-import { ShoppingListContext } from "../../../../../../Context/LayoutContext";
+import {
+  ShoppingListContext,
+  SnackBarDataContext,
+} from "../../../../../../Context/LayoutContext";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import {
+  useAddMaterialCostsToJob,
+  useBuildMaterialPriceObject,
+} from "../../../../../../Hooks/JobHooks/useAddMaterialCosts";
 
 export function PurchasingDataPanel_EditJob({
   activeJob,
@@ -29,6 +36,7 @@ export function PurchasingDataPanel_EditJob({
   changeOrderDisplay,
   marketDisplay,
   changeMarketDisplay,
+  setJobModified,
 }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
@@ -36,6 +44,7 @@ export function PurchasingDataPanel_EditJob({
     useContext(ShoppingListContext);
   const [orderSelect, updateOrderSelect] = useState(orderDisplay);
   const [marketSelect, updateMarketSelect] = useState(marketDisplay);
+  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { findParentUserIndex, importMultibuyFromClipboard } =
     useHelperFunction();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
@@ -149,14 +158,54 @@ export function PurchasingDataPanel_EditJob({
                         variant="outlined"
                         size="small"
                         onClick={async () => {
+                          const materialPriceObjects = [];
                           const matches = await importMultibuyFromClipboard();
 
                           for (let material of activeJob.build.materials) {
                             const matchedItem = matches.find(
                               (i) => i.importedName === material.name
                             );
+                            if (!matchedItem) continue;
+
+                            materialPriceObjects.push(
+                              useBuildMaterialPriceObject(
+                                material.typeID,
+                                matchedItem.importedQuantity,
+                                matchedItem.importedCost
+                              )
+                            );
                           }
-                          console.log(matches);
+
+                          if (materialPriceObjects.length === 0) {
+                            setSnackbarData((prev) => ({
+                              ...prev,
+                              open: true,
+                              message: `No Matching Items Found`,
+                              severity: "error",
+                              autoHideDuration: 1000,
+                            }));
+
+                            return;
+                          }
+
+                          const { newMaterialArray, newTotalPurchaseCost } =
+                            useAddMaterialCostsToJob(
+                              activeJob,
+                              materialPriceObjects
+                            );
+
+                          updateActiveJob((prevObj) => ({
+                            ...prevObj,
+                            build: {
+                              ...prevObj.build,
+                              materials: newMaterialArray,
+                              costs: {
+                                ...prevObj.build.costs,
+                                totalPurchaseCost: newTotalPurchaseCost,
+                              },
+                            },
+                          }));
+                          setJobModified(true);
                         }}
                       >
                         Import Costs From Multibuy

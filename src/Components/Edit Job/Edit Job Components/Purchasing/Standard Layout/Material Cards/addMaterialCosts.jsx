@@ -4,7 +4,10 @@ import AddIcon from "@mui/icons-material/Add";
 import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { ZERO_TWO_DECIMAL_PLACES } from "../../../../../../Context/defaultValues";
-import { useMaterialCosts } from "../../../../../../Hooks/JobHooks/useMaterialCosts";
+import {
+  useAddMaterialCostsToJob,
+  useBuildMaterialPriceObject,
+} from "../../../../../../Hooks/JobHooks/useAddMaterialCosts";
 
 export function AddMaterialCost_Purchasing({
   activeJob,
@@ -18,7 +21,6 @@ export function AddMaterialCost_Purchasing({
 }) {
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { findItemPriceObject } = useHelperFunction();
-  const { addPriceEntry } = useMaterialCosts();
   const materialPrice = findItemPriceObject(material.typeID);
   const [itemCountInput, setItemCountInput] = useState(
     Number(material.quantity - material.quantityPurchased)
@@ -30,14 +32,15 @@ export function AddMaterialCost_Purchasing({
   function handleSubmit(event) {
     event.preventDefault();
     if (itemCountInput <= 0) return;
-
-    const { newMaterialArray, newTotalPurchaseCost } = addPriceEntry(
+    const { newMaterialArray, newTotalPurchaseCost } = useAddMaterialCostsToJob(
       activeJob,
-      material,
-      {
-        itemCount: itemCountInput,
-        itemCost: itemCostInput,
-      }
+      [
+        useBuildMaterialPriceObject(
+          material.typeID,
+          itemCountInput,
+          itemCostInput
+        ),
+      ]
     );
 
     updateActiveJob((prevObj) => ({

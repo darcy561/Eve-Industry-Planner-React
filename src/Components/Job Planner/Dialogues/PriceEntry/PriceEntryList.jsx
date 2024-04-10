@@ -83,33 +83,33 @@ export function PriceEntryDialog() {
     let uploadIDs = [];
     let totalConfirmed = 0;
     for (let material of priceEntryListData.list) {
-      if (material.confirmed) {
-        totalConfirmed++;
-        for (let ref of material.jobRef) {
-          let job = await findJobData(ref, userJobSnapshot, newJobArray);
-          if (job === undefined) {
-            continue;
-          }
-          let newTotal = 0;
-          job.build.materials.forEach((mat) => {
-            if (mat.typeID === material.typeID && !mat.purchaseComplete) {
-              mat.purchasing.push({
-                id: Date.now(),
-                childID: null,
-                childJobImport: false,
-                itemCount: mat.quantity - mat.quantityPurchased,
-                itemCost: Number(material.itemPrice),
-              });
-              mat.quantityPurchased += mat.quantity - mat.quantityPurchased;
-              mat.purchasedCost += material.itemPrice * mat.quantity;
-              mat.purchaseComplete = true;
-            }
-            newTotal += mat.purchasedCost;
-          });
-          job.build.costs.totalPurchaseCost = newTotal;
-          if (!uploadIDs.some((i) => i.jobID === job.jobID)) {
-            uploadIDs.push(job);
-          }
+      if (!material.confirmed) continue;
+      totalConfirmed++;
+      for (let ref of material.jobRef) {
+        let job = await findJobData(ref, userJobSnapshot, newJobArray);
+        if (!job) continue;
+
+        
+
+        // let newTotal = 0;
+        // job.build.materials.forEach((mat) => {
+        //   if (mat.typeID === material.typeID && !mat.purchaseComplete) {
+        //     mat.purchasing.push({
+        //       id: Date.now(),
+        //       childID: null,
+        //       childJobImport: false,
+        //       itemCount: mat.quantity - mat.quantityPurchased,
+        //       itemCost: Number(material.itemPrice),
+        //     });
+        //     mat.quantityPurchased += mat.quantity - mat.quantityPurchased;
+        //     mat.purchasedCost += material.itemPrice * mat.quantity;
+        //     mat.purchaseComplete = true;
+        //   }
+        //   newTotal += mat.purchasedCost;
+        // });
+        // job.build.costs.totalPurchaseCost = newTotal;
+        if (!uploadIDs.some((i) => i.jobID === job.jobID)) {
+          uploadIDs.push(job);
         }
       }
     }
@@ -328,7 +328,7 @@ export function PriceEntryDialog() {
                   if (importCount > 0) {
                     importStatus = true;
                   }
-                  
+
                   updateTotalImportedCost(newTotal);
                   updatePriceEntryListData((prev) => ({
                     ...prev,

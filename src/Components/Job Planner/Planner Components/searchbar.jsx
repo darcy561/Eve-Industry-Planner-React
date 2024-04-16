@@ -59,9 +59,10 @@ export function SearchBar() {
     <Paper
       sx={{
         padding: "20px",
+        marginTop: "5px",
         marginRight: { md: "10px" },
         marginLeft: { md: "10px" },
-      }}
+        }}
       elevation={3}
       square={true}
     >

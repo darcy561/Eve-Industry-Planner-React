@@ -16,7 +16,11 @@ export function useShoppingList() {
     UserJobSnapshotContext
   );
   const { findJobData } = useFindJobObject();
-  const { findParentUser, findItemPriceObject } = useHelperFunction();
+  const {
+    findParentUser,
+    findItemPriceObject,
+    importAssetsFromClipboard_IconView,
+  } = useHelperFunction();
 
   const parentUser = findParentUser();
 
@@ -96,7 +100,6 @@ export function useShoppingList() {
       name: material.name,
       typeID: material.typeID,
       quantity: material.quantity - material.quantityPurchased,
-      quantityLessAsset: 0,
       assetQuantity: 0,
       volume: material.volume,
       hasChild: childJobPresent,
@@ -162,12 +165,25 @@ export function useShoppingList() {
     itemList.forEach((item) => (item.assetQuantity = 0));
   }
 
+  async function importAssetsFromClipboard(itemList) {
+    const newItemList = [...itemList];
+    const importedAssets = await importAssetsFromClipboard_IconView();
+    for (let item of newItemList) {
+      const matchedItem = importedAssets[item.name];
+      if (!matchedItem) continue;
+
+      item.assetQuantity = matchedItem;
+    }
+    return newItemList;
+  }
+
   return {
     buildShoppingList,
     calculateItemPrice,
     calculateVolumeTotal,
     clearAssetQuantities,
     generateTextToCopy,
+    importAssetsFromClipboard,
     isItemVisable,
   };
 }

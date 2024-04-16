@@ -21,6 +21,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { NavRoutes } from "./Routes";
 import { FeedbackIcon } from "./Components/Feedback/feedback";
 import GLOBAL_CONFIG from "./global-config-app";
+import { Box } from "@mui/material";
 
 export default function App() {
   const { ENABLE_FEEDBACK_ICON, PRIMARY_THEME, SECONDARY_THEME } =
@@ -81,7 +82,7 @@ export default function App() {
             secondary: {
               light: grey[300],
               main: grey[600],
-              highlight: grey[200]
+              highlight: grey[200],
             },
             manufacturing: {
               main: lightGreen[200],
@@ -115,11 +116,13 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <SnackBarNotification />
-      <DialogBox />
-      <NavRoutes mode={mode} colorMode={colorMode} />
-      {ENABLE_FEEDBACK_ICON && <FeedbackIcon />}
+      <Box sx={{ display: "flex", width: "100%", height: "100%" }}>
+        <CssBaseline />
+        <SnackBarNotification />
+        <DialogBox />
+        <NavRoutes colorMode={colorMode} />
+        {ENABLE_FEEDBACK_ICON && <FeedbackIcon />}
+      </Box>
     </ThemeProvider>
   );
 }

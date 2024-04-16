@@ -1,6 +1,7 @@
 import {
   Box,
   Divider,
+  Drawer,
   Grid,
   List,
   ListItem,
@@ -8,7 +9,7 @@ import {
   SwipeableDrawer,
   Typography,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
 import { EveESIStatusContext } from "../../../Context/EveDataContext";
@@ -20,10 +21,10 @@ export function SideMenu({ open, setOpen }) {
   const navigate = useNavigate();
 
   return (
-    <SwipeableDrawer
+    <Drawer
+      
       anchor="left"
       open={open}
-      onClick={() => {}}
       onClose={() => {
         setOpen(false);
       }}
@@ -72,15 +73,15 @@ export function SideMenu({ open, setOpen }) {
           {isLoggedIn && (
             <>
               <Divider />
-                <ListItem
-                  button
-                  onClick={() => {
-                    navigate("/asset-library");
-                    setOpen(false);
-                  }}
-                >
-                  <ListItemText primary={"Asset Library"} />
-                </ListItem>
+              <ListItem
+                button
+                onClick={() => {
+                  navigate("/asset-library");
+                  setOpen(false);
+                }}
+              >
+                <ListItemText primary={"Asset Library"} />
+              </ListItem>
             </>
           )}
           <Divider />
@@ -121,6 +122,6 @@ export function SideMenu({ open, setOpen }) {
           <Divider />
         </List>
       </Box>
-    </SwipeableDrawer>
+    </Drawer>
   );
 }

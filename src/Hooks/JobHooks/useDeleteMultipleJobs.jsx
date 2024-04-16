@@ -60,7 +60,7 @@ export function useDeleteMultipleJobs() {
     let newJobArray = [...jobArray];
     let newGroupArray = [...groupArray];
     let newUserJobSnapshot = [...userJobSnapshot];
-    let newLinkedJobIDs = new Set(linkedJobIDs);s
+    let newLinkedJobIDs = new Set(linkedJobIDs);
     let newLinkedOrderIDs = new Set(linkedOrderIDs);
     let newLinkedTransIDs = new Set(linkedTransIDs);
     let jobsToSave = new Set();

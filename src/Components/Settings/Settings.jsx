@@ -10,18 +10,21 @@ import { CompactEditJobSettings } from "./SettingsModules/Compact/compactEditJob
 import { CompactManufacturingStrutures } from "./SettingsModules/Compact/compactManufacturingStructures";
 import { CompactReactionStrutures } from "./SettingsModules/Compact/compactReactionStructures";
 import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
+import { Header } from "../Header";
+import { Footer } from "../Footer/Footer";
 
-export default function SettingsPage() {
+export default function SettingsPage({ colorMode }) {
   const { users } = useContext(UsersContext);
   const { findParentUserIndex } = useHelperFunction();
   const parentUserIndex = findParentUserIndex();
   return (
     <Container disableGutters maxWidth="false">
+      <Header colorMode={colorMode} />
       <Paper
         elevation={3}
         sx={{
           padding: "20px",
-          marginTop: "20px",
+          marginTop: 10,
           marginLeft: { md: "10px" },
           marginRight: { md: "10px" },
           marginBottom: "20px",
@@ -66,6 +69,7 @@ export default function SettingsPage() {
           )}
         </Grid>
       </Paper>
+      <Footer />
     </Container>
   );
 }

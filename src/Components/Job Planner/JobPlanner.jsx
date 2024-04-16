@@ -8,17 +8,22 @@ import {
 } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { SearchBar } from "./Planner Components/searchbar";
-import { Grid } from "@mui/material";
-import { TutorialPlanner } from "./Planner Components/tutorialPlanner";
+import { AppBar, Box, Grid, Toolbar } from "@mui/material";
+import { TutorialContent_JobPlanner } from "./Planner Components/tutorialPlanner";
 import { ShoppingListDialog } from "./Dialogues/ShoppingList/ShoppingList";
 import { PriceEntryDialog } from "./Dialogues/PriceEntry/PriceEntryList";
 import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
 import { ESIOffline } from "../offlineNotification";
 import { UserLogInUI } from "../Auth/LoginUI/LoginUI";
+import { Header } from "../Header";
+import { CollapseableDrawer } from "../SideMenu/sideMenu";
+import { SideMenuContent_JobPlanner } from "./Planner Components/Side Menu/sideMenuContent";
+import { TutorialTemplate } from "../Tutorials/tutorialTemplate";
+import { Footer } from "../Footer/Footer";
 
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
 
-export default function JobPlanner() {
+export default function JobPlanner({ colorMode }) {
   const { editGroupTrigger, updateEditGroupTrigger } = useContext(
     JobPlannerPageTriggerContext
   );
@@ -46,19 +51,47 @@ export default function JobPlanner() {
         );
       } else {
         return (
-          <Grid container sx={{ marginTop: "5px" }} spacing={2}>
+          <>
+            <Header colorMode={colorMode} />
+            {/* <SearchBar /> */}
+            <CollapseableDrawer DrawerContents={SideMenuContent_JobPlanner} />
+            <Box
+              component="main"
+              sx={{
+                minHeight: "100vh",
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                paddingTop: 10,
+                paddingX: 2,
+                gap: 2,
+              }}
+            >
+              <ESIOffline />
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", md: "row" },
+                  justifyContent: { xs: "center", md: "flex-start" },
+                  gap: 2,
+                  width: "100%",
+                  flex: 1,
+                }}
+              >
+                <PlannerAccordion />
+
+                <TutorialTemplate
+                  TutorialContent={TutorialContent_JobPlanner}
+                />
+              </Box>
+
+              <Footer />
+            </Box>
             <ShoppingListDialog />
             <MassBuildFeedback />
             <PriceEntryDialog />
-            <ESIOffline />
-            <TutorialPlanner />
-            <Grid item xs={12}>
-              <SearchBar />
-            </Grid>
-            <Grid item xs={12}>
-              <PlannerAccordion />
-            </Grid>
-          </Grid>
+          </>
         );
       }
     }

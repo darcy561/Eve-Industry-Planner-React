@@ -120,6 +120,37 @@ export function useHelperFunction() {
     return returnArray;
   }
 
+  async function importAssetsFromClipboard_IconView() {
+    try {
+      let returnObject = {};
+      const importedText = await readTextFromClipboard();
+      if (!importedText) return returnObject;
+
+      const itemMatches = [
+        ...importedText.matchAll(
+          /^(?<itemName>.+?)\s*(?<itemQuantity>\d+)?\s*$/gm
+        ),
+      ];
+
+      itemMatches.forEach((inputMatch) => {
+        let objectMatch = returnObject[inputMatch.groups.itemName];
+
+        const quantityAsNumber = Number(inputMatch.groups.itemQuantity) || 0;
+
+        if (objectMatch) {
+          objectMatch += isNaN(quantityAsNumber) ? 0 : quantityAsNumber;
+        } else {
+          returnObject[inputMatch.groups.itemName] = isNaN(quantityAsNumber)
+            ? 0
+            : quantityAsNumber;
+        }
+      });
+      return returnObject;
+    } catch (err) {
+      return {};
+    }
+  }
+
   async function writeTextToClipboard(inputTextString) {
     try {
       await navigator.clipboard.writeText(inputTextString);
@@ -154,6 +185,7 @@ export function useHelperFunction() {
         severity: "error",
         autoHideDuration: 3000,
       }));
+      return null;
     }
   }
 
@@ -164,6 +196,7 @@ export function useHelperFunction() {
     findParentUser,
     findParentUserIndex,
     findUniverseItemObject,
+    importAssetsFromClipboard_IconView,
     importMultibuyFromClipboard,
     isItemBuildable,
     readTextFromClipboard,

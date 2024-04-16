@@ -36,6 +36,7 @@ import { LoadingDataDisplay_ShoppingListDialog } from "./shoppingListLoading";
 import { ListDataFrame_ShoppingListDialog } from "./shoppingListDataFrame";
 import { SelectAssetLocation_ShoppingListDialog } from "./assetLocationsSelection";
 import { useAssetHelperHooks } from "../../../../Hooks/AssetHooks/useAssetHelper";
+import { AssetsFromClipboardButton_ShoppingList } from "./assetsFromClipboardButton";
 
 export function ShoppingListDialog() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -49,13 +50,18 @@ export function ShoppingListDialog() {
   const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { getAssetLocationList } = useCharAssets();
-  const { findParentUser, writeTextToClipboard } = useHelperFunction();
+  const {
+    findParentUser,
+    writeTextToClipboard,
+    importAssetsFromClipboard_IconView,
+  } = useHelperFunction();
   const {
     buildShoppingList,
     calculateVolumeTotal,
     calculateItemPrice,
     clearAssetQuantities,
     generateTextToCopy,
+    importAssetsFromClipboard,
     isItemVisable,
   } = useShoppingList();
   const {
@@ -164,6 +170,7 @@ export function ShoppingListDialog() {
     updateShoppingListTrigger(false);
     updateChildJobDisplay(false);
     updateRemoveAssets(false);
+    updateUseCorporation(false);
     updateDisplayData([]);
     updateSelectedLocation(parentUser.settings.editJob.defaultAssetLocation);
     updateEveIDs((prev) => ({ ...prev, ...tempEveIDs }));
@@ -294,21 +301,30 @@ export function ShoppingListDialog() {
             </Grid>
           </Grid>
           <Grid container item xs={12} sx={{ marginTop: "20px" }}>
-            <Grid item sm={10} align="right">
-              <Button
-                variant="contained"
-                sx={{
-                  display: { xs: "none", sm: "block" },
-                }}
-                onClick={async () => {
-                  await writeTextToClipboard(generateTextToCopy(displayData));
-                }}
-              >
-                Copy to Clipboard
-              </Button>
+            <Grid container item sm={10} align="right">
+              <Grid item sm={8}>
+                <AssetsFromClipboardButton_ShoppingList
+                  displayData={displayData}
+                  updateDisplayData={updateDisplayData}
+                />
+              </Grid>
+              <Grid item sm={4}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  sx={{
+                    display: { xs: "none", sm: "block" },
+                  }}
+                  onClick={async () => {
+                    await writeTextToClipboard(generateTextToCopy(displayData));
+                  }}
+                >
+                  Copy to Clipboard
+                </Button>
+              </Grid>
             </Grid>
             <Grid item xs={12} sm={2} align="right">
-              <Button onClick={handleClose} autoFocus>
+              <Button variant="text" onClick={handleClose} autoFocus>
                 Close
               </Button>
             </Grid>

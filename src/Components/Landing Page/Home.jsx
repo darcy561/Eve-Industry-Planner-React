@@ -2,11 +2,14 @@ import React from "react";
 import { Container, Grid, Typography } from "@mui/material";
 import { HeaderBanner } from "./Components/headerBanner";
 import { IconBanner } from "./Components/IconBanner";
+import { Header } from "../Header";
+import { Footer } from "../Footer/Footer";
 
-export function Home() {
+export function Home({ colorMode }) {
   return (
     <Container disableGutters maxWidth="false">
-      <Grid container>
+      <Header colorMode={colorMode} />
+      <Grid container sx={{ marginTop: 10 }}>
         <Grid item xs={12}>
           <HeaderBanner />
         </Grid>
@@ -65,6 +68,7 @@ export function Home() {
           </Grid>
         </Grid>
       </Grid>
+      <Footer />
     </Container>
   );
 }

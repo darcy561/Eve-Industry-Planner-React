@@ -4,7 +4,6 @@ import {
   Button,
   Checkbox,
   Grid,
-  Grow,
   IconButton,
   Paper,
   Typography,
@@ -65,7 +64,6 @@ export function JobCardFrame({ job }) {
   }, [multiSelectJobPlanner]);
 
   return (
-    <Grow in={true}>
       <Grid ref={drag} item xs={12} sm={6} md={4} lg={3}>
         <Paper
           elevation={3}
@@ -204,6 +202,5 @@ export function JobCardFrame({ job }) {
           </Grid>
         </Paper>
       </Grid>
-    </Grow>
   );
 }

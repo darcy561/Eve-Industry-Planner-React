@@ -9,8 +9,10 @@ import {
   PersonalESIDataContext,
 } from "../../Context/EveDataContext";
 import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
+import { Header } from "../Header";
+import { Footer } from "../Footer/Footer";
 
-export default function BlueprintLibrary() {
+export default function BlueprintLibrary({ colorMode }) {
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const { findParentUser } = useHelperFunction();
@@ -72,53 +74,60 @@ export default function BlueprintLibrary() {
   };
 
   return (
-    <Grid container sx={{ marginTop: "5px" }} spacing={2}>
-      <ESIOffline />
-      <Grid item xs={12} sx={{ marginLeft: "10px", marginRight: "10px" }}>
-        <LibrarySearch
-          updateBlueprintData={updateBlueprintData}
-          pagination={pagination}
-          setPagination={setPagination}
-        />
-      </Grid>
-      <Grid item xs={12} sx={{ marginLeft: "10px", marginRight: "10px" }}>
-        <Grid container item spacing={2}>
-          {blueprintResults.ids.map((bpID) => {
-            if (parentUser.settings.layout.enableCompactView) {
-              return (
-                <CompactBlueprintGroup
-                  key={bpID}
-                  bpID={bpID}
-                  blueprintResults={blueprintResults}
-                />
-              );
-            } else {
-              return (
-                <ClassicBlueprintGroup
-                  key={bpID}
-                  bpID={bpID}
-                  blueprintResults={blueprintResults}
-                />
-              );
-            }
-          })}
-          <Grid
-            container
-            item
-            justifyContent="center"
-            align="center"
-            xs={12}
-            sx={{ marginTop: "40px" }}
-          >
-            <Pagination
-              color="primary"
-              size="small"
-              count={Math.ceil(blueprintData.ids.length / pagination.pageSize)}
-              onChange={handlePageChange}
-            />
+    <>
+      <Header colorMode={colorMode} />
+      <Grid container sx={{ marginTop: 8 }} spacing={2}>
+        <ESIOffline />
+        <Grid item xs={12} sx={{ marginLeft: "10px", marginRight: "10px" }}>
+          <LibrarySearch
+            updateBlueprintData={updateBlueprintData}
+            pagination={pagination}
+            setPagination={setPagination}
+          />
+        </Grid>
+        <Grid item xs={12} sx={{ marginLeft: "10px", marginRight: "10px" }}>
+          <Grid container item spacing={2}>
+            {blueprintResults.ids.map((bpID) => {
+              if (parentUser.settings.layout.enableCompactView) {
+                return (
+                  <CompactBlueprintGroup
+                    key={bpID}
+                    bpID={bpID}
+                    blueprintResults={blueprintResults}
+                  />
+                );
+              } else {
+                return (
+                  <ClassicBlueprintGroup
+                    key={bpID}
+                    bpID={bpID}
+                    blueprintResults={blueprintResults}
+                  />
+                );
+              }
+            })}
+            <Grid
+              container
+              item
+              justifyContent="center"
+              align="center"
+              xs={12}
+              sx={{ marginTop: "40px" }}
+            >
+              <Pagination
+                color="primary"
+                size="small"
+                count={Math.ceil(
+                  blueprintData.ids.length / pagination.pageSize
+                )}
+                onChange={handlePageChange}
+              />
+            </Grid>
           </Grid>
         </Grid>
+        <Footer />
       </Grid>
-    </Grid>
+
+    </>
   );
 }

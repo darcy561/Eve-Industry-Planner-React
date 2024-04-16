@@ -29,8 +29,10 @@ import { LayoutSelector_EditJob_Building } from "./Edit Job Components/Building/
 import { LayoutSelector_EditJob_Complete } from "./Edit Job Components/Complete/LayoutSelector";
 import { LayoutSelector_EditJob_Selling } from "./Edit Job Components/Selling/LayoutSelector";
 import { ShoppingListDialog } from "../Job Planner/Dialogues/ShoppingList/ShoppingList";
+import { Header } from "../Header";
+import { Footer } from "../Footer/Footer";
 
-export default function EditJob_New() {
+export default function EditJob_New({ colorMode }) {
   const { jobStatus } = useContext(JobStatusContext);
   const { activeJob: activeJobID } = useContext(ActiveJobContext);
   const [activeJob, updateActiveJob] = useState(null);
@@ -179,128 +181,136 @@ export default function EditJob_New() {
   if (!activeJob) return <LoadingPage />;
 
   return (
-    <Paper
-      elevation={3}
-      sx={{
-        padding: "10px",
-        marginTop: "20px",
-        marginBottom: "20px",
-        width: "100%",
-      }}
-      square
-    >
-      <ShoppingListDialog />
-      <Grid container>
-        <Grid item xs={7} md={9} lg={10} />
-        <Grid item xs={5} md={3} lg={2} align="right">
-          <DeleteJobIcon activeJob={activeJob} />
-          <CloseJobIcon />
-          <SaveJobIcon
-            activeJob={activeJob}
-            jobModified={jobModified}
-            temporaryChildJobs={temporaryChildJobs}
-            esiDataToLink={esiDataToLink}
-            parentChildToEdit={parentChildToEdit}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h3" color="primary" align="left">
-            {activeJob.name}
-          </Typography>
-        </Grid>
-        <Grid item xs={2} />
-        <Grid
-          item
-          xs={12}
-          sm={5}
-          align="center"
-          sx={{ marginTop: { xs: "20px", md: "30px" } }}
-        >
-          <Avatar
-            src={`https://images.evetech.net/types/${activeJob.itemID}/icon?size=32`}
-            alt={activeJob.name}
-            variant="square"
-            sx={{
-              height: { xs: "32px", sm: "64px" },
-              width: { xs: "32px", sm: "64px" },
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} sm={5} sx={{ marginTop: { xs: "10px", sm: "0px" } }}>
-          <LinkedJobBadge
-            activeJob={activeJob}
-            updateActiveJob={updateActiveJob}
-            jobModified={jobModified}
-            setJobModified={setJobModified}
-            parentChildToEdit={parentChildToEdit}
-            updateParentChildToEdit={updateParentChildToEdit}
-            temporaryChildJobs={temporaryChildJobs}
-            esiDataToLink={esiDataToLink}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Stepper activeStep={activeJob.jobStatus} orientation="vertical">
-            {jobStatus.map((status) => {
-              return (
-                <Step
-                  key={status.id}
-                  sx={{
-                    "& MuiStepIcon-text": {
-                      fill: "#000",
-                    },
-                  }}
-                >
-                  <StepLabel>{status.name}</StepLabel>
-                  <StepContent>
-                    <Divider />
-                    {activeJob.jobStatus !== 0 && (
-                      <Grid item xs={12} align="center">
-                        <Tooltip
-                          title="Move to previous step"
-                          arrow
-                          placement="right"
-                        >
-                          <IconButton
-                            color="primary"
-                            onClick={stepBack}
-                            size="large"
+    <Grid direction={"column"}>
+      <Header colorMode={colorMode} />
+      <Paper
+        elevation={3}
+        sx={{
+          padding: "10px",
+          marginTop:10,
+          width: "100%",
+        }}
+        square
+      >
+        <ShoppingListDialog />
+        <Grid container>
+          <Grid item xs={7} md={9} lg={10} />
+          <Grid item xs={5} md={3} lg={2} align="right">
+            <DeleteJobIcon activeJob={activeJob} />
+            <CloseJobIcon />
+            <SaveJobIcon
+              activeJob={activeJob}
+              jobModified={jobModified}
+              temporaryChildJobs={temporaryChildJobs}
+              esiDataToLink={esiDataToLink}
+              parentChildToEdit={parentChildToEdit}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="h3" color="primary" align="left">
+              {activeJob.name}
+            </Typography>
+          </Grid>
+          <Grid item xs={2} />
+          <Grid
+            item
+            xs={12}
+            sm={5}
+            align="center"
+            sx={{ marginTop: { xs: "20px", md: "30px" } }}
+          >
+            <Avatar
+              src={`https://images.evetech.net/types/${activeJob.itemID}/icon?size=32`}
+              alt={activeJob.name}
+              variant="square"
+              sx={{
+                height: { xs: "32px", sm: "64px" },
+                width: { xs: "32px", sm: "64px" },
+              }}
+            />
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            sm={5}
+            sx={{ marginTop: { xs: "10px", sm: "0px" } }}
+          >
+            <LinkedJobBadge
+              activeJob={activeJob}
+              updateActiveJob={updateActiveJob}
+              jobModified={jobModified}
+              setJobModified={setJobModified}
+              parentChildToEdit={parentChildToEdit}
+              updateParentChildToEdit={updateParentChildToEdit}
+              temporaryChildJobs={temporaryChildJobs}
+              esiDataToLink={esiDataToLink}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Stepper activeStep={activeJob.jobStatus} orientation="vertical">
+              {jobStatus.map((status) => {
+                return (
+                  <Step
+                    key={status.id}
+                    sx={{
+                      "& MuiStepIcon-text": {
+                        fill: "#000",
+                      },
+                    }}
+                  >
+                    <StepLabel>{status.name}</StepLabel>
+                    <StepContent>
+                      <Divider />
+                      {activeJob.jobStatus !== 0 && (
+                        <Grid item xs={12} align="center">
+                          <Tooltip
+                            title="Move to previous step"
+                            arrow
+                            placement="right"
                           >
-                            <ArrowUpwardIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Grid>
-                    )}
-                    <StepContentSelector />
-                    {activeJob.jobStatus !== jobStatus.length - 1 && (
-                      <Grid item xs={12} align="center">
-                        <Tooltip
-                          title="Move to next step"
-                          arrow
-                          placement="right"
-                        >
-                          <IconButton
-                            color="primary"
-                            onClick={stepForward}
-                            size="large"
-                            disabled={
-                              activeJob.groupID &&
-                              !activeJob.isReadyToSell &&
-                              activeJob.jobStatus === jobStatus.length - 2
-                            }
+                            <IconButton
+                              color="primary"
+                              onClick={stepBack}
+                              size="large"
+                            >
+                              <ArrowUpwardIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </Grid>
+                      )}
+                      <StepContentSelector />
+                      {activeJob.jobStatus !== jobStatus.length - 1 && (
+                        <Grid item xs={12} align="center">
+                          <Tooltip
+                            title="Move to next step"
+                            arrow
+                            placement="right"
                           >
-                            <ArrowDownwardIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Grid>
-                    )}
-                    <Divider />
-                  </StepContent>
-                </Step>
-              );
-            })}
-          </Stepper>
+                            <IconButton
+                              color="primary"
+                              onClick={stepForward}
+                              size="large"
+                              disabled={
+                                activeJob.groupID &&
+                                !activeJob.isReadyToSell &&
+                                activeJob.jobStatus === jobStatus.length - 2
+                              }
+                            >
+                              <ArrowDownwardIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </Grid>
+                      )}
+                      <Divider />
+                    </StepContent>
+                  </Step>
+                );
+              })}
+            </Stepper>
+          </Grid>
         </Grid>
-      </Grid>
-    </Paper>
+      </Paper>
+      <Footer />
+    </Grid>
   );
 }

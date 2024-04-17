@@ -538,8 +538,8 @@ export function useEveApi() {
   };
 
   const fetchCorpAssets = async (userObj) => {
-    const endpoingURL = `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/assets/?datasource=tranquility&token=${userObj.aToken}`;
-    const assets = await fetchAllPages(endpoingURL);
+    const endpointURL = `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/assets/?datasource=tranquility&token=${userObj.aToken}`;
+    const assets = await fetchAllPages(endpointURL);
 
     return assets.map((a) => ({
       ...a,

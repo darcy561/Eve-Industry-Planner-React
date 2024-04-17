@@ -9,17 +9,16 @@ import { ReactionOptionsUpcomingChanges } from "./reactionOptions";
 import { UpcomingChangesSearch } from "./searchBar";
 import { SisiItem } from "./sisiItem";
 import { TranqItem } from "./tranqItem";
+import useCheckUserAuthState from "../../Hooks/Auth Hooks/useCheckUserState";
+
 
 export default function UpcomingChanges() {
-  const { checkUserState } = useRefreshUser();
   const { pageLoad } = useContext(PageLoadContext);
   const [itemLoad, updateItemLoad] = useState(false);
   const [tranqItem, updateTranqItem] = useState(null);
   const [sisiItem, updateSisiItem] = useState(null);
 
-  useEffect(() => {
-    checkUserState();
-  }, []);
+  useCheckUserAuthState();
 
   if (pageLoad) {
     return <LoadingPage />;

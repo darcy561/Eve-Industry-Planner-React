@@ -4,10 +4,13 @@ import { AssetTypeSelectPanel } from "./AssetTypeSelect";
 import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 import { Footer } from "../Footer/Footer";
 import { Header } from "../Header";
+import useCheckUserAuthState from "../../Hooks/Auth Hooks/useCheckUserState";
 
 export default function AssetLibrary({ colorMode }) {
   const { findParentUser } = useHelperFunction();
   const parentUser = findParentUser();
+
+  useCheckUserAuthState();
 
   return (
     <>

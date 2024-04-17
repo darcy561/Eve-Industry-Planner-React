@@ -7,11 +7,13 @@ import {
   EveIDsContext,
 } from "../../Context/EveDataContext";
 import fullItemList from "../../RawData/fullItemList.json";
+import { useEveApi } from "../useEveApi";
 
 export function useAssetHelperHooks() {
   const { users } = useContext(UsersContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const { eveIDs } = useContext(EveIDsContext);
+  const { fetchCharacterAssets, fetchCorpAssets } = useEveApi();
 
   const acceptedDirectLocationTypes = new Set(["station", "solar_system"]);
   const acceptedExtendedLocationTypes = new Set(["item", "other"]);
@@ -457,18 +459,18 @@ export function useAssetHelperHooks() {
   }
 
   async function getRequestedAssets(
-    assetID,
+    requestedID,
     isCorporation = false,
     returnAssets = true
   ) {
     try {
       const assetString = isCorporation
-        ? `corpAssets_${assetID}`
-        : `assets_${assetID}`;
+        ? `corpAssets_${requestedID}`
+        : `assets_${requestedID}`;
 
       if (!returnAssets) return [];
 
-      if (assetID === "allUsers") {
+      if (requestedID === "allUsers") {
         return users.reduce((returnArray, { CharacterHash }) => {
           return returnArray.concat(
             JSON.parse(sessionStorage.getItem(`assets_${CharacterHash}`))
@@ -476,7 +478,24 @@ export function useAssetHelperHooks() {
         }, []);
       }
 
+      const storageAssets = sessionStorage.getItem(assetString);
+
+
       return JSON.parse(sessionStorage.getItem(assetString));
+
+
+      function findAssets(assetString, isCorporation) {
+        const functionToCall = isCorporation ? fetchCorpAssets : fetchCharacterAssets;
+        let matchedAssets = sessionStorage.getItem(assetString);
+
+        if (!matchedAssets) {
+
+
+        }
+        return matchedAssets
+      }
+
+
     } catch {
       return [];
     }

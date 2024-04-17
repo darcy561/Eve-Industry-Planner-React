@@ -1,6 +1,5 @@
-import { lazy, useContext, useEffect, Suspense } from "react";
+import { lazy, useContext, Suspense } from "react";
 import { PlannerAccordion } from "./Planner Components/accordion";
-import { useRefreshUser } from "../../Hooks/useRefreshUser";
 import {
   JobPlannerPageTriggerContext,
   PageLoadContext,
@@ -20,6 +19,7 @@ import { CollapseableDrawer } from "../SideMenu/sideMenu";
 import { SideMenuContent_JobPlanner } from "./Planner Components/Side Menu/sideMenuContent";
 import { TutorialTemplate } from "../Tutorials/tutorialTemplate";
 import { Footer } from "../Footer/Footer";
+import useCheckUserAuthState from "../../Hooks/Auth Hooks/useCheckUserState";
 
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
 
@@ -27,13 +27,10 @@ export default function JobPlanner({ colorMode }) {
   const { editGroupTrigger, updateEditGroupTrigger } = useContext(
     JobPlannerPageTriggerContext
   );
-  const { checkUserState } = useRefreshUser();
   const { pageLoad } = useContext(PageLoadContext);
   const { loginInProgressComplete } = useContext(UserLoginUIContext);
 
-  useEffect(() => {
-    checkUserState();
-  }, []);
+  useCheckUserAuthState();
 
   if (!loginInProgressComplete) {
     return <UserLogInUI />;

@@ -83,7 +83,7 @@ export function ShoppingListDialog() {
     parentUser.settings.editJob.defaultAssetLocation
   );
   const [selectedCharacter, updateSelectedCharacter] = useState(
-    users.length > 1 ? "allUsers" : parentUser.CharacterHashs
+    users.length > 1 ? "allUsers" : parentUser.CharacterHash
   );
   const [tempEveIDs, updateTempEveIDs] = useState({});
   const shoppingListValue = useRef(0);
@@ -104,7 +104,9 @@ export function ShoppingListDialog() {
       let itemPrices = await getItemPrices([...itemIDs], parentUser);
 
       const selectedAssets = await getRequestedAssets(
-        selectedCharacter,
+        selectedCharacter === "allUsers"
+          ? selectedCharacter
+          : users.find((i) => i.CharacterHash === selectedCharacter),
         useCorporation,
         removeAssets
       );

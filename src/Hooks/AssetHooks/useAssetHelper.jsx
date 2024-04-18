@@ -459,43 +459,42 @@ export function useAssetHelperHooks() {
   }
 
   async function getRequestedAssets(
-    requestedID,
+    userObject,
     isCorporation = false,
     returnAssets = true
   ) {
     try {
-      const assetString = isCorporation
-        ? `corpAssets_${requestedID}`
-        : `assets_${requestedID}`;
-
       if (!returnAssets) return [];
 
-      if (requestedID === "allUsers") {
-        return users.reduce((returnArray, { CharacterHash }) => {
-          return returnArray.concat(
-            JSON.parse(sessionStorage.getItem(`assets_${CharacterHash}`))
-          );
-        }, []);
-      }
-
-      const storageAssets = sessionStorage.getItem(assetString);
-
-
-      return JSON.parse(sessionStorage.getItem(assetString));
-
-
-      function findAssets(assetString, isCorporation) {
-        const functionToCall = isCorporation ? fetchCorpAssets : fetchCharacterAssets;
-        let matchedAssets = sessionStorage.getItem(assetString);
-
-        if (!matchedAssets) {
-
-
+      if (userObject === "allUsers") {
+        let promiseArray = [];
+        for (let user of users) {
+          promiseArray.push(findAssets(user, isCorporation));
         }
-        return matchedAssets
+        return (await Promise.all(promiseArray)).flat();
       }
 
+      return await findAssets(userObject, isCorporation);
 
+      async function findAssets(userObj, corporationFlag) {
+        try {
+          const assetString = corporationFlag
+            ? `corpAssets_${userObject?.corporation_id}`
+            : `assets_${userObject?.CharacterHash}`;
+
+          const functionToCall = corporationFlag
+            ? fetchCorpAssets
+            : fetchCharacterAssets;
+          let matchedAssets = JSON.parse(sessionStorage.getItem(assetString));
+
+          if (!matchedAssets) {
+            matchedAssets = await functionToCall(userObj);
+          }
+          return matchedAssets;
+        } catch (err) {
+          return [];
+        }
+      }
     } catch {
       return [];
     }

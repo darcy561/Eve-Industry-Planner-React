@@ -25,6 +25,7 @@ export function AssetsPage_Character({ selectedCharacter }) {
 
   useEffect(() => {
     async function buildCharacterAssetsTree() {
+      
       const requiredUserObject = users.find(
         (i) => i.CharacterHash === selectedCharacter
       );
@@ -35,7 +36,7 @@ export function AssetsPage_Character({ selectedCharacter }) {
         characterBlueprints.map((i) => [i.item_id, i])
       );
 
-      const assetsJSON = await getRequestedAssets(selectedCharacter);
+      const assetsJSON = await getRequestedAssets(requiredUserObject);
 
       const filteredAssets = assetsJSON.filter(
         (i) => i.location_flag !== ("AssetSafety" && "Deliveries")

@@ -44,10 +44,8 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
         corporationBlueprints.set(numericKey, value);
       }
 
-      const assetsJSON = await getRequestedAssets(
-        matchedCorporation.corporation_id,
-        true
-      );
+      const assetsJSON = await getRequestedAssets(requiredUserObject, true);
+      
       const filteredAssets = assetsJSON.filter(
         (i) => i.location_flag !== ("AssetSafety" && "CorpDeliveries")
       );

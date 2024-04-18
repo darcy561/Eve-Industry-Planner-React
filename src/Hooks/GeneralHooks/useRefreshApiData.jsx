@@ -37,7 +37,7 @@ export function useRefreshApiData() {
   const { corpEsiIndJobs, corpEsiOrders, corpEsiHistOrders } =
     useContext(CorpEsiDataContext);
   const { updateRefreshState } = useContext(RefreshStateContext);
-  const { RefreshUserAToken } = useRefreshUser();
+  const { refreshUserAccessTokens } = useRefreshUser();
   const {
     buildApiArray,
     characterAPICall,
@@ -61,7 +61,7 @@ export function useRefreshApiData() {
     logEvent(analytics, "Refresh API Data", {
       UID: parentUser.accountID,
     });
-    let newUserArray = [...users];
+
     let newEveIDs = {};
 
     const verifyApp = checkAppVersion({ appVersion: __APP_VERSION__ });
@@ -81,12 +81,10 @@ export function useRefreshApiData() {
     }
 
     const esiObjectsPromises = [];
-    const userTokenRefreshPoint = Math.floor(Date.now() / 1000);
+
+    const newUserArray = await refreshUserAccessTokens();
 
     for (let user of newUserArray) {
-      if (user.aTokenEXP <= userTokenRefreshPoint) {
-        user = await RefreshUserAToken(user);
-      }
       await getCharacterInfo(user);
       esiObjectsPromises.push(characterAPICall(user));
     }

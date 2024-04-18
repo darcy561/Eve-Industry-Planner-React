@@ -30,7 +30,7 @@ export function AssetLocationFlagPage_Character({
       const requiredUserObject = users.find(
         (i) => i.CharacterHash === selectedCharacter
       );
-      const assetsJSON = await getRequestedAssets(selectedCharacter);
+      const assetsJSON = await getRequestedAssets(requiredUserObject);
 
       const { topLevelAssetLocations, assetsByLocationMap, assetIDSet } =
         buildAssetLocationFlagMaps(assetsJSON, assetLocationFlagRequest);

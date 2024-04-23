@@ -135,7 +135,12 @@ export function FeedbackIcon() {
         color="primary"
         size="small"
         variant="extended"
-        sx={{ position: "fixed", bottom: "10px ", right: "5px" }}
+        sx={{
+          position: "fixed",
+          bottom: "10px ",
+          right: "5px",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        }}
         onClick={() => {
           setOpen(true);
         }}

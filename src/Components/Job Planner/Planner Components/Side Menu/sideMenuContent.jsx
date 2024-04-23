@@ -3,8 +3,8 @@ import { SidemenuButtonTemplate_JobPlanner } from "./Buttons/buttonTemplate";
 import uuid from "react-uuid";
 import { useJobPlannerSideMenuFunctions } from "./Buttons/buttonfunctions";
 
-export function SideMenuContent_JobPlanner({ expandedState }) {
-  const buttonOptions = useJobPlannerSideMenuFunctions();
+export function SideMenuContent_JobPlanner({ expandedState, updateExpandRightContentMenu }) {
+  const buttonOptions = useJobPlannerSideMenuFunctions(updateExpandRightContentMenu);
 
   return (
     <List>

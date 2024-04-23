@@ -16,7 +16,7 @@ import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 import { useFirebase } from "../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../global-config-app";
 
-export function TutorialTemplate({ TutorialContent }) {
+function TutorialTemplate({ TutorialContent }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { userDataFetch } = useContext(UserLoginUIContext);
@@ -58,7 +58,7 @@ export function TutorialTemplate({ TutorialContent }) {
         >
           <Grid container direction="column">
             <Grid item xs>
-              <TutorialContent />
+              {TutorialContent && <TutorialContent />}
             </Grid>
             {isLoggedIn && (
               <Grid item display={"flex"} justifyContent="flex-end">
@@ -86,3 +86,5 @@ export function TutorialTemplate({ TutorialContent }) {
     </Slide>
   );
 }
+
+export default TutorialTemplate;

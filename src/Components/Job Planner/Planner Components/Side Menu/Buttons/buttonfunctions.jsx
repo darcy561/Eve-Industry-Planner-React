@@ -27,7 +27,7 @@ import {
 } from "../../../../../Context/JobContext";
 import { useGroupManagement } from "../../../../../Hooks/useGroupManagement";
 
-export function useJobPlannerSideMenuFunctions() {
+export function useJobPlannerSideMenuFunctions(updateExpandRightContentMenu) {
   const { updateGroupArray } = useContext(JobArrayContext);
   const { updateActiveGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -49,7 +49,9 @@ export function useJobPlannerSideMenuFunctions() {
     "You will need to select at least 1 job using the checkbox's on the job cards.";
 
   function addNewJobButton() {
-    async function buttonClick() {}
+    async function buttonClick() {
+      updateExpandRightContentMenu((prev) => !prev);
+    }
 
     return {
       displayText: "Add New Job",

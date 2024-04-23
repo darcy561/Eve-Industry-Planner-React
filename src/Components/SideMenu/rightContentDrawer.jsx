@@ -1,23 +1,21 @@
-import { useState } from "react";
-import { Box, Divider, Drawer, IconButton, Toolbar } from "@mui/material";
-import KeyboardDoubleArrowRightOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowRightOutlined";
-import KeyboardDoubleArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftOutlined";
+import { Box, Divider, Drawer, Grid, Paper, Slide, Toolbar } from "@mui/material";
 
-export function CollapseableDrawer({ DrawerContents }) {
-  const localStorageItemKey = "sideMenuExpanded";
-  const [expandedDrawer, setExpandedDrawer] = useState(() => {
-    const state = localStorage.getItem(localStorageItemKey);
-    if (state == null) return true;
-    return state === "true";
-  });
-  const drawerWitdh = expandedDrawer ? 240 : 50;
+
+function CollapseableContentDrawer_Right({
+  DrawerContent,
+  expandRightContentMenu,
+  updateExpandRightContentMenu,
+}) {
+  const drawerWitdh = expandRightContentMenu ? "25%" : 0;
+  console.log(DrawerContent);
 
   return (
     <Drawer
       variant="permanent"
-      anchor="left"
-      open={expandedDrawer}
+      anchor="right"
+      open={expandRightContentMenu}
       sx={{
+        display: "flex",
         width: drawerWitdh,
         flexShrink: 0,
         transition: "width 0.3s ease-in-out",
@@ -38,10 +36,10 @@ export function CollapseableDrawer({ DrawerContents }) {
             flexGrow: 1,
           }}
         >
-          <DrawerContents expandedState={expandedDrawer} />
+          {DrawerContent && <DrawerContent />}
         </Box>
         <Divider />
-        <Box
+        {/* <Box
           sx={{
             display: "flex",
             justifyContent: "center",
@@ -61,8 +59,10 @@ export function CollapseableDrawer({ DrawerContents }) {
               <KeyboardDoubleArrowRightOutlinedIcon />
             )}
           </IconButton>
-        </Box>
+        </Box> */}
       </Box>
     </Drawer>
   );
 }
+
+export default CollapseableContentDrawer_Right;

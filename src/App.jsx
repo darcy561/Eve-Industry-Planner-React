@@ -116,7 +116,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: "flex", width: "100%", height: "100%" }}>
+      <Box sx={{ display: "flex", width: "100%", height: "100%",  }}>
         <CssBaseline />
         <SnackBarNotification />
         <DialogBox />

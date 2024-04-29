@@ -4,6 +4,7 @@ import { LoadingTextContext } from "../Context/LayoutContext";
 import { MdDone } from "react-icons/md";
 import { Header } from "./Header";
 import { Footer } from "./Footer/Footer";
+import { STANDARD_TEXT_FORMAT } from "../Context/defaultValues";
 
 export function LoadingPage({ colorMode }) {
   const { loadingText } = useContext(LoadingTextContext);
@@ -28,7 +29,9 @@ export function LoadingPage({ colorMode }) {
             <Grid container align="center" direction="row">
               <Grid item xs={3} sm={4} md={4} xl={5} />
               <Grid item xs={5} sm={3} md={3} xl={1}>
-                <Typography variant="body2">Downloading Job Data</Typography>
+                <Typography sx={{ Typography: STANDARD_TEXT_FORMAT }}>
+                  Downloading Job Data
+                </Typography>
               </Grid>
 
               <Grid item align="left" xs={1} sm={1}>
@@ -45,7 +48,9 @@ export function LoadingPage({ colorMode }) {
             <Grid container align="center" direction="row">
               <Grid item xs={3} sm={4} md={4} xl={5} />
               <Grid item xs={5} sm={3} md={3} xl={1}>
-                <Typography variant="body2">Downloading Price Data</Typography>
+                <Typography sx={{ Typography: STANDARD_TEXT_FORMAT }}>
+                  Downloading Price Data
+                </Typography>
               </Grid>
 
               <Grid item align="left" xs={1} sm={1}>

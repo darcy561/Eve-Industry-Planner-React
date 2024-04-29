@@ -16,74 +16,67 @@ import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 import { useFirebase } from "../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../global-config-app";
 
-function TutorialTemplate({ TutorialContent }) {
+function TutorialTemplate({ TutorialContent, updateExpandedMenu }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
-  const { userDataFetch } = useContext(UserLoginUIContext);
   const { updateMainUserDoc } = useFirebase();
-  const { findParentUser, findParentUserIndex } = useHelperFunction();
-  const parentUser = findParentUser();
+  const { findParentUserIndex, checkDisplayTutorials } = useHelperFunction();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
-
-  const [displayTemplate, updateDisplayTemplate] = useState(
-    !parentUser.settings.layout.hideTutorials && userDataFetch
-  );
   function handleCheckBox() {
     let newUsers = [...users];
     const parentUserIndex = findParentUserIndex();
     newUsers[parentUserIndex].settings.layout.hideTutorials = true;
-
-    updateDisplayTemplate((prev) => !prev);
+    updateExpandedMenu((prev) => !prev);
     updateUsers(newUsers);
     updateMainUserDoc();
   }
 
+  if (!checkDisplayTutorials()) return null;
+
   return (
-    <Slide in={displayTemplate} direction="left" mountOnEnter unmountOnExit>
-      <Box
+    <Box
+      sx={{
+        display: "flex",
+        width: { xs: "100%", md: "25%" },
+        order: { xs: 1, md: 2 },
+        minWidth: "40ch",
+      }}
+    >
+      <Paper
+        elevation={3}
         sx={{
-          display: "flex",
-          width: { xs: "100%", md: "25%" },
-          order: { xs: 1, md: 2 },
-          minWidth: "40ch",
+          padding: "20px",
+          width: "100%",
         }}
+        square
       >
-        <Paper
-          elevation={3}
-          sx={{
-            padding: "20px",
-            width: "100%",
-          }}
-          square
-        >
-          <Grid container direction="column">
-            <Grid item xs>
-              {TutorialContent && <TutorialContent />}
-            </Grid>
-            {isLoggedIn && (
-              <Grid item display={"flex"} justifyContent="flex-end">
-                <FormGroup>
-                  <FormControlLabel
-                    label={"Hide Tutorials"}
-                    control={
-                      <Checkbox
-                        sx={{
-                          color: (theme) =>
-                            theme.palette.mode === PRIMARY_THEME
-                              ? theme.palette.primary.main
-                              : theme.palette.secondary.main,
-                        }}
-                        onClick={handleCheckBox}
-                      />
-                    }
-                  />
-                </FormGroup>
-              </Grid>
-            )}
+        <Grid container direction="column">
+          <Grid item xs>
+            {TutorialContent && <TutorialContent />}
           </Grid>
-        </Paper>
-      </Box>
-    </Slide>
+          {isLoggedIn && (
+            <Grid item display={"flex"} justifyContent="flex-end">
+              <FormGroup>
+                <FormControlLabel
+                  label={"Hide Tutorials"}
+                  control={
+                    <Checkbox
+                      sx={{
+                        color: (theme) =>
+                          theme.palette.mode === PRIMARY_THEME
+                            ? theme.palette.primary.main
+                            : theme.palette.secondary.main,
+                      }}
+                      onClick={handleCheckBox}
+                    />
+                  }
+                />
+              </FormGroup>
+            </Grid>
+          )}
+        </Grid>
+      </Paper>
+    </Box>
   );
 }
 

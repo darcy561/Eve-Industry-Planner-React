@@ -27,7 +27,10 @@ import {
 } from "../../../../../Context/JobContext";
 import { useGroupManagement } from "../../../../../Hooks/useGroupManagement";
 
-export function useJobPlannerSideMenuFunctions(updateExpandRightContentMenu) {
+export function useJobPlannerSideMenuFunctions(
+  updateExpandRightContentMenu,
+  updateRightContentMenuContentID
+) {
   const { updateGroupArray } = useContext(JobArrayContext);
   const { updateActiveGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -50,7 +53,8 @@ export function useJobPlannerSideMenuFunctions(updateExpandRightContentMenu) {
 
   function addNewJobButton() {
     async function buttonClick() {
-      updateExpandRightContentMenu((prev) => !prev);
+      updateExpandRightContentMenu(true)
+      updateRightContentMenuContentID(1)
     }
 
     return {

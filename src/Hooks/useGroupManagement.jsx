@@ -90,7 +90,8 @@ export function useGroupManagement() {
           continue;
         }
         material = material.filter((i) => i !== inputJob.jobID);
-      }
+      };
+
       inputJob.parentJob = inputJob.parentJob.filter((i) =>
         inputJobIDs.includes(i)
       );

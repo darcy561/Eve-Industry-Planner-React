@@ -21,6 +21,8 @@ import TutorialTemplate from "../Tutorials/tutorialTemplate";
 import { Footer } from "../Footer/Footer";
 import useCheckUserAuthState from "../../Hooks/Auth Hooks/useCheckUserState";
 import CollapseableContentDrawer_Right from "../SideMenu/rightContentDrawer";
+import RightSideMenuContent_JobPlanner from "./Planner Components/Side Menu/rightMenuContents";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
 
@@ -30,11 +32,12 @@ export default function JobPlanner({ colorMode }) {
   );
   const { pageLoad } = useContext(PageLoadContext);
   const { loginInProgressComplete } = useContext(UserLoginUIContext);
-  const [expandRightContentMenu, updateExpandRightContentMenu] =
-    useState(false);
-  const tutorialContent = (
-    <TutorialTemplate/>
+  const { checkDisplayTutorials } = useHelperFunction();
+  const [expandRightContentMenu, updateExpandRightContentMenu] = useState(
+    checkDisplayTutorials()
   );
+  const [rightContentMenuContentID, updateRightContentMenuContentID] =
+    useState(null);
   useCheckUserAuthState();
 
   if (!loginInProgressComplete) {
@@ -59,6 +62,8 @@ export default function JobPlanner({ colorMode }) {
             <CollapseableMenuDrawer
               expandRightContentMenu={expandRightContentMenu}
               updateExpandRightContentMenu={updateExpandRightContentMenu}
+              rightContentMenuContentID={rightContentMenuContentID}
+              updateRightContentMenuContentID={updateRightContentMenuContentID}
               DrawerContents={SideMenuContent_JobPlanner}
             />
 
@@ -87,20 +92,20 @@ export default function JobPlanner({ colorMode }) {
                 }}
               >
                 <PlannerAccordion />
-
-                <TutorialTemplate
-                  TutorialContent={TutorialContent_JobPlanner}
-                />
               </Box>
 
               <Footer />
             </Box>
             <CollapseableContentDrawer_Right
-              // DrawerContent={
-              //   <Box>
-              //     sff
-              //   </Box>
-              // }
+              DrawerContent={
+                <RightSideMenuContent_JobPlanner
+                  rightContentMenuContentID={rightContentMenuContentID}
+                  updateRightContentMenuContentID={
+                    updateRightContentMenuContentID
+                  }
+                  updateExpandRightContentMenu={updateExpandRightContentMenu}
+                />
+              }
               expandRightContentMenu={expandRightContentMenu}
               updateExpandRightContentMenu={updateExpandRightContentMenu}
             />

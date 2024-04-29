@@ -2,13 +2,17 @@ import { useContext } from "react";
 import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { UsersContext } from "../../Context/AuthContext";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
+import {
+  SnackBarDataContext,
+  UserLoginUIContext,
+} from "../../Context/LayoutContext";
 
 export function useHelperFunction() {
   const { users } = useContext(UsersContext);
   const { evePrices } = useContext(EvePricesContext);
   const { eveIDs } = useContext(EveIDsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { userDataFetch } = useContext(UserLoginUIContext);
 
   function Add_RemovePendingChildJobs(
     materialChildJobObject,
@@ -189,9 +193,15 @@ export function useHelperFunction() {
     }
   }
 
+  function checkDisplayTutorials() {
+    const parentUser = findParentUser();
+    return !parentUser.settings.layout.hideTutorials && userDataFetch;
+  }
+
   return {
     Add_RemovePendingChildJobs,
     Add_RemovePendingParentJobs,
+    checkDisplayTutorials,
     findItemPriceObject,
     findParentUser,
     findParentUserIndex,

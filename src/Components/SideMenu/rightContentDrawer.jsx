@@ -1,5 +1,12 @@
-import { Box, Divider, Drawer, Grid, Paper, Slide, Toolbar } from "@mui/material";
-
+import {
+  Box,
+  Divider,
+  Drawer,
+  Grid,
+  Paper,
+  Slide,
+  Toolbar,
+} from "@mui/material";
 
 function CollapseableContentDrawer_Right({
   DrawerContent,
@@ -7,7 +14,6 @@ function CollapseableContentDrawer_Right({
   updateExpandRightContentMenu,
 }) {
   const drawerWitdh = expandRightContentMenu ? "25%" : 0;
-  console.log(DrawerContent);
 
   return (
     <Drawer
@@ -36,30 +42,9 @@ function CollapseableContentDrawer_Right({
             flexGrow: 1,
           }}
         >
-          {DrawerContent && <DrawerContent />}
+          {DrawerContent}
         </Box>
         <Divider />
-        {/* <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-end",
-            padding: 2,
-          }}
-        >
-          <IconButton
-            onClick={() => {
-              localStorage.setItem(localStorageItemKey, !expandedDrawer);
-              setExpandedDrawer((prev) => !prev);
-            }}
-          >
-            {expandedDrawer ? (
-              <KeyboardDoubleArrowLeftOutlinedIcon />
-            ) : (
-              <KeyboardDoubleArrowRightOutlinedIcon />
-            )}
-          </IconButton>
-        </Box> */}
       </Box>
     </Drawer>
   );

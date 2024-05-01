@@ -81,14 +81,12 @@ export function useJobManagement() {
     let isActiveGroup = false;
 
     t.start();
-    if (!checkAllowBuild()) {
-      return;
-    }
     updateDataExchange(true);
     const newJob = await buildJob(buildRequest);
     if (!newJob) {
       return;
     }
+    console.log(newJob)
     let itemPriceRequest = [
       getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
     ];

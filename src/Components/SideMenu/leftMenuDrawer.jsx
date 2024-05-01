@@ -7,6 +7,8 @@ function CollapseableMenuDrawer({
   DrawerContents,
   expandRightContentMenu,
   updateExpandRightContentMenu,
+  rightContentMenuContentID,
+  updateRightContentMenuContentID
 }) {
   const localStorageItemKey = "sideMenuExpanded";
   const [expandedDrawer, setExpandedDrawer] = useState(() => {
@@ -46,6 +48,8 @@ function CollapseableMenuDrawer({
             expandedState={expandedDrawer}
             expandRightContentMenu={expandRightContentMenu}
             updateExpandRightContentMenu={updateExpandRightContentMenu}
+            rightContentMenuContentID={rightContentMenuContentID}
+            updateRightContentMenuContentID={updateRightContentMenuContentID}
           />
         </Box>
         <Divider />

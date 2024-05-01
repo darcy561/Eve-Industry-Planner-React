@@ -1,5 +1,6 @@
 import TutorialTemplate from "../../../Tutorials/tutorialTemplate";
 import { TutorialContent_JobPlanner } from "../tutorialPlanner";
+import AddNewJobContentPanel from "./panalContents.jsx/addNewJob";
 
 function RightSideMenuContent_JobPlanner({
   rightContentMenuContentID,
@@ -8,7 +9,7 @@ function RightSideMenuContent_JobPlanner({
 }) {
   switch (rightContentMenuContentID) {
     case 1:
-      return null;
+      return <AddNewJobContentPanel />;
 
     default:
       return (

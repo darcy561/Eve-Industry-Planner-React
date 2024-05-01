@@ -11,6 +11,7 @@ export function SideMenuContent_JobPlanner({
 }) {
   const buttonOptions = useJobPlannerSideMenuFunctions(
     updateExpandRightContentMenu,
+    rightContentMenuContentID,
     updateRightContentMenuContentID
   );
 

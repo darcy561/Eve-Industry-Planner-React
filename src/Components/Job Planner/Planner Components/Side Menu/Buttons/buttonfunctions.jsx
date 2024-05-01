@@ -26,9 +26,11 @@ import {
   JobArrayContext,
 } from "../../../../../Context/JobContext";
 import { useGroupManagement } from "../../../../../Hooks/useGroupManagement";
+import useRightContentDrawer from "../../../../SideMenu/Hooks/rightContentMenuHooks";
 
 export function useJobPlannerSideMenuFunctions(
   updateExpandRightContentMenu,
+  rightContentMenuContentID,
   updateRightContentMenuContentID
 ) {
   const { updateGroupArray } = useContext(JobArrayContext);
@@ -47,14 +49,19 @@ export function useJobPlannerSideMenuFunctions(
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { createNewGroupWithJobs } = useGroupManagement();
+  const { toggleRightDrawerColapse } = useRightContentDrawer();
 
   const standardDialogError =
     "You will need to select at least 1 job using the checkbox's on the job cards.";
 
   function addNewJobButton() {
     async function buttonClick() {
-      updateExpandRightContentMenu(true)
-      updateRightContentMenuContentID(1)
+      updateRightContentMenuContentID((prev) => (prev === 1 ? null : 1));
+      toggleRightDrawerColapse(
+        1,
+        rightContentMenuContentID,
+        updateExpandRightContentMenu
+      );
     }
 
     return {

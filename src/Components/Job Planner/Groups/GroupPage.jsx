@@ -26,6 +26,7 @@ import { useCloseGroup } from "../../../Hooks/GroupHooks/useCloseGroup";
 import { LoadingPage } from "../../loadingPage";
 import { ImportItemFitDialogue } from "./Dialogues/importFit/importFittingDialgue";
 import { ShoppingListDialog } from "../Dialogues/ShoppingList/ShoppingList";
+import useBuildNewJobs from "../../../Hooks/JobHooks/useBuildNewJobs";
 
 export default function GroupPage() {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -41,7 +42,7 @@ export default function GroupPage() {
   const [importFitDialogueTrigger, updateImportFitDialogueTrigger] =
     useState(false);
   const { closeGroup } = useCloseGroup();
-  const { newJobProcess } = useJobManagement();
+  const { addNewJobsToPlanner } = useBuildNewJobs();
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -92,9 +93,8 @@ export default function GroupPage() {
   function updateShowComplete() {
     let newGroupArray = [...groupArray];
     let selectedGroup = newGroupArray.find((i) => i.groupID === activeGroup);
-    selectedGroup.showComplete = !selectedGroup.showComplete
-    updateGroupArray(newGroupArray)
-    
+    selectedGroup.showComplete = !selectedGroup.showComplete;
+    updateGroupArray(newGroupArray);
   }
 
   if (!activeGroup) return <LoadingPage />;
@@ -203,7 +203,7 @@ export default function GroupPage() {
               getOptionLabel={(option) => option.name}
               onChange={async (event, value) => {
                 updateShowProcessing((prev) => !prev);
-                await newJobProcess({
+                await addNewJobsToPlanner({
                   itemID: value.itemID,
                   groupID: activeGroupObject.groupID,
                 });

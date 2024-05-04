@@ -9,7 +9,13 @@ function RightSideMenuContent_JobPlanner({
 }) {
   switch (rightContentMenuContentID) {
     case 1:
-      return <AddNewJobContentPanel />;
+      return (
+        <AddNewJobContentPanel
+          hideRightContentPanel={updateExpandRightContentMenu}
+          rightContentMenuContentID={rightContentMenuContentID}
+          updateRightContentMenuContentID={updateRightContentMenuContentID}
+        />
+      );
 
     default:
       return (

@@ -12,22 +12,34 @@ import {
 import ClearIcon from "@mui/icons-material/Clear";
 import itemList from "../../../../../RawData/searchIndex.json";
 import fullItemList from "../../../../../RawData/fullItemList.json";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
 import uuid from "react-uuid";
+import useBuildNewJobs from "../../../../../Hooks/JobHooks/useBuildNewJobs";
+import useRightContentDrawer from "../../../../SideMenu/Hooks/rightContentMenuHooks";
 
-function AddNewJobContentPanel() {
+function AddNewJobContentPanel({
+  hideRightContentPanel,
+  rightContentMenuContentID,
+  updateRightContentMenuContentID,
+}) {
   const [itemIDsToAdd, updateItemIDsToAdd] = useState([]);
-  const { newJobProcess } = useJobManagement();
-  console.log(itemIDsToAdd);
+  const { addNewJobsToPlanner } = useBuildNewJobs();
+  const { toggleRightDrawerColapse } = useRightContentDrawer();
 
-  function addJobs() {
-    newJobProcess(
+  async function addJobs() {
+    await addNewJobsToPlanner(
       itemIDsToAdd.map((i) => {
         return {
           itemID: i,
         };
       })
     );
+    updateItemIDsToAdd([]);
+    toggleRightDrawerColapse(
+      1,
+      rightContentMenuContentID,
+      hideRightContentPanel
+    );
+    updateRightContentMenuContentID(null);
   }
 
   return (

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import {
   Grid,
   IconButton,
@@ -12,7 +12,7 @@ import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useSetupManagement } from "../../../../../../Hooks/GeneralHooks/useSetupManagement";
 import { JobSetupCard } from "./jobSetupCard";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function JobSetupPanel({
   activeJob,
@@ -21,9 +21,13 @@ export function JobSetupPanel({
   setupToEdit,
   updateSetupToEdit,
 }) {
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const {
+    sendSnackbarNotificationSuccess,
+    sendSnackbarNotificationError,
+    sendSnackbarNotificationWarning,
+  } = useHelperFunction();
   const { addNewSetup, deleteActiveSetup } = useSetupManagement();
 
   const handleMenuClick = (event) => {
@@ -63,13 +67,7 @@ export function JobSetupPanel({
                 },
               },
             }));
-            setSnackbarData((prev) => ({
-              ...prev,
-              open: true,
-              message: `Added`,
-              severity: "success",
-              autoHideDuration: 1000,
-            }));
+            sendSnackbarNotificationSuccess("Added");
             setJobModified(true);
           }}
         >
@@ -113,13 +111,10 @@ export function JobSetupPanel({
               } = deleteActiveSetup(activeJob, setupToEdit);
 
               if (preventUpdate) {
-                setSnackbarData((prev) => ({
-                  ...prev,
-                  open: true,
-                  message: `Cannot delete the final setup. Create a replacement setup first.`,
-                  severity: "warning",
-                  autoHideDuration: 3000,
-                }));
+                sendSnackbarNotificationWarning(
+                  "Cannot delete the final setup. Create a replacement setup first.",
+                  3
+                );
                 return;
               }
 
@@ -140,13 +135,7 @@ export function JobSetupPanel({
                   setupToEdit: replacementSetupID,
                 },
               }));
-              setSnackbarData((prev) => ({
-                ...prev,
-                open: true,
-                message: `Deleted`,
-                severity: "error",
-                autoHideDuration: 1000,
-              }));
+              sendSnackbarNotificationError("Deleted");
               setJobModified(true);
             }}
           >

@@ -5,7 +5,6 @@ import {
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
 import { useFindJobObject } from "../../../../../../Hooks/GeneralHooks/useFindJobObject";
@@ -15,14 +14,17 @@ import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelpe
 export function PassBuildCostsButton({ activeJob }) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
-  const { findParentUser } = useHelperFunction();
+  const {
+    findParentUser,
+    sendSnackbarNotificationSuccess,
+    sendSnackbarNotificationError,
+  } = useHelperFunction();
   const analytics = getAnalytics();
 
   const parentUser = findParentUser();
@@ -93,32 +95,14 @@ export function PassBuildCostsButton({ activeJob }) {
       }
     }
     if (itemsAdded > 0) {
-      if (itemsAdded === 1) {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: `Cost Imported To Parent Job`,
-          severity: "success",
-          autoHideDuration: 3000,
-        }));
-      }
-      if (itemsAdded > 1) {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: `Cost Imported To ${itemsAdded} Jobs`,
-          severity: "success",
-          autoHideDuration: 3000,
-        }));
-      }
+      const messageText =
+        itemsAdded > 1
+          ? `Cost Imported To ${itemsAdded} Jobs`
+          : `Cost Imported To Parent Job`;
+
+      sendSnackbarNotificationSuccess(messageText);
     } else {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `Build cost already imported`,
-        severity: "error",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationError(`Build cost already imported`, 3);
     }
     logEvent(analytics, "Import Costs", {
       UID: parentUser.accountID,

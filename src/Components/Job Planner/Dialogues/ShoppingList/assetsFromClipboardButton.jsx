@@ -1,15 +1,15 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Button, Tooltip } from "@mui/material";
 import { useShoppingList } from "../../../../Hooks/GeneralHooks/useShoppingList";
-import { SnackBarDataContext } from "../../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AssetsFromClipboardButton_ShoppingList({
   displayData,
   updateDisplayData,
 }) {
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [displayClipboardData, updateDisplayClipboardData] = useState(false);
   const { importAssetsFromClipboard, clearAssetQuantities } = useShoppingList();
+  const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   if (displayClipboardData) {
     return (
@@ -21,13 +21,7 @@ export function AssetsFromClipboardButton_ShoppingList({
           clearAssetQuantities(newDisplayData);
           updateDisplayClipboardData((prev) => !prev);
           updateDisplayData(newDisplayData);
-          setSnackbarData((prev) => ({
-            ...prev,
-            open: true,
-            message: `Assets Removed`,
-            severity: "success",
-            autoHideDuration: 1000,
-          }));
+          sendSnackbarNotificationSuccess("Assets Removed");
         }}
       >
         Remove Imported Assets
@@ -49,13 +43,7 @@ export function AssetsFromClipboardButton_ShoppingList({
           const newDisplayData = await importAssetsFromClipboard(displayData);
           updateDisplayClipboardData((prev) => !prev);
           updateDisplayData(newDisplayData);
-          setSnackbarData((prev) => ({
-            ...prev,
-            open: true,
-            message: `Assets Applied`,
-            severity: "success",
-            autoHideDuration: 1000,
-          }));
+          sendSnackbarNotificationSuccess("Assets Applied");
         }}
       >
         Import Assets From Clipboard

@@ -1,6 +1,7 @@
 import { Avatar, Checkbox, Grid, Typography } from "@mui/material";
+import { STANDARD_TEXT_FORMAT } from "../../../../../../Context/defaultValues";
 
-export function ImportFittingItemRow({ updateImportedItemList, item, index }) {
+function FittingImportRow({ item, index, updateImportedFitData }) {
   if (!item.buildable) return null;
   return (
     <Grid container item xs={12}>
@@ -20,20 +21,21 @@ export function ImportFittingItemRow({ updateImportedItemList, item, index }) {
         />
       </Grid>
       <Grid container item xs={7} sm={8} alignItems="center">
-        <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+        <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
           {item.itemName}
         </Typography>
       </Grid>
       <Grid container item xs={2} justifyContent="center" alignItems="center">
-        <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+        <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
           {item.itemCalculatedQty.toLocaleString()}
         </Typography>
       </Grid>
       <Grid item xs={1}>
         <Checkbox
+          disabled={!item.buildable}
           checked={item.included}
           onChange={() => {
-            updateImportedItemList((prev) => {
+            updateImportedFitData((prev) => {
               const newList = [...prev];
               newList[index].included = !newList[index].included;
               return newList;
@@ -44,3 +46,5 @@ export function ImportFittingItemRow({ updateImportedItemList, item, index }) {
     </Grid>
   );
 }
+
+export default FittingImportRow;

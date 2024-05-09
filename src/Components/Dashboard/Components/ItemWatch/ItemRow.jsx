@@ -20,7 +20,6 @@ import {
   UserWatchlistContext,
 } from "../../../../Context/AuthContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
-import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { ExpandedWatchlistRow } from "./ItemRowExpanded";
 import AddIcon from "@mui/icons-material/Add";
@@ -58,9 +57,12 @@ export function WatchListRow({
   } = useFirebase();
   const { checkAllowBuild, buildJob } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
-  const { findItemPriceObject } = useHelperFunction();
+  const {
+    findItemPriceObject,
+    sendSnackbarNotificationSuccess,
+    sendSnackbarNotificationError,
+  } = useHelperFunction();
   const { newJobSnapshot } = useJobSnapshotManagement();
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");
@@ -73,13 +75,7 @@ export function WatchListRow({
     logEvent(analytics, "Remove Watchlist Item", {
       UID: parentUser.accountID,
     });
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${item.name} Removed`,
-      severity: "error",
-      autoHideDuration: 2000,
-    }));
+    sendSnackbarNotificationError(`${item.name} Removed`, 3);
   }
 
   async function handleAdd() {
@@ -115,13 +111,7 @@ export function WatchListRow({
       ...itemPriceResult,
     }));
     updateJobArray((prev) => [...prev, newJob]);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${newJob.name} Added`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationSuccess(`${newJob.name} Added`, 3);
     t.stop();
   }
 

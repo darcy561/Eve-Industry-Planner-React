@@ -1,9 +1,5 @@
 import { useContext } from "react";
-import {
-  SnackBarDataContext,
-  DataExchangeContext,
-  MassBuildDisplayContext,
-} from "../Context/LayoutContext";
+import { MassBuildDisplayContext } from "../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../Context/AuthContext";
 import {
   ApiJobsContext,
@@ -25,16 +21,12 @@ import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
-import { useManageGroupJobs } from "./GroupHooks/useManageGroupJobs";
 import { STATIONID_RANGE } from "../Context/defaultValues";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useJobManagement() {
-  const { jobArray, groupArray, updateJobArray, updateGroupArray } =
-    useContext(JobArrayContext);
+  const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateMassBuildDisplay } = useContext(MassBuildDisplayContext);
@@ -57,91 +49,18 @@ export function useJobManagement() {
     addNewJob,
     getItemPrices,
     removeJob,
-    uploadGroups,
     uploadJob,
     uploadUserJobSnapshot,
-    userJobListener,
   } = useFirebase();
   const { stationData } = useEveApi();
-  const { buildJob, checkAllowBuild } = useJobBuild();
+  const { buildJob } = useJobBuild();
   const { findJobData } = useFindJobObject();
   const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
-  const { addJobToGroup } = useManageGroupJobs();
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
 
   const analytics = getAnalytics();
-
   const parentUser = findParentUser();
-
-  const newJobProcess = async (buildRequest) => {
-    const t = trace(performance, "CreateJobProcessFull");
-    let newUserJobSnapshot = [...userJobSnapshot];
-    let newGroupArray = [...groupArray];
-    let newJobArray = [...jobArray];
-    let isActiveGroup = false;
-
-    t.start();
-    updateDataExchange(true);
-    const newJob = await buildJob(buildRequest);
-    if (!newJob) {
-      return;
-    }
-    console.log(newJob)
-    let itemPriceRequest = [
-      getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
-    ];
-    if (!newJob.groupID) {
-      newUserJobSnapshot = newJobSnapshot(newJob, newUserJobSnapshot);
-    }
-    newJobArray.push(newJob);
-
-    addJobToGroup: if (newJob.groupID) {
-      newGroupArray = addJobToGroup(newJob, newGroupArray, newJobArray);
-    }
-
-    if (isLoggedIn) {
-      if (!buildRequest.hasOwnProperty("groupID")) {
-        uploadUserJobSnapshot(newUserJobSnapshot);
-      }
-      addNewJob(newJob);
-      userJobListener(parentUser, newJob.jobID);
-    }
-
-    updateJobArray(newJobArray);
-    logEvent(analytics, "New Job", {
-      loggedIn: isLoggedIn,
-      UID: parentUser.accountID,
-      name: newJob.name,
-      itemID: newJob.itemID,
-    });
-
-    const itemPriceResult = await Promise.all(itemPriceRequest);
-
-    if (buildRequest.hasOwnProperty("groupID")) {
-      updateGroupArray(newGroupArray);
-      if (isLoggedIn) {
-        uploadGroups(newGroupArray);
-      }
-    } else {
-      updateUserJobSnapshot(newUserJobSnapshot);
-    }
-    updateEvePrices((prev) => ({
-      ...prev,
-      ...itemPriceResult,
-    }));
-    updateDataExchange(false);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${newJob.name} Added`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
-    if (buildRequest.hasOwnProperty("parentJobs")) {
-      return newJob;
-    }
-    t.stop();
-  };
 
   const massBuildMaterials = async (inputJobIDs) => {
     const r = trace(performance, "MassCreateJobProcessFull");
@@ -293,13 +212,7 @@ export function useJobManagement() {
       ...prev,
       open: false,
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${childJobs.length} Job/Jobs Added`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationSuccess(`${childJobs.length} Job/Jobs Added`, 3);
     r.stop();
   };
 
@@ -574,23 +487,12 @@ export function useJobManagement() {
     updateJobArray(newJobArray);
     updateApiJobs(newApiJobsArary);
 
-    if (newJobHold.length > 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${newJobHold.length} Jobs Merged Successfully`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
-    } else {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `0 Jobs Merged`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
-    }
+    sendSnackbarNotificationSuccess(
+      newJobHold.length > 0
+        ? `${newJobHold.length} Jobs Merged Successfully`
+        : `0 Jobs Merged`,
+      3
+    );
     r.stop();
   };
 
@@ -783,7 +685,6 @@ export function useJobManagement() {
     lockUserJob,
     massBuildMaterials,
     mergeJobsNew,
-    newJobProcess,
     timeRemainingCalc,
     unlockUserJob,
   };

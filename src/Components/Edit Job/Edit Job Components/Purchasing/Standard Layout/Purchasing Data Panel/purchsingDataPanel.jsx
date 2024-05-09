@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import {
   Button,
   FormControlLabel,
@@ -10,19 +10,13 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import {
-  IsLoggedInContext,
-  UsersContext,
-} from "../../../../../../Context/AuthContext";
+import { UsersContext } from "../../../../../../Context/AuthContext";
 import {
   TWO_DECIMAL_PLACES,
   listingType,
 } from "../../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
-import {
-  ShoppingListContext,
-  SnackBarDataContext,
-} from "../../../../../../Context/LayoutContext";
+import { ShoppingListContext } from "../../../../../../Context/LayoutContext";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import {
   useAddMaterialCostsToJob,
@@ -38,15 +32,16 @@ export function PurchasingDataPanel_EditJob({
   changeMarketDisplay,
   setJobModified,
 }) {
-  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { updateShoppingListTrigger, updateShoppingListData } =
     useContext(ShoppingListContext);
   const [orderSelect, updateOrderSelect] = useState(orderDisplay);
   const [marketSelect, updateMarketSelect] = useState(marketDisplay);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { findParentUserIndex, importMultibuyFromClipboard } =
-    useHelperFunction();
+  const {
+    findParentUserIndex,
+    importMultibuyFromClipboard,
+    sendSnackbarNotificationError,
+  } = useHelperFunction();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
   const parentUserIndex = findParentUserIndex();
@@ -177,14 +172,9 @@ export function PurchasingDataPanel_EditJob({
                           }
 
                           if (materialPriceObjects.length === 0) {
-                            setSnackbarData((prev) => ({
-                              ...prev,
-                              open: true,
-                              message: `No Matching Items Found`,
-                              severity: "error",
-                              autoHideDuration: 1000,
-                            }));
-
+                            sendSnackbarNotificationError(
+                              "No Matching Items Found"
+                            );
                             return;
                           }
 

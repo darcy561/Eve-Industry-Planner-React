@@ -14,7 +14,6 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
@@ -29,10 +28,13 @@ export function AvailableJobsTab({
   updateEsiDataToLink,
 }) {
   const { users } = useContext(UsersContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { findBlueprintType, timeRemainingCalc } = useJobManagement();
-  const { findUniverseItemObject } = useHelperFunction();
+  const {
+    findUniverseItemObject,
+    sendSnackbarNotificationError,
+    sendSnackbarNotificationSuccess,
+  } = useHelperFunction();
 
   const analytics = getAnalytics();
 
@@ -229,13 +231,7 @@ export function AvailableJobsTab({
                             },
                           },
                         }));
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Linked",
-                          severity: "success",
-                          autoHideDuration: 1000,
-                        }));
+                        sendSnackbarNotificationSuccess("Linked");
                         logEvent(analytics, "linkESIJob", {
                           UID: parentUser.accountID,
                           isLoggedIn: isLoggedIn,
@@ -307,13 +303,10 @@ export function AvailableJobsTab({
                       },
                     },
                   }));
-                  setSnackbarData((prev) => ({
-                    ...prev,
-                    open: true,
-                    message: `${jobMatches.length} Jobs Linked`,
-                    severity: "success",
-                    autoHideDuration: 1000,
-                  }));
+
+                  sendSnackbarNotificationError(
+                    `${jobMatches.length} Jobs Linked`
+                  );
                   logEvent(analytics, "linkESIJobBulk", {
                     UID: parentUser.accountID,
                     isLoggedIn: isLoggedIn,

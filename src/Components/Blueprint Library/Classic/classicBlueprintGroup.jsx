@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import {
   CircularProgress,
   Grid,
@@ -17,11 +17,7 @@ import { useJobBuild } from "../../../Hooks/useJobBuild";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { EvePricesContext } from "../../../Context/EveDataContext";
-import { SnackBarDataContext } from "../../../Context/LayoutContext";
-import {
-  UserJobSnapshotContext,
-  UsersContext,
-} from "../../../Context/AuthContext";
+import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "@firebase/performance";
 import { performance } from "../../../firebase";
@@ -31,7 +27,6 @@ import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunction
 export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   const { apiJobs } = useContext(ApiJobsContext);
   const { updateJobArray } = useContext(JobArrayContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
@@ -43,7 +38,8 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   const { newJobSnapshot } = useJobSnapshotManagement();
   const { addNewJob, getItemPrices, uploadJob, uploadUserJobSnapshot } =
     useFirebase();
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");
 
@@ -126,13 +122,7 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
                       ...itemPriceResult,
                     }));
                     updateJobArray((prev) => [...prev, newJob]);
-                    setSnackbarData((prev) => ({
-                      ...prev,
-                      open: true,
-                      message: `${newJob.name} Added`,
-                      severity: "success",
-                      autoHideDuration: 3000,
-                    }));
+                    sendSnackbarNotificationSuccess(`${newJob.name} Added`, 3);
 
                     updateLoadingBuild((prev) => !prev);
                     t.stop();

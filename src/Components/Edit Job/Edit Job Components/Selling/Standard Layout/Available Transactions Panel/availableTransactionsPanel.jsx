@@ -14,8 +14,6 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
 import { useMarketOrderFunctions } from "../../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
@@ -28,11 +26,11 @@ export function AvailableTransactionsPanel({
   updateEsiDataToLink,
 }) {
   const { users } = useContext(UsersContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const { buildTransactionData } = useMarketOrderFunctions();
-  const { findParentUserIndex } = useHelperFunction();
+  const { findParentUserIndex, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const analytics = getAnalytics();
 
   const transactionData = buildTransactionData(
@@ -236,15 +234,7 @@ export function AvailableTransactionsPanel({
                             },
                           },
                         }));
-
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Linked",
-                          severity: "success",
-                          autoHideDuration: 1000,
-                        }));
-
+                        sendSnackbarNotificationSuccess("Linked");
                         setJobModified(true);
 
                         logEvent(analytics, "linkedTransaction", {
@@ -321,13 +311,7 @@ export function AvailableTransactionsPanel({
                     },
                   },
                 }));
-                setSnackbarData((prev) => ({
-                  ...prev,
-                  open: true,
-                  message: "All Transactions Linked",
-                  severity: "success",
-                  autoHideDuration: 1000,
-                }));
+                sendSnackbarNotificationSuccess("All Transactions Linked");
                 setJobModified(true);
                 logEvent(analytics, "massLinkedTransactions", {
                   UID: users[parentUserIndex].accountID,

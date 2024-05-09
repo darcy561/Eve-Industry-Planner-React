@@ -106,6 +106,20 @@ export function useHelperFunction() {
     return users.findIndex((i) => i.ParentUser);
   }
 
+  async function checkClipboardReadPermissions() {
+    try {
+      const permissionStatus = await navigator.permissions.query({
+        name: "clipboard-read",
+      });
+      if (["granted", "prompt"].includes(permissionStatus.state)) return true;
+
+      return false;
+    } catch (error) {
+      console.error("Error requesting clipboard read permission:", error);
+      return false;
+    }
+  }
+
   async function importMultibuyFromClipboard() {
     const returnArray = [];
     const importedText = await readTextFromClipboard();
@@ -158,22 +172,10 @@ export function useHelperFunction() {
   async function writeTextToClipboard(inputTextString) {
     try {
       await navigator.clipboard.writeText(inputTextString);
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `Successfully Copied`,
-        severity: "success",
-        autoHideDuration: 1000,
-      }));
+      sendSnackbarNotificationSuccess(`Successfully Copied`, 1);
     } catch (err) {
       console.message(err.message);
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `Error Copying Text To Clipboard`,
-        severity: "error",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationError(`Error Copying Text To Clipboard`);
     }
   }
 
@@ -182,13 +184,7 @@ export function useHelperFunction() {
       return await navigator.clipboard.readText();
     } catch (err) {
       console.message(err.message);
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `Error Reading Text From Clipboard`,
-        severity: "error",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationError(`Error Reading Text From Clipboard`);
       return null;
     }
   }
@@ -198,9 +194,62 @@ export function useHelperFunction() {
     return !parentUser.settings.layout.hideTutorials && userDataFetch;
   }
 
+  function sendSnackbarNotificationSuccess(
+    messageText = "",
+    durationInSeconds = 1
+  ) {
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: messageText,
+      severity: "success",
+      autoHideDuration: durationInSeconds * 1000,
+    }));
+  }
+
+  function sendSnackbarNotificationError(
+    messageText = "",
+    durationInSeconds = 1
+  ) {
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: messageText,
+      severity: "error",
+      autoHideDuration: durationInSeconds * 1000,
+    }));
+  }
+
+  function sendSnackbarNotificationWarning(
+    messageText = "",
+    durationInSeconds = 1
+  ) {
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: messageText,
+      severity: "warning",
+      autoHideDuration: durationInSeconds * 1000,
+    }));
+  }
+
+  function sendSnackbarNotificationInfo(
+    messageText = "",
+    durationInSeconds = 1
+  ) {
+    setSnackbarData((prev) => ({
+      ...prev,
+      open: true,
+      message: messageText,
+      severity: "info",
+      autoHideDuration: durationInSeconds * 1000,
+    }));
+  }
+
   return {
     Add_RemovePendingChildJobs,
     Add_RemovePendingParentJobs,
+    checkClipboardReadPermissions,
     checkDisplayTutorials,
     findItemPriceObject,
     findParentUser,
@@ -210,6 +259,10 @@ export function useHelperFunction() {
     importMultibuyFromClipboard,
     isItemBuildable,
     readTextFromClipboard,
+    sendSnackbarNotificationSuccess,
+    sendSnackbarNotificationError,
+    sendSnackbarNotificationWarning,
+    sendSnackbarNotificationInfo,
     writeTextToClipboard,
   };
 }

@@ -4,10 +4,7 @@ import AutorenewIcon from "@mui/icons-material/Autorenew";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import TimerIcon from "@mui/icons-material/Timer";
 import { useContext, useState } from "react";
-import {
-  RefreshStateContext,
-  SnackBarDataContext,
-} from "../../Context/LayoutContext";
+import { RefreshStateContext } from "../../Context/LayoutContext";
 import { useEveApi } from "../../Hooks/useEveApi";
 import {
   UserJobSnapshotContext,
@@ -18,7 +15,6 @@ import { ApiJobsContext, JobArrayContext } from "../../Context/JobContext";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
-import { useMemo } from "react";
 import { useFindJobObject } from "../../Hooks/GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "../../Hooks/JobHooks/useJobSnapshots";
 import { useCorporationObject } from "../../Hooks/Account Management Hooks/Corporation Objects/useCorporationObject";
@@ -45,13 +41,12 @@ export function AccountEntry({ user, parentUserIndex }) {
   );
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { refreshState } = useContext(RefreshStateContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [userRefreshState, updateUserRefreshState] = useState(
     user.refreshState
   );
   const { removeCorporationObject } = useCorporationObject();
   const analytics = getAnalytics();
-  const {findParentUser } = useHelperFunction()
+  const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
 
   const parentUser = findParentUser();
 
@@ -150,13 +145,7 @@ export function AccountEntry({ user, parentUserIndex }) {
       RemovedHash: user.CharacterHash,
       cloudAccount: users[parentUserIndex].settings.account.cloudAccounts,
     });
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${user.CharacterName} Removed`,
-      severity: "error",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationError(`${user.CharacterName} Removed`);
   }
 
   return (

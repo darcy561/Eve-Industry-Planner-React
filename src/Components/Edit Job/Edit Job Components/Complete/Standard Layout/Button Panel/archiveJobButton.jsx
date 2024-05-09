@@ -4,7 +4,6 @@ import {
   ActiveJobContext,
   JobArrayContext,
 } from "../../../../../../Context/JobContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
@@ -19,7 +18,6 @@ import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelpe
 export function ArchiveJobButton({ activeJob }) {
   const { activeGroup } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
@@ -28,7 +26,8 @@ export function ArchiveJobButton({ activeJob }) {
   const { archiveJob, removeJob, uploadUserJobSnapshot, updateMainUserDoc } =
     useFirebase();
   const { deleteJobSnapshot } = useJobSnapshotManagement();
-  const { findParentUserIndex } = useHelperFunction();
+  const { findParentUserIndex, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const analytics = getAnalytics();
   const navigate = useNavigate();
 
@@ -56,13 +55,8 @@ export function ArchiveJobButton({ activeJob }) {
 
     updateJobArray(newJobArray);
     updateUsers(newUserArray);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${activeJob.name} Archived`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationSuccess(`${activeJob.name} Archived`);
+
     let newUserJobSnapshot = deleteJobSnapshot(activeJob, [...userJobSnapshot]);
     await uploadUserJobSnapshot(newUserJobSnapshot);
     await archiveJob(activeJob);

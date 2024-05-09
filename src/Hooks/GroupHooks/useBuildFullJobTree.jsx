@@ -5,19 +5,19 @@ import { useJobBuild } from "../useJobBuild";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useFirebase } from "../useFirebase";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { useManageGroupJobs } from "./useManageGroupJobs";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useBuildFullJobTree() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { activeGroup } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { buildJob } = useJobBuild();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
   const { addNewJob } = useFirebase();
   const { addMultipleJobsToGroup } = useManageGroupJobs();
+  const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   async function buildFullJobTree(inputJobIDs) {
     let newGroupArray = [...groupArray];
@@ -45,13 +45,7 @@ export function useBuildFullJobTree() {
 
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${newJobs.length} Jobs Created`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationSuccess(`${newJobs.length} Jobs Created`, 3);
 
     async function buildJobProcess(
       jobHolding,

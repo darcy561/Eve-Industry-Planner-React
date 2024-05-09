@@ -43,12 +43,11 @@ export function useDeleteMultipleJobs() {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { deleteJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
 
   const analytics = getAnalytics();
   const parentUser = findParentUser();
@@ -170,14 +169,7 @@ export function useDeleteMultipleJobs() {
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
     updateMultiSelectJobPlanner([...newMutliSelct]);
-
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${inputJobIDs.length} Job/Jobs Deleted`,
-      severity: "error",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationError(`${inputJobIDs.length} Job/Jobs Deleted`, 3);
     r.stop();
 
     function removeJobFromGroup(newGroupArray, inputJob) {

@@ -8,7 +8,6 @@ import {
 import { useContext, useState } from "react";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
 import { UserWatchlistContext } from "../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { ImportNewJob_WatchlistDialog } from "./importNewJob.";
 import { FailedImport_WatchlistDialog } from "./failedImport";
@@ -26,7 +25,6 @@ export function AddWatchItemDialog({
   const { userWatchlist, updateUserWatchlist } =
     useContext(UserWatchlistContext);
   const { uploadUserWatchlist } = useFirebase();
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [loadingState, changeLoadingState] = useState(false);
   const [loadingText, changeLoadingText] = useState(null);
   const [failedImport, setFailedImport] = useState(false);
@@ -35,7 +33,8 @@ export function AddWatchItemDialog({
   const [materialJobs, setMaterialJobs] = useState(null);
   const [saveReady, updateSaveReady] = useState(false);
   const [groupSelect, updateGroupSelect] = useState(0);
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const analytics = getAnalytics();
 
   const parentUser = findParentUser();
@@ -119,13 +118,10 @@ export function AddWatchItemDialog({
     logEvent(analytics, "New Watchlist Item", {
       UID: parentUser.accountID,
     });
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${materialJobs[watchlistItemRequest].name} Added`,
-      severity: "success",
-      autoHideDuration: 2000,
-    }));
+
+    sendSnackbarNotificationSuccess(
+      `${materialJobs[watchlistItemRequest].name} Added`, 3
+    );
     handleClose();
   }
 

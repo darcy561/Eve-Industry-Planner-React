@@ -12,7 +12,6 @@ import { useBlueprintCalc } from "./useBlueprintCalc";
 import {
   DataExchangeContext,
   DialogDataContext,
-  SnackBarDataContext,
 } from "../Context/LayoutContext";
 import { JobArrayContext } from "../Context/JobContext";
 import uuid from "react-uuid";
@@ -24,13 +23,12 @@ export function useJobBuild() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { jobArray } = useContext(JobArrayContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const { calculateTime, calculateResources } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
 
   const parentUser = findParentUser();
 
@@ -236,21 +234,11 @@ export function useJobBuild() {
     }
     if (buildRequest.throwError === undefined || buildRequest.throwError) {
       if (newJob === "TypeError") {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "No blueprint found for this item",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
+        sendSnackbarNotificationError("No blueprint found for this item.");
       } else if (newJob === "objectError") {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "Error building job object, please try again",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
+        sendSnackbarNotificationError(
+          "Error building job object, please try again"
+        );
       } else if (newJob === "Outdated App Version") {
         updateDialogData((prev) => ({
           ...prev,
@@ -261,21 +249,9 @@ export function useJobBuild() {
           body: "A newer version of the application is available, refresh the page to begin using this.",
         }));
       } else if (newJob === "Item Data Missing From Request") {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "Item Data Missing From Request",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
+        sendSnackbarNotificationError("Item Data Missing From Request");
       } else {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "Unkown Error Contact Admin",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
+        sendSnackbarNotificationError("Unkown Error Contact Admin");
       }
     }
     updateDataExchange(false);

@@ -3,7 +3,6 @@ import { Avatar, Grid, IconButton, Typography } from "@mui/material";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
 import ClearIcon from "@mui/icons-material/Clear";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 
 export function ExistingChildJobs_Purchasing({
   existingChildJobs,
@@ -48,8 +47,8 @@ function ChildJobEntry({
   material,
 }) {
   const { jobArray } = useContext(JobArrayContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { Add_RemovePendingChildJobs } = useHelperFunction();
+  const { Add_RemovePendingChildJobs, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
 
   const job = jobArray.find((i) => i.jobID == childJobID);
   if (!job) return null;
@@ -110,13 +109,7 @@ function ChildJobEntry({
             }));
 
             setJobModified(true);
-            setSnackbarData((prev) => ({
-              ...prev,
-              open: true,
-              message: `${job.name} Unlinked`,
-              severity: "success",
-              autoHideDuration: 1000,
-            }));
+            sendSnackbarNotificationSuccess(`${job.name} Unlinked`);
           }}
         >
           <ClearIcon />

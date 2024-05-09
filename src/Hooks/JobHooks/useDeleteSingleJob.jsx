@@ -22,7 +22,6 @@ import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useDeleteSingleJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users } = useContext(UsersContext);
   const { activeGroup } = useContext(ActiveJobContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -41,12 +40,11 @@ export function useDeleteSingleJob() {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
   const { deleteJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
   const analytics = getAnalytics();
   const parentUser = findParentUser();
 
@@ -161,13 +159,7 @@ export function useDeleteSingleJob() {
     updateMultiSelectJobPlanner([...newMutliSelct]);
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${inputJob.name} Deleted`,
-      severity: "error",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationError(`${inputJob.name} Deleted`, 3);
 
     async function removeJobFromGroup() {
       if (!inputJob.groupID) return;

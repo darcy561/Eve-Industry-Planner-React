@@ -14,9 +14,9 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { ApiJobsContext } from "../../../../../../Context/JobContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function LinkedJobsTab({
   activeJob,
@@ -28,9 +28,9 @@ export function LinkedJobsTab({
 }) {
   const { users } = useContext(UsersContext);
   const { apiJobs } = useContext(ApiJobsContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { findBlueprintType, timeRemainingCalc } = useJobManagement();
+  const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   const analytics = getAnalytics();
 
@@ -237,13 +237,7 @@ export function LinkedJobsTab({
                             },
                           },
                         }));
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Unlinked",
-                          severity: "success",
-                          autoHideDuration: 1000,
-                        }));
+                        sendSnackbarNotificationSuccess("Unlinked");
                         logEvent(analytics, "unlinkESIJob", {
                           UID: parentUser.accountID,
                           isLoggedIn: isLoggedIn,
@@ -300,13 +294,9 @@ export function LinkedJobsTab({
                       },
                     },
                   }));
-                  setSnackbarData((prev) => ({
-                    ...prev,
-                    open: true,
-                    message: `${jobsToRemoveQuantity} Jobs Unlinked`,
-                    severity: "success",
-                    autoHideDuration: 1000,
-                  }));
+                  sendSnackbarNotificationSuccess(
+                    `${jobsToRemoveQuantity} Jobs Unlinked`
+                  );
                   logEvent(analytics, "unlinkESIJobBulk", {
                     UID: parentUser.accountID,
                     isLoggedIn: isLoggedIn,

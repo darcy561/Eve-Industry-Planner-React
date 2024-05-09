@@ -1,9 +1,9 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import itemTypes from "../../RawData/searchIndex.json";
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
 import { useJobBuild } from "../useJobBuild";
 import { useJobManagement } from "../useJobManagement";
-import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
+import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useFirebase } from "../useFirebase";
 import { EvePricesContext } from "../../Context/EveDataContext";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
@@ -14,7 +14,6 @@ export function useImportFitFromClipboard() {
   const { activeGroup } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray, groupArray, updateGroupArray } =
     useContext(JobArrayContext);
-  const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { buildJob } = useJobBuild();
@@ -26,10 +25,13 @@ export function useImportFitFromClipboard() {
 
   const parentUser = findParentUser();
 
-  const importFromClipboard = async () => {
+  async function importFromClipboard() {
     const itemNameRegex = /^\[(?<itemName>.+),\s*(?<fittingName>.+)\]/g;
-    const itemMatchesRegex = /^[^\[\r\n]+|^(?:(?!\[|\sx\d).)+/gm;
-    const itemWithQuantitiesRegex = /^(?<item>[^\n]*?)\s*x(?<quantity>\d+)/gm;
+    const itemMatchesRegex =
+      /^(?![^\r\n,]*,)(?<module>[^\[\r\n]+)|^(?:(?![^\r\n,]*,)(?!\[|\sx\d).)+/gm;
+    const itemWithQuantitiesRegex = /^(?<module>[^\n]*?)\s*x(?<quantity>\d+)/gm;
+    const itemsWithChargesRegex =
+      /^(?![^\r\n,]*[\[\]])(?=.*,)(?<module>[^,\r\n]+),\s*(?<charge>[^,\r\n]+)$/gm;
 
     const importedText = await navigator.clipboard.readText();
     const itemNameMatch = [...importedText.matchAll(itemNameRegex)];
@@ -37,69 +39,83 @@ export function useImportFitFromClipboard() {
     const itemsWithQuantities = [
       ...importedText.matchAll(itemWithQuantitiesRegex),
     ];
+    const itemsWithCharges = [...importedText.matchAll(itemsWithChargesRegex)];
+    const shipNameAndFittingName = itemNameMatch[0];
 
-    if (itemNameMatch.length === 0) {
-      return [];
+    if (!shipNameAndFittingName) {
+      return { importedItems: [], fittingName: "" };
     }
+    const { itemName, fittingName } = shipNameAndFittingName.groups;
+
+    const objectArray = [
+      {
+        itemName: itemName,
+        itemBaseQty: 1,
+        itemCalculatedQty: 1,
+        included: false,
+        buildable: false,
+      },
+    ];
 
     const filteredItemMatches = itemMatches
       .filter((match) => !match[0].match(/\sx\d/))
       .map((match) => match[0].trim());
 
-    const objectArray = [
-      {
-        itemName: itemNameMatch[0].groups.itemName,
-        itemBaseQty: 1,
-        itemCalculatedQty: 1,
-        included: true,
-      },
-    ];
-
     filteredItemMatches.forEach((itemName) => {
-      const foundItem = objectArray.find((item) => item.itemName === itemName);
-      if (foundItem) {
-        foundItem.itemBaseQty += 1;
-        foundItem.itemCalculatedQty += 1;
-      } else {
-        objectArray.push({
-          itemName,
-          itemBaseQty: 1,
-          itemCalculatedQty: 1,
-          included: true,
-        });
-      }
+      updateObjectArray(itemName);
     });
 
     itemsWithQuantities.forEach((match) => {
-      const foundItem = objectArray.find(
-        (item) => item.itemName === match.groups.item
+      updateObjectArray(match.groups.module, match.groups.quantity);
+    });
+
+    itemsWithCharges.forEach((match) => {
+      updateObjectArray(match.groups.module);
+      updateObjectArray(match.groups.charge);
+    });
+
+    objectArray.forEach((item) => {
+      const matchingItemType = itemTypes.find(
+        (itemType) => itemType.name === item.itemName
       );
-      if (foundItem) {
-        foundItem.itemBaseQty += Number(match.groups.quantity);
-        foundItem.itemCalculatedQty += Number(match.groups.quantity);
-      } else {
-        objectArray.push({
-          itemName: match.groups.item,
-          itemBaseQty: Number(match.groups.quantity),
-          itemCalculatedQty: Number(match.groups.quantity),
-          included: true,
-        });
+      if (matchingItemType) {
+        item.itemID = matchingItemType.itemID;
+        item.included = true;
+        item.buildable = true;
       }
     });
 
-    for (let i = objectArray.length - 1; i >= 0; i--) {
-      const matchingItemType = itemTypes.find(
-        (itemType) => itemType.name === objectArray[i].itemName
-      );
-      if (matchingItemType) {
-        objectArray[i].itemID = matchingItemType.itemID;
+    function updateObjectArray(itemName, quantity = 1) {
+      const foundItem = objectArray.find((item) => item.itemName === itemName);
+      if (foundItem) {
+        foundItem.itemBaseQty += quantity;
+        foundItem.itemCalculatedQty += quantity;
       } else {
-        objectArray.splice(i, 1);
+        objectArray.push({
+          itemName,
+          itemBaseQty: +quantity,
+          itemCalculatedQty: +quantity,
+          included: false,
+          buildable: false,
+        });
       }
     }
 
-    return objectArray;
-  };
+    return { importedItems: objectArray, fittingName };
+  }
+
+  function convertImportedItemsToBuildRequests(inputArray) {
+    return inputArray
+      .map((itemEntry) => {
+        if (itemEntry.included && itemEntry.buildable) {
+          return {
+            itemID: itemEntry.itemID,
+            itemQty: itemEntry.itemCalculatedQty,
+          };
+        }
+      })
+      .filter((entry) => entry);
+  }
 
   const finalBuildRequests = async (itemArray) => {
     const activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
@@ -107,17 +123,11 @@ export function useImportFitFromClipboard() {
     let newPriceIDs = new Set();
     let jobsToSave = new Set();
 
-    const buildRequests = itemArray
-      .map((itemEntry) => {
-        if (itemEntry.included) {
-          return {
-            itemID: itemEntry.itemID,
-            itemQty: itemEntry.itemCalculatedQty,
-            groupID: activeGroup,
-          };
-        }
-      })
-      .filter((entry) => entry);
+    const buildRequests = convertImportedItemsToBuildRequests(itemArray);
+
+    buildRequests.forEach((request) => {
+      request.groupID = activeGroup;
+    });
 
     const groupEntriesToModifiy = buildRequests.filter((entry) =>
       activeGroupObject.includedTypeIDs.includes(entry.itemID)
@@ -183,5 +193,6 @@ export function useImportFitFromClipboard() {
   return {
     finalBuildRequests,
     importFromClipboard,
+    convertImportedItemsToBuildRequests,
   };
 }

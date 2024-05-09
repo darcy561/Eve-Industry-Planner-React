@@ -1,11 +1,10 @@
-import { useContext } from "react";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { Chip, Grid } from "@mui/material";
 import {
   TWO_DECIMAL_PLACES,
   ZERO_DECIMAL_PLACES,
 } from "../../../../../../Context/defaultValues";
 import ClearIcon from "@mui/icons-material/Clear";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function MaterialCostsFrame_Purchasing({
   activeJob,
@@ -14,7 +13,7 @@ export function MaterialCostsFrame_Purchasing({
   material,
   setJobModified,
 }) {
-  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { sendSnackbarNotificationError } = useHelperFunction();
 
   function handleRemove(purchasingIndex) {
     const newArray = [...activeJob.build.materials];
@@ -82,13 +81,7 @@ export function MaterialCostsFrame_Purchasing({
         },
       },
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Deleted`,
-      severity: "error",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationError("Deleted");
     setJobModified(true);
   }
 

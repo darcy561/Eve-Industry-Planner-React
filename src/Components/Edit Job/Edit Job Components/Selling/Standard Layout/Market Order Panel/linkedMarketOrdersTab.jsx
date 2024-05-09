@@ -15,7 +15,6 @@ import {
   PersonalESIDataContext,
 } from "../../../../../../Context/EveDataContext";
 import { UsersContext } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function LinkedMarketOrdersTab({
@@ -29,11 +28,11 @@ export function LinkedMarketOrdersTab({
   updateEsiDataToLink,
 }) {
   const { users } = useContext(UsersContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { esiOrders, esiHistOrders } = useContext(PersonalESIDataContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const [linkedMarketOrders, updateLinkedMarketOrders] = useState([]);
-  const { findUniverseItemObject } = useHelperFunction();
+  const { findUniverseItemObject, sendSnackbarNotificationError } =
+    useHelperFunction();
 
   useEffect(() => {
     const newLinkedMarketOrders = activeJob.build.sale.marketOrders.map(
@@ -432,14 +431,7 @@ export function LinkedMarketOrdersTab({
                             },
                           },
                         }));
-
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Unlinked",
-                          severity: "error",
-                          autoHideDuration: 1000,
-                        }));
+                        sendSnackbarNotificationError("Unlinked");
 
                         setJobModified(true);
                       }}

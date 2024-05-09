@@ -8,11 +8,11 @@ import {
   JobArrayContext,
   LinkedIDsContext,
 } from "../../Context/JobContext";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./useJobSnapshots";
 import { useManageGroupJobs } from "../GroupHooks/useManageGroupJobs";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useCloseActiveJob() {
   const { updateActiveJob } = useContext(ActiveJobContext);
@@ -30,11 +30,11 @@ export function useCloseActiveJob() {
     linkedTransIDs,
     updateLinkedTransIDs,
   } = useContext(LinkedIDsContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { addNewJob, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { addJobToGroup } = useManageGroupJobs();
   const { findJobData } = useFindJobObject();
+  const { sendSnackbarNotificationInfo } = useHelperFunction();
 
   async function closeActiveJob(
     inputJob,
@@ -235,13 +235,7 @@ export function useCloseActiveJob() {
       await uploadJob(inputJob);
     }
 
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${inputJob.name} Updated`,
-      severity: "info",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationInfo(`${inputJob.name} Updated`);
   }
 
   function addIDsToSet(originalSet, toBeAdded) {

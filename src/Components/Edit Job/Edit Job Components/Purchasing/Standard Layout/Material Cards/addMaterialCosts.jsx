@@ -1,7 +1,6 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Grid, IconButton, TextField, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { ZERO_TWO_DECIMAL_PLACES } from "../../../../../../Context/defaultValues";
 import {
@@ -19,8 +18,8 @@ export function AddMaterialCost_Purchasing({
   childJobProductionTotal,
   childJobs,
 }) {
-  const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { findItemPriceObject } = useHelperFunction();
+  const { findItemPriceObject, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const materialPrice = findItemPriceObject(material.typeID);
   const [itemCountInput, setItemCountInput] = useState(
     Number(material.quantity - material.quantityPurchased)
@@ -54,14 +53,7 @@ export function AddMaterialCost_Purchasing({
         },
       },
     }));
-
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Added`,
-      severity: "success",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationSuccess("Success");
     setItemCostInput(0);
     setItemCountInput(0);
     setJobModified(true);

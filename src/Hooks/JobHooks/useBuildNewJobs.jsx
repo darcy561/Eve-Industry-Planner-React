@@ -6,10 +6,7 @@ import {
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
 import { JobArrayContext } from "../../Context/JobContext";
-import {
-  DataExchangeContext,
-  SnackBarDataContext,
-} from "../../Context/LayoutContext";
+import { DataExchangeContext } from "../../Context/LayoutContext";
 import { useJobBuild } from "../useJobBuild";
 import { useJobManagement } from "../useJobManagement";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
@@ -28,14 +25,14 @@ function useBuildNewJobs() {
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { buildJob } = useJobBuild();
   const { addNewJob, uploadGroups, getItemPrices, userJobListener } =
     useFirebase();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { newJobSnapshot } = useJobSnapshotManagement();
   const { addJobToGroup } = useManageGroupJobs();
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const parentUser = findParentUser();
 
   async function addNewJobsToPlanner(buildRequests) {
@@ -107,15 +104,13 @@ function useBuildNewJobs() {
       ...itemPriceResult,
     }));
     updateDataExchange(false);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: singleJobBuildFlag
+
+    sendSnackbarNotificationSuccess(
+      singleJobBuildFlag
         ? `${newJobObjects[0].name} Added`
         : `${newJobObjects.length} jobs added.`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+      3
+    );
     firestoreTrace.stop();
     if (singleJobBuildFlag && newJobObjects[0].parentJobs.length > 0) {
       return newJobObjects[0];

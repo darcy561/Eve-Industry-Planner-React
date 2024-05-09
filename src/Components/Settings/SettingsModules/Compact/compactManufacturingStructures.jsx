@@ -24,18 +24,16 @@ import { UsersContext } from "../../../../Context/AuthContext";
 import { Masonry } from "@mui/lab";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import uuid from "react-uuid";
 import systemIDS from "../../../../RawData/systems.json";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useSystemIndexFunctions } from "../../../../Hooks/GeneralHooks/useSystemIndexFunctions";
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function CompactManufacturingStrutures({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
-  const { updateMainUserDoc } = useFirebase();
-  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   const [textValue, updateTextValue] = useState(null);
   const [systemTypeValue, updateSystemTypeValue] = useState(
@@ -47,11 +45,13 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
   const [rigsValue, updateRigsValue] = useState(structureOptions.manRigs[0].id);
   const [taxValue, updateTaxValue] = useState(null);
   const [systemIDValue, updateSystemIDValue] = useState(null);
+  const { updateMainUserDoc } = useFirebase();
   const { findMissingSystemIndex } = useSystemIndexFunctions();
+  const { sendSnackbarNotificationSuccess } = useHelperFunction();
   const analytics = getAnalytics();
-  const {PRIMARY_THEME} = GLOBAL_CONFIG
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  async function handleSubmit(event){
+  async function handleSubmit(event) {
     event.preventDefault();
     let newUsersArray = [...users];
     newUsersArray[parentUserIndex].settings.structures.manufacturing.push({
@@ -78,14 +78,9 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
     logEvent(analytics, "Add Manufacturing Structure", {
       UID: newUsersArray[parentUserIndex].accountID,
     });
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${textValue} Added`,
-      severity: "success",
-      autoHideDuration: 1000,
-    }));
-  };
+
+    sendSnackbarNotificationSuccess(`${textValue} Added`);
+  }
 
   return (
     <Paper elevation={3} sx={{ padding: "20px" }} square={true}>

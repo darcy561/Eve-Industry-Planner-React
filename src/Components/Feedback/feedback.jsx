@@ -13,7 +13,6 @@ import {
 import { useContext, useState } from "react";
 import { functions } from "../../firebase";
 import { UsersContext } from "../../Context/AuthContext";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { httpsCallable } from "firebase/functions";
 import {
   CorpEsiDataContext,
@@ -24,7 +23,6 @@ import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function FeedbackIcon() {
   const { users } = useContext(UsersContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const {
     esiIndJobs,
     esiOrders,
@@ -47,7 +45,8 @@ export function FeedbackIcon() {
   const [open, setOpen] = useState(false);
   const [inputText, updateInputText] = useState("");
   const [dataDump, updateDataDump] = useState(false);
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
 
   const parentUser = findParentUser();
 
@@ -120,13 +119,7 @@ export function FeedbackIcon() {
 
     updateDataDump((prev) => !prev);
     setOpen(false);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Feedback Submitted`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationSuccess("Feedback Submitted");
   }
 
   return (

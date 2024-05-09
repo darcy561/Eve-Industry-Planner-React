@@ -24,17 +24,15 @@ import { UsersContext } from "../../../../Context/AuthContext";
 import { Masonry } from "@mui/lab";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { SnackBarDataContext } from "../../../../Context/LayoutContext";
 import uuid from "react-uuid";
 import systemIDS from "../../../../RawData/systems.json";
 import { useSystemIndexFunctions } from "../../../../Hooks/GeneralHooks/useSystemIndexFunctions";
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ClassicManufacturingStrutures({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
-  const { updateMainUserDoc } = useFirebase();
-  const { setSnackbarData } = useContext(SnackBarDataContext);
 
   const [textValue, updateTextValue] = useState(null);
   const [systemTypeValue, updateSystemTypeValue] = useState(
@@ -46,7 +44,10 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
   const [rigsValue, updateRigsValue] = useState(structureOptions.manRigs[0].id);
   const [taxValue, updateTaxValue] = useState(null);
   const [systemIDValue, updateSystemIDValue] = useState(null);
+  const { updateMainUserDoc } = useFirebase();
   const { findMissingSystemIndex } = useSystemIndexFunctions();
+  const { sendSnackbarNotificationSuccess } = useHelperFunction();
+
   const analytics = getAnalytics();
 
   async function handleSubmit(event) {
@@ -76,13 +77,7 @@ export function ClassicManufacturingStrutures({ parentUserIndex }) {
     logEvent(analytics, "Add Manufacturing Structure", {
       UID: newUsersArray[parentUserIndex].accountID,
     });
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${textValue} Added`,
-      severity: "success",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationSuccess(`${textValue} Added`);
   }
 
   return (

@@ -8,20 +8,20 @@ import {
 import { jobTypes } from "../../Context/defaultValues";
 import { useJobBuild } from "../useJobBuild";
 import { useFirebase } from "../useFirebase";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useBuildChildJobs() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { activeGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { findJobData } = useFindJobObject();
   const { buildJob } = useJobBuild();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
   const { addNewJob, uploadJob } = useFirebase();
+  const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   const buildChildJobs = async (inputJobIDs) => {
     const existingGroupData = await calculateExistingTypeIDs();
@@ -69,40 +69,25 @@ export function useBuildChildJobs() {
     updateJobArray(newJobArray);
 
     if (jobsToBeModified.length > 0 && buildRequests.length > 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${jobsToBeModified.length} Jobs Updated & ${buildRequests.length} Jobs Created`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationSuccess(
+        `${jobsToBeModified.length} Jobs Updated & ${buildRequests.length} Jobs Created`,
+        3
+      );
     }
     if (buildRequests.length > 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${buildRequests.length} Jobs Created`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationSuccess(
+        `${buildRequests.length} Jobs Created`,
+        3
+      );
     }
     if (jobsToBeModified.length > 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${jobsToBeModified.length} Jobs Updated `,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationSuccess(
+        `${jobsToBeModified.length} Jobs Updated `,
+        3
+      );
     }
     if (jobsToBeModified.length === 0 && buildRequests.length === 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `Job Tree Complete`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationSuccess(`Job Tree Complete`, 3);
     }
   };
 

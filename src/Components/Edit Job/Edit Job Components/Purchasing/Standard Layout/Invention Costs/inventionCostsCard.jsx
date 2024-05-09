@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import {
   Avatar,
   Chip,
@@ -10,19 +10,20 @@ import {
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import {
   META_LEVELS_THAT_REQUIRE_INVENTION_COSTS,
   TWO_DECIMAL_PLACES,
   TYPE_IDS_TO_IGNORE_FOR_INVENTION_COSTS,
 } from "../../../../../../Context/defaultValues";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function InventionCostsCard({
   activeJob,
   updateActiveJob,
   setJobModified,
 }) {
-  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { sendSnackbarNotificationSuccess, sendSnackbarNotificationError } =
+    useHelperFunction();
   const [inputs, setInputs] = useState({
     itemName: null,
     itemCost: 0,
@@ -44,13 +45,7 @@ export function InventionCostsCard({
         },
       },
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Deleted`,
-      severity: "error",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationError("Deleted");
     setJobModified(true);
   }
 
@@ -77,13 +72,7 @@ export function InventionCostsCard({
         },
       },
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Added`,
-      severity: "success",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationSuccess("Success");
     setInputs({ itemName: null, itemCost: 0 });
     setJobModified(true);
   }

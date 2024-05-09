@@ -23,10 +23,7 @@ import {
   EveIDsContext,
   PersonalESIDataContext,
 } from "../Context/EveDataContext";
-import {
-  SnackBarDataContext,
-  UserLoginUIContext,
-} from "../Context/LayoutContext";
+import { UserLoginUIContext } from "../Context/LayoutContext";
 import {
   apiJobsDefault,
   jobArrayDefault,
@@ -63,7 +60,6 @@ export function useAccountManagement() {
   const { updateActiveJob, updateActiveGroup } = useContext(ActiveJobContext);
   const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateUserWatchlist } = useContext(UserWatchlistContext);
   const { firebaseListeners, updateFirebaseListeners } = useContext(
     FirebaseListenersContext
@@ -106,7 +102,7 @@ export function useAccountManagement() {
     useContext(UserLoginUIContext);
 
   const checkClaims = httpsCallable(functions, "userClaims-updateCorpIDs");
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationInfo } = useHelperFunction();
   const auth = getAuth();
   const parentUser = findParentUser();
 
@@ -292,13 +288,7 @@ export function useAccountManagement() {
     localStorage.removeItem("Auth");
     signOut(auth);
     navigate("/");
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: "Logged Out",
-      severity: "info",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationInfo("Logged Out", 3);
   };
 
   const failedUserRefresh = (failedRefreshSet, userObject) => {

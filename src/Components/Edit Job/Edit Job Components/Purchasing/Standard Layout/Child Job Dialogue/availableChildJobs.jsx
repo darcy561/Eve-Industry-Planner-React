@@ -1,8 +1,6 @@
-import { useContext } from "react";
 import { Avatar, Grid, IconButton, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 
 export function AvailableChildJobs_Purchasing({
   availableChildJobs,
@@ -46,8 +44,8 @@ function AvailableJobEntry({
   parentChildToEdit,
   updateParentChildToEdit,
 }) {
-  const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { Add_RemovePendingChildJobs } = useHelperFunction();
+  const { Add_RemovePendingChildJobs, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   return (
     <Grid
       container
@@ -103,13 +101,7 @@ function AvailableJobEntry({
             }));
 
             setJobModified(true);
-            setSnackbarData((prev) => ({
-              ...prev,
-              open: true,
-              message: `${job.name} Linked`,
-              severity: "success",
-              autoHideDuration: 1000,
-            }));
+            sendSnackbarNotificationSuccess(`${job.name} Linked`);
           }}
         >
           <AddIcon />

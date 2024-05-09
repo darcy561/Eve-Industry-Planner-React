@@ -1,7 +1,6 @@
-import { useContext } from "react";
 import { Chip, Grid } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function MaterialCosts({
   activeJob,
@@ -10,7 +9,7 @@ export function MaterialCosts({
   material,
   setJobModified,
 }) {
-  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { sendSnackbarNotificationError } = useHelperFunction();
 
   function handleRemove(purchasingIndex) {
     const newArray = [...activeJob.build.materials];
@@ -78,13 +77,7 @@ export function MaterialCosts({
         },
       },
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Deleted`,
-      severity: "error",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationError("Deleted");
     setJobModified(true);
   }
 

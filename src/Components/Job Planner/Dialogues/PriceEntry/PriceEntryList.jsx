@@ -1,7 +1,6 @@
 import { useContext, useState } from "react";
 import {
   PriceEntryListContext,
-  SnackBarDataContext,
   UserLoginUIContext,
 } from "../../../../Context/LayoutContext";
 import {
@@ -38,7 +37,12 @@ export function PriceEntryDialog() {
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { updateJobSnapshot } = useJobSnapshotManagement();
-  const { findParentUser, importMultibuyFromClipboard } = useHelperFunction();
+  const {
+    findParentUser,
+    importMultibuyFromClipboard,
+    sendSnackbarNotificationSuccess,
+    sendSnackbarNotificationError,
+  } = useHelperFunction();
   const { findJobData } = useFindJobObject();
 
   const parentUser = findParentUser();
@@ -46,7 +50,6 @@ export function PriceEntryDialog() {
   const { priceEntryListData, updatePriceEntryListData } = useContext(
     PriceEntryListContext
   );
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [importAction, changeImportAction] = useState(false);
   const [displayOrder, changeDisplayOrder] = useState(
     priceEntryListData.displayOrder === undefined ||
@@ -88,8 +91,6 @@ export function PriceEntryDialog() {
       for (let ref of material.jobRef) {
         let job = await findJobData(ref, userJobSnapshot, newJobArray);
         if (!job) continue;
-
-        
 
         // let newTotal = 0;
         // job.build.materials.forEach((mat) => {
@@ -133,15 +134,12 @@ export function PriceEntryDialog() {
       displayMarket: null,
       displayOrder: null,
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${totalConfirmed} Item Costs Added Into ${uploadIDs.length} ${
+    sendSnackbarNotificationSuccess(
+      `${totalConfirmed} Item Costs Added Into ${uploadIDs.length} ${
         uploadIDs.length > 1 ? "Jobs" : "Job"
       }`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+      3
+    );
   };
 
   return (
@@ -335,15 +333,14 @@ export function PriceEntryDialog() {
                     list: newList,
                   }));
                   updateImportFromClipboard(true);
-                  setSnackbarData((prev) => ({
-                    ...prev,
-                    open: true,
-                    message: importStatus
-                      ? `${importCount} Prices Added`
-                      : "No Matching Items Found",
-                    severity: importStatus ? "success" : "error",
-                    autoHideDuration: 3000,
-                  }));
+                  if (importStatus) {
+                    sendSnackbarNotificationSuccess(
+                      `${importCount} Prices Added`,
+                      3
+                    );
+                  } else {
+                    sendSnackbarNotificationError("No Matching Items Found", 3);
+                  }
                 }}
               >
                 Import Costs From MultiBuy

@@ -1,11 +1,12 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Grid, IconButton, Paper, TextField, Typography } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { MdAdd } from "react-icons/md";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ExtrasPanel({ activeJob, updateActiveJob, setJobModified }) {
-  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { sendSnackbarNotificationSuccess, sendSnackbarNotificationError } =
+    useHelperFunction();
   const [extras, updateExtras] = useState({ text: "", value: 0 });
 
   function handleAdd(event) {
@@ -31,13 +32,7 @@ export function ExtrasPanel({ activeJob, updateActiveJob, setJobModified }) {
         },
       },
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Added`,
-      severity: "success",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationSuccess("Success");
     setJobModified(true);
   }
 
@@ -60,13 +55,7 @@ export function ExtrasPanel({ activeJob, updateActiveJob, setJobModified }) {
         },
       },
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Deleted`,
-      severity: "error",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationError("Deleted");
     setJobModified(true);
   }
 

@@ -1,8 +1,5 @@
 import { useContext } from "react";
-import {
-  SnackBarDataContext,
-  MassBuildDisplayContext,
-} from "../Context/LayoutContext";
+import { MassBuildDisplayContext } from "../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../Context/AuthContext";
 import {
   ApiJobsContext,
@@ -28,10 +25,8 @@ import { STATIONID_RANGE } from "../Context/defaultValues";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useJobManagement() {
-  const { jobArray, groupArray, updateJobArray } =
-    useContext(JobArrayContext);
+  const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateMassBuildDisplay } = useContext(MassBuildDisplayContext);
@@ -61,7 +56,8 @@ export function useJobManagement() {
   const { buildJob } = useJobBuild();
   const { findJobData } = useFindJobObject();
   const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
-  const { findParentUser } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
 
   const analytics = getAnalytics();
   const parentUser = findParentUser();
@@ -216,13 +212,7 @@ export function useJobManagement() {
       ...prev,
       open: false,
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${childJobs.length} Job/Jobs Added`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationSuccess(`${childJobs.length} Job/Jobs Added`, 3);
     r.stop();
   };
 
@@ -497,23 +487,12 @@ export function useJobManagement() {
     updateJobArray(newJobArray);
     updateApiJobs(newApiJobsArary);
 
-    if (newJobHold.length > 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${newJobHold.length} Jobs Merged Successfully`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
-    } else {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `0 Jobs Merged`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
-    }
+    sendSnackbarNotificationSuccess(
+      newJobHold.length > 0
+        ? `${newJobHold.length} Jobs Merged Successfully`
+        : `0 Jobs Merged`,
+      3
+    );
     r.stop();
   };
 

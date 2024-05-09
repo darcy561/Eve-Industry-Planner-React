@@ -433,7 +433,10 @@ export function useJobBuild() {
   }
 
   function addItemBlueprint(inputJobType, blueprintTypeID) {
-    const defaultReturn = { ME: 0, TE: 0 };
+    const defaultReturn = {
+      ME: checkForDefaultMaterialEfficiecyValue(inputJobType),
+      TE: 0,
+    };
 
     if (inputJobType !== jobTypes.manufacturing || !isLoggedIn) {
       return defaultReturn;
@@ -445,9 +448,7 @@ export function useJobBuild() {
         .filter((obj) => Object.keys(obj).length > 0)
         .map(Object.values)
         .reduce((acc, val) => acc.concat(val), []),
-    ].filter((entry) => {
-      return entry.type_id === blueprintTypeID;
-    });
+    ].filter((entry) => entry.type_id === blueprintTypeID);
 
     if (filteredBlueprints.length < 1) {
       return defaultReturn;
@@ -531,6 +532,16 @@ export function useJobBuild() {
     }
 
     return totals;
+  }
+
+  function checkForDefaultMaterialEfficiecyValue(inputJobType) {
+    if (
+      parentUser.settings.editJob?.defaultMaterialEfficiencyValue &&
+      inputJobType === jobTypes.manufacturing
+    ) {
+      return parentUser.settings.editJob.defaultMaterialEfficiencyValue;
+    }
+    return 0;
   }
 
   return {

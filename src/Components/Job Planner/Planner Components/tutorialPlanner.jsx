@@ -7,13 +7,13 @@ export function TutorialContent_JobPlanner() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
 
   return (
-    <Grid item container display={"flex"} spacing={2} >
+    <Grid item container spacing={2} sx={{ height: "100%", width: "100%" }}>
       <Grid item xs={12}>
         <Grid container spacing={2} direction="column">
           <Grid item>
             <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
               Welcome to the Job Planner!
-            </Typography> 
+            </Typography>
           </Grid>
           <Grid item>
             <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>

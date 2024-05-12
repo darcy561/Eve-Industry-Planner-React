@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { Box, Divider, Drawer, IconButton, Toolbar } from "@mui/material";
+import {
+  Box,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  Toolbar,
+} from "@mui/material";
 import KeyboardDoubleArrowRightOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowRightOutlined";
 import KeyboardDoubleArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftOutlined";
 
@@ -8,7 +18,7 @@ function CollapseableMenuDrawer({
   expandRightContentMenu,
   updateExpandRightContentMenu,
   rightContentMenuContentID,
-  updateRightContentMenuContentID
+  updateRightContentMenuContentID,
 }) {
   const localStorageItemKey = "sideMenuExpanded";
   const [expandedDrawer, setExpandedDrawer] = useState(() => {
@@ -55,24 +65,51 @@ function CollapseableMenuDrawer({
         <Divider />
         <Box
           sx={{
+            width: "100%",
             display: "flex",
             justifyContent: "center",
             alignItems: "flex-end",
-            padding: 2,
           }}
         >
-          <IconButton
-            onClick={() => {
-              localStorage.setItem(localStorageItemKey, !expandedDrawer);
-              setExpandedDrawer((prev) => !prev);
-            }}
-          >
-            {expandedDrawer ? (
-              <KeyboardDoubleArrowLeftOutlinedIcon />
-            ) : (
-              <KeyboardDoubleArrowRightOutlinedIcon />
-            )}
-          </IconButton>
+          <List sx={{ width: "100%" }}>
+            <ListItem
+              disablePadding
+              onClick={() => {
+                localStorage.setItem(localStorageItemKey, !expandedDrawer);
+                setExpandedDrawer((prev) => !prev);
+              }}
+              sx={{
+                display: "block",
+                "&:hover": {
+                  "& .MuiListItemIcon-root, & .MuiListItemText-root": {
+                    color: "primary.main",
+                  },
+                },
+              }}
+            >
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: "center",
+                  paddingRight: 2.5,
+                  paddingLeft: 2.5,
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    justifyContent: "center",
+                  }}
+                >
+                  {expandedDrawer ? (
+                    <KeyboardDoubleArrowLeftOutlinedIcon />
+                  ) : (
+                    <KeyboardDoubleArrowRightOutlinedIcon />
+                  )}
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+          </List>
         </Box>
       </Box>
     </Drawer>

@@ -30,7 +30,7 @@ export function LinkedJobsTab({
   const { apiJobs } = useContext(ApiJobsContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { findBlueprintType, timeRemainingCalc } = useJobManagement();
-  const { sendSnackbarNotificationSuccess } = useHelperFunction();
+  const { sendSnackbarNotificationSuccess, findUniverseItemObject } = useHelperFunction();
 
   const analytics = getAnalytics();
 

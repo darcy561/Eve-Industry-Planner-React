@@ -73,7 +73,7 @@ function useBuildNewJobs() {
       }
 
       if (jobObject.groupID) {
-        newGroupArray = addJobToGroup(newJob, newGroupArray, newJobArray);
+        newGroupArray = addJobToGroup(jobObject,   newGroupArray, newJobArray);
       }
 
       if (isLoggedIn) {
@@ -112,7 +112,7 @@ function useBuildNewJobs() {
       3
     );
     firestoreTrace.stop();
-    if (singleJobBuildFlag && newJobObjects[0].parentJobs.length > 0) {
+    if (singleJobBuildFlag && newJobObjects[0].parentJob.length > 0) {
       return newJobObjects[0];
     }
   }

@@ -1,13 +1,14 @@
 import { useContext } from "react";
 import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
 import { jobTypes } from "../../Context/defaultValues";
-import { UsersContext } from "../../Context/AuthContext";
+import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import {
   SnackBarDataContext,
   UserLoginUIContext,
 } from "../../Context/LayoutContext";
 
 export function useHelperFunction() {
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
   const { evePrices } = useContext(EvePricesContext);
   const { eveIDs } = useContext(EveIDsContext);
@@ -190,6 +191,7 @@ export function useHelperFunction() {
   }
 
   function checkDisplayTutorials() {
+    if (!isLoggedIn) return true;
     const parentUser = findParentUser();
     return !parentUser.settings.layout.hideTutorials && userDataFetch;
   }

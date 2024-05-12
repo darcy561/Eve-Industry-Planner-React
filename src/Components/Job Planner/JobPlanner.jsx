@@ -51,7 +51,33 @@ export default function JobPlanner({ colorMode }) {
           <Suspense fallback={<LoadingPage />}>
             <ShoppingListDialog />
             <PriceEntryDialog />
-            <EditGroup updateEditGroupTrigger={updateEditGroupTrigger} />
+            <Header colorMode={colorMode} />
+            <Box
+              component="main"
+              sx={{
+                minHeight: "100vh",
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                paddingTop: 10,
+                paddingX: 2,
+                gap: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", md: "row" },
+                  justifyContent: { xs: "center", md: "flex-start" },
+                  gap: 2,
+                  width: "100%",
+                  flex: 1,
+                }}
+              >
+                <EditGroup updateEditGroupTrigger={updateEditGroupTrigger} />
+              </Box>
+            <Footer />
+            </Box>
           </Suspense>
         );
       } else {

@@ -103,9 +103,8 @@ export default function GroupPage() {
     <Paper
       elevation={3}
       sx={{
+        display: "flex",
         padding: "10px",
-        marginTop: "20px",
-        marginBottom: "20px",
         width: "100%",
       }}
       square

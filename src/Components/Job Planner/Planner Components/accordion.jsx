@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
-import AddIcon from "@mui/icons-material/Add";
+import SelectAllIcon from "@mui/icons-material/SelectAll";
 import { StatusSettings } from "./StatusSettings";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { ClassicAccordionContents } from "./Classic/classicContents";
@@ -171,7 +171,7 @@ export function PlannerAccordion() {
                           updateMultiSelectJobPlanner([...newMultiArray]);
                         }}
                       >
-                        <AddIcon />
+                        <SelectAllIcon />
                       </IconButton>
                     </Tooltip>
                     {isLoggedIn && (

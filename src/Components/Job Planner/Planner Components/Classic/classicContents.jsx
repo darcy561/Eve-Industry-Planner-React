@@ -10,11 +10,11 @@ import {
   LinkedIDsContext,
 } from "../../../../Context/JobContext";
 import { JobCardFrame } from "./ClassicJobCardFrame";
-import { ApiJobCardSorter } from "./ClassicApiJobCardSorter";
 import { ClassicGroupJobCard } from "./ClassicGroupJobCard";
 import { UserLoginUIContext } from "../../../../Context/LayoutContext";
 import uuid from "react-uuid";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import ClassiceAPIJobCard from "./Job Cards/ClassicApiJobCard";
 
 export function ClassicAccordionContents({ status }) {
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -64,7 +64,7 @@ export function ClassicAccordionContents({ status }) {
               !linkedJobIDs.includes(j.job_id) &&
               j.status === "active"
             ) {
-              return <ApiJobCardSorter key={uuid()} job={j} />;
+              return <ClassiceAPIJobCard key={uuid()} job={j} />;
             } else {
               return null;
             }
@@ -77,7 +77,7 @@ export function ClassicAccordionContents({ status }) {
               !linkedJobIDs.includes(j.job_id) &&
               j.status === "delivered"
             ) {
-              return <ApiJobCardSorter key={uuid()} job={j} />;
+              return <ClassiceAPIJobCard key={uuid()} job={j} />;
             } else {
               return null;
             }

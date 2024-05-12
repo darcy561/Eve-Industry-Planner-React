@@ -7,6 +7,7 @@ import {
   Toolbar,
   Tooltip,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { SideMenu } from "./Components/sidemenu";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -15,11 +16,15 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { UserIcon } from "./Components/UserIcon";
 import { RefreshApiIcon } from "./Components/refreshIcon";
-import { UserLoginUIContext } from "../../Context/LayoutContext";
+import {
+  DataExchangeContext,
+  UserLoginUIContext,
+} from "../../Context/LayoutContext";
 import { useTheme } from "@emotion/react";
 
 export function Header({ colorMode }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { dataExchange } = useContext(DataExchangeContext);
   const [open, setOpen] = useState(false);
   const { loginInProgressComplete } = useContext(UserLoginUIContext);
 
@@ -59,6 +64,14 @@ export function Header({ colorMode }) {
         >
           Eve Industry Planner
         </Typography>
+
+        {dataExchange && (
+          <CircularProgress
+            color="secondary"
+            size={26}
+            sx={{ marginRight: 2 }}
+          />
+        )}
 
         <Tooltip title="Toggle Light/Dark Theme" arrow>
           <IconButton

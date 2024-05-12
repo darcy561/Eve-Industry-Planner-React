@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   Autocomplete,
   Avatar,
@@ -16,6 +16,7 @@ import uuid from "react-uuid";
 import useBuildNewJobs from "../../../../../Hooks/JobHooks/useBuildNewJobs";
 import useRightContentDrawer from "../../../../SideMenu/Hooks/rightContentMenuHooks";
 import AddShipFittingPanel from "./FittingImport/addFittingJobs";
+import { DataExchangeContext } from "../../../../../Context/LayoutContext";
 
 function AddNewJobContentPanel({
   hideRightContentPanel,
@@ -23,10 +24,12 @@ function AddNewJobContentPanel({
   updateRightContentMenuContentID,
 }) {
   const [itemIDsToAdd, updateItemIDsToAdd] = useState([]);
+  const { updateDataExchange } = useContext(DataExchangeContext);
   const { addNewJobsToPlanner } = useBuildNewJobs();
   const { toggleRightDrawerColapse } = useRightContentDrawer();
 
   async function addJobs() {
+    updateDataExchange(true);
     await addNewJobsToPlanner(itemIDsToAdd);
     updateItemIDsToAdd([]);
     toggleRightDrawerColapse(
@@ -35,6 +38,7 @@ function AddNewJobContentPanel({
       hideRightContentPanel
     );
     updateRightContentMenuContentID(null);
+    updateDataExchange(false);
   }
 
   function addItemToSelection(inputID) {
@@ -58,7 +62,7 @@ function AddNewJobContentPanel({
     <Paper
       elevation={3}
       square
-      sx={{ padding: 2, maxHeight: "100%", width: "100%", }}
+      sx={{ padding: 2, height: "100%", width: "100%" }}
     >
       <Grid contianer item xs={12} sx={{ height: "100%" }}>
         <Grid
@@ -69,17 +73,16 @@ function AddNewJobContentPanel({
             alignContent: "flex-start",
           }}
         >
-          <Grid container item sx={{ flexGrow: 1 }}>
+          <Grid container item>
             <Grid item xs={12}>
               <Typography>Add New Jobs</Typography>
             </Grid>
             <Grid item xs={12} sx={{ paddingBottom: 2 }}>
               <Autocomplete
-                disableClearable
                 fullWidth
                 id="Recipe Search"
-                clearOnBlur
                 blurOnSelect
+                clearOnBlur
                 size="small"
                 options={itemList}
                 getOptionLabel={(option) => option.name}
@@ -126,7 +129,7 @@ function AddNewJobContentPanel({
             xs={12}
             sx={{
               maxHeight: "80%",
-              overflow: "auto", // Add overflow property to enable scrolling
+              overflow: "auto",
             }}
           >
             {itemIDsToAdd.map((itemObj) => {
@@ -167,7 +170,6 @@ function AddNewJobContentPanel({
           container
           item
           sx={{
-            backgroundColor: "red",
             height: "60%",
             overflowY: "auto",
             overflowX: "hidden",

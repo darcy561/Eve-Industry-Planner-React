@@ -95,7 +95,7 @@ export function ClassicGroupJobCardFrame({ job }) {
             cursor: "grab",
           }}
         >
-          <Grid container item xs={12}>
+          <Grid container item xs={12} sx={{height:"100%"}}>
             <Grid container item xs={12}>
               <Grid item xs={1}>
                 <Checkbox
@@ -175,44 +175,41 @@ export function ClassicGroupJobCardFrame({ job }) {
               </Grid>
               <DisplaySwitch job={job} />
             </Grid>
-            <Grid
-              item
-              xs={12}
-              align="center"
-              sx={{ marginTop: { xs: "5px", sm: "5px" } }}
-            >
-              <Button
-                variant="outlined"
-                color="primary"
-                disabled={job.isLocked}
-                onClick={() => {
-                  navigate(`/editJob/${job.jobID}`);
+            <Grid container item xs={12} sx={{ marginTop: { xs: "5px", sm: "5px" }  }}>
+              <Grid item xs={12} align="center">
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  disabled={job.isLocked}
+                  onClick={() => {
+                    navigate(`/editJob/${job.jobID}`);
+                  }}
+                  sx={{ height: "25px", width: "100px" }}
+                >
+                  {job.isLocked ? "Locked" : "Edit"}
+                </Button>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                sx={{
+                  backgroundColor:
+                    job.jobType === jobTypes.manufacturing
+                      ? "manufacturing.main"
+                      : "reaction.main",
+                  marginTop: "10px",
                 }}
-                sx={{ height: "25px", width: "100px" }}
               >
-                {job.isLocked ? "Locked" : "Edit"}
-              </Button>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              sx={{
-                backgroundColor:
-                  job.jobType === jobTypes.manufacturing
-                    ? "manufacturing.main"
-                    : "reaction.main",
-                marginTop: "10px",
-              }}
-            >
-              <Typography align="center" variant="body2" color="black">
-                {jobMarkedAsCompelte ? (
-                  <b>Complete</b>
-                ) : job.jobType === jobTypes.manufacturing ? (
-                  <b>Manufacturing Job</b>
-                ) : (
-                  <b>Reaction Job</b>
-                )}
-              </Typography>
+                <Typography align="center" variant="body2" color="black">
+                  {jobMarkedAsCompelte ? (
+                    <b>Complete</b>
+                  ) : job.jobType === jobTypes.manufacturing ? (
+                    <b>Manufacturing Job</b>
+                  ) : (
+                    <b>Reaction Job</b>
+                  )}
+                </Typography>
+              </Grid>
             </Grid>
           </Grid>
         </Paper>

@@ -7,12 +7,20 @@ import {
   Slide,
   Toolbar,
 } from "@mui/material";
+import { useEffect } from "react";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 function CollapseableContentDrawer_Right({
   DrawerContent,
   expandRightContentMenu,
   updateExpandRightContentMenu,
 }) {
+  const { checkDisplayTutorials } = useHelperFunction();
+
+  useEffect(() => {
+    updateExpandRightContentMenu(checkDisplayTutorials());
+  }, []);
+
   const drawerWitdh = expandRightContentMenu ? "25%" : 0;
 
   return (

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect } from "react";
 import { UserJobSnapshotContext } from "../../Context/AuthContext";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { decodeJwt } from "jose";
@@ -6,7 +6,7 @@ import { firebaseAuth } from "./firebaseAuth";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { JobArrayContext } from "../../Context/JobContext";
 import { trace } from "@firebase/performance";
-import { functions, performance } from "../../firebase";
+import { performance } from "../../firebase";
 import {
   PageLoadContext,
   DialogDataContext,
@@ -14,9 +14,9 @@ import {
 } from "../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
-import { httpsCallable } from "firebase/functions";
 import { UserLogInUI } from "./LoginUI/LoginUI";
 import { Buffer } from "buffer";
+import useCheckGlobalAppVersion from "../../Hooks/GeneralHooks/useCheckGlobalAppVersion";
 
 export function login() {
   const state = "/";
@@ -43,10 +43,6 @@ export default function AuthMainUser() {
     userGroupDataListener,
   } = useFirebase();
   const { getCharacterInfo } = useAccountManagement();
-  const checkAppVersion = httpsCallable(
-    functions,
-    "checkAppVersion-checkAppVersion"
-  );
   const analytics = getAnalytics();
 
   useEffect(() => {
@@ -56,8 +52,7 @@ export default function AuthMainUser() {
       const authCode = window.location.search.match(/code=(\S*)&/)[1];
       updateLoginInProgressComplete(false);
 
-      let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
-      if (!appVersion.data) {
+      if (!useCheckGlobalAppVersion()) {
         updateDialogData((prev) => ({
           ...prev,
           buttonText: "Close",

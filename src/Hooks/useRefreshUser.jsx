@@ -15,11 +15,11 @@ import {
 } from "../Context/LayoutContext";
 import { decodeJwt } from "jose";
 import { trace } from "firebase/performance";
-import { functions, performance } from "../firebase";
+import { performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "./useAccountManagement";
-import { httpsCallable } from "firebase/functions";
 import { Buffer } from "buffer";
+import useCheckGlobalAppVersion from "./GeneralHooks/useCheckGlobalAppVersion";
 
 export function useRefreshUser() {
   const {
@@ -39,19 +39,13 @@ export function useRefreshUser() {
   const { updateUserUIData, updateLoginInProgressComplete } =
     useContext(UserLoginUIContext);
 
-  const checkAppVersion = httpsCallable(
-    functions,
-    "checkAppVersion-checkAppVersion"
-  );
-
   const reloadMainUser = async (refreshToken) => {
     const analytics = getAnalytics();
     const t = trace(performance, "MainUserRefreshProcessFull");
     t.start();
     updateLoginInProgressComplete(false);
 
-    let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
-    if (!appVersion.data) {
+    if (!useCheckGlobalAppVersion) {
       updateDialogData((prev) => ({
         ...prev,
         buttonText: "Close",

@@ -1,4 +1,4 @@
-import { lazy, useContext, Suspense, useState } from "react";
+import { lazy, useContext, Suspense, useState, useEffect } from "react";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import {
   JobPlannerPageTriggerContext,
@@ -23,6 +23,7 @@ import useCheckUserAuthState from "../../Hooks/Auth Hooks/useCheckUserState";
 import CollapseableContentDrawer_Right from "../SideMenu/rightContentDrawer";
 import RightSideMenuContent_JobPlanner from "./Planner Components/Side Menu/rightMenuContents";
 import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
+import { IsLoggedIn } from "../../Context/AuthContext";
 
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
 
@@ -33,9 +34,8 @@ export default function JobPlanner({ colorMode }) {
   const { pageLoad } = useContext(PageLoadContext);
   const { loginInProgressComplete } = useContext(UserLoginUIContext);
   const { checkDisplayTutorials } = useHelperFunction();
-  const [expandRightContentMenu, updateExpandRightContentMenu] = useState(
-    checkDisplayTutorials()
-  );
+  const [expandRightContentMenu, updateExpandRightContentMenu] =
+    useState(false);
   const [rightContentMenuContentID, updateRightContentMenuContentID] =
     useState(null);
   useCheckUserAuthState();
@@ -76,7 +76,7 @@ export default function JobPlanner({ colorMode }) {
               >
                 <EditGroup updateEditGroupTrigger={updateEditGroupTrigger} />
               </Box>
-            <Footer />
+              <Footer />
             </Box>
           </Suspense>
         );

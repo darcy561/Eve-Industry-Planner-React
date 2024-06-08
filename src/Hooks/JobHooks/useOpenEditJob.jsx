@@ -1,11 +1,9 @@
 import { useContext } from "react";
-import { functions } from "../../firebase";
 import {
   DialogDataContext,
   LoadingTextContext,
   PageLoadContext,
 } from "../../Context/LayoutContext";
-import { httpsCallable } from "firebase/functions";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobManagement } from "../useJobManagement";
 import { useFirebase } from "../useFirebase";
@@ -25,6 +23,7 @@ import {
 import { useSystemIndexFunctions } from "../GeneralHooks/useSystemIndexFunctions";
 import { useInstallCostsCalc } from "../GeneralHooks/useInstallCostCalc";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
+import useCheckGlobalAppVersion from "../GeneralHooks/useCheckGlobalAppVersion";
 
 export function useOpenEditJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -51,10 +50,6 @@ export function useOpenEditJob() {
     userJobListener,
   } = useFirebase();
   const { findParentUser } = useHelperFunction();
-  const checkAppVersion = httpsCallable(
-    functions,
-    "checkAppVersion-checkAppVersion"
-  );
 
   const parentUser = findParentUser();
 
@@ -67,7 +62,6 @@ export function useOpenEditJob() {
         jobData: true,
       }));
       updatePageLoad(true);
-      let verify = [checkAppVersion({ appVersion: __APP_VERSION__ })];
       let openJob = await findJobData(
         inputJobID,
         newUserJobSnapshot,
@@ -139,8 +133,7 @@ export function useOpenEditJob() {
         uploadUserJobSnapshot(newUserJobSnapshot);
       }
 
-      let [appVersionPass] = await Promise.all(verify);
-      if (!appVersionPass.data) {
+      if (!useCheckGlobalAppVersion()) {
         updateLoadingText((prevObj) => ({
           ...prevObj,
           jobData: false,

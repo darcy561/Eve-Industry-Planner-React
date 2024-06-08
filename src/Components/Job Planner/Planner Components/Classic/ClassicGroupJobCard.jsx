@@ -68,6 +68,7 @@ export function ClassicGroupJobCard({ group }) {
           <Grid
             container
             direction="column"
+            item
             xs={12}
             sx={{ height: "100%" }}
           >

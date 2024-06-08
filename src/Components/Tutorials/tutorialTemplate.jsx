@@ -17,6 +17,7 @@ function TutorialTemplate({ TutorialContent, updateExpandedMenu }) {
   const { updateMainUserDoc } = useFirebase();
   const { findParentUserIndex, checkDisplayTutorials } = useHelperFunction();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
+
   function handleCheckBox() {
     let newUsers = [...users];
     const parentUserIndex = findParentUserIndex();

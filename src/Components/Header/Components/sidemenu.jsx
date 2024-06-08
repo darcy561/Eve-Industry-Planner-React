@@ -6,13 +6,14 @@ import {
   List,
   ListItem,
   ListItemText,
-  SwipeableDrawer,
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
 import { EveESIStatusContext } from "../../../Context/EveDataContext";
+import { getBoolean } from "firebase/remote-config";
+import { remoteConfig } from "../../../firebase";
 
 export function SideMenu({ open, setOpen }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -20,16 +21,17 @@ export function SideMenu({ open, setOpen }) {
 
   const navigate = useNavigate();
 
+  const enableUpcomingChanges = getBoolean(
+    remoteConfig,
+    "enable_upcoming_changes_page"
+  );
+
   return (
     <Drawer
-      
       anchor="left"
       open={open}
       onClose={() => {
         setOpen(false);
-      }}
-      onOpen={() => {
-        setOpen(true);
       }}
     >
       <Box sx={{ minHeight: "4rem" }}>
@@ -110,16 +112,20 @@ export function SideMenu({ open, setOpen }) {
             <ListItemText primary={"Job Planner"} />
           </ListItem>
           <Divider />
-          <ListItem
-            button
-            onClick={() => {
-              navigate("/upcoming-changes");
-              setOpen(false);
-            }}
-          >
-            <ListItemText primary={"Upcoming Changes"} />
-          </ListItem>
-          <Divider />
+          {enableUpcomingChanges && (
+            <>
+              <ListItem
+                button
+                onClick={() => {
+                  navigate("/upcoming-changes");
+                  setOpen(false);
+                }}
+              >
+                <ListItemText primary={"Upcoming Changes"} />
+              </ListItem>
+              <Divider />
+            </>
+          )}
         </List>
       </Box>
     </Drawer>

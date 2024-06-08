@@ -181,7 +181,7 @@ export default function EditJob_New({ colorMode }) {
   if (!activeJob) return <LoadingPage />;
 
   return (
-    <Grid direction={"column"}>
+    <Grid container direction={"column"}>
       <Header colorMode={colorMode} />
       <Paper
         elevation={3}

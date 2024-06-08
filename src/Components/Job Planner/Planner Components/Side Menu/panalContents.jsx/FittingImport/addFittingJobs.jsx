@@ -1,4 +1,4 @@
-import { Button, Grid, TextField, Typography } from "@mui/material";
+import { Box, Button, Grid, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { useImportFitFromClipboard } from "../../../../../../Hooks/GroupHooks/useImportFitFromClipboard";
@@ -62,78 +62,82 @@ function AddShipFittingPanel({ updateItemIDsToAdd }) {
   }
 
   return (
-    <>
-      <Grid item align="center">
-        <Button
-          size="small"
-          disabled={!clipboardReadAllowed}
-          variant="contained"
-          onClick={importClipboardItems}
-        >
-          Import Fit From Clipboard
-        </Button>
+    <Box sx={{ height: "60%" }}>
+      <Grid container>
+        <Grid item align="center">
+          <Button
+            size="small"
+            disabled={!clipboardReadAllowed}
+            variant="contained"
+            onClick={importClipboardItems}
+          >
+            Import Fit From Clipboard
+          </Button>
 
-        {!clipboardReadAllowed && (
-          <Typography variant="caption" color="error">
-            No Clipboard Access
-          </Typography>
-        )}
-      </Grid>
-      <Grid container item xs={12} sx={{overflow:"auto"}}>
-        {importedFitData.length > 0 && (
-          <Grid container item xs={12}>
-            <Grid item xs={6}>
-              <Button onClick={addToBuildQueue}>Add To Build List</Button>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                disabled={importedFitData.length === 0 || !clipboardReadAllowed}
-                fullWidth
-                sx={{
-                  "& .MuiFormHelperText-root": {
-                    color: (theme) => theme.palette.secondary.main,
-                  },
-                  "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                    {
-                      display: "none",
+          {!clipboardReadAllowed && (
+            <Typography variant="caption" color="error">
+              No Clipboard Access
+            </Typography>
+          )}
+        </Grid>
+        <Grid container item xs={12} sx={{ overflow: "auto" }}>
+          {importedFitData.length > 0 && (
+            <Grid container item xs={12}>
+              <Grid item xs={6}>
+                <Button onClick={addToBuildQueue}>Add To Build List</Button>
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  disabled={
+                    importedFitData.length === 0 || !clipboardReadAllowed
+                  }
+                  fullWidth
+                  sx={{
+                    "& .MuiFormHelperText-root": {
+                      color: (theme) => theme.palette.secondary.main,
                     },
-                }}
-                size="size"
-                variant="standard"
-                helperText="Fit Quantity"
-                type="number"
-                value={fitQuantityMultiplier}
-                InputProps={{ inputProps: { step: "1", min: 1 } }}
-                onChange={(e) => {
-                  const newFitData = importedFitData.map((entry) => {
-                    entry.itemCalculatedQty =
-                      entry.itemBaseQty * Math.round(e.target.value);
-                    return entry;
-                  });
-                  updateImportedFitData(newFitData);
-                  updateFitQuantityMultiplier(Math.round(e.target.value));
-                }}
-              />
+                    "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                      {
+                        display: "none",
+                      },
+                  }}
+                  size="size"
+                  variant="standard"
+                  helperText="Fit Quantity"
+                  type="number"
+                  value={fitQuantityMultiplier}
+                  InputProps={{ inputProps: { step: "1", min: 1 } }}
+                  onChange={(e) => {
+                    const newFitData = importedFitData.map((entry) => {
+                      entry.itemCalculatedQty =
+                        entry.itemBaseQty * Math.round(e.target.value);
+                      return entry;
+                    });
+                    updateImportedFitData(newFitData);
+                    updateFitQuantityMultiplier(Math.round(e.target.value));
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography>{importedFitName}</Typography>
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <Typography>{importedFitName}</Typography>
-            </Grid>
+          )}
+          <Grid container item sx={{ overflow: "auto" }}>
+            {importedFitData.map((item, index) => {
+              return (
+                <FittingImportRow
+                  key={uuid()}
+                  item={item}
+                  index={index}
+                  updateImportedFitData={updateImportedFitData}
+                />
+              );
+            })}
           </Grid>
-        )}
-        <Grid container item sx={{overflow:"auto"}}>
-          {importedFitData.map((item, index) => {
-            return (
-              <FittingImportRow
-                key={uuid()}
-                item={item}
-                index={index}
-                updateImportedFitData={updateImportedFitData}
-              />
-            );
-          })}
         </Grid>
       </Grid>
-    </>
+    </Box>
   );
 }
 

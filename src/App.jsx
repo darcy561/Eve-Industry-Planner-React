@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ThemeProvider,
   createTheme,
@@ -22,24 +22,14 @@ import { NavRoutes } from "./Routes";
 import { FeedbackIcon } from "./Components/Feedback/feedback";
 import GLOBAL_CONFIG from "./global-config-app";
 import { Box } from "@mui/material";
+import { getBoolean } from "firebase/remote-config";
+import { remoteConfig } from "./firebase";
+import MaintenanceMode from "./MaintenanceMode";
 
-export default function App() {
-  const { ENABLE_FEEDBACK_ICON, PRIMARY_THEME, SECONDARY_THEME } =
-    GLOBAL_CONFIG;
+const { ENABLE_FEEDBACK_ICON, PRIMARY_THEME, SECONDARY_THEME } = GLOBAL_CONFIG;
 
-  const [mode, setMode] = useState(localStorage.getItem("theme"));
-  const colorMode = useMemo(
-    () => ({
-      toggleColorMode: () => {
-        setMode((prevMode) =>
-          prevMode === SECONDARY_THEME ? PRIMARY_THEME : SECONDARY_THEME
-        );
-      },
-    }),
-    []
-  );
-
-  const getDesignTokens = (mode) => ({
+function getDesignTokens(mode) {
+  return {
     palette: {
       ...(mode !== SECONDARY_THEME
         ? {
@@ -107,21 +97,48 @@ export default function App() {
             },
           }),
     },
-  });
+  };
+}
+
+export default function App() {
+  const [mode, setMode] = useState(
+    localStorage.getItem("theme") || PRIMARY_THEME
+  );
+
+  useEffect(() => {
+    localStorage.setItem("theme", mode);
+  }, [mode]);
+
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) =>
+          prevMode === SECONDARY_THEME ? PRIMARY_THEME : SECONDARY_THEME
+        );
+      },
+    }),
+    []
+  );
 
   const theme = useMemo(
     () => responsiveFontSizes(createTheme(getDesignTokens(mode))),
     [mode]
   );
 
+  const isMaintenanceMode = getBoolean(remoteConfig, "maintenance_mode");
+
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: "flex", width: "100%", height: "100%",  }}>
+      <Box sx={{ display: "flex", width: "100%", height: "100%" }}>
         <CssBaseline />
         <SnackBarNotification />
         <DialogBox />
-        <NavRoutes colorMode={colorMode} />
-        {ENABLE_FEEDBACK_ICON && <FeedbackIcon />}
+        {isMaintenanceMode ? (
+          <MaintenanceMode />
+        ) : (
+          <NavRoutes colorMode={colorMode} />
+        )}
+        {ENABLE_FEEDBACK_ICON && !isMaintenanceMode && <FeedbackIcon />}
       </Box>
     </ThemeProvider>
   );

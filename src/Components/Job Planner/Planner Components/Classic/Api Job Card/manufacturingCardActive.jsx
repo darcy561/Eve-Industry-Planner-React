@@ -1,29 +1,14 @@
-import {
-  Avatar,
-  Badge,
-  Grid,
-  Grow,
-  Paper,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
-import searchData from "../../../../../RawData/searchIndex.json";
-import { blueGrey, grey } from "@mui/material/colors";
 import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
 
 export function IndustryESICardActive({ job }) {
-  const { findBlueprintType, timeRemainingCalc } = useJobManagement();
+  const { timeRemainingCalc } = useJobManagement();
 
   const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
 
   return (
-    <Grid
-      container
-      item
-      xs={12}
-      sx={{ paddingLeft: { xs: "0px", sm: "5px" } }}
-    >
+    <Grid container item xs={12} sx={{ paddingLeft: { xs: "0px", sm: "5px" } }}>
       <Grid container item xs={12}>
         <Grid item xs={4}>
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>

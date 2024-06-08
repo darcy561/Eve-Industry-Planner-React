@@ -1,8 +1,7 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { logEvent } from "firebase/analytics";
-import { analytics, functions } from "../../firebase";
+import { analytics } from "../../firebase";
 import { UsersContext } from "../../Context/AuthContext";
-import { httpsCallable } from "firebase/functions";
 import {
   DialogDataContext,
   RefreshStateContext,
@@ -23,6 +22,7 @@ import { useSystemIndexFunctions } from "./useSystemIndexFunctions";
 import { useEveApi } from "../useEveApi";
 import { useCorporationObject } from "../Account Management Hooks/Corporation Objects/useCorporationObject";
 import { useHelperFunction } from "./useHelperFunctions";
+import useCheckGlobalAppVersion from "./useCheckGlobalAppVersion";
 
 export function useRefreshApiData() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -51,10 +51,6 @@ export function useRefreshApiData() {
   const { updateCorporationObject } = useCorporationObject();
   const { findParentUser } = useHelperFunction();
 
-  const checkAppVersion = httpsCallable(
-    functions,
-    "checkAppVersion-checkAppVersion"
-  );
   const parentUser = findParentUser();
 
   async function refreshApiData(updateRefreshTrigger) {
@@ -63,11 +59,8 @@ export function useRefreshApiData() {
     });
 
     let newEveIDs = {};
-
-    const verifyApp = checkAppVersion({ appVersion: __APP_VERSION__ });
     updateRefreshState(2);
-    const [appVersionPass] = await Promise.all([verifyApp]);
-    if (!appVersionPass.data) {
+    if (!useCheckGlobalAppVersion) {
       updateDialogData((prev) => ({
         ...prev,
         buttonText: "Close",

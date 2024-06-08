@@ -44,7 +44,6 @@ export function Header({ colorMode }) {
         <IconButton
           edge="start"
           color="inherit"
-          W
           aria-label="menu"
           onClick={() => {
             setOpen(true);

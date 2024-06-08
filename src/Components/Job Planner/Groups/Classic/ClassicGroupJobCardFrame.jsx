@@ -1,6 +1,7 @@
 import { useContext, useMemo } from "react";
 import {
   Avatar,
+  Box,
   Button,
   Checkbox,
   Grid,
@@ -76,7 +77,7 @@ export function ClassicGroupJobCardFrame({ job }) {
   }, [activeGroupObject]);
 
   const navigate = useNavigate();
-
+  console.log(job)
   return (
     <Grow in={true}>
       <Grid ref={drag} item xs={12} sm={6} md={4} lg={3}>
@@ -86,6 +87,7 @@ export function ClassicGroupJobCardFrame({ job }) {
           sx={{
             padding: "10px",
             height: "100%",
+            width: "100%",
             backgroundColor: (theme) =>
               jobCardChecked || isDragging
                 ? theme.palette.mode !== "dark"
@@ -95,123 +97,125 @@ export function ClassicGroupJobCardFrame({ job }) {
             cursor: "grab",
           }}
         >
-          <Grid container item xs={12} sx={{height:"100%"}}>
-            <Grid container item xs={12}>
-              <Grid item xs={1}>
-                <Checkbox
-                  disabled={job.isLocked}
-                  sx={{
-                    color: (theme) =>
-                      theme.palette.mode === PRIMARY_THEME
-                        ? theme.palette.primary.main
-                        : theme.palette.secondary.main,
-                  }}
-                  checked={jobCardChecked}
-                  onChange={(event) => {
-                    if (event.target.checked) {
-                      if (!multiSelectJobPlanner.includes(job.jobID)) {
-                        updateMultiSelectJobPlanner((prev) =>
-                          prev.concat(job.jobID)
-                        );
-                      }
-                    } else {
-                      updateMultiSelectJobPlanner((prev) =>
-                        prev.filter((i) => i !== job.jobID)
-                      );
-                    }
-                  }}
-                />
-              </Grid>
-              <Grid item xs={9} />
-              <Grid item align="center" xs={2}>
-                <IconButton
-                  disabled={job.isLocked}
-                  sx={{
-                    color: (theme) =>
-                      theme.palette.mode === PRIMARY_THEME
-                        ? theme.palette.primary.main
-                        : theme.palette.secondary.main,
-                  }}
-                  onClick={() => deleteSingleJob(job.jobID)}
+          <Box sx={{ display: "flex", height: "100%" }}>
+            <Grid container direction="column" xs={12}>
+              <Grid container item xs={12}>
+                <Grid container item xs={12}>
+                  <Grid item xs={6} akign="left">
+                    <Checkbox
+                      disabled={job.isLocked}
+                      sx={{
+                        color: (theme) =>
+                          theme.palette.mode === PRIMARY_THEME
+                            ? theme.palette.primary.main
+                            : theme.palette.secondary.main,
+                      }}
+                      checked={jobCardChecked}
+                      onChange={(event) => {
+                        if (event.target.checked) {
+                          if (!multiSelectJobPlanner.includes(job.jobID)) {
+                            updateMultiSelectJobPlanner((prev) =>
+                              prev.concat(job.jobID)
+                            );
+                          }
+                        } else {
+                          updateMultiSelectJobPlanner((prev) =>
+                            prev.filter((i) => i !== job.jobID)
+                          );
+                        }
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item align="right" xs={6}>
+                    <IconButton
+                      disabled={job.isLocked}
+                      sx={{
+                        color: (theme) =>
+                          theme.palette.mode === PRIMARY_THEME
+                            ? theme.palette.primary.main
+                            : theme.palette.secondary.main,
+                      }}
+                      onClick={() => deleteSingleJob(job.jobID)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+
+                <Grid
+                  item
+                  xs={12}
+                  sx={{ marginBottom: { xs: "5px", sm: "10px" } }}
                 >
-                  <DeleteIcon />
-                </IconButton>
-              </Grid>
-            </Grid>
-            <Grid item xs={12} sx={{ marginBottom: { xs: "5px", sm: "10px" } }}>
-              <Typography
-                color="secondary"
-                align="center"
-                sx={{
-                  minHeight: { xs: "2rem", sm: "3rem", md: "3rem", lg: "4rem" },
-                  typography: { xs: "body1", lg: "h6" },
-                }}
-              >
-                {job.name}
-              </Typography>
-            </Grid>
-            <Grid
-              container
-              item
-              xs={12}
-              sx={{
-                marginLeft: { xs: "10px", md: "0px" },
-                marginRight: { xs: "20px", md: "30px" },
-              }}
-            >
-              <Grid
-                container
-                item
-                xs={2}
-                sm={3}
-                justifyContent="center"
-                alignItems="center"
-              >
-                <Avatar
-                  src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
-                  alt={job.name}
-                  variant="square"
-                />
-              </Grid>
-              <DisplaySwitch job={job} />
-            </Grid>
-            <Grid container item xs={12} sx={{ marginTop: { xs: "5px", sm: "5px" }  }}>
-              <Grid item xs={12} align="center">
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  disabled={job.isLocked}
-                  onClick={() => {
-                    navigate(`/editJob/${job.jobID}`);
+                  <Typography color="secondary" align="center" variant="body1">
+                    {job.name}
+                  </Typography>
+                </Grid>
+                <Grid
+                  container
+                  item
+                  xs={12}
+                  sx={{
+                    marginLeft: { xs: "10px", md: "0px" },
+                    marginRight: { xs: "20px", md: "30px" },
                   }}
-                  sx={{ height: "25px", width: "100px" }}
                 >
-                  {job.isLocked ? "Locked" : "Edit"}
-                </Button>
-              </Grid>
-              <Grid
-                item
-                xs={12}
-                sx={{
-                  backgroundColor:
-                    job.jobType === jobTypes.manufacturing
-                      ? "manufacturing.main"
-                      : "reaction.main",
-                  marginTop: "10px",
-                }}
-              >
-                <Typography align="center" variant="body2" color="black">
-                  {jobMarkedAsCompelte ? (
-                    <b>Complete</b>
-                  ) : job.jobType === jobTypes.manufacturing ? (
-                    <b>Manufacturing Job</b>
-                  ) : (
-                    <b>Reaction Job</b>
-                  )}
-                </Typography>
+                  <Grid
+                    container
+                    item
+                    xs={2}
+                    sm={3}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Avatar
+                      src={`https://images.evetech.net/types/${job.itemID}/icon?size=64`}
+                      alt={job.name}
+                      variant="square"
+                    />
+                  </Grid>
+                  <DisplaySwitch job={job} />
+                </Grid>
+                <Grid container item xs={12} sx={{ alignItems: "flex-end" }}>
+                  <Grid item xs={12} align="center" sx={{ marginTop: "5px" }}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      disabled={job.isLocked}
+                      onClick={() => {
+                        navigate(`/editJob/${job.jobID}`);
+                      }}
+                      sx={{ height: "25px", width: "100px" }}
+                    >
+                      {job.isLocked ? "Locked" : "Edit"}
+                    </Button>
+                  </Grid>
+                  <Grid
+                    item
+                    xs={12}
+                    sx={{
+                      backgroundColor:
+                        job.jobType === jobTypes.manufacturing
+                          ? "manufacturing.main"
+                          : "reaction.main",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <Typography align="center" variant="body2" color="black">
+                      {jobMarkedAsCompelte ? (
+                        <b>Complete</b>
+                      ) : job.jobType === jobTypes.manufacturing ? (
+                        <b>Manufacturing Job</b>
+                      ) : (
+                        <b>Reaction Job</b>
+                      )}
+                    </Typography>
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
+          </Box>
         </Paper>
       </Grid>
     </Grow>

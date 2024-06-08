@@ -61,7 +61,7 @@ export function PlannerAccordion() {
   }
 
   return (
-    <Box sx={{ display: "flex", order: { xs: 2, md: 1 },width:"100%" }}>
+    <Box sx={{ display: "flex", order: { xs: 2, md: 1 }, width: "100%" }}>
       <Paper elevation={3} square sx={{ width: "100%" }}>
         {jobStatus.map((status) => {
           const [{ isOver, canDrop }, drop] = useDrop(

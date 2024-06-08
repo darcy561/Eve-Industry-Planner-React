@@ -1,15 +1,4 @@
-import {
-  Avatar,
-  Badge,
-  Grid,
-  Grow,
-  Paper,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { blueGrey, grey } from "@mui/material/colors";
-import { useJobManagement } from "../../../../../Hooks/useJobManagement";
-import searchData from "../../../../../RawData/searchIndex.json";
+import { Grid, Typography } from "@mui/material";
 import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
 
 export function IndustryESICardComplete({ job }) {

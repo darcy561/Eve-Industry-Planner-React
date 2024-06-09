@@ -26,6 +26,7 @@ import { getBoolean } from "firebase/remote-config";
 import { remoteConfig } from "./firebase";
 import MaintenanceMode from "./MaintenanceMode";
 
+
 const { ENABLE_FEEDBACK_ICON, PRIMARY_THEME, SECONDARY_THEME } = GLOBAL_CONFIG;
 
 function getDesignTokens(mode) {

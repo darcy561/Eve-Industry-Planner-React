@@ -134,10 +134,7 @@ export function useGroupManagement() {
         outputJobCount
       ),
     };
-
-    updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
-
+    newGroupArray.push(newGroupEntry);
     if (isLoggedIn) {
       uploadUserJobSnapshot(newUserJobSnapshot);
       uploadGroups(newGroupArray);
@@ -151,7 +148,10 @@ export function useGroupManagement() {
       });
     }
 
-    return newGroupEntry;
+    updateJobArray(newJobArray);
+    updateUserJobSnapshot(newUserJobSnapshot);
+
+    return { newGroupEntry, newGroupArray };
   };
 
   const replaceGroupData = (inputGroup, chosenGroupArray) => {

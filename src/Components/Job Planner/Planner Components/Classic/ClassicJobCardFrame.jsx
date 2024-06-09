@@ -64,10 +64,6 @@ export function JobCardFrame({ job }) {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
 
-  // console.log(drag)
-  // console.log("render")
-  // console.log(job)
-
   return (
     <Grid ref={drag} item xs={12} sm={6} md={4} lg={3}>
       <Paper

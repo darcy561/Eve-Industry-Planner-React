@@ -17,6 +17,11 @@ import {
 import { ApiJobsContext } from "../../../../../../Context/JobContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import {
+  LARGE_TEXT_FORMAT,
+  STANDARD_TEXT_FORMAT,
+  TWO_DECIMAL_PLACES,
+} from "../../../../../../Context/defaultValues";
 
 export function LinkedJobsTab({
   activeJob,
@@ -30,7 +35,8 @@ export function LinkedJobsTab({
   const { apiJobs } = useContext(ApiJobsContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { findBlueprintType, timeRemainingCalc } = useJobManagement();
-  const { sendSnackbarNotificationSuccess, findUniverseItemObject } = useHelperFunction();
+  const { sendSnackbarNotificationSuccess, findUniverseItemObject } =
+    useHelperFunction();
 
   const analytics = getAnalytics();
 
@@ -49,7 +55,7 @@ export function LinkedJobsTab({
       });
     }
     updateStoredAPIdata();
-  }, [apiJobs]);
+  }, [apiJobs, activeJob.build.costs.linkedJobs]);
 
   if (activeJob.apiJobs.size !== 0) {
     return (
@@ -130,14 +136,14 @@ export function LinkedJobsTab({
                 </Grid>
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >{`${job.runs.toLocaleString()} Runs`}</Typography>
                 </Grid>
 
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >
                     {facilityData !== undefined
@@ -147,20 +153,17 @@ export function LinkedJobsTab({
                 </Grid>
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >
                     Install Costs:{" "}
-                    {job.cost.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    {job.cost.toLocaleString(undefined, TWO_DECIMAL_PLACES)}
                   </Typography>
                 </Grid>
                 {job.isCorp ? (
                   <Grid item xs={12}>
                     <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      sx={{ typography: STANDARD_TEXT_FORMAT }}
                       align="center"
                     >
                       Corporation Job
@@ -170,7 +173,7 @@ export function LinkedJobsTab({
 
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >
                     {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
@@ -320,7 +323,7 @@ export function LinkedJobsTab({
           marginTop: { xs: "20px", sm: "30px" },
         }}
       >
-        <Typography sx={{ typography: { xs: "caption", md: "body1" } }}>
+        <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
           You currently have no industry jobs from the ESI linked to the this
           job.
         </Typography>

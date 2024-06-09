@@ -37,7 +37,6 @@ export function LinkedMarketOrdersTab({
   useEffect(() => {
     const newLinkedMarketOrders = activeJob.build.sale.marketOrders.map(
       (order) => {
-        console.log(order);
         const userOrders =
           esiOrders.find((i) => i.user === order.CharacterHash)?.data || [];
         const userHistOrders =

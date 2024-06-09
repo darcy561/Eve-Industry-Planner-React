@@ -77,7 +77,7 @@ export function ClassicGroupJobCardFrame({ job }) {
   }, [activeGroupObject]);
 
   const navigate = useNavigate();
-  console.log(job)
+
   return (
     <Grow in={true}>
       <Grid ref={drag} item xs={12} sm={6} md={4} lg={3}>

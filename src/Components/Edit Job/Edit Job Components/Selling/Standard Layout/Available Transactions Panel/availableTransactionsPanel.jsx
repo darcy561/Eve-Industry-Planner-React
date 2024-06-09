@@ -16,6 +16,7 @@ import {
 } from "../../../../../../Context/AuthContext";
 import { useMarketOrderFunctions } from "../../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
 
 export function AvailableTransactionsPanel({
   activeJob,

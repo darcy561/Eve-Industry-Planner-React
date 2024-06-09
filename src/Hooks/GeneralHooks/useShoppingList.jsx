@@ -25,7 +25,7 @@ export function useShoppingList() {
   const parentUser = findParentUser();
 
   async function buildShoppingList(inputJobIDs) {
-    let finalInputList = [];
+    let requestedJobObjects = [];
     let finalShoppingList = [];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newJobArray = [...jobArray];
@@ -36,23 +36,30 @@ export function useShoppingList() {
         if (!inputGroup) {
           return;
         }
-        finalInputList = finalInputList.concat([...inputGroup.includedJobIDs]);
+
+        for (let groupJobID of inputGroup.includedJobIDs) {
+          const requestedJob = await findJobData(
+            groupJobID,
+            newUserJobSnapshot,
+            newJobArray,
+            undefined,
+            "groupJob"
+          );
+          if (!requestedJob) continue;
+          requestedJobObjects.push(requestedJob);
+        }
       } else {
-        finalInputList.push(inputID);
+        const requestedJob = findJobData(
+          inputID,
+          newUserJobSnapshot,
+          newJobArray
+        );
+        if (!requestedJob) continue;
+        requestedJobObjects.push(requestedJob);
       }
     }
 
-    for (let inputJobID of finalInputList) {
-      let inputJob = await findJobData(
-        inputJobID,
-        newUserJobSnapshot,
-        newJobArray
-      );
-
-      if (!inputJob) {
-        continue;
-      }
-
+    for (let inputJob of requestedJobObjects) {
       inputJob.build.materials.forEach((material) => {
         if (material.quantityPurchased >= material.quantity) {
           return;

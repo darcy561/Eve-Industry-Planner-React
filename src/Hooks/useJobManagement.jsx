@@ -217,29 +217,41 @@ export function useJobManagement() {
   };
 
   const buildItemPriceEntry = async (inputJobIDs) => {
-    const finalInputList = [];
+    const requestedJobObjects = [];
     const finalPriceEntry = [];
     const newUserJobSnapshot = [...userJobSnapshot];
     const newJobArray = [...jobArray];
 
-    for (const inputID of inputJobIDs) {
+    for (let inputID of inputJobIDs) {
       if (inputID.includes("group")) {
-        const inputGroup = groupArray.find((i) => i.groupID === inputID);
-        if (!inputGroup) continue;
+        let inputGroup = groupArray.find((i) => i.groupID === inputID);
+        if (!inputGroup) {
+          return;
+        }
 
-        const groupInputJobIDs = inputGroup.includedJobIDs || [];
-        finalInputList.push(...groupInputJobIDs);
+        for (let groupJobID of inputGroup.includedJobIDs) {
+          const requestedJob = await findJobData(
+            groupJobID,
+            newUserJobSnapshot,
+            newJobArray,
+            undefined,
+            "groupJob"
+          );
+          if (!requestedJob) continue;
+          requestedJobObjects.push(requestedJob);
+        }
       } else {
-        finalInputList.push(inputID);
+        const requestedJob = findJobData(
+          inputID,
+          newUserJobSnapshot,
+          newJobArray
+        );
+        if (!requestedJob) continue;
+        requestedJobObjects.push(requestedJob);
       }
     }
 
-    for (const inputJobID of finalInputList) {
-      const inputJob = await findJobData(
-        inputJobID,
-        newUserJobSnapshot,
-        newJobArray
-      );
+    for (let inputJob of requestedJobObjects) {
       inputJob.build.materials.forEach((material) => {
         const childJobs = inputJob.build.childJobs[material.typeID];
         if (

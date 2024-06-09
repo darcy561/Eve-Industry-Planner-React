@@ -74,9 +74,11 @@ export function useJobPlannerSideMenuFunctions(
 
   function newGroupButton() {
     async function buttonClick() {
-      let newGroup = await createNewGroupWithJobs(multiSelectJobPlanner);
-      updateGroupArray((prev) => [...prev, newGroup]);
-      updateActiveGroup(newGroup.groupID);
+      const { newGroupArray, newGroupEntry } = await createNewGroupWithJobs(
+        multiSelectJobPlanner
+      );
+      updateGroupArray(newGroupArray);
+      updateActiveGroup(newGroupEntry.groupID);
       updateMultiSelectJobPlanner([]);
       updateEditGroupTrigger((prev) => !prev);
     }

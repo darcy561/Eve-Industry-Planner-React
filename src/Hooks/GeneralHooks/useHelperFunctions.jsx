@@ -193,11 +193,11 @@ export function useHelperFunction() {
   function checkDisplayTutorials() {
     if (!isLoggedIn) return true;
     const parentUser = findParentUser();
-    const tutorialsAreHidden = parentUser.settings.layout.hideTutorials
+    const tutorialsAreHidden = parentUser.settings.layout.hideTutorials;
 
-    if(tutorialsAreHidden) return false
+    if (tutorialsAreHidden) return false;
 
-    return true
+    return true;
   }
 
   function sendSnackbarNotificationSuccess(

@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Divider,
   Drawer,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   Toolbar,
+  useMediaQuery,
 } from "@mui/material";
 import KeyboardDoubleArrowRightOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowRightOutlined";
 import KeyboardDoubleArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftOutlined";
@@ -21,11 +21,32 @@ function CollapseableMenuDrawer({
   updateRightContentMenuContentID,
 }) {
   const localStorageItemKey = "sideMenuExpanded";
-  const [expandedDrawer, setExpandedDrawer] = useState(() => {
-    const state = localStorage.getItem(localStorageItemKey);
-    if (state == null) return true;
-    return state === "true";
-  });
+  const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
+
+  const [expandedDrawer, setExpandedDrawer] = useState(
+    getInitialExpandedDrawerState(deviceNotMobile)
+  );
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(localStorageItemKey, expandedDrawer.toString());
+    } catch (error) {
+      console.error("Error saving to localStorage", error);
+    }
+  }, [expandedDrawer]);
+
+  function getInitialExpandedDrawerState(mobileDevice) {
+    try {
+      const state = localStorage.getItem(localStorageItemKey);
+      if (!mobileDevice) return false;
+      if (state == null) return true;
+      return state === "true";
+    } catch (error) {
+      console.error("Error accessing localStorage", error);
+      return deviceNotMobile;
+    }
+  }
+
   const drawerWitdh = expandedDrawer ? 240 : 50;
 
   return (

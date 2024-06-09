@@ -9,6 +9,7 @@ import {
   Paper,
   TextField,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import itemList from "../../../../../RawData/searchIndex.json";
@@ -28,6 +29,8 @@ function AddNewJobContentPanel({
   const { updateDataExchange } = useContext(DataExchangeContext);
   const { addNewJobsToPlanner } = useBuildNewJobs();
   const { toggleRightDrawerColapse } = useRightContentDrawer();
+
+  const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
   async function addJobs() {
     updateDataExchange(true);
@@ -59,16 +62,19 @@ function AddNewJobContentPanel({
     updateItemIDsToAdd(newItemsToAdd);
   }
 
+  const deviceBasedWidth = deviceNotMobile ? "100%" : "60%";
+
   return (
     <Paper
       elevation={3}
       square
       sx={{ padding: 2, height: "100%", width: "100%", overflow: "hidden" }}
     >
-      <Box sx={{ height: "100%" }}>
+      <Box sx={{ height: "100%", width: deviceBasedWidth }}>
         <Box
           sx={{
             height: "40%",
+            width: "100%",
             overflowX: "hidden",
             overflowY: "auto",
           }}
@@ -130,38 +136,38 @@ function AddNewJobContentPanel({
                 </Button>
               </Grid>
             </Grid>
-              <Grid container item xs={12} sx={{}}>
-                {itemIDsToAdd.map((itemObj) => {
-                  const itemName = fullItemList[itemObj.itemID]?.name;
-                  return (
-                    <Grid item xs="auto" key={uuid()}>
-                      <Chip
-                        label={itemName}
-                        size="small"
-                        deleteIcon={<ClearIcon />}
-                        onDelete={() => {
-                          updateItemIDsToAdd((prev) =>
-                            prev.filter((i) => i.itemID !== itemObj.itemID)
-                          );
-                        }}
-                        avatar={
-                          <Avatar
-                            src={`https://image.eveonline.com/Type/${itemObj.itemID}_32.png`}
-                          />
-                        }
-                        variant="outlined"
-                        sx={{
-                          margin: 0.5,
-                          "& .MuiChip-deleteIcon": {
-                            color: "error.main",
-                          },
-                          boxShadow: 3,
-                        }}
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
+            <Grid container item xs={12} sx={{}}>
+              {itemIDsToAdd.map((itemObj) => {
+                const itemName = fullItemList[itemObj.itemID]?.name;
+                return (
+                  <Grid item xs="auto" key={uuid()}>
+                    <Chip
+                      label={itemName}
+                      size="small"
+                      deleteIcon={<ClearIcon />}
+                      onDelete={() => {
+                        updateItemIDsToAdd((prev) =>
+                          prev.filter((i) => i.itemID !== itemObj.itemID)
+                        );
+                      }}
+                      avatar={
+                        <Avatar
+                          src={`https://image.eveonline.com/Type/${itemObj.itemID}_32.png`}
+                        />
+                      }
+                      variant="outlined"
+                      sx={{
+                        margin: 0.5,
+                        "& .MuiChip-deleteIcon": {
+                          color: "error.main",
+                        },
+                        boxShadow: 3,
+                      }}
+                    />
+                  </Grid>
+                );
+              })}
+            </Grid>
           </Grid>
         </Box>
         <AddShipFittingPanel updateItemIDsToAdd={updateItemIDsToAdd} />

@@ -6,7 +6,7 @@ import {
   ReCaptchaEnterpriseProvider,
 } from "firebase/app-check";
 import { getPerformance } from "firebase/performance";
-import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
+import { getFunctions } from "firebase/functions";
 import { getAnalytics } from "firebase/analytics";
 import GLOBAL_CONFIG from "./global-config-app";
 import { fetchAndActivate, getRemoteConfig } from "firebase/remote-config";

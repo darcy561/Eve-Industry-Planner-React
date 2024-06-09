@@ -13,6 +13,7 @@ import { UserLoginUIContext } from "../../../Context/LayoutContext";
 import itemData from "../../../RawData/searchIndex.json";
 import { useMarketOrderFunctions } from "../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
+import { STANDARD_TEXT_FORMAT } from "../../../Context/defaultValues";
 
 export function NewTransactions() {
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -144,7 +145,7 @@ export function NewTransactions() {
             >
               {transactionData.map((trans) => {
                 let itemName = itemData.find((i) => i.itemID === trans.type_id);
-                if (itemName === undefined) return null;
+                if (!itemName) return null;
                 return (
                   <Grid
                     key={trans.transaction_id}
@@ -153,16 +154,14 @@ export function NewTransactions() {
                     sx={{ marginBottom: "5px" }}
                   >
                     <Grid item xs={3}>
-                      <Typography
-                        sx={{ typography: { xs: "caption", sm: "body2" } }}
-                      >
+                      <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                         {new Date(trans.date).toLocaleString()}
                       </Typography>
                     </Grid>
                     <Grid item xs={4}>
                       <Typography
                         align="center"
-                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        sx={{ typography: STANDARD_TEXT_FORMAT }}
                       >
                         {itemName.name}
                       </Typography>
@@ -170,7 +169,7 @@ export function NewTransactions() {
                     <Grid item xs={4}>
                       <Typography
                         align="right"
-                        sx={{ typography: { xs: "caption", sm: "body2" } }}
+                        sx={{ typography: STANDARD_TEXT_FORMAT }}
                       >
                         {trans.quantity.toLocaleString()} @{" "}
                         {trans.unit_price.toLocaleString()}
@@ -206,12 +205,12 @@ export function NewTransactions() {
                 New Job Transactions
               </Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} sx={{ maxHeight: { xs: "320px", md: "750px" } }}>
               <Typography
                 align="center"
                 sx={{
                   marginBottom: "10px",
-                  typography: { xs: "caption", sm: "body2" },
+                  typography: STANDARD_TEXT_FORMAT,
                 }}
               >
                 There are currently no new transactions for your linked market
@@ -219,7 +218,7 @@ export function NewTransactions() {
               </Typography>
               <Typography
                 align="center"
-                sx={{ typography: { xs: "caption", sm: "body2" } }}
+                sx={{ typography: STANDARD_TEXT_FORMAT }}
               >
                 Transaction data from the Eve ESI updates peridodically, either
                 refresh the current data or check back later.
@@ -251,7 +250,7 @@ export function NewTransactions() {
             <CircularProgress color="primary" />
           </Grid>
           <Grid item xs={12} align="center">
-            <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+            <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
               Updating User Data
             </Typography>
           </Grid>

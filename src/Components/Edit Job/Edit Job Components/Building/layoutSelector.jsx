@@ -42,7 +42,6 @@ export function LayoutSelector_EditJob_Building({
     });
   }, [apiJobs, activeJob, linkedJobIDs, parentUser]);
 
-  console.log(jobMatches);
 
   switch (deviceNotMobile) {
     case true:

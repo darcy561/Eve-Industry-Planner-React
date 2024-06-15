@@ -1,4 +1,4 @@
-import { lazy, useContext, Suspense, useState, useEffect } from "react";
+import { lazy, useContext, Suspense, useState } from "react";
 import { PlannerAccordion } from "./Planner Components/accordion";
 import {
   JobPlannerPageTriggerContext,
@@ -7,8 +7,7 @@ import {
 } from "../../Context/LayoutContext";
 import { LoadingPage } from "../loadingPage";
 import { SearchBar } from "./Planner Components/searchbar";
-import { AppBar, Box, Grid, Toolbar } from "@mui/material";
-import { TutorialContent_JobPlanner } from "./Planner Components/tutorialPlanner";
+import { Box, Toolbar, useMediaQuery } from "@mui/material";
 import { ShoppingListDialog } from "./Dialogues/ShoppingList/ShoppingList";
 import { PriceEntryDialog } from "./Dialogues/PriceEntry/PriceEntryList";
 import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
@@ -17,13 +16,10 @@ import { UserLogInUI } from "../Auth/LoginUI/LoginUI";
 import { Header } from "../Header";
 import CollapseableMenuDrawer from "../SideMenu/leftMenuDrawer";
 import { SideMenuContent_JobPlanner } from "./Planner Components/Side Menu/sideMenuContent";
-import TutorialTemplate from "../Tutorials/tutorialTemplate";
 import { Footer } from "../Footer/Footer";
 import useCheckUserAuthState from "../../Hooks/Auth Hooks/useCheckUserState";
 import CollapseableContentDrawer_Right from "../SideMenu/rightContentDrawer";
 import RightSideMenuContent_JobPlanner from "./Planner Components/Side Menu/rightMenuContents";
-import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
-import { IsLoggedIn } from "../../Context/AuthContext";
 
 const EditGroup = lazy(() => import("./Groups/GroupPage"));
 
@@ -33,11 +29,13 @@ export default function JobPlanner({ colorMode }) {
   );
   const { pageLoad } = useContext(PageLoadContext);
   const { loginInProgressComplete } = useContext(UserLoginUIContext);
-  const { checkDisplayTutorials } = useHelperFunction();
   const [expandRightContentMenu, updateExpandRightContentMenu] =
     useState(false);
   const [rightContentMenuContentID, updateRightContentMenuContentID] =
     useState(null);
+
+  const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
+
   useCheckUserAuthState();
 
   if (!loginInProgressComplete) {
@@ -84,7 +82,7 @@ export default function JobPlanner({ colorMode }) {
         return (
           <>
             <Header colorMode={colorMode} />
-            {/* <SearchBar /> */}
+
             <CollapseableMenuDrawer
               expandRightContentMenu={expandRightContentMenu}
               updateExpandRightContentMenu={updateExpandRightContentMenu}
@@ -106,6 +104,9 @@ export default function JobPlanner({ colorMode }) {
               }}
             >
               <ESIOffline />
+              {!deviceNotMobile && rightContentMenuContentID === 1 && (
+                <SearchBar updateRightContentMenuContentID={updateRightContentMenuContentID} />
+              )}
 
               <Box
                 sx={{
@@ -122,19 +123,21 @@ export default function JobPlanner({ colorMode }) {
 
               <Footer />
             </Box>
-            <CollapseableContentDrawer_Right
-              DrawerContent={
-                <RightSideMenuContent_JobPlanner
-                  rightContentMenuContentID={rightContentMenuContentID}
-                  updateRightContentMenuContentID={
-                    updateRightContentMenuContentID
-                  }
-                  updateExpandRightContentMenu={updateExpandRightContentMenu}
-                />
-              }
-              expandRightContentMenu={expandRightContentMenu}
-              updateExpandRightContentMenu={updateExpandRightContentMenu}
-            />
+            {deviceNotMobile && (
+              <CollapseableContentDrawer_Right
+                DrawerContent={
+                  <RightSideMenuContent_JobPlanner
+                    rightContentMenuContentID={rightContentMenuContentID}
+                    updateRightContentMenuContentID={
+                      updateRightContentMenuContentID
+                    }
+                    updateExpandRightContentMenu={updateExpandRightContentMenu}
+                  />
+                }
+                expandRightContentMenu={expandRightContentMenu}
+                updateExpandRightContentMenu={updateExpandRightContentMenu}
+              />
+            )}
             <ShoppingListDialog />
             <MassBuildFeedback />
             <PriceEntryDialog />

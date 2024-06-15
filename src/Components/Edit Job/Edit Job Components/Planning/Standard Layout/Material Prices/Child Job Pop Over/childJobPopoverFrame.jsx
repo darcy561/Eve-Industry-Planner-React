@@ -7,7 +7,7 @@ import { useJobManagement } from "../../../../../../../Hooks/useJobManagement";
 import { ImportingStateLayout_ChildJobPopoverFrame } from "./fetchState";
 import { ChildJobMaterials_ChildJobPopoverFrame } from "./childJobMaterials";
 import { ChildJobSwitcher_ChildJobPopoverFrame } from "./switchChildJob";
-import { DisplayMismatchedChildTotals_ChildJobPopoverFrame } from "./mismatchedTotals";
+import { DisplayMismatchedChildTotals_ChildJobPopoverFrame } from "./misMatchedTotals";
 import { ChildJobMaterialTotalCosts_ChildJobPopoverFrame } from "./childJobTotalCosts";
 import { useMaterialCostCalculations } from "../../../../../../../Hooks/GeneralHooks/useMaterialCostCalculations";
 import { useManageGroupJobs } from "../../../../../../../Hooks/GroupHooks/useManageGroupJobs";

@@ -6,7 +6,7 @@ import { jobTypes } from "../../../../../../Context/defaultValues";
 import { ArchivedJobsContext } from "../../../../../../Context/JobContext";
 import { IsLoggedInContext } from "../../../../../../Context/AuthContext";
 
-export function ArchiveJobsPanel({ activeJob }) {
+export default function ArchiveJobsPanel({ activeJob }) {
   const { archivedJobs } = useContext(ArchivedJobsContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
 

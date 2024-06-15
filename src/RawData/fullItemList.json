@@ -3321,7 +3321,7 @@
   },
   "2001": {
     "type_id": 2001,
-    "name": "Cynosural Suppression"
+    "name": "Deprecated Cynosural Suppression"
   },
   "2002": {
     "type_id": 2002,
@@ -3349,11 +3349,11 @@
   },
   "2008": {
     "type_id": 2008,
-    "name": "Cynosural Navigation"
+    "name": "Deprecated Cynosural Navigation"
   },
   "2009": {
     "type_id": 2009,
-    "name": "Supercapital Construction Facilities"
+    "name": "Deprecated Supercapital Construction Facilities"
   },
   "2010": {
     "type_id": 2010,
@@ -3421,27 +3421,27 @@
   },
   "2026": {
     "type_id": 2026,
-    "name": "Pirate Detection Array 1"
+    "name": "Deprecated Pirate Detection Array 1"
   },
   "2027": {
     "type_id": 2027,
-    "name": "Pirate Detection Array 2"
+    "name": "Deprecated Pirate Detection Array 2"
   },
   "2028": {
     "type_id": 2028,
-    "name": "Pirate Detection Array 3"
+    "name": "Deprecated Pirate Detection Array 3"
   },
   "2029": {
     "type_id": 2029,
-    "name": "Pirate Detection Array 4"
+    "name": "Deprecated Pirate Detection Array 4"
   },
   "2030": {
     "type_id": 2030,
-    "name": "Pirate Detection Array 5"
+    "name": "Deprecated Pirate Detection Array 5"
   },
   "2031": {
     "type_id": 2031,
-    "name": "Entrapment Array 1"
+    "name": "Deprecated Entrapment Array 1"
   },
   "2032": {
     "type_id": 2032,
@@ -3453,19 +3453,19 @@
   },
   "2034": {
     "type_id": 2034,
-    "name": "Entrapment Array 2"
+    "name": "Deprecated Entrapment Array 2"
   },
   "2035": {
     "type_id": 2035,
-    "name": "Entrapment Array 3"
+    "name": "Deprecated Entrapment Array 3"
   },
   "2036": {
     "type_id": 2036,
-    "name": "Entrapment Array 4"
+    "name": "Deprecated Entrapment Array 4"
   },
   "2037": {
     "type_id": 2037,
-    "name": "Entrapment Array 5"
+    "name": "Deprecated Entrapment Array 5"
   },
   "2038": {
     "type_id": 2038,
@@ -3477,23 +3477,23 @@
   },
   "2040": {
     "type_id": 2040,
-    "name": "Ore Prospecting Array 1"
+    "name": "Deprecated Ore Prospecting Array 1"
   },
   "2041": {
     "type_id": 2041,
-    "name": "Ore Prospecting Array 2"
+    "name": "Deprecated Ore Prospecting Array 2"
   },
   "2042": {
     "type_id": 2042,
-    "name": "Ore Prospecting Array 3"
+    "name": "Deprecated Ore Prospecting Array 3"
   },
   "2043": {
     "type_id": 2043,
-    "name": "Ore Prospecting Array 4"
+    "name": "Deprecated Ore Prospecting Array 4"
   },
   "2044": {
     "type_id": 2044,
-    "name": "Ore Prospecting Array 5"
+    "name": "Deprecated Ore Prospecting Array 5"
   },
   "2045": {
     "type_id": 2045,
@@ -3525,43 +3525,43 @@
   },
   "2053": {
     "type_id": 2053,
-    "name": "Survey Networks 1"
+    "name": "Deprecated Survey Networks 1"
   },
   "2054": {
     "type_id": 2054,
-    "name": "Survey Networks 2"
+    "name": "Deprecated Survey Networks 2"
   },
   "2055": {
     "type_id": 2055,
-    "name": "Survey Networks 3"
+    "name": "Deprecated Survey Networks 3"
   },
   "2056": {
     "type_id": 2056,
-    "name": "Survey Networks 4"
+    "name": "Deprecated Survey Networks 4"
   },
   "2057": {
     "type_id": 2057,
-    "name": "Survey Networks 5"
+    "name": "Deprecated Survey Networks 5"
   },
   "2058": {
     "type_id": 2058,
-    "name": "Quantum Flux Generator 1"
+    "name": "Deprecated Quantum Flux Generator 1"
   },
   "2059": {
     "type_id": 2059,
-    "name": "Quantum Flux Generator 2"
+    "name": "Deprecated Quantum Flux Generator 2"
   },
   "2060": {
     "type_id": 2060,
-    "name": "Quantum Flux Generator 3"
+    "name": "Deprecated Quantum Flux Generator 3"
   },
   "2061": {
     "type_id": 2061,
-    "name": "Quantum Flux Generator 4"
+    "name": "Deprecated Quantum Flux Generator 4"
   },
   "2062": {
     "type_id": 2062,
-    "name": "Quantum Flux Generator 5"
+    "name": "Deprecated Quantum Flux Generator 5"
   },
   "2063": {
     "type_id": 2063,
@@ -5745,7 +5745,7 @@
   },
   "2735": {
     "type_id": 2735,
-    "name": "Infrastructure Hub Blueprint"
+    "name": "Sovereignty Hub Blueprint"
   },
   "2736": {
     "type_id": 2736,
@@ -5753,7 +5753,7 @@
   },
   "2737": {
     "type_id": 2737,
-    "name": "Territorial Claim Unit Blueprint"
+    "name": "Defunct Territorial Claim Unit Blueprint"
   },
   "2738": {
     "type_id": 2738,
@@ -58645,7 +58645,7 @@
   },
   "27459": {
     "type_id": 27459,
-    "name": "Imperial Navy Mjolnir Auto-Targeting Cruise Missile I"
+    "name": "Legion Mjolnir Auto-Targeting Cruise Missile"
   },
   "27461": {
     "type_id": 27461,
@@ -58657,7 +58657,7 @@
   },
   "27465": {
     "type_id": 27465,
-    "name": "Caldari Navy Scourge Auto-Targeting Cruise Missile I"
+    "name": "Legion Scourge Auto-Targeting Cruise Missile"
   },
   "27467": {
     "type_id": 27467,
@@ -58669,7 +58669,7 @@
   },
   "27471": {
     "type_id": 27471,
-    "name": "Federation Navy Inferno Auto-Targeting Cruise Missile I"
+    "name": "Legion Inferno Auto-Targeting Cruise Missile"
   },
   "27473": {
     "type_id": 27473,
@@ -58681,7 +58681,7 @@
   },
   "27477": {
     "type_id": 27477,
-    "name": "Republic Fleet Nova Auto-Targeting Cruise Missile I"
+    "name": "Legion Nova Auto-Targeting Cruise Missile"
   },
   "27479": {
     "type_id": 27479,
@@ -58693,7 +58693,7 @@
   },
   "27483": {
     "type_id": 27483,
-    "name": "Imperial Navy Mjolnir Auto-Targeting Heavy Missile I"
+    "name": "Legion Mjolnir Auto-Targeting Heavy Missile"
   },
   "27485": {
     "type_id": 27485,
@@ -58705,7 +58705,7 @@
   },
   "27489": {
     "type_id": 27489,
-    "name": "Caldari Navy Scourge Auto-Targeting Heavy Missile I"
+    "name": "Legion Scourge Auto-Targeting Heavy Missile"
   },
   "27491": {
     "type_id": 27491,
@@ -58717,7 +58717,7 @@
   },
   "27495": {
     "type_id": 27495,
-    "name": "Federation Navy Inferno Auto-Targeting Heavy Missile I"
+    "name": "Legion Inferno Auto-Targeting Heavy Missile"
   },
   "27497": {
     "type_id": 27497,
@@ -58729,7 +58729,7 @@
   },
   "27501": {
     "type_id": 27501,
-    "name": "Republic Fleet Nova Auto-Targeting Heavy Missile I"
+    "name": "Legion Nova Auto-Targeting Heavy Missile"
   },
   "27503": {
     "type_id": 27503,
@@ -58741,7 +58741,7 @@
   },
   "27507": {
     "type_id": 27507,
-    "name": "Imperial Navy Mjolnir Auto-Targeting Light Missile I"
+    "name": "Legion Mjolnir Auto-Targeting Light Missile"
   },
   "27509": {
     "type_id": 27509,
@@ -58753,7 +58753,7 @@
   },
   "27513": {
     "type_id": 27513,
-    "name": "Caldari Navy Scourge Auto-Targeting Light Missile I"
+    "name": "Legion Scourge Auto-Targeting Light Missile"
   },
   "27515": {
     "type_id": 27515,
@@ -58765,7 +58765,7 @@
   },
   "27519": {
     "type_id": 27519,
-    "name": "Federation Navy Inferno Auto-Targeting Light Missile I"
+    "name": "Legion Inferno Auto-Targeting Light Missile"
   },
   "27521": {
     "type_id": 27521,
@@ -58777,7 +58777,7 @@
   },
   "27525": {
     "type_id": 27525,
-    "name": "Republic Fleet Nova Auto-Targeting Light Missile I"
+    "name": "Legion Nova Auto-Targeting Light Missile"
   },
   "27527": {
     "type_id": 27527,
@@ -74201,7 +74201,7 @@
   },
   "32422": {
     "type_id": 32422,
-    "name": "Advanced Logistics Network"
+    "name": "Deprecated Advanced Logistics Network"
   },
   "32423": {
     "type_id": 32423,
@@ -74281,7 +74281,7 @@
   },
   "32458": {
     "type_id": 32458,
-    "name": "Infrastructure Hub"
+    "name": "Sovereignty Hub"
   },
   "32459": {
     "type_id": 32459,
@@ -79057,7 +79057,7 @@
   },
   "34081": {
     "type_id": 34081,
-    "name": "Feet/SpaceBoots01F/Types/spaceboots01f_blue.type"
+    "name": "Women's Chique Outlander Boots"
   },
   "34082": {
     "type_id": 34082,
@@ -81777,119 +81777,119 @@
   },
   "34841": {
     "type_id": 34841,
-    "name": "Entrapment Array 2 Blueprint"
+    "name": "Defunct Entrapment Array 2 Blueprint"
   },
   "34842": {
     "type_id": 34842,
-    "name": "Entrapment Array 3 Blueprint"
+    "name": "Defunct Entrapment Array 3 Blueprint"
   },
   "34843": {
     "type_id": 34843,
-    "name": "Entrapment Array 4 Blueprint"
+    "name": "Defunct Entrapment Array 4 Blueprint"
   },
   "34844": {
     "type_id": 34844,
-    "name": "Entrapment Array 5 Blueprint"
+    "name": "Defunct Entrapment Array 5 Blueprint"
   },
   "34845": {
     "type_id": 34845,
-    "name": "Pirate Detection Array 1 Blueprint"
+    "name": "Defunct Pirate Detection Array 1 Blueprint"
   },
   "34846": {
     "type_id": 34846,
-    "name": "Pirate Detection Array 2 Blueprint"
+    "name": "Defunct Pirate Detection Array 2 Blueprint"
   },
   "34847": {
     "type_id": 34847,
-    "name": "Pirate Detection Array 3 Blueprint"
+    "name": "Defunct Pirate Detection Array 3 Blueprint"
   },
   "34848": {
     "type_id": 34848,
-    "name": "Pirate Detection Array 4 Blueprint"
+    "name": "Defunct Pirate Detection Array 4 Blueprint"
   },
   "34849": {
     "type_id": 34849,
-    "name": "Pirate Detection Array 5 Blueprint"
+    "name": "Defunct Pirate Detection Array 5 Blueprint"
   },
   "34850": {
     "type_id": 34850,
-    "name": "Quantum Flux Generator 1 Blueprint"
+    "name": "Defunct Quantum Flux Generator 1 Blueprint"
   },
   "34851": {
     "type_id": 34851,
-    "name": "Quantum Flux Generator 2 Blueprint"
+    "name": "Defunct Quantum Flux Generator 2 Blueprint"
   },
   "34852": {
     "type_id": 34852,
-    "name": "Quantum Flux Generator 3 Blueprint"
+    "name": "Defunct Quantum Flux Generator 3 Blueprint"
   },
   "34853": {
     "type_id": 34853,
-    "name": "Quantum Flux Generator 4 Blueprint"
+    "name": "Defunct Quantum Flux Generator 4 Blueprint"
   },
   "34854": {
     "type_id": 34854,
-    "name": "Quantum Flux Generator 5 Blueprint"
+    "name": "Defunct Quantum Flux Generator 5 Blueprint"
   },
   "34855": {
     "type_id": 34855,
-    "name": "Ore Prospecting Array 1 Blueprint"
+    "name": "Defunct Ore Prospecting Array 1 Blueprint"
   },
   "34856": {
     "type_id": 34856,
-    "name": "Ore Prospecting Array 2 Blueprint"
+    "name": "Defunct Ore Prospecting Array 2 Blueprint"
   },
   "34857": {
     "type_id": 34857,
-    "name": "Ore Prospecting Array 3 Blueprint"
+    "name": "Defunct Ore Prospecting Array 3 Blueprint"
   },
   "34858": {
     "type_id": 34858,
-    "name": "Ore Prospecting Array 4 Blueprint"
+    "name": "Defunct Ore Prospecting Array 4 Blueprint"
   },
   "34859": {
     "type_id": 34859,
-    "name": "Ore Prospecting Array 5 Blueprint"
+    "name": "Defunct Ore Prospecting Array 5 Blueprint"
   },
   "34860": {
     "type_id": 34860,
-    "name": "Survey Networks 1 Blueprint"
+    "name": "Defunct Survey Networks 1 Blueprint"
   },
   "34861": {
     "type_id": 34861,
-    "name": "Survey Networks 2 Blueprint"
+    "name": "Defunct Survey Networks 2 Blueprint"
   },
   "34862": {
     "type_id": 34862,
-    "name": "Survey Networks 3 Blueprint"
+    "name": "Defunct Survey Networks 3 Blueprint"
   },
   "34863": {
     "type_id": 34863,
-    "name": "Survey Networks 4 Blueprint"
+    "name": "Defunct Survey Networks 4 Blueprint"
   },
   "34864": {
     "type_id": 34864,
-    "name": "Survey Networks 5 Blueprint"
+    "name": "Defunct Survey Networks 5 Blueprint"
   },
   "34865": {
     "type_id": 34865,
-    "name": "Advanced Logistics Network Blueprint"
+    "name": "Defunct Advanced Logistics Network Blueprint"
   },
   "34866": {
     "type_id": 34866,
-    "name": "Cynosural Navigation Blueprint"
+    "name": "Defunct Cynosural Navigation Blueprint"
   },
   "34867": {
     "type_id": 34867,
-    "name": "Cynosural Suppression Blueprint"
+    "name": "Defunct Cynosural Suppression Blueprint"
   },
   "34868": {
     "type_id": 34868,
-    "name": "Supercapital Construction Facilities Blueprint"
+    "name": "Defunct Supercapital Construction Facilities Blueprint"
   },
   "34869": {
     "type_id": 34869,
-    "name": "Entrapment Array 1 Blueprint"
+    "name": "Defunct Entrapment Array 1 Blueprint"
   },
   "34870": {
     "type_id": 34870,
@@ -135829,7 +135829,7 @@
   },
   "53040": {
     "type_id": 53040,
-    "name": "53040_Male_Makeup_BodyAugmentations_BodyAugmentation_M01_Types_BodyAugmentationM01_GoldDesign.png"
+    "name": "Men's 'Olympian TorsoRig' Body Augmentation"
   },
   "53041": {
     "type_id": 53041,
@@ -136329,7 +136329,7 @@
   },
   "53228": {
     "type_id": 53228,
-    "name": "53228_Female_Makeup_BodyAugmentations_BodyAugmentation_F01_Types_BodyAugmentationF01_GoldCamo.png"
+    "name": "Women's 'Olympian TorsoRig' Body Augmentation"
   },
   "53229": {
     "type_id": 53229,
@@ -139137,7 +139137,7 @@
   },
   "54383": {
     "type_id": 54383,
-    "name": "54383_Male_Feet_ShoesCorpBusinessM01_Types_ShoesCorpBusinessM01_black.png"
+    "name": "Men's Boardroom Loafers"
   },
   "54384": {
     "type_id": 54384,
@@ -146105,7 +146105,7 @@
   },
   "56907": {
     "type_id": 56907,
-    "name": "Peculiar Icebound Salvage"
+    "name": "Yoiul Y124 Peculiar Icebound Salvage"
   },
   "56908": {
     "type_id": 56908,
@@ -146597,15 +146597,15 @@
   },
   "57038": {
     "type_id": 57038,
-    "name": "Rare Icebound Salvage"
+    "name": "Yoiul Y124 Rare Icebound Salvage"
   },
   "57039": {
     "type_id": 57039,
-    "name": "Unusual Icebound Salvage"
+    "name": "Yoiul Y124 Unusual Icebound Salvage"
   },
   "57040": {
     "type_id": 57040,
-    "name": "ORE Green Salvage Package"
+    "name": "Yoiul Y124 ORE Green Salvage Package"
   },
   "57042": {
     "type_id": 57042,
@@ -146621,19 +146621,19 @@
   },
   "57047": {
     "type_id": 57047,
-    "name": "ORE Fresh Volatile Ice Processor"
+    "name": "ORE Friable Volatile Ice Processor"
   },
   "57048": {
     "type_id": 57048,
-    "name": "ORE Friable Volatile Ice Processor"
+    "name": "ORE Fresh Volatile Ice Processor"
   },
   "57050": {
     "type_id": 57050,
-    "name": "ORE White Salvage Package"
+    "name": "Yoiul Y124 ORE White Salvage Package"
   },
   "57051": {
     "type_id": 57051,
-    "name": "ORE Red Salvage Package"
+    "name": "Yoiul Y124 ORE Red Salvage Package"
   },
   "57052": {
     "type_id": 57052,
@@ -149121,7 +149121,7 @@
   },
   "57872": {
     "type_id": 57872,
-    "name": "Non-interactable Sansha Battlestation"
+    "name": "Non-interactable Sansha Battlestation 2"
   },
   "58159": {
     "type_id": 58159,
@@ -154773,7 +154773,7 @@
   },
   "61396": {
     "type_id": 61396,
-    "name": "Sansha Remote Logistics Station"
+    "name": "Non-interactable Sansha Battlestation 1"
   },
   "61532": {
     "type_id": 61532,
@@ -160961,31 +160961,31 @@
   },
   "64623": {
     "type_id": 64623,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Small 1"
   },
   "64624": {
     "type_id": 64624,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Small 2"
   },
   "64625": {
     "type_id": 64625,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Small 3"
   },
   "64626": {
     "type_id": 64626,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Small 4"
   },
   "64627": {
     "type_id": 64627,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Small 5"
   },
   "64628": {
     "type_id": 64628,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Small 6"
   },
   "64629": {
     "type_id": 64629,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Small 7"
   },
   "64630": {
     "type_id": 64630,
@@ -160993,83 +160993,83 @@
   },
   "64631": {
     "type_id": 64631,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Small 9"
   },
   "64632": {
     "type_id": 64632,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Small 10"
   },
   "64633": {
     "type_id": 64633,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Medium 1"
   },
   "64634": {
     "type_id": 64634,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Medium 2"
   },
   "64635": {
     "type_id": 64635,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Medium 3"
   },
   "64636": {
     "type_id": 64636,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Medium 4"
   },
   "64637": {
     "type_id": 64637,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Medium 5"
   },
   "64638": {
     "type_id": 64638,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Medium 6"
   },
   "64639": {
     "type_id": 64639,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Medium 7"
   },
   "64640": {
     "type_id": 64640,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Medium 8"
   },
   "64641": {
     "type_id": 64641,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Large 1"
   },
   "64642": {
     "type_id": 64642,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Large 2"
   },
   "64643": {
     "type_id": 64643,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Large 3"
   },
   "64644": {
     "type_id": 64644,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Large 4"
   },
   "64645": {
     "type_id": 64645,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Large 5"
   },
   "64646": {
     "type_id": 64646,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Large 6"
   },
   "64647": {
     "type_id": 64647,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Large 7"
   },
   "64648": {
     "type_id": 64648,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Large 8"
   },
   "64649": {
     "type_id": 64649,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Large 9"
   },
   "64650": {
     "type_id": 64650,
-    "name": "Placeholder DO NOT USE"
+    "name": "Asteroid Set 4 Large 10"
   },
   "64651": {
     "type_id": 64651,
@@ -167009,39 +167009,39 @@
   },
   "74426": {
     "type_id": 74426,
-    "name": "DNCR-05H Highsec Ice Storm Filament"
+    "name": "Expired DNCR-05H Highsec Ice Storm Filament"
   },
   "74427": {
     "type_id": 74427,
-    "name": "DNNR-01L Lowsec Ice Storm Filament"
+    "name": "Expired DNNR-01L Lowsec Ice Storm Filament"
   },
   "74428": {
     "type_id": 74428,
-    "name": "DSHR-01H Highsec Ice Storm Filament"
+    "name": "Expired DSHR-01H Highsec Ice Storm Filament"
   },
   "74429": {
     "type_id": 74429,
-    "name": "PRNCR-10H Highsec Ice Storm Filament"
+    "name": "Expired PRNCR-10H Highsec Ice Storm Filament"
   },
   "74430": {
     "type_id": 74430,
-    "name": "RDLF-10L Lowsec Ice Storm Filament"
+    "name": "Expired RDLF-10L Lowsec Ice Storm Filament"
   },
   "74431": {
     "type_id": 74431,
-    "name": "VXN-01N Nullsec Ice Storm Filament"
+    "name": "Expired VXN-01N Nullsec Ice Storm Filament"
   },
   "74432": {
     "type_id": 74432,
-    "name": "BLTZN-05L Lowsec Ice Storm Filament"
+    "name": "Expired BLTZN-05L Lowsec Ice Storm Filament"
   },
   "74433": {
     "type_id": 74433,
-    "name": "CMT-05N Nullsec Ice Storm Filament"
+    "name": "Expired CMT-05N Nullsec Ice Storm Filament"
   },
   "74434": {
     "type_id": 74434,
-    "name": "CPD-10N Nullsec Ice Storm Filament"
+    "name": "Expired CPD-10N Nullsec Ice Storm Filament"
   },
   "74448": {
     "type_id": 74448,
@@ -167049,7 +167049,7 @@
   },
   "74449": {
     "type_id": 74449,
-    "name": "Ice Storm Filaments Crate"
+    "name": "Expired Ice Storm Filaments Crate"
   },
   "74500": {
     "type_id": 74500,
@@ -171617,7 +171617,7 @@
   },
   "76963": {
     "type_id": 76963,
-    "name": " Infinite Celebrations Firework"
+    "name": "Infinite Celebrations Firework"
   },
   "76964": {
     "type_id": 76964,
@@ -173535,6 +173535,10 @@
     "type_id": 77725,
     "name": "Advanced Capital Ship Construction"
   },
+  "77726": {
+    "type_id": 77726,
+    "name": "Cybele"
+  },
   "77727": {
     "type_id": 77727,
     "name": "Faulty Triglavian Cache"
@@ -174897,39 +174901,39 @@
   },
   "78287": {
     "type_id": 78287,
-    "name": "Basic 'Radiance' Cerebral Accelerator"
+    "name": "Expired Basic 'Radiance' Cerebral Accelerator"
   },
   "78288": {
     "type_id": 78288,
-    "name": "Potent 'Radiance' Cerebral Accelerator"
+    "name": "Expired Potent 'Radiance' Cerebral Accelerator"
   },
   "78289": {
     "type_id": 78289,
-    "name": "Extended 'Radiance' Cerebral Accelerator"
+    "name": "Expired Extended 'Radiance' Cerebral Accelerator"
   },
   "78290": {
     "type_id": 78290,
-    "name": "Harvest Anti-Disruptor Booster I"
+    "name": "Expired Harvest Anti-Disruptor Booster I"
   },
   "78291": {
     "type_id": 78291,
-    "name": "Harvest Anti-Disruptor Booster II"
+    "name": "Expired Harvest Anti-Disruptor Booster II"
   },
   "78292": {
     "type_id": 78292,
-    "name": "Harvest Anti-Disruptor Booster III"
+    "name": "Expired Harvest Anti-Disruptor Booster III"
   },
   "78293": {
     "type_id": 78293,
-    "name": "Harvest Anti-Disruptor Booster IV"
+    "name": "Expired Harvest Anti-Disruptor Booster IV"
   },
   "78294": {
     "type_id": 78294,
-    "name": "Harvest Nosferatu Booster I"
+    "name": "Expired Harvest Nosferatu Booster I"
   },
   "78295": {
     "type_id": 78295,
-    "name": "Harvest Nosferatu Booster II"
+    "name": "Expired Harvest Nosferatu Booster II"
   },
   "78296": {
     "type_id": 78296,
@@ -174949,19 +174953,19 @@
   },
   "78300": {
     "type_id": 78300,
-    "name": "Harvest Nosferatu Booster III"
+    "name": "Expired Harvest Nosferatu Booster III"
   },
   "78301": {
     "type_id": 78301,
-    "name": "Harvest Nosferatu Booster IV"
+    "name": "Expired Harvest Nosferatu Booster IV"
   },
   "78302": {
     "type_id": 78302,
-    "name": "Harvest Webifier Booster I"
+    "name": "Expired Harvest Webifier Booster I"
   },
   "78303": {
     "type_id": 78303,
-    "name": "Harvest Webifier Booster II"
+    "name": "Expired Harvest Webifier Booster II"
   },
   "78304": {
     "type_id": 78304,
@@ -174969,15 +174973,15 @@
   },
   "78305": {
     "type_id": 78305,
-    "name": "Harvest Webifier Booster III"
+    "name": "Expired Harvest Webifier Booster III"
   },
   "78306": {
     "type_id": 78306,
-    "name": "Harvest Webifier Booster IV"
+    "name": "Expired Harvest Webifier Booster IV"
   },
   "78307": {
     "type_id": 78307,
-    "name": "Harvest Damage Booster I"
+    "name": "Expired Harvest Damage Booster I"
   },
   "78308": {
     "type_id": 78308,
@@ -174993,79 +174997,79 @@
   },
   "78311": {
     "type_id": 78311,
-    "name": "Harvest Damage Booster II"
+    "name": "Expired Harvest Damage Booster II"
   },
   "78312": {
     "type_id": 78312,
-    "name": "Harvest Damage Booster III"
+    "name": "Expired Harvest Damage Booster III"
   },
   "78313": {
     "type_id": 78313,
-    "name": "Harvest Damage Booster IV"
+    "name": "Expired Harvest Damage Booster IV"
   },
   "78314": {
     "type_id": 78314,
-    "name": "Tetrimon Anti-Drain Booster I"
+    "name": "Expired Tetrimon Anti-Drain Booster I"
   },
   "78315": {
     "type_id": 78315,
-    "name": "Tetrimon Anti-Drain Booster II"
+    "name": "Expired Tetrimon Anti-Drain Booster II"
   },
   "78316": {
     "type_id": 78316,
-    "name": "Tetrimon Anti-Drain Booster III"
+    "name": "Expired Tetrimon Anti-Drain Booster III"
   },
   "78317": {
     "type_id": 78317,
-    "name": "Tetrimon Anti-Drain Booster IV"
+    "name": "Expired Tetrimon Anti-Drain Booster IV"
   },
   "78318": {
     "type_id": 78318,
-    "name": "Tetrimon Capacitor Booster I"
+    "name": "Expired Tetrimon Capacitor Booster I"
   },
   "78319": {
     "type_id": 78319,
-    "name": "Tetrimon Capacitor Booster II"
+    "name": "Expired Tetrimon Capacitor Booster II"
   },
   "78320": {
     "type_id": 78320,
-    "name": "Tetrimon Capacitor Booster III"
+    "name": "Expired Tetrimon Capacitor Booster III"
   },
   "78321": {
     "type_id": 78321,
-    "name": "Tetrimon Capacitor Booster IV"
+    "name": "Expired Tetrimon Capacitor Booster IV"
   },
   "78322": {
     "type_id": 78322,
-    "name": "Tetrimon Resistance Booster I"
+    "name": "Expired Tetrimon Resistance Booster I"
   },
   "78323": {
     "type_id": 78323,
-    "name": "Tetrimon Resistance Booster II"
+    "name": "Expired Tetrimon Resistance Booster II"
   },
   "78324": {
     "type_id": 78324,
-    "name": "Tetrimon Resistance Booster III"
+    "name": "Expired Tetrimon Resistance Booster III"
   },
   "78325": {
     "type_id": 78325,
-    "name": "Tetrimon Resistance Booster IV"
+    "name": "Expired Tetrimon Resistance Booster IV"
   },
   "78326": {
     "type_id": 78326,
-    "name": "Tetrimon Precision Booster I"
+    "name": "Expired Tetrimon Precision Booster I"
   },
   "78327": {
     "type_id": 78327,
-    "name": "Tetrimon Precision Booster II"
+    "name": "Expired Tetrimon Precision Booster II"
   },
   "78328": {
     "type_id": 78328,
-    "name": "Tetrimon Precision Booster III"
+    "name": "Expired Tetrimon Precision Booster III"
   },
   "78329": {
     "type_id": 78329,
-    "name": "Tetrimon Precision Booster IV"
+    "name": "Expired Tetrimon Precision Booster IV"
   },
   "78330": {
     "type_id": 78330,
@@ -175151,6 +175155,10 @@
     "type_id": 78412,
     "name": "Retribution Lavacore Imperial SKIN"
   },
+  "78414": {
+    "type_id": 78414,
+    "name": "Shapash"
+  },
   "78483": {
     "type_id": 78483,
     "name": "[AIR] Bowhead Wreck"
@@ -175222,6 +175230,122 @@
   "78628": {
     "type_id": 78628,
     "name": "QA-Community Signal-100 'Needlejack' Filament"
+  },
+  "78631": {
+    "type_id": 78631,
+    "name": "Expired Wightstorm Sunyata Booster I"
+  },
+  "78633": {
+    "type_id": 78633,
+    "name": "Expired Wightstorm Sunyata Booster II"
+  },
+  "78634": {
+    "type_id": 78634,
+    "name": "Expired Wightstorm Sunyata Booster III"
+  },
+  "78636": {
+    "type_id": 78636,
+    "name": "Expired Wightstorm Sunyata Booster IV"
+  },
+  "78637": {
+    "type_id": 78637,
+    "name": "Expired Wightstorm Nirvana Booster I"
+  },
+  "78638": {
+    "type_id": 78638,
+    "name": "Expired Wightstorm Nirvana Booster II"
+  },
+  "78639": {
+    "type_id": 78639,
+    "name": "Expired Wightstorm Nirvana Booster III"
+  },
+  "78640": {
+    "type_id": 78640,
+    "name": "Expired Wightstorm Nirvana Booster IV"
+  },
+  "78641": {
+    "type_id": 78641,
+    "name": "Expired Wightstorm Rapture Booster I"
+  },
+  "78642": {
+    "type_id": 78642,
+    "name": "Expired Wightstorm Rapture Booster I"
+  },
+  "78649": {
+    "type_id": 78649,
+    "name": "Expired Wightstorm Rapture Booster III"
+  },
+  "78650": {
+    "type_id": 78650,
+    "name": "Expired Wightstorm Rapture Booster IV"
+  },
+  "78652": {
+    "type_id": 78652,
+    "name": "Expired Wightstorm Cetana Booster I "
+  },
+  "78653": {
+    "type_id": 78653,
+    "name": "Expired Wightstorm Cetana Booster II "
+  },
+  "78655": {
+    "type_id": 78655,
+    "name": "Expired Wightstorm Cetana Booster III"
+  },
+  "78656": {
+    "type_id": 78656,
+    "name": "Expired Wightstorm Cetana Booster IV"
+  },
+  "78657": {
+    "type_id": 78657,
+    "name": "Expired Wightstorm Vitarka Booster I"
+  },
+  "78659": {
+    "type_id": 78659,
+    "name": "Expired Wightstorm Vitarka Booster II"
+  },
+  "78660": {
+    "type_id": 78660,
+    "name": "Expired Wightstorm Vitarka Booster III"
+  },
+  "78661": {
+    "type_id": 78661,
+    "name": "Expired Wightstorm Vitarka Booster III"
+  },
+  "78663": {
+    "type_id": 78663,
+    "name": "Expired Wightstorm Vitarka Booster IV"
+  },
+  "78664": {
+    "type_id": 78664,
+    "name": "Expired Wightstorm Manasikara Booster I"
+  },
+  "78665": {
+    "type_id": 78665,
+    "name": "Expired Wightstorm Manasikara Booster II"
+  },
+  "78666": {
+    "type_id": 78666,
+    "name": "Expired Wightstorm Manasikara Booster III"
+  },
+  "78667": {
+    "type_id": 78667,
+    "name": "Expired Wightstorm Manasikara Booster IV"
+  },
+  "78668": {
+    "type_id": 78668,
+    "name": "Expired Basic 'Brainfreeze' Cerebral Accelerator"
+  },
+  "78669": {
+    "type_id": 78669,
+    "name": "Expired Potent 'Brainfreeze' Cerebral Accelerator"
+  },
+  "78670": {
+    "type_id": 78670,
+    "name": "Expired Extended 'Brainfreeze' Cerebral Accelerator"
+  },
+  "78676": {
+    "type_id": 78676,
+    "name": "Expired Wightstorm Rapture Booster II"
   },
   "78677": {
     "type_id": 78677,
@@ -175891,6 +176015,46 @@
     "type_id": 79195,
     "name": "Air Nestor Battleship Wreck"
   },
+  "79205": {
+    "type_id": 79205,
+    "name": "Expired DNCR-05H Highsec Ice Storm Filament"
+  },
+  "79206": {
+    "type_id": 79206,
+    "name": "Expired DNNR-01L Lowsec Ice Storm Filament"
+  },
+  "79207": {
+    "type_id": 79207,
+    "name": "Expired DSHR-01H Highsec Ice Storm Filament"
+  },
+  "79209": {
+    "type_id": 79209,
+    "name": "Expired PRNCR-10H Highsec Ice Storm Filament"
+  },
+  "79210": {
+    "type_id": 79210,
+    "name": "Expired RDLF-10L Lowsec Ice Storm Filament"
+  },
+  "79211": {
+    "type_id": 79211,
+    "name": "Expired VXN-01N Nullsec Ice Storm Filament"
+  },
+  "79212": {
+    "type_id": 79212,
+    "name": "Expired BLTZN-05L Lowsec Ice Storm Filament"
+  },
+  "79213": {
+    "type_id": 79213,
+    "name": "Expired CMT-05N Nullsec Ice Storm Filament"
+  },
+  "79214": {
+    "type_id": 79214,
+    "name": "Metamorphosis Blueprint"
+  },
+  "79215": {
+    "type_id": 79215,
+    "name": "Expired CPD-10N Nullsec Ice Storm Filament"
+  },
   "79320": {
     "type_id": 79320,
     "name": "Angel Lookout Dramiel"
@@ -176005,35 +176169,35 @@
   },
   "79358": {
     "type_id": 79358,
-    "name": "Hakuzosu’s Steelscale Mamba"
+    "name": "Hakuzosu's Steelscale Mamba"
   },
   "79359": {
     "type_id": 79359,
-    "name": "Hakuzosu’s Steelscale Mamba"
+    "name": "Hakuzosu's Steelscale Mamba"
   },
   "79360": {
     "type_id": 79360,
-    "name": "Hakuzosu’s Steelscale Gila"
+    "name": "Hakuzosu's Steelscale Gila"
   },
   "79361": {
     "type_id": 79361,
-    "name": "Hakuzosu’s Steelscale Gila"
+    "name": "Hakuzosu's Steelscale Gila"
   },
   "79362": {
     "type_id": 79362,
-    "name": "Hakuzosu’s Steelscale Alligator"
+    "name": "Hakuzosu's Steelscale Alligator"
   },
   "79363": {
     "type_id": 79363,
-    "name": "Hakuzosu’s Steelscale Alligator"
+    "name": "Hakuzosu's Steelscale Alligator"
   },
   "79364": {
     "type_id": 79364,
-    "name": "Hakuzosu’s Steelscale Rattlesnake"
+    "name": "Hakuzosu's Steelscale Rattlesnake"
   },
   "79365": {
     "type_id": 79365,
-    "name": "Hakuzosu’s Steelscale Rattlesnake"
+    "name": "Hakuzosu's Steelscale Rattlesnake"
   },
   "79370": {
     "type_id": 79370,
@@ -176935,6 +177099,138 @@
     "type_id": 79711,
     "name": "Guristas Ransomer Rattlesnake"
   },
+  "79713": {
+    "type_id": 79713,
+    "name": "Tormentor Aurora Universalis SKIN"
+  },
+  "79714": {
+    "type_id": 79714,
+    "name": "Dragoon Aurora Universalis SKIN"
+  },
+  "79715": {
+    "type_id": 79715,
+    "name": "Arbitrator Aurora Universalis SKIN"
+  },
+  "79716": {
+    "type_id": 79716,
+    "name": "Archon Aurora Universalis SKIN"
+  },
+  "79717": {
+    "type_id": 79717,
+    "name": "Harpy Aurora Universalis SKIN"
+  },
+  "79718": {
+    "type_id": 79718,
+    "name": "Corax Aurora Universalis SKIN"
+  },
+  "79719": {
+    "type_id": 79719,
+    "name": "Stork Aurora Universalis SKIN"
+  },
+  "79720": {
+    "type_id": 79720,
+    "name": "Blackbird Aurora Universalis SKIN"
+  },
+  "79721": {
+    "type_id": 79721,
+    "name": "Rook Aurora Universalis SKIN"
+  },
+  "79722": {
+    "type_id": 79722,
+    "name": "Falcon Aurora Universalis SKIN"
+  },
+  "79723": {
+    "type_id": 79723,
+    "name": "Chimera Aurora Universalis SKIN"
+  },
+  "79724": {
+    "type_id": 79724,
+    "name": "Incursus Aurora Universalis SKIN"
+  },
+  "79725": {
+    "type_id": 79725,
+    "name": "Ishkur Aurora Universalis SKIN"
+  },
+  "79726": {
+    "type_id": 79726,
+    "name": "Algos Aurora Universalis SKIN"
+  },
+  "79727": {
+    "type_id": 79727,
+    "name": "Magus Aurora Universalis SKIN"
+  },
+  "79728": {
+    "type_id": 79728,
+    "name": "Celestis Aurora Universalis SKIN"
+  },
+  "79729": {
+    "type_id": 79729,
+    "name": "Lachesis Aurora Universalis SKIN"
+  },
+  "79730": {
+    "type_id": 79730,
+    "name": "Arazu Aurora Universalis SKIN"
+  },
+  "79731": {
+    "type_id": 79731,
+    "name": "Thanatos Aurora Universalis SKIN"
+  },
+  "79732": {
+    "type_id": 79732,
+    "name": "Merlin Aurora Universalis SKIN"
+  },
+  "79733": {
+    "type_id": 79733,
+    "name": "Enyo Aurora Universalis SKIN"
+  },
+  "79734": {
+    "type_id": 79734,
+    "name": "Talwar Aurora Universalis SKIN"
+  },
+  "79735": {
+    "type_id": 79735,
+    "name": "Bifrost Aurora Universalis SKIN"
+  },
+  "79736": {
+    "type_id": 79736,
+    "name": "Bellicose Aurora Universalis SKIN"
+  },
+  "79737": {
+    "type_id": 79737,
+    "name": "Huginn Aurora Universalis SKIN"
+  },
+  "79738": {
+    "type_id": 79738,
+    "name": "Rapier Aurora Universalis SKIN"
+  },
+  "79739": {
+    "type_id": 79739,
+    "name": "Nidhoggur Aurora Universalis SKIN"
+  },
+  "79740": {
+    "type_id": 79740,
+    "name": "Vigil Aurora Universalis SKIN"
+  },
+  "79741": {
+    "type_id": 79741,
+    "name": "Kikimora Aurora Universalis SKIN"
+  },
+  "79742": {
+    "type_id": 79742,
+    "name": "Nestor Aurora Universalis SKIN"
+  },
+  "79743": {
+    "type_id": 79743,
+    "name": "Stormbringer Aurora Universalis SKIN"
+  },
+  "79744": {
+    "type_id": 79744,
+    "name": "Barghest Aurora Universalis SKIN"
+  },
+  "79745": {
+    "type_id": 79745,
+    "name": "Pontifex Aurora Universalis SKIN"
+  },
   "79748": {
     "type_id": 79748,
     "name": "Insurgency Upwell Roaming Spawner - CD5 - DO NOT TRANSLATE"
@@ -176987,9 +177283,41 @@
     "type_id": 79816,
     "name": "Non-interactable Starbase Refinery (do not translate)"
   },
+  "79819": {
+    "type_id": 79819,
+    "name": "Ice Storm Filaments Crate"
+  },
   "79825": {
     "type_id": 79825,
     "name": "Counter-Insurgency Sentry Gun Wreck"
+  },
+  "79832": {
+    "type_id": 79832,
+    "name": "ORE Green Salvage Package"
+  },
+  "79833": {
+    "type_id": 79833,
+    "name": "ORE White Salvage Package"
+  },
+  "79834": {
+    "type_id": 79834,
+    "name": "ORE Red Salvage Package"
+  },
+  "79835": {
+    "type_id": 79835,
+    "name": "Peculiar Icebound Salvage"
+  },
+  "79836": {
+    "type_id": 79836,
+    "name": "Unusual Icebound Salvage"
+  },
+  "79837": {
+    "type_id": 79837,
+    "name": "Rare Icebound Salvage"
+  },
+  "79838": {
+    "type_id": 79838,
+    "name": "Azariel Empyrean Outlaws SKIN"
   },
   "79839": {
     "type_id": 79839,
@@ -177002,6 +177330,4714 @@
   "79841": {
     "type_id": 79841,
     "name": "Praxis Genolution Dazzle SKIN"
+  },
+  "79852": {
+    "type_id": 79852,
+    "name": "Angel Icejacker Dramiel"
+  },
+  "79853": {
+    "type_id": 79853,
+    "name": "Angel Icejacker Cynabal"
+  },
+  "79854": {
+    "type_id": 79854,
+    "name": "Angel Icejacker Machariel"
+  },
+  "79855": {
+    "type_id": 79855,
+    "name": "Guristas Icejacker Worm"
+  },
+  "79856": {
+    "type_id": 79856,
+    "name": "ORE Frostguard Barghest"
+  },
+  "79857": {
+    "type_id": 79857,
+    "name": "ORE Frostguard Orthrus"
+  },
+  "79858": {
+    "type_id": 79858,
+    "name": "ORE Frostguard Garmur"
+  },
+  "79859": {
+    "type_id": 79859,
+    "name": "Insurgency Ice Heist - Upwell Spawner 1 (DO NOT TRANSLATE)"
+  },
+  "79860": {
+    "type_id": 79860,
+    "name": " Insurgency Ice Heist - Angel Spawner 1 (DO NOT TRANSLATE)"
+  },
+  "79861": {
+    "type_id": 79861,
+    "name": " Insurgency Ice Heist - Guristas Spawner 1 (DO NOT TRANSLATE)"
+  },
+  "79862": {
+    "type_id": 79862,
+    "name": "Guristas Icejacker Gila"
+  },
+  "79863": {
+    "type_id": 79863,
+    "name": "Guristas Icejacker Rattlesnake"
+  },
+  "79864": {
+    "type_id": 79864,
+    "name": "Test Towed Object (Do Not Translate)"
+  },
+  "79870": {
+    "type_id": 79870,
+    "name": "Mamba Arkombine Arisen SKIN"
+  },
+  "79871": {
+    "type_id": 79871,
+    "name": "Alligator Arkombine Arisen SKIN"
+  },
+  "79872": {
+    "type_id": 79872,
+    "name": "Caiman Arkombine Arisen SKIN"
+  },
+  "79873": {
+    "type_id": 79873,
+    "name": "Khizriel Arkombine Arisen SKIN"
+  },
+  "79874": {
+    "type_id": 79874,
+    "name": "Mekubal Arkombine Arisen SKIN"
+  },
+  "79875": {
+    "type_id": 79875,
+    "name": "Ice Refinery Heist"
+  },
+  "79884": {
+    "type_id": 79884,
+    "name": "Ice Heist vs Angels Operator"
+  },
+  "79885": {
+    "type_id": 79885,
+    "name": "ORE HISC-99 Fuel Loading Dock"
+  },
+  "79886": {
+    "type_id": 79886,
+    "name": "Angel HISC-99 Loading Scaffold"
+  },
+  "79890": {
+    "type_id": 79890,
+    "name": "ORE HISC-99 Ice Refinery"
+  },
+  "79893": {
+    "type_id": 79893,
+    "name": "Large Crystal Environment 1 Krystallos"
+  },
+  "79894": {
+    "type_id": 79894,
+    "name": "Large Crystal Environment 2 Krystallos"
+  },
+  "79895": {
+    "type_id": 79895,
+    "name": "Large Crystal Environment 3 Krystallos"
+  },
+  "79896": {
+    "type_id": 79896,
+    "name": "Medium Crystal Environment 1 Krystallos"
+  },
+  "79897": {
+    "type_id": 79897,
+    "name": "Medium Crystal Environment 2 Krystallos"
+  },
+  "79898": {
+    "type_id": 79898,
+    "name": "Medium Crystal Environment 3 Krystallos"
+  },
+  "79899": {
+    "type_id": 79899,
+    "name": "Medium Crystal Environment 4 Krystallos"
+  },
+  "79900": {
+    "type_id": 79900,
+    "name": "Medium Crystal Environment 5 Krystallos"
+  },
+  "79901": {
+    "type_id": 79901,
+    "name": "Small Crystal Environment 1 Krystallos"
+  },
+  "79902": {
+    "type_id": 79902,
+    "name": "Small Crystal Environment 2 Krystallos"
+  },
+  "79903": {
+    "type_id": 79903,
+    "name": "Small Crystal Environment 3 Krystallos"
+  },
+  "79904": {
+    "type_id": 79904,
+    "name": "Small Crystal Environment 4 Krystallos"
+  },
+  "79905": {
+    "type_id": 79905,
+    "name": "Small Crystal Environment 5 Krystallos"
+  },
+  "79906": {
+    "type_id": 79906,
+    "name": "Small Crystal Environment 6 Krystallos"
+  },
+  "79908": {
+    "type_id": 79908,
+    "name": "ORE Banner 01a"
+  },
+  "79909": {
+    "type_id": 79909,
+    "name": "Automated HISC-99 Tanker"
+  },
+  "79910": {
+    "type_id": 79910,
+    "name": "Non-Interactable Krystallos"
+  },
+  "79911": {
+    "type_id": 79911,
+    "name": "Non-Interactable Glare Crust"
+  },
+  "79939": {
+    "type_id": 79939,
+    "name": "Cormorant Navy Issue Arkombine Arisen SKIN"
+  },
+  "79940": {
+    "type_id": 79940,
+    "name": "Capsule Arkombine Arisen SKIN"
+  },
+  "79941": {
+    "type_id": 79941,
+    "name": "Thrasher Fleet Issue Arkombine Arisen SKIN"
+  },
+  "79942": {
+    "type_id": 79942,
+    "name": "Catalyst Navy Issue Arkombine Arisen SKIN"
+  },
+  "79948": {
+    "type_id": 79948,
+    "name": "Dramiel Luminae Polaris SKIN"
+  },
+  "79949": {
+    "type_id": 79949,
+    "name": "Mekubal Luminae Polaris SKIN"
+  },
+  "79950": {
+    "type_id": 79950,
+    "name": "Khizriel Luminae Polaris SKIN"
+  },
+  "79951": {
+    "type_id": 79951,
+    "name": "Machariel Luminae Polaris SKIN"
+  },
+  "79952": {
+    "type_id": 79952,
+    "name": "Rattlesnake Luminae Polaris SKIN"
+  },
+  "79953": {
+    "type_id": 79953,
+    "name": "Worm Luminae Polaris SKIN"
+  },
+  "79954": {
+    "type_id": 79954,
+    "name": "Mamba Luminae Polaris SKIN"
+  },
+  "79955": {
+    "type_id": 79955,
+    "name": "Alligator Luminae Polaris SKIN"
+  },
+  "79981": {
+    "type_id": 79981,
+    "name": "Angel Icejacker Mekubal "
+  },
+  "79982": {
+    "type_id": 79982,
+    "name": "Guristas Icejacker Mamba"
+  },
+  "79983": {
+    "type_id": 79983,
+    "name": "ORE Frostguard Fennec"
+  },
+  "79984": {
+    "type_id": 79984,
+    "name": "Angel Enforcer Khizriel"
+  },
+  "79985": {
+    "type_id": 79985,
+    "name": "Guristas Enforcer Alligator"
+  },
+  "79986": {
+    "type_id": 79986,
+    "name": "Upwell Security Thunderchild"
+  },
+  "79994": {
+    "type_id": 79994,
+    "name": "CD Combat 1 Loot"
+  },
+  "79996": {
+    "type_id": 79996,
+    "name": "Expired Sinister Exotic Filament"
+  },
+  "79997": {
+    "type_id": 79997,
+    "name": "Expired Ruined Electrical Filament"
+  },
+  "79998": {
+    "type_id": 79998,
+    "name": "Expired Vicious Electrical Filament"
+  },
+  "79999": {
+    "type_id": 79999,
+    "name": "Expired Devastated Electrical Filament"
+  },
+  "80000": {
+    "type_id": 80000,
+    "name": "Expired Disastrous Gamma Filament"
+  },
+  "80001": {
+    "type_id": 80001,
+    "name": "Expired Annihilated Electrical Filament"
+  },
+  "80002": {
+    "type_id": 80002,
+    "name": "Expired Calamitous Firestorm Filament"
+  },
+  "80003": {
+    "type_id": 80003,
+    "name": "Sinister Exotic Filament Blueprint"
+  },
+  "80004": {
+    "type_id": 80004,
+    "name": "Ruined Electrical Filament Blueprint"
+  },
+  "80005": {
+    "type_id": 80005,
+    "name": "Vicious Electrical Filament Blueprint"
+  },
+  "80006": {
+    "type_id": 80006,
+    "name": "Devastated Electrical Filament Blueprint"
+  },
+  "80007": {
+    "type_id": 80007,
+    "name": "Disastrous Gamma Filament Blueprint"
+  },
+  "80008": {
+    "type_id": 80008,
+    "name": "Annihilated Electrical Filament Blueprint"
+  },
+  "80009": {
+    "type_id": 80009,
+    "name": "Calamitous Firestorm Filament Blueprint"
+  },
+  "80010": {
+    "type_id": 80010,
+    "name": "F-11 Entangled GQD"
+  },
+  "80011": {
+    "type_id": 80011,
+    "name": "B-53 Entangled GQD"
+  },
+  "80012": {
+    "type_id": 80012,
+    "name": "S-107 Entangled GQD"
+  },
+  "80013": {
+    "type_id": 80013,
+    "name": "F-16 Entangled GQD"
+  },
+  "80014": {
+    "type_id": 80014,
+    "name": "B-66 Entangled GQD"
+  },
+  "80015": {
+    "type_id": 80015,
+    "name": "S-133 Entangled GQD"
+  },
+  "80016": {
+    "type_id": 80016,
+    "name": "F-24 Entangled GQD"
+  },
+  "80017": {
+    "type_id": 80017,
+    "name": "B-79 Entangled GQD"
+  },
+  "80018": {
+    "type_id": 80018,
+    "name": "S-158 Entangled GQD"
+  },
+  "80019": {
+    "type_id": 80019,
+    "name": "F-33 Entangled GQD"
+  },
+  "80021": {
+    "type_id": 80021,
+    "name": "CD Component Y-107 ( copy )"
+  },
+  "80022": {
+    "type_id": 80022,
+    "name": "B-97 Entangled GQD"
+  },
+  "80023": {
+    "type_id": 80023,
+    "name": "S-172 Entangled GQD"
+  },
+  "80024": {
+    "type_id": 80024,
+    "name": "F-41 Entangled GQD"
+  },
+  "80025": {
+    "type_id": 80025,
+    "name": "Isolated Dimensional Thread"
+  },
+  "80026": {
+    "type_id": 80026,
+    "name": "CD Data Collection"
+  },
+  "80029": {
+    "type_id": 80029,
+    "name": "Damavik Battle-Scarred Wreck"
+  },
+  "80030": {
+    "type_id": 80030,
+    "name": "Small Cache Wreck"
+  },
+  "80031": {
+    "type_id": 80031,
+    "name": "Medium Cache Wreck"
+  },
+  "80033": {
+    "type_id": 80033,
+    "name": "Tower Vault Wreck"
+  },
+  "80034": {
+    "type_id": 80034,
+    "name": "Vedmak Battle-Scarred Wreck"
+  },
+  "80035": {
+    "type_id": 80035,
+    "name": "Drekavac Battle-Scarred Wreck"
+  },
+  "80036": {
+    "type_id": 80036,
+    "name": "Leshak Battle-Scarred Wreck"
+  },
+  "80038": {
+    "type_id": 80038,
+    "name": "Zirnitra Battle-Scarred Wreck"
+  },
+  "80039": {
+    "type_id": 80039,
+    "name": "Ruptured Shackling Leshak"
+  },
+  "80041": {
+    "type_id": 80041,
+    "name": "Battered Shackling Leshak"
+  },
+  "80043": {
+    "type_id": 80043,
+    "name": "Impaired Shackling Leshak"
+  },
+  "80044": {
+    "type_id": 80044,
+    "name": "Dievas Shackling Leshak"
+  },
+  "80054": {
+    "type_id": 80054,
+    "name": "Insurgency Ice Heist - Upwell Spawner 2 (DO NOT TRANSLATE)"
+  },
+  "80055": {
+    "type_id": 80055,
+    "name": " Insurgency Ice Heist - Angel Spawner 2 (DO NOT TRANSLATE)"
+  },
+  "80057": {
+    "type_id": 80057,
+    "name": " Insurgency Ice Heist - Guristas Spawner 2 (DO NOT TRANSLATE)"
+  },
+  "80060": {
+    "type_id": 80060,
+    "name": "Insurgency Ice Heist - Upwell Rally Defender Spawner (DO NOT TRANSLATE)"
+  },
+  "80061": {
+    "type_id": 80061,
+    "name": " Insurgency Ice Heist - Angel Rally Defender Spawner (DO NOT TRANSLATE)"
+  },
+  "80063": {
+    "type_id": 80063,
+    "name": " Insurgency Ice Heist - Guristas Rally Defender Spawner (DO NOT TRANSLATE)"
+  },
+  "80089": {
+    "type_id": 80089,
+    "name": "Angel Small Hologram 01a"
+  },
+  "80090": {
+    "type_id": 80090,
+    "name": "Angel Connection 03a"
+  },
+  "80091": {
+    "type_id": 80091,
+    "name": "Angel Platform 02a"
+  },
+  "80092": {
+    "type_id": 80092,
+    "name": "Guristas Small Hologram 01a"
+  },
+  "80093": {
+    "type_id": 80093,
+    "name": "Upwell Banner 01a"
+  },
+  "80094": {
+    "type_id": 80094,
+    "name": "Upwell Small Structure 05a"
+  },
+  "80118": {
+    "type_id": 80118,
+    "name": "Ice Heist vs Guristas Operator"
+  },
+  "80120": {
+    "type_id": 80120,
+    "name": "Guristas HISC-99 Loading Scaffold"
+  },
+  "80121": {
+    "type_id": 80121,
+    "name": "Angel Nomad Hull"
+  },
+  "80122": {
+    "type_id": 80122,
+    "name": "Guristas Rhea Hull"
+  },
+  "80123": {
+    "type_id": 80123,
+    "name": "Insurgency Ice Heist - Upwell Defensive Tackle Spawner (DO NOT TRANSLATE)"
+  },
+  "80124": {
+    "type_id": 80124,
+    "name": " Insurgency Ice Heist - Angel Defensive Tackle Spawner (DO NOT TRANSLATE)"
+  },
+  "80125": {
+    "type_id": 80125,
+    "name": " Insurgency Ice Heist - Guristas Defensive Tackle Spawner (DO NOT TRANSLATE)"
+  },
+  "80126": {
+    "type_id": 80126,
+    "name": "Insurgency Ice Heist - Upwell Antiplayer Spawner (DO NOT TRANSLATE)"
+  },
+  "80127": {
+    "type_id": 80127,
+    "name": " Insurgency Ice Heist - Angel Antiplayer Spawner (DO NOT TRANSLATE)"
+  },
+  "80128": {
+    "type_id": 80128,
+    "name": " Insurgency Ice Heist - Guristas Antiplayer Spawner (DO NOT TRANSLATE)"
+  },
+  "80131": {
+    "type_id": 80131,
+    "name": "Non-interactable Primae"
+  },
+  "80132": {
+    "type_id": 80132,
+    "name": "Guristas Connection 05b"
+  },
+  "80133": {
+    "type_id": 80133,
+    "name": "Guristas Platform 01a"
+  },
+  "80134": {
+    "type_id": 80134,
+    "name": "Guristas Platform 02a"
+  },
+  "80234": {
+    "type_id": 80234,
+    "name": "Invisible Cloud - ICE Heist triggers (DO NOT TRANSLATE)"
+  },
+  "80235": {
+    "type_id": 80235,
+    "name": "CD Boss Spawner 1"
+  },
+  "80236": {
+    "type_id": 80236,
+    "name": "CD Boss Spawner 2"
+  },
+  "80237": {
+    "type_id": 80237,
+    "name": "CD Boss Spawner 3"
+  },
+  "80238": {
+    "type_id": 80238,
+    "name": "CD Boss Spawner 4"
+  },
+  "80240": {
+    "type_id": 80240,
+    "name": "Yoiul Festival Celebration Crate"
+  },
+  "80246": {
+    "type_id": 80246,
+    "name": "CD Boss Wreck"
+  },
+  "80247": {
+    "type_id": 80247,
+    "name": "CD Boss Wreck (lootable)"
+  },
+  "80248": {
+    "type_id": 80248,
+    "name": "Igniting Swarmer"
+  },
+  "80249": {
+    "type_id": 80249,
+    "name": "CD Minion Spawner 1"
+  },
+  "80250": {
+    "type_id": 80250,
+    "name": "CD Minion Spawner 2"
+  },
+  "80251": {
+    "type_id": 80251,
+    "name": "CD Minion Spawner 3"
+  },
+  "80252": {
+    "type_id": 80252,
+    "name": "CD Minion Spawner 4"
+  },
+  "80253": {
+    "type_id": 80253,
+    "name": "CD Minion Spawner Alpha"
+  },
+  "80272": {
+    "type_id": 80272,
+    "name": "Angel Icejacker Dramiel"
+  },
+  "80273": {
+    "type_id": 80273,
+    "name": "Angel Icejacker Dramiel"
+  },
+  "80275": {
+    "type_id": 80275,
+    "name": "Guristas Icejacker Worm"
+  },
+  "80276": {
+    "type_id": 80276,
+    "name": "Guristas Icejacker Worm"
+  },
+  "80277": {
+    "type_id": 80277,
+    "name": "Guristas Icejacker Worm"
+  },
+  "80278": {
+    "type_id": 80278,
+    "name": "ORE Frostguard Garmur"
+  },
+  "80279": {
+    "type_id": 80279,
+    "name": "ORE Frostguard Garmur"
+  },
+  "80280": {
+    "type_id": 80280,
+    "name": "ORE Frostguard Garmur"
+  },
+  "80281": {
+    "type_id": 80281,
+    "name": "Angel Icejacker Mekubal "
+  },
+  "80282": {
+    "type_id": 80282,
+    "name": "Angel Icejacker Mekubal "
+  },
+  "80283": {
+    "type_id": 80283,
+    "name": "Guristas Icejacker Mamba"
+  },
+  "80284": {
+    "type_id": 80284,
+    "name": "Guristas Icejacker Mamba"
+  },
+  "80285": {
+    "type_id": 80285,
+    "name": "Guristas Icejacker Mamba"
+  },
+  "80286": {
+    "type_id": 80286,
+    "name": "ORE Frostguard Fennec"
+  },
+  "80287": {
+    "type_id": 80287,
+    "name": "ORE Frostguard Fennec"
+  },
+  "80288": {
+    "type_id": 80288,
+    "name": "ORE Frostguard Fennec"
+  },
+  "80289": {
+    "type_id": 80289,
+    "name": "Angel Icejacker Cynabal"
+  },
+  "80290": {
+    "type_id": 80290,
+    "name": "Angel Icejacker Cynabal"
+  },
+  "80291": {
+    "type_id": 80291,
+    "name": "Guristas Icejacker Gila"
+  },
+  "80292": {
+    "type_id": 80292,
+    "name": "Guristas Icejacker Gila"
+  },
+  "80293": {
+    "type_id": 80293,
+    "name": "Guristas Icejacker Gila"
+  },
+  "80294": {
+    "type_id": 80294,
+    "name": "ORE Frostguard Orthrus"
+  },
+  "80295": {
+    "type_id": 80295,
+    "name": "ORE Frostguard Orthrus"
+  },
+  "80296": {
+    "type_id": 80296,
+    "name": "ORE Frostguard Orthrus"
+  },
+  "80297": {
+    "type_id": 80297,
+    "name": "Angel Enforcer Khizriel"
+  },
+  "80298": {
+    "type_id": 80298,
+    "name": "Angel Enforcer Khizriel"
+  },
+  "80299": {
+    "type_id": 80299,
+    "name": "Guristas Enforcer Alligator"
+  },
+  "80300": {
+    "type_id": 80300,
+    "name": "Guristas Enforcer Alligator"
+  },
+  "80301": {
+    "type_id": 80301,
+    "name": "Guristas Enforcer Alligator"
+  },
+  "80302": {
+    "type_id": 80302,
+    "name": "Upwell Security Thunderchild"
+  },
+  "80303": {
+    "type_id": 80303,
+    "name": "Angel Icejacker Machariel"
+  },
+  "80304": {
+    "type_id": 80304,
+    "name": "Angel Icejacker Machariel"
+  },
+  "80306": {
+    "type_id": 80306,
+    "name": "Guristas Icejacker Rattlesnake"
+  },
+  "80307": {
+    "type_id": 80307,
+    "name": "Guristas Icejacker Rattlesnake"
+  },
+  "80308": {
+    "type_id": 80308,
+    "name": "Guristas Icejacker Rattlesnake"
+  },
+  "80310": {
+    "type_id": 80310,
+    "name": "ORE Frostguard Barghest"
+  },
+  "80311": {
+    "type_id": 80311,
+    "name": "ORE Frostguard Barghest"
+  },
+  "80312": {
+    "type_id": 80312,
+    "name": "ORE Frostguard Barghest"
+  },
+  "80342": {
+    "type_id": 80342,
+    "name": "Basic Capsuleer Day XXI Cerebral Accelerator"
+  },
+  "80343": {
+    "type_id": 80343,
+    "name": "Extended Capsuleer Day XXI Cerebral Accelerator"
+  },
+  "80344": {
+    "type_id": 80344,
+    "name": "Potent Capsuleer Day XXI Cerebral Accelerator"
+  },
+  "80352": {
+    "type_id": 80352,
+    "name": "Basic Capsuleer Day XXI Glamourex Booster"
+  },
+  "80353": {
+    "type_id": 80353,
+    "name": "Extended Capsuleer Day XXI Glamourex Booster"
+  },
+  "80354": {
+    "type_id": 80354,
+    "name": "Potent Capsuleer Day XXI Glamourex Booster"
+  },
+  "80357": {
+    "type_id": 80357,
+    "name": "SoCT Relic Range Booster I"
+  },
+  "80358": {
+    "type_id": 80358,
+    "name": "SoCT Relic Range Booster II"
+  },
+  "80359": {
+    "type_id": 80359,
+    "name": "SoCT Relic Range Booster III"
+  },
+  "80360": {
+    "type_id": 80360,
+    "name": "SoCT Relic Coherence Booster I"
+  },
+  "80361": {
+    "type_id": 80361,
+    "name": "SoCT Relic Coherence Booster II"
+  },
+  "80362": {
+    "type_id": 80362,
+    "name": "SoCT Relic Coherence Booster III"
+  },
+  "80363": {
+    "type_id": 80363,
+    "name": "SoCT Relic Strength Booster I"
+  },
+  "80364": {
+    "type_id": 80364,
+    "name": "SoCT Relic Strength Booster II"
+  },
+  "80365": {
+    "type_id": 80365,
+    "name": "SoCT Relic Strength Booster III"
+  },
+  "80366": {
+    "type_id": 80366,
+    "name": "SoCT Repairer Booster I"
+  },
+  "80367": {
+    "type_id": 80367,
+    "name": "SoCT Repairer Booster II"
+  },
+  "80368": {
+    "type_id": 80368,
+    "name": "SoCT Repairer Booster III"
+  },
+  "80369": {
+    "type_id": 80369,
+    "name": "SoCT Turret Booster I"
+  },
+  "80370": {
+    "type_id": 80370,
+    "name": "SoCT Turret Booster II"
+  },
+  "80371": {
+    "type_id": 80371,
+    "name": "SoCT Turret Booster III"
+  },
+  "80379": {
+    "type_id": 80379,
+    "name": "SoCT Capacitor Booster I"
+  },
+  "80380": {
+    "type_id": 80380,
+    "name": "SoCT Capacitor Booster II"
+  },
+  "80381": {
+    "type_id": 80381,
+    "name": "SoCT Capacitor Booster III"
+  },
+  "80425": {
+    "type_id": 80425,
+    "name": "EDENCOM Surveyor Debris"
+  },
+  "80438": {
+    "type_id": 80438,
+    "name": "CD Minion Loot Goblin"
+  },
+  "80439": {
+    "type_id": 80439,
+    "name": "CD Minion Spawner (combat 1 loot)"
+  },
+  "80440": {
+    "type_id": 80440,
+    "name": "Recovered CD Boss Salvage"
+  },
+  "80441": {
+    "type_id": 80441,
+    "name": "Arbitrator Crown and Swords SKIN"
+  },
+  "80448": {
+    "type_id": 80448,
+    "name": "Angel Outer Zarzakh Machariel"
+  },
+  "80449": {
+    "type_id": 80449,
+    "name": "Angel Outer Zarzakh Dramiel"
+  },
+  "80450": {
+    "type_id": 80450,
+    "name": "Angel Outer Zarzakh Cynabal"
+  },
+  "80451": {
+    "type_id": 80451,
+    "name": "Guristas Outer Zarzakh Gila"
+  },
+  "80452": {
+    "type_id": 80452,
+    "name": "Guristas Outer Zarzakh Rattlesnake"
+  },
+  "80523": {
+    "type_id": 80523,
+    "name": "Capsuleer Day XXI Filament Crate"
+  },
+  "80757": {
+    "type_id": 80757,
+    "name": "SoCT Agility Booster I"
+  },
+  "80760": {
+    "type_id": 80760,
+    "name": "SoCT Agility Booster II"
+  },
+  "80763": {
+    "type_id": 80763,
+    "name": "SoCT Agility Booster III"
+  },
+  "80765": {
+    "type_id": 80765,
+    "name": "SoCT Armor Booster I"
+  },
+  "80767": {
+    "type_id": 80767,
+    "name": "SoCT Armor Booster II"
+  },
+  "80768": {
+    "type_id": 80768,
+    "name": "SoCT Armor Booster III"
+  },
+  "80769": {
+    "type_id": 80769,
+    "name": "SoCT Scan Booster I"
+  },
+  "80770": {
+    "type_id": 80770,
+    "name": "SoCT Scan Booster II"
+  },
+  "80773": {
+    "type_id": 80773,
+    "name": "SoCT Scan Booster III"
+  },
+  "80806": {
+    "type_id": 80806,
+    "name": "Angel Zarzakh Lachesis"
+  },
+  "80807": {
+    "type_id": 80807,
+    "name": "Angel Zarzakh Machariel"
+  },
+  "80808": {
+    "type_id": 80808,
+    "name": "Guristas Zarzakh Lachesis"
+  },
+  "80809": {
+    "type_id": 80809,
+    "name": "Guristas Zarzakh Rattlesnake"
+  },
+  "80811": {
+    "type_id": 80811,
+    "name": "Omen Imperial Police SKIN"
+  },
+  "80812": {
+    "type_id": 80812,
+    "name": "Imperial Navy Slicer Imperial Police SKIN"
+  },
+  "80813": {
+    "type_id": 80813,
+    "name": "Rifter Republic Police SKIN"
+  },
+  "80814": {
+    "type_id": 80814,
+    "name": "Stabber Republic Police SKIN"
+  },
+  "80815": {
+    "type_id": 80815,
+    "name": "Stormbringer AEGIS Police SKIN"
+  },
+  "80853": {
+    "type_id": 80853,
+    "name": "Asteroid Set 4 Xlarge 1"
+  },
+  "80854": {
+    "type_id": 80854,
+    "name": "Asteroid Set 4 Xlarge 2"
+  },
+  "80855": {
+    "type_id": 80855,
+    "name": "Asteroid Set 4 Xlarge 3"
+  },
+  "80856": {
+    "type_id": 80856,
+    "name": "Asteroid Set 4 Xlarge 4"
+  },
+  "80857": {
+    "type_id": 80857,
+    "name": "Asteroid Set 4 Xlarge 5"
+  },
+  "80858": {
+    "type_id": 80858,
+    "name": "Asteroid Set 4 Xlarge 6"
+  },
+  "80860": {
+    "type_id": 80860,
+    "name": "Asteroid Set 4 Xlarge 7"
+  },
+  "80862": {
+    "type_id": 80862,
+    "name": "Asteroid Set 4 Xlarge 8"
+  },
+  "80863": {
+    "type_id": 80863,
+    "name": "Asteroid Set 4 Xlarge 9"
+  },
+  "80864": {
+    "type_id": 80864,
+    "name": "Asteroid Set 4 Xlarge 10"
+  },
+  "80873": {
+    "type_id": 80873,
+    "name": "Triglavian Encrypted Conduit Data"
+  },
+  "80876": {
+    "type_id": 80876,
+    "name": "Small Tachyon Cloud"
+  },
+  "80887": {
+    "type_id": 80887,
+    "name": "CD Accelerant Dungeon Effect"
+  },
+  "80888": {
+    "type_id": 80888,
+    "name": "CD Decelerant Dungeon Effect"
+  },
+  "80899": {
+    "type_id": 80899,
+    "name": "Anti-Tachyon Cloud"
+  },
+  "80907": {
+    "type_id": 80907,
+    "name": "Dragoon Arkombine Arisen SKIN"
+  },
+  "80908": {
+    "type_id": 80908,
+    "name": "Executioner Arkombine Arisen SKIN"
+  },
+  "80909": {
+    "type_id": 80909,
+    "name": "Astero Arkombine Arisen SKIN"
+  },
+  "80934": {
+    "type_id": 80934,
+    "name": "Damaged Werpost"
+  },
+  "80937": {
+    "type_id": 80937,
+    "name": "Capsuleer Day XXI Fireworks Package"
+  },
+  "80938": {
+    "type_id": 80938,
+    "name": "Hecate Empyrean Dragons SKIN"
+  },
+  "80939": {
+    "type_id": 80939,
+    "name": "Jaguar Empyrean Dragons SKIN"
+  },
+  "80940": {
+    "type_id": 80940,
+    "name": "Dominix Navy Issue Empyrean Dragons SKIN"
+  },
+  "80941": {
+    "type_id": 80941,
+    "name": "Huginn Empyrean Dragons SKIN"
+  },
+  "80942": {
+    "type_id": 80942,
+    "name": "Stiletto Empyrean Dragons SKIN"
+  },
+  "80943": {
+    "type_id": 80943,
+    "name": "Loki Empyrean Dragons SKIN"
+  },
+  "80944": {
+    "type_id": 80944,
+    "name": "Origin Conduit"
+  },
+  "80945": {
+    "type_id": 80945,
+    "name": "Abyssal Trace"
+  },
+  "80990": {
+    "type_id": 80990,
+    "name": "CD Large Dungeon Slow Cloud"
+  },
+  "80992": {
+    "type_id": 80992,
+    "name": "Capsuleer Day XXI Glamourex Crate"
+  },
+  "80994": {
+    "type_id": 80994,
+    "name": "CD Boss Guided Neutralizer Bomb"
+  },
+  "81008": {
+    "type_id": 81008,
+    "name": "Squall"
+  },
+  "81010": {
+    "type_id": 81010,
+    "name": "Garmur Arkombine Arisen SKIN"
+  },
+  "81011": {
+    "type_id": 81011,
+    "name": "Orthrus Arkombine Arisen SKIN"
+  },
+  "81012": {
+    "type_id": 81012,
+    "name": "Barghest Arkombine Arisen SKIN"
+  },
+  "81013": {
+    "type_id": 81013,
+    "name": "Atron Arkombine Arisen SKIN"
+  },
+  "81014": {
+    "type_id": 81014,
+    "name": "Algos Arkombine Arisen SKIN"
+  },
+  "81015": {
+    "type_id": 81015,
+    "name": "Exequror Navy Issue Arkombine Arisen SKIN"
+  },
+  "81016": {
+    "type_id": 81016,
+    "name": "Myrmidon Navy Issue Arkombine Arisen SKIN"
+  },
+  "81017": {
+    "type_id": 81017,
+    "name": "Burst Arkombine Arisen SKIN"
+  },
+  "81018": {
+    "type_id": 81018,
+    "name": "Talwar Arkombine Arisen SKIN"
+  },
+  "81019": {
+    "type_id": 81019,
+    "name": "Scythe Fleet Issue Arkombine Arisen SKIN"
+  },
+  "81020": {
+    "type_id": 81020,
+    "name": "Cyclone Fleet Issue Arkombine Arisen SKIN"
+  },
+  "81021": {
+    "type_id": 81021,
+    "name": "Augoror Navy Issue Arkombine Arisen SKIN"
+  },
+  "81022": {
+    "type_id": 81022,
+    "name": "Prophecy Navy Issue Arkombine Arisen SKIN"
+  },
+  "81023": {
+    "type_id": 81023,
+    "name": "Condor Arkombine Arisen SKIN"
+  },
+  "81024": {
+    "type_id": 81024,
+    "name": "Corax Arkombine Arisen SKIN"
+  },
+  "81025": {
+    "type_id": 81025,
+    "name": "Osprey Navy Issue Arkombine Arisen SKIN"
+  },
+  "81026": {
+    "type_id": 81026,
+    "name": "Ferox Navy Issue Arkombine Arisen SKIN"
+  },
+  "81032": {
+    "type_id": 81032,
+    "name": "Upwell Hauler"
+  },
+  "81035": {
+    "type_id": 81035,
+    "name": "Cd Trade Crate 2"
+  },
+  "81040": {
+    "type_id": 81040,
+    "name": "Avalanche"
+  },
+  "81041": {
+    "type_id": 81041,
+    "name": "SoCT Expedition Wreck"
+  },
+  "81043": {
+    "type_id": 81043,
+    "name": "Squall Blueprint"
+  },
+  "81044": {
+    "type_id": 81044,
+    "name": "Upwell Freighter"
+  },
+  "81046": {
+    "type_id": 81046,
+    "name": "Deluge"
+  },
+  "81047": {
+    "type_id": 81047,
+    "name": "Torrent"
+  },
+  "81048": {
+    "type_id": 81048,
+    "name": "Deluge Blueprint"
+  },
+  "81049": {
+    "type_id": 81049,
+    "name": "Torrent Blueprint"
+  },
+  "81050": {
+    "type_id": 81050,
+    "name": "Upwell Starship Engineering"
+  },
+  "81051": {
+    "type_id": 81051,
+    "name": "Datacore - Upwell Starship Engineering"
+  },
+  "81052": {
+    "type_id": 81052,
+    "name": "Upwell Elite Hauler Wreck"
+  },
+  "81053": {
+    "type_id": 81053,
+    "name": "Upwell Hauler Wreck"
+  },
+  "81054": {
+    "type_id": 81054,
+    "name": "Avalanche Blueprint"
+  },
+  "81055": {
+    "type_id": 81055,
+    "name": "Upwell Freighter Wreck"
+  },
+  "81058": {
+    "type_id": 81058,
+    "name": "CD Electric Weather Effect"
+  },
+  "81063": {
+    "type_id": 81063,
+    "name": "Fission Thruster"
+  },
+  "81064": {
+    "type_id": 81064,
+    "name": "Hyperconductive Gravimetric Sensor Cluster"
+  },
+  "81065": {
+    "type_id": 81065,
+    "name": "Electromechanical Microprocessor"
+  },
+  "81066": {
+    "type_id": 81066,
+    "name": "Metaprismatic Armor Plate"
+  },
+  "81067": {
+    "type_id": 81067,
+    "name": "Repelling Shield Emitter"
+  },
+  "81068": {
+    "type_id": 81068,
+    "name": "Fission Reactor Unit"
+  },
+  "81069": {
+    "type_id": 81069,
+    "name": "Pentachoron Capacitor Unit"
+  },
+  "81070": {
+    "type_id": 81070,
+    "name": "Fission Thruster Blueprint"
+  },
+  "81071": {
+    "type_id": 81071,
+    "name": "Hyperconductive Gravimetric Sensor Cluster Blueprint"
+  },
+  "81072": {
+    "type_id": 81072,
+    "name": "Electromechanical Microprocessor Blueprint"
+  },
+  "81073": {
+    "type_id": 81073,
+    "name": "Metaprismatic Armor Plate Blueprint"
+  },
+  "81074": {
+    "type_id": 81074,
+    "name": "Repelling Shield Emitter Blueprint"
+  },
+  "81075": {
+    "type_id": 81075,
+    "name": "Fission Reactor Unit Blueprint"
+  },
+  "81077": {
+    "type_id": 81077,
+    "name": "Pentachoron Capacitor Unit Blueprint"
+  },
+  "81080": {
+    "type_id": 81080,
+    "name": "Orbital Skyhook"
+  },
+  "81083": {
+    "type_id": 81083,
+    "name": "Starsi Blast! Classic"
+  },
+  "81084": {
+    "type_id": 81084,
+    "name": "Starsi Blast! Orange"
+  },
+  "81086": {
+    "type_id": 81086,
+    "name": "Orbital Skyhook Blueprint"
+  },
+  "81090": {
+    "type_id": 81090,
+    "name": "EDENCOM Scout Debris"
+  },
+  "81091": {
+    "type_id": 81091,
+    "name": "EDENCOM Expedition Debris"
+  },
+  "81098": {
+    "type_id": 81098,
+    "name": "Space Exploration Expert System"
+  },
+  "81116": {
+    "type_id": 81116,
+    "name": "Naglfar Fleet Issue Arkombine Arisen SKIN"
+  },
+  "81117": {
+    "type_id": 81117,
+    "name": "Moros Navy Issue Arkombine Arisen SKIN"
+  },
+  "81118": {
+    "type_id": 81118,
+    "name": "Faction Warfare Expert System"
+  },
+  "81119": {
+    "type_id": 81119,
+    "name": "Phoenix Navy Issue Arkombine Arisen SKIN"
+  },
+  "81120": {
+    "type_id": 81120,
+    "name": "Revelation Navy Issue Arkombine Arisen SKIN"
+  },
+  "81121": {
+    "type_id": 81121,
+    "name": "Hauler Operations Expert System"
+  },
+  "81122": {
+    "type_id": 81122,
+    "name": "Enforcer Operations Expert System"
+  },
+  "81142": {
+    "type_id": 81142,
+    "name": "Invisible Beacon"
+  },
+  "81143": {
+    "type_id": 81143,
+    "name": "Magmatic Gas"
+  },
+  "81144": {
+    "type_id": 81144,
+    "name": "Superionic Ice"
+  },
+  "81150": {
+    "type_id": 81150,
+    "name": "Forcefield"
+  },
+  "81151": {
+    "type_id": 81151,
+    "name": "Pirate Angel Tower"
+  },
+  "81152": {
+    "type_id": 81152,
+    "name": "CD Exotic Weather Effect"
+  },
+  "81153": {
+    "type_id": 81153,
+    "name": "CD Gamma Weather Effect"
+  },
+  "81154": {
+    "type_id": 81154,
+    "name": "CD Firestorm Weather Effect"
+  },
+  "81161": {
+    "type_id": 81161,
+    "name": "Awoken Preserver"
+  },
+  "81162": {
+    "type_id": 81162,
+    "name": "Ruptured Drifter Battleship"
+  },
+  "81163": {
+    "type_id": 81163,
+    "name": "Enforcer Career Crate"
+  },
+  "81164": {
+    "type_id": 81164,
+    "name": "CD Drifter Boss Spawner 1"
+  },
+  "81165": {
+    "type_id": 81165,
+    "name": "CD Sleeper Drone Spawner 1"
+  },
+  "81166": {
+    "type_id": 81166,
+    "name": "Soldier of Fortune Career Crate"
+  },
+  "81167": {
+    "type_id": 81167,
+    "name": "Explorer Career Crate"
+  },
+  "81168": {
+    "type_id": 81168,
+    "name": "Industrialist Career Crate"
+  },
+  "81169": {
+    "type_id": 81169,
+    "name": "Damaged Restless Tower"
+  },
+  "81170": {
+    "type_id": 81170,
+    "name": "Battered Drifter Battleship"
+  },
+  "81171": {
+    "type_id": 81171,
+    "name": "DO NOT TRANSLATE - DEBUG SEQUENCE BINDER"
+  },
+  "81172": {
+    "type_id": 81172,
+    "name": "DO NOT TRANSLATE - DEBUG COMPONENT ITEM ONE"
+  },
+  "81173": {
+    "type_id": 81173,
+    "name": "DO NOT TRANSLATE - COMPONENT ITEM TWO"
+  },
+  "81174": {
+    "type_id": 81174,
+    "name": "CD Sleeper Drone Spawner 2"
+  },
+  "81175": {
+    "type_id": 81175,
+    "name": "CD Drifter Boss Spawner 2"
+  },
+  "81177": {
+    "type_id": 81177,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81178": {
+    "type_id": 81178,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81179": {
+    "type_id": 81179,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81180": {
+    "type_id": 81180,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81181": {
+    "type_id": 81181,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81182": {
+    "type_id": 81182,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81183": {
+    "type_id": 81183,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81184": {
+    "type_id": 81184,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81185": {
+    "type_id": 81185,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81186": {
+    "type_id": 81186,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81187": {
+    "type_id": 81187,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81188": {
+    "type_id": 81188,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81189": {
+    "type_id": 81189,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81190": {
+    "type_id": 81190,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81191": {
+    "type_id": 81191,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81192": {
+    "type_id": 81192,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81193": {
+    "type_id": 81193,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81194": {
+    "type_id": 81194,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81195": {
+    "type_id": 81195,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81196": {
+    "type_id": 81196,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81197": {
+    "type_id": 81197,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81198": {
+    "type_id": 81198,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81199": {
+    "type_id": 81199,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81200": {
+    "type_id": 81200,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81201": {
+    "type_id": 81201,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81202": {
+    "type_id": 81202,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81203": {
+    "type_id": 81203,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81204": {
+    "type_id": 81204,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81205": {
+    "type_id": 81205,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81206": {
+    "type_id": 81206,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81207": {
+    "type_id": 81207,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81208": {
+    "type_id": 81208,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81209": {
+    "type_id": 81209,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81210": {
+    "type_id": 81210,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81211": {
+    "type_id": 81211,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81212": {
+    "type_id": 81212,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81213": {
+    "type_id": 81213,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81214": {
+    "type_id": 81214,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81215": {
+    "type_id": 81215,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81216": {
+    "type_id": 81216,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81217": {
+    "type_id": 81217,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81218": {
+    "type_id": 81218,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81219": {
+    "type_id": 81219,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81220": {
+    "type_id": 81220,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81221": {
+    "type_id": 81221,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81222": {
+    "type_id": 81222,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81223": {
+    "type_id": 81223,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81224": {
+    "type_id": 81224,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81225": {
+    "type_id": 81225,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81226": {
+    "type_id": 81226,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81227": {
+    "type_id": 81227,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81228": {
+    "type_id": 81228,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81229": {
+    "type_id": 81229,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81230": {
+    "type_id": 81230,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81231": {
+    "type_id": 81231,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81232": {
+    "type_id": 81232,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81233": {
+    "type_id": 81233,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81234": {
+    "type_id": 81234,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81235": {
+    "type_id": 81235,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81236": {
+    "type_id": 81236,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81237": {
+    "type_id": 81237,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81238": {
+    "type_id": 81238,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81239": {
+    "type_id": 81239,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81240": {
+    "type_id": 81240,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81241": {
+    "type_id": 81241,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81242": {
+    "type_id": 81242,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81243": {
+    "type_id": 81243,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81244": {
+    "type_id": 81244,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81245": {
+    "type_id": 81245,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81246": {
+    "type_id": 81246,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81247": {
+    "type_id": 81247,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81248": {
+    "type_id": 81248,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81249": {
+    "type_id": 81249,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81250": {
+    "type_id": 81250,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81251": {
+    "type_id": 81251,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81252": {
+    "type_id": 81252,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81253": {
+    "type_id": 81253,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81254": {
+    "type_id": 81254,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81255": {
+    "type_id": 81255,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81256": {
+    "type_id": 81256,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81257": {
+    "type_id": 81257,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81258": {
+    "type_id": 81258,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81259": {
+    "type_id": 81259,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81260": {
+    "type_id": 81260,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81261": {
+    "type_id": 81261,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81262": {
+    "type_id": 81262,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81263": {
+    "type_id": 81263,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81264": {
+    "type_id": 81264,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81265": {
+    "type_id": 81265,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81266": {
+    "type_id": 81266,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81267": {
+    "type_id": 81267,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81268": {
+    "type_id": 81268,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81269": {
+    "type_id": 81269,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81270": {
+    "type_id": 81270,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81271": {
+    "type_id": 81271,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81272": {
+    "type_id": 81272,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81273": {
+    "type_id": 81273,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81274": {
+    "type_id": 81274,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81275": {
+    "type_id": 81275,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81276": {
+    "type_id": 81276,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81277": {
+    "type_id": 81277,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81278": {
+    "type_id": 81278,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81279": {
+    "type_id": 81279,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81280": {
+    "type_id": 81280,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81281": {
+    "type_id": 81281,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81282": {
+    "type_id": 81282,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81283": {
+    "type_id": 81283,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81284": {
+    "type_id": 81284,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81285": {
+    "type_id": 81285,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81286": {
+    "type_id": 81286,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81287": {
+    "type_id": 81287,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81288": {
+    "type_id": 81288,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81289": {
+    "type_id": 81289,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81290": {
+    "type_id": 81290,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81291": {
+    "type_id": 81291,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81292": {
+    "type_id": 81292,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81293": {
+    "type_id": 81293,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81294": {
+    "type_id": 81294,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81295": {
+    "type_id": 81295,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81296": {
+    "type_id": 81296,
+    "name": "Partially Corrupted Cryschip"
+  },
+  "81299": {
+    "type_id": 81299,
+    "name": "Impaired Drifter Battleship"
+  },
+  "81300": {
+    "type_id": 81300,
+    "name": "CD Drifter Boss Spawner 3"
+  },
+  "81301": {
+    "type_id": 81301,
+    "name": "CD Sleeper Drone Spawner 3"
+  },
+  "81302": {
+    "type_id": 81302,
+    "name": "Tyrannos Typhon"
+  },
+  "81304": {
+    "type_id": 81304,
+    "name": "CD Drifter Boss Spawner 4"
+  },
+  "81305": {
+    "type_id": 81305,
+    "name": "CD Sleeper Drone Spawner 4 "
+  },
+  "81306": {
+    "type_id": 81306,
+    "name": "Impaired Blitzing Kikimora"
+  },
+  "81324": {
+    "type_id": 81324,
+    "name": "Large Rift Open"
+  },
+  "81327": {
+    "type_id": 81327,
+    "name": "Small Rift Open"
+  },
+  "81334": {
+    "type_id": 81334,
+    "name": "[HF] Space Cops - Arrivals Spawner"
+  },
+  "81335": {
+    "type_id": 81335,
+    "name": "Infested Triglavian Battleship Wreck (Leshak)"
+  },
+  "81336": {
+    "type_id": 81336,
+    "name": "Triglavian Battleship Wreck (Leshak)"
+  },
+  "81338": {
+    "type_id": 81338,
+    "name": "Infested TriGlavian Stellar Accelerator Wreck"
+  },
+  "81339": {
+    "type_id": 81339,
+    "name": "TriGlavian Stellar Accelerator Wreck"
+  },
+  "81340": {
+    "type_id": 81340,
+    "name": "Infested Triglavian Fortification Unit 01 Wreck"
+  },
+  "81341": {
+    "type_id": 81341,
+    "name": "Triglavian Fortification Unit 01 Wreck"
+  },
+  "81342": {
+    "type_id": 81342,
+    "name": "Infested TriGlavian Generator 03 Wreck"
+  },
+  "81343": {
+    "type_id": 81343,
+    "name": "TriGlavian Generator 03 Wreck"
+  },
+  "81344": {
+    "type_id": 81344,
+    "name": "Triglavian Fortification Unit 03 Wreck"
+  },
+  "81345": {
+    "type_id": 81345,
+    "name": "Triglavian Fortification Unit 04 Wreck"
+  },
+  "81346": {
+    "type_id": 81346,
+    "name": "Triglavian Generator 02 Wreck"
+  },
+  "81347": {
+    "type_id": 81347,
+    "name": "Fan Bus Sigil"
+  },
+  "81348": {
+    "type_id": 81348,
+    "name": "Alignment Sequencer"
+  },
+  "81349": {
+    "type_id": 81349,
+    "name": "Fermionic Sequencer"
+  },
+  "81350": {
+    "type_id": 81350,
+    "name": "Kerr Sequencer"
+  },
+  "81351": {
+    "type_id": 81351,
+    "name": "[HF] Salvage Yard - Combat Spawner"
+  },
+  "81352": {
+    "type_id": 81352,
+    "name": "Encrypted ‘Istina’ Data"
+  },
+  "81353": {
+    "type_id": 81353,
+    "name": "Malediction Zydrine Burn SKIN"
+  },
+  "81354": {
+    "type_id": 81354,
+    "name": "Pilgrim Zydrine Burn SKIN"
+  },
+  "81355": {
+    "type_id": 81355,
+    "name": "Devoter Zydrine Burn SKIN"
+  },
+  "81356": {
+    "type_id": 81356,
+    "name": "Absolution Zydrine Burn SKIN"
+  },
+  "81357": {
+    "type_id": 81357,
+    "name": "Armageddon Navy Issue Zydrine Burn SKIN"
+  },
+  "81358": {
+    "type_id": 81358,
+    "name": "Claw Zydrine Burn SKIN"
+  },
+  "81359": {
+    "type_id": 81359,
+    "name": "Rapier Zydrine Burn SKIN"
+  },
+  "81360": {
+    "type_id": 81360,
+    "name": "Broadsword Zydrine Burn SKIN"
+  },
+  "81361": {
+    "type_id": 81361,
+    "name": "Claymore Zydrine Burn SKIN"
+  },
+  "81362": {
+    "type_id": 81362,
+    "name": "Tempest Fleet Issue Zydrine Burn SKIN"
+  },
+  "81363": {
+    "type_id": 81363,
+    "name": "Kerr Sequencing"
+  },
+  "81364": {
+    "type_id": 81364,
+    "name": "Mass Sequencing"
+  },
+  "81365": {
+    "type_id": 81365,
+    "name": "Industrial Sequencing"
+  },
+  "81366": {
+    "type_id": 81366,
+    "name": "Parallel Sequencing"
+  },
+  "81367": {
+    "type_id": 81367,
+    "name": "Multi-thread Sequencing"
+  },
+  "81368": {
+    "type_id": 81368,
+    "name": "Hub Promotion"
+  },
+  "81369": {
+    "type_id": 81369,
+    "name": "Hub Algorithm Optimization"
+  },
+  "81370": {
+    "type_id": 81370,
+    "name": "Design Concepting"
+  },
+  "81371": {
+    "type_id": 81371,
+    "name": "Design Iteration"
+  },
+  "81372": {
+    "type_id": 81372,
+    "name": "Induction Efficiency"
+  },
+  "81373": {
+    "type_id": 81373,
+    "name": "Advanced Induction Efficiency"
+  },
+  "81374": {
+    "type_id": 81374,
+    "name": "Peak Induction Acceleration"
+  },
+  "81375": {
+    "type_id": 81375,
+    "name": "Batch Sequencing"
+  },
+  "81376": {
+    "type_id": 81376,
+    "name": "Advanced Kerr Sequencing"
+  },
+  "81377": {
+    "type_id": 81377,
+    "name": "Basic Induction"
+  },
+  "81383": {
+    "type_id": 81383,
+    "name": "Contraband Data"
+  },
+  "81390": {
+    "type_id": 81390,
+    "name": "Triglavian Extraction SubNode Wreck"
+  },
+  "81391": {
+    "type_id": 81391,
+    "name": "Triglavian Extraction Node Wreck"
+  },
+  "81392": {
+    "type_id": 81392,
+    "name": "Triglavian Triplex Extraction Cluster Wreck"
+  },
+  "81402": {
+    "type_id": 81402,
+    "name": "Destabilizing Array"
+  },
+  "81438": {
+    "type_id": 81438,
+    "name": "Wreckage"
+  },
+  "81596": {
+    "type_id": 81596,
+    "name": "[HF] Drain the Batteries - Focused Capacitor Transmitter Spawner"
+  },
+  "81597": {
+    "type_id": 81597,
+    "name": "Waking Conservator"
+  },
+  "81598": {
+    "type_id": 81598,
+    "name": "Phaseless Cutter"
+  },
+  "81599": {
+    "type_id": 81599,
+    "name": "Chemal Tech Geneticist"
+  },
+  "81600": {
+    "type_id": 81600,
+    "name": "Gist Erelim"
+  },
+  "81601": {
+    "type_id": 81601,
+    "name": "Gistatis Quaestor"
+  },
+  "81602": {
+    "type_id": 81602,
+    "name": "[HF] Drain the Batteries - Combat Spawner"
+  },
+  "81603": {
+    "type_id": 81603,
+    "name": "Mysterious Booster Crate I"
+  },
+  "81604": {
+    "type_id": 81604,
+    "name": "Gistior Ruiner"
+  },
+  "81605": {
+    "type_id": 81605,
+    "name": "Amarr Forward Operating Base Wreck - Explosive (DO NOT TRANSLATE)"
+  },
+  "81606": {
+    "type_id": 81606,
+    "name": "Gallente Forward Operating Base Wreck - Explosive (DO NOT TRANSLATE)"
+  },
+  "81607": {
+    "type_id": 81607,
+    "name": "Minmatar Forward Operating Base Wreck - Explosive (DO NOT TRANSLATE)"
+  },
+  "81608": {
+    "type_id": 81608,
+    "name": "Caldari Forward Operating Base Wreck - Explosive (DO NOT TRANSLATE)"
+  },
+  "81614": {
+    "type_id": 81614,
+    "name": "Gas Harvesting Expert System"
+  },
+  "81615": {
+    "type_id": 81615,
+    "name": "Cynosural Navigation"
+  },
+  "81616": {
+    "type_id": 81616,
+    "name": "Cynosural Navigation Blueprint"
+  },
+  "81617": {
+    "type_id": 81617,
+    "name": "EDENCOM Surveyor Stash"
+  },
+  "81618": {
+    "type_id": 81618,
+    "name": "Logistics Pilot Expert System"
+  },
+  "81619": {
+    "type_id": 81619,
+    "name": "Cynosural Suppression"
+  },
+  "81620": {
+    "type_id": 81620,
+    "name": "Cynosural Suppression Blueprint"
+  },
+  "81621": {
+    "type_id": 81621,
+    "name": "Advanced Logistics Network"
+  },
+  "81622": {
+    "type_id": 81622,
+    "name": "Advanced Logistics Network Blueprint"
+  },
+  "81623": {
+    "type_id": 81623,
+    "name": "Supercapital Construction Facilities"
+  },
+  "81624": {
+    "type_id": 81624,
+    "name": "EDENCOM Scout Stash"
+  },
+  "81625": {
+    "type_id": 81625,
+    "name": "Supercapital Construction Facilities Blueprint"
+  },
+  "81626": {
+    "type_id": 81626,
+    "name": "CD Can 3 ( copy )"
+  },
+  "81627": {
+    "type_id": 81627,
+    "name": "EDENCOM Expedition Stash"
+  },
+  "81628": {
+    "type_id": 81628,
+    "name": "Holder Shuttle"
+  },
+  "81630": {
+    "type_id": 81630,
+    "name": "Fan Bus Bestower"
+  },
+  "81631": {
+    "type_id": 81631,
+    "name": "Repatriation Tayra"
+  },
+  "81633": {
+    "type_id": 81633,
+    "name": "CD Electric Weather Effect 2"
+  },
+  "81634": {
+    "type_id": 81634,
+    "name": "CD Electric Weather Effect 3"
+  },
+  "81635": {
+    "type_id": 81635,
+    "name": "Refugee Shuttle"
+  },
+  "81636": {
+    "type_id": 81636,
+    "name": "Mail Shuttle"
+  },
+  "81637": {
+    "type_id": 81637,
+    "name": "Curio Shuttle"
+  },
+  "81638": {
+    "type_id": 81638,
+    "name": "Repatriation Badger"
+  },
+  "81639": {
+    "type_id": 81639,
+    "name": "Repatriation Tayra"
+  },
+  "81640": {
+    "type_id": 81640,
+    "name": "Postal Nereus"
+  },
+  "81641": {
+    "type_id": 81641,
+    "name": "Repatriation Badger"
+  },
+  "81642": {
+    "type_id": 81642,
+    "name": "Postal Iteron Mark V"
+  },
+  "81644": {
+    "type_id": 81644,
+    "name": "Trader Wreathe"
+  },
+  "81646": {
+    "type_id": 81646,
+    "name": "Trader Mammoth"
+  },
+  "81647": {
+    "type_id": 81647,
+    "name": "Benefaction Potremba"
+  },
+  "81648": {
+    "type_id": 81648,
+    "name": "Repatriation Badger"
+  },
+  "81649": {
+    "type_id": 81649,
+    "name": "Repatriation Tayra"
+  },
+  "81660": {
+    "type_id": 81660,
+    "name": "Asset Holding Wrap"
+  },
+  "81661": {
+    "type_id": 81661,
+    "name": "CD Minion Spawner kspace"
+  },
+  "81716": {
+    "type_id": 81716,
+    "name": "Capital Escalation Manager - DO NOT TRANSLATE"
+  },
+  "81826": {
+    "type_id": 81826,
+    "name": "Metenox Moon Drill"
+  },
+  "81896": {
+    "type_id": 81896,
+    "name": "Mutagenic Stabilization"
+  },
+  "81900": {
+    "type_id": 81900,
+    "name": "Kylixium"
+  },
+  "81901": {
+    "type_id": 81901,
+    "name": "Kaolin Kylixium"
+  },
+  "81902": {
+    "type_id": 81902,
+    "name": "Argil Kylixium"
+  },
+  "81903": {
+    "type_id": 81903,
+    "name": "Adobe Kylixium"
+  },
+  "81920": {
+    "type_id": 81920,
+    "name": "Integrated Moon Drill Armature"
+  },
+  "81921": {
+    "type_id": 81921,
+    "name": "Metenox Moon Drill Wreck"
+  },
+  "81922": {
+    "type_id": 81922,
+    "name": "Metenox Moon Drill Blueprint"
+  },
+  "81925": {
+    "type_id": 81925,
+    "name": "Upwell Consortium Prototype Structure"
+  },
+  "81926": {
+    "type_id": 81926,
+    "name": "Skyhook Cynosural Disruption"
+  },
+  "81933": {
+    "type_id": 81933,
+    "name": "Skyhook Reagent Silo"
+  },
+  "81945": {
+    "type_id": 81945,
+    "name": "Drone Graviton Emitter"
+  },
+  "81946": {
+    "type_id": 81946,
+    "name": "Consortium Small Tractor Beam Blueprint"
+  },
+  "81947": {
+    "type_id": 81947,
+    "name": "Consortium Capital Tractor Beam Blueprint"
+  },
+  "81948": {
+    "type_id": 81948,
+    "name": "Consortium Small Tractor Beam"
+  },
+  "81949": {
+    "type_id": 81949,
+    "name": "Consortium Capital Tractor Beam"
+  },
+  "81950": {
+    "type_id": 81950,
+    "name": "Upwell Applied Gravitation Research Center"
+  },
+  "81951": {
+    "type_id": 81951,
+    "name": "Consortium Mobile Tractor Unit"
+  },
+  "81952": {
+    "type_id": 81952,
+    "name": "Consortium Mobile Tractor Unit Blueprint"
+  },
+  "81953": {
+    "type_id": 81953,
+    "name": "Upwell Consortium Loyalty Token"
+  },
+  "81954": {
+    "type_id": 81954,
+    "name": "Upwell Prototype Development Reward Crate"
+  },
+  "81969": {
+    "type_id": 81969,
+    "name": "Entropic Disintegrator Werpost test"
+  },
+  "81975": {
+    "type_id": 81975,
+    "name": "Griemeer"
+  },
+  "81976": {
+    "type_id": 81976,
+    "name": "Clear Griemeer"
+  },
+  "81977": {
+    "type_id": 81977,
+    "name": "Inky Griemeer"
+  },
+  "81978": {
+    "type_id": 81978,
+    "name": "Opaque Griemeer"
+  },
+  "82012": {
+    "type_id": 82012,
+    "name": "CD Kikimora Spawner"
+  },
+  "82015": {
+    "type_id": 82015,
+    "name": "Hedbergite ( copy )"
+  },
+  "82016": {
+    "type_id": 82016,
+    "name": "Nocxite"
+  },
+  "82017": {
+    "type_id": 82017,
+    "name": "Fragrant Nocxite"
+  },
+  "82018": {
+    "type_id": 82018,
+    "name": "Intoxicating Nocxite"
+  },
+  "82019": {
+    "type_id": 82019,
+    "name": "Ambrosial Nocxite"
+  },
+  "82040": {
+    "type_id": 82040,
+    "name": "Women's Worker's Indigo Pants"
+  },
+  "82041": {
+    "type_id": 82041,
+    "name": "Men's Worker's Indigo Pants"
+  },
+  "82052": {
+    "type_id": 82052,
+    "name": "Capsule Capsuleer Day XXI SKIN"
+  },
+  "82053": {
+    "type_id": 82053,
+    "name": "Cheetah Capsuleer Day XXI SKIN"
+  },
+  "82054": {
+    "type_id": 82054,
+    "name": "Stabber Capsuleer Day XXI SKIN"
+  },
+  "82055": {
+    "type_id": 82055,
+    "name": "Mammoth Capsuleer Day XXI SKIN"
+  },
+  "82057": {
+    "type_id": 82057,
+    "name": "Marshal Capsuleer Day XXI SKIN"
+  },
+  "82058": {
+    "type_id": 82058,
+    "name": "Monitor Capsuleer Day XXI SKIN"
+  },
+  "82060": {
+    "type_id": 82060,
+    "name": "Helios Capsuleer Day XXI SKIN"
+  },
+  "82061": {
+    "type_id": 82061,
+    "name": "Vexor Capsuleer Day XXI SKIN"
+  },
+  "82062": {
+    "type_id": 82062,
+    "name": "Nereus Capsuleer Day XXI SKIN"
+  },
+  "82063": {
+    "type_id": 82063,
+    "name": "Anathema Capsuleer Day XXI SKIN"
+  },
+  "82064": {
+    "type_id": 82064,
+    "name": "Maller Capsuleer Day XXI SKIN"
+  },
+  "82065": {
+    "type_id": 82065,
+    "name": "Sigil Capsuleer Day XXI SKIN"
+  },
+  "82066": {
+    "type_id": 82066,
+    "name": "Buzzard Capsuleer Day XXI SKIN"
+  },
+  "82067": {
+    "type_id": 82067,
+    "name": "Mamba Capsuleer Day XXI SKIN"
+  },
+  "82068": {
+    "type_id": 82068,
+    "name": "Moa Capsuleer Day XXI SKIN"
+  },
+  "82069": {
+    "type_id": 82069,
+    "name": "Badger Capsuleer Day XXI SKIN"
+  },
+  "82070": {
+    "type_id": 82070,
+    "name": "Alligator Capsuleer Day XXI SKIN"
+  },
+  "82071": {
+    "type_id": 82071,
+    "name": "Mekubal Capsuleer Day XXI SKIN"
+  },
+  "82072": {
+    "type_id": 82072,
+    "name": "Khizriel Capsuleer Day XXI SKIN"
+  },
+  "82073": {
+    "type_id": 82073,
+    "name": "Thunderchild Capsuleer Day XXI SKIN"
+  },
+  "82074": {
+    "type_id": 82074,
+    "name": "Skybreaker Capsuleer Day XXI SKIN"
+  },
+  "82075": {
+    "type_id": 82075,
+    "name": "Stormbringer Capsuleer Day XXI SKIN"
+  },
+  "82076": {
+    "type_id": 82076,
+    "name": "Zirnitra Capsuleer Day XXI SKIN"
+  },
+  "82077": {
+    "type_id": 82077,
+    "name": "Rodiva Capsuleer Day XXI SKIN"
+  },
+  "82078": {
+    "type_id": 82078,
+    "name": "Leshak Capsuleer Day XXI SKIN"
+  },
+  "82079": {
+    "type_id": 82079,
+    "name": "Apotheosis Capsuleer Day XXI SKIN"
+  },
+  "82080": {
+    "type_id": 82080,
+    "name": "Metamorphosis Capsuleer Day XXI SKIN"
+  },
+  "82081": {
+    "type_id": 82081,
+    "name": "Sunesis Capsuleer Day XXI SKIN"
+  },
+  "82082": {
+    "type_id": 82082,
+    "name": "Praxis Capsuleer Day XXI SKIN"
+  },
+  "82083": {
+    "type_id": 82083,
+    "name": "Gnosis Capsuleer Day XXI SKIN"
+  },
+  "82151": {
+    "type_id": 82151,
+    "name": "Deluge Alliance Emblem"
+  },
+  "82153": {
+    "type_id": 82153,
+    "name": "Deluge Corporation Emblem"
+  },
+  "82155": {
+    "type_id": 82155,
+    "name": "Avalanche Alliance Emblem"
+  },
+  "82156": {
+    "type_id": 82156,
+    "name": "Avalanche Corporation Emblem"
+  },
+  "82157": {
+    "type_id": 82157,
+    "name": "Squall Alliance Emblem"
+  },
+  "82158": {
+    "type_id": 82158,
+    "name": "Squall Corporation Emblem"
+  },
+  "82159": {
+    "type_id": 82159,
+    "name": "Torrent Alliance Emblem"
+  },
+  "82160": {
+    "type_id": 82160,
+    "name": "Torrent Corporation Emblem"
+  },
+  "82163": {
+    "type_id": 82163,
+    "name": "Hezorime"
+  },
+  "82164": {
+    "type_id": 82164,
+    "name": "Dull Hezorime"
+  },
+  "82165": {
+    "type_id": 82165,
+    "name": "Serrated Hezorime"
+  },
+  "82166": {
+    "type_id": 82166,
+    "name": "Sharp Hezorime"
+  },
+  "82174": {
+    "type_id": 82174,
+    "name": "Catalyst Navy Issue Federal Police SKIN"
+  },
+  "82175": {
+    "type_id": 82175,
+    "name": "Cormorant Navy Issue State Police SKIN"
+  },
+  "82177": {
+    "type_id": 82177,
+    "name": "Skybreaker AEGIS Police SKIN"
+  },
+  "82178": {
+    "type_id": 82178,
+    "name": "Thunderchild AEGIS Police SKIN"
+  },
+  "82180": {
+    "type_id": 82180,
+    "name": "Coercer Navy Issue Imperial Police SKIN"
+  },
+  "82181": {
+    "type_id": 82181,
+    "name": "Crusader Imperial Police SKIN"
+  },
+  "82182": {
+    "type_id": 82182,
+    "name": "Prophecy Navy Issue Imperial Police SKIN"
+  },
+  "82183": {
+    "type_id": 82183,
+    "name": "Legion Imperial Police SKIN"
+  },
+  "82184": {
+    "type_id": 82184,
+    "name": "Thrasher Fleet Issue Republic Police SKIN"
+  },
+  "82185": {
+    "type_id": 82185,
+    "name": "Stiletto Republic Police SKIN"
+  },
+  "82186": {
+    "type_id": 82186,
+    "name": "Loki Republic Police SKIN"
+  },
+  "82187": {
+    "type_id": 82187,
+    "name": "Vargur Republic Police SKIN"
+  },
+  "82205": {
+    "type_id": 82205,
+    "name": "Ueganite"
+  },
+  "82206": {
+    "type_id": 82206,
+    "name": "Foggy Ueganite"
+  },
+  "82207": {
+    "type_id": 82207,
+    "name": "Overcast Ueganite"
+  },
+  "82208": {
+    "type_id": 82208,
+    "name": "Stormy Ueganite"
+  },
+  "82300": {
+    "type_id": 82300,
+    "name": "Compressed Kylixium"
+  },
+  "82301": {
+    "type_id": 82301,
+    "name": "Compressed Kaolin Kylixium"
+  },
+  "82302": {
+    "type_id": 82302,
+    "name": "Compressed Argil Kylixium"
+  },
+  "82303": {
+    "type_id": 82303,
+    "name": "Compressed Adobe Kylixium"
+  },
+  "82304": {
+    "type_id": 82304,
+    "name": "Compressed Nocxite"
+  },
+  "82305": {
+    "type_id": 82305,
+    "name": "Compressed Fragrant Nocxite"
+  },
+  "82306": {
+    "type_id": 82306,
+    "name": "Compressed Intoxicating Nocxite"
+  },
+  "82307": {
+    "type_id": 82307,
+    "name": "Compressed Ambrosial Nocxite"
+  },
+  "82308": {
+    "type_id": 82308,
+    "name": "Compressed Ueganite"
+  },
+  "82309": {
+    "type_id": 82309,
+    "name": "Compressed Foggy Ueganite"
+  },
+  "82310": {
+    "type_id": 82310,
+    "name": "Compressed Overcast Ueganite"
+  },
+  "82311": {
+    "type_id": 82311,
+    "name": "Compressed Stormy Ueganite"
+  },
+  "82312": {
+    "type_id": 82312,
+    "name": "Compressed Hezorime"
+  },
+  "82313": {
+    "type_id": 82313,
+    "name": "Compressed Dull Hezorime"
+  },
+  "82314": {
+    "type_id": 82314,
+    "name": "Compressed Serrated Hezorime"
+  },
+  "82315": {
+    "type_id": 82315,
+    "name": "Compressed Sharp Hezorime"
+  },
+  "82316": {
+    "type_id": 82316,
+    "name": "Compressed Griemeer"
+  },
+  "82317": {
+    "type_id": 82317,
+    "name": "Compressed Clear Griemeer"
+  },
+  "82318": {
+    "type_id": 82318,
+    "name": "Compressed Inky Griemeer"
+  },
+  "82319": {
+    "type_id": 82319,
+    "name": "Compressed Opaque Griemeer"
+  },
+  "82340": {
+    "type_id": 82340,
+    "name": "Division - Limited"
+  },
+  "82342": {
+    "type_id": 82342,
+    "name": "Triple Stripe - Limited"
+  },
+  "82343": {
+    "type_id": 82343,
+    "name": "Zippered - Limited"
+  },
+  "82344": {
+    "type_id": 82344,
+    "name": "Martial Camo - Limited"
+  },
+  "82345": {
+    "type_id": 82345,
+    "name": "Shattered Conceptions - Limited"
+  },
+  "82346": {
+    "type_id": 82346,
+    "name": "Urban Camo - Limited"
+  },
+  "82347": {
+    "type_id": 82347,
+    "name": "Wormhole Camo - Limited"
+  },
+  "82348": {
+    "type_id": 82348,
+    "name": "Striped Chevron - Limited"
+  },
+  "82349": {
+    "type_id": 82349,
+    "name": "Checkmate - Limited"
+  },
+  "82350": {
+    "type_id": 82350,
+    "name": "Checkerboard"
+  },
+  "82351": {
+    "type_id": 82351,
+    "name": "Curved Corner - Limited"
+  },
+  "82352": {
+    "type_id": 82352,
+    "name": "Cross - Limited"
+  },
+  "82353": {
+    "type_id": 82353,
+    "name": "Escape Curve - Limited"
+  },
+  "82354": {
+    "type_id": 82354,
+    "name": "Breakthrough - Limited"
+  },
+  "82355": {
+    "type_id": 82355,
+    "name": "Gradient Stripe - Limited"
+  },
+  "82356": {
+    "type_id": 82356,
+    "name": "Fade In - Limited"
+  },
+  "82357": {
+    "type_id": 82357,
+    "name": "Crystalized Gradient - Limited"
+  },
+  "82358": {
+    "type_id": 82358,
+    "name": "Camo-Vyraj - Limited"
+  },
+  "82359": {
+    "type_id": 82359,
+    "name": "Hex Stripe - Limited"
+  },
+  "82360": {
+    "type_id": 82360,
+    "name": "Faded Hex - Limited"
+  },
+  "82361": {
+    "type_id": 82361,
+    "name": "Glitched Hex - Limited"
+  },
+  "82362": {
+    "type_id": 82362,
+    "name": "Asteroid Field - Limited"
+  },
+  "82363": {
+    "type_id": 82363,
+    "name": "Splitter - Limited"
+  },
+  "82364": {
+    "type_id": 82364,
+    "name": "Triple Chevron - Limited"
+  },
+  "82365": {
+    "type_id": 82365,
+    "name": "Triple Split - Limited"
+  },
+  "82366": {
+    "type_id": 82366,
+    "name": "Valor - Limited"
+  },
+  "82367": {
+    "type_id": 82367,
+    "name": "Pillars of Inequality - Limited"
+  },
+  "82368": {
+    "type_id": 82368,
+    "name": "Small Hex Gradient - Limited"
+  },
+  "82369": {
+    "type_id": 82369,
+    "name": "Large Hex Gradient - Limited"
+  },
+  "82370": {
+    "type_id": 82370,
+    "name": "Angular Corner - Limited"
+  },
+  "82371": {
+    "type_id": 82371,
+    "name": "Digital Domain - Limited"
+  },
+  "82372": {
+    "type_id": 82372,
+    "name": "Speed Stripes - Limited"
+  },
+  "82373": {
+    "type_id": 82373,
+    "name": "Flip Side Stripes - Limited"
+  },
+  "82374": {
+    "type_id": 82374,
+    "name": "Gauged - Limited"
+  },
+  "82375": {
+    "type_id": 82375,
+    "name": "Hex Recursion - Limited"
+  },
+  "82376": {
+    "type_id": 82376,
+    "name": "Hex Map - Limited"
+  },
+  "82377": {
+    "type_id": 82377,
+    "name": "Hex Camo - Limited"
+  },
+  "82378": {
+    "type_id": 82378,
+    "name": "Data Fragmentation - Limited"
+  },
+  "82379": {
+    "type_id": 82379,
+    "name": "Diamond Fade - Limited"
+  },
+  "82380": {
+    "type_id": 82380,
+    "name": "Spherical Fade - Limited"
+  },
+  "82381": {
+    "type_id": 82381,
+    "name": "Freedom - Limited"
+  },
+  "82382": {
+    "type_id": 82382,
+    "name": "Hexscape - Limited"
+  },
+  "82383": {
+    "type_id": 82383,
+    "name": "Hex Trails - Limited"
+  },
+  "82384": {
+    "type_id": 82384,
+    "name": "Unity - Limited"
+  },
+  "82385": {
+    "type_id": 82385,
+    "name": "Four from One - Limited"
+  },
+  "82386": {
+    "type_id": 82386,
+    "name": "Bold Lines - Limited"
+  },
+  "82387": {
+    "type_id": 82387,
+    "name": "Finishing Line - Limited"
+  },
+  "82388": {
+    "type_id": 82388,
+    "name": "Union - Limited"
+  },
+  "82389": {
+    "type_id": 82389,
+    "name": "Tiger - Limited"
+  },
+  "82390": {
+    "type_id": 82390,
+    "name": "Valkyrie - Limited"
+  },
+  "82391": {
+    "type_id": 82391,
+    "name": "Squared Off - Limited"
+  },
+  "82392": {
+    "type_id": 82392,
+    "name": "Abyssal Corruption - Limited"
+  },
+  "82393": {
+    "type_id": 82393,
+    "name": "Petals - Limited"
+  },
+  "82394": {
+    "type_id": 82394,
+    "name": "Pinstripe Gradient - Limited"
+  },
+  "82395": {
+    "type_id": 82395,
+    "name": "Synth - Limited"
+  },
+  "82396": {
+    "type_id": 82396,
+    "name": "Metropolitan - Limited"
+  },
+  "82397": {
+    "type_id": 82397,
+    "name": "Corroded Trust - Limited"
+  },
+  "82398": {
+    "type_id": 82398,
+    "name": "Space Dust - Limited"
+  },
+  "82432": {
+    "type_id": 82432,
+    "name": "Admiral Noir's - Spiced Rum"
+  },
+  "82433": {
+    "type_id": 82433,
+    "name": "Division - Unlimited"
+  },
+  "82434": {
+    "type_id": 82434,
+    "name": "Triple Stripe -Unlimited"
+  },
+  "82435": {
+    "type_id": 82435,
+    "name": "Zippered - Unlimited"
+  },
+  "82436": {
+    "type_id": 82436,
+    "name": "Martial Camo - Unlimited"
+  },
+  "82437": {
+    "type_id": 82437,
+    "name": "Shattered Conceptions - Unlimited"
+  },
+  "82438": {
+    "type_id": 82438,
+    "name": "Urban Camo - Unlimited"
+  },
+  "82439": {
+    "type_id": 82439,
+    "name": "Wormhole Camo - Unlimited"
+  },
+  "82440": {
+    "type_id": 82440,
+    "name": "Striped Chevron - Unlimited"
+  },
+  "82441": {
+    "type_id": 82441,
+    "name": "Checkmate - Unlimited"
+  },
+  "82442": {
+    "type_id": 82442,
+    "name": "Checkerboard - Unlimited"
+  },
+  "82443": {
+    "type_id": 82443,
+    "name": "Curved Corner - Unlimited"
+  },
+  "82444": {
+    "type_id": 82444,
+    "name": "Cross - Unlimited"
+  },
+  "82445": {
+    "type_id": 82445,
+    "name": "Escape Curve - Unlimited"
+  },
+  "82446": {
+    "type_id": 82446,
+    "name": "Breakthrough - Unlimited"
+  },
+  "82447": {
+    "type_id": 82447,
+    "name": "Gradient Stripe - Unlimited"
+  },
+  "82448": {
+    "type_id": 82448,
+    "name": "Fade In - Unlimited"
+  },
+  "82449": {
+    "type_id": 82449,
+    "name": "Crystalized Gradient - Unlimited"
+  },
+  "82450": {
+    "type_id": 82450,
+    "name": "Camo-Vyraj - Unlimited"
+  },
+  "82451": {
+    "type_id": 82451,
+    "name": "Hex Stripe - Unlimited"
+  },
+  "82452": {
+    "type_id": 82452,
+    "name": "Faded Hex - Unlimited"
+  },
+  "82453": {
+    "type_id": 82453,
+    "name": "Glitched Hex - Unlimited"
+  },
+  "82454": {
+    "type_id": 82454,
+    "name": "Small Hex Gradient - Unlimited"
+  },
+  "82455": {
+    "type_id": 82455,
+    "name": "Large Hex Gradient - Unlimited"
+  },
+  "82456": {
+    "type_id": 82456,
+    "name": "Data Fragmentation - Unlimited"
+  },
+  "82457": {
+    "type_id": 82457,
+    "name": "Diamond Fade - Unlimited"
+  },
+  "82458": {
+    "type_id": 82458,
+    "name": "Spherical Fade - Unlimited"
+  },
+  "82459": {
+    "type_id": 82459,
+    "name": "Freedom - Unlimited"
+  },
+  "82460": {
+    "type_id": 82460,
+    "name": "Asteroid Field - Unlimited"
+  },
+  "82461": {
+    "type_id": 82461,
+    "name": "Splitter - Unlimited"
+  },
+  "82462": {
+    "type_id": 82462,
+    "name": "Triple Chevron - Unlimited"
+  },
+  "82463": {
+    "type_id": 82463,
+    "name": "Triple Split - Unlimited"
+  },
+  "82464": {
+    "type_id": 82464,
+    "name": "Valor - Unlimited"
+  },
+  "82465": {
+    "type_id": 82465,
+    "name": "Pillars of Inequality - Unlimited"
+  },
+  "82466": {
+    "type_id": 82466,
+    "name": "Angular Corner - Unlimited"
+  },
+  "82467": {
+    "type_id": 82467,
+    "name": "Digital Domain - Unlimited"
+  },
+  "82468": {
+    "type_id": 82468,
+    "name": "Speed Stripes - Unlimited"
+  },
+  "82469": {
+    "type_id": 82469,
+    "name": "Flip Side Stripes - Unlimited"
+  },
+  "82470": {
+    "type_id": 82470,
+    "name": "Gauged - Unlimited"
+  },
+  "82471": {
+    "type_id": 82471,
+    "name": "Hex Recursion - Unlimited"
+  },
+  "82472": {
+    "type_id": 82472,
+    "name": "Hex Map - Unlimited"
+  },
+  "82473": {
+    "type_id": 82473,
+    "name": "Hex Camo - Unlimited"
+  },
+  "82474": {
+    "type_id": 82474,
+    "name": "Hexscape - Unlimited"
+  },
+  "82475": {
+    "type_id": 82475,
+    "name": "Hex Trails - Unlimited"
+  },
+  "82476": {
+    "type_id": 82476,
+    "name": "Abyssal Corruption - Unlimited"
+  },
+  "82477": {
+    "type_id": 82477,
+    "name": "Petals - Unlimited"
+  },
+  "82478": {
+    "type_id": 82478,
+    "name": "Pinstripe Gradient - Unlimited"
+  },
+  "82479": {
+    "type_id": 82479,
+    "name": "Synth - Unlimited"
+  },
+  "82480": {
+    "type_id": 82480,
+    "name": "Metropolitan - Unlimited"
+  },
+  "82481": {
+    "type_id": 82481,
+    "name": "Corroded Trust - Unlimited"
+  },
+  "82482": {
+    "type_id": 82482,
+    "name": "Space Dust - Unlimited"
+  },
+  "82484": {
+    "type_id": 82484,
+    "name": "Unity - Unlimited"
+  },
+  "82485": {
+    "type_id": 82485,
+    "name": "Four from One - Unlimited"
+  },
+  "82486": {
+    "type_id": 82486,
+    "name": "Bold Lines - Unlimited"
+  },
+  "82487": {
+    "type_id": 82487,
+    "name": "Finishing Line - Unlimited"
+  },
+  "82488": {
+    "type_id": 82488,
+    "name": "Union - Unlimited"
+  },
+  "82489": {
+    "type_id": 82489,
+    "name": "Tiger - Unlimited"
+  },
+  "82490": {
+    "type_id": 82490,
+    "name": "Valkyrie - Unlimited"
+  },
+  "82491": {
+    "type_id": 82491,
+    "name": "Squared Off - Unlimited"
+  },
+  "82492": {
+    "type_id": 82492,
+    "name": "Minor Threat Detection Array 3"
+  },
+  "82493": {
+    "type_id": 82493,
+    "name": "Placeholder Sov Hub Upgrade 1"
+  },
+  "82494": {
+    "type_id": 82494,
+    "name": "Placeholder Sov Hub Upgrade 2"
+  },
+  "82495": {
+    "type_id": 82495,
+    "name": "Placeholder Sov Hub Upgrade 3"
+  },
+  "82496": {
+    "type_id": 82496,
+    "name": "Major Threat Detection Array 1"
+  },
+  "82497": {
+    "type_id": 82497,
+    "name": "Major Threat Detection Array 2"
+  },
+  "82498": {
+    "type_id": 82498,
+    "name": "Major Threat Detection Array 3"
+  },
+  "82499": {
+    "type_id": 82499,
+    "name": "Minor Threat Detection Array 1"
+  },
+  "82500": {
+    "type_id": 82500,
+    "name": "Minor Threat Detection Array 2"
+  },
+  "82501": {
+    "type_id": 82501,
+    "name": "Major Threat Detection Array 1 Blueprint"
+  },
+  "82502": {
+    "type_id": 82502,
+    "name": "Major Threat Detection Array 2 Blueprint"
+  },
+  "82503": {
+    "type_id": 82503,
+    "name": "Major Threat Detection Array 3 Blueprint"
+  },
+  "82504": {
+    "type_id": 82504,
+    "name": "Minor Threat Detection Array 1 Blueprint"
+  },
+  "82505": {
+    "type_id": 82505,
+    "name": "Minor Threat Detection Array 2 Blueprint"
+  },
+  "82506": {
+    "type_id": 82506,
+    "name": "Minor Threat Detection Array 3 Blueprint"
+  },
+  "82507": {
+    "type_id": 82507,
+    "name": "Placeholder Sov Hub Upgrade 1 Blueprint"
+  },
+  "82508": {
+    "type_id": 82508,
+    "name": "Placeholder Sov Hub Upgrade 2 Blueprint"
+  },
+  "82509": {
+    "type_id": 82509,
+    "name": "Placeholder Sov Hub Upgrade 3 Blueprint"
+  },
+  "82579": {
+    "type_id": 82579,
+    "name": "Tritanium Prospecting Array 2"
+  },
+  "82580": {
+    "type_id": 82580,
+    "name": "Isogen Prospecting Array 1"
+  },
+  "82581": {
+    "type_id": 82581,
+    "name": "Isogen Prospecting Array 2"
+  },
+  "82582": {
+    "type_id": 82582,
+    "name": "Nocxium Prospecting Array 1"
+  },
+  "82583": {
+    "type_id": 82583,
+    "name": "Nocxium Prospecting Array 2"
+  },
+  "82584": {
+    "type_id": 82584,
+    "name": "Zydrine Prospecting Array 1"
+  },
+  "82585": {
+    "type_id": 82585,
+    "name": "Zydrine Prospecting Array 2"
+  },
+  "82586": {
+    "type_id": 82586,
+    "name": "Megacyte Prospecting Array 1"
+  },
+  "82587": {
+    "type_id": 82587,
+    "name": "Megacyte Prospecting Array 2"
+  },
+  "82588": {
+    "type_id": 82588,
+    "name": "Pyerite Prospecting Array 1"
+  },
+  "82589": {
+    "type_id": 82589,
+    "name": "Pyerite Prospecting Array 2"
+  },
+  "82590": {
+    "type_id": 82590,
+    "name": "Mexallon Prospecting Array 1"
+  },
+  "82591": {
+    "type_id": 82591,
+    "name": "Mexallon Prospecting Array 2"
+  },
+  "82592": {
+    "type_id": 82592,
+    "name": "Tritanium Prospecting Array 1"
+  },
+  "82594": {
+    "type_id": 82594,
+    "name": "Megacyte Prospecting Array 2 Blueprint"
+  },
+  "82595": {
+    "type_id": 82595,
+    "name": "Megacyte Prospecting Array 1 Blueprint"
+  },
+  "82596": {
+    "type_id": 82596,
+    "name": "Zydrine Prospecting Array 2 Blueprint"
+  },
+  "82597": {
+    "type_id": 82597,
+    "name": "Zydrine Prospecting Array 1 Blueprint"
+  },
+  "82598": {
+    "type_id": 82598,
+    "name": "Nocxium Prospecting Array 2 Blueprint"
+  },
+  "82599": {
+    "type_id": 82599,
+    "name": "Nocxium Prospecting Array 1 Blueprint"
+  },
+  "82600": {
+    "type_id": 82600,
+    "name": "Isogen Prospecting Array 2 Blueprint"
+  },
+  "82601": {
+    "type_id": 82601,
+    "name": "Isogen Prospecting Array 1 Blueprint"
+  },
+  "82602": {
+    "type_id": 82602,
+    "name": "Mexallon Prospecting Array 2 Blueprint"
+  },
+  "82603": {
+    "type_id": 82603,
+    "name": "Mexallon Prospecting Array 1 Blueprint"
+  },
+  "82604": {
+    "type_id": 82604,
+    "name": "Pyerite Prospecting Array 2 Blueprint"
+  },
+  "82605": {
+    "type_id": 82605,
+    "name": "Pyerite Prospecting Array 1 Blueprint"
+  },
+  "82606": {
+    "type_id": 82606,
+    "name": "Tritanium Prospecting Array 2 Blueprint"
+  },
+  "82607": {
+    "type_id": 82607,
+    "name": "Tritanium Prospecting Array 1 Blueprint"
+  },
+  "82609": {
+    "type_id": 82609,
+    "name": "Placeholder Sov Hub Upgrade 4"
+  },
+  "82622": {
+    "type_id": 82622,
+    "name": "Placeholder Sov Hub Upgrade 4 Blueprint"
+  },
+  "82941": {
+    "type_id": 82941,
+    "name": "Standup Metenox Moon Drill"
+  },
+  "82957": {
+    "type_id": 82957,
+    "name": "Plasmic Hepatizon Metallic - Limited"
+  },
+  "82958": {
+    "type_id": 82958,
+    "name": "Antiquarian Brass Metallic - Limited"
+  },
+  "82959": {
+    "type_id": 82959,
+    "name": "Flaylock Steel Metallic - Limited"
+  },
+  "82960": {
+    "type_id": 82960,
+    "name": "Entropic Alloy Metallic - Limited"
+  },
+  "82961": {
+    "type_id": 82961,
+    "name": "Polished Iron Metallic - Limited"
+  },
+  "82962": {
+    "type_id": 82962,
+    "name": "Sefrim Gold Metallic - Limited"
+  },
+  "82963": {
+    "type_id": 82963,
+    "name": "Neon Foil Metallic - Limited"
+  },
+  "82964": {
+    "type_id": 82964,
+    "name": "Poisoned Edge Metallic - Limited"
+  },
+  "82965": {
+    "type_id": 82965,
+    "name": "Silver Rose Metallic - Limited"
+  },
+  "82966": {
+    "type_id": 82966,
+    "name": "Precursor Plate Metallic - Limited"
+  },
+  "83060": {
+    "type_id": 83060,
+    "name": "Plasmic Hepatizon Metallic - Unlimited"
+  },
+  "83061": {
+    "type_id": 83061,
+    "name": "Antiquarian Brass Metallic - Unlimited"
+  },
+  "83062": {
+    "type_id": 83062,
+    "name": "Flaylock Steel Metallic - Unlimited"
+  },
+  "83063": {
+    "type_id": 83063,
+    "name": "Entropic Alloy Metallic - Unlimited"
+  },
+  "83064": {
+    "type_id": 83064,
+    "name": "Polished Iron Metallic - Unlimited"
+  },
+  "83065": {
+    "type_id": 83065,
+    "name": "Sefrim Gold Metallic - Unlimited"
+  },
+  "83066": {
+    "type_id": 83066,
+    "name": "Neon Foil Metallic - Unlimited"
+  },
+  "83067": {
+    "type_id": 83067,
+    "name": "Poisoned Edge Metallic - Unlimited"
+  },
+  "83068": {
+    "type_id": 83068,
+    "name": "Silver Rose Metallic - Unlimited"
+  },
+  "83069": {
+    "type_id": 83069,
+    "name": "Precursor Plate Metallic - Unlimited"
+  },
+  "83094": {
+    "type_id": 83094,
+    "name": "Capital Jump Portal Generation"
+  },
+  "83201": {
+    "type_id": 83201,
+    "name": "Oceanic Serpent Matte - Limited"
+  },
+  "83202": {
+    "type_id": 83202,
+    "name": "Azure Skies Matte - Limited"
+  },
+  "83203": {
+    "type_id": 83203,
+    "name": "Zakura Cherry Pink Matte - Limited"
+  },
+  "83204": {
+    "type_id": 83204,
+    "name": "Suppressed Lavender Matte - Limited"
+  },
+  "83205": {
+    "type_id": 83205,
+    "name": "Dark Abyss Matte - Limited"
+  },
+  "83206": {
+    "type_id": 83206,
+    "name": "Electric Dreams Matte - Limited"
+  },
+  "83207": {
+    "type_id": 83207,
+    "name": "Deep Void Matte - Limited"
+  },
+  "83208": {
+    "type_id": 83208,
+    "name": "Sacred Stone Matte - Limited"
+  },
+  "83209": {
+    "type_id": 83209,
+    "name": "Stellar White Matte - Limited"
+  },
+  "83210": {
+    "type_id": 83210,
+    "name": "Callie After Dark Matte - Limited"
+  },
+  "83211": {
+    "type_id": 83211,
+    "name": "Sani Crimson Matte - Limited"
+  },
+  "83212": {
+    "type_id": 83212,
+    "name": "Boosted Mint Matte - Limited"
+  },
+  "83213": {
+    "type_id": 83213,
+    "name": "Gelidus Aqua Matte - Limited"
+  },
+  "83214": {
+    "type_id": 83214,
+    "name": "Planetfall Green Matte - Limited"
+  },
+  "83215": {
+    "type_id": 83215,
+    "name": "Industrial Lux Matte - Limited"
+  },
+  "83216": {
+    "type_id": 83216,
+    "name": "Emerald Boulevard Matte - Limited"
+  },
+  "83217": {
+    "type_id": 83217,
+    "name": "Argon Heat Matte - Limited"
+  },
+  "83218": {
+    "type_id": 83218,
+    "name": "Elder's Bone Matte - Limited"
+  },
+  "83219": {
+    "type_id": 83219,
+    "name": "Synthetic Mocha Matte - Limited"
+  },
+  "83220": {
+    "type_id": 83220,
+    "name": "Zento Legacy Matte - Limited"
+  },
+  "83221": {
+    "type_id": 83221,
+    "name": "Imperial Plum Matte - Limited"
+  },
+  "83222": {
+    "type_id": 83222,
+    "name": "Isotopic Iodide Matte - Limited"
+  },
+  "83223": {
+    "type_id": 83223,
+    "name": "Phantom Rose Matte - Limited"
+  },
+  "83224": {
+    "type_id": 83224,
+    "name": "Blood of Pator Matte - Limited"
+  },
+  "83225": {
+    "type_id": 83225,
+    "name": "Uncompromising Scarlet Matte - Limited"
+  },
+  "83226": {
+    "type_id": 83226,
+    "name": "Exoplanet Sunrise Matte - Limited"
+  },
+  "83227": {
+    "type_id": 83227,
+    "name": "Strawberry Fedo Matte - Limited"
+  },
+  "83228": {
+    "type_id": 83228,
+    "name": "Polar Glaze Matte - Limited"
+  },
+  "83229": {
+    "type_id": 83229,
+    "name": "Asaya Midnight Matte - Limited"
+  },
+  "83230": {
+    "type_id": 83230,
+    "name": "Citric Substitute Matte - Limited"
+  },
+  "83231": {
+    "type_id": 83231,
+    "name": "Lilac Star Dust Matte - Limited"
+  },
+  "83232": {
+    "type_id": 83232,
+    "name": "Oceanic Serpent Satin - Limited"
+  },
+  "83233": {
+    "type_id": 83233,
+    "name": "Azure Skies Satin - Limited"
+  },
+  "83234": {
+    "type_id": 83234,
+    "name": "Zakura Cherry Pink Satin - Limited"
+  },
+  "83235": {
+    "type_id": 83235,
+    "name": "Suppressed Lavender Satin - Limited"
+  },
+  "83236": {
+    "type_id": 83236,
+    "name": "Dark Abyss Satin - Limited"
+  },
+  "83237": {
+    "type_id": 83237,
+    "name": "Electric Dreams Satin - Limited"
+  },
+  "83238": {
+    "type_id": 83238,
+    "name": "Deep Void Satin - Limited"
+  },
+  "83239": {
+    "type_id": 83239,
+    "name": "Sacred Stone Satin - Limited"
+  },
+  "83240": {
+    "type_id": 83240,
+    "name": "Stellar White Satin - Limited"
+  },
+  "83241": {
+    "type_id": 83241,
+    "name": "Callie After Dark Satin - Limited"
+  },
+  "83242": {
+    "type_id": 83242,
+    "name": "Sani Crimson Satin - Limited"
+  },
+  "83243": {
+    "type_id": 83243,
+    "name": "Boosted Mint Satin - Limited"
+  },
+  "83244": {
+    "type_id": 83244,
+    "name": "Gelidus Aqua Satin - Limited"
+  },
+  "83245": {
+    "type_id": 83245,
+    "name": "Planetfall Green Satin - Limited"
+  },
+  "83246": {
+    "type_id": 83246,
+    "name": "Industrial Lux Satin - Limited"
+  },
+  "83247": {
+    "type_id": 83247,
+    "name": "Emerald Boulevard Satin - Limited"
+  },
+  "83248": {
+    "type_id": 83248,
+    "name": "Argon Heat Satin - Limited"
+  },
+  "83249": {
+    "type_id": 83249,
+    "name": "Elder's Bone Satin - Limited"
+  },
+  "83250": {
+    "type_id": 83250,
+    "name": "Synthetic Mocha Satin - Limited"
+  },
+  "83251": {
+    "type_id": 83251,
+    "name": "Zento Legacy Satin - Limited"
+  },
+  "83252": {
+    "type_id": 83252,
+    "name": "Imperial Plum Satin - Limited"
+  },
+  "83253": {
+    "type_id": 83253,
+    "name": "Isotopic Iodide Satin - Limited"
+  },
+  "83254": {
+    "type_id": 83254,
+    "name": "Phantom Rose Satin - Limited"
+  },
+  "83255": {
+    "type_id": 83255,
+    "name": "Blood of Pator Satin - Limited"
+  },
+  "83256": {
+    "type_id": 83256,
+    "name": "Uncompromising Scarlet Satin - Limited"
+  },
+  "83257": {
+    "type_id": 83257,
+    "name": "Exoplanet Sunrise Satin - Limited"
+  },
+  "83258": {
+    "type_id": 83258,
+    "name": "Strawberry Fedo Satin - Limited"
+  },
+  "83259": {
+    "type_id": 83259,
+    "name": "Polar Glaze Satin - Limited"
+  },
+  "83260": {
+    "type_id": 83260,
+    "name": "Asaya Midnight Satin - Limited"
+  },
+  "83261": {
+    "type_id": 83261,
+    "name": "Citric Substitute Satin - Limited"
+  },
+  "83262": {
+    "type_id": 83262,
+    "name": "Lilac Star Dust Satin - Limited"
+  },
+  "83263": {
+    "type_id": 83263,
+    "name": "Oceanic Serpent Gloss - Limited"
+  },
+  "83264": {
+    "type_id": 83264,
+    "name": "Azure Skies Gloss - Limited"
+  },
+  "83265": {
+    "type_id": 83265,
+    "name": "Zakura Cherry Pink Gloss - Limited"
+  },
+  "83266": {
+    "type_id": 83266,
+    "name": "Suppressed Lavender Gloss - Limited"
+  },
+  "83267": {
+    "type_id": 83267,
+    "name": "Dark Abyss Gloss - Limited"
+  },
+  "83268": {
+    "type_id": 83268,
+    "name": "Electric Dreams Gloss - Limited"
+  },
+  "83269": {
+    "type_id": 83269,
+    "name": "Deep Void Gloss - Limited"
+  },
+  "83270": {
+    "type_id": 83270,
+    "name": "Sacred Stone Gloss - Limited"
+  },
+  "83271": {
+    "type_id": 83271,
+    "name": "Stellar White Gloss - Limited"
+  },
+  "83272": {
+    "type_id": 83272,
+    "name": "Callie After Dark Gloss - Limited"
+  },
+  "83273": {
+    "type_id": 83273,
+    "name": "Sani Crimson Gloss - Limited"
+  },
+  "83274": {
+    "type_id": 83274,
+    "name": "Boosted Mint Gloss - Limited"
+  },
+  "83275": {
+    "type_id": 83275,
+    "name": "Gelidus Aqua Gloss - Limited"
+  },
+  "83276": {
+    "type_id": 83276,
+    "name": "Planetfall Green Gloss - Limited"
+  },
+  "83277": {
+    "type_id": 83277,
+    "name": "Industrial Lux Gloss - Limited"
+  },
+  "83278": {
+    "type_id": 83278,
+    "name": "Emerald Boulevard Gloss - Limited"
+  },
+  "83279": {
+    "type_id": 83279,
+    "name": "Argon Heat Gloss - Limited"
+  },
+  "83280": {
+    "type_id": 83280,
+    "name": "Elder's Bone Gloss - Limited"
+  },
+  "83281": {
+    "type_id": 83281,
+    "name": "Synthetic Mocha Gloss - Limited"
+  },
+  "83282": {
+    "type_id": 83282,
+    "name": "Zento Legacy Gloss - Limited"
+  },
+  "83283": {
+    "type_id": 83283,
+    "name": "Imperial Plum Gloss - Limited"
+  },
+  "83284": {
+    "type_id": 83284,
+    "name": "Isotopic Iodide Gloss - Limited"
+  },
+  "83286": {
+    "type_id": 83286,
+    "name": "Phantom Rose Gloss - Limited"
+  },
+  "83287": {
+    "type_id": 83287,
+    "name": "Blood of Pator Gloss - Limited"
+  },
+  "83288": {
+    "type_id": 83288,
+    "name": "Uncompromising Scarlet Gloss - Limited"
+  },
+  "83289": {
+    "type_id": 83289,
+    "name": "Exoplanet Sunrise Gloss - Limited"
+  },
+  "83290": {
+    "type_id": 83290,
+    "name": "Strawberry Fedo Gloss - Limited"
+  },
+  "83291": {
+    "type_id": 83291,
+    "name": "Polar Glaze Gloss - Limited"
+  },
+  "83292": {
+    "type_id": 83292,
+    "name": "Asaya Midnight Gloss - Limited"
+  },
+  "83293": {
+    "type_id": 83293,
+    "name": "Citric Substitute Gloss - Limited"
+  },
+  "83294": {
+    "type_id": 83294,
+    "name": "Lilac Star Dust Gloss - Limited"
+  },
+  "83296": {
+    "type_id": 83296,
+    "name": "Oceanic Serpent Matte - Unlimited"
+  },
+  "83297": {
+    "type_id": 83297,
+    "name": "Azure Skies Matte - Unlimited"
+  },
+  "83298": {
+    "type_id": 83298,
+    "name": "Zakura Cherry Pink Matte - Unlimited"
+  },
+  "83299": {
+    "type_id": 83299,
+    "name": "Suppressed Lavender Matte - Unlimited"
+  },
+  "83300": {
+    "type_id": 83300,
+    "name": "Dark Abyss Matte - Unlimited"
+  },
+  "83301": {
+    "type_id": 83301,
+    "name": "Electric Dreams Matte - Unlimited"
+  },
+  "83302": {
+    "type_id": 83302,
+    "name": "Deep Void Matte - Unlimited"
+  },
+  "83303": {
+    "type_id": 83303,
+    "name": "Sacred Stone Matte - Unlimited"
+  },
+  "83304": {
+    "type_id": 83304,
+    "name": "Stellar White Matte - Unlimited"
+  },
+  "83305": {
+    "type_id": 83305,
+    "name": "Callie After Dark Matte - Unlimited"
+  },
+  "83306": {
+    "type_id": 83306,
+    "name": "Sani Crimson Matte - Unlimited"
+  },
+  "83307": {
+    "type_id": 83307,
+    "name": "Boosted Mint Matte - Unlimited"
+  },
+  "83308": {
+    "type_id": 83308,
+    "name": "Gelidus Aqua Matte - Unlimited"
+  },
+  "83309": {
+    "type_id": 83309,
+    "name": "Planetfall Green Matte - Unlimited"
+  },
+  "83310": {
+    "type_id": 83310,
+    "name": "Industrial Lux Matte - Unlimited"
+  },
+  "83311": {
+    "type_id": 83311,
+    "name": "Emerald Boulevard Matte - Unlimited"
+  },
+  "83312": {
+    "type_id": 83312,
+    "name": "Argon Heat Matte - Unlimited"
+  },
+  "83313": {
+    "type_id": 83313,
+    "name": "Elder's Bone Matte - Unlimited"
+  },
+  "83314": {
+    "type_id": 83314,
+    "name": "Synthetic Mocha Matte - Unlimited"
+  },
+  "83315": {
+    "type_id": 83315,
+    "name": "Zento Legacy Matte - Unlimited"
+  },
+  "83316": {
+    "type_id": 83316,
+    "name": "Imperial Plum Matte - Unlimited"
+  },
+  "83317": {
+    "type_id": 83317,
+    "name": "Isotopic Iodide Matte - Unlimited"
+  },
+  "83318": {
+    "type_id": 83318,
+    "name": "Phantom Rose Matte - Unlimited"
+  },
+  "83319": {
+    "type_id": 83319,
+    "name": "Blood of Pator Matte - Unlimited"
+  },
+  "83320": {
+    "type_id": 83320,
+    "name": "Uncompromising Scarlet Matte - Unlimited"
+  },
+  "83321": {
+    "type_id": 83321,
+    "name": "Exoplanet Sunrise Matte - Unlimited"
+  },
+  "83322": {
+    "type_id": 83322,
+    "name": "Strawberry Fedo Matte - Unlimited"
+  },
+  "83323": {
+    "type_id": 83323,
+    "name": "Polar Glaze Matte - Unlimited"
+  },
+  "83324": {
+    "type_id": 83324,
+    "name": "Asaya Midnight Matte - Unlimited"
+  },
+  "83325": {
+    "type_id": 83325,
+    "name": "Citric Substitute Matte - Unlimited"
+  },
+  "83326": {
+    "type_id": 83326,
+    "name": "Lilac Star Dust Matte - Unlimited"
+  },
+  "83327": {
+    "type_id": 83327,
+    "name": "Oceanic Serpent Satin - Unlimited"
+  },
+  "83328": {
+    "type_id": 83328,
+    "name": "Azure Skies Satin - Unlimited"
+  },
+  "83329": {
+    "type_id": 83329,
+    "name": "Zakura Cherry Pink Satin - Unlimited"
+  },
+  "83330": {
+    "type_id": 83330,
+    "name": "Suppressed Lavender Satin - Unlimited"
+  },
+  "83331": {
+    "type_id": 83331,
+    "name": "Dark Abyss Satin - Unlimited"
+  },
+  "83332": {
+    "type_id": 83332,
+    "name": "Electric Dreams Satin - Unlimited"
+  },
+  "83333": {
+    "type_id": 83333,
+    "name": "Deep Void Satin - Unlimited"
+  },
+  "83334": {
+    "type_id": 83334,
+    "name": "Sacred Stone Satin - Unlimited"
+  },
+  "83335": {
+    "type_id": 83335,
+    "name": "Stellar White Satin - Unlimited"
+  },
+  "83336": {
+    "type_id": 83336,
+    "name": "Callie After Dark Satin - Unlimited"
+  },
+  "83337": {
+    "type_id": 83337,
+    "name": "Sani Crimson Satin - Unlimited"
+  },
+  "83338": {
+    "type_id": 83338,
+    "name": "Boosted Mint Satin - Unlimited"
+  },
+  "83339": {
+    "type_id": 83339,
+    "name": "Gelidus Aqua Satin - Unlimited"
+  },
+  "83340": {
+    "type_id": 83340,
+    "name": "Planetfall Green Satin - Unlimited"
+  },
+  "83341": {
+    "type_id": 83341,
+    "name": "Industrial Lux Satin - Unlimited"
+  },
+  "83342": {
+    "type_id": 83342,
+    "name": "Emerald Boulevard Satin - Unlimited"
+  },
+  "83343": {
+    "type_id": 83343,
+    "name": "Argon Heat Satin - Unlimited"
+  },
+  "83344": {
+    "type_id": 83344,
+    "name": "Elder's Bone Satin - Unlimited"
+  },
+  "83345": {
+    "type_id": 83345,
+    "name": "Synthetic Mocha Satin - Unlimited"
+  },
+  "83346": {
+    "type_id": 83346,
+    "name": "Zento Legacy Satin - Unlimited"
+  },
+  "83347": {
+    "type_id": 83347,
+    "name": "Imperial Plum Satin - Unlimited"
+  },
+  "83348": {
+    "type_id": 83348,
+    "name": "Isotopic Iodide Satin - Unlimited"
+  },
+  "83349": {
+    "type_id": 83349,
+    "name": "Phantom Rose Satin - Unlimited"
+  },
+  "83350": {
+    "type_id": 83350,
+    "name": "Blood of Pator Satin - Unlimited"
+  },
+  "83351": {
+    "type_id": 83351,
+    "name": "Uncompromising Scarlet Satin - Unlimited"
+  },
+  "83352": {
+    "type_id": 83352,
+    "name": "Exoplanet Sunrise Satin - Unlimited"
+  },
+  "83353": {
+    "type_id": 83353,
+    "name": "Strawberry Fedo Satin - Unlimited"
+  },
+  "83354": {
+    "type_id": 83354,
+    "name": "Polar Glaze Satin - Unlimited"
+  },
+  "83355": {
+    "type_id": 83355,
+    "name": "Asaya Midnight Satin - Unlimited"
+  },
+  "83356": {
+    "type_id": 83356,
+    "name": "Citric Substitute Satin - Unlimited"
+  },
+  "83357": {
+    "type_id": 83357,
+    "name": "Lilac Star Dust Satin - Unlimited"
+  },
+  "83358": {
+    "type_id": 83358,
+    "name": "Oceanic Serpent Gloss - Unlimited"
+  },
+  "83359": {
+    "type_id": 83359,
+    "name": "Azure Skies Gloss - Unlimited"
+  },
+  "83360": {
+    "type_id": 83360,
+    "name": "Zakura Cherry Pink Gloss - Unlimited"
+  },
+  "83361": {
+    "type_id": 83361,
+    "name": "Suppressed Lavender Gloss - Unlimited"
+  },
+  "83362": {
+    "type_id": 83362,
+    "name": "Dark Abyss Gloss - Unlimited"
+  },
+  "83363": {
+    "type_id": 83363,
+    "name": "Electric Dreams Gloss - Unlimited"
+  },
+  "83364": {
+    "type_id": 83364,
+    "name": "Deep Void Gloss - Unlimited"
+  },
+  "83365": {
+    "type_id": 83365,
+    "name": "Sacred Stone Gloss - Unlimited"
+  },
+  "83366": {
+    "type_id": 83366,
+    "name": "Stellar White Gloss - Unlimited"
+  },
+  "83367": {
+    "type_id": 83367,
+    "name": "Callie After Dark Gloss - Unlimited"
+  },
+  "83368": {
+    "type_id": 83368,
+    "name": "Sani Crimson Gloss - Unlimited"
+  },
+  "83369": {
+    "type_id": 83369,
+    "name": "Boosted Mint Gloss - Unlimited"
+  },
+  "83370": {
+    "type_id": 83370,
+    "name": "Gelidus Aqua Gloss - Unlimited"
+  },
+  "83371": {
+    "type_id": 83371,
+    "name": "Planetfall Green Gloss - Unlimited"
+  },
+  "83372": {
+    "type_id": 83372,
+    "name": "Industrial Lux Gloss - Unlimited"
+  },
+  "83373": {
+    "type_id": 83373,
+    "name": "Emerald Boulevard Gloss - Unlimited"
+  },
+  "83374": {
+    "type_id": 83374,
+    "name": "Argon Heat Gloss - Unlimited"
+  },
+  "83375": {
+    "type_id": 83375,
+    "name": "Elder's Bone Gloss - Unlimited"
+  },
+  "83376": {
+    "type_id": 83376,
+    "name": "Synthetic Mocha Gloss - Unlimited"
+  },
+  "83377": {
+    "type_id": 83377,
+    "name": "Zento Legacy Gloss - Unlimited"
+  },
+  "83378": {
+    "type_id": 83378,
+    "name": "Imperial Plum Gloss - Unlimited"
+  },
+  "83379": {
+    "type_id": 83379,
+    "name": "Isotopic Iodide Gloss - Unlimited"
+  },
+  "83380": {
+    "type_id": 83380,
+    "name": "Phantom Rose Gloss - Unlimited"
+  },
+  "83381": {
+    "type_id": 83381,
+    "name": "Blood of Pator Gloss - Unlimited"
+  },
+  "83382": {
+    "type_id": 83382,
+    "name": "Uncompromising Scarlet Gloss - Unlimited"
+  },
+  "83383": {
+    "type_id": 83383,
+    "name": "Exoplanet Sunrise Gloss - Unlimited"
+  },
+  "83384": {
+    "type_id": 83384,
+    "name": "Strawberry Fedo Gloss - Unlimited"
+  },
+  "83385": {
+    "type_id": 83385,
+    "name": "Polar Glaze Gloss - Unlimited"
+  },
+  "83386": {
+    "type_id": 83386,
+    "name": "Asaya Midnight Gloss - Unlimited"
+  },
+  "83387": {
+    "type_id": 83387,
+    "name": "Citric Substitute Gloss - Unlimited"
+  },
+  "83388": {
+    "type_id": 83388,
+    "name": "Lilac Star Dust Gloss - Unlimited"
+  },
+  "83462": {
+    "type_id": 83462,
+    "name": "Sansha Station Ruins"
+  },
+  "83464": {
+    "type_id": 83464,
+    "name": "Capital Micro Jump Drive Operation"
+  },
+  "83465": {
+    "type_id": 83465,
+    "name": "Capital Micro Jump Drive"
+  },
+  "83467": {
+    "type_id": 83467,
+    "name": "Angel NET Resonator"
+  },
+  "83468": {
+    "type_id": 83468,
+    "name": "Blood Raider NET Resonator"
+  },
+  "83469": {
+    "type_id": 83469,
+    "name": "Guristas NET Resonator"
+  },
+  "83470": {
+    "type_id": 83470,
+    "name": "Mordu NET Resonator"
+  },
+  "83471": {
+    "type_id": 83471,
+    "name": "Sansha NET Resonator"
+  },
+  "83472": {
+    "type_id": 83472,
+    "name": "Serpentis NET Resonator"
+  },
+  "83473": {
+    "type_id": 83473,
+    "name": "SoE NET Resonator"
+  },
+  "83478": {
+    "type_id": 83478,
+    "name": "Sansha Tower non interactable"
+  },
+  "83479": {
+    "type_id": 83479,
+    "name": "Rogue DroneTower non interactable"
+  },
+  "83480": {
+    "type_id": 83480,
+    "name": "Pirate Guristas Tower"
+  },
+  "83481": {
+    "type_id": 83481,
+    "name": "Pirate Sansha Tower"
+  },
+  "83482": {
+    "type_id": 83482,
+    "name": "Pirate Serpentis Tower"
+  },
+  "83483": {
+    "type_id": 83483,
+    "name": "Pirate Rogue Drone Tower"
+  },
+  "83484": {
+    "type_id": 83484,
+    "name": "Pirate Blood Tower"
+  },
+  "83485": {
+    "type_id": 83485,
+    "name": "Capital Micro Jump Field Generator"
+  },
+  "83488": {
+    "type_id": 83488,
+    "name": "Non-interactable Raitaru Wreck"
+  },
+  "83489": {
+    "type_id": 83489,
+    "name": "Non-interactable Jump Gate Wreckage"
+  },
+  "83568": {
+    "type_id": 83568,
+    "name": "Amarrian Amphitheatre"
+  },
+  "83569": {
+    "type_id": 83569,
+    "name": "Thukker Market"
+  },
+  "83570": {
+    "type_id": 83570,
+    "name": "Automated Depot"
+  },
+  "83571": {
+    "type_id": 83571,
+    "name": "Repatriation Center"
+  },
+  "83572": {
+    "type_id": 83572,
+    "name": "[HF] Drain the Batteries - Hauler Spawner"
+  },
+  "83573": {
+    "type_id": 83573,
+    "name": "[HF] Drain the Batteries - Escort Spawner"
+  },
+  "83579": {
+    "type_id": 83579,
+    "name": "Imperial Navy Templar"
+  },
+  "83582": {
+    "type_id": 83582,
+    "name": "Caldari Navy Dragonfly"
+  },
+  "83583": {
+    "type_id": 83583,
+    "name": "Federation Navy Firbolg"
+  },
+  "83584": {
+    "type_id": 83584,
+    "name": "Republic Fleet Einherji"
+  },
+  "83585": {
+    "type_id": 83585,
+    "name": "Imperial Navy Equite"
+  },
+  "83586": {
+    "type_id": 83586,
+    "name": "Caldari Navy Locust"
+  },
+  "83587": {
+    "type_id": 83587,
+    "name": "Federation Navy Satyr"
+  },
+  "83589": {
+    "type_id": 83589,
+    "name": "Republic Fleet Gram"
+  },
+  "83590": {
+    "type_id": 83590,
+    "name": "Damaged Werpost"
+  },
+  "83591": {
+    "type_id": 83591,
+    "name": "Imperial Navy Cenobite"
+  },
+  "83592": {
+    "type_id": 83592,
+    "name": "Caldari Navy Scarab"
+  },
+  "83593": {
+    "type_id": 83593,
+    "name": "Federation Navy Siren"
+  },
+  "83594": {
+    "type_id": 83594,
+    "name": "Republic Fleet Dromi"
+  },
+  "83595": {
+    "type_id": 83595,
+    "name": "Imperial Navy Templar Blueprint"
+  },
+  "83596": {
+    "type_id": 83596,
+    "name": "Caldari Navy Dragonfly Blueprint"
+  },
+  "83597": {
+    "type_id": 83597,
+    "name": "Federation Navy Firbolg Blueprint"
+  },
+  "83598": {
+    "type_id": 83598,
+    "name": "Republic Fleet Einherji Blueprint"
+  },
+  "83599": {
+    "type_id": 83599,
+    "name": "Imperial Navy Equite Blueprint"
+  },
+  "83600": {
+    "type_id": 83600,
+    "name": "Caldari Navy Locust Blueprint"
+  },
+  "83601": {
+    "type_id": 83601,
+    "name": "Federation Navy Satyr Blueprint"
+  },
+  "83602": {
+    "type_id": 83602,
+    "name": "Republic Fleet Gram Blueprint"
+  },
+  "83603": {
+    "type_id": 83603,
+    "name": "Imperial Navy Cenobite Blueprint"
+  },
+  "83604": {
+    "type_id": 83604,
+    "name": "Caldari Navy Scarab Blueprint"
+  },
+  "83605": {
+    "type_id": 83605,
+    "name": "Federation Navy Siren Blueprint"
+  },
+  "83606": {
+    "type_id": 83606,
+    "name": "Republic Fleet Dromi Blueprint"
+  },
+  "83635": {
+    "type_id": 83635,
+    "name": "Tournament Firework Launcher"
+  },
+  "83636": {
+    "type_id": 83636,
+    "name": "Corelior Gunner"
+  },
+  "83637": {
+    "type_id": 83637,
+    "name": "Corelatis Group Captain"
+  },
+  "83638": {
+    "type_id": 83638,
+    "name": "Core Fleet Admiral"
+  },
+  "83639": {
+    "type_id": 83639,
+    "name": "SKINR Design Element Reward"
+  },
+  "83640": {
+    "type_id": 83640,
+    "name": "Capital Micro Jump Drive Blueprint"
+  },
+  "83641": {
+    "type_id": 83641,
+    "name": "Capital Micro Jump Field Generator Blueprint"
+  },
+  "83642": {
+    "type_id": 83642,
+    "name": "Guri Malakim Command Mindlink"
+  },
+  "83643": {
+    "type_id": 83643,
+    "name": "Domination Signature Radius Suppressor"
+  },
+  "83644": {
+    "type_id": 83644,
+    "name": "Dread Guristas Signature Radius Suppressor"
+  },
+  "83645": {
+    "type_id": 83645,
+    "name": "Domination Signature Radius Suppressor Blueprint"
+  },
+  "83646": {
+    "type_id": 83646,
+    "name": "Dread Guristas Signature Radius Suppressor Blueprint"
+  },
+  "83647": {
+    "type_id": 83647,
+    "name": "Guri Malakim Expanded Cargohold"
+  },
+  "83648": {
+    "type_id": 83648,
+    "name": "Federal Boxcutter"
+  },
+  "83649": {
+    "type_id": 83649,
+    "name": "Federal Sorter"
+  },
+  "83650": {
+    "type_id": 83650,
+    "name": "Federal Depositor"
+  },
+  "83651": {
+    "type_id": 83651,
+    "name": "[HF] Worker Drone Spawner"
+  },
+  "83652": {
+    "type_id": 83652,
+    "name": "Thukker Hoarder"
+  },
+  "83653": {
+    "type_id": 83653,
+    "name": "Thukker Reaper"
+  },
+  "83654": {
+    "type_id": 83654,
+    "name": "[HF] Thukker Transport Spawner"
+  },
+  "83655": {
+    "type_id": 83655,
+    "name": "Kerr Sequencer (Placeholder)"
+  },
+  "83657": {
+    "type_id": 83657,
+    "name": "Stellar White Gloss (Placeholder)"
+  },
+  "83658": {
+    "type_id": 83658,
+    "name": "Boosted Mint Gloss (Placeholder)"
+  },
+  "83659": {
+    "type_id": 83659,
+    "name": "Planetfall Green Matte (Placeholder)"
+  },
+  "83660": {
+    "type_id": 83660,
+    "name": "Zohar's Modified Signature Radius Suppressor"
+  },
+  "83661": {
+    "type_id": 83661,
+    "name": "Hakuzosu's Modified Signature Radius Suppressor"
+  },
+  "83662": {
+    "type_id": 83662,
+    "name": "Zohar's Modified Signature Radius Suppressor Blueprint"
+  },
+  "83663": {
+    "type_id": 83663,
+    "name": "Hakuzosu's Modified Signature Radius Suppressor Blueprint"
+  },
+  "83666": {
+    "type_id": 83666,
+    "name": "Corpior Abbot"
+  },
+  "83667": {
+    "type_id": 83667,
+    "name": "Corpatis Oracle"
+  },
+  "83668": {
+    "type_id": 83668,
+    "name": "Corpus Exarch"
+  },
+  "83669": {
+    "type_id": 83669,
+    "name": "Pithior Agitator"
+  },
+  "83670": {
+    "type_id": 83670,
+    "name": "Pithatis Headsman"
+  },
+  "83671": {
+    "type_id": 83671,
+    "name": "Pith Extirpator"
+  },
+  "83672": {
+    "type_id": 83672,
+    "name": "Centior Aberration"
+  },
+  "83673": {
+    "type_id": 83673,
+    "name": "Centatis Banshee"
+  },
+  "83674": {
+    "type_id": 83674,
+    "name": "Centus Doom Lord"
+  },
+  "83675": {
+    "type_id": 83675,
+    "name": "Contaminator Alvior"
+  },
+  "83676": {
+    "type_id": 83676,
+    "name": "Terminator Alvatis"
+  },
+  "83677": {
+    "type_id": 83677,
+    "name": "Alvus Sovereign"
+  },
+  "83679": {
+    "type_id": 83679,
+    "name": "SKINR Sequencer Reward"
+  },
+  "83680": {
+    "type_id": 83680,
+    "name": "Fermionic Sequencer (Placeholder)"
+  },
+  "83681": {
+    "type_id": 83681,
+    "name": "Alignment Sequencer (Placeholder)"
+  },
+  "83684": {
+    "type_id": 83684,
+    "name": "Outgoing Storage Bin"
+  },
+  "83685": {
+    "type_id": 83685,
+    "name": "Dispatch Informational Coordinator"
+  },
+  "83686": {
+    "type_id": 83686,
+    "name": "Mechanized Sorting Office"
+  },
+  "83687": {
+    "type_id": 83687,
+    "name": "Elders Bone Satin (Placeholder)"
+  },
+  "83688": {
+    "type_id": 83688,
+    "name": "Synthetic Mocha Matte (Placeholder)"
+  },
+  "83689": {
+    "type_id": 83689,
+    "name": "Imperial Plum Gloss (Placeholder)"
+  },
+  "83690": {
+    "type_id": 83690,
+    "name": "Imperial Plum Matte (Placeholder)"
+  },
+  "83691": {
+    "type_id": 83691,
+    "name": "Strawberry Fedo Gloss (Placeholder)"
+  },
+  "83692": {
+    "type_id": 83692,
+    "name": "Polar Glaze Satin (Placeholder)"
+  },
+  "83709": {
+    "type_id": 83709,
+    "name": "SKINR Studio Supplies"
+  },
+  "83725": {
+    "type_id": 83725,
+    "name": "Triglavian Spawner - Fortification Deployment Minor Victory (DO NOT TRANSLATE)"
+  },
+  "83820": {
+    "type_id": 83820,
+    "name": "Triglavian Support Pylon Wreck (Non-Interactable)"
+  },
+  "83821": {
+    "type_id": 83821,
+    "name": "Entropic Disintegrator Werpost Wreck (Non-Interactable)"
+  },
+  "83822": {
+    "type_id": 83822,
+    "name": "Triglavian Bioadaptive Cache Wreck (Non-Interactable)"
+  },
+  "83832": {
+    "type_id": 83832,
+    "name": "Sequence Binder Welcome Package"
+  },
+  "83842": {
+    "type_id": 83842,
+    "name": "Non-Interactable Dark and Spiky Asteroid Station"
+  },
+  "83843": {
+    "type_id": 83843,
+    "name": "Sovereignty Hub Wreck"
+  },
+  "83844": {
+    "type_id": 83844,
+    "name": "Orbital Skyhook Wreck"
+  },
+  "83921": {
+    "type_id": 83921,
+    "name": "Holovisual Violet Matte - Limited"
+  },
+  "83922": {
+    "type_id": 83922,
+    "name": "Holovisual Violet Satin - Limited"
+  },
+  "83923": {
+    "type_id": 83923,
+    "name": "Holovisual Violet Gloss - Limited"
   },
   "350916": {
     "type_id": 350916,

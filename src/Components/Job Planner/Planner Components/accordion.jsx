@@ -25,7 +25,6 @@ import { useDrop } from "react-dnd";
 import { useDnD } from "../../../Hooks/useDnD";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { grey } from "@mui/material/colors";
-import { CompactAccordionContents } from "./Compact/compactContents";
 import GLOBAL_CONFIG from "../../../global-config-app";
 import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 

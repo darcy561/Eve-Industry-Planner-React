@@ -9,7 +9,7 @@ import { EditJobSetup } from "./Edit Setup Panel/editJobSetup";
 import { AvailableBlueprintsPanel } from "./Blueprint Options/blueprintPanel";
 import { MaterialCostPanel } from "./Material Prices/materialPricePanel";
 import { SkillsPanel } from "./Skills Panel/SkillsPanel";
-import { ArchiveJobsPanel } from "./Archive Jobs Panel/ArchiveJobsPanel";
+import ArchiveJobsPanel from "./Archive Jobs Panel/archiveJobsPanel";
 
 export function Planning_StandardLayout_EditJob({
   activeJob,

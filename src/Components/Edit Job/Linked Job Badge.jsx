@@ -11,11 +11,10 @@ import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
 import { JobArrayContext } from "../../Context/JobContext";
 import { ParentJobDialog } from "./parentJobDialog";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../../Context/AuthContext";
 import { useCloseActiveJob } from "../../Hooks/JobHooks/useCloseActiveJob";
 import { useNavigate } from "react-router-dom";
-import { useJobManagement } from "../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function LinkedJobBadge({
   activeJob,
@@ -28,11 +27,11 @@ export function LinkedJobBadge({
   esiDataToLink,
 }) {
   const { jobArray } = useContext(JobArrayContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const [dialogTrigger, updateDialogTrigger] = useState(false);
   const { closeActiveJob } = useCloseActiveJob();
-  const { Add_RemovePendingParentJobs } = useJobManagement();
+  const { Add_RemovePendingParentJobs, sendSnackbarNotificationError } =
+    useHelperFunction();
 
   const navigate = useNavigate();
 
@@ -143,14 +142,7 @@ export function LinkedJobBadge({
                         remove: newParentJobsToRemove,
                       },
                     }));
-
-                    setSnackbarData((prev) => ({
-                      ...prev,
-                      open: true,
-                      message: `${parent.name} Unlinked`,
-                      severity: "error",
-                      autoHideDuration: 1000,
-                    }));
+                    sendSnackbarNotificationError(`${parent.name} Unlinked`);
                     setJobModified(true);
                   }}
                 />

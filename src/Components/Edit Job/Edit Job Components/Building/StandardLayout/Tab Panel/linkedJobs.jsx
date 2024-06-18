@@ -10,16 +10,18 @@ import {
 } from "@mui/material";
 import { MdOutlineLinkOff } from "react-icons/md";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EveIDsContext } from "../../../../../../Context/EveDataContext";
 import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import {
-  ApiJobsContext
-} from "../../../../../../Context/JobContext";
+import { ApiJobsContext } from "../../../../../../Context/JobContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import {
+  LARGE_TEXT_FORMAT,
+  STANDARD_TEXT_FORMAT,
+  TWO_DECIMAL_PLACES,
+} from "../../../../../../Context/defaultValues";
 
 export function LinkedJobsTab({
   activeJob,
@@ -29,12 +31,12 @@ export function LinkedJobsTab({
   esiDataToLink,
   updateEsiDataToLink,
 }) {
-  const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { apiJobs } = useContext(ApiJobsContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { findBlueprintType, timeRemainingCalc } = useJobManagement();
+  const { sendSnackbarNotificationSuccess, findUniverseItemObject } =
+    useHelperFunction();
 
   const analytics = getAnalytics();
 
@@ -53,7 +55,7 @@ export function LinkedJobsTab({
       });
     }
     updateStoredAPIdata();
-  }, [apiJobs]);
+  }, [apiJobs, activeJob.build.costs.linkedJobs]);
 
   if (activeJob.apiJobs.size !== 0) {
     return (
@@ -78,7 +80,7 @@ export function LinkedJobsTab({
             );
             const blueprintType = findBlueprintType(job.blueprint_id);
 
-            const facilityData = eveIDs.find((i) => i.id === job.station_id);
+            const facilityData = findUniverseItemObject(job.station_id);
 
             const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
             return (
@@ -134,14 +136,14 @@ export function LinkedJobsTab({
                 </Grid>
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >{`${job.runs.toLocaleString()} Runs`}</Typography>
                 </Grid>
 
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >
                     {facilityData !== undefined
@@ -151,20 +153,17 @@ export function LinkedJobsTab({
                 </Grid>
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >
                     Install Costs:{" "}
-                    {job.cost.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    {job.cost.toLocaleString(undefined, TWO_DECIMAL_PLACES)}
                   </Typography>
                 </Grid>
                 {job.isCorp ? (
                   <Grid item xs={12}>
                     <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      sx={{ typography: STANDARD_TEXT_FORMAT }}
                       align="center"
                     >
                       Corporation Job
@@ -174,7 +173,7 @@ export function LinkedJobsTab({
 
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >
                     {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
@@ -241,13 +240,7 @@ export function LinkedJobsTab({
                             },
                           },
                         }));
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Unlinked",
-                          severity: "success",
-                          autoHideDuration: 1000,
-                        }));
+                        sendSnackbarNotificationSuccess("Unlinked");
                         logEvent(analytics, "unlinkESIJob", {
                           UID: parentUser.accountID,
                           isLoggedIn: isLoggedIn,
@@ -304,13 +297,9 @@ export function LinkedJobsTab({
                       },
                     },
                   }));
-                  setSnackbarData((prev) => ({
-                    ...prev,
-                    open: true,
-                    message: `${jobsToRemoveQuantity} Jobs Unlinked`,
-                    severity: "success",
-                    autoHideDuration: 1000,
-                  }));
+                  sendSnackbarNotificationSuccess(
+                    `${jobsToRemoveQuantity} Jobs Unlinked`
+                  );
                   logEvent(analytics, "unlinkESIJobBulk", {
                     UID: parentUser.accountID,
                     isLoggedIn: isLoggedIn,
@@ -334,7 +323,7 @@ export function LinkedJobsTab({
           marginTop: { xs: "20px", sm: "30px" },
         }}
       >
-        <Typography sx={{ typography: { xs: "caption", md: "body1" } }}>
+        <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
           You currently have no industry jobs from the ESI linked to the this
           job.
         </Typography>

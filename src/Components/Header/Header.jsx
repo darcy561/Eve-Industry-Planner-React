@@ -7,6 +7,7 @@ import {
   Toolbar,
   Tooltip,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { SideMenu } from "./Components/sidemenu";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -15,112 +16,104 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { UserIcon } from "./Components/UserIcon";
 import { RefreshApiIcon } from "./Components/refreshIcon";
-import { UserLoginUIContext } from "../../Context/LayoutContext";
+import {
+  DataExchangeContext,
+  UserLoginUIContext,
+} from "../../Context/LayoutContext";
+import { useTheme } from "@emotion/react";
 
-export function Header({ mode, colorMode }) {
+export function Header({ colorMode }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { dataExchange } = useContext(DataExchangeContext);
   const [open, setOpen] = useState(false);
   const { loginInProgressComplete } = useContext(UserLoginUIContext);
 
+  const currentTheme = useTheme().palette.mode;
+
   return (
-    <>
-      <AppBar position="static">
-        <Toolbar
-          sx={{
-            paddingLeft: { xs: "8px", sm: "16px" },
-            paddingRight: { xs: "4px", sm: "8px" },
+    <AppBar
+      position="fixed"
+      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+    >
+      <Toolbar
+        sx={{
+          paddingLeft: { xs: "8px", sm: "16px" },
+          paddingRight: { xs: "4px", sm: "8px" },
+        }}
+      >
+        <IconButton
+          edge="start"
+          color="inherit"
+          aria-label="menu"
+          onClick={() => {
+            setOpen(true);
           }}
         >
+          <MenuIcon />
+        </IconButton>
+
+        <SideMenu open={open} setOpen={setOpen} />
+        <Typography
+          align="center"
+          sx={{
+            typography: { xs: "subtitle2", sm: "h5" },
+            flexGrow: "1",
+            display: { xs: "flex" },
+          }}
+        >
+          Eve Industry Planner
+        </Typography>
+
+        {dataExchange && (
+          <CircularProgress
+            color="secondary"
+            size={26}
+            sx={{ marginRight: 2 }}
+          />
+        )}
+
+        <Tooltip title="Toggle Light/Dark Theme" arrow>
           <IconButton
-            edge="start"
             color="inherit"
-            aria-label="menu"
             onClick={() => {
-              setOpen(true);
+              colorMode.toggleColorMode();
+              localStorage.setItem(
+                "theme",
+                currentTheme === "light" ? "dark" : "light"
+              );
             }}
           >
-            <MenuIcon />
+            {currentTheme === "light" ? <DarkModeIcon /> : <LightModeIcon />}
           </IconButton>
-          <SideMenu open={open} setOpen={setOpen} />
-          <Typography
-            align="center"
-            variant="h5"
-            sx={{ flexGrow: "1", display: { xs: "none", sm: "flex" } }}
-          >
-            Eve Industry Planner
-          </Typography>
-          {isLoggedIn ? (
-            <Typography
-              align="center"
-              variant="h6"
-              sx={{ flexGrow: "1", display: { xs: "flex", sm: "none" } }}
-            >
-              Eve Industry Planner
-            </Typography>
-          ) : (
-            <Typography
-              align="center"
-              variant="subtitle2"
-              sx={{ flexGrow: "1", display: { xs: "flex", sm: "none" } }}
-            >
-              Eve Industry Planner
-            </Typography>
-          )}
+        </Tooltip>
 
-          {mode === "light" ? (
-            <Tooltip title="Toggle Light/Dark Theme" arrow>
-              <IconButton
-                color="inherit"
+        {isLoggedIn && loginInProgressComplete ? (
+          <>
+            <RefreshApiIcon />
+            <UserIcon />
+          </>
+        ) : (
+          <Box sx={{ marginLeft: "5px" }}>
+            <picture>
+              <source
+                media="(max-width:1025px)"
+                srcSet="../images/eve-sso-login-black-small.png"
+                alt=""
                 onClick={() => {
-                  colorMode.toggleColorMode();
-                  localStorage.setItem("theme", "dark");
+                  login();
                 }}
-              >
-                <DarkModeIcon />
-              </IconButton>
-            </Tooltip>
-          ) : (
-            <Tooltip title="Toggle Light/Dark Theme" arrow>
-              <IconButton
-                color="inherit"
+              />
+              <img
+                src="../images/eve-sso-login-black-large.png"
+                alt=""
                 onClick={() => {
-                  colorMode.toggleColorMode();
-                  localStorage.setItem("theme", "light");
+                  login();
                 }}
-              >
-                <LightModeIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-
-          {isLoggedIn && loginInProgressComplete ? (
-            <>
-              <RefreshApiIcon />
-              <UserIcon />
-            </>
-          ) : (
-            <Box sx={{ marginLeft: "5px" }}>
-              <picture>
-                <source
-                  media="(max-width:1025px)"
-                  srcSet="../images/eve-sso-login-black-small.png"
-                  alt=""
-                  onClick={() => {
-                    login();
-                  }}
-                />
-                <img
-                  src="../images/eve-sso-login-black-large.png"
-                  alt=""
-                  onClick={() => {
-                    login();
-                  }}
-                />
-              </picture>
-            </Box>
-          )}
-        </Toolbar>
-      </AppBar>
-    </>
+              />
+            </picture>
+          </Box>
+        )}
+      </Toolbar>
+    </AppBar>
   );
 }

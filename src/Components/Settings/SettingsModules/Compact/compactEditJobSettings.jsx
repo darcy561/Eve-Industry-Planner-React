@@ -14,15 +14,20 @@ import {
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
-import { listingType } from "../../../../Context/defaultValues";
+import {
+  blueprintOptions,
+  listingType,
+} from "../../../../Context/defaultValues";
 import { useCharAssets } from "../../../../Hooks/useCharAssets";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import uuid from "react-uuid";
 
 export function CompactEditJobSettings({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { updateEveIDs } = useContext(EveIDsContext);
   const { getAssetLocationList } = useCharAssets();
   const { updateMainUserDoc } = useFirebase();
   const [marketSelect, updateMarketSelect] = useState(
@@ -36,14 +41,18 @@ export function CompactEditJobSettings({ parentUserIndex }) {
     users[parentUserIndex].settings.editJob.defaultAssetLocation
   );
   const [assetLocationEntries, updateAssetLocationEntries] = useState([]);
+  const [defaultMaterialEfficiency, updateDefaultMaterialEfficiency] = useState(
+    users[parentUserIndex].settings.editJob?.defaultMaterialEfficiencyValue || 0
+  );
+  const { findUniverseItemObject } = useHelperFunction();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
   useEffect(() => {
     async function getAsset() {
       updateDataLoading(true);
-      let [newAssetList, newEveIDs] = await getAssetLocationList();
-      updateAssetLocationEntries(newAssetList);
-      updateEveIDs(newEveIDs);
+      const { itemLocations, newEveIDs } = await getAssetLocationList();
+      updateAssetLocationEntries(itemLocations);
+      updateEveIDs((prev) => ({ ...prev, ...newEveIDs }));
       updateDataLoading((prev) => !prev);
     }
     getAsset();
@@ -219,7 +228,7 @@ export function CompactEditJobSettings({ parentUserIndex }) {
                   }}
                 >
                   {assetLocationEntries.map((entry) => {
-                    let locationNameData = eveIDs.find((i) => entry === i.id);
+                    let locationNameData = findUniverseItemObject(entry);
 
                     if (
                       locationNameData === undefined ||
@@ -275,6 +284,42 @@ export function CompactEditJobSettings({ parentUserIndex }) {
                 updateMainUserDoc();
               }}
             />
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            align="center"
+            sx={{ marginTop: { xs: "20px", sm: "10px" } }}
+          >
+            <FormControl fullWidth>
+              <Select
+                value={defaultMaterialEfficiency}
+                variant="standard"
+                size="small"
+                onChange={(e) => {
+                  let newUsersArray = [...users];
+                  newUsersArray[
+                    parentUserIndex
+                  ].settings.editJob.defaultMaterialEfficiencyValue =
+                    e.target.value;
+                  updateDefaultMaterialEfficiency(e.target.value);
+                  updateUsers(newUsersArray);
+                  updateMainUserDoc();
+                }}
+              >
+                {blueprintOptions.me.map((i) => {
+                  return (
+                    <MenuItem key={uuid()} value={i.value}>
+                      {i.label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+              <FormHelperText variant="standard">
+                Default Material Efficiency Value
+              </FormHelperText>
+            </FormControl>
           </Grid>
         </Grid>
       </Grid>

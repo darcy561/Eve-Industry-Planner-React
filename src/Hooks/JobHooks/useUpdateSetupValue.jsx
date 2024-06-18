@@ -1,19 +1,20 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { useSetupManagement } from "../GeneralHooks/useSetupManagement";
 import { jobTypes, structureOptions } from "../../Context/defaultValues";
 import { UsersContext } from "../../Context/AuthContext";
 import { SystemIndexContext } from "../../Context/EveDataContext";
-import { useMissingSystemIndex } from "../GeneralHooks/useImportMissingSystemIndexData";
+import { useSystemIndexFunctions } from "../GeneralHooks/useSystemIndexFunctions";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useUpdateSetupValue() {
-  const { users } = useContext(UsersContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
   const { recalculateSetup } = useSetupManagement();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
-  const { findMissingSystemIndex } = useMissingSystemIndex();
+  const { findMissingSystemIndex } = useSystemIndexFunctions();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const customStructureMap = {
     [jobTypes.manufacturing]: "manufacturing",
@@ -42,7 +43,7 @@ export function useUpdateSetupValue() {
     updateRequirementFields(setupObject, requirements);
     applyCustomStructure(setupObject, setupAttribute, setupAttributeValue);
 
-    const updatedSystemIndexData = await findMissingSystemIndex(
+    const systemIndexResults = await findMissingSystemIndex(
       setupObject.systemID
     );
 
@@ -50,7 +51,7 @@ export function useUpdateSetupValue() {
       setupObject,
       activeJob,
       undefined,
-      updatedSystemIndexData
+      systemIndexResults
     );
 
     updateActiveJob((prev) => ({
@@ -65,7 +66,7 @@ export function useUpdateSetupValue() {
         },
       },
     }));
-    updateSystemIndexData(updatedSystemIndexData);
+    updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
   }
 
   function recalculateWatchListItems(
@@ -111,7 +112,7 @@ export function useUpdateSetupValue() {
           material.jobType !== jobTypes.reaction
         )
           continue;
-        
+
         const materialJob = newMaterialObject[material.typeID];
         recalculateJobForNewTotal(materialJob, material.quantity);
       }

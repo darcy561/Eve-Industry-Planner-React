@@ -1,9 +1,8 @@
 import { CircularProgress, Grid, Paper, Typography } from "@mui/material";
-import { useContext } from "react";
-import { EvePricesContext } from "../../Context/EveDataContext";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function TranqItem({ tranqItem, itemLoad }) {
-  const { evePrices } = useContext(EvePricesContext);
+  const { findItemPriceObject } = useHelperFunction();
 
   let totalItemCost = 0;
 
@@ -28,9 +27,7 @@ export function TranqItem({ tranqItem, itemLoad }) {
               </Typography>
             </Grid>
             {tranqItem.build.materials.map((material) => {
-              let itemCost = evePrices.find(
-                (i) => i.typeID === material.typeID
-              );
+              let itemCost = findItemPriceObject(material.typeID);
               if (itemCost !== undefined) {
                 totalItemCost += itemCost.jita.sell * material.quantity;
               }

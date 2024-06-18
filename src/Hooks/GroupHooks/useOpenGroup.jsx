@@ -11,6 +11,7 @@ import {
 } from "../../Context/LayoutContext";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useFirebase } from "../useFirebase";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useOpenGroup() {
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
@@ -22,8 +23,9 @@ export function useOpenGroup() {
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { findJobData } = useFindJobObject();
   const { getItemPrices } = useFirebase();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const openGroup = async (inputGroupID) => {
     let newJobArray = [...jobArray];
@@ -33,7 +35,9 @@ export function useOpenGroup() {
     }
     updateDataExchange((prev) => !prev);
 
-    let pricePromise = [getItemPrices(requestedGroup.materialIDs, parentUser)];
+    const itemPriceRequest = [
+      getItemPrices(requestedGroup.materialIDs, parentUser),
+    ];
     updateLoadingText((prevObj) => ({
       ...prevObj,
       jobData: true,
@@ -54,7 +58,7 @@ export function useOpenGroup() {
       jobDataComp: true,
     }));
 
-    let returnPrices = await Promise.all(pricePromise);
+    const itemPriceResult = await Promise.all(itemPriceRequest);
     updateLoadingText((prevObj) => ({
       ...prevObj,
       jobData: true,
@@ -62,14 +66,10 @@ export function useOpenGroup() {
       priceData: true,
       priceDataComp: true,
     }));
-    updateEvePrices((prev) => {
-      const prevIds = new Set(prev.map((item) => item.typeID));
-      const uniqueNewEvePrices = returnPrices[0].filter(
-        (item) => !prevIds.has(item.typeID)
-      );
-      return [...prev, ...uniqueNewEvePrices];
-    });
-
+    updateEvePrices((prev) => ({
+      ...prev,
+      ...itemPriceResult,
+    }));
     updateActiveGroup(inputGroupID);
     updateJobArray(newJobArray);
     updateDataExchange((prev) => !prev);

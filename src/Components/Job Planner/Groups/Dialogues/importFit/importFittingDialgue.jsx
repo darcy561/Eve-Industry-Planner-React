@@ -12,20 +12,21 @@ import {
 import { useEffect, useState } from "react";
 import { useImportFitFromClipboard } from "../../../../../Hooks/GroupHooks/useImportFitFromClipboard";
 import { ImportFittingItemRow } from "./importFittingItemRow";
+import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ImportItemFitDialogue({
   importFitDialogueTrigger,
   updateImportFitDialogueTrigger,
 }) {
-  const [clipboardPermissionDisabled, updateClipboardPermissionDisabled] =
-    useState(false);
+  const [clipboardReadAllowed, updateClipboardReadAllowed] = useState(false);
   const [importedItemList, updateImportedItemList] = useState([]);
   const [fitQuantityMultiplier, updateFitQuantityMultiplier] = useState(1);
   const { finalBuildRequests, importFromClipboard } =
     useImportFitFromClipboard();
+  const { checkClipboardReadPermissions } = useHelperFunction();
 
   const handleClose = () => {
-    updateClipboardPermissionDisabled(false);
+    updateClipboardReadAllowed(false);
     updateImportedItemList([]);
     updateFitQuantityMultiplier(1);
     updateImportFitDialogueTrigger((prev) => !prev);
@@ -33,23 +34,16 @@ export function ImportItemFitDialogue({
 
   useEffect(() => {
     async function checkClipboardPermission() {
-      if (importFitDialogueTrigger) {
-        const queryResult = await navigator.permissions.query({
-          name: "clipboard-read",
-        });
-        if (queryResult.state === "denied") {
-          updateClipboardPermissionDisabled(true);
-          return;
-        }
-        try {
-          const items = await importFromClipboard();
-          updateImportedItemList(items);
-        } catch (err) {
-          if (err.message == "Read permission denied.") {
-            updateClipboardPermissionDisabled(true);
-          }
-        }
+      if (!importFitDialogueTrigger) return;
+
+      const queryResult = await checkClipboardReadPermissions();
+      if (!queryResult) {
+        updateClipboardReadAllowed(queryResult);
+        return;
       }
+      const { importedItems } = await importFromClipboard();
+      updateClipboardReadAllowed(queryResult);
+      updateImportedItemList(importedItems);
     }
     checkClipboardPermission();
   }, [importFitDialogueTrigger]);
@@ -64,7 +58,7 @@ export function ImportItemFitDialogue({
       </DialogTitle>
       <DialogContent>
         <Grid container>
-          {clipboardPermissionDisabled ? (
+          {!clipboardReadAllowed ? (
             <Grid item xs={12}>
               <Typography align="center"> No Access To Clipboard</Typography>
             </Grid>
@@ -95,9 +89,7 @@ export function ImportItemFitDialogue({
             sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
           >
             <TextField
-              disabled={
-                importedItemList.length === 0 || clipboardPermissionDisabled
-              }
+              disabled={importedItemList.length === 0 || !clipboardReadAllowed}
               fullWidth
               sx={{
                 "& .MuiFormHelperText-root": {
@@ -128,9 +120,7 @@ export function ImportItemFitDialogue({
           <Grid item xs={3} sx={{ display: { xs: "none", sm: "block" } }} />
           <Grid item xs={6} sm={4} align="center">
             <Button
-              disabled={
-                importedItemList.length === 0 || clipboardPermissionDisabled
-              }
+              disabled={importedItemList.length === 0 || !clipboardReadAllowed}
               size="small"
               variant="contained"
               onClick={async () => {

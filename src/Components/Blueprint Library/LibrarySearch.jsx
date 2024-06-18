@@ -59,7 +59,10 @@ export function LibrarySearch({
             onChange={(event, value) => {
               const tempArray = [
                 ...esiBlueprints.flatMap((entry) => entry.data),
-                ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                ...Array.from(corpEsiBlueprints.values())
+                  .filter((obj) => Object.keys(obj).length > 0)
+                  .map(Object.values)
+                  .reduce((acc, val) => acc.concat(val), []),
               ].filter((i) => i.type_id === value.blueprintID);
               const idArray = new Set(tempArray.map((bp) => bp.type_id));
               updateBlueprintData({
@@ -138,7 +141,10 @@ export function LibrarySearch({
                       }
                       const tempArray = [
                         ...esiBlueprints.flatMap((entry) => entry.data),
-                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                        ...Array.from(corpEsiBlueprints.values())
+                          .filter((obj) => Object.keys(obj).length > 0)
+                          .map(Object.values)
+                          .reduce((acc, val) => acc.concat(val), []),
                       ];
                       const idArray = new Set(
                         tempArray.map((bp) => bp.type_id)
@@ -195,7 +201,10 @@ export function LibrarySearch({
                       }
                       const tempArray = [
                         ...esiBlueprints.flatMap((entry) => entry.data),
-                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                        ...Array.from(corpEsiBlueprints.values())
+                          .filter((obj) => Object.keys(obj).length > 0)
+                          .map(Object.values)
+                          .reduce((acc, val) => acc.concat(val), []),
                       ].filter((blueprint) =>
                         apiJobs.some(
                           (job) =>
@@ -258,7 +267,10 @@ export function LibrarySearch({
                       }
                       const tempArray = [
                         ...esiBlueprints.flatMap((entry) => entry.data),
-                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                        ...Array.from(corpEsiBlueprints.values())
+                          .filter((obj) => Object.keys(obj).length > 0)
+                          .map(Object.values)
+                          .reduce((acc, val) => acc.concat(val), []),
                       ].filter((blueprint) =>
                         itemList.some(
                           (item) =>
@@ -321,7 +333,10 @@ export function LibrarySearch({
                       }
                       const tempArray = [
                         ...esiBlueprints.flatMap((entry) => entry.data),
-                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                        ...Array.from(corpEsiBlueprints.values())
+                          .filter((obj) => Object.keys(obj).length > 0)
+                          .map(Object.values)
+                          .reduce((acc, val) => acc.concat(val), []),
                       ].filter((blueprint) =>
                         itemList.some(
                           (item) =>
@@ -384,7 +399,10 @@ export function LibrarySearch({
                       }
                       const tempArray = [
                         ...esiBlueprints.flatMap((entry) => entry.data),
-                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                        ...Array.from(corpEsiBlueprints.values())
+                          .filter((obj) => Object.keys(obj).length > 0)
+                          .map(Object.values)
+                          .reduce((acc, val) => acc.concat(val), []),
                       ].filter(
                         (blueprint) =>
                           blueprint.runs === -1 &&
@@ -448,7 +466,10 @@ export function LibrarySearch({
                       }
                       const tempArray = [
                         ...esiBlueprints.flatMap((entry) => entry.data),
-                        ...corpEsiBlueprints.flatMap((entry) => entry.data),
+                        ...Array.from(corpEsiBlueprints.values())
+                          .filter((obj) => Object.keys(obj).length > 0)
+                          .map(Object.values)
+                          .reduce((acc, val) => acc.concat(val), []),
                       ].filter(
                         (blueprint) =>
                           blueprint.quantity === -2 &&

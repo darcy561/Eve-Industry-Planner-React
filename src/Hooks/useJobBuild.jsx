@@ -1,7 +1,7 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { appCheck } from "../firebase";
 import { getToken } from "firebase/app-check";
-import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
+import { IsLoggedInContext } from "../Context/AuthContext";
 import {
   CorpEsiDataContext,
   PersonalESIDataContext,
@@ -12,28 +12,25 @@ import { useBlueprintCalc } from "./useBlueprintCalc";
 import {
   DataExchangeContext,
   DialogDataContext,
-  SnackBarDataContext,
 } from "../Context/LayoutContext";
 import { JobArrayContext } from "../Context/JobContext";
 import uuid from "react-uuid";
 import { useInstallCostsCalc } from "./GeneralHooks/useInstallCostCalc";
+import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useJobBuild() {
   const { sisiDataFiles } = useContext(SisiDataFilesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users } = useContext(UsersContext);
   const { jobArray } = useContext(JobArrayContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
-  const { CalculateTime_New, CalculateResources_New } = useBlueprintCalc();
+  const { calculateTime, calculateResources } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
+  const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   class Job {
     constructor(itemJson, buildRequest) {
@@ -169,7 +166,7 @@ export function useJobBuild() {
       if (Array.isArray(buildRequest)) {
         let returnArray = [];
         if (buildRequest.length === 0) return returnArray;
-        
+
         let buildRequestIDs = new Set();
         for (let request of buildRequest) {
           buildRequestIDs.add(request.itemID);
@@ -237,21 +234,11 @@ export function useJobBuild() {
     }
     if (buildRequest.throwError === undefined || buildRequest.throwError) {
       if (newJob === "TypeError") {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "No blueprint found for this item",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
+        sendSnackbarNotificationError("No blueprint found for this item.");
       } else if (newJob === "objectError") {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "Error building job object, please try again",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
+        sendSnackbarNotificationError(
+          "Error building job object, please try again"
+        );
       } else if (newJob === "Outdated App Version") {
         updateDialogData((prev) => ({
           ...prev,
@@ -262,21 +249,9 @@ export function useJobBuild() {
           body: "A newer version of the application is available, refresh the page to begin using this.",
         }));
       } else if (newJob === "Item Data Missing From Request") {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "Item Data Missing From Request",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
+        sendSnackbarNotificationError("Item Data Missing From Request");
       } else {
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: "Unkown Error Contact Admin",
-          severity: "error",
-          autoHideDuration: 2000,
-        }));
+        sendSnackbarNotificationError("Unkown Error Contact Admin");
       }
     }
     updateDataExchange(false);
@@ -311,17 +286,7 @@ export function useJobBuild() {
     }
   };
 
-  const recalculateItemQty = (job, itemQty) => {
-    job.jobCount = Math.ceil(
-      itemQty / (job.maxProductionLimit * job.rawData.products[0].quantity)
-    );
-    job.runCount = Math.ceil(
-      itemQty / job.rawData.products[0].quantity / job.jobCount
-    );
-    return job;
-  };
-
-  function recalculateItemQty_New(
+  function recalculateItemQty(
     maxProductionLimit,
     baseQuantity,
     itemQuantityRequired
@@ -367,13 +332,13 @@ export function useJobBuild() {
       buildRequestObject?.itemQty ||
       inputJobObject.rawData.products[0].quantity;
 
-    const { ME, TE } = addItemBlueprint_New(
+    const { ME, TE } = addItemBlueprint(
       inputJobObject.jobType,
       inputJobObject.blueprintTypeID
     );
-    const structureData = addDefaultStructure_New(inputJobObject.jobType);
+    const structureData = addDefaultStructure(inputJobObject.jobType);
 
-    const setupQuantities = recalculateItemQty_New(
+    const setupQuantities = recalculateItemQty(
       inputJobObject.maxProductionLimit,
       inputJobObject.rawData.products[0].quantity,
       requiredQuantity
@@ -400,11 +365,11 @@ export function useJobBuild() {
           rawQuantity: material.quantity,
         };
       });
-      setupLocation[nextObject.id].estimatedTime = CalculateTime_New(
+      setupLocation[nextObject.id].estimatedTime = calculateTime(
         setupLocation[nextObject.id],
         inputJobObject.skills
       );
-      setupLocation[nextObject.id].materialCount = CalculateResources_New(
+      setupLocation[nextObject.id].materialCount = calculateResources(
         setupLocation[nextObject.id]
       );
       setupLocation[nextObject.id].estimatedInstallCost =
@@ -443,8 +408,11 @@ export function useJobBuild() {
     };
   }
 
-  function addItemBlueprint_New(inputJobType, blueprintTypeID) {
-    const defaultReturn = { ME: 0, TE: 0 };
+  function addItemBlueprint(inputJobType, blueprintTypeID) {
+    const defaultReturn = {
+      ME: checkForDefaultMaterialEfficiecyValue(inputJobType),
+      TE: 0,
+    };
 
     if (inputJobType !== jobTypes.manufacturing || !isLoggedIn) {
       return defaultReturn;
@@ -452,10 +420,11 @@ export function useJobBuild() {
 
     const filteredBlueprints = [
       ...esiBlueprints.flatMap((entry) => entry?.data ?? []),
-      ...corpEsiBlueprints.flatMap((entry) => entry?.data ?? []),
-    ].filter((entry) => {
-      return entry.type_id === blueprintTypeID;
-    });
+      ...Array.from(corpEsiBlueprints.values())
+        .filter((obj) => Object.keys(obj).length > 0)
+        .map(Object.values)
+        .reduce((acc, val) => acc.concat(val), []),
+    ].filter((entry) => entry.type_id === blueprintTypeID);
 
     if (filteredBlueprints.length < 1) {
       return defaultReturn;
@@ -474,7 +443,7 @@ export function useJobBuild() {
     };
   }
 
-  function addDefaultStructure_New(inputJobType) {
+  function addDefaultStructure(inputJobType) {
     const typeMap = {
       [jobTypes.manufacturing]: "manufacturing",
       [jobTypes.reaction]: "reaction",
@@ -541,15 +510,24 @@ export function useJobBuild() {
     return totals;
   }
 
+  function checkForDefaultMaterialEfficiecyValue(inputJobType) {
+    if (
+      parentUser.settings.editJob?.defaultMaterialEfficiencyValue &&
+      inputJobType === jobTypes.manufacturing
+    ) {
+      return parentUser.settings.editJob.defaultMaterialEfficiencyValue;
+    }
+    return 0;
+  }
+
   return {
-    addDefaultStructure_New,
-    addItemBlueprint_New,
+    addDefaultStructure,
+    addItemBlueprint,
     buildJob,
     buildNewSetupObject,
     calculateJobMaterialQuantities,
     checkAllowBuild,
     jobBuildErrors,
     recalculateItemQty,
-    recalculateItemQty_New,
   };
 }

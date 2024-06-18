@@ -20,6 +20,7 @@ import { performance } from "../../firebase";
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./useJobSnapshots";
+import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useDeleteMultipleJobs() {
   const { users } = useContext(UsersContext);
@@ -42,14 +43,14 @@ export function useDeleteMultipleJobs() {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { deleteJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
+  const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
 
   const analytics = getAnalytics();
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   const deleteMultipleJobs = async (inputJobIDs) => {
     const r = trace(performance, "massDeleteProcess");
@@ -168,14 +169,7 @@ export function useDeleteMultipleJobs() {
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
     updateMultiSelectJobPlanner([...newMutliSelct]);
-
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${inputJobIDs.length} Job/Jobs Deleted`,
-      severity: "error",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationError(`${inputJobIDs.length} Job/Jobs Deleted`, 3);
     r.stop();
 
     function removeJobFromGroup(newGroupArray, inputJob) {

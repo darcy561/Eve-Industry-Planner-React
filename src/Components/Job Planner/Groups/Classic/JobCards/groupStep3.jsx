@@ -1,9 +1,12 @@
 import { useMemo } from "react";
 import { Grid, Typography } from "@mui/material";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
 
 export default function GroupStep3JobCard({ job }) {
   const { timeRemainingCalc } = useJobManagement();
+  const { getJobCountFromJob } = useHelperFunction();
 
   let timeRemaining = useMemo(() => {
     let tempJobs = [...job.build.costs.linkedJobs];
@@ -22,12 +25,7 @@ export default function GroupStep3JobCard({ job }) {
     return timeRemainingCalc(Date.parse(tempJobs[0].end_date));
   }, [job]);
 
-  const totalJobCount = Object.values(job.build.setup).reduce(
-    (prev, { jobCount }) => {
-      return (prev += jobCount);
-    },
-    0
-  );
+  const totalJobCount = getJobCountFromJob(job);
 
   return (
     <Grid
@@ -39,15 +37,12 @@ export default function GroupStep3JobCard({ job }) {
     >
       <Grid container item xs={12}>
         <Grid item xs={10}>
-          <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+          <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             ESI Jobs Linked
           </Typography>
         </Grid>
         <Grid item xs={2}>
-          <Typography
-            sx={{ typography: { xs: "body2", md: "body1" } }}
-            align="right"
-          >
+          <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
             {job.apiJobs.size.toLocaleString()}/{totalJobCount}
           </Typography>
         </Grid>
@@ -56,7 +51,7 @@ export default function GroupStep3JobCard({ job }) {
           timeRemaining === "complete" ? (
             <Grid item xs={12}>
               <Typography
-                sx={{ typography: { xs: "body2", md: "body1" } }}
+                sx={{ typography: STANDARD_TEXT_FORMAT }}
                 align="left"
               >
                 Complete
@@ -65,13 +60,13 @@ export default function GroupStep3JobCard({ job }) {
           ) : (
             <>
               <Grid item xs={4}>
-                <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+                <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                   Ends In:
                 </Typography>
               </Grid>
               <Grid item xs={8}>
                 <Typography
-                  sx={{ typography: { xs: "body2", md: "body1" } }}
+                  sx={{ typography: STANDARD_TEXT_FORMAT }}
                   align="right"
                 >
                   {timeRemaining}

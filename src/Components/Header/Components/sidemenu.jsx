@@ -1,17 +1,19 @@
 import {
   Box,
   Divider,
+  Drawer,
   Grid,
   List,
   ListItem,
   ListItemText,
-  SwipeableDrawer,
   Typography,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { IsLoggedInContext } from "../../../Context/AuthContext";
 import { EveESIStatusContext } from "../../../Context/EveDataContext";
+import { getBoolean } from "firebase/remote-config";
+import { remoteConfig } from "../../../firebase";
 
 export function SideMenu({ open, setOpen }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -19,16 +21,17 @@ export function SideMenu({ open, setOpen }) {
 
   const navigate = useNavigate();
 
+  const enableUpcomingChanges = getBoolean(
+    remoteConfig,
+    "enable_upcoming_changes_page"
+  );
+
   return (
-    <SwipeableDrawer
+    <Drawer
       anchor="left"
       open={open}
-      onClick={() => {}}
       onClose={() => {
         setOpen(false);
-      }}
-      onOpen={() => {
-        setOpen(true);
       }}
     >
       <Box sx={{ minHeight: "4rem" }}>
@@ -72,15 +75,15 @@ export function SideMenu({ open, setOpen }) {
           {isLoggedIn && (
             <>
               <Divider />
-                <ListItem
-                  button
-                  onClick={() => {
-                    navigate("/asset-library");
-                    setOpen(false);
-                  }}
-                >
-                  <ListItemText primary={"Asset Library"} />
-                </ListItem>
+              <ListItem
+                button
+                onClick={() => {
+                  navigate("/asset-library");
+                  setOpen(false);
+                }}
+              >
+                <ListItemText primary={"Asset Library"} />
+              </ListItem>
             </>
           )}
           <Divider />
@@ -109,18 +112,22 @@ export function SideMenu({ open, setOpen }) {
             <ListItemText primary={"Job Planner"} />
           </ListItem>
           <Divider />
-          <ListItem
-            button
-            onClick={() => {
-              navigate("/upcoming-changes");
-              setOpen(false);
-            }}
-          >
-            <ListItemText primary={"Upcoming Changes"} />
-          </ListItem>
-          <Divider />
+          {enableUpcomingChanges && (
+            <>
+              <ListItem
+                button
+                onClick={() => {
+                  navigate("/upcoming-changes");
+                  setOpen(false);
+                }}
+              >
+                <ListItemText primary={"Upcoming Changes"} />
+              </ListItem>
+              <Divider />
+            </>
+          )}
         </List>
       </Box>
-    </SwipeableDrawer>
+    </Drawer>
   );
 }

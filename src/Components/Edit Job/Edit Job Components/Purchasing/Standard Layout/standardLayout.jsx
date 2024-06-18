@@ -1,10 +1,9 @@
-import { useContext, useMemo } from "react";
 import { Grid } from "@mui/material";
-import { UsersContext } from "../../../../../Context/AuthContext";
 import { TutorialStep2 } from "../tutorialStep2";
 import { PurchasingDataPanel_EditJob } from "./Purchasing Data Panel/purchsingDataPanel";
-import { MaterialCard } from "./Material Cards/materialCard";
 import { InventionCostsCard } from "./Invention Costs/inventionCostsCard";
+import { MaterialCardFrame_Purchasing } from "./Material Cards/materialCardFrame";
+import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function Purchasing_StandardLayout_EditJob({
   activeJob,
@@ -18,10 +17,11 @@ export function Purchasing_StandardLayout_EditJob({
   ignoreInventionCosts,
   parentChildToEdit,
   updateParentChildToEdit,
-  temporaryChildJobs
+  temporaryChildJobs,
 }) {
-  const { users } = useContext(UsersContext);
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
+
   return (
     <Grid container spacing={2}>
       <TutorialStep2 />
@@ -32,6 +32,7 @@ export function Purchasing_StandardLayout_EditJob({
         changeOrderDisplay={changeOrderDisplay}
         marketDisplay={marketDisplay}
         changeMarketDisplay={changeMarketDisplay}
+        setJobModified={setJobModified}
       />
       <Grid
         container
@@ -55,7 +56,7 @@ export function Purchasing_StandardLayout_EditJob({
               material.quantityPurchased < material.quantity)
           ) {
             return (
-              <MaterialCard
+              <MaterialCardFrame_Purchasing
                 activeJob={activeJob}
                 updateActiveJob={updateActiveJob}
                 key={material.typeID}
@@ -71,14 +72,11 @@ export function Purchasing_StandardLayout_EditJob({
             );
           }
         })}
-        {requiresInventionCosts.has(activeJob.metaLevel) &&
-        !ignoreInventionCosts.has(activeJob.itemID) ? (
-          <InventionCostsCard
-            activeJob={activeJob}
-            updateActiveJob={updateActiveJob}
-            setJobModified={setJobModified}
-          />
-        ) : null}
+        <InventionCostsCard
+          activeJob={activeJob}
+          updateActiveJob={updateActiveJob}
+          setJobModified={setJobModified}
+        />
       </Grid>
     </Grid>
   );

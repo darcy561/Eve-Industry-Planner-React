@@ -1,105 +1,73 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Grid, IconButton, TextField, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { EvePricesContext } from "../../../../../../Context/EveDataContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ZERO_TWO_DECIMAL_PLACES } from "../../../../../../Context/defaultValues";
+import {
+  useAddMaterialCostsToJob,
+  useBuildMaterialPriceObject,
+} from "../../../../../../Hooks/JobHooks/useAddMaterialCosts";
 
-export function AddMaterialCost({
+export function AddMaterialCost_Purchasing({
   activeJob,
   updateActiveJob,
-  materialIndex,
   material,
   setJobModified,
   marketDisplay,
   orderDisplay,
+  childJobProductionTotal,
+  childJobs,
 }) {
-  const { evePrices } = useContext(EvePricesContext);
-  const materialPrice = evePrices.find((i) => i.typeID === material.typeID);
-  const [inputs, setInputs] = useState({
-    itemCost: materialPrice[marketDisplay][orderDisplay].toFixed(2),
-    itemCount: Number(material.quantity - material.quantityPurchased),
-  });
-  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { findItemPriceObject, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
+  const materialPrice = findItemPriceObject(material.typeID);
+  const [itemCountInput, setItemCountInput] = useState(
+    Number(material.quantity - material.quantityPurchased)
+  );
+  const [itemCostInput, setItemCostInput] = useState(
+    Number(materialPrice[marketDisplay][orderDisplay].toFixed(2))
+  );
 
-  const handleSubmit = (event) => {
+  function handleSubmit(event) {
     event.preventDefault();
-    if (inputs.itemCount <= 0) return;
-
-    let newArray = [...activeJob.build.materials];
-    let newTotal = activeJob.build.costs.totalPurchaseCost;
-
-    const hasInvalidQuantityOrCost = newArray[materialIndex].purchasing.some(
-      (entry) =>
-        isNaN(entry.itemCount) ||
-        entry.itemCount < 0 ||
-        isNaN(entry.itemCost) ||
-        entry.itemCost < 0
+    if (itemCountInput <= 0) return;
+    const { newMaterialArray, newTotalPurchaseCost } = useAddMaterialCostsToJob(
+      activeJob,
+      [
+        useBuildMaterialPriceObject(
+          material.typeID,
+          itemCountInput,
+          itemCostInput
+        ),
+      ]
     );
-
-    if (hasInvalidQuantityOrCost) {
-      const { newQuantity, newPurchaseCost } = newArray[
-        materialIndex
-      ].purchasing.reduce(
-        (acc, entry) => ({
-          newQuantity: acc.newQuantity + entry.itemCount,
-          newPurchaseCost:
-            acc.newPurchaseCost + entry.itemCount * entry.itemCost,
-        }),
-        { newQuantity: 0, newPurchaseCost: 0 }
-      );
-
-      newArray[materialIndex].quantityPurchased = newQuantity;
-      newArray[materialIndex].purchasedCost = newPurchaseCost;
-    }
-
-    const hasInvalidTotalPurchaseCost = isNaN(newTotal) || newTotal < 0;
-
-    if (hasInvalidTotalPurchaseCost) {
-      newTotal = newArray.reduce((acc, entry) => acc + entry.purchasedCost, 0);
-    }
-
-    newArray[materialIndex].purchasing.push({
-      id: Date.now(),
-      childID: null,
-      childJobImport: false,
-      itemCount: inputs.itemCount,
-      itemCost: Number(inputs.itemCost),
-    });
-
-    newArray[materialIndex].quantityPurchased += inputs.itemCount;
-    newArray[materialIndex].purchasedCost += inputs.itemCount * inputs.itemCost;
-    newTotal += inputs.itemCount * inputs.itemCost;
-
-    if (
-      newArray[materialIndex].quantityPurchased >=
-      newArray[materialIndex].quantity
-    ) {
-      newArray[materialIndex].purchaseComplete = true;
-    }
 
     updateActiveJob((prevObj) => ({
       ...prevObj,
       build: {
         ...prevObj.build,
-        materials: newArray,
+        materials: newMaterialArray,
         costs: {
           ...prevObj.build.costs,
-          totalPurchaseCost: newTotal,
+          totalPurchaseCost: newTotalPurchaseCost,
         },
       },
     }));
-
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Added`,
-      severity: "success",
-      autoHideDuration: 1000,
-    }));
-
-    setInputs({ itemCost: 0, itemCount: 0 });
+    sendSnackbarNotificationSuccess("Success");
+    setItemCostInput(0);
+    setItemCountInput(0);
     setJobModified(true);
-  };
+  }
+
+  if (material.quantityPurchased >= material.quantity) return null;
+
+  if (childJobs.length > 0) {
+    if (
+      childJobProductionTotal + material.quantityPurchased >=
+      material.quantity
+    )
+      return null;
+  }
 
   return (
     <form onSubmit={handleSubmit}>
@@ -120,22 +88,19 @@ export function AddMaterialCost({
             variant="standard"
             type="number"
             helperText="Item Quantity"
-            defaultValue={inputs.itemCount}
+            value={itemCountInput}
             inputProps={{ step: "1" }}
             onChange={(e) => {
-              setInputs((prevState) => ({
-                ...prevState,
-                itemCount: Number(e.target.value),
-              }));
+              setItemCountInput(Number(e.target.value));
             }}
           />
         </Grid>
         <Grid item xs={4}>
           <Tooltip
-            title={Number(inputs.itemCost).toLocaleString(undefined, {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 2,
-            })}
+            title={Number(itemCostInput).toLocaleString(
+              undefined,
+              ZERO_TWO_DECIMAL_PLACES
+            )}
             arrow
             placement="top"
           >
@@ -154,15 +119,12 @@ export function AddMaterialCost({
               variant="standard"
               type="number"
               helperText="Item Price"
-              value={inputs.itemCost}
+              value={itemCostInput}
               inputProps={{
                 step: "0.01",
               }}
               onChange={(e) => {
-                setInputs((prevState) => ({
-                  ...prevState,
-                  itemCost: Number(e.target.value),
-                }));
+                setItemCostInput(Number(e.target.value));
               }}
             />
           </Tooltip>

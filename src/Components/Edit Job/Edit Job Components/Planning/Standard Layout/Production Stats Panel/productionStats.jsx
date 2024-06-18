@@ -55,6 +55,8 @@ export function ProductionStats({ activeJob, setupToEdit, parentChildToEdit }) {
     for (let jobID of parentJobSelection) {
       const job = jobArray.find((i) => i.jobID === jobID);
 
+      if (!job) continue;
+
       const material = job.build.materials.find(
         (i) => i.typeID === activeJob.itemID
       );

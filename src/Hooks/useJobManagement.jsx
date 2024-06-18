@@ -1,10 +1,6 @@
-import { useContext, useMemo } from "react";
-import {
-  SnackBarDataContext,
-  DataExchangeContext,
-  MassBuildDisplayContext,
-} from "../Context/LayoutContext";
-import { UserJobSnapshotContext, UsersContext } from "../Context/AuthContext";
+import { useContext } from "react";
+import { MassBuildDisplayContext } from "../Context/LayoutContext";
+import { UserJobSnapshotContext } from "../Context/AuthContext";
 import {
   ApiJobsContext,
   JobArrayContext,
@@ -25,17 +21,13 @@ import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
-import { useManageGroupJobs } from "./GroupHooks/useManageGroupJobs";
 import { STATIONID_RANGE } from "../Context/defaultValues";
+import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useJobManagement() {
-  const { jobArray, groupArray, updateJobArray, updateGroupArray } =
-    useContext(JobArrayContext);
+  const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
-  const { updateDataExchange } = useContext(DataExchangeContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateMassBuildDisplay } = useContext(MassBuildDisplayContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -57,123 +49,18 @@ export function useJobManagement() {
     addNewJob,
     getItemPrices,
     removeJob,
-    uploadGroups,
     uploadJob,
     uploadUserJobSnapshot,
-    userJobListener,
   } = useFirebase();
   const { stationData } = useEveApi();
-  const { buildJob, checkAllowBuild } = useJobBuild();
+  const { buildJob } = useJobBuild();
   const { findJobData } = useFindJobObject();
   const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
-  const { addJobToGroup } = useManageGroupJobs();
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
 
   const analytics = getAnalytics();
-
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
-
-  const newJobProcess = async (buildRequest) => {
-    const t = trace(performance, "CreateJobProcessFull");
-    let newUserJobSnapshot = [...userJobSnapshot];
-    let newGroupArray = [...groupArray];
-    let newJobArray = [...jobArray];
-    let isActiveGroup = false;
-
-    t.start();
-    if (!checkAllowBuild()) {
-      return;
-    }
-    updateDataExchange(true);
-    const newJob = await buildJob(buildRequest);
-    if (!newJob) {
-      return;
-    }
-    let promiseArray = [
-      getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
-    ];
-    if (!newJob.groupID) {
-      newUserJobSnapshot = newJobSnapshot(newJob, newUserJobSnapshot);
-    }
-    newJobArray.push(newJob);
-
-    addJobToGroup: if (newJob.groupID) {
-      newGroupArray = addJobToGroup(newJob, newGroupArray, newJobArray);
-      // let selectedGroup = newGroupArray.find(
-      //   (i) => i.groupID === newJob.groupID
-      // );
-      // console.log(selectedGroup);
-      // if (!selectedGroup) break addJobToGroup;
-
-      // let newIncludedJobIDs = new Set(selectedGroup.includedJobIDs);
-      // let newIncludedTypeIDs = new Set(selectedGroup.includedTypeIDs);
-      // let newMaterialIDs = new Set(selectedGroup.materialIDs);
-      // let newOutputJobCount = selectedGroup.outputJobCount;
-
-      // if (newJob.parentJob.length === 0) {
-      //   newOutputJobCount++;
-      // }
-
-      // newMaterialIDs.add(newJob.itemID);
-      // newJob.build.materials.forEach((mat) => {
-      //   newMaterialIDs.add(mat.typeID);
-      // });
-      // newIncludedJobIDs.add(newJob.jobID);
-      // newIncludedTypeIDs.add(newJob.itemID);
-
-      // selectedGroup.includedJobIDs = [...newIncludedJobIDs];
-      // selectedGroup.includedTypeIDs = [...newIncludedTypeIDs];
-      // selectedGroup.materialIDs = [...newMaterialIDs];
-      // selectedGroup.outputJobCount = newOutputJobCount;
-    }
-
-    if (isLoggedIn) {
-      if (!buildRequest.hasOwnProperty("groupID")) {
-        uploadUserJobSnapshot(newUserJobSnapshot);
-      }
-      addNewJob(newJob);
-      userJobListener(parentUser, newJob.jobID);
-    }
-
-    updateJobArray(newJobArray);
-    logEvent(analytics, "New Job", {
-      loggedIn: isLoggedIn,
-      UID: parentUser.accountID,
-      name: newJob.name,
-      itemID: newJob.itemID,
-    });
-
-    let returnPromiseArray = await Promise.all(promiseArray);
-
-    if (buildRequest.hasOwnProperty("groupID")) {
-      updateGroupArray(newGroupArray);
-      if (isLoggedIn) {
-        uploadGroups(newGroupArray);
-      }
-    } else {
-      updateUserJobSnapshot(newUserJobSnapshot);
-    }
-    updateEvePrices((prev) => {
-      const prevIds = new Set(prev.map((item) => item.typeID));
-      const uniqueNewEvePrices = returnPromiseArray[0].filter(
-        (item) => !prevIds.has(item.typeID)
-      );
-      return [...prev, ...uniqueNewEvePrices];
-    });
-    updateDataExchange(false);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${newJob.name} Added`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
-    if (buildRequest.hasOwnProperty("parentJobs")) {
-      return newJob;
-    }
-    t.stop();
-  };
+  const parentUser = findParentUser();
 
   const massBuildMaterials = async (inputJobIDs) => {
     const r = trace(performance, "MassCreateJobProcessFull");
@@ -311,35 +198,29 @@ export function useJobManagement() {
       ...prev,
       totalPrice: [...materialPriceIDs].length,
     }));
-    let itemPrices = await getItemPrices([...materialPriceIDs], parentUser);
-    updateEvePrices((prev) => {
-      const prevIds = new Set(prev.map((item) => item.typeID));
-      const uniqueNewEvePrices = itemPrices.filter(
-        (item) => !prevIds.has(item.typeID)
-      );
-      return [...prev, ...uniqueNewEvePrices];
-    });
+    const itemPriceResult = await getItemPrices(
+      [...materialPriceIDs],
+      parentUser
+    );
+    updateEvePrices((prev) => ({
+      ...prev,
+      ...itemPriceResult,
+    }));
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateMassBuildDisplay((prev) => ({
       ...prev,
       open: false,
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${childJobs.length} Job/Jobs Added`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationSuccess(`${childJobs.length} Job/Jobs Added`, 3);
     r.stop();
   };
 
-  const buildShoppingList = async (inputJobIDs) => {
-    let finalInputList = [];
-    let finalShoppingList = [];
-    let newUserJobSnapshot = [...userJobSnapshot];
-    let newJobArray = [...jobArray];
+  const buildItemPriceEntry = async (inputJobIDs) => {
+    const requestedJobObjects = [];
+    const finalPriceEntry = [];
+    const newUserJobSnapshot = [...userJobSnapshot];
+    const newJobArray = [...jobArray];
 
     for (let inputID of inputJobIDs) {
       if (inputID.includes("group")) {
@@ -347,105 +228,30 @@ export function useJobManagement() {
         if (!inputGroup) {
           return;
         }
-        finalInputList = finalInputList.concat([...inputGroup.includedJobIDs]);
+
+        for (let groupJobID of inputGroup.includedJobIDs) {
+          const requestedJob = await findJobData(
+            groupJobID,
+            newUserJobSnapshot,
+            newJobArray,
+            undefined,
+            "groupJob"
+          );
+          if (!requestedJob) continue;
+          requestedJobObjects.push(requestedJob);
+        }
       } else {
-        finalInputList.push(inputID);
-      }
-    }
-
-    for (let inputJobID of finalInputList) {
-      let inputJob = await findJobData(
-        inputJobID,
-        newUserJobSnapshot,
-        newJobArray
-      );
-
-      if (!inputJob) {
-        continue;
-      }
-
-      inputJob.build.materials.forEach((material) => {
-        if (material.quantityPurchased >= material.quantity) {
-          return;
-        }
-        let childState =
-          inputJob.build.childJobs[material.typeID].length > 0 ? true : false;
-        let shoppingListEntries = finalShoppingList.filter(
-          (i) => i.typeID === material.typeID
+        const requestedJob = findJobData(
+          inputID,
+          newUserJobSnapshot,
+          newJobArray
         );
-        if (shoppingListEntries.length === 0) {
-          finalShoppingList.push({
-            name: material.name,
-            typeID: material.typeID,
-            quantity: material.quantity - material.quantityPurchased,
-            quantityLessAsset: 0,
-            volume: material.volume,
-            hasChild: childState,
-            isVisible: false,
-          });
-          return;
-        }
-        let foundChild = shoppingListEntries.find(
-          (i) => i.hasChild === childState
-        );
-        if (!foundChild) {
-          finalShoppingList.push({
-            name: material.name,
-            typeID: material.typeID,
-            quantity: material.quantity - material.quantityPurchased,
-            quantityLessAsset: 0,
-            volume: material.volume,
-            hasChild: childState,
-            isVisible: false,
-          });
-        } else {
-          foundChild.quantity += material.quantity - material.quantityPurchased;
-        }
-      });
-    }
-    finalShoppingList.sort((a, b) => {
-      if (a.name < b.name) {
-        return -1;
-      }
-      if (a.name < b.name) {
-        return 1;
-      }
-      return 0;
-    });
-    logEvent(analytics, "Build Shopping List", {
-      UID: parentUser.accountID,
-      buildCount: finalShoppingList.length,
-      loggedIn: isLoggedIn,
-    });
-    updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
-    return finalShoppingList;
-  };
-
-  const buildItemPriceEntry = async (inputJobIDs) => {
-    const finalInputList = [];
-    const finalPriceEntry = [];
-    const newUserJobSnapshot = [...userJobSnapshot];
-    const newJobArray = [...jobArray];
-
-    for (const inputID of inputJobIDs) {
-      if (inputID.includes("group")) {
-        const inputGroup = groupArray.find((i) => i.groupID === inputID);
-        if (!inputGroup) continue;
-
-        const groupInputJobIDs = inputGroup.includedJobIDs || [];
-        finalInputList.push(...groupInputJobIDs);
-      } else {
-        finalInputList.push(inputID);
+        if (!requestedJob) continue;
+        requestedJobObjects.push(requestedJob);
       }
     }
 
-    for (const inputJobID of finalInputList) {
-      const inputJob = await findJobData(
-        inputJobID,
-        newUserJobSnapshot,
-        newJobArray
-      );
+    for (let inputJob of requestedJobObjects) {
       inputJob.build.materials.forEach((material) => {
         const childJobs = inputJob.build.childJobs[material.typeID];
         if (
@@ -693,23 +499,12 @@ export function useJobManagement() {
     updateJobArray(newJobArray);
     updateApiJobs(newApiJobsArary);
 
-    if (newJobHold.length > 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${newJobHold.length} Jobs Merged Successfully`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
-    } else {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `0 Jobs Merged`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
-    }
+    sendSnackbarNotificationSuccess(
+      newJobHold.length > 0
+        ? `${newJobHold.length} Jobs Merged Successfully`
+        : `0 Jobs Merged`,
+      3
+    );
     r.stop();
   };
 
@@ -803,11 +598,7 @@ export function useJobManagement() {
   }
 
   function generatePriceRequestFromSnapshot({ itemID, materialIDs }) {
-    let priceIDRequest = new Set();
-
-    priceIDRequest.add(itemID);
-    priceIDRequest = new Set([...priceIDRequest, ...materialIDs]);
-    return [...priceIDRequest];
+    return [...new Set([itemID, ...materialIDs])];
   }
 
   function findBlueprintType(blueprintID) {
@@ -817,7 +608,10 @@ export function useJobManagement() {
 
     let blueprintData = [
       ...esiBlueprints.flatMap((entry) => entry.data),
-      ...corpEsiBlueprints.flatMap((entry) => entry.data),
+      ...Array.from(corpEsiBlueprints.values())
+        .filter((obj) => Object.keys(obj).length > 0)
+        .map(Object.values)
+        .reduce((acc, val) => acc.concat(val), []),
     ].find((i) => i.item_id === blueprintID);
 
     if (!blueprintData) {
@@ -844,51 +638,11 @@ export function useJobManagement() {
     return deepCopy;
   }
 
-  function Add_RemovePendingChildJobs(
-    materialChildJobObject,
-    reqiredID,
-    isAdd
-  ) {
-    const newChildJobstoAdd = new Set(materialChildJobObject?.add);
-    const newChildJobsToRemove = new Set(materialChildJobObject?.remove);
-
-    if (isAdd) {
-      newChildJobstoAdd.add(reqiredID);
-      newChildJobsToRemove.delete(reqiredID);
-    } else {
-      newChildJobstoAdd.delete(reqiredID);
-      newChildJobsToRemove.add(reqiredID);
-    }
-    return {
-      newChildJobstoAdd: [...newChildJobstoAdd],
-      newChildJobsToRemove: [...newChildJobsToRemove],
-    };
-  }
-
-  function Add_RemovePendingParentJobs(parentJobObject, reqiredID, isAdd) {
-    const newParentJobsToAdd = new Set(parentJobObject.add);
-    const newParentJobsToRemove = new Set(parentJobObject.remove);
-
-    if (isAdd) {
-      newParentJobsToAdd.add(reqiredID);
-      newParentJobsToRemove.delete(reqiredID);
-    } else {
-      newParentJobsToAdd.delete(reqiredID);
-      newParentJobsToRemove.add(reqiredID);
-    }
-
-    return {
-      newParentJobsToAdd: [...newParentJobsToAdd],
-      newParentJobsToRemove: [...newParentJobsToRemove],
-    };
-  }
-
   function findAllChildJobCountOrIDs(
     childJobsFromJobObject,
     temporaryChildJobObject,
     parentChildCache
   ) {
-
     const childJobObjectCombinedIDs = Object.values(
       childJobsFromJobObject
     ).flat();
@@ -933,10 +687,7 @@ export function useJobManagement() {
   }
 
   return {
-    Add_RemovePendingChildJobs,
-    Add_RemovePendingParentJobs,
     buildItemPriceEntry,
-    buildShoppingList,
     calcBrokersFee,
     deepCopyJobObject,
     findAllChildJobCountOrIDs,
@@ -946,7 +697,6 @@ export function useJobManagement() {
     lockUserJob,
     massBuildMaterials,
     mergeJobsNew,
-    newJobProcess,
     timeRemainingCalc,
     unlockUserJob,
   };

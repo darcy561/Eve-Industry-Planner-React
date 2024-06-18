@@ -1,7 +1,6 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import {
   PriceEntryListContext,
-  SnackBarDataContext,
   UserLoginUIContext,
 } from "../../../../Context/LayoutContext";
 import {
@@ -20,7 +19,6 @@ import { JobArrayContext } from "../../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
-  UsersContext,
 } from "../../../../Context/AuthContext";
 import { listingType } from "../../../../Context/defaultValues";
 import { ItemPriceRow } from "./itemRow";
@@ -28,27 +26,30 @@ import { useFirebase } from "../../../../Hooks/useFirebase";
 import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObject";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { updateJobSnapshot } = useJobSnapshotManagement();
+  const {
+    findParentUser,
+    importMultibuyFromClipboard,
+    sendSnackbarNotificationSuccess,
+    sendSnackbarNotificationError,
+  } = useHelperFunction();
   const { findJobData } = useFindJobObject();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   const { priceEntryListData, updatePriceEntryListData } = useContext(
     PriceEntryListContext
   );
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [importAction, changeImportAction] = useState(false);
   const [displayOrder, changeDisplayOrder] = useState(
     priceEntryListData.displayOrder === undefined ||
@@ -85,42 +86,37 @@ export function PriceEntryDialog() {
     let uploadIDs = [];
     let totalConfirmed = 0;
     for (let material of priceEntryListData.list) {
-      if (material.confirmed) {
-        totalConfirmed++;
-        for (let ref of material.jobRef) {
-          let job = await findJobData(ref, userJobSnapshot, newJobArray);
-          if (job === undefined) {
-            continue;
-          }
-          let newTotal = 0;
-          job.build.materials.forEach((mat) => {
-            if (mat.typeID === material.typeID && !mat.purchaseComplete) {
-              mat.purchasing.push({
-                id: Date.now(),
-                childID: null,
-                childJobImport: false,
-                itemCount: mat.quantity - mat.quantityPurchased,
-                itemCost: Number(material.itemPrice),
-              });
-              mat.quantityPurchased += mat.quantity - mat.quantityPurchased;
-              mat.purchasedCost += material.itemPrice * mat.quantity;
-              mat.purchaseComplete = true;
-            }
-            newTotal += mat.purchasedCost;
-          });
-          job.build.costs.totalPurchaseCost = newTotal;
-          if (!uploadIDs.some((i) => i.jobID === job.jobID)) {
-            uploadIDs.push(job);
-          }
+      if (!material.confirmed) continue;
+      totalConfirmed++;
+      for (let ref of material.jobRef) {
+        let job = await findJobData(ref, userJobSnapshot, newJobArray);
+        if (!job) continue;
+
+        // let newTotal = 0;
+        // job.build.materials.forEach((mat) => {
+        //   if (mat.typeID === material.typeID && !mat.purchaseComplete) {
+        //     mat.purchasing.push({
+        //       id: Date.now(),
+        //       childID: null,
+        //       childJobImport: false,
+        //       itemCount: mat.quantity - mat.quantityPurchased,
+        //       itemCost: Number(material.itemPrice),
+        //     });
+        //     mat.quantityPurchased += mat.quantity - mat.quantityPurchased;
+        //     mat.purchasedCost += material.itemPrice * mat.quantity;
+        //     mat.purchaseComplete = true;
+        //   }
+        //   newTotal += mat.purchasedCost;
+        // });
+        // job.build.costs.totalPurchaseCost = newTotal;
+        if (!uploadIDs.some((i) => i.jobID === job.jobID)) {
+          uploadIDs.push(job);
         }
       }
     }
     let newUserJobSnapshot = [...userJobSnapshot];
     for (let job of uploadIDs) {
-      newUserJobSnapshot = updateJobSnapshot(
-        job,
-        newUserJobSnapshot
-      );
+      newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
       if (isLoggedIn) {
         await uploadJob(job);
       }
@@ -138,15 +134,12 @@ export function PriceEntryDialog() {
       displayMarket: null,
       displayOrder: null,
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${totalConfirmed} Item Costs Added Into ${uploadIDs.length} ${
+    sendSnackbarNotificationSuccess(
+      `${totalConfirmed} Item Costs Added Into ${uploadIDs.length} ${
         uploadIDs.length > 1 ? "Jobs" : "Job"
       }`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+      3
+    );
   };
 
   return (
@@ -314,56 +307,43 @@ export function PriceEntryDialog() {
                 onClick={async () => {
                   let newList = [...priceEntryListData.list];
                   let newTotal = totalImportedCost;
-                  let importedText = await navigator.clipboard.readText();
                   let importCount = 0;
-                  let matches = [
-                    ...importedText.matchAll(
-                      /^(.*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)$/gm
-                    ),
-                  ];
-                  if (matches.length > 0) {
-                    for (let importMatch of matches) {
-                      for (let listItem of newList) {
-                        if (
-                          listItem.name === importMatch[1] &&
-                          !listItem.confirmed
-                        ) {
-                          let number = parseFloat(
-                            importMatch[3].replace(/,/g, "")
-                          );
+                  let importStatus = false;
+                  let matches = await importMultibuyFromClipboard();
 
-                          newTotal += number * listItem.quantity;
-                          listItem.confirmed = true;
-                          listItem.itemPrice = number;
-                          importCount++;
-                        }
-                      }
-                    }
-                    updateTotalImportedCost(newTotal);
-                    updatePriceEntryListData((prev) => ({
-                      ...prev,
-                      list: newList,
-                    }));
-                    updateImportFromClipboard(true);
-                    setSnackbarData((prev) => ({
-                      ...prev,
-                      open: true,
-                      message: `${importCount} Prices Added`,
-                      severity: "success",
-                      autoHideDuration: 3000,
-                    }));
+                  for (let listItem of newList) {
+                    const importMatch = matches.find(
+                      (i) => i.importedName === listItem.name
+                    );
+                    if (!importMatch) continue;
+
+                    newTotal += importMatch.importedCost * listItem.quantity;
+                    listItem.confirmed = true;
+                    listItem.itemPrice = importMatch.importedCost;
+                    importCount++;
+                  }
+
+                  if (importCount > 0) {
+                    importStatus = true;
+                  }
+
+                  updateTotalImportedCost(newTotal);
+                  updatePriceEntryListData((prev) => ({
+                    ...prev,
+                    list: newList,
+                  }));
+                  updateImportFromClipboard(true);
+                  if (importStatus) {
+                    sendSnackbarNotificationSuccess(
+                      `${importCount} Prices Added`,
+                      3
+                    );
                   } else {
-                    setSnackbarData((prev) => ({
-                      ...prev,
-                      open: true,
-                      message: `No Matching Items Found`,
-                      severity: "error",
-                      autoHideDuration: 3000,
-                    }));
+                    sendSnackbarNotificationError("No Matching Items Found", 3);
                   }
                 }}
               >
-                Import From MultiBuy
+                Import Costs From MultiBuy
               </Button>
               <Button
                 variant="contained"

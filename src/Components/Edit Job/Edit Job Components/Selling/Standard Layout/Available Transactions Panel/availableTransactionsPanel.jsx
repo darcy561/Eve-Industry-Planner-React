@@ -14,9 +14,9 @@ import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
-import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
 import { useMarketOrderFunctions } from "../../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
 
 export function AvailableTransactionsPanel({
   activeJob,
@@ -27,10 +27,11 @@ export function AvailableTransactionsPanel({
   updateEsiDataToLink,
 }) {
   const { users } = useContext(UsersContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const { buildTransactionData } = useMarketOrderFunctions();
+  const { findParentUserIndex, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const analytics = getAnalytics();
 
   const transactionData = buildTransactionData(
@@ -208,9 +209,7 @@ export function AvailableTransactionsPanel({
                           return new Date(b.date) - new Date(a.date);
                         });
 
-                        let parentUserIndex = users.findIndex(
-                          (i) => i.ParentUser === true
-                        );
+                        const parentUserIndex = findParentUserIndex();
 
                         newDataToLink.add(tData.transaction_id);
                         newDataToUnlink.delete(tData.transaction_id);
@@ -236,15 +235,7 @@ export function AvailableTransactionsPanel({
                             },
                           },
                         }));
-
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Linked",
-                          severity: "success",
-                          autoHideDuration: 1000,
-                        }));
-
+                        sendSnackbarNotificationSuccess("Linked");
                         setJobModified(true);
 
                         logEvent(analytics, "linkedTransaction", {
@@ -283,9 +274,8 @@ export function AvailableTransactionsPanel({
                 const newDataToUnlink = new Set(
                   esiDataToLink.transactions.remove
                 );
-                let parentUserIndex = users.findIndex(
-                  (i) => i.ParentUser === true
-                );
+                const parentUserIndex = findParentUserIndex();
+
                 for (let trans of transactionData) {
                   if (activeJob.build.sale.marketOrders > 1) {
                     trans.order_id = activeOrder;
@@ -322,13 +312,7 @@ export function AvailableTransactionsPanel({
                     },
                   },
                 }));
-                setSnackbarData((prev) => ({
-                  ...prev,
-                  open: true,
-                  message: "All Transactions Linked",
-                  severity: "success",
-                  autoHideDuration: 1000,
-                }));
+                sendSnackbarNotificationSuccess("All Transactions Linked");
                 setJobModified(true);
                 logEvent(analytics, "massLinkedTransactions", {
                   UID: users[parentUserIndex].accountID,

@@ -455,18 +455,18 @@ export let usersDefault = [
 
 export let apiOrdersDefault = [];
 
-export let eveIDsDefault = [
-  {
+export let eveIDsDefault = {
+  60008494: {
     category: "station",
     id: 60008494,
     name: "Amarr VIII (Oris) - Emperor Family Academy",
   },
-  {
+  10000043: {
     category: "region",
     id: 10000043,
     name: "Domain",
   },
-];
+};
 
 export let listingType = [
   { id: "buy", name: "Buy Orders" },
@@ -534,7 +534,7 @@ export const structureOptions = {
         rigID: 0,
         systemTypeID: 3,
         systemID: 30100000,
-        taxValue: 42,
+        taxValue: 0.25,
       },
     },
   },
@@ -563,7 +563,7 @@ export const structureOptions = {
         rigID: 0,
         structureID: 4,
         systemID: 30100000,
-        taxValue: 42,
+        taxValue: 0.25,
       },
     },
   },
@@ -606,4 +606,26 @@ export const SYSTEMID_RANGE = {
 export const TWO_DECIMAL_PLACES = {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
+};
+
+export const ZERO_DECIMAL_PLACES = {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+};
+
+export const ZERO_TWO_DECIMAL_PLACES = {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+};
+
+export const STANDARD_TEXT_FORMAT = { xs: "caption", sm: "body2" };
+export const LARGE_TEXT_FORMAT = { xs: "caption", sm: "body1" };
+
+export const META_LEVELS_THAT_REQUIRE_INVENTION_COSTS = new Set([2, 14, 53]);
+export const TYPE_IDS_TO_IGNORE_FOR_INVENTION_COSTS = new Set([]);
+
+export const REMOTE_CONFIG_DEFAULT_VALUES = {
+  app_version_number: __APP_VERSION__,
+  maintenance_mode: false,
+  enable_upcoming_changes_page: false,
 };

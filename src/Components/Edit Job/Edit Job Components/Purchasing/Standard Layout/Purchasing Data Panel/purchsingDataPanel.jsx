@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import {
   Button,
   FormControlLabel,
@@ -10,13 +10,18 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { UsersContext } from "../../../../../../Context/AuthContext";
 import {
-  IsLoggedInContext,
-  UsersContext,
-} from "../../../../../../Context/AuthContext";
-import { listingType } from "../../../../../../Context/defaultValues";
+  TWO_DECIMAL_PLACES,
+  listingType,
+} from "../../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import { ShoppingListContext } from "../../../../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import {
+  useAddMaterialCostsToJob,
+  useBuildMaterialPriceObject,
+} from "../../../../../../Hooks/JobHooks/useAddMaterialCosts";
 
 export function PurchasingDataPanel_EditJob({
   activeJob,
@@ -25,18 +30,21 @@ export function PurchasingDataPanel_EditJob({
   changeOrderDisplay,
   marketDisplay,
   changeMarketDisplay,
+  setJobModified,
 }) {
-  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { updateShoppingListTrigger, updateShoppingListData } =
     useContext(ShoppingListContext);
   const [orderSelect, updateOrderSelect] = useState(orderDisplay);
   const [marketSelect, updateMarketSelect] = useState(marketDisplay);
+  const {
+    findParentUserIndex,
+    importMultibuyFromClipboard,
+    sendSnackbarNotificationError,
+  } = useHelperFunction();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
-  const parentUserIndex = useMemo(() => {
-    return users.findIndex((i) => i.ParentUser);
-  }, [users, isLoggedIn]);
+  const parentUserIndex = findParentUserIndex();
 
   const totalComplete = activeJob.build.materials.reduce((acc, mat) => {
     if (mat.purchaseComplete) {
@@ -54,7 +62,7 @@ export function PurchasingDataPanel_EditJob({
         elevation={3}
         square
       >
-        <Grid container direction="row" align="center">
+        <Grid container align="center">
           <Grid container item xs={12}>
             <Grid item xs={12} sm={6} md={4}>
               <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
@@ -67,10 +75,7 @@ export function PurchasingDataPanel_EditJob({
                 Total Material Cost:{" "}
                 {activeJob.build.costs.totalPurchaseCost.toLocaleString(
                   undefined,
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
+                  TWO_DECIMAL_PLACES
                 )}
               </Typography>
             </Grid>
@@ -80,10 +85,7 @@ export function PurchasingDataPanel_EditJob({
                 {(
                   activeJob.build.costs.totalPurchaseCost /
                   activeJob.build.products.totalQuantity
-                ).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                ).toLocaleString(undefined, TWO_DECIMAL_PLACES)}
               </Typography>
             </Grid>
           </Grid>
@@ -117,27 +119,90 @@ export function PurchasingDataPanel_EditJob({
               />
             </Grid>{" "}
             <Grid
+              container
               item
               xs={12}
               md={4}
               sx={{ marginBottom: { xs: "20px", sm: "0px" } }}
             >
               {totalComplete < activeJob.build.materials.length && (
-                <Tooltip
-                  title="Displays a shopping list of the remaining materials needed."
-                  arrow
-                >
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={async () => {
-                      updateShoppingListData([activeJob.jobID]);
-                      updateShoppingListTrigger((prev) => !prev);
-                    }}
-                  >
-                    Shopping List
-                  </Button>
-                </Tooltip>
+                <Grid container item xs={12}>
+                  <Grid item xs={6}>
+                    <Tooltip
+                      title="Displays a shopping list of the remaining materials needed."
+                      arrow
+                    >
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={async () => {
+                          updateShoppingListData([activeJob.jobID]);
+                          updateShoppingListTrigger((prev) => !prev);
+                        }}
+                      >
+                        Shopping List
+                      </Button>
+                    </Tooltip>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Tooltip
+                      title="Imports costs copied from the multibuy page in game."
+                      arrow
+                    >
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={async () => {
+                          const materialPriceObjects = [];
+                          const matches = await importMultibuyFromClipboard();
+
+                          for (let material of activeJob.build.materials) {
+                            const matchedItem = matches.find(
+                              (i) => i.importedName === material.name
+                            );
+                            if (!matchedItem) continue;
+
+                            materialPriceObjects.push(
+                              useBuildMaterialPriceObject(
+                                material.typeID,
+                                matchedItem.importedQuantity,
+                                matchedItem.importedCost
+                              )
+                            );
+                          }
+
+                          if (materialPriceObjects.length === 0) {
+                            sendSnackbarNotificationError(
+                              "No Matching Items Found"
+                            );
+                            return;
+                          }
+
+                          const { newMaterialArray, newTotalPurchaseCost } =
+                            useAddMaterialCostsToJob(
+                              activeJob,
+                              materialPriceObjects
+                            );
+
+                          updateActiveJob((prevObj) => ({
+                            ...prevObj,
+                            build: {
+                              ...prevObj.build,
+                              materials: newMaterialArray,
+                              costs: {
+                                ...prevObj.build.costs,
+                                totalPurchaseCost: newTotalPurchaseCost,
+                              },
+                            },
+                          }));
+                          setJobModified(true);
+                        }}
+                      >
+                        Import Costs From Multibuy
+                      </Button>
+                    </Tooltip>
+                  </Grid>
+                </Grid>
               )}
             </Grid>
             <Grid container item xs={12} md={4}>

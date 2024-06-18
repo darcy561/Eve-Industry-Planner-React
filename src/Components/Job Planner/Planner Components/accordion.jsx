@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
-import AddIcon from "@mui/icons-material/Add";
+import SelectAllIcon from "@mui/icons-material/SelectAll";
 import { StatusSettings } from "./StatusSettings";
 import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
 import { ClassicAccordionContents } from "./Classic/classicContents";
@@ -25,8 +25,8 @@ import { useDrop } from "react-dnd";
 import { useDnD } from "../../../Hooks/useDnD";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { grey } from "@mui/material/colors";
-import { CompactAccordionContents } from "./Compact/compactContents";
 import GLOBAL_CONFIG from "../../../global-config-app";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function PlannerAccordion() {
   const { users } = useContext(UsersContext);
@@ -47,11 +47,10 @@ export function PlannerAccordion() {
     completeAPIJobs: false,
   });
   const { canDropCard, recieveJobCardToStage } = useDnD();
+  const { findParentUser } = useHelperFunction();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);
@@ -61,152 +60,156 @@ export function PlannerAccordion() {
   }
 
   return (
-    <Paper
-      elevation={3}
-      sx={{ marginRight: { md: "10px" }, marginLeft: { md: "10px" } }}
-      square={true}
-    >
-      {jobStatus.map((status) => {
-        const [{ isOver, canDrop }, drop] = useDrop(
-          () => ({
-            accept: [ItemTypes.jobCard, ItemTypes.groupCard],
-            drop: (item) => {
-              recieveJobCardToStage(item, status);
-            },
-            canDrop: (item) => canDropCard(item, status),
-            collect: (monitor) => ({
-              isOver: !!monitor.isOver(),
-              canDrop: !!monitor.canDrop(),
-            }),
-          }),
-          [status, userJobSnapshot, jobArray]
-        );
-        return (
-          <Accordion
-            ref={drop}
-            expanded={status.expanded}
-            square={true}
-            spacing={1}
-            id={status.id}
-            key={status.id}
-            disableGutters={true}
-            sx={{
-              ...(canDrop &&
-                !isOver && {
-                  backgroundColor: (theme) =>
-                    theme.palette.mode !== "dark" ? grey[400] : grey[700],
-                }),
-              ...(canDrop &&
-                isOver && {
-                  backgroundColor: (theme) =>
-                    theme.palette.mode !== "dark" ? grey[600] : grey[600],
-                }),
-              "& .MuiAccordionSummary-root:hover": {
-                cursor: "default",
+    <Box sx={{ display: "flex", order: { xs: 2, md: 1 }, width: "100%" }}>
+      <Paper elevation={3} square sx={{ width: "100%" }}>
+        {jobStatus.map((status) => {
+          const [{ isOver, canDrop }, drop] = useDrop(
+            () => ({
+              accept: [ItemTypes.jobCard, ItemTypes.groupCard],
+              drop: (item) => {
+                recieveJobCardToStage(item, status);
               },
-            }}
-          >
-            <AccordionSummary
-              expandIcon={
-                <Tooltip title="Collapse/Expand Stage" arrow placement="bottom">
-                  <IconButton
-                    color="secondary"
-                    onClick={() => handleExpand(status.id)}
-                  >
-                    <ExpandMoreIcon />
-                  </IconButton>
-                </Tooltip>
-              }
-              aria-label="Expand Icon"
+              canDrop: (item) => canDropCard(item, status),
+              collect: (monitor) => ({
+                isOver: !!monitor.isOver(),
+                canDrop: !!monitor.canDrop(),
+              }),
+            }),
+            [status, userJobSnapshot, jobArray]
+          );
+          return (
+            <Accordion
+              ref={drop}
+              expanded={status.expanded}
+              square
+              spacing={1}
+              id={status.id}
+              key={status.id}
+              disableGutters
+              sx={{
+                ...(canDrop &&
+                  !isOver && {
+                    backgroundColor: (theme) =>
+                      theme.palette.mode !== "dark" ? grey[400] : grey[700],
+                  }),
+                ...(canDrop &&
+                  isOver && {
+                    backgroundColor: (theme) =>
+                      theme.palette.mode !== "dark" ? grey[600] : grey[600],
+                  }),
+                "& .MuiAccordionSummary-root:hover": {
+                  cursor: "default",
+                },
+              }}
             >
-              <Box
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "row",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flex: "1 1 95%",
-                    flexDirection: "row",
-                  }}
-                >
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      color: (theme) =>
-                        theme.palette.mode === PRIMARY_THEME
-                          ? "secondary"
-                          : theme.palette.primary.main,
-                    }}
-                  >
-                    {status.name}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                  }}
-                >
+              <AccordionSummary
+                expandIcon={
                   <Tooltip
-                    title={`Select all jobs in the ${status.name} stage.`}
+                    title="Collapse/Expand Stage"
                     arrow
                     placement="bottom"
                   >
                     <IconButton
                       color="secondary"
-                      onClick={() => {
-                        let newMultiArray = new Set([...multiSelectJobPlanner]);
-                        userJobSnapshot.forEach((job) => {
-                          if (job.jobStatus === status.id) {
-                            newMultiArray.add(job.jobID);
-                          }
-                        });
-                        updateMultiSelectJobPlanner([...newMultiArray]);
-                      }}
+                      onClick={() => handleExpand(status.id)}
                     >
-                      <AddIcon />
+                      <ExpandMoreIcon />
                     </IconButton>
                   </Tooltip>
-                  {isLoggedIn && (
+                }
+                aria-label="Expand Icon"
+              >
+                <Box
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flex: "1 1 95%",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        color: (theme) =>
+                          theme.palette.mode === PRIMARY_THEME
+                            ? "secondary"
+                            : theme.palette.primary.main,
+                      }}
+                    >
+                      {status.name}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                    }}
+                  >
                     <Tooltip
-                      title="Change status settings"
+                      title={`Select all jobs in the ${status.name} stage.`}
                       arrow
                       placement="bottom"
                     >
                       <IconButton
                         color="secondary"
                         onClick={() => {
-                          updateStatusData(status);
-                          updateStatusSettingsTrigger(true);
+                          let newMultiArray = new Set([
+                            ...multiSelectJobPlanner,
+                          ]);
+                          userJobSnapshot.forEach((job) => {
+                            if (job.jobStatus === status.id) {
+                              newMultiArray.add(job.jobID);
+                            }
+                          });
+                          updateMultiSelectJobPlanner([...newMultiArray]);
                         }}
                       >
-                        <SettingsIcon fontSize="small" />
+                        <SelectAllIcon />
                       </IconButton>
                     </Tooltip>
-                  )}
+                    {isLoggedIn && (
+                      <Tooltip
+                        title="Change status settings"
+                        arrow
+                        placement="bottom"
+                      >
+                        <IconButton
+                          color="secondary"
+                          onClick={() => {
+                            updateStatusData(status);
+                            updateStatusSettingsTrigger(true);
+                          }}
+                        >
+                          <SettingsIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
-            </AccordionSummary>
-            <AccordionDetails>
-              {parentUser.settings.layout.enableCompactView ? (
-                <CompactAccordionContents status={status} />
-              ) : (
-                <ClassicAccordionContents status={status} />
-              )}
-            </AccordionDetails>
-          </Accordion>
-        );
-      })}
-      <StatusSettings
-        statusData={statusData}
-        updateStatusData={updateStatusData}
-        statusSettingsTrigger={statusSettingsTrigger}
-        updateStatusSettingsTrigger={updateStatusSettingsTrigger}
-      />
-    </Paper>
+              </AccordionSummary>
+              <AccordionDetails>
+                {parentUser.settings.layout.enableCompactView ? (
+                  <CompactAccordionContents status={status} />
+                ) : (
+                  <ClassicAccordionContents status={status} />
+                )}
+              </AccordionDetails>
+            </Accordion>
+          );
+        })}
+        <StatusSettings
+          statusData={statusData}
+          updateStatusData={updateStatusData}
+          statusSettingsTrigger={statusSettingsTrigger}
+          updateStatusSettingsTrigger={updateStatusSettingsTrigger}
+        />
+      </Paper>
+    </Box>
   );
 }

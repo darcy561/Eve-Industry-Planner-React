@@ -2,17 +2,14 @@ import { useContext } from "react";
 import { Avatar, Grid, IconButton, Tooltip, Typography } from "@mui/material";
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import {
-  CorpEsiDataContext,
-  EveIDsContext,
-} from "../../../../../../Context/EveDataContext";
+import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
 import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
 import { useMarketOrderFunctions } from "../../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 class ESIMarketOrder {
   constructor(order) {
@@ -42,13 +39,17 @@ export function AvailableMarketOrdersTab({
   esiDataToLink,
   updateEsiDataToLink,
 }) {
-  const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const { calcBrokersFee } = useJobManagement();
   const { findBrokersFeeEntry } = useMarketOrderFunctions();
+  const {
+    findParentUserIndex,
+    findUniverseItemObject,
+    sendSnackbarNotificationSuccess,
+    sendSnackbarNotificationError,
+  } = useHelperFunction();
   const analytics = getAnalytics();
 
   return (
@@ -71,7 +72,7 @@ export function AvailableMarketOrdersTab({
             const charData = users.find(
               (i) => i.CharacterHash === order.CharacterHash
             );
-            const locationData = eveIDs.find((i) => i.id === order.location_id);
+            const locationData = findUniverseItemObject(order.location_id);
             const corpData = corpEsiData.get(charData?.corporation_id);
 
             return (
@@ -182,9 +183,7 @@ export function AvailableMarketOrdersTab({
                         size="small"
                         onClick={async () => {
                           try {
-                            const parentUserIndex = users.findIndex(
-                              (user) => user.ParentUser
-                            );
+                            const parentUserIndex = findParentUserIndex();
                             const brokersFee = await calcBrokersFee(order);
                             const brokersFeeObject = findBrokersFeeEntry(
                               order,
@@ -231,14 +230,7 @@ export function AvailableMarketOrdersTab({
                                 },
                               },
                             }));
-
-                            setSnackbarData((prev) => ({
-                              ...prev,
-                              open: true,
-                              message: "Linked",
-                              severity: "success",
-                              autoHideDuration: 1000,
-                            }));
+                            sendSnackbarNotificationSuccess("Linked");
 
                             setJobModified(true);
 
@@ -251,13 +243,9 @@ export function AvailableMarketOrdersTab({
                               "Failed to link market order:",
                               error
                             );
-                            setSnackbarData((prev) => ({
-                              ...prev,
-                              open: true,
-                              message: "Failed to link market order",
-                              severity: "error",
-                              autoHideDuration: 1000,
-                            }));
+                            sendSnackbarNotificationError(
+                              "Failed to link market order"
+                            );
                           }
                         }}
                       >

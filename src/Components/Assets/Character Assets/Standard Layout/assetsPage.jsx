@@ -8,21 +8,24 @@ import {
 } from "../../../../Context/EveDataContext";
 import { AssetEntry_TopLevel } from "./AssetFolders/topLevelFolder";
 import { AssetsPage_Loading } from "./loadingPage";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AssetsPage_Character({ selectedCharacter }) {
   const { users } = useContext(UsersContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { updateEveIDs } = useContext(EveIDsContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const [topLevelAssets, updateTopLevelAssets] = useState(null);
   const [assetLocations, updateAssetLocations] = useState(null);
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
   const [characterBlueprintsMap, updateCharacterBlueprintsMap] = useState(null);
-  const { buildAssetMaps, sortLocationMapsAlphabetically } =
+  const { buildAssetMaps, sortLocationMapsAlphabetically, getRequestedAssets } =
     useAssetHelperHooks();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
+  const { findUniverseItemObject } = useHelperFunction();
 
   useEffect(() => {
     async function buildCharacterAssetsTree() {
+      
       const requiredUserObject = users.find(
         (i) => i.CharacterHash === selectedCharacter
       );
@@ -33,9 +36,7 @@ export function AssetsPage_Character({ selectedCharacter }) {
         characterBlueprints.map((i) => [i.item_id, i])
       );
 
-      const assetsJSON = JSON.parse(
-        sessionStorage.getItem(`assets_${selectedCharacter}`)
-      );
+      const assetsJSON = await getRequestedAssets(requiredUserObject);
 
       const filteredAssets = assetsJSON.filter(
         (i) => i.location_flag !== ("AssetSafety" && "Deliveries")
@@ -46,14 +47,9 @@ export function AssetsPage_Character({ selectedCharacter }) {
 
       const requiredLocationID = [...topLevelAssetLocations.keys()].reduce(
         (prev, locationID) => {
-          const matchedID = eveIDs.find((i) => i.id === locationID);
-
+          const matchedID = findUniverseItemObject(locationID);
           if (!matchedID) {
             prev.add(locationID);
-          } else {
-            if (matchedID.unResolvedLocation) {
-              prev.add(locationID);
-            }
           }
           return prev;
         },
@@ -71,22 +67,14 @@ export function AssetsPage_Character({ selectedCharacter }) {
         requiredUserObject
       );
 
-      const newEveIDs = [
-        ...eveIDs.filter(
-          (firstObj) =>
-            !additonalIDObjects.some(
-              (secondObj) => firstObj.id === secondObj.id
-            )
-        ),
-        ...additonalIDObjects,
-      ];
-
       const topLevelAssetLocationsSORTED = sortLocationMapsAlphabetically(
         topLevelAssetLocations,
-        newEveIDs
+        additonalIDObjects
       );
 
-      updateEveIDs(newEveIDs);
+      if (Object.keys(additonalIDObjects).length > 0) {
+        updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
+      }
       updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
       updateAssetLocations(assetsByLocationMap);
@@ -109,6 +97,7 @@ export function AssetsPage_Character({ selectedCharacter }) {
         let depth = 1;
         return (
           <AssetEntry_TopLevel
+            key={locationID}
             locationID={locationID}
             assets={assets}
             assetLocations={assetLocations}

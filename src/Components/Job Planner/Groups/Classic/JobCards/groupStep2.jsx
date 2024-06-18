@@ -1,13 +1,10 @@
 import { Grid, Typography } from "@mui/material";
+import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
 
 export default function GroupStep2JobCard({ job }) {
-  let totalComplete = 0;
-
-  job.build.materials.forEach((material) => {
-    if (material.purchaseComplete) {
-      totalComplete++;
-    }
-  });
+  const { getTotalCompleteMaterialsFromJob } = useHelperFunction();
+  const totalComplete = getTotalCompleteMaterialsFromJob(job);
 
   return (
     <Grid
@@ -21,13 +18,13 @@ export default function GroupStep2JobCard({ job }) {
         {totalComplete - job.build.materials.length !== 0 ? (
           <>
             <Grid item xs={10}>
-              <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+              <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                 Awaiting Materials
               </Typography>
             </Grid>
             <Grid item xs={2}>
               <Typography
-                sx={{ typography: { xs: "body2", md: "body1" } }}
+                sx={{ typography: STANDARD_TEXT_FORMAT }}
                 align="right"
               >
                 {job.build.materials.length - totalComplete}/
@@ -37,7 +34,7 @@ export default function GroupStep2JobCard({ job }) {
           </>
         ) : (
           <Grid item xs={12}>
-            <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+            <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
               Ready To Build
             </Typography>
           </Grid>

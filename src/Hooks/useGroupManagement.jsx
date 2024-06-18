@@ -5,13 +5,13 @@ import {
 } from "../Context/AuthContext";
 import { jobTypes } from "../Context/defaultValues";
 import { ActiveJobContext, JobArrayContext } from "../Context/JobContext";
-import { SnackBarDataContext } from "../Context/LayoutContext";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
 import uuid from "react-uuid";
 import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
+import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -21,13 +21,13 @@ export function useGroupManagement() {
   );
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeGroup } = useContext(ActiveJobContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { deleteJobSnapshot, newJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { addNewJob, uploadGroups, uploadUserJobSnapshot, uploadJob } =
     useFirebase();
-  const { buildJob, recalculateItemQty_New } = useJobBuild();
-  const { CalculateResources_New, CalculateTime_New } = useBlueprintCalc();
+  const { buildJob, recalculateItemQty } = useJobBuild();
+  const { calculateResources, calculateTime } = useBlueprintCalc();
+  const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   function newJobGroupTemplate(
     assignedGroupID,
@@ -91,6 +91,7 @@ export function useGroupManagement() {
         }
         material = material.filter((i) => i !== inputJob.jobID);
       }
+
       inputJob.parentJob = inputJob.parentJob.filter((i) =>
         inputJobIDs.includes(i)
       );
@@ -133,10 +134,7 @@ export function useGroupManagement() {
         outputJobCount
       ),
     };
-
-    updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
-
+    newGroupArray.push(newGroupEntry);
     if (isLoggedIn) {
       uploadUserJobSnapshot(newUserJobSnapshot);
       uploadGroups(newGroupArray);
@@ -150,7 +148,10 @@ export function useGroupManagement() {
       });
     }
 
-    return newGroupEntry;
+    updateJobArray(newJobArray);
+    updateUserJobSnapshot(newUserJobSnapshot);
+
+    return { newGroupEntry, newGroupArray };
   };
 
   const replaceGroupData = (inputGroup, chosenGroupArray) => {
@@ -289,40 +290,25 @@ export function useGroupManagement() {
     updateJobArray(newJobArray);
 
     if (modifiedJobData.length > 0 && buildRequests.length > 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${modifiedJobData.length} Jobs Updated & ${buildRequests.length} Jobs Created`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationSuccess(
+        `${modifiedJobData.length} Jobs Updated & ${buildRequests.length} Jobs Created`,
+        3
+      );
     }
     if (buildRequests.length > 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${buildRequests.length} Jobs Created`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationSuccess(
+        `${buildRequests.length} Jobs Created`,
+        3
+      );
     }
     if (modifiedJobData.length > 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `${modifiedJobData.length} Jobs Updated `,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationSuccess(
+        `${modifiedJobData.length} Jobs Updated`,
+        3
+      );
     }
     if (modifiedJobData.length === 0 && buildRequests.length === 0) {
-      setSnackbarData((prev) => ({
-        ...prev,
-        open: true,
-        message: `Job Tree Complete`,
-        severity: "success",
-        autoHideDuration: 3000,
-      }));
+      sendSnackbarNotificationSuccess(`Job Tree Complete`);
     }
 
     async function buildExistingTypes(selectedGroupObject) {
@@ -466,8 +452,8 @@ export function useGroupManagement() {
           ...new Set(job.parentJob, [...modifiedData.parentJobs]),
         ];
 
-        recalculateItemQty_New(job, modifiedData.itemQty);
-        job.build.materials = CalculateResources_New({
+        recalculateItemQty(job, modifiedData.itemQty);
+        job.build.materials = calculateResources({
           jobType: job.jobType,
           rawMaterials: job.rawData.materials,
           outputMaterials: job.build.materials,
@@ -485,7 +471,7 @@ export function useGroupManagement() {
         job.build.products.quantityPerJob =
           job.rawData.products[0].quantity * job.jobCount;
 
-        job.build.time = CalculateTime_New({
+        job.build.time = calculateTime({
           jobType: job.jobType,
           CharacterHash: job.build.buildChar,
           structureType: job.structureType,
@@ -566,13 +552,7 @@ export function useGroupManagement() {
     )((groupToUpdate.materialIDs = [...newMaterialIDs]));
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${totalJobsCreated} Jobs Created`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationSuccess(`${totalJobsCreated} Jobs Created`, 3);
 
     async function buildTree(inputs, selectedGroupObject) {
       let newJobIDs = new Set();

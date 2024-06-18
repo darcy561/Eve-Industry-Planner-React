@@ -21,7 +21,7 @@ export function AssetEntry_Child({
   const itemName =
     fullItemList[assetObject.type_id]?.name ||
     `Unkown Item-${assetObject.type_id}`;
-
+  
   const marginValue = deviceNotMobile ? 5 : 3;
   const imageURL = findAssetImageURL(assetObject, characterBlueprintsMap);
   const isEvenPosition = index % 2 === 0;

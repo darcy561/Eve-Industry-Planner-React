@@ -4,7 +4,6 @@ import {
   ActiveJobContext,
   JobArrayContext,
 } from "../../../../../../Context/JobContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
@@ -12,12 +11,13 @@ import {
 } from "../../../../../../Context/AuthContext";
 import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import { useNavigate } from "react-router-dom";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ArchiveJobButton({ activeJob }) {
   const { activeGroup } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { users, updateUsers } = useContext(UsersContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
@@ -26,10 +26,13 @@ export function ArchiveJobButton({ activeJob }) {
   const { archiveJob, removeJob, uploadUserJobSnapshot, updateMainUserDoc } =
     useFirebase();
   const { deleteJobSnapshot } = useJobSnapshotManagement();
+  const { findParentUserIndex, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const analytics = getAnalytics();
+  const navigate = useNavigate();
 
   const archiveJobProcess = async () => {
-    const parentUserIndex = users.findIndex((i) => i.ParentUser);
+    const parentUserIndex = findParentUserIndex();
     let newUserArray = [...users];
 
     logEvent(analytics, "Archive Job", {
@@ -52,20 +55,15 @@ export function ArchiveJobButton({ activeJob }) {
 
     updateJobArray(newJobArray);
     updateUsers(newUserArray);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${activeJob.name} Archived`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
+    sendSnackbarNotificationSuccess(`${activeJob.name} Archived`);
+
     let newUserJobSnapshot = deleteJobSnapshot(activeJob, [...userJobSnapshot]);
     await uploadUserJobSnapshot(newUserJobSnapshot);
     await archiveJob(activeJob);
     await removeJob(activeJob);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateMainUserDoc();
-    updateEditJobTrigger((prev) => !prev);
+    navigate("/jobplanner");
   };
 
   if (!isLoggedIn || activeGroup) {

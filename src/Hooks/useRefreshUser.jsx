@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import { useFirebase } from "./useFirebase";
@@ -15,11 +15,11 @@ import {
 } from "../Context/LayoutContext";
 import { decodeJwt } from "jose";
 import { trace } from "firebase/performance";
-import { functions, performance } from "../firebase";
+import { performance } from "../firebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "./useAccountManagement";
-import { httpsCallable } from "firebase/functions";
 import { Buffer } from "buffer";
+import useCheckGlobalAppVersion from "./GeneralHooks/useCheckGlobalAppVersion";
 
 export function useRefreshUser() {
   const {
@@ -31,49 +31,13 @@ export function useRefreshUser() {
   } = useFirebase();
   const { getCharacterInfo } = useAccountManagement();
   const { updateJobArray } = useContext(JobArrayContext);
-  const { users, updateUsers } = useContext(UsersContext);
-  const { isLoggedIn, updateIsLoggedIn } = useContext(IsLoggedInContext);
+  const { users } = useContext(UsersContext);
+  const { updateIsLoggedIn } = useContext(IsLoggedInContext);
   const { updatePageLoad } = useContext(PageLoadContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateDialogData } = useContext(DialogDataContext);
-  const {
-    updateUserUIData,
-    updateLoginInProgressComplete,
-    updateUserDataFetch,
-    updateUserJobSnapshotDataFetch,
-    updateUserWatchlistDataFetch,
-    updateUserGroupsDataFetch,
-  } = useContext(UserLoginUIContext);
-
-  const checkAppVersion = httpsCallable(
-    functions,
-    "checkAppVersion-checkAppVersion"
-  );
-
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
-
-  const checkUserState = async () => {
-    if (isLoggedIn) {
-      if (parentUser.aTokenEXP <= Math.floor(Date.now() / 1000)) {
-        let newUsersArray = [...users];
-        const index = newUsersArray.findIndex((i) => i.ParentUser);
-        newUsersArray[index] = await RefreshUserAToken(parentUser);
-        updateUsers(newUsersArray);
-      }
-      updatePageLoad(false);
-    } else {
-      if (localStorage.getItem("Auth") == null) {
-        updatePageLoad(false);
-        updateLoginInProgressComplete(true);
-        updateUserDataFetch(true);
-        updateUserJobSnapshotDataFetch(true);
-        updateUserWatchlistDataFetch(true);
-        updateUserGroupsDataFetch(true);
-      } else {
-        reloadMainUser(localStorage.getItem("Auth"));
-      }
-    }
-  };
+  const { updateUserUIData, updateLoginInProgressComplete } =
+    useContext(UserLoginUIContext);
 
   const reloadMainUser = async (refreshToken) => {
     const analytics = getAnalytics();
@@ -81,8 +45,7 @@ export function useRefreshUser() {
     t.start();
     updateLoginInProgressComplete(false);
 
-    let appVersion = await checkAppVersion({ appVersion: __APP_VERSION__ });
-    if (!appVersion.data) {
+    if (!useCheckGlobalAppVersion) {
       updateDialogData((prev) => ({
         ...prev,
         buttonText: "Close",
@@ -166,5 +129,22 @@ export function useRefreshUser() {
     }
   };
 
-  return { checkUserState, RefreshUserAToken, reloadMainUser };
+  async function refreshUserAccessTokens() {
+    const newUserArray = [...users];
+    const currentTimeStamp = Math.floor(Date.now() / 1000);
+
+    for (let user of newUserArray) {
+      if (user.aTokenEXP <= currentTimeStamp) {
+        user = await RefreshUserAToken(user);
+      }
+    }
+
+    return newUserArray;
+  }
+
+  return {
+    RefreshUserAToken,
+    reloadMainUser,
+    refreshUserAccessTokens,
+  };
 }

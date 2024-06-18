@@ -7,8 +7,8 @@ import { EditJobSetup } from "../Standard Layout/Edit Setup Panel/editJobSetup";
 import { AvailableBlueprintsPanel } from "../Standard Layout/Blueprint Options/blueprintPanel";
 import { RawResourceList } from "../Standard Layout/Resources Panel/ResourcePanel";
 import { MaterialCostPanel } from "../Standard Layout/Material Prices/materialPricePanel";
-import { ArchiveJobsPanel } from "../Standard Layout/Archive Jobs Panel/ArchiveJobsPanel";
 import { SkillsPanel } from "../Standard Layout/Skills Panel/SkillsPanel";
+import ArchiveJobsPanel from "../Standard Layout/Archive Jobs Panel/archiveJobsPanel";
 
 export function Planning_MobileLayout_EditJob({
   activeJob,
@@ -30,7 +30,11 @@ export function Planning_MobileLayout_EditJob({
     <Grid container spacing={2} sx={{ marginTop: "10px" }}>
       <TutorialStep1 activeJob={activeJob} />
       <Grid item xs={12}>
-        <ProductionStats activeJob={activeJob} setupToEdit={setupToEdit} parentChildToEdit={parentChildToEdit} />
+        <ProductionStats
+          activeJob={activeJob}
+          setupToEdit={setupToEdit}
+          parentChildToEdit={parentChildToEdit}
+        />
         <JobSetupPanel
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}

@@ -11,16 +11,16 @@ import {
 import { useContext, useState } from "react";
 import { UsersContext } from "../../Context/AuthContext";
 import { ApiJobsContext } from "../../Context/JobContext";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { AccountEntry } from "./AccountEntry";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
+import { useCorporationObject } from "../../Hooks/Account Management Hooks/Corporation Objects/useCorporationObject";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AdditionalAccounts({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateMainUserDoc } = useFirebase();
   const {
     characterAPICall,
@@ -30,6 +30,9 @@ export function AdditionalAccounts({ parentUserIndex }) {
     updateUserEsiData,
   } = useAccountManagement();
   const [skeletonVisible, toggleSkeleton] = useState(false);
+  const { sendSnackbarNotificationSuccess, sendSnackbarNotificationError } =
+    useHelperFunction();
+  const { updateCorporationObject } = useCorporationObject();
   const analytics = getAnalytics();
   let newUser = null;
 
@@ -71,13 +74,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
         localStorage.removeItem("AddAccount");
         localStorage.removeItem("AddAccountComplete");
         localStorage.removeItem("AdditionalUser");
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: `Duplicate Account`,
-          severity: "error",
-          autoHideDuration: 5000,
-        }));
+        sendSnackbarNotificationError(`Duplicate Account`, 3);
       } else {
         let newUserArray = [...users];
         let esiObjectsArray = [];
@@ -122,6 +119,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
           }
         }
         updateUserEsiData(esiObjectsArray);
+        updateCorporationObject(esiObjectsArray);
         newApiArray = updateApiArray(
           newApiArray,
           newUserArray,
@@ -138,13 +136,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
           cloudAccount:
             newUserArray[parentUserIndex].settings.account.cloudAccounts,
         });
-        setSnackbarData((prev) => ({
-          ...prev,
-          open: true,
-          message: `${newUser.CharacterName} Imported`,
-          severity: "success",
-          autoHideDuration: 3000,
-        }));
+        sendSnackbarNotificationSuccess(`${newUser.CharacterName} Imported`, 3);
       }
       window.removeEventListener("storage", importNewAccount);
       toggleSkeleton(false);

@@ -1,18 +1,18 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Grid, Paper, Popover, Typography } from "@mui/material";
 import { JobArrayContext } from "../../../../../../../Context/JobContext";
-import { UsersContext } from "../../../../../../../Context/AuthContext";
 import { useFirebase } from "../../../../../../../Hooks/useFirebase";
 import { useJobBuild } from "../../../../../../../Hooks/useJobBuild";
 import { useJobManagement } from "../../../../../../../Hooks/useJobManagement";
 import { ImportingStateLayout_ChildJobPopoverFrame } from "./fetchState";
 import { ChildJobMaterials_ChildJobPopoverFrame } from "./childJobMaterials";
 import { ChildJobSwitcher_ChildJobPopoverFrame } from "./switchChildJob";
-import { DisplayMismatchedChildTotals_ChildJobPopoverFrame } from "./mismatchedTotals";
+import { DisplayMismatchedChildTotals_ChildJobPopoverFrame } from "./misMatchedTotals";
 import { ChildJobMaterialTotalCosts_ChildJobPopoverFrame } from "./childJobTotalCosts";
 import { useMaterialCostCalculations } from "../../../../../../../Hooks/GeneralHooks/useMaterialCostCalculations";
 import { useManageGroupJobs } from "../../../../../../../Hooks/GroupHooks/useManageGroupJobs";
 import { ButtonSelectionLogic_ChildJobPopoverFrame } from "./buttonSelectionLogic";
+import { useHelperFunction } from "../../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ChildJobPopoverFrame({
   activeJob,
@@ -34,7 +34,6 @@ export function ChildJobPopoverFrame({
   parentChildToEdit,
   updateParentChildToEdit,
 }) {
-  const { users } = useContext(UsersContext);
   const { jobArray } = useContext(JobArrayContext);
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImportState, updateJobImportState] = useState(false);
@@ -46,8 +45,9 @@ export function ChildJobPopoverFrame({
   const { generatePriceRequestFromJob } = useJobManagement();
   const { calculateMaterialCostFromChildJobs } = useMaterialCostCalculations();
   const { findJobIDOfMaterialFromGroup } = useManageGroupJobs();
+  const { findParentUser } = useHelperFunction();
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
   const childJobsLocation = activeJob.build.childJobs[material.typeID];
   const currentJob = childJobObjects[jobDisplay];
   const isExistingJobInGroup = useRef(false);
@@ -77,12 +77,12 @@ export function ChildJobPopoverFrame({
           updateFetchError(true);
         }
 
-        const itemPrices = await getItemPrices(
+        const itemPriceResult = await getItemPrices(
           generatePriceRequestFromJob(newJob),
           parentUser
         );
 
-        updateTempPrices((prev) => prev.concat(itemPrices));
+        updateTempPrices((prev) => ({ ...prev, ...itemPriceResult }));
         matchedChildJobs.push(newJob);
       }
 

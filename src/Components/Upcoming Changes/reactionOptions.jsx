@@ -19,7 +19,7 @@ export function ReactionOptionsUpcomingChanges({
   updateSisiItem,
   itemLoad,
 }) {
-  const { CalculateResources, CalculateTime } = useBlueprintCalc();
+  const { calculateResources, calculateTime } = useBlueprintCalc();
   const [runValue, updateRunValue] = useState(1);
   const [jobValue, updateJobValue] = useState(1);
   const [structType, updateStructType] = useState(0);
@@ -57,7 +57,7 @@ export function ReactionOptionsUpcomingChanges({
       systemType: systemValue,
       build: {
         ...prev.build,
-        materials: CalculateResources({
+        materials: calculateResources({
           jobType: prev.jobType,
           rawMaterials: prev.rawData.materials,
           outputMaterials: prev.build.materials,
@@ -74,7 +74,7 @@ export function ReactionOptionsUpcomingChanges({
             prev.rawData.products[0].quantity * runValue * jobValue,
           quantityPerJob: prev.rawData.products[0].quantity * jobValue,
         },
-        time: CalculateTime({
+        time: calculateTime({
           jobType: prev.jobType,
           CharacterHash: prev.build.buildChar,
           structureType: structType,
@@ -95,7 +95,7 @@ export function ReactionOptionsUpcomingChanges({
       systemType: systemValue,
       build: {
         ...prev.build,
-        materials: CalculateResources({
+        materials: calculateResources({
           jobType: prev.jobType,
           rawMaterials: prev.rawData.materials,
           outputMaterials: prev.build.materials,
@@ -112,7 +112,7 @@ export function ReactionOptionsUpcomingChanges({
             prev.rawData.products[0].quantity * runValue * jobValue,
           quantityPerJob: prev.rawData.products[0].quantity * jobValue,
         },
-        time: CalculateTime({
+        time: calculateTime({
           jobType: prev.jobType,
           CharacterHash: prev.build.buildChar,
           structureType: structType,

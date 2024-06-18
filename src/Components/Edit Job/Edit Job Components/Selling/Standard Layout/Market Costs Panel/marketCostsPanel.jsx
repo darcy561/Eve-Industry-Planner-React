@@ -1,13 +1,12 @@
-import { useContext } from "react";
 import { Grid, Paper, Tooltip, Typography } from "@mui/material";
-import { EvePricesContext } from "../../../../../../Context/EveDataContext";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function MarketCostsPanel({ activeJob }) {
-  const { evePrices } = useContext(EvePricesContext);
+  const { findItemPriceObject } = useHelperFunction();
 
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
-  const itemCosts = evePrices.find((i) => i.typeID === activeJob.itemID);
+  const itemCosts = findItemPriceObject(activeJob.itemID);
 
   return (
     <Paper

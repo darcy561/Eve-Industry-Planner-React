@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import {
   Avatar,
   Badge,
@@ -10,13 +10,16 @@ import {
 } from "@mui/material";
 import { MdOutlineAddLink } from "react-icons/md";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { EveIDsContext } from "../../../../../../Context/EveDataContext";
 import {
   IsLoggedInContext,
   UsersContext,
 } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { useJobManagement } from "../../../../../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import {
+  LARGE_TEXT_FORMAT,
+  STANDARD_TEXT_FORMAT,
+} from "../../../../../../Context/defaultValues";
 
 export function AvailableJobsTab({
   activeJob,
@@ -28,11 +31,14 @@ export function AvailableJobsTab({
   esiDataToLink,
   updateEsiDataToLink,
 }) {
-  const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { findBlueprintType, timeRemainingCalc } = useJobManagement();
+  const {
+    findUniverseItemObject,
+    sendSnackbarNotificationError,
+    sendSnackbarNotificationSuccess,
+  } = useHelperFunction();
 
   const analytics = getAnalytics();
 
@@ -79,7 +85,7 @@ export function AvailableJobsTab({
             );
             const blueprintType = findBlueprintType(job.blueprint_id);
 
-            const facilityData = eveIDs.find((i) => i.id === job.facility_id);
+            const facilityData = findUniverseItemObject(job.facility_id);
 
             const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
 
@@ -132,13 +138,13 @@ export function AvailableJobsTab({
                 </Grid>
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >{`${job.runs.toLocaleString()} Runs`}</Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >
                     {facilityData
@@ -149,7 +155,7 @@ export function AvailableJobsTab({
                 {job.isCorp ? (
                   <Grid item xs={12}>
                     <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
+                      sx={{ typography: STANDARD_TEXT_FORMAT }}
                       align="center"
                     >
                       Corporation Job
@@ -158,7 +164,7 @@ export function AvailableJobsTab({
                 ) : null}
                 <Grid item xs={12}>
                   <Typography
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >
                     {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
@@ -229,13 +235,7 @@ export function AvailableJobsTab({
                             },
                           },
                         }));
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Linked",
-                          severity: "success",
-                          autoHideDuration: 1000,
-                        }));
+                        sendSnackbarNotificationSuccess("Linked");
                         logEvent(analytics, "linkESIJob", {
                           UID: parentUser.accountID,
                           isLoggedIn: isLoggedIn,
@@ -307,13 +307,10 @@ export function AvailableJobsTab({
                       },
                     },
                   }));
-                  setSnackbarData((prev) => ({
-                    ...prev,
-                    open: true,
-                    message: `${jobMatches.length} Jobs Linked`,
-                    severity: "success",
-                    autoHideDuration: 1000,
-                  }));
+
+                  sendSnackbarNotificationError(
+                    `${jobMatches.length} Jobs Linked`
+                  );
                   logEvent(analytics, "linkESIJobBulk", {
                     UID: parentUser.accountID,
                     isLoggedIn: isLoggedIn,
@@ -338,7 +335,7 @@ export function AvailableJobsTab({
           marginTop: { xs: "20px", sm: "30px" },
         }}
       >
-        <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
+        <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
           You have linked the maximum number of jobs from the API, if you need
           to link more increase the number of job slots used.
         </Typography>
@@ -354,10 +351,7 @@ export function AvailableJobsTab({
           marginTop: { xs: "20px", sm: "30px" },
         }}
       >
-        <Typography
-          sx={{ typography: { xs: "caption", sm: "body1" } }}
-          align="center"
-        >
+        <Typography sx={{ typography: LARGE_TEXT_FORMAT }} align="center">
           There are no matching industry jobs from the API that match this job.
         </Typography>
       </Grid>

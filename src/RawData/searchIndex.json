@@ -1818,7 +1818,7 @@
     "jobType": 1
   },
   {
-    "name": "Cynosural Suppression",
+    "name": "Deprecated Cynosural Suppression",
     "itemID": 2001,
     "blueprintID": 34867,
     "jobType": 1
@@ -1830,13 +1830,13 @@
     "jobType": 1
   },
   {
-    "name": "Cynosural Navigation",
+    "name": "Deprecated Cynosural Navigation",
     "itemID": 2008,
     "blueprintID": 34866,
     "jobType": 1
   },
   {
-    "name": "Supercapital Construction Facilities",
+    "name": "Deprecated Supercapital Construction Facilities",
     "itemID": 2009,
     "blueprintID": 34868,
     "jobType": 1
@@ -1860,37 +1860,37 @@
     "jobType": 1
   },
   {
-    "name": "Pirate Detection Array 1",
+    "name": "Deprecated Pirate Detection Array 1",
     "itemID": 2026,
     "blueprintID": 34845,
     "jobType": 1
   },
   {
-    "name": "Pirate Detection Array 2",
+    "name": "Deprecated Pirate Detection Array 2",
     "itemID": 2027,
     "blueprintID": 34846,
     "jobType": 1
   },
   {
-    "name": "Pirate Detection Array 3",
+    "name": "Deprecated Pirate Detection Array 3",
     "itemID": 2028,
     "blueprintID": 34847,
     "jobType": 1
   },
   {
-    "name": "Pirate Detection Array 4",
+    "name": "Deprecated Pirate Detection Array 4",
     "itemID": 2029,
     "blueprintID": 34848,
     "jobType": 1
   },
   {
-    "name": "Pirate Detection Array 5",
+    "name": "Deprecated Pirate Detection Array 5",
     "itemID": 2030,
     "blueprintID": 34849,
     "jobType": 1
   },
   {
-    "name": "Entrapment Array 1",
+    "name": "Deprecated Entrapment Array 1",
     "itemID": 2031,
     "blueprintID": 34869,
     "jobType": 1
@@ -1902,25 +1902,25 @@
     "jobType": 1
   },
   {
-    "name": "Entrapment Array 2",
+    "name": "Deprecated Entrapment Array 2",
     "itemID": 2034,
     "blueprintID": 34841,
     "jobType": 1
   },
   {
-    "name": "Entrapment Array 3",
+    "name": "Deprecated Entrapment Array 3",
     "itemID": 2035,
     "blueprintID": 34842,
     "jobType": 1
   },
   {
-    "name": "Entrapment Array 4",
+    "name": "Deprecated Entrapment Array 4",
     "itemID": 2036,
     "blueprintID": 34843,
     "jobType": 1
   },
   {
-    "name": "Entrapment Array 5",
+    "name": "Deprecated Entrapment Array 5",
     "itemID": 2037,
     "blueprintID": 34844,
     "jobType": 1
@@ -1932,31 +1932,31 @@
     "jobType": 1
   },
   {
-    "name": "Ore Prospecting Array 1",
+    "name": "Deprecated Ore Prospecting Array 1",
     "itemID": 2040,
     "blueprintID": 34855,
     "jobType": 1
   },
   {
-    "name": "Ore Prospecting Array 2",
+    "name": "Deprecated Ore Prospecting Array 2",
     "itemID": 2041,
     "blueprintID": 34856,
     "jobType": 1
   },
   {
-    "name": "Ore Prospecting Array 3",
+    "name": "Deprecated Ore Prospecting Array 3",
     "itemID": 2042,
     "blueprintID": 34857,
     "jobType": 1
   },
   {
-    "name": "Ore Prospecting Array 4",
+    "name": "Deprecated Ore Prospecting Array 4",
     "itemID": 2043,
     "blueprintID": 34858,
     "jobType": 1
   },
   {
-    "name": "Ore Prospecting Array 5",
+    "name": "Deprecated Ore Prospecting Array 5",
     "itemID": 2044,
     "blueprintID": 34859,
     "jobType": 1
@@ -1974,61 +1974,61 @@
     "jobType": 1
   },
   {
-    "name": "Survey Networks 1",
+    "name": "Deprecated Survey Networks 1",
     "itemID": 2053,
     "blueprintID": 34860,
     "jobType": 1
   },
   {
-    "name": "Survey Networks 2",
+    "name": "Deprecated Survey Networks 2",
     "itemID": 2054,
     "blueprintID": 34861,
     "jobType": 1
   },
   {
-    "name": "Survey Networks 3",
+    "name": "Deprecated Survey Networks 3",
     "itemID": 2055,
     "blueprintID": 34862,
     "jobType": 1
   },
   {
-    "name": "Survey Networks 4",
+    "name": "Deprecated Survey Networks 4",
     "itemID": 2056,
     "blueprintID": 34863,
     "jobType": 1
   },
   {
-    "name": "Survey Networks 5",
+    "name": "Deprecated Survey Networks 5",
     "itemID": 2057,
     "blueprintID": 34864,
     "jobType": 1
   },
   {
-    "name": "Quantum Flux Generator 1",
+    "name": "Deprecated Quantum Flux Generator 1",
     "itemID": 2058,
     "blueprintID": 34850,
     "jobType": 1
   },
   {
-    "name": "Quantum Flux Generator 2",
+    "name": "Deprecated Quantum Flux Generator 2",
     "itemID": 2059,
     "blueprintID": 34851,
     "jobType": 1
   },
   {
-    "name": "Quantum Flux Generator 3",
+    "name": "Deprecated Quantum Flux Generator 3",
     "itemID": 2060,
     "blueprintID": 34852,
     "jobType": 1
   },
   {
-    "name": "Quantum Flux Generator 4",
+    "name": "Deprecated Quantum Flux Generator 4",
     "itemID": 2061,
     "blueprintID": 34853,
     "jobType": 1
   },
   {
-    "name": "Quantum Flux Generator 5",
+    "name": "Deprecated Quantum Flux Generator 5",
     "itemID": 2062,
     "blueprintID": 34854,
     "jobType": 1
@@ -15570,7 +15570,7 @@
     "jobType": 1
   },
   {
-    "name": "Advanced Logistics Network",
+    "name": "Deprecated Advanced Logistics Network",
     "itemID": 32422,
     "blueprintID": 34865,
     "jobType": 1
@@ -15606,7 +15606,7 @@
     "jobType": 1
   },
   {
-    "name": "Infrastructure Hub",
+    "name": "Sovereignty Hub",
     "itemID": 32458,
     "blueprintID": 2735,
     "jobType": 1
@@ -23310,6 +23310,12 @@
     "jobType": 1
   },
   {
+    "name": "Metamorphosis",
+    "itemID": 77114,
+    "blueprintID": 79214,
+    "jobType": 1
+  },
+  {
     "name": "Hubris",
     "itemID": 77281,
     "blueprintID": 77414,
@@ -23391,6 +23397,342 @@
     "name": "Consortium Vorton Tuning system",
     "itemID": 78740,
     "blueprintID": 79175,
+    "jobType": 1
+  },
+  {
+    "name": "Expired Sinister Exotic Filament",
+    "itemID": 79996,
+    "blueprintID": 80003,
+    "jobType": 1
+  },
+  {
+    "name": "Expired Ruined Electrical Filament",
+    "itemID": 79997,
+    "blueprintID": 80004,
+    "jobType": 1
+  },
+  {
+    "name": "Expired Vicious Electrical Filament",
+    "itemID": 79998,
+    "blueprintID": 80005,
+    "jobType": 1
+  },
+  {
+    "name": "Expired Devastated Electrical Filament",
+    "itemID": 79999,
+    "blueprintID": 80006,
+    "jobType": 1
+  },
+  {
+    "name": "Expired Disastrous Gamma Filament",
+    "itemID": 80000,
+    "blueprintID": 80007,
+    "jobType": 1
+  },
+  {
+    "name": "Expired Annihilated Electrical Filament",
+    "itemID": 80001,
+    "blueprintID": 80008,
+    "jobType": 1
+  },
+  {
+    "name": "Expired Calamitous Firestorm Filament",
+    "itemID": 80002,
+    "blueprintID": 80009,
+    "jobType": 1
+  },
+  {
+    "name": "Squall",
+    "itemID": 81008,
+    "blueprintID": 81043,
+    "jobType": 1
+  },
+  {
+    "name": "Avalanche",
+    "itemID": 81040,
+    "blueprintID": 81054,
+    "jobType": 1
+  },
+  {
+    "name": "Deluge",
+    "itemID": 81046,
+    "blueprintID": 81048,
+    "jobType": 1
+  },
+  {
+    "name": "Torrent",
+    "itemID": 81047,
+    "blueprintID": 81049,
+    "jobType": 1
+  },
+  {
+    "name": "Fission Thruster",
+    "itemID": 81063,
+    "blueprintID": 81070,
+    "jobType": 1
+  },
+  {
+    "name": "Hyperconductive Gravimetric Sensor Cluster",
+    "itemID": 81064,
+    "blueprintID": 81071,
+    "jobType": 1
+  },
+  {
+    "name": "Electromechanical Microprocessor",
+    "itemID": 81065,
+    "blueprintID": 81072,
+    "jobType": 1
+  },
+  {
+    "name": "Metaprismatic Armor Plate",
+    "itemID": 81066,
+    "blueprintID": 81073,
+    "jobType": 1
+  },
+  {
+    "name": "Repelling Shield Emitter",
+    "itemID": 81067,
+    "blueprintID": 81074,
+    "jobType": 1
+  },
+  {
+    "name": "Fission Reactor Unit",
+    "itemID": 81068,
+    "blueprintID": 81075,
+    "jobType": 1
+  },
+  {
+    "name": "Pentachoron Capacitor Unit",
+    "itemID": 81069,
+    "blueprintID": 81077,
+    "jobType": 1
+  },
+  {
+    "name": "Orbital Skyhook",
+    "itemID": 81080,
+    "blueprintID": 81086,
+    "jobType": 1
+  },
+  {
+    "name": "Cynosural Navigation",
+    "itemID": 81615,
+    "blueprintID": 81616,
+    "jobType": 1
+  },
+  {
+    "name": "Cynosural Suppression",
+    "itemID": 81619,
+    "blueprintID": 81620,
+    "jobType": 1
+  },
+  {
+    "name": "Advanced Logistics Network",
+    "itemID": 81621,
+    "blueprintID": 81622,
+    "jobType": 1
+  },
+  {
+    "name": "Supercapital Construction Facilities",
+    "itemID": 81623,
+    "blueprintID": 81625,
+    "jobType": 1
+  },
+  {
+    "name": "Metenox Moon Drill",
+    "itemID": 81826,
+    "blueprintID": 81922,
+    "jobType": 1
+  },
+  {
+    "name": "Consortium Small Tractor Beam",
+    "itemID": 81948,
+    "blueprintID": 81946,
+    "jobType": 1
+  },
+  {
+    "name": "Consortium Capital Tractor Beam",
+    "itemID": 81949,
+    "blueprintID": 81947,
+    "jobType": 1
+  },
+  {
+    "name": "Consortium Mobile Tractor Unit",
+    "itemID": 81951,
+    "blueprintID": 81952,
+    "jobType": 1
+  },
+  {
+    "name": "Minor Threat Detection Array 3",
+    "itemID": 82492,
+    "blueprintID": 82506,
+    "jobType": 1
+  },
+  {
+    "name": "Major Threat Detection Array 1",
+    "itemID": 82496,
+    "blueprintID": 82501,
+    "jobType": 1
+  },
+  {
+    "name": "Major Threat Detection Array 2",
+    "itemID": 82497,
+    "blueprintID": 82502,
+    "jobType": 1
+  },
+  {
+    "name": "Major Threat Detection Array 3",
+    "itemID": 82498,
+    "blueprintID": 82503,
+    "jobType": 1
+  },
+  {
+    "name": "Minor Threat Detection Array 1",
+    "itemID": 82499,
+    "blueprintID": 82504,
+    "jobType": 1
+  },
+  {
+    "name": "Minor Threat Detection Array 2",
+    "itemID": 82500,
+    "blueprintID": 82505,
+    "jobType": 1
+  },
+  {
+    "name": "Isogen Prospecting Array 1",
+    "itemID": 82580,
+    "blueprintID": 82601,
+    "jobType": 1
+  },
+  {
+    "name": "Nocxium Prospecting Array 1",
+    "itemID": 82582,
+    "blueprintID": 82599,
+    "jobType": 1
+  },
+  {
+    "name": "Zydrine Prospecting Array 1",
+    "itemID": 82584,
+    "blueprintID": 82597,
+    "jobType": 1
+  },
+  {
+    "name": "Megacyte Prospecting Array 1",
+    "itemID": 82586,
+    "blueprintID": 82595,
+    "jobType": 1
+  },
+  {
+    "name": "Pyerite Prospecting Array 1",
+    "itemID": 82588,
+    "blueprintID": 82605,
+    "jobType": 1
+  },
+  {
+    "name": "Mexallon Prospecting Array 1",
+    "itemID": 82590,
+    "blueprintID": 82603,
+    "jobType": 1
+  },
+  {
+    "name": "Tritanium Prospecting Array 1",
+    "itemID": 82592,
+    "blueprintID": 82607,
+    "jobType": 1
+  },
+  {
+    "name": "Capital Micro Jump Drive",
+    "itemID": 83465,
+    "blueprintID": 83640,
+    "jobType": 1
+  },
+  {
+    "name": "Capital Micro Jump Field Generator",
+    "itemID": 83485,
+    "blueprintID": 83641,
+    "jobType": 1
+  },
+  {
+    "name": "Imperial Navy Templar",
+    "itemID": 83579,
+    "blueprintID": 83595,
+    "jobType": 1
+  },
+  {
+    "name": "Caldari Navy Dragonfly",
+    "itemID": 83582,
+    "blueprintID": 83596,
+    "jobType": 1
+  },
+  {
+    "name": "Federation Navy Firbolg",
+    "itemID": 83583,
+    "blueprintID": 83597,
+    "jobType": 1
+  },
+  {
+    "name": "Republic Fleet Einherji",
+    "itemID": 83584,
+    "blueprintID": 83598,
+    "jobType": 1
+  },
+  {
+    "name": "Imperial Navy Equite",
+    "itemID": 83585,
+    "blueprintID": 83599,
+    "jobType": 1
+  },
+  {
+    "name": "Caldari Navy Locust",
+    "itemID": 83586,
+    "blueprintID": 83600,
+    "jobType": 1
+  },
+  {
+    "name": "Federation Navy Satyr",
+    "itemID": 83587,
+    "blueprintID": 83601,
+    "jobType": 1
+  },
+  {
+    "name": "Republic Fleet Gram",
+    "itemID": 83589,
+    "blueprintID": 83602,
+    "jobType": 1
+  },
+  {
+    "name": "Imperial Navy Cenobite",
+    "itemID": 83591,
+    "blueprintID": 83603,
+    "jobType": 1
+  },
+  {
+    "name": "Caldari Navy Scarab",
+    "itemID": 83592,
+    "blueprintID": 83604,
+    "jobType": 1
+  },
+  {
+    "name": "Federation Navy Siren",
+    "itemID": 83593,
+    "blueprintID": 83605,
+    "jobType": 1
+  },
+  {
+    "name": "Republic Fleet Dromi",
+    "itemID": 83594,
+    "blueprintID": 83606,
+    "jobType": 1
+  },
+  {
+    "name": "Domination Signature Radius Suppressor",
+    "itemID": 83643,
+    "blueprintID": 83645,
+    "jobType": 1
+  },
+  {
+    "name": "Dread Guristas Signature Radius Suppressor",
+    "itemID": 83644,
+    "blueprintID": 83646,
     "jobType": 1
   }
 ]

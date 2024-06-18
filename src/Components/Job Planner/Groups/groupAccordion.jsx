@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
+import SelectAllIcon from "@mui/icons-material/SelectAll";
 import { grey } from "@mui/material/colors";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import {
@@ -24,6 +25,7 @@ import { ItemTypes } from "../../../Context/DnDTypes";
 import { CompactGroupAccordionContent } from "./Compact/CompactGroupAccordionContent";
 import { ClassicGroupAccordionContent } from "./Classic/ClassicGroupAccordionContent";
 import GLOBAL_CONFIG from "../../../global-config-app";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function GroupAccordion({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(JobArrayContext);
@@ -36,11 +38,10 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
   );
   const { canDropCard, recieveJobCardToStage } = useDnD();
   const [notExpanded, updateNotExpanded] = useState([]);
+  const { findParentUser } = useHelperFunction();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   if (groupPageRefresh && !activeGroup) return null;
 
@@ -157,7 +158,7 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
                         updateMultiSelectJobPlanner([...selectedJobIds]);
                       }}
                     >
-                      <AddIcon />
+                      <SelectAllIcon />
                     </IconButton>
                   </Tooltip>
                 </Box>

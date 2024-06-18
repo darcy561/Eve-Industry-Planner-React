@@ -12,9 +12,9 @@ import {
 import ClearIcon from "@mui/icons-material/Clear";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { UsersContext } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
 import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
 import { AddCustomTransactionDialog } from "./addCustomTransaction";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function LinkedTransactionPanel({
   activeJob,
@@ -25,10 +25,10 @@ export function LinkedTransactionPanel({
   updateEsiDataToLink,
 }) {
   const { users } = useContext(UsersContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const [newTransactionTrigger, updateNewTransactionTrigger] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const { sendSnackbarNotificationError } = useHelperFunction();
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -258,13 +258,7 @@ export function LinkedTransactionPanel({
                               },
                             }));
 
-                            setSnackbarData((prev) => ({
-                              ...prev,
-                              open: true,
-                              message: "Unlinked",
-                              severity: "error",
-                              autoHideDuration: 1000,
-                            }));
+                            sendSnackbarNotificationError("Unlinked");
 
                             setJobModified(true);
                           }}

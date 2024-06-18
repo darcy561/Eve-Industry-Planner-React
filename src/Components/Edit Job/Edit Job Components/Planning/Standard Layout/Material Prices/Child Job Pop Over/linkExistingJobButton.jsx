@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { useManageGroupJobs } from "../../../../../../../Hooks/GroupHooks/useManageGroupJobs";
-import { useJobManagement } from "../../../../../../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function LinkExistingGroupJobButton_ChildJobPopoverFrame({
   activeJob,
@@ -11,7 +11,7 @@ export function LinkExistingGroupJobButton_ChildJobPopoverFrame({
   updateParentChildToEdit,
 }) {
   const { findJobIDOfMaterialFromGroup } = useManageGroupJobs();
-  const { Add_RemovePendingChildJobs } = useJobManagement();
+  const { Add_RemovePendingChildJobs } = useHelperFunction();
 
   function linkToGroupJob() {
     const matchedGroupJobID = findJobIDOfMaterialFromGroup(
@@ -55,7 +55,7 @@ export function UnlinkExistingChildJobButton_ChildJobPopoverFrame({
   updateParentChildToEdit,
 }) {
   const { findJobIDOfMaterialFromGroup } = useManageGroupJobs();
-  const { Add_RemovePendingChildJobs } = useJobManagement();
+  const { Add_RemovePendingChildJobs } = useHelperFunction();
 
   function linkToGroupJob() {
     const matchedGroupJobID = findJobIDOfMaterialFromGroup(

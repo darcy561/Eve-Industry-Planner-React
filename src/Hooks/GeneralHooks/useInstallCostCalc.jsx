@@ -1,17 +1,14 @@
 import { useContext } from "react";
-import {
-  EvePricesContext,
-  SystemIndexContext,
-} from "../../Context/EveDataContext";
+import { SystemIndexContext } from "../../Context/EveDataContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { UsersContext } from "../../Context/AuthContext";
 import { structureOptions } from "../../Context/defaultValues";
-import { useMissingSystemIndex } from "./useImportMissingSystemIndexData";
+import { useHelperFunction } from "./useHelperFunctions";
 
 export function useInstallCostsCalc() {
   const { systemIndexData } = useContext(SystemIndexContext);
-  const { evePrices } = useContext(EvePricesContext);
   const { users } = useContext(UsersContext);
+  const { findParentUser, findItemPriceObject } = useHelperFunction();
 
   const jobTypeMapping = {
     [jobTypes.manufacturing]: "manufacturing",
@@ -25,7 +22,7 @@ export function useInstallCostsCalc() {
 
   const DEFAULT_STATION_TAX =
     structureTypeMap[jobTypes.manufacturing].defaultTax;
-  const SCC_SURCHARGE = 1.5;
+  const SCC_SURCHARGE = 4.0 / 100;
   const ALPHA_CLONE_TAX = 0.25;
 
   function calculateInstallCostFromJob(
@@ -65,7 +62,7 @@ export function useInstallCostsCalc() {
       estimatedItemValue *
       (systemIndexValue * facilityModifier +
         facilityTax +
-        SCC_SURCHARGE / 100 +
+        SCC_SURCHARGE +
         cloneValue);
 
     const systemIndexDeduction = Math.ceil(
@@ -124,10 +121,10 @@ export function useInstallCostsCalc() {
       pricesArray = [];
     }
 
-    const mergedPriceArray = [...pricesArray, ...evePrices];
-    const adjustedPrice =
-      mergedPriceArray.find((i) => i.typeID === materialTypeID)
-        ?.adjustedPrice || 0;
+    const adjustedPrice = findItemPriceObject(
+      materialTypeID,
+      pricesArray
+    )?.adjustedPrice;
 
     return materialQuantity * adjustedPrice;
   }
@@ -142,7 +139,7 @@ export function useInstallCostsCalc() {
 
     if (!facilityID) return taxValue / 100;
 
-    const parentUser = users.find((i) => i.ParentUser);
+    const parentUser = findParentUser();
     if (!parentUser) return 0;
 
     const structureSelection =

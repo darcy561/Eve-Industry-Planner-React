@@ -49,17 +49,25 @@ export function useEveApi() {
 
       const responseData = await response.json();
 
-      responseData.skills.forEach((skill) => {
-        const ref = skillsReference[skill.skill_id];
-        if (ref) {
+      Object.values(skillsReference).forEach((ref) => {
+        const skill = responseData.skills.find((s) => s.skill_id === ref.id);
+
+        if (skill) {
           const { active_skill_level = 0, trained_skill_level = 0 } = skill;
           skillsMap[ref.id] = {
             id: ref.id,
             activeLevel: active_skill_level,
             trainedLevel: trained_skill_level,
           };
+        } else {
+          skillsMap[ref.id] = {
+            id: ref.id,
+            activeLevel: 0,
+            trainedLevel: 0,
+          };
         }
       });
+
       return skillsMap;
     } catch (err) {
       console.error(`Error fetching character skills: ${err}`);
@@ -192,9 +200,15 @@ export function useEveApi() {
       promises.push(getCitadelData(id, userObj));
     }
 
-    const responses = await Promise.all(promises);
+    const responses = (await Promise.all(promises)).flat();
 
-    return responses.flat();
+    let retrunObject = {};
+
+    responses.forEach((obj) => {
+      if (!obj) return;
+      retrunObject[obj.id] = obj;
+    });
+    return retrunObject;
 
     async function getUniverseNames(requestedLocationIDS) {
       try {
@@ -206,12 +220,12 @@ export function useEveApi() {
           }
         );
 
-        if (!request.ok) return [];
+        if (!request.ok) return {};
 
         return await request.json();
       } catch (err) {
         console.error(`Error retrieving universe data: ${err}`);
-        return [];
+        return {};
       }
     }
 
@@ -233,6 +247,7 @@ export function useEveApi() {
         }
       } catch (err) {
         console.error(`Error retrieving citadel data: ${err}`);
+        return {};
       }
     }
   }
@@ -523,8 +538,8 @@ export function useEveApi() {
   };
 
   const fetchCorpAssets = async (userObj) => {
-    const endpoingURL = `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/assets/?datasource=tranquility&token=${userObj.aToken}`;
-    const assets = await fetchAllPages(endpoingURL);
+    const endpointURL = `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/assets/?datasource=tranquility&token=${userObj.aToken}`;
+    const assets = await fetchAllPages(endpointURL);
 
     return assets.map((a) => ({
       ...a,

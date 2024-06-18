@@ -6,9 +6,11 @@ import {
   ReCaptchaEnterpriseProvider,
 } from "firebase/app-check";
 import { getPerformance } from "firebase/performance";
-import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
+import { getFunctions } from "firebase/functions";
 import { getAnalytics } from "firebase/analytics";
 import GLOBAL_CONFIG from "./global-config-app";
+import { fetchAndActivate, getRemoteConfig } from "firebase/remote-config";
+import { REMOTE_CONFIG_DEFAULT_VALUES } from "./Context/defaultValues";
 
 const { FIREBASE_FUNCTION_REGION } = GLOBAL_CONFIG;
 
@@ -37,4 +39,10 @@ export const appCheck = initializeAppCheck(app, {
 export const performance = getPerformance(app);
 export const analytics = getAnalytics(app);
 
+export const remoteConfig = getRemoteConfig(app);
+if (import.meta.env.DEV) {
+  remoteConfig.settings.minimumFetchIntervalMillis = 300000; //5mins
+}
+remoteConfig.defaultConfig = REMOTE_CONFIG_DEFAULT_VALUES;
+fetchAndActivate(remoteConfig);
 export default app;

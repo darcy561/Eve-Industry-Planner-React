@@ -10,6 +10,8 @@ import { useContext, useEffect, useState } from "react";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
 import { PriceEntryListContext } from "../../../../Context/LayoutContext";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ItemPriceRow({
   item,
@@ -25,28 +27,11 @@ export function ItemPriceRow({
     PriceEntryListContext
   );
   const { evePrices } = useContext(EvePricesContext);
+  const { findItemPriceObject } = useHelperFunction();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  let materialPrice = evePrices.find((i) => i.typeID === item.typeID);
+  const materialPrice = findItemPriceObject(item.typeID);
 
-  if (materialPrice === undefined) {
-    materialPrice = {
-      amarr: {
-        buy: 0,
-        sell: 0,
-      },
-      dodixie: {
-        buy: 0,
-        sell: 0,
-      },
-      jita: {
-        buy: 0,
-        sell: 0,
-      },
-      typeID: item.typeID,
-      lastUpdated: 0,
-    };
-  }
   const [inputItem, updateInputItem] = useState(
     Number(materialPrice[displayMarket][displayOrder])
   );

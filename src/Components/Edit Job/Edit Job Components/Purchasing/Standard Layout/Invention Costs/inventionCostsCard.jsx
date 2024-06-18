@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import {
   Avatar,
   Chip,
@@ -10,14 +10,20 @@ import {
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
+import {
+  META_LEVELS_THAT_REQUIRE_INVENTION_COSTS,
+  TWO_DECIMAL_PLACES,
+  TYPE_IDS_TO_IGNORE_FOR_INVENTION_COSTS,
+} from "../../../../../../Context/defaultValues";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function InventionCostsCard({
   activeJob,
   updateActiveJob,
   setJobModified,
 }) {
-  const { setSnackbarData } = useContext(SnackBarDataContext);
+  const { sendSnackbarNotificationSuccess, sendSnackbarNotificationError } =
+    useHelperFunction();
   const [inputs, setInputs] = useState({
     itemName: null,
     itemCost: 0,
@@ -39,17 +45,11 @@ export function InventionCostsCard({
         },
       },
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Deleted`,
-      severity: "error",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationError("Deleted");
     setJobModified(true);
   }
 
-  const handleSubmit = (event) => {
+  function handleSubmit(event) {
     event.preventDefault();
     let newArray = [...activeJob.build.costs.inventionEntries];
 
@@ -72,16 +72,16 @@ export function InventionCostsCard({
         },
       },
     }));
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Added`,
-      severity: "success",
-      autoHideDuration: 1000,
-    }));
+    sendSnackbarNotificationSuccess("Success");
     setInputs({ itemName: null, itemCost: 0 });
     setJobModified(true);
-  };
+  }
+
+  if (
+    !META_LEVELS_THAT_REQUIRE_INVENTION_COSTS.has(activeJob.metaLevel) &&
+    !TYPE_IDS_TO_IGNORE_FOR_INVENTION_COSTS.has(activeJob.itemID)
+  )
+    return null;
 
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
@@ -133,10 +133,7 @@ export function InventionCostsCard({
                 Total Cost:{" "}
                 {activeJob.build.costs.inventionCosts.toLocaleString(
                   undefined,
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
+                  TWO_DECIMAL_PLACES
                 )}
               </Typography>
             </Grid>
@@ -163,10 +160,10 @@ export function InventionCostsCard({
                       key={record.id}
                       label={`${
                         record.itemName
-                      } ${record.itemCost.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}`}
+                      } ${record.itemCost.toLocaleString(
+                        undefined,
+                        TWO_DECIMAL_PLACES
+                      )}`}
                       variant="outlined"
                       deleteIcon={<ClearIcon />}
                       sx={{
@@ -204,7 +201,7 @@ export function InventionCostsCard({
                   type="text"
                   helperText="Item"
                   onChange={(e) => {
-                    let input = e.target.value.replace(/[^a-zA-Z0-9 ]/g, "");
+                    const input = e.target.value.replace(/[^a-zA-Z0-9 ]/g, "");
                     setInputs((prevState) => ({
                       ...prevState,
                       itemName: input,

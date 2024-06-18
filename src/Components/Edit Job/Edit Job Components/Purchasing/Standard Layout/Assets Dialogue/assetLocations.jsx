@@ -1,7 +1,6 @@
-import { useContext, useMemo } from "react";
-import { UsersContext } from "../../../../../../Context/AuthContext";
 import { AssetLocationLogic_AssetDialogWindow } from "./AssetTemplates/templateLogic";
 import { Grid, Typography } from "@mui/material";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AssetLocations_AssetDialogWindow({
   topLevelAssets,
@@ -11,8 +10,8 @@ export function AssetLocations_AssetDialogWindow({
   useCorporationAssets,
   loadingAssets,
 }) {
-  const { users } = useContext(UsersContext);
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
   const defaultAssetLocation = parentUser.settings.editJob.defaultAssetLocation;
 
   if (
@@ -29,8 +28,7 @@ export function AssetLocations_AssetDialogWindow({
         if (locationID === defaultAssetLocation) return null;
 
         const itemLocationName =
-          tempEveIDs.find((i) => locationID === i.id)?.name ||
-          "Unkown Location";
+          tempEveIDs[locationID]?.name || "Unkown Location";
         return (
           <Grid key={locationID} container>
             <Grid item xs={12}>

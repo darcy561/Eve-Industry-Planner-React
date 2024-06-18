@@ -1,13 +1,12 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { LinkedIDsContext } from "../../Context/JobContext";
 import {
   CorpEsiDataContext,
   PersonalESIDataContext,
 } from "../../Context/EveDataContext";
-import { UsersContext } from "../../Context/AuthContext";
+import { useHelperFunction } from "./useHelperFunctions";
 
 export function useMarketOrderFunctions() {
-  const { users } = useContext(UsersContext);
   const { linkedOrderIDs, linkedTransIDs } = useContext(LinkedIDsContext);
   const { esiOrders, esiHistOrders, esiJournal, esiTransactions } = useContext(
     PersonalESIDataContext
@@ -18,7 +17,8 @@ export function useMarketOrderFunctions() {
     corpEsiJournal,
     corpEsiTransactions,
   } = useContext(CorpEsiDataContext);
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
 
   function Transaction(trans, desc, journal, tax, CharacterHash) {
     this.order_id = null;
@@ -95,25 +95,43 @@ export function useMarketOrderFunctions() {
       temporaryOrderIDs = [];
     }
     const matchingMarketOrders = [];
-    [esiOrders, esiHistOrders, corpEsiOrders, corpEsiHistOrders].forEach(
-      (orders) => {
-        orders.forEach((entry) => {
-          entry?.data.forEach((order) => {
-            if (
-              order.type_id === inputJob.itemID &&
-              !linkedOrderIDs.includes(order.order_id) &&
-              !parentUser.linkedOrders.has(order.order_id) &&
-              !matchingMarketOrders.some(
-                (i) => i.order_id === order.order_id
-              ) &&
-              !temporaryOrderIDs.some((i) => i === order.order_id)
-            ) {
-              matchingMarketOrders.push(order);
-            }
-          });
+    [esiOrders, esiHistOrders].forEach((orders) => {
+      orders.forEach((entry) => {
+        entry?.data.forEach((order) => {
+          const criteriaMet = orderCriteria(order);
+          if (criteriaMet) {
+            matchingMarketOrders.push(order);
+          }
         });
+      });
+    });
+
+    const combinedCorpOrders = [corpEsiOrders, corpEsiHistOrders]
+      .map((map) => Array.from(map.values()))
+      .flat()
+      .filter((obj) => Object.keys(obj).length > 0)
+      .map(Object.values)
+      .reduce((acc, val) => acc.concat(val), []);
+
+    combinedCorpOrders.forEach((order) => {
+      const criteriaMet = orderCriteria(order);
+      if (criteriaMet) {
+        matchingMarketOrders.push(order);
       }
-    );
+    });
+
+    function orderCriteria(order) {
+      if (
+        order.type_id === inputJob.itemID &&
+        !linkedOrderIDs.includes(order.order_id) &&
+        !parentUser.linkedOrders.has(order.order_id) &&
+        !matchingMarketOrders.some((i) => i.order_id === order.order_id) &&
+        !temporaryOrderIDs.some((i) => i === order.order_id)
+      ) {
+        return true;
+      }
+      return false;
+    }
 
     return matchingMarketOrders;
   }

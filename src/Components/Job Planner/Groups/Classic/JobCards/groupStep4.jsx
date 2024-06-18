@@ -1,7 +1,10 @@
 import { Grid, Typography } from "@mui/material";
+import {
+  STANDARD_TEXT_FORMAT,
+  TWO_DECIMAL_PLACES,
+} from "../../../../../Context/defaultValues";
 
 export default function GroupStep4JobCard({ job }) {
-
   return (
     <Grid
       container
@@ -12,28 +15,22 @@ export default function GroupStep4JobCard({ job }) {
     >
       <Grid container item xs={12}>
         <Grid item xs={6}>
-          <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+          <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             Items Built
           </Typography>
         </Grid>
         <Grid item xs={6}>
-          <Typography
-            sx={{ typography: { xs: "body2", md: "body1" } }}
-            align="right"
-          >
+          <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
             {job.build.products.totalQuantity.toLocaleString()}
           </Typography>
         </Grid>
         <Grid item xs={6}>
-          <Typography sx={{ typography: { xs: "body2", md: "body1" } }}>
+          <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             Item Cost
           </Typography>
         </Grid>
         <Grid item xs={6}>
-          <Typography
-            sx={{ typography: { xs: "body2", md: "body1" } }}
-            align="right"
-          >
+          <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
             {(
               Math.round(
                 ((job.build.costs.extrasTotal +
@@ -43,10 +40,7 @@ export default function GroupStep4JobCard({ job }) {
                   Number.EPSILON) *
                   100
               ) / 100
-            ).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            ).toLocaleString(undefined, TWO_DECIMAL_PLACES)}
           </Typography>
         </Grid>
       </Grid>

@@ -5,6 +5,7 @@ import { EvePricesContext } from "../../Context/EveDataContext";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { useJobBuild } from "../../Hooks/useJobBuild";
 import itemList from "../../RawData/searchIndex.json";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function UpcomingChangesSearch({
   updateTranqItem,
@@ -13,12 +14,11 @@ export function UpcomingChangesSearch({
   updateLoadComplete,
 }) {
   const { users } = useContext(UsersContext);
-  const { evePrices, updateEvePrices } = useContext(EvePricesContext);
+  const { updateEvePrices } = useContext(EvePricesContext);
   const { buildJob } = useJobBuild();
   const { getItemPrices } = useFirebase();
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
   return (
     <Paper
       square
@@ -63,17 +63,14 @@ export function UpcomingChangesSearch({
                 });
               }
 
-              let newEvePrices = await getItemPrices(
+              let itemPriceResult = await getItemPrices(
                 [...priceIDRequest],
                 parentUser
               );
-              updateEvePrices((prev) => {
-                const prevIds = new Set(prev.map((item) => item.typeID));
-                const uniqueNewEvePrices = newEvePrices.filter(
-                  (item) => !prevIds.has(item.typeID)
-                );
-                return [...prev, ...uniqueNewEvePrices];
-              });
+              updateEvePrices((prev) => ({
+                ...prev,
+                ...itemPriceResult,
+              }));
               if (newTranqJob === undefined) {
                 updateTranqItem("missing");
               } else {

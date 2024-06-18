@@ -6,7 +6,7 @@ import GLOBAL_CONFIG from "../../../global-config-app";
 
 export function MassBuildFeedback() {
   const { massBuildDisplay } = useContext(MassBuildDisplayContext);
-  const {PRIMARY_THEME} = GLOBAL_CONFIG
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   if (massBuildDisplay.open) {
     return (

@@ -11,8 +11,6 @@ export function Purchasing_MobileLayout_EditJob({
   changeOrderDisplay,
   marketDisplay,
   changeMarketDisplay,
-  requiresInventionCosts,
-  ignoreInventionCosts,
   parentChildToEdit,
   updateParentChildToEdit,
 }) {

@@ -9,6 +9,7 @@ import { useEveApi } from "../../../../Hooks/useEveApi";
 import { AssetsPage_Loading } from "../../Character Assets/Standard Layout/loadingPage";
 import { AssetEntry_TopLevel } from "../../Character Assets/Standard Layout/AssetFolders/topLevelFolder";
 import uuid from "react-uuid";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AssetLocationFlagPage_Corporation({
   selectedCorporation,
@@ -16,12 +17,19 @@ export function AssetLocationFlagPage_Corporation({
 }) {
   const { users } = useContext(UsersContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { updateEveIDs } = useContext(EveIDsContext);
+  const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const [topLevelAssets, updateTopLevelAssets] = useState(null);
   const [assetLocations, updateAssetLocations] = useState(null);
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
-  const { buildAssetLocationFlagMaps, sortLocationMapsAlphabetically } =
-    useAssetHelperHooks();
+  const [corporationBlueprintsMap, updateCorporationBlueprintsMap] =
+    useState(null);
+  const {
+    buildAssetLocationFlagMaps,
+    sortLocationMapsAlphabetically,
+    getRequestedAssets,
+  } = useAssetHelperHooks();
+  const { findUniverseItemObject } = useHelperFunction();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
 
   const matchedCorporation = corpEsiData.get(selectedCorporation);
@@ -31,25 +39,26 @@ export function AssetLocationFlagPage_Corporation({
       const requiredUserObject = users.find(
         (i) => i.corporation_id === selectedCorporation
       );
-      const assetsJSON = JSON.parse(
-        sessionStorage.getItem(
-          `corpAssets_${matchedCorporation.corporation_id}`
-        )
-      );
+      const assetsJSON = await getRequestedAssets(requiredUserObject, true);
+
+      const corporationBlueprints = new Map();
+
+      for (const [key, value] of Object.entries(
+        corpEsiBlueprints.get(selectedCorporation)
+      )) {
+        const numericKey = Number(key);
+        corporationBlueprints.set(numericKey, value);
+      }
 
       const { topLevelAssetLocations, assetsByLocationMap, assetIDSet } =
         buildAssetLocationFlagMaps(assetsJSON, assetLocationFlagRequest);
 
       const requiredLocationID = [...topLevelAssetLocations.keys()].reduce(
         (prev, locationID) => {
-          const matchedID = eveIDs.find((i) => i.id === locationID);
+          const matchedID = findUniverseItemObject(locationID);
 
           if (!matchedID) {
             prev.add(locationID);
-          } else {
-            if (matchedID.unResolvedLocation) {
-              prev.add(locationID);
-            }
           }
           return prev;
         },
@@ -67,24 +76,17 @@ export function AssetLocationFlagPage_Corporation({
         requiredUserObject
       );
 
-      const newEveIDs = [
-        ...eveIDs.filter(
-          (firstObj) =>
-            !additonalIDObjects.some(
-              (secondObj) => firstObj.id === secondObj.id
-            )
-        ),
-        ...additonalIDObjects,
-      ];
-
       const topLevelAssetLocationsSORTED = sortLocationMapsAlphabetically(
         topLevelAssetLocations,
-        newEveIDs
+        additonalIDObjects
       );
 
-      updateEveIDs(newEveIDs);
+      if (Object.keys(additonalIDObjects).length > 0) {
+        updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
+      }
       updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
+      updateCorporationBlueprintsMap(corporationBlueprints);
       updateAssetLocations(assetsByLocationMap);
     }
     buildCorporationAssetsTree();
@@ -104,6 +106,7 @@ export function AssetLocationFlagPage_Corporation({
             assetLocations={assetLocations}
             topLevelAssets={topLevelAssets}
             assetLocationNames={assetLocationNames}
+            characterBlueprintsMap={corporationBlueprintsMap}
             depth={depth}
           />
         );

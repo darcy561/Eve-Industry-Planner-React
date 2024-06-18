@@ -2,6 +2,10 @@ import { Grid, Paper, Typography } from "@mui/material";
 import { useActiveSlotTotals } from "../../../Hooks/GeneralHooks/useActiveSlotTotals";
 import { useContext } from "react";
 import { UsersContext } from "../../../Context/AuthContext";
+import {
+  LARGE_TEXT_FORMAT,
+  STANDARD_TEXT_FORMAT,
+} from "../../../Context/defaultValues";
 
 export function ActiveCharacterSlots() {
   const { users } = useContext(UsersContext);
@@ -41,7 +45,7 @@ export function ActiveCharacterSlots() {
           xs={12}
           sx={{
             overflowY: "auto",
-            height: { xs: "320px", sm:"220px", md:"320px" },
+            maxHeight: { xs: "320px", sm: "220px", md: "320px" },
           }}
         >
           {activeCharSlots.map((char) => {
@@ -59,14 +63,14 @@ export function ActiveCharacterSlots() {
                 sx={{ marginBottom: { xs: "5px" } }}
               >
                 <Grid item xs={12}>
-                  <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+                  <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
                     {charName}
                   </Typography>
                 </Grid>
                 <Grid item xs={4}>
                   <Typography
                     align="center"
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                   >
                     Manufacturing {char.activeManufacturingJobs}/
                     {char.manufacturingSlots}
@@ -75,7 +79,7 @@ export function ActiveCharacterSlots() {
                 <Grid item xs={4}>
                   <Typography
                     align="center"
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                   >
                     Reaction {char.activeReactionSlots}/{char.reactionSlots}
                   </Typography>
@@ -83,7 +87,7 @@ export function ActiveCharacterSlots() {
                 <Grid item xs={4}>
                   <Typography
                     align="center"
-                    sx={{ typography: { xs: "caption", sm: "body2" } }}
+                    sx={{ typography: STANDARD_TEXT_FORMAT }}
                   >
                     Science {char.activeScienceSlots}/{char.scienceSlots}
                   </Typography>

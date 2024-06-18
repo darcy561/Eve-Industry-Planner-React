@@ -24,15 +24,14 @@ export function ManufacturingLayout_BlueprintPanel({
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const [blueprintOptions, updateBlueprintOptions] = useState([]);
   const [esiJobSelection, updateESIJobSelection] = useState([]);
-  const { CalculateResources_New, CalculateTime_New } = useBlueprintCalc();
-
-  let totalBPOCount = 0;
-  let totalBPCCount = 0;
 
   useEffect(() => {
     const combinedBlueprints = [
       ...esiBlueprints.flatMap((entry) => entry?.data ?? []),
-      ...corpEsiBlueprints.flatMap((entry) => entry?.data ?? []),
+      ...Array.from(corpEsiBlueprints.values())
+        .filter((obj) => Object.keys(obj).length > 0)
+        .map(Object.values)
+        .reduce((acc, val) => acc.concat(val), []),
     ];
 
     let filteredBlueprints = combinedBlueprints.filter(

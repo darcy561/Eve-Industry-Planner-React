@@ -5,19 +5,16 @@ import {
   DialogContent,
   Grid,
 } from "@mui/material";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { useFirebase } from "../../../../../Hooks/useFirebase";
-import {
-  UsersContext,
-  UserWatchlistContext,
-} from "../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../Context/LayoutContext";
+import { UserWatchlistContext } from "../../../../../Context/AuthContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { ImportNewJob_WatchlistDialog } from "./importNewJob.";
 import { FailedImport_WatchlistDialog } from "./failedImport";
 import { LoadingDisplay_WatchlistDialog } from "./loadingDisplay";
 import { EditItemDisplay_WatchlistDialog } from "./mainDisplay";
 import uuid from "react-uuid";
+import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AddWatchItemDialog({
   openDialog,
@@ -25,11 +22,9 @@ export function AddWatchItemDialog({
   watchlistItemToEdit,
   updateWatchlistItemToEdit,
 }) {
-  const { users } = useContext(UsersContext);
   const { userWatchlist, updateUserWatchlist } =
     useContext(UserWatchlistContext);
   const { uploadUserWatchlist } = useFirebase();
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [loadingState, changeLoadingState] = useState(false);
   const [loadingText, changeLoadingText] = useState(null);
   const [failedImport, setFailedImport] = useState(false);
@@ -38,11 +33,11 @@ export function AddWatchItemDialog({
   const [materialJobs, setMaterialJobs] = useState(null);
   const [saveReady, updateSaveReady] = useState(false);
   const [groupSelect, updateGroupSelect] = useState(0);
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const analytics = getAnalytics();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
   const handleClose = () => {
     setOpenDialog(false);
@@ -123,13 +118,10 @@ export function AddWatchItemDialog({
     logEvent(analytics, "New Watchlist Item", {
       UID: parentUser.accountID,
     });
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `${materialJobs[watchlistItemRequest].name} Added`,
-      severity: "success",
-      autoHideDuration: 2000,
-    }));
+
+    sendSnackbarNotificationSuccess(
+      `${materialJobs[watchlistItemRequest].name} Added`, 3
+    );
     handleClose();
   }
 

@@ -6,42 +6,41 @@ import { useEveApi } from "../../../../Hooks/useEveApi";
 import { AssetsPage_Loading } from "./loadingPage";
 import { AssetEntry_TopLevel } from "./AssetFolders/topLevelFolder";
 import uuid from "react-uuid";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AssetLocationFlagPage_Character({
   selectedCharacter,
   assetLocationFlagRequest,
 }) {
   const { users } = useContext(UsersContext);
-  const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
+  const { updateEveIDs } = useContext(EveIDsContext);
   const [topLevelAssets, updateTopLevelAssets] = useState(null);
   const [assetLocations, updateAssetLocations] = useState(null);
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
-  const { buildAssetLocationFlagMaps, sortLocationMapsAlphabetically } =
-    useAssetHelperHooks();
+  const {
+    buildAssetLocationFlagMaps,
+    sortLocationMapsAlphabetically,
+    getRequestedAssets,
+  } = useAssetHelperHooks();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
+  const { findUniverseItemObject } = useHelperFunction();
 
   useEffect(() => {
     async function buildCharacterAssetsTree() {
       const requiredUserObject = users.find(
         (i) => i.CharacterHash === selectedCharacter
       );
-      const assetsJSON = JSON.parse(
-        sessionStorage.getItem(`assets_${selectedCharacter}`)
-      );
+      const assetsJSON = await getRequestedAssets(requiredUserObject);
 
       const { topLevelAssetLocations, assetsByLocationMap, assetIDSet } =
         buildAssetLocationFlagMaps(assetsJSON, assetLocationFlagRequest);
 
       const requiredLocationID = [...topLevelAssetLocations.keys()].reduce(
         (prev, locationID) => {
-          const matchedID = eveIDs.find((i) => i.id === locationID);
+          const matchedID = findUniverseItemObject(locationID);
 
           if (!matchedID) {
             prev.add(locationID);
-          } else {
-            if (matchedID.unResolvedLocation) {
-              prev.add(locationID);
-            }
           }
           return prev;
         },
@@ -58,22 +57,14 @@ export function AssetLocationFlagPage_Character({
         requiredUserObject
       );
 
-      const newEveIDs = [
-        ...eveIDs.filter(
-          (firstObj) =>
-            !additonalIDObjects.some(
-              (secondObj) => firstObj.id === secondObj.id
-            )
-        ),
-        ...additonalIDObjects,
-      ];
-
       const topLevelAssetLocationsSORTED = sortLocationMapsAlphabetically(
         topLevelAssetLocations,
-        newEveIDs
+        additonalIDObjects
       );
 
-      updateEveIDs(newEveIDs);
+      if (Object.keys(additonalIDObjects).length > 0) {
+        updateEveIDs((prev) => ({ ...prev, ...additonalIDObjects }));
+      }
       updateAssetLocationNames(locationNamesMap);
       updateTopLevelAssets(topLevelAssetLocationsSORTED);
       updateAssetLocations(assetsByLocationMap);

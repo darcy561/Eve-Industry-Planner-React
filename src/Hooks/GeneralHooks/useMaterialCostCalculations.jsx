@@ -1,10 +1,10 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { JobArrayContext } from "../../Context/JobContext";
-import { EvePricesContext } from "../../Context/EveDataContext";
+import { useHelperFunction } from "./useHelperFunctions";
 
 export function useMaterialCostCalculations() {
   const { jobArray } = useContext(JobArrayContext);
-  const { evePrices } = useContext(EvePricesContext);
+  const { findItemPriceObject } = useHelperFunction();
 
   function calculateMaterialCostFromChildJobs(
     inputMaterial,
@@ -19,7 +19,6 @@ export function useMaterialCostCalculations() {
     }
 
     const availableJobSelection = [...jobArray, ...alternativeJobLocation];
-    const availablePriceSelection = [...evePrices, ...alternativePriceLocation];
 
     const materialPrice = getMaterialPrice(inputMaterial);
 
@@ -78,10 +77,9 @@ export function useMaterialCostCalculations() {
 
     function getMaterialPrice(materialObject) {
       return (
-        availablePriceSelection.find(
-          (i) => i.typeID === materialObject.typeID
-        )?.[defaultMarketLocation]?.[defaultOrderType] ||
-        materialObject.purchasedCost
+        findItemPriceObject(materialObject.typeID, alternativePriceLocation)?.[
+          defaultMarketLocation
+        ]?.[defaultOrderType] || materialObject.purchasedCost
       );
     }
   }

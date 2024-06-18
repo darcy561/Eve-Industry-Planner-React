@@ -1,6 +1,7 @@
 import { Avatar, Checkbox, Grid, Typography } from "@mui/material";
 
 export function ImportFittingItemRow({ updateImportedItemList, item, index }) {
+  if (!item.buildable) return null;
   return (
     <Grid container item xs={12}>
       <Grid

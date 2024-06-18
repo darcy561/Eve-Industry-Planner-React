@@ -2,12 +2,18 @@ import searchData from "../../RawData/searchIndex.json";
 import { ancientRelicIDs } from "../../Context/defaultValues";
 import { useContext } from "react";
 import { UsersContext } from "../../Context/AuthContext";
-import { CorpEsiDataContext } from "../../Context/EveDataContext";
+import {
+  CorpEsiDataContext,
+  EveIDsContext,
+} from "../../Context/EveDataContext";
 import fullItemList from "../../RawData/fullItemList.json";
+import { useEveApi } from "../useEveApi";
 
 export function useAssetHelperHooks() {
   const { users } = useContext(UsersContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
+  const { eveIDs } = useContext(EveIDsContext);
+  const { fetchCharacterAssets, fetchCorpAssets } = useEveApi();
 
   const acceptedDirectLocationTypes = new Set(["station", "solar_system"]);
   const acceptedExtendedLocationTypes = new Set(["item", "other"]);
@@ -298,9 +304,9 @@ export function useAssetHelperHooks() {
     return new Map(
       [...inputLocationMap.entries()].sort((a, b) => {
         const nameA =
-          inputLocationNames.find((id) => id.id === a[0])?.name || "";
+          inputLocationNames[a[0]]?.name || eveIDs[a[0]]?.name || "";
         const nameB =
-          inputLocationNames.find((id) => id.id === b[0])?.name || "";
+          inputLocationNames[b[0]]?.name || eveIDs[b[0]]?.name || "";
 
         const noAccessName = "No Access To Location";
 
@@ -398,6 +404,102 @@ export function useAssetHelperHooks() {
     }
   }
 
+  function findAssetsInLocation(assetList, requestedLocationID) {
+    const assetItemMap = new Map();
+    const assetsByLocationMap = new Map();
+
+    if (!assetList || !requestedLocationID) {
+      return [];
+    }
+
+    const requestedLocationAssets = assetList.filter(
+      (asset) => asset.location_id === requestedLocationID
+    );
+
+    requestedLocationAssets.forEach((item) => {
+      const locationId = item.location_id;
+      assetItemMap.set(item.item_id, item);
+
+      if (assetsByLocationMap.has(locationId)) {
+        assetsByLocationMap.get(locationId).push(item);
+      } else {
+        assetsByLocationMap.set(locationId, [item]);
+      }
+    });
+
+    for (const asset of requestedLocationAssets) {
+      findChildAssets(asset, assetList, assetsByLocationMap);
+    }
+
+    return Array.from(assetsByLocationMap.values()).flat();
+  }
+
+  function convertAssetArrayIntoMapByTypeID(inputAssetArray) {
+    let returnMap = new Map();
+    if (!inputAssetArray) return returnMap;
+
+    for (const asset of inputAssetArray) {
+      if (returnMap.has(asset.type_id)) {
+        returnMap.get(asset.type_id).push(asset);
+      } else {
+        returnMap.set(asset.type_id, [asset]);
+      }
+    }
+
+    return returnMap;
+  }
+
+  function countAssetQuantityFromMap(inputMap, requestTypeID) {
+    const requestedTypeIDArray = inputMap.get(requestTypeID);
+    if (!requestedTypeIDArray || !inputMap || !requestTypeID) return 0;
+
+    return requestedTypeIDArray.reduce((total, { quantity }) => {
+      return (total += quantity);
+    }, 0);
+  }
+
+  async function getRequestedAssets(
+    userObject,
+    isCorporation = false,
+    returnAssets = true
+  ) {
+    try {
+      if (!returnAssets) return [];
+
+      if (userObject === "allUsers") {
+        let promiseArray = [];
+        for (let user of users) {
+          promiseArray.push(findAssets(user, isCorporation));
+        }
+        return (await Promise.all(promiseArray)).flat();
+      }
+
+      return await findAssets(userObject, isCorporation);
+
+      async function findAssets(userObj, corporationFlag) {
+        try {
+          const assetString = corporationFlag
+            ? `corpAssets_${userObject?.corporation_id}`
+            : `assets_${userObject?.CharacterHash}`;
+
+          const functionToCall = corporationFlag
+            ? fetchCorpAssets
+            : fetchCharacterAssets;
+          let matchedAssets = JSON.parse(sessionStorage.getItem(assetString));
+
+          if (!matchedAssets) {
+            matchedAssets = await functionToCall(userObj);
+          }
+          return matchedAssets;
+        } catch (err) {
+          return [];
+        }
+      }
+    } catch {
+      return [];
+    }
+  }
+
   return {
     acceptedDirectLocationTypes,
     acceptedExtendedLocationTypes,
@@ -407,9 +509,13 @@ export function useAssetHelperHooks() {
     buildAssetName,
     buildAssetLocationFlagMaps,
     buildAssetTypeIDMaps,
+    convertAssetArrayIntoMapByTypeID,
+    countAssetQuantityFromMap,
     findAssetImageURL,
     findBlueprintTypeIDs,
+    findAssetsInLocation,
     formatLocation,
+    getRequestedAssets,
     retrieveAssetLocation,
     selectRequiredAssets,
     selectRequiredUser,

@@ -8,55 +8,91 @@ import { ReactionESICardActive } from "./Api Job Card/reactionCardActive";
 import { BpCopyESICardActive } from "./Api Job Card/bpCopyActive";
 import { InventionESICardActive } from "./Api Job Card/InventionCardActive";
 
-export function ApiJobCardSorter({ job }) {
+export function useApiJobCardSorter(job) {
+  const blankReturnObject = {
+    apiCardContent: <ClassicAPIJobCardPlaceholder />,
+    jobCardText: "",
+  };
+
+  const jobLocationText = job.isCorp ? "Corp Job" : "Job";
+
   switch (job.activity_id) {
     case 1:
       switch (job.status) {
         case "active":
-          return <IndustryESICardActive job={job} />;
+          return {
+            apiCardContent: <IndustryESICardActive job={job} />,
+            jobCardText: `ESI Manufacturing ${jobLocationText}`,
+          };
         case "delivered":
-          return <IndustryESICardComplete job={job} />;
+          return {
+            apiCardContent: <IndustryESICardComplete job={job} />,
+            jobCardText: `ESI Manufacturing ${jobLocationText}`,
+          };
         default:
-          return null;
+          return blankReturnObject;
       }
     case 3:
       switch (job.status) {
         case "active":
-          return <TeResearchESICardActive job={job} />;
+          return {
+            apiCardContent: <TeResearchESICardActive job={job} />,
+            jobCardText: `ESI TE Research ${jobLocationText}`,
+          };
         default:
-          return null;
+          return blankReturnObject;
       }
     case 4:
       switch (job.status) {
         case "active":
-          return <MeResearchESICardActive job={job} />;
+          return {
+            apiCardContent: <MeResearchESICardActive job={job} />,
+            jobCardText: `ESI ME Research ${jobLocationText}`,
+          };
+
         default:
-          return null;
+          return blankReturnObject;
       }
     case 5:
       switch (job.status) {
         case "active":
-          return <BpCopyESICardActive job={job} />;
+          return {
+            apiCardContent: <BpCopyESICardActive job={job} />,
+            jobCardText: `ESI BP Copying ${jobLocationText}`,
+          };
         default:
-          return null;
+          return blankReturnObject;
       }
     case 8:
       switch (job.status) {
         case "active":
-          return <InventionESICardActive job={job} />;
+          return {
+            apiCardContent: <InventionESICardActive job={job} />,
+            jobCardText: `ESI Invention ${jobLocationText}`,
+          };
         default:
-          return null;
+          return blankReturnObject;
       }
     case 9:
       switch (job.status) {
         case "active":
-          return <ReactionESICardActive job={job} />;
+          return {
+            apiCardContent: <ReactionESICardActive job={job} />,
+            jobCardText: `ESI Reaction ${jobLocationText}`,
+          };
         case "delivered":
-          return <ReactionESICardComplete job={job} />;
+          return {
+            apiCardContent: <ReactionESICardComplete job={job} />,
+            jobCardText: `ESI Reaction ${jobLocationText}`,
+          };
         default:
-          return null;
+          return blankReturnObject;
       }
     default:
-      return null;
+      return blankReturnObject;
   }
+}
+
+function ClassicAPIJobCardPlaceholder() {
+  return null;
 }

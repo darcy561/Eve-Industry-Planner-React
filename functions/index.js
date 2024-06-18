@@ -67,18 +67,17 @@ app.post("/auth/gentoken", verifyEveToken, async (req, res) => {
 
 //Read Full Single Item Tranquilty
 app.get("/item/:itemID", async (req, res) => {
-  if (!req.params.itemID) {
-    return res.status(400).send("Item Data Missing From Request");
-  }
   try {
-    let document = db.collection("Items").doc(req.params.itemID);
+    const { itemID } = req.params;
+    if (!itemID) {
+      return res.status(400).send("Item Data Missing From Request");
+    }
+    let document = db.collection("Items").doc(itemID);
     let product = await document.get();
     if (product.exists) {
       let response = product.data();
       functions.logger.log(
-        `${req.params.itemID} Tranquilty Build Data Sent To ${req.header(
-          "accountID"
-        )} `
+        `${itemID} Tranquilty Build Data Sent To ${req.header("accountID")} `
       );
       return res
         .status(200)
@@ -86,7 +85,7 @@ app.get("/item/:itemID", async (req, res) => {
         .send(response);
     } else {
       functions.logger.error("Error retrieving item data");
-      functions.logger.error(`Trying to retrieve ${req.params.itemID}`);
+      functions.logger.error(`Trying to retrieve ${itemID}`);
       functions.logger.error(error);
       return res
         .status(500)
@@ -103,10 +102,11 @@ app.get("/item/:itemID", async (req, res) => {
 });
 
 app.post("/item", async (req, res) => {
-  if (req.body.idArray === undefined) {
-    return res.status(500).send("Item Data Missing From Request");
-  }
   try {
+    const { idArray } = req.body;
+    if (!idArray || !Array.isArray(idArray) || idArray.length === 0) {
+      return res.status(400).send("Invalid or empty ID array");
+    }
     const returnArray = [];
     const missingIDs = [];
     const returnIDs = new Set(req.body.idArray);
@@ -187,12 +187,15 @@ app.get("/item/sisiData/:itemID", async (req, res) => {
 });
 
 app.post("/market-data", async (req, res) => {
-  if (req.body.idArray === undefined) {
-    return res.status(500).send("Item Data Missing From Request");
-  }
-
   try {
-    const requestedIDS = req.body.idArray;
+    const { idArray: requestedIDS } = req.body;
+    if (
+      !requestedIDS ||
+      !Array.isArray(requestedIDS) ||
+      requestedIDS.length === 0
+    ) {
+      return res.status(400).send("Invalid or empty ID array");
+    }
 
     const databaseMarketPricesQueryPromises = requestedIDS.map((id) =>
       admin.database().ref(`live-data/market-prices/${id}`).once("value")
@@ -318,10 +321,7 @@ app.post("/market-data", async (req, res) => {
       return { returnData, missingData };
     }
 
-    return res
-      .status(200)
-      .setHeader("Content-Type", "application/json")
-      .send(returnData);
+    return res.status(200).json(returnData);
   } catch (err) {
     functions.logger.error(err);
     return res
@@ -336,12 +336,13 @@ app.get("/systemindexes/:systemID", async (req, res) => {
     return res.status(400).send("Invalid System ID");
   }
   try {
-    const idData = await admin
+    const idResponse = await admin
       .database()
       .ref(`live-data/system-indexes/${systemID}`)
       .once("value");
 
-    if (!JSON.stringify(idData)) {
+    const idData = idResponse.val();
+    if (!idData) {
       functions.logger.log(`No System Data Found - ${systemID}`);
       res.status(200).send(BuildMissingSystemIndexValue(systemID));
     }
@@ -354,11 +355,12 @@ app.get("/systemindexes/:systemID", async (req, res) => {
 });
 
 app.post("/systemindexes", async (req, res) => {
-  const idArray = req.body.idArray;
-  if (!Array.isArray(idArray)) {
-    return res.status(400).send("System IDs must be an array");
-  }
   try {
+    const { idArray } = req.body;
+    if (!idArray || !Array.isArray(idArray) || idArray.length === 0) {
+      return res.status(400).send("Invalid or empty ID array");
+    }
+
     const results = {};
 
     const databaseRequests = idArray.map((id) =>
@@ -369,7 +371,6 @@ app.post("/systemindexes", async (req, res) => {
 
     for (let itemReturn of databaseResponses) {
       const itemData = itemReturn.val();
-      functions.logger.log(itemData);
       if (itemData !== null) {
         results[itemData.solar_system_id] = itemData;
       }
@@ -412,7 +413,7 @@ exports.RefreshItemHistory = require("./Scheduled Functions/marketHistoryRefresh
 exports.RefreshSystemIndexes = require("./Scheduled Functions/refreshSystemIndexes");
 exports.RefreshAdjustedPrices = require("./Scheduled Functions/refreshAdjustedPrices");
 exports.archivedJobProcess = require("./Scheduled Functions/archievedJobs");
-// exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");
+exports.submitUserFeedback = require("./Triggered Functions/storeFeedback");
 exports.userClaims = require("./Triggered Functions/addCorpClaim");
 exports.checkAppVersion = require("./Triggered Functions/checkAppVersion");
 exports.checkSDEUpdates = require("./Scheduled Functions/checkSDEUpdates");

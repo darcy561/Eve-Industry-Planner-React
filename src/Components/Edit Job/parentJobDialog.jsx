@@ -11,9 +11,8 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { JobArrayContext } from "../../Context/JobContext";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../../Context/AuthContext";
-import { useJobManagement } from "../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ParentJobDialog({
   activeJob,
@@ -26,9 +25,9 @@ export function ParentJobDialog({
 }) {
   const { jobArray } = useContext(JobArrayContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const [matches, updateMatches] = useState([]);
-  const { Add_RemovePendingParentJobs } = useJobManagement();
+  const { Add_RemovePendingParentJobs, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
 
   const handleClose = () => {
     updateDialogTrigger(false);
@@ -122,6 +121,9 @@ export function ParentJobDialog({
                             true
                           );
 
+                        console.log(newParentJobsToAdd);
+                        console.log(newParentJobsToRemove);
+
                         updateParentChildToEdit((prev) => ({
                           ...prev,
                           parentJobs: {
@@ -131,13 +133,7 @@ export function ParentJobDialog({
                           },
                         }));
                         setJobModified(true);
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: `${job.name} Linked`,
-                          severity: "success",
-                          autoHideDuration: 1000,
-                        }));
+                        sendSnackbarNotificationSuccess(`${job.name} Linked`);
                         handleClose();
                       }}
                     >

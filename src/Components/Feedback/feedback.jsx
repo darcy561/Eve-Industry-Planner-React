@@ -10,20 +10,19 @@ import {
   Link,
   TextField,
 } from "@mui/material";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { functions } from "../../firebase";
 import { UsersContext } from "../../Context/AuthContext";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { httpsCallable } from "firebase/functions";
 import {
   CorpEsiDataContext,
   PersonalESIDataContext,
 } from "../../Context/EveDataContext";
 import GLOBAL_CONFIG from "../../global-config-app";
+import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function FeedbackIcon() {
   const { users } = useContext(UsersContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const {
     esiIndJobs,
     esiOrders,
@@ -34,63 +33,94 @@ export function FeedbackIcon() {
     esiStandings,
     esiBlueprints,
   } = useContext(PersonalESIDataContext);
-  const { corpEsiIndJobs } = useContext(CorpEsiDataContext);
+  const {
+    corpEsiIndJobs,
+    corpEsiOrders,
+    corpEsiHistOrders,
+    corpEsiBlueprints,
+    corpEsiJournal,
+    corpEsiTransactions,
+    corpEsiData,
+  } = useContext(CorpEsiDataContext);
   const [open, setOpen] = useState(false);
   const [inputText, updateInputText] = useState("");
   const [dataDump, updateDataDump] = useState(false);
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
 
-  const parentUser = useMemo(() => {
-    return users.find((i) => i.ParentUser);
-  }, [users]);
+  const parentUser = findParentUser();
 
-  const {PRIMARY_THEME } = GLOBAL_CONFIG
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  const handleSubmit = async () => {
-    let userData = () => {
-      let allAssets = () => {
-        let assetArray = [];
-        for (let user of users) {
-          assetArray = assetArray.concat(
-            JSON.parse(sessionStorage.getItem(`assets_${user.CharacterHash}`))
-          );
-        }
-        return assetArray;
-      };
-
+  async function handleSubmit() {
+    function buildSubmissionData() {
       return {
-        skills: esiSkills,
-        jobs: esiIndJobs,
-        orders: esiOrders,
-        histOrders: esiHistOrders,
-        blueprints: esiBlueprints,
-        transactions: esiTransactions,
-        journal: esiJournal,
-        assets: allAssets(),
-        standings: esiStandings,
-        corpJobs: Array.from(corpEsiIndJobs.entries()),
+        users: buildUserObject(),
+        corporations: buildCorporationObject(),
       };
-    };
+    }
+
+    function buildUserObject() {
+      let usersObject = {};
+
+      users.forEach((user) => {
+        usersObject[user.CharacterHash] = {
+          skills: esiSkills.find((i) => i.user === user.CharacterHash)?.data,
+          industryJobs: esiIndJobs.find((i) => i.user === user.CharacterHash)
+            ?.data,
+          marketOrders: esiOrders.find((i) => i.user === user.CharacterHash)
+            ?.data,
+          historicMarketOrders: esiHistOrders.find(
+            (i) => i.user === user.CharacterHash
+          )?.data,
+          blueprints: esiBlueprints.find((i) => i.user === user.CharacterHash)
+            ?.data,
+          transactions: esiTransactions.find(
+            (i) => i.user === user.CharacterHash
+          )?.data,
+          journal: esiJournal.find((i) => i.user === user.CharacterHash)?.data,
+          standings: esiStandings.find((i) => i.user === user.CharacterHash)
+            ?.data,
+          assets: JSON.parse(
+            sessionStorage.getItem(`assets_${user.CharacterHash}`)
+          ),
+        };
+      });
+
+      return usersObject;
+    }
+    function buildCorporationObject() {
+      let corporationObject = {};
+      corpEsiData.forEach((value, key) => {
+        corporationObject[key] = {
+          corporationObject: value,
+          industryJobs: corpEsiIndJobs.get(key),
+          marketOrders: corpEsiOrders.get(key),
+          historicMarketOrders: corpEsiHistOrders.get(key),
+          blueprints: corpEsiBlueprints.get(key),
+          transactions: null,
+          journal: null,
+          assets: JSON.parse(sessionStorage.getItem(`corpAssets_${key}`)),
+        };
+      });
+      return corporationObject;
+    }
 
     const call = httpsCallable(
       functions,
       "submitUserFeedback-submitUserFeedback"
     );
+
     call({
       accountID: parentUser.accountID || null,
       response: inputText,
-      esiData: dataDump ? JSON.stringify(userData()) : null,
+      esiData: dataDump ? buildSubmissionData() : null,
     });
 
     updateDataDump((prev) => !prev);
     setOpen(false);
-    setSnackbarData((prev) => ({
-      ...prev,
-      open: true,
-      message: `Feedback Submitted`,
-      severity: "success",
-      autoHideDuration: 3000,
-    }));
-  };
+    sendSnackbarNotificationSuccess("Feedback Submitted");
+  }
 
   return (
     <>
@@ -98,7 +128,12 @@ export function FeedbackIcon() {
         color="primary"
         size="small"
         variant="extended"
-        sx={{ position: "fixed", bottom: "10px ", right: "5px" }}
+        sx={{
+          position: "fixed",
+          bottom: "10px ",
+          right: "5px",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        }}
         onClick={() => {
           setOpen(true);
         }}

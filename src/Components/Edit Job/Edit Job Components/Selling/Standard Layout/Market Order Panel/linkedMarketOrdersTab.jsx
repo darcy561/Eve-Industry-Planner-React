@@ -12,11 +12,10 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import {
   CorpEsiDataContext,
-  EveIDsContext,
   PersonalESIDataContext,
 } from "../../../../../../Context/EveDataContext";
 import { UsersContext } from "../../../../../../Context/AuthContext";
-import { SnackBarDataContext } from "../../../../../../Context/LayoutContext";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function LinkedMarketOrdersTab({
   activeJob,
@@ -28,12 +27,12 @@ export function LinkedMarketOrdersTab({
   esiDataToLink,
   updateEsiDataToLink,
 }) {
-  const { eveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { esiOrders, esiHistOrders } = useContext(PersonalESIDataContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const [linkedMarketOrders, updateLinkedMarketOrders] = useState([]);
+  const { findUniverseItemObject, sendSnackbarNotificationError } =
+    useHelperFunction();
 
   useEffect(() => {
     const newLinkedMarketOrders = activeJob.build.sale.marketOrders.map(
@@ -52,7 +51,7 @@ export function LinkedMarketOrdersTab({
           (histOrder) => histOrder.order_id === order.order_id
         );
 
-        let newOrder = order;
+        let newOrder = { ...order };
 
         if (newOrderData && !order.complete) {
           if (
@@ -109,7 +108,7 @@ export function LinkedMarketOrdersTab({
           const charData = users.find(
             (i) => i.CharacterHash === order.CharacterHash
           );
-          const locationData = eveIDs.find((i) => i.id === order.location_id);
+          const locationData = findUniverseItemObject(order.location_id);
           const corpData = corpEsiData.get(charData?.corporation_id);
           return (
             <Grid
@@ -343,9 +342,6 @@ export function LinkedMarketOrdersTab({
                           activeJob.build.sale.marketOrders.findIndex(
                             (item) => order.location_id === item.location_id
                           );
-                        const parentUserIndex = users.findIndex(
-                          (i) => i.ParentUser
-                        );
                         let newOrderArray = [
                           ...activeJob.build.sale.marketOrders,
                         ];
@@ -434,14 +430,7 @@ export function LinkedMarketOrdersTab({
                             },
                           },
                         }));
-
-                        setSnackbarData((prev) => ({
-                          ...prev,
-                          open: true,
-                          message: "Unlinked",
-                          severity: "error",
-                          autoHideDuration: 1000,
-                        }));
+                        sendSnackbarNotificationError("Unlinked");
 
                         setJobModified(true);
                       }}

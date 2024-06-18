@@ -1,7 +1,11 @@
 import { useContext } from "react";
-import { Grid, Paper, Typography } from "@mui/material";
+import { Box, Grid, Paper, Typography } from "@mui/material";
 import { IsLoggedInContext } from "../Context/AuthContext";
 import { EveESIStatusContext } from "../Context/EveDataContext";
+import {
+  LARGE_TEXT_FORMAT,
+  STANDARD_TEXT_FORMAT,
+} from "../Context/defaultValues";
 
 export function ESIOffline() {
   const { eveESIStatus } = useContext(EveESIStatusContext);
@@ -9,32 +13,38 @@ export function ESIOffline() {
 
   if (!eveESIStatus.serverStatus.online && isLoggedIn) {
     return (
-      <Grid item xs={12}>
+      <Box
+        sx={{
+          display: "flex",
+          flexGrow: 1,
+          width: "100%",
+          height: "100%",
+        }}
+      >
         <Paper
-          elevation={2}
+          elevation={3}
           square
           sx={{
+            width: "100%",
             padding: "20px",
-            marginRight: { md: "10px" },
-            marginLeft: { md: "10px" },
           }}
         >
           <Typography
             color="error"
             align="center"
-            sx={{ typography: { xs: "body1", sm: "h6" } }}
+            sx={{ typography: LARGE_TEXT_FORMAT }}
           >
             Trouble connecting to the Eve Online servers.
           </Typography>
           <Typography
             color="error"
             align="center"
-            sx={{ typography: { xs: "caption", sm: "body2" } }}
+            sx={{ typography: STANDARD_TEXT_FORMAT }}
           >
             ESI data may be missing or incorrect.
           </Typography>
         </Paper>
-      </Grid>
+      </Box>
     );
   }
 }

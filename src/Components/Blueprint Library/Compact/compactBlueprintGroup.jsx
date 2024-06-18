@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import {
   CircularProgress,
   Grid,
@@ -10,27 +10,22 @@ import {
 import blueprintIDs from "../../../RawData/searchIndex.json";
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import { CompactBlueprintEntry } from "../Compact/compactBlueprintEntry";
-import { ApiJobsContext, JobArrayContext } from "../../../Context/JobContext";
+import { JobArrayContext } from "../../../Context/JobContext";
 import AddIcon from "@mui/icons-material/Add";
 import { ArchiveBpData } from "../blueprintArchiveData";
 import { useJobBuild } from "../../../Hooks/useJobBuild";
 import { useJobManagement } from "../../../Hooks/useJobManagement";
 import { useFirebase } from "../../../Hooks/useFirebase";
 import { EvePricesContext } from "../../../Context/EveDataContext";
-import { SnackBarDataContext } from "../../../Context/LayoutContext";
-import {
-  UserJobSnapshotContext,
-  UsersContext,
-} from "../../../Context/AuthContext";
+import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "@firebase/performance";
 import { performance } from "../../../firebase";
 import { useJobSnapshotManagement } from "../../../Hooks/JobHooks/useJobSnapshots";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function CompactBlueprintGroup({ bpID, blueprintResults }) {
-  const { users } = useContext(UsersContext);
   const { updateJobArray } = useContext(JobArrayContext);
-  const { setSnackbarData } = useContext(SnackBarDataContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
@@ -41,10 +36,12 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
   const { generatePriceRequestFromJob } = useJobManagement();
   const { newJobSnapshot } = useJobSnapshotManagement();
   const { addNewJob, getItemPrices, uploadUserJobSnapshot } = useFirebase();
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");
 
-  const parentUser = useMemo(() => users.find((i) => i.ParentUser), [users]);
+  const parentUser = findParentUser();
 
   let bpData = blueprintIDs.find((i) => i.blueprintID === bpID);
   let filteredResults = blueprintResults.blueprints.filter(
@@ -124,7 +121,7 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
                       return;
                     }
 
-                    let promiseArray = [
+                    const itemPricePromise = [
                       getItemPrices(
                         generatePriceRequestFromJob(newJob),
                         parentUser
@@ -142,23 +139,14 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
                       name: newJob.name,
                       itemID: newJob.itemID,
                     });
-                    let returnPromiseArray = await Promise.all(promiseArray);
+                    const itemPriceResult = await Promise.all(itemPricePromise);
                     updateUserJobSnapshot(newUserJobSnapshot);
-                    updateEvePrices((prev) => {
-                      const prevIds = new Set(prev.map((item) => item.typeID));
-                      const uniqueNewEvePrices = returnPromiseArray[0].filter(
-                        (item) => !prevIds.has(item.typeID)
-                      );
-                      return [...prev, ...uniqueNewEvePrices];
-                    });
-                    updateJobArray((prev) => [...prev, newJob]);
-                    setSnackbarData((prev) => ({
+                    updateEvePrices((prev) => ({
                       ...prev,
-                      open: true,
-                      message: `${newJob.name} Added`,
-                      severity: "success",
-                      autoHideDuration: 3000,
+                      ...itemPriceResult,
                     }));
+                    updateJobArray((prev) => [...prev, newJob]);
+                    sendSnackbarNotificationSuccess(`${newJob.name} Added`, 3);
 
                     updateLoadingBuild((prev) => !prev);
                     t.stop();

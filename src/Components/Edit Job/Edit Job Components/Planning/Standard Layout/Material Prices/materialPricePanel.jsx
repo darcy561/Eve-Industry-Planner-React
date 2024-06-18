@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { UsersContext } from "../../../../../../Context/AuthContext";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import { Grid, MenuItem, Paper, Select, Typography } from "@mui/material";
@@ -6,6 +6,7 @@ import { listingType } from "../../../../../../Context/defaultValues";
 import { CurrentMaterialHeader } from "./currentMaterialHeader";
 import { MaterialCostRow_MaterialPricePanel } from "./itemRow";
 import { MaterialTotals_MaterialPricesPanel } from "./materialTotals";
+import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function MaterialCostPanel({
   activeJob,
@@ -18,10 +19,10 @@ export function MaterialCostPanel({
   esiDataToLink,
   updateEsiDataToLink,
   parentChildToEdit,
-  updateParentChildToEdit
+  updateParentChildToEdit,
 }) {
-  const { users } = useContext(UsersContext);
-  const parentUser = users.find((i) => i.ParentUser);
+  const { findParentUser } = useHelperFunction();
+  const parentUser = findParentUser();
   const [marketSelect, updateMarketSelect] = useState(
     parentUser.settings.editJob.defaultMarket
   );

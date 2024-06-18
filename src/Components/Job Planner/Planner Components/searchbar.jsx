@@ -1,6 +1,9 @@
 import { useContext, useState } from "react";
 import {
   Autocomplete,
+  Avatar,
+  Button,
+  Chip,
   CircularProgress,
   Grid,
   Paper,
@@ -9,6 +12,9 @@ import {
 import itemList from "../../../RawData/searchIndex.json";
 import { DataExchangeContext } from "../../../Context/LayoutContext";
 import useBuildNewJobs from "../../../Hooks/JobHooks/useBuildNewJobs";
+import fullItemList from "../../../RawData/fullItemList.json";
+import uuid from "react-uuid";
+import ClearIcon from "@mui/icons-material/Clear";
 
 export function SearchBar({ updateRightContentMenuContentID }) {
   const { updateDataExchange } = useContext(DataExchangeContext);
@@ -53,7 +59,7 @@ export function SearchBar({ updateRightContentMenuContentID }) {
     >
       <Grid container direction="row" alignItems="center">
         <Grid container item xs={12}>
-          <Grid item xs={11} sm={5} md={4} xl={2}>
+          <Grid item xs={12} sx={{ marginBottom: 1 }}>
             <Autocomplete
               fullWidth
               id="Recipe Search"
@@ -76,8 +82,61 @@ export function SearchBar({ updateRightContentMenuContentID }) {
               )}
             />
           </Grid>
-
           <Grid
+            item
+            xs={12}
+            sx={{ display: "flex", justifyContent: "space-evenly" }}
+          >
+            <Button
+              size="small"
+              variant="contained"
+              disabled={itemIDsToAdd.length < 1}
+              onClick={addJobs}
+            >
+              Add
+            </Button>
+            <Button
+              size="small"
+              variant="contained"
+              disabled={itemIDsToAdd.length < 1}
+              onClick={() => updateItemIDsToAdd([])}
+            >
+              Clear
+            </Button>
+          </Grid>
+          <Grid container item xs={12}>
+            {itemIDsToAdd.map((itemObj) => {
+              const itemName = fullItemList[itemObj.itemID]?.name;
+              return (
+                <Grid item xs={"auto"} key={uuid()}>
+                  <Chip
+                    label={itemName}
+                    size="small"
+                    deleteIcon={<ClearIcon />}
+                    onDelete={() => {
+                      updateItemIDsToAdd((prev) =>
+                        prev.filter((i) => i.itemID !== itemObj.itemID)
+                      );
+                    }}
+                    avatar={
+                      <Avatar
+                        src={`https://image.eveonline.com/Type/${itemObj.itemID}_32.png`}
+                      />
+                    }
+                    variant="outlined"
+                    sx={{
+                      margin: 0.5,
+                      "& .MuiChip-deleteIcon": {
+                        color: "error.main",
+                      },
+                      boxShadow: 3,
+                    }}
+                  />
+                </Grid>
+              );
+            })}
+          </Grid>
+          {/* <Grid
             container
             item
             xs={1}
@@ -85,7 +144,7 @@ export function SearchBar({ updateRightContentMenuContentID }) {
             sx={{ paddingLeft: { xs: "5px", md: "20px" } }}
           >
             {DataExchange && <CircularProgress size="24px" edge="false" />}
-          </Grid>
+          </Grid> */}
         </Grid>
       </Grid>
     </Paper>

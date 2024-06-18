@@ -253,6 +253,7 @@ export default function GroupPage() {
             <OutputJobsPanel
               groupJobs={groupJobs}
               groupPageRefresh={groupPageRefresh}
+              
             />
           </Grid>
           <Grid item xs={12}>

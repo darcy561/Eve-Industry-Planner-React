@@ -162,7 +162,7 @@ export function GroupOptionsBar({
                 onClick={async () => {
                   updateShowProcessing((prev) => !prev);
                   if (multiSelectJobPlanner.length > 0) {
-                    await buildNextJobs(multiSelectJobPlanner);
+                    await buildChildJobs(multiSelectJobPlanner);
                   } else {
                     await buildNextJobs(activeGroupObject.includedJobIDs);
                   }

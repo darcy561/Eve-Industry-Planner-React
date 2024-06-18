@@ -36,7 +36,6 @@ export function LibrarySearch({
   const { users } = useContext(UsersContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
-
   return (
     <Paper
       square={true}

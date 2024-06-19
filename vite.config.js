@@ -11,8 +11,8 @@ export default defineConfig({
     port: 3000,
   },
   test: {
-    coverage: {
-      
-    }
-  }
+    environment: "jsdom",
+    coverage: {},
+    setupFiles: "tests/setup.ts"
+  },
 });

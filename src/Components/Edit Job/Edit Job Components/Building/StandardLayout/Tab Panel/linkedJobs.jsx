@@ -101,38 +101,44 @@ export function LinkedJobsTab({
                   alignItems="center"
                   xs={12}
                 >
-                  <Badge
-                    overlap="circular"
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    badgeContent={
-                      <Avatar
-                        src={
-                          jobOwner !== undefined
-                            ? `https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`
-                            : ""
-                        }
-                        variant="circular"
-                        sx={{
-                          height: { xs: "18px", sm: "26px", md: "36px" },
-                          width: { xs: "18px", sm: "26px", md: "36px" },
-                        }}
-                      />
-                    }
+                  <Tooltip
+                    title={jobOwner.CharacterName}
+                    arrow
+                    placement="right"
                   >
-                    <picture>
-                      <source
-                        media="(max-width:700px)"
-                        srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
-                      />
-                      <img
-                        src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
-                        alt=""
-                      />
-                    </picture>
-                  </Badge>
+                    <Badge
+                      overlap="circular"
+                      anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "right",
+                      }}
+                      badgeContent={
+                        <Avatar
+                          src={
+                            jobOwner
+                              ? `https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`
+                              : ""
+                          }
+                          variant="circular"
+                          sx={{
+                            height: { xs: "18px", sm: "26px", md: "36px" },
+                            width: { xs: "18px", sm: "26px", md: "36px" },
+                          }}
+                        />
+                      }
+                    >
+                      <picture>
+                        <source
+                          media="(max-width:700px)"
+                          srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
+                        />
+                        <img
+                          src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                          alt=""
+                        />
+                      </picture>
+                    </Badge>
+                  </Tooltip>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography
@@ -146,7 +152,7 @@ export function LinkedJobsTab({
                     sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >
-                    {facilityData !== undefined
+                    {facilityData
                       ? facilityData.name
                       : "Location Data Unavailable"}
                   </Typography>

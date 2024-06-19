@@ -27,6 +27,7 @@ import { ItemTypes } from "../../../Context/DnDTypes";
 import { grey } from "@mui/material/colors";
 import GLOBAL_CONFIG from "../../../global-config-app";
 import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
+import { CompactAccordionContents } from "./Compact/CompactContents";
 
 export function PlannerAccordion() {
   const { users } = useContext(UsersContext);

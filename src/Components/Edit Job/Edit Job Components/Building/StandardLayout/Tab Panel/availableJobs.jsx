@@ -100,42 +100,46 @@ export function AvailableJobsTab({
                 lg={2}
                 sx={{ marginBottom: "5px", marginTop: "5px" }}
               >
-                <Grid
-                  container
-                  item
-                  justifyContent="center"
-                  alignItems="center"
-                  xs={12}
-                >
-                  <Badge
-                    overlap="circular"
-                    anchorOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    badgeContent={
-                      <Avatar
-                        src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
-                        variant="circular"
-                        sx={{
-                          height: { xs: "18px", sm: "26px", md: "36px" },
-                          width: { xs: "18px", sm: "26px", md: "36px" },
-                        }}
-                      />
-                    }
+
+                  <Grid
+                    container
+                    item
+                    justifyContent="center"
+                    alignItems="center"
+                    xs={12}
                   >
-                    <picture>
-                      <source
-                        media="(max-width:700px)"
-                        srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
-                      />
-                      <img
-                        src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
-                        alt=""
-                      />
-                    </picture>
-                  </Badge>
-                </Grid>
+                                  <Tooltip title={jobOwner.CharacterName} arrow placement="right">
+                    <Badge
+                      overlap="circular"
+                      anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "right",
+                      }}
+                      badgeContent={
+                        <Avatar
+                          src={`https://images.evetech.net/characters/${jobOwner.CharacterID}/portrait`}
+                          variant="circular"
+                          sx={{
+                            height: { xs: "18px", sm: "26px", md: "36px" },
+                            width: { xs: "18px", sm: "26px", md: "36px" },
+                          }}
+                        />
+                      }
+                    >
+                      <picture>
+                        <source
+                          media="(max-width:700px)"
+                          srcSet={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=32`}
+                        />
+                        <img
+                          src={`https://images.evetech.net/types/${job.blueprint_type_id}/${blueprintType}?size=64`}
+                          alt=""
+                        />
+                      </picture>
+                    </Badge>
+                    </Tooltip>
+                  </Grid>
+
                 <Grid item xs={12}>
                   <Typography
                     sx={{ typography: STANDARD_TEXT_FORMAT }}

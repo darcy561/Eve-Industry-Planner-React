@@ -11,7 +11,6 @@ export function useCorporationObject() {
       const corpPublicInfo = esiObject.esiCorpPublicInfo;
 
       if (!corpPublicInfo) continue;
-      console.log(corpPublicInfo)
       if (copiedMap.has(corpPublicInfo.corporation_id)) {
         updateExistingCorporation(
           copiedMap.get(corpPublicInfo.corporation_id),
@@ -20,11 +19,11 @@ export function useCorporationObject() {
       } else {
         copiedMap.set(
           corpPublicInfo.corporation_id,
+
           addNewCorporation(esiObject)  
         );
       }
     }
-    console.log(copiedMap);
     updateCorpEsiData(copiedMap);
   }
 
@@ -56,14 +55,13 @@ function addNewCorporation(esiObject) {
     name: "Projects",
     assetLocationRef: "CorporationGoalDeliveries",
   };
-  console.log(esiObject)
 
   if (!esiCorpPublicInfo || !esiCorpAssets) return;
 
   saveCorporationAssets(esiCorpPublicInfo, esiCorpAssets);
 
   const updatedHangarData = (esiCorpDivisions.hangar || [])
-    .map((hangarItem) => ({
+  .map((hangarItem) => ({
       ...hangarItem,
       assetLocationRef: `CorpSAG${hangarItem.division}`,
     }))
@@ -85,6 +83,7 @@ function addNewCorporation(esiObject) {
     corporation_id: esiCorpPublicInfo.corporation_id,
     hangars: updatedHangarData || null,
     wallets: esiCorpDivisions?.wallet || null,
+
     officeLocations: [...officeLocations] || [],
     owners: [owner],
   };
@@ -93,7 +92,6 @@ function addNewCorporation(esiObject) {
 function updateExistingCorporation(existingCorpObject, esiObject) {
   const { esiCorpPublicInfo, esiCorpDivisions, esiCorpAssets, owner } =
     esiObject;
-console.log(existingCorpObject)
   saveCorporationAssets(esiCorpPublicInfo, esiCorpAssets);
 
   const officeLocations = new Set(
@@ -114,7 +112,7 @@ console.log(existingCorpObject)
   if (!Array.isArray(existingCorpObject.officeLocations)) {
     existingCorpObject.officeLocations = [];
   }
-
+  
   existingCorpObject.officeLocations = [
     ...new Set([...officeLocations, ...existingCorpObject.officeLocations]),
   ];

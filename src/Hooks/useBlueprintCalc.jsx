@@ -66,7 +66,6 @@ export function useBlueprintCalc() {
         (1 - bpME / 100) *
         (1 - structureType / 100) *
         (1 - (rigType / 100) * systemType);
-
       const materialTotal =
         baseQty === 1 ? itemRuns * baseQty : itemRuns * baseQty * meModifier;
 
@@ -90,6 +89,7 @@ export function useBlueprintCalc() {
       });
       return materialCount;
     }
+  }
 
     function getSystemData(materialType, id) {
       return structureOptions[materialType][id]?.value || 0;
@@ -98,7 +98,6 @@ export function useBlueprintCalc() {
       return structureOptions[materialType][id]?.material || 0;
     }
   }
-
   const calculateTime = (calcData, jobSkills) => {
     let user =
       users.find((i) => i.CharacterHash === calcData.selectedCharacter) ||

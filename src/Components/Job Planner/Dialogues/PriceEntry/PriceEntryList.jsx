@@ -115,7 +115,7 @@ export function PriceEntryDialog() {
         useAddMaterialCostsToJob(job, priceObjectArray);
       job.build.materials = newMaterialArray;
       job.build.costs.totalImportedCost = newTotalPurchaseCost;
-
+      
       newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
       if (isLoggedIn) {
         await uploadJob(job);
@@ -135,6 +135,7 @@ export function PriceEntryDialog() {
       displayMarket: null,
       displayOrder: null,
     }));
+
     updateTotalImportedCost(0);
     updateTotalConfirmed(false);
     sendSnackbarNotificationSuccess(

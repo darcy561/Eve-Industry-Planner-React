@@ -12,7 +12,6 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
     global: {},
   },
-
   server: {
     port: 3000,
   },

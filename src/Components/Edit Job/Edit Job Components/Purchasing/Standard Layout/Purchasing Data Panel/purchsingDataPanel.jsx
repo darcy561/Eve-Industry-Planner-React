@@ -165,6 +165,7 @@ export function PurchasingDataPanel_EditJob({
                             materialPriceObjects.push(
                               useBuildMaterialPriceObject(
                                 material.typeID,
+
                                 "allRemaining",
                                 matchedItem.importedCost
                               )

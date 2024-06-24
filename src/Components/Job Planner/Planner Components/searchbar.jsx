@@ -69,6 +69,7 @@ export function SearchBar({ updateRightContentMenuContentID }) {
               options={itemList}
               getOptionLabel={(option) => option.name}
               onChange={(event, value) => {
+                if (!value) return;
                 addItemToSelection(value.itemID);
               }}
               renderInput={(params) => (

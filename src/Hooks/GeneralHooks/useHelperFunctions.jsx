@@ -54,7 +54,7 @@ export function useHelperFunction() {
     };
   }
 
-  function findItemPriceObject(requestedTypeID, alternativePriceObject) {
+  function findItemPriceObject(requestedTypeID, alternativePriceObject = {}) {
     const missingItemCost = {
       jita: {
         buy: 0,

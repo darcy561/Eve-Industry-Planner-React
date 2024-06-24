@@ -2,15 +2,13 @@ import uuid from "react-uuid";
 
 export function useAddMaterialCostsToJob(inputJob, inputPriceArray) {
   let newMaterialArray = [...inputJob.build.materials];
-
   for (let itemPriceObject of inputPriceArray) {
     const matchedMaterial = newMaterialArray.find(
       (i) => i.typeID === itemPriceObject.typeID
     );
-
     if (!matchedMaterial) continue;
 
-    if (!itemPriceObject.itemCount === "allRemaining") {
+    if (itemPriceObject.itemCount === "allRemaining") {
       addAllRemainingItems(matchedMaterial, itemPriceObject);
     } else {
       recalculateAndFixInvalidItemEntries(matchedMaterial, itemPriceObject);
@@ -31,7 +29,7 @@ export function useBuildMaterialPriceObject(
   childJobID = null
 ) {
   return {
-    ...typeID,
+    typeID,
     id: uuid(),
     childID: childJobID,
     childJobImport: childJobID ? true : false,
@@ -48,10 +46,15 @@ function recalculateAndFixInvalidItemEntries(material, itemPriceObject) {
   filterInvalidEntries(material);
 
   const { newQuantity, newPurchaseCost } = material.purchasing.reduce(
-    (acc, entry) => ({
-      newQuantity: acc.newQuantity + entry.itemCount,
-      newPurchaseCost: acc.newPurchaseCost + entry.itemCount * entry.itemCost,
-    }),
+    (acc, entry) => {
+      const maxAllowedQuantity = material.quantity - acc.newQuantity;
+      const itemCountToAdd = Math.min(entry.itemCount, maxAllowedQuantity);
+
+      return {
+        newQuantity: acc.newQuantity + itemCountToAdd,
+        newPurchaseCost: acc.newPurchaseCost + itemCountToAdd * entry.itemCost,
+      };
+    },
     { newQuantity: 0, newPurchaseCost: 0 }
   );
 

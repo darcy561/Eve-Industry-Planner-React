@@ -26,7 +26,6 @@ import { getBoolean } from "firebase/remote-config";
 import { remoteConfig } from "./firebase";
 import MaintenanceMode from "./MaintenanceMode";
 
-
 const { ENABLE_FEEDBACK_ICON, PRIMARY_THEME, SECONDARY_THEME } = GLOBAL_CONFIG;
 
 function getDesignTokens(mode) {
@@ -129,18 +128,18 @@ export default function App() {
   const isMaintenanceMode = getBoolean(remoteConfig, "maintenance_mode");
 
   return (
-    <ThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
       <Box sx={{ display: "flex", width: "100%", height: "100%" }}>
-        <CssBaseline />
-        <SnackBarNotification />
-        <DialogBox />
-        {isMaintenanceMode ? (
-          <MaintenanceMode />
-        ) : (
-          <NavRoutes colorMode={colorMode} />
-        )}
-        {ENABLE_FEEDBACK_ICON && !isMaintenanceMode && <FeedbackIcon />}
-      </Box>
-    </ThemeProvider>
+          <CssBaseline />
+          <SnackBarNotification />
+          <DialogBox />
+          {isMaintenanceMode ? (
+            <MaintenanceMode />
+          ) : (
+            <NavRoutes colorMode={colorMode} />
+          )}
+          {ENABLE_FEEDBACK_ICON && !isMaintenanceMode && <FeedbackIcon />}
+        </Box>
+      </ThemeProvider>
   );
 }

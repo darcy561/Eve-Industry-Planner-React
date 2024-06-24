@@ -13,15 +13,13 @@ export function useBlueprintCalc() {
   function calculateResources(calcData) {
     switch (calcData.jobType) {
       case jobTypes.manufacturing:
-        const manStructureData = getMaterialData(
+        const manStructureData = getStructureData(
           "manStructure",
           calcData.structureID
         );
-        const manRigData = getMaterialData("manRigs", calcData.rigID);
-        const manSystemData = getMaterialData(
-          "manSystem",
-          calcData.systemTypeID
-        );
+
+        const manRigData = getStructureData("manRigs", calcData.rigID);
+        const manSystemData = getSystemData("manSystem", calcData.systemTypeID);
 
         return updateMaterialQuantities(calcData.materialCount, (rawQuantity) =>
           manufacturingMaterialCalc(
@@ -36,8 +34,11 @@ export function useBlueprintCalc() {
         );
 
       case jobTypes.reaction:
-        const reactionRigData = getMaterialData("reactionRigs", calcData.rigID);
-        const reactionSystemData = getMaterialData(
+        const reactionRigData = getStructureData(
+          "reactionRigs",
+          calcData.rigID
+        );
+        const reactionSystemData = getStructureData(
           "reactionSystem",
           calcData.systemTypeID
         );
@@ -65,7 +66,11 @@ export function useBlueprintCalc() {
         (1 - bpME / 100) *
         (1 - structureType / 100) *
         (1 - (rigType / 100) * systemType);
-      return Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs, 1);
+
+      const materialTotal =
+        baseQty === 1 ? itemRuns * baseQty : itemRuns * baseQty * meModifier;
+
+      return Math.max(Math.ceil(materialTotal) * itemJobs, 1);
     }
 
     function reactionMaterialCalc(
@@ -86,7 +91,10 @@ export function useBlueprintCalc() {
       return materialCount;
     }
 
-    function getMaterialData(materialType, id) {
+    function getSystemData(materialType, id) {
+      return structureOptions[materialType][id]?.value || 0;
+    }
+    function getStructureData(materialType, id) {
       return structureOptions[materialType][id]?.material || 0;
     }
   }

@@ -446,7 +446,7 @@ export function useEveApi() {
         `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/`
       );
 
-      if (!request.ok) return null;
+      if (!request.ok) return {};
 
       const data = await request.json();
 
@@ -454,7 +454,7 @@ export function useEveApi() {
       return data;
     } catch (err) {
       console.error(`Error fetching public corporation data: ${err}`);
-      return null;
+      return {};
     }
   };
 
@@ -463,7 +463,7 @@ export function useEveApi() {
       const request = await fetch(
         `https://esi.evetech.net/latest/corporations/${userObj.corporation_id}/divisions?token=${userObj.aToken}`
       );
-      if (!request.ok) return null;
+      if (!request.ok) return {};
 
       let data = await request.json();
 
@@ -471,7 +471,7 @@ export function useEveApi() {
       return data;
     } catch (err) {
       console.error(`Error fetching corporation divisions: ${err}`);
-      return null;
+      return {};
     }
   };
 

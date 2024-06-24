@@ -165,11 +165,12 @@ export function PurchasingDataPanel_EditJob({
                             materialPriceObjects.push(
                               useBuildMaterialPriceObject(
                                 material.typeID,
-                                matchedItem.importedQuantity,
+
+                                "allRemaining",
                                 matchedItem.importedCost
                               )
                             );
-                          }
+                          }nppm
 
                           if (materialPriceObjects.length === 0) {
                             sendSnackbarNotificationError(

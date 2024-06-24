@@ -99,7 +99,7 @@ export function useAssetHelperHooks() {
   }
 
   function buildAssetMapsCorpOffices(assetList, corporationObject) {
-    const officeLocations = corporationObject.officeLocations;
+    const officeLocations = corporationObject?.officeLocations ?? [];
     const hangarArray = corporationObject.hangars;
     const assetsByLocationMap = new Map();
     const topLevelAssetLocations = new Map();

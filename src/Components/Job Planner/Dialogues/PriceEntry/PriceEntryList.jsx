@@ -27,6 +27,10 @@ import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObjec
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import {
+  useAddMaterialCostsToJob,
+  useBuildMaterialPriceObject,
+} from "../../../../Hooks/JobHooks/useAddMaterialCosts";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -83,44 +87,41 @@ export function PriceEntryDialog() {
     event.preventDefault();
     changeImportAction(true);
     let newJobArray = [...jobArray];
-    let uploadIDs = [];
+    let newUserJobSnapshot = [...userJobSnapshot];
+    const priceObjectArray = [];
+    let jobsToAddPricesInto = new Set();
     let totalConfirmed = 0;
     for (let material of priceEntryListData.list) {
       if (!material.confirmed) continue;
+      priceObjectArray.push(
+        useBuildMaterialPriceObject(
+          material.typeID,
+          "allRemaining",
+          material.itemPrice
+        )
+      );
       totalConfirmed++;
       for (let ref of material.jobRef) {
-        let job = await findJobData(ref, userJobSnapshot, newJobArray);
-        if (!job) continue;
-
-        // let newTotal = 0;
-        // job.build.materials.forEach((mat) => {
-        //   if (mat.typeID === material.typeID && !mat.purchaseComplete) {
-        //     mat.purchasing.push({
-        //       id: Date.now(),
-        //       childID: null,
-        //       childJobImport: false,
-        //       itemCount: mat.quantity - mat.quantityPurchased,
-        //       itemCost: Number(material.itemPrice),
-        //     });
-        //     mat.quantityPurchased += mat.quantity - mat.quantityPurchased;
-        //     mat.purchasedCost += material.itemPrice * mat.quantity;
-        //     mat.purchaseComplete = true;
-        //   }
-        //   newTotal += mat.purchasedCost;
-        // });
-        // job.build.costs.totalPurchaseCost = newTotal;
-        if (!uploadIDs.some((i) => i.jobID === job.jobID)) {
-          uploadIDs.push(job);
-        }
+        jobsToAddPricesInto.add(ref);
       }
     }
-    let newUserJobSnapshot = [...userJobSnapshot];
-    for (let job of uploadIDs) {
+
+    jobsToAddPricesInto = [...jobsToAddPricesInto];
+
+    for (let inputJobID of jobsToAddPricesInto) {
+      let job = await findJobData(inputJobID, userJobSnapshot, newJobArray);
+      if (!job) continue;
+      const { newMaterialArray, newTotalPurchaseCost } =
+        useAddMaterialCostsToJob(job, priceObjectArray);
+      job.build.materials = newMaterialArray;
+      job.build.costs.totalImportedCost = newTotalPurchaseCost;
+      
       newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
       if (isLoggedIn) {
         await uploadJob(job);
       }
     }
+
     if (isLoggedIn) {
       uploadUserJobSnapshot(newUserJobSnapshot);
     }
@@ -134,9 +135,12 @@ export function PriceEntryDialog() {
       displayMarket: null,
       displayOrder: null,
     }));
+
+    updateTotalImportedCost(0);
+    updateTotalConfirmed(false);
     sendSnackbarNotificationSuccess(
-      `${totalConfirmed} Item Costs Added Into ${uploadIDs.length} ${
-        uploadIDs.length > 1 ? "Jobs" : "Job"
+      `${totalConfirmed} Item Costs Added Into ${jobsToAddPricesInto.length} ${
+        jobsToAddPricesInto.length > 1 ? "Jobs" : "Job"
       }`,
       3
     );

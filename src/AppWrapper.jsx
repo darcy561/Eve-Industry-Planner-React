@@ -41,9 +41,14 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import App from "./App";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import * as Sentry from "@sentry/react";
 
 export function AppWrapper() {
-  return (
+  Sentry.init({
+    dsn: import.meta.env.VITE_SOCKETIO_KEY,
+    integrations: [],
+  });
+  return (  
     <FirebaseListeners>
       <SnackbarData>
         <DialogData>

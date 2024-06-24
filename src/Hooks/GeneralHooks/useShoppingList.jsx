@@ -49,7 +49,7 @@ export function useShoppingList() {
           requestedJobObjects.push(requestedJob);
         }
       } else {
-        const requestedJob = findJobData(
+        const requestedJob = await findJobData(
           inputID,
           newUserJobSnapshot,
           newJobArray

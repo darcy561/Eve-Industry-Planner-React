@@ -241,7 +241,7 @@ export function useJobManagement() {
           requestedJobObjects.push(requestedJob);
         }
       } else {
-        const requestedJob = findJobData(
+        const requestedJob = await findJobData(
           inputID,
           newUserJobSnapshot,
           newJobArray

@@ -114,7 +114,7 @@ export function PriceEntryDialog() {
       const { newMaterialArray, newTotalPurchaseCost } =
         useAddMaterialCostsToJob(job, priceObjectArray);
       job.build.materials = newMaterialArray;
-      job.build.costs.totalImportedCost = newTotalPurchaseCost;
+      job.build.costs.totalPurchaseCost = newTotalPurchaseCost;
       
       newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
       if (isLoggedIn) {

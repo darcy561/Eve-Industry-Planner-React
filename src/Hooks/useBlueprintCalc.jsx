@@ -91,13 +91,13 @@ export function useBlueprintCalc() {
     }
   }
 
-    function getSystemData(materialType, id) {
-      return structureOptions[materialType][id]?.value || 0;
-    }
-    function getStructureData(materialType, id) {
-      return structureOptions[materialType][id]?.material || 0;
-    }
+  function getSystemData(materialType, id) {
+    return structureOptions[materialType][id]?.value || 0;
   }
+  function getStructureData(materialType, id) {
+    return structureOptions[materialType][id]?.material || 0;
+  }
+
   const calculateTime = (calcData, jobSkills) => {
     let user =
       users.find((i) => i.CharacterHash === calcData.selectedCharacter) ||

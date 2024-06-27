@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase-admin";
 import { log } from "firebase-functions/logger";
 import { getDatabase, ref } from "firebase/database";
+import buildMissingSystemIndexValue from "../../sharedFunctions/misingSystemIndexValue";
 
 async function retrieveSystemIndex(req, res) {
   try {
@@ -21,7 +22,7 @@ async function retrieveSystemIndex(req, res) {
 
     if (!idData) {
       log(`No System Data Found - ${systemID}`);
-      return res.status(200).send(BuildMissingSystemIndexValue(systemID));
+      return res.status(200).send(buildMissingSystemIndexValue(systemID));
     }
     return res.status(200).send(idData);
   } catch (err) {

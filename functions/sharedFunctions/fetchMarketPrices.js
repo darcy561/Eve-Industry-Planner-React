@@ -1,11 +1,10 @@
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const axios = require("axios");
-const { GLOBAL_CONFIG } = require("../global-config-functions");
+import { ref } from ("firebase/database");
+import { error } from ("firebase-functions/logger");
+import axios from "axios";
+import { DEFAULT_MARKET_LOCATIONS, ESI_MAX_PAGES } from ("../global-config-functions");
 
-const { DEFAULT_MARKET_LOCATIONS, ESI_MAX_PAGES } = GLOBAL_CONFIG;
 
-async function ESIMarketQuery(typeID) {
+async function ESIMarketQuery(typeID, selectedDatabase) {
   const dbObject = { typeID: Number(typeID), lastUpdated: Date.now() };
 
   const promises = DEFAULT_MARKET_LOCATIONS.map((location) =>
@@ -25,7 +24,7 @@ async function ESIMarketQuery(typeID) {
       getHighestBuyAndLowestSellPrices(buyOrders, sellOrders);
     dbObject[location.name] = { buy: highestBuyPrice, sell: lowestSellPrice };
   }
-  await saveMarketPricesToDatabase(typeID, dbObject);
+  await saveMarketPricesToDatabase(typeID, dbObject, selectedDatabase);
 
   return dbObject;
 }
@@ -44,7 +43,7 @@ async function fetchMarketOrders(typeID, regionID) {
         break;
       }
     } catch (err) {
-      functions.logger.error(err);
+      error(err);
       break;
     }
   }
@@ -75,17 +74,19 @@ function getHighestBuyAndLowestSellPrices(buyOrders, sellOrders) {
   return { highestBuyPrice, lowestSellPrice };
 }
 
-async function saveMarketPricesToDatabase(typeID, marketPrices) {
+async function saveMarketPricesToDatabase(
+  typeID,
+  marketPrices,
+  selectedDatabase
+) {
   try {
-    await admin
-      .database()
-      .ref(`live-data/market-prices/${typeID.toString()}`)
-      .set(marketPrices);
+    await ref(
+      selectedDatabase,
+      `live-data/market-prices/${typeID.toString()}`
+    ).set(marketPrices);
   } catch (err) {
-    functions.logger.error(err);
+    error(err);
   }
 }
 
-module.exports = {
-  ESIMarketQuery: ESIMarketQuery,
-};
+export default ESIMarketQuery;

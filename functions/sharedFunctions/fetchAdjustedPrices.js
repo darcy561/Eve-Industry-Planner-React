@@ -1,19 +1,19 @@
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const axios = require("axios");
+import { ref } from "firebase/database";
+import { error } from ("firebase-functions/logger");
+import axios from "axios";
 
-async function ESIItemAdjustedPriceQuery() {
+async function ESIItemAdjustedPriceQuery(selectedDatabase) {
   try {
     const responseData = await fetchAdjustedPrices();
     if (!responseData) return null;
 
     const databaseObject = buildDatabaseObject(responseData);
 
-    await saveAdjustedPriceToDatabase(databaseObject);
+    await saveAdjustedPriceToDatabase(databaseObject, selectedDatabase);
 
     return databaseObject;
   } catch (err) {
-    functions.logger.error(`An error occured: ${err}`);
+    error(`An error occured: ${err}`);
     return null;
   }
 }
@@ -27,7 +27,7 @@ async function fetchAdjustedPrices() {
 
     return [...response.data];
   } catch (err) {
-    functions.logger.error(err);
+    error(err);
     return null;
   }
 }
@@ -44,14 +44,12 @@ function buildDatabaseObject(initialArray) {
   return hashObject;
 }
 
-async function saveAdjustedPriceToDatabase(databaseObject) {
+async function saveAdjustedPriceToDatabase(databaseObject, selectedDatabase) {
   try {
-    await admin.database().ref(`live-data/adjusted-prices`).set(databaseObject);
+    await ref(selectedDatabase, `live-data/adjusted-prices`).set(databaseObject);
   } catch (err) {
-    functions.logger.error(err);
+    error(err);
   }
 }
 
-module.exports = {
-  ESIItemAdjustedPriceQuery,
-};
+export default ESIItemAdjustedPriceQuery;

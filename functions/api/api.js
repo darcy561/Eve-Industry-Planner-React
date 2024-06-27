@@ -40,10 +40,10 @@ expressApp.post("/auth/generate-token", verifyEveToken, (req, res) =>
 expressApp.get("/item/:itemID", (req, res) => retrieveItemRecipe(req, res));
 expressApp.post("/item", (req, res) => retrieveMultipleItemRecipies(req, res));
 expressApp.post("/market-data", (req, res) => marketData(req, res)); /////
-expressApp.get("/system-indexes/:systemID", (req, res) => ///
+expressApp.get("/system-indexes/:systemID", (req, res) =>
   retrieveSystemIndex(req, res)
 );
-expressApp.post("/system-indexes", (req, res) =>///
+expressApp.post("/system-indexes", (req, res) =>
   retrieveMultipleSystemIndexes(req, res)
 );
 

@@ -1,6 +1,8 @@
 import { initializeApp } from "firebase-admin";
 import { error, log, warn } from "firebase-functions/logger";
 import { getDatabase, ref } from "firebase/database";
+import ESIMarketQuery from "../../sharedFunctions/fetchMarketPrices";
+import ESIMarketHistoryQuery from "../../sharedFunctions/fetchMarketHistory";
 
 async function marketData(req, res) {
   try {

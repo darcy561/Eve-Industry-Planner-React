@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase-admin";
 import { error, log } from "firebase-functions/logger";
 import { getDatabase } from "firebase/database";
+import buildMissingSystemIndexValue from "../../sharedFunctions/misingSystemIndexValue";
 
 async function retrieveMultipleSystemIndexes(req, res) {
   try {
@@ -30,7 +31,7 @@ async function retrieveMultipleSystemIndexes(req, res) {
 
     idArray.forEach((i) => {
       if (!results[i]) {
-        results[i] = BuildMissingSystemIndexValue(i);
+        results[i] = buildMissingSystemIndexValue(i);
       }
     });
 

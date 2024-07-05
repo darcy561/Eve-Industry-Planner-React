@@ -89,10 +89,10 @@ export function useHelperFunction() {
     return eveIDs[requestedID] || alternativeItemLocation[requestedID] || null;
   }
 
-  function isItemBuildable(requestedJobType) {
+  function isItemBuildable(inputJobType) {
     if (
-      requestedJobType === jobTypes.manufacturing ||
-      requestedJobType === jobTypes.reaction
+      inputJobType === jobTypes.manufacturing ||
+      inputJobType === jobTypes.reaction
     ) {
       return true;
     }

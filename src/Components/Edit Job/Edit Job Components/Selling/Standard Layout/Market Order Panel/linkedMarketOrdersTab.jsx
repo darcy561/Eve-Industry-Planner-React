@@ -16,6 +16,12 @@ import {
 } from "../../../../../../Context/EveDataContext";
 import { UsersContext } from "../../../../../../Context/AuthContext";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import {
+  LARGE_TEXT_FORMAT,
+  STANDARD_TEXT_FORMAT,
+  TWO_DECIMAL_PLACES,
+  ZERO_DECIMAL_PLACES,
+} from "../../../../../../Context/defaultValues";
 
 export function LinkedMarketOrdersTab({
   activeJob,
@@ -108,7 +114,10 @@ export function LinkedMarketOrdersTab({
           const charData = users.find(
             (i) => i.CharacterHash === order.CharacterHash
           );
-          const locationData = findUniverseItemObject(order.location_id);
+          const locationName =
+            findUniverseItemObject(order.location_id)?.name ||
+            "Location Data Unavailable";
+
           const corpData = corpEsiData.get(charData?.corporation_id);
           return (
             <Grid
@@ -139,10 +148,10 @@ export function LinkedMarketOrdersTab({
                     <Avatar
                       src={
                         order.is_corporation
-                          ? corpData !== undefined
+                          ? corpData
                             ? `https://images.evetech.net/corporations/${corpData.corporation_id}/logo`
                             : ""
-                          : charData !== undefined
+                          : charData
                           ? `https://images.evetech.net/characters/${charData.CharacterID}/portrait`
                           : ""
                       }
@@ -154,45 +163,35 @@ export function LinkedMarketOrdersTab({
                     />
                   </Tooltip>
                   <Grid item xs={12}>
-                    <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                    >
-                      {order.volume_remain.toLocaleString(undefined, {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      })}
+                    <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
+                      {order.volume_remain.toLocaleString(
+                        undefined,
+                        ZERO_DECIMAL_PLACES
+                      )}
                       /
-                      {order.volume_total.toLocaleString(undefined, {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0,
-                      })}{" "}
+                      {order.volume_total.toLocaleString(
+                        undefined,
+                        ZERO_DECIMAL_PLACES
+                      )}{" "}
                       Items Remaining
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                    >
-                      {order.item_price.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}{" "}
+                    <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
+                      {order.item_price.toLocaleString(
+                        undefined,
+                        TWO_DECIMAL_PLACES
+                      )}{" "}
                       ISK Per Item
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                    >
-                      {locationData !== undefined
-                        ? locationData.name
-                        : "Location Data Unavailable"}
+                    <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
+                      {locationName}
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography
-                      sx={{ typography: { xs: "caption", sm: "body2" } }}
-                    >
+                    <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                       Duration: {order.duration} Days
                     </Typography>
                   </Grid>
@@ -212,7 +211,7 @@ export function LinkedMarketOrdersTab({
                             padding: "2px",
                           }}
                         >
-                          <Typography variant="body1">
+                          <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
                             Unable To Update Order Information
                           </Typography>
                         </Box>
@@ -235,9 +234,7 @@ export function LinkedMarketOrdersTab({
                                 },
                             }}
                           >
-                            <Typography
-                              sx={{ typography: { xs: "body2", sm: "body1" } }}
-                            >
+                            <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
                               Order Canceled
                             </Typography>
                           </Box>
@@ -261,9 +258,7 @@ export function LinkedMarketOrdersTab({
                                 },
                             }}
                           >
-                            <Typography
-                              sx={{ typography: { xs: "body2", sm: "body1" } }}
-                            >
+                            <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
                               Complete
                             </Typography>
                           </Box>
@@ -287,9 +282,7 @@ export function LinkedMarketOrdersTab({
                                 },
                             }}
                           >
-                            <Typography
-                              sx={{ typography: { xs: "body2", sm: "body1" } }}
-                            >
+                            <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
                               Active
                             </Typography>
                           </Box>

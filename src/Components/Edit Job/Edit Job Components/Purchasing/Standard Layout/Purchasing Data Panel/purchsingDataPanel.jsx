@@ -170,7 +170,7 @@ export function PurchasingDataPanel_EditJob({
                                 matchedItem.importedCost
                               )
                             );
-                          }nppm
+                          }
 
                           if (materialPriceObjects.length === 0) {
                             sendSnackbarNotificationError(

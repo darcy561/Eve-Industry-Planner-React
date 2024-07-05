@@ -11,13 +11,9 @@ export function useFindJobObject() {
     returnRequest
   ) => {
     if (inputJobID.includes("group")) {
-      return findGroupObject();
+      return findGroupObject(inputJobID, chosenGroupArray);
     } else {
       return await findJobObject();
-    }
-
-    function findGroupObject() {
-      return chosenGroupArray.find((i) => i.groupID === inputJobID);
     }
 
     async function findJobObject() {
@@ -60,6 +56,11 @@ export function useFindJobObject() {
       }
     }
   };
+
+  function findGroupObject(inputJobID, inputGroupArray) {
+    if (!inputJobID || !inputGroupArray) return null;
+    return inputGroupArray.find((i) => i.groupID === inputJobID);
+  }
 
   return {
     findJobData,

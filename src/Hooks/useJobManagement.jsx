@@ -56,7 +56,7 @@ export function useJobManagement() {
   const { buildJob } = useJobBuild();
   const { findJobData } = useFindJobObject();
   const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
-  const { findParentUser, sendSnackbarNotificationSuccess } =
+  const { findParentUser, isItemBuildable, sendSnackbarNotificationSuccess } =
     useHelperFunction();
 
   const analytics = getAnalytics();
@@ -73,6 +73,8 @@ export function useJobManagement() {
     let jobsToSave = new Set();
 
     for (let inputJobID of inputJobIDs) {
+      if (inputJobID.includes("group")) continue;
+
       let inputJob = await findJobData(
         inputJobID,
         newUserJobSnapshot,
@@ -87,10 +89,7 @@ export function useJobManagement() {
         if (inputJob.build.childJobs[material.typeID].length > 0) {
           return;
         }
-        if (
-          material.jobType !== jobTypes.manufacturing &&
-          material.jobType !== jobTypes.reaction
-        ) {
+        if (!isItemBuildable(material.jobType)) {
           return;
         }
 
@@ -148,10 +147,7 @@ export function useJobManagement() {
     for (let inputJobID of inputJobIDs) {
       let updatedJob = newJobArray.find((i) => i.jobID === inputJobID);
       for (let material of updatedJob.build.materials) {
-        if (
-          material.jobType !== jobTypes.manufacturing &&
-          material.jobType !== jobTypes.reaction
-        ) {
+        if (!isItemBuildable(material.jobType)) {
           continue;
         }
         let match = childJobs.find((i) => i.itemID === material.typeID);

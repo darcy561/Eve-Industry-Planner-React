@@ -1,4 +1,5 @@
 import { createContext, useState } from "react";
+import { applicationSettingsdefault } from "./defaultValues";
 
 export const DataExchangeContext = createContext();
 
@@ -184,6 +185,22 @@ export const JobPlannerPageTrigger = (props) => {
     >
       {props.children}
     </JobPlannerPageTriggerContext.Provider>
+  );
+};
+
+export const ApplicationSettingsContext = createContext();
+
+export const ApplicationSettings = (props) => {
+  const [applicationSettings, updateApplicationSettings] = useState(
+    applicationSettingsdefault
+  );
+
+  return (
+    <ApplicationSettingsContext.Provider
+      value={{ applicationSettings, updateApplicationSettings }}
+    >
+      {props.children}
+    </ApplicationSettingsContext.Provider>
   );
 };
 

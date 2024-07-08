@@ -468,6 +468,18 @@ export let eveIDsDefault = {
   },
 };
 
+export const applicationSettingsdefault = {
+  hideTutorials: false,
+  defaultMarket: "jita",
+  defaultOrders: "sell",
+  hideCompleteMaterials: false,
+  citadelBrokersFee: 1,
+  structures: {
+    manufacturing: [],
+    reaction: [],
+  },
+};
+
 export let listingType = [
   { id: "buy", name: "Buy Orders" },
   { id: "sell", name: "Sell Orders" },
@@ -628,5 +640,5 @@ export const REMOTE_CONFIG_DEFAULT_VALUES = {
   app_version_number: __APP_VERSION__,
   maintenance_mode: false,
   enable_upcoming_changes_page: false,
-  useSettingsV2: false
+  useSettingsV2: false,
 };

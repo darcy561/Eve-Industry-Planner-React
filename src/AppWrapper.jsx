@@ -35,6 +35,7 @@ import {
   JobPlannerPageTrigger,
   UserLoginUI,
   ShoppingList,
+  ApplicationSettings,
 } from "./Context/LayoutContext";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -48,7 +49,7 @@ export function AppWrapper() {
     dsn: import.meta.env.VITE_SOCKETIO_KEY,
     integrations: [],
   });
-  return (  
+  return (
     <FirebaseListeners>
       <SnackbarData>
         <DialogData>
@@ -58,61 +59,63 @@ export function AppWrapper() {
                 <RefreshState>
                   <IsLoggedIn>
                     <Users>
-                      <PersonalEsiData>
-                        <CorpEsiData>
-                          <LinkedIDs>
-                            <UserJobSnapshot>
-                              <UserWatchlist>
-                                <DataExchange>
-                                  <JobPlannerPageTrigger>
-                                    <ActiveJob>
-                                      <JobArray>
-                                        <JobStatus>
-                                          <ApiJobs>
-                                            <EveIDs>
-                                              <EveESIStatus>
-                                                <EvePrices>
-                                                  <SystemIndex>
-                                                    <MultiSelectJobPlanner>
-                                                      <PriceEntryList>
-                                                        <ShoppingList>
-                                                          <SisiDataFiles>
-                                                            <MassBuildDisplay>
-                                                              <ArchivedJobs>
-                                                                <LocalizationProvider
-                                                                  dateAdapter={
-                                                                    AdapterDateFns
-                                                                  }
-                                                                >
-                                                                  <DndProvider
-                                                                    backend={
-                                                                      HTML5Backend
+                      <ApplicationSettings>
+                        <PersonalEsiData>
+                          <CorpEsiData>
+                            <LinkedIDs>
+                              <UserJobSnapshot>
+                                <UserWatchlist>
+                                  <DataExchange>
+                                    <JobPlannerPageTrigger>
+                                      <ActiveJob>
+                                        <JobArray>
+                                          <JobStatus>
+                                            <ApiJobs>
+                                              <EveIDs>
+                                                <EveESIStatus>
+                                                  <EvePrices>
+                                                    <SystemIndex>
+                                                      <MultiSelectJobPlanner>
+                                                        <PriceEntryList>
+                                                          <ShoppingList>
+                                                            <SisiDataFiles>
+                                                              <MassBuildDisplay>
+                                                                <ArchivedJobs>
+                                                                  <LocalizationProvider
+                                                                    dateAdapter={
+                                                                      AdapterDateFns
                                                                     }
                                                                   >
-                                                                    <App />
-                                                                  </DndProvider>
-                                                                </LocalizationProvider>
-                                                              </ArchivedJobs>
-                                                            </MassBuildDisplay>
-                                                          </SisiDataFiles>
-                                                        </ShoppingList>
-                                                      </PriceEntryList>
-                                                    </MultiSelectJobPlanner>
-                                                  </SystemIndex>
-                                                </EvePrices>
-                                              </EveESIStatus>
-                                            </EveIDs>
-                                          </ApiJobs>
-                                        </JobStatus>
-                                      </JobArray>
-                                    </ActiveJob>
-                                  </JobPlannerPageTrigger>
-                                </DataExchange>
-                              </UserWatchlist>
-                            </UserJobSnapshot>
-                          </LinkedIDs>
-                        </CorpEsiData>
-                      </PersonalEsiData>
+                                                                    <DndProvider
+                                                                      backend={
+                                                                        HTML5Backend
+                                                                      }
+                                                                    >
+                                                                      <App />
+                                                                    </DndProvider>
+                                                                  </LocalizationProvider>
+                                                                </ArchivedJobs>
+                                                              </MassBuildDisplay>
+                                                            </SisiDataFiles>
+                                                          </ShoppingList>
+                                                        </PriceEntryList>
+                                                      </MultiSelectJobPlanner>
+                                                    </SystemIndex>
+                                                  </EvePrices>
+                                                </EveESIStatus>
+                                              </EveIDs>
+                                            </ApiJobs>
+                                          </JobStatus>
+                                        </JobArray>
+                                      </ActiveJob>
+                                    </JobPlannerPageTrigger>
+                                  </DataExchange>
+                                </UserWatchlist>
+                              </UserJobSnapshot>
+                            </LinkedIDs>
+                          </CorpEsiData>
+                        </PersonalEsiData>
+                      </ApplicationSettings>
                     </Users>
                   </IsLoggedIn>
                 </RefreshState>

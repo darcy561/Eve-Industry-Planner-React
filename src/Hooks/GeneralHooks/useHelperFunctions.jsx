@@ -122,21 +122,26 @@ export function useHelperFunction() {
   }
 
   async function importMultibuyFromClipboard() {
-    const returnArray = [];
-    const importedText = await readTextFromClipboard();
+    try {
+      const returnArray = [];
+      const importedText = await readTextFromClipboard();
 
-    const matchedItems = [
-      ...importedText.matchAll(/^(.*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)$/gm),
-    ];
+      const matchedItems = [
+        ...importedText.matchAll(/^(.*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)$/gm),
+      ];
 
-    for (let item of matchedItems) {
-      returnArray.push({
-        importedName: item[1] || "",
-        importedQuantity: parseFloat(item[2].replace(/,/g, "")) || 0,
-        importedCost: parseFloat(item[3].replace(/,/g, "")) || 0,
-      });
+      for (let item of matchedItems) {
+        returnArray.push({
+          importedName: item[1] || "",
+          importedQuantity: parseFloat(item[2].replace(/,/g, "")) || 0,
+          importedCost: parseFloat(item[3].replace(/,/g, "")) || 0,
+        });
+      }
+      return returnArray;
+    } catch (err) {
+      console.error(err.message);
+      return [];
     }
-    return returnArray;
   }
 
   async function importAssetsFromClipboard_IconView() {
@@ -166,6 +171,7 @@ export function useHelperFunction() {
       });
       return returnObject;
     } catch (err) {
+      console.error(err.message);
       return {};
     }
   }
@@ -175,7 +181,7 @@ export function useHelperFunction() {
       await navigator.clipboard.writeText(inputTextString);
       sendSnackbarNotificationSuccess(`Successfully Copied`, 1);
     } catch (err) {
-      console.message(err.message);
+      console.error(err.message);
       sendSnackbarNotificationError(`Error Copying Text To Clipboard`);
     }
   }
@@ -184,7 +190,7 @@ export function useHelperFunction() {
     try {
       return await navigator.clipboard.readText();
     } catch (err) {
-      console.message(err.message);
+      console.error(err.message);
       sendSnackbarNotificationError(`Error Reading Text From Clipboard`);
       return null;
     }

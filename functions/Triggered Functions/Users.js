@@ -22,15 +22,16 @@ const createUserData = onCall(
     region: FIREBASE_SERVER_REGION,
   },
   (data, context) => {
-    if (!context.app) {
-      warn("Unverified function Call");
-      warn(context);
-      throw new HttpsError(
-        "Unable to verify",
-        "The function must be called from a verified app."
-      );
-    }
     try {
+      if (!context.app) {
+        warn("Unverified function Call");
+        warn(context);
+        throw new HttpsError(
+          "Unable to verify",
+          "The function must be called from a verified app."
+        );
+      }
+
       const setupData = {
         accountID: context.auth.uid,
         jobStatusArray: [
@@ -79,44 +80,81 @@ const createUserData = onCall(
         linkedJobs: [],
         linkedTrans: [],
         linkedOrders: [],
-        settings: {
-          account: {
-            cloudAccounts: DEFAULT_CLOUD_ACCOUNTS || false,
-          },
-          layout: {
-            hideTutorials: false,
-            localMarketDisplay: null,
-            localOrderDisplay: null,
-            esiJobTab: null,
-          },
-          editJob: {
-            defaultMarket: DEFAULT_MARKET_OPTION || "jita",
-            defaultOrders: DEFAULT_ORDER_OPTION || "sell",
-            hideCompleteMaterials: false,
-            defaultAssetLocation: DEFAULT_ASSET_LOCATION || 60003760,
-            citadelBrokersFee: DEFAULT_CITADEL_BROKERS_FEE || 1,
-          },
-          structures: {
-            manufacturing: DEFAULT_MANUFACTURING_STRUCTURES || [],
-            reaction: DEFAULT_REACTION_STRUCTURES || [],
-          },
-        },
+        // settings: {
+        //   account: {
+        //     cloudAccounts: DEFAULT_CLOUD_ACCOUNTS || false,
+        //   },
+        //   layout: {
+        //     hideTutorials: false,
+        //     localMarketDisplay: null,
+        //     localOrderDisplay: null,
+        //     esiJobTab: null,
+        //   },
+        //   editJob: {
+        //     defaultMarket: DEFAULT_MARKET_OPTION || "jita",
+        //     defaultOrders: DEFAULT_ORDER_OPTION || "sell",
+        //     hideCompleteMaterials: false,
+        //     defaultAssetLocation: DEFAULT_ASSET_LOCATION || 60003760,
+        //     citadelBrokersFee: DEFAULT_CITADEL_BROKERS_FEE || 1,
+        //   },
+        //   structures: {
+        //     manufacturing: DEFAULT_MANUFACTURING_STRUCTURES || [],
+        //     reaction: DEFAULT_REACTION_STRUCTURES || [],
+        //   },
+        // },
         refreshTokens: [],
+      };
+
+      const settingsDocument = {
+        cloudAccounts: DEFAULT_CLOUD_ACCOUNTS || false,
+        hideTutorials: false,
+        localMarketDisplay: null,
+        localOrderDisplay: null,
+        esiJobTab: null,
+        defaultMarket: DEFAULT_MARKET_OPTION || "jita",
+        defaultOrders: DEFAULT_ORDER_OPTION || "sell",
+        hideCompleteMaterials: false,
+        defaultAssetLocation: DEFAULT_ASSET_LOCATION || 60003760,
+        citadelBrokersFee: DEFAULT_CITADEL_BROKERS_FEE || 1,
+        manufacturingStructures: DEFAULT_MANUFACTURING_STRUCTURES || [],
+        reactionStructures: DEFAULT_REACTION_STRUCTURES || [],
+      };
+
+      const watchlistDocument = {
+        groups: [],
+        items: [],
+      };
+
+      const jobSnapshotDocument = {
+        snapshot: [],
+      };
+
+      const groupDataDocument = {
+        groupData: [],
       };
 
       setDoc(doc(db, "Users", context.auth.uid), setupData);
 
-      setDoc(doc(db`Users/${context.auth.uid}/ProfileInfo/Watchlist`), {
-        groups: [],
-        items: [],
-      });
+      setDoc(
+        doc(db, `Users/${context.auth.uid}/ProfileInfo/Watchlist`),
+        watchlistDocument
+      );
 
-      setDoc(doc(db, `Users/${context.auth.uid}/ProfileInfo/JobSnapshot`), {
-        snapshot: [],
-      });
-      setDoc(doc(db`Users/${context.auth.uid}/ProfileInfo/GroupData`), {
-        groupData: [],
-      });
+      setDoc(
+        doc(db, `Users/${context.auth.uid}/ProfileInfo/JobSnapshot`),
+        jobSnapshotDocument
+      );
+
+      setDoc(
+        doc(db, `Users/${context.auth.uid}/ProfileInfo/GroupData`),
+        groupDataDocument
+      );
+
+      setDoc(
+        doc(db, `Users/${context.auth.uid}/ProfileInfo/Settings`),
+        settingsDocument
+      );
+
       log(`Account ${context.auth.uid} document created successfully`);
       return setupData;
     } catch (err) {

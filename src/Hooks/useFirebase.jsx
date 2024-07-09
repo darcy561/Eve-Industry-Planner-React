@@ -770,6 +770,7 @@ export function useFirebase() {
     addNewJob,
     archiveJob,
     determineUserState,
+    fbAuthState,
     getArchivedJobData,
     getItemPrices,
     uploadJob,

@@ -1,24 +1,23 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
-import {
-  IsLoggedInContext,
-  UsersContext,
-} from "../../../../Context/AuthContext";
+import { IsLoggedInContext } from "../../../../Context/AuthContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
-import { UserLoginUIContext } from "../../../../Context/LayoutContext";
+import {
+  ApplicationSettingsContext,
+  UserLoginUIContext,
+} from "../../../../Context/LayoutContext";
 import GLOBAL_CONFIG from "../../../../global-config-app";
-import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function TutorialStep1({ activeJob }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, updateUsers } = useContext(UsersContext);
+  const { applicationSettings, updateApplicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
   const { userDataFetch } = useContext(UserLoginUIContext);
-  const { updateMainUserDoc } = useFirebase();
-  const { findParentUser, findParentUserIndex } = useHelperFunction();
-  const parentUser = findParentUser();
+  const { uploadApplicationSettings } = useFirebase();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  if (!parentUser.settings.layout.hideTutorials && userDataFetch) {
+  if (applicationSettings.hideTutorials && userDataFetch) {
     return (
       <Grid item xs={12}>
         <Paper
@@ -78,15 +77,10 @@ export function TutorialStep1({ activeJob }) {
                           : theme.palette.secondary.main,
                     }}
                     onClick={() => {
-                      let newUsers = [...users];
-                      const parentUserIndex = findParentUserIndex();
-
-                      newUsers[
-                        parentUserIndex
-                      ].settings.layout.hideTutorials = true;
-
-                      updateUsers(newUsers);
-                      updateMainUserDoc();
+                      const newApplicationSettings =
+                        applicationSettings.toggleHideTutorials();
+                      updateApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettings(newApplicationSettings);
                     }}
                   />
                 </Grid>

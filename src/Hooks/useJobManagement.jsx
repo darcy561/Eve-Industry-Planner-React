@@ -1,5 +1,8 @@
 import { useContext } from "react";
-import { MassBuildDisplayContext } from "../Context/LayoutContext";
+import {
+  ApplicationSettingsContext,
+  MassBuildDisplayContext,
+} from "../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../Context/AuthContext";
 import {
   ApiJobsContext,
@@ -45,6 +48,7 @@ export function useJobManagement() {
     PersonalESIDataContext
   );
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const {
     addNewJob,
     getItemPrices,
@@ -505,7 +509,7 @@ export function useJobManagement() {
   };
 
   async function calcBrokersFee(marketOrder) {
-    let brokerFeePercentage = parentUser.settings.editJob.citadelBrokersFee;
+    let brokerFeePercentage = applicationSettings.citadelBrokersFee;
 
     if (
       marketOrder.location_id >= STATIONID_RANGE.low &&

@@ -1,22 +1,21 @@
 import { useContext } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
+import { IsLoggedInContext } from "../../../../Context/AuthContext";
 import {
-  IsLoggedInContext,
-  UsersContext,
-} from "../../../../Context/AuthContext";
-import { UserLoginUIContext } from "../../../../Context/LayoutContext";
+  ApplicationSettingsContext,
+  UserLoginUIContext,
+} from "../../../../Context/LayoutContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
-import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function TutorialStep5() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, updateUsers } = useContext(UsersContext);
+  const { applicationSettings, updateApplicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
   const { userDataFetch } = useContext(UserLoginUIContext);
-  const { updateMainUserDoc } = useFirebase();
-  const { findParentUser, findParentUserIndex } = useHelperFunction();
-  const parentUser = findParentUser();
+  const { uploadApplicationSettings } = useFirebase();
 
-  if (!parentUser.settings.layout.hideTutorials && userDataFetch) {
+  if (!applicationSettings.hideTutorials && userDataFetch) {
     return (
       <Grid item xs={12}>
         <Paper
@@ -79,15 +78,10 @@ export function TutorialStep5() {
                     }}
                     size="small"
                     onClick={() => {
-                      let newUsers = [...users];
-                      const parentUserIndex = findParentUserIndex();
-
-                      newUsers[
-                        parentUserIndex
-                      ].settings.layout.hideTutorials = true;
-
-                      updateUsers(newUsers);
-                      updateMainUserDoc();
+                      const newApplicationSettings =
+                        applicationSettings.toggleHideTutorials();
+                      updateApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettings(newApplicationSettings);
                     }}
                   />
                 </Grid>

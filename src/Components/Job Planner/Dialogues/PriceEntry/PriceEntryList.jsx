@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import {
+  ApplicationSettingsContext,
   PriceEntryListContext,
   UserLoginUIContext,
 } from "../../../../Context/LayoutContext";
@@ -39,6 +40,7 @@ export function PriceEntryDialog() {
     UserJobSnapshotContext
   );
   const { userDataFetch } = useContext(UserLoginUIContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { updateJobSnapshot } = useJobSnapshotManagement();
   const {
@@ -56,15 +58,13 @@ export function PriceEntryDialog() {
   );
   const [importAction, changeImportAction] = useState(false);
   const [displayOrder, changeDisplayOrder] = useState(
-    priceEntryListData.displayOrder === undefined ||
-      priceEntryListData.displayOrder === null
-      ? parentUser.settings.editJob.defaultOrders
+    !priceEntryListData.displayOrder
+      ? applicationSettings.defaultOrders
       : priceEntryListData.displayOrder
   );
   const [displayMarket, changeDisplayMarket] = useState(
-    priceEntryListData.displayMarket === undefined ||
-      priceEntryListData.displayMarket === null
-      ? parentUser.settings.editJob.defaultMarket
+    !priceEntryListData.displayMarket
+      ? applicationSettings.defaultMarket
       : priceEntryListData.displayMarket
   );
   const [totalImportedCost, updateTotalImportedCost] = useState(0);
@@ -115,7 +115,7 @@ export function PriceEntryDialog() {
         useAddMaterialCostsToJob(job, priceObjectArray);
       job.build.materials = newMaterialArray;
       job.build.costs.totalPurchaseCost = newTotalPurchaseCost;
-      
+
       newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
       if (isLoggedIn) {
         await uploadJob(job);
@@ -155,7 +155,7 @@ export function PriceEntryDialog() {
       <DialogTitle id="PriceEntryListDialog" align="center" color="primary">
         Price Entry
       </DialogTitle>
-      {!parentUser.settings.layout.hideTutorials && !userDataFetch ? (
+      {!applicationSettings.hideTutorials && !userDataFetch ? (
         <Grid item xs={12} align="center" sx={{ marginBottom: "20px" }}>
           <Typography variant="caption">
             Use the dropdown options to select imported costs from your chosen

@@ -1,12 +1,11 @@
-import { useState } from "react";
-import { UsersContext } from "../../../../../../Context/AuthContext";
+import { useContext, useState } from "react";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import { Grid, MenuItem, Paper, Select, Typography } from "@mui/material";
 import { listingType } from "../../../../../../Context/defaultValues";
 import { CurrentMaterialHeader } from "./currentMaterialHeader";
 import { MaterialCostRow_MaterialPricePanel } from "./itemRow";
 import { MaterialTotals_MaterialPricesPanel } from "./materialTotals";
-import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../../../../../Context/LayoutContext";
 
 export function MaterialCostPanel({
   activeJob,
@@ -21,13 +20,12 @@ export function MaterialCostPanel({
   parentChildToEdit,
   updateParentChildToEdit,
 }) {
-  const { findParentUser } = useHelperFunction();
-  const parentUser = findParentUser();
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const [marketSelect, updateMarketSelect] = useState(
-    parentUser.settings.editJob.defaultMarket
+    applicationSettings.defaultMarket
   );
   const [listingSelect, updateListingSelect] = useState(
-    parentUser.settings.editJob.defaultOrders
+    applicationSettings.defaultOrders
   );
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 

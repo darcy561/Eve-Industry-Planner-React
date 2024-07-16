@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useMediaQuery } from "@mui/material";
 import { Purchasing_StandardLayout_EditJob } from "./Standard Layout/standardLayout";
 import { Purchasing_MobileLayout_EditJob } from "./Mobile Layout/mobileLayout";
-import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
 
 export function LayoutSelector_EditJob_Purchasing({
   activeJob,
@@ -12,17 +12,16 @@ export function LayoutSelector_EditJob_Purchasing({
   updateParentChildToEdit,
   temporaryChildJobs,
 }) {
-  const { findParentUser } = useHelperFunction();
-  const parentUser = findParentUser();
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const [orderDisplay, changeOrderDisplay] = useState(
     !activeJob.layout.localOrderDisplay
-      ? parentUser.settings.editJob.defaultOrders
+      ? applicationSettings.defaultOrders
       : activeJob.layout.localOrderDisplay
   );
 
   const [marketDisplay, changeMarketDisplay] = useState(
     !activeJob.layout.localMarketDisplay
-      ? parentUser.settings.editJob.defaultMarket
+      ? applicationSettings.defaultMarket
       : activeJob.layout.localMarketDisplay
   );
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));

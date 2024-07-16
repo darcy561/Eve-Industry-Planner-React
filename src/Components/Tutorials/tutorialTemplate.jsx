@@ -6,25 +6,26 @@ import {
   FormGroup,
   FormControlLabel,
 } from "@mui/material";
-import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
+import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 import { useFirebase } from "../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../global-config-app";
+import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 
 function TutorialTemplate({ TutorialContent, updateExpandedMenu }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { users, updateUsers } = useContext(UsersContext);
-  const { updateMainUserDoc } = useFirebase();
-  const { findParentUserIndex, checkDisplayTutorials } = useHelperFunction();
+  const { applicationSettings, updateApplicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
+  const { uploadApplicationSettings } = useFirebase();
+  const { checkDisplayTutorials } = useHelperFunction();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   function handleCheckBox() {
-    let newUsers = [...users];
-    const parentUserIndex = findParentUserIndex();
-    newUsers[parentUserIndex].settings.layout.hideTutorials = true;
+    const newApplicationSettings = applicationSettings.toggleHideTutorials();
     updateExpandedMenu((prev) => !prev);
-    updateUsers(newUsers);
-    updateMainUserDoc();
+    updateApplicationSettings(newApplicationSettings);
+    uploadApplicationSettings(newApplicationSettings);
   }
 
   if (!checkDisplayTutorials()) return null;

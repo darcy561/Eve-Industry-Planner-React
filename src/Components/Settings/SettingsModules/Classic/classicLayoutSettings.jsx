@@ -7,12 +7,14 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
 import { useFirebase } from "../../../../Hooks/useFirebase";
+import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
 
-export function ClassicLayoutSettings({ parentUserIndex }) {
-  const { users, updateUsers } = useContext(UsersContext);
-  const { updateMainUserDoc } = useFirebase();
+export function ClassicLayoutSettings() {
+  const { applicationSettings, updateApplicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
+  const { uploadApplicationSettings } = useFirebase();
 
   return (
     <Paper elevation={3} sx={{ padding: "20px" }} square={true}>
@@ -28,17 +30,13 @@ export function ClassicLayoutSettings({ parentUserIndex }) {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={
-                      !users[parentUserIndex].settings.layout.hideTutorials
-                    }
+                    checked={!applicationSettings.hideTutorials}
                     color="primary"
                     onChange={(e) => {
-                      let newUsersArray = [...users];
-                      newUsersArray[
-                        parentUserIndex
-                      ].settings.layout.hideTutorials = !e.target.checked;
-                      updateUsers(newUsersArray);
-                      updateMainUserDoc();
+                      const newApplicationSettings =
+                        applicationSettings.toggleHideTutorials();
+                      updateApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettings(newApplicationSettings);
                     }}
                   />
                 }
@@ -54,18 +52,13 @@ export function ClassicLayoutSettings({ parentUserIndex }) {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={
-                      users[parentUserIndex].settings.layout?.enableCompactView
-                    }
+                    checked={applicationSettings.enableCompactView}
                     color="primary"
                     onChange={(e) => {
-                      let newUsersArray = [...users];
-                      newUsersArray[
-                        parentUserIndex
-                      ].settings.layout.enableCompactView = e.target.checked;
-
-                      updateUsers(newUsersArray);
-                      updateMainUserDoc();
+                      const newApplicationSettings =
+                        applicationSettings.toggleEnableCompactView();
+                      updateApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettings(newApplicationSettings);
                     }}
                   />
                 }

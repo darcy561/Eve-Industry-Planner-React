@@ -20,7 +20,6 @@ import { structureOptions } from "../../../../Context/defaultValues";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { useContext } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
 import { Masonry } from "@mui/lab";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
@@ -30,11 +29,13 @@ import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useSystemIndexFunctions } from "../../../../Hooks/GeneralHooks/useSystemIndexFunctions";
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
 
 export function CompactManufacturingStrutures({ parentUserIndex }) {
-  const { users, updateUsers } = useContext(UsersContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
-
+  const { applicationSettings, updateApplicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
   const [textValue, updateTextValue] = useState(null);
   const [systemTypeValue, updateSystemTypeValue] = useState(
     structureOptions.manSystem[0].id
@@ -45,16 +46,17 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
   const [rigsValue, updateRigsValue] = useState(structureOptions.manRigs[0].id);
   const [taxValue, updateTaxValue] = useState(null);
   const [systemIDValue, updateSystemIDValue] = useState(null);
-  const { updateMainUserDoc } = useFirebase();
+  const { uploadApplicationSettings } = useFirebase();
   const { findMissingSystemIndex } = useSystemIndexFunctions();
-  const { sendSnackbarNotificationSuccess } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const analytics = getAnalytics();
+  const parentUser = findParentUser();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   async function handleSubmit(event) {
     event.preventDefault();
-    let newUsersArray = [...users];
-    newUsersArray[parentUserIndex].settings.structures.manufacturing.push({
+    const newStructure = {
       id: `manStruct-${uuid()}`,
       name: textValue,
       systemType: systemTypeValue,
@@ -64,21 +66,19 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
       tax:
         structValue === structureOptions.manStructure[0].id ? 0.25 : taxValue,
       default:
-        newUsersArray[parentUserIndex].settings.structures.manufacturing
-          .length === 0
-          ? true
-          : false,
-    });
+        applicationSettings.manufacturingStructures.length === 0 ? true : false,
+    };
 
     const systemIndexResults = await findMissingSystemIndex(systemIDValue);
+    const newApplicationSettings =
+      applicationSettings.addCustomManufacturingStructure(newStructure);
 
-    updateMainUserDoc(newUsersArray);
+    updateApplicationSettings(newApplicationSettings);
+    uploadApplicationSettings(newApplicationSettings);
     updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
-    updateUsers(newUsersArray);
     logEvent(analytics, "Add Manufacturing Structure", {
-      UID: newUsersArray[parentUserIndex].accountID,
+      UID: parentUser.accountID,
     });
-
     sendSnackbarNotificationSuccess(`${textValue} Added`);
   }
 
@@ -350,141 +350,114 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
               height: { xs: "200px", lg: "380px" },
             }}
           >
-            {users[parentUserIndex].settings.structures.manufacturing.map(
-              (entry) => {
-                const systemText =
-                  structureOptions.manSystem[entry.systemType]?.label ||
-                  "Missing System Type";
+            {applicationSettings.manufacturingStructures.map((entry) => {
+              const systemText =
+                structureOptions.manSystem[entry.systemType]?.label ||
+                "Missing System Type";
 
-                const structureText =
-                  structureOptions.manStructure[entry.structureType]?.label ||
-                  "Missing Structure Type";
+              const structureText =
+                structureOptions.manStructure[entry.structureType]?.label ||
+                "Missing Structure Type";
 
-                const rigText =
-                  structureOptions.manRigs[entry.rigType]?.label ||
-                  "Missing Rig Type";
+              const rigText =
+                structureOptions.manRigs[entry.rigType]?.label ||
+                "Missing Rig Type";
 
-                const systemName =
-                  systemIDS.find((i) => i.id === entry.systemID)?.name ||
-                  "Missing System Name";
+              const systemName =
+                systemIDS.find((i) => i.id === entry.systemID)?.name ||
+                "Missing System Name";
 
-                return (
-                  <Grid key={entry.id} item xs={12}>
-                    <Card
-                      raised={true}
-                      sx={{
-                        width: "100%",
-                      }}
-                    >
-                      <CardContent>
-                        <Grid container item xs={12} align="center">
-                          <Grid
-                            item
-                            xs={12}
-                            sx={{ flexWrap: "wrap", marginBottom: "10px" }}
+              return (
+                <Grid key={entry.id} item xs={12}>
+                  <Card
+                    raised={true}
+                    sx={{
+                      width: "100%",
+                    }}
+                  >
+                    <CardContent>
+                      <Grid container item xs={12} align="center">
+                        <Grid
+                          item
+                          xs={12}
+                          sx={{ flexWrap: "wrap", marginBottom: "10px" }}
+                        >
+                          <Typography
+                            variant="h6"
+                            sx={{ overflowWrap: "anywhere" }}
+                            color="primary"
                           >
-                            <Typography
-                              variant="h6"
-                              sx={{ overflowWrap: "anywhere" }}
-                              color="primary"
-                            >
-                              {entry.name}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={4}>
-                            <Typography variant="body1">
-                              {systemText}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={4}>
-                            <Typography variant="body1">
-                              {structureText}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={4}>
-                            <Typography variant="body1">{rigText}</Typography>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <Typography>{`${entry.tax || 0}%`}</Typography>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <Typography>{systemName}</Typography>
-                          </Grid>
+                            {entry.name}
+                          </Typography>
                         </Grid>
-                      </CardContent>{" "}
-                      <CardActions>
-                        <Grid container item xs={12}>
-                          <Grid item xs={6} align="center">
-                            <Button
-                              size="small"
-                              variant="contained"
-                              disabled={entry.default}
-                              onClick={() => {
-                                let newUsersArray = [...users];
-                                newUsersArray[
-                                  parentUserIndex
-                                ].settings.structures.manufacturing.forEach(
-                                  (i) => {
-                                    if (i.id === entry.id) {
-                                      i.default = true;
-                                    } else {
-                                      i.default = false;
-                                    }
-                                  }
+                        <Grid item xs={4}>
+                          <Typography variant="body1">{systemText}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Typography variant="body1">
+                            {structureText}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Typography variant="body1">{rigText}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography>{`${entry.tax || 0}%`}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography>{systemName}</Typography>
+                        </Grid>
+                      </Grid>
+                    </CardContent>{" "}
+                    <CardActions>
+                      <Grid container item xs={12}>
+                        <Grid item xs={6} align="center">
+                          <Button
+                            size="small"
+                            variant="contained"
+                            disabled={entry.default}
+                            onClick={() => {
+                              const newApplicationSettings =
+                                applicationSettings.setDefaultCustomManufacturingStructure(
+                                  entry.id
                                 );
-                                updateUsers(newUsersArray);
-                                updateMainUserDoc(newUsersArray);
-                              }}
-                            >
-                              Make Default
-                            </Button>
-                          </Grid>
-                          <Grid item xs={6} align="center">
-                            <Button
-                              size="small"
-                              variant="text"
-                              color="error"
-                              onClick={() => {
-                                let newUsersArray = [...users];
-                                newUsersArray[
-                                  parentUserIndex
-                                ].settings.structures.manufacturing =
-                                  newUsersArray[
-                                    parentUserIndex
-                                  ].settings.structures.manufacturing.filter(
-                                    (i) => i.id !== entry.id
-                                  );
-                                if (
-                                  newUsersArray[parentUserIndex].settings
-                                    .structures.manufacturing.length > 0 &&
-                                  entry.default
-                                ) {
-                                  newUsersArray[
-                                    parentUserIndex
-                                  ].settings.structures.manufacturing[0].default = true;
+                              updateApplicationSettings(newApplicationSettings);
+                              uploadApplicationSettings(newApplicationSettings);
+                            }}
+                          >
+                            Make Default
+                          </Button>
+                        </Grid>
+                        <Grid item xs={6} align="center">
+                          <Button
+                            size="small"
+                            variant="text"
+                            color="error"
+                            onClick={() => {
+                              const newApplicationSettings =
+                                applicationSettings.removeCustomManufacturingStructure(
+                                  entry
+                                );
+                              updateApplicationSettings(newApplicationSettings);
+                              uploadApplicationSettings(newApplicationSettings);
+                              logEvent(
+                                analytics,
+                                "Remove Manufacturing Structure",
+                                {
+                                  UID: parentUser.accountID,
                                 }
-                                updateUsers(newUsersArray);
-                                updateMainUserDoc(newUsersArray);
-                                logEvent(
-                                  analytics,
-                                  "Remove Manufacturing Structure",
-                                  {
-                                    UID: newUsersArray[parentUserIndex]
-                                      .accountID,
-                                  }
-                                );
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </Grid>
+                              );
+                            }}
+                          >
+                            Remove
+                          </Button>
                         </Grid>
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                );
-              }
-            )}
+                      </Grid>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              );
+            })}
           </Grid>
         </Grid>
       </Grid>

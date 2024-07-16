@@ -3,6 +3,7 @@ import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import {
+  ApplicationSettingsContext,
   SnackBarDataContext,
   UserLoginUIContext,
 } from "../../Context/LayoutContext";
@@ -14,6 +15,7 @@ export function useHelperFunction() {
   const { eveIDs } = useContext(EveIDsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { userDataFetch } = useContext(UserLoginUIContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
 
   function Add_RemovePendingChildJobs(
     materialChildJobObject,
@@ -198,8 +200,7 @@ export function useHelperFunction() {
 
   function checkDisplayTutorials() {
     if (!isLoggedIn) return true;
-    const parentUser = findParentUser();
-    const tutorialsAreHidden = parentUser.settings.layout.hideTutorials;
+    const tutorialsAreHidden = applicationSettings.hideTutorials;
 
     if (tutorialsAreHidden) return false;
 

@@ -510,7 +510,6 @@ export function useAccountManagement() {
         newApiArray.push(job);
       });
 
-      // newApiArray = newApiArray.concat(data.esiJobs, data.esiCorpJobs);
     }
 
     newApiArray.sort((a, b) => {
@@ -858,6 +857,8 @@ export function useAccountManagement() {
       sessionStorage.setItem(`assets${characterHash}`, null);
     }
   }
+
+
 
   return {
     buildApiArray,

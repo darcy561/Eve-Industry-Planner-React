@@ -1,5 +1,6 @@
 import { createContext, useState } from "react";
 import { applicationSettingsdefault } from "./defaultValues";
+import { importApplicationSettingsFromDocument } from "../Hooks/Account Management Hooks/Application Settings/applicationSettingsConstructor";
 
 export const DataExchangeContext = createContext();
 
@@ -192,7 +193,7 @@ export const ApplicationSettingsContext = createContext();
 
 export const ApplicationSettings = (props) => {
   const [applicationSettings, updateApplicationSettings] = useState(
-    applicationSettingsdefault
+    importApplicationSettingsFromDocument()
   );
 
   return (

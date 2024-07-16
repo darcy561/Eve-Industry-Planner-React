@@ -3,6 +3,7 @@ import { Grid, Typography } from "@mui/material";
 import { UserWatchlistContext } from "../../../../Context/AuthContext";
 import { WatchListRow } from "./ItemRow";
 import { WatchlistGroup } from "./watchlistGroup";
+import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
 
 export function WatchlistContainer({
   parentUser,
@@ -13,6 +14,7 @@ export function WatchlistContainer({
   updateWatchlistItemToEdit,
 }) {
   const { userWatchlist } = useContext(UserWatchlistContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
 
   if (userWatchlist.items.length === 0) {
     return (
@@ -57,10 +59,8 @@ export function WatchlistContainer({
               sx={{ typography: { xs: "caption", sm: "body2" } }}
             >
               (
-              {parentUser.settings.editJob.defaultOrders
-                .charAt(0)
-                .toUpperCase() +
-                parentUser.settings.editJob.defaultOrders.slice(1)}{" "}
+              {applicationSettings.defaultOrders.charAt(0).toUpperCase() +
+                applicationSettings.defaultOrders.slice(1)}{" "}
               Orders)
             </Typography>
           </Grid>
@@ -76,10 +76,8 @@ export function WatchlistContainer({
               sx={{ typography: { xs: "caption", sm: "body2" } }}
             >
               (
-              {parentUser.settings.editJob.defaultOrders
-                .charAt(0)
-                .toUpperCase() +
-                parentUser.settings.editJob.defaultOrders.slice(1)}{" "}
+              {applicationSettings.defaultOrders.charAt(0).toUpperCase() +
+                applicationSettings.defaultOrders.slice(1)}{" "}
               Orders)
             </Typography>
           </Grid>

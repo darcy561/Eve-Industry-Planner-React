@@ -17,10 +17,14 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { useCorporationObject } from "../../Hooks/Account Management Hooks/Corporation Objects/useCorporationObject";
 import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 
 export function AdditionalAccounts({ parentUserIndex }) {
   const { users, updateUsers } = useContext(UsersContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
+  const { applicationSettings, updateApplicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
   const { updateMainUserDoc } = useFirebase();
   const {
     characterAPICall,
@@ -86,7 +90,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
         localStorage.removeItem("AdditionalUser");
         newUserArray.push(newUser);
         await checkUserClaims(newUserArray);
-        if (newUserArray[parentUserIndex].settings.account.cloudAccounts) {
+        if (applicationSettings.cloudAccounts) {
           newUserArray[parentUserIndex].accountRefreshTokens.push({
             CharacterHash: newUser.CharacterHash,
             rToken: newUser.rToken,
@@ -127,14 +131,13 @@ export function AdditionalAccounts({ parentUserIndex }) {
         );
         updateUsers(newUserArray);
         updateApiJobs(newApiArray);
-        if (newUserArray[parentUserIndex].settings.account.cloudAccounts) {
+        if (applicationSettings.cloudAccounts) {
           updateMainUserDoc();
         }
         logEvent(analytics, "Link Character", {
           UID: newUserArray[parentUserIndex].accountID,
           newHash: newUser.CharacterHash,
-          cloudAccount:
-            newUserArray[parentUserIndex].settings.account.cloudAccounts,
+          cloudAccount: applicationSettings.cloudAccounts,
         });
         sendSnackbarNotificationSuccess(`${newUser.CharacterName} Imported`, 3);
       }
@@ -170,15 +173,12 @@ export function AdditionalAccounts({ parentUserIndex }) {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={
-                      users[parentUserIndex].settings.account.cloudAccounts
-                    }
+                    checked={applicationSettings.cloudAccounts}
                     color="primary"
                     onChange={(e) => {
-                      let newUsersArray = [...users];
-                      newUsersArray[
-                        parentUserIndex
-                      ].settings.account.cloudAccounts = e.target.checked;
+                      const newAppliacationSettings =
+                        applicationSettings.toggleCloudAccounts();
+                      const newUsersArray = [...users];
 
                       if (e.target.checked) {
                         let additionalAccounts = JSON.parse(
@@ -206,8 +206,11 @@ export function AdditionalAccounts({ parentUserIndex }) {
                         newUsersArray[parentUserIndex].accountRefreshTokens =
                           [];
                       }
+
                       updateUsers(newUsersArray);
-                      updateMainUserDoc();
+                      updateApplicationSettings(newAppliacationSettings);
+
+                      updateMainUserDoc(newAppliacationSettings);
                     }}
                   />
                 }

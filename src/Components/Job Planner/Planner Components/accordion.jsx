@@ -1,9 +1,8 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useState } from "react";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
-  UsersContext,
 } from "../../../Context/AuthContext";
 import {
   Accordion,
@@ -19,18 +18,20 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SelectAllIcon from "@mui/icons-material/SelectAll";
 import { StatusSettings } from "./StatusSettings";
-import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
+import {
+  ApplicationSettingsContext,
+  MultiSelectJobPlannerContext,
+} from "../../../Context/LayoutContext";
 import { ClassicAccordionContents } from "./Classic/classicContents";
 import { useDrop } from "react-dnd";
 import { useDnD } from "../../../Hooks/useDnD";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { grey } from "@mui/material/colors";
 import GLOBAL_CONFIG from "../../../global-config-app";
-import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 import { CompactAccordionContents } from "./Compact/CompactContents";
 
 export function PlannerAccordion() {
-  const { users } = useContext(UsersContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobArray } = useContext(JobArrayContext);
@@ -48,10 +49,7 @@ export function PlannerAccordion() {
     completeAPIJobs: false,
   });
   const { canDropCard, recieveJobCardToStage } = useDnD();
-  const { findParentUser } = useHelperFunction();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
-
-  const parentUser = findParentUser();
 
   function handleExpand(statusID) {
     const index = jobStatus.findIndex((x) => x.id === statusID);
@@ -195,7 +193,7 @@ export function PlannerAccordion() {
                 </Box>
               </AccordionSummary>
               <AccordionDetails>
-                {parentUser.settings.layout.enableCompactView ? (
+                {applicationSettings.enableCompactView ? (
                   <CompactAccordionContents status={status} />
                 ) : (
                   <ClassicAccordionContents status={status} />

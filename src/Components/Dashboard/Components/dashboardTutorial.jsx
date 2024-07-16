@@ -1,20 +1,21 @@
 import { useContext } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
-import { UsersContext } from "../../../Context/AuthContext";
 import { useFirebase } from "../../../Hooks/useFirebase";
-import { UserLoginUIContext } from "../../../Context/LayoutContext";
+import {
+  ApplicationSettingsContext,
+  UserLoginUIContext,
+} from "../../../Context/LayoutContext";
 import GLOBAL_CONFIG from "../../../global-config-app";
-import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function TutorialDashboard() {
-  const { users, updateUsers } = useContext(UsersContext);
   const { userDataFetch } = useContext(UserLoginUIContext);
-  const { updateMainUserDoc } = useFirebase();
-  const { findParentUser, findParentUserIndex } = useHelperFunction();
-  const parentUser = findParentUser();
+  const { applicationSettings, updateApplicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
+  const { uploadApplicationSettings } = useFirebase();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  if (!parentUser.settings.layout.hideTutorials && !userDataFetch) {
+  if (!applicationSettings.hideTutorials && userDataFetch) {
     return (
       <Grid item xs={12}>
         <Paper
@@ -57,15 +58,10 @@ export function TutorialDashboard() {
                   }}
                   size="small"
                   onClick={() => {
-                    let newUsers = JSON.parse(JSON.stringify(users));
-                    const parentUserIndex = findParentUserIndex();
-
-                    newUsers[
-                      parentUserIndex
-                    ].settings.layout.hideTutorials = true;
-
-                    updateUsers(newUsers);
-                    updateMainUserDoc();
+                    const newApplicationSettings =
+                      applicationSettings.toggleHideTutorials();
+                    updateApplicationSettings(newApplicationSettings);
+                    uploadApplicationSettings(newApplicationSettings);
                   }}
                 />
               </Grid>

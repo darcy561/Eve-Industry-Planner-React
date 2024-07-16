@@ -10,18 +10,21 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { UsersContext } from "../../../../../../Context/AuthContext";
 import {
   TWO_DECIMAL_PLACES,
   listingType,
 } from "../../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
-import { ShoppingListContext } from "../../../../../../Context/LayoutContext";
+import {
+  ApplicationSettingsContext,
+  ShoppingListContext,
+} from "../../../../../../Context/LayoutContext";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import {
   useAddMaterialCostsToJob,
   useBuildMaterialPriceObject,
 } from "../../../../../../Hooks/JobHooks/useAddMaterialCosts";
+import { useFirebase } from "../../../../../../Hooks/useFirebase";
 
 export function PurchasingDataPanel_EditJob({
   activeJob,
@@ -32,26 +35,22 @@ export function PurchasingDataPanel_EditJob({
   changeMarketDisplay,
   setJobModified,
 }) {
-  const { users, updateUsers } = useContext(UsersContext);
   const { updateShoppingListTrigger, updateShoppingListData } =
     useContext(ShoppingListContext);
+  const { applicationSettings, updateApplicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
   const [orderSelect, updateOrderSelect] = useState(orderDisplay);
   const [marketSelect, updateMarketSelect] = useState(marketDisplay);
   const {
-    findParentUserIndex,
+    getTotalCompleteMaterialsFromJob,
     importMultibuyFromClipboard,
     sendSnackbarNotificationError,
   } = useHelperFunction();
+  const { uploadApplicationSettings } = useFirebase();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
-  const parentUserIndex = findParentUserIndex();
-
-  const totalComplete = activeJob.build.materials.reduce((acc, mat) => {
-    if (mat.purchaseComplete) {
-      acc++;
-    }
-    return acc;
-  }, 0);
+  const totalComplete = getTotalCompleteMaterialsFromJob(activeJob);
 
   return (
     <Grid item xs={12}>
@@ -99,18 +98,13 @@ export function PurchasingDataPanel_EditJob({
               <FormControlLabel
                 control={
                   <Switch
-                    checked={
-                      users[parentUserIndex].settings.editJob
-                        .hideCompleteMaterials
-                    }
+                    checked={applicationSettings.hideCompleteMaterials}
                     onChange={() => {
-                      let newUsers = [...users];
-                      newUsers[
-                        parentUserIndex
-                      ].settings.editJob.hideCompleteMaterials =
-                        !newUsers[parentUserIndex].settings.editJob
-                          .hideCompleteMaterials;
-                      updateUsers(newUsers);
+                      const newApplicationSettings =
+                        applicationSettings.toggleHideCompleteMaterials();
+
+                      updateApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettings(newApplicationSettings);
                     }}
                   />
                 }

@@ -18,12 +18,14 @@ import {
 
 import {
   blueprintOptions,
+  customStructureMap,
   structureOptions,
 } from "../../../../../../Context/defaultValues";
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import systemIDS from "../../../../../../RawData/systems.json";
 import { useUpdateSetupValue } from "../../../../../../Hooks/JobHooks/useUpdateSetupValue";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../../../../../Context/LayoutContext";
 
 export function EditJobSetup({
   activeJob,
@@ -32,6 +34,7 @@ export function EditJobSetup({
   setupToEdit,
   updateSetupToEdit,
 }) {
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { recalcuateJobFromSetup } = useUpdateSetupValue();
@@ -44,11 +47,6 @@ export function EditJobSetup({
 
   const [runCountInput, updateRunCountInput] = useState(buildObject.runCount);
   const [jobCountInput, updateJobCountInput] = useState(buildObject.jobCount);
-
-  const customStructureMap = {
-    [jobTypes.manufacturing]: "manufacturing",
-    [jobTypes.reaction]: "reaction",
-  };
 
   return (
     <Paper
@@ -273,7 +271,7 @@ export function EditJobSetup({
                         Clear
                       </MenuItem>
                     ) : null}
-                    {parentUser.settings.structures[
+                    {applicationSettings[
                       customStructureMap[activeJob.jobType]
                     ].map((entry) => {
                       return (

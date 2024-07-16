@@ -8,6 +8,7 @@ import { useFindJobObject } from "./useFindJobObject";
 import { logEvent } from "firebase/analytics";
 import { analytics } from "../../firebase";
 import { useHelperFunction } from "./useHelperFunctions";
+import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 
 export function useShoppingList() {
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
@@ -15,6 +16,7 @@ export function useShoppingList() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { findJobData } = useFindJobObject();
   const {
     findParentUser,
@@ -127,8 +129,8 @@ export function useShoppingList() {
       alternativePriceLocation
     );
     const individualItemPrice =
-      itemPriceObject[parentUser.settings.editJob.defaultMarket][
-        parentUser.settings.editJob.defaultOrders
+      itemPriceObject[applicationSettings.defaultMarket][
+        applicationSettings.defaultOrders
       ];
 
     return (

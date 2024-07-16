@@ -1,33 +1,17 @@
 import { useContext } from "react";
 import { useSetupManagement } from "../GeneralHooks/useSetupManagement";
-import { jobTypes, structureOptions } from "../../Context/defaultValues";
-import { UsersContext } from "../../Context/AuthContext";
+import { jobTypes } from "../../Context/defaultValues";
 import { SystemIndexContext } from "../../Context/EveDataContext";
 import { useSystemIndexFunctions } from "../GeneralHooks/useSystemIndexFunctions";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
-import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 
 export function useUpdateSetupValue() {
   const { updateSystemIndexData } = useContext(SystemIndexContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { recalculateSetup } = useSetupManagement();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
   const { findMissingSystemIndex } = useSystemIndexFunctions();
-  const { findParentUser } = useHelperFunction();
-
-  const parentUser = findParentUser();
-
-  const customStructureMap = {
-    [jobTypes.manufacturing]: "manufacturing",
-    [jobTypes.reaction]: "reaction",
-  };
-  const structureTypeMap = {
-    [jobTypes.manufacturing]: structureOptions.manStructure,
-    [jobTypes.reaction]: structureOptions.reactionStructure,
-  };
-  const rigTypeMap = {
-    [jobTypes.manufacturing]: structureOptions.manRigs,
-    [jobTypes.reaction]: structureOptions.reactionRigs,
-  };
 
   async function recalcuateJobFromSetup(
     setupObject,
@@ -144,9 +128,8 @@ export function useUpdateSetupValue() {
     if (!attributeValue) {
       setupObject.customStructureID = null;
     } else {
-      const selectedStructure = parentUser.settings.structures[
-        customStructureMap[setupObject.jobType]
-      ].find((i) => i.id === attributeValue);
+      const selectedStructure =
+        applicationSettings.getCustomStructureWithID(attributeValue);
 
       setupObject.structureID = selectedStructure.structureType;
       setupObject.rigID = selectedStructure.rigType;

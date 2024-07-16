@@ -1,6 +1,7 @@
+import { useContext } from "react";
+import { ApplicationSettingsContext } from "../../../../../../Context/LayoutContext";
 import { Grid, Typography } from "@mui/material";
 import { AssetLocationLogic_AssetDialogWindow } from "./AssetTemplates/templateLogic";
-import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function DefaultLocationAssets({
   topLevelAssets,
@@ -10,10 +11,7 @@ export function DefaultLocationAssets({
   tempEveIDs,
   loadingAssets,
 }) {
-  const { findParentUser } = useHelperFunction();
-
-  const parentUser = findParentUser();
-  const defaultAssetLocation = parentUser.settings.editJob.defaultAssetLocation;
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
 
   if (
     !topLevelAssets ||
@@ -23,14 +21,17 @@ export function DefaultLocationAssets({
   )
     return null;
 
-  const locationAssets = topLevelAssets.get(defaultAssetLocation);
+  const locationAssets = topLevelAssets.get(
+    applicationSettings.defaultAssetLocation
+  );
 
   if (!locationAssets) return null;
 
   return (
     <>
       {Array.from(topLevelAssets).map(([locationID, assets]) => {
-        if (locationID !== defaultAssetLocation) return null;
+        if (locationID !== applicationSettings.defaultAssetLocation)
+          return null;
 
         const itemLocationName =
           tempEveIDs[locationID]?.name || "Unkown Location";

@@ -491,6 +491,10 @@ export let jobTypes = {
   reaction: 2,
   pi: 3,
 };
+export const jobTypeMapping = {
+  [jobTypes.manufacturing]: "manufacturing",
+  [jobTypes.reaction]: "reaction",
+};
 
 export const blueprintOptions = {
   me: [
@@ -598,6 +602,11 @@ export const structureOptions = {
     7: { id: 7, label: "T1 - ME, T2 - TE ", material: 2.0, time: 0.24 },
     8: { id: 8, label: "T2 - ME, T1 - TE", material: 2.4, time: 0.2 },
   },
+};
+
+export const customStructureMap = {
+  [jobTypes.manufacturing]: "manufacturingStructures",
+  [jobTypes.reaction]: "reactionStructures",
 };
 
 export const ancientRelicIDs = new Set([

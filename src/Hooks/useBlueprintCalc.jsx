@@ -97,7 +97,6 @@ export function useBlueprintCalc() {
   function getStructureData(materialType, id) {
     return structureOptions[materialType][id]?.material || 0;
   }
-
   const calculateTime = (calcData, jobSkills) => {
     let user =
       users.find((i) => i.CharacterHash === calcData.selectedCharacter) ||

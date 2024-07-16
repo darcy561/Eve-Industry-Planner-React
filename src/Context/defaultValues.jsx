@@ -468,6 +468,18 @@ export let eveIDsDefault = {
   },
 };
 
+export const applicationSettingsdefault = {
+  hideTutorials: false,
+  defaultMarket: "jita",
+  defaultOrders: "sell",
+  hideCompleteMaterials: false,
+  citadelBrokersFee: 1,
+  structures: {
+    manufacturing: [],
+    reaction: [],
+  },
+};
+
 export let listingType = [
   { id: "buy", name: "Buy Orders" },
   { id: "sell", name: "Sell Orders" },
@@ -478,6 +490,10 @@ export let jobTypes = {
   manufacturing: 1,
   reaction: 2,
   pi: 3,
+};
+export const jobTypeMapping = {
+  [jobTypes.manufacturing]: "manufacturing",
+  [jobTypes.reaction]: "reaction",
 };
 
 export const blueprintOptions = {
@@ -588,6 +604,11 @@ export const structureOptions = {
   },
 };
 
+export const customStructureMap = {
+  [jobTypes.manufacturing]: "manufacturingStructures",
+  [jobTypes.reaction]: "reactionStructures",
+};
+
 export const ancientRelicIDs = new Set([
   30614, 30615, 30618, 30599, 30600, 30605, 30582, 30586, 30588, 30752, 30753,
   34412, 34414, 34416, 30754, 30628, 30632, 30633, 30187, 30558, 30562,
@@ -628,4 +649,5 @@ export const REMOTE_CONFIG_DEFAULT_VALUES = {
   app_version_number: __APP_VERSION__,
   maintenance_mode: false,
   enable_upcoming_changes_page: false,
+  useSettingsV2: false,
 };

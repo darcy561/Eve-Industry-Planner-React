@@ -7,9 +7,10 @@ import {
   PersonalESIDataContext,
   SisiDataFilesContext,
 } from "../Context/EveDataContext";
-import { jobTypes } from "../Context/defaultValues";
+import { customStructureMap, jobTypes } from "../Context/defaultValues";
 import { useBlueprintCalc } from "./useBlueprintCalc";
 import {
+  ApplicationSettingsContext,
   DataExchangeContext,
   DialogDataContext,
 } from "../Context/LayoutContext";
@@ -26,6 +27,7 @@ export function useJobBuild() {
   const { updateDialogData } = useContext(DialogDataContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { calculateTime, calculateResources } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
   const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
@@ -444,14 +446,8 @@ export function useJobBuild() {
   }
 
   function addDefaultStructure(inputJobType) {
-    const typeMap = {
-      [jobTypes.manufacturing]: "manufacturing",
-      [jobTypes.reaction]: "reaction",
-    };
-
-    const matchedStructure = parentUser.settings.structures[
-      typeMap[inputJobType]
-    ].find((i) => i.default);
+    const matchedStructure =
+      applicationSettings.getDefaultCustomStructureWithJobType(inputJobType);
 
     if (!matchedStructure) return {};
 
@@ -512,10 +508,10 @@ export function useJobBuild() {
 
   function checkForDefaultMaterialEfficiecyValue(inputJobType) {
     if (
-      parentUser.settings.editJob?.defaultMaterialEfficiencyValue &&
+      applicationSettings.defaultMaterialEfficiencyValue &&
       inputJobType === jobTypes.manufacturing
     ) {
-      return parentUser.settings.editJob.defaultMaterialEfficiencyValue;
+      return applicationSettings.defaultMaterialEfficiencyValue;
     }
     return 0;
   }

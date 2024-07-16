@@ -1,6 +1,7 @@
-const functions = require("firebase-functions");
-const jwt = require("jsonwebtoken");
-const jwksClient = require("jwks-rsa");
+import jwt from "jsonwebtoken";
+import { JwksClient } from "jwks-rsa";
+import { log } from "firebase-functions/logger";
+import logErrorAndRespond from "../api/logErrorMessage";
 
 async function verifyEveToken(req, res, next) {
   try {
@@ -24,7 +25,7 @@ async function verifyEveToken(req, res, next) {
           401
         );
       } else {
-        const client = jwksClient({
+        const client = JwksClient({
           jwksUri: "https://login.eveonline.com/oauth/jwks",
         });
         const key = await client.getSigningKey(kid);
@@ -43,7 +44,7 @@ async function verifyEveToken(req, res, next) {
                 decoded.owner === req.body.CharacterHash &&
                 testID === req.body.UID
               ) {
-                functions.logger.log(`Eve Token Verified - ${testID}`);
+                log(`Eve Token Verified - ${testID}`);
                 next();
               } else {
                 logErrorAndRespond(
@@ -72,15 +73,4 @@ async function verifyEveToken(req, res, next) {
   }
 }
 
-function logErrorAndRespond(returnMessage, res, next, statusCode, error) {
-  functions.logger.error(returnMessage);
-  if (error) {
-    functions.logger.error(JSON.stringify(error));
-  }
-  if (res && next && statusCode) {
-    res.status(statusCode);
-    next(returnMessage);
-  }
-}
-
-module.exports = { verifyEveToken, logErrorAndRespond };
+export default verifyEveToken;

@@ -24,8 +24,8 @@ export function useMarketOrderFunctions() {
     this.order_id = null;
     this.journal_ref_id = trans.journal_ref_id;
     this.unit_price = trans.unit_price;
-    this.amount = journal.amount;
-    this.tax = Math.abs(tax.amount);
+    this.amount = journal.amount || 0;
+    this.tax = Math.abs(tax.amount) || 0;
     this.transaction_id = trans.transaction_id;
     this.quantity = trans.quantity;
     this.date = trans.date;
@@ -58,7 +58,7 @@ export function useMarketOrderFunctions() {
     this.id = entry.id;
     this.complete = false;
     this.date = entry.date;
-    this.amount = brokersFee;
+    this.amount = brokersFee || 0;
     this.CharacterHash = order.CharacterHash;
   }
 
@@ -90,16 +90,13 @@ export function useMarketOrderFunctions() {
     );
   }
 
-  function findMarketOrdersForItem(inputJob, temporaryOrderIDs) {
-    if (!temporaryOrderIDs) {
-      temporaryOrderIDs = [];
-    }
+  function findMarketOrdersForItem(inputJob, temporaryOrderIDs = []) {
     const matchingMarketOrders = [];
     [esiOrders, esiHistOrders].forEach((orders) => {
       orders.forEach((entry) => {
         entry?.data.forEach((order) => {
-          const criteriaMet = orderCriteria(order);
-          if (criteriaMet) {
+          const criteriaIsMet = orderCriteria(order);
+          if (criteriaIsMet) {
             matchingMarketOrders.push(order);
           }
         });
@@ -114,8 +111,8 @@ export function useMarketOrderFunctions() {
       .reduce((acc, val) => acc.concat(val), []);
 
     combinedCorpOrders.forEach((order) => {
-      const criteriaMet = orderCriteria(order);
-      if (criteriaMet) {
+      const criteriaIsMet = orderCriteria(order);
+      if (criteriaIsMet) {
         matchingMarketOrders.push(order);
       }
     });
@@ -138,7 +135,7 @@ export function useMarketOrderFunctions() {
 
   function findTransactionsForMarketOrders(
     order,
-    existingMatchedTransactionIDs
+    existingMatchedTransactionIDs = new Set()
   ) {
     const existingTransactions = [];
     const transactions = [
@@ -165,10 +162,7 @@ export function useMarketOrderFunctions() {
     return existingTransactions;
   }
 
-  function buildTransactionData(inputJob, temporaryTransactionIDs) {
-    if (!temporaryTransactionIDs) {
-      temporaryTransactionIDs = [];
-    }
+  function buildTransactionData(inputJob, temporaryTransactionIDs = []) {
     const transactionData = [];
     const matchedTransactions = new Set(temporaryTransactionIDs);
     inputJob.build.sale.marketOrders.forEach((order) => {

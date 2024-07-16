@@ -1,5 +1,8 @@
 import { useContext } from "react";
-import { MassBuildDisplayContext } from "../Context/LayoutContext";
+import {
+  ApplicationSettingsContext,
+  MassBuildDisplayContext,
+} from "../Context/LayoutContext";
 import { UserJobSnapshotContext } from "../Context/AuthContext";
 import {
   ApiJobsContext,
@@ -45,6 +48,7 @@ export function useJobManagement() {
     PersonalESIDataContext
   );
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const {
     addNewJob,
     getItemPrices,
@@ -56,7 +60,7 @@ export function useJobManagement() {
   const { buildJob } = useJobBuild();
   const { findJobData } = useFindJobObject();
   const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
-  const { findParentUser, sendSnackbarNotificationSuccess } =
+  const { findParentUser, isItemBuildable, sendSnackbarNotificationSuccess } =
     useHelperFunction();
 
   const analytics = getAnalytics();
@@ -73,6 +77,8 @@ export function useJobManagement() {
     let jobsToSave = new Set();
 
     for (let inputJobID of inputJobIDs) {
+      if (inputJobID.includes("group")) continue;
+
       let inputJob = await findJobData(
         inputJobID,
         newUserJobSnapshot,
@@ -87,10 +93,7 @@ export function useJobManagement() {
         if (inputJob.build.childJobs[material.typeID].length > 0) {
           return;
         }
-        if (
-          material.jobType !== jobTypes.manufacturing &&
-          material.jobType !== jobTypes.reaction
-        ) {
+        if (!isItemBuildable(material.jobType)) {
           return;
         }
 
@@ -148,10 +151,7 @@ export function useJobManagement() {
     for (let inputJobID of inputJobIDs) {
       let updatedJob = newJobArray.find((i) => i.jobID === inputJobID);
       for (let material of updatedJob.build.materials) {
-        if (
-          material.jobType !== jobTypes.manufacturing &&
-          material.jobType !== jobTypes.reaction
-        ) {
+        if (!isItemBuildable(material.jobType)) {
           continue;
         }
         let match = childJobs.find((i) => i.itemID === material.typeID);
@@ -509,7 +509,7 @@ export function useJobManagement() {
   };
 
   async function calcBrokersFee(marketOrder) {
-    let brokerFeePercentage = parentUser.settings.editJob.citadelBrokersFee;
+    let brokerFeePercentage = applicationSettings.citadelBrokersFee;
 
     if (
       marketOrder.location_id >= STATIONID_RANGE.low &&

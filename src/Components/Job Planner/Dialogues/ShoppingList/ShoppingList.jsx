@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import {
+  ApplicationSettingsContext,
   ShoppingListContext,
   SnackBarDataContext,
 } from "../../../../Context/LayoutContext";
@@ -49,6 +50,7 @@ export function ShoppingListDialog() {
   const { updateEveIDs } = useContext(EveIDsContext);
   const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { getAssetLocationList } = useCharAssets();
   const {
     findParentUser,
@@ -80,7 +82,7 @@ export function ShoppingListDialog() {
   const [assetLocations, updateAssetLocations] = useState([]);
   const parentUser = findParentUser();
   const [selectedLocation, updateSelectedLocation] = useState(
-    parentUser.settings.editJob.defaultAssetLocation
+    applicationSettings.defaultAssetLocation
   );
   const [selectedCharacter, updateSelectedCharacter] = useState(
     users.length > 1 ? "allUsers" : parentUser.CharacterHash
@@ -174,7 +176,7 @@ export function ShoppingListDialog() {
     updateRemoveAssets(false);
     updateUseCorporation(false);
     updateDisplayData([]);
-    updateSelectedLocation(parentUser.settings.editJob.defaultAssetLocation);
+    updateSelectedLocation(applicationSettings.defaultAssetLocation);
     updateEveIDs((prev) => ({ ...prev, ...tempEveIDs }));
     updateLoadingData(true);
   }

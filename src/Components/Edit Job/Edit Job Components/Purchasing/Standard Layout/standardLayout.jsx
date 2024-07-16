@@ -3,7 +3,8 @@ import { TutorialStep2 } from "../tutorialStep2";
 import { PurchasingDataPanel_EditJob } from "./Purchasing Data Panel/purchsingDataPanel";
 import { InventionCostsCard } from "./Invention Costs/inventionCostsCard";
 import { MaterialCardFrame_Purchasing } from "./Material Cards/materialCardFrame";
-import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { useContext } from "react";
+import { ApplicationSettingsContext } from "../../../../../Context/LayoutContext";
 
 export function Purchasing_StandardLayout_EditJob({
   activeJob,
@@ -19,8 +20,7 @@ export function Purchasing_StandardLayout_EditJob({
   updateParentChildToEdit,
   temporaryChildJobs,
 }) {
-  const { findParentUser } = useHelperFunction();
-  const parentUser = findParentUser();
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
 
   return (
     <Grid container spacing={2}>
@@ -51,8 +51,8 @@ export function Purchasing_StandardLayout_EditJob({
       >
         {activeJob.build.materials.map((material, materialIndex) => {
           if (
-            !parentUser.settings.editJob.hideCompleteMaterials ||
-            (parentUser.settings.editJob.hideCompleteMaterials &&
+            !applicationSettings.hideCompleteMaterials ||
+            (applicationSettings.hideCompleteMaterials &&
               material.quantityPurchased < material.quantity)
           ) {
             return (

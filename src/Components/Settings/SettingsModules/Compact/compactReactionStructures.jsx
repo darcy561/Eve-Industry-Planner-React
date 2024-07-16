@@ -30,10 +30,13 @@ import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useSystemIndexFunctions } from "../../../../Hooks/GeneralHooks/useSystemIndexFunctions";
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
 
 export function CompactReactionStrutures({ parentUserIndex }) {
-  const { users, updateUsers } = useContext(UsersContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
+  const { applicationSettings, updateApplicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
   const [textValue, updateTextValue] = useState("");
   const [systemValue, updateSystemValue] = useState(
     structureOptions.reactionSystem[0].id
@@ -46,16 +49,17 @@ export function CompactReactionStrutures({ parentUserIndex }) {
   );
   const [taxValue, updateTaxValue] = useState("");
   const [systemIDValue, updateSystemIDValue] = useState("");
-  const { updateMainUserDoc } = useFirebase();
+  const { uploadApplicationSettings } = useFirebase();
   const { findMissingSystemIndex } = useSystemIndexFunctions();
-  const { sendSnackbarNotificationSuccess } = useHelperFunction();
+  const { findParentUser, sendSnackbarNotificationSuccess } =
+    useHelperFunction();
   const analytics = getAnalytics();
+  const parentUser = findParentUser();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   async function handleSubmit(event) {
     event.preventDefault();
-    let newUsersArray = [...users];
-    newUsersArray[parentUserIndex].settings.structures.reaction.push({
+    const newStructure = {
       id: `reacStruct-${uuid()}`,
       name: textValue,
       systemType: systemValue,
@@ -64,18 +68,18 @@ export function CompactReactionStrutures({ parentUserIndex }) {
       tax: taxValue,
       systemID: systemIDValue,
       default:
-        newUsersArray[parentUserIndex].settings.structures.reaction.length === 0
-          ? true
-          : false,
-    });
+        applicationSettings.reactionStructures.length === 0 ? true : false,
+    };
 
     const systemIndexResults = await findMissingSystemIndex(systemIDValue);
+    const newApplicationSettings =
+      applicationSettings.addCustomReactionStructure(newStructure);
 
-    updateMainUserDoc(newUsersArray);
+    updateApplicationSettings(newApplicationSettings);
+    uploadApplicationSettings(newApplicationSettings);
     updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
-    updateUsers(newUsersArray);
     logEvent(analytics, "Add Reaction Structure", {
-      UID: newUsersArray[parentUserIndex].accountID,
+      UID: parentUser.accountID,
     });
     sendSnackbarNotificationSuccess(`${textValue} Added`);
   }
@@ -347,136 +351,108 @@ export function CompactReactionStrutures({ parentUserIndex }) {
               height: { xs: "200px", lg: "380px" },
             }}
           >
-            {users[parentUserIndex].settings.structures.reaction.map(
-              (entry) => {
-                const systemText =
-                  structureOptions.reactionSystem[entry.systemType]?.label ||
-                  "Missing System Type";
-                const structureText =
-                  structureOptions.reactionStructure[entry.structureType]
-                    ?.label || "Missing Structure Type";
-                const rigText =
-                  structureOptions.reactionRigs[entry.rigType]?.label ||
-                  "Missing Rig Type";
+            {applicationSettings.reactionStructures.map((entry) => {
+              const systemText =
+                structureOptions.reactionSystem[entry.systemType]?.label ||
+                "Missing System Type";
+              const structureText =
+                structureOptions.reactionStructure[entry.structureType]
+                  ?.label || "Missing Structure Type";
+              const rigText =
+                structureOptions.reactionRigs[entry.rigType]?.label ||
+                "Missing Rig Type";
 
-                const systemName =
-                  systemIDS.find((i) => i.id === entry.systemID)?.name ||
-                  "Missing System Name";
+              const systemName =
+                systemIDS.find((i) => i.id === entry.systemID)?.name ||
+                "Missing System Name";
 
-                return (
-                  <Grid key={entry.id} item xs={12}>
-                    <Card
-                      raised={true}
-                      sx={{
-                        width: "100%",
-                      }}
-                    >
-                      <CardContent>
-                        <Grid container item xs={12} align="center">
-                          <Grid
-                            item
-                            xs={12}
-                            sx={{ flexWrap: "wrap", marginBottom: "10px" }}
+              return (
+                <Grid key={entry.id} item xs={12}>
+                  <Card
+                    raised={true}
+                    sx={{
+                      width: "100%",
+                    }}
+                  >
+                    <CardContent>
+                      <Grid container item xs={12} align="center">
+                        <Grid
+                          item
+                          xs={12}
+                          sx={{ flexWrap: "wrap", marginBottom: "10px" }}
+                        >
+                          <Typography
+                            variant="h6"
+                            sx={{ overflowWrap: "anywhere" }}
+                            color="primary"
                           >
-                            <Typography
-                              variant="h6"
-                              sx={{ overflowWrap: "anywhere" }}
-                              color="primary"
-                            >
-                              {entry.name}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={4}>
-                            <Typography variant="body1">
-                              {systemText}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={4}>
-                            <Typography variant="body1">
-                              {structureText}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={4}>
-                            <Typography variant="body1">{rigText}</Typography>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <Typography>{`${entry.tax || 0}%`}</Typography>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <Typography>{systemName}</Typography>
-                          </Grid>
+                            {entry.name}
+                          </Typography>
                         </Grid>
-                      </CardContent>{" "}
-                      <CardActions>
-                        <Grid container item xs={12}>
-                          <Grid item xs={6} align="center">
-                            <Button
-                              size="small"
-                              variant="contained"
-                              disabled={entry.default}
-                              onClick={() => {
-                                let newUsersArray = [...users];
-                                newUsersArray[
-                                  parentUserIndex
-                                ].settings.structures.reaction.forEach((i) => {
-                                  if (i.id === entry.id) {
-                                    i.default = true;
-                                  } else {
-                                    i.default = false;
-                                  }
-                                });
-                                updateUsers(newUsersArray);
-                                updateMainUserDoc(newUsersArray);
-                              }}
-                            >
-                              Make Default
-                            </Button>
-                          </Grid>
-                          <Grid item xs={6} align="center">
-                            <Button
-                              size="small"
-                              variant="text"
-                              color="error"
-                              onClick={() => {
-                                let newUsersArray = [...users];
-                                newUsersArray[
-                                  parentUserIndex
-                                ].settings.structures.reaction = newUsersArray[
-                                  parentUserIndex
-                                ].settings.structures.reaction.filter(
-                                  (i) => i.id !== entry.id
-                                );
-                                if (
-                                  newUsersArray[parentUserIndex].settings
-                                    .structures.reaction.length > 0 &&
-                                  entry.default
-                                ) {
-                                  newUsersArray[
-                                    parentUserIndex
-                                  ].settings.structures.reaction[0].default = true;
-                                }
-                                updateUsers(newUsersArray);
-                                updateMainUserDoc(newUsersArray);
-                                logEvent(
-                                  analytics,
-                                  "Remove Reaction Structure",
-                                  {
-                                    UID: newUsersArray[parentUserIndex]
-                                      .accountID,
-                                  }
-                                );
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          </Grid>
+                        <Grid item xs={4}>
+                          <Typography variant="body1">{systemText}</Typography>
                         </Grid>
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                );
-              }
-            )}
+                        <Grid item xs={4}>
+                          <Typography variant="body1">
+                            {structureText}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Typography variant="body1">{rigText}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography>{`${entry.tax || 0}%`}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography>{systemName}</Typography>
+                        </Grid>
+                      </Grid>
+                    </CardContent>{" "}
+                    <CardActions>
+                      <Grid container item xs={12}>
+                        <Grid item xs={6} align="center">
+                          <Button
+                            size="small"
+                            variant="contained"
+                            disabled={entry.default}
+                            onClick={() => {
+                              const newApplicationSettings =
+                                applicationSettings.setDefaultCustomReactionStructure(
+                                  entry.id
+                                );
+                              updateApplicationSettings(newApplicationSettings);
+                              uploadApplicationSettings(newApplicationSettings);
+                            }}
+                          >
+                            Make Default
+                          </Button>
+                        </Grid>
+                        <Grid item xs={6} align="center">
+                          <Button
+                            size="small"
+                            variant="text"
+                            color="error"
+                            onClick={() => {
+                              const newApplicationSettings =
+                                applicationSettings.removeCustomReactionStructure(
+                                  entry
+                                );
+                              updateApplicationSettings(newApplicationSettings);
+                              uploadApplicationSettings(newApplicationSettings);
+                              logEvent(analytics, "Remove Reaction Structure", {
+                                UID: parentUser.accountID,
+                              });
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </Grid>
+                      </Grid>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              );
+            })}
           </Grid>
         </Grid>
       </Grid>

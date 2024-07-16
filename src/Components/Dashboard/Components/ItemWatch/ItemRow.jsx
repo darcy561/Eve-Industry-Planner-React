@@ -33,6 +33,7 @@ import { performance } from "../../../../firebase";
 import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
 import { useInstallCostsCalc } from "../../../../Hooks/GeneralHooks/useInstallCostCalc";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
 
 export function WatchListRow({
   item,
@@ -49,6 +50,7 @@ export function WatchListRow({
     UserJobSnapshotContext
   );
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const {
     addNewJob,
     getItemPrices,
@@ -125,14 +127,14 @@ export function WatchListRow({
       const itemPrice = findItemPriceObject(mat.typeID);
 
       totalPurchase +=
-        itemPrice[parentUser.settings.editJob.defaultMarket][
-          parentUser.settings.editJob.defaultOrders
+        itemPrice[applicationSettings.defaultMarket][
+          applicationSettings.defaultOrders
         ] * mat.quantity;
 
       if (mat.materials.length === 0) {
         totalBuild +=
-          itemPrice[parentUser.settings.editJob.defaultMarket][
-            parentUser.settings.editJob.defaultOrders
+          itemPrice[applicationSettings.defaultMarket][
+            applicationSettings.defaultOrders
           ] * mat.quantity;
         return;
       }
@@ -140,8 +142,8 @@ export function WatchListRow({
       mat.materials.forEach((cMat) => {
         let itemCPrice = findItemPriceObject(cMat.typeID);
         matBuild +=
-          itemCPrice[parentUser.settings.editJob.defaultMarket][
-            parentUser.settings.editJob.defaultOrders
+          itemCPrice[applicationSettings.defaultMarket][
+            applicationSettings.defaultOrders
           ] * cMat.quantity;
       });
 
@@ -216,9 +218,8 @@ export function WatchListRow({
             lg={2}
             sx={{
               color:
-                calculatedCosts.mainItemPrice[
-                  parentUser.settings.editJob.defaultMarket
-                ].sell !== 0
+                calculatedCosts.mainItemPrice[applicationSettings.defaultMarket]
+                  .sell !== 0
                   ? "none"
                   : "success.main",
               marginBottom: { xs: "5px", sm: "0px" },
@@ -228,7 +229,7 @@ export function WatchListRow({
           >
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               {calculatedCosts.mainItemPrice[
-                parentUser.settings.editJob.defaultMarket
+                applicationSettings.defaultMarket
               ].sell.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -255,7 +256,7 @@ export function WatchListRow({
                   color:
                     calculatedCosts.totalPurchase <
                     calculatedCosts.mainItemPrice[
-                      parentUser.settings.editJob.defaultMarket
+                      applicationSettings.defaultMarket
                     ].sell
                       ? calculatedCosts.totalBuild <
                         calculatedCosts.totalPurchase
@@ -281,7 +282,7 @@ export function WatchListRow({
                 title={(
                   ((calculatedCosts.totalPurchase -
                     calculatedCosts.mainItemPrice[
-                      parentUser.settings.editJob.defaultMarket
+                      applicationSettings.defaultMarket
                     ].sell) /
                     calculatedCosts.totalPurchase) *
                   100
@@ -298,7 +299,7 @@ export function WatchListRow({
                     color:
                       calculatedCosts.totalPurchase <
                       calculatedCosts.mainItemPrice[
-                        parentUser.settings.editJob.defaultMarket
+                        applicationSettings.defaultMarket
                       ].sell
                         ? calculatedCosts.totalBuild <
                           calculatedCosts.totalPurchase
@@ -310,7 +311,7 @@ export function WatchListRow({
                   {(
                     ((calculatedCosts.totalPurchase -
                       calculatedCosts.mainItemPrice[
-                        parentUser.settings.editJob.defaultMarket
+                        applicationSettings.defaultMarket
                       ].sell) /
                       calculatedCosts.totalPurchase) *
                     100
@@ -365,7 +366,7 @@ export function WatchListRow({
                       color:
                         calculatedCosts.totalBuild <
                         calculatedCosts.mainItemPrice[
-                          parentUser.settings.editJob.defaultMarket
+                          applicationSettings.defaultMarket
                         ].sell
                           ? calculatedCosts.totalBuild >
                             calculatedCosts.totalPurchase
@@ -391,7 +392,7 @@ export function WatchListRow({
                     title={(
                       ((calculatedCosts.totalBuild -
                         calculatedCosts.mainItemPrice[
-                          parentUser.settings.editJob.defaultMarket
+                          applicationSettings.defaultMarket
                         ].sell) /
                         calculatedCosts.totalBuild) *
                       100
@@ -409,7 +410,7 @@ export function WatchListRow({
                         color:
                           calculatedCosts.totalBuild <
                           calculatedCosts.mainItemPrice[
-                            parentUser.settings.editJob.defaultMarket
+                            applicationSettings.defaultMarket
                           ].sell
                             ? calculatedCosts.totalBuild >
                               calculatedCosts.totalPurchase
@@ -421,7 +422,7 @@ export function WatchListRow({
                       {(
                         ((calculatedCosts.totalBuild -
                           calculatedCosts.mainItemPrice[
-                            parentUser.settings.editJob.defaultMarket
+                            applicationSettings.defaultMarket
                           ].sell) /
                           calculatedCosts.totalBuild) *
                         100

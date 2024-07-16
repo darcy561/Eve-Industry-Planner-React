@@ -4,7 +4,10 @@ import AutorenewIcon from "@mui/icons-material/Autorenew";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import TimerIcon from "@mui/icons-material/Timer";
 import { useContext, useState } from "react";
-import { RefreshStateContext } from "../../Context/LayoutContext";
+import {
+  ApplicationSettingsContext,
+  RefreshStateContext,
+} from "../../Context/LayoutContext";
 import { useEveApi } from "../../Hooks/useEveApi";
 import {
   UserJobSnapshotContext,
@@ -41,6 +44,9 @@ export function AccountEntry({ user, parentUserIndex }) {
   );
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { refreshState } = useContext(RefreshStateContext);
+  const { applicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
   const [userRefreshState, updateUserRefreshState] = useState(
     user.refreshState
   );
@@ -113,18 +119,15 @@ export function AccountEntry({ user, parentUserIndex }) {
     );
 
     for (let nUser of newUsers) {
-      if (nUser.ParentUser) {
-        if (nUser.settings.account.cloudAccounts) {
-          nUser.accountRefreshTokens = nUser.accountRefreshTokens.filter(
-            (i) => i.CharacterHash !== user.CharacterHash
-          );
-        } else {
-          let oldLS = JSON.parse(localStorage.getItem("AdditionalAccounts"));
-          let newLS = oldLS.filter(
-            (i) => i.CharacterHash !== user.CharacterHash
-          );
-          localStorage.setItem("AdditionalAccounts", JSON.stringify(newLS));
-        }
+      if (!nUser.ParentUser) continue;
+      if (applicationSettings.cloudAccounts) {
+        nUser.accountRefreshTokens = nUser.accountRefreshTokens.filter(
+          (i) => i.CharacterHash !== user.CharacterHash
+        );
+      } else {
+        let oldLS = JSON.parse(localStorage.getItem("AdditionalAccounts"));
+        let newLS = oldLS.filter((i) => i.CharacterHash !== user.CharacterHash);
+        localStorage.setItem("AdditionalAccounts", JSON.stringify(newLS));
       }
     }
 
@@ -137,13 +140,13 @@ export function AccountEntry({ user, parentUserIndex }) {
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     uploadUserJobSnapshot(newUserJobSnapshot);
-    if (parentUser.settings.account.cloudAccounts) {
+    if (applicationSettings.cloudAccounts) {
       updateMainUserDoc();
     }
     logEvent(analytics, "Remove Link Character", {
       UID: users[parentUserIndex].accountID,
       RemovedHash: user.CharacterHash,
-      cloudAccount: users[parentUserIndex].settings.account.cloudAccounts,
+      cloudAccount: applicationSettings.cloudAccounts,
     });
     sendSnackbarNotificationError(`${user.CharacterName} Removed`);
   }

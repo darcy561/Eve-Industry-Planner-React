@@ -1,6 +1,5 @@
-const checkAppVersion =
-  require("../sharedFunctions/appVersion").checkAppVersion;
-const { logErrorAndRespond } = require("./eveTokenVerify");
+import logErrorAndRespond from "../api/logErrorMessage";
+import checkAppVersion from "../sharedFunctions/appVersion";
 
 function checkVersion(req, res, next) {
   let verify = checkAppVersion(req.header("appVersion"));
@@ -17,6 +16,4 @@ function checkVersion(req, res, next) {
     next();
   }
 }
-module.exports = {
-  checkAppVersion: checkVersion,
-};
+export default checkVersion;

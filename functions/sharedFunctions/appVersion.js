@@ -1,6 +1,4 @@
-const { GLOBAL_CONFIG } = require("../global-config-functions");
-
-const { APP_VERSION } = GLOBAL_CONFIG;
+import { APP_VERSION } from "../global-config-functions";
 
 function checkAppVersion(requestedAppVersion) {
   if (requestedAppVersion !== APP_VERSION) {
@@ -9,6 +7,4 @@ function checkAppVersion(requestedAppVersion) {
   return true;
 }
 
-module.exports = {
-  checkAppVersion: checkAppVersion,
-};
+export default checkAppVersion;

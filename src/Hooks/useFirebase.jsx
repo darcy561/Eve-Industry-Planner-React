@@ -35,10 +35,17 @@ import {
 } from "../Context/EveDataContext";
 import { useAccountManagement } from "./useAccountManagement";
 import { useEveApi } from "./useEveApi";
-import { UserLoginUIContext } from "../Context/LayoutContext";
+import {
+  UserLoginUIContext,
+  ApplicationSettingsContext,
+} from "../Context/LayoutContext";
 import GLOBAL_CONFIG from "../global-config-app";
 import { useCorporationObject } from "./Account Management Hooks/Corporation Objects/useCorporationObject";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
+import {
+  convertApplicationSettingsToDocument,
+  importApplicationSettingsFromDocument,
+} from "./Account Management Hooks/Application Settings/applicationSettingsConstructor";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -61,6 +68,7 @@ export function useFirebase() {
     updateUserGroupsDataFetch,
   } = useContext(UserLoginUIContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
+  const { updateApplicationSettings } = useContext(ApplicationSettingsContext);
   const {
     buildApiArray,
     buildCloudAccountData,
@@ -187,19 +195,27 @@ export function useFirebase() {
     );
   };
 
-  const updateMainUserDoc = async () => {
+  async function updateMainUserDoc(settingsObject) {
     await fbAuthState();
 
-    updateDoc(doc(firestore, "Users", parentUser.accountID), {
+    let updateObject = {
       parentUserHash: parentUser.CharacterHash,
       jobStatusArray: jobStatus,
       linkedJobs: [...parentUser.linkedJobs],
       linkedTrans: [...parentUser.linkedTrans],
       linkedOrders: [...parentUser.linkedOrders],
-      settings: parentUser.settings,
       refreshTokens: parentUser.accountRefreshTokens,
-    });
-  };
+    };
+
+    if (settingsObject) {
+      updateObject.settings =
+        convertApplicationSettingsToDocument(settingsObject);
+    }
+    await updateDoc(
+      doc(firestore, "Users", parentUser.accountID),
+      updateObject
+    );
+  }
 
   const uploadUserJobSnapshot = async (newUserJobSnapshot) => {
     await fbAuthState();
@@ -686,6 +702,9 @@ export function useFirebase() {
           );
           const systemIndexResults = await getSystemIndexData(mainUser);
 
+          const applicationSettings =
+            importApplicationSettingsFromDocument(mainUser);
+
           newUserArray.sort((a, b) => {
             if (a.name < b.name) {
               return -1;
@@ -698,6 +717,7 @@ export function useFirebase() {
 
           updateEveIDs((prev) => ({ ...prev, ...newEveIDs }));
           updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
+          updateApplicationSettings(applicationSettings);
           updateApiJobs(newApiArray);
           updateUsers(newUserArray);
           setJobStatus(userData.jobStatusArray);
@@ -766,10 +786,20 @@ export function useFirebase() {
     updateFirebaseListeners((prev) => prev.concat(unsub));
   };
 
+  async function uploadApplicationSettings(settingsObject) {
+    if (!settingsObject) return;
+    await fbAuthState();
+
+    await updateDoc(doc(firestore, "Users", parentUser.accountID), {
+      settings: convertApplicationSettingsToDocument(settingsObject),
+    });
+  }
+
   return {
     addNewJob,
     archiveJob,
     determineUserState,
+    fbAuthState,
     getArchivedJobData,
     getItemPrices,
     uploadJob,
@@ -777,6 +807,7 @@ export function useFirebase() {
     refreshItemPrices,
     removeJob,
     downloadCharacterJobs,
+    uploadApplicationSettings,
     userGroupDataListener,
     userJobListener,
     userJobSnapshotListener,

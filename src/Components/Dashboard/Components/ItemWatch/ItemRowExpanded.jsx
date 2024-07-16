@@ -3,9 +3,11 @@ import { Grid, Typography } from "@mui/material";
 import { EvePricesContext } from "../../../../Context/EveDataContext";
 import { useInstallCostsCalc } from "../../../../Hooks/GeneralHooks/useInstallCostCalc";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
 
-export function ExpandedWatchlistRow({ mat, parentUser }) {
+export function ExpandedWatchlistRow({ mat }) {
   const { evePrices } = useContext(EvePricesContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { findItemPriceObject } = useHelperFunction();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
@@ -16,8 +18,8 @@ export function ExpandedWatchlistRow({ mat, parentUser }) {
       let matBuildCalc = 0;
       let xPrice = findItemPriceObject(x.typeID);
       matBuildCalc +=
-        (xPrice[parentUser.settings.editJob.defaultMarket][
-          parentUser.settings.editJob.defaultOrders
+        (xPrice[applicationSettings.defaultMarket][
+          applicationSettings.defaultOrders
         ] *
           x.quantity) /
         mat.quantityProduced;
@@ -61,8 +63,7 @@ export function ExpandedWatchlistRow({ mat, parentUser }) {
         sx={{
           color:
             mat.materials.length > 0
-              ? matBuildPrice <
-                matPrice[parentUser.settings.editJob.defaultMarket].sell
+              ? matBuildPrice < matPrice[applicationSettings.defaultMarket].sell
                 ? "error.main"
                 : "success.main"
               : "none",
@@ -74,12 +75,13 @@ export function ExpandedWatchlistRow({ mat, parentUser }) {
             typography: { xs: "caption", sm: "body2" },
           }}
         >
-          {matPrice[
-            parentUser.settings.editJob.defaultMarket
-          ].sell.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {matPrice[applicationSettings.defaultMarket].sell.toLocaleString(
+            undefined,
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }
+          )}
         </Typography>
       </Grid>
       <Grid container item xs={12}>
@@ -102,7 +104,7 @@ export function ExpandedWatchlistRow({ mat, parentUser }) {
               sx={{
                 color:
                   matBuildPrice >
-                  matPrice[parentUser.settings.editJob.defaultMarket].sell
+                  matPrice[applicationSettings.defaultMarket].sell
                     ? "error.main"
                     : "success.main",
               }}

@@ -1,5 +1,6 @@
-const admin = require("firebase-admin");
-const { logErrorAndRespond } = require("./eveTokenVerify");
+import logErrorAndRespond from "../api/logErrorMessage";
+import { getAppCheck } from("firebase-admin/app-check");
+
 
 async function appCheckVerification(req, res, next) {
   const appCheckClaims = await verifyAppCheckToken(
@@ -19,17 +20,15 @@ async function appCheckVerification(req, res, next) {
 }
 
 async function verifyAppCheckToken(token) {
-  if (!token) {
-    return null;
-  }
   try {
-    return await admin.appCheck().verifyToken(token);
+    if (!token) {
+      return null;
+    }
+    return await getAppCheck().verifyToken(token);
   } catch (err) {
     logErrorAndRespond("Error Verifying AppCheck Token", null, null, null);
     return null;
   }
 }
 
-module.exports = {
-  appCheckVerification: appCheckVerification,
-};
+export default appCheckVerification;

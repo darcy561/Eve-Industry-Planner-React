@@ -1,4 +1,4 @@
-function BuildMissingSystemIndexValue(systemID) {
+function buildMissingSystemIndexValue(systemID) {
   return {
     copying: 0,
     invention: 0,
@@ -10,6 +10,4 @@ function BuildMissingSystemIndexValue(systemID) {
     solar_system_id: Number(systemID),
   };
 }
-module.exports = {
-  BuildMissingSystemIndexValue: BuildMissingSystemIndexValue,
-};
+export default buildMissingSystemIndexValue;

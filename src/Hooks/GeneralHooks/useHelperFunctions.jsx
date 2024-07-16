@@ -3,6 +3,7 @@ import { EveIDsContext, EvePricesContext } from "../../Context/EveDataContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { IsLoggedInContext, UsersContext } from "../../Context/AuthContext";
 import {
+  ApplicationSettingsContext,
   SnackBarDataContext,
   UserLoginUIContext,
 } from "../../Context/LayoutContext";
@@ -14,6 +15,7 @@ export function useHelperFunction() {
   const { eveIDs } = useContext(EveIDsContext);
   const { setSnackbarData } = useContext(SnackBarDataContext);
   const { userDataFetch } = useContext(UserLoginUIContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
 
   function Add_RemovePendingChildJobs(
     materialChildJobObject,
@@ -89,10 +91,10 @@ export function useHelperFunction() {
     return eveIDs[requestedID] || alternativeItemLocation[requestedID] || null;
   }
 
-  function isItemBuildable(requestedJobType) {
+  function isItemBuildable(inputJobType) {
     if (
-      requestedJobType === jobTypes.manufacturing ||
-      requestedJobType === jobTypes.reaction
+      inputJobType === jobTypes.manufacturing ||
+      inputJobType === jobTypes.reaction
     ) {
       return true;
     }
@@ -122,21 +124,26 @@ export function useHelperFunction() {
   }
 
   async function importMultibuyFromClipboard() {
-    const returnArray = [];
-    const importedText = await readTextFromClipboard();
+    try {
+      const returnArray = [];
+      const importedText = await readTextFromClipboard();
 
-    const matchedItems = [
-      ...importedText.matchAll(/^(.*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)$/gm),
-    ];
+      const matchedItems = [
+        ...importedText.matchAll(/^(.*)\t([0-9,]*)\t([0-9,.]*)\t([0-9,.]*)$/gm),
+      ];
 
-    for (let item of matchedItems) {
-      returnArray.push({
-        importedName: item[1] || "",
-        importedQuantity: parseFloat(item[2].replace(/,/g, "")) || 0,
-        importedCost: parseFloat(item[3].replace(/,/g, "")) || 0,
-      });
+      for (let item of matchedItems) {
+        returnArray.push({
+          importedName: item[1] || "",
+          importedQuantity: parseFloat(item[2].replace(/,/g, "")) || 0,
+          importedCost: parseFloat(item[3].replace(/,/g, "")) || 0,
+        });
+      }
+      return returnArray;
+    } catch (err) {
+      console.error(err.message);
+      return [];
     }
-    return returnArray;
   }
 
   async function importAssetsFromClipboard_IconView() {
@@ -166,6 +173,7 @@ export function useHelperFunction() {
       });
       return returnObject;
     } catch (err) {
+      console.error(err.message);
       return {};
     }
   }
@@ -175,7 +183,7 @@ export function useHelperFunction() {
       await navigator.clipboard.writeText(inputTextString);
       sendSnackbarNotificationSuccess(`Successfully Copied`, 1);
     } catch (err) {
-      console.message(err.message);
+      console.error(err.message);
       sendSnackbarNotificationError(`Error Copying Text To Clipboard`);
     }
   }
@@ -184,7 +192,7 @@ export function useHelperFunction() {
     try {
       return await navigator.clipboard.readText();
     } catch (err) {
-      console.message(err.message);
+      console.error(err.message);
       sendSnackbarNotificationError(`Error Reading Text From Clipboard`);
       return null;
     }
@@ -192,8 +200,7 @@ export function useHelperFunction() {
 
   function checkDisplayTutorials() {
     if (!isLoggedIn) return true;
-    const parentUser = findParentUser();
-    const tutorialsAreHidden = parentUser.settings.layout.hideTutorials;
+    const tutorialsAreHidden = applicationSettings.hideTutorials;
 
     if (tutorialsAreHidden) return false;
 

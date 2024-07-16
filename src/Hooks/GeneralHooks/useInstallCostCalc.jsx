@@ -1,13 +1,15 @@
 import { useContext } from "react";
 import { SystemIndexContext } from "../../Context/EveDataContext";
-import { jobTypes } from "../../Context/defaultValues";
+import { customStructureMap, jobTypes } from "../../Context/defaultValues";
 import { UsersContext } from "../../Context/AuthContext";
 import { structureOptions } from "../../Context/defaultValues";
 import { useHelperFunction } from "./useHelperFunctions";
+import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 
 export function useInstallCostsCalc() {
   const { systemIndexData } = useContext(SystemIndexContext);
   const { users } = useContext(UsersContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { findParentUser, findItemPriceObject } = useHelperFunction();
 
   const jobTypeMapping = {
@@ -142,10 +144,9 @@ export function useInstallCostsCalc() {
     const parentUser = findParentUser();
     if (!parentUser) return 0;
 
-    const structureSelection =
-      parentUser.settings.structures[jobTypeMapping[jobType]] || [];
-
-    return structureSelection.find((i) => i.id === facilityID)?.tax / 100 || 0;
+    return (
+      applicationSettings.getCustomStructureWithID(facilityID)?.tax / 100 || 0
+    );
   }
 
   function findCloneValue(inputCharacterHash) {

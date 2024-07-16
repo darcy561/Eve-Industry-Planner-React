@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Grid, Pagination } from "@mui/material";
 import { ESIOffline } from "../offlineNotification";
 import { LibrarySearch } from "./LibrarySearch";
@@ -8,15 +8,14 @@ import {
   CorpEsiDataContext,
   PersonalESIDataContext,
 } from "../../Context/EveDataContext";
-import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 import { Header } from "../Header";
 import { Footer } from "../Footer/Footer";
+import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 
 export default function BlueprintLibrary({ colorMode }) {
   const { esiBlueprints } = useContext(PersonalESIDataContext);
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
-  const { findParentUser } = useHelperFunction();
-  const parentUser = findParentUser();
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const [pagination, setPagination] = useState({
     count: 0,
     from: 0,
@@ -88,7 +87,7 @@ export default function BlueprintLibrary({ colorMode }) {
         <Grid item xs={12} sx={{ marginLeft: "10px", marginRight: "10px" }}>
           <Grid container item spacing={2}>
             {blueprintResults.ids.map((bpID) => {
-              if (parentUser.settings.layout.enableCompactView) {
+              if (applicationSettings.enableCompactView) {
                 return (
                   <CompactBlueprintGroup
                     key={bpID}
@@ -127,7 +126,6 @@ export default function BlueprintLibrary({ colorMode }) {
         </Grid>
         <Footer />
       </Grid>
-
     </>
   );
 }

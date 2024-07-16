@@ -83,9 +83,13 @@ export function AvailableJobsTab({
             const jobOwner = users.find(
               (i) => i.CharacterID === job.installer_id
             );
+            if (!jobOwner) return null;
+
             const blueprintType = findBlueprintType(job.blueprint_id);
 
-            const facilityData = findUniverseItemObject(job.facility_id);
+            const facilityName =
+              findUniverseItemObject(job.facility_id)?.name ||
+              "Location Data Unavailable";
 
             const timeRemaining = timeRemainingCalc(Date.parse(job.end_date));
 
@@ -100,15 +104,18 @@ export function AvailableJobsTab({
                 lg={2}
                 sx={{ marginBottom: "5px", marginTop: "5px" }}
               >
-
-                  <Grid
-                    container
-                    item
-                    justifyContent="center"
-                    alignItems="center"
-                    xs={12}
+                <Grid
+                  container
+                  item
+                  justifyContent="center"
+                  alignItems="center"
+                  xs={12}
+                >
+                  <Tooltip
+                    title={jobOwner.CharacterName}
+                    arrow
+                    placement="right"
                   >
-                                  <Tooltip title={jobOwner.CharacterName} arrow placement="right">
                     <Badge
                       overlap="circular"
                       anchorOrigin={{
@@ -137,8 +144,8 @@ export function AvailableJobsTab({
                         />
                       </picture>
                     </Badge>
-                    </Tooltip>
-                  </Grid>
+                  </Tooltip>
+                </Grid>
 
                 <Grid item xs={12}>
                   <Typography
@@ -151,9 +158,7 @@ export function AvailableJobsTab({
                     sx={{ typography: STANDARD_TEXT_FORMAT }}
                     align="center"
                   >
-                    {facilityData
-                      ? facilityData.name
-                      : "Location Data Unavailable"}
+                    {facilityName}
                   </Typography>
                 </Grid>
                 {job.isCorp ? (

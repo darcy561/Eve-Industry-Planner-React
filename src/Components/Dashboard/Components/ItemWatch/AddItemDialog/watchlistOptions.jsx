@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import {
   Autocomplete,
   FormControl,
@@ -11,11 +11,13 @@ import {
 } from "@mui/material";
 import {
   blueprintOptions,
+  customStructureMap,
   jobTypes,
   structureOptions,
 } from "../../../../../Context/defaultValues";
 import systemIDS from "../../../../../RawData/systems.json";
 import { useUpdateSetupValue } from "../../../../../Hooks/JobHooks/useUpdateSetupValue";
+import { ApplicationSettingsContext } from "../../../../../Context/LayoutContext";
 
 export function WatchListSetupOptions_WatchlistDialog({
   parentUser,
@@ -25,6 +27,7 @@ export function WatchListSetupOptions_WatchlistDialog({
   itemToModify,
   updateItemToModify,
 }) {
+  const {applicationSettings} = useContext(ApplicationSettingsContext)
   const { recalculateWatchListItems } = useUpdateSetupValue();
   const jobSetup = Object.values(materialJobs[itemToModify]?.build?.setup)[0];
 
@@ -43,10 +46,6 @@ export function WatchListSetupOptions_WatchlistDialog({
     [jobTypes.reaction]: structureOptions.reactionSystem,
   };
 
-  const customStructureMap = {
-    [jobTypes.manufacturing]: "manufacturing",
-    [jobTypes.reaction]: "reaction",
-  };
   const systemIDMap = useMemo(() => {
     return buildSystemIDMap(systemIDS);
   }, []);
@@ -91,7 +90,7 @@ export function WatchListSetupOptions_WatchlistDialog({
                   None
                 </MenuItem>
               ) : null}
-              {parentUser.settings.structures[
+              {applicationSettings[
                 customStructureMap[jobSetup.jobType]
               ].map((entry) => {
                 return (

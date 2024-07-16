@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import {
   Card,
   CardActionArea,
@@ -6,23 +7,17 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useContext } from "react";
-import { structureOptions } from "../../../../../../Context/defaultValues";
+import {
+  jobTypeMapping,
+  STANDARD_TEXT_FORMAT,
+  structureOptions,
+  TWO_DECIMAL_PLACES,
+} from "../../../../../../Context/defaultValues";
 import { jobTypes } from "../../../../../../Context/defaultValues";
 import { UsersContext } from "../../../../../../Context/AuthContext";
 import rawSystemData from "../../../../../../RawData/systems.json";
-
 import { SystemIndexContext } from "../../../../../../Context/EveDataContext";
-import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
-
-const customStructureMap = {
-  [jobTypes.manufacturing]: "manufacturing",
-  [jobTypes.reaction]: "reaction",
-};
-const jobTypeMapping = {
-  [jobTypes.manufacturing]: "manufacturing",
-  [jobTypes.reaction]: "reaction",
-};
+import { ApplicationSettingsContext } from "../../../../../../Context/LayoutContext";
 
 export function JobSetupCard({
   setupEntry,
@@ -59,7 +54,7 @@ export function JobSetupCard({
                   <Grid item xs={3}>
                     <Typography
                       sx={{
-                        typography: { xs: "caption", sm: "body2" },
+                        typography: STANDARD_TEXT_FORMAT,
                       }}
                       align="center"
                     >
@@ -69,7 +64,7 @@ export function JobSetupCard({
                   <Grid item xs={3}>
                     <Typography
                       sx={{
-                        typography: { xs: "caption", sm: "body2" },
+                        typography: STANDARD_TEXT_FORMAT,
                       }}
                       align="center"
                     >
@@ -83,7 +78,7 @@ export function JobSetupCard({
                 xs={jobTypes.manufacturing === setupEntry.jobType ? 3 : 6}
                 align="center"
               >
-                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                   Runs: {setupEntry.runCount}
                 </Typography>
               </Grid>
@@ -92,14 +87,14 @@ export function JobSetupCard({
                 xs={jobTypes.manufacturing === setupEntry.jobType ? 3 : 6}
                 align="center"
               >
-                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                   Jobs: {setupEntry.jobCount}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography
                   align="center"
-                  sx={{ typography: { xs: "caption", sm: "body2" } }}
+                  sx={{ typography: STANDARD_TEXT_FORMAT }}
                 >
                   {assignedCharacterName}
                 </Typography>
@@ -113,10 +108,7 @@ export function JobSetupCard({
               <Tooltip
                 title={`Install Cost Per Job: ${setupEntry.estimatedInstallCost.toLocaleString(
                   undefined,
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
+                  TWO_DECIMAL_PLACES
                 )}`}
                 arrow
                 placement="bottom"
@@ -125,16 +117,13 @@ export function JobSetupCard({
                   <Typography
                     align="center"
                     sx={{
-                      typography: { xs: "caption", sm: "body2" },
+                      typography: STANDARD_TEXT_FORMAT,
                     }}
                   >
                     Est Total Install Costs:{" "}
                     {(
                       setupEntry.estimatedInstallCost * setupEntry.jobCount
-                    ).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    ).toLocaleString(undefined, TWO_DECIMAL_PLACES)}
                   </Typography>
                 </Grid>
               </Tooltip>
@@ -159,14 +148,11 @@ export function JobSetupCard({
 
 function UseCustomStructure({ setupEntry }) {
   const { systemIndexData } = useContext(SystemIndexContext);
-  const { findParentUser } = useHelperFunction();
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
 
-  const parentUser = findParentUser();
-
-  const assignedStructureData =
-    parentUser.settings.structures[customStructureMap[setupEntry.jobType]].find(
-      (i) => i.id === setupEntry.customStructureID
-    ) || null;
+  const assignedStructureData = applicationSettings.getCustomStructureWithID(
+    setupEntry.customStructureID
+  );
 
   const systemIndexValue =
     systemIndexData[setupEntry.systemID]?.[
@@ -183,7 +169,7 @@ function UseCustomStructure({ setupEntry }) {
         <Typography
           align="center"
           sx={{
-            typography: { xs: "caption", sm: "body2" },
+            typography: STANDARD_TEXT_FORMAT,
           }}
         >
           {assignedStructureData
@@ -235,26 +221,17 @@ function UseDefaultStructures({ setupEntry }) {
   return (
     <Grid container item xs={12}>
       <Grid item xs={4}>
-        <Typography
-          align="center"
-          sx={{ typography: { xs: "caption", sm: "body2" } }}
-        >
+        <Typography align="center" sx={{ typography: STANDARD_TEXT_FORMAT }}>
           {systemTypeData.label}
         </Typography>
       </Grid>
       <Grid item xs={4}>
-        <Typography
-          align="center"
-          sx={{ typography: { xs: "caption", sm: "body2" } }}
-        >
+        <Typography align="center" sx={{ typography: STANDARD_TEXT_FORMAT }}>
           {structureTypeData.label}
         </Typography>
       </Grid>
       <Grid item xs={4}>
-        <Typography
-          align="center"
-          sx={{ typography: { xs: "caption", sm: "body2" } }}
-        >
+        <Typography align="center" sx={{ typography: STANDARD_TEXT_FORMAT }}>
           {rigTypeData.label}
         </Typography>
       </Grid>
@@ -264,19 +241,13 @@ function UseDefaultStructures({ setupEntry }) {
         placement="bottom"
       >
         <Grid item xs={12}>
-          <Typography
-            align="center"
-            sx={{ typography: { xs: "caption", sm: "body2" } }}
-          >
+          <Typography align="center" sx={{ typography: STANDARD_TEXT_FORMAT }}>
             {matchedSystemID}
           </Typography>
         </Grid>
       </Tooltip>
       <Grid item xs={12}>
-        <Typography
-          align="center"
-          sx={{ typography: { xs: "caption", sm: "body2" } }}
-        >
+        <Typography align="center" sx={{ typography: STANDARD_TEXT_FORMAT }}>
           Tax: {setupEntry.taxValue}%
         </Typography>
       </Grid>

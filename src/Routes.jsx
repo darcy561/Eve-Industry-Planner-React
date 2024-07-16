@@ -18,7 +18,9 @@ const JobPlannerPage = lazy(() =>
 );
 const EditJobPage = lazy(() => import("./Components/Edit Job/editJob"));
 const AccountsPage = lazy(() => import("./Components/Accounts/Accounts"));
-const SettingsPage = lazy(() => import("./Components/Settings/Settings"));
+const SettingsPage = lazy(() =>
+  import("./Components/Settings/settingsSwitcher")
+);
 const BlueprintLibrary = lazy(() =>
   import("./Components/Blueprint Library/BlueprintLibrary")
 );

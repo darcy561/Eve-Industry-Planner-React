@@ -1,6 +1,5 @@
 import { Container, Grid, Paper } from "@mui/material";
 import { useContext } from "react";
-import { UsersContext } from "../../Context/AuthContext";
 import { ClassicEditJobSettings } from "./SettingsModules/Classic/classicEditJobSettings";
 import { ClassicLayoutSettings } from "./SettingsModules/Classic/classicLayoutSettings";
 import { ClassicManufacturingStrutures } from "./SettingsModules/Classic/classicManufacturingStructures";
@@ -12,11 +11,13 @@ import { CompactReactionStrutures } from "./SettingsModules/Compact/compactReact
 import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 import { Header } from "../Header";
 import { Footer } from "../Footer/Footer";
+import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 
 export default function SettingsPage({ colorMode }) {
-  const { users } = useContext(UsersContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { findParentUserIndex } = useHelperFunction();
   const parentUserIndex = findParentUserIndex();
+
   return (
     <Container disableGutters maxWidth="false">
       <Header colorMode={colorMode} />
@@ -32,7 +33,7 @@ export default function SettingsPage({ colorMode }) {
         square
       >
         <Grid container spacing={2}>
-          {users[parentUserIndex].settings.layout.enableCompactView ? (
+          {applicationSettings.enableCompactView ? (
             <>
               <Grid item xs={12} md={6}>
                 <CompactLayoutSettings parentUserIndex={parentUserIndex} />

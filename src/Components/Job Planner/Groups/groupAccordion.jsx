@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -10,17 +10,16 @@ import {
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import AddIcon from "@mui/icons-material/Add";
 import SelectAllIcon from "@mui/icons-material/SelectAll";
 import { grey } from "@mui/material/colors";
 import { JobArrayContext, JobStatusContext } from "../../../Context/JobContext";
-import {
-  UserJobSnapshotContext,
-  UsersContext,
-} from "../../../Context/AuthContext";
+import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { useDnD } from "../../../Hooks/useDnD";
 import { useDrop } from "react-dnd";
-import { MultiSelectJobPlannerContext } from "../../../Context/LayoutContext";
+import {
+  ApplicationSettingsContext,
+  MultiSelectJobPlannerContext,
+} from "../../../Context/LayoutContext";
 import { ItemTypes } from "../../../Context/DnDTypes";
 import { CompactGroupAccordionContent } from "./Compact/CompactGroupAccordionContent";
 import { ClassicGroupAccordionContent } from "./Classic/ClassicGroupAccordionContent";
@@ -30,7 +29,7 @@ import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunction
 export function GroupAccordion({ groupJobs, groupPageRefresh }) {
   const { activeGroup } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
-  const { users } = useContext(UsersContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { jobArray } = useContext(JobArrayContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -165,7 +164,7 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              {parentUser.settings.layout.enableCompactView ? (
+              {applicationSettings.enableCompactView ? (
                 <CompactGroupAccordionContent
                   status={status}
                   statusJobs={statusJobs}

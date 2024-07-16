@@ -35,6 +35,22 @@ const GLOBAL_CONFIG = {
     { id: "dodixie", name: "Dodixie" },
     { id: "jita", name: "Jita" },
   ],
+  //Default market location.
+  //(String)
+  //Default: "jita"
+  //If using a custom location, this must match the defined name.
+  DEFAULT_MARKET_OPTION: "jita",
+
+  //Default order type.
+  //(String)
+  //Default: "sell"
+  //Options: "buy", "sell"
+  DEFAULT_ORDER_OPTION: "sell",
+
+  //Default asset location station id.
+  //(Int)
+  //Default: 60003760 (Jita 4-4)
+  DEFAULT_ASSET_LOCATION: 60003760,
 
   //Shows/Hides the feedback icon from the bottom right hand corner of the app.
   //(Boolean)

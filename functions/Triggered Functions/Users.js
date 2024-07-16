@@ -1,9 +1,9 @@
-
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const { GLOBAL_CONFIG } = require("../global-config-functions");
-
-const {
+import { initializeApp } from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
+import { HttpsError, onCall } from "firebase-functions/v1/https";
+import { error, log, warn } from "firebase-functions/logger";
+import { doc, setDoc } from "firebase/firestore";
+import {
   FIREBASE_SERVER_REGION,
   DEFAULT_CLOUD_ACCOUNTS,
   DEFAULT_MARKET_OPTION,
@@ -12,20 +12,26 @@ const {
   DEFAULT_CITADEL_BROKERS_FEE,
   DEFAULT_MANUFACTURING_STRUCTURES,
   DEFAULT_REACTION_STRUCTURES,
-} = GLOBAL_CONFIG;
+} from "../global-config-functions";
 
-exports.createUserData = functions
-  .region(FIREBASE_SERVER_REGION)
-  .https.onCall((data, context) => {
-    if (!context.app) {
-      functions.logger.warn("Unverified function Call");
-      functions.logger.warn(context);
-      throw new functions.https.HttpsError(
-        "Unable to verify",
-        "The function must be called from a verified app."
-      );
-    }
+const app = initializeApp();
+const db = getFirestore(app);
+
+const createUserData = onCall(
+  {
+    region: FIREBASE_SERVER_REGION,
+  },
+  (data, context) => {
     try {
+      if (!context.app) {
+        warn("Unverified function Call");
+        warn(context);
+        throw new HttpsError(
+          "Unable to verify",
+          "The function must be called from a verified app."
+        );
+      }
+
       const setupData = {
         accountID: context.auth.uid,
         jobStatusArray: [
@@ -99,41 +105,44 @@ exports.createUserData = functions
         refreshTokens: [],
       };
 
-      admin
-        .firestore()
-        .collection("Users")
-        .doc(context.auth.uid)
-        .set(setupData);
-      admin
-        .firestore()
-        .doc(`Users/${context.auth.uid}/ProfileInfo/Watchlist`)
-        .set({
-          groups: [],
-          items: [],
-        });
-      admin
-        .firestore()
-        .doc(`Users/${context.auth.uid}/ProfileInfo/JobSnapshot`)
-        .set({
-          snapshot: [],
-        });
-      admin
-        .firestore()
-        .doc(`Users/${context.auth.uid}/ProfileInfo/GroupData`)
-        .set({
-          groupData: [],
-        });
-      functions.logger.log(
-        `Account ${context.auth.uid} document created successfully`
+      const watchlistDocument = {
+        groups: [],
+        items: [],
+      };
+
+      const jobSnapshotDocument = {
+        snapshot: [],
+      };
+
+      const groupDataDocument = {
+        groupData: [],
+      };
+
+      setDoc(doc(db, "Users", context.auth.uid), setupData);
+
+      setDoc(
+        doc(db, `Users/${context.auth.uid}/ProfileInfo/Watchlist`),
+        watchlistDocument
       );
+
+      setDoc(
+        doc(db, `Users/${context.auth.uid}/ProfileInfo/JobSnapshot`),
+        jobSnapshotDocument
+      );
+
+      setDoc(
+        doc(db, `Users/${context.auth.uid}/ProfileInfo/GroupData`),
+        groupDataDocument
+      );
+
+      log(`Account ${context.auth.uid} document created successfully`);
       return setupData;
     } catch (err) {
-      functions.logger.error(
-        `Error When Creating User Account ${context.auth.uid}`
-      );
-      functions.logger.error(err);
-      throw new functions.https.HttpsError(
-        "Unable to setup account, please try again"
-      );
+      error(`Error When Creating User Account ${context.auth.uid}`);
+      error(err);
+      throw new HttpsError("Unable to setup account, please try again");
     }
-  });
+  }
+);
+
+export default createUserData;

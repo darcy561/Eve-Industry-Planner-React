@@ -24,25 +24,29 @@ import { useFirebase } from "../../../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 import uuid from "react-uuid";
+import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
 
 export function CompactEditJobSettings({ parentUserIndex }) {
-  const { users, updateUsers } = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
+  const { applicationSettings, updateApplicationSettings } = useContext(
+    ApplicationSettingsContext
+  );
   const { updateEveIDs } = useContext(EveIDsContext);
   const { getAssetLocationList } = useCharAssets();
-  const { updateMainUserDoc } = useFirebase();
+  const { uploadApplicationSettings } = useFirebase();
   const [marketSelect, updateMarketSelect] = useState(
-    users[parentUserIndex].settings.editJob.defaultMarket
+    applicationSettings.defaultMarket
   );
   const [listingSelect, updateListingSelect] = useState(
-    users[parentUserIndex].settings.editJob.defaultOrders
+    applicationSettings.defaultOrders
   );
   const [dataLoading, updateDataLoading] = useState(true);
   const [assetLocationSelect, updateAssetLocationSelect] = useState(
-    users[parentUserIndex].settings.editJob.defaultAssetLocation
+    applicationSettings.defaultAssetLocation
   );
   const [assetLocationEntries, updateAssetLocationEntries] = useState([]);
   const [defaultMaterialEfficiency, updateDefaultMaterialEfficiency] = useState(
-    users[parentUserIndex].settings.editJob?.defaultMaterialEfficiencyValue || 0
+    applicationSettings.defaultMaterialEfficiencyValue
   );
   const { findUniverseItemObject } = useHelperFunction();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
@@ -85,13 +89,12 @@ export function CompactEditJobSettings({ parentUserIndex }) {
                 variant="standard"
                 size="small"
                 onChange={(e) => {
-                  let newUsersArray = [...users];
-                  newUsersArray[
-                    parentUserIndex
-                  ].settings.editJob.defaultMarket = e.target.value;
+                  if (!e.target.value) return;
+                  const newApplicationSettings =
+                    applicationSettings.updateDefaultMarket(e.target.value);
                   updateMarketSelect(e.target.value);
-                  updateUsers(newUsersArray);
-                  updateMainUserDoc();
+                  updateApplicationSettings(newApplicationSettings);
+                  uploadApplicationSettings(newApplicationSettings);
                 }}
                 sx={{
                   width: "90px",
@@ -128,13 +131,12 @@ export function CompactEditJobSettings({ parentUserIndex }) {
                 variant="standard"
                 size="small"
                 onChange={(e) => {
-                  let newUsersArray = [...users];
-                  newUsersArray[
-                    parentUserIndex
-                  ].settings.editJob.defaultOrders = e.target.value;
+                  if (!e.target.value) return;
+                  const newApplicationSettings =
+                    applicationSettings.updateDefaultOrders(e.target.value);
                   updateListingSelect(e.target.value);
-                  updateUsers(newUsersArray);
-                  updateMainUserDoc();
+                  updateApplicationSettings(newApplicationSettings);
+                  uploadApplicationSettings(newApplicationSettings);
                 }}
                 sx={{
                   width: "120px",
@@ -164,19 +166,14 @@ export function CompactEditJobSettings({ parentUserIndex }) {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={
-                      users[parentUserIndex].settings.editJob
-                        .hideCompleteMaterials
-                    }
+                    checked={applicationSettings.hideCompleteMaterials}
                     color="primary"
                     onChange={(e) => {
-                      let newUsersArray = [...users];
-                      newUsersArray[
-                        parentUserIndex
-                      ].settings.editJob.hideCompleteMaterials =
-                        e.target.checked;
-                      updateUsers(newUsersArray);
-                      updateMainUserDoc();
+                      const newApplicationSettings =
+                        applicationSettings.toggleHideCompleteMaterials();
+
+                      updateApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettings(newApplicationSettings);
                     }}
                   />
                 }
@@ -218,13 +215,14 @@ export function CompactEditJobSettings({ parentUserIndex }) {
                   variant="standard"
                   size="small"
                   onChange={(e) => {
-                    let newUsersArray = [...users];
-                    newUsersArray[
-                      parentUserIndex
-                    ].settings.editJob.defaultAssetLocation = e.target.value;
+                    if (!e.target.value) return;
+                    const newApplicationSettings =
+                      applicationSettings.updateDefaultAssetLocation(
+                        e.target.value
+                      );
                     updateAssetLocationSelect(e.target.value);
-                    updateUsers(newUsersArray);
-                    updateMainUserDoc();
+                    updateApplicationSettings(newApplicationSettings);
+                    uploadApplicationSettings(newApplicationSettings);
                   }}
                 >
                   {assetLocationEntries.map((entry) => {
@@ -257,9 +255,7 @@ export function CompactEditJobSettings({ parentUserIndex }) {
             sx={{ marginTop: { xs: "20px", sm: "10px" } }}
           >
             <TextField
-              defaultValue={
-                users[parentUserIndex].settings.editJob.citadelBrokersFee
-              }
+              defaultValue={applicationSettings.citadelBrokersFee}
               size="small"
               variant="standard"
               sx={{
@@ -274,14 +270,15 @@ export function CompactEditJobSettings({ parentUserIndex }) {
               helperText="Citadel Brokers Fee Percentage"
               type="number"
               onBlur={(e) => {
-                let newUsersArray = [...users];
-                newUsersArray[
-                  parentUserIndex
-                ].settings.editJob.citadelBrokersFee =
-                  Math.round((Number(e.target.value) + Number.EPSILON) * 100) /
-                  100;
-                updateUsers(newUsersArray);
-                updateMainUserDoc();
+                if (!e.target.value) return;
+                const newApplicationSettings =
+                  applicationSettings.updateCitadelBrokersFee(
+                    Math.round(
+                      (Number(e.target.value) + Number.EPSILON) * 100
+                    ) / 100
+                  );
+                updateApplicationSettings(newApplicationSettings);
+                uploadApplicationSettings(newApplicationSettings);
               }}
             />
           </Grid>
@@ -298,14 +295,14 @@ export function CompactEditJobSettings({ parentUserIndex }) {
                 variant="standard"
                 size="small"
                 onChange={(e) => {
-                  let newUsersArray = [...users];
-                  newUsersArray[
-                    parentUserIndex
-                  ].settings.editJob.defaultMaterialEfficiencyValue =
-                    e.target.value;
+                  if (!e.target.value) return;
+                  const newApplicationSettings =
+                    applicationSettings.updateDefaultMaterialEfficiencyValue(
+                      e.target.value
+                    );
                   updateDefaultMaterialEfficiency(e.target.value);
-                  updateUsers(newUsersArray);
-                  updateMainUserDoc();
+                  updateApplicationSettings(newApplicationSettings);
+                  uploadApplicationSettings(newApplicationSettings);
                 }}
               >
                 {blueprintOptions.me.map((i) => {

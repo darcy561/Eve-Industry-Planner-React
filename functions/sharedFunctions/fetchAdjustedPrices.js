@@ -1,5 +1,5 @@
-import { ref } from "firebase/database";
-import { error } from ("firebase-functions/logger");
+import { ref, set } from "firebase/database";
+import { error } from "firebase-functions/logger";
 import axios from "axios";
 
 async function ESIItemAdjustedPriceQuery(selectedDatabase) {
@@ -46,7 +46,10 @@ function buildDatabaseObject(initialArray) {
 
 async function saveAdjustedPriceToDatabase(databaseObject, selectedDatabase) {
   try {
-    await ref(selectedDatabase, `live-data/adjusted-prices`).set(databaseObject);
+    await set(
+      ref(selectedDatabase, `live-data/adjusted-prices`),
+      databaseObject
+    );
   } catch (err) {
     error(err);
   }

@@ -1,12 +1,11 @@
-import { initializeApp } from "firebase-admin";
+import { getDatabase } from "firebase-admin/database";
 import { error, log } from "firebase-functions/logger";
-import { getDatabase } from "firebase/database";
-import buildMissingSystemIndexValue from "../../sharedFunctions/misingSystemIndexValue";
+import { get, ref } from "firebase/database";
+import buildMissingSystemIndexValue from "../../sharedFunctions/misingSystemIndexValue.js";
 
 async function retrieveMultipleSystemIndexes(req, res) {
   try {
-    const app = initializeApp();
-    const db = getDatabase(app);
+    const db = getDatabase();
 
     const { idArray } = req.body;
 
@@ -17,7 +16,7 @@ async function retrieveMultipleSystemIndexes(req, res) {
     const results = {};
 
     const databaseRequests = idArray.map((id) =>
-      ref(db, `live-data/system-indexes/${id}`).once("value")
+      get(ref(db, `live-data/system-indexes/${id}`))
     );
 
     const databaseResponses = await Promise.all(databaseRequests);

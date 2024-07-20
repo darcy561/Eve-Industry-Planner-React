@@ -1,13 +1,13 @@
-import { initializeApp } from "firebase-admin";
+import { getDatabase } from "firebase-admin/database";
 import { error, log, warn } from "firebase-functions/logger";
-import { getDatabase, ref } from "firebase/database";
-import ESIMarketQuery from "../../sharedFunctions/fetchMarketPrices";
-import ESIMarketHistoryQuery from "../../sharedFunctions/fetchMarketHistory";
+import { get, ref } from "firebase/database";
+import ESIMarketQuery from "../../sharedFunctions/fetchMarketPrices.js";
+import ESIMarketHistoryQuery from "../../sharedFunctions/fetchMarketHistory.js";
+import { DEFAULT_MARKET_LOCATIONS } from "../../global-config-functions.js";
 
 async function marketData(req, res) {
   try {
-    const app = initializeApp();
-    const db = getDatabase(app);
+    const db = getDatabase();
 
     const { idArray: requestedIDs } = req.body;
     if (
@@ -19,13 +19,13 @@ async function marketData(req, res) {
     }
 
     const databaseMarketPricesQueryPromises = requestedIDs.map((id) =>
-      ref(db, `live-data/market-prices/${id}`).once("value")
+      get(ref(db, `live-data/market-prices/${id}`))
     );
     const databaseMarketHistoryQueryPromises = requestedIDs.map((id) =>
-      ref(db, `live-data/market-history/${id}`).once("value")
+      get(ref(db, `live-data/market-history/${id}`))
     );
     const databaseAdjustedPricesQueryPromises = requestedIDs.map((id) =>
-      ref(db, `live-data/adjusted-prices/${id}`).once("value")
+      get(ref(db, `live-data/adjusted-prices/${id}`))
     );
 
     const databaseMarketPricesQueryResolves = await Promise.all(
@@ -48,10 +48,10 @@ async function marketData(req, res) {
       );
 
     const missingPricePromises = missingIDs.map((id) =>
-      ESIMarketQuery(id.toString())
+      ESIMarketQuery(id.toString(), db)
     );
     const missingHistoryPromises = missingIDs.map((id) =>
-      ESIMarketHistoryQuery(id.toString())
+      ESIMarketHistoryQuery(id.toString(), db)
     );
 
     const missingPriceResolves = await Promise.all(missingPricePromises);

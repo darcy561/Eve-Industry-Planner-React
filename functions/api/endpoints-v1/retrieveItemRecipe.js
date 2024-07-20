@@ -1,18 +1,16 @@
-import { initializeApp } from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 import { error } from "firebase-functions/logger";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 async function retrieveItemRecipe(req, res) {
   try {
-    const app = initializeApp();
-    const db = getFirestore(app);
+    const db = getFirestore();
 
     const { itemID } = req.params;
     if (!itemID) {
       return res.status(400).send("Item Data Missing From Request");
     }
-    const docRef = doc(db, "Items", itemID);
-    const docSnap = await getDoc(docRef);
+    const docSnap = await getDoc(doc(db, "Items", itemID));
 
     if (docSnap.exists()) {
       const response = docSnap.data();

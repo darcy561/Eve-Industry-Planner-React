@@ -1,6 +1,5 @@
-import logErrorAndRespond from "../api/logErrorMessage";
-import { getAppCheck } from("firebase-admin/app-check");
-
+import logErrorAndRespond from "../api/logErrorMessage.js";
+import { getAppCheck } from "firebase-admin/app-check";
 
 async function appCheckVerification(req, res, next) {
   const appCheckClaims = await verifyAppCheckToken(

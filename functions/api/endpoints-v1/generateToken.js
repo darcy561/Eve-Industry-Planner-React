@@ -23,4 +23,4 @@ async function generateFirebaseToken(req, res) {
   }
 }
 
-export default generateFirebaseToken
+export default generateFirebaseToken;

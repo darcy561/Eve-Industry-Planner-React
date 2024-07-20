@@ -1,6 +1,7 @@
 {
   "name": "functions",
   "description": "Cloud Functions for Firebase",
+  "type": "module",
   "scripts": {
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
@@ -12,13 +13,13 @@
   "engines": {
     "node": "20"
   },
-  "type":"module",
   "main": "index.js",
   "dependencies": {
     "@google-cloud/storage": "^7.11.2",
     "axios": "^1.7.2",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
+    "firebase": "^10.12.2",
     "firebase-admin": "^12.2.0",
     "firebase-functions": "^5.0.1",
     "firebase-tools": "^13.11.4",

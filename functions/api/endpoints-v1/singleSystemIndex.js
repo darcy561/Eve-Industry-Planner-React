@@ -1,11 +1,10 @@
-import { initializeApp } from "firebase-admin";
+import { getDatabase } from "firebase-admin/database";
 import { log } from "firebase-functions/logger";
-import { getDatabase, ref } from "firebase/database";
-import buildMissingSystemIndexValue from "../../sharedFunctions/misingSystemIndexValue";
+import { get, ref } from "firebase/database";
+import buildMissingSystemIndexValue from "../../sharedFunctions/misingSystemIndexValue.js";
 
 async function retrieveSystemIndex(req, res) {
   try {
-    const app = initializeApp();
     const db = getDatabase();
     const systemID = req.params.systemID;
 
@@ -13,10 +12,9 @@ async function retrieveSystemIndex(req, res) {
       return res.status(400).send("Invalid System ID");
     }
 
-    const idResponse = await ref(
-      db,
-      `live-data/system-indexes/${systemID}`
-    ).once("value");
+    const idResponse = await get(
+      ref(db, `live-data/system-indexes/${systemID}`)
+    );
 
     const idData = idResponse.val();
 

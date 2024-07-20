@@ -1,10 +1,9 @@
-import { initializeApp } from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 import { error, log } from "firebase-functions/logger";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 async function retrieveMultipleItemRecipies(req, res) {
   try {
-    const app = initializeApp();
     const db = getFirestore(app);
 
     const { idArray } = req.body;
@@ -15,10 +14,9 @@ async function retrieveMultipleItemRecipies(req, res) {
     const missingIDs = [];
     const returnIDs = new Set(req.body.idArray);
 
-    const promises = idArray.map((id) => {
-      const docRef = doc(db, "Items", id.toString());
-      return getDoc(docRef);
-    });
+    const promises = idArray.map((id) =>
+      getDoc(doc(db, "Items", id.toString()))
+    );
 
     const results = await Promise.all(promises);
 
@@ -55,4 +53,4 @@ async function retrieveMultipleItemRecipies(req, res) {
   }
 }
 
-export default retrieveMultipleItemRecipies
+export default retrieveMultipleItemRecipies;

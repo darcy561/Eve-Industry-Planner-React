@@ -24,8 +24,8 @@ export function useMarketOrderFunctions() {
     this.order_id = null;
     this.journal_ref_id = trans.journal_ref_id;
     this.unit_price = trans.unit_price;
-    this.amount = journal.amount || 0;
-    this.tax = Math.abs(tax.amount) || 0;
+    this.amount = journal?.amount || 0;
+    this.tax = Math.abs(tax?.amount) || 0;
     this.transaction_id = trans.transaction_id;
     this.quantity = trans.quantity;
     this.date = trans.date;

@@ -1,8 +1,10 @@
-import { ref } from "firebase/database";
+import { ref, set } from "firebase/database";
 import { error } from "firebase-functions/logger";
 import axios from "axios";
-import { DEFAULT_MARKET_LOCATIONS, DEFAULT_DAYS_FOR_MARKET_HISTORY } from ("../global-config-functions");
-
+import {
+  DEFAULT_MARKET_LOCATIONS,
+  DEFAULT_DAYS_FOR_MARKET_HISTORY,
+} from "../global-config-functions.js";
 
 async function ESIMarketHistoryQuery(typeID, selectedDatabase) {
   try {
@@ -12,7 +14,7 @@ async function ESIMarketHistoryQuery(typeID, selectedDatabase) {
       fetchMarketHistory(typeID, location.regionID)
     );
 
-    const responses = await Promise.all(promises);  
+    const responses = await Promise.all(promises);
 
     for (let i = 0; i < responses.length; i++) {
       const location = DEFAULT_MARKET_LOCATIONS[i];
@@ -41,7 +43,7 @@ async function ESIMarketHistoryQuery(typeID, selectedDatabase) {
     await saveMarketHistoryToDatabase(typeID, dbObject, selectedDatabase);
     return dbObject;
   } catch (err) {
-   error(`An error occured: ${err}`);
+    error(`An error occured: ${err}`);
     return null;
   }
 }
@@ -107,14 +109,15 @@ function getAverageMarketData(marketData) {
 }
 
 async function saveMarketHistoryToDatabase(typeID, dbObject, selectedDatabase) {
+
   try {
-    await 
-      ref(selectedDatabase, `live-data/market-history/${typeID.toString()}`)
-      .set(dbObject);
+    await set(
+      ref(selectedDatabase, `live-data/market-history/${typeID.toString()}`),
+      dbObject
+    );
   } catch (err) {
     error(err);
   }
 }
 
 export default ESIMarketHistoryQuery;
-

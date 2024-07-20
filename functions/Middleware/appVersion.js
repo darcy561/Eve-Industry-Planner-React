@@ -1,5 +1,5 @@
-import logErrorAndRespond from "../api/logErrorMessage";
-import checkAppVersion from "../sharedFunctions/appVersion";
+import logErrorAndRespond from "../api/logErrorMessage.js";
+import checkAppVersion from "../sharedFunctions/appVersion.js";
 
 function checkVersion(req, res, next) {
   let verify = checkAppVersion(req.header("appVersion"));

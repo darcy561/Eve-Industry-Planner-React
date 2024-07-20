@@ -38,7 +38,7 @@ export function useBlueprintCalc() {
           "reactionRigs",
           calcData.rigID
         );
-        const reactionSystemData = getStructureData(
+        const reactionSystemData = getSystemData(
           "reactionSystem",
           calcData.systemTypeID
         );
@@ -80,7 +80,10 @@ export function useBlueprintCalc() {
       systemMultiplyer
     ) {
       const meModifier = 1 - (rigType / 100) * systemMultiplyer;
-      return Math.max(Math.ceil(itemRuns * baseQty * meModifier) * itemJobs, 1);
+      const materialTotal =
+        baseQty === 1 ? itemRuns * baseQty : itemRuns * baseQty * meModifier;
+
+      return Math.max(Math.ceil(materialTotal) * itemJobs, 1);
     }
 
     function updateMaterialQuantities(materialCount, calculateMaterial) {
@@ -97,7 +100,6 @@ export function useBlueprintCalc() {
   function getStructureData(materialType, id) {
     return structureOptions[materialType][id]?.material || 0;
   }
-
   const calculateTime = (calcData, jobSkills) => {
     let user =
       users.find((i) => i.CharacterHash === calcData.selectedCharacter) ||

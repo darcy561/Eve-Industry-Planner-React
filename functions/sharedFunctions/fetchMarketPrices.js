@@ -1,8 +1,10 @@
-import { ref } from ("firebase/database");
-import { error } from ("firebase-functions/logger");
+import { ref, set } from "firebase/database";
+import { error } from "firebase-functions/logger";
 import axios from "axios";
-import { DEFAULT_MARKET_LOCATIONS, ESI_MAX_PAGES } from ("../global-config-functions");
-
+import {
+  DEFAULT_MARKET_LOCATIONS,
+  ESI_MAX_PAGES,
+} from "../global-config-functions.js";
 
 async function ESIMarketQuery(typeID, selectedDatabase) {
   const dbObject = { typeID: Number(typeID), lastUpdated: Date.now() };
@@ -80,10 +82,10 @@ async function saveMarketPricesToDatabase(
   selectedDatabase
 ) {
   try {
-    await ref(
-      selectedDatabase,
-      `live-data/market-prices/${typeID.toString()}`
-    ).set(marketPrices);
+    await set(
+      ref(selectedDatabase, `live-data/market-prices/${typeID.toString()}`),
+      marketPrices
+    );
   } catch (err) {
     error(err);
   }

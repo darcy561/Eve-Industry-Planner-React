@@ -1,4 +1,4 @@
-import { APP_VERSION } from "../global-config-functions";
+import { APP_VERSION } from "../global-config-functions.js";
 
 function checkAppVersion(requestedAppVersion) {
   if (requestedAppVersion !== APP_VERSION) {

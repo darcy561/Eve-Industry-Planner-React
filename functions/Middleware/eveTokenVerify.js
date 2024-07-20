@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { JwksClient } from "jwks-rsa";
 import { log } from "firebase-functions/logger";
-import logErrorAndRespond from "../api/logErrorMessage";
+import logErrorAndRespond from "../api/logErrorMessage.js";
 
 async function verifyEveToken(req, res, next) {
   try {

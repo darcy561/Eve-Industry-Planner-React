@@ -1,6 +1,7 @@
 import { Grid, IconButton, Typography } from "@mui/material";
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
+import { STANDARD_TEXT_FORMAT } from "../../../../../../../Context/defaultValues";
 
 export function ChildJobSwitcher_ChildJobPopoverFrame({
   childJobObjects,
@@ -27,7 +28,7 @@ export function ChildJobSwitcher_ChildJobPopoverFrame({
           justifyContent="center"
           alignItems="center"
         >
-          <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+          <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             Toggle Child Jobs
           </Typography>
         </Grid>

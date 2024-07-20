@@ -46,6 +46,7 @@ function AddNewJobContentPanel({
   }
 
   function addItemToSelection(inputID) {
+    if(!inputID) return
     const newItemsToAdd = [...itemIDsToAdd];
 
     const existingObject = newItemsToAdd.find((i) => i.itemID === inputID);

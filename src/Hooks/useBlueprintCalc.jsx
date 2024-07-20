@@ -38,7 +38,7 @@ export function useBlueprintCalc() {
           "reactionRigs",
           calcData.rigID
         );
-        const reactionSystemData = getStructureData(
+        const reactionSystemData = getSystemData(
           "reactionSystem",
           calcData.systemTypeID
         );

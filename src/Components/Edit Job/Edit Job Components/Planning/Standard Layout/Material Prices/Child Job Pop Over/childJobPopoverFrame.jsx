@@ -13,6 +13,8 @@ import { useMaterialCostCalculations } from "../../../../../../../Hooks/GeneralH
 import { useManageGroupJobs } from "../../../../../../../Hooks/GroupHooks/useManageGroupJobs";
 import { ButtonSelectionLogic_ChildJobPopoverFrame } from "./buttonSelectionLogic";
 import { useHelperFunction } from "../../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../../../../../../Context/LayoutContext";
+import { STANDARD_TEXT_FORMAT } from "../../../../../../../Context/defaultValues";
 
 export function ChildJobPopoverFrame({
   activeJob,
@@ -35,6 +37,7 @@ export function ChildJobPopoverFrame({
   updateParentChildToEdit,
 }) {
   const { jobArray } = useContext(JobArrayContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const [tempPrices, updateTempPrices] = useState([]);
   const [jobImportState, updateJobImportState] = useState(false);
   const [jobDisplay, setJobDisplay] = useState(0);
@@ -146,15 +149,24 @@ export function ChildJobPopoverFrame({
           <Grid container direction="row">
             <Grid item xs={12} sx={{ marginBottom: "10px" }}>
               <Typography
-                sx={{ typography: { xs: "caption", sm: "body2" } }}
+                sx={{ typography: STANDARD_TEXT_FORMAT }}
                 align="center"
               >
                 {material.name}
               </Typography>
+              {applicationSettings.checkTypeIDisExempt(material.typeID) && (
+                <Typography
+                  sx={{ typography: STANDARD_TEXT_FORMAT }}
+                  align="center"
+                  color="warning.main"
+                >
+                  Material has been marked as exempt from builds.
+                </Typography>
+              )}
             </Grid>
             <Grid container item xs={12} sx={{ marginBottom: "10px" }}>
               <Grid item xs={6}>
-                <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
+                <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                   <b>Item Quantity Required: {material.quantity}</b>
                 </Typography>
               </Grid>

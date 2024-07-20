@@ -75,6 +75,7 @@ export function useJobManagement() {
     let newUserJobSnapshot = [...userJobSnapshot];
     let newJobArray = [...jobArray];
     let jobsToSave = new Set();
+    let materialsIgnored = new Set();
 
     for (let inputJobID of inputJobIDs) {
       if (inputJobID.includes("group")) continue;
@@ -94,6 +95,10 @@ export function useJobManagement() {
           return;
         }
         if (!isItemBuildable(material.jobType)) {
+          return;
+        }
+        if (applicationSettings.checkTypeIDisExempt(material.typeID)) {
+          materialsIgnored.add(material.typeID);
           return;
         }
 
@@ -212,7 +217,14 @@ export function useJobManagement() {
       ...prev,
       open: false,
     }));
-    sendSnackbarNotificationSuccess(`${childJobs.length} Job/Jobs Added`, 3);
+
+    const jobWord = childJobs.length === 1 ? "Job" : "Jobs";
+    const materialWord = materialsIgnored.size === 1 ? "Material" : "Materials";
+
+    sendSnackbarNotificationSuccess(
+      `${childJobs.length} ${jobWord} Added, ${materialsIgnored.size} ${materialWord} Ignored.`,
+      3
+    );
     r.stop();
   };
 

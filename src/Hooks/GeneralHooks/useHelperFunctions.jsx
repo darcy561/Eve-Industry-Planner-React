@@ -270,11 +270,9 @@ export function useHelperFunction() {
   }
 
   function getTotalCompleteMaterialsFromJob(inputJob) {
-    return inputJob.build.materials.reduce((prev, material) => {
-      if (material.purchaseComplete) {
-        return prev++;
-      }
-    }, 0);
+    return inputJob.build.materials.filter(
+      (material) => material.purchaseComplete
+    ).length;
   }
 
   return {

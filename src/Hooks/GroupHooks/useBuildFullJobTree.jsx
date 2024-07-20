@@ -7,12 +7,14 @@ import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useFirebase } from "../useFirebase";
 import { useManageGroupJobs } from "./useManageGroupJobs";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 
 export function useBuildFullJobTree() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { activeGroup } = useContext(ActiveJobContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { buildJob } = useJobBuild();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
   const { addNewJob } = useFirebase();
@@ -83,6 +85,9 @@ export function useBuildFullJobTree() {
       if (!job) continue;
 
       const childJobData = job.build.materials.reduce((output, material) => {
+        if (applicationSettings.checkTypeIDisExempt(material.typeID)) {
+          return output;
+        }
         if (
           material.jobType === jobTypes.manufacturing ||
           material.jobType === jobTypes.reaction
@@ -120,6 +125,9 @@ export function useBuildFullJobTree() {
           material.jobType !== jobTypes.manufacturing &&
           material.jobType !== jobTypes.reaction
         ) {
+          return;
+        }
+        if (applicationSettings.checkTypeIDisExempt(material.typeID)) {
           return;
         }
 

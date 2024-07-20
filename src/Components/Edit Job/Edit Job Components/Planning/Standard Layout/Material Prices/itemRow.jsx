@@ -1,12 +1,18 @@
 import { useContext, useState } from "react";
 import { Grid, Icon, Tooltip, Typography } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
-import { jobTypes } from "../../../../../../Context/defaultValues";
+import {
+  jobTypes,
+  LARGE_TEXT_FORMAT,
+  STANDARD_TEXT_FORMAT,
+  TWO_DECIMAL_PLACES,
+} from "../../../../../../Context/defaultValues";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import { ChildJobPopoverFrame } from "./Child Job Pop Over/childJobPopoverFrame";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
 import { useMaterialCostCalculations } from "../../../../../../Hooks/GeneralHooks/useMaterialCostCalculations";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../../../../../Context/LayoutContext";
 
 const { PRIMARY_THEME, SECONDARY_THEME } = GLOBAL_CONFIG;
 
@@ -27,9 +33,10 @@ export function MaterialCostRow_MaterialPricePanel({
   updateParentChildToEdit,
 }) {
   const { jobArray } = useContext(JobArrayContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const [displayPopover, updateDisplayPopover] = useState(null);
   const { calculateMaterialCostFromChildJobs } = useMaterialCostCalculations();
-  const { findItemPriceObject } = useHelperFunction();
+  const { findItemPriceObject, isItemBuildable } = useHelperFunction();
 
   const itemPriceObject = findItemPriceObject(material.typeID);
   const marketObject = itemPriceObject[marketSelect];
@@ -107,7 +114,7 @@ export function MaterialCostRow_MaterialPricePanel({
       </Grid>
       <Grid container item xs={10} md={4} align="left">
         <Grid item xs={11} alignItems="center" sx={{ display: "flex" }}>
-          <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
+          <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
             {material.name}
           </Typography>
         </Grid>
@@ -118,8 +125,7 @@ export function MaterialCostRow_MaterialPricePanel({
           justifyContent="center"
           sx={{ display: "flex" }}
         >
-          {material.jobType === jobTypes.manufacturing ||
-          material.jobType === jobTypes.reaction ? (
+          {isItemBuildable(material.jobType) ? (
             <>
               <Tooltip
                 title="Click To Compare Material Build Cost"
@@ -128,7 +134,11 @@ export function MaterialCostRow_MaterialPricePanel({
               >
                 <Icon
                   aria-haspopup="true"
-                  color="primary"
+                  color={
+                    applicationSettings.checkTypeIDisExempt(material.typeID)
+                      ? "warning"
+                      : "primary"
+                  }
                   onClick={(event) => {
                     updateDisplayPopover(event.currentTarget);
                   }}
@@ -206,25 +216,24 @@ export function MaterialCostRow_MaterialPricePanel({
             placement="top"
           >
             <Typography
-              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              sx={{ typography: STANDARD_TEXT_FORMAT }}
               color={selectTextHighlight(
                 currentMaterialPrice,
                 productionCostPerItem,
                 true
               )}
             >
-              {currentMaterialPrice.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {currentMaterialPrice.toLocaleString(
+                undefined,
+                TWO_DECIMAL_PLACES
+              )}
             </Typography>
           </Tooltip>
         </Grid>
-        {(material.jobType === jobTypes.manufacturing ||
-          material.jobType === jobTypes.reaction) && (
+        {isItemBuildable(material.jobType) && (
           <Grid item xs={12} sx={{ marginTop: 1 }}>
             <Typography
-              sx={{ typography: { xs: "caption", sm: "body2" } }}
+              sx={{ typography: STANDARD_TEXT_FORMAT }}
               color={selectTextHighlight(
                 currentMaterialPrice,
                 productionCostPerItem,
@@ -233,10 +242,10 @@ export function MaterialCostRow_MaterialPricePanel({
             >
               <i>
                 {matchedChildJobs.length > 0
-                  ? productionCostPerItem.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
+                  ? productionCostPerItem.toLocaleString(
+                      undefined,
+                      TWO_DECIMAL_PLACES
+                    )
                   : "-"}
               </i>
             </Typography>
@@ -255,21 +264,17 @@ export function MaterialCostRow_MaterialPricePanel({
       >
         <Grid item xs={12}>
           <Typography
-            sx={{ typography: { xs: "caption", sm: "body2" } }}
+            sx={{ typography: STANDARD_TEXT_FORMAT }}
             color={selectTextHighlight(
               currentMaterialPrice,
               productionCostPerItem,
               true
             )}
           >
-            {totalPurchaseCost.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {totalPurchaseCost.toLocaleString(undefined, TWO_DECIMAL_PLACES)}
           </Typography>
         </Grid>
-        {(material.jobType === jobTypes.manufacturing ||
-          material.jobType === jobTypes.reaction) && (
+        {isItemBuildable(material.jobType) && (
           <Grid item xs={12}>
             <Typography
               sx={{ typography: { xs: "caption", sm: "body2" } }}
@@ -283,10 +288,7 @@ export function MaterialCostRow_MaterialPricePanel({
                 {matchedChildJobIDs.length > 0
                   ? (productionCostPerItem * material.quantity).toLocaleString(
                       undefined,
-                      {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      }
+                      TWO_DECIMAL_PLACES
                     )
                   : "-"}
               </i>

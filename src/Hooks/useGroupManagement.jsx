@@ -12,6 +12,7 @@ import { useJobBuild } from "./useJobBuild";
 import uuid from "react-uuid";
 import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
+import createGroupObject from "./GroupHooks/groupsConstructor";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -121,9 +122,12 @@ export function useGroupManagement() {
       jobsToSave.add(inputJob.jobID);
       outputJobCount++;
     }
+
     if (outputJobNames.length === 0) {
       outputJobNames.push("Untitled Group");
     }
+    const groupObject = createGroupObject();
+    console.log(groupObject);
     let newGroupEntry = {
       ...new newJobGroupTemplate(
         assignedGroupID,

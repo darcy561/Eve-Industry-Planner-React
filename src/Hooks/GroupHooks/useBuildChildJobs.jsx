@@ -10,6 +10,7 @@ import { useJobBuild } from "../useJobBuild";
 import { useFirebase } from "../useFirebase";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
+import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 
 export function useBuildChildJobs() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
@@ -17,13 +18,14 @@ export function useBuildChildJobs() {
   const { activeGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { findJobData } = useFindJobObject();
   const { buildJob } = useJobBuild();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
   const { addNewJob, uploadJob } = useFirebase();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
-  const buildChildJobs = async (inputJobIDs) => {
+  async function buildChildJobs(inputJobIDs) {
     const existingGroupData = await calculateExistingTypeIDs();
     const { buildRequests, jobsToBeModified } = await calculateNeededJobs(
       inputJobIDs,
@@ -89,7 +91,7 @@ export function useBuildChildJobs() {
     if (jobsToBeModified.length === 0 && buildRequests.length === 0) {
       sendSnackbarNotificationSuccess(`Job Tree Complete`, 3);
     }
-  };
+  }
 
   async function calculateExistingTypeIDs() {
     const resultMap = new Map();
@@ -112,6 +114,9 @@ export function useBuildChildJobs() {
       }
 
       const childJobData = job.build.materials.reduce((output, material) => {
+        if (applicationSettings.checkTypeIDisExempt(material.typeID)) {
+          return output;
+        }
         if (
           material.jobType === jobTypes.manufacturing ||
           material.jobType === jobTypes.reaction
@@ -159,6 +164,9 @@ export function useBuildChildJobs() {
           material.jobType !== jobTypes.manufacturing &&
           material.jobType !== jobTypes.reaction
         ) {
+          return;
+        }
+        if (applicationSettings.checkTypeIDisExempt(material.typeID)) {
           return;
         }
 
@@ -247,41 +255,41 @@ export function useBuildChildJobs() {
     return newJobArray;
   }
 
+  function addMaterialToBuild(material, activeGroupID, parentJobID) {
+    const newObject = {
+      name: material.name,
+      itemID: material.typeID,
+      itemQty: material.quantity,
+      parentJobs: new Set([parentJobID]),
+      childJobs: [],
+      groupID: activeGroupID,
+    };
+
+    return newObject;
+  }
+
+  function updateMaterialToBuild(material, existingBuildObject, parentJobID) {
+    existingBuildObject.parentJobs.add(parentJobID);
+    existingBuildObject.itemQty += material.quantity;
+
+    return existingBuildObject;
+  }
+
+  function linkNewJobsToParent(newJobs, jobArray) {
+    for (let { parentJob, jobID, itemID } of newJobs) {
+      for (let parentJobID of parentJob) {
+        let parentMatch = jobArray.find((i) => i.jobID === parentJobID);
+        if (!parentMatch) continue;
+
+        parentMatch.build.childJobs[itemID] = [
+          ...new Set([...parentMatch.build.childJobs[itemID], jobID]),
+        ];
+      }
+    }
+    return jobArray;
+  }
+
   return {
     buildChildJobs,
   };
-}
-
-function addMaterialToBuild(material, activeGroupID, parentJobID) {
-  const newObject = {
-    name: material.name,
-    itemID: material.typeID,
-    itemQty: material.quantity,
-    parentJobs: new Set([parentJobID]),
-    childJobs: [],
-    groupID: activeGroupID,
-  };
-
-  return newObject;
-}
-
-function updateMaterialToBuild(material, existingBuildObject, parentJobID) {
-  existingBuildObject.parentJobs.add(parentJobID);
-  existingBuildObject.itemQty += material.quantity;
-
-  return existingBuildObject;
-}
-
-function linkNewJobsToParent(newJobs, jobArray) {
-  for (let { parentJob, jobID, itemID } of newJobs) {
-    for (let parentJobID of parentJob) {
-      let parentMatch = jobArray.find((i) => i.jobID === parentJobID);
-      if (!parentMatch) continue;
-
-      parentMatch.build.childJobs[itemID] = [
-        ...new Set([...parentMatch.build.childJobs[itemID], jobID]),
-      ];
-    }
-  }
-  return jobArray;
 }

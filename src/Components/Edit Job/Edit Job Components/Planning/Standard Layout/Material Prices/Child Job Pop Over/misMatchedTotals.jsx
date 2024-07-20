@@ -1,4 +1,5 @@
 import { Grid, Typography } from "@mui/material";
+import { SMALL_TEXT_FORMAT } from "../../../../../../../Context/defaultValues";
 
 export function DisplayMismatchedChildTotals_ChildJobPopoverFrame({
   materialQuantity,
@@ -10,24 +11,24 @@ export function DisplayMismatchedChildTotals_ChildJobPopoverFrame({
       <Grid container sx={{ marginTop: "20px" }}>
         <Grid container item xs={12}>
           <Grid item xs={12} sm={8}>
-            <Typography sx={{ typography: { xs: "caption", sm: "caption" } }}>
+            <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
               Total Items Produced By Child Job{" "}
             </Typography>
           </Grid>
           <Grid item xs={12} sm={4} align="right">
-            <Typography sx={{ typography: { xs: "caption", sm: "caption" } }}>
-              {totalItemsProduced.toLocaleString()} 
+            <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
+              {totalItemsProduced.toLocaleString()}
             </Typography>
           </Grid>
         </Grid>
         <Grid container item xs={12}>
           <Grid item xs={12} sm={8}>
-            <Typography sx={{ typography: { xs: "caption", sm: "caption" } }}>
+            <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
               Total Estimated Cost
             </Typography>
           </Grid>
           <Grid item xs={12} sm={4} align="right">
-            <Typography sx={{ typography: { xs: "caption", sm: "caption" } }}>
+            <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
               {totalCostPerItem.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,

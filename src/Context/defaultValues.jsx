@@ -639,6 +639,7 @@ export const ZERO_TWO_DECIMAL_PLACES = {
   maximumFractionDigits: 2,
 };
 
+export const SMALL_TEXT_FORMAT = { xs: "caption" };
 export const STANDARD_TEXT_FORMAT = { xs: "caption", sm: "body2" };
 export const LARGE_TEXT_FORMAT = { xs: "caption", sm: "body1" };
 

@@ -46,6 +46,7 @@ import {
   convertApplicationSettingsToDocument,
   importApplicationSettingsFromDocument,
 } from "./Account Management Hooks/Application Settings/applicationSettingsConstructor";
+import createGroupObject from "./GroupHooks/groupsConstructor";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -753,7 +754,10 @@ export function useFirebase() {
             let newLinkedOrderIDs = new Set();
             let newLinkedJobIDs = new Set();
             let newLinkedTransIDs = new Set();
+
             for (let group of groupData) {
+              const groupObject = createGroupObject(group);
+              console.log(groupObject);
               group.areComplete = group.areComplete.map(String);
               group.includedJobIDs = group.includedJobIDs.map(String);
               group?.linkedJobIDs?.forEach((id) => {

@@ -164,7 +164,7 @@ export function GroupOptionsBar({
                   if (multiSelectJobPlanner.length > 0) {
                     await buildChildJobs(multiSelectJobPlanner);
                   } else {
-                    await buildNextJobs(activeGroupObject.includedJobIDs);
+                    await buildChildJobs(activeGroupObject.includedJobIDs);
                   }
                   updateShowProcessing((prev) => !prev);
                 }}

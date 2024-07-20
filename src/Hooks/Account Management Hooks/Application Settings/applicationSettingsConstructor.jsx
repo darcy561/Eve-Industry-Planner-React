@@ -51,6 +51,7 @@ class ApplicationSettings {
       [];
     this.reactionStructures =
       settings?.structures?.reaction || settings?.reactionStructures || [];
+    this.exemptTypeIDs = new Set(settings?.exemptTypeIDs || []);
   }
 
   toggleCloudAccounts() {
@@ -144,6 +145,18 @@ class ApplicationSettings {
       ...this,
       citadelBrokersFee: newValue,
     });
+  }
+
+  updateExemptTypeIDs(newValue) {
+    if (!newValue) return this;
+    this.exemptTypeIDs.add(newValue);
+    return new ApplicationSettings(this);
+  }
+
+  checkTypeIDisExempt(inputTypeID) {
+    if (!inputTypeID) return false;
+
+    return this.exemptTypeIDs.has(inputTypeID);
   }
 
   addCustomManufacturingStructure(structure) {
@@ -289,7 +302,11 @@ export function convertApplicationSettingsToDocument(settingsObject) {
     hideTutorials,
     localMarketDisplay,
     localOrderDisplay,
+    manufacturingStructures,
+    reactionStructures,
+    exemptTypeIDs,
   } = settingsObject;
+
   return {
     account: {
       cloudAccounts,
@@ -310,8 +327,9 @@ export function convertApplicationSettingsToDocument(settingsObject) {
       enableCompactView,
     },
     structures: {
-      manufacturing: settingsObject.manufacturingStructures,
-      reaction: settingsObject.reactionStructures,
+      manufacturing: manufacturingStructures,
+      reaction: reactionStructures,
     },
+    exemptTypeIDs: [...exemptTypeIDs],
   };
 }

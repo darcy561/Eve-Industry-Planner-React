@@ -1,5 +1,9 @@
 import { Grid, Typography } from "@mui/material";
 import { useMaterialCostCalculations } from "../../../../../../../Hooks/GeneralHooks/useMaterialCostCalculations";
+import {
+  SMALL_TEXT_FORMAT,
+  TWO_DECIMAL_PLACES,
+} from "../../../../../../../Context/defaultValues";
 
 export function ChildJobMaterials_ChildJobPopoverFrame({
   jobDisplay,
@@ -27,19 +31,16 @@ export function ChildJobMaterials_ChildJobPopoverFrame({
     return (
       <Grid key={material.typeID} container item xs={12}>
         <Grid item xs={8}>
-          <Typography sx={{ typography: { xs: "caption", sm: "caption" } }}>
+          <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
             {material.name}
           </Typography>
         </Grid>
         <Grid item xs={4}>
-          <Typography
-            sx={{ typography: { xs: "caption", sm: "caption" } }}
-            align="right"
-          >
-            {calculatedMaterialPrice.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+          <Typography sx={{ typography: SMALL_TEXT_FORMAT }} align="right">
+            {calculatedMaterialPrice.toLocaleString(
+              undefined,
+              TWO_DECIMAL_PLACES
+            )}
           </Typography>
         </Grid>
       </Grid>

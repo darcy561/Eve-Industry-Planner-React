@@ -15,7 +15,7 @@ import { grey } from "@mui/material/colors";
 import { jobTypes } from "../../../../Context/defaultValues";
 import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
 import GroupStep2JobCard from "./JobCards/groupStep2";
-import GroupStep3JobCard from "./JobCards/GroupStep3";
+import GroupStep3JobCard from "./JobCards/groupStep3";
 import GroupStep4JobCard from "./JobCards/groupStep4";
 import GroupStep5JobCard from "./JobCards/groupStep5";
 import { useDrag } from "react-dnd";

@@ -7,7 +7,7 @@ export async function firebaseAuth(charObj) {
 
   try {
     const fbTokenResponse = await fetch(
-      `${import.meta.env.VITE_APIURL}/auth/generate-token`,
+      `${import.meta.env.VITE_APIURL}/auth/gentoken`,
       {
         method: "POST",
         headers: {

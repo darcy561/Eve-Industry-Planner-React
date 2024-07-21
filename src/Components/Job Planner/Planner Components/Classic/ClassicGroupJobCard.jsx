@@ -134,7 +134,7 @@ export function ClassicGroupJobCard({ group }) {
                   sx={{ display: "flex", justifyContent: "center" }}
                 >
                   <AvatarGroup max={4} style={{ height: "100%" }}>
-                    {group.includedTypeIDs.map((typeID) => {
+                    {[...group.includedTypeIDs].map((typeID) => {
                       return (
                         <Avatar
                           key={typeID}

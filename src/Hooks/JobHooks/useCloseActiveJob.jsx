@@ -11,7 +11,6 @@ import {
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobSnapshotManagement } from "./useJobSnapshots";
-import { useManageGroupJobs } from "../GroupHooks/useManageGroupJobs";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useCloseActiveJob() {
@@ -32,7 +31,6 @@ export function useCloseActiveJob() {
   } = useContext(LinkedIDsContext);
   const { addNewJob, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
-  const { addJobToGroup } = useManageGroupJobs();
   const { findJobData } = useFindJobObject();
   const { sendSnackbarNotificationInfo } = useHelperFunction();
 
@@ -64,7 +62,10 @@ export function useCloseActiveJob() {
       if (!inputJob.groupID) {
         newUserJobSnapshot = newJobSnapshot(tempJob, newUserJobSnapshot);
       } else {
-        newGroupArray = addJobToGroup(tempJob, newGroupArray, newJobArray);
+        const matchedGroup = newGroupArray.find(
+          (i) => i.groupID === tempJob.groupID
+        );
+        matchedGroup.addJobsToGroup(tempJob);
       }
       if (isLoggedIn) {
         addNewJob(tempJob);

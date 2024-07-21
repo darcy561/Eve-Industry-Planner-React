@@ -14,7 +14,7 @@ export function CompactGroupAccordionContent({ status, statusJobs }) {
       <Grid item xs={12}>
         {statusJobs.map((job) => {
           if (!activeGroupObject.showComplete) {
-            if (!activeGroupObject.areComplete.includes(job.jobID)) {
+            if (!activeGroupObject.areComplete.has(job.jobID)) {
               return <CompactGroupJobCardFrame key={job.jobID} job={job} />;
             } else return null;
           } else {

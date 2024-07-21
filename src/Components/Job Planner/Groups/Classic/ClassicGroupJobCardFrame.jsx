@@ -73,7 +73,7 @@ export function ClassicGroupJobCardFrame({ job }) {
   }, [multiSelectJobPlanner]);
 
   const jobMarkedAsCompelte = useMemo(() => {
-    return activeGroupObject.areComplete.includes(job.jobID);
+    return activeGroupObject.areComplete.has(job.jobID);
   }, [activeGroupObject]);
 
   const navigate = useNavigate();

@@ -11,7 +11,6 @@ import { useJobBuild } from "../useJobBuild";
 import { useJobManagement } from "../useJobManagement";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import { useJobSnapshotManagement } from "./useJobSnapshots";
-import { useManageGroupJobs } from "../GroupHooks/useManageGroupJobs";
 import { useFirebase } from "../useFirebase";
 import { EvePricesContext } from "../../Context/EveDataContext";
 import { logEvent } from "firebase/analytics";
@@ -30,7 +29,6 @@ function useBuildNewJobs() {
     useFirebase();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { newJobSnapshot } = useJobSnapshotManagement();
-  const { addJobToGroup } = useManageGroupJobs();
   const { findParentUser, sendSnackbarNotificationSuccess } =
     useHelperFunction();
   const parentUser = findParentUser();
@@ -73,7 +71,10 @@ function useBuildNewJobs() {
       }
 
       if (jobObject.groupID) {
-        newGroupArray = addJobToGroup(jobObject,   newGroupArray, newJobArray);
+        const matchedGroup = newGroupArray.find(
+          (i) => i.groupID === jobObject.groupID
+        );
+        matchedGroup.addJobsToGroup(jobObject);
       }
 
       if (isLoggedIn) {

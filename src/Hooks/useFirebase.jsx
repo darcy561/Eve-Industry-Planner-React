@@ -46,7 +46,7 @@ import {
   convertApplicationSettingsToDocument,
   importApplicationSettingsFromDocument,
 } from "./Account Management Hooks/Application Settings/applicationSettingsConstructor";
-import createGroupObject from "./GroupHooks/groupsConstructor";
+import Group from "./GroupHooks/groupsConstructor";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -731,15 +731,19 @@ export function useFirebase() {
     updateFirebaseListeners((prev) => prev.concat(unsub));
   };
 
-  const uploadGroups = async (groupSnapshot) => {
+  async function uploadGroups(groupSnapshot) {
     await fbAuthState();
+    const groupObjects = [];
+
+    groupSnapshot.forEach((group) => groupObjects.push(group.toDocument()));
+
     updateDoc(
       doc(firestore, `Users/${parentUser.accountID}/ProfileInfo`, "GroupData"),
       {
-        groupData: groupSnapshot,
+        groupData: groupObjects,
       }
     );
-  };
+  }
 
   const userGroupDataListener = async (userObj) => {
     const unsub = onSnapshot(
@@ -750,16 +754,16 @@ export function useFirebase() {
             const t = trace(performance, "UserGroupListener");
             t.start();
             updateUserGroupsDataFetch(false);
-            let groupData = doc.data().groupData;
+            const groupData = doc.data().groupData;
+            const groupArray = [];
             let newLinkedOrderIDs = new Set();
             let newLinkedJobIDs = new Set();
             let newLinkedTransIDs = new Set();
 
             for (let group of groupData) {
-              const groupObject = createGroupObject(group);
-              console.log(groupObject);
-              group.areComplete = group.areComplete.map(String);
-              group.includedJobIDs = group.includedJobIDs.map(String);
+              const groupObject = new Group(group);
+              groupArray.push(groupObject);
+
               group?.linkedJobIDs?.forEach((id) => {
                 newLinkedJobIDs.add(id);
               });
@@ -770,6 +774,7 @@ export function useFirebase() {
                 newLinkedTransIDs.add(id);
               });
             }
+
             updateLinkedJobIDs((prevState) => {
               return [...new Set([...prevState, ...newLinkedJobIDs])];
             });
@@ -779,7 +784,7 @@ export function useFirebase() {
             updateLinkedTransIDs((prevState) => {
               return [...new Set([...prevState, ...newLinkedTransIDs])];
             });
-            updateGroupArray(groupData);
+            updateGroupArray(groupArray);
             updateUserGroupsDataFetch(true);
             t.stop();
           }

@@ -52,6 +52,7 @@ export function useDeleteSingleJob() {
     let newApiJobsArary = [...apiJobs];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newJobArray = [...jobArray];
+    const newGroupArray = [...groupArray];
     let newLinkedJobIDs = new Set(linkedJobIDs);
     let newLinkedOrderIDs = new Set(linkedOrderIDs);
     let newLinkedTransIDs = new Set(linkedTransIDs);
@@ -138,7 +139,7 @@ export function useDeleteSingleJob() {
 
     newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
 
-    await removeJobFromGroup();
+    removeJobFromGroup(inputJob);
 
     if (isLoggedIn) {
       jobsToSave.forEach((jobID) => {
@@ -161,75 +162,16 @@ export function useDeleteSingleJob() {
     updateUserJobSnapshot(newUserJobSnapshot);
     sendSnackbarNotificationError(`${inputJob.name} Deleted`, 3);
 
-    async function removeJobFromGroup() {
+    function removeJobFromGroup(inputJob) {
+      if (!inputJob) return newGroupArray;
+
       if (!inputJob.groupID) return;
 
-      let newGroupArray = [...groupArray];
+      const group = newGroupArray.find((i) => i.groupID === inputJob.groupID);
 
-      const selectedGroupIndex = newGroupArray.findIndex(
-        (i) => i.groupID === inputJob.groupID
-      );
+      if (!group) return newGroupArray;
 
-      if (selectedGroupIndex === -1) return;
-
-      const groupJobs = newJobArray.filter(
-        (job) => job.groupID === activeGroup && job.jobID !== inputJob.jobID
-      );
-
-      const {
-        outputJobCount,
-        materialIDs,
-        jobTypeIDs,
-        includedJobIDs,
-        linkedJobIDs,
-        linkedTransIDs,
-        linkedOrderIDs,
-      } = groupJobs.reduce(
-        (prev, job) => {
-          if (job.parentJob.length === 0) {
-            prev.outputJobCount++;
-          }
-          prev.materialIDs.add(job.itemID);
-          prev.jobTypeIDs.add(job.itemID);
-          prev.includedJobIDs.add(job.jobID);
-          prev.linkedJobIDs = new Set([...prev.linkedJobIDs, ...job.apiJobs]);
-          prev.linkedOrderIDs = new Set([
-            ...prev.linkedOrderIDs,
-            ...job.apiOrders,
-          ]);
-          prev.linkedTransIDs = new Set([
-            ...prev.linkedTransIDs,
-            ...job.apiTransactions,
-          ]);
-
-          job.build.materials.forEach((mat) => {
-            prev.materialIDs.add(mat.typeID);
-          });
-          return prev;
-        },
-        {
-          outputJobCount: 0,
-          materialIDs: new Set(),
-          jobTypeIDs: new Set(),
-          includedJobIDs: new Set(),
-          linkedJobIDs: new Set(),
-          linkedTransIDs: new Set(),
-          linkedOrderIDs: new Set(),
-        }
-      );
-
-      newGroupArray[selectedGroupIndex].includedJobIDs = [...includedJobIDs];
-      newGroupArray[selectedGroupIndex].includedTypeIDs = [...jobTypeIDs];
-      newGroupArray[selectedGroupIndex].materialIDs = [...materialIDs];
-      newGroupArray[selectedGroupIndex].outputJobCount = outputJobCount;
-      newGroupArray[selectedGroupIndex].linkedJobIDs = [...linkedJobIDs];
-      newGroupArray[selectedGroupIndex].linkedOrderIDs = [...linkedOrderIDs];
-      newGroupArray[selectedGroupIndex].linkedTransIDs = [...linkedTransIDs];
-
-      updateGroupArray(newGroupArray);
-      if (isLoggedIn) {
-        uploadGroups(newGroupArray);
-      }
+      group.removeJobsFromGroup(inputJob, newJobArray);
     }
   };
 

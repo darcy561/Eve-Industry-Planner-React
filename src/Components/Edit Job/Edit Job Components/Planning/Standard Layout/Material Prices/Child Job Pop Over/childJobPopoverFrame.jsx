@@ -47,7 +47,7 @@ export function ChildJobPopoverFrame({
   const { buildJob } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { calculateMaterialCostFromChildJobs } = useMaterialCostCalculations();
-  const { findJobIDOfMaterialFromGroup } = useManageGroupJobs();
+  const { findMaterialJobIDInGroup } = useManageGroupJobs();
   const { findParentUser } = useHelperFunction();
 
   const parentUser = findParentUser();
@@ -58,7 +58,7 @@ export function ChildJobPopoverFrame({
   useEffect(() => {
     async function fetchData() {
       if (!displayPopover) return;
-      const matchedGroupJobID = findJobIDOfMaterialFromGroup(
+      const matchedGroupJobID = findMaterialJobIDInGroup(
         material.typeID,
         activeJob.groupID
       );

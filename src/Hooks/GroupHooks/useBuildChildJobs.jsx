@@ -26,46 +26,19 @@ export function useBuildChildJobs() {
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   async function buildChildJobs(inputJobIDs) {
+    const newGroupArray = [...groupArray];
+    const groupObject = newGroupArray.find((i) => i.groupID === activeGroup);
+
     const existingGroupData = await calculateExistingTypeIDs();
     const { buildRequests, jobsToBeModified } = await calculateNeededJobs(
       inputJobIDs,
       existingGroupData
     );
-    let newJobData = await buildJob(buildRequests);
+    const newJobData = await buildJob(buildRequests);
 
     const newJobArray = await buildNewJobArray(newJobData, jobsToBeModified);
 
-    const groupJobs = newJobArray.filter((i) => i.groupID === activeGroup);
-
-    const { outputJobCount, materialIDs, jobTypeIDs, includedJobIDs } =
-      groupJobs.reduce(
-        (prev, job) => {
-          if (job.parentJob.length === 0) {
-            prev.outputJobCount++;
-          }
-          prev.materialIDs.add(job.itemID);
-          prev.jobTypeIDs.add(job.itemID);
-          prev.includedJobIDs.add(job.jobID);
-
-          job.build.materials.forEach((mat) => {
-            prev.materialIDs.add(mat.typeID);
-          });
-          return prev;
-        },
-        {
-          outputJobCount: 0,
-          materialIDs: new Set(),
-          jobTypeIDs: new Set(),
-          includedJobIDs: new Set(),
-        }
-      );
-    const newGroupArray = [...groupArray];
-    let groupToUpdate = newGroupArray.find((i) => i.groupID === activeGroup);
-
-    groupToUpdate.includedTypeIDs = [...jobTypeIDs];
-    groupToUpdate.includedJobIDs = [...includedJobIDs];
-    groupToUpdate.outputJobCount = outputJobCount;
-    groupToUpdate.materialIDs = [...materialIDs];
+    groupObject.addJobsToGroup(newJobData);
 
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
@@ -100,7 +73,7 @@ export function useBuildChildJobs() {
       (i) => i.groupID === activeGroup
     );
 
-    for (const jobID of selectedGroupObject.includedJobIDs) {
+    for (const jobID of [...selectedGroupObject.includedJobIDs]) {
       const job = await findJobData(
         jobID,
         userJobSnapshot,

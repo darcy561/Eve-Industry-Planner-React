@@ -12,7 +12,7 @@ import { useJobBuild } from "./useJobBuild";
 import uuid from "react-uuid";
 import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
-import createGroupObject from "./GroupHooks/groupsConstructor";
+import Group from "./GroupHooks/groupsConstructor";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -30,39 +30,18 @@ export function useGroupManagement() {
   const { calculateResources, calculateTime } = useBlueprintCalc();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
-  function newJobGroupTemplate(
-    assignedGroupID,
-    outputJobNames,
-    inputIDs,
-    includedTypeIDs,
-    materialIDs,
-    outputJobCount
-  ) {
-    this.groupName = outputJobNames.join(", ").substring(0, 75);
-    this.groupID = assignedGroupID;
-    this.includedJobIDs = inputIDs;
-    this.includedTypeIDs = [...includedTypeIDs];
-    this.materialIDs = [...materialIDs];
-    this.outputJobCount = outputJobCount;
-    this.areComplete = [];
-    this.showComplete = true;
-    this.groupStatus = 0;
-    this.groupType = 1;
-    this.linkedJobIDs = [];
-    this.linkedOrderIDs = [];
-    this.linkedTransIDs = [];
-  }
-
   const createNewGroupWithJobs = async (inputJobIDs) => {
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newGroupArray = [...groupArray];
-    let jobTypeIDs = new Set();
-    let outputJobCount = 0;
+    const jobTypeIDs = new Set();
     let jobsToSave = new Set();
     let materialIDs = new Set();
+
+    let outputJobCount = 0;
     let outputJobNames = [];
-    let assignedGroupID = `group-${uuid()}`;
+
+    const newGroupEntry = new Group();
 
     for (let inputID of inputJobIDs) {
       let [inputJob, inputJobSnapshot] = await findJobData(
@@ -76,7 +55,7 @@ export function useGroupManagement() {
         continue;
       }
 
-      inputJob.groupID = assignedGroupID;
+      inputJob.groupID = newGroupEntry.groupID;
 
       for (let id of inputJob.parentJob) {
         if (inputJobIDs.includes(id)) {
@@ -123,21 +102,13 @@ export function useGroupManagement() {
       outputJobCount++;
     }
 
-    if (outputJobNames.length === 0) {
-      outputJobNames.push("Untitled Group");
-    }
-    const groupObject = createGroupObject();
-    console.log(groupObject);
-    let newGroupEntry = {
-      ...new newJobGroupTemplate(
-        assignedGroupID,
-        outputJobNames,
-        inputJobIDs,
-        jobTypeIDs,
-        materialIDs,
-        outputJobCount
-      ),
-    };
+    newGroupEntry.setGroupName(outputJobNames.join(", ").substring(0, 75));
+    newGroupEntry.addIncludedJobIDs(inputJobIDs);
+    newGroupEntry.addIncludedTypeIDs(jobTypeIDs);
+    newGroupEntry.addMaterialIDs(materialIDs);
+    newGroupEntry.updateOutputJobCount(outputJobCount);
+
+    console.log(newGroupEntry);
     newGroupArray.push(newGroupEntry);
     if (isLoggedIn) {
       uploadUserJobSnapshot(newUserJobSnapshot);
@@ -173,7 +144,7 @@ export function useGroupManagement() {
 
     let chosenGroup = newGroupArray.find((i) => i.groupID === inputGroupID);
 
-    for (let jobID of chosenGroup.includedJobIDs) {
+    for (let jobID of [...chosenGroup.includedJobIDs]) {
       let foundJob = await findJobData(
         jobID,
         userJobSnapshot,
@@ -250,7 +221,6 @@ export function useGroupManagement() {
     let newJobArray = [...jobArray];
     let newMaterialIDs = new Set(selectedGroupObject.materialIDs);
     let newTypeIDs = new Set(selectedGroupObject.includedTypeIDs);
-    let newFinalJobIDs = new Set(selectedGroupObject.includedJobIDs);
 
     await buildExistingTypes(selectedGroupObject);
     await generateRequestList(selectedGroupObject);
@@ -279,16 +249,15 @@ export function useGroupManagement() {
     }
     updateModifiedJobs();
 
-    newFinalJobIDs = new Set([...newFinalJobIDs, ...newJobIDs]);
-
     const newGroupArray = [...groupArray];
     const objectToUpdate = newGroupArray.find((i) => i.groupID === activeGroup);
 
-    objectToUpdate.includedTypeIDs = [...newTypeIDs];
-    objectToUpdate.includedJobIDs = [...newFinalJobIDs];
-    objectToUpdate.outputJobCount = objectToUpdate.outputJobCount +=
-      newJobData.length;
-    objectToUpdate.materialIDs = [...newMaterialIDs];
+    objectToUpdate.addIncludedTypeIDs(newTypeIDs);
+    objectToUpdate.addIncludedJobIDs(newJobIDs);
+    objectToUpdate.updateOutputJobCount(
+      (objectToUpdate.outputJobCount += newJobData.length)
+    );
+    objectToUpdate.addMaterialIDs(newMaterialIDs);
 
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
@@ -548,12 +517,13 @@ export function useGroupManagement() {
     const newGroupArray = [groupArray];
     let groupToUpdate = newGroupArray.find((i) => i.groupID === activeGroup);
 
-    (groupToUpdate.includedTypeIDs = [...newTypeIDs])(
-      (groupToUpdate.includedJobIDs = [...newFinalJobIDs])
-    )(
-      (groupToUpdate.outputJobCount = groupToUpdate.outputJobCount +=
-        totalJobsCreated)
-    )((groupToUpdate.materialIDs = [...newMaterialIDs]));
+    groupToUpdate.addIncludedTypeIDs(newTypeIDs);
+    groupToUpdate.addIncludedJobIDs(newFinalJobIDs);
+    groupToUpdate.updateOutputJobCount(
+      (groupToUpdate.outputJobCount += totalJobsCreated)
+    );
+    groupToUpdate.addMaterialIDs(newMaterialIDs);
+
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);
     sendSnackbarNotificationSuccess(`${totalJobsCreated} Jobs Created`, 3);

@@ -35,7 +35,7 @@ export function RawResourceList({
   const [displayType, updateDisplyType] = useState(
     activeJob.layout?.resourceDisplayType || "all"
   );
-  const { findJobIDOfMaterialFromGroup } = useManageGroupJobs();
+  const { findMaterialJobIDInGroup } = useManageGroupJobs();
   const { buildJob } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { getItemPrices } = useFirebase();
@@ -213,7 +213,7 @@ export function RawResourceList({
 
       function groupJobCheck(requestedTypeID, requestedGroupID, outputMap) {
         if (!activeJob.groupID) return false;
-        const matchedGroupJobID = findJobIDOfMaterialFromGroup(
+        const matchedGroupJobID = findMaterialJobIDInGroup(
           requestedTypeID,
           requestedGroupID
         );

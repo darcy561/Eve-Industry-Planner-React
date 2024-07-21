@@ -7,7 +7,6 @@ import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useFirebase } from "../useFirebase";
 import { EvePricesContext } from "../../Context/EveDataContext";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
-import { useManageGroupJobs } from "./useManageGroupJobs";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useImportFitFromClipboard() {
@@ -18,7 +17,6 @@ export function useImportFitFromClipboard() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { buildJob } = useJobBuild();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
-  const { addMultipleJobsToGroup } = useManageGroupJobs();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { addNewJob, getItemPrices } = useFirebase();
   const { findParentUser } = useHelperFunction();
@@ -122,6 +120,7 @@ export function useImportFitFromClipboard() {
     if (!itemArray) return;
     let newPriceIDs = new Set();
     let jobsToSave = new Set();
+    const newGroupArray = [...groupArray];
 
     const buildRequests = convertImportedItemsToBuildRequests(itemArray);
 
@@ -130,7 +129,7 @@ export function useImportFitFromClipboard() {
     });
 
     const groupEntriesToModifiy = buildRequests.filter((entry) =>
-      activeGroupObject.includedTypeIDs.includes(entry.itemID)
+      activeGroupObject.includedTypeIDs.has(entry.itemID)
     );
     const itemsToBuild = buildRequests.filter(
       (entry) => !groupEntriesToModifiy.some((i) => i.itemID === entry.itemID)
@@ -167,11 +166,10 @@ export function useImportFitFromClipboard() {
       jobsToSave.add(job.jobID);
     }
 
-    const newGroupArray = addMultipleJobsToGroup(
-      newJobData,
-      [...groupArray],
-      newJobArray
+    const matchedGroup = newGroupArray.find(
+      (i) => i.groupID === jobObject.groupID
     );
+    matchedGroup.addJobsToGroup(newJobs);
 
     const itemPriceResult = await Promise.all(itemPriceRequest);
 

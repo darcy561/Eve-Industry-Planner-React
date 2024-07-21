@@ -11,7 +11,7 @@ import {
 } from "../../Context/AuthContext";
 import { useJobSnapshotManagement } from "../JobHooks/useJobSnapshots";
 
-export function useCloseGroup() {
+function useCloseGroup() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { groupArray, updateGroupArray, jobArray, updateJobArray } =
     useContext(JobArrayContext);
@@ -26,61 +26,16 @@ export function useCloseGroup() {
   const { updateJobSnapshot } = useJobSnapshotManagement();
   const { uploadGroups, uploadJob } = useFirebase();
 
-  const closeGroup = (groupJobs) => {
+  async function closeGroup(groupJobs) {
     let newGroupArray = [...groupArray];
-    let newGroupEntry = newGroupArray.find((i) => i.groupID === activeGroup);
+    const groupEntry = newGroupArray.find((i) => i.groupID === activeGroup);
     let newUserJobSnapshot = [...userJobSnapshot];
     let jobsToSave = new Set();
+    const includedJobIDs = new Set();
 
-    const {
-      outputJobCount,
-      materialIDs,
-      jobTypeIDs,
-      includedJobIDs,
-      linkedJobIDs,
-      linkedTransIDs,
-      linkedOrderIDs,
-    } = groupJobs.reduce(
-      (prev, job) => {
-        if (job.parentJob.length === 0) {
-          prev.outputJobCount++;
-        }
-        prev.materialIDs.add(job.itemID);
-        prev.jobTypeIDs.add(job.itemID);
-        prev.includedJobIDs.add(job.jobID);
-        prev.linkedJobIDs = new Set([...prev.linkedJobIDs, ...job.apiJobs]);
-        prev.linkedOrderIDs = new Set([
-          ...prev.linkedOrderIDs,
-          ...job.apiOrders,
-        ]);
-        prev.linkedTransIDs = new Set([
-          ...prev.linkedTransIDs,
-          ...job.apiTransactions,
-        ]);
+    groupJobs.forEach((job) => includedJobIDs.add(job.jobID));
 
-        job.build.materials.forEach((mat) => {
-          prev.materialIDs.add(mat.typeID);
-        });
-        return prev;
-      },
-      {
-        outputJobCount: 0,
-        materialIDs: new Set(),
-        jobTypeIDs: new Set(),
-        includedJobIDs: new Set(),
-        linkedJobIDs: new Set(),
-        linkedTransIDs: new Set(),
-        linkedOrderIDs: new Set(),
-      }
-    );
-
-    newGroupEntry.includedJobIDs = [...includedJobIDs];
-    newGroupEntry.includedTypeIDs = [...jobTypeIDs];
-    newGroupEntry.materialIDs = [...materialIDs];
-    newGroupEntry.outputJobCount = outputJobCount;
-    newGroupEntry.linkedJobIDs = [...linkedJobIDs];
-    newGroupEntry.linkedOrderIDs = [...linkedOrderIDs];
-    newGroupEntry.linkedTransIDs = [...linkedTransIDs];
+    groupEntry.updateGroupData(groupJobs);
 
     const filteredJobs = jobArray.filter((job) =>
       groupJobs.some((groupJob) => groupJob.jobID === job.jobID)
@@ -141,13 +96,15 @@ export function useCloseGroup() {
     updateEditGroupTrigger((prev) => !prev);
     if (isLoggedIn) {
       uploadGroups(newGroupArray);
-      jobsToSave.forEach((jobID) => {
+      for (const jobID of jobsToSave) {
         let job = newJobArray.find((i) => i.jobID === jobID);
         if (!job) return;
-        uploadJob(job);
-      });
+        await uploadJob(job);
+      }
     }
-  };
+  }
 
   return { closeGroup };
 }
+
+export default useCloseGroup;

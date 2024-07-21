@@ -5,7 +5,6 @@ import { useJobBuild } from "../useJobBuild";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useFirebase } from "../useFirebase";
-import { useManageGroupJobs } from "./useManageGroupJobs";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 
@@ -18,7 +17,6 @@ export function useBuildFullJobTree() {
   const { buildJob } = useJobBuild();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
   const { addNewJob } = useFirebase();
-  const { addMultipleJobsToGroup } = useManageGroupJobs();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   async function buildFullJobTree(inputJobIDs) {
@@ -42,7 +40,12 @@ export function useBuildFullJobTree() {
         addNewJob(job);
       }
     }
-    newGroupArray = addMultipleJobsToGroup(newJobs, newGroupArray, newJobArray);
+
+    const matchedGroup = newGroupArray.find(
+      (i) => i.groupID === activeGroup
+    );
+    matchedGroup.addJobsToGroup(newJobs);
+
     newJobArray = [...newJobArray, ...newJobs];
 
     updateGroupArray(newGroupArray);

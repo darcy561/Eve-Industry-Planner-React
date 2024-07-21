@@ -14,15 +14,13 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
-import DoneIcon from "@mui/icons-material/Done";
 import SaveIcon from "@mui/icons-material/Save";
 import { ActiveJobContext, JobArrayContext } from "../../../Context/JobContext";
 import { OutputJobsPanel } from "./OutputJobs";
 import { GroupAccordion } from "./groupAccordion";
 import { GroupOptionsBar } from "./groupOptions";
-import { useJobManagement } from "../../../Hooks/useJobManagement";
 import itemList from "../../../RawData/searchIndex.json";
-import { useCloseGroup } from "../../../Hooks/GroupHooks/useCloseGroup";
+import useCloseGroup from "../../../Hooks/GroupHooks/useCloseGroup";
 import { LoadingPage } from "../../loadingPage";
 import { ImportItemFitDialogue } from "./Dialogues/importFit/importFittingDialgue";
 import { ShoppingListDialog } from "../Dialogues/ShoppingList/ShoppingList";
@@ -253,7 +251,6 @@ export default function GroupPage() {
             <OutputJobsPanel
               groupJobs={groupJobs}
               groupPageRefresh={groupPageRefresh}
-              
             />
           </Grid>
           <Grid item xs={12}>

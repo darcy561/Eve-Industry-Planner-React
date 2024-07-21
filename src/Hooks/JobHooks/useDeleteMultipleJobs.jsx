@@ -136,7 +136,7 @@ export function useDeleteMultipleJobs() {
         }
       }
 
-      newGroupArray = removeJobFromGroup(newGroupArray, inputJob);
+      removeJobFromGroup(newGroupArray, inputJob);
 
       newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
 
@@ -172,72 +172,16 @@ export function useDeleteMultipleJobs() {
     sendSnackbarNotificationError(`${inputJobIDs.length} Job/Jobs Deleted`, 3);
     r.stop();
 
-    function removeJobFromGroup(newGroupArray, inputJob) {
+    function removeJobFromGroup(inputJob) {
       if (!inputJob) return newGroupArray;
 
-      if (!inputJob.groupID) return newGroupArray;
+      if (!inputJob.groupID) return;
 
-      const selectedGroupIndex = newGroupArray.findIndex(
-        (i) => i.groupID === inputJob.groupID
-      );
+      const group = newGroupArray.find((i) => i.groupID === inputJob.groupID);
 
-      if (selectedGroupIndex === -1) return newGroupArray;
+      if (!group) return newGroupArray;
 
-      const groupJobs = newJobArray.filter(
-        (job) => job.groupID === activeGroup && job.jobID !== inputJob.jobID
-      );
-
-      const {
-        outputJobCount,
-        materialIDs,
-        jobTypeIDs,
-        includedJobIDs,
-        linkedJobIDs,
-        linkedTransIDs,
-        linkedOrderIDs,
-      } = groupJobs.reduce(
-        (prev, job) => {
-          if (job.parentJob.length === 0) {
-            prev.outputJobCount++;
-          }
-          prev.materialIDs.add(job.itemID);
-          prev.jobTypeIDs.add(job.itemID);
-          prev.includedJobIDs.add(job.jobID);
-          prev.linkedJobIDs = new Set([...prev.linkedJobIDs, ...job.apiJobs]);
-          prev.linkedOrderIDs = new Set([
-            ...prev.linkedOrderIDs,
-            ...job.apiOrders,
-          ]);
-          prev.linkedTransIDs = new Set([
-            ...prev.linkedTransIDs,
-            ...job.apiTransactions,
-          ]);
-
-          job.build.materials.forEach((mat) => {
-            prev.materialIDs.add(mat.typeID);
-          });
-          return prev;
-        },
-        {
-          outputJobCount: 0,
-          materialIDs: new Set(),
-          jobTypeIDs: new Set(),
-          includedJobIDs: new Set(),
-          linkedJobIDs: new Set(),
-          linkedTransIDs: new Set(),
-          linkedOrderIDs: new Set(),
-        }
-      );
-
-      newGroupArray[selectedGroupIndex].includedJobIDs = [...includedJobIDs];
-      newGroupArray[selectedGroupIndex].includedTypeIDs = [...jobTypeIDs];
-      newGroupArray[selectedGroupIndex].materialIDs = [...materialIDs];
-      newGroupArray[selectedGroupIndex].outputJobCount = outputJobCount;
-      newGroupArray[selectedGroupIndex].linkedJobIDs = [...linkedJobIDs];
-      newGroupArray[selectedGroupIndex].linkedOrderIDs = [...linkedOrderIDs];
-      newGroupArray[selectedGroupIndex].linkedTransIDs = [...linkedTransIDs];
-
-      return newGroupArray;
+      group.removeJobsFromGroup(inputJob, newJobArray);
     }
   };
   return { deleteMultipleJobs };

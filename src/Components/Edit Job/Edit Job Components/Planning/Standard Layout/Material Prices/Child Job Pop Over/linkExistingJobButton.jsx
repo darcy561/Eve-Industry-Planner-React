@@ -10,11 +10,11 @@ export function LinkExistingGroupJobButton_ChildJobPopoverFrame({
   parentChildToEdit,
   updateParentChildToEdit,
 }) {
-  const { findJobIDOfMaterialFromGroup } = useManageGroupJobs();
+  const { findMaterialJobIDInGroup } = useManageGroupJobs();
   const { Add_RemovePendingChildJobs } = useHelperFunction();
 
   function linkToGroupJob() {
-    const matchedGroupJobID = findJobIDOfMaterialFromGroup(
+    const matchedGroupJobID = findMaterialJobIDInGroup(
       material.typeID,
       activeJob.groupID
     );
@@ -54,11 +54,11 @@ export function UnlinkExistingChildJobButton_ChildJobPopoverFrame({
   parentChildToEdit,
   updateParentChildToEdit,
 }) {
-  const { findJobIDOfMaterialFromGroup } = useManageGroupJobs();
+  const { findMaterialJobIDInGroup } = useManageGroupJobs();
   const { Add_RemovePendingChildJobs } = useHelperFunction();
 
   function linkToGroupJob() {
-    const matchedGroupJobID = findJobIDOfMaterialFromGroup(
+    const matchedGroupJobID = findMaterialJobIDInGroup(
       material.typeID,
       activeJob.groupID
     );

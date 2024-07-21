@@ -13,7 +13,7 @@ export function ClassicGroupAccordionContent({ status, statusJobs }) {
     <Grid container item xs={12} spacing={2}>
       {statusJobs.map((job) => {
         if (!activeGroupObject.showComplete) {
-          if (!activeGroupObject.areComplete.includes(job.jobID)) {
+          if (!activeGroupObject.areComplete.has(job.jobID)) {
             return <ClassicGroupJobCardFrame key={job.jobID} job={job} />;
           } else return null;
         } else {

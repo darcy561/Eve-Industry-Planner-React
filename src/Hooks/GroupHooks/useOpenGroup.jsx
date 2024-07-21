@@ -18,7 +18,6 @@ export function useOpenGroup() {
   const { updateActiveGroup } = useContext(ActiveJobContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { updateDataExchange } = useContext(DataExchangeContext);
-  const { users } = useContext(UsersContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { findJobData } = useFindJobObject();
@@ -27,7 +26,7 @@ export function useOpenGroup() {
 
   const parentUser = findParentUser();
 
-  const openGroup = async (inputGroupID) => {
+  async function openGroup(inputGroupID) {
     let newJobArray = [...jobArray];
     let requestedGroup = groupArray.find((i) => i.groupID === inputGroupID);
     if (!requestedGroup) {
@@ -36,7 +35,7 @@ export function useOpenGroup() {
     updateDataExchange((prev) => !prev);
 
     const itemPriceRequest = [
-      getItemPrices(requestedGroup.materialIDs, parentUser),
+      getItemPrices([...requestedGroup.materialIDs], parentUser),
     ];
     updateLoadingText((prevObj) => ({
       ...prevObj,
@@ -44,7 +43,7 @@ export function useOpenGroup() {
       priceData: true,
     }));
 
-    for (let jobID of requestedGroup.includedJobIDs) {
+    for (let jobID of [...requestedGroup.includedJobIDs]) {
       await findJobData(
         jobID,
         userJobSnapshot,
@@ -80,7 +79,7 @@ export function useOpenGroup() {
       priceData: false,
       priceDataComp: false,
     }));
-  };
+  }
 
   return {
     openGroup,

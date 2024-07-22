@@ -42,10 +42,7 @@ import {
 import GLOBAL_CONFIG from "../global-config-app";
 import { useCorporationObject } from "./Account Management Hooks/Corporation Objects/useCorporationObject";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
-import {
-  convertApplicationSettingsToDocument,
-  importApplicationSettingsFromDocument,
-} from "./Account Management Hooks/Application Settings/applicationSettingsConstructor";
+import ApplicationSettingsObject from "./Account Management Hooks/Application Settings/applicationSettingsConstructor";
 import Group from "./GroupHooks/groupsConstructor";
 
 export function useFirebase() {
@@ -209,8 +206,7 @@ export function useFirebase() {
     };
 
     if (settingsObject) {
-      updateObject.settings =
-        convertApplicationSettingsToDocument(settingsObject);
+      updateObject.settings = settingsObject.toDocument();
     }
     await updateDoc(
       doc(firestore, "Users", parentUser.accountID),
@@ -703,8 +699,10 @@ export function useFirebase() {
           );
           const systemIndexResults = await getSystemIndexData(mainUser);
 
-          const applicationSettings =
-            importApplicationSettingsFromDocument(mainUser);
+          console.log(mainUser);
+          const applicationSettings = new ApplicationSettingsObject(
+            mainUser.settings
+          );
 
           newUserArray.sort((a, b) => {
             if (a.name < b.name) {
@@ -764,13 +762,13 @@ export function useFirebase() {
               const groupObject = new Group(group);
               groupArray.push(groupObject);
 
-              group?.linkedJobIDs?.forEach((id) => {
+              groupObject.linkedJobIDs?.forEach((id) => {
                 newLinkedJobIDs.add(id);
               });
-              group?.linkedOrderIDs?.forEach((id) => {
+              groupObject.linkedOrderIDs?.forEach((id) => {
                 newLinkedOrderIDs.add(id);
               });
-              group?.linkedTransIDs?.forEach((id) => {
+              groupObject.linkedTransIDs?.forEach((id) => {
                 newLinkedTransIDs.add(id);
               });
             }
@@ -800,7 +798,7 @@ export function useFirebase() {
     await fbAuthState();
 
     await updateDoc(doc(firestore, "Users", parentUser.accountID), {
-      settings: convertApplicationSettingsToDocument(settingsObject),
+      settings: settingsObject.toDocument(),
     });
   }
 

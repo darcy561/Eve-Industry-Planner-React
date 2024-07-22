@@ -5,7 +5,7 @@ import { useImportFitFromClipboard } from "../../../../../../Hooks/GroupHooks/us
 import FittingImportRow from "./fittingRow";
 import uuid from "react-uuid";
 
-function AddShipFittingPanel({ updateItemIDsToAdd }) {
+function AddShipFittingPanel({ updateItemIDsToAdd, addNewGroupOnBuild }) {
   const [clipboardReadAllowed, updateClipboardReadAllowed] = useState(false);
   const [importedFitData, updateImportedFitData] = useState([]);
   const [importedFitName, updateImportedFitName] = useState("");
@@ -51,6 +51,7 @@ function AddShipFittingPanel({ updateItemIDsToAdd }) {
           newItemsToAdd.push({
             itemID: request.itemID,
             itemQty: 1,
+            addNewGroup: addNewGroupOnBuild,
           });
         }
       });

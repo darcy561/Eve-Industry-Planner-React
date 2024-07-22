@@ -4,7 +4,7 @@ import GLOBAL_CONFIG from "../../../global-config-app";
 const { DEFAULT_MARKET_OPTION, DEFAULT_ORDER_OPTION, DEFAULT_ASSET_LOCATION } =
   GLOBAL_CONFIG;
 
-class ApplicationSettings {
+class ApplicationSettingsObject {
   constructor(settings) {
     this.cloudAccounts =
       settings?.account?.cloudAccounts || settings?.cloudAccounts || false;
@@ -54,22 +54,50 @@ class ApplicationSettings {
     this.exemptTypeIDs = new Set(settings?.exemptTypeIDs || []);
   }
 
+  toDocument() {
+    return {
+      account: {
+        cloudAccounts: this.cloudAccounts,
+      },
+      editJob: {
+        citatadelBrokersFee: this.citadelBrokersFee,
+        defaultAssetLocation: this.defaultAssetLocation,
+        defaultMarket: this.defaultMarket,
+        defaultOrders: this.defaultOrders,
+        hideCompleteMaterials: this.hideCompleteMaterials,
+        defaultMaterialEfficiencyValue: this.defaultMaterialEfficiencyValue,
+      },
+      layout: {
+        esiJobTab: this.esiJobTab,
+        hideTutorials: this.hideTutorials,
+        localMarketDisplay: this.localOrderDisplay,
+        localOrderDisplay: this.localOrderDisplay,
+        enableCompactView: this.enableCompactView,
+      },
+      structures: {
+        manufacturing: this.manufacturingStructures,
+        reaction: this.reactionStructures,
+      },
+      exemptTypeIDs: [...this.exemptTypeIDs],
+    };
+  }
+
   toggleCloudAccounts() {
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       cloudAccounts: !this.cloudAccounts,
     });
   }
 
   toggleHideTutorials() {
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       hideTutorials: !this.hideTutorials,
     });
   }
 
   toggleEnableCompactView() {
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       enableCompactView: !this.enableCompactView,
     });
@@ -77,7 +105,7 @@ class ApplicationSettings {
 
   updatelocalMarketDisplay(newValue) {
     if (!newValue) return this;
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       localMarketDisplay: newValue,
     });
@@ -85,7 +113,7 @@ class ApplicationSettings {
 
   updateLocaleOrderDisplay(newValue) {
     if (!newValue) return this;
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       localOrderDisplay: newValue,
     });
@@ -93,7 +121,7 @@ class ApplicationSettings {
 
   updateEsiJobTab(newValue) {
     if (!newValue) return this;
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       esiJobTab: newValue,
     });
@@ -102,7 +130,7 @@ class ApplicationSettings {
   updateDefaultMaterialEfficiencyValue(newValue) {
     if (!newValue) return this;
 
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       defaultAssetLocation: newValue,
     });
@@ -110,7 +138,7 @@ class ApplicationSettings {
 
   updateDefaultMarket(newValue) {
     if (!newValue) return this;
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       defaultMarket: newValue,
     });
@@ -118,14 +146,14 @@ class ApplicationSettings {
 
   updateDefaultOrders(newValue) {
     if (!newValue) return this;
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       defaultOrders: newValue,
     });
   }
 
   toggleHideCompleteMaterials() {
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       hideCompleteMaterials: !this.hideCompleteMaterials,
     });
@@ -133,7 +161,7 @@ class ApplicationSettings {
 
   updateDefaultAssetLocation(newValue) {
     if (!newValue) return this;
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       defaultAssetLocation: newValue,
     });
@@ -141,7 +169,7 @@ class ApplicationSettings {
 
   updateCitadelBrokersFee(newValue) {
     if (!newValue) return this;
-    return new ApplicationSettings({
+    return new ApplicationSettingsObject({
       ...this,
       citadelBrokersFee: newValue,
     });
@@ -150,7 +178,7 @@ class ApplicationSettings {
   updateExemptTypeIDs(newValue) {
     if (!newValue) return this;
     this.exemptTypeIDs.add(newValue);
-    return new ApplicationSettings(this);
+    return new ApplicationSettingsObject(this);
   }
 
   checkTypeIDisExempt(inputTypeID) {
@@ -162,7 +190,7 @@ class ApplicationSettings {
   addCustomManufacturingStructure(structure) {
     if (!structure) return this;
     this.manufacturingStructures.push(structure);
-    return new ApplicationSettings(this);
+    return new ApplicationSettingsObject(this);
   }
 
   removeCustomManufacturingStructure(structure) {
@@ -173,7 +201,7 @@ class ApplicationSettings {
     if (this.manufacturingStructures.length > 0 && structure.default) {
       this.manufacturingStructures[0].default = true;
     }
-    return new ApplicationSettings(this);
+    return new ApplicationSettingsObject(this);
   }
 
   setDefaultCustomManufacturingStructure(id) {
@@ -181,13 +209,13 @@ class ApplicationSettings {
     this.manufacturingStructures.forEach((obj) =>
       obj.id === id ? (obj.default = true) : (obj.default = false)
     );
-    return new ApplicationSettings(this);
+    return new ApplicationSettingsObject(this);
   }
 
   addCustomReactionStructure(structure) {
     if (!structure) return this;
     this.reactionStructures.push(structure);
-    return new ApplicationSettings(this);
+    return new ApplicationSettingsObject(this);
   }
 
   removeCustomReactionStructure(structure) {
@@ -198,7 +226,7 @@ class ApplicationSettings {
     if (this.reactionStructures.length > 0 && structure.default) {
       this.reactionStructures[0].default = true;
     }
-    return new ApplicationSettings(this);
+    return new ApplicationSettingsObject(this);
   }
 
   setDefaultCustomReactionStructure(id) {
@@ -206,7 +234,7 @@ class ApplicationSettings {
     this.reactionStructures.forEach((obj) =>
       obj.id === id ? (obj.default = true) : (obj.default = false)
     );
-    return new ApplicationSettings(this);
+    return new ApplicationSettingsObject(this);
   }
 
   getCustomStructureWithID(inputID) {
@@ -261,75 +289,5 @@ class ApplicationSettings {
     );
   }
 }
-// const applicationSettingsConverter = {
-//   toFirestore: (settings) => {
-//     return {
-//       cloudAccounts: settings.cloudAccounts,
-//       hideTutorials: settings.hideTutorials,
-//       localMarketDisplay: settings.localMarketDisplay,
-//       localOrderDisplay: settings.localOrderDisplay,
-//       esiJobTab: settings.esiJobTab,
-//       defaultMarket: settings.defaultMarket,
-//       defaultOrders: settings.defaultOrders,
-//       hideCompleteMaterials: settings.hideCompleteMaterials,
-//       defaultAssetLocation: settings.defaultAssetLocation,
-//       citadelBrokersFee: settings.citadelBrokersFee,
-//       manufacturingStructures: settings.manufacturingStructures,
-//       reactionStructures: settings.reactionStructures,
-//     };
-//   },
-//   fromFirestore: (snapshot, options) => {
-//     const data = snapshot.data(options);
-//     return new ApplicationSettings(data);
-//   },
-// };
 
-export function importApplicationSettingsFromDocument(userObject) {
-  return new ApplicationSettings(userObject?.settings);
-}
-
-export function convertApplicationSettingsToDocument(settingsObject) {
-  const {
-    cloudAccounts,
-    citadelBrokersFee,
-    enableCompactView,
-    defaultMaterialEfficiencyValue,
-    defaultAssetLocation,
-    defaultMarket,
-    defaultOrders,
-    hideCompleteMaterials,
-    esiJobTab,
-    hideTutorials,
-    localMarketDisplay,
-    localOrderDisplay,
-    manufacturingStructures,
-    reactionStructures,
-    exemptTypeIDs,
-  } = settingsObject;
-
-  return {
-    account: {
-      cloudAccounts,
-    },
-    editJob: {
-      citadelBrokersFee,
-      defaultAssetLocation,
-      defaultMarket,
-      defaultOrders,
-      hideCompleteMaterials,
-      defaultMaterialEfficiencyValue,
-    },
-    layout: {
-      esiJobTab,
-      hideTutorials,
-      localMarketDisplay,
-      localOrderDisplay,
-      enableCompactView,
-    },
-    structures: {
-      manufacturing: manufacturingStructures,
-      reaction: reactionStructures,
-    },
-    exemptTypeIDs: [...exemptTypeIDs],
-  };
-}
+export default ApplicationSettingsObject;

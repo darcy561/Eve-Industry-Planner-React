@@ -118,11 +118,7 @@ export function ClassicGroupJobCard({ group }) {
                 xs={12}
                 sx={{ marginBottom: { xs: "5px", sm: "10px" } }}
               >
-                <Typography
-                  color="secondary"
-                  align="center"
-                  variant="body1"
-                >
+                <Typography color="secondary" align="center" variant="body1">
                   {group.groupName}
                 </Typography>
               </Grid>
@@ -139,6 +135,9 @@ export function ClassicGroupJobCard({ group }) {
                         <Avatar
                           key={typeID}
                           src={`https://images.evetech.net/types/${typeID}/icon?size=64`}
+                          style={{
+                            border: "none",
+                          }}
                         />
                       );
                     })}

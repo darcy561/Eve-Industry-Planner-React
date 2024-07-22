@@ -89,9 +89,9 @@ export default function GroupPage() {
   };
 
   function updateShowComplete() {
-    let newGroupArray = [...groupArray];
-    let selectedGroup = newGroupArray.find((i) => i.groupID === activeGroup);
-    selectedGroup.showComplete = !selectedGroup.showComplete;
+    const newGroupArray = [...groupArray];
+    const selectedGroup = newGroupArray.find((i) => i.groupID === activeGroup);
+    selectedGroup.toggleShowComplete();
     updateGroupArray(newGroupArray);
   }
 

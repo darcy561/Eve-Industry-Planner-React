@@ -15,6 +15,44 @@ class Group {
     this.linkedJobIDs = new Set(data?.linkedJobIDs || []);
     this.linkedOrderIDs = new Set(data?.linkedOrderIDs || []);
     this.linkedTransIDs = new Set(data?.linkedTransIDs || []);
+
+    this.toDocument = this.toDocument.bind(this);
+
+    this._convertToNumber = this._convertToNumber.bind(this);
+    this._convertToString = this._convertToString.bind(this);
+    this._toSet = this._toSet.bind(this);
+    this._newSet = this._newSet.bind(this);
+    this._buildNewGroupData = this._buildNewGroupData.bind(this);
+
+    this.setGroupName = this.setGroupName.bind(this);
+    this.setGroupID = this.setGroupID.bind(this);
+    this.addIncludedJobIDs = this.addIncludedJobIDs.bind(this);
+    this.setIncludedJobIDs = this.setIncludedJobIDs.bind(this);
+    this.removeIncludedJobIDs = this.removeIncludedJobIDs.bind(this);
+    this.addIncludedTypeIDs = this.addIncludedTypeIDs.bind(this);
+    this.setIncludedTypeIDs = this.setIncludedTypeIDs.bind(this);
+    this.removeIncludedTypeIDs = this.removeIncludedTypeIDs.bind(this);
+    this.addMaterialIDs = this.addMaterialIDs.bind(this);
+    this.setMaterialIDs = this.setMaterialIDs.bind(this);
+    this.removeMaterialIDs = this.removeMaterialIDs.bind(this);
+    this.updateOutputJobCount = this.updateOutputJobCount.bind(this);
+    this.addAreComplete = this.addAreComplete.bind(this);
+    this.setAreComplete = this.setAreComplete.bind(this);
+    this.removeAreComplete = this.removeAreComplete.bind(this);
+    this.toggleShowComplete = this.toggleShowComplete.bind(this);
+    this.updateGroupStatus = this.updateGroupStatus.bind(this);
+    this.addLinkedOrderIDs = this.addLinkedOrderIDs.bind(this);
+    this.setLinkedOrderIDs = this.setLinkedOrderIDs.bind(this);
+    this.removeLinkedOrderIDs = this.removeLinkedOrderIDs.bind(this);
+    this.addLinkedJobIDs = this.addLinkedJobIDs.bind(this);
+    this.setLinkedJobIDs = this.setLinkedJobIDs.bind(this);
+    this.removeLinkedJobIDs = this.removeLinkedJobIDs.bind(this);
+    this.addLinkedTransIDs = this.addLinkedTransIDs.bind(this);
+    this.setLinkedTransIDs = this.setLinkedTransIDs.bind(this);
+    this.removeLinkedTransIDs = this.removeLinkedTransIDs.bind(this);
+    this.updateGroupData = this.updateGroupData.bind(this);
+    this.addJobsToGroup = this.addJobsToGroup.bind(this);
+    this.removeJobsFromGroup = this.removeJobsFromGroup.bind(this);
   }
 
   toDocument() {
@@ -111,7 +149,12 @@ class Group {
 
   setGroupName(inputGroupName) {
     if (!inputGroupName || inputGroupName.length === 0) return;
-    this.groupName = inputGroupName;
+
+    if (Array.isArray(inputGroupName)) {
+      this.groupName = inputGroupName.join(", ").substring(0, 75);
+    } else {
+      this.groupName = inputGroupName.substring(0, 75);
+    }
   }
 
   setGroupID(inputGroupID) {
@@ -217,8 +260,23 @@ class Group {
   }
 
   updateGroupStatus(input) {
-    if (input == null || isNaN(Number(input))) return;
-    this.groupStatus = Number(input);
+    if (!input) return;
+
+    if (input === "forward") {
+      if (this.groupStatus >= 3) return;
+
+      this.groupStatus++;
+    }
+
+    if (input === "backward") {
+      if (this.groupStatus === 0) return;
+
+      this.groupStatus--;
+    }
+
+    if (!isNaN(input)) {
+      this.groupStatus = Number(input);
+    }
   }
 
   addLinkedOrderIDs(inputJobIDs) {

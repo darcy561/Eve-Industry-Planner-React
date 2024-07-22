@@ -19,7 +19,7 @@ export function useMoveItemsOnPlanner() {
   const { uploadGroups, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { findJobData } = useFindJobObject();
 
-  const moveItemsOnPlanner = async (inputSnapIDs, direction) => {
+  async function moveItemsOnPlanner(inputSnapIDs, direction) {
     let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newGroupArray = [...groupArray];
@@ -30,7 +30,11 @@ export function useMoveItemsOnPlanner() {
 
     for (let inputSnapID of inputSnapIDs) {
       if (inputSnapID.includes("group")) {
-        await moveGroups(inputSnapID);
+        const selectedGroup = newGroupArray.find(
+          (i) => i.groupID === inputSnapID
+        );
+        selectedGroup.updateGroupStatus(direction);
+        groupsModified = true;
       } else {
         await moveJobs(inputSnapID);
       }
@@ -52,31 +56,6 @@ export function useMoveItemsOnPlanner() {
       updateGroupArray(newGroupArray);
     }
 
-    async function moveGroups(inputID) {
-      let inputGroup = await findJobData(
-        inputID,
-        undefined,
-        undefined,
-        newGroupArray
-      );
-
-      if (!inputGroup) return;
-
-      if (direction === "forward") {
-        if (inputGroup.groupStatus >= 3) return;
-        inputGroup.groupStatus++;
-      }
-      if (direction === "backward") {
-        if (inputGroup.groupStatus === 0) return;
-        inputGroup.groupStatus--;
-      }
-
-      newGroupArray = newGroupArray.filter((i) => i.groupID !== inputID);
-      newGroupArray.push(inputGroup);
-      groupsModified = true;
-      return;
-    }
-
     async function moveJobs(inputSnapID) {
       let inputJob = await findJobData(
         inputSnapID,
@@ -96,10 +75,7 @@ export function useMoveItemsOnPlanner() {
       }
 
       if (!inputJob.groupID) {
-        newUserJobSnapshot = updateJobSnapshot(
-          inputJob,
-          newUserJobSnapshot
-        );
+        newUserJobSnapshot = updateJobSnapshot(inputJob, newUserJobSnapshot);
       }
       jobsModified = true;
       if (isLoggedIn) {
@@ -108,7 +84,7 @@ export function useMoveItemsOnPlanner() {
 
       return;
     }
-  };
+  }
 
   return {
     moveItemsOnPlanner,

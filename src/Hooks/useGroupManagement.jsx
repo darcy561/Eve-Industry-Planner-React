@@ -102,7 +102,7 @@ export function useGroupManagement() {
       outputJobCount++;
     }
 
-    newGroupEntry.setGroupName(outputJobNames.join(", ").substring(0, 75));
+    newGroupEntry.setGroupName(outputJobNames);
     newGroupEntry.addIncludedJobIDs(inputJobIDs);
     newGroupEntry.addIncludedTypeIDs(jobTypeIDs);
     newGroupEntry.addMaterialIDs(materialIDs);

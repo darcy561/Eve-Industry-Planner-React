@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import {
   Autocomplete,
   Avatar,
@@ -20,24 +20,22 @@ import uuid from "react-uuid";
 import useBuildNewJobs from "../../../../../Hooks/JobHooks/useBuildNewJobs";
 import useRightContentDrawer from "../../../../SideMenu/Hooks/rightContentMenuHooks";
 import AddShipFittingPanel from "./FittingImport/addFittingJobs";
-import { DataExchangeContext } from "../../../../../Context/LayoutContext";
-import { CheckBox } from "@mui/icons-material";
 
 function AddNewJobContentPanel({
   hideRightContentPanel,
   rightContentMenuContentID,
   updateRightContentMenuContentID,
+  setSkeletonElementsToDisplay,
 }) {
   const [itemIDsToAdd, updateItemIDsToAdd] = useState([]);
   const [addNewGroupOnBuild, updateAddNewGroupOnBuild] = useState(false);
-  const { updateDataExchange } = useContext(DataExchangeContext);
   const { addNewJobsToPlanner } = useBuildNewJobs();
   const { toggleRightDrawerColapse } = useRightContentDrawer();
 
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
   async function addJobs() {
-    updateDataExchange(true);
+    setSkeletonElementsToDisplay(addNewGroupOnBuild ? 1 : itemIDsToAdd.length);
     await addNewJobsToPlanner(itemIDsToAdd);
     updateItemIDsToAdd([]);
     toggleRightDrawerColapse(
@@ -46,7 +44,7 @@ function AddNewJobContentPanel({
       hideRightContentPanel
     );
     updateRightContentMenuContentID(null);
-    updateDataExchange(false);
+    setSkeletonElementsToDisplay(0);
   }
 
   function addItemToSelection(inputID) {
@@ -200,7 +198,10 @@ function AddNewJobContentPanel({
             </Grid>
           </Grid>
         </Box>
-        <AddShipFittingPanel updateItemIDsToAdd={updateItemIDsToAdd} addNewGroupOnBuild={addNewGroupOnBuild} />
+        <AddShipFittingPanel
+          updateItemIDsToAdd={updateItemIDsToAdd}
+          addNewGroupOnBuild={addNewGroupOnBuild}
+        />
       </Box>
     </Paper>
   );

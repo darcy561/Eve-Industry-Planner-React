@@ -1,4 +1,4 @@
-import { CircularProgress, Grid, Typography } from "@mui/material";
+import { CircularProgress, Grid, Skeleton, Typography } from "@mui/material";
 import { useContext, useMemo } from "react";
 import {
   UserJobSnapshotContext,
@@ -16,7 +16,10 @@ import uuid from "react-uuid";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 import ClassiceAPIJobCard from "./Job Cards/ClassicApiJobCard";
 
-export function ClassicAccordionContents({ status }) {
+export function ClassicAccordionContents({
+  status,
+  skeletonElementsToDisplay,
+}) {
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { groupArray } = useContext(JobArrayContext);
   const { apiJobs } = useContext(ApiJobsContext);
@@ -41,7 +44,7 @@ export function ClassicAccordionContents({ status }) {
     );
   } else {
     return (
-      <Grid container direction="row" item xs={12} spacing={2}>
+      <Grid container item xs={12} spacing={2} sx={{ height: "100%" }}>
         {groupArray.map((group) => {
           if (group.groupStatus === status.id) {
             return <ClassicGroupJobCard key={uuid()} group={group} />;
@@ -81,6 +84,27 @@ export function ClassicAccordionContents({ status }) {
             } else {
               return null;
             }
+          })}
+        {status.id === 0 &&
+          Array.from({ length: skeletonElementsToDisplay }).map((_, index) => {
+            return (
+              <Grid
+                key={uuid()}
+                item
+                xs={12}
+                sm={6}
+                md={4}
+                lg={3}
+                sx={{ minHeight: 200, width: "100%" }}
+              >
+                <Skeleton
+                  variant="rectangular"
+                  animation="wave"
+                  width="100%"
+                  height="100%"
+                />
+              </Grid>
+            );
           })}
       </Grid>
     );

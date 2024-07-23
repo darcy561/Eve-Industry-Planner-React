@@ -151,7 +151,10 @@ class Group {
     if (!inputGroupName || inputGroupName.length === 0) return;
 
     if (Array.isArray(inputGroupName)) {
-      this.groupName = inputGroupName.join(", ").substring(0, 75);
+      const stringArray = [];
+      inputGroupName.forEach((obj) => stringArray.push(obj.name));
+
+      this.groupName = stringArray.join(", ").substring(0, 75);
     } else {
       this.groupName = inputGroupName.substring(0, 75);
     }

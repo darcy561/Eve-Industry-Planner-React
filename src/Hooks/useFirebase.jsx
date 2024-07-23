@@ -42,8 +42,8 @@ import {
 import GLOBAL_CONFIG from "../global-config-app";
 import { useCorporationObject } from "./Account Management Hooks/Corporation Objects/useCorporationObject";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
-import ApplicationSettingsObject from "./Account Management Hooks/Application Settings/applicationSettingsConstructor";
-import Group from "./GroupHooks/groupsConstructor";
+import Group from "../Classes/groupsConstructor";
+import ApplicationSettingsObject from "../Classes/applicationSettingsConstructor";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);

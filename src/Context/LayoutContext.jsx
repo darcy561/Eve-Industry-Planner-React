@@ -1,5 +1,7 @@
 import { createContext, useState } from "react";
-import ApplicationSettingsObject from "../Hooks/Account Management Hooks/Application Settings/applicationSettingsConstructor";
+import ApplicationSettingsObject from "../Classes/applicationSettingsConstructor";
+
+
 
 export const DataExchangeContext = createContext();
 

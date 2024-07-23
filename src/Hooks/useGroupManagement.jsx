@@ -9,10 +9,9 @@ import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
-import uuid from "react-uuid";
 import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
-import Group from "./GroupHooks/groupsConstructor";
+import Group from "../Classes/groupsConstructor";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -31,29 +30,24 @@ export function useGroupManagement() {
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   const createNewGroupWithJobs = async (inputJobIDs) => {
-    let newJobArray = [...jobArray];
+    const newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
-    let newGroupArray = [...groupArray];
-    const jobTypeIDs = new Set();
-    let jobsToSave = new Set();
-    let materialIDs = new Set();
-
-    let outputJobCount = 0;
-    let outputJobNames = [];
+    const newGroupArray = [...groupArray];
+    const jobsToSave = new Set();
+    const jobsForGroup = [];
 
     const newGroupEntry = new Group();
 
     for (let inputID of inputJobIDs) {
-      let [inputJob, inputJobSnapshot] = await findJobData(
+      const inputJob = await findJobData(
         inputID,
         newUserJobSnapshot,
-        newJobArray,
-        undefined,
-        "all"
+        newJobArray
       );
       if (!inputJob) {
         continue;
       }
+      jobsForGroup.push(inputJob);
 
       inputJob.groupID = newGroupEntry.groupID;
 
@@ -82,7 +76,7 @@ export function useGroupManagement() {
           if (inputJobIDs.includes(id)) {
             continue;
           }
-          let job = await findJobData(id, newUserJobSnapshot, newJobArray);
+          const job = await findJobData(id, newUserJobSnapshot, newJobArray);
           if (!job) {
             continue;
           }
@@ -91,24 +85,14 @@ export function useGroupManagement() {
         childJobArray = childJobArray.filter((i) => inputJobIDs.includes(i));
       }
 
-      materialIDs = new Set([...materialIDs, ...inputJobSnapshot.materialIDs]);
       newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
 
-      if (inputJob.parentJob.length === 0) {
-        outputJobNames.push(inputJob.name);
-      }
-      jobTypeIDs.add(inputJob.itemID);
       jobsToSave.add(inputJob.jobID);
-      outputJobCount++;
     }
 
-    newGroupEntry.setGroupName(outputJobNames);
-    newGroupEntry.addIncludedJobIDs(inputJobIDs);
-    newGroupEntry.addIncludedTypeIDs(jobTypeIDs);
-    newGroupEntry.addMaterialIDs(materialIDs);
-    newGroupEntry.updateOutputJobCount(outputJobCount);
+    newGroupEntry.setGroupName(jobsForGroup);
+    newGroupEntry.updateGroupData(jobsForGroup);
 
-    console.log(newGroupEntry);
     newGroupArray.push(newGroupEntry);
     if (isLoggedIn) {
       uploadUserJobSnapshot(newUserJobSnapshot);

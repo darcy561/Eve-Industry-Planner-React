@@ -14,7 +14,7 @@ import { useJobSnapshotManagement } from "./useJobSnapshots";
 import { useFirebase } from "../useFirebase";
 import { EvePricesContext } from "../../Context/EveDataContext";
 import { logEvent } from "firebase/analytics";
-import Group from "../GroupHooks/groupsConstructor";
+import Group from "../../Classes/groupsConstructor";
 
 function useBuildNewJobs() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -43,8 +43,7 @@ function useBuildNewJobs() {
     let singleJobBuildFlag = false;
     let requiresGroupDocSave = false;
     const addNewGroup = buildRequests.some((i) => i.addNewGroup);
-    let newGroup = null
-    const newJobNames = []
+    let newGroup = null;
 
     firestoreTrace.start();
     updateDataExchange(true);
@@ -63,21 +62,19 @@ function useBuildNewJobs() {
         ...priceRequestSet,
         ...generatePriceRequestFromJob(jobObject),
       ]);
-      newJobNames.push(jobObject.name);
     }
     const itemPriceRequest = [getItemPrices([...priceRequestSet], parentUser)];
 
     if (addNewGroup) {
       newGroup = new Group();
-      newGroup.setGroupName(newJobNames);
+      newGroup.setGroupName(newJobObjects);
       newGroup.updateGroupData(newJobObjects);
       newGroupArray.push(newGroup);
-      requiresGroupDocSave = true
+      requiresGroupDocSave = true;
     }
 
     for (let jobObject of newJobObjects) {
       newJobArray.push(jobObject);
-
 
       if (!jobObject.groupID && !addNewGroup) {
         newUserJobSnapshot = newJobSnapshot(jobObject, newUserJobSnapshot);
@@ -92,7 +89,7 @@ function useBuildNewJobs() {
       }
 
       if (addNewGroup) {
-        jobObject.groupID = newGroup.groupID
+        jobObject.groupID = newGroup.groupID;
       }
 
       if (isLoggedIn) {

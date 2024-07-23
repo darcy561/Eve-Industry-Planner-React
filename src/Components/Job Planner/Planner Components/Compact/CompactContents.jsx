@@ -1,12 +1,22 @@
 import { useContext } from "react";
 import { UserJobSnapshotContext } from "../../../../Context/AuthContext";
-import { CircularProgress, Grid, Typography } from "@mui/material";
+import {
+  Card,
+  CircularProgress,
+  Grid,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import { UserLoginUIContext } from "../../../../Context/LayoutContext";
 import { JobArrayContext } from "../../../../Context/JobContext";
 import { CompactGroupJobCard } from "./CompactGroupJobCard";
 import { CompactJobCardFrame } from "./CompactJobCardFrame";
+import uuid from "react-uuid";
 
-export function CompactAccordionContents({ updateEditJobTrigger, status }) {
+export function CompactAccordionContents({
+  status,
+  skeletonElementsToDisplay,
+}) {
   const { groupArray } = useContext(JobArrayContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { userJobSnapshotDataFetch } = useContext(UserLoginUIContext);
@@ -36,14 +46,23 @@ export function CompactAccordionContents({ updateEditJobTrigger, status }) {
 
           {userJobSnapshot.map((job) => {
             if (job.jobStatus !== status.id) return null;
-            return (
-              <CompactJobCardFrame
-                key={job.jobID}
-                job={job}
-                updateEditJobTrigger={updateEditJobTrigger}
-              />
-            );
+            return <CompactJobCardFrame key={job.jobID} job={job} />;
           })}
+          {status.id === 0 &&
+            Array.from({ length: skeletonElementsToDisplay }).map(
+              (_, index) => {
+                return (
+                  <Card key={uuid()} sx={{ marginTop: "5px", marginBottom: "5px", padding:0, height:40 }}>
+                    <Skeleton
+                      variant="rectangular" 
+                      animation="wave"
+                      width="100%"
+                      height="100%"
+                    />
+                  </Card>
+                );
+              }
+            )}
         </Grid>
       </Grid>
     );

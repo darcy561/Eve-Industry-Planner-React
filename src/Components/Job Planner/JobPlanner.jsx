@@ -33,6 +33,7 @@ export default function JobPlanner({ colorMode }) {
     useState(false);
   const [rightContentMenuContentID, updateRightContentMenuContentID] =
     useState(null);
+  const [skeletonElementsToDisplay, setSkeletonElementsToDisplay] = useState(0);
 
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
@@ -105,7 +106,12 @@ export default function JobPlanner({ colorMode }) {
             >
               <ESIOffline />
               {!deviceNotMobile && rightContentMenuContentID === 1 && (
-                <SearchBar updateRightContentMenuContentID={updateRightContentMenuContentID} />
+                <SearchBar
+                  updateRightContentMenuContentID={
+                    updateRightContentMenuContentID
+                  }
+                  setSkeletonElementsToDisplay={setSkeletonElementsToDisplay}
+                />
               )}
 
               <Box
@@ -118,7 +124,9 @@ export default function JobPlanner({ colorMode }) {
                   flex: 1,
                 }}
               >
-                <PlannerAccordion />
+                <PlannerAccordion
+                  skeletonElementsToDisplay={skeletonElementsToDisplay}
+                />
               </Box>
 
               <Footer />
@@ -132,6 +140,7 @@ export default function JobPlanner({ colorMode }) {
                       updateRightContentMenuContentID
                     }
                     updateExpandRightContentMenu={updateExpandRightContentMenu}
+                    setSkeletonElementsToDisplay={setSkeletonElementsToDisplay}
                   />
                 }
                 expandRightContentMenu={expandRightContentMenu}

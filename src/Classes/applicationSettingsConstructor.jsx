@@ -1,5 +1,6 @@
-import { jobTypes } from "../../../Context/defaultValues";
-import GLOBAL_CONFIG from "../../../global-config-app";
+import { jobTypes } from "../Context/defaultValues";
+import GLOBAL_CONFIG from "../global-config-app";
+
 
 const { DEFAULT_MARKET_OPTION, DEFAULT_ORDER_OPTION, DEFAULT_ASSET_LOCATION } =
   GLOBAL_CONFIG;

@@ -30,7 +30,7 @@ import { grey } from "@mui/material/colors";
 import GLOBAL_CONFIG from "../../../global-config-app";
 import { CompactAccordionContents } from "./Compact/CompactContents";
 
-export function PlannerAccordion() {
+export function PlannerAccordion({skeletonElementsToDisplay}) {
   const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -194,9 +194,9 @@ export function PlannerAccordion() {
               </AccordionSummary>
               <AccordionDetails>
                 {applicationSettings.enableCompactView ? (
-                  <CompactAccordionContents status={status} />
+                  <CompactAccordionContents status={status} skeletonElementsToDisplay={skeletonElementsToDisplay} />
                 ) : (
-                  <ClassicAccordionContents status={status} />
+                  <ClassicAccordionContents status={status} skeletonElementsToDisplay={skeletonElementsToDisplay} />
                 )}
               </AccordionDetails>
             </Accordion>

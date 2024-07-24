@@ -10,8 +10,8 @@ import {
 } from "../../Context/JobContext";
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
-import { useJobSnapshotManagement } from "./useJobSnapshots";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
+import JobSnapshot from "../../Classes/jobSnapshotConstructor";
 
 export function useCloseActiveJob() {
   const { updateActiveJob } = useContext(ActiveJobContext);
@@ -30,7 +30,6 @@ export function useCloseActiveJob() {
     updateLinkedTransIDs,
   } = useContext(LinkedIDsContext);
   const { addNewJob, uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { sendSnackbarNotificationInfo } = useHelperFunction();
 
@@ -60,7 +59,7 @@ export function useCloseActiveJob() {
       inputJob.build.childJobs[tempJob.itemID].push(tempJob.jobID);
       newJobArray.push(tempJob);
       if (!inputJob.groupID) {
-        newUserJobSnapshot = newJobSnapshot(tempJob, newUserJobSnapshot);
+        newUserJobSnapshot.push(new JobSnapshot(tempJob));
       } else {
         const matchedGroup = newGroupArray.find(
           (i) => i.groupID === tempJob.groupID
@@ -79,7 +78,10 @@ export function useCloseActiveJob() {
     removeIDsFromSet(newLinkedOrderIDs, esiDataToLink.marketOrders.remove);
     removeIDsFromSet(newLinkedTransIDs, esiDataToLink.transactions.remove);
 
-    newUserJobSnapshot = updateJobSnapshot(inputJob, newUserJobSnapshot);
+    const matchedSnapshot = newUserJobSnapshot.find(
+      (i) => i.jobID === inputJob.jobID
+    );
+    matchedSnapshot.setSnapshot(inputJob);
 
     let parentIDsToRemove = new Set();
     const modifiedJobsSet = new Set();
@@ -205,7 +207,11 @@ export function useCloseActiveJob() {
     modifiedJobsSet.forEach((modifiedID) => {
       const matchedJob = newJobArray.find((i) => i.jobID === modifiedID);
       if (!matchedJob) return;
-      newUserJobSnapshot = updateJobSnapshot(matchedJob, newUserJobSnapshot);
+
+      const matchedSnapshot = newUserJobSnapshot.find(
+        (i) => i.jobID === matchedJob.jobID
+      );
+      matchedSnapshot.setSnapshot(matchedJob);
 
       if (isLoggedIn) {
         uploadJob(matchedJob);
@@ -217,7 +223,7 @@ export function useCloseActiveJob() {
       inputJob.isReadyToSell &&
       !newUserJobSnapshot.some((i) => i.jobID === inputJob.jobID)
     ) {
-      newUserJobSnapshot = newJobSnapshot(inputJob, newUserJobSnapshot);
+      newUserJobSnapshot.push(new JobSnapshot(inputJob));
     }
 
     if (inputJob.groupID) {

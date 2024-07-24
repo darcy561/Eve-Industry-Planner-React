@@ -428,7 +428,6 @@ export let usersDefault = [
     CharacterHash: "ABC123",
     CharacterName: "Example Character",
     ParentUser: true,
-    apiJobs: [],
     linkedJobs: new Set([477723892, 4777240090]),
     linkedOrders: new Set([6161413749, 6161414065]),
     linkedTrans: new Set([

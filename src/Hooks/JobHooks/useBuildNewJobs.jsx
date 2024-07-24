@@ -10,11 +10,11 @@ import { DataExchangeContext } from "../../Context/LayoutContext";
 import { useJobBuild } from "../useJobBuild";
 import { useJobManagement } from "../useJobManagement";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
-import { useJobSnapshotManagement } from "./useJobSnapshots";
 import { useFirebase } from "../useFirebase";
 import { EvePricesContext } from "../../Context/EveDataContext";
 import { logEvent } from "firebase/analytics";
 import Group from "../../Classes/groupsConstructor";
+import JobSnapshot from "../../Classes/jobSnapshotConstructor";
 
 function useBuildNewJobs() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -26,10 +26,9 @@ function useBuildNewJobs() {
   const { updateEvePrices } = useContext(EvePricesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { buildJob } = useJobBuild();
-  const { addNewJob, uploadGroups, getItemPrices, userJobListener } =
+  const { addNewJob, uploadGroups, getItemPrices, userJobListener, uploadUserJobSnapshot } =
     useFirebase();
   const { generatePriceRequestFromJob } = useJobManagement();
-  const { newJobSnapshot } = useJobSnapshotManagement();
   const { findParentUser, sendSnackbarNotificationSuccess } =
     useHelperFunction();
   const parentUser = findParentUser();
@@ -77,8 +76,10 @@ function useBuildNewJobs() {
       newJobArray.push(jobObject);
 
       if (!jobObject.groupID && !addNewGroup) {
-        newUserJobSnapshot = newJobSnapshot(jobObject, newUserJobSnapshot);
-        requiresGroupDocSave = true;
+        console.log("add")
+        const snapshot = new JobSnapshot(jobObject);
+        console.log(snapshot)
+        newUserJobSnapshot.push(snapshot);
       }
 
       if (jobObject.groupID && !addNewGroup) {
@@ -86,15 +87,17 @@ function useBuildNewJobs() {
           (i) => i.groupID === jobObject.groupID
         );
         matchedGroup.addJobsToGroup(jobObject);
+        requiresGroupDocSave = true;
       }
 
       if (addNewGroup) {
         jobObject.groupID = newGroup.groupID;
+        requiresGroupDocSave = true;
       }
 
       if (isLoggedIn) {
         await addNewJob(jobObject);
-
+        await uploadUserJobSnapshot(newUserJobSnapshot)
         userJobListener(parentUser, jobObject.jobID);
       }
       logEvent(analytics, "New Job", {

@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { Button, Tooltip } from "@mui/material";
 import { UserJobSnapshotContext } from "../../../../../../Context/AuthContext";
-import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
 import { ActiveJobContext } from "../../../../../../Context/JobContext";
 
 export function SellGroupJobButton({
@@ -13,7 +12,6 @@ export function SellGroupJobButton({
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { deleteJobSnapshot } = useJobSnapshotManagement();
 
   const toggleMarkForSell = async () => {
     if (!activeJob.isReadyToSell) {
@@ -23,9 +21,9 @@ export function SellGroupJobButton({
         isReadyToSell: !prev.isReadyToSell,
       }));
     } else {
-      let newUserJobSnaoshot = deleteJobSnapshot(activeJob, [
-        ...userJobSnapshot,
-      ]);
+      const newUserJobSnaoshot = userJobSnapshot.filter(
+        (i) => i.jobID === activeJob.jobID
+      );
       updateActiveJob((prev) => ({
         ...prev,
         isReadyToSell: !prev.isReadyToSell,

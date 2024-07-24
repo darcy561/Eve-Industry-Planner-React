@@ -10,7 +10,6 @@ import {
   UsersContext,
 } from "../../../../../../Context/AuthContext";
 import { useFirebase } from "../../../../../../Hooks/useFirebase";
-import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useNavigate } from "react-router-dom";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
@@ -25,7 +24,6 @@ export function ArchiveJobButton({ activeJob }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { archiveJob, removeJob, uploadUserJobSnapshot, updateMainUserDoc } =
     useFirebase();
-  const { deleteJobSnapshot } = useJobSnapshotManagement();
   const { findParentUserIndex, sendSnackbarNotificationSuccess } =
     useHelperFunction();
   const analytics = getAnalytics();
@@ -57,7 +55,10 @@ export function ArchiveJobButton({ activeJob }) {
     updateUsers(newUserArray);
     sendSnackbarNotificationSuccess(`${activeJob.name} Archived`);
 
-    let newUserJobSnapshot = deleteJobSnapshot(activeJob, [...userJobSnapshot]);
+    const newUserJobSnapshot = userJobSnapshot.filter(
+      (i) => i.jobID !== activeJob.jobID
+    );
+
     await uploadUserJobSnapshot(newUserJobSnapshot);
     await archiveJob(activeJob);
     await removeJob(activeJob);

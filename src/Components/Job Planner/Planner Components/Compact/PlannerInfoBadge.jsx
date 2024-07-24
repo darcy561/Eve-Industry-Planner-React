@@ -25,8 +25,8 @@ function getTooltipContent(job, timeRemaining){
     case 2:
       return (
         <span>
-          <p>ESI Jobs Linked: {job.apiJobs.length.toLocaleString()}</p>
-          {job.apiJobs.length > 0 && (
+          <p>ESI Jobs Linked: {job.apiJobs.size.toLocaleString()}</p>
+          {job.apiJobs.size > 0 && (
             <p>
               {timeRemaining === "complete"
                 ? "Complete"
@@ -44,8 +44,8 @@ function getTooltipContent(job, timeRemaining){
     case 4:
       return (
         <span>
-          <p>Market Orders: {job.apiOrders.length.toLocaleString()}</p>
-          <p>Transactions: {job.apiTransactions.length.toLocaleString()} </p>
+          <p>Market Orders: {job.apiOrders.size.toLocaleString()}</p>
+          <p>Transactions: {job.apiTransactions.size.toLocaleString()} </p>
         </span>
       );
     default:

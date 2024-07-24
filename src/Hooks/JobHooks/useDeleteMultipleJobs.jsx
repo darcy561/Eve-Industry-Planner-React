@@ -1,31 +1,23 @@
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "firebase/performance";
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
-  UsersContext,
 } from "../../Context/AuthContext";
 import {
-  ActiveJobContext,
   ApiJobsContext,
   JobArrayContext,
   LinkedIDsContext,
 } from "../../Context/JobContext";
-import {
-  MultiSelectJobPlannerContext,
-  SnackBarDataContext,
-} from "../../Context/LayoutContext";
+import { MultiSelectJobPlannerContext } from "../../Context/LayoutContext";
 import { performance } from "../../firebase";
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
-import { useJobSnapshotManagement } from "./useJobSnapshots";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useDeleteMultipleJobs() {
-  const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { activeGroup } = useContext(ActiveJobContext);
   const { jobArray, updateJobArray, groupArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
@@ -43,7 +35,6 @@ export function useDeleteMultipleJobs() {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { deleteJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
@@ -131,14 +122,20 @@ export function useDeleteMultipleJobs() {
               (i) => inputJob.jobID !== i
             );
 
-          newUserJobSnapshot = updateJobSnapshot(parentJob, newUserJobSnapshot);
+          const matchedSnapshot = newUserJobSnapshot.find(
+            (i) => i.jobID === parentJob.jobID
+          );
+          matchedSnapshot.setSnapshot(parentJob);
+
           jobsToSave.add(parentJob.jobID);
         }
       }
 
       removeJobFromGroup(newGroupArray, inputJob);
 
-      newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
+      newUserJobSnapshot = newUserJobSnapshot.filter(
+        (i) => i.jobID === inputJob.jobID
+      );
 
       if (isLoggedIn) {
         removeJob(inputJob);

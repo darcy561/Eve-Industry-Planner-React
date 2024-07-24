@@ -9,9 +9,9 @@ import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useBlueprintCalc } from "./useBlueprintCalc";
 import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
-import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 import Group from "../Classes/groupsConstructor";
+import JobSnapshot from "../Classes/jobSnapshotConstructor";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -21,7 +21,6 @@ export function useGroupManagement() {
   );
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeGroup } = useContext(ActiveJobContext);
-  const { deleteJobSnapshot, newJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { addNewJob, uploadGroups, uploadUserJobSnapshot, uploadJob } =
     useFirebase();
@@ -85,7 +84,9 @@ export function useGroupManagement() {
         childJobArray = childJobArray.filter((i) => inputJobIDs.includes(i));
       }
 
-      newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
+      newUserJobSnapshot = newUserJobSnapshot.filter(
+        (i) => i.jobID !== inputJob.jobID
+      );
 
       jobsToSave.add(inputJob.jobID);
     }
@@ -126,7 +127,7 @@ export function useGroupManagement() {
     let newGroupArray = [...groupArray];
     let newUserJobSnapshot = [...userJobSnapshot];
 
-    let chosenGroup = newGroupArray.find((i) => i.groupID === inputGroupID);
+    const chosenGroup = newGroupArray.find((i) => i.groupID === inputGroupID);
 
     for (let jobID of [...chosenGroup.includedJobIDs]) {
       let foundJob = await findJobData(
@@ -140,16 +141,16 @@ export function useGroupManagement() {
         continue;
       }
       foundJob.groupID = null;
-      newUserJobSnapshot = newJobSnapshot(foundJob, newUserJobSnapshot);
+      newUserJobSnapshot.push(new JobSnapshot(foundJob));
       if (isLoggedIn) {
-        uploadJob(foundJob);
+        await uploadJob(foundJob);
       }
     }
     newGroupArray = newGroupArray.filter((i) => i.groupID !== inputGroupID);
 
     if (isLoggedIn) {
-      uploadUserJobSnapshot(newUserJobSnapshot);
-      uploadGroups(newGroupArray);
+      await uploadUserJobSnapshot(newUserJobSnapshot);
+      await uploadGroups(newGroupArray);
     }
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);

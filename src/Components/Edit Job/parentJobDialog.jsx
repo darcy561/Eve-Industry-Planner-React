@@ -41,7 +41,7 @@ export function ParentJobDialog({
     if (!activeJob.groupID) {
       for (let job of userJobSnapshot) {
         if (
-          job.materialIDs.includes(activeJob.itemID) &&
+          job.materialIDs.has(activeJob.itemID) &&
           !activeJob.parentJob.includes(job.jobID) &&
           !parentChildToEdit.parentJobs.add.includes(job.jobID)
         ) {

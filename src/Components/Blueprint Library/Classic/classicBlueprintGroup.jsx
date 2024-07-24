@@ -21,8 +21,8 @@ import { UserJobSnapshotContext } from "../../../Context/AuthContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "@firebase/performance";
 import { performance } from "../../../firebase";
-import { useJobSnapshotManagement } from "../../../Hooks/JobHooks/useJobSnapshots";
 import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
+import JobSnapshot from "../../../Classes/jobSnapshotConstructor";
 
 export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   const { apiJobs } = useContext(ApiJobsContext);
@@ -35,7 +35,6 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   const [loadingBuild, updateLoadingBuild] = useState(false);
   const { buildJob, checkAllowBuild } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
-  const { newJobSnapshot } = useJobSnapshotManagement();
   const { addNewJob, getItemPrices, uploadJob, uploadUserJobSnapshot } =
     useFirebase();
   const { findParentUser, sendSnackbarNotificationSuccess } =
@@ -91,8 +90,11 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
                       updateLoadingBuild((prev) => !prev);
                       return;
                     }
-                    let newJob = await buildJob({ itemID: bpData.itemID });
-                    if (newJob === undefined) {
+                    const newJobArray = [...jobArray];
+                    const newSnapshotArray = [...newSnapshotArray];
+
+                    const newJob = await buildJob({ itemID: bpData.itemID });
+                    if (!newJob) {
                       updateLoadingBuild((prev) => !prev);
                       return;
                     }
@@ -103,11 +105,12 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
                         parentUser
                       ),
                     ];
-                    let newUserJobSnapshot = newJobSnapshot(newJob, [
-                      ...userJobSnapshot,
-                    ]);
-                    addNewJob(newJob);
-                    uploadUserJobSnapshot(newUserJobSnapshot);
+
+                    newJobArray.push(newJob);
+                    newSnapshotArray.push(new JobSnapshot(newJob));
+
+                    await addNewJob(newJob);
+                    await uploadUserJobSnapshot(newSnapshotArray);
 
                     logEvent(analytics, "New Job", {
                       loggedIn: true,
@@ -116,12 +119,13 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
                       itemID: newJob.itemID,
                     });
                     const itemPriceResult = await Promise.all(itemPricePromise);
-                    updateUserJobSnapshot(newUserJobSnapshot);
+
                     updateEvePrices((prev) => ({
                       ...prev,
                       ...itemPriceResult,
                     }));
-                    updateJobArray((prev) => [...prev, newJob]);
+                    updateUserJobSnapshot(newSnapshotArray);
+                    updateJobArray(newJobArray);
                     sendSnackbarNotificationSuccess(`${newJob.name} Added`, 3);
 
                     updateLoadingBuild((prev) => !prev);

@@ -1,28 +1,21 @@
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
-  UsersContext,
 } from "../../Context/AuthContext";
 import {
-  ActiveJobContext,
   ApiJobsContext,
   JobArrayContext,
   LinkedIDsContext,
 } from "../../Context/JobContext";
-import {
-  MultiSelectJobPlannerContext,
-  SnackBarDataContext,
-} from "../../Context/LayoutContext";
+import { MultiSelectJobPlannerContext } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
-import { useJobSnapshotManagement } from "./useJobSnapshots";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 
 export function useDeleteSingleJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { activeGroup } = useContext(ActiveJobContext);
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
@@ -42,7 +35,6 @@ export function useDeleteSingleJob() {
   );
   const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
     useFirebase();
-  const { deleteJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
   const analytics = getAnalytics();
@@ -101,7 +93,10 @@ export function useDeleteSingleJob() {
 
         child.parentJob = child.parentJob.filter((i) => i !== inputJob.jobID);
 
-        newUserJobSnapshot = updateJobSnapshot(child, newUserJobSnapshot);
+        const matchedSnapshot = newUserJobSnapshot.find(
+          (i) => i.jobID === child.jobID
+        );
+        matchedSnapshot.setSnapshot(child);
 
         jobsToSave.add(child.jobID);
       }
@@ -121,7 +116,11 @@ export function useDeleteSingleJob() {
         inputJob.itemID
       ].filter((i) => i !== inputJob.jobID);
 
-      newUserJobSnapshot = updateJobSnapshot(parentJob, newUserJobSnapshot);
+      const matchedSnapshot = newUserJobSnapshot.find(
+        (i) => i.jobID === parentJob.jobID
+      );
+      matchedSnapshot.setSnapshot(parentJob);
+
       jobsToSave.add(parentJob.jobID);
     }
 
@@ -135,7 +134,9 @@ export function useDeleteSingleJob() {
 
     newMutliSelct.delete(inputJob.jobID);
 
-    newUserJobSnapshot = deleteJobSnapshot(inputJob, newUserJobSnapshot);
+    newUserJobSnapshot = newUserJobSnapshot.filter(
+      (i) => i.jobID === inputJob.jobID
+    );
 
     newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
 

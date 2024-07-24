@@ -44,6 +44,7 @@ import { useCorporationObject } from "./Account Management Hooks/Corporation Obj
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 import Group from "../Classes/groupsConstructor";
 import ApplicationSettingsObject from "../Classes/applicationSettingsConstructor";
+import JobSnapshot from "../Classes/jobSnapshotConstructor";
 
 export function useFirebase() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -214,8 +215,9 @@ export function useFirebase() {
     );
   }
 
-  const uploadUserJobSnapshot = async (newUserJobSnapshot) => {
+  async function uploadUserJobSnapshot(newUserJobSnapshot) {
     await fbAuthState();
+    const snapshotArray = newUserJobSnapshot.map((snap) => snap.toDocument());
     updateDoc(
       doc(
         firestore,
@@ -223,10 +225,10 @@ export function useFirebase() {
         "JobSnapshot"
       ),
       {
-        snapshot: newUserJobSnapshot,
+        snapshot: snapshotArray,
       }
     );
-  };
+  }
 
   const uploadUserWatchlist = async (itemGroups, itemWatchlist) => {
     await fbAuthState();
@@ -491,25 +493,24 @@ export function useFirebase() {
             let newLinkedJobIDs = new Set();
             let newLinkedTransIDs = new Set();
             snapshotData.forEach((snap) => {
-              snap.jobID = snap.jobID.toString();
-              snap.parentJob = snap.parentJob.map(String);
-              snap.childJobs = snap.childJobs.map(String);
+              const jobSnapshot = new JobSnapshot(snap);
 
-              snap.apiJobs.forEach((id) => {
+              jobSnapshot.apiJobs.forEach((id) => {
                 newLinkedJobIDs.add(id);
               });
-              snap.apiOrders.forEach((id) => {
+              jobSnapshot.apiOrders.forEach((id) => {
                 newLinkedOrderIDs.add(id);
               });
-              snap.apiTransactions.forEach((id) => {
+              jobSnapshot.apiTransactions.forEach((id) => {
                 newLinkedTransIDs.add(id);
               });
-              snap.materialIDs.forEach((id) => {
+              jobSnapshot.materialIDs.forEach((id) => {
                 priceIDRequest.add(id);
               });
-              priceIDRequest.add(snap.itemID);
-              newUserJobSnapshot.push(snap);
+              priceIDRequest.add(jobSnapshot.itemID);
+              newUserJobSnapshot.push(jobSnapshot);
             });
+
             const itemPriceResult = await getItemPrices(
               [...priceIDRequest],
               userObj
@@ -731,9 +732,7 @@ export function useFirebase() {
 
   async function uploadGroups(groupSnapshot) {
     await fbAuthState();
-    const groupObjects = [];
-
-    groupSnapshot.forEach((group) => groupObjects.push(group.toDocument()));
+    const groupObjects = groupSnapshot.map((group) => group.toDocument());
 
     updateDoc(
       doc(firestore, `Users/${parentUser.accountID}/ProfileInfo`, "GroupData"),

@@ -23,9 +23,9 @@ import {
 import { useJobBuild } from "./useJobBuild";
 import { useEveApi } from "./useEveApi";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
-import { useJobSnapshotManagement } from "./JobHooks/useJobSnapshots";
 import { STATIONID_RANGE } from "../Context/defaultValues";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
+import JobSnapshot from "../Classes/jobSnapshotConstructor";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
@@ -59,7 +59,6 @@ export function useJobManagement() {
   const { stationData } = useEveApi();
   const { buildJob } = useJobBuild();
   const { findJobData } = useFindJobObject();
-  const { newJobSnapshot, updateJobSnapshot } = useJobSnapshotManagement();
   const { findParentUser, isItemBuildable, sendSnackbarNotificationSuccess } =
     useHelperFunction();
 
@@ -165,7 +164,11 @@ export function useJobManagement() {
         }
         updatedJob.build.childJobs[material.typeID].push(match.jobID);
       }
-      newUserJobSnapshot = updateJobSnapshot(updatedJob, newUserJobSnapshot);
+
+      const matchedSnapshot = newUserJobSnapshot.find(
+        (i) => i.jobID === updatedJob.jobID
+      );
+      matchedSnapshot.setSnapshot(updatedJob);
 
       jobsToSave.add(updatedJob.jobID);
     }
@@ -181,10 +184,10 @@ export function useJobManagement() {
     });
 
     for (let childJob of childJobs) {
-      newUserJobSnapshot = newJobSnapshot(childJob, newUserJobSnapshot);
+      newUserJobSnapshot.push(new JobSnapshot(childJob));
 
       if (isLoggedIn) {
-        addNewJob(childJob);
+        await addNewJob(childJob);
       }
       newJobArray.push(childJob);
     }
@@ -475,9 +478,9 @@ export function useJobManagement() {
       );
     }
     for (let job of newJobHold) {
-      newUserJobSnapshot = newJobSnapshot(job, newUserJobSnapshot);
+      newUserJobSnapshot.push(new JobSnapshot(job));
       if (isLoggedIn) {
-        addNewJob(job);
+        await addNewJob(job);
       }
     }
 
@@ -488,7 +491,11 @@ export function useJobManagement() {
       if (!job) {
         return;
       }
-      newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
+      const matchedSnapshot = newUserJobSnapshot.find(
+        (i) => i.jobID === job.jobID
+      );
+      matchedSnapshot.setSnapshot(job);
+
       if (isLoggedIn) {
         uploadJob(job);
       }

@@ -18,7 +18,7 @@ export default function Step5JobCard({ job }) {
         </Grid>
         <Grid item xs={2}>
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
-            {job.apiOrders.length.toLocaleString()}
+            {job.apiOrders.size.toLocaleString()}
           </Typography>
         </Grid>
       </Grid>
@@ -30,7 +30,7 @@ export default function Step5JobCard({ job }) {
         </Grid>
         <Grid item xs={2}>
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
-            {job.apiTransactions.length.toLocaleString()}
+            {job.apiTransactions.size.toLocaleString()}
           </Typography>
         </Grid>
       </Grid>

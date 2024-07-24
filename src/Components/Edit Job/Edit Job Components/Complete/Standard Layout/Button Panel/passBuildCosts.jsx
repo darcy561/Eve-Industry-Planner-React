@@ -6,7 +6,6 @@ import {
   UserJobSnapshotContext,
 } from "../../../../../../Context/AuthContext";
 import { useFirebase } from "../../../../../../Hooks/useFirebase";
-import { useJobSnapshotManagement } from "../../../../../../Hooks/JobHooks/useJobSnapshots";
 import { useFindJobObject } from "../../../../../../Hooks/GeneralHooks/useFindJobObject";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
@@ -18,7 +17,6 @@ export function PassBuildCostsButton({ activeJob }) {
     UserJobSnapshotContext
   );
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const {
     findParentUser,
@@ -47,13 +45,13 @@ export function PassBuildCostsButton({ activeJob }) {
       let newTotal = 0;
       let quantityImported = 0;
       let parentJob = await findJobData(job, newUserJobSnapshot, newJobArray);
-      if (parentJob === undefined) {
+      if (!parentJob) {
         continue;
       }
       let material = parentJob.build.materials.find(
         (i) => i.typeID === activeJob.itemID
       );
-      if (material === undefined) {
+      if (!material) {
         continue;
       }
       if (
@@ -88,7 +86,12 @@ export function PassBuildCostsButton({ activeJob }) {
       if (isLoggedIn) {
         await uploadJob(parentJob);
       }
-      newUserJobSnapshot = updateJobSnapshot(parentJob, newUserJobSnapshot);
+
+      const matchedSnapshot = newUserJobSnapshot.find(
+        (i) => i.jobID === parentJob.jobID
+      );
+      matchedSnapshot.setSnapshot(parentJob);
+
       let index = newJobArray.findIndex((i) => i.jobID === parentJob.jobID);
       if (index !== -1) {
         newJobArray[index] = parentJob;

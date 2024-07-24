@@ -30,10 +30,10 @@ import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import { JobArrayContext } from "../../../../Context/JobContext";
 import { trace } from "firebase/performance";
 import { performance } from "../../../../firebase";
-import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
 import { useInstallCostsCalc } from "../../../../Hooks/GeneralHooks/useInstallCostCalc";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
+import JobSnapshot from "../../../../Classes/jobSnapshotConstructor";
 
 export function WatchListRow({
   item,
@@ -64,7 +64,6 @@ export function WatchListRow({
     sendSnackbarNotificationSuccess,
     sendSnackbarNotificationError,
   } = useHelperFunction();
-  const { newJobSnapshot } = useJobSnapshotManagement();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
   const analytics = getAnalytics();
   const t = trace(performance, "CreateJobProcessFull");
@@ -83,6 +82,7 @@ export function WatchListRow({
   async function handleAdd() {
     t.start();
     if (!checkAllowBuild) return;
+    const newSnapshotArray = [...userJobSnapshot];
 
     let newJob = await buildJob({
       itemID: item.typeID,
@@ -94,10 +94,12 @@ export function WatchListRow({
       getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
     ];
 
-    let newUserJobSnapshot = newJobSnapshot(newJob, [...userJobSnapshot]);
+    const jobSnapshot = new JobSnapshot(newJob);
 
-    addNewJob(newJob);
-    uploadUserJobSnapshot(newUserJobSnapshot);
+    newSnapshotArray.push(jobSnapshot);
+
+    await addNewJob(newJob);
+    await uploadUserJobSnapshot(newSnapshotArray);
     logEvent(analytics, "New Job", {
       loggedIn: true,
       UID: parentUser.accountID,
@@ -107,11 +109,12 @@ export function WatchListRow({
 
     const itemPriceResult = await Promise.all(itemPricePromise);
 
-    updateUserJobSnapshot(newUserJobSnapshot);
     updateEvePrices((prev) => ({
       ...prev,
       ...itemPriceResult,
     }));
+
+    updateUserJobSnapshot(newSnapshotArray);
     updateJobArray((prev) => [...prev, newJob]);
     sendSnackbarNotificationSuccess(`${newJob.name} Added`, 3);
     t.stop();
@@ -159,6 +162,12 @@ export function WatchListRow({
     };
   }, [evePrices]);
 
+  const isItemDataOutdated = !item?.buildData;
+
+  const isStructureMissing = !applicationSettings.getCustomStructureWithID(
+    item?.buildData?.customStructureID
+  );
+
   const calculatedCosts = buildCosts();
 
   return (
@@ -180,13 +189,17 @@ export function WatchListRow({
             alignItems="center"
             sx={{ display: "flex" }}
           >
-            {!item.buildData ? (
+            {isItemDataOutdated || isStructureMissing ? (
               <Tooltip
-                title="Outdated watchlist item, the values calculated may no longer be accurate. Edit this item or replace it to correct."
+                title={
+                  isItemDataOutdated
+                    ? "Outdated watchlist item, the values calculated may no longer be accurate. Edit this item or replace it to correct."
+                    : "The custom structure used to calculate the install costs is missing, Edit this item to update the structure."
+                }
                 arrow
                 placement="bottom"
               >
-                <Icon color="warning">
+                <Icon color={isItemDataOutdated ? "error" : "warning"}>
                   <WarningAmberIcon />
                 </Icon>
               </Tooltip>

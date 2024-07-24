@@ -26,7 +26,6 @@ import { ItemPriceRow } from "./itemRow";
 import { useFirebase } from "../../../../Hooks/useFirebase";
 import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObject";
 import GLOBAL_CONFIG from "../../../../global-config-app";
-import { useJobSnapshotManagement } from "../../../../Hooks/JobHooks/useJobSnapshots";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 import {
   useAddMaterialCostsToJob,
@@ -42,7 +41,6 @@ export function PriceEntryDialog() {
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { uploadJob, uploadUserJobSnapshot } = useFirebase();
-  const { updateJobSnapshot } = useJobSnapshotManagement();
   const {
     findParentUser,
     importMultibuyFromClipboard,
@@ -116,7 +114,11 @@ export function PriceEntryDialog() {
       job.build.materials = newMaterialArray;
       job.build.costs.totalPurchaseCost = newTotalPurchaseCost;
 
-      newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
+      const matchedSnapshot = newUserJobSnapshot.find(
+        (i) => i.jobID === job.jobID
+      );
+      matchedSnapshot.setSnapshot(job);
+
       if (isLoggedIn) {
         await uploadJob(job);
       }

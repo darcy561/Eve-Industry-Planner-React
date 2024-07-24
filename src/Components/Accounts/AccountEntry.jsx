@@ -19,7 +19,6 @@ import { useFirebase } from "../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { useFindJobObject } from "../../Hooks/GeneralHooks/useFindJobObject";
-import { useJobSnapshotManagement } from "../../Hooks/JobHooks/useJobSnapshots";
 import { useCorporationObject } from "../../Hooks/Account Management Hooks/Corporation Objects/useCorporationObject";
 import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
@@ -34,7 +33,6 @@ export function AccountEntry({ user, parentUserIndex }) {
     updateApiArray,
     updateUserEsiData,
   } = useAccountManagement();
-  const { updateJobSnapshot } = useJobSnapshotManagement();
   const { findJobData } = useFindJobObject();
   const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
@@ -44,9 +42,7 @@ export function AccountEntry({ user, parentUserIndex }) {
   );
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { refreshState } = useContext(RefreshStateContext);
-  const { applicationSettings } = useContext(
-    ApplicationSettingsContext
-  );
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const [userRefreshState, updateUserRefreshState] = useState(
     user.refreshState
   );
@@ -111,7 +107,8 @@ export function AccountEntry({ user, parentUserIndex }) {
           newJobArray
         );
         job.build.buildChar = parentUser.CharacterHash;
-        newUserJobSnapshot = updateJobSnapshot(job, newUserJobSnapshot);
+
+        jobSnap.setSnapshot(job);
       }
     }
     let newApiArray = apiJobs.filter(

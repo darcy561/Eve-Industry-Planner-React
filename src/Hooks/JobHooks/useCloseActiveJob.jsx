@@ -51,9 +51,11 @@ export function useCloseActiveJob() {
     const newLinkedJobIDs = new Set(linkedJobIDs);
     const newLinkedOrderIDs = new Set(linkedOrderIDs);
     const newLinkedTransIDs = new Set(linkedTransIDs);
+    const snapshot = newUserJobSnapshot.find((i) => i.jobID === inputJob.jobID);
     const index = newJobArray.findIndex((x) => inputJob.jobID === x.jobID);
     newJobArray[index] = inputJob;
-    // newUserJobSnapshot = unlockUserJob(newUserJobSnapshot, inputJob.jobID);
+
+    // snapshot.unlockSnapshot()
 
     Object.values(tempJobsToAdd).forEach((tempJob) => {
       inputJob.build.childJobs[tempJob.itemID].push(tempJob.jobID);

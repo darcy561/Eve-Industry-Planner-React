@@ -357,23 +357,9 @@ export function useAssetHelperHooks() {
     return `${baseImageUrl}/icon?size=32`;
   }
 
-  function selectRequiredAssets(requiredItemID, isCorporation) {
-    if (!requiredItemID) return [];
-
-    const assetPrefix = isCorporation ? "corpAssets" : "assets";
-
-    return (
-      JSON.parse(sessionStorage.getItem(`${assetPrefix}_${requiredItemID}`)) ||
-      []
-    );
-  }
-
   function selectRequiredUser(requiredID, isCorporation) {
-    if (isCorporation) {
-      return users.find((i) => i.corporation_id === requiredID);
-    } else {
-      return users.find((i) => i.CharacterHash === requiredID);
-    }
+    const key = isCorporation ? "corporation_id" : "CharacterHash";
+    return users.find((user) => user[key] === requiredID);
   }
 
   function buildAssetName(assetObject, assetLocationNames, isCorporation) {
@@ -475,27 +461,29 @@ export function useAssetHelperHooks() {
       }
 
       return await findAssets(userObject, isCorporation);
-
-      async function findAssets(userObj, corporationFlag) {
-        try {
-          const assetString = corporationFlag
-            ? `corpAssets_${userObject?.corporation_id}`
-            : `assets_${userObject?.CharacterHash}`;
-
-          const functionToCall = corporationFlag
-            ? fetchCorpAssets
-            : fetchCharacterAssets;
-          let matchedAssets = JSON.parse(sessionStorage.getItem(assetString));
-
-          if (!matchedAssets) {
-            matchedAssets = await functionToCall(userObj);
-          }
-          return matchedAssets;
-        } catch (err) {
-          return [];
-        }
-      }
     } catch {
+      return [];
+    }
+  }
+
+  async function findAssets(userObj = {}, isCorporation = false) {
+    try {
+      if (!userObj) return [];
+      const assetString = isCorporation
+        ? `corpAssets_${userObj?.corporation_id}`
+        : `assets_${userObj?.CharacterHash}`;
+
+      const functionToCall = isCorporation
+        ? fetchCorpAssets
+        : fetchCharacterAssets;
+      let matchedAssets = JSON.parse(sessionStorage.getItem(assetString));
+
+      if (!matchedAssets) {
+        matchedAssets = await functionToCall(userObj);
+      }
+      return matchedAssets;
+    } catch (err) {
+      console.error(err.message);
       return [];
     }
   }
@@ -511,13 +499,13 @@ export function useAssetHelperHooks() {
     buildAssetTypeIDMaps,
     convertAssetArrayIntoMapByTypeID,
     countAssetQuantityFromMap,
+    findAssets,
     findAssetImageURL,
     findBlueprintTypeIDs,
     findAssetsInLocation,
     formatLocation,
     getRequestedAssets,
     retrieveAssetLocation,
-    selectRequiredAssets,
     selectRequiredUser,
     sortLocationMapsAlphabetically,
   };

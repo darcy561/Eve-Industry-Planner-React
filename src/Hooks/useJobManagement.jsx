@@ -565,59 +565,44 @@ export function useJobManagement() {
     return Math.max(brokersFee, 100);
   }
 
-  function lockUserJob(CharacterHash, jobID, newUserJobSnapshot) {
-    let snapshot = newUserJobSnapshot.find((i) => i.jobID === jobID);
-
-    snapshot.isLocked = true;
-    snapshot.lockedTimestamp = Date.now();
-    snapshot.lockedUser = CharacterHash;
-
-    return newUserJobSnapshot;
-  }
-
-  function unlockUserJob(newUserJobSnapshot, jobID) {
-    let snapshot = newUserJobSnapshot.find((i) => i.jobID === jobID);
-
-    snapshot.isLocked = false;
-    snapshot.lockedTimestamp = null;
-    snapshot.lockedUser = null;
-
-    return newUserJobSnapshot;
-  }
-
   function timeRemainingCalc(inputTime) {
+    if (isNaN(inputTime)) {
+      return "Invalid input time";
+    }
+
     const returnArray = [];
     const now = Date.now();
     const timeLeft = inputTime - now;
-    const day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    const hour = Math.floor(
-      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    let min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
-    if (day <= 0 && hour <= 0 && min <= 0) {
-      returnArray.push("complete");
+    if (timeLeft <= 0) {
+      return "complete";
     }
-    if (day > 0) {
-      returnArray.push(`${day}D`);
-    }
-    if (hour > 0) {
-      returnArray.push(`${hour}H`);
-    }
-    if (min > 0) {
-      returnArray.push(`${min}M`);
-    }
+    try {
+      const day = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hour = Math.floor(
+        (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      const min = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
-    return returnArray.join(" ");
+      if (day > 0) {
+        returnArray.push(`${day}D`);
+      }
+      if (hour > 0) {
+        returnArray.push(`${hour}H`);
+      }
+      if (min > 0) {
+        returnArray.push(`${min}M`);
+      }
+
+      return returnArray.join(" ");
+    } catch (err) {
+      return "Time Not Available";
+    }
   }
 
   function generatePriceRequestFromJob({ itemID, build }) {
     const materialTypeIDs = build.materials.map((mat) => mat.typeID);
     return [...new Set([itemID, ...materialTypeIDs])];
-  }
-
-  function generatePriceRequestFromSnapshot({ itemID, materialIDs }) {
-    return [...new Set([itemID, ...materialIDs])];
   }
 
   function findBlueprintType(blueprintID) {
@@ -712,11 +697,8 @@ export function useJobManagement() {
     findAllChildJobCountOrIDs,
     findBlueprintType,
     generatePriceRequestFromJob,
-    generatePriceRequestFromSnapshot,
-    lockUserJob,
     massBuildMaterials,
     mergeJobsNew,
     timeRemainingCalc,
-    unlockUserJob,
   };
 }

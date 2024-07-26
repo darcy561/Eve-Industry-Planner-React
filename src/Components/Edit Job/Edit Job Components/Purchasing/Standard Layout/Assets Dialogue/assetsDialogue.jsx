@@ -33,11 +33,8 @@ export function AssetDialogue({
   const [assetLocationNames, updateAssetLocationNames] = useState(null);
   const [tempEveIDs, updateTempEveIDs] = useState(eveIDs);
   const { buildAssetTypeIDMaps } = useAssetHelperHooks();
-  const {
-    selectRequiredAssets,
-    selectRequiredUser,
-    sortLocationMapsAlphabetically,
-  } = useAssetHelperHooks();
+  const { findAssets, selectRequiredUser, sortLocationMapsAlphabetically } =
+    useAssetHelperHooks();
   const { findParentUser, findUniverseItemObject } = useHelperFunction();
   const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
   const parentUser = findParentUser();
@@ -62,8 +59,8 @@ export function AssetDialogue({
           useCorporationAssets
         );
 
-        const matchedAssets = selectRequiredAssets(
-          selectedAsset,
+        const matchedAssets = await findAssets(
+          requiredUserObject,
           useCorporationAssets
         );
 

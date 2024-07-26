@@ -68,11 +68,14 @@ export function useOpenEditJob() {
         newJobArray,
         undefined
       );
-      // newUserJobSnapshot = lockUserJob(
-      //   parentUser.CharacterHash,
-      //   inputJobID,
-      //   newUserJobSnapshot
-      // );
+
+      if (!openJob) return undefined;
+
+      const snapshot = newUserJobSnapshot.find(
+        (i) => i.jobID === openJob.jobID
+      );
+      // snapshot.lockSnapshot(parentUser.CharacterHash);
+
       updateLoadingText((prevObj) => ({
         ...prevObj,
         jobData: true,

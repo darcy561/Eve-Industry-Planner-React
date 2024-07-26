@@ -64,7 +64,8 @@ export default function AuthMainUser() {
         return;
       }
 
-      updateUserJobSnapshot([]);
+
+      if(!authCode) return 
 
       let userObject = await EveSSOTokens(authCode, true);
       let fbToken = await firebaseAuth(userObject);
@@ -89,6 +90,7 @@ export default function AuthMainUser() {
       userWatchlistListener(fbToken, userObject);
       userGroupDataListener(userObject);
 
+      updateUserJobSnapshot([]);
       updateJobArray([]);
       updateIsLoggedIn(true);
       updatePageLoad(false);

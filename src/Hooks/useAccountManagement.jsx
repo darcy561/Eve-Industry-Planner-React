@@ -854,6 +854,7 @@ export function useAccountManagement() {
         JSON.stringify(esiAssets)
       );
     } catch (err) {
+      console.warn('Character Assets data is too large to store in sessionStorage.');
       sessionStorage.setItem(`assets${characterHash}`, null);
     }
   }

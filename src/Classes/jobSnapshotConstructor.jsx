@@ -155,6 +155,20 @@ class JobSnapshot {
     this.totalJobCount = totalJobCount;
     this.totalSetupCount = totalSetupCount;
   }
+  lockSnapshot(CharacterHash) {
+    if (!CharacterHash) return;
+    this.isLocked = true;
+    this.lockedTimestamp = Date.now();
+    this.lockedUser = CharacterHash;
+  }
+  unlockSnapshot() {
+    this.isLocked = false;
+    this.lockedTimestamp = null;
+    this.lockedUser = null;
+  }
+  getPriceRequest() {
+    return [this.itemID, ...this.materialIDs];
+  }
 }
 
 export default JobSnapshot;

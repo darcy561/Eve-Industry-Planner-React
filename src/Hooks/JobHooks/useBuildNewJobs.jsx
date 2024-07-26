@@ -26,8 +26,13 @@ function useBuildNewJobs() {
   const { updateEvePrices } = useContext(EvePricesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { buildJob } = useJobBuild();
-  const { addNewJob, uploadGroups, getItemPrices, userJobListener, uploadUserJobSnapshot } =
-    useFirebase();
+  const {
+    addNewJob,
+    uploadGroups,
+    getItemPrices,
+    userJobListener,
+    uploadUserJobSnapshot,
+  } = useFirebase();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { findParentUser, sendSnackbarNotificationSuccess } =
     useHelperFunction();
@@ -76,10 +81,7 @@ function useBuildNewJobs() {
       newJobArray.push(jobObject);
 
       if (!jobObject.groupID && !addNewGroup) {
-        console.log("add")
-        const snapshot = new JobSnapshot(jobObject);
-        console.log(snapshot)
-        newUserJobSnapshot.push(snapshot);
+        newUserJobSnapshot.push(new JobSnapshot(jobObject));
       }
 
       if (jobObject.groupID && !addNewGroup) {
@@ -97,7 +99,7 @@ function useBuildNewJobs() {
 
       if (isLoggedIn) {
         await addNewJob(jobObject);
-        await uploadUserJobSnapshot(newUserJobSnapshot)
+        await uploadUserJobSnapshot(newUserJobSnapshot);
         userJobListener(parentUser, jobObject.jobID);
       }
       logEvent(analytics, "New Job", {
@@ -112,7 +114,7 @@ function useBuildNewJobs() {
     if (requiresGroupDocSave) {
       updateGroupArray(newGroupArray);
       if (isLoggedIn) {
-        uploadGroups(newGroupArray);
+       await uploadGroups(newGroupArray);
       }
     }
     updateUserJobSnapshot(newUserJobSnapshot);

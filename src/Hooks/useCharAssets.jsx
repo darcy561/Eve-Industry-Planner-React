@@ -14,72 +14,78 @@ export function useCharAssets() {
     acceptedDirectLocationTypes,
     acceptedExtendedLocationTypes,
     acceptedLocationFlags,
+    findAssets,
     retrieveAssetLocation,
-    buildAssetTypeIDMaps
   } = useAssetHelperHooks();
 
   async function getAssetLocationList() {
-    let itemLocations = [];
-    let newEveIDs = {};
+    try {
+      let itemLocations = [];
+      let newEveIDs = {};
 
-    for (let user of users) {
-      const missingIDSet = new Set();
-      let userAssets = JSON.parse(
-        sessionStorage.getItem(`assets_${user.CharacterHash}`)
-      );
+      for (let user of users) {
+        const missingIDSet = new Set();
 
-      if (!isLoggedIn) {
-        return [[], {}];
-      }
-      for (let asset of userAssets) {
-        if (acceptedDirectLocationTypes.has(asset.location_type)) {
-          if (!itemLocations.some((i) => i === asset.location_id)) {
-            itemLocations.push(asset.location_id);
-          }
-          checkAndAddLocationID(asset.location_id, missingIDSet);
+        const userAssets = await findAssets(user);
+
+        if (!isLoggedIn || !userAssets) {
+          return [[], {}];
         }
-        if (acceptedExtendedLocationTypes.has(asset.location_type)) {
-          let parentLocation = retrieveAssetLocation(asset, userAssets);
-          if (parentLocation && parentLocation.location_type !== "other") {
-            if (!itemLocations.some((i) => i === parentLocation.location_id)) {
-              itemLocations.push(parentLocation.location_id);
-              checkAndAddLocationID(parentLocation.location_id, missingIDSet);
+        for (let asset of userAssets) {
+          if (acceptedDirectLocationTypes.has(asset.location_type)) {
+            if (!itemLocations.some((i) => i === asset.location_id)) {
+              itemLocations.push(asset.location_id);
+            }
+            checkAndAddLocationID(asset.location_id, missingIDSet);
+          }
+          if (acceptedExtendedLocationTypes.has(asset.location_type)) {
+            let parentLocation = retrieveAssetLocation(asset, userAssets);
+            if (parentLocation && parentLocation.location_type !== "other") {
+              if (
+                !itemLocations.some((i) => i === parentLocation.location_id)
+              ) {
+                itemLocations.push(parentLocation.location_id);
+                checkAndAddLocationID(parentLocation.location_id, missingIDSet);
+              }
             }
           }
         }
+        const eveIDResults = await fetchUniverseNames([...missingIDSet], user);
+        newEveIDs = { ...newEveIDs, ...eveIDResults };
       }
-      const eveIDResults = await fetchUniverseNames([...missingIDSet], user);
-      newEveIDs = { ...newEveIDs, ...eveIDResults };
+      for (let item = itemLocations.length - 1; item >= 0; item--) {
+        let itemData =
+          newEveIDs[itemLocations[item]] || eveIDs[itemLocations[item]];
+        if (!itemData || itemData.name === "No Access To Location") {
+          itemLocations.splice(item, 1);
+        }
+      }
+
+      itemLocations.sort((a, b) => {
+        let aName = newEveIDs[a]?.name;
+        let bName = newEveIDs[b]?.name;
+        if (aName < bName) {
+          return -1;
+        }
+        if (aName > bName) {
+          return 1;
+        }
+        return 0;
+      });
+
+      function checkAndAddLocationID(requestedID, requestSet) {
+        if (!requestedID) return;
+
+        if (!eveIDs[requestedID] || !newEveIDs[requestedID]) {
+          requestSet.add(requestedID);
+        }
+      }
+
+      return { itemLocations, newEveIDs };
+    } catch (err) {
+      console.error(err.message);
+      return [[], {}];
     }
-    for (let item = itemLocations.length - 1; item >= 0; item--) {
-      let itemData =
-        newEveIDs[itemLocations[item]] || eveIDs[itemLocations[item]];
-      if (itemData === undefined || itemData.name === "No Access To Location") {
-        itemLocations.splice(item, 1);
-      }
-    }
-
-    itemLocations.sort((a, b) => {
-      let aName = newEveIDs[a]?.name;
-      let bName = newEveIDs[b]?.name;
-      if (aName < bName) {
-        return -1;
-      }
-      if (aName > bName) {
-        return 1;
-      }
-      return 0;
-    });
-
-    function checkAndAddLocationID(requestedID, requestSet) {
-      if (!requestedID) return;
-
-      if (!eveIDs[requestedID] || !newEveIDs[requestedID]) {
-        requestSet.add(requestedID);
-      }
-    }
-
-    return { itemLocations, newEveIDs };
   }
 
   function findLocationAssets(requiredLocationID) {

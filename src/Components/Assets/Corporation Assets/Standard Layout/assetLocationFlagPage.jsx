@@ -5,11 +5,12 @@ import {
   EveIDsContext,
 } from "../../../../Context/EveDataContext";
 import { useAssetHelperHooks } from "../../../../Hooks/AssetHooks/useAssetHelper";
-import { useEveApi } from "../../../../Hooks/useEveApi";
 import { AssetsPage_Loading } from "../../Character Assets/Standard Layout/loadingPage";
 import { AssetEntry_TopLevel } from "../../Character Assets/Standard Layout/AssetFolders/topLevelFolder";
 import uuid from "react-uuid";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import getUniverseNames from "../../../../Functions/EveESI/World/getUniverseNames";
+import getAssetLocationNames from "../../../../Functions/EveESI/World/getAssetLocationNames";
 
 export function AssetLocationFlagPage_Corporation({
   selectedCorporation,
@@ -30,7 +31,6 @@ export function AssetLocationFlagPage_Corporation({
     getRequestedAssets,
   } = useAssetHelperHooks();
   const { findUniverseItemObject } = useHelperFunction();
-  const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
 
   const matchedCorporation = corpEsiData.get(selectedCorporation);
 
@@ -65,14 +65,14 @@ export function AssetLocationFlagPage_Corporation({
         new Set()
       );
 
-      const locationNamesMap = await fetchAssetLocationNames(
+      const locationNamesMap = await getAssetLocationNames(
         requiredUserObject,
-        [...assetIDSet],
+        assetIDSet,
         "corporation"
       );
 
-      const additonalIDObjects = await fetchUniverseNames(
-        [...requiredLocationID],
+      const additonalIDObjects = await getUniverseNames(
+        requiredLocationID,
         requiredUserObject
       );
 

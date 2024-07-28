@@ -2,11 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import { UsersContext } from "../../../../Context/AuthContext";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
 import { useAssetHelperHooks } from "../../../../Hooks/AssetHooks/useAssetHelper";
-import { useEveApi } from "../../../../Hooks/useEveApi";
 import { AssetsPage_Loading } from "./loadingPage";
 import { AssetEntry_TopLevel } from "./AssetFolders/topLevelFolder";
 import uuid from "react-uuid";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import getUniverseNames from "../../../../Functions/EveESI/World/getUniverseNames";
+import getAssetLocationNames from "../../../../Functions/EveESI/World/getAssetLocationNames";
 
 export function AssetLocationFlagPage_Character({
   selectedCharacter,
@@ -22,7 +23,6 @@ export function AssetLocationFlagPage_Character({
     sortLocationMapsAlphabetically,
     getRequestedAssets,
   } = useAssetHelperHooks();
-  const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
   const { findUniverseItemObject } = useHelperFunction();
 
   useEffect(() => {
@@ -46,14 +46,13 @@ export function AssetLocationFlagPage_Character({
         },
         new Set()
       );
-      const locationNamesMap = await fetchAssetLocationNames(
+      const locationNamesMap = await getAssetLocationNames(
         requiredUserObject,
-        [...assetIDSet],
-        "character"
+        assetIDSet
       );
 
-      const additonalIDObjects = await fetchUniverseNames(
-        [...requiredLocationID],
+      const additonalIDObjects = await getUniverseNames(
+        requiredLocationID,
         requiredUserObject
       );
 

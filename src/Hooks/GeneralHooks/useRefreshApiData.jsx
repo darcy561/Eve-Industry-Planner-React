@@ -6,47 +6,32 @@ import {
   DialogDataContext,
   RefreshStateContext,
 } from "../../Context/LayoutContext";
-import { useRefreshUser } from "../useRefreshUser";
 import { useAccountManagement } from "../useAccountManagement";
 import { useFirebase } from "../useFirebase";
 import {
-  CorpEsiDataContext,
   EveIDsContext,
   EvePricesContext,
-  PersonalESIDataContext,
   SystemIndexContext,
 } from "../../Context/EveDataContext";
 import searchData from "../../RawData/searchIndex.json";
 import { ApiJobsContext } from "../../Context/JobContext";
 import { useSystemIndexFunctions } from "./useSystemIndexFunctions";
-import { useEveApi } from "../useEveApi";
 import { useCorporationObject } from "../Account Management Hooks/Corporation Objects/useCorporationObject";
 import { useHelperFunction } from "./useHelperFunctions";
 import useCheckGlobalAppVersion from "./useCheckGlobalAppVersion";
+import getUniverseNames from "../../Functions/EveESI/World/getUniverseNames";
 
 export function useRefreshApiData() {
-  const { users, updateUsers } = useContext(UsersContext);
+  const { users } = useContext(UsersContext);
   const { updateApiJobs } = useContext(ApiJobsContext);
   const { updateDialogData } = useContext(DialogDataContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
-  const { esiIndJobs, esiOrders, esiHistOrders } = useContext(
-    PersonalESIDataContext
-  );
-  const { corpEsiIndJobs, corpEsiOrders, corpEsiHistOrders } =
-    useContext(CorpEsiDataContext);
   const { updateRefreshState } = useContext(RefreshStateContext);
-  const { refreshUserAccessTokens } = useRefreshUser();
-  const {
-    buildApiArray,
-    characterAPICall,
-    checkUserClaims,
-    getCharacterInfo,
-    storeESIData,
-  } = useAccountManagement();
+  const { buildApiArray, checkUserClaims, storeESIData } =
+    useAccountManagement();
   const { refreshItemPrices } = useFirebase();
-  const { fetchUniverseNames } = useEveApi();
   const { refreshSystemIndexes } = useSystemIndexFunctions();
   const { updateCorporationObject } = useCorporationObject();
   const { findParentUser } = useHelperFunction();
@@ -72,21 +57,20 @@ export function useRefreshApiData() {
       updateRefreshState(1);
       return;
     }
-
     const esiObjectsPromises = [];
 
-    const newUserArray = await refreshUserAccessTokens();
-
-    for (let user of newUserArray) {
-      await getCharacterInfo(user);
-      esiObjectsPromises.push(characterAPICall(user));
+    for (let user of users) {
+      await user.refreshAccessToken();
+      await user.getPublicCharacterData();
+      esiObjectsPromises.push(user.getCharacterESIData());
     }
+
     const esiObjectsArray = (await Promise.all(esiObjectsPromises)).flat();
     await storeESIData(esiObjectsArray);
     updateCorporationObject(esiObjectsArray);
     const itemPricePromise = refreshItemPrices(parentUser);
     const systemIndexPromise = refreshSystemIndexes();
-    const newAPIArray = buildApiArray(newUserArray, esiObjectsArray);
+    const newAPIArray = buildApiArray(users, esiObjectsArray);
 
     for (let esiObject of esiObjectsArray) {
       const requestIDs = new Set();
@@ -98,7 +82,7 @@ export function useRefreshApiData() {
         esiCorpMOrders,
         esiCorpHistMOrders,
       } = esiObject;
-      const user = newUserArray.find((i) => i.CharacterHash === i.owner);
+      const user = users.find((i) => i.CharacterHash === i.owner);
 
       [...esiJobs, ...esiCorpJobs].forEach(({ facility_id }) => {
         if (!facility_id) return;
@@ -114,14 +98,11 @@ export function useRefreshApiData() {
         checkAndAddLocationID(locaton_id, requestIDs);
         checkAndAddLocationID(region_id, requestIDs);
       });
-      const newLocationObjects = await fetchUniverseNames(
-        [...requestIDs],
-        user
-      );
+      const newLocationObjects = await getUniverseNames(requestIDs, user);
       newEveIDs = { ...newEveIDs, ...newLocationObjects };
     }
 
-    checkUserClaims(newUserArray);
+    checkUserClaims(users);
 
     newAPIArray.sort((a, b) => {
       const getItemName = (itemId, blueprintId) => {
@@ -141,7 +122,6 @@ export function useRefreshApiData() {
     const systemIndexResult = (await Promise.all([systemIndexPromise])).flat();
 
     updateEveIDs((prev) => ({ ...prev, ...newEveIDs }));
-    updateUsers(newUserArray);
     updateApiJobs(newAPIArray);
     updateEvePrices((prev) => ({
       ...prev,

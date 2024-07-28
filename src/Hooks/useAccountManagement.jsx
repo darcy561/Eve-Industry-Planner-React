@@ -1,7 +1,6 @@
-import { useEveApi } from "./useEveApi";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth, signOut } from "firebase/auth";
-import { functions, performance } from "../firebase";
+import { functions } from "../firebase";
 import { useNavigate } from "react-router";
 import { useContext } from "react";
 import {
@@ -43,12 +42,12 @@ import {
 import { httpsCallable } from "firebase/functions";
 import { RefreshTokens } from "../Components/Auth/RefreshToken";
 import searchData from "../RawData/searchIndex.json";
-import { trace } from "firebase/performance";
 import { fetchSystemIndexes } from "./FetchDataHooks/fetchSystemIndexes";
 import { useBuildCorporationState } from "./Account Management Hooks/Corporation State/useBuildCorporationState";
 import { useRemoveCorporatinState } from "./Account Management Hooks/Corporation State/useRemoveCorporationState";
 import { useUpdateCorporationState } from "./Account Management Hooks/Corporation State/useUpdateCorporationState";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
+import getUniverseNames from "../Functions/EveESI/World/getUniverseNames";
 
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -95,7 +94,6 @@ export function useAccountManagement() {
     updateCorpEsiJournal,
     corpEsiTransactions,
     updateCorpEsiTransactions,
-    corpEsiData,
     updateCorpEsiData,
   } = useContext(CorpEsiDataContext);
   const { updateUserUIData, updateLoginInProgressComplete } =
@@ -105,30 +103,6 @@ export function useAccountManagement() {
   const { findParentUser, sendSnackbarNotificationInfo } = useHelperFunction();
   const auth = getAuth();
   const parentUser = findParentUser();
-
-  const {
-    fetchCharacterData,
-    fetchCharacterSkills,
-    fetchCorpAssets,
-    fetchCorpIndustryJobs,
-    fetchCorpMarketOrdersJobs,
-    fetchCorpHistMarketOrders,
-    fetchCorpBlueprintLibrary,
-    fetchCorpDivisions,
-    fetchCorpPublicInfo,
-    fetchCorpJournal,
-    fetchCorpTransactions,
-    fetchCharacterIndustryJobs,
-    fetchCharacterMarketOrders,
-    fetchCharacterHistMarketOrders,
-    fetchCharacterBlueprints,
-    fetchCharacterJournal,
-    fetchCharacterTransactions,
-    fetchCharacterAssets,
-    fetchUniverseNames,
-    fetchCharacterStandings,
-    serverStatus,
-  } = useEveApi();
   const buildCoporationState = useBuildCorporationState();
   const removeCharacterFromCorporationState = useRemoveCorporatinState();
   const updateCharacterDataInCorporationState = useUpdateCorporationState();
@@ -144,49 +118,6 @@ export function useAccountManagement() {
     userObject.accountRefreshTokens = userSettings.refreshTokens;
 
     return userObject;
-  };
-
-  const characterAPICall = async (userObject) => {
-    const t = trace(performance, "CharacterESICalls");
-    t.start();
-
-    const apiFunctions = {
-      esiSkills: fetchCharacterSkills,
-      esiJobs: fetchCharacterIndustryJobs,
-      esiOrders: fetchCharacterMarketOrders,
-      esiHistOrders: fetchCharacterHistMarketOrders,
-      esiBlueprints: fetchCharacterBlueprints,
-      esiTransactions: fetchCharacterTransactions,
-      esiJournal: fetchCharacterJournal,
-      esiAssets: fetchCharacterAssets,
-      esiStandings: fetchCharacterStandings,
-      esiCorpJobs: fetchCorpIndustryJobs,
-      esiCorpMOrders: fetchCorpMarketOrdersJobs,
-      esiCorpHistMOrders: fetchCorpHistMarketOrders,
-      esiCorpBlueprints: fetchCorpBlueprintLibrary,
-      esiCorpJournal: fetchCorpJournal,
-      esiCorpTransactions: fetchCorpTransactions,
-      esiCorpDivisions: fetchCorpDivisions,
-      esiCorpPublicInfo: fetchCorpPublicInfo,
-      esiCorpAssets: fetchCorpAssets,
-    };
-
-    const apiResults = await Promise.all(
-      Object.values(apiFunctions).map((apiFunction) => apiFunction(userObject))
-    );
-
-    t.stop();
-
-    const resultObject = {};
-
-    Object.keys(apiFunctions).forEach((key, index) => {
-      resultObject[key] = apiResults[index];
-    });
-
-    resultObject.owner = userObject.CharacterHash;
-    resultObject.corporation_id = userObject.corporation_id;
-
-    return resultObject;
   };
 
   const getLocationNames = async (users, mainUser, esiObjectArray) => {
@@ -235,10 +166,7 @@ export function useAccountManagement() {
         checkAndAddLocationID(location_id, requestedIDs);
       });
 
-      const newLocationoObjects = await fetchUniverseNames(
-        [...requestedIDs],
-        user
-      );
+      const newLocationoObjects = await getUniverseNames(requestedIDs, user);
       returnObject = { ...returnObject, ...newLocationoObjects };
     }
 
@@ -406,11 +334,11 @@ export function useAccountManagement() {
     esiObjectArray
   ) => {
     for (let token of refreshTokens) {
-      let newUser = await RefreshTokens(token.rToken, false);
+      let newUser = await RefreshTokens(token.rToken);
       if (newUser === "RefreshFail") continue;
 
-      await getCharacterInfo(newUser);
-      let esiObject = await characterAPICall(newUser);
+      await newUser.getPublicCharacterData();
+      let esiObject = await newUser.getCharacterESIData();
       updateUserUIData((prev) => ({
         ...prev,
         userArray: prev.userArray.concat([
@@ -435,11 +363,11 @@ export function useAccountManagement() {
       return userArray;
     }
     for (let token of rTokens) {
-      let newUser = await RefreshTokens(token.rToken, false);
+      let newUser = await RefreshTokens(token.rToken);
       if (newUser === "RefreshFail") continue;
 
-      await getCharacterInfo(newUser);
-      let esiObject = await characterAPICall(newUser);
+      await newUser.getPublicCharacterData();
+      let esiObject = await newUser.getCharacterESIData();
       updateUserUIData((prev) => ({
         ...prev,
         userArray: prev.userArray.concat([
@@ -509,7 +437,6 @@ export function useAccountManagement() {
         includedIDs.add(job.job_id);
         newApiArray.push(job);
       });
-
     }
 
     newApiArray.sort((a, b) => {
@@ -821,11 +748,6 @@ export function useAccountManagement() {
     updateCorpEsiTransactions(newCorpESiTransactions);
   };
 
-  const getCharacterInfo = async (userObj) => {
-    const charData = await fetchCharacterData(userObj);
-    userObj.corporation_id = charData.corporation_id;
-  };
-
   const getSystemIndexData = async (userObject) => {
     const manufacturingStructures =
       userObject.settings.structures.manufacturing;
@@ -854,22 +776,20 @@ export function useAccountManagement() {
         JSON.stringify(esiAssets)
       );
     } catch (err) {
-      console.warn('Character Assets data is too large to store in sessionStorage.');
+      console.warn(
+        "Character Assets data is too large to store in sessionStorage."
+      );
       sessionStorage.setItem(`assets${characterHash}`, null);
     }
   }
-
-
 
   return {
     buildApiArray,
     buildCloudAccountData,
     buildLocalAccountData,
     buildMainUser,
-    characterAPICall,
     checkUserClaims,
     failedUserRefresh,
-    getCharacterInfo,
     getSystemIndexData,
     getLocationNames,
     logUserOut,

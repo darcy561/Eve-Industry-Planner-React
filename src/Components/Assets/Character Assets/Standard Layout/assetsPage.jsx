@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useAssetHelperHooks } from "../../../../Hooks/AssetHooks/useAssetHelper";
 import { UsersContext } from "../../../../Context/AuthContext";
-import { useEveApi } from "../../../../Hooks/useEveApi";
 import {
   EveIDsContext,
   PersonalESIDataContext,
@@ -9,6 +8,8 @@ import {
 import { AssetEntry_TopLevel } from "./AssetFolders/topLevelFolder";
 import { AssetsPage_Loading } from "./loadingPage";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import getUniverseNames from "../../../../Functions/EveESI/World/getUniverseNames";
+import getAssetLocationNames from "../../../../Functions/EveESI/World/getAssetLocationNames";
 
 export function AssetsPage_Character({ selectedCharacter }) {
   const { users } = useContext(UsersContext);
@@ -20,12 +21,10 @@ export function AssetsPage_Character({ selectedCharacter }) {
   const [characterBlueprintsMap, updateCharacterBlueprintsMap] = useState(null);
   const { buildAssetMaps, sortLocationMapsAlphabetically, getRequestedAssets } =
     useAssetHelperHooks();
-  const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
   const { findUniverseItemObject } = useHelperFunction();
 
   useEffect(() => {
     async function buildCharacterAssetsTree() {
-      
       const requiredUserObject = users.find(
         (i) => i.CharacterHash === selectedCharacter
       );
@@ -56,14 +55,13 @@ export function AssetsPage_Character({ selectedCharacter }) {
         new Set()
       );
 
-      const locationNamesMap = await fetchAssetLocationNames(
+      const locationNamesMap = await getAssetLocationNames(
         requiredUserObject,
-        [...assetIDSet],
-        "character"
+        assetIDSet
       );
 
-      const additonalIDObjects = await fetchUniverseNames(
-        [...requiredLocationID],
+      const additonalIDObjects = await getUniverseNames(
+        requiredLocationID,
         requiredUserObject
       );
 

@@ -1,15 +1,14 @@
 import { useContext } from "react";
 import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
 import { EveIDsContext } from "../Context/EveDataContext";
-import { useEveApi } from "./useEveApi";
 import searchData from "../RawData/searchIndex.json";
 import { useAssetHelperHooks } from "./AssetHooks/useAssetHelper";
+import getUniverseNames from "../Functions/EveESI/World/getUniverseNames";
 
 export function useCharAssets() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { users } = useContext(UsersContext);
   const { eveIDs } = useContext(EveIDsContext);
-  const { fetchUniverseNames } = useEveApi();
   const {
     acceptedDirectLocationTypes,
     acceptedExtendedLocationTypes,
@@ -50,7 +49,7 @@ export function useCharAssets() {
             }
           }
         }
-        const eveIDResults = await fetchUniverseNames([...missingIDSet], user);
+        const eveIDResults = await getUniverseNames(missingIDSet, user);
         newEveIDs = { ...newEveIDs, ...eveIDResults };
       }
       for (let item = itemLocations.length - 1; item >= 0; item--) {

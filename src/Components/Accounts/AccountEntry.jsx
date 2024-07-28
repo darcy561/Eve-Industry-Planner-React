@@ -26,9 +26,7 @@ export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
   const { uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
   const {
-    characterAPICall,
     checkUserClaims,
-    getCharacterInfo,
     removeUserEsiData,
     updateApiArray,
     updateUserEsiData,
@@ -52,91 +50,48 @@ export function AccountEntry({ user, parentUserIndex }) {
 
   const parentUser = findParentUser();
 
-  async function refreshUserAPI(user) {
+  async function refreshUserAPI() {
     let newUsers = [...users];
     let newApiArray = [...apiJobs];
     let esiObjectsArray = [];
-    updateUserRefreshState(2);
-    user.refreshState = 2;
     const sStatus = await serverStatus();
-    if (sStatus) {
-      if (user.aTokenEXP <= Math.floor(Date.now() / 1000)) {
-        user = await RefreshUserAToken(user);
-      }
-      if (user !== "RefreshFail") {
-        await getCharacterInfo(user);
-        esiObjectsArray.push(await characterAPICall(user));
-        updateUserEsiData(esiObjectsArray);
-        user.refreshState = 3;
-        newUsers = newUsers.filter(
-          (i) => i.CharacterHash !== user.CharacterHash
-        );
-        newUsers.push(user);
-        newUsers.sort((a, b) => {
-          if (a.name > b.name) {
-            return -1;
-          }
-          if (a.name < b.name) {
-            return 1;
-          }
-          return 0;
-        });
-        newApiArray = updateApiArray(newApiArray, newUsers, esiObjectsArray);
-        updateUsers(newUsers);
-        updateApiJobs(newApiArray);
-        updateUserRefreshState(3);
+    if (!sStatus) return;
+    const refreshSuccess = await user.refreshAccessToken();
+    updateUserRefreshState(2);
+    if (!refreshSuccess) return;
+    await user.getPublicCharacterData();
+    esiObjectsArray.push(await user.getCharacterESIData());
+    updateUserEsiData(esiObjectsArray);
+    user.setRefreshState(3);
+    newApiArray = updateApiArray(newApiArray, newUsers, esiObjectsArray);
+    updateUsers(newUsers);
+    updateApiJobs(newApiArray);
+    updateUserRefreshState(3);
 
-        setTimeout(() => {
-          user.refreshState = 1;
-        }, 900000);
-        //15 mins
-      }
-    }
+    setTimeout(() => {
+      user.setRefreshState(1);
+    }, 900000);
+    //15 mins
   }
 
   async function removeUser(user) {
-    let newJobArray = [...jobArray];
-    let newUserJobSnapshot = [...userJobSnapshot];
-    let newUsers = [...users];
-
-    for (let jobSnap of newUserJobSnapshot) {
-      if (jobSnap.jobOwner === user.CharacterHash) {
-        let job = await findJobData(
-          jobSnap.jobID,
-          newUserJobSnapshot,
-          newJobArray
-        );
-        job.build.buildChar = parentUser.CharacterHash;
-
-        jobSnap.setSnapshot(job);
-      }
-    }
-    let newApiArray = apiJobs.filter(
+    const newUsers = users.filter(
+      (i) => i.CharacterHash !== user.CharacterHash
+    );
+    const newApiArray = apiJobs.filter(
       (i) => i.installer_id !== user.CharacterID
     );
 
-    for (let nUser of newUsers) {
-      if (!nUser.ParentUser) continue;
-      if (applicationSettings.cloudAccounts) {
-        nUser.accountRefreshTokens = nUser.accountRefreshTokens.filter(
-          (i) => i.CharacterHash !== user.CharacterHash
-        );
-      } else {
-        let oldLS = JSON.parse(localStorage.getItem("AdditionalAccounts"));
-        let newLS = oldLS.filter((i) => i.CharacterHash !== user.CharacterHash);
-        localStorage.setItem("AdditionalAccounts", JSON.stringify(newLS));
-      }
-    }
+    parentUser.removeRefreshToken(
+      user.CharacterHash,
+      applicationSettings.cloudAccounts
+    );
 
-    newUsers = newUsers.filter((i) => i.CharacterHash !== user.CharacterHash);
     removeUserEsiData(user);
     removeCorporationObject(user);
     await checkUserClaims(newUsers);
     updateUsers(newUsers);
     updateApiJobs(newApiArray);
-    updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
-    uploadUserJobSnapshot(newUserJobSnapshot);
     if (applicationSettings.cloudAccounts) {
       updateMainUserDoc();
     }

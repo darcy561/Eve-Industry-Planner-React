@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Button,
   Dialog,
@@ -6,10 +6,8 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
-import { UsersContext } from "../../../../../../Context/AuthContext";
 import { EveIDsContext } from "../../../../../../Context/EveDataContext";
 import { useAssetHelperHooks } from "../../../../../../Hooks/AssetHooks/useAssetHelper";
-import { useEveApi } from "../../../../../../Hooks/useEveApi";
 import { LoadingAssetData } from "./loadingData";
 import { DefaultLocationAssets } from "./defaultLocationAssets";
 import { AssetLocations_AssetDialogWindow } from "./assetLocations";
@@ -18,13 +16,14 @@ import { CorporationSelector_AssetDialog } from "./corporationSelector";
 import { NoAssetsFound_AssetsDialog } from "./noAssetsFound";
 import { UseCorporationSelector_AssetsDialog } from "./useCoporation";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import getUniverseNames from "../../../../../../Functions/EveESI/World/getUniverseNames";
+import getAssetLocationNames from "../../../../../../Functions/EveESI/World/getAssetLocationNames";
 
 export function AssetDialogue({
   material,
   itemAssetsDialogTrigger,
   updateItemAssetsDialogTrigger,
 }) {
-  const { users } = useContext(UsersContext);
   const { eveIDs, updateEveIDs } = useContext(EveIDsContext);
   const [loadingAssets, setLoadingAssets] = useState(false);
   const [useCorporationAssets, setUseCorporationAssets] = useState(false);
@@ -36,7 +35,6 @@ export function AssetDialogue({
   const { findAssets, selectRequiredUser, sortLocationMapsAlphabetically } =
     useAssetHelperHooks();
   const { findParentUser, findUniverseItemObject } = useHelperFunction();
-  const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
   const parentUser = findParentUser();
 
   const [selectedAsset, setSelectedAsset] = useState(parentUser.CharacterHash);
@@ -83,13 +81,13 @@ export function AssetDialogue({
           new Set()
         );
 
-        const locationNamesMap = await fetchAssetLocationNames(
+        const locationNamesMap = await getAssetLocationNames(
           requiredUserObject,
-          [...assetIDSet],
+          assetIDSet,
           useCorporationAssets ? "corporation" : "character"
         );
 
-        const additonalIDObjects = await fetchUniverseNames(
+        const additonalIDObjects = await getUniverseNames(
           [...requiredLocationID],
           requiredUserObject
         );

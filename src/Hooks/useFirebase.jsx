@@ -72,7 +72,6 @@ export function useFirebase() {
     buildApiArray,
     buildCloudAccountData,
     buildLocalAccountData,
-    characterAPICall,
     checkUserClaims,
     getLocationNames,
     getSystemIndexData,
@@ -205,7 +204,6 @@ export function useFirebase() {
       linkedOrders: [...parentUser.linkedOrders],
       refreshTokens: parentUser.accountRefreshTokens,
     };
-
     if (settingsObject) {
       updateObject.settings = settingsObject.toDocument();
     }
@@ -661,7 +659,7 @@ export function useFirebase() {
           mainUser.accountID = userData.accountID;
           mainUser.settings = userData.settings;
           serverStatus();
-          let mainUserESIObject = await characterAPICall(mainUser);
+          let mainUserESIObject = await mainUser.getCharacterESIData();
           esiOjectArray.push(mainUserESIObject);
 
           if (userData.settings.account.cloudAccounts) {
@@ -676,8 +674,7 @@ export function useFirebase() {
             );
             await storeESIData(esiOjectArray);
             updateCorporationObject(esiOjectArray);
-          }
-          if (!userData.settings.account.cloudAccounts) {
+          } else {
             await buildLocalAccountData(newUserArray, esiOjectArray);
             updateLocalRefreshTokens(newUserArray);
             await storeESIData(esiOjectArray);
@@ -700,7 +697,6 @@ export function useFirebase() {
           );
           const systemIndexResults = await getSystemIndexData(mainUser);
 
-          console.log(mainUser);
           const applicationSettings = new ApplicationSettingsObject(
             mainUser.settings
           );

@@ -13,7 +13,6 @@ import { IsLoggedInContext } from "../Context/AuthContext";
 import { useFirebase } from "./useFirebase";
 import { trace } from "@firebase/performance";
 import { performance } from "../firebase";
-import { jobTypes } from "../Context/defaultValues";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import {
   CorpEsiDataContext,
@@ -21,11 +20,11 @@ import {
   PersonalESIDataContext,
 } from "../Context/EveDataContext";
 import { useJobBuild } from "./useJobBuild";
-import { useEveApi } from "./useEveApi";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { STATIONID_RANGE } from "../Context/defaultValues";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 import JobSnapshot from "../Classes/jobSnapshotConstructor";
+import getStationData from "../Functions/EveESI/World/getStationData";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
@@ -56,7 +55,6 @@ export function useJobManagement() {
     uploadJob,
     uploadUserJobSnapshot,
   } = useFirebase();
-  const { stationData } = useEveApi();
   const { buildJob } = useJobBuild();
   const { findJobData } = useFindJobObject();
   const { findParentUser, isItemBuildable, sendSnackbarNotificationSuccess } =
@@ -542,7 +540,7 @@ export function useJobManagement() {
       )?.data;
 
       const brokerSkill = userSkills[3446];
-      const stationInfo = await stationData(marketOrder.location_id);
+      const stationInfo = await getStationData(marketOrder.location_id);
 
       const factionStanding =
         userStandings?.find((i) => i.from_id === stationInfo.race_id)

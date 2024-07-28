@@ -7,13 +7,13 @@ import {
   EveIDsContext,
 } from "../../Context/EveDataContext";
 import fullItemList from "../../RawData/fullItemList.json";
-import { useEveApi } from "../useEveApi";
+import getCorpAssets from "../../Functions/EveESI/Corporation/getAssets";
+import getCharacterAssets from "../../Functions/EveESI/Character/getAssets";
 
 export function useAssetHelperHooks() {
   const { users } = useContext(UsersContext);
   const { corpEsiData } = useContext(CorpEsiDataContext);
   const { eveIDs } = useContext(EveIDsContext);
-  const { fetchCharacterAssets, fetchCorpAssets } = useEveApi();
 
   const acceptedDirectLocationTypes = new Set(["station", "solar_system"]);
   const acceptedExtendedLocationTypes = new Set(["item", "other"]);
@@ -473,9 +473,7 @@ export function useAssetHelperHooks() {
         ? `corpAssets_${userObj?.corporation_id}`
         : `assets_${userObj?.CharacterHash}`;
 
-      const functionToCall = isCorporation
-        ? fetchCorpAssets
-        : fetchCharacterAssets;
+      const functionToCall = isCorporation ? getCorpAssets : getCharacterAssets;
       let matchedAssets = JSON.parse(sessionStorage.getItem(assetString));
 
       if (!matchedAssets) {

@@ -29,7 +29,6 @@ export function useRefreshUser() {
     userMaindDocListener,
     userGroupDataListener,
   } = useFirebase();
-  const { getCharacterInfo } = useAccountManagement();
   const { updateJobArray } = useContext(JobArrayContext);
   const { users } = useContext(UsersContext);
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -61,7 +60,7 @@ export function useRefreshUser() {
 
     let refreshedUser = await RefreshTokens(refreshToken, true);
     let fbToken = await firebaseAuth(refreshedUser);
-    await getCharacterInfo(refreshedUser);
+    await refreshedUser.getPublicCharacterData();
     updateUserUIData((prev) => ({
       ...prev,
       eveLoginComplete: true,
@@ -131,12 +130,8 @@ export function useRefreshUser() {
 
   async function refreshUserAccessTokens() {
     const newUserArray = [...users];
-    const currentTimeStamp = Math.floor(Date.now() / 1000);
-
     for (let user of newUserArray) {
-      if (user.aTokenEXP <= currentTimeStamp) {
-        user = await RefreshUserAToken(user);
-      }
+      await user.refreshAccessToken();
     }
 
     return newUserArray;

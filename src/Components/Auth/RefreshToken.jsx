@@ -3,8 +3,9 @@ import { performance } from "../../firebase";
 import { decodeJwt } from "jose";
 import { login } from "./MainUserAuth";
 import { Buffer } from "buffer";
+import User from "../../Classes/usersConstructor";
 
-export async function RefreshTokens(rToken, accountType) {
+export async function RefreshTokens(rToken, accountType = false) {
   const t = trace(performance, "UseRefreshToken");
   t.start();
   try {
@@ -28,20 +29,15 @@ export async function RefreshTokens(rToken, accountType) {
     );
     const newTokenJSON = await newTokenPromise.json();
     const decodedToken = decodeJwt(newTokenJSON.access_token);
+
+    const newUser = new User(decodedToken, newTokenJSON, accountType);
+
     if (accountType) {
-      const newUser = new MainUser(decodedToken, newTokenJSON);
-      newUser.ParentUser = accountType;
       localStorage.setItem("Auth", newTokenJSON.refresh_token);
-      t.incrementMetric("RefreshSuccess", 1);
-      t.stop();
-      return newUser;
-    } else {
-      const newUser = new SecondaryUser(decodedToken, newTokenJSON);
-      newUser.ParentUser = accountType;
-      t.incrementMetric("RefreshSuccess", 1);
-      t.stop();
-      return newUser;
     }
+    t.incrementMetric("RefreshSuccess", 1);
+    t.stop();
+    return newUser;
   } catch (err) {
     t.incrementMetric("RefreshFail", 1);
     t.putAttribute("FailError", err.name);
@@ -52,39 +48,5 @@ export async function RefreshTokens(rToken, accountType) {
     } else {
       return "RefreshFail";
     }
-  }
-}
-
-class MainUser {
-  constructor(decodedToken, tokenJSON) {
-    this.accountID = decodedToken.owner.replace(/[^a-zA-z0-9 ]/g, "");
-    this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
-    this.CharacterHash = decodedToken.owner;
-    this.CharacterName = decodedToken.name;
-    this.aToken = tokenJSON.access_token;
-    this.aTokenEXP = Number(decodedToken.exp);
-    this.ParentUser = null;
-    this.linkedJobs = new Set();
-    this.linkedOrders = new Set();
-    this.linkedTrans = new Set();
-    this.settings = null;
-    this.accountRefreshTokens = [];
-    this.refreshState = 1;
-    this.corporation_id = null;
-    this.isOmega = decodedToken.tier === "live" ? true : false;
-  }
-}
-class SecondaryUser {
-  constructor(decodedToken, tokenJSON) {
-    this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
-    this.CharacterHash = decodedToken.owner;
-    this.CharacterName = decodedToken.name;
-    this.aToken = tokenJSON.access_token;
-    this.aTokenEXP = Number(decodedToken.exp);
-    this.rToken = tokenJSON.refresh_token;
-    this.ParentUser = null;
-    this.refreshState = 1;
-    this.corporation_id = null;
-    this.isOmega = decodedToken.tier === "live" ? true : false;
   }
 }

@@ -26,18 +26,14 @@ export function AdditionalAccounts({ parentUserIndex }) {
     ApplicationSettingsContext
   );
   const { updateMainUserDoc } = useFirebase();
-  const {
-    characterAPICall,
-    checkUserClaims,
-    getCharacterInfo,
-    updateApiArray,
-    updateUserEsiData,
-  } = useAccountManagement();
+  const { checkUserClaims, updateApiArray, updateUserEsiData } =
+    useAccountManagement();
   const [skeletonVisible, toggleSkeleton] = useState(false);
   const { sendSnackbarNotificationSuccess, sendSnackbarNotificationError } =
     useHelperFunction();
   const { updateCorporationObject } = useCorporationObject();
   const analytics = getAnalytics();
+
   let newUser = null;
 
   const handleAdd = async () => {
@@ -74,6 +70,7 @@ export function AdditionalAccounts({ parentUserIndex }) {
       newUser === null
     ) {
       newUser = JSON.parse(localStorage.getItem("AdditionalUser"));
+      console.log(newUser);
       if (users.some((u) => u.CharacterHash === newUser.CharacterHash)) {
         localStorage.removeItem("AddAccount");
         localStorage.removeItem("AddAccountComplete");
@@ -83,8 +80,8 @@ export function AdditionalAccounts({ parentUserIndex }) {
         let newUserArray = [...users];
         let esiObjectsArray = [];
         let newApiArray = [...apiJobs];
-        await getCharacterInfo(newUser);
-        esiObjectsArray.push(await characterAPICall(newUser));
+        await newUser.getPublicCharacterData();
+        esiObjectsArray.push(await newUser.getCharacterESIData());
         localStorage.removeItem("AddAccount");
         localStorage.removeItem("AddAccountComplete");
         localStorage.removeItem("AdditionalUser");
@@ -180,32 +177,11 @@ export function AdditionalAccounts({ parentUserIndex }) {
                         applicationSettings.toggleCloudAccounts();
                       const newUsersArray = [...users];
 
-                      if (e.target.checked) {
-                        let additionalAccounts = JSON.parse(
-                          localStorage.getItem(
-                            `${users[parentUserIndex].CharacterHash} AdditionalAccounts`
-                          )
-                        );
-                        if (additionalAccounts !== null) {
-                          newUsersArray[parentUserIndex].accountRefreshTokens =
-                            additionalAccounts;
-                        } else {
-                          newUsersArray[parentUserIndex].accountRefreshTokens =
-                            [];
-                        }
-                        localStorage.removeItem(
-                          `${users[parentUserIndex].CharacterHash} AdditionalAccounts`
-                        );
-                      } else {
-                        localStorage.setItem(
-                          `${users[parentUserIndex].CharacterHash} AdditionalAccounts`,
-                          JSON.stringify(
-                            newUsersArray[parentUserIndex].accountRefreshTokens
-                          )
-                        );
-                        newUsersArray[parentUserIndex].accountRefreshTokens =
-                          [];
-                      }
+                      const parentUser = newUsersArray.find(
+                        (i) => i.ParentUser
+                      );
+
+                      parentUser.toggleCloudAccounts(e.target.checked);
 
                       updateUsers(newUsersArray);
                       updateApplicationSettings(newAppliacationSettings);
@@ -246,15 +222,14 @@ export function AdditionalAccounts({ parentUserIndex }) {
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "20px" }}>
           {users.map((user) => {
-            if (!user.ParentUser) {
-              return (
-                <AccountEntry
-                  key={user.CharacterHash}
-                  user={user}
-                  parentUserIndex={parentUserIndex}
-                />
-              );
-            } else return null;
+            if (user.ParentUser) return null;
+            return (
+              <AccountEntry
+                key={user.CharacterHash}
+                user={user}
+                parentUserIndex={parentUserIndex}
+              />
+            );
           })}
           {skeletonVisible && (
             <Grid

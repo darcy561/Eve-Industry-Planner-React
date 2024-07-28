@@ -13,10 +13,10 @@ import {
   UserLoginUIContext,
 } from "../../Context/LayoutContext";
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { useAccountManagement } from "../../Hooks/useAccountManagement";
 import { UserLogInUI } from "./LoginUI/LoginUI";
 import { Buffer } from "buffer";
 import useCheckGlobalAppVersion from "../../Hooks/GeneralHooks/useCheckGlobalAppVersion";
+import User from "../../Classes/usersConstructor";
 
 export function login() {
   const state = "/";
@@ -42,7 +42,6 @@ export default function AuthMainUser() {
     userMaindDocListener,
     userGroupDataListener,
   } = useFirebase();
-  const { getCharacterInfo } = useAccountManagement();
   const analytics = getAnalytics();
 
   useEffect(() => {
@@ -64,12 +63,11 @@ export default function AuthMainUser() {
         return;
       }
 
+      if (!authCode) return;
 
-      if(!authCode) return 
-
-      let userObject = await EveSSOTokens(authCode, true);
+      const userObject = await EveSSOTokens(authCode, true);
       let fbToken = await firebaseAuth(userObject);
-      await getCharacterInfo(userObject);
+      await userObject.getPublicCharacterData();
       updateUserUIData((prev) => ({
         ...prev,
         eveLoginComplete: true,
@@ -116,7 +114,7 @@ export default function AuthMainUser() {
   return <UserLogInUI />;
 }
 
-async function EveSSOTokens(authCode, accountType) {
+async function EveSSOTokens(authCode, accountType = false) {
   try {
     const buffer = Buffer.from(
       `${import.meta.env.VITE_eveClientID}:${import.meta.env.VITE_eveSecretKey}`
@@ -140,51 +138,13 @@ async function EveSSOTokens(authCode, accountType) {
     const tokenJSON = await eveTokenPromise.json();
 
     const decodedToken = decodeJwt(tokenJSON.access_token);
+
+    const newUser = new User(decodedToken, tokenJSON, accountType);
     if (accountType) {
-      const newUser = new MainUser(decodedToken, tokenJSON);
-      newUser.ParentUser = accountType;
       localStorage.setItem("Auth", tokenJSON.refresh_token);
-      return newUser;
-    } else {
-      const newUser = new SecondaryUser(decodedToken, tokenJSON);
-      newUser.ParentUser = accountType;
-      return newUser;
     }
+    return newUser;
   } catch (err) {
     console.log(err);
-  }
-}
-
-class MainUser {
-  constructor(decodedToken, tokenJSON) {
-    this.accountID = decodedToken.owner.replace(/[^a-zA-z0-9 ]/g, "");
-    this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
-    this.CharacterHash = decodedToken.owner;
-    this.CharacterName = decodedToken.name;
-    this.aToken = tokenJSON.access_token;
-    this.aTokenEXP = Number(decodedToken.exp);
-    this.ParentUser = null;
-    this.linkedJobs = new Set();
-    this.linkedOrders = new Set();
-    this.linkedTrans = new Set();
-    this.settings = null;
-    this.accountRefreshTokens = [];
-    this.refreshState = 1;
-    this.corporation_id = null;
-    this.isOmega = decodedToken.tier === "live" ? true : false;
-  }
-}
-class SecondaryUser {
-  constructor(decodedToken, tokenJSON) {
-    this.CharacterID = Number(decodedToken.sub.match(/\w*:\w*:(\d*)/)[1]);
-    this.CharacterHash = decodedToken.owner;
-    this.CharacterName = decodedToken.name;
-    this.aToken = tokenJSON.access_token;
-    this.aTokenEXP = Number(decodedToken.exp);
-    this.rToken = tokenJSON.refresh_token;
-    this.ParentUser = null;
-    this.refreshState = 1;
-    this.corporation_id = null;
-    this.isOmega = decodedToken.tier === "live" ? true : false;
   }
 }

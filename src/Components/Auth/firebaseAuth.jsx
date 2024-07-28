@@ -5,6 +5,7 @@ import { getToken } from "firebase/app-check";
 export async function firebaseAuth(charObj) {
   const appCheckToken = await getToken(appCheck, true);
 
+  console.log(charObj);
   try {
     const fbTokenResponse = await fetch(
       `${import.meta.env.VITE_APIURL}/auth/gentoken`,
@@ -16,10 +17,7 @@ export async function firebaseAuth(charObj) {
           "Access-Token": charObj.aToken,
           appVersion: __APP_VERSION__,
         },
-        body: JSON.stringify({
-          UID: charObj.accountID,
-          CharacterHash: charObj.CharacterHash,
-        }),
+        body: JSON.stringify(charObj.getRefreshTokenObject()),
       }
     );
 

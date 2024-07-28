@@ -7,9 +7,10 @@ import { useAssetHelperHooks } from "../../../../Hooks/AssetHooks/useAssetHelper
 import { UsersContext } from "../../../../Context/AuthContext";
 import { AssetEntry_TopLevel_CorporationOffices } from "./AssetFolders/topLevelFolderOffices";
 import { AssetsPage_Loading } from "../../Character Assets/Standard Layout/loadingPage";
-import { useEveApi } from "../../../../Hooks/useEveApi";
 import uuid from "react-uuid";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import getUniverseNames from "../../../../Functions/EveESI/World/getUniverseNames";
+import getAssetLocationNames from "../../../../Functions/EveESI/World/getAssetLocationNames";
 
 export function OfficesPage_Corporation({ selectedCorporation }) {
   const { corpEsiData, corpEsiBlueprints } = useContext(CorpEsiDataContext);
@@ -25,7 +26,6 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
     getRequestedAssets,
   } = useAssetHelperHooks();
   const { findUniverseItemObject } = useHelperFunction();
-  const { fetchAssetLocationNames, fetchUniverseNames } = useEveApi();
 
   const matchedCorporation = corpEsiData.get(selectedCorporation);
 
@@ -45,7 +45,7 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
       }
 
       const assetsJSON = await getRequestedAssets(requiredUserObject, true);
-      
+
       const filteredAssets = assetsJSON.filter(
         (i) => i.location_flag !== ("AssetSafety" && "CorpDeliveries")
       );
@@ -65,13 +65,13 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
         new Set()
       );
 
-      const locationNamesMap = await fetchAssetLocationNames(
+      const locationNamesMap = await getAssetLocationNames(
         requiredUserObject,
-        [...assetIDSet],
+        assetIDSet,
         "corporation"
       );
-      const additonalIDObjects = await fetchUniverseNames(
-        [...requiredLocationID],
+      const additonalIDObjects = await getUniverseNames(
+        requiredLocationID,
         requiredUserObject
       );
       const topLevelAssetLocationsSORTED = sortLocationMapsAlphabetically(

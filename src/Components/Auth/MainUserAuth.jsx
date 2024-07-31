@@ -17,6 +17,7 @@ import { UserLogInUI } from "./LoginUI/LoginUI";
 import { Buffer } from "buffer";
 import useCheckGlobalAppVersion from "../../Hooks/GeneralHooks/useCheckGlobalAppVersion";
 import User from "../../Classes/usersConstructor";
+import buildNewUserData from "../../Functions/Firebase/buildNewUserAccount";
 
 export function login() {
   const state = "/";
@@ -36,7 +37,6 @@ export default function AuthMainUser() {
   const { updateUserUIData, updateLoginInProgressComplete } =
     useContext(UserLoginUIContext);
   const {
-    determineUserState,
     userJobSnapshotListener,
     userWatchlistListener,
     userMaindDocListener,
@@ -81,7 +81,7 @@ export default function AuthMainUser() {
           window.location.search.match(/state=(\S*)/)[1]
         ),
       }));
-      await determineUserState(fbToken);
+      await buildNewUserData(fbToken);
 
       userMaindDocListener(fbToken, userObject);
       userJobSnapshotListener(userObject);

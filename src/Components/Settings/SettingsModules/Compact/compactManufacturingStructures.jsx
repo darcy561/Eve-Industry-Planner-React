@@ -21,7 +21,6 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { useContext } from "react";
 import { Masonry } from "@mui/lab";
-import { useFirebase } from "../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import uuid from "react-uuid";
 import systemIDS from "../../../../RawData/systems.json";
@@ -30,6 +29,7 @@ import { useSystemIndexFunctions } from "../../../../Hooks/GeneralHooks/useSyste
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
+import uploadApplicationSettingsToFirebase from "../../../../Functions/Firebase/uploadApplicationSettings";
 
 export function CompactManufacturingStrutures({ parentUserIndex }) {
   const { updateSystemIndexData } = useContext(SystemIndexContext);
@@ -46,7 +46,6 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
   const [rigsValue, updateRigsValue] = useState(structureOptions.manRigs[0].id);
   const [taxValue, updateTaxValue] = useState(null);
   const [systemIDValue, updateSystemIDValue] = useState(null);
-  const { uploadApplicationSettings } = useFirebase();
   const { findMissingSystemIndex } = useSystemIndexFunctions();
   const { findParentUser, sendSnackbarNotificationSuccess } =
     useHelperFunction();
@@ -74,7 +73,7 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
       applicationSettings.addCustomManufacturingStructure(newStructure);
 
     updateApplicationSettings(newApplicationSettings);
-    uploadApplicationSettings(newApplicationSettings);
+    uploadApplicationSettingsToFirebase(newApplicationSettings);
     updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
     logEvent(analytics, "Add Manufacturing Structure", {
       UID: parentUser.accountID,
@@ -422,7 +421,7 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                                   entry.id
                                 );
                               updateApplicationSettings(newApplicationSettings);
-                              uploadApplicationSettings(newApplicationSettings);
+                              uploadApplicationSettingsToFirebase(newApplicationSettings);
                             }}
                           >
                             Make Default
@@ -439,7 +438,7 @@ export function CompactManufacturingStrutures({ parentUserIndex }) {
                                   entry
                                 );
                               updateApplicationSettings(newApplicationSettings);
-                              uploadApplicationSettings(newApplicationSettings);
+                              uploadApplicationSettingsToFirebase(newApplicationSettings);
                               logEvent(
                                 analytics,
                                 "Remove Manufacturing Structure",

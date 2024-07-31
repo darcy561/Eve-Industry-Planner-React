@@ -21,7 +21,6 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { useContext } from "react";
 import { Masonry } from "@mui/lab";
-import { useFirebase } from "../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import systemIDS from "../../../../RawData/systems.json";
 import uuid from "react-uuid";
@@ -30,6 +29,7 @@ import { useSystemIndexFunctions } from "../../../../Hooks/GeneralHooks/useSyste
 import { SystemIndexContext } from "../../../../Context/EveDataContext";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
+import uploadApplicationSettingsToFirebase from "../../../../Functions/Firebase/uploadApplicationSettings";
 
 export function ClassicReactionStrutures() {
   const { updateSystemIndexData } = useContext(SystemIndexContext);
@@ -48,7 +48,6 @@ export function ClassicReactionStrutures() {
   );
   const [taxValue, updateTaxValue] = useState("");
   const [systemIDValue, updateSystemIDValue] = useState("");
-  const { uploadApplicationSettings } = useFirebase();
   const { findMissingSystemIndex } = useSystemIndexFunctions();
   const { findParentUser, sendSnackbarNotificationSuccess } =
     useHelperFunction();
@@ -75,7 +74,7 @@ export function ClassicReactionStrutures() {
       applicationSettings.addCustomReactionStructure(newStructure);
 
     updateApplicationSettings(newApplicationSettings);
-    uploadApplicationSettings(newApplicationSettings);
+    uploadApplicationSettingsToFirebase(newApplicationSettings);
     updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
     logEvent(analytics, "Add Reaction Structure", {
       UID: parentUser.accountID,
@@ -420,7 +419,7 @@ export function ClassicReactionStrutures() {
                                   entry.id
                                 );
                               updateApplicationSettings(newApplicationSettings);
-                              uploadApplicationSettings(newApplicationSettings);
+                              uploadApplicationSettingsToFirebase(newApplicationSettings);
                             }}
                           >
                             Make Default
@@ -437,7 +436,7 @@ export function ClassicReactionStrutures() {
                                   entry
                                 );
                               updateApplicationSettings(newApplicationSettings);
-                              uploadApplicationSettings(newApplicationSettings);
+                              uploadApplicationSettingsToFirebase(newApplicationSettings);
                               logEvent(analytics, "Remove Reaction Structure", {
                                 UID: parentUser.accountID,
                               });

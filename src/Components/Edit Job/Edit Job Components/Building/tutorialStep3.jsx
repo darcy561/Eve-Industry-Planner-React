@@ -5,7 +5,7 @@ import {
   ApplicationSettingsContext,
   UserLoginUIContext,
 } from "../../../../Context/LayoutContext";
-import { useFirebase } from "../../../../Hooks/useFirebase";
+import uploadApplicationSettingsToFirebase from "../../../../Functions/Firebase/uploadApplicationSettings";
 
 export function TutorialStep3({ activeJob }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -13,7 +13,7 @@ export function TutorialStep3({ activeJob }) {
     ApplicationSettingsContext
   );
   const { userDataFetch } = useContext(UserLoginUIContext);
-  const { uploadApplicationSettings } = useFirebase();
+
 
   if (!applicationSettings.hideTutorials && userDataFetch) {
     return (
@@ -79,7 +79,7 @@ export function TutorialStep3({ activeJob }) {
                       const newApplicationSettings =
                         applicationSettings.toggleHideTutorials();
                       updateApplicationSettings(newApplicationSettings);
-                      uploadApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettingsToFirebase(newApplicationSettings);
                     }}
                   />
                 </Grid>

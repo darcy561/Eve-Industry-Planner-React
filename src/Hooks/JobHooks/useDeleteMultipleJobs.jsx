@@ -15,6 +15,7 @@ import { performance } from "../../firebase";
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
+import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
 
 export function useDeleteMultipleJobs() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -36,8 +37,7 @@ export function useDeleteMultipleJobs() {
     MultiSelectJobPlannerContext
   );
   const { findJobData } = useFindJobObject();
-  const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
-    useFirebase();
+  const { removeJob, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
 
   const analytics = getAnalytics();
@@ -145,16 +145,16 @@ export function useDeleteMultipleJobs() {
     newJobArray = newJobArray.filter((i) => !inputJobIDs.includes(i.jobID));
 
     if (isLoggedIn) {
-      jobsToSave.forEach((jobID) => {
+      for (const jobID of [...jobsToSave]) {
         let job = newJobArray.find((i) => i.jobID === jobID);
         if (!job) {
           return;
         }
-        uploadJob(job);
-      });
+        await uploadJob(job);
+      }
 
-      uploadGroups(newGroupArray);
-      uploadUserJobSnapshot(newUserJobSnapshot);
+      await uploadGroupsToFirebase(newGroupArray);
+      await uploadUserJobSnapshot(newUserJobSnapshot);
     }
 
     updateLinkedJobIDs([...newLinkedJobIDs]);

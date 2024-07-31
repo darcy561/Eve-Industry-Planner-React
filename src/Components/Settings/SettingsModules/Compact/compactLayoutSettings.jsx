@@ -7,14 +7,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext } from "react";
-import { useFirebase } from "../../../../Hooks/useFirebase";
 import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
+import uploadApplicationSettingsToFirebase from "../../../../Functions/Firebase/uploadApplicationSettings";
 
-export function CompactLayoutSettings({ parentUserIndex }) {
+export function CompactLayoutSettings() {
   const { applicationSettings, updateApplicationSettings } = useContext(
     ApplicationSettingsContext
   );
-  const { uploadApplicationSettings } = useFirebase();
 
   return (
     <Paper elevation={3} sx={{ padding: "20px" }} square={true}>
@@ -38,7 +37,7 @@ export function CompactLayoutSettings({ parentUserIndex }) {
                       const newApplicationSettings =
                         applicationSettings.toggleHideTutorials();
                       updateApplicationSettings(newApplicationSettings);
-                      uploadApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettingsToFirebase(newApplicationSettings);
                     }}
                   />
                 }
@@ -62,7 +61,7 @@ export function CompactLayoutSettings({ parentUserIndex }) {
                       const newApplicationSettings =
                         applicationSettings.toggleEnableCompactView();
                       updateApplicationSettings(newApplicationSettings);
-                      uploadApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettingsToFirebase(newApplicationSettings);
                     }}
                   />
                 }

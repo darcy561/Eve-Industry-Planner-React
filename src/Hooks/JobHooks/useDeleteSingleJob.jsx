@@ -13,6 +13,7 @@ import { MultiSelectJobPlannerContext } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
+import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
 
 export function useDeleteSingleJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -33,8 +34,7 @@ export function useDeleteSingleJob() {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { removeJob, uploadJob, uploadGroups, uploadUserJobSnapshot } =
-    useFirebase();
+  const { removeJob, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { findJobData } = useFindJobObject();
   const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
   const analytics = getAnalytics();
@@ -44,7 +44,6 @@ export function useDeleteSingleJob() {
     let newApiJobsArary = [...apiJobs];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newJobArray = [...jobArray];
-    const newGroupArray = [...groupArray];
     let newLinkedJobIDs = new Set(linkedJobIDs);
     let newLinkedOrderIDs = new Set(linkedOrderIDs);
     let newLinkedTransIDs = new Set(linkedTransIDs);
@@ -140,16 +139,16 @@ export function useDeleteSingleJob() {
 
     newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
 
-    removeJobFromGroup(inputJob);
+    await removeJobFromGroup(inputJob);
 
     if (isLoggedIn) {
-      jobsToSave.forEach((jobID) => {
+      for (const jobID of [...jobsToSave]) {
         let job = newJobArray.find((i) => i.jobID === jobID);
         if (!job) {
           return;
         }
-        uploadJob(job);
-      });
+        await uploadJob(job);
+      }
       uploadUserJobSnapshot(newUserJobSnapshot);
       removeJob(inputJob);
     }
@@ -160,19 +159,23 @@ export function useDeleteSingleJob() {
     updateApiJobs(newApiJobsArary);
     updateMultiSelectJobPlanner([...newMutliSelct]);
     updateJobArray(newJobArray);
+
     updateUserJobSnapshot(newUserJobSnapshot);
     sendSnackbarNotificationError(`${inputJob.name} Deleted`, 3);
 
-    function removeJobFromGroup(inputJob) {
-      if (!inputJob) return newGroupArray;
+    async function removeJobFromGroup(inputJob) {
+      if (!inputJob) return;
 
       if (!inputJob.groupID) return;
 
+      const newGroupArray = [...groupArray];
       const group = newGroupArray.find((i) => i.groupID === inputJob.groupID);
 
       if (!group) return newGroupArray;
 
       group.removeJobsFromGroup(inputJob, newJobArray);
+      await uploadGroupsToFirebase(newGroupArray);
+      updateGroupArray(newGroupArray);
     }
   };
 

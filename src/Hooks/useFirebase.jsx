@@ -99,29 +99,6 @@ export function useFirebase() {
     }
   };
 
-  const determineUserState = async (token) => {
-    const buildNewUserProcess = async () => {
-      const t = trace(performance, "NewUserCloudBuild");
-      try {
-        t.start();
-        const buildData = httpsCallable(
-          functions,
-          "createUserData-createUserData"
-        );
-        const charData = await buildData();
-        logEvent(analytics, "newUserCreation", {
-          UID: charData.data.accountID,
-        });
-        t.stop();
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    if (token._tokenResponse.isNewUser) {
-      await buildNewUserProcess();
-    }
-  };
-
   const addNewJob = async (job) => {
     await fbAuthState();
     setDoc(
@@ -726,18 +703,6 @@ export function useFirebase() {
     updateFirebaseListeners((prev) => prev.concat(unsub));
   };
 
-  async function uploadGroups(groupSnapshot) {
-    await fbAuthState();
-    const groupObjects = groupSnapshot.map((group) => group.toDocument());
-
-    updateDoc(
-      doc(firestore, `Users/${parentUser.accountID}/ProfileInfo`, "GroupData"),
-      {
-        groupData: groupObjects,
-      }
-    );
-  }
-
   const userGroupDataListener = async (userObj) => {
     const unsub = onSnapshot(
       doc(firestore, `Users/${userObj.accountID}/ProfileInfo`, "GroupData"),
@@ -788,19 +753,9 @@ export function useFirebase() {
     updateFirebaseListeners((prev) => prev.concat(unsub));
   };
 
-  async function uploadApplicationSettings(settingsObject) {
-    if (!settingsObject) return;
-    await fbAuthState();
-
-    await updateDoc(doc(firestore, "Users", parentUser.accountID), {
-      settings: settingsObject.toDocument(),
-    });
-  }
-
   return {
     addNewJob,
     archiveJob,
-    determineUserState,
     fbAuthState,
     getArchivedJobData,
     getItemPrices,
@@ -809,13 +764,11 @@ export function useFirebase() {
     refreshItemPrices,
     removeJob,
     downloadCharacterJobs,
-    uploadApplicationSettings,
     userGroupDataListener,
     userJobListener,
     userJobSnapshotListener,
     userMaindDocListener,
     userWatchlistListener,
-    uploadGroups,
     uploadUserJobSnapshot,
     uploadUserWatchlist,
   };

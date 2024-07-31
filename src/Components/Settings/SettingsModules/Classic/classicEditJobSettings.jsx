@@ -20,20 +20,19 @@ import {
 } from "../../../../Context/defaultValues";
 import { useCharAssets } from "../../../../Hooks/useCharAssets";
 import { EveIDsContext } from "../../../../Context/EveDataContext";
-import { useFirebase } from "../../../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 import uuid from "react-uuid";
 import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
+import uploadApplicationSettingsToFirebase from "../../../../Functions/Firebase/uploadApplicationSettings";
 
-export function ClassicEditJobSettings({ parentUserIndex }) {
+export function ClassicEditJobSettings({}) {
   const { users } = useContext(UsersContext);
   const { applicationSettings, updateApplicationSettings } = useContext(
     ApplicationSettingsContext
   );
   const { updateEveIDs } = useContext(EveIDsContext);
   const { getAssetLocationList } = useCharAssets();
-  const { uploadApplicationSettings } = useFirebase();
   const [marketSelect, updateMarketSelect] = useState(
     applicationSettings.defaultMarket
   );
@@ -83,7 +82,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
                     applicationSettings.updateDefaultMarket(e.target.value);
                   updateMarketSelect(e.target.value);
                   updateApplicationSettings(newApplicationSettings);
-                  uploadApplicationSettings(newApplicationSettings);
+                  uploadApplicationSettingsToFirebase(newApplicationSettings);
                 }}
                 sx={{
                   width: "90px",
@@ -114,7 +113,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
                     applicationSettings.updateDefaultOrders(e.target.value);
                   updateListingSelect(e.target.value);
                   updateApplicationSettings(newApplicationSettings);
-                  uploadApplicationSettings(newApplicationSettings);
+                  uploadApplicationSettingsToFirebase(newApplicationSettings);
                 }}
                 sx={{
                   width: "120px",
@@ -151,7 +150,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
                         applicationSettings.toggleHideCompleteMaterials();
 
                       updateApplicationSettings(newApplicationSettings);
-                      uploadApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettingsToFirebase(newApplicationSettings);
                     }}
                   />
                 }
@@ -189,7 +188,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
                       );
                     updateAssetLocationSelect(e.target.value);
                     updateApplicationSettings(newApplicationSettings);
-                    uploadApplicationSettings(newApplicationSettings);
+                    uploadApplicationSettingsToFirebase(newApplicationSettings);
                   }}
                 >
                   {assetLocationEntries.map((entry) => {
@@ -245,7 +244,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
                     ) / 100
                   );
                 updateApplicationSettings(newApplicationSettings);
-                uploadApplicationSettings(newApplicationSettings);
+                uploadApplicationSettingsToFirebase(newApplicationSettings);
               }}
             />
           </Grid>
@@ -269,7 +268,7 @@ export function ClassicEditJobSettings({ parentUserIndex }) {
                     );
                   updateDefaultMaterialEfficiency(e.target.value);
                   updateApplicationSettings(newApplicationSettings);
-                  uploadApplicationSettings(newApplicationSettings);
+                  uploadApplicationSettingsToFirebase(newApplicationSettings);
                 }}
               >
                 {blueprintOptions.me.map((i) => {

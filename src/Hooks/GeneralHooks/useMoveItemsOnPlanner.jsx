@@ -6,6 +6,7 @@ import {
 import { JobArrayContext } from "../../Context/JobContext";
 import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "./useFindJobObject";
+import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
 
 export function useMoveItemsOnPlanner() {
   const { jobArray, updateJobArray, groupArray, updateGroupArray } =
@@ -14,7 +15,7 @@ export function useMoveItemsOnPlanner() {
     UserJobSnapshotContext
   );
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { uploadGroups, uploadJob, uploadUserJobSnapshot } = useFirebase();
+  const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { findJobData } = useFindJobObject();
 
   async function moveItemsOnPlanner(inputSnapIDs, direction) {
@@ -43,7 +44,7 @@ export function useMoveItemsOnPlanner() {
         uploadUserJobSnapshot(newUserJobSnapshot);
       }
       if (groupsModified) {
-        uploadGroups(newGroupArray);
+        await uploadGroupsToFirebase(newGroupArray);
       }
     }
     if (jobsModified) {

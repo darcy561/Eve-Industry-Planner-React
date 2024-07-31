@@ -1,18 +1,17 @@
 import { useContext } from "react";
 import { Grid, Paper, Typography, Checkbox } from "@mui/material";
-import { useFirebase } from "../../../Hooks/useFirebase";
 import {
   ApplicationSettingsContext,
   UserLoginUIContext,
 } from "../../../Context/LayoutContext";
 import GLOBAL_CONFIG from "../../../global-config-app";
+import uploadApplicationSettingsToFirebase from "../../../Functions/Firebase/uploadApplicationSettings";
 
 export function TutorialDashboard() {
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { applicationSettings, updateApplicationSettings } = useContext(
     ApplicationSettingsContext
   );
-  const { uploadApplicationSettings } = useFirebase();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   if (!applicationSettings.hideTutorials && userDataFetch) {
@@ -61,7 +60,7 @@ export function TutorialDashboard() {
                     const newApplicationSettings =
                       applicationSettings.toggleHideTutorials();
                     updateApplicationSettings(newApplicationSettings);
-                    uploadApplicationSettings(newApplicationSettings);
+                    uploadApplicationSettingsToFirebase(newApplicationSettings);
                   }}
                 />
               </Grid>

@@ -12,6 +12,7 @@ import { useJobBuild } from "./useJobBuild";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 import Group from "../Classes/groupsConstructor";
 import JobSnapshot from "../Classes/jobSnapshotConstructor";
+import uploadGroupsToFirebase from "../Functions/Firebase/uploadGroupData";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -22,8 +23,7 @@ export function useGroupManagement() {
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeGroup } = useContext(ActiveJobContext);
   const { findJobData } = useFindJobObject();
-  const { addNewJob, uploadGroups, uploadUserJobSnapshot, uploadJob } =
-    useFirebase();
+  const { addNewJob, uploadUserJobSnapshot, uploadJob } = useFirebase();
   const { buildJob, recalculateItemQty } = useJobBuild();
   const { calculateResources, calculateTime } = useBlueprintCalc();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
@@ -97,7 +97,7 @@ export function useGroupManagement() {
     newGroupArray.push(newGroupEntry);
     if (isLoggedIn) {
       uploadUserJobSnapshot(newUserJobSnapshot);
-      uploadGroups(newGroupArray);
+      await uploadGroupsToFirebase(newGroupArray);
 
       jobsToSave.forEach((id) => {
         let job = newJobArray.find((i) => i.jobID === id);
@@ -150,7 +150,7 @@ export function useGroupManagement() {
 
     if (isLoggedIn) {
       await uploadUserJobSnapshot(newUserJobSnapshot);
-      await uploadGroups(newGroupArray);
+      await uploadGroupsToFirebase(newGroupArray);
     }
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);

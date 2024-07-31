@@ -8,16 +8,15 @@ import {
 } from "@mui/material";
 import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
-import { useFirebase } from "../../Hooks/useFirebase";
 import GLOBAL_CONFIG from "../../global-config-app";
 import { ApplicationSettingsContext } from "../../Context/LayoutContext";
+import uploadApplicationSettingsToFirebase from "../../Functions/Firebase/uploadApplicationSettings";
 
 function TutorialTemplate({ TutorialContent, updateExpandedMenu }) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { applicationSettings, updateApplicationSettings } = useContext(
     ApplicationSettingsContext
   );
-  const { uploadApplicationSettings } = useFirebase();
   const { checkDisplayTutorials } = useHelperFunction();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
@@ -25,7 +24,7 @@ function TutorialTemplate({ TutorialContent, updateExpandedMenu }) {
     const newApplicationSettings = applicationSettings.toggleHideTutorials();
     updateExpandedMenu((prev) => !prev);
     updateApplicationSettings(newApplicationSettings);
-    uploadApplicationSettings(newApplicationSettings);
+    uploadApplicationSettingsToFirebase(newApplicationSettings);
   }
 
   if (!checkDisplayTutorials()) return null;

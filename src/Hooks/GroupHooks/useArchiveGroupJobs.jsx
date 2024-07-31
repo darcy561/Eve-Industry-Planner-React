@@ -10,6 +10,7 @@ import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
 import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
+import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
 
 export function useArchiveGroupJobs() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -18,8 +19,7 @@ export function useArchiveGroupJobs() {
     useContext(JobArrayContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { archiveJob, removeJob, updateMainUserDoc, uploadGroups } =
-    useFirebase();
+  const { archiveJob, removeJob, updateMainUserDoc } = useFirebase();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
   const analytics = getAnalytics();
 
@@ -65,7 +65,7 @@ export function useArchiveGroupJobs() {
     updateJobArray(newJobArray);
     updateActiveGroup(null);
     if (isLoggedIn) {
-      await uploadGroups(newGroupArray);
+      await uploadGroupsToFirebase(newGroupArray);
       await updateMainUserDoc();
     }
     sendSnackbarNotificationSuccess(`${groupName} Archived`, 3);

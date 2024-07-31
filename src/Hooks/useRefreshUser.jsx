@@ -20,10 +20,10 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "./useAccountManagement";
 import { Buffer } from "buffer";
 import useCheckGlobalAppVersion from "./GeneralHooks/useCheckGlobalAppVersion";
+import buildNewUserData from "../Functions/Firebase/buildNewUserAccount";
 
 export function useRefreshUser() {
   const {
-    determineUserState,
     userJobSnapshotListener,
     userWatchlistListener,
     userMaindDocListener,
@@ -72,7 +72,7 @@ export function useRefreshUser() {
       ],
     }));
 
-    await determineUserState(fbToken);
+    await buildNewUserData(fbToken);
 
     userMaindDocListener(fbToken, refreshedUser);
     userJobSnapshotListener(refreshedUser);

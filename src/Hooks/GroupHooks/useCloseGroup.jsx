@@ -9,6 +9,7 @@ import {
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
+import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
 
 function useCloseGroup() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -22,7 +23,7 @@ function useCloseGroup() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { uploadGroups, uploadJob } = useFirebase();
+  const { uploadJob } = useFirebase();
 
   async function closeGroup(groupJobs) {
     let newGroupArray = [...groupArray];
@@ -96,7 +97,7 @@ function useCloseGroup() {
     updateMultiSelectJobPlanner([]);
     updateEditGroupTrigger((prev) => !prev);
     if (isLoggedIn) {
-      uploadGroups(newGroupArray);
+      await uploadGroupsToFirebase(newGroupArray);
       for (const jobID of jobsToSave) {
         let job = newJobArray.find((i) => i.jobID === jobID);
         if (!job) return;

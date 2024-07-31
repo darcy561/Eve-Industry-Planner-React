@@ -24,7 +24,7 @@ import {
   useAddMaterialCostsToJob,
   useBuildMaterialPriceObject,
 } from "../../../../../../Hooks/JobHooks/useAddMaterialCosts";
-import { useFirebase } from "../../../../../../Hooks/useFirebase";
+import uploadApplicationSettingsToFirebase from "../../../../../../Functions/Firebase/uploadApplicationSettings";
 
 export function PurchasingDataPanel_EditJob({
   activeJob,
@@ -47,7 +47,6 @@ export function PurchasingDataPanel_EditJob({
     importMultibuyFromClipboard,
     sendSnackbarNotificationError,
   } = useHelperFunction();
-  const { uploadApplicationSettings } = useFirebase();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
   const totalComplete = getTotalCompleteMaterialsFromJob(activeJob);
@@ -104,7 +103,7 @@ export function PurchasingDataPanel_EditJob({
                         applicationSettings.toggleHideCompleteMaterials();
 
                       updateApplicationSettings(newApplicationSettings);
-                      uploadApplicationSettings(newApplicationSettings);
+                      uploadApplicationSettingsToFirebase(newApplicationSettings);
                     }}
                   />
                 }

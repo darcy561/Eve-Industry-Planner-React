@@ -15,6 +15,7 @@ import { EvePricesContext } from "../../Context/EveDataContext";
 import { logEvent } from "firebase/analytics";
 import Group from "../../Classes/groupsConstructor";
 import JobSnapshot from "../../Classes/jobSnapshotConstructor";
+import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
 
 function useBuildNewJobs() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -26,13 +27,8 @@ function useBuildNewJobs() {
   const { updateEvePrices } = useContext(EvePricesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { buildJob } = useJobBuild();
-  const {
-    addNewJob,
-    uploadGroups,
-    getItemPrices,
-    userJobListener,
-    uploadUserJobSnapshot,
-  } = useFirebase();
+  const { addNewJob, getItemPrices, userJobListener, uploadUserJobSnapshot } =
+    useFirebase();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { findParentUser, sendSnackbarNotificationSuccess } =
     useHelperFunction();
@@ -114,7 +110,7 @@ function useBuildNewJobs() {
     if (requiresGroupDocSave) {
       updateGroupArray(newGroupArray);
       if (isLoggedIn) {
-       await uploadGroups(newGroupArray);
+        await uploadGroupsToFirebase(newGroupArray);
       }
     }
     updateUserJobSnapshot(newUserJobSnapshot);

@@ -17,15 +17,11 @@ function useImportMissingData_EditJob(requestedJobID) {
   const { updateArchivedJobs } = useContext(ArchivedJobsContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { findMissingSystemIndex } = useSystemIndexFunctions();
   const { getArchivedJobData, getItemPrices } = useFirebase();
 
   useEffect(() => {
     async function retrieveMissingData() {
-      setLoading(true);
-      setError(null);
       try {
         let priceIDsToRequest = new Set();
         let systemIndexToRequest = new Set();
@@ -58,8 +54,6 @@ function useImportMissingData_EditJob(requestedJobID) {
       } catch (err) {
         console.error("Error retrieving data for Job:", err);
         setError(err);
-      } finally {
-        setLoading(false);
       }
     }
 
@@ -67,7 +61,6 @@ function useImportMissingData_EditJob(requestedJobID) {
       retrieveMissingData();
     }
   }, [requestedJobID]);
-  return { loading, error };
 }
 
 export default useImportMissingData_EditJob;

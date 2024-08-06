@@ -15,18 +15,15 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
   const { firebaseListeners, updateFirebaseListeners } = useContext(
     FirebaseListenersContext
   );
-  const [loading, setLoading] = useState(true);
 
-  if (!isLoggedIn || !requestedJobID) return loading;
+  if (!isLoggedIn || !requestedJobID) return;
 
   const uid = getCurrentFirebaseUser();
 
   useEffect(() => {
     async function setupJobListeners() {
-      const existingJob = jobArray.find((doc) => doc.id === requestedJobID);
-
+      const existingJob = jobArray.find((i) => i.jobID === requestedJobID);
       if (existingJob) {
-        setLoading(false);
         onJobLoaded();
         return;
       }
@@ -39,7 +36,7 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
             doc(firestore, `Users/${uid}/Jobs`, requestedJobID.toString()),
             (initialDoc) => {
               console.log(initialDoc);
-              if (initialDoc) {
+              if (initialDoc.exists()) {
                 const initalJob = new Job(initialDoc.data());
                 if (!initialDoc.metadata.fromCache) {
                   updateJobArray((prevDocs) => [
@@ -48,7 +45,6 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
                   ]);
                 }
 
-                console.log(initalJob);
                 const relatedDocuments = initalJob.getRelatedJobs();
 
                 if (relatedDocuments.length > 0) {
@@ -77,10 +73,8 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
                     }
                   });
                 }
-
-                setLoading(false);
-                onJobLoaded();
               }
+              onJobLoaded();
             }
           );
           updateFirebaseListeners((prevListeners) => [
@@ -90,7 +84,6 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
         }
       } catch (err) {
         console.error("Error setting up job listeners:", err);
-        setLoading(false);
       }
     }
 
@@ -103,7 +96,6 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
     isLoggedIn,
     uid,
   ]);
-  return loading;
 }
 
 export default useSubscribeToJobListeners;

@@ -2,11 +2,10 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ActiveJobContext,
-  JobArray,
+  ArchivedJobsContext,
   JobArrayContext,
   JobStatusContext,
 } from "../../Context/JobContext";
-import { useJobManagement } from "../../Hooks/useJobManagement";
 import {
   Avatar,
   Divider,
@@ -26,7 +25,6 @@ import { DeleteJobIcon } from "./deleteIcon";
 import { LinkedJobBadge } from "./Linked Job Badge";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { useOpenEditJob } from "../../Hooks/JobHooks/useOpenEditJob";
 import { LoadingPage } from "../loadingPage";
 import { LayoutSelector_EditJob_Planning } from "./Edit Job Components/Planning/layoutSelector";
 import { LayoutSelector_EditJob_Purchasing } from "./Edit Job Components/Purchasing/layoutSelector";
@@ -38,12 +36,24 @@ import { Header } from "../Header";
 import { Footer } from "../Footer/Footer";
 import Job from "../../Classes/jobConstructor";
 import useSubscribeToJobListeners from "./Edit Job Hooks/useSubscribeToJobListeners";
-import useImportMissingData_EditJob from "./Edit Job Hooks/useImportNeededData";
+import {
+  EvePricesContext,
+  SystemIndexContext,
+} from "../../Context/EveDataContext";
+import { IsLoggedInContext } from "../../Context/AuthContext";
+import { useSystemIndexFunctions } from "../../Hooks/GeneralHooks/useSystemIndexFunctions";
+import { useFirebase } from "../../Hooks/useFirebase";
+import { useInstallCostsCalc } from "../../Hooks/GeneralHooks/useInstallCostCalc";
+import useSetupUnmountEventListeners from "../../Hooks/GeneralHooks/useSetupUnmountEventListeners";
 
 export default function EditJob_New({ colorMode }) {
   const { jobArray } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
   const { updateActiveJob: updateActiveJobID } = useContext(ActiveJobContext);
+  const { IsLoggedIn } = useContext(IsLoggedInContext);
+  const { updateArchivedJobs } = useContext(ArchivedJobsContext);
+  const { updateEvePrices } = useContext(EvePricesContext);
+  const { updateSystemIndexData } = useContext(SystemIndexContext);
   const [activeJob, updateActiveJob] = useState(null);
   const [jobModified, setJobModified] = useState(false);
   const [temporaryChildJobs, updateTemporaryChildJobs] = useState({});
@@ -68,47 +78,75 @@ export default function EditJob_New({ colorMode }) {
     },
     childJobs: {},
   });
-  const [jobsLoaded, setJobsLoaded] = useState(false);
-  const { openEditJob } = useOpenEditJob();
+  const [isLoading, setIsLoading] = useState(true);
+  const [jobArrayUpdated, setJobArrayUpdated] = useState(false);
+  const { findMissingSystemIndex } = useSystemIndexFunctions();
+  const { getArchivedJobData, getItemPrices } = useFirebase();
+  const { calculateInstallCostFromJob } = useInstallCostsCalc();
   const navigate = useNavigate();
   const { jobID } = useParams();
   let backupJob = useRef(null);
 
-  const jobLoading = useSubscribeToJobListeners(jobID, () => {
-    setJobsLoaded(true);
+  useSubscribeToJobListeners(jobID, () => {
+    setJobArrayUpdated(true);
   });
-  const { loading: apiDataLoading } = useImportMissingData_EditJob(
-    jobsLoaded ? jobID : null
-  );
+  useSetupUnmountEventListeners();
 
   useEffect(() => {
-    function setInitialState() {
+    async function setInitialState() {
+      if (!jobArrayUpdated) return;
       const matchedJob = jobArray.find((i) => i.jobID === jobID);
       if (matchedJob) {
-        backupJob.current = new Job(matchedJob);
-        updateActiveJob(matchedJob);
-        updateActiveJobID(matchedJob.jobID);
+        try {
+          const priceIDsToRequest = new Set();
+          const systemIndexToRequest = new Set();
+          const linkedJobs = jobArray.filter(
+            (i) =>
+              i.jobID === jobID || matchedJob.getRelatedJobs().includes(i.jobID)
+          );
+          linkedJobs.forEach((job) => {
+            job.getMaterialIDs().forEach((i) => priceIDsToRequest.add(i));
+            job.getSystemIndexes().forEach((i) => systemIndexToRequest.add(i));
+          });
+          const systemIndexResults = await findMissingSystemIndex([
+            ...systemIndexToRequest,
+          ]);
+          if (IsLoggedIn) {
+            const newArchivedJobsArray = await getArchivedJobData(jobID);
+            updateArchivedJobs(newArchivedJobsArray);
+          }
+
+          for (let setup of Object.values(matchedJob.build.setup)) {
+            setup.estimatedInstallCost = calculateInstallCostFromJob(
+              setup,
+              undefined,
+              systemIndexResults
+            );
+          }
+          const itemPriceResults = await getItemPrices([...priceIDsToRequest]);
+
+          updateEvePrices((prev) => ({
+            ...prev,
+            ...itemPriceResults,
+          }));
+          updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
+          backupJob.current = new Job(matchedJob);
+          updateActiveJob(matchedJob);
+          updateActiveJobID(matchedJob.jobID);
+          setIsLoading(false);
+        } catch (err) {
+          console.error("Error importing job data:", err);
+          navigate("/jobplanner");
+        }
       } else {
+        console.error("Unable to find job document");
         navigate("/jobplanner");
       }
     }
 
     setInitialState();
-  }, [jobID, navigate]);
+  }, [jobArrayUpdated, jobID]);
 
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
-  console.log(activeJob);
   function stepBack() {
     activeJob.stepBackward();
     updateActiveJob((prev) => new Job(prev));
@@ -191,9 +229,8 @@ export default function EditJob_New({ colorMode }) {
         );
     }
   }
-  console.log(jobLoading, apiDataLoading);
-  console.log(jobsLoaded);
-  if (jobLoading || apiDataLoading) return <LoadingPage />;
+
+  if (isLoading) return <LoadingPage />;
 
   return (
     <Grid container direction={"column"}>

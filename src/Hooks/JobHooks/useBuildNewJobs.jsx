@@ -16,6 +16,8 @@ import { logEvent } from "firebase/analytics";
 import Group from "../../Classes/groupsConstructor";
 import JobSnapshot from "../../Classes/jobSnapshotConstructor";
 import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
+import addNewJobToFirebase from "../../Functions/Firebase/addNewJob";
+import uploadJobSnapshotsToFirebase from "../../Functions/Firebase/uploadJobSnapshots";
 
 function useBuildNewJobs() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -27,7 +29,7 @@ function useBuildNewJobs() {
   const { updateEvePrices } = useContext(EvePricesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { buildJob } = useJobBuild();
-  const { addNewJob, getItemPrices, userJobListener, uploadUserJobSnapshot } =
+  const { getItemPrices, userJobListener } =
     useFirebase();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { findParentUser, sendSnackbarNotificationSuccess } =
@@ -47,9 +49,7 @@ function useBuildNewJobs() {
 
     firestoreTrace.start();
     updateDataExchange(true);
-
     let newJobObjects = await buildJob(buildRequests);
-
     if (!newJobObjects) return;
 
     if (!Array.isArray(newJobObjects)) {
@@ -94,8 +94,8 @@ function useBuildNewJobs() {
       }
 
       if (isLoggedIn) {
-        await addNewJob(jobObject);
-        await uploadUserJobSnapshot(newUserJobSnapshot);
+        await addNewJobToFirebase(jobObject);
+        await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
         userJobListener(parentUser, jobObject.jobID);
       }
       logEvent(analytics, "New Job", {

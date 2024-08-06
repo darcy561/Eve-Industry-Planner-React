@@ -20,6 +20,7 @@ import {
   LARGE_TEXT_FORMAT,
   STANDARD_TEXT_FORMAT,
 } from "../../../../../../Context/defaultValues";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function AvailableJobsTab({
   activeJob,
@@ -195,34 +196,17 @@ export function AvailableJobsTab({
                       color="primary"
                       size="standard"
                       onClick={() => {
-                        let newInstallCosts =
-                          activeJob.build.costs.installCosts;
                         let newDataToLink = new Set(
                           esiDataToLink.industryJobs.add
                         );
                         let newDataToUnLink = new Set(
                           esiDataToLink.industryJobs.remove
                         );
-                        let newActiveJobSet = new Set(activeJob.apiJobs);
-                        let newLinkedJobsArray = [
-                          ...activeJob.build.costs.linkedJobs,
-                        ];
 
-                        if (isNaN(newInstallCosts) || newInstallCosts < 0) {
-                          newInstallCosts = 0;
-                          newLinkedJobsArray.forEach((linkedJob) => {
-                            newInstallCosts += linkedJob.cost;
-                          });
-                        }
-
-                        newLinkedJobsArray.push({
-                          ...new ESIJob(job, jobOwner),
-                        });
-
-                        newActiveJobSet.add(job.job_id);
                         newDataToLink.add(job.job_id);
                         newDataToUnLink.delete(job.job_id);
-                        newInstallCosts += job.cost;
+
+                        activeJob.linkESIJob(job, jobOwner);
 
                         updateEsiDataToLink((prev) => ({
                           ...prev,
@@ -232,18 +216,7 @@ export function AvailableJobsTab({
                             remove: [...newDataToUnLink],
                           },
                         }));
-                        updateActiveJob((prevObj) => ({
-                          ...prevObj,
-                          apiJobs: newActiveJobSet,
-                          build: {
-                            ...prevObj.build,
-                            costs: {
-                              ...prevObj.build.costs,
-                              linkedJobs: newLinkedJobsArray,
-                              installCosts: newInstallCosts,
-                            },
-                          },
-                        }));
+                        updateActiveJob((prev) => new Job(prev));
                         sendSnackbarNotificationSuccess("Linked");
                         logEvent(analytics, "linkESIJob", {
                           UID: parentUser.accountID,
@@ -273,28 +246,14 @@ export function AvailableJobsTab({
                   let newDataToUnLink = new Set(
                     esiDataToLink.industryJobs.remove
                   );
-                  let newApiJobsSet = new Set(activeJob.apiJobs);
-                  let newLinkedJobsArray = [
-                    ...activeJob.build.costs.linkedJobs,
-                  ];
-                  let newInstallCosts = activeJob.build.costs.installCosts;
-
-                  if (isNaN(newInstallCosts) || newInstallCosts < 0) {
-                    newInstallCosts = 0;
-                    newLinkedJobsArray.forEach((linkedJob) => {
-                      newInstallCosts += linkedJob.cost;
-                    });
-                  }
 
                   for (let job of jobMatches) {
                     const jobOwner = users.find(
                       (i) => i.CharacterID === job.installer_id
                     );
-                    newApiJobsSet.add(job.job_id);
-                    newLinkedJobsArray.push({ ...new ESIJob(job, jobOwner) });
-                    newInstallCosts += job.cost;
                     newDataToLink.add(job.job_id);
                     newDataToUnLink.delete(job.job_id);
+                    activeJob.linkESIJob(job, jobOwner);
                   }
                   updateEsiDataToLink((prev) => ({
                     ...prev,
@@ -304,18 +263,7 @@ export function AvailableJobsTab({
                       remove: [...newDataToUnLink],
                     },
                   }));
-                  updateActiveJob((prevObj) => ({
-                    ...prevObj,
-                    apiJobs: newApiJobsSet,
-                    build: {
-                      ...prevObj.build,
-                      costs: {
-                        ...prevObj.build.costs,
-                        linkedJobs: newLinkedJobsArray,
-                        installCosts: newInstallCosts,
-                      },
-                    },
-                  }));
+                  updateActiveJob((prev) => new Job(prev));
 
                   sendSnackbarNotificationError(
                     `${jobMatches.length} Jobs Linked`

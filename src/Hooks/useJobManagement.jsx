@@ -25,6 +25,10 @@ import { STATIONID_RANGE } from "../Context/defaultValues";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 import JobSnapshot from "../Classes/jobSnapshotConstructor";
 import getStationData from "../Functions/EveESI/World/getStationData";
+import addNewJobToFirebase from "../Functions/Firebase/addNewJob";
+import updateJobInFirebase from "../Functions/Firebase/updateJob";
+import deleteJobFromFirebase from "../Functions/Firebase/deleteJob";
+import uploadJobSnapshotsToFirebase from "../Functions/Firebase/uploadJobSnapshots";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
@@ -48,13 +52,7 @@ export function useJobManagement() {
   );
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const { applicationSettings } = useContext(ApplicationSettingsContext);
-  const {
-    addNewJob,
-    getItemPrices,
-    removeJob,
-    uploadJob,
-    uploadUserJobSnapshot,
-  } = useFirebase();
+  const { getItemPrices } = useFirebase();
   const { buildJob } = useJobBuild();
   const { findJobData } = useFindJobObject();
   const { findParentUser, isItemBuildable, sendSnackbarNotificationSuccess } =
@@ -185,20 +183,20 @@ export function useJobManagement() {
       newUserJobSnapshot.push(new JobSnapshot(childJob));
 
       if (isLoggedIn) {
-        await addNewJob(childJob);
+        await addNewJobToFirebase(childJob);
       }
       newJobArray.push(childJob);
     }
 
     if (isLoggedIn) {
-      jobsToSave.forEach((jobID) => {
+      for (let jobID of [...jobsToSave]) {
         let job = newJobArray.find((i) => i.jobID === jobID);
         if (!job) {
           return;
         }
-        uploadJob(job);
-      });
-      uploadUserJobSnapshot(newUserJobSnapshot);
+        await updateJobInFirebase(job);
+      }
+      await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
     updateMassBuildDisplay((prev) => ({
       ...prev,
@@ -465,7 +463,7 @@ export function useJobManagement() {
           newLinkedOrderIDs.delete(order.order_id);
         });
         if (isLoggedIn) {
-          removeJob(oldJob);
+          deleteJobFromFirebase(oldJob);
         }
       });
       newJobArray = newJobArray.filter(
@@ -478,13 +476,13 @@ export function useJobManagement() {
     for (let job of newJobHold) {
       newUserJobSnapshot.push(new JobSnapshot(job));
       if (isLoggedIn) {
-        await addNewJob(job);
+        await addNewJobToFirebase(job);
       }
     }
 
     newJobArray = newJobArray.concat(newJobHold);
 
-    jobsToSave.forEach((id) => {
+    for (let id of [...jobsToSave]) {
       let job = newJobArray.find((i) => i.jobID === id);
       if (!job) {
         return;
@@ -495,9 +493,9 @@ export function useJobManagement() {
       matchedSnapshot.setSnapshot(job);
 
       if (isLoggedIn) {
-        uploadJob(job);
+        await updateJobInFirebase(job);
       }
-    });
+    }
 
     logEvent(analytics, "Merge Jobs", {
       UID: parentUser.accountID,
@@ -507,7 +505,7 @@ export function useJobManagement() {
     });
 
     if (isLoggedIn) {
-      uploadUserJobSnapshot(newUserJobSnapshot);
+      await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
     updateLinkedJobIDs([...newLinkedJobIDs]);
     updateLinkedOrderIDs([...newLinkedOrderIDs]);

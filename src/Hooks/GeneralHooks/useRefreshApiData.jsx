@@ -19,7 +19,7 @@ import { useSystemIndexFunctions } from "./useSystemIndexFunctions";
 import { useCorporationObject } from "../Account Management Hooks/Corporation Objects/useCorporationObject";
 import { useHelperFunction } from "./useHelperFunctions";
 import useCheckGlobalAppVersion from "./useCheckGlobalAppVersion";
-import getUniverseNames from "../../Functions/EveESI/World/getUniverseNames";
+import getWorldData from "../../Functions/EveESI/World/getWorldData";
 
 export function useRefreshApiData() {
   const { users } = useContext(UsersContext);
@@ -98,7 +98,7 @@ export function useRefreshApiData() {
         checkAndAddLocationID(locaton_id, requestIDs);
         checkAndAddLocationID(region_id, requestIDs);
       });
-      const newLocationObjects = await getUniverseNames(requestIDs, user);
+      const newLocationObjects = await getWorldData(requestIDs, user);
       newEveIDs = { ...newEveIDs, ...newLocationObjects };
     }
 

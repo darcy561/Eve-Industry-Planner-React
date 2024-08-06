@@ -24,7 +24,7 @@ import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function AccountEntry({ user, parentUserIndex }) {
   const { serverStatus } = useEveApi();
-  const { uploadUserJobSnapshot, updateMainUserDoc } = useFirebase();
+  const { updateMainUserDoc } = useFirebase();
   const {
     checkUserClaims,
     removeUserEsiData,

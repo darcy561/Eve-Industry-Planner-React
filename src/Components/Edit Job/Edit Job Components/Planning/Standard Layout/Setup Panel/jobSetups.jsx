@@ -13,6 +13,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useSetupManagement } from "../../../../../../Hooks/GeneralHooks/useSetupManagement";
 import { JobSetupCard } from "./jobSetupCard";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function JobSetupPanel({
   activeJob,
@@ -55,18 +56,21 @@ export function JobSetupPanel({
           onClick={() => {
             const { jobSetups, newMaterialArray, newTotalProduced } =
               addNewSetup(activeJob);
-            updateActiveJob((prev) => ({
-              ...prev,
-              build: {
-                ...prev.build,
-                setup: jobSetups,
-                materials: newMaterialArray,
-                products: {
-                  ...prev.build.products,
-                  totalQuantity: newTotalProduced,
+            updateActiveJob((prev) => {
+              const updatedState = {
+                ...prev,
+                build: {
+                  ...prev.build,
+                  setup: jobSetups,
+                  materials: newMaterialArray,
+                  products: {
+                    ...prev.build.products,
+                    totalQuantity: newTotalProduced,
+                  },
                 },
-              },
-            }));
+              };
+              return new Job(updatedState);
+            });
             sendSnackbarNotificationSuccess("Added");
             setJobModified(true);
           }}
@@ -117,7 +121,7 @@ export function JobSetupPanel({
                 );
                 return;
               }
-
+              console.log(jobSetups);
               updateSetupToEdit(replacementSetupID);
               updateActiveJob((prev) => ({
                 ...prev,

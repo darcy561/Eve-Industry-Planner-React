@@ -8,7 +8,8 @@ async function buildNewUserData(firebaseToken) {
     if (!firebaseToken) {
       throw new Error("Firebase token not provided");
     }
-    if (!firebaseToken._tokenresponse.isNewUser) return;
+    
+    if (!firebaseToken._tokenResponse.isNewUser) return;
 
     const firebaseTrace = trace(performance, "NewUserCloudBuild");
     firebaseTrace.start();

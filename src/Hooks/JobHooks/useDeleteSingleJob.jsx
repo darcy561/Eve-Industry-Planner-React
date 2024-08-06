@@ -10,10 +10,12 @@ import {
   LinkedIDsContext,
 } from "../../Context/JobContext";
 import { MultiSelectJobPlannerContext } from "../../Context/LayoutContext";
-import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
+import updateJobInFirebase from "../../Functions/Firebase/updateJob";
+import deleteJobFromFirebase from "../../Functions/Firebase/deleteJob";
+import uploadJobSnapshotsToFirebase from "../../Functions/Firebase/uploadJobSnapshots";
 
 export function useDeleteSingleJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -34,7 +36,6 @@ export function useDeleteSingleJob() {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { removeJob, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { findJobData } = useFindJobObject();
   const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
   const analytics = getAnalytics();
@@ -69,7 +70,7 @@ export function useDeleteSingleJob() {
 
       updateUserJobSnapshot(newUserJobSnapshot);
       if (isLoggedIn) {
-        uploadUserJobSnapshot(newUserJobSnapshot);
+        await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
       }
       return;
     }
@@ -134,7 +135,7 @@ export function useDeleteSingleJob() {
     newMutliSelct.delete(inputJob.jobID);
 
     newUserJobSnapshot = newUserJobSnapshot.filter(
-      (i) => i.jobID === inputJob.jobID
+      (i) => i.jobID !== inputJob.jobID
     );
 
     newJobArray = newJobArray.filter((job) => job.jobID !== inputJob.jobID);
@@ -147,10 +148,10 @@ export function useDeleteSingleJob() {
         if (!job) {
           return;
         }
-        await uploadJob(job);
+        await updateJobInFirebase(job);
       }
-      uploadUserJobSnapshot(newUserJobSnapshot);
-      removeJob(inputJob);
+      await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
+      await deleteJobFromFirebase(inputJob);
     }
 
     updateLinkedJobIDs([...newLinkedJobIDs]);
@@ -174,7 +175,9 @@ export function useDeleteSingleJob() {
       if (!group) return newGroupArray;
 
       group.removeJobsFromGroup(inputJob, newJobArray);
-      await uploadGroupsToFirebase(newGroupArray);
+      if (isLoggedIn) {
+        await uploadGroupsToFirebase(newGroupArray);
+      }
       updateGroupArray(newGroupArray);
     }
   };

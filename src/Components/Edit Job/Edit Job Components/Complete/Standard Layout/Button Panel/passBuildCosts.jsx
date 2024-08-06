@@ -5,10 +5,11 @@ import {
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../../../../../Context/AuthContext";
-import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { useFindJobObject } from "../../../../../../Hooks/GeneralHooks/useFindJobObject";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import updateJobInFirebase from "../../../../../../Functions/Firebase/updateJob";
+import uploadJobSnapshotsToFirebase from "../../../../../../Functions/Firebase/uploadJobSnapshots";
 
 export function PassBuildCostsButton({ activeJob }) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -16,7 +17,6 @@ export function PassBuildCostsButton({ activeJob }) {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { findJobData } = useFindJobObject();
   const {
     findParentUser,
@@ -84,7 +84,7 @@ export function PassBuildCostsButton({ activeJob }) {
 
       parentJob.build.costs.totalPurchaseCost += newTotal;
       if (isLoggedIn) {
-        await uploadJob(parentJob);
+        await updateJobInFirebase(parentJob);
       }
 
       const matchedSnapshot = newUserJobSnapshot.find(
@@ -114,7 +114,7 @@ export function PassBuildCostsButton({ activeJob }) {
     updateUserJobSnapshot(newUserJobSnapshot);
     updateJobArray(newJobArray);
     if (isLoggedIn) {
-      uploadUserJobSnapshot(newUserJobSnapshot);
+      await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
   };
 

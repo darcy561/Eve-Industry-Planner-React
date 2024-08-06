@@ -12,10 +12,12 @@ import {
 } from "../../Context/JobContext";
 import { MultiSelectJobPlannerContext } from "../../Context/LayoutContext";
 import { performance } from "../../firebase";
-import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
+import updateJobInFirebase from "../../Functions/Firebase/updateJob";
+import deleteJobFromFirebase from "../../Functions/Firebase/deleteJob";
+import uploadJobSnapshotsToFirebase from "../../Functions/Firebase/uploadJobSnapshots";
 
 export function useDeleteMultipleJobs() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -37,7 +39,6 @@ export function useDeleteMultipleJobs() {
     MultiSelectJobPlannerContext
   );
   const { findJobData } = useFindJobObject();
-  const { removeJob, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
 
   const analytics = getAnalytics();
@@ -138,7 +139,7 @@ export function useDeleteMultipleJobs() {
       );
 
       if (isLoggedIn) {
-        removeJob(inputJob);
+        await deleteJobFromFirebase(inputJob);
       }
     }
 
@@ -150,11 +151,11 @@ export function useDeleteMultipleJobs() {
         if (!job) {
           return;
         }
-        await uploadJob(job);
+        await updateJobInFirebase(job);
       }
 
       await uploadGroupsToFirebase(newGroupArray);
-      await uploadUserJobSnapshot(newUserJobSnapshot);
+      await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
 
     updateLinkedJobIDs([...newLinkedJobIDs]);

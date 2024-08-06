@@ -34,6 +34,8 @@ import { useInstallCostsCalc } from "../../../../Hooks/GeneralHooks/useInstallCo
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { ApplicationSettingsContext } from "../../../../Context/LayoutContext";
 import JobSnapshot from "../../../../Classes/jobSnapshotConstructor";
+import addNewJobToFirebase from "../../../../Functions/Firebase/addNewJob";
+import uploadJobSnapshotsToFirebase from "../../../../Functions/Firebase/uploadJobSnapshots";
 
 export function WatchListRow({
   item,
@@ -52,9 +54,7 @@ export function WatchListRow({
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { applicationSettings } = useContext(ApplicationSettingsContext);
   const {
-    addNewJob,
     getItemPrices,
-    uploadUserJobSnapshot,
     uploadUserWatchlist,
   } = useFirebase();
   const { checkAllowBuild, buildJob } = useJobBuild();
@@ -98,8 +98,8 @@ export function WatchListRow({
 
     newSnapshotArray.push(jobSnapshot);
 
-    await addNewJob(newJob);
-    await uploadUserJobSnapshot(newSnapshotArray);
+    await addNewJobToFirebase(newJob);
+    await uploadJobSnapshotsToFirebase(newSnapshotArray);
     logEvent(analytics, "New Job", {
       loggedIn: true,
       UID: parentUser.accountID,

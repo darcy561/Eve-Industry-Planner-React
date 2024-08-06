@@ -7,12 +7,14 @@ import { jobTypes } from "../Context/defaultValues";
 import { ActiveJobContext, JobArrayContext } from "../Context/JobContext";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { useBlueprintCalc } from "./useBlueprintCalc";
-import { useFirebase } from "./useFirebase";
 import { useJobBuild } from "./useJobBuild";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 import Group from "../Classes/groupsConstructor";
 import JobSnapshot from "../Classes/jobSnapshotConstructor";
 import uploadGroupsToFirebase from "../Functions/Firebase/uploadGroupData";
+import addNewJobToFirebase from "../Functions/Firebase/addNewJob";
+import updateJobInFirebase from "../Functions/Firebase/updateJob";
+import uploadJobSnapshotsToFirebase from "../Functions/Firebase/uploadJobSnapshots";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -23,7 +25,6 @@ export function useGroupManagement() {
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeGroup } = useContext(ActiveJobContext);
   const { findJobData } = useFindJobObject();
-  const { addNewJob, uploadUserJobSnapshot, uploadJob } = useFirebase();
   const { buildJob, recalculateItemQty } = useJobBuild();
   const { calculateResources, calculateTime } = useBlueprintCalc();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
@@ -96,16 +97,16 @@ export function useGroupManagement() {
 
     newGroupArray.push(newGroupEntry);
     if (isLoggedIn) {
-      uploadUserJobSnapshot(newUserJobSnapshot);
+      await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
       await uploadGroupsToFirebase(newGroupArray);
 
-      jobsToSave.forEach((id) => {
+      for (let id of [...jobsToSave]) {
         let job = newJobArray.find((i) => i.jobID === id);
         if (!job) {
           return;
         }
-        uploadJob(job);
-      });
+        await updateJobInFirebase(job);
+      }
     }
 
     updateJobArray(newJobArray);
@@ -143,13 +144,13 @@ export function useGroupManagement() {
       foundJob.groupID = null;
       newUserJobSnapshot.push(new JobSnapshot(foundJob));
       if (isLoggedIn) {
-        await uploadJob(foundJob);
+        await updateJobInFirebase(foundJob);
       }
     }
     newGroupArray = newGroupArray.filter((i) => i.groupID !== inputGroupID);
 
     if (isLoggedIn) {
-      await uploadUserJobSnapshot(newUserJobSnapshot);
+      await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
       await uploadGroupsToFirebase(newGroupArray);
     }
     updateGroupArray(newGroupArray);
@@ -229,7 +230,7 @@ export function useGroupManagement() {
 
       newJobArray.push(newJob);
       if (isLoggedIn) {
-        addNewJob(newJob);
+        await addNewJobToFirebase(newJob);
       }
     }
     updateModifiedJobs();
@@ -461,7 +462,7 @@ export function useGroupManagement() {
         }
 
         if (isLoggedIn) {
-          uploadJob(job);
+          updateJobInFirebase(job);
         }
       }
     }
@@ -496,7 +497,7 @@ export function useGroupManagement() {
         if (!job) {
           return;
         }
-        addNewJob(job);
+        await addNewJobToFirebase(job);
       }
     }
     const newGroupArray = [groupArray];

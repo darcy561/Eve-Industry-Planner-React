@@ -5,6 +5,7 @@ import { SystemIndexContext } from "../../Context/EveDataContext";
 import { useSystemIndexFunctions } from "../GeneralHooks/useSystemIndexFunctions";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
 import { ApplicationSettingsContext } from "../../Context/LayoutContext";
+import Job from "../../Classes/jobConstructor";
 
 export function useUpdateSetupValue() {
   const { updateSystemIndexData } = useContext(SystemIndexContext);
@@ -37,19 +38,16 @@ export function useUpdateSetupValue() {
       undefined,
       systemIndexResults
     );
+    // activeJob.build.setup = jobSetups;
+    // activeJob.build.materials = newMaterialArray;
+    // activeJob.build.products.totalQuantity = newTotalProduced;
 
-    updateActiveJob((prev) => ({
-      ...prev,
-      build: {
-        ...prev.build,
-        setup: jobSetups,
-        materials: newMaterialArray,
-        products: {
-          ...prev.build.products,
-          totalQuantity: newTotalProduced,
-        },
-      },
-    }));
+    updateActiveJob((prev) => {
+      prev.build.setup = jobSetups;
+      prev.build.materials = newMaterialArray;
+      prev.build.products.totalQuantity = newTotalProduced;
+      return new Job(prev);
+    });
     updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
   }
 

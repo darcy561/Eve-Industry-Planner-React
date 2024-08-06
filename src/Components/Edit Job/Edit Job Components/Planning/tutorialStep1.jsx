@@ -16,7 +16,7 @@ export function TutorialStep1({ activeJob }) {
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
-  if (applicationSettings.hideTutorials && userDataFetch) {
+  if (applicationSettings.hideTutorials && !userDataFetch) {
     return (
       <Grid item xs={12}>
         <Paper

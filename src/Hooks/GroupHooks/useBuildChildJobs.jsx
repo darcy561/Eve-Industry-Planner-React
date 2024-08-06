@@ -7,10 +7,11 @@ import {
 } from "../../Context/AuthContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { useJobBuild } from "../useJobBuild";
-import { useFirebase } from "../useFirebase";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import { ApplicationSettingsContext } from "../../Context/LayoutContext";
+import addNewJobToFirebase from "../../Functions/Firebase/addNewJob";
+import updateJobInFirebase from "../../Functions/Firebase/updateJob";
 
 export function useBuildChildJobs() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
@@ -22,7 +23,6 @@ export function useBuildChildJobs() {
   const { findJobData } = useFindJobObject();
   const { buildJob } = useJobBuild();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
-  const { addNewJob, uploadJob } = useFirebase();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   async function buildChildJobs(inputJobIDs) {
@@ -204,7 +204,7 @@ export function useBuildChildJobs() {
     let newJobArray = [...jobArray, ...newJobData];
     if (isLoggedIn) {
       for (let job of newJobData) {
-        addNewJob(job);
+        await addNewJobToFirebase(job);
       }
     }
 
@@ -218,10 +218,10 @@ export function useBuildChildJobs() {
       }
       job.parentJob = [...new Set(job.parentJob, [...modifiedData.parentJobs])];
 
-      await recalculateJobForNewTotal(job, modifiedData.itemQty);
+      recalculateJobForNewTotal(job, modifiedData.itemQty);
 
       if (isLoggedIn) {
-        uploadJob(job);
+        updateJobInFirebase(job);
       }
     }
 

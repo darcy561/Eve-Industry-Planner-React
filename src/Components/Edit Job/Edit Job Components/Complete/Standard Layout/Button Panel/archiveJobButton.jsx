@@ -13,6 +13,9 @@ import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useNavigate } from "react-router-dom";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import deleteJobFromFirebase from "../../../../../../Functions/Firebase/deleteJob";
+import uploadJobSnapshotsToFirebase from "../../../../../../Functions/Firebase/uploadJobSnapshots";
+import archiveJobInFirebase from "../../../../../../Functions/Firebase/archiveJob";
 
 export function ArchiveJobButton({ activeJob }) {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -22,7 +25,7 @@ export function ArchiveJobButton({ activeJob }) {
     UserJobSnapshotContext
   );
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { archiveJob, removeJob, uploadUserJobSnapshot, updateMainUserDoc } =
+  const { updateMainUserDoc } =
     useFirebase();
   const { findParentUserIndex, sendSnackbarNotificationSuccess } =
     useHelperFunction();
@@ -59,9 +62,9 @@ export function ArchiveJobButton({ activeJob }) {
       (i) => i.jobID !== activeJob.jobID
     );
 
-    await uploadUserJobSnapshot(newUserJobSnapshot);
-    await archiveJob(activeJob);
-    await removeJob(activeJob);
+    await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
+    await archiveJobInFirebase(activeJob);
+    await deleteJobFromFirebase(activeJob);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateMainUserDoc();
     navigate("/jobplanner");

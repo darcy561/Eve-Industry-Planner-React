@@ -9,7 +9,7 @@ import { AssetEntry_TopLevel_CorporationOffices } from "./AssetFolders/topLevelF
 import { AssetsPage_Loading } from "../../Character Assets/Standard Layout/loadingPage";
 import uuid from "react-uuid";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
-import getUniverseNames from "../../../../Functions/EveESI/World/getUniverseNames";
+import getWorldData from "../../../../Functions/EveESI/World/getWorldData";
 import getAssetLocationNames from "../../../../Functions/EveESI/World/getAssetLocationNames";
 
 export function OfficesPage_Corporation({ selectedCorporation }) {
@@ -70,7 +70,7 @@ export function OfficesPage_Corporation({ selectedCorporation }) {
         assetIDSet,
         "corporation"
       );
-      const additonalIDObjects = await getUniverseNames(
+      const additonalIDObjects = await getWorldData(
         requiredLocationID,
         requiredUserObject
       );

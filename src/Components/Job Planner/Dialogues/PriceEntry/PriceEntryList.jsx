@@ -23,7 +23,6 @@ import {
 } from "../../../../Context/AuthContext";
 import { listingType } from "../../../../Context/defaultValues";
 import { ItemPriceRow } from "./itemRow";
-import { useFirebase } from "../../../../Hooks/useFirebase";
 import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObject";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
@@ -31,6 +30,8 @@ import {
   useAddMaterialCostsToJob,
   useBuildMaterialPriceObject,
 } from "../../../../Hooks/JobHooks/useAddMaterialCosts";
+import updateJobInFirebase from "../../../../Functions/Firebase/updateJob";
+import uploadJobSnapshotsToFirebase from "../../../../Functions/Firebase/uploadJobSnapshots";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -40,7 +41,6 @@ export function PriceEntryDialog() {
   );
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { applicationSettings } = useContext(ApplicationSettingsContext);
-  const { uploadJob, uploadUserJobSnapshot } = useFirebase();
   const {
     findParentUser,
     importMultibuyFromClipboard,
@@ -120,12 +120,12 @@ export function PriceEntryDialog() {
       matchedSnapshot.setSnapshot(job);
 
       if (isLoggedIn) {
-        await uploadJob(job);
+        await updateJobInFirebase(job);
       }
     }
 
     if (isLoggedIn) {
-      uploadUserJobSnapshot(newUserJobSnapshot);
+      await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
     updateUserJobSnapshot(newUserJobSnapshot);
     updateJobArray(newJobArray);

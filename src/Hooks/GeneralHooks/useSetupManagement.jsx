@@ -1,16 +1,13 @@
-import { useContext, useMemo } from "react";
 import { useBlueprintCalc } from "../useBlueprintCalc";
 import { useInstallCostsCalc } from "./useInstallCostCalc";
 import { useJobBuild } from "../useJobBuild";
-import { UsersContext } from "../../Context/AuthContext";
 import { useHelperFunction } from "./useHelperFunctions";
+import Setup from "../../Classes/jobSetupConstructor";
 
 export function useSetupManagement() {
-  const { users } = useContext(UsersContext);
   const { calculateResources, calculateTime } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
   const {
-    buildNewSetupObject,
     addItemBlueprint,
     addDefaultStructure,
     recalculateItemQty,
@@ -77,7 +74,7 @@ export function useSetupManagement() {
       requiredQuantity
     );
 
-    const newSetup = buildNewSetupObject({
+    const newSetup = new Setup({
       ME,
       TE,
       ...structureData,

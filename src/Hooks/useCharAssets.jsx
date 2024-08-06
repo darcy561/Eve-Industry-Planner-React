@@ -3,7 +3,7 @@ import { IsLoggedInContext, UsersContext } from "../Context/AuthContext";
 import { EveIDsContext } from "../Context/EveDataContext";
 import searchData from "../RawData/searchIndex.json";
 import { useAssetHelperHooks } from "./AssetHooks/useAssetHelper";
-import getUniverseNames from "../Functions/EveESI/World/getUniverseNames";
+import getWorldData from "../Functions/EveESI/World/getWorldData";
 
 export function useCharAssets() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -49,7 +49,7 @@ export function useCharAssets() {
             }
           }
         }
-        const eveIDResults = await getUniverseNames(missingIDSet, user);
+        const eveIDResults = await getWorldData(missingIDSet, user);
         newEveIDs = { ...newEveIDs, ...eveIDResults };
       }
       for (let item = itemLocations.length - 1; item >= 0; item--) {

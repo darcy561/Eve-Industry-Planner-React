@@ -1,71 +1,80 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import getUniverseNames from "../../../../src/Functions/EveESI/World/getUniverseNames";
 
-const mockFetch = vi.fn();
-
-const inputIDs = [60003760, 60010000];
-const userObj = { aToken: "valid-token" };
-const universeResponse = [
-  { id: 60003760, name: "Jita" },
-  { id: 60010000, name: "Amarr" },
-];
-
-beforeEach(() => {
-  mockFetch.mockClear();
-  global.fetch = mockFetch;
-});
-
 describe("getUniverseNames", () => {
-  it("should retrieve universe names successfully with array input", async () => {
-    mockFetch.mockResolvedValueOnce({
+  const mockFetch = vi.fn();
+
+  beforeEach(() => {
+    mockFetch.mockClear();
+    global.fetch = mockFetch;
+  });
+
+  it("returns universe names for valid input array", async () => {
+    const mockResponse = [
+      { id: 1, name: "Location1" },
+      { id: 2, name: "Location2" },
+    ];
+
+    mockFetch.mockResolvedValue({
       ok: true,
-      json: async () => universeResponse,
+      json: async () => mockResponse,
     });
 
-    const result = await getUniverseNames(inputIDs, userObj);
+    const result = await getUniverseNames([1, 2]);
 
-    expect(result).toEqual({
-      60003760: { id: 60003760, name: "Jita" },
-      60010000: { id: 60010000, name: "Amarr" },
-    });
+    expect(result).toEqual(mockResponse);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://esi.evetech.net/latest/universe/names/?datasource=tranquility",
+      {
+        method: "POST",
+        body: JSON.stringify([1, 2]),
+      }
+    );
   });
 
-  it("should retrieve universe names successfully with set input", async () => {
-    const inputAsSet = new Set(inputIDs);
+  it("returns universe names for valid input set", async () => {
+    const mockResponse = [
+      { id: 1, name: "Location1" },
+      { id: 2, name: "Location2" },
+    ];
 
-    mockFetch.mockResolvedValueOnce({
+    mockFetch.mockResolvedValue({
       ok: true,
-      json: async () => universeResponse,
+      json: async () => mockResponse,
     });
 
-    const result = await getUniverseNames(inputAsSet, userObj);
+    const result = await getUniverseNames(new Set([1, 2]));
 
-    expect(result).toEqual({
-      60003760: { id: 60003760, name: "Jita" },
-      60010000: { id: 60010000, name: "Amarr" },
-    });
+    expect(result).toEqual(mockResponse);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://esi.evetech.net/latest/universe/names/?datasource=tranquility",
+      {
+        method: "POST",
+        body: JSON.stringify([1, 2]),
+      }
+    );
   });
 
-  it("should handle invalid input types and return an empty object", async () => {
-    await expect(getUniverseNames(null, userObj)).resolves.toEqual({});
-    await expect(getUniverseNames([60003760], null)).resolves.toEqual({});
-    await expect(getUniverseNames({}, userObj)).resolves.toEqual({});
-    await expect(getUniverseNames(true, userObj)).resolves.toEqual({});
-  });
+  it("throws error for missing input", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-  it("should handle API errors for universe names and return an empty object", async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-      statusText: "Internal Server Error",
-    });
+    const result = await getUniverseNames();
 
-    const result = await getUniverseNames(inputIDs, userObj);
     expect(result).toEqual({});
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Error retrieving universe data: Error: Input information is incomplete."
+    );
 
-    // Simulate network error
-    mockFetch.mockRejectedValueOnce(new Error("Network Error"));
-    const result2 = await getUniverseNames(inputIDs, userObj);
-    expect(result2).toEqual({});
+    consoleSpy.mockRestore();
+  });
+
+  it("handles API failure", async () => {
+    mockFetch.mockRejectedValue(new Error("API request failed"));
+
+    const result = await getUniverseNames([1, 2]);
+
+    expect(result).toEqual({});
   });
 });

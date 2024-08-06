@@ -47,7 +47,7 @@ import { useBuildCorporationState } from "./Account Management Hooks/Corporation
 import { useRemoveCorporatinState } from "./Account Management Hooks/Corporation State/useRemoveCorporationState";
 import { useUpdateCorporationState } from "./Account Management Hooks/Corporation State/useUpdateCorporationState";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
-import getUniverseNames from "../Functions/EveESI/World/getUniverseNames";
+import getWorldData from "../Functions/EveESI/World/getWorldData";
 
 export function useAccountManagement() {
   const { updateIsLoggedIn } = useContext(IsLoggedInContext);
@@ -166,7 +166,7 @@ export function useAccountManagement() {
         checkAndAddLocationID(location_id, requestedIDs);
       });
 
-      const newLocationoObjects = await getUniverseNames(requestedIDs, user);
+      const newLocationoObjects = await getWorldData(requestedIDs, user);
       returnObject = { ...returnObject, ...newLocationoObjects };
     }
 

@@ -12,7 +12,6 @@ export function SaveJobIcon({
 }) {
   const { closeActiveJob } = useCloseActiveJob();
   const navigate = useNavigate();
-
   return (
     <Tooltip
       title="Saves all changes and returns to the job planner page."

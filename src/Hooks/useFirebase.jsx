@@ -1,21 +1,12 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import {
   FirebaseListenersContext,
-  IsLoggedInContext,
   UserJobSnapshotContext,
   UsersContext,
   UserWatchlistContext,
 } from "../Context/AuthContext";
-import { appCheck, firestore, functions, performance } from "../firebase";
-import {
-  doc,
-  deleteDoc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  onSnapshot,
-} from "firebase/firestore";
-import { httpsCallable } from "@firebase/functions";
+import { appCheck, firestore, performance } from "../firebase";
+import { doc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { trace } from "firebase/performance";
 import {
   ApiJobsContext,
@@ -24,10 +15,7 @@ import {
   JobStatusContext,
   LinkedIDsContext,
 } from "../Context/JobContext";
-import { getAnalytics, logEvent } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
 import { getToken } from "firebase/app-check";
-import { firebaseAuth } from "../Components/Auth/firebaseAuth";
 import {
   EveIDsContext,
   EvePricesContext,
@@ -45,12 +33,13 @@ import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 import Group from "../Classes/groupsConstructor";
 import ApplicationSettingsObject from "../Classes/applicationSettingsConstructor";
 import JobSnapshot from "../Classes/jobSnapshotConstructor";
+import Job from "../Classes/jobConstructor";
+import getCurrentFirebaseUser from "../Functions/Firebase/currentFirebaseUser";
 
 export function useFirebase() {
-  const { users, updateUsers } = useContext(UsersContext);
+  const { updateUsers } = useContext(UsersContext);
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
-  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { archivedJobs } = useContext(ArchivedJobsContext);
   const { updateFirebaseListeners } = useContext(FirebaseListenersContext);
   const { updateUserJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -81,98 +70,15 @@ export function useFirebase() {
     updateLocalRefreshTokens,
   } = useAccountManagement();
   const { serverStatus } = useEveApi();
-  const analytics = getAnalytics();
   const { updateCorporationObject } = useCorporationObject();
   const { findParentUser } = useHelperFunction();
   const { DEFAULT_ITEM_REFRESH_PERIOD, DEFAULT_ARCHIVE_REFRESH_PERIOD } =
     GLOBAL_CONFIG;
 
   const parentUser = findParentUser();
-
-  const fbAuthState = async () => {
-    let appCheckToken = await getToken(appCheck);
-    if (isLoggedIn) {
-      const auth = getAuth();
-      if (auth.currentUser.stsTokenManager.expirationTime <= Date.now()) {
-        let newfbuser = await firebaseAuth(parentUser);
-      }
-    }
-  };
-
-  const addNewJob = async (job) => {
-    await fbAuthState();
-    setDoc(
-      doc(
-        firestore,
-        `Users/${parentUser.accountID}/Jobs`,
-        job.jobID.toString()
-      ),
-      {
-        deleted: false,
-        archived: false,
-        jobType: job.jobType,
-        name: job.name,
-        jobID: job.jobID,
-        jobStatus: job.jobStatus,
-        volume: job.volume,
-        itemID: job.itemID,
-        maxProductionLimit: job.maxProductionLimit,
-        apiJobs: [...job.apiJobs],
-        apiOrders: [...job.apiOrders],
-        apiTransactions: [...job.apiTransactions],
-        skills: job.skills,
-        rawData: job.rawData,
-        build: job.build,
-        buildVer: job.buildVer,
-        metaLevel: job.metaLevel,
-        parentJob: job.parentJob,
-        blueprintTypeID: job.blueprintTypeID,
-        layout: job.layout,
-        groupID: job.groupID || null,
-        isReadyToSell: job.isReadyToSell || false,
-        itemsProducedPerRun: job.itemsProducedPerRun,
-      }
-    );
-  };
-
-  const uploadJob = async (job) => {
-    await fbAuthState();
-    updateDoc(
-      doc(
-        firestore,
-        `Users/${parentUser.accountID}/Jobs`,
-        job.jobID.toString()
-      ),
-      {
-        jobType: job.jobType,
-        name: job.name,
-        jobID: job.jobID,
-        jobStatus: job.jobStatus,
-        volume: job.volume,
-        itemID: job.itemID,
-        maxProductionLimit: job.maxProductionLimit,
-        apiJobs: [...job.apiJobs],
-        apiOrders: [...job.apiOrders],
-        apiTransactions: [...job.apiTransactions],
-        skills: job.skills,
-        rawData: job.rawData,
-        build: job.build,
-        buildVer: job.buildVer,
-        metaLevel: job.metaLevel,
-        parentJob: job.parentJob,
-        blueprintTypeID: job.blueprintTypeID,
-        layout: job.layout,
-        groupID: job.groupID || null,
-        isReadyToSell: job.isReadyToSell || false,
-        itemsProducedPerRun:
-          job.itemsProducedPerRun || job.rawData.products[0].quantity,
-      }
-    );
-  };
+  const uid = getCurrentFirebaseUser();
 
   async function updateMainUserDoc(settingsObject) {
-    await fbAuthState();
-
     let updateObject = {
       parentUserHash: parentUser.CharacterHash,
       jobStatusArray: jobStatus,
@@ -190,23 +96,7 @@ export function useFirebase() {
     );
   }
 
-  async function uploadUserJobSnapshot(newUserJobSnapshot) {
-    await fbAuthState();
-    const snapshotArray = newUserJobSnapshot.map((snap) => snap.toDocument());
-    updateDoc(
-      doc(
-        firestore,
-        `Users/${parentUser.accountID}/ProfileInfo`,
-        "JobSnapshot"
-      ),
-      {
-        snapshot: snapshotArray,
-      }
-    );
-  }
-
   const uploadUserWatchlist = async (itemGroups, itemWatchlist) => {
-    await fbAuthState();
     updateDoc(
       doc(firestore, `Users/${parentUser.accountID}/ProfileInfo`, "Watchlist"),
       {
@@ -216,93 +106,16 @@ export function useFirebase() {
     );
   };
 
-  const removeJob = async (job) => {
-    await fbAuthState();
-
-    deleteDoc(
-      doc(firestore, `Users/${parentUser.accountID}/Jobs`, job.jobID.toString())
-    );
-  };
-
-  const archiveJob = async (job) => {
-    await fbAuthState();
-    setDoc(
-      doc(
-        firestore,
-        `Users/${parentUser.accountID}/ArchivedJobs`,
-        job.jobID.toString()
-      ),
-      {
-        archived: true,
-        archiveProcessed: false,
-        jobType: job.jobType,
-        name: job.name,
-        jobID: job.jobID,
-        jobStatus: job.jobStatus,
-        volume: job.volume,
-        itemID: job.itemID,
-        maxProductionLimit: job.maxProductionLimit,
-        apiJobs: [...job.apiJobs],
-        apiOrders: [...job.apiOrders],
-        apiTransactions: [...job.apiTransactions],
-        skills: job.skills,
-        rawData: job.rawData,
-        build: job.build,
-        buildVer: job.buildVer,
-        metaLevel: job.metaLevel,
-        parentJob: job.parentJob,
-        blueprintTypeID: job.blueprintTypeID,
-        layout: job.layout,
-        groupID: job.groupID || null,
-        isReadyToSell: job.isReadyToSell || false,
-        itemsProducedPerRun:
-          job.itemsProducedPerRun || job.rawData.products[0].quantity,
-      }
-    );
-  };
-
   const downloadCharacterJobs = async (jobID) => {
-    await fbAuthState();
     const document = await getDoc(
       doc(firestore, `Users/${parentUser.accountID}/Jobs`, jobID.toString())
     );
     let downloadDoc = document.data();
-    if (downloadDoc !== undefined) {
-      let newJob = {
-        hasListener: false,
-        jobType: downloadDoc.jobType,
-        name: downloadDoc.name,
-        jobID: downloadDoc.jobID.toString(),
-        jobStatus: downloadDoc.jobStatus,
-        isSnapshot: false,
-        volume: downloadDoc.volume,
-        itemID: downloadDoc.itemID,
-        maxProductionLimit: downloadDoc.maxProductionLimit,
-        apiJobs: new Set(downloadDoc.apiJobs),
-        apiOrders: new Set(downloadDoc.apiOrders),
-        apiTransactions: new Set(downloadDoc.apiTransactions),
-        skills: downloadDoc.skills,
-        rawData: downloadDoc.rawData,
-        build: downloadDoc.build,
-        buildVer: downloadDoc.buildVer,
-        metaLevel: downloadDoc.metaLevel,
-        parentJob: downloadDoc.parentJob.map(String),
-        blueprintTypeID: downloadDoc.blueprintTypeID,
-        layout: downloadDoc.layout,
-        groupID: downloadDoc.groupID,
-        isReadyToSell: downloadDoc.isReadyToSell || false,
-        itemsProducedPerRun:
-          downloadDoc.itemsProducedPerRun ||
-          downloadDoc.rawData.products[0].quantity,
-      };
-
-      return newJob;
-    } else {
-      return undefined;
-    }
+    if (!downloadDoc) return;
+    return new Job(downloadDoc);
   };
 
-  const getItemPriceBulk = async (array, userObj) => {
+  const getItemPriceBulk = async (array) => {
     try {
       const appCheckToken = await getToken(appCheck, true);
       const itemsPricePromise = await fetch(
@@ -312,7 +125,7 @@ export function useFirebase() {
           headers: {
             "Content-Type": "application/json",
             "X-Firebase-AppCheck": appCheckToken.token,
-            accountID: userObj.accountID,
+            accountID: uid,
             appVersion: __APP_VERSION__,
           },
           body: JSON.stringify({
@@ -330,14 +143,12 @@ export function useFirebase() {
   };
 
   async function getItemPrices(idArray, userObj) {
-    await fbAuthState();
-
     if (!idArray || idArray.length === 0) return {};
 
     const requiredIDs = buildRequiredPriceObjects(idArray);
 
     const returnedPromise = await Promise.all(
-      generateItemPriceChunkRequests(requiredIDs, userObj)
+      generateItemPriceChunkRequests(requiredIDs)
     );
     return convertItemPriceResponseToObject(returnedPromise);
 
@@ -364,28 +175,28 @@ export function useFirebase() {
     });
 
     const returnPromiseArray = await Promise.all(
-      generateItemPriceChunkRequests([...outdatedPriceIDs], userObj)
+      generateItemPriceChunkRequests([...outdatedPriceIDs])
     );
 
     return convertItemPriceResponseToObject(returnPromiseArray);
   }
 
-  function generateItemPriceChunkRequests(requestArray, userObject) {
+  function generateItemPriceChunkRequests(requestArray) {
     const MAX_CHUNK_SIZE = 500;
     const returnPromises = [];
     const t = trace(performance, "GetItemPrices");
-    if (!requestArray || requestArray.length === 0 || !userObject)
-      return returnPromises;
+    if (!requestArray || requestArray.length === 0) return returnPromises;
 
     t.start();
 
     for (let x = 0; x < requestArray.length; x += MAX_CHUNK_SIZE) {
       const chunk = requestArray.slice(x, x + MAX_CHUNK_SIZE);
-      returnPromises.push(getItemPriceBulk(chunk, userObject));
+      returnPromises.push(getItemPriceBulk(chunk));
     }
     t.stop();
     return returnPromises;
   }
+
   function convertItemPriceResponseToObject(responseArray) {
     const responseObject = {};
     for (let data of responseArray) {
@@ -581,33 +392,7 @@ export function useFirebase() {
           const t = trace(performance, "UserJobListener");
           t.start();
           let downloadDoc = doc.data();
-          let newJob = {
-            jobType: downloadDoc.jobType,
-            name: downloadDoc.name,
-            jobID: downloadDoc.jobID.toString(),
-            jobStatus: downloadDoc.jobStatus,
-            isSnapshot: false,
-            volume: downloadDoc.volume,
-            itemID: downloadDoc.itemID,
-            maxProductionLimit: downloadDoc.maxProductionLimit,
-            apiJobs: new Set(downloadDoc.apiJobs),
-            apiOrders: new Set(downloadDoc.apiOrders),
-            apiTransactions: new Set(downloadDoc.apiTransactions),
-            skills: downloadDoc.skills,
-            rawData: downloadDoc.rawData,
-            build: downloadDoc.build,
-            buildVer: downloadDoc.buildVer,
-            metaLevel: downloadDoc.metaLevel,
-            parentJob: downloadDoc.parentJob.map(String),
-            blueprintTypeID: downloadDoc.blueprintTypeID,
-            layout: downloadDoc.layout,
-            groupID: downloadDoc.groupID,
-            isReadyToSell: downloadDoc.isReadyToSell || false,
-            itemsProducedPerRun:
-              downloadDoc.itemsProducedPerRun ||
-              downloadDoc.rawData.products[0].quantity,
-          };
-
+          const newJob = new Job(downloadDoc);
           updateJobArray((prev) => {
             const index = prev.findIndex((i) => i.jobID === newJob.jobID);
             if (index === -1) {
@@ -754,22 +539,16 @@ export function useFirebase() {
   };
 
   return {
-    addNewJob,
-    archiveJob,
-    fbAuthState,
     getArchivedJobData,
     getItemPrices,
-    uploadJob,
     updateMainUserDoc,
     refreshItemPrices,
-    removeJob,
     downloadCharacterJobs,
     userGroupDataListener,
     userJobListener,
     userJobSnapshotListener,
     userMaindDocListener,
     userWatchlistListener,
-    uploadUserJobSnapshot,
     uploadUserWatchlist,
   };
 }

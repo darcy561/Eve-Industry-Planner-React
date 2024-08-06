@@ -10,6 +10,7 @@ import {
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
 import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
+import updateJobInFirebase from "../../Functions/Firebase/updateJob";
 
 function useCloseGroup() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -23,7 +24,6 @@ function useCloseGroup() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { uploadJob } = useFirebase();
 
   async function closeGroup(groupJobs) {
     let newGroupArray = [...groupArray];
@@ -101,7 +101,7 @@ function useCloseGroup() {
       for (const jobID of jobsToSave) {
         let job = newJobArray.find((i) => i.jobID === jobID);
         if (!job) return;
-        await uploadJob(job);
+        await updateJobInFirebase(job);
       }
     }
   }

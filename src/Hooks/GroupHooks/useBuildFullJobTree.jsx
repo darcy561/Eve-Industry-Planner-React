@@ -4,9 +4,9 @@ import { jobTypes } from "../../Context/defaultValues";
 import { useJobBuild } from "../useJobBuild";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
 import { IsLoggedInContext } from "../../Context/AuthContext";
-import { useFirebase } from "../useFirebase";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import { ApplicationSettingsContext } from "../../Context/LayoutContext";
+import addNewJobToFirebase from "../../Functions/Firebase/addNewJob";
 
 export function useBuildFullJobTree() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
@@ -16,7 +16,6 @@ export function useBuildFullJobTree() {
   const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { buildJob } = useJobBuild();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
-  const { addNewJob } = useFirebase();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   async function buildFullJobTree(inputJobIDs) {
@@ -37,7 +36,7 @@ export function useBuildFullJobTree() {
     );
     if (isLoggedIn) {
       for (const job of newJobs) {
-        addNewJob(job);
+        await addNewJobToFirebase(job);
       }
     }
 

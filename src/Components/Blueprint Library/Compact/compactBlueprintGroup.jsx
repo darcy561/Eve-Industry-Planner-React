@@ -23,6 +23,8 @@ import { trace } from "@firebase/performance";
 import { performance } from "../../../firebase";
 import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 import JobSnapshot from "../../../Classes/jobSnapshotConstructor";
+import addNewJobToFirebase from "../../../Functions/Firebase/addNewJob";
+import uploadJobSnapshotsToFirebase from "../../../Functions/Firebase/uploadJobSnapshots";
 
 export function CompactBlueprintGroup({ bpID, blueprintResults }) {
   const { updateJobArray } = useContext(JobArrayContext);
@@ -35,7 +37,7 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
   const { buildJob, checkAllowBuild } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
 
-  const { addNewJob, getItemPrices, uploadUserJobSnapshot } = useFirebase();
+  const { getItemPrices } = useFirebase();
   const { findParentUser, sendSnackbarNotificationSuccess } =
     useHelperFunction();
   const analytics = getAnalytics();
@@ -134,8 +136,8 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
                     newJobArray.push(newJob);
                     newSnapshotArray.push(new JobSnapshot(newJob));
 
-                    await addNewJob(newJob);
-                    await uploadUserJobSnapshot(newSnapshotArray);
+                    await addNewJobToFirebase(newJob);
+                    await uploadJobSnapshotsToFirebase(newSnapshotArray);
 
                     logEvent(analytics, "New Job", {
                       loggedIn: true,

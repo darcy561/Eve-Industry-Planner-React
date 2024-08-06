@@ -1,6 +1,11 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ActiveJobContext, JobStatusContext } from "../../Context/JobContext";
+import {
+  ActiveJobContext,
+  JobArray,
+  JobArrayContext,
+  JobStatusContext,
+} from "../../Context/JobContext";
 import { useJobManagement } from "../../Hooks/useJobManagement";
 import {
   Avatar,
@@ -31,10 +36,14 @@ import { LayoutSelector_EditJob_Selling } from "./Edit Job Components/Selling/La
 import { ShoppingListDialog } from "../Job Planner/Dialogues/ShoppingList/ShoppingList";
 import { Header } from "../Header";
 import { Footer } from "../Footer/Footer";
+import Job from "../../Classes/jobConstructor";
+import useSubscribeToJobListeners from "./Edit Job Hooks/useSubscribeToJobListeners";
+import useImportMissingData_EditJob from "./Edit Job Hooks/useImportNeededData";
 
 export default function EditJob_New({ colorMode }) {
+  const { jobArray } = useContext(JobArrayContext);
   const { jobStatus } = useContext(JobStatusContext);
-  const { activeJob: activeJobID } = useContext(ActiveJobContext);
+  const { updateActiveJob: updateActiveJobID } = useContext(ActiveJobContext);
   const [activeJob, updateActiveJob] = useState(null);
   const [jobModified, setJobModified] = useState(false);
   const [temporaryChildJobs, updateTemporaryChildJobs] = useState({});
@@ -59,24 +68,33 @@ export default function EditJob_New({ colorMode }) {
     },
     childJobs: {},
   });
-  const { deepCopyJobObject } = useJobManagement();
+  const [jobsLoaded, setJobsLoaded] = useState(false);
   const { openEditJob } = useOpenEditJob();
   const navigate = useNavigate();
   const { jobID } = useParams();
   let backupJob = useRef(null);
 
+  const jobLoading = useSubscribeToJobListeners(jobID, () => {
+    setJobsLoaded(true);
+  });
+  const { loading: apiDataLoading } = useImportMissingData_EditJob(
+    jobsLoaded ? jobID : null
+  );
+
   useEffect(() => {
-    async function openJobProcess() {
-      const matchedJob = await openEditJob(jobID);
-      if (!matchedJob) {
+    function setInitialState() {
+      const matchedJob = jobArray.find((i) => i.jobID === jobID);
+      if (matchedJob) {
+        backupJob.current = new Job(matchedJob);
+        updateActiveJob(matchedJob);
+        updateActiveJobID(matchedJob.jobID);
+      } else {
         navigate("/jobplanner");
-        return;
       }
-      updateActiveJob(deepCopyJobObject(matchedJob));
-      backupJob.current = deepCopyJobObject(matchedJob);
     }
-    openJobProcess();
-  }, [activeJobID]);
+
+    setInitialState();
+  }, [jobID, navigate]);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -90,19 +108,15 @@ export default function EditJob_New({ colorMode }) {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
-
+  console.log(activeJob);
   function stepBack() {
-    updateActiveJob((prevState) => ({
-      ...prevState,
-      jobStatus: prevState.jobStatus - 1,
-    }));
+    activeJob.stepBackward();
+    updateActiveJob((prev) => new Job(prev));
     setJobModified(true);
   }
   function stepForward() {
-    updateActiveJob((prevState) => ({
-      ...prevState,
-      jobStatus: prevState.jobStatus + 1,
-    }));
+    activeJob.stepForward();
+    updateActiveJob((prev) => new Job(prev));
     setJobModified(true);
   }
 
@@ -177,8 +191,9 @@ export default function EditJob_New({ colorMode }) {
         );
     }
   }
-
-  if (!activeJob) return <LoadingPage />;
+  console.log(jobLoading, apiDataLoading);
+  console.log(jobsLoaded);
+  if (jobLoading || apiDataLoading) return <LoadingPage />;
 
   return (
     <Grid container direction={"column"}>
@@ -187,7 +202,7 @@ export default function EditJob_New({ colorMode }) {
         elevation={3}
         sx={{
           padding: "10px",
-          marginTop:10,
+          marginTop: 10,
           width: "100%",
         }}
         square

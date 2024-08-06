@@ -8,7 +8,7 @@ import {
 import { AssetEntry_TopLevel } from "./AssetFolders/topLevelFolder";
 import { AssetsPage_Loading } from "./loadingPage";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
-import getUniverseNames from "../../../../Functions/EveESI/World/getUniverseNames";
+import getWorldData from "../../../../Functions/EveESI/World/getWorldData";
 import getAssetLocationNames from "../../../../Functions/EveESI/World/getAssetLocationNames";
 
 export function AssetsPage_Character({ selectedCharacter }) {
@@ -60,7 +60,7 @@ export function AssetsPage_Character({ selectedCharacter }) {
         assetIDSet
       );
 
-      const additonalIDObjects = await getUniverseNames(
+      const additonalIDObjects = await getWorldData(
         requiredLocationID,
         requiredUserObject
       );

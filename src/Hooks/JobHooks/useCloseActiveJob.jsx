@@ -8,10 +8,12 @@ import {
   JobArrayContext,
   LinkedIDsContext,
 } from "../../Context/JobContext";
-import { useFirebase } from "../useFirebase";
 import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import JobSnapshot from "../../Classes/jobSnapshotConstructor";
+import addNewJobToFirebase from "../../Functions/Firebase/addNewJob";
+import updateJobInFirebase from "../../Functions/Firebase/updateJob";
+import uploadJobSnapshotsToFirebase from "../../Functions/Firebase/uploadJobSnapshots";
 
 export function useCloseActiveJob() {
   const { updateActiveJob } = useContext(ActiveJobContext);
@@ -29,7 +31,6 @@ export function useCloseActiveJob() {
     linkedTransIDs,
     updateLinkedTransIDs,
   } = useContext(LinkedIDsContext);
-  const { addNewJob, uploadJob, uploadUserJobSnapshot } = useFirebase();
   const { findJobData } = useFindJobObject();
   const { sendSnackbarNotificationInfo } = useHelperFunction();
 
@@ -69,7 +70,7 @@ export function useCloseActiveJob() {
         matchedGroup.addJobsToGroup(tempJob);
       }
       if (isLoggedIn) {
-        addNewJob(tempJob);
+        addNewJobToFirebase(tempJob);
       }
     });
 
@@ -206,7 +207,7 @@ export function useCloseActiveJob() {
       }
     }
 
-    modifiedJobsSet.forEach((modifiedID) => {
+    for (let modifiedID of [...modifiedJobsSet]) {
       const matchedJob = newJobArray.find((i) => i.jobID === modifiedID);
       if (!matchedJob) return;
 
@@ -216,9 +217,9 @@ export function useCloseActiveJob() {
       matchedSnapshot.setSnapshot(matchedJob);
 
       if (isLoggedIn) {
-        uploadJob(matchedJob);
+        await updateJobInFirebase(matchedJob);
       }
-    });
+    }
 
     if (
       inputJob.groupID !== null &&
@@ -238,10 +239,10 @@ export function useCloseActiveJob() {
     updateJobArray(newJobArray);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateActiveJob(null);
-
+    console.log(inputJob)
     if (isLoggedIn) {
-      await uploadUserJobSnapshot(newUserJobSnapshot);
-      await uploadJob(inputJob);
+      await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
+      await updateJobInFirebase(inputJob);
     }
 
     sendSnackbarNotificationInfo(`${inputJob.name} Updated`);

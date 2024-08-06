@@ -8,6 +8,7 @@ import { useFirebase } from "../useFirebase";
 import { EvePricesContext } from "../../Context/EveDataContext";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
+import addNewJobToFirebase from "../../Functions/Firebase/addNewJob";
 
 export function useImportFitFromClipboard() {
   const { activeGroup } = useContext(ActiveJobContext);
@@ -18,7 +19,7 @@ export function useImportFitFromClipboard() {
   const { buildJob } = useJobBuild();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
   const { generatePriceRequestFromJob } = useJobManagement();
-  const { addNewJob, getItemPrices } = useFirebase();
+  const { getItemPrices } = useFirebase();
   const { findParentUser } = useHelperFunction();
 
   const parentUser = findParentUser();
@@ -180,11 +181,11 @@ export function useImportFitFromClipboard() {
       ...itemPriceResult,
     }));
     if (isLoggedIn) {
-      jobsToSave.forEach((id) => {
+      for (let id of [...jobsToSave]) {
         let matchedJob = newJobArray.find((i) => i.jobID === id);
         if (!matchedJob) return;
-        addNewJob(matchedJob);
-      });
+        await addNewJobToFirebase(matchedJob);
+      }
     }
   };
 

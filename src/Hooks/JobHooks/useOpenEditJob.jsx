@@ -24,6 +24,7 @@ import { useSystemIndexFunctions } from "../GeneralHooks/useSystemIndexFunctions
 import { useInstallCostsCalc } from "../GeneralHooks/useInstallCostCalc";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import useCheckGlobalAppVersion from "../GeneralHooks/useCheckGlobalAppVersion";
+import uploadJobSnapshotsToFirebase from "../../Functions/Firebase/uploadJobSnapshots";
 
 export function useOpenEditJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -43,17 +44,12 @@ export function useOpenEditJob() {
   const { findMissingSystemIndex } = useSystemIndexFunctions();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
-  const {
-    getArchivedJobData,
-    getItemPrices,
-    uploadUserJobSnapshot,
-    userJobListener,
-  } = useFirebase();
+  const { getArchivedJobData, getItemPrices, userJobListener } = useFirebase();
   const { findParentUser } = useHelperFunction();
 
   const parentUser = findParentUser();
 
-  const openEditJob = async (inputJobID) => {
+  async function openEditJob(inputJobID) {
     try {
       let newUserJobSnapshot = [...userJobSnapshot];
       let newJobArray = [...jobArray];
@@ -95,7 +91,6 @@ export function useOpenEditJob() {
       for (let mat of openJob.build.materials) {
         if (openJob.build.childJobs[mat.typeID].length === 0) {
           continue;
-          s;
         }
         for (let cJID of openJob.build.childJobs[mat.typeID]) {
           let childJob = await findJobData(
@@ -133,7 +128,7 @@ export function useOpenEditJob() {
       if (isLoggedIn) {
         let newArchivedJobsArray = await getArchivedJobData(openJob.itemID);
         updateArchivedJobs(newArchivedJobsArray);
-        uploadUserJobSnapshot(newUserJobSnapshot);
+        await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
       }
 
       if (!useCheckGlobalAppVersion()) {
@@ -154,7 +149,7 @@ export function useOpenEditJob() {
         }));
         return;
       }
-      const itemPriceResult = await getItemPrices([...itemIDs], parentUser);
+      const itemPriceResult = await getItemPrices([...itemIDs]);
 
       updateEvePrices((prev) => ({
         ...prev,
@@ -189,10 +184,10 @@ export function useOpenEditJob() {
       }
       return openJob;
     } catch (err) {
-      console.log(err);
+      console.error(err);
       return null;
     }
-  };
+  }
 
   return { openEditJob };
 }

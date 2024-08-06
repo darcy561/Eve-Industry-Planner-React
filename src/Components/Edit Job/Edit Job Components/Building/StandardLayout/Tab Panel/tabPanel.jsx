@@ -4,6 +4,7 @@ import { Paper, Tab, Tabs } from "@mui/material";
 import { AvailableJobsTab } from "./availableJobs";
 import { LinkedJobsTab } from "./linkedJobs";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function TabPanel_Building({
   activeJob,
@@ -28,16 +29,12 @@ export function TabPanel_Building({
       return "1";
     }
   }
-
   const handleChange = (event, newValue) => {
     updateTab(newValue);
-    updateActiveJob((prev) => ({
-      ...prev,
-      layout: {
-        ...prev.layout,
-        esiJobTab: newValue,
-      },
-    }));
+    updateActiveJob((prev) => {
+      prev.layout.esiJobTab = newValue;
+      return new Job(prev);
+    });
   };
 
   return (

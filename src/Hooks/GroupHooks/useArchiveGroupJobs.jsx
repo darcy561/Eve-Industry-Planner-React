@@ -1,16 +1,16 @@
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import {
-  IsLoggedIn,
   IsLoggedInContext,
   UserJobSnapshotContext,
   UsersContext,
 } from "../../Context/AuthContext";
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
-import { SnackBarDataContext } from "../../Context/LayoutContext";
 import { useFirebase } from "../useFirebase";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
+import deleteJobFromFirebase from "../../Functions/Firebase/deleteJob";
+import archiveJobInFirebase from "../../Functions/Firebase/archiveJob";
 
 export function useArchiveGroupJobs() {
   const { users, updateUsers } = useContext(UsersContext);
@@ -19,7 +19,7 @@ export function useArchiveGroupJobs() {
     useContext(JobArrayContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { archiveJob, removeJob, updateMainUserDoc } = useFirebase();
+  const { updateMainUserDoc } = useFirebase();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
   const analytics = getAnalytics();
 
@@ -57,8 +57,8 @@ export function useArchiveGroupJobs() {
 
     for (let selectedJob of selectedJobs) {
       if (userJobSnapshot.some((i) => i.jobID === selectedJob.jobID)) continue;
-      await archiveJob(selectedJob);
-      await removeJob(selectedJob);
+      await archiveJobInFirebase(selectedJob);
+      await deleteJobFromFirebase(selectedJob);
     }
     updateUsers(newUserArray);
     updateGroupArray(newGroupArray);

@@ -6,7 +6,7 @@ import { AssetsPage_Loading } from "./loadingPage";
 import { AssetEntry_TopLevel } from "./AssetFolders/topLevelFolder";
 import uuid from "react-uuid";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
-import getUniverseNames from "../../../../Functions/EveESI/World/getUniverseNames";
+import getWorldData from "../../../../Functions/EveESI/World/getWorldData";
 import getAssetLocationNames from "../../../../Functions/EveESI/World/getAssetLocationNames";
 
 export function AssetLocationFlagPage_Character({
@@ -51,7 +51,7 @@ export function AssetLocationFlagPage_Character({
         assetIDSet
       );
 
-      const additonalIDObjects = await getUniverseNames(
+      const additonalIDObjects = await getWorldData(
         requiredLocationID,
         requiredUserObject
       );

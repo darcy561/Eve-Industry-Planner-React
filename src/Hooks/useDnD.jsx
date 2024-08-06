@@ -6,8 +6,8 @@ import {
 import { ItemTypes } from "../Context/DnDTypes";
 import { JobArrayContext } from "../Context/JobContext";
 import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
-import { useFirebase } from "./useFirebase";
 import uploadGroupsToFirebase from "../Functions/Firebase/uploadGroupData";
+import updateJobInFirebase from "../Functions/Firebase/updateJob";
 
 export function useDnD() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -17,7 +17,6 @@ export function useDnD() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { findJobData } = useFindJobObject();
-  const { uploadJob } = useFirebase();
 
 
   const recieveJobCardToStage = async (item, status) => {
@@ -46,7 +45,7 @@ export function useDnD() {
         matchedSnapshot.setSnapshot(inputJob);
 
         if (isLoggedIn) {
-          await uploadJob(inputJob);
+          await updateJobInFirebase(inputJob);
         }
         updateUserJobSnapshot(newUserJobSnapshot);
         updateJobArray(newJobArray);

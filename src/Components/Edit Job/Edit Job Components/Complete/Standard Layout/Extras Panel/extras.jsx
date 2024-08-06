@@ -3,6 +3,7 @@ import { Grid, IconButton, Paper, TextField, Typography } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { MdAdd } from "react-icons/md";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function ExtrasPanel({ activeJob, updateActiveJob, setJobModified }) {
   const { sendSnackbarNotificationSuccess, sendSnackbarNotificationError } =
@@ -11,50 +12,19 @@ export function ExtrasPanel({ activeJob, updateActiveJob, setJobModified }) {
 
   function handleAdd(event) {
     event.preventDefault();
-    const newExtrasArray = activeJob.build.costs.extrasCosts;
-    let newTotal = 0;
-    newExtrasArray.push({
+    activeJob.addExtrasCost({
       id: Date.now(),
       extraText: extras.text,
       extraValue: extras.value,
     });
-    newExtrasArray.forEach((extra) => {
-      newTotal += extra.extraValue;
-    });
-    updateActiveJob((prevObj) => ({
-      ...prevObj,
-      build: {
-        ...prevObj.build,
-        costs: {
-          ...prevObj.build.costs,
-          extrasCosts: newExtrasArray,
-          extrasTotal: newTotal,
-        },
-      },
-    }));
+    updateActiveJob((prev) => new Job(prev));
     sendSnackbarNotificationSuccess("Success");
     setJobModified(true);
   }
 
-  function handleRemove(index) {
-    let newExtrasArray = activeJob.build.costs.extrasCosts;
-    let newTotal = 0;
-    newExtrasArray.splice(index, 1);
-    newExtrasArray.forEach((extra) => {
-      newTotal += extra.extraValue;
-    });
-
-    updateActiveJob((prevObj) => ({
-      ...prevObj,
-      build: {
-        ...prevObj.build,
-        costs: {
-          ...prevObj.build.costs,
-          extrasCosts: newExtrasArray,
-          extrasTotal: newTotal,
-        },
-      },
-    }));
+  function handleRemove(item) {
+    activeJob.removeExtrasCost(item);
+    updateActiveJob((prev) => new Job(prev));
     sendSnackbarNotificationError("Deleted");
     setJobModified(true);
   }
@@ -105,7 +75,7 @@ export function ExtrasPanel({ activeJob, updateActiveJob, setJobModified }) {
                   <IconButton
                     color="error"
                     size="small"
-                    onClick={() => handleRemove(index)}
+                    onClick={() => handleRemove(item)}
                   >
                     <ClearIcon />
                   </IconButton>

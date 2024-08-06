@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { Button, Tooltip } from "@mui/material";
 import { UserJobSnapshotContext } from "../../../../../../Context/AuthContext";
 import { ActiveJobContext } from "../../../../../../Context/JobContext";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function SellGroupJobButton({
   activeJob,
@@ -15,21 +16,16 @@ export function SellGroupJobButton({
 
   const toggleMarkForSell = async () => {
     if (!activeJob.isReadyToSell) {
-      updateActiveJob((prev) => ({
-        ...prev,
-        jobStatus: prev.jobStatus + 1,
-        isReadyToSell: !prev.isReadyToSell,
-      }));
+      activeJob.jobStatus += 1;
+      activeJob.isReadyToSell = !activeJob.isReadyToSell;
     } else {
       const newUserJobSnaoshot = userJobSnapshot.filter(
         (i) => i.jobID === activeJob.jobID
       );
-      updateActiveJob((prev) => ({
-        ...prev,
-        isReadyToSell: !prev.isReadyToSell,
-      }));
+      activeJob.isReadyToSell = !activeJob.isReadyToSell;
       updateUserJobSnapshot(newUserJobSnaoshot);
     }
+    updateActiveJob((prev) => new Job(prev));
     setJobModified(true);
   };
 

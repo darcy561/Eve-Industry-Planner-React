@@ -22,6 +22,7 @@ import {
   STANDARD_TEXT_FORMAT,
   TWO_DECIMAL_PLACES,
 } from "../../../../../../Context/defaultValues";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function LinkedJobsTab({
   activeJob,
@@ -207,23 +208,11 @@ export function LinkedJobsTab({
                         let newDataToUnLink = new Set(
                           esiDataToLink.industryJobs.remove
                         );
-                        let newActiveJobArray = new Set(activeJob.apiJobs);
-                        let newLinkedJobsArray = [
-                          ...activeJob.build.costs.linkedJobs,
-                        ];
-                        let newInstallCosts =
-                          activeJob.build.costs.installCosts;
-                        if (isNaN(newInstallCosts) || newInstallCosts < 0) {
-                          newInstallCosts = 0;
-                          newLinkedJobsArray.forEach((linkedJob) => {
-                            newInstallCosts += linkedJob.cost;
-                          });
-                        }
-                        newInstallCosts -= job.cost;
-                        newActiveJobArray.delete(job.job_id);
-                        newLinkedJobsArray.splice(linkedJobsArrayIndex, 1);
+
                         newDataToLink.delete(job.job_id);
                         newDataToUnLink.add(job.job_id);
+
+                        activeJob.unlinkESIJob(job);
 
                         setJobModified(true);
                         updateEsiDataToLink((prev) => ({
@@ -234,18 +223,7 @@ export function LinkedJobsTab({
                             remove: [...newDataToUnLink],
                           },
                         }));
-                        updateActiveJob((prevObj) => ({
-                          ...prevObj,
-                          apiJobs: newActiveJobArray,
-                          build: {
-                            ...prevObj.build,
-                            costs: {
-                              ...prevObj.build.costs,
-                              linkedJobs: newLinkedJobsArray,
-                              installCosts: newInstallCosts,
-                            },
-                          },
-                        }));
+                        updateActiveJob((prev) => new Job(prev));
                         sendSnackbarNotificationSuccess("Unlinked");
                         logEvent(analytics, "unlinkESIJob", {
                           UID: parentUser.accountID,
@@ -280,6 +258,7 @@ export function LinkedJobsTab({
                   for (let job of activeJob.apiJobs) {
                     newDataToLink.delete(job.job_id);
                     newDataToUnLink.add(job.job_id);
+                    activeJob.unlinkESIJob(job);
                   }
 
                   setJobModified(true);
@@ -291,18 +270,8 @@ export function LinkedJobsTab({
                       remove: [...newDataToUnLink],
                     },
                   }));
-                  updateActiveJob((prevObj) => ({
-                    ...prevObj,
-                    apiJobs: new Set(),
-                    build: {
-                      ...prevObj.build,
-                      costs: {
-                        ...prevObj.build.costs,
-                        linkedJobs: [],
-                        installCosts: 0,
-                      },
-                    },
-                  }));
+
+                  updateActiveJob((prev) => new Job(prev));
                   sendSnackbarNotificationSuccess(
                     `${jobsToRemoveQuantity} Jobs Unlinked`
                   );

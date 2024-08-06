@@ -16,7 +16,7 @@ import { CorporationSelector_AssetDialog } from "./corporationSelector";
 import { NoAssetsFound_AssetsDialog } from "./noAssetsFound";
 import { UseCorporationSelector_AssetsDialog } from "./useCoporation";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
-import getUniverseNames from "../../../../../../Functions/EveESI/World/getUniverseNames";
+import getWorldData from "../../../../../../Functions/EveESI/World/getWorldData";
 import getAssetLocationNames from "../../../../../../Functions/EveESI/World/getAssetLocationNames";
 
 export function AssetDialogue({
@@ -87,7 +87,7 @@ export function AssetDialogue({
           useCorporationAssets ? "corporation" : "character"
         );
 
-        const additonalIDObjects = await getUniverseNames(
+        const additonalIDObjects = await getWorldData(
           [...requiredLocationID],
           requiredUserObject
         );

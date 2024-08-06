@@ -18,6 +18,7 @@ import { UsersContext } from "../../../../../../Context/AuthContext";
 import rawSystemData from "../../../../../../RawData/systems.json";
 import { SystemIndexContext } from "../../../../../../Context/EveDataContext";
 import { ApplicationSettingsContext } from "../../../../../../Context/LayoutContext";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function JobSetupCard({
   setupEntry,
@@ -31,19 +32,17 @@ export function JobSetupCard({
   const assignedCharacterName =
     users.find((i) => i.CharacterHash === setupEntry.selectedCharacter)
       ?.CharacterName || "No Matching Character Found";
-
   return (
     <Grid container item xs={6} sm={4}>
       <Card elevation={3} square sx={{ minWidth: "100%" }}>
         <CardActionArea
           onClick={() => {
-            updateActiveJob((prev) => ({
-              ...prev,
-              layout: {
-                ...prev.layout,
-                setupToEdit: setupEntry.id,
-              },
-            }));
+            updateActiveJob((prev) => {
+              const newJob = new Job(prev);
+              newJob.layout.setupToEdit = setupEntry.id;
+              console.log(newJob);
+              return newJob;
+            });
             updateSetupToEdit(setupEntry.id);
           }}
         >

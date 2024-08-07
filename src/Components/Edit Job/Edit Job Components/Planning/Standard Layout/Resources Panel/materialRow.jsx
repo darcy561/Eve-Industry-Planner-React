@@ -13,20 +13,18 @@ import LensIcon from "@mui/icons-material/Lens";
 
 export function MaterialRow({
   activeJob,
-  updateActiveJob,
   material,
-  setupToEdit,
   displayType,
   temporaryChildJobs,
   parentChildToEdit,
-  updateParentChildToEdit,
 }) {
   const theme = useTheme();
 
   const quantityToUse =
     displayType === "active"
-      ? activeJob.build.setup[setupToEdit].materialCount[material.typeID]
-          .quantity
+      ? activeJob.build.setup[activeJob.layout.setupToEdit].materialCount[
+          material.typeID
+        ].quantity
       : material.quantity;
 
   const jobTypeTextMap = {

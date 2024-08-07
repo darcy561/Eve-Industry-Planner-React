@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { JobArrayContext } from "../../../../Context/JobContext";
 import {
+  FirebaseListenersContext,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../../../Context/AuthContext";
@@ -32,6 +33,8 @@ import {
 } from "../../../../Hooks/JobHooks/useAddMaterialCosts";
 import updateJobInFirebase from "../../../../Functions/Firebase/updateJob";
 import uploadJobSnapshotsToFirebase from "../../../../Functions/Firebase/uploadJobSnapshots";
+import findOrGetJobObject from "../../../../Functions/Helper/findJobObject";
+import setupJobDocumentListeners from "../../../../Functions/Firebase/setupJobListener";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -41,15 +44,14 @@ export function PriceEntryDialog() {
   );
   const { userDataFetch } = useContext(UserLoginUIContext);
   const { applicationSettings } = useContext(ApplicationSettingsContext);
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
+  );
   const {
-    findParentUser,
     importMultibuyFromClipboard,
     sendSnackbarNotificationSuccess,
     sendSnackbarNotificationError,
   } = useHelperFunction();
-  const { findJobData } = useFindJobObject();
-
-  const parentUser = findParentUser();
 
   const { priceEntryListData, updatePriceEntryListData } = useContext(
     PriceEntryListContext
@@ -84,11 +86,12 @@ export function PriceEntryDialog() {
   const handleAdd = async (event) => {
     event.preventDefault();
     changeImportAction(true);
-    let newJobArray = [...jobArray];
     let newUserJobSnapshot = [...userJobSnapshot];
+    const retrievedJobs = [];
     const priceObjectArray = [];
     let jobsToAddPricesInto = new Set();
     let totalConfirmed = 0;
+
     for (let material of priceEntryListData.list) {
       if (!material.confirmed) continue;
       priceObjectArray.push(
@@ -107,8 +110,10 @@ export function PriceEntryDialog() {
     jobsToAddPricesInto = [...jobsToAddPricesInto];
 
     for (let inputJobID of jobsToAddPricesInto) {
-      let job = await findJobData(inputJobID, userJobSnapshot, newJobArray);
+      let job = await findOrGetJobObject(inputJobID, jobArray);
       if (!job) continue;
+      retrievedJobs.push(job);
+
       const { newMaterialArray, newTotalPurchaseCost } =
         useAddMaterialCostsToJob(job, priceObjectArray);
       job.build.materials = newMaterialArray;
@@ -127,8 +132,21 @@ export function PriceEntryDialog() {
     if (isLoggedIn) {
       await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
+    setupJobDocumentListeners(
+      retrievedJobs,
+      updateJobArray,
+      updateFirebaseListeners,
+      firebaseListeners,
+      isLoggedIn
+    );
     updateUserJobSnapshot(newUserJobSnapshot);
-    updateJobArray(newJobArray);
+    updateJobArray((prev) => {
+      const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+      return [
+        ...prev,
+        ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+      ];
+    });
     changeImportAction(false);
     updatePriceEntryListData((prev) => ({
       ...prev,

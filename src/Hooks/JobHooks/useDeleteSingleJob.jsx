@@ -1,6 +1,7 @@
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useContext } from "react";
 import {
+  FirebaseListenersContext,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
@@ -35,6 +36,9 @@ export function useDeleteSingleJob() {
   } = useContext(LinkedIDsContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
+  );
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
   );
   const { findJobData } = useFindJobObject();
   const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
@@ -151,6 +155,13 @@ export function useDeleteSingleJob() {
         await updateJobInFirebase(job);
       }
       await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
+      const listener = firebaseListeners.find((i) => i.id === inputJobID);
+      if (listener) {
+        listener.unsubscribe();
+        updateFirebaseListeners((prev) =>
+          prev.filter((i) => i.id !== inputJobID)
+        );
+      }
       await deleteJobFromFirebase(inputJob);
     }
 

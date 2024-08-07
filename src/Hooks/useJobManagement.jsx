@@ -128,6 +128,8 @@ export function useJobManagement() {
       totalJob: finalBuildCount.length,
     }));
 
+    finalBuildCount.forEach((item) => (item.parentJobs = [...item.parentJobs]));
+
     let newJobs = await buildJob(finalBuildCount);
 
     for (let newJob of newJobs) {

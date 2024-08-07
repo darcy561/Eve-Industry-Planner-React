@@ -22,6 +22,7 @@ import {
   TWO_DECIMAL_PLACES,
   ZERO_DECIMAL_PLACES,
 } from "../../../../../../Context/defaultValues";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function LinkedMarketOrdersTab({
   activeJob,
@@ -409,20 +410,12 @@ export function LinkedMarketOrdersTab({
                             remove: [...newTransactionsToUnlink],
                           },
                         }));
-                        updateActiveJob((prev) => ({
-                          ...prev,
-                          apiOrders: newApiOrders,
-                          apiTransactions: newApiTransactions,
-                          build: {
-                            ...prev.build,
-                            sale: {
-                              ...prev.build.sale,
-                              marketOrders: newOrderArray,
-                              brokersFee: newBrokerArray,
-                              transactions: newTransactionArray,
-                            },
-                          },
-                        }));
+                        activeJob.apiOrders = newApiOrders;
+                        activeJob.apiTransactions = newApiTransactions;
+                        activeJob.build.sale.marketOrders = newOrderArray;
+                        activeJob.build.sale.brokerFees = newBrokerArray;
+                        activeJob.build.sale.transactions = newTransactionArray;
+                        updateActiveJob((prev) => new Job(prev));
                         sendSnackbarNotificationError("Unlinked");
 
                         setJobModified(true);

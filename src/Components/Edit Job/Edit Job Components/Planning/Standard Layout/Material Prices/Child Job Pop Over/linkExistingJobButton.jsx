@@ -4,7 +4,6 @@ import { useHelperFunction } from "../../../../../../../Hooks/GeneralHooks/useHe
 
 export function LinkExistingGroupJobButton_ChildJobPopoverFrame({
   activeJob,
-  updateActiveJob,
   material,
   setJobModified,
   parentChildToEdit,
@@ -48,7 +47,6 @@ export function LinkExistingGroupJobButton_ChildJobPopoverFrame({
 
 export function UnlinkExistingChildJobButton_ChildJobPopoverFrame({
   activeJob,
-  updateActiveJob,
   material,
   setJobModified,
   parentChildToEdit,

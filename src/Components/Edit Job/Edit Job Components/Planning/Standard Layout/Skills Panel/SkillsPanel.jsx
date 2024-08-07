@@ -8,18 +8,19 @@ import { PersonalESIDataContext } from "../../../../../../Context/EveDataContext
 import bpSkills from "../../../../../../RawData/bpSkills.json";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 
-export function SkillsPanel({ activeJob, setupToEdit }) {
+export function SkillsPanel({ activeJob }) {
   const { users } = useContext(UsersContext);
   const { esiSkills } = useContext(PersonalESIDataContext);
   const { findParentUser } = useHelperFunction();
   const parentUser = findParentUser();
 
-  if (!activeJob.build.setup[setupToEdit]) return null;
+  if (!activeJob.build.setup[activeJob.layout.setupToEdit]) return null;
 
   const buildChar =
     users.find(
       (i) =>
-        i.CharacterHash === activeJob.build.setup[setupToEdit].selectedCharacter
+        i.CharacterHash ===
+        activeJob.build.setup[activeJob.layout.setupToEdit].selectedCharacter
     ) || parentUser;
 
   const characterSkills = esiSkills.find(

@@ -1,13 +1,15 @@
 import { useContext } from "react";
 import {
+  FirebaseListenersContext,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../Context/AuthContext";
 import { ItemTypes } from "../Context/DnDTypes";
 import { JobArrayContext } from "../Context/JobContext";
-import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import uploadGroupsToFirebase from "../Functions/Firebase/uploadGroupData";
 import updateJobInFirebase from "../Functions/Firebase/updateJob";
+import findOrGetJobObject from "../Functions/Helper/findJobObject";
+import setupJobDocumentListeners from "../Functions/Firebase/setupJobListener";
 
 export function useDnD() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -16,8 +18,9 @@ export function useDnD() {
   );
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
-  const { findJobData } = useFindJobObject();
-
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
+  );
 
   const recieveJobCardToStage = async (item, status) => {
     if (item.currentStatus === status.id) {
@@ -26,20 +29,13 @@ export function useDnD() {
 
     switch (item.cardType) {
       case ItemTypes.jobCard:
-        let newUserJobSnapshot = [...userJobSnapshot];
-        let newJobArray = [...jobArray];
-
-        let inputJob = await findJobData(
-          item.id,
-          newUserJobSnapshot,
-          newJobArray
-        );
+        let inputJob = await findOrGetJobObject(item.id, jobArray);
         if (!inputJob) {
           return;
         }
-        inputJob.jobStatus = status.id;
+        inputJob.setJobStatus(status.id);
 
-        const matchedSnapshot = newUserJobSnapshot.find(
+        const matchedSnapshot = userJobSnapshot.find(
           (i) => i.jobID === inputJob.jobID
         );
         matchedSnapshot.setSnapshot(inputJob);
@@ -47,8 +43,18 @@ export function useDnD() {
         if (isLoggedIn) {
           await updateJobInFirebase(inputJob);
         }
-        updateUserJobSnapshot(newUserJobSnapshot);
-        updateJobArray(newJobArray);
+        setupJobDocumentListeners(
+          inputJob.jobID,
+          updateJobArray,
+          updateFirebaseListeners,
+          firebaseListeners,
+          isLoggedIn
+        );
+        updateUserJobSnapshot((prev) => [...prev]);
+        updateJobArray((prev) => [
+          ...prev.filter((doc) => doc.id !== inputJob.jobID),
+          inputJob,
+        ]);
 
       case ItemTypes.groupCard:
         let newGroupArray = [...groupArray];

@@ -12,7 +12,6 @@ export function MaterialCostPanel({
   updateActiveJob,
   jobModified,
   setJobModified,
-  setupToEdit,
   temporaryChildJobs,
   updateTemporaryChildJobs,
   esiDataToLink,
@@ -29,7 +28,7 @@ export function MaterialCostPanel({
   );
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
-  if (!activeJob.build.setup[setupToEdit]) return null;
+  if (!activeJob.build.setup[activeJob.layout.setupToEdit]) return null;
 
   return (
     <Paper
@@ -112,7 +111,6 @@ export function MaterialCostPanel({
               setJobModified={setJobModified}
               temporaryChildJobs={temporaryChildJobs}
               updateTemporaryChildJobs={updateTemporaryChildJobs}
-              setupToEdit={setupToEdit}
               esiDataToLink={esiDataToLink}
               updateEsiDataToLink={updateEsiDataToLink}
               parentChildToEdit={parentChildToEdit}

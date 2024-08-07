@@ -1,11 +1,10 @@
 import { useCallback, useContext } from "react";
 import { Grid, Paper, Typography } from "@mui/material";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
-import { UserJobSnapshotContext } from "../../../../../../Context/AuthContext";
 
-export function ProductionStats({ activeJob, setupToEdit, parentChildToEdit }) {
+export function ProductionStats({ activeJob, parentChildToEdit }) {
   const { jobArray } = useContext(JobArrayContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
+  const setupToEdit = activeJob.layout.setupToEdit;
 
   function timeDisplay() {
     let returnArray = [];

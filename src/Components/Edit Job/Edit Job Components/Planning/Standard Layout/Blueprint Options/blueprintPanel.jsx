@@ -7,7 +7,6 @@ export function AvailableBlueprintsPanel({
   activeJob,
   updateActiveJob,
   setJobModified,
-  setupToEdit,
 }) {
   return (
     <Paper elevation={3} sx={{ padding: "20px", minWidth: "100%" }} square>

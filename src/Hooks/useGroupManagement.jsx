@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import {
+  FirebaseListenersContext,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../Context/AuthContext";
@@ -15,6 +16,8 @@ import uploadGroupsToFirebase from "../Functions/Firebase/uploadGroupData";
 import addNewJobToFirebase from "../Functions/Firebase/addNewJob";
 import updateJobInFirebase from "../Functions/Firebase/updateJob";
 import uploadJobSnapshotsToFirebase from "../Functions/Firebase/uploadJobSnapshots";
+import findOrGetJobObject from "../Functions/Helper/findJobObject";
+import setupJobDocumentListeners from "../Functions/Firebase/setupJobListener";
 
 export function useGroupManagement() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -24,13 +27,16 @@ export function useGroupManagement() {
   );
   const { groupArray, updateGroupArray } = useContext(JobArrayContext);
   const { activeGroup } = useContext(ActiveJobContext);
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
+  );
   const { findJobData } = useFindJobObject();
   const { buildJob, recalculateItemQty } = useJobBuild();
   const { calculateResources, calculateTime } = useBlueprintCalc();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
   const createNewGroupWithJobs = async (inputJobIDs) => {
-    const newJobArray = [...jobArray];
+    const retrievedJobs = [];
     let newUserJobSnapshot = [...userJobSnapshot];
     const newGroupArray = [...groupArray];
     const jobsToSave = new Set();
@@ -39,14 +45,14 @@ export function useGroupManagement() {
     const newGroupEntry = new Group();
 
     for (let inputID of inputJobIDs) {
-      const inputJob = await findJobData(
-        inputID,
-        newUserJobSnapshot,
-        newJobArray
-      );
+      const inputJob = await findOrGetJobObject(inputID, [
+        ...jobArray,
+        ...retrievedJobs,
+      ]);
       if (!inputJob) {
         continue;
       }
+      retrievedJobs.push(inputJob);
       jobsForGroup.push(inputJob);
 
       inputJob.groupID = newGroupEntry.groupID;
@@ -55,10 +61,11 @@ export function useGroupManagement() {
         if (inputJobIDs.includes(id)) {
           continue;
         }
-        let job = await findJobData(id, newUserJobSnapshot, newJobArray);
+        let job = await findOrGetJobObject(id, [...jobArray, ...retrievedJobs]);
         if (!job) {
           continue;
         }
+        retrievedJobs.push(job);
         let material = job.build.childJobs[inputJob.itemID];
         if (!material) {
           continue;
@@ -76,7 +83,10 @@ export function useGroupManagement() {
           if (inputJobIDs.includes(id)) {
             continue;
           }
-          const job = await findJobData(id, newUserJobSnapshot, newJobArray);
+          const job = await findOrGetJobObject(id, [
+            ...jobArray,
+            ...retrievedJobs,
+          ]);
           if (!job) {
             continue;
           }
@@ -99,7 +109,13 @@ export function useGroupManagement() {
     if (isLoggedIn) {
       await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
       await uploadGroupsToFirebase(newGroupArray);
-
+      setupJobDocumentListeners(
+        retrievedJobs,
+        updateJobArray,
+        updateFirebaseListeners,
+        firebaseListeners,
+        isLoggedIn
+      );
       for (let id of [...jobsToSave]) {
         let job = newJobArray.find((i) => i.jobID === id);
         if (!job) {
@@ -109,7 +125,13 @@ export function useGroupManagement() {
       }
     }
 
-    updateJobArray(newJobArray);
+    updateJobArray((prev) => {
+      const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+      return [
+        ...prev,
+        ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+      ];
+    });
     updateUserJobSnapshot(newUserJobSnapshot);
 
     return { newGroupEntry, newGroupArray };

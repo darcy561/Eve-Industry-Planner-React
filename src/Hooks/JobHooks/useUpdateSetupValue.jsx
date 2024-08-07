@@ -38,16 +38,11 @@ export function useUpdateSetupValue() {
       undefined,
       systemIndexResults
     );
-    // activeJob.build.setup = jobSetups;
-    // activeJob.build.materials = newMaterialArray;
-    // activeJob.build.products.totalQuantity = newTotalProduced;
+    activeJob.build.setup = jobSetups;
+    activeJob.build.materials = newMaterialArray;
+    activeJob.build.products.totalQuantity = newTotalProduced;
 
-    updateActiveJob((prev) => {
-      prev.build.setup = jobSetups;
-      prev.build.materials = newMaterialArray;
-      prev.build.products.totalQuantity = newTotalProduced;
-      return new Job(prev);
-    });
+    updateActiveJob((prev) => new Job(prev));
     updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
   }
 

@@ -7,6 +7,7 @@ import {
   useAddMaterialCostsToJob,
   useBuildMaterialPriceObject,
 } from "../../../../../../Hooks/JobHooks/useAddMaterialCosts";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function AddMaterialCost_Purchasing({
   activeJob,
@@ -41,18 +42,9 @@ export function AddMaterialCost_Purchasing({
         ),
       ]
     );
-
-    updateActiveJob((prevObj) => ({
-      ...prevObj,
-      build: {
-        ...prevObj.build,
-        materials: newMaterialArray,
-        costs: {
-          ...prevObj.build.costs,
-          totalPurchaseCost: newTotalPurchaseCost,
-        },
-      },
-    }));
+    activeJob.build.materials = newMaterialArray;
+    activeJob.build.costs.totalPurchaseCost = newTotalPurchaseCost;
+    updateActiveJob((prev) => new Job(prev));
     sendSnackbarNotificationSuccess("Success");
     setItemCostInput(0);
     setItemCountInput(0);

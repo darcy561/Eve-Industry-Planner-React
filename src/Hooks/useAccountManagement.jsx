@@ -177,8 +177,8 @@ export function useAccountManagement() {
     logEvent(analytics, "userLogOut", {
       UID: parentUser.accountID,
     });
-    firebaseListeners.forEach((unsub) => {
-      unsub();
+    firebaseListeners.forEach(({ unsubscribe }) => {
+      unsubscribe();
     });
     updateLoginInProgressComplete(false);
     updateFirebaseListeners([]);

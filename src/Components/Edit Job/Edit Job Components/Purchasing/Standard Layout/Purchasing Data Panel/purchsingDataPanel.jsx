@@ -25,6 +25,7 @@ import {
   useBuildMaterialPriceObject,
 } from "../../../../../../Hooks/JobHooks/useAddMaterialCosts";
 import uploadApplicationSettingsToFirebase from "../../../../../../Functions/Firebase/uploadApplicationSettings";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function PurchasingDataPanel_EditJob({
   activeJob,
@@ -103,7 +104,9 @@ export function PurchasingDataPanel_EditJob({
                         applicationSettings.toggleHideCompleteMaterials();
 
                       updateApplicationSettings(newApplicationSettings);
-                      uploadApplicationSettingsToFirebase(newApplicationSettings);
+                      uploadApplicationSettingsToFirebase(
+                        newApplicationSettings
+                      );
                     }}
                   />
                 }
@@ -177,18 +180,10 @@ export function PurchasingDataPanel_EditJob({
                               activeJob,
                               materialPriceObjects
                             );
-
-                          updateActiveJob((prevObj) => ({
-                            ...prevObj,
-                            build: {
-                              ...prevObj.build,
-                              materials: newMaterialArray,
-                              costs: {
-                                ...prevObj.build.costs,
-                                totalPurchaseCost: newTotalPurchaseCost,
-                              },
-                            },
-                          }));
+                          activeJob.build.materials = newMaterialArray;
+                          activeJob.build.costs.totalPurchaseCost =
+                            newTotalPurchaseCost;
+                          updateActiveJob((prev) => new Job(prev));
                           setJobModified(true);
                         }}
                       >
@@ -208,13 +203,8 @@ export function PurchasingDataPanel_EditJob({
                   onChange={(e) => {
                     changeMarketDisplay(e.target.value);
                     updateMarketSelect(e.target.value);
-                    updateActiveJob((prev) => ({
-                      ...prev,
-                      layout: {
-                        ...prev.layout,
-                        localMarketDisplay: e.target.value,
-                      },
-                    }));
+                    activeJob.layout.localMarketDisplay = e.target.value;
+                    updateActiveJob((prev) => new Job(prev));
                   }}
                   sx={{
                     width: "90px",
@@ -238,13 +228,8 @@ export function PurchasingDataPanel_EditJob({
                   onChange={(e) => {
                     changeOrderDisplay(e.target.value);
                     updateOrderSelect(e.target.value);
-                    updateActiveJob((prev) => ({
-                      ...prev,
-                      layout: {
-                        ...prev.layout,
-                        localOrderDisplay: e.target.value,
-                      },
-                    }));
+                    activeJob.layout.localOrderDisplay = e.target.value;
+                    updateActiveJob((prev) => new Job(prev));
                   }}
                   sx={{
                     width: "120px",

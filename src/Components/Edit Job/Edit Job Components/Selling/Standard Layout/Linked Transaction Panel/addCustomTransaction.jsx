@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import uuid from "react-uuid";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function AddCustomTransactionDialog({
   activeJob,
@@ -202,18 +203,8 @@ export function AddCustomTransactionDialog({
           size="large"
           variant="contained"
           onClick={() => {
-            let newTransactions = [...activeJob.build.sale.transactions];
-            newTransactions.push(transactionData);
-            updateActiveJob((prev) => ({
-              ...prev,
-              build: {
-                ...prev.build,
-                sale: {
-                  ...prev.build.sale,
-                  transactions: newTransactions,
-                },
-              },
-            }));
+            activeJob.build.sale.transactions.push(transactionData);
+            updateActiveJob((prev) => new Job(prev));
             setJobModified(true);
           }}
         >

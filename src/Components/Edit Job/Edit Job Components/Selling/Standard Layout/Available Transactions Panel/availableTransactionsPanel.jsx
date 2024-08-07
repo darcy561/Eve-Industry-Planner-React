@@ -17,6 +17,7 @@ import {
 import { useMarketOrderFunctions } from "../../../../../../Hooks/GeneralHooks/useMarketOrderFunctions";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function AvailableTransactionsPanel({
   activeJob,
@@ -224,17 +225,9 @@ export function AvailableTransactionsPanel({
                             remove: [...newDataToUnlink],
                           },
                         }));
-                        updateActiveJob((prev) => ({
-                          ...prev,
-                          apiTransactions: newApiTransactions,
-                          build: {
-                            ...prev.build,
-                            sale: {
-                              ...prev.build.sale,
-                              transactions: newTransactionArray,
-                            },
-                          },
-                        }));
+                        activeJob.apiTransactions = newApiTransactions;
+                        activeJob.build.sale.transactions = newTransactionArray;
+                        updateActiveJob((prev) => new Job(prev));
                         sendSnackbarNotificationSuccess("Linked");
                         setJobModified(true);
 
@@ -301,17 +294,9 @@ export function AvailableTransactionsPanel({
                     remove: [...newDataToUnlink],
                   },
                 }));
-                updateActiveJob((prev) => ({
-                  ...prev,
-                  apiTransactions: newApiTransactions,
-                  build: {
-                    ...prev.build,
-                    sale: {
-                      ...prev.build.sale,
-                      transactions: newTransactionArray,
-                    },
-                  },
-                }));
+                activeJob.apiTransactions = newApiTransactions;
+                activeJob.build.sale.transactions = newTransactionArray;
+                updateActiveJob((prev) => new Job(prev));
                 sendSnackbarNotificationSuccess("All Transactions Linked");
                 setJobModified(true);
                 logEvent(analytics, "massLinkedTransactions", {

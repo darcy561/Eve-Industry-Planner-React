@@ -1,10 +1,9 @@
 import { useContext } from "react";
-import { useFirebase } from "../useFirebase";
 import { IsLoggedInContext } from "../../Context/AuthContext";
+import getJobDocumentFromFirebase from "../../Functions/Firebase/getJobDocument";
 
 export function useFindJobObject() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { downloadCharacterJobs } = useFirebase();
 
   const findJobData = async (
     inputJobID,
@@ -28,21 +27,21 @@ export function useFindJobObject() {
           return jobSnapshot;
         case "groupJob":
           if (!foundJob && isLoggedIn) {
-            foundJob = await downloadCharacterJobs(inputJobID);
+            foundJob = await getJobDocumentFromFirebase(inputJobID);
             if (!foundJob) return undefined;
             chosenJobArray.push(foundJob);
           }
           return foundJob;
         case "all":
           if (!foundJob && jobSnapshot && isLoggedIn) {
-            foundJob = await downloadCharacterJobs(inputJobID);
+            foundJob = await getJobDocumentFromFirebase(inputJobID);
             if (!foundJob) return undefined;
             chosenJobArray.push(foundJob);
           }
           return [foundJob, jobSnapshot];
         case "none":
           if (!foundJob && isLoggedIn) {
-            foundJob = await downloadCharacterJobs(inputJobID);
+            foundJob = await getJobDocumentFromFirebase(inputJobID);
             if (!foundJob) {
               return undefined;
             }
@@ -51,7 +50,7 @@ export function useFindJobObject() {
           return null;
         default:
           if (!foundJob && jobSnapshot && isLoggedIn) {
-            foundJob = await downloadCharacterJobs(inputJobID);
+            foundJob = await getJobDocumentFromFirebase(inputJobID);
             if (!foundJob) return undefined;
             chosenJobArray.push(foundJob);
           }

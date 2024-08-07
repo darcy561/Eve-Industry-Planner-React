@@ -13,11 +13,7 @@ import { red, yellow } from "@mui/material/colors";
 const inUse = yellow[800];
 const expiring = red[600];
 
-export function ManufacturingLayout_BlueprintPanel({
-  activeJob,
-  updateActiveJob,
-  setJobModified,
-}) {
+export function ManufacturingLayout_BlueprintPanel({ activeJob }) {
   const { users } = useContext(UsersContext);
   const { apiJobs } = useContext(ApiJobsContext);
   const { esiBlueprints } = useContext(PersonalESIDataContext);

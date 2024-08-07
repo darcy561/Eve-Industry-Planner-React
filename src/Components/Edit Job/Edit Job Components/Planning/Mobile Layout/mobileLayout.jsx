@@ -1,5 +1,4 @@
 import { Grid } from "@mui/material";
-import { useState } from "react";
 import { TutorialStep1 } from "../tutorialStep1";
 import { ProductionStats } from "../Standard Layout/Production Stats Panel/productionStats";
 import { JobSetupPanel } from "../Standard Layout/Setup Panel/jobSetups";
@@ -21,44 +20,32 @@ export function Planning_MobileLayout_EditJob({
   parentChildToEdit,
   updateParentChildToEdit,
 }) {
-  const [setupToEdit, updateSetupToEdit] = useState(
-    activeJob.layout?.setupToEdit ||
-      Object.keys(activeJob.build.setup)[0] ||
-      null
-  );
   return (
     <Grid container spacing={2} sx={{ marginTop: "10px" }}>
       <TutorialStep1 activeJob={activeJob} />
       <Grid item xs={12}>
         <ProductionStats
           activeJob={activeJob}
-          setupToEdit={setupToEdit}
           parentChildToEdit={parentChildToEdit}
         />
         <JobSetupPanel
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
-          setupToEdit={setupToEdit}
-          updateSetupToEdit={updateSetupToEdit}
         />
         <EditJobSetup
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
-          setupToEdit={setupToEdit}
-          updateSetupToEdit={updateSetupToEdit}
         />
         <AvailableBlueprintsPanel
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
           setJobModified={setJobModified}
-          setupToEdit={setupToEdit}
         />
         <RawResourceList
           activeJob={activeJob}
           updateActiveJob={updateActiveJob}
-          setupToEdit={setupToEdit}
           setJobModified={setJobModified}
           temporaryChildJobs={temporaryChildJobs}
           updateTemporaryChildJobs={updateTemporaryChildJobs}
@@ -70,7 +57,6 @@ export function Planning_MobileLayout_EditJob({
           updateActiveJob={updateActiveJob}
           jobModified={jobModified}
           setJobModified={setJobModified}
-          setupToEdit={setupToEdit}
           temporaryChildJobs={temporaryChildJobs}
           updateTemporaryChildJobs={updateTemporaryChildJobs}
           esiDataToLink={esiDataToLink}
@@ -78,7 +64,7 @@ export function Planning_MobileLayout_EditJob({
           updateParentChildToEdit={updateParentChildToEdit}
         />
         <ArchiveJobsPanel activeJob={activeJob} />
-        <SkillsPanel activeJob={activeJob} setupToEdit={setupToEdit} />
+        <SkillsPanel activeJob={activeJob} />
       </Grid>
     </Grid>
   );

@@ -16,7 +16,6 @@ import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ParentJobDialog({
   activeJob,
-  updateActiveJob,
   dialogTrigger,
   updateDialogTrigger,
   setJobModified,

@@ -86,6 +86,8 @@ export default function EditJob_New({ colorMode }) {
   const navigate = useNavigate();
   const { jobID } = useParams();
   let backupJob = useRef(null);
+  console.log(activeJob);
+  console.log(backupJob.current);
 
   useSubscribeToJobListeners(jobID, () => {
     setJobArrayUpdated(true);
@@ -249,7 +251,7 @@ export default function EditJob_New({ colorMode }) {
           <Grid item xs={7} md={9} lg={10} />
           <Grid item xs={5} md={3} lg={2} align="right">
             <DeleteJobIcon activeJob={activeJob} />
-            <CloseJobIcon />
+            <CloseJobIcon backupJob={backupJob.current} />
             <SaveJobIcon
               activeJob={activeJob}
               jobModified={jobModified}

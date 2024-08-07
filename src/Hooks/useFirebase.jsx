@@ -106,15 +106,6 @@ export function useFirebase() {
     );
   };
 
-  const downloadCharacterJobs = async (jobID) => {
-    const document = await getDoc(
-      doc(firestore, `Users/${parentUser.accountID}/Jobs`, jobID.toString())
-    );
-    let downloadDoc = document.data();
-    if (!downloadDoc) return;
-    return new Job(downloadDoc);
-  };
-
   const getItemPriceBulk = async (array) => {
     try {
       const appCheckToken = await getToken(appCheck, true);
@@ -264,7 +255,7 @@ export function useFirebase() {
   };
 
   const userJobSnapshotListener = async (userObj) => {
-    const unsub = onSnapshot(
+    const unsubscribe = onSnapshot(
       doc(firestore, `Users/${userObj.accountID}/ProfileInfo`, "JobSnapshot"),
       (doc) => {
         const updateSnapshotState = async () => {
@@ -331,12 +322,15 @@ export function useFirebase() {
         updateSnapshotState();
       }
     );
-    updateFirebaseListeners((prev) => prev.concat(unsub));
+    updateFirebaseListeners((prev) => [
+      ...prev,
+      { id: "snapshot", unsubscribe },
+    ]);
     return;
   };
 
   const userWatchlistListener = async (token, userObj) => {
-    const unsub = onSnapshot(
+    const unsubscribe = onSnapshot(
       doc(firestore, `Users/${token.user.uid}/ProfileInfo`, "Watchlist"),
       (doc) => {
         const updateSnapshotState = async () => {
@@ -380,12 +374,15 @@ export function useFirebase() {
         updateSnapshotState();
       }
     );
-    updateFirebaseListeners((prev) => prev.concat(unsub));
+    updateFirebaseListeners((prev) => [
+      ...prev,
+      { id: "watchlist", unsubscribe },
+    ]);
     return;
   };
 
   const userJobListener = async (userObj, JobID) => {
-    const unsub = onSnapshot(
+    const unsubscribe = onSnapshot(
       doc(firestore, `Users/${userObj.accountID}/Jobs`, JobID.toString()),
       (doc) => {
         if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
@@ -404,92 +401,101 @@ export function useFirebase() {
         }
       }
     );
-    updateFirebaseListeners((prev) => prev.concat(unsub));
+    updateFirebaseListeners((prev) => [...prev, { id: JobID, unsubscribe }]);
   };
 
   const userMaindDocListener = async (token, userObject) => {
-    const unsub = onSnapshot(doc(firestore, "Users", token.user.uid), (doc) => {
-      const updateMainDocData = async () => {
-        if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
-          const t = trace(performance, "MainUserDocListener");
-          t.start();
-          updateUserDataFetch(false);
-          let userData = doc.data();
-          let newUserArray = [userObject];
-          let esiOjectArray = [];
-          let mainUser = newUserArray.find((i) => i.ParentUser);
-          mainUser.accountID = userData.accountID;
-          mainUser.settings = userData.settings;
-          serverStatus();
-          let mainUserESIObject = await mainUser.getCharacterESIData();
-          esiOjectArray.push(mainUserESIObject);
+    const unsubscribe = onSnapshot(
+      doc(firestore, "Users", token.user.uid),
+      (doc) => {
+        const updateMainDocData = async () => {
+          if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
+            const t = trace(performance, "MainUserDocListener");
+            t.start();
+            updateUserDataFetch(false);
+            let userData = doc.data();
+            let newUserArray = [userObject];
+            let esiOjectArray = [];
+            let mainUser = newUserArray.find((i) => i.ParentUser);
+            mainUser.accountID = userData.accountID;
+            mainUser.settings = userData.settings;
+            serverStatus();
+            let mainUserESIObject = await mainUser.getCharacterESIData();
+            esiOjectArray.push(mainUserESIObject);
 
-          if (userData.settings.account.cloudAccounts) {
-            await buildCloudAccountData(
-              userData.refreshTokens,
+            if (userData.settings.account.cloudAccounts) {
+              await buildCloudAccountData(
+                userData.refreshTokens,
+                newUserArray,
+                esiOjectArray
+              );
+              mainUser.accountRefreshTokens = updateCloudRefreshTokens(
+                userData.refreshTokens,
+                newUserArray
+              );
+              await storeESIData(esiOjectArray);
+              updateCorporationObject(esiOjectArray);
+            } else {
+              await buildLocalAccountData(newUserArray, esiOjectArray);
+              updateLocalRefreshTokens(newUserArray);
+              await storeESIData(esiOjectArray);
+              updateCorporationObject(esiOjectArray);
+            }
+            tidyLinkedData(
+              userData.linkedJobs,
+              userData.linkedOrders,
+              userData.linkedTrans,
+              mainUser,
               newUserArray,
               esiOjectArray
             );
-            mainUser.accountRefreshTokens = updateCloudRefreshTokens(
-              userData.refreshTokens,
-              newUserArray
+            let newApiArray = buildApiArray(newUserArray, esiOjectArray);
+            await checkUserClaims(newUserArray);
+            let newEveIDs = await getLocationNames(
+              newUserArray,
+              mainUser,
+              esiOjectArray
             );
-            await storeESIData(esiOjectArray);
-            updateCorporationObject(esiOjectArray);
-          } else {
-            await buildLocalAccountData(newUserArray, esiOjectArray);
-            updateLocalRefreshTokens(newUserArray);
-            await storeESIData(esiOjectArray);
-            updateCorporationObject(esiOjectArray);
+            const systemIndexResults = await getSystemIndexData(mainUser);
+
+            const applicationSettings = new ApplicationSettingsObject(
+              mainUser.settings
+            );
+
+            newUserArray.sort((a, b) => {
+              if (a.name < b.name) {
+                return -1;
+              }
+              if (a.name > b.name) {
+                return 1;
+              }
+              return 0;
+            });
+
+            updateEveIDs((prev) => ({ ...prev, ...newEveIDs }));
+            updateSystemIndexData((prev) => ({
+              ...prev,
+              ...systemIndexResults,
+            }));
+            updateApplicationSettings(applicationSettings);
+            updateApiJobs(newApiArray);
+            updateUsers(newUserArray);
+            setJobStatus(userData.jobStatusArray);
+            updateUserDataFetch(true);
+            t.stop();
           }
-          tidyLinkedData(
-            userData.linkedJobs,
-            userData.linkedOrders,
-            userData.linkedTrans,
-            mainUser,
-            newUserArray,
-            esiOjectArray
-          );
-          let newApiArray = buildApiArray(newUserArray, esiOjectArray);
-          await checkUserClaims(newUserArray);
-          let newEveIDs = await getLocationNames(
-            newUserArray,
-            mainUser,
-            esiOjectArray
-          );
-          const systemIndexResults = await getSystemIndexData(mainUser);
-
-          const applicationSettings = new ApplicationSettingsObject(
-            mainUser.settings
-          );
-
-          newUserArray.sort((a, b) => {
-            if (a.name < b.name) {
-              return -1;
-            }
-            if (a.name > b.name) {
-              return 1;
-            }
-            return 0;
-          });
-
-          updateEveIDs((prev) => ({ ...prev, ...newEveIDs }));
-          updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
-          updateApplicationSettings(applicationSettings);
-          updateApiJobs(newApiArray);
-          updateUsers(newUserArray);
-          setJobStatus(userData.jobStatusArray);
-          updateUserDataFetch(true);
-          t.stop();
-        }
-      };
-      updateMainDocData();
-    });
-    updateFirebaseListeners((prev) => prev.concat(unsub));
+        };
+        updateMainDocData();
+      }
+    );
+    updateFirebaseListeners((prev) => [
+      ...prev,
+      { id: "mainDoc", unsubscribe },
+    ]);
   };
 
   const userGroupDataListener = async (userObj) => {
-    const unsub = onSnapshot(
+    const unsubscribe = onSnapshot(
       doc(firestore, `Users/${userObj.accountID}/ProfileInfo`, "GroupData"),
       (doc) => {
         const updateGroupData = async () => {
@@ -535,7 +541,7 @@ export function useFirebase() {
         updateGroupData();
       }
     );
-    updateFirebaseListeners((prev) => prev.concat(unsub));
+    updateFirebaseListeners((prev) => [...prev, { id: "groups", unsubscribe }]);
   };
 
   return {
@@ -543,7 +549,6 @@ export function useFirebase() {
     getItemPrices,
     updateMainUserDoc,
     refreshItemPrices,
-    downloadCharacterJobs,
     userGroupDataListener,
     userJobListener,
     userJobSnapshotListener,

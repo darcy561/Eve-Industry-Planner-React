@@ -9,16 +9,11 @@ import {
   RefreshStateContext,
 } from "../../Context/LayoutContext";
 import { useEveApi } from "../../Hooks/useEveApi";
-import {
-  UserJobSnapshotContext,
-  UsersContext,
-} from "../../Context/AuthContext";
-import { useRefreshUser } from "../../Hooks/useRefreshUser";
-import { ApiJobsContext, JobArrayContext } from "../../Context/JobContext";
+import { UsersContext } from "../../Context/AuthContext";
+import { ApiJobsContext } from "../../Context/JobContext";
 import { useFirebase } from "../../Hooks/useFirebase";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useAccountManagement } from "../../Hooks/useAccountManagement";
-import { useFindJobObject } from "../../Hooks/GeneralHooks/useFindJobObject";
 import { useCorporationObject } from "../../Hooks/Account Management Hooks/Corporation Objects/useCorporationObject";
 import { useHelperFunction } from "../../Hooks/GeneralHooks/useHelperFunctions";
 
@@ -31,13 +26,8 @@ export function AccountEntry({ user, parentUserIndex }) {
     updateApiArray,
     updateUserEsiData,
   } = useAccountManagement();
-  const { findJobData } = useFindJobObject();
-  const { RefreshUserAToken } = useRefreshUser();
   const { users, updateUsers } = useContext(UsersContext);
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
-    UserJobSnapshotContext
-  );
+
   const { apiJobs, updateApiJobs } = useContext(ApiJobsContext);
   const { refreshState } = useContext(RefreshStateContext);
   const { applicationSettings } = useContext(ApplicationSettingsContext);

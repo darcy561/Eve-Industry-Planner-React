@@ -16,6 +16,7 @@ import {
   TWO_DECIMAL_PLACES,
   ZERO_DECIMAL_PLACES,
 } from "../../../../../../Context/defaultValues";
+import Job from "../../../../../../Classes/jobConstructor";
 
 class ESIMarketOrder {
   constructor(order) {
@@ -215,18 +216,11 @@ export function AvailableMarketOrdersTab({
                                 remove: [...newDataToUnlink],
                               },
                             }));
-                            updateActiveJob((prev) => ({
-                              ...prev,
-                              apiOrders: newApiOrders,
-                              build: {
-                                ...prev.build,
-                                sale: {
-                                  ...prev.build.sale,
-                                  marketOrders: newMarketOrderArray,
-                                  brokersFee: newBrokersArray,
-                                },
-                              },
-                            }));
+                            activeJob.apiOrders = newApiOrders;
+                            activeJob.build.sale.marketOrders =
+                              newMarketOrderArray;
+                            activeJob.build.sale.brokersFee = newBrokersArray;
+                            updateActiveJob((prev) => new Job(prev));
                             sendSnackbarNotificationSuccess("Linked");
 
                             setJobModified(true);

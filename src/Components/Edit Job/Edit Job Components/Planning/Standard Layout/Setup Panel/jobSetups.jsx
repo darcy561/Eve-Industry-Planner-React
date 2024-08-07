@@ -15,13 +15,7 @@ import { JobSetupCard } from "./jobSetupCard";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import Job from "../../../../../../Classes/jobConstructor";
 
-export function JobSetupPanel({
-  activeJob,
-  updateActiveJob,
-  setJobModified,
-  setupToEdit,
-  updateSetupToEdit,
-}) {
+export function JobSetupPanel({ activeJob, updateActiveJob, setJobModified }) {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const {
@@ -30,6 +24,7 @@ export function JobSetupPanel({
     sendSnackbarNotificationWarning,
   } = useHelperFunction();
   const { addNewSetup, deleteActiveSetup } = useSetupManagement();
+  const setupToEdit = activeJob.layout.setupToEdit;
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -56,21 +51,10 @@ export function JobSetupPanel({
           onClick={() => {
             const { jobSetups, newMaterialArray, newTotalProduced } =
               addNewSetup(activeJob);
-            updateActiveJob((prev) => {
-              const updatedState = {
-                ...prev,
-                build: {
-                  ...prev.build,
-                  setup: jobSetups,
-                  materials: newMaterialArray,
-                  products: {
-                    ...prev.build.products,
-                    totalQuantity: newTotalProduced,
-                  },
-                },
-              };
-              return new Job(updatedState);
-            });
+            activeJob.build.setup = jobSetups;
+            activeJob.build.materials = newMaterialArray;
+            activeJob.build.products.totalQuantity = newTotalProduced;
+            updateActiveJob((prev) => new Job(prev));
             sendSnackbarNotificationSuccess("Added");
             setJobModified(true);
           }}
@@ -121,24 +105,11 @@ export function JobSetupPanel({
                 );
                 return;
               }
-              console.log(jobSetups);
-              updateSetupToEdit(replacementSetupID);
-              updateActiveJob((prev) => ({
-                ...prev,
-                build: {
-                  ...prev.build,
-                  setup: jobSetups,
-                  materials: newMaterialArray,
-                  products: {
-                    ...prev.build.products,
-                    totalQuantity: newTotalProduced,
-                  },
-                },
-                layout: {
-                  ...prev.layout,
-                  setupToEdit: replacementSetupID,
-                },
-              }));
+              activeJob.build.setup = jobSetups;
+              activeJob.build.materials = newMaterialArray;
+              activeJob.build.products.totalQuantity = newTotalProduced;
+              activeJob.layout.setupToEdit = replacementSetupID;
+              updateActiveJob((prev) => new Job(prev));
               sendSnackbarNotificationError("Deleted");
               setJobModified(true);
             }}
@@ -154,9 +125,6 @@ export function JobSetupPanel({
                 setupEntry={setupEntry}
                 activeJob={activeJob}
                 updateActiveJob={updateActiveJob}
-                setJobModified={setJobModified}
-                setupToEdit={setupToEdit}
-                updateSetupToEdit={updateSetupToEdit}
               />
             );
           })}

@@ -26,7 +26,6 @@ export function MaterialCostRow_MaterialPricePanel({
   setJobModified,
   temporaryChildJobs,
   updateTemporaryChildJobs,
-  setupToEdit,
   esiDataToLink,
   updateEsiDataToLink,
   parentChildToEdit,
@@ -160,7 +159,6 @@ export function MaterialCostRow_MaterialPricePanel({
                 updateTemporaryChildJobs={updateTemporaryChildJobs}
                 currentMaterialPrice={currentMaterialPrice}
                 matchedChildJobs={matchedChildJobs}
-                setupToEdit={setupToEdit}
                 esiDataToLink={esiDataToLink}
                 updateEsiDataToLink={updateEsiDataToLink}
                 parentChildToEdit={parentChildToEdit}

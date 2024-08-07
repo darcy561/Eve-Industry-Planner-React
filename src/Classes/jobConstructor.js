@@ -53,11 +53,11 @@ class Job {
     this.archived = itemJson?.archived || false;
     this.archiveProcessed = itemJson?.archiveProcessed || false;
     this.layout = {
-      localMarketDisplay: itemJson?.localMarketDisplay || null,
-      localOrderDisplay: itemJson?.localOrderDisplay || null,
-      esiJobTab: itemJson?.esiJobTab || null,
-      setupToEdit: itemJson?.setupToEdit || null,
-      resourceDisplayType: itemJson?.resourceDisplayType || null,
+      localMarketDisplay: itemJson?.layout?.localMarketDisplay || null,
+      localOrderDisplay: itemJson?.layout?.localOrderDisplay || null,
+      esiJobTab: itemJson?.layout?.esiJobTab || null,
+      setupToEdit: itemJson?.layout?.setupToEdit || null,
+      resourceDisplayType: itemJson?.layout?.resourceDisplayType || null,
     };
   }
   buildJobObject(itemJson, buildRequest) {
@@ -98,6 +98,7 @@ class Job {
         : [];
     });
 
+    this.layout.setupToEdit = Object.keys(this.build.setup)[0];
     this.build.materials.sort((a, b) => {
       if (a.name < b.name) {
         return -1;
@@ -169,6 +170,10 @@ class Job {
   stepBackward() {
     this.jobStatus--;
   }
+  setJobStatus(statusID) {
+    if (!statusID || !isNaN(statusID)) return;
+    this.jobStatus = Number(statusID);
+  }
   linkESIJob(esiJob, jobOwner) {
     if (!esiJob || !jobOwner) return;
     if (
@@ -212,6 +217,19 @@ class Job {
       (i) => i.id !== item.id
     );
     this.build.costs.extrasTotal -= item.extraValue;
+  }
+  addInventionCost(inputObject) {
+    if (!inputObject) return;
+    this.build.costs.inventionEntries.push(inputObject);
+    this.build.costs.inventionCosts += inputObject.itemCost;
+    this.build.costs.totalPurchaseCost += totalPurchaseCost;
+  }
+  removeInventionCost(inputObject) {
+    if (!inputObject) return;
+    this.build.costs.inventionEntries =
+      this.build.costs.inventionEntries.filter((i) => i.id !== inputObject.id);
+    this.build.costs.inventionCosts -= inputObject.itemCost;
+    this.build.costs.totalPurchaseCost -= inputObject.itemCost;
   }
 }
 

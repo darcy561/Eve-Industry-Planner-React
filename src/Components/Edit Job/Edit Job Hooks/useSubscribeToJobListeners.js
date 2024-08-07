@@ -35,7 +35,6 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
           const initialDocumentListener = onSnapshot(
             doc(firestore, `Users/${uid}/Jobs`, requestedJobID.toString()),
             (initialDoc) => {
-              console.log(initialDoc);
               if (initialDoc.exists()) {
                 const initalJob = new Job(initialDoc.data());
                 if (!initialDoc.metadata.fromCache) {
@@ -91,6 +90,7 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
   }, [
     requestedJobID,
     firebaseListeners,
+    jobArray,
     updateJobArray,
     updateFirebaseListeners,
     isLoggedIn,

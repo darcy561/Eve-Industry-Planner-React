@@ -1,8 +1,12 @@
 import { IconButton, Tooltip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
 
-export function CloseJobIcon() {
+export function CloseJobIcon({ backupJob }) {
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { updateActiveJob } = useContext(ActiveJobContext);
   const navigate = useNavigate();
 
   return (
@@ -15,6 +19,12 @@ export function CloseJobIcon() {
         color="primary"
         size="medium"
         onClick={async () => {
+          const newJobArray = jobArray.filter(
+            (i) => i.jobID !== backupJob.jobID
+          );
+          newJobArray.push(backupJob);
+          updateJobArray(newJobArray);
+          updateActiveJob(null);
           navigate("/jobplanner");
         }}
       >

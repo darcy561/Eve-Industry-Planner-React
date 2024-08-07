@@ -16,6 +16,7 @@ import {
   TYPE_IDS_TO_IGNORE_FOR_INVENTION_COSTS,
 } from "../../../../../../Context/defaultValues";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function InventionCostsCard({
   activeJob,
@@ -29,49 +30,23 @@ export function InventionCostsCard({
     itemCost: 0,
   });
 
-  function handleRemove(record, recordIndex) {
-    let newArray = [...activeJob.build.costs.inventionEntries];
-    newArray.splice(recordIndex, 1);
-    updateActiveJob((prev) => ({
-      ...prev,
-      build: {
-        ...prev.build,
-        costs: {
-          ...prev.build.costs,
-          inventionEntries: newArray,
-          inventionCosts: (prev.build.costs.inventionCosts -= record.itemCost),
-          totalPurchaseCost: (prev.build.costs.totalPurchaseCost -=
-            record.itemCost),
-        },
-      },
-    }));
+  function handleRemove(record) {
+    activeJob.removeInventionCost(record);
+    updateActiveJob((prev) => new Job(prev));
     sendSnackbarNotificationError("Deleted");
     setJobModified(true);
   }
 
   function handleSubmit(event) {
     event.preventDefault();
-    let newArray = [...activeJob.build.costs.inventionEntries];
 
-    newArray.push({
+    activeJob.addInventionCost({
       id: Date.now(),
       itemName: inputs.itemName,
       itemCost: inputs.itemCost,
     });
 
-    updateActiveJob((prev) => ({
-      ...prev,
-      build: {
-        ...prev.build,
-        costs: {
-          ...prev.build.costs,
-          inventionEntries: newArray,
-          inventionCosts: (prev.build.costs.inventionCosts += inputs.itemCost),
-          totalPurchaseCost: (prev.build.costs.totalPurchaseCost +=
-            inputs.itemCost),
-        },
-      },
-    }));
+    updateActiveJob((prev) => new Job(prev));
     sendSnackbarNotificationSuccess("Success");
     setInputs({ itemName: null, itemCost: 0 });
     setJobModified(true);
@@ -145,42 +120,38 @@ export function InventionCostsCard({
               overflowY: "auto",
             }}
           >
-            {activeJob.build.costs.inventionEntries.map(
-              (record, recordIndex) => {
-                return (
-                  <Grid
+            {activeJob.build.costs.inventionEntries.map((record) => {
+              return (
+                <Grid
+                  key={record.id}
+                  container
+                  item
+                  justifyContent="center"
+                  alignItems="center"
+                  sx={{ marginBottom: "5px" }}
+                >
+                  <Chip
                     key={record.id}
-                    container
-                    item
-                    justifyContent="center"
-                    alignItems="center"
-                    sx={{ marginBottom: "5px" }}
-                  >
-                    <Chip
-                      key={record.id}
-                      label={`${
-                        record.itemName
-                      } ${record.itemCost.toLocaleString(
-                        undefined,
-                        TWO_DECIMAL_PLACES
-                      )}`}
-                      variant="outlined"
-                      deleteIcon={<ClearIcon />}
-                      sx={{
-                        "& .MuiChip-deleteIcon": {
-                          color: "error.main",
-                        },
-                        boxShadow: 2,
-                      }}
-                      onDelete={() => {
-                        handleRemove(record, recordIndex);
-                      }}
-                      color="secondary"
-                    />
-                  </Grid>
-                );
-              }
-            )}
+                    label={`${record.itemName} ${record.itemCost.toLocaleString(
+                      undefined,
+                      TWO_DECIMAL_PLACES
+                    )}`}
+                    variant="outlined"
+                    deleteIcon={<ClearIcon />}
+                    sx={{
+                      "& .MuiChip-deleteIcon": {
+                        color: "error.main",
+                      },
+                      boxShadow: 2,
+                    }}
+                    onDelete={() => {
+                      handleRemove(record);
+                    }}
+                    color="secondary"
+                  />
+                </Grid>
+              );
+            })}
           </Grid>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={1}>

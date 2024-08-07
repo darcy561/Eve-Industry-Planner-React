@@ -27,19 +27,14 @@ import { useUpdateSetupValue } from "../../../../../../Hooks/JobHooks/useUpdateS
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { ApplicationSettingsContext } from "../../../../../../Context/LayoutContext";
 
-export function EditJobSetup({
-  activeJob,
-  updateActiveJob,
-  setJobModified,
-  setupToEdit,
-  updateSetupToEdit,
-}) {
+export function EditJobSetup({ activeJob, updateActiveJob, setJobModified }) {
   const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { users } = useContext(UsersContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { recalcuateJobFromSetup } = useUpdateSetupValue();
   const { findParentUser } = useHelperFunction();
   const parentUser = findParentUser();
+  const setupToEdit = activeJob.layout.setupToEdit;
 
   if (!activeJob.build.setup[setupToEdit]) return null;
 

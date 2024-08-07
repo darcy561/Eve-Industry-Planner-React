@@ -2,14 +2,17 @@ import { useContext } from "react";
 import { Button, Tooltip } from "@mui/material";
 import { JobArrayContext } from "../../../../../../Context/JobContext";
 import {
+  FirebaseListenersContext,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../../../../../Context/AuthContext";
-import { useFindJobObject } from "../../../../../../Hooks/GeneralHooks/useFindJobObject";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import updateJobInFirebase from "../../../../../../Functions/Firebase/updateJob";
 import uploadJobSnapshotsToFirebase from "../../../../../../Functions/Firebase/uploadJobSnapshots";
+import findOrGetJobObject from "../../../../../../Functions/Helper/findJobObject";
+import setupJobDocumentListeners from "../../../../../../Functions/Firebase/setupJobListener";
+import getCurrentFirebaseUser from "../../../../../../Functions/Firebase/currentFirebaseUser";
 
 export function PassBuildCostsButton({ activeJob }) {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -17,17 +20,14 @@ export function PassBuildCostsButton({ activeJob }) {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
-  const { findJobData } = useFindJobObject();
-  const {
-    findParentUser,
-    sendSnackbarNotificationSuccess,
-    sendSnackbarNotificationError,
-  } = useHelperFunction();
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
+  );
+  const { sendSnackbarNotificationSuccess, sendSnackbarNotificationError } =
+    useHelperFunction();
   const analytics = getAnalytics();
 
-  const parentUser = findParentUser();
-
-  const passCost = async () => {
+  async function passCost() {
     let itemsAdded = 0;
     let itemCost =
       Math.round(
@@ -39,15 +39,15 @@ export function PassBuildCostsButton({ activeJob }) {
           100
       ) / 100;
     let availableForImport = activeJob.build.products.totalQuantity;
-    let newJobArray = [...jobArray];
-    let newUserJobSnapshot = [...userJobSnapshot];
-    for (let job of activeJob.parentJob) {
+    const retrievedJobs = [];
+    for (let parentID of activeJob.parentJob) {
       let newTotal = 0;
       let quantityImported = 0;
-      let parentJob = await findJobData(job, newUserJobSnapshot, newJobArray);
+      let parentJob = await findOrGetJobObject(parentID, jobArray);
       if (!parentJob) {
         continue;
       }
+      retrievedJobs.push(parentJob);
       let material = parentJob.build.materials.find(
         (i) => i.typeID === activeJob.itemID
       );
@@ -87,16 +87,12 @@ export function PassBuildCostsButton({ activeJob }) {
         await updateJobInFirebase(parentJob);
       }
 
-      const matchedSnapshot = newUserJobSnapshot.find(
+      const matchedSnapshot = userJobSnapshot.find(
         (i) => i.jobID === parentJob.jobID
       );
       matchedSnapshot.setSnapshot(parentJob);
-
-      let index = newJobArray.findIndex((i) => i.jobID === parentJob.jobID);
-      if (index !== -1) {
-        newJobArray[index] = parentJob;
-      }
     }
+
     if (itemsAdded > 0) {
       const messageText =
         itemsAdded > 1
@@ -107,16 +103,30 @@ export function PassBuildCostsButton({ activeJob }) {
     } else {
       sendSnackbarNotificationError(`Build cost already imported`, 3);
     }
+    setupJobDocumentListeners(
+      retrievedJobs,
+      updateJobArray,
+      updateFirebaseListeners,
+      firebaseListeners,
+      isLoggedIn
+    );
     logEvent(analytics, "Import Costs", {
-      UID: parentUser.accountID,
+      UID: getCurrentFirebaseUser(),
       isLoggedIn: isLoggedIn,
     });
-    updateUserJobSnapshot(newUserJobSnapshot);
-    updateJobArray(newJobArray);
+    updateUserJobSnapshot((prev) => [...prev]);
+    updateJobArray((prev) => {
+      const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+      return [
+        ...prev,
+        ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+      ];
+    });
+
     if (isLoggedIn) {
       await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
-  };
+  }
 
   if (activeJob.parentJob.length === 0) {
     return null;

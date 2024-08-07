@@ -15,6 +15,7 @@ import { UsersContext } from "../../../../../../Context/AuthContext";
 import { CorpEsiDataContext } from "../../../../../../Context/EveDataContext";
 import { AddCustomTransactionDialog } from "./addCustomTransaction";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function LinkedTransactionPanel({
   activeJob,
@@ -246,17 +247,9 @@ export function LinkedTransactionPanel({
                                 remove: [...newDataToUnlink],
                               },
                             }));
-                            updateActiveJob((prev) => ({
-                              ...prev,
-                              apiTransactions: newApiTransactions,
-                              build: {
-                                ...prev.build,
-                                sale: {
-                                  ...prev.build.sale,
-                                  transactions: newTransArray,
-                                },
-                              },
-                            }));
+                            activeJob.apiTransactions = newApiTransactions;
+                            activeJob.build.sale.transactions = newTransArray;
+                            updateActiveJob((prev) => new Job(prev));
 
                             sendSnackbarNotificationError("Unlinked");
 

@@ -22,12 +22,6 @@ export function Planning_StandardLayout_EditJob({
   parentChildToEdit,
   updateParentChildToEdit,
 }) {
-  const [setupToEdit, updateSetupToEdit] = useState(
-    activeJob.layout?.setupToEdit ||
-      Object.keys(activeJob.build.setup)[0] ||
-      null
-  );
-
   return (
     <Grid container spacing={2} sx={{ marginTop: "10px" }}>
       <TutorialStep1 activeJob={activeJob} />
@@ -35,21 +29,17 @@ export function Planning_StandardLayout_EditJob({
         <Masonry columns={1} spacing={2}>
           <ProductionStats
             activeJob={activeJob}
-            setupToEdit={setupToEdit}
             parentChildToEdit={parentChildToEdit}
           />
           <EditJobSetup
             activeJob={activeJob}
             updateActiveJob={updateActiveJob}
             setJobModified={setJobModified}
-            setupToEdit={setupToEdit}
-            updateSetupToEdit={updateSetupToEdit}
           />
           <AvailableBlueprintsPanel
             activeJob={activeJob}
             updateActiveJob={updateActiveJob}
             setJobModified={setJobModified}
-            setupToEdit={setupToEdit}
           />
         </Masonry>
       </Grid>
@@ -59,13 +49,10 @@ export function Planning_StandardLayout_EditJob({
             activeJob={activeJob}
             updateActiveJob={updateActiveJob}
             setJobModified={setJobModified}
-            setupToEdit={setupToEdit}
-            updateSetupToEdit={updateSetupToEdit}
           />
           <RawResourceList
             activeJob={activeJob}
             updateActiveJob={updateActiveJob}
-            setupToEdit={setupToEdit}
             setJobModified={setJobModified}
             temporaryChildJobs={temporaryChildJobs}
             updateTemporaryChildJobs={updateTemporaryChildJobs}
@@ -77,7 +64,6 @@ export function Planning_StandardLayout_EditJob({
             updateActiveJob={updateActiveJob}
             jobModified={jobModified}
             setJobModified={setJobModified}
-            setupToEdit={setupToEdit}
             temporaryChildJobs={temporaryChildJobs}
             updateTemporaryChildJobs={updateTemporaryChildJobs}
             esiDataToLink={esiDataToLink}
@@ -85,7 +71,7 @@ export function Planning_StandardLayout_EditJob({
             updateParentChildToEdit={updateParentChildToEdit}
           />
           <ArchiveJobsPanel activeJob={activeJob} />
-          <SkillsPanel activeJob={activeJob} setupToEdit={setupToEdit} />
+          <SkillsPanel activeJob={activeJob} />
         </Masonry>
       </Grid>
     </Grid>

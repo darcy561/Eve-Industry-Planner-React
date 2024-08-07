@@ -19,11 +19,11 @@ import { useJobBuild } from "../../../../../../Hooks/useJobBuild";
 import { useFirebase } from "../../../../../../Hooks/useFirebase";
 import { EvePricesContext } from "../../../../../../Context/EveDataContext";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function RawResourceList({
   activeJob,
   updateActiveJob,
-  setupToEdit,
   setJobModified,
   temporaryChildJobs,
   updateTemporaryChildJobs,
@@ -43,7 +43,7 @@ export function RawResourceList({
 
   const parentUser = findParentUser();
 
-  if (!activeJob.build.setup[setupToEdit]) return null;
+  if (!activeJob.build.setup[activeJob.layout.setupToEdit]) return null;
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -59,7 +59,9 @@ export function RawResourceList({
   activeJob.build.materials.forEach((i) => {
     let quantityToUse =
       displayType === "active"
-        ? activeJob.build.setup[setupToEdit].materialCount[i.typeID].quantity
+        ? activeJob.build.setup[activeJob.layout.setupToEdit].materialCount[
+            i.typeID
+          ].quantity
         : i.quantity;
     copyText = copyText.concat(`${i.name} ${quantityToUse}\n`);
     volumeTotal += i.volume * quantityToUse;
@@ -96,13 +98,8 @@ export function RawResourceList({
             left: { xs: "10% ", sm: "30px" },
           }}
           onChange={(e) => {
-            updateActiveJob((prev) => ({
-              ...prev,
-              layout: {
-                ...prev.layout,
-                resourceDisplayType: e.target.value,
-              },
-            }));
+            activeJob.layout.resourceDisplayType = e.target.value;
+            updateActiveJob((prev) => new Job(prev));
             updateDisplyType(e.target.value);
           }}
         >
@@ -155,7 +152,6 @@ export function RawResourceList({
               <MaterialRow
                 key={material.typeID}
                 material={material}
-                setupToEdit={setupToEdit}
                 displayType={displayType}
                 activeJob={activeJob}
                 updateActiveJob={updateActiveJob}

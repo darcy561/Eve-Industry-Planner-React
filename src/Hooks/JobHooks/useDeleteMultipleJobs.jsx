@@ -2,6 +2,7 @@ import { getAnalytics, logEvent } from "firebase/analytics";
 import { trace } from "firebase/performance";
 import { useContext } from "react";
 import {
+  FirebaseListenersContext,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
@@ -37,6 +38,9 @@ export function useDeleteMultipleJobs() {
   } = useContext(LinkedIDsContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
+  );
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
   );
   const { findJobData } = useFindJobObject();
   const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
@@ -139,6 +143,10 @@ export function useDeleteMultipleJobs() {
       );
 
       if (isLoggedIn) {
+        const listener = firebaseListeners.find((i) => i.id === inputJob.jobID);
+        if (listener) {
+          listener.unsubscribe();
+        }
         await deleteJobFromFirebase(inputJob);
       }
     }
@@ -158,6 +166,9 @@ export function useDeleteMultipleJobs() {
       await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
 
+    updateFirebaseListeners((prev) =>
+      prev.filter(({ id }) => !inputJobIDs.includes(id))
+    );
     updateLinkedJobIDs([...newLinkedJobIDs]);
     updateLinkedOrderIDs([...newLinkedOrderIDs]);
     updateLinkedTransIDs([...newLinkedTransIDs]);

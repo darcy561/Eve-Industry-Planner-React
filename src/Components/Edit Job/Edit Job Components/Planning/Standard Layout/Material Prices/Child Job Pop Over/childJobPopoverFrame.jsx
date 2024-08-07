@@ -30,7 +30,6 @@ export function ChildJobPopoverFrame({
   updateTemporaryChildJobs,
   currentMaterialPrice,
   matchedChildJobs,
-  setupToEdit,
   esiDataToLink,
   updateEsiDataToLink,
   parentChildToEdit,
@@ -74,7 +73,7 @@ export function ChildJobPopoverFrame({
           itemQty: material.quantity,
           parentJobs: [activeJob.jobID],
           groupID: activeJob.groupID,
-          systemID: activeJob.build.setup[setupToEdit].systemID,
+          systemID: activeJob.build.setup[activeJob.layout.setupToEdit].systemID,
         });
         if (!newJob) {
           updateFetchError(true);

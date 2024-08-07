@@ -131,6 +131,9 @@ export function useJobBuild() {
         ).reduce((prev, { runCount, jobCount }) => {
           return prev + outputObject.itemsProducedPerRun * runCount * jobCount;
         }, 0);
+        outputObject.layout.setupToEdit = Object.keys(
+          outputObject.build.setup
+        )[0];
 
         return outputObject;
       } catch (err) {

@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { trace } from "firebase/performance";
 import { analytics, performance } from "../../firebase";
 import {
+  FirebaseListenersContext,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
@@ -18,6 +19,7 @@ import JobSnapshot from "../../Classes/jobSnapshotConstructor";
 import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
 import addNewJobToFirebase from "../../Functions/Firebase/addNewJob";
 import uploadJobSnapshotsToFirebase from "../../Functions/Firebase/uploadJobSnapshots";
+import manageListenerRequests from "../../Functions/Firebase/manageListenerRequests";
 
 function useBuildNewJobs() {
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
@@ -29,18 +31,19 @@ function useBuildNewJobs() {
   const { updateEvePrices } = useContext(EvePricesContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { buildJob } = useJobBuild();
-  const { getItemPrices, userJobListener } =
-    useFirebase();
+  const { getItemPrices, userJobListener } = useFirebase();
   const { generatePriceRequestFromJob } = useJobManagement();
   const { findParentUser, sendSnackbarNotificationSuccess } =
     useHelperFunction();
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
+  );
   const parentUser = findParentUser();
 
   async function addNewJobsToPlanner(buildRequests) {
     const firestoreTrace = trace(performance, "CreateJobProcessFull");
     let newUserJobSnapshot = [...userJobSnapshot];
     let newGroupArray = [...groupArray];
-    let newJobArray = [...jobArray];
     let priceRequestSet = new Set();
     let singleJobBuildFlag = false;
     let requiresGroupDocSave = false;
@@ -74,8 +77,6 @@ function useBuildNewJobs() {
     }
 
     for (let jobObject of newJobObjects) {
-      newJobArray.push(jobObject);
-
       if (!jobObject.groupID && !addNewGroup) {
         newUserJobSnapshot.push(new JobSnapshot(jobObject));
       }
@@ -96,7 +97,6 @@ function useBuildNewJobs() {
       if (isLoggedIn) {
         await addNewJobToFirebase(jobObject);
         await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
-        userJobListener(parentUser, jobObject.jobID);
       }
       logEvent(analytics, "New Job", {
         loggedIn: isLoggedIn,
@@ -105,6 +105,13 @@ function useBuildNewJobs() {
         itemID: jobObject.itemID,
       });
     }
+    manageListenerRequests(
+      newJobObjects,
+      updateJobArray,
+      updateFirebaseListeners,
+      firebaseListeners,
+      isLoggedIn
+    );
     const itemPriceResult = await Promise.all(itemPriceRequest);
 
     if (requiresGroupDocSave) {
@@ -114,8 +121,6 @@ function useBuildNewJobs() {
       }
     }
     updateUserJobSnapshot(newUserJobSnapshot);
-
-    updateJobArray(newJobArray);
     updateEvePrices((prev) => ({
       ...prev,
       ...itemPriceResult,

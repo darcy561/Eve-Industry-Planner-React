@@ -11,6 +11,7 @@ import {
 } from "../../Context/AuthContext";
 import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
 import updateJobInFirebase from "../../Functions/Firebase/updateJob";
+import Job from "../../Classes/jobConstructor";
 
 function useCloseGroup() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -42,7 +43,7 @@ function useCloseGroup() {
 
     const newJobArray = filteredJobs.map((job) => {
       if (includedJobIDs.has(job.jobID)) {
-        const newJob = { ...job };
+        const newJob = new Job(job);
         newJob.parentJob = newJob.parentJob.filter((id) =>
           includedJobIDs.has(id)
         );

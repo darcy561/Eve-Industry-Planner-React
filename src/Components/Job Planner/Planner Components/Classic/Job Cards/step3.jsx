@@ -23,11 +23,11 @@ export default function Step3JobCard({ job }) {
         </Grid>
         <Grid item xs={2}>
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
-            {job.apiJobs.length.toLocaleString()}/{job.totalJobCount}
+            {job.apiJobs.size.toLocaleString()}/{job.totalJobCount}
           </Typography>
         </Grid>
 
-        {job.apiJobs.length > 0 ? (
+        {job.apiJobs.size > 0 ? (
           timeRemaining === "complete" ? (
             <Grid item xs={12}>
               <Typography

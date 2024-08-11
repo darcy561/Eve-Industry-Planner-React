@@ -1,10 +1,6 @@
 import { useContext } from "react";
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
-import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
-import {
-  IsLoggedInContext,
-  UserJobSnapshotContext,
-} from "../../Context/AuthContext";
+import { IsLoggedInContext } from "../../Context/AuthContext";
 import { jobTypes } from "../../Context/defaultValues";
 import { useJobBuild } from "../useJobBuild";
 import { useRecalcuateJob } from "../GeneralHooks/useRecalculateJob";
@@ -12,15 +8,14 @@ import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 import addNewJobToFirebase from "../../Functions/Firebase/addNewJob";
 import updateJobInFirebase from "../../Functions/Firebase/updateJob";
+import findOrGetJobObject from "../../Functions/Helper/findJobObject";
 
 export function useBuildChildJobs() {
   const { jobArray, groupArray, updateJobArray, updateGroupArray } =
     useContext(JobArrayContext);
   const { activeGroup } = useContext(ActiveJobContext);
-  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { applicationSettings } = useContext(ApplicationSettingsContext);
-  const { findJobData } = useFindJobObject();
   const { buildJob } = useJobBuild();
   const { recalculateJobForNewTotal } = useRecalcuateJob();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
@@ -74,13 +69,7 @@ export function useBuildChildJobs() {
     );
 
     for (const jobID of [...selectedGroupObject.includedJobIDs]) {
-      const job = await findJobData(
-        jobID,
-        userJobSnapshot,
-        jobArray,
-        groupArray,
-        "groupJob"
-      );
+      const job = await findOrGetJobObject(jobID, jobArray);
 
       if (!job) {
         continue;
@@ -121,13 +110,7 @@ export function useBuildChildJobs() {
     let jobsToBeModified = new Map();
 
     for (const inputJobID of requestedJobIDs) {
-      const requestedJob = await findJobData(
-        inputJobID,
-        userJobSnapshot,
-        jobArray,
-        groupArray,
-        "groupJob"
-      );
+      const requestedJob = await findOrGetJobObject(inputJobID, jobArray);
       if (!requestedJob) {
         continue;
       }

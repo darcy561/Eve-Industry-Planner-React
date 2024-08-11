@@ -9,7 +9,7 @@ import { JobArrayContext } from "../Context/JobContext";
 import uploadGroupsToFirebase from "../Functions/Firebase/uploadGroupData";
 import updateJobInFirebase from "../Functions/Firebase/updateJob";
 import findOrGetJobObject from "../Functions/Helper/findJobObject";
-import setupJobDocumentListeners from "../Functions/Firebase/setupJobListener";
+import manageListenerRequests from "../Functions/Firebase/manageListenerRequests";
 
 export function useDnD() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -43,7 +43,7 @@ export function useDnD() {
         if (isLoggedIn) {
           await updateJobInFirebase(inputJob);
         }
-        setupJobDocumentListeners(
+        manageListenerRequests(
           inputJob.jobID,
           updateJobArray,
           updateFirebaseListeners,

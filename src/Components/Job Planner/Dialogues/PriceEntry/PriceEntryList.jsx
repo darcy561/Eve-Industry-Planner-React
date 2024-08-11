@@ -24,7 +24,6 @@ import {
 } from "../../../../Context/AuthContext";
 import { listingType } from "../../../../Context/defaultValues";
 import { ItemPriceRow } from "./itemRow";
-import { useFindJobObject } from "../../../../Hooks/GeneralHooks/useFindJobObject";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 import {
@@ -34,7 +33,7 @@ import {
 import updateJobInFirebase from "../../../../Functions/Firebase/updateJob";
 import uploadJobSnapshotsToFirebase from "../../../../Functions/Firebase/uploadJobSnapshots";
 import findOrGetJobObject from "../../../../Functions/Helper/findJobObject";
-import setupJobDocumentListeners from "../../../../Functions/Firebase/setupJobListener";
+import manageListenerRequests from "../../../../Functions/Firebase/manageListenerRequests";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
@@ -110,9 +109,8 @@ export function PriceEntryDialog() {
     jobsToAddPricesInto = [...jobsToAddPricesInto];
 
     for (let inputJobID of jobsToAddPricesInto) {
-      let job = await findOrGetJobObject(inputJobID, jobArray);
+      let job = await findOrGetJobObject(inputJobID, jobArray, retrievedJobs);
       if (!job) continue;
-      retrievedJobs.push(job);
 
       const { newMaterialArray, newTotalPurchaseCost } =
         useAddMaterialCostsToJob(job, priceObjectArray);
@@ -132,7 +130,7 @@ export function PriceEntryDialog() {
     if (isLoggedIn) {
       await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
-    setupJobDocumentListeners(
+    manageListenerRequests(
       retrievedJobs,
       updateJobArray,
       updateFirebaseListeners,

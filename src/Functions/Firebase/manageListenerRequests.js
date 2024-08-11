@@ -2,8 +2,9 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import getCurrentFirebaseUser from "./currentFirebaseUser";
 import Job from "../../Classes/jobConstructor";
+import createFirebaseJobDocumentListener from "./createJobListener";
 
-function setupJobDocumentListeners(
+function manageListenerRequests(
   inputJobIDs,
   updateJobArray,
   updateFirebaseListeners,
@@ -27,10 +28,10 @@ function setupJobDocumentListeners(
 
     const jobIDs = [];
 
-    if (Array.isArray(requestedJobIDs) || requestedJobIDs instanceof Set) {
-      (Array.isArray(requestedJobIDs)
-        ? requestedJobIDs
-        : Array.from(requestedJobIDs)
+    if (Array.isArray(inputJobIDs) || inputJobIDs instanceof Set) {
+      (Array.isArray(inputJobIDs)
+        ? inputJobIDs
+        : Array.from(inputJobIDs)
       ).forEach((item) => {
         if (typeof item === "string" || typeof item === "number") {
           jobIDs.push(item);
@@ -47,13 +48,13 @@ function setupJobDocumentListeners(
         }
       });
     } else if (
-      typeof requestedJobIDs === "string" ||
-      typeof requestedJobIDs === "number"
+      typeof inputJobIDs === "string" ||
+      typeof inputJobIDs === "number"
     ) {
-      jobIDs.push(requestedJobIDs);
+      jobIDs.push(inputJobIDs);
     } else {
       throw new Error(
-        "Invalid type for requestedJobIDs. Must be an array, Set, or a single ID."
+        "Invalid type for inputJobIDs. Must be an array, Set, or a single ID."
       );
     }
 
@@ -70,16 +71,9 @@ function setupJobDocumentListeners(
     }
 
     const newListeners = idsToListen.map((requestedJobID) => {
-      const unsubscribe = onSnapshot(
-        doc(firestore, `Users/${uid}/Jobs`, requestedJobID.toString()),
-        (docSnapshot) => {
-          if (!docSnapshot.exists() || docSnapshot.metadata.fromCache) return;
-          const job = new Job(docSnapshot.data());
-          updateJobArray((prevDocs) => [
-            ...prevDocs.filter((doc) => doc.id !== requestedJobID),
-            job,
-          ]);
-        }
+      const unsubscribe = createFirebaseJobDocumentListener(
+        requestedJobID,
+        updateJobArray
       );
 
       return { id: requestedJobID, unsubscribe };
@@ -91,4 +85,4 @@ function setupJobDocumentListeners(
   }
 }
 
-export default setupJobDocumentListeners;
+export default manageListenerRequests;

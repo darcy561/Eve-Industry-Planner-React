@@ -4,7 +4,6 @@ import {
   LoadingTextContext,
   PageLoadContext,
 } from "../../Context/LayoutContext";
-import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useJobManagement } from "../useJobManagement";
 import { useFirebase } from "../useFirebase";
 import {
@@ -16,22 +15,15 @@ import {
   EvePricesContext,
   SystemIndexContext,
 } from "../../Context/EveDataContext";
-import {
-  IsLoggedInContext,
-  UserJobSnapshotContext,
-} from "../../Context/AuthContext";
+import { IsLoggedInContext } from "../../Context/AuthContext";
 import { useSystemIndexFunctions } from "../GeneralHooks/useSystemIndexFunctions";
 import { useInstallCostsCalc } from "../GeneralHooks/useInstallCostCalc";
-import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import useCheckGlobalAppVersion from "../GeneralHooks/useCheckGlobalAppVersion";
-import uploadJobSnapshotsToFirebase from "../../Functions/Firebase/uploadJobSnapshots";
+import findOrGetJobObject from "../../Functions/Helper/findJobObject";
 
 export function useOpenEditJob() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
-  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
-    UserJobSnapshotContext
-  );
   const { updateActiveJob } = useContext(ActiveJobContext);
   const { updateLoadingText } = useContext(LoadingTextContext);
   const { updatePageLoad } = useContext(PageLoadContext);
@@ -40,37 +32,26 @@ export function useOpenEditJob() {
   const { updateEvePrices } = useContext(EvePricesContext);
   const { updateSystemIndexData } = useContext(SystemIndexContext);
   const { generatePriceRequestFromJob } = useJobManagement();
-  const { findJobData } = useFindJobObject();
   const { findMissingSystemIndex } = useSystemIndexFunctions();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
 
-  const { getArchivedJobData, getItemPrices, userJobListener } = useFirebase();
-  const { findParentUser } = useHelperFunction();
-
-  const parentUser = findParentUser();
+  const { getArchivedJobData, getItemPrices } = useFirebase();
 
   async function openEditJob(inputJobID) {
     try {
-      let newUserJobSnapshot = [...userJobSnapshot];
-      let newJobArray = [...jobArray];
+      const retrievedJobs = [];
       updateLoadingText((prevObj) => ({
         ...prevObj,
         jobData: true,
       }));
       updatePageLoad(true);
-      let openJob = await findJobData(
+      let openJob = await findOrGetJobObject(
         inputJobID,
-        newUserJobSnapshot,
-        newJobArray,
-        undefined
+        jobArray,
+        retrievedJobs
       );
 
       if (!openJob) return undefined;
-
-      const snapshot = newUserJobSnapshot.find(
-        (i) => i.jobID === openJob.jobID
-      );
-      // snapshot.lockSnapshot(parentUser.CharacterHash);
 
       updateLoadingText((prevObj) => ({
         ...prevObj,
@@ -80,10 +61,10 @@ export function useOpenEditJob() {
       }));
       let itemIDs = new Set(generatePriceRequestFromJob(openJob));
       for (let parentID of openJob.parentJob) {
-        let parentJob = await findJobData(
+        let parentJob = await findOrGetJobObject(
           parentID,
-          newUserJobSnapshot,
-          newJobArray
+          jobArray,
+          retrievedJobs
         );
         if (!parentJob) continue;
         itemIDs = new Set(itemIDs, generatePriceRequestFromJob(parentJob));
@@ -93,10 +74,10 @@ export function useOpenEditJob() {
           continue;
         }
         for (let cJID of openJob.build.childJobs[mat.typeID]) {
-          let childJob = await findJobData(
+          let childJob = await findOrGetJobObject(
             cJID,
-            newUserJobSnapshot,
-            newJobArray
+            jobArray,
+            retrievedJobs
           );
           if (!childJob) {
             continue;
@@ -128,7 +109,6 @@ export function useOpenEditJob() {
       if (isLoggedIn) {
         let newArchivedJobsArray = await getArchivedJobData(openJob.itemID);
         updateArchivedJobs(newArchivedJobsArray);
-        await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
       }
 
       if (!useCheckGlobalAppVersion()) {
@@ -151,12 +131,26 @@ export function useOpenEditJob() {
       }
       const itemPriceResult = await getItemPrices([...itemIDs]);
 
+      manageListenerRequests(
+        retrievedJobs,
+        updateJobArray,
+        updateFirebaseListeners,
+        firebaseListeners,
+        isLoggedIn
+      );
+
       updateEvePrices((prev) => ({
         ...prev,
         ...itemPriceResult,
       }));
-      updateJobArray(newJobArray);
-      updateUserJobSnapshot(newUserJobSnapshot);
+      updateJobArray((prev) => {
+        const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+        return [
+          ...prev,
+          ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+        ];
+      });
+
       updateActiveJob(openJob.jobID);
       updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
       updatePageLoad(false);
@@ -171,17 +165,6 @@ export function useOpenEditJob() {
         priceData: false,
         priceDataComp: false,
       }));
-      if (isLoggedIn) {
-        userJobListener(parentUser, inputJobID);
-        for (let parentID of openJob.parentJob) {
-          userJobListener(parentUser, parentID);
-        }
-        for (let material of openJob.build.materials) {
-          for (let childJobID of openJob.build.childJobs[material.typeID]) {
-            userJobListener(parentUser, childJobID);
-          }
-        }
-      }
       return openJob;
     } catch (err) {
       console.error(err);

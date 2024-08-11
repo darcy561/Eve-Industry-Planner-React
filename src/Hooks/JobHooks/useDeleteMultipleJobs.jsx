@@ -13,12 +13,13 @@ import {
 } from "../../Context/JobContext";
 import { MultiSelectJobPlannerContext } from "../../Context/LayoutContext";
 import { performance } from "../../firebase";
-import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
 import updateJobInFirebase from "../../Functions/Firebase/updateJob";
 import deleteJobFromFirebase from "../../Functions/Firebase/deleteJob";
 import uploadJobSnapshotsToFirebase from "../../Functions/Firebase/uploadJobSnapshots";
+import findOrGetJobObject from "../../Functions/Helper/findJobObject";
+import manageListenerRequests from "../../Functions/Firebase/manageListenerRequests";
 
 export function useDeleteMultipleJobs() {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -42,7 +43,6 @@ export function useDeleteMultipleJobs() {
   const { firebaseListeners, updateFirebaseListeners } = useContext(
     FirebaseListenersContext
   );
-  const { findJobData } = useFindJobObject();
   const { findParentUser, sendSnackbarNotificationError } = useHelperFunction();
 
   const analytics = getAnalytics();
@@ -52,7 +52,7 @@ export function useDeleteMultipleJobs() {
     const r = trace(performance, "massDeleteProcess");
     r.start();
     let newApiJobsArary = [...apiJobs];
-    let newJobArray = [...jobArray];
+    const retrievedJobs = [];
     let newGroupArray = [...groupArray];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newLinkedJobIDs = new Set(linkedJobIDs);
@@ -68,10 +68,10 @@ export function useDeleteMultipleJobs() {
     });
 
     for (let inputJobID of inputJobIDs) {
-      let inputJob = await findJobData(
+      let inputJob = await findOrGetJobObject(
         inputJobID,
-        newUserJobSnapshot,
-        newJobArray
+        jobArray,
+        retrievedJobs
       );
 
       if (!inputJob) {
@@ -98,7 +98,7 @@ export function useDeleteMultipleJobs() {
         }
         for (let jobID of inputJob.build.childJobs[mat.typeID]) {
           if (inputJobIDs.includes(jobID)) continue;
-          let child = await findJobData(jobID, newUserJobSnapshot, newJobArray);
+          let child = await findOrGetJobObject(jobID, jobArray, retrievedJobs);
 
           if (!child) {
             continue;
@@ -112,10 +112,10 @@ export function useDeleteMultipleJobs() {
       if (inputJob.parentJob !== null) {
         for (let parentJobID of inputJob.parentJob) {
           if (inputJobIDs.includes(parentJobID)) continue;
-          let parentJob = await findJobData(
+          let parentJob = await findOrGetJobObject(
             parentJobID,
-            newUserJobSnapshot,
-            newJobArray
+            jobArray,
+            retrievedJobs
           );
 
           if (!parentJob || !parentJob.build.childJobs[inputJob.itemID]) {
@@ -127,7 +127,7 @@ export function useDeleteMultipleJobs() {
               (i) => inputJob.jobID !== i
             );
 
-          const matchedSnapshot = newUserJobSnapshot.find(
+          const matchedSnapshot = userJobSnapshot.find(
             (i) => i.jobID === parentJob.jobID
           );
           matchedSnapshot.setSnapshot(parentJob);
@@ -136,11 +136,7 @@ export function useDeleteMultipleJobs() {
         }
       }
 
-      removeJobFromGroup(newGroupArray, inputJob);
-
-      newUserJobSnapshot = newUserJobSnapshot.filter(
-        (i) => i.jobID === inputJob.jobID
-      );
+      removeJobFromGroup(inputJob);
 
       if (isLoggedIn) {
         const listener = firebaseListeners.find((i) => i.id === inputJob.jobID);
@@ -151,11 +147,11 @@ export function useDeleteMultipleJobs() {
       }
     }
 
-    newJobArray = newJobArray.filter((i) => !inputJobIDs.includes(i.jobID));
-
     if (isLoggedIn) {
       for (const jobID of [...jobsToSave]) {
-        let job = newJobArray.find((i) => i.jobID === jobID);
+        let job = [...jobArray, ...retrievedJobs].find(
+          (i) => i.jobID === jobID
+        );
         if (!job) {
           return;
         }
@@ -163,8 +159,17 @@ export function useDeleteMultipleJobs() {
       }
 
       await uploadGroupsToFirebase(newGroupArray);
-      await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
+      await uploadJobSnapshotsToFirebase(
+        userJobSnapshot.filter((i) => !inputJobIDs.includes(i.jobID))
+      );
     }
+    manageListenerRequests(
+      retrievedJobs.filter(({ id }) => !inputJobIDs.includes(id)),
+      updateJobArray,
+      updateFirebaseListeners,
+      firebaseListeners,
+      isLoggedIn
+    );
 
     updateFirebaseListeners((prev) =>
       prev.filter(({ id }) => !inputJobIDs.includes(id))
@@ -173,10 +178,19 @@ export function useDeleteMultipleJobs() {
     updateLinkedOrderIDs([...newLinkedOrderIDs]);
     updateLinkedTransIDs([...newLinkedTransIDs]);
     updateApiJobs(newApiJobsArary);
-    updateUserJobSnapshot(newUserJobSnapshot);
-
     updateGroupArray(newGroupArray);
-    updateJobArray(newJobArray);
+
+    updateUserJobSnapshot((prev) =>
+      prev.filter((i) => !inputJobIDs.includes(i.jobID))
+    );
+    updateJobArray((prev) => {
+      const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+      const mergedJobs = [
+        ...prev,
+        ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+      ];
+      return mergedJobs.filter((i) => !inputJobIDs.includes(i.jobID));
+    });
     updateMultiSelectJobPlanner([...newMutliSelct]);
     sendSnackbarNotificationError(`${inputJobIDs.length} Job/Jobs Deleted`, 3);
     r.stop();
@@ -190,7 +204,7 @@ export function useDeleteMultipleJobs() {
 
       if (!group) return newGroupArray;
 
-      group.removeJobsFromGroup(inputJob, newJobArray);
+      group.removeJobsFromGroup(inputJob, [...jobArray, ...retrievedJobs]);
     }
   };
   return { deleteMultipleJobs };

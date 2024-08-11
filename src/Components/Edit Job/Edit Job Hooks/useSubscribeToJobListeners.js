@@ -1,100 +1,63 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { JobArrayContext } from "../../../Context/JobContext";
 import {
   FirebaseListenersContext,
   IsLoggedInContext,
+  UserJobSnapshotContext,
 } from "../../../Context/AuthContext";
-import { doc, onSnapshot } from "firebase/firestore";
-import { firestore } from "../../../firebase";
-import getCurrentFirebaseUser from "../../../Functions/Firebase/currentFirebaseUser";
-import Job from "../../../Classes/jobConstructor";
+import createFirebaseJobDocumentListener from "../../../Functions/Firebase/createJobListener";
 
 function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { jobArray, updateJobArray } = useContext(JobArrayContext);
+  const { userJobSnapshot } = useContext(UserJobSnapshotContext);
   const { firebaseListeners, updateFirebaseListeners } = useContext(
     FirebaseListenersContext
   );
 
-  if (!isLoggedIn || !requestedJobID) return;
-
-  const uid = getCurrentFirebaseUser();
+  if (!isLoggedIn || !requestedJobID) {
+    onJobLoaded();
+    return;
+  }
 
   useEffect(() => {
-    async function setupJobListeners() {
-      const existingJob = jobArray.find((i) => i.jobID === requestedJobID);
-      if (existingJob) {
-        onJobLoaded();
-        return;
-      }
+    try {
+      const matchedJobSnapshot = userJobSnapshot.find(
+        ({ jobID }) => jobID === requestedJobID
+      );
+      const relatedJobs = matchedJobSnapshot.getRelatedJobs();
 
-      try {
-        if (
-          !firebaseListeners.some((listener) => listener.id === requestedJobID)
-        ) {
-          const initialDocumentListener = onSnapshot(
-            doc(firestore, `Users/${uid}/Jobs`, requestedJobID.toString()),
-            (initialDoc) => {
-              if (initialDoc.exists()) {
-                const initalJob = new Job(initialDoc.data());
-                if (!initialDoc.metadata.fromCache) {
-                  updateJobArray((prevDocs) => [
-                    ...prevDocs.filter((doc) => doc.id !== requestedJobID),
-                    initalJob,
-                  ]);
-                }
+      const requiredJobs = [...relatedJobs, requestedJobID];
 
-                const relatedDocuments = initalJob.getRelatedJobs();
+      const existingListenerIds = new Set(
+        firebaseListeners.map((listener) => listener.id)
+      );
+      const existingJobIds = new Set(jobArray.map((job) => job.jobID));
 
-                if (relatedDocuments.length > 0) {
-                  relatedDocuments.forEach((id) => {
-                    if (
-                      !firebaseListeners.some((listener) => listener.id === id)
-                    ) {
-                      const unsubscribe = onSnapshot(
-                        doc(firestore, `Users/${uid}/Jobs`, id.toSting()),
-                        (secondaryDoc) => {
-                          if (secondaryDoc.exists()) {
-                            const secondaryJob = new Job(secondaryDoc.data());
-                            if (!secondaryDoc.metadata.fromCache) {
-                              updateJobArray((prevDocs) => [
-                                ...prevDocs.filter((doc) => doc.id !== id),
-                                secondaryJob,
-                              ]);
-                            }
-                          }
-                        }
-                      );
-                      updateFirebaseListeners((prevListeners) => [
-                        ...prevListeners,
-                        { id, unsubscribe },
-                      ]);
-                    }
-                  });
-                }
-              }
-              onJobLoaded();
-            }
-          );
-          updateFirebaseListeners((prevListeners) => [
-            ...prevListeners,
-            { id: requestedJobID, unsubscribe: initialDocumentListener },
-          ]);
-        }
-      } catch (err) {
-        console.error("Error setting up job listeners:", err);
-      }
+      requiredJobs.forEach((id) => {
+        if (existingListenerIds.has(id) && existingJobIds.has(id)) return;
+
+        console.log(id);
+        const unsubscribe = createFirebaseJobDocumentListener(
+          id,
+          updateJobArray
+        );
+
+        if (!unsubscribe) return;
+
+        updateFirebaseListeners((prev) => [...prev, { id, unsubscribe }]);
+      });
+
+      onJobLoaded();
+    } catch (err) {
+      console.error("Error setting up job listeners:", err);
     }
-
-    setupJobListeners();
   }, [
     requestedJobID,
     firebaseListeners,
+    updateFirebaseListeners,
     jobArray,
     updateJobArray,
-    updateFirebaseListeners,
-    isLoggedIn,
-    uid,
   ]);
 }
 

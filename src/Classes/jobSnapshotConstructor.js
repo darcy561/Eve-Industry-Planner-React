@@ -169,6 +169,9 @@ class JobSnapshot {
   getPriceRequest() {
     return [this.itemID, ...this.materialIDs];
   }
+  getRelatedJobs() {
+    return [...this.childJobs, ...this.parentJob];
+  }
 }
 
 export default JobSnapshot;

@@ -1,10 +1,10 @@
 import { useContext } from "react";
 import {
+  FirebaseListenersContext,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
 import { JobArrayContext } from "../../Context/JobContext";
-import { useFindJobObject } from "./useFindJobObject";
 import uploadGroupsToFirebase from "../../Functions/Firebase/uploadGroupData";
 import updateJobInFirebase from "../../Functions/Firebase/updateJob";
 import uploadJobSnapshotsToFirebase from "../../Functions/Firebase/uploadJobSnapshots";
@@ -16,10 +16,12 @@ export function useMoveItemsOnPlanner() {
     UserJobSnapshotContext
   );
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { findJobData } = useFindJobObject();
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
+  );
 
   async function moveItemsOnPlanner(inputSnapIDs, direction) {
-    let newJobArray = [...jobArray];
+    const retrievedJobs = [];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newGroupArray = [...groupArray];
     let groupsModified = false;
@@ -48,29 +50,42 @@ export function useMoveItemsOnPlanner() {
       }
     }
     if (jobsModified) {
+      manageListenerRequests(
+        retrievedJobs,
+        updateJobArray,
+        updateFirebaseListeners,
+        firebaseListeners,
+        isLoggedIn
+      );
       updateUserJobSnapshot(newUserJobSnapshot);
-      updateJobArray(newJobArray);
+      updateJobArray((prev) => {
+        const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+        return [
+          ...prev,
+          ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+        ];
+      });
     }
     if (groupsModified) {
       updateGroupArray(newGroupArray);
     }
 
-    async function moveJobs(inputSnapID) {
-      let inputJob = await findJobData(
-        inputSnapID,
-        newUserJobSnapshot,
-        newJobArray
+    async function moveJobs(inputJobID) {
+      let inputJob = await findOrGetJobObject(
+        inputJobID,
+        jobArray,
+        retrievedJobs
       );
       if (!inputJob) return;
 
       if (direction === "forward") {
         if (inputJob.jobStatus >= 4) return;
         if (inputJob.groupID !== null && inputJob.jobStatus >= 3) return;
-        inputJob.jobStatus++;
+        inputJob.stepForward();
       }
       if (direction === "backward") {
         if (inputJob.jobStatus === 0) return;
-        inputJob.jobStatus--;
+        inputJob.stepBackward();
       }
 
       if (!inputJob.groupID) {

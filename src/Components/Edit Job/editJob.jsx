@@ -86,8 +86,6 @@ export default function EditJob_New({ colorMode }) {
   const navigate = useNavigate();
   const { jobID } = useParams();
   let backupJob = useRef(null);
-  console.log(activeJob);
-  console.log(backupJob.current);
 
   useSubscribeToJobListeners(jobID, () => {
     setJobArrayUpdated(true);
@@ -97,57 +95,63 @@ export default function EditJob_New({ colorMode }) {
   useEffect(() => {
     async function setInitialState() {
       if (!jobArrayUpdated) return;
+
+      // Find the job in the job array
       const matchedJob = jobArray.find((i) => i.jobID === jobID);
-      if (matchedJob) {
-        try {
-          const priceIDsToRequest = new Set();
-          const systemIndexToRequest = new Set();
-          const linkedJobs = jobArray.filter(
-            (i) =>
-              i.jobID === jobID || matchedJob.getRelatedJobs().includes(i.jobID)
-          );
-          linkedJobs.forEach((job) => {
-            job.getMaterialIDs().forEach((i) => priceIDsToRequest.add(i));
-            job.getSystemIndexes().forEach((i) => systemIndexToRequest.add(i));
-          });
-          const systemIndexResults = await findMissingSystemIndex([
-            ...systemIndexToRequest,
-          ]);
-          if (IsLoggedIn) {
-            const newArchivedJobsArray = await getArchivedJobData(jobID);
-            updateArchivedJobs(newArchivedJobsArray);
-          }
 
-          for (let setup of Object.values(matchedJob.build.setup)) {
-            setup.estimatedInstallCost = calculateInstallCostFromJob(
-              setup,
-              undefined,
-              systemIndexResults
-            );
-          }
-          const itemPriceResults = await getItemPrices([...priceIDsToRequest]);
-
-          updateEvePrices((prev) => ({
-            ...prev,
-            ...itemPriceResults,
-          }));
-          updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
-          backupJob.current = new Job(matchedJob);
-          updateActiveJob(matchedJob);
-          updateActiveJobID(matchedJob.jobID);
-          setIsLoading(false);
-        } catch (err) {
-          console.error("Error importing job data:", err);
-          navigate("/jobplanner");
-        }
-      } else {
+      // If the job is not found, navigate away
+      if (!matchedJob) {
         console.error("Unable to find job document");
+        navigate("/jobplanner");
+        return;
+      }
+      try {
+        const priceIDsToRequest = new Set();
+        const systemIndexToRequest = new Set();
+        const linkedJobs = jobArray.filter(
+          (i) =>
+            i.jobID === jobID || matchedJob.getRelatedJobs().includes(i.jobID)
+        );
+        linkedJobs.forEach((job) => {
+          job.getMaterialIDs().forEach((i) => priceIDsToRequest.add(i));
+          job.getSystemIndexes().forEach((i) => systemIndexToRequest.add(i));
+        });
+        const systemIndexResults = await findMissingSystemIndex([
+          ...systemIndexToRequest,
+        ]);
+        if (IsLoggedIn) {
+          const newArchivedJobsArray = await getArchivedJobData(jobID);
+          updateArchivedJobs(newArchivedJobsArray);
+        }
+
+        for (let setup of Object.values(matchedJob.build.setup)) {
+          setup.estimatedInstallCost = calculateInstallCostFromJob(
+            setup,
+            undefined,
+            systemIndexResults
+          );
+        }
+        const itemPriceResults = await getItemPrices([...priceIDsToRequest]);
+
+        updateEvePrices((prev) => ({
+          ...prev,
+          ...itemPriceResults,
+        }));
+        updateSystemIndexData((prev) => ({ ...prev, ...systemIndexResults }));
+        backupJob.current = new Job(matchedJob);
+        updateActiveJob(matchedJob);
+        updateActiveJobID(matchedJob.jobID);
+        setIsLoading(false);
+      } catch (err) {
+        console.error("Error importing job data:", err);
         navigate("/jobplanner");
       }
     }
 
-    setInitialState();
-  }, [jobArrayUpdated, jobID]);
+    if (jobArrayUpdated && jobArray.some((job) => job.jobID === jobID)) {
+      setInitialState();
+    }
+  }, [jobArrayUpdated, jobArray, jobID]);
 
   function stepBack() {
     activeJob.stepBackward();

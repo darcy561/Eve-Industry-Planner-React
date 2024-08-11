@@ -1,10 +1,6 @@
 import { initializeApp } from "firebase/app";
-import {
-  browserSessionPersistence,
-  getAuth,
-  setPersistence,
-} from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { initializeFirestore, memoryLocalCache } from "firebase/firestore";
 import {
   initializeAppCheck,
   ReCaptchaEnterpriseProvider,
@@ -30,14 +26,11 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
-export const auth = getAuth(app);
-setPersistence(auth, browserSessionPersistence).catch((error) => {
-  console.error("Error setting persistence: ", error);
+export const firestore = initializeFirestore(app, {
+  localCache: memoryLocalCache(),
 });
 
-export const firestore = getFirestore(app);
-console.log(firestore)
+export const auth = getAuth(app);
 
 export const functions = getFunctions(app, FIREBASE_FUNCTION_REGION);
 export const appCheck = initializeAppCheck(app, {

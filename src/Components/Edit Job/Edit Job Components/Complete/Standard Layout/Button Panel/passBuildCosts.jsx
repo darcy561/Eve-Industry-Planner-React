@@ -11,7 +11,7 @@ import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelpe
 import updateJobInFirebase from "../../../../../../Functions/Firebase/updateJob";
 import uploadJobSnapshotsToFirebase from "../../../../../../Functions/Firebase/uploadJobSnapshots";
 import findOrGetJobObject from "../../../../../../Functions/Helper/findJobObject";
-import setupJobDocumentListeners from "../../../../../../Functions/Firebase/setupJobListener";
+import manageListenerRequests from "../../../../../../Functions/Firebase/manageListenerRequests";
 import getCurrentFirebaseUser from "../../../../../../Functions/Firebase/currentFirebaseUser";
 
 export function PassBuildCostsButton({ activeJob }) {
@@ -43,11 +43,14 @@ export function PassBuildCostsButton({ activeJob }) {
     for (let parentID of activeJob.parentJob) {
       let newTotal = 0;
       let quantityImported = 0;
-      let parentJob = await findOrGetJobObject(parentID, jobArray);
+      let parentJob = await findOrGetJobObject(
+        parentID,
+        jobArray,
+        retrievedJobs
+      );
       if (!parentJob) {
         continue;
       }
-      retrievedJobs.push(parentJob);
       let material = parentJob.build.materials.find(
         (i) => i.typeID === activeJob.itemID
       );
@@ -103,7 +106,7 @@ export function PassBuildCostsButton({ activeJob }) {
     } else {
       sendSnackbarNotificationError(`Build cost already imported`, 3);
     }
-    setupJobDocumentListeners(
+    manageListenerRequests(
       retrievedJobs,
       updateJobArray,
       updateFirebaseListeners,

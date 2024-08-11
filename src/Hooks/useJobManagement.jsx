@@ -3,7 +3,10 @@ import {
   ApplicationSettingsContext,
   MassBuildDisplayContext,
 } from "../Context/LayoutContext";
-import { UserJobSnapshotContext } from "../Context/AuthContext";
+import {
+  FirebaseListenersContext,
+  UserJobSnapshotContext,
+} from "../Context/AuthContext";
 import {
   ApiJobsContext,
   JobArrayContext,
@@ -20,7 +23,6 @@ import {
   PersonalESIDataContext,
 } from "../Context/EveDataContext";
 import { useJobBuild } from "./useJobBuild";
-import { useFindJobObject } from "./GeneralHooks/useFindJobObject";
 import { STATIONID_RANGE } from "../Context/defaultValues";
 import { useHelperFunction } from "./GeneralHooks/useHelperFunctions";
 import JobSnapshot from "../Classes/jobSnapshotConstructor";
@@ -29,6 +31,8 @@ import addNewJobToFirebase from "../Functions/Firebase/addNewJob";
 import updateJobInFirebase from "../Functions/Firebase/updateJob";
 import deleteJobFromFirebase from "../Functions/Firebase/deleteJob";
 import uploadJobSnapshotsToFirebase from "../Functions/Firebase/uploadJobSnapshots";
+import findOrGetJobObject from "../Functions/Helper/findJobObject";
+import manageListenerRequests from "../Functions/Firebase/manageListenerRequests";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
@@ -52,9 +56,11 @@ export function useJobManagement() {
   );
   const { corpEsiBlueprints } = useContext(CorpEsiDataContext);
   const { applicationSettings } = useContext(ApplicationSettingsContext);
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
+  );
   const { getItemPrices } = useFirebase();
   const { buildJob } = useJobBuild();
-  const { findJobData } = useFindJobObject();
   const { findParentUser, isItemBuildable, sendSnackbarNotificationSuccess } =
     useHelperFunction();
 
@@ -68,17 +74,17 @@ export function useJobManagement() {
     let childJobs = [];
     let materialPriceIDs = new Set();
     let newUserJobSnapshot = [...userJobSnapshot];
-    let newJobArray = [...jobArray];
+    const retrievedJobs = [];
     let jobsToSave = new Set();
     let materialsIgnored = new Set();
 
     for (let inputJobID of inputJobIDs) {
       if (inputJobID.includes("group")) continue;
 
-      let inputJob = await findJobData(
+      let inputJob = await findOrGetJobObject(
         inputJobID,
-        newUserJobSnapshot,
-        newJobArray
+        jobArray,
+        retrievedJobs
       );
 
       inputJob.build.materials.forEach((material) => {
@@ -151,7 +157,9 @@ export function useJobManagement() {
     }
 
     for (let inputJobID of inputJobIDs) {
-      let updatedJob = newJobArray.find((i) => i.jobID === inputJobID);
+      let updatedJob = [...jobArray, ...retrievedJobs].find(
+        (i) => i.jobID === inputJobID
+      );
       for (let material of updatedJob.build.materials) {
         if (!isItemBuildable(material.jobType)) {
           continue;
@@ -187,12 +195,15 @@ export function useJobManagement() {
       if (isLoggedIn) {
         await addNewJobToFirebase(childJob);
       }
-      newJobArray.push(childJob);
+      retrievedJobs.push(childJob);
     }
 
     if (isLoggedIn) {
       for (let jobID of [...jobsToSave]) {
-        let job = newJobArray.find((i) => i.jobID === jobID);
+        let job = [...jobArray, ...retrievedJobs].find(
+          (i) => i.jobID === jobID
+        );
+
         if (!job) {
           return;
         }
@@ -200,6 +211,13 @@ export function useJobManagement() {
       }
       await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
+    manageListenerRequests(
+      retrievedJobs,
+      updateJobArray,
+      updateFirebaseListeners,
+      firebaseListeners,
+      isLoggedIn
+    );
     updateMassBuildDisplay((prev) => ({
       ...prev,
       totalPrice: [...materialPriceIDs].length,
@@ -212,7 +230,13 @@ export function useJobManagement() {
       ...prev,
       ...itemPriceResult,
     }));
-    updateJobArray(newJobArray);
+    updateJobArray((prev) => {
+      const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+      return [
+        ...prev,
+        ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+      ];
+    });
     updateUserJobSnapshot(newUserJobSnapshot);
     updateMassBuildDisplay((prev) => ({
       ...prev,
@@ -232,8 +256,7 @@ export function useJobManagement() {
   const buildItemPriceEntry = async (inputJobIDs) => {
     const requestedJobObjects = [];
     const finalPriceEntry = [];
-    const newUserJobSnapshot = [...userJobSnapshot];
-    const newJobArray = [...jobArray];
+    const retrievedJobs = [];
 
     for (let inputID of inputJobIDs) {
       if (inputID.includes("group")) {
@@ -243,21 +266,19 @@ export function useJobManagement() {
         }
 
         for (let groupJobID of inputGroup.includedJobIDs) {
-          const requestedJob = await findJobData(
+          const requestedJob = await findOrGetJobObject(
             groupJobID,
-            newUserJobSnapshot,
-            newJobArray,
-            undefined,
-            "groupJob"
+            jobArray,
+            retrievedJobs
           );
           if (!requestedJob) continue;
           requestedJobObjects.push(requestedJob);
         }
       } else {
-        const requestedJob = await findJobData(
+        const requestedJob = await findOrGetJobObject(
           inputID,
-          newUserJobSnapshot,
-          newJobArray
+          jobArray,
+          retrievedJobs
         );
         if (!requestedJob) continue;
         requestedJobObjects.push(requestedJob);
@@ -294,9 +315,20 @@ export function useJobManagement() {
     }
 
     finalPriceEntry.sort((a, b) => a.name.localeCompare(b.name));
-
-    updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
+    manageListenerRequests(
+      retrievedJobs,
+      updateJobArray,
+      updateFirebaseListeners,
+      firebaseListeners,
+      isLoggedIn
+    );
+    updateJobArray((prev) => {
+      const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+      return [
+        ...prev,
+        ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+      ];
+    });
     return finalPriceEntry;
   };
 
@@ -307,6 +339,7 @@ export function useJobManagement() {
     let newJobHold = [];
     let jobsToSave = new Set();
     let newJobArray = [...jobArray];
+    const retrievedJobs = [];
     let newUserJobSnapshot = [...userJobSnapshot];
     let newApiJobsArary = [...apiJobs];
     let newLinkedJobIDs = new Set(linkedJobIDs);
@@ -314,10 +347,10 @@ export function useJobManagement() {
     let newLinkedTransIDs = new Set(linkedTransIDs);
 
     for (let inputJobID of inputJobIDs) {
-      let currentJob = await findJobData(
+      let currentJob = await findOrGetJobObject(
         inputJobID,
-        newUserJobSnapshot,
-        newJobArray
+        newJobArray,
+        retrievedJobs
       );
       if (!currentJob) {
         continue;
@@ -408,7 +441,9 @@ export function useJobManagement() {
         continue;
       }
       buildItem.parentJobs.forEach((parentJobID) => {
-        let parentJob = newJobArray.find((i) => i.jobID === parentJobID);
+        let parentJob = [...newJobArray, ...retrievedJobs].find(
+          (i) => i.jobID === parentJobID
+        );
         if (!parentJob) {
           return;
         }
@@ -423,7 +458,9 @@ export function useJobManagement() {
       });
       for (let itemType of buildItem.childJobs) {
         itemType.childJobs.forEach((id) => {
-          let matchingJob = newJobArray.find((i) => i.jobID === id);
+          let matchingJob = [...newJobArray, ...retrievedJobs].find(
+            (i) => i.jobID === id
+          );
           if (!matchingJob) {
             return;
           }
@@ -448,7 +485,9 @@ export function useJobManagement() {
 
     for (let buildItem of buildData) {
       buildItem.oldJobIDs.forEach((oldJobID) => {
-        let oldJob = newJobArray.find((i) => i.jobID === oldJobID);
+        let oldJob = [...newJobArray, ...retrievedJobs].find(
+          (i) => i.jobID === oldJobID
+        );
         if (!oldJob) {
           return;
         }
@@ -466,6 +505,10 @@ export function useJobManagement() {
         });
         if (isLoggedIn) {
           deleteJobFromFirebase(oldJob);
+          const listener = firebaseListeners.find(({ id }) => oldJob.jobID);
+          if (listener) {
+            listener.unsubscribe();
+          }
         }
       });
       newJobArray = newJobArray.filter(
@@ -482,10 +525,8 @@ export function useJobManagement() {
       }
     }
 
-    newJobArray = newJobArray.concat(newJobHold);
-
     for (let id of [...jobsToSave]) {
-      let job = newJobArray.find((i) => i.jobID === id);
+      let job = [...newJobArray, ...retrievedJobs].find((i) => i.jobID === id);
       if (!job) {
         return;
       }
@@ -509,11 +550,25 @@ export function useJobManagement() {
     if (isLoggedIn) {
       await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
     }
+    manageListenerRequests(
+      [...newJobHold, ...retrievedJobs],
+      updateJobArray,
+      updateFirebaseListeners,
+      firebaseListeners,
+      isLoggedIn
+    );
     updateLinkedJobIDs([...newLinkedJobIDs]);
     updateLinkedOrderIDs([...newLinkedOrderIDs]);
     updateLinkedTransIDs([...newLinkedTransIDs]);
     updateUserJobSnapshot(newUserJobSnapshot);
-    updateJobArray(newJobArray);
+    updateJobArray(() => {
+      const existingIDs = new Set(newJobArray.map(({ jobID }) => jobID));
+      return [
+        ...newJobArray,
+        ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+        ...newJobHold,
+      ];
+    });
     updateApiJobs(newApiJobsArary);
 
     sendSnackbarNotificationSuccess(

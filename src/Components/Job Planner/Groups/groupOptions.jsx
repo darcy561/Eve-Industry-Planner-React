@@ -32,7 +32,6 @@ export function GroupOptionsBar({
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
   const { deleteMultipleJobs } = useDeleteMultipleJobs();
   const { buildChildJobs } = useBuildChildJobs();
-  const {buildNextJobs} = useGroupManagement()
 
   let activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
 

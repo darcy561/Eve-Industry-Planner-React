@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import {
+  FirebaseListenersContext,
   IsLoggedInContext,
   UserJobSnapshotContext,
 } from "../../Context/AuthContext";
@@ -8,12 +9,13 @@ import {
   JobArrayContext,
   LinkedIDsContext,
 } from "../../Context/JobContext";
-import { useFindJobObject } from "../GeneralHooks/useFindJobObject";
 import { useHelperFunction } from "../GeneralHooks/useHelperFunctions";
 import JobSnapshot from "../../Classes/jobSnapshotConstructor";
 import addNewJobToFirebase from "../../Functions/Firebase/addNewJob";
 import updateJobInFirebase from "../../Functions/Firebase/updateJob";
 import uploadJobSnapshotsToFirebase from "../../Functions/Firebase/uploadJobSnapshots";
+import findOrGetJobObject from "../../Functions/Helper/findJobObject";
+import manageListenerRequests from "../../Functions/Firebase/manageListenerRequests";
 
 export function useCloseActiveJob() {
   const { updateActiveJob } = useContext(ActiveJobContext);
@@ -31,7 +33,9 @@ export function useCloseActiveJob() {
     linkedTransIDs,
     updateLinkedTransIDs,
   } = useContext(LinkedIDsContext);
-  const { findJobData } = useFindJobObject();
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
+  );
   const { sendSnackbarNotificationInfo } = useHelperFunction();
 
   async function closeActiveJob(
@@ -47,16 +51,14 @@ export function useCloseActiveJob() {
     }
 
     let newJobArray = [...jobArray];
+    const retrievedJobs = [];
     let newGroupArray = [...groupArray];
     let newUserJobSnapshot = [...userJobSnapshot];
     const newLinkedJobIDs = new Set(linkedJobIDs);
     const newLinkedOrderIDs = new Set(linkedOrderIDs);
     const newLinkedTransIDs = new Set(linkedTransIDs);
-    const snapshot = newUserJobSnapshot.find((i) => i.jobID === inputJob.jobID);
     const index = newJobArray.findIndex((x) => inputJob.jobID === x.jobID);
     newJobArray[index] = inputJob;
-
-    // snapshot.unlockSnapshot()
 
     Object.values(tempJobsToAdd).forEach((tempJob) => {
       inputJob.build.childJobs[tempJob.itemID].push(tempJob.jobID);
@@ -138,10 +140,10 @@ export function useCloseActiveJob() {
       }
 
       for (let parentID of inputJob.parentJob) {
-        let parentJob = await findJobData(
+        let parentJob = await findOrGetJobObject(
           parentID,
-          newUserJobSnapshot,
-          newJobArray
+          newJobArray,
+          retrievedJobs
         );
 
         if (!parentJob) continue;
@@ -177,10 +179,10 @@ export function useCloseActiveJob() {
         inputJob.parentJob = [...replacementParentJobs];
       }
       for (let childJobID of inputJob.build.childJobs[material.typeID]) {
-        let childJob = await findJobData(
+        let childJob = await findOrGetJobObject(
           childJobID,
-          newUserJobSnapshot,
-          newJobArray
+          newJobArray,
+          retrievedJobs
         );
         if (!childJob) continue;
 
@@ -229,6 +231,14 @@ export function useCloseActiveJob() {
       newUserJobSnapshot.push(new JobSnapshot(inputJob));
     }
 
+    manageListenerRequests(
+      [...retrievedJobs, ...Object.values(tempJobsToAdd)],
+      updateJobArray,
+      updateFirebaseListeners,
+      firebaseListeners,
+      isLoggedIn
+    );
+
     if (inputJob.groupID) {
       updateGroupArray(newGroupArray);
     }
@@ -236,10 +246,9 @@ export function useCloseActiveJob() {
     updateLinkedJobIDs([...newLinkedJobIDs]);
     updateLinkedOrderIDs([...newLinkedOrderIDs]);
     updateLinkedTransIDs([...newLinkedTransIDs]);
-    updateJobArray(newJobArray);
+    updateJobArray(() => [...newJobArray, ...retrievedJobs]);
     updateUserJobSnapshot(newUserJobSnapshot);
     updateActiveJob(null);
-    console.log(inputJob)
     if (isLoggedIn) {
       await uploadJobSnapshotsToFirebase(newUserJobSnapshot);
       await updateJobInFirebase(inputJob);

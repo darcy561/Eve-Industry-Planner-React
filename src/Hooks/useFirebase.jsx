@@ -258,66 +258,63 @@ export function useFirebase() {
     const unsubscribe = onSnapshot(
       doc(firestore, `Users/${userObj.accountID}/ProfileInfo`, "JobSnapshot"),
       (doc) => {
+        console.log(doc);
+        if (!doc.exists() || doc.metadata.fromCache) return;
         const updateSnapshotState = async () => {
-          if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
-            const t = trace(performance, "UserJobSnapshotListener");
-            t.start();
-            updateUserJobSnapshotDataFetch(false);
-            let snapshotData = doc.data().snapshot;
-            let priceIDRequest = new Set();
-            let newUserJobSnapshot = [];
-            let newLinkedOrderIDs = new Set();
-            let newLinkedJobIDs = new Set();
-            let newLinkedTransIDs = new Set();
-            snapshotData.forEach((snap) => {
-              const jobSnapshot = new JobSnapshot(snap);
+          const t = trace(performance, "UserJobSnapshotListener");
+          t.start();
+          // updateUserJobSnapshotDataFetch(false);
+          let snapshotData = doc.data().snapshot;
+          let priceIDRequest = new Set();
+          let newUserJobSnapshot = [];
+          let newLinkedOrderIDs = new Set();
+          let newLinkedJobIDs = new Set();
+          let newLinkedTransIDs = new Set();
+          snapshotData.forEach((snap) => {
+            const jobSnapshot = new JobSnapshot(snap);
 
-              jobSnapshot.apiJobs.forEach((id) => {
-                newLinkedJobIDs.add(id);
-              });
-              jobSnapshot.apiOrders.forEach((id) => {
-                newLinkedOrderIDs.add(id);
-              });
-              jobSnapshot.apiTransactions.forEach((id) => {
-                newLinkedTransIDs.add(id);
-              });
-              jobSnapshot.materialIDs.forEach((id) => {
-                priceIDRequest.add(id);
-              });
-              priceIDRequest.add(jobSnapshot.itemID);
-              newUserJobSnapshot.push(jobSnapshot);
+            jobSnapshot.apiJobs.forEach((id) => {
+              newLinkedJobIDs.add(id);
             });
+            jobSnapshot.apiOrders.forEach((id) => {
+              newLinkedOrderIDs.add(id);
+            });
+            jobSnapshot.apiTransactions.forEach((id) => {
+              newLinkedTransIDs.add(id);
+            });
+            jobSnapshot.materialIDs.forEach((id) => {
+              priceIDRequest.add(id);
+            });
+            priceIDRequest.add(jobSnapshot.itemID);
+            newUserJobSnapshot.push(jobSnapshot);
+          });
 
-            const itemPriceResult = await getItemPrices(
-              [...priceIDRequest],
-              userObj
-            );
-            newUserJobSnapshot.sort((a, b) => {
-              if (a.name < b.name) {
-                return -1;
-              }
-              if (a.name > b.name) {
-                return 1;
-              }
-              return 0;
-            });
-            updateLinkedJobIDs((prevState) => {
-              return [...new Set([...prevState, ...newLinkedJobIDs])];
-            });
-            updateLinkedOrderIDs((prevState) => {
-              return [...new Set([...prevState, ...newLinkedOrderIDs])];
-            });
-            updateLinkedTransIDs((prevState) => {
-              return [...new Set([...prevState, ...newLinkedTransIDs])];
-            });
-            updateEvePrices((prev) => ({
-              ...prev,
-              ...itemPriceResult,
-            }));
-            updateUserJobSnapshot(newUserJobSnapshot);
-            updateUserJobSnapshotDataFetch(true);
-            t.stop();
-          }
+          const itemPriceResult = await getItemPrices([...priceIDRequest]);
+          newUserJobSnapshot.sort((a, b) => {
+            if (a.name < b.name) {
+              return -1;
+            }
+            if (a.name > b.name) {
+              return 1;
+            }
+            return 0;
+          });
+          updateLinkedJobIDs((prevState) => {
+            return [...new Set([...prevState, ...newLinkedJobIDs])];
+          });
+          updateLinkedOrderIDs((prevState) => {
+            return [...new Set([...prevState, ...newLinkedOrderIDs])];
+          });
+          updateLinkedTransIDs((prevState) => {
+            return [...new Set([...prevState, ...newLinkedTransIDs])];
+          });
+          updateEvePrices((prev) => ({
+            ...prev,
+            ...itemPriceResult,
+          }));
+          updateUserJobSnapshot(newUserJobSnapshot);
+          updateUserJobSnapshotDataFetch(true);
+          t.stop();
         };
         updateSnapshotState();
       }
@@ -329,47 +326,44 @@ export function useFirebase() {
     return;
   };
 
-  const userWatchlistListener = async (token, userObj) => {
+  const userWatchlistListener = async (token) => {
     const unsubscribe = onSnapshot(
       doc(firestore, `Users/${token.user.uid}/ProfileInfo`, "Watchlist"),
       (doc) => {
+        if (!doc.exists() || doc.metadata.fromCache) return;
+
         const updateSnapshotState = async () => {
-          if (!doc.metadata.hasPendingWrites && doc.data() !== undefined) {
-            const t = trace(performance, "UserWatchlistListener");
-            t.start();
-            updateUserWatchlistDataFetch(false);
-            let snapshotData = doc.data();
-            let priceIDRequest = new Set();
-            let newWatchlistGroups = [];
-            let newWatchlistItems = [];
-            snapshotData.groups.forEach((group) => {
-              newWatchlistGroups.push(group);
-            });
-            snapshotData.items.forEach((item) => {
-              priceIDRequest.add(item.typeID);
-              item.materials.forEach((mat) => {
-                priceIDRequest.add(mat.typeID);
-                mat.materials.forEach((cMat) => {
-                  priceIDRequest.add(cMat.typeID);
-                });
+          const t = trace(performance, "UserWatchlistListener");
+          t.start();
+          updateUserWatchlistDataFetch(false);
+          let snapshotData = doc.data();
+          let priceIDRequest = new Set();
+          let newWatchlistGroups = [];
+          let newWatchlistItems = [];
+          snapshotData.groups.forEach((group) => {
+            newWatchlistGroups.push(group);
+          });
+          snapshotData.items.forEach((item) => {
+            priceIDRequest.add(item.typeID);
+            item.materials.forEach((mat) => {
+              priceIDRequest.add(mat.typeID);
+              mat.materials.forEach((cMat) => {
+                priceIDRequest.add(cMat.typeID);
               });
-              newWatchlistItems.push(item);
             });
-            const itemPriceResult = await getItemPrices(
-              [...priceIDRequest],
-              userObj
-            );
-            updateEvePrices((prev) => ({
-              ...prev,
-              ...itemPriceResult,
-            }));
-            updateUserWatchlist({
-              groups: newWatchlistGroups,
-              items: newWatchlistItems,
-            });
-            updateUserWatchlistDataFetch(true);
-            t.stop();
-          }
+            newWatchlistItems.push(item);
+          });
+          const itemPriceResult = await getItemPrices([...priceIDRequest]);
+          updateEvePrices((prev) => ({
+            ...prev,
+            ...itemPriceResult,
+          }));
+          updateUserWatchlist({
+            groups: newWatchlistGroups,
+            items: newWatchlistItems,
+          });
+          updateUserWatchlistDataFetch(true);
+          t.stop();
         };
         updateSnapshotState();
       }

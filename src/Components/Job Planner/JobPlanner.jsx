@@ -14,19 +14,14 @@ import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
 import { ESIOffline } from "../offlineNotification";
 import { UserLogInUI } from "../Auth/LoginUI/LoginUI";
 import { Header } from "../Header";
-import CollapseableMenuDrawer from "../SideMenu/leftMenuDrawer";
-import { SideMenuContent_JobPlanner } from "./Planner Components/Side Menu/sideMenuContent";
+import LeftCollapseableMenuDrawer from "../SideMenu/leftMenuDrawer";
 import { Footer } from "../Footer/Footer";
 import useCheckUserAuthState from "../../Hooks/Auth Hooks/useCheckUserState";
 import CollapseableContentDrawer_Right from "../SideMenu/rightContentDrawer";
 import RightSideMenuContent_JobPlanner from "./Planner Components/Side Menu/rightMenuContents";
-
-const EditGroup = lazy(() => import("./Groups/GroupPage"));
+import { useJobPlannerSideMenuFunctions } from "./Planner Components/Side Menu/Buttons/buttonfunctions";
 
 export default function JobPlanner({ colorMode }) {
-  const { editGroupTrigger, updateEditGroupTrigger } = useContext(
-    JobPlannerPageTriggerContext
-  );
   const { pageLoad } = useContext(PageLoadContext);
   const { loginInProgressComplete } = useContext(UserLoginUIContext);
   const [expandRightContentMenu, updateExpandRightContentMenu] =
@@ -39,120 +34,84 @@ export default function JobPlanner({ colorMode }) {
 
   useCheckUserAuthState();
 
+  const buttonOptions = useJobPlannerSideMenuFunctions(
+    updateExpandRightContentMenu,
+    rightContentMenuContentID,
+    updateRightContentMenuContentID
+  );
+
   if (!loginInProgressComplete) {
     return <UserLogInUI />;
   } else {
     if (pageLoad) {
       return <LoadingPage />;
     } else {
-      if (editGroupTrigger) {
-        return (
-          <Suspense fallback={<LoadingPage />}>
-            <ShoppingListDialog />
-            <PriceEntryDialog />
-            <Header colorMode={colorMode} />
+      return (
+        <>
+          <Header colorMode={colorMode} />
+
+          <LeftCollapseableMenuDrawer inputDrawerButtons={buttonOptions} />
+
+          <Box
+            component="main"
+            sx={{
+              minHeight: "100vh",
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              paddingTop: 10,
+              paddingX: 2,
+              gap: 2,
+            }}
+          >
+            <ESIOffline />
+            {!deviceNotMobile && rightContentMenuContentID === 1 && (
+              <SearchBar
+                updateRightContentMenuContentID={
+                  updateRightContentMenuContentID
+                }
+                setSkeletonElementsToDisplay={setSkeletonElementsToDisplay}
+              />
+            )}
+
             <Box
-              component="main"
               sx={{
-                minHeight: "100vh",
-                width: "100%",
                 display: "flex",
-                flexDirection: "column",
-                paddingTop: 10,
-                paddingX: 2,
+                flexDirection: { xs: "column", md: "row" },
+                justifyContent: { xs: "center", md: "flex-start" },
                 gap: 2,
+                width: "100%",
+                flex: 1,
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", md: "row" },
-                  justifyContent: { xs: "center", md: "flex-start" },
-                  gap: 2,
-                  width: "100%",
-                  flex: 1,
-                }}
-              >
-                <EditGroup updateEditGroupTrigger={updateEditGroupTrigger} />
-              </Box>
-              <Footer />
+              <PlannerAccordion
+                skeletonElementsToDisplay={skeletonElementsToDisplay}
+              />
             </Box>
-          </Suspense>
-        );
-      } else {
-        return (
-          <>
-            <Header colorMode={colorMode} />
 
-            <CollapseableMenuDrawer
-              expandRightContentMenu={expandRightContentMenu}
-              updateExpandRightContentMenu={updateExpandRightContentMenu}
-              rightContentMenuContentID={rightContentMenuContentID}
-              updateRightContentMenuContentID={updateRightContentMenuContentID}
-              DrawerContents={SideMenuContent_JobPlanner}
-            />
-
-            <Box
-              component="main"
-              sx={{
-                minHeight: "100vh",
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                paddingTop: 10,
-                paddingX: 2,
-                gap: 2,
-              }}
-            >
-              <ESIOffline />
-              {!deviceNotMobile && rightContentMenuContentID === 1 && (
-                <SearchBar
+            <Footer />
+          </Box>
+          {deviceNotMobile && (
+            <CollapseableContentDrawer_Right
+              DrawerContent={
+                <RightSideMenuContent_JobPlanner
+                  rightContentMenuContentID={rightContentMenuContentID}
                   updateRightContentMenuContentID={
                     updateRightContentMenuContentID
                   }
+                  updateExpandRightContentMenu={updateExpandRightContentMenu}
                   setSkeletonElementsToDisplay={setSkeletonElementsToDisplay}
                 />
-              )}
-
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", md: "row" },
-                  justifyContent: { xs: "center", md: "flex-start" },
-                  gap: 2,
-                  width: "100%",
-                  flex: 1,
-                }}
-              >
-                <PlannerAccordion
-                  skeletonElementsToDisplay={skeletonElementsToDisplay}
-                />
-              </Box>
-
-              <Footer />
-            </Box>
-            {deviceNotMobile && (
-              <CollapseableContentDrawer_Right
-                DrawerContent={
-                  <RightSideMenuContent_JobPlanner
-                    rightContentMenuContentID={rightContentMenuContentID}
-                    updateRightContentMenuContentID={
-                      updateRightContentMenuContentID
-                    }
-                    updateExpandRightContentMenu={updateExpandRightContentMenu}
-                    setSkeletonElementsToDisplay={setSkeletonElementsToDisplay}
-                  />
-                }
-                expandRightContentMenu={expandRightContentMenu}
-                updateExpandRightContentMenu={updateExpandRightContentMenu}
-              />
-            )}
-            <ShoppingListDialog />
-            <MassBuildFeedback />
-            <PriceEntryDialog />
-          </>
-        );
-      }
+              }
+              expandRightContentMenu={expandRightContentMenu}
+              updateExpandRightContentMenu={updateExpandRightContentMenu}
+            />
+          )}
+          <ShoppingListDialog />
+          <MassBuildFeedback />
+          <PriceEntryDialog />
+        </>
+      );
     }
   }
 }

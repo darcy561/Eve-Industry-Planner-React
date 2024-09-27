@@ -72,7 +72,7 @@ export function ClassicGroupJobCardFrame({ job }) {
     return multiSelectJobPlanner.some((i) => i === job.jobID);
   }, [multiSelectJobPlanner]);
 
-  const jobMarkedAsCompelte = useMemo(() => {
+  const jobMarkedAsComplete = useMemo(() => {
     return activeGroupObject.areComplete.has(job.jobID);
   }, [activeGroupObject]);
 
@@ -98,7 +98,7 @@ export function ClassicGroupJobCardFrame({ job }) {
           }}
         >
           <Box sx={{ display: "flex", height: "100%" }}>
-            <Grid container direction="column" xs={12}>
+            <Grid container direction="column">
               <Grid container item xs={12}>
                 <Grid container item xs={12}>
                   <Grid item xs={6} akign="left">
@@ -203,7 +203,7 @@ export function ClassicGroupJobCardFrame({ job }) {
                     }}
                   >
                     <Typography align="center" variant="body2" color="black">
-                      {jobMarkedAsCompelte ? (
+                      {jobMarkedAsComplete ? (
                         <b>Complete</b>
                       ) : job.jobType === jobTypes.manufacturing ? (
                         <b>Manufacturing Job</b>

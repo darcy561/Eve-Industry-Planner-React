@@ -259,22 +259,6 @@ export function useHelperFunction() {
     }));
   }
 
-  function getJobSetupCount(inputJob) {
-    return Object.values(inputJob.build.setup).length;
-  }
-
-  function getJobCountFromJob(inputJob) {
-    return Object.values(inputJob.build.setup).reduce((prev, { jobCount }) => {
-      return (prev += jobCount);
-    }, 0);
-  }
-
-  function getTotalCompleteMaterialsFromJob(inputJob) {
-    return inputJob.build.materials.filter(
-      (material) => material.purchaseComplete
-    ).length;
-  }
-
   return {
     Add_RemovePendingChildJobs,
     Add_RemovePendingParentJobs,
@@ -284,9 +268,6 @@ export function useHelperFunction() {
     findParentUser,
     findParentUserIndex,
     findUniverseItemObject,
-    getJobSetupCount,
-    getJobCountFromJob,
-    getTotalCompleteMaterialsFromJob,
     importAssetsFromClipboard_IconView,
     importMultibuyFromClipboard,
     isItemBuildable,

@@ -22,6 +22,7 @@ import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+import { useNavigate } from "react-router-dom";
 
 export function ClassicGroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -45,6 +46,7 @@ export function ClassicGroupJobCard({ group }) {
   let groupCardChecked = useMemo(() => {
     return multiSelectJobPlanner.some((i) => i == group.groupID);
   }, [multiSelectJobPlanner]);
+  const navigate = useNavigate();
 
   return (
     <Grid ref={drag} item xs={12} sm={6} md={4} lg={3}>
@@ -149,10 +151,7 @@ export function ClassicGroupJobCard({ group }) {
                   <Button
                     variant="outlined"
                     color="primary"
-                    onClick={() => {
-                      openGroup(group.groupID);
-                      updateEditGroupTrigger((prev) => !prev);
-                    }}
+                    onClick={() => navigate(`/group/${group.groupID}`)}
                     sx={{ height: "25px", width: "100px" }}
                   >
                     View

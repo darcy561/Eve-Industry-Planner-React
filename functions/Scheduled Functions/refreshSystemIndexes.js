@@ -31,14 +31,14 @@ exports.scheduledFunction = functions
       }
       let systemIndexData = systemIndexResults.data;
 
-      for (const system of systemIndexData) {
-        const { solar_system_id } = system;
-        const updates = { solar_system_id };
+        for (const system of systemIndexData) {
+          const { solar_system_id } = system;
+          const updates = { solar_system_id };
 
-        system.cost_indices.forEach((costIndex) => {
-          const { activity, cost_index } = costIndex;
-          updates[activity] = cost_index;
-        });
+          system.cost_indices.forEach((costIndex) => {
+            const { activity, cost_index } = costIndex;
+            updates[activity] = cost_index;
+          });
         updates["lastUpdated"] = Date.now();
         await admin
           .database()

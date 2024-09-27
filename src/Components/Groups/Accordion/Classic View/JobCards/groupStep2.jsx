@@ -1,10 +1,8 @@
 import { Grid, Typography } from "@mui/material";
-import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
 
 export default function GroupStep2JobCard({ job }) {
-  const { getTotalCompleteMaterialsFromJob } = useHelperFunction();
-  const totalComplete = getTotalCompleteMaterialsFromJob(job);
+  const totalComplete = job.totalCompletedMaterials();
 
   return (
     <Grid

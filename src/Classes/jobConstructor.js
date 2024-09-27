@@ -231,6 +231,30 @@ class Job {
     this.build.costs.inventionCosts -= inputObject.itemCost;
     this.build.costs.totalPurchaseCost -= inputObject.itemCost;
   }
+  setupCount() {
+    return Object.values(this.build.setup).length;
+  }
+  totalCompletedMaterials() {
+    return this.build.materials.filter((material) => material.purchaseComplete)
+      .length;
+  }
+  totalJobCount() {
+    return Object.values(this.build.setup).reduce((prev, { jobCount }) => {
+      return (prev += jobCount);
+    }, 0);
+  }
+  totalCostPerItem() {
+    return (
+      Math.round(
+        ((this.build.costs.extrasTotal +
+          this.build.costs.installCosts +
+          this.build.costs.totalPurchaseCost) /
+          this.build.products.totalQuantity +
+          Number.EPSILON) *
+          100
+      ) / 100
+    );
+  }
 }
 
 function documentToSetups(object) {

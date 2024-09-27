@@ -1,12 +1,10 @@
 import { useMemo } from "react";
 import { Grid, Typography } from "@mui/material";
 import { useJobManagement } from "../../../../../Hooks/useJobManagement";
-import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
 
 export default function GroupStep3JobCard({ job }) {
   const { timeRemainingCalc } = useJobManagement();
-  const { getJobCountFromJob } = useHelperFunction();
 
   let timeRemaining = useMemo(() => {
     let tempJobs = [...job.build.costs.linkedJobs];
@@ -25,7 +23,7 @@ export default function GroupStep3JobCard({ job }) {
     return timeRemainingCalc(Date.parse(tempJobs[0].end_date));
   }, [job]);
 
-  const totalJobCount = getJobCountFromJob(job);
+  const totalJobCount = job.totalJobCount();
 
   return (
     <Grid

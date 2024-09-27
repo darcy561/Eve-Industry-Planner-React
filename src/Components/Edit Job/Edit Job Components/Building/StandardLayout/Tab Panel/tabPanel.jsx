@@ -3,7 +3,6 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Paper, Tab, Tabs } from "@mui/material";
 import { AvailableJobsTab } from "./availableJobs";
 import { LinkedJobsTab } from "./linkedJobs";
-import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
 import Job from "../../../../../../Classes/jobConstructor";
 
 export function TabPanel_Building({
@@ -15,10 +14,9 @@ export function TabPanel_Building({
   esiDataToLink,
   updateEsiDataToLink,
 }) {
-  const { getJobCountFromJob } = useHelperFunction();
-  const totalJobCount = getJobCountFromJob(activeJob);
-
   const [currentTab, updateTab] = useState(initialTab());
+  
+  const totalJobCount = activeJob.totalJobCount();
 
   function initialTab() {
     if (activeJob.layout.esiJobTab) {

@@ -21,8 +21,8 @@ import {
   MultiSelectJobPlannerContext,
 } from "../../../Context/LayoutContext";
 import { ItemTypes } from "../../../Context/DnDTypes";
-import { CompactGroupAccordionContent } from "./Compact/CompactGroupAccordionContent";
-import { ClassicGroupAccordionContent } from "./Classic/ClassicGroupAccordionContent";
+// import { CompactGroupAccordionContent } from "./Compact/CompactGroupAccordionContent";
+// import { ClassicGroupAccordionContent } from "./Classic/ClassicGroupAccordionContent";
 import GLOBAL_CONFIG from "../../../global-config-app";
 import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
@@ -164,7 +164,7 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              {applicationSettings.enableCompactView ? (
+              {/* {applicationSettings.enableCompactView ? (
                 <CompactGroupAccordionContent
                   status={status}
                   statusJobs={statusJobs}
@@ -174,7 +174,7 @@ export function GroupAccordion({ groupJobs, groupPageRefresh }) {
                   status={status}
                   statusJobs={statusJobs}
                 />
-              )}
+              )} */}
             </AccordionDetails>
           </Accordion>
         );

@@ -6,11 +6,11 @@ import {
   Tooltip,
 } from "@mui/material";
 
-export function SidemenuButtonTemplate_JobPlanner({
+export function SidemenuButtonTemplate_Default({
   buttonContent,
   expandedState,
 }) {
-  const { displayText, icon, onClick, tooltip, disabled, divider } =
+  const { displayText, icon, onClick, tooltip, disabled, divider, hoverColor } =
     buttonContent;
   return (
     <Tooltip title={tooltip} arrow placement="right">
@@ -24,7 +24,7 @@ export function SidemenuButtonTemplate_JobPlanner({
               ? {}
               : {
                   "& .MuiListItemIcon-root, & .MuiListItemText-root": {
-                    color: "primary.main",
+                    color: hoverColor ? hoverColor : "primary.main",
                   },
                 }),
           },

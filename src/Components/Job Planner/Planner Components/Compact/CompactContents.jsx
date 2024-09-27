@@ -52,9 +52,17 @@ export function CompactAccordionContents({
             Array.from({ length: skeletonElementsToDisplay }).map(
               (_, index) => {
                 return (
-                  <Card key={uuid()} sx={{ marginTop: "5px", marginBottom: "5px", padding:0, height:40 }}>
+                  <Card
+                    key={uuid()}
+                    sx={{
+                      marginTop: "5px",
+                      marginBottom: "5px",
+                      padding: 0,
+                      height: 40,
+                    }}
+                  >
                     <Skeleton
-                      variant="rectangular" 
+                      variant="rectangular"
                       animation="wave"
                       width="100%"
                       height="100%"

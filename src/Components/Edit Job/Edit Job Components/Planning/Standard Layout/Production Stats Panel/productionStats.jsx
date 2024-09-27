@@ -41,8 +41,6 @@ export function ProductionStats({ activeJob, parentChildToEdit }) {
       childrenTotal: 0,
     };
 
-    let total = 0;
-
     const parentJobSelection = [
       ...new Set(
         [...activeJob.parentJob, ...parentChildToEdit.parentJobs.add].filter(

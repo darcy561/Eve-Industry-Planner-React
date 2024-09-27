@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import {
   Box,
   Divider,
@@ -12,13 +12,11 @@ import {
 } from "@mui/material";
 import KeyboardDoubleArrowRightOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowRightOutlined";
 import KeyboardDoubleArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftOutlined";
+import { SidemenuButtonTemplate_Default } from "./defaultButtonTemplate";
 
-function CollapseableMenuDrawer({
-  DrawerContents,
-  expandRightContentMenu,
-  updateExpandRightContentMenu,
-  rightContentMenuContentID,
-  updateRightContentMenuContentID,
+function LeftCollapseableMenuDrawer({
+  inputDrawerButtons,
+  AlternativeButtonTemplate,
 }) {
   const localStorageItemKey = "sideMenuExpanded";
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
@@ -47,7 +45,9 @@ function CollapseableMenuDrawer({
     }
   }
 
-  const drawerWitdh = expandedDrawer ? 240 : 50;
+  const drawerWidth = expandedDrawer ? 240 : 50;
+  const SelectedButtonTemplate =
+    AlternativeButtonTemplate || SidemenuButtonTemplate_Default;
 
   return (
     <Drawer
@@ -55,11 +55,11 @@ function CollapseableMenuDrawer({
       anchor="left"
       open={expandedDrawer}
       sx={{
-        width: drawerWitdh,
+        width: drawerWidth,
         flexShrink: 0,
         transition: "width 0.3s ease-in-out",
         [`& .MuiDrawer-paper`]: {
-          width: drawerWitdh,
+          width: drawerWidth,
           boxSizing: "border-box",
           transition: "width 0.3s ease-in-out",
         },
@@ -75,13 +75,17 @@ function CollapseableMenuDrawer({
             flexGrow: 1,
           }}
         >
-          <DrawerContents
-            expandedState={expandedDrawer}
-            expandRightContentMenu={expandRightContentMenu}
-            updateExpandRightContentMenu={updateExpandRightContentMenu}
-            rightContentMenuContentID={rightContentMenuContentID}
-            updateRightContentMenuContentID={updateRightContentMenuContentID}
-          />
+          <List>
+            {inputDrawerButtons?.map((option, index) => {
+              return (
+                <SelectedButtonTemplate
+                  key={option.key ? option.key : `leftMenuButton-${index}`}
+                  buttonContent={option}
+                  expandedState={expandedDrawer}
+                />
+              );
+            })}
+          </List>
         </Box>
         <Divider />
         <Box
@@ -137,4 +141,4 @@ function CollapseableMenuDrawer({
   );
 }
 
-export default CollapseableMenuDrawer;
+export default memo(LeftCollapseableMenuDrawer);

@@ -105,13 +105,23 @@ function useBuildNewJobs() {
         itemID: jobObject.itemID,
       });
     }
-    manageListenerRequests(
-      newJobObjects,
-      updateJobArray,
-      updateFirebaseListeners,
-      firebaseListeners,
-      isLoggedIn
-    );
+    if (isLoggedIn) {
+      manageListenerRequests(
+        newJobObjects,
+        updateJobArray,
+        updateFirebaseListeners,
+        firebaseListeners,
+        isLoggedIn
+      );
+    } else {
+      updateJobArray((prev) => {
+        const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+        return [
+          ...prev,
+          ...newJobObjects.filter(({ jobID }) => !existingIDs.has(jobID)),
+        ];
+      });
+    }
     const itemPriceResult = await Promise.all(itemPriceRequest);
 
     if (requiresGroupDocSave) {

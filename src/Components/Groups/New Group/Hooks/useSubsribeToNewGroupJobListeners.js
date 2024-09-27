@@ -1,45 +1,43 @@
 import { useContext, useEffect } from "react";
-import { JobArrayContext } from "../../../Context/JobContext";
 import {
   FirebaseListenersContext,
-  IsLoggedInContext,
   UserJobSnapshotContext,
-} from "../../../Context/AuthContext";
-import createFirebaseJobDocumentListener from "../../../Functions/Firebase/createJobListener";
+} from "../../../../Context/AuthContext";
+import { JobArrayContext } from "../../../../Context/JobContext";
+import createFirebaseJobDocumentListener from "../../../../Functions/Firebase/createJobListener";
 
-function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
-  const { isLoggedIn } = useContext(IsLoggedInContext);
-  const { jobArray, updateJobArray } = useContext(JobArrayContext);
+function useSubscribeToNewGroupListeners(requestedJobIDs, onJobLoaded) {
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
+  const { jobArray, updateJobArray } = useContext(JobArrayContext);
   const { firebaseListeners, updateFirebaseListeners } = useContext(
     FirebaseListenersContext
   );
 
-
-
   useEffect(() => {
     try {
-      if (!isLoggedIn || !requestedJobID) {
+      if (!requestedJobIDs || !requestedJobIDs.length) {
         onJobLoaded();
         return;
       }
-      
-      const matchedJobSnapshot = userJobSnapshot.find(
-        ({ jobID }) => jobID === requestedJobID
-      );
-      const relatedJobs = matchedJobSnapshot.getRelatedJobs();
-
-      const requiredJobs = [...relatedJobs, requestedJobID];
+      let combinedJobIDs = new Set();
+      for (let id of requestedJobIDs) {
+        const matchedJobSnapshot = userJobSnapshot.find(
+          ({ jobID }) => jobID === id
+        );
+        if (!matchedJobSnapshot) continue;
+        const relatedJobs = matchedJobSnapshot.getRelatedJobs();
+        combinedJobIDs.add(id);
+        relatedJobs.forEach((jobId) => combinedJobIDs.add(jobId));
+      }
 
       const existingListenerIds = new Set(
         firebaseListeners.map((listener) => listener.id)
       );
       const existingJobIds = new Set(jobArray.map((job) => job.jobID));
 
-      requiredJobs.forEach((id) => {
+      combinedJobIDs.forEach((id) => {
         if (existingListenerIds.has(id) && existingJobIds.has(id)) return;
 
-        console.log(id);
         const unsubscribe = createFirebaseJobDocumentListener(
           id,
           updateJobArray
@@ -49,13 +47,12 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
 
         updateFirebaseListeners((prev) => [...prev, { id, unsubscribe }]);
       });
-
       onJobLoaded();
     } catch (err) {
       console.error("Error setting up job listeners:", err);
     }
   }, [
-    requestedJobID,
+    requestedJobIDs,
     firebaseListeners,
     updateFirebaseListeners,
     jobArray,
@@ -63,4 +60,4 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
   ]);
 }
 
-export default useSubscribeToJobListeners;
+export default useSubscribeToNewGroupListeners;

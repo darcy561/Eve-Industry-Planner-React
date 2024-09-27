@@ -43,14 +43,11 @@ export function PurchasingDataPanel_EditJob({
   );
   const [orderSelect, updateOrderSelect] = useState(orderDisplay);
   const [marketSelect, updateMarketSelect] = useState(marketDisplay);
-  const {
-    getTotalCompleteMaterialsFromJob,
-    importMultibuyFromClipboard,
-    sendSnackbarNotificationError,
-  } = useHelperFunction();
+  const { importMultibuyFromClipboard, sendSnackbarNotificationError } =
+    useHelperFunction();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 
-  const totalComplete = getTotalCompleteMaterialsFromJob(activeJob);
+  const totalComplete = activeJob.totalCompletedMaterials();
 
   return (
     <Grid item xs={12}>

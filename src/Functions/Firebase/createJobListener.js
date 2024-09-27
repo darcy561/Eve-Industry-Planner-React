@@ -21,17 +21,16 @@ function createFirebaseJobDocumentListener(documentID, updateJobArray) {
         if (!docSnapshot.exists()) return;
         const job = new Job(docSnapshot.data());
 
-        if (!docSnapshot.metadata.fromCache) {
-          updateJobArray((prevDocs) => {
-            const jobExists = prevDocs.some((doc) => doc.id === documentID);
+        if (docSnapshot.metadata.fromCache) return;
+        
+        updateJobArray((prevDocs) => {
+          const jobExists = prevDocs.some((doc) => doc.id === documentID);
 
-            // If the job is not in the array or it's not from cache, update the array
-            if (!jobExists || !docSnapshot.metadata.fromCache) {
-              return [...prevDocs.filter((doc) => doc.id !== documentID), job];
-            }
-            return prevDocs;
-          });
-        }
+          if (!jobExists || !docSnapshot.metadata.fromCache) {
+            return [...prevDocs.filter((doc) => doc.id !== documentID), job];
+          }
+          return prevDocs;
+        });
       }
     );
   } catch (err) {

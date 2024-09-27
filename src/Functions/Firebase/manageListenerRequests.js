@@ -81,7 +81,7 @@ function manageListenerRequests(
 
     updateFirebaseListeners((prev) => [...prev, ...newListeners]);
   } catch (err) {
-    console.error("Error settings up job document listener:", err);
+    console.error("Error setting up job document listener:", err);
   }
 }
 

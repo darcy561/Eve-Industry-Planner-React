@@ -12,18 +12,18 @@ export const APP_VERSION = "0.7.1";
 
 // Max number of ESI pages to query.
 //(Int)
-//Default: 50
+//Default: 50 
 export const ESI_MAX_PAGES = 50;
 
 //Market Data Locations
 //(Object Array)
 //E.G { name: "jita", regionID: 10000002, stationID: 60003760 }
 // This market data must be publicly accesible, private markets in citadels cannot be used.
-export const DEFAULT_MARKET_LOCATIONS = [
-  { name: "jita", regionID: 10000002, stationID: 60003760 },
-  { name: "amarr", regionID: 10000043, stationID: 60008494 },
-  { name: "dodixie", regionID: 10000032, stationID: 60011866 },
-];
+  export const DEFAULT_MARKET_LOCATIONS = [
+    { name: "jita", regionID: 10000002, stationID: 60003760 },
+    { name: "amarr", regionID: 10000043, stationID: 60008494 },
+    { name: "dodixie", regionID: 10000032, stationID: 60011866 },
+  ];
 //Number of hours between updates of item market data.
 //(Int)
 //Default: 4

@@ -31,16 +31,9 @@ export default function GroupStep4JobCard({ job }) {
         </Grid>
         <Grid item xs={6}>
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
-            {(
-              Math.round(
-                ((job.build.costs.extrasTotal +
-                  job.build.costs.installCosts +
-                  job.build.costs.totalPurchaseCost) /
-                  job.build.products.totalQuantity +
-                  Number.EPSILON) *
-                  100
-              ) / 100
-            ).toLocaleString(undefined, TWO_DECIMAL_PLACES)}
+            {job
+              .totalCostPerItem()
+              .toLocaleString(undefined, TWO_DECIMAL_PLACES)}
           </Typography>
         </Grid>
       </Grid>

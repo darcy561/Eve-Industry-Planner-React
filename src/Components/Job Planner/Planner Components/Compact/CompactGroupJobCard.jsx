@@ -18,6 +18,7 @@ import { grey, yellow } from "@mui/material/colors";
 import { useOpenGroup } from "../../../../Hooks/GroupHooks/useOpenGroup";
 import { useGroupManagement } from "../../../../Hooks/useGroupManagement";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+import { useNavigate } from "react-router-dom";
 
 export function CompactGroupJobCard({ group }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
@@ -37,6 +38,7 @@ export function CompactGroupJobCard({ group }) {
       isDragging: !!monitor.isDragging(),
     }),
   }));
+  const navigate = useNavigate();
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const groupCardChecked = useMemo(
@@ -91,10 +93,7 @@ export function CompactGroupJobCard({ group }) {
         <Grid container item xs={3} sm={1} align="center" alignItems="center">
           <Button
             color="primary"
-            onClick={() => {
-              openGroup(group.groupID);
-              updateEditGroupTrigger((prev) => !prev);
-            }}
+            onClick={() => navigate(`/group/${group.groupID}`)}
           >
             View
           </Button>

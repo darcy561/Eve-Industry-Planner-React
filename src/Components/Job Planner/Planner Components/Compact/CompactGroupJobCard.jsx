@@ -50,16 +50,26 @@ export function CompactGroupJobCard({ group }) {
     <Card
       ref={drag}
       square
-      sx={{
-        marginTop: "5px",
-        marginBottom: "5px",
-        cursor: "grab",
-        backgroundColor: (theme) =>
+      sx={(theme) => {
+        const isDarkMode = theme.palette.mode === PRIMARY_THEME;
+        const backgroundColor =
           groupCardChecked || isDragging
-            ? theme.palette.mode !== "dark"
-              ? grey[300]
-              : grey[900]
-            : "none",
+            ? isDarkMode
+              ? grey[900]
+              : grey[300]
+            : undefined;
+        const borderColor = isDarkMode ? grey[700] : grey[400];
+        return {
+          marginTop: "5px",
+          marginBottom: "5px",
+          cursor: "grab",
+          backgroundColor,
+          transition: "border 0.3s ease",
+          border: `2px solid transparent`,
+          "&:hover": {
+            border: `2px solid ${borderColor}`,
+          },
+        };
       }}
     >
       <Grid container item xs={12}>
@@ -105,6 +115,9 @@ export function CompactGroupJobCard({ group }) {
                 theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
+              "&:Hover": {
+                color: "error.main",
+              },
             }}
             onClick={() => {
               deleteGroupWithoutJobs(group.groupID);
@@ -117,10 +130,10 @@ export function CompactGroupJobCard({ group }) {
           item
           xs={12}
           sx={{
-            height: "1px",
+            height: "2px",
             background: (theme) =>
               theme.palette.mode === PRIMARY_THEME
-                ? `linear-gradient(to right, ${yellow[600]} 30%, ${grey[800]} 60%)`
+                ? `linear-gradient(to right, ${yellow[600]} 30%, ${grey[900]} 60%)`
                 : `linear-gradient(to right, ${yellow[600]} 20%, white 60%)`,
           }}
         />

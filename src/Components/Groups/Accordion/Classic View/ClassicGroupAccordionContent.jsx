@@ -5,11 +5,13 @@ import {
   JobArrayContext,
 } from "../../../../Context/JobContext";
 import { ClassicGroupJobCardFrame } from "./ClassicGroupJobCardFrame";
+import uuid from "react-uuid";
 
 export function ClassicGroupAccordionContent({
   status,
   statusJobs,
   skeletonElementsToDisplay,
+  highlightedItems,
 }) {
   const { activeGroup } = useContext(ActiveJobContext);
   const { groupArray } = useContext(JobArrayContext);
@@ -50,7 +52,11 @@ export function ClassicGroupAccordionContent({
       {statusJobs.map(
         (job) =>
           shouldJobBeDisplayed(job) && (
-            <ClassicGroupJobCardFrame key={job.jobID} job={job} />
+            <ClassicGroupJobCardFrame
+              key={job.jobID}
+              job={job}
+              highlightedItems={highlightedItems}
+            />
           )
       )}
       {status.id === 0 && displaySkeletons()}

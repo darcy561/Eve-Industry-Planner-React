@@ -10,9 +10,9 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useImportFitFromClipboard } from "../../../../../Hooks/GroupHooks/useImportFitFromClipboard";
+import { useImportFitFromClipboard } from "../../../Hooks/GroupHooks/useImportFitFromClipboard";
 import { ImportFittingItemRow } from "./importFittingItemRow";
-import { useHelperFunction } from "../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ImportItemFitDialogue({
   importFitDialogueTrigger,

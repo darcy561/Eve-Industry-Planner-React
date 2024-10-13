@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { Button, Tooltip } from "@mui/material";
-import { useShoppingList } from "../../../../Hooks/GeneralHooks/useShoppingList";
-import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
+import { useShoppingList } from "../../../Hooks/GeneralHooks/useShoppingList";
 
 export function AssetsFromClipboardButton_ShoppingList({
   displayData,
   updateDisplayData,
+  assetsFromClipboard,
+  updateAssetsFromClipboard,
 }) {
   const [displayClipboardData, updateDisplayClipboardData] = useState(false);
   const { importAssetsFromClipboard, clearAssetQuantities } = useShoppingList();
   const { sendSnackbarNotificationSuccess } = useHelperFunction();
 
-  if (displayClipboardData) {
+  if (assetsFromClipboard) {
     return (
       <Button
         variant="contained"
@@ -19,7 +21,7 @@ export function AssetsFromClipboardButton_ShoppingList({
         onClick={() => {
           const newDisplayData = [...displayData];
           clearAssetQuantities(newDisplayData);
-          updateDisplayClipboardData((prev) => !prev);
+          updateAssetsFromClipboard((prev) => !prev);
           updateDisplayData(newDisplayData);
           sendSnackbarNotificationSuccess("Assets Removed");
         }}
@@ -41,7 +43,7 @@ export function AssetsFromClipboardButton_ShoppingList({
         sx={{ display: { xs: "none", sm: "block" } }}
         onClick={async () => {
           const newDisplayData = await importAssetsFromClipboard(displayData);
-          updateDisplayClipboardData((prev) => !prev);
+          updateAssetsFromClipboard((prev) => !prev);
           updateDisplayData(newDisplayData);
           sendSnackbarNotificationSuccess("Assets Applied");
         }}

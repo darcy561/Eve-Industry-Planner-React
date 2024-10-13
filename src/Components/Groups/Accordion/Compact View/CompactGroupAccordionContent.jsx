@@ -1,15 +1,17 @@
-import { Card, Grid } from "@mui/material";
+import { Card, Grid, Skeleton } from "@mui/material";
 import { useContext } from "react";
 import {
   ActiveJobContext,
   JobArrayContext,
 } from "../../../../Context/JobContext";
 import { CompactGroupJobCardFrame } from "./CompactGroupJobCardFrame";
+import uuid from "react-uuid";
 
 export function CompactGroupAccordionContent({
   status,
   statusJobs,
   skeletonElementsToDisplay,
+  highlightedItems
 }) {
   const { activeGroup } = useContext(ActiveJobContext);
   const { groupArray } = useContext(JobArrayContext);
@@ -55,6 +57,7 @@ export function CompactGroupAccordionContent({
                 key={job.jobID}
                 job={job}
                 skeletonElementsToDisplay={skeletonElementsToDisplay}
+                highlightedItems={highlightedItems}
               />
             )
         )}

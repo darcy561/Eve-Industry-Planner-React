@@ -46,7 +46,7 @@ export function PurchasingDataPanel_EditJob({
   const { importMultibuyFromClipboard, sendSnackbarNotificationError } =
     useHelperFunction();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
-
+  
   const totalComplete = activeJob.totalCompletedMaterials();
 
   return (

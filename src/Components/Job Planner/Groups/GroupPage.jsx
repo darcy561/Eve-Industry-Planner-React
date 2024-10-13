@@ -22,8 +22,8 @@ import { GroupOptionsBar } from "./groupOptions";
 import itemList from "../../../RawData/searchIndex.json";
 import useCloseGroup from "../../../Hooks/GroupHooks/useCloseGroup";
 import { LoadingPage } from "../../loadingPage";
-import { ImportItemFitDialogue } from "./Dialogues/importFit/importFittingDialgue";
-import { ShoppingListDialog } from "../Dialogues/ShoppingList/ShoppingList";
+import { ImportItemFitDialogue } from "../../Dialogues/Import Fit/importFittingDialgue";
+import { ShoppingListDialog } from "../../Dialogues/Shopping List/ShoppingList";
 import useBuildNewJobs from "../../../Hooks/JobHooks/useBuildNewJobs";
 
 export default function GroupPage_Old() {

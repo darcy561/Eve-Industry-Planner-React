@@ -7,11 +7,11 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
-import { EvePricesContext } from "../../../../Context/EveDataContext";
-import { PriceEntryListContext } from "../../../../Context/LayoutContext";
-import GLOBAL_CONFIG from "../../../../global-config-app";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
-import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { EvePricesContext } from "../../../Context/EveDataContext";
+import { PriceEntryListContext } from "../../../Context/LayoutContext";
+import GLOBAL_CONFIG from "../../../global-config-app";
+import { useJobManagement } from "../../../Hooks/useJobManagement";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function ItemPriceRow({
   item,

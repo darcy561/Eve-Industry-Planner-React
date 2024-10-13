@@ -1,4 +1,4 @@
-import { Icon, Tooltip } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 
@@ -97,9 +97,17 @@ export default function GroupInfoPopout({ job }) {
 
   return (
     <Tooltip title={tooltipContent} arrow placement="left">
-      <Icon color="primary">
-        <InfoIcon fontSize="small" />
-      </Icon>
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <InfoIcon fontSize="small" color="primary" />
+      </Box>
     </Tooltip>
   );
 }

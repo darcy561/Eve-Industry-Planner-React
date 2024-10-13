@@ -3,7 +3,7 @@ import {
   ApplicationSettingsContext,
   PriceEntryListContext,
   UserLoginUIContext,
-} from "../../../../Context/LayoutContext";
+} from "../../../Context/LayoutContext";
 import {
   Button,
   CircularProgress,
@@ -16,24 +16,24 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import { JobArrayContext } from "../../../../Context/JobContext";
+import { JobArrayContext } from "../../../Context/JobContext";
 import {
   FirebaseListenersContext,
   IsLoggedInContext,
   UserJobSnapshotContext,
-} from "../../../../Context/AuthContext";
-import { listingType } from "../../../../Context/defaultValues";
+} from "../../../Context/AuthContext";
+import { listingType } from "../../../Context/defaultValues";
 import { ItemPriceRow } from "./itemRow";
-import GLOBAL_CONFIG from "../../../../global-config-app";
-import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import GLOBAL_CONFIG from "../../../global-config-app";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 import {
   useAddMaterialCostsToJob,
   useBuildMaterialPriceObject,
-} from "../../../../Hooks/JobHooks/useAddMaterialCosts";
-import updateJobInFirebase from "../../../../Functions/Firebase/updateJob";
-import uploadJobSnapshotsToFirebase from "../../../../Functions/Firebase/uploadJobSnapshots";
-import findOrGetJobObject from "../../../../Functions/Helper/findJobObject";
-import manageListenerRequests from "../../../../Functions/Firebase/manageListenerRequests";
+} from "../../../Hooks/JobHooks/useAddMaterialCosts";
+import updateJobInFirebase from "../../../Functions/Firebase/updateJob";
+import uploadJobSnapshotsToFirebase from "../../../Functions/Firebase/uploadJobSnapshots";
+import findOrGetJobObject from "../../../Functions/Helper/findJobObject";
+import manageListenerRequests from "../../../Functions/Firebase/manageListenerRequests";
 
 export function PriceEntryDialog() {
   const { jobArray, updateJobArray } = useContext(JobArrayContext);

@@ -8,8 +8,8 @@ import {
 import { LoadingPage } from "../loadingPage";
 import { SearchBar } from "./Planner Components/searchbar";
 import { Box, Toolbar, useMediaQuery } from "@mui/material";
-import { ShoppingListDialog } from "./Dialogues/ShoppingList/ShoppingList";
-import { PriceEntryDialog } from "./Dialogues/PriceEntry/PriceEntryList";
+import { ShoppingListDialog } from "../Dialogues/Shopping List/ShoppingList";
+import { PriceEntryDialog } from "../Dialogues/Price Entry/PriceEntryList";
 import { MassBuildFeedback } from "./Planner Components/massBuildInfo";
 import { ESIOffline } from "../offlineNotification";
 import { UserLogInUI } from "../Auth/LoginUI/LoginUI";

@@ -2,6 +2,7 @@ import uuid from "react-uuid";
 import { jobTypes } from "../Context/defaultValues";
 import Setup from "./jobSetupConstructor";
 import LinkedESIJob from "./linkedESIJobConstructor";
+import JobSnapshot from "./jobSnapshotConstructor";
 
 class Job {
   constructor(itemJson, buildRequest) {
@@ -154,6 +155,9 @@ class Job {
   getRelatedJobs() {
     return [...this.parentJob, ...Object.values(this.build.childJobs).flat()];
   }
+  getAllChildJobs() {
+    return Object.values(this.build.childJobs).flat();
+  }
   getMaterialIDs() {
     return [this.itemID, ...Object.keys(this.build.childJobs).map(Number)];
   }
@@ -238,6 +242,10 @@ class Job {
     return this.build.materials.filter((material) => material.purchaseComplete)
       .length;
   }
+  totalRemainingMaterials() {
+    return this.build.materials.filter((material) => !material.purchaseComplete)
+      .length;
+  }
   totalJobCount() {
     return Object.values(this.build.setup).reduce((prev, { jobCount }) => {
       return (prev += jobCount);
@@ -254,6 +262,99 @@ class Job {
           100
       ) / 100
     );
+  }
+  removeChildJob(materialTypeID, childIDToRemove) {
+    if (!materialTypeID || !childIDToRemove) {
+      console.error(
+        `Missing input data: materialTypeID=${materialTypeID}, childIDToRemove=${childIDToRemove}`
+      );
+
+      return;
+    }
+    const childLocation = this.build.childJobs[materialTypeID];
+
+    if (!childLocation) {
+      console.error(`Material not present: materialTypeID=${materialTypeID}`);
+      return;
+    }
+
+    const childrenToRemove =
+      Array.isArray(childIDToRemove) || childIDToRemove instanceof Set
+        ? [...childIDToRemove]
+        : [childIDToRemove];
+
+    this.build.childJobs[materialTypeID] = childLocation.filter(
+      (i) => !childrenToRemove.includes(i)
+    );
+  }
+
+  addChildJob(materialTypeID, childIDToAdd) {
+    if (!materialTypeID || !childIDToAdd) {
+      console.error(
+        `Missing input data: materialTypeID=${materialTypeID}, childIDToAdd=${childIDToAdd}`
+      );
+      return;
+    }
+    const childLocation = this.build.childJobs[materialTypeID];
+
+    if (!childLocation) {
+      console.error(`Material not present: materialTypeID=${materialTypeID}`);
+      return;
+    }
+
+    const childrenToAdd =
+      Array.isArray(childIDToAdd) || childIDToAdd instanceof Set
+        ? [...childIDToAdd]
+        : [childIDToAdd];
+
+    this.build.childJobs[materialTypeID] = [
+      ...new Set([...childLocation, ...childrenToAdd]),
+    ];
+  }
+
+  addParentJob(parentJobID) {
+    if (!parentJobID) {
+      console.error("Missing Input ID");
+      return;
+    }
+
+    const parentsToAdd =
+      Array.isArray(parentJobID) || parentJobID instanceof Set
+        ? [...parentJobID]
+        : [parentJobID];
+
+    this.parentJob = [...new Set([...this.parentJob, ...parentsToAdd])];
+  }
+
+  removeParentJob(parentJobID) {
+    if (!parentJobID) {
+      console.error("Missing Input ID");
+      return;
+    }
+
+    const parentsToRemove =
+      Array.isArray(parentJobID) || parentJobID instanceof Set
+        ? [...parentJobID]
+        : [parentJobID];
+
+    this.parentJob = this.parentJob.filter(
+      (id) => !parentsToRemove.includes(id)
+    );
+  }
+  updateJobSnapshot(snapshotArray) {
+    if (!snapshotArray && Array.isArray(snapshotArray)) {
+      console.error("Snapshot array not provided or is not an array.");
+      return;
+    }
+
+    const index = snapshotArray.findIndex((i) => i.jobID === this.jobID);
+
+    if (index === -1) {
+      console.warn("Nothing to update, job is not present in snapshot array.");
+      return;
+    }
+
+    snapshotArray[index] = new JobSnapshot(this);
   }
 }
 

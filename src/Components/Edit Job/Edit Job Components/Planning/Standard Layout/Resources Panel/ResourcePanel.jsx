@@ -227,9 +227,10 @@ export function RawResourceList({
       return new Set([...prev, ...generatePriceRequestFromJob(job)]);
     }, new Set());
 
-    const itemPricePromise = [
-      getItemPrices([...requiredItemPricesSet], parentUser),
-    ];
+    const itemPricePromise = getItemPrices(
+      [...requiredItemPricesSet],
+      parentUser
+    );
 
     activeJob.build.materials.forEach(({ jobType, typeID }) => {
       if (jobType !== jobTypes.manufacturing && jobTypes !== jobTypes.reaction)
@@ -256,7 +257,7 @@ export function RawResourceList({
       newTempChildJobs[typeID] = matchedJob;
     });
 
-    const itemPriceResult = await Promise.all(itemPricePromise);
+    const itemPriceResult = await itemPricePromise;
 
     updateTemporaryChildJobs(newTempChildJobs);
     updateParentChildToEdit((prev) => ({

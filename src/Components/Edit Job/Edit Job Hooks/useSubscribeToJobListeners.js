@@ -15,22 +15,21 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
     FirebaseListenersContext
   );
 
-
-
   useEffect(() => {
     try {
       if (!isLoggedIn || !requestedJobID) {
         onJobLoaded();
         return;
       }
-      
-      const matchedJobSnapshot = userJobSnapshot.find(
-        ({ jobID }) => jobID === requestedJobID
-      );
-      const relatedJobs = matchedJobSnapshot.getRelatedJobs();
+
+      const matchedObject =
+        userJobSnapshot.find(({ jobID }) => jobID === requestedJobID) ||
+        jobArray.find((i) => i.jobID === requestedJobID);
+
+      const relatedJobs = matchedObject.getRelatedJobs();
 
       const requiredJobs = [...relatedJobs, requestedJobID];
-
+      console.log(requiredJobs);
       const existingListenerIds = new Set(
         firebaseListeners.map((listener) => listener.id)
       );
@@ -38,16 +37,24 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
 
       requiredJobs.forEach((id) => {
         if (existingListenerIds.has(id) && existingJobIds.has(id)) return;
-
         console.log(id);
         const unsubscribe = createFirebaseJobDocumentListener(
           id,
-          updateJobArray
+          updateJobArray,
+          updateFirebaseListeners
         );
 
         if (!unsubscribe) return;
 
-        updateFirebaseListeners((prev) => [...prev, { id, unsubscribe }]);
+        updateFirebaseListeners((prev) => {
+          const updatedListeners = prev.map((listener) =>
+            listener.id === id ? { id, unsubscribe } : listener
+          );
+          if (!prev.some((listener) => listener.id === id)) {
+            updatedListeners.push({ id, unsubscribe });
+          }
+          return updatedListeners;
+        });
       });
 
       onJobLoaded();

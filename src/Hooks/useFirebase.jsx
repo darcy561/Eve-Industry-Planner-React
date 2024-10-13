@@ -258,7 +258,6 @@ export function useFirebase() {
     const unsubscribe = onSnapshot(
       doc(firestore, `Users/${userObj.accountID}/ProfileInfo`, "JobSnapshot"),
       (doc) => {
-        console.log(doc);
         if (!doc.exists() || doc.metadata.fromCache) return;
         const updateSnapshotState = async () => {
           const t = trace(performance, "UserJobSnapshotListener");
@@ -319,10 +318,15 @@ export function useFirebase() {
         updateSnapshotState();
       }
     );
-    updateFirebaseListeners((prev) => [
-      ...prev,
-      { id: "snapshot", unsubscribe },
-    ]);
+    updateFirebaseListeners((prev) => {
+      const updatedListeners = prev.map((listener) =>
+        listener.id === "snapshot" ? { id: "snapshot", unsubscribe } : listener
+      );
+      if (!prev.some((listener) => listener.id === "snapshot")) {
+        updatedListeners.push({ id: "snapshot", unsubscribe });
+      }
+      return updatedListeners;
+    });
     return;
   };
 
@@ -368,10 +372,17 @@ export function useFirebase() {
         updateSnapshotState();
       }
     );
-    updateFirebaseListeners((prev) => [
-      ...prev,
-      { id: "watchlist", unsubscribe },
-    ]);
+    updateFirebaseListeners((prev) => {
+      const updatedListeners = prev.map((listener) =>
+        listener.id === "watchlist"
+          ? { id: "watchlist", unsubscribe }
+          : listener
+      );
+      if (!prev.some((listener) => listener.id === "watchlist")) {
+        updatedListeners.push({ id: "watchlist", unsubscribe });
+      }
+      return updatedListeners;
+    });
     return;
   };
 
@@ -395,7 +406,15 @@ export function useFirebase() {
         }
       }
     );
-    updateFirebaseListeners((prev) => [...prev, { id: JobID, unsubscribe }]);
+    updateFirebaseListeners((prev) => {
+      const updatedListeners = prev.map((listener) =>
+        listener.id === JobID ? { id: JobID, unsubscribe } : listener
+      );
+      if (!prev.some((listener) => listener.id === JobID)) {
+        updatedListeners.push({ id: JobID, unsubscribe });
+      }
+      return updatedListeners;
+    });
   };
 
   const userMaindDocListener = async (token, userObject) => {
@@ -482,10 +501,15 @@ export function useFirebase() {
         updateMainDocData();
       }
     );
-    updateFirebaseListeners((prev) => [
-      ...prev,
-      { id: "mainDoc", unsubscribe },
-    ]);
+    updateFirebaseListeners((prev) => {
+      const updatedListeners = prev.map((listener) =>
+        listener.id === "mainDoc" ? { id: "mainDoc", unsubscribe } : listener
+      );
+      if (!prev.some((listener) => listener.id === "mainDoc")) {
+        updatedListeners.push({ id: "mainDoc", unsubscribe });
+      }
+      return updatedListeners;
+    });
   };
 
   const userGroupDataListener = async (userObj) => {
@@ -535,7 +559,15 @@ export function useFirebase() {
         updateGroupData();
       }
     );
-    updateFirebaseListeners((prev) => [...prev, { id: "groups", unsubscribe }]);
+    updateFirebaseListeners((prev) => {
+      const updatedListeners = prev.map((listener) =>
+        listener.id === "groups" ? { id: "groups", unsubscribe } : listener
+      );
+      if (!prev.some((listener) => listener.id === "groups")) {
+        updatedListeners.push({ id: "groups", unsubscribe });
+      }
+      return updatedListeners;
+    });
   };
 
   return {

@@ -1,5 +1,5 @@
 import { Avatar, Grid, Typography } from "@mui/material";
-import { LARGE_TEXT_FORMAT } from "../../../../Context/defaultValues";
+import { LARGE_TEXT_FORMAT } from "../../../Context/defaultValues";
 
 export function ShoppingListItem_ShoppingListDialog({ item, removeAssets }) {
   const { typeID, name } = item;

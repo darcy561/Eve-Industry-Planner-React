@@ -53,10 +53,7 @@ export function WatchListRow({
   );
   const { evePrices, updateEvePrices } = useContext(EvePricesContext);
   const { applicationSettings } = useContext(ApplicationSettingsContext);
-  const {
-    getItemPrices,
-    uploadUserWatchlist,
-  } = useFirebase();
+  const { getItemPrices, uploadUserWatchlist } = useFirebase();
   const { checkAllowBuild, buildJob } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
   const {
@@ -90,9 +87,10 @@ export function WatchListRow({
 
     if (!newJob) return;
 
-    const itemPricePromise = [
-      getItemPrices(generatePriceRequestFromJob(newJob), parentUser),
-    ];
+    const itemPricePromise = getItemPrices(
+      generatePriceRequestFromJob(newJob),
+      parentUser
+    );
 
     const jobSnapshot = new JobSnapshot(newJob);
 
@@ -107,7 +105,7 @@ export function WatchListRow({
       itemID: newJob.itemID,
     });
 
-    const itemPriceResult = await Promise.all(itemPricePromise);
+    const itemPriceResult = await itemPricePromise;
 
     updateEvePrices((prev) => ({
       ...prev,

@@ -70,17 +70,26 @@ export function JobCardFrame({ job }) {
         ref={drag}
         elevation={3}
         square={true}
-        sx={{
-          padding: "10px",
-          height: "100%",
-          width: "100%",
-          backgroundColor: (theme) =>
+        sx={(theme) => {
+          const isDarkMode = theme.palette.mode === PRIMARY_THEME;
+          const backgroundColor =
             jobCardChecked || isDragging
-              ? theme.palette.mode !== "dark"
-                ? grey[300]
-                : grey[900]
-              : "none",
-          cursor: "grab",
+              ? isDarkMode
+                ? grey[900]
+                : grey[300]
+              : undefined;
+          const borderColor = isDarkMode ? grey[700] : grey[400];
+          return {
+            marginTop: "5px",
+            marginBottom: "5px",
+            cursor: "grab",
+            backgroundColor,
+            transition: "border 0.3s ease",
+            border: `2px solid transparent`,
+            "&:hover": {
+              border: `2px solid ${borderColor}`,
+            },
+          };
         }}
       >
         <Box sx={{ display: "flex", height: "100%" }}>
@@ -98,15 +107,15 @@ export function JobCardFrame({ job }) {
                           : theme.palette.secondary.main,
                     }}
                     onChange={(event) => {
-                      if (event.target.checked) {
-                        updateMultiSelectJobPlanner((prev) => {
-                          return [...new Set([...prev, job.jobID])];
-                        });
-                      } else {
-                        updateMultiSelectJobPlanner((prev) =>
-                          prev.filter((i) => i !== job.jobID)
-                        );
-                      }
+                      updateMultiSelectJobPlanner((prev) => {
+                        const updatedSet = new Set(prev);
+                        if (event.target.checked) {
+                          updatedSet.add(job.jobID);
+                        } else {
+                          updatedSet.delete(job.jobID);
+                        }
+                        return [...updatedSet];
+                      });
                     }}
                   />
                 </Grid>
@@ -118,6 +127,9 @@ export function JobCardFrame({ job }) {
                         theme.palette.mode === PRIMARY_THEME
                           ? theme.palette.primary.main
                           : theme.palette.secondary.main,
+                      "&:Hover": {
+                        color: "error.main",
+                      },
                     }}
                     onClick={() => deleteSingleJob(job.jobID)}
                   >
@@ -130,11 +142,7 @@ export function JobCardFrame({ job }) {
                 xs={12}
                 sx={{ marginBottom: { xs: "5px", sm: "10px" } }}
               >
-                <Typography
-                  color="secondary"
-                  align="center"
-                  variant="body1"
-                >
+                <Typography color="secondary" align="center" variant="body1">
                   {job.name}
                 </Typography>
               </Grid>

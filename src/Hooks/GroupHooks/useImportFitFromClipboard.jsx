@@ -156,7 +156,7 @@ export function useImportFitFromClipboard() {
       });
     }
 
-    const itemPriceRequest = [getItemPrices([...newPriceIDs], parentUser)];
+    const itemPriceRequest = getItemPrices([...newPriceIDs], parentUser);
 
     for (const entry of groupEntriesToModifiy) {
       const job = newJobArray.find((i) => i.itemID === entry.itemID);
@@ -172,7 +172,7 @@ export function useImportFitFromClipboard() {
     );
     matchedGroup.addJobsToGroup(newJobs);
 
-    const itemPriceResult = await Promise.all(itemPriceRequest);
+    const itemPriceResult = await itemPriceRequest;
 
     updateGroupArray(newGroupArray);
     updateJobArray(newJobArray);

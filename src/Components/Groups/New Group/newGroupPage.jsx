@@ -37,7 +37,6 @@ function NewGroupPage({ colorMode }) {
       let newUserJobSnapshot = [...userJobSnapshot];
       const group = new Group();
       for (let id of jobIDsToInclude) {
-        console.log(id);
         const matchedGroupJob = await findOrGetJobObject(
           id,
           jobArray,

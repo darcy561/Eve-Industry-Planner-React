@@ -5,6 +5,7 @@ import {
 } from "../../../../../../Context/defaultValues";
 import ClearIcon from "@mui/icons-material/Clear";
 import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
+import Job from "../../../../../../Classes/jobConstructor";
 
 export function MaterialCostsFrame_Purchasing({
   activeJob,
@@ -70,17 +71,9 @@ export function MaterialCostsFrame_Purchasing({
       }
     }
 
-    updateActiveJob((prevObj) => ({
-      ...prevObj,
-      build: {
-        ...prevObj.build,
-        materials: newArray,
-        costs: {
-          ...prevObj.build.costs,
-          totalPurchaseCost: newTotal,
-        },
-      },
-    }));
+    activeJob.build.materials = newArray
+    activeJob.build.costs.totalPurchaseCost = newTotal
+    updateActiveJob((prev) => new Job(prev));
     sendSnackbarNotificationError("Deleted");
     setJobModified(true);
   }

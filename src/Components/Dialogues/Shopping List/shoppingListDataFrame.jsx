@@ -1,5 +1,5 @@
 import { Grid, Typography } from "@mui/material";
-import { STANDARD_TEXT_FORMAT } from "../../../../Context/defaultValues";
+import { STANDARD_TEXT_FORMAT } from "../../../Context/defaultValues";
 import uuid from "react-uuid";
 import { ShoppingListItem_ShoppingListDialog } from "./shoppingListItem";
 
@@ -20,6 +20,7 @@ function ListItems({ displayData, removeAssets }) {
   return (
     <Grid container>
       {displayData.map((item) => {
+        // if(!item.isVisable) return null
         return (
           <ShoppingListItem_ShoppingListDialog
             key={uuid()}

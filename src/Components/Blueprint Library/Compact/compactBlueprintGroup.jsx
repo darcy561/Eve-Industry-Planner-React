@@ -126,12 +126,10 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
                       return;
                     }
 
-                    const itemPricePromise = [
-                      getItemPrices(
-                        generatePriceRequestFromJob(newJob),
-                        parentUser
-                      ),
-                    ];
+                    const itemPricePromise = getItemPrices(
+                      generatePriceRequestFromJob(newJob),
+                      parentUser
+                    );
 
                     newJobArray.push(newJob);
                     newSnapshotArray.push(new JobSnapshot(newJob));
@@ -145,7 +143,7 @@ export function CompactBlueprintGroup({ bpID, blueprintResults }) {
                       name: newJob.name,
                       itemID: newJob.itemID,
                     });
-                    const itemPriceResult = await Promise.all(itemPricePromise);
+                    const itemPriceResult = await itemPricePromise;
 
                     updateEvePrices((prev) => ({
                       ...prev,

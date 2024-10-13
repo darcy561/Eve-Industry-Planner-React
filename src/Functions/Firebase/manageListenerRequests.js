@@ -73,13 +73,17 @@ function manageListenerRequests(
     const newListeners = idsToListen.map((requestedJobID) => {
       const unsubscribe = createFirebaseJobDocumentListener(
         requestedJobID,
-        updateJobArray
+        updateJobArray,
+        updateFirebaseListeners
       );
 
       return { id: requestedJobID, unsubscribe };
     });
 
-    updateFirebaseListeners((prev) => [...prev, ...newListeners]);
+    updateFirebaseListeners((prev) => {
+      const updatedListeners = prev.filter((i) => !idsToListen.includes(i.id));
+      return [...updatedListeners, ...newListeners];
+    });
   } catch (err) {
     console.error("Error setting up job document listener:", err);
   }

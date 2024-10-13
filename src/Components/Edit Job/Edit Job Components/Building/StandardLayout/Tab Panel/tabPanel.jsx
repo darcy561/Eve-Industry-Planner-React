@@ -15,13 +15,13 @@ export function TabPanel_Building({
   updateEsiDataToLink,
 }) {
   const [currentTab, updateTab] = useState(initialTab());
-  
+
   const totalJobCount = activeJob.totalJobCount();
 
   function initialTab() {
     if (activeJob.layout.esiJobTab) {
       return activeJob.layout.esiJobTab;
-    } else if (activeJob.apiJobs.size < totalJobCount) {
+    } else if (activeJob.apiJobs.size < activeJob.totalJobCount()) {
       return "0";
     } else {
       return "1";

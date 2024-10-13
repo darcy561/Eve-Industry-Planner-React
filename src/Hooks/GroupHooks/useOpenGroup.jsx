@@ -31,7 +31,7 @@ export function useOpenGroup() {
     }
     updateDataExchange((prev) => !prev);
 
-    const itemPriceRequest = [getItemPrices([...requestedGroup.materialIDs])];
+    const itemPriceRequest = getItemPrices([...requestedGroup.materialIDs]);
     updateLoadingText((prevObj) => ({
       ...prevObj,
       jobData: true,
@@ -48,7 +48,7 @@ export function useOpenGroup() {
       firebaseListeners,
       isLoggedIn
     );
-    const itemPriceResult = await Promise.all(itemPriceRequest);
+    const itemPriceResult = await itemPriceRequest;
     updateLoadingText((prevObj) => ({
       ...prevObj,
       jobData: true,

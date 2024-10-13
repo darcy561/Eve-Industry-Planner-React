@@ -1,30 +1,34 @@
 import { useContext, useMemo } from "react";
 import { MultiSelectJobPlannerContext } from "../../../../Context/LayoutContext";
-import { useOpenEditJob } from "../../../../Hooks/JobHooks/useOpenEditJob";
 import { useDeleteSingleJob } from "../../../../Hooks/JobHooks/useDeleteSingleJob";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "../../../../Context/DnDTypes";
 import { jobTypes } from "../../../../Context/defaultValues";
-import PlannerInfoBadge from "./PlannerInfoBadge";
+import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deepPurple, grey, lightGreen } from "@mui/material/colors";
 import {
+  Box,
   Button,
   Card,
   Checkbox,
   Grid,
-  Icon,
   IconButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import GLOBAL_CONFIG from "../../../../global-config-app";
+import { useJobManagement } from "../../../../Hooks/useJobManagement";
+import getTooltipContent from "./tooltipContent";
 
 export function CompactJobCardFrame({ job }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { openEditJob } = useOpenEditJob();
+  const { timeRemainingCalc } = useJobManagement();
+  const timeRemaining = timeRemainingCalc(job.endDateDisplay);
+  const tooltipContent = getTooltipContent(job, timeRemaining);
   const { deleteSingleJob } = useDeleteSingleJob();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.jobCard,
@@ -46,17 +50,19 @@ export function CompactJobCardFrame({ job }) {
   const navigate = useNavigate();
 
   function getCardColor(theme, jobType) {
-    if (jobType === jobTypes.manufacturing) {
-      if (theme.palette.mode === PRIMARY_THEME) {
-        return `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[800]} 60%)`;
-      } else
-        return `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`;
-    }
-    if (jobType === jobTypes.reaction) {
-      if (theme.palette.mode === PRIMARY_THEME) {
-        return `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[800]} 60%)`;
-      } else
-        return `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
+    switch (jobType) {
+      case jobTypes.manufacturing:
+        return theme.palette.mode === PRIMARY_THEME
+          ? `linear-gradient(to right, ${lightGreen[300]} 30%, ${grey[900]} 60%)`
+          : `linear-gradient(to right, ${lightGreen[200]} 30%, white 60%)`;
+
+      case jobTypes.reaction:
+        return theme.palette.mode === PRIMARY_THEME
+          ? `linear-gradient(to right, ${deepPurple[300]} 30%, ${grey[900]} 60%)`
+          : `linear-gradient(to right, ${deepPurple[100]} 20%, white 60%)`;
+
+      default:
+        return "transparent";
     }
   }
 
@@ -65,16 +71,26 @@ export function CompactJobCardFrame({ job }) {
       ref={drag}
       elevation={2}
       square
-      sx={{
-        marginTop: "5px",
-        marginBottom: "5px",
-        cursor: "grab",
-        backgroundColor: (theme) =>
+      sx={(theme) => {
+        const isDarkMode = theme.palette.mode === PRIMARY_THEME;
+        const backgroundColor =
           jobCardChecked || isDragging
-            ? theme.palette.mode !== "dark"
-              ? grey[300]
-              : grey[900]
-            : "none",
+            ? isDarkMode
+              ? grey[900]
+              : grey[300]
+            : undefined;
+        const borderColor = isDarkMode ? grey[700] : grey[400];
+        return {
+          marginTop: "5px",
+          marginBottom: "5px",
+          cursor: "grab",
+          backgroundColor,
+          transition: "border 0.3s ease",
+          border: `2px solid transparent`,
+          "&:hover": {
+            border: `2px solid ${borderColor}`,
+          },
+        };
       }}
     >
       <Grid container item xs={12}>
@@ -106,13 +122,28 @@ export function CompactJobCardFrame({ job }) {
           </Typography>
         </Grid>
         <Grid
-          container
           item
           sm={1}
           alignItems="center"
-          sx={{ display: { xs: "none", sm: "flex" } }}
+          justifyContent="center"
+          sx={{
+            display: { xs: "none", sm: "flex" },
+            minHeight: "100%",
+          }}
         >
-          <PlannerInfoBadge job={job} />
+          <Tooltip title={tooltipContent} arrow placement="left">
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <InfoIcon fontSize="small" color="primary" />
+            </Box>
+          </Tooltip>
         </Grid>
         <Grid container item xs={3} sm={1} align="center" alignItems="center">
           <Button
@@ -131,6 +162,9 @@ export function CompactJobCardFrame({ job }) {
                 theme.palette.mode === PRIMARY_THEME
                   ? theme.palette.primary.main
                   : theme.palette.secondary.main,
+              "&:Hover": {
+                color: "error.main",
+              },
             }}
             onClick={() => {
               deleteSingleJob(job.jobID);
@@ -140,12 +174,12 @@ export function CompactJobCardFrame({ job }) {
           </IconButton>
         </Grid>
         <Grid
-          sx={{
-            height: "1px",
-            backgroundColor: (theme) => getCardColor(theme, job.jobType),
-          }}
           item
           xs={12}
+          sx={{
+            height: "2px",
+            background: (theme) => getCardColor(theme, job.jobType),
+          }}
         />
       </Grid>
     </Card>

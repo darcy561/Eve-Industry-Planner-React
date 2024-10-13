@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   Autocomplete,
   Avatar,
@@ -16,11 +16,13 @@ import useBuildNewJobs from "../../../Hooks/JobHooks/useBuildNewJobs";
 import fullItemList from "../../../RawData/fullItemList.json";
 import uuid from "react-uuid";
 import ClearIcon from "@mui/icons-material/Clear";
+import { ActiveJobContext } from "../../../Context/JobContext";
 
 export function SearchBar({
   updateRightContentMenuContentID,
   setSkeletonElementsToDisplay,
 }) {
+  const { activeGroup } = useContext(ActiveJobContext);
   const [itemIDsToAdd, updateItemIDsToAdd] = useState([]);
   const [addNewGroupOnBuild, updateAddNewGroupOnBuild] = useState(false);
   const { addNewJobsToPlanner } = useBuildNewJobs();
@@ -34,7 +36,7 @@ export function SearchBar({
   }
 
   function addItemToSelection(inputID) {
-    const newItemsToAdd = [...itemIDsToAdd];
+    const newItemsToAdd = itemIDsToAdd.map((obj) => ({ ...obj }));
 
     const existingObject = newItemsToAdd.find((i) => i.itemID === inputID);
 
@@ -45,6 +47,7 @@ export function SearchBar({
         itemID: inputID,
         itemQty: 1,
         addNewGroup: addNewGroupOnBuild,
+        groupID: activeGroup,
       });
     }
 
@@ -118,18 +121,20 @@ export function SearchBar({
             >
               Clear
             </Button>
-            <FormControlLabel
-              control={
-                <Switch
-                  color="primary"
-                  size="small"
-                  checked={addNewGroupOnBuild}
-                  onChange={toggleAddNewGroup}
-                />
-              }
-              label={<Typography variant="caption">Add To Group</Typography>}
-              labelPlacement="bottom"
-            />
+            {!activeGroup &&
+              <FormControlLabel
+                control={
+                  <Switch
+                    color="primary"
+                    size="small"
+                    checked={addNewGroupOnBuild}
+                    onChange={toggleAddNewGroup}
+                  />
+                }
+                label={<Typography variant="caption">Add To Group</Typography>}
+                labelPlacement="bottom"
+              />
+            }
           </Grid>
           <Grid container item xs={12} sx={{ marginTop: 2 }}>
             {itemIDsToAdd.map((itemObj) => {

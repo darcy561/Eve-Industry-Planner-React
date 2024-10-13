@@ -10,6 +10,7 @@ import { useHelperFunction } from "./useHelperFunctions";
 import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 import findOrGetJobObject from "../../Functions/Helper/findJobObject";
 import getCurrentFirebaseUser from "../../Functions/Firebase/currentFirebaseUser";
+import manageListenerRequests from "../../Functions/Firebase/manageListenerRequests";
 
 export function useShoppingList() {
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
@@ -167,12 +168,7 @@ export function useShoppingList() {
   }
 
   function generateTextToCopy(inputItems) {
-    let outputText = "";
-
-    inputItems.forEach((item) => {
-      outputText = outputText.concat(buildCopyText(item));
-    });
-    return outputText;
+    return inputItems.map((item) => buildCopyText(item)).join("");
   }
 
   function clearAssetQuantities(itemList) {
@@ -185,8 +181,10 @@ export function useShoppingList() {
     for (let item of newItemList) {
       const matchedItem = importedAssets[item.name];
       if (!matchedItem) continue;
-
       item.assetQuantity = matchedItem;
+      if (item.assetQuantity >= item.quantity) {
+        item.isVisible = false
+      }
     }
     return newItemList;
   }
@@ -201,3 +199,4 @@ export function useShoppingList() {
     isItemVisable,
   };
 }
+

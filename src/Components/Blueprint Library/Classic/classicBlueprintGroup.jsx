@@ -37,8 +37,7 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   const [loadingBuild, updateLoadingBuild] = useState(false);
   const { buildJob, checkAllowBuild } = useJobBuild();
   const { generatePriceRequestFromJob } = useJobManagement();
-  const { getItemPrices } =
-    useFirebase();
+  const { getItemPrices } = useFirebase();
   const { findParentUser, sendSnackbarNotificationSuccess } =
     useHelperFunction();
   const analytics = getAnalytics();
@@ -101,12 +100,10 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
                       return;
                     }
 
-                    const itemPricePromise = [
-                      getItemPrices(
-                        generatePriceRequestFromJob(newJob),
-                        parentUser
-                      ),
-                    ];
+                    const itemPricePromise = getItemPrices(
+                      generatePriceRequestFromJob(newJob),
+                      parentUser
+                    );
 
                     newJobArray.push(newJob);
                     newSnapshotArray.push(new JobSnapshot(newJob));
@@ -120,7 +117,7 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
                       name: newJob.name,
                       itemID: newJob.itemID,
                     });
-                    const itemPriceResult = await Promise.all(itemPricePromise);
+                    const itemPriceResult = await itemPricePromise;
 
                     updateEvePrices((prev) => ({
                       ...prev,

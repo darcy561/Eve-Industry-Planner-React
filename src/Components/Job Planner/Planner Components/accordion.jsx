@@ -30,7 +30,7 @@ import { grey } from "@mui/material/colors";
 import GLOBAL_CONFIG from "../../../global-config-app";
 import { CompactAccordionContents } from "./Compact/CompactContents";
 
-export function PlannerAccordion({skeletonElementsToDisplay}) {
+export function PlannerAccordion({ skeletonElementsToDisplay }) {
   const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { jobStatus, setJobStatus } = useContext(JobStatusContext);
   const { userJobSnapshot } = useContext(UserJobSnapshotContext);
@@ -58,9 +58,25 @@ export function PlannerAccordion({skeletonElementsToDisplay}) {
     setJobStatus(newStatusArray);
   }
 
-  return (
-    <Box sx={{ display: "flex", order: { xs: 2, md: 1 }, width: "100%" }}>
-      <Paper elevation={3} square sx={{ width: "100%" }}>
+  return (  
+    <Box
+      sx={{
+        display: "flex",
+        order: { xs: 2, md: 1 },
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      <Paper
+        elevation={3}
+        square
+        sx={{
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {jobStatus.map((status) => {
           const [{ isOver, canDrop }, drop] = useDrop(
             () => ({
@@ -99,6 +115,8 @@ export function PlannerAccordion({skeletonElementsToDisplay}) {
                 "& .MuiAccordionSummary-root:hover": {
                   cursor: "default",
                 },
+                flexGrow: 1,
+                flexShrink: 0,
               }}
             >
               <AccordionSummary
@@ -194,9 +212,15 @@ export function PlannerAccordion({skeletonElementsToDisplay}) {
               </AccordionSummary>
               <AccordionDetails>
                 {applicationSettings.enableCompactView ? (
-                  <CompactAccordionContents status={status} skeletonElementsToDisplay={skeletonElementsToDisplay} />
+                  <CompactAccordionContents
+                    status={status}
+                    skeletonElementsToDisplay={skeletonElementsToDisplay}
+                  />
                 ) : (
-                  <ClassicAccordionContents status={status} skeletonElementsToDisplay={skeletonElementsToDisplay} />
+                  <ClassicAccordionContents
+                    status={status}
+                    skeletonElementsToDisplay={skeletonElementsToDisplay}
+                  />
                 )}
               </AccordionDetails>
             </Accordion>

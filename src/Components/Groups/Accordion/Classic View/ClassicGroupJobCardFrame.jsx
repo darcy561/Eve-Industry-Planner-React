@@ -46,7 +46,7 @@ function DisplaySwitch({ job }) {
   }
 }
 
-export function ClassicGroupJobCardFrame({ job }) {
+export function ClassicGroupJobCardFrame({ job, highlightedItems }) {
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
@@ -69,14 +69,22 @@ export function ClassicGroupJobCardFrame({ job }) {
   const activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
 
   const jobCardChecked = useMemo(() => {
-    return multiSelectJobPlanner.some((i) => i === job.jobID);
+    return multiSelectJobPlanner.includes(job.jobID);
   }, [multiSelectJobPlanner]);
 
+  const isHighlighted = highlightedItems.has(job.jobID);
+
   const jobMarkedAsComplete = useMemo(() => {
-    return activeGroupObject.areComplete.has(job.jobID);
+    return activeGroupObject?.areComplete.has(job.jobID);
   }, [activeGroupObject]);
 
   const navigate = useNavigate();
+
+  function onJobClick() {
+    navigate(
+      `/editJob/${job.jobID}?activeGroup=${encodeURIComponent(activeGroup)}`
+    );
+  }
 
   return (
     <Grow in={true}>
@@ -84,17 +92,27 @@ export function ClassicGroupJobCardFrame({ job }) {
         <Paper
           elevation={3}
           square
-          sx={{
-            padding: "10px",
-            height: "100%",
-            width: "100%",
-            backgroundColor: (theme) =>
-              jobCardChecked || isDragging
-                ? theme.palette.mode !== "dark"
-                  ? grey[300]
-                  : grey[900]
-                : "none",
-            cursor: "grab",
+          sx={(theme) => {
+            const isDarkMode = theme.palette.mode === PRIMARY_THEME;
+            const backgroundColor =
+              jobCardChecked || isDragging || isHighlighted
+                ? isDarkMode
+                  ? grey[900]
+                  : grey[300]
+                : undefined;
+            const borderColor = isDarkMode ? grey[700] : grey[900];
+            return {
+              padding: "10px",
+              height: "100%",
+              width: "100%",
+              cursor: "grab",
+              backgroundColor,
+              transition: "border 0.3s ease",
+              border: "1px solid transparent",
+              "&:hover": {
+                border: `1px solid ${borderColor}`,
+              },
+            };
           }}
         >
           <Box sx={{ display: "flex", height: "100%" }}>
@@ -112,17 +130,15 @@ export function ClassicGroupJobCardFrame({ job }) {
                       }}
                       checked={jobCardChecked}
                       onChange={(event) => {
-                        if (event.target.checked) {
-                          if (!multiSelectJobPlanner.includes(job.jobID)) {
-                            updateMultiSelectJobPlanner((prev) =>
-                              prev.concat(job.jobID)
-                            );
+                        updateMultiSelectJobPlanner((prev) => {
+                          const updatedSet = new Set(prev);
+                          if (event.target.checked) {
+                            updatedSet.add(job.jobID);
+                          } else {
+                            updatedSet.delete(job.jobID);
                           }
-                        } else {
-                          updateMultiSelectJobPlanner((prev) =>
-                            prev.filter((i) => i !== job.jobID)
-                          );
-                        }
+                          return [...updatedSet];
+                        });
                       }}
                     />
                   </Grid>
@@ -135,6 +151,9 @@ export function ClassicGroupJobCardFrame({ job }) {
                           theme.palette.mode === PRIMARY_THEME
                             ? theme.palette.primary.main
                             : theme.palette.secondary.main,
+                        "&:Hover": {
+                          color: "error.main",
+                        },
                       }}
                       onClick={() => deleteSingleJob(job.jobID)}
                     >
@@ -183,9 +202,7 @@ export function ClassicGroupJobCardFrame({ job }) {
                       variant="outlined"
                       color="primary"
                       disabled={job.isLocked}
-                      onClick={() => {
-                        navigate(`/editJob/${job.jobID}`);
-                      }}
+                      onClick={onJobClick}
                       sx={{ height: "25px", width: "100px" }}
                     >
                       {job.isLocked ? "Locked" : "Edit"}

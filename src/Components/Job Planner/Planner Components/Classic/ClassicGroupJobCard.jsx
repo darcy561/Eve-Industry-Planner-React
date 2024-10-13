@@ -53,17 +53,26 @@ export function ClassicGroupJobCard({ group }) {
       <Paper
         elevation={3}
         square
-        sx={{
-          padding: "10px",
-          height: "100%",
-          width: "100%",
-          backgroundColor: (theme) =>
+        sx={(theme) => {
+          const isDarkMode = theme.palette.mode === PRIMARY_THEME;
+          const backgroundColor =
             groupCardChecked || isDragging
-              ? theme.palette.mode !== "dark"
-                ? grey[300]
-                : grey[900]
-              : "none",
-          cursor: "grab",
+              ? isDarkMode
+                ? grey[900]
+                : grey[300]
+              : undefined;
+          const borderColor = isDarkMode ? grey[700] : grey[400];
+          return {
+            marginTop: "5px",
+            marginBottom: "5px",
+            cursor: "grab",
+            backgroundColor,
+            transition: "border 0.3s ease",
+            border: `2px solid transparent`,
+            "&:hover": {
+              border: `2px solid ${borderColor}`,
+            },
+          };
         }}
       >
         <Box sx={{ display: "flex", height: "100%" }}>
@@ -106,6 +115,9 @@ export function ClassicGroupJobCard({ group }) {
                         theme.palette.mode === PRIMARY_THEME
                           ? theme.palette.primary.main
                           : theme.palette.secondary.main,
+                      "&:Hover": {
+                        color: "error.main",
+                      },
                     }}
                     onClick={() => {
                       deleteGroupWithoutJobs(group.groupID);

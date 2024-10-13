@@ -3,7 +3,7 @@ import {
   ApplicationSettingsContext,
   ShoppingListContext,
   SnackBarDataContext,
-} from "../../../../Context/LayoutContext";
+} from "../../../Context/LayoutContext";
 import {
   Button,
   Dialog,
@@ -16,27 +16,24 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import {
-  IsLoggedInContext,
-  UsersContext,
-} from "../../../../Context/AuthContext";
-import { useCharAssets } from "../../../../Hooks/useCharAssets";
+import { IsLoggedInContext, UsersContext } from "../../../Context/AuthContext";
+import { useCharAssets } from "../../../Hooks/useCharAssets";
 import {
   EveIDsContext,
   EvePricesContext,
-} from "../../../../Context/EveDataContext";
-import { useFirebase } from "../../../../Hooks/useFirebase";
-import { useShoppingList } from "../../../../Hooks/GeneralHooks/useShoppingList";
-import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+} from "../../../Context/EveDataContext";
+import { useFirebase } from "../../../Hooks/useFirebase";
+import { useShoppingList } from "../../../Hooks/GeneralHooks/useShoppingList";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 import {
   LARGE_TEXT_FORMAT,
   STANDARD_TEXT_FORMAT,
   TWO_DECIMAL_PLACES,
-} from "../../../../Context/defaultValues";
+} from "../../../Context/defaultValues";
 import { LoadingDataDisplay_ShoppingListDialog } from "./shoppingListLoading";
 import { ListDataFrame_ShoppingListDialog } from "./shoppingListDataFrame";
 import { SelectAssetLocation_ShoppingListDialog } from "./assetLocationsSelection";
-import { useAssetHelperHooks } from "../../../../Hooks/AssetHooks/useAssetHelper";
+import { useAssetHelperHooks } from "../../../Hooks/AssetHooks/useAssetHelper";
 import { AssetsFromClipboardButton_ShoppingList } from "./assetsFromClipboardButton";
 
 export function ShoppingListDialog() {
@@ -78,6 +75,7 @@ export function ShoppingListDialog() {
   const [volumeTotal, updateVolumeTotal] = useState(0);
   const [loadingData, updateLoadingData] = useState(true);
   const [removeAssets, updateRemoveAssets] = useState(false);
+  const [assetsFromClipboard, updateAssetsFromClipboard] = useState(false);
   const [useCorporation, updateUseCorporation] = useState(false);
   const [assetLocations, updateAssetLocations] = useState([]);
   const parentUser = findParentUser();
@@ -164,7 +162,7 @@ export function ShoppingListDialog() {
       updateTempEveIDs((prev) => ({ ...prev, ...newEveIDs }));
       updateAssetLocations(itemLocations);
     }
-    if (shoppingListTrigger) {
+    if (shoppingListTrigger && isLoggedIn) {
       assetLocationFetch();
     }
   }, [shoppingListTrigger]);
@@ -310,6 +308,8 @@ export function ShoppingListDialog() {
                 <AssetsFromClipboardButton_ShoppingList
                   displayData={displayData}
                   updateDisplayData={updateDisplayData}
+                  assetsFromClipboard={assetsFromClipboard}
+                  updateAssetsFromClipboard={updateAssetsFromClipboard}
                 />
               </Grid>
               <Grid item sm={4}>

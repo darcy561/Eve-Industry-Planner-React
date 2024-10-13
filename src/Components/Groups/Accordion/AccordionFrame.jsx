@@ -20,7 +20,11 @@ import {
 import { ClassicGroupAccordionContent } from "./Classic View/ClassicGroupAccordionContent";
 import { CompactGroupAccordionContent } from "./Compact View/CompactGroupAccordionContent";
 
-function GroupAccordionFrame({ skeletonElementsToDisplay, groupJobs }) {
+function GroupAccordionFrame({
+  skeletonElementsToDisplay,
+  groupJobs,
+  highlightedItems,
+}) {
   const { jobStatus } = useContext(JobStatusContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
@@ -28,18 +32,25 @@ function GroupAccordionFrame({ skeletonElementsToDisplay, groupJobs }) {
   const { applicationSettings } = useContext(ApplicationSettingsContext);
   const [notExpanded, updateNotExpanded] = useState([]);
 
-  const { PRIMARY_THEME } = GLOBAL_CONFIG;  
+  const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   return (
-    <Box sx={{ display: "flex", order: { xs: 2, md: 1 }, width: "100%" }}>
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        order: { xs: 2, md: 1 },
+      }}
+    >
       <Paper
         elevation={3}
         square
         sx={{
+          height: "100%",
           width: "100%",
           display: "flex",
           flexDirection: "column",
-          height: "100%",
         }}
       >
         {jobStatus.map((status) => {
@@ -71,14 +82,13 @@ function GroupAccordionFrame({ skeletonElementsToDisplay, groupJobs }) {
                     <IconButton
                       color="secondary"
                       onClick={() => {
-                        if (notExpanded.includes(status.id)) {
-                          updateNotExpanded((prev) => {
+                        updateNotExpanded((prev) => {
+                          if (prev.includes(status.id)) {
                             return prev.filter((i) => i !== status.id);
-                          });
-                        } else
-                          updateNotExpanded((prev) => {
-                            return [...new Set([...prev, status.id])];
-                          });
+                          } else {
+                            [...prev, status.id];
+                          }
+                        });
                       }}
                     >
                       <ExpandMoreIcon />
@@ -127,14 +137,12 @@ function GroupAccordionFrame({ skeletonElementsToDisplay, groupJobs }) {
                       <IconButton
                         color="secondary"
                         onClick={() => {
-                          const selectedJobIds = statusJobs.reduce(
-                            (acc, job) => {
-                              return acc.add(job.jobID);
-                            },
-                            new Set(multiSelectJobPlanner)
-                          );
-
-                          updateMultiSelectJobPlanner([...selectedJobIds]);
+                          updateMultiSelectJobPlanner([
+                            ...new Set([
+                              ...multiSelectJobPlanner,
+                              ...statusJobs.map((job) => job.jobID),
+                            ]),
+                          ]);
                         }}
                       >
                         <SelectAllIcon />
@@ -144,17 +152,19 @@ function GroupAccordionFrame({ skeletonElementsToDisplay, groupJobs }) {
                 </Box>
               </AccordionSummary>
               <AccordionDetails>
-                {applicationSettings.enableCampactView ? (
+                {applicationSettings.enableCompactView ? (
                   <CompactGroupAccordionContent
                     status={status}
                     statusJobs={statusJobs}
                     skeletonElementsToDisplay={skeletonElementsToDisplay}
+                    highlightedItems={highlightedItems}
                   />
                 ) : (
                   <ClassicGroupAccordionContent
                     status={status}
                     statusJobs={statusJobs}
                     skeletonElementsToDisplay={skeletonElementsToDisplay}
+                    highlightedItems={highlightedItems}
                   />
                 )}
               </AccordionDetails>

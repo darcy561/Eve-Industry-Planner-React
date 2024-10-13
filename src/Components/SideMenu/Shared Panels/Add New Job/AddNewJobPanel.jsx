@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import useRightContentDrawer from "../../Hooks/rightContentMenuHooks";
 import {
   Autocomplete,
   Avatar,
@@ -14,19 +15,20 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
-import itemList from "../../../../../RawData/searchIndex.json";
-import fullItemList from "../../../../../RawData/fullItemList.json";
+import itemList from "../../../../RawData/searchIndex.json";
+import fullItemList from "../../../../RawData/fullItemList.json";
 import uuid from "react-uuid";
-import useBuildNewJobs from "../../../../../Hooks/JobHooks/useBuildNewJobs";
-import useRightContentDrawer from "../../../../SideMenu/Hooks/rightContentMenuHooks";
-import AddShipFittingPanel from "../../../../SideMenu/Shared Panels/Add New Job/addFittingJobs";
+import AddShipFittingPanel from "./addFittingJobs";
+import { ActiveJobContext } from "../../../../Context/JobContext";
+import useBuildNewJobs from "../../../../Hooks/JobHooks/useBuildNewJobs";
 
-function AddNewJobContentPanel({
-  hideRightContentPanel,
-  rightContentMenuContentID,
-  updateRightContentMenuContentID,
+function AddNewJobSharedContentPanel({
+  hideContentPanel,
+  contentID,
+  updateContentID,
   setSkeletonElementsToDisplay,
 }) {
+  const { activeGroup } = useContext(ActiveJobContext);
   const [itemIDsToAdd, updateItemIDsToAdd] = useState([]);
   const [addNewGroupOnBuild, updateAddNewGroupOnBuild] = useState(false);
   const { addNewJobsToPlanner } = useBuildNewJobs();
@@ -34,22 +36,20 @@ function AddNewJobContentPanel({
 
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
+  const deviceBasedWidth = deviceNotMobile ? "100%" : "60%";
+
   async function addJobs() {
     setSkeletonElementsToDisplay(addNewGroupOnBuild ? 1 : itemIDsToAdd.length);
     await addNewJobsToPlanner(itemIDsToAdd);
     updateItemIDsToAdd([]);
-    toggleRightDrawerColapse(
-      1,
-      rightContentMenuContentID,
-      hideRightContentPanel
-    );
-    updateRightContentMenuContentID(null);
+    toggleRightDrawerColapse(1, contentID, hideContentPanel);
+    updateContentID(null);
     setSkeletonElementsToDisplay(0);
   }
 
   function addItemToSelection(inputID) {
     if (!inputID) return;
-    const newItemsToAdd = [...itemIDsToAdd];
+    const newItemsToAdd = itemIDsToAdd.map((item) => ({ ...item }));
 
     const existingObject = newItemsToAdd.find((i) => i.itemID === inputID);
 
@@ -60,6 +60,7 @@ function AddNewJobContentPanel({
         itemID: inputID,
         itemQty: 1,
         addNewGroup: addNewGroupOnBuild,
+        groupID: activeGroup,
       });
     }
 
@@ -67,15 +68,11 @@ function AddNewJobContentPanel({
   }
 
   function toggleAddNewGroup() {
-    const newItemsToAdd = [...itemIDsToAdd];
-
-    newItemsToAdd.forEach((obj) => (obj.addNewGroup = !addNewGroupOnBuild));
-
-    updateItemIDsToAdd(newItemsToAdd);
+    updateItemIDsToAdd((prev) =>
+      prev.map((obj) => ({ ...obj, addNewGroup: !addNewGroupOnBuild }))
+    );
     updateAddNewGroupOnBuild((prev) => !prev);
   }
-
-  const deviceBasedWidth = deviceNotMobile ? "100%" : "60%";
 
   return (
     <Paper
@@ -103,7 +100,13 @@ function AddNewJobContentPanel({
               <Grid item xs={12}>
                 <Typography>Add New Jobs</Typography>
               </Grid>
-              <Grid item xs={12} sx={{ paddingBottom: 2 }}>
+              <Grid
+                item
+                xs={12}
+                sx={{
+                  paddingBottom: 2,
+                }}
+              >
                 <Autocomplete
                   fullWidth
                   id="Recipe Search"
@@ -148,20 +151,22 @@ function AddNewJobContentPanel({
                 >
                   Clear
                 </Button>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      color="primary"
-                      size="small"
-                      checked={addNewGroupOnBuild}
-                      onChange={toggleAddNewGroup}
-                    />
-                  }
-                  label={
-                    <Typography variant="caption">Add To Group</Typography>
-                  }
-                  labelPlacement="end"
-                />
+                {!activeGroup && (
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        color="primary"
+                        size="small"
+                        checked={addNewGroupOnBuild}
+                        onChange={toggleAddNewGroup}
+                      />
+                    }
+                    label={
+                      <Typography variant="caption">Add To Group</Typography>
+                    }
+                    labelPlacement="end"
+                  />
+                )}
               </Grid>
             </Grid>
             <Grid container item xs={12} sx={{}}>
@@ -207,4 +212,4 @@ function AddNewJobContentPanel({
   );
 }
 
-export default AddNewJobContentPanel;
+export default AddNewJobSharedContentPanel;

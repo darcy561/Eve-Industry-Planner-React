@@ -31,7 +31,7 @@ import { LayoutSelector_EditJob_Purchasing } from "./Edit Job Components/Purchas
 import { LayoutSelector_EditJob_Building } from "./Edit Job Components/Building/layoutSelector";
 import { LayoutSelector_EditJob_Complete } from "./Edit Job Components/Complete/LayoutSelector";
 import { LayoutSelector_EditJob_Selling } from "./Edit Job Components/Selling/LayoutSelector";
-import { ShoppingListDialog } from "../Job Planner/Dialogues/ShoppingList/ShoppingList";
+import { ShoppingListDialog } from "../Dialogues/Shopping List/ShoppingList";
 import { Header } from "../Header";
 import { Footer } from "../Footer/Footer";
 import Job from "../../Classes/jobConstructor";

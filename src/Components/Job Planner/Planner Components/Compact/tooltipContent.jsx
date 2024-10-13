@@ -1,8 +1,4 @@
-import { Icon, Tooltip } from "@mui/material";
-import InfoIcon from "@mui/icons-material/Info";
-import { useJobManagement } from "../../../../Hooks/useJobManagement";
-
-function getTooltipContent(job, timeRemaining){
+function getTooltipContent(job, timeRemaining) {
   switch (job.jobStatus) {
     case 0:
       return (
@@ -53,20 +49,4 @@ function getTooltipContent(job, timeRemaining){
   }
 }
 
-export default function PlannerInfoBadge({ job }) {
-  const { timeRemainingCalc } = useJobManagement();
-  const timeRemaining = timeRemainingCalc(job.endDateDisplay);
-  const tooltipContent = getTooltipContent(job, timeRemaining);
-
-  if (!tooltipContent) {
-    return null;
-  }
-
-  return (
-    <Tooltip title={tooltipContent} arrow placement="left">
-      <Icon color="primary">
-        <InfoIcon fontSize="small" />
-      </Icon>
-    </Tooltip>
-  );
-}
+export default getTooltipContent;

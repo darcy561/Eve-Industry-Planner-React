@@ -1,10 +1,6 @@
 import { useContext } from "react";
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
-import {
-  JobPlannerPageTriggerContext,
-  MultiSelectJobPlannerContext,
-} from "../../Context/LayoutContext";
-import { useFirebase } from "../useFirebase";
+import { MultiSelectJobPlannerContext } from "../../Context/LayoutContext";
 import {
   IsLoggedInContext,
   UserJobSnapshotContext,
@@ -21,19 +17,13 @@ function useCloseGroup() {
   const { updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const { updateEditGroupTrigger } = useContext(JobPlannerPageTriggerContext);
   const { userJobSnapshot, updateUserJobSnapshot } = useContext(
     UserJobSnapshotContext
   );
 
   async function closeGroup(groupJobs) {
-    let newGroupArray = [...groupArray];
-    const groupEntry = newGroupArray.find((i) => i.groupID === activeGroup);
-    let newUserJobSnapshot = [...userJobSnapshot];
-    let jobsToSave = new Set();
-    const includedJobIDs = new Set();
-
-    groupJobs.forEach((job) => includedJobIDs.add(job.jobID));
+    const groupEntry = groupArray.find((i) => i.groupID === activeGroup);
+    const jobsToSave = new Set();
 
     groupEntry.updateGroupData(groupJobs);
 
@@ -42,31 +32,29 @@ function useCloseGroup() {
     );
 
     const newJobArray = filteredJobs.map((job) => {
-      if (includedJobIDs.has(job.jobID)) {
-        const newJob = new Job(job);
-        newJob.parentJob = newJob.parentJob.filter((id) =>
-          includedJobIDs.has(id)
+      if (!groupEntry.includedJobIDs.has(job.jobID)) return job;
+
+      const newJob = new Job(job);
+      newJob.parentJob = newJob.parentJob.filter((id) =>
+        groupEntry.includedJobIDs.has(id)
+      );
+      newJob.build.materials.forEach((mat) => {
+        newJob.build.childJobs[mat.typeID] = newJob.build.childJobs[
+          mat.typeID
+        ].filter((id) => groupEntry.includedJobIDs.has(id));
+      });
+      if (newJob.isReadyToSell) {
+        const matchedSnapshot = userJobSnapshot.find(
+          (i) => i.jobID === newJob.jobID
         );
-        newJob.build.materials.forEach((mat) => {
-          newJob.build.childJobs[mat.typeID] = newJob.build.childJobs[
-            mat.typeID
-          ].filter((id) => includedJobIDs.has(id));
-        });
-        if (newJob.isReadyToSell) {
-          const matchedSnapshot = newUserJobSnapshot.find(
-            (i) => i.jobID === newJob.jobID
-          );
-          matchedSnapshot.setSnapshot(newJob);
-        }
-        jobsToSave.add(newJob.jobID);
-        return newJob;
-      } else {
-        return job;
+        matchedSnapshot.setSnapshot(newJob);
       }
+      jobsToSave.add(newJob.jobID);
+      return newJob;
     });
 
     for (const startingJob of newJobArray) {
-      if (!includedJobIDs.has(startingJob.jobID)) continue;
+      if (!groupEntry.includedJobIDs.has(startingJob.jobID)) continue;
       for (const parentID of startingJob.parentJob) {
         let parentMatch = newJobArray.find((i) => i.jobID === parentID);
         if (!parentMatch) continue;
@@ -91,14 +79,14 @@ function useCloseGroup() {
         }
       }
     }
+    
     updateActiveGroup(null);
     updateJobArray(newJobArray);
-    updateUserJobSnapshot(newUserJobSnapshot);
-    updateGroupArray(newGroupArray);
+    updateUserJobSnapshot([...userJobSnapshot]);
+    updateGroupArray([...groupArray]);
     updateMultiSelectJobPlanner([]);
-    updateEditGroupTrigger((prev) => !prev);
     if (isLoggedIn) {
-      await uploadGroupsToFirebase(newGroupArray);
+      await uploadGroupsToFirebase(groupArray);
       for (const jobID of jobsToSave) {
         let job = newJobArray.find((i) => i.jobID === jobID);
         if (!job) return;

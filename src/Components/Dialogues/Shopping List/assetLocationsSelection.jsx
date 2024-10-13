@@ -6,9 +6,9 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
 import { useContext } from "react";
-import { UsersContext } from "../../../../Context/AuthContext";
+import { UsersContext } from "../../../Context/AuthContext";
+import { useHelperFunction } from "../../../Hooks/GeneralHooks/useHelperFunctions";
 
 export function SelectAssetLocation_ShoppingListDialog({
   removeAssets,

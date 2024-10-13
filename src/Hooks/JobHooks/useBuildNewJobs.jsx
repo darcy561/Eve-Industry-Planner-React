@@ -66,7 +66,7 @@ function useBuildNewJobs() {
         ...generatePriceRequestFromJob(jobObject),
       ]);
     }
-    const itemPriceRequest = [getItemPrices([...priceRequestSet], parentUser)];
+    const itemPriceRequest = getItemPrices([...priceRequestSet], parentUser);
 
     if (addNewGroup) {
       newGroup = new Group();
@@ -105,24 +105,24 @@ function useBuildNewJobs() {
         itemID: jobObject.itemID,
       });
     }
-    if (isLoggedIn) {
-      manageListenerRequests(
-        newJobObjects,
-        updateJobArray,
-        updateFirebaseListeners,
-        firebaseListeners,
-        isLoggedIn
-      );
-    } else {
-      updateJobArray((prev) => {
-        const existingIDs = new Set(prev.map(({ jobID }) => jobID));
-        return [
-          ...prev,
-          ...newJobObjects.filter(({ jobID }) => !existingIDs.has(jobID)),
-        ];
-      });
-    }
-    const itemPriceResult = await Promise.all(itemPriceRequest);
+
+    updateJobArray((prev) => {
+      const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+      return [
+        ...prev,
+        ...newJobObjects.filter(({ jobID }) => !existingIDs.has(jobID)),
+      ];
+    });
+
+    manageListenerRequests(
+      newJobObjects,
+      updateJobArray,
+      updateFirebaseListeners,
+      firebaseListeners,
+      isLoggedIn
+    );
+
+    const itemPriceResult = await itemPriceRequest;
 
     if (requiresGroupDocSave) {
       updateGroupArray(newGroupArray);

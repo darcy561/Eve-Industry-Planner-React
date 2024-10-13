@@ -1,7 +1,7 @@
 import { Box, Button, Grid, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useHelperFunction } from "../../../../../../Hooks/GeneralHooks/useHelperFunctions";
-import { useImportFitFromClipboard } from "../../../../../../Hooks/GroupHooks/useImportFitFromClipboard";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import { useImportFitFromClipboard } from "../../../../Hooks/GroupHooks/useImportFitFromClipboard";
 import FittingImportRow from "./fittingRow";
 import uuid from "react-uuid";
 
@@ -39,7 +39,8 @@ function AddShipFittingPanel({ updateItemIDsToAdd, addNewGroupOnBuild }) {
   function addToBuildQueue() {
     const buildRequests = convertImportedItemsToBuildRequests(importedFitData);
     updateItemIDsToAdd((prev) => {
-      const newItemsToAdd = [...prev];
+      const newItemsToAdd = prev.map((item) => ({ ...item }));
+
       buildRequests.forEach((request) => {
         const existingObject = newItemsToAdd.find(
           (i) => i.itemID === request.itemID

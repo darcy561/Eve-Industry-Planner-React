@@ -1,12 +1,12 @@
-import { useContext, useEffect, useState } from "react";
-import { Box, Grid, Paper, useMediaQuery } from "@mui/material";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { Box, useMediaQuery } from "@mui/material";
 import { Header } from "../Header";
 import useSetupUnmountEventListeners from "../../Hooks/GeneralHooks/useSetupUnmountEventListeners";
 import { ActiveJobContext, JobArrayContext } from "../../Context/JobContext";
 import { LoadingPage } from "../loadingPage";
 import { ESIOffline } from "../offlineNotification";
 import { SearchBar } from "../Job Planner/Planner Components/searchbar";
-import { ShoppingListDialog } from "../Job Planner/Dialogues/ShoppingList/ShoppingList";
+import { ShoppingListDialog } from "../Dialogues/Shopping List/ShoppingList";
 import { useNavigate, useParams } from "react-router-dom";
 import LeftCollapseableMenuDrawer from "../SideMenu/leftMenuDrawer";
 import { Footer } from "../Footer/Footer";
@@ -23,11 +23,12 @@ import manageListenerRequests from "../../Functions/Firebase/manageListenerReque
 import GroupNameFrame from "./Group Name/groupNameFrame";
 import { MultiSelectJobPlannerContext } from "../../Context/LayoutContext";
 import { useGroupPageSideMenuFunctions } from "./Side Menu/Buttons/buttonFunctions";
+import findOrGetJobObject from "../../Functions/Helper/findJobObject";
+import getMissingJobObjects from "../../Functions/Helper/getMissingJobObjects";
 
 function GroupPageFrame({ colorMode }) {
   const { activeGroup, updateActiveGroup } = useContext(ActiveJobContext);
-  const { jobArray, updateJobArray, groupArray, updateGroupArray } =
-    useContext(JobArrayContext);
+  const { jobArray, updateJobArray, groupArray } = useContext(JobArrayContext);
   const { updateEvePrices } = useContext(EvePricesContext);
   const { firebaseListeners, updateFirebaseListeners } = useContext(
     FirebaseListenersContext
@@ -36,15 +37,12 @@ function GroupPageFrame({ colorMode }) {
   const { updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
-  const [groupJobs, updateGroupJobs] = useState([]);
-  const [editGroupNameTrigger, updateEditGroupNameTrigger] = useState(false);
-  const [tempName, updateTempName] = useState("");
-  const [showProcessing, updateShowProcessing] = useState(false);
   const [expandRightContentMenu, updateExpandRightContentMenu] =
     useState(false);
   const [rightContentMenuContentID, updateRightContentMenuContentID] =
     useState(null);
   const [skeletonElementsToDisplay, setSkeletonElementsToDisplay] = useState(0);
+  const [highlightedItems, updateHighlightedItem] = useState(new Set());
   const { getItemPrices } = useFirebase();
   const { groupID } = useParams();
 
@@ -52,38 +50,46 @@ function GroupPageFrame({ colorMode }) {
   const activeGroupObject = groupArray.find((i) => i.groupID === groupID);
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
+  const groupJobs = useMemo(() => {
+    if (!activeGroupObject) return [];
+    const groupJobs = [...jobArray]
+      .filter((job) => activeGroupObject.includedJobIDs.has(job.jobID))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    return groupJobs;
+  }, [jobArray, activeGroupObject]);
+
   useEffect(() => {
     async function retrieveGroupData() {
       try {
         if (!activeGroupObject) {
           throw new Error("Unable to find requested group");
         }
-        const itemPriceRequest = [
-          getItemPrices([...activeGroupObject.materialIDs]),
-        ];
 
-        const groupJobs = jobArray.filter((i) =>
-          activeGroupObject.includedJobIDs.has(i.jobID)
+        const itemPriceRequest = getItemPrices([
+          ...activeGroupObject.materialIDs,
+        ]);
+
+        const retrievedJobs = await getMissingJobObjects(
+          activeGroupObject.includedJobIDs,
+          jobArray
         );
 
-        groupJobs.sort((a, b) => {
-          if (a.name < b.name) {
-            return -1;
-          }
-          if (a.name > b.name) {
-            return 1;
-          }
-          return 0;
-        });
-        const itemPriceResult = await Promise.all(itemPriceRequest);
+        const itemPriceResult = await itemPriceRequest;
 
         updateEvePrices((prev) => ({
           ...prev,
           ...itemPriceResult,
         }));
         updateActiveGroup(activeGroupObject.groupID);
-        updateGroupJobs(groupJobs);
         updateMultiSelectJobPlanner([]);
+        updateJobArray((prev) => {
+          const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+          return [
+            ...prev,
+            ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+          ];
+        });
         manageListenerRequests(
           activeGroupObject.includedJobIDs,
           updateJobArray,
@@ -97,7 +103,7 @@ function GroupPageFrame({ colorMode }) {
       }
     }
     retrieveGroupData();
-  }, []);
+  }, [groupArray]);
 
   useSetupUnmountEventListeners();
 
@@ -149,6 +155,7 @@ function GroupPageFrame({ colorMode }) {
           <GroupAccordionFrame
             skeletonElementsToDisplay={skeletonElementsToDisplay}
             groupJobs={groupJobs}
+            highlightedItems={highlightedItems}
           />
         </Box>
         <Footer />
@@ -157,10 +164,13 @@ function GroupPageFrame({ colorMode }) {
         <CollapseableContentDrawer_Right
           DrawerContent={
             <RightSideMenuContent_GroupPage
+              groupJobs={groupJobs}
               rightContentMenuContentID={rightContentMenuContentID}
               updateRightContentMenuContentID={updateRightContentMenuContentID}
               updateExpandRightContentMenu={updateExpandRightContentMenu}
               setSkeletonElementsToDisplay={setSkeletonElementsToDisplay}
+              highlightedItems={highlightedItems}
+              updateHighlightedItem={updateHighlightedItem}
             />
           }
           expandRightContentMenu={expandRightContentMenu}

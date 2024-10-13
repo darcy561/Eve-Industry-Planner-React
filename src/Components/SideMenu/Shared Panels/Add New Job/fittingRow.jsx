@@ -1,5 +1,5 @@
 import { Avatar, Checkbox, Grid, Typography } from "@mui/material";
-import { STANDARD_TEXT_FORMAT } from "../../../../../../Context/defaultValues";
+import { STANDARD_TEXT_FORMAT } from "../../../../Context/defaultValues";
 
 function FittingImportRow({ item, index, updateImportedFitData }) {
   if (!item.buildable) return null;

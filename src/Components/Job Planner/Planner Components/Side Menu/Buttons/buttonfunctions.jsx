@@ -80,13 +80,14 @@ export function useJobPlannerSideMenuFunctions(
         icon: <ShoppingCartIcon />,
         tooltip:
           "Displays a shopping list of the remaining materials needed to build all of the selected jobs.",
+        disabled: multiSelectJobPlanner.length === 0,
         onClick: () => {
-          if (multiSelectJobPlanner.length > 0) {
-            updateShoppingListTrigger((prev) => !prev);
-            updateShoppingListData(multiSelectJobPlanner);
-          } else {
-            throwDialogError(standardDialogError);
+          if (multiSelectJobPlanner.length === 0) {
+            throwDialogError();
+            return;
           }
+          updateShoppingListTrigger((prev) => !prev);
+          updateShoppingListData(multiSelectJobPlanner);
         },
       },
       {
@@ -94,54 +95,58 @@ export function useJobPlannerSideMenuFunctions(
         icon: <AccountTreeIcon />,
         tooltip:
           "Sets up new jobs to build the combined ingredient totals of each selected job cards.",
+        disabled: multiSelectJobPlanner.length === 0,
         onClick: () => {
-          if (multiSelectJobPlanner.length > 0) {
-            massBuildMaterials(multiSelectJobPlanner);
-            updateMultiSelectJobPlanner([]);
-          } else {
-            throwDialogError(standardDialogError);
+          if (multiSelectJobPlanner.length === 0) {
+            throwDialogError();
+            return;
           }
+          massBuildMaterials(multiSelectJobPlanner);
+          updateMultiSelectJobPlanner([]);
         },
       },
       {
         displayText: "Add Item Costs",
         icon: <PriceCheckIcon />,
         tooltip: "Input item costs for all selected jobs.",
+        disabled: multiSelectJobPlanner.length === 0,
         onClick: async () => {
-          if (multiSelectJobPlanner.length > 0) {
-            const itemList = await buildItemPriceEntry(multiSelectJobPlanner);
-            updatePriceEntryListData((prev) => ({
-              ...prev,
-              open: true,
-              list: itemList,
-            }));
-          } else {
-            throwDialogError(standardDialogError);
+          if (multiSelectJobPlanner.length === 0) {
+            throwDialogError();
+            return;
           }
+          const itemList = await buildItemPriceEntry(multiSelectJobPlanner);
+          updatePriceEntryListData((prev) => ({
+            ...prev,
+            open: true,
+            list: itemList,
+          }));
         },
       },
       {
         displayText: "Move Backwards",
         icon: <ArrowUpwardIcon />,
         tooltip: "Moves the selected jobs 1 step backwards on the planner.",
+        disabled: multiSelectJobPlanner.length === 0,
         onClick: () => {
-          if (multiSelectJobPlanner.length > 0) {
-            moveItemsOnPlanner(multiSelectJobPlanner, "backward");
-          } else {
-            throwDialogError(standardDialogError);
+          if (multiSelectJobPlanner.length === 0) {
+            throwDialogError();
+            return;
           }
+          moveItemsOnPlanner(multiSelectJobPlanner, "backward");
         },
       },
       {
         displayText: "Move Forwards",
         icon: <ArrowDownwardIcon />,
         tooltip: "Moves the selected jobs 1 step forwards on the planner.",
+        disabled: multiSelectJobPlanner.length === 0,
         onClick: () => {
-          if (multiSelectJobPlanner.length > 0) {
-            moveItemsOnPlanner(multiSelectJobPlanner, "forward");
-          } else {
-            throwDialogError(standardDialogError);
+          if (multiSelectJobPlanner.length === 0) {
+            throwDialogError();
+            return;
           }
+          moveItemsOnPlanner(multiSelectJobPlanner, "forward");
         },
       },
       {
@@ -152,14 +157,12 @@ export function useJobPlannerSideMenuFunctions(
           (i) => i.itemID === multiSelectJobPlanner[0].itemID
         ),
         onClick: () => {
-          if (multiSelectJobPlanner.length > 1) {
-            mergeJobsNew(multiSelectJobPlanner);
-            updateMultiSelectJobPlanner([]);
-          } else {
-            throwDialogError(
-              "You will need to select at least 2 matching jobs using the checkbox's on the job cards"
-            );
+          if (multiSelectJobPlanner.length === 0) {
+            throwDialogError();
+            return;
           }
+          mergeJobsNew(multiSelectJobPlanner);
+          updateMultiSelectJobPlanner([]);
         },
       },
       {
@@ -167,18 +170,16 @@ export function useJobPlannerSideMenuFunctions(
         icon: <SelectAllIcon />,
         tooltip: "Selects all jobs on the planner.",
         onClick: () => {
-          let newMultiArray = [...multiSelectJobPlanner];
-          userJobSnapshot.forEach((job) => {
-            newMultiArray.push(job.jobID);
-          });
-          updateMultiSelectJobPlanner(newMultiArray);
+          updateMultiSelectJobPlanner([
+            ...new Set(userJobSnapshot.map((job) => job.jobID)),
+          ]);
         },
       },
       {
         displayText: "Clear Selection",
         icon: <DeselectIcon />,
         tooltip: "Clears the selected jobs.",
-        disabled: multiSelectJobPlanner.length === 0, // Fixed the condition here
+        disabled: multiSelectJobPlanner.length === 0,
         onClick: () => {
           updateMultiSelectJobPlanner([]);
         },
@@ -187,14 +188,14 @@ export function useJobPlannerSideMenuFunctions(
         displayText: "Delete",
         icon: <DeleteSweepIcon />,
         tooltip: "Deletes the selected jobs from the planner.",
-        disabled: multiSelectJobPlanner.length === 0, // Fixed the condition here
+        disabled: multiSelectJobPlanner.length === 0,
         onClick: () => {
-          if (multiSelectJobPlanner.length > 0) {
-            deleteMultipleJobs(multiSelectJobPlanner);
-            updateMultiSelectJobPlanner([]);
-          } else {
-            throwDialogError(standardDialogError);
+          if (multiSelectJobPlanner.length === 0) {
+            throwDialogError();
+            return;
           }
+          deleteMultipleJobs(multiSelectJobPlanner);
+          updateMultiSelectJobPlanner([]);
         },
       },
     ];
@@ -214,7 +215,7 @@ export function useJobPlannerSideMenuFunctions(
     standardDialogError,
   ]);
 
-  function throwDialogError(inputText) {
+  function throwDialogError(inputText = standardDialogError) {
     updateDialogData((prev) => ({
       ...prev,
       buttonText: "Close",

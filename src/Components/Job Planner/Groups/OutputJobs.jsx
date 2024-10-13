@@ -33,7 +33,7 @@ export function OutputJobsPanel({ groupJobs, groupPageRefresh }) {
     }
     updateOutputJobs(returnArray);
   }, [groupJobs]);
-
+  
   if (!groupPageRefresh && activeGroup) {
     return (
       <Paper

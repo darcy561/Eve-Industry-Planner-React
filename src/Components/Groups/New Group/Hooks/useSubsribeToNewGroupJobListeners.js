@@ -40,12 +40,21 @@ function useSubscribeToNewGroupListeners(requestedJobIDs, onJobLoaded) {
 
         const unsubscribe = createFirebaseJobDocumentListener(
           id,
-          updateJobArray
+          updateJobArray,
+          updateFirebaseListeners
         );
 
         if (!unsubscribe) return;
 
-        updateFirebaseListeners((prev) => [...prev, { id, unsubscribe }]);
+        updateFirebaseListeners((prev) => {
+          const updatedListeners = prev.map((listener) =>
+            listener.id === id ? { id, unsubscribe } : listener
+          );
+          if (!prev.some((listener) => listener.id === id)) {
+            updatedListeners.push({ id, unsubscribe });
+          }
+          return updatedListeners;
+        });
       });
       onJobLoaded();
     } catch (err) {

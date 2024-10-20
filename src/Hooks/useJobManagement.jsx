@@ -33,6 +33,8 @@ import deleteJobFromFirebase from "../Functions/Firebase/deleteJob";
 import uploadJobSnapshotsToFirebase from "../Functions/Firebase/uploadJobSnapshots";
 import findOrGetJobObject from "../Functions/Helper/findJobObject";
 import manageListenerRequests from "../Functions/Firebase/manageListenerRequests";
+import seperateGroupAndJobIDs from "../Functions/Helper/seperateGroupAndJobIDs";
+import retrieveJobIDsFromGroupObjects from "../Functions/Helper/getJobIDsFromGroupObjects";
 
 export function useJobManagement() {
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
@@ -254,36 +256,18 @@ export function useJobManagement() {
   };
 
   const buildItemPriceEntry = async (inputJobIDs) => {
-    const requestedJobObjects = [];
     const finalPriceEntry = [];
     const retrievedJobs = [];
 
-    for (let inputID of inputJobIDs) {
-      if (inputID.includes("group")) {
-        let inputGroup = groupArray.find((i) => i.groupID === inputID);
-        if (!inputGroup) {
-          return;
-        }
+    const { groupIDs, jobIDs } = seperateGroupAndJobIDs(inputJobIDs);
 
-        for (let groupJobID of inputGroup.includedJobIDs) {
-          const requestedJob = await findOrGetJobObject(
-            groupJobID,
-            jobArray,
-            retrievedJobs
-          );
-          if (!requestedJob) continue;
-          requestedJobObjects.push(requestedJob);
-        }
-      } else {
-        const requestedJob = await findOrGetJobObject(
-          inputID,
-          jobArray,
-          retrievedJobs
-        );
-        if (!requestedJob) continue;
-        requestedJobObjects.push(requestedJob);
-      }
-    }
+    const groupJobIDs = retrieveJobIDsFromGroupObjects(groupIDs, groupArray);
+
+    const requestedJobObjects = await convertJobIDsToObjects(
+      [...jobIDs, ...groupJobIDs],
+      jobArray,
+      retrievedJobs
+    );
 
     for (let inputJob of requestedJobObjects) {
       inputJob.build.materials.forEach((material) => {

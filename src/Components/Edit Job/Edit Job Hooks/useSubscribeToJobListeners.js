@@ -29,7 +29,6 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
       const relatedJobs = matchedObject.getRelatedJobs();
 
       const requiredJobs = [...relatedJobs, requestedJobID];
-      console.log(requiredJobs);
       const existingListenerIds = new Set(
         firebaseListeners.map((listener) => listener.id)
       );
@@ -37,7 +36,6 @@ function useSubscribeToJobListeners(requestedJobID, onJobLoaded) {
 
       requiredJobs.forEach((id) => {
         if (existingListenerIds.has(id) && existingJobIds.has(id)) return;
-        console.log(id);
         const unsubscribe = createFirebaseJobDocumentListener(
           id,
           updateJobArray,

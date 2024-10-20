@@ -11,6 +11,9 @@ import { ApplicationSettingsContext } from "../../Context/LayoutContext";
 import findOrGetJobObject from "../../Functions/Helper/findJobObject";
 import getCurrentFirebaseUser from "../../Functions/Firebase/currentFirebaseUser";
 import manageListenerRequests from "../../Functions/Firebase/manageListenerRequests";
+import retrieveJobIDsFromGroupObjects from "../../Functions/Helper/getJobIDsFromGroupObjects";
+import convertJobIDsToObjects from "../../Functions/Helper/convertJobIDsToObjects";
+import seperateGroupAndJobIDs from "../../Functions/Helper/seperateGroupAndJobIDs";
 
 export function useShoppingList() {
   const { jobArray, groupArray, updateJobArray } = useContext(JobArrayContext);
@@ -24,36 +27,18 @@ export function useShoppingList() {
     useHelperFunction();
 
   async function buildShoppingList(inputJobIDs) {
-    let requestedJobObjects = [];
     let finalShoppingList = [];
     const retrievedJobs = [];
 
-    for (let inputID of inputJobIDs) {
-      if (inputID.includes("group")) {
-        let inputGroup = groupArray.find((i) => i.groupID === inputID);
-        if (!inputGroup) {
-          continue;
-        }
+    const { groupIDs, jobIDs } = seperateGroupAndJobIDs(inputJobIDs);
 
-        for (let groupJobID of inputGroup.includedJobIDs) {
-          const requestedJob = await findOrGetJobObject(
-            groupJobID,
-            jobArray,
-            retrievedJobs
-          );
-          if (!requestedJob) continue;
-          requestedJobObjects.push(requestedJob);
-        }
-      } else {
-        const requestedJob = await findOrGetJobObject(
-          inputID,
-          jobArray,
-          retrievedJobs
-        );
-        if (!requestedJob) continue;
-        requestedJobObjects.push(requestedJob);
-      }
-    }
+    const groupJobIDs = retrieveJobIDsFromGroupObjects(groupIDs, groupArray);
+
+    const requestedJobObjects = await convertJobIDsToObjects(
+      [...jobIDs, ...groupJobIDs],
+      jobArray,
+      retrievedJobs
+    );
 
     for (let inputJob of requestedJobObjects) {
       inputJob.build.materials.forEach((material) => {
@@ -183,7 +168,7 @@ export function useShoppingList() {
       if (!matchedItem) continue;
       item.assetQuantity = matchedItem;
       if (item.assetQuantity >= item.quantity) {
-        item.isVisible = false
+        item.isVisible = false;
       }
     }
     return newItemList;
@@ -199,4 +184,3 @@ export function useShoppingList() {
     isItemVisable,
   };
 }
-

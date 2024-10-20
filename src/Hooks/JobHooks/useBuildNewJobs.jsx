@@ -70,8 +70,7 @@ function useBuildNewJobs() {
 
     if (addNewGroup) {
       newGroup = new Group();
-      newGroup.setGroupName(newJobObjects);
-      newGroup.updateGroupData(newJobObjects);
+      newGroup.createGroup(newJobObjects);
       newGroupArray.push(newGroup);
       requiresGroupDocSave = true;
     }

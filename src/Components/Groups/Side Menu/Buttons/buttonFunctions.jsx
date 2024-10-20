@@ -11,6 +11,7 @@ import DeselectIcon from "@mui/icons-material/Deselect";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import {
+  ApplicationSettingsContext,
   DialogDataContext,
   MultiSelectJobPlannerContext,
   PriceEntryListContext,
@@ -25,6 +26,20 @@ import {
 import { useJobManagement } from "../../../../Hooks/useJobManagement";
 import { useMoveItemsOnPlanner } from "../../../../Hooks/GeneralHooks/useMoveItemsOnPlanner";
 import { useNavigate } from "react-router-dom";
+import { DoneAll } from "@mui/icons-material";
+import passBuildCostsToParentJobs from "../../../../Functions/Shared/passBuildCosts";
+import {
+  FirebaseListenersContext,
+  IsLoggedInContext,
+  UserJobSnapshot,
+  UserJobSnapshotContext,
+} from "../../../../Context/AuthContext";
+import uploadJobSnapshotsToFirebase from "../../../../Functions/Firebase/uploadJobSnapshots";
+import manageListenerRequests from "../../../../Functions/Firebase/manageListenerRequests";
+import { useHelperFunction } from "../../../../Hooks/GeneralHooks/useHelperFunctions";
+import buildFullJobTree from "../../Functions/buildFullJobTree";
+import { useJobBuild } from "../../../../Hooks/useJobBuild";
+import { useRecalcuateJob } from "../../../../Hooks/GeneralHooks/useRecalculateJob";
 
 export function useGroupPageSideMenuFunctions(
   groupJobs,
@@ -33,18 +48,31 @@ export function useGroupPageSideMenuFunctions(
   updateRightContentMenuContentID
 ) {
   const { activeGroup } = useContext(ActiveJobContext);
-  const { groupArray } = useContext(JobArrayContext);
+  const { jobArray, groupArray, updateJobArray, updateGroupArray } =
+    useContext(JobArrayContext);
   const { updateDialogData } = useContext(DialogDataContext);
+  const { userJobSnapshot, updateUserJobSnapshot } = useContext(
+    UserJobSnapshotContext
+  );
+  const { firebaseListeners, updateFirebaseListeners } = useContext(
+    FirebaseListenersContext
+  );
+  const { isLoggedIn } = useContext(IsLoggedInContext);
   const { multiSelectJobPlanner, updateMultiSelectJobPlanner } = useContext(
     MultiSelectJobPlannerContext
   );
   const { updateShoppingListTrigger, updateShoppingListData } =
     useContext(ShoppingListContext);
   const { updatePriceEntryListData } = useContext(PriceEntryListContext);
+  const { applicationSettings } = useContext(ApplicationSettingsContext);
   const { toggleRightDrawerColapse } = useRightContentDrawer();
   const { closeGroup } = useCloseGroup();
   const { buildItemPriceEntry } = useJobManagement();
   const { moveItemsOnPlanner } = useMoveItemsOnPlanner();
+  const { buildJob } = useJobBuild();
+  const { sendSnackbarNotificationSuccess, sendSnackbarNotificationError } =
+    useHelperFunction();
+  const { recalculateJobForNewTotal } = useRecalcuateJob();
   const navigate = useNavigate();
   const activeGroupObject = groupArray.find((i) => i.groupID === activeGroup);
 
@@ -61,7 +89,7 @@ export function useGroupPageSideMenuFunctions(
         divider: true,
         onClick: () => {
           closeGroup(groupJobs);
-          navigate("/jobplanner")
+          navigate("/jobplanner");
         },
       },
       {
@@ -129,13 +157,23 @@ export function useGroupPageSideMenuFunctions(
         displayText: "Build Full Tree",
         icon: <Polyline />,
         tooltip: "Adds the full item tree for all output jobs.",
-        onClick: () => {
-          // if (multiSelectJobPlanner.length > 0) {
-          //   massBuildMaterials(multiSelectJobPlanner);
-          //   updateMultiSelectJobPlanner([]);
-          // } else {
-          //   throwDialogError(standardDialogError);
-          // }
+        onClick: async () => {
+          const retrievedJobs = [];
+          const jobList =
+            multiSelectJobPlanner.length > 0
+              ? multiSelectJobPlanner
+              : [...activeGroupObject.includedJobIDs];
+
+          const g = await buildFullJobTree(
+            jobList,
+            jobArray,
+            retrievedJobs,
+            activeGroup,
+            groupArray,
+            applicationSettings,
+            buildJob,
+            recalculateJobForNewTotal
+          );
         },
       },
       {
@@ -160,6 +198,52 @@ export function useGroupPageSideMenuFunctions(
             return;
           }
           moveItemsOnPlanner(multiSelectJobPlanner, "forward");
+        },
+      },
+      {
+        displayText: "Send Item Costs",
+        icon: <DoneAll />,
+        tooltip:
+          "Sends the selected items costs to their parent jobs and marks the jobs as complete.",
+        onClick: async () => {
+          if (multiSelectJobPlanner.length === 0) {
+            throwDialogError();
+            return;
+          }
+          const retrievedJobs = [];
+          const group = groupArray.find((i) => i.groupID === activeGroup);
+          group.addAreComplete(multiSelectJobPlanner);
+          const messageText = await passBuildCostsToParentJobs(
+            multiSelectJobPlanner,
+            jobArray,
+            userJobSnapshot,
+            retrievedJobs
+          );
+          manageListenerRequests(
+            retrievedJobs,
+            updateJobArray,
+            updateFirebaseListeners,
+            firebaseListeners,
+            isLoggedIn
+          );
+          if (messageText) {
+            sendSnackbarNotificationSuccess(messageText);
+          } else {
+            sendSnackbarNotificationError(`No build costs imported.`, 3);
+          }
+          updateUserJobSnapshot((prev) => [...prev]);
+          updateJobArray((prev) => {
+            const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+            return [
+              ...prev,
+              ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+            ];
+          });
+          updateGroupArray([...groupArray]);
+
+          if (isLoggedIn) {
+            await uploadJobSnapshotsToFirebase(userJobSnapshot);
+          }
         },
       },
       {

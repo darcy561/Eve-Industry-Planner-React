@@ -347,6 +347,34 @@ class Group {
       this._convertToNumber
     );
   }
+  createGroup(inputJobObjects) {
+    if (!inputJobObjects) return;
+
+    const jobArray = Array.isArray(inputJobObjects)
+      ? inputJobObjects
+      : [inputJobObjects];
+
+    const {
+      newOutputJobCount,
+      newMaterialIDs,
+      newJobTypeIDs,
+      newIncludedJobIDs,
+      newLinkedJobIDs,
+      newLinkedOrderIDs,
+      newLinkedTransIDs,
+    } = this._buildNewGroupData(jobArray);
+
+    const outputJobs = inputJobObjects.filter((i) => i.parentJob.length === 0);
+
+    this.setGroupName(outputJobs);
+    this.updateOutputJobCount(newOutputJobCount);
+    this.setMaterialIDs(newMaterialIDs);
+    this.setIncludedJobIDs(newIncludedJobIDs);
+    this.setIncludedTypeIDs(newJobTypeIDs);
+    this.setLinkedJobIDs(newLinkedJobIDs);
+    this.setLinkedOrderIDs(newLinkedOrderIDs);
+    this.setLinkedTransIDs(newLinkedTransIDs);
+  }
 
   updateGroupData(inputJobObjects) {
     if (!inputJobObjects) return;

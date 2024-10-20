@@ -205,7 +205,7 @@ export function useGroupManagement() {
           returnTotal += findItemBuildCost(cMaterial, childJobs);
         }
       }
-      return Math.round(returnTotal / totalProduced) * material.quantity;
+      return (returnTotal / totalProduced) * material.quantity;
     }
     return finalBuildCost / outputJob.build.products.totalQuantity;
   };

@@ -97,8 +97,7 @@ function NewGroupPage({ colorMode }) {
         jobsToSave.add(matchedGroupJob.jobID);
       }
 
-      group.setGroupName(groupJobs);
-      group.updateGroupData(groupJobs);
+      group.createGroup(groupJobs);
 
       if (isLoggedIn) {
         await uploadJobSnapshotsToFirebase(newUserJobSnapshot);

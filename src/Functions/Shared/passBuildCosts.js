@@ -1,6 +1,7 @@
 import uuid from "react-uuid";
 import findOrGetJobObject from "../Helper/findJobObject";
 import updateJobInFirebase from "../Firebase/updateJob";
+import convertJobIDsToObjects from "../Helper/convertJobIDsToObjects";
 
 async function passBuildCostsToParentJobs(
   jobsToPass,
@@ -8,12 +9,14 @@ async function passBuildCostsToParentJobs(
   userJobSnapshot,
   retrievedJobs
 ) {
-  if (!Array.isArray(jobsToPass)) {
-    jobsToPass = [jobsToPass];
-  }
+  const matchedObjects = await convertJobIDsToObjects(
+    jobsToPass,
+    jobArray,
+    retrievedJobs
+  );
 
   const { collectedMaterials, parentJobMap } =
-    collectMaterialsAndParentJobs(jobsToPass);
+    collectMaterialsAndParentJobs(matchedObjects);
 
   const parentJobs = await findNeededParentJobs(
     parentJobMap,
@@ -21,13 +24,19 @@ async function passBuildCostsToParentJobs(
     retrievedJobs
   );
 
-  distributeItemsBetweenParentJobs(
-    collectedMaterials,
-    parentJobs,
-    parentJobMap,
-    userJobSnapshot
-  );
+  const { successfulParentImportCount, priceItemsImportedCount } =
+    distributeItemsBetweenParentJobs(
+      collectedMaterials,
+      parentJobs,
+      parentJobMap,
+      userJobSnapshot
+    );
   await saveModifiedJobsToDatabase(parentJobs);
+
+  return buildNotificationText(
+    successfulParentImportCount,
+    priceItemsImportedCount
+  );
 }
 
 function collectMaterialsAndParentJobs(chosenJobs) {
@@ -106,7 +115,8 @@ function distributeItemsBetweenParentJobs(
   parentMap,
   userJobSnapshot
 ) {
-  let successfulParentImportCount = 0;
+  const successfulParentImportCount = parentJobs.length;
+  let priceItemsImportedCount = 0;
 
   for (const parentJob of parentJobs) {
     for (const materialID of Object.keys(collectedMaterials)) {
@@ -133,16 +143,20 @@ function distributeItemsBetweenParentJobs(
           remainingQuantityToPurchase,
           costEntry.quantity
         );
+        priceItemsImportedCount++;
         if (quantityAvailableToPurchase > 0) {
-          addPurchaseToMaterial(
-            material,
-            quantityAvailableToPurchase,
-            costEntry.id,
-            costEntry.cost
-          );
+          const purchaseObject = {
+            id: uuid(),
+            childID: costEntry.id,
+            childJobImport: true,
+            itemCount: costEntry.quantity,
+            itemCost: costEntry.cost,
+          };
+
+          parentJob.addPurchaseCostToMaterial(materialID, purchaseObject);
+
           costEntry.quantity -= quantityAvailableToPurchase;
           remainingQuantityToPurchase -= quantityAvailableToPurchase;
-
 
           if (costEntry.quantity <= 0) {
             costEntry.quantity = 0;
@@ -150,9 +164,9 @@ function distributeItemsBetweenParentJobs(
         }
       }
     }
-    successfulParentImportCount++
     parentJob.updateJobSnapshot(userJobSnapshot);
   }
+  return { successfulParentImportCount, priceItemsImportedCount };
 }
 
 async function saveModifiedJobsToDatabase(parentJobs) {
@@ -161,28 +175,32 @@ async function saveModifiedJobsToDatabase(parentJobs) {
   await Promise.allSettled(promises);
 }
 
+function buildNotificationText(
+  successfulParentImportCount,
+  priceItemsImportedCount
+) {
+  if (priceItemsImportedCount === 0) {
+    return null;
+  }
+
+  let costLabel = "Cost";
+  if (priceItemsImportedCount !== 1) {
+    costLabel = "Costs";
+  }
+
+  let jobLabel = "Job";
+  if (successfulParentImportCount !== 1) {
+    jobLabel = "Jobs";
+  }
+
+  return `${priceItemsImportedCount} ${costLabel} Imported into ${successfulParentImportCount} ${jobLabel}.`;
+}
+
 function isMaterialPurchased(material, jobID, parentJob) {
   return (
     material.purchasing.some((i) => i.childID === jobID) &&
     parentJob.build.childJobs[material.typeID]?.includes(jobID)
   );
-}
-
-function addPurchaseToMaterial(material, quantity, jobID, itemCost) {
-  material.purchasing.push({
-    id: uuid(),
-    childID: jobID,
-    childJobImport: true,
-    itemCount: quantity,
-    itemCost: itemCost,
-  });
-
-  material.quantityPurchased += quantity;
-  material.purchasedCost += quantity * itemCost;
-
-  if (material.quantityPurchased >= material.quantity) {
-    material.purchaseComplete = true;
-  }
 }
 
 export default passBuildCostsToParentJobs;

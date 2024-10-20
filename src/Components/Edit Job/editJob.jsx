@@ -94,7 +94,7 @@ export default function EditJob_New({ colorMode }) {
 
   useEffect(() => {
     async function setInitialState() {
-      if (!jobArrayUpdated) return;
+      if (!jobArrayUpdated || jobID === activeJob?.jobID) return;
 
       // Find the job in the job array
       const matchedJob = jobArray.find((i) => i.jobID === jobID);

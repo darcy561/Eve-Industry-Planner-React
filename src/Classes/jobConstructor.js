@@ -341,6 +341,7 @@ class Job {
       (id) => !parentsToRemove.includes(id)
     );
   }
+
   updateJobSnapshot(snapshotArray) {
     if (!snapshotArray && Array.isArray(snapshotArray)) {
       console.error("Snapshot array not provided or is not an array.");
@@ -355,6 +356,26 @@ class Job {
     }
 
     snapshotArray[index] = new JobSnapshot(this);
+  }
+
+  addPurchaseCostToMaterial(materialID, purchaseObject) {
+    if (!materialID || !purchaseObject) {
+      console.error("Material ID or Purchase object missing");
+      return;
+    }
+    const material = this.build.materials.find((i) => i.typeID == materialID);
+    if (!material) return;
+
+    material.purchasing.push(purchaseObject);
+    material.quantityPurchased += purchaseObject.itemCount;
+    material.purchasedCost +=
+      purchaseObject.itemCost * purchaseObject.itemCount;
+
+    if (material.quantityPurchased >= material.quantity) {
+      material.purchaseComplete = true;
+    }
+    this.build.costs.totalPurchaseCost +=
+      purchaseObject.itemCost * purchaseObject.itemCount;
   }
 }
 

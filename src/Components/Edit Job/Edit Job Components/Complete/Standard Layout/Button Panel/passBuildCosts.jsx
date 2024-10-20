@@ -128,8 +128,43 @@ export function PassBuildCostsButton({ activeJob }) {
 
   async function passCost() {
     const retrievedJobs = [];
-    await passBuildCostsToParentJobs(activeJob, jobArray, userJobSnapshot, retrievedJobs);
-    
+    const messageText = await passBuildCostsToParentJobs(
+      activeJob,
+      jobArray,
+      userJobSnapshot,
+      retrievedJobs
+    );
+
+    if (messageText) {
+      sendSnackbarNotificationSuccess(messageText);
+    } else {
+      sendSnackbarNotificationError(`No build costs imported.`, 3);
+    }
+    manageListenerRequests(
+      retrievedJobs,
+      updateJobArray,
+      updateFirebaseListeners,
+      firebaseListeners,
+      isLoggedIn
+    );
+
+    logEvent(analytics, "Import Costs", {
+      UID: getCurrentFirebaseUser(),
+      isLoggedIn: isLoggedIn,
+    });
+
+    updateUserJobSnapshot((prev) => [...prev]);
+    updateJobArray((prev) => {
+      const existingIDs = new Set(prev.map(({ jobID }) => jobID));
+      return [
+        ...prev,
+        ...retrievedJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
+      ];
+    });
+
+    if (isLoggedIn) {
+      await uploadJobSnapshotsToFirebase(userJobSnapshot);
+    }
   }
 
   if (activeJob.parentJob.length === 0) {

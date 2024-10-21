@@ -1,18 +1,24 @@
 import { useJobBuild } from "../useJobBuild";
-import uuid from "react-uuid";
 import { useInstallCostsCalc } from "./useInstallCostCalc";
 import { useBlueprintCalc } from "../useBlueprintCalc";
+import Setup from "../../Classes/jobSetupConstructor";
+import { useHelperFunction } from "./useHelperFunctions";
 
 export function useRecalcuateJob() {
-  const { calculateJobMaterialQuantities, recalculateItemQty } =
-    useJobBuild();
+  const {
+    addItemBlueprint,
+    addDefaultStructure,
+    calculateJobMaterialQuantities,
+    recalculateItemQty,
+  } = useJobBuild();
   const { calculateTime, calculateResources } = useBlueprintCalc();
   const { calculateInstallCostFromJob } = useInstallCostsCalc();
+  const { findParentUser } = useHelperFunction();
+
+  const parentUser = findParentUser();
 
   function recalculateJobForNewTotal(inputJob, requiredQuantity) {
     if (!inputJob || !requiredQuantity) return;
-
-    let setupLocation = inputJob.build.setup;
 
     const newSetupQuantities = recalculateItemQty(
       inputJob.maxProductionLimit,
@@ -20,38 +26,42 @@ export function useRecalcuateJob() {
       requiredQuantity
     );
 
-    if (newSetupQuantities.length === Object.values(setupLocation).length) {
-      for (let i = 0; i < Object.values(setupLocation).length; i++) {
-        const newQuantities = newSetupQuantities[i];
-        const chosenSetup = Object.values(setupLocation)[i];
+    const { ME, TE } = addItemBlueprint(
+      inputJob.jobType,
+      inputJob.blueprintTypeID
+    );
+    const structureData = addDefaultStructure(inputJob.jobType);
 
-        chosenSetup.jobCount = newQuantities.jobCount;
-        chosenSetup.runCount = newQuantities.runCount;
-      }
-    }
-    if (newSetupQuantities.length !== Object.values(setupLocation).length) {
-      let newSetupLocation = {};
-      for (const { runCount, jobCount } of newSetupQuantities) {
-        const replacementID = uuid();
-        newSetupLocation[replacementID] = {
-          ...Object.values(setupLocation)[0],
+    inputJob.build.setup = {};
+    newSetupQuantities.forEach((newItem) => {
+      const newSetup = new Setup({
+        ME,
+        TE,
+        ...structureData,
+        ...newItem,
+        characterToUse: parentUser.CharacterHash,
+        ...inputJob.rawData.time,
+        jobType: inputJob.jobType,
+      });
+
+      inputJob.rawData.materials.forEach((material) => {
+        newSetup.materialCount[material.typeID] = {
+          typeID: material.typeID,
+          quantity: material.quantity,
+          rawQuantity: material.quantity,
         };
+      });
 
-        newSetupLocation[replacementID].id = replacementID;
-        newSetupLocation[replacementID].runCount = runCount;
-        newSetupLocation[replacementID].jobCount = jobCount;
-      }
-      inputJob.build.setup = newSetupLocation;
-      setupLocation = newSetupLocation;
-    }
+      newSetup.estimatedTime = calculateTime(newSetup, inputJob.skills);
+      newSetup.materialCount = calculateResources(newSetup);
+      newSetup.estimatedInstallCost = calculateInstallCostFromJob(newSetup);
 
-    for (let setup of Object.values(setupLocation)) {
-      setup.estimatedTime = calculateTime(setup, inputJob.skills);
-      setup.materialCount = calculateResources(setup);
-      setup.estimatedInstallCost = calculateInstallCostFromJob(setup);
-    }
-    const newTotalQuantities = calculateJobMaterialQuantities(setupLocation);
+      inputJob.build.setup[newSetup.id] = newSetup;
+    });
 
+    const newTotalQuantities = calculateJobMaterialQuantities(
+      inputJob.build.setup
+    );
     for (const material of inputJob.build.materials) {
       const materialID = material.typeID.toString();
       if (materialID in newTotalQuantities) {

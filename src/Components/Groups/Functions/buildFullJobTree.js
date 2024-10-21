@@ -1,6 +1,8 @@
+import buildParentChildRelationships from "../../../Functions/Helper/buildParentChildRelationships";
 import checkJobTypeIsBuildable from "../../../Functions/Helper/checkJobTypeIsBuildable";
 import convertJobIDsToObjects from "../../../Functions/Helper/convertJobIDsToObjects";
 import retrieveJobIDsFromGroupObjects from "../../../Functions/Helper/getJobIDsFromGroupObjects";
+import materialTreeShaker from "../../../Functions/Helper/materialTreeShaker";
 
 async function buildFullJobTree(
   selectedJobIDs,
@@ -52,9 +54,13 @@ async function buildFullJobTree(
     applicationSettings
   );
 
+  buildParentChildRelationships([...allJobObjects, ...newJobs])
+
+  materialTreeShaker([...allJobObjects, ...newJobs], recalculateJob);
+
   // console.log(typeIDMap);
   // console.log(jobIDMap);
-  console.log(newJobs);
+  console.log([...allJobObjects, ...newJobs]);
   console.log(
     buildTypeIDMap([...allJobObjects, ...newJobs], applicationSettings, groupID)
   );
@@ -186,6 +192,7 @@ async function processMaterials(
           groupID
         );
         addNewItemsToJobIDMap(newJobObjects, jobIDMap);
+        updateParentAndChildJobs(Object.values(jobIDMap), typeIDMap);
         materialsAwaitingRequest.length = 0;
       }
       if (
@@ -233,17 +240,17 @@ function manageMaterialRequestQueue(queue, newRequest) {
 function createBuildRequest(request) {
   return {
     itemID: request.typeID,
-    itemQty: request.quantityRequired,
+    // itemQty: request.quantityRequired,
     groupID: request.groupID,
-    parentJobs: [request.relatedJobID],
+    parentJobs: [request.relatedJobID], 
   };
 }
 
 function updateBuildRequest(existingRequest, newRequest) {
-  existingRequest.itemQty += newRequest.quantityRequired;
-  existingRequest.parentJobs = [
-    ...new Set([...existingRequest.parentJobs, newRequest.relatedJobID]),
-  ];
+  // existingRequest.itemQty += newRequest.quantityRequired;
+  // existingRequest.parentJobs = [
+  //   ...new Set([...existingRequest.parentJobs, newRequest.relatedJobID]),
+  // ];
 }
 
 async function retrieveNewMaterials(queue, newJobsStorage, buildFunction) {

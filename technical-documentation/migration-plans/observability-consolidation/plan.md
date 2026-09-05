@@ -528,11 +528,14 @@ and the noop remains only for the layer-off case.
 an env-template field. The services adopt it, so the edge and the services sample on one number.
 
 `SENTRY_TRACES_SAMPLE_RATE` then leaves the Go surface: `BakedSentryTracesSampleRate` and its
-resolver in `shared/telemetry`, the `ARG` in five service Dockerfiles, the six bake targets that pass
-it, and the env-template field. **It stays for the SPA**, which reports browser tracing straight to
-Sentry and never reaches the collector — the two GitHub workflow pass-throughs and the frontend bake
-target keep it for that reason. The env-template help text changes from "Go performance + SPA
-tracesSampleRate" to name only the SPA.
+resolver in `shared/telemetry`, the `ARG` in the five Go service Dockerfiles, and the five Go bake
+targets that pass it.
+
+**It stays everywhere the SPA needs it.** The browser reports tracing straight to Sentry and never
+reaches the collector, and it reads the key at *build* time — `vite.config.js` folds it into
+`import.meta.env`, so it must survive in `bake.go`'s pass-through list, the sixth bake target, the
+frontend Dockerfile, the two GitHub workflow variables, and the env-template field. Only the
+field's help text changes, from "Go performance + SPA tracesSampleRate" to name the SPA alone.
 
 The SPA is out of scope. Its spans measure page loads and route changes, Tempo would never see them,
 and § Open questions already records the browser as the one producer that stays outside Alloy.

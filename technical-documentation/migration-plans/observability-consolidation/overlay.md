@@ -137,6 +137,22 @@ Nothing traces until the rate is raised: it defaults to 0, which exports no span
 **Spans still end at `otelcol.exporter.debug` in the collector**, so they are exported and
 discarded. Giving them a destination is the rest of Stage F.
 
+### The OTel modules
+
+The stack runs current stable: core, SDK and the OTLP exporters on v1.46.0, the log modules on
+v0.22.0, and the zap bridge on v0.20.1. The core modules had been on pseudo-versions pinned to
+unreleased commits after v1.44.0, which is what a `go get` against the default branch leaves behind;
+they are on releases now.
+
+Two things moved with the upgrade. `trace.NewNoopTracerProvider` is deprecated in favour of the
+`trace/noop` package, and the log record's attribute `Key` became a distinct type rather than an
+alias for `string`.
+
+**`otelhttp` is held at v0.70.0.** v0.71.0 reports a zero duration for the final attempt of a retried
+request, and `shared/httpclient` reports per-attempt timing from it — a test covers that, and it
+fails on v0.71.0 and passes on v0.70.0. The hold is recorded in `services/go.mod` beside the
+requirement.
+
 ## Dashboards
 
 **`core-esi-limits.json`** reads the five bucket gauges `services/core/metrics/esi` registers:

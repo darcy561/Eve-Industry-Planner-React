@@ -19,7 +19,7 @@ import (
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	oteltrace "go.opentelemetry.io/otel/trace"
+	tracenoop "go.opentelemetry.io/otel/trace/noop"
 
 	"eve-industry-planner/shared/container"
 	"eve-industry-planner/shared/logs"
@@ -117,7 +117,7 @@ func Init(ctx context.Context, cfg Config) (func(context.Context) error, error) 
 		otel.SetTracerProvider(tp)
 		traceShutdown = tp.Shutdown
 	} else {
-		otel.SetTracerProvider(oteltrace.NewNoopTracerProvider())
+		otel.SetTracerProvider(tracenoop.NewTracerProvider())
 		traceShutdown = func(context.Context) error { return nil }
 	}
 

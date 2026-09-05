@@ -4,8 +4,7 @@ package telemetry
 // in service Dockerfiles (Docker ARG), matching the frontend pattern: Sentry is set at image build,
 // not from Compose/.env at runtime. Leave defaults for local go build / dev images (empty DSN → no Sentry).
 var (
-	BakedSentryDSN              = ""
-	BakedAppMode                = "" // Vite-equivalent: "development" | "production" (import.meta.env.MODE)
-	BakedRelease                = "" // import.meta.env.VITE_APP_VERSION || "development"
-	BakedSentryTracesSampleRate = "" // optional build-time default; empty → 0 unless SENTRY_TRACES_SAMPLE_RATE is set at runtime
+	BakedSentryDSN = ""
+	BakedAppMode   = "" // Vite-equivalent: "development" | "production" (import.meta.env.MODE)
+	BakedRelease   = "" // import.meta.env.VITE_APP_VERSION || "development"
 )

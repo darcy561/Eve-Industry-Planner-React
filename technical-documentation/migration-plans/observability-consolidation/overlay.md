@@ -116,7 +116,26 @@ _Empty until Stage E lands._
 
 ## Traces
 
-_Empty until Stage F and Stage G land._
+**The Go services export spans to the collector, and Sentry receives errors only.** A tracer
+provider is built whenever `OTLPEndpoint` is set — the same condition that already governs metric
+and log export — so tracing follows the observability addon rather than the Sentry DSN. With the
+layer off the provider is a noop, as before.
+
+`sentry.Init` runs with `EnableTracing: false` and without `sentryotel.NewOtelIntegration`, so
+errors, grouping and release tracking are unchanged and no span reaches Sentry. The SPA is
+unaffected: its browser tracing reports straight to Sentry, never touches the collector, and keeps
+its own `SENTRY_TRACES_SAMPLE_RATE`, baked at image build through `vite.config.js`.
+
+**One sample rate governs the whole request path.** The services read `TRACES_SAMPLE_RATE`, which
+already drove `--tracing.sampleRate` on Traefik, and sample `ParentBased`. Traefik takes the head
+decision at the edge and the services follow it; a service sampling independently would drop spans
+out of the middle of a trace it did not start. `BakedSentryTracesSampleRate` is gone, along with the
+build argument that fed it in the five Go service Dockerfiles and their bake targets.
+
+Nothing traces until the rate is raised: it defaults to 0, which exports no spans.
+
+**Spans still end at `otelcol.exporter.debug` in the collector**, so they are exported and
+discarded. Giving them a destination is the rest of Stage F.
 
 ## Dashboards
 

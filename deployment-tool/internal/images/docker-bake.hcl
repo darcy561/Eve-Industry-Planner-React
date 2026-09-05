@@ -110,7 +110,6 @@ target "api" {
     APP_FEATURE_FLAGS_JSON       = APP_FEATURE_FLAGS_JSON
     ENVIRONMENT                  = ENVIRONMENT
     SENTRY_DSN                   = SENTRY_DSN
-    SENTRY_TRACES_SAMPLE_RATE    = SENTRY_TRACES_SAMPLE_RATE
     FEEDBACK_DISCORD_WEBHOOK_URL = FEEDBACK_DISCORD_WEBHOOK_URL
   }
 }
@@ -123,7 +122,6 @@ target "websocket" {
     APP_VERSION               = APP_VERSION
     ENVIRONMENT               = ENVIRONMENT
     SENTRY_DSN                = SENTRY_DSN
-    SENTRY_TRACES_SAMPLE_RATE = SENTRY_TRACES_SAMPLE_RATE
   }
 }
 
@@ -135,7 +133,6 @@ target "worker" {
     APP_VERSION               = APP_VERSION
     ENVIRONMENT               = ENVIRONMENT
     SENTRY_DSN                = SENTRY_DSN
-    SENTRY_TRACES_SAMPLE_RATE = SENTRY_TRACES_SAMPLE_RATE
   }
 }
 
@@ -155,7 +152,6 @@ target "core" {
     APP_FEATURE_FLAGS_JSON    = APP_FEATURE_FLAGS_JSON
     ENVIRONMENT               = ENVIRONMENT
     SENTRY_DSN                = SENTRY_DSN
-    SENTRY_TRACES_SAMPLE_RATE = SENTRY_TRACES_SAMPLE_RATE
   }
 }
 
@@ -167,7 +163,6 @@ target "capacity-controller" {
     APP_VERSION               = APP_VERSION
     ENVIRONMENT               = ENVIRONMENT
     SENTRY_DSN                = SENTRY_DSN
-    SENTRY_TRACES_SAMPLE_RATE = SENTRY_TRACES_SAMPLE_RATE
   }
 }
 

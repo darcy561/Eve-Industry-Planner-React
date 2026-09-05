@@ -191,7 +191,7 @@ var envFields = []EnvField{
 	},
 	{
 		Key: "SENTRY_TRACES_SAMPLE_RATE", Section: "Sentry", Label: "Sentry traces sample rate",
-		Help: "0.0–1.0: Go performance + SPA tracesSampleRate. Empty → 0.",
+		Help: "0.0–1.0: SPA tracesSampleRate, baked at image build. Empty → 0. Go services sample on TRACES_SAMPLE_RATE.",
 		Type: FieldText, Required: false, Default: "",
 	},
 	{

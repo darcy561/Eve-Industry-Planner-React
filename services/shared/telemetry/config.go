@@ -7,9 +7,10 @@ import (
 	"time"
 )
 
-// sentryTracesSampleRateEnv is optional: when set (non-empty), it overrides the link-time
-// baked rate for Sentry performance traces. Omitted or empty → use baked; both empty → 0.
-const sentryTracesSampleRateEnv = "SENTRY_TRACES_SAMPLE_RATE"
+// tracesSampleRateEnv is the head-based sampling rate for span export, shared with the edge:
+// Traefik takes the sampling decision and the services follow it, so one rate governs both.
+// Empty or unparseable → 0, which exports no spans.
+const tracesSampleRateEnv = "TRACES_SAMPLE_RATE"
 
 // DefaultOTLPEndpoint is the gRPC host:port for Alloy (DNS alias on eip-core when obs addon is up).
 const DefaultOTLPEndpoint = "alloy:4317"
@@ -25,8 +26,6 @@ const observabilityEnabledEnv = "OBSERVABILITY_ENABLED"
 const DefaultMetricExportInterval = 15 * time.Second
 
 // Config controls Init. Sentry DSN/release come from link-time [Baked*] vars (see baked.go).
-// SentryTracesSampleRate is resolved by [resolveSentryTracesSampleRate]: runtime
-// SENTRY_TRACES_SAMPLE_RATE overrides baked BakedSentryTracesSampleRate when set.
 type Config struct {
 	ServiceName    string
 	ServiceVersion string
@@ -38,10 +37,13 @@ type Config struct {
 	// Zero means [DefaultMetricExportInterval] (aligned with Prometheus ingest from Alloy remote write).
 	MetricExportInterval time.Duration
 
-	SentryDSN              string
-	SentryEnvironment      string
-	SentryRelease          string
-	SentryTracesSampleRate float64
+	SentryDSN         string
+	SentryEnvironment string
+	SentryRelease     string
+
+	// TracesSampleRate is the ratio of traces exported when a sampling decision has not
+	// already been made upstream. Zero exports none.
+	TracesSampleRate float64
 }
 
 // DefaultConfig returns OTLP settings for services running on the standard stack (Alloy as alloy:4317).
@@ -49,14 +51,14 @@ type Config struct {
 // unexported; Sentry is unaffected.
 func DefaultConfig(serviceName string) Config {
 	return Config{
-		ServiceName:            strings.TrimSpace(serviceName),
-		ServiceVersion:         resolveServiceVersion(),
-		OTLPEndpoint:           resolveOTLPEndpoint(),
-		OTLPInsecure:           true,
-		SentryDSN:              strings.TrimSpace(BakedSentryDSN),
-		SentryEnvironment:      resolveDeploymentEnvironment(),
-		SentryRelease:          strings.TrimSpace(BakedRelease),
-		SentryTracesSampleRate: resolveSentryTracesSampleRate(),
+		ServiceName:       strings.TrimSpace(serviceName),
+		ServiceVersion:    resolveServiceVersion(),
+		OTLPEndpoint:      resolveOTLPEndpoint(),
+		OTLPInsecure:      true,
+		SentryDSN:         strings.TrimSpace(BakedSentryDSN),
+		SentryEnvironment: resolveDeploymentEnvironment(),
+		SentryRelease:     strings.TrimSpace(BakedRelease),
+		TracesSampleRate:  resolveTracesSampleRate(),
 	}
 }
 
@@ -97,11 +99,8 @@ func parseTraceSampleRate(raw string) float64 {
 	return f
 }
 
-func resolveSentryTracesSampleRate() float64 {
-	if v := strings.TrimSpace(os.Getenv(sentryTracesSampleRateEnv)); v != "" {
-		return parseTraceSampleRate(v)
-	}
-	return parseTraceSampleRate(BakedSentryTracesSampleRate)
+func resolveTracesSampleRate() float64 {
+	return parseTraceSampleRate(os.Getenv(tracesSampleRateEnv))
 }
 
 // resolveServiceVersion returns the app semver for OTLP service.version (logs/metrics resource).

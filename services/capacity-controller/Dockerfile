@@ -8,7 +8,6 @@ COPY . .
 ARG SENTRY_DSN=""
 ARG ENVIRONMENT=production
 ARG APP_VERSION
-ARG SENTRY_TRACES_SAMPLE_RATE=
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -18,7 +17,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
       -X eve-industry-planner/shared/telemetry.BakedSentryDSN=${SENTRY_DSN} \
       -X eve-industry-planner/shared/telemetry.BakedAppMode=${ENVIRONMENT} \
       -X eve-industry-planner/shared/telemetry.BakedRelease=${APP_VERSION} \
-      -X eve-industry-planner/shared/telemetry.BakedSentryTracesSampleRate=${SENTRY_TRACES_SAMPLE_RATE}" \
+" \
     -trimpath \
     -o /out/capacity-controller ./capacity-controller
 

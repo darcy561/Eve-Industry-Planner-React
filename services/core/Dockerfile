@@ -8,8 +8,6 @@ COPY . .
 ARG SENTRY_DSN=""
 ARG ENVIRONMENT=production
 ARG APP_VERSION
-# Optional: omit or set at build time; runtime SENTRY_TRACES_SAMPLE_RATE in .env overrides when non-empty.
-ARG SENTRY_TRACES_SAMPLE_RATE=
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -18,7 +16,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
       -X eve-industry-planner/shared/telemetry.BakedSentryDSN=${SENTRY_DSN} \
       -X eve-industry-planner/shared/telemetry.BakedAppMode=${ENVIRONMENT} \
       -X eve-industry-planner/shared/telemetry.BakedRelease=${APP_VERSION} \
-      -X eve-industry-planner/shared/telemetry.BakedSentryTracesSampleRate=${SENTRY_TRACES_SAMPLE_RATE}" \
+" \
     -trimpath \
     -o core-service ./core
 

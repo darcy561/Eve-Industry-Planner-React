@@ -27,25 +27,19 @@ func TestParseTraceSampleRate(t *testing.T) {
 	}
 }
 
-func TestResolveSentryTracesSampleRate_envOverridesBaked(t *testing.T) {
-	t.Setenv(sentryTracesSampleRateEnv, "0.2")
-	saved := BakedSentryTracesSampleRate
-	BakedSentryTracesSampleRate = "0.9"
-	t.Cleanup(func() { BakedSentryTracesSampleRate = saved })
+func TestResolveTracesSampleRate_readsEnv(t *testing.T) {
+	t.Setenv(tracesSampleRateEnv, "0.2")
 
-	if got := resolveSentryTracesSampleRate(); got != 0.2 {
-		t.Fatalf("want env to win: got %v", got)
+	if got := resolveTracesSampleRate(); got != 0.2 {
+		t.Fatalf("want 0.2: got %v", got)
 	}
 }
 
-func TestResolveSentryTracesSampleRate_fallsBackToBaked(t *testing.T) {
-	t.Setenv(sentryTracesSampleRateEnv, "")
-	saved := BakedSentryTracesSampleRate
-	BakedSentryTracesSampleRate = "0.15"
-	t.Cleanup(func() { BakedSentryTracesSampleRate = saved })
+func TestResolveTracesSampleRate_unparseableMeansZero(t *testing.T) {
+	t.Setenv(tracesSampleRateEnv, "some-of-them")
 
-	if got := resolveSentryTracesSampleRate(); got != 0.15 {
-		t.Fatalf("want baked: got %v", got)
+	if got := resolveTracesSampleRate(); got != 0 {
+		t.Fatalf("want 0: got %v", got)
 	}
 }
 
@@ -102,13 +96,10 @@ func TestResolveDeploymentEnvironment(t *testing.T) {
 	}
 }
 
-func TestResolveSentryTracesSampleRate_emptyMeansZero(t *testing.T) {
-	t.Setenv(sentryTracesSampleRateEnv, "")
-	saved := BakedSentryTracesSampleRate
-	BakedSentryTracesSampleRate = ""
-	t.Cleanup(func() { BakedSentryTracesSampleRate = saved })
+func TestResolveTracesSampleRate_emptyMeansZero(t *testing.T) {
+	t.Setenv(tracesSampleRateEnv, "")
 
-	if got := resolveSentryTracesSampleRate(); got != 0 {
+	if got := resolveTracesSampleRate(); got != 0 {
 		t.Fatalf("want 0: got %v", got)
 	}
 }

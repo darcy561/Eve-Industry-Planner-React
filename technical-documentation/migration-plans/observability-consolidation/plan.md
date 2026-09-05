@@ -516,10 +516,36 @@ Three changes, not one. **This stage was originally scoped as config-only and is
 
 Doing only the last produces an empty traces view.
 
-**Loki and Prometheus store no traces, so this stage now needs a trace destination of its own.**
-Tempo is the obvious candidate — it completes the Grafana stack, Grafana already queries it as a
-datasource, and the exporter change in `shared/telemetry` is the same work either way. That is the
-open question this stage must answer before it starts: add Tempo, or leave traces discarded.
+**Loki and Prometheus store no traces, so this stage needs a trace destination of its own.** Tempo
+is the obvious candidate — it completes the Grafana stack, Grafana already queries it as a
+datasource, and the exporter change in `shared/telemetry` is the same work either way.
+
+**It is not obviously affordable, and that decides the stage.** The backend evaluation rejected a
+single-node store that idled at 1.2 GB on a host with 8 GB and 2.5 GB already committed; the stack
+now sits around 2.8 GB with no users on it. A trace store is the same class of component, and the
+operator recalls Tempo consuming a host in the same way — from another deployment rather than this
+repo, which has never carried it, so the figure is a warning rather than a measurement. Before
+adding it:
+
+- Measure it the way OpenObserve was measured: idle first, then under load, on a host sized like the
+  real one. Treat the idle figure as a floor.
+- Cap what it will claim before starting it. Tempo sizes several caches from what it finds, which is
+  what made the earlier evaluation misleading on a development machine with more memory than the
+  VPS.
+- Decide the retention window first. Traces are the highest-volume signal here and the one whose
+  cost scales hardest with how long it is kept.
+
+**Sampling is the lever that makes this affordable or not.** `TRACES_SAMPLE_RATE` is unset, so
+nothing traces today. Head-based sampling at the edge means the volume reaching a store is chosen
+rather than discovered — a low rate captures the shape of a request path without storing every
+request. Set it deliberately before pointing anything at a store, not after.
+
+**Whatever is decided, Sentry stops receiving spans.** § Decisions taken settles that error capture,
+grouping and release tracking stay on Sentry while span export moves to the collector, which costs
+`sentryotel.NewOtelIntegration` the spans it attaches to errors. Dropping this stage entirely is
+therefore a coherent option: traces stay discarded, Sentry keeps both errors and its own tracing as
+it does today, and nothing regresses. It is the only stage whose value depends on a component the
+stack does not have.
 
 ### Stage G — the spans say what a trace needs
 
@@ -692,9 +718,11 @@ and both were undone in one pass with the old stores never having been deleted. 
 
 ## Open questions
 
-1. **Do traces get a store?** Stage F moves spans off Sentry and onto the collector, but Prometheus
-   and Loki hold none. Either Tempo joins the stack or traces stay discarded and Stage F is dropped.
-   Nothing else in the plan depends on the answer.
+1. **Do traces get a store, and can the host afford one?** Stage F moves spans off Sentry and onto
+   the collector, but Prometheus and Loki hold none. Either Tempo joins the stack or traces stay
+   discarded and Stage F is dropped — and the footprint question that rejected the last store
+   applies to this one, so measure before adopting. Detail in
+   [Stage F](#stage-f--traces-stop-being-discarded). Nothing else in the plan depends on the answer.
 2. **What should `ws-router` measure?** Stage C added the plumbing; the instrumentation it carries is
    a separate design question.
 3. **How much MongoDB telemetry is actually wanted?** 6,569 metric names collected, ten queried.

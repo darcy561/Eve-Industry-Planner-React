@@ -498,54 +498,72 @@ labels, and every `logs-*` dashboard selects `{compose_service="…"}`. Containe
 
 ### Stage F — traces stop being discarded
 
-Three changes, not one. **This stage was originally scoped as config-only and is not.**
+**Decided: Tempo joins the stack, and the Go services stop reporting spans to Sentry.** Sentry keeps
+error capture, grouping and release tracking. It loses `sentryotel.NewOtelIntegration`, and with it
+the spans it attaches to errors — accepted, because the spans are going somewhere that can be
+queried alongside the metrics and logs from the same request.
 
-- **In `services/shared/telemetry`:** the tracer provider is only constructed when
-  `SentryDSN != "" && SentryTracesSampleRate > 0`; every other case installs a noop provider. Exporting
-  to the collector means restructuring that branch so a provider is built whenever *either*
-  destination is on, swapping `sentryotlp.NewTraceExporter` for the OTLP exporter against
-  `OTLPEndpoint`, and adopting `TRACES_SAMPLE_RATE` as the sampler's rate. That key already exists
-  and already drives Traefik's edge sampling; because sampling is head-based, the services should
-  follow the edge decision (`ParentBased`) rather than sample independently, or a trace will arrive
-  with holes in it. Sentry keeps error capture; it stops receiving spans.
-- **Around the edges of that:** a new `Config` field, an env field in the Deployment Tool's
-  `kit/templates/env/fields.go`, a baked default, and the two GitHub workflow pass-throughs that
-  carry the current variable.
-- **In Alloy:** repoint `otelcol.exporter.debug "discard_traces"` at the backend. Traefik edge spans
-  already arrive there and are discarded with the rest.
+Tempo is on trial. The backend evaluation rejected a store that idled at 1.2 GB on a host with 8 GB,
+and this stack now sits near 2.8 GB with nobody using it, so the stage carries a measurement gate
+rather than an assumption — see § Measuring it below. If it does not fit, the exporter work still
+stands and only the destination changes.
 
-Doing only the last produces an empty traces view.
+#### The service change
 
-**Loki and Prometheus store no traces, so this stage needs a trace destination of its own.** Tempo
-is the obvious candidate — it completes the Grafana stack, Grafana already queries it as a
-datasource, and the exporter change in `shared/telemetry` is the same work either way.
+`services/shared/telemetry/telemetry.go` builds a tracer provider only when
+`SentryDSN != "" && SentryTracesSampleRate > 0`, and installs a noop provider otherwise. That branch
+inverts: a provider is built whenever `OTLPEndpoint` is set, exporting over OTLP to the collector,
+and the noop remains only for the layer-off case.
 
-**It is not obviously affordable, and that decides the stage.** The backend evaluation rejected a
-single-node store that idled at 1.2 GB on a host with 8 GB and 2.5 GB already committed; the stack
-now sits around 2.8 GB with no users on it. A trace store is the same class of component, and the
-operator recalls Tempo consuming a host in the same way — from another deployment rather than this
-repo, which has never carried it, so the figure is a warning rather than a measurement. Before
-adding it:
+- `sentryotlp.NewTraceExporter` goes; the OTLP trace exporter against `OTLPEndpoint` replaces it,
+  alongside the log exporter already pointed there.
+- `sentry.Init` keeps `EnableTracing: false` and drops the OTel integration, so errors still flow and
+  spans no longer do.
+- The sampler stays `ParentBased(TraceIDRatioBased(rate))`. Sampling is head-based and Traefik makes
+  the decision at the edge, so a service that samples independently produces traces with holes.
 
-- Measure it the way OpenObserve was measured: idle first, then under load, on a host sized like the
-  real one. Treat the idle figure as a floor.
-- Cap what it will claim before starting it. Tempo sizes several caches from what it finds, which is
-  what made the earlier evaluation misleading on a development machine with more memory than the
-  VPS.
-- Decide the retention window first. Traces are the highest-volume signal here and the one whose
-  cost scales hardest with how long it is kept.
+#### One sample rate, not two
 
-**Sampling is the lever that makes this affordable or not.** `TRACES_SAMPLE_RATE` is unset, so
-nothing traces today. Head-based sampling at the edge means the volume reaching a store is chosen
-rather than discovered — a low rate captures the shape of a request path without storing every
-request. Set it deliberately before pointing anything at a store, not after.
+`TRACES_SAMPLE_RATE` already exists, already drives `--tracing.sampleRate` on Traefik, and is already
+an env-template field. The services adopt it, so the edge and the services sample on one number.
 
-**Whatever is decided, Sentry stops receiving spans.** § Decisions taken settles that error capture,
-grouping and release tracking stay on Sentry while span export moves to the collector, which costs
-`sentryotel.NewOtelIntegration` the spans it attaches to errors. Dropping this stage entirely is
-therefore a coherent option: traces stay discarded, Sentry keeps both errors and its own tracing as
-it does today, and nothing regresses. It is the only stage whose value depends on a component the
-stack does not have.
+`SENTRY_TRACES_SAMPLE_RATE` then leaves the Go surface: `BakedSentryTracesSampleRate` and its
+resolver in `shared/telemetry`, the `ARG` in five service Dockerfiles, the six bake targets that pass
+it, and the env-template field. **It stays for the SPA**, which reports browser tracing straight to
+Sentry and never reaches the collector — the two GitHub workflow pass-throughs and the frontend bake
+target keep it for that reason. The env-template help text changes from "Go performance + SPA
+tracesSampleRate" to name only the SPA.
+
+The SPA is out of scope. Its spans measure page loads and route changes, Tempo would never see them,
+and § Open questions already records the browser as the one producer that stays outside Alloy.
+
+#### The collector change
+
+`otelcol.exporter.debug "discard_traces"` becomes an OTLP exporter pointed at Tempo. Traefik edge
+spans already arrive at that pipeline and are discarded with the rest, so this is what puts the edge
+and the services on the same trace.
+
+#### Measuring it
+
+Before Tempo is adopted rather than after:
+
+- Cap its caches and its retention in the fragment before first start. The last store sized itself
+  from the host it booted on and looked far worse on a development machine than it would have on the
+  VPS; a figure measured without caps says nothing about either.
+- Read the idle footprint first, then under load, and treat idle as a floor rather than a cost.
+- Set `TRACES_SAMPLE_RATE` deliberately. It is unset today, so nothing traces; the volume reaching
+  Tempo is chosen, not discovered.
+
+Rollback is the same shape as the last evaluation: repoint the collector's trace exporter back at
+`otelcol.exporter.debug` and remove one service. The service change stands either way, because a
+trace that goes nowhere costs a noop provider.
+
+#### Wire compatibility
+
+Removing `SENTRY_TRACES_SAMPLE_RATE` from the Go build args is **breaking for the build**, not for
+the wire: an image built with the old bake passes an `ARG` nothing declares, which Docker warns about
+and ignores. Operators setting it in `.env` for Go tracing need `TRACES_SAMPLE_RATE` instead, which
+§ Wire compatibility records as migrate-required.
 
 ### Stage G — the spans say what a trace needs
 
@@ -661,33 +679,31 @@ Promote the overlay into live SoT under [`stack/`](../../stack/contents.md) and
 
 **Migrate-required:**
 
-- **`eip.config.yaml`.** `addons.observability.grafana.*` and `paths.grafana` are operator-facing
-  keys naming a product that will not be there. Renaming them needs an upgrade path for existing
-  config files, and it is the only part of this project an operator has to act on.
-- **`.env`.** `GRAFANA_ADMIN_USER` / `GRAFANA_ADMIN_PASSWORD` are replaced by the new backend's
-  credentials, which the env template generates and locks the same way.
+- **`.env`.** `SENTRY_TRACES_SAMPLE_RATE` stops governing Go span export in Stage F; the services
+  read `TRACES_SAMPLE_RATE`, which already exists and already drives the edge. The key stays for the
+  SPA, so an operator using it for both needs to set the new one.
 
-**Breaking, and accepted at the cut:**
+**Breaking:**
 
-- **Dashboard format.** Grafana JSON does not import. Every dashboard is rebuilt, not converted.
-- **Provisioning.** The Deployment Tool embeds Grafana's file-based provisioning —
-  `datasources.yaml`, `dashboards.yaml`, and twenty `grafana_dash_*` configs in the stack YAML.
-  The target manages dashboards through its API, so that path is rebuilt rather than reconfigured.
-- **Historical telemetry.** Prometheus TSDB and Loki chunks do not migrate and are not copied.
-  The cut is hard: history before it is readable only until Stage I deletes the volumes, and not
-  after.
-- **`job` labels.** The exporter collapse, the Traefik OTLP switch and any change to the write path
-  can each rewrite them, and every infrastructure dashboard filters on them.
-- **Traefik metric names.** Prometheus exposition and OTLP export do not name the same series.
+- **`job` labels.** The exporter collapse and the Traefik OTLP switch each rewrote them, and every
+  infrastructure dashboard filters on them.
+- **Traefik metric names.** Prometheus exposition and OTLP export do not name the same series. In
+  the event all 22 `traefik_*` families came through the switch unchanged, `_bucket` histograms
+  included.
+
+The dashboard, provisioning and historical-telemetry entries that stood here belonged to the backend
+swap. Grafana, Prometheus and Loki stayed, so no dashboard was rebuilt, no provisioning path was
+replaced, and no history was lost.
 
 **Changed meaning, no operator action:** `LOG_LEVEL` currently sets the Loki ingest floor in Alloy;
 after Stage A it sets what a service emits. Same key, same values, and the observable result is the
 same when the layer is on — but it now also applies when the layer is off, which is the point.
 
-**Additive:** `TRACES_SAMPLE_RATE`, a new `.env` key defaulting to 0 so nothing traces until it is
-raised; SeaweedFS metrics existing for the first time; `LOG_STDOUT` beginning to work as documented; a `logging:` driver anchor on the
-fragments; traces becoming queryable; `ws-router` appearing in metrics for the first time; Traefik
-edge spans joining application traces.
+**Additive:** `TRACES_SAMPLE_RATE`, defaulting to 0 so nothing traces until it is raised; SeaweedFS
+metrics existing for the first time, and a dashboard reading them; `LOG_STDOUT` beginning to work as
+documented; a `logging:` driver anchor on the fragments; `ws-router` appearing in metrics for the
+first time; owner-keyed websocket connection counts; and, if Stage F adopts Tempo, traces becoming
+queryable with Traefik edge spans joining the application ones.
 
 **Application code changes** in Stages A, C, F and G — how a service logs, what `ws-router` reports,
 where spans go and what they carry. Only the metrics path is untouched application-side, and that is
@@ -718,11 +734,10 @@ and both were undone in one pass with the old stores never having been deleted. 
 
 ## Open questions
 
-1. **Do traces get a store, and can the host afford one?** Stage F moves spans off Sentry and onto
-   the collector, but Prometheus and Loki hold none. Either Tempo joins the stack or traces stay
-   discarded and Stage F is dropped — and the footprint question that rejected the last store
-   applies to this one, so measure before adopting. Detail in
-   [Stage F](#stage-f--traces-stop-being-discarded). Nothing else in the plan depends on the answer.
+1. **Does Tempo earn its place?** Stage F adopts it and moves the Go services' spans off Sentry, but
+   on the measurement gate in [Stage F](#stage-f--traces-stop-being-discarded) § Measuring it. The
+   footprint question that rejected the last store applies to this one. Nothing else in the plan
+   depends on the answer, and the service change stands whichever way it falls.
 2. **What should `ws-router` measure?** Stage C added the plumbing; the instrumentation it carries is
    a separate design question.
 3. **How much MongoDB telemetry is actually wanted?** 6,569 metric names collected, ten queried.

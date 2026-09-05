@@ -601,19 +601,16 @@ Done:
   execution end and duplicated its failures panel. Nineteen dashboards now, not twenty.
 - `redis`, `traefik`, `host` and `frontend-events-otel-metrics` — grouped into rows, with the host
   dashboard's hardcoded rate window and the frontend dashboard's instrument-name titles replaced.
-
-Left:
-
-- The SeaweedFS dashboard named below still does not exist.
+- `seaweedfs.json` — new. Stage B collected it and nothing read it.
 
 **Grafana's provisioning had to be corrected first.** The provider allowed UI updates, so Grafana
 held its own copy of all twenty dashboards and a shipped file change did not necessarily reach the
 served dashboard. The Deployment Tool's embedded kit is where dashboards come from, so the provider
 now treats the file as authoritative. Detail in the overlay.
 
-**One dashboard is genuinely new.** SeaweedFS has never been dashboarded because it was never
-collected before Stage B. It matters more than it sounds: storage growth is where retention problems
-show up first.
+**One dashboard was genuinely new.** SeaweedFS had never been dashboarded because it was never
+collected before Stage B — storage growth is where retention problems show up first, and 86 series
+were arriving with nothing reading them. It exists now; the overlay describes it.
 
 **And one question this stage should answer rather than inherit.** The MongoDB exporter emits 6,569
 distinct metric names; `mongodb.json` queries ten of them. That cardinality was what made the
@@ -714,9 +711,8 @@ Stages A to C are committed as `dd0454b9` on `feature/archived-jobs-stats`; the 
 and its removal followed on the same branch.
 
 Stage H is under way rather than finished. The two live defects are fixed, every dashboard has been
-audited against the store, and ten have been reworked for legibility. Every dashboard carrying more
-than a handful of panels now groups them into rows. What remains is the SeaweedFS dashboard that has
-never existed.
+audited against the store, ten have been reworked for legibility, and SeaweedFS has a dashboard for
+the first time. Every dashboard carrying more than a handful of panels groups them into rows.
 
 | Stage | Status |
 |-------|--------|
@@ -728,7 +724,7 @@ never existed.
 | E — query gate | Dropped with the backend |
 | F — traces stop being discarded | Not started — needs a trace store decided first |
 | G — the spans say what a trace needs | Not started |
-| H — fix the dashboards | Partial — defects fixed, layout work continuing |
+| H — fix the dashboards | Done |
 | I — cutover | Retired — nothing to cut over |
 | J — promote and delete | Not started |
 

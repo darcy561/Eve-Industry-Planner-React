@@ -216,6 +216,20 @@ The placement panels stack their series, because the question there is the mix �
 put. What each result means, and the soft/full/cutoff ladder, is
 [backend/ws-router/ws-router.md](../../backend/ws-router/ws-router.md) § Placement.
 
+**SeaweedFS has a dashboard for the first time.** Stage B started collecting it — under `mini` one
+port serves master, filer, filer store, volume server and admin metrics together — but nothing read
+the 86 series that arrived. It opens on what is stored and how much room is left, because storage
+fills before it fails: stored bytes, object count, volume slots used against the server's ceiling,
+space held by deleted objects awaiting vacuum, and whether the master holds the cluster lock.
+
+Then capacity by bucket and collection, S3 traffic with request duration and time to first byte,
+and a health row covering read and write failures, under-replicated volumes, in-flight work and
+vacuum activity.
+
+**Volume and disk metrics are published twice** — once bare as the server total and once per
+collection — so the panels that want a total filter on `collection=""`. Summing across both counts
+the same bytes in each.
+
 **`redis`, `traefik`, `host` and `frontend-events-otel-metrics` are grouped into rows.** Each was a
 single column of ten or more panels, so reading one meant scrolling past everything it was not
 about. Their queries were sound and are unchanged; what moved is the arrangement — a "Now" band of

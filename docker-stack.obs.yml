@@ -193,6 +193,8 @@ services:
         target: /etc/grafana/provisioning/dashboards/definitions/observability-stack.json
       - source: grafana_dash_redis
         target: /etc/grafana/provisioning/dashboards/definitions/redis.json
+      - source: grafana_dash_seaweedfs
+        target: /etc/grafana/provisioning/dashboards/definitions/seaweedfs.json
       - source: grafana_dash_traefik
         target: /etc/grafana/provisioning/dashboards/definitions/traefik.json
       - source: grafana_dash_websocket_otel_metrics
@@ -331,6 +333,8 @@ configs:
     file: ./observability/grafana/provisioning/dashboards/definitions/observability-stack.json
   grafana_dash_redis:
     file: ./observability/grafana/provisioning/dashboards/definitions/redis.json
+  grafana_dash_seaweedfs:
+    file: ./observability/grafana/provisioning/dashboards/definitions/seaweedfs.json
   grafana_dash_traefik:
     file: ./observability/grafana/provisioning/dashboards/definitions/traefik.json
   grafana_dash_websocket_otel_metrics:

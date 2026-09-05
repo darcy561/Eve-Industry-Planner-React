@@ -69,7 +69,7 @@ func (s *Server) reader(client *Client) {
 		// Snapshot subscription keys so a quick reconnect can move NATS subscriber slots to the new client_id.
 		s.snapshotSessionHandoff(ctx, client)
 
-		s.unregisterClientFromOrgPools(client)
+		s.removeClientFromOwnerPools(client)
 
 		// Clean up explicit subscription index for this client
 		s.cleanupClientSubscriptions(client.id, client.AccountID, client.explicitDocIDs)

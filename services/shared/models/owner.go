@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"eve-industry-planner/shared/crypto/entityid"
@@ -67,6 +68,9 @@ func orgOwner(kind OwnerKind, ref string) Owner {
 
 // Key identifies the owner in a single string, for a document id or a
 // deduplication token.
+//
+// A zero owner renders ":", which addresses nothing. Callers that build a key
+// from an unvalidated id must check IsZero rather than index on the result.
 func (o Owner) Key() string {
 	return string(o.Kind) + ":" + o.ID
 }
@@ -120,6 +124,131 @@ func orgEntityKind(kind OwnerKind) (string, bool) {
 	default:
 		return "", false
 	}
+}
+
+// OwnerKeys is a set of owners held as their keys: a session's grant ceiling, the
+// owners one connection receives changes for, or the owners a client asked for.
+// They are the same set asked different questions, so the operations live here
+// rather than being rewritten per caller.
+//
+// Order is the caller's: the set is built by appending, and Normalized is what
+// sorts and deduplicates when a stable form is wanted.
+type OwnerKeys []string
+
+// NewOwnerKeys starts an empty set, for building one by Add or AddRefs.
+func NewOwnerKeys() OwnerKeys { return nil }
+
+// Has reports whether the owner is in the set.
+func (k OwnerKeys) Has(owner Owner) bool {
+	if owner.IsZero() {
+		return false
+	}
+	return slices.Contains(k, owner.Key())
+}
+
+// IDsForKind returns the ids of one kind, which for the org kinds are refs.
+func (k OwnerKeys) IDsForKind(kind OwnerKind) []string {
+	var out []string
+	for _, key := range k {
+		owner, err := ParseOwnerKey(key)
+		if err != nil || owner.Kind != kind {
+			continue
+		}
+		out = append(out, owner.ID)
+	}
+	return out
+}
+
+// Add appends owners as keys, skipping any the vocabulary refuses rather than
+// storing a key nothing can parse.
+func (k OwnerKeys) Add(owners ...Owner) OwnerKeys {
+	for _, owner := range owners {
+		if owner.Validate() != nil {
+			continue
+		}
+		k = append(k, owner.Key())
+	}
+	return k
+}
+
+// AddRefs appends refs of one kind as keys, on the same terms as Add.
+func (k OwnerKeys) AddRefs(kind OwnerKind, refs []string) OwnerKeys {
+	for _, ref := range refs {
+		k = k.Add(Owner{Kind: kind, ID: strings.TrimSpace(ref)})
+	}
+	return k
+}
+
+// Within returns the keys of k that ceiling also holds.
+//
+// An empty ceiling permits nothing: a session holding no grants can reach no
+// owner, so an empty ceiling must never read as "unrestricted".
+func (k OwnerKeys) Within(ceiling OwnerKeys) OwnerKeys {
+	if len(ceiling) == 0 {
+		return nil
+	}
+	allowed := ceiling.set()
+	var out OwnerKeys
+	for _, raw := range k {
+		key := strings.TrimSpace(raw)
+		if key == "" {
+			continue
+		}
+		if _, ok := allowed[key]; ok {
+			out = append(out, key)
+		}
+	}
+	return out
+}
+
+// Union returns k followed by any of added it does not already hold. Callers
+// widen a set with it, so nothing already held is dropped.
+func (k OwnerKeys) Union(added OwnerKeys) OwnerKeys {
+	seen := k.set()
+	out := append(OwnerKeys(nil), k...)
+	for _, raw := range added {
+		key := strings.TrimSpace(raw)
+		if key == "" {
+			continue
+		}
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		out = append(out, key)
+	}
+	return out
+}
+
+// Normalized returns the set trimmed, deduplicated and sorted, which is the form
+// stored and compared.
+func (k OwnerKeys) Normalized() OwnerKeys {
+	if len(k) == 0 {
+		return OwnerKeys{}
+	}
+	seen := k.set()
+	out := make(OwnerKeys, 0, len(seen))
+	for key := range seen {
+		out = append(out, key)
+	}
+	slices.Sort(out)
+	return out
+}
+
+// Each visits every key that names something, so callers indexing on a key do
+// not each repeat the empty check.
+func (k OwnerKeys) Each(visit func(key string)) {
+	for _, raw := range k {
+		if key := strings.TrimSpace(raw); key != "" {
+			visit(key)
+		}
+	}
+}
+
+func (k OwnerKeys) set() map[string]struct{} {
+	out := make(map[string]struct{}, len(k))
+	k.Each(func(key string) { out[key] = struct{}{} })
+	return out
 }
 
 // IsZero reports whether the owner is unset.

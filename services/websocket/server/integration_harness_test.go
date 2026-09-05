@@ -11,6 +11,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"eve-industry-planner/shared/models"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -24,7 +25,6 @@ import (
 	"eve-industry-planner/shared/orchestrationprobes"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/shared/wsplacement"
-	"eve-industry-planner/websocket/server/model"
 
 	"eve-industry-planner/testing/keys"
 	"eve-industry-planner/testing/redisfake"
@@ -78,8 +78,7 @@ func newIntegFixture(t *testing.T) *integFixture {
 		activeSubscriptions:    make(map[string]map[string]time.Time),
 		incomingQueues:         make(map[string]*IncomingDocQueue),
 		explicitDocSubscribers: make(map[string]map[string]bool),
-		corpRefToClients:       make(map[string]map[string]bool),
-		allianceRefToClients:   make(map[string]map[string]bool),
+		ownerKeyToClients:      make(map[string]map[string]bool),
 		Stack:                  &stackservices.Clients{Redis: rdb},
 		SyncPool:               pond.NewPool(1),
 		upgrader:               upgrader,
@@ -240,6 +239,23 @@ func (f *integFixture) readJSONMessage(conn *websocket.Conn, timeout time.Durati
 	return msg
 }
 
+// readJSONMessageIfAny reads one frame, reporting false when none arrives before
+// the timeout. For asserting that nothing is delivered, where readJSONMessage
+// would fail the test on the silence being tested for.
+func (f *integFixture) readJSONMessageIfAny(conn *websocket.Conn, timeout time.Duration) (map[string]any, bool) {
+	f.t.Helper()
+	_ = conn.SetReadDeadline(time.Now().Add(timeout))
+	_, raw, err := conn.ReadMessage()
+	if err != nil {
+		return nil, false
+	}
+	var msg map[string]any
+	if err := json.Unmarshal(raw, &msg); err != nil {
+		f.t.Fatalf("json: %v raw=%q", err, raw)
+	}
+	return msg, true
+}
+
 // connectAccount seeds a session, dials /ws, and drains the connected frame.
 func (f *integFixture) connectAccount(accountID, sessionID string) *websocket.Conn {
 	f.t.Helper()
@@ -324,12 +340,11 @@ func (f *integFixture) waitRedisAbsent(key string, timeout time.Duration) {
 
 func (f *integFixture) newClient(id, accountID string, corps, alliances []string) *Client {
 	return &Client{
-		id:                  id,
-		AccountID:           accountID,
-		Send:                make(chan []byte, 8),
-		Scopes:              model.RealtimeScopes{},
-		grantedCorpRefs:     stringSetFromSlice(corps),
-		grantedAllianceRefs: stringSetFromSlice(alliances),
+		id:           id,
+		AccountID:    accountID,
+		Send:         make(chan []byte, 8),
+		Scopes:       nil,
+		ownerCeiling: orgOwnerKeys(corps, alliances),
 	}
 }
 
@@ -350,7 +365,7 @@ func (f *integFixture) register(c *Client) {
 func (f *integFixture) unregister(c *Client) {
 	f.t.Helper()
 	s := f.Server
-	s.unregisterClientFromOrgPools(c)
+	s.removeClientFromOwnerPools(c)
 	s.ClientsMu.Lock()
 	delete(s.Clients, c.id)
 	s.ClientsMu.Unlock()
@@ -366,10 +381,15 @@ func (f *integFixture) unregister(c *Client) {
 
 func (f *integFixture) setOrgScopes(c *Client, corps, alliances []string) {
 	f.t.Helper()
-	f.Server.swapClientOrgScopesAndIndexes(c, model.RealtimeScopes{
-		CorporationRefs: corps,
-		AllianceRefs:    alliances,
-	})
+	f.Server.setClientScopes(c, orgOwnerKeys(corps, alliances))
+}
+
+// orgOwnerKeys renders corporation and alliance refs as owner keys, which is the
+// shape scopes and the ceiling both take.
+func orgOwnerKeys(corps, alliances []string) models.OwnerKeys {
+	return models.OwnerKeys(nil).
+		AddRefs(models.OwnerCorporation, corps).
+		AddRefs(models.OwnerAlliance, alliances)
 }
 
 func (f *integFixture) syncPlacementHints() {

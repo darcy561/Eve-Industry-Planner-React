@@ -226,10 +226,7 @@ func (s *Server) broadcastToCorporationScope(ctx context.Context, docID string, 
 	sourceSessionID := decoded.Route.SourceSessionID
 	scopes := decoded.Scopes
 
-	s.corpRefIndexMu.RLock()
-	idsMap := s.corpRefToClients[corporationRef]
-	clientIDs := copyClientIDSet(idsMap)
-	s.corpRefIndexMu.RUnlock()
+	clientIDs := s.clientsForOwner(models.CorporationOwner(corporationRef))
 	out.CandidateCount = len(clientIDs)
 
 	if len(clientIDs) == 0 {
@@ -251,7 +248,7 @@ func (s *Server) broadcastToCorporationScope(ctx context.Context, docID string, 
 		client.SyncMu.Lock()
 		syncing := client.SyncInProgress
 		client.SyncMu.Unlock()
-		if !outgoinglogic.ScopeContains(client.Scopes.CorporationRefs, corporationRef) {
+		if !client.Scopes.Has(models.CorporationOwner(corporationRef)) {
 			out.recordScopeSkip(clientID)
 			continue
 		}
@@ -291,10 +288,7 @@ func (s *Server) broadcastToAllianceScope(ctx context.Context, docID string, mes
 	sourceSessionID := decoded.Route.SourceSessionID
 	scopes := decoded.Scopes
 
-	s.allianceRefIndexMu.RLock()
-	idsMap := s.allianceRefToClients[allianceRef]
-	clientIDs := copyClientIDSet(idsMap)
-	s.allianceRefIndexMu.RUnlock()
+	clientIDs := s.clientsForOwner(models.AllianceOwner(allianceRef))
 	out.CandidateCount = len(clientIDs)
 
 	if len(clientIDs) == 0 {
@@ -309,7 +303,7 @@ func (s *Server) broadcastToAllianceScope(ctx context.Context, docID string, mes
 			out.recordNotConnectedSkip(clientID)
 			continue
 		}
-		corpScope := append([]string(nil), client.Scopes.CorporationRefs...)
+		corpScope := client.Scopes.IDsForKind(models.OwnerCorporation)
 		if !outgoinglogic.AllianceRecipientMatchesDownward(corpScope, client.AccountID, scopes) {
 			out.recordScopeSkip(clientID)
 			continue
@@ -317,7 +311,7 @@ func (s *Server) broadcastToAllianceScope(ctx context.Context, docID string, mes
 		client.SyncMu.Lock()
 		syncing := client.SyncInProgress
 		client.SyncMu.Unlock()
-		if !outgoinglogic.ScopeContains(client.Scopes.AllianceRefs, allianceRef) {
+		if !client.Scopes.Has(models.AllianceOwner(allianceRef)) {
 			out.recordScopeSkip(clientID)
 			continue
 		}

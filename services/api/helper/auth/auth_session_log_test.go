@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"eve-industry-planner/shared/models"
 	"testing"
 
 	"eve-industry-planner/testing/redisfake"
@@ -101,11 +102,8 @@ func TestExtractAccountSession_OrphanIndexIncludesAccountAndSession(t *testing.T
 	)
 	rec := &AccountSessionsRecord{
 		AccountID: accountID,
-		Grants: SessionGrants{
-			CorporationRefs: []string{},
-			AllianceRefs:    []string{},
-		},
-		Sessions: map[string]AccountSession{},
+		Grants:    models.SessionGrants{OwnerKeys: []string{}},
+		Sessions:  map[string]AccountSession{},
 	}
 	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)

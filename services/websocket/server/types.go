@@ -2,13 +2,13 @@ package server
 
 import (
 	"context"
+	"eve-industry-planner/shared/models"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	eipnats "eve-industry-planner/shared/nats"
 	"eve-industry-planner/shared/stackservices"
-	"eve-industry-planner/websocket/server/model"
 	syncpkg "eve-industry-planner/websocket/sync"
 
 	"eve-industry-planner/shared/crypto/entityid"
@@ -51,14 +51,10 @@ type Server struct {
 	explicitDocSubscribers map[string]map[string]bool // docID -> client_ids
 	explicitDocSubMu       sync.RWMutex
 
-	// Reverse indexes for corporation / alliance realtime pools (populated after upgrade_scopes).
-	// Also the corporation: / alliance: side of HostedTenants.
-	// Two mutexes reduce contention: corp broadcasts do not block alliance index updates and vice versa.
-	// When both locks are required, always take corpRefIndexMu before allianceRefIndexMu.
-	corpRefToClients     map[string]map[string]bool // corporation id -> client_id set
-	allianceRefToClients map[string]map[string]bool // alliance id -> client_id set
-	corpRefIndexMu       sync.RWMutex
-	allianceRefIndexMu   sync.RWMutex
+	// Reverse index for non-account realtime pools (populated after upgrade_scopes).
+	// Also the non-account side of HostedTenants.
+	ownerKeyToClients map[string]map[string]bool // owner key -> client_id set
+	ownerIndexMu      sync.RWMutex
 
 	// JetStream doc.update fan-out: one FIFO per shard (see outbound_doc_update.go).
 	docUpdateOutboundShards []chan docUpdateWork
@@ -103,15 +99,15 @@ type Server struct {
 type Client struct {
 	id        string
 	conn      *websocket.Conn
-	connCtx   context.Context // derived from HTTP request for logging (WithoutCancel); set on connect
-	Send      chan []byte     // Exported for sync package
-	AccountID string          // Account ID from validated app session — exported for sync package
-	SessionID string          // Session ID from validated app session
-	Scopes    model.RealtimeScopes
+	connCtx   context.Context  // derived from HTTP request for logging (WithoutCancel); set on connect
+	Send      chan []byte      // Exported for sync package
+	AccountID string           // Account ID from validated app session — exported for sync package
+	SessionID string           // Session ID from validated app session
+	Scopes    models.OwnerKeys // non-account owners this connection receives changes for
 
-	// grantedCorpRefs / grantedAllianceRefs are org id ceilings from the server session (never trust the browser alone).
-	grantedCorpRefs     map[string]struct{}
-	grantedAllianceRefs map[string]struct{}
+	// ownerCeiling is every owner this session may reach, from the server session
+	// record rather than the browser. Scopes never exceed it.
+	ownerCeiling models.OwnerKeys
 
 	// Explicit collection-scoped doc subscriptions (subscribe / unsubscribe JSON). Account-scoped
 	// realtime does not require entries here.

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"eve-industry-planner/shared/models"
 	"net/http"
 	"testing"
 	"time"
@@ -27,10 +28,7 @@ func TestGetAccountSessionsRecord_PruneDeletesSessionIndex(t *testing.T) {
 	expiredAt := time.Now().UTC().Add(-time.Hour)
 	rec := &AccountSessionsRecord{
 		AccountID: accountID,
-		Grants: SessionGrants{
-			CorporationRefs: []string{},
-			AllianceRefs:    []string{},
-		},
+		Grants:    models.SessionGrants{OwnerKeys: []string{}},
 		Sessions: map[string]AccountSession{
 			sessionID: {
 				SessionID:        sessionID,
@@ -75,11 +73,8 @@ func TestResolveAccountSessionBySessionID_ClearsOrphanIndex(t *testing.T) {
 	)
 	rec := &AccountSessionsRecord{
 		AccountID: accountID,
-		Grants: SessionGrants{
-			CorporationRefs: []string{},
-			AllianceRefs:    []string{},
-		},
-		Sessions: map[string]AccountSession{},
+		Grants:    models.SessionGrants{OwnerKeys: []string{}},
+		Sessions:  map[string]AccountSession{},
 	}
 	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)
@@ -144,11 +139,8 @@ func TestExtractAccountSession_OrphanIndexReturnsSessionMissing(t *testing.T) {
 	)
 	rec := &AccountSessionsRecord{
 		AccountID: accountID,
-		Grants: SessionGrants{
-			CorporationRefs: []string{},
-			AllianceRefs:    []string{},
-		},
-		Sessions: map[string]AccountSession{},
+		Grants:    models.SessionGrants{OwnerKeys: []string{}},
+		Sessions:  map[string]AccountSession{},
 	}
 	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)

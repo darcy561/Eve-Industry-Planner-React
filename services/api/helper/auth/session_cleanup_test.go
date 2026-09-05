@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"eve-industry-planner/shared/models"
 	"testing"
 	"time"
 
@@ -16,11 +17,8 @@ func TestCleanupOrphanSessionIndexes(t *testing.T) {
 	const accountID = "acct-orphan-cleanup"
 	if err := SaveAccountSessionsRecord(ctx, rdb, &AccountSessionsRecord{
 		AccountID: accountID,
-		Grants: SessionGrants{
-			CorporationRefs: []string{},
-			AllianceRefs:    []string{},
-		},
-		Sessions: map[string]AccountSession{},
+		Grants:    models.SessionGrants{OwnerKeys: []string{}},
+		Sessions:  map[string]AccountSession{},
 	}); err != nil {
 		t.Fatalf("save: %v", err)
 	}

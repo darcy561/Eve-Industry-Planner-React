@@ -10,14 +10,13 @@ import (
 // Hosted-tenant helpers are a read-only view over connection indexes already maintained
 // for fan-out and per-account caps — no second store:
 //
-//	account:{id}      → userConnections (non-empty client set)
-//	corporation:{id}  → corpRefToClients
-//	alliance:{id}     → allianceRefToClients
+//	account:{id}  → userConnections (non-empty client set)
+//	every other   → ownerKeyToClients, already keyed by the tenant key itself
 //
 // "Hosted" means the outer map has that id with at least one client id — not the size of
 // Clients. Socket load for soft/full still uses len(Clients).
 //
-// Lock order when taking more than one: userConnMu, then corpRefIndexMu, then allianceRefIndexMu.
+// Lock order when taking both: userConnMu, then ownerIndexMu.
 
 // HostsTenant reports whether this replica has any local client for the tenant key.
 func (s *Server) HostsTenant(tenantKey string) bool {
@@ -28,37 +27,24 @@ func (s *Server) HostsTenant(tenantKey string) bool {
 	if err != nil {
 		return false
 	}
-	switch owner.Kind {
-	case models.OwnerAccount:
+	if owner.Kind == models.OwnerAccount {
 		s.userConnMu.RLock()
 		hosted := len(s.userConnections[owner.ID]) > 0
 		s.userConnMu.RUnlock()
 		return hosted
-	case models.OwnerCorporation:
-		s.corpRefIndexMu.RLock()
-		hosted := len(s.corpRefToClients[owner.ID]) > 0
-		s.corpRefIndexMu.RUnlock()
-		return hosted
-	case models.OwnerAlliance:
-		s.allianceRefIndexMu.RLock()
-		hosted := len(s.allianceRefToClients[owner.ID]) > 0
-		s.allianceRefIndexMu.RUnlock()
-		return hosted
-	default:
-		return false
 	}
+	return len(s.clientsForOwner(owner)) > 0
 }
 
 // HostedTenants returns a sorted snapshot of tenant keys this replica hosts
-// (one entry per account / corporation / alliance id with a local client).
+// (one entry per owner with a local client).
 func (s *Server) HostedTenants() []string {
 	if s == nil {
 		return nil
 	}
 	s.userConnMu.RLock()
-	s.corpRefIndexMu.RLock()
-	s.allianceRefIndexMu.RLock()
-	out := make([]string, 0, len(s.userConnections)+len(s.corpRefToClients)+len(s.allianceRefToClients))
+	s.ownerIndexMu.RLock()
+	out := make([]string, 0, len(s.userConnections)+len(s.ownerKeyToClients))
 	for id, clients := range s.userConnections {
 		if len(clients) == 0 {
 			continue
@@ -67,56 +53,41 @@ func (s *Server) HostedTenants() []string {
 			out = append(out, owner.Key())
 		}
 	}
-	for id, clients := range s.corpRefToClients {
+	for key, clients := range s.ownerKeyToClients {
 		if len(clients) == 0 {
 			continue
 		}
-		if owner := models.CorporationOwner(id); owner.Validate() == nil {
-			out = append(out, owner.Key())
-		}
-	}
-	for id, clients := range s.allianceRefToClients {
-		if len(clients) == 0 {
+		if _, err := models.ParseOwnerKey(key); err != nil {
 			continue
 		}
-		if owner := models.AllianceOwner(id); owner.Validate() == nil {
-			out = append(out, owner.Key())
-		}
+		out = append(out, key)
 	}
-	s.allianceRefIndexMu.RUnlock()
-	s.corpRefIndexMu.RUnlock()
+	s.ownerIndexMu.RUnlock()
 	s.userConnMu.RUnlock()
 	sort.Strings(out)
 	return out
 }
 
 // HostedTenantCount returns the number of distinct hosted tenant keys
-// (accounts + corporations + alliances), not the number of sockets.
+// (accounts plus every other owner), not the number of sockets.
 func (s *Server) HostedTenantCount() int {
 	if s == nil {
 		return 0
 	}
 	s.userConnMu.RLock()
-	s.corpRefIndexMu.RLock()
-	s.allianceRefIndexMu.RLock()
+	s.ownerIndexMu.RLock()
 	n := 0
 	for _, clients := range s.userConnections {
 		if len(clients) > 0 {
 			n++
 		}
 	}
-	for _, clients := range s.corpRefToClients {
+	for _, clients := range s.ownerKeyToClients {
 		if len(clients) > 0 {
 			n++
 		}
 	}
-	for _, clients := range s.allianceRefToClients {
-		if len(clients) > 0 {
-			n++
-		}
-	}
-	s.allianceRefIndexMu.RUnlock()
-	s.corpRefIndexMu.RUnlock()
+	s.ownerIndexMu.RUnlock()
 	s.userConnMu.RUnlock()
 	return n
 }

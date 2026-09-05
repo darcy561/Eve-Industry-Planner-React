@@ -9,6 +9,7 @@ import (
 	"time"
 
 	rediscore "eve-industry-planner/shared/core/redis"
+	"eve-industry-planner/shared/models"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -53,14 +54,7 @@ func normalizeAccountSessionsRecord(rec *AccountSessionsRecord, accountID string
 	if rec.Sessions == nil {
 		rec.Sessions = map[string]AccountSession{}
 	}
-	if rec.Grants.CorporationRefs == nil {
-		rec.Grants.CorporationRefs = []string{}
-	}
-	if rec.Grants.AllianceRefs == nil {
-		rec.Grants.AllianceRefs = []string{}
-	}
-	rec.Grants.CorporationRefs = normalizeRefs(rec.Grants.CorporationRefs)
-	rec.Grants.AllianceRefs = normalizeRefs(rec.Grants.AllianceRefs)
+	rec.Grants.OwnerKeys = rec.Grants.OwnerKeys.Normalized()
 }
 
 func loadAccountSessionsRecordRaw(ctx context.Context, redisClient *redis.Client, accountID string) (*AccountSessionsRecord, bool, error) {
@@ -77,11 +71,8 @@ func loadAccountSessionsRecordRaw(ctx context.Context, redisClient *redis.Client
 	if err == redis.Nil {
 		rec = AccountSessionsRecord{
 			AccountID: acc,
-			Grants: SessionGrants{
-				CorporationRefs: []string{},
-				AllianceRefs:    []string{},
-			},
-			Sessions: map[string]AccountSession{},
+			Grants:    models.SessionGrants{OwnerKeys: []string{}},
+			Sessions:  map[string]AccountSession{},
 		}
 		return &rec, false, nil
 	}

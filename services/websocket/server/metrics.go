@@ -171,30 +171,27 @@ func (s *Server) registerGaugeCallbacks() {
 		}
 		s.userConnMu.RUnlock()
 
-		// Keyed by owner rather than by kind: a kind added to models.OwnerKind is picked up
-		// by adding it here, and dashboards split on the label instead of on a metric name.
-		// Lock order is corpRefIndexMu before allianceRefIndexMu (see types.go).
+		// Keyed by owner rather than by kind, so a kind added to models.OwnerKind is
+		// reported without editing this loop, and dashboards split on the label instead
+		// of on a metric name.
 		type ownerKey struct{ kind, id string }
 		ownerCounts := make(map[ownerKey]int64)
 		for accountID, count := range accountCounts {
 			ownerCounts[ownerKey{string(models.OwnerAccount), accountID}] = count
 		}
 
-		s.corpRefIndexMu.RLock()
-		for ref, clients := range s.corpRefToClients {
-			if len(clients) > 0 {
-				ownerCounts[ownerKey{string(models.OwnerCorporation), ref}] = int64(len(clients))
+		s.ownerIndexMu.RLock()
+		for key, clients := range s.ownerKeyToClients {
+			if len(clients) == 0 {
+				continue
 			}
-		}
-		s.corpRefIndexMu.RUnlock()
-
-		s.allianceRefIndexMu.RLock()
-		for ref, clients := range s.allianceRefToClients {
-			if len(clients) > 0 {
-				ownerCounts[ownerKey{string(models.OwnerAlliance), ref}] = int64(len(clients))
+			owner, err := models.ParseOwnerKey(key)
+			if err != nil {
+				continue
 			}
+			ownerCounts[ownerKey{string(owner.Kind), owner.ID}] = int64(len(clients))
 		}
-		s.allianceRefIndexMu.RUnlock()
+		s.ownerIndexMu.RUnlock()
 
 		s.explicitDocSubMu.RLock()
 		docSubscriberCounts := make(map[string]int64, len(s.explicitDocSubscribers))

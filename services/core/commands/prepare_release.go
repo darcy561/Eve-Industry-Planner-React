@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/core/changestream"
 	"eve-industry-planner/core/primaryhandoff"
 	"eve-industry-planner/shared/lifecycle"
@@ -73,6 +74,9 @@ var releases = []release{{
 		// and a fallback missing the fields the previous release read is not one.
 		{name: "drop retired statistics fields", run: dropRetiredStatisticsFields},
 		{name: "queue every account for rebuild", run: queueEveryAccountForRebuild},
+		// Sessions outlive a deploy, so grants written by the previous release are
+		// rewritten rather than left to lapse at the next token refresh.
+		{name: "rewrite session grants as owner keys", run: repairSessionGrants},
 		// Last: the window's gate. A document with no owner is unreachable, so the
 		// release fails rather than reporting success over it.
 		{name: "verify every document carries an owner", run: verifyMetaOwner},
@@ -149,6 +153,22 @@ func runPrepareRelease(ctx context.Context, args []string) error {
 		fmt.Println("run `tasks dispatchStatisticsRebuilds` to rebuild now, or wait for the scheduled pass")
 	}
 	return nil
+}
+
+func repairSessionGrants(ctx context.Context, clients *stackservices.Clients, dryRun bool) (string, error) {
+	report, err := auth.RepairSessionGrants(ctx, clients.Redis, dryRun)
+	if err != nil {
+		return "", err
+	}
+	verb := "rewritten"
+	if dryRun {
+		verb = "would be rewritten"
+	}
+	out := fmt.Sprintf("%d scanned, %d %s", report.Scanned, report.Repaired, verb)
+	if report.Failed > 0 {
+		out += fmt.Sprintf(", %d failed", report.Failed)
+	}
+	return out, nil
 }
 
 // retiredStatisticsFields are fields the statistics documents no longer carry.

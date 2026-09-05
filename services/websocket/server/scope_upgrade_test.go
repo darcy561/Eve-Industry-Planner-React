@@ -1,6 +1,7 @@
 package server
 
 import (
+	"eve-industry-planner/shared/models"
 	"testing"
 
 	"eve-industry-planner/testing/keys"
@@ -15,18 +16,17 @@ func TestScopeUpgradeConvertsRequestedIDsToRefs(t *testing.T) {
 		t.Fatalf("RefFromCorporationID: %v", err)
 	}
 
-	s := &Server{entityCipher: h, corpRefToClients: map[string]map[string]bool{}, allianceRefToClients: map[string]map[string]bool{}}
+	s := &Server{entityCipher: h, ownerKeyToClients: map[string]map[string]bool{}}
 	client := &Client{
-		id:                  "c1",
-		grantedCorpRefs:     map[string]struct{}{corpRef: {}},
-		grantedAllianceRefs: map[string]struct{}{},
+		id:           "c1",
+		ownerCeiling: models.OwnerKeys(nil).Add(models.CorporationOwner(corpRef)),
 	}
 
-	if !s.ApplyRealtimeScopeUpgrade(client, []string{"10"}, nil) {
+	if !s.GrantRequestedScopes(client, []string{"10"}, nil) {
 		t.Fatal("expected the upgrade to apply after converting the id")
 	}
-	if len(client.Scopes.CorporationRefs) != 1 || client.Scopes.CorporationRefs[0] != corpRef {
-		t.Fatalf("scopes = %v, want [%s]", client.Scopes.CorporationRefs, corpRef)
+	if !client.Scopes.Has(models.CorporationOwner(corpRef)) {
+		t.Fatalf("scopes = %v, want the corporation %s", client.Scopes, corpRef)
 	}
 }
 
@@ -38,14 +38,13 @@ func TestScopeUpgradeStillHonoursTheGrantCeiling(t *testing.T) {
 		t.Fatalf("RefFromCorporationID: %v", err)
 	}
 
-	s := &Server{entityCipher: h, corpRefToClients: map[string]map[string]bool{}, allianceRefToClients: map[string]map[string]bool{}}
+	s := &Server{entityCipher: h, ownerKeyToClients: map[string]map[string]bool{}}
 	client := &Client{
-		id:                  "c1",
-		grantedCorpRefs:     map[string]struct{}{granted: {}},
-		grantedAllianceRefs: map[string]struct{}{},
+		id:           "c1",
+		ownerCeiling: models.OwnerKeys(nil).Add(models.CorporationOwner(granted)),
 	}
 
-	if s.ApplyRealtimeScopeUpgrade(client, []string{"999"}, nil) {
+	if s.GrantRequestedScopes(client, []string{"999"}, nil) {
 		t.Fatal("a corporation outside the grant ceiling must be refused")
 	}
 }
@@ -54,15 +53,14 @@ func TestScopeUpgradeStillHonoursTheGrantCeiling(t *testing.T) {
 // client's own string sneak into a grant comparison.
 func TestScopeUpgradeDropsMalformedIDs(t *testing.T) {
 	h := keys.EntityCipher(t)
-	s := &Server{entityCipher: h, corpRefToClients: map[string]map[string]bool{}, allianceRefToClients: map[string]map[string]bool{}}
+	s := &Server{entityCipher: h, ownerKeyToClients: map[string]map[string]bool{}}
 	client := &Client{
-		id:                  "c1",
-		grantedCorpRefs:     map[string]struct{}{"corp_whatever": {}},
-		grantedAllianceRefs: map[string]struct{}{},
+		id:           "c1",
+		ownerCeiling: models.OwnerKeys{"corp_whatever"},
 	}
 
 	for _, bad := range [][]string{{"corp_whatever"}, {"not-a-number"}, {"0"}, {"-5"}} {
-		if s.ApplyRealtimeScopeUpgrade(client, bad, nil) {
+		if s.GrantRequestedScopes(client, bad, nil) {
 			t.Fatalf("expected %v to be dropped", bad)
 		}
 	}
@@ -71,13 +69,12 @@ func TestScopeUpgradeDropsMalformedIDs(t *testing.T) {
 // Without the key no upgrade can be derived; dropping is correct, but it must not
 // fall through to comparing raw ids.
 func TestScopeUpgradeWithoutAHelperDropsEverything(t *testing.T) {
-	s := &Server{corpRefToClients: map[string]map[string]bool{}, allianceRefToClients: map[string]map[string]bool{}}
+	s := &Server{ownerKeyToClients: map[string]map[string]bool{}}
 	client := &Client{
-		id:                  "c1",
-		grantedCorpRefs:     map[string]struct{}{"10": {}},
-		grantedAllianceRefs: map[string]struct{}{},
+		id:           "c1",
+		ownerCeiling: models.OwnerKeys{"10"},
 	}
-	if s.ApplyRealtimeScopeUpgrade(client, []string{"10"}, nil) {
+	if s.GrantRequestedScopes(client, []string{"10"}, nil) {
 		t.Fatal("a raw id must not match a grant when no helper is configured")
 	}
 }

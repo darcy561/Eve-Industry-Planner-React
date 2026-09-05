@@ -8,7 +8,6 @@ import (
 
 	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
-	"eve-industry-planner/websocket/server/model"
 )
 
 // docUpdateFor builds the payload the watcher publishes for an owner.
@@ -168,10 +167,7 @@ func (f *integFixture) orgClient(id, accountID string, corps, alliances []string
 	f.t.Helper()
 	c := f.newClient(id, accountID, corps, alliances)
 	f.register(c)
-	f.Server.swapClientOrgScopesAndIndexes(c, model.RealtimeScopes{
-		CorporationRefs: corps,
-		AllianceRefs:    alliances,
-	})
+	f.Server.setClientScopes(c, orgOwnerKeys(corps, alliances))
 	return c
 }
 
@@ -329,7 +325,7 @@ func TestCorporationScopeRefusesAClientLeftInThePool(t *testing.T) {
 
 	// The grant goes away while the pool entry stays, which is the drift the
 	// ceiling exists for.
-	c.Scopes = model.RealtimeScopes{}
+	c.Scopes = nil
 
 	f.Server.deliverOutboundDocUpdate(context.Background(), "job_documents.stale",
 		docUpdateFor(t, models.Owner{Kind: models.OwnerCorporation, ID: corpRef}, "stale"))

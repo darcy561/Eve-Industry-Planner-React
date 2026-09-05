@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"eve-industry-planner/shared/crypto/entityid"
+	"eve-industry-planner/shared/models"
 	"eve-industry-planner/testing/keys"
 	"eve-industry-planner/testing/redisfake"
 	"strings"
@@ -56,8 +57,8 @@ func TestSaveAccountSessionsRecord_CASRejectsStaleWrite(t *testing.T) {
 		t.Fatal("expected stale write not to remove session row")
 	}
 	wantCorp := testCorpRef(t, 1)
-	if len(reloaded.Grants.CorporationRefs) != 1 || reloaded.Grants.CorporationRefs[0] != wantCorp {
-		t.Fatalf("grants = %v, want [%s]", reloaded.Grants.CorporationRefs, wantCorp)
+	if !reloaded.Grants.Allows(models.CorporationOwner(wantCorp)) {
+		t.Fatalf("grants = %v, want to include corporation %s", reloaded.Grants.OwnerKeys, wantCorp)
 	}
 }
 
@@ -172,13 +173,13 @@ func TestConcurrentUpsertAndGrantsPreservesSession(t *testing.T) {
 	}
 	wantCorp := testCorpRef(t, 100)
 	wantAlliance := testAllianceRef(t, 200)
-	if len(rec.Grants.CorporationRefs) != 1 || rec.Grants.CorporationRefs[0] != wantCorp {
-		t.Fatalf("grants corps = %v, want [%s]", rec.Grants.CorporationRefs, wantCorp)
+	if !rec.Grants.Allows(models.CorporationOwner(wantCorp)) {
+		t.Fatalf("grants = %v, want to include corporation %s", rec.Grants.OwnerKeys, wantCorp)
 	}
-	if len(rec.Grants.AllianceRefs) != 1 || rec.Grants.AllianceRefs[0] != wantAlliance {
-		t.Fatalf("grants alliances = %v, want [%s]", rec.Grants.AllianceRefs, wantAlliance)
+	if !rec.Grants.Allows(models.AllianceOwner(wantAlliance)) {
+		t.Fatalf("grants = %v, want to include alliance %s", rec.Grants.OwnerKeys, wantAlliance)
 	}
-	if sess.Grants.CorporationRefs[0] != wantCorp {
+	if !sess.Grants.Allows(models.CorporationOwner(wantCorp)) {
 		t.Fatal("expected session-level grants to match account grants")
 	}
 }
@@ -215,12 +216,60 @@ func TestSessionGrantsStoreRefsNotIDs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetAccountSessionsRecord: %v", err)
 	}
-	for _, got := range append(rec.Grants.CorporationRefs, rec.Grants.AllianceRefs...) {
+	orgRefs := append(rec.Grants.OwnerKeys.IDsForKind(models.OwnerCorporation), rec.Grants.OwnerKeys.IDsForKind(models.OwnerAlliance)...)
+	if len(orgRefs) != 2 {
+		t.Fatalf("org grants = %v, want one corporation and one alliance", orgRefs)
+	}
+	for _, got := range orgRefs {
 		if !entityid.ValidShape(got) {
 			t.Fatalf("grant %q is not a well formed ref", got)
 		}
 		if strings.Contains(got, "98765432") || strings.Contains(got, "99000001") {
 			t.Fatalf("grant %q leaks the raw entity id", got)
 		}
+	}
+}
+
+// The account's own key is granted without being asked for, so nothing
+// downstream has to special-case the account alongside the org kinds.
+func TestSessionGrantsAlwaysIncludeTheAccountsOwnKey(t *testing.T) {
+	ctx := context.Background()
+	rdb := redisfake.New(t).Client
+
+	const accountID = "acct-self-grant"
+	if err := UpdateAccountSessionGrants(ctx, rdb, keys.EntityCipher(t), accountID, nil, nil); err != nil {
+		t.Fatalf("UpdateAccountSessionGrants: %v", err)
+	}
+
+	rec, err := GetAccountSessionsRecord(ctx, rdb, accountID)
+	if err != nil {
+		t.Fatalf("GetAccountSessionsRecord: %v", err)
+	}
+	if !rec.Grants.Allows(models.AccountOwner(accountID)) {
+		t.Fatalf("grants = %v, want to include the account's own key", rec.Grants.OwnerKeys)
+	}
+}
+
+// A grant names the kind alongside the id, so a corporation ref cannot be
+// mistaken for an alliance one now that both share a list.
+func TestSessionGrantsKeepKindWithTheID(t *testing.T) {
+	ctx := context.Background()
+	rdb := redisfake.New(t).Client
+
+	const accountID = "acct-kinded"
+	if err := UpdateAccountSessionGrants(ctx, rdb, keys.EntityCipher(t), accountID, []int64{100}, []int64{200}); err != nil {
+		t.Fatalf("UpdateAccountSessionGrants: %v", err)
+	}
+
+	rec, err := GetAccountSessionsRecord(ctx, rdb, accountID)
+	if err != nil {
+		t.Fatalf("GetAccountSessionsRecord: %v", err)
+	}
+	corp := testCorpRef(t, 100)
+	if rec.Grants.Allows(models.Owner{Kind: models.OwnerAlliance, ID: corp}) {
+		t.Fatal("a corporation ref must not grant the alliance of the same id")
+	}
+	if !rec.Grants.Allows(models.CorporationOwner(corp)) {
+		t.Fatalf("grants = %v, want the corporation key", rec.Grants.OwnerKeys)
 	}
 }

@@ -36,11 +36,10 @@ func TestIntegrationSelectiveFanoutHostPullsNonHostDoesNot(t *testing.T) {
 		userConnections: map[string]map[string]bool{
 			"acct-host": {"c1": true},
 		},
-		corpRefToClients:     make(map[string]map[string]bool),
-		allianceRefToClients: make(map[string]map[string]bool),
-		Stack:                &stackservices.Clients{NATS: fake.NATS},
-		intakeStopChan:       make(chan struct{}),
-		shutdownChan:         make(chan struct{}),
+		ownerKeyToClients: make(map[string]map[string]bool),
+		Stack:             &stackservices.Clients{NATS: fake.NATS},
+		intakeStopChan:    make(chan struct{}),
+		shutdownChan:      make(chan struct{}),
 	}
 	host.fanoutStream = stream
 

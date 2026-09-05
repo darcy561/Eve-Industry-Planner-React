@@ -1,12 +1,19 @@
 package commands
 
 import (
+	"context"
+	"encoding/json"
 	"slices"
+	"strings"
 	"testing"
+	"time"
 
+	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/core/changestream"
 	"eve-industry-planner/core/primaryhandoff"
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/stackservices"
+	"eve-industry-planner/testing/redisfake"
 )
 
 func TestRetiredResumeTokenKeysPicksGroupsThatNoLongerRun(t *testing.T) {
@@ -243,5 +250,46 @@ func TestRetiredFieldsAreDroppedAfterTheSnapshot(t *testing.T) {
 	drop := stepIndex(t, "0.9.0", "drop retired statistics fields")
 	if drop < snapshot {
 		t.Errorf("retired fields are dropped at %d, before the snapshot at %d — the copy would miss them", drop, snapshot)
+	}
+}
+
+// An operator reads the step's line to decide whether the window is safe to
+// close, so a dry run must say what it would do rather than reporting nothing.
+func TestRepairSessionGrantsReportsWhatItWouldRewrite(t *testing.T) {
+	ctx := context.Background()
+	rdb := redisfake.New(t)
+	clients := &stackservices.Clients{Redis: rdb.Client}
+
+	legacy, err := json.Marshal(map[string]any{
+		"account_id": "acct-1",
+		"grants":     map[string]any{"corporation_refs": []string{"corp_x"}},
+		"sessions":   map[string]any{},
+	})
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	if err := rdb.Client.Set(ctx, auth.AccountSessionsKeyPrefix+"acct-1", legacy, time.Hour).Err(); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	dry, err := repairSessionGrants(ctx, clients, true)
+	if err != nil {
+		t.Fatalf("dry run: %v", err)
+	}
+	if !strings.Contains(dry, "would be rewritten") {
+		t.Fatalf("dry run report = %q, want it to say what it would do", dry)
+	}
+
+	if _, err := repairSessionGrants(ctx, clients, false); err != nil {
+		t.Fatalf("repair: %v", err)
+	}
+
+	// Re-running a release must report no work rather than rewriting again.
+	again, err := repairSessionGrants(ctx, clients, false)
+	if err != nil {
+		t.Fatalf("second pass: %v", err)
+	}
+	if !strings.Contains(again, "1 scanned, 0 rewritten") {
+		t.Fatalf("second pass report = %q, want it to report nothing rewritten", again)
 	}
 }

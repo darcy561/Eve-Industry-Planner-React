@@ -15,6 +15,7 @@ import (
 
 	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/models"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -83,8 +84,8 @@ type RefreshTokenData struct {
 	Corporations  CorporationIDs `json:"corporations,omitempty"` // Corporation IDs the user can access
 	Alliances     AllianceIDs    `json:"alliances,omitempty"`    // Alliance IDs derived from character affiliation
 	SessionID     string         `json:"session_id,omitempty"`
-	SessionStart  time.Time      `json:"session_start,omitempty"`
-	SessionSeenAt time.Time      `json:"session_seen_at,omitempty"`
+	SessionStart  time.Time      `json:"session_start,omitzero"`
+	SessionSeenAt time.Time      `json:"session_seen_at,omitzero"`
 	AppVersion    string         `json:"app_version,omitempty"`
 }
 
@@ -98,27 +99,20 @@ type SessionRecord struct {
 	LastSeenAt    time.Time `json:"last_seen_at"`
 }
 
-// SessionGrants holds the organisations a session may see, as deterministic refs.
-// Raw entity ids are converted at UpdateAccountSessionGrants and never persisted.
-type SessionGrants struct {
-	CorporationRefs []string `json:"corporation_refs,omitempty"`
-	AllianceRefs    []string `json:"alliance_refs,omitempty"`
-}
-
 type AccountSession struct {
-	SessionID        string        `json:"session_id"`
-	CharacterHash    string        `json:"character_hash"`
-	AppVersion       string        `json:"app_version,omitempty"`
-	StartedAt        time.Time     `json:"started_at"`
-	LastSeenAt       time.Time     `json:"last_seen_at"`
-	ReauthRequiredAt time.Time     `json:"reauth_required_at"`
-	RevokedAt        *time.Time    `json:"revoked_at,omitempty"`
-	Grants           SessionGrants `json:"grants,omitempty"`
+	SessionID        string               `json:"session_id"`
+	CharacterHash    string               `json:"character_hash"`
+	AppVersion       string               `json:"app_version,omitempty"`
+	StartedAt        time.Time            `json:"started_at"`
+	LastSeenAt       time.Time            `json:"last_seen_at"`
+	ReauthRequiredAt time.Time            `json:"reauth_required_at"`
+	RevokedAt        *time.Time           `json:"revoked_at,omitempty"`
+	Grants           models.SessionGrants `json:"grants"`
 }
 
 type AccountSessionsRecord struct {
 	AccountID     string                    `json:"account_id"`
-	Grants        SessionGrants             `json:"grants,omitempty"`
+	Grants        models.SessionGrants      `json:"grants"`
 	Sessions      map[string]AccountSession `json:"sessions"`
 	GrantsVersion int64                     `json:"grants_version,omitempty"`
 	UpdatedAt     time.Time                 `json:"updated_at"`
@@ -478,24 +472,6 @@ func findRefreshTokenBySessionIDScan(ctx context.Context, redisClient *redis.Cli
 	return "", nil
 }
 
-func normalizeRefs(refs []string) []string {
-	if len(refs) == 0 {
-		return []string{}
-	}
-	m := make(map[string]struct{}, len(refs))
-	for _, r := range refs {
-		if r = strings.TrimSpace(r); r != "" {
-			m[r] = struct{}{}
-		}
-	}
-	out := make([]string, 0, len(m))
-	for r := range m {
-		out = append(out, r)
-	}
-	slices.Sort(out)
-	return out
-}
-
 // pruneExpiredSessions removes sessions past ReauthRequiredAt from rec.Sessions.
 // It returns pruned session IDs (for session_index cleanup) and whether rec was modified.
 func pruneExpiredSessions(rec *AccountSessionsRecord, now time.Time) (removed []string, changed bool) {
@@ -717,6 +693,8 @@ func TouchAccountSession(ctx context.Context, redisClient *redis.Client, account
 // where they are converted. Callers pass the ids they hold from ESI; only refs are
 // stored, and everything downstream — websocket scopes, tenant keys, logs — sees
 // refs alone.
+//
+// The account's own key is always granted, so nothing downstream special-cases it.
 func UpdateAccountSessionGrants(ctx context.Context, redisClient *redis.Client, refs *entityid.Cipher, accountID string, corpIDs, allianceIDs []int64) error {
 	corpRefs, err := protectedfields.ValuesForIDs64(refs, protectedfields.KindCorp, corpIDs)
 	if err != nil {
@@ -727,16 +705,10 @@ func UpdateAccountSessionGrants(ctx context.Context, redisClient *redis.Client, 
 		return fmt.Errorf("derive alliance refs for session grants: %w", err)
 	}
 
-	nextGrants := SessionGrants{
-		CorporationRefs: normalizeRefs(slices.Collect(maps.Values(corpRefs))),
-		AllianceRefs:    normalizeRefs(slices.Collect(maps.Values(allianceRefs))),
-	}
-	return mutateAccountSessionsRecord(ctx, redisClient, accountID, func(rec *AccountSessionsRecord) error {
-		rec.Grants = nextGrants
-		for sid, session := range rec.Sessions {
-			session.Grants = nextGrants
-			rec.Sessions[sid] = session
-		}
-		return nil
-	})
+	granted := models.NewOwnerKeys().
+		Add(models.AccountOwner(accountID)).
+		AddRefs(models.OwnerCorporation, slices.Collect(maps.Values(corpRefs))).
+		AddRefs(models.OwnerAlliance, slices.Collect(maps.Values(allianceRefs)))
+
+	return setAccountSessionGrants(ctx, redisClient, accountID, models.SessionGrants{OwnerKeys: granted.Normalized()})
 }

@@ -10,7 +10,7 @@ import (
 
 func (s *Server) handleUpgradeScopesWS(ctx context.Context, client *Client, msg []byte) {
 	// The browser names organisations by id; it has no access to the ref key.
-	// These are converted in ApplyRealtimeScopeUpgrade and are the only raw ids
+	// These are converted in GrantRequestedScopes and are the only raw ids
 	// this service handles.
 	var upgrade struct {
 		CorporationIDs []string `json:"corporationIDs"`
@@ -30,19 +30,13 @@ func (s *Server) handleUpgradeScopesWS(ctx context.Context, client *Client, msg 
 		"requested_alliance_count":    len(upgrade.AllianceIDs),
 	})
 
-	applied := s.ApplyRealtimeScopeUpgrade(client, upgrade.CorporationIDs, upgrade.AllianceIDs)
+	applied := s.GrantRequestedScopes(client, upgrade.CorporationIDs, upgrade.AllianceIDs)
 	extra := map[string]any{
-		"scopes_applied":            applied,
-		"active_corporation_scopes": len(client.Scopes.CorporationRefs),
-		"active_alliance_scopes":    len(client.Scopes.AllianceRefs),
+		"scopes_applied":      applied,
+		"active_owner_scopes": len(client.Scopes),
 	}
-	if applied {
-		if len(client.Scopes.CorporationRefs) > 0 {
-			extra["corporation_refs"] = strings.Join(client.Scopes.CorporationRefs, ",")
-		}
-		if len(client.Scopes.AllianceRefs) > 0 {
-			extra["alliance_refs"] = strings.Join(client.Scopes.AllianceRefs, ",")
-		}
+	if applied && len(client.Scopes) > 0 {
+		extra["owner_keys"] = strings.Join(client.Scopes, ",")
 	}
 
 	if !applied {

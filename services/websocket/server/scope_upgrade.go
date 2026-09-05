@@ -6,14 +6,14 @@ import (
 	"strconv"
 
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/models"
 	"eve-industry-planner/shared/protectedfields"
-	"eve-industry-planner/websocket/server/model"
 )
 
-// refsForRequestedIDs converts organisation ids supplied by a client into refs.
+// refsForClientIDs converts the raw entity ids a client sent into refs.
 // Unparseable or non-positive ids are dropped: a client cannot widen its own scope
 // by sending malformed input, and the grant ceiling is checked separately.
-func (s *Server) refsForRequestedIDs(kind protectedfields.Kind, ids []string) []string {
+func (s *Server) refsForClientIDs(kind protectedfields.Kind, ids []string) []string {
 	if len(ids) == 0 {
 		return nil
 	}
@@ -48,32 +48,26 @@ func (s *Server) refsForRequestedIDs(kind protectedfields.Kind, ids []string) []
 	return out
 }
 
-// ApplyRealtimeScopeUpgrade validates the corporation and alliance ids a client
-// asks for against the session grant ceiling, merges them into Client.Scopes, and
-// updates reverse indexes. Returns false when nothing was added.
+// GrantRequestedScopes adds the owners a client asked for to its scopes, keeping
+// only those its session already permits. Returns false when nothing was added.
 //
-// The ids arrive from the browser and are converted here, because grants, scopes
-// and indexes are all expressed as refs. An id that cannot be converted is dropped
-// rather than compared raw, which would silently match nothing.
-func (s *Server) ApplyRealtimeScopeUpgrade(client *Client, corpIDs, allianceIDs []string) bool {
+// The ids arrive from the browser as two lists, which is where their kind comes
+// from; they become owner keys here, because grants, scopes and indexes are all
+// expressed that way. An id that cannot be converted is dropped rather than
+// compared raw, which would silently match nothing.
+func (s *Server) GrantRequestedScopes(client *Client, corpIDs, allianceIDs []string) bool {
 	if client == nil {
 		return false
 	}
-	corps := s.refsForRequestedIDs(protectedfields.KindCorp, corpIDs)
-	alliances := s.refsForRequestedIDs(protectedfields.KindAlliance, allianceIDs)
+	requested := models.NewOwnerKeys().
+		AddRefs(models.OwnerCorporation, s.refsForClientIDs(protectedfields.KindCorp, corpIDs)).
+		AddRefs(models.OwnerAlliance, s.refsForClientIDs(protectedfields.KindAlliance, allianceIDs))
 
-	validC := filterToAllowed(client.grantedCorpRefs, corps)
-	validA := filterToAllowed(client.grantedAllianceRefs, alliances)
-	if len(validC) == 0 && len(validA) == 0 {
+	permitted := requested.Within(client.ownerCeiling)
+	if len(permitted) == 0 {
 		return false
 	}
-	mergedCorps := unionDedupe(client.Scopes.CorporationRefs, validC)
-	mergedAlliances := unionDedupe(client.Scopes.AllianceRefs, validA)
-	next := model.RealtimeScopes{
-		CorporationRefs: mergedCorps,
-		AllianceRefs:    mergedAlliances,
-	}
-	s.swapClientOrgScopesAndIndexes(client, next)
+	s.setClientScopes(client, client.Scopes.Union(permitted))
 	return true
 }
 
@@ -84,8 +78,8 @@ func (s *Server) queueScopesAck(client *Client) bool {
 	}
 	sub := map[string]any{
 		"account":     true,
-		"corporation": len(client.Scopes.CorporationRefs) > 0,
-		"alliance":    len(client.Scopes.AllianceRefs) > 0,
+		"corporation": len(client.Scopes.IDsForKind(models.OwnerCorporation)) > 0,
+		"alliance":    len(client.Scopes.IDsForKind(models.OwnerAlliance)) > 0,
 	}
 	b, err := json.Marshal(map[string]any{
 		"type":         "scopes_ack",

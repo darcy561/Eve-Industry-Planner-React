@@ -14,7 +14,6 @@ import (
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/telemetry"
 	"eve-industry-planner/websocket/server/config"
-	"eve-industry-planner/websocket/server/model"
 
 	"github.com/gorilla/websocket"
 	"go.opentelemetry.io/otel"
@@ -216,19 +215,18 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 	connCtx := context.WithoutCancel(r.Context())
 	connCtx = logs.BindRequestIdentity(connCtx, identity.AccountID, identity.SessionID)
 	client := &Client{
-		id:                  clientID,
-		conn:                conn,
-		connCtx:             connCtx,
-		Send:                make(chan []byte, 256),
-		explicitDocIDs:      make(map[string]bool),
-		AccountID:           identity.AccountID,
-		SessionID:           identity.SessionID,
-		Scopes:              model.RealtimeScopes{},
-		grantedCorpRefs:     stringSetFromSlice(identity.Session.Grants.CorporationRefs),
-		grantedAllianceRefs: stringSetFromSlice(identity.Session.Grants.AllianceRefs),
-		lastReset:           now,
-		connectedAt:         now,
-		lastActivity:        now,
+		id:             clientID,
+		conn:           conn,
+		connCtx:        connCtx,
+		Send:           make(chan []byte, 256),
+		explicitDocIDs: make(map[string]bool),
+		AccountID:      identity.AccountID,
+		SessionID:      identity.SessionID,
+		Scopes:         nil,
+		ownerCeiling:   identity.Session.Grants.OwnerKeys,
+		lastReset:      now,
+		connectedAt:    now,
+		lastActivity:   now,
 	}
 
 	s.ClientsMu.Lock()

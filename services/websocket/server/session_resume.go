@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"eve-industry-planner/shared/models"
 	"fmt"
 	"time"
 
@@ -12,21 +13,19 @@ import (
 	redislib "github.com/redis/go-redis/v9"
 )
 
-const redisHandoffKeyPrefix = "ws:session_handoff:v1"
+const redisHandoffKeyPrefix = "ws:session_handoff:v2"
 
 type sessionHandoffEntry struct {
-	AccountID       string
-	Docs            map[string]struct{}
-	CorporationRefs []string
-	AllianceRefs    []string
-	Expires         time.Time
+	AccountID string
+	Docs      map[string]struct{}
+	OwnerKeys []string
+	Expires   time.Time
 }
 
 type redisSessionHandoffPayload struct {
-	AccountID       string   `json:"account_id"`
-	Docs            []string `json:"docs"`
-	CorporationRefs []string `json:"corporation_refs,omitempty"`
-	AllianceRefs    []string `json:"alliance_refs,omitempty"`
+	AccountID string   `json:"account_id"`
+	Docs      []string `json:"docs"`
+	OwnerKeys []string `json:"owner_keys,omitempty"`
 }
 
 func sessionHandoffRedisKey(accountID, oldClientID string) string {
@@ -45,14 +44,11 @@ func (s *Server) snapshotSessionHandoff(ctx context.Context, client *Client) {
 			docList = append(docList, docID)
 		}
 	}
-	corpCopy := append([]string(nil), client.Scopes.CorporationRefs...)
-	allianceCopy := append([]string(nil), client.Scopes.AllianceRefs...)
 	ent := &sessionHandoffEntry{
-		AccountID:       client.AccountID,
-		Docs:            docs,
-		CorporationRefs: corpCopy,
-		AllianceRefs:    allianceCopy,
-		Expires:         time.Now().Add(config.SessionHandoffTTL),
+		AccountID: client.AccountID,
+		Docs:      docs,
+		OwnerKeys: append([]string(nil), client.Scopes...),
+		Expires:   time.Now().Add(config.SessionHandoffTTL),
 	}
 	s.sessionHandoffsMu.Lock()
 	if s.sessionHandoffs == nil {
@@ -61,25 +57,23 @@ func (s *Server) snapshotSessionHandoff(ctx context.Context, client *Client) {
 	s.sessionHandoffs[client.id] = ent
 	s.sessionHandoffsMu.Unlock()
 
-	s.storeRedisSessionHandoff(ctx, client.AccountID, client.id, docList, corpCopy, allianceCopy)
+	s.storeRedisSessionHandoff(ctx, client.AccountID, client.id, docList, ent.OwnerKeys)
 
 	logs.DebugCtx(ctx, "session handoff snapshot for reconnect resume",
 		"old_client_id", client.id,
 		"account_id", client.AccountID,
 		"doc_count", len(docs),
-		"corp_scopes", len(corpCopy),
-		"alliance_scopes", len(allianceCopy))
+		"owner_scopes", len(ent.OwnerKeys))
 }
 
-func (s *Server) storeRedisSessionHandoff(ctx context.Context, accountID, oldClientID string, docList, corpIDs, allianceIDs []string) {
+func (s *Server) storeRedisSessionHandoff(ctx context.Context, accountID, oldClientID string, docList, ownerKeys []string) {
 	if s.Stack == nil || s.Stack.Redis == nil {
 		return
 	}
 	payload := redisSessionHandoffPayload{
-		AccountID:       accountID,
-		Docs:            docList,
-		CorporationRefs: corpIDs,
-		AllianceRefs:    allianceIDs,
+		AccountID: accountID,
+		Docs:      docList,
+		OwnerKeys: ownerKeys,
 	}
 	b, err := json.Marshal(payload)
 	if err != nil {
@@ -133,11 +127,10 @@ func (s *Server) popSessionHandoff(ctx context.Context, accountID, previousClien
 				delete(s.sessionHandoffs, previousClientID)
 				s.sessionHandoffsMu.Unlock()
 				return &sessionHandoffEntry{
-					AccountID:       accountID,
-					Docs:            docs,
-					CorporationRefs: append([]string(nil), payload.CorporationRefs...),
-					AllianceRefs:    append([]string(nil), payload.AllianceRefs...),
-					Expires:         time.Now().Add(config.SessionHandoffTTL),
+					AccountID: accountID,
+					Docs:      docs,
+					OwnerKeys: append([]string(nil), payload.OwnerKeys...),
+					Expires:   time.Now().Add(config.SessionHandoffTTL),
 				}
 			}
 		} else if err != nil && err != redislib.Nil {
@@ -197,10 +190,10 @@ func (s *Server) ApplySessionResume(ctx context.Context, client *Client, previou
 		res.RestoredDocIDs = append(res.RestoredDocIDs, docID)
 	}
 
-	if len(ent.CorporationRefs) > 0 || len(ent.AllianceRefs) > 0 {
-		next := replaceScopesWithinSessionGrants(client, ent.CorporationRefs, ent.AllianceRefs)
-		if len(next.CorporationRefs) > 0 || len(next.AllianceRefs) > 0 {
-			s.swapClientOrgScopesAndIndexes(client, next)
+	if len(ent.OwnerKeys) > 0 {
+		restorable := models.OwnerKeys(ent.OwnerKeys).Within(client.ownerCeiling)
+		if len(restorable) > 0 {
+			s.setClientScopes(client, restorable)
 			res.ScopesRestored = true
 		}
 	}

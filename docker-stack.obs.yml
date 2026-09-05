@@ -88,6 +88,26 @@ services:
       labels:
         - "eip.config.sync=1"
 
+  # Trace store. Capped in its own config rather than left to size itself from the
+  # host; see kit/obs/tempo/config.yaml.
+  tempo:
+    image: grafana/tempo:3.0.0
+    logging: *log-rotate
+    command: ["-config.file=/etc/tempo/config.yaml"]
+    networks:
+      eip-obs:
+        aliases: [tempo]
+    dns: *common-dns
+    configs:
+      - source: tempo_yml
+        target: /etc/tempo/config.yaml
+    volumes:
+      - tempo_data:/var/tempo
+    deploy:
+      <<: *obs-deploy
+      labels:
+        - "eip.config.sync=1"
+
   alloy-docker-proxy:
     image: tecnativa/docker-socket-proxy:v0.4.2
     logging: *log-rotate
@@ -278,6 +298,9 @@ volumes:
   loki_data:
     name: eve-industry-planner_loki_data
     external: true
+  tempo_data:
+    name: eve-industry-planner_tempo_data
+    external: true
   grafana_data:
     name: eve-industry-planner_grafana_data
     external: true
@@ -293,6 +316,8 @@ configs:
     file: ./observability/prometheus/prometheus.yml
   loki_yml:
     file: ./observability/loki/config.yaml
+  tempo_yml:
+    file: ./observability/tempo/config.yaml
   alloy_config:
     file: ./observability/alloy/config.alloy
   grafana_datasources_yaml:

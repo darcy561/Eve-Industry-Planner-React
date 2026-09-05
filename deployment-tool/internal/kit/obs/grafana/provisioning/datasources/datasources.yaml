@@ -15,3 +15,20 @@ datasources:
     type: loki
     access: proxy
     url: http://loki:3100
+
+  - name: Tempo
+    uid: tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    jsonData:
+      # A trace's spans carry service_name, so a span links to the logs that
+      # service wrote while the trace was open.
+      tracesToLogsV2:
+        datasourceUid: loki
+        spanStartTimeShift: -1h
+        spanEndTimeShift: 1h
+        filterByTraceID: true
+        tags:
+          - key: service.name
+            value: compose_service

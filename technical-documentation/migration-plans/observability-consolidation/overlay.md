@@ -134,8 +134,25 @@ build argument that fed it in the five Go service Dockerfiles and their bake tar
 
 Nothing traces until the rate is raised: it defaults to 0, which exports no spans.
 
-**Spans still end at `otelcol.exporter.debug` in the collector**, so they are exported and
-discarded. Giving them a destination is the rest of Stage F.
+**Tempo stores them.** `otelcol.exporter.debug "discard_traces"` is gone; the trace pipeline ends at
+`otelcol.exporter.otlp "tempo"` against `tempo:4317`. Traefik's edge spans arrive on that same
+pipeline, which is what puts an edge span and the service spans it precedes on one trace. Grafana
+queries it as the `tempo` datasource, with `tracesToLogsV2` mapping a span's `service.name` onto the
+`compose_service` label Loki indexes, so a span links to what that service logged while the trace
+was open.
+
+**Every limit Tempo runs under is set, not defaulted.** Its defaults are cluster-sized — 30 MB/s of
+ingest, a 5 GB block-builder budget, ten thousand live traces — and this host has two cores and eight
+gigabytes with the rest of the stack already on it. `kit/obs/tempo/config.yaml` caps ingest at
+2 MB/s, the block builder at 256 MB, live traces at 2,000, and retention at 48 hours.
+
+Measured before adopting, on the pinned image with that config: **28 MB and 0.3% CPU idle**, flat
+across five minutes. The store this project rejected idled at 1.2 GB, so the concern that prompted
+the measurement does not repeat here.
+
+Tempo v3.0.0 renamed the sections these limits live in — `ingester` became `live_store` and
+`compactor` split into `block_builder` and `backend_scheduler` — so a config written against older
+documentation fails to parse rather than silently ignoring the caps.
 
 ### The OTel modules
 

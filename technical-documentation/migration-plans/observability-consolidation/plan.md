@@ -768,7 +768,7 @@ the first time. Every dashboard carrying more than a handful of panels groups th
 | C — the application tier all speaks OTLP | Done |
 | D — backend evaluation | Closed — backend not adopted |
 | E — query gate | Dropped with the backend |
-| F — traces stop being discarded | Not started — needs a trace store decided first |
+| F — traces stop being discarded | Partial — services and Tempo landed, not yet deployed |
 | G — the spans say what a trace needs | Not started |
 | H — fix the dashboards | Done |
 | I — cutover | Retired — nothing to cut over |

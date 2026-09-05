@@ -1,0 +1,70 @@
+# Tempo, single binary, local storage.
+#
+# The limits here are set rather than defaulted. Tempo's defaults are sized for a
+# cluster — 30 MB/s of ingest, a 5 GB block-builder budget, ten thousand live
+# traces — and this stack runs on two cores and eight gigabytes with the rest of
+# the services already on it. A store that helps itself to a share of the host is
+# the failure this addon has to avoid.
+
+target: all
+
+server:
+  http_listen_port: 3200
+  grpc_listen_port: 9095
+  log_level: warn
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+
+live_store:
+  # Cut a block once it is this old or this large, whichever comes first. Short
+  # windows keep the in-memory head small at the cost of more, smaller blocks.
+  max_block_duration: 2m
+  max_block_bytes: 20971520
+  complete_block_timeout: 5m
+  complete_block_concurrency: 1
+
+block_builder:
+  # Defaults to 5 GB, which is most of this host.
+  max_consuming_bytes: 268435456
+  block:
+    max_block_bytes: 20971520
+
+querier:
+  max_concurrent_queries: 2
+
+query_frontend:
+  max_outstanding_per_tenant: 100
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/blocks
+    wal:
+      path: /var/tempo/wal
+    pool:
+      max_workers: 2
+      queue_depth: 200
+
+overrides:
+  defaults:
+    ingestion:
+      # A burst above this is refused rather than queued. Sampling happens at the
+      # edge, so the volume arriving here is chosen rather than discovered.
+      rate_limit_bytes: 2000000
+      burst_size_bytes: 4000000
+      max_traces_per_user: 2000
+    global:
+      max_bytes_per_trace: 2000000
+    compaction:
+      # The retention window. Traces are the highest-volume signal in this stack
+      # and the one whose cost scales hardest with how long it is kept.
+      block_retention: 48h
+
+usage_report:
+  reporting_enabled: false

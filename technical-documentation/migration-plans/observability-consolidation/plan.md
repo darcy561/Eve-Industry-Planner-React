@@ -599,11 +599,11 @@ Done:
   being collected and displayed nowhere, and given owner-keyed connection reporting.
 - `asynq-queues.json` — absorbed `worker-tasks.json`, which described the same pipeline from the
   execution end and duplicated its failures panel. Nineteen dashboards now, not twenty.
+- `redis`, `traefik`, `host` and `frontend-events-otel-metrics` — grouped into rows, with the host
+  dashboard's hardcoded rate window and the frontend dashboard's instrument-name titles replaced.
 
 Left:
 
-- `redis`, `traefik`, `host` and `frontend-events-otel-metrics` each carry ten or more panels with no
-  rows at all.
 - The SeaweedFS dashboard named below still does not exist.
 
 **Grafana's provisioning had to be corrected first.** The provider allowed UI updates, so Grafana
@@ -714,9 +714,9 @@ Stages A to C are committed as `dd0454b9` on `feature/archived-jobs-stats`; the 
 and its removal followed on the same branch.
 
 Stage H is under way rather than finished. The two live defects are fixed, every dashboard has been
-audited against the store, and six have been reworked for legibility. What remains is
-layout on the rest — `redis`, `traefik`, `host` and `frontend-events` each carry ten or more panels
-with no rows.
+audited against the store, and ten have been reworked for legibility. Every dashboard carrying more
+than a handful of panels now groups them into rows. What remains is the SeaweedFS dashboard that has
+never existed.
 
 | Stage | Status |
 |-------|--------|

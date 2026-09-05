@@ -2,7 +2,7 @@
   "annotations": {
     "list": []
   },
-  "description": "Traefik v3 OTLP metrics via Alloy (job=traefik).",
+  "description": "The edge. Every request into the stack passes through here, so a change in these rates shows up before it reaches any service dashboard.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -10,6 +10,19 @@
   "links": [],
   "liveNow": false,
   "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 900,
+      "panels": [],
+      "title": "Now",
+      "type": "row"
+    },
     {
       "id": 1,
       "type": "stat",
@@ -22,7 +35,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "targets": [
         {
@@ -78,7 +91,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 0
+        "y": 1
       },
       "targets": [
         {
@@ -134,7 +147,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 0
+        "y": 1
       },
       "targets": [
         {
@@ -190,7 +203,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 0
+        "y": 1
       },
       "targets": [
         {
@@ -235,6 +248,19 @@
       }
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 910,
+      "panels": [],
+      "title": "Traffic",
+      "type": "row"
+    },
+    {
       "id": 5,
       "type": "timeseries",
       "title": "Requests / sec by entrypoint",
@@ -246,7 +272,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 4
+        "y": 6
       },
       "targets": [
         {
@@ -303,7 +329,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 4
+        "y": 6
       },
       "targets": [
         {
@@ -360,7 +386,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 14
       },
       "targets": [
         {
@@ -417,7 +443,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 14
       },
       "targets": [
         {
@@ -463,6 +489,19 @@
       }
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 920,
+      "panels": [],
+      "title": "Latency",
+      "type": "row"
+    },
+    {
       "id": 9,
       "type": "timeseries",
       "title": "Service latency p50 / p95",
@@ -474,7 +513,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 23
       },
       "targets": [
         {
@@ -540,7 +579,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 20
+        "y": 23
       },
       "targets": [
         {
@@ -586,6 +625,19 @@
       }
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
+      "id": 930,
+      "panels": [],
+      "title": "Connections and backends",
+      "type": "row"
+    },
+    {
       "id": 11,
       "type": "timeseries",
       "title": "Open connections by entrypoint",
@@ -597,7 +649,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 28
+        "y": 32
       },
       "targets": [
         {
@@ -654,7 +706,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 28
+        "y": 32
       },
       "targets": [
         {

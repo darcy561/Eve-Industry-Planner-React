@@ -216,6 +216,17 @@ The placement panels stack their series, because the question there is the mix �
 put. What each result means, and the soft/full/cutoff ladder, is
 [backend/ws-router/ws-router.md](../../backend/ws-router/ws-router.md) § Placement.
 
+**`redis`, `traefik`, `host` and `frontend-events-otel-metrics` are grouped into rows.** Each was a
+single column of ten or more panels, so reading one meant scrolling past everything it was not
+about. Their queries were sound and are unchanged; what moved is the arrangement — a "Now" band of
+current-state tiles where the dashboard has them, then a row per subject.
+
+Two things were replaced rather than moved. `host` measured its rates over a hardcoded one-minute
+window, which under-samples as soon as the dashboard is zoomed out past that; it uses
+`$__rate_interval` now, which follows the panel's own resolution. And the frontend panels carried
+their instrument name in the title, several of them truncated mid-word by the width available — the
+name belongs in the panel description, which is where it now is.
+
 **The worker's queues and its task execution are one dashboard.** They were two — `asynq-queues`
 for backlog and throughput, `worker-tasks` for run times and outcomes — describing the same
 pipeline from either end, with the same Loki failures panel copied into both. `worker-tasks.json`

@@ -2,7 +2,7 @@
   "annotations": {
     "list": []
   },
-  "description": "Host metrics from Alloy's embedded unix exporter (job=node).",
+  "description": "The Docker host the stack runs on. Disk space and load are the two that stop the stack rather than slow it.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -10,6 +10,19 @@
   "links": [],
   "liveNow": false,
   "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 900,
+      "panels": [],
+      "title": "Now",
+      "type": "row"
+    },
     {
       "id": 1,
       "type": "stat",
@@ -22,12 +35,12 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "targets": [
         {
           "refId": "A",
-          "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\",job=\"node\"}[1m])))",
+          "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\",job=\"node\"}[$__rate_interval])))",
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
@@ -78,7 +91,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 0
+        "y": 1
       },
       "targets": [
         {
@@ -134,7 +147,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 0
+        "y": 1
       },
       "targets": [
         {
@@ -190,7 +203,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 0
+        "y": 1
       },
       "targets": [
         {
@@ -235,6 +248,19 @@
       }
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 910,
+      "panels": [],
+      "title": "CPU and load",
+      "type": "row"
+    },
+    {
       "id": 5,
       "type": "timeseries",
       "title": "CPU usage by mode",
@@ -246,12 +272,12 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 4
+        "y": 6
       },
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (mode) (rate(node_cpu_seconds_total{job=\"node\"}[1m]))",
+          "expr": "sum by (mode) (rate(node_cpu_seconds_total{job=\"node\"}[$__rate_interval]))",
           "legendFormat": "{{mode}}",
           "datasource": {
             "type": "prometheus",
@@ -292,6 +318,94 @@
       }
     },
     {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Load average",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "node_load1{job=\"node\"}",
+          "legendFormat": "1m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "refId": "B",
+          "expr": "node_load5{job=\"node\"}",
+          "legendFormat": "5m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "refId": "C",
+          "expr": "node_load15{job=\"node\"}",
+          "legendFormat": "15m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 920,
+      "panels": [],
+      "title": "Memory",
+      "type": "row"
+    },
+    {
       "id": 6,
       "type": "timeseries",
       "title": "Memory",
@@ -301,9 +415,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 4
+        "w": 24,
+        "x": 0,
+        "y": 15
       },
       "targets": [
         {
@@ -367,6 +481,19 @@
       }
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 930,
+      "panels": [],
+      "title": "Disk",
+      "type": "row"
+    },
+    {
       "id": 7,
       "type": "timeseries",
       "title": "Disk space available (ext4/xfs)",
@@ -378,7 +505,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 24
       },
       "targets": [
         {
@@ -435,12 +562,12 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 24
       },
       "targets": [
         {
           "refId": "A",
-          "expr": "rate(node_disk_read_bytes_total{job=\"node\"}[1m])",
+          "expr": "rate(node_disk_read_bytes_total{job=\"node\"}[$__rate_interval])",
           "legendFormat": "read {{device}}",
           "datasource": {
             "type": "prometheus",
@@ -449,7 +576,7 @@
         },
         {
           "refId": "B",
-          "expr": "rate(node_disk_written_bytes_total{job=\"node\"}[1m])",
+          "expr": "rate(node_disk_written_bytes_total{job=\"node\"}[$__rate_interval])",
           "legendFormat": "write {{device}}",
           "datasource": {
             "type": "prometheus",
@@ -490,6 +617,19 @@
       }
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 940,
+      "panels": [],
+      "title": "Network",
+      "type": "row"
+    },
+    {
       "id": 9,
       "type": "timeseries",
       "title": "Network throughput",
@@ -499,14 +639,14 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
-        "y": 20
+        "y": 33
       },
       "targets": [
         {
           "refId": "A",
-          "expr": "rate(node_network_receive_bytes_total{job=\"node\",device!~\"lo|veth.*|br-.*|docker.*\"}[1m])",
+          "expr": "rate(node_network_receive_bytes_total{job=\"node\",device!~\"lo|veth.*|br-.*|docker.*\"}[$__rate_interval])",
           "legendFormat": "rx {{device}}",
           "datasource": {
             "type": "prometheus",
@@ -515,7 +655,7 @@
         },
         {
           "refId": "B",
-          "expr": "rate(node_network_transmit_bytes_total{job=\"node\",device!~\"lo|veth.*|br-.*|docker.*\"}[1m])",
+          "expr": "rate(node_network_transmit_bytes_total{job=\"node\",device!~\"lo|veth.*|br-.*|docker.*\"}[$__rate_interval])",
           "legendFormat": "tx {{device}}",
           "datasource": {
             "type": "prometheus",
@@ -526,81 +666,6 @@
       "fieldConfig": {
         "defaults": {
           "unit": "Bps",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never",
-            "spanNulls": true
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "lastNotNull",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
-      "id": 10,
-      "type": "timeseries",
-      "title": "Load average",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 20
-      },
-      "targets": [
-        {
-          "refId": "A",
-          "expr": "node_load1{job=\"node\"}",
-          "legendFormat": "1m",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        },
-        {
-          "refId": "B",
-          "expr": "node_load5{job=\"node\"}",
-          "legendFormat": "5m",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        },
-        {
-          "refId": "C",
-          "expr": "node_load15{job=\"node\"}",
-          "legendFormat": "15m",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
           "color": {
             "mode": "palette-classic"
           },

@@ -200,6 +200,10 @@ func TestOnCompleteSeesEveryAttempt(t *testing.T) {
 			w.WriteHeader(http.StatusBadGateway)
 			return
 		}
+		// A loopback round trip can finish inside one tick of the monotonic clock,
+		// which is coarser than a millisecond on some hosts, and a zero elapsed time
+		// would then look like the duration was never recorded.
+		time.Sleep(2 * time.Millisecond)
 		_, _ = w.Write([]byte(`{"ok":true}`))
 	}))
 	defer srv.Close()

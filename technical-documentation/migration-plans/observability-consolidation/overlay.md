@@ -148,10 +148,14 @@ Two things moved with the upgrade. `trace.NewNoopTracerProvider` is deprecated i
 `trace/noop` package, and the log record's attribute `Key` became a distinct type rather than an
 alias for `string`.
 
-**`otelhttp` is held at v0.70.0.** v0.71.0 reports a zero duration for the final attempt of a retried
-request, and `shared/httpclient` reports per-attempt timing from it — a test covers that, and it
-fails on v0.71.0 and passes on v0.70.0. The hold is recorded in `services/go.mod` beside the
-requirement.
+`otelhttp` is on v0.71.0 with the rest.
+
+A test in `shared/httpclient` looked like it made v0.71.0 unusable, and did not.
+`TestOnCompleteSeesEveryAttempt` asserts a retried request reports a positive duration for its final
+attempt, and it fails most runs on **either** version: the monotonic clock on some hosts ticks
+coarser than a loopback round trip takes, so `time.Since` legitimately returns zero. The test also
+supplies its own transport, so `otelhttp` was never in that code path. Its handler now sleeps past a
+tick, which tests the timing wiring rather than the clock's resolution.
 
 ## Dashboards
 

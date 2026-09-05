@@ -597,13 +597,13 @@ Done:
   each metric's rolling windows collapsed into a single panel.
 - `websocket-otel-metrics.json` — combined with the ws-router metrics Stage C added, which were
   being collected and displayed nowhere, and given owner-keyed connection reporting.
+- `asynq-queues.json` — absorbed `worker-tasks.json`, which described the same pipeline from the
+  execution end and duplicated its failures panel. Nineteen dashboards now, not twenty.
 
 Left:
 
 - `redis`, `traefik`, `host` and `frontend-events-otel-metrics` each carry ten or more panels with no
   rows at all.
-- `asynq-queues` and `worker-tasks` cover one pipeline — queue state and task execution — split
-  across two dashboards.
 - The SeaweedFS dashboard named below still does not exist.
 
 **Grafana's provisioning had to be corrected first.** The provider allowed UI updates, so Grafana
@@ -714,10 +714,9 @@ Stages A to C are committed as `dd0454b9` on `feature/archived-jobs-stats`; the 
 and its removal followed on the same branch.
 
 Stage H is under way rather than finished. The two live defects are fixed, every dashboard has been
-audited against the store, and five of the twenty have been reworked for legibility. What remains is
+audited against the store, and six have been reworked for legibility. What remains is
 layout on the rest — `redis`, `traefik`, `host` and `frontend-events` each carry ten or more panels
-with no rows, and `asynq-queues` and `worker-tasks` are one pipeline split across two dashboards
-that would read better combined.
+with no rows.
 
 | Stage | Status |
 |-------|--------|

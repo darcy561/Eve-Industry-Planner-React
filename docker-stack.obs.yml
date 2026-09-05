@@ -197,8 +197,6 @@ services:
         target: /etc/grafana/provisioning/dashboards/definitions/traefik.json
       - source: grafana_dash_websocket_otel_metrics
         target: /etc/grafana/provisioning/dashboards/definitions/websocket-otel-metrics.json
-      - source: grafana_dash_worker_tasks
-        target: /etc/grafana/provisioning/dashboards/definitions/worker-tasks.json
     deploy:
       <<: *obs-deploy
       labels:
@@ -337,5 +335,3 @@ configs:
     file: ./observability/grafana/provisioning/dashboards/definitions/traefik.json
   grafana_dash_websocket_otel_metrics:
     file: ./observability/grafana/provisioning/dashboards/definitions/websocket-otel-metrics.json
-  grafana_dash_worker_tasks:
-    file: ./observability/grafana/provisioning/dashboards/definitions/worker-tasks.json

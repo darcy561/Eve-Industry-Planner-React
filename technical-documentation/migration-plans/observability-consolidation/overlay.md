@@ -216,6 +216,20 @@ The placement panels stack their series, because the question there is the mix �
 put. What each result means, and the soft/full/cutoff ladder, is
 [backend/ws-router/ws-router.md](../../backend/ws-router/ws-router.md) § Placement.
 
+**The worker's queues and its task execution are one dashboard.** They were two — `asynq-queues`
+for backlog and throughput, `worker-tasks` for run times and outcomes — describing the same
+pipeline from either end, with the same Loki failures panel copied into both. `worker-tasks.json`
+is gone and its panels live under "Worker · queues and tasks" alongside the queue ones.
+
+Four rows: what the queues hold now; backlog by queue and state; execution by task type; and
+failures. The state panel aggregates with `sum by (state)` rather than drawing the raw series —
+nine queues across six states is fifty-four lines on one chart, and the question it answers is how
+much work sits in each state, not which queue holds it.
+
+Backlog comes from the asynq exporter and execution from the worker's own instruments, so a task
+that fails and retries counts once per attempt on the queue counters and once per run on the worker
+ones. The failure-rate tile is calculated from the queue side for that reason.
+
 **`app-activity.json`** was nineteen tiles in an undifferentiated grid with no rows at all. It now
 reads in three bands — usage and growth, usage shape, and build and configuration — across twelve
 tiles.

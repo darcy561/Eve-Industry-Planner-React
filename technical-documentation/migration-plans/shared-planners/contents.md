@@ -31,6 +31,8 @@ The planner as a first-class thing a user works in, and the ownership model unde
 | Understand how in-game access lists differ from corp membership | [plan.md](./plan.md) § Access lists differ from the other ESI providers |
 | See how someone gets into a planner | [plan.md](./plan.md) § Every planner is private |
 | Know what happens the moment a member is removed | [plan.md](./plan.md) § Losing access |
+| See what a browser subscribes to, and what switches when a planner does | [plan.md](./plan.md) § What a connection subscribes to |
+| Understand why a client no longer requests its own scopes | [plan.md](./plan.md) § Why the client no longer asks for scopes |
 | Find what each surface owes — documents, routing, API, SPA | [plan.md](./plan.md) § What each surface owes |
 | See which collections exist and which family a document belongs to | [plan.md](./plan.md) § Collection layout |
 | Know whether one collection per type will scale | [plan.md](./plan.md) § Collection size |

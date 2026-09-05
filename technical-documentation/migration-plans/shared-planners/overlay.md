@@ -131,7 +131,14 @@ Two contracts they pin that were not obvious from the parts. An upgrade that gra
 hold. And a legacy record only survives long enough to be repaired if nothing writes the record first:
 every write through the record's own helpers decodes into the current shape and drops the previous one.
 
-Still owed here: the `upgrade_scopes` request shape itself.
+**`upgrade_scopes` still runs, and is on its way out.** It stands unchanged: a client may send two
+lists of raw EVE ids, which are ciphered to refs, turned into owner keys and checked against the
+ceiling. No browser sends it — the SPA sends `session_resume`, `subscribe`, `unsubscribe` and the
+doc-lock frames — so it is reachable only from the soak harness and tests. The plan's
+§ Why the client no longer asks for scopes records why it is removed rather than reshaped, and
+§ What a connection subscribes to describes what replaces it.
+
+Nothing here is owed against Stage B.
 
 ## Stage C — Planners and membership
 

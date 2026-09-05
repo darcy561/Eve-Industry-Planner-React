@@ -151,7 +151,7 @@ Two forms of the same value, differing only for the two ESI kinds:
 | Form | Contains | Where it lives |
 |------|----------|----------------|
 | **Owner key** | `corporation:{ref}`, `alliance:{ref}`, `account:{id}`, `planner:{ulid}` | documents, subjects, tenant keys, lock partitions, logs, grants |
-| **Owner handle** | `corporation:{raw EVE id}`, and otherwise identical | request paths, websocket `upgrade_scopes`, client payloads, the SPA |
+| **Owner handle** | `corporation:{raw EVE id}`, and otherwise identical | request paths, client payloads, the SPA |
 
 The conversion is exactly the boundary that performs it today: `refsForRequestedIDs` on the way in
 and the outgoing client payload on the way out. Account and planner kinds pass through untouched
@@ -305,6 +305,66 @@ exists, clearing the planner from `Client.Scopes` and from the reverse indexes �
 `swapClientOrgScopesAndIndexes`. No lock is acquired around the membership write; the fan-out is the
 mechanism for making other sessions current.
 
+### What a connection subscribes to
+
+A browser needs two things at once, and they change on different schedules: the documents of the
+planner it is looking at, and the account's own documents, which stay live whichever planner that is.
+A connection therefore holds **two subscriptions**, both derived by the server:
+
+| | Owner | Collections | Changes when |
+|---|-------|-------------|--------------|
+| Account | `account:{accountID}` | `accounts`, `account_settings`, `watchlist_deprecated` | Never, for the life of the connection |
+| Planner | the active planner's owner key | `jobs`, `job_documents`, `job_groups` | The client switches planner |
+
+**One planner is active at a time.** Switching is one message naming one owner key, intersected against
+the grant ceiling; the account subscription is untouched by it. Nothing enumerates documents, so
+switching a planner holding five jobs and one holding five hundred cost the same.
+
+**The delivery gate is a pair, not an owner.** Routing on the owner alone is not enough, because
+`account:{id}` owns both the account's settings **and** the jobs of that account's own planner. A member
+viewing a corporation planner wants their settings and not their personal job feed — the same owner
+key, different collections, opposite answers. Every change stream message already carries both the
+owner and the collection, so the pair is available wherever the decision is made.
+
+When the active planner *is* the personal one, both rows carry `account:{id}` with different collection
+sets. That composes rather than needing a case of its own.
+
+**The collection set follows from the owner's kind, and the client never names it.** A client asking
+for an owner cannot ask for a collection set that owner's kind does not have, and a collection added to
+a kind reaches every planner of that kind by editing one server-side table — the same shape as
+§ Capabilities are derived, never stamped. The three groups in `changestream.CollectionGroups()`
+already partition these concerns; the websocket has no notion of them today, which is why none of this
+is currently expressible.
+
+Group templates are **not** in either set. They shipped account-owned with no owner block, and a
+template library that follows the person rather than the planner keeps that shape; a shared-template
+feature would be a deliberate reversal with a migration behind it, not a subscription change.
+
+**Explicit document subscriptions are unchanged and orthogonal.** `subscribe` and `unsubscribe` name
+individual document ids and remain the escape hatch for a document outside both subscriptions — a job
+someone linked. What changes at Stage C is what authorises one: `docSubscribeAuthorized` tests
+`ExistsByAccountID` today and becomes an owner and membership test.
+
+### Why the client no longer asks for scopes
+
+The present design has this backwards. `upgrade_scopes` has a browser send raw EVE corporation and
+alliance ids, which the server ciphers to refs and checks against the ceiling. Three things are wrong
+with it under an owner model.
+
+It asks the client for something the server already knows: the ceiling is on the session record at
+connect, so a request can only ever select from what is already there. It is the only client-supplied
+input on the authorisation path, and the only reason a raw id to ref conversion exists there. And it
+can only ever widen — the merge is a union, so **nothing can stop receiving a scope short of
+reconnecting**, which is precisely what switching planner has to do.
+
+The account kind never went through it: account delivery is derived from the authenticated id at
+connect. That asymmetry is the tell. Under one owner vocabulary both are the same thing, so both are
+derived, and the client's only say is which planner is active.
+
+No client sends `upgrade_scopes`: the SPA sends `session_resume`, `subscribe`, `unsubscribe` and the
+doc-lock frames, and nothing else. So it is removed rather than reshaped, and the narrowing message
+that replaces it is added at Stage E, when there is a planner switcher to send it.
+
 ### Limits
 
 Caps belong in this project rather than being discovered under load: planners created per account,
@@ -327,7 +387,8 @@ to fill the database.
 | Statistics API | **done** — `/api/v1/statistics/{owner}/{view}` | — |
 | `SessionGrants` | `CorporationRefs` + `AllianceRefs`, filled from ESI at token refresh | one list of owner keys, including the account's own; shape in Stage B, filled from membership rows in Stage C |
 | `RealtimeScopes` | `CorporationRefs` + `AllianceRefs` | one list of owner keys |
-| `upgrade_scopes` / `scopes_ack` | corp and alliance id arrays | owner handles, one shape for every kind |
+| `upgrade_scopes` / `scopes_ack` | corp and alliance id arrays, sent by no client | removed; a Stage E message names the active planner instead |
+| Connection subscriptions | account delivery derived at connect, org scopes requested | both derived from the ceiling; owner and collection set per subscription |
 | SPA query keys | rooted at `statistics` | owner in every scoped key |
 | SPA state | account id implied everywhere | an explicit active planner |
 | Extras categories, job status ids | per account | the planner's, because their ids key shared documents |
@@ -1066,7 +1127,7 @@ rollback plan, and it is what the simpler cutover costs.
 
 `SessionGrants` becomes one list of owner keys including the account's own, so there is no special
 case and one `filterToAllowed` comparison covers everything. `RealtimeScopes` follows, and
-`upgrade_scopes` / `scopes_ack` take owner handles in one shape for every kind.
+`upgrade_scopes` / `scopes_ack` are removed: a connection derives what it receives rather than asking.
 
 Session records live in Redis and expire, so this is a rolling deploy rather than a migration — a
 property worth using rather than working around. It does mean the API and websocket must tolerate both
@@ -1092,20 +1153,17 @@ of source under a shape already proven. The cost is touching the fill path twice
 `UpdateAccountSessionGrants` and its three callers (authenticate, refresh, and the worker's ESI task);
 `ExtractSessionGrants`; the websocket's `grantedCorpRefs` / `grantedAllianceRefs` on the client, the
 reverse indexes over them, `filterToAllowed`, `replaceScopesWithinSessionGrants` and the resume path;
-`model.RealtimeScopes`; and the `upgrade_scopes` / `scopes_ack` message shapes, which the SPA cuts with.
+`model.RealtimeScopes`; and the `upgrade_scopes` / `scopes_ack` message shapes, which no client sends.
 
 **Go modernisation, per § Go modernisation in scope:** the session record's `time.Time` fields in
 `api/helper/auth/refresh_token.go` want `omitzero` rather than `omitempty`, which this stage's edits to
 that file are the moment to apply.
 
-**The `upgrade_scopes` request keeps its two lists, and moves at Stage E.** The plan above has it take
-owner handles with the rest. It is deferred, for two reasons. The message carries **raw EVE ids**, which
-the server converts through the entity cipher; an owner handle would be `corporation:{raw id}`, so the
-conversion stays exactly where it is and only the spelling of the kind changes. And no SPA client sends
-the message — only the soak harness does — so reshaping it now is churn on a surface nothing calls.
-Stage E is when the client gains an active planner and a reason to ask for a planner-kind scope, which
-is the change that gives the one-shape rewrite its purpose. Until then the two lists are what supply
-the kind, and the ids become owner keys at that boundary.
+**`upgrade_scopes` is removed rather than reshaped.** The plan above had it take owner handles with the
+rest of the stage. Reshaping it was the wrong answer: a connection should not ask for scopes at all
+— see § Why the client no longer asks for scopes. The subscriptions a connection holds are derived from
+its ceiling, and the only thing a client decides is which planner is active, which is a Stage E message
+against a Stage E client. Until then the two id lists stand, unused by any browser.
 
 **Done when** one owner-key list covers every kind, `filterToAllowed` compares once, grants stored by
 the previous release are rewritten rather than lost, and no downstream reader names a corporation or
@@ -1115,7 +1173,11 @@ alliance field.
 
 The planner document, the membership collection, and the code that keeps rows current for the `self`
 provider only. This stage also repoints the grants fill from ESI onto membership rows, the source half
-of the split described in Stage B; the owner-key shape it writes into is already in place by then. Every existing account is backfilled a planner whose `_id` is its owner key,
+of the split described in Stage B; the owner-key shape it writes into is already in place by then.
+
+Two subscription pieces land with it, both from § What a connection subscribes to: the collection set
+per owner kind, and `docSubscribeAuthorized` moving off `ExistsByAccountID` onto an owner and
+membership test. Every existing account is backfilled a planner whose `_id` is its owner key,
 `account:{accountID}`, and one membership row. Purely additive: no existing document's owner value
 changes, because the owner id inside that key is the account id those documents already carry.
 
@@ -1146,8 +1208,11 @@ Its test is exact: on a single-member planner, every figure must be identical be
 ### Stage E — Custom planners
 
 Creation, invite tokens, the join path, the shared authoriser, the limits, and the revocation path.
-Stage B's deferred `upgrade_scopes` reshape lands here, because this is where a client first asks for a
-planner-kind scope and the two id lists stop being able to express the request.
+
+The active planner arrives here, and with it the message that switches one: the client names one owner
+key, the server intersects it with the ceiling and replaces the planner subscription, leaving the
+account subscription alone. Replace rather than merge, because switching planner has to stop the
+previous one — see § What a connection subscribes to.
 On the client: the active planner, its persistence, the planner switcher, and the owner in every
 scoped query key. Archiving names its destination planner in the UI, because a job archived into the
 wrong archive is tedious to unpick.
@@ -1186,7 +1251,7 @@ is ready for the window.
 | `ArchivedJobStats` owner | **migrate-required** — same window |
 | Collection names, document ids | **migrate-required**; client-facing via changestream groups and the subscribe allow-list, which are small and account-based today and move with the rename |
 | `SessionGrants` in Redis | records expire, and the window can clear them outright rather than tolerating two shapes |
-| `upgrade_scopes` / `scopes_ack` | **breaking in shape**, but every value is unchanged for corporation and alliance, so client and server cut together |
+| `upgrade_scopes` / `scopes_ack` | **removed** — no client sends them, so there is nothing to cut with; the Stage E message that narrows to an active planner is additive |
 | Statistics routes | **breaking** if deferred, additive if the owner handle lands while the account is still the only value — hence it is owed by archived-jobs-stats before it ships |
 | Planner, membership, invite endpoints | additive |
 | SPA query keys | additive, but mandatory — an owner-less key makes two planners share one cache entry |
@@ -1290,7 +1355,7 @@ do not touch.
 |-------|--------|
 | Phase 1 — project docs | Complete |
 | A — the owner block, in one cutover | **Ready to run.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, and the rehearsal against a restored copy of live is done. Outstanding: the window itself |
-| B — grants and scopes as owner lists | **Landed bar the wire request.** `models.SessionGrants` is the one grants type, the websocket ceiling, scopes and routing index are owner keys, and `prepareRelease` rewrites stored grants. The `upgrade_scopes` request keeps its two id lists and moves to Stage E — see § Stage B. The § Go modernisation item is applied |
+| B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, the websocket ceiling, scopes and routing index are owner keys, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the active-planner message replacing it is Stage E work — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
 | C — planner and membership documents | Not started. Also repoints the grants fill from ESI onto membership rows. `services/shared/models/planner.go` already holds this stage's types — see § Data models |
 | D — what a second member breaks | Not started |
 | E — custom planners | Not started |

@@ -52,17 +52,86 @@ reshape each reported, and the counts checked before traffic came back.
 
 ## Stage B — Grants and scopes
 
-*Not landed.*
+*Landing. Grants, scopes, the ceiling, the routing index and the stored-grant repair are owner keys; the wire request shape is still owed.*
 
-Owed here: the grant list shape, how the ceiling is computed per provider, the owner handle to owner
-key conversion points, and the `upgrade_scopes` and `scopes_ack` message shapes.
+**One list, one type.** `models.SessionGrants` is the only grants type — the duplicate in `api/helper/auth`
+is gone. It holds `OwnerKeys`, one owner key per owner the session may read, stored on the account's
+session record in Redis under `owner_keys`.
 
-Until it lands, grants are two lists. `auth.SessionGrants` carries `CorporationRefs` and
-`AllianceRefs` on the account's session record in Redis, filled from ESI at token refresh by
-`UpdateAccountSessionGrants`, which converts raw ids to refs on the way in. The websocket copies them
-onto a connection and `filterToAllowed` compares each list separately. The account's own access is
-implicit rather than a grant. `models.SessionGrants` exists with the owner-key shape but nothing reads
-it.
+**The account's own key is always granted.** `UpdateAccountSessionGrants` writes it alongside whatever
+ESI supplied, so a reader asking whether a session may see an owner gets the same answer for an account
+as for a corporation, and nothing downstream special-cases the account.
+
+**A grant carries its kind.** Keys are built through `models.Owner.Key()`, so a corporation ref and an
+alliance ref of the same id are different grants. A ref the owner vocabulary refuses is dropped rather
+than stored as a key nothing can parse. `SessionGrants.Grants(owner)` answers membership and
+`IDsForKind` returns one kind's ids, so no caller parses a key by hand.
+
+**The source has not changed.** The list is still filled from ESI at token refresh, from the ids the
+callers hold; only its shape moved. Stage C repoints it at membership rows.
+
+**The ceiling and the scopes are owner keys too.** A connection carries one `grantedOwnerKeys` set,
+taken straight from the session record, and `RealtimeScopes` holds one `OwnerKeys` list. One
+`filterToAllowed` comparison covers every kind, so a scope upgrade no longer runs a separate pass per
+kind and cannot gain one when a kind is added.
+
+**One vocabulary for a set of owners.** `models.OwnerKeys` is the type, and it owns the operations:
+`Add` and `AddRefs` build a set from owners or refs of one kind, skipping anything the vocabulary
+refuses; `Within` keeps only what a ceiling allows; `Union` widens a set without dropping what is held;
+`Normalized` trims, deduplicates and sorts; `Has` and `IDsForKind` ask about membership and one kind.
+
+A session's grant ceiling, a connection's scopes and the owners a client asks for are all that one
+type, so the same question is asked the same way on each and no caller splits a `kind:id` string or
+keeps its own set helper. A connection's `Scopes` is the type directly rather than a struct wrapping
+it, which retired the `websocket/server/model` package the wrapper was the only member of, and the
+ceiling is the type rather than a map built from it.
+
+**An empty ceiling permits nothing.** `Within` returns nothing for an empty ceiling rather than
+everything, so a session holding no grants reaches no owner — the direction this has to fail in.
+
+**A key built from an unusable ref addresses nothing.** `Owner.Key` renders the zero owner as `":"`,
+so indexing a map on a key built from unvalidated input would read one bucket shared by every bad ref
+rather than failing. Lookups go through `clientsForOwner`, which refuses the zero owner first.
+
+**One reverse index, one lock.** `ownerKeyToClients` maps an owner key to the clients receiving it,
+replacing the separate corporation and alliance maps and the rule that their two mutexes had to be
+taken in a fixed order. Hosted tenants read that index directly, because a tenant key and an index key
+are now the same string; the per-kind branches that rebuilt one from the other are gone, and the
+connection metric reports whatever kinds are present rather than the two it was written for.
+
+**The request still names its kind.** A browser sends `upgrade_scopes` as a corporation list and an
+alliance list, which is where the kind comes from; the ids become owner keys at that boundary, so the
+discriminator moves into the value before anything compares it. `scopes_ack` still reports a
+corporation and an alliance flag, derived from the scopes rather than stored.
+
+**Resume carries owner keys.** The handoff entry and its Redis payload hold `owner_keys`, under the key
+prefix `ws:session_handoff:v2`. A handoff written by the previous shape is not found rather than
+misread, and the client falls back to a normal connect — which is what a resume hint is for.
+
+**Stored grants are rewritten by the release, not left to lapse.** A session record written by the
+previous shape decodes to no grants at all, because its `corporation_refs` and `alliance_refs` are
+fields the type no longer has. `tasks prepareRelease` therefore ends with a step that scans
+`account_sessions:*`, reads those fields from the raw record, and rewrites the grants as owner keys —
+adding the account's own key, which the previous shape never stored.
+
+Only the grants field is rewritten. The same record holds the session map that keeps an account signed
+in, so deleting the key to force a refill would sign every user out. The write goes through the same
+compare-and-set as every other grant write, and the step is idempotent: a record already in the new
+shape is counted and skipped, so re-running the release rewrites nothing.
+
+**Proven end to end over a real socket.** Three scenarios in the websocket integration suite carry a
+grant the whole way rather than testing one link: an owner granted from ESI ids reaches the browser as
+a delivered document; an owner the session was never granted is refused at the upgrade, never hosted,
+and delivers nothing; and a record in the previous shape, repaired by the release step, restores the
+scope on the next connect. They use the suite's existing fixture, so a later kind is a scenario rather
+than new machinery.
+
+Two contracts they pin that were not obvious from the parts. An upgrade that grants nothing sends **no**
+`scopes_ack` at all — the client learns by silence rather than by an ack naming a scope it does not
+hold. And a legacy record only survives long enough to be repaired if nothing writes the record first:
+every write through the record's own helpers decodes into the current shape and drops the previous one.
+
+Still owed here: the `upgrade_scopes` request shape itself.
 
 ## Stage C — Planners and membership
 

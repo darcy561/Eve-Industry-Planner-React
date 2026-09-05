@@ -1098,9 +1098,18 @@ reverse indexes over them, `filterToAllowed`, `replaceScopesWithinSessionGrants`
 `api/helper/auth/refresh_token.go` want `omitzero` rather than `omitempty`, which this stage's edits to
 that file are the moment to apply.
 
-**Done when** one owner-key list covers every kind, `filterToAllowed` compares once, a session carrying
-the previous shape is still served for its remaining lifetime, and no downstream reader names a
-corporation or alliance field.
+**The `upgrade_scopes` request keeps its two lists, and moves at Stage E.** The plan above has it take
+owner handles with the rest. It is deferred, for two reasons. The message carries **raw EVE ids**, which
+the server converts through the entity cipher; an owner handle would be `corporation:{raw id}`, so the
+conversion stays exactly where it is and only the spelling of the kind changes. And no SPA client sends
+the message — only the soak harness does — so reshaping it now is churn on a surface nothing calls.
+Stage E is when the client gains an active planner and a reason to ask for a planner-kind scope, which
+is the change that gives the one-shape rewrite its purpose. Until then the two lists are what supply
+the kind, and the ids become owner keys at that boundary.
+
+**Done when** one owner-key list covers every kind, `filterToAllowed` compares once, grants stored by
+the previous release are rewritten rather than lost, and no downstream reader names a corporation or
+alliance field.
 
 ### Stage C — Planner and membership documents
 
@@ -1137,6 +1146,8 @@ Its test is exact: on a single-member planner, every figure must be identical be
 ### Stage E — Custom planners
 
 Creation, invite tokens, the join path, the shared authoriser, the limits, and the revocation path.
+Stage B's deferred `upgrade_scopes` reshape lands here, because this is where a client first asks for a
+planner-kind scope and the two id lists stop being able to express the request.
 On the client: the active planner, its persistence, the planner switcher, and the owner in every
 scoped query key. Archiving names its destination planner in the UI, because a job archived into the
 wrong archive is tedious to unpick.
@@ -1219,7 +1230,7 @@ remaining suggestion. It is applied with the stage that touches the file rather 
 
 | File | Suggestion |
 |------|------------|
-| `api/helper/auth/refresh_token.go` | `omitzero` in place of `omitempty` on the `time.Time` fields of the session record — `session_start` and `session_seen_at`. `omitempty` never omits a struct, so those keys are written even when zero. Stage B edits this file. `go fix` reports it but declines to apply it, because dropping a key a reader may expect is a behaviour change; the session record is internal to this service and expires, so the change is safe here, but it is a deliberate edit rather than a mechanical one |
+| ~~`api/helper/auth/refresh_token.go`~~ | **Applied** with Stage B — `session_start` and `session_seen_at` take `omitzero`, which omits a zero time as the original tag intended, and the dead `omitempty` on the two `Grants` fields was dropped once they became structs |
 | ~~`api/helper/sso/jwt.go`~~ | **Gone** — the file no longer exists; the SSO code lives under `api/v1endpoints/sso`, which the scan reports nothing for |
 | ~~`websocket/server/reader.go`~~ | **Applied** — `reader.go` uses `errors.AsType` |
 | ~~`core/changestream/resume.go`~~ | **Applied** — `errors.AsType` landed with the watcher's routing-log fix under [archived-jobs-stats](../archived-jobs-stats/plan.md), which put that package in its touch surface |
@@ -1279,7 +1290,7 @@ do not touch.
 |-------|--------|
 | Phase 1 — project docs | Complete |
 | A — the owner block, in one cutover | **Ready to run.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, and the rehearsal against a restored copy of live is done. Outstanding: the window itself |
-| B — grants and scopes as owner lists | **Not started; next.** The shape change only — the ESI fill keeps writing the same values as owner keys, and Stage C repoints the source. Rolling deploy: both grant shapes must be read for one session lifetime. Carries the one remaining § Go modernisation item |
+| B — grants and scopes as owner lists | **Landed bar the wire request.** `models.SessionGrants` is the one grants type, the websocket ceiling, scopes and routing index are owner keys, and `prepareRelease` rewrites stored grants. The `upgrade_scopes` request keeps its two id lists and moves to Stage E — see § Stage B. The § Go modernisation item is applied |
 | C — planner and membership documents | Not started. Also repoints the grants fill from ESI onto membership rows. `services/shared/models/planner.go` already holds this stage's types — see § Data models |
 | D — what a second member breaks | Not started |
 | E — custom planners | Not started |

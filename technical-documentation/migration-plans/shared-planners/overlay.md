@@ -131,12 +131,20 @@ Two contracts they pin that were not obvious from the parts. An upgrade that gra
 hold. And a legacy record only survives long enough to be repaired if nothing writes the record first:
 every write through the record's own helpers decodes into the current shape and drops the previous one.
 
-**`upgrade_scopes` still runs, and is on its way out.** It stands unchanged: a client may send two
-lists of raw EVE ids, which are ciphered to refs, turned into owner keys and checked against the
-ceiling. No browser sends it — the SPA sends `session_resume`, `subscribe`, `unsubscribe` and the
-doc-lock frames — so it is reachable only from the soak harness and tests. The plan's
-§ Why the client no longer asks for scopes records why it is removed rather than reshaped, and
-§ What a connection subscribes to describes what replaces it.
+**A connection derives what it receives; nothing is requested.** `Client.Scopes` is set from the
+session's grants at connect and the client is put into its owner pools in the same step, so a
+connection is receiving before it has sent anything. `upgrade_scopes`, `scopes_ack` and the raw id to
+ref conversion behind them are gone, along with the reader case that accepted the message: a browser
+names no owner this service has to resolve, so the only raw ids left in the websocket are the ones it
+converts on the way *out*.
+
+**Resume carries documents, not scopes.** The handoff entry and its Redis payload hold document ids
+alone. A reconnecting client derives its scopes from the ceiling like any other connection, so there
+was nothing for the handoff to restore and no `scopes_ack` to send after one.
+
+Scopes are still narrower than the ceiling only in the sense that they equal it: the active planner
+that will narrow them is Stage E work, and `OwnerKeys.Union` stays because the release repair widens a
+stored grant list with the account's own key.
 
 Nothing here is owed against Stage B.
 

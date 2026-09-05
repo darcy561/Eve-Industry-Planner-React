@@ -18,9 +18,9 @@ import (
 )
 
 type Server struct {
-	// entityCipher converts organisation ids a client asks for into the refs that
-	// session grants, realtime indexes and tenant keys are expressed in. It is the
-	// only place a raw id enters this service.
+	// entityCipher turns the refs that grants, indexes and tenant keys are
+	// expressed in back into ids on the way out to a browser. Nothing converts in
+	// the other direction: a client names no owner this service has to resolve.
 	entityCipher *entityid.Cipher
 
 	// Client management

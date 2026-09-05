@@ -201,8 +201,8 @@ func (k OwnerKeys) Within(ceiling OwnerKeys) OwnerKeys {
 	return out
 }
 
-// Union returns k followed by any of added it does not already hold. Callers
-// widen a set with it, so nothing already held is dropped.
+// Union returns k followed by any of added it does not already hold, so a caller
+// widening a set does not drop what it started with.
 func (k OwnerKeys) Union(added OwnerKeys) OwnerKeys {
 	seen := k.set()
 	out := append(OwnerKeys(nil), k...)

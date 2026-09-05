@@ -269,10 +269,6 @@ func (s *Server) reader(client *Client) {
 				s.runWSMessageOperation(client, msgType, msg, s.handleSubscribeWS)
 				continue
 
-			case "upgrade_scopes":
-				s.runWSMessageOperation(client, msgType, msg, s.handleUpgradeScopesWS)
-				continue
-
 			case "unsubscribe":
 				s.runWSMessageOperation(client, msgType, msg, s.handleUnsubscribeWS)
 				continue

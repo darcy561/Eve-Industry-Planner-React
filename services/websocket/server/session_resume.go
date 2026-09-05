@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"eve-industry-planner/shared/models"
 	"fmt"
 	"time"
 
@@ -18,14 +17,12 @@ const redisHandoffKeyPrefix = "ws:session_handoff:v2"
 type sessionHandoffEntry struct {
 	AccountID string
 	Docs      map[string]struct{}
-	OwnerKeys []string
 	Expires   time.Time
 }
 
 type redisSessionHandoffPayload struct {
 	AccountID string   `json:"account_id"`
 	Docs      []string `json:"docs"`
-	OwnerKeys []string `json:"owner_keys,omitempty"`
 }
 
 func sessionHandoffRedisKey(accountID, oldClientID string) string {
@@ -47,7 +44,6 @@ func (s *Server) snapshotSessionHandoff(ctx context.Context, client *Client) {
 	ent := &sessionHandoffEntry{
 		AccountID: client.AccountID,
 		Docs:      docs,
-		OwnerKeys: append([]string(nil), client.Scopes...),
 		Expires:   time.Now().Add(config.SessionHandoffTTL),
 	}
 	s.sessionHandoffsMu.Lock()
@@ -57,23 +53,21 @@ func (s *Server) snapshotSessionHandoff(ctx context.Context, client *Client) {
 	s.sessionHandoffs[client.id] = ent
 	s.sessionHandoffsMu.Unlock()
 
-	s.storeRedisSessionHandoff(ctx, client.AccountID, client.id, docList, ent.OwnerKeys)
+	s.storeRedisSessionHandoff(ctx, client.AccountID, client.id, docList)
 
 	logs.DebugCtx(ctx, "session handoff snapshot for reconnect resume",
 		"old_client_id", client.id,
 		"account_id", client.AccountID,
-		"doc_count", len(docs),
-		"owner_scopes", len(ent.OwnerKeys))
+		"doc_count", len(docs))
 }
 
-func (s *Server) storeRedisSessionHandoff(ctx context.Context, accountID, oldClientID string, docList, ownerKeys []string) {
+func (s *Server) storeRedisSessionHandoff(ctx context.Context, accountID, oldClientID string, docList []string) {
 	if s.Stack == nil || s.Stack.Redis == nil {
 		return
 	}
 	payload := redisSessionHandoffPayload{
 		AccountID: accountID,
 		Docs:      docList,
-		OwnerKeys: ownerKeys,
 	}
 	b, err := json.Marshal(payload)
 	if err != nil {
@@ -129,7 +123,6 @@ func (s *Server) popSessionHandoff(ctx context.Context, accountID, previousClien
 				return &sessionHandoffEntry{
 					AccountID: accountID,
 					Docs:      docs,
-					OwnerKeys: append([]string(nil), payload.OwnerKeys...),
 					Expires:   time.Now().Add(config.SessionHandoffTTL),
 				}
 			}
@@ -164,7 +157,6 @@ type SessionResumeResult struct {
 	SkipBaselineSync   bool
 	RestoredDocIDs     []string
 	UnauthorizedDocIDs []string
-	ScopesRestored     bool
 }
 
 // ApplySessionResume moves NATS/outgoing subscription state from a disconnected client to this
@@ -188,14 +180,6 @@ func (s *Server) ApplySessionResume(ctx context.Context, client *Client, previou
 		}
 		s.handleSubscribeRequest(client.id, docID)
 		res.RestoredDocIDs = append(res.RestoredDocIDs, docID)
-	}
-
-	if len(ent.OwnerKeys) > 0 {
-		restorable := models.OwnerKeys(ent.OwnerKeys).Within(client.ownerCeiling)
-		if len(restorable) > 0 {
-			s.setClientScopes(client, restorable)
-			res.ScopesRestored = true
-		}
 	}
 
 	res.SkipBaselineSync = true

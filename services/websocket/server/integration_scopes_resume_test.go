@@ -5,51 +5,62 @@ import (
 	"testing"
 	"time"
 
+	"eve-industry-planner/shared/models"
 	"eve-industry-planner/testing/wait"
 )
 
-func TestIntegrationUpgradeScopesAckAndHosted(t *testing.T) {
+// A connection receives what its session grants, without asking: the ceiling is
+// known before the socket is open, so there is nothing for a browser to request.
+func TestIntegrationScopesAreDerivedAtConnect(t *testing.T) {
 	f := newIntegFixture(t)
 	const (
-		accountID = "acct-scopes"
-		sessionID = "sess-scopes"
+		accountID = "acct-derived"
+		sessionID = "sess-derived"
 	)
 	f.seedSessionWithGrants(accountID, sessionID, []int64{10}, []int64{99})
+
 	conn := f.dial(sessionID)
 	_ = f.readJSONMessage(conn, 2*time.Second)
 	f.waitClients(1, 2*time.Second)
 
-	f.writeJSON(conn, map[string]any{
-		"type":           "upgrade_scopes",
-		"corporationIDs": []string{"10"},
-		"allianceIDs":    []string{"99"},
-	})
-	ack := f.readJSONOfType(conn, "scopes_ack", 2*time.Second)
-	if ok, _ := ack["ok"].(bool); !ok {
-		t.Fatalf("scopes_ack=%v", ack)
-	}
-	sub, _ := ack["subscription"].(map[string]any)
-	if sub == nil || sub["corporation"] != true || sub["alliance"] != true {
-		t.Fatalf("subscription=%v", sub)
-	}
-
-	// Tenant keys are expressed in refs, so derive what the ids convert to.
-	corpTenant := "corporation:" + wsTestCorpRef(t, 10)
-	allianceTenant := "alliance:" + wsTestAllianceRef(t, 99)
-
+	corpTenant := models.CorporationOwner(wsTestCorpRef(t, 10)).Key()
+	allianceTenant := models.AllianceOwner(wsTestAllianceRef(t, 99)).Key()
 	wait.For(t, 2*time.Second, func() (bool, string) {
 		ok := f.Server.HostsTenant(corpTenant) && f.Server.HostsTenant(allianceTenant)
 		return ok, fmt.Sprintf("hosted=%v, want %s and %s", f.Server.HostedTenants(), corpTenant, allianceTenant)
 	})
 }
 
-func TestIntegrationSessionResumeRestoresScopes(t *testing.T) {
+// An account granted nothing beyond itself hosts no organisation tenant, so a
+// connection cannot reach an owner its session never held.
+func TestIntegrationScopesStopAtTheCeiling(t *testing.T) {
+	f := newIntegFixture(t)
+	const (
+		accountID = "acct-ceiling"
+		sessionID = "sess-ceiling"
+	)
+	f.seedSessionWithGrants(accountID, sessionID, nil, nil)
+
+	conn := f.dial(sessionID)
+	_ = f.readJSONMessage(conn, 2*time.Second)
+	f.waitClients(1, 2*time.Second)
+
+	if got := f.Server.HostsTenant(models.CorporationOwner(wsTestCorpRef(t, 10)).Key()); got {
+		t.Fatalf("hosted=%v, want no organisation tenant for an account granted none", f.Server.HostedTenants())
+	}
+}
+
+// Resume restores document subscriptions. Scopes are not among them: they come
+// from the ceiling on the new connection, so a resume neither carries nor needs
+// them.
+func TestIntegrationSessionResumeKeepsDerivedScopes(t *testing.T) {
 	f := newIntegFixture(t)
 	const (
 		accountID = "acct-resume"
 		sessionID = "sess-resume"
 	)
-	f.seedSessionWithGrants(accountID, sessionID, []int64{10}, []int64{99})
+	f.seedSessionWithGrants(accountID, sessionID, []int64{10}, nil)
+
 	conn1 := f.dial(sessionID)
 	connected := f.readJSONMessage(conn1, 2*time.Second)
 	prevID, _ := connected["clientID"].(string)
@@ -58,37 +69,23 @@ func TestIntegrationSessionResumeRestoresScopes(t *testing.T) {
 	}
 	f.waitClients(1, 2*time.Second)
 
-	f.writeJSON(conn1, map[string]any{
-		"type":           "upgrade_scopes",
-		"corporationIDs": []string{"10"},
-		"allianceIDs":    []string{"99"},
-	})
-	_ = f.readJSONOfType(conn1, "scopes_ack", 2*time.Second)
-
 	_ = conn1.Close()
 	f.waitClients(0, 2*time.Second)
 
 	conn2 := f.dial(sessionID)
-	_ = f.readJSONMessage(conn2, 2*time.Second) // connected
+	_ = f.readJSONMessage(conn2, 2*time.Second)
 	f.waitClients(1, 2*time.Second)
 
 	f.writeJSON(conn2, map[string]any{
 		"type":             "session_resume",
 		"previousClientID": prevID,
 	})
-	resume := f.readJSONOfType(conn2, "resume_ack", 2*time.Second)
-	if skip, _ := resume["skipBaselineSync"].(bool); !skip {
-		t.Fatalf("resume_ack=%v want skipBaselineSync", resume)
+	if resume := f.readJSONOfType(conn2, "resume_ack", 2*time.Second); resume == nil {
+		t.Fatal("expected a resume_ack")
 	}
-	scopes := f.readJSONOfType(conn2, "scopes_ack", 2*time.Second)
-	sub, _ := scopes["subscription"].(map[string]any)
-	if sub == nil || sub["corporation"] != true || sub["alliance"] != true {
-		t.Fatalf("scopes after resume=%v", scopes)
-	}
-	// Tenant keys are expressed in refs, so derive what the ids convert to.
-	corpTenant := "corporation:" + wsTestCorpRef(t, 10)
-	allianceTenant := "alliance:" + wsTestAllianceRef(t, 99)
-	if !f.Server.HostsTenant(corpTenant) || !f.Server.HostsTenant(allianceTenant) {
-		t.Fatalf("hosted after resume=%v, want %s and %s", f.Server.HostedTenants(), corpTenant, allianceTenant)
+
+	corpTenant := models.CorporationOwner(wsTestCorpRef(t, 10)).Key()
+	if !f.Server.HostsTenant(corpTenant) {
+		t.Fatalf("hosted after resume=%v, want %s", f.Server.HostedTenants(), corpTenant)
 	}
 }

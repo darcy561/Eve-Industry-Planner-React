@@ -36,7 +36,8 @@ func TestOwnerKeysWithinKeepsOnlyWhatTheCeilingHolds(t *testing.T) {
 	}
 }
 
-// Union widens: a caller adding scopes must not drop what is already held.
+// Union widens: the repair adds an account's own key to what a record already
+// held, and must not drop the rest.
 func TestOwnerKeysUnionKeepsWhatIsHeld(t *testing.T) {
 	t.Parallel()
 	held := OwnerKeys{"account:a"}

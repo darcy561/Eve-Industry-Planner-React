@@ -222,7 +222,7 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 		explicitDocIDs: make(map[string]bool),
 		AccountID:      identity.AccountID,
 		SessionID:      identity.SessionID,
-		Scopes:         nil,
+		Scopes:         identity.Session.Grants.OwnerKeys,
 		ownerCeiling:   identity.Session.Grants.OwnerKeys,
 		lastReset:      now,
 		connectedAt:    now,
@@ -242,6 +242,10 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 	s.userConnections[identity.AccountID][client.id] = true
 	userConnCount := len(s.userConnections[identity.AccountID])
 	s.userConnMu.Unlock()
+
+	s.ownerIndexMu.Lock()
+	s.addToOwnerPoolsLocked(client)
+	s.ownerIndexMu.Unlock()
 	s.scheduleDocFanoutFilterReconcile()
 
 	duration := time.Since(upgradeStart)

@@ -71,14 +71,6 @@ func TestIntegrationGrantedOwnerReachesTheBrowser(t *testing.T) {
 	_ = f.readJSONMessage(conn, 2*time.Second)
 	f.waitClients(1, 2*time.Second)
 
-	f.writeJSON(conn, map[string]any{
-		"type":           "upgrade_scopes",
-		"corporationIDs": []string{"10"},
-	})
-	if ack := f.readJSONOfType(conn, "scopes_ack", 2*time.Second); ack["ok"] != true {
-		t.Fatalf("scopes_ack = %v", ack)
-	}
-
 	corp := models.CorporationOwner(wsTestCorpRef(t, 10))
 	wait.For(t, 2*time.Second, func() (bool, string) {
 		ok := f.Server.HostsTenant(corp.Key())
@@ -102,22 +94,12 @@ func TestIntegrationOwnerOutsideTheCeilingReachesNothing(t *testing.T) {
 		accountID = "acct-e2e-refused"
 		sessionID = "sess-e2e-refused"
 	)
-	// Granted corporation 10, and asks for 11.
+	// Granted corporation 10 and nothing else.
 	f.seedSessionWithGrants(accountID, sessionID, []int64{10}, nil)
 
 	conn := f.dial(sessionID)
 	_ = f.readJSONMessage(conn, 2*time.Second)
 	f.waitClients(1, 2*time.Second)
-
-	f.writeJSON(conn, map[string]any{
-		"type":           "upgrade_scopes",
-		"corporationIDs": []string{"11"},
-	})
-	// Nothing was granted, so no scope was added and no ack is owed: the client
-	// is told by silence rather than by an ack naming a scope it does not have.
-	if got, ok := f.readJSONMessageIfAny(conn, 300*time.Millisecond); ok {
-		t.Fatalf("an upgrade granting nothing answered with %v", got)
-	}
 
 	ungranted := models.CorporationOwner(wsTestCorpRef(t, 11))
 	if f.Server.HostsTenant(ungranted.Key()) {
@@ -166,18 +148,10 @@ func TestIntegrationRepairedGrantsRestoreScopeOnReconnect(t *testing.T) {
 		t.Fatalf("grants after repair = %v, want the corporation and the account's own key", held)
 	}
 
-	// A connection made after the repair carries the repaired ceiling.
+	// A connection made after the repair derives the repaired ceiling.
 	conn := f.dial(sessionID)
 	_ = f.readJSONMessage(conn, 2*time.Second)
 	f.waitClients(1, 2*time.Second)
-
-	f.writeJSON(conn, map[string]any{
-		"type":           "upgrade_scopes",
-		"corporationIDs": []string{"10"},
-	})
-	if ack := f.readJSONOfType(conn, "scopes_ack", 2*time.Second); ack["ok"] != true {
-		t.Fatalf("scopes_ack after repair = %v", ack)
-	}
 
 	f.Server.deliverOutboundDocUpdate(context.Background(), "job_documents.repaired",
 		docUpdateFor(t, corp, "repaired-doc"))

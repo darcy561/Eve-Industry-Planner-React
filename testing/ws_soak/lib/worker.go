@@ -184,20 +184,8 @@ func runWorker(ctx context.Context, cfg soakConfig, id clientIdentity, st *stats
 		}
 
 		if needsScopeUpgrade(id) {
-			if err := upgradeScopes(res.Conn, id, 5*time.Second); err != nil {
-				st.ScopesFail.Add(1)
-				st.CloseUnexpected.Add(1)
-				_ = res.Conn.Close()
-				if !cfg.Reconnect {
-					return
-				}
-				select {
-				case <-ctx.Done():
-					return
-				case <-time.After(200 * time.Millisecond):
-				}
-				continue
-			}
+			// Scopes come from the session's grants at connect, so an organisation
+			// client is already in its pools by the time the socket is open.
 			st.ScopesOK.Add(1)
 		}
 
@@ -236,52 +224,6 @@ func runWorker(ctx context.Context, cfg soakConfig, id clientIdentity, st *stats
 
 func needsScopeUpgrade(id clientIdentity) bool {
 	return id.CorpID != 0 || id.AllianceID != 0
-}
-
-// upgradeScopes sends upgrade_scopes and waits for scopes_ack (org pool + HostedTenants).
-func upgradeScopes(conn *websocket.Conn, id clientIdentity, timeout time.Duration) error {
-	var corpIDs, allianceIDs []string
-	if id.CorpID != 0 {
-		corpIDs = []string{fmt.Sprintf("%d", id.CorpID)}
-	}
-	if id.AllianceID != 0 {
-		allianceIDs = []string{fmt.Sprintf("%d", id.AllianceID)}
-	}
-	payload, err := json.Marshal(map[string]any{
-		"type":           "upgrade_scopes",
-		"corporationIDs": corpIDs,
-		"allianceIDs":    allianceIDs,
-	})
-	if err != nil {
-		return err
-	}
-	_ = conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
-	if err := conn.WriteMessage(websocket.TextMessage, payload); err != nil {
-		return fmt.Errorf("upgrade_scopes write: %w", err)
-	}
-	deadline := time.Now().Add(timeout)
-	for time.Now().Before(deadline) {
-		_ = conn.SetReadDeadline(deadline)
-		_, raw, err := conn.ReadMessage()
-		if err != nil {
-			return fmt.Errorf("upgrade_scopes read: %w", err)
-		}
-		if string(raw) == "pong" || string(raw) == "ping" {
-			continue
-		}
-		var msg map[string]any
-		if json.Unmarshal(raw, &msg) != nil {
-			continue
-		}
-		if got, _ := msg["type"].(string); got != "scopes_ack" {
-			continue
-		}
-		if ok, _ := msg["ok"].(bool); !ok {
-			return fmt.Errorf("scopes_ack not ok: %v", msg)
-		}
-		return nil
-	}
-	return fmt.Errorf("timeout waiting scopes_ack")
 }
 
 // App text heartbeat — same interval/payload as frontend realtimeClient.js.

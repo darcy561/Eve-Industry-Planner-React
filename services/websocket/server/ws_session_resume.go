@@ -55,20 +55,10 @@ func (s *Server) handleSessionResumeWS(ctx context.Context, client *Client, msg 
 				"client_id": client.id,
 			})
 	}
-	if result.ScopesRestored {
-		if !s.queueScopesAck(client) {
-			logs.AttachHandlerCaveatCtx(ctx, "session_resume_scopes_ack_buffer_full",
-				"scopes_ack not delivered after resume", map[string]any{
-					"client_id": client.id,
-				})
-		}
-	}
-
 	extra := map[string]any{
 		"previous_client_id":   prev,
 		"handoff_applied":      result.HandoffApplied,
 		"skip_baseline_sync":   result.SkipBaselineSync,
-		"scopes_restored":      result.ScopesRestored,
 		"restored_doc_count":   len(result.RestoredDocIDs),
 		"ack_delivered":        ackDelivered,
 		"unauthorized_skipped": len(result.UnauthorizedDocIDs),

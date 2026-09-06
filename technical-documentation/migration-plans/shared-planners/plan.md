@@ -603,7 +603,7 @@ member.
 
 **Not wanting to see a feature is a display preference, not a capability.** An owner who finds the
 task board cluttering wants it hidden for themselves, not removed for everyone else in the planner, so
-it belongs with the account-scoped view preferences described in § Settings stay with the account.
+it belongs with the account-scoped view preferences described in § Settings split between the planner and the account.
 
 **Changing a template needs no migration, but it is retroactive.** Because nothing stores a
 capability set, changing `eligibleFor` is a code change that reaches every planner at once, with no
@@ -642,21 +642,60 @@ is one place for it rather than a second gate grown beside the first.
 Capabilities are not a rollout flag system. Keep the set small, and name each one for something a user
 would recognise as a feature rather than for the code behind it.
 
-## Settings stay with the account
+## Settings split between the planner and the account
 
-A shared planner does not need a split settings document. A job **stores its own results**:
-`build.materials`, `build.costs` and `build.setup` are all persisted, and the setup records the
-structure, efficiency and runs actually used. Settings are inputs at write time, not values read at
-render time, so a job is self-describing — one member opening another's job sees what that member
-built, not a recomputation under their own structures. That is also what people expect: the person who
-set a job up used their own structure, and the job says so.
+**This section previously argued that no split was needed. That was wrong**, and the reasoning that
+replaced it is worth keeping visible because the original test was sound and simply was not applied to
+every field.
 
-So `ApplicationSettings` stays account-owned, including `DefaultMaterialEfficiencyValue`,
-`CustomStructures`, `PredefinedSystemIndexes`, `DefaultCitadelBrokersFee`, `ReprocessingSettings`,
-`ExemptTypeIDs`, market location and every display preference.
+The original argument: a job **stores its own results**. `build.materials`, `build.costs` and
+`build.setup` are all persisted, and the setup records the structure, efficiency and runs actually
+used. Settings are inputs at write time, not values read at render time, so a job is self-describing
+— one member opening another's sees what that member built, not a recomputation under their own
+structures.
 
-Two settings are exceptions, both for the same reason: **their ids are stored inside shared
-documents**, so a per-account id space makes a shared document ambiguous.
+That holds for **values** and fails for **references**. `Setup` stores `structureID`, `rigID`,
+`systemTypeID`, `systemID` and `taxValue` as numbers, so the costs a shared job shows are right for
+anyone reading it. But it also stores `customStructureID`, and that is a key into the **writer's**
+settings document: `getCustomStructureWithID` reads the *viewing* account's `CustomStructures`, so a
+member opening another's job finds the structure missing. The figures are correct and the place they
+were made is gone.
+
+The section already named the right test — a setting whose **ids are stored inside shared documents**
+cannot be account-scoped — and listed two exceptions under it. `customStructureID` met that test too
+and was missed.
+
+**The rule, stated once:** if a job or a setup stores a reference to a setting, or the setting decides
+how work is done in a planner, it belongs to the planner. If it only decides how one person sees their
+own screen, it belongs to the account.
+
+| Planner | Account |
+|---------|---------|
+| `CustomStructures` — referenced by `customStructureID` on every setup | `DefaultMarketLocation`, `DefaultOrderType` |
+| Default structures per job type — what a job is built in | `EnableCompactLayoutView`, `DisplayHelpCards`, `HideCompleteMaterialsFromEditJob` |
+| `PredefinedSystemIndexes` — the indexes the planner's costs assume | `EsiJobTab`, sort and expansion state |
+| `DefaultMaterialEfficiencyValue` — an input to every job built here | `DefaultStationIDForAssets`, `ShareCitadelNames` |
+| `ExtrasCategories` — ids stored in `build.costs.extrasCosts` | `EnableAutomaticJobRecalculation`, `EnableSkipMissingBlueprints` |
+| `DefaultCitadelBrokersFee`, `ReprocessingSettings`, `ExemptTypeIDs` — they price the planner's work | `JobStatuses` names, which label a column rather than identify it |
+
+**Denormalising the structure's name onto the setup was the cheaper option and is not enough.** It
+would fix the display — the archive already does exactly that for extras category labels — but a
+member *creating* a job in a shared planner would still be offered their own structure list, so the
+planner would accumulate jobs built in structures none of its other members can use. The reference is
+the symptom; whose settings apply is the question.
+
+**What this costs.** A planner settings document, its collection, and a read path that resolves a
+setting through the active planner rather than the account. Creation seeds it from the creating
+account's settings, so a new planner behaves as its creator expects. Stage C built the planner
+document without one, so this is an addition to that stage's collections rather than a change to them.
+
+**What it buys**, beyond fixing the defect: a corporation planner can standardise the structures and
+indexes its members build against, without every member re-entering them; a planner's costs become
+reproducible by anyone who opens it; and per-planner defaults become a place to hang features that
+have nowhere to live today.
+
+Two settings were already exceptions before this, both for the same reason: **their ids are stored
+inside shared documents**, so a per-account id space makes a shared document ambiguous.
 
 | Setting | Where its ids are stored | Consequence |
 |---------|--------------------------|-------------|
@@ -1268,7 +1307,7 @@ this document" — and asks whether the document's owner is one the session hold
 
 **Most of the account-owns-this sites must not change, and telling the two apart is the work.** About
 twenty places assert it, but they divide on which collection they read. The `user/` handlers read
-`accounts` and `account_settings`, which are account-owned by design — § Settings stay with the account
+`accounts` and `account_settings`, which are account-owned by design — § Settings split between the planner and the account
 — so "this account owns it" is permanently the right question there and turning it into a membership
 lookup would be a bug, not progress. The eight that change are the planner-scoped ones: the archived
 jobs scope and its ESI links, the group delete, and the job-document reads and deletes.
@@ -1370,8 +1409,13 @@ related job is locked elsewhere, and a single-member close still writes exactly 
 
 #### D3 — The two shared id spaces
 
-§ Settings stay with the account explains why only these two move and everything else stays personal.
-The plan already narrows the work more than the stage title suggests:
+§ Settings split between the planner and the account explains which settings the planner owns and
+which stay personal. That section has since grown: `customStructureID` on every setup is a reference
+into the writing account's settings, so a planner settings document is owed rather than two moved
+fields. This slice therefore covers the extras picker; the settings document itself is Stage E work,
+where planner creation can seed it.
+
+Within that, two things narrow the work:
 
 **Extras categories need scoping, not migrating.** Their ids do not collide and never did — new ones
 are UUIDs, `0`–`5` are frozen defaults shared by every account, and there is no rename. So a shared
@@ -1408,6 +1452,12 @@ has shrunk to the extras picker alone. The stage's headline turns out to be its 
 Creation, invite tokens, the join path, the shared authoriser, the limits, and the revocation path.
 `PlannerInvite` and its TTL index land here rather than with the other two collections at Stage C:
 nothing can be invited into a planner until custom planners exist.
+
+**The planner settings document lands here too**, for the same reason: creation is what seeds it, from
+the creating account's settings, so a new planner behaves as its creator expects. § Settings split
+between the planner and the account says which settings it holds and why the split exists. Until it
+lands, a setting resolves against the account as it does today, so nothing breaks in the interval — it
+is a planner holding two members that makes the account-scoped read wrong, and that is this stage.
 
 **The TTL index is Deployment Tool work, not a spec line.** `IndexSpec` carries a collection, a name,
 keys and an optional partial filter, and the index renderer emits nothing else — no expiry, anywhere in
@@ -1532,7 +1582,7 @@ do not touch.
 - ~~Group templates: account-owned or planner-owned?~~ **Settled** — they shipped without an owner
   prefix and take no owner block, so they are an account's personal library. See § Collection layout.
 - **Job status labels.** The set of status ids is planner-owned; whether the *labels* stay personal is
-  undecided. See § Settings stay with the account.
+  undecided. See § Settings split between the planner and the account.
 - **Blueprint ownership.** Whose blueprints — and whose ME/TE on them — apply on a shared planner is
   not answered here. It follows the same test as the settings above: is the value baked into the job
   at write time, or read live?
@@ -1565,5 +1615,5 @@ do not touch.
 | B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the active-planner message replacing it is Stage E work — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
 | D — what a second member breaks | Not started; three slices — D1 recalculation keeping a job's build context, D2 every multi-job write gated on what it writes, D3 the extras picker. All SPA work. D1 and D2 are live defects today; job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |
-| E — custom planners | Not started |
+| E — custom planners | Not started. Now also owns the planner settings document — a setup stores `customStructureID`, a reference into the writing account's settings, so a member opening another's job finds the structure missing. See § Settings split between the planner and the account |
 | F — ESI providers | Not started |

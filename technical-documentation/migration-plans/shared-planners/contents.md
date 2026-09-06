@@ -37,7 +37,7 @@ The planner as a first-class thing a user works in, and the ownership model unde
 | See which collections exist and which family a document belongs to | [plan.md](./plan.md) § Collection layout |
 | Know whether one collection per type will scale | [plan.md](./plan.md) § Collection size |
 | Add a feature that only some planners have | [plan.md](./plan.md) § Features differ; nothing branches on kind |
-| Know which settings stay personal and which the planner must own | [plan.md](./plan.md) § Settings stay with the account |
+| Know which settings the planner owns and which stay personal | [plan.md](./plan.md) § Settings split between the planner and the account |
 | Understand why recalculation must keep a job's structure and character | [plan.md](./plan.md) § Recalculation must preserve a job's own build context |
 | See why document locks do not cover the close cascade | [plan.md](./plan.md) § The persist gate must cover the whole cascade |
 | Know how a job's owner is decided | [plan.md](./plan.md) § Ownership is decided at creation |

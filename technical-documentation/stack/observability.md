@@ -1,13 +1,3 @@
-# Promotion draft — `stack/observability.md`
-
-**This file is not live SoT.** It is the topic doc Stage J creates at
-[`stack/observability.md`](../../stack/contents.md), drafted here because live SoT is not edited
-while the project is active. Its links are written relative to `stack/`, so they resolve once the
-file lands there and not from this folder.
-
-Companion drafts: [promote-contents.md](./promote-contents.md) (task-map and `.env` rows).
-
----
 
 
 # Observability — collector and stores
@@ -79,3 +69,53 @@ it starts itself.
 `NETWORKS` + `EVENTS`, `POST=0`. `NETWORKS` is required — `discovery.docker` computes network
 labels, and without it the Docker log scrape stops refreshing while Alloy still reports healthy.
 
+
+## Getting a change into the stack
+
+The kit configs are **embedded in the `eip` binary** (`//go:embed obs/**` in
+[`kit/obs.go`](../../deployment-tool/internal/kit/obs.go)), materialised and shipped as Swarm config
+objects. Stack fragments are read from disk. The two halves land at different times:
+
+```text
+edit kit/obs/**            → rebuild the binary, then deploy
+edit docker-stack.obs.yml  → deploy
+```
+
+Deploying a kit edit without rebuilding applies the stack half only, and reports success while the
+old config keeps running. Check the binary carries the edit before concluding a change did not work:
+
+```bash
+grep -a -c '<a string from the edit>' eip.exe    # 0 means the binary predates it
+```
+
+A dashboard-only change needs a rebuild and **`eip sync`** rather than `eip dev` — a targeted config
+update instead of a bake. Grafana re-reads provisioned files on a fifteen-second cycle, so the config
+object is replaced at once but the API serves the previous dashboard until that cycle runs.
+
+Verbs → [verbs.md](../deployment/deployment-tool/cli/verbs.md).
+
+## Reading a store back
+
+A store's own limits are merged from its config plus its defaults, and the defaults are cluster-sized.
+Read the merged result rather than the file when a limit matters:
+
+```bash
+# from a container on eip-obs
+GET tempo:3200/status/config      # merged Tempo configuration
+GET tempo:3200/metrics            # ingest, discards, live traces
+```
+
+Two traps are worth knowing. **Alloy's component health is not a failure signal** — during a
+`discovery.docker` outage every component reported healthy while the Docker log scrape collected
+nothing, so trust the error log and the data in the store. And **Loki indexes OTLP resource
+attributes as structured metadata, not stream labels**: a log arriving by the OTLP path carries
+`compose_service` in `loki_attribute_labels`, so `{compose_service="x"}` matches nothing. Confirm a
+label is queryable against `/loki/api/v1/label/compose_service/values` before assuming a log path
+works.
+
+Validating the collector config needs the stability level the config uses:
+
+```bash
+docker run --rm -v "$PWD/deployment-tool/internal/kit/obs/alloy/config.alloy":/c.alloy:ro \
+  grafana/alloy:v1.19.2 validate --stability.level=experimental /c.alloy
+```

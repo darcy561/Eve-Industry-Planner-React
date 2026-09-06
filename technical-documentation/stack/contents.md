@@ -21,6 +21,8 @@ Single-host Swarm topology: fragments, membership, replica identity, secrets, op
 | `eip.config.yaml` / sync surface | [config.md](./config.md) |
 | Overlay networks | [network.md](./network.md) |
 | Traefik edge (providers, ingress, routes, ports/paths) | [traefik.md](./traefik.md) |
+| Observability addon (collector, stores, retention) | [observability.md](./observability.md) |
+| Trace sampling / what reaches Tempo | [observability.md](./observability.md) § Trace sampling |
 | Core primary lease / image defaults (service) | [../backend/core/core.md](../backend/core/core.md) |
 | Websocket cutoff / drain / handoff (service) | [../backend/websocket/websocket.md](../backend/websocket/websocket.md) |
 | ws-router placement / affinity (service) | [../backend/ws-router/ws-router.md](../backend/ws-router/ws-router.md) |

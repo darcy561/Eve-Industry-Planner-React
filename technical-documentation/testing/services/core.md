@@ -15,7 +15,7 @@ go test ./core/...
 
 ## Coverage map
 
-**Depth:** Strong for primary election, health/ready, singleton orchestration, changestream resume plumbing. Scheduler job bodies, CLI/commands, and metrics are largely untested.
+**Depth:** Strong for primary election, health/ready, singleton orchestration, changestream resume plumbing. Scheduler job bodies and CLI/commands are largely untested; of the metric groups only the ESI bucket gauge is covered.
 
 ### Tested
 
@@ -31,6 +31,7 @@ go test ./core/...
 | `scheduler/maintenance` | Cron registration for cloud-ESI refresh / inactive cleanup / session prune; microbatch plan math; Mongo user-filter contracts |
 | `startup` | `EnsureLiveSDEExists` present/missing |
 | `primaryhandoff` | Resume-token Redis key naming |
+| `metrics/esi` | Bucket rows read from live state; the gauge callback emits no spans while collecting |
 
 ### Thin
 

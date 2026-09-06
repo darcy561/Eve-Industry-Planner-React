@@ -15,6 +15,9 @@ Containers do **not** reload env automatically. Prefer **`eip secrets`** after e
 
 `APP_VERSION` also lives in `.env` (non-secret image/tag SoT). Day-2 ship → [verbs.md](../deployment/deployment-tool/cli/verbs.md) (`eip update` / `eip rebuild`).
 
+`TRACES_SAMPLE_RATE` also lives in `.env` (non-secret). It governs the whole request path and
+defaults to `0`, which exports no spans → [observability.md](./observability.md) § Trace sampling.
+
 ## Surfaces
 
 | Surface | Contents |

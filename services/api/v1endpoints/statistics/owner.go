@@ -2,9 +2,7 @@ package statistics
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"strings"
 
 	"eve-industry-planner/api/helper"
 	"eve-industry-planner/shared/models"
@@ -16,19 +14,6 @@ import (
 // whose key holds a ref rather than the raw id a client may see.
 
 type ownerContextKey struct{}
-
-// parseOwnerHandle reads `kind:id`; the id may contain a colon, so only the
-// first separates the two.
-func parseOwnerHandle(segment string) (models.Owner, error) {
-	kind, id, found := strings.Cut(segment, ":")
-	if !found {
-		return models.Owner{}, fmt.Errorf("owner handle %q must be kind:id", segment)
-	}
-	if id == "" {
-		return models.Owner{}, fmt.Errorf("owner handle %q names no owner", segment)
-	}
-	return models.Owner{Kind: models.OwnerKind(kind), ID: id}, nil
-}
 
 func withRequestOwner(r *http.Request, owner models.Owner) *http.Request {
 	return r.WithContext(context.WithValue(r.Context(), ownerContextKey{}, owner))

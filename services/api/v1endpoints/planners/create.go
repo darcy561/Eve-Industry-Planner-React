@@ -13,6 +13,7 @@ import (
 	"eve-industry-planner/shared/esiclient/entitynames"
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/models"
+	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 )
 
@@ -53,7 +54,7 @@ func (h *Handlers) PutPlannerHandler(w http.ResponseWriter, r *http.Request, han
 		return
 	}
 
-	owner, err := parseOwnerHandle(handle)
+	owner, err := helper.ParseOwnerHandle(handle)
 	if err != nil {
 		metrics.Error("bad_handle")
 		helper.RespondEndpointError(w, r, http.StatusBadRequest, "Invalid planner",
@@ -94,44 +95,33 @@ func (h *Handlers) PutPlannerHandler(w http.ResponseWriter, r *http.Request, han
 		return
 	}
 
-	if err := h.Mongo.EnsurePlanner(ctx, owner, name, accountID, time.Now().UTC()); err != nil {
+	stored, err := h.Mongo.EnsurePlanner(ctx, owner, name, accountID, time.Now().UTC())
+	if err != nil {
 		metrics.Error("database_error")
 		helper.RespondEndpointServerError(w, r, "Failed to create planner",
 			"planner create: write failed", "planner_create_write_failed", "planner_create", err, nil)
 		return
 	}
 
-	listings, err := h.Mongo.PlannersForAccount(ctx, accountID)
-	if err != nil {
-		metrics.Error("database_error")
-		helper.RespondEndpointServerError(w, r, "Failed to read planner",
-			"planner create: read back failed", "planner_create_read_failed", "planner_create", err, nil)
+	// The stored name rather than the proposed one: the write is insert-only, so a
+	// planner that already had a document keeps what it was called.
+	w.WriteHeader(http.StatusOK)
+	if err := helper.EncodeJSON(w, listEntry{
+		Owner: owner.Key(),
+		Kind:  string(owner.Kind),
+		Name:  stored.Name,
+		Named: true,
+	}); err != nil {
+		metrics.Error("encode_error")
+		helper.RespondEndpointServerError(w, r, "Internal server error",
+			"planner create: encode failed", "planner_create_encode_failed", "planner_create", err, nil)
 		return
 	}
 
-	for _, listing := range listings {
-		if listing.Owner != owner {
-			continue
-		}
-		w.WriteHeader(http.StatusOK)
-		if err := helper.EncodeJSON(w, entryFor(listing)); err != nil {
-			metrics.Error("encode_error")
-			helper.RespondEndpointServerError(w, r, "Internal server error",
-				"planner create: encode failed", "planner_create_encode_failed", "planner_create", err, nil)
-			return
-		}
-		metrics.Success()
-		logs.AttachHandlerSuccessDetail(r, "planner named", map[string]any{
-			"owner_kind": string(owner.Kind),
-			"named":      listing.Named,
-		})
-		return
-	}
-
-	metrics.Error("read_back_missing")
-	helper.RespondEndpointServerError(w, r, "Failed to read planner",
-		"planner create: written planner absent from listing", "planner_create_read_back_missing",
-		"planner_create", errors.New("planner missing after write"), nil)
+	metrics.Success()
+	logs.AttachHandlerSuccessDetail(r, "planner named", map[string]any{
+		"owner_kind": string(owner.Kind),
+	})
 }
 
 // errNPCCorporation refuses a planner for one of EVE's own corporations.
@@ -151,7 +141,9 @@ var errNPCCorporation = errors.New("planner: NPC corporations cannot have a plan
 func (h *Handlers) plannerName(ctx context.Context, owner models.Owner) (string, error) {
 	switch owner.Kind {
 	case models.OwnerAccount:
-		return "My planner", nil
+		// Reached only by a planner whose document was lost: login writes it, and
+		// the name it writes is the one to restore.
+		return eipmongo.DefaultAccountPlannerName, nil
 
 	case models.OwnerCorporation:
 		id, err := h.entityID(entityid.KindCorp, owner.ID)

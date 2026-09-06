@@ -83,30 +83,3 @@ func TestPlannerNameRefusesAnUnknownKind(t *testing.T) {
 		t.Fatal("a kind with no naming rule was accepted")
 	}
 }
-
-func TestParseOwnerHandle(t *testing.T) {
-	t.Parallel()
-
-	owner, err := parseOwnerHandle("corporation:corp_56_abc")
-	if err != nil {
-		t.Fatalf("parseOwnerHandle: %v", err)
-	}
-	if owner.Kind != models.OwnerCorporation || owner.ID != "corp_56_abc" {
-		t.Errorf("owner = %+v", owner)
-	}
-
-	// An account id can hold a colon, so only the first separates kind from id.
-	owner, err = parseOwnerHandle("account:a:b")
-	if err != nil {
-		t.Fatalf("parseOwnerHandle: %v", err)
-	}
-	if owner.ID != "a:b" {
-		t.Errorf("id = %q, want the whole remainder", owner.ID)
-	}
-
-	for _, bad := range []string{"", "account", "account:"} {
-		if _, err := parseOwnerHandle(bad); err == nil {
-			t.Errorf("parseOwnerHandle(%q) was accepted", bad)
-		}
-	}
-}

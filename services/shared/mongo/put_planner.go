@@ -160,9 +160,12 @@ func (m *Mongo) EnsurePlannerSettings(ctx context.Context, owner models.Owner, s
 // Settings are seeded from the defaults rather than from the caller's own
 // account: a corporation's planner belongs to its members collectively, and the
 // first one to open it is not the one whose structures the rest should inherit.
-func (m *Mongo) EnsurePlanner(ctx context.Context, owner models.Owner, name, createdBy string, now time.Time) error {
+// It returns the stored planner, which is not always the one it was given: a
+// planner that already had a document keeps the name it had, and the caller
+// needs that one rather than the name it proposed.
+func (m *Mongo) EnsurePlanner(ctx context.Context, owner models.Owner, name, createdBy string, now time.Time) (planner.Planner, error) {
 	if m == nil || owner.IsZero() || createdBy == "" {
-		return fmt.Errorf("EnsurePlanner: invalid arguments")
+		return planner.Planner{}, fmt.Errorf("EnsurePlanner: invalid arguments")
 	}
 
 	doc := planner.Planner{
@@ -174,11 +177,17 @@ func (m *Mongo) EnsurePlanner(ctx context.Context, owner models.Owner, name, cre
 	doc.MetaData.Owner = owner
 	doc.MetaData.LastModified = now.UTC()
 	if err := insertIfAbsent(ctx, m.Planners, owner.Key(), doc); err != nil {
-		return fmt.Errorf("write planner %s: %w", owner.Key(), err)
+		return planner.Planner{}, fmt.Errorf("write planner %s: %w", owner.Key(), err)
 	}
 
 	if err := m.EnsurePlannerSettings(ctx, owner, "", now); err != nil {
-		return err
+		return planner.Planner{}, err
 	}
-	return nil
+
+	var stored planner.Planner
+	if err := m.Planners.Collection().
+		FindOne(ctx, bson.M{"_id": owner.Key()}).Decode(&stored); err != nil {
+		return planner.Planner{}, fmt.Errorf("read planner %s: %w", owner.Key(), err)
+	}
+	return stored, nil
 }

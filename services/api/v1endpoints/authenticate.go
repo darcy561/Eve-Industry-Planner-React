@@ -167,16 +167,6 @@ func (a *Handlers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 	sessionMetrics.Started.WithLabelValues("login").Inc(ctx)
 	sessionMetrics.Stored.WithLabelValues("login").Inc(ctx)
 	apimetrics.RecordAuthSessionDistinctAccount(ctx, rdb, accountID)
-	if granted, err := mongo.OwnerKeysForAccount(ctx, accountID); err != nil {
-		logs.AttachHandlerCaveat(r, "account_session_grants_resolve_failed", "failed to resolve owners for session grants", map[string]any{
-			"error": err.Error(),
-		})
-	} else if err := auth.UpdateAccountSessionGrants(ctx, rdb, accountID, granted); err != nil {
-		logs.AttachHandlerCaveat(r, "account_session_grants_update_failed", "failed to update account session grants", map[string]any{
-			"error": err.Error(),
-		})
-	}
-
 	loginDocs, err := helper.ResolveUserDocumentsForLogin(ctx, mongo, accountID)
 	if err != nil {
 		duration := time.Since(start)
@@ -185,6 +175,19 @@ func (a *Handlers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 			"error", err, "account_id", accountID)
 		respondAuthSessionsServerError(w, r, "failed to resolve user documents for login", "auth_mongo_user_docs", err, map[string]any{})
 		return
+	}
+
+	// After the documents above: grants are the membership rows, and this login is
+	// what creates them for an account that has none. Reading them first would
+	// hand a new account an empty grant list for the whole of its first session.
+	if granted, err := mongo.OwnerKeysForAccount(ctx, accountID); err != nil {
+		logs.AttachHandlerCaveat(r, "account_session_grants_resolve_failed", "failed to resolve owners for session grants", map[string]any{
+			"error": err.Error(),
+		})
+	} else if err := auth.UpdateAccountSessionGrants(ctx, rdb, accountID, granted); err != nil {
+		logs.AttachHandlerCaveat(r, "account_session_grants_update_failed", "failed to update account session grants", map[string]any{
+			"error": err.Error(),
+		})
 	}
 
 	reauthRequiredAt := auth.ReauthRequiredAtUnix(sessionNow, time.Time{})

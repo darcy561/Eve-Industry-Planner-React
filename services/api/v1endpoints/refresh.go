@@ -327,6 +327,14 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 		sessionMetrics.Continued.WithLabelValues(sessionFlow).Inc(ctx)
 	}
 	sessionMetrics.Stored.WithLabelValues(sessionFlow).Inc(ctx)
+	// Before the grants below: they are the account's membership rows, and this is
+	// the path that repairs a missing one. Reading first would hand back an empty
+	// grant list on exactly the refresh that fixed the row.
+	if err := mongo.EnsureAccountPlanner(ctx, tokenData.AccountID, time.Now().UTC()); err != nil {
+		logs.AttachHandlerCaveat(r, "account_planner_ensure_failed", "failed to ensure the account planner", map[string]any{
+			"error": err.Error(),
+		})
+	}
 	if granted, err := mongo.OwnerKeysForAccount(ctx, tokenData.AccountID); err != nil {
 		logs.AttachHandlerCaveat(r, "account_session_grants_resolve_failed", "failed to resolve owners for session grants", map[string]any{
 			"error": err.Error(),

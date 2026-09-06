@@ -207,6 +207,28 @@ a second to **about two**, which is the background work that genuinely runs. Rea
 a service that has just been replaced is still flushing the old container's spans, and their
 timestamps predate the container that appears to be emitting them.
 
+#### What guards this
+
+Both defects were cost defects, which the suite was structurally blind to: the existing tests assert
+what a function returns, never what it spends getting there. A gauge that produced correct numbers
+through five hundred Redis calls passed everything.
+
+- `core/metrics/esi` and `shared/telemetry/apimetrics` register their gauges against a real span
+  recorder and a manual metric reader, force one collection, and assert it produced **no spans**.
+  The Redis fake is instrumented with `redisotel` first, because that is what turns a command into
+  a span — without it the test passes whether or not the suppression is there, which is the trap
+  this test fell into while being written. Setup is seeded before recording starts, and the
+  connection is dialled before the count is taken, so what is measured is the callback alone.
+- `deployment-tool/internal/stack` reads the repository's own `docker-stack.yml` and asserts every
+  Go service receives the runtime keys `shared/telemetry` reads. A second test derives that key list
+  from `config.go` rather than trusting the literal, so a key added to the code but not to the stack
+  fails rather than silently resolving empty.
+- `shared/esiclient` asserts `States` costs the same number of round trips for forty buckets as for
+  two, which is the property that decays quietly.
+
+Both suppression tests were confirmed to fail with the fix reverted, naming the exact spans that
+filled the store. A test for a cost defect that has never been seen failing is not evidence.
+
 Tempo v3.0.0 renamed the sections these limits live in — `ingester` became `live_store` and
 `compactor` split into `block_builder` and `backend_scheduler` — so a config written against older
 documentation fails to parse rather than silently ignoring the caps.

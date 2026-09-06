@@ -6,6 +6,7 @@ package apideps
 import (
 	"context"
 
+	"eve-industry-planner/shared/appconfig"
 	"eve-industry-planner/shared/core/documentlock"
 	"eve-industry-planner/shared/crypto/entityid"
 	"eve-industry-planner/shared/esiclient"
@@ -25,19 +26,23 @@ type Deps struct {
 	// EntityCipher derives the refs that replace raw entity ids. Nil in mongo-only
 	// wiring, so handlers that write documents carrying ids must check it.
 	EntityCipher *entityid.Cipher
-	// ESI is the shared limiter. The api makes no metered ESI calls, so this is
-	// here for what an outage stops rather than for what it meters: EVE SSO goes
-	// down with everything else, and a caller that reports what it saw lets the
-	// rest of the fleet stop retrying into it. Nil in mongo-only wiring.
+	// ESI is the shared limiter, here for two reasons. Mostly for what an outage
+	// stops rather than for what it meters: EVE SSO goes down with everything
+	// else, and a caller that reports what it saw lets the rest of the fleet stop
+	// retrying into it. And for the one metered call the api makes — naming a
+	// planner reads the entity's name from a public route, once, when somebody
+	// first opens it. Nil in mongo-only wiring.
 	ESI esiclient.API
+	// Maintenance is the live maintenance flag. Nil in mongo-only wiring, which reads as off.
+	Maintenance *appconfig.MaintenanceFlag
 }
 
 // FromClients maps the composition-root connect bag into Deps for handlers.
-// refs derives entity refs and esi reaches the shared limiter; the connect bag
-// carries neither.
-func FromClients(c *stackservices.Clients, refs *entityid.Cipher, esi esiclient.API) *Deps {
+// refs derives entity refs, esi reaches the shared limiter and maintenance is
+// the live flag; the connect bag carries none of the three.
+func FromClients(c *stackservices.Clients, refs *entityid.Cipher, esi esiclient.API, maintenance *appconfig.MaintenanceFlag) *Deps {
 	if c == nil {
-		return &Deps{ESI: esi}
+		return &Deps{ESI: esi, Maintenance: maintenance}
 	}
 	return &Deps{
 		Mongo:        c.Mongo,
@@ -45,7 +50,17 @@ func FromClients(c *stackservices.Clients, refs *entityid.Cipher, esi esiclient.
 		NATS:         c.NATS,
 		EntityCipher: refs,
 		ESI:          esi,
+		Maintenance:  maintenance,
 	}
+}
+
+// MaintenanceModeEnabled reports the live maintenance flag. Mongo-only wiring
+// carries no flag and reads as off.
+func (d *Deps) MaintenanceModeEnabled(ctx context.Context) bool {
+	if d == nil || d.Maintenance == nil {
+		return false
+	}
+	return d.Maintenance.Enabled(ctx)
 }
 
 // New returns Deps with only Mongo set (tests / mongo-only wiring). Prefer FromClients in the API process.

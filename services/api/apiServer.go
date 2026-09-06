@@ -276,6 +276,10 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 			Handler: plannerList.Router,
 		},
 		{
+			Path:    "/api/v1/planners/",
+			Handler: plannerList.Router,
+		},
+		{
 			Path:    "/api/v1/statistics",
 			Handler: stats.Router,
 		},

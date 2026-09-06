@@ -145,3 +145,40 @@ func (m *Mongo) EnsurePlannerSettings(ctx context.Context, owner models.Owner, s
 	}
 	return nil
 }
+
+// EnsurePlanner writes the document that names a planner, and its settings.
+//
+// Insert-only, like the account planner above: a repeat call rewrites nothing,
+// so a planner that has since been renamed or reconfigured keeps both. It is
+// what turns a planner an account can reach into one somebody has opened.
+//
+// It writes no membership row. Membership is what grants access and is decided
+// elsewhere — by EVE for a corporation or alliance, by an invite otherwise — so
+// naming a planner must not be a way to join one. The caller checks the account
+// already holds a row before calling.
+//
+// Settings are seeded from the defaults rather than from the caller's own
+// account: a corporation's planner belongs to its members collectively, and the
+// first one to open it is not the one whose structures the rest should inherit.
+func (m *Mongo) EnsurePlanner(ctx context.Context, owner models.Owner, name, createdBy string, now time.Time) error {
+	if m == nil || owner.IsZero() || createdBy == "" {
+		return fmt.Errorf("EnsurePlanner: invalid arguments")
+	}
+
+	doc := planner.Planner{
+		SchemaVersion: planner.SchemaCurrent,
+		Name:          name,
+		MemberCount:   1,
+		CreatedBy:     createdBy,
+	}
+	doc.MetaData.Owner = owner
+	doc.MetaData.LastModified = now.UTC()
+	if err := insertIfAbsent(ctx, m.Planners, owner.Key(), doc); err != nil {
+		return fmt.Errorf("write planner %s: %w", owner.Key(), err)
+	}
+
+	if err := m.EnsurePlannerSettings(ctx, owner, "", now); err != nil {
+		return err
+	}
+	return nil
+}

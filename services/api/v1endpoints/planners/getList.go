@@ -7,6 +7,7 @@ import (
 
 	"eve-industry-planner/api/helper"
 	"eve-industry-planner/shared/logs"
+	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 )
 
@@ -75,13 +76,7 @@ func (h *Handlers) GetPlannersHandler(w http.ResponseWriter, r *http.Request) {
 
 	entries := make([]listEntry, 0, len(listings))
 	for _, listing := range listings {
-		entries = append(entries, listEntry{
-			Owner:      listing.Owner.Key(),
-			Kind:       string(listing.Owner.Kind),
-			Name:       listing.Name,
-			Named:      listing.Named,
-			JoinMethod: string(listing.JoinKind),
-		})
+		entries = append(entries, entryFor(listing))
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -96,4 +91,16 @@ func (h *Handlers) GetPlannersHandler(w http.ResponseWriter, r *http.Request) {
 	logs.AttachHandlerSuccessDetail(r, "planners listed", map[string]any{
 		"count": len(entries),
 	})
+}
+
+// entryFor is one listing as a client sees it, so the listing and the write that
+// reads a planner back describe it identically.
+func entryFor(listing eipmongo.PlannerListing) listEntry {
+	return listEntry{
+		Owner:      listing.Owner.Key(),
+		Kind:       string(listing.Owner.Kind),
+		Name:       listing.Name,
+		Named:      listing.Named,
+		JoinMethod: string(listing.JoinKind),
+	}
 }

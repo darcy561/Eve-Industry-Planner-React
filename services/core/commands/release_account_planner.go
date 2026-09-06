@@ -11,7 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-// backfillAccountPlanners gives every existing account the planner it works in.
+// backfillAccountPlanners gives every existing account the planner it works in,
+// and every planner the settings its work is done under.
 //
 // The write itself is Mongo.EnsureAccountPlanner, which first login also calls:
 // one implementation, so an account created after this step runs gets the same
@@ -55,20 +56,24 @@ func backfillAccountPlanners(ctx context.Context, clients *stackservices.Clients
 		}
 	}
 
-	if len(missing) == 0 {
-		return fmt.Sprintf("%d account(s), all with a planner", len(accountIDs)), nil
+	// Every account is visited, not only those missing a planner: an account whose
+	// planner predates its settings document has one and needs the other, and each
+	// write is insert-only, so visiting one that is already complete costs a
+	// no-op rather than an overwrite. `missing` counts what the report names.
+	if len(missing) == 0 && len(accountIDs) == 0 {
+		return "no accounts", nil
 	}
 	if dryRun {
-		return fmt.Sprintf("%d of %d account(s) would gain a planner", len(missing), len(accountIDs)), nil
+		return fmt.Sprintf("%d account(s) would be ensured, %d of which have no planner",
+			len(accountIDs), len(missing)), nil
 	}
 
 	now := time.Now().UTC()
-	written := 0
-	for _, accountID := range missing {
+	for _, accountID := range accountIDs {
 		if err := mongo.EnsureAccountPlanner(ctx, accountID, now); err != nil {
 			return "", err
 		}
-		written++
 	}
-	return fmt.Sprintf("%d of %d account(s) gained a planner", written, len(accountIDs)), nil
+	return fmt.Sprintf("%d account(s) ensured, %d of which had no planner",
+		len(accountIDs), len(missing)), nil
 }

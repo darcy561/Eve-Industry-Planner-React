@@ -1,6 +1,8 @@
 package planner
 
 import (
+	"maps"
+	"slices"
 	"time"
 
 	"eve-industry-planner/shared/models"
@@ -61,18 +63,30 @@ func DefaultSettings(owner models.Owner, now time.Time) Settings {
 // keep deciding how that person sees their own screen, wherever they are working.
 func SettingsFromAccount(owner models.Owner, settings models.ApplicationSettings, now time.Time) Settings {
 	seeded := DefaultSettings(owner, now)
-	seeded.CustomStructures = settings.CustomStructures
 	seeded.DefaultMaterialEfficiencyValue = settings.DefaultMaterialEfficiencyValue
 	seeded.DefaultCitadelBrokersFee = settings.DefaultCitadelBrokersFee
 	seeded.ReprocessingSettings = settings.ReprocessingSettings
+	// Copied rather than assigned: the account's own settings are live in the
+	// caller, and a shared slice or map would make an edit to one show up in the
+	// other.
+	seeded.CustomStructures = models.CustomStructures{
+		Manufacturing: slices.Clone(settings.CustomStructures.Manufacturing),
+		Reaction:      slices.Clone(settings.CustomStructures.Reaction),
+		Reprocessing:  slices.Clone(settings.CustomStructures.Reprocessing),
+		Invention:     slices.Clone(settings.CustomStructures.Invention),
+	}
 	if settings.PredefinedSystemIndexes != nil {
-		seeded.PredefinedSystemIndexes = settings.PredefinedSystemIndexes
+		indexes := make(map[string]map[string]float64, len(settings.PredefinedSystemIndexes))
+		for system, byJobType := range settings.PredefinedSystemIndexes {
+			indexes[system] = maps.Clone(byJobType)
+		}
+		seeded.PredefinedSystemIndexes = indexes
 	}
 	if settings.ExtrasCategories != nil {
-		seeded.ExtrasCategories = settings.ExtrasCategories
+		seeded.ExtrasCategories = slices.Clone(settings.ExtrasCategories)
 	}
 	if settings.ExemptTypeIDs != nil {
-		seeded.ExemptTypeIDs = settings.ExemptTypeIDs
+		seeded.ExemptTypeIDs = slices.Clone(settings.ExemptTypeIDs)
 	}
 	return seeded
 }

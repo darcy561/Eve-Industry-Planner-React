@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"eve-industry-planner/shared/models/planner"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
@@ -125,13 +127,17 @@ func (m *Mongo) EnsurePlannerSettings(ctx context.Context, owner models.Owner, s
 
 	settings := planner.DefaultSettings(owner, now.UTC())
 	if seedFrom != "" {
-		// A planner seeded from an account that has no settings document yet gets
-		// the defaults, which is what that account would have been given anyway.
 		account, err := m.LoadApplicationSettings(ctx, seedFrom, now)
-		if err != nil {
+		switch {
+		case err == nil:
+			settings = planner.SettingsFromAccount(owner, account, now.UTC())
+		case errors.Is(err, mongo.ErrNoDocuments):
+			// An account with no settings document has nothing to seed from, and
+			// the defaults are what it would itself have been given. The release
+			// backfill reaches accounts in that state, so this cannot be fatal.
+		default:
 			return fmt.Errorf("read settings to seed %s from %s: %w", owner.Key(), seedFrom, err)
 		}
-		settings = planner.SettingsFromAccount(owner, account, now.UTC())
 	}
 
 	if err := insertIfAbsent(ctx, m.PlannerSettings, owner.Key(), settings); err != nil {

@@ -285,3 +285,38 @@ func TestDefaultPlannerSettingsHoldsTheSharedDefaults(t *testing.T) {
 		t.Error("exempt type ids must be an empty slice rather than nil")
 	}
 }
+
+// The account's settings stay live in the caller after seeding, so a shared slice
+// or map would let an edit to one show up in the other.
+func TestPlannerSettingsSeedCopiesRatherThanShares(t *testing.T) {
+	t.Parallel()
+	now := time.Unix(1700000000, 0).UTC()
+
+	account := models.DefaultApplicationSettings("acct-1", now)
+	account.CustomStructures.Manufacturing = []models.CustomStructure{{ID: "s-1", Name: "Home"}}
+	account.ExtrasCategories = models.DefaultExtrasCategories()
+	account.ExemptTypeIDs = []int{34}
+	account.PredefinedSystemIndexes = map[string]map[string]float64{
+		"30000142": {"manufacturing": 0.05},
+	}
+
+	seeded := planner.SettingsFromAccount(models.AccountOwner("acct-1"), account, now)
+
+	account.CustomStructures.Manufacturing[0].Name = "Renamed on the account"
+	account.ExtrasCategories[0].Label = "Renamed on the account"
+	account.ExemptTypeIDs[0] = 35
+	account.PredefinedSystemIndexes["30000142"]["manufacturing"] = 0.99
+
+	if seeded.CustomStructures.Manufacturing[0].Name != "Home" {
+		t.Error("a structure renamed on the account changed the planner's copy")
+	}
+	if seeded.ExtrasCategories[0].Label == "Renamed on the account" {
+		t.Error("a category renamed on the account changed the planner's copy")
+	}
+	if seeded.ExemptTypeIDs[0] != 34 {
+		t.Error("an exempt type changed on the account changed the planner's copy")
+	}
+	if seeded.PredefinedSystemIndexes["30000142"]["manufacturing"] != 0.05 {
+		t.Error("a system index changed on the account changed the planner's copy")
+	}
+}

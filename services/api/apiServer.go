@@ -19,10 +19,12 @@ import (
 	"eve-industry-planner/api/v1endpoints/groups"
 	"eve-industry-planner/api/v1endpoints/grouptemplates"
 	"eve-industry-planner/api/v1endpoints/jobdocuments"
+	"eve-industry-planner/api/v1endpoints/planners"
 	ssoendpoints "eve-industry-planner/api/v1endpoints/sso"
 	"eve-industry-planner/api/v1endpoints/statistics"
 	user "eve-industry-planner/api/v1endpoints/user"
 	"eve-industry-planner/api/v1endpoints/watchlist"
+	"eve-industry-planner/shared/appconfig"
 	"eve-industry-planner/shared/core/config"
 	"eve-industry-planner/shared/crypto/entityid"
 	"eve-industry-planner/shared/esiclient"
@@ -67,6 +69,12 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 
 	mux := http.NewServeMux()
 
+	// One flag for the gate and app-config, so both answer from one cached read.
+	maintenanceFlag := appconfig.NewMaintenanceFlag(clients.Redis)
+	if _, err := maintenanceFlag.Seed(ctx); err != nil {
+		logs.WarnCtx(ctx, "failed seeding maintenance mode, holding the env value", "error", err)
+	}
+
 	// Warm live SDE into process memory; refresh on worker NATS SDE build updates.
 	sdecache.StartCacheWarmer(ctx, clients.NATS)
 
@@ -76,7 +84,7 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 	apiHandler := middleware.Chain(
 		middleware.RequestTimeoutConstructor(),
 		middleware.RequestLoggingConstructor(),
-		middleware.MaintenanceModeConstructor(),
+		middleware.MaintenanceModeConstructor(maintenanceFlag),
 		middleware.CompressionConstructor(),
 		middleware.UnregisteredRoutesMuxConstructor(mux),
 	)(http.NotFoundHandler()) // leaf unused; UnregisteredRoutesMuxConstructor serves the mux directly
@@ -105,7 +113,7 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 		return nil, fmt.Errorf("load authz hmac key for entity refs: %w", err)
 	}
 
-	deps := apideps.FromClients(clients, entityCipher, esi)
+	deps := apideps.FromClients(clients, entityCipher, esi, maintenanceFlag)
 	v1 := v1endpoints.New(deps)
 	ssoH := ssoendpoints.New(deps)
 	userH := user.New(deps)
@@ -115,6 +123,7 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 	jobDocs := jobdocuments.New(deps)
 	groupH := groups.New(deps)
 	archived := archivedjobs.New(deps)
+	plannerList := planners.New(deps)
 	locks := documentlocks.New(deps)
 
 	// Define public routes (v1)
@@ -261,6 +270,10 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 		{
 			Path:    "/api/v1/archived-jobs/",
 			Handler: archived.Router,
+		},
+		{
+			Path:    "/api/v1/planners",
+			Handler: plannerList.Router,
 		},
 		{
 			Path:    "/api/v1/statistics",

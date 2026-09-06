@@ -762,3 +762,42 @@ func LogRequestMetrics(ctx context.Context, endpoint string, duration time.Durat
 		logs.DebugCtx(ctx, "API request", fields...)
 	}
 }
+
+// APIPlannersMetrics holds OpenTelemetry metrics for GET /api/v1/planners.
+type APIPlannersMetrics struct {
+	Requests      *floatHist
+	RequestsCount *intCounter
+	Successes     *intCounter
+	Errors        *counterVec
+}
+
+var (
+	apiPlannersOnce   sync.Once
+	apiPlannersHolder *APIPlannersMetrics
+)
+
+// GetAPIPlanners returns planners API metrics.
+func GetAPIPlanners() *APIPlannersMetrics {
+	apiPlannersOnce.Do(func() {
+		m := telemetry.Meter("api")
+		apiPlannersHolder = &APIPlannersMetrics{
+			Requests: &floatHist{h: telemetry.Must(m.Float64Histogram("api.planners.duration_milliseconds",
+				metric.WithUnit("ms"),
+				metric.WithDescription("Latency of planners handler operations (milliseconds)"),
+			))},
+			RequestsCount: &intCounter{c: telemetry.Must(m.Int64Counter("api.planners.requests_total",
+				metric.WithDescription("Total planners API requests"),
+			))},
+			Successes: &intCounter{c: telemetry.Must(m.Int64Counter("api.planners.successes_total",
+				metric.WithDescription("Successful planners API requests"),
+			))},
+			Errors: &counterVec{
+				c: telemetry.Must(m.Int64Counter("api.planners.errors_total",
+					metric.WithDescription("Planners handler errors"),
+				)),
+				attrKey: "reason",
+			},
+		}
+	})
+	return apiPlannersHolder
+}

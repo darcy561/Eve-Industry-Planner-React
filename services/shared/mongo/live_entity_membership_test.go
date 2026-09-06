@@ -233,3 +233,98 @@ func TestLive_ownerMembership_survivesAReconcile(t *testing.T) {
 	}
 	assertReachable(ctx, t, mongo, account, owner, true)
 }
+
+// The listing is what a planner switcher reads: every planner the account holds a
+// row for, whether or not anything has named it. A corporation an account is in
+// has no document until somebody works in it, which is the ordinary case rather
+// than an error, so the listing reports it unnamed rather than omitting it.
+// Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_plannersForAccount_listsNamedAndUnnamed(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	account := esiMembershipScratchAccount + "-listing"
+	own := models.AccountOwner(account)
+	corp := models.CorporationOwner(esiCorpRefA)
+	cleanupMemberships(t, mongo, account)
+	t.Cleanup(func() {
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancelCleanup()
+		_, _ = mongo.Planners.Collection().DeleteOne(cleanupCtx, bson.M{"_id": own.Key()})
+		_, _ = mongo.PlannerSettings.Collection().DeleteOne(cleanupCtx, bson.M{"_id": own.Key()})
+	})
+
+	now := time.Now().UTC()
+	if err := mongo.EnsureAccountPlanner(ctx, account, now); err != nil {
+		t.Fatalf("EnsureAccountPlanner: %v", err)
+	}
+	if _, _, err := mongo.ReconcileEntityMemberships(ctx, account, []models.Owner{corp}, now); err != nil {
+		t.Fatalf("reconcile: %v", err)
+	}
+
+	listings, err := mongo.PlannersForAccount(ctx, account)
+	if err != nil {
+		t.Fatalf("PlannersForAccount: %v", err)
+	}
+
+	byKey := make(map[string]eipmongo.PlannerListing, len(listings))
+	for _, listing := range listings {
+		byKey[listing.Owner.Key()] = listing
+	}
+	if len(byKey) != 2 {
+		t.Fatalf("listed %d planners, want the account's own and the corporation", len(byKey))
+	}
+
+	// The account's own planner has a document, so it is named.
+	mine, found := byKey[own.Key()]
+	if !found {
+		t.Fatal("the account's own planner is missing from its listing")
+	}
+	if !mine.Named || mine.Name == "" {
+		t.Errorf("own planner = %+v, want it named", mine)
+	}
+	if mine.JoinKind != planner.JoinKindOwner {
+		t.Errorf("own planner join kind = %q, want %q", mine.JoinKind, planner.JoinKindOwner)
+	}
+
+	// The corporation has none, which the listing reports rather than hides.
+	theirs, found := byKey[corp.Key()]
+	if !found {
+		t.Fatal("a corporation the account is in is missing from its listing")
+	}
+	if theirs.Named || theirs.Name != "" {
+		t.Errorf("corporation planner = %+v, want it unnamed", theirs)
+	}
+	if theirs.JoinKind != planner.JoinKindMember {
+		t.Errorf("corporation join kind = %q, want %q", theirs.JoinKind, planner.JoinKindMember)
+	}
+}
+
+// Listing is a read: it must not write a document for a planner that has none.
+// Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_plannersForAccount_writesNothing(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	account := esiMembershipScratchAccount + "-listing-read-only"
+	corp := models.CorporationOwner(esiCorpRefA)
+	cleanupMemberships(t, mongo, account)
+
+	if _, _, err := mongo.ReconcileEntityMemberships(ctx, account,
+		[]models.Owner{corp}, time.Now().UTC()); err != nil {
+		t.Fatalf("reconcile: %v", err)
+	}
+	if _, err := mongo.PlannersForAccount(ctx, account); err != nil {
+		t.Fatalf("PlannersForAccount: %v", err)
+	}
+
+	count, err := mongo.Planners.Collection().CountDocuments(ctx, bson.M{"_id": corp.Key()})
+	if err != nil {
+		t.Fatalf("count planners: %v", err)
+	}
+	if count != 0 {
+		t.Error("listing created a planner document")
+	}
+}

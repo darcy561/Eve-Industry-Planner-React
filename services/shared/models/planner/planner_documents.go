@@ -40,7 +40,7 @@ func (p Planner) Shared() bool { return p.MemberCount > 1 }
 //
 // The separator is safe because nothing either side can contain it: an account id
 // is stripped to alphanumerics, an entity ref is base64url, and a minted planner
-// id is base32. The owner key's own colon is therefore the only separator inside
+// id is a UUID. The owner key's own colon is therefore the only separator inside
 // the left half.
 func MembershipID(plannerID, accountID string) string {
 	return plannerID + membershipIDSeparator + accountID

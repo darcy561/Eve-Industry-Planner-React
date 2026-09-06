@@ -1609,6 +1609,35 @@ D3 needs planner-scoped settings storage to exist, so it sequences after the pla
 has shrunk to the extras picker alone. The stage's headline turns out to be its smallest slice, and
 with D2 out it is the only slice left here.
 
+#### A planner's id and its name
+
+Two questions the endpoints run into first, settled here so the slices that need
+them do not each answer differently.
+
+**A minted planner id is a UUID, from the standard library.** Only a custom planner needs one — the
+account, corporation and alliance kinds derive theirs from the owner key — so nothing mints an id until
+custom planners exist. When they do, `uuid.New()` from Go's own `uuid` package is what mints it, giving
+`planner:{uuid}`. The one hard constraint is that the id must not contain `|`, which
+`SplitMembershipID` uses to separate the planner from the account; a UUID does not.
+
+That also retires `github.com/google/uuid`. The standard library covers what the six call sites in
+`services/` use, so the dependency is replaced rather than joined by a second way of doing the same
+thing — the § Dependencies rule, applied as we touch the area.
+
+**A corporation or alliance planner is named server-side, from the public ESI route.** Its name cannot
+come from the client: the SPA already renders corporation names for its own display, but a name the
+server stores is a fact about the planner, and a fact the client supplies is one it can supply wrongly.
+`GET /corporations/{corporation_id}` and its alliance counterpart are public — no token, no scope — so
+the lookup needs nothing the server does not already have, and it happens once when the planner
+document is first written rather than on any request path.
+
+The stored name is *the corporation's or alliance's own name*, which is what a member expects to see in
+a planner switcher. It goes stale if the entity renames itself, which is the ordinary cost of storing a
+name rather than resolving it every time, and is worth it to keep the read path free of an ESI call.
+
+Neither blocks the roster endpoints: a planner is listed from its membership row, and until a document
+exists the owner handle is what identifies it.
+
 ### Stage E — Custom planners
 
 Creation, invite tokens, the join path, the limits, and the revocation path. The shared authoriser

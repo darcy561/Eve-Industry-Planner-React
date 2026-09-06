@@ -146,10 +146,20 @@ queries it as the `tempo` datasource, with `tracesToLogsV2` mapping a span's `se
 `compose_service` label Loki indexes, so a span links to what that service logged while the trace
 was open.
 
-**Every limit Tempo runs under is set, not defaulted.** Its defaults are cluster-sized — 30 MB/s of
-ingest, a 5 GB block-builder budget, ten thousand live traces — and this host has two cores and eight
-gigabytes with the rest of the stack already on it. `kit/obs/tempo/config.yaml` caps ingest at
-2 MB/s, the block builder at 256 MB, live traces at 2,000, and retention at 48 hours.
+**Every limit Tempo runs under is set, not defaulted.** Its defaults are cluster-sized and this host
+has two cores and eight gigabytes with the rest of the stack already on it.
+`kit/obs/tempo/config.yaml` caps ingest at 2 MB/s against a default of 30, the block builder at
+256 MB against 5 GB, live traces at 2,000 against ten thousand, and retention at 48 hours.
+
+Compaction is configured **twice** — the scheduler decides what to compact and the worker does it —
+and each carries its own hundred-gigabyte block size and fortnight of retention that the per-tenant
+overrides do not govern. Both are capped. So are the query concurrencies, which default to a
+thousand jobs per search, and the metrics generator's sixteen ingest workers: it runs whether or not
+a processor is configured for it, and sixteen exceeds this host's core count.
+
+The way to find these is to read them back rather than trust the file: `GET /status/config` on a
+running Tempo prints the merged configuration, and anything still oversized there is a default that
+was never overridden.
 
 Measured before adopting, on the pinned image with that config: **28 MB and 0.3% CPU idle**, flat
 across five minutes. The store this project rejected idled at 1.2 GB, so the concern that prompted

@@ -21,6 +21,7 @@ distributor:
           endpoint: 0.0.0.0:4317
 
 live_store:
+  query_block_concurrency: 2
   # Cut a block once it is this old or this large, whichever comes first. Short
   # windows keep the in-memory head small at the cost of more, smaller blocks.
   max_block_duration: 2m
@@ -34,14 +35,49 @@ block_builder:
   block:
     max_block_bytes: 20971520
 
+# Compaction runs in the background and is configured twice: the scheduler decides
+# what to compact, the worker does it. Both default to hundred-gigabyte blocks and a
+# fortnight of retention, neither of which the per-tenant overrides below govern.
+backend_scheduler:
+  provider:
+    compaction:
+      compaction:
+        max_block_bytes: 268435456
+        block_retention: 48h
+        retention_concurrency: 2
+        max_compaction_objects: 500000
+      max_jobs_per_tenant: 50
+
+backend_worker:
+  compaction:
+    max_block_bytes: 268435456
+    block_retention: 48h
+    retention_concurrency: 2
+    max_compaction_objects: 500000
+
 querier:
   max_concurrent_queries: 2
 
 query_frontend:
   max_outstanding_per_tenant: 100
+  # Defaults to a thousand jobs per query, which is a cluster's worth of parallelism.
+  search:
+    concurrent_jobs: 8
+  trace_by_id:
+    concurrent_shards: 2
+  metrics:
+    concurrent_jobs: 8
+
+# The generator derives metrics from spans and runs whether or not a processor is
+# configured for it. Sixteen ingest workers is more than this host has cores.
+metrics_generator:
+  ingest_concurrency: 2
 
 storage:
   trace:
+    # Polling the block list is a scan; fifty concurrent workers is for object
+    # storage with a cluster behind it, not one local disk.
+    blocklist_poll_concurrency: 4
     backend: local
     local:
       path: /var/tempo/blocks

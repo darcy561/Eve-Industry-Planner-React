@@ -50,6 +50,7 @@ func Enqueue(ctx context.Context, msg jetstream.Msg, client *asynq.Client, task 
 		asynq.Queue(queue),
 		asynq.Retention(24 * time.Hour),
 		asynq.Timeout(taskTimeout),
+		asynq.MaxRetry(taskRetriesFor(task)),
 	}
 	if id, ok := taskIDFor(msg, task); ok {
 		opts = append(opts, asynq.TaskID(id))

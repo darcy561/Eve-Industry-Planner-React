@@ -18,12 +18,31 @@ const (
 	maxTaskTimeout = 2 * time.Hour
 )
 
+const (
+	// defaultTaskRetries is what a definition that states no budget gets.
+	defaultTaskRetries = 10
+	maxTaskRetries     = 25
+)
+
 // taskTimeoutFor returns the asynq handler deadline a task runs under, clamped.
 //
 // There is no default to fall back on: a task the registry does not know is
 // refused before it reaches here, rather than run on a guessed deadline.
 func taskTimeoutFor(task eipnats.Definition) time.Duration {
 	return clampTaskTimeout(task.DefaultTimeout)
+}
+
+// taskRetriesFor returns how many times a task's failed run is tried again.
+//
+// The budget is the task's own because what is worth retrying differs by how the
+// task arrives: a run a schedule brings back within minutes gains nothing from
+// outliving its own replacement, while a fan-out nobody re-dispatches has only
+// its retries.
+func taskRetriesFor(task eipnats.Definition) int {
+	if task.MaxRetries <= 0 {
+		return defaultTaskRetries
+	}
+	return min(task.MaxRetries, maxTaskRetries)
 }
 
 // clampTaskTimeout enforces sane bounds for asynq.Timeout.

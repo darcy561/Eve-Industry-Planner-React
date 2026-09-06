@@ -273,3 +273,27 @@ func TestEnqueueReportsAFailureThatIsNotADuplicate(t *testing.T) {
 		t.Fatal("an unreachable queue was reported as queued")
 	}
 }
+
+// The retry budget the definition states is the one the queue enforces. Without
+// it a task takes asynq's own default, and a run a schedule replaces every few
+// minutes would keep retrying for over an hour.
+func TestEnqueueGivesTheTaskItsRetryBudget(t *testing.T) {
+	t.Parallel()
+
+	client, inspector := taskClient(t)
+	task := eipnats.DispatchStatisticsRebuilds
+	if err := Enqueue(t.Context(), delivery(3, `{"type":"empty"}`), client, task); err != nil {
+		t.Fatalf("Enqueue: %v", err)
+	}
+
+	tasks, err := inspector.ListPendingTasks(task.DefaultPriority)
+	if err != nil {
+		t.Fatalf("ListPendingTasks: %v", err)
+	}
+	if len(tasks) != 1 {
+		t.Fatalf("queued %d tasks, want 1", len(tasks))
+	}
+	if got := tasks[0].MaxRetry; got != task.MaxRetries {
+		t.Errorf("queued with %d retries, want the definition's %d", got, task.MaxRetries)
+	}
+}

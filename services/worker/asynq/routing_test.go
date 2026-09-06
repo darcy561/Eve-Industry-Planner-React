@@ -23,6 +23,37 @@ func TestTaskTimeoutComesFromTheDefinition(t *testing.T) {
 	}
 }
 
+func TestTaskRetriesComeFromTheDefinition(t *testing.T) {
+	got := taskRetriesFor(eipnats.DispatchStatisticsRebuilds)
+	want := eipnats.DispatchStatisticsRebuilds.MaxRetries
+	if got != want {
+		t.Fatalf("taskRetriesFor(dispatchStatisticsRebuilds) = %d, want %d", got, want)
+	}
+}
+
+// A definition that states no budget still gets one, and an implausible value in
+// tasks.go does not become an unbounded retry loop.
+func TestTaskRetriesFallBackAndAreCapped(t *testing.T) {
+	if got := taskRetriesFor(eipnats.Definition{}); got != defaultTaskRetries {
+		t.Fatalf("taskRetriesFor(unset) = %d, want the default %d", got, defaultTaskRetries)
+	}
+	if got := taskRetriesFor(eipnats.Definition{MaxRetries: 1000}); got != maxTaskRetries {
+		t.Fatalf("taskRetriesFor(1000) = %d, want the cap %d", got, maxTaskRetries)
+	}
+}
+
+// A run a schedule brings back within minutes must not outlive its own
+// replacement, so a scheduled task asks for fewer retries than a fan-out that
+// nothing re-dispatches.
+func TestAScheduledTaskRetriesLessThanADispatchedOne(t *testing.T) {
+	scheduled := taskRetriesFor(eipnats.DispatchStatisticsRebuilds)
+	dispatched := taskRetriesFor(eipnats.RebuildOwnerStatistics)
+	if scheduled >= dispatched {
+		t.Fatalf("scheduled retries %d, dispatched %d — a cron run should give up first",
+			scheduled, dispatched)
+	}
+}
+
 // A definition's timeout is still clamped, which is what keeps an implausible
 // value in tasks.go from becoming an asynq deadline.
 func TestATaskTimeoutIsClamped(t *testing.T) {

@@ -24,6 +24,7 @@ var (
 		Subject:         "task.scheduled.applyOwnerStatisticsDelta",
 		DefaultPriority: Priority3,
 		DefaultTimeout:  5 * time.Minute,
+		MaxRetries:      10,
 	})
 	// RebuildOwnerStatistics recomputes one owner's statistics from its archived
 	// jobs. Bulk work: a definition change dispatches one of these per owner, and
@@ -33,6 +34,7 @@ var (
 		Subject:         "task.scheduled.rebuildOwnerStatistics",
 		DefaultPriority: Priority5,
 		DefaultTimeout:  15 * time.Minute,
+		MaxRetries:      10,
 	})
 	// DispatchStatisticsRebuilds reads the statistics queue and publishes one
 	// task per owner whose wait is up. It dispatches only, so its timeout covers a
@@ -42,6 +44,7 @@ var (
 		Subject:         "task.scheduled.dispatchStatisticsRebuilds",
 		DefaultPriority: Priority4,
 		DefaultTimeout:  15 * time.Minute,
+		MaxRetries:      3,
 	})
 	// ReconcileOwnerStatistics rewrites one owner's aggregates from its stored
 	// rows. Bulk work on a rota that nothing waits on, so it ranks with the
@@ -51,6 +54,7 @@ var (
 		Subject:         "task.scheduled.reconcileOwnerStatistics",
 		DefaultPriority: Priority5,
 		DefaultTimeout:  15 * time.Minute,
+		MaxRetries:      10,
 	})
 	// DispatchStatisticsReconciles publishes a reconcile for every owner whose
 	// turn has come round. Like the drain, it only dispatches.
@@ -59,36 +63,42 @@ var (
 		Subject:         "task.scheduled.dispatchStatisticsReconciles",
 		DefaultPriority: Priority5,
 		DefaultTimeout:  5 * time.Minute,
+		MaxRetries:      3,
 	})
 	RefreshSystemIndexes = defineTask(Definition{
 		Name:            "refreshSystemIndexes",
 		Subject:         "task.scheduled.refreshSystemIndexes",
 		DefaultPriority: Priority3,
 		DefaultTimeout:  60 * time.Second,
+		MaxRetries:      3,
 	})
 	RefreshAdjustedPrices = defineTask(Definition{
 		Name:            "refreshAdjustedPrices",
 		Subject:         "task.scheduled.refreshAdjustedPrices",
 		DefaultPriority: Priority3,
 		DefaultTimeout:  60 * time.Second,
+		MaxRetries:      3,
 	})
 	RefreshRegionMarketOrders = defineTask(Definition{
 		Name:            "refreshRegionMarketOrders",
 		Subject:         "task.scheduled.refreshRegionMarketOrders",
 		DefaultPriority: Priority4,
 		DefaultTimeout:  30 * time.Minute,
+		MaxRetries:      3,
 	})
 	UpdateAccountSessionGrants = defineTask(Definition{
 		Name:            "updateAccountSessionGrants",
 		Subject:         "task.auth.updateAccountSessionGrants",
 		DefaultPriority: Priority3,
 		DefaultTimeout:  60 * time.Second,
+		MaxRetries:      10,
 	})
 	CheckSDEUpdates = defineTask(Definition{
 		Name:            "checkSDEUpdates",
 		Subject:         "task.scheduled.checkSDEUpdates",
 		DefaultPriority: Priority5,
 		DefaultTimeout:  15 * time.Minute,
+		MaxRetries:      3,
 	})
 	RollbackSDEVersion = defineTask(Definition{
 		Name:            "rollbackSDEVersion",
@@ -123,30 +133,35 @@ var (
 		Subject:         "task.maintenance.encodeJobIdentity",
 		DefaultPriority: Priority5,
 		DefaultTimeout:  20 * time.Minute,
+		MaxRetries:      10,
 	})
 	SchemaVersionMaintenanceBatch = defineTask(Definition{
 		Name:            "schemaVersionMaintenanceBatch",
 		Subject:         "task.maintenance.schemaVersionMaintenanceBatch",
 		DefaultPriority: Priority5,
 		DefaultTimeout:  3 * time.Minute,
+		MaxRetries:      3,
 	})
 	InactiveAccountPlannerCleanup = defineTask(Definition{
 		Name:            "inactiveAccountPlannerCleanup",
 		Subject:         "task.maintenance.inactiveAccountPlannerCleanup",
 		DefaultPriority: Priority5,
 		DefaultTimeout:  5 * time.Minute,
+		MaxRetries:      3,
 	})
 	CloudStoredEsiRefreshMaintenance = defineTask(Definition{
 		Name:            "cloudStoredEsiRefreshMaintenance",
 		Subject:         "task.maintenance.cloudStoredEsiRefreshMaintenance",
 		DefaultPriority: Priority5,
 		DefaultTimeout:  10 * time.Minute,
+		MaxRetries:      3,
 	})
 	PruneExpiredAccountSessions = defineTask(Definition{
 		Name:            "pruneExpiredAccountSessions",
 		Subject:         "task.maintenance.pruneExpiredAccountSessions",
 		DefaultPriority: Priority5,
 		DefaultTimeout:  5 * time.Minute,
+		MaxRetries:      3,
 	})
 )
 
@@ -296,14 +311,19 @@ func TriggerRebuildCurrentSDEVersion(ctx context.Context, n *NATS) error {
 }
 
 // Definition is what a task is: the handler key, the subject it travels on, and
-// the queue and deadline the worker gives it. The worker resolves the last two
-// by name at runtime, which is why definitions are values rather than only the
-// publish helpers below.
+// the queue, deadline and retry budget the worker gives it. The worker resolves
+// the last three by name at runtime, which is why definitions are values rather
+// than only the publish helpers below.
 type Definition struct {
 	Name            string
 	Subject         string
 	DefaultPriority string
 	DefaultTimeout  time.Duration
+	// MaxRetries is how many times a failed run is tried again. A task a
+	// schedule brings back does not need to outlive its next run, so it asks
+	// for few; one that nothing re-dispatches asks for more. Zero takes the
+	// worker's default.
+	MaxRetries int
 }
 
 var (

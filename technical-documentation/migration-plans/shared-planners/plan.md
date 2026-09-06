@@ -1329,12 +1329,20 @@ The seam already exists. `buildSetupFromQuantity` takes an `overrides` argument 
 `buildSetupFromPresetRow` shows the full shape a preserved setup takes — ME, TE, rig, structure,
 system, character. What is missing is that recalculation passes nothing.
 
-**Which callers preserve and which derive is the whole design.** Five call it, and they are not the
-same case: building a job for the first time has no stored setup to keep, while recalculating an
-existing one does. `closeActiveJob` is the one that matters most — it recalculates every related job
-in the tree, each with its own stored setup, which is where another member's context is lost today.
-Getting this wrong in the other direction is equally bad: a genuinely new job that preserves nothing
-would inherit an empty context.
+**Which callers preserve and which derive is the whole design.** Five call it, and they split cleanly:
+`buildJob`, `buildNextMaterialsTree` and `importFitFromClipboard` build jobs that have no stored setup
+to keep, so deriving from the current user's defaults is correct there and must stay. The loss bites at
+`closeActiveJob`, which recalculates every job in the related tree — each with its own stored setup —
+and at `recalculateJobFromSetup`. Getting this wrong in the other direction is equally bad: a genuinely
+new job that preserved nothing would inherit an empty context.
+
+More is lost than the three fields the stage names: the rig, the tax value, any custom structure, every
+setup id, and the ME/TE falls back to whatever blueprint the recalculating user owns — *worse* if they
+own a poorer one, and zero if they own none at all.
+
+**Nothing covers this today.** `closeActiveJob.test.js` mocks `recalculateJobForNewTotal` out
+entirely, so no test observes what it does to `build.setup`. Un-mocking it, or adding a dedicated test,
+is part of the slice rather than a follow-up.
 
 **Done when** recalculating a job with a stored setup keeps its structure, ME/TE and character while
 its quantities change, a newly built job still derives them, and a single-member planner's figures are
@@ -1349,7 +1357,15 @@ tree `getAllRelatedJobs` collected. The gate asks about one document and the wri
 On a personal planner the tree has one owner and the gap cannot be seen. On a shared planner another
 member holds a lock on a related job and it is written anyway.
 
-**Done when** the gate answers for every document the close will write, a close is refused when any
+**And it is not only the job close.** `closeGroup` has the same shape — one `canPersistGroupClose(groupID)`
+gating a write of every member job — and `passBuildCosts` and `releaseJobsAfterGroupRemoved` both write
+multi-job sets with no gate visible at the call site at all. The slice is a predicate that answers for a
+set of documents, and every multi-job write moved onto it; fixing one of four leaves the other three.
+
+The backend already checks locks per document, so this is the client refusing to attempt a write it
+cannot make, not the last line of defence.
+
+**Done when** every multi-job write is gated on every document it writes, a close is refused when any
 related job is locked elsewhere, and a single-member close still writes exactly what it writes today.
 
 #### D3 — The two shared id spaces
@@ -1363,24 +1379,29 @@ planner needs to offer its own categories rather than an account's, which is a q
 the picker reads. Archived rows already carry the name each category had when the job was archived, so
 nothing depends on resolving an id against a settings document.
 
-**Job statuses need the set of ids to be the planner's**, because `job.jobStatus` is a stored integer
-index: a planner with six stages for one member and five for another hides jobs at the sixth from the
-second. Whether the *labels* stay personal is the open question § Settings stay with the account
-records, not a decision this slice has to take.
+**Job statuses need no work at all — the id space is already fixed.** The stage was written against a
+per-account `jobStatusArray`, which no longer exists anywhere in the SPA. Statuses are a frozen
+`JOB_STATUS_CATALOG` of five ids shared by every account, and what remains per-account is a **names**
+map. `job.jobStatus` indexes the catalog, so two members cannot disagree about which stage an id names.
+Whether planner-scoped *labels* are worth having stays the open question § Settings stay with the
+account records; nothing is owed here.
 
-Both are read through accessors rather than scattered — `useJobStatuses` and the settings store's
-extras actions — which is where the scoping goes.
+Extras are further along too: the archive already denormalises each category's label at archive time,
+and a release step stamps those labels onto existing jobs. So what is left is the offered list at the
+picker, not the id space or the archive.
 
-**Done when** a planner offers its own extras categories and its own status set, an account's other
-settings are untouched, and a single-member planner sees exactly the categories and statuses it sees
-today.
+**Done when** a planner offers its own extras categories, an account's other settings are untouched,
+and a single-member planner sees exactly the categories it sees today.
 
 #### Order
 
-D1 and D2 are independent of each other and of D3; both are live defects on personal planners today
-and can land in either order. D3 is the one that only matters once a planner holds two people, and it
-is the one whose shape the plan has already narrowed most — so it is the last of the three rather than
-the first, despite being the stage's headline.
+D1 and D2 are live defects on personal planners today and can land immediately, before any planner
+holds two people. D2 has a soft dependency on D1: widening the gate without fixing recalculation still
+leaves a member who legitimately holds every lock destroying another's build context, because a lock
+cannot answer for the content of a permitted write.
+
+D3 needs planner-scoped settings storage to exist, so it sequences after the planner document, and it
+has shrunk to the extras picker alone. The stage's headline turns out to be its smallest slice.
 
 ### Stage E — Custom planners
 
@@ -1543,6 +1564,6 @@ do not touch.
 | A — the owner block, in one cutover | **Ready to run.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, and the rehearsal against a restored copy of live is done. Outstanding: the window itself |
 | B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the active-planner message replacing it is Stage E work — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
-| D — what a second member breaks | Not started; broken into three slices — D1 recalculation keeping a job's build context, D2 the close gate covering what the close writes, D3 the two shared id spaces. All SPA work; D1 and D2 are live defects on personal planners today. See § Stage D |
+| D — what a second member breaks | Not started; three slices — D1 recalculation keeping a job's build context, D2 every multi-job write gated on what it writes, D3 the extras picker. All SPA work. D1 and D2 are live defects today; job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |
 | E — custom planners | Not started |
 | F — ESI providers | Not started |

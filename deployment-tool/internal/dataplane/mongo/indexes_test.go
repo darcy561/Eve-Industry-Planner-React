@@ -36,6 +36,8 @@ func TestIndexSpecsCoverExpected(t *testing.T) {
 		"statistics_timeline.atm_owner_isProductionChain_typeID_1":   true,
 		"statistics_timeline.atm_owner_typeID_1":                     true,
 		"statistics_totals.apt_owner_typeID_1":                       true,
+		"planner_memberships.pm_accountID_1":                         true,
+		"planner_memberships.pm_plannerID_1":                         true,
 	}
 	if len(specs) != len(want) {
 		t.Fatalf("len=%d want %d", len(specs), len(want))

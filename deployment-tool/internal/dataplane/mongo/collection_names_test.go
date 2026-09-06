@@ -27,6 +27,8 @@ var knownCollections = map[string]bool{
 	"statistics_timeline":       true,
 	"statistics_rebuild_queue":  true,
 	"statistics_reconcile_rota": true,
+	"planners":                  true,
+	"planner_memberships":       true,
 }
 
 const servicesSoT = "collection names are owned by services/shared/mongo/names.go; " +

@@ -6,28 +6,6 @@ import (
 	"time"
 )
 
-// AccountMeta is the `_meta` of a document owned by an account rather than held
-// in a planner: the user document and application settings.
-type AccountMeta struct {
-	MetaData `bson:",inline" json:",inline"`
-}
-
-// PlannerScopedMeta is the `_meta` of a document held in a planner, where more
-// than one account may write.
-//
-// LastUpdatedBy lives here rather than on the shared core because it only means
-// something where more than one account can write: on an account-owned document
-// it is always the owner, so carrying it there would be noise.
-type PlannerScopedMeta struct {
-	MetaData      `bson:",inline" json:",inline"`
-	LastUpdatedBy string `bson:"lastUpdatedBy,omitempty" json:"lastUpdatedBy,omitempty"`
-}
-
-// PlannerMeta is a planner document's own `_meta`.
-type PlannerMeta struct {
-	MetaData `bson:",inline" json:",inline"`
-}
-
 // Planner is a working area that jobs, groups and their archive belong to.
 //
 // Its _id is the owner key, so the owner is stored once rather than beside a
@@ -39,13 +17,13 @@ type PlannerMeta struct {
 // response emits the owner handle instead, converting at the same last hop as
 // every other ref.
 type Planner struct {
-	ID            string      `bson:"_id" json:"-"`
-	SchemaVersion int         `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
-	Name          string      `bson:"name" json:"name"`
-	MemberCount   int         `bson:"memberCount" json:"memberCount"`
-	AccessModels  []string    `bson:"accessModels,omitempty" json:"accessModels,omitempty"`
-	CreatedBy     string      `bson:"createdBy" json:"-"`
-	MetaData      PlannerMeta `bson:"_meta" json:"_meta"`
+	ID            string   `bson:"_id" json:"-"`
+	SchemaVersion int      `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
+	Name          string   `bson:"name" json:"name"`
+	MemberCount   int      `bson:"memberCount" json:"memberCount"`
+	AccessModels  []string `bson:"accessModels,omitempty" json:"accessModels,omitempty"`
+	CreatedBy     string   `bson:"createdBy" json:"-"`
+	MetaData      MetaData `bson:"_meta" json:"_meta"`
 }
 
 // Owner reads the planner's owner back out of its id.
@@ -53,6 +31,12 @@ func (p Planner) Owner() (Owner, error) { return ParseOwnerKey(p.ID) }
 
 // Shared reports whether more than one account is in the planner.
 func (p Planner) Shared() bool { return p.MemberCount > 1 }
+
+// PlannerMembershipID is the composite `_id` of a membership row, which gives one
+// row per account per planner without needing a unique index.
+func PlannerMembershipID(plannerID, accountID string) string {
+	return plannerID + "|" + accountID
+}
 
 // PlannerMembership puts one account in one planner, and is the only thing that
 // grants access to one: nothing above it asks how the row came to exist.
@@ -74,6 +58,31 @@ type JoinMethod struct {
 	Self   *SelfJoin   `bson:"self,omitempty" json:"self,omitempty"`
 	Invite *InviteJoin `bson:"invite,omitempty" json:"invite,omitempty"`
 	ESI    *ESIJoin    `bson:"esi,omitempty" json:"esi,omitempty"`
+}
+
+// JoinKind names the branch a membership came in on, for logging and display. It
+// is derived rather than stored: a stored tag beside a stored branch is two copies
+// of one fact.
+type JoinKind string
+
+const (
+	JoinKindSelf   JoinKind = "self"
+	JoinKindInvite JoinKind = "invite"
+	JoinKindESI    JoinKind = "esi"
+)
+
+// Kind reports which branch is populated, or the empty kind when none is.
+func (j JoinMethod) Kind() JoinKind {
+	switch {
+	case j.Self != nil:
+		return JoinKindSelf
+	case j.Invite != nil:
+		return JoinKindInvite
+	case j.ESI != nil:
+		return JoinKindESI
+	default:
+		return ""
+	}
 }
 
 // Validate reports whether exactly one branch is set.

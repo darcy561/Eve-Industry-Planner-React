@@ -22,6 +22,9 @@ const (
 	CollectionStatisticsTimeline      = "statistics_timeline"
 	CollectionStatisticsRebuildQueue  = "statistics_rebuild_queue"
 	CollectionStatisticsReconcileRota = "statistics_reconcile_rota"
+
+	CollectionPlanners           = "planners"
+	CollectionPlannerMemberships = "planner_memberships"
 )
 
 // SchemaMaintainedCollections lists every collection whose documents carry a
@@ -38,5 +41,7 @@ func SchemaMaintainedCollections() []string {
 		CollectionJobs,
 		CollectionArchivedJobs,
 		CollectionJobGroups,
+		CollectionPlanners,
+		CollectionPlannerMemberships,
 	}
 }

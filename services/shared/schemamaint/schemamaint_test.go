@@ -23,12 +23,14 @@ func TestEverySchemaMaintainedCollectionIsSupported(t *testing.T) {
 func TestCurrentVersionMatchesTheModelConstants(t *testing.T) {
 	t.Parallel()
 	for name, want := range map[string]int{
-		eipmongo.CollectionAccounts:        models.UserAccountDocumentSchemaCurrent,
-		eipmongo.CollectionAccountSettings: models.ApplicationSettingsSchemaCurrent,
-		eipmongo.CollectionJobDocuments:    models.JobSchemaCurrent,
-		eipmongo.CollectionJobs:            models.JobSchemaCurrent,
-		eipmongo.CollectionArchivedJobs:    models.JobSchemaCurrent,
-		eipmongo.CollectionJobGroups:       models.GroupSchemaCurrent,
+		eipmongo.CollectionAccounts:           models.UserAccountDocumentSchemaCurrent,
+		eipmongo.CollectionAccountSettings:    models.ApplicationSettingsSchemaCurrent,
+		eipmongo.CollectionJobDocuments:       models.JobSchemaCurrent,
+		eipmongo.CollectionJobs:               models.JobSchemaCurrent,
+		eipmongo.CollectionArchivedJobs:       models.JobSchemaCurrent,
+		eipmongo.CollectionJobGroups:          models.GroupSchemaCurrent,
+		eipmongo.CollectionPlanners:           models.PlannerSchemaCurrent,
+		eipmongo.CollectionPlannerMemberships: models.PlannerMembershipSchemaCurrent,
 	} {
 		got, err := schemamaint.CurrentVersion(name)
 		if err != nil {

@@ -150,7 +150,34 @@ Nothing here is owed against Stage B.
 
 ## Stage C — Planners and membership
 
-*Not landed.*
+*C1 landed. The collections exist and are maintained; nothing writes to them yet.*
+
+**Two collections.** `planners` holds one document per owner, its `_id` the owner key, so the owner is
+stored once rather than beside a duplicate of itself. `planner_memberships` holds one row per account
+per planner, its `_id` the composite `{plannerID}|{accountID}` — which makes the one-row-per-pair rule
+a property of the id rather than something a unique index has to enforce.
+
+Two indexes, one per direction the request path asks in: `accountID` for which planners an account can
+see, and `plannerID` for who is in a planner. Neither question is answerable from the composite id
+alone, which is why both exist.
+
+**Both are schema-maintained**, which is five registrations rather than one: a `SchemaVersion` on the
+model, a `*SchemaCurrent` constant, an `Upgrader` method, and a case in each of the two `schemamaint`
+switches. The upgraders only clamp a version into range — these are new shapes, so there is no earlier
+one to move a document from.
+
+**The owner stamp does not touch them.** It derives an owner from `_meta.accountID` on documents older
+than the owner block; a planner is written with its owner from the first document and never carried an
+account id. That is now stated as a list beside the stamp rather than left for the next reader to
+work out, and a test refuses a collection appearing in both.
+
+**A planner's `_meta` is the shared core.** The three meta families that landed early — an account one,
+a planner-scoped one and a planner one — are gone. They had no references at all, and the tree already
+carries that split per document as `JobMetaData`, `GroupMetaData` and `UserMeta`. A planner document is
+not edited by its members, so it needs nothing beyond `MetaData`.
+
+Owed by the remaining slices: the account-planner backfill, membership as the source of grants, and
+subscriptions by owner.
 
 Owed here: the planner document, the membership document, their indexes, how a roster is kept current
 per provider, how the account planner is created, what the roster endpoints refuse, and where the

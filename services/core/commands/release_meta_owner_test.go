@@ -9,13 +9,35 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-// A collection whose documents carry `_meta` but is missing here never gains an
-// owner, and nothing reads a document without one.
+// collectionsCreatedWithAnOwner hold no document that predates the owner block, so
+// the stamp has nothing to derive: they are written with an owner from the first
+// document, and the step reads `_meta.accountID`, which they never carried.
+var collectionsCreatedWithAnOwner = []string{
+	eipmongo.CollectionPlanners,
+	eipmongo.CollectionPlannerMemberships,
+}
+
+// A collection holding documents older than the owner block, and missing from the
+// stamp, never gains an owner — and nothing reads a document without one.
 func TestMetaOwnerCollectionsCoverEverySchemaMaintainedOne(t *testing.T) {
 	t.Parallel()
 	for _, name := range eipmongo.SchemaMaintainedCollections() {
+		if slices.Contains(collectionsCreatedWithAnOwner, name) {
+			continue
+		}
 		if !slices.Contains(metaOwnerCollections, name) {
 			t.Fatalf("%s carries _meta and is maintained, but is not stamped", name)
+		}
+	}
+}
+
+// A collection cannot be in both lists: one says the stamp must reach it, the
+// other says it has nothing to stamp.
+func TestNoCollectionIsBothStampedAndCreatedWithAnOwner(t *testing.T) {
+	t.Parallel()
+	for _, name := range collectionsCreatedWithAnOwner {
+		if slices.Contains(metaOwnerCollections, name) {
+			t.Fatalf("%s is stamped and also listed as created with an owner", name)
 		}
 	}
 }

@@ -121,3 +121,54 @@ func TestOwnerSerialisesConspicuouslyRatherThanCleanly(t *testing.T) {
 		t.Fatalf("owner marshalled to %s, want unmapped Go field names", out)
 	}
 }
+
+// One row per account per planner, without a unique index to enforce it.
+func TestPlannerMembershipIDIsOneRowPerAccountPerPlanner(t *testing.T) {
+	t.Parallel()
+	planner := AccountOwner("acct-1").Key()
+	if got, want := PlannerMembershipID(planner, "acct-1"), "account:acct-1|acct-1"; got != want {
+		t.Fatalf("PlannerMembershipID = %q, want %q", got, want)
+	}
+	if PlannerMembershipID(planner, "acct-1") == PlannerMembershipID(planner, "acct-2") {
+		t.Fatal("two accounts in one planner must not share a row id")
+	}
+	if PlannerMembershipID(planner, "acct-1") == PlannerMembershipID("planner:01H", "acct-1") {
+		t.Fatal("one account in two planners must not share a row id")
+	}
+}
+
+// The populated branch is the discriminator, so Kind reads it rather than a
+// stored constant that could disagree with it.
+func TestJoinMethodKindReadsThePopulatedBranch(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name   string
+		method JoinMethod
+		want   JoinKind
+	}{
+		{"self", JoinMethod{Self: &SelfJoin{}}, JoinKindSelf},
+		{"invite", JoinMethod{Invite: &InviteJoin{}}, JoinKindInvite},
+		{"esi", JoinMethod{ESI: &ESIJoin{}}, JoinKindESI},
+		{"none", JoinMethod{}, ""},
+	}
+	for _, c := range cases {
+		if got := c.method.Kind(); got != c.want {
+			t.Fatalf("%s: Kind = %q, want %q", c.name, got, c.want)
+		}
+	}
+}
+
+// A planner's _meta is the shared core and nothing more: it carries no
+// LastUpdatedBy, because a planner document is not edited by its members.
+func TestPlannerCarriesTheSharedMeta(t *testing.T) {
+	t.Parallel()
+	p := Planner{ID: AccountOwner("acct-1").Key()}
+	p.MetaData.Owner = AccountOwner("acct-1")
+	owner, err := p.Owner()
+	if err != nil {
+		t.Fatalf("Owner: %v", err)
+	}
+	if owner != p.MetaData.Owner {
+		t.Fatalf("owner from id = %v, want %v", owner, p.MetaData.Owner)
+	}
+}

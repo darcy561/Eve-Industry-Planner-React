@@ -22,6 +22,19 @@ type IndexSpec struct {
 // IndexSpecs is the declarative list of indexes Ensure creates (after preimages).
 func IndexSpecs() []IndexSpec {
 	return []IndexSpec{
+		// Both membership directions are on the request path: which planners an
+		// account can see, and who is in a planner. The _id is {plannerID}|{accountID},
+		// so neither question is answerable from it alone.
+		{
+			Collection: "planner_memberships",
+			Name:       "pm_accountID_1",
+			Keys:       []IndexKey{{Field: "accountID", Order: 1}},
+		},
+		{
+			Collection: "planner_memberships",
+			Name:       "pm_plannerID_1",
+			Keys:       []IndexKey{{Field: "plannerID", Order: 1}},
+		},
 		{
 			Collection: "accounts",
 			Name:       "meta_owner_1",

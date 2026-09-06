@@ -50,6 +50,16 @@ func Batch(ctx context.Context, docs *eipmongo.Docs, collection string, batchSiz
 			func(d *models.Job) { documentschema.Upgrader{}.Job(d) },
 			func(d models.Job) int { return d.SchemaVersion },
 			func(d models.Job) string { return d.JobID })
+	case eipmongo.CollectionPlanners:
+		return runBatch(ctx, docs, batchSize, models.PlannerSchemaCurrent,
+			func(d *models.Planner) { documentschema.Upgrader{}.Planner(d) },
+			func(d models.Planner) int { return d.SchemaVersion },
+			func(d models.Planner) string { return d.ID })
+	case eipmongo.CollectionPlannerMemberships:
+		return runBatch(ctx, docs, batchSize, models.PlannerMembershipSchemaCurrent,
+			func(d *models.PlannerMembership) { documentschema.Upgrader{}.PlannerMembership(d) },
+			func(d models.PlannerMembership) int { return d.SchemaVersion },
+			func(d models.PlannerMembership) string { return d.ID })
 	case eipmongo.CollectionJobGroups:
 		return runBatch(ctx, docs, batchSize, models.GroupSchemaCurrent,
 			func(d *models.Group) { documentschema.Upgrader{}.Group(d) },
@@ -176,6 +186,10 @@ func CurrentVersion(collection string) (int, error) {
 		return models.JobSchemaCurrent, nil
 	case eipmongo.CollectionJobGroups:
 		return models.GroupSchemaCurrent, nil
+	case eipmongo.CollectionPlanners:
+		return models.PlannerSchemaCurrent, nil
+	case eipmongo.CollectionPlannerMemberships:
+		return models.PlannerMembershipSchemaCurrent, nil
 	default:
 		return 0, fmt.Errorf("schemamaint: unsupported collection %q", collection)
 	}

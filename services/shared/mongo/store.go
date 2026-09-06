@@ -30,6 +30,9 @@ type Mongo struct {
 	StatisticsTimeline      *Docs // pre-aggregated calendar months per owner and item type
 	StatisticsRebuildQueue  *Docs // owners whose statistics need recalculating
 	StatisticsReconcileRota *Docs // when each owner was last reconciled against its rows
+
+	Planners           *Docs // one per owner; its _id is the owner key
+	PlannerMemberships *Docs // one row per account per planner
 }
 
 // NewMongo pins DatabaseName and binds named Docs fields. client must be non-nil.
@@ -57,6 +60,8 @@ func NewMongo(client *mongo.Client) (*Mongo, error) {
 	m.StatisticsTimeline = m.Docs(CollectionStatisticsTimeline)
 	m.StatisticsRebuildQueue = m.Docs(CollectionStatisticsRebuildQueue)
 	m.StatisticsReconcileRota = m.Docs(CollectionStatisticsReconcileRota)
+	m.Planners = m.Docs(CollectionPlanners)
+	m.PlannerMemberships = m.Docs(CollectionPlannerMemberships)
 	return m, nil
 }
 

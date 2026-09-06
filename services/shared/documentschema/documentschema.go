@@ -104,3 +104,23 @@ func (u Upgrader) ArchivedJobStats(doc *models.ArchivedJobStats) {
 		doc.SchemaVersion = models.ArchivedJobStatsSchemaCurrent
 	}
 }
+
+// Planner normalises a planner document in memory. Idempotent.
+func (u Upgrader) Planner(doc *models.Planner) {
+	if doc == nil {
+		return
+	}
+	if doc.SchemaVersion <= 0 || doc.SchemaVersion > models.PlannerSchemaCurrent {
+		doc.SchemaVersion = models.PlannerSchemaCurrent
+	}
+}
+
+// PlannerMembership normalises a membership row in memory. Idempotent.
+func (u Upgrader) PlannerMembership(doc *models.PlannerMembership) {
+	if doc == nil {
+		return
+	}
+	if doc.SchemaVersion <= 0 || doc.SchemaVersion > models.PlannerMembershipSchemaCurrent {
+		doc.SchemaVersion = models.PlannerMembershipSchemaCurrent
+	}
+}

@@ -33,6 +33,12 @@ type Planner struct {
 func (p Planner) Owner() (models.Owner, error) { return models.ParseOwnerKey(p.ID) }
 
 // Shared reports whether more than one account is in the planner.
+//
+// Reads MemberCount, which is written once at creation and not yet maintained:
+// nothing updates it when a membership row is added or removed. Until something
+// does — or until it is derived from the rows, which cannot disagree with them —
+// this answers for a planner that has never gained a member. Do not put it on a
+// wire or in front of a user.
 func (p Planner) Shared() bool { return p.MemberCount > 1 }
 
 // MembershipID is the composite `_id` of a membership row, which gives one

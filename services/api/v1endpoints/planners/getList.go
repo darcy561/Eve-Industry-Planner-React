@@ -2,7 +2,6 @@ package planners
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -23,12 +22,11 @@ import (
 // The client names those from what it already knows about the entity, and the
 // document is written when somebody chooses to work in one.
 type listEntry struct {
-	Owner       string `json:"owner"`
-	Kind        string `json:"kind"`
-	Name        string `json:"name,omitempty"`
-	MemberCount int    `json:"memberCount,omitempty"`
-	Named       bool   `json:"named"`
-	JoinMethod  string `json:"joinMethod"`
+	Owner      string `json:"owner"`
+	Kind       string `json:"kind"`
+	Name       string `json:"name,omitempty"`
+	Named      bool   `json:"named"`
+	JoinMethod string `json:"joinMethod"`
 }
 
 type listResponse struct {
@@ -78,20 +76,19 @@ func (h *Handlers) GetPlannersHandler(w http.ResponseWriter, r *http.Request) {
 	entries := make([]listEntry, 0, len(listings))
 	for _, listing := range listings {
 		entries = append(entries, listEntry{
-			Owner:       listing.Owner.Key(),
-			Kind:        string(listing.Owner.Kind),
-			Name:        listing.Name,
-			MemberCount: listing.MemberCount,
-			Named:       listing.Named,
-			JoinMethod:  string(listing.JoinKind),
+			Owner:      listing.Owner.Key(),
+			Kind:       string(listing.Owner.Kind),
+			Name:       listing.Name,
+			Named:      listing.Named,
+			JoinMethod: string(listing.JoinKind),
 		})
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(listResponse{Planners: entries}); err != nil {
-		// The status is already written, so this is reported rather than answered.
-		logs.WarnCtx(ctx, "planners list: failed to encode response",
-			"account_id", accountID, "error", err)
+	w.WriteHeader(http.StatusOK)
+	if err := helper.EncodeJSON(w, listResponse{Planners: entries}); err != nil {
+		metrics.Error("encode_error")
+		helper.RespondEndpointServerError(w, r, "Internal server error",
+			"planners list: encode failed", "planners_list_encode_failed", "planners_list", err, nil)
 		return
 	}
 

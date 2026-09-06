@@ -18,18 +18,23 @@ import (
 // written when somebody first works in it. The listing says so rather than
 // inventing a name, and the client shows what it knows about the entity.
 type PlannerListing struct {
-	Owner       models.Owner
-	Name        string
-	MemberCount int
-	Named       bool
-	JoinKind    planner.JoinKind
+	Owner    models.Owner
+	Name     string
+	Named    bool
+	JoinKind planner.JoinKind
 }
 
 // PlannersForAccount lists every planner the account holds a membership for.
 //
 // Two reads rather than a join: the membership rows say which planners, and the
-// planner documents say what the named ones are called. Most accounts hold a
-// handful of rows, and the second read asks for exactly those ids.
+// planner documents say what the named ones are called. The second read asks for
+// exactly the ids the first returned.
+//
+// Unpaged, because the row count is bounded by the account rather than by its
+// data: an account holds one row for its own planner, one per corporation its
+// linked characters are in, one per alliance above those, and one per planner it
+// was invited to. Paging a list that is a dozen rows at its widest would cost a
+// cursor round trip to save nothing.
 func (m *Mongo) PlannersForAccount(ctx context.Context, accountID string) ([]PlannerListing, error) {
 	if m == nil || accountID == "" {
 		return nil, fmt.Errorf("PlannersForAccount: invalid arguments")
@@ -77,7 +82,6 @@ func (m *Mongo) PlannersForAccount(ctx context.Context, accountID string) ([]Pla
 			continue
 		}
 		listings[i].Name = doc.Name
-		listings[i].MemberCount = doc.MemberCount
 		listings[i].Named = true
 	}
 	return listings, nil

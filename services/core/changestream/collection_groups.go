@@ -37,6 +37,7 @@ func CollectionGroups() []CollectionGroup {
 			eipmongo.CollectionJobs,
 			eipmongo.CollectionJobDocuments,
 			eipmongo.CollectionJobGroups,
+			eipmongo.CollectionPlannerSettings,
 		),
 		Group("blueprints",
 			eipmongo.CollectionSharedBlueprints,

@@ -16,7 +16,7 @@ import (
 //
 // The write itself is Mongo.EnsureAccountPlanner, which first login also calls:
 // one implementation, so an account created after this step runs gets the same
-// pair of documents rather than a second version of them.
+// documents rather than a second version of them.
 //
 // Only new documents are written, which is what lets this run either side of
 // traffic returning, and a repeat run adds nothing.
@@ -58,11 +58,8 @@ func backfillAccountPlanners(ctx context.Context, clients *stackservices.Clients
 
 	// Every account is visited, not only those missing a planner: an account whose
 	// planner predates its settings document has one and needs the other, and each
-	// write is insert-only, so visiting one that is already complete costs a
-	// no-op rather than an overwrite. `missing` counts what the report names.
-	if len(missing) == 0 && len(accountIDs) == 0 {
-		return "no accounts", nil
-	}
+	// write is insert-only, so visiting one that is already complete costs a no-op
+	// rather than an overwrite. `missing` is only what the report names.
 	if dryRun {
 		return fmt.Sprintf("%d account(s) would be ensured, %d of which have no planner",
 			len(accountIDs), len(missing)), nil

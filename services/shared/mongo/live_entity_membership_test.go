@@ -201,70 +201,10 @@ func assertReachable(ctx context.Context, t *testing.T, mongo *eipmongo.Mongo, a
 	}
 }
 
-// A membership EVE has not confirmed lately stops granting, and confirming it
-// again restores access without the account rejoining anything. This is the only
-// mechanism by which a revoked token ends access: the reconcile cannot tell a
-// revocation from an outage, so it leaves the row alone and staleness expires it.
+// An owner membership is not confirmed by anything outside the planner, so no
+// sweep reaches it — an account keeps its own planner whatever ESI is doing.
 // Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_entityMembership_stopsGrantingOnceUnconfirmed(t *testing.T) {
-	mongo := mongolive.Require(t)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-
-	account := esiMembershipScratchAccount + "-stale"
-	corp := models.CorporationOwner(esiCorpRefA)
-	cleanupMemberships(t, mongo, account)
-	now := time.Now().UTC()
-
-	if _, _, err := mongo.ReconcileEntityMemberships(ctx, account, []models.Owner{corp}, now); err != nil {
-		t.Fatalf("reconcile: %v", err)
-	}
-	assertReachable(ctx, t, mongo, account, corp, true)
-
-	// The token is revoked: no further reconcile confirms the row, and it ages out.
-	if _, err := mongo.PlannerMemberships.Collection().UpdateOne(ctx,
-		bson.M{"_id": planner.MembershipID(corp.Key(), account)},
-		bson.M{"$set": bson.M{
-			"joinMethod.entityMember.validatedAt": now.Add(-planner.StaleAfter - time.Hour),
-		}}); err != nil {
-		t.Fatalf("age the row: %v", err)
-	}
-
-	assertReachable(ctx, t, mongo, account, corp, false)
-	granted, err := mongo.OwnerKeysForAccount(ctx, account)
-	if err != nil {
-		t.Fatalf("OwnerKeysForAccount: %v", err)
-	}
-	if granted.Has(corp) {
-		t.Errorf("grants = %v, want an unconfirmed membership to stop granting", granted)
-	}
-
-	// The row is still there: it stopped granting rather than being deleted, so a
-	// later confirmation restores access with no rejoin.
-	count, err := mongo.PlannerMemberships.Collection().CountDocuments(ctx,
-		bson.M{"_id": planner.MembershipID(corp.Key(), account)})
-	if err != nil {
-		t.Fatalf("count rows: %v", err)
-	}
-	if count != 1 {
-		t.Fatalf("row count = %d, want the stale row kept", count)
-	}
-
-	added, removed, err := mongo.ReconcileEntityMemberships(ctx, account, []models.Owner{corp}, time.Now().UTC())
-	if err != nil {
-		t.Fatalf("reconfirm: %v", err)
-	}
-	if added != 0 || removed != 0 {
-		t.Errorf("reconfirm added %d removed %d, want the existing row confirmed in place", added, removed)
-	}
-	assertReachable(ctx, t, mongo, account, corp, true)
-}
-
-// A self membership is not kept in step with EVE, so nothing outside the planner
-// can revoke it and it never goes stale — an account keeps its own planner
-// whatever ESI is doing.
-// Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_selfMembership_neverGoesStale(t *testing.T) {
+func TestLive_ownerMembership_isNeverCleanedUp(t *testing.T) {
 	mongo := mongolive.Require(t)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()

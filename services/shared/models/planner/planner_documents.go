@@ -78,8 +78,8 @@ type Membership struct {
 //
 // The branches name the reason rather than where the answer came from: a member
 // of a corporation is a member because they are in it, not because ESI is how we
-// learned so. Two of them are kept in step with EVE and can therefore go stale;
-// see StaleAfter.
+// learned so. Two of them are kept in step with EVE, and record when it last
+// confirmed them so the maintenance sweep knows which rows have been left behind.
 //
 // No tag beside the branch: a stored tag and a stored branch encode the same
 // fact, and two copies of one fact can disagree.
@@ -158,9 +158,9 @@ type InviteRedemption struct {
 // alliance the planner belongs to.
 //
 // ValidatedAt is when EVE last confirmed it, which is not when the row was
-// created: a member who left, or whose token was revoked, produces no answer at
-// all rather than a negative one, so the row is only as good as its last
-// confirmation. See StaleAfter.
+// created. It does not gate the grant — a row grants while it exists — but it is
+// how the maintenance sweep tells a row that is being kept current from one whose
+// account stopped logging in.
 type EntityMember struct {
 	EntityRef     string    `bson:"entityRef" json:"-"`
 	CharacterHash string    `bson:"characterHash,omitempty" json:"-"`
@@ -170,57 +170,13 @@ type EntityMember struct {
 // AccessListEntry records membership that follows an in-game access list.
 //
 // Unlike EntityMember it is polled from one managing character's token rather
-// than reconciled from each member's own, so it goes stale for reasons that have
-// nothing to do with the member: the managing character can lose the scope, leave,
-// or unlink. ValidatedAt is what detects that.
+// than reconciled from each member's own, so it stops being updated for reasons
+// that have nothing to do with the member: the managing character can lose the
+// scope, leave, or unlink. ValidatedAt is what detects that.
 type AccessListEntry struct {
 	ListID      string    `bson:"listID" json:"-"`
 	EntityRef   string    `bson:"entityRef,omitempty" json:"-"`
 	ValidatedAt time.Time `bson:"validatedAt" json:"-"`
-}
-
-// StaleAfter is how long a membership kept in step with EVE keeps granting
-// without being confirmed again.
-//
-// It exists because the reconcile cannot distinguish "still a member" from "we
-// could not ask": a revoked token, a scope removed or an ESI outage all produce
-// no answer, and reconciling against a partial answer would revoke access for the
-// length of an outage. So a failed check leaves the row alone and this is what
-// eventually expires it — the only mechanism by which revoked access ends.
-//
-// Long enough that a weekend outage cuts nobody off, short enough that access
-// somebody has genuinely lost does not linger.
-const StaleAfter = 7 * 24 * time.Hour
-
-// ValidatedAt is when EVE last confirmed this membership, and the zero time for a
-// method that is not kept in step with EVE.
-func (j JoinMethod) ValidatedAt() time.Time {
-	switch {
-	case j.Membership != nil:
-		return j.Membership.ValidatedAt
-	case j.AccessList != nil:
-		return j.AccessList.ValidatedAt
-	default:
-		return time.Time{}
-	}
-}
-
-// NeedsValidation reports whether this method is kept in step with EVE, and so
-// stops granting once it goes unconfirmed.
-//
-// An owner or invite membership does not: nothing outside the planner can revoke
-// it, so there is nothing to go stale against.
-func (j JoinMethod) NeedsValidation() bool {
-	return j.Membership != nil || j.AccessList != nil
-}
-
-// Stale reports whether a membership kept in step with EVE has gone too long
-// without confirmation to keep granting.
-func (j JoinMethod) Stale(now time.Time) bool {
-	if !j.NeedsValidation() {
-		return false
-	}
-	return now.Sub(j.ValidatedAt()) > StaleAfter
 }
 
 // Invite is one outstanding invitation into a planner.

@@ -15,16 +15,16 @@ import (
 
 const cleanupScratchAccount = "eip-parity-membership-cleanup-account"
 
-// The gap between StaleAfter and DeleteExpiredAfter is the point: a row stops granting at
-// the first and is forgotten at the second, so access lost to an outage comes
-// back on the next confirmation rather than needing a fresh invitation.
+// A row grants while it exists, so a membership being maintained must survive the
+// sweep however long ago it was first written. What matters is when EVE last
+// confirmed it, not when the account joined.
 // Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_cleanUpExpiredMemberships_keepsWhatCanStillComeBack(t *testing.T) {
+func TestLive_cleanUpExpiredMemberships_keepsWhatIsStillConfirmed(t *testing.T) {
 	mongo := mongolive.Require(t)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	account := cleanupScratchAccount + "-window"
+	account := cleanupScratchAccount + "-current"
 	corp := models.CorporationOwner(esiCorpRefA)
 	cleanupMemberships(t, mongo, account)
 	now := time.Now().UTC()
@@ -33,41 +33,33 @@ func TestLive_cleanUpExpiredMemberships_keepsWhatCanStillComeBack(t *testing.T) 
 		t.Fatalf("reconcile: %v", err)
 	}
 
-	// Past the point it stops granting, well short of the point it is forgotten.
-	ageMembership(ctx, t, mongo, corp, account, now.Add(-planner.StaleAfter-time.Hour))
-	assertReachable(ctx, t, mongo, account, corp, false)
-
-	stale, err := mongo.CountStaleMemberships(ctx, now)
-	if err != nil {
-		t.Fatalf("CountStaleMemberships: %v", err)
-	}
-	if stale < 1 {
-		t.Errorf("stale count = %d, want the row counted", stale)
+	// Long past the deletion age as a join date, and confirmed a moment ago.
+	if _, err := mongo.PlannerMemberships.Collection().UpdateOne(ctx,
+		bson.M{"_id": planner.MembershipID(corp.Key(), account)},
+		bson.M{"$set": bson.M{
+			"joinedAt": now.Add(-eipmongo.DeleteMembershipsUnconfirmedFor - 365*24*time.Hour),
+		}}); err != nil {
+		t.Fatalf("backdate the join: %v", err)
 	}
 
 	if _, err := mongo.CleanUpExpiredMemberships(ctx, now); err != nil {
 		t.Fatalf("CleanUpExpiredMemberships: %v", err)
 	}
 	if membershipRows(ctx, t, mongo, corp, account) != 1 {
-		t.Fatal("a row that stopped granting was deleted before it could come back")
-	}
-
-	// Confirming it again restores access, which is what keeping it buys.
-	if _, _, err := mongo.ReconcileEntityMemberships(ctx, account,
-		[]models.Owner{corp}, time.Now().UTC()); err != nil {
-		t.Fatalf("reconfirm: %v", err)
+		t.Fatal("a membership confirmed a moment ago was deleted")
 	}
 	assertReachable(ctx, t, mongo, account, corp, true)
 }
 
-// Past DeleteExpiredAfter the row is housekeeping and goes.
+// Past the point the token sweep abandons an account, nothing can confirm its
+// memberships again, so the rows are removed and the access with them.
 // Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_cleanUpExpiredMemberships_deletesWhatWillNot(t *testing.T) {
+func TestLive_cleanUpExpiredMemberships_removesWhatNothingCanConfirm(t *testing.T) {
 	mongo := mongolive.Require(t)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	account := cleanupScratchAccount + "-old"
+	account := cleanupScratchAccount + "-abandoned"
 	corp := models.CorporationOwner(esiCorpRefA)
 	cleanupMemberships(t, mongo, account)
 	now := time.Now().UTC()
@@ -75,57 +67,28 @@ func TestLive_cleanUpExpiredMemberships_deletesWhatWillNot(t *testing.T) {
 	if _, _, err := mongo.ReconcileEntityMemberships(ctx, account, []models.Owner{corp}, now); err != nil {
 		t.Fatalf("reconcile: %v", err)
 	}
-	ageMembership(ctx, t, mongo, corp, account, now.Add(-eipmongo.DeleteExpiredAfter-time.Hour))
+	assertReachable(ctx, t, mongo, account, corp, true)
+
+	ageMembership(ctx, t, mongo, corp, account,
+		now.Add(-eipmongo.DeleteMembershipsUnconfirmedFor-time.Hour))
 
 	deleted, err := mongo.CleanUpExpiredMemberships(ctx, now)
 	if err != nil {
 		t.Fatalf("CleanUpExpiredMemberships: %v", err)
 	}
 	if deleted < 1 {
-		t.Errorf("deleted = %d, want the aged row removed", deleted)
+		t.Errorf("deleted = %d, want the abandoned row removed", deleted)
 	}
 	if membershipRows(ctx, t, mongo, corp, account) != 0 {
-		t.Error("a row past the cleanup window survived")
+		t.Error("a row nothing can confirm survived")
 	}
-}
-
-// An owner membership has no age at which it should go: nothing outside the
-// planner can revoke it, so it never goes stale and the cleanup must not reach it.
-// Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_cleanUpExpiredMemberships_leavesWhatNeverExpires(t *testing.T) {
-	mongo := mongolive.Require(t)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-
-	account := cleanupScratchAccount + "-owner"
-	owner := models.AccountOwner(account)
-	cleanupMemberships(t, mongo, account)
-	t.Cleanup(func() {
-		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancelCleanup()
-		_, _ = mongo.Planners.Collection().DeleteOne(cleanupCtx, bson.M{"_id": owner.Key()})
-		_, _ = mongo.PlannerSettings.Collection().DeleteOne(cleanupCtx, bson.M{"_id": owner.Key()})
-	})
-
-	// Older than every window, and never validated because there is nothing to
-	// validate it against.
-	old := time.Now().UTC().Add(-eipmongo.DeleteExpiredAfter - 365*24*time.Hour)
-	if err := mongo.EnsureAccountPlanner(ctx, account, old); err != nil {
-		t.Fatalf("EnsureAccountPlanner: %v", err)
-	}
-
-	if _, err := mongo.CleanUpExpiredMemberships(ctx, time.Now().UTC()); err != nil {
-		t.Fatalf("CleanUpExpiredMemberships: %v", err)
-	}
-	if membershipRows(ctx, t, mongo, owner, account) != 1 {
-		t.Error("the cleanup deleted a membership that never expires")
-	}
-	assertReachable(ctx, t, mongo, account, owner, true)
+	// The deletion is what ends access: there is no separate expiry.
+	assertReachable(ctx, t, mongo, account, corp, false)
 }
 
 // A row that has never been confirmed holds the zero time, which is older than
-// any cutoff. Deleting on age alone would delete it before a reconcile could ever
-// confirm it — so it stops granting, which is correct, and waits.
+// any cutoff. Deleting on age alone would remove it before a reconcile could ever
+// confirm it, so it waits.
 // Requires EIP_MONGO_PARITY_LIVE=1.
 func TestLive_cleanUpExpiredMemberships_waitsForARowNeverConfirmed(t *testing.T) {
 	mongo := mongolive.Require(t)
@@ -143,7 +106,6 @@ func TestLive_cleanUpExpiredMemberships_waitsForARowNeverConfirmed(t *testing.T)
 	// The shape a row written before validation was recorded holds.
 	ageMembership(ctx, t, mongo, corp, account, time.Time{})
 
-	assertReachable(ctx, t, mongo, account, corp, false)
 	if _, err := mongo.CleanUpExpiredMemberships(ctx, now); err != nil {
 		t.Fatalf("CleanUpExpiredMemberships: %v", err)
 	}
@@ -151,12 +113,51 @@ func TestLive_cleanUpExpiredMemberships_waitsForARowNeverConfirmed(t *testing.T)
 		t.Fatal("a row that was never confirmed was deleted before it could be")
 	}
 
-	// The next reconcile confirms it, and it grants again.
+	// The next reconcile confirms it, and it is safe from then on.
 	if _, _, err := mongo.ReconcileEntityMemberships(ctx, account,
 		[]models.Owner{corp}, time.Now().UTC()); err != nil {
 		t.Fatalf("reconfirm: %v", err)
 	}
-	assertReachable(ctx, t, mongo, account, corp, true)
+	if _, err := mongo.CleanUpExpiredMemberships(ctx, now); err != nil {
+		t.Fatalf("CleanUpExpiredMemberships after reconfirm: %v", err)
+	}
+	if membershipRows(ctx, t, mongo, corp, account) != 1 {
+		t.Error("a freshly confirmed row was deleted")
+	}
+}
+
+// An owner membership is not confirmed by anything outside the planner, so it has
+// no age at which it should go and the sweep must not reach it.
+// Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_cleanUpExpiredMemberships_leavesWhatNothingConfirms(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	account := cleanupScratchAccount + "-owner"
+	owner := models.AccountOwner(account)
+	cleanupMemberships(t, mongo, account)
+	t.Cleanup(func() {
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancelCleanup()
+		_, _ = mongo.Planners.Collection().DeleteOne(cleanupCtx, bson.M{"_id": owner.Key()})
+		_, _ = mongo.PlannerSettings.Collection().DeleteOne(cleanupCtx, bson.M{"_id": owner.Key()})
+	})
+
+	// Older than every window, and never confirmed because there is nothing to
+	// confirm it against.
+	old := time.Now().UTC().Add(-eipmongo.DeleteMembershipsUnconfirmedFor - 365*24*time.Hour)
+	if err := mongo.EnsureAccountPlanner(ctx, account, old); err != nil {
+		t.Fatalf("EnsureAccountPlanner: %v", err)
+	}
+
+	if _, err := mongo.CleanUpExpiredMemberships(ctx, time.Now().UTC()); err != nil {
+		t.Fatalf("CleanUpExpiredMemberships: %v", err)
+	}
+	if membershipRows(ctx, t, mongo, owner, account) != 1 {
+		t.Error("the cleanup deleted a membership nothing outside the planner confirms")
+	}
+	assertReachable(ctx, t, mongo, account, owner, true)
 }
 
 func ageMembership(ctx context.Context, t *testing.T, mongo *eipmongo.Mongo, owner models.Owner, account string, at time.Time) {
@@ -176,70 +177,4 @@ func membershipRows(ctx context.Context, t *testing.T, mongo *eipmongo.Mongo, ow
 		t.Fatalf("count rows: %v", err)
 	}
 	return count
-}
-
-// Every row either grants or is counted as stale, and none does both. Written
-// as separate queries the two drifted immediately: a row carrying no confirmation
-// at all granted nothing and was counted by neither, so it was invisible in both
-// directions.
-// Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_staleAndGrantingMembershipsPartitionTheRows(t *testing.T) {
-	mongo := mongolive.Require(t)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-
-	account := cleanupScratchAccount + "-partition"
-	corp := models.CorporationOwner(esiCorpRefA)
-	cleanupMemberships(t, mongo, account)
-	now := time.Now().UTC()
-
-	for _, state := range []struct {
-		name    string
-		prepare func()
-		grants  bool
-	}{
-		{"confirmed just now", func() {}, true},
-		{"confirmed too long ago", func() {
-			ageMembership(ctx, t, mongo, corp, account, now.Add(-planner.StaleAfter-time.Hour))
-		}, false},
-		{"never confirmed", func() {
-			ageMembership(ctx, t, mongo, corp, account, time.Time{})
-		}, false},
-		{"no confirmation field at all", func() {
-			if _, err := mongo.PlannerMemberships.Collection().UpdateOne(ctx,
-				bson.M{"_id": planner.MembershipID(corp.Key(), account)},
-				bson.M{"$unset": bson.M{"joinMethod.entityMember.validatedAt": ""}}); err != nil {
-				t.Fatalf("remove the confirmation: %v", err)
-			}
-		}, false},
-	} {
-		t.Run(state.name, func(t *testing.T) {
-			if _, _, err := mongo.ReconcileEntityMemberships(ctx, account,
-				[]models.Owner{corp}, now); err != nil {
-				t.Fatalf("reconcile: %v", err)
-			}
-			state.prepare()
-
-			granted, err := mongo.AccountMayReach(ctx, account, corp)
-			if err != nil {
-				t.Fatalf("AccountMayReach: %v", err)
-			}
-			if granted != state.grants {
-				t.Errorf("grants = %v, want %v", granted, state.grants)
-			}
-
-			// The row is stale exactly when it does not grant. Asked of this row
-			// rather than of the count, which is collection-wide and would be
-			// non-zero for reasons that have nothing to do with this test.
-			countedStale, err := mongo.MembershipIsStaleForTest(ctx,
-				planner.MembershipID(corp.Key(), account), now)
-			if err != nil {
-				t.Fatalf("stale lookup: %v", err)
-			}
-			if countedStale == granted {
-				t.Errorf("granting = %v and counted stale = %v: a row must be exactly one",
-					granted, countedStale)
-			}
-		})
-	}
 }

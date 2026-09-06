@@ -1311,19 +1311,76 @@ whose failure mode is losing access to your own planner rather than gaining acce
 The work that has to land **before** any planner can hold two people, because getting it wrong writes
 bad figures into an archive that then needs rebuilding.
 
-The two shared id spaces move to the planner: the extras category ids, which key
-`ArchivedJobStats.ExtraCategoryTotals`, and the job status id set, which `job.jobStatus` indexes. Both
-are described in § Settings stay with the account, along with why everything else stays personal.
+All of it is SPA work — `frontend/src/Functions/JobPlanner/` and the settings store — so it follows the
+frontend rules pair rather than the backend one, React 19 idioms included.
 
-Recalculation stops re-deriving a job's build context. `recalculateJobForNewTotal` clears
-`build.setup` and rebuilds it from the current user's blueprints, default structure and main
-character; it must instead preserve the structure, ME/TE and character of the setup being rebuilt.
-This is also a live defect on personal planners, so it stands on its own merits.
+Its test is exact and applies to every slice: **on a single-member planner, every figure must be
+identical before and after.** Nothing here is allowed to change what a job costs today.
 
-The persist gate covers the whole close cascade rather than the edited job alone, so a write cannot
-reach a related job whose lock another member holds.
+#### D1 — Recalculation keeps the job's own build context
 
-Its test is exact: on a single-member planner, every figure must be identical before and after.
+`recalculateJobForNewTotal` is thirty-seven lines and does the damage in one: it sets
+`inputJob.build.setup = {}` and rebuilds every setup from `buildSetupContextForJob`, which reads the
+**current user's** highest-ME blueprint and **their** default structure for the job type, and takes
+`characterToUse` from their main character. It never reads the setup it is replacing.
+
+The seam already exists. `buildSetupFromQuantity` takes an `overrides` argument and already prefers
+`overrides.systemID` and `overrides.characterToUse` over the derived values, and
+`buildSetupFromPresetRow` shows the full shape a preserved setup takes — ME, TE, rig, structure,
+system, character. What is missing is that recalculation passes nothing.
+
+**Which callers preserve and which derive is the whole design.** Five call it, and they are not the
+same case: building a job for the first time has no stored setup to keep, while recalculating an
+existing one does. `closeActiveJob` is the one that matters most — it recalculates every related job
+in the tree, each with its own stored setup, which is where another member's context is lost today.
+Getting this wrong in the other direction is equally bad: a genuinely new job that preserves nothing
+would inherit an empty context.
+
+**Done when** recalculating a job with a stored setup keeps its structure, ME/TE and character while
+its quantities change, a newly built job still derives them, and a single-member planner's figures are
+unchanged.
+
+#### D2 — The close gate covers what the close writes
+
+`closeActiveJob` computes one boolean, `canPersistJobClose(inputJob.jobID, groupID)`, and then writes
+`jobsToPersist` — the edited job, the temporary jobs, and `batchUpdates`, which is the parent/child
+tree `getAllRelatedJobs` collected. The gate asks about one document and the write covers many.
+
+On a personal planner the tree has one owner and the gap cannot be seen. On a shared planner another
+member holds a lock on a related job and it is written anyway.
+
+**Done when** the gate answers for every document the close will write, a close is refused when any
+related job is locked elsewhere, and a single-member close still writes exactly what it writes today.
+
+#### D3 — The two shared id spaces
+
+§ Settings stay with the account explains why only these two move and everything else stays personal.
+The plan already narrows the work more than the stage title suggests:
+
+**Extras categories need scoping, not migrating.** Their ids do not collide and never did — new ones
+are UUIDs, `0`–`5` are frozen defaults shared by every account, and there is no rename. So a shared
+planner needs to offer its own categories rather than an account's, which is a question of which list
+the picker reads. Archived rows already carry the name each category had when the job was archived, so
+nothing depends on resolving an id against a settings document.
+
+**Job statuses need the set of ids to be the planner's**, because `job.jobStatus` is a stored integer
+index: a planner with six stages for one member and five for another hides jobs at the sixth from the
+second. Whether the *labels* stay personal is the open question § Settings stay with the account
+records, not a decision this slice has to take.
+
+Both are read through accessors rather than scattered — `useJobStatuses` and the settings store's
+extras actions — which is where the scoping goes.
+
+**Done when** a planner offers its own extras categories and its own status set, an account's other
+settings are untouched, and a single-member planner sees exactly the categories and statuses it sees
+today.
+
+#### Order
+
+D1 and D2 are independent of each other and of D3; both are live defects on personal planners today
+and can land in either order. D3 is the one that only matters once a planner holds two people, and it
+is the one whose shape the plan has already narrowed most — so it is the last of the three rather than
+the first, despite being the stage's headline.
 
 ### Stage E — Custom planners
 
@@ -1486,6 +1543,6 @@ do not touch.
 | A — the owner block, in one cutover | **Ready to run.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, and the rehearsal against a restored copy of live is done. Outstanding: the window itself |
 | B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the active-planner message replacing it is Stage E work — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
-| D — what a second member breaks | Not started |
+| D — what a second member breaks | Not started; broken into three slices — D1 recalculation keeping a job's build context, D2 the close gate covering what the close writes, D3 the two shared id spaces. All SPA work; D1 and D2 are live defects on personal planners today. See § Stage D |
 | E — custom planners | Not started |
 | F — ESI providers | Not started |

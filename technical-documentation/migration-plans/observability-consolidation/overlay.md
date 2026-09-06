@@ -651,103 +651,14 @@ installed. Unregistering it under devtools → Application → Service Workers i
 The observability stack has no live topic of its own today: what exists is spread between
 [`stack/stack.md`](../../stack/stack.md) for fragment membership and the Deployment Tool's embedded
 kit for the configuration itself. On promote this project needs a topic that says what collects
-what, where it lands, and how an operator reaches it — drafted in this section first rather than
+what, where it lands, and how an operator reaches it — drafted in this folder first rather than
 written straight into the live tree.
 
-Stage J moves three things. The topic doc below becomes `stack/observability.md`; two rows join
-`stack/contents.md`; and the sample-rate row joins `stack/config.md`. Nothing else in the live tree
-changes, because fragment membership and the Grafana knobs already say what they need to.
+Stage J moves three things, drafted as their own documents rather than inline here:
 
-### Draft — `stack/observability.md`
+- [promote-observability.md](./promote-observability.md) — the new `stack/observability.md`.
+- [promote-contents.md](./promote-contents.md) — the rows Stage J adds to `stack/contents.md`,
+  `stack/config.md`, and the stale coverage claim in `testing/services/core.md`.
 
-> # Observability — collector and stores
->
-> Live SoT for the optional observability addon (fragment
-> [`docker-stack.obs.yml`](../../docker-stack.obs.yml)): image pins, what Alloy collects, where each
-> signal lands, and the retention each store keeps. Merged only when `addons.observability.enabled`.
->
-> Grafana Access / Base URL / Path → [config.md](./config.md). Overlay membership →
-> [network.md](./network.md). Fragment membership → [stack.md](./stack.md).
->
-> ## Image & defaults
->
-> | Piece | Default | Change |
-> |-------|---------|--------|
-> | Alloy image | `grafana/alloy:v1.19.2` | [`docker-stack.obs.yml`](../../docker-stack.obs.yml) `services.alloy.image` |
-> | Prometheus image | `prom/prometheus:v3.2.1` | same file, `services.prometheus.image` |
-> | Loki image | `grafana/loki:3.7.2` | same file, `services.loki.image` |
-> | Tempo image | `grafana/tempo:3.0.0` | same file, `services.tempo.image` |
-> | Grafana image | `grafana/grafana:13.2.1` | same file, `services.grafana.image` |
-> | Docker socket proxy image | `tecnativa/docker-socket-proxy:v0.4.2` | same file, `services.alloy-docker-proxy.image` |
-> | Metric retention | 15 days (Prometheus default) | [`docker-stack.obs.yml`](../../docker-stack.obs.yml) `services.prometheus.command` |
-> | Log retention | `168h` | [`kit/obs/loki/config.yaml`](../../deployment-tool/internal/kit/obs/loki/config.yaml) `limits_config.retention_period` |
-> | Trace retention | `48h` | [`kit/obs/tempo/config.yaml`](../../deployment-tool/internal/kit/obs/tempo/config.yaml) `overrides.defaults.compaction.block_retention` |
-> | Trace sample rate | `0` (nothing traces) | `.env` `TRACES_SAMPLE_RATE` — see [config.md](./config.md) |
->
-> Each store's own limits live in its kit config file, which is embedded in the Deployment Tool
-> binary and materialised as a Swarm config object.
->
-> ## What collects what
->
-> Alloy is the only collector. Nothing else scrapes, and no service writes to a store directly.
->
-> ```text
-> Producers                          Alloy                        Stores
->
-> Go services ──OTLP :4317──┐
-> Traefik (edge spans) ─────┤
->                           ├──► otelcol.receiver.otlp ──┬── metrics ──► prometheus:9090
->                           │                            ├── logs ─────► loki:3100
->                           │                            └── traces ───► tempo:4317
-> container stdout ─────────┴──► loki.source.docker ─────── logs ──────► loki:3100
->
-> redis · host · mongodb ───────► prometheus.exporter.* ──┐
-> nats-exporter:7777 ───────────► prometheus.scrape ──────┼── metrics ──► prometheus:9090
-> asynqmon:8080 ────────────────► prometheus.scrape ──────┤   (remote write)
-> seaweedfs:9327 ───────────────► prometheus.scrape ──────┘
->
-> Docker API (container discovery, log targets)
->   alloy ──► alloy-docker-proxy:2375   (CONTAINERS · NETWORKS · EVENTS, POST=0)
-> ```
->
-> Redis, host and MongoDB metrics come from exporters Alloy embeds; NATS, asynqmon and SeaweedFS are
-> scraped as separate targets because Alloy has no component for them. All of it reaches Prometheus
-> by remote write rather than by Prometheus scraping anything itself.
->
-> ## Trace sampling
->
-> Sampling is head-based and decided once at the edge: Traefik takes the decision, and the services
-> follow it. One key governs both — `TRACES_SAMPLE_RATE`, which
-> [`docker-stack.yml`](../../docker-stack.yml) passes to Traefik and to the Go services through the
-> shared `x-otel-env` anchor. Both halves are required: a service that does not receive it still
-> exports spans under a sampled request, because the parent decided, but exports nothing for the work
-> it starts itself.
->
-> ## Docker socket proxy allowlist
->
-> `eip_alloy-docker-proxy` mounts the host sock; Alloy does not. Allowlist: `CONTAINERS` +
-> `NETWORKS` + `EVENTS`, `POST=0`. `NETWORKS` is required — `discovery.docker` computes network
-> labels, and without it the Docker log scrape stops refreshing while Alloy still reports healthy.
-
-### Draft — rows for `stack/contents.md`
-
-Task map:
-
-> | Observability addon (collector, stores, retention) | [observability.md](./observability.md) |
-> | Trace sampling / what reaches Tempo | [observability.md](./observability.md) § Trace sampling |
-
-### Draft — row for `stack/config.md`
-
-The `.env` table gains the key the services and the edge share:
-
-> | `TRACES_SAMPLE_RATE` | `0` | Head sampling rate for the whole request path. Empty or unparseable → 0, which exports no spans. |
-
-### What does not move
-
-The measurement narrative in this overlay — what Tempo cost before and after, why the gauge callbacks
-were the fault, what a memory limiter would have done to metrics and logs — is migration writing and
-stays here. Live docs get the settled behaviour, not how it was arrived at.
-
-The testing coverage map at [`testing/services/core.md`](../../testing/services/core.md) says metrics
-are largely untested, which this project has made stale: the ESI bucket gauge is now covered for what
-it emits as well as what it returns. That correction belongs to Stage J as well.
+The measurement narrative above stays with the project: live docs carry the settled behaviour, not
+how it was reached.

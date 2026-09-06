@@ -40,3 +40,5 @@ currently discarded.
 | See how a part behaves after a landed stage | [overlay.md](./overlay.md) |
 | Get a change into the running stack, and verify it | [overlay.md](./overlay.md) § Operating the observability stack |
 | Check a trap before losing time to it | [overlay.md](./overlay.md) § Traps this stack has already cost time on |
+| Read the live topic this project promotes | [promote-observability.md](./promote-observability.md) |
+| See which existing live docs Stage J edits | [promote-contents.md](./promote-contents.md) |

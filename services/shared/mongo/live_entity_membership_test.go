@@ -328,3 +328,35 @@ func TestLive_plannersForAccount_writesNothing(t *testing.T) {
 		t.Error("listing created a planner document")
 	}
 }
+
+// An account already holding a row for one of EVE's own corporations loses it on
+// the next reconcile: the exclusion keeps that id out of the wanted set, and a
+// held row the set does not want is removed. Rows written before the exclusion
+// existed therefore clear themselves at the account's next login.
+// Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_reconcileEntityMemberships_clearsAnNPCCorporationRow(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	account := esiMembershipScratchAccount + "-npc"
+	corp := models.CorporationOwner(esiCorpRefA)
+	cleanupMemberships(t, mongo, account)
+	now := time.Now().UTC()
+
+	// The state the reconcile left an account in before NPC ids were excluded.
+	if _, _, err := mongo.ReconcileEntityMemberships(ctx, account, []models.Owner{corp}, now); err != nil {
+		t.Fatalf("seed the row: %v", err)
+	}
+	assertReachable(ctx, t, mongo, account, corp, true)
+
+	// The account is in nothing the reconcile will now accept.
+	_, removed, err := mongo.ReconcileEntityMemberships(ctx, account, nil, now)
+	if err != nil {
+		t.Fatalf("reconcile: %v", err)
+	}
+	if removed != 1 {
+		t.Errorf("removed = %d, want the excluded row cleared", removed)
+	}
+	assertReachable(ctx, t, mongo, account, corp, false)
+}

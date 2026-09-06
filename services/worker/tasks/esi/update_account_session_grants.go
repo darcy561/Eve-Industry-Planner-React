@@ -272,12 +272,14 @@ func retryAffiliation() httpclient.Retry {
 	return policy
 }
 
-// reconcileEntityMemberships converts the entity ids ESI reported into owner refs
-// and makes the account's entity-member rows match them.
+// reconcileEntityMemberships converts the entity ids ESI reported into owners and
+// makes the account's entity-member rows match them.
 //
-// An id that will not convert is fatal rather than skipped: the resulting set
-// would be missing an entity the account is genuinely in, and reconciling against
-// it would remove that membership.
+// The two ways an id fails to become an owner are opposite, and the difference
+// matters: one EVE reserves for its own corporations and this project has no use
+// for, which entityOwners drops deliberately; the other is a conversion that did
+// not work, which is fatal, because the resulting set would be missing an entity
+// the account is genuinely in and reconciling on it would remove that membership.
 func reconcileEntityMemberships(ctx context.Context, deps *taskrun.Dependencies, accountID string, corporations, alliances []int64) error {
 	if deps.EntityCipher == nil {
 		return fmt.Errorf("no entity cipher: cannot derive owner refs")

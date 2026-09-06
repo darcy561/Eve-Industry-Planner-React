@@ -192,7 +192,29 @@ the process ran. The traces grew huge because those spans attached to whatever t
 the reader fired.
 
 So the request rate misleads twice over: the load barely mattered, and what filled the store was a
-timer. The rule this establishes is that **collection must not be traced**. A gauge callback runs
+timer. Re-measured after the fix, over half an hour idle and then under load: the idle
+span rate is **2.5/s at about one span per trace**, against roughly thirty a second and traces of
+twenty thousand before. Idle CPU stays under 1% and the two discard counters do not move at all.
+Under 909,000 requests at ~3,800/s, CPU peaks at **36%** rather than holding a core, memory stays
+between 0.6 and 1.0 GB, and **no trace is too large to compact** — the defect does not reappear
+under the load that first exposed it. Disk shrinks as compaction reclaims rather than growing.
+
+What load does reach is `max_traces_per_user`, and it is worth knowing what that limit governs
+because the name reads like a volume cap and is not one. Tempo holds each incomplete trace in memory
+while its spans arrive and releases it once the trace is cut to a block, so the limit is on traces
+**in flight at once**, not traces stored or traces per second. It binds only when traces arrive
+faster than they complete. A synthetic hammer is the worst case for it: nearly every request was
+refused at the edge, so the load was hundreds of thousands of shallow near-empty traces, the
+in-memory set pinned at 2,000 within thirty-five seconds, and spans belonging to traces that could
+not be admitted were discarded.
+
+That shedding is the limit working — it is why CPU stayed at 36% instead of pegging a core — and
+recovery is immediate: the in-memory set falls from 2,000 to about 20 within thirty seconds of the
+load stopping, and the discard counter never moves again. But a discarded span is not a sampled-out
+trace; it is half a trace, which is worse than none. Whether 2,000 suits real traffic is not
+something a synthetic firehose can answer, since real requests make fewer and deeper traces. Leave
+it, and revisit if `tempo_discarded_spans_total{reason="live_traces_exceeded"}` moves under ordinary
+use. The rule this establishes is that **collection must not be traced**. A gauge callback runs
 forever on a fixed interval, so any client call it makes is unbounded span volume that describes no
 request. `telemetry.WithoutTracing` puts a valid but non-sampled span context on the callback's
 context; `ParentBased` honours that decision, whereas leaving the context bare lets the sampler

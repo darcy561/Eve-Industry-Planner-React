@@ -214,7 +214,25 @@ load stopping, and the discard counter never moves again. But a discarded span i
 trace; it is half a trace, which is worse than none. Whether 2,000 suits real traffic is not
 something a synthetic firehose can answer, since real requests make fewer and deeper traces. Leave
 it, and revisit if `tempo_discarded_spans_total{reason="live_traces_exceeded"}` moves under ordinary
-use. The rule this establishes is that **collection must not be traced**. A gauge callback runs
+use.
+
+Two things are worth knowing before anyone reaches for back-pressure here.
+
+**Tempo does not push back when it sheds.** `tempo_receiver_refused_spans` stayed at zero through the
+whole load: every span was accepted at the gRPC receiver, decoded and passed through the distributor,
+and only then dropped at the live store. The collector is never told to slow down, so it keeps
+forwarding work the store has already decided to bin. `ingestion.rate_limit_bytes` is the limit that
+*does* refuse at the receiver, but it never fired — 909,000 shallow traces came to 277 MB over four
+minutes, about 1.1 MB/s against a 2 MB/s cap. The load was high in trace count and low in bytes, so
+the byte limit is the wrong dimension for this failure.
+
+**A memory limiter is not available to the trace path.** `otelcol.processor.memory_limiter` works by
+refusing at the receiver, and `otelcol.receiver.otlp "apps"` is shared: it fans out to metrics, logs
+and traces alike. A trace flood tripping the limiter would return `RESOURCE_EXHAUSTED` for metrics
+and logs too, losing the dashboards and the logs at exactly the moment a spike makes them worth
+having. Anything trace-only has to sit after the fan-out — a bounded `sending_queue` on the Tempo
+exporter, or tail sampling — and neither is worth adding for a limit only a synthetic firehose has
+reached. The rule this establishes is that **collection must not be traced**. A gauge callback runs
 forever on a fixed interval, so any client call it makes is unbounded span volume that describes no
 request. `telemetry.WithoutTracing` puts a valid but non-sampled span context on the callback's
 context; `ParentBased` honours that decision, whereas leaving the context bare lets the sampler

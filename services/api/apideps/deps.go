@@ -26,12 +26,14 @@ type Deps struct {
 	// EntityCipher derives the refs that replace raw entity ids. Nil in mongo-only
 	// wiring, so handlers that write documents carrying ids must check it.
 	EntityCipher *entityid.Cipher
-	// ESI is the shared limiter, here for two reasons. Mostly for what an outage
-	// stops rather than for what it meters: EVE SSO goes down with everything
-	// else, and a caller that reports what it saw lets the rest of the fleet stop
-	// retrying into it. And for the one metered call the api makes — naming a
-	// planner reads the entity's name from a public route, once, when somebody
-	// first opens it. Nil in mongo-only wiring.
+	// ESI is the shared limiter. The api makes no metered ESI calls, so this is
+	// here for what an outage stops rather than for what it meters: EVE SSO goes
+	// down with everything else, and a caller that reports what it saw lets the
+	// rest of the fleet stop retrying into it. Nil in mongo-only wiring.
+	//
+	// Naming a planner does call ESI, on the unmetered public corporation and
+	// alliance routes. They disclose no rate-limit group, so the client learns
+	// none and charges the call to nothing.
 	ESI esiclient.API
 	// Maintenance is the live maintenance flag. Nil in mongo-only wiring, which reads as off.
 	Maintenance *appconfig.MaintenanceFlag

@@ -2,7 +2,9 @@
 //
 // Both routes are public — no token, no scope — so this needs nothing an
 // authenticated caller would have to supply, and a server can name an entity it
-// has only an id for.
+// has only an id for. They are unmetered too: neither discloses a rate-limit
+// group, so the client learns none and the call is charged to nothing, which is
+// what makes it reasonable on a request path.
 package entitynames
 
 import (

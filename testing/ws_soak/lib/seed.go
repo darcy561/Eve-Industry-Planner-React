@@ -101,17 +101,25 @@ func seedSessions(ctx context.Context, rdb *redis.Client, ids []clientIdentity) 
 		}
 		if !seenAcct[id.AccountID] {
 			seenAcct[id.AccountID] = true
-			if id.CorpID != 0 || id.AllianceID != 0 {
-				var corps, alliances []int64
-				if id.CorpID != 0 {
-					corps = []int64{id.CorpID}
+			// Grants are owner keys the callers resolve from membership rows. The
+			// soak has no Mongo, so it seeds the keys those rows would produce.
+			granted := models.NewOwnerKeys().Add(models.AccountOwner(id.AccountID))
+			if id.CorpID != 0 {
+				ref, err := entityCipher.Corporation(id.CorpID)
+				if err != nil {
+					return fmt.Errorf("seed corporation ref %s: %w", id.AccountID, err)
 				}
-				if id.AllianceID != 0 {
-					alliances = []int64{id.AllianceID}
+				granted = granted.Add(models.CorporationOwner(ref))
+			}
+			if id.AllianceID != 0 {
+				ref, err := entityCipher.Alliance(id.AllianceID)
+				if err != nil {
+					return fmt.Errorf("seed alliance ref %s: %w", id.AccountID, err)
 				}
-				if err := apihelperauth.UpdateAccountSessionGrants(ctx, rdb, entityCipher, id.AccountID, corps, alliances); err != nil {
-					return fmt.Errorf("seed grants %s: %w", id.AccountID, err)
-				}
+				granted = granted.Add(models.AllianceOwner(ref))
+			}
+			if err := apihelperauth.UpdateAccountSessionGrants(ctx, rdb, id.AccountID, granted); err != nil {
+				return fmt.Errorf("seed grants %s: %w", id.AccountID, err)
 			}
 		}
 	}

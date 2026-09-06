@@ -68,7 +68,8 @@ func (h *Handlers) GetTimelineItemsHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	accountID := helper.AuthenticatedAccountID(r)
-	if !requireOwnedBySession(w, r, metrics, "statistics_timeline_items", accountID) {
+
+	if !requireOwnedBySession(ctx, w, r, h.Mongo, metrics, "statistics_timeline_items", accountID) {
 		return
 	}
 

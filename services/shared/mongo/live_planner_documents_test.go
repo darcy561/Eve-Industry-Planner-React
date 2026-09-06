@@ -230,3 +230,80 @@ func TestLive_ensureAccountPlanner_repairsEitherHalfAlone(t *testing.T) {
 		t.Fatalf("membership rows = %d, want the surviving row not to be duplicated", rows)
 	}
 }
+
+// Grants come from membership rows, so what an account may reach is exactly the
+// planners it holds a row for — and an owner it holds no row for is refused even
+// while its session's cached grants might still name it.
+// Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_ownerKeysForAccount_areTheAccountsMemberships(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	const accountID = "eip-parity-grants-account"
+	ownPlanner := models.AccountOwner(accountID).Key()
+	sharedPlanner := "planner:01HZY6R3QK7T9V2M4N8P0XW5AB"
+	sharedRow := models.PlannerMembershipID(sharedPlanner, accountID)
+
+	t.Cleanup(func() {
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancelCleanup()
+		_, _ = mongo.Planners.Collection().DeleteMany(cleanupCtx, bson.M{"_id": ownPlanner})
+		_, _ = mongo.PlannerMemberships.Collection().DeleteMany(cleanupCtx, bson.M{"accountID": accountID})
+	})
+
+	if err := mongo.EnsureAccountPlanner(ctx, accountID, time.Now().UTC()); err != nil {
+		t.Fatalf("create own planner: %v", err)
+	}
+
+	granted, err := mongo.OwnerKeysForAccount(ctx, accountID)
+	if err != nil {
+		t.Fatalf("OwnerKeysForAccount: %v", err)
+	}
+	if !granted.Has(models.AccountOwner(accountID)) {
+		t.Fatalf("granted = %v, want the account's own planner", granted)
+	}
+	if len(granted) != 1 {
+		t.Fatalf("granted = %v, want only the account's own planner", granted)
+	}
+
+	// A membership in someone else's planner is a grant; nothing else changes.
+	if _, err := mongo.PlannerMemberships.Collection().InsertOne(ctx, bson.M{
+		"_id":           sharedRow,
+		"schemaVersion": models.PlannerMembershipSchemaCurrent,
+		"plannerID":     sharedPlanner,
+		"accountID":     accountID,
+		"joinedAt":      time.Now().UTC(),
+		"joinMethod":    bson.M{"invite": bson.M{"invitedBy": "someone", "issuedAt": time.Now().UTC()}},
+	}); err != nil {
+		t.Fatalf("join shared planner: %v", err)
+	}
+
+	granted, err = mongo.OwnerKeysForAccount(ctx, accountID)
+	if err != nil {
+		t.Fatalf("OwnerKeysForAccount after join: %v", err)
+	}
+	if len(granted) != 2 {
+		t.Fatalf("granted = %v, want the account's own planner and the shared one", granted)
+	}
+
+	// The authorisation point reads the rows, not a cached grant list, so removing
+	// the row refuses the owner immediately.
+	mayReach, err := mongo.AccountMayReach(ctx, accountID, models.Owner{Kind: models.OwnerPlanner, ID: "01HZY6R3QK7T9V2M4N8P0XW5AB"})
+	if err != nil {
+		t.Fatalf("AccountMayReach: %v", err)
+	}
+	if !mayReach {
+		t.Fatal("a member must reach the planner it holds a row for")
+	}
+	if _, err := mongo.PlannerMemberships.Collection().DeleteOne(ctx, bson.M{"_id": sharedRow}); err != nil {
+		t.Fatalf("leave shared planner: %v", err)
+	}
+	mayReach, err = mongo.AccountMayReach(ctx, accountID, models.Owner{Kind: models.OwnerPlanner, ID: "01HZY6R3QK7T9V2M4N8P0XW5AB"})
+	if err != nil {
+		t.Fatalf("AccountMayReach after leave: %v", err)
+	}
+	if mayReach {
+		t.Fatal("a removed member must be refused on the next read, not at the next login")
+	}
+}

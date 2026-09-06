@@ -35,7 +35,7 @@ func TestSaveAccountSessionsRecord_CASRejectsStaleWrite(t *testing.T) {
 	}
 	staleCAS := accountSessionsCASFromRecord(loaded, exists)
 
-	if err := UpdateAccountSessionGrants(ctx, rdb, keys.EntityCipher(t), accountID, []int64{1}, nil); err != nil {
+	if err := UpdateAccountSessionGrants(ctx, rdb, accountID, grantsFor(t, accountID, []int64{1}, nil)); err != nil {
 		t.Fatalf("grants bump: %v", err)
 	}
 
@@ -96,7 +96,7 @@ func TestConcurrentGrantsUpdatesAreNotLost(t *testing.T) {
 			go func() {
 				defer wg.Done()
 				<-start
-				errCh <- UpdateAccountSessionGrants(ctx, rdb, keys.EntityCipher(t), accountID, []int64{corp}, nil)
+				errCh <- UpdateAccountSessionGrants(ctx, rdb, accountID, grantsFor(t, accountID, []int64{corp}, nil))
 			}()
 		}
 
@@ -149,7 +149,7 @@ func TestConcurrentUpsertAndGrantsPreservesSession(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		time.Sleep(2 * time.Millisecond)
-		errCh <- UpdateAccountSessionGrants(ctx, rdb, keys.EntityCipher(t), accountID, []int64{100}, []int64{200})
+		errCh <- UpdateAccountSessionGrants(ctx, rdb, accountID, grantsFor(t, accountID, []int64{100}, []int64{200}))
 	}()
 
 	wg.Wait()
@@ -208,7 +208,7 @@ func TestSessionGrantsStoreRefsNotIDs(t *testing.T) {
 	rdb := redisfake.New(t).Client
 
 	const accountID = "acct-refs"
-	if err := UpdateAccountSessionGrants(ctx, rdb, keys.EntityCipher(t), accountID, []int64{98765432}, []int64{99000001}); err != nil {
+	if err := UpdateAccountSessionGrants(ctx, rdb, accountID, grantsFor(t, accountID, []int64{98765432}, []int64{99000001})); err != nil {
 		t.Fatalf("UpdateAccountSessionGrants: %v", err)
 	}
 
@@ -237,7 +237,7 @@ func TestSessionGrantsAlwaysIncludeTheAccountsOwnKey(t *testing.T) {
 	rdb := redisfake.New(t).Client
 
 	const accountID = "acct-self-grant"
-	if err := UpdateAccountSessionGrants(ctx, rdb, keys.EntityCipher(t), accountID, nil, nil); err != nil {
+	if err := UpdateAccountSessionGrants(ctx, rdb, accountID, grantsFor(t, accountID, nil, nil)); err != nil {
 		t.Fatalf("UpdateAccountSessionGrants: %v", err)
 	}
 
@@ -257,7 +257,7 @@ func TestSessionGrantsKeepKindWithTheID(t *testing.T) {
 	rdb := redisfake.New(t).Client
 
 	const accountID = "acct-kinded"
-	if err := UpdateAccountSessionGrants(ctx, rdb, keys.EntityCipher(t), accountID, []int64{100}, []int64{200}); err != nil {
+	if err := UpdateAccountSessionGrants(ctx, rdb, accountID, grantsFor(t, accountID, []int64{100}, []int64{200})); err != nil {
 		t.Fatalf("UpdateAccountSessionGrants: %v", err)
 	}
 
@@ -272,4 +272,27 @@ func TestSessionGrantsKeepKindWithTheID(t *testing.T) {
 	if !rec.Grants.Allows(models.CorporationOwner(corp)) {
 		t.Fatalf("grants = %v, want the corporation key", rec.Grants.OwnerKeys)
 	}
+}
+
+// grantsFor builds the owner keys a session holds, the way the callers do: the
+// account's own planner plus one per organisation it is a member of.
+func grantsFor(t *testing.T, accountID string, corpIDs, allianceIDs []int64) models.OwnerKeys {
+	t.Helper()
+	cipher := keys.EntityCipher(t)
+	granted := models.NewOwnerKeys().Add(models.AccountOwner(accountID))
+	for _, id := range corpIDs {
+		ref, err := cipher.Corporation(id)
+		if err != nil {
+			t.Fatalf("corporation ref for %d: %v", id, err)
+		}
+		granted = granted.Add(models.CorporationOwner(ref))
+	}
+	for _, id := range allianceIDs {
+		ref, err := cipher.Alliance(id)
+		if err != nil {
+			t.Fatalf("alliance ref for %d: %v", id, err)
+		}
+		granted = granted.Add(models.AllianceOwner(ref))
+	}
+	return granted
 }

@@ -142,11 +142,15 @@ func RefreshAccountSessionGrants(ctx context.Context, request eipnats.AccountSes
 			"error", err)
 		return fmt.Errorf("failed to store alliances: %w", err)
 	}
-	entityCipher := deps.EntityCipher
-	if entityCipher == nil {
-		return fmt.Errorf("entity ref helper is required")
-	}
-	if err := auth.UpdateAccountSessionGrants(ctx, deps.Redis, entityCipher, request.AccountID, allCorporations, allAlliances); err != nil {
+	// The corporation and alliance ids above still drive ESI-sourced membership;
+	// what a session may reach is the rows that membership produces, so the grants
+	// are resolved from those rather than from the ids directly.
+	granted, err := deps.Mongo.OwnerKeysForAccount(ctx, request.AccountID)
+	if err != nil {
+		logs.WarnCtx(ctx, "failed to resolve owners for session grants",
+			"account_id", request.AccountID,
+			"error", err)
+	} else if err := auth.UpdateAccountSessionGrants(ctx, deps.Redis, request.AccountID, granted); err != nil {
 		logs.WarnCtx(ctx, "failed to update account session grants from affiliation lookup",
 			"account_id", request.AccountID,
 			"error", err)

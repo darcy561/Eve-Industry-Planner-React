@@ -201,7 +201,27 @@ has not logged in or refreshed since the release would otherwise have none at th
 planner id is the owner key those documents gain there, and precedes the grants rewrite, which reads
 the membership rows it writes. A test asserts that order rather than leaving it to a comment.
 
-Owed by the remaining slices: membership as the source of grants, and subscriptions by owner.
+**Membership decides what a session may reach.** `UpdateAccountSessionGrants` no longer converts ESI
+ids: it takes the owner keys its caller resolved and writes them. The keys come from
+`Mongo.OwnerKeysForAccount`, one query over the account's membership rows, and a planner id is already
+an owner key so nothing is converted on the way.
+
+The session package stayed Redis-only. Putting the membership query in each of the three callers would
+have written it three times, one of them in another service; putting it in `auth` would have given a
+package that holds sessions and tokens a database. It lives beside the planner writer instead, and the
+entity cipher left `auth` entirely along with the id conversion.
+
+**Authorisation reads the rows, not the grants.** Grants live as long as a session, so an account
+removed from a planner a moment ago still holds one. The statistics route asks
+`Mongo.AccountMayReach`, which reads the membership row, so a removal is refused on the next request
+rather than at the next login — which is what § Losing access requires. Grants remain the routing
+ceiling the websocket derives its scopes from, where being a session-lifetime cache is correct.
+
+An account reading its own statistics is answered without a lookup: it holds that membership by
+construction, and answering it before the database is consulted keeps the refusal of every other owner
+independent of whether Mongo is reachable.
+
+Owed by the remaining slice: subscriptions by owner.
 
 Owed here: the planner document, the membership document, their indexes, how a roster is kept current
 per provider, how the account planner is created, what the roster endpoints refuse, and where the

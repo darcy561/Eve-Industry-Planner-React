@@ -7,9 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"maps"
 	"regexp"
-	"slices"
 	"strings"
 	"time"
 
@@ -19,9 +17,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
-
-	"eve-industry-planner/shared/crypto/entityid"
-	"eve-industry-planner/shared/protectedfields"
 )
 
 var ErrRefreshTokenNotFound = errors.New("refresh token not found")
@@ -689,26 +684,13 @@ func TouchAccountSession(ctx context.Context, redisClient *redis.Client, account
 	})
 }
 
-// UpdateAccountSessionGrants is where organisation ids enter a session, and so is
-// where they are converted. Callers pass the ids they hold from ESI; only refs are
-// stored, and everything downstream — websocket scopes, tenant keys, logs — sees
-// refs alone.
+// UpdateAccountSessionGrants writes the owners a session may reach onto its
+// record and every session under it.
 //
-// The account's own key is always granted, so nothing downstream special-cases it.
-func UpdateAccountSessionGrants(ctx context.Context, redisClient *redis.Client, refs *entityid.Cipher, accountID string, corpIDs, allianceIDs []int64) error {
-	corpRefs, err := protectedfields.ValuesForIDs64(refs, protectedfields.KindCorp, corpIDs)
-	if err != nil {
-		return fmt.Errorf("derive corporation refs for session grants: %w", err)
-	}
-	allianceRefs, err := protectedfields.ValuesForIDs64(refs, protectedfields.KindAlliance, allianceIDs)
-	if err != nil {
-		return fmt.Errorf("derive alliance refs for session grants: %w", err)
-	}
-
-	granted := models.NewOwnerKeys().
-		Add(models.AccountOwner(accountID)).
-		AddRefs(models.OwnerCorporation, slices.Collect(maps.Values(corpRefs))).
-		AddRefs(models.OwnerAlliance, slices.Collect(maps.Values(allianceRefs)))
-
+// The keys are resolved by the caller, from the account's membership rows. This
+// package holds sessions, tokens and grants in Redis and reads no database; a
+// membership query here would give it one, and the same query would then have two
+// homes. It writes what it is given.
+func UpdateAccountSessionGrants(ctx context.Context, redisClient *redis.Client, accountID string, granted models.OwnerKeys) error {
 	return setAccountSessionGrants(ctx, redisClient, accountID, models.SessionGrants{OwnerKeys: granted.Normalized()})
 }

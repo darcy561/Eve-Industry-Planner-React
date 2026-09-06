@@ -160,7 +160,11 @@ func (f *integFixture) seedSession(accountID, sessionID string) {
 func (f *integFixture) seedSessionWithGrants(accountID, sessionID string, corps, alliances []int64) {
 	f.t.Helper()
 	f.seedSession(accountID, sessionID)
-	if err := apihelperauth.UpdateAccountSessionGrants(context.Background(), f.Redis, keys.EntityCipher(f.t), accountID, corps, alliances); err != nil {
+	granted := models.NewOwnerKeys().Add(models.AccountOwner(accountID))
+	for _, ref := range wsTestOrgRefs(f.t, corps, alliances) {
+		granted = append(granted, ref)
+	}
+	if err := apihelperauth.UpdateAccountSessionGrants(context.Background(), f.Redis, accountID, granted); err != nil {
 		f.t.Fatalf("seedSession grants: %v", err)
 	}
 }
@@ -447,3 +451,17 @@ const (
 	wsTestCorpRefValue     = "corp_56_J_DzQdPpjXwi9Xtp3C8bri9Bfi0Z94qUulkbKCac"
 	wsTestAllianceRefValue = "alliance_DWc0i6y_cTAGa4QSZWC0S94Zm7vUclxiUNHlNPthzvc"
 )
+
+// wsTestOrgRefs renders corporation and alliance ids as the owner keys a session
+// would hold for them.
+func wsTestOrgRefs(t *testing.T, corps, alliances []int64) models.OwnerKeys {
+	t.Helper()
+	var out models.OwnerKeys
+	for _, id := range corps {
+		out = out.Add(models.CorporationOwner(wsTestCorpRef(t, id)))
+	}
+	for _, id := range alliances {
+		out = out.Add(models.AllianceOwner(wsTestAllianceRef(t, id)))
+	}
+	return out
+}

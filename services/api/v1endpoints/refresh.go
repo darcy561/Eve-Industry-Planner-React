@@ -327,7 +327,11 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 		sessionMetrics.Continued.WithLabelValues(sessionFlow).Inc(ctx)
 	}
 	sessionMetrics.Stored.WithLabelValues(sessionFlow).Inc(ctx)
-	if err := auth.UpdateAccountSessionGrants(ctx, rdb, a.EntityCipher, tokenData.AccountID, corporations, alliances); err != nil {
+	if granted, err := mongo.OwnerKeysForAccount(ctx, tokenData.AccountID); err != nil {
+		logs.AttachHandlerCaveat(r, "account_session_grants_resolve_failed", "failed to resolve owners for session grants", map[string]any{
+			"error": err.Error(),
+		})
+	} else if err := auth.UpdateAccountSessionGrants(ctx, rdb, tokenData.AccountID, granted); err != nil {
 		logs.AttachHandlerCaveat(r, "account_session_grants_update_failed", "failed to update account session grants", map[string]any{
 			"error": err.Error(),
 		})

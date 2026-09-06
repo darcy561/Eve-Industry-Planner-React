@@ -167,7 +167,11 @@ func (a *Handlers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 	sessionMetrics.Started.WithLabelValues("login").Inc(ctx)
 	sessionMetrics.Stored.WithLabelValues("login").Inc(ctx)
 	apimetrics.RecordAuthSessionDistinctAccount(ctx, rdb, accountID)
-	if err := auth.UpdateAccountSessionGrants(ctx, rdb, a.EntityCipher, accountID, corporations, alliances); err != nil {
+	if granted, err := mongo.OwnerKeysForAccount(ctx, accountID); err != nil {
+		logs.AttachHandlerCaveat(r, "account_session_grants_resolve_failed", "failed to resolve owners for session grants", map[string]any{
+			"error": err.Error(),
+		})
+	} else if err := auth.UpdateAccountSessionGrants(ctx, rdb, accountID, granted); err != nil {
 		logs.AttachHandlerCaveat(r, "account_session_grants_update_failed", "failed to update account session grants", map[string]any{
 			"error": err.Error(),
 		})

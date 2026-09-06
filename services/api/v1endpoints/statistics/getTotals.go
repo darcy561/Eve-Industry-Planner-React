@@ -53,7 +53,8 @@ func (h *Handlers) GetTotalsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	accountID := helper.AuthenticatedAccountID(r)
-	if !requireOwnedBySession(w, r, metrics, "statistics_totals", accountID) {
+
+	if !requireOwnedBySession(ctx, w, r, h.Mongo, metrics, "statistics_totals", accountID) {
 		return
 	}
 

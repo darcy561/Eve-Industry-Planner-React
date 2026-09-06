@@ -92,8 +92,9 @@ func connect(t *testing.T, what string, dialFn func() (*eipmongo.Mongo, error)) 
 	return mongo
 }
 
-// ScratchAccount clears every archive, statistics and planner document an
-// account owns, now and when the test ends.
+// ScratchAccount clears every document an account owns — its own row and
+// settings, its archive and statistics, and its planner, membership and planner
+// settings — now and when the test ends.
 //
 // Both ends, because a run that died before its cleanup would otherwise leave
 // rows that the next run reads as its own. The account id is the caller's to
@@ -122,6 +123,14 @@ func ScratchAccount(t *testing.T, mongo *eipmongo.Mongo, accountID string) {
 			{mongo.Groups, scope},
 			{mongo.StatisticsRebuildQueue, owner},
 			{mongo.StatisticsReconcileRota, owner},
+			// The planner and its settings are keyed by the owner key; a
+			// membership row is keyed by the planner and the account together, so
+			// it is cleared on the planner it belongs to.
+			{mongo.Planners, owner},
+			{mongo.PlannerSettings, owner},
+			{mongo.PlannerMemberships, bson.M{"plannerID": models.AccountOwner(accountID).Key()}},
+			{mongo.Users, bson.M{"_id": accountID}},
+			{mongo.ApplicationSettings, bson.M{"_id": accountID}},
 		} {
 			if target.docs == nil {
 				continue

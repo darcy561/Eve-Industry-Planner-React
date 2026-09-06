@@ -7,9 +7,9 @@ import (
 	"eve-industry-planner/shared/telemetry"
 	"eve-industry-planner/websocket/server/doclocklogic"
 
-	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"uuid"
 )
 
 type wsMessageIDKey struct{}
@@ -54,7 +54,7 @@ func beginWSMessageOperation(client *Client, messageType string, msg []byte) (co
 	parent := client.LogContext()
 	ctx := logs.BeginIsolatedOperationContext(parent)
 
-	messageID := uuid.NewString()
+	messageID := uuid.New().String()
 	ctx = context.WithValue(ctx, wsMessageIDKey{}, messageID)
 
 	attrs := []attribute.KeyValue{

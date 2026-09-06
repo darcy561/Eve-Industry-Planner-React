@@ -50,8 +50,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"uuid"
 
 	"eve-industry-planner/shared/container"
 	"eve-industry-planner/shared/logs"
@@ -157,7 +157,7 @@ return 0
 // resurrected process can't accidentally refresh its own (now-expired)
 // stale lease.
 func InstanceID() string {
-	return container.ID() + ":" + strings.TrimSpace(uuid.NewString())
+	return container.ID() + ":" + strings.TrimSpace(uuid.New().String())
 }
 
 // RunWhileHeld blocks until ctx is cancelled. It acquires the named lease,

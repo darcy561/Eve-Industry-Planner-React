@@ -14,8 +14,8 @@ import (
 	"eve-industry-planner/shared/logs"
 
 	"github.com/getsentry/sentry-go"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"uuid"
 )
 
 // RequestLoggingConstructor attaches a request-scoped *zap.Logger (trace_id/span_id, request_id, method, path, ip)
@@ -36,7 +36,7 @@ func RequestLoggingConstructor() MiddlewareConstructor {
 
 			rid := strings.TrimSpace(r.Header.Get("X-Request-ID"))
 			if rid == "" {
-				rid = uuid.NewString()
+				rid = uuid.New().String()
 			}
 			ctx = logs.WithRequestID(ctx, rid)
 			reqFields := append(logs.TraceLogFields(ctx),

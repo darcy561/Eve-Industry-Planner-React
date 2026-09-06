@@ -15,10 +15,10 @@ import (
 	"eve-industry-planner/shared/mongo/writers"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 
-	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	mongodriver "go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"uuid"
 )
 
 type Handlers struct {
@@ -225,7 +225,7 @@ func (h *Handlers) PostTemplateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	tid := body.TemplateID
 	if tid == "" {
-		tid = "tpl-" + uuid.NewString()
+		tid = "tpl-" + uuid.New().String()
 	}
 	if err := normalizeAndValidatePayload(&body.Payload, tid, accountID); err != nil {
 		metrics.Error("validation_error")

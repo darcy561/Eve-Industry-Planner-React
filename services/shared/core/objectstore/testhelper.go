@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
+	"uuid"
 )
 
 // OpenTestStore opens the test bucket with a unique key prefix.
@@ -32,7 +32,7 @@ func OpenTestStore(t *testing.T) Backend {
 		t.Skip("S3_ACCESS_KEY / S3_SECRET_KEY not set")
 	}
 
-	prefix := fmt.Sprintf("testrun-%s/", uuid.NewString())
+	prefix := fmt.Sprintf("testrun-%s/", uuid.New().String())
 	b, err := open(ctx, dialConfig{
 		Endpoint:     endpoint,
 		AccessKey:    access,

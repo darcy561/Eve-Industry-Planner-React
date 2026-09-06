@@ -2,8 +2,6 @@ package auth
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,8 +13,8 @@ import (
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/models"
 
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"uuid"
 )
 
 var ErrRefreshTokenNotFound = errors.New("refresh token not found")
@@ -113,19 +111,13 @@ type AccountSessionsRecord struct {
 	UpdatedAt     time.Time                 `json:"updated_at"`
 }
 
-// GenerateRefreshToken generates a secure random refresh token
+// GenerateRefreshToken generates a secure random refresh token.
+//
+// The error is kept in the signature for its callers, which handle one either
+// way; the standard library's UUID generation does not return one, so there is
+// nothing here that can fail.
 func GenerateRefreshToken() (string, error) {
-	// Generate a UUID for the token
-	u, err := uuid.NewRandom()
-	if err != nil {
-		// Fallback to random bytes if UUID fails
-		bytes := make([]byte, 32)
-		if _, err := rand.Reader.Read(bytes); err != nil {
-			return "", fmt.Errorf("failed to generate refresh token: %w", err)
-		}
-		return base64.URLEncoding.EncodeToString(bytes), nil
-	}
-	return u.String(), nil
+	return uuid.New().String(), nil
 }
 
 // GenerateSessionID generates a session identifier.

@@ -37,6 +37,9 @@ x-nats-env: &nats-env
 # leaves every service retrying a name that resolves to nothing.
 x-otel-env: &otel-env
   OBSERVABILITY_ENABLED: ${EIP_OBSERVABILITY_ENABLED:-false}
+  # Same rate as the edge. Requests inherit Traefik's decision; this governs the spans
+  # a service starts itself, which have no parent to follow.
+  TRACES_SAMPLE_RATE: ${TRACES_SAMPLE_RATE:-0}
 
 # Logging knobs apply with or without the observability addon: LOG_LEVEL is the floor the process
 # emits at, LOG_STDOUT mirrors structured logs to stdout (unset falls back to ENVIRONMENT).

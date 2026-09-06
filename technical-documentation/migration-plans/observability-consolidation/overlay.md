@@ -139,6 +139,13 @@ build argument that fed it in the five Go service Dockerfiles and their bake tar
 
 Nothing traces until the rate is raised: it defaults to 0, which exports no spans.
 
+`docker-stack.yml` passes the key to the Go services through the shared `x-otel-env` anchor as well
+as to Traefik. Both halves are needed and the failure of the service half is partly hidden: with
+`ParentBased`, a request arriving through Traefik carries a sampled parent and its spans export
+correctly, so edge traces look healthy while every span a service starts for itself — cron jobs,
+NATS consumers, anything without an inbound parent — falls to the ratio sampler at zero and is never
+exported.
+
 **Tempo stores them.** `otelcol.exporter.debug "discard_traces"` is gone; the trace pipeline ends at
 `otelcol.exporter.otlp "tempo"` against `tempo:4317`. Traefik's edge spans arrive on that same
 pipeline, which is what puts an edge span and the service spans it precedes on one trace. Grafana
@@ -164,6 +171,30 @@ was never overridden.
 Measured before adopting, on the pinned image with that config: **28 MB and 0.3% CPU idle**, flat
 across five minutes. The store this project rejected idled at 1.2 GB, so the concern that prompted
 the measurement does not repeat here.
+
+### Under load, the cost is span shape rather than request volume
+
+Measured at `TRACES_SAMPLE_RATE=0.1` against 538,000 edge requests over three minutes (~3,000 rps).
+Tempo took 218,000 spans across 39,000 traces and never refused one: `tempo_receiver_refused_spans`
+stayed at zero and the ingest limits were never the binding constraint.
+
+The cost came from a few traces, not from the many. Average depth was under six spans, but the cron
+handlers in `core` produce traces of **twenty thousand spans and more** — one `scheduler.run` root
+fans out into every Mongo query, Redis call and ESI request the job makes, and they all land on one
+trace. Those traces exceed `max_bytes_per_trace`, and the work of repeatedly assembling and failing
+to compact them is what costs: Tempo held **a full core for about six minutes** and grew to
+**2.5 GB**, and both continued well after the last request. Idle CPU only returned once the backlog
+of oversized traces cleared. 121,000 spans were dropped as `live_traces_exceeded` and 94,000 as
+`trace_too_large_to_compact`.
+
+So the idle figure and the request rate both mislead. A background job that fans out is worth more
+to Tempo than thousands of HTTP requests, and the limit that binds first is the per-trace size, not
+ingest bandwidth. Raising the sample rate multiplies the small traces harmlessly and multiplies the
+large ones expensively.
+
+This is span shape rather than a Tempo fault, and it is [Stage G](./plan.md)'s subject: a fanned-out
+cron job wants a span per unit of work with its own trace, linked to the parent, rather than one
+trace that grows for the length of the run.
 
 Tempo v3.0.0 renamed the sections these limits live in — `ingester` became `live_store` and
 `compactor` split into `block_builder` and `backend_scheduler` — so a config written against older

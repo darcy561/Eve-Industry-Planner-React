@@ -12,10 +12,10 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-const plannerScratchAccount = "eip-parity-plannerDoc-account"
+const plannerScratchAccount = "eip-parity-planner-account"
 
-// A plannerDoc and its membership row have to survive a write and a read: the owner
-// key is the plannerDoc's _id, and the membership's _id is composed from it, so a
+// A planner and its membership row have to survive a write and a read: the owner
+// key is the planner's _id, and the membership's _id is composed from it, so a
 // separator or an encoding fault shows up here rather than at the backfill.
 // Requires EIP_MONGO_PARITY_LIVE=1.
 func TestLive_plannerAndMembership_roundTrip(t *testing.T) {
@@ -43,7 +43,7 @@ func TestLive_plannerAndMembership_roundTrip(t *testing.T) {
 	}
 	plannerDoc.MetaData.Owner = owner
 	if _, err := mongo.Planners.UpsertStructPreservingMeta(ctx, plannerDoc, plannerDoc.ID); err != nil {
-		t.Fatalf("write plannerDoc: %v", err)
+		t.Fatalf("write planner: %v", err)
 	}
 
 	membership := planner.Membership{
@@ -63,17 +63,17 @@ func TestLive_plannerAndMembership_roundTrip(t *testing.T) {
 
 	var readBack planner.Planner
 	if err := mongo.Planners.Collection().FindOne(ctx, bson.M{"_id": plannerID}).Decode(&readBack); err != nil {
-		t.Fatalf("read plannerDoc: %v", err)
+		t.Fatalf("read planner: %v", err)
 	}
 	gotOwner, err := readBack.Owner()
 	if err != nil {
-		t.Fatalf("plannerDoc id does not parse as an owner: %v", err)
+		t.Fatalf("planner id does not parse as an owner: %v", err)
 	}
 	if gotOwner != owner {
 		t.Fatalf("owner from stored id = %v, want %v", gotOwner, owner)
 	}
 	if readBack.Shared() {
-		t.Fatal("a one-member plannerDoc must not report as shared")
+		t.Fatal("a one-member planner must not report as shared")
 	}
 
 	var storedMembership planner.Membership
@@ -131,12 +131,12 @@ func TestLive_ensureAccountPlanner_isInsertOnly(t *testing.T) {
 		t.Fatalf("planners holding %s after create = %d (err %v), want one", plannerID, held, err)
 	}
 
-	// The account renames its plannerDoc, as it is entitled to.
+	// The account renames its planner, as it is entitled to.
 	if _, err := mongo.Planners.Collection().UpdateOne(ctx,
 		bson.M{"_id": plannerID},
 		bson.M{"$set": bson.M{"name": "Renamed by its owner"}},
 	); err != nil {
-		t.Fatalf("rename plannerDoc: %v", err)
+		t.Fatalf("rename planner: %v", err)
 	}
 
 	if err := mongo.EnsureAccountPlanner(ctx, accountID, now.Add(time.Hour)); err != nil {
@@ -145,10 +145,10 @@ func TestLive_ensureAccountPlanner_isInsertOnly(t *testing.T) {
 
 	var readBack planner.Planner
 	if err := mongo.Planners.Collection().FindOne(ctx, bson.M{"_id": plannerID}).Decode(&readBack); err != nil {
-		t.Fatalf("read plannerDoc: %v", err)
+		t.Fatalf("read planner: %v", err)
 	}
 	if readBack.Name != "Renamed by its owner" {
-		t.Fatalf("plannerDoc name = %q, want the rename to survive a repeat call", readBack.Name)
+		t.Fatalf("planner name = %q, want the rename to survive a repeat call", readBack.Name)
 	}
 
 	rows, err := mongo.PlannerMemberships.Collection().CountDocuments(ctx, bson.M{"plannerID": plannerID})
@@ -160,9 +160,9 @@ func TestLive_ensureAccountPlanner_isInsertOnly(t *testing.T) {
 	}
 }
 
-// Each half is repaired on its own. A plannerDoc whose membership row was deleted
-// regains the row, and a membership row whose plannerDoc was deleted regains the
-// plannerDoc — so a bad delete heals on the account's next login or refresh rather
+// Each half is repaired on its own. A planner whose membership row was deleted
+// regains the row, and a membership row whose planner was deleted regains the
+// planner — so a bad delete heals on the account's next login or refresh rather
 // than needing a command run against it. Requires EIP_MONGO_PARITY_LIVE=1.
 func TestLive_ensureAccountPlanner_repairsEitherHalfAlone(t *testing.T) {
 	mongo := mongolive.Require(t)
@@ -185,11 +185,11 @@ func TestLive_ensureAccountPlanner_repairsEitherHalfAlone(t *testing.T) {
 		t.Fatalf("create: %v", err)
 	}
 
-	// The membership row goes; the plannerDoc stays and keeps a rename, so the repair
+	// The membership row goes; the planner stays and keeps a rename, so the repair
 	// is visibly restoring the missing half rather than rewriting the pair.
 	if _, err := mongo.Planners.Collection().UpdateOne(ctx,
 		bson.M{"_id": plannerID}, bson.M{"$set": bson.M{"name": "Kept through the repair"}}); err != nil {
-		t.Fatalf("rename plannerDoc: %v", err)
+		t.Fatalf("rename planner: %v", err)
 	}
 	if _, err := mongo.PlannerMemberships.Collection().DeleteOne(ctx, bson.M{"_id": membershipID}); err != nil {
 		t.Fatalf("delete membership: %v", err)
@@ -207,21 +207,21 @@ func TestLive_ensureAccountPlanner_repairsEitherHalfAlone(t *testing.T) {
 	}
 	var plannerDoc planner.Planner
 	if err := mongo.Planners.Collection().FindOne(ctx, bson.M{"_id": plannerID}).Decode(&plannerDoc); err != nil {
-		t.Fatalf("read plannerDoc: %v", err)
+		t.Fatalf("read planner: %v", err)
 	}
 	if plannerDoc.Name != "Kept through the repair" {
-		t.Fatalf("plannerDoc name = %q, want the repair to leave the surviving half alone", plannerDoc.Name)
+		t.Fatalf("planner name = %q, want the repair to leave the surviving half alone", plannerDoc.Name)
 	}
 
-	// Now the other way round: the plannerDoc goes, the membership row stays.
+	// Now the other way round: the planner goes, the membership row stays.
 	if _, err := mongo.Planners.Collection().DeleteOne(ctx, bson.M{"_id": plannerID}); err != nil {
-		t.Fatalf("delete plannerDoc: %v", err)
+		t.Fatalf("delete planner: %v", err)
 	}
 	if err := mongo.EnsureAccountPlanner(ctx, accountID, now); err != nil {
-		t.Fatalf("repair plannerDoc: %v", err)
+		t.Fatalf("repair planner: %v", err)
 	}
 	if err := mongo.Planners.Collection().FindOne(ctx, bson.M{"_id": plannerID}).Decode(&plannerDoc); err != nil {
-		t.Fatalf("plannerDoc was not restored: %v", err)
+		t.Fatalf("planner was not restored: %v", err)
 	}
 	rows, err := mongo.PlannerMemberships.Collection().CountDocuments(ctx, bson.M{"plannerID": plannerID})
 	if err != nil {
@@ -243,7 +243,7 @@ func TestLive_ownerKeysForAccount_areTheAccountsMemberships(t *testing.T) {
 
 	const accountID = "eip-parity-grants-account"
 	ownPlanner := models.AccountOwner(accountID).Key()
-	sharedPlanner := "plannerDoc:01HZY6R3QK7T9V2M4N8P0XW5AB"
+	sharedPlanner := "planner:01HZY6R3QK7T9V2M4N8P0XW5AB"
 	sharedRow := planner.MembershipID(sharedPlanner, accountID)
 
 	t.Cleanup(func() {
@@ -254,7 +254,7 @@ func TestLive_ownerKeysForAccount_areTheAccountsMemberships(t *testing.T) {
 	})
 
 	if err := mongo.EnsureAccountPlanner(ctx, accountID, time.Now().UTC()); err != nil {
-		t.Fatalf("create own plannerDoc: %v", err)
+		t.Fatalf("create own planner: %v", err)
 	}
 
 	granted, err := mongo.OwnerKeysForAccount(ctx, accountID)
@@ -262,13 +262,13 @@ func TestLive_ownerKeysForAccount_areTheAccountsMemberships(t *testing.T) {
 		t.Fatalf("OwnerKeysForAccount: %v", err)
 	}
 	if !granted.Has(models.AccountOwner(accountID)) {
-		t.Fatalf("granted = %v, want the account's own plannerDoc", granted)
+		t.Fatalf("granted = %v, want the account's own planner", granted)
 	}
 	if len(granted) != 1 {
-		t.Fatalf("granted = %v, want only the account's own plannerDoc", granted)
+		t.Fatalf("granted = %v, want only the account's own planner", granted)
 	}
 
-	// A membership in someone else's plannerDoc is a grant; nothing else changes.
+	// A membership in someone else's planner is a grant; nothing else changes.
 	if _, err := mongo.PlannerMemberships.Collection().InsertOne(ctx, bson.M{
 		"_id":           sharedRow,
 		"schemaVersion": planner.MembershipSchemaCurrent,
@@ -277,7 +277,7 @@ func TestLive_ownerKeysForAccount_areTheAccountsMemberships(t *testing.T) {
 		"joinedAt":      time.Now().UTC(),
 		"joinMethod":    bson.M{"invite": bson.M{"invitedBy": "someone", "issuedAt": time.Now().UTC()}},
 	}); err != nil {
-		t.Fatalf("join shared plannerDoc: %v", err)
+		t.Fatalf("join shared planner: %v", err)
 	}
 
 	granted, err = mongo.OwnerKeysForAccount(ctx, accountID)
@@ -285,7 +285,7 @@ func TestLive_ownerKeysForAccount_areTheAccountsMemberships(t *testing.T) {
 		t.Fatalf("OwnerKeysForAccount after join: %v", err)
 	}
 	if len(granted) != 2 {
-		t.Fatalf("granted = %v, want the account's own plannerDoc and the shared one", granted)
+		t.Fatalf("granted = %v, want the account's own planner and the shared one", granted)
 	}
 
 	// The authorisation point reads the rows, not a cached grant list, so removing
@@ -295,10 +295,10 @@ func TestLive_ownerKeysForAccount_areTheAccountsMemberships(t *testing.T) {
 		t.Fatalf("AccountMayReach: %v", err)
 	}
 	if !mayReach {
-		t.Fatal("a member must reach the plannerDoc it holds a row for")
+		t.Fatal("a member must reach the planner it holds a row for")
 	}
 	if _, err := mongo.PlannerMemberships.Collection().DeleteOne(ctx, bson.M{"_id": sharedRow}); err != nil {
-		t.Fatalf("leave shared plannerDoc: %v", err)
+		t.Fatalf("leave shared planner: %v", err)
 	}
 	mayReach, err = mongo.AccountMayReach(ctx, accountID, models.Owner{Kind: models.OwnerPlanner, ID: "01HZY6R3QK7T9V2M4N8P0XW5AB"})
 	if err != nil {
@@ -310,7 +310,7 @@ func TestLive_ownerKeysForAccount_areTheAccountsMemberships(t *testing.T) {
 }
 
 // A document names its owner, and the owner is read rather than assumed to be
-// whoever is asking — which is what lets a plannerDoc-held document be reached by a
+// whoever is asking — which is what lets a planner-held document be reached by a
 // member who did not write it. Requires EIP_MONGO_PARITY_LIVE=1.
 func TestLive_ownerOfDocument_readsTheStoredOwner(t *testing.T) {
 	mongo := mongolive.Require(t)
@@ -341,7 +341,7 @@ func TestLive_ownerOfDocument_readsTheStoredOwner(t *testing.T) {
 		t.Fatalf("OwnerOfDocument: %v", err)
 	}
 	if got != sharedPlanner {
-		t.Fatalf("owner = %v, want %v — the plannerDoc that holds it, not the writer", got, sharedPlanner)
+		t.Fatalf("owner = %v, want %v — the planner that holds it, not the writer", got, sharedPlanner)
 	}
 
 	// A document that does not exist names no owner rather than erroring, so the
@@ -352,5 +352,90 @@ func TestLive_ownerOfDocument_readsTheStoredOwner(t *testing.T) {
 	}
 	if !missing.IsZero() {
 		t.Fatalf("missing document reported owner %v, want the zero owner", missing)
+	}
+}
+
+// A planner's settings are seeded from the account's own, so its planner starts
+// configured as that account already has it rather than on the shipped defaults.
+// Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_ensureAccountPlanner_seedsSettingsFromTheAccount(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	account := plannerScratchAccount + "-settings"
+	owner := models.AccountOwner(account)
+	now := time.Now().UTC().Truncate(time.Millisecond)
+
+	t.Cleanup(func() {
+		_, _ = mongo.Planners.Collection().DeleteOne(ctx, bson.M{"_id": owner.Key()})
+		_, _ = mongo.PlannerMemberships.Collection().DeleteOne(ctx,
+			bson.M{"_id": planner.MembershipID(owner.Key(), account)})
+		_, _ = mongo.PlannerSettings.Collection().DeleteOne(ctx, bson.M{"_id": owner.Key()})
+		_, _ = mongo.ApplicationSettings.Collection().DeleteOne(ctx, bson.M{"_id": account})
+	})
+
+	seed := models.DefaultApplicationSettings(account, now)
+	seed.DefaultMaterialEfficiencyValue = 9
+	seed.CustomStructures.Manufacturing = []models.CustomStructure{{ID: "cs-1", Name: "Home"}}
+	if _, _, err := mongo.ApplicationSettings.UpsertApplicationSettings(ctx, account, seed); err != nil {
+		t.Fatalf("seed account settings: %v", err)
+	}
+
+	if err := mongo.EnsureAccountPlanner(ctx, account, now); err != nil {
+		t.Fatalf("EnsureAccountPlanner: %v", err)
+	}
+
+	settings, found, err := mongo.LoadPlannerSettings(ctx, owner)
+	if err != nil {
+		t.Fatalf("LoadPlannerSettings: %v", err)
+	}
+	if !found {
+		t.Fatal("a planner that was just ensured has no settings")
+	}
+	if settings.DefaultMaterialEfficiencyValue != 9 {
+		t.Errorf("ME = %d, want the account's 9", settings.DefaultMaterialEfficiencyValue)
+	}
+	if len(settings.CustomStructures.Manufacturing) != 1 {
+		t.Errorf("custom structures = %+v, want the account's", settings.CustomStructures.Manufacturing)
+	}
+	if settings.MetaData.LastModified.IsZero() {
+		t.Error("settings carry no realtime cursor")
+	}
+
+	// Insert-only: a settings change the planner has made since is not undone by
+	// a later login, which calls this on every one.
+	settings.DefaultMaterialEfficiencyValue = 3
+	if err := mongo.PlannerSettings.Collection().FindOneAndReplace(ctx,
+		bson.M{"_id": owner.Key()}, settings).Err(); err != nil {
+		t.Fatalf("change the planner's settings: %v", err)
+	}
+	if err := mongo.EnsureAccountPlanner(ctx, account, now.Add(time.Hour)); err != nil {
+		t.Fatalf("second EnsureAccountPlanner: %v", err)
+	}
+	again, _, err := mongo.LoadPlannerSettings(ctx, owner)
+	if err != nil {
+		t.Fatalf("LoadPlannerSettings after repeat: %v", err)
+	}
+	if again.DefaultMaterialEfficiencyValue != 3 {
+		t.Errorf("ME = %d after a repeat call, want the planner's own 3",
+			again.DefaultMaterialEfficiencyValue)
+	}
+}
+
+// A planner with no settings document reports absent rather than erroring, so a
+// caller falls back to the account's settings as it resolves today.
+// Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_loadPlannerSettings_reportsAbsentRatherThanFailing(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	_, found, err := mongo.LoadPlannerSettings(ctx, models.AccountOwner(plannerScratchAccount+"-absent"))
+	if err != nil {
+		t.Fatalf("LoadPlannerSettings: %v", err)
+	}
+	if found {
+		t.Fatal("a planner that was never ensured reports settings")
 	}
 }

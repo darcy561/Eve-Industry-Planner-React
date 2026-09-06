@@ -2,12 +2,15 @@ package mongo
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"eve-industry-planner/shared/documentschema"
 	"eve-industry-planner/shared/models"
 	"eve-industry-planner/shared/models/planner"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 // OwnerKeysForAccount returns every owner the account holds a membership for,
@@ -59,4 +62,31 @@ func (m *Mongo) AccountMayReach(ctx context.Context, accountID string, owner mod
 		return false, fmt.Errorf("read membership for %s: %w", accountID, err)
 	}
 	return held > 0, nil
+}
+
+// LoadPlannerSettings reads the settings a planner's work is done under.
+//
+// A planner with no settings document is not an error: it reports absent, and the
+// caller falls back to the account's own settings, which is what resolves today.
+// That keeps a planner readable before its settings have been seeded.
+func (m *Mongo) LoadPlannerSettings(ctx context.Context, owner models.Owner) (planner.Settings, bool, error) {
+	if m == nil || owner.IsZero() {
+		return planner.Settings{}, false, fmt.Errorf("LoadPlannerSettings: invalid arguments")
+	}
+
+	var doc planner.Settings
+	err := Retry(ctx, "LoadPlannerSettings", func() error {
+		return m.PlannerSettings.Collection().
+			FindOne(ctx, bson.M{"_id": owner.Key()}).
+			Decode(&doc)
+	})
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		return planner.Settings{}, false, nil
+	}
+	if err != nil {
+		return planner.Settings{}, false, fmt.Errorf("read settings for %s: %w", owner.Key(), err)
+	}
+
+	documentschema.Upgrader{}.PlannerSettings(&doc)
+	return doc, true, nil
 }

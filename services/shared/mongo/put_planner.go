@@ -12,25 +12,26 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-// DefaultAccountPlannerName is what an account's own plannerDoc is called until the
+// DefaultAccountPlannerName is what an account's own planner is called until the
 // account renames it.
-const DefaultAccountPlannerName = "My plannerDoc"
+const DefaultAccountPlannerName = "My planner"
 
-// EnsureAccountPlanner gives an account the plannerDoc it works in, and puts the
+// EnsureAccountPlanner gives an account the planner it works in, and puts the
 // account in it.
 //
 // Written on insert only: a repeat call adds nothing and rewrites nothing, so an
-// account that has renamed its plannerDoc keeps the name. That is what lets the
+// account that has renamed its planner keeps the name. That is what lets the
 // release backfill and first login share one implementation without either
 // undoing the other.
 //
-// **The two writes are deliberately independent.** Each half is created only if
-// that half is absent, so a plannerDoc whose membership row has been deleted regains
-// the row without the plannerDoc being touched, and the reverse. Collapsing them into
-// one guarded block — "if the plannerDoc exists, do nothing" — would read as a tidier
-// version of the same thing and would silently stop repairing the other half.
+// **The three writes are deliberately independent.** Each is created only if that
+// document is absent, so a planner whose membership row has been deleted regains
+// the row without the planner being touched, and likewise for its settings.
+// Collapsing them into one guarded block — "if the planner exists, do nothing" —
+// would read as a tidier version of the same thing and would silently stop
+// repairing the other two.
 //
-// The plannerDoc's `_id` is the account's owner key, so nothing is minted here — the
+// The planner's `_id` is the account's owner key, so nothing is minted here — the
 // documents the account already holds carry that same id inside `_meta.owner`.
 func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now time.Time) error {
 	if m == nil || accountID == "" {
@@ -51,7 +52,7 @@ func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now 
 	plannerDoc.MetaData.Owner = owner
 	plannerDoc.MetaData.LastModified = now.UTC()
 	if err := insertIfAbsent(ctx, m.Planners, plannerID, plannerDoc); err != nil {
-		return fmt.Errorf("write plannerDoc for %s: %w", accountID, err)
+		return fmt.Errorf("write planner for %s: %w", accountID, err)
 	}
 
 	membership := planner.Membership{
@@ -68,6 +69,12 @@ func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now 
 	}
 	if err := insertIfAbsent(ctx, m.PlannerMemberships, planner.MembershipID(plannerID, accountID), membership); err != nil {
 		return fmt.Errorf("write membership for %s: %w", accountID, err)
+	}
+
+	// Seeded from the account's own settings, so its planner starts as the account
+	// already has it configured rather than on the shipped defaults.
+	if err := m.EnsurePlannerSettings(ctx, owner, accountID, now); err != nil {
+		return err
 	}
 	return nil
 }
@@ -99,4 +106,36 @@ func insertIfAbsent(ctx context.Context, docs *Docs, docID string, doc any) erro
 		options.UpdateOne().SetUpsert(true),
 	)
 	return err
+}
+
+// EnsurePlannerSettings gives a planner the settings its work is done under.
+//
+// Insert-only, like the planner and membership writes above: a repeat call
+// rewrites nothing, so settings the planner has since changed are kept. That is
+// what lets first login, the release backfill and planner creation share one
+// implementation.
+//
+// `seedFrom` is the account whose settings a new planner starts from, so it
+// behaves as whoever created it expects. Pass an empty id to seed the defaults
+// instead — a planner nobody's settings should follow.
+func (m *Mongo) EnsurePlannerSettings(ctx context.Context, owner models.Owner, seedFrom string, now time.Time) error {
+	if m == nil || owner.IsZero() {
+		return fmt.Errorf("EnsurePlannerSettings: invalid arguments")
+	}
+
+	settings := planner.DefaultSettings(owner, now.UTC())
+	if seedFrom != "" {
+		// A planner seeded from an account that has no settings document yet gets
+		// the defaults, which is what that account would have been given anyway.
+		account, err := m.LoadApplicationSettings(ctx, seedFrom, now)
+		if err != nil {
+			return fmt.Errorf("read settings to seed %s from %s: %w", owner.Key(), seedFrom, err)
+		}
+		settings = planner.SettingsFromAccount(owner, account, now.UTC())
+	}
+
+	if err := insertIfAbsent(ctx, m.PlannerSettings, owner.Key(), settings); err != nil {
+		return fmt.Errorf("write settings for %s: %w", owner.Key(), err)
+	}
+	return nil
 }

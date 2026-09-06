@@ -33,6 +33,7 @@ type Mongo struct {
 
 	Planners           *Docs // one per owner; its _id is the owner key
 	PlannerMemberships *Docs // one row per account per planner
+	PlannerSettings    *Docs // one per planner; its _id is the owner key
 }
 
 // NewMongo pins DatabaseName and binds named Docs fields. client must be non-nil.
@@ -62,6 +63,7 @@ func NewMongo(client *mongo.Client) (*Mongo, error) {
 	m.StatisticsReconcileRota = m.Docs(CollectionStatisticsReconcileRota)
 	m.Planners = m.Docs(CollectionPlanners)
 	m.PlannerMemberships = m.Docs(CollectionPlannerMemberships)
+	m.PlannerSettings = m.Docs(CollectionPlannerSettings)
 	return m, nil
 }
 

@@ -253,3 +253,29 @@ func (k OwnerKeys) set() map[string]struct{} {
 
 // IsZero reports whether the owner is unset.
 func (o Owner) IsZero() bool { return o == Owner{} }
+
+// EVE reserves 1,000,000–1,999,999 for NPC corporations, and nothing else uses
+// that range.
+//
+// https://developers.eveonline.com/docs/guides/id-ranges/
+const (
+	npcCorporationIDMin = 1_000_000
+	npcCorporationIDMax = 1_999_999
+)
+
+// IsNPCCorporation reports whether a corporation id names one of EVE's own
+// corporations rather than a player's.
+//
+// Read from the id rather than from the `npc_corporation` field of the public
+// corporation endpoint, because the callers that need this have the id and not
+// the document — asking would put an ESI request on a path that has none. The
+// range is exact for the question asked: every NPC corporation is inside it and
+// nothing else is.
+//
+// It answers only that question. The id ranges do not support the inverse:
+// corporations created before 2010-11-03 share 100,000,000–2,099,999,999 with
+// characters and alliances, so "not an NPC corporation" is not the same as "a
+// player corporation" and this must not be read as one.
+func IsNPCCorporation(corporationID int64) bool {
+	return corporationID >= npcCorporationIDMin && corporationID <= npcCorporationIDMax
+}

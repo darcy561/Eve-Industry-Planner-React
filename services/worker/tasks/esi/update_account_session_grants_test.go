@@ -10,6 +10,10 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
+
+	"eve-industry-planner/shared/models"
+
+	"eve-industry-planner/shared/crypto/entityid"
 	"time"
 
 	"eve-industry-planner/shared/esiclient"
@@ -248,5 +252,56 @@ func TestStreamErrorSeparatesTimingFromFaults(t *testing.T) {
 
 	if got := HandleStreamError(t.Context(), nil, "a task"); got != nil {
 		t.Errorf("success became an error: %v", got)
+	}
+}
+
+// A membership row for one of EVE's own corporations would put every character in
+// a starter corporation into a single shared planner nobody administers, so those
+// ids never become owners. Player corporations and alliances are unaffected.
+func TestEntityOwnersExcludesNPCCorporations(t *testing.T) {
+	t.Parallel()
+
+	cipher, err := entityid.New([]byte("a-test-secret-long-enough-for-the-cipher"))
+	if err != nil {
+		t.Fatalf("build cipher: %v", err)
+	}
+
+	const (
+		npcCorp    = int64(1_000_035)
+		playerCorp = int64(98_000_001)
+		alliance   = int64(99_000_001)
+	)
+
+	owners, skipped, err := entityOwners(cipher,
+		[]int64{npcCorp, playerCorp}, []int64{alliance})
+	if err != nil {
+		t.Fatalf("entityOwners: %v", err)
+	}
+	if skipped != 1 {
+		t.Errorf("skipped = %d, want the one NPC corporation", skipped)
+	}
+	if len(owners) != 2 {
+		t.Fatalf("owners = %d, want the player corporation and the alliance", len(owners))
+	}
+
+	kinds := map[models.OwnerKind]int{}
+	for _, owner := range owners {
+		if owner.IsZero() {
+			t.Errorf("owner %+v is zero", owner)
+		}
+		kinds[owner.Kind]++
+	}
+	if kinds[models.OwnerCorporation] != 1 || kinds[models.OwnerAlliance] != 1 {
+		t.Errorf("owner kinds = %v, want one of each", kinds)
+	}
+
+	// An account in nothing but a starter corporation resolves to no owners at
+	// all, which the reconcile reads as having no entity memberships.
+	owners, skipped, err = entityOwners(cipher, []int64{npcCorp}, nil)
+	if err != nil {
+		t.Fatalf("entityOwners: %v", err)
+	}
+	if len(owners) != 0 || skipped != 1 {
+		t.Errorf("owners = %d skipped = %d, want none and one", len(owners), skipped)
 	}
 }

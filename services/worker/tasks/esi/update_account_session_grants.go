@@ -12,6 +12,7 @@ import (
 
 	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/core/config"
+	"eve-industry-planner/shared/crypto/entityid"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/shared/evesso"
 	"eve-industry-planner/shared/httpclient"
@@ -282,38 +283,63 @@ func reconcileEntityMemberships(ctx context.Context, deps *taskrun.Dependencies,
 		return fmt.Errorf("no entity cipher: cannot derive owner refs")
 	}
 
-	owners := make([]models.Owner, 0, len(corporations)+len(alliances))
-	for _, kind := range []struct {
-		ids    []int64
-		encode func(int64) (string, error)
-		owner  func(string) models.Owner
-		label  string
-	}{
-		{corporations, deps.EntityCipher.Corporation, models.CorporationOwner, "corporation"},
-		{alliances, deps.EntityCipher.Alliance, models.AllianceOwner, "alliance"},
-	} {
-		for _, id := range kind.ids {
-			ref, err := kind.encode(id)
-			if err != nil {
-				return fmt.Errorf("derive %s ref for %d: %w", kind.label, id, err)
-			}
-			owner := kind.owner(ref)
-			if owner.IsZero() {
-				return fmt.Errorf("%s ref for %d yields no owner", kind.label, id)
-			}
-			owners = append(owners, owner)
-		}
+	owners, skipped, err := entityOwners(deps.EntityCipher, corporations, alliances)
+	if err != nil {
+		return err
 	}
 
 	added, removed, err := deps.Mongo.ReconcileEntityMemberships(ctx, accountID, owners, time.Now().UTC())
 	if err != nil {
 		return err
 	}
-	if added > 0 || removed > 0 {
+	if added > 0 || removed > 0 || skipped > 0 {
 		logs.InfoCtx(ctx, "reconciled entity memberships",
 			"account_id", accountID,
 			"added", added,
-			"removed", removed)
+			"removed", removed,
+			"npc_corporations_skipped", skipped)
 	}
 	return nil
+}
+
+// entityOwners converts the entity ids ESI reported into owners, and reports how
+// many were excluded.
+//
+// EVE's own corporations are excluded before they become owners. A membership row
+// for one would put every character in a starter corporation into a single shared
+// planner that nobody administers, which is not a planner in any sense this
+// project means. It is checked here because the id is raw until it becomes a ref.
+//
+// EVE has no NPC alliances, so there is nothing to exclude among those.
+func entityOwners(cipher *entityid.Cipher, corporations, alliances []int64) ([]models.Owner, int, error) {
+	skipped := 0
+	owners := make([]models.Owner, 0, len(corporations)+len(alliances))
+
+	for _, kind := range []struct {
+		ids    []int64
+		encode func(int64) (string, error)
+		owner  func(string) models.Owner
+		skip   func(int64) bool
+		label  string
+	}{
+		{corporations, cipher.Corporation, models.CorporationOwner, models.IsNPCCorporation, "corporation"},
+		{alliances, cipher.Alliance, models.AllianceOwner, nil, "alliance"},
+	} {
+		for _, id := range kind.ids {
+			if kind.skip != nil && kind.skip(id) {
+				skipped++
+				continue
+			}
+			ref, err := kind.encode(id)
+			if err != nil {
+				return nil, skipped, fmt.Errorf("derive %s ref for %d: %w", kind.label, id, err)
+			}
+			owner := kind.owner(ref)
+			if owner.IsZero() {
+				return nil, skipped, fmt.Errorf("%s ref for %d yields no owner", kind.label, id)
+			}
+			owners = append(owners, owner)
+		}
+	}
+	return owners, skipped, nil
 }

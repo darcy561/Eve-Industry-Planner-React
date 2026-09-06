@@ -83,3 +83,32 @@ func TestAccountOwnerIsUnguardedButTrimmed(t *testing.T) {
 		t.Fatal("a blank account id should not validate")
 	}
 }
+
+// The NPC range is exact for the question asked, and the boundaries are the
+// whole of it: one either side is a real corporation somebody plays in.
+func TestIsNPCCorporationCoversTheReservedRangeAndNothingElse(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name string
+		id   int64
+		npc  bool
+	}{
+		{"just below the range", 999_999, false},
+		{"first NPC id", 1_000_000, true},
+		{"Caldari Provisions", 1_000_035, true},
+		{"last NPC id", 1_999_999, true},
+		{"just above the range", 2_000_000, false},
+		// A player corporation created after 2010-11-03.
+		{"modern player corporation", 98_000_001, false},
+		// The legacy range is shared with characters and alliances, so an id in
+		// it is not an NPC corporation whatever else it may be.
+		{"legacy shared range", 1_000_000_000, false},
+		{"zero", 0, false},
+		{"negative", -1, false},
+	} {
+		if got := IsNPCCorporation(tc.id); got != tc.npc {
+			t.Errorf("%s (%d): IsNPCCorporation = %v, want %v", tc.name, tc.id, got, tc.npc)
+		}
+	}
+}

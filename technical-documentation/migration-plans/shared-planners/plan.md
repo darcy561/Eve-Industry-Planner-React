@@ -314,7 +314,7 @@ A connection therefore holds **two subscriptions**, both derived by the server:
 | | Owner | Collections | Changes when |
 |---|-------|-------------|--------------|
 | Account | `account:{accountID}` | `accounts`, `account_settings`, `watchlist_deprecated` | Never, for the life of the connection |
-| Planner | the active planner's owner key | `jobs`, `job_documents`, `job_groups` | The client switches planner |
+| Planner | the active planner's owner key | `jobs`, `job_documents`, `job_groups`, `planner_settings` | The client switches planner |
 
 **One planner is active at a time.** Switching is one message naming one owner key, intersected against
 the grant ceiling; the account subscription is untouched by it. Nothing enumerates documents, so
@@ -336,9 +336,9 @@ a kind reaches every planner of that kind by editing one server-side table — t
 already partition these concerns; the websocket has no notion of them today, which is why none of this
 is currently expressible.
 
-Group templates are **not** in either set. They shipped account-owned with no owner block, and a
-template library that follows the person rather than the planner keeps that shape; a shared-template
-feature would be a deliberate reversal with a migration behind it, not a subscription change.
+Group templates **are** in the planner set, which reverses what this section said before: they shipped
+account-owned with no owner block, and the reasoning for keeping that shape did not survive the settings
+split. See § What a planner owns.
 
 **Explicit document subscriptions are unchanged and orthogonal.** `subscribe` and `unsubscribe` name
 individual document ids and remain the escape hatch for a document outside both subscriptions — a job
@@ -445,6 +445,7 @@ prefix names the subject, not the owner.
 | `statistics_reconcile_rota` | when each owner was last reconciled | owner key as `_id` |
 | `planners` | the planner documents, every kind | — |
 | `planner_memberships` | who is in a planner, and as what | — |
+| `planner_settings` | the settings a planner's work is done under | — |
 | `shared_blueprints`, `shared_citadel_names` | global reference data | nobody |
 
 The resulting set is deliberately ragged rather than uniform. A rename list that comes out
@@ -517,11 +518,12 @@ The measures that matter, in order:
 If size ever did become the binding constraint, the lever would be time-partitioning the archive or
 sharding on the owner key — not a per-kind split, which addresses the wrong axis.
 
-**Group templates are an open question.** They are listed without an owner above, on the unresolved
-reading that a template library belongs to the person. A corporation planner wanting shared templates
-would make them owner-scoped instead. **Settled by what shipped:** the renames landed them as
+**Group templates were an open question and are now settled the other way.** They shipped as
 `group_template_catalog` and `group_template_payloads` with no owner prefix, and the owner backfill's
-collection list does not include them — so they are account-owned, as a personal library.
+collection list does not include them, which read at the time as settling them account-owned. The
+settings split overturns that: a template preset stores `customStructureID`, so a template only means
+anything against a settings document, and a settings document is the planner's. They become
+planner-held, with application allowed across planners — see § What a planner owns.
 
 ## Ownership is decided at creation
 
@@ -613,9 +615,10 @@ needs an answer for its data. The discipline sits on narrowing eligibility rathe
 
 Where a template change does imply a stored shape — a capability needing a new field on a job or on
 the planner document — that is ordinary schema versioning through `documentschema.Upgrader`.
-`planners` and `planner_memberships` join `SchemaMaintainedCollections` when they land, since the
-scheduler rotates that list and the batch dispatches on it. Invites are not there because they are not
-a collection — see § Invites.
+`planners`, `planner_memberships`, `planner_settings`, `group_template_catalog` and
+`group_template_payloads` join `SchemaMaintainedCollections` when they land, since the scheduler rotates
+that list and the batch dispatches on it. Invites are not there because they are not a collection — see
+§ Invites.
 
 **The provider is derived too.** It is one-to-one with the kind — `account` to `self`, `planner` to
 `invite`, `corporation` and `alliance` to their ESI providers — so storing it would only create a
@@ -641,6 +644,93 @@ is one place for it rather than a second gate grown beside the first.
 
 Capabilities are not a rollout flag system. Keep the set small, and name each one for something a user
 would recognise as a feature rather than for the code behind it.
+
+## What a planner owns
+
+The settings split below decides which *settings* belong to a planner. This section decides which
+**collections** do, because `PlannerHeldCollections()` is the one place that answers it and Stage C
+built it with three entries before the split existed.
+
+The test is the same one the settings split uses: a collection belongs to the planner when its
+documents hold references that only resolve inside a planner, or when its contents are the planner's
+work rather than one person's view of it.
+
+| Collection | Held by | Why |
+|---|---|---|
+| `jobs`, `job_documents`, `job_groups` | Planner | The planner's work; already so |
+| `archived_jobs` | Planner | The planner's completed work, and it already carries the owner block |
+| `statistics_*` | Planner | Derived from archived rows, so they follow with no decision of their own |
+| `planner_settings` | Planner | New; § Settings split between the planner and the account says what is in it |
+| `group_template_catalog`, `group_template_payloads` | Planner | A template stores `customStructureID`, which only resolves against a settings document |
+| `accounts`, `account_settings`, `watchlist_deprecated` | Account | The person, wherever they are working |
+
+**The archive was already owner-scoped and simply unlisted.** `ArchivedJob` embeds `MetaData`, and the
+`prepareRelease` owner stamp writes `archived_jobs` alongside jobs and groups. Its absence from
+`PlannerHeldCollections()` is an omission rather than a decision: a shared job archived into the
+archiving member's personal history would take the planner's record of its own work with it, and the
+statistics derived from those rows would disagree between members.
+
+### The archive is read across planners without switching
+
+Archive and statistics reads are **not** bound to the active planner. A member looking at their personal
+planner can open the archive page and read a corporation planner's archive without switching, and the
+switch is not implied by the read.
+
+What makes that sound is that these are the two collections nothing edits live. The archive is written
+once when a job is archived and read thereafter; statistics are derived and rebuilt wholesale. Neither
+carries a document lease, and neither is delivered by the planner subscription in a way that a reader
+of a second planner would race against — a change stream message for another planner's archive is one
+this connection is not subscribed to, and the page's own read is what refreshes it.
+
+So the rule is: **the active planner scopes what is live, not what is legible.** Realtime delivery
+stays single-planner, because a connection editing two planners at once is the thing the replace-not-
+merge subscription exists to prevent. A read of settled history is a query with an owner in it, and the
+owner is a parameter of the request rather than of the connection.
+
+Authorisation is `AccountMayReach`, which is already built and already reads the membership rows rather
+than a session's cached grants. An archive read naming an owner the account holds no row for is a 404,
+the same answer a planner read gives.
+
+The consequence for the client is that archive and statistics query keys carry the owner they were
+asked for, not the active planner — which the § Wire compatibility row for SPA query keys already
+requires for a different reason.
+
+### A template belongs to a planner, and can be applied to another
+
+Templates are the planner's, so a corporation planner can hold the builds its members are expected to
+use. An account's own templates are its account planner's, which is not a special case: every account
+has one, so a personal library is the same mechanism with an owner of `account:{id}`.
+
+**But applying a template is not restricted to the planner that holds it.** A member may apply their own
+template into a shared planner, or a shared template into their personal one. The template is a recipe;
+where it is stored says who may see it, not where its output may land. Restricting application would
+make the account planner a trap — every template a person captured before joining a shared planner
+would be stranded there.
+
+That makes the read and the write two different owners, and the pair is what has to be authorised:
+`AccountMayReach` for the template's owner, and again for the destination planner. Neither is the active
+planner, and both come from the request.
+
+**What does not travel is `customStructureID`.** A template preset stores one, and it resolves against
+the settings of the planner that holds the *jobs* — so applying a template into another planner must
+resolve or drop it rather than copy it across. Dropping it leaves the setup on its stored
+structure/rig/system numbers, which are values rather than references and are correct on their own; the
+job simply is not pinned to a custom structure the destination has never heard of. Resolving it by name
+against the destination's structures is the friendlier behaviour and is worth doing if the names match,
+but it is an enhancement over dropping rather than a requirement for correctness.
+
+`CharacterToUse` behaves the same way: a character hash the applying account does not hold resolves to
+their main, which is what building a job does today for any setup naming an unavailable character.
+
+### The catalogue moves onto the owner block
+
+`GroupTemplateCatalog` is the last model carrying a bare `AccountID` field, with `_id` set to the account
+id. It moves to the owner block with the owner key as its `_id`, which is the shape `Planner` already
+uses — the owner stored once rather than beside a duplicate of itself.
+
+This is **migrate-required**, and the same shape as the Stage A stamp: existing catalogues are rewritten
+under `account:{id}` in a `prepareRelease` step, which is where the payload documents' owner block goes
+too. Both collections join `SchemaMaintainedCollections`.
 
 ## Settings split between the planner and the account
 
@@ -1520,6 +1610,15 @@ index, so `IndexSpec` needs no expiry field and the renderer needs no change —
 shared authoriser landed at C3, grants already derive from membership rows, and both membership indexes
 are specced. What is missing is storage for invites, the endpoints, the client, and planner creation.
 
+**It also owns the collections § What a planner owns moves.** The archive and the statistics need only
+listing in `PlannerHeldCollections()`, since they already carry the owner block. Group templates need
+the owner block first, and their reads and writes need the two-owner authorisation that applying a
+template across planners implies.
+
+The settings document is the piece worth taking first: it is what D3 waits on, and seeding it lazily for
+a planner that has none — rather than only at creation — means D3 does not wait for the rest of this
+stage.
+
 The active planner arrives here, and with it the message that switches one: the client names one owner
 key, the server intersects it with the ceiling and replaces the planner subscription, leaving the
 account subscription alone. Replace rather than merge, because switching planner has to stop the
@@ -1565,7 +1664,8 @@ is ready for the window.
 | `upgrade_scopes` / `scopes_ack` | **removed** — no client sends them, so there is nothing to cut with; the Stage E message that narrows to an active planner is additive |
 | Statistics routes | **breaking** if deferred, additive if the owner handle lands while the account is still the only value — hence it is owed by archived-jobs-stats before it ships |
 | Planner, membership, invite endpoints | additive. Invites are Redis records with a TTL rather than documents, so nothing about them is migrate-required — an unredeemed invite outliving a deploy is a link that still works, and one lost to an unclean stop is reissued |
-| SPA query keys | additive, but mandatory — an owner-less key makes two planners share one cache entry |
+| SPA query keys | additive, but mandatory — an owner-less key makes two planners share one cache entry. Archive and statistics keys carry the owner **asked for** rather than the active planner, since those reads cross planners without switching — see § The archive is read across planners without switching |
+| `group_template_catalog`, `group_template_payloads` owner block | **migrate-required** — the catalogue's `_id` becomes the owner key and both collections gain `_meta.owner`; existing rows are rewritten under `account:{id}` in the same window as the other stamps |
 
 ## What the other projects owe
 

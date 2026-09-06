@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
+	"time"
 
 	"eve-industry-planner/shared/documentschema"
 	"eve-industry-planner/shared/models"
@@ -13,8 +15,8 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-// OwnerKeysForAccount returns every owner the account holds a membership for,
-// which is what a session may reach.
+// OwnerKeysForAccount returns every owner the account holds a live membership
+// for, which is what a session may reach.
 //
 // The account's own planner is among them rather than added separately, so this
 // is the whole of what a session may reach and nothing downstream adds to it.
@@ -22,11 +24,20 @@ import (
 // That makes the call order matter at the sites that use it: the planner write
 // has to have run first, or an account whose row is missing is handed an empty
 // list for the life of that session. Both callers ensure the row before reading.
+//
+// **A membership kept in step with EVE stops granting once it goes unconfirmed
+// for planner.StaleAfter.** A revoked token, a removed scope and an ESI outage
+// all look the same to the reconcile — no answer rather than a negative one — so
+// it leaves such a row alone and this is where the row stops counting. Filtering
+// here rather than at each caller is deliberate: this is the one point every
+// grant passes through, so a stale row cannot leak in through a path that reads
+// the rows itself.
 func (m *Mongo) OwnerKeysForAccount(ctx context.Context, accountID string) (models.OwnerKeys, error) {
 	if m == nil || accountID == "" {
 		return nil, fmt.Errorf("OwnerKeysForAccount: invalid arguments")
 	}
-	plannerIDs, err := m.PlannerMemberships.DistinctStrings(ctx, "plannerID", bson.M{"accountID": accountID})
+	plannerIDs, err := m.PlannerMemberships.DistinctStrings(ctx, "plannerID",
+		liveMembershipFilter(bson.M{"accountID": accountID}, time.Now()))
 	if err != nil {
 		return nil, fmt.Errorf("list memberships for %s: %w", accountID, err)
 	}
@@ -43,7 +54,30 @@ func (m *Mongo) OwnerKeysForAccount(ctx context.Context, accountID string) (mode
 	return keys.Normalized(), nil
 }
 
-// AccountMayReach reports whether the account holds a membership for the owner.
+// liveMembershipFilter narrows a membership query to rows that still grant.
+//
+// Self and invite memberships always do: nothing outside the planner can revoke
+// them, so there is nothing for them to go stale against. The two kept in step
+// with EVE grant only while their last confirmation is recent enough.
+func liveMembershipFilter(base bson.M, now time.Time) bson.M {
+	cutoff := now.UTC().Add(-planner.StaleAfter)
+	filter := bson.M{}
+	maps.Copy(filter, base)
+	filter["$or"] = []bson.M{
+		{"joinMethod.entityMember": bson.M{"$exists": false},
+			"joinMethod.accessList": bson.M{"$exists": false}},
+		{"joinMethod.entityMember.validatedAt": bson.M{"$gte": cutoff}},
+		{"joinMethod.accessList.validatedAt": bson.M{"$gte": cutoff}},
+	}
+	return filter
+}
+
+// AccountMayReach reports whether the account holds a live membership for the
+// owner.
+//
+// Live rather than merely present: a membership kept in step with EVE that has
+// gone unconfirmed for planner.StaleAfter no longer grants. See
+// OwnerKeysForAccount.
 //
 // Read from the rows rather than from a session's grants: grants are a cache with
 // a session's lifetime, so a membership removed a moment ago is still in one. An
@@ -57,7 +91,7 @@ func (m *Mongo) AccountMayReach(ctx context.Context, accountID string, owner mod
 		return false, nil
 	}
 	held, err := m.PlannerMemberships.Collection().CountDocuments(ctx,
-		bson.M{"_id": planner.MembershipID(owner.Key(), accountID)})
+		liveMembershipFilter(bson.M{"_id": planner.MembershipID(owner.Key(), accountID)}, time.Now()))
 	if err != nil {
 		return false, fmt.Errorf("read membership for %s: %w", accountID, err)
 	}

@@ -73,15 +73,21 @@ type Membership struct {
 	MetaData      models.MetaData `bson:"_meta" json:"_meta"`
 }
 
-// JoinMethod is how an account came to be a member. The branch that is set is
-// the method, and exactly one is populated.
+// JoinMethod is why an account is a member. The branch that is set is the
+// method, and exactly one is populated.
+//
+// The branches name the reason rather than where the answer came from: a member
+// of a corporation is a member because they are in it, not because ESI is how we
+// learned so. Two of them are kept in step with EVE and can therefore go stale;
+// see StaleAfter.
 //
 // No tag beside the branch: a stored tag and a stored branch encode the same
 // fact, and two copies of one fact can disagree.
 type JoinMethod struct {
-	Self   *SelfJoin   `bson:"self,omitempty" json:"self,omitempty"`
-	Invite *InviteJoin `bson:"invite,omitempty" json:"invite,omitempty"`
-	ESI    *ESIJoin    `bson:"esi,omitempty" json:"esi,omitempty"`
+	Self       *SelfJoin        `bson:"self,omitempty" json:"self,omitempty"`
+	Invite     *InviteJoin      `bson:"invite,omitempty" json:"invite,omitempty"`
+	Membership *EntityMember    `bson:"entityMember,omitempty" json:"entityMember,omitempty"`
+	AccessList *AccessListEntry `bson:"accessList,omitempty" json:"accessList,omitempty"`
 }
 
 // JoinKind names the branch a membership came in on, for logging and display. It
@@ -90,9 +96,10 @@ type JoinMethod struct {
 type JoinKind string
 
 const (
-	JoinKindSelf   JoinKind = "self"
-	JoinKindInvite JoinKind = "invite"
-	JoinKindESI    JoinKind = "esi"
+	JoinKindSelf       JoinKind = "self"
+	JoinKindInvite     JoinKind = "invite"
+	JoinKindMember     JoinKind = "entityMember"
+	JoinKindAccessList JoinKind = "accessList"
 )
 
 // Kind reports which branch is populated, or the empty kind when none is.
@@ -102,8 +109,10 @@ func (j JoinMethod) Kind() JoinKind {
 		return JoinKindSelf
 	case j.Invite != nil:
 		return JoinKindInvite
-	case j.ESI != nil:
-		return JoinKindESI
+	case j.Membership != nil:
+		return JoinKindMember
+	case j.AccessList != nil:
+		return JoinKindAccessList
 	default:
 		return ""
 	}
@@ -115,7 +124,9 @@ func (j JoinMethod) Kind() JoinKind {
 // and a struct of pointers is the shape that stores and queries cleanly.
 func (j JoinMethod) Validate() error {
 	set := 0
-	for _, populated := range []bool{j.Self != nil, j.Invite != nil, j.ESI != nil} {
+	for _, populated := range []bool{
+		j.Self != nil, j.Invite != nil, j.Membership != nil, j.AccessList != nil,
+	} {
 		if populated {
 			set++
 		}
@@ -141,10 +152,73 @@ type InviteJoin struct {
 	InviteID  string    `bson:"inviteID,omitempty" json:"-"`
 }
 
-// ESIJoin records membership that follows an EVE entity rather than an invite.
-type ESIJoin struct {
-	EntityRef     string `bson:"entityRef" json:"-"`
-	CharacterHash string `bson:"characterHash,omitempty" json:"-"`
+// EntityMember records membership that follows from being in the corporation or
+// alliance the planner belongs to.
+//
+// ValidatedAt is when EVE last confirmed it, which is not when the row was
+// created: a member who left, or whose token was revoked, produces no answer at
+// all rather than a negative one, so the row is only as good as its last
+// confirmation. See StaleAfter.
+type EntityMember struct {
+	EntityRef     string    `bson:"entityRef" json:"-"`
+	CharacterHash string    `bson:"characterHash,omitempty" json:"-"`
+	ValidatedAt   time.Time `bson:"validatedAt" json:"-"`
+}
+
+// AccessListEntry records membership that follows an in-game access list.
+//
+// Unlike EntityMember it is polled from one managing character's token rather
+// than reconciled from each member's own, so it goes stale for reasons that have
+// nothing to do with the member: the managing character can lose the scope, leave,
+// or unlink. ValidatedAt is what detects that.
+type AccessListEntry struct {
+	ListID      string    `bson:"listID" json:"-"`
+	EntityRef   string    `bson:"entityRef,omitempty" json:"-"`
+	ValidatedAt time.Time `bson:"validatedAt" json:"-"`
+}
+
+// StaleAfter is how long a membership kept in step with EVE keeps granting
+// without being confirmed again.
+//
+// It exists because the reconcile cannot distinguish "still a member" from "we
+// could not ask": a revoked token, a scope removed or an ESI outage all produce
+// no answer, and reconciling against a partial answer would revoke access for the
+// length of an outage. So a failed check leaves the row alone and this is what
+// eventually expires it — the only mechanism by which revoked access ends.
+//
+// Long enough that a weekend outage cuts nobody off, short enough that access
+// somebody has genuinely lost does not linger.
+const StaleAfter = 7 * 24 * time.Hour
+
+// ValidatedAt is when EVE last confirmed this membership, and the zero time for a
+// method that is not kept in step with EVE.
+func (j JoinMethod) ValidatedAt() time.Time {
+	switch {
+	case j.Membership != nil:
+		return j.Membership.ValidatedAt
+	case j.AccessList != nil:
+		return j.AccessList.ValidatedAt
+	default:
+		return time.Time{}
+	}
+}
+
+// NeedsValidation reports whether this method is kept in step with EVE, and so
+// stops granting once it goes unconfirmed.
+//
+// Self and invite memberships do not: nothing outside the planner can revoke
+// them, so there is nothing to go stale against.
+func (j JoinMethod) NeedsValidation() bool {
+	return j.Membership != nil || j.AccessList != nil
+}
+
+// Stale reports whether a membership kept in step with EVE has gone too long
+// without confirmation to keep granting.
+func (j JoinMethod) Stale(now time.Time) bool {
+	if !j.NeedsValidation() {
+		return false
+	}
+	return now.Sub(j.ValidatedAt()) > StaleAfter
 }
 
 // Invite is one outstanding invitation into a planner.

@@ -55,7 +55,7 @@ func TestJoinMethodWantsExactlyOneBranch(t *testing.T) {
 	if err := (planner.JoinMethod{}).Validate(); err == nil {
 		t.Fatal("no branch must be refused")
 	}
-	if err := (planner.JoinMethod{Self: &planner.SelfJoin{}, ESI: &planner.ESIJoin{}}).Validate(); err == nil {
+	if err := (planner.JoinMethod{Self: &planner.SelfJoin{}, Membership: &planner.EntityMember{}}).Validate(); err == nil {
 		t.Fatal("two branches must be refused")
 	}
 }
@@ -162,7 +162,8 @@ func TestJoinMethodKindReadsThePopulatedBranch(t *testing.T) {
 	}{
 		{"self", planner.JoinMethod{Self: &planner.SelfJoin{}}, planner.JoinKindSelf},
 		{"invite", planner.JoinMethod{Invite: &planner.InviteJoin{}}, planner.JoinKindInvite},
-		{"esi", planner.JoinMethod{ESI: &planner.ESIJoin{}}, planner.JoinKindESI},
+		{"entity member", planner.JoinMethod{Membership: &planner.EntityMember{}}, planner.JoinKindMember},
+		{"access list", planner.JoinMethod{AccessList: &planner.AccessListEntry{}}, planner.JoinKindAccessList},
 		{"none", planner.JoinMethod{}, ""},
 	}
 	for _, c := range cases {
@@ -318,5 +319,44 @@ func TestPlannerSettingsSeedCopiesRatherThanShares(t *testing.T) {
 	}
 	if seeded.PredefinedSystemIndexes["30000142"]["manufacturing"] != 0.05 {
 		t.Error("a system index changed on the account changed the planner's copy")
+	}
+}
+
+// A membership kept in step with EVE stops granting once it goes unconfirmed:
+// a revoked token produces no answer rather than a negative one, so the timeout
+// is the only mechanism by which that access ends.
+func TestMembershipStalenessAppliesOnlyToWhatEVEKeepsInStep(t *testing.T) {
+	t.Parallel()
+	now := time.Unix(1700000000, 0).UTC()
+	fresh := now.Add(-time.Hour)
+	old := now.Add(-planner.StaleAfter - time.Hour)
+
+	for _, tc := range []struct {
+		name            string
+		method          planner.JoinMethod
+		needsValidation bool
+		stale           bool
+	}{
+		{"self", planner.JoinMethod{Self: &planner.SelfJoin{}}, false, false},
+		{"invite", planner.JoinMethod{Invite: &planner.InviteJoin{}}, false, false},
+		{"entity member, confirmed",
+			planner.JoinMethod{Membership: &planner.EntityMember{ValidatedAt: fresh}}, true, false},
+		{"entity member, unconfirmed",
+			planner.JoinMethod{Membership: &planner.EntityMember{ValidatedAt: old}}, true, true},
+		{"access list, confirmed",
+			planner.JoinMethod{AccessList: &planner.AccessListEntry{ValidatedAt: fresh}}, true, false},
+		{"access list, unconfirmed",
+			planner.JoinMethod{AccessList: &planner.AccessListEntry{ValidatedAt: old}}, true, true},
+		// A row written before validation was recorded holds the zero time, which
+		// is stale — it grants again the first time EVE confirms it.
+		{"entity member, never confirmed",
+			planner.JoinMethod{Membership: &planner.EntityMember{}}, true, true},
+	} {
+		if got := tc.method.NeedsValidation(); got != tc.needsValidation {
+			t.Errorf("%s: NeedsValidation = %v, want %v", tc.name, got, tc.needsValidation)
+		}
+		if got := tc.method.Stale(now); got != tc.stale {
+			t.Errorf("%s: Stale = %v, want %v", tc.name, got, tc.stale)
+		}
 	}
 }

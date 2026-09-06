@@ -155,8 +155,8 @@ func RefreshAccountSessionGrants(ctx context.Context, request eipnats.AccountSes
 		logs.WarnCtx(ctx, "skipping membership reconcile: affiliation lookup was incomplete",
 			"account_id", request.AccountID,
 			"failed", failedCount)
-	} else if err := reconcileESIMemberships(ctx, deps, request.AccountID, allCorporations, allAlliances); err != nil {
-		logs.WarnCtx(ctx, "failed to reconcile ESI memberships",
+	} else if err := reconcileEntityMemberships(ctx, deps, request.AccountID, allCorporations, allAlliances); err != nil {
+		logs.WarnCtx(ctx, "failed to reconcile entity memberships",
 			"account_id", request.AccountID,
 			"error", err)
 	}
@@ -271,13 +271,13 @@ func retryAffiliation() httpclient.Retry {
 	return policy
 }
 
-// reconcileESIMemberships converts the entity ids ESI reported into owner refs and
-// makes the account's ESI-sourced membership rows match them.
+// reconcileEntityMemberships converts the entity ids ESI reported into owner refs
+// and makes the account's entity-member rows match them.
 //
 // An id that will not convert is fatal rather than skipped: the resulting set
 // would be missing an entity the account is genuinely in, and reconciling against
 // it would remove that membership.
-func reconcileESIMemberships(ctx context.Context, deps *taskrun.Dependencies, accountID string, corporations, alliances []int64) error {
+func reconcileEntityMemberships(ctx context.Context, deps *taskrun.Dependencies, accountID string, corporations, alliances []int64) error {
 	if deps.EntityCipher == nil {
 		return fmt.Errorf("no entity cipher: cannot derive owner refs")
 	}
@@ -305,12 +305,12 @@ func reconcileESIMemberships(ctx context.Context, deps *taskrun.Dependencies, ac
 		}
 	}
 
-	added, removed, err := deps.Mongo.ReconcileESIMemberships(ctx, accountID, owners, time.Now().UTC())
+	added, removed, err := deps.Mongo.ReconcileEntityMemberships(ctx, accountID, owners, time.Now().UTC())
 	if err != nil {
 		return err
 	}
 	if added > 0 || removed > 0 {
-		logs.InfoCtx(ctx, "reconciled ESI memberships",
+		logs.InfoCtx(ctx, "reconciled entity memberships",
 			"account_id", accountID,
 			"added", added,
 			"removed", removed)

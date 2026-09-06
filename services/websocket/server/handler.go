@@ -223,7 +223,6 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 		AccountID:      identity.AccountID,
 		SessionID:      identity.SessionID,
 		Scopes:         identity.Session.Grants.OwnerKeys,
-		ownerCeiling:   identity.Session.Grants.OwnerKeys,
 		lastReset:      now,
 		connectedAt:    now,
 		lastActivity:   now,

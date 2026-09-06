@@ -340,11 +340,10 @@ func (f *integFixture) waitRedisAbsent(key string, timeout time.Duration) {
 
 func (f *integFixture) newClient(id, accountID string, corps, alliances []string) *Client {
 	return &Client{
-		id:           id,
-		AccountID:    accountID,
-		Send:         make(chan []byte, 8),
-		Scopes:       nil,
-		ownerCeiling: orgOwnerKeys(corps, alliances),
+		id:        id,
+		AccountID: accountID,
+		Send:      make(chan []byte, 8),
+		Scopes:    orgOwnerKeys(corps, alliances),
 	}
 }
 

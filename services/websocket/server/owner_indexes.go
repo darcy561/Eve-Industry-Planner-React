@@ -2,11 +2,26 @@ package server
 
 import "eve-industry-planner/shared/models"
 
+// pooledScopes are the scopes the owner index holds, which is every scope except
+// the account's own: account delivery is keyed by userConnections, so indexing an
+// account key here would put one connection in two places and report it as two
+// hosted tenants.
+func pooledScopes(client *Client) models.OwnerKeys {
+	own := models.AccountOwner(client.AccountID)
+	var out models.OwnerKeys
+	client.Scopes.Each(func(key string) {
+		if key != own.Key() {
+			out = append(out, key)
+		}
+	})
+	return out
+}
+
 func (s *Server) addToOwnerPoolsLocked(client *Client) {
 	if client == nil || client.id == "" {
 		return
 	}
-	client.Scopes.Each(func(key string) {
+	pooledScopes(client).Each(func(key string) {
 		if s.ownerKeyToClients[key] == nil {
 			s.ownerKeyToClients[key] = make(map[string]bool)
 		}
@@ -18,7 +33,7 @@ func (s *Server) removeFromOwnerPoolsLocked(client *Client) {
 	if client == nil || client.id == "" {
 		return
 	}
-	client.Scopes.Each(func(key string) {
+	pooledScopes(client).Each(func(key string) {
 		pool := s.ownerKeyToClients[key]
 		if pool == nil {
 			return
@@ -32,6 +47,10 @@ func (s *Server) removeFromOwnerPoolsLocked(client *Client) {
 
 // setClientScopes replaces a client's scopes and moves it between owner pools to
 // match, as one locked step so no fan-out sees the two disagree.
+//
+// Scopes are derived at connect and do not change afterwards, so nothing calls
+// this on the connection path yet; it is what a planner switch will replace them
+// through.
 func (s *Server) setClientScopes(client *Client, next models.OwnerKeys) {
 	s.ownerIndexMu.Lock()
 	s.removeFromOwnerPoolsLocked(client)

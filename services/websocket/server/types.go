@@ -99,15 +99,13 @@ type Server struct {
 type Client struct {
 	id        string
 	conn      *websocket.Conn
-	connCtx   context.Context  // derived from HTTP request for logging (WithoutCancel); set on connect
-	Send      chan []byte      // Exported for sync package
-	AccountID string           // Account ID from validated app session — exported for sync package
-	SessionID string           // Session ID from validated app session
-	Scopes    models.OwnerKeys // non-account owners this connection receives changes for
-
-	// ownerCeiling is every owner this session may reach, from the server session
-	// record rather than the browser. Scopes never exceed it.
-	ownerCeiling models.OwnerKeys
+	connCtx   context.Context // derived from HTTP request for logging (WithoutCancel); set on connect
+	Send      chan []byte     // Exported for sync package
+	AccountID string          // Account ID from validated app session — exported for sync package
+	SessionID string          // Session ID from validated app session
+	// Scopes is every owner this connection receives changes for, derived at
+	// connect from the session's grants rather than requested by the browser.
+	Scopes models.OwnerKeys
 
 	// Explicit collection-scoped doc subscriptions (subscribe / unsubscribe JSON). Account-scoped
 	// realtime does not require entries here.

@@ -39,11 +39,11 @@ func TestHostedTenantsOrgViaIndexesAndRefcount(t *testing.T) {
 	allianceKey := models.AllianceOwner(wsTestAllianceRefValue).Key()
 	a := &Client{
 		id: "a", AccountID: "acct-a",
-		ownerCeiling: models.OwnerKeys{corpKey, allianceKey},
+		Scopes: models.OwnerKeys{corpKey, allianceKey},
 	}
 	b := &Client{
 		id: "b", AccountID: "acct-b",
-		ownerCeiling: models.OwnerKeys{corpKey},
+		Scopes: models.OwnerKeys{corpKey},
 	}
 
 	s.setClientScopes(a, models.OwnerKeys{corpKey, allianceKey})

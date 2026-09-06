@@ -89,3 +89,33 @@ func TestIntegrationSessionResumeKeepsDerivedScopes(t *testing.T) {
 		t.Fatalf("hosted after resume=%v, want %s", f.Server.HostedTenants(), corpTenant)
 	}
 }
+
+// The account owner is delivered through userConnections, so it must not also sit
+// in the owner index: a connection in both places is one tenant reported twice,
+// and hosted-tenant counts drive placement.
+func TestIntegrationAccountIsHostedOnce(t *testing.T) {
+	f := newIntegFixture(t)
+	const (
+		accountID = "acct-once"
+		sessionID = "sess-once"
+	)
+	f.seedSessionWithGrants(accountID, sessionID, []int64{10}, nil)
+
+	conn := f.dial(sessionID)
+	_ = f.readJSONMessage(conn, 2*time.Second)
+	f.waitClients(1, 2*time.Second)
+
+	accountTenant := models.AccountOwner(accountID).Key()
+	var seen int
+	for _, tenant := range f.Server.HostedTenants() {
+		if tenant == accountTenant {
+			seen++
+		}
+	}
+	if seen != 1 {
+		t.Fatalf("hosted=%v, want %s exactly once", f.Server.HostedTenants(), accountTenant)
+	}
+	if got, want := f.Server.HostedTenantCount(), 2; got != want {
+		t.Fatalf("HostedTenantCount=%d, want %d (the account and its corporation)", got, want)
+	}
+}

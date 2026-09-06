@@ -129,19 +129,15 @@ func CloudStoredEsiRefreshMaintenance(ctx context.Context, payload eipnats.Cloud
 	// This pass exchanged every stored token, so it can also confirm the account is
 	// still in the corporations its memberships claim — for the price of a task it
 	// would otherwise never get, since the accounts it reaches have not logged in
-	// for at least the rotation window.
+	// for at least the rotation window. An account that logs in regularly is never
+	// in this sweep and keeps its rows current through the grants task instead.
 	//
-	// It is not the whole answer: the sweep selects on login age, so an account
-	// logging in regularly is never in it. cleanUpExpiredMemberships and the
-	// staleness window cover that case, and § the membership revalidation sweep
-	// covers the rest.
-	//
-	// Only on a complete pass: reconciling against a partial set would remove
-	// access the account still holds. An incomplete one leaves the rows alone and
-	// the next pass tries again.
-	if stats.Complete && len(stats.AccessTokens) > 0 {
-		if err := eipnats.PublishUpdateAccountSessionGrants(ctx, deps.NATS, accountID, stats.AccessTokens); err != nil {
-			logs.WarnCtx(ctx, "cloud esi refresh maintenance: could not queue membership revalidation",
+	// Only on a complete pass: a transient failure leaves the answer unknown, and
+	// reconciling against a set missing an entity the account is still in would
+	// revoke access it holds. The next pass tries again.
+	if stats.Complete {
+		if err := revalidateMemberships(ctx, deps, accountID, stats.AccessTokens); err != nil {
+			logs.WarnCtx(ctx, "cloud esi refresh maintenance: could not revalidate memberships",
 				"account_id", accountID, "error", err)
 		}
 	}
@@ -154,7 +150,7 @@ func CloudStoredEsiRefreshMaintenance(ctx context.Context, payload eipnats.Cloud
 		"rows_failed", stats.RowsFailed,
 		"rows_removed", stats.RowsRemoved,
 		"rows_deferred_retry", stats.RowsRetryNext,
-		"membership_revalidation_queued", stats.Complete && len(stats.AccessTokens) > 0,
+		"membership_revalidation_run", stats.Complete,
 	)
 	return nil
 }
@@ -175,4 +171,27 @@ func observeSSO(ctx context.Context, esi esiclient.API, stats cloudEsiMaintainSt
 	case stats.SSOSilent > 0:
 		_ = esi.Observe(ctx, "evesso", false)
 	}
+}
+
+// revalidateMemberships confirms what the account can still prove, from the
+// tokens this pass obtained.
+//
+// No tokens is a real answer rather than nothing to do: every character EVE would
+// still refresh is gone, so the account is in no corporation it can demonstrate
+// and its entity memberships go with them. The grants task refuses an empty set —
+// rightly, since a caller with no tokens has usually failed to collect them — so
+// the empty case reconciles directly instead of publishing.
+func revalidateMemberships(ctx context.Context, deps *taskrun.Dependencies, accountID string, tokens []string) error {
+	if len(tokens) > 0 {
+		return eipnats.PublishUpdateAccountSessionGrants(ctx, deps.NATS, accountID, tokens)
+	}
+	_, removed, err := deps.Mongo.ReconcileEntityMemberships(ctx, accountID, nil, time.Now().UTC())
+	if err != nil {
+		return err
+	}
+	if removed > 0 {
+		logs.InfoCtx(ctx, "removed entity memberships: no character can still prove them",
+			"account_id", accountID, "removed", removed)
+	}
+	return nil
 }

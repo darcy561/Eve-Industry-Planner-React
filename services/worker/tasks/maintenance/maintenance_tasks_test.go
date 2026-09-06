@@ -44,3 +44,51 @@ func TestMaintenanceTasksStopWithoutMongo(t *testing.T) {
 		})
 	}
 }
+
+// A pass is complete when it knows what the account can still prove, which is
+// not the same as every row surviving. EVE refusing a grant outright says the
+// character is gone for good — a positive answer — so it must not block the
+// reconcile that removes what that character was carrying. A transient failure
+// must, because the answer is then genuinely unknown.
+func TestCloudRefreshCompleteness(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name     string
+		stats    cloudEsiMaintainStats
+		complete bool
+	}{
+		{
+			name:     "every row refreshed",
+			stats:    cloudEsiMaintainStats{RowsRefreshed: 2, AccessTokens: []string{"a", "b"}},
+			complete: true,
+		},
+		{
+			// The character is gone for good, so the account genuinely can prove
+			// less than it could. Reconciling on that is the point.
+			name:     "one grant refused outright",
+			stats:    cloudEsiMaintainStats{RowsRefreshed: 1, RowsRemoved: 1, AccessTokens: []string{"a"}},
+			complete: true,
+		},
+		{
+			name:     "every grant refused",
+			stats:    cloudEsiMaintainStats{RowsRemoved: 2},
+			complete: true,
+		},
+		{
+			name:     "one row failed transiently",
+			stats:    cloudEsiMaintainStats{RowsRefreshed: 1, RowsFailed: 1, AccessTokens: []string{"a"}},
+			complete: false,
+		},
+		{
+			// Refreshed but yielded no token: nothing to check affiliations with.
+			name:     "a refresh produced no token",
+			stats:    cloudEsiMaintainStats{RowsRefreshed: 2, AccessTokens: []string{"a"}},
+			complete: false,
+		},
+	} {
+		if got := tc.stats.knowsWhatTheAccountCanProve(); got != tc.complete {
+			t.Errorf("%s: complete = %v, want %v", tc.name, got, tc.complete)
+		}
+	}
+}

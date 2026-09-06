@@ -266,7 +266,7 @@ nothing here describes live behaviour yet.
 
 ## Stage D — What a second member breaks
 
-*D1 landed. The close gate and the extras picker are still owed.*
+*D1 landed. The close gate is skipped — see the plan's D2. The extras picker is still owed.*
 
 **Recalculating a job keeps what the job is built with.** A new total produces a new layout — the same
 runs may divide into a different number of setups — so the setups are still replaced rather than
@@ -323,9 +323,9 @@ This is a live defect on personal planners rather than only a sharing one: chang
 and editing an older job rebuilt it under the new default, and a job restored from a group template
 lost everything the template supplied if the quantity differed at all.
 
-Owed here: where the extras category ids and the job status id set live once they are the planner's,
-what recalculation now preserves and how a job's build context survives another member editing it,
-and what the close cascade's persist gate covers.
+Owed here: where the extras category ids live once they are the planner's. What recalculation preserves
+and how a job's build context survives another member editing it is written above. The close cascade's
+persist gate is not owed — the plan's D2 records why it is skipped and what replaces it.
 
 ## Stage E — Custom planners
 

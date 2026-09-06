@@ -1387,25 +1387,42 @@ is part of the slice rather than a follow-up.
 its quantities change, a newly built job still derives them, and a single-member planner's figures are
 unchanged.
 
-#### D2 — The close gate covers what the close writes
+#### D2 — The close gate covers what the close writes — *skipped, folded into a later review*
 
-`closeActiveJob` computes one boolean, `canPersistJobClose(inputJob.jobID, groupID)`, and then writes
-`jobsToPersist` — the edited job, the temporary jobs, and `batchUpdates`, which is the parent/child
-tree `getAllRelatedJobs` collected. The gate asks about one document and the write covers many.
+**Skipped.** Investigation found the stage as written describes a gap that does not exist, and a real
+defect underneath it that is larger than this stage and belongs with the duplicate-job-writes and
+ownership review rather than here.
 
-On a personal planner the tree has one owner and the gap cannot be seen. On a shared planner another
-member holds a lock on a related job and it is written anyway.
+The stage assumed the client gate was the only thing standing between a multi-job write and a document
+another member holds. It is not. `PutJobDocumentsHandler` collects the lock state for **every** job in
+the batch and rejects the whole request with a 409 when any one of them is held elsewhere, writing
+nothing — so no partial tree can reach Mongo, and the client-side pre-check the stage asks for would
+save a round trip rather than prevent an incorrect write. The client already parses that 409 and patches
+each rejected row into its local lock state.
 
-**And it is not only the job close.** `closeGroup` has the same shape — one `canPersistGroupClose(groupID)`
-gating a write of every member job — and `passBuildCosts` and `releaseJobsAfterGroupRemoved` both write
-multi-job sets with no gate visible at the call site at all. The slice is a predicate that answers for a
-set of documents, and every multi-job write moved onto it; fixing one of four leaves the other three.
+What the investigation did find, recorded here for the later review:
 
-The backend already checks locks per document, so this is the client refusing to attempt a write it
-cannot make, not the last line of defence.
+**The retry queue replays whatever is current, not what was refused.** `pendingJobDocumentWrites` holds
+job **ids**, and `getPendingJobDocumentWritesPayload` resolves them against `jobArray` at flush time. On
+a 409 `persistJobDocumentsToApi` returns without clearing the queue, so those ids stay pending. The
+holder's own save then arrives over the websocket and is written into `jobArray`, and the next flush —
+a debounce tick, a tab-lifecycle flush, any later unrelated save — rebuilds the payload from `jobArray`
+and PUTs it back. `BulkUpsertJobs` is a full-document upsert with no version check, so depending on
+which side of the race the flush lands, the write is either a pointless re-upload of the holder's own
+document or a clobber of it by one that is part theirs and part stale local edit. The flush consults no
+lock gate of its own, so it fires whenever the lease happens to have moved.
 
-**Done when** every multi-job write is gated on every document it writes, a close is refused when any
-related job is locked elsewhere, and a single-member close still writes exactly what it writes today.
+**A refused write is reported as a success.** `saveJobsViaApi` resolves the same way whether the write
+landed or was refused, so `closeActiveJob` closes the editor and shows its adjustment summary either
+way.
+
+Settling this needs a product decision the stage cannot make on its own: when a member's close is
+refused because another member holds a related job, their edits are real work, and discarding them,
+keeping them local with a warning, or blocking the close are three different applications. That
+question, the queue's replay semantics and job-write ownership are one review, not three slices.
+
+**Neither finding blocks the rest of Stage D.** Both are invisible on a single-member planner, and
+neither is reachable through D1 or D3.
 
 #### D3 — The two shared id spaces
 
@@ -1439,13 +1456,13 @@ and a single-member planner sees exactly the categories it sees today.
 
 #### Order
 
-D1 and D2 are live defects on personal planners today and can land immediately, before any planner
-holds two people. D2 has a soft dependency on D1: widening the gate without fixing recalculation still
-leaves a member who legitimately holds every lock destroying another's build context, because a lock
-cannot answer for the content of a permitted write.
+D1 was a live defect on personal planners today and has landed. D2 is skipped — what it describes is
+already handled server-side, and the defect underneath it belongs with the duplicate-job-writes and
+ownership review.
 
 D3 needs planner-scoped settings storage to exist, so it sequences after the planner document, and it
-has shrunk to the extras picker alone. The stage's headline turns out to be its smallest slice.
+has shrunk to the extras picker alone. The stage's headline turns out to be its smallest slice, and
+with D2 out it is the only slice left here.
 
 ### Stage E — Custom planners
 
@@ -1614,6 +1631,6 @@ do not touch.
 | A — the owner block, in one cutover | **Ready to run.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, and the rehearsal against a restored copy of live is done. Outstanding: the window itself |
 | B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the active-planner message replacing it is Stage E work — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
-| D — what a second member breaks | Not started; three slices — D1 recalculation keeping a job's build context, D2 every multi-job write gated on what it writes, D3 the extras picker. All SPA work. D1 and D2 are live defects today; job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |
+| D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered moves to the duplicate-job-writes and ownership review. D3 is the extras picker and needs Stage E's settings document first. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |
 | E — custom planners | Not started. Now also owns the planner settings document — a setup stores `customStructureID`, a reference into the writing account's settings, so a member opening another's job finds the structure missing. See § Settings split between the planner and the account |
 | F — ESI providers | Not started |

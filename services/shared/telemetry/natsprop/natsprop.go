@@ -85,6 +85,26 @@ func AsynqHeadersFromContext(ctx context.Context) map[string]string {
 	return m
 }
 
+// AsynqHeadersForBridge is the header set a bridge attaches when it re-publishes an inbound
+// message onto a queue. The trace context comes from ctx, so the consumer's span is a child of the
+// bridge's rather than a sibling of it; everything else the message arrived with — request
+// identity, log context — is carried across untouched.
+func AsynqHeadersForBridge(ctx context.Context, inbound natslib.Header) map[string]string {
+	out := AsynqHeadersFromNATS(inbound)
+	local := AsynqHeadersFromContext(ctx)
+	if len(local) == 0 {
+		return out
+	}
+	if out == nil {
+		return local
+	}
+	// Local wins: the inbound trace context is the one being replaced.
+	for k, v := range local {
+		out[k] = v
+	}
+	return out
+}
+
 // AsynqHeadersFromNATS copies NATS message headers into a string map for asynq.NewTaskWithHeaders
 // (single value per key; propagators may set traceparent, tracestate, baggage, sentry-trace, etc.).
 func AsynqHeadersFromNATS(h natslib.Header) map[string]string {

@@ -34,7 +34,7 @@ func processMessage(ctx context.Context, msg jetstream.Msg, client *asynq.Client
 	if !ok {
 		return eipnats.Terminate("no task is registered for subject %s", subject)
 	}
-	if err := asynqpkg.Enqueue(msg, client, task); err != nil {
+	if err := asynqpkg.Enqueue(ctx, msg, client, task); err != nil {
 		return fmt.Errorf("enqueue %s to asynq: %w", task.Name, err)
 	}
 	logs.DebugCtx(ctx, "nats task enqueued", "subject", subject, "task_type", task.Name)
@@ -61,7 +61,7 @@ func SubscribeScheduledTasks(nats *eipnats.NATS, client *asynq.Client) (func(con
 		logs.WarnCtx(ctx, "worker task stream consumer reconcile failed", "error", err)
 	}
 
-	processor := eipnats.Handle(workerNatsTracerName, "nats.enqueue_task",
+	processor := eipnats.Handle(workerNatsTracerName, "process task",
 		func(ctx context.Context, msg jetstream.Msg) error {
 			return processMessage(ctx, msg, client)
 		})

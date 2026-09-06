@@ -1,6 +1,7 @@
 package asynq
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -18,7 +19,7 @@ import (
 //
 // Returns once the task is queued; the caller acknowledges the NATS message
 // after that, so durability passes to Redis at this point.
-func Enqueue(msg jetstream.Msg, client *asynq.Client, task eipnats.Definition) error {
+func Enqueue(ctx context.Context, msg jetstream.Msg, client *asynq.Client, task eipnats.Definition) error {
 	payload := msg.Data()
 
 	var natsMsg eipnats.Message
@@ -34,10 +35,10 @@ func Enqueue(msg jetstream.Msg, client *asynq.Client, task eipnats.Definition) e
 	queue := task.DefaultPriority
 	taskTimeout := taskTimeoutFor(task)
 
-	// The trace and the request identity carry on the headers the message arrived
-	// with, so a handler's own publishes and queries stay on the trace that caused
-	// the task.
-	traceHeaders := natsprop.AsynqHeadersFromNATS(msg.Headers())
+	// Injected from this span rather than copied from the inbound headers, so the execution span
+	// is a child of the bridge rather than a sibling and the wait in Redis is the gap between
+	// them. The request identity still travels on the inbound headers.
+	traceHeaders := natsprop.AsynqHeadersForBridge(ctx, msg.Headers())
 
 	// Retention keeps a task readable for a day after it runs, so an operator can
 	// still see what happened to it.

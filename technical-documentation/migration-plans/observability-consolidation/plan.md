@@ -586,8 +586,11 @@ them on the span is a few lines.
 the *inbound* NATS headers, so the execution span inherits the publisher's context and becomes a
 sibling of the bridge span rather than its child. Time waiting in Redis shows only as a gap between
 siblings. **To decide:** make execution a child of the bridge, so queue latency is a duration, or
-give it a span link to the producer as the messaging conventions suggest. It is currently neither by
-accident rather than by choice.
+give it a span link to the producer as the messaging conventions suggest. **Decided: child of the
+bridge.** A parent chain renders as one waterfall, which is what an operator follows; a link is
+followed by clicking and splits "what happened to this request" across two views. The risk a link
+would have avoided — a fan-out landing on one unbounded trace — is the one that produced a
+twenty-thousand-span trace earlier in this project, so it is worth revisiting if trace sizes grow.
 
 Span names (`nats.publish_task`, `nats.enqueue_task`, `asynq.task`) are bespoke rather than the
 `{destination} {operation}` the conventions use. Worth a sweep alongside the decision above, since
@@ -768,8 +771,8 @@ the first time. Every dashboard carrying more than a handful of panels groups th
 | C — the application tier all speaks OTLP | Done |
 | D — backend evaluation | Closed — backend not adopted |
 | E — query gate | Dropped with the backend |
-| F — traces stop being discarded | Partial — services and Tempo landed, not yet deployed |
-| G — the spans say what a trace needs | Not started |
+| F — traces stop being discarded | Done |
+| G — the spans say what a trace needs | Done |
 | H — fix the dashboards | Done |
 | I — cutover | Retired — nothing to cut over |
 | J — promote and delete | Not started |

@@ -67,8 +67,26 @@ func installTaskMiddleware(mux *asynq.ServeMux) {
 			ctx = logs.BeginOperationContext(ctx)
 			ctx = logs.EnsureOperationLogger(ctx)
 			taskType := t.Type()
-			ctx, span := tracer.Start(ctx, "asynq.task",
-				trace.WithAttributes(attribute.String("asynq.task.type", taskType)),
+			attrs := []attribute.KeyValue{
+				attribute.String("messaging.system", "asynq"),
+				attribute.String("messaging.operation.name", "process"),
+				attribute.String("messaging.destination.name", taskType),
+				attribute.String("asynq.task.type", taskType),
+			}
+			// Which attempt this is, and how many are left, is the question a trace is best placed
+			// to answer and the log lines answered alone.
+			if run, ok := taskrun.Current(ctx); ok {
+				attrs = append(attrs,
+					attribute.String("messaging.message.id", run.ID),
+					attribute.String("messaging.destination.subscription.name", run.Queue),
+					attribute.Int("asynq.task.retried", run.Retried),
+					attribute.Int("asynq.task.max_retries", run.MaxRetries),
+					attribute.Bool("asynq.task.final_attempt", run.FinalAttempt()),
+				)
+			}
+			ctx, span := tracer.Start(ctx, "process "+taskType,
+				trace.WithSpanKind(trace.SpanKindConsumer),
+				trace.WithAttributes(attrs...),
 			)
 			logs.AttachDebugStepCtx(ctx, "asynq_task_started", map[string]any{
 				"task_type": taskType,

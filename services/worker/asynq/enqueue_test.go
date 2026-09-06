@@ -34,7 +34,7 @@ func enqueueOne(t *testing.T, body string) (*asynq.Inspector, string) {
 
 	taskType := eipnats.RefreshRegionMarketOrders.Name
 	msg := streamMsg{data: []byte(body), headers: natslib.Header{}}
-	if err := Enqueue(msg, client, eipnats.RefreshRegionMarketOrders); err != nil {
+	if err := Enqueue(t.Context(), msg, client, eipnats.RefreshRegionMarketOrders); err != nil {
 		t.Fatalf("Enqueue: %v", err)
 	}
 
@@ -122,7 +122,7 @@ func TestEnqueueRefusesAMessageThatIsNotTheEnvelope(t *testing.T) {
 	t.Cleanup(func() { _ = client.Close() })
 
 	msg := streamMsg{data: []byte(`not json`), headers: natslib.Header{}}
-	if err := Enqueue(msg, client, eipnats.RefreshRegionMarketOrders); err == nil {
+	if err := Enqueue(t.Context(), msg, client, eipnats.RefreshRegionMarketOrders); err == nil {
 		t.Fatal("an unreadable message was queued")
 	}
 }

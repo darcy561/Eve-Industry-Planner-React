@@ -253,6 +253,39 @@ hit those on a timer forever, so it is the same unbounded shape as the gauge cal
 filter is a closure inside `StartAPIServer` and reaching it would mean restructuring the server for
 the test.
 
+### What a task span says
+
+A task's execution span is a **consumer**, not an internal call, and carries the attempt: task id,
+queue, retries used, retries allowed, and whether this is the final attempt. That last group is the
+question a trace is best placed to answer and was previously only ever on a log line.
+
+The execution span is a **child of the bridge span that queued it**, not a sibling. `Enqueue` injects
+the trace context from its own span rather than copying the inbound NATS headers, so the wait in
+Redis is the gap between parent and child rather than a gap between siblings that no span accounts
+for. `natsprop.AsynqHeadersForBridge` is where that happens: the trace context comes from the
+bridge, and everything else the message arrived carrying is forwarded untouched. A bridge running
+without a span of its own still forwards what it was given, so the trace continues through the queue
+rather than stopping at it.
+
+Span names follow `{operation} {destination}` — `send task.scheduled.…`, `process task`,
+`process <task type>` — because that is what makes a span render in a backend's messaging views
+rather than as a bespoke name nothing has a view for. The same reason applies to the span kinds:
+producer at the publish, consumer at both the bridge and the execution.
+
+Read back from a live trace, which is the only thing that proves the shape rather than the headers:
+
+```
+process task                 ROOT           kind=CONSUMER
+└─ process checkSDEUpdates   parent=bridge  kind=CONSUMER
+```
+
+with the execution span carrying `messaging.message.id`, `messaging.destination.subscription.name`
+(the queue), `asynq.task.retried`, `asynq.task.max_retries` and `asynq.task.final_attempt`.
+
+Verifying this needs the sample rate at 1.0 for the moment it takes to trigger one task. At 0.1 a
+task is a self-started trace with no parent to inherit a decision from, so a dozen triggers can all
+go unsampled and the absence looks like a fault rather than the sampler working.
+
 Tempo v3.0.0 renamed the sections these limits live in — `ingester` became `live_store` and
 `compactor` split into `block_builder` and `backend_scheduler` — so a config written against older
 documentation fails to parse rather than silently ignoring the caps.

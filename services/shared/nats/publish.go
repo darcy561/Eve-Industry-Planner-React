@@ -144,11 +144,13 @@ func startPublishTaskSpan(ctx context.Context, subject, taskType string, taskDat
 		trace.WithAttributes(
 			attribute.String("messaging.system", "nats"),
 			attribute.String("messaging.destination.name", subject),
+			attribute.String("messaging.operation.name", "send"),
 			attribute.String("task.type", taskType),
 		),
 	}
 	if len(taskDataAttrs) > 0 {
 		opts = append(opts, trace.WithAttributes(taskDataAttrs...))
 	}
-	return tracer.Start(ctx, "nats.publish_task", opts...)
+	// {operation} {destination}, which is what makes a span render as messaging in any backend.
+	return tracer.Start(ctx, "send "+subject, opts...)
 }

@@ -158,3 +158,75 @@ func TestLive_ensureAccountPlanner_isInsertOnly(t *testing.T) {
 		t.Fatalf("membership rows = %d, want exactly one after two calls", rows)
 	}
 }
+
+// Each half is repaired on its own. A planner whose membership row was deleted
+// regains the row, and a membership row whose planner was deleted regains the
+// planner — so a bad delete heals on the account's next login or refresh rather
+// than needing a command run against it. Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_ensureAccountPlanner_repairsEitherHalfAlone(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	const accountID = "eip-parity-repair-account"
+	plannerID := models.AccountOwner(accountID).Key()
+	membershipID := models.PlannerMembershipID(plannerID, accountID)
+
+	t.Cleanup(func() {
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancelCleanup()
+		_, _ = mongo.Planners.Collection().DeleteMany(cleanupCtx, bson.M{"_id": plannerID})
+		_, _ = mongo.PlannerMemberships.Collection().DeleteMany(cleanupCtx, bson.M{"_id": membershipID})
+	})
+
+	now := time.Now().UTC()
+	if err := mongo.EnsureAccountPlanner(ctx, accountID, now); err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	// The membership row goes; the planner stays and keeps a rename, so the repair
+	// is visibly restoring the missing half rather than rewriting the pair.
+	if _, err := mongo.Planners.Collection().UpdateOne(ctx,
+		bson.M{"_id": plannerID}, bson.M{"$set": bson.M{"name": "Kept through the repair"}}); err != nil {
+		t.Fatalf("rename planner: %v", err)
+	}
+	if _, err := mongo.PlannerMemberships.Collection().DeleteOne(ctx, bson.M{"_id": membershipID}); err != nil {
+		t.Fatalf("delete membership: %v", err)
+	}
+	if err := mongo.EnsureAccountPlanner(ctx, accountID, now); err != nil {
+		t.Fatalf("repair membership: %v", err)
+	}
+
+	var membership models.PlannerMembership
+	if err := mongo.PlannerMemberships.Collection().FindOne(ctx, bson.M{"_id": membershipID}).Decode(&membership); err != nil {
+		t.Fatalf("membership was not restored: %v", err)
+	}
+	if got := membership.JoinMethod.Kind(); got != models.JoinKindSelf {
+		t.Fatalf("restored join kind = %q, want %q", got, models.JoinKindSelf)
+	}
+	var planner models.Planner
+	if err := mongo.Planners.Collection().FindOne(ctx, bson.M{"_id": plannerID}).Decode(&planner); err != nil {
+		t.Fatalf("read planner: %v", err)
+	}
+	if planner.Name != "Kept through the repair" {
+		t.Fatalf("planner name = %q, want the repair to leave the surviving half alone", planner.Name)
+	}
+
+	// Now the other way round: the planner goes, the membership row stays.
+	if _, err := mongo.Planners.Collection().DeleteOne(ctx, bson.M{"_id": plannerID}); err != nil {
+		t.Fatalf("delete planner: %v", err)
+	}
+	if err := mongo.EnsureAccountPlanner(ctx, accountID, now); err != nil {
+		t.Fatalf("repair planner: %v", err)
+	}
+	if err := mongo.Planners.Collection().FindOne(ctx, bson.M{"_id": plannerID}).Decode(&planner); err != nil {
+		t.Fatalf("planner was not restored: %v", err)
+	}
+	rows, err := mongo.PlannerMemberships.Collection().CountDocuments(ctx, bson.M{"plannerID": plannerID})
+	if err != nil {
+		t.Fatalf("count memberships: %v", err)
+	}
+	if rows != 1 {
+		t.Fatalf("membership rows = %d, want the surviving row not to be duplicated", rows)
+	}
+}

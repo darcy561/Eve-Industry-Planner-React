@@ -23,6 +23,12 @@ const DefaultAccountPlannerName = "My planner"
 // release backfill and first login share one implementation without either
 // undoing the other.
 //
+// **The two writes are deliberately independent.** Each half is created only if
+// that half is absent, so a planner whose membership row has been deleted regains
+// the row without the planner being touched, and the reverse. Collapsing them into
+// one guarded block — "if the planner exists, do nothing" — would read as a tidier
+// version of the same thing and would silently stop repairing the other half.
+//
 // The planner's `_id` is the account's owner key, so nothing is minted here — the
 // documents the account already holds carry that same id inside `_meta.owner`.
 func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now time.Time) error {

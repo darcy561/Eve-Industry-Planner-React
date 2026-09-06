@@ -186,6 +186,17 @@ renamed its planner keeps the name, and the backfill can be run again without un
 planner's `_id` is the account's owner key, so nothing is minted: the documents that account already
 holds carry the same id inside `_meta.owner`.
 
+**It repairs rather than only creates.** The two writes are independent, each conditional on its own
+half being absent, so a planner whose membership row was deleted regains the row while keeping its
+name, and the reverse. Login is not the only path through it: refresh calls the same resolver, so every
+active account passes through within a session cycle and a bad delete heals without anyone running a
+command. Guarding the call on first login would save two writes, give that up, and strand an account
+whose user document was written between the backfill and the end of the release — it has one of those,
+no planner, and is never first-login again.
+
+The backfill is kept even so. Membership rows become the source of grants in C3, and an account that
+has not logged in or refreshed since the release would otherwise have none at the moment that lands.
+
 **The backfill's position in the release is load-bearing.** It follows the owner stamp, because a
 planner id is the owner key those documents gain there, and precedes the grants rewrite, which reads
 the membership rows it writes. A test asserts that order rather than leaving it to a comment.

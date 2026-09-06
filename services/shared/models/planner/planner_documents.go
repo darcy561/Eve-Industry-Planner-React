@@ -1,10 +1,12 @@
-package models
+package planner
 
 import (
 	"errors"
 	"fmt"
 	"strings"
 	"time"
+
+	"eve-industry-planner/shared/models"
 )
 
 // Planner is a working area that jobs, groups and their archive belong to.
@@ -18,40 +20,40 @@ import (
 // response emits the owner handle instead, converting at the same last hop as
 // every other ref.
 type Planner struct {
-	ID            string   `bson:"_id" json:"-"`
-	SchemaVersion int      `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
-	Name          string   `bson:"name" json:"name"`
-	MemberCount   int      `bson:"memberCount" json:"memberCount"`
-	AccessModels  []string `bson:"accessModels,omitempty" json:"accessModels,omitempty"`
-	CreatedBy     string   `bson:"createdBy" json:"-"`
-	MetaData      MetaData `bson:"_meta" json:"_meta"`
+	ID            string          `bson:"_id" json:"-"`
+	SchemaVersion int             `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
+	Name          string          `bson:"name" json:"name"`
+	MemberCount   int             `bson:"memberCount" json:"memberCount"`
+	AccessModels  []string        `bson:"accessModels,omitempty" json:"accessModels,omitempty"`
+	CreatedBy     string          `bson:"createdBy" json:"-"`
+	MetaData      models.MetaData `bson:"_meta" json:"_meta"`
 }
 
 // Owner reads the planner's owner back out of its id.
-func (p Planner) Owner() (Owner, error) { return ParseOwnerKey(p.ID) }
+func (p Planner) Owner() (models.Owner, error) { return models.ParseOwnerKey(p.ID) }
 
 // Shared reports whether more than one account is in the planner.
 func (p Planner) Shared() bool { return p.MemberCount > 1 }
 
-// PlannerMembershipID is the composite `_id` of a membership row, which gives one
+// MembershipID is the composite `_id` of a membership row, which gives one
 // row per account per planner without needing a unique index.
 //
 // The separator is safe because nothing either side can contain it: an account id
 // is stripped to alphanumerics, an entity ref is base64url, and a minted planner
 // id is base32. The owner key's own colon is therefore the only separator inside
 // the left half.
-func PlannerMembershipID(plannerID, accountID string) string {
+func MembershipID(plannerID, accountID string) string {
 	return plannerID + membershipIDSeparator + accountID
 }
 
 const membershipIDSeparator = "|"
 
-// SplitPlannerMembershipID recovers the planner id and account id from a row id.
+// SplitMembershipID recovers the planner id and account id from a row id.
 //
 // The planner id is everything before the last separator, not the first: an owner
 // key leads with `kind:`, and only the account id is guaranteed to hold no
 // separator of its own.
-func SplitPlannerMembershipID(id string) (plannerID, accountID string, ok bool) {
+func SplitMembershipID(id string) (plannerID, accountID string, ok bool) {
 	cut := strings.LastIndex(id, membershipIDSeparator)
 	if cut <= 0 || cut == len(id)-1 {
 		return "", "", false
@@ -59,15 +61,16 @@ func SplitPlannerMembershipID(id string) (plannerID, accountID string, ok bool) 
 	return id[:cut], id[cut+1:], true
 }
 
-// PlannerMembership puts one account in one planner, and is the only thing that
+// Membership puts one account in one planner, and is the only thing that
 // grants access to one: nothing above it asks how the row came to exist.
-type PlannerMembership struct {
-	ID            string     `bson:"_id" json:"-"`
-	SchemaVersion int        `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
-	PlannerID     string     `bson:"plannerID" json:"-"`
-	AccountID     string     `bson:"accountID" json:"-"`
-	JoinedAt      time.Time  `bson:"joinedAt" json:"joinedAt"`
-	JoinMethod    JoinMethod `bson:"joinMethod" json:"joinMethod"`
+type Membership struct {
+	ID            string          `bson:"_id" json:"-"`
+	SchemaVersion int             `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
+	PlannerID     string          `bson:"plannerID" json:"-"`
+	AccountID     string          `bson:"accountID" json:"-"`
+	JoinedAt      time.Time       `bson:"joinedAt" json:"joinedAt"`
+	JoinMethod    JoinMethod      `bson:"joinMethod" json:"joinMethod"`
+	MetaData      models.MetaData `bson:"_meta" json:"_meta"`
 }
 
 // JoinMethod is how an account came to be a member. The branch that is set is
@@ -144,7 +147,7 @@ type ESIJoin struct {
 	CharacterHash string `bson:"characterHash,omitempty" json:"-"`
 }
 
-// PlannerInvite is one outstanding invitation into a planner.
+// Invite is one outstanding invitation into a planner.
 //
 // The hash, the binding and the creator never leave the server. An invite grants
 // membership and nothing more, so it carries no role.
@@ -152,7 +155,7 @@ type ESIJoin struct {
 // Invites are not kept: a TTL index on ExpiresAt clears expired ones, and one
 // that is spent or revoked is deleted — what the membership needed from it was
 // copied at join time.
-type PlannerInvite struct {
+type Invite struct {
 	ID             string     `bson:"_id" json:"id"`
 	SchemaVersion  int        `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
 	PlannerID      string     `bson:"plannerID" json:"-"`
@@ -165,16 +168,11 @@ type PlannerInvite struct {
 	CreatedBy      string     `bson:"createdBy" json:"-"`
 }
 
-// SessionGrants is every owner a session may read, including the account's own
-// key, so nothing downstream special-cases the account.
-//
-// The wrapper is the stored envelope: grants persist as an object under `grants`
-// rather than a bare list, so a field can be added beside the keys later without
-// rewriting what is already stored. It carries no schema version because the
-// release rewrites stored grants rather than migrating them in place.
-type SessionGrants struct {
-	OwnerKeys OwnerKeys `json:"owner_keys"`
-}
-
-// Allows reports whether the owner is one the session may read.
-func (g SessionGrants) Allows(owner Owner) bool { return g.OwnerKeys.Has(owner) }
+// Schema versions for the planner documents. They live beside the types they
+// version rather than in the parent package's block: a constant away from its
+// type is one an added field can be forgotten beside.
+const (
+	SchemaCurrent           = 1
+	MembershipSchemaCurrent = 1
+	SettingsSchemaCurrent   = 1
+)

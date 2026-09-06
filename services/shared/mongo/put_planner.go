@@ -6,30 +6,31 @@ import (
 	"time"
 
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/models/planner"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-// DefaultAccountPlannerName is what an account's own planner is called until the
+// DefaultAccountPlannerName is what an account's own plannerDoc is called until the
 // account renames it.
-const DefaultAccountPlannerName = "My planner"
+const DefaultAccountPlannerName = "My plannerDoc"
 
-// EnsureAccountPlanner gives an account the planner it works in, and puts the
+// EnsureAccountPlanner gives an account the plannerDoc it works in, and puts the
 // account in it.
 //
 // Written on insert only: a repeat call adds nothing and rewrites nothing, so an
-// account that has renamed its planner keeps the name. That is what lets the
+// account that has renamed its plannerDoc keeps the name. That is what lets the
 // release backfill and first login share one implementation without either
 // undoing the other.
 //
 // **The two writes are deliberately independent.** Each half is created only if
-// that half is absent, so a planner whose membership row has been deleted regains
-// the row without the planner being touched, and the reverse. Collapsing them into
-// one guarded block — "if the planner exists, do nothing" — would read as a tidier
+// that half is absent, so a plannerDoc whose membership row has been deleted regains
+// the row without the plannerDoc being touched, and the reverse. Collapsing them into
+// one guarded block — "if the plannerDoc exists, do nothing" — would read as a tidier
 // version of the same thing and would silently stop repairing the other half.
 //
-// The planner's `_id` is the account's owner key, so nothing is minted here — the
+// The plannerDoc's `_id` is the account's owner key, so nothing is minted here — the
 // documents the account already holds carry that same id inside `_meta.owner`.
 func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now time.Time) error {
 	if m == nil || accountID == "" {
@@ -41,29 +42,31 @@ func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now 
 	}
 	plannerID := owner.Key()
 
-	planner := models.Planner{
-		SchemaVersion: models.PlannerSchemaCurrent,
+	plannerDoc := planner.Planner{
+		SchemaVersion: planner.SchemaCurrent,
 		Name:          DefaultAccountPlannerName,
 		MemberCount:   1,
 		CreatedBy:     accountID,
 	}
-	planner.MetaData.Owner = owner
-	planner.MetaData.LastModified = now.UTC()
-	if err := insertIfAbsent(ctx, m.Planners, plannerID, planner); err != nil {
-		return fmt.Errorf("write planner for %s: %w", accountID, err)
+	plannerDoc.MetaData.Owner = owner
+	plannerDoc.MetaData.LastModified = now.UTC()
+	if err := insertIfAbsent(ctx, m.Planners, plannerID, plannerDoc); err != nil {
+		return fmt.Errorf("write plannerDoc for %s: %w", accountID, err)
 	}
 
-	membership := models.PlannerMembership{
-		SchemaVersion: models.PlannerMembershipSchemaCurrent,
+	membership := planner.Membership{
+		SchemaVersion: planner.MembershipSchemaCurrent,
 		PlannerID:     plannerID,
 		AccountID:     accountID,
 		JoinedAt:      now.UTC(),
-		JoinMethod:    models.JoinMethod{Self: &models.SelfJoin{}},
+		JoinMethod:    planner.JoinMethod{Self: &planner.SelfJoin{}},
 	}
+	membership.MetaData.Owner = owner
+	membership.MetaData.LastModified = now.UTC()
 	if err := membership.JoinMethod.Validate(); err != nil {
 		return fmt.Errorf("membership for %s: %w", accountID, err)
 	}
-	if err := insertIfAbsent(ctx, m.PlannerMemberships, models.PlannerMembershipID(plannerID, accountID), membership); err != nil {
+	if err := insertIfAbsent(ctx, m.PlannerMemberships, planner.MembershipID(plannerID, accountID), membership); err != nil {
 		return fmt.Errorf("write membership for %s: %w", accountID, err)
 	}
 	return nil

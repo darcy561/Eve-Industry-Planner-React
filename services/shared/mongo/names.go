@@ -27,6 +27,7 @@ const (
 
 	CollectionPlanners           = "planners"
 	CollectionPlannerMemberships = "planner_memberships"
+	CollectionPlannerSettings    = "planner_settings"
 )
 
 // SchemaMaintainedCollections lists every collection whose documents carry a
@@ -45,6 +46,7 @@ func SchemaMaintainedCollections() []string {
 		CollectionJobGroups,
 		CollectionPlanners,
 		CollectionPlannerMemberships,
+		CollectionPlannerSettings,
 	}
 }
 
@@ -70,6 +72,7 @@ func PlannerHeldCollections() []string {
 		CollectionJobs,
 		CollectionJobDocuments,
 		CollectionJobGroups,
+		CollectionPlannerSettings,
 	}
 }
 

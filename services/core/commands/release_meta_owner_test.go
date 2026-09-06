@@ -15,6 +15,7 @@ import (
 var collectionsCreatedWithAnOwner = []string{
 	eipmongo.CollectionPlanners,
 	eipmongo.CollectionPlannerMemberships,
+	eipmongo.CollectionPlannerSettings,
 }
 
 // A collection holding documents older than the owner block, and missing from the

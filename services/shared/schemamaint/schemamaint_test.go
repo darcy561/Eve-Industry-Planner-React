@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/models/planner"
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/shared/schemamaint"
 )
@@ -29,8 +30,8 @@ func TestCurrentVersionMatchesTheModelConstants(t *testing.T) {
 		eipmongo.CollectionJobs:               models.JobSchemaCurrent,
 		eipmongo.CollectionArchivedJobs:       models.JobSchemaCurrent,
 		eipmongo.CollectionJobGroups:          models.GroupSchemaCurrent,
-		eipmongo.CollectionPlanners:           models.PlannerSchemaCurrent,
-		eipmongo.CollectionPlannerMemberships: models.PlannerMembershipSchemaCurrent,
+		eipmongo.CollectionPlanners:           planner.SchemaCurrent,
+		eipmongo.CollectionPlannerMemberships: planner.MembershipSchemaCurrent,
 	} {
 		got, err := schemamaint.CurrentVersion(name)
 		if err != nil {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/models/planner"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
@@ -53,7 +54,7 @@ func (m *Mongo) AccountMayReach(ctx context.Context, accountID string, owner mod
 		return false, nil
 	}
 	held, err := m.PlannerMemberships.Collection().CountDocuments(ctx,
-		bson.M{"_id": models.PlannerMembershipID(owner.Key(), accountID)})
+		bson.M{"_id": planner.MembershipID(owner.Key(), accountID)})
 	if err != nil {
 		return false, fmt.Errorf("read membership for %s: %w", accountID, err)
 	}

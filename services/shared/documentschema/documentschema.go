@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/models/planner"
 )
 
 // Upgrader holds the collaborators upgrade steps need. No step needs one today,
@@ -106,21 +107,31 @@ func (u Upgrader) ArchivedJobStats(doc *models.ArchivedJobStats) {
 }
 
 // Planner normalises a planner document in memory. Idempotent.
-func (u Upgrader) Planner(doc *models.Planner) {
+func (u Upgrader) Planner(doc *planner.Planner) {
 	if doc == nil {
 		return
 	}
-	if doc.SchemaVersion <= 0 || doc.SchemaVersion > models.PlannerSchemaCurrent {
-		doc.SchemaVersion = models.PlannerSchemaCurrent
+	if doc.SchemaVersion <= 0 || doc.SchemaVersion > planner.SchemaCurrent {
+		doc.SchemaVersion = planner.SchemaCurrent
 	}
 }
 
 // PlannerMembership normalises a membership row in memory. Idempotent.
-func (u Upgrader) PlannerMembership(doc *models.PlannerMembership) {
+func (u Upgrader) PlannerMembership(doc *planner.Membership) {
 	if doc == nil {
 		return
 	}
-	if doc.SchemaVersion <= 0 || doc.SchemaVersion > models.PlannerMembershipSchemaCurrent {
-		doc.SchemaVersion = models.PlannerMembershipSchemaCurrent
+	if doc.SchemaVersion <= 0 || doc.SchemaVersion > planner.MembershipSchemaCurrent {
+		doc.SchemaVersion = planner.MembershipSchemaCurrent
+	}
+}
+
+// PlannerSettings normalises a planner's settings in memory. Idempotent.
+func (u Upgrader) PlannerSettings(doc *planner.Settings) {
+	if doc == nil {
+		return
+	}
+	if doc.SchemaVersion <= 0 || doc.SchemaVersion > planner.SettingsSchemaCurrent {
+		doc.SchemaVersion = planner.SettingsSchemaCurrent
 	}
 }

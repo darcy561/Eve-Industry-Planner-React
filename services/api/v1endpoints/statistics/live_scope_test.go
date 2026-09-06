@@ -12,6 +12,7 @@ import (
 	"eve-industry-planner/api/apideps"
 	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/models/planner"
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/testing/mongolive"
 
@@ -207,7 +208,7 @@ func TestLive_aSharedPlannerIsReachedByItsMembers(t *testing.T) {
 
 	const sharedPlannerID = "planner:01HZY6R3QK7T9V2M4N8P0XW5AD"
 	sharedOwner := models.Owner{Kind: models.OwnerPlanner, ID: "01HZY6R3QK7T9V2M4N8P0XW5AD"}
-	memberRow := models.PlannerMembershipID(sharedPlannerID, mineAccount)
+	memberRow := planner.MembershipID(sharedPlannerID, mineAccount)
 
 	mongolive.ScratchAccount(t, mongo, mineAccount)
 	t.Cleanup(func() {
@@ -241,7 +242,7 @@ func TestLive_aSharedPlannerIsReachedByItsMembers(t *testing.T) {
 
 	if _, err := mongo.PlannerMemberships.Collection().InsertOne(ctx, bson.M{
 		"_id":           memberRow,
-		"schemaVersion": models.PlannerMembershipSchemaCurrent,
+		"schemaVersion": planner.MembershipSchemaCurrent,
 		"plannerID":     sharedPlannerID,
 		"accountID":     mineAccount,
 		"joinedAt":      time.Now().UTC(),

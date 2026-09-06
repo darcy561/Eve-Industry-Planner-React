@@ -13,6 +13,7 @@ import (
 
 	"eve-industry-planner/shared/documentschema"
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/models/planner"
 	eipmongo "eve-industry-planner/shared/mongo"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -51,15 +52,20 @@ func Batch(ctx context.Context, docs *eipmongo.Docs, collection string, batchSiz
 			func(d models.Job) int { return d.SchemaVersion },
 			func(d models.Job) string { return d.JobID })
 	case eipmongo.CollectionPlanners:
-		return runBatch(ctx, docs, batchSize, models.PlannerSchemaCurrent,
-			func(d *models.Planner) { documentschema.Upgrader{}.Planner(d) },
-			func(d models.Planner) int { return d.SchemaVersion },
-			func(d models.Planner) string { return d.ID })
+		return runBatch(ctx, docs, batchSize, planner.SchemaCurrent,
+			func(d *planner.Planner) { documentschema.Upgrader{}.Planner(d) },
+			func(d planner.Planner) int { return d.SchemaVersion },
+			func(d planner.Planner) string { return d.ID })
 	case eipmongo.CollectionPlannerMemberships:
-		return runBatch(ctx, docs, batchSize, models.PlannerMembershipSchemaCurrent,
-			func(d *models.PlannerMembership) { documentschema.Upgrader{}.PlannerMembership(d) },
-			func(d models.PlannerMembership) int { return d.SchemaVersion },
-			func(d models.PlannerMembership) string { return d.ID })
+		return runBatch(ctx, docs, batchSize, planner.MembershipSchemaCurrent,
+			func(d *planner.Membership) { documentschema.Upgrader{}.PlannerMembership(d) },
+			func(d planner.Membership) int { return d.SchemaVersion },
+			func(d planner.Membership) string { return d.ID })
+	case eipmongo.CollectionPlannerSettings:
+		return runBatch(ctx, docs, batchSize, planner.SettingsSchemaCurrent,
+			func(d *planner.Settings) { documentschema.Upgrader{}.PlannerSettings(d) },
+			func(d planner.Settings) int { return d.SchemaVersion },
+			func(d planner.Settings) string { return d.ID })
 	case eipmongo.CollectionJobGroups:
 		return runBatch(ctx, docs, batchSize, models.GroupSchemaCurrent,
 			func(d *models.Group) { documentschema.Upgrader{}.Group(d) },
@@ -187,9 +193,11 @@ func CurrentVersion(collection string) (int, error) {
 	case eipmongo.CollectionJobGroups:
 		return models.GroupSchemaCurrent, nil
 	case eipmongo.CollectionPlanners:
-		return models.PlannerSchemaCurrent, nil
+		return planner.SchemaCurrent, nil
 	case eipmongo.CollectionPlannerMemberships:
-		return models.PlannerMembershipSchemaCurrent, nil
+		return planner.MembershipSchemaCurrent, nil
+	case eipmongo.CollectionPlannerSettings:
+		return planner.SettingsSchemaCurrent, nil
 	default:
 		return 0, fmt.Errorf("schemamaint: unsupported collection %q", collection)
 	}

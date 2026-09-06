@@ -10,7 +10,4 @@ const (
 	JobSchemaCurrent                 = 1
 	GroupSchemaCurrent               = 1
 	ArchivedJobStatsSchemaCurrent    = 2
-
-	PlannerSchemaCurrent           = 1
-	PlannerMembershipSchemaCurrent = 1
 )

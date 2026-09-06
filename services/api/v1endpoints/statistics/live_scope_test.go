@@ -14,6 +14,8 @@ import (
 	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/testing/mongolive"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // Every statistics query carries the account, so a caller asking for another
@@ -192,5 +194,114 @@ func TestLive_arefusedParameterReturnsNoFigures(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// A shared planner is reached by holding a membership row for it, not by owning
+// the figures. Without the row the same request is refused, so the row is the
+// whole of what separates the two answers. Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_aSharedPlannerIsReachedByItsMembers(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	const sharedPlannerID = "planner:01HZY6R3QK7T9V2M4N8P0XW5AD"
+	sharedOwner := models.Owner{Kind: models.OwnerPlanner, ID: "01HZY6R3QK7T9V2M4N8P0XW5AD"}
+	memberRow := models.PlannerMembershipID(sharedPlannerID, mineAccount)
+
+	mongolive.ScratchAccount(t, mongo, mineAccount)
+	t.Cleanup(func() {
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancelCleanup()
+		_, _ = mongo.PlannerMemberships.Collection().DeleteMany(cleanupCtx, bson.M{"plannerID": sharedPlannerID})
+		_, _ = mongo.StatisticsTotals.Collection().DeleteMany(cleanupCtx,
+			bson.M{eipmongo.FieldMetaOwnerKind: models.OwnerPlanner, eipmongo.FieldMetaOwnerID: sharedOwner.ID})
+	})
+
+	// Figures owned by the planner rather than by either account, written from the
+	// model so the stored shape is the one the read decodes.
+	totals := models.ProductionTotalsRow{
+		ID:     eipmongo.ProductionTotalsDocumentID(sharedOwner, 34),
+		Owner:  sharedOwner,
+		TypeID: 34,
+	}
+	totals.TotalJobs = 1
+	totals.SalesTotal = 123456.0
+	if _, err := mongo.StatisticsTotals.UpsertStructPreservingMeta(ctx, totals, totals.ID); err != nil {
+		t.Fatalf("seed planner figures: %v", err)
+	}
+
+	h := scopeHandlers(mongo)
+	path := "/api/v1/statistics/" + sharedPlannerID + "/totals?typeID=34"
+
+	// No membership row: the planner is unreachable however its figures are owned.
+	if code, _ := readBody(t, h, asAccount(t, mineAccount, path)); code != http.StatusForbidden {
+		t.Fatalf("without a membership row = %d, want 403", code)
+	}
+
+	if _, err := mongo.PlannerMemberships.Collection().InsertOne(ctx, bson.M{
+		"_id":           memberRow,
+		"schemaVersion": models.PlannerMembershipSchemaCurrent,
+		"plannerID":     sharedPlannerID,
+		"accountID":     mineAccount,
+		"joinedAt":      time.Now().UTC(),
+		"joinMethod":    bson.M{"invite": bson.M{"invitedBy": theirsAccount, "issuedAt": time.Now().UTC()}},
+	}); err != nil {
+		t.Fatalf("join the shared planner: %v", err)
+	}
+
+	code, body := readBody(t, h, asAccount(t, mineAccount, path))
+	if code != http.StatusOK {
+		t.Fatalf("with a membership row = %d, want 200 (body %s)", code, body)
+	}
+	if !strings.Contains(body, "123456") {
+		t.Fatalf("a member read the planner but not its figures: %s", body)
+	}
+
+	// Leaving refuses the next request rather than the next login: the row is read
+	// at the authorisation point, not cached onto the session.
+	if _, err := mongo.PlannerMemberships.Collection().DeleteOne(ctx, bson.M{"_id": memberRow}); err != nil {
+		t.Fatalf("leave the shared planner: %v", err)
+	}
+	if code, _ := readBody(t, h, asAccount(t, mineAccount, path)); code != http.StatusForbidden {
+		t.Fatalf("after leaving = %d, want 403 on the very next request", code)
+	}
+}
+
+// An account reaches its own figures because the backfill and login give it a
+// membership row for its own planner — the same mechanism, not a special case.
+func TestLive_anAccountReachesItselfThroughItsOwnMembership(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	mongolive.ScratchAccount(t, mongo, mineAccount)
+
+	if err := mongo.EnsureAccountPlanner(ctx, mineAccount, time.Now().UTC()); err != nil {
+		t.Fatalf("create the account planner: %v", err)
+	}
+	t.Cleanup(func() {
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancelCleanup()
+		_, _ = mongo.Planners.Collection().DeleteMany(cleanupCtx, bson.M{"_id": models.AccountOwner(mineAccount).Key()})
+		_, _ = mongo.PlannerMemberships.Collection().DeleteMany(cleanupCtx, bson.M{"accountID": mineAccount})
+	})
+
+	granted, err := mongo.OwnerKeysForAccount(ctx, mineAccount)
+	if err != nil {
+		t.Fatalf("OwnerKeysForAccount: %v", err)
+	}
+	if !granted.Has(models.AccountOwner(mineAccount)) {
+		t.Fatalf("granted = %v, want the account's own planner", granted)
+	}
+
+	seedFigures(t, ctx, mongo, mineAccount, 4242.0)
+	h := scopeHandlers(mongo)
+	code, body := readBody(t, h, asAccount(t, mineAccount,
+		"/api/v1/statistics/account:"+mineAccount+"/totals?typeID=34"))
+	if code != http.StatusOK {
+		t.Fatalf("own figures = %d, want 200 (body %s)", code, body)
+	}
+	if !strings.Contains(body, "4242") {
+		t.Fatalf("own figures missing from %s", body)
 	}
 }

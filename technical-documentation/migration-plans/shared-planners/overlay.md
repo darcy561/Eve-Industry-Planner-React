@@ -239,6 +239,16 @@ itself, so comparing the id is both correct and cheaper than a lookup.
 
 Stage C's slices are complete.
 
+**Proven over the HTTP surface, with two accounts and a real database.** The statistics live scope
+suite carries the whole chain rather than any one link: a planner owns figures neither account owns,
+and the account holding a membership row for it reads them while the same request without a row is
+refused. Leaving refuses the **next** request rather than the next login, which is the property that
+distinguishes reading rows from reading a session's cached grants — and the one § Losing access needs.
+
+A second scenario checks the account's own figures reach it by the same mechanism rather than a special
+case: `EnsureAccountPlanner` writes the row, `OwnerKeysForAccount` returns that owner, and the view
+answers. Both require `EIP_MONGO_PARITY_LIVE=1` and skip without it, like every other live test.
+
 Owed here: the planner document, the membership document, their indexes, how a roster is kept current
 per provider, how the account planner is created, what the roster endpoints refuse, and where the
 grants list is filled from once membership rows replace the ESI source.

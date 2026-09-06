@@ -90,11 +90,16 @@ storage:
 overrides:
   defaults:
     ingestion:
-      # A burst above this is refused rather than queued. Sampling happens at the
-      # edge, so the volume arriving here is chosen rather than discovered.
-      rate_limit_bytes: 2000000
-      burst_size_bytes: 4000000
-      max_traces_per_user: 2000
+      # Sized against measured use rather than the defaults: this stack idles at about 1.3 KB/s
+      # across 16 traces in flight, so these leave roughly twenty-five times that headroom and
+      # still contain a runaway long before it reaches the host. A burst above the rate is refused
+      # at the receiver, which is the one limit that tells the collector to slow down.
+      rate_limit_bytes: 512000
+      burst_size_bytes: 1000000
+      # Traces held in memory while their spans arrive, not traces stored or traces per second.
+      # It binds when traces arrive faster than they complete, which is what a flood of shallow
+      # traces does; the memory the live store can occupy follows from it.
+      max_traces_per_user: 400
     global:
       max_bytes_per_trace: 2000000
     compaction:

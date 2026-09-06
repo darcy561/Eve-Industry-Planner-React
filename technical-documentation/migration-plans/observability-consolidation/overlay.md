@@ -155,8 +155,15 @@ was open.
 
 **Every limit Tempo runs under is set, not defaulted.** Its defaults are cluster-sized and this host
 has two cores and eight gigabytes with the rest of the stack already on it.
-`kit/obs/tempo/config.yaml` caps ingest at 2 MB/s against a default of 30, the block builder at
-256 MB against 5 GB, live traces at 2,000 against ten thousand, and retention at 48 hours.
+`kit/obs/tempo/config.yaml` caps ingest against a default of 30 MB/s, the block builder at
+256 MB against 5 GB, live traces against a default of ten thousand, and retention at 48 hours.
+
+The ingestion limits are sized against measured use rather than scaled down from the defaults.
+This stack idles at about **1.3 KB/s across 16 traces in flight**, so 512 KB/s and 400 traces leave
+roughly twenty-five times that headroom while cutting the worst case the live store can reach.
+`max_traces_per_user` is the number that bounds live-store memory, which is what makes it the one
+worth sizing on a host this small. Tightening does not prevent shedding under a flood — it makes
+shedding start sooner, in exchange for a lower ceiling.
 
 Compaction is configured **twice** — the scheduler decides what to compact and the worker does it —
 and each carries its own hundred-gigabyte block size and fortnight of retention that the per-tenant
@@ -166,7 +173,11 @@ a processor is configured for it, and sixteen exceeds this host's core count.
 
 The way to find these is to read them back rather than trust the file: `GET /status/config` on a
 running Tempo prints the merged configuration, and anything still oversized there is a default that
-was never overridden.
+was never overridden. Reading it back also catches the trap that the kit is
+embedded in the Deployment Tool binary: editing `kit/obs/tempo/config.yaml` and running `eip dev`
+against a tool built before the edit deploys the **old** config and reports success, leaving the
+Swarm config object and the container untouched. Rebuild the tool first, then verify against
+`/status/config` rather than against the deploy's exit code.
 
 Measured before adopting, on the pinned image with that config: **28 MB and 0.3% CPU idle**, flat
 across five minutes. The store this project rejected idled at 1.2 GB, so the concern that prompted

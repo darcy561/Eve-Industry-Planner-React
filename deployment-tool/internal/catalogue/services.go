@@ -122,6 +122,7 @@ func Groups() []Group {
 				{Short: ServicePrometheus, Label: "Prometheus"},
 				{Short: ServiceGrafana, Label: "Grafana"},
 				{Short: "loki", Label: "Loki"},
+				{Short: "tempo", Label: "Tempo"},
 				{Short: "alloy", Label: "Alloy"},
 				{Short: "alloy-docker-proxy", Label: "Alloy helper"},
 				{Short: "asynqmon", Label: "Job monitor"},

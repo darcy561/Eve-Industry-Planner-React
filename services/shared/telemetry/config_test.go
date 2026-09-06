@@ -136,3 +136,18 @@ func TestDefaultConfig_observabilityOffKeepsSentry(t *testing.T) {
 		t.Fatal("want Init to still run for Sentry")
 	}
 }
+
+// With the observability addon off there is no collector to export to, so the
+// services must not stand up a tracer that buffers spans for a name that
+// resolves to nothing.
+func TestTracingFollowsTheObservabilityAddon(t *testing.T) {
+	t.Setenv(observabilityEnabledEnv, "false")
+	if cfg := DefaultConfig("api"); cfg.OTLPEndpoint != "" {
+		t.Fatalf("addon off: OTLPEndpoint = %q, want empty", cfg.OTLPEndpoint)
+	}
+
+	t.Setenv(observabilityEnabledEnv, "true")
+	if cfg := DefaultConfig("api"); cfg.OTLPEndpoint != DefaultOTLPEndpoint {
+		t.Fatalf("addon on: OTLPEndpoint = %q, want %q", cfg.OTLPEndpoint, DefaultOTLPEndpoint)
+	}
+}

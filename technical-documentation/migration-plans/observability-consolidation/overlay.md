@@ -118,8 +118,13 @@ _Empty until Stage E lands._
 
 **The Go services export spans to the collector, and Sentry receives errors only.** A tracer
 provider is built whenever `OTLPEndpoint` is set — the same condition that already governs metric
-and log export — so tracing follows the observability addon rather than the Sentry DSN. With the
-layer off the provider is a noop, as before.
+and log export — so tracing follows the observability addon rather than the Sentry DSN.
+
+**Nothing about tracing runs with the addon off.** `OTLPEndpoint` resolves to empty unless
+`OBSERVABILITY_ENABLED` is true, so the services install a noop tracer and build no exporter, rather
+than buffering spans for a collector that is not deployed. Tempo itself lives in
+`docker-stack.obs.yml`, which is only deployed when the addon is on, alongside Prometheus, Loki and
+Grafana. A test covers the service half of that.
 
 `sentry.Init` runs with `EnableTracing: false` and without `sentryotel.NewOtelIntegration`, so
 errors, grouping and release tracking are unchanged and no span reaches Sentry. The SPA is

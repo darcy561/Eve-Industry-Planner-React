@@ -126,6 +126,26 @@ func CloudStoredEsiRefreshMaintenance(ctx context.Context, payload eipnats.Cloud
 		return fmt.Errorf("cloud esi refresh maintenance: %w", err)
 	}
 
+	// This pass exchanged every stored token, so it can also confirm the account is
+	// still in the corporations its memberships claim — for the price of a task it
+	// would otherwise never get, since the accounts it reaches have not logged in
+	// for at least the rotation window.
+	//
+	// It is not the whole answer: the sweep selects on login age, so an account
+	// logging in regularly is never in it. cleanUpExpiredMemberships and the
+	// staleness window cover that case, and § the membership revalidation sweep
+	// covers the rest.
+	//
+	// Only on a complete pass: reconciling against a partial set would remove
+	// access the account still holds. An incomplete one leaves the rows alone and
+	// the next pass tries again.
+	if stats.Complete && len(stats.AccessTokens) > 0 {
+		if err := eipnats.PublishUpdateAccountSessionGrants(ctx, deps.NATS, accountID, stats.AccessTokens); err != nil {
+			logs.WarnCtx(ctx, "cloud esi refresh maintenance: could not queue membership revalidation",
+				"account_id", accountID, "error", err)
+		}
+	}
+
 	logs.InfoCtx(ctx, "cloud esi refresh maintenance task complete",
 		"account_id", accountID,
 		"rows_refreshed", stats.RowsRefreshed,
@@ -134,6 +154,7 @@ func CloudStoredEsiRefreshMaintenance(ctx context.Context, payload eipnats.Cloud
 		"rows_failed", stats.RowsFailed,
 		"rows_removed", stats.RowsRemoved,
 		"rows_deferred_retry", stats.RowsRetryNext,
+		"membership_revalidation_queued", stats.Complete && len(stats.AccessTokens) > 0,
 	)
 	return nil
 }

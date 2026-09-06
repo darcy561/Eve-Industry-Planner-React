@@ -30,6 +30,20 @@ type cloudEsiMaintainStats struct {
 	// as the servers being away.
 	SSOAnswered int
 	SSOSilent   int
+
+	// AccessTokens are the tokens this pass obtained, in the order the rows were
+	// walked. They are what revalidates the account's corporation and alliance
+	// memberships: this is the one place outside a login where every stored token
+	// is exchanged, so it is the only point at which EVE can be asked whether the
+	// account is still where it was.
+	//
+	// Held only for the length of the task and never persisted or logged.
+	AccessTokens []string
+
+	// Complete reports whether every row was exchanged successfully. A membership
+	// reconcile against a partial set would remove access the account still holds,
+	// so the caller reconciles only when this is true.
+	Complete bool
 }
 
 var (
@@ -168,9 +182,19 @@ func maintainAccountCloudRefreshTokens(ctx context.Context, users *eipmongo.Docs
 		}
 		row.CloudMaintRefreshFailures = 0
 		stats.RowsRefreshed++
+		if tok.AccessToken != "" {
+			stats.AccessTokens = append(stats.AccessTokens, tok.AccessToken)
+		}
 		dirty = true
 		out = append(out, row)
 	}
+	// Every row that reached SSO came back, and every one of them yielded a token
+	// to check affiliations with. A row skipped for not being due is not a
+	// failure — it was exchanged recently enough that its token is still good —
+	// but one that failed, was removed, or produced no token means the account's
+	// entity set cannot be derived in full.
+	stats.Complete = stats.RowsFailed == 0 && stats.RowsRemoved == 0 &&
+		len(stats.AccessTokens) == stats.RowsRefreshed
 
 	userDoc.RefreshTokens = out
 

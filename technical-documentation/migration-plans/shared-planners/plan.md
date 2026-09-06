@@ -1034,22 +1034,19 @@ type InviteRedemption struct {
 	InviteID  string    `bson:"inviteID,omitempty" json:"-"`
 }
 
-// EntityMember and AccessListEntry are the two methods EVE keeps in step, so
-// both carry when it last confirmed them. StaleAfter is how long one keeps
-// granting unconfirmed.
+// EntityMember and AccessListEntry are the two methods EVE keeps in step, so a
+// reconcile writes and removes them as an account's affiliations change. They
+// carry no timestamp: a row grants while it exists, so there is nothing to
+// measure — see § Stage F.
 type EntityMember struct {
-	EntityRef     string    `bson:"entityRef" json:"-"`
-	CharacterHash string    `bson:"characterHash,omitempty" json:"-"`
-	ValidatedAt   time.Time `bson:"validatedAt" json:"-"`
+	EntityRef     string `bson:"entityRef" json:"-"`
+	CharacterHash string `bson:"characterHash,omitempty" json:"-"`
 }
 
 type AccessListEntry struct {
-	ListID      string    `bson:"listID" json:"-"`
-	EntityRef   string    `bson:"entityRef,omitempty" json:"-"`
-	ValidatedAt time.Time `bson:"validatedAt" json:"-"`
+	ListID    string `bson:"listID" json:"-"`
+	EntityRef string `bson:"entityRef,omitempty" json:"-"`
 }
-
-const StaleAfter = 7 * 24 * time.Hour
 ```
 
 The composite `_id` of `{ownerKey}|{accountID}` gives one row per account per planner without a unique
@@ -1082,18 +1079,10 @@ invite ever issued.
 is present through. That is what makes a reconcile removal explainable rather than mysterious. Entity
 ids arrive from ESI raw and are converted to refs at ingest; nothing raw is persisted.
 
-**It also records when EVE last confirmed it, and so does `AccessListEntry`.** `JoinedAt` says when a
-row was created and nothing about whether it still holds. A revoked token, a removed scope and an ESI
-outage all produce no answer rather than a negative one, so a reconcile that cannot vouch for the set
-leaves the rows alone — which means without an expiry the access they grant never ends. A row
-unconfirmed for longer than `StaleAfter` stops granting, enforced in `OwnerKeysForAccount` and
-`AccountMayReach` because those are the points every grant passes through.
-
-Stale rows **stop granting rather than being deleted**, so a later confirmation restores access with no
-rejoin and "we could not ask" stays distinguishable from "you left". Every successful reconcile
-restamps every row in the set, including one that changes nothing: *still a member* is the answer that
-matters most and the one it usually delivers. The owner and invite methods never expire — nothing
-outside the planner can revoke them.
+**A row grants for as long as it exists**, and nothing ages one out. A revoked token is a positive
+answer the reconcile acts on rather than an absence it has to wait through, and an account that goes
+quiet grants nothing to nobody in the meantime — there is no session to use the row. § Stage F records
+why the expiry that was built here first came back out.
 
 The row carries **no role**. A permission model brings its own vocabulary and most likely its own
 storage, so a role field here would be a guess at that model's shape, and ambiguous the moment two
@@ -1670,16 +1659,39 @@ to nothing, and the comment claiming the ids "still drive ESI-sourced membership
 intention rather than behaviour. That is why this stage moved ahead of the rest of E: it was not a
 feature at the end, it was a missing half.
 
-**Reconciling only when the set differs turned out to be wrong.** The stage's own wording — reconcile
-"only when the derived set differs from the stored one" — would leave a row that has not changed
-unconfirmed forever, and an unconfirmed row is exactly what a revoked token produces. Every successful
-reconcile therefore restamps every row in the set. See § Data models for `StaleAfter` and why a stale
-row stops granting rather than being deleted.
+**A row grants for as long as it exists**, and nothing expires one. That was arrived at by building the
+opposite first and taking it back out, which is worth recording so it is not rebuilt.
 
-**Two slices remain.** A reap task, because stale rows stop granting but nothing deletes them; and
-background validation for cloud accounts from their stored tokens, which is what keeps rows fresh
-between logins and the reason the timestamp exists. Access lists are a third, and § Access lists differ
-from the other ESI providers already says why they are not the same shape.
+The removed design gave every EVE-tracked membership a `ValidatedAt`, stopped it granting after a
+staleness window, and deleted it after a longer one. Three things were wrong with it. The windows did
+not line up with anything — the cloud token sweep only reaches an account after twenty-five days
+dormant, so a seven-day expiry lapsed access more than a fortnight before the mechanism that would have
+renewed it ran at all. It solved a problem that does not exist: a stale row on a dormant account grants
+nothing to nobody, because no session is there to use it, and the moment somebody logs in the grants
+task reconciles the rows before anything reads them. And it duplicated a fact — when the account last
+logged in — that the user document already held.
+
+So there is no expiry. Three mechanisms cover it, each of which already existed:
+
+| What happens | What handles it |
+|---|---|
+| A character leaves a corporation | the reconcile, at login or on the cloud token sweep |
+| A token is revoked | the sweep sees `invalid_grant`, and the reconcile removes what that character carried |
+| An account goes quiet for two years | `InactiveAccountPlannerCleanup`, alongside its jobs and groups |
+
+**Revocation is an answer, not a gap.** `IsPermanentRefreshFailure` distinguishes a refused grant from
+an unreachable server, so a pass that loses a character to revocation still knows exactly what the
+account can prove and reconciles on it. Only a transient failure blocks the reconcile, because only
+then is the answer unknown — and reconciling against a set missing an entity the account is still in
+would revoke access it holds.
+
+**Owed: the grant task's shape.** It fires on every login and every token refresh, whether or not
+anything has changed, and resolves the whole set each time. That is more often than the design wants
+and does more work per run than it needs to, but it is correct as it stands and nothing waits on it.
+Reshaping when it fires and how it resolves is deferred rather than dropped.
+
+Access lists are the other slice, and § Access lists differ from the other ESI providers already says
+why they are not the same shape as the corporation and alliance providers.
 
 ## Live data, and the cutover window
 
@@ -1817,4 +1829,4 @@ do not touch.
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
 | D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered moves to the duplicate-job-writes and ownership review. D3 is the extras picker and needs Stage E's settings document first. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |
 | E — custom planners | Not started. Now also owns the planner settings document — a setup stores `customStructureID`, a reference into the writing account's settings, so a member opening another's job finds the structure missing. See § Settings split between the planner and the account |
-| F — ESI providers | **F1 landed.** Corporation and alliance membership rows are reconciled from the ids ESI reports at token refresh, completing a task that read as finished and wrote no rows. Both EVE-tracked methods record when they were last confirmed, and a row unconfirmed for `StaleAfter` stops granting — the only mechanism by which revoked access ends, since a failed check cannot be told from an outage. Owed: the reap task, background validation for cloud accounts, and access lists |
+| F — ESI providers | **F1 landed.** Corporation and alliance membership rows are reconciled from the ids ESI reports, at login and on the cloud token sweep, completing a task that read as finished and wrote no rows. A row grants while it exists and nothing expires one: a revoked token is a positive answer the reconcile acts on, and a two-year dormant account is cleared by `InactiveAccountPlannerCleanup`. Owed: reshaping when the grant task fires and how it resolves, and access lists |

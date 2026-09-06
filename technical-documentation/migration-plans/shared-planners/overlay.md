@@ -282,21 +282,17 @@ discovered, not why it grants — so the branch is `entityMember`, and access li
 rather than sharing it, because they are polled from one managing character's token rather than
 reconciled from each member's own.
 
-**Two of the four are kept in step with EVE, and both record when it last confirmed them.** `JoinedAt`
-says when a row was created and nothing about whether it still holds. A revoked token, a removed scope
-and an ESI outage all produce no answer rather than a negative one, so a reconcile that cannot vouch
-for the set leaves its rows alone — which is correct, and means that without an expiry the access those
-rows grant would never end.
+**A row grants for as long as it exists.** Nothing expires one, and an expiry built here first was
+taken back out: a stale row on a dormant account grants nothing to nobody, because no session exists to
+use it, and the moment somebody logs in the grants task reconciles the rows before anything reads them.
+The plan's § Stage F records the reasoning.
 
-So a row unconfirmed for longer than `planner.StaleAfter` — seven days — stops granting. That is
-enforced in `OwnerKeysForAccount` and `AccountMayReach` through one shared filter, because those are the
-two points every grant passes through: filtering at each caller instead would let a stale row leak in
-through a path that reads the rows itself.
-
-**Stale rows stop granting rather than being deleted.** A later confirmation restores access with no
-rejoin, and "we could not ask" stays distinguishable from "you left the corporation". Every successful
-reconcile restamps every row in the set, including one that changes nothing — *still a member* is the
-answer the check usually delivers and the one that matters most.
+What ends access is the row going. A character leaving a corporation is found by the next reconcile,
+at login or on the cloud token sweep. A revoked token is found by that sweep too — `invalid_grant` says
+the character is gone for good, which is an answer rather than the absence of one, so the reconcile
+proceeds and removes what that character was carrying. Only a transient failure blocks it, because only
+then is the answer unknown. An account dormant for two years is cleared by
+`InactiveAccountPlannerCleanup`, alongside the jobs and groups it already removed.
 
 **No planner document is written by the reconcile.** Nothing on the access path reads one:
 `OwnerKeysForAccount` and `AccountMayReach` both read membership rows, and the only reader of the

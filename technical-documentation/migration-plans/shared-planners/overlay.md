@@ -8,8 +8,9 @@ behaviour is undocumented.
 
 ## Stage A — The owner block cutover
 
-*Code landed; the window has not been run.* This project owns the owner block, having taken it over
-from [archived-jobs-stats](../archived-jobs-stats/plan.md), which built it while shaping the statistics
+*Landed on the environment checked; see the plan's § Stage A for what is still unconfirmed elsewhere.*
+This project owns the owner block, having taken it over from
+[archived-jobs-stats](../archived-jobs-stats/plan.md), which built it while shaping the statistics
 documents.
 
 **One statement of ownership.** Every scoped document carries `_meta.owner`, a `{kind, id}` pair.

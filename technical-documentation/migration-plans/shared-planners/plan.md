@@ -1093,7 +1093,7 @@ two, and no reader distinguishes which filled it — which is the point of conve
 
 ### Stage A — The owner block, in one cutover
 
-**Code complete; the cutover window has not been run.** The owner block was built under
+**Landed on the environment checked.** The owner block was built under
 [archived-jobs-stats](../archived-jobs-stats/plan.md), which was already shaping it for the statistics
 documents. That work is finished, so this stage and everything the owner block touches are **owned
 here** from now on: this plan carries the design, this project's overlay carries the behaviour, and
@@ -1105,7 +1105,14 @@ collection renames, the retired index list, `ChangeStreamMessage.OwnerKey` in pl
 fields, the websocket routing that parses it, and the `prepareRelease` owner stamp. The SPA already
 strips `_meta.owner` on the way out.
 
-What remains is the operator sequence below, run against live.
+The operator sequence below has been run: a dry run reported the owner stamp already applied with the
+gate passing, so every document in that database carries an owner and nothing is left to backfill.
+
+**What is not confirmed is the environment.** Which database that dry run reached — a development stack
+or Public — was never established, so the sequence may still be owed elsewhere. It is idempotent and
+re-runnable, so the check is to run it again where it matters and read the report rather than to plan
+new work. Three accounts on the same stack were found without a planner document, which the same
+`prepareRelease` run repairs and a login repairs on its own.
 
 The stack comes down for the next deployment, so the owner change goes in whole rather than as an
 expand/contract sequence: the model, the renames, the backfill and the reads all land inside one
@@ -1628,7 +1635,7 @@ do not touch.
 | Stage | Status |
 |-------|--------|
 | Phase 1 — project docs | Complete |
-| A — the owner block, in one cutover | **Ready to run.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, and the rehearsal against a restored copy of live is done. Outstanding: the window itself |
+| A — the owner block, in one cutover | **Landed.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, the rehearsal against a restored copy of live is done, and the stamp has run: every document carries an owner and the gate passes. Not yet confirmed against every environment — see § Stage A |
 | B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the active-planner message replacing it is Stage E work — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
 | D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered moves to the duplicate-job-writes and ownership review. D3 is the extras picker and needs Stage E's settings document first. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |

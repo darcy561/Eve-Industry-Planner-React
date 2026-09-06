@@ -29,6 +29,12 @@ type BucketState struct {
 	// not overstate what is left, and it is the honest measure of how far out of
 	// step the two counts are.
 	Unaccounted int
+	// Overdrawn counts tokens taken out of a slot that was not holding them,
+	// which happens when one reservation's hold is reversed twice. The tokens
+	// belonged to whoever else was charged in that slot, so the fleet believes
+	// it has budget it does not. Anything above zero is a defect, not a
+	// threshold to tune.
+	Overdrawn int
 }
 
 // Known reports whether a response has ever disclosed this bucket's allowance.
@@ -107,6 +113,10 @@ type Grant struct {
 	Reservations []Reservation
 	State        BucketState
 	Available    int
+	// Bound is which term held the call back, where the Kind alone does not say.
+	// BoundNone on a grant, and on a refusal from a replica still running the
+	// previous script.
+	Bound Bound
 }
 
 // Reserve asks for count slots in a bucket. It never blocks: either slots come
@@ -130,17 +140,19 @@ func (s *Store) Reserve(ctx context.Context, b Bucket, class Class, policy Endpo
 
 	raw, err := s.reserve.Run(ctx, s.redis,
 		[]string{stateKey(b), ledgerKey(b), errorKey(time.Now()), downtimeKey},
-		count,
-		SuccessCost,
-		strconv.Itoa(int(class)),
-		s.cfg.floorsSpec(),
-		policy.MaxShare,
-		spacing.Seconds(),
-		glide,
-		s.cfg.ProbeTTL.Seconds(),
-		s.cfg.ErrorLimitStop,
-		endpoint,
-		downtimeProbeTTL.Seconds(),
+		reserveArgs.values(map[string]any{
+			"count":            count,
+			"cost_each":        SuccessCost,
+			"class":            strconv.Itoa(int(class)),
+			"floors_spec":      s.cfg.floorsSpec(),
+			"max_share":        policy.MaxShare,
+			"min_spacing":      spacing.Seconds(),
+			"glide_from":       glide,
+			"probe_ttl":        s.cfg.ProbeTTL.Seconds(),
+			"error_limit_stop": s.cfg.ErrorLimitStop,
+			"endpoint":         endpoint,
+			"dt_probe_ttl":     downtimeProbeTTL.Seconds(),
+		})...,
 	).Result()
 	if err != nil {
 		return Grant{}, fmt.Errorf("reserve %s: %w", b, err)
@@ -173,25 +185,27 @@ func (s *Store) Settle(ctx context.Context, r Reservation, out Outcome) error {
 
 	_, err := s.settle.Run(ctx, s.redis,
 		[]string{stateKey(r.Bucket), ledgerKey(r.Bucket), errorKey(observed), downtimeKey},
-		r.ID,
-		out.Cost,
-		strconv.Itoa(int(r.Class)),
-		r.Endpoint,
-		out.Status,
-		float64(observed.UnixNano())/1e9,
-		out.Limit,
-		int(out.Window.Seconds()),
-		remaining,
-		out.RetryAfter.Seconds(),
-		boolToInt(out.Metered),
-		availability,
-		failuresBeforeConcluding,
-		downtimeProbeFirst.Seconds(),
-		downtimeProbeMax.Seconds(),
-		sourcesToTripDowntime,
-		loneSourceFailures,
-		float64(r.Slot.UnixNano())/1e9,
-		r.Cost,
+		settleArgs.values(map[string]any{
+			"id":              r.ID,
+			"actual_cost":     out.Cost,
+			"class":           strconv.Itoa(int(r.Class)),
+			"endpoint":        r.Endpoint,
+			"status":          out.Status,
+			"observed_at":     float64(observed.UnixNano()) / 1e9,
+			"limit":           out.Limit,
+			"window":          int(out.Window.Seconds()),
+			"remaining":       remaining,
+			"retry_after":     out.RetryAfter.Seconds(),
+			"metered":         boolToInt(out.Metered),
+			"availability":    availability,
+			"trip_after":      failuresBeforeConcluding,
+			"probe_first":     downtimeProbeFirst.Seconds(),
+			"probe_max":       downtimeProbeMax.Seconds(),
+			"buckets_to_trip": sourcesToTripDowntime,
+			"lone_failures":   loneSourceFailures,
+			"held_at":         float64(r.Slot.UnixNano()) / 1e9,
+			"held_cost":       r.Cost,
+		})...,
 	).Result()
 	if err != nil {
 		return fmt.Errorf("settle %s: %w", r.Bucket, err)
@@ -339,7 +353,8 @@ func (s *Store) spend(ctx context.Context, b Bucket) (total, unaccounted int, er
 }
 
 // spendFromFields totals a ledger hash, and the part of it charged to the sync
-// marker rather than to a caller of ours.
+// marker rather than to a caller of ours. Both the single-bucket read and the
+// batch call it, so the ledger has one walk rather than one per reader.
 func spendFromFields(fields map[string]string) (total, unaccounted int) {
 	for field, value := range fields {
 		cost, err := strconv.Atoi(value)
@@ -347,22 +362,16 @@ func spendFromFields(fields map[string]string) (total, unaccounted int) {
 			continue
 		}
 		total += cost
-		if fieldClass(field) == SyncMember {
+
+		// A field that does not parse still counts against the bucket - Redis
+		// says the tokens are spent - but nothing can be claimed about who spent
+		// them, so it is never read as the sync marker.
+		parsed, ok := parseLedgerField(field)
+		if ok && parsed.IsSync() {
 			unaccounted += cost
 		}
 	}
 	return total, unaccounted
-}
-
-// fieldClass is the class a ledger field was charged to, from
-// "<slot>|<class>|<endpoint>".
-func fieldClass(field string) string {
-	_, rest, ok := strings.Cut(field, "|")
-	if !ok {
-		return ""
-	}
-	class, _, _ := strings.Cut(rest, "|")
-	return class
 }
 
 // Observe records whether the servers answered, from a caller that has no
@@ -384,14 +393,16 @@ func (s *Store) Observe(ctx context.Context, source string, reachable bool) erro
 
 	_, err := s.observe.Run(ctx, s.redis,
 		[]string{downtimeKey},
-		"source:"+source,
-		availability,
-		float64(time.Now().UnixNano())/1e9,
-		failuresBeforeConcluding,
-		downtimeProbeFirst.Seconds(),
-		downtimeProbeMax.Seconds(),
-		sourcesToTripDowntime,
-		loneSourceFailures,
+		observeArgs.values(map[string]any{
+			"state_key":       "source:" + source,
+			"availability":    availability,
+			"observed_at":     float64(time.Now().UnixNano()) / 1e9,
+			"trip_after":      failuresBeforeConcluding,
+			"probe_first":     downtimeProbeFirst.Seconds(),
+			"probe_max":       downtimeProbeMax.Seconds(),
+			"buckets_to_trip": sourcesToTripDowntime,
+			"lone_failures":   loneSourceFailures,
+		})...,
 	).Result()
 	if err != nil {
 		return fmt.Errorf("observe %s: %w", source, err)
@@ -472,11 +483,11 @@ func (s *Store) Buckets(ctx context.Context) ([]Bucket, error) {
 			if !ok {
 				continue
 			}
-			group, user, ok := strings.Cut(name, "|")
+			bucket, ok := bucketFromKey(name)
 			if !ok {
 				continue
 			}
-			out = append(out, Bucket{Group: group, User: user})
+			out = append(out, bucket)
 		}
 		if next == 0 {
 			break

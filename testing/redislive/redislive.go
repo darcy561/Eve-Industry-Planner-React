@@ -25,20 +25,43 @@ const (
 
 const dial = 10 * time.Second
 
-// Require connects to a Redis, or skips the test.
+// DefaultAddr is a throwaway server, deliberately not 6379.
 //
-// Point it at a throwaway server, not the stack's: these tests write and delete
-// keys under their own prefix, and a rate-limit budget is shared state the
-// running system is relying on.
+// The stack publishes its own Redis on 6379, and these tests delete keys under
+// the prefix they work in. Defaulting there would point a destructive test at
+// the running system's rate-limit budget whenever someone set the gate and
+// nothing else, so the default is the throwaway port instead and the stack's
+// port has to be typed out to be reached.
+const DefaultAddr = "127.0.0.1:6399"
+
+// StackAddr is where the stack publishes Redis. Named so the guard below can
+// refuse it rather than leaving the number unexplained.
+const StackAddr = "127.0.0.1:6379"
+
+// Enabled reports whether this run is gated in to a real Redis, so a caller can
+// choose a backend before deciding to skip.
+func Enabled() bool { return os.Getenv(Gate) == "1" }
+
+// Require connects to a throwaway Redis, or skips the test.
+//
+// Start one with:
+//
+//	docker run -d --rm --name eip-test-redis -p 6399:6379 redis:8
 func Require(t *testing.T) *redis.Client {
 	t.Helper()
 	if os.Getenv(Gate) != "1" {
-		t.Skipf("set %s=1 (and %s) to run against a real Redis", Gate, Addr)
+		t.Skipf("set %s=1 to run against a real Redis (start one with "+
+			"`docker run -d --rm --name eip-test-redis -p 6399:6379 redis:8`)", Gate)
 	}
 
 	addr := os.Getenv(Addr)
 	if addr == "" {
-		addr = "127.0.0.1:6379"
+		addr = DefaultAddr
+	}
+	if addr == StackAddr || addr == "localhost:6379" {
+		t.Fatalf("%s points at %s, which is where the stack publishes Redis. These tests delete "+
+			"keys under the prefix they use, and the limiter's budget is shared state the running "+
+			"system relies on. Use a throwaway server, such as %s.", Addr, addr, DefaultAddr)
 	}
 
 	client := redis.NewClient(&redis.Options{Addr: addr, Password: os.Getenv("EIP_REDIS_PARITY_PASSWORD")})

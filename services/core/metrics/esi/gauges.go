@@ -66,6 +66,11 @@ func Register(store *esiclient.Store) {
 			return
 		}
 
+		gOverdrawn, ok := gauge("core.esi.bucket.overdrawn", "1", "Tokens a reversal took from a slot that was not holding them — a reservation given back twice. Any value above zero is a defect.")
+		if !ok {
+			return
+		}
+
 		_, err := m.RegisterCallback(func(ctx context.Context, o metric.Observer) error {
 			cctx, cancel := context.WithTimeout(telemetry.WithoutTracing(ctx), 8*time.Second)
 			defer cancel()
@@ -90,6 +95,7 @@ func Register(store *esiclient.Store) {
 				o.ObserveFloat64(gOpen, row.SecondsUntilOpen, attr)
 
 				o.ObserveFloat64(gUnaccounted, float64(row.Unaccounted), attr)
+				o.ObserveFloat64(gOverdrawn, float64(row.Overdrawn), attr)
 
 				// ESI's own figure is a snapshot that does not move on its own, so
 				// it is only worth drawing while it still describes this window.
@@ -98,7 +104,7 @@ func Register(store *esiclient.Store) {
 				}
 			}
 			return nil
-		}, gLimit, gUsed, gRem, gFill, gOpen, gReported, gUnaccounted)
+		}, gLimit, gUsed, gRem, gFill, gOpen, gReported, gUnaccounted, gOverdrawn)
 		if err != nil {
 			logs.ErrorCtx(context.Background(), "core metrics esi: register callback", "error", err)
 		}

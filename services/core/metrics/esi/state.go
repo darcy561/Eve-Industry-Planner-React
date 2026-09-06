@@ -38,6 +38,10 @@ type BucketState struct {
 	// counts agree by construction and subtracting them would only measure how
 	// long ago that happened. This is what the difference actually was.
 	Unaccounted int `json:"unaccounted,omitempty"`
+	// Overdrawn counts tokens a reversal took out of a slot that was not holding
+	// them. Above zero means a reservation was given back twice and the fleet
+	// believes it has budget it does not.
+	Overdrawn int `json:"overdrawn,omitempty"`
 }
 
 // Read is every bucket the fleet has learned about, sorted by name.
@@ -90,5 +94,6 @@ func describe(bucket esiclient.Bucket, state esiclient.BucketState, now time.Tim
 		row.ReportedRemaining = state.Remaining
 	}
 	row.Unaccounted = state.Unaccounted
+	row.Overdrawn = state.Overdrawn
 	return row
 }

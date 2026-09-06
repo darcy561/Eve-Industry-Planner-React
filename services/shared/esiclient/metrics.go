@@ -44,7 +44,7 @@ func esiMetrics() *esiInstruments {
 			tokens: telemetry.Must(m.Int64Counter("esi.tokens_spent_total",
 				metric.WithDescription("Rate-limit tokens charged by ESI, by group and class. This is the budget actually consumed."))),
 			yields: telemetry.Must(m.Int64Counter("esi.yields_total",
-				metric.WithDescription("Calls turned away before reaching ESI, by group, class and reason (queued|decelerating|gated|error_limit|downtime|discovering)."))),
+				metric.WithDescription("Calls turned away before reaching ESI, by group, class and reason (queued|decelerating|gated|error_limit|downtime|discovering). bound says which term refused where more than one could have (bucket|class_floor|endpoint_share|unstated)."))),
 			probes: telemetry.Must(m.Int64Counter("esi.probes_total",
 				metric.WithDescription("Discovery requests made to learn a bucket's allowance, by group."))),
 			gates: telemetry.Must(m.Int64Counter("esi.gate_closures_total",
@@ -116,10 +116,14 @@ func recordRequest(ctx context.Context, b Bucket, class Class, status, cost int,
 	}
 }
 
-func recordYield(ctx context.Context, b Bucket, class Class, kind Kind) {
+func recordYield(ctx context.Context, b Bucket, class Class, kind Kind, bound Bound) {
 	esiMetrics().yields.Add(ctx, 1, metric.WithAttributes(append(bucketAttrs(b),
 		attribute.String("class", class.String()),
 		attribute.String("reason", kind.String()),
+		// Which term refused, for the kinds where more than one could have. A
+		// bucket that is spent, a floor owed elsewhere, and an endpoint's own
+		// share are three different things to do something about.
+		attribute.String("bound", bound.String()),
 	)...))
 }
 

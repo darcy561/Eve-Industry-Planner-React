@@ -39,8 +39,23 @@ func BucketFor(group string, id Identity) Bucket {
 	return Bucket{Group: group, User: id.User()}
 }
 
-// Key is the Redis key segment for the bucket.
-func (b Bucket) Key() string { return b.Group + "|" + b.User }
+// Key is the Redis key segment for the bucket. bucketFromKey is its inverse and
+// lives beside it, so the two halves of the format cannot drift apart.
+func (b Bucket) Key() string { return b.Group + bucketSeparator + b.User }
+
+// bucketSeparator divides a bucket key's parts.
+const bucketSeparator = "|"
+
+// bucketFromKey reads a key segment back into a bucket. ok is false for a
+// segment that does not carry the format, which is a key this package did not
+// write.
+func bucketFromKey(name string) (Bucket, bool) {
+	group, user, ok := strings.Cut(name, bucketSeparator)
+	if !ok {
+		return Bucket{}, false
+	}
+	return Bucket{Group: group, User: user}, true
+}
 
 func (b Bucket) String() string { return b.Key() }
 

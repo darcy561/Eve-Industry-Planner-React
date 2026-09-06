@@ -105,7 +105,13 @@ func TestLiveLedgerExpiresChargesIndividually(t *testing.T) {
 
 	// The window floats: a charge expires on its own timestamp rather than the
 	// whole window resetting.
-	time.Sleep(2500 * time.Millisecond)
+	//
+	// A charge outlives its window by up to one slot. Its field expires at the
+	// end of the slot holding it plus a full window, and a slot is never shorter
+	// than a second, so a 2s window keeps a charge for just under 3s. Sleeping
+	// only the window is not enough, which the fake never showed because it does
+	// not run this test.
+	time.Sleep(2*time.Second + slotWidthFor(2*time.Second) + 500*time.Millisecond)
 
 	after, err := store.State(t.Context(), bucket)
 	if err != nil {
@@ -151,4 +157,10 @@ func TestLiveConcurrentReservationsCannotBothWin(t *testing.T) {
 	if total == 0 {
 		t.Error("nothing was granted at all")
 	}
+}
+
+// slotWidthFor is how coarse a slot is for a window, matching the script's own
+// rule: the window divided by the slot count, never shorter than a second.
+func slotWidthFor(window time.Duration) time.Duration {
+	return max(window/esiclient.SlotsPerWindow, time.Second)
 }

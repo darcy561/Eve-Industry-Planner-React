@@ -21,6 +21,21 @@ import "strconv"
 //
 //	reply granted, kind, retry_at, available, limit, window, metered, probe,
 //	      then id/slot pairs
+// reserveArgs is the reserve script's arguments, in order.
+var reserveArgs = scriptArgs{
+	number("count"),
+	number("cost_each"),
+	text("class"),
+	text("floors_spec"),
+	number("max_share"),
+	number("min_spacing"),
+	number("glide_from"),
+	number("probe_ttl"),
+	number("error_limit_stop"),
+	text("endpoint"),
+	number("dt_probe_ttl"),
+}
+
 var reserveScript = slotRules + `
 local SYNC_MEMBER = '` + SyncMember + `'
 local function now()
@@ -35,11 +50,16 @@ local function fields(key)
   return out
 end
 
-local function reply(granted, kind, retry_at, available, limit, window, metered, probe, slots)
+-- bound says which term held the call back, for the refusals where more than one
+-- could have. A refusal that names no term is BOUND_NONE, which is also what a
+-- caller reading an older reply sees.
+local BOUND_NONE, BOUND_BUCKET, BOUND_FLOOR, BOUND_SHARE = 0, 1, 2, 3
+
+local function reply(granted, kind, retry_at, available, limit, window, metered, probe, slots, bound)
   local out = {
     tostring(granted), tostring(kind), string.format('%.6f', retry_at),
     string.format('%.6f', available), tostring(limit), tostring(window),
-    tostring(metered), tostring(probe),
+    tostring(metered), tostring(probe), tostring(bound or BOUND_NONE),
   }
   for i = 1, #slots do out[#out + 1] = slots[i] end
   return out
@@ -49,17 +69,7 @@ local KIND_QUEUED, KIND_DECELERATING, KIND_GATED = 0, 1, 2
 local KIND_ERROR_LIMIT, KIND_DOWNTIME, KIND_DISCOVERING = 4, 5, 6
 
 local state_key, ledger_key, errors_key, downtime_key = KEYS[1], KEYS[2], KEYS[3], KEYS[4]
-local count            = tonumber(ARGV[1])
-local cost_each        = tonumber(ARGV[2])
-local class            = ARGV[3]
-local floors_spec      = ARGV[4]
-local max_share        = tonumber(ARGV[5])
-local min_spacing      = tonumber(ARGV[6])
-local glide_from       = tonumber(ARGV[7])
-local probe_ttl        = tonumber(ARGV[8])
-local error_limit_stop = tonumber(ARGV[9])
-local endpoint         = ARGV[10]
-local dt_probe_ttl     = tonumber(ARGV[11])
+` + reserveArgs.preamble() + `
 
 local t = now()
 
@@ -144,7 +154,7 @@ local live_slots = {}
 local flat = redis.call('HGETALL', ledger_key)
 for i = 1, #flat, 2 do
   local value = tonumber(flat[i + 1]) or 0
-  local fslot, fclass, fendpoint = string.match(flat[i], '^([^|]*)|([^|]*)|(.*)$')
+  local fslot, fclass, fendpoint = parse_field(flat[i])
   spent = spent + value
   if fclass == SYNC_MEMBER then
     -- Counts against the bucket, but no class or endpoint spent it.
@@ -178,7 +188,8 @@ if remaining_at > 0 and (t - remaining_at) < window then
     -- One field holds the whole difference, so it is replaced rather than
     -- topped up. Clearing it first keeps it out of whichever slot it last sat in.
     for i = 1, #flat, 2 do
-      if string.match(flat[i], '^[^|]*|([^|]*)|') == SYNC_MEMBER then
+      local _, fclass = parse_field(flat[i])
+      if fclass == SYNC_MEMBER then
         redis.call('HDEL', ledger_key, flat[i])
       end
     end
@@ -219,9 +230,26 @@ if bucket_available >= cost_each and proportional < cost_each then
   proportional = cost_each
 end
 
-local available = math.max(bucket_available - reserved_for_others, proportional)
+-- Three terms can each hold a call back, and they are kept apart so a refusal can
+-- say which one did. After the bucket's own occupancy, the floor owed to other
+-- classes is what a class may not take; the endpoint's share is a separate cap on
+-- top of that.
+local after_floors = math.max(bucket_available - reserved_for_others, proportional)
+
+local available = after_floors
+local bound = BOUND_BUCKET
+if after_floors < bucket_available then
+  -- The floors gave away less than the bucket holds, so they are the binding
+  -- term rather than the bucket's own occupancy.
+  bound = BOUND_FLOOR
+end
+
 if max_share > 0 then
-  available = math.min(available, max_share * limit - spent_endpoint)
+  local share = max_share * limit - spent_endpoint
+  if share < available then
+    available = share
+    bound = BOUND_SHARE
+  end
 end
 available = math.max(available, 0)
 
@@ -245,7 +273,7 @@ if available < needed then
     end
   end
   redis.call('EXPIRE', state_key, state_ttl)
-  return reply(0, KIND_DECELERATING, retry_at, available, limit, window, metered, 0, {})
+  return reply(0, KIND_DECELERATING, retry_at, available, limit, window, metered, 0, {}, bound)
 end
 
 -- Spend the bank, then glide into the refill rate rather than hitting the wall.
@@ -338,6 +366,14 @@ end
 // SlotsPerWindow is the read cost: one field per slot actually used, times the
 // class and endpoint combinations seen in it.
 var slotRules = `
+local SEP = '` + fieldSeparator + `'
+
+-- A ledger field is <slot>SEP<class>SEP<endpoint>. The endpoint takes whatever
+-- remains, separators included, so it matches what Go's parseLedgerField reads.
+local function parse_field(field)
+  return string.match(field, '^([^` + fieldSeparator + `]*)` + fieldSeparator + `([^` + fieldSeparator + `]*)` + fieldSeparator + `(.*)$')
+end
+
 local function slot_size(window)
   return math.max(math.floor(window / ` + strconv.Itoa(SlotsPerWindow) + `), 1)
 end
@@ -353,14 +389,22 @@ local function slot_expiry(sl, window)
 end
 
 local function slot_field(sl, class, endpoint)
-  return sl .. '|' .. class .. '|' .. endpoint
+  return sl .. SEP .. class .. SEP .. endpoint
 end
 
-local function charge_slot(key, sl, class, endpoint, cost, window, at)
+local function charge_slot(key, sl, class, endpoint, cost, window, at, state_key)
   if cost == 0 then return end
   local field = slot_field(sl, class, endpoint)
   local after = redis.call('HINCRBY', key, field, cost)
   if after <= 0 then
+    -- Below zero means a reversal took out more than the slot was holding, which
+    -- happens when one hold is given back twice. The tokens it took belonged to
+    -- whoever else was in the field, so the count is kept rather than discarded
+    -- with the field. Only a reversal can do it: every other caller charges a
+    -- positive cost, and reconciliation clamps its own to zero.
+    if after < 0 and cost < 0 and state_key then
+      redis.call('HINCRBY', state_key, 'overdrawn', -after)
+    end
     -- A charge given back in full leaves nothing to expire.
     redis.call('HDEL', key, field)
     return
@@ -388,28 +432,36 @@ const SlotsPerWindow = 180
 // without being attributed to a floor or a share that did not spend it.
 const SyncMember = "esi-sync"
 
+// settleArgs is the settle script's arguments, in order. Adding one appends a
+// line here and a value at the call site; the Lua's indices follow on their own.
+var settleArgs = scriptArgs{
+	text("id"),
+	number("actual_cost"),
+	text("class"),
+	text("endpoint"),
+	number("status"),
+	number("observed_at"),
+	number("limit"),
+	number("window"),
+	number("remaining"),
+	number("retry_after"),
+	number("metered"),
+	number("availability"),
+	number("trip_after"),
+	number("probe_first"),
+	number("probe_max"),
+	number("buckets_to_trip"),
+	number("lone_failures"),
+	// What the reservation was holding, and where. A slot holds no
+	// per-reservation identity, so the caller says which charge to give back.
+	number("held_at"),
+	number("held_cost"),
+}
+
 var settleScript = slotRules + `
 local SYNC_MEMBER = '` + SyncMember + `'
 local state_key, ledger_key, errors_key, downtime_key = KEYS[1], KEYS[2], KEYS[3], KEYS[4]
-local id          = ARGV[1]
-local actual_cost = tonumber(ARGV[2])
-local class       = ARGV[3]
-local endpoint    = ARGV[4]
-local status      = tonumber(ARGV[5])
-local observed_at = tonumber(ARGV[6])
-local limit       = tonumber(ARGV[7])
-local window      = tonumber(ARGV[8])
-local remaining   = tonumber(ARGV[9])
-local retry_after = tonumber(ARGV[10])
-local metered     = tonumber(ARGV[11])
-local availability   = tonumber(ARGV[12])
-local trip_after     = tonumber(ARGV[13])
-local probe_first    = tonumber(ARGV[14])
-local probe_max      = tonumber(ARGV[15])
-local buckets_to_trip = tonumber(ARGV[16])
-local lone_failures   = tonumber(ARGV[17])
-local held_at         = tonumber(ARGV[18])
-local held_cost       = tonumber(ARGV[19])
+` + settleArgs.preamble() + `
 
 -- Availability is read from what the server actually answered. A reply of any
 -- kind means it is up, however unwelcome that reply; only a 5xx or no reply at
@@ -428,7 +480,7 @@ local state_ttl = math.max(math.floor(effective_window * 8), 600)
 local removed = 0
 if effective_window > 0 then
   if held_cost > 0 then
-    charge_slot(ledger_key, slot_of(held_at, effective_window), class, endpoint, -held_cost, effective_window, observed_at)
+    charge_slot(ledger_key, slot_of(held_at, effective_window), class, endpoint, -held_cost, effective_window, observed_at, state_key)
     removed = 1
   end
   if actual_cost > 0 then
@@ -470,16 +522,21 @@ return tostring(removed)
 //	KEYS  downtime
 //	ARGV  source, availability, observed_at, failures_to_trip,
 //	      probe_first, probe_max, distinct_buckets_to_trip, lone_bucket_failures
-const observeScript = `
+// observeArgs is the observe script's arguments, in order.
+var observeArgs = scriptArgs{
+	text("state_key"),
+	number("availability"),
+	number("observed_at"),
+	number("trip_after"),
+	number("probe_first"),
+	number("probe_max"),
+	number("buckets_to_trip"),
+	number("lone_failures"),
+}
+
+var observeScript = `
 local downtime_key = KEYS[1]
-local state_key      = ARGV[1]
-local availability   = tonumber(ARGV[2])
-local observed_at    = tonumber(ARGV[3])
-local trip_after     = tonumber(ARGV[4])
-local probe_first    = tonumber(ARGV[5])
-local probe_max      = tonumber(ARGV[6])
-local buckets_to_trip = tonumber(ARGV[7])
-local lone_failures   = tonumber(ARGV[8])
+` + observeArgs.preamble() + `
 ` + availabilityRules + `
 return tostring(availability)
 `

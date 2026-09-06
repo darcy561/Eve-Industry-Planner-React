@@ -10,10 +10,10 @@ import (
 	"eve-industry-planner/testing/redisfake"
 )
 
-func newStore(t *testing.T) (*esiclient.Store, *redisfake.Redis) {
+func newStore(t *testing.T) (*esiclient.Store, backend) {
 	t.Helper()
-	fake := redisfake.New(t)
-	return esiclient.NewStore(fake.Client, esiclient.DefaultConfig()), fake
+	be := newBackend(t)
+	return esiclient.NewStore(be.Client, esiclient.DefaultConfig()), be
 }
 
 var marketPolicy = esiclient.EndpointPolicy{
@@ -661,7 +661,7 @@ func TestOneFailingEndpointDoesNotGateTheFleet(t *testing.T) {
 // it agrees with the metered path about what "answering" means.
 
 func TestObserveHoldsNoBucketAndSpendsNothing(t *testing.T) {
-	store, fake := newStore(t)
+	store, be := newStore(t)
 
 	for range 5 {
 		if err := store.Observe(t.Context(), "evesso", false); err != nil {
@@ -670,7 +670,7 @@ func TestObserveHoldsNoBucketAndSpendsNothing(t *testing.T) {
 	}
 
 	// No bucket state, no ledger, no token: the only thing touched is the gate.
-	keys, err := fake.Client.Keys(t.Context(), "esi:b:*").Result()
+	keys, err := be.Client.Keys(t.Context(), "esi:b:*").Result()
 	if err != nil {
 		t.Fatalf("scan: %v", err)
 	}
@@ -959,13 +959,13 @@ func TestAGatedBucketAffordsNothing(t *testing.T) {
 // line for ever. These hold both edges.
 
 func TestAnIdleBucketStaysInTheInventory(t *testing.T) {
-	store, fake := newStore(t)
+	store, be := newStore(t)
 	bucket := esiclient.Bucket{Group: "industry", User: esiclient.AnonymousUser}
 	known(t, store, bucket, 150, 15*time.Minute)
 
 	// Longer than the hourly refresh that produced the gap, and longer than
 	// twice the window, which is when every charge has aged out.
-	fake.Server.FastForward(90 * time.Minute)
+	be.FastForward(t, 90 * time.Minute)
 
 	buckets, err := store.Buckets(t.Context())
 	if err != nil {
@@ -983,11 +983,11 @@ func TestAnIdleBucketStaysInTheInventory(t *testing.T) {
 }
 
 func TestAnIdleBucketReportsFullRatherThanNothing(t *testing.T) {
-	store, fake := newStore(t)
+	store, be := newStore(t)
 	bucket := esiclient.Bucket{Group: "industry", User: esiclient.AnonymousUser}
 	known(t, store, bucket, 150, 15*time.Minute)
 
-	fake.Server.FastForward(90 * time.Minute)
+	be.FastForward(t, 90 * time.Minute)
 
 	state, err := store.State(t.Context(), bucket)
 	if err != nil {
@@ -1012,7 +1012,7 @@ func TestAnIdleBucketReportsFullRatherThanNothing(t *testing.T) {
 func TestTheLedgerStillExpiresWithItsWindow(t *testing.T) {
 	// The state outliving the ledger is the point; the ledger outliving its
 	// window would be a leak, and would hold spend against a bucket forever.
-	store, fake := newStore(t)
+	store, be := newStore(t)
 	bucket := esiclient.Bucket{Group: "industry", User: esiclient.AnonymousUser}
 	known(t, store, bucket, 150, 15*time.Minute)
 
@@ -1020,9 +1020,9 @@ func TestTheLedgerStillExpiresWithItsWindow(t *testing.T) {
 		t.Fatal("nothing was spent, so there is no ledger to watch expire")
 	}
 
-	fake.Server.FastForward(90 * time.Minute)
+	be.FastForward(t, 90 * time.Minute)
 
-	if fake.Server.Exists("esi:b:" + bucket.Key() + ":ledger") {
+	if be.Exists(t, "esi:b:" + bucket.Key() + ":ledger") {
 		t.Error("the ledger outlived twice its window; charges must age out")
 	}
 }
@@ -1031,11 +1031,11 @@ func TestABucketNothingCallsStopsBeingReported(t *testing.T) {
 	// The other edge. Eight windows is well past every scheduled refresh, so a
 	// bucket silent that long is not idle between runs — it is finished, and a
 	// dashboard should stop drawing it rather than show full fill for ever.
-	store, fake := newStore(t)
+	store, be := newStore(t)
 	bucket := esiclient.Bucket{Group: "industry", User: esiclient.AnonymousUser}
 	known(t, store, bucket, 150, 15*time.Minute)
 
-	fake.Server.FastForward(3 * time.Hour)
+	be.FastForward(t, 3 * time.Hour)
 
 	buckets, err := store.Buckets(t.Context())
 	if err != nil {
@@ -1161,13 +1161,13 @@ func TestAGenerousHeaderDoesNotCreditUsBack(t *testing.T) {
 func TestTheDifferenceIsNotChargedToAClassOrEndpoint(t *testing.T) {
 	// It counts against the bucket, but no class spent it and no endpoint did
 	// either — attributing it would eat a floor or a share that owes nothing.
-	store, fake := newStore(t)
+	store, be := newStore(t)
 	bucket := esiclient.Bucket{Group: "market-order", User: esiclient.AnonymousUser}
 
 	settleReporting(t, store, bucket, 12000, 2, 11000)
 	nextReserve(t, store, bucket)
 
-	fields, err := fake.Client.HGetAll(t.Context(), "esi:b:"+bucket.Key()+":ledger").Result()
+	fields, err := be.Client.HGetAll(t.Context(), "esi:b:"+bucket.Key()+":ledger").Result()
 	if err != nil {
 		t.Fatalf("read ledger: %v", err)
 	}

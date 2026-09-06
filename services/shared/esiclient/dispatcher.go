@@ -80,6 +80,17 @@ func (d *Dispatcher) Admit(ctx context.Context, req *httpclient.Request) (httpcl
 	return reservation, nil
 }
 
+// repoint moves a reservation whose response named a different bucket than the
+// one it was reserved against. The hold has already gone back to the bucket
+// that took it, so the cost must not travel: carrying it would have the real
+// bucket refund a charge it never made, out of whatever its ledger is holding
+// for someone else.
+func repoint(r Reservation, to Bucket) Reservation {
+	r.Bucket = to
+	r.Cost = 0
+	return r
+}
+
 // Settle reconciles the ledger with what the attempt actually cost.
 func (d *Dispatcher) Settle(ctx context.Context, ticket httpclient.Ticket, resp *httpclient.Response, err error) {
 	reservation, ok := ticket.(Reservation)
@@ -107,11 +118,7 @@ func (d *Dispatcher) Settle(ctx context.Context, ticket httpclient.Ticket, resp 
 	if disclosed := disclosedBucket(resp, reservation.Bucket); disclosed != reservation.Bucket {
 		_ = d.store.Release(settleCtx, reservation)
 		d.retire(reservation.Bucket)
-		reservation.Bucket = disclosed
-		// The hold went back to the bucket that took it. Carrying the cost across
-		// would have the real bucket refund a charge it never made, out of
-		// whatever its ledger is holding for someone else.
-		reservation.Cost = 0
+		reservation = repoint(reservation, disclosed)
 	}
 	d.note(reservation.Bucket)
 
@@ -251,7 +258,7 @@ func (q *bucketQueue) acquire(ctx context.Context, c call) (Reservation, error) 
 	if q.waiters >= q.d.cfg.WaiterCap && !q.underShareLocked(c.class) {
 		queued := q.waiters
 		q.mu.Unlock()
-		recordYield(ctx, q.bucket, c.class, KindQueued)
+		recordYield(ctx, q.bucket, c.class, KindQueued, BoundNone)
 		return Reservation{}, &RateLimitError{
 			Kind:       KindQueued,
 			RetryAfter: time.Now().Add(q.drainEstimate(c, queued)),
@@ -292,11 +299,11 @@ func (q *bucketQueue) acquire(ctx context.Context, c call) (Reservation, error) 
 			return reservation, nil
 		case refusal := <-w.refused:
 			q.remove(w)
-			recordYield(ctx, q.bucket, c.class, refusal.Kind)
+			recordYield(ctx, q.bucket, c.class, refusal.Kind, refusal.Bound)
 			return Reservation{}, refusal
 		case <-gate:
 			q.remove(w)
-			recordYield(ctx, q.bucket, c.class, KindGated)
+			recordYield(ctx, q.bucket, c.class, KindGated, BoundNone)
 			return Reservation{}, q.gateRefusal(ctx)
 		case <-timer.C:
 			// The pump may have handed a slot over as the timer fired; take it
@@ -314,7 +321,7 @@ func (q *bucketQueue) acquire(ctx context.Context, c call) (Reservation, error) 
 			}
 
 			q.remove(w)
-			recordYield(ctx, q.bucket, c.class, KindQueued)
+			recordYield(ctx, q.bucket, c.class, KindQueued, BoundNone)
 			return Reservation{}, &RateLimitError{
 				Kind:       KindQueued,
 				RetryAfter: time.Now().Add(q.drainEstimate(c, q.depth())),
@@ -618,7 +625,8 @@ func (q *bucketQueue) refuseBeyond(grant Grant) {
 		Kind:       grant.Kind,
 		RetryAfter: grant.RetryAt,
 		Bucket:     q.bucket,
-		Reason:     refusalReason(grant.Kind),
+		Reason:     refusalReason(grant.Kind, grant.Bound),
+		Bound:      grant.Bound,
 	}
 	if grant.Kind == KindDowntime {
 		// Nothing will be served anywhere until Tranquility answers again, so
@@ -690,9 +698,15 @@ func (q *bucketQueue) releaseHeld(ctx context.Context) {
 	}
 }
 
-func refusalReason(kind Kind) string {
+func refusalReason(kind Kind, bound Bound) string {
 	switch kind {
 	case KindDecelerating:
+		switch bound {
+		case BoundFloor:
+			return "the bucket has tokens but they are owed to classes below their floor"
+		case BoundShare:
+			return "this endpoint has used its share of the bucket"
+		}
 		return "bucket low; returning when charges expire rather than at the next slot"
 	case KindGated:
 		return "bucket gated"

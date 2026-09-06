@@ -34,14 +34,37 @@ func parseGrant(raw any, b Bucket, class Class, endpoint string) (Grant, error) 
 	}
 	probe := fields[7] == "1"
 
-	for i := 8; i+1 < len(fields); i += 2 {
+	// The bound term was added after the reply shape was first fixed, so during a
+	// rolling deploy a replica may still answer without it. Length cannot tell
+	// the two apart - an older reply carrying one reservation is as long as a
+	// newer one carrying none - but parity can: reservations come in pairs, so
+	// eight header fields leave an even count and nine leave an odd one.
+	//
+	// Reading this wrong is not a missing figure but a misaligned one: the pairs
+	// would start a field late and every reservation id would be a slot time.
+	pairsFrom := 8
+	if len(fields)%2 == 1 {
+		grant.Bound = Bound(atoiOr(fields[8], 0))
+		pairsFrom = 9
+	}
+
+	// What settle must give back is what reserve actually charged. A discovery
+	// or downtime probe runs before the allowance is known, and an unmetered
+	// route has no ledger at all: both grant a slot without charging a token, so
+	// their reversal must take nothing back.
+	held := SuccessCost
+	if probe || !grant.State.Metered {
+		held = 0
+	}
+
+	for i := pairsFrom; i+1 < len(fields); i += 2 {
 		grant.Reservations = append(grant.Reservations, Reservation{
 			ID:       fields[i],
 			Bucket:   b,
 			Class:    class,
 			Endpoint: endpoint,
 			Slot:     unixFloat(fields[i+1]),
-			Cost:     SuccessCost,
+			Cost:     held,
 			Probe:    probe,
 		})
 	}
@@ -58,6 +81,7 @@ func stateFromFields(fields map[string]string) BucketState {
 		GatedUntil: unixFloat(fields["gated_until"]),
 		NextSlot:   unixFloat(fields["tat"]),
 		ProbeUntil: unixFloat(fields["probe_until"]),
+		Overdrawn:  atoiOr(fields["overdrawn"], 0),
 	}
 }
 

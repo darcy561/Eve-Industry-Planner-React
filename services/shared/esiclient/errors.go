@@ -59,6 +59,8 @@ type RateLimitError struct {
 	Bucket     Bucket
 	Headroom   Headroom
 	Reason     string
+	// Bound is which term held the call back, where the Kind alone does not say.
+	Bound Bound
 }
 
 func (e *RateLimitError) Error() string {
@@ -80,4 +82,41 @@ func AsRateLimit(err error) (*RateLimitError, bool) {
 func IsRateLimit(err error) bool {
 	_, ok := AsRateLimit(err)
 	return ok
+}
+
+// Bound says which term held a call back, for refusals where more than one term
+// could have. A bucket that is simply empty, a floor promised to other classes,
+// and an endpoint's own share are three different operational situations that
+// look identical from the Kind alone.
+type Bound uint8
+
+const (
+	// BoundNone is a refusal that names no term. It is also what a reply from a
+	// replica running an older script reads as, so it means "not stated" rather
+	// than "nothing was binding".
+	BoundNone Bound = iota
+	// BoundBucket means the bucket's own occupancy was the limit: it is spent,
+	// and no share or floor came into it.
+	BoundBucket
+	// BoundFloor means the bucket had tokens but they are owed to classes that
+	// have not spent their floor. Raising this class's floor, or lowering
+	// another's, is what moves it.
+	BoundFloor
+	// BoundShare means the endpoint's max_share was reached while the bucket
+	// still had room. It is a per-endpoint cap, so other endpoints in the same
+	// bucket are unaffected.
+	BoundShare
+)
+
+func (b Bound) String() string {
+	switch b {
+	case BoundBucket:
+		return "bucket"
+	case BoundFloor:
+		return "class_floor"
+	case BoundShare:
+		return "endpoint_share"
+	default:
+		return "unstated"
+	}
 }

@@ -239,6 +239,13 @@ itself, so comparing the id is both correct and cheaper than a lookup.
 
 Stage C's slices are complete.
 
+**An operator can see whether an account came out whole.** `tasks planners` reports, per account,
+whether the planner and its membership row are both present, and how many shared planners the account
+reaches. It exists because the backfill's own line cannot answer that: it counts planner documents
+alone, so "3 of 4 would gain a planner" reads the same whether the fourth is complete or holds a
+planner with no membership row — and without the row that account is granted nothing and reaches none
+of its own data. Read-only, and the check to run after the window before traffic returns.
+
 **Proven over the HTTP surface, with two accounts and a real database.** The statistics live scope
 suite carries the whole chain rather than any one link: a planner owns figures neither account owns,
 and the account holding a membership row for it reads them while the same request without a row is

@@ -212,3 +212,22 @@ func TestPrepareReleaseIsRunnable(t *testing.T) {
 		t.Errorf("args = %q, want the dry run an operator checks a release with first", found.args)
 	}
 }
+
+// The window's own check on whether accounts came out of it whole. The backfill
+// counts planners alone, which cannot tell a complete account from one whose
+// membership row is missing — and a planner without that row grants nothing, so
+// the account reaches none of its own data.
+func TestPlannersIsRunnable(t *testing.T) {
+	t.Parallel()
+
+	found, ok := cliLookup()["planners"]
+	if !ok {
+		t.Fatal("planners is not runnable from the command line")
+	}
+	if found.run == nil {
+		t.Fatal("planners has nothing to run")
+	}
+	if !strings.Contains(found.args, "-account") {
+		t.Errorf("args = %q, want the single-account form an operator checks one login with", found.args)
+	}
+}

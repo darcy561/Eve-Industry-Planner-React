@@ -84,10 +84,10 @@ type Membership struct {
 // No tag beside the branch: a stored tag and a stored branch encode the same
 // fact, and two copies of one fact can disagree.
 type JoinMethod struct {
-	Self       *SelfJoin        `bson:"self,omitempty" json:"self,omitempty"`
-	Invite     *InviteJoin      `bson:"invite,omitempty" json:"invite,omitempty"`
-	Membership *EntityMember    `bson:"entityMember,omitempty" json:"entityMember,omitempty"`
-	AccessList *AccessListEntry `bson:"accessList,omitempty" json:"accessList,omitempty"`
+	Owner      *OwnerAccount     `bson:"owner,omitempty" json:"owner,omitempty"`
+	Invite     *InviteRedemption `bson:"invite,omitempty" json:"invite,omitempty"`
+	Membership *EntityMember     `bson:"entityMember,omitempty" json:"entityMember,omitempty"`
+	AccessList *AccessListEntry  `bson:"accessList,omitempty" json:"accessList,omitempty"`
 }
 
 // JoinKind names the branch a membership came in on, for logging and display. It
@@ -96,7 +96,7 @@ type JoinMethod struct {
 type JoinKind string
 
 const (
-	JoinKindSelf       JoinKind = "self"
+	JoinKindOwner      JoinKind = "owner"
 	JoinKindInvite     JoinKind = "invite"
 	JoinKindMember     JoinKind = "entityMember"
 	JoinKindAccessList JoinKind = "accessList"
@@ -105,8 +105,8 @@ const (
 // Kind reports which branch is populated, or the empty kind when none is.
 func (j JoinMethod) Kind() JoinKind {
 	switch {
-	case j.Self != nil:
-		return JoinKindSelf
+	case j.Owner != nil:
+		return JoinKindOwner
 	case j.Invite != nil:
 		return JoinKindInvite
 	case j.Membership != nil:
@@ -125,7 +125,7 @@ func (j JoinMethod) Kind() JoinKind {
 func (j JoinMethod) Validate() error {
 	set := 0
 	for _, populated := range []bool{
-		j.Self != nil, j.Invite != nil, j.Membership != nil, j.AccessList != nil,
+		j.Owner != nil, j.Invite != nil, j.Membership != nil, j.AccessList != nil,
 	} {
 		if populated {
 			set++
@@ -141,12 +141,14 @@ func (j JoinMethod) Validate() error {
 	}
 }
 
-// SelfJoin is an account's own planner, which it did not join so much as have.
-type SelfJoin struct{}
+// OwnerAccount is the account whose planner this is, which it did not join so
+// much as have. There is exactly one such row per account planner and nothing
+// can revoke it.
+type OwnerAccount struct{}
 
-// InviteJoin records the invite an account came in on. None of it leaves the
-// server: who invited them is not the joiner's business to publish.
-type InviteJoin struct {
+// InviteRedemption records the invite an account came in on. None of it leaves
+// the server: who invited them is not the joiner's business to publish.
+type InviteRedemption struct {
 	InvitedBy string    `bson:"invitedBy" json:"-"`
 	IssuedAt  time.Time `bson:"issuedAt" json:"-"`
 	InviteID  string    `bson:"inviteID,omitempty" json:"-"`
@@ -206,8 +208,8 @@ func (j JoinMethod) ValidatedAt() time.Time {
 // NeedsValidation reports whether this method is kept in step with EVE, and so
 // stops granting once it goes unconfirmed.
 //
-// Self and invite memberships do not: nothing outside the planner can revoke
-// them, so there is nothing to go stale against.
+// An owner or invite membership does not: nothing outside the planner can revoke
+// it, so there is nothing to go stale against.
 func (j JoinMethod) NeedsValidation() bool {
 	return j.Membership != nil || j.AccessList != nil
 }

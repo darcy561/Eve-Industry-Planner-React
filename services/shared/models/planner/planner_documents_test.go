@@ -49,13 +49,13 @@ func TestPlannerIsSharedOnlyAboveOneMember(t *testing.T) {
 func TestJoinMethodWantsExactlyOneBranch(t *testing.T) {
 	t.Parallel()
 
-	if err := (planner.JoinMethod{Self: &planner.SelfJoin{}}).Validate(); err != nil {
+	if err := (planner.JoinMethod{Owner: &planner.OwnerAccount{}}).Validate(); err != nil {
 		t.Fatalf("one branch: %v", err)
 	}
 	if err := (planner.JoinMethod{}).Validate(); err == nil {
 		t.Fatal("no branch must be refused")
 	}
-	if err := (planner.JoinMethod{Self: &planner.SelfJoin{}, Membership: &planner.EntityMember{}}).Validate(); err == nil {
+	if err := (planner.JoinMethod{Owner: &planner.OwnerAccount{}, Membership: &planner.EntityMember{}}).Validate(); err == nil {
 		t.Fatal("two branches must be refused")
 	}
 }
@@ -101,7 +101,7 @@ func TestPlannerDocumentsKeepServerOnlyFieldsOffTheWire(t *testing.T) {
 		ID:         "m-1",
 		PlannerID:  models.AccountOwner("acct-1").Key(),
 		AccountID:  "acct-1",
-		JoinMethod: planner.JoinMethod{Self: &planner.SelfJoin{}},
+		JoinMethod: planner.JoinMethod{Owner: &planner.OwnerAccount{}},
 	})
 	if err != nil {
 		t.Fatalf("marshal membership: %v", err)
@@ -160,8 +160,8 @@ func TestJoinMethodKindReadsThePopulatedBranch(t *testing.T) {
 		method planner.JoinMethod
 		want   planner.JoinKind
 	}{
-		{"self", planner.JoinMethod{Self: &planner.SelfJoin{}}, planner.JoinKindSelf},
-		{"invite", planner.JoinMethod{Invite: &planner.InviteJoin{}}, planner.JoinKindInvite},
+		{"owner", planner.JoinMethod{Owner: &planner.OwnerAccount{}}, planner.JoinKindOwner},
+		{"invite", planner.JoinMethod{Invite: &planner.InviteRedemption{}}, planner.JoinKindInvite},
 		{"entity member", planner.JoinMethod{Membership: &planner.EntityMember{}}, planner.JoinKindMember},
 		{"access list", planner.JoinMethod{AccessList: &planner.AccessListEntry{}}, planner.JoinKindAccessList},
 		{"none", planner.JoinMethod{}, ""},
@@ -337,8 +337,8 @@ func TestMembershipStalenessAppliesOnlyToWhatEVEKeepsInStep(t *testing.T) {
 		needsValidation bool
 		stale           bool
 	}{
-		{"self", planner.JoinMethod{Self: &planner.SelfJoin{}}, false, false},
-		{"invite", planner.JoinMethod{Invite: &planner.InviteJoin{}}, false, false},
+		{"owner", planner.JoinMethod{Owner: &planner.OwnerAccount{}}, false, false},
+		{"invite", planner.JoinMethod{Invite: &planner.InviteRedemption{}}, false, false},
 		{"entity member, confirmed",
 			planner.JoinMethod{Membership: &planner.EntityMember{ValidatedAt: fresh}}, true, false},
 		{"entity member, unconfirmed",

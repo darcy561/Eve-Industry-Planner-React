@@ -97,7 +97,7 @@ func TestLive_reconcileESIMemberships_leavesOtherJoinMethodsAlone(t *testing.T) 
 		PlannerID:     corp.Key(),
 		AccountID:     account,
 		JoinedAt:      now,
-		JoinMethod:    planner.JoinMethod{Invite: &planner.InviteJoin{InvitedBy: "someone-else"}},
+		JoinMethod:    planner.JoinMethod{Invite: &planner.InviteRedemption{InvitedBy: "someone-else"}},
 	}
 	invited.MetaData.Owner = corp
 	invited.MetaData.LastModified = now

@@ -52,7 +52,7 @@ func TestLive_plannerAndMembership_roundTrip(t *testing.T) {
 		PlannerID:     plannerID,
 		AccountID:     plannerScratchAccount,
 		JoinedAt:      time.Now().UTC().Truncate(time.Millisecond),
-		JoinMethod:    planner.JoinMethod{Self: &planner.SelfJoin{}},
+		JoinMethod:    planner.JoinMethod{Owner: &planner.OwnerAccount{}},
 	}
 	if err := membership.JoinMethod.Validate(); err != nil {
 		t.Fatalf("membership is not writable: %v", err)
@@ -80,8 +80,8 @@ func TestLive_plannerAndMembership_roundTrip(t *testing.T) {
 	if err := mongo.PlannerMemberships.Collection().FindOne(ctx, bson.M{"_id": membershipID}).Decode(&storedMembership); err != nil {
 		t.Fatalf("read membership: %v", err)
 	}
-	if got := storedMembership.JoinMethod.Kind(); got != planner.JoinKindSelf {
-		t.Fatalf("join kind = %q, want %q", got, planner.JoinKindSelf)
+	if got := storedMembership.JoinMethod.Kind(); got != planner.JoinKindOwner {
+		t.Fatalf("join kind = %q, want %q", got, planner.JoinKindOwner)
 	}
 	gotPlanner, gotAccount, ok := planner.SplitMembershipID(storedMembership.ID)
 	if !ok || gotPlanner != plannerID || gotAccount != plannerScratchAccount {
@@ -202,8 +202,8 @@ func TestLive_ensureAccountPlanner_repairsEitherHalfAlone(t *testing.T) {
 	if err := mongo.PlannerMemberships.Collection().FindOne(ctx, bson.M{"_id": membershipID}).Decode(&membership); err != nil {
 		t.Fatalf("membership was not restored: %v", err)
 	}
-	if got := membership.JoinMethod.Kind(); got != planner.JoinKindSelf {
-		t.Fatalf("restored join kind = %q, want %q", got, planner.JoinKindSelf)
+	if got := membership.JoinMethod.Kind(); got != planner.JoinKindOwner {
+		t.Fatalf("restored join kind = %q, want %q", got, planner.JoinKindOwner)
 	}
 	var plannerDoc planner.Planner
 	if err := mongo.Planners.Collection().FindOne(ctx, bson.M{"_id": plannerID}).Decode(&plannerDoc); err != nil {

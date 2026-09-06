@@ -62,7 +62,7 @@ func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now 
 		PlannerID:     plannerID,
 		AccountID:     accountID,
 		JoinedAt:      now.UTC(),
-		JoinMethod:    planner.JoinMethod{Self: &planner.SelfJoin{}},
+		JoinMethod:    planner.JoinMethod{Owner: &planner.OwnerAccount{}},
 	}
 	membership.MetaData.Owner = owner
 	membership.MetaData.LastModified = now.UTC()

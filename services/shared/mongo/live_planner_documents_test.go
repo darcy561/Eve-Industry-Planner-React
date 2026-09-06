@@ -120,14 +120,14 @@ func TestLive_ensureAccountPlanner_isInsertOnly(t *testing.T) {
 	})
 
 	now := time.Now().UTC()
-	if held, err := mongo.HasAccountPlanner(ctx, accountID); err != nil || held {
-		t.Fatalf("HasAccountPlanner before create = %v (err %v), want false", held, err)
+	if held, err := mongo.Planners.Collection().CountDocuments(ctx, bson.M{"_id": plannerID}); err != nil || held != 0 {
+		t.Fatalf("planners holding %s before create = %d (err %v), want none", plannerID, held, err)
 	}
 	if err := mongo.EnsureAccountPlanner(ctx, accountID, now); err != nil {
 		t.Fatalf("first EnsureAccountPlanner: %v", err)
 	}
-	if held, err := mongo.HasAccountPlanner(ctx, accountID); err != nil || !held {
-		t.Fatalf("HasAccountPlanner after create = %v (err %v), want true", held, err)
+	if held, err := mongo.Planners.Collection().CountDocuments(ctx, bson.M{"_id": plannerID}); err != nil || held != 1 {
+		t.Fatalf("planners holding %s after create = %d (err %v), want one", plannerID, held, err)
 	}
 
 	// The account renames its planner, as it is entitled to.

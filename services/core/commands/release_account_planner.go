@@ -30,18 +30,27 @@ func backfillAccountPlanners(ctx context.Context, clients *stackservices.Clients
 		return "no accounts", nil
 	}
 
+	// One read of the planner ids that exist, rather than a count per account: the
+	// step runs against every account in the database, and the report below is the
+	// only reason it needs to know which are missing at all.
+	existingIDs, err := mongo.Planners.DistinctStrings(ctx, "_id", bson.M{})
+	if err != nil {
+		return "", fmt.Errorf("list planners: %w", err)
+	}
+	existing := make(map[string]struct{}, len(existingIDs))
+	for _, id := range existingIDs {
+		existing[id] = struct{}{}
+	}
+
 	missing := make([]string, 0, len(accountIDs))
 	for _, accountID := range accountIDs {
-		if models.AccountOwner(accountID).IsZero() {
+		owner := models.AccountOwner(accountID)
+		if owner.IsZero() {
 			// Named rather than skipped: an account whose id yields no owner holds
 			// documents nothing can address either.
 			return "", fmt.Errorf("account id %q yields no owner", accountID)
 		}
-		held, err := mongo.HasAccountPlanner(ctx, accountID)
-		if err != nil {
-			return "", err
-		}
-		if !held {
+		if _, held := existing[owner.Key()]; !held {
 			missing = append(missing, accountID)
 		}
 	}

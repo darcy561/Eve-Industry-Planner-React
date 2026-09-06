@@ -35,53 +35,59 @@ func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now 
 	}
 	plannerID := owner.Key()
 
-	planner := bson.M{
-		"schemaVersion": models.PlannerSchemaCurrent,
-		"name":          DefaultAccountPlannerName,
-		"memberCount":   1,
-		"createdBy":     accountID,
-		"_meta": bson.M{
-			"owner":        bson.M{"kind": string(owner.Kind), "id": owner.ID},
-			"lastModified": now.UTC(),
-		},
+	planner := models.Planner{
+		SchemaVersion: models.PlannerSchemaCurrent,
+		Name:          DefaultAccountPlannerName,
+		MemberCount:   1,
+		CreatedBy:     accountID,
 	}
-	if _, err := m.Planners.Collection().UpdateOne(ctx,
-		bson.M{"_id": plannerID},
-		bson.M{"$setOnInsert": planner},
-		options.UpdateOne().SetUpsert(true),
-	); err != nil {
+	planner.MetaData.Owner = owner
+	planner.MetaData.LastModified = now.UTC()
+	if err := insertIfAbsent(ctx, m.Planners, plannerID, planner); err != nil {
 		return fmt.Errorf("write planner for %s: %w", accountID, err)
 	}
 
-	membership := bson.M{
-		"schemaVersion": models.PlannerMembershipSchemaCurrent,
-		"plannerID":     plannerID,
-		"accountID":     accountID,
-		"joinedAt":      now.UTC(),
-		"joinMethod":    bson.M{string(models.JoinKindSelf): bson.M{}},
+	membership := models.PlannerMembership{
+		SchemaVersion: models.PlannerMembershipSchemaCurrent,
+		PlannerID:     plannerID,
+		AccountID:     accountID,
+		JoinedAt:      now.UTC(),
+		JoinMethod:    models.JoinMethod{Self: &models.SelfJoin{}},
 	}
-	if _, err := m.PlannerMemberships.Collection().UpdateOne(ctx,
-		bson.M{"_id": models.PlannerMembershipID(plannerID, accountID)},
-		bson.M{"$setOnInsert": membership},
-		options.UpdateOne().SetUpsert(true),
-	); err != nil {
+	if err := membership.JoinMethod.Validate(); err != nil {
+		return fmt.Errorf("membership for %s: %w", accountID, err)
+	}
+	if err := insertIfAbsent(ctx, m.PlannerMemberships, models.PlannerMembershipID(plannerID, accountID), membership); err != nil {
 		return fmt.Errorf("write membership for %s: %w", accountID, err)
 	}
 	return nil
 }
 
-// HasAccountPlanner reports whether the account's own planner exists.
-func (m *Mongo) HasAccountPlanner(ctx context.Context, accountID string) (bool, error) {
-	if m == nil || accountID == "" {
-		return false, fmt.Errorf("HasAccountPlanner: invalid arguments")
-	}
-	owner := models.AccountOwner(accountID)
-	if owner.IsZero() {
-		return false, fmt.Errorf("account id %q yields no owner", accountID)
-	}
-	held, err := m.Planners.Collection().CountDocuments(ctx, bson.M{"_id": owner.Key()})
+// insertIfAbsent writes doc under docID only when no document holds that id.
+//
+// The document is marshalled from its model rather than assembled as a map, so
+// the stored shape cannot drift from the struct that reads it back. `_id` is
+// dropped from the payload because the filter already carries it, and Mongo
+// refuses an update that names the id twice.
+func insertIfAbsent(ctx context.Context, docs *Docs, docID string, doc any) error {
+	coll, err := docs.requireColl()
 	if err != nil {
-		return false, err
+		return err
 	}
-	return held > 0, nil
+	raw, err := bson.Marshal(doc)
+	if err != nil {
+		return fmt.Errorf("marshal: %w", err)
+	}
+	var fields bson.M
+	if err := bson.Unmarshal(raw, &fields); err != nil {
+		return fmt.Errorf("unmarshal: %w", err)
+	}
+	delete(fields, "_id")
+
+	_, err = coll.UpdateOne(ctx,
+		bson.M{"_id": docID},
+		bson.M{"$setOnInsert": fields},
+		options.UpdateOne().SetUpsert(true),
+	)
+	return err
 }

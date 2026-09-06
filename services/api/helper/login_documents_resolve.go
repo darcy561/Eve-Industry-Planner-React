@@ -59,6 +59,12 @@ func ResolveUserDocumentsForLogin(ctx context.Context, mongo *eipmongo.Mongo, ac
 	}
 	// Beside the documents above rather than only in the release step: an account
 	// created after that step ran would otherwise have nowhere to work.
+	//
+	// Not guarded on first login, unlike its neighbours. An account whose user
+	// document was written between the backfill and the end of the release has one
+	// of those and no planner, and would never be first-login again — so the guard
+	// that saves two writes is the one that leaves that account with nowhere to
+	// work. The write is insert-only, so doing it every login converges instead.
 	if err := mongo.EnsureAccountPlanner(ctx, accountID, now); err != nil {
 		return nil, fmt.Errorf("create account planner: %w", err)
 	}

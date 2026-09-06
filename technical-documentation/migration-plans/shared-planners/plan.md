@@ -1188,7 +1188,15 @@ so `PlannerInvite`, its TTL index and the join path land with Stage E.
 
 `planners` and `planner_memberships` in the collection-name source of truth, with index specs, schema
 version constants, and registration in `SchemaMaintainedCollections()` — a collection in the name list
-but not that one is never visited by the maintenance batch. `PlannerMembership` takes the composite
+but not that one is never visited by the maintenance batch.
+
+The registration surface is wider than those three files, and every part of it is a hand-maintained
+list rather than a registry: the name constant and **both** sides of its name test, the Deployment
+Tool's own `knownCollections` (a separate Go module, so the list is duplicated rather than imported),
+the index specs, and optionally a named `Docs` field on `Mongo`. Maintenance takes five more: a
+`SchemaVersion` field on the model, a `*SchemaCurrent` constant, an `Upgrader` method, and a case in
+**both** `schemamaint.Batch` and `schemamaint.CurrentVersion`. The last two are guarded by tests that
+fail the build rather than at runtime, which is the safety net worth relying on here. `PlannerMembership` takes the composite
 `_id` of `{ownerKey}|{accountID}`, which gives one row per account per planner without a unique index
 and follows the `{ownerKey}|…` convention the statistics documents already use.
 
@@ -1238,25 +1246,53 @@ Once grants are membership-derived, `requireOwnedBySession` on the statistics ro
 lookup rather than an account comparison — the change its own comment has been waiting for. Doing it
 before C3 would authorise from an ESI-derived grant and then change again, so it waits.
 
+**Grants are a cache, and a membership change does not reach one.** A session record lives seven days
+and is rewritten at login, token rotation, or the ESI task — so an account joining or leaving a planner
+sees no change until one of those fires. § Losing access already requires a removal to bite on the next
+request, which a cached grant list cannot do on its own. Two ways out: rewrite the grants of the one
+account whose membership changed, which `RepairSessionGrants` is the precedent for, or read membership
+live at the authorisation point and keep grants as the routing ceiling only. The first keeps the read
+path cheap; the second cannot go stale. Decide it in this slice rather than discovering it at Stage E,
+where revocation has to work.
+
 **Done when** a session's grants come from its membership rows, an account with no membership beyond
-its own planner reaches only itself, and the statistics route authorises any owner the session holds.
+its own planner reaches only itself, the statistics route authorises any owner the session holds, and a
+membership change reaches a live session by a stated mechanism.
 
 #### C4 — Subscriptions follow the owner
 
 The two pieces from § What a connection subscribes to. The collection set per owner kind becomes a
 server-side table, so a connection's subscriptions are a pair of owner and collection set rather than
 an owner alone. And `docSubscribeAuthorized` stops asking `ExistsByAccountID` — "does this account own
-this document" — and asks whether the document's owner is one the session holds a membership for. One
-call site today, in the websocket's subscribe path.
+this document" — and asks whether the document's owner is one the session holds a membership for.
 
-**Done when** a member can subscribe to a document in a planner they belong to and not to one in a
-planner they do not, and the account's own documents stay subscribable from inside any planner.
+**This is the largest surface in the project, and it has no chokepoint.** `ExistsByAccountID` has one
+caller, but it is not where most of the question is asked: roughly twenty sites across fourteen files
+in `api/v1endpoints` assert that an account owns a document, as inline `_meta.owner` filters, as
+post-read comparisons of `Owner.ID` against the account, and as statistics reads that build
+`models.AccountOwner(accountID)` directly. Each one independently hard-binds the owner to the caller's
+account.
+
+So this slice starts with a **pure refactor**: introduce one helper that answers "may this account
+reach this owner" and move every site onto it with the semantics unchanged. That lands as a no-op,
+reviewable on its own, and turns the semantic change that follows into one edit rather than twenty.
+Changing twenty call sites and their meaning in the same pass is how an authorisation bug gets missed.
+
+**Done when** every account-owns-document assertion runs through one helper, a member can subscribe to
+a document in a planner they belong to and not to one in a planner they do not, and the account's own
+documents stay subscribable from inside any planner.
 
 #### Order
 
 C1 before everything: the rest reads or writes those collections. C2 before C3, because grants derived
 from membership rows return nothing until the rows exist — shipping them in the other order would sign
-every account out of its own data. C4 depends only on C1 and can land beside C3.
+every account out of its own data. C4's refactor half depends only on C1 and can land beside C3; its
+semantic half wants C2 landed for the same reason C3 does.
+
+Inside `prepareRelease`, C2's step sits after `completeSchemaMaintenance` and after the owner stamp —
+it derives a planner from an owner, so the owner has to be there — and before the grants repair, which
+would otherwise write grants from rows the step has not created yet. Both of the steps it follows are
+`required`, so a failure stops the run rather than letting it build on nothing.
 
 The risk is concentrated in C3: it is the slice where an account's access changes source, and the one
 whose failure mode is losing access to your own planner rather than gaining access to someone else's.
@@ -1285,6 +1321,13 @@ Its test is exact: on a single-member planner, every figure must be identical be
 Creation, invite tokens, the join path, the shared authoriser, the limits, and the revocation path.
 `PlannerInvite` and its TTL index land here rather than with the other two collections at Stage C:
 nothing can be invited into a planner until custom planners exist.
+
+**The TTL index is Deployment Tool work, not a spec line.** `IndexSpec` carries a collection, a name,
+keys and an optional partial filter, and the index renderer emits nothing else — no expiry, anywhere in
+the tool. So § Invites' "a TTL index on `ExpiresAt` clears expired ones" needs the spec to gain an
+expiry field, the validator and renderer to carry it, and a decision about how a changed expiry on
+unchanged keys reconciles, since indexes are matched on keys. That is machinery in a separate module
+with its own review, so it is worth starting before the slice that needs it.
 
 The active planner arrives here, and with it the message that switches one: the client names one owner
 key, the server intersects it with the ceiling and replaces the planner subscription, leaving the

@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -34,8 +35,28 @@ func (p Planner) Shared() bool { return p.MemberCount > 1 }
 
 // PlannerMembershipID is the composite `_id` of a membership row, which gives one
 // row per account per planner without needing a unique index.
+//
+// The separator is safe because nothing either side can contain it: an account id
+// is stripped to alphanumerics, an entity ref is base64url, and a minted planner
+// id is base32. The owner key's own colon is therefore the only separator inside
+// the left half.
 func PlannerMembershipID(plannerID, accountID string) string {
-	return plannerID + "|" + accountID
+	return plannerID + membershipIDSeparator + accountID
+}
+
+const membershipIDSeparator = "|"
+
+// SplitPlannerMembershipID recovers the planner id and account id from a row id.
+//
+// The planner id is everything before the last separator, not the first: an owner
+// key leads with `kind:`, and only the account id is guaranteed to hold no
+// separator of its own.
+func SplitPlannerMembershipID(id string) (plannerID, accountID string, ok bool) {
+	cut := strings.LastIndex(id, membershipIDSeparator)
+	if cut <= 0 || cut == len(id)-1 {
+		return "", "", false
+	}
+	return id[:cut], id[cut+1:], true
 }
 
 // PlannerMembership puts one account in one planner, and is the only thing that

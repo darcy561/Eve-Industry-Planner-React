@@ -137,6 +137,31 @@ func TestPlannerMembershipIDIsOneRowPerAccountPerPlanner(t *testing.T) {
 	}
 }
 
+// The row id has to survive the trip back: the planner id is everything before the
+// last separator, because an owner key leads with its kind and a colon.
+func TestPlannerMembershipIDSplitsBackToItsParts(t *testing.T) {
+	t.Parallel()
+	for _, planner := range []string{
+		AccountOwner("acct1").Key(),
+		"planner:01HZY6R3QK7T9V2M4N8P0XW5AB",
+		CorporationOwner(validCorpRef).Key(),
+	} {
+		id := PlannerMembershipID(planner, "acct1")
+		gotPlanner, gotAccount, ok := SplitPlannerMembershipID(id)
+		if !ok {
+			t.Fatalf("SplitPlannerMembershipID(%q) reported no split", id)
+		}
+		if gotPlanner != planner || gotAccount != "acct1" {
+			t.Fatalf("split %q = (%q, %q), want (%q, %q)", id, gotPlanner, gotAccount, planner, "acct1")
+		}
+	}
+	for _, bad := range []string{"", "|", "no-separator", "trailing|"} {
+		if _, _, ok := SplitPlannerMembershipID(bad); ok {
+			t.Fatalf("SplitPlannerMembershipID(%q) reported a split", bad)
+		}
+	}
+}
+
 // The populated branch is the discriminator, so Kind reads it rather than a
 // stored constant that could disagree with it.
 func TestJoinMethodKindReadsThePopulatedBranch(t *testing.T) {

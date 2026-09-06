@@ -74,6 +74,10 @@ Give Go the grammar and pass the pieces in, or at minimum round-trip it in a tes
 Note that `slot_size` derives from `window`, which is read *inside* the transaction, so the slot
 arithmetic itself cannot simply move to Go — this is about the field format, not the slot maths.
 
+The cost of two definitions has already been paid once, in the neighbouring form: the ledger's *access*
+was written twice, in `State` and in `States`, and only one copy was moved to the hash. Whatever this
+stage settles on, one walk of the fields is what both readers call.
+
 Wire compatibility: **migrate-required if the format changes.** Prefer keeping the current format so
 in-flight ledgers survive a deploy; a format change would need ledgers to drain first.
 
@@ -138,11 +142,11 @@ so it can be revisited if they grow.
 - Live SoT carries a stale sentence placing reconciliation on settle rather than reserve
   ([esi.md](../../backend/shared/esi.md), § metrics). Recorded in [overlay.md](./overlay.md) and to be
   corrected at promotion, not before — this project does not edit live SoT.
-- `testing/ledgerbench/doc.go` still describes the sorted-set scheme as *"what
-  services/shared/esiclient runs today"*, which stopped being true at the switch. A one-line
-  correction, in scope for Stage A since that package is being touched.
-- The limiter changes are **uncommitted** in the working tree, and the tree also carries a peer
-  session's unrelated work. Nothing here assumes they have landed.
+- A batched read of many buckets, `Store.States`, was left reading the ledger as a sorted set when the
+  storage changed. It is fixed and covered — see [overlay.md](./overlay.md) § Reading many buckets
+  shares the ledger walk — and it is the second defect of this project's characteristic kind: a change
+  to the storage model that compiled, vetted and passed its suite. It is what Stage A exists to catch
+  in one step rather than two.
 
 ## Done when
 

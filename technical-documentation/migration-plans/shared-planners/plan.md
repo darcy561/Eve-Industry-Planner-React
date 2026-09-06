@@ -1172,12 +1172,7 @@ alliance field.
 ### Stage C — Planner and membership documents
 
 The planner document, the membership collection, and the code that keeps rows current for the `self`
-provider only. This stage also repoints the grants fill from ESI onto membership rows, the source half
-of the split described in Stage B; the owner-key shape it writes into is already in place by then.
-
-Two subscription pieces land with it, both from § What a connection subscribes to: the collection set
-per owner kind, and `docSubscribeAuthorized` moving off `ExistsByAccountID` onto an owner and
-membership test. Every existing account is backfilled a planner whose `_id` is its owner key,
+provider only. Every existing account is backfilled a planner whose `_id` is its owner key,
 `account:{accountID}`, and one membership row. Purely additive: no existing document's owner value
 changes, because the owner id inside that key is the account id those documents already carry.
 
@@ -1185,6 +1180,86 @@ Membership is a separate collection rather than an array on the planner. Both di
 request path — "which planners can this account see" on every session bootstrap, "who is in this
 planner" on every roster read — so both need an index, and an embedded array would make the roster a
 hot-write contention point on the planner document itself.
+
+Invites are **not** in this stage. Nothing can be invited into a planner until custom planners exist,
+so `PlannerInvite`, its TTL index and the join path land with Stage E.
+
+#### C1 — The two collections exist
+
+`planners` and `planner_memberships` in the collection-name source of truth, with index specs, schema
+version constants, and registration in `SchemaMaintainedCollections()` — a collection in the name list
+but not that one is never visited by the maintenance batch. `PlannerMembership` takes the composite
+`_id` of `{ownerKey}|{accountID}`, which gives one row per account per planner without a unique index
+and follows the `{ownerKey}|…` convention the statistics documents already use.
+
+Two indexes, one per request-path direction: `accountID` for "which planners can this account see" and
+`plannerID` for "who is in this planner".
+
+`services/shared/models/planner.go` already holds `Planner`, `PlannerMembership` and `JoinMethod`,
+landed early and wired to nothing. This slice is where they gain a collection. Two gaps against
+§ Membership close here: `JoinKind` and `JoinMethod.Kind()` are specified and absent, and the
+§ Data models note on the meta families is settled — the three unreferenced types go, because
+`JobMetaData`, `GroupMetaData` and `UserMeta` are that shape already.
+
+**Done when** a planner and a membership row can be written and read back, the maintenance batch
+visits both, and `eip ensure-mongo` creates the indexes on an empty database.
+
+#### C2 — Every account has its planner
+
+A `prepareRelease` step, on the pattern of the owner stamp: idempotent, dry-runnable, reporting counts,
+and skipping what it has already done. For each account it writes a planner with `_id` `account:{id}`
+and one membership row whose join method is the `self` branch.
+
+It is additive in the strongest sense — no existing document is touched, only new ones written — so
+unlike § Stage A it needs no window of its own and can run before traffic returns or after it.
+
+The step **creates the planner for accounts that exist**. Signup has to create one too, or an account
+registered after the release has no planner until the next run; that write belongs with the account's
+own creation so the two cannot diverge.
+
+**Done when** every account has exactly one `account`-kind planner and one `self` membership row, a
+second run reports nothing to do, and a newly created account gets both without the step.
+
+#### C3 — Membership decides access
+
+The grants fill repoints from ESI to membership rows: one query for the owner keys of every membership
+this account holds, replacing the corporation and alliance ids `UpdateAccountSessionGrants` converts
+today. The owner-key shape it writes into is already in place from Stage B, so this changes where the
+list comes from and nothing downstream.
+
+**A boundary decision this forces.** `api/helper/auth` is a Redis-only package: it holds sessions,
+tokens and grants, and imports no Mongo. Reading membership rows there would give the session package a
+database dependency it has never had. The alternative is for the callers — which already hold both
+clients — to resolve the owner keys and pass them in, leaving `auth` a writer of what it is given.
+Prefer the second unless it forces a worse shape at the three call sites: authenticate, refresh, and
+the ESI worker task.
+
+Once grants are membership-derived, `requireOwnedBySession` on the statistics route becomes a grant
+lookup rather than an account comparison — the change its own comment has been waiting for. Doing it
+before C3 would authorise from an ESI-derived grant and then change again, so it waits.
+
+**Done when** a session's grants come from its membership rows, an account with no membership beyond
+its own planner reaches only itself, and the statistics route authorises any owner the session holds.
+
+#### C4 — Subscriptions follow the owner
+
+The two pieces from § What a connection subscribes to. The collection set per owner kind becomes a
+server-side table, so a connection's subscriptions are a pair of owner and collection set rather than
+an owner alone. And `docSubscribeAuthorized` stops asking `ExistsByAccountID` — "does this account own
+this document" — and asks whether the document's owner is one the session holds a membership for. One
+call site today, in the websocket's subscribe path.
+
+**Done when** a member can subscribe to a document in a planner they belong to and not to one in a
+planner they do not, and the account's own documents stay subscribable from inside any planner.
+
+#### Order
+
+C1 before everything: the rest reads or writes those collections. C2 before C3, because grants derived
+from membership rows return nothing until the rows exist — shipping them in the other order would sign
+every account out of its own data. C4 depends only on C1 and can land beside C3.
+
+The risk is concentrated in C3: it is the slice where an account's access changes source, and the one
+whose failure mode is losing access to your own planner rather than gaining access to someone else's.
 
 ### Stage D — What a second member breaks
 
@@ -1208,6 +1283,8 @@ Its test is exact: on a single-member planner, every figure must be identical be
 ### Stage E — Custom planners
 
 Creation, invite tokens, the join path, the shared authoriser, the limits, and the revocation path.
+`PlannerInvite` and its TTL index land here rather than with the other two collections at Stage C:
+nothing can be invited into a planner until custom planners exist.
 
 The active planner arrives here, and with it the message that switches one: the client names one owner
 key, the server intersects it with the ceiling and replaces the planner subscription, leaving the
@@ -1355,8 +1432,8 @@ do not touch.
 |-------|--------|
 | Phase 1 — project docs | Complete |
 | A — the owner block, in one cutover | **Ready to run.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, and the rehearsal against a restored copy of live is done. Outstanding: the window itself |
-| B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, the websocket ceiling, scopes and routing index are owner keys, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the active-planner message replacing it is Stage E work — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
-| C — planner and membership documents | Not started. Also repoints the grants fill from ESI onto membership rows. `services/shared/models/planner.go` already holds this stage's types — see § Data models |
+| B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the active-planner message replacing it is Stage E work — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
+| C — planner and membership documents | Not started; broken into four slices — C1 the collections, C2 the account-planner backfill, C3 membership as the source of grants, C4 subscriptions by owner. Invites moved to Stage E. See § Stage C |
 | D — what a second member breaks | Not started |
 | E — custom planners | Not started |
 | F — ESI providers | Not started |

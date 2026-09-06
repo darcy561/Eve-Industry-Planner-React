@@ -44,6 +44,7 @@ The planner as a first-class thing a user works in, and the ownership model unde
 | Know which schema versions change and what each upgrade step does | [plan.md](./plan.md) § Schema versioning |
 | See the document shapes and why each field exists | [plan.md](./plan.md) § Data models |
 | See the stages and their order | [plan.md](./plan.md) §§ Stage A – Stage F |
+| Pick up the planner and membership work slice by slice | [plan.md](./plan.md) § Stage C §§ C1–C4 |
 | Know how the live data migration runs | [plan.md](./plan.md) § Live data, and the cutover window |
 | Know where the grants list is filled from, and when that changes | [plan.md](./plan.md) § Grants, § Stage B |
 | Find the planner types that exist but are wired to nothing | [plan.md](./plan.md) § Data models |

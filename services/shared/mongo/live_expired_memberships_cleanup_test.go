@@ -177,3 +177,69 @@ func membershipRows(ctx context.Context, t *testing.T, mongo *eipmongo.Mongo, ow
 	}
 	return count
 }
+
+// Every row either grants or is counted as stale, and none does both. Written
+// as separate queries the two drifted immediately: a row carrying no confirmation
+// at all granted nothing and was counted by neither, so it was invisible in both
+// directions.
+// Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_staleAndGrantingMembershipsPartitionTheRows(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	account := cleanupScratchAccount + "-partition"
+	corp := models.CorporationOwner(esiCorpRefA)
+	cleanupMemberships(t, mongo, account)
+	now := time.Now().UTC()
+
+	for _, state := range []struct {
+		name    string
+		prepare func()
+		grants  bool
+	}{
+		{"confirmed just now", func() {}, true},
+		{"confirmed too long ago", func() {
+			ageMembership(ctx, t, mongo, corp, account, now.Add(-planner.StaleAfter-time.Hour))
+		}, false},
+		{"never confirmed", func() {
+			ageMembership(ctx, t, mongo, corp, account, time.Time{})
+		}, false},
+		{"no confirmation field at all", func() {
+			if _, err := mongo.PlannerMemberships.Collection().UpdateOne(ctx,
+				bson.M{"_id": planner.MembershipID(corp.Key(), account)},
+				bson.M{"$unset": bson.M{"joinMethod.entityMember.validatedAt": ""}}); err != nil {
+				t.Fatalf("remove the confirmation: %v", err)
+			}
+		}, false},
+	} {
+		t.Run(state.name, func(t *testing.T) {
+			if _, _, err := mongo.ReconcileEntityMemberships(ctx, account,
+				[]models.Owner{corp}, now); err != nil {
+				t.Fatalf("reconcile: %v", err)
+			}
+			state.prepare()
+
+			granted, err := mongo.AccountMayReach(ctx, account, corp)
+			if err != nil {
+				t.Fatalf("AccountMayReach: %v", err)
+			}
+			if granted != state.grants {
+				t.Errorf("grants = %v, want %v", granted, state.grants)
+			}
+
+			// The row is stale exactly when it does not grant. Asked of this row
+			// rather than of the count, which is collection-wide and would be
+			// non-zero for reasons that have nothing to do with this test.
+			countedStale, err := mongo.MembershipIsStaleForTest(ctx,
+				planner.MembershipID(corp.Key(), account), now)
+			if err != nil {
+				t.Fatalf("stale lookup: %v", err)
+			}
+			if countedStale == granted {
+				t.Errorf("granting = %v and counted stale = %v: a row must be exactly one",
+					granted, countedStale)
+			}
+		})
+	}
+}

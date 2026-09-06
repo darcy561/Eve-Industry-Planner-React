@@ -54,22 +54,47 @@ func (m *Mongo) OwnerKeysForAccount(ctx context.Context, accountID string) (mode
 	return keys.Normalized(), nil
 }
 
-// liveMembershipFilter narrows a membership query to rows that still grant.
+// liveMembershipFilter narrows a membership query to rows that still grant, and
+// is the one definition of what that means.
 //
-// Self and invite memberships always do: nothing outside the planner can revoke
-// them, so there is nothing for them to go stale against. The two kept in step
+// An owner or invite membership always grants: nothing outside the planner can
+// revoke it, so there is nothing for it to go stale against. The two kept in step
 // with EVE grant only while their last confirmation is recent enough.
+//
+// A row whose method is one of those two but which carries no confirmation at all
+// does not grant: the query asks for a recent timestamp, and a missing field is
+// not one. That is the same answer as an old one and deliberately so — nothing
+// has vouched for it.
 func liveMembershipFilter(base bson.M, now time.Time) bson.M {
-	cutoff := now.UTC().Add(-planner.StaleAfter)
 	filter := bson.M{}
 	maps.Copy(filter, base)
-	filter["$or"] = []bson.M{
+	filter["$or"] = grantingMethodClauses(now)
+	return filter
+}
+
+// grantingMethodClauses is the set of join-method shapes that grant, as an $or.
+//
+// staleMembershipFilter is its complement, so the two are built from one place
+// rather than each spelling the rule and drifting.
+func grantingMethodClauses(now time.Time) []bson.M {
+	cutoff := now.UTC().Add(-planner.StaleAfter)
+	return []bson.M{
 		{"joinMethod.entityMember": bson.M{"$exists": false},
 			"joinMethod.accessList": bson.M{"$exists": false}},
 		{"joinMethod.entityMember.validatedAt": bson.M{"$gte": cutoff}},
 		{"joinMethod.accessList.validatedAt": bson.M{"$gte": cutoff}},
 	}
-	return filter
+}
+
+// staleMembershipFilter matches the rows that have stopped granting: every row
+// that liveMembershipFilter excludes, and no others.
+//
+// Expressed as the negation rather than as its own set of clauses. Written
+// separately, the two drifted at once — a row with no confirmation field granted
+// nothing and was counted as stale by neither, so it was invisible in both
+// directions.
+func staleMembershipFilter(now time.Time) bson.M {
+	return bson.M{"$nor": grantingMethodClauses(now)}
 }
 
 // AccountMayReach reports whether the account holds a live membership for the

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/testing/redisfake"
@@ -79,5 +80,58 @@ func TestStatesWithNoBucketsTalksToNobody(t *testing.T) {
 	}
 	if got := hook.trips.Load(); got != 0 {
 		t.Fatalf("made %d round trips for no buckets, want 0", got)
+	}
+}
+
+// The batch read walks the ledger itself rather than going through [Store.State], so it can drift
+// from the single-bucket path and report a spend nothing has charged.
+func TestStatesReportsTheSameSpendAsState(t *testing.T) {
+	store, _ := newStore(t)
+	bucket := esiclient.Bucket{Group: "market-order", User: esiclient.AnonymousUser}
+	known(t, store, bucket, 100, time.Minute)
+
+	for range 3 {
+		grant, err := store.Reserve(t.Context(), bucket, esiclient.ClassBackground, marketPolicy, 1)
+		if err != nil {
+			t.Fatalf("reserve: %v", err)
+		}
+		if !grant.Granted {
+			t.Fatalf("not granted: %+v", grant)
+		}
+		err = store.Settle(t.Context(), grant.Reservations[0], esiclient.Outcome{
+			Status:     200,
+			Cost:       2,
+			ObservedAt: time.Now(),
+			Limit:      100,
+			Window:     time.Minute,
+			Remaining:  90,
+			Metered:    true,
+		})
+		if err != nil {
+			t.Fatalf("settle: %v", err)
+		}
+	}
+
+	one, err := store.State(t.Context(), bucket)
+	if err != nil {
+		t.Fatalf("State: %v", err)
+	}
+	if one.Spent == 0 {
+		t.Fatalf("nothing charged, the test proves nothing: %+v", one)
+	}
+
+	many, err := store.States(t.Context(), []esiclient.Bucket{bucket})
+	if err != nil {
+		t.Fatalf("States: %v", err)
+	}
+	batch, ok := many[bucket]
+	if !ok {
+		t.Fatalf("bucket missing from batch read: %+v", many)
+	}
+	if batch.Spent != one.Spent {
+		t.Fatalf("States spent %d, State spent %d", batch.Spent, one.Spent)
+	}
+	if batch.Unaccounted != one.Unaccounted {
+		t.Fatalf("States unaccounted %d, State unaccounted %d", batch.Unaccounted, one.Unaccounted)
 	}
 }

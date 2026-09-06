@@ -163,9 +163,9 @@ var (
 		DefaultTimeout:  5 * time.Minute,
 		MaxRetries:      3,
 	})
-	ReapStaleMemberships = defineTask(Definition{
-		Name:            "reapStaleMemberships",
-		Subject:         "task.maintenance.reapStaleMemberships",
+	CleanUpExpiredMemberships = defineTask(Definition{
+		Name:            "cleanUpExpiredMemberships",
+		Subject:         "task.maintenance.cleanUpExpiredMemberships",
 		DefaultPriority: Priority5,
 		DefaultTimeout:  5 * time.Minute,
 		MaxRetries:      3,
@@ -299,11 +299,11 @@ func TriggerPruneExpiredAccountSessions(ctx context.Context, n *NATS) error {
 	return trigger(ctx, n, PruneExpiredAccountSessions)
 }
 
-// TriggerReapStaleMemberships asks the worker to delete membership rows that
+// TriggerCleanUpExpiredMemberships asks the worker to delete membership rows that
 // stopped granting long enough ago to forget. The cutoffs are the worker's, so
 // there is nothing to send.
-func TriggerReapStaleMemberships(ctx context.Context, n *NATS) error {
-	return trigger(ctx, n, ReapStaleMemberships)
+func TriggerCleanUpExpiredMemberships(ctx context.Context, n *NATS) error {
+	return trigger(ctx, n, CleanUpExpiredMemberships)
 }
 
 // TriggerRollbackSDEVersion rolls the live Static Data Export back to the most

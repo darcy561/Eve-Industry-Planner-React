@@ -10,22 +10,22 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-// ReapAfter is how long a membership kept in step with EVE is kept after it has
-// stopped granting.
+// DeleteExpiredAfter is how long a membership kept in step with EVE is kept
+// after it has stopped granting.
 //
 // It is deliberately much longer than planner.StaleAfter, and the gap between
 // them is the whole point: a row stops granting at StaleAfter, which is
 // reversible — the next confirmation restores access with no rejoin — and is
-// deleted at ReapAfter, which is not. A member who lost access to a long ESI
+// deleted at DeleteExpiredAfter, which is not. A member who lost access to a long ESI
 // outage, or who was away while their token needed re-authorising, rejoins by
 // logging in rather than by being invited back.
 //
 // Deleting at StaleAfter would collapse that distinction and make every outage
 // look like leaving.
-const ReapAfter = 90 * 24 * time.Hour
+const DeleteExpiredAfter = 90 * 24 * time.Hour
 
-// ReapStaleMemberships deletes membership rows that stopped granting long enough
-// ago that keeping them serves nothing.
+// CleanUpExpiredMemberships deletes membership rows that stopped granting long
+// enough ago that keeping them serves nothing.
 //
 // Only the two methods EVE keeps in step are considered. An owner or invite
 // membership never expires — nothing outside the planner can revoke it — so
@@ -34,18 +34,18 @@ const ReapAfter = 90 * 24 * time.Hour
 // Nothing depends on the deletion: the rows it removes stopped granting at
 // planner.StaleAfter and have been inert since. This is housekeeping, which is
 // why it is safe to run on a schedule and safe to skip.
-func (m *Mongo) ReapStaleMemberships(ctx context.Context, now time.Time) (int64, error) {
+func (m *Mongo) CleanUpExpiredMemberships(ctx context.Context, now time.Time) (int64, error) {
 	if m == nil {
-		return 0, fmt.Errorf("ReapStaleMemberships: invalid arguments")
+		return 0, fmt.Errorf("CleanUpExpiredMemberships: invalid arguments")
 	}
-	cutoff := now.UTC().Add(-ReapAfter)
+	cutoff := now.UTC().Add(-DeleteExpiredAfter)
 
 	var deleted int64
-	err := Retry(ctx, "ReapStaleMemberships", func() error {
+	err := Retry(ctx, "CleanUpExpiredMemberships", func() error {
 		// `$gt: zeroTime` excludes a row that has never been confirmed at all —
 		// one written before validation was recorded, or by a path that forgot to
 		// stamp it. Such a row holds the zero time, which is older than any cutoff,
-		// so reaping on age alone would delete it before a reconcile could ever
+		// so deleting on age alone would remove it before a reconcile could ever
 		// confirm it. It stops granting, which is correct, and waits.
 		aged := func(field string) bson.M {
 			return bson.M{field: bson.M{"$lt": cutoff, "$gt": time.Time{}}}
@@ -63,17 +63,17 @@ func (m *Mongo) ReapStaleMemberships(ctx context.Context, now time.Time) (int64,
 		return nil
 	})
 	if err != nil {
-		return 0, fmt.Errorf("reap memberships older than %s: %w", cutoff.Format(time.RFC3339), err)
+		return 0, fmt.Errorf("delete memberships expired before %s: %w", cutoff.Format(time.RFC3339), err)
 	}
 	return deleted, nil
 }
 
 // CountStaleMemberships reports how many rows have stopped granting, whether or
-// not they are old enough to reap.
+// not they are old enough to delete.
 //
-// For the operator view rather than the reap itself: a number that climbs says
+// For the operator view rather than the deletion itself: a number that climbs says
 // accounts are losing access somewhere, which a delete count alone would hide
-// until ReapAfter had passed.
+// until DeleteExpiredAfter had passed.
 func (m *Mongo) CountStaleMemberships(ctx context.Context, now time.Time) (int64, error) {
 	if m == nil {
 		return 0, fmt.Errorf("CountStaleMemberships: invalid arguments")

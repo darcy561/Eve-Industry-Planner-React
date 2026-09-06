@@ -9,15 +9,15 @@ import (
 	"eve-industry-planner/worker/taskrun"
 )
 
-// ReapStaleMemberships deletes membership rows that stopped granting long enough
-// ago that keeping them serves nothing.
+// CleanUpExpiredMemberships deletes membership rows that stopped granting long
+// enough ago that keeping them serves nothing.
 //
 // The rows it removes have been inert since they went stale, so nothing depends
 // on this running — it keeps the collection from growing without bound and
 // nothing else. The stale count is logged beside the delete count because the
 // two answer different questions: how many accounts have lost access, and how
 // many rows were old enough to forget.
-func ReapStaleMemberships(ctx context.Context, deps *taskrun.Dependencies) error {
+func CleanUpExpiredMemberships(ctx context.Context, deps *taskrun.Dependencies) error {
 	if deps == nil || deps.Mongo == nil {
 		return fmt.Errorf("mongo client is required")
 	}
@@ -27,12 +27,12 @@ func ReapStaleMemberships(ctx context.Context, deps *taskrun.Dependencies) error
 	if err != nil {
 		return err
 	}
-	deleted, err := deps.Mongo.ReapStaleMemberships(ctx, now)
+	deleted, err := deps.Mongo.CleanUpExpiredMemberships(ctx, now)
 	if err != nil {
 		return err
 	}
 
-	logs.InfoCtx(ctx, "reap stale memberships task finished",
+	logs.InfoCtx(ctx, "expired membership cleanup finished",
 		"stale_rows", stale,
 		"deleted_rows", deleted,
 	)

@@ -16,6 +16,7 @@ import (
 	"eve-industry-planner/shared/evesso"
 	"eve-industry-planner/shared/httpclient"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/models"
 	eipnats "eve-industry-planner/shared/nats"
 
 	"go.opentelemetry.io/otel/attribute"
@@ -142,9 +143,24 @@ func RefreshAccountSessionGrants(ctx context.Context, request eipnats.AccountSes
 			"error", err)
 		return fmt.Errorf("failed to store alliances: %w", err)
 	}
-	// The corporation and alliance ids above still drive ESI-sourced membership;
-	// what a session may reach is the rows that membership produces, so the grants
-	// are resolved from those rather than from the ids directly.
+	// The ids above become membership rows, and those rows are what a session may
+	// reach: grants are resolved from them rather than from the ids directly, so
+	// following a corporation is the same mechanism as being invited into a planner.
+	//
+	// Skipped when anything failed, because a partial affiliation lookup is not the
+	// same answer as a smaller one: removing rows on an incomplete set would revoke
+	// a member's access for the length of an outage. The rows are left as they are
+	// and the next run reconciles them.
+	if failedCount > 0 {
+		logs.WarnCtx(ctx, "skipping membership reconcile: affiliation lookup was incomplete",
+			"account_id", request.AccountID,
+			"failed", failedCount)
+	} else if err := reconcileESIMemberships(ctx, deps, request.AccountID, allCorporations, allAlliances); err != nil {
+		logs.WarnCtx(ctx, "failed to reconcile ESI memberships",
+			"account_id", request.AccountID,
+			"error", err)
+	}
+
 	granted, err := deps.Mongo.OwnerKeysForAccount(ctx, request.AccountID)
 	if err != nil {
 		logs.WarnCtx(ctx, "failed to resolve owners for session grants",
@@ -253,4 +269,51 @@ func retryAffiliation() httpclient.Retry {
 	policy.Attempts = 4
 	policy.NonIdempotent = true
 	return policy
+}
+
+// reconcileESIMemberships converts the entity ids ESI reported into owner refs and
+// makes the account's ESI-sourced membership rows match them.
+//
+// An id that will not convert is fatal rather than skipped: the resulting set
+// would be missing an entity the account is genuinely in, and reconciling against
+// it would remove that membership.
+func reconcileESIMemberships(ctx context.Context, deps *taskrun.Dependencies, accountID string, corporations, alliances []int64) error {
+	if deps.EntityCipher == nil {
+		return fmt.Errorf("no entity cipher: cannot derive owner refs")
+	}
+
+	owners := make([]models.Owner, 0, len(corporations)+len(alliances))
+	for _, kind := range []struct {
+		ids    []int64
+		encode func(int64) (string, error)
+		owner  func(string) models.Owner
+		label  string
+	}{
+		{corporations, deps.EntityCipher.Corporation, models.CorporationOwner, "corporation"},
+		{alliances, deps.EntityCipher.Alliance, models.AllianceOwner, "alliance"},
+	} {
+		for _, id := range kind.ids {
+			ref, err := kind.encode(id)
+			if err != nil {
+				return fmt.Errorf("derive %s ref for %d: %w", kind.label, id, err)
+			}
+			owner := kind.owner(ref)
+			if owner.IsZero() {
+				return fmt.Errorf("%s ref for %d yields no owner", kind.label, id)
+			}
+			owners = append(owners, owner)
+		}
+	}
+
+	added, removed, err := deps.Mongo.ReconcileESIMemberships(ctx, accountID, owners, time.Now().UTC())
+	if err != nil {
+		return err
+	}
+	if added > 0 || removed > 0 {
+		logs.InfoCtx(ctx, "reconciled ESI memberships",
+			"account_id", accountID,
+			"added", added,
+			"removed", removed)
+	}
+	return nil
 }

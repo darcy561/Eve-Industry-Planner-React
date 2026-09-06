@@ -163,6 +163,13 @@ var (
 		DefaultTimeout:  5 * time.Minute,
 		MaxRetries:      3,
 	})
+	ReapStaleMemberships = defineTask(Definition{
+		Name:            "reapStaleMemberships",
+		Subject:         "task.maintenance.reapStaleMemberships",
+		DefaultPriority: Priority5,
+		DefaultTimeout:  5 * time.Minute,
+		MaxRetries:      3,
+	})
 )
 
 // Publish helpers. One per task, taking the fields that task needs, so a caller
@@ -290,6 +297,13 @@ func PublishCloudStoredEsiRefreshMaintenance(ctx context.Context, n *NATS, accou
 // TriggerPruneExpiredAccountSessions asks the worker to prune expired account sessions.
 func TriggerPruneExpiredAccountSessions(ctx context.Context, n *NATS) error {
 	return trigger(ctx, n, PruneExpiredAccountSessions)
+}
+
+// TriggerReapStaleMemberships asks the worker to delete membership rows that
+// stopped granting long enough ago to forget. The cutoffs are the worker's, so
+// there is nothing to send.
+func TriggerReapStaleMemberships(ctx context.Context, n *NATS) error {
+	return trigger(ctx, n, ReapStaleMemberships)
 }
 
 // TriggerRollbackSDEVersion rolls the live Static Data Export back to the most

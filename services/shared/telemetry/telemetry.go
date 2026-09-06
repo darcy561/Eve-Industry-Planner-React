@@ -25,6 +25,16 @@ import (
 	"eve-industry-planner/shared/logs"
 )
 
+// sampler is the head-based sampler every service shares. ParentBased keeps the edge's decision:
+// Traefik samples the request and a service that sampled independently would drop spans out of the
+// middle of a trace it did not start.
+func sampler(rate float64) sdktrace.Sampler {
+	if rate > 1 {
+		rate = 1.0
+	}
+	return sdktrace.ParentBased(sdktrace.TraceIDRatioBased(rate))
+}
+
 // Init installs global TracerProvider and MeterProvider when Config.shouldInit is true.
 // Traces, metrics and logs all go to the collector over OTLP when OTLPEndpoint is set.
 // Sentry receives errors only.
@@ -103,16 +113,10 @@ func Init(ctx context.Context, cfg Config) (func(context.Context) error, error) 
 		if err != nil {
 			return nil, fmt.Errorf("telemetry: otlp trace exporter: %w", err)
 		}
-		sr := cfg.TracesSampleRate
-		if sr > 1 {
-			sr = 1.0
-		}
-		// ParentBased keeps the edge's decision: Traefik samples the request and a service that
-		// sampled independently would drop spans out of the middle of a trace it did not start.
 		tp := sdktrace.NewTracerProvider(
 			sdktrace.WithResource(res),
 			sdktrace.WithBatcher(te),
-			sdktrace.WithSampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(sr))),
+			sdktrace.WithSampler(sampler(cfg.TracesSampleRate)),
 		)
 		otel.SetTracerProvider(tp)
 		traceShutdown = tp.Shutdown

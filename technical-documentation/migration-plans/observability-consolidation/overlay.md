@@ -229,6 +229,30 @@ through five hundred Redis calls passed everything.
 Both suppression tests were confirmed to fail with the fix reverted, naming the exact spans that
 filled the store. A test for a cost defect that has never been seen failing is not evidence.
 
+Tracing is guarded on three further properties, chosen because each fails silently rather than
+loudly:
+
+- **A trace survives every hop.** `shared/telemetry/natsprop` asserts that a publisher's trace and
+  span id reach the consumer across NATS, that they survive being copied into Asynq's flat string
+  headers, and that a task published from inside a handler stays on the trace it arrived on. A break
+  here does not error: the consumer simply starts a new root, and the request appears as two
+  unrelated traces.
+- **The sampler follows the edge and governs what the edge cannot.** A sampled parent exports even
+  at rate 0, an unsampled parent is not resampled at rate 1, and a span with no parent is governed
+  by the local rate alone. That last case is the one the missing environment key exposed, so it is
+  pinned rather than left implied.
+- **Propagation degrades quietly on purpose.** Every function in `natsprop` no-ops on empty input,
+  which means a missing propagator looks exactly like a working one. The boundary is asserted so
+  that stays a decision rather than an accident.
+
+`sampler` in `shared/telemetry` is a named function rather than an argument built inside `Init`,
+because the sampling rule is the part worth stating and testing on its own.
+
+Not covered: the `otelhttp` filter that keeps `/health`, `/healthy` and `/ready` off traces. Probes
+hit those on a timer forever, so it is the same unbounded shape as the gauge callbacks, but the
+filter is a closure inside `StartAPIServer` and reaching it would mean restructuring the server for
+the test.
+
 Tempo v3.0.0 renamed the sections these limits live in — `ingester` became `live_store` and
 `compactor` split into `block_builder` and `backend_scheduler` — so a config written against older
 documentation fails to parse rather than silently ignoring the caps.

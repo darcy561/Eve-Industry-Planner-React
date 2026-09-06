@@ -89,6 +89,7 @@ func RegisterAuthSessionDistinctGauges(rdb *redis.Client) {
 			return
 		}
 		_, err = m.RegisterCallback(func(ctx context.Context, o metric.Observer) error {
+			ctx = telemetry.WithoutTracing(ctx)
 			v24, err := distinctAuthSessionMergedHours(ctx, rdb, 24)
 			if err != nil {
 				logs.WarnCtx(ctx, "apimetrics: distinct auth sessions 24h merge", "error", err)

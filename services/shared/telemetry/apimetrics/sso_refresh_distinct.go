@@ -85,6 +85,7 @@ func RegisterSSORefreshDistinctGauges(rdb *redis.Client) {
 			return
 		}
 		_, err = m.RegisterCallback(func(ctx context.Context, o metric.Observer) error {
+			ctx = telemetry.WithoutTracing(ctx)
 			v24, err := distinctSSORefreshMergedHours(ctx, rdb, 24)
 			if err != nil {
 				logs.WarnCtx(ctx, "apimetrics: distinct SSO refresh 24h merge", "error", err)

@@ -1,6 +1,7 @@
 package telemetry
 
 import (
+	"context"
 	"fmt"
 
 	"go.opentelemetry.io/otel"
@@ -26,6 +27,23 @@ func Meter(component string) metric.Meter {
 func Tracer(component string) trace.Tracer {
 	return otel.Tracer(scopePrefix + component)
 }
+
+// WithoutTracing returns ctx carrying a non-recording span, so client instrumentation that starts
+// spans from it produces none. Observable gauge callbacks run on every metric export: the calls
+// they make are collection rather than work worth a span, and they attach to whichever trace is
+// open when the reader fires.
+func WithoutTracing(ctx context.Context) context.Context {
+	return trace.ContextWithSpanContext(ctx, notSampled)
+}
+
+// A valid SpanContext that is explicitly not sampled. ParentBased honours that decision, whereas a
+// context with no parent at all leaves the sampler free to start a fresh trace.
+var notSampled = trace.NewSpanContext(trace.SpanContextConfig{
+	TraceID:    trace.TraceID{0x01},
+	SpanID:     trace.SpanID{0x01},
+	TraceFlags: 0,
+	Remote:     false,
+})
 
 // Must returns instrument, panicking when the SDK refused to create it. A refusal means a malformed
 // instrument name or unit, which is a programmer error fixed in the code rather than a runtime

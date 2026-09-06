@@ -8,6 +8,7 @@ import (
 	"eve-industry-planner/core/metrics/common"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/telemetry"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
@@ -58,7 +59,7 @@ func Register(store *esiclient.Store) {
 		}
 
 		_, err := m.RegisterCallback(func(ctx context.Context, o metric.Observer) error {
-			cctx, cancel := context.WithTimeout(ctx, 8*time.Second)
+			cctx, cancel := context.WithTimeout(telemetry.WithoutTracing(ctx), 8*time.Second)
 			defer cancel()
 
 			rows, err := Read(cctx, store, time.Now())

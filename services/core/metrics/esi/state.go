@@ -37,13 +37,14 @@ func Read(ctx context.Context, store *esiclient.Store, now time.Time) ([]BucketS
 		return nil, err
 	}
 
+	states, err := store.States(ctx, buckets)
+	if err != nil {
+		return nil, err
+	}
+
 	out := make([]BucketState, 0, len(buckets))
 	for _, bucket := range buckets {
-		state, err := store.State(ctx, bucket)
-		if err != nil {
-			return nil, err
-		}
-		out = append(out, describe(bucket, state, now))
+		out = append(out, describe(bucket, states[bucket], now))
 	}
 	return out, nil
 }

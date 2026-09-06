@@ -178,23 +178,34 @@ Measured at `TRACES_SAMPLE_RATE=0.1` against 538,000 edge requests over three mi
 Tempo took 218,000 spans across 39,000 traces and never refused one: `tempo_receiver_refused_spans`
 stayed at zero and the ingest limits were never the binding constraint.
 
-The cost came from a few traces, not from the many. Average depth was under six spans, but the cron
-handlers in `core` produce traces of **twenty thousand spans and more** — one `scheduler.run` root
-fans out into every Mongo query, Redis call and ESI request the job makes, and they all land on one
-trace. Those traces exceed `max_bytes_per_trace`, and the work of repeatedly assembling and failing
-to compact them is what costs: Tempo held **a full core for about six minutes** and grew to
-**2.5 GB**, and both continued well after the last request. Idle CPU only returned once the backlog
-of oversized traces cleared. 121,000 spans were dropped as `live_traces_exceeded` and 94,000 as
-`trace_too_large_to_compact`.
+The cost came from a few traces, not from the many. Average depth was under six spans, but a handful
+reached **twenty thousand spans and more**, exceeding `max_bytes_per_trace`. Repeatedly assembling
+and failing to compact those is what costs: Tempo held **a full core for about six minutes** and
+grew to **2.5 GB**, and both continued well after the last request. 121,000 spans were dropped as
+`live_traces_exceeded` and 94,000 as `trace_too_large_to_compact`.
 
-So the idle figure and the request rate both mislead. A background job that fans out is worth more
-to Tempo than thousands of HTTP requests, and the limit that binds first is the per-trace size, not
-ingest bandwidth. Raising the sample rate multiplies the small traces harmlessly and multiplies the
-large ones expensively.
+Those spans were metric collection, not work. Observable gauge callbacks run on every metric export,
+and the ESI bucket gauge called a Redis `SCAN` cursor loop plus one `HGetAll` and one `ZRangeByScore`
+per bucket. `redisotel.InstrumentTracing` turns each of those commands into a span, so a gauge that
+exists to report bucket state was emitting hundreds of spans every fifteen seconds, for as long as
+the process ran. The traces grew huge because those spans attached to whatever trace was open when
+the reader fired.
 
-This is span shape rather than a Tempo fault, and it is [Stage G](./plan.md)'s subject: a fanned-out
-cron job wants a span per unit of work with its own trace, linked to the parent, rather than one
-trace that grows for the length of the run.
+So the request rate misleads twice over: the load barely mattered, and what filled the store was a
+timer. The rule this establishes is that **collection must not be traced**. A gauge callback runs
+forever on a fixed interval, so any client call it makes is unbounded span volume that describes no
+request. `telemetry.WithoutTracing` puts a valid but non-sampled span context on the callback's
+context; `ParentBased` honours that decision, whereas leaving the context bare lets the sampler
+start a fresh trace. The callbacks that touch Redis or Mongo use it.
+
+The N+1 was worth removing on its own account: `Store.States` reads every bucket in one pipeline
+rather than two commands each, so a reporting caller's cost stays flat as buckets are added.
+
+Measured with tracing on and no request traffic at all, the idle span rate fell from roughly thirty
+a second to **about two**, which is the background work that genuinely runs. Read the rate from
+`tempo_distributor_spans_received_total` across a couple of minutes rather than from the span search:
+a service that has just been replaced is still flushing the old container's spans, and their
+timestamps predate the container that appears to be emitting them.
 
 Tempo v3.0.0 renamed the sections these limits live in — `ingester` became `live_store` and
 `compactor` split into `block_builder` and `backend_scheduler` — so a config written against older

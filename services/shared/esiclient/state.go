@@ -221,6 +221,48 @@ func (s *Store) State(ctx context.Context, b Bucket) (BucketState, error) {
 	return state, nil
 }
 
+// States is [Store.State] for many buckets in one round trip. Reading them one at a time costs two
+// commands per bucket, which a reporting caller pays on every collection.
+func (s *Store) States(ctx context.Context, buckets []Bucket) (map[Bucket]BucketState, error) {
+	out := make(map[Bucket]BucketState, len(buckets))
+	if len(buckets) == 0 {
+		return out, nil
+	}
+
+	minScore := strconv.FormatFloat(float64(time.Now().UnixNano())/1e9, 'f', 6, 64)
+	pipe := s.redis.Pipeline()
+	fieldCmds := make([]*redis.MapStringStringCmd, len(buckets))
+	ledgerCmds := make([]*redis.StringSliceCmd, len(buckets))
+	for i, b := range buckets {
+		fieldCmds[i] = pipe.HGetAll(ctx, stateKey(b))
+		ledgerCmds[i] = pipe.ZRangeByScore(ctx, ledgerKey(b), &redis.ZRangeBy{Min: minScore, Max: "+inf"})
+	}
+	if _, err := pipe.Exec(ctx); err != nil && err != redis.Nil {
+		return nil, fmt.Errorf("states: %w", err)
+	}
+
+	for i, b := range buckets {
+		fields, err := fieldCmds[i].Result()
+		if err != nil && err != redis.Nil {
+			return nil, fmt.Errorf("state %s: %w", b, err)
+		}
+		state := stateFromFields(fields)
+		if state.Metered {
+			members, err := ledgerCmds[i].Result()
+			if err != nil && err != redis.Nil {
+				return nil, fmt.Errorf("ledger %s: %w", b, err)
+			}
+			total := 0
+			for _, member := range members {
+				total += costFromMember(member)
+			}
+			state.Spent = total
+		}
+		out[b] = state
+	}
+	return out, nil
+}
+
 // Headroom reports what one class may spend in a bucket now, so a scheduler can
 // decide whether to publish work rather than let it bounce later.
 func (s *Store) Headroom(ctx context.Context, b Bucket, class Class) (Headroom, error) {

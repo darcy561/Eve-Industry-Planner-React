@@ -9,6 +9,7 @@ import (
 	"eve-industry-planner/core/metrics/common"
 	"eve-industry-planner/shared/logs"
 	eipmongo "eve-industry-planner/shared/mongo"
+	"eve-industry-planner/shared/telemetry"
 
 	"go.opentelemetry.io/otel/metric"
 )
@@ -36,7 +37,7 @@ func Register(mongoHandle *eipmongo.Mongo) {
 		}
 
 		refreshCount := func() {
-			ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+			ctx, cancel := context.WithTimeout(telemetry.WithoutTracing(context.Background()), 8*time.Second)
 			defer cancel()
 			coll := mongoHandle.Users.Collection()
 			total, err := coll.CountDocuments(ctx, map[string]any{})

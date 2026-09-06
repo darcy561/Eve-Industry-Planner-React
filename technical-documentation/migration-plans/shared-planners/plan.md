@@ -1485,7 +1485,7 @@ do not touch.
 | Phase 1 — project docs | Complete |
 | A — the owner block, in one cutover | **Ready to run.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, and the rehearsal against a restored copy of live is done. Outstanding: the window itself |
 | B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the active-planner message replacing it is Stage E work — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
-| C — planner and membership documents | Not started; broken into four slices — C1 the collections, C2 the account-planner backfill, C3 membership as the source of grants, C4 subscriptions by owner. Invites moved to Stage E. See § Stage C |
+| C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
 | D — what a second member breaks | Not started |
 | E — custom planners | Not started |
 | F — ESI providers | Not started |

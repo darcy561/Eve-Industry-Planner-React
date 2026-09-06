@@ -11,6 +11,7 @@ Live SoT for test depth under [`services/shared`](../../../services/shared). Beh
 | Lease / identity | `go test ./shared/core/redis/lease/ ./shared/container/ ./shared/wsplacement/` | Common control-plane helpers |
 | Messaging | `go test ./shared/nats/` | Live tests start a server in-process via `testing/natsfake`; nothing to run |
 | Live Mongo (opt-in) | `EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1` | Needs stack `MONGO_*`; skips otherwise |
+| Live Redis (opt-in) | `EIP_REDIS_PARITY_LIVE=1 go test ./shared/esiclient/` | Needs a throwaway Redis on 6399; skips otherwise. Never the stack's on 6379 |
 
 ```bash
 go test ./shared/...
@@ -38,7 +39,9 @@ EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1
 | `mongo` (live, opt-in) | `TestLive_*` put/get/schema/load-filter/doc-shape parity against stack Mongo |
 | `mongo/writers` | Arg-validation / nil-bulk unit tests; exercised on live paths via group-templates / build-stats consumers |
 | `httpclient` | Retry classification and what is never repeated; gate refusals escaping the retry loop; wire-byte counting through gzip; conditional headers and validator parsing; h2 negotiation |
-| `esiclient` (unit) | Bucket keying and token cost against the protocol; allowance learned from headers, never written in code; the floating-window ledger; class floors and hand-off order; glide; the observed downtime gate, including source spread and the lone-source trip; operator reset dropping the allowance and keeping the ledger |
+| `esiclient` (unit) | Bucket keying and token cost against the protocol; allowance learned from headers, never written in code; the slot-hash ledger and its two key lifetimes; which term bound a refusal; class floors and hand-off order; glide; the observed downtime gate, including source spread and the lone-source trip; operator reset dropping the allowance and keeping the ledger |
+| `esiclient` (ledger model) | `TestLedgerMatchesAModelOfOutstandingAndSettled` drives randomised sequences of reserve, settle, release, bucket-move and expiry, comparing what Redis holds against a plain Go tally after every step. The model counts tokens and knows nothing of slots, floors or classes, so a mistake copied into both sides cannot pass. The seed is printed on every run and settable with `-ledger.seed` |
+| `esiclient` (live Redis, opt-in) | The whole suite again against a real server, which is what settles `TIME`, script atomicity and hash-field expiry — the things a reimplementation gets subtly and materially different. The ledger model runs there too, on a short window, waiting real expiry out rather than skipping time. The handful that skip are the ones that can only skip time |
 | `esiclient` (soak, `testing/esi_soak`) | Replay; Redis-op counts per call; fleet soak across replicas; outage and recovery; mixed classes; production-shaped load |
 | `evesso` | Token exchange and refresh against `testing/evessofake`, which signs with a real RSA key it publishes through JWKS, so the whole validation path runs rather than a stub of it: issuer, audience, expiry and unpublished-key rejection, plus the rule that a refused grant means the server answered |
 | Other focused | `container` ID; `wsplacement` tenant keys / routing precedence; `swarmsecret` env-over-file; Mongo/Redis URL API fallback; process `APP_VERSION` helpers; dependency unavailable-error detection |
@@ -61,3 +64,22 @@ EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1
 - Depth labels → [contents.md](./contents.md) § Depth labels.
 - Shared changes often affect multiple services — run the touched shared package plus the consuming service’s suite.
 - Live Mongo tests skip unless `EIP_MONGO_PARITY_LIVE=1`; they do not run in default CI unit jobs.
+- Live Redis tests skip unless `EIP_REDIS_PARITY_LIVE=1`, and they need a throwaway server:
+
+  ```bash
+  docker run -d --rm --name eip-test-redis -p 6399:6379 redis:8
+  cd services && EIP_REDIS_PARITY_LIVE=1 go test ./shared/esiclient/
+  ```
+
+  **Never the stack's Redis on 6379.** The helper refuses that address outright: these tests delete
+  every key under `esi:`, and the limiter's budget is shared state the running system relies on.
+- `testing/ledgerbench` measures how the ledger's read cost scales, against the same throwaway server
+  on 6399: `cd testing && go test ./ledgerbench/ -count=1 -timeout 20m`. It is what established the
+  ledger's shape — read cost for a sorted set grows with traffic *volume*, one member per call,
+  reaching 6.1ms at 12,000 charges, while for the slot hash it grows with traffic *variety* (slots ×
+  classes × endpoints) and stays flat at roughly 210µs at the same depth, for 19× less memory per
+  bucket.
+- **Known flake.** Running the whole `shared/esiclient` package repeatedly fails roughly once in
+  twenty runs, in a rotating set of tests that assert on freshness or allowance adoption. Each passes
+  alone, and it has not been reproduced against a real Redis. The suspicion is a wall-clock read
+  racing an assertion; it is not diagnosed.

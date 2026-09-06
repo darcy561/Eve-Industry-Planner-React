@@ -38,8 +38,10 @@ client and ESI rate limiter.
 | Retry a request, or decide what is not retryable | [esi.md](./esi.md) § Outbound HTTP |
 | Call ESI from a service | [esi.md](./esi.md) |
 | Work out what a call costs, and what the allowance is | [esi.md](./esi.md) § What a bucket is |
+| Know how spend is stored, and why a charge must not be reversed twice | [esi.md](./esi.md) § What a bucket is |
 | Tune how one endpoint is paced | [esi.md](./esi.md) § Endpoint policy |
 | Understand why a call was refused and when to come back | [esi.md](./esi.md) § Acquiring a slot |
+| Tell whether a refusal was the bucket, a floor, or an endpoint's share | [esi.md](./esi.md) § Acquiring a slot |
 | Work out whether ESI is down, and how that was decided | [esi.md](./esi.md) § Downtime is observed, never scheduled |
 | See what ESI activity is reported to Grafana | [esi.md](./esi.md) § What it reports |
 | Read or reset ESI bucket state as an operator | [esi.md](./esi.md) § Operating it |

@@ -66,8 +66,38 @@ only ever learned from a call, so a caller that waits for a budget before callin
 `CountsTowardErrorLimit` is separate and wider: it counts every non-2xx/3xx, 5xx included, because
 the legacy 420 guard counts responses rather than tokens.
 
-**Spend is a ledger, not a counter.** Each charge is a ZSET member with its own expiry, so the window
-floats rather than resetting on a boundary. There is no running-sum key to drift out of step with it.
+**Spend is a ledger, not a counter.** A bucket's ledger is one Redis hash, and the window floats
+rather than resetting on a boundary. There is no running-sum key to drift out of step with it.
+
+Charges are aggregated into fixed slices of the window. The window divides into `SlotsPerWindow`
+slices — 180, so a 15-minute window gives 5-second slices, and a slice is never shorter than a second.
+A charge lands in the field `<slot>|<class>|<endpoint>`, incremented by its cost, so however many
+calls land in one slice from one class and endpoint they cost a single field. Each field carries its
+own TTL, derived from the slot rather than from now, so Redis retires charges without anything
+sweeping them, and writing into a slot again never extends its life.
+
+**A read costs what the traffic was varied, not how much of it there was.** A reserve reads the whole
+hash, bounded by slots × classes × endpoints in play rather than by call count.
+
+**A slot holds no per-reservation identity.** Settle adjusts by delta, and the caller says which
+reservation it held and what it was holding. A reversal applied twice takes tokens belonging to
+whoever else is in that field, so `Reservation.Cost` is what reserve actually charged — zero for a
+discovery or downtime probe, and zero for an unmetered route, neither of which charges a token.
+
+**What ESI charged the address is more than what this fleet spent.** Another caller behind the same
+address, or a ledger that started empty after a deploy, both leave the two counts apart. Every reserve
+reconciles them: the difference between what `X-Ratelimit-Remaining` implies and what the ledger holds
+is written as one hash field under the reserved class marker `esi-sync`, standing in for both class
+and endpoint so it counts against the bucket without being attributed to a floor or an endpoint share
+that did not spend it. It is replaced on each reserve rather than topped up, because accumulating it
+would compound the same gap every call. It happens on reserve rather than on settle because the totals
+it needs have just been walked; on settle it would cost a second full pass over the ledger for every
+response. `BucketState.Unaccounted` reports its size.
+
+**The allowance outlives the charges.** The ledger key expires at `max(window × 2, 60s)`, the state
+key at `max(window × 8, 600s)`. A ledger is finished once its last charge has aged out, but an
+allowance is a learned fact, not a running total: a bucket called once an hour would otherwise lose it
+between calls and drop out of the fleet inventory entirely.
 
 ## Endpoint policy
 
@@ -100,6 +130,20 @@ believe an empty bucket was full.
 `gated`, `error_limit`, `downtime`, `discovering`) and a `RetryAfter`. A queued refusal reports the
 queue's own drain estimate rather than echoing the caller's tolerance.
 
+**A refusal also says which term bound it.** `RateLimitError.Bound` distinguishes three situations a
+`Kind` alone cannot: `bucket`, where the bucket's own occupancy is the limit; `class_floor`, where it
+holds tokens but they are owed to classes below their floor; and `endpoint_share`, where the endpoint
+reached its `MaxShare` while the bucket still had room. `unstated` means no term was named.
+
+A floor never refuses a single call. A class keeps at least one call's worth of its proportional share
+while the bucket can afford one — otherwise the floors would round every class to nothing and the last
+of the bank would never be spent — so `class_floor` always concerns a request for several slots at
+once.
+
+**A retry time is slot-grained.** When a bucket cannot afford a call, the limiter answers with the
+expiry of the slot holding the charges that would free enough, so the time is never earlier than the
+true one and never later than one slot width.
+
 ## Downtime is observed, never scheduled
 
 No clock appears anywhere in the limiter. CCP publish a maintenance window, but it is an estimate
@@ -121,7 +165,7 @@ turn you away, and without that rule a batch of expired tokens would read as an 
 | `esi.requests_total`, `esi.tokens_spent_total`, `esi.yields_total`, `esi.probes_total`, `esi.gate_closures_total` | counters |
 | `esi.queue_wait_milliseconds`, `esi.request_duration_milliseconds`, `esi.request_wire_bytes` | histograms |
 | `esi.queue.waiting`, `esi.queue.slots_held` | per-replica queue depth |
-| `core.esi.bucket.token_limit`, `.token_used`, `.token_remaining`, `.fill`, `.seconds_until_open` | bucket state, reported once by core |
+| `core.esi.bucket.token_limit`, `.token_used`, `.token_remaining`, `.fill`, `.seconds_until_open`, `.reported_remaining`, `.unaccounted`, `.overdrawn` | bucket state, reported once by core |
 | `core.esi.publication_skipped` | refreshes the scheduler decided not to publish, by reason |
 
 Labels are `group` and `scope` — `address` or `character`, never a character id, which would be an
@@ -131,6 +175,20 @@ unbounded metric dimension.
 same figures from Redis, so reporting them per replica would emit identical series a dashboard can
 wrongly sum. Queue depth is the only part a replica knows alone, and it is the only part a worker
 reports.
+
+`core.esi.bucket.reported_remaining` is what ESI itself last said, drawn only while the header still
+describes the current window. `core.esi.bucket.unaccounted` is the reconciled difference: tokens ESI
+charged this address that the fleet never recorded, which spikes after a deploy as a cold ledger
+catches up.
+
+`core.esi.bucket.overdrawn` counts tokens a reversal took out of a slot that was not holding them,
+which happens when one reservation's hold is given back twice. **Any value above zero is a defect, not
+a threshold to tune.** Zero does not prove the fleet is clean: a slot carrying other charges absorbs a
+stray reversal without going under, so the count is a floor on the problem rather than a detector for
+it.
+
+`esi.yields_total` carries a `bound` attribute alongside `reason`, naming which term refused —
+`bucket`, `class_floor`, `endpoint_share` or `unstated`. No dashboard draws this counter yet.
 
 ## Operating it
 
@@ -143,6 +201,9 @@ to recover from a stale one. The ledger records spend inside a window ESI is sti
 it would let every replica spend the same budget twice and earn a 429. The `metered` flag survives
 too — clearing that would stop the limiter consulting the ledger at all, which spends without
 accounting just as effectively as an empty one.
+
+It deletes the allowance fields — `limit`, `window`, `remaining`, `observed_at` — rather than the
+state hash, which is what keeps `metered` alive.
 
 With the allowance gone the bucket falls into discovery: one caller probes, the rest wait, and normal
 accounting resumes against the ledger that was never lost.

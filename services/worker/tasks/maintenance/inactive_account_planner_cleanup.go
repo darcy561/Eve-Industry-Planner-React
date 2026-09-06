@@ -9,6 +9,7 @@ import (
 
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/models/planner"
 	eipmongo "eve-industry-planner/shared/mongo"
 	eipnats "eve-industry-planner/shared/nats"
 	"eve-industry-planner/worker/taskrun"
@@ -19,8 +20,15 @@ import (
 
 const defaultInactivePlannerStaleYears = 2
 
-// InactiveAccountPlannerCleanup deletes live planner job documents and groups for an account when the
-// users document still indicates last login older than the stale-age threshold (re-checked here).
+// InactiveAccountPlannerCleanup removes what an inactive account left behind: its
+// jobs, groups, planner, planner settings and membership rows, when the users
+// document still indicates last login older than the stale-age threshold
+// (re-checked here).
+//
+// The account itself stays. Everything removed here is rebuilt on the next login
+// — EnsureAccountPlanner writes the planner, its membership and its settings, and
+// the grants task rebuilds the entity memberships from the account's own tokens —
+// so this frees the space an inactive account occupies rather than closing it.
 func InactiveAccountPlannerCleanup(ctx context.Context, payload eipnats.InactiveAccountPlannerCleanupRequest, deps *taskrun.Dependencies) error {
 	if deps == nil || deps.Mongo == nil {
 		return fmt.Errorf("mongo client is required")
@@ -62,48 +70,66 @@ func InactiveAccountPlannerCleanup(ctx context.Context, payload eipnats.Inactive
 		return nil
 	}
 
-	acctFilter := bson.M{eipmongo.FieldMetaOwnerID: accountID}
-
-	jobDocsCol := mongo.JobDocuments.Collection()
-	jobsCol := mongo.Jobs.Collection()
-	groupsCol := mongo.Groups.Collection()
-
-	var jobsDocDeleted, jobsDeleted, groupsDeleted int64
-
-	err = eipmongo.Retry(ctx, fmt.Sprintf("inactive planner cleanup job docs %s", accountID), func() error {
-		res, derr := jobDocsCol.DeleteMany(ctx, acctFilter)
-		if derr != nil {
-			return derr
-		}
-		jobsDocDeleted = res.DeletedCount
-		return nil
-	})
-	if err != nil {
-		return fmt.Errorf("delete job_documents for %s: %w", accountID, err)
+	owner := models.AccountOwner(accountID)
+	if owner.IsZero() {
+		return fmt.Errorf("account id %q yields no owner", accountID)
 	}
 
-	err = eipmongo.Retry(ctx, fmt.Sprintf("inactive planner cleanup jobs %s", accountID), func() error {
-		res, derr := jobsCol.DeleteMany(ctx, acctFilter)
-		if derr != nil {
-			return derr
-		}
-		jobsDeleted = res.DeletedCount
-		return nil
-	})
-	if err != nil {
-		return fmt.Errorf("delete jobs collection for %s: %w", accountID, err)
+	// What an account leaves behind, and how each collection is addressed. Owned
+	// documents carry the owner in `_meta`; the planner and its settings are keyed
+	// by the owner key itself, and a membership row by the planner and account
+	// together — so the shape of the filter follows the collection rather than
+	// being one rule applied four times.
+	//
+	// The account's own row and settings are deliberately absent: this frees the
+	// space an inactive account's work occupies without deleting the account, so
+	// someone returning after the window finds an empty planner rather than a
+	// missing login.
+	targets := []struct {
+		label  string
+		docs   *eipmongo.Docs
+		filter bson.M
+	}{
+		{"job_documents", mongo.JobDocuments, bson.M{eipmongo.FieldMetaOwnerID: accountID}},
+		{"jobs", mongo.Jobs, bson.M{eipmongo.FieldMetaOwnerID: accountID}},
+		{"job_groups", mongo.Groups, bson.M{eipmongo.FieldMetaOwnerID: accountID}},
+		// The memberships EVE was keeping current for this account. They grant
+		// nothing while nobody is logged in, and the grants task rebuilds them from
+		// the account's own tokens the moment somebody is — so removing them frees
+		// rows rather than access.
+		{"planner_memberships", mongo.PlannerMemberships, bson.M{
+			"accountID": accountID,
+			"$or": []bson.M{
+				{"joinMethod.entityMember": bson.M{"$exists": true}},
+				{"joinMethod.accessList": bson.M{"$exists": true}},
+			},
+		}},
+		// The account's own planner, its membership of it, and its settings.
+		// EnsureAccountPlanner writes all three back on the next login.
+		{"planner_memberships (own)", mongo.PlannerMemberships,
+			bson.M{"_id": planner.MembershipID(owner.Key(), accountID)}},
+		{"planner_settings", mongo.PlannerSettings, bson.M{"_id": owner.Key()}},
+		{"planners", mongo.Planners, bson.M{"_id": owner.Key()}},
 	}
 
-	err = eipmongo.Retry(ctx, fmt.Sprintf("inactive planner cleanup groups %s", accountID), func() error {
-		res, derr := groupsCol.DeleteMany(ctx, acctFilter)
-		if derr != nil {
-			return derr
+	deletedBy := make(map[string]int64, len(targets))
+	for _, target := range targets {
+		if target.docs == nil {
+			continue
 		}
-		groupsDeleted = res.DeletedCount
-		return nil
-	})
-	if err != nil {
-		return fmt.Errorf("delete job_groups for %s: %w", accountID, err)
+		var deleted int64
+		err = eipmongo.Retry(ctx, fmt.Sprintf("inactive planner cleanup %s %s", target.label, accountID), func() error {
+			res, derr := target.docs.Collection().DeleteMany(ctx, target.filter)
+			if derr != nil {
+				return derr
+			}
+			deleted = res.DeletedCount
+			return nil
+		})
+		if err != nil {
+			return fmt.Errorf("delete %s for %s: %w", target.label, accountID, err)
+		}
+		deletedBy[target.label] += deleted
 	}
 
 	lastLoginLog := ""
@@ -112,9 +138,12 @@ func InactiveAccountPlannerCleanup(ctx context.Context, payload eipnats.Inactive
 	}
 	logs.InfoCtx(ctx, "inactive account planner cleanup complete",
 		"account_id", accountID,
-		"deleted_job_documents", jobsDocDeleted,
-		"deleted_jobs", jobsDeleted,
-		"deleted_job_groups", groupsDeleted,
+		"deleted_job_documents", deletedBy["job_documents"],
+		"deleted_jobs", deletedBy["jobs"],
+		"deleted_job_groups", deletedBy["job_groups"],
+		"deleted_planner_memberships", deletedBy["planner_memberships"]+deletedBy["planner_memberships (own)"],
+		"deleted_planner_settings", deletedBy["planner_settings"],
+		"deleted_planners", deletedBy["planners"],
 		"last_login_at", lastLoginLog,
 		"cutoff_utc", cutoff.Format(time.RFC3339),
 	)

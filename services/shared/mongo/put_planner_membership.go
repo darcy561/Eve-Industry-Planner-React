@@ -18,11 +18,6 @@ import (
 // corporation means: a row appears when the derived set gains an entity and goes
 // when it loses one. Nothing above it asks how a row came to exist.
 //
-// **Every row in the set is restamped, including one that changes nothing.** A
-// membership kept in step with EVE stops granting once it goes unconfirmed for
-// planner.StaleAfter, so "still a member" is the answer that matters most and the
-// one the reconcile is usually delivering.
-//
 // Only entity-member rows are considered. A membership held by invite into the
 // same planner is a separate row with a different method and is never removed
 // here — leaving a corporation does not revoke an invitation somebody issued.
@@ -30,7 +25,7 @@ import (
 // The caller must pass the entities it actually resolved. A lookup that failed is
 // not an empty set: removing every row on a bad ESI response would revoke access
 // for the length of an outage, so the caller reconciles only what it can vouch
-// for, and a row it could not confirm expires on its own.
+// for and leaves the rows alone otherwise.
 func (m *Mongo) ReconcileEntityMemberships(ctx context.Context, accountID string, owners []models.Owner, now time.Time) (added, removed int, err error) {
 	if m == nil || accountID == "" {
 		return 0, 0, fmt.Errorf("ReconcileEntityMemberships: invalid arguments")
@@ -55,17 +50,9 @@ func (m *Mongo) ReconcileEntityMemberships(ctx context.Context, accountID string
 
 	for key, owner := range want {
 		if _, alreadyHeld := held[key]; alreadyHeld {
-			// Confirmed rather than rewritten: the row already says everything but
-			// when EVE last vouched for it, which is the whole point of the check.
-			if _, err := m.PlannerMemberships.Collection().UpdateOne(ctx,
-				bson.M{"_id": planner.MembershipID(key, accountID),
-					"joinMethod.entityMember": bson.M{"$exists": true}},
-				bson.M{"$set": bson.M{
-					"joinMethod.entityMember.validatedAt": now.UTC(),
-					"_meta.lastModified":                  now.UTC(),
-				}}); err != nil {
-				return added, 0, fmt.Errorf("confirm membership %s for %s: %w", key, accountID, err)
-			}
+			// Nothing to write: the row already says the account is in this entity,
+			// and a row grants for as long as it exists. A repeat confirmation has
+			// no effect to record.
 			continue
 		}
 		membership := planner.Membership{
@@ -73,10 +60,7 @@ func (m *Mongo) ReconcileEntityMemberships(ctx context.Context, accountID string
 			PlannerID:     key,
 			AccountID:     accountID,
 			JoinedAt:      now.UTC(),
-			JoinMethod: planner.JoinMethod{Membership: &planner.EntityMember{
-				EntityRef:   owner.ID,
-				ValidatedAt: now.UTC(),
-			}},
+			JoinMethod:    planner.JoinMethod{Membership: &planner.EntityMember{EntityRef: owner.ID}},
 		}
 		membership.MetaData.Owner = owner
 		membership.MetaData.LastModified = now.UTC()

@@ -78,8 +78,8 @@ type Membership struct {
 //
 // The branches name the reason rather than where the answer came from: a member
 // of a corporation is a member because they are in it, not because ESI is how we
-// learned so. Two of them are kept in step with EVE, and record when it last
-// confirmed them so the maintenance sweep knows which rows have been left behind.
+// learned so. Two of them are kept in step with EVE, so a reconcile writes and
+// removes them as an account's affiliations change.
 //
 // No tag beside the branch: a stored tag and a stored branch encode the same
 // fact, and two copies of one fact can disagree.
@@ -156,15 +156,9 @@ type InviteRedemption struct {
 
 // EntityMember records membership that follows from being in the corporation or
 // alliance the planner belongs to.
-//
-// ValidatedAt is when EVE last confirmed it, which is not when the row was
-// created. It does not gate the grant — a row grants while it exists — but it is
-// how the maintenance sweep tells a row that is being kept current from one whose
-// account stopped logging in.
 type EntityMember struct {
-	EntityRef     string    `bson:"entityRef" json:"-"`
-	CharacterHash string    `bson:"characterHash,omitempty" json:"-"`
-	ValidatedAt   time.Time `bson:"validatedAt" json:"-"`
+	EntityRef     string `bson:"entityRef" json:"-"`
+	CharacterHash string `bson:"characterHash,omitempty" json:"-"`
 }
 
 // AccessListEntry records membership that follows an in-game access list.
@@ -172,11 +166,10 @@ type EntityMember struct {
 // Unlike EntityMember it is polled from one managing character's token rather
 // than reconciled from each member's own, so it stops being updated for reasons
 // that have nothing to do with the member: the managing character can lose the
-// scope, leave, or unlink. ValidatedAt is what detects that.
+// scope, leave, or unlink.
 type AccessListEntry struct {
-	ListID      string    `bson:"listID" json:"-"`
-	EntityRef   string    `bson:"entityRef,omitempty" json:"-"`
-	ValidatedAt time.Time `bson:"validatedAt" json:"-"`
+	ListID    string `bson:"listID" json:"-"`
+	EntityRef string `bson:"entityRef,omitempty" json:"-"`
 }
 
 // Invite is one outstanding invitation into a planner.

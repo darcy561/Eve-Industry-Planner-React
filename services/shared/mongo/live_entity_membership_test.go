@@ -25,7 +25,7 @@ const (
 // Following a corporation is the same mechanism as being invited into a planner:
 // a row appears when the derived set gains an entity and goes when it loses one.
 // Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_reconcileESIMemberships_followsTheDerivedSet(t *testing.T) {
+func TestLive_reconcileEntityMemberships_followsTheDerivedSet(t *testing.T) {
 	mongo := mongolive.Require(t)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
@@ -81,7 +81,7 @@ func TestLive_reconcileESIMemberships_followsTheDerivedSet(t *testing.T) {
 // A membership held by another join method into the same planner is not ESI's to
 // revoke: leaving a corporation does not cancel an invitation somebody issued.
 // Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_reconcileESIMemberships_leavesOtherJoinMethodsAlone(t *testing.T) {
+func TestLive_reconcileEntityMemberships_leavesOtherJoinMethodsAlone(t *testing.T) {
 	mongo := mongolive.Require(t)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
@@ -120,7 +120,7 @@ func TestLive_reconcileESIMemberships_leavesOtherJoinMethodsAlone(t *testing.T) 
 // An account's own planner is not ESI's to grant or revoke, so passing one is a
 // caller fault rather than something to act on.
 // Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_reconcileESIMemberships_refusesNonESIKinds(t *testing.T) {
+func TestLive_reconcileEntityMemberships_refusesNonESIKinds(t *testing.T) {
 	mongo := mongolive.Require(t)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
@@ -137,7 +137,7 @@ func TestLive_reconcileESIMemberships_refusesNonESIKinds(t *testing.T) {
 // A membership row is what grants access, so the grant follows it without anything
 // else being written.
 // Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_reconcileESIMemberships_grantsFollowTheRow(t *testing.T) {
+func TestLive_reconcileEntityMemberships_grantsFollowTheRow(t *testing.T) {
 	mongo := mongolive.Require(t)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
@@ -201,10 +201,10 @@ func assertReachable(ctx context.Context, t *testing.T, mongo *eipmongo.Mongo, a
 	}
 }
 
-// An owner membership is not confirmed by anything outside the planner, so no
-// sweep reaches it — an account keeps its own planner whatever ESI is doing.
+// An owner membership is not maintained from outside the planner, so a reconcile
+// never touches it — an account keeps its own planner whatever ESI is doing.
 // Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_ownerMembership_isNeverCleanedUp(t *testing.T) {
+func TestLive_ownerMembership_survivesAReconcile(t *testing.T) {
 	mongo := mongolive.Require(t)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
@@ -219,11 +219,17 @@ func TestLive_ownerMembership_isNeverCleanedUp(t *testing.T) {
 		_, _ = mongo.PlannerSettings.Collection().DeleteOne(cleanupCtx, bson.M{"_id": owner.Key()})
 	})
 
-	// Written a year ago, and never validated, because there is nothing to
-	// validate it against.
 	if err := mongo.EnsureAccountPlanner(ctx, account, time.Now().UTC().AddDate(-1, 0, 0)); err != nil {
 		t.Fatalf("EnsureAccountPlanner: %v", err)
 	}
+	assertReachable(ctx, t, mongo, account, owner, true)
 
+	// ESI reports the account in nothing, which is about corporations and says
+	// nothing about whether it still owns its own planner.
+	if _, removed, err := mongo.ReconcileEntityMemberships(ctx, account, nil, time.Now().UTC()); err != nil {
+		t.Fatalf("reconcile: %v", err)
+	} else if removed != 0 {
+		t.Errorf("reconcile removed %d rows from an account holding only its own planner", removed)
+	}
 	assertReachable(ctx, t, mongo, account, owner, true)
 }

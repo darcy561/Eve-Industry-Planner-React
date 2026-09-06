@@ -6,6 +6,7 @@ import { trackNewJobsCreated } from "../../analytics/trackNewJobsCreated";
 import {
   buildSetupContextForJob,
   buildSetupFromQuantity,
+  setupQuantitiesForTotal,
 } from "./setupBuildHelpers";
 import recalculateJobForNewTotal from "./recalculateJobForNewTotal";
 
@@ -107,11 +108,7 @@ async function buildSetupOptions(inputJobObject, buildRequestObject, queryClient
 
   const presets = buildRequestObject?.presetSetups;
   if (Array.isArray(presets) && presets.length > 0) {
-    const presetContext = buildSetupContextForJob(
-      inputJobObject,
-      requiredQuantity,
-      queryClient
-    );
+    const presetContext = buildSetupContextForJob(inputJobObject, queryClient);
     inputJobObject.build.setup = {};
     for (const row of presets) {
       const newSetup = buildSetupFromQuantity(
@@ -139,13 +136,14 @@ async function buildSetupOptions(inputJobObject, buildRequestObject, queryClient
     return;
   }
 
-  const context = buildSetupContextForJob(
+  const context = buildSetupContextForJob(inputJobObject, queryClient);
+  const setupQuantities = setupQuantitiesForTotal(
     inputJobObject,
     requiredQuantity,
     queryClient
   );
 
-  for (const setupQuantity of context.setupQuantities) {
+  for (const setupQuantity of setupQuantities) {
     const newSetup = buildSetupFromQuantity(
       inputJobObject,
       setupQuantity,

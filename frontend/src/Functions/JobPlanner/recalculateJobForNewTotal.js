@@ -1,6 +1,7 @@
 import {
   buildSetupContextForJob,
   buildSetupFromQuantity,
+  setupQuantitiesForTotal,
 } from "./setupBuildHelpers";
 
 /**
@@ -23,7 +24,8 @@ export default function recalculateJobForNewTotal(
   if (!inputJob || !requiredQuantity) return;
 
   const basedOn = inputJob.setupToBuildFrom;
-  const context = buildSetupContextForJob(
+  const context = buildSetupContextForJob(inputJob, queryClient);
+  const setupQuantities = setupQuantitiesForTotal(
     inputJob,
     requiredQuantity,
     queryClient,
@@ -31,7 +33,7 @@ export default function recalculateJobForNewTotal(
   );
 
   inputJob.build.setup = {};
-  context.setupQuantities.forEach((setupQuantity, index) => {
+  setupQuantities.forEach((setupQuantity, index) => {
     const newSetup = buildSetupFromQuantity(
       inputJob,
       setupQuantity,

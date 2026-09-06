@@ -300,6 +300,15 @@ orphan-detection then treated it as broken for everyone else. Deriving it was cr
 
 **Adding a setup copies the one being edited.** A second setup on a job is another run of the same
 production line, so it is made where the first is made rather than wherever the current settings point.
+It is sized at a single run whatever the copied setup holds, and says so directly rather than asking the
+layout calculator for one run's worth.
+
+**Where a job is made and how much it makes are asked separately.** The build context — efficiency,
+structure, rig, system, tax and raw time — is derived from the current user's settings and the
+blueprints they hold. The layout — how a required total divides into `{ runCount, jobCount }` entries —
+is derived from the total and the blueprint's run limit, and is what makes a new total produce a
+different number of setups. Only a builder working to a total needs both; adding a setup takes the
+context alone.
 
 **Precedence, where three sources can supply a value:** a build request or a stored template row
 outranks the setup being continued from, which outranks the current user's settings. Only the first is

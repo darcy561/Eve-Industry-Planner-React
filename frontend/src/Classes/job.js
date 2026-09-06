@@ -1065,21 +1065,16 @@ class Job {
   }
 
   /**
-   * Adds a setup to the job, continuing from the one being edited: another run of
-   * the same production line is made where that one is made.
+   * Adds a setup to the job, copying the one being edited: another run of the same
+   * production line, made where that one is made. It starts at a single run,
+   * whatever the copied setup is sized at.
    */
   addNewSetup(queryClient) {
-    const requiredQuantity = this.rawData.products[0].quantity;
-    const context = buildSetupContextForJob(
-      this,
-      requiredQuantity,
-      queryClient,
-    );
     const newSetup = buildSetupFromQuantity(
       this,
-      context.setupQuantities[0],
+      { runCount: 1, jobCount: 1 },
       queryClient,
-      context,
+      buildSetupContextForJob(this, queryClient),
       { basedOn: this.setupToBuildFrom },
     );
     this.attachNewSetupToJob(newSetup);

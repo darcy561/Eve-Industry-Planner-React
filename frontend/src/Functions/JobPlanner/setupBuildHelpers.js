@@ -56,41 +56,48 @@ export function calculateSetupQuantitiesAcrossOwnedBlueprintOriginalsFromContext
 }
 
 /**
- * @param {object} [options]
- * @param {CalculateSetupQuantities} [options.calculateSetupQuantities]
- *   Default: {@link defaultCalculateSetupQuantities}. Pass
- *   {@link calculateSetupQuantitiesAcrossOwnedBlueprintOriginalsFromContext} for the multi-BPO split.
+ * Where a job is made and with what, derived from the current user's settings and
+ * the blueprints they hold. The floor a setup is built on when nothing above it
+ * answers a field.
  */
-export function buildSetupContextForJob(
-  job,
-  requiredQuantity,
-  queryClient,
-  options = {}
-) {
-  const {
-    calculateSetupQuantities = defaultCalculateSetupQuantities,
-  } = options;
+export function buildSetupContextForJob(job, queryClient) {
   const { ME, TE } = findHighestMaterialEfficiencyBlueprint(
     job.jobType,
     job.blueprintTypeID,
     queryClient
   );
-  const structureData = getDefaultStrutureForJobType(job.jobType);
-  const setupQuantities = calculateSetupQuantities({
+
+  return {
+    ME,
+    TE,
+    structureData: getDefaultStrutureForJobType(job.jobType),
+    rawTime: job.rawData.time,
+  };
+}
+
+/**
+ * How a required total divides into setups, as `{ runCount, jobCount }` entries.
+ *
+ * @param {object} [options]
+ * @param {CalculateSetupQuantities} [options.calculateSetupQuantities]
+ *   Default: {@link defaultCalculateSetupQuantities}. Pass
+ *   {@link calculateSetupQuantitiesAcrossOwnedBlueprintOriginalsFromContext} for the multi-BPO split.
+ */
+export function setupQuantitiesForTotal(
+  job,
+  requiredQuantity,
+  queryClient,
+  options = {}
+) {
+  const { calculateSetupQuantities = defaultCalculateSetupQuantities } = options;
+
+  return calculateSetupQuantities({
     job,
     queryClient,
     maxProductionLimit: job.maxProductionLimit,
     baseQuantity: job.rawData.products[0].quantity,
     itemQuantityRequired: requiredQuantity,
   });
-
-  return {
-    ME,
-    TE,
-    structureData,
-    setupQuantities,
-    rawTime: job.rawData.time,
-  };
 }
 
 /**

@@ -365,6 +365,9 @@ describe("adding a setup to a job that already has one", () => {
     expect(added.structureID).toBe(JOB_AS_BUILT.structureID);
     expect(added.ME).toBe(JOB_AS_BUILT.ME);
     expect(added.selectedCharacter).toBe(JOB_AS_BUILT.character);
+    // Sized for one run, though the setup it copies is set to five.
+    expect(added.runCount).toBe(1);
+    expect(added.jobCount).toBe(1);
   });
 });
 
@@ -373,9 +376,8 @@ describe("building a job for the first time", () => {
   // explicit choice for this job, so they outrank both the inherited context and
   // the current settings.
   it("lets a build request outrank the setup it is based on", async () => {
-    const { buildSetupContextForJob, buildSetupFromQuantity } = await import(
-      "../src/Functions/JobPlanner/setupBuildHelpers"
-    );
+    const { buildSetupContextForJob, buildSetupFromQuantity, setupQuantitiesForTotal } =
+      await import("../src/Functions/JobPlanner/setupBuildHelpers");
 
     const existing = new Setup({
       runCount: 1,
@@ -396,10 +398,10 @@ describe("building a job for the first time", () => {
       layout: { setupToEdit: null },
     };
 
-    const context = buildSetupContextForJob(job, 1, emptyQueryClient());
+    const context = buildSetupContextForJob(job, emptyQueryClient());
     const setup = buildSetupFromQuantity(
       job,
-      context.setupQuantities[0],
+      setupQuantitiesForTotal(job, 1, emptyQueryClient())[0],
       emptyQueryClient(),
       context,
       {
@@ -446,7 +448,7 @@ describe("building a job for the first time", () => {
       characterToUse: JOB_AS_BUILT.character,
     };
 
-    const context = buildSetupContextForJob(job, 10, emptyQueryClient());
+    const context = buildSetupContextForJob(job, emptyQueryClient());
     const setup = buildSetupFromQuantity(
       job,
       { runCount: row.runCount, jobCount: row.jobCount },

@@ -1266,21 +1266,30 @@ server-side table, so a connection's subscriptions are a pair of owner and colle
 an owner alone. And `docSubscribeAuthorized` stops asking `ExistsByAccountID` — "does this account own
 this document" — and asks whether the document's owner is one the session holds a membership for.
 
-**This is the largest surface in the project, and it has no chokepoint.** `ExistsByAccountID` has one
-caller, but it is not where most of the question is asked: roughly twenty sites across fourteen files
-in `api/v1endpoints` assert that an account owns a document, as inline `_meta.owner` filters, as
-post-read comparisons of `Owner.ID` against the account, and as statistics reads that build
-`models.AccountOwner(accountID)` directly. Each one independently hard-binds the owner to the caller's
-account.
+**Most of the account-owns-this sites must not change, and telling the two apart is the work.** About
+twenty places assert it, but they divide on which collection they read. The `user/` handlers read
+`accounts` and `account_settings`, which are account-owned by design — § Settings stay with the account
+— so "this account owns it" is permanently the right question there and turning it into a membership
+lookup would be a bug, not progress. The eight that change are the planner-scoped ones: the archived
+jobs scope and its ESI links, the group delete, and the job-document reads and deletes.
 
-So this slice starts with a **pure refactor**: introduce one helper that answers "may this account
-reach this owner" and move every site onto it with the semantics unchanged. That lands as a no-op,
-reviewable on its own, and turns the semantic change that follows into one edit rather than twenty.
-Changing twenty call sites and their meaning in the same pass is how an authorisation bug gets missed.
+`docSubscribeAuthorized` already encodes the same split, in the one place that has to answer for every
+collection: account-owned ids are compared, planner-held ids are looked up. It is the model for the
+rest rather than an outlier.
 
-**Done when** every account-owns-document assertion runs through one helper, a member can subscribe to
-a document in a planner they belong to and not to one in a planner they do not, and the account's own
-documents stay subscribable from inside any planner.
+`archivedjobs` also already has the seam — an `ownerFilter` on a scope struct, which every read and
+write goes through. The other three packages inline the filter instead, so the refactor is bringing
+them to that shape, not inventing one.
+
+So the slice is: give the planner-scoped packages a single owner predicate each, with semantics
+unchanged, and only then change what that predicate asks. Leaving the account-owned sites alone is a
+decision, not an omission — recorded so a later sweep does not "finish the job" and widen access to
+documents that were never shared.
+
+**Done when** every planner-scoped ownership assertion runs through one predicate, the account-owned
+ones still compare an account id, a member can subscribe to a document in a planner they belong to and
+not to one in a planner they do not, and the account's own documents stay subscribable from inside any
+planner.
 
 #### Order
 

@@ -221,7 +221,23 @@ An account reading its own statistics is answered without a lookup: it holds tha
 construction, and answering it before the database is consulted keeps the refusal of every other owner
 independent of whether Mongo is reachable.
 
-Owed by the remaining slice: subscriptions by owner.
+**Collections follow the owner's kind, from one table.** `AccountOwnedCollections` holds what an
+account owns wherever it is working — its user document, settings and watchlist — and
+`PlannerHeldCollections` holds what belongs to a planner: jobs, job documents and groups.
+`CollectionsForOwnerKind` picks between them, and every kind that names a planner gets the same set,
+because the collections follow from the kind being a planner rather than from which planner it is. A
+collection added to that list reaches every planner of every kind.
+
+**A document's owner is read, not assumed.** `docSubscribeAuthorized` asked whether the requesting
+account owned the document, which cannot be true of a planner-held document a member did not write. It
+now reads the document's owner and asks whether the account holds a membership for it — two reads,
+because those are two different questions. `ExistsByAccountID` went with the change: it had no other
+caller, and its question is the one that stopped being the right one.
+
+The account-owned branch is unchanged and deliberately so: those documents are owned by the account
+itself, so comparing the id is both correct and cheaper than a lookup.
+
+Stage C's slices are complete.
 
 Owed here: the planner document, the membership document, their indexes, how a roster is kept current
 per provider, how the account planner is created, what the roster endpoints refuse, and where the

@@ -1,5 +1,7 @@
 package mongo
 
+import "eve-industry-planner/shared/models"
+
 // Database and collection names for the product Mongo database.
 
 const (
@@ -44,4 +46,42 @@ func SchemaMaintainedCollections() []string {
 		CollectionPlanners,
 		CollectionPlannerMemberships,
 	}
+}
+
+// AccountOwnedCollections hold documents an account owns wherever it is working.
+// They stay live whichever planner is active, and their owner is always the
+// account itself.
+func AccountOwnedCollections() []string {
+	return []string{
+		CollectionAccounts,
+		CollectionAccountSettings,
+		CollectionWatchlistDeprecated,
+	}
+}
+
+// PlannerHeldCollections hold documents that belong to a planner rather than to
+// the account that wrote them. A connection receives these for the planner it is
+// working in, and a member reaches one by holding a membership row.
+//
+// A collection added here reaches every planner of every kind: the set follows
+// from the owner's kind rather than from anything a client asks for.
+func PlannerHeldCollections() []string {
+	return []string{
+		CollectionJobs,
+		CollectionJobDocuments,
+		CollectionJobGroups,
+	}
+}
+
+// CollectionsForOwnerKind returns the collections a connection receives for an
+// owner of this kind: the account's own documents for the account kind, and the
+// planner's for every kind that names a planner.
+func CollectionsForOwnerKind(kind models.OwnerKind) []string {
+	if kind == models.OwnerAccount {
+		return AccountOwnedCollections()
+	}
+	if kind == "" {
+		return nil
+	}
+	return PlannerHeldCollections()
 }

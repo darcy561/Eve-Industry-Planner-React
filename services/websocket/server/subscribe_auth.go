@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"slices"
 	"strings"
 	"time"
 
@@ -32,11 +33,12 @@ func (s *Server) docSubscribeAuthorized(ctx context.Context, docID, accountID st
 	}
 	collection, id := parts[0], parts[1]
 
-	switch collection {
-	case eipmongo.CollectionAccounts, eipmongo.CollectionAccountSettings, eipmongo.CollectionWatchlistDeprecated:
+	switch {
+	case slices.Contains(eipmongo.AccountOwnedCollections(), collection):
+		// The account owns these wherever it is working, so the id is the answer.
 		return id == accountID
 
-	case eipmongo.CollectionJobs, eipmongo.CollectionJobDocuments, eipmongo.CollectionJobGroups:
+	case slices.Contains(eipmongo.PlannerHeldCollections(), collection):
 		if s.Stack == nil || s.Stack.Mongo == nil {
 			logs.WarnCtx(context.Background(), "subscribe auth denied: mongo client unavailable",
 				"collection", collection, "doc_id", id)
@@ -45,9 +47,22 @@ func (s *Server) docSubscribeAuthorized(ctx context.Context, docID, accountID st
 		mongo := s.Stack.Mongo
 		mctx, cancel := context.WithTimeout(ctx, docSubscribeMongoTimeout)
 		defer cancel()
-		ok, err := mongo.Docs(collection).ExistsByAccountID(mctx, id, accountID)
+
+		// Who owns the document, then whether this account is a member of that
+		// owner: two reads rather than one, because a planner-held document is no
+		// longer owned by whoever may read it.
+		owner, err := mongo.Docs(collection).OwnerOfDocument(mctx, id)
 		if err != nil {
-			logs.WarnCtx(context.Background(), "subscribe auth mongo lookup failed",
+			logs.WarnCtx(context.Background(), "subscribe auth owner lookup failed",
+				"error", err, "collection", collection, "doc_id", id, "account_id", accountID)
+			return false
+		}
+		if owner.IsZero() {
+			return false
+		}
+		ok, err := mongo.AccountMayReach(mctx, accountID, owner)
+		if err != nil {
+			logs.WarnCtx(context.Background(), "subscribe auth membership lookup failed",
 				"error", err, "collection", collection, "doc_id", id, "account_id", accountID)
 			return false
 		}

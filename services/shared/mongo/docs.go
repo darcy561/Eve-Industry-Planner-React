@@ -47,27 +47,32 @@ func (d *Docs) GetPublicByIDs(ctx context.Context, docIDs []string) ([]bson.M, e
 	return d.getByIDs(ctx, docIDs, nil)
 }
 
-// ExistsByAccountID reports whether the account owns a document with this _id.
-func (d *Docs) ExistsByAccountID(ctx context.Context, docID, accountID string) (bool, error) {
+// OwnerOfDocument reads which owner holds a document, or the zero owner when no
+// document has that id.
+//
+// The owner is read rather than compared against a caller: a planner-held
+// document is not owned by everyone entitled to read it, so the entitlement is a
+// separate question asked of the membership rows.
+func (d *Docs) OwnerOfDocument(ctx context.Context, docID string) (models.Owner, error) {
 	coll, err := d.requireColl()
 	if err != nil {
-		return false, err
+		return models.Owner{}, err
 	}
 	if docID == "" {
-		return false, fmt.Errorf("docID is required")
+		return models.Owner{}, fmt.Errorf("docID is required")
 	}
-	if accountID == "" {
-		return false, fmt.Errorf("accountID is required")
+	var held struct {
+		MetaData models.MetaData `bson:"_meta"`
 	}
-	filter := bson.M{FieldMetaOwnerKind: models.OwnerAccount, FieldMetaOwnerID: accountID, "_id": docID}
-	err = coll.FindOne(ctx, filter).Err()
-	if err == nil {
-		return true, nil
-	}
+	err = coll.FindOne(ctx, bson.M{"_id": docID},
+		options.FindOne().SetProjection(bson.M{"_meta.owner": 1})).Decode(&held)
 	if errors.Is(err, mongo.ErrNoDocuments) {
-		return false, nil
+		return models.Owner{}, nil
 	}
-	return false, err
+	if err != nil {
+		return models.Owner{}, err
+	}
+	return held.MetaData.Owner, nil
 }
 
 // UpsertStructPreservingMeta upserts by _id preserving existing _meta (bumps lastModified).

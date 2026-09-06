@@ -11,7 +11,7 @@ import {
 } from "../Functions/Helper/getStructureInfo";
 import calculateTimeForSetup from "../Functions/Blueprint Calculations/calculateTimeForSetup";
 import calculateInstallCostfromSetup from "../Functions/Installation Costs/installCosts";
-import calculateMaterialsFromSetup from "../Functions/Blueprint Calculations/calculateMaterialsForSetup";
+import materialQuantitiesForSetup from "../Functions/Blueprint Calculations/calculateMaterialsForSetup";
 import { asStringID } from "../Functions/Helper/ids";
 /**
  * Setup class for EVE Online industry job configurations.
@@ -130,22 +130,6 @@ class Setup {
   }
 
   /**
-   * Applies the initial raw material quantities to the setup from its job.
-   *
-   * @param {Array} rawMaterialQuantities - The raw material quantities to apply
-   */
-
-  applyInitialRawMaterialQuantities(rawMaterialQuantities) {
-    rawMaterialQuantities.forEach((material) => {
-      this.materialCount[material.typeID] = {
-        typeID: material.typeID,
-        quantity: material.quantity,
-        rawQuantity: material.quantity,
-      };
-    });
-  }
-
-  /**
    * Calculates the estimated time and installation cost for this setup.
    *
    * @param {Array<Object>} skillsContext - Array of character skills data
@@ -176,17 +160,9 @@ class Setup {
     );
   }
   /**
-   * Calculates the material count for this setup.
+   * Recalculates the setup against its job's raw data.
    *
-   * @returns {Object} The material count for the setup
-   */
-  calculateMaterialCount() {
-    this.materialCount = calculateMaterialsFromSetup(this);
-  }
-
-  /**
-   * Recalculates the setup with new data.
-   *
+   * @param {Array} rawMaterialQuantities - Raw material quantities from the job
    * @param {Array} jobSkillRequirements - The job skill requirements
    * @param {QueryClient} queryClient - The query client to use
    * @param {Object} additionalMaterialPrices - Additional material prices to use
@@ -194,12 +170,13 @@ class Setup {
    */
 
   recalculate(
+    rawMaterialQuantities,
     jobSkillRequirements,
     queryClient,
     additionalMaterialPrices = {},
     additionalSystemIndexValues = {},
   ) {
-    this.calculateMaterialCount();
+    this.materialCount = materialQuantitiesForSetup(this, rawMaterialQuantities);
     this.caclulateEstimatedTime(jobSkillRequirements, queryClient);
     this.caclulateEstimatedInstallCost(
       additionalMaterialPrices,

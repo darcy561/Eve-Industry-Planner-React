@@ -89,62 +89,63 @@ export function buildSetupContextForJob(
     TE,
     structureData,
     setupQuantities,
-    rawTimeValue: job.rawData.time,
+    rawTime: job.rawData.time,
   };
 }
 
+/**
+ * Setup accepts the character under two names and stores it under one, so a
+ * source naming the other would not override one spread in beneath it.
+ *
+ * @param {Object} source
+ */
+function asStoredFieldNames({ characterToUse, ...rest }) {
+  return characterToUse === undefined
+    ? rest
+    : { ...rest, selectedCharacter: characterToUse };
+}
+
+/**
+ * Drops keys with no value, so spreading one source does not blank a field the
+ * source beneath it answered.
+ */
+function withoutUndefined(source) {
+  return Object.fromEntries(
+    Object.entries(source).filter(([, value]) => value !== undefined)
+  );
+}
+
+/**
+ * Builds one setup. Precedence, highest first: the quantity, `overrides` (a build
+ * request or a stored template row), `basedOn` (the setup this one continues
+ * from), then the current user's settings.
+ *
+ * @param {Object} [sources]
+ * @param {import("../../Classes/jobSetup").default} [sources.basedOn]
+ * @param {Object} [sources.overrides]
+ */
 export function buildSetupFromQuantity(
   job,
   setupQuantity,
   queryClient,
   context,
-  overrides = {}
+  { basedOn = null, overrides = {} } = {}
 ) {
   const newSetup = new Setup({
     ME: context.ME,
     TE: context.TE,
     ...context.structureData,
+    selectedCharacter: useUsersStore
+      .getState()
+      .account.actions.getMainCharacterHash(),
+    ...(basedOn ?? {}),
+    ...withoutUndefined(asStoredFieldNames(overrides)),
     ...setupQuantity,
-    systemID: overrides.systemID ?? context.structureData.systemID,
-    characterToUse:
-      overrides.characterToUse ??
-      useUsersStore.getState().account.actions.getMainCharacterHash(),
-    rawTimeValue: context.rawTimeValue,
+    id: undefined,
+    rawTime: context.rawTime,
     jobType: job.jobType,
   });
 
-  newSetup.applyInitialRawMaterialQuantities(job.rawData.materials);
-  newSetup.recalculate(job.skills, queryClient);
-  return newSetup;
-}
-
-/**
- * Build a {@link Setup} from a persisted template row (ME/TE/structure/runs + optional character).
- *
- * @param {import("../../Classes/job").default} job
- * @param {Record<string, unknown>} presetRow — same shape as API `presetSetups[]`
- * @param {import("@tanstack/react-query").QueryClient} queryClient
- * @param {number} rawTimeValue — `job.rawData.time`
- */
-export function buildSetupFromPresetRow(job, presetRow, queryClient, rawTimeValue) {
-  const mainChar =
-    useUsersStore.getState().account.actions.getMainCharacterHash();
-  const newSetup = new Setup({
-    runCount: presetRow.runCount,
-    jobCount: presetRow.jobCount,
-    ME: presetRow.ME,
-    TE: presetRow.TE,
-    rigID: presetRow.rigID,
-    structureID: presetRow.structureID,
-    systemTypeID: presetRow.systemTypeID,
-    systemID: presetRow.systemID,
-    taxValue: presetRow.taxValue,
-    customStructureID: presetRow.customStructureID ?? "",
-    characterToUse: presetRow.characterToUse ?? mainChar,
-    rawTimeValue,
-    jobType: job.jobType,
-  });
-  newSetup.applyInitialRawMaterialQuantities(job.rawData.materials);
-  newSetup.recalculate(job.skills, queryClient);
+  newSetup.recalculate(job.rawData.materials, job.skills, queryClient);
   return newSetup;
 }

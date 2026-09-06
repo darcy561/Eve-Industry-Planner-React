@@ -3,7 +3,6 @@ import { fetchWithPublicHeaders } from "./applyPublicHeaders.js";
 const DEFAULT_APP_CONFIG = {
   app_version_number: __APP_VERSION__,
   maintenance_mode: false,
-  enable_upcoming_changes_page: false,
   feature_flags: {},
 };
 

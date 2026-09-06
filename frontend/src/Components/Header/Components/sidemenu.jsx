@@ -11,7 +11,6 @@ import { useNavigate } from "@tanstack/react-router";
 import useUsersStore from "../../../Zustand/usersStore";
 import { useTranquilityServerStatusQuery } from "../../../Hooks/React Query/tranquilityServerStatus.js";
 import { formatNumberForLocale } from "../../../Functions/Helper/numberParser";
-import useAppConfig from "../../../Hooks/App/useAppConfig";
 
 export function SideMenu({ open, setOpen }) {
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
@@ -19,9 +18,6 @@ export function SideMenu({ open, setOpen }) {
   const eveServerStatus = tranquilityStatus?.online ?? false;
   const evePlayerCount = tranquilityStatus?.playerCount ?? 0;
   const navigate = useNavigate();
-
-  const { enable_upcoming_changes_page: enableUpcomingChanges = false } =
-    useAppConfig();
 
   return (
     <Drawer
@@ -140,19 +136,6 @@ export function SideMenu({ open, setOpen }) {
               <ListItemText primary={"Item Tree"} />
             </ListItemButton>
             <Divider />
-            {enableUpcomingChanges && (
-              <>
-                <ListItemButton
-                  onClick={() => {
-                    navigate({ to: "/upcoming-changes" });
-                    setOpen(false);
-                  }}
-                >
-                  <ListItemText primary={"Upcoming Changes"} />
-                </ListItemButton>
-                <Divider />
-              </>
-            )}
             <Divider />
           </List>
         </Box>

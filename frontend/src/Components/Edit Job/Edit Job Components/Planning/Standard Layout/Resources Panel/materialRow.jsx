@@ -19,7 +19,7 @@ export function MaterialRow({ state, material, displayType }) {
 
   const quantityToUse =
     displayType === "active"
-      ? state.activeJob.build.setup[state.activeJob.layout.setupToEdit]
+      ? state.activeJob.selectedSetup
           .materialCount[material.typeID].quantity
       : material.quantity;
 

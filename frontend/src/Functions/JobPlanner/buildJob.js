@@ -6,7 +6,6 @@ import { trackNewJobsCreated } from "../../analytics/trackNewJobsCreated";
 import {
   buildSetupContextForJob,
   buildSetupFromQuantity,
-  buildSetupFromPresetRow,
 } from "./setupBuildHelpers";
 import recalculateJobForNewTotal from "./recalculateJobForNewTotal";
 
@@ -108,14 +107,19 @@ async function buildSetupOptions(inputJobObject, buildRequestObject, queryClient
 
   const presets = buildRequestObject?.presetSetups;
   if (Array.isArray(presets) && presets.length > 0) {
+    const presetContext = buildSetupContextForJob(
+      inputJobObject,
+      requiredQuantity,
+      queryClient
+    );
     inputJobObject.build.setup = {};
-    const rawTimeValue = inputJobObject.rawData.time;
     for (const row of presets) {
-      const newSetup = buildSetupFromPresetRow(
+      const newSetup = buildSetupFromQuantity(
         inputJobObject,
-        row,
+        { runCount: row.runCount, jobCount: row.jobCount },
         queryClient,
-        rawTimeValue
+        presetContext,
+        { overrides: row }
       );
       inputJobObject.build.setup[newSetup.id] = newSetup;
     }
@@ -148,8 +152,10 @@ async function buildSetupOptions(inputJobObject, buildRequestObject, queryClient
       queryClient,
       context,
       {
-        systemID: buildRequestObject?.systemID,
-        characterToUse: buildRequestObject?.characterToUse,
+        overrides: {
+          systemID: buildRequestObject?.systemID,
+          characterToUse: buildRequestObject?.characterToUse,
+        },
       }
     );
     inputJobObject.attachNewSetupToJob(newSetup);

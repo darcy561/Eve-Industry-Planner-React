@@ -1035,6 +1035,27 @@ class Job {
   }
 
   /**
+   * The setup the editor is on, or undefined when nothing is selected, which is
+   * the state of a job loaded without a stored selection.
+   *
+   * @returns {Setup|undefined}
+   */
+
+  get selectedSetup() {
+    return this.build.setup[this.layout.setupToEdit];
+  }
+
+  /**
+   * The setup another one should continue from: the selected one, or the first.
+   *
+   * @returns {Setup|undefined}
+   */
+
+  get setupToBuildFrom() {
+    return this.selectedSetup ?? Object.values(this.build.setup)[0];
+  }
+
+  /**
    * @param {Setup} setup
    */
 
@@ -1043,6 +1064,10 @@ class Job {
     this.layout.setupToEdit = setup.id;
   }
 
+  /**
+   * Adds a setup to the job, continuing from the one being edited: another run of
+   * the same production line is made where that one is made.
+   */
   addNewSetup(queryClient) {
     const requiredQuantity = this.rawData.products[0].quantity;
     const context = buildSetupContextForJob(
@@ -1055,6 +1080,7 @@ class Job {
       context.setupQuantities[0],
       queryClient,
       context,
+      { basedOn: this.setupToBuildFrom },
     );
     this.attachNewSetupToJob(newSetup);
   }
@@ -1087,6 +1113,7 @@ class Job {
 
     const setup = this.build.setup[setupId];
     setup.recalculate(
+      this.rawData.materials,
       this.skills,
       queryClient,
       additionalMaterialPrices,

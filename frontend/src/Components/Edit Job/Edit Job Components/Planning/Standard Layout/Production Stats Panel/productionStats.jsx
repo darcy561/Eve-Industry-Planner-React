@@ -8,7 +8,7 @@ export function ProductionStats({ state, actions }) {
   const { activeJob } = state;
   const { jobArray } = useUsersStore((state) => state.jobData);
   const { findJobInJobArray } = useUsersStore.getState().jobData.actions;
-  const setupToEdit = activeJob.layout.setupToEdit;
+  const selectedSetup = activeJob.selectedSetup;
 
   const calculateParentRequirements = useCallback(() => {
     let returnObject = {
@@ -47,9 +47,9 @@ export function ProductionStats({ state, actions }) {
     return returnObject;
   }, [jobArray, state.parentChildToEdit]);
 
-  if (!activeJob.build.setup[setupToEdit]) return null;
+  if (!selectedSetup) return null;
 
-  const timeDisplayFigure = formatTimeDuration(activeJob.build.setup[setupToEdit].estimatedTime);
+  const timeDisplayFigure = formatTimeDuration(selectedSetup.estimatedTime);
   const parentRequirements = calculateParentRequirements();
 
   return (
@@ -86,7 +86,7 @@ export function ProductionStats({ state, actions }) {
               >
                 {formatNumberForLocale(
                   activeJob.itemsProducedPerRun *
-                    activeJob.build.setup[setupToEdit].runCount,
+                    selectedSetup.runCount,
                   { max: 0 }
                 )}
               </Typography>
@@ -105,8 +105,8 @@ export function ProductionStats({ state, actions }) {
               >
                 {formatNumberForLocale(
                   activeJob.itemsProducedPerRun *
-                    activeJob.build.setup[setupToEdit].runCount *
-                    activeJob.build.setup[setupToEdit].jobCount,
+                    selectedSetup.runCount *
+                    selectedSetup.jobCount,
                   { max: 0 }
                 )}
               </Typography>

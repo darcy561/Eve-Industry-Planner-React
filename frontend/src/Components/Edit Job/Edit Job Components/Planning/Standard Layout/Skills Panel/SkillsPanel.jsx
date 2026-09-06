@@ -8,7 +8,7 @@ import ContentPanel from "../../../../../../Styled Components/Paper/ContentPanel
 export function SkillsPanel({ state }) {
   const { activeJob } = state;
   const selectedCharacterHash =
-    activeJob.build.setup[activeJob.layout.setupToEdit]?.selectedCharacter;
+    activeJob.selectedSetup?.selectedCharacter;
 
   const buildChar = selectedCharacterHash
     ? useUsersStore
@@ -23,7 +23,7 @@ export function SkillsPanel({ state }) {
     error,
   } = useGetCharacterSkills(buildChar.CharacterHash);
 
-  if (!activeJob.build.setup[activeJob.layout.setupToEdit]) return null;
+  if (!activeJob.selectedSetup) return null;
 
   return (
     <ContentPanel

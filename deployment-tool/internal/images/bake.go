@@ -234,7 +234,7 @@ func bakeCmdEnv(envMap map[string]string, appVersion string) []string {
 		"FRONTEND_APP_VERSION":   appVersion,
 		"BAKE_WORKING_TAG":       bakeWorkingTag,
 		"ENVIRONMENT":            "development",
-		"APP_FEATURE_FLAGS_JSON": `{"enable_upcoming_changes_page":false}`,
+		"APP_FEATURE_FLAGS_JSON": "{}",
 	}
 	if v := kit.Get(envMap, "ENVIRONMENT"); v != "" {
 		overlay["ENVIRONMENT"] = v

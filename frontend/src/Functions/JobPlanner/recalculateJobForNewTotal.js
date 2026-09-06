@@ -4,20 +4,31 @@ import {
 } from "./setupBuildHelpers";
 
 /**
- * Recalculates a job for a new total production quantity.
+ * Recalculates a job for a new total: the setups are replaced with a new layout,
+ * each continuing from the setup being rebuilt.
  *
- * @param {Object} inputJob
+ * @param {import("../../Classes/job").default} inputJob
  * @param {number} requiredQuantity
  * @param {import("@tanstack/react-query").QueryClient} queryClient
+ * @param {Object} [options]
+ * @param {import("./setupBuildHelpers").CalculateSetupQuantities} [options.calculateSetupQuantities]
+ *   How the total is divided into setups. Defaults to the max-run split.
  */
 export default function recalculateJobForNewTotal(
   inputJob,
   requiredQuantity,
-  queryClient
+  queryClient,
+  options = {}
 ) {
   if (!inputJob || !requiredQuantity) return;
 
-  const context = buildSetupContextForJob(inputJob, requiredQuantity, queryClient);
+  const basedOn = inputJob.setupToBuildFrom;
+  const context = buildSetupContextForJob(
+    inputJob,
+    requiredQuantity,
+    queryClient,
+    options
+  );
 
   inputJob.build.setup = {};
   context.setupQuantities.forEach((setupQuantity, index) => {
@@ -25,7 +36,8 @@ export default function recalculateJobForNewTotal(
       inputJob,
       setupQuantity,
       queryClient,
-      context
+      context,
+      { basedOn }
     );
     inputJob.build.setup[newSetup.id] = newSetup;
 
@@ -33,5 +45,4 @@ export default function recalculateJobForNewTotal(
       inputJob.layout.setupToEdit = newSetup.id;
     }
   });
-
 }

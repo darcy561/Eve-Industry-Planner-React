@@ -21,8 +21,7 @@ export function useMaterialPricingModel({ state, actions }) {
       ? activeJob.build.materials
       : [];
     const materialPriceOverrides = getSafeMaterialPriceOverrides(layout);
-    const setupToEdit = layout.setupToEdit;
-    const hasSetupToEdit = Boolean(activeJob.build.setup[setupToEdit]);
+    const hasSetupToEdit = Boolean(activeJob.selectedSetup);
     const resolvedMaterials = materials.map((material) => {
       const { marketSelect: materialMarketSelect, listingSelect: materialListingSelect } =
         getEffectiveMaterialPriceHub(

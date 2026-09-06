@@ -61,9 +61,7 @@ export function useChildJobBuildActions({ state, actions }) {
           itemQty: material.quantity,
           parentJobs: [state.activeJob.jobID],
           groupID: state.activeJob.groupID,
-          systemID:
-            state.activeJob.build.setup[state.activeJob.layout.setupToEdit]
-              .systemID,
+          systemID: state.activeJob.selectedSetup.systemID,
           skipJobCreateAnalytics: true,
         },
         { queryClient }

@@ -28,11 +28,9 @@ export function EditJobSetup(props) {
   const getCustomStructureWithID =
     useUsersStore.getState().applicationSettings.actions
       .getCustomStructureWithID;
-  const setupToEdit = state.activeJob.layout.setupToEdit;
+  const selectedSetup = state.activeJob.selectedSetup;
 
-  if (!state.activeJob.build.setup[setupToEdit]) return null;
-
-  let buildObject = state.activeJob.build.setup[setupToEdit];
+  if (!selectedSetup) return null;
 
   return (
     <ContentPanel paperSx={{ height: "auto" }}>
@@ -40,11 +38,11 @@ export function EditJobSetup(props) {
         <Grid container spacing={2} sx={{ flexDirection: "row" }}>
           <Grid size={6}>
             <BlueprintRunsTextField
-              initialState={buildObject.runCount}
+              initialState={selectedSetup.runCount}
               onChange={async (value) => {
-                buildObject.updateRunCount(value);
+                selectedSetup.updateRunCount(value);
                 await recalculateJobFromSetup(
-                  buildObject,
+                  selectedSetup,
                   state,
                   actions,
                   queryClient
@@ -54,11 +52,11 @@ export function EditJobSetup(props) {
           </Grid>
           <Grid size={6}>
             <JobSlotsTextField
-              initialState={buildObject.jobCount}
+              initialState={selectedSetup.jobCount}
               onChange={async (value) => {
-                buildObject.updateJobCount(value);
+                selectedSetup.updateJobCount(value);
                 await recalculateJobFromSetup(
-                  buildObject,
+                  selectedSetup,
                   state,
                   actions,
                   queryClient
@@ -70,11 +68,11 @@ export function EditJobSetup(props) {
             <>
               <Grid size={6}>
                 <MaterialEfficiencySelect
-                  value={state.activeJob.build.setup[setupToEdit].ME}
+                  value={selectedSetup.ME}
                   onChange={async (value) => {
-                    buildObject.updateMEValue(value);
+                    selectedSetup.updateMEValue(value);
                     await recalculateJobFromSetup(
-                      buildObject,
+                      selectedSetup,
                       state,
                       actions,
                       queryClient
@@ -84,11 +82,11 @@ export function EditJobSetup(props) {
               </Grid>
               <Grid size={6}>
                 <TimeEfficiencySelect
-                  value={state.activeJob.build.setup[setupToEdit].TE}
+                  value={selectedSetup.TE}
                   onChange={async (value) => {
-                    buildObject.updateTEValue(value);
+                    selectedSetup.updateTEValue(value);
                     await recalculateJobFromSetup(
-                      buildObject,
+                      selectedSetup,
                       state,
                       actions,
                       queryClient
@@ -101,23 +99,22 @@ export function EditJobSetup(props) {
 
           <ManualStructureSelection
             {...props}
-            setupToEdit={setupToEdit}
-            buildObject={buildObject}
+            selectedSetup={selectedSetup}
             queryClient={queryClient}
           />
           <Grid container size={12}>
             <Grid size={6}>
               <UseAlternativeCheckbox
                 initialState={Boolean(
-                  buildObject.useAlternativeSystemIndexValue
+                  selectedSetup.useAlternativeSystemIndexValue
                 )}
                 onChange={async (value) => {
-                  buildObject.updateUseAlternativeSystemIndexValue(value);
+                  selectedSetup.updateUseAlternativeSystemIndexValue(value);
                   if (!value) {
-                    buildObject.updateAlternativeSystemIndexValue(null);
+                    selectedSetup.updateAlternativeSystemIndexValue(null);
                   }
                   await recalculateJobFromSetup(
-                    buildObject,
+                    selectedSetup,
                     state,
                     actions,
                     queryClient
@@ -127,18 +124,18 @@ export function EditJobSetup(props) {
             </Grid>
             <Grid size={6}>
               <SystemIndexTextField
-                inputSystemID={buildObject.systemID}
-                jobType={buildObject.jobType}
+                inputSystemID={selectedSetup.systemID}
+                jobType={selectedSetup.jobType}
                 useAlternativeSystemIndexValue={
-                  buildObject.useAlternativeSystemIndexValue
+                  selectedSetup.useAlternativeSystemIndexValue
                 }
                 alternativeSystemIndexValue={
-                  buildObject.alternativeSystemIndexValue
+                  selectedSetup.alternativeSystemIndexValue
                 }
                 onChange={async (value) => {
-                  buildObject.updateAlternativeSystemIndexValue(value);
+                  selectedSetup.updateAlternativeSystemIndexValue(value);
                   await recalculateJobFromSetup(
-                    buildObject,
+                    selectedSetup,
                     state,
                     actions,
                     queryClient
@@ -152,18 +149,16 @@ export function EditJobSetup(props) {
             <>
               <Grid size={12}>
                 <CustomStructureSelect
-                  value={
-                    state.activeJob.build.setup[setupToEdit].customStructureID
-                  }
+                  value={selectedSetup.customStructureID}
                   jobType={state.activeJob.jobType}
                   onChange={async (value) => {
-                    buildObject.updateCustomStructureID(
+                    selectedSetup.updateCustomStructureID(
                       value,
                       getCustomStructureWithID
                     );
 
                     await recalculateJobFromSetup(
-                      buildObject,
+                      selectedSetup,
                       state,
                       actions,
                       queryClient
@@ -178,13 +173,11 @@ export function EditJobSetup(props) {
                 }}
               >
                 <AssignUsersSelect
-                  value={
-                    state.activeJob.build.setup[setupToEdit].selectedCharacter
-                  }
+                  value={selectedSetup.selectedCharacter}
                   onChange={async (value) => {
-                    buildObject.updateSelectedCharacter(value);
+                    selectedSetup.updateSelectedCharacter(value);
                     await recalculateJobFromSetup(
-                      buildObject,
+                      selectedSetup,
                       state,
                       actions,
                       queryClient
@@ -203,8 +196,7 @@ export function EditJobSetup(props) {
 function ManualStructureSelection({
   state,
   actions,
-  setupToEdit,
-  buildObject,
+  selectedSetup,
   queryClient,
 }) {
   const [fetchSystemDataTrigger, updateFetchSystemDataTrigger] =
@@ -216,7 +208,7 @@ function ManualStructureSelection({
 
   if (
     !setupShowsManualStructureFields(
-      state.activeJob.build.setup[setupToEdit],
+      selectedSetup,
       getCustomStructureWithID
     )
   ) {
@@ -227,12 +219,12 @@ function ManualStructureSelection({
     <>
       <Grid size={6}>
         <StructureTypeSelect
-          value={state.activeJob.build.setup[setupToEdit].structureID}
+          value={selectedSetup.structureID}
           jobType={state.activeJob.jobType}
           onChange={async (selectedEntry) => {
-            buildObject.updateStructureID(selectedEntry);
+            selectedSetup.updateStructureID(selectedEntry);
             await recalculateJobFromSetup(
-              buildObject,
+              selectedSetup,
               state,
               actions,
               queryClient
@@ -242,12 +234,12 @@ function ManualStructureSelection({
       </Grid>
       <Grid size={6}>
         <RigTypeSelect
-          value={state.activeJob.build.setup[setupToEdit].rigID}
+          value={selectedSetup.rigID}
           jobType={state.activeJob.jobType}
           onChange={async (selectedEntry) => {
-            buildObject.updateRigID(selectedEntry);
+            selectedSetup.updateRigID(selectedEntry);
             await recalculateJobFromSetup(
-              buildObject,
+              selectedSetup,
               state,
               actions,
               queryClient
@@ -257,12 +249,12 @@ function ManualStructureSelection({
       </Grid>
       <Grid size={6}>
         <SystemTypeSelect
-          value={state.activeJob.build.setup[setupToEdit].systemTypeID}
+          value={selectedSetup.systemTypeID}
           jobType={state.activeJob.jobType}
           onChange={async (selectedEntry) => {
-            buildObject.updateSystemType(selectedEntry);
+            selectedSetup.updateSystemType(selectedEntry);
             await recalculateJobFromSetup(
-              buildObject,
+              selectedSetup,
               state,
               actions,
               queryClient
@@ -273,13 +265,13 @@ function ManualStructureSelection({
       <Grid align="center" size={6}>
         {!fetchSystemDataTrigger ? (
           <VirtualisedSystemSearch
-            selectedValue={state.activeJob.build.setup[setupToEdit].systemID}
+            selectedValue={selectedSetup.systemID}
             jobType={state.activeJob.jobType}
             updateSelectedValue={async (value) => {
               updateFetchSystemDataTrigger((prev) => !prev);
-              buildObject.updateSystemID(Number(value));
+              selectedSetup.updateSystemID(Number(value));
               await recalculateJobFromSetup(
-                buildObject,
+                selectedSetup,
                 state,
                 actions,
                 queryClient
@@ -293,11 +285,11 @@ function ManualStructureSelection({
       </Grid>
       <Grid size={6}>
         <TaxPercentageTextField
-          initialState={state.activeJob.build.setup[setupToEdit].taxValue}
+          initialState={selectedSetup.taxValue}
           onBlur={async (value) => {
-            buildObject.updateTaxValue(value);
+            selectedSetup.updateTaxValue(value);
             await recalculateJobFromSetup(
-              buildObject,
+              selectedSetup,
               state,
               actions,
               queryClient

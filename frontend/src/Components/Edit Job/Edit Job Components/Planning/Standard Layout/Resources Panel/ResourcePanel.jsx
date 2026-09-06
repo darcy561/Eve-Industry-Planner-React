@@ -16,7 +16,7 @@ export function RawResourceList(props) {
     state.activeJob.layout?.resourceDisplayType || "all"
   );
 
-  if (!state.activeJob.build.setup[state.activeJob.layout.setupToEdit])
+  if (!state.activeJob.selectedSetup)
     return null;
 
   const calculateVolume = () => {
@@ -24,7 +24,7 @@ export function RawResourceList(props) {
     state.activeJob.build.materials.forEach((material) => {
       const quantityToUse =
         displayType === "active"
-          ? state.activeJob.build.setup[state.activeJob.layout.setupToEdit]
+          ? state.activeJob.selectedSetup
               .materialCount[material.typeID].quantity
           : material.quantity;
       total += material.volume * quantityToUse;
@@ -37,7 +37,7 @@ export function RawResourceList(props) {
     state.activeJob.build.materials.forEach((i) => {
       let quantityToUse =
         displayType === "active"
-          ? state.activeJob.build.setup[state.activeJob.layout.setupToEdit]
+          ? state.activeJob.selectedSetup
               .materialCount[i.typeID].quantity
           : i.quantity;
       textToCopy = textToCopy.concat(`${i.name} ${quantityToUse}\n`);

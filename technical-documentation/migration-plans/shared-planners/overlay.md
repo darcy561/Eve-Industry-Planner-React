@@ -266,7 +266,53 @@ nothing here describes live behaviour yet.
 
 ## Stage D — What a second member breaks
 
-*Not landed.*
+*D1 landed. The close gate and the extras picker are still owed.*
+
+**Recalculating a job keeps what the job is built with.** A new total produces a new layout — the same
+runs may divide into a different number of setups — so the setups are still replaced rather than
+edited. What does not follow from the total is carried across: the setup being rebuilt is spread into
+each new one, so its efficiency, structure, rig, system, tax, character and system-index override
+survive.
+
+Spreading the setup whole is possible because `Setup`'s constructor reads back every field `Setup`
+stores, under the same names. Only the id is answered afterwards, because this is a new setup. The
+material count, estimated time and install cost ride along and are immediately overwritten, since every
+builder recalculates the setup it has just built — and a setup's material count is always rebuilt from
+its job's raw material list, never edited in place, so setups built from one another share nothing.
+`Setup.recalculate` takes that raw list itself, so no caller can recalculate a setup without seeding it.
+
+`Setup` accepts two of its fields under a second name — the character as `characterToUse`, the raw time
+as `rawTimeValue` — and prefers the stored name when both are present. A source spread beneath another
+therefore wins if it uses the stored name and the source above it does not; every builder writes in the
+stored vocabulary for that reason.
+
+**Which setup is carried from is a getter on the job**, and there are two of them because the question
+has two answers. `selectedSetup` is what the editor is on, or nothing — what a panel rendering a setup
+needs, and what a job loaded with no stored selection has. `setupToBuildFrom` falls back to the first,
+because a job with setups always has a context to carry whatever the editor points at. The twenty-six
+places that resolved the selection by hand now use the first.
+
+**`customStructureID` was the field that mattered most.** It is a reference into the settings of
+whoever owns that structure, and recalculation used to overwrite it with the recalculating user's own
+— so a member editing another's job repointed it at a structure only they hold, and the app's own
+orphan-detection then treated it as broken for everyone else. Deriving it was creating the state
+`clearOrphanedCustomStructureOnSetups` exists to clean up.
+
+**Adding a setup copies the one being edited.** A second setup on a job is another run of the same
+production line, so it is made where the first is made rather than wherever the current settings point.
+
+**Precedence, where three sources can supply a value:** a build request or a stored template row
+outranks the setup being continued from, which outranks the current user's settings. Only the first is
+an explicit choice for this build. Restoring a group template goes through the same builder as a first
+build, with the template row as that explicit choice.
+
+**The second layout calculator is selectable now.** Splitting a total across the blueprint originals an
+account owns was written, exported and never plumbed in; recalculation takes a calculator as an option
+and defaults to the max-run split, so nothing changes for callers that do not ask for it.
+
+This is a live defect on personal planners rather than only a sharing one: changing a default structure
+and editing an older job rebuilt it under the new default, and a job restored from a group template
+lost everything the template supplied if the quantity differed at all.
 
 Owed here: where the extras category ids and the job status id set live once they are the planner's,
 what recalculation now preserves and how a job's build context survives another member editing it,

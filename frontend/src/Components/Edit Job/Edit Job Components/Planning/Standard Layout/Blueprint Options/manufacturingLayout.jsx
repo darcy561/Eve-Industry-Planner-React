@@ -50,8 +50,7 @@ const BlueprintItem = ({ print, esiJob, blueprintOwner, state, actions }) => {
       <Grid
         container
         onClick={async () => {
-          const currentSetup =
-            state.activeJob.build.setup[state.activeJob.layout.setupToEdit];
+          const currentSetup = state.activeJob.selectedSetup;
           currentSetup.updateMEValue(print.material_efficiency);
           currentSetup.updateTEValue(print.time_efficiency / 2);
           await recalculateJobFromSetup(

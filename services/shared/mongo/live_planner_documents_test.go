@@ -98,3 +98,63 @@ func TestLive_plannerAndMembership_roundTrip(t *testing.T) {
 		t.Fatalf("lookup by plannerID found %d rows (err %v)", byPlanner, err)
 	}
 }
+
+// Re-running the backfill, or logging in again, must not undo what the account
+// has since changed: both go through EnsureAccountPlanner, which writes on insert
+// only. Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_ensureAccountPlanner_isInsertOnly(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	const accountID = "eip-parity-ensure-account"
+	owner := models.AccountOwner(accountID)
+	plannerID := owner.Key()
+	membershipID := models.PlannerMembershipID(plannerID, accountID)
+
+	t.Cleanup(func() {
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancelCleanup()
+		_, _ = mongo.Planners.Collection().DeleteMany(cleanupCtx, bson.M{"_id": plannerID})
+		_, _ = mongo.PlannerMemberships.Collection().DeleteMany(cleanupCtx, bson.M{"_id": membershipID})
+	})
+
+	now := time.Now().UTC()
+	if held, err := mongo.HasAccountPlanner(ctx, accountID); err != nil || held {
+		t.Fatalf("HasAccountPlanner before create = %v (err %v), want false", held, err)
+	}
+	if err := mongo.EnsureAccountPlanner(ctx, accountID, now); err != nil {
+		t.Fatalf("first EnsureAccountPlanner: %v", err)
+	}
+	if held, err := mongo.HasAccountPlanner(ctx, accountID); err != nil || !held {
+		t.Fatalf("HasAccountPlanner after create = %v (err %v), want true", held, err)
+	}
+
+	// The account renames its planner, as it is entitled to.
+	if _, err := mongo.Planners.Collection().UpdateOne(ctx,
+		bson.M{"_id": plannerID},
+		bson.M{"$set": bson.M{"name": "Renamed by its owner"}},
+	); err != nil {
+		t.Fatalf("rename planner: %v", err)
+	}
+
+	if err := mongo.EnsureAccountPlanner(ctx, accountID, now.Add(time.Hour)); err != nil {
+		t.Fatalf("second EnsureAccountPlanner: %v", err)
+	}
+
+	var readBack models.Planner
+	if err := mongo.Planners.Collection().FindOne(ctx, bson.M{"_id": plannerID}).Decode(&readBack); err != nil {
+		t.Fatalf("read planner: %v", err)
+	}
+	if readBack.Name != "Renamed by its owner" {
+		t.Fatalf("planner name = %q, want the rename to survive a repeat call", readBack.Name)
+	}
+
+	rows, err := mongo.PlannerMemberships.Collection().CountDocuments(ctx, bson.M{"plannerID": plannerID})
+	if err != nil {
+		t.Fatalf("count memberships: %v", err)
+	}
+	if rows != 1 {
+		t.Fatalf("membership rows = %d, want exactly one after two calls", rows)
+	}
+}

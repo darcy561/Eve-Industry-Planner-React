@@ -74,6 +74,10 @@ var releases = []release{{
 		// and a fallback missing the fields the previous release read is not one.
 		{name: "drop retired statistics fields", run: dropRetiredStatisticsFields},
 		{name: "queue every account for rebuild", run: queueEveryAccountForRebuild},
+		// After the owner stamp, because a planner's id is the owner key those
+		// documents now carry; before the grants below, which are derived from the
+		// membership rows this writes.
+		{name: "give every account its planner", run: backfillAccountPlanners},
 		// Sessions outlive a deploy, so grants written by the previous release are
 		// rewritten rather than left to lapse at the next token refresh.
 		{name: "rewrite session grants as owner keys", run: repairSessionGrants},

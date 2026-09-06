@@ -57,6 +57,11 @@ func ResolveUserDocumentsForLogin(ctx context.Context, mongo *eipmongo.Mongo, ac
 			return nil, fmt.Errorf("create default application settings: %w", err)
 		}
 	}
+	// Beside the documents above rather than only in the release step: an account
+	// created after that step ran would otherwise have nowhere to work.
+	if err := mongo.EnsureAccountPlanner(ctx, accountID, now); err != nil {
+		return nil, fmt.Errorf("create account planner: %w", err)
+	}
 	if err := updateUserLastLoginMetadata(ctx, mongo, accountID, now); err != nil {
 		return nil, err
 	}

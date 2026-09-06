@@ -176,8 +176,21 @@ a planner-scoped one and a planner one — are gone. They had no references at a
 carries that split per document as `JobMetaData`, `GroupMetaData` and `UserMeta`. A planner document is
 not edited by its members, so it needs nothing beyond `MetaData`.
 
-Owed by the remaining slices: the account-planner backfill, membership as the source of grants, and
-subscriptions by owner.
+**Every account has a planner, and gets one however it arrives.** `Mongo.EnsureAccountPlanner` writes
+an account's planner and its own membership row, and both the release backfill and first login call it
+— one implementation, so an account created after the release ran gets the same pair of documents
+rather than a second version of them.
+
+It writes on insert only. A repeat call adds nothing and rewrites nothing, so an account that has since
+renamed its planner keeps the name, and the backfill can be run again without undoing anything. The
+planner's `_id` is the account's owner key, so nothing is minted: the documents that account already
+holds carry the same id inside `_meta.owner`.
+
+**The backfill's position in the release is load-bearing.** It follows the owner stamp, because a
+planner id is the owner key those documents gain there, and precedes the grants rewrite, which reads
+the membership rows it writes. A test asserts that order rather than leaving it to a comment.
+
+Owed by the remaining slices: membership as the source of grants, and subscriptions by owner.
 
 Owed here: the planner document, the membership document, their indexes, how a roster is kept current
 per provider, how the account planner is created, what the roster endpoints refuse, and where the

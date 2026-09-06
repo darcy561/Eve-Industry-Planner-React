@@ -332,7 +332,7 @@ persist gate is not owed — the plan's D2 records why it is skipped and what re
 
 *Not landed.*
 
-Owed here: creation and its limits, the invite token lifecycle and how it is stored, the join path,
+Owed here: creation and its limits, the invite token lifecycle as a Redis record, the join path,
 what a request for a planner without a membership row returns, the shared authoriser, the revocation
 path end to end, and the client's active planner — where it is held, how it persists, and how a scoped
 query key is built from it.
@@ -355,7 +355,7 @@ Kept here so a later reader finds the reasoning without reconstructing it from t
 | Custom planner ids are ULIDs, not entity refs | A planner id is ours to mint; the entity cipher exists for ids we must be able to hand back, which does not apply |
 | One collection per document type, owner on the document | A per-kind split puts a switch on kind at every call site, multiplies watched collections and index specs, and defends the least likely leak boundary |
 | Collections named for what they hold, with no owner prefix | The owner block already states ownership; a name that repeats it says the same fact twice and goes stale as kinds are added |
-| An invite is a credential, a membership is a record | The membership copies the inviter and issue time at join time, so invites stay disposable under a TTL and no hashed token outlives its purpose |
+| An invite is a credential, a membership is a record | The membership copies the inviter and issue time at join time, so an invite stays disposable as a Redis key whose TTL is its expiry, and no hashed token outlives its purpose |
 | Every planner is private; no directory, search or request-to-join | The tool is a working planner, not a place to find or advertise groups; its users already know who they work with, and a directory would add moderation and spam surfaces for no benefit |
 | Method-specific fields live in their own branch | A self membership carries no invite fields at all, and the populated branch is the discriminator so no stored type constant can disagree with it |
 | Corporation and alliance planners cannot be invited into | They are reserved for members of the group and reached by being in it, which also removes any need to record which provider created a membership row |

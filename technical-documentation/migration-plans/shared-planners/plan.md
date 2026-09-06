@@ -445,7 +445,6 @@ prefix names the subject, not the owner.
 | `statistics_reconcile_rota` | when each owner was last reconciled | owner key as `_id` |
 | `planners` | the planner documents, every kind | — |
 | `planner_memberships` | who is in a planner, and as what | — |
-| `planner_invites` | outstanding invite tokens | — |
 | `shared_blueprints`, `shared_citadel_names` | global reference data | nobody |
 
 The resulting set is deliberately ragged rather than uniform. A rename list that comes out
@@ -614,8 +613,9 @@ needs an answer for its data. The discipline sits on narrowing eligibility rathe
 
 Where a template change does imply a stored shape — a capability needing a new field on a job or on
 the planner document — that is ordinary schema versioning through `documentschema.Upgrader`.
-`planners`, `planner_memberships` and `planner_invites` join `SchemaMaintainedCollections` when they
-land, since the scheduler rotates that list and the batch dispatches on it.
+`planners` and `planner_memberships` join `SchemaMaintainedCollections` when they land, since the
+scheduler rotates that list and the batch dispatches on it. Invites are not there because they are not
+a collection — see § Invites.
 
 **The provider is derived too.** It is one-to-one with the kind — `account` to `self`, `planner` to
 `invite`, `corporation` and `alliance` to their ESI providers — so storing it would only create a
@@ -965,10 +965,10 @@ whose models are otherwise plain structs with tags.
 
 `InviteJoin` copies who invited the account and when the invite was issued, rather than pointing at
 the invite for them. **An invite is a credential; a membership is a record.** The credential is meant
-to be disposable — a TTL index on `ExpiresAt` removes expired invites, and a spent or revoked one is
+to be disposable — an invite is a Redis key whose TTL is its expiry, and a spent or revoked one is
 deleted outright — so the record keeps what it needs and lets the invite go. `InviteID` is retained
 only for correlation while the invite exists and is allowed to dangle. Nothing keeps a hashed token
-past its purpose, and the collection stays the size of the outstanding invites rather than of every
+past its purpose, and what is stored stays the size of the outstanding invites rather than of every
 invite ever issued.
 
 `ESIJoin` records which entity granted access — on an alliance planner, the corporation an account is
@@ -999,9 +999,35 @@ type PlannerInvite struct {
 The `json:"-"` tags are load-bearing: the hash, the binding and the creator never leave the server. An
 invite grants membership and nothing more, so it carries no role either.
 
-Invites are **not** retained indefinitely. A TTL index on `ExpiresAt` clears expired ones, and an
-invite that is spent or revoked is deleted; what the membership needed from it was copied at join
-time.
+Invites are **not** retained indefinitely, and what enforces that is Redis rather than Mongo.
+
+**An invite is stored as a Redis key with a TTL, not a document in a collection.** It is a credential
+with a lifetime that exists to be redeemed and then vanish, which is the shape Redis expires natively:
+the key's TTL is the expiry, revoking is a `DEL`, and nothing sweeps or indexes. Redemption is a Lua
+script for the same reason the document lease is one — reading the invite, checking its bounds and
+incrementing `Uses` has to be one atomic step, which a Mongo find-then-update is not without a
+transaction. The stack already stores `SessionGrants` this way, through `rediscore.GetJSON` against a
+prefixed key, so this is the existing pattern rather than a new one.
+
+That makes the model's `bson` tags wrong for it: `PlannerInvite` is a Redis record and wants `json`
+tags, as `SessionGrants` has. `PlannerInviteSchemaCurrent` goes with them — a record that expires
+within days never meets a migration, and § Schema versioning's rule is about documents that persist.
+`ExpiresAt` and `RevokedAt` stay as fields, because a redemption still has to answer *why* an invite
+was refused; they simply stop being the thing that deletes it.
+
+**The durability this gives up is bounded and acceptable.** Redis persists here — `redis_data` is an
+external volume and `redis:8` snapshots to it by default — so a redeploy does not invalidate
+outstanding invite links. What a snapshot cannot promise is the last few seconds before an unclean
+stop, so an invite issued moments before a crash may not survive it. Reissuing an invite is cheap;
+losing a job document is not, which is why this reasoning does not generalise to the planner or
+membership rows.
+
+**This is why there is no TTL index work.** An earlier reading of this section had the Deployment Tool
+gaining an `expireAfterSeconds` field on `IndexSpec`, a renderer that emits it and a decision about
+reconciling a changed expiry — described here as machinery worth starting early. None of it is needed
+once invites live in Redis. Recorded because the reconcile question turned out to be already answered
+either way: `renderCreateIndexJS` catches Mongo error 85 and drops-and-recreates, which is exactly what
+a changed expiry on unchanged keys raises.
 
 ### Schema versioning
 
@@ -1024,9 +1050,11 @@ const (
 	ArchivedJobStatsSchemaCurrent  = 1
 	PlannerSchemaCurrent           = 1
 	PlannerMembershipSchemaCurrent = 1
-	PlannerInviteSchemaCurrent     = 1
 )
 ```
+
+`PlannerInvite` is absent because it is not a document: it is a Redis record that expires within days
+and never meets a migration. See § Invites.
 
 Three things this surfaces:
 
@@ -1228,7 +1256,8 @@ planner" on every roster read — so both need an index, and an embedded array w
 hot-write contention point on the planner document itself.
 
 Invites are **not** in this stage. Nothing can be invited into a planner until custom planners exist,
-so `PlannerInvite`, its TTL index and the join path land with Stage E.
+so `PlannerInvite`, its storage and the join path land with Stage E — and its storage is Redis rather
+than a third collection here, which is why only two are created.
 
 #### C1 — The two collections exist
 
@@ -1473,8 +1502,8 @@ with D2 out it is the only slice left here.
 
 ### Stage E — Custom planners
 
-Creation, invite tokens, the join path, the shared authoriser, the limits, and the revocation path.
-`PlannerInvite` and its TTL index land here rather than with the other two collections at Stage C:
+Creation, invite tokens, the join path, the limits, and the revocation path. The shared authoriser
+already landed at C3. `PlannerInvite` lands here rather than with the two collections at Stage C:
 nothing can be invited into a planner until custom planners exist.
 
 **The planner settings document lands here too**, for the same reason: creation is what seeds it, from
@@ -1483,12 +1512,13 @@ between the planner and the account says which settings it holds and why the spl
 lands, a setting resolves against the account as it does today, so nothing breaks in the interval — it
 is a planner holding two members that makes the account-scoped read wrong, and that is this stage.
 
-**The TTL index is Deployment Tool work, not a spec line.** `IndexSpec` carries a collection, a name,
-keys and an optional partial filter, and the index renderer emits nothing else — no expiry, anywhere in
-the tool. So § Invites' "a TTL index on `ExpiresAt` clears expired ones" needs the spec to gain an
-expiry field, the validator and renderer to carry it, and a decision about how a changed expiry on
-unchanged keys reconciles, since indexes are matched on keys. That is machinery in a separate module
-with its own review, so it is worth starting before the slice that needs it.
+**No Deployment Tool work is owed here.** Invites expire as Redis keys rather than as rows under a TTL
+index, so `IndexSpec` needs no expiry field and the renderer needs no change — see § Invites.
+
+**Less of this stage is outstanding than its name suggests.** The models are built and tested:
+`Planner`, `PlannerMembership`, `JoinMethod` with its three branches, and `PlannerInvite` itself. The
+shared authoriser landed at C3, grants already derive from membership rows, and both membership indexes
+are specced. What is missing is storage for invites, the endpoints, the client, and planner creation.
 
 The active planner arrives here, and with it the message that switches one: the client names one owner
 key, the server intersects it with the ceiling and replaces the planner subscription, leaving the
@@ -1534,7 +1564,7 @@ is ready for the window.
 | `SessionGrants` in Redis | records expire, and the window can clear them outright rather than tolerating two shapes |
 | `upgrade_scopes` / `scopes_ack` | **removed** — no client sends them, so there is nothing to cut with; the Stage E message that narrows to an active planner is additive |
 | Statistics routes | **breaking** if deferred, additive if the owner handle lands while the account is still the only value — hence it is owed by archived-jobs-stats before it ships |
-| Planner, membership, invite endpoints | additive |
+| Planner, membership, invite endpoints | additive. Invites are Redis records with a TTL rather than documents, so nothing about them is migrate-required — an unredeemed invite outliving a deploy is a link that still works, and one lost to an unclean stop is reissued |
 | SPA query keys | additive, but mandatory — an owner-less key makes two planners share one cache entry |
 
 ## What the other projects owe

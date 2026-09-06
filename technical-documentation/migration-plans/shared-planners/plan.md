@@ -74,10 +74,10 @@ Nothing above that asks how the row came to exist. A provider does one job — k
 
 | Provider | Writes rows when | Roster endpoints |
 |----------|------------------|------------------|
-| `self` | the account is created — one row | none |
+| `owner` | the account is created — one row | none |
 | `invite` | an invite is redeemed, or a member is removed | invite, accept, remove |
-| `esi-access-list` | a scheduled poll of a bound access list is reconciled | none |
-| `esi-corporation` | token refresh reconciles rows against the corporation ids ESI reports | none |
+| `accessList` | a scheduled poll of a bound access list is reconciled | none |
+| `entityMember` | token refresh reconciles rows against the corporation and alliance ids ESI reports | none |
 | `esi-alliance` | the same, for alliance ids | none |
 
 Deriving corporation access from session grants instead, and rows only for custom planners, was
@@ -161,7 +161,7 @@ the last hop before the bytes reach a browser — and means the SPA never holds 
 ## The account planner is the base case
 
 Every account gets a real planner document at signup whose `_id` **is the account id**, with kind
-`account` and provider `self`. Not a synthesised pseudo-row: a real document, so there is one code
+`account` and provider `owner`. Not a synthesised pseudo-row: a real document, so there is one code
 path everywhere, and so per-planner settings have a home from the first day.
 
 Because the id is the account id, the backfill never rewrites an owner *value* — an existing
@@ -216,7 +216,7 @@ Admission to a custom planner is therefore always something the owner hands out 
 | Path | How | Provenance recorded |
 |------|-----|---------------------|
 | Invite link | a valid, unspent, unrevoked token | `JoinMethod.Invite` |
-| In-game access list | membership follows a list read from ESI | `JoinMethod.ESI` |
+| In-game access list | membership follows a list read from ESI | `JoinMethod.AccessList` |
 
 Corporation and alliance planners take neither: membership follows the corporation or alliance itself.
 
@@ -1008,13 +1008,18 @@ type PlannerMembership struct {
 
 // JoinMethod is a discriminated union: the branch that is set is the method.
 // Exactly one is populated, which Validate enforces.
+//
+// The branches name why the account is a member, not where the answer came
+// from: a member of a corporation is a member because they are in it, not
+// because ESI is how we learned so.
 type JoinMethod struct {
-	Self   *SelfJoin   `bson:"self,omitempty" json:"self,omitempty"`
-	Invite *InviteJoin `bson:"invite,omitempty" json:"invite,omitempty"`
-	ESI    *ESIJoin    `bson:"esi,omitempty" json:"esi,omitempty"`
+	Owner      *OwnerAccount     `bson:"owner,omitempty" json:"owner,omitempty"`
+	Invite     *InviteRedemption `bson:"invite,omitempty" json:"invite,omitempty"`
+	Membership *EntityMember     `bson:"entityMember,omitempty" json:"entityMember,omitempty"`
+	AccessList *AccessListEntry  `bson:"accessList,omitempty" json:"accessList,omitempty"`
 }
 
-type SelfJoin struct{}
+type OwnerAccount struct{}
 
 // JoinKind is derived from the populated branch, for logging and display. It is
 // never stored — the branch is the stored discriminator.
@@ -1023,16 +1028,28 @@ type JoinKind string
 func (j JoinMethod) Kind() JoinKind
 func (j JoinMethod) Validate() error
 
-type InviteJoin struct {
+type InviteRedemption struct {
 	InvitedBy string    `bson:"invitedBy" json:"-"`
 	IssuedAt  time.Time `bson:"issuedAt" json:"-"`
 	InviteID  string    `bson:"inviteID,omitempty" json:"-"`
 }
 
-type ESIJoin struct {
-	EntityRef     string `bson:"entityRef" json:"-"`
-	CharacterHash string `bson:"characterHash,omitempty" json:"-"`
+// EntityMember and AccessListEntry are the two methods EVE keeps in step, so
+// both carry when it last confirmed them. StaleAfter is how long one keeps
+// granting unconfirmed.
+type EntityMember struct {
+	EntityRef     string    `bson:"entityRef" json:"-"`
+	CharacterHash string    `bson:"characterHash,omitempty" json:"-"`
+	ValidatedAt   time.Time `bson:"validatedAt" json:"-"`
 }
+
+type AccessListEntry struct {
+	ListID      string    `bson:"listID" json:"-"`
+	EntityRef   string    `bson:"entityRef,omitempty" json:"-"`
+	ValidatedAt time.Time `bson:"validatedAt" json:"-"`
+}
+
+const StaleAfter = 7 * 24 * time.Hour
 ```
 
 The composite `_id` of `{ownerKey}|{accountID}` gives one row per account per planner without a unique
@@ -1041,7 +1058,7 @@ index; the two lookups needed on the request path are indexed on `accountID` and
 `JoinMethod` records how the membership came about. The **branch that is set is the method** — there
 is no separate type constant beside it, because a stored tag and a stored branch encode the same fact
 and nothing keeps them agreeing. It also avoided a lossier problem: four join constants mapped onto
-three payload shapes, since corporation and alliance share `ESIJoin`, so the constant-to-struct
+three payload shapes, since corporation and alliance share `EntityMember`, so the constant-to-struct
 relationship was implicit.
 
 Corporation and alliance need no discriminator of their own either: `EntityRef` is a ref, and
@@ -1053,7 +1070,7 @@ The costs, taken deliberately: invalid states are representable — no branch se
 an interface with hand-written BSON marshalling, which is not worth it for three branches in a repo
 whose models are otherwise plain structs with tags.
 
-`InviteJoin` copies who invited the account and when the invite was issued, rather than pointing at
+`InviteRedemption` copies who invited the account and when the invite was issued, rather than pointing at
 the invite for them. **An invite is a credential; a membership is a record.** The credential is meant
 to be disposable — an invite is a Redis key whose TTL is its expiry, and a spent or revoked one is
 deleted outright — so the record keeps what it needs and lets the invite go. `InviteID` is retained
@@ -1061,9 +1078,22 @@ only for correlation while the invite exists and is allowed to dangle. Nothing k
 past its purpose, and what is stored stays the size of the outstanding invites rather than of every
 invite ever issued.
 
-`ESIJoin` records which entity granted access — on an alliance planner, the corporation an account is
-present through. That is what makes a reconcile removal explainable rather than mysterious. Entity ids
-arrive from ESI raw and are converted to refs at ingest; nothing raw is persisted.
+`EntityMember` records which entity granted access — on an alliance planner, the corporation an account
+is present through. That is what makes a reconcile removal explainable rather than mysterious. Entity
+ids arrive from ESI raw and are converted to refs at ingest; nothing raw is persisted.
+
+**It also records when EVE last confirmed it, and so does `AccessListEntry`.** `JoinedAt` says when a
+row was created and nothing about whether it still holds. A revoked token, a removed scope and an ESI
+outage all produce no answer rather than a negative one, so a reconcile that cannot vouch for the set
+leaves the rows alone — which means without an expiry the access they grant never ends. A row
+unconfirmed for longer than `StaleAfter` stops granting, enforced in `OwnerKeysForAccount` and
+`AccountMayReach` because those are the points every grant passes through.
+
+Stale rows **stop granting rather than being deleted**, so a later confirmation restores access with no
+rejoin and "we could not ask" stays distinguishable from "you left". Every successful reconcile
+restamps every row in the set, including one that changes nothing: *still a member* is the answer that
+matters most and the one it usually delivers. The owner and invite methods never expire — nothing
+outside the planner can revoke them.
 
 The row carries **no role**. A permission model brings its own vocabulary and most likely its own
 storage, so a role field here would be a guess at that model's shape, and ambiguous the moment two
@@ -1183,7 +1213,7 @@ Two consequences of that, both load-bearing rather than incidental:
   of a save. So a document the step misses never gains one through ordinary use; the only repair is
   re-running `prepareRelease`, which is idempotent.
 
-`JoinMethod`, `InviteJoin` and `ESIJoin` are only ever inside `PlannerMembership`, so its version
+`JoinMethod` and its branches are only ever inside `PlannerMembership`, so its version
 gates them; versioning them separately would create two numbers that must agree with nothing keeping
 them in step.
 
@@ -1381,7 +1411,7 @@ visits both, and `eip ensure-mongo` creates the indexes on an empty database.
 
 A `prepareRelease` step, on the pattern of the owner stamp: idempotent, dry-runnable, reporting counts,
 and skipping what it has already done. For each account it writes a planner with `_id` `account:{id}`
-and one membership row whose join method is the `self` branch.
+and one membership row whose join method is the `owner` branch.
 
 It is additive in the strongest sense — no existing document is touched, only new ones written — so
 unlike § Stage A it needs no window of its own and can run before traffic returns or after it.
@@ -1390,7 +1420,7 @@ The step **creates the planner for accounts that exist**. Signup has to create o
 registered after the release has no planner until the next run; that write belongs with the account's
 own creation so the two cannot diverge.
 
-**Done when** every account has exactly one `account`-kind planner and one `self` membership row, a
+**Done when** every account has exactly one `account`-kind planner and one `owner` membership row, a
 second run reports nothing to do, and a newly created account gets both without the step.
 
 #### C3 — Membership decides access
@@ -1629,10 +1659,27 @@ wrong archive is tedious to unpick.
 
 ### Stage F — ESI providers
 
-Corporation and alliance reconcile membership rows from the ids ESI reports, at token refresh and
-only when the derived set differs from the stored one. Nothing else is needed: grants already derive
-from membership rows, so a new row is a new grant. That there is no other work is the measure of
-whether the abstraction held.
+**F1 has landed, and it was not the last stage after all.** Corporation and alliance reconcile
+membership rows from the ids ESI reports at token refresh, and grants derive from those rows, so a new
+row is a new grant. That there was no other work to do is the measure of whether the abstraction held.
+
+What the stage did not anticipate is that the task it completes was **already half-written**: it
+fetched the ids, stored them in Redis, and then read grants from `OwnerKeysForAccount`, which reads
+membership rows. Nothing wrote those rows. A character in a corporation had their ids stored and access
+to nothing, and the comment claiming the ids "still drive ESI-sourced membership" described an
+intention rather than behaviour. That is why this stage moved ahead of the rest of E: it was not a
+feature at the end, it was a missing half.
+
+**Reconciling only when the set differs turned out to be wrong.** The stage's own wording — reconcile
+"only when the derived set differs from the stored one" — would leave a row that has not changed
+unconfirmed forever, and an unconfirmed row is exactly what a revoked token produces. Every successful
+reconcile therefore restamps every row in the set. See § Data models for `StaleAfter` and why a stale
+row stops granting rather than being deleted.
+
+**Two slices remain.** A reap task, because stale rows stop granting but nothing deletes them; and
+background validation for cloud accounts from their stored tokens, which is what keeps rows fresh
+between logins and the reason the timestamp exists. Access lists are a third, and § Access lists differ
+from the other ESI providers already says why they are not the same shape.
 
 ## Live data, and the cutover window
 
@@ -1770,4 +1817,4 @@ do not touch.
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
 | D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered moves to the duplicate-job-writes and ownership review. D3 is the extras picker and needs Stage E's settings document first. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |
 | E — custom planners | Not started. Now also owns the planner settings document — a setup stores `customStructureID`, a reference into the writing account's settings, so a member opening another's job finds the structure missing. See § Settings split between the planner and the account |
-| F — ESI providers | Not started |
+| F — ESI providers | **F1 landed.** Corporation and alliance membership rows are reconciled from the ids ESI reports at token refresh, completing a task that read as finished and wrote no rows. Both EVE-tracked methods record when they were last confirmed, and a row unconfirmed for `StaleAfter` stops granting — the only mechanism by which revoked access ends, since a failed check cannot be told from an outage. Owed: the reap task, background validation for cloud accounts, and access lists |

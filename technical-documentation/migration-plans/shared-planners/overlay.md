@@ -224,10 +224,13 @@ independent of whether Mongo is reachable.
 
 **Collections follow the owner's kind, from one table.** `AccountOwnedCollections` holds what an
 account owns wherever it is working — its user document, settings and watchlist — and
-`PlannerHeldCollections` holds what belongs to a planner: jobs, job documents and groups.
+`PlannerHeldCollections` holds what belongs to a planner: jobs, job documents, groups and the planner's
+settings.
 `CollectionsForOwnerKind` picks between them, and every kind that names a planner gets the same set,
 because the collections follow from the kind being a planner rather than from which planner it is. A
-collection added to that list reaches every planner of every kind.
+collection added to that list reaches every planner of every kind — and must also be watched, because
+the change stream's groups are a separate list in another package: one that is subscribable but
+unwatched accepts the subscription and delivers nothing. A test pairs them.
 
 **A document's owner is read, not assumed.** `docSubscribeAuthorized` asked whether the requesting
 account owned the document, which cannot be true of a planner-held document a member did not write. It
@@ -264,6 +267,47 @@ grants list is filled from once membership rows replace the ESI source.
 The Go types exist already — `Planner`, `PlannerMembership`, `PlannerInvite` and `JoinMethod` in
 `services/shared/models/planner.go` — but no collection, index, repository or caller uses them, so
 nothing here describes live behaviour yet.
+
+## Stage F — Membership from EVE
+
+*F1 landed. The reap task, background validation and access lists are still owed.*
+
+**A membership row says why it grants, and the four reasons are branches on one method.** An account is
+a member because the planner is its own (`owner`), because it redeemed an invite (`invite`), because it
+is in the corporation or alliance the planner belongs to (`entityMember`), or because an in-game access
+list names it (`accessList`). The populated branch is the discriminator; nothing stores a tag beside it.
+
+The branches name the reason rather than the source. ESI is how membership in a corporation is
+discovered, not why it grants — so the branch is `entityMember`, and access lists are their own branch
+rather than sharing it, because they are polled from one managing character's token rather than
+reconciled from each member's own.
+
+**Two of the four are kept in step with EVE, and both record when it last confirmed them.** `JoinedAt`
+says when a row was created and nothing about whether it still holds. A revoked token, a removed scope
+and an ESI outage all produce no answer rather than a negative one, so a reconcile that cannot vouch
+for the set leaves its rows alone — which is correct, and means that without an expiry the access those
+rows grant would never end.
+
+So a row unconfirmed for longer than `planner.StaleAfter` — seven days — stops granting. That is
+enforced in `OwnerKeysForAccount` and `AccountMayReach` through one shared filter, because those are the
+two points every grant passes through: filtering at each caller instead would let a stale row leak in
+through a path that reads the rows itself.
+
+**Stale rows stop granting rather than being deleted.** A later confirmation restores access with no
+rejoin, and "we could not ask" stays distinguishable from "you left the corporation". Every successful
+reconcile restamps every row in the set, including one that changes nothing — *still a member* is the
+answer the check usually delivers and the one that matters most.
+
+**No planner document is written by the reconcile.** Nothing on the access path reads one:
+`OwnerKeysForAccount` and `AccountMayReach` both read membership rows, and the only reader of the
+`planners` collection in the services tree is a diagnostic command. The document holds a name and a
+member count — display metadata — so it is created when something first names the planner rather than
+for every corporation an account passes through.
+
+Owed here: a reap task, since stale rows accumulate with nothing deleting them; background validation
+for cloud accounts from their stored tokens, which is what keeps rows fresh between logins and the
+reason the timestamp exists; and access lists, whose shape § Access lists differ from the other ESI
+providers already describes.
 
 ## Stage D — What a second member breaks
 

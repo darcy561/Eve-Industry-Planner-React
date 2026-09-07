@@ -47,9 +47,30 @@ const realtimeSyncSlice = (set, get) => ({
   realtimeSync: {
     /** @type {Record<string, number>} docKey -> last applied server lastModified (ms) */
     cursors: {},
+    /** @type {string|null} owner handle of the planner this connection is working in */
+    activePlanner: null,
     actions: {
       /** @returns {number} */
       getCursorMs: (docKey) => get().realtimeSync.cursors[docKey] ?? 0,
+
+      /** @returns {string|null} */
+      getActivePlanner: () => get().realtimeSync.activePlanner,
+
+      /** @param {string|null} ownerHandle */
+      setActivePlanner: (ownerHandle) => {
+        set(
+          (state) => ({
+            ...state,
+            realtimeSync: {
+              ...state.realtimeSync,
+              activePlanner: ownerHandle,
+              actions: state.realtimeSync.actions,
+            },
+          }),
+          false,
+          "realtimeSync/setActivePlanner"
+        );
+      },
 
       /**
        * @param {string} docKey

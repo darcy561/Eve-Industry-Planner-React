@@ -41,6 +41,7 @@ export async function applyDocumentMessage(msg) {
       : typeof rawId === "number" && Number.isFinite(rawId)
         ? String(rawId)
         : null;
+  const owner = typeof msg.owner === "string" ? msg.owner : null;
   const document = /** @type {Record<string, unknown>|undefined} */ (
     msg.document
   );
@@ -88,6 +89,7 @@ export async function applyDocumentMessage(msg) {
       return;
     }
     if (collection === USER_JOB_DOCUMENTS_COLLECTION) {
+      if (!isFromActivePlanner(owner)) return;
       enqueueInboundJobDocumentChange("delete", docID);
       return;
     }
@@ -137,6 +139,30 @@ export async function applyDocumentMessage(msg) {
   }
 
   if (collection === USER_JOB_DOCUMENTS_COLLECTION) {
+    if (!isFromActivePlanner(owner)) return;
     enqueueInboundJobDocumentChange("upsert", docID, document);
   }
+}
+
+/**
+ * Whether a planner-held document belongs to the planner the app is working in.
+ *
+ * The store holds one planner's jobs, so a document from another would merge
+ * into them with nothing to tell the two apart. Until the store is keyed by
+ * owner, the safe answer is to ignore what does not belong.
+ *
+ * @param {string|null} owner - the owner handle the message named
+ * @returns {boolean}
+ */
+function isFromActivePlanner(owner) {
+  const active = useUsersStore.getState().realtimeSync.activePlanner;
+  // No planner chosen means the account's own, which is what the app reads.
+  if (!active) return owner === accountOwnerHandle();
+  return owner === active;
+}
+
+/** The handle for the signed-in account's own planner. */
+function accountOwnerHandle() {
+  const accountID = useUsersStore.getState().account.accountID;
+  return accountID ? `account:${accountID}` : null;
 }

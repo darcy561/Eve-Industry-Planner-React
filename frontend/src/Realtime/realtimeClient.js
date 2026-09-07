@@ -486,6 +486,7 @@ export function disconnectRealtime() {
   // Belongs to the session that chose it: a new sign-in must not inherit the
   // last one's planner.
   activePlannerOwner = null;
+  useUsersStore.getState().realtimeSync.actions.setActivePlanner(null);
   /** New session should not inherit exponential backoff from prior failures. */
   reconnectAttempt = 0;
   parkedForMaintenance = false;
@@ -539,6 +540,7 @@ export function sendActivePlanner(ownerHandle) {
   // connection's scopes from the session's grants, so a dropped socket silently
   // returns delivery to every planner the account may reach.
   activePlannerOwner = ownerHandle;
+  useUsersStore.getState().realtimeSync.actions.setActivePlanner(ownerHandle);
   return writeActivePlanner(ownerHandle);
 }
 

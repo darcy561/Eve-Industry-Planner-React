@@ -143,9 +143,9 @@ converts on the way *out*.
 alone. A reconnecting client derives its scopes from the ceiling like any other connection, so there
 was nothing for the handoff to restore and no `scopes_ack` to send after one.
 
-Scopes are still narrower than the ceiling only in the sense that they equal it: the active planner
-that will narrow them is Stage E work, and `OwnerKeys.Union` stays because the release repair widens a
-stored grant list with the account's own key.
+A connection opens on scopes equal to its ceiling and narrows them when the client names an active
+planner — see § Stage E. `OwnerKeys.Union` stays because the release repair widens a stored grant list
+with the account's own key.
 
 Nothing here is owed against Stage B.
 
@@ -370,12 +370,47 @@ persist gate is not owed — the plan's D2 records why it is skipped and what re
 
 ## Stage E — Custom planners
 
-*Not landed.*
+*Partly landed: the settings document, the listing, creation, and the active planner. Invites, the
+join path and the revocation path are not.*
 
-Owed here: creation and its limits, the invite token lifecycle as a Redis record, the join path,
-what a request for a planner without a membership row returns, the shared authoriser, the revocation
-path end to end, and the client's active planner — where it is held, how it persists, and how a scoped
-query key is built from it.
+**A planner is written through one function.** `EnsurePlanner` takes a `PlannerWrite` and is the only
+thing that creates a planner, its owner membership row and its settings document. `EnsureAccountPlanner`
+is a caller of it rather than a second path, so a planner created at first login and one created for a
+corporation differ in their arguments and nothing else. Every write is insert-only, so a repeat call
+repairs what is missing instead of overwriting what is there.
+
+**Settings seed by value.** A new planner's settings are copied from the creating account's, with
+slices and maps cloned rather than aliased, so later edits to the account's settings do not reach into
+a planner's. An account with no settings document of its own seeds defaults rather than failing.
+`planner_settings` is both planner-held and watched: it appears in `PlannerHeldCollections()`, which
+gates subscribe, and in `changestream.CollectionGroups()`, which is what the change stream watches. A
+test pairs the two lists, because a collection in the first and not the second is subscribable and
+silently never delivers.
+
+**A corporation planner is named server-side.** Creation refuses an NPC corporation by id range, looks
+the name up from the public entity endpoint rather than accepting one from the client, and answers with
+the name it stored. The SPA is not trusted for it because the SPA is not the authority on it.
+
+**The active planner is a message, not a reconnect.** A client sends `active_planner` naming one owner
+handle; the server parses it, intersects it with the connection's ceiling and replaces the planner
+subscription, leaving the account's own subscription alone. Replacing rather than merging is what makes
+switching stop the previous planner. A `Client` holds `Ceiling` beside `Scopes` for that intersection.
+A new connection derives scopes from the session's grants and knows nothing of a planner chosen before
+the socket dropped, so the client re-sends it once the socket reopens.
+
+**A delivered document names its owner.** `ClientPayload` strips the routing fields and writes the
+owner as a *handle* — the EVE id, not the ref it is stored under. That cost the zero-allocation
+pass-through, which now covers only a message with no owner to name.
+
+**The SPA ignores what is not its planner.** The store holds one planner's jobs, so `documentMessage.js`
+drops a planner-held document whose owner is not the active planner — matched by collection against a
+mirror of `PlannerHeldCollections()`, so every planner-held collection is covered rather than the ones
+a call site remembered. This is a guard, not the fix: the fix is keying the store by owner, and until
+then the HTTP read path is pinned to the account's own owner and does not follow a switch.
+
+Owed here: creation limits, the invite token lifecycle as a Redis record, the join path, what a request
+for a planner without a membership row returns, the revocation path end to end, and the owner in every
+scoped query key.
 
 ## Stage F — ESI providers
 

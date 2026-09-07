@@ -316,9 +316,10 @@ A connection therefore holds **two subscriptions**, both derived by the server:
 | Account | `account:{accountID}` | `accounts`, `account_settings`, `watchlist_deprecated` | Never, for the life of the connection |
 | Planner | the active planner's owner key | `jobs`, `job_documents`, `job_groups`, `planner_settings` | The client switches planner |
 
-**One planner is active at a time.** Switching is one message naming one owner key, intersected against
-the grant ceiling; the account subscription is untouched by it. Nothing enumerates documents, so
-switching a planner holding five jobs and one holding five hundred cost the same.
+**One planner is active at a time.** Switching is one message naming one owner handle, intersected
+against the grant ceiling; the account subscription is untouched by it. Nothing enumerates documents, so
+switching a planner holding five jobs and one holding five hundred cost the same. This has landed —
+see [overlay.md](./overlay.md) § Stage E.
 
 **The delivery gate is a pair, not an owner.** Routing on the owner alone is not enough, because
 `account:{id}` owns both the account's settings **and** the jobs of that account's own planner. A member
@@ -333,8 +334,7 @@ sets. That composes rather than needing a case of its own.
 for an owner cannot ask for a collection set that owner's kind does not have, and a collection added to
 a kind reaches every planner of that kind by editing one server-side table — the same shape as
 § Capabilities are derived, never stamped. The three groups in `changestream.CollectionGroups()`
-already partition these concerns; the websocket has no notion of them today, which is why none of this
-is currently expressible.
+already partition these concerns.
 
 Group templates **are** in the planner set, which reverses what this section said before: they shipped
 account-owned with no owner block, and the reasoning for keeping that shape did not survive the settings
@@ -362,8 +362,8 @@ connect. That asymmetry is the tell. Under one owner vocabulary both are the sam
 derived, and the client's only say is which planner is active.
 
 No client sends `upgrade_scopes`: the SPA sends `session_resume`, `subscribe`, `unsubscribe` and the
-doc-lock frames, and nothing else. So it is removed rather than reshaped, and the narrowing message
-that replaces it is added at Stage E, when there is a planner switcher to send it.
+doc-lock frames, and nothing else. So it was removed rather than reshaped, and the narrowing message
+that replaces it — `active_planner` — landed at Stage E with the switcher that sends it.
 
 ### Limits
 
@@ -1574,8 +1574,8 @@ neither is reachable through D1 or D3.
 § Settings split between the planner and the account explains which settings the planner owns and
 which stay personal. That section has since grown: `customStructureID` on every setup is a reference
 into the writing account's settings, so a planner settings document is owed rather than two moved
-fields. This slice therefore covers the extras picker; the settings document itself is Stage E work,
-where planner creation can seed it.
+fields. This slice therefore covers the extras picker; the settings document itself landed at Stage E,
+seeded by planner creation, so nothing blocks this slice.
 
 Within that, two things narrow the work:
 
@@ -1653,27 +1653,35 @@ is a planner holding two members that makes the account-scoped read wrong, and t
 **No Deployment Tool work is owed here.** Invites expire as Redis keys rather than as rows under a TTL
 index, so `IndexSpec` needs no expiry field and the renderer needs no change — see § Invites.
 
-**Less of this stage is outstanding than its name suggests.** The models are built and tested:
-`Planner`, `PlannerMembership`, `JoinMethod` with its three branches, and `PlannerInvite` itself. The
-shared authoriser landed at C3, grants already derive from membership rows, and both membership indexes
-are specced. What is missing is storage for invites, the endpoints, the client, and planner creation.
+**Much of this stage has landed.** The models were built and tested first: `Planner`,
+`PlannerMembership`, `JoinMethod` with its branches, and `PlannerInvite` itself. Since then the settings
+document, the planners listing, planner creation, the active-planner message and a client switcher have
+all gone in — see [overlay.md](./overlay.md) § Stage E for how each behaves. What is missing is storage
+for invites, the join path, the revocation path, and the owner in the SPA's scoped query keys.
 
 **It also owns the collections § What a planner owns moves.** The archive and the statistics need only
 listing in `PlannerHeldCollections()`, since they already carry the owner block. Group templates need
 the owner block first, and their reads and writes need the two-owner authorisation that applying a
 template across planners implies.
 
-The settings document is the piece worth taking first: it is what D3 waits on, and seeding it lazily for
-a planner that has none — rather than only at creation — means D3 does not wait for the rest of this
-stage.
+The settings document was taken first, because D3 waits on it and nothing else in this stage waits on
+D3. It is written by the same function that writes a planner, so a planner cannot exist without one.
 
-The active planner arrives here, and with it the message that switches one: the client names one owner
-key, the server intersects it with the ceiling and replaces the planner subscription, leaving the
+The active planner has landed, and with it the message that switches one: the client names one owner
+handle, the server intersects it with the ceiling and replaces the planner subscription, leaving the
 account subscription alone. Replace rather than merge, because switching planner has to stop the
 previous one — see § What a connection subscribes to.
-On the client: the active planner, its persistence, the planner switcher, and the owner in every
-scoped query key. Archiving names its destination planner in the UI, because a job archived into the
-wrong archive is tedious to unpick.
+
+**The client switcher is wired around the SPA rather than through it.** The app still reads one
+planner, and a switch changes which planner the *websocket* delivers, not which one the store holds.
+A guard drops planner-held documents from any other planner so the two cannot merge. That guard is
+deliberately not the fix: keying the store by owner is, and it is the remaining client work here along
+with the owner in every scoped query key. Until it lands, the HTTP read path stays pinned to the
+account's own owner, so a refetch after a tab wake merges the account's jobs regardless of the active
+planner — harmless while the store holds one planner, wrong the moment it does not.
+
+Archiving names its destination planner in the UI, because a job archived into the wrong archive is
+tedious to unpick.
 
 ### Stage F — ESI providers
 
@@ -1854,8 +1862,8 @@ do not touch.
 |-------|--------|
 | Phase 1 — project docs | Complete |
 | A — the owner block, in one cutover | **Landed.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, the rehearsal against a restored copy of live is done, and the stamp has run: every document carries an owner and the gate passes. Not yet confirmed against every environment — see § Stage A |
-| B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the active-planner message replacing it is Stage E work — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
+| B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the `active_planner` message replacing it landed at Stage E — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
-| D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered moves to the duplicate-job-writes and ownership review. D3 is the extras picker and needs Stage E's settings document first. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |
-| E — custom planners | Not started. Now also owns the planner settings document — a setup stores `customStructureID`, a reference into the writing account's settings, so a member opening another's job finds the structure missing. See § Settings split between the planner and the account |
+| D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered moves to the duplicate-job-writes and ownership review. D3 is the extras picker; the settings document it waited on landed at Stage E, so it is unblocked. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |
+| E — custom planners | **Partly landed.** In: the planner settings document (seeded by value from the creating account, planner-held and watched), one write path for every planner, the planners listing, corporation planner creation with its name looked up server-side and NPC corporations refused, the `active_planner` message with the ceiling intersection and its restore across a reconnect, the owner handle on every delivered document, and a client switcher wired around the SPA. Outstanding: invites as Redis records, the join path, the revocation path, keying the store and its query keys by owner. See § Stage E and [overlay.md](./overlay.md) § Stage E |
 | F — ESI providers | **F1 landed.** Corporation and alliance membership rows are reconciled from the ids ESI reports, at login and on the cloud token sweep, completing a task that read as finished and wrote no rows. A row grants while it exists and nothing expires one: a revoked token is a positive answer the reconcile acts on, and a two-year dormant account is cleared by `InactiveAccountPlannerCleanup`. Owed: reshaping when the grant task fires and how it resolves, and access lists |

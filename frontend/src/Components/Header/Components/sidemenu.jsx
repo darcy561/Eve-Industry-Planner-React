@@ -11,6 +11,7 @@ import { useNavigate } from "@tanstack/react-router";
 import useUsersStore from "../../../Zustand/usersStore";
 import { useTranquilityServerStatusQuery } from "../../../Hooks/React Query/tranquilityServerStatus.js";
 import { formatNumberForLocale } from "../../../Functions/Helper/numberParser";
+import { PlannerSwitcher } from "./plannerSwitcher.jsx";
 
 export function SideMenu({ open, setOpen }) {
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
@@ -74,6 +75,11 @@ export function SideMenu({ open, setOpen }) {
             <Divider />
             {isLoggedIn && (
               <>
+                <Divider />
+                {/* Exercises the planner endpoints and the realtime switch. The
+                    app still works in the account's own planner; this points the
+                    connection somewhere else without moving the data. */}
+                <PlannerSwitcher />
                 <Divider />
                 <ListItemButton
                   onClick={() => {

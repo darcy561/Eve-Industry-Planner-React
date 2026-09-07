@@ -10,6 +10,7 @@ import {
   isClientAppVersionOutdated,
 } from "../Functions/App/appVersionCheck.js";
 import { applyRemoteMessage } from "./applyRemoteMessage.js";
+import { requestAppConfigRecheck } from "../Events/appConfigEvents.js";
 import { syncAccountDocumentsFromServer } from "./resyncRealtimeDocumentsFromServer.js";
 import useUsersStore from "../Zustand/usersStore.js";
 import {
@@ -32,6 +33,11 @@ let lastConnectParams = null;
 let reconnectTimer = null;
 let pingTimer = null;
 let manualClose = false;
+/**
+ * True while the stack is in maintenance. Stops the retry schedule; the
+ * connection is still wanted, so nothing is torn down.
+ */
+let parkedForMaintenance = false;
 
 const PING_MS = 45_000;
 
@@ -148,7 +154,7 @@ function clearTimers() {
 }
 
 function scheduleReconnect(connectFn) {
-  if (manualClose) return;
+  if (manualClose || parkedForMaintenance) return;
   const p = lastConnectParams;
   if (!p) {
     return;
@@ -212,6 +218,7 @@ export function connectRealtime(params) {
 
   /** Guard listeners so a lagging close from a replaced socket cannot clear the active connection or its timers. */
   let ws;
+  let opened = false;
   try {
     ws = new WebSocket(wsUrl());
     socket = ws;
@@ -225,6 +232,7 @@ export function connectRealtime(params) {
 
   ws.addEventListener("open", () => {
     if (socket !== ws) return;
+    opened = true;
     reconnectAttempt = 0;
     const prevOpenSessionId = lastSuccessfulOpenSessionId;
     lastSuccessfulOpenSessionId = sessionIdForWs;
@@ -414,6 +422,11 @@ export function connectRealtime(params) {
       if (!p) {
         return;
       }
+      // A refused handshake reaches the browser as a close with no status, so
+      // app-config is asked why rather than the retry schedule guessing.
+      if (!opened) {
+        requestAppConfigRecheck();
+      }
       scheduleReconnect(() => {
         if (lastConnectParams) connectRealtime(lastConnectParams);
       });
@@ -423,6 +436,29 @@ export function connectRealtime(params) {
   ws.addEventListener("error", () => {
     /* close event handles reconnect */
   });
+}
+
+/**
+ * Parks the realtime layer, stopping the retry schedule. Driven from app-config:
+ * a refused upgrade reaches the browser as an opaque close with no status.
+ */
+export function parkRealtimeForMaintenance() {
+  parkedForMaintenance = true;
+  clearTimers();
+}
+
+/** Lifts the park and reconnects if a connection is still wanted; backoff restarts. */
+export function resumeRealtimeAfterMaintenance() {
+  if (!parkedForMaintenance) return;
+  parkedForMaintenance = false;
+  reconnectAttempt = 0;
+  if (manualClose || socket || !lastConnectParams) return;
+  connectRealtime(lastConnectParams);
+}
+
+/** True while the realtime layer is parked for maintenance (tests / diagnostics). */
+export function isRealtimeParkedForMaintenance() {
+  return parkedForMaintenance;
 }
 
 export function disconnectRealtime() {
@@ -437,6 +473,7 @@ export function disconnectRealtime() {
   lastSuccessfulOpenSessionId = null;
   /** New session should not inherit exponential backoff from prior failures. */
   reconnectAttempt = 0;
+  parkedForMaintenance = false;
   clearRealtimeClientIdentityHard();
   clearTimers();
   if (socket) {
@@ -469,6 +506,27 @@ export function unsubscribeDocIDs(collection, docIds) {
   if (!collection || !docIds?.length) return;
   const scoped = docIds.map((id) => `${collection}.${id}`);
   socket.send(JSON.stringify({ type: "unsubscribe", docIDs: scoped }));
+}
+
+/**
+ * Tells the server which planner this connection is working in.
+ *
+ * The server replaces the planner it delivers rather than adding to it, so this
+ * both starts the new planner and stops the previous one. The account's own
+ * documents are unaffected — they stay live wherever the account is working.
+ *
+ * @param {string} ownerHandle - `kind:id`, from the planners listing
+ * @returns {boolean} true if the message was queued on the socket
+ */
+export function sendActivePlanner(ownerHandle) {
+  if (!socket || socket.readyState !== WebSocket.OPEN) return false;
+  if (!ownerHandle) return false;
+  try {
+    socket.send(JSON.stringify({ type: "active_planner", owner: ownerHandle }));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** @returns {boolean} true if the command was queued on the socket */

@@ -18,23 +18,62 @@ import (
 // account renames it.
 const DefaultAccountPlannerName = "My planner"
 
+// PlannerWrite is what a planner is created with, beyond its owner.
+//
+// SeedSettingsFrom is empty for a planner that starts on the defaults: a shared
+// one does not inherit the settings of whoever opened it first.
+type PlannerWrite struct {
+	Name             string
+	CreatedBy        string
+	Member           bool
+	SeedSettingsFrom string
+}
+
+// EnsurePlanner writes a planner, its settings, and optionally the membership row
+// putting CreatedBy in it. It returns the stored planner, which keeps the name it
+// already had.
+//
+// Each document is written only if it is absent, and they are checked
+// separately: one guard over all three would stop repairing a planner that has
+// lost only its membership row or only its settings.
+func (m *Mongo) EnsurePlanner(ctx context.Context, owner models.Owner, write PlannerWrite, now time.Time) (planner.Planner, error) {
+	if m == nil || owner.IsZero() || write.CreatedBy == "" {
+		return planner.Planner{}, fmt.Errorf("EnsurePlanner: invalid arguments")
+	}
+	plannerID := owner.Key()
+
+	doc := planner.Planner{
+		SchemaVersion: planner.SchemaCurrent,
+		Name:          write.Name,
+		MemberCount:   1,
+		CreatedBy:     write.CreatedBy,
+	}
+	doc.MetaData.Owner = owner
+	doc.MetaData.LastModified = now.UTC()
+	if err := insertIfAbsent(ctx, m.Planners, plannerID, doc); err != nil {
+		return planner.Planner{}, fmt.Errorf("write planner %s: %w", plannerID, err)
+	}
+
+	if write.Member {
+		if err := m.ensureOwnerMembership(ctx, owner, write.CreatedBy, now); err != nil {
+			return planner.Planner{}, err
+		}
+	}
+
+	if err := m.EnsurePlannerSettings(ctx, owner, write.SeedSettingsFrom, now); err != nil {
+		return planner.Planner{}, err
+	}
+
+	var stored planner.Planner
+	if err := m.Planners.Collection().
+		FindOne(ctx, bson.M{"_id": plannerID}).Decode(&stored); err != nil {
+		return planner.Planner{}, fmt.Errorf("read planner %s: %w", plannerID, err)
+	}
+	return stored, nil
+}
+
 // EnsureAccountPlanner gives an account the planner it works in, and puts the
-// account in it.
-//
-// Written on insert only: a repeat call adds nothing and rewrites nothing, so an
-// account that has renamed its planner keeps the name. That is what lets the
-// release backfill and first login share one implementation without either
-// undoing the other.
-//
-// **The three writes are deliberately independent.** Each is created only if that
-// document is absent, so a planner whose membership row has been deleted regains
-// the row without the planner being touched, and likewise for its settings.
-// Collapsing them into one guarded block — "if the planner exists, do nothing" —
-// would read as a tidier version of the same thing and would silently stop
-// repairing the other two.
-//
-// The planner's `_id` is the account's owner key, so nothing is minted here — the
-// documents the account already holds carry that same id inside `_meta.owner`.
+// account in it. Its `_id` is the account's owner key, so nothing is minted.
 func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now time.Time) error {
 	if m == nil || accountID == "" {
 		return fmt.Errorf("EnsureAccountPlanner: invalid arguments")
@@ -43,20 +82,19 @@ func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now 
 	if owner.IsZero() {
 		return fmt.Errorf("account id %q yields no owner", accountID)
 	}
+
+	_, err := m.EnsurePlanner(ctx, owner, PlannerWrite{
+		Name:             DefaultAccountPlannerName,
+		CreatedBy:        accountID,
+		Member:           true,
+		SeedSettingsFrom: accountID,
+	}, now)
+	return err
+}
+
+// ensureOwnerMembership puts an account in the planner that is its own.
+func (m *Mongo) ensureOwnerMembership(ctx context.Context, owner models.Owner, accountID string, now time.Time) error {
 	plannerID := owner.Key()
-
-	plannerDoc := planner.Planner{
-		SchemaVersion: planner.SchemaCurrent,
-		Name:          DefaultAccountPlannerName,
-		MemberCount:   1,
-		CreatedBy:     accountID,
-	}
-	plannerDoc.MetaData.Owner = owner
-	plannerDoc.MetaData.LastModified = now.UTC()
-	if err := insertIfAbsent(ctx, m.Planners, plannerID, plannerDoc); err != nil {
-		return fmt.Errorf("write planner for %s: %w", accountID, err)
-	}
-
 	membership := planner.Membership{
 		SchemaVersion: planner.MembershipSchemaCurrent,
 		PlannerID:     plannerID,
@@ -69,14 +107,9 @@ func (m *Mongo) EnsureAccountPlanner(ctx context.Context, accountID string, now 
 	if err := membership.JoinMethod.Validate(); err != nil {
 		return fmt.Errorf("membership for %s: %w", accountID, err)
 	}
-	if err := insertIfAbsent(ctx, m.PlannerMemberships, planner.MembershipID(plannerID, accountID), membership); err != nil {
+	if err := insertIfAbsent(ctx, m.PlannerMemberships,
+		planner.MembershipID(plannerID, accountID), membership); err != nil {
 		return fmt.Errorf("write membership for %s: %w", accountID, err)
-	}
-
-	// Seeded from the account's own settings, so its planner starts as the account
-	// already has it configured rather than on the shipped defaults.
-	if err := m.EnsurePlannerSettings(ctx, owner, accountID, now); err != nil {
-		return err
 	}
 	return nil
 }
@@ -144,50 +177,4 @@ func (m *Mongo) EnsurePlannerSettings(ctx context.Context, owner models.Owner, s
 		return fmt.Errorf("write settings for %s: %w", owner.Key(), err)
 	}
 	return nil
-}
-
-// EnsurePlanner writes the document that names a planner, and its settings.
-//
-// Insert-only, like the account planner above: a repeat call rewrites nothing,
-// so a planner that has since been renamed or reconfigured keeps both. It is
-// what turns a planner an account can reach into one somebody has opened.
-//
-// It writes no membership row. Membership is what grants access and is decided
-// elsewhere — by EVE for a corporation or alliance, by an invite otherwise — so
-// naming a planner must not be a way to join one. The caller checks the account
-// already holds a row before calling.
-//
-// Settings are seeded from the defaults rather than from the caller's own
-// account: a corporation's planner belongs to its members collectively, and the
-// first one to open it is not the one whose structures the rest should inherit.
-// It returns the stored planner, which is not always the one it was given: a
-// planner that already had a document keeps the name it had, and the caller
-// needs that one rather than the name it proposed.
-func (m *Mongo) EnsurePlanner(ctx context.Context, owner models.Owner, name, createdBy string, now time.Time) (planner.Planner, error) {
-	if m == nil || owner.IsZero() || createdBy == "" {
-		return planner.Planner{}, fmt.Errorf("EnsurePlanner: invalid arguments")
-	}
-
-	doc := planner.Planner{
-		SchemaVersion: planner.SchemaCurrent,
-		Name:          name,
-		MemberCount:   1,
-		CreatedBy:     createdBy,
-	}
-	doc.MetaData.Owner = owner
-	doc.MetaData.LastModified = now.UTC()
-	if err := insertIfAbsent(ctx, m.Planners, owner.Key(), doc); err != nil {
-		return planner.Planner{}, fmt.Errorf("write planner %s: %w", owner.Key(), err)
-	}
-
-	if err := m.EnsurePlannerSettings(ctx, owner, "", now); err != nil {
-		return planner.Planner{}, err
-	}
-
-	var stored planner.Planner
-	if err := m.Planners.Collection().
-		FindOne(ctx, bson.M{"_id": owner.Key()}).Decode(&stored); err != nil {
-		return planner.Planner{}, fmt.Errorf("read planner %s: %w", owner.Key(), err)
-	}
-	return stored, nil
 }

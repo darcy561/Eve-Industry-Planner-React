@@ -7,12 +7,16 @@ import (
 
 	"eve-industry-planner/shared/models"
 	"eve-industry-planner/shared/models/planner"
+	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/testing/mongolive"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 const plannerScratchAccount = "eip-parity-planner-account"
+
+// A corporation nobody in these tests is a member of.
+const sharedPlannerCorpRef = "corp_56_K_EzReRqQkYxj0Yuq4D9csj0Cgj1a05rVvmlcLDbd"
 
 // A planner and its membership row have to survive a write and a read: the owner
 // key is the planner's _id, and the membership's _id is composed from it, so a
@@ -437,5 +441,71 @@ func TestLive_loadPlannerSettings_reportsAbsentRatherThanFailing(t *testing.T) {
 	}
 	if found {
 		t.Fatal("a planner that was never ensured reports settings")
+	}
+}
+
+// One write serves both an account's own planner and a shared one, and the two
+// differ in exactly two ways: only an account planner puts its creator in it, and
+// only an account planner starts from that account's settings.
+// Requires EIP_MONGO_PARITY_LIVE=1.
+func TestLive_ensurePlanner_differsOnlyInMembershipAndSeed(t *testing.T) {
+	mongo := mongolive.Require(t)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	account := plannerScratchAccount + "-write-shape"
+	shared := models.CorporationOwner(sharedPlannerCorpRef)
+	now := time.Now().UTC()
+
+	t.Cleanup(func() {
+		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancelCleanup()
+		for _, owner := range []models.Owner{models.AccountOwner(account), shared} {
+			_, _ = mongo.Planners.Collection().DeleteOne(cleanupCtx, bson.M{"_id": owner.Key()})
+			_, _ = mongo.PlannerSettings.Collection().DeleteOne(cleanupCtx, bson.M{"_id": owner.Key()})
+			_, _ = mongo.PlannerMemberships.Collection().
+				DeleteMany(cleanupCtx, bson.M{"plannerID": owner.Key()})
+		}
+		_, _ = mongo.ApplicationSettings.Collection().DeleteOne(cleanupCtx, bson.M{"_id": account})
+	})
+
+	seed := models.DefaultApplicationSettings(account, now)
+	seed.DefaultMaterialEfficiencyValue = 9
+	if _, _, err := mongo.ApplicationSettings.UpsertApplicationSettings(ctx, account, seed); err != nil {
+		t.Fatalf("seed account settings: %v", err)
+	}
+
+	if err := mongo.EnsureAccountPlanner(ctx, account, now); err != nil {
+		t.Fatalf("EnsureAccountPlanner: %v", err)
+	}
+	if _, err := mongo.EnsurePlanner(ctx, shared, eipmongo.PlannerWrite{
+		Name:      "A shared planner",
+		CreatedBy: account,
+	}, now); err != nil {
+		t.Fatalf("EnsurePlanner: %v", err)
+	}
+
+	// The account is in its own planner and not in the one it merely named.
+	assertReachable(ctx, t, mongo, account, models.AccountOwner(account), true)
+	assertReachable(ctx, t, mongo, account, shared, false)
+
+	// Its own planner starts from its settings; a shared one starts on defaults,
+	// because the first member to open it is not the one the rest should inherit.
+	own, _, err := mongo.LoadPlannerSettings(ctx, models.AccountOwner(account))
+	if err != nil {
+		t.Fatalf("LoadPlannerSettings: %v", err)
+	}
+	if own.DefaultMaterialEfficiencyValue != 9 {
+		t.Errorf("own planner ME = %d, want the account's 9", own.DefaultMaterialEfficiencyValue)
+	}
+	theirs, found, err := mongo.LoadPlannerSettings(ctx, shared)
+	if err != nil {
+		t.Fatalf("LoadPlannerSettings: %v", err)
+	}
+	if !found {
+		t.Fatal("a shared planner was written without settings")
+	}
+	if theirs.DefaultMaterialEfficiencyValue == 9 {
+		t.Error("a shared planner inherited the settings of whoever named it")
 	}
 }

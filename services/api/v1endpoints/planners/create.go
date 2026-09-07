@@ -95,7 +95,10 @@ func (h *Handlers) PutPlannerHandler(w http.ResponseWriter, r *http.Request, han
 		return
 	}
 
-	stored, err := h.Mongo.EnsurePlanner(ctx, owner, name, accountID, time.Now().UTC())
+	stored, err := h.Mongo.EnsurePlanner(ctx, owner, eipmongo.PlannerWrite{
+		Name:      name,
+		CreatedBy: accountID,
+	}, time.Now().UTC())
 	if err != nil {
 		metrics.Error("database_error")
 		helper.RespondEndpointServerError(w, r, "Failed to create planner",

@@ -71,6 +71,8 @@ export async function applyDocumentMessage(msg) {
 
   const ctxBase = { accountId, docKey, docID, rs };
 
+  if (isPlannerHeld(collection) && !isFromActivePlanner(owner)) return;
+
   if (operationType === "delete" || operationType === "drop") {
     if (collection === "account_settings") {
       handleApplicationSettingsDocumentDelete(ctxBase);
@@ -89,7 +91,6 @@ export async function applyDocumentMessage(msg) {
       return;
     }
     if (collection === USER_JOB_DOCUMENTS_COLLECTION) {
-      if (!isFromActivePlanner(owner)) return;
       enqueueInboundJobDocumentChange("delete", docID);
       return;
     }
@@ -139,9 +140,27 @@ export async function applyDocumentMessage(msg) {
   }
 
   if (collection === USER_JOB_DOCUMENTS_COLLECTION) {
-    if (!isFromActivePlanner(owner)) return;
     enqueueInboundJobDocumentChange("upsert", docID, document);
   }
+}
+
+/**
+ * Collections whose documents belong to a planner rather than to the account.
+ *
+ * Mirrors `PlannerHeldCollections` in services/shared/mongo/names.go: a
+ * collection added there and not here is one the store would take from any
+ * planner.
+ *
+ * @type {ReadonlySet<string>}
+ */
+const PLANNER_HELD_COLLECTIONS = new Set([
+  USER_JOB_DOCUMENTS_COLLECTION,
+  USER_JOB_GROUPS_COLLECTION,
+]);
+
+/** @param {string} collection @returns {boolean} */
+function isPlannerHeld(collection) {
+  return PLANNER_HELD_COLLECTIONS.has(collection);
 }
 
 /**

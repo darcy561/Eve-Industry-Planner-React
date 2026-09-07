@@ -22,9 +22,31 @@ vi.mock("../src/Functions/Debounce/inboundJobDocumentsCoalesce.js", () => ({
   enqueueInboundJobDocumentChange: (...args) => enqueued.push(args),
 }));
 
+const groupUpserts = [];
+vi.mock("../src/Realtime/handlers/index.js", () => ({
+  handleUserJobGroupUpsert: (...args) => groupUpserts.push(args),
+  handleUserJobGroupDelete: () => {},
+  handleApplicationSettingsDocumentUpsert: () => {},
+  handleApplicationSettingsDocumentDelete: () => {},
+  handleUsersDocumentUpsert: () => {},
+  handleUsersDocumentDelete: () => {},
+  handleWatchlistDeprecatedUpsert: () => {},
+  handleWatchlistDeprecatedDelete: () => {},
+}));
+
 const { applyDocumentMessage } = await import(
   "../src/Realtime/handlers/documentMessage.js"
 );
+
+function groupMessage(owner) {
+  return {
+    collection: "job_groups",
+    docID: "group-1",
+    owner,
+    operationType: "update",
+    document: { groupID: "group-1", _meta: { lastModified: "2026-01-01T00:00:00Z" } },
+  };
+}
 
 function jobMessage(owner) {
   return {
@@ -41,6 +63,7 @@ function jobMessage(owner) {
 describe("job documents from a planner the app is not working in", () => {
   beforeEach(() => {
     enqueued.length = 0;
+    groupUpserts.length = 0;
     activePlanner = null;
   });
 
@@ -73,5 +96,15 @@ describe("job documents from a planner the app is not working in", () => {
   it("ignores a document that names no owner", async () => {
     await applyDocumentMessage(jobMessage(undefined));
     expect(enqueued).toHaveLength(0);
+  });
+
+  // Groups belong to a planner as jobs do, so the same rule applies to them —
+  // the guard is on the collection's kind, not on one collection.
+  it("applies the same rule to job groups", async () => {
+    await applyDocumentMessage(groupMessage("account:acct-1"));
+    expect(groupUpserts).toHaveLength(1);
+
+    await applyDocumentMessage(groupMessage("corporation:98000001"));
+    expect(groupUpserts).toHaveLength(1);
   });
 });

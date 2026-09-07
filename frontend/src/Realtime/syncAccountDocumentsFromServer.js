@@ -1,8 +1,3 @@
-/**
- * Pulls latest `users` + `application_settings` from the API and applies reconcile logic.
- * Used after WebSocket (re)connect and visibility wakeups.
- */
-
 import useUsersStore from "../Zustand/usersStore.js";
 import { metaLastModifiedMs } from "../Zustand/realtimeSyncSlice.js";
 import {
@@ -15,8 +10,10 @@ import {
 } from "../Functions/Endpoints/Private/userDocument.js";
 
 /**
- * Fetches both singleton account documents, merges settings before users (cloud flag visible to user reconcile),
- * advances realtime cursors, then runs token / cloud-character / system-index reconcile.
+ * Pulls the account's singleton documents from the API and reconciles from them.
+ *
+ * Settings merge before users: the cloud-accounts flag has to be current before
+ * the user reconcile reads it.
  */
 export async function syncAccountDocumentsFromServer() {
   try {
@@ -74,9 +71,3 @@ export async function syncAccountDocumentsFromServer() {
   }
 }
 
-/**
- * @deprecated Use {@link syncAccountDocumentsFromServer} — kept for callers that still name "resync".
- */
-export async function resyncRealtimeDocumentsFromServer() {
-  return syncAccountDocumentsFromServer();
-}

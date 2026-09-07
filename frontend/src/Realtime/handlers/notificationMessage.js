@@ -1,9 +1,6 @@
 /**
- * The notification family: something happened that a client may want to react to.
- *
- * A notification carries no document. It is a signal that the server has written
- * something, not a delivery of what was written, so a handler here refetches what
- * the user is actually looking at rather than applying a payload.
+ * The notification family: a signal that the server wrote something, carrying no
+ * document. Handlers refetch rather than apply a payload.
  */
 
 import { queryClient } from "../../queryClient.js";
@@ -11,18 +8,7 @@ import { invalidateArchiveQueries } from "../../Hooks/React Query/Backend/archiv
 import { showSnackbar } from "../../Events/snackbarEvents.js";
 import { NOTIFICATION_ARCHIVE_STATS_PROCESSED } from "../messageKinds.js";
 
-/**
- * An owner's archived-job statistics have been written.
- *
- * One handler invalidates both the archive list and the statistics views, so a
- * call site that archives a job does not have to know what archiving
- * invalidates. Spreading that knowledge across the archiving entry points is how
- * two of them came to refresh the figures and leave the list showing a page that
- * no longer matches it.
- *
- * React Query refetches only what is mounted, so a user with no archive on
- * screen pays nothing for this.
- */
+/** Invalidates both the archive list and the statistics views together. */
 function handleArchiveStatsProcessed() {
   invalidateArchiveQueries(queryClient);
   showSnackbar("Archive statistics updated", "info", 3);
@@ -33,8 +19,6 @@ const NOTIFICATION_HANDLERS = {
 };
 
 /**
- * Route one notification to its handler.
- *
  * @param {Record<string, unknown>} msg
  * @returns {boolean} whether a handler took it
  */

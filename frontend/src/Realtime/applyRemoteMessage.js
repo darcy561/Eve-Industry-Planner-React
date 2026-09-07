@@ -1,19 +1,16 @@
 /**
- * Routes an inbound realtime message to the family that knows what to do with it.
+ * Routes an inbound realtime message to the family that handles it.
  *
- * A message names its family in `type` and, within that family, its kind in
- * `subtype`. A message that names no family is a document change: every producer
- * of those predates the field.
- *
- * A message no family claims is reported rather than dropped. Silence here is
- * what let two collections stream to every browser for nothing without anyone
- * noticing, so the next such gap should be visible on its first message.
+ * A message no family claims is warned about rather than dropped silently, so an
+ * unrouted producer is visible on its first message.
  */
 
 import { applyDocumentMessage } from "./handlers/documentMessage.js";
 import { applyNotificationMessage } from "./handlers/notificationMessage.js";
+import { applyMaintenanceMessage } from "./handlers/maintenanceMessage.js";
 import {
   MESSAGE_TYPE_DOCUMENT,
+  MESSAGE_TYPE_MAINTENANCE,
   MESSAGE_TYPE_NOTIFICATION,
   messageFamily,
 } from "./messageKinds.js";
@@ -38,6 +35,13 @@ export async function applyRemoteMessage(raw) {
         "[realtime] no handler for notification",
         typeof msg.subtype === "string" ? msg.subtype : "(none)",
       );
+    }
+    return;
+  }
+
+  if (family === MESSAGE_TYPE_MAINTENANCE) {
+    if (!applyMaintenanceMessage(msg)) {
+      console.warn("[realtime] maintenance message without enabled", msg);
     }
     return;
   }

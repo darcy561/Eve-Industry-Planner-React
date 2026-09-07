@@ -11,7 +11,7 @@ import {
 } from "../Functions/App/appVersionCheck.js";
 import { applyRemoteMessage } from "./applyRemoteMessage.js";
 import { requestAppConfigRecheck } from "../Events/appConfigEvents.js";
-import { syncAccountDocumentsFromServer } from "./resyncRealtimeDocumentsFromServer.js";
+import { syncAccountDocumentsFromServer } from "./syncAccountDocumentsFromServer.js";
 import useUsersStore from "../Zustand/usersStore.js";
 import {
   clearRealtimeClientID,
@@ -291,10 +291,8 @@ export function connectRealtime(params) {
         void syncAccountDocumentsFromServer();
       }
 
-      /**
-       * Session rotation / reconnect: planner rows still rely on WS fan-out — events during the gap are
-       * lost. Re-merge from the API when the in-store `sessionID` changed (not first open).
-       */
+      // Events during a reconnect gap are lost, so re-merge from the API when the
+      // session id changed (not on first open).
       const shouldRefetchPlannerJobs =
         prevOpenSessionId != null && prevOpenSessionId !== sessionIdForWs;
       if (shouldRefetchPlannerJobs) {
@@ -306,8 +304,7 @@ export function connectRealtime(params) {
         });
       }
 
-      // The server derives a new connection's scopes from the session's grants,
-      // so a planner chosen before the socket dropped is not one it knows about.
+      // A new connection starts on the session's grants, not the chosen planner.
       restoreActivePlanner();
 
       pingTimer = window.setInterval(() => {
@@ -483,8 +480,7 @@ export function disconnectRealtime() {
   connectKey = null;
   lastConnectParams = null;
   lastSuccessfulOpenSessionId = null;
-  // Belongs to the session that chose it: a new sign-in must not inherit the
-  // last one's planner.
+  // A new sign-in must not inherit the last session's planner.
   activePlannerOwner = null;
   useUsersStore.getState().realtimeSync.actions.setActivePlanner(null);
   /** New session should not inherit exponential backoff from prior failures. */
@@ -527,29 +523,21 @@ export function unsubscribeDocIDs(collection, docIds) {
 /**
  * Tells the server which planner this connection is working in.
  *
- * The server replaces the planner it delivers rather than adding to it, so this
- * both starts the new planner and stops the previous one. The account's own
- * documents are unaffected — they stay live wherever the account is working.
+ * The server replaces the planner it delivers rather than adding to it. The
+ * account's own documents stay live either way.
  *
  * @param {string} ownerHandle - `kind:id`, from the planners listing
  * @returns {boolean} true if the message was queued on the socket
  */
 export function sendActivePlanner(ownerHandle) {
   if (!ownerHandle) return false;
-  // Remembered so a reconnect can restore it: the server derives a new
-  // connection's scopes from the session's grants, so a dropped socket silently
-  // returns delivery to every planner the account may reach.
+  // Remembered so a reconnect can restore it.
   activePlannerOwner = ownerHandle;
   useUsersStore.getState().realtimeSync.actions.setActivePlanner(ownerHandle);
   return writeActivePlanner(ownerHandle);
 }
 
-/**
- * Re-sends the active planner after a reconnect, if one was chosen.
- *
- * Called once the socket is open, because a fresh connection starts on the
- * session's whole grant ceiling rather than on the planner that was active.
- */
+/** Re-sends the active planner after a reconnect, if one was chosen. */
 export function restoreActivePlanner() {
   if (!activePlannerOwner) return false;
   return writeActivePlanner(activePlannerOwner);

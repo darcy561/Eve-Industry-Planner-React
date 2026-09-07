@@ -1,10 +1,7 @@
 /**
  * The document family: a change to a document the account can see.
  *
- * Dispatches on `collection` and `operationType`, and lives beside the
- * per-collection handlers it calls. `applyRemoteMessage.js` routes here for any
- * message whose family is `document`, which includes every message that names no
- * family at all.
+ * Dispatches on `collection` and `operationType` to the per-collection handlers.
  */
 
 import useUsersStore from "../../Zustand/usersStore.js";
@@ -104,8 +101,7 @@ export async function applyDocumentMessage(msg) {
     return;
   }
   const prevCursor = rs.getCursorMs(docKey);
-  // Only drop strictly older events. `<=` would drop a new update that shares the same
-  // _meta.lastModified ms as the cursor (ties, sub-ms resolution, or duplicate deliveries).
+  // Strictly older only: `<=` would drop an update sharing the cursor's ms.
   if (remoteMs < prevCursor) {
     return;
   }
@@ -145,11 +141,8 @@ export async function applyDocumentMessage(msg) {
 }
 
 /**
- * Collections whose documents belong to a planner rather than to the account.
- *
- * Mirrors `PlannerHeldCollections` in services/shared/mongo/names.go: a
- * collection added there and not here is one the store would take from any
- * planner.
+ * Mirrors `PlannerHeldCollections` in services/shared/mongo/names.go. A
+ * collection added there and not here is one the store takes from any planner.
  *
  * @type {ReadonlySet<string>}
  */
@@ -164,18 +157,15 @@ function isPlannerHeld(collection) {
 }
 
 /**
- * Whether a planner-held document belongs to the planner the app is working in.
- *
- * The store holds one planner's jobs, so a document from another would merge
- * into them with nothing to tell the two apart. Until the store is keyed by
- * owner, the safe answer is to ignore what does not belong.
+ * The store holds one planner's jobs, so a document from another would merge in
+ * with nothing to tell the two apart.
  *
  * @param {string|null} owner - the owner handle the message named
  * @returns {boolean}
  */
 function isFromActivePlanner(owner) {
   const active = useUsersStore.getState().realtimeSync.activePlanner;
-  // No planner chosen means the account's own, which is what the app reads.
+  // No planner chosen means the account's own.
   if (!active) return owner === accountOwnerHandle();
   return owner === active;
 }

@@ -543,6 +543,18 @@ The rule matters beyond convenience: inferring an entity from a correlated field
 station, a blueprint) produces attribution that is wrong in exactly the cases that are hardest to
 notice. An owner is recorded, or it is not known.
 
+**Nothing carries the active planner onto a request yet.** `BulkUpsertJobs`, `BulkUpsertGroups` and
+`PopulateRequestMeta` all stamp the writing account as owner, and every read filter is pinned the same
+way. So no document has ever been owned by a planner other than its writer's account, and the
+delivery branches for the other kinds — built and correct — have nothing to deliver. The owner on the
+request is therefore the first slice of the client work, ahead of the baseline: a baseline read by
+owner is empty for every planner nothing writes to.
+
+While the SPA is being wired around, a request that names no owner is treated as the account's own,
+so today's clients keep working. **That leniency is scaffolding with an expiry**: when the live
+planner cuts over, the owner becomes required on every scoped write and read, and an absent one is
+refused. It is listed in § Wire compatibility as owed at cutover so it is removed rather than left.
+
 ## Features differ; nothing branches on kind
 
 A corporation planner offers things a personal one does not, and a shared planner needs coordination
@@ -1881,6 +1893,7 @@ is ready for the window.
 | `upgrade_scopes` / `scopes_ack` | **removed** — no client sends them, so there is nothing to cut with; the Stage E message that narrows to an active planner is additive |
 | Statistics routes | **breaking** if deferred, additive if the owner handle lands while the account is still the only value — hence it is owed by archived-jobs-stats before it ships |
 | Planner, membership, invite endpoints | additive. Invites are Redis records with a TTL rather than documents, so nothing about them is migrate-required — an unredeemed invite outliving a deploy is a link that still works, and one lost to an unclean stop is reissued |
+| Owner on scoped writes and reads | **additive now, required at cutover.** Absent means the account's own only while the SPA is wired around; the cutover makes it mandatory and refuses a request without one — see § Ownership is decided at creation |
 | SPA query keys | additive, but mandatory — an owner-less key makes two planners share one cache entry. Archive and statistics keys carry the owner **asked for** rather than the active planner, since those reads cross planners without switching — see § The archive is read across planners without switching |
 | `group_template_catalog`, `group_template_payloads` owner block | **migrate-required** — the catalogue's `_id` becomes the owner key and both collections gain `_meta.owner`; existing rows are rewritten under `account:{id}` in the same window as the other stamps |
 

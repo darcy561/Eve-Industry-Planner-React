@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import {
   Box,
   CircularProgress,
@@ -31,7 +31,10 @@ import { sendActivePlanner } from "../../../Realtime/realtimeClient.js";
 export function PlannerSwitcher() {
   const { data: planners, isLoading, isError } = usePlannersQuery();
   const [active, setActive] = useState("");
-  const [busy, setBusy] = useState(false);
+  // Switching is an action rather than a flag: React holds the pending state for
+  // as long as the write is in flight, so the control stays disabled until the
+  // planner it names is the one the connection has.
+  const [busy, startSwitch] = useTransition();
   const [failure, setFailure] = useState("");
 
   if (isLoading) {
@@ -41,21 +44,20 @@ export function PlannerSwitcher() {
     return null;
   }
 
-  async function selectPlanner(owner) {
-    setBusy(true);
-    setFailure("");
-    try {
-      await ensurePlannerViaApi(owner);
-      if (!sendActivePlanner(owner)) {
-        setFailure("Not connected");
-        return;
+  function selectPlanner(owner) {
+    startSwitch(async () => {
+      setFailure("");
+      try {
+        await ensurePlannerViaApi(owner);
+        if (!sendActivePlanner(owner)) {
+          setFailure("Not connected");
+          return;
+        }
+        setActive(owner);
+      } catch (err) {
+        setFailure(err?.message ?? "Could not switch planner");
       }
-      setActive(owner);
-    } catch (err) {
-      setFailure(err?.message ?? "Could not switch planner");
-    } finally {
-      setBusy(false);
-    }
+    });
   }
 
   return (

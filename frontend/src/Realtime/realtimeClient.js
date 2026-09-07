@@ -31,6 +31,14 @@ let connectKey = null;
 /** @type {{ accountId: string }|null} */
 let lastConnectParams = null;
 let reconnectTimer = null;
+
+/**
+ * The planner the client last asked for, so a reconnect can ask again.
+ *
+ * Null until something switches: a connection with no active planner receives
+ * every planner the session may reach, which is what the app does today.
+ */
+let activePlannerOwner = null;
 let pingTimer = null;
 let manualClose = false;
 /**
@@ -298,6 +306,10 @@ export function connectRealtime(params) {
         });
       }
 
+      // The server derives a new connection's scopes from the session's grants,
+      // so a planner chosen before the socket dropped is not one it knows about.
+      restoreActivePlanner();
+
       pingTimer = window.setInterval(() => {
         if (socket === ws && ws.readyState === WebSocket.OPEN) {
           try {
@@ -471,6 +483,9 @@ export function disconnectRealtime() {
   connectKey = null;
   lastConnectParams = null;
   lastSuccessfulOpenSessionId = null;
+  // Belongs to the session that chose it: a new sign-in must not inherit the
+  // last one's planner.
+  activePlannerOwner = null;
   /** New session should not inherit exponential backoff from prior failures. */
   reconnectAttempt = 0;
   parkedForMaintenance = false;
@@ -519,8 +534,27 @@ export function unsubscribeDocIDs(collection, docIds) {
  * @returns {boolean} true if the message was queued on the socket
  */
 export function sendActivePlanner(ownerHandle) {
-  if (!socket || socket.readyState !== WebSocket.OPEN) return false;
   if (!ownerHandle) return false;
+  // Remembered so a reconnect can restore it: the server derives a new
+  // connection's scopes from the session's grants, so a dropped socket silently
+  // returns delivery to every planner the account may reach.
+  activePlannerOwner = ownerHandle;
+  return writeActivePlanner(ownerHandle);
+}
+
+/**
+ * Re-sends the active planner after a reconnect, if one was chosen.
+ *
+ * Called once the socket is open, because a fresh connection starts on the
+ * session's whole grant ceiling rather than on the planner that was active.
+ */
+export function restoreActivePlanner() {
+  if (!activePlannerOwner) return false;
+  return writeActivePlanner(activePlannerOwner);
+}
+
+function writeActivePlanner(ownerHandle) {
+  if (!socket || socket.readyState !== WebSocket.OPEN) return false;
   try {
     socket.send(JSON.stringify({ type: "active_planner", owner: ownerHandle }));
     return true;

@@ -15,6 +15,9 @@ vi.mock("../src/Functions/Endpoints/Private/planners.js", () => ({
 const { default: useUsersStore } = await import(
   "../src/Zustand/usersStore.js"
 );
+const { extrasCategoriesDefault } = await import(
+  "../src/Context/defaultValues.jsx"
+);
 
 const OWNER = "corporation:98000001";
 
@@ -28,6 +31,9 @@ describe("planner settings slice", () => {
     nextResponse = null;
     nextError = null;
     actions().resetPlannerSettingsStore();
+    // The reads under test are a signed-in user's; the signed-out case is its
+    // own test below.
+    useUsersStore.getState().account.actions.setLoggedIn(true);
   });
 
   it("falls back to defaults for a planner it has not read", () => {
@@ -175,5 +181,22 @@ describe("planner settings slice", () => {
 
     expect(actions().isPlannerSeeded(OWNER)).toBe(false);
     expect(actions().getPlannerSettings(OWNER).defaultCitadelBrokersFee).toBe(1);
+  });
+
+  it("reads nothing for a signed-out user rather than firing a private request", async () => {
+    useUsersStore.getState().account.actions.setLoggedIn(false);
+
+    const result = await actions().loadPlannerSettings(OWNER);
+
+    expect(result).toBeNull();
+    expect(fetched).toEqual([]);
+  });
+
+  it("answers defaults with no owner at all, which is the signed-out case", () => {
+    const settings = actions().getPlannerSettings(null);
+
+    expect(settings.extrasCategories).toEqual(extrasCategoriesDefault);
+    expect(settings.defaultCitadelBrokersFee).toBe(1);
+    expect(actions().getPlannerExtrasCategories(null).length).toBeGreaterThan(0);
   });
 });

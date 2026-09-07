@@ -72,6 +72,9 @@ export const plannerSettingsActions = (set, get) => ({
    */
   loadPlannerSettings: async (ownerHandle) => {
     if (!ownerHandle) return null;
+    // The planner works signed out on default settings, and a private request
+    // from a signed-out user can redirect the page into a login flow.
+    if (!get().account.isLoggedIn) return null;
     try {
       const response = await fetchPlannerSettingsFromApi(ownerHandle);
       get().plannerSettings.actions.setPlannerSettings(

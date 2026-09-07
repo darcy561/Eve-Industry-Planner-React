@@ -10,7 +10,6 @@ import CollapsibleContentDrawer_Right from "../SideMenu/rightContentDrawer";
 import RightSideMenuContent_JobPlanner from "./Planner Components/Side Menu/rightMenuContents";
 import { useJobPlannerSideMenuFunctions } from "./Planner Components/Side Menu/Buttons/buttonfunctions";
 import useJobPlannerReducer from "./Hooks/useJobPlannerReducer";
-import DefaultPageLayout from "../../Styled Components/defaultPageLayout";
 import { useJobPlannerPageLockSync } from "../../Hooks/DocumentLock/useJobPlannerPageLockSync.js";
 
 function JobPlanner() {
@@ -22,7 +21,7 @@ function JobPlanner() {
   const buttonOptions = useJobPlannerSideMenuFunctions(pageState, pageActions);
 
   return (
-    <DefaultPageLayout>
+    <>
       <LeftCollapsibleMenuDrawer inputDrawerButtons={buttonOptions} />
       <Box
         component="main"
@@ -68,7 +67,7 @@ function JobPlanner() {
       <MassBuildFeedback />
       <PriceEntryDialogue />
       <ApplyGroupTemplateDialogue />
-    </DefaultPageLayout>
+    </>
   );
 }
 

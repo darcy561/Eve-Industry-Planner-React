@@ -1,7 +1,5 @@
 import { createFileRoute, redirect, lazyRouteComponent } from '@tanstack/react-router'
 import useUsersStore from '../Zustand/usersStore'
-import { Suspense } from 'react'
-import { LoadingPage } from '../Components/loadingPage'
 import { getRedirectPathAfterAuth } from '../utils/routeUtils'
 
 const AuthMainUser = lazyRouteComponent(() => import('../Components/Auth/MainUserAuth'))
@@ -38,9 +36,5 @@ export const Route = createFileRoute('/auth')({
       })
     }
   },
-  component: () => (
-    <Suspense fallback={<LoadingPage variant="route" />}>
-      <AuthMainUser />
-    </Suspense>
-  ),
+  component: AuthMainUser,
 })

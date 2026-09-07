@@ -18,7 +18,6 @@ import {
   filterBlueprintsByID,
   getUniqueBlueprintIDs,
 } from "../../Functions/Helper/blueprintFiltering";
-import DefaultPageLayout from "../../Styled Components/defaultPageLayout";
 import ContentPanel from "../../Styled Components/Paper/ContentPanel";
 import BlueprintArchiveDialogue from "../Dialogues/Blueprint Archive";
 
@@ -159,7 +158,7 @@ export default function BlueprintLibrary() {
 
   return (
     <>
-      <DefaultPageLayout>
+      <>
         <Box
           sx={{
             flex: 1,
@@ -227,7 +226,7 @@ export default function BlueprintLibrary() {
             </Grid>
           </Grid>
         </Box>
-      </DefaultPageLayout>
+      </>
       <BlueprintArchiveDialogue />
     </>
   );

@@ -6,7 +6,6 @@ import { saveJobsViaApi } from "../../../Functions/JobDocuments/saveJobsViaApi.j
 import useUsersStore from "../../../Zustand/usersStore";
 import { AppEvent } from "../../../analytics/appEventNames";
 import { trackAppEvent } from "../../../analytics/trackAppEvent";
-import DefaultPageLayout from "../../../Styled Components/defaultPageLayout";
 import { LoadingPage } from "../../../Components/loadingPage";
 
 function NewGroupPage() {
@@ -123,9 +122,9 @@ function NewGroupPage() {
   }, []);
 
   return (
-    <DefaultPageLayout>
+    <>
       <LoadingPage variant="simple" helperText="Creating group…" />
-    </DefaultPageLayout>
+    </>
   );
 }
 

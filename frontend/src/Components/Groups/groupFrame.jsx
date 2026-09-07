@@ -17,7 +17,6 @@ import PriceHistoryDialogue from "../Dialogues/Price History/dialogueFrame";
 import MarketDataDialogue from "../Dialogues/Market Data/dialogueFrame";
 import useGroupPageReducer from "./Hooks/useGroupPageReducer";
 import useUsersStore from "../../Zustand/usersStore";
-import DefaultPageLayout from "../../Styled Components/defaultPageLayout";
 import { LoadingPage } from "../loadingPage";
 import GroupPageViewSelector from "./pageViewSelector";
 import { useDocumentLock } from "../../Hooks/DocumentLock/useDocumentLock.js";
@@ -225,7 +224,7 @@ function GroupPageFrame() {
   });
 
   return (
-    <DefaultPageLayout>
+    <>
       {!isGroupReady ? (
         <LoadingPage
           variant="simple"
@@ -334,7 +333,7 @@ function GroupPageFrame() {
       <MarketDataDialogue />
       <ApplyGroupTemplateDialogue />
       <SaveGroupTemplateDialogue />
-    </DefaultPageLayout>
+    </>
   );
 }
 

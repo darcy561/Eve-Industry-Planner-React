@@ -1,21 +1,20 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { queryClient } from "../queryClient.js";
 import { logoutServerSession } from "../Functions/Auth/serverTokens";
 import { getTabPlannerRefreshToken } from "../Functions/Auth/tabSessionStorage.js";
 import { clearPlannerAuthCookiesClientSide } from "../Functions/Auth/plannerAuthCookies.js";
 import { disconnectRealtime } from "../Realtime/realtimeClient.js";
 import { clearInboundJobDocumentCoalesce } from "../Functions/Debounce/inboundJobDocumentsCoalesce.js";
-import useUsersStore from '../Zustand/usersStore'
-import { LoadingPage } from '../Components/loadingPage'
-import { useEffect } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import useUsersStore from "../Zustand/usersStore";
 
 function clearClientSessionState() {
   const { resetJobDataStore } = useUsersStore.getState().jobData.actions;
-  const { resetApplicationSettingsStore } = useUsersStore.getState()
-    .applicationSettings.actions;
+  const { resetApplicationSettingsStore } =
+    useUsersStore.getState().applicationSettings.actions;
   const { resetAccountStore } = useUsersStore.getState().account.actions;
   const { resetWorldDataStore } = useUsersStore.getState().worldData.actions;
+  const { resetPlannerSettingsStore } =
+    useUsersStore.getState().plannerSettings.actions;
 
   // Drop module-level WS coalesce queues before zustand resets; pending job upserts can
   // still flush and repopulate job data after `resetJobDataStore` if not cleared.
@@ -25,47 +24,41 @@ function clearClientSessionState() {
   resetAccountStore();
   resetJobDataStore();
   resetApplicationSettingsStore();
+  resetPlannerSettingsStore();
   resetWorldDataStore();
   clearPlannerAuthCookiesClientSide();
 }
 
-function SignoutComponent() {
-  const navigate = useNavigate();
-  useEffect(() => {
-    async function performSignout() {
-      try {
-        disconnectRealtime();
-        await logoutServerSession(getTabPlannerRefreshToken());
-
-        clearClientSessionState();
-        queryClient.clear();
-
-        // Clear storage
-        sessionStorage.clear();
-        localStorage.removeItem("Auth");
-        localStorage.removeItem("originalPath");
-
-        // Navigate to home page
-        navigate({ to: "/" });
-
-      } catch (error) {
-        console.error("Signout error:", error);
-
-        clearClientSessionState();
-        queryClient.clear();
-        sessionStorage.clear();
-        localStorage.removeItem("Auth");
-        localStorage.removeItem("originalPath");
-        window.location.href = "/";
-      }
-    }
-
-    performSignout();
-  }, [navigate]);
-
-  return <LoadingPage variant="route" />;
+function clearBrowserStorage() {
+  sessionStorage.clear();
+  localStorage.removeItem("Auth");
+  localStorage.removeItem("originalPath");
 }
 
-export const Route = createFileRoute('/signout')({
-  component: SignoutComponent,
-})
+export const Route = createFileRoute("/signout")({
+  // Teardown runs as a navigation guard rather than a mounted component, so
+  // signing out never renders a page of its own.
+  beforeLoad: async () => {
+    let serverLogoutFailed = false;
+    try {
+      disconnectRealtime();
+      await logoutServerSession(getTabPlannerRefreshToken());
+    } catch (error) {
+      console.error("Signout error:", error);
+      serverLogoutFailed = true;
+    } finally {
+      clearClientSessionState();
+      queryClient.clear();
+      clearBrowserStorage();
+    }
+
+    // A failed server logout reloads rather than routing: whatever state made
+    // it fail cannot survive into the next session.
+    if (serverLogoutFailed) {
+      window.location.href = "/";
+      return;
+    }
+
+    throw redirect({ to: "/" });
+  },
+});

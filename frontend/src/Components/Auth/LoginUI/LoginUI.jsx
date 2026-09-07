@@ -15,7 +15,6 @@ import { LOGIN_STEPS } from "../../../Events/loginEvents";
 import { useLoginState } from "../Hooks/useLoginState";
 import { LARGE_TEXT_FORMAT } from "../../../Context/defaultValues";
 import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
-import DefaultPageLayout from "../../../Styled Components/defaultPageLayout";
 
 export function UserLogInUI() {
   const { error, isStepComplete, userData } = useLoginState();
@@ -77,7 +76,7 @@ export function UserLogInUI() {
   );
 
   return (
-    <DefaultPageLayout>
+    <>
       <ContentPanel
         componentName="Login UI"
         paperSx={{ overflow: "hidden" }}
@@ -215,6 +214,6 @@ export function UserLogInUI() {
           )}
         </Grid>
       </ContentPanel>
-    </DefaultPageLayout>
+    </>
   );
 }

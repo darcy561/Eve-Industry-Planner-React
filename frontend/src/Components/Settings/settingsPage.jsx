@@ -7,7 +7,6 @@ import CustomStructuresFrame from "./Standard Layout/customStructuresFrame";
 import BlueprintSettingsFrame from "./Standard Layout/blueprintSettingsFrame";
 import ReprocessingSettingsFrame from "./Standard Layout/ReprocessingSettingsFrame";
 import ContentPanel from "../../Styled Components/Paper/ContentPanel";
-import DefaultPageLayout from "../../Styled Components/defaultPageLayout";
 
 function SettingsPage() {
   const [selectedTab, changeSelectedTab] = useState("0");
@@ -18,7 +17,7 @@ function SettingsPage() {
     changeSelectedTab(newValue);
   }
   return (
-    <DefaultPageLayout>
+    <>
       <ContentPanel
         componentName="Settings Page"
         paperSx={{
@@ -84,7 +83,7 @@ function SettingsPage() {
           </Box>
         </TabContext>
       </ContentPanel>
-    </DefaultPageLayout>
+    </>
   );
 }
 export default SettingsPage;

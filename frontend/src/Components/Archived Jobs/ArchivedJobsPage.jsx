@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { Box, Grid, Tab, Tabs, useMediaQuery } from "@mui/material";
-import DefaultPageLayout from "../../Styled Components/defaultPageLayout";
 import {
   ArchiveCostBreakdownPanel,
   ArchiveCostTotalsPanel,
@@ -58,7 +57,7 @@ export function ArchivedJobsPage() {
   };
 
   return (
-    <DefaultPageLayout>
+    <>
       {/* A column, not a wrapping grid: a grid container shares spare height
           across every line, which floats the whole page down. */}
       <Box
@@ -159,7 +158,7 @@ export function ArchivedJobsPage() {
           {jobsOpened && <ArchivedJobsList enabled={jobsOpened} />}
         </Box>
       </Box>
-    </DefaultPageLayout>
+    </>
   );
 }
 

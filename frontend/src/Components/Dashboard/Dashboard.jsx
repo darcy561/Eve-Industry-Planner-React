@@ -7,7 +7,6 @@ import { ArchivedItemBreakdown } from "../Archive Statistics/ArchivedItemBreakdo
 import { TutorialDashboard } from "./Components/dashboardTutorial";
 import { ItemWatchPanel } from "./Components/ItemWatch/ItemWatchPanel";
 import { ActiveCharacterSlots } from "./Components/characterSlots";
-import DefaultPageLayout from "../../Styled Components/defaultPageLayout";
 import PriceHistoryDialogue from "../Dialogues/Price History/dialogueFrame";
 import MarketDataDialogue from "../Dialogues/Market Data/dialogueFrame";
 import AssetsDialogue from "../Dialogues/Assets/dialogueFrame";
@@ -30,7 +29,7 @@ function Dashboard() {
   }, [shouldShowTutorial, showTutorialGrid]);
 
   return (
-    <DefaultPageLayout>
+    <>
       <Grid container size={12} spacing={2}>
         {showTutorialGrid && (
           <Grid size={12}>
@@ -82,7 +81,7 @@ function Dashboard() {
       <PriceHistoryDialogue />
       <MarketDataDialogue />
       <AssetsDialogue />
-    </DefaultPageLayout>
+    </>
   );
 }
 

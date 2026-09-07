@@ -1,11 +1,10 @@
 import { Container, Typography, Box, Grid, Stack } from "@mui/material";
 import { HeaderBanner } from "./Components/headerBanner";
 import { IconBanner } from "./Components/IconBanner";
-import DefaultPageLayout from "../../Styled Components/defaultPageLayout";
 
 export function Home() {
   return (
-    <DefaultPageLayout>
+    <>
       <Grid container>
         <Grid size={12}>
           <HeaderBanner />
@@ -68,6 +67,6 @@ export function Home() {
           </Grid>
         </Grid>
       </Grid>
-    </DefaultPageLayout>
+    </>
   );
 }

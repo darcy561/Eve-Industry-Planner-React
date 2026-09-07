@@ -12,7 +12,6 @@ import {
 import { alpha } from "@mui/material/styles";
 import ClearIcon from "@mui/icons-material/Clear";
 import { useQueryClient } from "@tanstack/react-query";
-import DefaultPageLayout from "../../Styled Components/defaultPageLayout";
 import ContentPanel from "../../Styled Components/Paper/ContentPanel";
 import VirtualisedRecipeSearch from "../../Styled Components/autocomplete/virtualisedRecipeSearch";
 import { useCachedData } from "../../Hooks/App/useCachedData";
@@ -114,7 +113,7 @@ export function ItemTree() {
   }
 
   return (
-    <DefaultPageLayout>
+    <>
       <LoadingBrandBackdrop
         sx={{
           flex: 1,
@@ -312,7 +311,7 @@ export function ItemTree() {
           </Stack>
         </ContentPanel>
       </LoadingBrandBackdrop>
-    </DefaultPageLayout>
+    </>
   );
 }
 

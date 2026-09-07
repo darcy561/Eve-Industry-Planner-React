@@ -12,7 +12,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { useNavigate } from "@tanstack/react-router";
 import useUsersStore from "../../../Zustand/usersStore";
-import DefaultPageLayout from "../../../Styled Components/defaultPageLayout";
 import {
   flushPendingUserDocumentSaves,
 } from "../../../Functions/Debounce/userDocumentsPersistSchedule";
@@ -169,7 +168,7 @@ export default function FirstLoginPage() {
     );
 
   return (
-    <DefaultPageLayout>
+    <>
       <LoadingBrandBackdrop
         sx={{
           width: "100%",
@@ -270,6 +269,6 @@ export default function FirstLoginPage() {
           </Stack>
         </Paper>
       </LoadingBrandBackdrop>
-    </DefaultPageLayout>
+    </>
   );
 }

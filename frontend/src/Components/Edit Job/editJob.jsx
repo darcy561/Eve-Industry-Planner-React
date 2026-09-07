@@ -31,7 +31,6 @@ import { useJobStatuses } from "../Job Planner/Hooks/useJobStatuses";
 import AssetsDialogue from "../Dialogues/Assets/dialogueFrame";
 import useEditJobReducer from "./Edit Job Hooks/useEditJobReducer";
 import { useStripRedundantJobMarketHubOverrides } from "../../Hooks/Planner/useStripRedundantJobMarketHubOverrides.js";
-import DefaultPageLayout from "../../Styled Components/defaultPageLayout";
 import ContentPanel from "../../Styled Components/Paper/ContentPanel";
 import EditJobLeaveConfirmDialogue from "./EditJobLeaveConfirmDialogue";
 import { useEditJobLeaveConfirm } from "./Edit Job Hooks/useEditJobLeaveConfirm";
@@ -156,7 +155,7 @@ export default function EditJob_New() {
   }, [canMoveForward, state.activeJob?.jobStatus]);
 
   return (
-    <DefaultPageLayout>
+    <>
       <ContentPanel
         componentName="Edit Job"
         isLoading={state.isLoading || !state.activeJob}
@@ -452,7 +451,7 @@ export default function EditJob_New() {
       <MarketDataDialogue />
       <AssetsDialogue />
       <EditJobLeaveConfirmDialogue {...leaveConfirmDialogueProps} />
-    </DefaultPageLayout>
+    </>
   );
 
   /**

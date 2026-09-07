@@ -12,7 +12,6 @@ import useReprocessingReducer from "./Hooks/useReprocessingReducer";
 import useAutoRecalculation from "./Hooks/useAutoRecalculation";
 import AssetsDialogue from "../Dialogues/Assets/dialogueFrame";
 import ContentPanel from "../../Styled Components/Paper/ContentPanel";
-import DefaultPageLayout from "../../Styled Components/defaultPageLayout";
 
 function ReprocessingPage() {
   const { state: pageState, actions: pageActions } = useReprocessingReducer();
@@ -20,7 +19,7 @@ function ReprocessingPage() {
   useAutoRecalculation(pageState, pageActions);
 
   return (
-    <DefaultPageLayout>
+    <>
       <ContentPanel
         componentName="Reprocessing Page"
         paperSx={{
@@ -143,7 +142,7 @@ function ReprocessingPage() {
       <PriceHistoryDialogue />
       <MarketDataDialogue />
       <AssetsDialogue />
-    </DefaultPageLayout>
+    </>
   );
 }
 

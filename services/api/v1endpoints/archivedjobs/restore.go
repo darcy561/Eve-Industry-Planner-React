@@ -77,7 +77,8 @@ func restoreJobs(ctx context.Context, h *Handlers, req restoreRequest) (restoreR
 		req.Jobs[i].MetaData.ArchiveProcessed = false
 	}
 
-	if _, failed, writeErr := h.Mongo.JobDocuments.BulkUpsertJobs(ctx, req.Archive.OwnerID, req.Jobs, now, req.SessionID, req.WSClientID); writeErr != nil {
+	owner := models.AccountOwner(req.Archive.OwnerID)
+	if _, failed, writeErr := h.Mongo.JobDocuments.BulkUpsertJobs(ctx, owner, req.Archive.OwnerID, req.Jobs, now, req.SessionID, req.WSClientID); writeErr != nil {
 		return restoreResult{}, fmt.Errorf("write job documents: %w", writeErr)
 	} else if failed > 0 {
 		return restoreResult{}, fmt.Errorf("write job documents: %d of %d rejected", failed, len(req.Jobs))

@@ -12,11 +12,14 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-// BulkUpsertJobs upserts job documents for an account (unordered BulkWrite).
+// BulkUpsertJobs upserts job documents into one planner (unordered BulkWrite).
 // Intended for mongo.JobDocuments.
-func (d *Docs) BulkUpsertJobs(ctx context.Context, accountID string, jobs []models.Job, now time.Time, sessionID, wsClientID string) (*mongo.BulkWriteResult, int, error) {
+//
+// owner is the planner the documents belong to; accountID is who wrote them, and
+// the two differ whenever a member writes in a planner that is not their own.
+func (d *Docs) BulkUpsertJobs(ctx context.Context, owner models.Owner, accountID string, jobs []models.Job, now time.Time, sessionID, wsClientID string) (*mongo.BulkWriteResult, int, error) {
 	coll, err := d.requireColl()
-	if err != nil || accountID == "" {
+	if err != nil || accountID == "" || owner.IsZero() {
 		return nil, 0, fmt.Errorf("BulkUpsertJobs: invalid arguments")
 	}
 	bulkOps := make([]mongo.WriteModel, 0, len(jobs))
@@ -28,10 +31,10 @@ func (d *Docs) BulkUpsertJobs(ctx context.Context, accountID string, jobs []mode
 		}
 		job.MetaData.LastModified = now
 		job.MetaData.LastUpdatedBy = accountID
-		job.MetaData.Owner = models.AccountOwner(accountID)
+		job.MetaData.Owner = owner
 		ApplyMetaSessionClient(&job.MetaData.MetaData, sessionID, wsClientID)
 		bulkOps = append(bulkOps, mongo.NewUpdateOneModel().
-			SetFilter(bson.M{FieldMetaOwnerKind: models.OwnerAccount, FieldMetaOwnerID: accountID, "_id": job.JobID}).
+			SetFilter(bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID, "_id": job.JobID}).
 			SetUpdate(bson.M{
 				"$set":   job,
 				"$unset": JobDocumentsUpsertUnset,

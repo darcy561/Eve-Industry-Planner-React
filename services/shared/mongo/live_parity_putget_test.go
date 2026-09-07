@@ -51,7 +51,7 @@ func TestLive_putGetJobsGroupsRoundtrip(t *testing.T) {
 	clone.MetaData.Owner = models.AccountOwner(parityScratchAccount)
 	clone.Name = "eip-parity-clone"
 
-	if _, failed, err := jobs.BulkUpsertJobs(ctx, parityScratchAccount, []models.Job{clone}, now, "parity-sess", "parity-client"); err != nil || failed != 0 {
+	if _, failed, err := jobs.BulkUpsertJobs(ctx, models.AccountOwner(parityScratchAccount), parityScratchAccount, []models.Job{clone}, now, "parity-sess", "parity-client"); err != nil || failed != 0 {
 		t.Fatalf("BulkUpsertJobs: failed=%d err=%v", failed, err)
 	}
 	got, err := jobs.LoadJobByID(ctx, parityScratchAccount, jobID)
@@ -62,7 +62,7 @@ func TestLive_putGetJobsGroupsRoundtrip(t *testing.T) {
 
 	clone.Name = "eip-parity-rewrite"
 	now2 := now.Add(time.Second)
-	if _, failed, err := jobs.BulkUpsertJobs(ctx, parityScratchAccount, []models.Job{clone}, now2, "parity-sess-2", "parity-client-2"); err != nil || failed != 0 {
+	if _, failed, err := jobs.BulkUpsertJobs(ctx, models.AccountOwner(parityScratchAccount), parityScratchAccount, []models.Job{clone}, now2, "parity-sess-2", "parity-client-2"); err != nil || failed != 0 {
 		t.Fatalf("BulkUpsertJobs rewrite: failed=%d err=%v", failed, err)
 	}
 	got2, err := jobs.LoadJobByID(ctx, parityScratchAccount, jobID)
@@ -80,7 +80,7 @@ func TestLive_putGetJobsGroupsRoundtrip(t *testing.T) {
 		g.GroupName = "eip-parity-group"
 		g.IncludedJobIDs = []string{jobID, "eip-parity-extra-job"}
 
-		res, err := groups.BulkUpsertGroups(ctx, parityScratchAccount, []models.Group{g}, now, "parity-sess", "parity-client")
+		res, err := groups.BulkUpsertGroups(ctx, models.AccountOwner(parityScratchAccount), parityScratchAccount, []models.Group{g}, now, "parity-sess", "parity-client")
 		if err != nil {
 			t.Fatalf("BulkUpsertGroups: %v", err)
 		}
@@ -96,7 +96,7 @@ func TestLive_putGetJobsGroupsRoundtrip(t *testing.T) {
 		g.IncludedJobIDs = []string{jobID}
 		g.GroupName = "eip-parity-group-2"
 		now3 := now.Add(2 * time.Second)
-		if _, err := groups.BulkUpsertGroups(ctx, parityScratchAccount, []models.Group{g}, now3, "parity-sess-3", "parity-client-3"); err != nil {
+		if _, err := groups.BulkUpsertGroups(ctx, models.AccountOwner(parityScratchAccount), parityScratchAccount, []models.Group{g}, now3, "parity-sess-3", "parity-client-3"); err != nil {
 			t.Fatalf("BulkUpsertGroups rewrite: %v", err)
 		}
 		gotGroup2, err := groups.LoadGroupByID(ctx, parityScratchAccount, groupID)
@@ -115,7 +115,7 @@ func TestLive_putGetJobsGroupsRoundtrip(t *testing.T) {
 		if err != nil {
 			t.Fatalf("reset includedJobIDs: %v", err)
 		}
-		delta, err := groups.BulkUpsertGroups(ctx, parityScratchAccount, []models.Group{g}, now4, "", "")
+		delta, err := groups.BulkUpsertGroups(ctx, models.AccountOwner(parityScratchAccount), parityScratchAccount, []models.Group{g}, now4, "", "")
 		if err != nil {
 			t.Fatalf("BulkUpsertGroups for delta: %v", err)
 		}

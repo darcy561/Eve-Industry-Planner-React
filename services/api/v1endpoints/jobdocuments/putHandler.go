@@ -108,8 +108,13 @@ func (h *Handlers) PutJobDocumentsHandler(w http.ResponseWriter, r *http.Request
 		reqBody.Jobs[i].SchemaVersion = models.JobSchemaCurrent
 	}
 
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "job_documents")
+	if !ok {
+		return
+	}
+
 	now := time.Now()
-	result, failedCount, err := h.Mongo.JobDocuments.BulkUpsertJobs(ctx, accountID, reqBody.Jobs, now, sessionID, wsClientID)
+	result, failedCount, err := h.Mongo.JobDocuments.BulkUpsertJobs(ctx, owner, accountID, reqBody.Jobs, now, sessionID, wsClientID)
 	if err != nil {
 		metrics.Error("database_error")
 		helper.RespondEndpointServerError(w, r, "Failed to save jobs", "failed to bulk upsert job documents", "job_docs_upsert_failed", "job_documents", err, nil)

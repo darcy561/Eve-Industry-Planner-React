@@ -37,7 +37,8 @@ func TestLive_savingAJob_keepsTheOwnerOnItsMeta(t *testing.T) {
 	// The document exists before the owner is stamped, the way a migration meets
 	// it: written by the app, then given an owner it did not have.
 	if _, _, err := mongo.JobDocuments.BulkUpsertJobs(
-		ctx, metaOwnerScratchAccount, []models.Job{job}, time.Now().UTC(), "", "",
+		ctx, models.AccountOwner(metaOwnerScratchAccount), metaOwnerScratchAccount,
+		[]models.Job{job}, time.Now().UTC(), "", "",
 	); err != nil {
 		t.Fatalf("seed the job: %v", err)
 	}
@@ -55,7 +56,8 @@ func TestLive_savingAJob_keepsTheOwnerOnItsMeta(t *testing.T) {
 
 	// An ordinary save, exactly as the API performs one.
 	if _, _, err := mongo.JobDocuments.BulkUpsertJobs(
-		ctx, metaOwnerScratchAccount, []models.Job{job}, time.Now().UTC(), "", "",
+		ctx, models.AccountOwner(metaOwnerScratchAccount), metaOwnerScratchAccount,
+		[]models.Job{job}, time.Now().UTC(), "", "",
 	); err != nil {
 		t.Fatalf("save the job again: %v", err)
 	}

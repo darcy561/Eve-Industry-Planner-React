@@ -49,9 +49,11 @@ func diffAddedJobIDs(prev, next []string) []string {
 
 // BulkUpsertGroups runs one unordered BulkWrite for all groups (mongo.Groups).
 // Membership deltas come from a pre-write Find of includedJobIDs (TOCTOU vs concurrent writers).
-func (d *Docs) BulkUpsertGroups(ctx context.Context, accountID string, groups []models.Group, now time.Time, sessionID, wsClientID string) (*BulkUpsertGroupsResult, error) {
+//
+// owner is the planner the groups belong to; accountID is who wrote them.
+func (d *Docs) BulkUpsertGroups(ctx context.Context, owner models.Owner, accountID string, groups []models.Group, now time.Time, sessionID, wsClientID string) (*BulkUpsertGroupsResult, error) {
 	coll, err := d.requireColl()
-	if err != nil || accountID == "" {
+	if err != nil || accountID == "" || owner.IsZero() {
 		return nil, fmt.Errorf("BulkUpsertGroups: invalid arguments")
 	}
 
@@ -65,7 +67,7 @@ func (d *Docs) BulkUpsertGroups(ctx context.Context, accountID string, groups []
 		g := group
 		g.MetaData.LastModified = now
 		g.MetaData.LastUpdatedBy = accountID
-		g.MetaData.Owner = models.AccountOwner(accountID)
+		g.MetaData.Owner = owner
 		ApplyMetaSessionClient(&g.MetaData.MetaData, sessionID, wsClientID)
 		if g.MetaData.CreatedAt.IsZero() {
 			g.MetaData.CreatedAt = now
@@ -86,7 +88,7 @@ func (d *Docs) BulkUpsertGroups(ctx context.Context, accountID string, groups []
 	err = Retry(ctx, "BulkUpsertGroups", func() error {
 		prevByID := make(map[string][]string, len(ids))
 		cur, ferr := coll.Find(ctx,
-			bson.M{"_id": bson.M{"$in": ids}, FieldMetaOwnerID: accountID},
+			bson.M{"_id": bson.M{"$in": ids}, FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID},
 			options.Find().SetProjection(bson.M{"includedJobIDs": 1, "_id": 1}),
 		)
 		if ferr != nil {
@@ -112,7 +114,7 @@ func (d *Docs) BulkUpsertGroups(ctx context.Context, accountID string, groups []
 		bulkOps := make([]mongo.WriteModel, 0, len(valid))
 		for _, g := range valid {
 			bulkOps = append(bulkOps, mongo.NewUpdateOneModel().
-				SetFilter(bson.M{FieldMetaOwnerKind: models.OwnerAccount, FieldMetaOwnerID: accountID, "_id": g.GroupID}).
+				SetFilter(bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID, "_id": g.GroupID}).
 				SetUpdate(bson.M{"$set": g}).
 				SetUpsert(true))
 		}

@@ -96,8 +96,13 @@ func (h *Handlers) PutGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "groups_put")
+	if !ok {
+		return
+	}
+
 	now := time.Now()
-	result, err := h.Mongo.Groups.BulkUpsertGroups(ctx, accountID, reqBody.Groups, now, sessionID, wsClientID)
+	result, err := h.Mongo.Groups.BulkUpsertGroups(ctx, owner, accountID, reqBody.Groups, now, sessionID, wsClientID)
 	if err != nil {
 		metrics.Error("database_error")
 		helper.RespondEndpointServerError(w, r, "Failed to save groups", "failed to bulk upsert groups", "groups_upsert_failed", "groups_put", err, nil)

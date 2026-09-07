@@ -109,7 +109,7 @@ func TestLive_docShape_jobUpsert(t *testing.T) {
 		}
 	}
 
-	if _, failed, err := jobs.BulkUpsertJobs(ctx, parityScratchAccount, []models.Job{clone}, now, "shape-sess", "shape-client"); err != nil || failed != 0 {
+	if _, failed, err := jobs.BulkUpsertJobs(ctx, models.AccountOwner(parityScratchAccount), parityScratchAccount, []models.Job{clone}, now, "shape-sess", "shape-client"); err != nil || failed != 0 {
 		t.Fatalf("BulkUpsertJobs: failed=%d err=%v", failed, err)
 	}
 	raw := loadRawByID(t, ctx, coll, jobID)
@@ -120,7 +120,7 @@ func TestLive_docShape_jobUpsert(t *testing.T) {
 	clone.Name = "shape-empty-meta-inputs"
 	clone.MetaData.SessionID = "shape-sess"
 	clone.MetaData.ClientID = "shape-client"
-	if _, failed, err := jobs.BulkUpsertJobs(ctx, parityScratchAccount, []models.Job{clone}, now2, "", ""); err != nil || failed != 0 {
+	if _, failed, err := jobs.BulkUpsertJobs(ctx, models.AccountOwner(parityScratchAccount), parityScratchAccount, []models.Job{clone}, now2, "", ""); err != nil || failed != 0 {
 		t.Fatalf("BulkUpsertJobs empty meta inputs: failed=%d err=%v", failed, err)
 	}
 	rawKeep := loadRawByID(t, ctx, coll, jobID)

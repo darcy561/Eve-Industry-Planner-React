@@ -46,7 +46,8 @@ func TestLive_plannerSyncReadsTheCollectionThatHoldsJobs(t *testing.T) {
 		DisplayOnPlanner: false}
 
 	if _, failed, err := mongo.JobDocuments.BulkUpsertJobs(
-		ctx, plannerSyncScratchAccount, []models.Job{shown, hidden}, time.Now().UTC(), "", "",
+		ctx, models.AccountOwner(plannerSyncScratchAccount), plannerSyncScratchAccount,
+		[]models.Job{shown, hidden}, time.Now().UTC(), "", "",
 	); err != nil || failed != 0 {
 		t.Fatalf("seed jobs: failed=%d err=%v", failed, err)
 	}
@@ -78,7 +79,8 @@ func TestLive_plannerSyncAgreesWithTheHTTPPlannerRead(t *testing.T) {
 	job := models.Job{JobID: "job-sync-agree", Name: "agreed", ItemID: 34, JobType: 1,
 		DisplayOnPlanner: true}
 	if _, failed, err := mongo.JobDocuments.BulkUpsertJobs(
-		ctx, plannerSyncScratchAccount, []models.Job{job}, time.Now().UTC(), "", "",
+		ctx, models.AccountOwner(plannerSyncScratchAccount), plannerSyncScratchAccount,
+		[]models.Job{job}, time.Now().UTC(), "", "",
 	); err != nil || failed != 0 {
 		t.Fatalf("seed job: failed=%d err=%v", failed, err)
 	}

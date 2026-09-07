@@ -106,7 +106,7 @@ func TestLive_JobDocumentsPutGetFlow(t *testing.T) {
 	job := scratchJob(fmt.Sprintf("eip-api-live-job-%d", now.UnixNano()), "eip-api-live-job")
 
 	// Same Docs call path as PutJobDocumentsHandler after lock gate.
-	result, failed, err := m.JobDocuments.BulkUpsertJobs(ctx, apiLiveScratchAccount, []models.Job{job}, now, "api-live-sess", "api-live-client")
+	result, failed, err := m.JobDocuments.BulkUpsertJobs(ctx, models.AccountOwner(apiLiveScratchAccount), apiLiveScratchAccount, []models.Job{job}, now, "api-live-sess", "api-live-client")
 	if err != nil {
 		t.Fatalf("BulkUpsertJobs: %v", err)
 	}
@@ -154,7 +154,7 @@ func TestLive_GroupsPutGetFlow(t *testing.T) {
 	now := time.Now().UTC().Truncate(time.Millisecond)
 	group := scratchGroup(fmt.Sprintf("eip-api-live-group-%d", now.UnixNano()), "eip-api-live-group")
 
-	res, err := m.Groups.BulkUpsertGroups(ctx, apiLiveScratchAccount, []models.Group{group}, now, "api-live-sess", "api-live-client")
+	res, err := m.Groups.BulkUpsertGroups(ctx, models.AccountOwner(apiLiveScratchAccount), apiLiveScratchAccount, []models.Group{group}, now, "api-live-sess", "api-live-client")
 	if err != nil {
 		t.Fatalf("BulkUpsertGroups: %v", err)
 	}
@@ -292,7 +292,7 @@ func TestLive_JobDocumentsDeleteFlow(t *testing.T) {
 
 	now := time.Now().UTC().Truncate(time.Millisecond)
 	job := scratchJob(fmt.Sprintf("eip-api-live-del-job-%d", now.UnixNano()), "eip-api-live-del")
-	if _, failed, err := m.JobDocuments.BulkUpsertJobs(ctx, apiLiveScratchAccount, []models.Job{job}, now, "api-live-sess", "api-live-client"); err != nil || failed != 0 {
+	if _, failed, err := m.JobDocuments.BulkUpsertJobs(ctx, models.AccountOwner(apiLiveScratchAccount), apiLiveScratchAccount, []models.Job{job}, now, "api-live-sess", "api-live-client"); err != nil || failed != 0 {
 		t.Fatalf("seed BulkUpsertJobs: failed=%d err=%v", failed, err)
 	}
 
@@ -327,7 +327,7 @@ func TestLive_GroupsDeleteFlow(t *testing.T) {
 
 	now := time.Now().UTC().Truncate(time.Millisecond)
 	group := scratchGroup(fmt.Sprintf("eip-api-live-del-group-%d", now.UnixNano()), "eip-api-live-del-group")
-	if res, err := m.Groups.BulkUpsertGroups(ctx, apiLiveScratchAccount, []models.Group{group}, now, "api-live-sess", "api-live-client"); err != nil || res == nil {
+	if res, err := m.Groups.BulkUpsertGroups(ctx, models.AccountOwner(apiLiveScratchAccount), apiLiveScratchAccount, []models.Group{group}, now, "api-live-sess", "api-live-client"); err != nil || res == nil {
 		t.Fatalf("seed BulkUpsertGroups: res=%v err=%v", res, err)
 	}
 
@@ -365,10 +365,10 @@ func TestLive_JobsGroupsListFlows(t *testing.T) {
 	jobB := scratchJob(fmt.Sprintf("eip-api-live-list-b-%d", now.UnixNano()), "list-b")
 	group := scratchGroup(fmt.Sprintf("eip-api-live-list-g-%d", now.UnixNano()), "list-group")
 
-	if _, failed, err := m.JobDocuments.BulkUpsertJobs(ctx, apiLiveScratchAccount, []models.Job{jobA, jobB}, now, "api-live-sess", "api-live-client"); err != nil || failed != 0 {
+	if _, failed, err := m.JobDocuments.BulkUpsertJobs(ctx, models.AccountOwner(apiLiveScratchAccount), apiLiveScratchAccount, []models.Job{jobA, jobB}, now, "api-live-sess", "api-live-client"); err != nil || failed != 0 {
 		t.Fatalf("BulkUpsertJobs: failed=%d err=%v", failed, err)
 	}
-	if _, err := m.Groups.BulkUpsertGroups(ctx, apiLiveScratchAccount, []models.Group{group}, now, "api-live-sess", "api-live-client"); err != nil {
+	if _, err := m.Groups.BulkUpsertGroups(ctx, models.AccountOwner(apiLiveScratchAccount), apiLiveScratchAccount, []models.Group{group}, now, "api-live-sess", "api-live-client"); err != nil {
 		t.Fatalf("BulkUpsertGroups: %v", err)
 	}
 
@@ -413,12 +413,12 @@ func TestLive_GroupsMembershipDelta(t *testing.T) {
 	group := scratchGroup(groupID, "membership")
 	group.IncludedJobIDs = []string{}
 
-	if _, err := m.Groups.BulkUpsertGroups(ctx, apiLiveScratchAccount, []models.Group{group}, now, "api-live-sess", "api-live-client"); err != nil {
+	if _, err := m.Groups.BulkUpsertGroups(ctx, models.AccountOwner(apiLiveScratchAccount), apiLiveScratchAccount, []models.Group{group}, now, "api-live-sess", "api-live-client"); err != nil {
 		t.Fatalf("seed group: %v", err)
 	}
 
 	group.IncludedJobIDs = []string{jobID}
-	res, err := m.Groups.BulkUpsertGroups(ctx, apiLiveScratchAccount, []models.Group{group}, now.Add(time.Second), "api-live-sess", "api-live-client")
+	res, err := m.Groups.BulkUpsertGroups(ctx, models.AccountOwner(apiLiveScratchAccount), apiLiveScratchAccount, []models.Group{group}, now.Add(time.Second), "api-live-sess", "api-live-client")
 	if err != nil {
 		t.Fatalf("BulkUpsertGroups with membership: %v", err)
 	}

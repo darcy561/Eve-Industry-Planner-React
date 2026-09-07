@@ -73,7 +73,7 @@ func restoreGroups(ctx context.Context, m *eipmongo.Mongo, accountID string, job
 		}
 	}
 
-	if _, err := m.Groups.BulkUpsertGroups(ctx, accountID, out, now, sessionID, wsClientID); err != nil {
+	if _, err := m.Groups.BulkUpsertGroups(ctx, models.AccountOwner(accountID), accountID, out, now, sessionID, wsClientID); err != nil {
 		return nil, err
 	}
 	return out, nil

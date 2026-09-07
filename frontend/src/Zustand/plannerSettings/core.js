@@ -9,6 +9,28 @@ import {
   DEFAULT_REPROCESSING_CALCULATION_SETTINGS,
   extrasCategoriesDefault,
 } from "../../Context/defaultValues";
+import CustomStructure from "../../Classes/customStructure";
+import ReprocessingStructure from "../../Classes/reprocessingStructure";
+import InventionStructure from "../../Classes/inventionStructure";
+
+/**
+ * Structure rows carry methods their consumers call, so a server payload is
+ * rebuilt with the classes rather than left as plain objects.
+ *
+ * @param {unknown} incoming
+ * @returns {object}
+ */
+function structuresFromServer(incoming) {
+  const rows = incoming && typeof incoming === "object" ? incoming : {};
+  const build = (lane, StructureClass) =>
+    Array.isArray(rows[lane]) ? rows[lane].map((x) => new StructureClass(x)) : [];
+  return {
+    manufacturing: build("manufacturing", CustomStructure),
+    reaction: build("reaction", CustomStructure),
+    reprocessing: build("reprocessing", ReprocessingStructure),
+    invention: build("invention", InventionStructure),
+  };
+}
 
 /**
  * The settings a planner falls back to before its document has been read.
@@ -30,7 +52,7 @@ export const plannerSettingsDefault = () => ({
     defaultReprocessingCharacter: null,
     ...DEFAULT_REPROCESSING_CALCULATION_SETTINGS,
   },
-  exemptTypeIDs: [],
+  exemptTypeIDs: new Set(),
 });
 
 /**
@@ -57,10 +79,7 @@ export function mergePlannerSettings(incoming) {
   return {
     ...base,
     ...incoming,
-    customStructures: {
-      ...base.customStructures,
-      ...(incoming.customStructures ?? {}),
-    },
+    customStructures: structuresFromServer(incoming.customStructures),
     reprocessingSettings: {
       ...base.reprocessingSettings,
       ...(incoming.reprocessingSettings ?? {}),
@@ -69,8 +88,8 @@ export function mergePlannerSettings(incoming) {
       ? incoming.extrasCategories
       : base.extrasCategories,
     predefinedSystemIndexes: incoming.predefinedSystemIndexes ?? {},
-    exemptTypeIDs: Array.isArray(incoming.exemptTypeIDs)
-      ? incoming.exemptTypeIDs
-      : [],
+    // A Set, as the account's own settings hold it, so a consumer reads either
+    // the same way.
+    exemptTypeIDs: new Set(incoming.exemptTypeIDs ?? []),
   };
 }

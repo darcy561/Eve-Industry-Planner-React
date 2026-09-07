@@ -83,10 +83,10 @@ export async function ensurePlannerViaApi(ownerHandle) {
  * @property {object} customStructures
  * @property {number} defaultMaterialEfficiencyValue
  * @property {Object<string, Object<string, number>>} [predefinedSystemIndexes]
- * @property {{id: string, name: string, deleted?: boolean}[]} [extrasCategories]
+ * @property {{id: string, label: string, deleted: boolean, deletedAt: string|null}[]} [extrasCategories]
  * @property {number} defaultCitadelBrokersFee
  * @property {object} reprocessingSettings
- * @property {number[]} [exemptTypeIDs]
+ * @property {number[]} [exemptTypeIDs] - an array on the wire; held as a Set
  */
 
 /**

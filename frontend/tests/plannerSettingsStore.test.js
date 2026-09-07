@@ -27,7 +27,7 @@ describe("planner settings slice", () => {
     fetched.length = 0;
     nextResponse = null;
     nextError = null;
-    actions().clearPlannerSettings();
+    actions().resetPlannerSettingsStore();
   });
 
   it("falls back to defaults for a planner it has not read", () => {
@@ -39,21 +39,21 @@ describe("planner settings slice", () => {
   it("holds settings per owner, so one planner does not overwrite another", () => {
     actions().setPlannerSettings(
       OWNER,
-      { extrasCategories: [{ id: "a", name: "Freight" }] },
+      { extrasCategories: [{ id: "a", label: "Freight" }] },
       true
     );
     actions().setPlannerSettings(
       "account:acct-1",
-      { extrasCategories: [{ id: "b", name: "Fees" }] },
+      { extrasCategories: [{ id: "b", label: "Fees" }] },
       true
     );
 
     expect(actions().getPlannerSettings(OWNER).extrasCategories).toEqual([
-      { id: "a", name: "Freight" },
+      { id: "a", label: "Freight" },
     ]);
     expect(
       actions().getPlannerSettings("account:acct-1").extrasCategories
-    ).toEqual([{ id: "b", name: "Fees" }]);
+    ).toEqual([{ id: "b", label: "Fees" }]);
   });
 
   it("reads a planner's settings and records that they are its own", async () => {
@@ -94,15 +94,15 @@ describe("planner settings slice", () => {
       OWNER,
       {
         extrasCategories: [
-          { id: "a", name: "Freight" },
-          { id: "b", name: "Gone", deleted: true },
+          { id: "a", label: "Freight" },
+          { id: "b", label: "Gone", deleted: true },
         ],
       },
       true
     );
 
     expect(actions().getPlannerExtrasCategories(OWNER)).toEqual([
-      { id: "a", name: "Freight" },
+      { id: "a", label: "Freight" },
     ]);
   });
 
@@ -121,7 +121,7 @@ describe("planner settings slice", () => {
     nextResponse = {
       owner: OWNER,
       seeded: true,
-      settings: { extrasCategories: [{ id: "a", name: "Freight" }] },
+      settings: { extrasCategories: [{ id: "a", label: "Freight" }] },
     };
 
     await actions().loadPlannerSettings(OWNER);
@@ -129,5 +129,51 @@ describe("planner settings slice", () => {
     expect(useUsersStore.getState().applicationSettings.extrasCategories).toBe(
       before
     );
+  });
+
+  it("holds exemptTypeIDs as a Set, as the account's own settings do", async () => {
+    nextResponse = {
+      owner: OWNER,
+      seeded: true,
+      settings: { exemptTypeIDs: [34, 35] },
+    };
+
+    await actions().loadPlannerSettings(OWNER);
+
+    const held = actions().getPlannerSettings(OWNER).exemptTypeIDs;
+    expect(held).toBeInstanceOf(Set);
+    expect([...held]).toEqual([34, 35]);
+  });
+
+  it("rebuilds structure rows with their classes, so their methods survive", async () => {
+    nextResponse = {
+      owner: OWNER,
+      seeded: true,
+      settings: {
+        customStructures: {
+          manufacturing: [{ id: "s1", name: "Raitaru" }],
+          reprocessing: [{ id: "s2", name: "Athanor" }],
+        },
+      },
+    };
+
+    await actions().loadPlannerSettings(OWNER);
+
+    const { manufacturing, reprocessing, invention } =
+      actions().getPlannerSettings(OWNER).customStructures;
+    expect(manufacturing[0].constructor.name).toBe("CustomStructure");
+    expect(reprocessing[0].constructor.name).toBe("ReprocessingStructure");
+    // A lane the server omits is empty rather than missing.
+    expect(invention).toEqual([]);
+  });
+
+  it("resets every planner on sign-out", () => {
+    actions().setPlannerSettings(OWNER, { defaultCitadelBrokersFee: 5 }, true);
+    expect(actions().isPlannerSeeded(OWNER)).toBe(true);
+
+    actions().resetPlannerSettingsStore();
+
+    expect(actions().isPlannerSeeded(OWNER)).toBe(false);
+    expect(actions().getPlannerSettings(OWNER).defaultCitadelBrokersFee).toBe(1);
   });
 });

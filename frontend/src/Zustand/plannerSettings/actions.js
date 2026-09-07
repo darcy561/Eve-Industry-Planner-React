@@ -4,7 +4,7 @@
  */
 
 import { fetchPlannerSettingsFromApi } from "../../Functions/Endpoints/Private/planners.js";
-import { mergePlannerSettings, plannerSettingsDefault } from "./core.js";
+import { mergePlannerSettings, plannerSettingsDefault, stateDefault } from "./core.js";
 
 export const plannerSettingsActions = (set, get) => ({
   /**
@@ -29,7 +29,7 @@ export const plannerSettingsActions = (set, get) => ({
    * The extras categories a planner offers, deleted ones removed.
    *
    * @param {string} ownerHandle
-   * @returns {{id: string, name: string}[]}
+   * @returns {{id: string, label: string}[]}
    */
   getPlannerExtrasCategories: (ownerHandle) => {
     const settings = get().plannerSettings.actions.getPlannerSettings(ownerHandle);
@@ -87,19 +87,17 @@ export const plannerSettingsActions = (set, get) => ({
   },
 
   /** Drops every planner's settings, for a sign-out. */
-  clearPlannerSettings: () => {
+  resetPlannerSettingsStore: () => {
     set(
       (state) => ({
         ...state,
         plannerSettings: {
-          ...state.plannerSettings,
-          byOwner: {},
-          seededByOwner: {},
+          ...stateDefault(),
           actions: state.plannerSettings.actions,
         },
       }),
       false,
-      "plannerSettings/clearPlannerSettings"
+      "resetPlannerSettingsStore"
     );
   },
 });

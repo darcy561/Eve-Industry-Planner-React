@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"eve-industry-planner/shared/appconfig"
 	eipnats "eve-industry-planner/shared/nats"
 	"eve-industry-planner/shared/stackservices"
 	syncpkg "eve-industry-planner/websocket/sync"
@@ -71,7 +72,11 @@ type Server struct {
 	// Configuration
 	upgrader websocket.Upgrader
 	Stack    *stackservices.Clients
-	metrics  *websocketMetrics
+
+	// maintenance is the live flag the upgrade gate reads. Nil where no Redis is
+	// wired, which reads as maintenance off.
+	maintenance *appconfig.MaintenanceFlag
+	metrics     *websocketMetrics
 
 	// Shutdown coordination
 	// intakeStopChan stops JetStream pull loops only (outbound shard workers stay up for flush).
@@ -104,8 +109,15 @@ type Client struct {
 	AccountID string          // Account ID from validated app session — exported for sync package
 	SessionID string          // Session ID from validated app session
 	// Scopes is every owner this connection receives changes for, derived at
-	// connect from the session's grants rather than requested by the browser.
+	// connect from the session's grants rather than requested by the browser and
+	// narrowed to one planner when the client names an active one.
 	Scopes models.OwnerKeys
+	// Ceiling is every owner the session may reach, which Scopes can never exceed.
+	//
+	// Held separately because a switch replaces Scopes rather than widening them:
+	// once narrowed to one planner, the connection would otherwise have forgotten
+	// what else it was allowed and could not switch back.
+	Ceiling models.OwnerKeys
 
 	// Explicit collection-scoped doc subscriptions (subscribe / unsubscribe JSON). Account-scoped
 	// realtime does not require entries here.

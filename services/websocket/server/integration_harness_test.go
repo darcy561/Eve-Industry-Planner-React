@@ -448,7 +448,9 @@ func wsTestAllianceRef(t *testing.T, id int64) string {
 // Fixed, well formed refs for tests that seed indexes directly rather than
 // deriving from ids. Tenant keys reject anything that is not a real ref.
 const (
-	wsTestCorpRefValue     = "corp_56_J_DzQdPpjXwi9Xtp3C8bri9Bfi0Z94qUulkbKCac"
+	wsTestCorpRefValue = "corp_56_J_DzQdPpjXwi9Xtp3C8bri9Bfi0Z94qUulkbKCac"
+	// A second corporation, for tests about moving between two of them.
+	wsTestCorpRefValueB    = "corp_56_K_EzReRqQkYxj0Yuq4D9csj0Cgj1a05rVvmlcLDbd"
 	wsTestAllianceRefValue = "alliance_DWc0i6y_cTAGa4QSZWC0S94Zm7vUclxiUNHlNPthzvc"
 )
 

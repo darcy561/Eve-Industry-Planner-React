@@ -273,6 +273,10 @@ func (s *Server) reader(client *Client) {
 				s.runWSMessageOperation(client, msgType, msg, s.handleUnsubscribeWS)
 				continue
 
+			case "active_planner":
+				s.runWSMessageOperation(client, msgType, msg, s.handleActivePlannerWS)
+				continue
+
 			case doclocklogic.MsgLockStateBatch:
 				s.runWSMessageOperation(client, msgType, msg, s.handleDocumentLockLockStateBatch)
 				continue

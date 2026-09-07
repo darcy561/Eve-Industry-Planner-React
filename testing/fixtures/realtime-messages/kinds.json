@@ -15,6 +15,11 @@
           "why": "An owner's archived-job statistics have been written. Carries the owner and a timestamp and no figures: the client refreshes what it is displaying rather than being sent figures it may not be showing."
         }
       ]
+    },
+    {
+      "type": "maintenance",
+      "why": "The stack entered a maintenance window. Carries enabled and a message and is sent to every connected client immediately before its socket is closed, so the client shows the banner rather than reading the close as a failure. Leaving a window sends nothing: no client is connected to tell.",
+      "subtypes": []
     }
   ]
 }

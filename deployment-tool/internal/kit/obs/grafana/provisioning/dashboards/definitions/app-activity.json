@@ -737,7 +737,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Whether MAINTENANCE_MODE is truthy (same as app-config JSON). Uses `max()` if multiple core samples exist.",
+      "description": "Whether maintenance mode is on (same as app-config JSON). Uses `max()` if multiple core samples exist.",
       "fieldConfig": {
         "defaults": {
           "color": {

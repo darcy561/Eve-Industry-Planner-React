@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"eve-industry-planner/shared/appconfig"
 	"eve-industry-planner/shared/lifecycle"
 	eipnats "eve-industry-planner/shared/nats"
 	"eve-industry-planner/shared/orchestrationprobes"
@@ -15,13 +16,14 @@ import (
 const shutdownTimeout = 15 * time.Second
 
 type app struct {
-	g        lifecycle.Group
-	stopDeps func(context.Context)
-	cfg      config
-	nats     *eipnats.NATS
-	place    *placementStore
-	be       *backendRegistry
-	initErr  error
+	g           lifecycle.Group
+	stopDeps    func(context.Context)
+	cfg         config
+	nats        *eipnats.NATS
+	place       *placementStore
+	be          *backendRegistry
+	maintenance *appconfig.MaintenanceWatcher
+	initErr     error
 }
 
 func (a *app) cleanups() []func(context.Context) {
@@ -66,6 +68,13 @@ func (a *app) startDiscovery(ctx context.Context) error {
 		return a.fail(fmt.Errorf("nats subscribe placement state: %w", err))
 	}
 	lifecycle.GoCtx(ctx, a.be.pollLoop)
+
+	a.maintenance = appconfig.NewMaintenanceWatcher(a.nats)
+	stopMaintenance, err := a.maintenance.Start(ctx)
+	if err != nil {
+		return a.fail(fmt.Errorf("maintenance state: %w", err))
+	}
+	a.g.Add(lifecycle.FromStop("maintenance-watcher", stopMaintenance))
 	return nil
 }
 
@@ -90,9 +99,10 @@ func (a *app) startProbes(ctx context.Context) error {
 
 func (a *app) startHTTP(context.Context) error {
 	srv := &Router{
-		cfg:   a.cfg,
-		be:    a.be,
-		place: a.place,
+		cfg:         a.cfg,
+		be:          a.be,
+		place:       a.place,
+		maintenance: a.maintenance,
 	}
 
 	if err := wsroutermetrics.Register(srv.snapshot); err != nil {

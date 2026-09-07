@@ -29,6 +29,14 @@ async function checkForVersionUpdate() {
  * Subscribes to the shared in-memory app config. Set `shouldFetchOnMount: true` only
  * in `App.jsx` so the initial fetch and optional timers run once; other callers only
  * subscribe and avoid a network call on every route / menu mount.
+ *
+ * @param {object} [options]
+ * @param {boolean} [options.enableAutoRefresh] Poll app-config on `refreshIntervalMs`.
+ * @param {number} [options.refreshIntervalMs] Poll interval; a 304 when nothing changed.
+ * @param {boolean} [options.enableVersionCheck] Poll for a new app version.
+ * @param {number} [options.versionCheckIntervalMs] Interval for the version check.
+ * @param {boolean} [options.shouldFetchOnMount] Fetch on mount and run the timers.
+ * @returns {object} The shared app config.
  */
 function useAppConfig({
   enableAutoRefresh = false,

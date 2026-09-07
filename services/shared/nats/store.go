@@ -3,6 +3,8 @@ package nats
 import (
 	"context"
 	"fmt"
+	"slices"
+	"sync"
 	"time"
 
 	natslib "github.com/nats-io/nats.go"
@@ -22,10 +24,20 @@ type NATS struct {
 	// synchronously.
 	batch *batch
 
+	// reconnect is shared with the handles [NATS.Batching] copies, so a
+	// registration on either is seen by both.
+	reconnect *reconnectHooks
+
 	// Named streams, bound from [Specs]. Binding touches no server.
 	Tasks     *Stream
 	DocUpdate *Stream
 	Schedules *Stream
+}
+
+// reconnectHooks holds what to re-run after the link is re-established.
+type reconnectHooks struct {
+	mu       sync.Mutex
+	handlers []func()
 }
 
 // NewNATS binds a connection, its JetStream context, and the declared streams.
@@ -39,6 +51,7 @@ func NewNATS(conn *natslib.Conn, js jetstream.JetStream) (*NATS, error) {
 	return &NATS{
 		conn:      conn,
 		js:        js,
+		reconnect: &reconnectHooks{},
 		Tasks:     newStream(TaskStreamSpec(), js),
 		DocUpdate: newStream(DocUpdateStreamSpec(), js),
 		Schedules: newStream(ScheduleStreamSpec(), js),
@@ -51,6 +64,33 @@ func (n *NATS) Conn() *natslib.Conn {
 		return nil
 	}
 	return n.conn
+}
+
+// OnReconnect registers fn to run after the link is re-established. Handlers
+// accumulate, and the connection's existing callback is kept.
+func (n *NATS) OnReconnect(fn func()) {
+	if n == nil || n.conn == nil || n.reconnect == nil || fn == nil {
+		return
+	}
+	n.reconnect.mu.Lock()
+	n.reconnect.handlers = append(n.reconnect.handlers, fn)
+	first := len(n.reconnect.handlers) == 1
+	n.reconnect.mu.Unlock()
+	if !first {
+		return
+	}
+	previous := n.conn.Opts.ReconnectedCB
+	n.conn.SetReconnectHandler(func(c *natslib.Conn) {
+		if previous != nil {
+			previous(c)
+		}
+		n.reconnect.mu.Lock()
+		handlers := slices.Clone(n.reconnect.handlers)
+		n.reconnect.mu.Unlock()
+		for _, handler := range handlers {
+			handler()
+		}
+	})
 }
 
 // JS returns the JetStream context (stream and consumer management).

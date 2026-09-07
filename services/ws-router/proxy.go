@@ -13,6 +13,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 
+	"eve-industry-planner/shared/appconfig"
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/telemetry"
 
@@ -23,9 +24,10 @@ import (
 var routerTracer = telemetry.Tracer("ws-router")
 
 type Router struct {
-	cfg   config
-	be    *backendRegistry
-	place *placementStore
+	cfg         config
+	be          *backendRegistry
+	place       *placementStore
+	maintenance *appconfig.MaintenanceWatcher
 
 	activeProxies atomic.Int64
 	upgrades      atomic.Uint64
@@ -36,20 +38,22 @@ type Router struct {
 	placeDrain    atomic.Uint64
 	stickyFB      atomic.Uint64
 	proxyErr      atomic.Uint64
+	refusedMaint  atomic.Uint64
 }
 
 // snapshot reads the running totals for [wsroutermetrics.Register].
 func (r *Router) snapshot() wsroutermetrics.Placement {
 	return wsroutermetrics.Placement{
-		Upgrades:        r.upgrades.Load(),
-		Hits:            r.placeHit.Load(),
-		Misses:          r.placeMiss.Load(),
-		Reassignments:   r.placeReassign.Load(),
-		StickyFallbacks: r.stickyFB.Load(),
-		SkippedFull:     r.placeFull.Load(),
-		SkippedDraining: r.placeDrain.Load(),
-		ProxyErrors:     r.proxyErr.Load(),
-		ActiveProxies:   r.activeProxies.Load(),
+		Upgrades:           r.upgrades.Load(),
+		Hits:               r.placeHit.Load(),
+		Misses:             r.placeMiss.Load(),
+		Reassignments:      r.placeReassign.Load(),
+		StickyFallbacks:    r.stickyFB.Load(),
+		SkippedFull:        r.placeFull.Load(),
+		SkippedDraining:    r.placeDrain.Load(),
+		ProxyErrors:        r.proxyErr.Load(),
+		RefusedMaintenance: r.refusedMaint.Load(),
+		ActiveProxies:      r.activeProxies.Load(),
 	}
 }
 
@@ -59,6 +63,15 @@ func (r *Router) handleProxy(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	r.upgrades.Add(1)
+
+	// After the attempt counter, so a window does not look idle.
+	if r.maintenance.Enabled() {
+		r.refusedMaint.Add(1)
+		logs.DebugCtx(req.Context(), "ws-router: upgrade refused, maintenance mode")
+		http.Error(w, "maintenance mode", http.StatusServiceUnavailable)
+		return
+	}
+
 	// Continue whatever trace reached the edge: Traefik and the browser both propagate W3C
 	// traceparent, and the span ends at the upgrade rather than covering the connection's life.
 	ctx := otel.GetTextMapPropagator().Extract(req.Context(), propagation.HeaderCarrier(req.Header))

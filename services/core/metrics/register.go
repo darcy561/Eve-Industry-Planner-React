@@ -7,6 +7,7 @@ import (
 	"eve-industry-planner/core/metrics/esi"
 	"eve-industry-planner/core/metrics/sde"
 	"eve-industry-planner/core/metrics/users"
+	eipappconfig "eve-industry-planner/shared/appconfig"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
@@ -21,7 +22,7 @@ func RegisterAll(rdb *redis.Client, mongoHandle *eipmongo.Mongo, natsHandle *eip
 	esi.Register(esiclient.NewStore(rdb, esiclient.DefaultConfig()))
 	users.Register(mongoHandle)
 	sde.Register()
-	appconfig.Register()
+	appconfig.Register(eipappconfig.NewMaintenanceFlag(rdb))
 	if natsHandle != nil {
 		stop, err := eipnats.SubscribeSDEBuildUpdated(natsHandle, func(u eipnats.SDECurrentBuildUpdate) {
 			sde.SetCurrentVersion(u.BuildNumber, u.Version)

@@ -14,6 +14,9 @@ const (
 	// ClientMessageNotification carries no document. It says something happened,
 	// and the client decides whether it cares.
 	ClientMessageNotification = "notification"
+	// ClientMessageMaintenance says the stack entered a maintenance window. It is
+	// sent to every connected client immediately before its socket is closed.
+	ClientMessageMaintenance = "maintenance"
 )
 
 // Notification kinds within [ClientMessageNotification].
@@ -32,6 +35,15 @@ const (
 var ClientMessageKinds = map[string][]string{
 	ClientMessageDocument:     {},
 	ClientMessageNotification: {NotificationArchiveStatsProcessed},
+	ClientMessageMaintenance:  {},
+}
+
+// MaintenanceMessage is a [ClientMessageMaintenance] frame. Flat rather than
+// enveloped, like the other frames the websocket server originates.
+type MaintenanceMessage struct {
+	Type    string `json:"type"`
+	Enabled bool   `json:"enabled"`
+	Message string `json:"message"`
 }
 
 // ArchiveStatsProcessedNotification is the body of a

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"eve-industry-planner/shared/appconfig"
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/stackservices"
 	"os"
@@ -130,6 +131,12 @@ func (a *app) startServices(ctx context.Context) error {
 	if err != nil {
 		return a.fail(err)
 	}
+	// Core holds Redis, so it answers the ask for services that carry only NATS.
+	stopMaintenance, err := appconfig.ServeMaintenanceState(ctx, a.clients.NATS, appconfig.NewMaintenanceFlag(a.clients.Redis))
+	if err != nil {
+		return a.fail(err)
+	}
+	a.g.Add(lifecycle.FromStop("maintenance-responder", stopMaintenance))
 	// Stop order: leader workloads first, then primary lease release (Mount/Add order = stop order).
 	health.Mount(&a.g, sched, cs, sing)
 	health.Register(primary)

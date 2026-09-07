@@ -13,15 +13,16 @@ import (
 
 // Placement is one reading of the router's running totals.
 type Placement struct {
-	Upgrades        uint64
-	Hits            uint64
-	Misses          uint64
-	Reassignments   uint64
-	StickyFallbacks uint64
-	SkippedFull     uint64
-	SkippedDraining uint64
-	ProxyErrors     uint64
-	ActiveProxies   int64
+	Upgrades           uint64
+	Hits               uint64
+	Misses             uint64
+	Reassignments      uint64
+	StickyFallbacks    uint64
+	SkippedFull        uint64
+	SkippedDraining    uint64
+	ProxyErrors        uint64
+	RefusedMaintenance uint64
+	ActiveProxies      int64
 }
 
 // Register installs observable instruments that call snapshot once per collection.
@@ -49,6 +50,11 @@ func Register(snapshot func() Placement) error {
 	if err != nil {
 		return fmt.Errorf("wsroutermetrics: proxy errors: %w", err)
 	}
+	refusedMaintenance, err := m.Int64ObservableCounter("wsrouter.upgrades_refused_maintenance_total",
+		metric.WithDescription("Upgrades refused because maintenance mode is on"))
+	if err != nil {
+		return fmt.Errorf("wsroutermetrics: refused maintenance: %w", err)
+	}
 	active, err := m.Int64ObservableGauge("wsrouter.active_proxies",
 		metric.WithDescription("Upgrades currently being proxied"))
 	if err != nil {
@@ -59,6 +65,7 @@ func Register(snapshot func() Placement) error {
 		p := snapshot()
 		o.ObserveInt64(upgrades, int64(p.Upgrades))
 		o.ObserveInt64(proxyErrors, int64(p.ProxyErrors))
+		o.ObserveInt64(refusedMaintenance, int64(p.RefusedMaintenance))
 		o.ObserveInt64(active, p.ActiveProxies)
 		for result, v := range map[string]uint64{
 			"hit":             p.Hits,
@@ -75,7 +82,7 @@ func Register(snapshot func() Placement) error {
 			o.ObserveInt64(skipped, int64(v), metric.WithAttributes(attribute.String("reason", reason)))
 		}
 		return nil
-	}, upgrades, decisions, skipped, proxyErrors, active)
+	}, upgrades, decisions, skipped, proxyErrors, refusedMaintenance, active)
 	if err != nil {
 		return fmt.Errorf("wsroutermetrics: register callback: %w", err)
 	}

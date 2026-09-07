@@ -7,6 +7,8 @@
  * @module withRequestRetries
  */
 
+import { requestAppConfigRecheck } from "../../Events/appConfigEvents.js";
+
 /**
  * Pulls `retry` from a request config so the rest can be passed to header helpers (`requestName`, etc.).
  * @param {object} [config]
@@ -31,11 +33,38 @@ export const MAX_RATE_LIMIT_RETRY_DELAY_MS = 120_000;
  * Default retry options for Eve Industry Planner API clients.
  * On 429, {@link getRetryDelayMs} waits for the server fixed-window `Retry-After` (seconds)
  * from `services/api/middleware/ratelimiter.go`, then `X-RateLimit-Reset`.
+ * A maintenance refusal (503, `error: "maintenance_mode"`) is terminal and signals the app.
  */
 export const apiRateLimitRetryConfig = Object.freeze({
   maxAttempts: 4,
   baseDelayMs: 350,
+  isTerminalResponse: isMaintenanceRefusal,
 });
+
+/**
+ * True for the API maintenance refusal: 503 with `error: "maintenance_mode"`.
+ *
+ * @param {Response|undefined} response
+ * @returns {Promise<boolean>}
+ */
+export async function isMaintenanceResponse(response) {
+  if (!response || response.status !== 503) return false;
+  const body = await response.clone().json().catch(() => null);
+  return Boolean(body) && body.error === "maintenance_mode";
+}
+
+/**
+ * API default terminal check: a maintenance refusal is final for the call, and
+ * app-config is re-read so the banner comes up rather than more calls being made.
+ *
+ * @param {Response} response
+ * @returns {Promise<boolean>}
+ */
+async function isMaintenanceRefusal(response) {
+  if (!(await isMaintenanceResponse(response))) return false;
+  requestAppConfigRecheck();
+  return true;
+}
 
 /**
  * Merges {@link apiRateLimitRetryConfig} with per-call overrides. Pass `false` to disable retries.
@@ -116,6 +145,7 @@ export function defaultIsRetriableHttpStatus(status) {
  * @property {number} [maxAttempts=3]
  * @property {number} [baseDelayMs=350] - Linear backoff for non-429 failures. 429 uses server `Retry-After` / `X-RateLimit-Reset` via {@link getRetryDelayMs}.
  * @property {(status: number) => boolean} [isRetriableStatus] - Defaults to {@link defaultIsRetriableHttpStatus}.
+ * @property {(response: Response) => Promise<boolean>} [isTerminalResponse] - Checked before `isRetriableStatus`; `true` returns the response with no further attempts.
  * @property {(err: unknown) => boolean} [isRetriableError] - If `false`, the error is rethrown immediately (no more attempts). Defaults to always retriable.
  */
 
@@ -133,6 +163,7 @@ export async function withRequestRetries(requestFn, options = {}) {
     maxAttempts = 3,
     baseDelayMs = 350,
     isRetriableStatus = defaultIsRetriableHttpStatus,
+    isTerminalResponse = async () => false,
     isRetriableError = () => true,
   } = options;
 
@@ -143,6 +174,10 @@ export async function withRequestRetries(requestFn, options = {}) {
       const response = await requestFn();
 
       if (response.ok) {
+        return response;
+      }
+
+      if (await isTerminalResponse(response)) {
         return response;
       }
 

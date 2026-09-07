@@ -223,6 +223,14 @@ const GLOBAL_CONFIG = Object.freeze({
   DEFAULT_APP_VERSION_CHECK_INTERVAL: 30,
 
   /**
+   * How often a parked tab re-reads app-config while maintenance is on.
+   *
+   * @type {number}
+   * @unit seconds
+   */
+  MAINTENANCE_RECOVERY_POLL_INTERVAL: 20,
+
+  /**
    * Default locale for number formatting.
    *
    * @type {string}

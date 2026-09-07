@@ -12,6 +12,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 
+	"eve-industry-planner/shared/appconfig"
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
 	"eve-industry-planner/shared/telemetry"
@@ -27,6 +28,7 @@ type TaskScheduler struct {
 	nats        *eipnats.NATS
 	redisClient *redislib.Client
 	handlers    map[string]contract.TaskHandler
+	maintenance *appconfig.MaintenanceFlag
 
 	// Stop channel for message processing loop
 	stopChan chan struct{}
@@ -50,6 +52,7 @@ func NewTaskScheduler(natsHandle *eipnats.NATS, redisClient *redislib.Client) (*
 		nats:        natsHandle,
 		redisClient: redisClient,
 		handlers:    make(map[string]contract.TaskHandler),
+		maintenance: appconfig.NewMaintenanceFlag(redisClient),
 		stopChan:    make(chan struct{}),
 	}, nil
 }
@@ -62,42 +65,11 @@ func (s *TaskScheduler) registerHandler(taskType string, handler contract.TaskHa
 // scheduleCronJob schedules a declared job under its own name. When the cron fires,
 // that job's handler runs and publishes to NATS; the worker receives and processes it.
 func (s *TaskScheduler) scheduleCronJob(cronExpr string, taskType string) error {
-	handler, exists := s.handlers[taskType]
-	if !exists {
+	if _, exists := s.handlers[taskType]; !exists {
 		return fmt.Errorf("no handler registered for %s", taskType)
 	}
 
-	// First arg must be context.Context so gocron cancels in-flight work on Shutdown
-	// (market-prices micro-batches etc. must stop when primary is lost).
-	jobFunc := func(jobCtx context.Context) {
-		startTime := time.Now()
-		jobID := fmt.Sprintf("cron-%s-%d", taskType, startTime.UnixNano())
-		logs.DebugCtx(jobCtx, "cron job triggered", "component", schedulerLogComponent,
-			"job_id", jobID, "task_type", taskType, "cron_expr", cronExpr)
-
-		tracer := telemetry.Tracer("core")
-		ctx, span := tracer.Start(jobCtx, "scheduler.run",
-			trace.WithSpanKind(trace.SpanKindProducer),
-			trace.WithAttributes(
-				attribute.String("scheduler.trigger", "cron"),
-				attribute.String("scheduler.task_type", taskType),
-				attribute.String("scheduler.job_id", jobID),
-				attribute.String("scheduler.cron_expr", cronExpr),
-			),
-		)
-		defer span.End()
-
-		if err := handler(ctx, nil); err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, err.Error())
-			logs.ErrorCtx(ctx, "cron job handler failed", "component", schedulerLogComponent,
-				"job_id", jobID, "task_type", taskType, "error", err, "duration_ms", time.Since(startTime).Milliseconds())
-		} else {
-			span.SetStatus(codes.Ok, "")
-			logs.DebugCtx(ctx, "cron job handler completed", "component", schedulerLogComponent,
-				"job_id", jobID, "task_type", taskType, "duration_ms", time.Since(startTime).Milliseconds())
-		}
-	}
+	jobFunc := s.cronJobFunc(cronExpr, taskType)
 
 	_, err := s.scheduler.NewJob(
 		gocron.CronJob(cronExpr, false),
@@ -177,4 +149,47 @@ func (s *TaskScheduler) Stop() {
 	}
 
 	logs.InfoCtx(bg, "scheduler stopped", "component", schedulerLogComponent)
+}
+
+// cronJobFunc builds what one cron fire does. The first arg must be
+// context.Context so gocron cancels in-flight work on Shutdown (market-prices
+// micro-batches etc. must stop when primary is lost).
+func (s *TaskScheduler) cronJobFunc(cronExpr string, taskType string) func(context.Context) {
+	handler := s.handlers[taskType]
+	return func(jobCtx context.Context) {
+		startTime := time.Now()
+		jobID := fmt.Sprintf("cron-%s-%d", taskType, startTime.UnixNano())
+		logs.DebugCtx(jobCtx, "cron job triggered", "component", schedulerLogComponent,
+			"job_id", jobID, "task_type", taskType, "cron_expr", cronExpr)
+
+		// Only this fire is skipped; the job stays scheduled.
+		if s.maintenance.Enabled(jobCtx) {
+			logs.InfoCtx(jobCtx, "cron job skipped during maintenance", "component", schedulerLogComponent,
+				"job_id", jobID, "task_type", taskType, "cron_expr", cronExpr)
+			return
+		}
+
+		tracer := telemetry.Tracer("core")
+		ctx, span := tracer.Start(jobCtx, "scheduler.run",
+			trace.WithSpanKind(trace.SpanKindProducer),
+			trace.WithAttributes(
+				attribute.String("scheduler.trigger", "cron"),
+				attribute.String("scheduler.task_type", taskType),
+				attribute.String("scheduler.job_id", jobID),
+				attribute.String("scheduler.cron_expr", cronExpr),
+			),
+		)
+		defer span.End()
+
+		if err := handler(ctx, nil); err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+			logs.ErrorCtx(ctx, "cron job handler failed", "component", schedulerLogComponent,
+				"job_id", jobID, "task_type", taskType, "error", err, "duration_ms", time.Since(startTime).Milliseconds())
+		} else {
+			span.SetStatus(codes.Ok, "")
+			logs.DebugCtx(ctx, "cron job handler completed", "component", schedulerLogComponent,
+				"job_id", jobID, "task_type", taskType, "duration_ms", time.Since(startTime).Milliseconds())
+		}
+	}
 }

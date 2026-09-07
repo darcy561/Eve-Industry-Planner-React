@@ -1,14 +1,14 @@
 package middleware
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
-	"eve-industry-planner/api/helper"
 	"eve-industry-planner/shared/logs"
 )
 
-// Paths that stay available while MAINTENANCE_MODE is on (load balancers, client banner).
+// Paths that stay available while maintenance is on: probes, and the SPA's app-config read.
 var maintenanceBypassPaths = map[string]struct{}{
 	"/health":            {},
 	"/healthy":           {},
@@ -16,12 +16,17 @@ var maintenanceBypassPaths = map[string]struct{}{
 	"/api/v1/app-config": {},
 }
 
-// MaintenanceModeConstructor blocks API traffic when MAINTENANCE_MODE is enabled,
-// except for paths in maintenanceBypassPaths.
-func MaintenanceModeConstructor() MiddlewareConstructor {
+// MaintenanceFlag reports whether maintenance is on.
+type MaintenanceFlag interface {
+	Enabled(ctx context.Context) bool
+}
+
+// MaintenanceModeConstructor blocks API traffic while maintenance is on, except
+// for paths in maintenanceBypassPaths. A nil flag blocks nothing.
+func MaintenanceModeConstructor(flag MaintenanceFlag) MiddlewareConstructor {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if !helper.MaintenanceModeEnabled() {
+			if flag == nil || !flag.Enabled(r.Context()) {
 				next.ServeHTTP(w, r)
 				return
 			}

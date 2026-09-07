@@ -58,6 +58,12 @@ type HealthStatus struct {
 	ActiveTasks       int    `json:"active_tasks,omitempty"`
 }
 
+// MaintenanceState is the raw JSON payload for SubjectAppConfigMaintenanceState
+// and the reply on SubjectAppConfigMaintenanceAsk.
+type MaintenanceState struct {
+	Enabled bool `json:"enabled"`
+}
+
 // PlacementState is the raw JSON payload for SubjectWSPlacementState (not a Message envelope)
 // and for websocket GET /placement.
 type PlacementState struct {

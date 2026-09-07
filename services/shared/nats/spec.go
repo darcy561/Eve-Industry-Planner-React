@@ -46,6 +46,14 @@ const (
 	// Payload: PlacementState (messages.go).
 	SubjectWSPlacementState = "ws.placement.state"
 
+	// SubjectAppConfigMaintenanceState announces the maintenance flag's new value.
+	// Payload: MaintenanceState (envelope.go).
+	SubjectAppConfigMaintenanceState = "appconfig.maintenance.state"
+
+	// SubjectAppConfigMaintenanceAsk is request/reply for the current maintenance value.
+	// Payload: MaintenanceState (envelope.go).
+	SubjectAppConfigMaintenanceAsk = "appconfig.maintenance.ask"
+
 	// SubjectWSCommandCordon / SubjectWSCommandDrain are planned evacuate req/reply
 	// (capacity controller → matching websocket container_id). Distinct from SIGTERM DrainForRoll.
 	SubjectWSCommandCordon   = "ws.command.cordon"

@@ -40,7 +40,7 @@ func newRoute(t *testing.T) *route {
 	esi := esifake.New(t)
 	rdb := redisfake.New(t).Client
 
-	deps := apideps.FromClients(&stackservices.Clients{Redis: rdb}, nil, esi)
+	deps := apideps.FromClients(&stackservices.Clients{Redis: rdb}, nil, esi, nil)
 	return &route{handler: ssoendpoints.New(deps), sso: sso, esi: esi, redis: rdb}
 }
 

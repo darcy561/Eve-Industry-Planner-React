@@ -1,4 +1,5 @@
 import { fetchWithPublicHeaders } from "./applyPublicHeaders.js";
+import { subscribeToAppConfigRecheck } from "../../../Events/appConfigEvents.js";
 
 const DEFAULT_APP_CONFIG = {
   app_version_number: __APP_VERSION__,
@@ -152,6 +153,22 @@ export async function refreshAppConfig(force = false) {
   })();
 
   return inFlightRequest;
+}
+
+subscribeToAppConfigRecheck(() => {
+  void refreshAppConfig();
+});
+
+/**
+ * Applies a maintenance state the server pushed, without a fetch.
+ *
+ * @param {boolean} enabled
+ * @returns {void}
+ */
+export function setMaintenanceMode(enabled) {
+  if (appConfig.maintenance_mode === enabled) return;
+  appConfig = { ...appConfig, maintenance_mode: enabled };
+  notifySubscribers();
 }
 
 export function subscribeToAppConfig(callback) {

@@ -20,5 +20,6 @@ Application behaviour for Go services under `services/` (API contracts, workers,
 | Core primary lease / handoff | [core/contents.md](./core/contents.md) |
 | ws-router placement / affinity / Redis keys | [ws-router/contents.md](./ws-router/contents.md) |
 | Messaging — streams, subjects, publishing, consuming, schedules | [shared/nats.md](./shared/nats.md) |
+| Take the stack in or out of maintenance, or change what a window does | [maintenance-mode.md](./maintenance-mode.md) |
 | Shared library docs | [shared/contents.md](./shared/contents.md) ([mongo.md](./shared/mongo.md), [nats.md](./shared/nats.md)) |
 | Swarm topology / Traefik / probes / rolls | [stack/](../stack/contents.md) |

@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
-func featureFlagAsFloat(v interface{}) float64 {
+func featureFlagAsFloat(v any) float64 {
 	switch x := v.(type) {
 	case bool:
 		if x {
@@ -36,13 +36,10 @@ func featureFlagAsFloat(v interface{}) float64 {
 		}
 		return 0
 	case string:
-		s := strings.ToLower(strings.TrimSpace(x))
-		switch s {
-		case "1", "true", "yes", "on":
+		if appconfig.Truthy(x) {
 			return 1
-		default:
-			return 0
 		}
+		return 0
 	default:
 		return 0
 	}
@@ -50,14 +47,14 @@ func featureFlagAsFloat(v interface{}) float64 {
 
 var registerOnce sync.Once
 
-// Register registers observable gauges mirroring GET /api/v1/app-config (same env vars as the API;
-// core typically shares .env with api in compose).
-func Register() {
+// Register registers observable gauges mirroring GET /api/v1/app-config; a nil
+// maintenance flag reads as off.
+func Register(maintenance *appconfig.MaintenanceFlag) {
 	registerOnce.Do(func() {
 		m := common.Meter()
 		gMaint, err := m.Float64ObservableGauge("core.app_config.maintenance_mode",
 			metric.WithUnit("1"),
-			metric.WithDescription("1 when MAINTENANCE_MODE is truthy; same signal as app-config JSON."),
+			metric.WithDescription("1 while maintenance mode is on; same signal as app-config JSON."),
 		)
 		if err != nil {
 			logs.ErrorCtx(context.Background(), "core metrics app_config: maintenance_mode gauge", "error", err)
@@ -81,7 +78,7 @@ func Register() {
 		}
 		_, err = m.RegisterCallback(func(ctx context.Context, o metric.Observer) error {
 			maint := 0.0
-			if appconfig.MaintenanceModeEnabled() {
+			if maintenance.Enabled(ctx) {
 				maint = 1.0
 			}
 			o.ObserveFloat64(gMaint, maint)

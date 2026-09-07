@@ -66,13 +66,6 @@ func drainExplainMessage(sig drainSignal, containerID string) string {
 // Close-first unblocks readers so Clients drains within stop grace. Clients leave the map
 // when their reader exits. Returns how many conns were closed.
 func (s *Server) ForceCloseLocalClients(sig drainSignal) int {
-	s.ClientsMu.RLock()
-	clients := make([]*Client, 0, len(s.Clients))
-	for _, c := range s.Clients {
-		clients = append(clients, c)
-	}
-	s.ClientsMu.RUnlock()
-
 	sig = normalizeDrainSignal(sig)
 	if sig.ContainerID == "" {
 		sig.ContainerID = container.ID()
@@ -84,13 +77,25 @@ func (s *Server) ForceCloseLocalClients(sig drainSignal) int {
 		"container_id": sig.ContainerID,
 		"message":      drainExplainMessage(sig, sig.ContainerID),
 	})
+	return s.closeLocalClients(payload, 100*time.Millisecond)
+}
+
+// closeLocalClients writes payload to every local socket, waiting at most
+// writeWait for each, then closes it. Returns how many were closed.
+func (s *Server) closeLocalClients(payload []byte, writeWait time.Duration) int {
+	s.ClientsMu.RLock()
+	clients := make([]*Client, 0, len(s.Clients))
+	for _, c := range s.Clients {
+		clients = append(clients, c)
+	}
+	s.ClientsMu.RUnlock()
 
 	closed := 0
 	for _, client := range clients {
 		if client == nil || client.conn == nil {
 			continue
 		}
-		_ = client.writeFrame(websocket.TextMessage, payload, 100*time.Millisecond)
+		_ = client.writeFrame(websocket.TextMessage, payload, writeWait)
 		_ = client.conn.Close()
 		closed++
 	}
@@ -125,7 +130,10 @@ func (s *Server) ConnectedCount() int {
 
 // upgradeBlockReason is the single SoT for "this container must not accept new upgrades".
 // checkCutoff is false after the socket is already hijacked (capacity refuse is HTTP-only).
-func (s *Server) upgradeBlockReason(_ context.Context, checkCutoff bool) string {
+func (s *Server) upgradeBlockReason(ctx context.Context, checkCutoff bool) string {
+	if s.maintenanceEnabled(ctx) {
+		return "maintenance"
+	}
 	if s.IsDraining() || s.IsCordoned() {
 		return "draining"
 	}
@@ -200,6 +208,13 @@ func (s *Server) rejectUpgradeBlocked(w http.ResponseWriter, r *http.Request, up
 			"websocket upgrade rejected: process draining",
 			"Service unavailable: draining",
 			"ws_upgrade_draining",
+			nil, nil)
+		return true
+	case "maintenance":
+		wsUpgradeRejectServer(w, r, s, upgradeStart, "maintenance", http.StatusServiceUnavailable,
+			"websocket upgrade rejected: maintenance mode",
+			"Service unavailable: maintenance",
+			"ws_upgrade_maintenance",
 			nil, nil)
 		return true
 	case "at_cutoff":

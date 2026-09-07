@@ -23,6 +23,9 @@ const usageExamples = `Examples:
   tasks workerQueues
   tasks purgeWorkerQueues
   tasks unlockSdeVersion
+  tasks maintenance
+  tasks maintenance -on
+  tasks maintenance -off
   tasks queueArchivedJobStatsRebuild -all -dry-run
   tasks queueArchivedJobStatsRebuild -account <account_id> -dry-run
   tasks checkSdeUpdates
@@ -132,6 +135,7 @@ var cliTable = []cliCommand{
 	{command: "workerQueues", run: func(context.Context, []string) error { return clicommands.RunWorkerQueues() }},
 	{command: "purgeWorkerQueues", run: func(context.Context, []string) error { return clicommands.RunPurgeWorkerQueues() }},
 	{command: "unlockSdeVersion", run: func(context.Context, []string) error { return clicommands.RunUnlockSdeVersion() }},
+	{command: "maintenance", args: "[-on] [-off]", run: clicommands.RunMaintenance},
 	{command: "backfillArchivedAt", args: "[-dry-run]", run: runBackfillArchivedAt},
 	{command: "queueArchivedJobStatsRebuild", args: "[-all] [-account id] [-dry-run]", run: runQueueArchivedJobStatsRebuild},
 	{command: "planners", args: "[-account id]", run: runPlanners},

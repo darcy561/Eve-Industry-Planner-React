@@ -86,6 +86,12 @@ func (a *app) startServer(ctx context.Context) error {
 	}
 	a.ws = ws
 
+	stopMaintenance, err := ws.StartMaintenanceWatch(ctx)
+	if err != nil {
+		return a.fail(fmt.Errorf("maintenance watch: %w", err))
+	}
+	a.g.Add(lifecycle.FromStop("maintenance-watch", stopMaintenance))
+
 	// Do not wrap with otelhttp: gorilla/websocket Upgrade requires Hijacker.
 	core := http.HandlerFunc(a.ws.HandleWS)
 	h := middleware.RequestStartTimeConstructor()(

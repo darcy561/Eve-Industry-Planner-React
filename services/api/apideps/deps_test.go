@@ -12,7 +12,7 @@ import (
 func TestDepsCarryTheLimiter(t *testing.T) {
 	esi := esifake.New(t)
 
-	deps := apideps.FromClients(&stackservices.Clients{}, nil, esi)
+	deps := apideps.FromClients(&stackservices.Clients{}, nil, esi, nil)
 	if deps.ESI == nil {
 		t.Fatal("handlers cannot reach the limiter, so nothing can report an outage")
 	}
@@ -29,7 +29,7 @@ func TestTheLimiterSurvivesAnAbsentConnectBag(t *testing.T) {
 	// handles, so it must not be dropped with them.
 	esi := esifake.New(t)
 
-	deps := apideps.FromClients(nil, nil, esi)
+	deps := apideps.FromClients(nil, nil, esi, nil)
 	if deps.ESI == nil {
 		t.Error("the limiter was dropped along with the absent connect bag")
 	}
@@ -38,7 +38,7 @@ func TestTheLimiterSurvivesAnAbsentConnectBag(t *testing.T) {
 func TestDepsWithoutALimiterAreUsable(t *testing.T) {
 	// Tests and mongo-only wiring supply none, so a nil is a state handlers must
 	// check rather than a startup failure.
-	deps := apideps.FromClients(&stackservices.Clients{}, nil, nil)
+	deps := apideps.FromClients(&stackservices.Clients{}, nil, nil, nil)
 	if deps == nil {
 		t.Fatal("FromClients returned nil")
 	}
@@ -71,7 +71,7 @@ func TestReportSSOTellsTheLimiterWhetherTheServerAnswered(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			esi := esifake.New(t)
-			deps := apideps.FromClients(&stackservices.Clients{}, nil, esi)
+			deps := apideps.FromClients(&stackservices.Clients{}, nil, esi, nil)
 
 			deps.ReportSSO(t.Context(), tc.err)
 
@@ -93,7 +93,7 @@ func TestReportSSOTellsTheLimiterWhetherTheServerAnswered(t *testing.T) {
 
 func TestReportSSOIsSafeWithoutALimiter(t *testing.T) {
 	// Mongo-only wiring and tests carry no client; reporting must not panic.
-	deps := apideps.FromClients(&stackservices.Clients{}, nil, nil)
+	deps := apideps.FromClients(&stackservices.Clients{}, nil, nil, nil)
 	deps.ReportSSO(t.Context(), errors.New("dial tcp: connection refused"))
 
 	var absent *apideps.Deps

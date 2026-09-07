@@ -1,6 +1,9 @@
 package middleware
 
-import "net/http"
+import (
+	"net/http"
+	"slices"
+)
 
 type MiddlewareConstructor func(http.Handler) http.Handler
 
@@ -8,8 +11,8 @@ type MiddlewareConstructor func(http.Handler) http.Handler
 func Chain(constructors ...MiddlewareConstructor) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		handler := h
-		for i := len(constructors) - 1; i >= 0; i-- {
-			handler = constructors[i](handler)
+		for _, constructor := range slices.Backward(constructors) {
+			handler = constructor(handler)
 		}
 		return handler
 	}

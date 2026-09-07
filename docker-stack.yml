@@ -55,7 +55,6 @@ x-app-public-env: &app-public-env
   EVE_CLIENT_ID: ${EVE_CLIENT_ID:-}
   REFRESH_TOKEN_AES_KEY_VERSION: ${REFRESH_TOKEN_AES_KEY_VERSION:-v1}
   ENVIRONMENT: ${ENVIRONMENT:-}
-  MAINTENANCE_MODE: ${MAINTENANCE_MODE:-false}
 
 x-frontend-public-env: &frontend-public-env
   ENVIRONMENT: ${ENVIRONMENT:-}

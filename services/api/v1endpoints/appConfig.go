@@ -37,7 +37,7 @@ func (a *Handlers) AppConfigHandler(w http.ResponseWriter, r *http.Request) {
 
 	response := AppConfigResponse{
 		AppVersionNumber: appconfig.ProcessAppVersion(),
-		MaintenanceMode:  appconfig.MaintenanceModeEnabled(),
+		MaintenanceMode:  a.MaintenanceModeEnabled(ctx),
 		FeatureFlags:     featureFlags,
 	}
 

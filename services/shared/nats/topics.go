@@ -39,6 +39,53 @@ func SubscribePlacementState(n *NATS, handle func(PlacementState)) (stop func(),
 	return subscribeTopic(n, SubjectWSPlacementState, handle)
 }
 
+// PublishMaintenanceState announces that the maintenance flag changed value.
+func PublishMaintenanceState(n *NATS, enabled bool) error {
+	return n.publishTopic(SubjectAppConfigMaintenanceState, MaintenanceState{Enabled: enabled})
+}
+
+// SubscribeMaintenanceState calls handle each time the maintenance flag changes.
+func SubscribeMaintenanceState(n *NATS, handle func(MaintenanceState)) (stop func(), err error) {
+	return subscribeTopic(n, SubjectAppConfigMaintenanceState, handle)
+}
+
+// AskMaintenanceState requests the flag's current value and returns the first
+// answer.
+func AskMaintenanceState(ctx context.Context, n *NATS, wait time.Duration) (MaintenanceState, error) {
+	if n == nil || n.conn == nil {
+		return MaintenanceState{}, fmt.Errorf("nats connection is required")
+	}
+	if wait <= 0 {
+		wait = 5 * time.Second
+	}
+	reqCtx, cancel := context.WithTimeout(ctx, wait)
+	defer cancel()
+
+	msg, err := n.conn.RequestWithContext(reqCtx, SubjectAppConfigMaintenanceAsk, nil)
+	if err != nil {
+		return MaintenanceState{}, fmt.Errorf("%s: %w", SubjectAppConfigMaintenanceAsk, err)
+	}
+	var state MaintenanceState
+	if err := json.Unmarshal(msg.Data, &state); err != nil {
+		return MaintenanceState{}, fmt.Errorf("%s: unreadable reply: %w", SubjectAppConfigMaintenanceAsk, err)
+	}
+	return state, nil
+}
+
+// SubscribeMaintenanceAsk answers the current-value ask with current().
+func SubscribeMaintenanceAsk(n *NATS, current func() bool) (stop func(), err error) {
+	if n == nil || n.conn == nil {
+		return nil, fmt.Errorf("nats connection is required")
+	}
+	sub, err := n.conn.Subscribe(SubjectAppConfigMaintenanceAsk, func(msg *natslib.Msg) {
+		_ = respondJSON(msg, MaintenanceState{Enabled: current()})
+	})
+	if err != nil {
+		return nil, fmt.Errorf("subscribe %s: %w", SubjectAppConfigMaintenanceAsk, err)
+	}
+	return func() { _ = sub.Unsubscribe() }, nil
+}
+
 // GatherHealth asks every replica to report, and returns what answered within
 // wait. An empty role asks all roles. The result is a census: replicas that do
 // not answer are absent from it, which is the question being asked.

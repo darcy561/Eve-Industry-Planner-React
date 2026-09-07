@@ -6,14 +6,9 @@ import (
 	"strings"
 )
 
-// MaintenanceModeEnabled returns true when MAINTENANCE_MODE is a truthy value
-// (1, true, yes, on — case-insensitive). Empty or unknown values are false.
-func MaintenanceModeEnabled() bool {
-	v := strings.TrimSpace(os.Getenv("MAINTENANCE_MODE"))
-	if v == "" {
-		return false
-	}
-	switch strings.ToLower(v) {
+// Truthy reads a boolean-ish config value: 1, true, yes or on, case-insensitive.
+func Truthy(v string) bool {
+	switch strings.ToLower(strings.TrimSpace(v)) {
 	case "1", "true", "yes", "on":
 		return true
 	default:

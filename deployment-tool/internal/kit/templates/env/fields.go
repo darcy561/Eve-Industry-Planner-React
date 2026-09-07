@@ -157,11 +157,6 @@ var envFields = []EnvField{
 		Type: FieldText, Required: false, Default: "",
 	},
 	{
-		Key: "MAINTENANCE_MODE", Section: "Runtime", Label: "Maintenance mode",
-		Help: "API maintenance mode when true-ish. Missing/empty → false.",
-		Type: FieldText, Required: false, Default: "",
-	},
-	{
 		Key: "EIP_ALLOWED_ORIGINS", Section: "Runtime", Label: "Allowed origins",
 		Help: "Comma-separated browser origins allowed to open the WebSocket and call the API " +
 			"(scheme + host + optional port, e.g. https://your-domain.com,http://localhost). " +

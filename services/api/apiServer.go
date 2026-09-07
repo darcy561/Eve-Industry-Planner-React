@@ -71,9 +71,6 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 
 	// One flag for the gate and app-config, so both answer from one cached read.
 	maintenanceFlag := appconfig.NewMaintenanceFlag(clients.Redis)
-	if _, err := maintenanceFlag.Seed(ctx); err != nil {
-		logs.WarnCtx(ctx, "failed seeding maintenance mode, holding the env value", "error", err)
-	}
 
 	// Warm live SDE into process memory; refresh on worker NATS SDE build updates.
 	sdecache.StartCacheWarmer(ctx, clients.NATS)

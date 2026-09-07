@@ -40,24 +40,17 @@ func requestOwner(r *http.Request) models.Owner {
 func requireOwnedBySession(ctx context.Context, w http.ResponseWriter, r *http.Request, mongo *eipmongo.Mongo, metrics *helper.RequestMetricsTracker, view, accountID string) bool {
 	owner := requestOwner(r)
 
-	// The account's own key needs no lookup: it holds that membership by
-	// construction, and answering it here keeps the refusal of every other owner
-	// independent of whether the database is reachable.
-	if owner.Kind == models.OwnerAccount && owner.ID == accountID {
+	mayReach, err := mongo.AccountMayReach(ctx, accountID, owner)
+	if mayReach {
 		return true
 	}
-
-	if mongo != nil {
-		mayReach, err := mongo.AccountMayReach(ctx, accountID, owner)
-		if err != nil {
-			metrics.Error("owner_check_failed")
-			helper.RespondEndpointServerError(w, r, "Failed to read statistics",
-				"statistics: membership lookup failed", "statistics_owner_check_failed", view, err, nil)
-			return false
-		}
-		if mayReach {
-			return true
-		}
+	// A missing handle is reported by the handler beyond this, which says what is
+	// unavailable; refusing here would call it a permission failure instead.
+	if err != nil && mongo != nil {
+		metrics.Error("owner_check_failed")
+		helper.RespondEndpointServerError(w, r, "Failed to read statistics",
+			"statistics: membership lookup failed", "statistics_owner_check_failed", view, err, nil)
+		return false
 	}
 
 	metrics.Error("owner_forbidden")

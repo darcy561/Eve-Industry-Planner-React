@@ -57,12 +57,22 @@ func (m *Mongo) OwnerKeysForAccount(ctx context.Context, accountID string) (mode
 // a session's lifetime, so a membership removed a moment ago is still in one. An
 // authorisation answer that can be stale in the permissive direction is the wrong
 // kind of cheap, and the callers are already reading this database.
+//
+// An account's own planner is answered before the handle is needed: it holds that
+// membership by construction, so reading its own documents does not depend on the
+// database being reachable.
 func (m *Mongo) AccountMayReach(ctx context.Context, accountID string, owner models.Owner) (bool, error) {
-	if m == nil || accountID == "" {
+	if accountID == "" {
 		return false, fmt.Errorf("AccountMayReach: invalid arguments")
 	}
 	if owner.IsZero() {
 		return false, nil
+	}
+	if owner == models.AccountOwner(accountID) {
+		return true, nil
+	}
+	if m == nil {
+		return false, fmt.Errorf("AccountMayReach: no mongo handle")
 	}
 	held, err := m.PlannerMemberships.Collection().CountDocuments(ctx,
 		bson.M{"_id": planner.MembershipID(owner.Key(), accountID)})

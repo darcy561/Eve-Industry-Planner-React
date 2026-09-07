@@ -2,9 +2,10 @@ import { useState } from "react";
 import {
   Box,
   CircularProgress,
+  FormControl,
+  FormHelperText,
   MenuItem,
-  TextField,
-  Typography,
+  Select,
 } from "@mui/material";
 import {
   plannerDisplayName,
@@ -59,26 +60,33 @@ export function PlannerSwitcher() {
 
   return (
     <Box sx={{ px: 2, py: 1 }}>
-      <TextField
-        select
+      <FormControl
+        sx={{
+          "& .MuiFormHelperText-root": {
+            color: (theme) => theme.palette.secondary.main,
+          },
+        }}
         fullWidth
-        size="small"
-        label="Planner"
-        value={active}
-        disabled={busy}
-        onChange={(event) => selectPlanner(event.target.value)}
       >
-        {planners.map((planner) => (
-          <MenuItem key={planner.owner} value={planner.owner}>
-            {plannerDisplayName(planner)}
-          </MenuItem>
-        ))}
-      </TextField>
-      {failure && (
-        <Typography variant="caption" color="error">
-          {failure}
-        </Typography>
-      )}
+        <Select
+          id="planner-select"
+          aria-describedby="planner-helper"
+          variant="standard"
+          size="small"
+          value={active}
+          disabled={busy}
+          onChange={(event) => selectPlanner(event.target.value)}
+        >
+          {planners.map((planner) => (
+            <MenuItem key={planner.owner} value={planner.owner}>
+              {plannerDisplayName(planner)}
+            </MenuItem>
+          ))}
+        </Select>
+        <FormHelperText id="planner-helper" variant="standard" error={Boolean(failure)}>
+          {failure || "Planner"}
+        </FormHelperText>
+      </FormControl>
     </Box>
   );
 }

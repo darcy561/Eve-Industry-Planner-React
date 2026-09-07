@@ -1730,6 +1730,127 @@ Reshaping when it fires and how it resolves is deferred rather than dropped.
 Access lists are the other slice, and § Access lists differ from the other ESI providers already says
 why they are not the same shape as the corporation and alliance providers.
 
+### Stage G — Realtime state under more than one writer
+
+The realtime layer was built for a single writer and says so in three places. None of them is wrong
+for a personal planner; all three become defects the moment two members share one.
+
+**The cursor is a wall clock.** `realtimeSyncSlice` holds one number per logical document,
+`_meta.lastModified` in epoch milliseconds, and an apply is accepted only when it is strictly newer
+than the number held. With one writer that is a sound way to drop a duplicate. With several it fails
+three ways: two writes inside the same millisecond produce equal cursors and the second apply is
+discarded; `lastModified` is stamped by whichever process wrote it, so across replicas it is not a
+total order and a genuinely newer document can carry an older stamp; and the comparison silently
+resolves conflicts last-write-wins, which is a product decision the transport is currently making by
+accident rather than one anybody chose.
+
+The replacement has to be a token that is totally ordered **per subscription** rather than per
+document, so a client can say *I have everything through X* instead of comparing documents one at a
+time. The change stream already carries a resume token with exactly that property; a per-owner
+sequence is the alternative if the token turns out to be awkward to expose.
+
+**The baseline is account-shaped.** `syncAccountDocumentsFromServer` fetches two singletons, `accounts`
+and `account_settings`, both `account:{id}`. The planner half of the pair in § What a connection
+subscribes to has no baseline at all: planner jobs are refetched only when the session identity
+changes, and `planner_settings` is in neither path. Switching planner narrows delivery server-side and
+fetches nothing, which works today only because the store is not yet keyed by owner — the outstanding
+Stage E item. Switching and reconnecting are the same operation as far as the store is concerned, and
+both need the active owner's document set to arrive from somewhere.
+
+**Resume asserts rather than checks.** `session_resume` moves the previous connection's explicit
+document subscriptions across and answers `skipBaselineSync: true` having read no document and compared
+no version. Anything written during the gap is lost, because there is no replay. On a personal planner
+a blind window bounded by the handoff TTL is a fair bet against the client being its own only writer.
+On a shared planner the gap is exactly when another member's edit lands, and a slot drain reconnects
+every member at once, so the whole roster resumes blind together.
+
+`skipBaselineSync` should become an answer the server derives from the client's position rather than an
+assumption it makes from the TTL — the server knows whether the connection missed anything, so it
+should say so, and send what was missed. That is the same push-rather-than-infer shape the rest of the
+realtime surface already follows.
+
+**What a genuine concurrent edit does is a separate decision, and this stage only has to stop losing
+writes silently.** Whether two members editing one job resolve last-write-wins with a visible signal,
+merge per field, or are prevented from overlapping by the document lock is a question § The persist
+gate must cover the whole cascade already touches. The transport's obligation is narrower: never
+discard an apply because two stamps compared equal, and never claim a client is current when it is not.
+
+**Ordering.** This stage is not a prerequisite for a planner holding two people — Stage D is. It is a
+prerequisite for that planner being *trusted*, so it runs alongside the Stage E store keying rather
+than after it: owner-keyed query keys and an owner-scoped baseline are the same piece of work
+approached from two directions.
+
+#### Ordering is a construction, not a token
+
+There is no sequence anywhere today. What preserves per-owner order is the shape of the path:
+`Consume` runs the doc.update handler at concurrency 1, `outboundDocPartitionKey` returns the owner
+key, and the FNV hash sends one owner's messages to one shard FIFO drained by one worker. Same owner,
+same queue, one reader — order holds by construction.
+
+Because nothing names a position, a client cannot say where it is and the server cannot say what it
+missed. That is the same gap the resume finding above describes, reached from the delivery side.
+
+Three things break the construction, and the first is not a corner case:
+
+**A full shard queue reorders.** `enqueueOutboundDocUpdate` delivers synchronously on the intake path
+when the FIFO is full, which overtakes everything already queued for that owner. The behaviour was
+recorded as preserving ordering at the cost of back-pressure; it does the opposite, and it does it
+exactly when an owner is busiest. Either the enqueue blocks — real back-pressure, which is what the
+note claimed — or the bypass stays and the sequence makes the gap visible so a client can ask for it.
+
+**One replica is ordered, not the system.** The FIFO is in-process and the hash is per-process, so two
+websocket replicas fanning out for one owner share no order. This is why the fix cannot be a
+per-worker counter.
+
+**Redelivery reorders.** Explicit acks with a 30s `AckWait` mean a late ack is redelivered after later
+messages for that owner have gone.
+
+The cheapest token that survives all three is JetStream's own **stream sequence**, already monotonic
+across replicas and already read in `shared/nats/ack.go` for logging. It is per-stream rather than
+per-owner, so a client's position is coarser than it could be — sufficient for *did I miss anything*,
+which is what resume needs. A per-owner counter in Redis is the finer alternative and costs a round
+trip per delivered message; it is worth taking only if a client holding one number per owner turns out
+to matter.
+
+#### What ordering is worth depends on the write shape
+
+`BulkUpsertJobs` writes `"$set": job` — the whole document, every field, on every write. That predates
+this project and is how every job has always been persisted, single-user accounts included.
+
+It has two consequences here. A reorder loses **everything** in the overtaken message rather than one
+field, because each message carries the entire document. And two members editing *different* fields of
+one job still overwrite each other, since both send the whole thing — so last-write-wins is decided by
+the write shape, not by delivery, and no amount of ordering corrects it.
+
+The change stream already asks for `updateDescription` and parses `updatedFields` and `removedFields`,
+using them only to suppress schema-maintenance noise. The delta is captured and discarded — and while
+writes are whole-document it would be worthless anyway, since `$set: job` marks every field as updated.
+
+Field-scoped writes are therefore **not** owed here. They are a change to how the whole application
+writes, with no shared-planner premise, and they are tracked as
+[document-write-granularity](../document-write-granularity/contents.md). This stage's obligation stops
+at making loss visible; that project decides whether two members editing one job can both keep their
+edit.
+
+#### Absorbed from the retired websocket-realtime project
+
+Two facts outlived that folder and are held here until this project promotes.
+
+**Outbound delivery partitions on the owner key.** `outboundDocPartitionKey` returns the message's
+owner key, falling back to `explicit:{collectionScopedDocID}` when the route carries no owner and
+`err:{id}` when the payload will not decode. The key is hashed FNV-1a across a fixed set of shard
+FIFOs, which is what preserves per-owner ordering while letting unrelated owners proceed in parallel.
+When a shard queue is full the message is delivered **synchronously on the intake path** and acked
+immediately rather than dropped — ordering for that owner is preserved at the cost of back-pressure
+onto intake. Live SoT names the shard workers in the drain sequence but never states the key or the
+full-queue behaviour; both belong in `backend/websocket/websocket.md` on promote.
+
+**Document-subscribe authorisation is fail-closed and now two reads.** An unknown collection is denied.
+An account-owned collection is authorised by id equality. A planner-held collection is authorised by
+reading the document's owner and then testing membership of that owner — two reads, because a
+planner-held document is no longer owned by whoever may read it. This is C4's rewrite of a rule the
+retired folder documented against `ExistsByAccountID`; the rule survived, the mechanism did not.
+
 ## Live data, and the cutover window
 
 `Public` is deployed with real data, and the next deployment takes the stack down. Every data change
@@ -1784,8 +1905,12 @@ the first two are only cheap while that project is still open and touching live 
 **[entity-id-encryption](../entity-id-encryption/plan.md)** — no change owed. This project consumes
 corporation and alliance refs as planner ids at Stage F and mints none. Stages A–E do not depend on it.
 
-**[websocket-realtime](../websocket-realtime/contents.md)** — no change owed. Tenant strings keep their
-present values; a new kind is a new prefix, not a new routing model.
+**websocket-realtime** — **retired into this project.** Its promotion stages described the
+`upgrade_scopes` scope-ceiling model, and Stage B removed that rather than reshaping it; eight of the
+files its verification table cited no longer exist. Following it would have published an authorisation
+model the code does not implement, which is the failure it was written to prevent. The two facts worth
+keeping moved to § Stage G — Absorbed from the retired websocket-realtime project, and the folder is
+gone. Tenant strings keep their present values; a new kind is a new prefix, not a new routing model.
 
 **[changestream-tenant-scale](../changestream-tenant-scale/contents.md)** — no code owed, but this
 project's § Collection layout **withdrew that plan's Phase C**, which had been waiting for separate
@@ -1854,6 +1979,8 @@ do not touch.
   writes a related job whose lock someone else holds.
 - Corporation and alliance planners are a row reconcile and nothing else — grants, routing, archive
   and UI need no branch on which provider a planner uses.
+- A reconnecting or planner-switching client is told what it missed rather than assuming it missed
+  nothing, and no apply is dropped because two writers' timestamps compared equal.
 - Tests ship with each stage, not as a later wave.
 
 ## Stage status
@@ -1867,3 +1994,4 @@ do not touch.
 | D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered moves to the duplicate-job-writes and ownership review. D3 is the extras picker; the settings document it waited on landed at Stage E, so it is unblocked. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |
 | E — custom planners | **Partly landed.** In: the planner settings document (seeded by value from the creating account, planner-held and watched), one write path for every planner, the planners listing, corporation planner creation with its name looked up server-side and NPC corporations refused, the `active_planner` message with the ceiling intersection and its restore across a reconnect, the owner handle on every delivered document, and a client switcher wired around the SPA. Outstanding: invites as Redis records, the join path, the revocation path, keying the store and its query keys by owner. See § Stage E and [overlay.md](./overlay.md) § Stage E |
 | F — ESI providers | **F1 landed.** Corporation and alliance membership rows are reconciled from the ids ESI reports, at login and on the cloud token sweep, completing a task that read as finished and wrote no rows. A row grants while it exists and nothing expires one: a revoked token is a positive answer the reconcile acts on, and a two-year dormant account is cleared by `InactiveAccountPlannerCleanup`. Owed: reshaping when the grant task fires and how it resolves, and access lists |
+| G — realtime state under more than one writer | **Not started.** The `lastModified` cursor, the account-shaped baseline and the asserting `session_resume` are all single-writer assumptions, and each becomes a defect on a shared planner. Absorbs what survived the retired websocket-realtime project. Runs alongside the Stage E store keying — see § Stage G |

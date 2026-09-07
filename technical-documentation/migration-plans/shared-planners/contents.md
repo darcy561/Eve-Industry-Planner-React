@@ -9,14 +9,16 @@ The planner as a first-class thing a user works in, and the ownership model unde
 - **Membership providers**: how a planner's roster is decided, whether from rows we own (`invite`), from the account itself (`self`), or from ESI (`esi-corporation`, `esi-alliance`).
 - The **grants ceiling** as a list of owner keys, and how a removed member loses access.
 - The **active planner** on the client, and the owner parameter on every scoped read.
+- **Realtime consistency under more than one writer** — the ordering token, the owner-scoped baseline, and what `session_resume` may assert. Absorbed from the retired websocket-realtime project.
 - The rule that a document's owner is **decided when it is created**, never inferred from correlated fields.
 
 ## Does not own
 
 - Statistics aggregation, the rebuild queue, the delta path, and the archived-jobs read/restore surfaces → [archived-jobs-stats/plan.md](../archived-jobs-stats/plan.md). Those are already owner-shaped; this project supplies the owners and retires that plan's Stage C ownership question.
 - Entity refs (`corp_…`, `alliance_…`), the `shared/crypto/entityid` cipher, and the boundaries that convert refs to ids → [entity-id-encryption/plan.md](../entity-id-encryption/plan.md). Corporation and alliance planner ids **are** those refs; this project consumes them and mints none.
-- Websocket transport, session resume, hosted tenants and placement → [websocket-realtime/contents.md](../websocket-realtime/contents.md) and [changestream-tenant-scale/contents.md](../changestream-tenant-scale/contents.md). This project adds owner kinds to routing keys that already exist.
+- Websocket hosted tenants and placement → [changestream-tenant-scale/contents.md](../changestream-tenant-scale/contents.md). This project adds owner kinds to routing keys that already exist.
 - Collection rename mechanics → [collection-naming/contents.md](../collection-naming/contents.md). This project declares renames; that project owns how a rename is applied.
+- How a document write is shaped — whole-document versus field-scoped, and whether two writers editing different fields both keep their edit → [document-write-granularity/contents.md](../document-write-granularity/contents.md). Found here at Stage G and split out because it has no planner premise: it changes how the whole application writes. **That project depends on Stage G's decisions and lists them as assumptions; when Stage G moves, update it in the same pass.**
 - Live SPA and backend behaviour → [frontend/contents.md](../../frontend/contents.md), [backend/contents.md](../../backend/contents.md), promoted only when this project closes.
 
 ## Task map
@@ -52,5 +54,7 @@ The planner as a first-class thing a user works in, and the ownership model unde
 | Check what is additive and what breaks | [plan.md](./plan.md) § Wire compatibility |
 | See what other projects must change before they close | [plan.md](./plan.md) § What the other projects owe |
 | Check what has landed | [plan.md](./plan.md) § Stage status |
+| Understand why the realtime cursor and baseline sync do not survive a second writer | [plan.md](./plan.md) § Stage G |
+| Find what the retired websocket-realtime project left behind | [plan.md](./plan.md) § Stage G — Absorbed from the retired websocket-realtime project |
 | Know how a document states its owner today | [overlay.md](./overlay.md) § Stage A — The owner block cutover |
 | See how a part works while the project is in flight | [overlay.md](./overlay.md) |

@@ -39,45 +39,13 @@ func (h *Handlers) PutPlannerHandler(w http.ResponseWriter, r *http.Request, han
 	})
 	defer metrics.Finish()
 
-	accountID := helper.AuthenticatedAccountID(r)
-	if accountID == "" {
-		metrics.Error("auth_error")
-		helper.RespondEndpointError(w, r, http.StatusUnauthorized, "Unauthorized",
-			"planner create: missing account", "planner_create_missing_account", "planner_create", nil, nil)
-		return
-	}
-	if h.Mongo == nil {
-		metrics.Error("mongo_client_missing")
-		helper.RespondEndpointError(w, r, http.StatusServiceUnavailable, "Service unavailable",
-			"planner create: mongo client missing", "planners_mongo_unavailable", "planner_create",
-			errors.New("mongo client missing"), nil)
-		return
-	}
-
-	owner, err := models.ParseOwnerHandle(handle, h.EntityCipher)
-	if err != nil {
-		metrics.Error("bad_handle")
-		helper.RespondEndpointError(w, r, http.StatusBadRequest, "Invalid planner",
-			"planner create: unparseable handle", "planner_create_bad_handle", "planner_create", err, nil)
-		return
-	}
-
 	// Membership first: everything below reads EVE or writes a document, and
 	// neither should happen for a planner this account cannot reach.
-	mayReach, err := h.Mongo.AccountMayReach(ctx, accountID, owner)
-	if err != nil {
-		metrics.Error("membership_check_failed")
-		helper.RespondEndpointServerError(w, r, "Failed to create planner",
-			"planner create: membership lookup failed", "planner_create_membership_failed", "planner_create", err, nil)
+	owner, ok := h.reachableOwner(w, r, handle, metrics, "planner_create")
+	if !ok {
 		return
 	}
-	if !mayReach {
-		metrics.Error("not_a_member")
-		helper.RespondEndpointError(w, r, http.StatusNotFound, "Not found",
-			"planner create: account holds no membership", "planner_create_not_found", "planner_create", nil,
-			map[string]any{"owner_kind": string(owner.Kind)})
-		return
-	}
+	accountID := helper.AuthenticatedAccountID(r)
 
 	name, err := h.plannerName(ctx, owner)
 	if err != nil {

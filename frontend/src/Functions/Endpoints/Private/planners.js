@@ -77,3 +77,53 @@ export async function ensurePlannerViaApi(ownerHandle) {
   }
   return res.json();
 }
+
+/**
+ * @typedef {object} PlannerSettings
+ * @property {object} customStructures
+ * @property {number} defaultMaterialEfficiencyValue
+ * @property {Object<string, Object<string, number>>} [predefinedSystemIndexes]
+ * @property {{id: string, name: string, deleted?: boolean}[]} [extrasCategories]
+ * @property {number} defaultCitadelBrokersFee
+ * @property {object} reprocessingSettings
+ * @property {number[]} [exemptTypeIDs]
+ */
+
+/**
+ * @typedef {object} PlannerSettingsResponse
+ * @property {string} owner - the owner handle the settings belong to
+ * @property {boolean} seeded - whether the planner has settings of its own
+ * @property {PlannerSettings} settings
+ */
+
+/**
+ * The settings a planner's work is done under.
+ *
+ * A planner with none answers defaults with `seeded: false`, so the caller always
+ * has a usable list and can tell a stored value from a fallback.
+ *
+ * @param {string} ownerHandle - `kind:id`, from a {@link PlannerSummary}
+ * @returns {Promise<PlannerSettingsResponse>}
+ */
+export async function fetchPlannerSettingsFromApi(ownerHandle) {
+  if (!ownerHandle) {
+    throw new Error("fetchPlannerSettingsFromApi: an owner handle is required");
+  }
+  // The colon separates the halves, so only the id is escaped.
+  const { kind, id } = splitOwnerHandle(ownerHandle);
+  const path = `${PLANNERS_ROOT}/${kind}:${encodeURIComponent(id)}/settings`;
+
+  const url = new URL(path, window.location.origin);
+  const res = await requestWithPrivateHeaders(
+    url.toString(),
+    { method: "GET" },
+    { requestName: "getPlannerSettings" }
+  );
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(
+      `GET ${path} failed: ${res.status} ${text || res.statusText}`
+    );
+  }
+  return res.json();
+}

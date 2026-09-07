@@ -26,8 +26,27 @@ func (h *Handlers) Router(w http.ResponseWriter, r *http.Request) {
 		// The handle is the rest of the path rather than one segment: an owner
 		// key is `kind:id`, and the id of an entity kind is a ref that carries no
 		// slash but is not worth assuming a shape for.
-		handle := strings.TrimSuffix(strings.TrimPrefix(path, "/api/v1/planners/"), "/")
-		if handle == "" || strings.Contains(handle, "/") {
+		rest := strings.TrimSuffix(strings.TrimPrefix(path, "/api/v1/planners/"), "/")
+
+		if handle, found := strings.CutSuffix(rest, "/settings"); found {
+			if handle == "" || strings.Contains(handle, "/") {
+				helper.RespondEndpointError(w, r, http.StatusNotFound, "Not found",
+					"planners route not found", "planners_not_found", "planners", nil,
+					map[string]any{"path": path})
+				return
+			}
+			if r.Method != http.MethodGet {
+				helper.RespondEndpointError(w, r, http.StatusMethodNotAllowed,
+					"Method not allowed. Use GET /api/v1/planners/{owner}/settings",
+					"invalid method for planner settings endpoint", "method_not_allowed", "planners", nil,
+					map[string]any{"method": r.Method})
+				return
+			}
+			h.GetPlannerSettingsHandler(w, r, handle)
+			return
+		}
+
+		if rest == "" || strings.Contains(rest, "/") {
 			helper.RespondEndpointError(w, r, http.StatusNotFound, "Not found",
 				"planners route not found", "planners_not_found", "planners", nil,
 				map[string]any{"path": path})
@@ -40,7 +59,7 @@ func (h *Handlers) Router(w http.ResponseWriter, r *http.Request) {
 				map[string]any{"method": r.Method})
 			return
 		}
-		h.PutPlannerHandler(w, r, handle)
+		h.PutPlannerHandler(w, r, rest)
 
 	default:
 		helper.RespondEndpointError(w, r, http.StatusNotFound, "Not found",

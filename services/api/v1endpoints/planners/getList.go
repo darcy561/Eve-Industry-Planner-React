@@ -76,7 +76,14 @@ func (h *Handlers) GetPlannersHandler(w http.ResponseWriter, r *http.Request) {
 
 	entries := make([]listEntry, 0, len(listings))
 	for _, listing := range listings {
-		entries = append(entries, entryFor(listing))
+		entry, err := h.entryFor(listing)
+		if err != nil {
+			// Dropped rather than sent as a handle the client cannot address.
+			logs.WarnCtx(ctx, "planners list: skipping unrenderable owner",
+				"account_id", accountID, "owner_kind", string(listing.Owner.Kind), "error", err)
+			continue
+		}
+		entries = append(entries, entry)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -95,12 +102,16 @@ func (h *Handlers) GetPlannersHandler(w http.ResponseWriter, r *http.Request) {
 
 // entryFor is one listing as a client sees it, so the listing and the write that
 // reads a planner back describe it identically.
-func entryFor(listing eipmongo.PlannerListing) listEntry {
+func (h *Handlers) entryFor(listing eipmongo.PlannerListing) (listEntry, error) {
+	handle, err := helper.OwnerHandle(listing.Owner, h.EntityCipher)
+	if err != nil {
+		return listEntry{}, err
+	}
 	return listEntry{
-		Owner:      listing.Owner.Key(),
+		Owner:      handle,
 		Kind:       string(listing.Owner.Kind),
 		Name:       listing.Name,
 		Named:      listing.Named,
 		JoinMethod: string(listing.JoinKind),
-	}
+	}, nil
 }

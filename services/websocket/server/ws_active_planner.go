@@ -3,7 +3,11 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strconv"
+	"strings"
 
+	"eve-industry-planner/shared/crypto/entityid"
 	"eve-industry-planner/shared/models"
 )
 
@@ -43,7 +47,7 @@ func (s *Server) handleActivePlannerWS(ctx context.Context, client *Client, msg 
 		return
 	}
 
-	owner, err := models.ParseOwnerKey(parsed.Owner)
+	owner, err := s.ownerFromHandle(parsed.Owner)
 	if err != nil {
 		finishWSOperationFailure(ctx, client, op,
 			"websocket active planner: unreadable owner",
@@ -101,4 +105,36 @@ func (s *Server) clientScopeCeiling(client *Client) models.OwnerKeys {
 		return client.Ceiling
 	}
 	return client.Scopes
+}
+
+// ownerFromHandle reads the `kind:id` a client names a planner by, re-encrypting
+// an entity id to the ref the ceiling and the owner index are keyed on.
+func (s *Server) ownerFromHandle(handle string) (models.Owner, error) {
+	kindPart, id, found := strings.Cut(handle, ":")
+	if !found || id == "" {
+		return models.Owner{}, fmt.Errorf("owner handle %q must be kind:id", handle)
+	}
+
+	var refKind string
+	switch models.OwnerKind(kindPart) {
+	case models.OwnerCorporation:
+		refKind = entityid.KindCorp
+	case models.OwnerAlliance:
+		refKind = entityid.KindAlliance
+	default:
+		return models.ParseOwnerKey(handle)
+	}
+
+	if s.entityCipher == nil {
+		return models.Owner{}, fmt.Errorf("owner handle %q needs an entity cipher", handle)
+	}
+	entityID, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return models.Owner{}, fmt.Errorf("owner handle %q: %s id must be a number", handle, kindPart)
+	}
+	ref, err := s.entityCipher.Encrypt(refKind, entityID)
+	if err != nil {
+		return models.Owner{}, fmt.Errorf("owner handle %q: %w", handle, err)
+	}
+	return models.Owner{Kind: models.OwnerKind(kindPart), ID: ref}, nil
 }

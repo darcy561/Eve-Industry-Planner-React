@@ -7,12 +7,6 @@ export const PLANNERS_QUERY_KEY = ["planners"];
 /**
  * What to show for a planner the server has not named.
  *
- * Membership is what grants access, so an account reaches every corporation it is
- * in before any of them has a planner document. The client already knows what
- * those entities are called — it built a corporation object for each at login —
- * so it names them itself rather than the listing inventing one, and the server
- * writes the real name when the planner is opened.
- *
  * @param {{owner: string, kind: string, name: string, named: boolean}} planner
  * @returns {string}
  */
@@ -20,7 +14,10 @@ export function plannerDisplayName(planner) {
   if (planner.name) return planner.name;
 
   if (planner.kind === "corporation") {
-    const corporation = corporationForOwner(planner.owner);
+    const id = entityIDFromHandle(planner.owner);
+    const corporation = useUsersStore
+      .getState()
+      .account.actions.getCorporation(id);
     if (corporation?.corporationName) return corporation.corporationName;
     return "Corporation";
   }
@@ -29,26 +26,14 @@ export function plannerDisplayName(planner) {
 }
 
 /**
- * The corporation an owner handle addresses, if this account holds one.
+ * The EVE id an owner handle names, or null for a kind that has none.
  *
- * The handle carries a ref rather than an EVE id, and the client stores
- * corporations by id — so this matches on the ref the account's own characters
- * produced rather than decoding anything.
+ * @param {string} handle - `kind:id`
+ * @returns {number|null}
  */
-function corporationForOwner(owner) {
-  const { corporations, characters } = useUsersStore.getState().account;
-  if (!corporations?.length) return null;
-
-  // Only one corporation can be the account's, and a listing entry names a
-  // planner the account is a member of, so the character's corporation is the
-  // one being named whenever there is exactly one candidate.
-  const ids = new Set(
-    (characters ?? []).map((character) => character.corporation_id).filter(Boolean)
-  );
-  const candidates = corporations.filter((corporation) =>
-    ids.has(corporation.corporation_id)
-  );
-  return candidates.length === 1 ? candidates[0] : null;
+function entityIDFromHandle(handle) {
+  const id = Number(handle.slice(handle.indexOf(":") + 1));
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
 }
 
 /** Base options for the planners listing. */

@@ -5,7 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"eve-industry-planner/api/apideps"
 	"eve-industry-planner/api/helper/auth"
+	"eve-industry-planner/testing/keys"
 )
 
 const routerAccount = "acct-router"
@@ -114,7 +116,9 @@ func TestTimelineViewsRejectNonGET(t *testing.T) {
 func TestViewsRefuseAnOwnerTheSessionDoesNotHold(t *testing.T) {
 	t.Parallel()
 
-	h := New(nil)
+	// An entity handle carries a raw id and is read back to a ref, so the cipher
+	// is what makes those paths addressable at all.
+	h := New(&apideps.Deps{EntityCipher: keys.EntityCipher(t)})
 
 	for _, path := range []string{
 		"/api/v1/statistics/account:someone-else/timeline",

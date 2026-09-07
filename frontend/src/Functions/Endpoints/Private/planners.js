@@ -7,7 +7,8 @@ const PLANNERS_ROOT = "/api/v1/planners";
 
 /**
  * @typedef {object} PlannerSummary
- * @property {string} owner - the owner handle, `kind:id`, which addresses the planner
+ * @property {string} owner - the owner handle, `kind:id`; the id is the EVE id for
+ *   a corporation or alliance
  * @property {string} kind - `account`, `corporation` or `alliance`
  * @property {string} name - what the planner is called, empty until something names it
  * @property {boolean} named - whether a planner document exists yet
@@ -58,8 +59,10 @@ export async function ensurePlannerViaApi(ownerHandle) {
     throw new Error("ensurePlannerViaApi: an owner handle is required");
   }
   // The colon separates the halves, so only the id is escaped.
-  const [kind, ...idParts] = ownerHandle.split(":");
-  const path = `${PLANNERS_ROOT}/${kind}:${encodeURIComponent(idParts.join(":"))}`;
+  const separator = ownerHandle.indexOf(":");
+  const kind = ownerHandle.slice(0, separator);
+  const id = ownerHandle.slice(separator + 1);
+  const path = `${PLANNERS_ROOT}/${kind}:${encodeURIComponent(id)}`;
 
   const url = new URL(path, window.location.origin);
   const res = await requestWithPrivateHeaders(

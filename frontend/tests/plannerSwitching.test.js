@@ -1,7 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const storeState = {
-  account: { isLoggedIn: true, corporations: [], characters: [] },
+  account: {
+    isLoggedIn: true,
+    corporations: [],
+    actions: {
+      getCorporation: (id) =>
+        storeState.account.corporations.find(
+          (corporation) => corporation.corporation_id === id
+        ) ?? null,
+    },
+  },
 };
 
 vi.mock("../src/Zustand/usersStore.js", () => ({
@@ -10,12 +19,12 @@ vi.mock("../src/Zustand/usersStore.js", () => ({
 
 const { plannerDisplayName } = await import("../src/Hooks/React Query/planners.js");
 
-const CORP_OWNER = "corporation:corp_56_J_DzQdPpjXwi9Xtp3C8bri9Bfi0Z94qUulkbKCac";
+// A handle carries the EVE id: refs are the server's identity and never reach a client.
+const CORP_OWNER = "corporation:98000001";
 
 describe("naming a planner for display", () => {
   beforeEach(() => {
     storeState.account.corporations = [];
-    storeState.account.characters = [];
   });
 
   // The server names a planner when somebody opens it, so a name it sends is the
@@ -35,7 +44,6 @@ describe("naming a planner for display", () => {
   // an unnamed one is ordinary. The client already knows what the entity is
   // called and says so rather than showing an owner key.
   it("falls back to the corporation the client already knows", () => {
-    storeState.account.characters = [{ corporation_id: 98000001 }];
     storeState.account.corporations = [
       { corporation_id: 98000001, corporationName: "Karkur Industries" },
     ];
@@ -45,18 +53,20 @@ describe("naming a planner for display", () => {
     ).toBe("Karkur Industries");
   });
 
-  // Two corporations and one handle: the handle carries a ref rather than an id,
-  // so nothing here can say which. A generic label beats naming the wrong one.
-  it("does not guess when the account holds more than one corporation", () => {
-    storeState.account.characters = [
-      { corporation_id: 98000001 },
-      { corporation_id: 98000002 },
-    ];
+  // The handle names the corporation outright, so holding several is not
+  // ambiguous — which it was while the handle carried a ref.
+  it("names the right corporation when the account holds several", () => {
     storeState.account.corporations = [
       { corporation_id: 98000001, corporationName: "First" },
       { corporation_id: 98000002, corporationName: "Second" },
     ];
 
+    expect(
+      plannerDisplayName({ owner: CORP_OWNER, kind: "corporation", name: "", named: false })
+    ).toBe("First");
+  });
+
+  it("labels a corporation the client does not hold", () => {
     expect(
       plannerDisplayName({ owner: CORP_OWNER, kind: "corporation", name: "", named: false })
     ).toBe("Corporation");
@@ -107,7 +117,7 @@ describe("addressing a planner over the API", () => {
     await ensurePlannerViaApi(CORP_OWNER);
 
     const [url] = requestWithPrivateHeaders.mock.calls[0];
-    expect(url).toContain("/api/v1/planners/corporation:corp_56_J_");
+    expect(url).toContain("/api/v1/planners/corporation:98000001");
     expect(url).not.toContain("%3A");
   });
 

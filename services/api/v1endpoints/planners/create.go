@@ -54,7 +54,7 @@ func (h *Handlers) PutPlannerHandler(w http.ResponseWriter, r *http.Request, han
 		return
 	}
 
-	owner, err := helper.ParseOwnerHandle(handle)
+	owner, err := helper.ParseOwnerHandle(handle, h.EntityCipher)
 	if err != nil {
 		metrics.Error("bad_handle")
 		helper.RespondEndpointError(w, r, http.StatusBadRequest, "Invalid planner",
@@ -107,7 +107,7 @@ func (h *Handlers) PutPlannerHandler(w http.ResponseWriter, r *http.Request, han
 	// planner that already had a document keeps what it was called.
 	w.WriteHeader(http.StatusOK)
 	if err := helper.EncodeJSON(w, listEntry{
-		Owner: owner.Key(),
+		Owner: handle,
 		Kind:  string(owner.Kind),
 		Name:  stored.Name,
 		Named: true,

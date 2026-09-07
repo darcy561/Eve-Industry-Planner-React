@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 
 	"eve-industry-planner/shared/crypto/entityid"
@@ -278,4 +279,61 @@ const (
 // player corporation" and this must not be read as one.
 func IsNPCCorporation(corporationID int64) bool {
 	return corporationID >= npcCorporationIDMin && corporationID <= npcCorporationIDMax
+}
+
+// OwnerHandle renders an owner as the `kind:id` a client sees, with the entity
+// kinds carrying the raw EVE id rather than the ref they are stored under.
+func OwnerHandle(owner Owner, cipher *entityid.Cipher) (string, error) {
+	kind, isEntity := orgEntityKind(owner.Kind)
+	if !isEntity {
+		return owner.Key(), nil
+	}
+	if cipher == nil {
+		return "", fmt.Errorf("owner handle for %q needs an entity cipher", owner.Kind)
+	}
+	id, err := cipher.DecryptKind(kind, owner.ID)
+	if err != nil {
+		return "", fmt.Errorf("owner handle for %q: %w", owner.Kind, err)
+	}
+	return string(owner.Kind) + ":" + strconv.FormatInt(id, 10), nil
+}
+
+// ParseOwnerHandle reads the `kind:id` a client sent back, re-encrypting an
+// entity id to the ref its owner is stored under.
+//
+// Only the first colon separates the two: an account id may contain one.
+func ParseOwnerHandle(handle string, cipher *entityid.Cipher) (Owner, error) {
+	kindPart, id, found := strings.Cut(handle, ":")
+	if !found {
+		return Owner{}, fmt.Errorf("owner handle %q must be kind:id", handle)
+	}
+	if id == "" {
+		return Owner{}, fmt.Errorf("owner handle %q names no owner", handle)
+	}
+	kind := OwnerKind(kindPart)
+
+	refKind, isEntity := orgEntityKind(kind)
+	if !isEntity {
+		owner := Owner{Kind: kind, ID: id}
+		if err := owner.Validate(); err != nil {
+			return Owner{}, err
+		}
+		return owner, nil
+	}
+	if cipher == nil {
+		return Owner{}, fmt.Errorf("owner handle %q needs an entity cipher", handle)
+	}
+	entityID, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return Owner{}, fmt.Errorf("owner handle %q: %s id must be a number", handle, kind)
+	}
+	ref, err := cipher.Encrypt(refKind, entityID)
+	if err != nil {
+		return Owner{}, fmt.Errorf("owner handle %q: %w", handle, err)
+	}
+	owner := Owner{Kind: kind, ID: ref}
+	if err := owner.Validate(); err != nil {
+		return Owner{}, err
+	}
+	return owner, nil
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"eve-industry-planner/api/helper"
+	"eve-industry-planner/shared/models"
 )
 
 // Router routes /api/v1/statistics/* (private mux: rate limit + session auth).
@@ -27,7 +28,7 @@ func (h *Handlers) Router(w http.ResponseWriter, r *http.Request) {
 		helper.RespondEndpointError(w, r, http.StatusNotFound, "Not found", "statistics route names no view", "not_found", "statistics", nil, map[string]any{"path": path})
 		return
 	}
-	owner, err := helper.ParseOwnerHandle(handle, h.EntityCipher)
+	owner, err := models.ParseOwnerHandle(handle, h.EntityCipher)
 	if err != nil {
 		helper.RespondEndpointError(w, r, http.StatusNotFound, "Not found", "statistics owner handle unreadable", "not_found", "statistics", err, map[string]any{"path": path})
 		return

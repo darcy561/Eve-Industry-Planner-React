@@ -54,7 +54,7 @@ func (h *Handlers) PutPlannerHandler(w http.ResponseWriter, r *http.Request, han
 		return
 	}
 
-	owner, err := helper.ParseOwnerHandle(handle, h.EntityCipher)
+	owner, err := models.ParseOwnerHandle(handle, h.EntityCipher)
 	if err != nil {
 		metrics.Error("bad_handle")
 		helper.RespondEndpointError(w, r, http.StatusBadRequest, "Invalid planner",

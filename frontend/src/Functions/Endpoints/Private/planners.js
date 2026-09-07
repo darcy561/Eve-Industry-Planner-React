@@ -2,6 +2,7 @@
  * Planners: the working areas an account may use (private API).
  */
 import { requestWithPrivateHeaders } from "./applyPrivateHeaders.js";
+import { splitOwnerHandle } from "../../Helper/ownerHandle.js";
 
 const PLANNERS_ROOT = "/api/v1/planners";
 
@@ -59,9 +60,7 @@ export async function ensurePlannerViaApi(ownerHandle) {
     throw new Error("ensurePlannerViaApi: an owner handle is required");
   }
   // The colon separates the halves, so only the id is escaped.
-  const separator = ownerHandle.indexOf(":");
-  const kind = ownerHandle.slice(0, separator);
-  const id = ownerHandle.slice(separator + 1);
+  const { kind, id } = splitOwnerHandle(ownerHandle);
   const path = `${PLANNERS_ROOT}/${kind}:${encodeURIComponent(id)}`;
 
   const url = new URL(path, window.location.origin);

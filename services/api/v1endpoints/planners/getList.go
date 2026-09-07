@@ -7,6 +7,7 @@ import (
 
 	"eve-industry-planner/api/helper"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 )
@@ -103,7 +104,7 @@ func (h *Handlers) GetPlannersHandler(w http.ResponseWriter, r *http.Request) {
 // entryFor is one listing as a client sees it, so the listing and the write that
 // reads a planner back describe it identically.
 func (h *Handlers) entryFor(listing eipmongo.PlannerListing) (listEntry, error) {
-	handle, err := helper.OwnerHandle(listing.Owner, h.EntityCipher)
+	handle, err := models.OwnerHandle(listing.Owner, h.EntityCipher)
 	if err != nil {
 		return listEntry{}, err
 	}

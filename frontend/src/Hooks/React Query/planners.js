@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchPlannersFromApi } from "../../Functions/Endpoints/Private/planners.js";
 import useUsersStore from "../../Zustand/usersStore.js";
+import { entityIDFromOwnerHandle } from "../../Functions/Helper/ownerHandle.js";
 
 export const PLANNERS_QUERY_KEY = ["planners"];
 
@@ -14,7 +15,7 @@ export function plannerDisplayName(planner) {
   if (planner.name) return planner.name;
 
   if (planner.kind === "corporation") {
-    const id = entityIDFromHandle(planner.owner);
+    const id = entityIDFromOwnerHandle(planner.owner);
     const corporation = useUsersStore
       .getState()
       .account.actions.getCorporation(id);
@@ -23,17 +24,6 @@ export function plannerDisplayName(planner) {
   }
   if (planner.kind === "alliance") return "Alliance";
   return "My planner";
-}
-
-/**
- * The EVE id an owner handle names, or null for a kind that has none.
- *
- * @param {string} handle - `kind:id`
- * @returns {number|null}
- */
-function entityIDFromHandle(handle) {
-  const id = Number(handle.slice(handle.indexOf(":") + 1));
-  return Number.isSafeInteger(id) && id > 0 ? id : null;
 }
 
 /** Base options for the planners listing. */

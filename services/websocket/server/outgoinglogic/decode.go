@@ -171,6 +171,7 @@ func CorporationRecipientMatchesDownward(clientAccountID string, scopes Downward
 // internal identities — refs and source ids — and are stripped before a payload
 // reaches a browser, which has no use for them and should not learn them.
 var routingOnlyFields = []string{
+	// Replaced by `owner`, the same owner as a handle rather than a key.
 	"ownerKey",
 	"scopes",
 	"sourceClientID",
@@ -178,16 +179,17 @@ var routingOnlyFields = []string{
 }
 
 // ClientPayload returns messageData shaped for a browser: routing metadata
-// removed, and every entity ref in the document body converted back to the raw
-// id the client is owed.
+// removed, the owner named as the handle a client can read, and every entity ref
+// in the document body converted back to the raw id the client is owed.
 //
 // This runs after routing has been decided, and only on the copy handed to
 // delivery. Routing matches on refs, so converting any earlier would leave a
 // message that matches nothing.
 //
-// It returns the original bytes unchanged when nothing needs rewriting, so the
-// common account-scoped path allocates nothing.
-func ClientPayload(messageData []byte, cipher *entityid.Cipher) []byte {
+// It returns the original bytes unchanged when nothing needs rewriting, which is
+// now only a message with no owner to name: naming the owner re-encodes every
+// other, which the client needs to tell one planner's documents from another's.
+func ClientPayload(messageData []byte, owner models.Owner, cipher *entityid.Cipher) []byte {
 	var m map[string]any
 	if err := json.Unmarshal(messageData, &m); err != nil {
 		return messageData
@@ -197,6 +199,12 @@ func ClientPayload(messageData []byte, cipher *entityid.Cipher) []byte {
 	for _, k := range routingOnlyFields {
 		if _, ok := m[k]; ok {
 			delete(m, k)
+			changed = true
+		}
+	}
+	if !owner.IsZero() {
+		if handle, err := models.OwnerHandle(owner, cipher); err == nil {
+			m["owner"] = handle
 			changed = true
 		}
 	}

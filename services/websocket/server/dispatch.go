@@ -101,7 +101,7 @@ func (s *Server) deliverOutboundDocUpdate(ctx context.Context, collectionScopedD
 	// Routing metadata names internal identities and the document body carries
 	// refs; rewrite once here rather than per recipient, after routing has been
 	// decided from the untouched message, so no ref reaches a browser.
-	clientData := outgoinglogic.ClientPayload(messageData, s.entityCipher)
+	clientData := outgoinglogic.ClientPayload(messageData, decoded.Route.Owner, s.entityCipher)
 
 	switch decoded.Route.Owner.Kind {
 	case models.OwnerAccount:

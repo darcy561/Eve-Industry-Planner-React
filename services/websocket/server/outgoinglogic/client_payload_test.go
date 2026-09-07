@@ -5,12 +5,18 @@ import (
 	"strings"
 	"testing"
 
+	"eve-industry-planner/shared/models"
+
 	"eve-industry-planner/shared/crypto/entityid"
 	"eve-industry-planner/testing/keys"
 )
 
 // Refs are the internal representation and must not reach a browser. The routing
 // fields carry them, so delivery strips them.
+// testOwner is the owner the tests below deliver for, when the owner is not what
+// they are about.
+var testOwner = models.AccountOwner("acct-payload")
+
 func TestClientPayloadStripsRoutingRefs(t *testing.T) {
 	t.Parallel()
 	in := []byte(`{
@@ -23,7 +29,7 @@ func TestClientPayloadStripsRoutingRefs(t *testing.T) {
 	  "document":{"jobID":"job-1"}
 	}`)
 
-	got := string(ClientPayload(in, keys.EntityCipher(t)))
+	got := string(ClientPayload(in, testOwner, keys.EntityCipher(t)))
 	for _, leaked := range []string{"ownerKey", "scopes", "corp_abc123", "sourceClientID", "sourceSessionID"} {
 		if strings.Contains(got, leaked) {
 			t.Fatalf("%q survived into the client payload:\n%s", leaked, got)
@@ -41,36 +47,65 @@ func TestClientPayloadStripsRoutingRefs(t *testing.T) {
 	}
 }
 
-// A payload holding no routing metadata passes through untouched rather than
-// paying a re-encode.
-func TestClientPayloadPassesThroughWhenNothingToStrip(t *testing.T) {
+// Every payload names its owner, so every payload is re-encoded. A message with
+// no owner to name is the exception and passes through untouched.
+func TestClientPayloadPassesThroughWhenThereIsNoOwnerToName(t *testing.T) {
 	t.Parallel()
 	in := []byte(`{"collection":"user_job_documents","docID":"job-1"}`)
 
-	got := ClientPayload(in, keys.EntityCipher(t))
+	got := ClientPayload(in, models.Owner{}, keys.EntityCipher(t))
 	if &got[0] != &in[0] {
 		t.Fatal("expected the original slice to be returned unchanged")
 	}
 }
 
-// The owner key names an internal identity for every kind, not only the org ones,
-// so an account-scoped message is stripped too. Nothing in the SPA reads it: the
-// server decides who a message reaches, and a client that has been sent one has
-// already been chosen.
-func TestClientPayloadStripsTheOwnerKeyOnAccountScope(t *testing.T) {
+// The owner key is replaced by the handle for the same owner: a client is told
+// which planner a message belongs to, in the form it can read, while the key —
+// which carries a ref for the org kinds — never reaches it.
+func TestClientPayloadNamesTheOwnerAsAHandle(t *testing.T) {
 	t.Parallel()
+	owner := models.AccountOwner("acct-1")
 	in := []byte(`{"collection":"user_job_documents","docID":"job-1","ownerKey":"account:acct-1"}`)
 
-	got := string(ClientPayload(in, keys.EntityCipher(t)))
-	if strings.Contains(got, "ownerKey") || strings.Contains(got, "acct-1") {
-		t.Fatalf("the owner key survived into the client payload:\n%s", got)
+	got := decodeJSONMap(t, ClientPayload(in, owner, keys.EntityCipher(t)))
+	if _, present := got["ownerKey"]; present {
+		t.Error("the routing key survived into the client payload")
 	}
+	if got["owner"] != "account:acct-1" {
+		t.Errorf("owner = %v, want the account's handle", got["owner"])
+	}
+}
+
+// An org owner is named by its id rather than the ref it is stored under, which
+// is the same conversion the endpoints make.
+func TestClientPayloadNamesAnOrgOwnerByItsID(t *testing.T) {
+	t.Parallel()
+	cipher := keys.EntityCipher(t)
+	ref, err := cipher.Corporation(98000001)
+	if err != nil {
+		t.Fatalf("encrypt: %v", err)
+	}
+	in := []byte(`{"collection":"user_job_documents","docID":"job-1"}`)
+
+	got := decodeJSONMap(t, ClientPayload(in, models.CorporationOwner(ref), cipher))
+	if got["owner"] != "corporation:98000001" {
+		t.Errorf("owner = %v, want the corporation's id", got["owner"])
+	}
+}
+
+func decodeJSONMap(t *testing.T, raw []byte) map[string]any {
+	t.Helper()
+	var m map[string]any
+	if err := json.Unmarshal(raw, &m); err != nil {
+		t.Fatalf("decode payload: %v", err)
+	}
+	return m
 }
 
 func TestClientPayloadLeavesMalformedJSONAlone(t *testing.T) {
 	t.Parallel()
 	in := []byte(`not json`)
-	if string(ClientPayload(in, keys.EntityCipher(t))) != string(in) {
+	if string(ClientPayload(in, testOwner, keys.EntityCipher(t))) != string(in) {
 		t.Fatal("malformed input must pass through rather than be dropped")
 	}
 }
@@ -104,7 +139,7 @@ func TestClientPayloadRestoresIDsInTheDocumentBody(t *testing.T) {
 	  }
 	}`)
 
-	got := ClientPayload(in, c)
+	got := ClientPayload(in, testOwner, c)
 	if strings.Contains(string(got), corpRef) || strings.Contains(string(got), charRef) {
 		t.Fatalf("a ref survived into the client payload:\n%s", got)
 	}
@@ -158,7 +193,7 @@ func TestClientPayloadDropsRefsItCannotDecrypt(t *testing.T) {
 
 	in := []byte(`{"collection":"c","document":{"corporation_ref":"` + foreign + `"}}`)
 
-	got := ClientPayload(in, c)
+	got := ClientPayload(in, testOwner, c)
 	if strings.Contains(string(got), foreign) {
 		t.Fatalf("an undecryptable ref survived:\n%s", got)
 	}
@@ -184,7 +219,7 @@ func TestClientPayloadWithoutACipherStillRemovesRefs(t *testing.T) {
 	}
 
 	in := []byte(`{"collection":"c","document":{"corporation_ref":"` + ref + `"}}`)
-	got := ClientPayload(in, nil)
+	got := ClientPayload(in, testOwner, nil)
 	if strings.Contains(string(got), ref) {
 		t.Fatalf("a ref survived without a cipher:\n%s", got)
 	}
@@ -195,7 +230,7 @@ func TestClientPayloadLeavesNonRefFieldsAlone(t *testing.T) {
 	t.Parallel()
 	in := []byte(`{"collection":"c","document":{"journal_ref_id":77,"some_ref":"not-a-ref","nested":{"other_ref":""}}}`)
 
-	got := ClientPayload(in, keys.EntityCipher(t))
+	got := ClientPayload(in, testOwner, keys.EntityCipher(t))
 	var m map[string]any
 	if err := json.Unmarshal(got, &m); err != nil {
 		t.Fatalf("client payload is not valid JSON: %v", err)

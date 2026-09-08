@@ -1,8 +1,10 @@
 package mongo
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"os"
 	"testing"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -30,5 +32,158 @@ func TestIsRetryableMongoError(t *testing.T) {
 				t.Fatalf("IsRetryableMongoError(%v)=%v want %v", tc.err, got, tc.want)
 			}
 		})
+	}
+}
+
+// errRetryable is classified by IsRetryableMongoError through its message
+// fallback, the same route a real SDAM failure takes.
+var errRetryable = errors.New("server selection error: no reachable servers")
+
+func TestRetry_succeedsWithoutRetrying(t *testing.T) {
+	calls := 0
+	err := Retry(context.Background(), "test", func() error {
+		calls++
+		return nil
+	})
+
+	if err != nil {
+		t.Fatalf("Retry returned %v, want nil", err)
+	}
+	if calls != 1 {
+		t.Fatalf("operation called %d times, want 1", calls)
+	}
+}
+
+func TestRetry_succeedsAfterRetryableFailure(t *testing.T) {
+	calls := 0
+	err := Retry(context.Background(), "test", func() error {
+		calls++
+		if calls < 2 {
+			return errRetryable
+		}
+		return nil
+	})
+
+	if err != nil {
+		t.Fatalf("Retry returned %v, want nil", err)
+	}
+	if calls != 2 {
+		t.Fatalf("operation called %d times, want 2", calls)
+	}
+}
+
+// An exhausted retry hands back the Mongo failure itself, so a caller can
+// classify it without unwrapping an attempt-count wrapper.
+func TestRetry_exhaustedReturnsCause(t *testing.T) {
+	calls := 0
+	err := Retry(context.Background(), "test", func() error {
+		calls++
+		return errRetryable
+	})
+
+	if err != errRetryable {
+		t.Fatalf("Retry returned %v, want the cause %v unwrapped", err, errRetryable)
+	}
+	if calls != retryMaxAttempts {
+		t.Fatalf("operation called %d times, want %d", calls, retryMaxAttempts)
+	}
+}
+
+func TestRetry_stopsOnNonRetryable(t *testing.T) {
+	calls := 0
+	err := Retry(context.Background(), "test", func() error {
+		calls++
+		return errors.New("duplicate key error")
+	})
+
+	if err == nil {
+		t.Fatal("Retry returned nil, want error")
+	}
+	if calls != 1 {
+		t.Fatalf("operation called %d times, want 1", calls)
+	}
+}
+
+func TestRetry_missingDocumentIsNotRetried(t *testing.T) {
+	calls := 0
+	err := Retry(context.Background(), "test", func() error {
+		calls++
+		return mongo.ErrNoDocuments
+	})
+
+	if !errors.Is(err, mongo.ErrNoDocuments) {
+		t.Fatalf("Retry returned %v, want ErrNoDocuments", err)
+	}
+	if calls != 1 {
+		t.Fatalf("operation called %d times, want 1", calls)
+	}
+}
+
+// A non-retryable failure on the final attempt is still refused rather than
+// reported as exhaustion: the engine does not consult the predicate there.
+func TestRetry_nonRetryableOnLastAttempt(t *testing.T) {
+	calls := 0
+	nonRetryable := errors.New("duplicate key error")
+	err := Retry(context.Background(), "test", func() error {
+		calls++
+		if calls < retryMaxAttempts {
+			return errRetryable
+		}
+		return nonRetryable
+	})
+
+	if err != nonRetryable {
+		t.Fatalf("Retry returned %v, want %v", err, nonRetryable)
+	}
+	if calls != retryMaxAttempts {
+		t.Fatalf("operation called %d times, want %d", calls, retryMaxAttempts)
+	}
+}
+
+func TestRetry_cancelledContextIsNotAttempted(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	calls := 0
+	err := Retry(ctx, "test", func() error {
+		calls++
+		return nil
+	})
+
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("Retry returned %v, want context.Canceled", err)
+	}
+	if calls != 0 {
+		t.Fatalf("operation called %d times, want 0", calls)
+	}
+}
+
+// Cancellation must end the backoff wait rather than sleeping it out.
+func TestRetry_cancelledContextStopsBackoff(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	calls := 0
+	err := Retry(ctx, "test", func() error {
+		calls++
+		cancel()
+		return errRetryable
+	})
+
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("Retry returned %v, want context.Canceled", err)
+	}
+	if calls != 1 {
+		t.Fatalf("operation called %d times, want 1", calls)
+	}
+}
+
+// Retry holds no loop of its own; the backoff lives in shared/retry.
+func TestRetry_hasNoLoopOfItsOwn(t *testing.T) {
+	src, err := os.ReadFile("retry.go")
+	if err != nil {
+		t.Fatalf("reading retry.go: %v", err)
+	}
+	if bytes.Contains(src, []byte("time.After")) || bytes.Contains(src, []byte("time.NewTimer")) {
+		t.Error("retry.go waits on a timer directly, want the backoff in shared/retry")
 	}
 }

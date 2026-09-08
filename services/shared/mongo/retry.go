@@ -3,11 +3,11 @@ package mongo
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/retry"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -18,10 +18,74 @@ const (
 	retryMaxDelay     = 2 * time.Second
 )
 
-// Retry runs operation with exponential backoff (3 attempts, 100ms → 2s).
-// operationName is used only for logs (empty → "MongoDB operation").
+// Retry runs operation with exponential backoff (3 attempts, 100ms → 2s),
+// retrying what [IsRetryableMongoError] accepts. operationName labels the logs
+// (empty → "MongoDB operation"); the error returned is the Mongo failure itself.
 func Retry(ctx context.Context, operationName string, operation func() error) error {
-	return retryMongoOperation(ctx, operationName, retryMaxAttempts, retryInitialDelay, retryMaxDelay, operation)
+	opName := operationName
+	if opName == "" {
+		opName = "MongoDB operation"
+	}
+
+	attempts := 0
+	refused := false
+
+	// refuse reports whether err ends the operation rather than earning another
+	// attempt, and logs it once. The engine does not consult the predicate on the
+	// last attempt, so a failure there is classified after Do returns instead.
+	refuse := func(err error) bool {
+		if IsRetryableMongoError(err) {
+			return false
+		}
+		refused = true
+		// A missing document is an answer the caller asked for, not a failure.
+		if !errors.Is(err, mongo.ErrNoDocuments) {
+			logs.ErrorCtx(ctx, "MongoDB operation failed - non-retryable error",
+				"operation", opName,
+				"error", err)
+		}
+		return true
+	}
+
+	err := retry.Do(ctx,
+		func(context.Context) error {
+			attempts++
+			return operation()
+		},
+		func(err error, at retry.AttemptContext) bool {
+			if refuse(err) {
+				return false
+			}
+			logs.WarnCtx(ctx, "MongoDB operation failed, retrying",
+				"operation", opName,
+				"attempt", at.Attempt,
+				"max_attempts", at.MaxAttempts,
+				"error", err)
+			return true
+		},
+		retry.WithMaxAttempts(retryMaxAttempts),
+		retry.WithInitialDelay(retryInitialDelay),
+		retry.WithMaxDelay(retryMaxDelay),
+		retry.WithOperationName(opName),
+	)
+
+	switch {
+	case err == nil:
+		if attempts > 1 {
+			logs.InfoCtx(ctx, "MongoDB operation succeeded after retry",
+				"operation", opName,
+				"attempt", attempts)
+		}
+	// A cancelled context is the caller giving up, and Do reports it in place of
+	// any operation error.
+	case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
+	case !refused && !refuse(err):
+		logs.ErrorCtx(ctx, "MongoDB operation failed - all retries exhausted",
+			"operation", opName,
+			"attempts", attempts,
+			"error", err)
+	}
+	return err
 }
 
 // IsRetryableMongoError reports whether err is a transient Mongo / network failure suitable for Retry.
@@ -57,73 +121,4 @@ func IsRetryableMongoError(err error) bool {
 		}
 	}
 	return false
-}
-
-func retryMongoOperation(
-	ctx context.Context,
-	operationName string,
-	maxRetries int,
-	initialDelay, maxDelay time.Duration,
-	operation func() error,
-) error {
-	opName := operationName
-	if opName == "" {
-		opName = "MongoDB operation"
-	}
-
-	var lastErr error
-	for attempt := range maxRetries {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		err := operation()
-		if err == nil {
-			if attempt > 0 {
-				logs.InfoCtx(ctx, "MongoDB operation succeeded after retry",
-					"operation", opName,
-					"attempt", attempt+1)
-			}
-			return nil
-		}
-
-		lastErr = err
-
-		if !IsRetryableMongoError(err) {
-			if errors.Is(err, mongo.ErrNoDocuments) {
-				return err
-			}
-			logs.ErrorCtx(ctx, "MongoDB operation failed - non-retryable error",
-				"operation", opName,
-				"error", err)
-			return err
-		}
-
-		if attempt == maxRetries-1 {
-			break
-		}
-
-		delay := min(initialDelay*time.Duration(1<<attempt), maxDelay)
-
-		logs.WarnCtx(ctx, "MongoDB operation failed, retrying",
-			"operation", opName,
-			"attempt", attempt+1,
-			"max_retries", maxRetries,
-			"delay_ms", delay.Milliseconds(),
-			"error", err)
-
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-time.After(delay):
-		}
-	}
-
-	logs.ErrorCtx(ctx, "MongoDB operation failed - all retries exhausted",
-		"operation", opName,
-		"attempts", maxRetries,
-		"error", lastErr)
-	return fmt.Errorf("MongoDB operation failed after %d attempts: %w", maxRetries, lastErr)
 }

@@ -294,17 +294,23 @@ func (w *Watcher) processChangeEvent(ctx context.Context, changeEvent bson.M) er
 		return fmt.Errorf("missing _id in documentKey")
 	}
 
-	var docID string
+	var storedID string
 	switch v := docIDValue.(type) {
 	case string:
-		docID = v
+		storedID = v
 	case int32, int64:
-		docID = fmt.Sprintf("%d", v)
+		storedID = fmt.Sprintf("%d", v)
 	case float64:
-		docID = fmt.Sprintf("%.0f", v)
+		storedID = fmt.Sprintf("%.0f", v)
 	default:
-		docID = fmt.Sprintf("%v", v)
+		storedID = fmt.Sprintf("%v", v)
 	}
+
+	// The boundary between what is stored and what a client knows: a planner-held
+	// document is stored under {ownerKey}|{id}, and the id a browser sends, keys
+	// its store on and reads back is the bare one. The owner travels beside it as
+	// OwnerKey rather than inside it. An id carrying no owner is already bare.
+	docID := eipmongo.BareDocumentID(storedID)
 
 	// Extract full document if available
 	var document map[string]any
@@ -347,11 +353,19 @@ func (w *Watcher) processChangeEvent(ctx context.Context, changeEvent bson.M) er
 	// changeStreamPreAndPostImages (deployment-tool PreimageCollections / EnsureMongo). Without it a
 	// delete states no owner, so the message routes to explicit subscribers rather than the owner's
 	// clients. Singleton account documents recover it from the _id, which is the account id.
+	var docOwnerFromID models.Owner
 	if accountID == "" && operationType == "delete" {
 		switch collection {
 		case eipmongo.CollectionAccounts, eipmongo.CollectionAccountSettings, eipmongo.CollectionWatchlistDeprecated:
 			accountID = docID
 		default:
+			// A planner-held document's stored id carries its owner, so a delete
+			// with no preimage can still be routed: the id is the answer the
+			// preimage would have given.
+			if owner, err := eipmongo.OwnerFromDocumentID(storedID); err == nil {
+				docOwnerFromID = owner
+				break
+			}
 			if collection == eipmongo.CollectionJobGroups ||
 				collection == eipmongo.CollectionJobDocuments {
 				logs.WarnCtx(ctx, "delete states no owner (fullDocumentBeforeChange empty);"+
@@ -398,6 +412,9 @@ func (w *Watcher) processChangeEvent(ctx context.Context, changeEvent bson.M) er
 	// A document states its owner. A delete without a preimage has none to read,
 	// leaving only the account id recovered above.
 	docOwner, scopePayload := ownerFromDocument(docToExtract)
+	if docOwner.IsZero() && !docOwnerFromID.IsZero() {
+		docOwner = docOwnerFromID
+	}
 	if docOwner.IsZero() && accountID != "" {
 		docOwner = models.AccountOwner(accountID)
 	}

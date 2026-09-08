@@ -48,16 +48,14 @@ func (s *Server) docSubscribeAuthorized(ctx context.Context, docID, accountID st
 		mctx, cancel := context.WithTimeout(ctx, docSubscribeMongoTimeout)
 		defer cancel()
 
-		// Who owns the document, then whether this account is a member of that
-		// owner: two reads rather than one, because a planner-held document is no
-		// longer owned by whoever may read it.
-		owner, err := mongo.Docs(collection).OwnerOfDocument(mctx, id)
+		// The stored id carries its owner, so who owns the document is read from
+		// the id rather than from the document. Whether this account may reach
+		// that owner is still a separate question, because a planner-held document
+		// is not owned by everyone entitled to read it.
+		owner, err := eipmongo.OwnerFromDocumentID(id)
 		if err != nil {
-			logs.WarnCtx(context.Background(), "subscribe auth owner lookup failed",
+			logs.WarnCtx(context.Background(), "subscribe auth denied: document id names no owner",
 				"error", err, "collection", collection, "doc_id", id, "account_id", accountID)
-			return false
-		}
-		if owner.IsZero() {
 			return false
 		}
 		ok, err := mongo.AccountMayReach(mctx, accountID, owner)

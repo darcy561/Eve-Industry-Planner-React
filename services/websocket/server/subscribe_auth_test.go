@@ -82,3 +82,17 @@ func TestDocSubscribePlannerHeldNeedsAMembershipLookup(t *testing.T) {
 		}
 	}
 }
+
+// A planner-held id that names no owner is refused before Mongo is reached: the
+// stored id carries its owner, so one that does not is not a document this
+// service stores.
+func TestDocSubscribePlannerHeldRefusesAnIDWithNoOwner(t *testing.T) {
+	t.Parallel()
+	s := &Server{Stack: &stackservices.Clients{Mongo: &eipmongo.Mongo{}}}
+
+	for _, collection := range eipmongo.PlannerHeldCollections() {
+		if s.docSubscribeAuthorized(context.Background(), collection+".job-1", "acct-1") {
+			t.Fatalf("%s authorised a bare id that names no owner", collection)
+		}
+	}
+}

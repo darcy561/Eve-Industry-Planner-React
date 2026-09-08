@@ -466,6 +466,35 @@ in place of the account id — `ArchivedJobStatsDocumentID` becomes `{ownerKey}|
 `account:abc|job1` or `planner:01J…|job1`; the existing `|` separator still works because the owner
 key's own separator is `:`.
 
+### Every owner-scoped document id carries its owner
+
+The derived statistics collections took this shape first. The base collections need it for a harder
+reason: **`_id` is globally unique**, so a bare `jobID` cannot exist twice, and an upsert filtered on
+`{owner, _id}` matches nothing when the same id exists under another owner — then tries to insert and
+fails on the duplicate key. Filter and id have to agree, and the only way they agree is for the id to
+carry the owner.
+
+So `job_documents`, `job_groups`, `group_template_catalog` and `group_template_payloads` all take
+`{ownerKey}|{id}`. The catalogue is the exception already recorded above: its `_id` **is** the owner
+key, because there is one catalogue per owner.
+
+**The id is split at the boundary, and the client never sees the stored form.** A browser keeps
+sending and receiving the bare id — it is what a URL carries, what the job store keys on, and what
+`docID` means on the wire. The server composes the stored id from the owner it already knows. This is
+the same rule `shared/protectedfields` states for entity refs: the stored value and the client-facing
+value differ, and the boundary converts. The SPA therefore needs no change for this.
+
+Three server-side conversions follow: the changestream emits the bare id as `docID` while the message
+continues to carry `ownerKey` separately; every read and write filter composes the id from owner and
+bare id; and document-subscribe authorisation resolves a bare id within the connection's planner
+rather than globally. That last one costs nothing today — **no client sends `subscribe`**, because a
+connection subscribes to a planner and receives everything in it.
+
+**The migration merges into the owner walk.** `stampMetaOwner` already visits every scoped document to
+give it an owner; the id rewrite needs that same owner, so it happens in the same pass rather than as a
+second walk over the largest collection in the database. `_id` is immutable, so each row is written
+under its new id and the old one removed — which is why doing it in one pass rather than two matters.
+
 ### Collection size
 
 Putting every owner's documents in one collection does not make queries slower, and splitting by kind
@@ -1889,6 +1918,7 @@ is ready for the window.
 | `ChangeStreamMessage` scope fields | **Landed** as one `ownerKey`, replacing the three. Breaking core to websocket only; internal, and both ship in the same window. JetStream holds `doc.update` for an hour, so the two shapes must not be split across deploys — see [archived-jobs-stats](../archived-jobs-stats/overlay.md) § How a change reaches the right clients |
 | `ArchivedJobStats` owner | **migrate-required** — same window |
 | Collection names, document ids | **migrate-required**; client-facing via changestream groups and the subscribe allow-list, which are small and account-based today and move with the rename |
+| `job_documents`, `job_groups`, template `_id` | **migrate-required** — each becomes `{ownerKey}\|{id}`, rewritten in the owner walk. **Not breaking on the wire**: the bare id is what a client sends and receives, and the server composes the stored form — see § Every owner-scoped document id carries its owner |
 | `SessionGrants` in Redis | records expire, and the window can clear them outright rather than tolerating two shapes |
 | `upgrade_scopes` / `scopes_ack` | **removed** — no client sends them, so there is nothing to cut with; the Stage E message that narrows to an active planner is additive |
 | Statistics routes | **breaking** if deferred, additive if the owner handle lands while the account is still the only value — hence it is owed by archived-jobs-stats before it ships |

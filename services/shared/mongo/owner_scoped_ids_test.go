@@ -2,9 +2,12 @@ package mongo
 
 import (
 	"slices"
+	"strings"
 	"testing"
 
 	"eve-industry-planner/shared/models"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // The rewrite's selector is the id itself, which is what makes re-running it
@@ -71,5 +74,24 @@ func TestOwnerScopedIDCollectionsArePlannerHeld(t *testing.T) {
 		if !slices.Contains(planner, name) {
 			t.Errorf("%s takes an owner-scoped id but is not planner-held", name)
 		}
+	}
+}
+
+// $not takes a regex literal; a $regex document there is refused by the server.
+// The filter is the rewrite's selector and the release's gate, so a shape the
+// server rejects would fail both at once.
+func TestBareDocumentIDFilterUsesARegexLiteral(t *testing.T) {
+	t.Parallel()
+
+	raw, err := bson.Marshal(BareDocumentIDFilter())
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	encoded := bson.Raw(raw).String()
+	if !strings.Contains(encoded, "$regularExpression") {
+		t.Fatalf("filter = %s, want a regex literal under $not", encoded)
+	}
+	if strings.Contains(encoded, `"$regex"`) {
+		t.Fatalf("filter = %s, want no $regex document", encoded)
 	}
 }

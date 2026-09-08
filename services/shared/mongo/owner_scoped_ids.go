@@ -1,6 +1,12 @@
 package mongo
 
-import "eve-industry-planner/shared/models"
+import (
+	"regexp"
+
+	"eve-industry-planner/shared/models"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
+)
 
 // OwnerScopedIDCollections hold documents whose _id carries the owner.
 //
@@ -37,4 +43,17 @@ func RewrittenDocumentID(owner models.Owner, storedID string) string {
 		return ""
 	}
 	return OwnerScopedDocumentID(owner, storedID)
+}
+
+// BareDocumentIDFilter selects documents still stored under an id that names no
+// owner. It is what the rewrite enumerates and what the release gates on, so
+// both agree on what "not yet moved" means.
+//
+// $not takes a regex literal rather than a $regex document, which the server
+// refuses.
+func BareDocumentIDFilter() bson.M {
+	return bson.M{"_id": bson.M{
+		"$type": "string",
+		"$not":  bson.Regex{Pattern: regexp.QuoteMeta(documentIDSeparator)},
+	}}
 }

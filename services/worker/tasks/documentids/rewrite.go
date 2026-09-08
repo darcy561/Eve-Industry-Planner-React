@@ -134,13 +134,19 @@ func moveDocument(ctx context.Context, coll *mongodriver.Collection, doc bson.M,
 
 // seedDocumentVersion gives a document the write counter a conditional write
 // compares, so that check never meets a document without one.
+//
+// A nested document decodes as bson.D, not bson.M, so the meta block is walked
+// as one — asserting a map here would silently seed nothing.
 func seedDocumentVersion(doc bson.M) {
-	meta, ok := doc["_meta"].(bson.M)
+	meta, ok := doc["_meta"].(bson.D)
 	if !ok {
 		return
 	}
-	if _, present := meta[eipmongo.MetaFieldVersionKey]; present {
+	if slices.ContainsFunc(meta, func(e bson.E) bool { return e.Key == eipmongo.MetaFieldVersionKey }) {
 		return
 	}
-	meta[eipmongo.MetaFieldVersionKey] = models.InitialDocumentVersion
+	doc["_meta"] = append(meta, bson.E{
+		Key:   eipmongo.MetaFieldVersionKey,
+		Value: models.InitialDocumentVersion,
+	})
 }

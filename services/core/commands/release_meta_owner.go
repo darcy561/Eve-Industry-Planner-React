@@ -151,7 +151,7 @@ func verifyMetaOwner(ctx context.Context, clients *stackservices.Clients, dryRun
 // would put the window at the mercy of how long it takes. What the release owes
 // is the check that it finished.
 func verifyOwnerScopedIDs(ctx context.Context, clients *stackservices.Clients, dryRun bool) (string, error) {
-	bareID := bson.M{"_id": bson.M{"$type": "string", "$not": bson.M{"$regex": `\|`}}}
+	bareID := eipmongo.BareDocumentIDFilter()
 
 	var offenders []string
 	var total int64

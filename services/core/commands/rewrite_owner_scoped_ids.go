@@ -87,7 +87,7 @@ func ownersNeedingScopedIDs(ctx context.Context, m *eipmongo.Mongo, collection s
 	}
 
 	cursor, err := coll.Aggregate(ctx, []bson.M{
-		{"$match": bson.M{"_id": bson.M{"$type": "string", "$not": bson.M{"$regex": `\|`}}}},
+		{"$match": eipmongo.BareDocumentIDFilter()},
 		{"$group": bson.M{"_id": "$" + eipmongo.FieldMetaOwner}},
 	})
 	if err != nil {

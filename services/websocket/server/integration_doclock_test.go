@@ -56,7 +56,7 @@ func TestIntegrationDocLockViewerArrivedAndDeparted(t *testing.T) {
 		"docID":      docID,
 	})
 	wait.For(t, 2*time.Second, func() (bool, string) {
-		n, err := f.Redis.ZScore(context.Background(), viewersKey, sessionID).Result()
+		n, err := f.Redis.Driver().ZScore(context.Background(), viewersKey, sessionID).Result()
 		return err == nil && n > 0, fmt.Sprintf("viewer not in set: score=%v err=%v", n, err)
 	})
 
@@ -66,7 +66,7 @@ func TestIntegrationDocLockViewerArrivedAndDeparted(t *testing.T) {
 		"docID":      docID,
 	})
 	wait.For(t, 2*time.Second, func() (bool, string) {
-		err := f.Redis.ZScore(context.Background(), viewersKey, sessionID).Err()
+		err := f.Redis.Driver().ZScore(context.Background(), viewersKey, sessionID).Err()
 		return err != nil, "viewer still in set after departed"
 	})
 }

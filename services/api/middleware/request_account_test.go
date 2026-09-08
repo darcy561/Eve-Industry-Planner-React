@@ -10,10 +10,10 @@ import (
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/testing/redisfake"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
-func seedValidAccountSession(t *testing.T, rdb *redis.Client, accountID, sessionID string) {
+func seedValidAccountSession(t *testing.T, rdb *eipredis.Redis, accountID, sessionID string) {
 	t.Helper()
 	ctx := t.Context()
 	now := time.Now().UTC()
@@ -32,7 +32,7 @@ func seedValidAccountSession(t *testing.T, rdb *redis.Client, accountID, session
 	if err := auth.SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)
 	}
-	if err := rdb.Set(ctx, auth.SessionIndexKeyPrefix+sessionID, accountID, auth.SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, auth.SessionIndexKeyPrefix+sessionID, accountID, auth.SessionTTL).Err(); err != nil {
 		t.Fatalf("set session index: %v", err)
 	}
 }
@@ -40,7 +40,7 @@ func seedValidAccountSession(t *testing.T, rdb *redis.Client, accountID, session
 func TestOptionalAccountLogConstructor_BindsValidSession(t *testing.T) {
 	t.Parallel()
 
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-public"
@@ -74,7 +74,7 @@ func TestOptionalAccountLogConstructor_BindsValidSession(t *testing.T) {
 func TestAuthConstructor_BindsRequestIdentityOnSuccess(t *testing.T) {
 	t.Parallel()
 
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-private"

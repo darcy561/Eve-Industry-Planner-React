@@ -387,7 +387,7 @@ services/shared/core/documentlock/
   service.go / service_ops.go — Service (Acquire, Extend, Release, HandOver, RequestAccess, ClaimHandoff, WaitlistPulse)
   *_test.go               — redis, events, cascade predicates, atomic concurrency, status/cascade pipelines
 
-services/shared/core/redis/lease/
+services/shared/redis/
   lease.go                — Reusable single-leader primitive (SET NX + CAS renew/release)
 
 services/api/v1endpoints/documentlocks/

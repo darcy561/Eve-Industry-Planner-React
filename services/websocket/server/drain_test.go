@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/testing/redisfake"
 	"eve-industry-planner/testing/wait"
@@ -124,7 +125,7 @@ func TestHandleWSRefuseAtCutoff(t *testing.T) {
 			"a": {id: "a"},
 			"b": {id: "b"},
 		},
-		Stack: &stackservices.Clients{Redis: rdb},
+		Stack: &stackservices.Clients{Redis: eipredis.NewRedis(rdb)},
 	}
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/ws?planner_session_id=tab-1", nil)

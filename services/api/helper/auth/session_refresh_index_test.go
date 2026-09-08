@@ -6,14 +6,15 @@ import (
 	"testing"
 	"time"
 
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestSessionRefreshIndex_StoreRevokeResolve(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-sess-refresh-idx"
@@ -36,7 +37,7 @@ func TestSessionRefreshIndex_StoreRevokeResolve(t *testing.T) {
 	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)
 	}
-	if err := rdb.Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
 		t.Fatalf("set session index: %v", err)
 	}
 
@@ -65,7 +66,7 @@ func TestSessionRefreshIndex_StoreRevokeResolve(t *testing.T) {
 	if err := RevokeRefreshToken(ctx, rdb, token); err != nil {
 		t.Fatalf("RevokeRefreshToken: %v", err)
 	}
-	exists, err := rdb.Exists(ctx, sessionRefreshIndexKey(sessionID)).Result()
+	exists, err := rdb.Driver().Exists(ctx, sessionRefreshIndexKey(sessionID)).Result()
 	if err != nil {
 		t.Fatalf("Exists index: %v", err)
 	}
@@ -81,7 +82,7 @@ func TestSessionRefreshIndex_StoreRevokeResolve(t *testing.T) {
 func TestResolveRefreshTokenForValidSession_ScanFallback(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-scan-fallback"
@@ -104,7 +105,7 @@ func TestResolveRefreshTokenForValidSession_ScanFallback(t *testing.T) {
 	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)
 	}
-	if err := rdb.Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
 		t.Fatalf("set session index: %v", err)
 	}
 
@@ -116,7 +117,7 @@ func TestResolveRefreshTokenForValidSession_ScanFallback(t *testing.T) {
 		SessionStart:  now,
 		SessionSeenAt: now,
 	}
-	if err := rediscore.SaveJSON(ctx, rdb, RefreshTokenKeyPrefix+token, data, RefreshTokenTTL); err != nil {
+	if err := rdb.PutJSON(ctx, RefreshTokenKeyPrefix+token, data, RefreshTokenTTL); err != nil {
 		t.Fatalf("save refresh json: %v", err)
 	}
 
@@ -127,7 +128,7 @@ func TestResolveRefreshTokenForValidSession_ScanFallback(t *testing.T) {
 	if got != token {
 		t.Fatalf("token = %q, want %q", got, token)
 	}
-	exists, err := rdb.Exists(ctx, sessionRefreshIndexKey(sessionID)).Result()
+	exists, err := rdb.Driver().Exists(ctx, sessionRefreshIndexKey(sessionID)).Result()
 	if err != nil {
 		t.Fatalf("Exists index: %v", err)
 	}

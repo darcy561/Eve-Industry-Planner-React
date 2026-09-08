@@ -12,6 +12,8 @@ import (
 	"eve-industry-planner/testing/natsfake"
 	"eve-industry-planner/testing/redisfake"
 	"eve-industry-planner/testing/wait"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // The watcher is what a service with NATS but no Redis client holds.
@@ -266,7 +268,7 @@ func TestLiveServeMaintenanceStateAnswersAWatcher(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
 
-	flag := appconfig.NewMaintenanceFlag(r.Client)
+	flag := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 	if err := flag.Set(ctx, true); err != nil {
 		t.Fatalf("set: %v", err)
 	}
@@ -311,7 +313,7 @@ func TestLiveServeMaintenanceStateStillAnswersAfterItsContextEnds(t *testing.T) 
 	r := redisfake.New(t)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	flag := appconfig.NewMaintenanceFlag(r.Client)
+	flag := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 	if err := flag.Set(ctx, true); err != nil {
 		t.Fatalf("set: %v", err)
 	}

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // BucketState is what ESI last told us about a bucket, plus our own clock.
@@ -87,21 +87,21 @@ type Outcome struct {
 // ledger, and what responses have disclosed. It knows nothing about HTTP and
 // nothing about anything waiting.
 type Store struct {
-	redis   *redis.Client
+	redis   *eipredis.Redis
 	cfg     Config
-	reserve *redis.Script
-	settle  *redis.Script
-	observe *redis.Script
+	reserve *eipredis.LuaScript
+	settle  *eipredis.LuaScript
+	observe *eipredis.LuaScript
 }
 
 // NewStore binds the scripts to a Redis client.
-func NewStore(client *redis.Client, cfg Config) *Store {
+func NewStore(r *eipredis.Redis, cfg Config) *Store {
 	return &Store{
-		redis:   client,
+		redis:   r,
 		cfg:     cfg,
-		reserve: redis.NewScript(reserveScript),
-		settle:  redis.NewScript(settleScript),
-		observe: redis.NewScript(observeScript),
+		reserve: eipredis.Script(reserveScript),
+		settle:  eipredis.Script(settleScript),
+		observe: eipredis.Script(observeScript),
 	}
 }
 
@@ -138,7 +138,7 @@ func (s *Store) Reserve(ctx context.Context, b Bucket, class Class, policy Endpo
 		endpoint = "-"
 	}
 
-	raw, err := s.reserve.Run(ctx, s.redis,
+	raw, err := s.redis.Run(ctx, s.reserve,
 		[]string{stateKey(b), ledgerKey(b), errorKey(time.Now()), downtimeKey},
 		reserveArgs.values(map[string]any{
 			"count":            count,
@@ -153,7 +153,7 @@ func (s *Store) Reserve(ctx context.Context, b Bucket, class Class, policy Endpo
 			"endpoint":         endpoint,
 			"dt_probe_ttl":     downtimeProbeTTL.Seconds(),
 		})...,
-	).Result()
+	).Value()
 	if err != nil {
 		return Grant{}, fmt.Errorf("reserve %s: %w", b, err)
 	}
@@ -183,7 +183,7 @@ func (s *Store) Settle(ctx context.Context, r Reservation, out Outcome) error {
 		availability = -1
 	}
 
-	_, err := s.settle.Run(ctx, s.redis,
+	_, err := s.redis.Run(ctx, s.settle,
 		[]string{stateKey(r.Bucket), ledgerKey(r.Bucket), errorKey(observed), downtimeKey},
 		settleArgs.values(map[string]any{
 			"id":              r.ID,
@@ -206,7 +206,7 @@ func (s *Store) Settle(ctx context.Context, r Reservation, out Outcome) error {
 			"held_at":         float64(r.Slot.UnixNano()) / 1e9,
 			"held_cost":       r.Cost,
 		})...,
-	).Result()
+	).Value()
 	if err != nil {
 		return fmt.Errorf("settle %s: %w", r.Bucket, err)
 	}
@@ -227,7 +227,7 @@ func (s *Store) SettleUnreachable(ctx context.Context, r Reservation) error {
 
 // State reads what is known about a bucket.
 func (s *Store) State(ctx context.Context, b Bucket) (BucketState, error) {
-	fields, err := s.redis.HGetAll(ctx, stateKey(b)).Result()
+	fields, err := s.redis.Fields(ctx, stateKey(b))
 	if err != nil {
 		return BucketState{}, fmt.Errorf("state %s: %w", b, err)
 	}
@@ -252,26 +252,29 @@ func (s *Store) States(ctx context.Context, buckets []Bucket) (map[Bucket]Bucket
 		return out, nil
 	}
 
-	pipe := s.redis.Pipeline()
-	fieldCmds := make([]*redis.MapStringStringCmd, len(buckets))
-	ledgerCmds := make([]*redis.MapStringStringCmd, len(buckets))
-	for i, b := range buckets {
-		fieldCmds[i] = pipe.HGetAll(ctx, stateKey(b))
-		ledgerCmds[i] = pipe.HGetAll(ctx, ledgerKey(b))
+	pipe, err := s.redis.Pipe()
+	if err != nil {
+		return nil, fmt.Errorf("states: %w", err)
 	}
-	if _, err := pipe.Exec(ctx); err != nil && err != redis.Nil {
+	fieldCmds := make([]*eipredis.FieldsResult, len(buckets))
+	ledgerCmds := make([]*eipredis.FieldsResult, len(buckets))
+	for i, b := range buckets {
+		fieldCmds[i] = pipe.Fields(ctx, stateKey(b))
+		ledgerCmds[i] = pipe.Fields(ctx, ledgerKey(b))
+	}
+	if err := pipe.Exec(ctx); err != nil {
 		return nil, fmt.Errorf("states: %w", err)
 	}
 
 	for i, b := range buckets {
 		fields, err := fieldCmds[i].Result()
-		if err != nil && err != redis.Nil {
+		if err != nil && !eipredis.IsNotFound(err) {
 			return nil, fmt.Errorf("state %s: %w", b, err)
 		}
 		state := stateFromFields(fields)
 		if state.Metered {
 			ledger, err := ledgerCmds[i].Result()
-			if err != nil && err != redis.Nil {
+			if err != nil && !eipredis.IsNotFound(err) {
 				return nil, fmt.Errorf("ledger %s: %w", b, err)
 			}
 			state.Spent, state.Unaccounted = spendFromFields(ledger)
@@ -343,7 +346,7 @@ func (s *Store) headroomFrom(state BucketState, b Bucket, class Class) Headroom 
 func (s *Store) spend(ctx context.Context, b Bucket) (total, unaccounted int, err error) {
 	// Slots expire themselves, so whatever comes back is inside the window and
 	// nothing needs filtering by time.
-	fields, err := s.redis.HGetAll(ctx, ledgerKey(b)).Result()
+	fields, err := s.redis.Fields(ctx, ledgerKey(b))
 	if err != nil {
 		return 0, 0, fmt.Errorf("ledger %s: %w", b, err)
 	}
@@ -391,7 +394,7 @@ func (s *Store) Observe(ctx context.Context, source string, reachable bool) erro
 		availability = 1
 	}
 
-	_, err := s.observe.Run(ctx, s.redis,
+	err := s.redis.Run(ctx, s.observe,
 		[]string{downtimeKey},
 		observeArgs.values(map[string]any{
 			"state_key":       "source:" + source,
@@ -403,7 +406,7 @@ func (s *Store) Observe(ctx context.Context, source string, reachable bool) erro
 			"buckets_to_trip": sourcesToTripDowntime,
 			"lone_failures":   loneSourceFailures,
 		})...,
-	).Result()
+	).Err()
 	if err != nil {
 		return fmt.Errorf("observe %s: %w", source, err)
 	}
@@ -412,7 +415,7 @@ func (s *Store) Observe(ctx context.Context, source string, reachable bool) erro
 
 // Downtime reports what the fleet currently believes about availability.
 func (s *Store) Downtime(ctx context.Context) (DowntimeState, error) {
-	fields, err := s.redis.HGetAll(ctx, downtimeKey).Result()
+	fields, err := s.redis.Fields(ctx, downtimeKey)
 	if err != nil {
 		return DowntimeState{}, fmt.Errorf("downtime: %w", err)
 	}
@@ -424,20 +427,25 @@ func (s *Store) Downtime(ctx context.Context) (DowntimeState, error) {
 	}, nil
 }
 
+// ttlPathGroup is how long a learned path-to-group mapping is trusted. ESI
+// changes them rarely, and a stale one costs one misrouted call before the
+// response discloses the right group again.
+const ttlPathGroup = 24 * time.Hour
+
 // LearnGroup records which rate limit group a path belongs to, as the response
 // disclosed it, so the next call to that path knows its bucket before it starts.
 func (s *Store) LearnGroup(ctx context.Context, path, group string) error {
 	if path == "" || group == "" {
 		return nil
 	}
-	return s.redis.Set(ctx, pathKey(path), group, 24*time.Hour).Err()
+	return s.redis.PutString(ctx, pathKey(path), group, ttlPathGroup)
 }
 
 // GroupFor returns the group a path was last seen to belong to.
 func (s *Store) GroupFor(ctx context.Context, path string) (string, bool, error) {
-	group, err := s.redis.Get(ctx, pathKey(path)).Result()
+	group, err := s.redis.GetString(ctx, pathKey(path))
 	switch {
-	case err == redis.Nil:
+	case eipredis.IsNotFound(err):
 		return "", false, nil
 	case err != nil:
 		return "", false, fmt.Errorf("group for %s: %w", path, err)
@@ -449,9 +457,9 @@ func (s *Store) GroupFor(ctx context.Context, path string) (string, bool, error)
 // ErrorCount is how many non-2xx/3xx responses the fleet has taken this minute,
 // which the 420 guard watches.
 func (s *Store) ErrorCount(ctx context.Context) (int, error) {
-	count, err := s.redis.Get(ctx, errorKey(time.Now())).Int()
+	count, err := s.redis.GetInt(ctx, errorKey(time.Now()))
 	switch {
-	case err == redis.Nil:
+	case eipredis.IsNotFound(err):
 		return 0, nil
 	case err != nil:
 		return 0, fmt.Errorf("error count: %w", err)
@@ -468,12 +476,7 @@ func (s *Store) Buckets(ctx context.Context) ([]Bucket, error) {
 	prefix := keyPrefix + "b:"
 
 	var out []Bucket
-	var cursor uint64
-	for {
-		keys, next, err := s.redis.Scan(ctx, cursor, prefix+"*"+suffix, 200).Result()
-		if err != nil {
-			return nil, fmt.Errorf("scan bucket state: %w", err)
-		}
+	err := s.redis.ScanPrefix(ctx, prefix, func(keys []string) error {
 		for _, key := range keys {
 			name, ok := strings.CutPrefix(key, prefix)
 			if !ok {
@@ -489,11 +492,12 @@ func (s *Store) Buckets(ctx context.Context) ([]Bucket, error) {
 			}
 			out = append(out, bucket)
 		}
-		if next == 0 {
-			break
-		}
-		cursor = next
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("scan bucket state: %w", err)
 	}
+
 	slices.SortFunc(out, func(a, b Bucket) int { return strings.Compare(a.Key(), b.Key()) })
 	return out, nil
 }
@@ -512,7 +516,7 @@ func (s *Store) Buckets(ctx context.Context) ([]Bucket, error) {
 // one caller probes, the rest wait on it, and normal accounting resumes against
 // the ledger that was never lost.
 func (s *Store) Forget(ctx context.Context, b Bucket) (int64, error) {
-	deleted, err := s.redis.HDel(ctx, stateKey(b), "limit", "window", "remaining", "observed_at").Result()
+	deleted, err := s.redis.RemoveFields(ctx, stateKey(b), "limit", "window", "remaining", "observed_at")
 	if err != nil {
 		return 0, fmt.Errorf("forget %s: %w", b.Key(), err)
 	}

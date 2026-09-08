@@ -15,7 +15,7 @@ Internal (in-module) closure of each candidate root — the packages that must t
 | `shared/logs` | none — leaf |
 | `shared/models` | `crypto/aesgcm` |
 | `shared/telemetry` | `logs`, `container` |
-| `shared/core/redis` | `logs`, `core/config`, `core/swarmsecret`, `crypto/aesgcm`, `crypto/aesgcm/keyrings` |
+| `shared/redis` | `logs`, `core/config`, `core/retry`, `core/swarmsecret`, `container`, `crypto/aesgcm`, `crypto/aesgcm/keyrings` |
 | `shared/core/nats` | the same four, plus `telemetry/natsprop` |
 | `shared/mongo` | the same four, plus `models`, `documentschema` |
 | `shared/core/documentlock` | 13 packages — `mongo`, `core/nats`, `core/redis`, `core/objectstore`, `stackservices`, `models`, … |
@@ -32,13 +32,14 @@ Distinct importers per shared package (services and other shared packages):
 
 | Package | Importers |
 |---|---|
+| `shared/redis` | 27 |
 | `shared/logs` | 18 |
 | `shared/models` | 12 |
 | `shared/mongo` | 11 |
 | `shared/core/nats` | 10 |
 | `shared/core/config` | 8 |
 | `shared/container`, `shared/lifecycle` | 7 |
-| `shared/telemetry`, `shared/stackservices`, `shared/core/redis`, `shared/orchestrationprobes` | 6 |
+| `shared/telemetry`, `shared/stackservices`, `shared/orchestrationprobes` | 6 |
 | `shared/crypto/entityid` | 6 |
 
 Packages with a **single** consumer, all small: `shared/httpclient` (worker), `shared/archivestats`

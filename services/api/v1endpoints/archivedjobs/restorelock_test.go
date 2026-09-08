@@ -12,7 +12,8 @@ import (
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/testing/redisfake"
 
-	"github.com/redis/go-redis/v9"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 const (
@@ -21,14 +22,14 @@ const (
 	lockTestOther   = "sess-editing"
 )
 
-func handlersWithRedis(t *testing.T, rdb *redis.Client) *Handlers {
+func handlersWithRedis(t *testing.T, rdb *eipredis.Redis) *Handlers {
 	t.Helper()
 	h := New(&apideps.Deps{})
 	h.locks.Redis = rdb
 	return h
 }
 
-func seedLock(t *testing.T, rdb *redis.Client, collection, docID, holder string) {
+func seedLock(t *testing.T, rdb *eipredis.Redis, collection, docID, holder string) {
 	t.Helper()
 	rec := documentlock.LockRecord{
 		HolderSessionID: holder,
@@ -40,7 +41,7 @@ func seedLock(t *testing.T, rdb *redis.Client, collection, docID, holder string)
 		t.Fatalf("marshal lock: %v", err)
 	}
 	key := documentlock.LockKey(lockTestAccount, collection, docID)
-	if err := rdb.Set(context.Background(), key, b, time.Minute).Err(); err != nil {
+	if err := rdb.Driver().Set(context.Background(), key, b, time.Minute).Err(); err != nil {
 		t.Fatalf("seed lock: %v", err)
 	}
 }
@@ -54,7 +55,7 @@ func archivedMemberOf(jobID, groupID string) models.Job {
 // the group save that session will make.
 func TestRestoreIsRefusedWhileAnotherSessionHoldsTheGroup(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	seedLock(t, rdb, eipmongo.CollectionJobGroups, "group-1", lockTestOther)
 	h := handlersWithRedis(t, rdb)
 
@@ -79,7 +80,7 @@ func TestRestoreIsRefusedWhileAnotherSessionHoldsTheGroup(t *testing.T) {
 // it from.
 func TestRestoreProceedsWhenTheRestoringSessionHoldsTheGroup(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	seedLock(t, rdb, eipmongo.CollectionJobGroups, "group-1", lockTestSession)
 	h := handlersWithRedis(t, rdb)
 
@@ -95,7 +96,7 @@ func TestRestoreProceedsWhenTheRestoringSessionHoldsTheGroup(t *testing.T) {
 // whole restore, because the write is one sequence.
 func TestRestoreIsRefusedWhenAnyGroupInTheSetIsHeld(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	seedLock(t, rdb, eipmongo.CollectionJobGroups, "group-2", lockTestOther)
 	h := handlersWithRedis(t, rdb)
 
@@ -116,7 +117,7 @@ func TestRestoreIsRefusedWhenAnyGroupInTheSetIsHeld(t *testing.T) {
 // own document.
 func TestRestoreIsRefusedWhileAnotherSessionHoldsTheJob(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	seedLock(t, rdb, eipmongo.CollectionJobDocuments, "job-a", lockTestOther)
 	h := handlersWithRedis(t, rdb)
 
@@ -135,7 +136,7 @@ func TestRestoreIsRefusedWhileAnotherSessionHoldsTheJob(t *testing.T) {
 // job document itself is not what decides the restore.
 func TestAGroupedJobIsGatedOnItsGroupNotItself(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	seedLock(t, rdb, eipmongo.CollectionJobDocuments, "job-a", lockTestOther)
 	h := handlersWithRedis(t, rdb)
 
@@ -150,7 +151,7 @@ func TestAGroupedJobIsGatedOnItsGroupNotItself(t *testing.T) {
 // The group's holder owns its archived members, so its own restore proceeds.
 func TestTheGroupHolderMayRestoreItsMembers(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	seedLock(t, rdb, eipmongo.CollectionJobGroups, "group-1", lockTestSession)
 	h := handlersWithRedis(t, rdb)
 
@@ -165,7 +166,7 @@ func TestTheGroupHolderMayRestoreItsMembers(t *testing.T) {
 // Enforcement needs a session to compare against.
 func TestRestoreLockGateRequiresASession(t *testing.T) {
 	t.Parallel()
-	h := handlersWithRedis(t, redisfake.New(t).Client)
+	h := handlersWithRedis(t, eipredis.NewRedis(redisfake.New(t).Client))
 
 	if _, _, err := h.restoreLockRejects(context.Background(), lockTestAccount, "", []models.Job{{JobID: "job-a"}}); err == nil {
 		t.Fatal("expected the gate to require a session")

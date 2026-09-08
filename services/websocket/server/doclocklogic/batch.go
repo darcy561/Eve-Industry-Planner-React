@@ -7,7 +7,7 @@ import (
 
 	"eve-industry-planner/shared/core/documentlock"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // BatchResult is the adapter outcome for lock-state-batch (success or classified failure).
@@ -32,13 +32,13 @@ func (r BatchResult) OK() bool {
 
 // RunLockStateBatch loads lock status maps for the parsed request.
 // Caller must have a non-nil Redis for the success path; nil Redis yields unavailable.
-func RunLockStateBatch(ctx context.Context, rdb *redis.Client, accountID string, req LockStateBatchRequest) BatchResult {
+func RunLockStateBatch(ctx context.Context, rdb *eipredis.Redis, accountID string, req LockStateBatchRequest) BatchResult {
 	base := BatchResult{
 		RequestID:     req.RequestID,
 		JobDocCount:   len(req.JobDocIDs),
 		GroupDocCount: len(req.GroupDocIDs),
 	}
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		base.AckOK = false
 		base.AckErrMsg = "service unavailable"
 		base.LogMsg = "document locks unavailable"

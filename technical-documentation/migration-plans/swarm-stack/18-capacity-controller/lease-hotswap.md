@@ -5,7 +5,7 @@
 
 ## Where / how (today)
 
-Core: `lease:core:primary` via [`lease.RunWhileHeld`](../../../../services/shared/core/redis/lease/lease.go). Capacity controller: same helper on **`lease:capacity:primary`** (holder = `container.ID()`); cooldown Redis **`eip:capacity:cooldown:v1`**; Swarm `replicas: 1` + `start-first`. Only lease holder runs Apply.
+Core: `lease:core:primary` via [`eipredis.RunWhileHeld`](../../../../services/shared/redis/lease.go). Capacity controller: same helper on **`lease:capacity:primary`** (holder = `container.ID()`); cooldown Redis **`eip:capacity:cooldown:v1`**; Swarm `replicas: 1` + `start-first`. Only lease holder runs Apply.
 
 ## Correctness need
 

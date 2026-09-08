@@ -11,8 +11,8 @@ import (
 	"eve-industry-planner/api/helper"
 	esicore "eve-industry-planner/shared/core/esi"
 	esitypes "eve-industry-planner/shared/core/esi/types"
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/logs"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 )
 
@@ -193,7 +193,7 @@ func (a *Handlers) fetchMarketPricesForType(ctx context.Context, r *http.Request
 
 	// Fetch adjusted price
 	var adjustedPrice esitypes.AdjustedPrice
-	err := rediscore.GetMarketPrice(ctx, a.Redis, typeID, &adjustedPrice)
+	err := a.Redis.Cache(eipredis.DatasetMarketPrices).Entry(ctx, typeID, &adjustedPrice)
 	if err == nil {
 		response.AdjustedPrice = adjustedPrice.AdjustedPrice
 	}
@@ -205,7 +205,7 @@ func (a *Handlers) fetchMarketPricesForType(ctx context.Context, r *http.Request
 	}
 
 	// Fetch market prices for all locations using batch MGet (single operation, fastest)
-	priceEntries, err := rediscore.GetMarketPriceEntriesByType(ctx, a.Redis, typeID, locationIDs)
+	priceEntries, err := a.Redis.MarketOrders().PricesByType(ctx, typeID, locationIDs)
 	if err != nil {
 		if r != nil {
 			logs.AttachHandlerCaveat(r, "market_price_entries_fetch_failed", "failed to fetch market price entries by type", map[string]any{
@@ -214,7 +214,7 @@ func (a *Handlers) fetchMarketPricesForType(ctx context.Context, r *http.Request
 			})
 		}
 		// Continue with empty map - will send refresh messages
-		priceEntries = make(map[int32]*rediscore.MarketPriceEntry)
+		priceEntries = make(map[int32]*eipredis.MarketPriceEntry)
 	}
 
 	hasAnyData := false

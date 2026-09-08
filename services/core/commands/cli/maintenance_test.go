@@ -7,6 +7,8 @@ import (
 
 	"eve-industry-planner/shared/appconfig"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestParseMaintenanceArgs(t *testing.T) {
@@ -50,7 +52,7 @@ func TestParseMaintenanceArgs(t *testing.T) {
 func TestApplyMaintenanceReportDoesNotAnnounce(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
-	flag := appconfig.NewMaintenanceFlag(r.Client)
+	flag := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 	if err := flag.Set(ctx, true); err != nil {
 		t.Fatalf("set: %v", err)
 	}
@@ -76,7 +78,7 @@ func TestApplyMaintenanceReportDoesNotAnnounce(t *testing.T) {
 func TestApplyMaintenanceReportWritesNothing(t *testing.T) {
 	r := redisfake.New(t)
 
-	out, err := applyMaintenance(context.Background(), appconfig.NewMaintenanceFlag(r.Client),
+	out, err := applyMaintenance(context.Background(), appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client)),
 		func(bool) error { return nil }, maintenanceRequest{})
 	if err != nil {
 		t.Fatalf("apply: %v", err)
@@ -92,7 +94,7 @@ func TestApplyMaintenanceReportWritesNothing(t *testing.T) {
 func TestApplyMaintenanceSetsAndAnnounces(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
-	flag := appconfig.NewMaintenanceFlag(r.Client)
+	flag := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 
 	var got []bool
 	out, err := applyMaintenance(ctx, flag,
@@ -117,7 +119,7 @@ func TestApplyMaintenanceSetsAndAnnounces(t *testing.T) {
 func TestApplyMaintenanceRepeatIsNotAChangeButStillAnnounces(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
-	flag := appconfig.NewMaintenanceFlag(r.Client)
+	flag := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 	if err := flag.Set(ctx, true); err != nil {
 		t.Fatalf("set: %v", err)
 	}
@@ -142,7 +144,7 @@ func TestApplyMaintenanceRepeatIsNotAChangeButStillAnnounces(t *testing.T) {
 func TestApplyMaintenanceReportsAFailedAnnounce(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
-	flag := appconfig.NewMaintenanceFlag(r.Client)
+	flag := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 
 	out, err := applyMaintenance(ctx, flag,
 		func(bool) error { return errors.New("nats is down") },
@@ -165,11 +167,11 @@ func TestApplyMaintenanceReportsAFailedAnnounce(t *testing.T) {
 func TestApplyMaintenanceReportsTheLiveValue(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
-	if err := appconfig.NewMaintenanceFlag(r.Client).Set(ctx, true); err != nil {
+	if err := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client)).Set(ctx, true); err != nil {
 		t.Fatalf("set: %v", err)
 	}
 
-	out, err := applyMaintenance(ctx, appconfig.NewMaintenanceFlag(r.Client),
+	out, err := applyMaintenance(ctx, appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client)),
 		func(bool) error { return nil }, maintenanceRequest{})
 	if err != nil {
 		t.Fatalf("apply: %v", err)

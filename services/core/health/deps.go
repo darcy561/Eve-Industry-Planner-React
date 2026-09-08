@@ -20,7 +20,7 @@ func depsReady(clients *stackservices.Clients) func(context.Context) error {
 			return fmt.Errorf("no clients")
 		}
 		if clients.Redis != nil {
-			if err := clients.Redis.Ping(ctx).Err(); err != nil {
+			if err := clients.Redis.Ping(ctx); err != nil {
 				return fmt.Errorf("redis: %w", err)
 			}
 		} else {

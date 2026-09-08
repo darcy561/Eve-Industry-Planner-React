@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"sync/atomic"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // Catalogue is the running singleton service; implements health.Component and lifecycle.Runner.
 type Catalogue struct {
-	rdb     *redis.Client
+	redis   *eipredis.Redis
 	running atomic.Bool
 	stop    func()
 }
@@ -25,10 +25,7 @@ func (c *Catalogue) Ready(ctx context.Context) error {
 	if c == nil || !c.running.Load() {
 		return errors.New("singleton runners not running")
 	}
-	if c.rdb == nil {
-		return errors.New("redis missing")
-	}
-	if err := c.rdb.Ping(ctx).Err(); err != nil {
+	if err := c.redis.Ping(ctx); err != nil {
 		return fmt.Errorf("redis: %w", err)
 	}
 	return nil

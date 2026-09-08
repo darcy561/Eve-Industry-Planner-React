@@ -10,9 +10,10 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/redis/go-redis/v9"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // concurrencyTestService builds a Service with Redis only — no JetStream /
@@ -21,12 +22,12 @@ import (
 //
 // Returns the service, the underlying client + miniredis (so tests can fast-
 // forward time / seed state), and a t.Cleanup runs everything.
-func concurrencyTestService(t *testing.T) (*Service, *redis.Client, *miniredis.Miniredis) {
+func concurrencyTestService(t *testing.T) (*Service, *eipredis.Redis, *miniredis.Miniredis) {
 	t.Helper()
 	f := redisfake.New(t)
-	rdb, srv := f.Client, f.Server
+	rdb := eipredis.NewRedis(f.Client)
 	svc := NewService(Deps{Redis: rdb})
-	return svc, rdb, srv
+	return svc, rdb, f.Server
 }
 
 // TestAtomic_AcquireRace launches many goroutines all attempting to acquire a
@@ -46,11 +47,8 @@ func TestAtomic_AcquireRace(t *testing.T) {
 	results := make([]result, N)
 	var wg sync.WaitGroup
 	start := make(chan struct{})
-	for i := 0; i < N; i++ {
-		i := i
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+	for i := range N {
+		wg.Go(func() {
 			<-start
 			sess := sessionIDForIndex(i)
 			out, err := svc.Acquire(ctx, testAccountID, sess, testCollection, testDocID)
@@ -62,7 +60,7 @@ func TestAtomic_AcquireRace(t *testing.T) {
 			if h, ok := out.Payload["holderSessionID"].(string); ok {
 				results[i].holder = h
 			}
-		}()
+		})
 	}
 	close(start)
 	wg.Wait()
@@ -111,14 +109,11 @@ func TestAtomic_ReleaseRespectsHolder(t *testing.T) {
 
 	var wg sync.WaitGroup
 	for _, sess := range []string{"sess-impostor-a", "sess-impostor-b"} {
-		sess := sess
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			if err := svc.Release(ctx, testAccountID, sess, testCollection, testDocID); err != nil {
 				t.Errorf("Release(%s): %v", sess, err)
 			}
-		}()
+		})
 	}
 	wg.Wait()
 
@@ -162,10 +157,8 @@ func TestAtomic_HandOverRace(t *testing.T) {
 	var promotedTo atomic.Value // string
 	var noopCount int32
 	var wg sync.WaitGroup
-	for i := 0; i < 2; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+	for range 2 {
+		wg.Go(func() {
 			out, err := svc.HandOver(ctx, testAccountID, "sess-holder", testCollection, testDocID)
 			if err != nil {
 				t.Errorf("HandOver: %v", err)
@@ -180,7 +173,7 @@ func TestAtomic_HandOverRace(t *testing.T) {
 			default:
 				t.Errorf("HandOver: unexpected status=%d", out.StatusCode)
 			}
-		}()
+		})
 	}
 	wg.Wait()
 
@@ -243,17 +236,14 @@ func TestAtomic_ClaimHandoffOnlyProbeTargetWins(t *testing.T) {
 	resCh := make(chan claimRes, 2)
 	var wg sync.WaitGroup
 	for _, s := range []string{"sess-target", "sess-impostor"} {
-		s := s
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			out, err := svc.ClaimHandoff(ctx, testAccountID, s, testCollection, testDocID)
 			if err != nil {
 				t.Errorf("ClaimHandoff(%s): %v", s, err)
 				return
 			}
 			resCh <- claimRes{sess: s, out: out}
-		}()
+		})
 	}
 	wg.Wait()
 	close(resCh)
@@ -304,15 +294,11 @@ func TestAtomic_RequestAccessRace(t *testing.T) {
 	var wg sync.WaitGroup
 	start := make(chan struct{})
 	for i, s := range []string{"sess-a", "sess-b"} {
-		i := i
-		s := s
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			<-start
 			out, err := svc.RequestAccess(ctx, testAccountID, s, testCollection, testDocID)
 			results[i] = req{sess: s, out: out, err: err}
-		}()
+		})
 	}
 	close(start)
 	wg.Wait()
@@ -358,7 +344,7 @@ func TestAtomic_ExtendCycle(t *testing.T) {
 
 	// Renew up to MaxExtensionsBeforeHandoffConsult times — every one should
 	// be a plain extend (no probe).
-	for i := 0; i < MaxExtensionsBeforeHandoffConsult; i++ {
+	for i := range MaxExtensionsBeforeHandoffConsult {
 		out, err := svc.Extend(ctx, testAccountID, "sess-holder", testCollection, testDocID)
 		if err != nil {
 			t.Fatalf("Extend[%d]: %v", i, err)
@@ -387,7 +373,7 @@ func TestAtomic_ExtendCycle(t *testing.T) {
 	t.Run("probe_set_when_alive_head_exists", func(t *testing.T) {
 		// Bump back up to the threshold, then enqueue a live waiter and
 		// trigger the consult step.
-		for i := 0; i < MaxExtensionsBeforeHandoffConsult; i++ {
+		for i := range MaxExtensionsBeforeHandoffConsult {
 			if _, err := svc.Extend(ctx, testAccountID, "sess-holder", testCollection, testDocID); err != nil {
 				t.Fatalf("pre-probe Extend[%d]: %v", i, err)
 			}
@@ -494,7 +480,7 @@ func mustAcquire(t *testing.T, ctx context.Context, svc *Service, sessionID stri
 	}
 }
 
-func mustEnqueueWithPulse(t *testing.T, ctx context.Context, rdb *redis.Client, sessionID string) {
+func mustEnqueueWithPulse(t *testing.T, ctx context.Context, rdb *eipredis.Redis, sessionID string) {
 	t.Helper()
 	if err := EnqueueWaitlistUnique(ctx, rdb, testAccountID, testCollection, testDocID, sessionID); err != nil {
 		t.Fatalf("EnqueueWaitlistUnique(%s): %v", sessionID, err)

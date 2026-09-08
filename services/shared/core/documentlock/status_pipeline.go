@@ -1,34 +1,20 @@
-// status_pipeline.go contains the batched-pipeline implementation of the
-// /lock-state and /lock-state-batch read paths.
+// The batched read path behind /lock-state and /lock-state-batch.
 //
-// # What changed (vs. the previous per-doc loop)
-//
-// The old implementation called `StatusPayloadForDoc` in a loop, which
-// for each doc issued ~3 sequential Redis round-trips (GET lock, then a
-// piped ZREM+ZCARD for viewers, then LLEN for the waitlist). For a 50-doc
-// batch that meant ~150 RTTs — most of the wall time was network latency,
-// not Redis CPU.
-//
-// `statusBatchFetch` collapses that into:
-//
-//   - Phase 1: a single pipeline queuing 4 commands per doc (GET, viewer
-//     ZREMRANGEBYSCORE, viewer ZCARD, waitlist LLEN). Total: 1 round-trip
-//     regardless of batch size.
-//   - Phase 2 (only when needed): a pipeline of DELs for any expired lock
-//     records observed in phase 1. Usually a no-op.
-//
-// Net cost for an N-doc /lock-state-batch: 1 RTT (common case) or 2 RTTs
-// (when some records have expired between the last sweep and this call).
+// One pipeline queues four commands per document — the lock record, a prune of
+// expired viewer presence, the viewer count and the waitlist length — so a
+// batch of any size costs one round trip. A second pipeline follows only when a
+// record was found already expired.
 
 package documentlock
 
 import (
 	"context"
 	"encoding/json"
+	"maps"
 	"strconv"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // statusDocRef identifies one doc in a status fetch. accountID is hoisted
@@ -53,11 +39,11 @@ type statusDocRef struct {
 // result with no Redis traffic.
 func statusBatchFetch(
 	ctx context.Context,
-	rdb *redis.Client,
+	rdb *eipredis.Redis,
 	accountID string,
 	refs []statusDocRef,
 ) ([]map[string]any, error) {
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		return nil, ErrLocksUnavailable
 	}
 	if len(refs) == 0 {
@@ -67,12 +53,15 @@ func statusBatchFetch(
 	now := time.Now().Unix()
 	nowScore := strconv.FormatInt(now, 10)
 
-	pipe := rdb.Pipeline()
+	pipe, err := rdb.Pipe()
+	if err != nil {
+		return nil, err
+	}
 
-	get := make([]*redis.StringCmd, len(refs))
-	zrem := make([]*redis.IntCmd, len(refs))
-	zcard := make([]*redis.IntCmd, len(refs))
-	llen := make([]*redis.IntCmd, len(refs))
+	get := make([]*eipredis.StringResult, len(refs))
+	zrem := make([]*eipredis.IntResult, len(refs))
+	zcard := make([]*eipredis.IntResult, len(refs))
+	llen := make([]*eipredis.IntResult, len(refs))
 
 	for i, r := range refs {
 		k := LockKey(accountID, r.Collection, r.DocID)
@@ -80,15 +69,12 @@ func statusBatchFetch(
 		kw := waitlistKey(accountID, r.Collection, r.DocID)
 
 		get[i] = pipe.Get(ctx, k)
-		zrem[i] = pipe.ZRemRangeByScore(ctx, kv, "0", nowScore)
-		zcard[i] = pipe.ZCard(ctx, kv)
-		llen[i] = pipe.LLen(ctx, kw)
+		zrem[i] = pipe.DropScoredRange(ctx, kv, "0", nowScore)
+		zcard[i] = pipe.CountScored(ctx, kv)
+		llen[i] = pipe.Length(ctx, kw)
 	}
 
-	// `redis.Nil` from any GET surfaces as the pipeline's overall error —
-	// it's expected when one of the queried locks doesn't exist, so we
-	// suppress it here and check each command's own .Err() below.
-	if _, err := pipe.Exec(ctx); err != nil && err != redis.Nil {
+	if err := pipe.Exec(ctx); err != nil {
 		return nil, err
 	}
 
@@ -120,9 +106,7 @@ func statusBatchFetch(
 		if rec == nil {
 			payload["held"] = false
 		} else {
-			for k, v := range LockPayloadForRecord(rec.ExpiresAtUnix, rec.LeaseMode) {
-				payload[k] = v
-			}
+			maps.Copy(payload, LockPayloadForRecord(rec.ExpiresAtUnix, rec.LeaseMode))
 			payload["held"] = true
 			payload["holderSessionID"] = rec.HolderSessionID
 			payload["extendCount"] = rec.ExtendCount
@@ -149,11 +133,12 @@ func statusBatchFetch(
 	// don't fail the whole call if this pipeline errs — the keys will
 	// expire naturally and the response above is still correct.
 	if len(expired) > 0 {
-		delPipe := rdb.Pipeline()
-		for _, r := range expired {
-			_ = delPipe.Del(ctx, LockKey(accountID, r.Collection, r.DocID))
+		if delPipe, perr := rdb.Pipe(); perr == nil {
+			for _, r := range expired {
+				delPipe.Delete(ctx, LockKey(accountID, r.Collection, r.DocID))
+			}
+			_ = delPipe.Exec(ctx)
 		}
-		_, _ = delPipe.Exec(ctx)
 	}
 
 	return results, nil
@@ -162,9 +147,9 @@ func statusBatchFetch(
 // readPipelineLock pulls the record from an already-executed GET. Returns
 // ("", nil) when the key doesn't exist; ("", err) for true Redis errors —
 // `redis.Nil` is mapped to the "not present" case.
-func readPipelineLock(getCmd *redis.StringCmd) (string, error) {
-	v, err := getCmd.Result()
-	if err == redis.Nil {
+func readPipelineLock(get *eipredis.StringResult) (string, error) {
+	v, err := get.Result()
+	if eipredis.IsNotFound(err) {
 		return "", nil
 	}
 	if err != nil {

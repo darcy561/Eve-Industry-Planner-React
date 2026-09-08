@@ -23,6 +23,7 @@ import (
 	apihelperauth "eve-industry-planner/api/helper/auth"
 	eipnats "eve-industry-planner/shared/nats"
 	"eve-industry-planner/shared/orchestrationprobes"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/shared/wsplacement"
 
@@ -32,7 +33,6 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/alitto/pond/v2"
 	"github.com/gorilla/websocket"
-	"github.com/redis/go-redis/v9"
 )
 
 // integDeps stands in for NATS/Mongo in the ReadyCheck mirror of websocket/app.go.
@@ -45,7 +45,7 @@ type integDeps struct {
 type integFixture struct {
 	t      *testing.T
 	Server *Server
-	Redis  *redis.Client
+	Redis  *eipredis.Redis
 	MR     *miniredis.Miniredis
 	HTTP   *httptest.Server
 	deps   integDeps
@@ -79,7 +79,7 @@ func newIntegFixture(t *testing.T) *integFixture {
 		incomingQueues:         make(map[string]*IncomingDocQueue),
 		explicitDocSubscribers: make(map[string]map[string]bool),
 		ownerKeyToClients:      make(map[string]map[string]bool),
-		Stack:                  &stackservices.Clients{Redis: rdb},
+		Stack:                  &stackservices.Clients{Redis: eipredis.NewRedis(rdb)},
 		SyncPool:               pond.NewPool(1),
 		upgrader:               upgrader,
 		intakeStopChan:         make(chan struct{}),
@@ -94,7 +94,7 @@ func newIntegFixture(t *testing.T) *integFixture {
 	f := &integFixture{
 		t:      t,
 		Server: s,
-		Redis:  rdb,
+		Redis:  eipredis.NewRedis(rdb),
 		MR:     mr,
 		deps:   integDeps{natsOK: true, mongoOK: true},
 	}
@@ -118,7 +118,7 @@ func (f *integFixture) readyCheck(ctx context.Context) error {
 	if f.Redis == nil {
 		return fmt.Errorf("redis: unavailable")
 	}
-	if err := f.Redis.Ping(ctx).Err(); err != nil {
+	if err := f.Redis.Ping(ctx); err != nil {
 		return fmt.Errorf("redis: %w", err)
 	}
 	if !f.deps.natsOK {
@@ -299,12 +299,12 @@ func (f *integFixture) readJSONOfType(conn *websocket.Conn, wantType string, tim
 }
 
 func (f *integFixture) redisGet(key string) (string, error) {
-	return f.Redis.Get(context.Background(), key).Result()
+	return f.Redis.Driver().Get(context.Background(), key).Result()
 }
 
 func (f *integFixture) redisExists(key string) int64 {
 	f.t.Helper()
-	n, err := f.Redis.Exists(context.Background(), key).Result()
+	n, err := f.Redis.Driver().Exists(context.Background(), key).Result()
 	if err != nil {
 		f.t.Fatalf("Exists %s: %v", key, err)
 	}

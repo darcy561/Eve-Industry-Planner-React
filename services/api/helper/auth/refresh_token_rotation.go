@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // ErrRefreshTokenGenerate indicates GenerateRefreshToken failed inside MintAndStoreRefreshToken.
@@ -22,7 +22,7 @@ type PresentedRefreshResult struct {
 
 // ResolvePresentedRefreshToken loads refresh_token:<presented>. When that row is missing and
 // sessionID refers to an active account session, it resolves the current refresh row for that session.
-func ResolvePresentedRefreshToken(ctx context.Context, redisClient *redis.Client, presentedToken, sessionID string) (PresentedRefreshResult, error) {
+func ResolvePresentedRefreshToken(ctx context.Context, redisClient *eipredis.Redis, presentedToken, sessionID string) (PresentedRefreshResult, error) {
 	presentedToken = strings.TrimSpace(presentedToken)
 	out := PresentedRefreshResult{Token: presentedToken}
 
@@ -51,7 +51,7 @@ func ResolvePresentedRefreshToken(ctx context.Context, redisClient *redis.Client
 }
 
 // ResolvePresentedRefreshTokenFromRequest is ResolvePresentedRefreshToken with sessionID from eip_session.
-func ResolvePresentedRefreshTokenFromRequest(ctx context.Context, redisClient *redis.Client, presentedToken string, r *http.Request) (PresentedRefreshResult, error) {
+func ResolvePresentedRefreshTokenFromRequest(ctx context.Context, redisClient *eipredis.Redis, presentedToken string, r *http.Request) (PresentedRefreshResult, error) {
 	sessionID := ""
 	if r != nil {
 		sessionID = ResolvePlannerSessionID(r)
@@ -60,7 +60,7 @@ func ResolvePresentedRefreshTokenFromRequest(ctx context.Context, redisClient *r
 }
 
 // MintAndStoreRefreshToken generates a new opaque planner refresh token and persists it in Redis.
-func MintAndStoreRefreshToken(ctx context.Context, redisClient *redis.Client, data RefreshTokenData) (string, error) {
+func MintAndStoreRefreshToken(ctx context.Context, redisClient *eipredis.Redis, data RefreshTokenData) (string, error) {
 	token, err := GenerateRefreshToken()
 	if err != nil {
 		return "", fmt.Errorf("%w: %w", ErrRefreshTokenGenerate, err)
@@ -72,7 +72,7 @@ func MintAndStoreRefreshToken(ctx context.Context, redisClient *redis.Client, da
 }
 
 // RevokeSupersededRefreshToken removes the refresh token that was presented or recovered for rotation.
-func RevokeSupersededRefreshToken(ctx context.Context, redisClient *redis.Client, supersededToken string) error {
+func RevokeSupersededRefreshToken(ctx context.Context, redisClient *eipredis.Redis, supersededToken string) error {
 	return RevokeRefreshToken(ctx, redisClient, supersededToken)
 }
 

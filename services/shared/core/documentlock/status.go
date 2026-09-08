@@ -6,7 +6,7 @@ import (
 
 	eipmongo "eve-industry-planner/shared/mongo"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // MaxStatusBatchDocs is the maximum job or group IDs per batch (HTTP and WebSocket).
@@ -29,7 +29,7 @@ var (
 //
 // This is a thin wrapper over `statusBatchFetch` so the single-doc and
 // batch paths share one pipelined Redis read implementation.
-func StatusPayloadForDoc(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) (map[string]any, error) {
+func StatusPayloadForDoc(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) (map[string]any, error) {
 	results, err := statusBatchFetch(ctx, rdb, accountID, []statusDocRef{{Collection: collection, DocID: docID}})
 	if err != nil {
 		return nil, err
@@ -44,8 +44,8 @@ func StatusPayloadForDoc(ctx context.Context, rdb *redis.Client, accountID, coll
 //
 // All Redis reads for the entire batch run inside two pipelines (one per
 // collection bucket) so the round-trip cost is O(1) in the batch size.
-func StatusBatchResults(ctx context.Context, rdb *redis.Client, accountID string, jobDocIDs, groupDocIDs []string) (jobResults map[string]any, groupResults map[string]any, err error) {
-	if rdb == nil {
+func StatusBatchResults(ctx context.Context, rdb *eipredis.Redis, accountID string, jobDocIDs, groupDocIDs []string) (jobResults map[string]any, groupResults map[string]any, err error) {
+	if rdb.Driver() == nil {
 		return nil, nil, ErrLocksUnavailable
 	}
 	if len(jobDocIDs) == 0 && len(groupDocIDs) == 0 {
@@ -72,7 +72,7 @@ func StatusBatchResults(ctx context.Context, rdb *redis.Client, accountID string
 // occupy slots in the response.
 func pipelinedStatusForCollection(
 	ctx context.Context,
-	rdb *redis.Client,
+	rdb *eipredis.Redis,
 	accountID, collection string,
 	docIDs []string,
 ) (map[string]any, error) {

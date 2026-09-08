@@ -8,10 +8,10 @@ import (
 	"time"
 
 	esitypes "eve-industry-planner/shared/core/esi/types"
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/shared/httpclient"
 	"eve-industry-planner/shared/logs"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // RefreshAdjustedPrices stores ESI's adjusted prices, skipping the write
@@ -23,14 +23,14 @@ func RefreshAdjustedPrices(ctx context.Context, deps *taskrun.Dependencies) erro
 
 	logs.InfoCtx(ctx, "Adjusted Prices Refresh Task Received")
 
-	lockKey := "esi:market_prices:refresh_lock"
-	cleanup, shouldContinue := rediscore.AcquireRefreshLockLogged(ctx, deps.Redis, lockKey)
-	if !shouldContinue {
+	release, held := deps.Redis.AcquireRefresh(ctx, eipredis.DatasetMarketPrices.Dataset())
+	if !held {
 		return nil
 	}
-	defer cleanup()
+	defer release()
 
-	prevETag, err := rediscore.GetMarketPricesETag(ctx, deps.Redis)
+	cache := deps.Redis.Cache(eipredis.DatasetMarketPrices)
+	prevETag, err := cache.ETag(ctx)
 	if err != nil {
 		logs.DebugCtx(ctx, "failed to get previous ETag", "error", err)
 	}
@@ -39,7 +39,7 @@ func RefreshAdjustedPrices(ctx context.Context, deps *taskrun.Dependencies) erro
 	logs.DebugCtx(ctx, "Adjusted Prices Refresh Started", "etag_used", prevETag)
 
 	newETag, notModified, maxAge, err := streamAdjustedPrices(ctx, deps.ESI, prevETag, func(price esitypes.AdjustedPrice) error {
-		return rediscore.SaveMarketPrice(ctx, deps.Redis, price.TypeID, price)
+		return cache.PutEntry(ctx, price.TypeID, price)
 	})
 	if err != nil {
 		return HandleStreamError(ctx, err, "adjusted prices refresh")
@@ -47,19 +47,19 @@ func RefreshAdjustedPrices(ctx context.Context, deps *taskrun.Dependencies) erro
 
 	// A 304 carries a fresh max-age too, so the next refresh is rescheduled
 	// whether or not the data changed.
-	recordNextRefresh(ctx, deps.Redis, rediscore.DatasetMarketPrices, maxAge)
+	recordNextRefresh(ctx, deps.Redis, eipredis.DatasetMarketPrices.Dataset(), maxAge)
 
 	if notModified {
 		logs.InfoCtx(ctx, "ESI adjusted prices not modified (ETag match)")
 		return nil
 	}
 
-	if err := rediscore.SaveMarketPricesETag(ctx, deps.Redis, newETag); err != nil {
+	if err := cache.PutETag(ctx, newETag); err != nil {
 		logs.ErrorCtx(ctx, "failed to save ETag", "error", err, "reason", "etag_save_error")
 		return fmt.Errorf("failed to save ETag: %w", err)
 	}
 
-	if err := rediscore.SaveMarketPricesLastUpdated(ctx, deps.Redis, time.Now().UnixMilli()); err != nil {
+	if err := cache.PutLastUpdated(ctx, time.Now()); err != nil {
 		logs.WarnCtx(ctx, "failed to save last updated timestamp", "error", err, "reason", "last_updated_save_error")
 		return fmt.Errorf("failed to save last updated timestamp: %w", err)
 	}

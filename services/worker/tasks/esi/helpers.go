@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/shared/logs"
-
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // HandleStreamError logs a failed ESI pass and returns the error so asynq
@@ -45,13 +43,13 @@ func HandleStreamError(ctx context.Context, err error, taskName string) error {
 // stopped saying, and a guess would be worse than the last thing it said. A
 // failure to record is logged and not returned — the data was fetched and
 // stored, and the cron cycle is still there as a backstop.
-func recordNextRefresh(ctx context.Context, client *redis.Client, dataset string, maxAge time.Duration) {
+func recordNextRefresh(ctx context.Context, r *eipredis.Redis, dataset eipredis.Dataset, maxAge time.Duration) {
 	if maxAge <= 0 {
 		return
 	}
 	at := time.Now().Add(maxAge)
-	if err := rediscore.SaveNextRefresh(ctx, client, dataset, at); err != nil {
+	if err := r.PutNextRefresh(ctx, dataset, at); err != nil {
 		logs.WarnCtx(ctx, "failed recording next refresh time",
-			"dataset", dataset, "next_refresh_utc", at.UTC().Format(time.RFC3339), "error", err)
+			"dataset", string(dataset), "next_refresh_utc", at.UTC().Format(time.RFC3339), "error", err)
 	}
 }

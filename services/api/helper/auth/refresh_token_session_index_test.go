@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func newSessionCookieRequest(sessionID string) *http.Request {
@@ -19,7 +21,7 @@ func newSessionCookieRequest(sessionID string) *http.Request {
 func TestGetAccountSessionsRecord_PruneDeletesSessionIndex(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-prune-index"
@@ -42,7 +44,7 @@ func TestGetAccountSessionsRecord_PruneDeletesSessionIndex(t *testing.T) {
 	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)
 	}
-	if err := rdb.Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
 		t.Fatalf("set session index: %v", err)
 	}
 
@@ -53,7 +55,7 @@ func TestGetAccountSessionsRecord_PruneDeletesSessionIndex(t *testing.T) {
 	if len(got.Sessions) != 0 {
 		t.Fatalf("expected pruned sessions map empty, got %d", len(got.Sessions))
 	}
-	exists, err := rdb.Exists(ctx, sessionIndexKey(sessionID)).Result()
+	exists, err := rdb.Driver().Exists(ctx, sessionIndexKey(sessionID)).Result()
 	if err != nil {
 		t.Fatalf("Exists session index: %v", err)
 	}
@@ -65,7 +67,7 @@ func TestGetAccountSessionsRecord_PruneDeletesSessionIndex(t *testing.T) {
 func TestResolveAccountSessionBySessionID_ClearsOrphanIndex(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-orphan-index"
@@ -79,7 +81,7 @@ func TestResolveAccountSessionBySessionID_ClearsOrphanIndex(t *testing.T) {
 	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)
 	}
-	if err := rdb.Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
 		t.Fatalf("set session index: %v", err)
 	}
 
@@ -87,7 +89,7 @@ func TestResolveAccountSessionBySessionID_ClearsOrphanIndex(t *testing.T) {
 	if err == nil || err.Error() != "session not found" {
 		t.Fatalf("expected session not found, got %v", err)
 	}
-	exists, err := rdb.Exists(ctx, sessionIndexKey(sessionID)).Result()
+	exists, err := rdb.Driver().Exists(ctx, sessionIndexKey(sessionID)).Result()
 	if err != nil {
 		t.Fatalf("Exists session index: %v", err)
 	}
@@ -99,7 +101,7 @@ func TestResolveAccountSessionBySessionID_ClearsOrphanIndex(t *testing.T) {
 func TestRevokeAccountSession_DeletesSessionIndex(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-revoke-index"
@@ -119,7 +121,7 @@ func TestRevokeAccountSession_DeletesSessionIndex(t *testing.T) {
 	if err := RevokeAccountSession(ctx, rdb, accountID, sessionID); err != nil {
 		t.Fatalf("RevokeAccountSession: %v", err)
 	}
-	exists, err := rdb.Exists(ctx, sessionIndexKey(sessionID)).Result()
+	exists, err := rdb.Driver().Exists(ctx, sessionIndexKey(sessionID)).Result()
 	if err != nil {
 		t.Fatalf("Exists session index: %v", err)
 	}
@@ -131,7 +133,7 @@ func TestRevokeAccountSession_DeletesSessionIndex(t *testing.T) {
 func TestExtractAccountSession_OrphanIndexReturnsSessionMissing(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-extract-orphan"
@@ -145,7 +147,7 @@ func TestExtractAccountSession_OrphanIndexReturnsSessionMissing(t *testing.T) {
 	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)
 	}
-	if err := rdb.Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
 		t.Fatalf("set session index: %v", err)
 	}
 
@@ -154,7 +156,7 @@ func TestExtractAccountSession_OrphanIndexReturnsSessionMissing(t *testing.T) {
 	if err == nil || err.Error() != "session_missing" {
 		t.Fatalf("expected session_missing, got %v", err)
 	}
-	exists, err := rdb.Exists(ctx, sessionIndexKey(sessionID)).Result()
+	exists, err := rdb.Driver().Exists(ctx, sessionIndexKey(sessionID)).Result()
 	if err != nil {
 		t.Fatalf("Exists session index: %v", err)
 	}

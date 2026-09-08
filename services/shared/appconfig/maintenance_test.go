@@ -6,13 +6,15 @@ import (
 	"testing"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // The flag lives in Redis, not the process: a fresh flag reads what was set.
 func TestMaintenanceFlagReadsWhatRedisHolds(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
-	flag := NewMaintenanceFlag(r.Client)
+	flag := NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 
 	if flag.Enabled(ctx) {
 		t.Fatal("Enabled = true before anything was set")
@@ -20,13 +22,13 @@ func TestMaintenanceFlagReadsWhatRedisHolds(t *testing.T) {
 	if err := flag.Set(ctx, true); err != nil {
 		t.Fatalf("set: %v", err)
 	}
-	if !NewMaintenanceFlag(r.Client).Enabled(ctx) {
+	if !NewMaintenanceFlag(eipredis.NewRedis(r.Client)).Enabled(ctx) {
 		t.Fatal("Enabled = false from a fresh flag, want true")
 	}
 	if err := flag.Set(ctx, false); err != nil {
 		t.Fatalf("clear: %v", err)
 	}
-	if NewMaintenanceFlag(r.Client).Enabled(ctx) {
+	if NewMaintenanceFlag(eipredis.NewRedis(r.Client)).Enabled(ctx) {
 		t.Fatal("Enabled = true after the clear")
 	}
 }
@@ -36,7 +38,7 @@ func TestMaintenanceFlagReadsWhatRedisHolds(t *testing.T) {
 func TestMaintenanceFlagNoKeyReadsOff(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
-	flag := NewMaintenanceFlag(r.Client)
+	flag := NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 
 	if err := flag.Set(ctx, true); err != nil {
 		t.Fatalf("set: %v", err)
@@ -51,7 +53,7 @@ func TestMaintenanceFlagNoKeyReadsOff(t *testing.T) {
 func TestMaintenanceFlagHoldsLastKnownOnReadFailure(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
-	flag := NewMaintenanceFlag(r.Client)
+	flag := NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 
 	if err := flag.Set(ctx, true); err != nil {
 		t.Fatalf("set: %v", err)
@@ -73,7 +75,7 @@ func TestMaintenanceFlagReadsOffWithNothingCached(t *testing.T) {
 	r := redisfake.New(t)
 	r.Server.Close()
 
-	if NewMaintenanceFlag(r.Client).Enabled(context.Background()) {
+	if NewMaintenanceFlag(eipredis.NewRedis(r.Client)).Enabled(context.Background()) {
 		t.Fatal("Enabled = true with nothing cached, want off")
 	}
 }
@@ -91,14 +93,14 @@ func TestMaintenanceFlagReadsTruthySpellings(t *testing.T) {
 		{"0", false}, {"false", false}, {"", false}, {"nonsense", false},
 	} {
 		r.Server.Set(MaintenanceKey, tc.stored)
-		if got := NewMaintenanceFlag(r.Client).Enabled(ctx); got != tc.want {
+		if got := NewMaintenanceFlag(eipredis.NewRedis(r.Client)).Enabled(ctx); got != tc.want {
 			t.Errorf("stored %q: Enabled = %v, want %v", tc.stored, got, tc.want)
 		}
 	}
 }
 
 func TestMaintenanceFlagWithoutRedisReportsTheMisconfiguration(t *testing.T) {
-	flag := NewMaintenanceFlag(nil)
+	flag := NewMaintenanceFlag(eipredis.NewRedis(nil))
 	ctx := context.Background()
 
 	if err := flag.Set(ctx, true); err == nil {
@@ -128,7 +130,7 @@ func TestMaintenanceFlagNilIsInert(t *testing.T) {
 func TestMaintenanceFlagConcurrentReadAndWrite(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
-	flag := NewMaintenanceFlag(r.Client)
+	flag := NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 
 	var wg sync.WaitGroup
 	for range 8 {

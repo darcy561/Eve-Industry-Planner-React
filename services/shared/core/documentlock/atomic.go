@@ -39,7 +39,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // docLockTxResultLockRecord matches the LockRecord JSON shape inside a script
@@ -128,7 +128,7 @@ end
 // Outcome JSON:
 //
 //	{ "outcome": "granted"|"contended", "record": {...}, "previousHolderSessionID": "" }
-var acquireLockScript = redis.NewScript(readLockLuaFn + writeLockLuaFn + `
+var acquireLockScript = eipredis.Script(readLockLuaFn + writeLockLuaFn + `
 local k_lock = KEYS[1]
 local account_id = ARGV[1]
 local session_id = ARGV[2]
@@ -165,10 +165,10 @@ type acquireTxResult struct {
 	Record  docLockTxResultLockRecord `json:"record"`
 }
 
-func runAcquireTx(ctx context.Context, rdb *redis.Client, accountID, sessionID, collection, docID string, now, contestedTTLSeconds, soloTTLSeconds int64) (*acquireTxResult, error) {
-	raw, err := acquireLockScript.Run(
+func runAcquireTx(ctx context.Context, rdb *eipredis.Redis, accountID, sessionID, collection, docID string, now, contestedTTLSeconds, soloTTLSeconds int64) (*acquireTxResult, error) {
+	raw, err := rdb.Run(
 		ctx,
-		rdb,
+		acquireLockScript,
 		[]string{LockKey(accountID, collection, docID)},
 		accountID,
 		sessionID,
@@ -210,7 +210,7 @@ func runAcquireTx(ctx context.Context, rdb *redis.Client, accountID, sessionID, 
 //	  "probeExpiresAtUnix": 0,
 //	  "publishProbe": false
 //	}
-var extendLockScript = redis.NewScript(readLockLuaFn + writeLockLuaFn + findAliveHeadLuaFn + `
+var extendLockScript = eipredis.Script(readLockLuaFn + writeLockLuaFn + findAliveHeadLuaFn + `
 local k_lock = KEYS[1]
 local k_wait = KEYS[2]
 local pulse_prefix = ARGV[1]
@@ -321,13 +321,13 @@ type extendTxResult struct {
 
 func runExtendTx(
 	ctx context.Context,
-	rdb *redis.Client,
+	rdb *eipredis.Redis,
 	accountID, sessionID, collection, docID string,
 	now, ttlSeconds, maxExtends, probeAck, pulseTTL, soloTTLSeconds int64,
 ) (*extendTxResult, error) {
-	raw, err := extendLockScript.Run(
+	raw, err := rdb.Run(
 		ctx,
-		rdb,
+		extendLockScript,
 		[]string{
 			LockKey(accountID, collection, docID),
 			waitlistKey(accountID, collection, docID),
@@ -363,7 +363,7 @@ func runExtendTx(
 //
 // "released" means the caller really was the holder and we DELed the key.
 // "noop" covers (no record, expired, not the holder).
-var releaseLockScript = redis.NewScript(readLockLuaFn + `
+var releaseLockScript = eipredis.Script(readLockLuaFn + `
 local k_lock = KEYS[1]
 local session_id = ARGV[1]
 local now = tonumber(ARGV[2])
@@ -381,10 +381,10 @@ type releaseTxResult struct {
 	Outcome string `json:"outcome"`
 }
 
-func runReleaseTx(ctx context.Context, rdb *redis.Client, accountID, sessionID, collection, docID string, now int64) (*releaseTxResult, error) {
-	raw, err := releaseLockScript.Run(
+func runReleaseTx(ctx context.Context, rdb *eipredis.Redis, accountID, sessionID, collection, docID string, now int64) (*releaseTxResult, error) {
+	raw, err := rdb.Run(
 		ctx,
-		rdb,
+		releaseLockScript,
 		[]string{LockKey(accountID, collection, docID)},
 		sessionID,
 		now,
@@ -417,7 +417,7 @@ func runReleaseTx(ctx context.Context, rdb *redis.Client, accountID, sessionID, 
 //	  "previousHolderSessionID": "",   // set only when outcome == released
 //	  "record": {...}                  // new holder record when outcome == released
 //	}
-var forceReleaseSameAccountScript = redis.NewScript(readLockLuaFn + writeLockLuaFn + `
+var forceReleaseSameAccountScript = eipredis.Script(readLockLuaFn + writeLockLuaFn + `
 local k_lock = KEYS[1]
 local k_wait = KEYS[2]
 local caller_id = ARGV[1]
@@ -463,10 +463,10 @@ type forceReleaseSameAccountTxResult struct {
 	Record                  docLockTxResultLockRecord `json:"record,omitempty"`
 }
 
-func runForceReleaseSameAccountTx(ctx context.Context, rdb *redis.Client, accountID, callerSessionID, collection, docID string, now, soloTTLSeconds int64) (*forceReleaseSameAccountTxResult, error) {
-	raw, err := forceReleaseSameAccountScript.Run(
+func runForceReleaseSameAccountTx(ctx context.Context, rdb *eipredis.Redis, accountID, callerSessionID, collection, docID string, now, soloTTLSeconds int64) (*forceReleaseSameAccountTxResult, error) {
+	raw, err := rdb.Run(
 		ctx,
-		rdb,
+		forceReleaseSameAccountScript,
 		[]string{
 			LockKey(accountID, collection, docID),
 			waitlistKey(accountID, collection, docID),
@@ -504,7 +504,7 @@ func runForceReleaseSameAccountTx(ctx context.Context, rdb *redis.Client, accoun
 //	  "previousHolderSessionID": "",
 //	  "expiresAtUnix": 0
 //	}
-var handOverLockScript = redis.NewScript(readLockLuaFn + writeLockLuaFn + findAliveHeadLuaFn + `
+var handOverLockScript = eipredis.Script(readLockLuaFn + writeLockLuaFn + findAliveHeadLuaFn + `
 local k_lock = KEYS[1]
 local k_wait = KEYS[2]
 local pulse_prefix = ARGV[1]
@@ -553,13 +553,13 @@ type handOverTxResult struct {
 
 func runHandOverTx(
 	ctx context.Context,
-	rdb *redis.Client,
+	rdb *eipredis.Redis,
 	accountID, holderSessionID, collection, docID string,
 	now, ttlSeconds int64,
 ) (*handOverTxResult, error) {
-	raw, err := handOverLockScript.Run(
+	raw, err := rdb.Run(
 		ctx,
-		rdb,
+		handOverLockScript,
 		[]string{
 			LockKey(accountID, collection, docID),
 			waitlistKey(accountID, collection, docID),
@@ -594,7 +594,7 @@ func runHandOverTx(
 // Outcome JSON:
 //
 //	{ "outcome": "granted_empty" | "same_holder" | "queued", "record": {...}, "expiresAtUnix": 0 }
-var requestAccessScript = redis.NewScript(readLockLuaFn + writeLockLuaFn + `
+var requestAccessScript = eipredis.Script(readLockLuaFn + writeLockLuaFn + `
 local k_lock = KEYS[1]
 local k_wait = KEYS[2]
 local k_pulse = KEYS[3]
@@ -652,13 +652,13 @@ type requestAccessTxResult struct {
 
 func runRequestAccessTx(
 	ctx context.Context,
-	rdb *redis.Client,
+	rdb *eipredis.Redis,
 	accountID, requesterSessionID, collection, docID string,
 	now, ttlSeconds, pulseTTLSeconds int64,
 ) (*requestAccessTxResult, error) {
-	raw, err := requestAccessScript.Run(
+	raw, err := rdb.Run(
 		ctx,
-		rdb,
+		requestAccessScript,
 		[]string{
 			LockKey(accountID, collection, docID),
 			waitlistKey(accountID, collection, docID),
@@ -699,7 +699,7 @@ func runRequestAccessTx(
 //	  "newHolderSessionID": "",
 //	  "expiresAtUnix": 0
 //	}
-var claimHandoffScript = redis.NewScript(readLockLuaFn + writeLockLuaFn + `
+var claimHandoffScript = eipredis.Script(readLockLuaFn + writeLockLuaFn + `
 local k_lock = KEYS[1]
 local k_wait = KEYS[2]
 local k_pulse = KEYS[3]
@@ -756,13 +756,13 @@ type claimHandoffTxResult struct {
 
 func runClaimHandoffTx(
 	ctx context.Context,
-	rdb *redis.Client,
+	rdb *eipredis.Redis,
 	accountID, requesterSessionID, collection, docID string,
 	now, ttlSeconds, pulseTTLSeconds int64,
 ) (*claimHandoffTxResult, error) {
-	raw, err := claimHandoffScript.Run(
+	raw, err := rdb.Run(
 		ctx,
-		rdb,
+		claimHandoffScript,
 		[]string{
 			LockKey(accountID, collection, docID),
 			waitlistKey(accountID, collection, docID),
@@ -798,7 +798,7 @@ func runClaimHandoffTx(
 // Outcome JSON:
 //
 //	{ "outcome": "promoted" | "no_alive_head", "newHolderSessionID": "", "expiresAtUnix": 0 }
-var promoteWaitlistScript = redis.NewScript(writeLockLuaFn + findAliveHeadLuaFn + `
+var promoteWaitlistScript = eipredis.Script(writeLockLuaFn + findAliveHeadLuaFn + `
 local k_lock = KEYS[1]
 local k_wait = KEYS[2]
 local pulse_prefix = ARGV[1]
@@ -835,13 +835,13 @@ type promoteWaitlistTxResult struct {
 
 func runPromoteWaitlistTx(
 	ctx context.Context,
-	rdb *redis.Client,
+	rdb *eipredis.Redis,
 	accountID, collection, docID string,
 	now, ttlSeconds int64,
 ) (*promoteWaitlistTxResult, error) {
-	raw, err := promoteWaitlistScript.Run(
+	raw, err := rdb.Run(
 		ctx,
-		rdb,
+		promoteWaitlistScript,
 		[]string{
 			LockKey(accountID, collection, docID),
 			waitlistKey(accountID, collection, docID),

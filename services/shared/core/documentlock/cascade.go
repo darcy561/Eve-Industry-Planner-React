@@ -74,7 +74,7 @@ func ReleaseStaleDependentJobLocksOnGroupMembershipAdded(
 	addedJobIDs []string,
 	groupHolderSessionID string,
 ) {
-	if d.Redis == nil {
+	if d.Redis.Driver() == nil {
 		return
 	}
 	if accountID == "" || groupID == "" || groupHolderSessionID == "" || len(addedJobIDs) == 0 {
@@ -117,7 +117,7 @@ func cascadeReleaseDependentJobLocks(
 	decide func(*LockRecord) (bool, string),
 	cascadeReason string,
 ) {
-	if d.Mongo == nil || d.Redis == nil || d.NATS == nil {
+	if d.Mongo == nil || d.Redis.Driver() == nil || d.NATS == nil {
 		return
 	}
 	if accountID == "" || groupID == "" {

@@ -12,6 +12,8 @@ import (
 	"eve-industry-planner/worker/taskrun"
 
 	"github.com/hibiken/asynq"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // A worker with both halves of its pipeline running: the JetStream consumer that
@@ -51,7 +53,7 @@ func startWorker(t *testing.T) *workerStack {
 	esi := esifake.New(t)
 	deps := &taskrun.Dependencies{
 		NATS:  nats.NATS,
-		Redis: redis.Client,
+		Redis: eipredis.NewRedis(redis.Client),
 		ESI:   esi,
 	}
 

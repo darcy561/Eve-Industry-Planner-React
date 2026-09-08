@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"eve-industry-planner/core/scheduler/contract"
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // ScheduleIndustrySystemsRefresh sets up a cron job for industry systems refresh (hourly).
@@ -30,7 +30,7 @@ func IndustrySystemsRefresh(deps contract.Dependencies, jobName string) contract
 		if deferred, err := DeferPublicationUntilAfterDowntime(ctx, natsHandle, jobName, esi); err != nil || deferred {
 			return err
 		}
-		if deferred, err := DeferPublicationUntilStale(ctx, natsHandle, jobName, rediscore.DatasetIndustrySystems, redisClient, time.Now()); err != nil || deferred {
+		if deferred, err := DeferPublicationUntilStale(ctx, natsHandle, jobName, eipredis.DatasetIndustrySystems.Dataset(), redisClient, time.Now()); err != nil || deferred {
 			return err
 		}
 		return publish(ctx)

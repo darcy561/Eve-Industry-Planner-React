@@ -15,6 +15,8 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // A gauge callback runs on every metric export, for the life of the process. The Redis client is
@@ -36,12 +38,12 @@ func TestBucketGaugeCollectionEmitsNoSpans(t *testing.T) {
 	otel.SetMeterProvider(sdkmetric.NewMeterProvider(sdkmetric.WithReader(reader)))
 
 	rdb := redisfake.New(t)
-	// Production installs this on every Redis client (shared/core/redis), and it is what turns a
+	// Production installs this on every Redis client (shared/redis), and it is what turns a
 	// command inside a callback into a span. Without it this test cannot see the defect.
 	if err := redisotel.InstrumentTracing(rdb.Client); err != nil {
 		t.Fatalf("InstrumentTracing: %v", err)
 	}
-	store := esiclient.NewStore(rdb.Client, esiclient.DefaultConfig())
+	store := esiclient.NewStore(eipredis.NewRedis(rdb.Client), esiclient.DefaultConfig())
 
 	// A bucket with real state, so the callback does the Redis work it exists to do rather than
 	// returning early on an empty keyspace.

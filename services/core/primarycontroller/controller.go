@@ -11,10 +11,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"eve-industry-planner/shared/core/redis/lease"
 	"eve-industry-planner/shared/logs"
-
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // LeaseKey is the Redis key for core process leadership.
@@ -31,9 +29,9 @@ type State struct {
 
 // Service runs the Redis election loop and fans out State changes.
 type Service struct {
-	rdb       *redis.Client
+	redis     *eipredis.Redis
 	leaseID   string
-	leaseOpts lease.Options
+	leaseOpts eipredis.LeaseOptions
 
 	mu       sync.Mutex
 	subs     []chan State
@@ -47,16 +45,16 @@ type Service struct {
 }
 
 // New builds a primary controller. Call Start to begin election.
-func New(rdb *redis.Client) *Service {
+func New(r *eipredis.Redis) *Service {
 	return &Service{
-		rdb:     rdb,
-		leaseID: lease.InstanceID() + ":primary",
+		redis:   r,
+		leaseID: eipredis.LeaseInstanceID() + ":primary",
 	}
 }
 
 // WithLeaseOptions sets lease cadence before Start. Zero fields use lease defaults.
 // Intended for tests that need faster takeover than DefaultTTL.
-func (s *Service) WithLeaseOptions(opts lease.Options) *Service {
+func (s *Service) WithLeaseOptions(opts eipredis.LeaseOptions) *Service {
 	if s != nil {
 		s.leaseOpts = opts
 	}
@@ -72,13 +70,13 @@ func (s *Service) msg(action string) string {
 
 // Start begins the election loop. Fails closed if redis is missing.
 // The returned service implements lifecycle.Runner via Stop.
-func Start(ctx context.Context, rdb *redis.Client) (*Service, error) {
-	return StartWithOptions(ctx, rdb, lease.Options{})
+func Start(ctx context.Context, r *eipredis.Redis) (*Service, error) {
+	return StartWithOptions(ctx, r, eipredis.LeaseOptions{})
 }
 
 // StartWithOptions is Start with explicit lease cadence (tests / tuning).
-func StartWithOptions(ctx context.Context, rdb *redis.Client, opts lease.Options) (*Service, error) {
-	s := New(rdb).WithLeaseOptions(opts)
+func StartWithOptions(ctx context.Context, r *eipredis.Redis, opts eipredis.LeaseOptions) (*Service, error) {
+	s := New(r).WithLeaseOptions(opts)
 	if err := s.start(ctx); err != nil {
 		return nil, err
 	}
@@ -91,7 +89,7 @@ func (s *Service) Start(ctx context.Context) error {
 }
 
 func (s *Service) start(ctx context.Context) error {
-	if s == nil || s.rdb == nil {
+	if s == nil || s.redis.Driver() == nil {
 		return errors.New("primarycontroller: redis client is required")
 	}
 	runCtx, cancel := context.WithCancel(ctx)
@@ -101,7 +99,7 @@ func (s *Service) start(ctx context.Context) error {
 
 	s.wg.Go(func() {
 		defer s.loopOK.Store(false)
-		err := lease.RunWhileHeld(runCtx, s.rdb, LeaseKey, s.leaseID, s.leaseOpts, func(scoped context.Context) error {
+		err := eipredis.RunWhileHeld(runCtx, s.redis, LeaseKey, s.leaseID, s.leaseOpts, func(scoped context.Context) error {
 			logs.InfoCtx(scoped, s.msg("acquired primary lease"),
 				"component", s.Name(), "lease_key", LeaseKey, "lease_id", s.leaseID)
 			s.setLeader(true)
@@ -164,10 +162,10 @@ func (s *Service) Ready(ctx context.Context) error {
 	if s == nil || !s.started.Load() || !s.loopOK.Load() {
 		return errors.New("election loop not running")
 	}
-	if s.rdb == nil {
+	if s.redis.Driver() == nil {
 		return errors.New("redis missing")
 	}
-	if err := s.rdb.Ping(ctx).Err(); err != nil {
+	if err := s.redis.Ping(ctx); err != nil {
 		return fmt.Errorf("redis: %w", err)
 	}
 	return nil
@@ -175,10 +173,10 @@ func (s *Service) Ready(ctx context.Context) error {
 
 // Release best-effort deletes the lease if we still hold it.
 func (s *Service) Release(ctx context.Context) error {
-	if s == nil || s.rdb == nil {
+	if s == nil || s.redis.Driver() == nil {
 		return errors.New("primarycontroller: redis client is required")
 	}
-	if err := lease.ReleaseIfMine(ctx, s.rdb, LeaseKey, s.leaseID); err != nil {
+	if err := eipredis.ReleaseIfMine(ctx, s.redis, LeaseKey, s.leaseID); err != nil {
 		return err
 	}
 	logs.WarnCtx(ctx, s.msg("lease release requested"),

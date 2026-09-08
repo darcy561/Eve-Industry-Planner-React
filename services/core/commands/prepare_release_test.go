@@ -13,60 +13,63 @@ import (
 	"eve-industry-planner/core/primaryhandoff"
 	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/testing/redisfake"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-func TestRetiredResumeTokenKeysPicksGroupsThatNoLongerRun(t *testing.T) {
+func TestRetiredResumeTokenGroupsPicksGroupsThatNoLongerRun(t *testing.T) {
 	t.Parallel()
 
 	groups := []changestream.CollectionGroup{
 		{ID: "account"}, {ID: "planner"}, {ID: "blueprints"},
 	}
 	stored := []string{
-		primaryhandoff.ResumeTokenKey("planner"),
-		primaryhandoff.ResumeTokenKey("archive_and_stats"),
-		primaryhandoff.ResumeTokenKey("account"),
-		primaryhandoff.ResumeTokenKey("blueprints"),
+		"planner",
+		"archive_and_stats",
+		"account",
+		"blueprints",
 	}
 
-	got := retiredResumeTokenKeys(stored, groups)
+	got := retiredResumeTokenGroups(stored, groups)
 
-	want := []string{primaryhandoff.ResumeTokenKey("archive_and_stats")}
+	want := []string{"archive_and_stats"}
 	if !slices.Equal(got, want) {
-		t.Fatalf("retired keys = %v, want %v", got, want)
+		t.Fatalf("retired groups = %v, want %v", got, want)
 	}
 }
 
 // Running the release against an environment that is already current has to be
 // safe, so a store holding only live groups reports nothing to do.
-func TestRetiredResumeTokenKeysReportsNothingWhenCurrent(t *testing.T) {
+func TestRetiredResumeTokenGroupsReportsNothingWhenCurrent(t *testing.T) {
 	t.Parallel()
 
 	groups := changestream.CollectionGroups()
 	stored := make([]string, 0, len(groups))
 	for _, group := range groups {
-		stored = append(stored, primaryhandoff.ResumeTokenKey(group.ID))
+		stored = append(stored, group.ID)
 	}
 
-	if got := retiredResumeTokenKeys(stored, groups); len(got) != 0 {
-		t.Fatalf("retired keys = %v, want none", got)
+	if got := retiredResumeTokenGroups(stored, groups); len(got) != 0 {
+		t.Fatalf("retired groups = %v, want none", got)
 	}
 }
 
-func TestRetiredResumeTokenKeysOrderIsStable(t *testing.T) {
+func TestRetiredResumeTokenGroupsOrderIsStable(t *testing.T) {
 	t.Parallel()
 
 	groups := []changestream.CollectionGroup{{ID: "account"}}
 	stored := []string{
-		primaryhandoff.ResumeTokenKey("zulu"),
-		primaryhandoff.ResumeTokenKey("alpha"),
-		primaryhandoff.ResumeTokenKey("account"),
+		"zulu",
+		"alpha",
+		"account",
 	}
 
-	first := retiredResumeTokenKeys(stored, groups)
+	first := retiredResumeTokenGroups(stored, groups)
 	slices.Reverse(stored)
-	second := retiredResumeTokenKeys(stored, groups)
+	second := retiredResumeTokenGroups(stored, groups)
 
 	if !slices.Equal(first, second) {
 		t.Fatalf("order depends on the store's order: %v then %v", first, second)
@@ -287,7 +290,7 @@ func TestRetiredFieldsAreDroppedAfterTheSnapshot(t *testing.T) {
 func TestRepairSessionGrantsReportsWhatItWouldRewrite(t *testing.T) {
 	ctx := context.Background()
 	rdb := redisfake.New(t)
-	clients := &stackservices.Clients{Redis: rdb.Client}
+	clients := &stackservices.Clients{Redis: eipredis.NewRedis(rdb.Client)}
 
 	legacy, err := json.Marshal(map[string]any{
 		"account_id": "acct-1",
@@ -320,5 +323,29 @@ func TestRepairSessionGrantsReportsWhatItWouldRewrite(t *testing.T) {
 	}
 	if !strings.Contains(again, "1 scanned, 0 rewritten") {
 		t.Fatalf("second pass report = %q, want it to report nothing rewritten", again)
+	}
+}
+
+// The step reads and deletes real keys, so it is worth driving end to end: a
+// group id the scan returns has to name the key the drop removes.
+func TestDropRetiredResumeTokensRemovesOnlyRetiredGroups(t *testing.T) {
+	ctx := context.Background()
+	fake := redisfake.New(t)
+	clients := &stackservices.Clients{Redis: eipredis.NewRedis(fake.Client)}
+
+	live := changestream.CollectionGroups()[0].ID
+	tokens := primaryhandoff.NewResumeTokens(clients.Redis)
+	tokens.Save(ctx, live, bson.Raw{5, 0, 0, 0, 0})
+	tokens.Save(ctx, "retired_group", bson.Raw{5, 0, 0, 0, 0})
+
+	if _, err := dropRetiredResumeTokens(ctx, clients, false); err != nil {
+		t.Fatalf("drop: %v", err)
+	}
+
+	if !fake.Server.Exists(primaryhandoff.ResumeTokenKey(live)) {
+		t.Errorf("the live group %q lost its token", live)
+	}
+	if fake.Server.Exists(primaryhandoff.ResumeTokenKey("retired_group")) {
+		t.Error("the retired group kept its token")
 	}
 }

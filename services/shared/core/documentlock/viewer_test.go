@@ -5,10 +5,12 @@ import (
 	"testing"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestStripPassiveViewerOnHolderGrant_removesPromotedSession(t *testing.T) {
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 	const holder = "sess-holder"
 	const viewer = "sess-viewer"
@@ -28,7 +30,7 @@ func TestStripPassiveViewerOnHolderGrant_removesPromotedSession(t *testing.T) {
 	}
 
 	k := ViewerPresenceKey(testAccountID, testCollection, testDocID)
-	raw, err := rdb.ZCard(ctx, k).Result()
+	raw, err := rdb.Driver().ZCard(ctx, k).Result()
 	if err != nil || raw != 2 {
 		t.Fatalf("zcard before = %d, want 2", raw)
 	}
@@ -42,7 +44,7 @@ func TestStripPassiveViewerOnHolderGrant_removesPromotedSession(t *testing.T) {
 
 	StripPassiveViewerOnHolderGrant(ctx, Deps{Redis: rdb}, testAccountID, testCollection, testDocID, holder, false)
 
-	raw, err = rdb.ZCard(ctx, k).Result()
+	raw, err = rdb.Driver().ZCard(ctx, k).Result()
 	if err != nil || raw != 1 {
 		t.Fatalf("zcard after = %d, want 1", raw)
 	}

@@ -11,6 +11,8 @@ import (
 	"eve-industry-planner/testing/redisfake"
 
 	"github.com/redis/go-redis/v9"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // roundTripHook counts trips to Redis rather than commands: a pipeline of many commands is one
@@ -38,7 +40,7 @@ func (h *roundTripHook) ProcessPipelineHook(next redis.ProcessPipelineHook) redi
 func TestStatesCostDoesNotGrowWithBucketCount(t *testing.T) {
 	trips := func(n int) int64 {
 		rdb := redisfake.New(t)
-		store := esiclient.NewStore(rdb.Client, esiclient.DefaultConfig())
+		store := esiclient.NewStore(eipredis.NewRedis(rdb.Client), esiclient.DefaultConfig())
 
 		buckets := make([]esiclient.Bucket, 0, n)
 		for i := range n {
@@ -66,7 +68,7 @@ func TestStatesCostDoesNotGrowWithBucketCount(t *testing.T) {
 
 func TestStatesWithNoBucketsTalksToNobody(t *testing.T) {
 	rdb := redisfake.New(t)
-	store := esiclient.NewStore(rdb.Client, esiclient.DefaultConfig())
+	store := esiclient.NewStore(eipredis.NewRedis(rdb.Client), esiclient.DefaultConfig())
 
 	hook := &roundTripHook{}
 	rdb.Client.AddHook(hook)

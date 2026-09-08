@@ -127,7 +127,7 @@ func (a *app) startSubscribers(context.Context) error {
 
 func (a *app) startProbes(ctx context.Context) error {
 	ready := func(c context.Context) error {
-		if err := a.clients.Redis.Ping(c).Err(); err != nil {
+		if err := a.clients.Redis.Ping(c); err != nil {
 			return fmt.Errorf("redis: %w", err)
 		}
 		if a.clients.NATS == nil || !a.clients.NATS.Connected() {

@@ -10,7 +10,7 @@ import (
 
 	"eve-industry-planner/shared/esiclient"
 	eipmongo "eve-industry-planner/shared/mongo"
-	redislib "github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 const schedulerLogComponent = "scheduler"
@@ -26,7 +26,7 @@ func NewJobRegistry() *JobRegistry {
 }
 
 // Start registers every declared job's handler and schedules it.
-func (r *JobRegistry) Start(natsHandle *eipnats.NATS, redisClient *redislib.Client, mongoHandle *eipmongo.Mongo, esi esiclient.API) error {
+func (r *JobRegistry) Start(natsHandle *eipnats.NATS, redisHandle *eipredis.Redis, mongoHandle *eipmongo.Mongo, esi esiclient.API) error {
 	bg := context.Background()
 
 	// Ensure required JetStream streams exist before starting schedulers
@@ -35,14 +35,14 @@ func (r *JobRegistry) Start(natsHandle *eipnats.NATS, redisClient *redislib.Clie
 	}
 
 	var err error
-	r.schedulerHandler, err = NewTaskScheduler(natsHandle, redisClient)
+	r.schedulerHandler, err = NewTaskScheduler(natsHandle, redisHandle)
 	if err != nil {
 		return err
 	}
 
 	deps := contract.Dependencies{
 		NATS:  natsHandle,
-		Redis: redisClient,
+		Redis: redisHandle,
 		Mongo: mongoHandle,
 		ESI:   esi,
 	}
@@ -72,13 +72,13 @@ func (r *JobRegistry) Stop() {
 
 // StartService starts the scheduler service with all registered schedulers.
 // Returns a stop function for graceful shutdown, plus an error if startup fails.
-func StartService(logComponent string, natsHandle *eipnats.NATS, redisClient *redislib.Client, mongoHandle *eipmongo.Mongo) (func(), error) {
+func StartService(logComponent string, natsHandle *eipnats.NATS, redisHandle *eipredis.Redis, mongoHandle *eipmongo.Mongo) (func(), error) {
 	_ = logComponent // legacy parameter; component is embedded in log lines
 	stop := make(chan struct{})
 
 	// The scheduler asks the limiter what it knows — whether the servers are
 	// answering, and what a run would cost — but makes no requests of its own.
-	esi, stopESI, err := esiclient.New(redisClient, esiclient.DefaultConfig())
+	esi, stopESI, err := esiclient.New(redisHandle, esiclient.DefaultConfig())
 	if err != nil {
 		close(stop)
 		return nil, fmt.Errorf("build esi client: %w", err)
@@ -86,7 +86,7 @@ func StartService(logComponent string, natsHandle *eipnats.NATS, redisClient *re
 
 	registry := NewJobRegistry()
 
-	if err := registry.Start(natsHandle, redisClient, mongoHandle, esi); err != nil {
+	if err := registry.Start(natsHandle, redisHandle, mongoHandle, esi); err != nil {
 		logs.ErrorCtx(context.Background(), "failed to start job registry", "component", schedulerLogComponent, "error", err)
 		registry.Stop()
 		stopESI()

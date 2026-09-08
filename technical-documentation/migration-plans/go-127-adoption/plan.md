@@ -100,7 +100,7 @@ Blocked until a seam exists — these drive real leases through miniredis, which
 - [`core/leadership/failover_test.go`](../../../services/core/leadership/failover_test.go)
 - [`core/singleton/service_test.go`](../../../services/core/singleton/service_test.go)
 
-The seam has a home: every Redis-backed test takes [`testing/redisfake`](../../../testing/redisfake/), which owns construction of the miniredis server and its client, and its package comment names itself as the one place to change. Making those tests bubble-safe means giving that constructor an in-memory transport (or a fake lease behind [`shared/core/redis/lease`](../../../services/shared/core/redis/lease/)) rather than editing each test.
+The seam has a home: every Redis-backed test takes [`testing/redisfake`](../../../testing/redisfake/), which owns construction of the miniredis server and its client, and its package comment names itself as the one place to change. Making those tests bubble-safe means giving that constructor an in-memory transport (or a fake lease behind [`shared/redis`](../../../services/shared/redis/)) rather than editing each test.
 
 There is a working precedent in the same module: [`testing/httpfake`](../../../testing/httpfake/) serves over an in-memory pipe rather than a socket precisely so it stays usable inside a bubble, and its own test runs under `synctest.Test`. Size the Redis seam against that shape before attempting any of the three.
 
@@ -124,7 +124,7 @@ Done when: `go fix -diff` is empty for every area, or a remaining suggestion is 
 |---|----------|-----------|
 | 1 | Is v2's read-side strictness (duplicate names, case sensitivity, UTF-8 validation) worth the migration at all, given the measured ~13% unmarshal gain and no marshal gain? | Before A1 |
 | 2 | Does the frontend contract keep `null` for empty collections, or move to `[]`? Governs whether `FormatNilSliceAsNull` stays on permanently. | A4 |
-| 3 | Is the Redis seam worth building for test determinism alone — an in-memory transport in `testing/redisfake`, or a fake lease behind `shared/core/redis/lease`? `testing/httpfake` shows the transport shape works. | Track B |
+| 3 | Is the Redis seam worth building for test determinism alone — an in-memory transport in `testing/redisfake`, or a fake lease behind `shared/redis`? `testing/httpfake` shows the transport shape works. | Track B |
 
 ## Done-when (project)
 

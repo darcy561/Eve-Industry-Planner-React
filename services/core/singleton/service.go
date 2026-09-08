@@ -17,18 +17,13 @@
 // one goroutine per Job that holds a Redis lease, and returns a stop fn
 // that waits for every Job to drain.
 //
-// # Relationship to redis/lease
+// # Relationship to the lease primitive
 //
-// This package is a small layer on top of `shared/core/redis/lease`:
-//
-//   - lease is the **primitive** (acquire, CAS-renew, release, give
-//     fn a scoped context that's cancelled on lease loss).
-//   - singleton is the **service** (validate jobs at startup, run them
-//     in parallel, aggregate their stop fns, attach uniform structured
-//     logging).
-//
-// Callers that want their own custom lease wiring can still use
-// `shared/core/redis/lease` directly — `singleton` is just the common case.
+// The shared Redis handle owns the lease itself — acquire, CAS-renew, release,
+// and a scoped context cancelled on lease loss. This package is the service on
+// top: it validates jobs at startup, runs them in parallel, aggregates their
+// stop funcs and attaches uniform logging. A caller wanting its own lease
+// wiring uses [eipredis.RunWhileHeld] directly.
 package singleton
 
 import (
@@ -38,10 +33,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/redis/go-redis/v9"
-
-	"eve-industry-planner/shared/core/redis/lease"
 	"eve-industry-planner/shared/logs"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // Job describes one singleton workload.
@@ -70,7 +63,7 @@ type Job struct {
 
 	// Options overrides lease defaults (TTL, renew cadence, acquire
 	// backoff, jitter). Zero-valued fields fall back to package defaults.
-	Options lease.Options
+	Options eipredis.LeaseOptions
 }
 
 func (j Job) validate() error {
@@ -92,8 +85,8 @@ func (j Job) validate() error {
 // in that case.
 //
 // The stop fn is idempotent and safe to call from lifecycle shutdown.
-func StartService(redisClient *redis.Client, jobs ...Job) (func(), error) {
-	if redisClient == nil {
+func StartService(r *eipredis.Redis, jobs ...Job) (func(), error) {
+	if r.Driver() == nil {
 		return nil, errors.New("singleton: redis client is required")
 	}
 	if len(jobs) == 0 {
@@ -117,10 +110,10 @@ func StartService(redisClient *redis.Client, jobs ...Job) (func(), error) {
 	wg.Add(len(jobs))
 
 	for _, j := range jobs {
-		leaseID := lease.InstanceID() + ":" + j.Name
+		leaseID := eipredis.LeaseInstanceID() + ":" + j.Name
 		go func() {
 			defer wg.Done()
-			runOne(ctx, redisClient, j, leaseID)
+			runOne(ctx, r, j, leaseID)
 		}()
 	}
 
@@ -135,10 +128,10 @@ func StartService(redisClient *redis.Client, jobs ...Job) (func(), error) {
 
 // runOne wraps lease.RunWhileHeld for a single Job and centralises the
 // structured-log fields so every Job logs in the same shape.
-func runOne(ctx context.Context, rdb *redis.Client, j Job, leaseID string) {
-	err := lease.RunWhileHeld(
+func runOne(ctx context.Context, r *eipredis.Redis, j Job, leaseID string) {
+	err := eipredis.RunWhileHeld(
 		ctx,
-		rdb,
+		r,
 		j.LeaseKey,
 		leaseID,
 		j.Options,

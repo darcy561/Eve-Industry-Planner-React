@@ -13,12 +13,13 @@ import (
 	"time"
 
 	esitypes "eve-industry-planner/shared/core/esi/types"
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/testing/redisfake"
 	esi "eve-industry-planner/worker/tasks/esi"
 
 	"github.com/redis/go-redis/v9"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // These run the handler end to end — a real HTTP origin, a real Redis, the real
@@ -126,7 +127,7 @@ func esiFor(t *testing.T, baseURL string, client *redis.Client) esiclient.API {
 	t.Helper()
 	cfg := esiclient.DefaultConfig()
 	cfg.BaseURL = baseURL
-	api, stop, err := esiclient.New(client, cfg)
+	api, stop, err := esiclient.New(eipredis.NewRedis(client), cfg)
 	if err != nil {
 		t.Fatalf("esiclient: %v", err)
 	}
@@ -137,7 +138,7 @@ func esiFor(t *testing.T, baseURL string, client *redis.Client) esiclient.API {
 func runPrices(t *testing.T, origin *priceOrigin) (map[string]string, *redis.Client) {
 	t.Helper()
 	fake := redisfake.New(t)
-	deps := &taskrun.Dependencies{Redis: fake.Client, ESI: esiFor(t, origin.server.URL, fake.Client)}
+	deps := &taskrun.Dependencies{Redis: eipredis.NewRedis(fake.Client), ESI: esiFor(t, origin.server.URL, fake.Client)}
 	if err := esi.RefreshAdjustedPrices(t.Context(), deps); err != nil {
 		t.Fatalf("task: %v", err)
 	}
@@ -154,7 +155,7 @@ func TestAdjustedPricesStoresEveryRow(t *testing.T) {
 
 	// Only the adjusted price is kept; ESI's average price is not stored.
 	var row esitypes.AdjustedPrice
-	if err := rediscore.GetMarketPrice(t.Context(), client, 34, &row); err != nil {
+	if err := eipredis.NewRedis(client).Cache(eipredis.DatasetMarketPrices).Entry(t.Context(), 34, &row); err != nil {
 		t.Fatalf("reading type 34: %v", err)
 	}
 	if row.AdjustedPrice != 1.5 {
@@ -167,7 +168,7 @@ func TestAdjustedPricesStoresEveryRow(t *testing.T) {
 		t.Errorf("the average price was stored too: %s", stored)
 	}
 
-	etag, err := rediscore.GetMarketPricesETag(t.Context(), client)
+	etag, err := eipredis.NewRedis(client).Cache(eipredis.DatasetMarketPrices).ETag(t.Context())
 	if err != nil || etag != origin.etag {
 		t.Errorf("stored ETag = %q (err %v), want %q", etag, err, origin.etag)
 	}
@@ -188,7 +189,7 @@ func TestAdjustedPricesMakesNoStatusPreflight(t *testing.T) {
 func TestAdjustedPricesLeavesStoredRowsAloneOnNotModified(t *testing.T) {
 	origin := newPriceOrigin(t, 20)
 	fake := redisfake.New(t)
-	deps := &taskrun.Dependencies{Redis: fake.Client, ESI: esiFor(t, origin.server.URL, fake.Client)}
+	deps := &taskrun.Dependencies{Redis: eipredis.NewRedis(fake.Client), ESI: esiFor(t, origin.server.URL, fake.Client)}
 	if err := esi.RefreshAdjustedPrices(t.Context(), deps); err != nil {
 		t.Fatalf("first pass: %v", err)
 	}
@@ -220,7 +221,7 @@ func TestAdjustedPricesHandlesAnEmptyList(t *testing.T) {
 
 func TestAdjustedPricesRejectsANilTask(t *testing.T) {
 	fake := redisfake.New(t)
-	deps := &taskrun.Dependencies{Redis: fake.Client}
+	deps := &taskrun.Dependencies{Redis: eipredis.NewRedis(fake.Client)}
 	if err := esi.RefreshAdjustedPrices(t.Context(), deps); err == nil {
 		t.Error("a nil task should be reported, not dereferenced")
 	}
@@ -235,7 +236,7 @@ func TestAdjustedPricesSkipsWhenTheLockIsHeld(t *testing.T) {
 		t.Fatalf("seeding the lock: %v", err)
 	}
 
-	deps := &taskrun.Dependencies{Redis: fake.Client, ESI: esiFor(t, origin.server.URL, fake.Client)}
+	deps := &taskrun.Dependencies{Redis: eipredis.NewRedis(fake.Client), ESI: esiFor(t, origin.server.URL, fake.Client)}
 	if err := esi.RefreshAdjustedPrices(t.Context(), deps); err != nil {
 		t.Fatalf("a held lock is not an error: %v", err)
 	}
@@ -249,7 +250,7 @@ func TestAdjustedPricesReportsAServerThatIsAway(t *testing.T) {
 	origin.server.Close()
 
 	fake := redisfake.New(t)
-	deps := &taskrun.Dependencies{Redis: fake.Client, ESI: esiFor(t, origin.server.URL, fake.Client)}
+	deps := &taskrun.Dependencies{Redis: eipredis.NewRedis(fake.Client), ESI: esiFor(t, origin.server.URL, fake.Client)}
 	ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 	defer cancel()
 
@@ -261,7 +262,7 @@ func TestAdjustedPricesReportsAServerThatIsAway(t *testing.T) {
 func TestAdjustedPricesRecordsWhenToComeBack(t *testing.T) {
 	origin := newPriceOrigin(t, 5)
 	fake := redisfake.New(t)
-	deps := &taskrun.Dependencies{Redis: fake.Client, ESI: esiFor(t, origin.server.URL, fake.Client)}
+	deps := &taskrun.Dependencies{Redis: eipredis.NewRedis(fake.Client), ESI: esiFor(t, origin.server.URL, fake.Client)}
 	before := time.Now()
 	if err := esi.RefreshAdjustedPrices(t.Context(), deps); err != nil {
 		t.Fatalf("task: %v", err)
@@ -269,7 +270,7 @@ func TestAdjustedPricesRecordsWhenToComeBack(t *testing.T) {
 
 	// The origin advertises max-age=300, and that is what decides the next run
 	// rather than a cron interval chosen here.
-	due, err := rediscore.NextRefresh(t.Context(), fake.Client, rediscore.DatasetMarketPrices)
+	due, err := eipredis.NewRedis(fake.Client).NextRefresh(t.Context(), eipredis.DatasetMarketPrices.Dataset())
 	if err != nil {
 		t.Fatalf("reading next refresh: %v", err)
 	}
@@ -288,7 +289,7 @@ func TestAdjustedPricesRecordsWhenToComeBack(t *testing.T) {
 	if err := esi.RefreshAdjustedPrices(t.Context(), deps); err != nil {
 		t.Fatalf("second pass: %v", err)
 	}
-	after, err := rediscore.NextRefresh(t.Context(), fake.Client, rediscore.DatasetMarketPrices)
+	after, err := eipredis.NewRedis(fake.Client).NextRefresh(t.Context(), eipredis.DatasetMarketPrices.Dataset())
 	if err != nil {
 		t.Fatalf("reading next refresh: %v", err)
 	}

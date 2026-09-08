@@ -10,12 +10,13 @@ import (
 	"sync"
 	"time"
 
+	"eve-industry-planner/core/primaryhandoff"
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
 	eipnats "eve-industry-planner/shared/nats"
+	eipredis "eve-industry-planner/shared/redis"
 
-	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -55,12 +56,13 @@ type ChangeStreamMessage struct {
 type Watcher struct {
 	mongo    *eipmongo.Mongo
 	nats     *eipnats.NATS
-	rdb      *redis.Client
+	tokens   *primaryhandoff.ResumeTokens
 	database *mongo.Database
 }
 
-// NewWatcher creates a new change stream watcher. rdb may be nil (cold start only).
-func NewWatcher(mongoHandle *eipmongo.Mongo, natsHandle *eipnats.NATS, rdb *redis.Client) *Watcher {
+// NewWatcher creates a new change stream watcher. A nil handle means every
+// group starts cold and stores nothing.
+func NewWatcher(mongoHandle *eipmongo.Mongo, natsHandle *eipnats.NATS, r *eipredis.Redis) *Watcher {
 	var database *mongo.Database
 	if mongoHandle != nil {
 		database = mongoHandle.DB
@@ -68,7 +70,7 @@ func NewWatcher(mongoHandle *eipmongo.Mongo, natsHandle *eipnats.NATS, rdb *redi
 	return &Watcher{
 		mongo:    mongoHandle,
 		nats:     natsHandle,
-		rdb:      rdb,
+		tokens:   primaryhandoff.NewResumeTokens(r),
 		database: database,
 	}
 }
@@ -141,7 +143,7 @@ func (w *Watcher) watchCollectionGroup(streamCtx context.Context, group Collecti
 			SetFullDocumentBeforeChange(options.WhenAvailable).
 			SetMaxAwaitTime(changeStreamMaxAwaitTime)
 
-		if token, ok := loadResumeToken(ctx, w.rdb, group.ID); ok {
+		if token, ok := w.tokens.Load(ctx, group.ID); ok {
 			opts.SetStartAfter(token)
 			logs.InfoCtx(ctx, "change stream resuming with StartAfter token",
 				"component", changestreamLogComponent, "group_id", group.ID)
@@ -153,7 +155,7 @@ func (w *Watcher) watchCollectionGroup(streamCtx context.Context, group Collecti
 			if isInvalidResumeError(err) {
 				logs.WarnCtx(streamCtx, "change stream resume invalid; clearing token and cold start",
 					"component", changestreamLogComponent, "group_id", group.ID, "error", err)
-				clearResumeToken(streamCtx, w.rdb, group.ID)
+				w.tokens.Clear(streamCtx, group.ID)
 				continue
 			}
 			if streamCtx.Err() != nil {
@@ -216,7 +218,7 @@ func (w *Watcher) watchCollectionGroup(streamCtx context.Context, group Collecti
 				logs.WarnCtx(ctx, "change event missing resume token",
 					"component", changestreamLogComponent, "group_id", group.ID, "error", err)
 			} else {
-				saveResumeToken(ctx, w.rdb, group.ID, token)
+				w.tokens.Save(ctx, group.ID, token)
 			}
 		}
 
@@ -236,7 +238,7 @@ func (w *Watcher) watchCollectionGroup(streamCtx context.Context, group Collecti
 			if isInvalidResumeError(streamErr) {
 				logs.WarnCtx(streamCtx, "change stream history lost; clearing resume token",
 					"component", changestreamLogComponent, "group_id", group.ID, "error", streamErr)
-				clearResumeToken(streamCtx, w.rdb, group.ID)
+				w.tokens.Clear(streamCtx, group.ID)
 			} else {
 				logs.WarnCtx(streamCtx, "change stream error, will reconnect",
 					"component", changestreamLogComponent,
@@ -749,12 +751,13 @@ func bsonArrayToStrings(v any) []string {
 }
 
 // StartService starts the MongoDB change stream watcher service (parallel watches per CollectionGroups entry).
-// Returns a stop function for graceful shutdown. rdb stores per-group resume tokens (optional).
-func StartService(mongoHandle *eipmongo.Mongo, natsHandle *eipnats.NATS, rdb *redis.Client) (func(), error) {
+// Returns a stop function for graceful shutdown. The handle stores per-group
+// resume tokens, and may be nil.
+func StartService(mongoHandle *eipmongo.Mongo, natsHandle *eipnats.NATS, r *eipredis.Redis) (func(), error) {
 	groups := CollectionGroups()
 	if err := validateCollectionGroups(groups); err != nil {
 		return nil, err
 	}
-	watcher := NewWatcher(mongoHandle, natsHandle, rdb)
+	watcher := NewWatcher(mongoHandle, natsHandle, r)
 	return watcher.Start(groups), nil
 }

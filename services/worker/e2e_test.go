@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	rediscore "eve-industry-planner/shared/core/redis"
 	eipnats "eve-industry-planner/shared/nats"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/testing/esifake"
 	"eve-industry-planner/testing/wait"
 )
@@ -29,7 +29,7 @@ func TestPublishingATriggerRunsItsTask(t *testing.T) {
 	// this stack writes them.
 	wait.For(t, 20*time.Second, func() (bool, string) {
 		var stored map[string]any
-		err := rediscore.GetIndustrySystemIndex(t.Context(), w.Redis.Client, 30000142, &stored)
+		err := eipredis.NewRedis(w.Redis.Client).Cache(eipredis.DatasetIndustrySystems).Entry(t.Context(), 30000142, &stored)
 		if err != nil {
 			return false, "system 30000142 has no stored indices: " + err.Error()
 		}

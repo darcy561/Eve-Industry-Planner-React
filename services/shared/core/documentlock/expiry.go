@@ -27,32 +27,28 @@ import (
 // The Service deps must include Redis + JetStream; without either the
 // function returns a nil error immediately (caller logs it once on startup).
 func RunExpirySubscriber(ctx context.Context, d Deps) error {
-	if d.Redis == nil || d.NATS == nil {
+	if d.Redis.Driver() == nil || d.NATS == nil {
 		return nil
 	}
 
-	rdb := d.Redis
-
-	pubsub := rdb.PSubscribe(ctx, "__keyevent@*__:expired")
-	defer func() { _ = pubsub.Close() }()
-
-	ch := pubsub.Channel()
+	sub, err := d.Redis.SubscribePattern(ctx, "__keyevent@*__:expired")
+	if err != nil {
+		return err
+	}
+	defer func() { _ = sub.Close() }()
 
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case msg, ok := <-ch:
+		case payload, ok := <-sub.Payloads():
 			if !ok {
 				if err := ctx.Err(); err != nil {
 					return err
 				}
 				return errors.New("doclock expiry: pubsub channel closed")
 			}
-			if msg == nil {
-				continue
-			}
-			handleExpiryMessage(ctx, d, msg.Payload)
+			handleExpiryMessage(ctx, d, payload)
 		}
 	}
 }
@@ -125,7 +121,7 @@ func promoteWaitlistHeadOnExpiry(
 	d Deps,
 	accountID, collection, docID string,
 ) (newHolder string, expiresAtUnix int64, promoted bool, err error) {
-	if d.Redis == nil {
+	if d.Redis.Driver() == nil {
 		return "", 0, false, nil
 	}
 	head, rec, ok, err := PromoteWaitlistHead(ctx, d.Redis, accountID, collection, docID)

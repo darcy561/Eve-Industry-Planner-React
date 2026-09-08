@@ -12,6 +12,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // observedFire runs one cron fire against a captured logger and reports what it
@@ -36,7 +38,7 @@ func observedFire(t *testing.T, s *TaskScheduler, taskType string) (*observer.Ob
 func TestSkippedCronFireLogsTheSkip(t *testing.T) {
 	r := redisfake.New(t)
 
-	s, err := NewTaskScheduler(nil, r.Client)
+	s, err := NewTaskScheduler(nil, eipredis.NewRedis(r.Client))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +77,7 @@ func TestSkippedCronFireLogsTheSkip(t *testing.T) {
 func TestNormalCronFireLogsNoSkip(t *testing.T) {
 	r := redisfake.New(t)
 
-	s, err := NewTaskScheduler(nil, r.Client)
+	s, err := NewTaskScheduler(nil, eipredis.NewRedis(r.Client))
 	if err != nil {
 		t.Fatal(err)
 	}

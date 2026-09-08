@@ -9,7 +9,7 @@ import (
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // MaintenanceKey is the Redis key holding the live maintenance flag.
@@ -24,27 +24,27 @@ const (
 // MaintenanceFlag reads and writes the live maintenance flag in Redis, holding
 // the last value read when Redis cannot answer. No key means off.
 type MaintenanceFlag struct {
-	rdb      *redis.Client
+	redis    *eipredis.Redis
 	lastRead atomic.Bool
 }
 
-// NewMaintenanceFlag builds the flag over rdb.
-func NewMaintenanceFlag(rdb *redis.Client) *MaintenanceFlag {
-	return &MaintenanceFlag{rdb: rdb}
+// NewMaintenanceFlag builds the flag over a Redis handle.
+func NewMaintenanceFlag(r *eipredis.Redis) *MaintenanceFlag {
+	return &MaintenanceFlag{redis: r}
 }
 
 // Enabled reports the live value, holding the last known one on a read failure.
 func (f *MaintenanceFlag) Enabled(ctx context.Context) bool {
-	if f == nil || f.rdb == nil {
+	if f == nil || f.redis.Driver() == nil {
 		return false
 	}
-	value, err := f.rdb.Get(ctx, MaintenanceKey).Result()
+	value, err := f.redis.GetString(ctx, MaintenanceKey)
 	switch {
 	case err == nil:
 		enabled := Truthy(value)
 		f.lastRead.Store(enabled)
 		return enabled
-	case errors.Is(err, redis.Nil):
+	case eipredis.IsNotFound(err):
 		f.lastRead.Store(false)
 		return false
 	default:
@@ -56,14 +56,14 @@ func (f *MaintenanceFlag) Enabled(ctx context.Context) bool {
 
 // Set writes the flag; it does not announce the change.
 func (f *MaintenanceFlag) Set(ctx context.Context, enabled bool) error {
-	if f == nil || f.rdb == nil {
+	if f == nil || f.redis.Driver() == nil {
 		return errors.New("appconfig: maintenance flag has no redis client")
 	}
 	value := storedOff
 	if enabled {
 		value = storedOn
 	}
-	if err := f.rdb.Set(ctx, MaintenanceKey, value, 0).Err(); err != nil {
+	if err := f.redis.PutString(ctx, MaintenanceKey, value, 0); err != nil {
 		return err
 	}
 	f.lastRead.Store(enabled)

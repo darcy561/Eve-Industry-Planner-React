@@ -52,7 +52,7 @@ func AuthSessionMaintenanceJob(clients *stackservices.Clients) Job {
 		Name:     "auth-session-maintenance",
 		LeaseKey: AuthSessionMaintenanceLeaseKey,
 		Run: func(ctx context.Context) error {
-			if clients == nil || clients.Redis == nil {
+			if clients == nil || clients.Redis.Driver() == nil {
 				return nil
 			}
 			return auth.RunAuthSessionMaintenanceLoop(ctx, clients.Redis, authSessionMaintenanceLoopInterval, auth.SessionCleanupOptionsFromEnv())
@@ -72,14 +72,14 @@ func allJobs(clients *stackservices.Clients) []Job {
 //
 // Tests that want a custom subset can call StartService instead.
 func Start(clients *stackservices.Clients) (*Catalogue, error) {
-	if clients == nil || clients.Redis == nil {
+	if clients == nil || clients.Redis.Driver() == nil {
 		return nil, errors.New("singleton: redis client is required")
 	}
 	stop, err := StartService(clients.Redis, allJobs(clients)...)
 	if err != nil {
 		return nil, err
 	}
-	cat := &Catalogue{rdb: clients.Redis}
+	cat := &Catalogue{redis: clients.Redis}
 	cat.running.Store(true)
 	var once sync.Once
 	cat.stop = func() {

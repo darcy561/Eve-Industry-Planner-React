@@ -6,11 +6,9 @@ import (
 	"time"
 
 	esimetrics "eve-industry-planner/core/metrics/esi"
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/shared/logs"
-
-	redislib "github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // Both margins put a deferred run just past the moment it is waiting on, so it
@@ -81,15 +79,15 @@ func DeferPublicationUntilAfterDowntime(ctx context.Context, sched publicationSc
 // A repeat pass inside the window still costs a token even answering 304, so
 // the cheapest call is the one not made. The cron schedule remains the backstop
 // for a dataset with no recorded freshness.
-func DeferPublicationUntilStale(ctx context.Context, sched publicationScheduler, jobName, dataset string, client *redislib.Client, now time.Time) (bool, error) {
-	if client == nil {
+func DeferPublicationUntilStale(ctx context.Context, sched publicationScheduler, jobName string, dataset eipredis.Dataset, r *eipredis.Redis, now time.Time) (bool, error) {
+	if r.Driver() == nil {
 		return false, nil
 	}
 
-	due, err := rediscore.NextRefresh(ctx, client, dataset)
+	due, err := r.NextRefresh(ctx, dataset)
 	if err != nil {
 		logs.WarnCtx(ctx, "could not read dataset freshness, publishing anyway",
-			"component", schedulerLogComponent, "job", jobName, "dataset", dataset, "error", err)
+			"component", schedulerLogComponent, "job", jobName, "dataset", string(dataset), "error", err)
 		return false, nil
 	}
 	if due.IsZero() || !due.After(now) {

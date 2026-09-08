@@ -48,10 +48,10 @@ func nextSchemaMaintenanceCollection(ctx context.Context, deps contract.Dependen
 	if len(schemaMaintenanceCollections) == 0 {
 		return "", fmt.Errorf("no schema maintenance collections configured")
 	}
-	if deps.Redis == nil {
+	if deps.Redis.Driver() == nil {
 		return schemaMaintenanceCollections[0], nil
 	}
-	nextIdx, err := deps.Redis.Incr(ctx, schemaMaintenanceRedisKey).Result()
+	nextIdx, err := deps.Redis.Driver().Incr(ctx, schemaMaintenanceRedisKey).Result()
 	if err != nil {
 		return "", err
 	}

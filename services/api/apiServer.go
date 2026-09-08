@@ -58,7 +58,7 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 		logs.ErrorCtx(ctx, "failed to create private rate limiter", "err", err)
 		return nil, err
 	}
-	store, err := lredis.NewStoreWithOptions(clients.Redis, limiter.StoreOptions{
+	store, err := lredis.NewStoreWithOptions(clients.Redis.Driver(), limiter.StoreOptions{
 		Prefix:          "limiter",
 		CleanUpInterval: 5 * time.Minute,
 	})

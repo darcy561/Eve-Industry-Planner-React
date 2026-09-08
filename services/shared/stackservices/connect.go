@@ -6,13 +6,12 @@ package stackservices
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"eve-industry-planner/shared/core/objectstore"
-	"eve-industry-planner/shared/core/redis"
 	eipmongo "eve-industry-planner/shared/mongo"
 	eipnats "eve-industry-planner/shared/nats"
-
-	redislib "github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // Services selects which stack data-plane clients to open.
@@ -36,7 +35,7 @@ var (
 type Clients struct {
 	Mongo       *eipmongo.Mongo
 	NATS        *eipnats.NATS
-	Redis       *redislib.Client
+	Redis       *eipredis.Redis
 	ObjectStore objectstore.Backend
 }
 
@@ -48,9 +47,9 @@ func Connect(ctx context.Context, services Services) (*Clients, func(context.Con
 	var cleanups []func(context.Context)
 
 	stop := func(c context.Context) {
-		for i := len(cleanups) - 1; i >= 0; i-- {
-			if cleanups[i] != nil {
-				cleanups[i](c)
+		for _, cleanup := range slices.Backward(cleanups) {
+			if cleanup != nil {
+				cleanup(c)
 			}
 		}
 	}
@@ -80,12 +79,12 @@ func Connect(ctx context.Context, services Services) (*Clients, func(context.Con
 	}
 
 	if services.Redis {
-		redisClient, err := redis.Connect()
+		redisHandle, err := eipredis.Connect(ctx)
 		if err != nil {
 			return fail(fmt.Errorf("failed to connect to redis: %w", err))
 		}
-		clients.Redis = redisClient
-		cleanups = append(cleanups, func(c context.Context) { redis.Cleanup(c, redisClient) })
+		clients.Redis = redisHandle
+		cleanups = append(cleanups, func(context.Context) { _ = redisHandle.Close() })
 	}
 
 	if services.ObjectStore {

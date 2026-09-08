@@ -8,12 +8,14 @@ import (
 
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func newStore(t *testing.T) (*esiclient.Store, backend) {
 	t.Helper()
 	be := newBackend(t)
-	return esiclient.NewStore(be.Client, esiclient.DefaultConfig()), be
+	return esiclient.NewStore(eipredis.NewRedis(be.Client), esiclient.DefaultConfig()), be
 }
 
 var marketPolicy = esiclient.EndpointPolicy{
@@ -438,7 +440,7 @@ func TestGlideStretchesOnceTheBucketIsActuallyLow(t *testing.T) {
 	// State the glide point rather than inheriting it: this test is about the
 	// curve, and should not start passing or failing when the default is tuned.
 	cfg.GlideFrom = 0.6
-	store := esiclient.NewStore(redisfake.New(t).Client, cfg)
+	store := esiclient.NewStore(eipredis.NewRedis(redisfake.New(t).Client), cfg)
 
 	bucket := esiclient.Bucket{Group: "market-order", User: esiclient.AnonymousUser}
 	known(t, store, bucket, 100, time.Minute)
@@ -965,7 +967,7 @@ func TestAnIdleBucketStaysInTheInventory(t *testing.T) {
 
 	// Longer than the hourly refresh that produced the gap, and longer than
 	// twice the window, which is when every charge has aged out.
-	be.FastForward(t, 90 * time.Minute)
+	be.FastForward(t, 90*time.Minute)
 
 	buckets, err := store.Buckets(t.Context())
 	if err != nil {
@@ -987,7 +989,7 @@ func TestAnIdleBucketReportsFullRatherThanNothing(t *testing.T) {
 	bucket := esiclient.Bucket{Group: "industry", User: esiclient.AnonymousUser}
 	known(t, store, bucket, 150, 15*time.Minute)
 
-	be.FastForward(t, 90 * time.Minute)
+	be.FastForward(t, 90*time.Minute)
 
 	state, err := store.State(t.Context(), bucket)
 	if err != nil {
@@ -1020,9 +1022,9 @@ func TestTheLedgerStillExpiresWithItsWindow(t *testing.T) {
 		t.Fatal("nothing was spent, so there is no ledger to watch expire")
 	}
 
-	be.FastForward(t, 90 * time.Minute)
+	be.FastForward(t, 90*time.Minute)
 
-	if be.Exists(t, "esi:b:" + bucket.Key() + ":ledger") {
+	if be.Exists(t, "esi:b:"+bucket.Key()+":ledger") {
 		t.Error("the ledger outlived twice its window; charges must age out")
 	}
 }
@@ -1035,7 +1037,7 @@ func TestABucketNothingCallsStopsBeingReported(t *testing.T) {
 	bucket := esiclient.Bucket{Group: "industry", User: esiclient.AnonymousUser}
 	known(t, store, bucket, 150, 15*time.Minute)
 
-	be.FastForward(t, 3 * time.Hour)
+	be.FastForward(t, 3*time.Hour)
 
 	buckets, err := store.Buckets(t.Context())
 	if err != nil {

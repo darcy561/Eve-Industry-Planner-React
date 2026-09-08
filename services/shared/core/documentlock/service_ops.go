@@ -20,7 +20,7 @@ type AcquireResult struct {
 // single Redis EVAL so two simultaneous Acquires cannot both win.
 func (s *Service) Acquire(ctx context.Context, accountID, sessionID, collection, docID string) (*AcquireResult, error) {
 	rdb := s.Deps.Redis
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		return nil, ErrLocksUnavailable
 	}
 	now := time.Now().Unix()
@@ -79,7 +79,7 @@ type ExtendResult struct {
 // probe target selection, probe expiry sweep) all happen inside a single EVAL.
 func (s *Service) Extend(ctx context.Context, accountID, sessionID, collection, docID string) (*ExtendResult, error) {
 	rdb := s.Deps.Redis
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		return nil, ErrLocksUnavailable
 	}
 	now := time.Now().Unix()
@@ -177,7 +177,7 @@ func (s *Service) Extend(ctx context.Context, accountID, sessionID, collection, 
 // write.
 func (s *Service) Release(ctx context.Context, accountID, sessionID, collection, docID string) error {
 	rdb := s.Deps.Redis
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		return ErrLocksUnavailable
 	}
 	now := time.Now().Unix()
@@ -206,7 +206,7 @@ func (s *Service) Release(ctx context.Context, accountID, sessionID, collection,
 // (caller). For group locks, cascades per-job locks on handoff and grant.
 func (s *Service) ForceReleaseSameAccount(ctx context.Context, accountID, requesterSessionID, collection, docID string) (*AcquireResult, error) {
 	rdb := s.Deps.Redis
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		return nil, ErrLocksUnavailable
 	}
 	now := time.Now().Unix()
@@ -267,7 +267,7 @@ type HandOverResult struct {
 // double-promote.
 func (s *Service) HandOver(ctx context.Context, accountID, holderSessionID, collection, docID string) (*HandOverResult, error) {
 	rdb := s.Deps.Redis
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		return nil, ErrLocksUnavailable
 	}
 	now := time.Now().Unix()
@@ -344,7 +344,7 @@ type RequestLockResult struct {
 // (auto-grant vs. enqueue vs. same-holder) are made inside a single EVAL.
 func (s *Service) RequestAccess(ctx context.Context, accountID, requesterSessionID, collection, docID string) (*RequestLockResult, error) {
 	rdb := s.Deps.Redis
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		return nil, ErrLocksUnavailable
 	}
 	now := time.Now().Unix()
@@ -413,7 +413,7 @@ type ClaimHandoffOutput struct {
 // requester) plus the lock rewrite all happen inside a single EVAL.
 func (s *Service) ClaimHandoff(ctx context.Context, accountID, requesterSessionID, collection, docID string) (*ClaimHandoffOutput, error) {
 	rdb := s.Deps.Redis
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		return nil, ErrLocksUnavailable
 	}
 	now := time.Now().Unix()
@@ -464,7 +464,7 @@ func (s *Service) ClaimHandoff(ctx context.Context, accountID, requesterSessionI
 
 // WaitlistPulse refreshes the requester's waitlist pulse key.
 func (s *Service) WaitlistPulse(ctx context.Context, accountID, sessionID, collection, docID string) error {
-	if s.Deps.Redis == nil {
+	if s.Deps.Redis.Driver() == nil {
 		return ErrLocksUnavailable
 	}
 	return TouchWaitlistPulse(ctx, s.Deps.Redis, accountID, collection, docID, sessionID)

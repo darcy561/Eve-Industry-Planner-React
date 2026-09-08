@@ -14,7 +14,7 @@ import (
 	eipnats "eve-industry-planner/shared/nats"
 	"eve-industry-planner/shared/stackservices"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // Dependencies holds the stack clients and the ESI rate limiter a task handler
@@ -23,7 +23,7 @@ import (
 type Dependencies struct {
 	Mongo       *eipmongo.Mongo
 	NATS        *eipnats.NATS
-	Redis       *redis.Client
+	Redis       *eipredis.Redis
 	ObjectStore objectstore.Backend
 	ESI         esiclient.API
 	// EntityCipher derives the refs that replace raw entity ids. Built once at the

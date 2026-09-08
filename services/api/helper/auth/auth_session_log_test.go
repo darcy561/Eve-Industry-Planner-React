@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestAuthSessionFailureDetail_ClientFailureDetail(t *testing.T) {
@@ -73,7 +75,7 @@ func TestExtractAccountSession_MissingCookieIncludesReason(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	req := newSessionCookieRequest("")
 	_, err := ExtractAccountSession(ctx, req, rdb)
 	if err == nil {
@@ -94,7 +96,7 @@ func TestExtractAccountSession_MissingCookieIncludesReason(t *testing.T) {
 func TestExtractAccountSession_OrphanIndexIncludesAccountAndSession(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-extract-orphan-detail"
@@ -108,7 +110,7 @@ func TestExtractAccountSession_OrphanIndexIncludesAccountAndSession(t *testing.T
 	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)
 	}
-	if err := rdb.Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
 		t.Fatalf("set session index: %v", err)
 	}
 

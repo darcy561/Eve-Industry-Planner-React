@@ -6,6 +6,8 @@ import (
 
 	"eve-industry-planner/shared/core/documentlock"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestWaitlistPulseNilRedis(t *testing.T) {
@@ -18,14 +20,14 @@ func TestWaitlistPulseNilRedis(t *testing.T) {
 
 func TestWaitlistPulseOK(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	out := WaitlistPulse(context.Background(), documentlock.Deps{Redis: rdb}, "acct", "sess", "jobs", "j1")
 	if !out.OK() {
 		t.Fatalf("%+v", out)
 	}
 	key := documentlock.WaitlistPulseKey("acct", "jobs", "j1", "sess")
-	if got, err := rdb.Get(context.Background(), key).Result(); err != nil || got != "1" {
+	if got, err := rdb.Driver().Get(context.Background(), key).Result(); err != nil || got != "1" {
 		t.Fatalf("pulse key=%q err=%v", got, err)
 	}
 }

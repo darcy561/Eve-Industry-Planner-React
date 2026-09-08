@@ -9,7 +9,7 @@ import (
 	"eve-industry-planner/shared/dependency"
 	"eve-industry-planner/shared/logs"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 type authErrorResponse struct {
@@ -31,7 +31,7 @@ func respondAuthDependencyUnavailable(w http.ResponseWriter, r *http.Request, lo
 }
 
 // AuthConstructor validates the shared session cookie against account session state.
-func AuthConstructor(redisClient *redis.Client) MiddlewareConstructor {
+func AuthConstructor(redisClient *eipredis.Redis) MiddlewareConstructor {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			identity, err := auth.ExtractAccountSession(r.Context(), r, redisClient)

@@ -10,12 +10,10 @@ import (
 	esimetrics "eve-industry-planner/core/metrics/esi"
 	"eve-industry-planner/core/scheduler/contract"
 	esicore "eve-industry-planner/shared/core/esi"
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
-
-	redislib "github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // regionSweepInterval is how often a hub's order book is walked again. It is
@@ -33,21 +31,21 @@ const regionSweepInterval = time.Hour
 // tried — a cheaper book refreshed is better than none.
 func RegionMarketOrdersRefresh(deps contract.Dependencies, jobName string) contract.TaskHandler {
 	natsHandle := deps.NATS
-	redisClient := deps.Redis
+	r := deps.Redis
 	esi := deps.ESI
 
 	return func(ctx context.Context, data json.RawMessage) error {
 		if deferred, err := DeferPublicationUntilAfterDowntime(ctx, natsHandle, jobName, esi); err != nil || deferred {
 			return err
 		}
-		return runRegionMarketOrdersRefresh(ctx, natsHandle, redisClient, esi, jobName)
+		return runRegionMarketOrdersRefresh(ctx, natsHandle, r, esi, jobName)
 	}
 }
 
 func runRegionMarketOrdersRefresh(
 	ctx context.Context,
 	natsHandle *eipnats.NATS,
-	redisClient *redislib.Client,
+	r *eipredis.Redis,
 	esi esiclient.API,
 	jobName string,
 ) error {
@@ -56,7 +54,7 @@ func runRegionMarketOrdersRefresh(
 		return nil
 	}
 
-	due, err := regionsDue(ctx, redisClient, regions, time.Now())
+	due, err := regionsDue(ctx, r, regions, time.Now())
 	if err != nil {
 		return err
 	}
@@ -69,7 +67,7 @@ func runRegionMarketOrdersRefresh(
 
 	published := 0
 	for _, location := range due {
-		if !canAffordRegionRefresh(ctx, esi, redisClient, location.RegionID) {
+		if !canAffordRegionRefresh(ctx, esi, r, location.RegionID) {
 			esimetrics.RecordPublicationSkipped(ctx, jobName, esimetrics.SkipBudget)
 			continue
 		}
@@ -97,18 +95,18 @@ func runRegionMarketOrdersRefresh(
 // answered 304 and still costs a token, so it buys nothing. The sweep interval
 // is the binding constraint while it stays longer than the max-age; the
 // max-age check is what keeps a shorter interval safe to set.
-func regionsDue(ctx context.Context, client *redislib.Client, regions []esicore.MarketLocation, now time.Time) ([]esicore.MarketLocation, error) {
-	if client == nil {
+func regionsDue(ctx context.Context, r *eipredis.Redis, regions []esicore.MarketLocation, now time.Time) ([]esicore.MarketLocation, error) {
+	if r.Driver() == nil {
 		return regions, nil
 	}
 
-	times, err := rediscore.GetRegionMarketOrdersRefreshTimes(ctx, client)
+	times, err := r.MarketOrders().RefreshTimes(ctx)
 	if err != nil {
 		return nil, err
 	}
 	lastPass := make(map[int32]time.Time, len(times))
 	for _, t := range times {
-		lastPass[t.RegionID] = time.UnixMilli(t.LastUpdated)
+		lastPass[t.RegionID] = t.LastUpdated
 	}
 
 	var due []esicore.MarketLocation
@@ -117,7 +115,7 @@ func regionsDue(ctx context.Context, client *redislib.Client, regions []esicore.
 		if walked && now.Before(last.Add(regionSweepInterval)) {
 			continue
 		}
-		if fresh, _ := regionStillFresh(ctx, client, location.RegionID, now); fresh {
+		if fresh, _ := regionStillFresh(ctx, r, location.RegionID, now); fresh {
 			continue
 		}
 		due = append(due, location)
@@ -135,12 +133,12 @@ func regionsDue(ctx context.Context, client *redislib.Client, regions []esicore.
 //
 // A region never fetched has no page count, and the first pass is what
 // establishes it — so it is published and the limiter paces it.
-func canAffordRegionRefresh(ctx context.Context, esi esiclient.API, redisClient *redislib.Client, regionID int32) bool {
+func canAffordRegionRefresh(ctx context.Context, esi esiclient.API, r *eipredis.Redis, regionID int32) bool {
 	if esi == nil {
 		return true
 	}
 
-	etags, err := rediscore.GetRegionMarketOrdersETags(ctx, redisClient, regionID)
+	etags, err := r.MarketOrders().ETags(ctx, regionID)
 	if err != nil {
 		logs.WarnCtx(ctx, "failed reading region page count, publishing without a budget check",
 			"component", schedulerLogComponent, "region_id", regionID, "error", err)
@@ -180,8 +178,8 @@ func canAffordRegionRefresh(ctx context.Context, esi esiclient.API, redisClient 
 // regionStillFresh reports whether ESI's own max-age says this region's book
 // cannot have changed yet. A region nothing has fetched has no answer, and the
 // first pass is what establishes one.
-func regionStillFresh(ctx context.Context, client *redislib.Client, regionID int32, now time.Time) (bool, time.Time) {
-	due, err := rediscore.NextRefresh(ctx, client, rediscore.RegionMarketOrdersDataset(regionID))
+func regionStillFresh(ctx context.Context, r *eipredis.Redis, regionID int32, now time.Time) (bool, time.Time) {
+	due, err := r.NextRefresh(ctx, eipredis.RegionMarketOrdersDataset(regionID))
 	if err != nil {
 		logs.WarnCtx(ctx, "could not read region freshness, publishing anyway",
 			"component", schedulerLogComponent, "region_id", regionID, "error", err)

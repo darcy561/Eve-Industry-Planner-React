@@ -21,18 +21,17 @@ import (
 	"eve-industry-planner/api/apideps"
 	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/api/v1endpoints"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/testing/esifake"
 	"eve-industry-planner/testing/evessofake"
 	"eve-industry-planner/testing/redisfake"
-
-	"github.com/redis/go-redis/v9"
 )
 
 // session drives the endpoints that make up the lifecycle.
 type session struct {
 	handlers *v1endpoints.Handlers
-	redis    *redis.Client
+	redis    *eipredis.Redis
 	fake     *redisfake.Redis
 }
 
@@ -45,11 +44,11 @@ func newSession(t *testing.T) *session {
 	t.Setenv("REFRESH_TOKEN_AES_KEY", base64.StdEncoding.EncodeToString(make([]byte, 32)))
 
 	fake := redisfake.New(t)
-	deps := apideps.FromClients(&stackservices.Clients{Redis: fake.Client}, nil, esifake.New(t), nil)
+	deps := apideps.FromClients(&stackservices.Clients{Redis: eipredis.NewRedis(fake.Client)}, nil, esifake.New(t), nil)
 
 	return &session{
 		handlers: v1endpoints.New(deps),
-		redis:    fake.Client,
+		redis:    eipredis.NewRedis(fake.Client),
 		fake:     fake,
 	}
 }

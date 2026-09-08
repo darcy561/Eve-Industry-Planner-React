@@ -37,7 +37,7 @@ services/api/v1endpoints/documentlocks/
 services/core/singleton/service.go       Generic singleton-job runner used by core (Job + StartService)
 services/core/singleton/jobs.go          Catalogue of registered singleton jobs (DoclockExpirySubscriberJob, allJobs, Start)
 services/core/main.go                    singleton.Start(clients) on core boot
-services/shared/core/redis/lease/lease.go Reusable single-leader primitive (SET NX + CAS renew)
+services/shared/redis/lease.go           Reusable single-leader primitive (SET NX + CAS renew)
 
 services/websocket/server/
   nats_doc_lock.go              doc.lock JetStream consumer (per-replica durable)
@@ -376,7 +376,7 @@ package itself stays infrastructure-agnostic and just exposes
 Requires `notify-keyspace-events Ex` on the Redis instance (already set in
 `docker-compose.yml`'s `redis.command`).
 
-`lease.RunWhileHeld` (`shared/core/redis/lease`) uses a `SET key value NX EX ttl` to acquire the
+`eipredis.RunWhileHeld` (`shared/redis`) uses a `SET key value NX EX ttl` to acquire the
 lease and a CAS Lua script (`if get == value then pexpire ttl`) to renew it.
 If the renewer can't reach Redis twice in a row, or if a peer has taken over
 the key, the scoped context passed to `RunExpirySubscriber` is cancelled,
@@ -591,7 +591,7 @@ through the publish-payload list helper without needing a real NATS.
   `documentlock/atomic.go` make duplicate runs safe (idempotent peek + CAS
   write), but the lease makes duplicate runs *unnecessary* and removes the
   extra JetStream publish per event. See
-  `services/shared/core/redis/lease/lease.go` for the primitive.
+  `services/shared/redis/lease.go` for the primitive.
 - **JetStream stream.** Lock events use the shared `doc-update-stream` under
   subject prefix `doc.lock.>` (see `natscore.EnsureDocUpdateStream`). Publish
   shape remains `doc.lock.{accountID}`. Each websocket replica’s durable

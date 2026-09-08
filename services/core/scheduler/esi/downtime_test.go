@@ -6,10 +6,11 @@ import (
 	"testing"
 	"time"
 
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/testing/esifake"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 type fakeScheduler struct {
@@ -135,7 +136,7 @@ func TestDeferPublicationPublishesWhenNothingHasBeenFetched(t *testing.T) {
 	fake := redisfake.New(t)
 
 	deferred, err := DeferPublicationUntilStale(context.Background(), sched, "cron.job",
-		rediscore.DatasetMarketPrices, fake.Client, time.Now())
+		eipredis.DatasetMarketPrices.Dataset(), eipredis.NewRedis(fake.Client), time.Now())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -150,12 +151,12 @@ func TestDeferPublicationWaitsForTheAdvertisedMaxAge(t *testing.T) {
 	now := time.Now()
 	stale := now.Add(20 * time.Minute)
 
-	if err := rediscore.SaveNextRefresh(context.Background(), fake.Client, rediscore.DatasetMarketPrices, stale); err != nil {
+	if err := eipredis.NewRedis(fake.Client).PutNextRefresh(context.Background(), eipredis.DatasetMarketPrices.Dataset(), stale); err != nil {
 		t.Fatalf("seeding freshness: %v", err)
 	}
 
 	deferred, err := DeferPublicationUntilStale(context.Background(), sched, "cron.job",
-		rediscore.DatasetMarketPrices, fake.Client, now)
+		eipredis.DatasetMarketPrices.Dataset(), eipredis.NewRedis(fake.Client), now)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -174,13 +175,12 @@ func TestDeferPublicationPublishesOnceTheDataIsStale(t *testing.T) {
 	fake := redisfake.New(t)
 	now := time.Now()
 
-	if err := rediscore.SaveNextRefresh(context.Background(), fake.Client,
-		rediscore.DatasetMarketPrices, now.Add(-time.Minute)); err != nil {
+	if err := eipredis.NewRedis(fake.Client).PutNextRefresh(context.Background(), eipredis.DatasetMarketPrices.Dataset(), now.Add(-time.Minute)); err != nil {
 		t.Fatalf("seeding freshness: %v", err)
 	}
 
 	deferred, err := DeferPublicationUntilStale(context.Background(), sched, "cron.job",
-		rediscore.DatasetMarketPrices, fake.Client, now)
+		eipredis.DatasetMarketPrices.Dataset(), eipredis.NewRedis(fake.Client), now)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	eipredis "eve-industry-planner/shared/redis"
 	"github.com/go-co-op/gocron/v2"
 	"github.com/nats-io/nats.go/jetstream"
-	redislib "github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -26,7 +26,7 @@ const otelTracerName = "core"
 type TaskScheduler struct {
 	scheduler   gocron.Scheduler
 	nats        *eipnats.NATS
-	redisClient *redislib.Client
+	redis       *eipredis.Redis
 	handlers    map[string]contract.TaskHandler
 	maintenance *appconfig.MaintenanceFlag
 
@@ -35,7 +35,7 @@ type TaskScheduler struct {
 }
 
 // NewTaskScheduler creates a new task scheduler for cron jobs and one-time scheduled tasks
-func NewTaskScheduler(natsHandle *eipnats.NATS, redisClient *redislib.Client) (*TaskScheduler, error) {
+func NewTaskScheduler(natsHandle *eipnats.NATS, r *eipredis.Redis) (*TaskScheduler, error) {
 	// Bound how long Shutdown waits for cancelled jobs to exit (default 10s).
 	// Expressions are read in UTC, so a declared time means the same thing wherever
 	// the container runs and matches the EVE downtime window jobs compare against.
@@ -50,9 +50,9 @@ func NewTaskScheduler(natsHandle *eipnats.NATS, redisClient *redislib.Client) (*
 	return &TaskScheduler{
 		scheduler:   sched,
 		nats:        natsHandle,
-		redisClient: redisClient,
+		redis:       r,
 		handlers:    make(map[string]contract.TaskHandler),
-		maintenance: appconfig.NewMaintenanceFlag(redisClient),
+		maintenance: appconfig.NewMaintenanceFlag(r),
 		stopChan:    make(chan struct{}),
 	}, nil
 }

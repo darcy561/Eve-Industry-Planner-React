@@ -6,12 +6,14 @@ import (
 	"time"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestVerifyAccountSessionPersisted(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-verify-persist"
@@ -36,7 +38,7 @@ func TestVerifyAccountSessionPersisted(t *testing.T) {
 	}
 
 	// Simulate orphan refresh row: index + account record without session row.
-	if err := rdb.Set(ctx, sessionIndexKey("orphan-sess"), accountID, SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, sessionIndexKey("orphan-sess"), accountID, SessionTTL).Err(); err != nil {
 		t.Fatalf("set orphan index: %v", err)
 	}
 	if err := VerifyAccountSessionPersisted(ctx, rdb, accountID, "orphan-sess"); err == nil {
@@ -47,7 +49,7 @@ func TestVerifyAccountSessionPersisted(t *testing.T) {
 func TestUpsertFailureLeavesNoDurableSessionForVerify(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const accountID = "acct-no-upsert"
 	err := VerifyAccountSessionPersisted(ctx, rdb, accountID, "never-written")
@@ -59,7 +61,7 @@ func TestUpsertFailureLeavesNoDurableSessionForVerify(t *testing.T) {
 func TestRevokeRefreshTokensForLogout(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-logout-revoke"
@@ -93,7 +95,7 @@ func TestRevokeRefreshTokensForLogout(t *testing.T) {
 			t.Fatalf("token %q should be revoked, got err=%v", tok, err)
 		}
 	}
-	exists, err := rdb.Exists(ctx, sessionRefreshIndexKey(sessionID)).Result()
+	exists, err := rdb.Driver().Exists(ctx, sessionRefreshIndexKey(sessionID)).Result()
 	if err != nil {
 		t.Fatalf("Exists index: %v", err)
 	}

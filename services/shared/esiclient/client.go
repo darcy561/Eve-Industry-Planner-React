@@ -12,7 +12,7 @@ import (
 
 	"eve-industry-planner/shared/httpclient"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // Request is one call to ESI. Path and Class are the caller's; everything about
@@ -82,7 +82,7 @@ type Client struct {
 }
 
 // New builds a client and returns the function that stops its dispatcher.
-func New(rdb *redis.Client, cfg Config) (*Client, func(), error) {
+func New(r *eipredis.Redis, cfg Config) (*Client, func(), error) {
 	if err := cfg.Validate(); err != nil {
 		return nil, nil, err
 	}
@@ -90,7 +90,7 @@ func New(rdb *redis.Client, cfg Config) (*Client, func(), error) {
 		cfg.BaseURL = BaseURL
 	}
 
-	store := NewStore(rdb, cfg)
+	store := NewStore(r, cfg)
 	dispatcher, stop := NewDispatcher(store, cfg)
 
 	return &Client{

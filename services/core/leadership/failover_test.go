@@ -9,13 +9,13 @@ import (
 
 	"eve-industry-planner/core/primarycontroller"
 	"eve-industry-planner/core/servicemanager"
-	"eve-industry-planner/shared/core/redis/lease"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/testing/redisfake"
 	"eve-industry-planner/testing/wait"
 )
 
-func fastLeaseOpts() lease.Options {
-	return lease.Options{
+func fastLeaseOpts() eipredis.LeaseOptions {
+	return eipredis.LeaseOptions{
 		TTL:            400 * time.Millisecond,
 		RenewInterval:  80 * time.Millisecond,
 		AcquireBackoff: 50 * time.Millisecond,
@@ -125,11 +125,11 @@ func TestDualReplica_exactlyOnePublisherAndTakeover(t *testing.T) {
 	rdb := redisfake.New(t).Client
 
 	opts := fastLeaseOpts()
-	a, err := primarycontroller.StartWithOptions(context.Background(), rdb, opts)
+	a, err := primarycontroller.StartWithOptions(context.Background(), eipredis.NewRedis(rdb), opts)
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := primarycontroller.StartWithOptions(context.Background(), rdb, opts)
+	b, err := primarycontroller.StartWithOptions(context.Background(), eipredis.NewRedis(rdb), opts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -209,11 +209,11 @@ func TestDualReplica_takeoverBoundOnStop(t *testing.T) {
 	opts := fastLeaseOpts()
 	const takeoverBound = 2 * time.Second
 
-	a, err := primarycontroller.StartWithOptions(context.Background(), rdb, opts)
+	a, err := primarycontroller.StartWithOptions(context.Background(), eipredis.NewRedis(rdb), opts)
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := primarycontroller.StartWithOptions(context.Background(), rdb, opts)
+	b, err := primarycontroller.StartWithOptions(context.Background(), eipredis.NewRedis(rdb), opts)
 	if err != nil {
 		t.Fatal(err)
 	}

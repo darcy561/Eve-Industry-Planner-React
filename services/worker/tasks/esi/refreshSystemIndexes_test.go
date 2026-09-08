@@ -14,6 +14,8 @@ import (
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/testing/redisfake"
 	esi "eve-industry-planner/worker/tasks/esi"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // ESI sends a list of activities per system and the application stores them as
@@ -110,13 +112,13 @@ func runSystems(t *testing.T, origin *systemsOrigin) map[string]string {
 
 	cfg := esiclient.DefaultConfig()
 	cfg.BaseURL = origin.server.URL
-	next, stop, err := esiclient.New(fake.Client, cfg)
+	next, stop, err := esiclient.New(eipredis.NewRedis(fake.Client), cfg)
 	if err != nil {
 		t.Fatalf("esiclient: %v", err)
 	}
 	t.Cleanup(stop)
 
-	deps := &taskrun.Dependencies{Redis: fake.Client, ESI: next}
+	deps := &taskrun.Dependencies{Redis: eipredis.NewRedis(fake.Client), ESI: next}
 	if err := esi.RefreshSystemIndexes(t.Context(), deps); err != nil {
 		t.Fatalf("task: %v", err)
 	}
@@ -145,19 +147,19 @@ func TestSystemIndexesFlattenEveryActivity(t *testing.T) {
 
 	cfg := esiclient.DefaultConfig()
 	cfg.BaseURL = origin.server.URL
-	next, stop, err := esiclient.New(fake.Client, cfg)
+	next, stop, err := esiclient.New(eipredis.NewRedis(fake.Client), cfg)
 	if err != nil {
 		t.Fatalf("esiclient: %v", err)
 	}
 	t.Cleanup(stop)
 
-	deps := &taskrun.Dependencies{Redis: fake.Client, ESI: next}
+	deps := &taskrun.Dependencies{Redis: eipredis.NewRedis(fake.Client), ESI: next}
 	if err := esi.RefreshSystemIndexes(t.Context(), deps); err != nil {
 		t.Fatalf("task: %v", err)
 	}
 
 	var stored esitypes.SystemIndexes
-	if err := rediscoreGetSystem(t, fake, 30000142, &stored); err != nil {
+	if err := storedSystemIndex(t, fake, 30000142, &stored); err != nil {
 		t.Fatalf("read back the stored system: %v", err)
 	}
 
@@ -195,19 +197,19 @@ func TestSystemIndexesIgnoreAnUnknownActivity(t *testing.T) {
 
 	cfg := esiclient.DefaultConfig()
 	cfg.BaseURL = server.URL
-	next, stop, err := esiclient.New(fake.Client, cfg)
+	next, stop, err := esiclient.New(eipredis.NewRedis(fake.Client), cfg)
 	if err != nil {
 		t.Fatalf("esiclient: %v", err)
 	}
 	t.Cleanup(stop)
 
-	deps := &taskrun.Dependencies{Redis: fake.Client, ESI: next}
+	deps := &taskrun.Dependencies{Redis: eipredis.NewRedis(fake.Client), ESI: next}
 	if err := esi.RefreshSystemIndexes(t.Context(), deps); err != nil {
 		t.Fatalf("an unknown activity should not fail the pass: %v", err)
 	}
 
 	var stored esitypes.SystemIndexes
-	if err := rediscoreGetSystem(t, fake, 30000142, &stored); err != nil {
+	if err := storedSystemIndex(t, fake, 30000142, &stored); err != nil {
 		t.Fatalf("read back: %v", err)
 	}
 	if stored.Manufacturing != 0.05 {
@@ -215,7 +217,7 @@ func TestSystemIndexesIgnoreAnUnknownActivity(t *testing.T) {
 	}
 }
 
-func rediscoreGetSystem(t *testing.T, fake *redisfake.Redis, systemID int32, target *esitypes.SystemIndexes) error {
+func storedSystemIndex(t *testing.T, fake *redisfake.Redis, systemID int32, target *esitypes.SystemIndexes) error {
 	t.Helper()
 	value, err := fake.Client.Get(t.Context(), fmt.Sprintf("esi:industry_systems:%d", systemID)).Result()
 	if err != nil {

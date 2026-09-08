@@ -12,6 +12,8 @@ import (
 	"eve-industry-planner/testing/redisfake"
 
 	"github.com/redis/go-redis/v9"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // countingHook tallies commands actually sent to Redis, which is the figure the
@@ -83,7 +85,7 @@ func TestRedisWorkPerRequestIsBounded(t *testing.T) {
 		Conditional:       true,
 	}}
 
-	client, stop, err := esiclient.New(rdb.Client, cfg)
+	client, stop, err := esiclient.New(eipredis.NewRedis(rdb.Client), cfg)
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}
@@ -135,7 +137,7 @@ func TestBlockModeAmortisesRedisAcrossSlots(t *testing.T) {
 		Conditional:       true,
 	}}
 
-	client, stop, err := esiclient.New(rdb.Client, cfg)
+	client, stop, err := esiclient.New(eipredis.NewRedis(rdb.Client), cfg)
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}

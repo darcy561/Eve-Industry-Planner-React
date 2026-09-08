@@ -30,13 +30,13 @@ func RunPurgeWorkerQueues() error {
 	)
 
 	for {
-		keys, nextCursor, err := clients.Redis.Scan(ctx, cursor, pattern, scanCount).Result()
+		keys, nextCursor, err := clients.Redis.Driver().Scan(ctx, cursor, pattern, scanCount).Result()
 		if err != nil {
 			return fmt.Errorf("failed scanning redis with pattern %q: %w", pattern, err)
 		}
 
 		if len(keys) > 0 {
-			deleted, delErr := clients.Redis.Del(ctx, keys...).Result()
+			deleted, delErr := clients.Redis.Driver().Del(ctx, keys...).Result()
 			if delErr != nil {
 				return fmt.Errorf("failed deleting redis keys for pattern %q: %w", pattern, delErr)
 			}

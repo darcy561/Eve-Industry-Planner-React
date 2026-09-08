@@ -3,7 +3,7 @@
 **Roadmap:** #2 — Replica identity  
 **Related locked Outcomes:** [ws-container-id.md](./ws-container-id.md) (ephemeral container identity)  
 **Code anchors:**
-- [`services/shared/core/redis/lease/lease.go`](../../../../services/shared/core/redis/lease/lease.go) — `InstanceID()` → today `Replica() + ":" + uuid`
+- [`services/shared/redis/lease.go`](../../../../services/shared/redis/lease.go) — `LeaseInstanceID()` → today `Replica() + ":" + uuid`
 
 ## Where it is used
 

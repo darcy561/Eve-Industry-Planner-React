@@ -9,7 +9,7 @@ import (
 
 	eipmongo "eve-industry-planner/shared/mongo"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // ErrSessionRequiredForLockGate is returned by CollectLockHeldElsewhereRejects when
@@ -53,8 +53,8 @@ type HolderCheck struct {
 // When rdb is nil, returns Unheld (caller skips API enforcement). When
 // requesterSessionID is empty, returns an error — callers that enforce locks
 // must require a session first.
-func RequireHolder(ctx context.Context, rdb *redis.Client, accountID, requesterSessionID, collection, docID string) (HolderCheck, error) {
-	if rdb == nil {
+func RequireHolder(ctx context.Context, rdb *eipredis.Redis, accountID, requesterSessionID, collection, docID string) (HolderCheck, error) {
+	if rdb.Driver() == nil {
 		return HolderCheck{Outcome: HolderOutcomeUnheld}, nil
 	}
 	if requesterSessionID == "" {
@@ -127,12 +127,12 @@ type JobGroupBypass map[string]string
 // jobGroupBypass is only consulted for eipmongo.CollectionJobDocuments; pass nil otherwise.
 func CollectLockHeldElsewhereRejects(
 	ctx context.Context,
-	rdb *redis.Client,
+	rdb *eipredis.Redis,
 	accountID, requesterSessionID, collection string,
 	docIDs []string,
 	jobGroupBypass JobGroupBypass,
 ) ([]LockHeldElsewhereItem, error) {
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		return nil, nil
 	}
 	if requesterSessionID == "" {
@@ -146,12 +146,15 @@ func CollectLockHeldElsewhereRejects(
 		return nil, nil
 	}
 
-	pipe := rdb.Pipeline()
-	cmds := make([]*redis.StringCmd, len(uniq))
+	pipe, err := rdb.Pipe()
+	if err != nil {
+		return nil, err
+	}
+	cmds := make([]*eipredis.StringResult, len(uniq))
 	for i, id := range uniq {
 		cmds[i] = pipe.Get(ctx, LockKey(accountID, collection, id))
 	}
-	if _, err := pipe.Exec(ctx); err != nil && err != redis.Nil {
+	if err := pipe.Exec(ctx); err != nil {
 		return nil, err
 	}
 
@@ -180,7 +183,7 @@ func CollectLockHeldElsewhereRejects(
 	var rejects []LockHeldElsewhereItem
 	for i, id := range uniq {
 		s, err := cmds[i].Result()
-		if err == redis.Nil {
+		if eipredis.IsNotFound(err) {
 			continue
 		}
 		if err != nil {

@@ -8,6 +8,8 @@ import (
 	"eve-industry-planner/shared/esiclient"
 
 	"github.com/redis/go-redis/v9"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // benchRedis is a throwaway server, never the stack's: this writes thousands of
@@ -54,7 +56,7 @@ func fillLedger(b *testing.B, store *esiclient.Store, bucket esiclient.Bucket, n
 func BenchmarkSettle(b *testing.B) {
 	for _, size := range []int{100, 1000, 3000} {
 		b.Run(fmt.Sprintf("ledger=%d", size), func(b *testing.B) {
-			store := esiclient.NewStore(benchRedis(b), esiclient.DefaultConfig())
+			store := esiclient.NewStore(eipredis.NewRedis(benchRedis(b)), esiclient.DefaultConfig())
 			bucket := esiclient.Bucket{Group: "market-order", User: esiclient.AnonymousUser}
 			fillLedger(b, store, bucket, size)
 

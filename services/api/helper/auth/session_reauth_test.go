@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestReauthDeadlineFromSessionStart(t *testing.T) {
@@ -73,7 +75,7 @@ func TestIsReauthExpired_MatchesMiddlewareAndRefreshTokenPaths(t *testing.T) {
 func TestIsRefreshTokenDataReauthExpired_AccountSessionStricter(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-reauth-align"
@@ -105,7 +107,7 @@ func TestIsRefreshTokenDataReauthExpired_AccountSessionStricter(t *testing.T) {
 func TestUpsertSessionRecord_ReauthMatchesSessionStart(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-upsert-reauth"

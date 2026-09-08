@@ -15,6 +15,8 @@ import (
 	esi "eve-industry-planner/worker/tasks/esi"
 
 	"github.com/redis/go-redis/v9"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // The paged walk is the one with real state: a book spread over pages, an ETag
@@ -103,14 +105,14 @@ func fetchInto(t *testing.T, client *redis.Client, origin *ordersOrigin, prevETa
 
 	cfg := esiclient.DefaultConfig()
 	cfg.BaseURL = origin.server.URL
-	api, stop, err := esiclient.New(client, cfg)
+	api, stop, err := esiclient.New(eipredis.NewRedis(client), cfg)
 	if err != nil {
 		t.Fatalf("esiclient: %v", err)
 	}
 	t.Cleanup(stop)
 
 	var delivered []string
-	result, err := esi.FetchRegionMarketOrders(t.Context(), api, client, 10000002, prevETags,
+	result, err := esi.FetchRegionMarketOrders(t.Context(), api, eipredis.NewRedis(client), 10000002, prevETags,
 		func(order esiclient.MarketOrder) error {
 			delivered = append(delivered, fmt.Sprintf("%d:%v:%d", order.OrderID, order.Price, order.VolumeRemain))
 			return nil
@@ -221,14 +223,14 @@ func TestRegionMarketOrdersTreatsAMissingPageCountAsOnePage(t *testing.T) {
 
 	cfg := esiclient.DefaultConfig()
 	cfg.BaseURL = server.URL
-	next, stop, err := esiclient.New(fake.Client, cfg)
+	next, stop, err := esiclient.New(eipredis.NewRedis(fake.Client), cfg)
 	if err != nil {
 		t.Fatalf("esiclient: %v", err)
 	}
 	t.Cleanup(stop)
 
 	count := 0
-	result, err := esi.FetchRegionMarketOrders(t.Context(), next, fake.Client, 10000002, nil,
+	result, err := esi.FetchRegionMarketOrders(t.Context(), next, eipredis.NewRedis(fake.Client), 10000002, nil,
 		func(esiclient.MarketOrder) error { count++; return nil })
 	if err != nil {
 		t.Fatalf("fetch: %v", err)

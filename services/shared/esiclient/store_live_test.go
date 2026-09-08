@@ -6,6 +6,8 @@ import (
 
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/testing/redislive"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // The scripts decide a rate-limit budget, so at least once they have to run on
@@ -19,7 +21,7 @@ func liveStore(t *testing.T) *esiclient.Store {
 	client := redislive.Require(t)
 	redislive.Clean(t, client, "esi:")
 	t.Cleanup(func() { redislive.Clean(t, client, "esi:") })
-	return esiclient.NewStore(client, esiclient.DefaultConfig())
+	return esiclient.NewStore(eipredis.NewRedis(client), esiclient.DefaultConfig())
 }
 
 func TestLiveScriptsAgreeWithTheFake(t *testing.T) {

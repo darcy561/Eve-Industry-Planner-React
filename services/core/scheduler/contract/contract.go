@@ -10,13 +10,13 @@ import (
 	eipmongo "eve-industry-planner/shared/mongo"
 	eipnats "eve-industry-planner/shared/nats"
 
-	redislib "github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // Dependencies contains all possible dependencies for schedulers
 type Dependencies struct {
 	NATS  *eipnats.NATS
-	Redis *redislib.Client
+	Redis *eipredis.Redis
 	Mongo *eipmongo.Mongo
 	// ESI answers what the rate limiter knows: whether the servers are
 	// answering, and whether a run's token cost can be absorbed.

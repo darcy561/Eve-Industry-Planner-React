@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"eve-industry-planner/shared/container"
-	"eve-industry-planner/shared/core/redis/lease"
 	"eve-industry-planner/shared/lifecycle"
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
 	"eve-industry-planner/shared/orchestrationprobes"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func runServe(ctx context.Context) error {
@@ -22,10 +22,10 @@ func runServe(ctx context.Context) error {
 	defer cleanup()
 
 	ready := func(c context.Context) error {
-		if rt.clients.Redis == nil {
+		if rt.clients.Redis.Driver() == nil {
 			return fmt.Errorf("redis nil")
 		}
-		if err := rt.clients.Redis.Ping(c).Err(); err != nil {
+		if err := rt.clients.Redis.Ping(c); err != nil {
 			return fmt.Errorf("redis: %w", err)
 		}
 		if rt.clients.NATS == nil || !rt.clients.NATS.Connected() {
@@ -69,7 +69,7 @@ func runServe(ctx context.Context) error {
 
 	errCh := make(chan error, 1)
 	go func() {
-		errCh <- lease.RunWhileHeld(ctx, rt.clients.Redis, leaseKey, container.ID(), lease.Options{}, func(scoped context.Context) error {
+		errCh <- eipredis.RunWhileHeld(ctx, rt.clients.Redis, leaseKey, container.ID(), eipredis.LeaseOptions{}, func(scoped context.Context) error {
 			return runServiceLoops(scoped, rt.swarm, rt.cfgHolder)
 		})
 	}()

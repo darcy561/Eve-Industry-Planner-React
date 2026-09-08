@@ -10,6 +10,8 @@ import (
 	"eve-industry-planner/api/apideps"
 	"eve-industry-planner/shared/appconfig"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func appConfigBody(t *testing.T, h *Handlers) AppConfigResponse {
@@ -32,7 +34,7 @@ func TestAppConfigReportsTheRuntimeFlag(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
 
-	flag := appconfig.NewMaintenanceFlag(r.Client)
+	flag := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 	h := New(&apideps.Deps{Maintenance: flag})
 
 	if appConfigBody(t, h).MaintenanceMode {
@@ -65,7 +67,7 @@ func TestAppConfigWithoutAFlagReportsOff(t *testing.T) {
 // told the config had not changed for the whole window.
 func TestAppConfigETagChangesWithTheFlag(t *testing.T) {
 	r := redisfake.New(t)
-	flag := appconfig.NewMaintenanceFlag(r.Client)
+	flag := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 	h := New(&apideps.Deps{Maintenance: flag})
 
 	rec := httptest.NewRecorder()

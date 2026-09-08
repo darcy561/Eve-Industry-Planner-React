@@ -9,6 +9,8 @@ import (
 	"eve-industry-planner/testing/wait"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestStart_requiresRedis(t *testing.T) {
@@ -20,7 +22,7 @@ func TestStart_requiresRedis(t *testing.T) {
 func TestSubscribe_notifiesOnAcquireAndStop(t *testing.T) {
 	rdb := redisfake.New(t).Client
 
-	s, err := Start(context.Background(), rdb)
+	s, err := Start(context.Background(), eipredis.NewRedis(rdb))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,11 +79,11 @@ func waitLeaderPair(t *testing.T, a, b *Service, deadline time.Duration) (leader
 func TestDualReplica_singleLeaderStandbyReadyAndTakeover(t *testing.T) {
 	rdb := redisfake.New(t).Client
 
-	a, err := Start(context.Background(), rdb)
+	a, err := Start(context.Background(), eipredis.NewRedis(rdb))
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := Start(context.Background(), rdb)
+	b, err := Start(context.Background(), eipredis.NewRedis(rdb))
 	if err != nil {
 		t.Fatal(err)
 	}

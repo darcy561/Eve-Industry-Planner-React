@@ -14,7 +14,7 @@ import (
 
 	eipmongo "eve-industry-planner/shared/mongo"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // CascadeRelease describes one job lock that the cascade chose to force-
@@ -46,12 +46,12 @@ type CascadeRelease struct {
 // in the input) along with any fatal error from the read pipeline.
 func pipelinedDecideAndReleaseJobLocks(
 	ctx context.Context,
-	rdb *redis.Client,
+	rdb *eipredis.Redis,
 	accountID string,
 	jobIDs []string,
 	decide func(*LockRecord) (release bool, evictedSessionID string),
 ) ([]CascadeRelease, error) {
-	if rdb == nil || decide == nil {
+	if rdb.Driver() == nil || decide == nil {
 		return nil, nil
 	}
 
@@ -65,12 +65,15 @@ func pipelinedDecideAndReleaseJobLocks(
 		return nil, nil
 	}
 
-	pipe := rdb.Pipeline()
-	get := make([]*redis.StringCmd, len(keep))
+	pipe, err := rdb.Pipe()
+	if err != nil {
+		return nil, err
+	}
+	get := make([]*eipredis.StringResult, len(keep))
 	for i, jobID := range keep {
 		get[i] = pipe.Get(ctx, LockKey(accountID, eipmongo.CollectionJobDocuments, jobID))
 	}
-	if _, err := pipe.Exec(ctx); err != nil && err != redis.Nil {
+	if err := pipe.Exec(ctx); err != nil {
 		return nil, err
 	}
 
@@ -100,11 +103,14 @@ func pipelinedDecideAndReleaseJobLocks(
 		return nil, nil
 	}
 
-	delPipe := rdb.Pipeline()
-	for _, r := range releases {
-		_ = delPipe.Del(ctx, LockKey(accountID, eipmongo.CollectionJobDocuments, r.JobID))
+	delPipe, err := rdb.Pipe()
+	if err != nil {
+		return releases, err
 	}
-	if _, err := delPipe.Exec(ctx); err != nil {
+	for _, r := range releases {
+		delPipe.Delete(ctx, LockKey(accountID, eipmongo.CollectionJobDocuments, r.JobID))
+	}
+	if err := delPipe.Exec(ctx); err != nil {
 		// Return the decided releases along with the error so the caller
 		// can still publish events. The keys will TTL out either way.
 		return releases, err

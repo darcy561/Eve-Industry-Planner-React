@@ -11,6 +11,8 @@ import (
 	"eve-industry-planner/testing/wait"
 
 	"github.com/go-co-op/gocron/v2"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // fireCron schedules taskType to fire every 100ms and starts the scheduler, so a
@@ -38,7 +40,7 @@ func fireCron(t *testing.T, s *TaskScheduler, taskType string, ran *atomic.Int32
 func TestCronFireDuringMaintenancePublishesNothing(t *testing.T) {
 	r := redisfake.New(t)
 
-	s, err := NewTaskScheduler(nil, r.Client)
+	s, err := NewTaskScheduler(nil, eipredis.NewRedis(r.Client))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +63,7 @@ func TestCronResumesAfterMaintenanceClearsWithoutARestart(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
 
-	s, err := NewTaskScheduler(nil, r.Client)
+	s, err := NewTaskScheduler(nil, eipredis.NewRedis(r.Client))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,7 +92,7 @@ func TestCronResumesAfterMaintenanceClearsWithoutARestart(t *testing.T) {
 func TestCronRunsNormallyWithoutMaintenance(t *testing.T) {
 	r := redisfake.New(t)
 
-	s, err := NewTaskScheduler(nil, r.Client)
+	s, err := NewTaskScheduler(nil, eipredis.NewRedis(r.Client))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,7 +127,7 @@ func TestCronReadsTheFlagAtEachFire(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
 
-	s, err := NewTaskScheduler(nil, r.Client)
+	s, err := NewTaskScheduler(nil, eipredis.NewRedis(r.Client))
 	if err != nil {
 		t.Fatal(err)
 	}

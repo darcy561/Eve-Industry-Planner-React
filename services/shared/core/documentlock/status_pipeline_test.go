@@ -11,22 +11,24 @@ import (
 	"eve-industry-planner/testing/redisfake"
 
 	"github.com/redis/go-redis/v9"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
-func seedLock(t *testing.T, rdb *redis.Client, accountID, collection, docID string, rec LockRecord) {
+func seedLock(t *testing.T, rdb *eipredis.Redis, accountID, collection, docID string, rec LockRecord) {
 	t.Helper()
 	b, err := json.Marshal(rec)
 	if err != nil {
 		t.Fatalf("marshal lock: %v", err)
 	}
-	if err := rdb.Set(context.Background(), LockKey(accountID, collection, docID), b, DefaultLockTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(context.Background(), LockKey(accountID, collection, docID), b, DefaultLockTTL).Err(); err != nil {
 		t.Fatalf("seed lock: %v", err)
 	}
 }
 
 func TestStatusBatchFetch_AllUnheld(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 
 	refs := []statusDocRef{
@@ -55,7 +57,7 @@ func TestStatusBatchFetch_AllUnheld(t *testing.T) {
 
 func TestStatusBatchFetch_HeldWithViewersAndWaitlist(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 
 	docID := "doc-held"
@@ -74,7 +76,7 @@ func TestStatusBatchFetch_HeldWithViewersAndWaitlist(t *testing.T) {
 	if _, err := AddViewer(ctx, rdb, testAccountID, testCollection, docID, "viewer-b"); err != nil {
 		t.Fatalf("AddViewer b: %v", err)
 	}
-	if err := rdb.ZAddArgs(ctx, ViewerPresenceKey(testAccountID, testCollection, docID), redis.ZAddArgs{
+	if err := rdb.Driver().ZAddArgs(ctx, ViewerPresenceKey(testAccountID, testCollection, docID), redis.ZAddArgs{
 		Members: []redis.Z{{Score: float64(time.Now().Add(-time.Hour).Unix()), Member: "viewer-stale"}},
 	}).Err(); err != nil {
 		t.Fatalf("seed stale viewer: %v", err)
@@ -117,7 +119,7 @@ func TestStatusBatchFetch_HeldWithViewersAndWaitlist(t *testing.T) {
 
 func TestStatusBatchFetch_ExpiredRecordReturnsUnheldAndDeletes(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 
 	docID := "doc-expired"
@@ -129,7 +131,7 @@ func TestStatusBatchFetch_ExpiredRecordReturnsUnheldAndDeletes(t *testing.T) {
 	// Bypass DefaultLockTTL here so miniredis still has the key for us to
 	// observe the expired-record cleanup path inside statusBatchFetch.
 	b, _ := json.Marshal(rec)
-	if err := rdb.Set(ctx, LockKey(testAccountID, testCollection, docID), b, 0).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, LockKey(testAccountID, testCollection, docID), b, 0).Err(); err != nil {
 		t.Fatalf("seed expired: %v", err)
 	}
 
@@ -144,7 +146,7 @@ func TestStatusBatchFetch_ExpiredRecordReturnsUnheldAndDeletes(t *testing.T) {
 	}
 
 	// The follow-up DEL pipeline should have removed the key.
-	if n, err := rdb.Exists(ctx, LockKey(testAccountID, testCollection, docID)).Result(); err != nil {
+	if n, err := rdb.Driver().Exists(ctx, LockKey(testAccountID, testCollection, docID)).Result(); err != nil {
 		t.Fatalf("Exists: %v", err)
 	} else if n != 0 {
 		t.Fatalf("expected expired key to be DELed, still exists")
@@ -153,7 +155,7 @@ func TestStatusBatchFetch_ExpiredRecordReturnsUnheldAndDeletes(t *testing.T) {
 
 func TestStatusBatchFetch_EmptyRefs(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 
 	results, err := statusBatchFetch(ctx, rdb, testAccountID, nil)
@@ -167,7 +169,7 @@ func TestStatusBatchFetch_EmptyRefs(t *testing.T) {
 
 func TestStatusBatchFetch_PreservesInputOrder(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 
 	refs := []statusDocRef{
@@ -198,7 +200,7 @@ func TestStatusBatchFetch_PreservesInputOrder(t *testing.T) {
 
 func TestStatusBatchResults_EmptyError(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	if _, _, err := StatusBatchResults(context.Background(), rdb, testAccountID, nil, nil); err != ErrStatusBatchEmpty {
 		t.Fatalf("expected ErrStatusBatchEmpty, got %v", err)
 	}
@@ -206,7 +208,7 @@ func TestStatusBatchResults_EmptyError(t *testing.T) {
 
 func TestStatusBatchResults_TooManyError(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	tooMany := make([]string, MaxStatusBatchDocs+1)
 	for i := range tooMany {
 		tooMany[i] = "id-" + strconv.Itoa(i)
@@ -225,7 +227,7 @@ func TestStatusBatchResults_NilRedisError(t *testing.T) {
 
 func TestStatusBatchResults_RoutesJobsAndGroupsIntoSeparateBuckets(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 
 	jobID := "job-x"
@@ -273,7 +275,7 @@ func TestStatusBatchResults_RoutesJobsAndGroupsIntoSeparateBuckets(t *testing.T)
 
 func TestStatusPayloadForDoc_MatchesBatchPath(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 
 	docID := "doc-equiv"

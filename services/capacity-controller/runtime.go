@@ -10,13 +10,14 @@ import (
 
 	"github.com/hibiken/asynq"
 	"github.com/moby/moby/client"
-	redislib "github.com/redis/go-redis/v9"
 
 	"eve-industry-planner/capacity-controller/cluster"
 	"eve-industry-planner/capacity-controller/config"
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/shared/telemetry"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type runtime struct {
@@ -60,7 +61,7 @@ func openRuntime(ctx context.Context, watchPolicy bool) (*runtime, func(), error
 		Docker: api,
 		Redis:  clients.Redis,
 		NATS:   clients.NATS,
-		Asynq:  newAsynqInspector(clients.Redis),
+		Asynq:  newAsynqInspector(clients.Redis.Driver()),
 		Stack:  envOr("EIP_STACK_NAME", "eip"),
 		Cfg:    cfgHolder.get,
 	})
@@ -86,7 +87,9 @@ func envOr(k, def string) string {
 	return def
 }
 
-func newAsynqInspector(rdb *redislib.Client) *asynq.Inspector {
+// asynq builds its own client from these options, so this is one of the places
+// the driver is handed out rather than the handle.
+func newAsynqInspector(rdb *redis.Client) *asynq.Inspector {
 	if rdb == nil {
 		return nil
 	}

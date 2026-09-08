@@ -11,6 +11,8 @@ import (
 	"eve-industry-planner/testing/natsfake"
 	"eve-industry-planner/testing/redisfake"
 	"eve-industry-planner/testing/wait"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // The whole path in one test: core holds Redis and answers the request, the
@@ -21,7 +23,7 @@ func TestE2ECoreServesRouterRefuses(t *testing.T) {
 	r := redisfake.New(t)
 	ctx := context.Background()
 
-	coreFlag := appconfig.NewMaintenanceFlag(r.Client)
+	coreFlag := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 	if err := coreFlag.Set(ctx, true); err != nil {
 		t.Fatal(err)
 	}

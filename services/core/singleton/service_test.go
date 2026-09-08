@@ -10,9 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/redis/go-redis/v9"
-
-	"eve-industry-planner/shared/core/redis/lease"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/testing/redisfake"
 	"eve-industry-planner/testing/wait"
 )
@@ -22,8 +20,8 @@ type silentLogger struct{}
 func (silentLogger) Debugf(context.Context, string, ...any) {}
 func (silentLogger) Warnf(context.Context, string, ...any)  {}
 
-func fastOpts() lease.Options {
-	return lease.Options{
+func fastOpts() eipredis.LeaseOptions {
+	return eipredis.LeaseOptions{
 		TTL:            300 * time.Millisecond,
 		RenewInterval:  60 * time.Millisecond,
 		AcquireBackoff: 60 * time.Millisecond,
@@ -42,7 +40,7 @@ func TestStartService_RunsAllRegisteredJobs(t *testing.T) {
 	aEntered := make(chan struct{}, 1)
 	bEntered := make(chan struct{}, 1)
 
-	stop, err := StartService(rdb,
+	stop, err := StartService(eipredis.NewRedis(rdb),
 		Job{
 			Name:     "job-a",
 			LeaseKey: "lease:test:job-a",
@@ -121,12 +119,12 @@ func TestStartService_OnlyOneLeaderPerJob(t *testing.T) {
 		}
 	}
 
-	stopA, err := StartService(rdb, makeJob())
+	stopA, err := StartService(eipredis.NewRedis(rdb), makeJob())
 	if err != nil {
 		t.Fatalf("StartService A: %v", err)
 	}
 	defer stopA()
-	stopB, err := StartService(rdb, makeJob())
+	stopB, err := StartService(eipredis.NewRedis(rdb), makeJob())
 	if err != nil {
 		t.Fatalf("StartService B: %v", err)
 	}
@@ -151,7 +149,7 @@ func TestStartService_StopDrainsAllJobs(t *testing.T) {
 
 	var aExited, bExited atomic.Bool
 
-	stop, err := StartService(rdb,
+	stop, err := StartService(eipredis.NewRedis(rdb),
 		Job{
 			Name:     "job-a",
 			LeaseKey: "lease:test:drain-a",
@@ -197,7 +195,7 @@ func TestStartService_TransientErrorIsRecovered(t *testing.T) {
 	rdb := redisfake.New(t).Client
 
 	var calls atomic.Int32
-	stop, err := StartService(rdb, Job{
+	stop, err := StartService(eipredis.NewRedis(rdb), Job{
 		Name:     "flaky",
 		LeaseKey: "lease:test:flaky",
 		Options:  fastOpts(),
@@ -225,49 +223,57 @@ func TestStartService_TransientErrorIsRecovered(t *testing.T) {
 // programmer mistakes fail loudly at startup.
 func TestStartService_ValidationErrors(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	handle := eipredis.NewRedis(redisfake.New(t).Client)
 
 	noop := func(context.Context) error { return nil }
 
 	cases := []struct {
 		name      string
-		client    *redis.Client
+		client    *eipredis.Redis
 		jobs      []Job
 		wantMatch string
 	}{
 		{
-			name:      "nil_redis_client",
+			name:      "nil_handle",
 			client:    nil,
 			jobs:      []Job{{Name: "x", LeaseKey: "k", Run: noop}},
 			wantMatch: "redis client is required",
 		},
 		{
+			// A handle is not a connection: one wrapping no client must be
+			// refused the same way a missing handle is.
+			name:      "handle_with_no_connection",
+			client:    eipredis.NewRedis(nil),
+			jobs:      []Job{{Name: "x", LeaseKey: "k", Run: noop}},
+			wantMatch: "redis client is required",
+		},
+		{
 			name:      "no_jobs",
-			client:    rdb,
+			client:    handle,
 			jobs:      nil,
 			wantMatch: "at least one Job",
 		},
 		{
 			name:      "missing_name",
-			client:    rdb,
+			client:    handle,
 			jobs:      []Job{{LeaseKey: "k", Run: noop}},
 			wantMatch: "Name is required",
 		},
 		{
 			name:      "missing_lease_key",
-			client:    rdb,
+			client:    handle,
 			jobs:      []Job{{Name: "x", Run: noop}},
 			wantMatch: "LeaseKey is required",
 		},
 		{
 			name:      "missing_run",
-			client:    rdb,
+			client:    handle,
 			jobs:      []Job{{Name: "x", LeaseKey: "k"}},
 			wantMatch: "Run is required",
 		},
 		{
 			name:   "duplicate_lease_key",
-			client: rdb,
+			client: handle,
 			jobs: []Job{
 				{Name: "a", LeaseKey: "shared", Run: noop},
 				{Name: "b", LeaseKey: "shared", Run: noop},

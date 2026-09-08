@@ -8,11 +8,13 @@ import (
 
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestPipelinedDecideAndReleaseJobLocks_NoLocksReturnsNoReleases(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	releases, err := pipelinedDecideAndReleaseJobLocks(
 		context.Background(),
@@ -31,7 +33,7 @@ func TestPipelinedDecideAndReleaseJobLocks_NoLocksReturnsNoReleases(t *testing.T
 
 func TestPipelinedDecideAndReleaseJobLocks_PartialReleaseDelsOnlyChosen(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 
 	heldBy := func(id string) LockRecord {
@@ -85,25 +87,23 @@ func TestPipelinedDecideAndReleaseJobLocks_PartialReleaseDelsOnlyChosen(t *testi
 
 	for jobID, ownedBy := range holders {
 		key := LockKey(testAccountID, eipmongo.CollectionJobDocuments, jobID)
-		n, err := rdb.Exists(ctx, key).Result()
+		exists, err := rdb.Exists(ctx, key)
 		if err != nil {
 			t.Fatalf("Exists: %v", err)
 		}
 		if ownedBy == "sess-old" {
-			if n != 0 {
-				t.Fatalf("expected %q to be DELed (held by sess-old)", jobID)
+			if exists {
+				t.Fatalf("expected %q to be released (held by sess-old)", jobID)
 			}
-		} else {
-			if n != 1 {
-				t.Fatalf("expected %q to remain (held by %q)", jobID, ownedBy)
-			}
+		} else if !exists {
+			t.Fatalf("expected %q to remain (held by %q)", jobID, ownedBy)
 		}
 	}
 }
 
 func TestPipelinedDecideAndReleaseJobLocks_ExpiredRecordsBypassPredicate(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 
 	jobID := "job-expired"
@@ -113,7 +113,7 @@ func TestPipelinedDecideAndReleaseJobLocks_ExpiredRecordsBypassPredicate(t *test
 		ExpiresAtUnix:   time.Now().Add(-time.Minute).Unix(),
 	}
 	b, _ := json.Marshal(rec)
-	if err := rdb.Set(ctx, LockKey(testAccountID, eipmongo.CollectionJobDocuments, jobID), b, 0).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, LockKey(testAccountID, eipmongo.CollectionJobDocuments, jobID), b, 0).Err(); err != nil {
 		t.Fatalf("seed expired: %v", err)
 	}
 
@@ -141,7 +141,7 @@ func TestPipelinedDecideAndReleaseJobLocks_ExpiredRecordsBypassPredicate(t *test
 
 func TestPipelinedDecideAndReleaseJobLocks_BlankIDsSkipped(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 
 	seedLock(t, rdb, testAccountID, eipmongo.CollectionJobDocuments, "job-real", LockRecord{
@@ -174,7 +174,7 @@ func TestPipelinedDecideAndReleaseJobLocks_BlankIDsSkipped(t *testing.T) {
 
 func TestPipelinedDecideAndReleaseJobLocks_NilRedisAndPredicateGuards(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	if r, err := pipelinedDecideAndReleaseJobLocks(context.Background(), nil, testAccountID, []string{"x"}, func(*LockRecord) (bool, string) { return true, "" }); err != nil || r != nil {
 		t.Fatalf("nil rdb: expected (nil, nil), got (%v, %v)", r, err)

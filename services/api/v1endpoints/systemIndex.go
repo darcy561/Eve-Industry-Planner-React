@@ -9,11 +9,9 @@ import (
 
 	"eve-industry-planner/api/helper"
 	esitypes "eve-industry-planner/shared/core/esi/types"
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/logs"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/telemetry/apimetrics"
-
-	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -92,7 +90,7 @@ func (a *Handlers) SystemIndexesHandler(w http.ResponseWriter, r *http.Request) 
 		systemID, _ := strconv.ParseInt(idStr, 10, 32)
 
 		var index esitypes.SystemIndexes
-		err = rediscore.GetIndustrySystemIndex(ctx, a.Redis, int32(systemID), &index)
+		err = a.Redis.Cache(eipredis.DatasetIndustrySystems).Entry(ctx, int32(systemID), &index)
 		if err != nil {
 			systemsNotFound++
 			missingIDs = append(missingIDs, idStr)
@@ -107,7 +105,7 @@ func (a *Handlers) SystemIndexesHandler(w http.ResponseWriter, r *http.Request) 
 				Reaction:         0,
 			}
 
-			if err != redis.Nil {
+			if !eipredis.IsNotFound(err) {
 				metrics.Error("redis_error")
 				logs.AttachHandlerCaveat(r, "redis_system_index_error", "redis error retrieving system index", map[string]any{
 					"error":     err.Error(),

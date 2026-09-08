@@ -13,15 +13,14 @@ import (
 	"eve-industry-planner/shared/evesso"
 	eipmongo "eve-industry-planner/shared/mongo"
 	eipnats "eve-industry-planner/shared/nats"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
-
-	"github.com/redis/go-redis/v9"
 )
 
 // Deps is this API process’s data-plane handles (not a browser/SPA client).
 type Deps struct {
 	Mongo *eipmongo.Mongo
-	Redis *redis.Client
+	Redis *eipredis.Redis
 	NATS  *eipnats.NATS
 	// EntityCipher derives the refs that replace raw entity ids. Nil in mongo-only
 	// wiring, so handlers that write documents carrying ids must check it.

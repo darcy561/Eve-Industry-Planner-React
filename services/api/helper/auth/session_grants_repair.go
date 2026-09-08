@@ -5,12 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
-	"strings"
 
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/models"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // legacySessionGrants is the grant shape stored before grants became owner keys.
@@ -36,26 +34,18 @@ type SessionGrantsRepairReport struct {
 // Only the grants field is rewritten. The record also holds the session map that
 // keeps an account signed in, so deleting the key to force a refill would sign
 // every user out.
-func RepairSessionGrants(ctx context.Context, redisClient *redis.Client, dryRun bool) (SessionGrantsRepairReport, error) {
+func RepairSessionGrants(ctx context.Context, redisClient *eipredis.Redis, dryRun bool) (SessionGrantsRepairReport, error) {
 	var report SessionGrantsRepairReport
-	if redisClient == nil {
-		return report, fmt.Errorf("redis client is nil")
+	if redisClient.Driver() == nil {
+		return report, eipredis.ErrNoClient
 	}
 
-	var cursor uint64
-	for {
-		keys, next, err := redisClient.Scan(ctx, cursor, AccountSessionsKeyPrefix+"*", 100).Result()
-		if err != nil {
-			return report, fmt.Errorf("scan account sessions: %w", err)
-		}
-		for _, key := range keys {
-			accountID := strings.TrimSpace(strings.TrimPrefix(key, AccountSessionsKeyPrefix))
-			if accountID == "" {
-				continue
-			}
+	store := NewSessionStore(redisClient)
+	err := store.EachAccountSessionsKey(ctx, func(accountIDs []string) error {
+		for _, accountID := range accountIDs {
 			report.Scanned++
 
-			repaired, err := grantsNeedingRepair(ctx, redisClient, key, accountID)
+			repaired, err := grantsNeedingRepair(ctx, redisClient, AccountSessionsKeyFor(accountID), accountID)
 			if err != nil {
 				report.Failed++
 				continue
@@ -73,19 +63,19 @@ func RepairSessionGrants(ctx context.Context, redisClient *redis.Client, dryRun 
 			}
 			report.Repaired++
 		}
-		if next == 0 {
-			break
-		}
-		cursor = next
+		return nil
+	})
+	if err != nil {
+		return report, fmt.Errorf("scan account sessions: %w", err)
 	}
 	return report, nil
 }
 
 // grantsNeedingRepair returns the grants a record should hold, or nil when it
 // already holds them.
-func grantsNeedingRepair(ctx context.Context, redisClient *redis.Client, key, accountID string) (*models.SessionGrants, error) {
+func grantsNeedingRepair(ctx context.Context, redisClient *eipredis.Redis, key, accountID string) (*models.SessionGrants, error) {
 	var raw map[string]json.RawMessage
-	if err := rediscore.GetJSON(ctx, redisClient, key, &raw); err != nil {
+	if err := redisClient.GetJSON(ctx, key, &raw); err != nil {
 		return nil, err
 	}
 
@@ -119,8 +109,8 @@ func grantsNeedingRepair(ctx context.Context, redisClient *redis.Client, key, ac
 
 // setAccountSessionGrants writes grants onto the record and every session under
 // it, under the same compare-and-set every other grant write uses.
-func setAccountSessionGrants(ctx context.Context, redisClient *redis.Client, accountID string, grants models.SessionGrants) error {
-	return mutateAccountSessionsRecord(ctx, redisClient, accountID, func(rec *AccountSessionsRecord) error {
+func setAccountSessionGrants(ctx context.Context, redisClient *eipredis.Redis, accountID string, grants models.SessionGrants) error {
+	return NewSessionStore(redisClient).UpdateAccountSessions(ctx, accountID, func(rec *AccountSessionsRecord) error {
 		rec.Grants = grants
 		for sid, session := range rec.Sessions {
 			session.Grants = grants

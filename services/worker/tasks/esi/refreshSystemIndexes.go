@@ -8,10 +8,10 @@ import (
 	"time"
 
 	esitypes "eve-industry-planner/shared/core/esi/types"
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/shared/httpclient"
 	"eve-industry-planner/shared/logs"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // RefreshSystemIndexes stores each solar system's industry cost indices,
@@ -22,14 +22,15 @@ func RefreshSystemIndexes(ctx context.Context, deps *taskrun.Dependencies) error
 
 	logs.InfoCtx(ctx, "system indexes task received")
 
-	lockKey := "esi:industry_systems:refresh_lock"
-	cleanup, shouldContinue := rediscore.AcquireRefreshLockLogged(ctx, deps.Redis, lockKey)
-	if !shouldContinue {
+	release, held := deps.Redis.AcquireRefresh(ctx, eipredis.DatasetIndustrySystems.Dataset())
+	if !held {
 		return nil
 	}
-	defer cleanup()
+	defer release()
 
-	prevETag, err := rediscore.GetIndustrySystemsETag(ctx, deps.Redis)
+	cache := deps.Redis.Cache(eipredis.DatasetIndustrySystems)
+
+	prevETag, err := cache.ETag(ctx)
 	if err != nil {
 		logs.WarnCtx(ctx, "failed to get previous ETag", "error", err)
 	}
@@ -38,7 +39,7 @@ func RefreshSystemIndexes(ctx context.Context, deps *taskrun.Dependencies) error
 	logs.DebugCtx(ctx, "System Indexes Refresh Started", "etag_used", prevETag)
 
 	newETag, notModified, maxAge, err := streamIndustrySystems(ctx, deps.ESI, prevETag, func(system esitypes.SystemIndexes) error {
-		return rediscore.SaveIndustrySystemIndex(ctx, deps.Redis, system.SolarSystemID, system)
+		return cache.PutEntry(ctx, system.SolarSystemID, system)
 	})
 	if err != nil {
 		return HandleStreamError(ctx, err, "system indexes refresh")
@@ -46,19 +47,19 @@ func RefreshSystemIndexes(ctx context.Context, deps *taskrun.Dependencies) error
 
 	// A 304 carries a fresh max-age too, so the next refresh is rescheduled
 	// whether or not the data changed.
-	recordNextRefresh(ctx, deps.Redis, rediscore.DatasetIndustrySystems, maxAge)
+	recordNextRefresh(ctx, deps.Redis, eipredis.DatasetIndustrySystems.Dataset(), maxAge)
 
 	if notModified {
 		logs.InfoCtx(ctx, "System Indexes Refresh Completed - Not Modified (ETag Match)")
 		return nil
 	}
 
-	if err := rediscore.SaveIndustrySystemsETag(ctx, deps.Redis, newETag); err != nil {
+	if err := cache.PutETag(ctx, newETag); err != nil {
 		logs.ErrorCtx(ctx, "failed to save ETag", "error", err, "reason", "etag_save_error")
 		return fmt.Errorf("failed to save ETag: %w", err)
 	}
 
-	if err := rediscore.SaveIndustrySystemsLastUpdated(ctx, deps.Redis, time.Now().UnixMilli()); err != nil {
+	if err := cache.PutLastUpdated(ctx, time.Now()); err != nil {
 		logs.WarnCtx(ctx, "failed to save last updated timestamp", "error", err, "reason", "last_updated_save_error")
 		return fmt.Errorf("failed to save last updated timestamp: %w", err)
 	}

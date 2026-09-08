@@ -17,7 +17,6 @@ import (
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/shared/stackservices"
 
-	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
@@ -223,20 +222,12 @@ func dropRetiredStatisticsFields(ctx context.Context, clients *stackservices.Cli
 // leaves its key behind indefinitely. The registry is the source of truth for
 // which groups exist, so anything else under the prefix is retired by definition.
 func dropRetiredResumeTokens(ctx context.Context, clients *stackservices.Clients, dryRun bool) (string, error) {
-	var stored []string
-	var cursor uint64
-	for {
-		keys, next, err := clients.Redis.Scan(ctx, cursor, primaryhandoff.ResumeTokenKey("*"), 100).Result()
-		if err != nil {
-			return "", err
-		}
-		stored = append(stored, keys...)
-		if next == 0 {
-			break
-		}
-		cursor = next
+	tokens := primaryhandoff.NewResumeTokens(clients.Redis)
+	stored, err := tokens.Stored(ctx)
+	if err != nil {
+		return "", err
 	}
-	retired := retiredResumeTokenKeys(stored, changestream.CollectionGroups())
+	retired := retiredResumeTokenGroups(stored, changestream.CollectionGroups())
 
 	if len(retired) == 0 {
 		return "none retired", nil
@@ -245,11 +236,10 @@ func dropRetiredResumeTokens(ctx context.Context, clients *stackservices.Clients
 		return fmt.Sprintf("%d retired: %s", len(retired), strings.Join(retired, ", ")), nil
 	}
 
-	removed, err := clients.Redis.Del(ctx, retired...).Result()
-	if err != nil && err != redis.Nil {
+	if err := tokens.Drop(ctx, retired...); err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%d removed: %s", removed, strings.Join(retired, ", ")), nil
+	return fmt.Sprintf("%d removed: %s", len(retired), strings.Join(retired, ", ")), nil
 }
 
 // dropUnaddressableQueueEntries removes queue entries whose id names no owner.
@@ -331,21 +321,21 @@ func queueEveryAccountForRebuild(ctx context.Context, clients *stackservices.Cli
 	return fmt.Sprintf("%d/%d account(s) queued", queued, len(accounts)), nil
 }
 
-// retiredResumeTokenKeys picks the stored keys that name no live group.
+// retiredResumeTokenGroups picks the stored groups the registry no longer lists.
 //
-// The registry is the source of truth for which groups exist, so a key under the
-// prefix that no group claims belongs to a watcher that no longer runs. Sorted so
-// a run reports them in the same order twice.
-func retiredResumeTokenKeys(stored []string, groups []changestream.CollectionGroup) []string {
+// The registry is the source of truth for which groups exist, so a stored group
+// it does not name belongs to a watcher that no longer runs. Sorted so a run
+// reports them in the same order twice.
+func retiredResumeTokenGroups(stored []string, groups []changestream.CollectionGroup) []string {
 	live := make(map[string]bool, len(groups))
 	for _, group := range groups {
-		live[primaryhandoff.ResumeTokenKey(group.ID)] = true
+		live[group.ID] = true
 	}
 
 	var retired []string
-	for _, key := range stored {
-		if !live[key] {
-			retired = append(retired, key)
+	for _, groupID := range stored {
+		if !live[groupID] {
+			retired = append(retired, groupID)
 		}
 	}
 	slices.Sort(retired)

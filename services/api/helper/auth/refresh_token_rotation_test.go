@@ -6,12 +6,14 @@ import (
 	"time"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestResolvePresentedRefreshToken_RecoversFromSession(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID    = "acct-presented-resolve"
@@ -35,7 +37,7 @@ func TestResolvePresentedRefreshToken_RecoversFromSession(t *testing.T) {
 	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)
 	}
-	if err := rdb.Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
 		t.Fatalf("set session index: %v", err)
 	}
 	data := RefreshTokenData{
@@ -67,7 +69,7 @@ func TestResolvePresentedRefreshToken_RecoversFromSession(t *testing.T) {
 func TestMintAndStoreRefreshToken(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const sessionID = "sess-mint-store"
 	now := time.Now().UTC()

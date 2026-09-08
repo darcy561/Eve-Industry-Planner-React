@@ -2,24 +2,19 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"os"
 	"strings"
 	"time"
 
 	"eve-industry-planner/shared/logs"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
-
-const defaultSessionCleanupScanCount = 200
 
 // SessionCleanupOptions configures orphan/session maintenance sweeps.
 type SessionCleanupOptions struct {
 	// DryRun increments stats only; no Redis deletes.
 	DryRun bool
-	// ScanCount is the COUNT hint per SCAN iteration (default 200).
-	ScanCount int64
 }
 
 // SessionCleanupStats summarizes one maintenance pass.
@@ -40,64 +35,41 @@ func SessionCleanupOptionsFromEnv() SessionCleanupOptions {
 	}
 }
 
-func sessionCleanupScanCount(opts SessionCleanupOptions) int64 {
-	if opts.ScanCount > 0 {
-		return opts.ScanCount
-	}
-	return defaultSessionCleanupScanCount
-}
-
 // PruneAllAccountSessionsRecords scans account_sessions:* and loads each record so
 // expired session rows and their session_index keys are pruned (existing API behaviour).
-func PruneAllAccountSessionsRecords(ctx context.Context, redisClient *redis.Client) (int, error) {
-	if redisClient == nil {
+func PruneAllAccountSessionsRecords(ctx context.Context, redisClient *eipredis.Redis) (int, error) {
+	if redisClient.Driver() == nil {
 		return 0, nil
 	}
+	store := NewSessionStore(redisClient)
+
 	var scanned int
-	cursor := uint64(0)
-	for {
-		keys, next, err := redisClient.Scan(ctx, cursor, AccountSessionsKeyPrefix+"*", sessionCleanupScanCount(SessionCleanupOptions{})).Result()
-		if err != nil {
-			return scanned, err
-		}
-		for _, key := range keys {
-			accountID := strings.TrimPrefix(key, AccountSessionsKeyPrefix)
-			if strings.TrimSpace(accountID) == "" {
-				continue
-			}
-			if _, err := GetAccountSessionsRecord(ctx, redisClient, accountID); err != nil {
+	err := store.EachAccountSessionsKey(ctx, func(accountIDs []string) error {
+		for _, accountID := range accountIDs {
+			// Reading is what prunes: the record's expired sessions go, and
+			// their indexes with them.
+			if _, err := store.LiveAccountSessions(ctx, accountID); err != nil {
 				logs.WarnCtx(ctx, "auth session prune: load account_sessions failed",
 					"account_id", accountID, "error", err)
 				continue
 			}
 			scanned++
 		}
-		cursor = next
-		if cursor == 0 {
-			break
-		}
-	}
-	return scanned, nil
+		return nil
+	})
+	return scanned, err
 }
 
 // CleanupOrphanSessionIndexes removes session_index:* entries with no matching account_sessions row.
-func CleanupOrphanSessionIndexes(ctx context.Context, redisClient *redis.Client, opts SessionCleanupOptions) (int, error) {
-	if redisClient == nil {
+func CleanupOrphanSessionIndexes(ctx context.Context, redisClient *eipredis.Redis, opts SessionCleanupOptions) (int, error) {
+	if redisClient.Driver() == nil {
 		return 0, nil
 	}
+	store := NewSessionStore(redisClient)
+
 	var found int
-	cursor := uint64(0)
-	prefix := SessionIndexKeyPrefix
-	for {
-		keys, next, err := redisClient.Scan(ctx, cursor, prefix+"*", sessionCleanupScanCount(opts)).Result()
-		if err != nil {
-			return found, err
-		}
-		for _, key := range keys {
-			sessionID := strings.TrimSpace(strings.TrimPrefix(key, prefix))
-			if sessionID == "" {
-				continue
-			}
+	err := store.EachSessionIndexKey(ctx, func(sessionIDs []string) error {
+		for _, sessionID := range sessionIDs {
 			if _, err := loadAccountSessionRow(ctx, redisClient, sessionID); err == nil {
 				continue
 			}
@@ -105,40 +77,32 @@ func CleanupOrphanSessionIndexes(ctx context.Context, redisClient *redis.Client,
 			if opts.DryRun {
 				continue
 			}
-			deleteSessionIndexKeys(ctx, redisClient, sessionID)
+			if err := store.DeleteSessionIndexes(ctx, sessionID); err != nil {
+				logs.WarnCtx(ctx, "auth session cleanup: delete orphan index failed",
+					"session_id", sessionID, "error", err)
+			}
 		}
-		cursor = next
-		if cursor == 0 {
-			break
-		}
-	}
-	return found, nil
+		return nil
+	})
+	return found, err
 }
 
 // CleanupOrphanRefreshTokens removes refresh_token:* rows whose session_id is not present under account_sessions.
-func CleanupOrphanRefreshTokens(ctx context.Context, redisClient *redis.Client, opts SessionCleanupOptions) (int, error) {
-	if redisClient == nil {
+func CleanupOrphanRefreshTokens(ctx context.Context, redisClient *eipredis.Redis, opts SessionCleanupOptions) (int, error) {
+	if redisClient.Driver() == nil {
 		return 0, nil
 	}
+	store := NewSessionStore(redisClient)
+
 	var found int
-	cursor := uint64(0)
-	prefix := RefreshTokenKeyPrefix
-	for {
-		keys, next, err := redisClient.Scan(ctx, cursor, prefix+"*", sessionCleanupScanCount(opts)).Result()
-		if err != nil {
-			return found, err
-		}
-		for _, key := range keys {
-			token := strings.TrimSpace(strings.TrimPrefix(key, prefix))
-			if token == "" {
+	err := store.EachRefreshTokenKey(ctx, func(tokens []string) error {
+		for _, token := range tokens {
+			data, ok, err := store.RefreshToken(ctx, token)
+			if err != nil {
+				logs.WarnCtx(ctx, "auth session cleanup: load refresh_token failed", "error", err)
 				continue
 			}
-			data, err := GetRefreshTokenData(ctx, redisClient, token)
-			if err != nil {
-				if errors.Is(err, ErrRefreshTokenNotFound) {
-					continue
-				}
-				logs.WarnCtx(ctx, "auth session cleanup: load refresh_token failed", "error", err)
+			if !ok {
 				continue
 			}
 			sid := strings.TrimSpace(data.SessionID)
@@ -154,18 +118,15 @@ func CleanupOrphanRefreshTokens(ctx context.Context, redisClient *redis.Client, 
 			}
 			RevokeRefreshTokenBestEffort(ctx, redisClient, token)
 		}
-		cursor = next
-		if cursor == 0 {
-			break
-		}
-	}
-	return found, nil
+		return nil
+	})
+	return found, err
 }
 
 // RunAuthSessionMaintenance runs account_sessions prune plus orphan index/refresh_token cleanup.
-func RunAuthSessionMaintenance(ctx context.Context, redisClient *redis.Client, opts SessionCleanupOptions) (SessionCleanupStats, error) {
+func RunAuthSessionMaintenance(ctx context.Context, redisClient *eipredis.Redis, opts SessionCleanupOptions) (SessionCleanupStats, error) {
 	stats := SessionCleanupStats{DryRun: opts.DryRun}
-	if redisClient == nil {
+	if redisClient.Driver() == nil {
 		return stats, nil
 	}
 	scanned, err := PruneAllAccountSessionsRecords(ctx, redisClient)
@@ -197,7 +158,7 @@ func RunAuthSessionMaintenance(ctx context.Context, redisClient *redis.Client, o
 }
 
 // RunAuthSessionMaintenanceLoop runs maintenance on start and every interval until ctx is cancelled.
-func RunAuthSessionMaintenanceLoop(ctx context.Context, redisClient *redis.Client, interval time.Duration, opts SessionCleanupOptions) error {
+func RunAuthSessionMaintenanceLoop(ctx context.Context, redisClient *eipredis.Redis, interval time.Duration, opts SessionCleanupOptions) error {
 	if interval <= 0 {
 		interval = time.Hour
 	}

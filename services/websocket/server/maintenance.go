@@ -17,7 +17,7 @@ const maintenanceWriteWait = time.Second
 // StartMaintenanceWatch keeps the upgrade gate on the live flag and closes live
 // sessions when a window starts. Close-clients only: the container is not going away.
 func (s *Server) StartMaintenanceWatch(ctx context.Context) (stop func(), err error) {
-	if s == nil || s.Stack == nil || s.Stack.Redis == nil {
+	if s == nil || s.Stack == nil || s.Stack.Redis.Driver() == nil {
 		return func() {}, nil
 	}
 	s.maintenance = appconfig.NewMaintenanceFlag(s.Stack.Redis)

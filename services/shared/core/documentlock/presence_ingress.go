@@ -8,7 +8,7 @@ import (
 
 // HandleViewerArrivedIngress mirrors POST /document-locks/viewer-arrived (Redis + optional NATS fan-out).
 func HandleViewerArrivedIngress(ctx context.Context, d Deps, accountID, sessionID, collection, docID string) {
-	if d.Redis == nil || sessionID == "" || collection == "" || docID == "" {
+	if d.Redis.Driver() == nil || sessionID == "" || collection == "" || docID == "" {
 		return
 	}
 
@@ -57,7 +57,7 @@ func HandleViewerArrivedIngress(ctx context.Context, d Deps, accountID, sessionI
 // do not publish viewer_left — other sessions would misread that as "someone
 // stopped viewing" while that session is now the editor.
 func HandleViewerDepartedIngress(ctx context.Context, d Deps, accountID, sessionID, collection, docID string) {
-	if d.Redis == nil || sessionID == "" || collection == "" || docID == "" {
+	if d.Redis.Driver() == nil || sessionID == "" || collection == "" || docID == "" {
 		return
 	}
 

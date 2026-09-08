@@ -12,6 +12,8 @@ import (
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/testing/httpfake"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // esiFake answers like ESI: rate-limit headers on every response, and a
@@ -101,7 +103,7 @@ func newClient(t *testing.T, e *esiFake, adjust ...func(*esiclient.Config)) *esi
 		fn(&cfg)
 	}
 
-	client, stop, err := esiclient.New(rdb.Client, cfg)
+	client, stop, err := esiclient.New(eipredis.NewRedis(rdb.Client), cfg)
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}

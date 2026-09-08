@@ -11,6 +11,7 @@ import (
 	"eve-industry-planner/api/apideps"
 	ssoendpoints "eve-industry-planner/api/v1endpoints/sso"
 	"eve-industry-planner/shared/esiclient"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/testing/esifake"
 	"eve-industry-planner/testing/evessofake"
@@ -38,9 +39,10 @@ func newRoute(t *testing.T) *route {
 
 	sso := evessofake.Start(t, routeClientID)
 	esi := esifake.New(t)
-	rdb := redisfake.New(t).Client
+	fake := redisfake.New(t)
+	rdb := fake.Client
 
-	deps := apideps.FromClients(&stackservices.Clients{Redis: rdb}, nil, esi, nil)
+	deps := apideps.FromClients(&stackservices.Clients{Redis: eipredis.NewRedis(fake.Client)}, nil, esi, nil)
 	return &route{handler: ssoendpoints.New(deps), sso: sso, esi: esi, redis: rdb}
 }
 

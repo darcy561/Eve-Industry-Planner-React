@@ -11,6 +11,8 @@ import (
 	"eve-industry-planner/testing/natsfake"
 	"eve-industry-planner/testing/redisfake"
 	"eve-industry-planner/testing/wait"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // The other tests use a fake announcer, which proves applyMaintenance calls one
@@ -32,7 +34,7 @@ func TestLiveToggleAnnouncesOnTheSubjectServicesFollow(t *testing.T) {
 	}
 	defer stop()
 
-	flag := appconfig.NewMaintenanceFlag(r.Client)
+	flag := appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client))
 	announce := natsAnnouncer(fake.NATS)
 
 	if _, err := applyMaintenance(ctx, flag, announce, maintenanceRequest{changing: true, enable: true}); err != nil {
@@ -70,7 +72,7 @@ func TestLiveReportAnnouncesNothing(t *testing.T) {
 	}
 	defer stop()
 
-	if _, err := applyMaintenance(context.Background(), appconfig.NewMaintenanceFlag(r.Client),
+	if _, err := applyMaintenance(context.Background(), appconfig.NewMaintenanceFlag(eipredis.NewRedis(r.Client)),
 		natsAnnouncer(fake.NATS), maintenanceRequest{}); err != nil {
 		t.Fatalf("report: %v", err)
 	}

@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"testing"
 
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/models"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // writeLegacyRecord stores a record in the shape the previous release wrote.
@@ -46,7 +47,7 @@ func TestRepairSessionGrantsRewritesTheLegacyShape(t *testing.T) {
 
 	writeLegacyRecord(t, ctx, rdb, "acct-legacy", []string{corp}, []string{alliance})
 
-	report, err := RepairSessionGrants(ctx, rdb.Client, false)
+	report, err := RepairSessionGrants(ctx, eipredis.NewRedis(rdb.Client), false)
 	if err != nil {
 		t.Fatalf("RepairSessionGrants: %v", err)
 	}
@@ -54,7 +55,7 @@ func TestRepairSessionGrantsRewritesTheLegacyShape(t *testing.T) {
 		t.Fatalf("report = %+v, want 1 scanned, 1 repaired, 0 failed", report)
 	}
 
-	rec, err := GetAccountSessionsRecord(ctx, rdb.Client, "acct-legacy")
+	rec, err := GetAccountSessionsRecord(ctx, eipredis.NewRedis(rdb.Client), "acct-legacy")
 	if err != nil {
 		t.Fatalf("reload: %v", err)
 	}
@@ -76,11 +77,11 @@ func TestRepairSessionGrantsKeepsSessions(t *testing.T) {
 	rdb := redisfake.New(t)
 	writeLegacyRecord(t, ctx, rdb, "acct-keep", []string{testCorpRef(t, 1)}, nil)
 
-	if _, err := RepairSessionGrants(ctx, rdb.Client, false); err != nil {
+	if _, err := RepairSessionGrants(ctx, eipredis.NewRedis(rdb.Client), false); err != nil {
 		t.Fatalf("RepairSessionGrants: %v", err)
 	}
 
-	rec, err := GetAccountSessionsRecord(ctx, rdb.Client, "acct-keep")
+	rec, err := GetAccountSessionsRecord(ctx, eipredis.NewRedis(rdb.Client), "acct-keep")
 	if err != nil {
 		t.Fatalf("reload: %v", err)
 	}
@@ -102,10 +103,10 @@ func TestRepairSessionGrantsIsIdempotent(t *testing.T) {
 	rdb := redisfake.New(t)
 	writeLegacyRecord(t, ctx, rdb, "acct-twice", []string{testCorpRef(t, 5)}, nil)
 
-	if _, err := RepairSessionGrants(ctx, rdb.Client, false); err != nil {
+	if _, err := RepairSessionGrants(ctx, eipredis.NewRedis(rdb.Client), false); err != nil {
 		t.Fatalf("first pass: %v", err)
 	}
-	second, err := RepairSessionGrants(ctx, rdb.Client, false)
+	second, err := RepairSessionGrants(ctx, eipredis.NewRedis(rdb.Client), false)
 	if err != nil {
 		t.Fatalf("second pass: %v", err)
 	}
@@ -120,7 +121,7 @@ func TestRepairSessionGrantsDryRunWritesNothing(t *testing.T) {
 	rdb := redisfake.New(t)
 	writeLegacyRecord(t, ctx, rdb, "acct-dry", []string{testCorpRef(t, 7)}, nil)
 
-	report, err := RepairSessionGrants(ctx, rdb.Client, true)
+	report, err := RepairSessionGrants(ctx, eipredis.NewRedis(rdb.Client), true)
 	if err != nil {
 		t.Fatalf("RepairSessionGrants: %v", err)
 	}
@@ -129,7 +130,7 @@ func TestRepairSessionGrantsDryRunWritesNothing(t *testing.T) {
 	}
 
 	var raw map[string]json.RawMessage
-	if err := rediscore.GetJSON(ctx, rdb.Client, AccountSessionsKeyPrefix+"acct-dry", &raw); err != nil {
+	if err := eipredis.NewRedis(rdb.Client).GetJSON(ctx, AccountSessionsKeyPrefix+"acct-dry", &raw); err != nil {
 		t.Fatalf("reload raw: %v", err)
 	}
 	var stored struct {
@@ -161,10 +162,10 @@ func TestRepairSessionGrantsAddsTheAccountsOwnKey(t *testing.T) {
 		t.Fatalf("seed: %v", err)
 	}
 
-	if _, err := RepairSessionGrants(ctx, rdb.Client, false); err != nil {
+	if _, err := RepairSessionGrants(ctx, eipredis.NewRedis(rdb.Client), false); err != nil {
 		t.Fatalf("RepairSessionGrants: %v", err)
 	}
-	rec, err := GetAccountSessionsRecord(ctx, rdb.Client, "acct-partial")
+	rec, err := GetAccountSessionsRecord(ctx, eipredis.NewRedis(rdb.Client), "acct-partial")
 	if err != nil {
 		t.Fatalf("reload: %v", err)
 	}

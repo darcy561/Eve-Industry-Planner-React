@@ -3,8 +3,8 @@
 ## Owns (SoT)
 
 Shared Go libraries under `services/shared` that are not owned by a single service topic, including
-the messaging layer — streams, subjects, publish and consume, and schedules — and the outbound HTTP
-client and ESI rate limiter.
+the messaging layer — streams, subjects, publish and consume, and schedules — the Redis handle and
+its keyspace, and the outbound HTTP client and ESI rate limiter.
 
 ## Does not own
 
@@ -32,6 +32,14 @@ client and ESI rate limiter.
 | Schedule something for later, or cancel it | [nats.md](./nats.md) § Schedules |
 | Work out why a schedule did not fire | [nats.md](./nats.md) § Schedules |
 | Know what is retried and what is not | [nats.md](./nats.md) § Errors and retry |
+| Use the Redis handle, or find what it can do | [redis.md](./redis.md) § Handle surface |
+| Find out what is in Redis, and what expires it | [redis.md](./redis.md) § What Redis holds |
+| Add a key, or name a new namespace | [redis.md](./redis.md) § What Redis holds |
+| Batch commands, run a Lua script, or subscribe to a pattern | [redis.md](./redis.md) § Handle surface |
+| Run something on one replica only | [redis.md](./redis.md) § Coordination |
+| Work out why a leader stood down, or why a lock was not freed | [redis.md](./redis.md) § Coordination |
+| Tell a missing key from an outage, and know what is retried | [redis.md](./redis.md) § Errors and retry |
+| Reach the driver for something the handle does not model | [redis.md](./redis.md) § Handle surface |
 | Document locks (shared package) | [api/document-lock/](../api/document-lock/overview.md) (API topic owns product behaviour; package under `services/shared/core/documentlock`) |
 | Make an outbound HTTP call from a service | [esi.md](./esi.md) § Outbound HTTP |
 | Stream a large response without holding it whole | [esi.md](./esi.md) § Outbound HTTP |

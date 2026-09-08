@@ -8,10 +8,10 @@ import (
 	"slices"
 	"time"
 
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // Percentile prices trim outlying quotes from each side of the book. Below
@@ -45,16 +45,17 @@ func RefreshRegionMarketOrders(ctx context.Context, request eipnats.RegionMarket
 		return fmt.Errorf("region market orders refresh requires region_id and station_id")
 	}
 
-	lockKey := fmt.Sprintf("esi:market_orders:region:%d:refresh_lock", request.RegionID)
-	cleanup, shouldContinue := rediscore.AcquireRefreshLockLogged(ctx, deps.Redis, lockKey)
-	if !shouldContinue {
+	dataset := eipredis.RegionMarketOrdersDataset(request.RegionID)
+	release, held := deps.Redis.AcquireRefresh(ctx, dataset)
+	if !held {
 		return nil
 	}
-	defer cleanup()
+	defer release()
 
 	start := time.Now()
+	orders := deps.Redis.MarketOrders()
 
-	prevETags, err := rediscore.GetRegionMarketOrdersETags(ctx, deps.Redis, request.RegionID)
+	prevETags, err := orders.ETags(ctx, request.RegionID)
 	if err != nil {
 		logs.WarnCtx(ctx, "failed reading region market orders etags", "region_id", request.RegionID, "error", err)
 		prevETags = nil
@@ -86,50 +87,42 @@ func RefreshRegionMarketOrders(ctx context.Context, request eipnats.RegionMarket
 
 	// The first page's max-age speaks for the book: a region's pages are
 	// generated together and expire together.
-	recordNextRefresh(ctx, deps.Redis, rediscore.RegionMarketOrdersDataset(request.RegionID),
+	recordNextRefresh(ctx, deps.Redis, dataset,
 		time.Duration(fetchResult.CacheSeconds)*time.Second)
 
-	now := time.Now().UnixMilli()
+	now := time.Now()
 
-	// Every page 304'd, so the stored entries still describe the current book.
-	if fetchResult.AllUnchanged {
-		if err := rediscore.SaveRegionMarketOrdersRefreshTime(ctx, deps.Redis, request.RegionID, now); err != nil {
-			return err
+	// An unchanged sweep still rewrites the prices below: the write is what
+	// renews their expiry, and the entries were replayed from the page cache.
+	if !fetchResult.AllUnchanged {
+		if err := orders.PutETags(ctx, request.RegionID, fetchResult.ETags); err != nil {
+			logs.WarnCtx(ctx, "failed saving region market orders etags", "region_id", request.RegionID, "error", err)
 		}
-		logs.InfoCtx(ctx, "region market orders unchanged",
-			"region_id", request.RegionID,
-			"station_id", request.StationID,
-			"pages", fetchResult.TotalPages,
-			"duration_ms", time.Since(start).Milliseconds())
-		return nil
-	}
-
-	if err := rediscore.SaveRegionMarketOrdersETags(ctx, deps.Redis, request.RegionID, fetchResult.ETags); err != nil {
-		logs.WarnCtx(ctx, "failed saving region market orders etags", "region_id", request.RegionID, "error", err)
-	}
-	// A shrunk book leaves stale trailing pages that would otherwise replay on the next 304.
-	if fetchResult.TotalPages > 0 {
-		if err := rediscore.DeleteRegionMarketOrdersETagsFrom(ctx, deps.Redis, request.RegionID, fetchResult.TotalPages+1); err != nil {
-			logs.WarnCtx(ctx, "failed pruning stale region etags", "region_id", request.RegionID, "error", err)
+		// A shrunk book leaves stale trailing pages that would otherwise replay on the next 304.
+		if fetchResult.TotalPages > 0 {
+			if err := orders.DeleteETagsFrom(ctx, request.RegionID, fetchResult.TotalPages+1); err != nil {
+				logs.WarnCtx(ctx, "failed pruning stale region etags", "region_id", request.RegionID, "error", err)
+			}
 		}
 	}
 
 	written := 0
 	for typeID, acc := range accumulators {
-		entry := buildMarketPriceEntry(acc, now)
-		if err := rediscore.SaveMarketPriceEntry(ctx, deps.Redis, typeID, request.RegionID, entry); err != nil {
+		entry := buildMarketPriceEntry(acc, now.UnixMilli())
+		if err := orders.PutPrice(ctx, typeID, request.RegionID, entry); err != nil {
 			return fmt.Errorf("saving market price entry for type %d: %w", typeID, err)
 		}
 		written++
 	}
 
-	if err := rediscore.SaveRegionMarketOrdersRefreshTime(ctx, deps.Redis, request.RegionID, now); err != nil {
+	if err := orders.PutRefreshTime(ctx, request.RegionID, now); err != nil {
 		return err
 	}
 
 	logs.InfoCtx(ctx, "region market orders refreshed",
 		"region_id", request.RegionID,
 		"station_id", request.StationID,
+		"unchanged", fetchResult.AllUnchanged,
 		"pages", fetchResult.TotalPages,
 		"types_written", written,
 		"bytes_read", fetchResult.TotalBytes,
@@ -139,11 +132,11 @@ func RefreshRegionMarketOrders(ctx context.Context, request eipnats.RegionMarket
 }
 
 // buildMarketPriceEntry derives the stored prices for one type from its accumulated order prices.
-func buildMarketPriceEntry(acc *typePriceAccumulator, unixMillis int64) rediscore.MarketPriceEntry {
+func buildMarketPriceEntry(acc *typePriceAccumulator, unixMillis int64) eipredis.MarketPriceEntry {
 	buy := highestPrice(acc.buyPrices)
 	sell := lowestPrice(acc.sellPrices)
 
-	return rediscore.MarketPriceEntry{
+	return eipredis.MarketPriceEntry{
 		Buy:         buy,
 		Sell:        sell,
 		BuyP95:      percentilePrice(acc.buyPrices, buyPercentile, buy),

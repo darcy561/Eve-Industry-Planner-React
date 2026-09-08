@@ -8,7 +8,8 @@ Live SoT for test depth under [`services/shared`](../../../services/shared). Beh
 |-------|--------|--------|
 | Tree | From `services/`: `go test ./shared/...` | No Docker |
 | Document locks | `go test ./shared/core/documentlock/` | Large focused suite |
-| Lease / identity | `go test ./shared/core/redis/lease/ ./shared/container/ ./shared/wsplacement/` | Common control-plane helpers |
+| Redis handle / lease | `go test ./shared/redis/` | Handle, keyspace, lease, and the driver-boundary test |
+| Identity | `go test ./shared/container/ ./shared/wsplacement/` | Common control-plane helpers |
 | Live Mongo (opt-in) | `EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1` | Needs stack `MONGO_*`; skips otherwise |
 
 ```bash

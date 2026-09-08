@@ -7,7 +7,7 @@ import (
 
 	"eve-industry-planner/shared/logs"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // ViewerPresenceTTL is the maximum age of a viewer-presence entry without a refresh
@@ -23,26 +23,20 @@ func ViewerPresenceKey(accountID, collection, docID string) string {
 
 // AddViewer records sessionID as actively viewing the doc and returns whether the
 // entry was newly created.
-func AddViewer(ctx context.Context, rdb *redis.Client, accountID, collection, docID, sessionID string) (newlyAdded bool, err error) {
-	if rdb == nil || sessionID == "" {
+func AddViewer(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID, sessionID string) (newlyAdded bool, err error) {
+	if rdb.Driver() == nil || sessionID == "" {
 		return false, nil
 	}
 	score := float64(time.Now().Add(ViewerPresenceTTL).Unix())
-	added, err := rdb.ZAddArgs(ctx, ViewerPresenceKey(accountID, collection, docID), redis.ZAddArgs{
-		Members: []redis.Z{{Score: score, Member: sessionID}},
-	}).Result()
-	if err != nil {
-		return false, err
-	}
-	return added > 0, nil
+	return rdb.AddScored(ctx, ViewerPresenceKey(accountID, collection, docID), sessionID, score, ViewerPresenceTTL)
 }
 
 // RemoveViewer drops a viewer entry; returns whether the entry was present.
-func RemoveViewer(ctx context.Context, rdb *redis.Client, accountID, collection, docID, sessionID string) (wasPresent bool, err error) {
-	if rdb == nil || sessionID == "" {
+func RemoveViewer(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID, sessionID string) (wasPresent bool, err error) {
+	if rdb.Driver() == nil || sessionID == "" {
 		return false, nil
 	}
-	n, err := rdb.ZRem(ctx, ViewerPresenceKey(accountID, collection, docID), sessionID).Result()
+	n, err := rdb.RemoveScored(ctx, ViewerPresenceKey(accountID, collection, docID), sessionID)
 	if err != nil {
 		return false, err
 	}
@@ -59,7 +53,7 @@ func StripPassiveViewerOnHolderGrant(
 	accountID, collection, docID, holderSessionID string,
 	publishLeft bool,
 ) {
-	if d.Redis == nil || holderSessionID == "" || collection == "" || docID == "" {
+	if d.Redis.Driver() == nil || holderSessionID == "" || collection == "" || docID == "" {
 		return
 	}
 	removed, err := RemoveViewer(ctx, d.Redis, accountID, collection, docID, holderSessionID)
@@ -84,23 +78,26 @@ func StripPassiveViewerOnHolderGrant(
 }
 
 // PruneAndCountViewers garbage-collects expired entries and returns the live viewer count.
-func PruneAndCountViewers(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) (int64, error) {
-	if rdb == nil {
+func PruneAndCountViewers(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) (int64, error) {
+	if rdb.Driver() == nil {
 		return 0, nil
 	}
 	k := ViewerPresenceKey(accountID, collection, docID)
 	nowScore := strconv.FormatInt(time.Now().Unix(), 10)
-	pipe := rdb.Pipeline()
-	_ = pipe.ZRemRangeByScore(ctx, k, "0", nowScore)
-	countCmd := pipe.ZCard(ctx, k)
-	if _, err := pipe.Exec(ctx); err != nil {
+	pipe, err := rdb.Pipe()
+	if err != nil {
 		return 0, err
 	}
-	n := countCmd.Val()
+	pipe.DropScoredRange(ctx, k, "0", nowScore)
+	count := pipe.CountScored(ctx, k)
+	if err := pipe.Exec(ctx); err != nil {
+		return 0, err
+	}
+	n := count.Val()
 	rec, _ := GetLock(ctx, rdb, accountID, collection, docID)
 	if rec != nil && rec.HolderSessionID != "" {
-		_, zerr := rdb.ZScore(ctx, k, rec.HolderSessionID).Result()
-		if zerr == nil {
+		_, present, zerr := rdb.ScoreOf(ctx, k, rec.HolderSessionID)
+		if zerr == nil && present {
 			n--
 			if n < 0 {
 				n = 0

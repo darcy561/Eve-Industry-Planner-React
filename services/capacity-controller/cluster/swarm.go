@@ -2,7 +2,6 @@ package cluster
 
 import (
 	"context"
-	"encoding/json"
 	"eve-industry-planner/shared/queuescale"
 	"fmt"
 	"os"
@@ -13,27 +12,22 @@ import (
 	"github.com/hibiken/asynq"
 	swarmtypes "github.com/moby/moby/api/types/swarm"
 	"github.com/moby/moby/client"
-	redislib "github.com/redis/go-redis/v9"
 
 	"eve-industry-planner/capacity-controller/config"
 	"eve-industry-planner/shared/lifecycle"
 	eipnats "eve-industry-planner/shared/nats"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 const (
-	cooldownRedisKeyPrefix = "eip:capacity:cooldown:v1:"
-	healthPingWait         = 1500 * time.Millisecond
+	healthPingWait = 1500 * time.Millisecond
 )
-
-// CooldownRedisKey returns the Redis key for one service's Apply hysteresis.
-func CooldownRedisKey(svc Service) string {
-	return cooldownRedisKeyPrefix + string(svc)
-}
 
 // SwarmOptions wires live Observe/Apply dependencies.
 type SwarmOptions struct {
 	Docker *client.Client
-	Redis  *redislib.Client
+	Redis  *eipredis.Redis
 	NATS   *eipnats.NATS
 	Asynq  *asynq.Inspector // optional; nil → QueueDepthKnown=false
 	Stack  string           // Swarm stack name prefix, e.g. "eip"
@@ -116,37 +110,13 @@ func (s *Swarm) cfg() config.Config {
 	return config.Config{}
 }
 
-type cooldownBlob struct {
-	LastApplyAt time.Time `json:"last_apply_at"`
+// RecordCooldown stores when svc was last scaled. window is the configured
+// cooldown, which decides how long the stamp is kept.
+func (s *Swarm) RecordCooldown(ctx context.Context, svc Service, at time.Time, window time.Duration) {
+	s.cooldowns().Record(ctx, svc, at, window)
 }
 
-// RecordCooldown persists last Apply time for one service.
-func (s *Swarm) RecordCooldown(ctx context.Context, svc Service, at time.Time) error {
-	if s.opts.Redis == nil {
-		return nil
-	}
-	b, err := json.Marshal(cooldownBlob{LastApplyAt: at.UTC()})
-	if err != nil {
-		return err
-	}
-	return s.opts.Redis.Set(ctx, CooldownRedisKey(svc), b, 0).Err()
-}
-
-func (s *Swarm) loadCooldown(ctx context.Context, svc Service) CooldownState {
-	var cd CooldownState
-	if s.opts.Redis == nil {
-		return cd
-	}
-	raw, err := s.opts.Redis.Get(ctx, CooldownRedisKey(svc)).Bytes()
-	if err != nil {
-		return cd
-	}
-	var blob cooldownBlob
-	if json.Unmarshal(raw, &blob) == nil && !blob.LastApplyAt.IsZero() {
-		cd.LastApplyAt = blob.LastApplyAt
-	}
-	return cd
-}
+func (s *Swarm) cooldowns() *Cooldowns { return NewCooldowns(s.opts.Redis) }
 
 func (s *Swarm) observeService(ctx context.Context, svc Service, cfg config.Config, health []eipnats.HealthStatus) (ServiceState, error) {
 	spec := cfg.Services[string(svc)]
@@ -157,7 +127,7 @@ func (s *Swarm) observeService(ctx context.Context, svc Service, cfg config.Conf
 		Concurrency:     spec.Concurrency,
 		TargetClients:   spec.TargetClients,
 		ReserveCapacity: spec.ReserveCapacity,
-		Cooldown:        s.loadCooldown(ctx, svc),
+		Cooldown:        s.cooldowns().State(ctx, svc),
 	}
 	if svc == ServiceWorker {
 		ss.QueueScaleUpPct = queuescale.MergeQueueScaleUpPendingPct(spec.QueueScaleUpPct)

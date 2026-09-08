@@ -7,12 +7,13 @@ import (
 	"eve-industry-planner/testing/redisfake"
 
 	"github.com/redis/go-redis/extra/redisotel/v9"
-	"github.com/redis/go-redis/v9"
 	"go.opentelemetry.io/otel"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/sdk/trace/tracetest"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // These gauges merge HyperLogLogs on every export. The Redis client is instrumented in production,
@@ -20,7 +21,7 @@ import (
 func TestDistinctGaugeCollectionEmitsNoSpans(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
-		register func(*redis.Client)
+		register func(*eipredis.Redis)
 	}{
 		{"auth sessions", apimetrics.RegisterAuthSessionDistinctGauges},
 		{"sso refresh", apimetrics.RegisterSSORefreshDistinctGauges},
@@ -47,7 +48,7 @@ func TestDistinctGaugeCollectionEmitsNoSpans(t *testing.T) {
 				t.Fatalf("Ping: %v", err)
 			}
 
-			tc.register(rdb.Client)
+			tc.register(eipredis.NewRedis(rdb.Client))
 
 			before := len(rec.Ended())
 

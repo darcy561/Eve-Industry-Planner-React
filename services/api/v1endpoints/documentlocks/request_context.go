@@ -9,7 +9,7 @@ import (
 	"eve-industry-planner/shared/core/documentlock"
 	"eve-industry-planner/shared/logs"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // lockHandlerContext is the shared preamble state every mutating doc-lock
@@ -26,7 +26,7 @@ type lockHandlerContext struct {
 	SessionID  string
 	Collection string
 	DocID      string
-	Redis      *redis.Client
+	Redis      *eipredis.Redis
 }
 
 func lockTargetExtra(hc lockHandlerContext) map[string]any {
@@ -286,7 +286,7 @@ func finishLockStateBatchSuccess(r *http.Request, accountID string, jobCount, gr
 // doc-lock HTTP handler in this package. See `lockHandlerContext` for the
 // fields. On any auth/parse/redis error the response has already been written
 // to `w`; the caller just returns.
-func lockHandlerContextOK(w http.ResponseWriter, r *http.Request, redisClient *redis.Client) (lockHandlerContext, bool) {
+func lockHandlerContextOK(w http.ResponseWriter, r *http.Request, redisHandle *eipredis.Redis) (lockHandlerContext, bool) {
 	accountID := helper.AuthenticatedAccountID(r)
 	sessionID := helper.AuthenticatedSessionID(r)
 	b, err := parseLockBody(r)
@@ -294,7 +294,7 @@ func lockHandlerContextOK(w http.ResponseWriter, r *http.Request, redisClient *r
 		helper.RespondEndpointError(w, r, http.StatusBadRequest, err.Error(), "document lock: invalid request body", documentlock.FailureBadRequest, "document_lock", err, nil)
 		return lockHandlerContext{}, false
 	}
-	if redisClient == nil {
+	if redisHandle == nil {
 		helper.RespondEndpointError(w, r, http.StatusServiceUnavailable, "Locks unavailable", "document locks unavailable", documentlock.FailureUnavailable, "document_lock", nil, nil)
 		return lockHandlerContext{}, false
 	}
@@ -304,7 +304,7 @@ func lockHandlerContextOK(w http.ResponseWriter, r *http.Request, redisClient *r
 		SessionID:  sessionID,
 		Collection: b.Collection,
 		DocID:      b.DocID,
-		Redis:      redisClient,
+		Redis:      redisHandle,
 	}
 	logs.AttachDebugStep(r, "lock_target_resolved", lockDebugExtra(hc, nil))
 	return hc, true

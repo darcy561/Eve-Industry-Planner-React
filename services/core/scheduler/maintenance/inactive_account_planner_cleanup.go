@@ -9,9 +9,10 @@ import (
 	"eve-industry-planner/core/scheduler/contract"
 	"eve-industry-planner/shared/logs"
 
-	redislib "github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 const (
@@ -83,7 +84,7 @@ func InactiveAccountPlannerCleanup(deps contract.Dependencies, jobName string) c
 			logs.ErrorCtx(ctx, "inactive account planner cleanup: bookmark advance failed", "component", schedulerLogComponent, "error", err)
 			return err
 		}
-		if deps.Redis == nil && len(batch) > 0 {
+		if deps.Redis.Driver() == nil && len(batch) > 0 {
 			logs.WarnCtx(ctx, "inactive account planner cleanup: redis unavailable; bookmark not persisted — next run may re-queue the same accounts",
 				"component", schedulerLogComponent)
 		}
@@ -120,11 +121,11 @@ func inactiveLoginUserFilter(cutoff time.Time, afterID string) bson.M {
 }
 
 func loadInactiveCleanupBookmark(ctx context.Context, deps contract.Dependencies) (string, error) {
-	if deps.Redis == nil {
+	if deps.Redis.Driver() == nil {
 		return "", nil
 	}
-	s, err := deps.Redis.Get(ctx, inactiveAccountCleanupBookmarkKey).Result()
-	if err == redislib.Nil || s == "" {
+	s, err := deps.Redis.Driver().Get(ctx, inactiveAccountCleanupBookmarkKey).Result()
+	if eipredis.IsNotFound(err) || s == "" {
 		return "", nil
 	}
 	if err != nil {
@@ -134,16 +135,16 @@ func loadInactiveCleanupBookmark(ctx context.Context, deps contract.Dependencies
 }
 
 func advanceInactiveCleanupBookmark(ctx context.Context, deps contract.Dependencies, batch []string) error {
-	if deps.Redis == nil {
+	if deps.Redis.Driver() == nil {
 		return nil
 	}
 	switch {
 	case len(batch) == 0:
-		return deps.Redis.Del(ctx, inactiveAccountCleanupBookmarkKey).Err()
+		return deps.Redis.Driver().Del(ctx, inactiveAccountCleanupBookmarkKey).Err()
 	case len(batch) < maxAccountsPublishedPerCron:
-		return deps.Redis.Del(ctx, inactiveAccountCleanupBookmarkKey).Err()
+		return deps.Redis.Driver().Del(ctx, inactiveAccountCleanupBookmarkKey).Err()
 	default:
 		last := batch[len(batch)-1]
-		return deps.Redis.Set(ctx, inactiveAccountCleanupBookmarkKey, last, 0).Err()
+		return deps.Redis.Driver().Set(ctx, inactiveAccountCleanupBookmarkKey, last, 0).Err()
 	}
 }

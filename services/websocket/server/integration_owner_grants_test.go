@@ -25,7 +25,7 @@ func (f *integFixture) seedLegacyGrants(accountID string, corpRefs, allianceRefs
 	f.t.Helper()
 	key := apihelperauth.AccountSessionsKeyPrefix + accountID
 	var record map[string]any
-	existing, err := f.Redis.Get(context.Background(), key).Bytes()
+	existing, err := f.Redis.Driver().Get(context.Background(), key).Bytes()
 	if err == nil {
 		if err := json.Unmarshal(existing, &record); err != nil {
 			f.t.Fatalf("seedLegacyGrants read: %v", err)
@@ -41,7 +41,7 @@ func (f *integFixture) seedLegacyGrants(accountID string, corpRefs, allianceRefs
 	if err != nil {
 		f.t.Fatalf("seedLegacyGrants marshal: %v", err)
 	}
-	if err := f.Redis.Set(context.Background(), key, payload, apihelperauth.SessionTTL).Err(); err != nil {
+	if err := f.Redis.Driver().Set(context.Background(), key, payload, apihelperauth.SessionTTL).Err(); err != nil {
 		f.t.Fatalf("seedLegacyGrants: %v", err)
 	}
 }

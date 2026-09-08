@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestCleanupOrphanSessionIndexes(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const accountID = "acct-orphan-cleanup"
 	if err := SaveAccountSessionsRecord(ctx, rdb, &AccountSessionsRecord{
@@ -22,7 +24,7 @@ func TestCleanupOrphanSessionIndexes(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("save: %v", err)
 	}
-	if err := rdb.Set(ctx, sessionIndexKey("orphan-idx-1"), accountID, SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, sessionIndexKey("orphan-idx-1"), accountID, SessionTTL).Err(); err != nil {
 		t.Fatalf("set index: %v", err)
 	}
 
@@ -33,7 +35,7 @@ func TestCleanupOrphanSessionIndexes(t *testing.T) {
 	if found != 1 {
 		t.Fatalf("dry-run found = %d, want 1", found)
 	}
-	exists, _ := rdb.Exists(ctx, sessionIndexKey("orphan-idx-1")).Result()
+	exists, _ := rdb.Driver().Exists(ctx, sessionIndexKey("orphan-idx-1")).Result()
 	if exists != 1 {
 		t.Fatal("dry-run should not delete index")
 	}
@@ -45,7 +47,7 @@ func TestCleanupOrphanSessionIndexes(t *testing.T) {
 	if removed != 1 {
 		t.Fatalf("removed = %d, want 1", removed)
 	}
-	exists, _ = rdb.Exists(ctx, sessionIndexKey("orphan-idx-1")).Result()
+	exists, _ = rdb.Driver().Exists(ctx, sessionIndexKey("orphan-idx-1")).Result()
 	if exists != 0 {
 		t.Fatal("expected orphan index deleted")
 	}
@@ -54,7 +56,7 @@ func TestCleanupOrphanSessionIndexes(t *testing.T) {
 func TestCleanupOrphanRefreshTokens(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const (
 		accountID = "acct-orphan-refresh"
@@ -98,10 +100,10 @@ func TestCleanupOrphanRefreshTokens(t *testing.T) {
 func TestRunAuthSessionMaintenance_Integrated(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	const accountID = "acct-maint-integrated"
-	if err := rdb.Set(ctx, sessionIndexKey("idx-maint"), accountID, SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, sessionIndexKey("idx-maint"), accountID, SessionTTL).Err(); err != nil {
 		t.Fatalf("index: %v", err)
 	}
 	if err := StoreRefreshToken(ctx, rdb, "tok-maint", RefreshTokenData{

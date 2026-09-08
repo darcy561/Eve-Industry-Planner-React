@@ -6,8 +6,8 @@ import (
 	"time"
 
 	esicore "eve-industry-planner/shared/core/esi"
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/esiclient"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/testing/esifake"
 	"eve-industry-planner/testing/redisfake"
 
@@ -20,16 +20,15 @@ func TestRegionStillFreshFollowsTheRecordedMaxAge(t *testing.T) {
 	now := time.Now()
 
 	// Nothing fetched yet, so there is no answer and the first pass must run.
-	if fresh, _ := regionStillFresh(t.Context(), fake.Client, regionID, now); fresh {
+	if fresh, _ := regionStillFresh(t.Context(), eipredis.NewRedis(fake.Client), regionID, now); fresh {
 		t.Error("an unfetched region reported fresh, so its first pass would never happen")
 	}
 
 	stale := now.Add(10 * time.Minute)
-	if err := rediscore.SaveNextRefresh(t.Context(), fake.Client,
-		rediscore.RegionMarketOrdersDataset(regionID), stale); err != nil {
+	if err := eipredis.NewRedis(fake.Client).PutNextRefresh(t.Context(), eipredis.RegionMarketOrdersDataset(regionID), stale); err != nil {
 		t.Fatalf("seeding freshness: %v", err)
 	}
-	fresh, at := regionStillFresh(t.Context(), fake.Client, regionID, now)
+	fresh, at := regionStillFresh(t.Context(), eipredis.NewRedis(fake.Client), regionID, now)
 	if !fresh {
 		t.Error("a region inside its max-age reported stale")
 	}
@@ -37,7 +36,7 @@ func TestRegionStillFreshFollowsTheRecordedMaxAge(t *testing.T) {
 		t.Errorf("reported stale at %s, want %s", at, stale)
 	}
 
-	if fresh, _ := regionStillFresh(t.Context(), fake.Client, regionID, stale.Add(time.Second)); fresh {
+	if fresh, _ := regionStillFresh(t.Context(), eipredis.NewRedis(fake.Client), regionID, stale.Add(time.Second)); fresh {
 		t.Error("a region past its max-age still reported fresh")
 	}
 }
@@ -47,12 +46,11 @@ func TestRegionFreshnessIsPerRegion(t *testing.T) {
 	fake := redisfake.New(t)
 	now := time.Now()
 
-	if err := rediscore.SaveNextRefresh(t.Context(), fake.Client,
-		rediscore.RegionMarketOrdersDataset(10000002), now.Add(10*time.Minute)); err != nil {
+	if err := eipredis.NewRedis(fake.Client).PutNextRefresh(t.Context(), eipredis.RegionMarketOrdersDataset(10000002), now.Add(10*time.Minute)); err != nil {
 		t.Fatalf("seeding freshness: %v", err)
 	}
 
-	if fresh, _ := regionStillFresh(t.Context(), fake.Client, 10000043, now); fresh {
+	if fresh, _ := regionStillFresh(t.Context(), eipredis.NewRedis(fake.Client), 10000043, now); fresh {
 		t.Error("one region's freshness was read as another's")
 	}
 }
@@ -64,7 +62,7 @@ func TestAffordabilityCostsTheRegionsMeasuredPageCount(t *testing.T) {
 
 	// A region nothing has walked has no page count, and the first pass is what
 	// establishes one — so it is published rather than blocked.
-	if !canAffordRegionRefresh(t.Context(), esi, fake.Client, regionID) {
+	if !canAffordRegionRefresh(t.Context(), esi, eipredis.NewRedis(fake.Client), regionID) {
 		t.Error("an unwalked region was blocked, so its page count could never be learned")
 	}
 	if len(esi.HeadroomQueries()) != 0 {
@@ -73,17 +71,17 @@ func TestAffordabilityCostsTheRegionsMeasuredPageCount(t *testing.T) {
 
 	// Three pages last pass, so the run costs three successes.
 	etags := map[int]string{1: `"a"`, 2: `"b"`, 3: `"c"`}
-	if err := rediscore.SaveRegionMarketOrdersETags(t.Context(), fake.Client, regionID, etags); err != nil {
+	if err := eipredis.NewRedis(fake.Client).MarketOrders().PutETags(t.Context(), regionID, etags); err != nil {
 		t.Fatalf("seeding etags: %v", err)
 	}
 
 	esi.SetHeadroom(esiclient.ClassBackground, esiclient.Headroom{Known: true, Available: 3 * esiclient.SuccessCost})
-	if !canAffordRegionRefresh(t.Context(), esi, fake.Client, regionID) {
+	if !canAffordRegionRefresh(t.Context(), esi, eipredis.NewRedis(fake.Client), regionID) {
 		t.Errorf("a budget of exactly %d refused a %d-token run", 3*esiclient.SuccessCost, 3*esiclient.SuccessCost)
 	}
 
 	esi.SetHeadroom(esiclient.ClassBackground, esiclient.Headroom{Known: true, Available: 3*esiclient.SuccessCost - 1})
-	if canAffordRegionRefresh(t.Context(), esi, fake.Client, regionID) {
+	if canAffordRegionRefresh(t.Context(), esi, eipredis.NewRedis(fake.Client), regionID) {
 		t.Error("a budget one token short admitted the run")
 	}
 }
@@ -95,13 +93,12 @@ func TestAffordabilityAsksAboutTheRegionBeingPublished(t *testing.T) {
 	esi := esifake.New(t)
 	const regionID = 10000043
 
-	if err := rediscore.SaveRegionMarketOrdersETags(t.Context(), fake.Client, regionID,
-		map[int]string{1: `"a"`}); err != nil {
+	if err := eipredis.NewRedis(fake.Client).MarketOrders().PutETags(t.Context(), regionID, map[int]string{1: `"a"`}); err != nil {
 		t.Fatalf("seeding etags: %v", err)
 	}
 	esi.SetHeadroom(esiclient.ClassBackground, esiclient.Headroom{Known: true, Available: 1000})
 
-	canAffordRegionRefresh(t.Context(), esi, fake.Client, regionID)
+	canAffordRegionRefresh(t.Context(), esi, eipredis.NewRedis(fake.Client), regionID)
 
 	asked := esi.HeadroomQueries()
 	if len(asked) != 1 {
@@ -119,7 +116,7 @@ func TestAffordabilityPublishesWhenTheBudgetCannotBeRead(t *testing.T) {
 	// A refresh that cannot be costed is still worth attempting: the limiter
 	// refuses it if there is really no room.
 	fake := redisfake.New(t)
-	if !canAffordRegionRefresh(t.Context(), nil, fake.Client, 10000002) {
+	if !canAffordRegionRefresh(t.Context(), nil, eipredis.NewRedis(fake.Client), 10000002) {
 		t.Error("no ESI client blocked the run instead of letting the limiter decide")
 	}
 }
@@ -137,13 +134,13 @@ func TestAKnownPageCountWithAnUnknownAllowanceStillPublishes(t *testing.T) {
 	for page := 1; page <= 185; page++ {
 		etags[page] = `"page"`
 	}
-	if err := rediscore.SaveRegionMarketOrdersETags(t.Context(), fake.Client, regionID, etags); err != nil {
+	if err := eipredis.NewRedis(fake.Client).MarketOrders().PutETags(t.Context(), regionID, etags); err != nil {
 		t.Fatalf("seeding etags: %v", err)
 	}
 
 	esi.SetHeadroom(esiclient.ClassBackground, esiclient.Headroom{Known: false, Available: 0})
 
-	if !canAffordRegionRefresh(t.Context(), esi, fake.Client, regionID) {
+	if !canAffordRegionRefresh(t.Context(), esi, eipredis.NewRedis(fake.Client), regionID) {
 		t.Fatal("a 185-page region was blocked because the allowance was unknown; nothing would ever unblock it")
 	}
 }
@@ -151,11 +148,10 @@ func TestAKnownPageCountWithAnUnknownAllowanceStillPublishes(t *testing.T) {
 // walked records a hub as having been paged at t, and its book as expired.
 func walked(t *testing.T, client *redislib.Client, regionID int32, at time.Time) {
 	t.Helper()
-	if err := rediscore.SaveRegionMarketOrdersRefreshTime(t.Context(), client, regionID, at.UnixMilli()); err != nil {
+	if err := eipredis.NewRedis(client).MarketOrders().PutRefreshTime(t.Context(), regionID, at); err != nil {
 		t.Fatalf("seeding refresh time: %v", err)
 	}
-	if err := rediscore.SaveNextRefresh(t.Context(), client,
-		rediscore.RegionMarketOrdersDataset(regionID), at.Add(5*time.Minute)); err != nil {
+	if err := eipredis.NewRedis(client).PutNextRefresh(t.Context(), eipredis.RegionMarketOrdersDataset(regionID), at.Add(5*time.Minute)); err != nil {
 		t.Fatalf("seeding freshness: %v", err)
 	}
 }
@@ -172,7 +168,7 @@ func TestAHubNeverWalkedIsDue(t *testing.T) {
 	fake := redisfake.New(t)
 	regions := esicore.DefaultMarketLocations
 
-	due, err := regionsDue(t.Context(), fake.Client, regions, time.Now())
+	due, err := regionsDue(t.Context(), eipredis.NewRedis(fake.Client), regions, time.Now())
 	if err != nil {
 		t.Fatalf("regionsDue: %v", err)
 	}
@@ -190,7 +186,7 @@ func TestAHubInsideTheSweepIntervalIsNotDue(t *testing.T) {
 		walked(t, fake.Client, l.RegionID, now.Add(-30*time.Minute))
 	}
 
-	due, err := regionsDue(t.Context(), fake.Client, regions, now)
+	due, err := regionsDue(t.Context(), eipredis.NewRedis(fake.Client), regions, now)
 	if err != nil {
 		t.Fatalf("regionsDue: %v", err)
 	}
@@ -199,7 +195,7 @@ func TestAHubInsideTheSweepIntervalIsNotDue(t *testing.T) {
 	}
 
 	// Once the interval has passed they all are again.
-	due, err = regionsDue(t.Context(), fake.Client, regions, now.Add(regionSweepInterval))
+	due, err = regionsDue(t.Context(), eipredis.NewRedis(fake.Client), regions, now.Add(regionSweepInterval))
 	if err != nil {
 		t.Fatalf("regionsDue: %v", err)
 	}
@@ -222,7 +218,7 @@ func TestStalestHubIsSweptFirst(t *testing.T) {
 	walked(t, fake.Client, regions[1].RegionID, now.Add(-9*time.Hour))
 	walked(t, fake.Client, regions[2].RegionID, now.Add(-5*time.Hour))
 
-	due, err := regionsDue(t.Context(), fake.Client, regions, now)
+	due, err := regionsDue(t.Context(), eipredis.NewRedis(fake.Client), regions, now)
 	if err != nil {
 		t.Fatalf("regionsDue: %v", err)
 	}
@@ -248,16 +244,15 @@ func TestAHubIsNotWalkedInsideItsMaxAge(t *testing.T) {
 	regionID := regions[0].RegionID
 
 	// Long past due by the sweep interval, but ESI says the book is current.
-	if err := rediscore.SaveRegionMarketOrdersRefreshTime(t.Context(), fake.Client,
-		regionID, now.Add(-4*time.Hour).UnixMilli()); err != nil {
+	if err := eipredis.NewRedis(fake.Client).MarketOrders().PutRefreshTime(t.Context(),
+		regionID, now.Add(-4*time.Hour)); err != nil {
 		t.Fatalf("seeding refresh time: %v", err)
 	}
-	if err := rediscore.SaveNextRefresh(t.Context(), fake.Client,
-		rediscore.RegionMarketOrdersDataset(regionID), now.Add(3*time.Minute)); err != nil {
+	if err := eipredis.NewRedis(fake.Client).PutNextRefresh(t.Context(), eipredis.RegionMarketOrdersDataset(regionID), now.Add(3*time.Minute)); err != nil {
 		t.Fatalf("seeding freshness: %v", err)
 	}
 
-	due, err := regionsDue(t.Context(), fake.Client, regions, now)
+	due, err := regionsDue(t.Context(), eipredis.NewRedis(fake.Client), regions, now)
 	if err != nil {
 		t.Fatalf("regionsDue: %v", err)
 	}
@@ -279,7 +274,7 @@ func TestSweepFreshnessDoesNotDependOnHubCount(t *testing.T) {
 	}
 
 	for _, count := range []int{1, 2, len(all)} {
-		due, err := regionsDue(t.Context(), fake.Client, all[:count], now)
+		due, err := regionsDue(t.Context(), eipredis.NewRedis(fake.Client), all[:count], now)
 		if err != nil {
 			t.Fatalf("regionsDue: %v", err)
 		}

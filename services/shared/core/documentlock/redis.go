@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 const (
@@ -77,31 +77,30 @@ func WaitlistPulseKey(accountID, collection, docID, sessionID string) string {
 }
 
 // TouchWaitlistPulse marks this session as actively waiting (must be refreshed while they remain in queue).
-func TouchWaitlistPulse(ctx context.Context, rdb *redis.Client, accountID, collection, docID, sessionID string) error {
-	if sessionID == "" || rdb == nil {
+func TouchWaitlistPulse(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID, sessionID string) error {
+	if sessionID == "" || rdb.Driver() == nil {
 		return nil
 	}
-	return rdb.Set(ctx, WaitlistPulseKey(accountID, collection, docID, sessionID), "1", WaitlistPulseTTL).Err()
+	return rdb.PutString(ctx, WaitlistPulseKey(accountID, collection, docID, sessionID), "1", WaitlistPulseTTL)
 }
 
-func hasWaitlistPulse(ctx context.Context, rdb *redis.Client, accountID, collection, docID, sessionID string) (bool, error) {
-	if sessionID == "" || rdb == nil {
+func hasWaitlistPulse(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID, sessionID string) (bool, error) {
+	if sessionID == "" || rdb.Driver() == nil {
 		return false, nil
 	}
-	n, err := rdb.Exists(ctx, WaitlistPulseKey(accountID, collection, docID, sessionID)).Result()
-	return n > 0, err
+	return rdb.Exists(ctx, WaitlistPulseKey(accountID, collection, docID, sessionID))
 }
 
 // PeekWaitlistHeadAlive returns the first queue entry that still has a recent pulse; stale heads are removed.
-func PeekWaitlistHeadAlive(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) (string, error) {
+func PeekWaitlistHeadAlive(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) (string, error) {
 	k := waitlistKey(accountID, collection, docID)
-	for i := 0; i < 256; i++ {
-		head, err := rdb.LIndex(ctx, k, 0).Result()
-		if err == redis.Nil || head == "" {
-			return "", nil
-		}
+	for range 256 {
+		head, err := rdb.HeadOfList(ctx, k)
 		if err != nil {
 			return "", err
+		}
+		if head == "" {
+			return "", nil
 		}
 		ok, err := hasWaitlistPulse(ctx, rdb, accountID, collection, docID, head)
 		if err != nil {
@@ -110,7 +109,7 @@ func PeekWaitlistHeadAlive(ctx context.Context, rdb *redis.Client, accountID, co
 		if ok {
 			return head, nil
 		}
-		if err := rdb.LRem(ctx, k, 1, head).Err(); err != nil {
+		if _, err := rdb.RemoveFromList(ctx, k, 1, head); err != nil {
 			return "", err
 		}
 	}
@@ -118,33 +117,32 @@ func PeekWaitlistHeadAlive(ctx context.Context, rdb *redis.Client, accountID, co
 }
 
 // EnqueueWaitlistUnique enqueues sessionID on the waitlist (deduped).
-func EnqueueWaitlistUnique(ctx context.Context, rdb *redis.Client, accountID, collection, docID, sessionID string) error {
+func EnqueueWaitlistUnique(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID, sessionID string) error {
 	k := waitlistKey(accountID, collection, docID)
-	pipe := rdb.Pipeline()
-	_ = pipe.LRem(ctx, k, 1, sessionID)
-	_ = pipe.RPush(ctx, k, sessionID)
-	_, err := pipe.Exec(ctx)
-	return err
+	pipe, err := rdb.Pipe()
+	if err != nil {
+		return err
+	}
+	pipe.RemoveFromList(ctx, k, 1, sessionID)
+	pipe.AppendToList(ctx, k, sessionID)
+	return pipe.Exec(ctx)
 }
 
 // PeekWaitlistHead returns the raw head of the waitlist without pulse checks.
-func PeekWaitlistHead(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) (string, error) {
+func PeekWaitlistHead(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) (string, error) {
 	k := waitlistKey(accountID, collection, docID)
-	s, err := rdb.LIndex(ctx, k, 0).Result()
-	if err == redis.Nil {
-		return "", nil
-	}
-	return s, err
+	return rdb.HeadOfList(ctx, k)
 }
 
 // RemoveFromWaitlist removes one occurrence of sessionID from the waitlist.
-func RemoveFromWaitlist(ctx context.Context, rdb *redis.Client, accountID, collection, docID, sessionID string) error {
-	return rdb.LRem(ctx, waitlistKey(accountID, collection, docID), 1, sessionID).Err()
+func RemoveFromWaitlist(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID, sessionID string) error {
+	_, err := rdb.RemoveFromList(ctx, waitlistKey(accountID, collection, docID), 1, sessionID)
+	return err
 }
 
 // WaitlistLen returns the length of the waitlist list.
-func WaitlistLen(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) (int64, error) {
-	return rdb.LLen(ctx, waitlistKey(accountID, collection, docID)).Result()
+func WaitlistLen(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) (int64, error) {
+	return rdb.ListLength(ctx, waitlistKey(accountID, collection, docID))
 }
 
 // ParseExpiredLockKey extracts fields from an expired keyevent payload.
@@ -161,13 +159,13 @@ func ParseExpiredLockKey(key string) (accountID, collection, docID string, ok bo
 }
 
 // GetLock returns the active lock record or nil if none / expired.
-func GetLock(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) (*LockRecord, error) {
-	if rdb == nil {
-		return nil, fmt.Errorf("redis unavailable")
+func GetLock(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) (*LockRecord, error) {
+	if rdb.Driver() == nil {
+		return nil, eipredis.ErrNoClient
 	}
 	k := LockKey(accountID, collection, docID)
-	s, err := rdb.Get(ctx, k).Result()
-	if err == redis.Nil {
+	s, err := rdb.GetString(ctx, k)
+	if eipredis.IsNotFound(err) {
 		return nil, nil
 	}
 	if err != nil {
@@ -179,23 +177,24 @@ func GetLock(ctx context.Context, rdb *redis.Client, accountID, collection, docI
 	}
 	now := time.Now().Unix()
 	if rec.ExpiresAtUnix > 0 && now > rec.ExpiresAtUnix {
-		_ = rdb.Del(ctx, k).Err()
+		_, _ = rdb.Delete(ctx, k)
 		return nil, nil
 	}
 	return &rec, nil
 }
 
 // SetLock writes the lock record with DefaultLockTTL.
-func SetLock(ctx context.Context, rdb *redis.Client, accountID, collection, docID string, rec LockRecord) error {
+func SetLock(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string, rec LockRecord) error {
 	b, err := json.Marshal(rec)
 	if err != nil {
 		return err
 	}
-	return rdb.Set(ctx, LockKey(accountID, collection, docID), b, DefaultLockTTL).Err()
+	return rdb.PutString(ctx, LockKey(accountID, collection, docID), string(b), DefaultLockTTL)
 }
 
-func deleteLock(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) error {
-	return rdb.Del(ctx, LockKey(accountID, collection, docID)).Err()
+func deleteLock(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) error {
+	_, err := rdb.Delete(ctx, LockKey(accountID, collection, docID))
+	return err
 }
 
 // PromoteWaitlistHead atomically transfers ownership of the lock for
@@ -216,10 +215,10 @@ func deleteLock(ctx context.Context, rdb *redis.Client, accountID, collection, d
 // Redis EVAL so a second concurrent promotion cannot double-grant.
 func PromoteWaitlistHead(
 	ctx context.Context,
-	rdb *redis.Client,
+	rdb *eipredis.Redis,
 	accountID, collection, docID string,
 ) (newHolder string, record *LockRecord, promoted bool, err error) {
-	if rdb == nil {
+	if rdb.Driver() == nil {
 		return "", nil, false, nil
 	}
 	now := time.Now().Unix()
@@ -241,8 +240,8 @@ func PromoteWaitlistHead(
 }
 
 // LockHeldBySession reports whether a non-expired lock is actively held by requesterSessionID.
-func LockHeldBySession(ctx context.Context, rdb *redis.Client, accountID, collection, docID, requesterSessionID string) (bool, error) {
-	if rdb == nil || requesterSessionID == "" {
+func LockHeldBySession(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID, requesterSessionID string) (bool, error) {
+	if rdb.Driver() == nil || requesterSessionID == "" {
 		return false, nil
 	}
 	rec, err := GetLock(ctx, rdb, accountID, collection, docID)
@@ -257,8 +256,8 @@ func LockHeldBySession(ctx context.Context, rdb *redis.Client, accountID, collec
 
 // LockHeldByOther reports whether a non-expired lock is held by a session other than requesterSessionID.
 // If requesterSessionID is empty, any active lock counts as blocking.
-func LockHeldByOther(ctx context.Context, rdb *redis.Client, accountID, collection, docID, requesterSessionID string) (bool, error) {
-	if rdb == nil {
+func LockHeldByOther(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID, requesterSessionID string) (bool, error) {
+	if rdb.Driver() == nil {
 		return false, nil
 	}
 	rec, err := GetLock(ctx, rdb, accountID, collection, docID)
@@ -275,14 +274,14 @@ func LockHeldByOther(ctx context.Context, rdb *redis.Client, accountID, collecti
 }
 
 // DeleteLock removes the lock key.
-func DeleteLock(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) error {
-	if rdb == nil {
+func DeleteLock(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) error {
+	if rdb.Driver() == nil {
 		return nil
 	}
 	return deleteLock(ctx, rdb, accountID, collection, docID)
 }
 
 // DeleteDocLock removes the Redis lock for a document (e.g. after the backing document is deleted).
-func DeleteDocLock(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) error {
+func DeleteDocLock(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) error {
 	return DeleteLock(ctx, rdb, accountID, collection, docID)
 }

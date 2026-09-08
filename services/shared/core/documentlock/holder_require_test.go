@@ -8,11 +8,13 @@ import (
 
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestCollectLockHeldElsewhereRejects_emptySessionErrors(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	_, err := CollectLockHeldElsewhereRejects(context.Background(), rdb, testAccountID, "", eipmongo.CollectionJobDocuments, []string{"j1"}, nil)
 	if err == nil {
 		t.Fatal("expected error for empty session")
@@ -29,7 +31,7 @@ func TestCollectLockHeldElsewhereRejects_noRedis(t *testing.T) {
 
 func TestCollectLockHeldElsewhereRejects_rejectsOtherHolder(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 	seedLock(t, rdb, testAccountID, eipmongo.CollectionJobDocuments, "j-x", LockRecord{
 		HolderSessionID: "sess-other",
@@ -47,7 +49,7 @@ func TestCollectLockHeldElsewhereRejects_rejectsOtherHolder(t *testing.T) {
 
 func TestCollectLockHeldElsewhereRejects_groupHolderBypassesJobLock(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 	ctx := context.Background()
 	const groupID = "group-1"
 	seedLock(t, rdb, testAccountID, eipmongo.CollectionJobDocuments, "j-member", LockRecord{

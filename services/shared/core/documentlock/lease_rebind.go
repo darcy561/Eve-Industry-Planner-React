@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // rebindContestedLockScript shortens the holder lease to DefaultLockTTL when
 // another session joins (viewer or waitlist). Preserves probe fields while a
 // probe ack window is still active.
-var rebindContestedLockScript = redis.NewScript(readLockLuaFn + writeLockLuaFn + `
+var rebindContestedLockScript = eipredis.Script(readLockLuaFn + writeLockLuaFn + `
 local k_lock = KEYS[1]
 local now = tonumber(ARGV[1])
 local ttl = tonumber(ARGV[2])
@@ -47,7 +47,7 @@ return cjson.encode({
 `)
 
 // rebindSoloLockScript lengthens the holder lease when uncontested again.
-var rebindSoloLockScript = redis.NewScript(readLockLuaFn + writeLockLuaFn + `
+var rebindSoloLockScript = eipredis.Script(readLockLuaFn + writeLockLuaFn + `
 local k_lock = KEYS[1]
 local now = tonumber(ARGV[1])
 local solo_ttl = tonumber(ARGV[2])
@@ -72,19 +72,19 @@ return cjson.encode({
 
 type rebindTxResult struct {
 	Outcome       string                    `json:"outcome"`
-	Record        docLockTxResultLockRecord `json:"record,omitempty"`
+	Record        docLockTxResultLockRecord `json:"record"`
 	ExpiresAtUnix int64                     `json:"expiresAtUnix,omitempty"`
 }
 
 // RebindHolderLeaseContested moves the active holder into contested (5m) mode.
-func RebindHolderLeaseContested(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) (*rebindTxResult, error) {
-	if rdb == nil {
-		return nil, fmt.Errorf("redis unavailable")
+func RebindHolderLeaseContested(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) (*rebindTxResult, error) {
+	if rdb.Driver() == nil {
+		return nil, eipredis.ErrNoClient
 	}
 	now := time.Now().Unix()
-	raw, err := rebindContestedLockScript.Run(
+	raw, err := rdb.Run(
 		ctx,
-		rdb,
+		rebindContestedLockScript,
 		[]string{LockKey(accountID, collection, docID)},
 		now,
 		ContestedLockTTLSeconds(),
@@ -100,14 +100,14 @@ func RebindHolderLeaseContested(ctx context.Context, rdb *redis.Client, accountI
 }
 
 // RebindHolderLeaseSolo moves the active holder into solo (long TTL) mode.
-func RebindHolderLeaseSolo(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) (*rebindTxResult, error) {
-	if rdb == nil {
-		return nil, fmt.Errorf("redis unavailable")
+func RebindHolderLeaseSolo(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) (*rebindTxResult, error) {
+	if rdb.Driver() == nil {
+		return nil, eipredis.ErrNoClient
 	}
 	now := time.Now().Unix()
-	raw, err := rebindSoloLockScript.Run(
+	raw, err := rdb.Run(
 		ctx,
-		rdb,
+		rebindSoloLockScript,
 		[]string{LockKey(accountID, collection, docID)},
 		now,
 		SoloLockTTLSeconds(),
@@ -124,8 +124,8 @@ func RebindHolderLeaseSolo(ctx context.Context, rdb *redis.Client, accountID, co
 
 // TryRebindHolderLeaseSoloIfUncontested switches back to solo when there are no
 // viewers, no waitlist entries, and no active handoff probe.
-func TryRebindHolderLeaseSoloIfUncontested(ctx context.Context, rdb *redis.Client, accountID, collection, docID string) error {
-	if rdb == nil {
+func TryRebindHolderLeaseSoloIfUncontested(ctx context.Context, rdb *eipredis.Redis, accountID, collection, docID string) error {
+	if rdb.Driver() == nil {
 		return nil
 	}
 	rec, err := GetLock(ctx, rdb, accountID, collection, docID)

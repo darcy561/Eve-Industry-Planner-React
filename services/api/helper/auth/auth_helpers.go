@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -11,7 +10,7 @@ import (
 	"eve-industry-planner/shared/evesso"
 	"eve-industry-planner/shared/logs"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 type requestContextKey string
@@ -130,9 +129,9 @@ func ExtractSessionID(r *http.Request) (string, error) {
 	return "", fmt.Errorf("missing auth context")
 }
 
-func ExtractAccountSession(ctx context.Context, r *http.Request, redisClient *redis.Client) (*AccountSessionIdentity, error) {
-	if redisClient == nil {
-		return nil, errors.New("redis client is nil")
+func ExtractAccountSession(ctx context.Context, r *http.Request, redisClient *eipredis.Redis) (*AccountSessionIdentity, error) {
+	if redisClient.Driver() == nil {
+		return nil, eipredis.ErrNoClient
 	}
 	sessionID := ResolvePlannerSessionID(r)
 	if sessionID == "" {
@@ -179,7 +178,7 @@ func ExtractAccountSession(ctx context.Context, r *http.Request, redisClient *re
 	}, nil
 }
 
-func TryExtractAccountSession(ctx context.Context, r *http.Request, redisClient *redis.Client) (*AccountSessionIdentity, bool) {
+func TryExtractAccountSession(ctx context.Context, r *http.Request, redisClient *eipredis.Redis) (*AccountSessionIdentity, bool) {
 	identity, err := ExtractAccountSession(ctx, r, redisClient)
 	if err != nil || identity == nil {
 		return nil, false
@@ -187,7 +186,7 @@ func TryExtractAccountSession(ctx context.Context, r *http.Request, redisClient 
 	return identity, true
 }
 
-func ExtractAccountIDFromSession(ctx context.Context, r *http.Request, redisClient *redis.Client) (string, error) {
+func ExtractAccountIDFromSession(ctx context.Context, r *http.Request, redisClient *eipredis.Redis) (string, error) {
 	identity, err := ExtractAccountSession(ctx, r, redisClient)
 	if err != nil {
 		return "", err
@@ -195,7 +194,7 @@ func ExtractAccountIDFromSession(ctx context.Context, r *http.Request, redisClie
 	return identity.AccountID, nil
 }
 
-func ExtractSessionIDFromSession(ctx context.Context, r *http.Request, redisClient *redis.Client) (string, error) {
+func ExtractSessionIDFromSession(ctx context.Context, r *http.Request, redisClient *eipredis.Redis) (string, error) {
 	identity, err := ExtractAccountSession(ctx, r, redisClient)
 	if err != nil {
 		return "", err

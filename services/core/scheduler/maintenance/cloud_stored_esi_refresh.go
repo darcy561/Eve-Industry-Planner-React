@@ -11,9 +11,10 @@ import (
 	schedesi "eve-industry-planner/core/scheduler/esi"
 	"eve-industry-planner/shared/logs"
 
-	redislib "github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 const (
@@ -120,7 +121,7 @@ func publishCloudEsiRefreshMaintenanceBatch(ctx context.Context, deps contract.D
 		logs.ErrorCtx(ctx, "cloud esi refresh maintenance: bookmark advance failed", "component", schedulerLogComponent, "error", err)
 		return err
 	}
-	if deps.Redis == nil && len(batch) > 0 {
+	if deps.Redis.Driver() == nil && len(batch) > 0 {
 		logs.WarnCtx(ctx, "cloud esi refresh maintenance: redis unavailable; bookmark not persisted — next run may re-queue the same accounts",
 			"component", schedulerLogComponent)
 	}
@@ -233,11 +234,11 @@ func cloudEsiRefreshUserFilter(sixMoAgo, rotateCutoffTime time.Time, afterID str
 }
 
 func loadCloudEsiRefreshBookmark(ctx context.Context, deps contract.Dependencies) (string, error) {
-	if deps.Redis == nil {
+	if deps.Redis.Driver() == nil {
 		return "", nil
 	}
-	s, err := deps.Redis.Get(ctx, cloudEsiRefreshBookmarkKey).Result()
-	if err == redislib.Nil || s == "" {
+	s, err := deps.Redis.Driver().Get(ctx, cloudEsiRefreshBookmarkKey).Result()
+	if eipredis.IsNotFound(err) || s == "" {
 		return "", nil
 	}
 	if err != nil {
@@ -247,16 +248,16 @@ func loadCloudEsiRefreshBookmark(ctx context.Context, deps contract.Dependencies
 }
 
 func advanceCloudEsiRefreshBookmark(ctx context.Context, deps contract.Dependencies, batch []string, effectiveCap int) error {
-	if deps.Redis == nil {
+	if deps.Redis.Driver() == nil {
 		return nil
 	}
 	switch {
 	case len(batch) == 0:
-		return deps.Redis.Del(ctx, cloudEsiRefreshBookmarkKey).Err()
+		return deps.Redis.Driver().Del(ctx, cloudEsiRefreshBookmarkKey).Err()
 	case len(batch) < effectiveCap:
-		return deps.Redis.Del(ctx, cloudEsiRefreshBookmarkKey).Err()
+		return deps.Redis.Driver().Del(ctx, cloudEsiRefreshBookmarkKey).Err()
 	default:
 		last := batch[len(batch)-1]
-		return deps.Redis.Set(ctx, cloudEsiRefreshBookmarkKey, last, 0).Err()
+		return deps.Redis.Driver().Set(ctx, cloudEsiRefreshBookmarkKey, last, 0).Err()
 	}
 }

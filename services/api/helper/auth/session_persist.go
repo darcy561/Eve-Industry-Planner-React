@@ -6,18 +6,18 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // VerifyAccountSessionPersisted confirms session_id is present under account_sessions for accountID.
-func VerifyAccountSessionPersisted(ctx context.Context, redisClient *redis.Client, accountID, sessionID string) error {
+func VerifyAccountSessionPersisted(ctx context.Context, redisClient *eipredis.Redis, accountID, sessionID string) error {
 	acc := strings.TrimSpace(accountID)
 	sid := strings.TrimSpace(sessionID)
 	if acc == "" || sid == "" {
 		return errors.New("account_id and session_id are required")
 	}
-	if redisClient == nil {
-		return errors.New("redis client is nil")
+	if redisClient.Driver() == nil {
+		return eipredis.ErrNoClient
 	}
 	resolvedAccount, sess, err := ResolveAccountSessionBySessionID(ctx, redisClient, sid)
 	if err != nil {
@@ -36,8 +36,8 @@ func VerifyAccountSessionPersisted(ctx context.Context, redisClient *redis.Clien
 }
 
 // RevokeRefreshTokenBestEffort deletes a planner refresh token row when present (rotation rollback).
-func RevokeRefreshTokenBestEffort(ctx context.Context, redisClient *redis.Client, token string) {
-	if redisClient == nil || strings.TrimSpace(token) == "" {
+func RevokeRefreshTokenBestEffort(ctx context.Context, redisClient *eipredis.Redis, token string) {
+	if redisClient.Driver() == nil || strings.TrimSpace(token) == "" {
 		return
 	}
 	_ = RevokeRefreshToken(ctx, redisClient, token)
@@ -45,9 +45,9 @@ func RevokeRefreshTokenBestEffort(ctx context.Context, redisClient *redis.Client
 
 // RevokeRefreshTokensForLogout removes planner refresh credentials for logout: the presented
 // token and any other refresh row indexed for the same session_id (stale cookie vs current index).
-func RevokeRefreshTokensForLogout(ctx context.Context, redisClient *redis.Client, presentedToken, sessionID string) error {
-	if redisClient == nil {
-		return errors.New("redis client is nil")
+func RevokeRefreshTokensForLogout(ctx context.Context, redisClient *eipredis.Redis, presentedToken, sessionID string) error {
+	if redisClient.Driver() == nil {
+		return eipredis.ErrNoClient
 	}
 	presented := strings.TrimSpace(presentedToken)
 	if presented == "" {

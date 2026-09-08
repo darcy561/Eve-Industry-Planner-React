@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // The bound term was appended to a reply whose tail is variable-length: eight
@@ -138,7 +140,7 @@ func boundStore(t *testing.T, adjust func(*Config)) *Store {
 	t.Helper()
 	cfg := DefaultConfig()
 	adjust(&cfg)
-	return NewStore(redisfake.New(t).Client, cfg)
+	return NewStore(eipredis.NewRedis(redisfake.New(t).Client), cfg)
 }
 
 // learn puts a bucket past discovery with a stated allowance.

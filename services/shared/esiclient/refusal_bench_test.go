@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"eve-industry-planner/shared/esiclient"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // The refusal path is the one that runs when the ledger is longest, so what it
@@ -13,7 +15,7 @@ import (
 func BenchmarkRefusal(b *testing.B) {
 	for _, size := range []int{1000, 3000} {
 		b.Run(fmt.Sprintf("ledger=%d", size), func(b *testing.B) {
-			store := esiclient.NewStore(benchRedis(b), esiclient.DefaultConfig())
+			store := esiclient.NewStore(eipredis.NewRedis(benchRedis(b)), esiclient.DefaultConfig())
 			bucket := esiclient.Bucket{Group: "market-order", User: esiclient.AnonymousUser}
 
 			// A bucket filled to refusal: the allowance is exactly what the

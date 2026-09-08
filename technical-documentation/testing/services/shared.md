@@ -8,7 +8,8 @@ Live SoT for test depth under [`services/shared`](../../../services/shared). Beh
 |-------|--------|--------|
 | Tree | From `services/`: `go test ./shared/...` | No Docker |
 | Document locks | `go test ./shared/core/documentlock/` | Large focused suite |
-| Lease / identity | `go test ./shared/core/redis/lease/ ./shared/container/ ./shared/wsplacement/` | Common control-plane helpers |
+| Redis handle / lease | `go test ./shared/redis/` | Handle, keyspace, lease, and the driver-boundary test |
+| Identity | `go test ./shared/container/ ./shared/wsplacement/` | Common control-plane helpers |
 | Messaging | `go test ./shared/nats/` | Live tests start a server in-process via `testing/natsfake`; nothing to run |
 | Live Mongo (opt-in) | `EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1` | Needs stack `MONGO_*`; skips otherwise |
 | Live Redis (opt-in) | `EIP_REDIS_PARITY_LIVE=1 go test ./shared/esiclient/` | Needs a throwaway Redis on 6399; skips otherwise. Never the stack's on 6379 |
@@ -29,7 +30,7 @@ EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1
 | `core/documentlock` | Atomic acquire/release/handover/extend races; Redis lock roundtrip, waitlist, promote; status batch; cascade pipeline/predicate/membership; lease rebind; event payloads |
 | `models` | Job JSON/BSON parity & unknown-field policy; refresh-token encrypt/reencrypt; group-template validation |
 | `core/crypto` + `keyrings` | AES-GCM roundtrip/rotate/AAD; refresh-token keyring legacy parsing |
-| `core/redis/lease` | Single-leader, takeover, lost-lease cancel, reacquire on fn error |
+| `redis` | Handle and connection defaults; key names and lifetimes pinned to literals; values, keys, collections, lists, compare-and-set, cardinality; pipeline batching and what `Exec` reports; scripts and their result readers; pattern subscription delivery and goroutine lifetime; retry and the three error predicates; the lease — single-leader, takeover, lost-lease cancel, reacquire on fn error, and that neither renew nor release touches another holder's lease; and that no package outside `shared/redis` imports the driver |
 | `orchestrationprobes` | Health/ready handlers; bus ping role parse/start |
 | `telemetry` | Trace sample rate, service version, deployment env, OTLP endpoint normalise; NATS log-context inject/extract |
 | `nats` (unit) | Retry attempts, backoff and the error classifier, including that a cancelled context ends a wait rather than sleeping it out; envelope trace and log-context enrichment; subject builders and tenant filters; consumer keep policy; task registry — every task registered under its own name, every subject ending in its task name, every task having a publish helper |

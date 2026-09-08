@@ -9,7 +9,7 @@ import (
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/websocket/server/config"
 
-	redislib "github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 const redisHandoffKeyPrefix = "ws:session_handoff:v2"
@@ -62,7 +62,7 @@ func (s *Server) snapshotSessionHandoff(ctx context.Context, client *Client) {
 }
 
 func (s *Server) storeRedisSessionHandoff(ctx context.Context, accountID, oldClientID string, docList []string) {
-	if s.Stack == nil || s.Stack.Redis == nil {
+	if s.Stack == nil || s.Stack.Redis.Driver() == nil {
 		return
 	}
 	payload := redisSessionHandoffPayload{
@@ -77,7 +77,7 @@ func (s *Server) storeRedisSessionHandoff(ctx context.Context, accountID, oldCli
 	rctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	key := sessionHandoffRedisKey(accountID, oldClientID)
-	err = s.Stack.Redis.Set(rctx, key, b, config.SessionHandoffTTL).Err()
+	err = s.Stack.Redis.Driver().Set(rctx, key, b, config.SessionHandoffTTL).Err()
 	if err != nil {
 		logs.WarnCtx(ctx, "session handoff redis SET failed", "error", err, "key_prefix", redisHandoffKeyPrefix)
 	}
@@ -97,11 +97,11 @@ func (s *Server) popSessionHandoff(ctx context.Context, accountID, previousClien
 		return nil
 	}
 
-	if s.Stack != nil && s.Stack.Redis != nil {
+	if s.Stack != nil && s.Stack.Redis.Driver() != nil {
 		key := sessionHandoffRedisKey(accountID, previousClientID)
 		rctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 		defer cancel()
-		val, err := s.Stack.Redis.GetDel(rctx, key).Result()
+		val, err := s.Stack.Redis.Driver().GetDel(rctx, key).Result()
 		if err == nil && val != "" {
 			var payload redisSessionHandoffPayload
 			if errUnmarshal := json.Unmarshal([]byte(val), &payload); errUnmarshal != nil {
@@ -126,7 +126,7 @@ func (s *Server) popSessionHandoff(ctx context.Context, accountID, previousClien
 					Expires:   time.Now().Add(config.SessionHandoffTTL),
 				}
 			}
-		} else if err != nil && err != redislib.Nil {
+		} else if err != nil && !eipredis.IsNotFound(err) {
 			logs.WarnCtx(ctx, "session handoff Redis GETDEL failed", "error", err)
 		}
 	}

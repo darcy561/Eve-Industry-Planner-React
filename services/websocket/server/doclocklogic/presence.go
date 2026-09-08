@@ -9,7 +9,7 @@ import (
 
 // WaitlistPulse runs the domain waitlist pulse for one account/session/doc.
 func WaitlistPulse(ctx context.Context, deps documentlock.Deps, accountID, sessionID, collection, docID string) Outcome {
-	if deps.Redis == nil {
+	if deps.Redis.Driver() == nil {
 		return fail("document locks unavailable", documentlock.FailureUnavailable, documentlock.ErrLocksUnavailable, nil)
 	}
 	svc := documentlock.NewService(deps)

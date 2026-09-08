@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"eve-industry-planner/shared/core/documentlock"
-	rediscore "eve-industry-planner/shared/core/redis"
 	eipnats "eve-industry-planner/shared/nats"
+	eipredis "eve-industry-planner/shared/redis"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -23,7 +23,7 @@ func IsUnavailable(err error) bool {
 	if isRequestContextError(err) {
 		return false
 	}
-	if rediscore.IsUnavailableError(err) {
+	if eipredis.IsUnavailableError(err) {
 		return true
 	}
 	if isMongoUnavailable(err) {

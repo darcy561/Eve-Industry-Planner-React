@@ -21,6 +21,7 @@ import "strconv"
 //
 //	reply granted, kind, retry_at, available, limit, window, metered, probe,
 //	      then id/slot pairs
+//
 // reserveArgs is the reserve script's arguments, in order.
 var reserveArgs = scriptArgs{
 	number("count"),
@@ -522,6 +523,7 @@ return tostring(removed)
 //	KEYS  downtime
 //	ARGV  source, availability, observed_at, failures_to_trip,
 //	      probe_first, probe_max, distinct_buckets_to_trip, lone_bucket_failures
+//
 // observeArgs is the observe script's arguments, in order.
 var observeArgs = scriptArgs{
 	text("state_key"),

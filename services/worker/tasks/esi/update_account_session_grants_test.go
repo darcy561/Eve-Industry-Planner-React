@@ -20,6 +20,8 @@ import (
 	"eve-industry-planner/testing/redisfake"
 
 	"github.com/hibiken/asynq"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 type affiliationOrigin struct {
@@ -124,7 +126,7 @@ func affiliationClient(t *testing.T, baseURL string) esiclient.API {
 	fake := redisfake.New(t)
 	cfg := esiclient.DefaultConfig()
 	cfg.BaseURL = baseURL
-	api, stop, err := esiclient.New(fake.Client, cfg)
+	api, stop, err := esiclient.New(eipredis.NewRedis(fake.Client), cfg)
 	if err != nil {
 		t.Fatalf("esiclient: %v", err)
 	}

@@ -119,7 +119,7 @@ func (a *app) startProbes(ctx context.Context) error {
 		if a.ws != nil && a.ws.IsDraining() {
 			return fmt.Errorf("draining")
 		}
-		if err := a.clients.Redis.Ping(c).Err(); err != nil {
+		if err := a.clients.Redis.Ping(c); err != nil {
 			return fmt.Errorf("redis: %w", err)
 		}
 		if a.clients.NATS == nil || !a.clients.NATS.Connected() {

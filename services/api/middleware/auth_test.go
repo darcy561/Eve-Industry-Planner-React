@@ -7,12 +7,14 @@ import (
 
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestAuthConstructor_AttachesClientFailureDetail(t *testing.T) {
 	t.Parallel()
 
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	handler := AuthConstructor(rdb)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t.Fatal("handler should not run when auth fails")

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"eve-industry-planner/core/scheduler/contract"
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // ScheduleAdjustedPricesRefresh sets up a cron job for adjusted prices refresh (hourly).
@@ -30,7 +30,7 @@ func AdjustedPricesRefresh(deps contract.Dependencies, jobName string) contract.
 		if deferred, err := DeferPublicationUntilAfterDowntime(ctx, natsHandle, jobName, esi); err != nil || deferred {
 			return err
 		}
-		if deferred, err := DeferPublicationUntilStale(ctx, natsHandle, jobName, rediscore.DatasetMarketPrices, redisClient, time.Now()); err != nil || deferred {
+		if deferred, err := DeferPublicationUntilStale(ctx, natsHandle, jobName, eipredis.DatasetMarketPrices.Dataset(), redisClient, time.Now()); err != nil || deferred {
 			return err
 		}
 		return publish(ctx)

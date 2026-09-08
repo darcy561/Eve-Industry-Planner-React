@@ -7,19 +7,12 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 
-	rediscore "eve-industry-planner/shared/core/redis"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/shared/httpclient"
 	"eve-industry-planner/shared/logs"
-
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
-
-// regionPageCacheTTL is how long a fetched region order page stays replayable
-// for a 304 response.
-const regionPageCacheTTL = 24 * time.Hour
 
 // RegionOrdersFetchResult reports what one region pagination pass did.
 type RegionOrdersFetchResult struct {
@@ -39,7 +32,7 @@ type RegionOrdersFetchResult struct {
 func FetchRegionMarketOrders(
 	ctx context.Context,
 	client esiclient.API,
-	redisClient *redis.Client,
+	r *eipredis.Redis,
 	regionID int32,
 	prevETags map[int]string,
 	onOrder func(esiclient.MarketOrder) error,
@@ -65,7 +58,7 @@ func FetchRegionMarketOrders(
 
 		logs.DebugCtx(ctx, "fetching region market orders page", "region_id", regionID, "page", page)
 
-		pageBytes, err := fetchRegionOrdersPage(ctx, client, redisClient, path, regionID, page, prevETags, &result, onOrder)
+		pageBytes, err := fetchRegionOrdersPage(ctx, client, r, path, regionID, page, prevETags, &result, onOrder)
 		if err != nil {
 			return result, err
 		}
@@ -84,7 +77,7 @@ func FetchRegionMarketOrders(
 func fetchRegionOrdersPage(
 	ctx context.Context,
 	client esiclient.API,
-	redisClient *redis.Client,
+	r *eipredis.Redis,
 	path string,
 	regionID int32,
 	page int,
@@ -130,7 +123,7 @@ func fetchRegionOrdersPage(
 	}
 
 	if stream.NotModified {
-		return 0, replayCachedRegionPage(ctx, redisClient, regionID, page, result, onOrder)
+		return 0, replayCachedRegionPage(ctx, r, regionID, page, result, onOrder)
 	}
 	if stream.Status != http.StatusOK {
 		return 0, fmt.Errorf("unexpected status %d fetching region %d page %d", stream.Status, regionID, page)
@@ -149,8 +142,8 @@ func fetchRegionOrdersPage(
 		return stream.Wire(), fmt.Errorf("decoding market orders: %w", err)
 	}
 
-	if redisClient != nil {
-		if err := rediscore.SaveRegionMarketOrdersPage(ctx, redisClient, regionID, page, orders, regionPageCacheTTL); err != nil {
+	if r.Driver() != nil {
+		if err := r.MarketOrders().PutPage(ctx, regionID, page, orders); err != nil {
 			logs.WarnCtx(ctx, "failed caching region orders page", "region_id", regionID, "page", page, "error", err)
 		}
 	}
@@ -168,21 +161,21 @@ func fetchRegionOrdersPage(
 // caller does not treat the region as fully unchanged on incomplete data.
 func replayCachedRegionPage(
 	ctx context.Context,
-	redisClient *redis.Client,
+	r *eipredis.Redis,
 	regionID int32,
 	page int,
 	result *RegionOrdersFetchResult,
 	onOrder func(esiclient.MarketOrder) error,
 ) error {
-	if redisClient == nil {
+	if r.Driver() == nil {
 		logs.WarnCtx(ctx, "redis unavailable for 304 region page replay", "region_id", regionID, "page", page)
 		result.AllUnchanged = false
 		return nil
 	}
 
 	var cached []esiclient.MarketOrder
-	if err := rediscore.GetRegionMarketOrdersPage(ctx, redisClient, regionID, page, &cached); err != nil {
-		if errors.Is(err, redis.Nil) {
+	if err := r.MarketOrders().Page(ctx, regionID, page, &cached); err != nil {
+		if eipredis.IsNotFound(err) {
 			logs.WarnCtx(ctx, "cache missing for 304 region page", "region_id", regionID, "page", page)
 			result.AllUnchanged = false
 			return nil

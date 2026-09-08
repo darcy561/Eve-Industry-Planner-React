@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // ReauthDeadlineFromSessionStart is when periodic full SSO is required for this planner session chain.
@@ -59,7 +59,7 @@ func IsPlannerSessionReauthExpired(sessionStart, now time.Time) bool {
 
 // IsRefreshTokenDataReauthExpired checks the refresh-token SessionStart and, when session_id is set,
 // the matching account_sessions row so rotate/bootstrap and middleware agree.
-func IsRefreshTokenDataReauthExpired(ctx context.Context, redisClient *redis.Client, token *RefreshTokenData, now time.Time) bool {
+func IsRefreshTokenDataReauthExpired(ctx context.Context, redisClient *eipredis.Redis, token *RefreshTokenData, now time.Time) bool {
 	if token == nil {
 		return false
 	}
@@ -67,7 +67,7 @@ func IsRefreshTokenDataReauthExpired(ctx context.Context, redisClient *redis.Cli
 		return true
 	}
 	sid := strings.TrimSpace(token.SessionID)
-	if sid == "" || redisClient == nil {
+	if sid == "" || redisClient.Driver() == nil {
 		return false
 	}
 	sess, err := loadAccountSessionRow(ctx, redisClient, sid)

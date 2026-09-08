@@ -8,7 +8,7 @@ import (
 	"eve-industry-planner/websocket/server/doclocklogic"
 	"eve-industry-planner/websocket/server/outgoinglogic"
 
-	"github.com/redis/go-redis/v9"
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func (s *Server) handleDocumentLockWaitlistPulseWS(ctx context.Context, client *Client, msg []byte) {
@@ -75,7 +75,7 @@ func (s *Server) handleDocumentLockLockStateBatch(ctx context.Context, client *C
 		"group_doc_count": len(req.GroupDocIDs),
 	})
 
-	var rdb *redis.Client
+	var rdb *eipredis.Redis
 	if s.Stack != nil {
 		rdb = s.Stack.Redis
 	}

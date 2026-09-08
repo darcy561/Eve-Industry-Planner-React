@@ -56,7 +56,7 @@ func serviceLoop(ctx context.Context, svc cluster.Service, swarm *cluster.Swarm,
 			logs.WarnCtx(ctx, "capacity-controller: apply failed",
 				"service", svc, "error", err)
 		} else if n > 0 {
-			_ = swarm.RecordCooldown(ctx, svc, time.Now().UTC())
+			swarm.RecordCooldown(ctx, svc, time.Now().UTC(), cfgHolder.get().ScaleTiming.Cooldown.Duration())
 			logs.InfoCtx(ctx, "capacity-controller: applied",
 				"service", svc, "mutations", n)
 		}

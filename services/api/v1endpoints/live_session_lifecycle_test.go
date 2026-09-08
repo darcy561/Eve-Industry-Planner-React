@@ -22,6 +22,7 @@ import (
 	"eve-industry-planner/shared/models"
 	"eve-industry-planner/shared/models/planner"
 	eipmongo "eve-industry-planner/shared/mongo"
+	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/testing/esifake"
 	"eve-industry-planner/testing/evessofake"
@@ -60,10 +61,10 @@ func newLiveSession(t *testing.T) *liveSession {
 
 	fake := base.fake
 	deps := apideps.FromClients(
-		&stackservices.Clients{Mongo: mongo, Redis: fake.Client}, nil, esifake.New(t), nil)
+		&stackservices.Clients{Mongo: mongo, Redis: eipredis.NewRedis(fake.Client)}, nil, esifake.New(t), nil)
 
 	live := &liveSession{
-		session: &session{handlers: v1endpoints.New(deps), redis: fake.Client, fake: fake},
+		session: &session{handlers: v1endpoints.New(deps), redis: eipredis.NewRedis(fake.Client), fake: fake},
 		mongo:   mongo,
 		sso:     sso,
 	}

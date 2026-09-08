@@ -7,13 +7,15 @@ import (
 	esimetrics "eve-industry-planner/core/metrics/esi"
 	"eve-industry-planner/shared/esiclient"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 // storeWithBucket returns a store holding one bucket whose allowance a response
 // has disclosed.
 func storeWithBucket(t *testing.T, group string, user string, limit int) *esiclient.Store {
 	t.Helper()
-	store := esiclient.NewStore(redisfake.New(t).Client, esiclient.DefaultConfig())
+	store := esiclient.NewStore(eipredis.NewRedis(redisfake.New(t).Client), esiclient.DefaultConfig())
 	bucket := esiclient.Bucket{Group: group, User: user}
 
 	grant, err := store.Reserve(t.Context(), bucket, esiclient.ClassBackground, esiclient.EndpointPolicy{}, 1)
@@ -84,7 +86,7 @@ func TestReadNeverLabelsACharacterID(t *testing.T) {
 func TestReadReportsAnUndiscoveredBucketAsUnknown(t *testing.T) {
 	// Nothing supplies an allowance in code, so a bucket nothing has called has
 	// none — and a gauge must not publish a fill derived from zero.
-	store := esiclient.NewStore(redisfake.New(t).Client, esiclient.DefaultConfig())
+	store := esiclient.NewStore(eipredis.NewRedis(redisfake.New(t).Client), esiclient.DefaultConfig())
 	bucket := esiclient.Bucket{Group: "market-order", User: esiclient.AnonymousUser}
 	if _, err := store.Reserve(t.Context(), bucket, esiclient.ClassBackground, esiclient.EndpointPolicy{}, 1); err != nil {
 		t.Fatalf("Reserve: %v", err)
@@ -140,7 +142,7 @@ func TestUnaccountedIsWhatESIChargedAndWeDidNot(t *testing.T) {
 	// Our ledger is reconciled to ESI on every response, so the two counts agree
 	// and subtracting them measures nothing. What is worth reporting is how much
 	// of our count came from that reconciliation rather than from calls we made.
-	store := esiclient.NewStore(redisfake.New(t).Client, esiclient.DefaultConfig())
+	store := esiclient.NewStore(eipredis.NewRedis(redisfake.New(t).Client), esiclient.DefaultConfig())
 	bucket := esiclient.Bucket{Group: "market-order", User: esiclient.AnonymousUser}
 	now := time.Now()
 
@@ -167,7 +169,7 @@ func TestUnaccountedIsWhatESIChargedAndWeDidNot(t *testing.T) {
 }
 
 func TestNothingIsUnaccountedWhenTheCountsAlreadyAgree(t *testing.T) {
-	store := esiclient.NewStore(redisfake.New(t).Client, esiclient.DefaultConfig())
+	store := esiclient.NewStore(eipredis.NewRedis(redisfake.New(t).Client), esiclient.DefaultConfig())
 	bucket := esiclient.Bucket{Group: "market-order", User: esiclient.AnonymousUser}
 	now := time.Now()
 
@@ -184,7 +186,7 @@ func TestAStaleHeaderIsNotComparedAgainst(t *testing.T) {
 	// The trap: an idle bucket's spend decays towards zero while ESI's last
 	// figure stays frozen, so the pair would show drift growing on its own. That
 	// is the clock moving, not the fleet disagreeing with CCP.
-	store := esiclient.NewStore(redisfake.New(t).Client, esiclient.DefaultConfig())
+	store := esiclient.NewStore(eipredis.NewRedis(redisfake.New(t).Client), esiclient.DefaultConfig())
 	bucket := esiclient.Bucket{Group: "market-order", User: esiclient.AnonymousUser}
 	observed := time.Now()
 
@@ -206,7 +208,7 @@ func TestAStaleHeaderIsNotComparedAgainst(t *testing.T) {
 func TestAGenerousHeaderLeavesOurSpendStanding(t *testing.T) {
 	// ESI reporting more left than we hold is the safe direction, and never a
 	// reason to credit charges back or to call the difference unaccounted.
-	store := esiclient.NewStore(redisfake.New(t).Client, esiclient.DefaultConfig())
+	store := esiclient.NewStore(eipredis.NewRedis(redisfake.New(t).Client), esiclient.DefaultConfig())
 	bucket := esiclient.Bucket{Group: "market-order", User: esiclient.AnonymousUser}
 	now := time.Now()
 

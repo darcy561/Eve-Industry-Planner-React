@@ -6,6 +6,8 @@ import (
 
 	"eve-industry-planner/shared/core/documentlock"
 	"eve-industry-planner/testing/redisfake"
+
+	eipredis "eve-industry-planner/shared/redis"
 )
 
 func TestRunLockStateBatchNilRedis(t *testing.T) {
@@ -21,7 +23,7 @@ func TestRunLockStateBatchNilRedis(t *testing.T) {
 
 func TestRunLockStateBatchEmptyAndOK(t *testing.T) {
 	t.Parallel()
-	rdb := redisfake.New(t).Client
+	rdb := eipredis.NewRedis(redisfake.New(t).Client)
 
 	empty := RunLockStateBatch(context.Background(), rdb, "acct", LockStateBatchRequest{RequestID: "r1"})
 	if empty.FailureClass != documentlock.FailureStateBatchEmpty || empty.AckErrMsg != documentlock.ErrStatusBatchEmpty.Error() {

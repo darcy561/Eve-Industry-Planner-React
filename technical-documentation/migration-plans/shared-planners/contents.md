@@ -10,6 +10,7 @@ The planner as a first-class thing a user works in, and the ownership model unde
 - The **grants ceiling** as a list of owner keys, and how a removed member loses access.
 - The **active planner** on the client, and the owner parameter on every scoped read.
 - **Realtime consistency under more than one writer** — the ordering token, the owner-scoped baseline, and what `session_resume` may assert. Absorbed from the retired websocket-realtime project.
+- **What the document lock is namespaced by** — the Redis key, the waitlist, the viewer set and the fan-out subject moving off the calling account and onto the owner key, so two members of one planner contend for one lock.
 - The rule that a document's owner is **decided when it is created**, never inferred from correlated fields.
 
 ## Does not own
@@ -19,6 +20,7 @@ The planner as a first-class thing a user works in, and the ownership model unde
 - Websocket hosted tenants and placement → [changestream-tenant-scale/contents.md](../changestream-tenant-scale/contents.md). This project adds owner kinds to routing keys that already exist.
 - Collection rename mechanics → [collection-naming/contents.md](../collection-naming/contents.md). This project declares renames; that project owns how a rename is applied.
 - How a document write is shaped — whole-document versus field-scoped, and whether two writers editing different fields both keep their edit → [document-write-granularity/contents.md](../document-write-granularity/contents.md). Found here at Stage G and split out because it has no planner premise: it changes how the whole application writes. **That project depends on Stage G's decisions and lists them as assumptions; when Stage G moves, update it in the same pass.**
+- How **broad** the document lock is — the group lease standing in for every job in it, the all-or-nothing batch refusal, and whether the lock becomes advisory → [document-write-granularity/contents.md](../document-write-granularity/contents.md) § Stage D. This project owns making the lock *work* between two members (Stage H); that project owns whether it needs to be that wide, which has no planner premise and rests on the version check landing first.
 - Live SPA and backend behaviour → [frontend/contents.md](../../frontend/contents.md), [backend/contents.md](../../backend/contents.md), promoted only when this project closes.
 
 ## Task map
@@ -41,7 +43,7 @@ The planner as a first-class thing a user works in, and the ownership model unde
 | Add a feature that only some planners have | [plan.md](./plan.md) § Features differ; nothing branches on kind |
 | Know which settings the planner owns and which stay personal | [plan.md](./plan.md) § Settings split between the planner and the account |
 | Understand why recalculation must keep a job's structure and character | [plan.md](./plan.md) § Recalculation must preserve a job's own build context |
-| See why document locks do not cover the close cascade | [plan.md](./plan.md) § The persist gate must cover the whole cascade |
+| See how the close cascade is gated, and where a refusal goes | [plan.md](./plan.md) § The persist gate is narrower than the cascade, and the server is what closes the gap |
 | Know how a job's owner is decided | [plan.md](./plan.md) § Ownership is decided at creation |
 | Know which schema versions change and what each upgrade step does | [plan.md](./plan.md) § Schema versioning |
 | See the document shapes and why each field exists | [plan.md](./plan.md) § Data models |
@@ -56,5 +58,7 @@ The planner as a first-class thing a user works in, and the ownership model unde
 | Check what has landed | [plan.md](./plan.md) § Stage status |
 | Understand why the realtime cursor and baseline sync do not survive a second writer | [plan.md](./plan.md) § Stage G |
 | Find what the retired websocket-realtime project left behind | [plan.md](./plan.md) § Stage G — Absorbed from the retired websocket-realtime project |
+| Understand why two members take two different locks on one job | [plan.md](./plan.md) § Stage H |
+| Know what happens to same-account force-release once the lock is planner-wide | [plan.md](./plan.md) § Stage H |
 | Know how a document states its owner today | [overlay.md](./overlay.md) § Stage A — The owner block cutover |
 | See how a part works while the project is in flight | [overlay.md](./overlay.md) |

@@ -35,10 +35,11 @@ func TimelineMonthDocumentID(owner models.Owner, typeID, year, month int, isProd
 	return id
 }
 
-// ArchivedJobStatsDocumentID is the _id for archived_job_stats:
-// {ownerKey}|jobID.
+// ArchivedJobStatsDocumentID is the _id for archived_job_stats: the same
+// {ownerKey}|jobID the archived job itself is stored under, so a row and the job
+// it was derived from share one id.
 func ArchivedJobStatsDocumentID(owner models.Owner, jobID string) string {
-	return fmt.Sprintf("%s|%s", owner.Key(), jobID)
+	return OwnerScopedDocumentID(owner, jobID)
 }
 
 // EachOwnerArchivedJob walks an owner's archived jobs, handing each to fn.

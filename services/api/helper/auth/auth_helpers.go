@@ -137,14 +137,14 @@ func ExtractAccountSession(ctx context.Context, r *http.Request, redisClient *re
 	sessionID := ResolvePlannerSessionID(r)
 	if sessionID == "" {
 		return nil, &AuthSessionError{
-			Code:   "session_missing",
+			Code:   CodeSessionMissing,
 			Reason: authSessionReasonSessionAbsent,
 		}
 	}
 	accountID, session, err := ResolveAccountSessionBySessionID(ctx, redisClient, sessionID)
 	if err != nil || session == nil {
 		authErr := &AuthSessionError{
-			Code:      "session_missing",
+			Code:      CodeSessionMissing,
 			SessionID: sessionID,
 			AccountID: strings.TrimSpace(accountID),
 		}
@@ -160,14 +160,14 @@ func ExtractAccountSession(ctx context.Context, r *http.Request, redisClient *re
 	}
 	if session.RevokedAt != nil {
 		return nil, &AuthSessionError{
-			Code:      "session_revoked",
+			Code:      CodeSessionRevoked,
 			AccountID: accountID,
 			SessionID: sessionID,
 		}
 	}
 	if IsReauthExpired(session.StartedAt, session.ReauthRequiredAt, time.Now().UTC()) {
 		return nil, &AuthSessionError{
-			Code:      "reauth_required",
+			Code:      CodeReauthRequired,
 			AccountID: accountID,
 			SessionID: sessionID,
 		}

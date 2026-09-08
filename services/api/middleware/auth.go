@@ -44,14 +44,14 @@ func AuthConstructor(redisClient *redis.Client) MiddlewareConstructor {
 				}
 				detail := auth.AuthSessionFailureDetailFromError(err, r)
 				switch detail.Code {
-				case "session_missing", "session_revoked", "reauth_required":
+				case auth.CodeSessionMissing, auth.CodeSessionRevoked, auth.CodeReauthRequired:
 					logs.AttachClientFailureDetail(r, detail.ClientFailureMessage(), detail.ClientFailureDetail(nil))
 					writeAuthError(w, http.StatusUnauthorized, detail.Code)
 				default:
 					logs.AttachClientFailureDetail(r, detail.ClientFailureMessage(), detail.ClientFailureDetail(map[string]any{
 						"error": err.Error(),
 					}))
-					writeAuthError(w, http.StatusUnauthorized, "session_missing")
+					writeAuthError(w, http.StatusUnauthorized, auth.CodeSessionMissing)
 				}
 				return
 			}
@@ -65,12 +65,12 @@ func AuthConstructor(redisClient *redis.Client) MiddlewareConstructor {
 				}
 				logs.AttachClientFailureDetail(r, "failed to touch account session", map[string]any{
 					"failure_class": "auth_session_touch_failed",
-					"code":          "session_missing",
+					"code":          auth.CodeSessionMissing,
 					"account_id":    identity.AccountID,
 					"session_id":    identity.SessionID,
 					"error":         err.Error(),
 				})
-				writeAuthError(w, http.StatusUnauthorized, "session_missing")
+				writeAuthError(w, http.StatusUnauthorized, auth.CodeSessionMissing)
 				return
 			}
 			ctx := auth.WithAuthIdentity(r.Context(), identity.AccountID, identity.SessionID)

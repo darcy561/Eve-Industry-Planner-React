@@ -9,8 +9,16 @@ import (
 	"eve-industry-planner/shared/dependency"
 )
 
+// Client-facing auth failure codes. The SPA branches on these to decide whether a session can be
+// retried or requires a full EVE SSO login, so a 401 that omits one is treated as retriable.
+const (
+	CodeSessionMissing = "session_missing"
+	CodeSessionRevoked = "session_revoked"
+	CodeReauthRequired = "reauth_required"
+)
+
 // AuthSessionError is returned by ExtractAccountSession for client-facing auth failure codes.
-// Error() returns the API code (session_missing, session_revoked, reauth_required).
+// Error() returns the API code.
 type AuthSessionError struct {
 	Code      string
 	AccountID string
@@ -79,11 +87,11 @@ func AuthSessionFailureDetailFromError(err error, r *http.Request) AuthSessionFa
 // ClientFailureMessage returns the consolidated access-log message for request logging middleware.
 func (d AuthSessionFailureDetail) ClientFailureMessage() string {
 	switch d.Code {
-	case "session_missing":
+	case CodeSessionMissing:
 		return "auth session missing or invalid"
-	case "session_revoked":
+	case CodeSessionRevoked:
 		return "auth session revoked"
-	case "reauth_required":
+	case CodeReauthRequired:
 		return "auth session reauth required"
 	default:
 		return "auth session validation failed"
@@ -113,11 +121,11 @@ func (d AuthSessionFailureDetail) ClientFailureDetail(extra map[string]any) map[
 
 func authSessionFailureClass(code string) string {
 	switch code {
-	case "session_missing":
+	case CodeSessionMissing:
 		return "auth_session_missing"
-	case "session_revoked":
+	case CodeSessionRevoked:
 		return "auth_session_revoked"
-	case "reauth_required":
+	case CodeReauthRequired:
 		return "auth_reauth_required"
 	default:
 		return "auth_session_invalid"

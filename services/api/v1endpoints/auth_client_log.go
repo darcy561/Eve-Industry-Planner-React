@@ -39,6 +39,14 @@ func respondSessionRefreshClientError(w http.ResponseWriter, r *http.Request, cr
 	http.Error(w, publicMsg, statusCode)
 }
 
+// respondSessionRefreshTerminalAuthError answers a rotate/bootstrap failure the client cannot recover
+// from by retrying. The coded body is what makes the SPA clear its session and start a full EVE SSO
+// login; an uncoded 401 leaves it retrying the same dead credential on every request.
+func respondSessionRefreshTerminalAuthError(w http.ResponseWriter, r *http.Request, credLog auth.RefreshCredentialLogDetail, code, logMsg, failureClass string, extra map[string]any) {
+	attachSessionRefreshClientFailure(r, credLog, logMsg, failureClass, extra)
+	writeRefreshAuthError(w, http.StatusUnauthorized, code)
+}
+
 func respondLogoutClientError(w http.ResponseWriter, r *http.Request, credLog auth.RefreshCredentialLogDetail, statusCode int, publicMsg, logMsg, failureClass string, extra map[string]any) {
 	attachLogoutClientFailure(r, credLog, logMsg, failureClass, extra)
 	http.Error(w, publicMsg, statusCode)

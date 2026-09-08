@@ -55,4 +55,17 @@ describe("the planner a scoped request works in", () => {
     expect(options.headers["X-Session-ID"]).toBe("session-1");
     expect(options.headers["X-Request-Name"]).toBe("getGroups");
   });
+
+  // A signed-out user works on defaults and reads no planner document, so a
+  // scoped key names no owner and nothing it gates fires.
+  it("leaves a scoped query key without an owner when signed out", async () => {
+    const { plannerQueryScope } = await import(
+      "../src/Hooks/React Query/Backend/plannerQueryScope.js"
+    );
+    expect(plannerQueryScope("archive")[2]).toBe("account:acct-1");
+
+    storeState.account.accountID = "";
+    expect(plannerQueryScope("archive")[2]).toBe("");
+    storeState.account.accountID = "acct-1";
+  });
 });

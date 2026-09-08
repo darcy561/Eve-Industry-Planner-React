@@ -27,7 +27,9 @@ import { plannerScopedQueryRoots } from "../../../Hooks/React Query/Backend/plan
 export function PlannerSwitcher() {
   const { data: planners, isLoading, isError } = usePlannersQuery();
   const queryClient = useQueryClient();
-  const active = useUsersStore((state) => state.activePlanner.owner) ?? "";
+  const active =
+    useUsersStore((state) => state.activePlanner.actions.getActivePlannerOwner()) ??
+    "";
   // Switching is an action rather than a flag: React holds the pending state for
   // as long as the write is in flight, so the control stays disabled until the
   // planner it names is the one the connection has.

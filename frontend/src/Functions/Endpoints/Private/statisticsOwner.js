@@ -1,7 +1,5 @@
-import {
-  activePlannerOwnerHandle,
-  splitOwnerHandle,
-} from "../../Helper/ownerHandle.js";
+import { splitOwnerHandle } from "../../Helper/ownerHandle.js";
+import { activePlannerOwnerHandle } from "../../../Zustand/activePlanner/read.js";
 
 const STATISTICS_ROOT = "/api/v1/statistics";
 

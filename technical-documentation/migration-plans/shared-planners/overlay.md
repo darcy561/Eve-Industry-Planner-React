@@ -409,9 +409,10 @@ a call site remembered.
 
 **One slice holds which planner the app works in.** `activePlanner` carries an owner handle, falling
 back to the account's own so an account that has never switched works in its own planner, and
-answering null with nobody signed in. The websocket sets it when a switch is sent and clears it on
-disconnect; the realtime layer keeps no copy of its own, and a reconnect re-sends what the slice
-holds. Signing out drops it with the other slices.
+answering null with nobody signed in. The realtime layer keeps no copy of its own: the slice is set
+only once the socket has taken the `active_planner` message, so a switch the connection never received
+leaves scoped reads where they were rather than addressing a planner nothing is delivering. A
+reconnect re-sends what the slice holds, and signing out drops it with the other slices.
 
 **Every scoped request names its planner.** `applyPrivateHeaders` reads the slice and sends
 `X-Planner-Owner` on every private request, so all the scoped handlers are addressed at the active

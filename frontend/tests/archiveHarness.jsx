@@ -4,6 +4,8 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { activePlannerActions } from "../src/Zustand/activePlanner/actions.js";
+import { activePlannerStoreState } from "./utils.js";
 
 /**
  * Shared pieces for rendering an archive page against faked transport.
@@ -17,7 +19,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const theme = createTheme();
 
 /**
- * Store state an archive view expects to find.
+ * Store state an archive view expects to find: the planner its reads are scoped
+ * to, and the slices its panels reach for.
  *
  * The locale matters: number formatting reads it, and without it a panel throws
  * mid-render and falls back to something that still looks plausible.
@@ -25,8 +28,8 @@ const theme = createTheme();
  * @param {Object} [overrides]
  */
 export function archiveStoreState(overrides = {}) {
-  return {
-    account: { isLoggedIn: true, accountID: "acct-1" },
+  const state = {
+    ...activePlannerStoreState(),
     applicationSettings: {
       extrasCategories: [],
       actions: { getCurrentLocale: () => "en-GB" },
@@ -43,6 +46,16 @@ export function archiveStoreState(overrides = {}) {
     },
     ...overrides,
   };
+  // The actions resolve against the state they are read from, so they are rebuilt
+  // once the overrides are on it.
+  state.activePlanner = {
+    ...state.activePlanner,
+    actions: activePlannerActions(
+      () => {},
+      () => state
+    ),
+  };
+  return state;
 }
 
 /** The users store as a component tree sees it. */

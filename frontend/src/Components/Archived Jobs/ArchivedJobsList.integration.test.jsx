@@ -10,11 +10,13 @@ vi.mock("../../Functions/Endpoints/Private/archivedJobsList", async () => {
   const { emptyArchiveListMock } = await import("../../../tests/archiveHarness.jsx");
   return { ...emptyArchiveListMock(), getArchivedJobs: (...args) => getArchivedJobs(...args) };
 });
+const storeState = await (async () => {
+  const { archiveStoreState } = await import("../../../tests/archiveHarness.jsx");
+  return archiveStoreState();
+})();
 vi.mock("../../Zustand/usersStore", async () => {
-  const { usersStoreMock, archiveStoreState } = await import(
-    "../../../tests/archiveHarness.jsx"
-  );
-  return usersStoreMock(archiveStoreState());
+  const { usersStoreMock } = await import("../../../tests/archiveHarness.jsx");
+  return usersStoreMock(storeState);
 });
 
 const { ArchivedJobsList } = await import("./ArchivedJobsList.jsx");
@@ -136,5 +138,25 @@ describe("the archived jobs list, end to end", () => {
     renderWithProviders(<ArchivedJobsList enabled={false} />);
 
     expect(getArchivedJobs).not.toHaveBeenCalled();
+  });
+
+  // The rows a page holds are one planner's, and the hook caches them under a
+  // key carrying the owner, so a switch reads again instead of showing what was
+  // cached for the planner before it.
+  it("caches its page under the planner it read for", async () => {
+    const { archivedJobsQueryKey } = await import(
+      "../../Hooks/React Query/Backend/archivedJobsList.js"
+    );
+    renderWithProviders(<ArchivedJobsList enabled />);
+    expect(await screen.findByText("Rifter")).toBeInTheDocument();
+
+    const forOwn = archivedJobsQueryKey();
+    storeState.activePlanner.owner = "corporation:98000001";
+    const forCorporation = archivedJobsQueryKey();
+    storeState.activePlanner.owner = null;
+
+    expect(forOwn).not.toEqual(forCorporation);
+    expect(forOwn[2]).toBe("account:acct-1");
+    expect(forCorporation[2]).toBe("corporation:98000001");
   });
 });

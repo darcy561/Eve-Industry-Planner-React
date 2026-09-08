@@ -1,4 +1,4 @@
-import { activePlannerOwnerHandle } from "../../../Functions/Helper/ownerHandle.js";
+import { activePlannerOwnerHandle } from "../../../Zustand/activePlanner/read.js";
 
 /**
  * Key prefix every statistics view shares.

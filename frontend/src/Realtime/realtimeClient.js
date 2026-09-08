@@ -523,10 +523,13 @@ export function unsubscribeDocIDs(collection, docIds) {
  */
 export function sendActivePlanner(ownerHandle) {
   if (!ownerHandle) return false;
+  // Held only once the connection has it: a store naming a planner the socket
+  // never heard of would scope reads to one planner and receive another.
+  if (!writeActivePlanner(ownerHandle)) return false;
   useUsersStore
     .getState()
     .activePlanner.actions.setActivePlannerOwner(ownerHandle);
-  return writeActivePlanner(ownerHandle);
+  return true;
 }
 
 /**

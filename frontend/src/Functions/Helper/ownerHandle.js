@@ -4,20 +4,6 @@
  * Only the first colon separates the two: an account id may contain one.
  */
 
-import useUsersStore from "../../Zustand/usersStore";
-
-/**
- * The planner a scoped read or write is for.
- *
- * @returns {string|null} an owner handle, or null when nobody is signed in
- */
-export function activePlannerOwnerHandle() {
-  return (
-    useUsersStore.getState()?.activePlanner?.actions?.getActivePlannerOwner?.() ??
-    null
-  );
-}
-
 /**
  * @param {string} handle
  * @returns {{kind: string, id: string}}

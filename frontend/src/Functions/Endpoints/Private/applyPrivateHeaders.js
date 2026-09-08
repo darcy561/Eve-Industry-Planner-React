@@ -6,7 +6,7 @@ import withRequestRetries, {
   splitRetryConfig,
 } from "../withRequestRetries.js";
 import { getRealtimeClientID } from "../../../Realtime/wsClientIdentity.js";
-import { activePlannerOwnerHandle } from "../../Helper/ownerHandle.js";
+import { activePlannerOwnerHandle } from "../../../Zustand/activePlanner/read.js";
 import {
   getTabPlannerSessionID,
   tabPlannerSessionRequestHeaders,

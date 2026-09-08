@@ -15,7 +15,7 @@ Stack image / data fragment → [stack contents](../../stack/contents.md). Day-2
 | Client timeouts / pool | connect/serverSelection/timeout 10s; max pool 10; min 1; heartbeat 10s | same |
 | Retry writes / reads | enabled on client | same |
 | BSON | `DefaultDocumentM` + otelmongo monitor | same |
-| Operation retry | `Retry` — 3 attempts, 100ms → 2s backoff | `services/shared/mongo/retry.go` |
+| Operation retry | `Retry` — 3 attempts, 100ms → 2s backoff | `services/shared/mongo/retry.go`; loop in [retry.md](./retry.md) |
 
 Role-specific CSOT / pool splits are not configured; all roles share the connect helpers above.
 
@@ -164,14 +164,16 @@ design — a reader finding it in the database has not found an unclassified col
 
 ## Errors and retry
 
-`Retry` runs an operation with backoff and honours the context, so a cancelled request stops waiting
-rather than sleeping out its attempts.
+`Retry` runs an operation through the shared backoff loop and reports the Mongo failure itself when
+attempts run out. Attempts, delays and what a caller receives → [retry.md](./retry.md).
 
 | Outcome | Retried |
 |---------|---------|
 | Network failure, timeout, `ErrClientDisconnected` | yes — 3 attempts, 100ms → 2s |
 | No documents, nil document | no — an answer, not a failure |
 | Context cancelled | no |
+
+A missing document is logged as neither a retry nor a failure: it is the answer the caller asked for.
 
 `IsRetryableMongoError` prefers the driver's own `IsNetworkError` and `IsTimeout` helpers, with a
 narrow message fallback for server-selection failures that arrive as text. A "not found" is reported

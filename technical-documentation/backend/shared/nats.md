@@ -247,7 +247,10 @@ after it was due.
 
 ## Errors and retry
 
-- `Retry` is context-aware; backoff waits end on cancellation rather than sleeping through it.
+- `Retry` runs an operation through the shared backoff loop under a named `RetryPolicy` — `PublishRetry`
+  or `AckRetry` — and reports the NATS failure itself when attempts run out. Attempts, delays and what
+  a caller receives → [retry.md](./retry.md).
+- Acknowledgement backs off less than publishing, because it holds a consumer's redelivery timer open.
 - `IsRetryable` matches sentinels with `errors.Is` and network failures with `errors.AsType`, keeping
   a short message fallback for server responses that arrive as plain text. `shared/dependency` calls
   it rather than keeping its own list.

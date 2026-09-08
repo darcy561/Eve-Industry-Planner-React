@@ -92,7 +92,7 @@ A lease id is `<container id>:<uuid>`: the container attributes a held lease whe
 
 ## Errors and retry
 
-`Retry` runs an operation up to three times with backoff, and stops early when the context ends. Three predicates decide what an error means:
+`Retry` runs an operation through the shared backoff loop — three attempts, 100ms → 2s — and reports the Redis failure itself when they run out. Attempts, delays and what a caller receives → [retry.md](./retry.md). Three predicates decide what an error means here:
 
 - **`IsNotFound`** — the key does not exist. An answer, not a failure, and never retried.
 - **`IsRetryableError`** — a transient condition worth another attempt: a closed client, a network error, a dataset still loading, a pool timeout, a broken pipe.

@@ -4,7 +4,8 @@
 
 Shared Go libraries under `services/shared` that are not owned by a single service topic, including
 the messaging layer — streams, subjects, publish and consume, and schedules — the Redis handle and
-its keyspace, and the outbound HTTP client and ESI rate limiter.
+its keyspace, the backoff loop every retried operation runs through, and the outbound HTTP client and
+ESI rate limiter.
 
 ## Does not own
 
@@ -18,6 +19,11 @@ its keyspace, and the outbound HTTP client and ESI rate limiter.
 
 | I need to… | Read |
 |------------|------|
+| Retry an operation, or choose its attempts and delays | [retry.md](./retry.md) § The shape a caller supplies |
+| Know which error a caller gets when attempts run out | [retry.md](./retry.md) § What the caller receives |
+| Spread retries of a contended operation | [retry.md](./retry.md) § Backoff and jitter |
+| Wait for something to arrive rather than budget attempts | [retry.md](./retry.md) § Waiting instead of budgeting |
+| Retry at a flat delay rather than a growing one | [retry.md](./retry.md) § Fixed delays |
 | Use the Mongo handle / Docs / writers / Retry | [mongo.md](./mongo.md) |
 | Name a new Mongo collection | [mongo.md](./mongo.md) § Collection naming |
 | Work out whether a subject is stored or fire-and-forget | [nats.md](./nats.md) § Two kinds of messaging |

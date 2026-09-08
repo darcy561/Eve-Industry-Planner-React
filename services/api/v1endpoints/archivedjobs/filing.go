@@ -74,7 +74,12 @@ func (h *Handlers) FileArchivedJobMonthsHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	scope, err := accountArchiveScope(h.Mongo, accountID)
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "archived_jobs_filing")
+	if !ok {
+		return
+	}
+
+	scope, err := plannerArchiveScope(h.Mongo, owner)
 	if err != nil {
 		metrics.Error("scope")
 		helper.RespondEndpointError(w, r, http.StatusInternalServerError, "Server error", "file months: archive scope", "archived_jobs_filing_scope", "archived_jobs_filing", err, nil)

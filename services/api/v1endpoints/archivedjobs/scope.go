@@ -12,56 +12,55 @@ import (
 	mongodriver "go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-// archiveScope names which archive a request addresses: its collections, the
-// ownership rule for its documents, and how its statistics are rebuilt.
+// archiveScope names which archive a request addresses: its collections and the
+// planner whose documents they hold.
 type archiveScope struct {
-	OwnerID string
+	Owner models.Owner
 
 	jobs  *eipmongo.Docs
 	stats *eipmongo.Docs
 
-	ownerFilter     func(ownerID string) bson.M
-	statsDocumentID func(ownerID, jobID string) string
-	queueRebuild    func(ctx context.Context, m *eipmongo.Mongo, ownerID string, now time.Time) error
-
-	// relinksESI is true only for the account archive; ESI ownership is per account.
+	// relinksESI is true only for an account's own archive; ESI ownership is per
+	// account, so a shared planner's archive reclaims no ids.
 	relinksESI bool
 }
 
-// accountArchiveScope addresses an account's own archive.
-func accountArchiveScope(m *eipmongo.Mongo, accountID string) (archiveScope, error) {
+// plannerArchiveScope addresses one planner's archive.
+func plannerArchiveScope(m *eipmongo.Mongo, owner models.Owner) (archiveScope, error) {
 	if m == nil {
 		return archiveScope{}, fmt.Errorf("mongo handle is required")
 	}
-	if accountID == "" {
-		return archiveScope{}, fmt.Errorf("accountID is required")
+	if owner.IsZero() {
+		return archiveScope{}, fmt.Errorf("owner is required")
 	}
 	return archiveScope{
-		OwnerID:     accountID,
-		jobs:        m.ArchivedJobs,
-		stats:       m.StatisticsRows,
-		ownerFilter: accountOwnerFilter,
-		statsDocumentID: func(ownerID, jobID string) string {
-			return eipmongo.ArchivedJobStatsDocumentID(models.AccountOwner(ownerID), jobID)
-		},
-		queueRebuild: func(ctx context.Context, m *eipmongo.Mongo, ownerID string, now time.Time) error {
-			return m.QueueOwnerWork(ctx, models.AccountOwner(ownerID), eipmongo.StatsWorkDelta, now)
-		},
-		relinksESI: true,
+		Owner:      owner,
+		jobs:       m.ArchivedJobs,
+		stats:      m.StatisticsRows,
+		relinksESI: owner.Kind == models.OwnerAccount,
 	}, nil
 }
 
-// accountOwnerFilter scopes archived jobs to what one account owns.
-func accountOwnerFilter(accountID string) bson.M {
-	return bson.M{eipmongo.FieldMetaOwnerKind: models.OwnerAccount, eipmongo.FieldMetaOwnerID: accountID}
-}
-
 // filter returns a fresh ownership predicate for this archive.
+//
+// Fresh rather than shared: callers add their own terms to it, and a shared map
+// would carry one request's predicate into the next.
 func (s archiveScope) filter() bson.M {
-	if s.ownerFilter == nil {
+	if s.Owner.IsZero() {
 		return bson.M{}
 	}
-	return s.ownerFilter(s.OwnerID)
+	return bson.M{
+		eipmongo.FieldMetaOwnerKind: s.Owner.Kind,
+		eipmongo.FieldMetaOwnerID:   s.Owner.ID,
+	}
+}
+
+// queueRebuild asks for this archive's statistics to be recalculated.
+func (s archiveScope) queueRebuild(ctx context.Context, m *eipmongo.Mongo, now time.Time) error {
+	if m == nil || s.Owner.IsZero() {
+		return fmt.Errorf("queueRebuild: invalid arguments")
+	}
+	return m.QueueOwnerWork(ctx, s.Owner, eipmongo.StatsWorkDelta, now)
 }
 
 func (s archiveScope) jobsCollection() (*mongodriver.Collection, error) {
@@ -87,8 +86,8 @@ func (s archiveScope) statsCollection() (*mongodriver.Collection, error) {
 }
 
 func (s archiveScope) statsID(jobID string) string {
-	if s.statsDocumentID == nil {
+	if s.Owner.IsZero() {
 		return ""
 	}
-	return s.statsDocumentID(s.OwnerID, jobID)
+	return eipmongo.ArchivedJobStatsDocumentID(s.Owner, jobID)
 }

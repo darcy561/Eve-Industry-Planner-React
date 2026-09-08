@@ -66,7 +66,12 @@ func (h *Handlers) RestoreArchivedJobsHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	archive, err := accountArchiveScope(h.Mongo, accountID)
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "archived_jobs_restore")
+	if !ok {
+		return
+	}
+
+	archive, err := plannerArchiveScope(h.Mongo, owner)
 	if err != nil {
 		metrics.Error("scope_unavailable")
 		helper.RespondEndpointServerError(w, r, "Failed to restore", "archived jobs restore: archive scope unavailable", "archived_jobs_restore_scope_unavailable", "archived_jobs_restore", err, nil)
@@ -105,6 +110,7 @@ func (h *Handlers) RestoreArchivedJobsHandler(w http.ResponseWriter, r *http.Req
 
 	result, err := restoreJobs(ctx, h, restoreRequest{
 		Archive:    archive,
+		AccountID:  accountID,
 		SessionID:  sessionID,
 		WSClientID: helper.ExtractWSClientID(r),
 		Jobs:       jobs,

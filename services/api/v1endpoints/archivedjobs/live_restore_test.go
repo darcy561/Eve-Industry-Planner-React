@@ -91,7 +91,7 @@ func TestLive_restorePutsTheJobBackAndTakesItOutOfTheArchive(t *testing.T) {
 	archiveJob(t, ctx, h, seedJob("job-restore-1"), now)
 	contributedRow(t, ctx, mongo, "job-restore-1", now)
 
-	scope, err := accountArchiveScope(mongo, restoreScratchAccount)
+	scope, err := plannerArchiveScope(mongo, models.AccountOwner(restoreScratchAccount))
 	if err != nil {
 		t.Fatalf("archive scope: %v", err)
 	}
@@ -100,7 +100,7 @@ func TestLive_restorePutsTheJobBackAndTakesItOutOfTheArchive(t *testing.T) {
 		t.Fatalf("select: %v, jobs %d", err, len(jobs))
 	}
 
-	result, err := restoreJobs(ctx, h, restoreRequest{Archive: scope, Jobs: jobs, SessionID: "sess-1"})
+	result, err := restoreJobs(ctx, h, restoreRequest{Archive: scope, AccountID: restoreScratchAccount, Jobs: jobs, SessionID: "sess-1"})
 	if err != nil {
 		t.Fatalf("restoreJobs: %v", err)
 	}
@@ -176,7 +176,7 @@ func TestLive_restoreReturnsTheJobToItsGroup(t *testing.T) {
 		t.Fatalf("seed group: %v", err)
 	}
 
-	scope, err := accountArchiveScope(mongo, restoreScratchAccount)
+	scope, err := plannerArchiveScope(mongo, models.AccountOwner(restoreScratchAccount))
 	if err != nil {
 		t.Fatalf("archive scope: %v", err)
 	}
@@ -184,7 +184,7 @@ func TestLive_restoreReturnsTheJobToItsGroup(t *testing.T) {
 	if err != nil || len(jobs) != 1 {
 		t.Fatalf("select by group: %v, jobs %d", err, len(jobs))
 	}
-	if _, err := restoreJobs(ctx, h, restoreRequest{Archive: scope, Jobs: jobs, SessionID: "sess-2"}); err != nil {
+	if _, err := restoreJobs(ctx, h, restoreRequest{Archive: scope, AccountID: restoreScratchAccount, Jobs: jobs, SessionID: "sess-2"}); err != nil {
 		t.Fatalf("restoreJobs: %v", err)
 	}
 
@@ -222,7 +222,7 @@ func TestLive_restoreStripsAnEsiIdAnotherJobAlreadyHolds(t *testing.T) {
 	archived.Build.Costs.LinkedJobs = []models.LinkedESIJob{{JobID: contested}, {JobID: free}}
 	archiveJob(t, ctx, h, archived, now)
 
-	scope, err := accountArchiveScope(mongo, restoreScratchAccount)
+	scope, err := plannerArchiveScope(mongo, models.AccountOwner(restoreScratchAccount))
 	if err != nil {
 		t.Fatalf("archive scope: %v", err)
 	}
@@ -231,7 +231,7 @@ func TestLive_restoreStripsAnEsiIdAnotherJobAlreadyHolds(t *testing.T) {
 		t.Fatalf("select: %v, jobs %d", err, len(jobs))
 	}
 
-	result, err := restoreJobs(ctx, h, restoreRequest{Archive: scope, Jobs: jobs, SessionID: "sess-3"})
+	result, err := restoreJobs(ctx, h, restoreRequest{Archive: scope, AccountID: restoreScratchAccount, Jobs: jobs, SessionID: "sess-3"})
 	if err != nil {
 		t.Fatalf("restoreJobs: %v", err)
 	}

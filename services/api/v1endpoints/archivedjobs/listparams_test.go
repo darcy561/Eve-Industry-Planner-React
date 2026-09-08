@@ -8,14 +8,12 @@ import (
 	"testing"
 
 	"eve-industry-planner/api/helper"
+	"eve-industry-planner/shared/models"
 )
 
 // testScope needs no Mongo: parameter parsing never reaches a collection.
 func testScope(ownerID string) archiveScope {
-	return archiveScope{
-		OwnerID:     ownerID,
-		ownerFilter: accountOwnerFilter,
-	}
+	return archiveScope{Owner: models.AccountOwner(ownerID)}
 }
 
 func listRequest(t *testing.T, query string) *http.Request {
@@ -44,8 +42,8 @@ func TestBareListQueryFiltersNothing(t *testing.T) {
 	if query.TypeID != 0 || query.GroupID != "" || query.Search != "" {
 		t.Fatalf("expected no filters, got %+v", query)
 	}
-	if query.Scope.OwnerID != "account-1" {
-		t.Fatalf("archive scope owner lost: %q", query.Scope.OwnerID)
+	if query.Scope.Owner != models.AccountOwner("account-1") {
+		t.Fatalf("archive scope owner lost: %v", query.Scope.Owner)
 	}
 }
 

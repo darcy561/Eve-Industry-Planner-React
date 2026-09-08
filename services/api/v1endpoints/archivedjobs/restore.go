@@ -13,7 +13,11 @@ import (
 )
 
 type restoreRequest struct {
-	Archive    archiveScope
+	Archive archiveScope
+	// AccountID is who asked. It is not the archive's owner on a shared planner,
+	// and the ESI ids a restore reclaims are the account's rather than the
+	// planner's.
+	AccountID  string
 	SessionID  string
 	WSClientID string
 	Jobs       []models.Job
@@ -62,7 +66,7 @@ func restoreJobs(ctx context.Context, h *Handlers, req restoreRequest) (restoreR
 	var free esiLinkSet
 	var conflicts []esiConflict
 	if req.Archive.relinksESI {
-		free, conflicts, err = resolveESILinks(ctx, h.Mongo, req.Archive.OwnerID, links, jobIDs)
+		free, conflicts, err = resolveESILinks(ctx, h.Mongo, req.AccountID, links, jobIDs)
 		if err != nil {
 			return restoreResult{}, fmt.Errorf("resolve esi links: %w", err)
 		}
@@ -77,20 +81,19 @@ func restoreJobs(ctx context.Context, h *Handlers, req restoreRequest) (restoreR
 		req.Jobs[i].MetaData.ArchiveProcessed = false
 	}
 
-	owner := models.AccountOwner(req.Archive.OwnerID)
-	if _, failed, writeErr := h.Mongo.JobDocuments.BulkUpsertJobs(ctx, owner, req.Archive.OwnerID, req.Jobs, now, req.SessionID, req.WSClientID); writeErr != nil {
+	if _, failed, writeErr := h.Mongo.JobDocuments.BulkUpsertJobs(ctx, req.Archive.Owner, req.AccountID, req.Jobs, now, req.SessionID, req.WSClientID); writeErr != nil {
 		return restoreResult{}, fmt.Errorf("write job documents: %w", writeErr)
 	} else if failed > 0 {
 		return restoreResult{}, fmt.Errorf("write job documents: %d of %d rejected", failed, len(req.Jobs))
 	}
 
 	if req.Archive.relinksESI {
-		if linkErr := applyESILinks(ctx, h.Mongo, req.Archive.OwnerID, free, now, req.SessionID, req.WSClientID); linkErr != nil {
+		if linkErr := applyESILinks(ctx, h.Mongo, req.AccountID, free, now, req.SessionID, req.WSClientID); linkErr != nil {
 			return restoreResult{}, fmt.Errorf("relink esi ids: %w", linkErr)
 		}
 	}
 
-	groups, groupErr := restoreGroups(ctx, h.Mongo, req.Archive.OwnerID, req.Jobs, now, req.SessionID, req.WSClientID)
+	groups, groupErr := restoreGroups(ctx, h.Mongo, req.Archive.Owner, req.AccountID, req.Jobs, now, req.SessionID, req.WSClientID)
 	if groupErr != nil {
 		return restoreResult{}, fmt.Errorf("write group: %w", groupErr)
 	}
@@ -103,15 +106,12 @@ func restoreJobs(ctx context.Context, h *Handlers, req restoreRequest) (restoreR
 	// Revoking their rows records that they should not be, and leaves the stamp
 	// that says they still are — which is what the statistics pass looks for to
 	// take them back out.
-	if _, revokeErr := h.Mongo.RevokeStatsRowsForJobs(ctx, models.AccountOwner(req.Archive.OwnerID), jobIDs, now); revokeErr != nil {
+	if _, revokeErr := h.Mongo.RevokeStatsRowsForJobs(ctx, req.Archive.Owner, jobIDs, now); revokeErr != nil {
 		return restoreResult{}, fmt.Errorf("revoke statistics rows: %w", revokeErr)
 	}
 
 	// Queued last: the pass reads the archive and must see the deletion.
-	if req.Archive.queueRebuild == nil {
-		return restoreResult{}, fmt.Errorf("archive scope has no statistics queue")
-	}
-	if queueErr := req.Archive.queueRebuild(ctx, h.Mongo, req.Archive.OwnerID, now); queueErr != nil {
+	if queueErr := req.Archive.queueRebuild(ctx, h.Mongo, now); queueErr != nil {
 		return restoreResult{}, fmt.Errorf("queue statistics work: %w", queueErr)
 	}
 

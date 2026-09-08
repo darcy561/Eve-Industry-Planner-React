@@ -102,15 +102,18 @@ func (h *Handlers) GetArchivedJobsHandler(w http.ResponseWriter, r *http.Request
 	})
 	defer metrics.Finish()
 
-	accountID := helper.AuthenticatedAccountID(r)
-
 	if h.Mongo == nil {
 		metrics.Error("mongo_client_missing")
 		helper.RespondEndpointError(w, r, http.StatusServiceUnavailable, "Service unavailable", "archived jobs list: mongo client missing", "archived_jobs_mongo_unavailable", "archived_jobs_list", errors.New("mongo client missing"), nil)
 		return
 	}
 
-	scope, err := accountArchiveScope(h.Mongo, accountID)
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "archived_jobs_list")
+	if !ok {
+		return
+	}
+
+	scope, err := plannerArchiveScope(h.Mongo, owner)
 	if err != nil {
 		metrics.Error("scope_unavailable")
 		helper.RespondEndpointServerError(w, r, "Failed to retrieve archived jobs", "archived jobs list: archive scope unavailable", "archived_jobs_list_scope_unavailable", "archived_jobs_list", err, nil)

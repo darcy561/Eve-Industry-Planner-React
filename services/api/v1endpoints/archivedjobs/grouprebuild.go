@@ -31,20 +31,20 @@ func groupJobsByGroupID(jobs []models.Job) ([]string, map[string][]models.Job) {
 	return order, byGroup
 }
 
-// liveGroupMembers reads every job document on the account that names the group.
+// liveGroupMembers reads every job document in the planner that names the group.
 // The restored jobs are written before this runs, so one lookup returns them and
 // any member that was never archived.
-func liveGroupMembers(ctx context.Context, m *eipmongo.Mongo, accountID, groupID string) ([]models.Job, error) {
+func liveGroupMembers(ctx context.Context, m *eipmongo.Mongo, owner models.Owner, groupID string) ([]models.Job, error) {
 	if m == nil || m.JobDocuments == nil {
 		return nil, fmt.Errorf("mongo handle is required")
 	}
-	return m.JobDocuments.LoadJobsByFilter(ctx, models.AccountOwner(accountID), bson.M{"groupID": groupID})
+	return m.JobDocuments.LoadJobsByFilter(ctx, owner, bson.M{"groupID": groupID})
 }
 
 // restoreGroups returns each restored job to the group it was archived from:
 // merged into the live group, or rebuilt from every job that names it when the
 // group is gone.
-func restoreGroups(ctx context.Context, m *eipmongo.Mongo, accountID string, jobs []models.Job, now time.Time, sessionID, wsClientID string) ([]models.Group, error) {
+func restoreGroups(ctx context.Context, m *eipmongo.Mongo, owner models.Owner, accountID string, jobs []models.Job, now time.Time, sessionID, wsClientID string) ([]models.Group, error) {
 	order, byGroup := groupJobsByGroupID(jobs)
 	if len(order) == 0 {
 		return nil, nil
@@ -55,12 +55,12 @@ func restoreGroups(ctx context.Context, m *eipmongo.Mongo, accountID string, job
 
 	out := make([]models.Group, 0, len(order))
 	for _, groupID := range order {
-		existing, err := m.Groups.LoadGroupByID(ctx, models.AccountOwner(accountID), groupID)
+		existing, err := m.Groups.LoadGroupByID(ctx, owner, groupID)
 		switch {
 		case err == nil:
 			out = append(out, existing.AddJobs(byGroup[groupID]))
 		case errors.Is(err, mongodriver.ErrNoDocuments):
-			members, mErr := liveGroupMembers(ctx, m, accountID, groupID)
+			members, mErr := liveGroupMembers(ctx, m, owner, groupID)
 			if mErr != nil {
 				return nil, fmt.Errorf("load members of group %s: %w", groupID, mErr)
 			}
@@ -73,7 +73,7 @@ func restoreGroups(ctx context.Context, m *eipmongo.Mongo, accountID string, job
 		}
 	}
 
-	if _, err := m.Groups.BulkUpsertGroups(ctx, models.AccountOwner(accountID), accountID, out, now, sessionID, wsClientID); err != nil {
+	if _, err := m.Groups.BulkUpsertGroups(ctx, owner, accountID, out, now, sessionID, wsClientID); err != nil {
 		return nil, err
 	}
 	return out, nil

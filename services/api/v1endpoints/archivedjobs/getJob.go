@@ -29,8 +29,6 @@ func (h *Handlers) GetArchivedJobHandler(w http.ResponseWriter, r *http.Request,
 	})
 	defer metrics.Finish()
 
-	accountID := helper.AuthenticatedAccountID(r)
-
 	if jobID == "" {
 		metrics.Error("empty_job_id")
 		helper.RespondEndpointError(w, r, http.StatusBadRequest, "jobID is required", "archived job get: empty jobID", "archived_jobs_get_empty_job_id", "archived_jobs_get", nil, nil)
@@ -42,7 +40,12 @@ func (h *Handlers) GetArchivedJobHandler(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	scope, err := accountArchiveScope(h.Mongo, accountID)
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "archived_jobs_get")
+	if !ok {
+		return
+	}
+
+	scope, err := plannerArchiveScope(h.Mongo, owner)
 	if err != nil {
 		metrics.Error("scope_unavailable")
 		helper.RespondEndpointServerError(w, r, "Failed to retrieve archived job", "archived job get: archive scope unavailable", "archived_jobs_get_scope_unavailable", "archived_jobs_get", err, nil)

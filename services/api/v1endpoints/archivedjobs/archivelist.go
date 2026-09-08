@@ -160,7 +160,7 @@ type ArchivedJobPage struct {
 
 // listArchivedJobs reads a page of an archive, sorted and paged in Mongo.
 func listArchivedJobs(ctx context.Context, query ArchivedJobQuery, sortField string, ascending bool, limit, offset int) (ArchivedJobPage, error) {
-	if query.Scope.OwnerID == "" {
+	if query.Scope.Owner.IsZero() {
 		return ArchivedJobPage{}, fmt.Errorf("archive scope owner is required")
 	}
 	if sortField == "" {
@@ -311,7 +311,7 @@ func loadArchivedJobStatsByJobIDs(ctx context.Context, scope archiveScope, jobID
 // loadArchivedJobsByFilter reads whole archived documents, unprojected: restore
 // writes what comes back straight into the planner.
 func loadArchivedJobsByFilter(ctx context.Context, query ArchivedJobQuery) ([]models.Job, error) {
-	if query.Scope.OwnerID == "" {
+	if query.Scope.Owner.IsZero() {
 		return nil, fmt.Errorf("archive scope owner is required")
 	}
 	coll, err := query.Scope.jobsCollection()

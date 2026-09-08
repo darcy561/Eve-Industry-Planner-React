@@ -6,6 +6,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import applicationSettingsSlice from "./applicationSettingsSlice";
 import plannerSettingsSlice from "./plannerSettingsSlice";
+import activePlannerSlice from "./activePlannerSlice";
 import accountSlice from "./accountSlice";
 import worldDataSlice from "./worldDataSlIce";
 import jobsSlice from "./jobsSlice";
@@ -27,6 +28,7 @@ const createUsersStore = () =>
       (set, get) => ({
         ...applicationSettingsSlice(set, get),
         ...plannerSettingsSlice(set, get),
+        ...activePlannerSlice(set, get),
         ...accountSlice(set, get),
         ...worldDataSlice(set, get),
         ...jobsSlice(set, get),

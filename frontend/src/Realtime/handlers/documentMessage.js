@@ -164,14 +164,8 @@ function isPlannerHeld(collection) {
  * @returns {boolean}
  */
 function isFromActivePlanner(owner) {
-  const active = useUsersStore.getState().realtimeSync.activePlanner;
-  // No planner chosen means the account's own.
-  if (!active) return owner === accountOwnerHandle();
-  return owner === active;
-}
-
-/** The handle for the signed-in account's own planner. */
-function accountOwnerHandle() {
-  const accountID = useUsersStore.getState().account.accountID;
-  return accountID ? `account:${accountID}` : null;
+  return (
+    owner ===
+    useUsersStore.getState().activePlanner.actions.getActivePlannerOwner()
+  );
 }

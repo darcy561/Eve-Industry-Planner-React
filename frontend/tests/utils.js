@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { vi } from 'vitest';
+import { activePlannerActions } from '../src/Zustand/activePlanner/actions.js';
 
 /**
  * Test utilities for Zustand store testing
@@ -166,4 +167,25 @@ export function createTestData() {
       ...overrides,
     }),
   };
+}
+
+/**
+ * A store state for code that resolves the planner a request works in.
+ *
+ * Carries the real slice actions rather than stubs, so a test exercises the
+ * fallback to the account's own planner instead of a second copy of that rule.
+ *
+ * @param {{accountID?: string, owner?: string|null}} [overrides]
+ * @returns {object} a state object for a `usersStore` mock
+ */
+export function activePlannerStoreState({ accountID = "acct-1", owner = null } = {}) {
+  const state = {
+    account: { accountID, isLoggedIn: Boolean(accountID) },
+    activePlanner: { owner },
+  };
+  state.activePlanner.actions = activePlannerActions(
+    () => {},
+    () => state
+  );
+  return state;
 }

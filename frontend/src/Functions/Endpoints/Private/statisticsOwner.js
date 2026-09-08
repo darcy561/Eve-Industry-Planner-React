@@ -1,19 +1,23 @@
-import useUsersStore from "../../../Zustand/usersStore";
+import {
+  activePlannerOwnerHandle,
+  splitOwnerHandle,
+} from "../../Helper/ownerHandle.js";
 
 const STATISTICS_ROOT = "/api/v1/statistics";
 
 /**
  * Whose statistics a request is for, as the API names an owner: `kind:id`.
  *
- * Sent rather than left implicit because the path is what a second kind varies —
- * a corporation or a shared planner is a different owner, not a filter.
- *
- * @returns {string} an owner handle, or "" when nobody is signed in
+ * @returns {string} an owner handle, escaped for a path, or "" when nobody is
+ *   signed in
  */
 export function currentOwnerHandle() {
-  const accountID = useUsersStore.getState().account.accountID;
+  const handle = activePlannerOwnerHandle();
+  if (!handle) return "";
   // The colon separates the halves, so only the id is escaped.
-  return accountID ? `account:${encodeURIComponent(accountID)}` : "";
+  const { kind, id } = splitOwnerHandle(handle);
+  if (!kind || !id) return "";
+  return `${kind}:${encodeURIComponent(id)}`;
 }
 
 /**

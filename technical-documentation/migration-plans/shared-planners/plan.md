@@ -1729,9 +1729,9 @@ index, so `IndexSpec` needs no expiry field and the renderer needs no change —
 
 **Much of this stage has landed.** The models were built and tested first: `Planner`,
 `PlannerMembership`, `JoinMethod` with its branches, and `PlannerInvite` itself. Since then the settings
-document, the planners listing, planner creation, the active-planner message and a client switcher have
-all gone in — see [overlay.md](./overlay.md) § Stage E for how each behaves. What is missing is storage
-for invites, the join path, the revocation path, and the owner in the SPA's scoped query keys.
+document, the planners listing, planner creation, the active-planner message, a client switcher and the
+owner on every scoped request and query key have all gone in — see [overlay.md](./overlay.md) § Stage E
+for how each behaves. What is missing is storage for invites, the join path and the revocation path.
 
 **It also owns the collections § What a planner owns moves.** The archive and the statistics need only
 listing in `PlannerHeldCollections()`, since they already carry the owner block. Group templates need
@@ -1746,13 +1746,16 @@ handle, the server intersects it with the ceiling and replaces the planner subsc
 account subscription alone. Replace rather than merge, because switching planner has to stop the
 previous one — see § What a connection subscribes to.
 
-**The client switcher is wired around the SPA rather than through it.** The app still reads one
-planner, and a switch changes which planner the *websocket* delivers, not which one the store holds.
-A guard drops planner-held documents from any other planner so the two cannot merge. That guard is
-deliberately not the fix: keying the store by owner is, and it is the remaining client work here along
-with the owner in every scoped query key. Until it lands, the HTTP read path stays pinned to the
-account's own owner, so a refetch after a tab wake merges the account's jobs regardless of the active
-planner — harmless while the store holds one planner, wrong the moment it does not.
+**A switch moves the whole client, not the websocket alone.** One slice holds which planner the app
+works in; the header on every scoped request, the owner in every scoped query key and the planner the
+connection delivers all resolve from it, so a refetch after a tab wake reads the planner the user is
+looking at. The realtime layer holds no second copy, and the guard that drops another planner's
+documents asks the same slice.
+
+What has not moved is the store itself, which still holds one planner's documents. That is Stage G's
+half of the same work: a switch addresses the right planner but nothing fetches its baseline, so the
+documents already held are what is shown until a change arrives. See § Stage G — the baseline is
+account-shaped.
 
 Archiving names its destination planner in the UI, because a job archived into the wrong archive is
 tedious to unpick.
@@ -1826,9 +1829,10 @@ sequence is the alternative if the token turns out to be awkward to expose.
 **The baseline is account-shaped.** `syncAccountDocumentsFromServer` fetches two singletons, `accounts`
 and `account_settings`, both `account:{id}`. The planner half of the pair in § What a connection
 subscribes to has no baseline at all: planner jobs are refetched only when the session identity
-changes, and `planner_settings` is in neither path. Switching planner narrows delivery server-side and
-fetches nothing, which works today only because the store is not yet keyed by owner — the outstanding
-Stage E item. Switching and reconnecting are the same operation as far as the store is concerned, and
+changes, and `planner_settings` is in neither path. Switching planner now moves every scoped read and
+its cache key, so what a refetch asks for is right; what is missing is anything that asks. Until a
+baseline exists the store keeps the documents it already held, which is why keying it by owner belongs
+with this stage rather than with Stage E. Switching and reconnecting are the same operation as far as the store is concerned, and
 both need the active owner's document set to arrive from somewhere.
 
 **Resume asserts rather than checks.** `session_resume` moves the previous connection's explicit
@@ -1850,9 +1854,8 @@ gate must cover the whole cascade already touches. The transport's obligation is
 discard an apply because two stamps compared equal, and never claim a client is current when it is not.
 
 **Ordering.** This stage is not a prerequisite for a planner holding two people — Stage D is. It is a
-prerequisite for that planner being *trusted*, so it runs alongside the Stage E store keying rather
-than after it: owner-keyed query keys and an owner-scoped baseline are the same piece of work
-approached from two directions.
+prerequisite for that planner being *trusted*. The owner-keyed query keys landed at Stage E; the
+baseline they refetch through is this stage, and keying the store by owner comes with it.
 
 #### Ordering is a construction, not a token
 
@@ -2149,7 +2152,7 @@ do not touch.
 | B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the `active_planner` message replacing it landed at Stage E — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
 | D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered is [document-write-granularity](../document-write-granularity/plan.md) § Stage B. D3 is the extras picker; the settings document it waited on landed at Stage E, so it is unblocked. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D — what a second member breaks |
-| E — custom planners | **Partly landed.** In: the planner settings document (seeded by value from the creating account, planner-held and watched), one write path for every planner, the planners listing, corporation planner creation with its name looked up server-side and NPC corporations refused, the `active_planner` message with the ceiling intersection and its restore across a reconnect, the owner handle on every delivered document, and a client switcher wired around the SPA. Outstanding: invites as Redis records, the join path, the revocation path, keying the store and its query keys by owner. See § Stage E and [overlay.md](./overlay.md) § Stage E |
+| E — custom planners | **Partly landed.** In: the planner settings document (seeded by value from the creating account, planner-held and watched), one write path for every planner, the planners listing, corporation planner creation with its name looked up server-side and NPC corporations refused, the `active_planner` message with the ceiling intersection and its restore across a reconnect, the owner handle on every delivered document, and a client switcher that moves the header on every scoped request and the owner in every scoped query key alongside the connection. Outstanding: invites as Redis records, the join path, the revocation path. Keying the job and group stores by owner needs the owner-scoped baseline and runs with Stage G. See § Stage E and [overlay.md](./overlay.md) § Stage E |
 | F — ESI providers | **F1 landed.** Corporation and alliance membership rows are reconciled from the ids ESI reports, at login and on the cloud token sweep, completing a task that read as finished and wrote no rows. A row grants while it exists and nothing expires one: a revoked token is a positive answer the reconcile acts on, and a two-year dormant account is cleared by `InactiveAccountPlannerCleanup`. Owed: reshaping when the grant task fires and how it resolves, and access lists |
-| G — realtime state under more than one writer | **Not started.** The `lastModified` cursor, the account-shaped baseline and the asserting `session_resume` are all single-writer assumptions, and each becomes a defect on a shared planner. Absorbs what survived the retired websocket-realtime project. Runs alongside the Stage E store keying — see § Stage G |
+| G — realtime state under more than one writer | **Not started.** The `lastModified` cursor, the account-shaped baseline and the asserting `session_resume` are all single-writer assumptions, and each becomes a defect on a shared planner. Absorbs what survived the retired websocket-realtime project. Now also carries keying the job and group stores by owner, which waits on the owner-scoped baseline — see § Stage G |
 | H — the document lock stops being account-shaped | **Not started.** The lock key, the waitlist, the viewer set and the fan-out subject are all namespaced by the calling account, so two members of one planner take two keys for one job and neither contends. Becomes the owner key, which leaves a personal planner's keys unchanged. Blocks a planner holding two people as surely as Stage D does — see § Stage H |

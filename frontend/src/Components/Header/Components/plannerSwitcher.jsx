@@ -1,4 +1,5 @@
 import { useState, useTransition } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Box,
   CircularProgress,
@@ -13,24 +14,20 @@ import {
 } from "../../../Hooks/React Query/planners.js";
 import { ensurePlannerViaApi } from "../../../Functions/Endpoints/Private/planners.js";
 import { sendActivePlanner } from "../../../Realtime/realtimeClient.js";
+import useUsersStore from "../../../Zustand/usersStore";
+import { plannerScopedQueryRoots } from "../../../Hooks/React Query/Backend/plannerQueryScope.js";
 
 /**
- * Switches which planner this connection receives changes for.
+ * Switches which planner the app works in.
  *
- * **It changes nothing else.** The app reads and writes one planner — the
- * account's own — and this does not move it: selecting another planner names it
- * on the server and points the realtime connection at it, so the backend can be
- * exercised end to end while the rest of the SPA stays as it is. Job data still
- * comes from the account's own planner until the SPA is taught otherwise.
- *
- * Selecting a planner does two things in order. Naming it gives it a document if
- * it has none, which is what turns a corporation the account is merely in into
- * one somebody has opened. Then the websocket is told, which replaces the planner
- * it was delivering rather than adding to it.
+ * Selecting a planner names it before switching to it: naming gives it a document
+ * if it has none, which is what turns a corporation the account is merely in into
+ * one somebody has opened.
  */
 export function PlannerSwitcher() {
   const { data: planners, isLoading, isError } = usePlannersQuery();
-  const [active, setActive] = useState("");
+  const queryClient = useQueryClient();
+  const active = useUsersStore((state) => state.activePlanner.owner) ?? "";
   // Switching is an action rather than a flag: React holds the pending state for
   // as long as the write is in flight, so the control stays disabled until the
   // planner it names is the one the connection has.
@@ -47,13 +44,18 @@ export function PlannerSwitcher() {
   function selectPlanner(owner) {
     startSwitch(async () => {
       setFailure("");
+      const leaving = plannerScopedQueryRoots();
       try {
         await ensurePlannerViaApi(owner);
         if (!sendActivePlanner(owner)) {
           setFailure("Not connected");
           return;
         }
-        setActive(owner);
+        // Scoped keys carry the owner, so the entries under the planner being
+        // left are of no further use to this session.
+        for (const root of leaving) {
+          queryClient.removeQueries({ queryKey: root });
+        }
       } catch (err) {
         setFailure(err?.message ?? "Could not switch planner");
       }

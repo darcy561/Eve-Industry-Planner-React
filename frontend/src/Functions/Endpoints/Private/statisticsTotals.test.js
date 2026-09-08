@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { activePlannerStoreState } from "../../../../tests/utils.js";
+
+const plannerState = activePlannerStoreState();
 
 const requestWithPrivateHeaders = vi.fn();
 
@@ -7,7 +10,7 @@ vi.mock("./applyPrivateHeaders.js", () => ({
 }));
 // The path names the owner, so a request needs one.
 vi.mock("../../../Zustand/usersStore", () => ({
-  default: { getState: () => ({ account: { accountID: "acct-1" } }) },
+  default: { getState: () => plannerState },
 }));
 
 const { default: getAccountTotalsByTypeID } = await import("./statisticsTotals.js");

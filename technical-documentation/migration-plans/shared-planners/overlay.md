@@ -405,8 +405,25 @@ pass-through, which now covers only a message with no owner to name.
 **The SPA ignores what is not its planner.** The store holds one planner's jobs, so `documentMessage.js`
 drops a planner-held document whose owner is not the active planner — matched by collection against a
 mirror of `PlannerHeldCollections()`, so every planner-held collection is covered rather than the ones
-a call site remembered. This is a guard, not the fix: the fix is keying the store by owner, and until
-then the HTTP read path is pinned to the account's own owner and does not follow a switch.
+a call site remembered.
+
+**One slice holds which planner the app works in.** `activePlanner` carries an owner handle, falling
+back to the account's own so an account that has never switched works in its own planner, and
+answering null with nobody signed in. The websocket sets it when a switch is sent and clears it on
+disconnect; the realtime layer keeps no copy of its own, and a reconnect re-sends what the slice
+holds. Signing out drops it with the other slices.
+
+**Every scoped request names its planner.** `applyPrivateHeaders` reads the slice and sends
+`X-Planner-Owner` on every private request, so all the scoped handlers are addressed at the active
+planner without a call site having to remember. The header is omitted with nobody signed in, which is
+the absent-header case the server already resolves to the caller's own planner. The statistics path
+composes the same handle, so a switch moves the figures with the documents.
+
+**A scoped query key carries its owner.** `plannerQueryScope` puts the owner between the backend root
+and the view, so two planners' rows cannot share a cache entry; the statistics and archive keys are
+both built from it, and it owns the two roots so the key modules read them from one place. Invalidation
+stops above the owner, so a restore still clears every planner it moved figures for. Switching removes
+what was cached under the planner being left and leaves the other's entries alone.
 
 **A request names the planner it works in.** Every scoped read and write takes an `X-Planner-Owner`
 header carrying an owner handle; `helper.RequestPlannerOwner` parses it, refuses one the account holds
@@ -450,9 +467,14 @@ insert means a previous run got that far. Re-running with `--dry-run` reports th
 because the selector is the id's own shape. `prepareRelease` does not perform the rewrite; its last
 gate fails if any bare id is left.
 
+**The store still holds one planner's documents.** Keying the job and group stores by owner is Stage G
+work rather than this stage's: a switch now reads and writes the right planner, but nothing fetches
+that planner's baseline, so the documents already in the store are what it shows until a change
+arrives. Group template keys carry no owner because the collections carry no owner block yet.
+
 Owed here: creation limits, the invite token lifecycle as a Redis record, the join path, the
-revocation path end to end, the group template collections joining the id rewrite once they carry an
-owner block, and the owner in every scoped query key.
+revocation path end to end, and the group template collections joining the id rewrite once they carry
+an owner block.
 
 ## Stage F — ESI providers
 

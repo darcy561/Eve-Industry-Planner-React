@@ -1,9 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
+import { activePlannerStoreState } from "../../../../tests/utils.js";
 
-const account = { accountID: "acct-1" };
+const state = activePlannerStoreState();
 
 vi.mock("../../../Zustand/usersStore", () => ({
-  default: { getState: () => ({ account }) },
+  default: { getState: () => state },
 }));
 
 const { currentOwnerHandle, statisticsPath } = await import(
@@ -18,9 +19,9 @@ describe("the owner a statistics request names", () => {
   // The colon separates the halves of the handle, so escaping it would only make
   // the path harder to read in a log.
   it("escapes the id and leaves the separator alone", () => {
-    account.accountID = "acct/1 2";
+    state.account.accountID = "acct/1 2";
     expect(currentOwnerHandle()).toBe("account:acct%2F1%202");
-    account.accountID = "acct-1";
+    state.account.accountID = "acct-1";
   });
 
   it("puts the owner ahead of the view", () => {
@@ -29,13 +30,25 @@ describe("the owner a statistics request names", () => {
     );
   });
 
+  // Two planners' figures are different data, so a switch has to move the read.
+  it("is the named planner once one is active", () => {
+    state.activePlanner.owner = "corporation:98000001";
+
+    expect(currentOwnerHandle()).toBe("corporation:98000001");
+    expect(statisticsPath("totals")).toBe(
+      "/api/v1/statistics/corporation:98000001/totals",
+    );
+
+    state.activePlanner.owner = null;
+  });
+
   // Callers bail on null rather than asking about an owner that is not there.
   it("names no path when nobody is signed in", () => {
-    account.accountID = "";
+    state.account.accountID = "";
 
     expect(currentOwnerHandle()).toBe("");
     expect(statisticsPath("totals")).toBeNull();
 
-    account.accountID = "acct-1";
+    state.account.accountID = "acct-1";
   });
 });

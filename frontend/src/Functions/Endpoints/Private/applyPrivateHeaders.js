@@ -6,6 +6,7 @@ import withRequestRetries, {
   splitRetryConfig,
 } from "../withRequestRetries.js";
 import { getRealtimeClientID } from "../../../Realtime/wsClientIdentity.js";
+import { activePlannerOwnerHandle } from "../../Helper/ownerHandle.js";
 import {
   getTabPlannerSessionID,
   tabPlannerSessionRequestHeaders,
@@ -87,7 +88,8 @@ export const PRIVATE_AUTH_TOKEN_UNAVAILABLE =
  * when the planner session was validated recently — see cooldown in `tokenActions.refreshServerToken`),
  * then performs `fetch` with tab session headers.
  * Session identity is **`X-Session-ID`**; **`X-WS-Client-ID`** is sent when the
- * realtime layer has assigned a tab id (echo suppression / locks).
+ * realtime layer has assigned a tab id (echo suppression / locks); **`X-Planner-Owner`**
+ * names the planner the request works in.
  * **Retries** (408 / 429 / 5xx by default) use {@link apiRateLimitRetryConfig}; on 429 the client waits for
  * the API fixed-window `Retry-After` header (`ratelimiter.go`) before retrying. Disable with `config.retry: false`.
  *
@@ -153,7 +155,8 @@ export function getSessionIDFromStore() {
 
 /**
  * Merge optional request metadata into fetch options. Private routes send per-tab **`X-Session-ID`**
- * (from sessionStorage); adds **`X-WS-Client-ID`** when the realtime layer has assigned a tab id.
+ * (from sessionStorage); adds **`X-WS-Client-ID`** when the realtime layer has assigned a tab id,
+ * and **`X-Planner-Owner`** naming the planner the request works in.
  *
  * @param {Object} options - Fetch options
  * @param {Object} config - Configuration
@@ -161,6 +164,7 @@ export function getSessionIDFromStore() {
  * @returns {Object} Options with headers merged (always returns an object — does not short-circuit on missing session)
  */
 function applyPrivateHeaders(options = {}, config = {}) {
+  const activePlanner = activePlannerOwnerHandle();
   const headers = {
     ...options.headers,
     ...tabPlannerSessionRequestHeaders(),
@@ -168,6 +172,9 @@ function applyPrivateHeaders(options = {}, config = {}) {
     ...(getRealtimeClientID() && {
       "X-WS-Client-ID": getRealtimeClientID(),
     }),
+    // Every scoped read and write is for one planner, so the header goes on
+    // every private request rather than on the call sites that remembered it.
+    ...(activePlanner && { "X-Planner-Owner": activePlanner }),
   };
 
   return {

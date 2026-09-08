@@ -42,7 +42,7 @@ re-verify rather than as settled fact — when Stage G changes, this plan is upd
 |-----------|---------------------|---------------------------|
 | Per-owner delivery ordering | Stage G § Ordering is a construction, not a token | That ordering is solved before deltas land; a delta stream is worth less than nothing if applied out of order |
 | The position token on the wire | Stage G | That a client can say where it is, so a gap in a delta stream is detectable rather than silent |
-| The owner-scoped baseline | Stage G | That a client can fetch a document set and a position together, which is what a delta stream is applied *onto* |
+| The owner-scoped baseline | Stage G | That a client can fetch a document set and a position together, which is what a delta stream is applied *onto*. The request that fetches it already names its planner — Stage E sends the owner on every scoped read and carries it in the cache key — so what Stage G owes is the endpoint and the position, not the addressing |
 | `session_resume` answering from position | Stage G | That a reconnecting client is told what it missed, rather than asserting it missed nothing |
 | The lock namespaced on the owner key | Stage H | That a lock exists between two members at all. Stage D here relaxes the lock's *breadth*; relaxing a lock that does not yet hold between members would be relaxing nothing |
 

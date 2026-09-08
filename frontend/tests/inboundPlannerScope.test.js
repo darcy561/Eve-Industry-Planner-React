@@ -1,18 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const storeState = {
-  account: { accountID: "acct-1" },
-  realtimeSync: {
-    get activePlanner() {
-      return activePlanner;
-    },
-    actions: {
-      getCursorMs: () => 0,
-      setCursorMs: () => {},
-    },
+import { activePlannerStoreState } from "./utils.js";
+
+const storeState = activePlannerStoreState();
+storeState.realtimeSync = {
+  actions: {
+    getCursorMs: () => 0,
+    setCursorMs: () => {},
   },
 };
-let activePlanner = null;
 
 vi.mock("../src/Zustand/usersStore.js", () => ({
   default: { getState: () => storeState },
@@ -64,7 +60,7 @@ describe("job documents from a planner the app is not working in", () => {
   beforeEach(() => {
     enqueued.length = 0;
     groupUpserts.length = 0;
-    activePlanner = null;
+    storeState.activePlanner.owner = null;
   });
 
   it("takes the account's own when no planner has been chosen", async () => {
@@ -78,7 +74,7 @@ describe("job documents from a planner the app is not working in", () => {
   });
 
   it("takes the planner it switched to", async () => {
-    activePlanner = "corporation:98000001";
+    storeState.activePlanner.owner = "corporation:98000001";
     await applyDocumentMessage(jobMessage("corporation:98000001"));
     expect(enqueued).toHaveLength(1);
   });
@@ -86,7 +82,7 @@ describe("job documents from a planner the app is not working in", () => {
   // Switching stops the account's own job feed, which is the point of replacing
   // the subscription rather than widening it.
   it("ignores the account's own once it has switched away", async () => {
-    activePlanner = "corporation:98000001";
+    storeState.activePlanner.owner = "corporation:98000001";
     await applyDocumentMessage(jobMessage("account:acct-1"));
     expect(enqueued).toHaveLength(0);
   });

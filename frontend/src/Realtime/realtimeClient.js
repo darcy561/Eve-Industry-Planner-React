@@ -32,13 +32,6 @@ let connectKey = null;
 let lastConnectParams = null;
 let reconnectTimer = null;
 
-/**
- * The planner the client last asked for, so a reconnect can ask again.
- *
- * Null until something switches: a connection with no active planner receives
- * every planner the session may reach, which is what the app does today.
- */
-let activePlannerOwner = null;
 let pingTimer = null;
 let manualClose = false;
 /**
@@ -481,8 +474,7 @@ export function disconnectRealtime() {
   lastConnectParams = null;
   lastSuccessfulOpenSessionId = null;
   // A new sign-in must not inherit the last session's planner.
-  activePlannerOwner = null;
-  useUsersStore.getState().realtimeSync.actions.setActivePlanner(null);
+  useUsersStore.getState().activePlanner.actions.setActivePlannerOwner(null);
   /** New session should not inherit exponential backoff from prior failures. */
   reconnectAttempt = 0;
   parkedForMaintenance = false;
@@ -531,16 +523,22 @@ export function unsubscribeDocIDs(collection, docIds) {
  */
 export function sendActivePlanner(ownerHandle) {
   if (!ownerHandle) return false;
-  // Remembered so a reconnect can restore it.
-  activePlannerOwner = ownerHandle;
-  useUsersStore.getState().realtimeSync.actions.setActivePlanner(ownerHandle);
+  useUsersStore
+    .getState()
+    .activePlanner.actions.setActivePlannerOwner(ownerHandle);
   return writeActivePlanner(ownerHandle);
 }
 
-/** Re-sends the active planner after a reconnect, if one was chosen. */
+/**
+ * Re-sends the active planner after a reconnect.
+ *
+ * A new connection derives its scopes from the session and knows nothing of a
+ * planner chosen before the socket dropped, so the client names it again.
+ */
 export function restoreActivePlanner() {
-  if (!activePlannerOwner) return false;
-  return writeActivePlanner(activePlannerOwner);
+  const owner = useUsersStore.getState().activePlanner.owner;
+  if (!owner) return false;
+  return writeActivePlanner(owner);
 }
 
 function writeActivePlanner(ownerHandle) {

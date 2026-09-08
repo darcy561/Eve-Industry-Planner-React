@@ -15,6 +15,8 @@ function clearClientSessionState() {
   const { resetWorldDataStore } = useUsersStore.getState().worldData.actions;
   const { resetPlannerSettingsStore } =
     useUsersStore.getState().plannerSettings.actions;
+  const { resetActivePlannerStore } =
+    useUsersStore.getState().activePlanner.actions;
 
   // Drop module-level WS coalesce queues before zustand resets; pending job upserts can
   // still flush and repopulate job data after `resetJobDataStore` if not cleared.
@@ -25,6 +27,7 @@ function clearClientSessionState() {
   resetJobDataStore();
   resetApplicationSettingsStore();
   resetPlannerSettingsStore();
+  resetActivePlannerStore();
   resetWorldDataStore();
   clearPlannerAuthCookiesClientSide();
 }

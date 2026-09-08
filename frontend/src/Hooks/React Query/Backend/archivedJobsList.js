@@ -4,25 +4,28 @@ import {
   getArchivedJob,
 } from "../../../Functions/Endpoints/Private/archivedJobsList";
 import useUsersStore from "../../../Zustand/usersStore";
-import { STATISTICS_QUERY_KEY_ROOT } from "./statisticsKeys";
+import {
+  plannerQueryScope,
+  ARCHIVE_QUERY_KEY_ROOT,
+  STATISTICS_QUERY_KEY_ROOT,
+} from "./plannerQueryScope.js";
 
-/** Key prefix for reads over the archive itself, as opposed to its statistics. */
-export const ARCHIVE_QUERY_KEY_ROOT = "archive";
+export { ARCHIVE_QUERY_KEY_ROOT };
 
 export function archivedJobsQueryKey(options = {}) {
-  return ["backend", ARCHIVE_QUERY_KEY_ROOT, "list", options];
+  return [...plannerQueryScope(ARCHIVE_QUERY_KEY_ROOT), "list", options];
 }
 
 export function archivedJobQueryKey(jobID) {
-  return ["backend", ARCHIVE_QUERY_KEY_ROOT, "job", jobID ?? null];
+  return [...plannerQueryScope(ARCHIVE_QUERY_KEY_ROOT), "job", jobID ?? null];
 }
 
 /**
  * Invalidate everything a restore changes.
  *
  * A restore removes documents from the archive and queues a statistics rebuild,
- * so both trees go stale together. Invalidating one would leave a restored job
- * still listed, or figures that still count it.
+ * so both trees go stale together. Both keys stop above the owner, so every
+ * planner's entries are cleared rather than the active one's alone.
  *
  * @param {import("@tanstack/react-query").QueryClient} queryClient
  */
@@ -36,7 +39,7 @@ export function invalidateArchiveQueries(queryClient) {
 }
 
 /**
- * A page of the account's archived jobs.
+ * A page of the planner's archived jobs.
  *
  * Gated by `enabled` rather than fetching on mount: the page this feeds opens on
  * its statistics, and a list page costs a count, a find, and a second read for

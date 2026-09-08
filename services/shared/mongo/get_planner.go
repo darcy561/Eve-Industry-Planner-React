@@ -108,3 +108,17 @@ func (m *Mongo) LoadPlannerSettings(ctx context.Context, owner models.Owner) (pl
 	documentschema.Upgrader{}.PlannerSettings(&doc)
 	return doc, true, nil
 }
+
+// LoadPlanner reads one planner. A planner with no document reports
+// [mongo.ErrNoDocuments], which a caller distinguishes from a read failure.
+func (m *Mongo) LoadPlanner(ctx context.Context, owner models.Owner) (planner.Planner, error) {
+	if m == nil || owner.IsZero() {
+		return planner.Planner{}, fmt.Errorf("LoadPlanner: invalid arguments")
+	}
+	var doc planner.Planner
+	if err := m.Planners.Collection().
+		FindOne(ctx, bson.M{"_id": owner.Key()}).Decode(&doc); err != nil {
+		return planner.Planner{}, err
+	}
+	return doc, nil
+}

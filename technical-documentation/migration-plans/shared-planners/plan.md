@@ -1164,21 +1164,23 @@ models are active. The row answers access and nothing else.
 ### Invites
 
 ```go
-type PlannerInvite struct {
-	ID             string     `bson:"_id" json:"id"`
-	SchemaVersion  int        `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
-	PlannerID      string     `bson:"plannerID" json:"-"`
-	TokenHash      []byte     `bson:"tokenHash" json:"-"`
-	BoundAccountID string     `bson:"boundAccountID,omitempty" json:"-"`
-	MaxUses        int        `bson:"maxUses" json:"maxUses"`
-	Uses           int        `bson:"uses" json:"uses"`
-	ExpiresAt      time.Time  `bson:"expiresAt" json:"expiresAt"`
-	RevokedAt      *time.Time `bson:"revokedAt,omitempty" json:"revokedAt,omitempty"`
-	CreatedBy      string     `bson:"createdBy" json:"-"`
+type Invite struct {
+	ID             string     `json:"id"`
+	PlannerID      string     `json:"plannerID"`
+	TokenHash      []byte     `json:"tokenHash"`
+	BoundAccountID string     `json:"boundAccountID,omitempty"`
+	MaxUses        int        `json:"maxUses"`
+	Uses           int        `json:"uses"`
+	ExpiresAt      time.Time  `json:"expiresAt"`
+	RevokedAt      *time.Time `json:"revokedAt,omitempty"`
+	CreatedBy      string     `json:"createdBy"`
+	CreatedAt      time.Time  `json:"createdAt"`
 }
 ```
 
-The `json:"-"` tags are load-bearing: the hash, the binding and the creator never leave the server. An
+Every field serialises, because the record is itself stored as JSON — tagging one away would drop it
+from storage rather than from a response. What a client sees is a separate `InviteSummary`, carrying
+no hash, no creator and no planner, and saying only that an invite is bound rather than to whom. An
 invite grants membership and nothing more, so it carries no role either.
 
 Invites are **not** retained indefinitely, and what enforces that is Redis rather than Mongo.
@@ -1188,14 +1190,14 @@ with a lifetime that exists to be redeemed and then vanish, which is the shape R
 the key's TTL is the expiry, revoking is a `DEL`, and nothing sweeps or indexes. Redemption is a Lua
 script for the same reason the document lease is one — reading the invite, checking its bounds and
 incrementing `Uses` has to be one atomic step, which a Mongo find-then-update is not without a
-transaction. The stack already stores `SessionGrants` this way, through `rediscore.GetJSON` against a
-prefixed key, so this is the existing pattern rather than a new one.
+transaction.
 
-That makes the model's `bson` tags wrong for it: `PlannerInvite` is a Redis record and wants `json`
-tags, as `SessionGrants` has. `PlannerInviteSchemaCurrent` goes with them — a record that expires
-within days never meets a migration, and § Schema versioning's rule is about documents that persist.
-`ExpiresAt` and `RevokedAt` stay as fields, because a redemption still has to answer *why* an invite
-was refused; they simply stop being the thing that deletes it.
+The record therefore carries `json` tags and no schema version: one that expires within days never
+meets a migration, and § Schema versioning's rule is about documents that persist. `ExpiresAt` and
+`RevokedAt` stay as fields, because a redemption still has to answer *why* an invite was refused; they
+simply stop being the thing that deletes it. The namespace is `eip:planner:invite:v1:`, and the helper
+that owns it sits beside the API rather than in the shared Redis package, which holds only the
+namespaces that are its own.
 
 **The durability this gives up is bounded and acceptable.** Redis persists here — `redis_data` is an
 external volume and `redis:8` snapshots to it by default — so a redeploy does not invalidate
@@ -1206,10 +1208,9 @@ membership rows.
 
 **This is why there is no TTL index work.** An earlier reading of this section had the Deployment Tool
 gaining an `expireAfterSeconds` field on `IndexSpec`, a renderer that emits it and a decision about
-reconciling a changed expiry — described here as machinery worth starting early. None of it is needed
-once invites live in Redis. Recorded because the reconcile question turned out to be already answered
-either way: `renderCreateIndexJS` catches Mongo error 85 and drops-and-recreates, which is exactly what
-a changed expiry on unchanged keys raises.
+reconciling a changed expiry. None of it is needed once invites live in Redis. Recorded because the
+reconcile question turned out to be already answered either way: `renderCreateIndexJS` catches Mongo
+error 85 and drops-and-recreates, which is exactly what a changed expiry on unchanged keys raises.
 
 ### Schema versioning
 
@@ -1727,11 +1728,16 @@ is a planner holding two members that makes the account-scoped read wrong, and t
 **No Deployment Tool work is owed here.** Invites expire as Redis keys rather than as rows under a TTL
 index, so `IndexSpec` needs no expiry field and the renderer needs no change — see § Invites.
 
-**Much of this stage has landed.** The models were built and tested first: `Planner`,
-`PlannerMembership`, `JoinMethod` with its branches, and `PlannerInvite` itself. Since then the settings
-document, the planners listing, planner creation, the active-planner message, a client switcher and the
-owner on every scoped request and query key have all gone in — see [overlay.md](./overlay.md) § Stage E
-for how each behaves. What is missing is storage for invites, the join path and the revocation path.
+**Most of this stage has landed.** The models were built and tested first: `Planner`,
+`PlannerMembership`, `JoinMethod` with its branches, and the invite. Since then the settings document,
+the planners listing, planner creation, the active-planner message, a client switcher, the owner on
+every scoped request and query key, and the invite lifecycle with its join path have all gone in — see
+[overlay.md](./overlay.md) § Stage E for how each behaves.
+
+What is missing is the revocation path, which is not independent: removing a member mutates the
+account's session record to drop the owner key from its grants ceiling, and that record is being
+rebuilt by other work. The same dependency means a newly joined account does not reach its planner
+until its grants are next derived.
 
 **It also owns the collections § What a planner owns moves.** The archive and the statistics need only
 listing in `PlannerHeldCollections()`, since they already carry the owner block. Group templates need
@@ -2152,7 +2158,7 @@ do not touch.
 | B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the `active_planner` message replacing it landed at Stage E — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
 | D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered is [document-write-granularity](../document-write-granularity/plan.md) § Stage B. D3 is the extras picker; the settings document it waited on landed at Stage E, so it is unblocked. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D — what a second member breaks |
-| E — custom planners | **Partly landed.** In: the planner settings document (seeded by value from the creating account, planner-held and watched), one write path for every planner, the planners listing, corporation planner creation with its name looked up server-side and NPC corporations refused, the `active_planner` message with the ceiling intersection and its restore across a reconnect, the owner handle on every delivered document, and a client switcher that moves the header on every scoped request and the owner in every scoped query key alongside the connection. Outstanding: invites as Redis records, the join path, the revocation path. Keying the job and group stores by owner needs the owner-scoped baseline and runs with Stage G. See § Stage E and [overlay.md](./overlay.md) § Stage E |
+| E — custom planners | **Partly landed.** In: the planner settings document (seeded by value from the creating account, planner-held and watched), one write path for every planner, the planners listing, corporation planner creation with its name looked up server-side and NPC corporations refused, the `active_planner` message with the ceiling intersection and its restore across a reconnect, the owner handle on every delivered document, a client switcher that moves the header on every scoped request and the owner in every scoped query key alongside the connection, and invites as Redis records with the join path that redeems them. Outstanding: the revocation path, which waits on the session-record work that owns the grants ceiling. Keying the job and group stores by owner needs the owner-scoped baseline and runs with Stage G. See § Stage E and [overlay.md](./overlay.md) § Stage E |
 | F — ESI providers | **F1 landed.** Corporation and alliance membership rows are reconciled from the ids ESI reports, at login and on the cloud token sweep, completing a task that read as finished and wrote no rows. A row grants while it exists and nothing expires one: a revoked token is a positive answer the reconcile acts on, and a two-year dormant account is cleared by `InactiveAccountPlannerCleanup`. Owed: reshaping when the grant task fires and how it resolves, and access lists |
 | G — realtime state under more than one writer | **Not started.** The `lastModified` cursor, the account-shaped baseline and the asserting `session_resume` are all single-writer assumptions, and each becomes a defect on a shared planner. Absorbs what survived the retired websocket-realtime project. Now also carries keying the job and group stores by owner, which waits on the owner-scoped baseline — see § Stage G |
 | H — the document lock stops being account-shaped | **Not started.** The lock key, the waitlist, the viewer set and the fan-out subject are all namespaced by the calling account, so two members of one planner take two keys for one job and neither contends. Becomes the owner key, which leaves a personal planner's keys unchanged. Blocks a planner holding two people as surely as Stage D does — see § Stage H |

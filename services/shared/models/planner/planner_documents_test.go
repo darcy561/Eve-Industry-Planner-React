@@ -80,6 +80,8 @@ func TestPlannerDocumentsKeepServerOnlyFieldsOffTheWire(t *testing.T) {
 		}
 	}
 
+	// The invite record is itself stored as JSON, so what a client sees is a
+	// separate view rather than the same struct with fields tagged away.
 	invite, err := json.Marshal(planner.Invite{
 		ID:             "inv-1",
 		PlannerID:      models.AccountOwner("acct-1").Key(),
@@ -87,13 +89,13 @@ func TestPlannerDocumentsKeepServerOnlyFieldsOffTheWire(t *testing.T) {
 		BoundAccountID: "acct-2",
 		CreatedBy:      "acct-1",
 		ExpiresAt:      time.Unix(0, 0).UTC(),
-	})
+	}.Summary())
 	if err != nil {
 		t.Fatalf("marshal invite: %v", err)
 	}
 	for _, leaked := range []string{"secret", "acct-1", "acct-2", "tokenHash"} {
 		if strings.Contains(string(invite), leaked) {
-			t.Fatalf("invite JSON leaks %q: %s", leaked, invite)
+			t.Fatalf("invite summary leaks %q: %s", leaked, invite)
 		}
 	}
 

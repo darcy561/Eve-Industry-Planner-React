@@ -64,3 +64,24 @@ func TestParseOwnerKeyRefusesAKeyWithNoKind(t *testing.T) {
 		t.Fatal("a bare id parsed as an owner key")
 	}
 }
+
+// Only a custom planner takes members by invite. An account planner has the one
+// member it was created for, and a corporation or alliance roster follows the
+// entity — an invite row beside those would outlive the membership ESI reports.
+func TestOnlyACustomPlannerAdmitsByInvite(t *testing.T) {
+	t.Parallel()
+
+	if !(Owner{Kind: OwnerPlanner, ID: "p-1"}).AdmitsByInvite() {
+		t.Error("a custom planner does not admit by invite")
+	}
+	for _, owner := range []Owner{
+		AccountOwner("acct-1"),
+		{Kind: OwnerCorporation, ID: "corp_ref"},
+		{Kind: OwnerAlliance, ID: "alliance_ref"},
+		{},
+	} {
+		if owner.AdmitsByInvite() {
+			t.Errorf("%s admits by invite", owner.Kind)
+		}
+	}
+}

@@ -473,9 +473,61 @@ work rather than this stage's: a switch now reads and writes the right planner, 
 that planner's baseline, so the documents already in the store are what it shows until a change
 arrives. Group template keys carry no owner because the collections carry no owner block yet.
 
-Owed here: creation limits, the invite token lifecycle as a Redis record, the join path, the
-revocation path end to end, and the group template collections joining the id rewrite once they carry
-an owner block.
+**An invite is a Redis record, not a document.** `plannerinvites` owns the namespace
+`eip:planner:invite:v1:` — one key per invite whose TTL is its expiry, and a per-planner sorted set
+scored by expiry so counting one planner's invites costs no walk of the rest. Revoking is a delete.
+The helper lives beside the API rather than in `shared/redis`, which owns only the namespaces that are
+its own.
+
+**A token is shown once and never stored.** 256 bits of randomness, kept as its SHA-256 hash and
+compared in constant time. `Invite` serialises whole because the record is JSON; what a client sees is
+`InviteSummary`, which carries no hash, no creator and no planner, and says only that an invite is
+bound rather than to whom.
+
+**Redemption spends a use atomically.** One Lua script reads the invite, checks it may be spent and
+increments the count, because two accounts presenting a one-use invite together would otherwise both
+read zero and both be admitted. The token is proven before the script runs, so a wrong one consumes
+nothing — otherwise anyone holding the id could exhaust an invite they cannot redeem.
+
+**Every guessable refusal answers alike.** An invite that does not exist, one that was revoked, one
+bound to somebody else and a wrong token all answer 404. Expired and spent answer 410, which only the
+right token reaches. A caller holding an id learns nothing by trying.
+
+**Issuing under an id something already holds is refused**, so a caller reusing an id cannot silently
+retire a credential somebody is holding. A spent invite keeps listing until it expires, because the
+creator asking what is outstanding wants to see that one was used.
+
+**A planner that is not there is an answer, not a fault.** An invite outlives the planner it was
+issued for, so redeeming one that names nothing reports 410 rather than a server error — the use is
+already spent by then, and a 500 would lose it to what looks like a bug. A planner an account can
+reach but nobody has opened has a membership row and no document; asking for its invites is a 404 for
+the same reason.
+
+**Joining is the one planner route with no owner handle.** `POST /api/v1/planners/join` takes the
+invite and its token: the caller holds no membership row yet, so the guard every other route runs
+would refuse them, and the invite names the planner instead. The membership row records who invited
+and when rather than pointing at the credential, which is free to vanish. `MemberCount` is recounted
+from the rows on each join, so it corrects a drift instead of compounding one.
+
+**Only a custom planner takes invites.** The kind decides the provider, one-to-one, so an account
+planner — which holds the one member it was created for — and a corporation or alliance planner —
+whose roster follows the entity — are refused before anything is read. `Owner.AdmitsByInvite` is where
+that rule lives, and the join write checks it as well as the handler: a row written for a corporation
+would survive the reconcile that no longer sees the account in it, granting access the game has taken
+away. Issuing answers 409; a redemption naming such a planner answers 404 like any other refusal.
+Since nothing creates a `planner`-kind owner yet, every invite is refused until custom planner
+creation lands.
+
+**Only the account that created a planner may invite into it.** `Planner.CreatedBy` is the whole of
+the permission model here, and a member who did not create it is refused as 404 — the route is not
+theirs, rather than existing for somebody else. Caps: 25 outstanding invites per planner, 100 members
+per planner, 30 days maximum lifetime.
+
+Owed here: the revocation path — removing a member has to drop the owner key from the session
+record's grants ceiling and push a scope revocation, which is the session surface being rebuilt
+elsewhere. A newly joined account likewise does not reach its planner until its grants are next
+derived. Also owed: the group template collections joining the id rewrite once they carry an owner
+block.
 
 ## Stage F — ESI providers
 

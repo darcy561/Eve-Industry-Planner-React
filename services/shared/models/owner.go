@@ -46,6 +46,14 @@ func AccountOwner(accountID string) Owner {
 	return Owner{Kind: OwnerAccount, ID: strings.TrimSpace(accountID)}
 }
 
+// PlannerOwner addresses what a custom planner owns, given its id.
+//
+// The id is minted when the planner is created and belongs to no EVE entity,
+// which is what makes this the one kind whose roster is decided by invites.
+func PlannerOwner(plannerID string) Owner {
+	return Owner{Kind: OwnerPlanner, ID: strings.TrimSpace(plannerID)}
+}
+
 // CorporationOwner addresses what a corporation owns, given its ref.
 //
 // A raw EVE id yields a zero owner, so a caller that has not converted fails
@@ -114,6 +122,15 @@ func (o Owner) Validate() error {
 	}
 	return nil
 }
+
+// AdmitsByInvite reports whether a planner of this kind takes members through an
+// invite.
+//
+// Only a custom planner does. An account planner has one member it did not join
+// so much as have, and a corporation or alliance planner's roster follows the
+// entity itself — an invite-provider row beside those would survive a reconcile
+// that no longer sees the account, granting access the game has taken away.
+func (o Owner) AdmitsByInvite() bool { return o.Kind == OwnerPlanner }
 
 // orgEntityKind maps an org owner kind to the entity ref kind its id must be.
 func orgEntityKind(kind OwnerKind) (string, bool) {

@@ -34,11 +34,8 @@ func (p Planner) Owner() (models.Owner, error) { return models.ParseOwnerKey(p.I
 
 // Shared reports whether more than one account is in the planner.
 //
-// Reads MemberCount, which is written once at creation and not yet maintained:
-// nothing updates it when a membership row is added or removed. Until something
-// does — or until it is derived from the rows, which cannot disagree with them —
-// this answers for a planner that has never gained a member. Do not put it on a
-// wire or in front of a user.
+// MemberCount is recounted from the membership rows when one joins, so it lags
+// a removal until the next join rather than disagreeing with the rows forever.
 func (p Planner) Shared() bool { return p.MemberCount > 1 }
 
 // MembershipID is the composite `_id` of a membership row, which gives one
@@ -176,27 +173,6 @@ type EntityMember struct {
 type AccessListEntry struct {
 	ListID    string `bson:"listID" json:"-"`
 	EntityRef string `bson:"entityRef,omitempty" json:"-"`
-}
-
-// Invite is one outstanding invitation into a planner.
-//
-// The hash, the binding and the creator never leave the server. An invite grants
-// membership and nothing more, so it carries no role.
-//
-// Invites are not kept: a TTL index on ExpiresAt clears expired ones, and one
-// that is spent or revoked is deleted — what the membership needed from it was
-// copied at join time.
-type Invite struct {
-	ID             string     `bson:"_id" json:"id"`
-	SchemaVersion  int        `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
-	PlannerID      string     `bson:"plannerID" json:"-"`
-	TokenHash      []byte     `bson:"tokenHash" json:"-"`
-	BoundAccountID string     `bson:"boundAccountID,omitempty" json:"-"`
-	MaxUses        int        `bson:"maxUses" json:"maxUses"`
-	Uses           int        `bson:"uses" json:"uses"`
-	ExpiresAt      time.Time  `bson:"expiresAt" json:"expiresAt"`
-	RevokedAt      *time.Time `bson:"revokedAt,omitempty" json:"revokedAt,omitempty"`
-	CreatedBy      string     `bson:"createdBy" json:"-"`
 }
 
 // Schema versions for the planner documents. They live beside the types they
